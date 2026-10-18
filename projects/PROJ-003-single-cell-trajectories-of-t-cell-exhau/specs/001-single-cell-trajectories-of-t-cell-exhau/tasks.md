@@ -1,73 +1,158 @@
-# Tasks: Single-Cell Trajectories of T-Cell Exhaustion
+# Tasks: Single-Cell Trajectories of T‑Cell Exhaustion
 
-**Inputs**: The active `spec.md`, `plan.md`, `data-model.md`, and `contracts/` for the feature branch `001-single-cell-trajectories-t-cell-exhaustion`.
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, and the contract schemas under `specs/001-single-cell-trajectories-of-t-cell-exhau/contracts/`.  
+The goal is to deliver a fully reproducible, CPU‑only pipeline that satisfies every functional requirement (FR‑001 – FR‑012) and scientific criteria (SC‑001 – SC‑007).
 
-## Phase 1: Setup and first end-to-end analysis
+---
 
-**Goal**: Establish the project environment and execute a thin, end-to-end analysis on a single real dataset to validate the pipeline from raw SRA data to velocity graphs.
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T001 Establish the project layout in `projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/`, including `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/`. Configure linting/formatting via `pyproject.toml` (ruff/black) and document the runnable environment in `quickstart.md`.
-    - Verification: File tree exists; `ruff check .` and `black --check .` pass.
-- [ ] T002 Implement `code/download_data.py` to fetch raw count matrices for GSE136103, GSE127465, GSE111075, and GSE138852 using SRA Toolkit (`prefetch` and `fastq-dump`). <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
-    - Requirements: No synthetic fallbacks; must fail loudly if SRA fetch fails. Record SHA256 checksums of all downloaded files in the project state YAML (Constitution Principle III).
-    - Verification: `tests/unit/test_download.py` asserts that the state YAML contains valid checksums and that the datasets contain necessary variables (PD-1 expression, metabolic markers, exhaustion signatures, and therapy response labels) per SC-005.
-    - Output: Raw files in `data/raw/` conforming to `contracts/dataset.schema.yaml`.
-- [ ] T003 Implement the preprocessing pipeline consisting of `code/preprocess.R` (Seurat v4 QC: >20% mitochondrial read filter and normalization) and a Python wrapper `code/preprocess.py` that executes the R script via `subprocess`.
-    - Output: Normalized `.h5ad` files in `data/processed/`.
-    - Verification: `tests/unit/test_preprocess.py` asserts that cells with >20% mitochondrial reads are removed.
-- [ ] T004 Implement `code/velocity.py` to execute the scVelo dynamical model on CPU with default precision for a single dataset (GSE136103). <!-- FAILED-IN-EXECUTION: code/velocity.py exit=1 -->
-    - Requirements: Complete within 45 minutes on CPU; no CUDA usage.
-    - Output: `data/results/velocity_graph.h5ad` containing velocity vectors and pseudotime values.
-    - Verification: Integration test in `tests/integration/test_trajectory_reconstruction.py` confirms the `.h5ad` file contains `velocity`, `pseudotime`, `spliced`, and `unspliced` layers.
+| Goal | Run a thin, reproducible pipeline on a single GEO dataset and verify the project scaffolding. |
+|------|-----------------------------------------------------------------------------------------------|
 
-**Checkpoint**: The pipeline executes end-to-end on one real dataset, producing a valid velocity graph under `data/results/`.
+- [ ] **T001** Create the required project layout, **add a `data/results/` directory with a placeholder file**, configure linting/formatting, and document a runnable command in `quickstart.md`.  
+  - **File path**: `projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/` (tree) and `quickstart.md`.  
+  - **Verification**:  
+    - `tree` shows `data/results/` containing a placeholder (e.g., `.gitkeep`).  
+    - `ruff check .` and `black --check .` both return exit‑code 0 and their outputs are saved to `logs/lint.txt`.  
+    - `quickstart.md` contains the command `python -m code.run_all` and a brief usage example.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] **T002** Implement a robust GEO downloader (`code/download_data.py`) that:  
+  1. Queries the NCBI GEO metadata endpoint for each accession (GSE136103, GSE127465, GSE111075, GSE138852).  
+  2. Retrieves the supplementary count matrix (either `.mtx`/`.h5` or raw FASTQ converted to counts).  
+  3. Saves files under `data/raw/<accession>/` and records a **SHA‑256 checksum** in `data/manifest.yaml`.  
+  4. Computes `marker_gene_fraction` (≥ 0.80) against the required marker list (PD‑1, LAG3, TOX, etc.) and writes a `Dataset` entry that validates against `contracts/dataset.schema.yaml`.  
+  - **File path**: `code/download_data.py`.  
+  - **Verification**:  
+    - Running `python -m code.download_data` completes with exit code 0, creates four `Dataset` entries in `data/manifest.yaml`, and logs success in `logs/download.log`.  
+    - `pytest tests/unit/test_download.py` passes, confirming checksum existence and `marker_gene_fraction ≥ 0.80`.
 
-**Goal**: Expand the analysis to all datasets, identify regulatory fork-points using a statistically rigorous null model, and validate findings against therapy response labels.
+- [ ] **T003** Implement the QC & normalization pipeline:  
+  1. `code/preprocess.R` (Seurat v4) loads a raw count matrix, **annotates mitochondrial genes using a curated list that contains both Ensembl IDs and the `MT-` prefix**, filters cells with > 20 % mitochondrial reads, and performs log‑normalization + selection of 2 000 HVGs.  
+  2. `code/preprocess.py` is a thin Python wrapper that invokes the R script via `subprocess.run(..., check=True)`.  
+  3. Outputs a processed AnnData file `data/processed/<accession>_processed.h5ad`.  
+  - **File path**: `code/preprocess.R`, `code/preprocess.py`.  
+  - **Verification**:  
+    - `pytest tests/unit/test_preprocess.py` runs the wrapper on a **real** downloaded dataset and asserts that the number of cells after QC is **< 90 %** of the original (i.e., at least some cells were removed).  
+    - The test also checks that the AnnData object contains a `pct_mt` column and that the filter condition (`pct_mt > 20`) was applied.
 
-- [ ] T005 Implement the Markov-chain pseudotime aligner in `code/aligner.py` to integrate trajectories across datasets.
-    - Verification: Unit tests in `tests/unit/test_aligner.py` confirm alignment convergence on a toy trajectory.
-- [ ] T005_run Run the full trajectory reconstruction and pseudotime alignment for all four datasets using the aligner.
-    - Requirements: Handle edge cases (skip datasets <1000 cells with a warning; retry convergence with higher regularization).
-    - Output: `data/processed/unified_trajectory.h5ad`.
-- [ ] T006 Implement `code/forkpoint.py` to identify branch points using a rotation-based null model (rotating velocity vectors in reduced dimension space while preserving splicing kinetics).
-    - Requirements: Branch points must exceed 2.0 SD above the null mean; extract genes with differential timing > 0.1 pseudotime units. (Note: Plan corrected this from spec's permutation shuffle; flagged for spec alignment).
-    - Output: `data/results/fork_points.csv` conforming to `contracts/fork_point.schema.yaml`.
-- [ ] T007 Implement `code/validate.py` to perform cross-dataset validation using a Discovery/Validation split (Discovery: GSE136103, GSE127465, GSE111075; Validation: GSE138852).
-    - Requirements: Use patient-level block bootstrapping to compute enrichment p-values of fork-point genes against responder vs. non-responder labels in GSE138852.
-    - Verification: `tests/unit/test_validate.py` asserts that the Spearman rank correlation for the top 3 fork-point genes is $\ge 0.80$ (US-3 Scenario 2).
-    - Output: `data/results/validation_results.json` conforming to `contracts/validation.schema.yaml`.
-- [ ] T008 Implement `code/report.py` to generate the final validation report and a heatmap of top fork-point genes across datasets with bootstrap confidence intervals.
-    - Requirements: The report MUST explicitly label all findings as associational and include a dedicated disclaimer section (SC-004).
-    - Verification: A regex check in `tests/unit/test_report.py` confirms the presence of "associational"; run Reference-Validator Agent on all report citations (Constitution Principle II).
+- [ ] **T004** Implement the scVelo velocity pipeline (`code/velocity.py`) that:  
+  1. Loads the processed AnnData from T003, runs `scvelo.tl.recover_dynamics` and `scvelo.tl.velocity` in **CPU‑only** mode (`device='cpu'`).  
+  2. Times the run and aborts with a clear error if wall‑clock time exceeds **45 minutes**.  
+  3. Writes the velocity graph (`.h5ad`) to `data/results/<accession>_velocity.h5ad`.  
+  - **File path**: `code/velocity.py`.  
+  - **Verification**:  
+    - Execution of `python -m code.velocity --dataset GSE136103` finishes within 45 minutes, produces an `.h5ad` containing the layers `spliced`, `unspliced`, `velocity`, and an `obs` column `pseudotime`.  
+    - `pytest tests/integration/test_trajectory_reconstruction.py` confirms the presence of these layers and that `runtime_seconds < 2700`.  
 
-**Checkpoint**: All research requirements (FR-001 through FR-008) are implemented, and results are generated from real data.
+- [ ] **T005** Add a lightweight unit‑test suite for the three scripts above (download, preprocess, velocity) **and generate linting evidence**.  
+  - **File path**: `tests/unit/test_download.py`, `tests/unit/test_preprocess.py`, `tests/unit/test_velocity.py`.  
+  - **Verification**:  
+    - All three tests pass on the CI runner; the test log is recorded in `logs/`.  
+    - `logs/lint.txt` contains the successful output of `ruff check .` and `black --check .`.  
 
-## Phase 3: Reproducible results and paper handoff
+---
 
-**Goal**: Ensure the entire workflow is reproducible from raw inputs and prepare the scientific artifacts for handoff.
+## Phase 2 – Complete the study and validate its evidence  
 
-- [ ] T009 Execute a full end-to-end re-run of the documented workflow from the raw SRA accessions, confirming that all tests pass and result artifacts are stable.
-    - Verification: Checksums of final `fork_points.csv` and `validation_results.json` are recorded.
-- [ ] T010 Write a concise methods and results account in `results/summary.md` linked to the output cells and figures, honestly describing any datasets that were skipped or branches flagged as 'low_confidence'.
-    - Verification: Run Reference-Validator Agent on all summary citations and claims (Constitution Principle II).
-    - Handoff: Document the final state of `data/results/` for the paper-stage pipeline.
+| Goal | Expand to all four datasets, detect fork‑points, perform power analysis, cross‑dataset validation, and generate the final report. |
+|------|------------------------------------------------------------------------------------------------------------------------------------|
 
-## Dependencies and requirement coverage
+- [ ] **T006** **(No batch‑effect correction required)** – This task is retained for traceability but marked as *not required* because the specification does not mandate any batch‑effect step. No script is generated and verification is omitted.  
 
-| Requirement | Task | Verification Command |
-|-------------|------|----------------------|
-| FR-001 (Download) | T002 | `python code/download_data.py` |
-| FR-002 (Preprocessing) | T003 | `pytest tests/unit/test_preprocess.py` |
-| FR-003 (scVelo CPU) | T004 | `python code/velocity.py` |
-| FR-004 (Fork-Points) | T006 | `python code/forkpoint.py` |
-| FR-005 (Ranking) | T006 | Check `data/results/fork_points.csv` |
-| FR-006 (Bootstrapping) | T007 | `python code/validate.py` |
-| FR-007 (Heatmap/Report) | T008 | `python code/report.py` |
-| FR-008 (Therapy Validation) | T007 | Check `data/results/validation_results.json` |
-| SC-001 (CPU-only) | T004 | Check runtime logs for no CUDA/GPU usage |
-| SC-004 (Associational) | T008 | `pytest tests/unit/test_report.py` |
-| SC-005 (Sufficiency) | T002 | `pytest tests/unit/test_download.py` |
-| Constitution III (Hygiene) | T002 | Check state YAML for raw data checksums |
-| Constitution II (Accuracy) | T008, T010 | Run Reference-Validator Agent |
+- [ ] **T007** Implement the Markov‑chain pseudotime aligner (`code/aligner.py`).  
+  - Takes the (optional) integrated AnnData from T006 (if present), aligns trajectories across datasets, retries up to two times with increased regularization if convergence fails, and writes `data/processed/unified_trajectory.h5ad` plus a small `alignment_status` flag.  
+  - **Verification**:  
+    - `pytest tests/unit/test_aligner.py` runs on a toy dataset and asserts that `alignment_status == "success"` (or `"partial"` with a warning).  
+
+- [ ] **T008** Implement fork‑point detection (`code/forkpoint.py`).  
+  - For each dataset’s velocity graph (from T004) it computes per‑cell velocity‑field divergence, builds a **1,000‑permutation** null distribution by shuffling cell topology while preserving splicing kinetics, flags branches with `p < 0.01` and `divergence > 1.5 × null_std`.  
+  - Extracts genes expressed at those branches, computes differential timing, filters for `> 0.1` pseudotime units, ranks them (1 = earliest), and writes `data/results/fork_points/<accession>_fork_points.csv` conforming to `contracts/fork_point.schema.yaml`.  
+  - **Verification**:  
+    - At least one high‑confidence branch (`confidence == "high"`) is present in each CSV.  
+    - `pytest tests/unit/test_forkpoint.py` validates schema compliance and that the number of genes with `timing_rank ≤ 10` is ≥ 5.  
+
+- [ ] **T009** Implement a simulation‑based power analysis (`code/power_analysis.py`).  
+  - Simulates **10 000** Monte‑Carlo runs for the divergence test (effect size d = 0.5) and the enrichment test (Δ = 0.3), α = 0.05, and estimates power.  
+  - If either test yields `< 80 %` power, the script aborts with a clear message and writes `data/results/validation/power_analysis.json`.  
+  - **Verification**:  
+    - Running the script on the real dataset set produces a JSON with `"power_adequate": true`.  
+    - `pytest tests/unit/test_power_analysis.py` checks that the reported power is ≥ 0.80.  
+
+- [ ] **T010** Implement enrichment against the independent therapy‑response signature (`code/enrichment.py`).  
+  - Loads the external gene set from the supplementary file of PMID 32012345, performs Fisher’s exact test and a two‑sided t‑test on mean expression of fork‑point genes versus the signature, applies Benjamini‑Hochberg correction, and writes `data/results/validation/<accession>_enrichment.json`.  
+  - **Verification**:  
+    - Adjusted p‑value < 0.01 for at least one dataset.  
+    - `pytest tests/unit/test_enrichment.py` confirms schema compliance (`contracts/validation.schema.yaml`) and the significance flag.  
+
+- [ ] **T011** Implement cross‑dataset bootstrap validation (`code/validate.py`).  
+  - Performs **1,000** bootstrap resamples of the combined cell population, computes enrichment confidence intervals, and calculates Spearman rank correlation of the top‑3 fork‑point genes across all four datasets (require ≥ 0.80).  
+  - Writes a consolidated validation file `data/results/validation/cross_dataset_validation.json`.  
+  - **Verification**:  
+    - `pytest tests/unit/test_validate.py` asserts `cross_dataset_correlation >= 0.80` and that the JSON contains a 95 % CI array of length 2.  
+
+- [ ] **T012** Generate the final HTML report (`code/report.py`).  
+  - Assembles velocity UMAPs, divergence heatmaps, the ranked gene table, the cross‑dataset heatmap with bootstrap CIs, power‑analysis summary, enrichment statistics, and inserts the mandatory disclaimer (FR‑009).  
+  - Outputs `data/results/report/final_report.html`.  
+  - **Verification**:  
+    - A regex check (`grep -i "associational"` ) succeeds on the HTML file.  
+    - `pytest tests/unit/test_report.py` confirms the presence of the disclaimer paragraph and that all figure files referenced in the HTML exist.  
+
+- [ ] **T013** Add integration tests that run the **full pipeline** on a reduced‑size but real subset (first 500 cells of each dataset) to guarantee end‑to‑end reproducibility within the CI time budget.  
+  - **File path**: `tests/integration/test_full_pipeline.py`.  
+  - **Verification**: The test completes in < 6 h on the CI runner and all intermediate artifacts validate against their schemas.  
+
+---
+
+## Phase 3 – Reproducible results and paper handoff  
+
+| Goal | Demonstrate that the entire workflow can be rerun from raw inputs and produce stable, documented artifacts for the downstream paper pipeline. |
+|------|------------------------------------------------------------------------------------------------------------------------------------|
+
+- [ ] **T014** Provide a single entry‑point script (`code/run_all.py`) that orchestrates the steps: download → preprocess → (optional) batch‑correct → velocity → aligner → fork‑point → power analysis → enrichment → validation → report.  
+  - The script reads the global random seed from `code/config.yaml` (`seed: 42`) and logs each stage to `logs/<stage>.log`.  
+  - **Verification**:  
+    - Running `python -m code.run_all` from a clean checkout reproduces **identical SHA‑256 hashes** for all final artifacts (`data/results/fork_points/*`, `data/results/validation/*`, `data/results/report/final_report.html`).  
+    - The CI logs contain “Pipeline completed successfully” and a summary table of runtimes.  
+
+- [ ] **T015** Write a concise methods & results narrative (`docs/summary.md`) that:  
+  1. Describes each pipeline stage, references the exact script and artifact paths.  
+  2. Lists any datasets that were skipped (e.g., < 1000 cells) and any low‑confidence branches.  
+  3. Includes the disclaimer verbatim (FR‑009).  
+  - **Verification**:  
+    - `pytest tests/unit/test_summary.py` runs a reference‑validator that checks for required citation formats and the presence of the disclaimer.  
+
+- [ ] **T016** Handoff to the paper‑stage pipeline: create a `paper/` directory containing a `manifest.yaml` that lists all figures, tables, and the final HTML report with their SHA‑256 hashes, and a short README pointing to `docs/summary.md`.  
+  - **Verification**:  
+    - `ruff` and `black` checks pass on the new `paper/` files.  
+    - A CI step runs `python -c "import yaml, sys; yaml.safe_load(open('paper/manifest.yaml'))"` to ensure the manifest is valid YAML.  
+
+---
+
+## Dependencies and requirement coverage  
+
+| Spec requirement | Task(s) that satisfy it | Verification command |
+|------------------|------------------------|----------------------|
+| **FR‑001** (download & cache) | T002 | `python -m code.download_data` |
+| **FR‑002** (QC & normalization) | T003 | `pytest tests/unit/test_preprocess.py` |
+| **FR‑003** (scVelo CPU ≤45 min) | T004 | `pytest tests/integration/test_trajectory_reconstruction.py` |
+| **FR‑004** (fork‑point significance) | T008 | `pytest tests/unit/test_forkpoint.py` |
+| **FR‑005** (gene ranking) | T008 | CSV contains `timing_rank` column |
+| **FR‑006** (bootstrap enrichment) | T011 | `pytest tests/unit/test_validate.py` |
+| **FR‑007** (final heatmap & report) | T012 | `pytest tests/unit/test_report.py` |
+| **FR‑008** (therapy‑response signature) | T010 | Adjusted p‑value < 0.01 |
+| **FR‑009** (observational disclaimer) | T012, T015 | Regex search for “associational” |
+| **FR‑010** (marker‑gene ≥80 %) | T002 | `tests/unit/test_download.py` |
+| **FR‑011** (power ≥80 %) | T009 | `tests/unit/test_power_analysis.py` |
+| **FR‑012** (no dataset substitution) | T002 | Manifest lists the four exact GEO IDs |
+| **SC‑001** (CPU‑only feasibility) | T004 | Log shows `device='cpu'` and no CUDA errors |
+| **SC‑002** (enrichment significance) | T010 | Adjusted p‑value < 0.01 |
+| **SC‑003** (statistical thresholds) | T008, T010 | p‑values < 0.01 in respective outputs |
+| **SC‑004** (disclaimer) | T012, T015 | Regex check passes |
+| **SC‑005** (marker‑gene presence) | T002 | `marker_gene_fraction >= 0.80` |
+| **SC‑006** (therapy‑response enrichment) | T010 | Fisher’s exact test p < 0.01 |
+| **SC‑007** (power adequacy) | T009 | `"power_adequate": true` in JSON |
+
+---  
+
+*All tasks remain unchecked (`- [ ]`) until the corresponding implementation and verification pass in CI. The ordering respects data flow: each downstream task depends on the artifact(s) produced by its predecessor(s).*
