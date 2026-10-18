@@ -1,46 +1,66 @@
-# Quickstart: Investigating the Influence of Network Motifs on Resting-State Functional Connectivity
+# Quickstart: Investigating the Influence of Network Motifs on Resting‑State Functional Connectivity
 
 ## Prerequisites
-- Python 3.11+, internet access, ~7 GB RAM / ~14 GB disk
+- Python 3.x or newer
+- Internet access (to download the OpenNeuro parquet and diffusion files)
+- Approx. a few GB RAM, Adequate disk space (CI free‑tier limits)
 
 ## Installation
 
 ```bash
+# Clone the repository (replace <repo-url> with the actual URL)
 git clone <repo-url>
-cd projects/PROJ-331-investigating-the-influence-of-network-m
-python -m venv venv && source venv/bin/activate
+cd projects/PROJ-331-investigating-the-influence-of-network-motif
+
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# Install pinned dependencies
 pip install -r code/requirements.txt
-pre-commit install   # optional, uses .pre-commit-config.yaml (flake8 + black)
+
+# Install pre‑commit hooks (optional but recommended)
+pre-commit install
 ```
 
-## Run the pipeline
+## Run the full pipeline
 
 ```bash
 python code/main.py
 ```
 
-Steps performed:
-1. Download (stream) the verified OpenNeuro fsLR-64k parquet; select up to 50 subjects; checksum raw data.
-2. Parcellate to 100 nodes; compute `rsfc.npy`, rsFC strength, global efficiency.
-3. If real structural connectomes are obtainable: build binary undirected adjacency, enumerate 3- and 4-node motifs, z-scores vs. ≥1000 degree-preserving nulls. If not obtainable, the pipeline logs the gap and gates the motif–rsFC association stage (no synthetic stand-in).
-4. Partial Pearson/Spearman correlations controlling global degree; Bonferroni (α = 0.05/13); ≥1000-permutation empirical p; VIF and pairwise-collinearity diagnostics; power analysis (N = 50, power = 0.80).
-5. Generate `results/results.pdf` (scatter + CI per motif, all p-values, disclaimer string, power section).
+The script will:
+
+1. **Stream‑download** the verified OpenNeuro functional parquet **and** the diffusion tractography files for up to 50 subjects, checksum the raw files, and write `manifest.json`.  
+2. **Parcellate** the BOLD data to a 100‑node Schaefer atlas, compute rsFC matrices, mean strength, and global efficiency.  
+3. **Construct** binary undirected structural connectomes (100 nodes) from the diffusion data.  
+4. **Enumerate** 3‑node and 4‑node motifs (with optional weighted counts), compute degree‑preserving null models, and produce z‑scores (timeout > 300 s aborts gracefully).  
+5. **Run** partial Pearson & Spearman correlations (controlling for structural global degree, age, sex, and motion), Bonferroni correction across multiple tests, ≥ 1000 permutation tests, VIF & pairwise‑correlation diagnostics (warnings only), and a power‑analysis module (N = 50, α = 0.05/52, power = 0.80).  
+6. **Generate** `results/results.pdf` containing per‑motif scatter plots, confidence intervals, effect sizes, corrected and empirical p‑values, multicollinearity diagnostics, the mandatory disclaimer, and the power‑analysis summary.  
 
 ## Inspect results
-- `data/logs/pipeline.log` — all steps, warnings, errors, constants, library versions
-- `data/processed/manifest.json` — cohort status (SC-001 check)
-- `results/results.pdf` — per-motif pages; search for "These findings are associational only and do not imply causation."
 
-## Tests
+- **Log**: `data/logs/pipeline.log` – machine‑readable log of every step, warnings, and library versions.  
+- **Manifest**: `data/processed/manifest.json` – shows cohort size, number of subjects processed/skipped, and covariate inclusion.  
+- **PDF report**: `results/results.pdf` – open in any PDF viewer; use the search function to confirm the presence of the disclaimer string “These findings are associational only and do not imply causation.”  
+
+## Running the test suite
 
 ```bash
-pytest tests/            # unit + integration + contract
-flake8 code/ tests/      # lint (config in .flake8)
-black --check code/ tests/
+pytest tests/            # unit, integration, and contract tests
+flake8 code/ tests/      # linting (configuration removed per spec)
+black --check code/ tests/  # formatting check
 ```
 
+All tests must pass before committing changes.
+
 ## Troubleshooting
-- **Download failure**: pipeline aborts with a clear error; nothing is fabricated.
-- **Structural data unavailable**: motif association stage is skipped with an explicit log entry and a limitations paragraph in the PDF; resolve by naming a verified open diffusion dataset in the spec.
-- **Motif timeout (>300 s)**: subject aborted with warning; suggestion logged to reduce motif size.
-- **PDF > 5 MB**: figure DPI reduced automatically and regeneration retried.
+
+| Issue | Likely Cause | Remedy |
+|-------|--------------|--------|
+| **Download failure** | Network glitch or changed URL | Re‑run `python code/main.py`; the script aborts with a clear error if the parquet or diffusion files cannot be fetched. |
+| **Subject missing a modality** | Incomplete OpenNeuro record | The pipeline logs a warning and skips the subject; check `pipeline.log` for details. |
+| **Motif enumeration exceeds 300 s** | Extremely dense graph or insufficient resources | The script aborts the subject, logs a timeout warning, and suggests limiting to 3‑node motifs only. |
+| **PDF > 5 MB** | High‑resolution figures | The report generator automatically reduces figure DPI and regenerates the PDF. |
+| **Missing disclaimer in PDF** | Unexpected PDF generation error | Check `pipeline.log` for the verification step; re‑run the pipeline after ensuring `reportlab` is correctly installed. |
+| **Over‑control concern** | Results differ between analyses with/without degree covariate | Review the sensitivity analysis pages in the PDF for both versions. |
