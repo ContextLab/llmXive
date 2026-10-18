@@ -1,4 +1,4 @@
-- artifact_hash: d46c3c6a102a0165d320d9686278cf2b74590905c6c380ba0486f786d4632fcf
+- artifact_hash: aebc962e7b7fa1b13ea11612cf3d10f1522909a7b66514bd6017abdaa45430ff
   artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://d1gam3xoknrgr2.cloudfront.net/current/WDPA_WDOECM_csv.zip`
   verification_status: mismatch
   verified_against_url: https://d1gam3xoknrgr2.cloudfront.net/current/WDPA_WDOECM_csv.zip
-  verified_at: '2026-10-18T13:32:04.705690Z'
-- artifact_hash: d46c3c6a102a0165d320d9686278cf2b74590905c6c380ba0486f786d4632fcf
+  verified_at: '2026-10-18T13:34:15.916971Z'
+- artifact_hash: aebc962e7b7fa1b13ea11612cf3d10f1522909a7b66514bd6017abdaa45430ff
   artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://example.org/ecotourism/revenue.csv`
   verification_status: mismatch
   verified_against_url: https://example.org/ecotourism/revenue.csv
-  verified_at: '2026-10-18T13:32:04.705690Z'
-- artifact_hash: d46c3c6a102a0165d320d9686278cf2b74590905c6c380ba0486f786d4632fcf
+  verified_at: '2026-10-18T13:34:15.916971Z'
+- artifact_hash: aebc962e7b7fa1b13ea11612cf3d10f1522909a7b66514bd6017abdaa45430ff
   artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://data.chc.ucsb.edu/products/CHIRPS-2.0/`
   verification_status: pending
   verified_against_url: https://data.chc.ucsb.edu/products/CHIRPS-2.0/
-  verified_at: '2026-10-18T13:32:04.705690Z'
-- artifact_hash: d46c3c6a102a0165d320d9686278cf2b74590905c6c380ba0486f786d4632fcf
+  verified_at: '2026-10-18T13:34:15.916971Z'
+- artifact_hash: aebc962e7b7fa1b13ea11612cf3d10f1522909a7b66514bd6017abdaa45430ff
   artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://power.larc.nasa.gov/api/temporal/monthly/point`
   verification_status: unreachable
   verified_against_url: https://power.larc.nasa.gov/api/temporal/monthly/point
-  verified_at: '2026-10-18T13:32:04.705690Z'
+  verified_at: '2026-10-18T13:34:15.916971Z'

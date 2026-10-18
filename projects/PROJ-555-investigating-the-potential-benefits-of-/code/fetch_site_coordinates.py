@@ -1,3 +1,14 @@
+"""
+fetch_site_coordinates.py
+-------------------------
+
+Implements Task T003: download the World Database of Protected Areas (WDPA),
+extract the CSV, filter for candidate sites, and write
+``data/processed/site_metadata.csv``.  The script also appends a log entry
+to ``data/raw/query_log.json`` (using the helper from ``code.data_acquisition``)
+and records any fatal errors in ``data/raw/fetch_error.log``.
+"""
+
 import logging
 import json
 import sys
@@ -9,241 +20,197 @@ from typing import List
 import pandas as pd
 import requests
 
-# Project utilities
-from llmxive_toolkit import paths, get_logger
+# Local imports
 from config import ensure_directories
 from data_acquisition import log_api_query
 
-logger = get_logger(__name__)
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
+WDPA_DOWNLOAD_URL = (
+    "https://dopa.jrc.ec.europa.eu/download.php?file=WDPA_WDOECM_csv.zip"
+)
+# The expected CSV name inside the zip (observed from the official archive)
+WDPA_CSV_NAME = "WDPA_WDOECM_csv.csv"
 
 # ----------------------------------------------------------------------
-# Logger setup (uses the project's logging configuration if any)
+# Logging helpers
 # ----------------------------------------------------------------------
-def setup_logger(name: str) -> logging.Logger:
-    """
-    Setup a logger for this module.
+LOG = logging.getLogger(__name__)
 
-    Parameters
-    ----------
-    name : str
-        Name of the logger (usually ``__name__``).
 
-    Returns
-    -------
-    logging.Logger
-        Configured logger instance.
-    """
-    return get_logger(name)
+def setup_logger(name: str = __name__) -> logging.Logger:
+    """Configure a module‑level logger."""
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stderr)
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return logger
+
 
 # ----------------------------------------------------------------------
-# WDPA download
+# Core functions
 # ----------------------------------------------------------------------
-WDPA_DOWNLOAD_URL = "https://dopa-explorer.jrc.ec.europa.eu/download?type=wdpa&format=ZIP"
-
 def download_wdpa_release(output_dir: Path) -> Path:
     """
-    Downloads the latest WDPA release (ZIP) from the official source.
-
-    Parameters
-    ----------
-    output_dir : Path
-        Directory where the ZIP file will be saved.
-
-    Returns
-    -------
-    Path
-        Path to the downloaded ZIP file.
+    Download the latest WDPA CSV zip file from the official source.
+    Returns the path to the downloaded zip file.
 
     Raises
     ------
     RuntimeError
-        If the HTTP request fails.
+        If the HTTP request fails or the response is not a zip file.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
-    zip_path = output_dir / "WDPA.zip"
+    zip_path = output_dir / "WDPA_WDOECM_csv.zip"
 
-    logger.info(f"Downloading WDPA data from {WDPA_DOWNLOAD_URL}")
-    try:
-        response = requests.get(WDPA_DOWNLOAD_URL, stream=True, timeout=120)
-        # Log the request
-        log_api_query(
-            {"url": WDPA_DOWNLOAD_URL, "method": "GET"},
-            version="1.0.0"
+    LOG.info(f"Downloading WDPA release from {WDPA_DOWNLOAD_URL}")
+    response = requests.get(WDPA_DOWNLOAD_URL, stream=True, timeout=30)
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"Failed to download WDPA archive: HTTP {response.status_code}"
         )
-        if response.status_code != 200:
-            raise RuntimeError(
-                f"Failed to download WDPA data: HTTP {response.status_code}"
-            )
-        # Write to file in chunks
-        with open(zip_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        logger.info(f"WDPA zip saved to {zip_path}")
-        return zip_path
-    except Exception as e:
-        # Write error details to fetch_error.log and re‑raise
-        error_log = paths.data("raw", "fetch_error.log")
-        error_log.parent.mkdir(parents=True, exist_ok=True)
-        with open(error_log, "a") as log_f:
-            log_f.write(
-                f"{datetime.utcnow().isoformat()} - WDPA download error: {e}\\n"
-            )
-        raise RuntimeError(f"WDPA download failed: {e}") from e
 
-# ----------------------------------------------------------------------
-# Extract and load CSV
-# ----------------------------------------------------------------------
+    # Write the zip file to disk
+    with zip_path.open("wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+
+    LOG.info(f"WDPA archive saved to {zip_path}")
+    return zip_path
+
+
 def extract_and_load_wdpa(zip_path: Path) -> pd.DataFrame:
     """
-    Extracts the CSV file from the WDPA ZIP archive and loads it into a
-    DataFrame.
-
-    Parameters
-    ----------
-    zip_path : Path
-        Path to the downloaded WDPA ZIP file.
-
-    Returns
-    -------
-    pandas.DataFrame
-        DataFrame containing the WDPA records.
+    Extract the CSV from the WDPA zip archive and load it into a DataFrame.
 
     Raises
     ------
     RuntimeError
-        If extraction or loading fails.
+        If extraction fails or the expected CSV is not present.
     """
-    try:
-        with zipfile.ZipFile(zip_path, "r") as zf:
-            # Find the first CSV file inside the archive
-            csv_names = [n for n in zf.namelist() if n.lower().endswith(".csv")]
-            if not csv_names:
-                raise RuntimeError("No CSV file found inside WDPA ZIP archive.")
-            csv_name = csv_names[0]
-            logger.info(f"Extracting {csv_name} from {zip_path}")
-            with zf.open(csv_name) as csv_file:
-                df = pd.read_csv(csv_file, low_memory=False)
-        logger.info(f"Loaded WDPA CSV with {len(df)} rows")
-        return df
-    except Exception as e:
-        error_log = paths.data("raw", "fetch_error.log")
-        error_log.parent.mkdir(parents=True, exist_ok=True)
-        with open(error_log, "a") as log_f:
-            log_f.write(
-                f"{datetime.utcnow().isoformat()} - WDPA extraction error: {e}\\n"
-            )
-        raise RuntimeError(f"Failed to extract/load WDPA data: {e}") from e
+    LOG.info(f"Extracting WDPA CSV from {zip_path}")
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        # Find the first CSV file (the archive typically contains only one)
+        csv_candidates = [name for name in zf.namelist() if name.lower().endswith(".csv")]
+        if not csv_candidates:
+            raise RuntimeError("No CSV file found inside the WDPA zip archive.")
+        csv_name = csv_candidates[0]
+        with zf.open(csv_name) as csv_file:
+            df = pd.read_csv(csv_file, low_memory=False)
 
-# ----------------------------------------------------------------------
-# Filtering / sampling
-# ----------------------------------------------------------------------
+    LOG.info(f"Loaded WDPA data with {len(df)} rows")
+    return df
+
+
 def filter_and_sample_sites(df: pd.DataFrame, target_count: int = 30) -> pd.DataFrame:
     """
-    Filters the WDPA DataFrame for rows that contain the required metadata
-    and samples up to ``target_count`` sites.
+    Filter the WDPA DataFrame for rows that contain the required metadata
+    and sample up to ``target_count`` sites.
 
     Required columns (case‑insensitive):
-    - WDPAID (site identifier)
-    - DESIG_TYPE (site type / designation)
-    - LATITUDE
-    - LONGITUDE
-    - BIOME
-    - DESIG_STATUS (protection status)
+        - WDPAID
+        - DESIG_TYPE
+        - LATITUDE
+        - LONGITUDE
+        - BIOME
+        - DESIG_STATUS
 
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        Raw WDPA DataFrame.
-    target_count : int, optional
-        Desired number of sites (default is 30).
-
-    Returns
-    -------
-    pandas.DataFrame
-        Filtered and sampled DataFrame with the columns renamed to the
-        project‑specific schema.
+    The returned DataFrame contains the columns required by downstream
+    tasks and is written to ``data/processed/site_metadata.csv``.
     """
-    # Normalise column names to upper case for easier handling
-    df_cols = {c.upper(): c for c in df.columns}
-    required = ["WDPAID", "DESIG_TYPE", "LATITUDE", "LONGITUDE", "BIOME", "DESIG_STATUS"]
-    missing = [c for c in required if c not in df_cols]
+    required_cols = {
+        "WDPAID": "site_id",
+        "DESIG_TYPE": "site_type",
+        "LATITUDE": "latitude",
+        "LONGITUDE": "longitude",
+        "BIOME": "biome",
+        "DESIG_STATUS": "protection_status",
+    }
+
+    # Normalise column names to upper case for case‑insensitive matching
+    df_cols_upper = {c.upper(): c for c in df.columns}
+    missing = [c for c in required_cols if c not in df_cols_upper]
     if missing:
-        raise RuntimeError(f"WDPA data is missing required columns: {missing}")
+        raise RuntimeError(f"WDPA CSV missing required columns: {missing}")
 
     # Select and rename columns
-    selected = df.loc[
-        df[df_cols["LATITUDE"]].notna() & df[df_cols["LONGITUDE"]].notna()
-    ].copy()
-    selected = selected[[
-        df_cols["WDPAID"],
-        df_cols["DESIG_TYPE"],
-        df_cols["LATITUDE"],
-        df_cols["LONGITUDE"],
-        df_cols["BIOME"],
-        df_cols["DESIG_STATUS"],
-    ]]
+    selected = df[[df_cols_upper[c] for c in required_cols]]
+    selected = selected.rename(columns={df_cols_upper[k]: v for k, v in required_cols.items()})
 
-    # Rename to project schema
-    selected = selected.rename(columns={
-        df_cols["WDPAID"]: "site_id",
-        df_cols["DESIG_TYPE"]: "site_type",
-        df_cols["LATITUDE"]: "latitude",
-        df_cols["LONGITUDE"]: "longitude",
-        df_cols["BIOME"]: "biome",
-        df_cols["DESIG_STATUS"]: "protection_status",
-    })
+    # Drop rows with any missing critical information
+    selected = selected.dropna(subset=list(required_cols.values()))
 
-    # Add placeholder pairing_id column (empty string for now)
-    selected["pairing_id"] = ""
+    # Sample without replacement (shuffle first for randomness)
+    sampled = selected.sample(
+        n=min(target_count, len(selected)), replace=False, random_state=42
+    ).reset_index(drop=True)
 
-    # Drop rows with any remaining nulls in required fields
-    selected = selected.dropna(subset=["site_id", "site_type", "latitude", "longitude", "biome", "protection_status"])
+    # Add an empty ``pairing_id`` column – it will be filled later in the pipeline
+    sampled["pairing_id"] = pd.NA
 
-    # Sample without replacement; if fewer rows than target, keep all
-    if len(selected) > target_count:
-        selected = selected.sample(n=target_count, random_state=42)
+    LOG.info(
+        f"Filtered WDPA to {len(sampled)} candidate sites (target {target_count})"
+    )
+    return sampled
 
-    logger.info(f"Filtered WDPA to {len(selected)} candidate sites")
-    return selected
 
 # ----------------------------------------------------------------------
-# Main orchestrator
+# Main entry point
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Main entry point for T003 – fetches the WDPA release, extracts the CSV,
-    filters for candidate sites, and writes ``site_metadata.csv`` to the
-    processed data folder.
-
-    Side‑effects
-    ------------
-    - ``data/raw/query_log.json`` is appended with the request metadata.
-    - ``data/raw/fetch_error.log`` contains error details if anything fails.
-    - ``data/processed/site_metadata.csv`` is created with the required
-      columns.
+    Orchestrates the download, extraction, filtering and writing of site
+    metadata.  All side‑effects are written to project‑owned directories.
     """
-    # Ensure required directories exist
-    ensure_directories()
-
-    raw_dir = paths.data("raw")
-    processed_dir = paths.data("processed")
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
-
     try:
+        ensure_directories()
+        raw_dir = Path("data") / "raw"
+        processed_dir = Path("data") / "processed"
+
+        # 1. Download the WDPA zip
         zip_path = download_wdpa_release(raw_dir)
+
+        # 2. Log the API request (required by T014 later)
+        log_api_query(
+            query_params={"url": WDPA_DOWNLOAD_URL, "downloaded_file": str(zip_path.name)},
+            version="1.0.0",
+        )
+
+        # 3. Extract CSV and load into a DataFrame
         wdpa_df = extract_and_load_wdpa(zip_path)
+
+        # 4. Filter, rename, and sample sites
         site_df = filter_and_sample_sites(wdpa_df, target_count=30)
 
-        output_path = processed_dir / "site_metadata.csv"
-        site_df.to_csv(output_path, index=False)
-        logger.info(f"Site metadata written to {output_path}")
+        # 5. Write the output CSV
+        output_csv = processed_dir / "site_metadata.csv"
+        site_df.to_csv(output_csv, index=False)
+
+        LOG.info(f"Site metadata written to {output_csv}")
 
     except Exception as exc:
-        # All errors are already logged to fetch_error.log inside helper
-        # functions; re‑raise to make the pipeline fail loudly.
-        raise RuntimeError(f"T003 failed: {exc}") from exc
+        # Record the error details for debugging (platform‑owned logs are not allowed)
+        error_log_path = Path("data") / "raw" / "fetch_error.log"
+        error_entry = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "error": str(exc),
+            "stage": "fetch_site_coordinates",
+        }
+        # Append JSON line (one per error)
+        with error_log_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(error_entry) + "\n")
+        raise RuntimeError(f"Failed to fetch site coordinates: {exc}") from exc
+
 
 if __name__ == "__main__":
+    # When executed directly (e.g., via ``python code/fetch_site_coordinates.py``)
+    # we run the pipeline and let any raised exception terminate the process
+    # with a non‑zero exit code.
     main()

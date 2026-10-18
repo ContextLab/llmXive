@@ -1,6 +1,6 @@
 status: none
-intent: Landsat Surface Reflectance USGS EarthExplorer CHIRPS MODIS climate python
-  package dataset
+intent: Python package for Landsat surface reflectance, CHIRPS precipitation, MODIS
+  temperature, ecotourism revenue data python package dataset
 required_fields:
 - site_id
 - latitude
@@ -13,7 +13,7 @@ required_fields:
 - swir_reflectance
 - precipitation_mm
 - temperature_c
-- annual_revenue_usd
-cache_key: e7f3a17502d5477b215e060e0a7eed7e29dc7c3415e450b41cc343eb9fec7cbf
-searched_at: '2026-10-18T13:33:10.757881+00:00'
+- annual_revenue
+cache_key: f13da2b1d98c194c8ecbaeb2841bd0a3a8fa6d9d290b299ddb255a012f2848c7
+searched_at: '2026-10-18T13:34:59.084303+00:00'
 retry_count: 1

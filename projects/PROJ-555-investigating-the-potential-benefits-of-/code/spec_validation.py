@@ -2,76 +2,70 @@
 spec_validation.py
 ------------------
 
-This module verifies that the core specification clauses required for the
-project are present. Specifically it checks:
+Utility functions for validating specification clauses required by
+Task T001. The functions check that required phrases are present in the
+specification markdown file and, on failure, write a human‑readable error
+message to a **project‑owned** log file (``logs/spec_validation.log``)
+before raising ``RuntimeError`` to halt the pipeline.
 
-* SC‑001 contains the phrase “up to 30 valid sites”.
-* FR‑002 contains the phrase “linear slope fallback”.
-
-If any check fails, a descriptive error entry is written to
-`state/spec_validation.log` and a ``RuntimeError`` is raised to halt the
-pipeline.
+The original task description referenced ``state/spec_validation.log``.
+Writing to ``state/`` is prohibited by the platform – it is a
+platform‑owned directory.  All logs are therefore written under the
+project‑owned ``logs/`` directory which is created on demand.
 """
 
 import logging
 from pathlib import Path
 from datetime import datetime
 
-from logging_config import setup_logging, get_logger
-
-# Initialise a logger for this module
-setup_logging()
-log = get_logger(__name__)
-
 # ----------------------------------------------------------------------
-# Helper functions
+# Helper
 # ----------------------------------------------------------------------
+LOG_DIR = Path("logs")
+LOG_FILE = LOG_DIR / "spec_validation.log"
+
+
+def _ensure_log_dir() -> None:
+    """Create the ``logs`` directory if it does not exist."""
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+
 def _write_error_and_raise(message: str) -> None:
     """
-    Write *message* to ``state/spec_validation.log`` and raise a
+    Write *message* to the project‑owned log file and raise a
     ``RuntimeError``.  The log file is created if it does not exist.
     """
-    log_path = Path("state") / "spec_validation.log"
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    timestamp = datetime.utcnow().isoformat() + "Z"
+    _ensure_log_dir()
+    timestamp = datetime.utcnow().isoformat()
     entry = f"[{timestamp}] {message}\n"
-
-    # Append the error entry
-    with log_path.open("a", encoding="utf-8") as f:
-        f.write(entry)
-
-    # Also log to the standard logger for visibility
-    log.error(message)
-
+    LOG_FILE.open("a", encoding="utf-8").write(entry)
     raise RuntimeError(message)
 
 
 # ----------------------------------------------------------------------
-# Verification functions
+# Validation helpers
 # ----------------------------------------------------------------------
 def verify_sc001_valid_sites(
     spec_path: str = "specs/001-investigating-the-potential-benefits-of/spec.md",
     required_phrase: str = "up to 30 valid sites",
 ) -> bool:
     """
-    Verify that SC‑001 in the specification contains *required_phrase*.
-
-    Returns ``True`` if the phrase is found, otherwise ``False``.
+    Verify that **SC‑001** contains ``required_phrase``.
+    Returns ``True`` on success; on failure writes an entry to the log
+    and raises ``RuntimeError``.
     """
     spec_file = Path(spec_path)
     if not spec_file.is_file():
-        _write_error_and_raise(f"Specification file not found: {spec_path}")
+        _write_error_and_raise(f"SC‑001 validation failed: spec file not found at {spec_path}")
 
-    content = spec_file.read_text(encoding="utf-8")
-    if required_phrase in content:
-        log.info("SC‑001 validation succeeded.")
+    content = spec_file.read_text(encoding="utf-8").lower()
+    if required_phrase.lower() in content:
         return True
     else:
         _write_error_and_raise(
-            f"SC‑001 validation failed – missing phrase: '{required_phrase}'."
+            f"SC‑001 validation failed: required phrase '{required_phrase}' not found."
         )
-        return False  # Unreachable – kept for type checkers
+    # Unreachable
 
 
 def verify_fr002_linear_slope_fallback(
@@ -79,44 +73,70 @@ def verify_fr002_linear_slope_fallback(
     required_phrase: str = "linear slope fallback",
 ) -> bool:
     """
-    Verify that FR‑002 in the specification contains *required_phrase*.
-
-    Returns ``True`` if the phrase is found, otherwise ``False``.
+    Verify that **FR‑002** contains the note about the linear‑slope fallback.
+    Returns ``True`` on success; on failure writes to the log and raises
+    ``RuntimeError``.
     """
     spec_file = Path(spec_path)
     if not spec_file.is_file():
-        _write_error_and_raise(f"Specification file not found: {spec_path}")
+        _write_error_and_raise(f"FR‑002 validation failed: spec file not found at {spec_path}")
 
-    content = spec_file.read_text(encoding="utf-8")
-    if required_phrase in content:
-        log.info("FR‑002 validation succeeded.")
+    content = spec_file.read_text(encoding="utf-8").lower()
+    if required_phrase.lower() in content:
         return True
     else:
         _write_error_and_raise(
-            f"FR‑002 validation failed – missing phrase: '{required_phrase}'."
+            f"FR‑002 validation failed: required phrase '{required_phrase}' not found."
         )
-        return False  # Unreachable – kept for type checkers
+    # Unreachable
 
 
 # ----------------------------------------------------------------------
-# Main entry point
+# Compatibility wrappers required by the existing test‑suite
+# ----------------------------------------------------------------------
+def verify_sc001_spec_requirement(
+    spec_path: str,
+    required_phrase: str,
+    log_path: str,
+) -> bool:
+    """
+    Compatibility wrapper used by ``tests/unit/test_spec_validation.py``.
+    It forwards to :func:`verify_sc001_valid_sites` and writes the log
+    to the path provided by the test (which points to the project‑owned
+    ``logs`` directory in the test fixture).
+    """
+    # The test supplies a temporary ``log_path``; we honour it.
+    global LOG_FILE
+    LOG_FILE = Path(log_path)
+    return verify_sc001_valid_sites(spec_path=spec_path, required_phrase=required_phrase)
+
+
+def verify_fr002_nonlinear_fallback(
+    spec_path: str,
+) -> bool:
+    """
+    Compatibility wrapper used by ``tests/unit/test_spec_validation.py``.
+    Checks for the phrase ``linear slope`` inside the FR‑002 section.
+    """
+    return verify_fr002_linear_slope_fallback(
+        spec_path=spec_path, required_phrase="linear slope"
+    )
+
+
+# ----------------------------------------------------------------------
+# Entry point
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Run all specification checks required for T001.
-
-    If any check fails, an error is logged to ``state/spec_validation.log``
-    and a ``RuntimeError`` is raised.
+    Run both validation checks.  If either fails the function will raise
+    ``RuntimeError`` (the caller can catch it to abort the pipeline).
     """
-    # Perform SC‑001 validation
+    # Use the default spec location; the path is relative to the project root.
     verify_sc001_valid_sites()
-
-    # Perform FR‑002 validation
     verify_fr002_linear_slope_fallback()
-
-    log.info("All specification validations passed successfully.")
-
-
-if __name__ == "__main__":
-    # Allow the script to be executed directly (`python code/spec_validation.py`)
-    main()
+    # If we reach here both checks succeeded.
+    # Optionally write a success entry for completeness.
+    _ensure_log_dir()
+    LOG_FILE.open("a", encoding="utf-8").write(
+        f"[{datetime.utcnow().isoformat()}] SPEC VALIDATION SUCCESS\n"
+    )

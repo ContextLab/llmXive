@@ -1,8 +1,6 @@
 T001:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/spec_validation.log`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
+  reason: 'Requested task execution failed; rerun successfully: code/fetch_site_coordinates.py
+    exit=1; code/main.py exit=1'
   task: 04c818a7483817ca5e8e2c8dc4c05a491331be740f7ad298fc5e377207d060e5
 T002:
   task: 8b1a3987560574fafee229e153ac7c2e540ab228dc7134e8839a5b63f71b6009

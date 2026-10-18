@@ -5,7 +5,7 @@
 
 ## Phase 1 – Data acquisition, preprocessing, and first end‑to‑end run  
 
-- [ ] T001 [US1] Verify core specification clauses and log failures.  
+- [ ] T001 [US1] Verify core specification clauses and log failures.   <!-- FAILED-IN-EXECUTION: code/fetch_site_coordinates.py exit=1; code/main.py exit=1 -->
   - Open `specs/001-investigating-the-potential-benefits-of/spec.md`.  
   - Confirm that **SC‑001** contains the phrase “up to 30 valid sites”.  
   - Confirm that **FR‑002** includes the note about the linear‑slope fallback.  

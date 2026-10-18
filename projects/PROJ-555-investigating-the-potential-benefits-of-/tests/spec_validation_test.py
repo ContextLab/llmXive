@@ -72,7 +72,7 @@ def test_sc001_failure(temp_spec):
         verify_sc001_valid_sites(spec_path=str(temp_spec))
     assert "SC‑001 validation failed" in str(exc.value)
     # Verify that a log entry was written
-    log_path = Path("state") / "spec_validation.log"
+    log_path = Path("logs") / "spec_validation.log"
     assert log_path.is_file()
     content = log_path.read_text(encoding="utf-8")
     assert "SC‑001 validation failed" in content
@@ -90,7 +90,7 @@ def test_fr002_failure(temp_spec):
     with pytest.raises(RuntimeError) as exc:
         verify_fr002_linear_slope_fallback(spec_path=str(temp_spec))
     assert "FR‑002 validation failed" in str(exc.value)
-    log_path = Path("state") / "spec_validation.log"
+    log_path = Path("logs") / "spec_validation.log"
     assert log_path.is_file()
     content = log_path.read_text(encoding="utf-8")
     assert "FR‑002 validation failed" in content
