@@ -65,3 +65,54 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-18T21:11:57Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: pipeline run prints 'Pipeline completed successfully'
+  claim_id: c_b022f120
+  context: "Run the Full Pipeline ... The command will execute the end\u2011to\u2011\
+    end workflow and, upon successful completion, print: 'Pipeline completed successfully'."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command will execute the end\u2011to\u2011end workflow and, upon\
+    \ successful completion, print: 'Pipeline completed successfully'"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T22:13:05Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: all tests pass confirming CSV and JSON artifacts match schemas
+  claim_id: c_47525942
+  context: Validate Contracts ... All tests should pass, confirming that the CSV and
+    JSON artefacts match their schemas.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass, confirming that the CSV and JSON artefacts match
+    their schemas.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T22:13:05Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: quickstart guide ensures reproducibility of entire workflow
+  claim_id: c_0abf5c83
+  context: "The Quickstart guide satisfies FR\u2011010, ensuring the entire workflow\
+    \ can be reproduced by a new researcher."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The Quickstart guide satisfies FR\u2011010, ensuring the entire workflow\
+    \ can be reproduced by a new researcher."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T22:13:05Z'

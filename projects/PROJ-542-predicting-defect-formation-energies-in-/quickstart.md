@@ -17,7 +17,7 @@ pip install -r requirements.txt
  ```bash
  export MP_API_KEY="YOUR_API_KEY"
  ```
- The pipeline will download the defect dataset automatically. [UNRESOLVED-CLAIM: c_be90c46f — status=not_enough_info]
+ The pipeline will download the defect dataset automatically.
 - **Option B (manual)**: Place a CSV file named `materials_defects.csv` in `data/raw/`. The file must conform to the `raw_dataset.schema.yaml` (see `contracts/`). Compute its SHA‑256 checksum:
  ```bash
  sha256sum data/raw/materials_defects.csv > data/raw/materials_defects.csv.sha256
@@ -49,7 +49,7 @@ python -m src.evaluate data/processed/features.csv data/processed/performance.js
 ```bash
 pytest -q
 ```
-All tests should pass, confirming that the CSV and JSON artefacts match their schemas. [UNRESOLVED-CLAIM: c_6429c918 — status=not_enough_info]
+All tests should pass, confirming that the CSV and JSON artefacts match their schemas. [UNRESOLVED-CLAIM: c_47525942 — status=not_enough_info]
 
 ## 6️⃣ Inspect Results
 - **Performance summary**: `cat data/processed/performance.json | jq`

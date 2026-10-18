@@ -1,7 +1,10 @@
 T001:
-  c: true
-  h: ee9855eff0766085827678a352601363c618deebb3f0e7f4971be8f9012199d6
-  r: "Checked `quickstart.md` (contains the required `python -m src.pipeline.run`\
-    \ command) and `src/tests/test_quickstart.py` execution log (test passed, confirming\
-    \ the command prints \u201CPipeline completed successfully\u201D)."
-  sig: d6d3786aa5d91c90d0608c7fb3040531bb9b681d7ab6b4221b7178b76258047a
+  c: false
+  h: 93daf4476dcbf9813096e2fcc8c1200fb9b43c25c3983691385a555604c444e8
+  r: "The `quickstart.md` file exists and correctly documents the `python -m src.pipeline.run`\
+    \ command, and the test `src/tests/test_quickstart.py` is present. However, there\
+    \ is no provided evidence (e.g., CI run logs or test execution output) showing\
+    \ that the command actually runs on a fresh GitHub Actions runner and prints \u201C\
+    Pipeline completed successfully\u201D. Without this execution proof, the verification\
+    \ requirement is not satisfied."
+  sig: 86a5dd8551ac00bd80b555cd28fcef5cf3e248c3e72474ea0572af442740390c

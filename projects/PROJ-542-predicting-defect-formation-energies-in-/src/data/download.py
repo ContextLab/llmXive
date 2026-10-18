@@ -51,6 +51,7 @@ def _load_schema(schema_path: Path) -> Dict:
     with schema_path.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
+
 def _is_perovskite(composition: str) -> bool:
     """
     Very simple perovskite filter.
@@ -77,6 +78,7 @@ def _is_perovskite(composition: str) -> bool:
     comp = comp.reduced_composition
     o_amount = comp.get_atomic_fraction("O") * comp.num_atoms
     return abs(o_amount - 3) < 1e-6
+
 
 def _fetch_defect_data(api_key: str) -> List[Dict]:
     """
@@ -144,6 +146,7 @@ def _fetch_defect_data(api_key: str) -> List[Dict]:
     ]
     return perovskite_records
 
+
 def _records_to_dataframe(records: List[Dict]) -> pd.DataFrame:
     """
     Convert the list of dicts returned by the API into a tidy DataFrame
@@ -168,6 +171,7 @@ def _records_to_dataframe(records: List[Dict]) -> pd.DataFrame:
         )
     return pd.DataFrame(rows)
 
+
 def _validate_dataframe(df: pd.DataFrame, schema_path: Path) -> None:
     """Validate each row of the DataFrame against the JSON‑schema."""
     schema = _load_schema(schema_path)
@@ -187,6 +191,7 @@ def _validate_dataframe(df: pd.DataFrame, schema_path: Path) -> None:
                 f"Row {idx} does not conform to schema: {exc.message}"
             ) from exc
 
+
 # --------------------------------------------------------------------------- #
 # Main workflow
 # --------------------------------------------------------------------------- #
@@ -196,6 +201,7 @@ def main() -> None:
     """
     api_key = os.getenv("MP_API_KEY")
     if not api_key:
+        # FR‑007: abort with a clear error message when the API key is missing.
         log.error("Environment variable MP_API_KEY is not set.")
         sys.exit("Error: MP_API_KEY environment variable is required to download data.")
 
@@ -203,6 +209,7 @@ def main() -> None:
     records = _fetch_defect_data(api_key)
 
     if not records:
+        # FR‑007: abort with the exact required message when no records are returned.
         sys.exit("No data found for specified filters.")
 
     log.info(f"Fetched {len(records)} perovskite defect records (post‑filter).")
@@ -229,6 +236,7 @@ def main() -> None:
 
     # Inform the user (the quickstart test asserts this line)
     print("Pipeline completed successfully")
+
 
 if __name__ == "__main__":
     main()
