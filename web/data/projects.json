@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 18274,
+    "total_contributions": 18277,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2244,
+      "contribution_count": 2246,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -1054,7 +1054,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 278,
+      "contribution_count": 279,
       "kind": "llm",
       "name": "zai-org.glm-5.3"
     },
@@ -28708,7 +28708,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-18T04:41:29.207234+00:00",
+  "generated_at": "2026-10-18T05:11:42.656510+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -28951,6 +28951,11 @@
           "title": "Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-302-evaluating-the-impact-of-code-generation",
+          "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+          "title": "Evaluating the Impact of Code Generation on Code Review Time: A Large-Scale Study"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v",
           "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
           "title": "llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning in Image Editing\""
@@ -28964,11 +28969,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-252-exploring-the-correlation-between-atmosp",
           "project_id": "PROJ-252-exploring-the-correlation-between-atmosp",
           "title": "Exploring the Correlation Between Atmospheric Pressure and Earthquake Precursors"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua",
-          "project_id": "PROJ-942-llmxive-follow-up-extending-bench-evalua",
-          "title": "llmXive follow-up: extending \"$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori\""
         }
       ],
       "inputs": [
@@ -28995,6 +28995,11 @@
           "title": "Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-302-evaluating-the-impact-of-code-generation",
+          "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+          "title": "Evaluating the Impact of Code Generation on Code Review Time: A Large-Scale Study"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v",
           "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
           "title": "llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning in Image Editing\""
@@ -29008,11 +29013,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-252-exploring-the-correlation-between-atmosp",
           "project_id": "PROJ-252-exploring-the-correlation-between-atmosp",
           "title": "Exploring the Correlation Between Atmospheric Pressure and Earthquake Precursors"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua",
-          "project_id": "PROJ-942-llmxive-follow-up-extending-bench-evalua",
-          "title": "llmXive follow-up: extending \"$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori\""
         }
       ],
       "inputs": [
@@ -29039,6 +29039,11 @@
           "title": "Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-302-evaluating-the-impact-of-code-generation",
+          "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+          "title": "Evaluating the Impact of Code Generation on Code Review Time: A Large-Scale Study"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v",
           "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
           "title": "llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning in Image Editing\""
@@ -29052,11 +29057,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-252-exploring-the-correlation-between-atmosp",
           "project_id": "PROJ-252-exploring-the-correlation-between-atmosp",
           "title": "Exploring the Correlation Between Atmospheric Pressure and Earthquake Precursors"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua",
-          "project_id": "PROJ-942-llmxive-follow-up-extending-bench-evalua",
-          "title": "llmXive follow-up: extending \"$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori\""
         }
       ],
       "inputs": [
@@ -29083,6 +29083,11 @@
           "title": "Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-302-evaluating-the-impact-of-code-generation",
+          "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+          "title": "Evaluating the Impact of Code Generation on Code Review Time: A Large-Scale Study"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v",
           "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
           "title": "llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning in Image Editing\""
@@ -29096,11 +29101,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-252-exploring-the-correlation-between-atmosp",
           "project_id": "PROJ-252-exploring-the-correlation-between-atmosp",
           "title": "Exploring the Correlation Between Atmospheric Pressure and Earthquake Precursors"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua",
-          "project_id": "PROJ-942-llmxive-follow-up-extending-bench-evalua",
-          "title": "llmXive follow-up: extending \"$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori\""
         }
       ],
       "inputs": [
@@ -29121,6 +29121,16 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-424-investigating-the-predictive-power-of-mo",
+          "project_id": "PROJ-424-investigating-the-predictive-power-of-mo",
+          "title": "Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-302-evaluating-the-impact-of-code-generation",
+          "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+          "title": "Evaluating the Impact of Code Generation on Code Review Time: A Large-Scale Study"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-187-evaluating-the-statistical-properties-of",
           "project_id": "PROJ-187-evaluating-the-statistical-properties-of",
           "title": "Evaluating the Statistical Properties of Synthetic Data Generation Techniques"
@@ -29134,16 +29144,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua",
           "project_id": "PROJ-942-llmxive-follow-up-extending-bench-evalua",
           "title": "llmXive follow-up: extending \"$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
-          "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
-          "title": "llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-258-the-effect-of-simulated-social-rejection",
-          "project_id": "PROJ-258-the-effect-of-simulated-social-rejection",
-          "title": "The Effect of Simulated Social Rejection on Neural Responses to Positive Feedback"
         }
       ],
       "inputs": [
@@ -29164,6 +29164,11 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-302-evaluating-the-impact-of-code-generation",
+          "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+          "title": "Evaluating the Impact of Code Generation on Code Review Time: A Large-Scale Study"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-187-evaluating-the-statistical-properties-of",
           "project_id": "PROJ-187-evaluating-the-statistical-properties-of",
           "title": "Evaluating the Statistical Properties of Synthetic Data Generation Techniques"
@@ -29182,11 +29187,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
           "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
           "title": "llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-258-the-effect-of-simulated-social-rejection",
-          "project_id": "PROJ-258-the-effect-of-simulated-social-rejection",
-          "title": "The Effect of Simulated Social Rejection on Neural Responses to Positive Feedback"
         }
       ],
       "inputs": [
@@ -29210,6 +29210,11 @@
       "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-302-evaluating-the-impact-of-code-generation",
+          "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+          "title": "Evaluating the Impact of Code Generation on Code Review Time: A Large-Scale Study"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-187-evaluating-the-statistical-properties-of",
           "project_id": "PROJ-187-evaluating-the-statistical-properties-of",
           "title": "Evaluating the Statistical Properties of Synthetic Data Generation Techniques"
@@ -29228,11 +29233,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
           "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
           "title": "llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-258-the-effect-of-simulated-social-rejection",
-          "project_id": "PROJ-258-the-effect-of-simulated-social-rejection",
-          "title": "The Effect of Simulated Social Rejection on Neural Responses to Positive Feedback"
         }
       ],
       "inputs": [
@@ -86920,12 +86920,14 @@
           ]
         },
         {
-          "contributions": 2,
+          "contributions": 10,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "clarifier",
-            "planner"
+            "implementer",
+            "planner",
+            "tasker"
           ]
         },
         {
@@ -86939,7 +86941,7 @@
       ],
       "citation_summary": {
         "mismatch": 4,
-        "pending": 6,
+        "pending": 5,
         "unreachable": 0,
         "verified": 2
       },
@@ -86950,12 +86952,76 @@
         "repo_path": "projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "planned",
+      "current_stage": "in_progress",
       "description": "Field: computer science Does code generated by large language models (LLMs) require significantly more review time than human-written code when controlling for code complexity and file size? LLM-powered code generation tools are rapidly adopted in software development, yet their downstream effects on code review\u2026",
       "field": "computer science",
       "id": "PROJ-302-evaluating-the-impact-of-code-generation",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 52.166956,
+          "ended_at": "2026-10-18T04:46:35.945157Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T04:45:43.778201Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 74.040188,
+          "ended_at": "2026-10-18T04:45:43.774481Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T04:44:29.734293Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 19.518081,
+          "ended_at": "2026-10-18T04:44:29.730472Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T04:44:10.212391Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 79.444171,
+          "ended_at": "2026-10-18T04:43:18.651543Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T04:41:59.207372Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 224.455777,
+          "ended_at": "2026-10-18T04:41:59.203642Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T04:38:14.747865Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 7.720023,
+          "ended_at": "2026-10-18T04:38:14.744264Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T04:38:07.024241Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 107.561928,
+          "ended_at": "2026-10-18T04:37:58.393998Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T04:36:10.832070Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 1729.760797,
+          "ended_at": "2026-10-18T04:35:55.406870Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T04:07:05.646073Z"
+        },
         {
           "agent": "planner",
           "duration_s": 1693.67415,
@@ -86971,70 +87037,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-12T11:31:25.861220Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1356.133478,
-          "ended_at": "2026-10-12T11:31:09.386465Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-12T11:08:33.252987Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 1517.701184,
-          "ended_at": "2026-09-24T15:56:33.996899Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "failed",
-          "started_at": "2026-09-24T15:31:16.295715Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 53.625078,
-          "ended_at": "2026-09-24T15:31:10.159534Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-24T15:30:16.534456Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 47.551239,
-          "ended_at": "2026-09-24T15:30:16.531801Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-24T15:29:28.980562Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 43.78707,
-          "ended_at": "2026-09-24T15:29:28.977909Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-24T15:28:45.190839Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.454256,
-          "ended_at": "2026-09-24T15:28:45.188122Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-24T15:28:39.733866Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 105.217396,
-          "ended_at": "2026-09-24T15:28:39.731275Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-24T15:26:54.513879Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 308.548795,
-          "ended_at": "2026-09-24T15:26:54.511303Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-24T15:21:45.962508Z"
         }
       ],
       "paper_status": null,
@@ -87048,7 +87050,7 @@
       "speckit_research_dir": "projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation",
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Impact of Code Generation on Code Review Time: A Large-Scale Study",
-      "updated_at": "2026-10-12T12:13:56.221558+00:00",
+      "updated_at": "2026-10-18T04:43:58.332322+00:00",
       "upstream_feedback": null
     },
     {
@@ -107381,25 +107383,26 @@
           ]
         },
         {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "clarifier",
+            "planner"
+          ]
+        },
+        {
           "contributions": 1,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "clarifier"
           ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "zai-org.glm-5.3",
-          "roles": [
-            "clarifier"
-          ]
         }
       ],
       "citation_summary": {
-        "mismatch": 1,
-        "pending": 4,
+        "mismatch": 0,
+        "pending": 1,
         "unreachable": 0,
         "verified": 0
       },
@@ -107410,12 +107413,20 @@
         "repo_path": "projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "clarified",
+      "current_stage": "planned",
       "description": "Verdict: pass The question asks about a relationship between simulation timescale and predictive accuracy for diffusion coefficients in simple liquids. This is a substantive question about the convergence properties of MD simulations as a scientific tool, independent of any specific architecture or implementation\u2026",
       "field": "chemistry",
       "id": "PROJ-424-investigating-the-predictive-power-of-mo",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "planner",
+          "duration_s": 1541.532888,
+          "ended_at": "2026-10-18T04:59:34.328605Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-18T04:33:52.795717Z"
+        },
         {
           "agent": "clarifier",
           "duration_s": 99.235266,
@@ -107487,14 +107498,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-20T19:23:56.195227Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 85.632969,
-          "ended_at": "2026-09-20T19:23:56.191969Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-20T19:22:30.559000Z"
         }
       ],
       "paper_status": null,
@@ -107508,7 +107511,7 @@
       "speckit_research_dir": "projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo",
       "submitter": null,
       "title": "Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients",
-      "updated_at": "2026-10-18T04:33:39.686332+00:00",
+      "updated_at": "2026-10-18T04:59:34.331463+00:00",
       "upstream_feedback": null
     },
     {
@@ -173525,6 +173528,114 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1541.532888,
+      "ended_at": "2026-10-18T04:59:34.328605Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-424-investigating-the-predictive-power-of-mo",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-18T04:33:52.795717Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 52.166956,
+      "ended_at": "2026-10-18T04:46:35.945157Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T04:45:43.778201Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 74.040188,
+      "ended_at": "2026-10-18T04:45:43.774481Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T04:44:29.734293Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 19.518081,
+      "ended_at": "2026-10-18T04:44:29.730472Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T04:44:10.212391Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 79.444171,
+      "ended_at": "2026-10-18T04:43:18.651543Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T04:41:59.207372Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 224.455777,
+      "ended_at": "2026-10-18T04:41:59.203642Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T04:38:14.747865Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 7.720023,
+      "ended_at": "2026-10-18T04:38:14.744264Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T04:38:07.024241Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 107.561928,
+      "ended_at": "2026-10-18T04:37:58.393998Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T04:36:10.832070Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 1729.760797,
+      "ended_at": "2026-10-18T04:35:55.406870Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T04:07:05.646073Z"
+    },
+    {
       "agent": "clarifier",
       "duration_s": 99.235266,
       "ended_at": "2026-10-18T04:33:39.683721Z",
@@ -173532,7 +173643,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-424-investigating-the-predictive-power-of-mo",
-      "project_stage": "clarified",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-18T04:32:00.448455Z"
     },
@@ -173556,7 +173667,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "failed",
       "project_id": "PROJ-424-investigating-the-predictive-power-of-mo",
-      "project_stage": "clarified",
+      "project_stage": "planned",
       "severity": "soft",
       "started_at": "2026-10-18T04:22:18.062705Z"
     },
@@ -173568,7 +173679,7 @@
       "model": "zai-org.glm-5.3",
       "outcome": "success",
       "project_id": "PROJ-424-investigating-the-predictive-power-of-mo",
-      "project_stage": "clarified",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-18T04:07:46.760714Z"
     },
@@ -179487,114 +179598,6 @@
       "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-17T01:18:10.139439Z"
-    },
-    {
-      "agent": "clarifier",
-      "duration_s": 155.070098,
-      "ended_at": "2026-10-17T01:35:29.932214Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-17T01:32:54.862116Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 859.906334,
-      "ended_at": "2026-10-17T01:32:39.909591Z",
-      "failure_reason": "StagePanelKickback: plan panel did not converge: 2 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'science'. Routing to 'specified' with full provenanc",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
-      "project_stage": "clarified",
-      "severity": "soft",
-      "started_at": "2026-10-17T01:18:20.003257Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 102.12689,
-      "ended_at": "2026-10-17T01:26:48.440216Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-551-asymptotic-behavior-of-random-matrix-eig",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-17T01:25:06.313326Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 359.806817,
-      "ended_at": "2026-10-17T01:25:06.308650Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-551-asymptotic-behavior-of-random-matrix-eig",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-17T01:19:06.501833Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 47.684213,
-      "ended_at": "2026-10-17T01:20:27.801097Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-889-llmxive-follow-up-extending-tide-proacti",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-17T01:19:40.116884Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 112.277012,
-      "ended_at": "2026-10-17T01:20:27.405209Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-17T01:18:35.128197Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 92.2998,
-      "ended_at": "2026-10-17T01:19:57.140408Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-446-predicting-molecular-halide-binding-affi",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-17T01:18:24.840608Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 172.53302,
-      "ended_at": "2026-10-17T01:01:48.287034Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-551-asymptotic-behavior-of-random-matrix-eig",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-17T00:58:55.754014Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 1511.976461,
-      "ended_at": "2026-10-17T00:59:30.090850Z",
-      "failure_reason": "StagePanelKickback: plan panel did not converge: 1 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full prove",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-426-the-impact-of-parasocial-relationships-w",
-      "project_stage": "specified",
-      "severity": "soft",
-      "started_at": "2026-10-17T00:34:18.114389Z"
     }
   ],
   "reviewed_preprints": [
