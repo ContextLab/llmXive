@@ -20,12 +20,14 @@ ERROR: file or directory not found: #
 
 
 - python -m code.download -> rc=1
-2026-10-18 12:21:38,279 - __main__ - INFO - Starting T002: Data Acquisition Pipeline.
-2026-10-18 12:21:38,280 - __main__ - INFO - Missing raw files. Starting download.
-2026-10-18 12:21:38,280 - __main__ - INFO - Opening NOAA pressure dataset via OPeNDAP: https://psl.noaa.gov/thredds/dodsC/Datasets/ncep.reanalysis.dailyavgs/pressure/mslp.nc
-2026-10-18 12:21:38,551 - __main__ - ERROR - Failed to open OPeNDAP dataset: [Errno -90] NetCDF: file not found: 'https://psl.noaa.gov/thredds/dodsC/Datasets/ncep.reanalysis.dailyavgs/pressure/mslp.nc'
-2026-10-18 12:21:38,551 - __main__ - CRITICAL - T002 failed: Critical failure opening NOAA OPeNDAP dataset: [Errno -90] NetCDF: file not found: 'https://psl.noaa.gov/thredds/dodsC/Datasets/ncep.reanalysis.dailyavgs/pressure/mslp.nc'
+2026-10-18 13:21:04,119 - __main__ - INFO - Starting T002: Data Acquisition Pipeline.
+2026-10-18 13:21:04,120 - __main__ - INFO - Missing raw files. Starting download.
+2026-10-18 13:21:04,120 - __main__ - INFO - Opening NOAA pressure dataset via URL: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
+2026-10-18 13:21:04,239 - __main__ - ERROR - Failed to open dataset: [Errno -77] NetCDF: Access failure: 'https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc'
+2026-10-18 13:21:04,239 - __main__ - CRITICAL - T002 failed: Critical failure opening NOAA dataset: [Errno -77] NetCDF: Access failure: 'https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc'
 
+syntax error, unexpected WORD_WORD, expecting SCAN_ATTR or SCAN_DATASET or SCAN_ERROR
+context: Invalid^ username or password.
 
 - python code/preprocess.py -> rc=1
 
@@ -35,7 +37,7 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'geopandas'
 
 - python code/analysis.py -> rc=1
- 12:21:39 - __main__ - INFO - Starting analysis pipeline.
+ 13:21:04 - __main__ - INFO - Starting analysis pipeline.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 317, in <module>
@@ -66,7 +68,7 @@ FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_earthq
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_pressure_anomaly_schema_validates_valid_data
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_pressure_anomaly_schema_rejects_missing_fields
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_required_fields_match_spec
-============================== 7 failed in 0.07s ===============================
+============================== 7 failed in 0.08s ===============================
 
 
 

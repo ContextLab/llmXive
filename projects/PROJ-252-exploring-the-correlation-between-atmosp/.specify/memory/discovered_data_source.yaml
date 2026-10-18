@@ -1,18 +1,18 @@
 status: none
-intent: NOAA NCEP/NCAR reanalysis surface pressure and USGS ComCat earthquake catalog
-  2013-2023 python package dataset
+intent: NOAA NCEP/NCAR Reanalysis pressure dataset python package and USGS Earthquake
+  Catalog python package dataset
 required_fields:
 - event_id
-- origin_time
+- time
 - magnitude
-- depth_km
+- depth
 - latitude
 - longitude
-- surface_pressure_hpa
-- pressure_anomaly_hpa
+- mslp
+- pressure_anomaly
+- enso_phase
+- pdo_phase
 - control_window_label
-- year
-- month
-cache_key: dc98dc991116016510f366cef2798fcb502d75b0cf471bf56486f3c4259baaf6
-searched_at: '2026-10-18T12:24:06.750193+00:00'
+cache_key: 7ae17a0ee3b082392f7f6f92f53cdc227c84a2b38b065fe95deafbd52b37b1be
+searched_at: '2026-10-18T13:21:34.143169+00:00'
 retry_count: 1

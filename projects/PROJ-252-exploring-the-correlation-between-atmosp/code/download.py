@@ -88,28 +88,27 @@ def _sha256_of_file(path: Path) -> str:
 
 def download_noaa_pressure() -> None:
     """
-    Download the full NOAA NCEP/NCAR sea‑level pressure dataset via OPeNDAP
-    and write it to the expected raw data location.
+    Download the full NOAA NCEP/NCAR sea‑level pressure dataset via the
+    verified HuggingFace URL and write it to the expected raw data location.
     """
     RAW_PRESSURE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    # Public OPeNDAP URL for the NCEP/NCAR reanalysis mean sea‑level pressure
+    # Verified URL for the NCEP/NCAR reanalysis mean sea‑level pressure
     opendap_url = (
-        "https://psl.noaa.gov/thredds/dodsC/Datasets/ncep.reanalysis.dailyavgs/pressure/mslp.nc"
+        "https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc"
     )
-    logger.info(f"Opening NOAA pressure dataset via OPeNDAP: {opendap_url}")
+    logger.info(f"Opening NOAA pressure dataset via URL: {opendap_url}")
     try:
         # Open lazily with chunking to avoid loading the full array into memory
         ds = xr.open_dataset(opendap_url, engine="netcdf4", chunks={"time": 30})
         # Force evaluation of dimensions to ensure the remote file is reachable
         _ = ds.sizes.get("time")
     except Exception as e:
-        logger.error(f"Failed to open OPeNDAP dataset: {e}")
-        raise RuntimeError(f"Critical failure opening NOAA OPeNDAP dataset: {e}")
+        logger.error(f"Failed to open dataset: {e}")
+        raise RuntimeError(f"Critical failure opening NOAA dataset: {e}")
 
     logger.info("Saving the pressure dataset to local NetCDF file.")
     try:
-        # Write the dataset to the local raw path
         ds.to_netcdf(RAW_PRESSURE_PATH)
     except Exception as e:
         logger.error(f"Failed to write pressure NetCDF to disk: {e}")
@@ -178,7 +177,7 @@ def main() -> int:
                 needs_download = True
 
         if needs_download:
-            # Download pressure data via OPeNDAP
+            # Download pressure data via verified URL
             download_noaa_pressure()
 
             # Download USGS catalog and capture row count
