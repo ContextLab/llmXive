@@ -1,26 +1,18 @@
 """
-Project Structure Creation Script
-=================================
+Project Structure Setup Script
+===============================
 
-This script creates the required directory layout for the VAERS statistical
-analysis project and writes a snapshot of the filesystem hierarchy to
-``logs/structure.txt``.  It first attempts to use the external ``tree``
-command (``tree -a -L 3``).  If ``tree`` is unavailable or fails, a pure‑Python
-fallback walks the directory tree up to three levels deep and writes a
-simple list of directories (each ending with a slash).
+This script creates the required directory layout for the VAERS
+statistical analysis project and writes a snapshot of the first three
+levels of the repository tree to ``logs/structure.txt``.  It uses the
+system ``tree`` command when available and falls back to ``find`` if
+``tree`` is not installed.
 
-The script is intended to be executed via::
+The script is intended to be run as an entry point:
 
     python -m code.create_structure
-
-which satisfies the verification step in task T001 (the existence of
-``logs/structure.txt`` and the presence of the required directories).
-
-The implementation relies only on the standard library and the
-``llmxive_toolkit`` helpers for path handling and logging.
 """
 
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -30,10 +22,10 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Logger
 # ----------------------------------------------------------------------
-log = get_logger(__name__)
+log = get_logger(__name__)  # optional: get_logger(__name__, log_file="logs/run.log")
 
 # ----------------------------------------------------------------------
-# Required directories (relative to the repository root)
+# Required directory list (matches the task specification)
 # ----------------------------------------------------------------------
 REQUIRED_DIRS = [
     "src/data",
@@ -51,75 +43,58 @@ REQUIRED_DIRS = [
     "logs",
 ]
 
-# ----------------------------------------------------------------------
-# Helper: create all directories
-# ----------------------------------------------------------------------
-def create_directories() -> None:
-    """Create each directory in ``REQUIRED_DIRS`` (including parents)."""
-    for rel_dir in REQUIRED_DIRS:
-        dir_path = Path(rel_dir)
-        dir_path.mkdir(parents=True, exist_ok=True)
-        log.debug(f"Ensured directory exists: {dir_path}")
 
-# ----------------------------------------------------------------------
-# Helper: write a snapshot of the directory tree to logs/structure.txt
-# ----------------------------------------------------------------------
+def create_directories() -> None:
+    """Create every directory in ``REQUIRED_DIRS`` (including parents)."""
+    for d in REQUIRED_DIRS:
+        Path(d).mkdir(parents=True, exist_ok=True)
+    log.info(f"Created {len(REQUIRED_DIRS)} required directories.")
+
+
 def write_structure_snapshot() -> None:
     """
     Capture a three‑level directory listing.
 
-    Primary method uses ``tree -a -L 3``.  If the command is missing or
-    returns a non‑zero exit status, a Python fallback walks the file system.
+    Primary method: ``tree -a -L 3``.
+    Fallback: ``find . -maxdepth 3 -type d``.
     The result is written to ``logs/structure.txt`` using the
-    ``llmxive_toolkit.paths`` helper.
+    ``llmxive_toolkit.paths`` helper (which also creates the parent folder).
     """
     output_path = paths.logs("structure.txt")
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        # ``tree`` prints the full tree rooted at the current working directory.
+        # ``tree`` prints a nicely‑formatted hierarchy.
         result = subprocess.run(
-            ["tree", "-a", "-L", "3", "."],
+            ["tree", "-a", "-L", "3"],
             capture_output=True,
             text=True,
             check=True,
         )
         content = result.stdout
-        log.info("Directory snapshot captured using the 'tree' command.")
-    except (FileNotFoundError, subprocess.CalledProcessError) as e:
-        log.warning(
-            f"'tree' command unavailable or failed ({e}); using Python fallback."
+        log.info("Directory snapshot generated via `tree`.")
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        # ``tree`` not installed or failed – use ``find`` as a reliable fallback.
+        log.warning("`tree` command unavailable; falling back to `find`.")
+        result = subprocess.run(
+            ["find", ".", "-maxdepth", "3", "-type", "d"],
+            capture_output=True,
+            text=True,
+            check=True,
         )
-        # Python fallback: list directories up to depth 3
-        max_depth = 3
-        lines = []
-        root = Path.cwd()
-        for dirpath, dirnames, _ in os.walk(root):
-            rel_path = Path(dirpath).relative_to(root)
-            depth = len(rel_path.parts)
-            if depth <= max_depth:
-                # Ensure a trailing slash to indicate a directory
-                lines.append(str(rel_path) + "/" if str(rel_path) else "./")
-        content = "\n".join(lines) + "\n"
-        log.info("Directory snapshot generated via Python fallback.")
+        # ``find`` returns one directory per line; join with newlines.
+        content = "\n".join(result.stdout.splitlines())
 
-    # Write the snapshot
     output_path.write_text(content, encoding="utf-8")
-    log.info(f"Wrote directory structure to {output_path}")
+    log.info(f"Wrote directory structure snapshot to {output_path}")
 
-# ----------------------------------------------------------------------
-# Main entry point
-# ----------------------------------------------------------------------
+
 def main() -> None:
-    """Create directories and write the structure log."""
-    log.info("Starting project layout creation (T001).")
+    """Entry point used by ``python -m code.create_structure``."""
     create_directories()
     write_structure_snapshot()
-    log.info("Project layout creation completed successfully.")
+
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as exc:
-        log.error(f"Unexpected error during setup: {exc}")
-        sys.exit(1)
+    # Allow direct execution as ``python code/create_structure.py``.
+    main()

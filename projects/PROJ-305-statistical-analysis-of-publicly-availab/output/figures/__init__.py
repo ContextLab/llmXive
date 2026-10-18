@@ -1,0 +1,1 @@
+"""Package marker for figure outputs."""

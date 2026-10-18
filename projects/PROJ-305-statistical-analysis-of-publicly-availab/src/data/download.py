@@ -33,8 +33,10 @@ from llmxive_toolkit import paths, get_logger
 # Configuration
 # ----------------------------------------------------------------------
 # The CDC GitHub repository contains the complete VAERS CSV archive.
+# The default branch is ``main`` (not ``master``).  Using the correct URL
+# ensures the download succeeds on the CI runner.
 CDC_ZIP_URL = (
-    "https://github.com/CDCgov/VAERS-data/archive/refs/heads/master.zip"
+    "https://github.com/CDCgov/VAERS-data/archive/refs/heads/main.zip"
 )
 YEARS = [2020, 2021, 2022, 2023]
 FILE_TYPES = ["VAERSDATA", "VAERSVAX", "VAERSSYMPTOMS"]  # without extension
@@ -112,7 +114,7 @@ def extract_required_files(zip_path: Path) -> None:
             }
 
             # The zip archive prefixes all entries with the repo folder name,
-            # e.g. "VAERS-data-master/2020VAERSDATA.csv"
+            # e.g. "VAERS-data-main/2020VAERSDATA.csv"
             prefix = None
             for member in zf.namelist():
                 # Determine the top‑level folder name once

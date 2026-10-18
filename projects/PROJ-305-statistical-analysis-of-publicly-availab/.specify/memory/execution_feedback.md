@@ -19,26 +19,26 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python src/data/download.py -> rc=1
 
-2026-10-18 22:15:19,738 INFO __main__: Starting VAERS data download
-2026-10-18 22:15:19,738 INFO __main__: Downloading CDC VAERS zip from https://github.com/CDCgov/VAERS-data/archive/refs/heads/master.zip
-2026-10-18 22:15:19,738 INFO __main__: Downloading https://github.com/CDCgov/VAERS-data/archive/refs/heads/master.zip
-2026-10-18 22:15:19,898 ERROR __main__: Failed to download CDC zip: 404 Client Error: Not Found for url: https://github.com/CDCgov/VAERS-data/archive/refs/heads/master.zip
+2026-10-18 23:15:33,438 INFO __main__: Starting VAERS data download
+2026-10-18 23:15:33,438 INFO __main__: Downloading CDC VAERS zip from https://github.com/CDCgov/VAERS-data/archive/refs/heads/main.zip
+2026-10-18 23:15:33,438 INFO __main__: Downloading https://github.com/CDCgov/VAERS-data/archive/refs/heads/main.zip
+2026-10-18 23:15:33,524 ERROR __main__: Failed to download CDC zip: 404 Client Error: Not Found for url: https://github.com/CDCgov/VAERS-data/archive/refs/heads/main.zip
 
 - python src/data/validate.py -> rc=2
-2026-10-18 22:15:20,210 - validate - INFO - Loading schema from contracts/dataset.schema.yaml
-2026-10-18 22:15:20,212 - validate - INFO - Loading data from data/processed/cleaned_vaers.parquet
-2026-10-18 22:15:20,212 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.parquet
+2026-10-18 23:15:33,838 - validate - INFO - Loading schema from contracts/dataset.schema.yaml
+2026-10-18 23:15:33,840 - validate - INFO - Loading data from data/processed/cleaned_vaers.parquet
+2026-10-18 23:15:33,840 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.parquet
 
 
 - python code/src/data/clean.py -> rc=1
 
-2026-10-18 22:15:20,523 - clean - INFO - Starting data cleaning process
-2026-10-18 22:15:20,523 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
+2026-10-18 23:15:34,188 - clean - INFO - Starting data cleaning process
+2026-10-18 23:15:34,189 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
 
 - python src/main.py -> rc=1
-2026-10-18 22:15:21,020 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-18 22:15:21,040 - matplotlib.font_manager - INFO - generated new fontManager
-2026-10-18 22:15:21,242 - pipeline - INFO - No action specified. Use --full or --phase N
+2026-10-18 23:15:34,695 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
+2026-10-18 23:15:34,757 - matplotlib.font_manager - INFO - generated new fontManager
+2026-10-18 23:15:34,962 - pipeline - INFO - No action specified. Use --full or --phase N
 
 
 - python -m pytest -q tests/contract/ -> rc=4

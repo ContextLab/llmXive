@@ -14,6 +14,7 @@
 │   │   ├── research_question_validated.yaml
 │   │   ├── task_verifier_notes.md
 │   │   ├── task_verify.feedback.yaml
+│   │   ├── task_verify.yaml
 │   │   ├── task_verify_cache.yaml
 │   │   └── tasker_rounds.yaml
 │   ├── scripts
@@ -34,8 +35,9 @@
 │   ├── .gitkeep
 │   ├── .ruff.toml
 │   ├── .tasks
+│   │   ├── T001.code_create_structure.py.log
+│   │   ├── T001.tests_unit_test_structure.py.log
 │   │   ├── T002.src_data_download.py.log
-│   │   ├── T002.tests_unit_test_download.py.log
 │   │   └── T016b.atomize.yaml
 │   ├── Makefile
 │   ├── README.md
@@ -72,7 +74,6 @@
 │   ├── src
 │   │   ├── .gitkeep
 │   │   ├── __init__.py
-│   │   ├── __pycache__
 │   │   ├── analysis
 │   │   ├── data
 │   │   ├── main.py
@@ -88,18 +89,24 @@
 │   ├── signal.schema.yaml
 │   └── soc_cluster.schema.yaml
 ├── data
-│   └── .gitkeep
+│   ├── .gitkeep
+│   ├── processed
+│   ├── raw
+│   └── results
+│       └── __init__.py
 ├── figures
 │   └── .gitkeep
 ├── idea
 │   ├── research_question_validation.md
 │   └── statistical-analysis-of-publicly-availab.md
 ├── logs
-│   ├── download.log
 │   ├── lint.txt
 │   └── structure.txt
 ├── output
-│   └── .gitkeep
+│   ├── .gitkeep
+│   ├── figures
+│   │   └── __init__.py
+│   └── temporal_profiles
 ├── pyproject.toml
 ├── quickstart.md
 ├── requirements.txt
@@ -127,11 +134,15 @@
 │   │   ├── download.py
 │   │   └── validate.py
 │   ├── main.py
-│   └── utils
-│       ├── config.py
-│       └── plots.py
+│   ├── utils
+│   │   ├── config.py
+│   │   └── plots.py
+│   └── validation
+│       └── __init__.py
 └── tests
     ├── .gitkeep
+    ├── fixtures
+    │   └── __init__.py
     ├── integration
     │   ├── test_pipeline.py
     │   ├── test_signal_detection.py
@@ -143,8 +154,9 @@
         ├── test_download.py
         ├── test_download_meddra.py
         ├── test_signal_schema.py
+        ├── test_structure.py
         ├── test_t022_disproportionality.py
         ├── test_validate.py
         └── test_validate_e_schema_missing.py
 
-46 directories, 102 files
+52 directories, 108 files

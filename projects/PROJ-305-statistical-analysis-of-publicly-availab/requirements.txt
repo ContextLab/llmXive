@@ -1,8 +1,9 @@
+# Project dependencies (explicitly listed for clarity)
+# Core scientific stack – already available in the execution environment
 pandas
 numpy
 scipy
 matplotlib
-datasets
 pyarrow
 statsmodels
 psutil
