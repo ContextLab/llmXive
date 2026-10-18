@@ -17,7 +17,7 @@ properties:
     description: "Number of subjects skipped due to missing data."
   structural_data_available:
     type: "boolean"
-    description: "True if real structural connectomes were obtainable; false means motif-association stage is gated."
+    description: "True if real structural connectomes were obtainable; false means motif stage is gated."
   subjects:
     type: "array"
     items:

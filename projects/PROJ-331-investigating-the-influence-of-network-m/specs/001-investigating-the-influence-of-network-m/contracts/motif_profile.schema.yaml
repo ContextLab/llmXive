@@ -7,7 +7,7 @@ properties:
     type: "string"
   motif_z_scores:
     type: "object"
-    description: "Map of motif identifier (3-node and 4-node classes) to z-score."
+    description: "Map of motif identifier (3‑node and 4‑node classes) to z‑score."
     additionalProperties:
       type: "number"
   null_model_params:
@@ -28,7 +28,7 @@ properties:
       - "seed"
   elapsed_seconds:
     type: "number"
-    description: "Wall-clock enumeration time; must be <= 300 per SC-002."
+    description: "Wall‑clock enumeration time; must be <= 300 per SC‑002."
 required:
   - "subject_id"
   - "motif_z_scores"

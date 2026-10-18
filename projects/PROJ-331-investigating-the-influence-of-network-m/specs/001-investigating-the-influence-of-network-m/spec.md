@@ -47,7 +47,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** motif z‑scores, rsFC strength, and global efficiency metrics for all subjects, **When** the correlation module runs, **Then** it computes partial Pearson **and** Spearman correlations controlling for structural global degree, applies Bonferroni correction across 32 primary tests (8 motifs × 2 metrics × 2 correlation types), and flags motifs with corrected p < 0.05.
+1. **Given** motif z‑scores, rsFC strength, and global efficiency metrics for all subjects, **When** the correlation module runs, **Then** it computes partial Pearson **and** Spearman correlations controlling for structural global degree, applies Bonferroni correction across the primary tests (covering multiple motifs, metrics, and correlation types), and flags motifs with corrected p < 0.05.
 2. **Given** the same input data, **When** the permutation test is performed (shuffling subject labels, 1000 permutations), **Then** the module reports an empirical p‑value for all motifs that is consistent with the analytical correction within 2× the standard error of the mean for the permutation distribution.
 3. **Given** the input data, **When** the power analysis module runs, **Then** it reports the minimum detectable Pearson r for power=0.80, α = 0.05/32, and N = 50, and includes this in the report's limitations section. If fewer than 30 subjects remain after exclusions, the module recomputes power with the actual N and advises increasing cohort size or relaxing α to retain ≥ 0.80 power.
 4. **Given** the motif z‑scores, **When** the multicollinearity check runs, **Then** it reports pairwise Pearson correlations among motif predictors and flags any predictor pair with |r| ≥ 0.9.
@@ -88,7 +88,7 @@ The analysis will use the **Human Connectome Project (HCP) 1200‑Subject Releas
 hcp_download --project HCP1200 --modality dwi --modality rest --subjects sub-01 sub-02 ... sub-50
 ```
 
-Only the first 50 subjects listed in `participants.tsv` are required for this study; the subset includes both diffusion and rs‑fMRI data, satisfying the structural‑functional pairing needed for the investigation. No manual registration of modalities is required because the HCP pipeline already aligns diffusion and functional images to a common space.
+Only a limited initial subset of subjects listed in `participants.tsv` are required for this study.; the subset includes both diffusion and rs‑fMRI data, satisfying the structural‑functional pairing needed for the investigation. No manual registration of modalities is required because the HCP pipeline already aligns diffusion and functional images to a common space.
 
 ### Success Criteria *(mandatory)*
 
