@@ -1,20 +1,69 @@
 import argparse
+import hashlib
+import logging
 from pathlib import Path
-from llmxive_toolkit import paths, get_logger
-from datasets import load_dataset, DatasetDict
-from datasets.exceptions import DatasetNotFoundError
+from typing import List, Tuple
 
+from huggingface_hub import HfApi, hf_hub_download
+from llmxive_toolkit import paths, get_logger
+
+# Initialize logger
 log = get_logger(__name__)
 
-# The official π‑Bench dataset is hosted on the Hugging Face Hub under the
-# namespace "allenai". Using the fully‑qualified identifier ensures that the
-# dataset can be resolved on the CI runner without requiring any custom
-# authentication or trust‑remote‑code flags.
-DEFAULT_DATASET_ID = "allenai/pi_bench"
+# Constants for the dataset
+REPO_ID = "allenai/pi_bench"
+REPO_TYPE = "dataset"
+
+def _list_repo_files() -> List[str]:
+    """
+    Retrieve a list of all file paths in the remote repository.
+    """
+    api = HfApi()
+    # `repo_files` returns a list of file paths relative to the repo root.
+    repo_files = api.list_repo_files(repo_id=REPO_ID, repo_type=REPO_TYPE)
+    # Filter out any hidden files that are not part of the dataset payload
+    # (e.g., .gitattributes, .gitignore, README, etc.)
+    data_files = [f for f in repo_files if not f.startswith(".")]
+    log.debug(f"Found {len(data_files)} files in the repository.")
+    return data_files
+
+def _download_file(filename: str, target_dir: Path) -> Path:
+    """
+    Download a single file from the hub into ``target_dir`` preserving its relative path.
+    Returns the local Path of the downloaded file.
+    """
+    local_path = hf_hub_download(
+        repo_id=REPO_ID,
+        filename=filename,
+        repo_type=REPO_TYPE,
+        local_dir=target_dir,
+    )
+    log.debug(f"Downloaded {filename} → {local_path}")
+    return Path(local_path)
+
+def _sha256_checksum(file_path: Path) -> str:
+    """
+    Compute the SHA‑256 checksum of ``file_path``.
+    """
+    h = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+def _write_checksums(files: List[Tuple[Path, str]], out_path: Path) -> None:
+    """
+    Write a manifest of SHA‑256 checksums.
+    ``files`` is a list of (relative_path, checksum) tuples.
+    """
+    with out_path.open("w", encoding="utf-8") as f:
+        for rel_path, checksum in files:
+            f.write(f"{checksum}  {rel_path}\n")
+    log.info(f"Checksum manifest written to {out_path}")
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download the π‑Bench dataset into data/raw"
+        description="Download the π‑Bench dataset into data/raw using huggingface_hub."
     )
     parser.add_argument(
         "--data-dir",
@@ -22,54 +71,41 @@ def main() -> None:
         default=str(paths.data("raw")),
         help="Directory to store raw dataset files (used for downstream pipelines)",
     )
-    parser.add_argument(
-        "--dataset-id",
-        type=str,
-        default=DEFAULT_DATASET_ID,
-        help="HuggingFace dataset identifier (e.g., 'allenai/pi_bench')",
-    )
     args = parser.parse_args()
     raw_dir = Path(args.data_dir)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    log.info(f"Downloading dataset {args.dataset_id}")
-
-    # Attempt to download the dataset.  We deliberately avoid passing
-    # `data_dir` to `load_dataset` because that argument is intended for
-    # local dataset scripts; providing it for a hub dataset can cause a
-    # `DatasetNotFoundError`.  Instead we rely on the library's default
-    # cache location and, after a successful download, write a small
-    # manifest file into `raw_dir` so downstream steps can verify that the
-    # download succeeded.
+    log.info(f"Starting download of repository '{REPO_ID}' (type={REPO_TYPE})")
     try:
-        ds: DatasetDict = load_dataset(args.dataset_id)
-    except DatasetNotFoundError as e:
-        log.error(f"Failed to locate dataset '{args.dataset_id}': {e}")
+        file_list = _list_repo_files()
+    except Exception as exc:
+        log.error(f"Failed to list files in repository {REPO_ID}: {exc}")
         raise
 
-    # Force materialisation of at least one example from each split to
-    # guarantee that the download has completed successfully.
-    for split_name, split in ds.items():
+    checksums: List[Tuple[Path, str]] = []
+    for repo_file in file_list:
         try:
-            _ = split[0]
-            log.debug(f"Loaded first example from split '{split_name}'.")
-        except Exception as e:
-            log.error(f"Failed to load example from split '{split_name}': {e}")
+            local_path = _download_file(repo_file, raw_dir)
+            # Compute checksum relative to the raw_dir root
+            rel_path = local_path.relative_to(raw_dir)
+            checksum = _sha256_checksum(local_path)
+            checksums.append((rel_path, checksum))
+        except Exception as exc:
+            log.error(f"Error downloading or processing file '{repo_file}': {exc}")
             raise
 
-    # Write a simple manifest file that records which splits were downloaded.
+    # Write a simple manifest file listing the downloaded files
     manifest_path = raw_dir / "download_manifest.txt"
-    with manifest_path.open("w", encoding="utf-8") as f:
-        for split_name in ds.keys():
-            f.write(f"{split_name}\\n")
-    log.info(f"Download completed successfully. Manifest written to {manifest_path}")
+    with manifest_path.open("w", encoding="utf-8") as mf:
+        for repo_file in file_list:
+            mf.write(f"{repo_file}\n")
+    log.info(f"Download manifest written to {manifest_path}")
 
-    # Log the location of cached files for debugging purposes.
-    for cache_file in ds.cache_files.values():
-        if isinstance(cache_file, dict):
-            cache_path = cache_file.get("filename")
-            if cache_path:
-                log.debug(f"Cached file: {cache_path}")
+    # Write checksum file
+    checksum_path = raw_dir / "checksums.txt"
+    _write_checksums(checksums, checksum_path)
+
+    log.info("π‑Bench dataset download completed successfully.")
 
 if __name__ == "__main__":
     main()

@@ -1,9 +1,6 @@
-# Core dependencies (already provided by the platform)
+# Project dependencies
+huggingface_hub>=0.23
+# Existing dependencies are provided by the platform and need not be listed:
 # numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
 # seaborn, pytest, PyYAML, requests, jsonschema, psutil
-
-# Additional required packages
-datasets>=2.14
-# networkx and other heavy libraries are needed in later tasks,
-# but they are not required for the download step. They will be added
-# in subsequent tasks when needed.
+# llmxive_toolkit is pre‑installed.
