@@ -64,17 +64,6 @@
   verification_status: mismatch
   verified_against_url: https://github.com/llmXive/PROJ-302/releases/tag/v0.0.1
   verified_at: '2026-09-04T05:14:33.795666Z'
-- artifact_hash: 3f5ac1a13f20c773039fd63aad132c147ccc732837bbc2fd7b0f4968e307c6fd
-  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: p-value - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/P-value
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-09-24T15:31:08.201948Z'
 - artifact_hash: ab9a6b6def3cce550e2d54aa36d8d3de84b4fbba11fd38e6d9c2a97ef4cf4980
   artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/plan.md
   cite_id: c-001
@@ -130,3 +119,38 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/P-value
   verified_at: '2026-10-12T12:13:16.132772Z'
+- artifact_hash: cc1cfa6993f8abe9e757db045e59cd07ed88ce19024b6c88e6e5358ec3e17d9f
+  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - torvalds/linux: Linux kernel source tree \xB7 GitHub"
+  kind: url
+  value: https://github.com/torvalds/linux`
+  verification_status: pending
+  verified_against_url: https://github.com/torvalds/linux
+  verified_at: '2026-10-18T04:35:54.219559Z'
+- artifact_hash: cc1cfa6993f8abe9e757db045e59cd07ed88ce19024b6c88e6e5358ec3e17d9f
+  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - kubernetes/kubernetes: Production-Grade Container Scheduling\
+    \ and Management \xB7 GitHub"
+  kind: url
+  value: https://github.com/kubernetes/kubernetes`
+  verification_status: pending
+  verified_against_url: https://github.com/kubernetes/kubernetes
+  verified_at: '2026-10-18T04:35:54.219559Z'
+- artifact_hash: cc1cfa6993f8abe9e757db045e59cd07ed88ce19024b6c88e6e5358ec3e17d9f
+  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - tensorflow/tensorflow: An Open Source Machine Learning\
+    \ Framework for Everyone \xB7 GitHub"
+  kind: url
+  value: https://github.com/tensorflow/tensorflow`
+  verification_status: pending
+  verified_against_url: https://github.com/tensorflow/tensorflow
+  verified_at: '2026-10-18T04:35:54.219559Z'
