@@ -55,15 +55,15 @@ The pipeline is orchestrated via `code/main.py`. Each sub‑command creates the 
 ```bash
 python code/main.py scaffold
 ```
-Creates missing `.gitkeep` files in `metrics/` and `logs/` and confirms the root‑level `.flake8`.
+Creates missing `.gitkeep` files in `metrics/` and `logs/`, verifies that `.flake8` exists at the repository root, and confirms required directory placeholders.
 
 ### Step 1 – Download Data (T004, T010)
 ```bash
 python code/main.py download
 ```
-- Fetches historical & recent GBIF occurrences.  
-- Downloads WorldClim v2.1 and CMIP6 rasters.  
-- Computes SHA‑256 checksums; aborts on mismatch.  
+- Fetches historical & recent GBIF/eBird occurrences.  
+- Streams WorldClim v2.1 and CMIP6 rasters tile‑by‑tile to keep RAM low.  
+- Computes SHA‑256 checksums; aborts on mismatch (fulfills T010).  
 - Populates `data/manifest.json`.
 
 ### Step 2 – Preprocess (T003)
@@ -78,7 +78,7 @@ python code/main.py preprocess
 ```bash
 python code/main.py train
 ```
-- Checks for CUDA (`utils/gpu_check.py`) and exits if a GPU is present.  
+- Checks for CUDA (`utils/gpu_check.py`) and exits if a GPU is detected.  
 - Performs spatial block cross‑validation, trains RF, Bioclim, and MaxEnt‑style models.  
 - Saves model pickles under `models/` and logs to `logs/train.log`.
 
@@ -107,6 +107,7 @@ Creates `reports/findings.md` containing tables, figures, and the mandatory disc
 | **GPU detected & pipeline aborts** | Runner has CUDA enabled (unlikely on free tier) | Ensure `torch` is not installed, or run on a pure‑CPU runner. |
 | **Checksum mismatch** | Corrupted raster download | Delete the offending file and re‑run `code/main.py download`. |
 | **Insufficient records for a species** | `<100` records after thinning | Species will be flagged as `INSUFFICIENT_DATA`; check `metrics/data_sufficiency.json`. |
+| **Missing `.gitkeep` or `.flake8`** | Initial scaffold not run | Re‑run `python code/main.py scaffold`. |
 
 All generated files conform to the JSON/YAML schemas in `specs/001-predicting-species-distribution-shifts/contracts/`.
 

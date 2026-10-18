@@ -60,7 +60,7 @@ erDiagram
 | `tss` | float (‑1 → 1) | True Skill Statistic. |
 | `threshold` | float | Probability cutoff used for TSS. |
 | `sample_size` | integer | Number of validation records. |
-| `status` | string (`PASS` / `INSUFFICIENT_DATA`) | Sufficiency flag. |
+| `status` | string (`PASS` / `INSUFFICIENT_DATA`) | Sufficiency flag (FR‑006). |
 | `delta_suitability` | float | Mean suitability shift (2050 – 2005‑2020). |
 | `p_value` | float (0 → 1) | From hierarchical bootstrap. |
 | `effect_size` | float | Cohen’s h (expected = 0.50). |
@@ -85,12 +85,12 @@ erDiagram
 | Model files | Pickle (`.pkl`) | `contracts/model_artifact.schema.yaml` |
 | Metric JSONs | JSON | `contracts/model_metrics.schema.yaml` |
 | Data sufficiency JSON | JSON | `contracts/data_sufficiency.schema.yaml` |
-| Logging configuration | YAML (Python `logging.config.dictConfig`) | `logs/preprocess_counts.yaml` (schema not required but must follow logging spec). |
+| Logging configuration | YAML (Python `logging.config.dictConfig`) | No schema required but must be present in `logs/`. |
 
 ## 4. Data Flow
 1. **Download** (`code/download.py`) → `data/raw/` (occurrence CSVs, climate GeoTIFFs).  
 2. **Preprocess** (`code/preprocess.py`) → `data/processed/features.csv` + `metrics/data_sufficiency.json`.  
-3. **Train** (`code/train.py`) → `models/*.pkl` + `metrics/model_artifact.json`.  
+3. **Train** (`code/train.py`) → `models/*.pkl`.  
 4. **Evaluate** (`code/evaluate.py`) → `metrics/model_performance.json` + `results/summary_table.csv`.  
 5. **Report** (`code/report.py`) → `reports/findings.md`.  
 

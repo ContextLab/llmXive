@@ -3,12 +3,12 @@
   "stage": "clarified",
   "class": "transient",
   "fingerprint": "model_chain_failed",
-  "consecutive_count": 1,
+  "consecutive_count": 2,
   "first_seen": "2026-10-11T08:49:01.597709+00:00",
-  "last_seen": "2026-10-11T08:49:01.597709+00:00",
-  "retry_after": "2026-10-11T08:59:01.597709+00:00",
-  "last_error": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 178s deadline (no response received)",
-  "evidence": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 178s deadline (no response received)",
+  "last_seen": "2026-10-18T22:33:24.150847+00:00",
+  "retry_after": "2026-10-18T22:53:24.150847+00:00",
+  "last_error": "every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | google.gemma-4-31B-it(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | anthropic.claude-haiku-4-5-20251001(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min",
+  "evidence": "every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 conse",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
   "status": "retry_scheduled"
 }

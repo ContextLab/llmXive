@@ -1,90 +1,6 @@
-status: verified
-kind: pypi_package
-ref: pygbif
-access_python: "from pygbif import occurrences as occ\n\nresp = occ.search(limit=10)\n\
-  results = resp.get('results')\nif not results:\n    raise RuntimeError('No occurrence\
-  \ records returned')\nprint(f\"RECORDS={len(results)}\")\nprint('FIELDS=' + ','.join(list(results[0].keys())))"
-record_count: 10
-sample_fields:
-- key
-- datasetKey
-- publishingOrgKey
-- datasetCategory
-- installationKey
-- hostingOrganizationKey
-- publishingCountry
-- protocol
-- lastCrawled
-- lastParsed
-- crawlId
-- extensions
-- basisOfRecord
-- occurrenceStatus
-- classifications
-- taxonKey
-- kingdomKey
-- phylumKey
-- classKey
-- orderKey
-- familyKey
-- genusKey
-- speciesKey
-- acceptedTaxonKey
-- scientificName
-- acceptedScientificName
-- kingdom
-- phylum
-- order
-- family
-- genus
-- species
-- genericName
-- specificEpithet
-- infraspecificEpithet
-- taxonRank
-- taxonomicStatus
-- decimalLatitude
-- decimalLongitude
-- continent
-- gadm
-- year
-- month
-- day
-- eventDate
-- startDayOfYear
-- endDayOfYear
-- issues
-- lastInterpreted
-- license
-- isSequenced
-- identifiers
-- media
-- facts
-- relations
-- isInCluster
-- recordedBy
-- dnaSequenceID
-- nucleotideSequence
-- geodeticDatum
-- class
-- countryCode
-- recordedByIDs
-- identifiedByIDs
-- gbifRegion
-- country
-- publishedByGbifRegion
-- http://unknown.org/download
-- datasetTitle
-- catalogNumber
-- http://unknown.org/crawl_attempt
-- http://unknown.org/orphanEndpoint
-- institutionCode
-- locality
-- http://unknown.org/status
-- http://unknown.org/griddedDataset
-- collectionCode
-- gbifID
-field_coverage: 0.75
+status: none
+intent: download North American bird occurrence records GBIF eBird climate rasters
+  WorldClim v2 python package dataset
 required_fields:
 - species
 - decimalLatitude
@@ -92,8 +8,12 @@ required_fields:
 - eventDate
 - year
 - month
-- bio1_temperature
-- bio12_precipitation
-intent: download GBIF North American bird occurrence records with WorldClim v2 climate
-  variables python package dataset
-cache_key: 7622d27242a48cd42829046657ba918a62c73531d461779e9d86517bb65a9f29
+- basisOfRecord
+- coordinateUncertaintyInMeters
+- occurrenceID
+- taxonKey
+- kingdom
+- phylum
+cache_key: 6eff378062936c5fefb91ec0ec1524c2a8271de616db5082bd407571298ffc34
+searched_at: '2026-10-18T22:07:17.949956+00:00'
+retry_count: 1
