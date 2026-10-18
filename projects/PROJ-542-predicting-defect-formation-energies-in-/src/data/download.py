@@ -3,11 +3,12 @@ src/data/download.py
 ---------------------
 
 This script downloads oxygen‑vacancy defect formation energies for perovskite
-materials from the Materials Project REST API and stores the result as a CSV
-file under ``data/raw/materials_defects.csv``.  It validates the output
-against the JSON‑schema contract ``contracts/raw_dataset.schema.yaml`` and
-aborts with clear error messages if any of the required conditions are not
-met.
+oxides from the Materials Project API using the official ``mp-api`` client.
+It validates the downloaded data against the JSON‑schema contract
+``contracts/raw_dataset.schema.yaml`` and writes the result to
+``data/raw/materials_defects.csv``.  The script aborts with clear error
+messages when required conditions are not met (missing API key or empty
+result set), satisfying FR‑001 and FR‑007.
 
 Execution
 ~~~~~~~~~
@@ -21,24 +22,21 @@ directly.
 Requirements
 ~~~~~~~~~~~~
 - ``MP_API_KEY`` environment variable must contain a valid Materials Project
-  API key **or** the user may run the script without a key to obtain a
-  helpful guidance message (the script will exit cleanly with exit‑code 0).
-- The third‑party packages ``pymatgen``, ``requests`` and ``PyYAML`` are
-  required.  They are listed in ``requirements.txt``.
-- ``pandas`` and ``jsonschema`` (already available in the base environment).
+  API key.
+- The third‑party package ``mp-api`` is required (declared in
+  ``requirements.txt``).
+- ``pandas`` and ``jsonschema`` are already available in the base environment.
 """
 
-import json
 import os
 import sys
 from pathlib import Path
 from typing import Dict, List
 
 import pandas as pd
-import requests
 import yaml
 from jsonschema import ValidationError, validate
-from pymatgen.core import Composition
+from mp_api.client import MPRester
 
 from llmxive_toolkit import get_logger, paths
 
@@ -58,9 +56,15 @@ def _is_perovskite(composition: str) -> bool:
     Very simple perovskite filter.
 
     A perovskite ABX3 (oxide) has exactly three elements, with oxygen
-    appearing three times.  This heuristic is sufficient for the
-    Materials Project data we query.
+    appearing three times (or a multiple thereof, e.g. A2B2O6 which reduces
+    to ABX3).  This heuristic is sufficient for the Materials Project data
+    we query.
     """
+    try:
+        from pymatgen.core import Composition
+    except Exception as exc:  # pragma: no cover – defensive
+        raise RuntimeError("pymatgen is required for perovskite detection.") from exc
+
     try:
         comp = Composition(composition)
     except Exception:  # pragma: no cover – defensive
@@ -70,12 +74,11 @@ def _is_perovskite(composition: str) -> bool:
     if len(comp.elements) != 3:
         return False
 
-    # Oxygen must be present with a count of 3 (or a multiple thereof,
-    # e.g. A2B2O6 which reduces to ABX3)
+    # Oxygen must be present
     if "O" not in comp:
         return False
 
-    # Normalise to the smallest integer ratio
+    # Reduce to smallest integer ratio and check O count ≈ 3
     comp = comp.reduced_composition
     o_amount = comp.get_atomic_fraction("O") * comp.num_atoms
     return abs(o_amount - 3) < 1e-6
@@ -83,67 +86,38 @@ def _is_perovskite(composition: str) -> bool:
 
 def _fetch_defect_data(api_key: str) -> List[Dict]:
     """
-    Query the Materials Project REST API for oxygen‑vacancy defects in
-    perovskite oxides.
+    Query the Materials Project API for oxygen‑vacancy defects in perovskite
+    oxides using the official ``mp-api`` client.
 
-    The endpoint ``/rest/v2/defects/query`` returns a list of dictionaries
-    with fields such as ``material_id``, ``defect_type``, ``formation_energy``,
-    ``composition`` and ``species``.  We request only the fields we need and
-    apply a simple perovskite filter locally.
+    The function returns a list of dictionaries with the fields required
+    by the contract:
+        - material_id
+        - defect_type
+        - formation_energy
+        - composition
+        - species
     """
-    base_url = "https://materialsproject.org/rest/v2/defects/query"
-    headers = {"X-API-KEY": api_key, "Content-Type": "application/json"}
+    # The mp-api client handles pagination internally; we request a large
+    # limit to minimise round‑trips.
+    with MPRester(api_key) as mpr:
+        log.info("Querying Materials Project for oxygen‑vacancy defects...")
+        docs = mpr.defects.search(
+            criteria={"defect_type": "vacancy", "species": "O"},
+            fields=[
+                "material_id",
+                "defect_type",
+                "formation_energy",
+                "composition",
+                "species",
+            ],
+            # The service caps at 10 000; this is far above the expected size.
+            limit=10000,
+        )
+    records = [doc.dict() for doc in docs]
 
-    # Criteria required by the task
-    criteria = {"defect_type": "vacancy", "species": "O"}
-    properties = [
-        "material_id",
-        "defect_type",
-        "formation_energy",
-        "composition",
-        "species",
-    ]
-
-    limit = 1000  # page size
-    skip = 0
-    all_records: List[Dict] = []
-
-    while True:
-        payload = {
-            "criteria": criteria,
-            "properties": properties,
-            "limit": limit,
-            "skip": skip,
-        }
-        log.info(f"Requesting records {skip}–{skip + limit - 1} from Materials Project...")
-        response = requests.post(base_url, json=payload, headers=headers, timeout=60)
-
-        if response.status_code != 200:
-            raise RuntimeError(
-                f"Materials Project API request failed with status {response.status_code}: {response.text}"
-            )
-
-        data = response.json()
-        # The MP REST API wraps results in ``response`` → ``data``.
-        try:
-            records = data["response"]["data"]
-            total = data["response"]["total"]
-        except KeyError as exc:
-            raise RuntimeError(
-                "Unexpected response format from Materials Project API."
-            ) from exc
-
-        all_records.extend(records)
-
-        # Break when we have retrieved all available records
-        if len(all_records) >= total or not records:
-            break
-
-        skip += limit
-
-    # Apply the perovskite filter defined above
+    # Apply the perovskite filter
     perovskite_records = [
-        rec for rec in all_records if _is_perovskite(rec.get("composition", ""))
+        rec for rec in records if _is_perovskite(rec.get("composition", ""))
     ]
     return perovskite_records
 
@@ -155,8 +129,7 @@ def _records_to_dataframe(records: List[Dict]) -> pd.DataFrame:
     """
     rows = []
     for rec in records:
-        # Translate the generic ``vacancy`` + ``species`` information into
-        # the contract‑expected ``oxygen_vacancy`` label.
+        # Normalise defect_type to the contract‑expected label.
         defect_type = (
             "oxygen_vacancy"
             if rec.get("species") == "O"
@@ -167,7 +140,7 @@ def _records_to_dataframe(records: List[Dict]) -> pd.DataFrame:
                 "composition": rec["composition"],
                 "defect_type": defect_type,
                 "formation_energy": rec["formation_energy"],
-                "metadata": json.dumps({"material_id": rec["material_id"]}),
+                "metadata": {"material_id": rec["material_id"]},
             }
         )
     return pd.DataFrame(rows)
@@ -181,8 +154,8 @@ def _validate_dataframe(df: pd.DataFrame, schema_path: Path) -> None:
             "composition": row["composition"],
             "defect_type": row["defect_type"],
             "formation_energy": row["formation_energy"],
-            "metadata": json.loads(row["metadata"])
-            if isinstance(row["metadata"], str)
+            "metadata": row["metadata"]
+            if isinstance(row["metadata"], dict)
             else {},
         }
         try:
@@ -198,20 +171,19 @@ def _validate_dataframe(df: pd.DataFrame, schema_path: Path) -> None:
 # --------------------------------------------------------------------------- #
 def main() -> None:
     """
-    Download the defect dataset, validate it, and write ``materials_defects.csv``.
+    Download the defect dataset, validate it, and write
+    ``materials_defects.csv``.
     """
     api_key = os.getenv("MP_API_KEY")
     if not api_key:
         # FR‑007: abort with a clear error message when the API key is missing.
-        # We exit cleanly (code 0) so that CI does not treat the lack of a key as a failure.
         message = (
             "Error: MP_API_KEY environment variable is required to download data. "
             "Please set it and re‑run, or provide a pre‑downloaded CSV at "
             "data/raw/materials_defects.csv."
         )
         log.error(message)
-        print(message)
-        return
+        sys.exit(message)
 
     # Fetch raw defect entries from Materials Project
     records = _fetch_defect_data(api_key)

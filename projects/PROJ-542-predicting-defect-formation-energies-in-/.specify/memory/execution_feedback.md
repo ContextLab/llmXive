@@ -8,7 +8,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.featurize data/raw/materials_defects.csv data/processed/features.csv -> rc=1
 
-2026-10-18 23:07:26,485 ERROR src.data.featurize: Input file not found: data/raw/materials_defects.csv
+2026-10-18 23:10:42,499 ERROR src.data.featurize: Input file not found: data/raw/materials_defects.csv
 
 - python -m src.train data/processed/features.csv data/processed/cv_metrics.json -> rc=1
 

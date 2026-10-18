@@ -1,14 +1,8 @@
 T001:
   task: 5d96aab2c4e0be5c3086b4cb91a2ca052b5d8dfbad5c35b151b278eb378f4f89
 T002:
-  reason: "The required output `data/raw/materials_defects.csv` does not exist, and\
-    \ the only execution record is the missing-key path (exit 0), so there is no evidence\
-    \ of a successful download, schema validation, or the \u2265500-row requirement.\
-    \ Additionally, the script violates FR-007's missing-key requirement by exiting\
-    \ cleanly with code 0 instead of aborting with an error, and it queries a fabricated\
-    \ Materials Project endpoint (`/rest/v2/defects/query` with `X-API-KEY` header)\
-    \ that does not exist in the real MP API, so even a run with a valid key would\
-    \ fail."
+  reason: 'Requested task execution failed; rerun successfully: src/data/download.py
+    exit=1'
   task: 4326afb438c474151385a7375b11be4b8797b07ab7055679471be434914728bd
 T003:
   reason: 'Requested task execution failed; rerun successfully: src/featurize.py exit=2'
