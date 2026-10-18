@@ -1,15 +1,13 @@
 status: none
-intent: synthetic random matrix ensemble benchmark with perturbation patterns arXiv
-  reference python package dataset
+intent: synthetic matrix perturbation pattern dataset with reference edge values python
+  package dataset
 required_fields:
 - matrix
-- seed
 - perturbation_type
-- edge_value_theoretical
-- edge_value_empirical
+- seed
+- theoretical_edge
+- empirical_bulk_edge
 - schema_version
-- FR-001_compliance
-- SC-VII_schema_validation
-cache_key: 6f59edf15970af9fcbd11d84d94a6ee96d26f91d8db0bad1014444bbe9e66899
-searched_at: '2026-10-17T23:18:13.808283+00:00'
+cache_key: bfd0d2488c2289ca9bf0bd6a58994927cdf95fae572fc131b50291a80df788e3
+searched_at: '2026-10-18T00:22:19.095258+00:00'
 retry_count: 1

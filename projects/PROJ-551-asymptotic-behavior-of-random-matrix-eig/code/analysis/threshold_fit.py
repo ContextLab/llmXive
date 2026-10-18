@@ -27,12 +27,6 @@ a schema‑compatible format:
         ...
     ]
 }
-
-The script can be invoked directly:
-
-    python -m code.analysis.threshold_fit
-
-or via the CLI entry point defined in ``if __name__ == '__main__'``.
 """
 
 import argparse
@@ -47,11 +41,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 
-# ----------------------------------------------------------------------
 # Project utilities
-# ----------------------------------------------------------------------
-# The project uses ``llmxive_toolkit.paths`` to obtain standard directories.
-# This avoids dependence on the (unavailable) ``utils.config`` module.
 from llmxive_toolkit import paths as llm_paths
 
 logger = logging.getLogger(__name__)

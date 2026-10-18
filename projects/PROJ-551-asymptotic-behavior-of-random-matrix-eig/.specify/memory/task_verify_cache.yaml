@@ -1,61 +1,44 @@
 T001:
   c: false
-  h: afa4b8a36bf7186373ebc32b8f4782c17e00cbee5b35f3e9bf8abe184a75837c
-  r: "The three required schema files are listed in the `contracts/` directory, but\
-    \ their contents are not provided, so we cannot verify they are valid JSON\u2011\
-    Schema documents. Moreover, there is no execution evidence showing that `pytest\
-    \ -q tests/contract/test_schemas.py` actually runs and exits\u202F0. The implementer\
-    \ must supply the schema file contents and proof that the test suite passes."
-  sig: edefc36dadf29f26bb7111f5365dbf0af0ed41956399be52c3cf868b9722fca4
+  h: fed9634d6e566de4ae5ab4b8583aa53c25669563d9924e683df5467708953b79
+  r: "The three schema files do exist under `contracts/` and the pytest run exited\
+    \ 0, but the run's log shows the two artifact-validation tests SKIPPED (\"No JSON\
+    \ artifacts found\") \u2014 and worse, the test as written would not actually\
+    \ validate the artifacts that now exist in `data/processed/`: `single_run_results.json`\
+    \ has key `eigenvalue_results` (not `eigenvalues`), so it falls into the catch-all\
+    \ \"other JSON structures\" branch that only asserts non-empty, and `convergence_data.json`\
+    \ likewise never gets validated against any schema. The task requires that every\
+    \ file produced in `data/processed/` be va"
+  sig: 942f3ed6909831353de16c73b6361f65c27869028ef821f84166e2c1d14ce711
 T002:
   c: true
-  h: 3dde34bf1a8144f38dd74ab2a1122bb231de018a46dbd6cf0975a3c451183c29
-  r: "Checked that `code/main.py` implements the required steps, that the generated\
-    \ raw matrix `data/raw/matrix_N1000_seed42.npy` exists, that `data/processed/single_run_results.json`\
-    \ contains the SimulationRun and ten EigenvalueResult entries with correct outlier\
-    \ logic, that `data/checksums.yaml` and `data/logs/single_run.log` are written\
-    \ (log shows peak memory\u202F0.086\u202FGB), and that `quickstart.md` includes\
-    \ the exact command line. All artifacts are present and meet the task specifications."
-  sig: 665ed1009fe81f3efc8151347fdfff7b3692e69644a6b8aa301aff2df6aaee54
-T003:
-  c: false
-  h: fa781f1d38730b5ceef25231a09f23dba3d9df581247ae9dc8aa9b299f5ae329
-  r: "The execution logs show the top eigenvalue is 2.703139682868358 (both stored\
-    \ and recomputed, with the reproducibility check passing), but the task claim\
-    \ asserts the top eigenvalue is 2.901642355090901 \u2014 a direct contradiction\
-    \ with the actual run evidence. Additionally, no collector-confirmed artifact\
-    \ paths (results JSON, logs, checksums) were provided for inspection, so the claimed\
-    \ outputs cannot be verified beyond the historical logs, and the claim's own reported\
-    \ number is fabricated or from a different run."
-  sig: 9469e26256f4ab48542f8aa79f6c66f0a2352fb4dd1948ac589e84acb473df8b
+  h: f8365da39d506c55c55306998a2b857ae761502abb8b2837386f36d687d66dd1
+  r: "I checked `code/main.py` (implements the exact CLI, 1/\u221AN Wigner scaling,\
+    \ rank-1 diagonal \u03B8=2.5 perturbation, `eigsh` with tol=1e-10, outlier rule\
+    \ `> 2.05`, SC-001 MemoryError above 7 GB), and the on-disk artifacts: the 1000\xD7\
+    1000 raw matrix, `single_run_results.json` with a SimulationRun plus ten EigenvalueResult\
+    \ records under one run_id (top eigenvalue 2.9016 flagged as outlier, consistent\
+    \ with \u03B8=2.5 > 1), `checksums.yaml` containing an entry whose sha256 matches\
+    \ the actual matrix file, `single_run.log` with a \"Peak Memory: 0.0849 GB\" entry,\
+    \ and `quickstart.md` with the exact command line. All"
+  sig: 6c67af4832ab5fabdbfca8421c96f218a2d886b0c5091580a8e5b96ba609982c
 T004:
-  c: false
-  h: c47065700be0905bd6ce5e250ef5f5249293954ff29363a0286a0bccddc02052
-  r: The script `code/analysis/threshold_sweep.py` correctly implements the theoretical
-    rule (`outlier_flag = eigenvalue_top > 2.0 + 0.05`) and the required columns,
-    but the required output artifact `data/processed/mc_results.csv` does not exist
-    on disk, so the verification criteria (1008 rows, spot-check of outlier flags)
-    cannot be met. The implementer must actually run the sweep to generate the CSV.
-  sig: 1999088976fb6d3ad7c499daf7b82589619bb08b0487786ee7c5b16c4523b115
+  c: true
+  h: 9a520acc77f050e964db0daa152dfabd20770f59b628a29a4d1d5c8f34216efe
+  r: "The script `code/analysis/threshold_sweep.py` computes `outlier_flag = top_val\
+    \ > (2.0 + 0.05)` and writes the exact required columns; the execution log confirms\
+    \ a successful run writing 1008 rows to `mc_results.csv`. Spot-checking the CSV\
+    \ confirms the theoretical rule: e.g. 1.973176\u2192False, 2.041916\u2192False,\
+    \ 2.051297\u2192True, 2.133635\u2192True, all consistent with the 2.05 threshold."
+  sig: 35647b0794a7a3f25b4eaa8427d2a277c6b3bc8ae7437034600051ba62efd920
 T005:
-  c: false
-  h: 62fa087eb0b368d5552be4708d616d82dc58739179e0f119159d7c69329c9316
-  r: "The required `data/processed/mc_results.csv` and `data/processed/convergence_data.json`\
-    \ files are present, but the schema\u2011validation test (T001) fails: the test\
-    \ cannot find `contracts/simulation_run.schema.yaml` and also reports the CSV\
-    \ as missing, indicating the verification step does not succeed. The missing schema\
-    \ file (and any path adjustments needed for the test) must be added for the task\
-    \ to be considered complete."
-  sig: a5bb24bac8a313e7a84371cd915cf5c01baaf794149302ed8ba635afce392990
-T006:
-  c: false
-  h: 03b289c8cef4aef4249b04f5ac84b403d007b7e73474a4aa94aedbdc818da345
-  r: "The required output artifact `data/processed/threshold_statistical.json` is\
-    \ MISSING \u2014 the script `code/analysis/threshold_fit.py` exists and looks\
-    \ substantive, but there is no evidence it was ever run (no JSON with 36 group\
-    \ entries, no `theta_c_statistical`/`confidence_interval` values). Additionally,\
-    \ the script imports `from utils.config import ...` while the module lives at\
-    \ `code/utils/config.py`, so `python -m code.analysis.threshold_fit` would likely\
-    \ fail with an ImportError; the implementer must fix the import, run the fit against\
-    \ `mc_results.csv`, and write the JSON."
-  sig: 300e364b57954c3612367c842b465facec9be9583426efce117673cd572f1ed1
+  c: true
+  h: dd9fe0fd8768fb826dc694a506eea8097cf10e5035ffcd7e8cbc302533861c92
+  r: "The CSV exists (91,579 bytes) with the required `outlier_flag` column and the\
+    \ full grid (4 N \xD7 7 \u03B8 \xD7 4 seeds \xD7 3 k \xD7 3 patterns = 1,008 rows,\
+    \ matching the execution log's \"1008 rows\"), and `convergence_data.json` contains\
+    \ per-N bulk-edge convergence diagnostics across all four seeds with values converging\
+    \ toward 2.0. The execution record shows the sweep script ran successfully (exit\
+    \ 0) writing both artifacts, and the data shows the expected BBP-like transition\
+    \ (outlier_flag flipping from False to True as \u03B8 crosses ~1.2\u20131.5)."
+  sig: 24ada3e1fd3fc3ce56f1b5d98a11d58f1bd9f2b6dd8d850fd7563c550cd3997b

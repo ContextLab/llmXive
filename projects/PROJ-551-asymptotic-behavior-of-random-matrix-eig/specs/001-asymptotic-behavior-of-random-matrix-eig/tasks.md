@@ -45,13 +45,13 @@ All previously verified foundational work (generators, solvers, basic orchestrat
 
 ## Phase 2 – Full parameter sweep, validation, and aggregation  
 
-- [ ] **T004** [US2] **Correct the theta‑sweep script to use the theoretical outlier rule**  
+- [X] **T004** [US2] **Correct the theta‑sweep script to use the theoretical outlier rule**  
   *Modify `code/analysis/threshold_sweep.py` so that every row written to `data/processed/mc_results.csv` records `outlier_flag` based on `value > 2.0 + 0.05` (the theoretical edge) rather than the empirical bulk edge. The script must also write the unchanged columns `run_id,N,k,pattern_type,theta,seed,eigenvalue_top,computation_time_ms`.*  
   **Verification**:  
   · `mc_results.csv` exists, row count equals 4 × 7 × 4 × 3 × 3 = 1008.  
   · A spot‑check of a few rows shows `outlier_flag` consistent with the theoretical rule.  
 
-- [ ] **T005** [US2] **Re‑run the full theta sweep and produce validated CSV**  
+- [X] **T005** [US2] **Re‑run the full theta sweep and produce validated CSV**  
   Execute the updated sweep script for the full grid (N ∈ {100,500,1000,2000}, θ ∈ {0.8,1.0,1.2,1.5,2.0,2.5,3.0}, seeds ∈ {42,123,456,789}, k ∈ {1,2,5}, pattern ∈ {diagonal,block‑sparse,random‑sparse}).  
   Output files:  
   · `data/processed/mc_results.csv` (with the new `outlier_flag`).  
@@ -59,7 +59,7 @@ All previously verified foundational work (generators, solvers, basic orchestrat
 
   **Verification**: same as T004 plus the schema‑validation test (T001) runs without error on the newly generated files.  
 
-- [ ] **T006** [US2] **Fit sigmoid curves and store statistical threshold estimates**   <!-- FAILED-IN-EXECUTION: code/analysis/threshold_fit.py exit=1 -->
+- [ ] **T006** [US2] **Fit sigmoid curves and store statistical threshold estimates**   <!-- FAILED-IN-EXECUTION: code/analysis/threshold_fit.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/analysis/threshold_fit.py exit=1 -->
   *Create `code/analysis/threshold_fit.py` (or extend the existing analysis module) that, for each configuration group (N, k, pattern_type), fits a logistic function to `outlier_flag` vs θ using `scipy.optimize.curve_fit`. Perform a 5‑fold cross‑validation over the seed dimension (split seeds into 5 folds, fit on 4, evaluate on 1, average the fitted `θ_c`). Write the results to `data/processed/threshold_statistical.json` following the schema shown in the plan.*  
 
   **Verification**: JSON is well‑formed, contains an entry for every (N,k,pattern) group (4 × 3 × 3 = 36), and each entry includes `theta_c_statistical` and a finite `confidence_interval`.  

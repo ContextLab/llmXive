@@ -1,37 +1,52 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: SimulationRun
-description: "Schema for a single random matrix simulation run and its resulting eigenvalues."
+description: "Schema for a single random matrix simulation run and its associated eigenvalues."
 type: object
+required:
+  - run_id
+  - N
+  - seed
+  - theta
+  - k
+  - pattern_type
+  - timestamp
+  - eigenvalues
 properties:
   run_id:
     type: string
     description: "Unique identifier for the simulation run."
-  timestamp:
-    type: string
-    format: date-time
-    description: "ISO-8601 timestamp of when the run was executed."
   N:
     type: integer
-    minimum: 1
-    description: "Matrix dimension."
+    description: "Dimension of the Wigner matrix."
   seed:
     type: integer
-    description: "Random seed used for Wigner matrix generation."
+    description: "Random seed used for matrix generation."
   theta:
     type: number
     description: "Spectral norm of the perturbation."
   k:
     type: integer
-    minimum: 1
     description: "Rank of the perturbation."
   pattern_type:
     type: string
-    enum: ["diagonal", "block-sparse", "random-sparse"]
+    enum: [diagonal, block-sparse, random-sparse]
     description: "The structural pattern of the perturbation."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO-8601 timestamp of the run."
   eigenvalues:
     type: array
+    description: "List of computed eigenvalues."
     items:
       type: object
+      required:
+        - run_id
+        - eigenvalue_index
+        - value
+        - is_outlier
+        - theoretical_bbp
+        - deviation
       properties:
         run_id: { type: string }
         eigenvalue_index: { type: integer }
@@ -39,6 +54,3 @@ properties:
         is_outlier: { type: boolean }
         theoretical_bbp: { type: number }
         deviation: { type: number }
-      required: [run_id, eigenvalue_index, value, is_outlier, theoretical_bbp, deviation]
-    description: "List of the top computed eigenvalues."
-required: [run_id, timestamp, N, seed, theta, k, pattern_type, eigenvalues]
