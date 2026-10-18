@@ -1,13 +1,15 @@
 status: none
-intent: synthetic matrix perturbation pattern dataset with reference edge values python
-  package dataset
+intent: synthetic random matrix generator with perturbation patterns spectral edge
+  reference arXiv python package dataset
 required_fields:
+- matrix_id
 - matrix
+- size
+- density
 - perturbation_type
 - seed
 - theoretical_edge
-- empirical_bulk_edge
-- schema_version
-cache_key: bfd0d2488c2289ca9bf0bd6a58994927cdf95fae572fc131b50291a80df788e3
-searched_at: '2026-10-18T00:22:19.095258+00:00'
+- empirical_edge
+cache_key: 0d7625dc61da87c0c1c20c5b9333f33c1b9e12247f9d1d4b4c7f8c0358febec1
+searched_at: '2026-10-18T00:27:07.032313+00:00'
 retry_count: 1

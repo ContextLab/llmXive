@@ -10,13 +10,13 @@ properties:
     type: integer
     minimum: 1
     maximum: 10
-    description: "Rank of the eigenvalue (1 = largest)."
+    description: "Rank (1 = largest)."
   value:
     type: number
     description: "The computed eigenvalue."
   is_outlier:
     type: boolean
-    description: "True if eigenvalue exceeds the theoretical semicircle edge (2.0) plus tolerance (0.05)."
+    description: "True if the eigenvalue exceeds the theoretical semicircle edge plus an N‑dependent tolerance τ(N)=max(0.05, 2·N^(‑2/3))."
   theoretical_bbp:
     type: number
     description: "Theoretical BBP outlier location (theta + 1/theta) - Reference only."

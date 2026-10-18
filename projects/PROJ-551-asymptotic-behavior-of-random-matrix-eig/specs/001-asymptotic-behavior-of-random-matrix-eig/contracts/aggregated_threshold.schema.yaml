@@ -27,7 +27,7 @@ properties:
     description: "Type of sparsity pattern."
   theta:
     type: number
-    minimum: 1.0
+    minimum: 0.5
     maximum: 3.0
     description: "Spectral norm of perturbation."
   total_runs:
@@ -50,12 +50,6 @@ properties:
     type: number
     minimum: 0.0
     description: "Standard deviation of outliers from theoretical BBP."
-  theta_c_estimate:
-    type: number
-    description: "Estimated critical threshold from sigmoid curve fit."
-  theta_c_confidence:
-    type: number
-    description: "Confidence interval width for theta_c."
 required:
   - config_id
   - N
@@ -67,6 +61,4 @@ required:
   - outlier_probability
   - mean_deviation
   - std_deviation
-  - theta_c_estimate
-  - theta_c_confidence
 additionalProperties: false

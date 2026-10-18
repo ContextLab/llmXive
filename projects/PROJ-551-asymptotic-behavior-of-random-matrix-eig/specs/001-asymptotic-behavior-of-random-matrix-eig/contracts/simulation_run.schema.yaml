@@ -27,7 +27,7 @@ properties:
     description: "Perturbation rank."
   theta:
     type: number
-    minimum: 1.0
+    minimum: 0.5
     maximum: 3.0
     description: "Spectral norm of perturbation."
   pattern_type:
@@ -38,14 +38,14 @@ properties:
       - random-sparse
     description: "Type of sparsity pattern."
   support_density:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Support density p (null for non-random patterns)."
+    type:
+      - number
+      - "null"
+    description: "Support density for random‑sparse; null otherwise."
   computation_time_ms:
     type: number
     minimum: 0.0
-    description: "Time taken for eigenvalue computation in milliseconds."
+    description: "Time taken for for the ..."
   empirical_bulk_edge:
     type: number
     description: "Empirical bulk edge (99th percentile) for this run."

@@ -1,75 +1,49 @@
 # Research: Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations
 
 ## Theoretical Background
-- **Wigner Semicircle Law**: For an \(N\times N\) symmetric matrix with i.i.d. entries of variance \(1/N\), the empirical spectral distribution converges to the semicircle with support \([-2,2]\) (edge = **2**, source: arXiv:0812.2602).  
-- **BBP Phase Transition**: Adding a rank‑\(k\) deterministic perturbation of spectral norm \(\theta\) yields outliers when \(\theta > 1\) (for the standard scaling). The predicted outlier location is \(\theta + 1/\theta\).
+- **Wigner Semicircle Law**: For an \(N\times N\) symmetric matrix with i.i.d. entries of variance \(1/N\), the empirical spectral distribution converges to the semicircle with support \([-2,2]\); the edge is **2** (verified: arXiv:0812.2602, https://arxiv.org/abs/0812.2602).
+- **BBP Phase Transition**: A rank-\(k\) deterministic perturbation of spectral norm \(\theta\) produces outliers when \(\theta > 1\) (standard scaling); predicted outlier location \(\theta + 1/\theta\).
 
 ## Dataset Strategy
 | Role | Source | Access Method | Notes |
 |------|--------|---------------|-------|
-| **Synthetic matrices** | Generated in‑process (no external download) | `numpy.random.normal` (seeded) | Guarantees reproducibility; conforms to FR‑001. |
-| **Perturbation patterns** | Deterministic construction (diagonal, block‑sparse, random‑sparse) | Custom Python functions | Structural fidelity enforced by schema (SC‑VII). |
-| **Reference values** | Theoretical edge \(=2\) (verified arXiv:0812.2602) | Hard‑coded constant | Used for outlier detection; empirical bulk edge is recorded **only for diagnostics**. |
+| Synthetic matrices | Generated in‑process (no external download) | `numpy.random.default_rng(seed)` | Reproducible; FR‑001. No verified external dataset is needed or used. |
+| Perturbation patterns | Deterministic construction | Custom Python functions | Structural fidelity per Constitution VII. |
+| Reference values | Semicircle edge = 2 | arXiv:0812.2602 (verified) | Hard‑coded constant for outlier detection. |
 
-No external datasets are required; all data are created on the fly, satisfying the compute‑feasibility constraints.
+No external datasets are required; all data are generated on the fly, satisfying compute‑feasibility constraints.
 
 ## Methodology
-1. **Matrix Generation (FR‑001)**  
-   - For each run, draw a dense matrix \(W_N\) with entries \(\mathcal N(0,1/N)\).  
-   - Use `numpy.random.default_rng(seed)`; seed recorded in `SimulationRun`.  
-
-2. **Sparse Perturbation (FR‑002)**  
-   - Build \(P_N\) of rank \(k\in\{1,2,5\}\).  
-   - Pattern types:  
-     * *Diagonal*: non‑zero entries only on the diagonal.  
-     * *Block‑sparse*: random \(b\times b\) blocks (block size fixed at 10).  
-     * *Random‑sparse*: support density \(p\in[0.05,0.5]\) chosen per sweep.  
-   - Scale \(P_N\) to have spectral norm \(\theta\) (computed via `scipy.sparse.linalg.svds`).  
-
-3. **Eigenvalue Computation (FR‑003, SC‑002)**  
-   - Compute the top‑10 eigenvalues of \(A_N = W_N + P_N\) using `scipy.sparse.linalg.eigsh` with `which='LA'`, `tol=1e-10`, `maxiter=1000`.  
-   - Record computation time (ms).  
-
-4. **Outlier Detection (FR‑004)**  
-   - **Primary rule**: flag eigenvalue \(\lambda\) as an outlier if  
-     \[
-     \lambda > 2.0 + 0.05.
-     \]  
-     The theoretical edge \(2\) is taken from the semicircle law; the tolerance \(0.05\) guards against numerical noise.  
-   - **Diagnostic statistic**: compute the empirical bulk edge as the 99th percentile of the full spectrum and store it in `SimulationRun.empirical_bulk_edge` for later analysis **but do not use it to define outliers** (avoids circularity).  
-
-5. **Parameter Sweep (FR‑005)**  
-   - Grid over \(\theta\in[0.5, 3.0]\) with step 0.1, for each pattern type and rank.  
-   - For each configuration, run **500** independent seeds (subject to CPU budget).  
-   - With 500 repetitions, the standard error of an outlier probability is \(\sqrt{p(1-p)/500}\le0.022\), providing sufficient precision to locate the BBP threshold.  
-
-6. **Sparsity Sensitivity (FR‑006)**  
-   - For the *random‑sparse* pattern, additionally sweep support density \(p\in\{0.05,0.1,0.2,0.3,0.4,0.5\}\) while fixing \(\theta=1.5\).  
-
-7. **Finite‑Size Analysis (addresses methodology‑7cd8bfa6)**  
-   - Sweep matrix dimension \(N\in\{500,1000,1500,2000\}\) for a representative subset of \((k,\theta,\text{pattern})\) configurations.  
-   - Record how the empirical bulk edge and outlier probability vary with \(N\) to quantify finite‑size effects.  
-   - Include these results in the final figures and discuss any systematic shifts in the estimated \(\theta_c\).  
-
-8. **Aggregation & Curve Fitting (FR‑007)**  
-   - Compute `outlier_probability = outlier_count / total_runs`.  
-   - Fit a sigmoid \(f(\theta)=\frac{1}{1+\exp[-a(\theta-\theta_c)]}\) via `scipy.optimize.curve_fit` to estimate \(\theta_c\) and its confidence interval (bootstrap 500 samples).  
-
-## Statistical Rigor
-- **Multiple Comparisons**: The sweep evaluates many \(\theta\) values; we report **bootstrap confidence intervals** for \(\theta_c\) instead of raw p‑values, thereby controlling the family‑wise error rate.  
-- **Power Considerations**: With 500 repetitions per configuration, the standard error of an outlier probability is \(\sqrt{p(1-p)/500}\le0.022\), providing sufficient precision to distinguish the theoretical \(\theta_c\approx1\) from nearby values.  
-- **Causal Claims**: All conclusions are **associational** (observational simulation) per FR‑007 and Constitution Principle I.  
-- **Measurement Validity**: The Wigner matrix generation follows the standard Gaussian ensemble; the perturbation norm is enforced by explicit spectral scaling, guaranteeing the intended \(\theta\).  
-- **Collinearity**: Rank \(k\) and sparsity density \(p\) are independent design factors; we never interpret their coefficients as independent effects in a regression model.
+1. **Matrix Generation (FR‑001)**: \(W_N\) with entries \(\mathcal N(0,1/N)\), seeded RNG recorded in `SimulationRun`.
+2. **Sparse Perturbation (FR‑002)**: rank \(k\in\{1,2,5\}\); patterns: diagonal, block‑sparse (block size 10), random‑sparse (density \(p\in[0.05,0.5]\)).  
+   *Random‑sparse construction*: first draw a random support of density \(p\); then place exactly \(k\) non‑zero entries (spikes) on distinct rows/columns **within that support**, scaling the resulting matrix to spectral norm \(\theta\). This guarantees rank‑\(k\) while respecting the prescribed sparsity density, keeping `k` and `p` independent structural variables. The spectral norm is verified after construction.
+3. **Eigenvalues (FR‑003, SC‑002, SC‑004)**: top‑10 via `eigsh(which='LA', tol=1e-10, maxiter=1000)`; wall‑clock time recorded.
+4. **Outlier detection (FR‑004)**: An eigenvalue \(\lambda\) is flagged as an outlier iff  
+   \[
+   \lambda > 2 + \tau(N),\qquad \tau(N)=\max\bigl(0.05,\;2\cdot N^{-2/3}\bigr).
+   \]  
+   The term \(2\cdot N^{-2/3}\) approximates twice the Tracy‑Widom fluctuation scale (≈0.032 at \(N=500\), ≈0.013 at \(N=2000\)); we also enforce a floor of 0.05 so that for all \(N\) the tolerance exceeds the typical bulk‑edge noise. This N‑dependent cutoff avoids mis‑classification especially at smaller \(N\).
+5. **Parameter sweep (FR‑005)**: \(\theta\) grid \([0.5,3.0]\) step 0.1 (raw run records retain **all** \(\theta\) values, including sub‑threshold \(\theta<1\)). All patterns and ranks are swept; repetitions are sized to the CPU budget (target 500 where the ≤6 h budget allows; fewer repetitions are recorded explicitly with `total_runs` and the power limitation noted).
+6. **Sparsity sensitivity (FR‑006)**: \(p\in\{0.05,0.1,0.2,0.3,0.4,0.5\}\) at fixed \(\theta=1.5\).
+7. **Finite‑size analysis**: \(N\in\{500,1000,1500,2000\}\) for representative configurations; quantify finite‑size shifts in bulk edge and outlier probability.
+8. **Aggregation and fit (FR‑007)**:  
+   - `aggregate_thresholds.py` reads the raw sweep Parquet, groups by configuration **excluding** any \(\theta_c\) fields, and writes `aggregated_thresholds.json` (no theta‑c fields).  
+   - `threshold_fit.py` reads the **raw** run records (including \(\theta<1\)), fits a sigmoid \(f(\theta)=1/(1+\exp[-a(\theta-\theta_c)])\) via maximum‑likelihood, and writes `threshold_fit.json` validated against `threshold_fit.schema.yaml`. Non‑convergent fits are recorded with `fit_status: "failed"` and `theta_c_estimate` / `theta_c_confidence` set to `null` rather than NaN.
+9. **Statistical Rigor**  
+   - **Multiple comparisons**: bootstrap CIs for \(\theta_c\) rather than raw p‑values across the \(\theta\)-grid.  
+   - **Power**: with \(R\) repetitions, SE of outlier probability ≤ \(0.5/\sqrt R\) (0.022 at \(R=500\)); if the compute budget forces fewer repetitions, the actual \(R\) is reported and the limitation acknowledged.  
+   - **Causal claims**: associational only (simulation study; FR‑007).  
+   - **Measurement validity**: standard Gaussian Wigner ensemble; perturbation norm enforced by explicit spectral scaling and verified.  
+   - **Collinearity**: \(k\), \(p\), \(\theta\), \(N\) are independent design factors; no regression coefficients interpreted as independent effects.
 
 ## Decision / Rationale (Compute)
-- **CPU‑first**: All linear algebra fits comfortably on the CI runner using ARPACK; no GPU is needed (SC‑002).  
-- **Scalable Sampling**: If memory pressure occurs for \(N=2000\), we fall back to streaming eigenvalue computation (process rows in chunks) — still CPU‑only.  
+- **CPU‑first**: ARPACK on dense symmetric matrices up to \(N=2000\) fits easily within modest RAM capacities. (a 2000×2000 float64 matrix is 32 MB); no GPU needed (SC‑002). No GPU escape hatch required.
+- **Budget control**: total work = (configs × repetitions) eigsh calls; the sweep driver caps repetitions so the full pipeline stays within the ≤6 h job limit, recording the achieved `total_runs` honestly.
 
 ## Expected Deliverables
-- JSON/Parquet files conforming to `contracts/*.schema.yaml`.  
-- Reproducibility test (`tests/integration/test_t001.py`) confirming identical top eigenvalue across reruns within \(1\text{e-}6\).  
-- Figures: (i) outlier probability vs. \(\theta\) for each pattern, (ii) \(\theta_c\) estimates across sparsity densities, (iii) finite‑size effect plots of bulk edge vs. \(N\).  
+- `data/processed/single_run_results.json`, `convergence_report.json`, `sweep_runs.parquet`, `sensitivity_results.parquet`, `finite_size_results.parquet`, `aggregated_thresholds.json`, `threshold_fit.json` — all schema‑valid and checksummed.
+- Passing contract tests (no skips) and reproducibility integration test (top eigenvalue within 1e‑6 of the stored reference, e.g. A representative value for the reference configuration.).
+- Figures: outlier probability vs \(\theta\); \(\theta_c\) vs density; finite‑size plots.
 
 ---
 

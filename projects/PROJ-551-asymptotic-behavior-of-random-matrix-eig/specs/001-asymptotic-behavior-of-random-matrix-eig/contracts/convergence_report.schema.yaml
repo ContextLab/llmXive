@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ConvergenceReport
+description: "Schema for the solver convergence and artifact-validation report of a single simulation run."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Foreign key to SimulationRun."
+  solver:
+    type: string
+    enum:
+      - ARPACK-eigsh
+    description: "Solver used for eigenvalue computation."
+  tol:
+    type: number
+    description: "Convergence tolerance (default 1e-10)."
+  maxiter:
+    type: integer
+    minimum: 1
+    description: "Maximum ARPACK iterations (default 1000)."
+  converged:
+    type: boolean
+    description: "Whether ARPACK reported convergence."
+  n_iterations:
+    type: integer
+    minimum: 0
+    description: "Number of iterations used."
+  bulk_edge_check:
+    type: string
+    enum:
+      - pass
+      - fail
+    description: "Whether the unperturbed bulk edge matches the theoretical semicircle edge (2, arXiv:0812.2602) within tolerance."
+  matrix_checksum:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 checksum of the raw Wigner matrix bytes."
+  schema_validation:
+    type: string
+    enum:
+      - pass
+      - fail
+    description: "Result of validating the companion results artifact against its contract."
+required:
+  - run_id
+  - solver
+  - tol
+  - maxiter
+  - converged
+  - n_iterations
+  - bulk_edge_check
+  - matrix_checksum
+  - schema_validation
+additionalProperties: false
