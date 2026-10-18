@@ -14,6 +14,7 @@
 │   │   ├── research_question_validated.yaml
 │   │   ├── task_verifier_notes.md
 │   │   ├── task_verify.feedback.yaml
+│   │   ├── task_verify.yaml
 │   │   ├── task_verify_cache.yaml
 │   │   └── tasker_rounds.yaml
 │   ├── scripts
@@ -34,6 +35,7 @@
 │   ├── .gitkeep
 │   ├── .ruff.toml
 │   ├── .tasks
+│   │   ├── T001.code_create_structure.py.log
 │   │   ├── T002.src_data_download.py.log
 │   │   └── T016b.atomize.yaml
 │   ├── Makefile
@@ -85,7 +87,10 @@
 │   └── soc_cluster.schema.yaml
 ├── data
 │   ├── .gitkeep
-│   └── raw
+│   ├── processed
+│   ├── raw
+│   │   └── 2020
+│   └── results
 ├── figures
 │   └── .gitkeep
 ├── idea
@@ -95,7 +100,9 @@
 │   ├── lint.txt
 │   └── structure.txt
 ├── output
-│   └── .gitkeep
+│   ├── .gitkeep
+│   ├── figures
+│   └── temporal_profiles
 ├── pyproject.toml
 ├── quickstart.md
 ├── requirements.txt
@@ -120,11 +127,13 @@
 │   │   ├── download.py
 │   │   └── validate.py
 │   ├── main.py
-│   └── utils
-│       ├── config.py
-│       └── plots.py
+│   ├── utils
+│   │   ├── config.py
+│   │   └── plots.py
+│   └── validation
 └── tests
     ├── .gitkeep
+    ├── fixtures
     ├── integration
     │   ├── test_pipeline.py
     │   ├── test_signal_detection.py
@@ -139,4 +148,4 @@
         ├── test_validate.py
         └── test_validate_e_schema_missing.py
 
-42 directories, 98 files
+49 directories, 100 files
