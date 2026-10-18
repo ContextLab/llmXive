@@ -9,7 +9,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import List, Set, Tuple, Dict
+from typing import List, Set, Tuple, Dict, Optional
 
 import requests
 
@@ -119,7 +119,7 @@ The pipeline has halted. Please resolve the data gap before proceeding.
 # ----------------------------------------------------------------------
 # OpenNeuro API interaction
 # ----------------------------------------------------------------------
-# Current stable OpenNeuro API base (v1)
+# Updated OpenNeuro API base (v1) – includes recursive query to get full file list
 OPENNEURO_API_ROOT = "https://openneuro.org/api/v1/datasets"
 
 
@@ -131,22 +131,27 @@ def _fetch_dataset_file_index(dataset: str) -> List[Dict]:
         - 'filename' : same as 'path' (kept for backward compatibility)
     """
     url = f"{OPENNEURO_API_ROOT}/{dataset}/files"
-    logger.info(f"Fetching OpenNeuro file index from {url}")
+    params = {"recursive": "true"}
+    logger.info(f"Fetching OpenNeuro file index from {url} with params {params}")
     try:
-        resp = requests.get(url, timeout=30)
+        resp = requests.get(url, params=params, timeout=30)
         resp.raise_for_status()
         file_index = resp.json()
+        if isinstance(file_index, dict) and "files" in file_index:
+            file_index = file_index["files"]
         if not isinstance(file_index, list):
             raise RuntimeError("Unexpected response format from OpenNeuro file index.")
-        # Normalise keys: ensure each entry has 'filename' and 'download_url' for later use
+        # Normalise keys: ensure each entry has 'filename' and a download URL
         normalized = []
         for entry in file_index:
+            # Different API versions may expose 'path' or 'filename'
             path = entry.get("path") or entry.get("filename") or entry.get("name")
             if not path:
                 continue
+            download_url = f"https://openneuro.org/crn/datasets/{dataset}/download/{path}?download=1"
             normalized.append({
                 "filename": path,
-                "download_url": f"https://openneuro.org/crn/datasets/{dataset}/download/{path}?download=1"
+                "download_url": download_url
             })
         return normalized
     except Exception as e:
