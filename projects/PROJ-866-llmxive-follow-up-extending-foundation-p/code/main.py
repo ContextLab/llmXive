@@ -106,8 +106,8 @@ def _adapt_schema_to_instance(
     Align an object‑typed contract with an array‑typed artifact.
 
     The generator/engines write top‑level JSON arrays of records. If
-    the contract instead defines a top‑level object that wraps the
-    record array in a property (e.g. ``workflows``), build an array
+    the contract instead defines a top‑level object that wraps
+    the record array in a property (e.g. ``workflows``), build an array
     schema from that property (``items`` plus ``minItems`` /
     ``maxItems`` / ``uniqueItems``) so every record is validated
     against the real contract subschema. Any other shape mismatch

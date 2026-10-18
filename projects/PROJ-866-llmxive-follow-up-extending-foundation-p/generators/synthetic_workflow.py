@@ -1,10 +1,11 @@
 """
-generators.synthetic_workflow
------------------------------
-
-Thin wrapper that re‑exports the implementation located under ``code/generators``.
-This allows the test suite (which imports ``generators.synthetic_workflow``) to
-locate the class without duplicating code.
+Compatibility wrapper so that ``import generators.synthetic_workflow`` works
+in the test suite. It simply re‑exports the implementation from the
+canonical location under ``code/generators``.
 """
+from code.generators.synthetic_workflow import (
+    SyntheticWorkflowGenerator,
+    generate_workflows,
+)
 
-from code.generators.synthetic_workflow import SyntheticWorkflowGenerator  # noqa: F401
+__all__ = ["SyntheticWorkflowGenerator", "generate_workflows"]
