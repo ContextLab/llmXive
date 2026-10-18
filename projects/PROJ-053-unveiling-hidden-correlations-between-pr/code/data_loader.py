@@ -15,6 +15,7 @@ import time
 import zipfile
 from pathlib import Path
 from typing import List
+from urllib.parse import urlparse
 
 import pandas as pd
 import requests
@@ -28,9 +29,9 @@ ZENODO_SEARCH_URL = "https://zenodo.org/api/records/"
 ZENODO_QUERY = "NIST AM Bench"
 MAX_SEARCH_RESULTS = 5
 
-# Required columns (case‑insensitive)
-REQUIRED_PREDICTORS = ["laser power", "scan speed", "layer thickness"]
-REQUIRED_TARGETS = ["yield strength", "ductility"]
+# Required columns (case‑insensitive, both space‑ and underscore‑separated)
+REQUIRED_PREDICTORS = ["laser power", "laser_power", "scan speed", "scan_speed", "layer thickness", "layer_thickness"]
+REQUIRED_TARGETS = ["yield strength", "yield_strength", "ductility"]
 MIN_SAMPLES = 50
 
 # Retry configuration
@@ -152,6 +153,13 @@ def _convert_excel_to_csv(excel_path: Path, target_csv_path: Path) -> None:
     log.info("Conversion to CSV completed.")
     excel_path.unlink(missing_ok=True)
 
+def _normalize_column_name(col: str) -> str:
+    """
+    Helper to make column name comparison case‑insensitive and tolerant
+    of spaces vs. underscores.
+    """
+    return col.lower().strip().replace(" ", "_")
+
 def _validate_dataframe(df: pd.DataFrame) -> None:
     """
     Validate that the dataframe meets all strict requirements.
@@ -163,12 +171,11 @@ def _validate_dataframe(df: pd.DataFrame) -> None:
         )
     log.info("Sample count validation passed (%d rows).", len(df))
 
-    # Column presence (case‑insensitive)
-    cols_lower = [c.lower().strip() for c in df.columns]
-    missing_predictors = [
-        col for col in REQUIRED_PREDICTORS if col not in cols_lower
-    ]
-    missing_targets = [col for col in REQUIRED_TARGETS if col not in cols_lower]
+    # Column presence (case‑insensitive, spaces/underscores)
+    cols_normalized = [_normalize_column_name(c) for c in df.columns]
+
+    missing_predictors = [col for col in REQUIRED_PREDICTORS if _normalize_column_name(col) not in cols_normalized]
+    missing_targets = [col for col in REQUIRED_TARGETS if _normalize_column_name(col) not in cols_normalized]
 
     if missing_predictors or missing_targets:
         raise ValueError(
@@ -179,12 +186,11 @@ def _validate_dataframe(df: pd.DataFrame) -> None:
 
     # Source‑independence check: ensure no target is a near‑perfect linear
     # function of any predictor (|corr| >= 0.9999)
-    predictor_cols = [
-        df.columns[cols_lower.index(col)] for col in REQUIRED_PREDICTORS
-    ]
-    target_cols = [
-        df.columns[cols_lower.index(col)] for col in REQUIRED_TARGETS
-    ]
+    # Map normalized names back to original column names
+    name_map = { _normalize_column_name(c): c for c in df.columns }
+
+    predictor_cols = [name_map[_normalize_column_name(col)] for col in REQUIRED_PREDICTORS if _normalize_column_name(col) in cols_normalized]
+    target_cols = [name_map[_normalize_column_name(col)] for col in REQUIRED_TARGETS if _normalize_column_name(col) in cols_normalized]
 
     for t in target_cols:
         t_series = df[t].astype(float)
@@ -231,19 +237,24 @@ def main() -> None:
     records = _search_zenodo()
     download_url = _choose_download_url(records)
 
-    # Temporary download location (could be .csv, .zip, .xlsx, .xls)
-    temp_download_path = raw_csv_path.with_suffix(".tmp")
+    # Determine file extension from URL
+    parsed = urlparse(download_url)
+    suffix = Path(parsed.path).suffix.lower()
+    if suffix not in ACCEPTED_EXTENSIONS:
+        raise ValueError(f"Unexpected file extension '{suffix}' from URL {download_url}")
+
+    # Choose a temporary download location that preserves the extension
+    temp_download_path = raw_csv_path.with_suffix(suffix)
 
     # Step 2: Download with retry logic
     _download_with_retries(download_url, temp_download_path)
 
     # Step 3: Handle archive / Excel conversion
-    if temp_download_path.suffix.lower() == ".zip":
+    if suffix == ".zip":
         _extract_zip_if_needed(temp_download_path, raw_csv_path)
-    elif temp_download_path.suffix.lower() in (".xlsx", ".xls"):
+    elif suffix in (".xlsx", ".xls"):
         _convert_excel_to_csv(temp_download_path, raw_csv_path)
-    else:
-        # Assume it's a CSV; rename to the expected path
+    else:  # Assume CSV
         temp_download_path.rename(raw_csv_path)
 
     # Step 4: Load and validate

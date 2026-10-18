@@ -1,11 +1,14 @@
 T001:
-  c: true
-  h: ffad128667086242cb09c14556cca29e3a017c0b76a7b6c6456f8e0002283ff7
-  r: "Checked `requirements.txt` (present and used in a passing requirements\u2011\
-    match test), `code/utils/io_utils.py` (sets seeds to 42 on import via config),\
-    \ and the pytest logs confirming both the requirements match and seed\u2011consistency\
-    \ tests succeed."
-  sig: 5f88d458ef04f6ea0fd97f46ed2e58778ac3a3ad9f341c1d3ae9c61f744fa1e2
+  c: false
+  h: f1c88815209db95706f5067b7e62df5d6c5bdda76643a3cd62d7d8b33c892bad
+  r: 'The `code/utils/io_utils.py` seed logic is present and correct (seeds 42 via
+    config), but the other verification requirements are unmet: `requirements.txt`
+    uses `>=` ranges rather than pinned versions, and there is no evidence of a virtual
+    environment setup, a `pip freeze` output matching pinned versions, or any test
+    script confirming seed consistency across runs. The implementer must pin exact
+    versions in `requirements.txt` and provide a seed-consistency test script with
+    execution evidence.'
+  sig: 1d3bd003cac2667f59b6ed9077aa808623c081fe1e2cbc278ddedb8e47cf21cf
 T003:
   c: false
   h: a47cc7bd361ce4a220059d536160e345c3c3ecdc6122aaeef3e4d9cab4ac53ec
