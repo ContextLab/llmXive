@@ -1,0 +1,62 @@
+T002:
+  c: true
+  h: eaefd961de7023c369e14b6f1c146e6caf24d2587ca7f236ef70055e9ddd6c1a
+  r: The `requirements.txt` exists at the project root with all six required dependencies
+    (transformers, torch[cpu], datasets, scipy, pytest, psutil) with sensible version
+    pins, and the verification log confirms Python 3.11.17 with all dependencies present
+    and the `torch[cpu]` extra correctly specified.
+  sig: e56f2418aa6eacbff63016d3a20c3e25b0c6be1c7f796e463dd545647b3a9aad
+T011:
+  c: false
+  h: a4cbbcbd508c72b246a3e19cda17a614edba88e595de5c6821e9763fc4c916a9
+  r: "The test file exists and is substantive, but `test_validate_missing_required_field`\
+    \ calls `validate_value_against_field(...)` \u2014 a function that is never defined\
+    \ anywhere in the file (only `validate_value_against_schema` exists), so that\
+    \ test would raise a `NameError` and fail rather than pass. Additionally, there\
+    \ is no evidence the schema file `specs/001-evaluate-prompting-strategies/contracts/evaluation_result.schema.yaml`\
+    \ exists or that the test suite was actually executed successfully. Fix the typo\
+    \ to `validate_value_against_schema` and provide a passing test run against the\
+    \ real schema fil"
+  sig: eed8320f34240fed0af4597327a4f0cf224cf83f6b837954f0f94704c9464e39
+T012:
+  c: false
+  h: cde69d701d8a39cb18f95ceb0037e644f0df8912e7886a030e87ea837701113a
+  r: The required artifact `tests/integration/test_sandbox_timeout.py` does not exist
+    anywhere in the project (collector confirms MISSING), so no integration test for
+    sandbox timeout handling was delivered. The implementer's claim of completion
+    is unsupported by any evidence on disk.
+  sig: 144444d24238248c7d6c92fc8332d14863f07b57d440c64023393f75a81b37c5
+T013:
+  c: false
+  h: 72c36415e3d319e19d032a0b8aa0d413b1d0b16dd9219948ec5b5c9c8dad5d77
+  r: 'The file `tests/unit/test_prompt_parser.py` exists and contains real, non-trivial
+    test cases, but it does not test the actual production code: the docstring explicitly
+    states the regex and `extract_code_blocks` are "implemented inline here" as a
+    copy rather than imported from `src/evaluation/prompts.py` (or wherever the real
+    parser lives). A unit test that exercises a duplicated inline implementation cannot
+    detect regressions or defects in the real extraction logic used by the pipeline.
+    The fix is to import the actual code-block extraction function/regex from the
+    source module (creating that m'
+  sig: 2f030406901c3e5e5651c5bcfbfd96c16754a8793d5d981f6317b1fb075366cb
+T014:
+  c: false
+  h: f9b9522118246ed60c47361c0000e78f94c59d992890e094e9a80af2b37f34cd
+  r: 'The runner''s interfaces don''t match the modules it imports, so the core loop
+    cannot execute: (1) `runner.py` calls `execute_sandbox(user_code=..., test_code=...,
+    timeout_seconds=...)`, but `sandbox.py`''s `execute_sandbox(code, timeout)` accepts
+    none of those keyword arguments (TypeError at runtime), and it checks `execution_result.get("passed")`
+    while sandbox returns a `success` key; (2) `runner.py` calls `create_zero_shot_prompt(prompt_text)`
+    with a string, but `prompts.py` expects a task dict and calls `.get("text")` on
+    it (AttributeError); (3) `runner.py` calls `ensure_log_dir(self.output_d'
+  sig: 1dd52e8063f98463e10a736dd6761a9350f53851ad21ca53637baf66e531a5b0
+T014b:
+  c: false
+  h: 740e3a368353705eb0e865fcd84003f25c9a48f888c324adc422738ba3349b60
+  r: "The runner records per-task `error_type` values (\"Timeout\", \"ParsingFailure\"\
+    ) but never explicitly **counts** or **logs** them \u2014 there are no aggregate\
+    \ counters and no `logger.log_metric`/`log_resource` calls for timeout or parsing-failure\
+    \ events, so no data is produced for SC-004/SC-005 reporting. Moreover, the instrumentation\
+    \ is broken as written: `execute_sandbox(user_code=..., test_code=..., timeout_seconds=...)`\
+    \ doesn't match sandbox.py's `execute_sandbox(code, timeout)` signature, `create_zero_shot_prompt`\
+    \ is called with a string but expects a dict, and `ResourceLogger(self.output_dir)`/"
+  sig: 33d15e0cafe116deae779aad201bfbe253349c4317985fd5b768ad2f77881e96

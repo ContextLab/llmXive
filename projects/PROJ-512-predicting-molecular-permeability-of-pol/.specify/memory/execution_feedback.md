@@ -27,22 +27,34 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 - `python code/data/ingestion.py --download-pubchem`
 - `python code/data/ingestion.py --generate-mock-target`
+- `python code/main.py`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 fabricated/simulated-result signal(s) — results are not real measurements: code/data/simulation.py: synthetic/fake INPUT data not authorized by the spec — “…te: This module provides synthetic data generation ONLY for inte…”; code/data/simulation.py: synthetic/fake INPUT data not authorized by the spec — “…ityRecord]]:     """     Generates synthetic polymer graphs for testi…”; code/data/simulation.py: synthetic/fake INPUT data not authorized by the spec — “…# Create synthetic permeability record         log_perm = rando…”; 2 command(s) failed: python code/data/ingestion.py --download-pubchem (rc=1); python code/data/ingestion.py --generate-mock-target (rc=1)
+**Summary**: 7 fabricated/simulated-result signal(s) — results are not real measurements: code/data/simulation.py: synthetic/fake INPUT data not authorized by the spec — “…te: This module provides synthetic data generation ONLY for inte…”; code/data/simulation.py: synthetic/fake INPUT data not authorized by the spec — “…ityRecord]]:     """     Generates synthetic polymer graphs for testi…”; code/data/simulation.py: synthetic/fake INPUT data not authorized by the spec — “…# Create synthetic permeability record         log_perm = rando…”; 3 command(s) failed: python code/data/ingestion.py --download-pubchem (rc=1); python code/data/ingestion.py --generate-mock-target (rc=1); python code/main.py (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/data/ingestion.py --download-pubchem -> rc=1
 
-NIST source failed: Dataset 'polymer_science/permeability_nist' doesn't exist on the Hub or cannot be accessed.
-PubChem source failed: Dataset 'pubchem_polymer' doesn't exist on the Hub or cannot be accessed.
+NIST source failed: Dataset 'polymer_science/permeability_nist' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
+PubChem source failed: Dataset 'pubchem_polymer' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
 FATAL: No real data available from NIST/PubChem. Real experimental data is required. Simulation is not a valid substitute. Execution halted.
 
 - python code/data/ingestion.py --generate-mock-target -> rc=1
 
-NIST source failed: Dataset 'polymer_science/permeability_nist' doesn't exist on the Hub or cannot be accessed.
-PubChem source failed: Dataset 'pubchem_polymer' doesn't exist on the Hub or cannot be accessed.
+NIST source failed: Dataset 'polymer_science/permeability_nist' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
+PubChem source failed: Dataset 'pubchem_polymer' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
 FATAL: No real data available from NIST/PubChem. Real experimental data is required. Simulation is not a valid substitute. Execution halted.
+
+- python code/main.py -> rc=1
+lymer_science/permeability_nist...
+2026-10-18 03:35:50 | INFO     | httpx2               | HTTP Request: GET https://huggingface.co/api/datasets/polymer_science/permeability_nist "HTTP/1.1 401 Unauthorized"
+2026-10-18 03:35:50 | WARNING  | data.ingestion       | NIST source failed: Dataset 'polymer_science/permeability_nist' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
+2026-10-18 03:35:50 | INFO     | data.ingestion       | Attempting to load dataset from pubchem_polymer...
+2026-10-18 03:35:50 | INFO     | httpx2               | HTTP Request: GET https://huggingface.co/api/datasets/pubchem_polymer "HTTP/1.1 401 Unauthorized"
+2026-10-18 03:35:50 | WARNING  | data.ingestion       | PubChem source failed: Dataset 'pubchem_polymer' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
+2026-10-18 03:35:50 | ERROR    | data.ingestion       | FATAL: No real data available from NIST/PubChem. Real experimental data is required. Simulation is not a valid substitute. Execution halted.
+2026-10-18 03:35:50 | ERROR    | __main__             | Ingestion failed with exit code 1.
+
 

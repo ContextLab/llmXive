@@ -1,116 +1,150 @@
-import os
-import sys
+"""
+Main orchestration script for the polymer permeability prediction pipeline.
+
+Run from the code/ directory:
+    python main.py [--max-records N] [--skip-training]
+
+Pipeline stages:
+    1. Data ingestion (real NIST/PubChem data only; halts loudly if unavailable)
+    2. Preprocessing (graph construction, feature extraction, scaffold split)
+    3. Model training (GNN + Random Forest + Linear Regression baselines)
+    4. Evaluation and statistical validation (Wilcoxon, VIF, sensitivity)
+
+Per SC-001, no simulation fallback is permitted: if real data cannot be
+fetched, the pipeline exits with a non-zero status code.
+"""
+import argparse
 import logging
+import sys
 
-# Ensure project root is in path for relative imports if run as script
-_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if _project_root not in sys.path:
-    sys.path.insert(0, _project_root)
+from data.utils import setup_logging, ensure_seed_initialized, get_seed
 
-from data.utils import setup_logging, set_seed, get_seed
-from models.gnn import create_gnn_model
-from models.baselines import RandomForestBaseline, LinearRegressionBaseline
-from data.ingestion import fetch_nist_pubchem_data, process_dataset, main as ingestion_main
-from data.preprocessing import process_graphs, murcko_scaffold_split
-from models.trainer import create_trainer
-from evaluation.metrics import evaluate_predictions
-from evaluation.report import generate_final_report
+logger = logging.getLogger(__name__)
 
-def check_environment():
+
+def check_environment() -> bool:
+    """Verify the runtime environment is CPU-only-compatible.
+
+    Returns:
+        True if the environment is suitable for the pipeline.
     """
-    Validates the runtime environment.
-    1. Checks Python version.
-    2. Ensures CPU-only PyTorch configuration as per spec.
-    
-    This function enforces a strict CPU-only execution mode. If CUDA is detected,
-    it explicitly disables it to prevent non-deterministic GPU behavior and
-    ensure compatibility with the CPU-constrained CI environment.
-    """
-    import torch
-
-    # Check Python version
-    if sys.version_info < (3, 11):
-        raise RuntimeError(f"Python 3.11+ required. Current: {sys.version}")
-
-    # CPU-only enforcement logic
-    if torch.cuda.is_available():
-        logging.warning("CUDA is available, but forcing CPU execution for consistency with CPU-only spec.")
-        # Explicitly disable CUDA usage
-        os.environ["CUDA_VISIBLE_DEVICES"] = ""
-        torch.cuda.is_available = lambda: False  # Override for safety in this session
-        
-        # Verify that forcing CPU actually works by attempting a tensor allocation
-        try:
-            # Attempt to create a tensor on a non-existent GPU to ensure we don't accidentally use it
-            # If we force CPU, this should raise an error or be handled gracefully by the device logic
-            # We want to ensure the *default* device is CPU
-            test_tensor = torch.zeros(1, device='cpu')
-            del test_tensor
-        except Exception as e:
-            raise RuntimeError(f"Failed to allocate CPU tensor after disabling CUDA: {e}")
-    else:
-        logging.info("CUDA not detected. Running in native CPU mode.")
-    
-    # Verify torch can create a CPU tensor (sanity check)
+    ok = True
     try:
-        _ = torch.zeros(1, device='cpu')
-    except Exception as e:
-        raise RuntimeError(f"PyTorch CPU backend check failed: {e}")
+        import torch
 
-    # Final assertion: ensure we are not accidentally using CUDA
-    if torch.cuda.is_available():
-        raise RuntimeError("Environment check failed: CUDA is still available despite CPU-only requirement.")
+        if torch.cuda.is_available():
+            logger.warning(
+                "CUDA device detected; this project targets CPU-only CI. "
+                "Continuing on CPU."
+            )
+        logger.info("PyTorch %s available (CUDA available: %s)",
+                    torch.__version__, torch.cuda.is_available())
+    except ImportError:
+        logger.error("PyTorch is not installed; model training is unavailable.")
+        ok = False
 
-    logging.info("Environment check passed. CPU-only mode enforced.")
-
-def main():
-    """
-    Main entry point for the molecular permeability prediction pipeline.
-    Orchestrates data ingestion, preprocessing, training, and evaluation.
-    """
-    setup_logging()
-    logger = logging.getLogger(__name__)
-    
-    logger.info("Starting Molecular Permeability Pipeline (T001 Setup)")
-
-    # 1. Environment Check
-    check_environment()
-
-    # 2. Initialize Seed
-    seed = get_seed()
-    set_seed(seed)
-    logger.info(f"Random seed initialized: {seed}")
-
-    # 3. Data Ingestion (US1)
-    # Note: This calls the ingestion module which fetches real data.
-    # If real data is unavailable, it will fail loudly as per FR-001.
-    logger.info("Fetching and processing dataset...")
     try:
-        # Assuming the ingestion module handles the fetch and initial cleaning
-        # We rely on the main() in ingestion.py to return the cleaned dataset
-        # or raise an error if data is missing.
-        # For T001, we ensure the structure exists and imports work.
-        # Actual data fetching logic is in T010/T014.
-        logger.info("Data ingestion module structure verified.")
-    except Exception as e:
-        logger.error(f"Data ingestion failed: {e}")
-        raise
+        from rdkit import rdBase  # noqa: F401
 
-    # 4. Preprocessing & Splitting (US1/US2)
-    logger.info("Preprocessing and splitting data...")
-    # Placeholder for T014/T020 logic integration
-    
-    # 5. Model Training (US2)
-    logger.info("Initializing models...")
-    # GNN Model
-    gnn_model = create_gnn_model()
-    # Baselines
-    rf_model = RandomForestBaseline()
-    lr_model = LinearRegressionBaseline()
+        logger.info("RDKit %s available.", rdBase.rdkitVersion)
+    except ImportError:
+        logger.error("RDKit is not installed; SMILES parsing is unavailable.")
+        ok = False
 
-    # 6. Evaluation (US2/US3)
-    logger.info("Pipeline structure complete. Ready for execution.")
+    return ok
+
+
+def run_ingestion(max_records: int) -> bool:
+    """Run the data ingestion stage (real data only)."""
+    from data.ingestion import main as ingestion_main, DataUnavailableError
+
+    try:
+        ingestion_main()
+    except DataUnavailableError as exc:
+        logger.error(str(exc))
+        return False
+    except SystemExit as exc:
+        if exc.code not in (0, None):
+            logger.error("Ingestion failed with exit code %s.", exc.code)
+            return False
+    return True
+
+
+def run_preprocessing() -> bool:
+    """Run the preprocessing / scaffold-split stage."""
+    try:
+        from data.preprocessing import main as preprocessing_main
+
+        preprocessing_main()
+        return True
+    except Exception as exc:  # fail loudly, no silent fallback
+        logger.error("Preprocessing failed: %s", exc)
+        return False
+
+
+def run_training() -> bool:
+    """Run model training and evaluation stages."""
+    try:
+        from models.trainer import main as trainer_main
+
+        trainer_main()
+        return True
+    except Exception as exc:
+        logger.error("Training failed: %s", exc)
+        return False
+
+
+def run_evaluation() -> bool:
+    """Run evaluation and statistical reporting stages."""
+    try:
+        from evaluation.report import main as report_main
+
+        report_main()
+        return True
+    except Exception as exc:
+        logger.error("Evaluation failed: %s", exc)
+        return False
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Polymer permeability prediction pipeline"
+    )
+    parser.add_argument(
+        "--max-records",
+        type=int,
+        default=2000,
+        help="Maximum number of records to process (RAM safety cap).",
+    )
+    parser.add_argument(
+        "--skip-training",
+        action="store_true",
+        help="Skip the model training stage.",
+    )
+    args = parser.parse_args()
+
+    setup_logging(level="INFO")
+    ensure_seed_initialized()
+    logger.info("Pipeline started (seed=%d, max_records=%d)",
+                get_seed(), args.max_records)
+
+    if not check_environment():
+        logger.error("Environment check failed. Aborting.")
+        return 1
+
+    if not run_ingestion(args.max_records):
+        return 1
+    if not run_preprocessing():
+        return 1
+    if not args.skip_training:
+        if not run_training():
+            return 1
+    if not run_evaluation():
+        return 1
+
+    logger.info("Pipeline completed successfully.")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

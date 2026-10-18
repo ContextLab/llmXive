@@ -41,10 +41,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create standard project directory structure as defined in `plan.md`: Ensure directories for raw data, processed data, models, and evaluation results are created. **Constraint**: Follow the structure defined in `plan.md` exactly.
-- [ ] T001b Create initial project files: Create files `requirements.txt` and `main.py` in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/`.
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`requirements.txt`)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools. **Deliverable**: Create `.ruff.toml` and `pyproject.toml` with explicit configuration for reproducibility. **Config**: Set `target-version = "py311"`, `line-length = 100`, and `select = ["E", "F", "W", "I"]` for ruff; `line-length = 100` for black.
+- [X] T001a Create standard project directory structure as defined in `plan.md`: Ensure directories for raw data, processed data, models, and evaluation results are created. **Constraint**: Follow the structure defined in `plan.md` exactly.
+- [X] T001b Create initial project files: Create files `requirements.txt` and `main.py` in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/`.
+- [X] T002 Initialize Python 3.11 project with pinned dependencies (`requirements.txt`)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools. **Deliverable**: Create `.ruff.toml` and `pyproject.toml` with explicit configuration for reproducibility. **Config**: Set `target-version = "py311"`, `line-length = 100`, and `select = ["E", "F", "W", "I"]` for ruff; `line-length = 100` for black.
 
 ---
 
@@ -56,8 +56,8 @@
 
 - [X] T004 Setup seed management and random state pinning in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/utils.py`
 - [X] T005 [P] Implement logging infrastructure with level configuration in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/utils.py`
-- [~] T006 [P] Create base `PolymerGraph` entity class in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/polymer_graph.py` with node/edge feature schemas (atom type, hybridization, bond type) **ONLY**. **Constraint**: Do NOT include 3D features (radii, bond length) as per FR-001.
-- [~] T007 Create `PermeabilityRecord` data model in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/permeability_record.py`
+- [ ] T006 [P] Create base `PolymerGraph` entity class in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/polymer_graph.py` with node/edge feature schemas (atom type, hybridization, bond type) **ONLY**. **Constraint**: Do NOT include 3D features (radii, bond length) as per FR-001.
+- [X] T007 Create `PermeabilityRecord` data model in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/permeability_record.py`
 - [~] T008 Setup CPU-only PyTorch environment check in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/main.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -84,8 +84,8 @@
 - [~] T011b [US1] Implement molecular weight calculation for repeat units in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`. **Dependency**: T011a. **Logic**: Calculate MW of the repeat unit; flag if < 1000 Da.
 - [~] T012 [US1] Implement data cleaning logic in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`: exclude entries with missing permeability; identify duplicates by SMILES string. **Logic for Duplicates**: If duplicates exist, calculate the arithmetic mean of log-permeability. **Logic for Conflicts**: If the variance between duplicate permeability values exceeds a defined threshold (e.g., > 0.5 log units), flag the entry for manual review by writing to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/raw/review_log.csv` with status "FLAGGED_CONFLICT" and reason "High variance in duplicate values". **Constraint**: **Always exclude** entries where calculated MW of the repeat unit < 1000 Da. Log these exclusions to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/raw/review_log.csv` with reason "MW < 1000 Da". **Do NOT** rely on environment variables; the rule is deterministic.
 - [~] T013 [US1] Implement node/edge feature extraction (atom type, hybridization, bond type) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/preprocessing.py`. **Constraint**: Use ONLY 2D features defined in FR-001 as the core schema.
-- [ ] T014 [US1] Save cleaned dataset to HDF5/Parquet in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5`. **Dependency**: T013 must complete before T014 to ensure feature completeness.
-- [ ] T020 [US1] Implement Murcko scaffold splitting logic in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/preprocessing.py`. **Input**: `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5`. **Algorithm**: Use `rdkit.Chem.MurckoScaffold.GetScaffoldForMol(mol, includeChirality=True)` to extract scaffolds. **Rule**: Convert scaffold to canonical SMILES string; use string hashing for strict identity match. Exclude any molecule from the test set if its scaffold SMILES is present in the training set. **Output**: Save split indices to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/scaffold_split_indices.json`. **Dependency**: T014 must complete before T020.
+- [~] T014 [US1] Save cleaned dataset to HDF5/Parquet in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5`. **Dependency**: T013 must complete before T014 to ensure feature completeness. <!-- FAILED: unspecified -->
+- [ ] T020 [US1] Implement Murcko scaffold splitting logic in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/preprocessing.py`. **Input**: `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5`. **Algorithm**: Use `rdkit.Chem.MurckoScaffold.GetScaffoldForMol(mol, includeChirality=True)` to extract scaffolds. **Rule**: Convert scaffold to canonical SMILES string; use string hashing for strict identity match. Exclude any molecule from the test set if its scaffold SMILES is present in the training set. **Output**: Save split indices to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/scaffold_split_indices.json`. **Dependency**: T014 must complete before T020. <!-- FAILED-IN-EXECUTION: code/data/preprocessing.py exit=1 -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

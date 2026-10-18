@@ -1,29 +1,32 @@
 T001a:
   c: true
-  h: 94b1c817bbe79dbe620b6c152abc0fe4b04e471c00363b565b1513f440450ae8
-  r: 'All six required directories (`code/`, `data/raw/`, `data/processed/`, `results/`,
-    `tests/unit/`, `tests/contract/`) exist and are non-empty, confirmed by the collector''s
-    directory listings and `results/layout_verification.json` (all_present: true).
-    The creation script `code/create_project_structure.py` ran successfully (exit
-    0, logging each directory), and `tests/unit/test_project_structure.py` passed,
-    directly verifying this task''s requirement.'
-  sig: 74b08a12471a9cb105d07c72d0370764e066b9aba3b923d2163edda79f53c286
+  h: 6121111c793ba4624b6ae5d5fa4f86cba38b31dc9e57a58eb77509f53b024885
+  r: 'The task only required initializing the project directory structure, and all
+    six directories (`code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`,
+    `tests/contract/`) exist and are non-empty (each contains a `.gitkeep` or files),
+    confirmed both by the collector''s directory listings and `results/layout_verification.json`
+    showing `all_present: true`. The fabricated-looking reports in `results/` (e.g.,
+    quickstart validation claiming artifacts that aren''t in evidence) are irrelevant
+    to this task''s scope and don''t affect the directory-structure requirement.'
+  sig: fa2479824e783030aa37855ad5320dd09bb18078b93399e85b9c229e8f09d2ca
 T001b:
   c: false
-  h: fe6b9c4344046873d94ead69b0329e0dcd440d5b5303afe7ee35383516c51bd1
+  h: 8135ef5a50848278099126bb00c31fbfdcb1af41e6286df53ddd4347413fd545
   r: The `code/.flake8` file appears in the directory listing, but no content evidence
-    was provided to confirm it contains `max-line-length = 88` and `ignore = E203,W503`
-    as required. The next implementer should ensure the file exists with exactly those
-    settings and the evidence collector should capture its contents for verification.
-  sig: ee27794937f656e586216fccac2d9943b0327c6bdd6bfc3fd34ec93428594a77
+    was supplied, so I cannot verify it contains `max-line-length = 88` or the `ignore
+    = E203,W503` setting the task requires. The next implementer should provide (or
+    the collector should capture) the actual `.flake8` file contents for verification.
+  sig: b5eb55b65d9ca266d9ccdc54e68ab931271b17d06cd02fa64f1b9a895e108c61
 T001c:
   c: true
-  h: 81d9423a5ceb93c0cd7199066fa0602afbe305af146758a7d996233202771673
-  r: The `code/` directory listing includes `pyproject.toml`, and the collected file
-    content contains a `[tool.black]` section with `line-length = 88` and `target-version
-    = ['py311']` (plus reasonable extras like isort/pytest config), exactly matching
-    the task's requirements. The file is non-empty and not a placeholder.
-  sig: 8648153874b0ce0902f8eb4879d55465aef7b7ec751159091cbecb1a93ab011b
+  h: a1c598e25629824aafab90d5cab45c46d648592fa3bc500b3d408179968a0705
+  r: The task asked for a `pyproject.toml` in `code/` with Black settings; the collector
+    resolved `pyproject.toml` at the project root (with `code/pyproject.toml` also
+    listed in the `code/` directory contents), and its content contains a valid `[tool.black]`
+    section with `line-length = 88` and `target-version = ['py311']` as required.
+    The file is non-empty (993 bytes) and well-formed TOML with additional reasonable
+    project configuration.
+  sig: 2894ed2826a6d18d01f9d8ee884628fd10992eee5b50ff3a0bd9738c25aa9337
 T002:
   c: true
   h: a8231e16c9a4ef6cf86bdb4a0a56a3f82f92ad7045bed0ff87b9d08e9860e40d
@@ -35,21 +38,20 @@ T002:
   sig: 36340ddc7606c2717ea442cbe2bfa344bd6a375b756101c703fc47e104541eea
 T004:
   c: true
-  h: 962a1b1b8f154b02d972a44f1379456aefae03f52e2bde6d32a1a1b3639f32b4
+  h: 11791a3a3e7e7be1e26c54f03998280c1ab6c7954444baa728a38da2d5c927cf
   r: '`code/config.py` exists (4543 bytes) and defines `DATA_DIR`/`RESULTS_DIR` paths,
     `RANDOM_SEED = 42`, and `LLM_BATCH_SIZE = 10`, exactly as required; the extra
     logging/path helpers and compatibility constants are additive and don''t conflict
-    with the task. The `data/` and `results/` directories referenced by the config
-    also exist on disk.'
-  sig: 3e8fd6b75134a9ed9eadd51122e18eb32ea38db5ae9e0d496525507ff9dd93fb
+    with the task.'
+  sig: 3d92a8814178c391c7deda6887b5a0f6ef80feb7b5359858fba1611c0c440554
 T005:
   c: true
-  h: a75e0a842b9ccecbadb2b14d62f1f5d11d003f90f673fac7f6814cb58409cf5c
-  r: 'The `code/__init__.py` exists (1417 bytes, non-stub) and programmatically creates
-    the required `data/raw`, `data/processed`, and `results` directories idempotently
-    at import time. Execution logs confirm the layout test suite passed (3/3) and
-    `code/verify_layout.py` ran successfully with `all_present: True`, writing `results/layout_verification.json`.'
-  sig: 2df5eca98dd420dc7574f081aea059709d3fa06b67a14c3544670255aa62a285
+  h: a504f49cdeb14f0fa94c7cc5a0d486e5a52762dd024bd892f0e4bcce97b97117
+  r: The `code/__init__.py` exists (1417 bytes) and is a real, functional package
+    initializer that idempotently creates the required `data/raw`, `data/processed`,
+    and `results` directories (plus tests dirs) at import time, matching the task's
+    requirement to add the file and ensure the directory layout.
+  sig: ce92d675f4c61eb6c5c148336dfc589b8cad725d11bb7d374ea848093da219e8
 T006a:
   c: true
   h: b81db29a0ab18cb4038d03cb9dcb0edeec864fa8ac8418a8272a890e27d0ee1c
@@ -60,17 +62,16 @@ T006a:
     \ is real, non-stubbed, and idempotent (guards against duplicate handlers)."
   sig: 74d9be692610aa3f66de5b44d6f4a2a6fb0d574c79b6bb52d51c24130bade73c
 T006b:
-  c: false
-  h: 67ef63218d6af6354c3f4c7acf73dba798a6b2fb0274f33b6e67baa2d1383461
-  r: '`code/monitoring.py` itself is a real, non-stub implementation using `psutil`
-    with batch recording and JSON persistence. However, `results/resource_metrics.json`
-    is clearly fabricated: its schema (`batch_id`, `start_/end_process_ram_mb`, `functions_processed`,
-    duplicate `batch_id` keys) does not match what `monitoring.py` actually writes
-    (`batch_idx`, `batch_size`, `time_sec`, `ram_mb`, `cpu_pct`), and its timestamps
-    (1704067200 = 2024-01-01) and round-number values indicate hand-written placeholder
-    data rather than output from an actual monitored run. The next implementer should
-    run the monit'
-  sig: 875f132a51bc106938b61e8f1e46f1fb21fa778c0a0077f66f9ee8db8021e56c
+  c: true
+  h: 3c6fbcd8da9f35a4379e1102312b53700dfa823780ca75e9cd76ce6c3969cbef
+  r: '`code/monitoring.py` exists (7 KB) and implements real psutil-based RAM/CPU/elapsed-time
+    recording per batch with persistence to `results/resource_metrics.json`, which
+    exists with actual measured entries (batch_idx, batch_size, time_sec, ram_mb,
+    cpu_pct) matching the logged execution (exit 0, values 144.04/144.06 MB, ~0.70s).
+    Unit tests for the module passed (4/4). The metrics come from a diagnostic workload
+    rather than real LLM inference batches, but the task only required the monitoring
+    module and output file, which are present and functional.'
+  sig: 5260c4ba047364b2f483b95fe62424b4809723391a06adbcc60f5bf0f62f2633
 T020:
   c: false
   h: 5f87ae29f59008beef596b359f7644ec09acc2a4dcbade20cabaf5477ce6e756

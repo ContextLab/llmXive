@@ -61,6 +61,6 @@ ERROR tests/unit/test_data_pipeline_stratified.py
 ERROR tests/unit/test_quickstart_validation.py
 ERROR tests/unit/test_statistical_analysis.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 5.65s ===============================
+============================== 4 errors in 3.58s ===============================
 
 

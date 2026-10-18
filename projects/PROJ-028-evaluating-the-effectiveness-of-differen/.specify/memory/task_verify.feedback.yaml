@@ -1,0 +1,128 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 8ee27f447ec2b71e583c3265370f8f64a988fe694e04cc47162e1b6730b8d644
+T002:
+  task: 790c6873d11fdd88b7a6467c355ca1f4c3f42b76d6f2e6960dcbf3ecedc3e541
+T003:
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  task: 958244e4de252a5c7298cc6d1bc1f4888985823795530690c5f13476d9439f39
+T005:
+  task: 573be235607eeff86d9f03fcc0409d6af0f6c0d902f02d607230ac98923da943
+T006:
+  task: 69c95e314814f61edf45ec66c52c2612e6d34f381f5c84b5a5a9a555e1f6488c
+T007:
+  task: 9449127721c999bcebbd386051902289369a0faa585c6f1e80985f231f68b6a8
+T008:
+  task: 009b14693e8074de8a668356f7d3f5c9e39d83db2a13698152f7404dd043a0e6
+T009:
+  task: da5970a2afed23712db68e62534b6d9ab18efba7ff558d708a9aeac696370384
+T010:
+  task: d8cfa9b44d14a23194aa31348177948ab24169c2bf8eabb107ce14eb08bb4b56
+T011:
+  reason: "The test file exists and is substantive, but `test_validate_missing_required_field`\
+    \ calls `validate_value_against_field(...)` \u2014 a function that is never defined\
+    \ anywhere in the file (only `validate_value_against_schema` exists), so that\
+    \ test would raise a `NameError` and fail rather than pass. Additionally, there\
+    \ is no evidence the schema file `specs/001-evaluate-prompting-strategies/contracts/evaluation_result.schema.yaml`\
+    \ exists or that the test suite was actually executed successfully. Fix the typo\
+    \ to `validate_value_against_schema` and provide a passing test run against the\
+    \ real schema fil"
+  task: 19d09f09a7df1ee7587efd0ad0ab28da2e4749730c2f1aacbe8a8388213e1e3b
+T012:
+  reason: The required artifact `tests/integration/test_sandbox_timeout.py` does not
+    exist anywhere in the project (collector confirms MISSING), so no integration
+    test for sandbox timeout handling was delivered. The implementer's claim of completion
+    is unsupported by any evidence on disk.
+  task: 83de0eb105f251dffe87756d95b0d611b36f93a92e97b8bab6a6da951568d3da
+T013:
+  reason: 'The file `tests/unit/test_prompt_parser.py` exists and contains real, non-trivial
+    test cases, but it does not test the actual production code: the docstring explicitly
+    states the regex and `extract_code_blocks` are "implemented inline here" as a
+    copy rather than imported from `src/evaluation/prompts.py` (or wherever the real
+    parser lives). A unit test that exercises a duplicated inline implementation cannot
+    detect regressions or defects in the real extraction logic used by the pipeline.
+    The fix is to import the actual code-block extraction function/regex from the
+    source module (creating that m'
+  task: 0f10757e1f21f64325760a8b3abb3976fe6a0da7f74ec535f30f2c3359919af6
+T014:
+  reason: 'The runner''s interfaces don''t match the modules it imports, so the core
+    loop cannot execute: (1) `runner.py` calls `execute_sandbox(user_code=..., test_code=...,
+    timeout_seconds=...)`, but `sandbox.py`''s `execute_sandbox(code, timeout)` accepts
+    none of those keyword arguments (TypeError at runtime), and it checks `execution_result.get("passed")`
+    while sandbox returns a `success` key; (2) `runner.py` calls `create_zero_shot_prompt(prompt_text)`
+    with a string, but `prompts.py` expects a task dict and calls `.get("text")` on
+    it (AttributeError); (3) `runner.py` calls `ensure_log_dir(self.output_d'
+  task: 273b5d091f94dabfdb014338413fd30b70ac1d858b607fedc31dd9a9889e9dc3
+T014b:
+  reason: "The runner records per-task `error_type` values (\"Timeout\", \"ParsingFailure\"\
+    ) but never explicitly **counts** or **logs** them \u2014 there are no aggregate\
+    \ counters and no `logger.log_metric`/`log_resource` calls for timeout or parsing-failure\
+    \ events, so no data is produced for SC-004/SC-005 reporting. Moreover, the instrumentation\
+    \ is broken as written: `execute_sandbox(user_code=..., test_code=..., timeout_seconds=...)`\
+    \ doesn't match sandbox.py's `execute_sandbox(code, timeout)` signature, `create_zero_shot_prompt`\
+    \ is called with a string but expects a dict, and `ResourceLogger(self.output_dir)`/"
+  task: 1bb96e25347cdd15bcb30ce988ba7465319e617e04a3d67db632fb675bcde704
+T015:
+  task: 645ee92a48ef0221c7c1fe40e68f467f52f3ae077f6dc21fac84f04ecc27416b
+T015b:
+  task: 49a462122456678b9cf4167838c79894ed541b65a940dce974e3edb52a5b1c17
+T016:
+  task: 00ea120b490fad7e5896f02ab845af47dd8dddb22c804c47657d8fe9c83ac0b9
+T017:
+  task: 421857098cffc846fdb2b76318531767d655c6dc08cffb24f8e393cc9825d67a
+T018:
+  task: 8c9e2373001f16ce8bf4a879e03cbf06bd5f63696256feb4da1652352568d621
+T019:
+  task: 7e03c666e75807e48cc542ca33a9e1b12cd004bc20b6fae34bf91aa4ba6f6d11
+T020:
+  task: 881be478ee5d811a6ddcca5321d2f10d14d2eb89590a1a13309b8aaf0651a511
+T021:
+  task: 77ef95b7c07cdce1e9b2ea21c33a2e3fe5a90a20d6b88fa121d99e8c3511bf60
+T021b:
+  task: 22f4c862941c73bdc4a77da9e52a45ceb865772b0c3a282a151bbee886df68dc
+T022:
+  task: 1810319e812a600d0d3f84c6c87c38004439bcc86c6de8f316da77da5dceef83
+T022b:
+  task: 9358ebac6b88b0d301d41868da896cd2f3227da097b7621a78ad4b8d1bc63bf9
+T023:
+  task: 0d9d8e037bd6e24bec5295bbf25c6645f48e11f49765ccdf92407c9ce6f0a81f
+T024:
+  task: 319de4c45bfe7bf38c71d33c247fdd52a7c6bba417e6702404ca680a38cf0f61
+T025:
+  task: b74add0edc392a79c5828f978ac5c224423f3224547c15daaba66b837fcfa93c
+T025b:
+  task: 9344f98e268ddcd39b4a1ede9b8a548e8379fe0753cddbc83f047b2e42227d46
+T026:
+  task: 648310483bad7c8cf303131907d4a1f611374c9aa6b4d50f6703b76c40a61c73
+T027:
+  task: d40e184c47189646b8f8d52eda1f87d728e7218d155d4acf4048fe5468cc8bf2
+T028:
+  task: 01bbc33a440c59393b8a13df1da57737721b74c6c6b0c4debc126bba18922d24
+T029:
+  task: bfc2f289a64658df7234655fba51c593a546e23c7166f25426ed3a75a5af6d44
+T030:
+  task: 994886c153cb206a86c6d1324f858d3156994aad79e00a2309ca45ff8d9ba9f0
+T031:
+  task: 1808c0218bf45d0029169263720b8a2a83569b1b60c8c14c87926421c3507814
+T032:
+  task: b629c6e54ba2c7fb76127c210231b8361d7e0d1a3dc77bb84ebe728263df04b8
+T033:
+  task: e8d46e77c06790e35da35d8bd3f70e1b18564198d0a41db5de49e84e3493a70b
+T034:
+  task: e67471c4404a327ea19087f0cd384f5ba3fa9363f7e1019c1f5c67b5dcb886c7
+T035:
+  task: e438b133d9efb5dd2d0afe94ee44c3a54385568a825a22984972029f3205a3c4
+T036:
+  task: 025128500bb89de993d1fbd772b919747fad86bf6d0b3ef1a13576541d405a92
+T037:
+  task: 5b4a430dfa19f782630bcbe02191a3e8fb582603f89875aeef75174d72d692f7
+T038:
+  task: c13eafc2482adb9aaeeb8a0eed0119573da7757f2154daa2332dc9c6159ac321
+T039:
+  task: c1c7b2c8c1f8b1fbe1416e8f0f9e5215283f6011859894a1c6451e7fbd037323
+T040:
+  task: 146b040c1123db636f04ac2ff6af193d0e15a032898ec1c8b98025e1a965b72a

@@ -1,0 +1,16 @@
+{
+  "python_version": "3.11.17",
+  "python_3_11_or_newer": true,
+  "requirements_file": "/home/runner/work/llmXive/llmXive/projects/PROJ-028-evaluating-the-effectiveness-of-differen/requirements.txt",
+  "requirement_lines": [
+    "transformers>=4.36.0",
+    "torch[cpu]>=2.1.0",
+    "datasets>=2.14.0",
+    "scipy>=1.11.0",
+    "pytest>=7.4.0",
+    "psutil>=5.9.0"
+  ],
+  "missing_dependencies": [],
+  "torch_cpu_extra_specified": true,
+  "all_dependencies_present": true
+}

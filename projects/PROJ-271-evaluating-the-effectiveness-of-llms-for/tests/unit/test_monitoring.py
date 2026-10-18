@@ -1,133 +1,81 @@
-"""
-Unit tests for the monitoring module.
-"""
 import os
 import json
-import tempfile
-import time
-
 import pytest
-import psutil
-
-# Import the module under test
+import numpy as np
+from pathlib import Path
 from code.monitoring import (
     get_ram_usage_mb,
     get_cpu_utilization,
-    capture_snapshot,
-    track_inference_time,
     record_batch_metrics,
     save_metrics_to_file,
-    get_peak_ram_for_batch,
+    capture_snapshot,
+    get_peak_ram_for_batch
 )
+from code.config import get_results_path
 
-
-def test_get_ram_usage_mb_returns_positive_float():
-    """Test that RAM usage is returned as a positive float."""
+def test_resource_queries():
+    """Verify that resource queries return plausible positive numbers."""
     ram = get_ram_usage_mb()
-    assert isinstance(ram, float)
-    assert ram > 0
-
-
-def test_get_cpu_utilization_returns_float():
-    """Test that CPU utilization is returned as a float."""
     cpu = get_cpu_utilization()
-    assert isinstance(cpu, float)
-    # CPU percent can be 0.0 up to 100.0 * num_cpus, but should be non-negative
-    assert cpu >= 0
+    assert ram > 0
+    assert 0 <= cpu <= 100
 
+def test_capture_snapshot():
+    """Verify that the capture_snapshot context manager records timing and resources."""
+    with capture_snapshot() as snap:
+        # Perform a small real task
+        _ = [i**2 for i in range(10000)]
+    
+    assert "start_ram_mb" in snap
+    assert "end_ram_mb" in snap
+    assert "duration_sec" in snap
+    assert snap["duration_sec"] >= 0
 
-def test_capture_snapshot_structure():
-    """Test that snapshot contains expected keys and types."""
-    snapshot = capture_snapshot()
+def test_batch_recording_and_persistence(tmp_path):
+    """Verify that batch metrics are recorded and correctly persisted to JSON."""
+    # Use a temporary path to avoid overwriting real results during tests
+    test_file = tmp_path / "test_metrics.json"
+    
+    # Clear global state for test consistency
+    import code.monitoring
+    code.monitoring._metrics_log = []
+    code.monitoring._peak_ram_mb = 0.0
+    
+    record_batch_metrics(
+        batch_idx=0,
+        batch_size=10,
+        time_sec=1.5,
+        ram_mb=500.0,
+        cpu_pct=45.0
+    )
+    
+    # Verify peak RAM was updated
+    assert get_peak_ram_for_batch() == 500.0
+    
+    # Persist to temp file
+    save_metrics_to_file(path=test_file)
+    
+    assert test_file.exists()
+    with open(test_file, 'r') as f:
+        data = json.load(f)
+    
+    assert isinstance(data, list)
+    assert len(data) == 1
+    assert data[0]["batch_idx"] == 0
+    assert data[0]["ram_mb"] == 500.0
+    assert data[0]["time_sec"] == 1.5
 
-    assert "timestamp" in snapshot
-    assert isinstance(snapshot["timestamp"], float)
-
-    assert "process_ram_mb" in snapshot
-    assert isinstance(snapshot["process_ram_mb"], float)
-    assert snapshot["process_ram_mb"] > 0
-
-    assert "process_cpu_pct" in snapshot
-    assert isinstance(snapshot["process_cpu_pct"], float)
-    assert snapshot["process_cpu_pct"] >= 0
-
-    assert "system_ram_mb" in snapshot
-    assert isinstance(snapshot["system_ram_mb"], float)
-    assert snapshot["system_ram_mb"] > 0
-
-    assert "system_cpu_pct" in snapshot
-    assert isinstance(snapshot["system_cpu_pct"], float)
-    assert snapshot["system_cpu_pct"] >= 0
-
-
-def test_track_inference_time_context():
-    """Test the inference time context manager tracks duration."""
-    with track_inference_time() as metrics:
-        # Simulate some work
-        time.sleep(0.1)
-
-    assert "duration_seconds" in metrics
-    assert metrics["duration_seconds"] >= 0.09  # Allow small variance
-    assert "start_timestamp" in metrics
-    assert "end_timestamp" in metrics
-    assert metrics["end_timestamp"] >= metrics["start_timestamp"]
-
-    # Check RAM metrics exist
-    assert "start_process_ram_mb" in metrics
-    assert "end_process_ram_mb" in metrics
-    assert "peak_process_ram_mb" in metrics
-    assert "ram_delta_mb" in metrics
-
-
-def test_record_batch_metrics():
-    """Test that batch metrics are recorded correctly."""
-    batch_id = 1
-    mock_metrics = {
-        "duration_seconds": 1.5,
-        "start_process_ram_mb": 100.0,
-        "end_process_ram_mb": 105.0,
-        "peak_process_ram_mb": 105.0,
-    }
-
-    record = record_batch_metrics(batch_id, mock_metrics)
-
-    assert record["batch_id"] == batch_id
-    assert "timestamp" in record
-    assert record["duration_seconds"] == 1.5
-
-
-def test_save_and_load_metrics_to_file():
-    """Test saving metrics to a JSON file and reading them back."""
-    records = [
-        {"batch_id": 1, "duration_seconds": 1.0},
-        {"batch_id": 2, "duration_seconds": 2.0},
-    ]
-
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        temp_path = f.name
-
-    try:
-        save_metrics_to_file(records, temp_path)
-
-        assert os.path.exists(temp_path)
-
-        with open(temp_path, 'r') as f:
-            loaded_records = json.load(f)
-
-        assert len(loaded_records) == 2
-        assert loaded_records[0]["batch_id"] == 1
-        assert loaded_records[1]["batch_id"] == 2
-    finally:
-        os.unlink(temp_path)
-
-
-def test_get_peak_ram_for_batch():
-    """Test retrieving peak RAM for a specific batch."""
-    records = [
-        {"batch_id": 1, "peak_process_ram_mb": 150.0},
-        {"batch_id": 2, "peak_process_ram_mb": 200.0},
-    ]
-
-    assert get_peak_ram_for_batch(records, 1) == 150.0
-    assert get_peak_ram_for_batch(records, 2) == 200.0
-    assert get_peak_ram_for_batch(records, 999) is None
+def test_peak_ram_tracking():
+    """Verify that the global peak RAM is correctly tracked across multiple batches."""
+    import code.monitoring
+    code.monitoring._metrics_log = []
+    code.monitoring._peak_ram_mb = 0.0
+    
+    record_batch_metrics(0, 10, 1.0, 100.0, 10.0)
+    assert get_peak_ram_for_batch() == 100.0
+    
+    record_batch_metrics(1, 10, 1.0, 250.0, 10.0)
+    assert get_peak_ram_for_batch() == 250.0
+    
+    record_batch_metrics(2, 10, 1.0, 150.0, 10.0)
+    assert get_peak_ram_for_batch() == 250.0

@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "3600ab21aeaaefddf4d1905a025072c9fda54e4ff9514853e694372d4135fbf3",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'tests/unit/test_lint_config.py': SyntaxError at line 7: unexpected indent. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 1135"
+}

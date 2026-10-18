@@ -11,9 +11,6 @@ select = ["E", "F", "W", "I"]
 # Ignore specific rules if necessary (none currently)
 ignore = []
 
-# Allow unused variables for testing purposes if needed
-# dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
 # Exclude directories
 exclude = [
     ".git",
@@ -23,12 +20,3 @@ exclude = [
     "dist",
     "*.egg-info",
 ]
-
-# Per-file ignores if needed
-# [per-file-ignores]
-# "tests/*" = ["S101"]
-
-# Formatting options
-# [format]
-# quote-style = "double"
-# indent-style = "space"

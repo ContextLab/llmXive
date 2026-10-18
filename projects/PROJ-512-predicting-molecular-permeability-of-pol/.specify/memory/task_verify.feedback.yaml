@@ -1,37 +1,22 @@
 T001a:
-  reason: "The repository contains only a `code/` hierarchy (e.g., `code/data/`, `code/models/`,\
-    \ `code/evaluation/`) and no top\u2011level directories named `raw`, `processed`,\
-    \ `models`, or `evaluation` as stipulated by the task and the structure outlined\
-    \ in `plan.md`. Consequently the exact directory layout required by T001a is not\
-    \ present."
   task: a2b4b17424eb222d6bd463453bff2e76b8b5b964c69315134d1d075a263dbc72
 T001b:
-  reason: "The evidence shows that a `main.py` file and a `requirements.txt` file\
-    \ exist in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/`,\
-    \ but their contents (or file sizes) are not provided, so we cannot confirm they\
-    \ are non\u2011empty or contain the expected initial code/dependencies. Provide\
-    \ the actual contents (or at least non\u2011zero size) of both files to satisfy\
-    \ the task."
   task: 13db90d378c0c6e895d8877b58d7c314d6175a5fca2087636a8ae801abe9ee6c
 T002:
-  reason: "The only artifact provided is `requirements.txt`, which exists but lists\
-    \ dependencies with open-ended version specifiers (`>=`) rather than exact, pinned\
-    \ versions required by the task. Consequently the project is not initialized with\
-    \ truly \u201Cpinned\u201D dependencies."
   task: bfc833d2a404edb88283c83ee2e3e95f7244acc372e9a11134d4cb71cfcff608
 T003:
-  reason: "Checked the `.ruff.toml` (contains `target-version = \"py311\"`, `line-length\
-    \ = 100`, `select = [\"E\",\"F\",\"W\",\"I\"]`) \u2013 it meets the ruff requirements.\
-    \ The `pyproject.toml`\u2019s `[tool.black]` section sets `line-length = 88` instead\
-    \ of the required `100`, so the black configuration is incorrect. Fix the black\
-    \ line-length to 100 (and optionally remove conflicting ruff settings) to satisfy\
-    \ the task."
   task: 3c19c42907ce8d7c3a576648f1b62df1e132f29be53bce57f4ccb329ee851025
 T004:
   task: 570eb8ad64d40a76e989aeaaa061881a5238435d17c119ce4ad51d798a682e05
 T005:
   task: c67b9a57cdc9352e9c6cd1be003f3082d22fefa75129f8ea54e2fb8ad8a3118e
 T006:
+  reason: "The file `code/models/polymer_graph.py` exists but is only a bare dataclass\
+    \ container (`nodes`, `edges` as generic lists) with no node/edge feature schemas\
+    \ at all \u2014 no atom type, hybridization, or bond type feature definitions,\
+    \ encodings, or validation, which the task explicitly requires. It is effectively\
+    \ a placeholder that does not implement the required schemas (though it does correctly\
+    \ omit 3D features per FR-001)."
   task: 0c17d5057efcc8f225fbdcdd4416be1c72776f5dc7ec54c94784c53dc26284b1
 T007:
   task: bdd1b87d546ded0a593bcf78bea4afba656c023536afb89201c01bd418be6170
@@ -52,6 +37,8 @@ T013:
 T014:
   task: 7e6595db21162a4d777bfeacc2a6aa4ae95fb301a2f57aeffc81a5693041b98e
 T020:
+  reason: 'Requested task execution failed; rerun successfully: code/data/preprocessing.py
+    exit=1'
   task: f3fec85cbeb81e5c0221d0f5027027c8321abf594449a108cccfdf7019a82904
 T021:
   task: 26808edc1b163313e1c0c101dd18f27a32d239b410318f610496383812f5412e
