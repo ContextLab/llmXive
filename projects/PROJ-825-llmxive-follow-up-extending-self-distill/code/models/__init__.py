@@ -1,3 +1,3 @@
 """
-Package marker for model wrappers.
+models package initialization.
 """

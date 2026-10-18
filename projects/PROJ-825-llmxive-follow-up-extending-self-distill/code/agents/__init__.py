@@ -1,3 +1,3 @@
 """
-Package marker for agent implementations.
+agents package initialization.
 """

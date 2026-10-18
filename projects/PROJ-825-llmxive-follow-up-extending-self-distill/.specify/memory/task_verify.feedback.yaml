@@ -7,6 +7,8 @@ T000d:
 T000e:
   task: 262c49b3e57fd1e46fbe78a99b3ac61602da0faaea8cf744b85e9e854bbe77c3
 T001:
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/verify_memory_t011.py
+    exit=1'
   task: 193e1bf6ef7e4eecfaa25e507920d1e1ff12e9c9bac00849e626a19cf4969900
 T002:
   task: 953c3609fe967361196da0170e4701ad10b53d1807160651f9cab386655cfe49

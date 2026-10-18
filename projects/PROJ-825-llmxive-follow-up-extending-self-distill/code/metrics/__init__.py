@@ -1,3 +1,3 @@
 """
-Package marker for metric utilities.
+metrics package initialization.
 """

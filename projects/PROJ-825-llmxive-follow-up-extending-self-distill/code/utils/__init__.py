@@ -1,3 +1,3 @@
 """
-Package marker for utility modules.
+utils package initialization.
 """

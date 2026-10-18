@@ -5,7 +5,7 @@
 
 ## Phase 0: Foundations and Pilot Checks
 
-- [ ] T001 Create project root structure `code/` with subdirectories `code/agents/`, `code/environments/`, `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/`, `code/config.py`, and `data/`, `data/processed/` per plan.md structure.
+- [ ] T001 Create project root structure `code/` with subdirectories `code/agents/`, `code/environments/`, `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/`, `code/config.py`, and `data/`, `data/processed/` per plan.md structure. <!-- FAILED-IN-EXECUTION: code/scripts/verify_memory_t011.py exit=1 -->
 
 - [ ] T004 Repair `code/requirements.txt` to contain **exact pinned** versions of the real dependencies:
   ```
