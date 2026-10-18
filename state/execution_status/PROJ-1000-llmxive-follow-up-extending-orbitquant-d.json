@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-12T11:22:41Z",
+  "updated_at": "2026-10-18T05:12:33Z",
   "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
   "replan_rounds": 1
 }

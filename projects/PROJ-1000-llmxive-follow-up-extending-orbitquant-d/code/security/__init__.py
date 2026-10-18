@@ -1,1 +1,1 @@
-"""Security: path sanitization and checksums."""
+"""Security sub-package."""

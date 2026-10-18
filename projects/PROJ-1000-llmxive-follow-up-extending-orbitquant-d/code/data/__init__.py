@@ -1,1 +1,1 @@
-"""Data acquisition and preprocessing sub-package."""
+"""Data acquisition sub-package."""

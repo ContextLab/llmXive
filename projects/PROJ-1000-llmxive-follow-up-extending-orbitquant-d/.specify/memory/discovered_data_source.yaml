@@ -1,18 +1,11 @@
 status: none
-intent: MS COCO 2017 parquet download python package dataset
+intent: download MS COCO 2017 validation set Python package dataset
 required_fields:
 - image_id
 - file_name
 - height
 - width
-- caption
 - captions
-- annotations
-- category_id
-- bbox
-- segmentation
-- area
-- iscrowd
-cache_key: ef6afe1897141d8dce047ea8cfc54f8e9c9fa7266e598fbb2ec9be9777a522d6
-searched_at: '2026-10-18T04:13:20.717402+00:00'
+cache_key: be171cda6c09ebdcd37a332450f380d8e510b7b15b9077a7a759bc597bc1121d
+searched_at: '2026-10-18T05:12:33.557969+00:00'
 retry_count: 1

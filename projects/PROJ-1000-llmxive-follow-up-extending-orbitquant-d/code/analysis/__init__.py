@@ -1,1 +1,1 @@
-"""Analysis sub-package: entropy proxy, correlation, clustering, router."""
+"""Analysis sub-package."""
