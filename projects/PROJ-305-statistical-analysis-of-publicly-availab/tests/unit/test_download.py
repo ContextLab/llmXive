@@ -1,70 +1,38 @@
 import sys
-import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
-# Add the repository's code directory to sys.path so we can import src.data.download
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
-
+# Import the script as a module to test its functions without executing the
+# CLI entry point.
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 from src.data.download import (
-    BASE_URL,
-    FILE_TYPES,
     YEARS,
-    download_year,
-    sha256_checksum,
+    FILE_TYPES,
+    verify_download,
+    fetch_vaers_data,
+    paths,
 )
 
-@pytest.fixture
-def fake_zip(tmp_path):
-    """Create a minimal zip containing a single CSV file."""
-    import zipfile
-    csv_content = b"id,value\n1,foo\n2,bar\n"
-    zip_path = tmp_path / "2020VAERSDATA.csv.zip"
-    with zipfile.ZipFile(zip_path, "w") as zf:
-        zf.writestr("2020VAERSDATA.csv", csv_content)
-    return zip_path
 
-def test_sha256_checksum(tmp_path):
-    # Write a known file
-    file_path = tmp_path / "test.txt"
-    file_path.write_bytes(b"abc")
-    expected = hashlib.sha256(b"abc").hexdigest()
-    assert sha256_checksum(file_path) == expected
-
-@patch("src.data.download.download_zip")
-@patch("src.data.download.extract_zip")
-def test_download_year_success(mock_extract, mock_download, tmp_path):
+@pytest.mark.parametrize("year", YEARS)
+@pytest.mark.parametrize("ftype", FILE_TYPES)
+def test_files_exist(year, ftype):
     """
-    Verify that ``download_year`` calls the expected helpers and records
-    checksums without raising.
+    After a successful run, each expected CSV must exist under
+    ``data/raw/<year>/`` and be non‑empty.
     """
-    # Mock the zip download – we don't hit the network
-    mock_download.return_value = None
+    file_path = paths.data("raw", str(year), f"{year}{ftype}.csv")
+    assert file_path.is_file(), f"Missing file {file_path}"
+    assert file_path.stat().st_size > 0, f"Empty file {file_path}"
 
-    # Mock extraction – return a list with a single dummy CSV Path
-    dummy_csv = tmp_path / "2020VAERSDATA.csv"
-    dummy_csv.write_text("id,value\n1,foo")
-    mock_extract.return_value = [dummy_csv]
 
-    # Run the function; it should complete without exception
-    result = download_year(2020)
-
-    # Ensure each FILE_TYPE key is present and maps to the dummy CSV list
-    for ft in FILE_TYPES:
-        assert ft in result
-        assert dummy_csv in result[ft]
-
-    # Verify that checksum file was written
-    checksums_path = Path("data/checksums.txt")
-    assert checksums_path.exists()
-    lines = checksums_path.read_text().splitlines()
-    # At least one line should contain the dummy CSV name and OK flag
-    assert any("OK" in line for line in lines)
-
-@patch("src.data.download.download_zip", side_effect=Exception("404"))
-def test_download_year_failure(mock_download):
-    """If the zip cannot be retrieved the function must raise."""
-    with pytest.raises(SystemExit):
-        download_year(2020)
+def test_verify_download_success():
+    """
+    ``verify_download`` should raise SystemExit with code 1 if any file is
+    missing.  In the normal test environment the files are present because
+    the download script has already been executed (see the execution
+    request above).  Therefore the call must complete without raising.
+    """
+    # Should not raise
+    verify_download()

@@ -1,4 +1,8 @@
 T001:
+  reason: 'Missing required directories: `src/validation/`, `tests/fixtures/`, `data/raw/`,
+    `data/processed/`, `data/results/`, and `output/figures/` (they are listed as
+    MISSING in the evidence). Without these, the project layout does not meet the
+    task specification.'
   task: de50249f593ddc8019c25a35b37b31183354ee5e012db928b26b15b83cceeedf
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py

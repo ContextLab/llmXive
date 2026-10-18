@@ -2,19 +2,9 @@
 ├── .gitignore
 ├── .gitkeep
 ├── .pre-commit-config.yaml
-├── .pytest_cache
-│   ├── .gitignore
-│   ├── CACHEDIR.TAG
-│   ├── README.md
-│   └── v
-│       └── cache
 ├── .python-version
 ├── .ruff.toml
 ├── .runtime-home
-│   ├── .cache
-│   │   └── matplotlib
-│   └── .config
-│       └── matplotlib
 ├── .specify
 │   ├── memory
 │   │   ├── constitution.md
@@ -24,7 +14,6 @@
 │   │   ├── research_question_validated.yaml
 │   │   ├── task_verifier_notes.md
 │   │   ├── task_verify.feedback.yaml
-│   │   ├── task_verify.yaml
 │   │   ├── task_verify_cache.yaml
 │   │   └── tasker_rounds.yaml
 │   ├── scripts
@@ -45,8 +34,8 @@
 │   ├── .gitkeep
 │   ├── .ruff.toml
 │   ├── .tasks
-│   │   ├── T001.code_create_structure.py.log
 │   │   ├── T002.src_data_download.py.log
+│   │   ├── T002.tests_unit_test_download.py.log
 │   │   └── T016b.atomize.yaml
 │   ├── Makefile
 │   ├── README.md
@@ -62,7 +51,6 @@
 │   ├── data
 │   │   ├── .gitkeep
 │   │   ├── __init__.py
-│   │   ├── processed
 │   │   └── raw
 │   ├── figures
 │   │   └── .gitkeep
@@ -100,28 +88,18 @@
 │   ├── signal.schema.yaml
 │   └── soc_cluster.schema.yaml
 ├── data
-│   ├── .gitkeep
-│   ├── processed
-│   ├── raw
-│   │   └── 2020
-│   └── results
+│   └── .gitkeep
 ├── figures
 │   └── .gitkeep
 ├── idea
 │   ├── research_question_validation.md
 │   └── statistical-analysis-of-publicly-availab.md
 ├── logs
-│   ├── analysis.log
-│   ├── clean.log
 │   ├── download.log
 │   ├── lint.txt
-│   ├── pipeline.log
-│   ├── structure.txt
-│   └── validate.log
+│   └── structure.txt
 ├── output
-│   ├── .gitkeep
-│   ├── figures
-│   └── temporal_profiles
+│   └── .gitkeep
 ├── pyproject.toml
 ├── quickstart.md
 ├── requirements.txt
@@ -149,18 +127,17 @@
 │   │   ├── download.py
 │   │   └── validate.py
 │   ├── main.py
-│   ├── utils
-│   │   ├── config.py
-│   │   └── plots.py
-│   └── validation
+│   └── utils
+│       ├── config.py
+│       └── plots.py
 └── tests
     ├── .gitkeep
-    ├── fixtures
     ├── integration
     │   ├── test_pipeline.py
     │   ├── test_signal_detection.py
     │   └── test_temporal_profiles.py
     └── unit
+        ├── __pycache__
         ├── test_bh_correction.py
         ├── test_disproportionality.py
         ├── test_download.py
@@ -170,4 +147,4 @@
         ├── test_validate.py
         └── test_validate_e_schema_missing.py
 
-61 directories, 110 files
+46 directories, 102 files

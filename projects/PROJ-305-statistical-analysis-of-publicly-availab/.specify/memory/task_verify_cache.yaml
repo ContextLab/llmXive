@@ -1,9 +1,8 @@
 T001:
-  c: true
-  h: 9b815e7d3a83fadb61c5296c1cb04eb01c8a62bb7c353363b44241ba52573910
-  r: "All 13 required directories exist (confirmed by the collector and by the `tree`\
-    \ output in `logs/structure.txt`, which is non-empty at 5580 bytes and was generated\
-    \ via the `tree` command per the T001 execution log with exit 0). `quickstart.md`\
-    \ documents the runnable command `python -m src.main` and input provenance (CDC\
-    \ VAERS 2020\u20132023 public archives), satisfying the task's requirements."
-  sig: 5d923dbbfc251badd249060a63dda1d652508c2954877d15c81f00fbc54f3f51
+  c: false
+  h: 5b7d5663735ff00dd8a00e3e10d59b93d9978d27c056ae1259b1102f464f44f8
+  r: 'Missing required directories: `src/validation/`, `tests/fixtures/`, `data/raw/`,
+    `data/processed/`, `data/results/`, and `output/figures/` (they are listed as
+    MISSING in the evidence). Without these, the project layout does not meet the
+    task specification.'
+  sig: 81aefbdec86eb00fc7180226c498834bc607123ae7c90f386666159807d4237e
