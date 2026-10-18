@@ -1,21 +1,17 @@
-"""Legacy wrapper for ``code.data``.
-
-Provides the same public API expected by the original quick‑start
-commands (e.g. ``python -m src.llmxive.data --download``).
-"""
 from __future__ import annotations
 
-# Re‑export the implementation from the new location.
 from code.data import (
-    load_gsm8k,
-    load_bigbench_lite,
     download_all,
-    main,
+    load_bigbench_lite,
+    load_gsm8k,
 )
 
-__all__ = [
-    "load_gsm8k",
-    "load_bigbench_lite",
-    "download_all",
-    "main",
-]
+def main(argv=None):
+    import argparse
+    parser = argparse.ArgumentParser(description="LLMXive data entry point")
+    parser.add_argument("--download", action="store_true", help="Download datasets")
+    args = parser.parse_args(argv)
+
+    if args.download:
+        return 0 if download_all() else 1
+    return 0

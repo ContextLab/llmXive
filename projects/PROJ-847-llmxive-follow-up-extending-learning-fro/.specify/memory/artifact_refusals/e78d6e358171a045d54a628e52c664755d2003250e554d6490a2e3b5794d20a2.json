@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "98daef26d755cec8d8b7c799810e6bc1ead1c3abc4b9076cbfc93bec116d628f",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused 'src/llmxive/model.py': it would replace working code with a file that has none. To leave a file unchanged, leave it out of `artifacts`; to re-run it unchanged, give `path`, `execute: true` and `args` and omit `contents`."
+}

@@ -1,7 +1,3 @@
-"""Legacy entry‑point that forwards to the new implementation.
-
-Allows execution via ``python -m src.llmxive.cli.run_experiments``.
-"""
 from __future__ import annotations
 
 import sys
