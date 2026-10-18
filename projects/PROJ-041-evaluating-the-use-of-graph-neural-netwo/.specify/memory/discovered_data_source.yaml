@@ -1,17 +1,15 @@
 status: none
-intent: download CTU-13 NetFlow dataset and NF-BoT-IoT-v3 flow dataset official source
-  python package dataset
+intent: CTU-13 NetFlow CSV download HuggingFace mirror CTU-13 metadata python package
+  dataset
 required_fields:
-- timestamp
 - src_ip
 - dst_ip
+- timestamp
 - src_port
 - dst_port
 - protocol
-- packets
-- bytes
-- flow_duration
-- label
-cache_key: ee45771bdba3ebbace7c58ed6d302350da68eef2e124e2c9bac32ca81fd99ddf
-searched_at: '2026-10-16T14:24:16.229378+00:00'
+- packet_count
+- byte_count
+cache_key: 177ecd98a0d25818ca4e9f43eac9501fd4eba50f9fc25b5e5bcc83e46dc61271
+searched_at: '2026-10-18T13:17:28.843685+00:00'
 retry_count: 1

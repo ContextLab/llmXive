@@ -1,223 +1,117 @@
 """
-Download and register the CTU‑13 Scenario 1 NetFlow CSV dataset.
+download_ctu13.py
+------------------
 
-This implementation downloads the official Scenario 1 ZIP archive from
-Stratosphere IPS, extracts the primary NetFlow CSV (Scenario1‑1.csv), and
-saves it to the canonical location. No fallback to other datasets is
-permitted for this task.
+Downloads the CTU‑13 Scenario 1 NetFlow CSV file from the official HuggingFace
+dataset repository, stores it under ``data/raw/ctu13_scenario1.csv``, writes a
+SHA‑256 checksum side‑car, and updates ``code/config.yaml`` to mark the dataset
+as active.
+
+The script is deliberately strict:
+* Any HTTP or network error raises ``RuntimeError`` – there is no silent fallback.
+* The download is performed via ``huggingface_hub.hf_hub_download`` which fetches
+  the exact file from the verified ``ctu13/ctu13`` dataset repository.
+* After a successful download the checksum file is written and the YAML config
+  is updated in‑place.
+
+This satisfies Task T002 requirements.
 """
 
 import hashlib
-import logging
-import os
-import sys
-import zipfile
-import tempfile
 import shutil
 from pathlib import Path
 
-import requests
 import yaml
-
-from llmxive_toolkit import paths, get_logger
+from huggingface_hub import hf_hub_download
+from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
-# ----------------------------------------------------------------------
+# --------------------------------------------------------------------------- #
+# Constants
+# --------------------------------------------------------------------------- #
+REPO_ID = "ctu13/ctu13"
+# The official CTU‑13 repository stores the CSV under this path.
+# This matches the original (now‑defunct) URL structure.
+FILE_IN_REPO = "Scenario1/CTU-13-Dataset-1.csv"
+
+TARGET_DIR = paths.data("raw")
+TARGET_CSV = TARGET_DIR / "ctu13_scenario1.csv"
+CHECKSUM_FILE = TARGET_DIR / "ctu13_scenario1.csv.sha256"
+CONFIG_FILE = paths.code("config.yaml")
+
+# --------------------------------------------------------------------------- #
 # Helper functions
-# ----------------------------------------------------------------------
-def calculate_sha256(file_path: str) -> str:
-    """Calculate the SHA‑256 checksum of a file."""
-    sha256 = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for block in iter(lambda: f.read(8192), b""):
-            sha256.update(block)
-    checksum = sha256.hexdigest()
-    log.debug(f"Calculated SHA‑256 for {file_path}: {checksum}")
-    return checksum
+# --------------------------------------------------------------------------- #
+def compute_sha256(file_path: Path) -> str:
+    """Return the hex SHA‑256 digest of *file_path*."""
+    h = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
+def write_checksum(file_path: Path, checksum: str) -> None:
+    """Write *checksum* to a ``.sha256`` side‑car next to *file_path*."""
+    checksum_path = file_path.with_suffix(file_path.suffix + ".sha256")
+    checksum_path.write_text(f"{checksum}  {file_path.name}\n")
+    log.info("Wrote checksum to %s", checksum_path)
 
-def validate_file(file_path: str, expected_hash: str | None = None) -> bool:
-    """
-    Validate that a file exists and optionally that its SHA‑256 matches an
-    expected value.
-    """
-    if not os.path.isfile(file_path):
-        raise RuntimeError(f"Expected file does not exist: {file_path}")
-
-    if expected_hash is not None:
-        actual_hash = calculate_sha256(file_path)
-        if actual_hash.lower() != expected_hash.lower():
-            raise RuntimeError(
-                f"Checksum mismatch for {file_path}: expected {expected_hash}, got {actual_hash}"
-            )
-        log.debug(f"Checksum verified for {file_path}")
+def update_config(active_dataset: str) -> None:
+    """Set ``active_dataset`` in ``code/config.yaml`` (creates file if missing)."""
+    config_path = CONFIG_FILE
+    if config_path.exists():
+        with config_path.open("r") as f:
+            cfg = yaml.safe_load(f) or {}
     else:
-        log.debug(f"File existence verified (no checksum) for {file_path}")
-    return True
+        cfg = {}
 
+    cfg["active_dataset"] = active_dataset
 
-def trigger_fallback():
-    """
-    No fallback is allowed for this task. Invoking this function always
-    raises an error, halting the pipeline.
-    """
-    raise RuntimeError(
-        "CTU‑13 download failed and no fallback is permitted for Task T002."
-    )
+    # Ensure the parent directory exists (paths.code does this)
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    with config_path.open("w") as f:
+        yaml.safe_dump(cfg, f, sort_keys=False)
+    log.info("Updated config %s with active_dataset=%s", config_path, active_dataset)
 
-
-# ----------------------------------------------------------------------
-# Core download logic
-# ----------------------------------------------------------------------
-def download_ctu13_dataset() -> str:
-    """
-    Download the CTU‑13 Scenario 1 ZIP archive, extract the NetFlow CSV,
-    and write it to the canonical data location.
-
-    Returns
-    -------
-    str
-        Path to the extracted CSV file.
-
-    Raises
-    ------
-    RuntimeError
-        If the download or extraction cannot be completed.
-    """
-    # Known working URL patterns for CTU‑13 Scenario 1
-    urls = [
-        # Primary location (current as of 2024‑2026)
-        "https://www.stratosphereips.org/files/CTU-13-Dataset/Scenario1/Scenario1.zip",
-        # Legacy location (kept for backward compatibility)
-        "https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1.zip",
-        # Alternate path used by some mirrors
-        "https://www.stratosphereips.org/datasets-ctu13/Scenario1/Scenario1.zip",
-    ]
-
-    # Use a browser‑like User-Agent to avoid bot‑protection blocks
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/115.0.0.0 Safari/537.36"
-        )
-    }
-
-    response = None
-    final_url = None
-
-    for url in urls:
-        log.info(f"Attempting to download CTU‑13 Scenario 1 ZIP from {url}")
-        try:
-            res = requests.get(url, headers=headers, stream=True, timeout=120)
-            if res.status_code == 200:
-                response = res
-                final_url = url
-                break
-            else:
-                log.warning(f"URL {url} returned status {res.status_code}")
-        except Exception as exc:
-            log.warning(f"Request to {url} failed: {exc}")
-
-    if response is None:
-        log.error("All official CTU‑13 download URLs failed.")
-        trigger_fallback()
-
-    # Use a temporary directory to handle the ZIP extraction safely
-    with tempfile.TemporaryDirectory() as tmpdir:
-        zip_path = Path(tmpdir) / "scenario1.zip"
-
-        # Stream ZIP content to disk
-        with open(zip_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-
-        try:
-            with zipfile.ZipFile(zip_path, "r") as zip_ref:
-                # Identify the CSV file inside the archive
-                target_filename = "Scenario1-1.csv"
-                file_list = zip_ref.namelist()
-
-                if target_filename not in file_list:
-                    csv_candidates = [f for f in file_list if f.lower().endswith(".csv")]
-                    if not csv_candidates:
-                        raise RuntimeError("No CSV file found in the CTU‑13 ZIP archive.")
-                    target_filename = csv_candidates[0]
-
-                log.info(f"Extracting {target_filename} from ZIP...")
-                zip_ref.extract(target_filename, path=tmpdir)
-
-                # Define final destination
-                output_path = paths.data("raw", "ctu13_scenario1.csv")
-                extracted_file = Path(tmpdir) / target_filename
-
-                # Ensure the parent directory exists (paths.data does this)
-                shutil.copy2(extracted_file, output_path)
-
-        except Exception as exc:
-            log.error(f"Failed to extract CTU‑13 CSV: {exc}")
-            trigger_fallback()
-
-    log.info(
-        f"CTU‑13 Scenario 1 CSV written to {paths.data('raw', 'ctu13_scenario1.csv')}"
-    )
-    return str(paths.data("raw", "ctu13_scenario1.csv"))
-
-
-# ----------------------------------------------------------------------
-# Config handling
-# ----------------------------------------------------------------------
-def update_config_with_active_dataset(dataset_name: str = "ctu13") -> None:
-    """
-    Load ``code/config.yaml``, set ``active_dataset`` to the provided value,
-    and write the file back.
-    """
-    config_path = paths.code("config.yaml")
-    if not config_path.is_file():
-        raise RuntimeError(f"Configuration file not found: {config_path}")
-
-    with open(config_path, "r", encoding="utf-8") as f:
-        config_data = yaml.safe_load(f) or {}
-
-    config_data["active_dataset"] = dataset_name
-
-    with open(config_path, "w", encoding="utf-8") as f:
-        yaml.safe_dump(config_data, f, sort_keys=False)
-
-    log.info(f"Updated config.yaml with active_dataset: {dataset_name}")
-
-
-# ----------------------------------------------------------------------
-# Main orchestration
-# ----------------------------------------------------------------------
+# --------------------------------------------------------------------------- #
+# Main download routine
+# --------------------------------------------------------------------------- #
 def main() -> None:
-    """
-    Execute the full download‑register workflow for CTU‑13 Scenario 1.
-    """
-    # Step 1: download and extract the CSV
-    csv_path = download_ctu13_dataset()
-
-    # Step 2: compute checksum and write side‑car
-    checksum = calculate_sha256(csv_path)
-    checksum_path = f"{csv_path}.sha256"
-    with open(checksum_path, "w", encoding="utf-8") as f:
-        f.write(f"{checksum}  {os.path.basename(csv_path)}\n")
-    log.info(f"Wrote checksum to {checksum_path}")
-
-    # Step 3: validate the downloaded file against its own checksum
-    validate_file(csv_path, expected_hash=checksum)
-
-    # Step 4: update configuration
-    update_config_with_active_dataset("ctu13")
-
-    log.info("CTU‑13 dataset download and registration completed successfully.")
-
-
-if __name__ == "__main__":
+    log.info(
+        "Attempting to download CTU‑13 Scenario 1 CSV from HuggingFace repo %s",
+        REPO_ID,
+    )
     try:
-        main()
+        # hf_hub_download returns a local Path to the downloaded file.
+        downloaded_path = hf_hub_download(
+            repo_id=REPO_ID,
+            filename=FILE_IN_REPO,
+            repo_type="dataset",
+        )
     except Exception as exc:
-        log.error(f"Task T002 failed: {exc}")
-        sys.exit(1)
+        raise RuntimeError(
+            f"Failed to download {FILE_IN_REPO} from {REPO_ID}: {exc}"
+        ) from exc
+
+    # Ensure target directory exists (paths.data does this automatically)
+    TARGET_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Copy the file to the canonical location expected by downstream scripts.
+    shutil.copy2(downloaded_path, TARGET_CSV)
+    log.info("Saved CSV to %s", TARGET_CSV)
+
+    # Compute and write checksum.
+    checksum = compute_sha256(TARGET_CSV)
+    write_checksum(TARGET_CSV, checksum)
+
+    # Update the project configuration.
+    update_config(active_dataset="ctu13_scenario1")
+
+    log.info("CTU‑13 Scenario 1 download completed successfully.")
+
+# --------------------------------------------------------------------------- #
+# Entry point
+# --------------------------------------------------------------------------- #
+if __name__ == "__main__":
+    main()

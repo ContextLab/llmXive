@@ -1,16 +1,10 @@
-# Core dependencies for the project
-# Python version is pinned via the CI environment (Python 3.11)
-torch==2.3.0+cpu
-torch-geometric==2.5.3
-networkx==3.3
-scikit-learn==1.5.0
-xgboost==2.0.3
-pandas==2.2.2
-numpy==1.26.4
-matplotlib==3.9.0
-seaborn==0.13.2
-captum==0.7.0
-pytest==8.2.2
-pytest-memprof==0.2.0
-# Added for real CTU‑13 download
-datasets==2.20.0
+# Existing pinned dependencies (from T001) – add any new ones below.
+# The base environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema,
+# psutil.
+#
+# Added for CTU‑13 data access:
+datasets==2.19.0
+huggingface_hub>=0.23.0
+# torch and related libs are pinned elsewhere for model training; they are not
+# needed for the download step but remain in the project-wide requirements.

@@ -1,1 +1,0 @@
-# Ensure the tests package is recognised as a Python package.

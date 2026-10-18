@@ -1,3 +1,0 @@
-# This directory holds raw network traffic datasets (e.g., CTU-13, NF-BoT-IoT).
-# Files are downloaded here by code/data/ingest_netflow.py.
-# Do not commit large binary files; ensure .gitattributes handles LFS if needed.

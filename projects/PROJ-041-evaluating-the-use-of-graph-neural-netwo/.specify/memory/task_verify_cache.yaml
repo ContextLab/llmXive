@@ -1,12 +1,8 @@
 T001:
-  c: true
-  h: e73a49ec77483cf97f01d5d2f6ab9277e9f72ede21ddc66c4cdfec14bcbf2e5f
-  r: The required directories (`code/`, `data/`, `docs/`, `tests/`) all exist with
-    `__init__.py` markers, `requirements.txt` pins all 12 specified packages (torch
-    CPU, torch-geometric, networkx, scikit-learn, xgboost, pandas, numpy, matplotlib,
-    seaborn, captum, pytest, pytest-memprof), `pyproject.toml` pins Python >=3.11,<3.12
-    and configures ruff/black, and `code/utils/seed.py` and `code/utils/memory_monitor.py`
-    are substantive, working implementations (deterministic seeding across random/numpy/torch;
-    `run_with_limit` raising `MemoryLimitExceededError` when an allocation exceeds
-    the 7 GB limit). Th
-  sig: df059d5f381276c9e37119d20e8536ed1796e80b1956e390acffe57d5f466405
+  c: false
+  h: 438eab952336b3d7fcdfa405079ffe91a9224af7bb36a125f21eb361e9759ab8
+  r: "The required utility modules `code/utils/seed.py` and `code/utils/memory_monitor.py`\
+    \ are missing, causing the layout\u2011creation test to fail (test_create_layout\
+    \ error). Consequently the deterministic seed handling and RAM\u2011limit wrapper\
+    \ are not implemented, so the task\u2019s core requirements are not satisfied."
+  sig: 9707153ae84bf7df4176195e3ddbbbb2327458df420b404066a247acda8b537d

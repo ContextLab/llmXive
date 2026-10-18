@@ -32,7 +32,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/ctu13/ctu13
   verified_at: '2026-10-16T14:43:53.330980Z'
-- artifact_hash: 9b1e040f7dcadd6a2b7f20d3c788f7433fd8dc37e2047a2a382c4adb676c1be1
+- artifact_hash: 7973ffdbcc30b937e88cca7f38e356a2556e15634e48a5fb326dd68d6947d82d
   artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -42,4 +42,4 @@
   value: https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/master/Scenario1/CTU-13-Dataset-1.csv`
   verification_status: mismatch
   verified_against_url: https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/master/Scenario1/CTU-13-Dataset-1.csv
-  verified_at: '2026-10-16T14:49:27.504579Z'
+  verified_at: '2026-10-18T13:16:38.559061Z'

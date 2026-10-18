@@ -1,26 +1,38 @@
 T001:
-  task: 7e98edd029a6969dadd7ca0dc6952393bba0c34a8fede7f9ab5a822238a272d4
+  reason: "The required utility modules `code/utils/seed.py` and `code/utils/memory_monitor.py`\
+    \ are missing, causing the layout\u2011creation test to fail (test_create_layout\
+    \ error). Consequently the deterministic seed handling and RAM\u2011limit wrapper\
+    \ are not implemented, so the task\u2019s core requirements are not satisfied."
+  task: 7e9c78003d6d6dac96cc45a26e881dcf865ac75b5d9578c902c2de67bfd375f5
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/download_ctu13.py
     exit=1'
-  task: 3ba2c7514a7203151000461d934d520469914bd5ca061c704351945d65ecbd13
+  task: 7f6ba168ed0c3511e185d4c6c5fa0e9cadd0769796228b3e721f878073d31c7d
 T003:
-  task: 8261269f55ef270108678c64e9096b8be362b6504a322c430c459b0d8075447f
+  task: 15facec595f04df01b5a97572869685de5aafe51aeb574a0037c12bf64f5887d
 T004:
-  task: bc9dc8dd896f083260866d4e606c59ca22a99643de43d441e4bdfce1819a82fb
+  task: f5316d8cf7bbf50a6f32c685aefe7ffd9a3e2d0b1165fe6aa3e27da72010b36f
 T005:
-  task: 74ad5e7416a2b4199555b140e0616c5575b0db7fd5d9fc4c096959370cd0ac9c
+  task: 0c57f076f6e6d4ba4baee6094bc09171b219a3d43760b5453f5aeb4b2c1d6b3c
 T006:
-  task: 8fdce84dcb67b7929b0dae4e7ea134b18c72dfa2dec8d04cee348d5344c14d47
+  task: b247704f509bbd6bf92fb28698c8f0df77faf9d9839817d622b2ef8109db6d4c
 T007:
-  task: b33da77db3187274813c31b72cf353ea47e7ad74cb8e251bb0a5729e77ae1838
+  task: cd0c46fa4b62805dc2139344dca9e53e7bbfd7453f08cde76a4ebdc12fc192d4
 T008:
-  task: 3e53d9049503af53cf9a3823f88475c793b553e7376296e76c4162b75d39660d
+  task: 7ad65e0751728a6d4a3a1e22e03dd9552fe6e22d1e5d4defb16c1c772cd23fd1
 T009:
-  task: 8f6f9b9308f084165d0c242e4be56d4f846b955f3145481477fe90495f34c776
+  task: a344f6cf963283524e726f33bdd9b0301bc066ebce1d08db8091d8076a95daca
 T010:
-  task: 708392632eca8490f9c1459e1a0ae6beeb5fcb9032744ba9130ff5f08971159c
+  task: ca517a3005f06d60baf43e84b5d92ebeadb41e47b484f786660034bb28d8fc59
 T011:
-  task: f346dbaddee8507182b45a99af934c75a1f1a629ac546919b1f5ee61229a792e
+  task: 3118778f076906bcf8c0ef751fa65be6372542d9a3e1b52a1a3aa94ce034356f
 T012:
-  task: 0f45e52023e9684c2d43fa59d08125d2974eef40eab4bda3eb345cf564737f0b
+  task: 58ce511adafce4664a29803ce17d79642ee00805becf3681b578645c528ba432
+T013:
+  task: b0caacd4a7e7982f61a0569ac0764c5ca7e648f34a48277fd18ee08999301fc0
+T014:
+  task: c046f8dad913a5bb1d4cb5b682f80a51529aa0293592bfd488ba35882efb6934
+T015:
+  task: c599fa28fd45680aabc587e66449608449ffe5e69dc5821b7c3debe6fef81796
+T016:
+  task: 8af0cdf5b25170d7ad485335faa07dfbea66e677751088634acab0034140459d
