@@ -1,0 +1,16 @@
+T001:
+  c: false
+  h: 30f7533d1269fe6d9dd5dae9b379f734f44af8a82fec0fc924d17bc06d41f03d
+  r: "The required `code/models/` sub\u2011directory is reported as missing, and there\
+    \ is no execution evidence showing that `python -m code.main --phase init` actually\
+    \ prints \u201CInitialization complete\u201D as the verification step demands."
+  sig: 27533b194252ee705ec8114e5c8adf16da5bb289f5fbe6ae2852132884484c71
+T002:
+  c: false
+  h: 46cb4798903e9ae6c2dfa9553b51c4b49e07730aea75f553f208b4c3465792fe
+  r: "The required `data/raw/coco_captions.parquet` file is missing (the provided\
+    \ script writes a CSV instead of a Parquet file), and the expected preprocessing\
+    \ script `code/data/preprocess_coco.py` does not exist (the log shows a different\
+    \ `preprocess.py` was run). Consequently the task\u2019s first two steps are not\
+    \ satisfied, even though the diverse prompts script and CSV output are present."
+  sig: e6f5c06df5da05dea50eef2448b859af437cceec88b76f6036ba28d0861cb39b

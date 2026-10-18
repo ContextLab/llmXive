@@ -1,10 +1,9 @@
 status: none
-intent: ms coco 2017 validation set parquet download python package dataset
+intent: download MS-COCO 2017 validation set parquet via huggingface datasets python
+  package dataset
 required_fields:
-- prompt_id
-- prompt_text
 - image_id
 - caption
-cache_key: aa5ce915065b3f8ce028845ae675ad2655bc87a62de172977ffbd556868ade17
-searched_at: '2026-10-18T02:19:49.076223+00:00'
+cache_key: 22c24ace692e8eb10676bf0dddce8d72171f04913f3177aeca68fbbf3694e458
+searched_at: '2026-10-18T02:22:58.373924+00:00'
 retry_count: 1

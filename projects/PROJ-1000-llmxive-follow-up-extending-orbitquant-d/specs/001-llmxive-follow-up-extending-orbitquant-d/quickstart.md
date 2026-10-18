@@ -1,17 +1,18 @@
-# Quickstart: llmXive follow-up: extending "OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T"
+# Quickstart: Project Skeleton Initialization
+
+This guide explains how to set up the project skeleton and verify that the basic
+configuration is working.
 
 ## Prerequisites
-- Python 3.11 or newer  
-- Git  
-- (Optional) Kaggle API token for GPU off‑load (`kaggle.json` placed in `~/.kaggle/`)
+- Python 3.11 or newer
+- Git
 
 ## Setup
 
 ```bash
-# 1. Clone the repo and checkout the feature branch
+# 1. Clone the repository and navigate to the project root
 git clone <repo-url>
 cd projects/PROJ-1000-llmxive-followup-extending-orbitquant-d
-git checkout 001-llmxive-followup
 
 # 2. Create a virtual environment
 python -m venv .venv
@@ -21,48 +22,40 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Initialize Data (writes only under `data/`)
+## Initialize the Project Skeleton
+
+The project provides a command‑line entry point that creates the required
+directory structure under `code/` and prints a confirmation message.
 
 ```bash
-# Download MS‑COCO parquet files and verify checksums
-python code/data/download_coco.py
-# Extract captions to a CSV of prompts
-python code/data/preprocess.py
+python -m code.main --phase init
 ```
 
-## Run the Full Research Pipeline
+You should see the following output:
+
+```
+Initialization complete
+```
+
+This indicates that:
+- All required sub‑directories under `code/` (analysis, models, quantization,
+  evaluation, utils, runners, validation, tests, etc.) have been created.
+- The `data/raw` and `data/processed` directories are also in place.
+
+## Verification
+
+You can run a few quick checks to confirm the setup:
 
 ```bash
-# Phase 0: Correlation study (CPU)
-python code/main.py --phase correlation
+# Count the number of sub‑directories under code/
+find code/ -type d | wc -l   # should be ≥ 8
 
-# Phase 1: Generate rotation matrices (CPU)
-python code/main.py --phase clustering
+# Ensure the config module imports without error
+python -c "import code.config"
 
-# Phase 2: Build router (CPU)
-python code/main.py --phase router
-
-# Phase 3: Evaluation (CPU for metrics, GPU escape for generation)
-python code/main.py --phase evaluation
+# Verify that the requirements file lists torch
+grep -c "torch" requirements.txt   # should be ≥ 1
 ```
 
-Each phase creates deterministic output files under `data/processed/` and plots under `figures/`. Logs are written to `data/processed/logs/`. The pipeline will automatically off‑load the generation steps to a Kaggle GPU if the selected DiT model cannot fit on the CI runner.
-
-## Inspect Results
-
-- Correlation plot: `figures/correlation_scatter.png`  
-- Clustering report: `data/processed/clustering_report.json`  
-- Rotation matrices: `data/processed/rotation_matrices/matrix_{i}.npy` and `metadata_{i}.json`  
-- Evaluation table: `data/processed/results.csv`  
-
-## Testing
-
-```bash
-# Unit tests (router logic, entropy calculation)
-pytest tests/unit/
-
-# Integration test (end‑to‑end on a tiny subset of prompts)
-pytest tests/integration/
-```
-
-All test artifacts are written to `data/processed/` or `figures/`; no `state/` directory is touched.
+Once these checks pass, the project skeleton is ready for further development
+and data acquisition steps.
