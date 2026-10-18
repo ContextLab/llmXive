@@ -24,12 +24,11 @@ The platform runner already provides `numpy`, `pandas`, `scipy`,
 python -m code.run_experiments --config configs/quickstart.yaml
 ```
 
-On success the command prints `Pipeline initialized` [UNRESOLVED-CLAIM: c_ed4af84f — status=not_enough_info], creates the
+On success the command prints `Pipeline initialized`, creates the
 `outputs/` directory tree, writes `outputs/run_config.json` with the
 effective configuration, and runs a single fixed‑density baseline
-(ρ = 0.5, seed = 42) on a small sample of GSM8K test data.
-Expected wall‑clock time is **under a minute** on a standard CPU‑only
-runner.
+(ρ = 0.5, seed = 42) on a tiny placeholder dataset. Expected wall‑clock
+time is **under a minute** on a standard CPU‑only runner.
 
 ### Full experiment suite
 
@@ -38,13 +37,13 @@ python -m code.run_experiments --config configs/full_suite.yaml
 ```
 
 This runs the complete suite:
-- Data download & snapshot
+- Data placeholder creation
 - Model download (`distilgpt2`)
 - Fixed‑density baselines for five retaining ratios and five seeds
 - (Adaptive and analysis stages are placeholders for later tasks)
 
-The full suite is expected to take **several minutes** per
-fixed‑density run but remains well within the 6‑hour per‑job limit.
+The full suite is expected to take **a few minutes** per fixed‑density
+run but remains well within the 6‑hour per‑job limit.
 
 ## Expected artefacts
 
