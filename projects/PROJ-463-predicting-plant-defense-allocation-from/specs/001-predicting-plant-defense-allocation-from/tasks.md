@@ -27,8 +27,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (see plan.md). **Exact Files**: Create `src/__init__.py`, `tests/__init__.py`, `data/raw/.gitkeep`, `data/processed/.gitkeep`, `data/traits/.gitkeep`, `data/manifests/.gitkeep`, `data/synthetic/.gitkeep`. **Verification**: Run `test -d src && test -d tests && test -d data` and assert all directories exist. **Output**: `data/.dir_setup_complete` flag file. **[FR-001][FR-002]**
-- [ ] T002 Initialize Python project with pinned `requirements.txt` (includes `rpy2`, `biopython`, `scikit-learn`, `seaborn`, `matplotlib`, `ete3`, `pydantic`, `requests`, `tqdm`, `pyyaml`)
-- [ ] T003a-fix Configure linting (ruff) and formatting (black) tools. **Exact Files**: Create `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections. **Verification**: Run `ruff check.` and `black --check.` and assert they pass. **[FR-001]**
+- [X] T002 Initialize Python project with pinned `requirements.txt` (includes `rpy2`, `biopython`, `scikit-learn`, `seaborn`, `matplotlib`, `ete3`, `pydantic`, `requests`, `tqdm`, `pyyaml`)
+- [ ] T003a-fix Configure linting (ruff) and formatting (black) tools. **Exact Files**: Create `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections. **Verification**: Run `ruff check.` and `black --check.` and assert they pass. **[FR-001]** <!-- FAILED-IN-EXECUTION: code/scripts/run_lint_check.py exit=1 -->
 - [ ] T003b-install-deps [P] Install all required system and R packages via conda in a single step. **Exact Commands**:
  1. `conda install -c bioconda -c conda-forge -y fastp hisat2 subread r-sva r-normqpcr r-phylolm r-ape`
  2. **Verification**: Run `fastp --version`, `hisat2 --version`, `featureCounts -V`, `Rscript -e "library(sva)"`, `Rscript -e "library(NormqPCR)"`, `Rscript -e "library(phylolm)"`, `Rscript -e "library(ape)"` and assert exit code == 0 for all.
@@ -45,7 +45,7 @@
 
 - [X] T004-fix Implement configuration management (`src/utils/config.py`) for paths, seeds, thresholds, and the **fixed list of housekeeping genes** defined in FR-003. **Hardcode the following 50 genes** into `src/utils/config.py`: ACT2, ACT7, GAPDH, UBQ10, EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16, CYP79D15, CYP79D17, CYP83A1, CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1, CYP71A2, CYP71A3, CYP71A4, CYP71A5, CYP71A6, CYP71A7, CYP71A8, CYP71A9, CYP71A10, CYP71A11, CYP71A12, CYP71A13, CYP71A14, CYP71A15, CYP71A16, CYP71A17, CYP71A18, CYP71A19, CYP71A20, CYP71A21, CYP71A22, CYP71A23, CYP71A24, CYP71A25, CYP71A26, CYP71A27, CYP71A28, CYP71A29, CYP71A30, CYP71A31, CYP71A32. **Note**: While CYP79D16, CYP79D15, etc., are used here for normalization (FR-003), they MUST be excluded from the predictor set in T021 to prevent bias (FR-005).
 - [X] T005-fix Implement logging and provenance tracking (`src/utils/logger.py`, `src/utils/provenance.py`) (see plan.md)
-- [~] T006-fix Create base data schemas (`src/utils/schemas.py`) **defined inline**. **Implementation Detail**: Define Pydantic models inline with these exact fields:
+- [X] T006-fix Create base data schemas (`src/utils/schemas.py`) **defined inline**. **Implementation Detail**: Define Pydantic models inline with these exact fields:
  ```python
  class RNASeqStudy(BaseModel):
  accession_id: str
@@ -83,9 +83,9 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T008 [P] [US1] Unit test for FASTQ download validation in `tests/unit/test_download.py`
-- [~] T009 [P] [US1] Unit test for batch correction metric calculation in `tests/unit/test_batch_correction.py`
-- [~] T010 [P] [US1] Integration test for full preprocessing pipeline on a single synthetic study in `tests/integration/test_preprocess.py`
+- [ ] T008 [P] [US1] Unit test for FASTQ download validation in `tests/unit/test_download.py`
+- [ ] T009 [P] [US1] Unit test for batch correction metric calculation in `tests/unit/test_batch_correction.py`
+- [ ] T010 [P] [US1] Integration test for full preprocessing pipeline on a single synthetic study in `tests/integration/test_preprocess.py`
 
 ### Implementation for User Story 1
 

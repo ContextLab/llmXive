@@ -1,14 +1,26 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/boot/verify_resources.py
-    exit=1'
+  reason: "Checked `code/boot/verify_resources.py` \u2013 it HEAD\u2011checks the\
+    \ dataset URL correctly but uses a different model URL (`https://huggingface.co/hf-internal-testing/tiny-vae`)\
+    \ instead of the required `https://huggingface.co/Qwen/Qwen-Image-VAE-2.0`. The\
+    \ script therefore does not satisfy the task\u2019s specification to verify that\
+    \ exact VAE model URL. The `quickstart.md` does contain the required command line,\
+    \ but the primary verification script is incorrect. The model URL check must be\
+    \ updated to the specified Qwen\u2011Image\u2011VAE\u20112.0 URL."
   task: a933c86de901b275b052258641c3c8c1f9d27b5897e0b18221710dcf54b58d43
 T002:
   task: 3b0813acb10babcf336ef4348681990be85f2fb5f553733417ea230b4ce290ab
 T003:
+  reason: "Checked `code/utils/logger.py` \u2013 it defines `get_logger` and seeds\
+    \ `random`, `numpy`, and `torch` on import. However, the required output file\
+    \ `data/raw/logger_init.json` is missing, so the seed\u2011recording part of the\
+    \ task is not satisfied. The logger works but the verification artifact does not\
+    \ exist."
   task: c8c3fe6a693b24e47cdfaa3449d06e35fc7d5cd80a7f8820d84e4d4ef71fa59b
 T004:
   task: 440965b3e91d131d3d3cb59b0d6587f0c2166be59f9bf448ce479e9659012c7a
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/runtime_estimate.py
+    exit=1'
   task: 8c24a672f6d10b89b4447c98bd3bebfdbbb2dee679bbbcfbcb8c3a063387566d
 T006:
   task: 8cd413893537f2a49823608af09553b60eed886827e970ae43f0305695a66210

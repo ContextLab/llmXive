@@ -5131,3 +5131,76 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-11T18:44:42Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: pipeline uses only verified open resources and does not require unverified
+    Omni-Doc-1 or Qwen-Image-VAE-2.0 resources
+  claim_id: c_68016f02
+  context: Important note stating that the pipeline uses verified resources and no
+    unverified ones.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline now uses verified open resources (benchmark parquet dataset\
+    \ and tiny\u2011vae model). No unverified Omni\u2011Doc\u20111 or Qwen\u2011Image\u2011\
+    VAE\u20112.0 resources are required."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T12:35:59Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: script aborts with error if resources cannot be fetched, GPU fallback
+    only for model loading
+  claim_id: c_7e2cdfb2
+  context: Important note describing the script's behavior when resources are unavailable.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If either resource cannot be fetched, the script logs an error and aborts;
+    the optional GPU fallback is only for the model loading step.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T12:35:59Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: script logs DataUnavailableError and aborts when verified dataset is
+    missing, no fallback
+  claim_id: c_205f93de
+  context: Troubleshooting section describing behavior when the verified dataset is
+    missing.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Missing verified dataset \u2013 The script logs `DataUnavailableError`\
+    \ and aborts; no fallback to a non\u2011verified dataset is attempted."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T12:36:00Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: script logs ModelUnavailableError and triggers GPU fallback, cpu_feasibility
+    set to rejected
+  claim_id: c_38a54f0d
+  context: Troubleshooting section describing behavior when the model fails to load
+    on CPU.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Model cannot load on CPU \u2013 The script logs `ModelUnavailableError`\
+    \ and automatically triggers the optional GPU escape hatch; `cpu_feasibility`\
+    \ will be set to \"rejected\" in the final JSON."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T12:36:01Z'

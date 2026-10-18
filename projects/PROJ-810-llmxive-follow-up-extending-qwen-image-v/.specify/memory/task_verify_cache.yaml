@@ -1,3 +1,26 @@
+T002:
+  c: true
+  h: 30426fc02e66eabfa3bca644d5957eb0c51b4f6a0ba09cbbee94d8331b302261
+  r: "The `requirements.txt` file exists at the project root, is non\u2011empty, and\
+    \ its contents exactly match the specified list of pinned package versions required\
+    \ by the task."
+  sig: ca53105e148e597a03305b7a2eedfba4e1de860d3697a2d6c322aa5c0d2ec316
+T003:
+  c: false
+  h: 5eec4d33de569a57781407d77d0feb69696001a2e8730880b6393494a103aa0f
+  r: "Checked `code/utils/logger.py` \u2013 it defines `get_logger` and seeds `random`,\
+    \ `numpy`, and `torch` on import. However, the required output file `data/raw/logger_init.json`\
+    \ is missing, so the seed\u2011recording part of the task is not satisfied. The\
+    \ logger works but the verification artifact does not exist."
+  sig: e75a9859df6c0b08276efdc02cb2075eb81261819f2a97346c0b7e01f01f48ce
+T004:
+  c: true
+  h: 11001c383238240b3346e5c0dc0ceddf10595ca28fd0678537324752e5861b51
+  r: "Checked `code/analysis/power.py` for correct implementation using `TTestIndPower().solve_power`\
+    \ with defaults d=0.8, power=0.8, \u03B1=0.05 and JSON output, and verified `data/results/power_analysis.json`\
+    \ contains the required fields (`N_required`, `effect_size`, `achieved_power`,\
+    \ `status`). Both the script and output file exist and match the task specification."
+  sig: abed012c525f4e75131f9987a422f6c95d0f0fdd85e8aedcc4a76572fa5c8a95
 T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

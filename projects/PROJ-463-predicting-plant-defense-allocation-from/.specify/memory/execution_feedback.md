@@ -25,14 +25,15 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.cli.run_pipeline --mode real --min-studies [threshold] --min-replicates 2 -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/code/.venv/bin/python: No module named src.cli.run_pipeline
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-463-predicting-plant-defense-allocation-from/bin/python: No module named src.cli.run_pipeline
 
 - python -m src.cli.run_pipeline --mode synthetic -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/code/.venv/bin/python: No module named src.cli.run_pipeline
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-463-predicting-plant-defense-allocation-from/bin/python: No module named src.cli.run_pipeline
 
 - python -m pytest tests/contract/test_schemas.py -> rc=2
-e/projects/PROJ-463-predicting-plant-defense-allocation-from/code
+achedir: .pytest_cache
+rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/code
 configfile: pyproject.toml
 collecting ... collected 0 items / 1 error
 
@@ -43,14 +44,13 @@ Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 code/tests/unit/test_schemas.py:11: in <module>
     from src.utils.schemas import (
 E   ModuleNotFoundError: No module named 'src.utils.schemas'
 =========================== short test summary info ============================
 ERROR code/tests/unit/test_schemas.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.08s ===============================
+=============================== 1 error in 0.12s ===============================
 
 
 
@@ -61,26 +61,6 @@ ERROR code/tests/unit/test_schemas.py
 - data/processed/aggregated_features.csv
 - data/processed/final_aggregated_traits.json
 - data/processed/post_qc_species_list.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `pysradb` to the project's `requirements.txt` and `pip install pysradb`.
-- **Verified**: this loads **6** real records with fields: study_accession, study_title, experiment_accession, experiment_title, experiment_desc, organism_taxid, organism_name, library_name, library_strategy, library_source, library_selection, library_layout, sample_accession, sample_title, biosample, bioproject, instrument, instrument_model, instrument_model_desc, total_spots, total_size, run_accession, run_total_spots, run_total_bases.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import pandas as pd
-from pysradb import SRAweb
-
-sra = SRAweb()
-df = sra.sra_metadata('SRP041658')
-print(f"RECORDS={len(df)}")
-print('FIELDS=' + ','.join(df.columns.tolist()))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

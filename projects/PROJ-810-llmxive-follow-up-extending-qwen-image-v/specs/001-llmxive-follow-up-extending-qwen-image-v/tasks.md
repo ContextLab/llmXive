@@ -7,12 +7,12 @@
 
 ## Phase 0 – Project bootstrap & verification  
 
-- [ ] T001 [P] Establish external‑resource verification and quick‑start guide.   <!-- FAILED-IN-EXECUTION: code/boot/verify_resources.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/boot/verify_resources.py exit=1 -->
+- [ ] T001 [P] Establish external‑resource verification and quick‑start guide.
   *Implement a script `code/boot/verify_resources.py` that HEAD‑checks the dataset URL (`https://huggingface.co/datasets/omnineura/Omni-Doc-1`) and the VAE model URL (`https://huggingface.co/Qwen/Qwen-Image-VAE-2.0`).*  
   *Write `quickstart.md` with the command `python -m code.main --config config.yaml` and a description of the required environment.*  
   *Verification*: `verify_resources.py` exits with status 0 and creates `data/raw/download_status.json`; `quickstart.md` exists and contains the command line.
 
-- [ ] T002 [P] Create `requirements.txt` with exact pinned versions (fixes previously missing file).  
+- [X] T002 [P] Create `requirements.txt` with exact pinned versions (fixes previously missing file).  
   *File path*: `requirements.txt` (project root).  
   *Contents* must match the plan’s Technical Context:  
 
@@ -45,12 +45,12 @@
 
 ## Phase 1 – Feasibility & power analysis  
 
-- [ ] T004 [P] Implement power‑analysis utility.  
+- [X] T004 [P] Implement power‑analysis utility.  
   *File*: `code/analysis/power.py` – computes minimum sample size `N` for a two‑sample t‑test with effect size `d=0.8`, power ≥ 0.8, α = 0.05 using `statsmodels.stats.power.tt_ind_solve_power`.*  
   *Run*: `python -m code.analysis.power --output data/results/power_analysis.json`.  
   *Verification*: `power_analysis.json` contains fields `N_required`, `effect_size`, `achieved_power`, and `status` (`conclusive` or `inconclusive`).  
 
-- [ ] T005 [P] Implement runtime‑budget estimator.  
+- [ ] T005 [P] Implement runtime‑budget estimator.   <!-- FAILED-IN-EXECUTION: code/analysis/runtime_estimate.py exit=1 -->
   *File*: `code/analysis/runtime_estimate.py` – estimates total wall‑clock time as `N_required * 60 s` (per‑image budget) and flags if > 6 h. Outputs `data/results/runtime_estimate.json`.  
   *Verification*: `runtime_estimate.json` includes `estimated_seconds`, `exceeds_budget` (bool), and `status`.
 

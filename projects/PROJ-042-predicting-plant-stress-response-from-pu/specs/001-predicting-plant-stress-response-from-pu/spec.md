@@ -1,136 +1,124 @@
 # Feature Specification: Predicting Plant Stress Response from Publicly Available Transcriptomic Data
 
-**Feature Branch**: `001-gene-regulation`  
-**Created**: 2026-06-28  
+**Feature Branch**: `001-predicting-plant-stress-response-from-pu`  
+**Created**: 2026-10-18  
 **Status**: Draft  
 **Input**: User description: "Predicting Plant Stress Response from Publicly Available Transcriptomic Data"
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Cross-Dataset Stress Signature Separability (Priority: P1)
+### User Story 1 – Cross‑Dataset Stress‑Signature Separability (Priority: P1)
 
-The researcher needs to determine if distinct abiotic stress types (drought, salinity, heat, cold) induce separable transcriptional signatures that generalize across independent public datasets, rather than being dataset-specific artifacts. This is the core hypothesis of the project.
+The researcher needs to know whether transcriptional signatures of the four abiotic stresses (drought, salinity, heat, cold) are biologically separable across independent public GEO datasets when only the top 50 most variable genes are used.
 
-**Why this priority**: This addresses the primary research question and the identified literature gap. Without establishing whether signatures are separable and generalizable, the subsequent steps of biomarker identification or unified modeling have no foundation.
+**Why this priority**: It directly tests the primary hypothesis that a minimal linear feature set can capture stress‑specific biology, informing whether low‑cost qPCR panels are feasible.
 
-**Independent Test**: Can be fully tested by training a Random Forest classifier on a subset of datasets and evaluating its accuracy on a held-out, independent dataset. A measurable accuracy score (e.g., ≤ 0.25 vs ≥ 0.60) directly validates or refutes the separability hypothesis.
-
-**Acceptance Scenarios**:
-
-1. **Given** normalized RNA-seq count matrices from ≥5 distinct GEO datasets covering ≥2 stress types (drought, salinity, heat, cold), **When** a Random Forest classifier is trained on 4 datasets and tested on the 5th (Leave-One-Dataset-Out), **Then** the model achieves a classification accuracy that is **≤ 1/N** (where N is the number of classes in the held-out dataset, e.g., 0.25 for 4 classes) if signatures are dataset-specific or absent, OR **significantly greater than the baseline (p < 0.05 via permutation test) AND ≥ 0.60** if they generalize.
-2. **Given** the same dataset split, **When** a confusion matrix is generated comparing predicted stress types against true metadata labels, **Then** the off-diagonal elements (misclassifications) reveal specific stress pairs that are transcriptionally indistinguishable across datasets (e.g., heat vs. cold).
-3. **Given** the same dataset split, **When** the model accuracy is **> 1/N (dynamic baseline) AND < 0.60**, **Then** the system MUST flag the result as "Ambiguous - Further Investigation Required" and halt further biomarker analysis for that specific cross-dataset pair.
-4. **Given** a null result (accuracy ≤ 1/N), **When** a post-hoc power analysis (Minimum Detectable Effect Size) is performed using the actual sample size of the held-out set, **Then** the system MUST report the calculated MDES value to distinguish between "No Biological Signal" and "Insufficient Sample Size to Detect Weak Signal".
-
----
-
-### User Story 2 - Feature Importance and Biomarker Identification (Priority: P2)
-
-The researcher needs to identify which specific genes (biomarkers) drive the classification performance in both within-dataset and cross-dataset scenarios to distinguish universal stress responders from context-specific ones.
-
-**Why this priority**: Once separability is established (or refuted), understanding *which* genes are responsible provides the biological insight needed for breeding programs. This is a secondary but critical analytical step.
-
-**Independent Test**: Can be tested by extracting feature importance scores from the trained Random Forest model and verifying that a subset of top-ranked genes shows consistent differential expression across the independent datasets used in the cross-validation. Specifically, the system calculates the Jaccard index of the top 50 genes between within-dataset and cross-dataset rankings, validated via bootstrapping.
+**Independent Test**: Train a **Logistic Regression** (L2‑regularized) classifier on four GEO datasets using only the top 50 variable genes selected *within* the training fold, then evaluate accuracy on the held‑out fifth dataset (Leave‑One‑Dataset‑Out, LODO). No batch‑correction is applied.
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained Random Forest model with accuracy significantly greater than baseline, **When** feature importance is calculated for the top 50 variable genes, **Then** the top 50 genes must show a statistically significant overlap (Jaccard index > 0.30 AND p < 0.05 via permutation test of gene sets) between the within-dataset and cross-dataset importance rankings.
-2. **Given** the top-ranked genes, **When** their expression profiles are plotted across all datasets, **Then** the visualization must show consistent up/down-regulation patterns relative to control samples for at least one stress type across all datasets.
-3. **Given** the top 1,500 genes, **When** a bootstrap resampling (100 iterations) of the training data is performed to calculate feature importance variance, **Then** only genes with a stability score (variance across iterations) < 0.30 are reported as robust biomarkers, distinguishing them from noise-driven importance in correlated gene modules.
+1. **Given** normalized count matrices from ≥ 5 verified plant GEO datasets, each containing at least two stress types, **When** a Logistic Regression model is trained on 4 datasets and tested on the 5th, **Then** the cross‑dataset accuracy is **≥ 0.70** *and* statistically greater than the permutation‑based null distribution (p < 0.05).  
+2. **Given** the same LODO split, **When** the observed accuracy is **≤ random‑chance baseline** (1 / N, where N = number of stress classes in the held‑out set), **Then** the system flags “No separable signature” and proceeds to the post‑hoc power analysis (FR‑014).  
+3. **Given** an accuracy that lies between the random baseline and 0.70, **Then** the result is labeled “Ambiguous” and a warning is logged; the pipeline continues to the biomarker stability analysis but does not claim a robust biomarker set.
 
----
+### User Story 2 – Minimal‑Feature Biomarker Stability (Priority: P2)
 
-### User Story 3 - Unsupervised Validation of Stress Clustering (Priority: P3)
+The researcher wants to identify which genes among the top 50 are robust contributors to any observed separability.
 
-The researcher needs to verify that stress types form distinct clusters in the feature space without relying on the supervised classifier's labels, ensuring the signal is inherent to the data structure.
+**Why this priority**: Robust biomarkers are required for downstream low‑cost assay design; unstable importance scores would mislead panel development.
 
-**Why this priority**: This provides an orthogonal validation method. If the supervised model works but unsupervised clustering fails, the signal might be overfit or dependent on specific preprocessing artifacts.
-
-**Independent Test**: Can be tested by running UMAP or t-SNE on the held-out test samples (processed strictly on TMM-normalized data without batch correction, or with batch correction parameters learned *only* from the training fold) and quantitatively assessing if samples of the same stress type cluster together, independent of the dataset source. The sole verifiable criterion is the Silhouette Score.
+**Independent Test**: Perform **bootstrap resampling** (100 iterations) of the training data, recompute feature‑importance (absolute logistic‑regression coefficients) for each iteration, and calculate the variance of each gene’s coefficient.
 
 **Acceptance Scenarios**:
 
-1. **Given** the reduced-dimensionality embedding (UMAP) of the held-out test set (processed on TMM-normalized data without batch correction), **When** samples are colored by stress type, **Then** distinct clusters must form for at least 3 out of N stress types (where N is the number of classes in the held-out set, or all N if N < 3) with an individual Silhouette Score > 0.4 for at least 3 clusters (or all if N < 3).
-2. **Given** the same embedding, **When** samples are colored by dataset source, **Then** samples from different datasets but the same stress type must overlap significantly, confirming cross-dataset generalization of the transcriptional signature.
-3. **Given** the same embedding, **When** a 'dataset-label' Silhouette Score is calculated, **Then** the score must be significantly lower than the 'stress-type' Silhouette Score to ensure clustering is not driven by batch effects.
+1. **Given** a trained Logistic Regression model with cross‑dataset accuracy ≥ 0.70, **When** bootstrap stability analysis is completed, **Then** genes with coefficient variance ≤ 0.30 are reported as **robust biomarkers**.  
+2. **Given** the set of robust biomarkers, **When** their selection frequency across bootstrap iterations is ≥ 0.70, **Then** they are listed in the final results table.  
+3. **Given** no gene meets the variance ≤ 0.30 criterion, **Then** the system reports “No stable minimal‑feature biomarkers detected” and recommends expanding the feature set.
 
----
+### User Story 3 – Unsupervised Validation of Stress Clustering (Priority: P3)
 
-### User Story 4 - Project State Management (Priority: P3)
+The researcher seeks an orthogonal, label‑free confirmation that stress types form distinct clusters in the minimal‑feature space.
 
-The system MUST update the project state file upon completion of the analysis to reflect the final state, ensuring compliance with Constitution Principle V.
+**Why this priority**: Demonstrates that separability is intrinsic to the data rather than an artifact of the supervised model.
 
-**Why this priority**: This is a mandatory constitutional requirement for versioning and reproducibility, ensuring the project state is persisted correctly.
-
-**Independent Test**: Can be tested by verifying that the file `state/projects/<PROJ-ID>/projects.yaml` exists and contains the correct final state after the pipeline completes.
+**Independent Test**: Compute a **UMAP** embedding (2‑D) of the held‑out test samples using the same top 50 genes (no batch correction). Calculate **Silhouette Scores** for (a) stress‑type labels and (b) dataset‑ID labels.
 
 **Acceptance Scenarios**:
 
-1. **Given** a completed analysis, **When** the system finishes, **Then** the file `state/projects/<PROJ-ID>/projects.yaml` MUST be updated with the final state and a timestamp.
+1. **Given** the UMAP embedding of the held‑out dataset, **When** the stress‑type Silhouette Score ≥ 0.40 for at least three stress classes, **Then** the result supports intrinsic clustering.  
+2. **Given** the same embedding, **When** the dataset‑ID Silhouette Score is **significantly lower** than the stress‑type score (Δ ≥ 0.10, tested via permutation), **Then** batch effects are not driving the clustering.
 
----
+### User Story 4 – Project State Management (Priority: P4)
+
+The system MUST persist the final analysis state for reproducibility and versioning.
+
+**Why this priority**: Guarantees that downstream reviewers can reconstruct the exact pipeline execution.
+
+**Independent Test**: After the pipeline finishes, check that the file `state/projects/001-predicting-plant-stress-response-from-pu/projects.yaml` exists, contains a `research_complete: true` flag, a timestamp, and a checksum of the results artifact.
+
+**Acceptance Scenarios**:
+
+1. **Given** a completed run, **When** the state file is inspected, **Then** it reflects the final status, timestamps, and result hashes exactly as specified in FR‑017.
 
 ### Edge Cases
 
-- **Confounded Batch and Condition**: What happens if a dataset contains only one stress type (e.g., only drought)? The system MUST perform a Fisher's Exact Test (or Chi-squared with Yates' correction for >2x2 tables) (p < 0.05) on the contingency table of (Dataset ID × Stress Type) prior to analysis. If significant confounding is detected, the system MUST **exclude that dataset** from the cross-dataset analysis and log a warning, then continue with the remaining datasets.
-- **Insufficient Feature Intersection**: What happens if the intersection of genes present in **ALL** of the selected datasets yields <1,500 features? The system MUST halt execution with a "Feature Space Insufficient" error and report the exact gene count, as per Constitution Principle VII.
-- **Class Imbalance**: What happens when a specific stress type has significantly fewer samples in one dataset? The system MUST handle class imbalance via stratified sampling (for CV) and class weighting in the Random Forest to prevent bias.
-- **Ambiguous Accuracy**: What happens if the Random Forest model converges to random chance (accuracy ≤ 1/N)? The system MUST flag this as "No Separable Signature" and halt further biomarker analysis for that specific cross-dataset pair, triggering the post-hoc power analysis.
+- **Dataset with a single stress type**: If a GEO accession contains only one stress condition, the system runs **Fisher’s Exact Test** on the (Dataset × Stress) contingency table. A significant association (p < 0.05) triggers exclusion of that dataset and logs a warning.  
+- **Insufficient gene intersection**: If the intersection of gene identifiers across all selected datasets yields **< 1,500 genes**, the pipeline aborts with error code E‑GENE‑INTERSECTION and reports the exact count.  
+- **Severe class imbalance**: When any stress class contributes < 5 % of samples in a dataset, the training step applies **class‑weighting** (inverse frequency) in the Logistic Regression loss.  
+- **Missing or inconsistent stress metadata**: Samples with absent or contradictory stress labels are written to `invalid_samples.csv` with status `INVALID_LABEL` and excluded from all analyses.  
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST query NCBI GEO metadata to discover and verify at least 5 distinct plant transcriptomic datasets (Organism MUST be *Arabidopsis thaliana*, *Oryza sativa*, *Solanum lycopersicum*, or *Zea mays*) that contain samples for at least 2 stress types (drought, salinity, heat, cold) before inclusion in the analysis. The system MUST explicitly exclude any dataset identified as human, animal, or non-stress related. (See US-1)
-- **FR-002**: The system MUST filter raw counts to retain only genes with ≥1 CPM (Counts Per Million) in at least 3 samples, AND THEN normalize the remaining raw counts via **TMM (Trimmed Mean of M-values)** transformation to ensure data quality and correct library size bias. (See US-1)
-- **FR-003**: The system MUST harmonize gene identifiers across all datasets using `mygene` or `biomart` (not `biopython` alone) and retain **only genes present in the intersection of ALL selected datasets** to ensure a consistent feature space in strict adherence to Constitution Principle VII. (See US-1)
-- **FR-004**: The system MUST perform feature selection to retain the top **K** most variable genes across all samples (where K is determined by sensitivity analysis over {1000, 1500, 2000} as defined in Assumptions) to ensure the data fits within the 7GB RAM limit of the free-tier CI runner; if the intersection from FR-003 yields <1,500 genes, the system MUST halt execution and report the exact count. (See US-2)
-- **FR-005**: The system MUST train a Random Forest classifier using `scikit-learn` with hyperparameters tuned via 5-fold cross-validation on the training fold only, strictly avoiding any GPU/CUDA dependencies. (See US-1)
-- **FR-006**: The system MUST evaluate model performance on both within-dataset (train/test split) and cross-dataset (train on 4, test on 1) partitions using stratified metrics (accuracy, F1-score, macro-averaged precision/recall). (See US-1)
-- **FR-007**: The system MUST generate confusion matrices comparing within-dataset vs. cross-dataset performance to quantify the generalization gap. (See US-1)
-- **FR-008**: The system MUST perform unsupervised clustering (UMAP or t-SNE) on held-out test samples using **TMM-normalized data without batch correction** (or batch correction parameters fitted strictly on the training fold) to verify stress-class separation independently of the classifier's predictions. (See US-3)
-- **FR-009**: The system MUST output feature importance rankings for the top genes to identify stress-responsive genes that drive classification. (See US-2)
-- **FR-010**: The system MUST include a multiple-comparison correction step (e.g., Benjamini-Hochberg FDR) for any hypothesis tests performed on feature importance to control family-wise error rate. (See US-2)
-- **FR-011**: The system MUST perform a **label-permutation test (1,000 iterations)** where stress labels are shuffled **strictly within each dataset** in the held-out test set relative to the training set's learned decision boundary to establish a null distribution for cross-dataset accuracy, requiring a p-value < 0.05 to claim statistical significance over chance. (See US-1)
-- **FR-012**: The system MUST validate stress labels against metadata fields for duration or severity (if available) and flag samples with inconsistent or missing severity data by writing a CSV row with status 'INVALID_LABEL' and logging an error message to stderr for exclusion. (See US-1)
-- **FR-013**: The system MUST perform a bootstrapping stability analysis (100 iterations) on the feature importance rankings to ensure biomarker stability, requiring a stability score (variance < 0.30) for a gene to be classified as robust. (See US-2)
-- **FR-014**: The system MUST perform a post-hoc power analysis (Minimum Detectable Effect Size calculation) to interpret null results and distinguish between 'no signal' and 'insufficient sample size'. (See US-1)
-- **FR-015**: The system MUST perform a Fisher's Exact Test (or Chi-squared with Yates' correction for >2x2 tables) for 'confounded batch and condition' before applying any batch correction. The test uses a contingency table with Rows=Batch (Dataset ID) and Columns=Stress Type. The system MUST **exclude any dataset** where the p-value < 0.05 indicates significant confounding and log a warning. If the table is sparse (zero-count cells), the system MUST use Fisher's Exact Test with continuity correction. (See US-1)
-- **FR-016**: The system MUST explicitly verify that every cited GEO accession in the input data contains plant samples and the required stress types before processing; any dataset failing this verification (e.g., human datasets) MUST be excluded with a logged error. (See US-1)
-- **FR-017**: The system MUST update the project state file `state/projects/<PROJ-ID>/projects.yaml` upon completion of the analysis to reflect the final state, ensuring compliance with Constitution Principle V. (See US-4)
-- **FR-018**: The system MUST frame all findings regarding stress signatures as **ASSOCIATIONAL** (not causal) in all generated reports, as the study design is observational without random assignment (Constitution Principle I). (See Constitution Principle I)
-- **FR-019**: The system MUST report the number of known stress pathways (e.g., ABA signaling, ROS scavenging) represented in the gene intersection, and MUST halt execution if the coverage of conserved stress genes is < 50%, as this indicates a biologically impoverished feature space. (See US-1)
+- **FR-001**: The system MUST query NCBI GEO (via Entrez/E-utilities) to discover **≥ 5 distinct plant transcriptomic datasets** (organism = *Arabidopsis thaliana*, *Oryza sativa*, *Solanum lycopersicum*, or *Zea mays*) that each contain **≥ 2 abiotic stress types** (drought, salinity, heat, cold). Datasets failing this check are excluded. (See US‑1)  
+- **FR-002**: The system MUST verify that **all four stress types** appear in the combined pool of selected datasets, with each stress represented in **≥ 2 different datasets**. If not, the pipeline aborts with a clear message. (See US‑1)  
+- **FR-003**: Raw count matrices are filtered to retain genes with **≥ 1 CPM** in at least **3 samples** per dataset, then normalized using **TMM** (edgeR) to correct library size bias. (See US‑1)  
+- **FR-004**: Gene identifiers are harmonized across datasets using **mygene** or **biomart**; only genes present in the **intersection of ALL selected datasets** are kept. The pipeline aborts if the intersection yields **< 1,500 genes**. (See US‑1)  
+- **FR-005**: Feature selection selects the **top K most variable genes** (variance across all samples) where **K ∈ {50, 100, 150}**. A **sensitivity analysis** sweeps K over this set and records accuracy and generalization gap for each value. (See US‑2)  
+- **FR-006**: For each LODO iteration, a **Logistic Regression** classifier (L2 regularization, liblinear solver) is trained **only on the training datasets**. No batch‑correction is applied to either training or test data in the primary evaluation. (See US‑1)  
+- **FR-007**: Model performance is evaluated on the held‑out dataset using **stratified accuracy, macro‑averaged F1, precision, and recall**. (See US‑1)  
+- **FR-008**: A **label‑permutation test** (1,000 iterations) shuffles stress labels **only within the held‑out dataset** (preserving batch structure) to generate a null distribution of cross‑dataset accuracy. The observed accuracy must be **significantly greater** than this null (p < 0.05). (See US‑1)  
+- **FR-009**: The system MUST perform a **post‑hoc power analysis** for any null result (accuracy ≤ random baseline). It computes the **Minimum Detectable Effect Size (MDES)** using observed sample size, class balance, and a two‑sided α = 0.05 test of proportions. (See US‑1)  
+- **FR-010**: The system MUST compute **bootstrap stability** of logistic‑regression coefficients (100 resamples). Genes with coefficient variance ≤ 0.30 and selection frequency ≥ 0.70 are reported as robust biomarkers. (See US‑2)  
+- **FR-011**: The system MUST generate **UMAP embeddings** (2‑D, n_neighbors = 15, min_dist = 0.1) of the held‑out test samples using the selected top K genes (no batch correction). It must calculate **Silhouette Scores** for stress‑type and dataset‑ID labels and report the difference. (See US‑3)  
+- **FR-012**: The system MUST apply **Benjamini‑Hochberg FDR correction** to any p‑values derived from permutation tests or stability analyses, controlling the false discovery rate at [deferred]. (See US‑2)
+- **FR-013**: The system MUST log and export a CSV file `invalid_samples.csv` for any sample with missing or contradictory stress metadata (status `INVALID_LABEL`). (See US‑1)  
+- **FR-014**: The system MUST update the project state file `state/projects/001-predicting-plant-stress-response-from-pu/projects.yaml` with a `research_complete: true` flag, a UTC timestamp, and SHA‑256 hashes of all result artefacts. (See US‑4)  
+- **FR-015**: All findings are explicitly framed as **associational** (not causal) in generated reports, reflecting the observational nature of the public datasets. (See Constitution Principle I)  
+- **FR-016**: The system MUST ensure total RAM usage ≤ 7 GB and total runtime ≤ 6 hours on a GitHub Actions free‑tier runner; if projected resource usage exceeds these limits (e.g., K = 150 on > 10 000 samples), the pipeline aborts with an informative error. (See US‑5)
 
 ### Key Entities
 
-- **StressDataset**: Represents a single GEO accession, containing raw counts, metadata (stress type, species, control), and processed normalized values.
-- **FeatureSpace**: The intersection of gene identifiers present in **ALL** selected datasets, filtered to the top K most variable genes. (See FR-003, FR-004)
-- **ClassificationModel**: The trained Random Forest instance, storing hyperparameters, feature importances, and performance metrics.
-- **Embedding**: The reduced-dimensional representation (2D/3D) of samples for visualization and unsupervised validation.
+- **StressDataset** – Represents a GEO accession with raw counts, sample metadata (stress type, species, severity), and processed normalized values.  
+- **FeatureSpace** – The intersection of gene identifiers across all selected StressDatasets after filtering; size ≥ 1,500 genes.  
+- **ClassificationModel** – Logistic Regression instance storing coefficients, intercept, hyperparameters, and performance metrics for each LODO fold.  
+- **Embedding** – 2‑D UMAP representation of test samples used for unsupervised validation.  
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: Within-dataset classification accuracy is measured against the theoretical random baseline of 1/N (1/number of classes) to determine if the signal is statistically distinguishable from chance (p < 0.05 via permutation test). (See US-1)
-- **SC-002**: Cross-dataset classification accuracy is measured against the within-dataset baseline to quantify the generalization gap. (See US-1)
-- **SC-003**: Feature importance overlap (Jaccard index) is measured against a null distribution generated by permuting gene labels [deferred] times to calculate a p-value < 0.05. (See US-2)
-- **SC-004**: Clustering silhouette score is measured against the stress-type labels to verify unsupervised separation validity. (See US-3)
-- **SC-005**: Computation time is measured against the standard time limit of the GitHub Actions free-tier runner (6 hours) to ensure feasibility. (See US-1)
-- **SC-006**: The Minimum Detectable Effect Size (MDES) is measured against the observed effect size in null results to determine if the sample size was sufficient to detect a biologically relevant signal. (See US-1)
-- **SC-007**: The stability score (variance) of feature importance is measured against the threshold of 0.30 to distinguish robust biomarkers from noise. (See US-2)
+- **SC-001**: Cross‑dataset classification accuracy ≥ 0.70 **and** p < 0.05 versus the permutation null distribution (FR‑008). (See US‑1)  
+- **SC-002**: Within‑dataset accuracy is reported and compared to the random baseline (1 / N) to confirm that a signal exists before cross‑dataset evaluation. (See US‑1)  
+- **SC-003**: At least one gene meets the robustness criteria (variance ≤ 0.30, selection frequency ≥ 0.70) **or** the system explicitly reports “No robust minimal‑feature biomarkers” and provides the full variance table. (See US‑2)  
+- **SC-004**: Stress‑type Silhouette Score ≥ 0.40 for ≥ 3 stress classes **and** dataset‑ID Silhouette Score at least 0.10 lower than the stress‑type score, confirming that clustering is not driven by batch. (See US‑3)  
+- **SC-005**: Post‑hoc power analysis yields an MDES estimate; the report must state whether the observed sample size was sufficient to detect an effect size of 0.15 (Cohen’s h) with [deferred] power. (See US‑1)
+- **SC-006**: Total wall‑clock runtime ≤ 6 hours and peak RAM ≤ 7 GB on the free‑tier CI runner; resource logs are attached to the final artefact package. (See US‑5)  
+- **SC-007**: The project state file is correctly updated (FR‑014) and passes schema validation. (See US‑4)  
 
 ## Assumptions
 
-- **Assumption about data availability**: It is assumed that the system can successfully discover and verify at least 5 distinct plant transcriptomic datasets from NCBI GEO containing at least 2 stress types via metadata parsing; if fewer than 5 valid datasets are found, the pipeline halts with an error.
-- **Assumption about gene identifier consistency**: It is assumed that `mygene` or `biomart` can successfully map gene identifiers across the different species or platforms present in the selected datasets, and that the intersection of genes present in **ALL** of datasets will yield ≥1,500 features for analysis. **If this assumption fails (<1,500 genes), the pipeline halts with an error as per FR-004.**
-- **Assumption about computational constraints**: It is assumed that a top subset of the most variable genes, when stored as a floating-point matrix for the available samples, will fit within the 7GB RAM limit of the free-tier CI runner.
-- **Assumption about inference framing**: It is assumed that the study design is observational (no random assignment of stress conditions by the researchers), and therefore all findings regarding stress signatures will be framed as ASSOCIATIONAL, not causal.
-- **Assumption about threshold justification**: The decision to retain the top K most variable genes is justified by the memory constraints of the free-tier CI runner; a sensitivity analysis will sweep the top-k value over a range of magnitudes (e.g., 1000, 1500, 2000) to report how accuracy and generalization gap vary.
-- **Assumption about power**: The sample size is determined by the available public datasets; a post-hoc power analysis (Minimum Detectable Effect Size) is required to interpret null results, as specified in FR-014.
-- **Assumption about measurement validity**: It is assumed that the stress labels provided in the GEO metadata are accurate and consistent across datasets, serving as the ground truth for classification. **Note: FR-012 addresses potential inconsistencies.**
-- **Assumption about collinearity**: It is assumed that the top most variable genes may contain correlated predictors; the Random Forest model's inherent ability to handle multicollinearity is supplemented by the bootstrapped stability analysis (FR-013) to distinguish robust biomarkers from noise among correlated genes.
-- **Assumption about batch correction**: It is assumed that batch correction (if used for sensitivity analysis) will be fitted **strictly on the training fold** and applied to the test fold to prevent data leakage, and that the primary validation will be performed on **TMM-normalized data without batch correction** to test biological signal vs. technical noise.
-- **Assumption about dataset quality**: It is assumed that the selected GEO datasets will not have confounded batch and condition (e.g., one dataset containing only drought samples); FR-015 enforces a check for this, excluding such datasets if detected.
+- **Data availability**: It is assumed that ≥ 5 plant GEO datasets meeting the stress‑type and sample‑size criteria exist. If fewer are found, the pipeline aborts (FR‑001).  
+- **Gene‑identifier mapping**: It is assumed that `mygene`/`biomart` can map all gene IDs across the selected species to a common identifier space, yielding ≥ 1,500 intersecting genes. Failure triggers abort (FR‑004).  
+- **Computational resources**: It is assumed that the chosen K values (50, 100, 150) keep the data matrix within the 7 GB RAM limit; the pipeline checks memory usage before training.  
+- **Observational design**: All conclusions are reported as associational; no causal inference is attempted (FR‑015).  
+- **Threshold justification**: The K values for feature selection are justified by memory constraints and by a predefined sensitivity analysis (see FR‑005).  
+- **Power analysis method**: MDES is calculated using the normal approximation for difference in proportions (two‑sided α = 0.05), which is standard in classification power studies.  
+- **Batch‑effect handling**: No batch correction is applied in the primary analysis; an optional sensitivity analysis (not required for primary acceptance) may apply ComBat within the training fold only.  
+- **Class‑weighting**: Logistic Regression uses inverse‑frequency class weights when any stress class contributes < 5 % of samples in a dataset.  
+- **Reproducibility**: All random seeds (data split, bootstrap, permutation) are fixed (seed = 42) to ensure deterministic results across CI runs.  
+
+--- 
+
+*End of Specification*

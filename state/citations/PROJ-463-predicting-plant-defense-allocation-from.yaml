@@ -53,7 +53,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1234/example
   verified_at: '2026-08-12T06:56:42.808859Z'
-- artifact_hash: e767034d05cb2796847abe716f6386b7cf1d582e2cefc1188e78ff353448629a
+- artifact_hash: cbf07d3e69cf794c757c32c02fd4004116d0d6aab39410e64b8669d5a96247d7
   artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,4 +63,4 @@
   value: https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE...`
   verification_status: pending
   verified_against_url: https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE
-  verified_at: '2026-10-10T22:14:46.691574Z'
+  verified_at: '2026-10-18T12:32:43.001351Z'
