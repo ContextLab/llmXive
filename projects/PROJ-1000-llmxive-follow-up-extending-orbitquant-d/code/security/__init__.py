@@ -1,1 +1,1 @@
-"""Auto-generated package marker for the project skeleton."""
+"""Security: path sanitization and checksums."""

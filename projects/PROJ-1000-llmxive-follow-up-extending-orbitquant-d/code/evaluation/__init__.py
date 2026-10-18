@@ -1,1 +1,1 @@
-"""Evaluation subpackage – metrics and timing utilities."""
+"""Evaluation sub-package: metrics and timing."""

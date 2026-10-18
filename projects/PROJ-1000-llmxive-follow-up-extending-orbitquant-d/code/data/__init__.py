@@ -1,1 +1,1 @@
-"""Data subpackage – utilities for downloading and preprocessing datasets."""
+"""Data acquisition and preprocessing sub-package."""
