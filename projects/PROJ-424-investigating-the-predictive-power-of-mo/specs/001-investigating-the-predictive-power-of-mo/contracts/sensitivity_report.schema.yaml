@@ -17,9 +17,6 @@ items:
     start_fraction:
       type: "number"
       enum: [0.1, 0.2, 0.3]
-    d_value:
-      type: "number"
-      minimum: 0
     variance_pct:
       type: "number"
       minimum: 0
@@ -28,6 +25,5 @@ items:
     - solvent
     - duration_ns
     - start_fraction
-    - d_value
     - variance_pct
   additionalProperties: false

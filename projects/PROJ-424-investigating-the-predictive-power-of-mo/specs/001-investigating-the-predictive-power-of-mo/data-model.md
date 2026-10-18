@@ -1,32 +1,28 @@
 # Data Model: Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients
 
 ## Overview
-The project moves data through three explicit models, each persisted to disk in a validated format. All models are described by JSON Schema contracts located in `contracts/`.
+
+Three persisted models, each validated against a contract in `contracts/`.
 
 ### 1. `diffusion_results`
-* **Location**: `data/processed/diffusion_results.csv`  
-* **Purpose**: Stores per‑trajectory diffusion analysis results, including the MSD linear‑fit quality and the MAE against experimental data.  
-* **Key Fields**: `solvent`, `duration_ns`, `seed`, `msd_slope`, `r_squared`, `d_calc_m2_s`, `d_scaled_m2_s` (if scaling applied), `mae`, `status`.  
+- **Location**: `data/processed/diffusion_results.csv` (one row per trajectory)
+- **Fields**: `solvent`, `duration_ns`, `seed`, `msd_slope`, `r_squared`, `d_calc_m2_s`, `d_scaled_m2_s` (equal to `d_calc_m2_s`; no CG scaling is applied in this atomistic workflow — retained per spec §6), `mae`, `status`.
 
 ### 2. `bootstrap_stats`
-* **Location**: `data/processed/bootstrap_stats.json`  
-* **Purpose**: Summarizes bootstrap resampling of MAE for each simulation duration.  
-* **Key Fields**: `duration_ns`, `iterations`, `mean_mae`, `ci_lower`, `ci_upper`, `convergence_check`, `n_seeds`.  
+- **Location**: `data/processed/bootstrap_stats.json` (one entry per solvent × duration, plus paired‑test results)
+- **Fields**: `solvent`, `duration_ns`, `iterations` (fixed 1000), `mean_mae`, `ci_lower`, `ci_upper`, `n_seeds`, and a top‑level `paired_test` block with `solvent`, `mae_1ns`, `mae_10ns`, `mean_difference`, `p_value`, **and** an optional `granularity_note` string explaining the statistical granularity limitation when seed counts are low.
 
 ### 3. `sensitivity_report`
-* **Location**: `data/processed/sensitivity_report.json`  
-* **Purpose**: Records the diffusion coefficients obtained when varying the MSD start‑time fraction, and the resulting coefficient of variation (CV).  
-* **Key Fields**: `solvent`, `duration_ns`, `start_fraction`, `d_value`, `variance_pct`.  
+- **Location**: `data/processed/sensitivity_report.json`
+- **Fields**: `solvent`, `duration_ns`, `start_fraction` (0.1, 0.2, 0.3), `variance_pct` (must be < 5 % per the implied sensitivity criterion), and any additional descriptive notes.
 
 ## Data Flow
 
-1. **Load** `nist_refs.json` → in‑memory dict.  
-2. **Run** simulations → trajectory files (`*.xtc`, `*.pdb`) in `data/raw/simulations/`.  
-3. **Analyze** trajectories → generate rows for `diffusion_results.csv`.  
-4. **Bootstrap** MAE values → write one entry per duration to `bootstrap_stats.json`.  
-5. **Sensitivity** analysis across start fractions → write entries to `sensitivity_report.json`.  
-6. **Report Generation** reads the three processed files to produce figures and tables for the manuscript.
+1. Load `nist_refs.json` → validated dict (checksum recorded).
+2. Run simulations → `data/raw/simulations/*.xtc` (+ logs with wall‑clock times).
+3. MSD + fit + R² gate **and** log‑log slope check → rows in `diffusion_results.csv`.
+4. Bootstrap of MAE + descriptive paired comparison → `bootstrap_stats.json`.
+5. **Sensitivity analysis** (start‑fraction sweep) → `sensitivity_report.json`.
+6. `report.py` reads only the two processed files (`diffusion_results.csv`, `bootstrap_stats.json`) and the sensitivity report to produce figures/tables (Constitution IV).
 
-All transformations are pure functions; no in‑place modification of raw files occurs (Constitution III). Checksums are recorded for each raw input file.
-
----
+Raw files are never modified in place; all derivations write new files (Constitution III).

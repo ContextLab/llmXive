@@ -1,18 +1,14 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Diffusion Results Schema"
-description: "Schema for data/processed/diffusion_results.csv"
+description: "Schema for one row of data/processed/diffusion_results.csv (validated as JSON objects after CSV parsing)"
 type: "object"
 properties:
   solvent:
     type: "string"
-    enum:
-      - "water"
-      - "ethanol"
-      - "acetone"
+    enum: ["water", "ethanol", "acetone"]
   duration_ns:
     type: "number"
-    minimum: 1.0
-    maximum: 10.0
+    enum: [1, 5, 10]
   seed:
     type: "integer"
     minimum: 0
@@ -21,23 +17,23 @@ properties:
     minimum: 0
   r_squared:
     type: "number"
-    minimum: 0.95
-    maximum: 1.0
-    description: "R-squared value of the linear fit. Must be >= 0.95 per Constitution Principle VI."
+    minimum: 0
+    maximum: 1
+    description: "R-squared of the MSD linear fit; accepted rows must be >= 0.95 (FR-003, Constitution VI)."
   d_calc_m2_s:
     type: "number"
     minimum: 0
   d_scaled_m2_s:
     type: "number"
     minimum: 0
+    description: "Equals d_calc_m2_s; no CG scaling applied in atomistic workflow (spec section 6)."
   mae:
     type: "number"
     minimum: 0
+    description: "Absolute error |D_sim - D_exp| for this trajectory."
   status:
     type: "string"
-    enum:
-      - "accepted"
-      - "convergence_failed"
+    enum: ["accepted", "convergence_failed"]
 required:
   - solvent
   - duration_ns
@@ -45,6 +41,7 @@ required:
   - msd_slope
   - r_squared
   - d_calc_m2_s
+  - d_scaled_m2_s
   - mae
   - status
 additionalProperties: false

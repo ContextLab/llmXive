@@ -1,38 +1,80 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Bootstrap Statistics Schema"
-description: "Schema for data/processed/bootstrap_stats.json"
+description: "Schema for data/processed/bootstrap_stats.json."
 type: "object"
 properties:
-  duration_ns:
-    type: "number"
-    enum: [1, 5, 10]
-  iterations:
-    type: "integer"
-    minimum: 1000
-    maximum: 1000
-    description: "Number of bootstrap iterations. Fixed at 1000 as required by FR‑004."
-  mean_mae:
-    type: "number"
-    minimum: 0
-  ci_lower:
-    type: "number"
-    minimum: 0
-  ci_upper:
-    type: "number"
-    minimum: 0
-  convergence_check:
-    type: "boolean"
-    description: "True if all trajectories for this duration met R2 >= 0.95."
-  n_seeds:
-    type: "integer"
-    minimum: 1
-    description: "Number of seeds used for this duration (target 5)."
+  entries:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        solvent:
+          type: "string"
+          enum: ["water", "ethanol", "acetone"]
+        duration_ns:
+          type: "number"
+          enum: [1, 5, 10]
+        iterations:
+          type: "integer"
+          minimum: 1000
+          maximum: 1000
+          description: "Bootstrap iterations; fixed at exactly 1000 per FR-004 (no automatic reduction permitted)."
+        mean_mae:
+          type: ["number", "null"]
+          minimum: 0
+        ci_lower:
+          type: ["number", "null"]
+          minimum: 0
+        ci_upper:
+          type: ["number", "null"]
+          minimum: 0
+        n_seeds:
+          type: "integer"
+          minimum: 1
+        granularity_note:
+          type: "string"
+          description: "Explanation of statistical granularity limits when seed count is low (e.g., minimal achievable p-value)."
+      required:
+        - solvent
+        - duration_ns
+        - iterations
+        - mean_mae
+        - ci_lower
+        - ci_upper
+        - n_seeds
+      additionalProperties: false
+  paired_test:
+    type: "array"
+    description: "Descriptive paired‑comparison of MAE at 1 ns vs 10 ns per solvent (replaces the original paired‑bootstrap test)."
+    items:
+      type: "object"
+      properties:
+        solvent:
+          type: "string"
+          enum: ["water", "ethanol", "acetone"]
+        mae_1ns:
+          type: "number"
+          minimum: 0
+        mae_10ns:
+          type: "number"
+          minimum: 0
+        mean_difference:
+          type: "number"
+        p_value:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        granularity_note:
+          type: "string"
+          description: "Note on the granularity limitation of the p‑value due to small seed count."
+      required:
+        - solvent
+        - mae_1ns
+        - mae_10ns
+        - mean_difference
+        - p_value
+      additionalProperties: false
 required:
-  - duration_ns
-  - iterations
-  - mean_mae
-  - ci_lower
-  - ci_upper
-  - convergence_check
-  - n_seeds
+  - entries
+  - paired_test
 additionalProperties: false

@@ -1,11 +1,15 @@
 status: none
-intent: download NIST Standard Reference diffusion coefficients and TRC data python
-  package
+intent: download experimental diffusion coefficients from NIST as python package dataset
 required_fields:
-- solvent_name
+- compound_name
+- cas_number
 - temperature_K
-- experimental_diffusion_coefficient_m2_per_s
-- source_database
-cache_key: e4faff62b248be5f0e51d985a4c179e8a28099bf9ee103bfe6f96c5b05cd10ad
-searched_at: '2026-10-18T04:23:18.393184+00:00'
+- pressure_Pa
+- diffusion_coefficient_m2_s
+- diffusion_coefficient_units
+- uncertainty
+- measurement_method
+- reference
+cache_key: bcab846d76bd0e2cf0b879b6df29c661e2f4d26208ebbe75371cfb84143e2e23
+searched_at: '2026-10-18T04:35:01.403761+00:00'
 retry_count: 1
