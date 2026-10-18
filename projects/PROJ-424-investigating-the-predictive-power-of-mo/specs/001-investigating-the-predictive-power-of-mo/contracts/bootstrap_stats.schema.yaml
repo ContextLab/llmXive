@@ -5,12 +5,12 @@ type: "object"
 properties:
   duration_ns:
     type: "number"
-    enum: [1.0, 5.0, 10.0]
+    enum: [1, 5, 10]
   iterations:
     type: "integer"
-    minimum: 100
+    minimum: 1000
     maximum: 1000
-    description: "Number of bootstrap iterations. 1000 default, 100 fallback if time > 5.5h."
+    description: "Number of bootstrap iterations. Fixed at 1000 as required by FR‑004."
   mean_mae:
     type: "number"
     minimum: 0
@@ -26,7 +26,7 @@ properties:
   n_seeds:
     type: "integer"
     minimum: 1
-    description: "Number of seeds used for this duration. 5 (target) or 3 (fallback)."
+    description: "Number of seeds used for this duration (target 5)."
 required:
   - duration_ns
   - iterations

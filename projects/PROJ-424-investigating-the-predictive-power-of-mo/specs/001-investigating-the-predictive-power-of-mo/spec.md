@@ -12,7 +12,7 @@ This project investigates the accuracy of Molecular Dynamics (MD) simulations in
 - **FR-001**: System must load experimental diffusion coefficients from `data/raw/nist_refs.json`.  
 - **FR-002**: System must extract mean‑squared‑displacement (MSD) trajectories from MD simulation output, apply the diffusive‑window fit (see FR-003), and compute the diffusion coefficient *D* from the linear regression slope.  
 - **FR-003**: Define the diffusive fitting window by discarding the first [deferred] of trajectory time (ballistic regime) and fitting a linear model to the remaining data; the fit must achieve **R² ≥ 0.95**.  
-- **FR-004**: System must perform bootstrap resampling of MAE estimates with **1000 iterations** on the reference hardware (8‑core 2.5 GHz CPU). No fallback reduction is permitted; runs exceeding **5.5 hours wall‑clock** must be reported and investigated as a performance issue.  
+- **FR-004**: System must perform bootstrap resampling of MAE estimates with **1000 iterations** on the reference hardware (multi‑core 2.5 GHz CPU). No fallback reduction is permitted; runs exceeding **5.5 hours wall‑clock** must be reported and investigated as a performance issue.  
 - **FR-005**: System must recompute diffusion coefficients across start‑time fractions **0.1**, **0.2**, **0.3** of the total trajectory, calculate the **coefficient of variation (CV = std/mean)** of the resulting *D* values, and store the results in the `sensitivity_report` data model.  
 - **FR-006**: System must run MD simulations for each solvent at three durations **1 ns**, **5 ns**, **10 ns** using the **OPLS‑AA atomistic force field**; if a simulation exceeds **12 hours wall‑clock**, reduce the system size by [deferred] while remaining atomistic.
 - **FR-007**: If a coarse‑grained force field is ever used, apply a literature‑based time‑scaling correction to diffusion coefficients and document the scaling factor. (Primary workflow uses OPLS‑AA; this FR supports optional alternatives.)  
@@ -39,7 +39,7 @@ This project investigates the accuracy of Molecular Dynamics (MD) simulations in
 - `sensitivity_report`: Stores start_time_fraction, D_value, CV, variance.
 
 ## 7. Constraints
-- Compute budget: ~7 GB RAM, ~14 GB disk.  
+- Compute budget: on the order of a few GB of RAM and tens of GB of disk space.  
 - No GPU required for OPLS‑AA simulations of these small systems.  
 - All data loading must use the curated JSON file; no synthetic fallbacks.
 

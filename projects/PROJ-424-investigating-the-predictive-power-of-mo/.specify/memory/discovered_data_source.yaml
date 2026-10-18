@@ -1,13 +1,11 @@
 status: none
-intent: download diffusion coefficients water ethanol acetone NIST Chemistry WebBook
-  dataset python package dataset
+intent: download NIST Standard Reference diffusion coefficients and TRC data python
+  package
 required_fields:
-- compound
-- diffusion_coefficient
-- units
+- solvent_name
 - temperature_K
-- pressure_atm
-- source
-cache_key: 2d918211c06184384a8c70210887630fe640ed93661fd4994b1c8ba04fa137a5
-searched_at: '2026-09-20T19:47:22.741313+00:00'
+- experimental_diffusion_coefficient_m2_per_s
+- source_database
+cache_key: e4faff62b248be5f0e51d985a4c179e8a28099bf9ee103bfe6f96c5b05cd10ad
+searched_at: '2026-10-18T04:23:18.393184+00:00'
 retry_count: 1

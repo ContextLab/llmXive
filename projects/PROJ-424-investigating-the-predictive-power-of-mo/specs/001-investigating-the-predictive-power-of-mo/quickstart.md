@@ -1,70 +1,101 @@
 # Quickstart: Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients
 
 ## Prerequisites
-*   **Python**: 3.11+
-*   **GROMACS**: Installed and available in PATH (required for `gmx` commands).
-*   **System**: Linux (Ubuntu recommended).
+* **Operating System**: Linux (Ubuntu 22.04 recommended) – the CI runner uses this environment.  
+* **Python**: 3.11 or newer.  
+* **OpenMM**: Installable via `conda` or `pip` (`conda install -c conda-forge openmm`).  
+* **Git**: To clone the repository.  
 
 ## Installation
 
-1.  **Clone and Setup Environment**:
-    ```bash
-    cd projects/PROJ-424-investigating-the-predictive-power-of-mo
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
+```bash
+# Clone the project repository
+git clone https://github.com/your-org/PROJ-424-investigating-the-predictive-power-of-mo.git
+cd PROJ-424-investigating-the-predictive-power-of-mo
 
-2.  **Verify GROMACS**:
-    ```bash
-    gmx -version
-    ```
-    Ensure the version is compatible with the MARTINI force field (2022+ recommended).
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install Python dependencies
+pip install -r requirements.txt
+```
 
 ## Data Preparation
 
-1.  **Experimental Data**:
-    Ensure `data/raw/nist_refs.json` exists and contains the curated values for water, ethanol, and acetone.
-    ```bash
-    cat data/raw/nist_refs.json
-    ```
+1. **Experimental reference data**  
+   Verify that `data/raw/nist_refs.json` exists and contains entries for water, ethanol, and acetone. Example snippet:
 
-2.  **Generate Simulations** (or use pre-generated):
-    If pre-generated trajectories are not present in `data/raw/simulations/`, run the simulation script:
-    ```bash
-    python code/simulations/run_simulation.py --solvents water ethanol acetone --durations 1 5 10 --seeds 5
-    ```
-    *Note: This step may take ~6-7 hours depending on CPU speed. If time > 5.5h, the script will automatically fallback to 3 seeds.*
+   ```json
+   [
+     {
+       "solvent": "water",
+       "temperature_kelvin": 298.15,
+       "diffusion_coefficient_m2_s": <value to be estimated during the implementation phase>,
+       "source_reference": "NIST"
+     }
+   ]
+   ```
 
-## Running the Analysis
+2. **Generate simulation trajectories** (if not already present):
 
-1.  **Run Full Pipeline**:
-    Execute the analysis pipeline which calculates MSD, validates convergence, and performs bootstrapping.
-    ```bash
-    python code/analysis/analyze_all.py
-    ```
-    *This script:*
-    *   Loads `nist_refs.json`.
-    *   Processes `.xtc` files (discarding first 100ps).
-    *   Checks $R^2 \ge 0.95$ for each trajectory.
-    *   Calculates MAE and 95% CI (1000 iterations).
-    *   Generates `data/processed/diffusion_results.csv` and `bootstrap_stats.json`.
+   ```bash
+   python code/simulations/run_simulation.py \
+       --solvents water ethanol acetone \
+       --durations 1 5 10 \
+       --seeds 5
+   ```
 
-2.  **Generate Reports**:
-    ```bash
-    python code/analysis/generate_report.py
-    ```
-    This produces the summary tables and plots required for SC-001, SC-002, and SC-004.
+   *The script*:
+   * builds OPLS‑AA boxes of **≈120 molecules** (identical for all durations),
+   * runs energy minimization + equilibration,
+   * performs production runs for the requested durations,
+   * enforces the 12 h per‑trajectory ceiling (any exceedance is logged as a performance issue),
+   * logs the actual number of seeds used (a fixed small number unless a failure forces abort).
 
-## Verification
+## Running the Full Analysis Pipeline
 
-*   **Check Convergence**: Verify that all accepted trajectories have $R^2 \ge 0.95$ in `data/processed/diffusion_results.csv`.
-*   **Check Sensitivity**: Ensure `variance_pct` in `sensitivity_report.json` is < 5%.
-*   **Check CI**: Verify that 95% CI intervals are present in `bootstrap_stats.json`.
-*   **Check Seeds**: Verify that `n_seeds` in `bootstrap_stats.json` matches the number of seeds actually run (5 or 3).
+```bash
+python code/analysis/analyze_all.py
+```
+
+This single command performs:
+
+1. **MSD calculation** (discarding first [deferred] of time).
+2. **Linear regression** with `$R^{2}` check; trajectories failing the check are flagged.  
+3. **Diffusion coefficient computation** and MAE evaluation.  
+4. **Bootstrap** (exactly 1000 iterations) of MAE; if the overall wall‑clock exceeds 5.5 h the run is **logged as a performance issue** but no iteration count is reduced.  
+5. **Sensitivity analysis** across start fractions 0.1, 0.2, 0.3.  
+6. **Result serialization** to the three data‑model files.
+
+## Generating Figures & Tables
+
+```bash
+python code/analysis/generate_report.py
+```
+
+Outputs are written to `results/`:
+
+* `timescale_accuracy_curves.pdf` – MAE vs. duration with 95 % confidence bands.  
+* `sensitivity_cv_table.md` – CV values per solvent (must be < 5 %).  
+* `summary_statistics.md` – Mean MAE, CI bounds, and descriptive trend commentary.
+
+## Verification Checklist
+
+| Check | How to verify |
+|-------|---------------|
+| All trajectories have `$R^{2} ≥ 0.95` | Open `data/processed/diffusion_results.csv` and confirm the `r_squared` column meets the threshold. |
+| Sensitivity CV < 5 % | Inspect `data/processed/sensitivity_report.json`; every `variance_pct` must be `< 5`. |
+| Bootstrap CI present | `bootstrap_stats.json` must contain `ci_lower` and `ci_upper` for each duration. |
+| Seed count matches plan | `n_seeds` field in `bootstrap_stats.json` should be **5** (target). |
+| End‑to‑end execution | Re‑run `python code/analysis/analyze_all.py` after a clean checkout; it should complete without errors (FR‑009, SC‑006). |
 
 ## Troubleshooting
-*   **GROMACS not found**: Install GROMACS via `apt` or `conda`.
-*   **Convergence Failure**: If $R^2 < 0.95$, the simulation may be too short or the system not equilibrated. Check logs.
-*   **Timeout**: If the bootstrap step exceeds 5.5 hours, the script automatically falls back to 100 iterations (FR-004).
-*   **Simulation Timeout**: If the simulation step exceeds 5.5 hours, the script automatically reduces the number of seeds from 5 to 3 (Balanced Fallback).
+
+* **OpenMM not found** – Install via `conda install -c conda-forge openmm` or ensure `python -c "import openmm"` works.  
+* **Convergence failures** – If any `r_squared` < 0.95, increase the simulation duration or verify system equilibration; the script logs offending trajectories.  
+* **Runtime exceeds 5.5 h** – The pipeline will **log a performance issue** (per FR‑004) but will continue to run the full 1000‑iteration bootstrap and all 5 seeds. Review the CI log for the warning.  
+* **Simulation exceeds 12 h** – The `run_simulation.py` script aborts the offending trajectory, logs the event as a performance issue, and proceeds with remaining runs (system size is already fixed across durations).  
+
+---
+

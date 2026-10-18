@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T03:15:32.126979Z'
-current_stage: clarified
+current_stage: specified
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-424-investigating-the-predictive-power-of-mo
-last_run_id: fb80e733-e6a1-44a0-8450-86beb685a605
+last_run_id: 5990d3c4-0bee-4e72-aefb-66cd93bf66a5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo
 title: Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion
   Coefficients
-updated_at: '2026-10-18T04:22:02.970783Z'
+updated_at: '2026-10-18T04:31:47.614874Z'

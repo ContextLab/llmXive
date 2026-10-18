@@ -41,6 +41,8 @@ properties:
 required:
   - solvent
   - duration_ns
+  - seed
+  - msd_slope
   - r_squared
   - d_calc_m2_s
   - mae

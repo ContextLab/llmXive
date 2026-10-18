@@ -1,100 +1,32 @@
 # Data Model: Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients
 
 ## Overview
-This document defines the data structures used throughout the project lifecycle, from raw input to final analysis results. All data is stored in local files (`JSON`, `CSV`) to ensure reproducibility and checksumming.
+The project moves data through three explicit models, each persisted to disk in a validated format. All models are described by JSON Schema contracts located in `contracts/`.
 
-## 1. Raw Data
+### 1. `diffusion_results`
+* **Location**: `data/processed/diffusion_results.csv`  
+* **Purpose**: Stores per‑trajectory diffusion analysis results, including the MSD linear‑fit quality and the MAE against experimental data.  
+* **Key Fields**: `solvent`, `duration_ns`, `seed`, `msd_slope`, `r_squared`, `d_calc_m2_s`, `d_scaled_m2_s` (if scaling applied), `mae`, `status`.  
 
-### `data/raw/nist_refs.json`
-Manually curated experimental diffusion coefficients.
-*   **Format**: JSON
-*   **Schema**:
-    ```json
-    [
-      {
-        "solvent": "string",
-        "temperature_kelvin": "float",
-        "diffusion_coefficient_m2_s": "float",
-        "source_reference": "string"
-      }
-    ]
-    ```
-*   **Example**:
-    ```json
-    [
-      {
-        "solvent": "water",
-        "temperature_kelvin": 298.15,
-        "diffusion_coefficient_m2_s": 2.3e-9,
-        "source_reference": "NIST TRC"
-      }
-    ]
-    ```
+### 2. `bootstrap_stats`
+* **Location**: `data/processed/bootstrap_stats.json`  
+* **Purpose**: Summarizes bootstrap resampling of MAE for each simulation duration.  
+* **Key Fields**: `duration_ns`, `iterations`, `mean_mae`, `ci_lower`, `ci_upper`, `convergence_check`, `n_seeds`.  
 
-### `data/raw/simulations/*.xtc` / `*.gro`
-Raw GROMACS trajectory and topology files.
-*   **Format**: Binary (GROMACS)
-*   **Content**: Atomic coordinates over time.
-*   **Naming Convention**: `{solvent}_{duration_ns}_seed{seed}.xtc`
+### 3. `sensitivity_report`
+* **Location**: `data/processed/sensitivity_report.json`  
+* **Purpose**: Records the diffusion coefficients obtained when varying the MSD start‑time fraction, and the resulting coefficient of variation (CV).  
+* **Key Fields**: `solvent`, `duration_ns`, `start_fraction`, `d_value`, `variance_pct`.  
 
-## 2. Processed Data
+## Data Flow
 
-### `data/processed/diffusion_results.csv`
-Aggregated results from MSD analysis and scaling.
-*   **Format**: CSV
-*   **Columns**:
-    *   `solvent` (str): e.g., "water"
-    *   `duration_ns` (float): 1.0, 5.0, 10.0
-    *   `seed` (int): Random seed used
-    *   `msd_slope` (float): Slope of linear MSD fit (t > 100ps)
-    *   `r_squared` (float): Goodness of fit (must be >= 0.95)
-    *   `d_calc_m2_s` (float): Calculated diffusion coefficient (slope / 6)
-    *   `d_scaled_m2_s` (float): Scaled diffusion coefficient (using fixed literature factors)
-    *   `mae` (float): Absolute error vs experimental
-*   **Constraint**: Rows with `r_squared` < 0.95 are marked as "CONVERGENCE_FAILED" and excluded from MAE calculation.
+1. **Load** `nist_refs.json` → in‑memory dict.  
+2. **Run** simulations → trajectory files (`*.xtc`, `*.pdb`) in `data/raw/simulations/`.  
+3. **Analyze** trajectories → generate rows for `diffusion_results.csv`.  
+4. **Bootstrap** MAE values → write one entry per duration to `bootstrap_stats.json`.  
+5. **Sensitivity** analysis across start fractions → write entries to `sensitivity_report.json`.  
+6. **Report Generation** reads the three processed files to produce figures and tables for the manuscript.
 
-### `data/processed/bootstrap_stats.json`
-Statistical summaries of the error distribution.
-*   **Format**: JSON
-*   **Schema**:
-    ```json
-    {
-      "duration_ns": "float",
-      "iterations": "int",
-      "mean_mae": "float",
-      "ci_lower": "float",
-      "ci_upper": "float",
-      "convergence_check": "boolean",
-      "n_seeds": "int"
-    }
-    ```
-*   **Note**: `n_seeds` indicates whether N=5 (target) or N=3 (fallback) was used.
+All transformations are pure functions; no in‑place modification of raw files occurs (Constitution III). Checksums are recorded for each raw input file.
 
-### `data/processed/sensitivity_report.json`
-Variance analysis across start times.
-*   **Format**: JSON
-*   **Schema**:
-    ```json
-    [
-      {
-        "solvent": "string",
-        "duration_ns": "float",
-        "start_fraction": "float",
-        "d_value": "float",
-        "variance_pct": "float"
-      }
-    ]
-    ```
-
-## 3. Scaling Factors (Fixed Constants)
-*   **Water**: 0.6
-*   **Ethanol**: 0.7
-*   **Acetone**: 0.7
-*   **Source**: Marrink et al., J. Chem. Theory Comput. 2007, 3, 1, 146–156.
-
-## 4. Data Flow
-1.  **Load**: `data/raw/nist_refs.json` -> `data/` (in-memory dict).
-2.  **Simulate**: `code/simulations/` -> `data/raw/simulations/` (N=5 or N=3 seeds).
-3.  **Analyze**: `data/raw/simulations/` + `data/raw/nist_refs.json` -> `data/processed/diffusion_results.csv`.
-4.  **Bootstrap**: `data/processed/diffusion_results.csv` -> `data/processed/bootstrap_stats.json`.
-5.  **Report**: `data/processed/` -> `results/paper_tables.md`.
+---
