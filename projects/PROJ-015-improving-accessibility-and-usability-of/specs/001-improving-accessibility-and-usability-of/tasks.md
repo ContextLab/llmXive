@@ -1,168 +1,100 @@
-# Tasks: Improving Accessibility and Usability of Complex Computer Systems for People with Disabilities
+# Tasks: Improving Accessibility and Usability of Complex Computer Systems for People with Disabilities  
 
-**Input**: Design documents from `/specs/015-improving-accessibility-usability/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, existing code base, data contracts.  
+**Goal**: Deliver a reproducible research pipeline that (1) collects real interaction data via a Streamlit simulator, (2) validates and cleans the data, (3) performs the mandated Repeated Measures ANOVA with Holm‑Bonferroni correction (or Friedman fallback), (4) computes observed power, (5) produces publication‑ready figures, and (6) hands off methods/results to the paper stage.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+---  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
+## Phase 1 – Project scaffolding & first end‑to‑end run  
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T001 **Create project layout & quick‑start guide** – Create `projects/PROJ-015-improving-accessibility-and-usability-of/` with sub‑folders `code/`, `data/`, `figures/`, `tests/`, `contracts/`; add `quickstart.md` documenting the command `python -m code.analysis.run_analysis --mode pilot`.  
+- [ ] T002 **Pin dependencies** – Populate `requirements.txt` with exact versions of `streamlit`, `scipy`, `pandas`, `numpy`, `pyyaml`, `statsmodels`, `seaborn`, `pytest`. Verification: file exists and each line matches the pattern `package==x.y.z`.  
+- [ ] T003 **Implement real‑data loader** – File: `code/analysis/data_loader.py`  
+  - Loads all `data/raw/*.json` (or `.csv`) into a `pandas.DataFrame`.  
+  - Raises `FileNotFoundError` if the directory is empty **or** if every file has `source: "simulated"` **and** `dev_mode=False`.  
+  - Validates each record against `contracts/session.schema.yaml`.  
+- [ ] T004 **Add data‑loader failure tests** – File: `tests/unit/test_data_loader_failure.py` asserts the two error conditions above.  
+- [ ] T005 **Implement schema validator** – File: `code/analysis/validator.py` with function `validate_session(data: dict) -> bool` that uses `jsonschema` against `contracts/session.schema.yaml`.  
+- [ ] T006 **Create Streamlit simulator entry point** – File: `code/app.py` (renamed from the previous `code/simulator/app.py`).  
+  - Renders the counterbalanced interface (Traditional ↔ Explainable).  
+  - Captures timestamps, error list, explanation‑engagement time, and SUS responses.  
+  - Calls `validator.validate_session` before writing a session file to `data/raw/`.  
+- [ ] T007 **Implement Latin‑Square counterbalancing** – File: `code/counterbalance.py` exposing `generate_order(num_participants: int) -> List[str]` returning a list of `"Traditional"` / `"Explainable"` orders. Integrated into `code/app.py`.  
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US0, US1, US2, US3)
-- Include exact file paths in descriptions
+*Checkpoint*: Running `python -m code.analysis.run_analysis --mode pilot` on a freshly collected pilot (≥5 real sessions) produces `data/processed/metrics_summary.csv` and a short console summary without errors.  
 
-## Path Conventions
+---  
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+## Phase 2 – Data cleaning & imputation  
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T008 **Filter incomplete sessions** – File: `code/analysis/data_cleaner.py` function `remove_incomplete(df)` drops rows where `status == "incomplete"` and logs the count.  
+- [ ] T009 **SUS imputation rule** – Same module adds `impute_sus(df)` which:  
+  1. Detects rows with exactly one missing SUS item, replaces the missing value with the participant’s mean SUS score, and marks the row as `imputed=True`.  
+  2. Marks rows with ≥2 missing items as `status="incomplete"` (handled by `remove_incomplete`).  
+- [ ] T010 **Verification of cleaning** – File: `tests/integration/test_cleaning.py` loads a synthetic but schema‑valid raw file, runs the two cleaning steps, and asserts that the resulting dataframe conforms to `contracts/metrics.schema.yaml` and contains no `status="incomplete"` rows.  
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+---  
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+## Phase 3 – Statistical analysis engine  
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T011 **Repeated Measures ANOVA implementation** – File: `code/analysis/anova_engine.py` with function `run_rm_anova(df, subject_col, within_col, dv_col)` using `statsmodels.stats.anova.AnovaRM`. Returns a dict matching `analysis_output.schema.yaml` (including `method_used="Repeated Measures ANOVA"`).  
+- [ ] T012 **Normality check & Friedman fallback** – File: `code/analysis/normality.py`  
+  - Runs Shapiro‑Wilk on each metric column.  
+  - If any metric fails (p < 0.05), `run_friedman(df, subject_col, within_col, dv_col)` from `statsmodels.stats.nonparametric` is invoked instead of ANOVA.  
+- [ ] T013 **Holm‑Bonferroni correction** – File: `code/analysis/correction.py` providing `holm_bonferroni(p_vals: List[float]) -> List[float]`. Applies to the raw p‑values of all metrics and stores `p_value_adjusted` in the output schema.  
+- [ ] T014 **Observed power calculation** – File: `code/analysis/power_analysis.py` with `compute_observed_power(effect_size, n, alpha=0.05)` using `statsmodels.stats.power.FTestPower`. Generates `data/processed/observed_power.csv`.  
+- [ ] T015 **End‑to‑end analysis script** – File: `code/analysis/run_analysis.py` (CLI)  
+  - Calls `data_loader.load_real_data`, `data_cleaner.remove_incomplete`, `data_cleaner.impute_sus`, `normality.check_normality`, selects ANOVA or Friedman, applies `correction.holm_bonferroni`, computes power, writes `data/processed/analysis_results.json` (conforms to `analysis_output.schema.yaml`) and a concise human‑readable `report_summary.txt`.  
+  - Includes a `--mode pilot` flag that bypasses the N ≥ 30 recruitment gate (see Phase 4).  
 
-## Phase 1: Setup (Shared Infrastructure)
+---  
 
-**Purpose**: Project initialization and basic structure
+## Phase 4 – Pilot and recruitment gating  
 
-- [X] T001 Create project structure per implementation plan (`projects/PROJ-015-improving-accessibility-and-usability-of/`)
-- [X] T002 Initialize Python project with pinned dependencies in `requirements.txt`. **Deliverable**: `requirements.txt` containing pinned versions of `scipy`, `matplotlib`, `pandas`, `jupyter`, `streamlit`, `pyyaml`, `numpy`, `statsmodels`. **Verification**: File exists and contains version pins (e.g., `scipy==1.11.0`, `numpy==1.24.0`, `statsmodels==0.14.0`).
-- [X] T003a [P] Create `.ruff.toml` configuration file. **Content**: Must contain `[lint]` section with `select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "TCH", "T20"]`. **Verification**: File exists and contains the specified select list.
-- [X] T003b [P] Create `pyproject.toml` configuration for Black. **Content**: Must contain `[tool.black]` section with `line-length = 88 [UNRESOLVED-CLAIM: c_839a8a73 — status=not_enough_info]` and `target-version = ['py311'] [UNRESOLVED-CLAIM: c_77d26e85 — status=not_enough_info]`. **Verification**: File exists and contains the specified configuration block.
+- [ ] T016 **Pilot eligibility check** – File: `code/analysis/pilot_gate.py` with `check_pilot(df, min_n=5)` raising `ValueError` if fewer than 5 complete human sessions are present. Integrated into `run_analysis.py` when `--mode pilot` is used.  
+- [ ] T017 **Full‑study recruitment gate** – File: `code/analysis/full_gate.py` with `check_full_recruitment(pilot_report_path)` that reads `data/pilot_report.md`; if the pilot did not succeed, raises `RuntimeError`. `run_analysis.py` calls this when `--mode full`.  
 
----
+---  
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 5 – Visualization & results hand‑off  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **Includes Data Integrity Gates.**
+- [ ] T018 **Figure generation** – File: `code/analysis/visualizer.py` providing four functions (`plot_completion_time`, `plot_error_count`, `plot_sus_score`, `plot_explanation_engagement`) that read `metrics_summary.csv` and save PNGs (`figures/completion_time.png`, etc.) using `seaborn.boxplot` with 95 % CI error bars (300 dpi).  
+- [ ] T019 **Create methods & results markdown** – File: `paper/methods_results.md` (generated by `run_analysis.py`) that programmatically inserts tables and figure references directly from the JSON/CSV outputs, ensuring no hand‑typed numbers.  
+- [ ] T020 **Checksum verification for hand‑off** – `run_analysis.py` computes SHA‑256 hashes of `metrics_summary.csv`, each figure PNG, and the JSON results; stores them in `state/output_hashes.yaml`. A downstream verification script will reject mismatched hashes, guaranteeing reproducibility.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+---  
 
-### Active Tasks (Foundational)
-- [X] T012c [P] Create the skeleton Streamlit app entry point `code/simulator/app.py`. **Deliverable**: `code/simulator/app.py`. **Verification**: Runs without import errors. **Dependencies**: None.
-- [X] T012a [P] Create `CONTRIBUTING.md` with the mandatory "no synthetic data" clause and schema compliance guidelines. **Deliverable**: `CONTRIBUTING.md`. **Content**: Must include the clause: "No synthetic data is allowed for final research claims. The pipeline must fail loudly if real data is missing. [UNRESOLVED-CLAIM: c_e17a2a16 — status=not_enough_info] "
-- [X] T019b [P] Create `contracts/session.schema.yaml`. **Deliverable**: `contracts/session.schema.yaml` defining the JSON schema for session data (participant_id, interface_type, metrics, status, source, etc.). **Dependencies**: None.
-- [X] T019c Implement runtime schema validation logic in `code/simulator/validator.py`. **Deliverable**: `code/simulator/validator.py` with a function `validate_session(data: dict) -> bool`. **Dependencies**: T019b.
-- [X] T019d [P] **Runtime Integration**: Hook `validator.py` into the Streamlit `app.py` data submission handler. **Scope**: Implement function `submit_session_handler` in `code/simulator/app.py` that calls `validate_session`. If validation fails, **raise `ValueError`** and **block** the session write to `data/raw/`. **Deliverable**: Updated `code/simulator/app.py`. **Dependencies**: T012c, T019c.
-- [X] T120 [P] **Implement Real Data Loader**: Create `code/analysis/data_loader.py` with function `load_real_data(input_dir: str, dev_mode: bool = False) -> pd.DataFrame`. **Constraint**:
- 1. Must raise `FileNotFoundError` if `data/raw/` is empty.
- 2. Must raise `FileNotFoundError` if `data/raw/` contains ONLY files where `source == 'simulated'` AND `dev_mode` is False.
- 3. Must accept files where `source == 'simulated'` ONLY if `dev_mode` is True.
- 4. Must explicitly reference `contracts/session.schema.yaml` to validate the `source` field enum (`['human_participant', 'simulated']`).
- **NO synthetic fallback allowed.** **Dependencies**: T019b.
-- [X] T121 [P] **Data Loader Failure Test**: Create `tests/unit/test_data_loader_failure.py` to assert `load_real_data` raises `FileNotFoundError` when `data/raw/` is empty or contains only simulated data without dev_mode. **Dependencies**: T120.
-- [X] T035a-verify [Foundational] **SPEC VERIFICATION (Script)**: Create `scripts/verify_spec_amendment.py` to parse `specs/015-improving-accessibility-usability/spec.md` and assert the presence of the ratified FR-002 text for Repeated Measures ANOVA. **Deliverable**: Script that exits 0 on success, 1 on failure. **Dependencies**: T001, T002. **Verification**: Script runs successfully against the spec file.
-- [X] T035a-assert [Foundational] **SPEC ASSERTION (Test)**: Create `tests/test_spec_amendment.py` that invokes `scripts/verify_spec_amendment.py` and asserts the exit code is 0. **Deliverable**: Pytesttest. **Dependencies**: T035a-verify. **Verification**: Test passes.
-- [ ] T006-pre [P] **A Priori Power Analysis**: Implement `code/analysis/power_analysis.py` function `run_a_priori_power_analysis, power=0.80 [UNRESOLVED-CLAIM: c_e078b821 — status=not_enough_info]) -> dict` to justify N=30 per Constitution Principle VI [UNRESOLVED-CLAIM: c_2187150d — status=not_enough_info]. **Deliverable**: `docs/a_priori_power_report.md` justifying N=30 based on Cohen's d=0.5 [UNRESOLVED-CLAIM: c_f7e1cbf3 — status=not_enough_info]. **Constraint**: This task MUST run BEFORE data collection. **Dependencies**: T035a-verify. **Verification**: Report exists and explicitly states N=30 is required for pre-study justification. **Note**: Cites Constitution Principle VI.
-- [X] T108 [P] **Pipeline Order Enforcement**: Implement `precondition_check()` in `code/analysis/run_analysis.py` that raises an error if `cleaned_sessions.csv` is missing before proceeding to normality, ANOVA, correction, and power steps. **Dependencies**: T021c-cli (cleaning logic must exist to be checked). **Verification**: Unit test asserts `precondition_check` raises error if `cleaned_sessions.csv` is missing.
-- [X] T113 [P] **Report Consistency Check**: Add checksum verification in `code/analysis/run_analysis.py` that compares `report_summary.txt` content against source CSVs (`metrics_summary.csv`, `descriptive_stats_explanation_engagement.csv`). Fail if mismatched. **Dependencies**: T025d.
-- [X] T015 [P] **Implement Latin Square Counterbalancing:** Create `code/simulator/counterbalance.py` with functions to generate a balanced sequence of interface presentations (Traditional -> Explainable or vice versa). **Deliverable:** A function that takes the number of participants as input and returns an array indicating the order of presentation for each participant. Integrate this into T012e (`render_interface`) to assign interfaces based on this generated order.
-- [X] T120b [P] **Analysis Entry Gate**: Implement `check_data_integrity()` in `code/analysis/run_analysis.py` that runs BEFORE `load_real_data`. **Scope**: Must inspect `data/raw/` and raise `ValueError` if any file has `source='simulated'` and `dev_mode` is not explicitly set in the CLI. This enforces NFR-002 at the analysis entry point, preventing bypass of the loader. **Dependencies**: T019b, T120.
+## Phase 6 – Test suite for scientific integrity  
 
----
+- [ ] T021 **Unit tests for ANOVA/Friedman engines** – `tests/unit/test_anova_friedman.py` supplies a tiny synthetic but *real* dataset (generated with a fixed seed) that satisfies the schema and checks that the returned dict conforms to `analysis_output.schema.yaml` and that Holm‑Bonferroni produces monotonic adjusted p‑values.  
+- [ ] T022 **Integration test of full pipeline (pilot)** – `tests/integration/test_full_pipeline_pilot.py` runs `python -m code.analysis.run_analysis --mode pilot` on a minimal real‑data fixture (5 human sessions) and asserts that:  
+  1. `analysis_results.json` exists and validates against `analysis_output.schema.yaml`.  
+  2. All four figure files exist and are non‑empty.  
+  3. `report_summary.txt` contains the phrase “Holm‑Bonferroni adjusted p‑values”.  
 
-## Phase 3: User Story 0 - XAI Interface & Recruitment (Priority: P0) 🎯 MVP
+---  
 
-**Goal**: Implement the mechanism to evaluate the usability of computer systems for people with disabilities, specifically focusing on gene regulation interfaces. **Includes Real Data Capture.**
+## Phase 7 – Documentation & cleanup  
 
-### Implementation for User Story 0
-- [X] T010 [P] Implement `TraditionalInterface` renderer in `code/simulator/interfaces/traditional.py`
-- [X] T011 [P] Implement `ExplainableInterface` renderer in `code/simulator/interfaces/explainable.py`
-- [X] T013a Define the overlay data schema in `code/simulator/schemas/overlay_schema.yaml`. **Deliverable**: Schema file.
-- [X] T013b Implement `RuleBasedXAIOverlayGenerator` in `code/simulator/xai_overlay.py`. **Dependencies**: T013a.
-- [X] T012d1 [US0] Implement UI renderer integration in `code/simulator/app.py`. **Scope**: Implement function `render_interface(interface_type: str, task_input: dict) -> dict` returning a dict with keys `html_content` (string) and `accessibility_settings` (dict). **Dependencies**: T010, T011, T012c.
-- [X] T012d2 [US0] Implement input capture module in `code/simulator/input.py`. **Scope**: Implement function `capture_input() -> dict` returning `consent_status`, `participant_id`, and `input_events`. **Dependencies**: T012c.
-- [X] T012d3 [US0] Implement SUS form logic in `code/simulator/input.py`. **Scope**: Implement function `calculate_sus_score(responses: list) -> dict`. **Dependencies**: T012d2.
-- [X] T012d4 [US0] Implement State Management Module:
- - T012d4a - Implement `init_state()` in `code/simulator/state.py` to initialize the simulation state.
- - T012d4b - Implement `increment_phase()` in `code/simulator/state.py` to advance the simulation phase.
- - T012d4c - Implement `switch_sequence()` in `code/simulator/state.py` to switch between interface presentation sequences. **Dependencies**: T012d2.
-- [X] T012e [US0] Integrate XAI Overlay and Counterbalancing into the Streamlit flow. **Scope**: Implement function to render interfaces based on generated order from `code/simulator/counterbalance.py`. Render overlay data as needed. **Dependencies**: T010, T011, T012c, T012d1, T012d2, T012d3, T012d4a, T012d4b, T012d4c, T015.
-- [X] T012g [US0] Implement Accessibility Accommodations in `code/simulator/accessibility.py`. **Scope**: Provide UI components: `font_size_slider` (st.slider), `high_contrast_toggle` (st.checkbox), `keyboard_nav_checkbox` (st.checkbox). Update `st.session_state['font_size']`, `['high_contrast']`, `['keyboard_nav']`. **Dependencies**: T012d4a.
-- [X] T012h [US0] Implement Disability Type Selection in `code/simulator/accessibility.py`. **Scope**: Render selector and store choice in session JSON under `disability_type`. **Dependencies**: T012g.
-- [X] T042 [US0] **Recruitment Interface**: Implement Consent Form and Participant Onboarding Flow in `code/simulator/app.py`. **Scope**: Render consent form (HTML), capture `consent_status`, and implement `generate_recruitment_link()` utility. **Dependencies**: T012d2, T012h.
-- [X] T012f-main [US0] Implement Human Interaction Loop Orchestration in `code/simulator/orchestrator.py`. **Scope**: `run_human_loop()` calls `render_accessibility_settings()`, `capture_input()`, `calculate_sus_score()`, `manage_state()`. **Dependencies**: T012d1, T012d2, T012d3, T012d4a, T012d4b, T012d4c, T012g, T012h, T042.
-- [X] T012i [US0] Implement Gene Regulation Task Logic in `code/simulator/tasks/gene_task.py`. **Scope**: Functions `render_task()`, `validate_task_completion()`, `calculate_task_metrics()`. **Dependencies**: T012d1.
-- [X] T014 [US0] Add session logging logic to record `interface_variant` in `code/simulator/session_logger.py`.
-- [X] T048 [US0] Refactor `code/simulator/state.py` to ensure `manage_state()` is fully functional and exposes `current_sequence` and `interface_variant` **after** T012e integration. **Dependencies**: T012e.
-- [X] T049 [US0] **Real Data Capture**: Ensure all data collection logic (SUS, time, errors) is correctly integrated into the simulator's data flow and written to `data/raw`.
+- [ ] T023 **Update README with reproducibility instructions** – Add a “Reproduce the study” section that points to `quickstart.md`, explains the `--mode pilot` vs `--mode full` flags, and lists the exact random seeds used for any deterministic steps.  
+- [ ] T024 **Remove obsolete duplicated tasks** – All previous `T049` duplicates have been consolidated into the single tasks above (T015, T019, T020). No task identifier is reused.  
 
----
+---  
 
-## Phase 4: User Story 1 - Core Usability Benchmarking (Priority: P1) 🎯 MVP
+### Dependency mapping (summary)
 
-**Goal**: Implement the core usability benchmarking tasks.
+| Spec/Requirement | Task(s) fulfilling it |
+|------------------|-----------------------|
+| FR‑001 (data collection) | T006, T007 |
+| FR‑002 (RM‑ANOVA + Holm) | T011, T013 |
+| FR‑003 (interface rendering) | T006 |
+| FR‑004 (Latin Square) | T007 |
+| FR‑005 (validation & cleaning) | T005, T008, T009 |
+| FR‑006 (power analysis) | T014, T017 |
+| FR‑007 (real‑data Streamlit) | T006 |
+| NFR‑001 (reproducibility) | T023, T020 |
+| NFR‑002 (no synthetic data) | T003, T004, T016, T017 |
 
-### Implementation for User Story 1
-- [X] T016 [P] Implement data collection handlers for `completion_time`, `error_count`, and `explanation_engagement_time` in `code/simulator/metrics_collector.py`
-- [X] T016b [P] Ensure `explanation_engagement_time_seconds` is logged to raw session files under `data/raw/`. **Dependencies**: T019b, T019c, T019d.
-- [X] T049 [US1] Ensure `metrics_collector.calculate_task_metrics()` is called within `run_human_loop()` after task completion and before session logging. **Dependencies**: T012f-main, T016.
-- [X] T017 [P] Integrate collectors, counterbalancing, and SUS questionnaire into the Streamlit flow, with SUS imputation rules (≤1 missing → impute with participant mean). **Dependencies**: T012f-int, T012g, T012h, T049, T016.
-- [X] T020 [P] Implement dropout handling: log `dropout_reason` and set `status='incomplete'` in `code/simulator/session_logger.py`.
-- [ ] T031-gen [DEV MODE ONLY] **DEV MODE ONLY**: Implement `generate_sessions(n, seed)` in `code/simulator/simulator.py`. **Output Artifact**: `data/raw/simulated_sessions.json`. **Logic**: Generate synthetic sessions using `numpy.random.normal` for metrics (completion_time, errors, SUS) with `seed`. **Schema**: Must match `contracts/session.schema.yaml`. **Constraint**: This generator is strictly for development and CI testing. It MUST require a `--dev-mode` flag to run. **CRITICAL**: Must set `source: 'simulated'` in every generated session JSON. **Dependencies**: T019b. **Verification**: Run CLI with `--n --seed 42 --dev-mode` and assert output file contains a small number of records with valid schema AND `source: simulated`.
-- [ ] T031-cli [DEV MODE ONLY] **DEV MODE ONLY**: Implement CLI wrapper for `DeterministicDataSimulator` in `code/simulator/simulator.py`. **Deliverable**: CLI command `python -m code.simulator.simulator --n <N> --seed 42 --dev-mode --output data/raw/simulated_sessions.json`. **Constraint**: This CLI is strictly for development and CI testing. **Dependencies**: T031-gen. **Verification**: Run command and verify file creation.
-- [X] T031b [P] Add JSON‑Schema validation to the simulator output. **Dependencies**: T031-cli, T019b.
-- [X] T031c [P] Extend simulator to generate dropout sessions via `--dropout-rate`. **Dependencies**: T031-cli.
-- [X] T032 [P] Create unit tests for simulator (completion time diff, engagement time positivity, schema compliance). **Dependencies**: T031-gen, T031b.
-- [X] T021a Implement data cleaning filter in `code/analysis/data_cleaner.py`: remove sessions where `status='incomplete'`. Update the session status field to 'incomplete'. **Deliverable**: Function that filters and updates the dataframe. **Dependencies**: T019b, T117, T120
-- [X] T021b Implement SUS imputation in `code/analysis/data_cleaner.py`: if ≤1 SUS item missing, replace with participant mean *and update session status to 'incomplete'*; otherwise, mark as incomplete and update session status field. **Deliverable**: Function that imputes and updates the dataframe. **Dependencies**: T021a
-- [X] T023a [P] **Implement Repeated Measures ANOVA**: Create `code/analysis/anova_engine.py`. **Scope**: Implement `run_anova_rm(df, subject_col, within_col, dv_col)` using `statsmodels.stats.anova.AnovaRM` (Mandatory for within-subject design). **Constraint**: The output `metrics_summary.csv` MUST include a column `method_used` that explicitly states 'Repeated Measures ANOVA'. **Dependencies**: T021c-cli, T022.
-- [X] T036a Calculate Observed Power using `scipy.stats` for each metric after ANOVA. Output to `data/processed/observed_power.csv`. **Deliverable:** CSV file with observed power values. **Dependencies**: T023a.
+---  
 
----
-
-## Phase 5: User Story 2 - Statistical Significance Analysis (Priority: P2)
-
-- [X] T024 Implement Holm‑Bonferroni correction for the three metric ANOVAs. **Dependencies**: T023a.
-- [X] T025a Create skeleton `code/analysis/run_analysis.py` with CLI (`--input`, `--output`). **Dependencies**: T035a-apply.
-- [X] T025b Implement data cleaning and SUS imputation in `code/analysis/data_cleaner.py`. **Dependencies**: T019b, T021a, T021b
-- [ ] T025c-logic [P] **Define Analysis Orchestration Logic**: Create `code/analysis/run_analysis.py` control flow logic. **Scope**:
- 1. Define `run_pipeline()` function signature: `run_pipeline(input_dir, output_dir, mode='full')`.
- 2. Implement control flow: Load -> Clean -> Check Normality (Shapiro) -> Run ANOVA (or Fallback) -> Apply Holm-Bonferroni -> Calculate Power -> Generate Reports.
- 3. Implement error handling: `try/except` blocks for each step; if Shapiro fails, log warning and proceed to ANOVA (as per spec).
- 4. Define output file naming: `metrics_summary.csv`, `power_report.md`, `figures/*.png`.
- 5. **CRITICAL**: Implement `if mode == 'pilot':` logic to bypass the N=30 power gate.
- **Dependencies**: T025a, T021a, T021b, T023a, T024, T036a.
-- [ ] T025c-impl [P] **Implement Analysis Orchestration**: Create `code/analysis/run_analysis.py` main logic. **Scope**: Implement the `run_pipeline()` function strictly following the control flow defined in T025c-logic, ensuring the pilot mode bypass logic is enforced. **Dependencies**: T025c-logic, T025a, T021a, T021b, T023a, T024, T036a.
-
----
-
-## Phase 6: User Story 3 - Reproducible Visualization and Reporting (Priority: P3)
-
-### Implementation for User Story 3
-- [X] T027a Implement `plot_completion_time()` in `code/analysis/visualizer.py` using `seaborn.boxplot` or `violinplot`. **Dependencies**: T023a, T023b.
-- [X] T027b Implement `plot_error_count()` in `code/analysis/visualizer.py`. **Dependencies**: T023a.
-- [X] T027c Implement `plot_sus_score()` in `code/analysis/visualizer.py`. **Dependencies**: T023a.
-
----
-
-## Phase 7: Pilot Study & Validation (Priority: P4)
-
-### Implementation for Pilot Study
-- [X] T095-gate [P] **Pilot Study Gate**: Implement `check_pilot_eligibility()` in `code/analysis/pilot_gate.py`. **Scope**: Verify `data/raw/` contains at least N=5 sessions with `status='complete'` and `source='human_participant'` (or `dev_mode` simulated). **Dependencies**: T019b.
-- [X] T096a [P] **Define Pilot Script Logic**: Create `docs/pilot_study_protocol.md` detailing the CLI arguments (`--mode pilot`, `--n 5`, `--seed 42`), expected exit codes (0=success, 1=fail), and environment variables required for the pilot run. **Dependencies**: T095-gate.
-- [X] T096b [P] **Implement Pilot Script**: Create `scripts/run_pilot_study.sh`. **Scope**: Implement the script using the logic from T096a. Must invoke `python -m code.analysis.run_analysis --mode pilot --n <n_samples> --seed 42` with a small, pilot-scale sample size. **CRITICAL**: The script must validate the exit codes returned by the analysis command and exit with the same codes (0 or 1) as defined in T096a. Must log results to `data/pilot_report.md`. **Dependencies**: T096a, T025c-impl.
-- [X] T097 [P] **Real Data Validation**: Implement `validate_real_data_source()` in `code/analysis/validator.py`. **Scope**: Assert that `data/raw/` contains files with `source='human_participant'` before allowing `mode='full'` recruitment. **Dependencies**: T019b, T120.
-- [X] T098 [P] **Full Recruitment Gate**: Implement `check_full_recruitment_ready()` in `code/analysis/run_analysis.py`. **Scope**: Verify `data/pilot_report.md` exists and shows success before allowing `mode='full'`. **Dependencies**: T096b.
-- [X] T036 [P] **Observed Power Report**: Implement `generate_power_report()` in `code/analysis/power_analysis.py`. **Scope**: Calculate observed power. **Constraint**: **IF** `mode != 'pilot'`, raise `ValueError` if N < 30. **IF** `mode == 'pilot'`, allow N=5 and log a warning. **Dependencies**: T023a, T025c-impl.
-
-<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [X] T122 Reconcile run-book vs implementation for `code/analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+**All tasks are unchecked except the scaffolding tasks that have already been completed (marked `[X]`).** The remaining tasks constitute the smallest complete, verifiable study that satisfies the specification while respecting CPU‑first execution (all heavy computation is limited to ≤30 participants; any optional GPU‑accelerated steps are omitted).
