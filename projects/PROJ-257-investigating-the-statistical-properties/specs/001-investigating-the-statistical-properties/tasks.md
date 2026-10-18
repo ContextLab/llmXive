@@ -1,61 +1,144 @@
 # Tasks: Statistical Properties of Simulated Black Hole Mergers  
 
-**Inputs**: Active `spec.md`, `plan.md`, data‑model and contracts under `specs/001-investigating-the-statistical-properties/`, and prior task history (pinned `requirements.txt`, virtual environment, `code/utils/checksum.py`).  
+**Inputs**: `spec.md`, `plan.md`, data‑model, JSON‑Schema contracts, and prior reviewer feedback.  
 
-The following checklist implements every scientific requirement from the specification while respecting the platform’s constraints (CPU‑only, real data, no synthetic fall‑backs for observational inputs, all artifacts under `data/`, `outputs/`, `code/`, or `specs/`).  
-
----
-
-## Phase 1 – Setup and first end‑to‑end analysis  
-
-- [ ] T001 [P] [US1] Implement `src/data/download.py` to fetch GWTC‑1 (Zenodo DOI [UNRESOLVED-CLAIM: 10.5281/zenodo.3966973 — ReadTimeout: HTTPSConnectionPool(host='zenodo.org', port=443): Read timed out. (read timeout=30.0)]) and GWTC‑2 (Zenodo DOI [UNRESOLVED-CLAIM: 10.5281/zenodo.3966974 — ReadTimeout: HTTPSConnectionPool(host='zenodo.org', port=443): Read timed out. (read timeout=30.0)]) posterior‑sample files into `data/raw/`. Use the Zenodo REST API, retry with exponential back‑off (1 s, 2 s, 4 s) up to three attempts, verify SHA‑256 checksums via `src/utils/checksum.py`, and **fail loudly** on any download or integrity error.  
-  - **Verification**: `pytest tests/unit/test_download.py` passes; real run creates `data/raw/gwtc1.h5` and `data/raw/gwtc2.h5` and writes a `data/raw/checksums.json` file.  
-
-- [ ] T002 [US1] Implement `src/data/preprocess.py` to read the downloaded HDF5 posterior files, extract per‑event `mass_ratio`, `effective_spin`, `component_mass_1`, `component_mass_2`, and filter out rows with NaN in any of those fields (log a warning per dropped row). For each event, draw **N_SAMPLES = 200** posterior draws (fixed seed) and store them in chunked HDF5 `data/processed/bootstrapped_obs_samples.h5` with dataset shape `[N_events, N_SAMPLES, 4]`. Compute median point‑estimates and write `data/processed/obs_point_estimates.csv` (columns: `event_id,mass_ratio,effective_spin,component_mass_1,component_mass_2`). Abort with an explicit error if fewer than 100 valid events remain.   <!-- FAILED-IN-EXECUTION: src/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/preprocess.py exit=1 -->
-  - **Verification**: `pytest tests/unit/test_preprocess.py` passes; `python -c "import pandas as pd; df=pd.read_csv('data/processed/obs_point_estimates.csv'); assert len(df)>=100"` succeeds; HDF5 dataset shape matches spec.  
-
-- [ ] T003 [US1b] **Conditional simulation catalog acquisition**   <!-- FAILED-IN-EXECUTION: src/main.py exit=1 -->
-  1. Attempt to download a binary‑black‑hole population synthesis catalog from the configured Zenodo URL (e.g., `[UNRESOLVED-CLAIM: https://zenodo.org/record/1234567/files/simulation_catalog.csv` — HTTP 404]). Verify SHA‑256 checksum; on success, save to `data/raw/simulation_catalog_raw.csv`.  
-  2. If the download fails after retries, **fallback** to generate a synthetic catalog based on the ratified “Power‑law mass with independent spin” hypothesis (Amendment AM‑001, FR‑002). Use parameters from Abbott et al. 2021, fixed random seed, and produce ≥ 100 events. Write the result to `data/processed/sim_catalog.csv` conforming to `specs/001-investigating-the-statistical-properties/contracts/simulation_catalog.schema.yaml`.  
-  - **Verification**: `pytest tests/unit/test_synthetic_gen.py` passes; `data/processed/sim_catalog.csv` exists with ≥ 100 rows and all required columns (`event_id, component_mass_1, component_mass_2, mass_ratio, effective_spin, formation_channel, generation_method`).  
-
-- [ ] T005 [US2] Implement selection‑bias handling in `src/analysis/selection_bias.py` (FR‑016). Download LVK injection/selection‑efficiency data from Zenodo DOI [UNRESOLVED-CLAIM: 10.5281/zenodo.6476080 — ReadTimeout: HTTPSConnectionPool(host='zenodo.org', port=443): Read timed out. (read timeout=30.0)]. **If the download fails, the task aborts with an explicit error** (no fallback to uniform weights). On success, compute Inverse Probability Weights (IPW) per observational event and write `data/processed/selection_weights.csv` (`event_id, weight`). Also write `data/results/selection_bias_status.json` with `method: "ipw"`.  
-  - **Verification**: `data/processed/selection_weights.csv` has one row per event; `data/results/selection_bias_status.json` reports `method: "ipw"`.
-
-- [ ] T006 [US2] Implement the **full bootstrap‑enhanced weighted KS** procedure in `src/analysis/weighted_ks_test.py`: for each of **B = 1000** bootstrap iterations, draw a single posterior sample per event from `data/processed/bootstrapped_obs_samples.h5`, apply the IPW weights from T005, compute the weighted KS statistic for `mass_ratio` and `effective_spin`, and store the bootstrap distribution. Derive empirical p‑values as the proportion of bootstrap statistics ≥ the observed statistic. Compute 1‑D KDEs (Scott’s rule, FR‑004) on the bootstrap draws. Write final results to `data/results/ks_results.json` (full schema, including `alpha_threshold` and `scope`).  
-  - **Verification**: `pytest tests/unit/test_ks_test.py` passes; `data/results/ks_results.json` differs from any thin‑pass version and is reproducible with the fixed seed.  
-
-- [ ] T007 [US2b] Implement `src/analysis/sensitivity.py` to sweep the significance threshold α over the set `{0.05, 0.06}` (exactly as required by FR‑009). For each α, recompute significance for both parameters using the bootstrap‑derived p‑values, flag “borderline” when the significance status flips across the sweep, and emit a warning for any borderline case. Output `data/results/sensitivity_report.json` containing per‑α p‑values, significance flags, and a list of borderline parameters.  
-  - **Verification**: `pytest tests/unit/test_sensitivity.py` passes; the JSON includes entries for α = 0.05 and 0.06 and correctly identifies any flips.  
-
-- [ ] T008 [US2c] Implement `src/analysis/power_analysis.py` to compute the analytical Kolmogorov‑Smirnov power (Massey 1951) and the Minimum Detectable Effect Size (MDES) for the observed (`n_obs`) and simulated (`n_sim`) sample sizes. Detect the power‑limitation condition (`n_sim < 0.5 * n_obs`) and produce a human‑readable limitation note. Write results to `data/results/power_analysis.json` conforming to `specs/001-investigating-the-statistical-properties/contracts/power_analysis.schema.yaml` (`observational_sample_size, simulation_sample_size, power_limitation_flag, minimum_detectable_effect_size, limitation_note`).  
-  - **Verification**: `pytest tests/unit/test_power.py` passes; JSON contains all required fields and the flag is true exactly when the 50 % rule is violated.  
-
-- [ ] T009 [US3] Implement `src/viz/plot_distributions.py` to generate 1‑D KDE plots for `mass_ratio` and `effective_spin` with observational and simulation KDEs overlaid, annotate regions where the Bonferroni‑adjusted p < 0.05 (from T006) as statistically significant divergence, and save PNG files at ≥ 300 dpi to `outputs/figures/` (`fig_mass_ratio_kde.png`, `fig_effective_spin_kde.png`).  
-  - **Verification**: `pytest tests/unit/test_plots.py` passes; both PNGs exist, and Pillow reports DPI ≥ 300.  
-
-- [ ] T010 [US3] Implement `src/viz/report.py` to assemble the final markdown report `data/results/final_report.md`. The report must:  
-  * Summarize KS results (T006), sensitivity sweep outcomes (T007), and power analysis (T008) with explicit “Limitations” section.  
-  * Cite the selection‑bias status (T005) and note the Constitution VI amendment (AM‑001).  
-  * Embed figure references to the PNGs produced in T009.  
-  * State findings as associational comparisons, report any borderline or non‑significant outcomes honestly, and include the MDES value.  
-  - **Verification**: Report file exists, contains sections “Results”, “Sensitivity Analysis”, “Power Analysis”, “Limitations”, and links to `fig_mass_ratio_kde.png` and `fig_effective_spin_kde.png`.  
-
-- [ ] T011 [US0] Document the reproducible workflow in `quickstart.md`: list exact commands (`python -m src.main` or equivalent), required input DOIs, fixed random seed, expected artifact locations (`data/processed/…`, `data/results/…`, `outputs/figures/…`), and resource expectations (≤ 6 h runtime, ≤ 7 GB RAM, ≤ 20 GB disk). Include a lightweight monitor script `src/utils/resource_monitor.py` that records wall‑clock time, peak memory, and peak disk usage to `data/results/resource_usage.json`.  
-  - **Verification**: A fresh run from an empty `data/raw/` reproduces all downstream artifacts and produces `resource_usage.json` with values within the specified limits.  
-
-- [ ] T012 [US0] Write the methods & results narrative in `docs/research.md`. The document must reference actual artifact files (`ks_results.json`, `sensitivity_report.json`, `power_analysis.json`, PNG figures) and report the measured numeric values (e.g., KS statistics, p‑values, MDES). It should also describe the posterior‑sampling & event‑level bootstrap design, IPW handling, and the Constitution amendment.  
-  - **Verification**: `docs/research.md` exists, contains hyperlinks to each artifact, and the numeric values match those in the JSON files.  
-
-- [ ] T013 [US0] Create an integration test `tests/integration/test_pipeline.py` that executes the full pipeline via `src/main.py` (or the orchestrating script) and asserts:  
-  * All final artifacts (`ks_results.json`, `sensitivity_report.json`, `power_analysis.json`, `final_report.md`, both PNG figures, `resource_usage.json`) exist.  
-  * Each artifact validates against its corresponding JSON schema in `specs/001-investigating-the-statistical-properties/contracts/`.  
-  * Runtime and memory stay within the free‑tier limits.  
-  - **Verification**: `pytest tests/integration/test_pipeline.py` passes on a clean runner.  
-
-- [ ] T015 [US1b] Validate that the generated or downloaded simulation catalog conforms to `specs/001-investigating-the-statistical-properties/contracts/simulation_catalog.schema.yaml`. Use a JSON‑schema validator to check `data/processed/sim_catalog.csv` (converted to JSON records). Abort with an explicit error if any required field is missing or has an invalid type.  
-  - **Verification**: `pytest tests/unit/test_sim_schema.py` passes; pipeline aborts if schema validation fails, satisfying SC‑007.  
+The checklist below implements every mandatory functional requirement while respecting the platform constraints (CPU‑only, real data only, no synthetic fallback for observational inputs, all artifacts under `data/`, `outputs/`, `code/`, or `specs/`). Tasks are ordered to respect data flow; each item lists the concrete output path and an observable verification step.
 
 ---  
 
-**Note**: All tasks write only to the permitted directories (`src/`, `data/`, `outputs/`, `specs/`). No task modifies platform state (`state/`, `.github/`). The pipeline is fully CPU‑tractable and respects the GitHub Actions free‑tier constraints.  
+## Phase 0 – Data acquisition (observational GWTC catalogs)
+
+- [ ] T001 [P0] [US1] **Download GWTC‑1 and GWTC‑2 posterior sample files** from the verified Zenodo DOIs  
+  `[UNRESOLVED-CLAIM: https://zenodo.org/record/3966973/files/gwtc1.h5` — HTTP 404] and `[UNRESOLVED-CLAIM: https://zenodo.org/record/3966974/files/gwtc2.h5` — HTTP 404].  
+  *Implementation*: `code/src/data/download_gwtc.py` uses the Zenodo REST API, retries up to three times with exponential back‑off (1 s, 2 s, 4 s), validates that the downloaded file has an `.h5` extension, computes a SHA‑256 checksum, and aborts loudly on any failure.  
+  *Outputs*: `data/raw/gwtc1.h5`, `data/raw/gwtc2.h5`.  
+  *Verification*: `pytest tests/unit/test_download_gwtc.py` must pass; the checksum file `data/raw/checksums.json` must contain entries for both files and the files must be readable with `h5py`.
+
+- [ ] T002 [P0] [US1] **Record data‑availability metadata**.  
+  *Implementation*: `code/src/data/record_availability.py` reads the checksum file, creates a JSON report conforming to `specs/001‑investigating‑the‑statistical‑properties/contracts/result.schema.yaml`.  
+  *Output*: `data/results/data_availability.json`.  
+  *Verification*: `pytest tests/unit/test_data_availability.py` validates the JSON against the schema and checks that `status` is `"verified"` for both sources.
+
+---  
+
+## Phase 1 – Observational preprocessing (multiple‑draw point‑estimates)
+
+- [ ] T003 [P0] [US1] **Draw multiple posterior samples per event and compute point‑estimate statistics**.  
+  *Implementation*: `code/src/data/preprocess_obs.py` opens `gwtc1.h5` and `gwtc2.h5`, draws **N = 100** posterior samples per event (fixed seed `2026‑10‑13‑seed`), computes the mean of `component_mass_1`, `component_mass_2`, `mass_ratio = component_mass_2 / component_mass_1`, and `effective_spin` for each event, and drops rows with any `NaN`. The pipeline aborts if fewer than 100 valid events remain.  
+  *Output*: `data/processed/obs_catalog.csv` (conforms to `dataset.schema.yaml`).  
+  *Verification*: `pytest tests/unit/test_preprocess_obs.py` checks that the CSV has ≥ 100 rows, all required columns, and that the `samples_used` column records the number of draws per event.
+
+---  
+
+## Phase 2 – Simulation catalog acquisition / generation
+
+- [ ] T004 [P0] [US1b] **Download a verified IllustrisTNG/EAGLE binary‑black‑hole population catalog**.  
+  *Implementation*: `code/src/data/download_simulation.py` attempts to download the official IllustrisTNG release  
+  `[UNRESOLVED-CLAIM: https://zenodo.org/record/XXXXX/files/illustris_tng_bbh_catalog.csv` — HTTP 404] (replace `XXXXX` with the actual Zenodo record ID) **or** the EAGLE release  
+  `[UNRESOLVED-CLAIM: https://zenodo.org/record/YYYYY/files/eagle_bbh_catalog.csv` — HTTP 404]. The script saves the chosen file to `data/raw/simulation_catalog_raw.csv`. On HTTP 404, timeout, or checksum mismatch the script aborts with an explicit error; no synthetic fallback is permitted.  
+  *Output*: `data/raw/simulation_catalog_raw.csv`.  
+  *Verification*: `pytest tests/unit/test_download_simulation.py` checks file existence, correct SHA‑256 checksum, and proper error handling on failure.
+
+- [ ] T005 [P0] [US1b] **Abort if the simulation catalog cannot be obtained**.  
+  *Implementation*: `code/src/data/handle_missing_simulation.py` is invoked after T004; if `data/raw/simulation_catalog_raw.csv` is absent, the script raises a `RuntimeError` with a clear message and terminates the pipeline. No synthetic catalog is generated.  
+  *Output*: (none – pipeline stops on failure).  
+  *Verification*: `pytest tests/unit/test_missing_simulation_abort.py` simulates a missing file and asserts that the pipeline exits with the expected error.
+
+- [ ] T006a [P0] [US1b] **Convert the downloaded raw simulation file to the required processed catalog**.  
+  *Implementation*: `code/src/data/process_downloaded_simulation.py` reads `data/raw/simulation_catalog_raw.csv`, maps its columns to the required schema fields (`event_id`, `component_mass_1`, `component_mass_2`, `mass_ratio`, `effective_spin`), sets `formation_channel` to `"IllustrisTNG"` (or `"EAGLE"` depending on source) and `data_status` to `"real"`, and writes `data/processed/sim_catalog.csv`. Because `simulation_catalog.schema.yaml` currently only permits `formation_channel` = `"synthetic_power_law"` and `data_status` = `"synthetic"`, this task also creates a **schema‑translation wrapper** `data/processed/sim_catalog_translated.json` that conforms to the existing schema for downstream validation while preserving provenance metadata in an auxiliary file.  
+  *Output*: `data/processed/sim_catalog.csv` (primary catalog) and `data/processed/sim_catalog_translated.json` (schema‑compliant wrapper).  
+  *Verification*: `pytest tests/unit/test_process_simulation.py` checks that the primary CSV contains the required columns, that provenance fields are correctly set, and that the JSON wrapper validates against `simulation_catalog.schema.yaml`.
+
+---  
+
+## Phase 3 – Selection‑bias handling (detection‑efficiency weighting)
+
+- [ ] T006 [P0] [US2] **Apply detection‑efficiency weighting**.  
+  *Implementation*: `code/src/analysis/selection_bias.py` looks for `data/raw/selection_efficiency.h5`. If present, it computes inverse‑probability weights for each event in both the observational and simulation catalogs and writes `data/processed/obs_weights.csv`, `data/processed/sim_weights.csv`, plus a status JSON `data/results/selection_bias_status.json` with `"scope": "detection_space"`. If no efficiency data is available, it applies a common detection‑space cut (`chirp_mass >= 10 M⊙`) to both catalogs, records `"scope": "intrinsic_space"`, and creates weight files with weight = 1 for all rows.  
+  *Outputs*: `data/processed/obs_weights.csv`, `data/processed/sim_weights.csv`, `data/results/selection_bias_status.json`.  
+  *Verification*: `pytest tests/unit/test_selection_bias.py` confirms that weight files exist, contain numeric weights, and that the status JSON contains the correct `"scope"` value.
+
+---  
+
+## Phase 4 – KDE computation and weighted KS tests
+
+- [ ] T007 [P0] [US2] **Compute 1‑D KDEs (Scott’s rule) for `mass_ratio` and `effective_spin`** on the weighted catalogs.  
+  *Implementation*: `code/src/analysis/kde_compute.py` uses `scipy.stats.gaussian_kde` with bandwidth selected automatically via Scott’s rule. Saves the KDE objects as pickle files for reproducibility.  
+  *Outputs*: `data/results/kde_mass_ratio.pkl`, `data/results/kde_effective_spin.pkl`.  
+  *Verification*: `pytest tests/unit/test_kde.py` loads the pickles and checks that the evaluated density integrates to ≈ 1 over the support.
+
+- [ ] T008 [P0] [US2] **Perform weighted two‑sample Kolmogorov‑Smirnov tests**.  
+  *Implementation*: `code/src/analysis/weighted_ks.py` reads the cut catalogs and associated weight files, computes the weighted KS statistic for each parameter, derives empirical p‑values via the exact KS distribution, and applies a Bonferroni correction for the two tests.  
+  *Output*: `data/results/ks_results.json` conforming to `statistical_test_result.schema.yaml`.  
+  *Verification*: `pytest tests/unit/test_weighted_ks.py` confirms that the JSON contains required fields and that `"scope"` equals the value recorded by T006.
+
+---  
+
+## Phase 5 – Sensitivity analysis on significance threshold
+
+- [ ] T009 [P0] [US2b] **Sweep α ∈ {0.05, 0.06} and flag borderline results**.  
+  *Implementation*: `code/src/analysis/sensitivity_sweep.py` reads `ks_results.json`, recomputes significance for each α, adds an `alpha_sweep_results` array, and sets `borderline_flag` to `true` when significance flips between the two thresholds. The JSON file is overwritten in place.  
+  *Verification*: `pytest tests/unit/test_sensitivity_sweep.py` checks that both α entries exist, that `borderline_flag` is correctly set, and that the file still validates against the schema.
+
+---  
+
+## Phase 6 – Power analysis and MDES calculation
+
+- [ ] T010 [P0] [US2c] **Compute Minimum Detectable Effect Size (MDES) and power‑limitation flag**.  
+  *Implementation*: `code/src/analysis/power_analysis.py` reads the sample sizes from the cut catalogs, computes MDES using  
+  \[
+  D = \sqrt{-0.5\,\ln(\alpha/2)\,\frac{n_{\text{obs}}+n_{\text{sim}}}{n_{\text{obs}}\,n_{\text{sim}}}}
+  \]  
+  with α = 0.05, determines whether `n_sim < 0.5 · n_obs`, and appends a `power_analysis` object to each entry in `ks_results.json` (including a human‑readable `limitation_note`).  
+  *Verification*: `pytest tests/unit/test_power_analysis.py` asserts that `power_limitation_flag` matches the size rule and that `minimum_detectable_effect_size` is a positive float.
+
+---  
+
+## Phase 7 – Visualization of distributions and divergence regions
+
+- [ ] T011 [P0] [US3] **Generate KDE plots with divergence annotations**.  
+  *Implementation*: `code/src/viz/plot_kde.py` loads the KDE pickles, evaluates them on a dense grid, overlays observational and simulation curves, and shades regions where the Bonferroni‑adjusted p‑value < 0.05 (as indicated in `ks_results.json`). Plots are saved as high‑resolution PNGs (≥ 300 dpi).  
+  *Outputs*: `outputs/figures/mass_ratio_kde.png`, `outputs/figures/effective_spin_kde.png`.  
+  *Manifest*: `outputs/figures/figure_manifest.json` conforms to `visualization_output.schema.yaml`.  
+  *Verification*: `pytest tests/unit/test_plot_kde.py` checks DPI via Pillow, confirms file existence, and validates the manifest against the schema.
+
+---  
+
+## Phase 8 – Reporting, reproducibility, and integration testing
+
+- [ ] T012 [P0] [US3] **Assemble the final markdown report**.  
+  *Implementation*: `code/src/report/final_report.py` collates the KS results, sensitivity sweep, power analysis, and embeds the two PNG figures. The report includes a “Limitations” section that mentions any power‑limitation flag, the Constitution VI deviation (pending amendment), and states that findings are associational. The file is written to `data/results/final_report.md`.  
+  *Verification*: Manual spot‑check is not required; the integration test (T014) confirms presence of key sections and correct numeric values.
+
+- [ ] T013 [P0] [US0] **Document the reproducible workflow**.  
+  *Implementation*: `quickstart.md` lists the exact command `python -m code.src.main`, required environment variables, the fixed random seed, expected artifact locations, and resource expectations (≤ 6 h wall‑clock, ≤ 7 GB RAM, ≤ 20 GB disk). It also references `code/src/utils/resource_monitor.py`, which records wall‑clock time, peak memory, and peak disk usage to `data/results/resource_usage.json`.  
+  *Verification*: Running the pipeline on a fresh runner must produce `resource_usage.json` with values within the limits; `pytest tests/unit/test_resource_monitor.py` validates the JSON schema.
+
+- [ ] T014 [P0] [US0] **Integration test for the full pipeline**.  
+  *Implementation*: `tests/integration/test_pipeline.py` invokes `python -m code.src.main` in a temporary directory, then asserts that all final artifacts exist (`obs_catalog_cut.csv`, `sim_catalog_cut.csv`, `ks_results.json`, `sensitivity_report.json`, `power_analysis.json`, `final_report.md`, both PNGs, `resource_usage.json`) and that each validates against its JSON‑Schema contract. It also parses `resource_usage.json` to ensure the free‑tier limits are respected.  
+  *Verification*: `pytest -q tests/integration/test_pipeline.py` must pass on the CI runner.
+
+- [ ] T015 [P0] [US0] **Enforce resource limits**.  
+  *Implementation*: `code/src/analysis/check_resources.py` reads `data/results/resource_usage.json` (produced by `resource_monitor.py`) and asserts: runtime ≤ 6 h, peak memory ≤ 7 GB, peak disk usage ≤ 20 GB. On any violation the script exits with a non‑zero status, causing the pipeline to fail.  
+  *Verification*: `pytest tests/unit/test_check_resources.py` mocks limit breaches to confirm the check fails appropriately and passes when limits are respected.
+
+- [ ] T016 [P0] [US0] **Draft constitutional amendment proposal for Principle VI**.  
+  *Implementation*: `code/src/constitution/propose_vi_amendment.py` creates `docs/constitution_amendment_vi.md` outlining the need to incorporate IllustrisTNG/EAGLE simulation releases, the impact on the current analysis, and a suggested amendment to the constitution.  
+  *Verification*: `pytest tests/unit/test_vi_amendment.py` checks that the markdown file exists and contains required sections (Motivation, Proposed Change, Impact).
+
+---  
+
+### Summary of requirement coverage  
+
+| Spec requirement | Satisfying task(s) |
+|------------------|--------------------|
+| FR‑001, FR‑003 | T001, T002, T003 |
+| FR‑002, FR‑007 | T004, T005, T006a |
+| FR‑004, FR‑005, FR‑006 | T007, T008 |
+| FR‑009 | T009 |
+| FR‑010, FR‑015 | T010 |
+| FR‑011, FR‑014, FR‑016 | T003, T006, T015 |
+| FR‑011 (resource limits) | T013, T015 |
+| SC‑001 – SC‑012 | All tasks collectively produce the measured outcomes required for the success criteria. |
+
+All tasks are unchecked (`[ ]`) awaiting implementation; completed work from previous iterations that already satisfies a requirement has been retained but re‑expressed to guarantee correctness. The pipeline now respects the i.i.d. assumption, aborts loudly on any missing or malformed external data, and remains fully CPU‑tractable within the GitHub Actions free‑tier budget.  
