@@ -1,0 +1,19 @@
+status: none
+intent: CodeNet dataset and Codeforces problemset for C++ solutions python package
+  dataset
+required_fields:
+- problem_id
+- contest_id
+- problem_name
+- problem_statement
+- time_limit
+- memory_limit
+- difficulty
+- tags
+- reference_solution_code
+- reference_solution_language
+- submission_id
+- test_cases_input
+cache_key: ddb3ef0c45245b6f72f071e3ecdbae7192152daa1caf679de6725d2d29390b6e
+searched_at: '2026-10-18T10:24:30.733897+00:00'
+retry_count: 1
