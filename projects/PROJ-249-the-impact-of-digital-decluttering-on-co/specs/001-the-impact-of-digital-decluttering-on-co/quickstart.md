@@ -1,66 +1,73 @@
-# Quickstart: The Impact of Digital Decluttering on Cognitive Performance and Well-being
+# Quickstart: The Impact of Digital Decluttering on Cognitive Performance and Well‑being
 
 ## Prerequisites
-
--   Python 3.11+
--   `pip` or `venv`
--   Git
+- Python 3.11 or newer
+- `pip` (or a virtual‑environment manager)
+- Git
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-249-the-impact-of-digital-decluttering-on-co
-    ```
+1. **Clone the repository**
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-249-the-impact-of-digital-decluttering-on-co
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## Running the Pipeline
+## Running the Full Pipeline
 
-### 1. Data Validation (FR-009, FR-010)
-Run the validation script to check raw data integrity.
+The single entry‑point orchestrates every step, writes checksums, validates schemas, runs the analysis, and produces plots **and** a deterministic verification log.
+
 ```bash
-python code/validation/validate_raw_data.py --input data/raw/ --output data/processed/
+python -m code.pipeline.run_all --config code/config/study_config.yaml
 ```
 
-### 2. Compliance Logging (FR-002)
-Aggregate daily logs and calculate compliance scores.
-```bash
-python code/analysis/aggregate_compliance.py --input data/processed/compliance_logs.csv --output data/processed/compliance_summary.csv
-```
+### What the command does
+1. **Download & verify** SART/Ospan task code from the OSF URLs (verified dataset block).  
+2. **Generate synthetic baseline & post data** (for CI verification).  
+3. **Create `data/checksums.sha256`** for all raw files.  
+4. **Validate** raw files against `contracts/dataset.schema.yaml` and `contracts/compliance.schema.yaml`.  
+5. **Aggregate compliance logs** (`code/compliance/aggregate_compliance.py`).  
+6. **Merge baseline & post measurements** (`code/pipeline/merge_data.py`).  
+7. **Run statistical analysis** (`code/analysis/run_statistics.py`).  
+8. **Generate visualizations** (`code/viz/generate_plots.py`).  
+9. **Write `results/statistical_summary.json`** (single source of truth) and **`results/smoke_results.json`** (full‑field example).  
+10. **Append a deterministic `pipeline.log`** containing timestamps for each stage and a final line `STATUS: SUCCESS`.
 
-### 3. Statistical Analysis (FR-005, FR-006, FR-007, FR-008)
-Run the main analysis script.
-```bash
-python code/analysis/run_statistics.py --input data/processed/measurement_records.csv --output results/
-```
-*This script performs bootstrapping (10k resamples), calculates Cohen's d, and applies Holm-Bonferroni correction. It uses bootstrapping as the primary method regardless of normality.*
-
-### 4. Visualization
-Generate plots from the results.
-```bash
-python code/viz/generate_plots.py --input results/statistical_summary.json --output results/plots/
-```
+All steps are deterministic; the final log can be inspected by the test suite (`tests/integration/test_pipeline_success.py`) to confirm successful execution.
 
 ## Testing
 
-Run the test suite to verify scoring logic and data contracts.
+Run the full test suite to confirm schema compliance and pipeline integrity:
+
 ```bash
-pytest tests/ -v
+pytest -v
 ```
+
+- **Unit tests** verify scoring functions against OSF reference implementations.  
+- **Contract tests** validate every output file against the JSON schemas in `contracts/`.  
+- **Integration test** runs the end‑to‑end pipeline and checks that `pipeline.log` reports success and that `results/smoke_results.json` contains all required fields.
 
 ## Troubleshooting
 
--   **Missing Dependencies**: Ensure you are using Python 3.11.
--   **Data Validation Errors**: Check `data/processed/validation_report.csv` for flagged records (e.g., SART RT < 100ms).
--   **Bootstrapping Failure**: If the script fails to converge, check for empty groups in the data. The script will automatically fallback to Wilcoxon signed-rank in this specific case.
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| `validation error` on a CSV | Row violates schema (e.g., missing field) | Inspect `validation_report.csv` for the offending row; correct the source file. |
+| `checksum mismatch` | File was altered after checksum generation | Re‑run `python -m code.validation.generate_checksums` or regenerate the raw file. |
+| Pipeline exits with non‑zero code | One of the scripts failed (e.g., missing dependency) | Check `pipeline.log` for the failing step; ensure all dependencies are installed and the random seed is set. |
+| Plots not appearing | `results/statistical_summary.json` missing required keys | Verify that the analysis step completed successfully; re‑run the pipeline. |
+| `pipeline.log` missing `STATUS: SUCCESS` | Unexpected crash or early termination | Review the log for error messages; address the indicated issue and re‑run. |
+
+---
+
+

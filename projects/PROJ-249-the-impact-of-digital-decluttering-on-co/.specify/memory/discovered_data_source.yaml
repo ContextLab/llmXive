@@ -1,14 +1,16 @@
 status: none
-intent: SART OSPAN PSS-10 PANAS baseline data from OSF Task Repository python package
+intent: OSF baseline cognitive emotional metrics SART Ospan PSS-10 PANAS python package
   dataset
 required_fields:
 - participant_id
-- timestamp
+- assessment_timestamp
 - sart_commission_errors
-- ospan_score
+- sart_omission_errors
+- sart_reaction_time_mean
+- ospan_total_score
 - pss10_total_score
-- panas_positive_affect
-- panas_negative_affect
-cache_key: 14d86c9744fad8c32dfce59e8d8333584d90a82bbdf8ea328256f86f08641824
-searched_at: '2026-10-18T10:21:08.907746+00:00'
+- panas_positive_score
+- panas_negative_score
+cache_key: 570c9f84746c66496cbf37805fa2494f347cb9d3c834e2da7e8ef8a0fdbb2d60
+searched_at: '2026-10-18T10:23:33.937092+00:00'
 retry_count: 1
