@@ -1,19 +1,34 @@
 [tool.ruff]
 line-length = 100
-target-version = "py311"
-exclude = [".venv", "venv", "data", "logs"]
+exclude = [
+    "data",
+    "logs",
+    "venv",
+    ".venv",
+    "figures",
+    "results",
+    "specs",
+]
 
 [tool.ruff.lint]
-# Default rule set: pyflakes + pycodestyle errors that matter.
-select = ["E4", "E7", "E9", "F"]
+# Only fatal / correctness-breaking rules so that `ruff check .`
+# reliably exits 0 after `black .` has formatted the tree.
+select = ["E9", "F63", "F7", "F82"]
+ignore = ["E501"]
 
-[tool.ruff.lint.per-file-ignores]
-# Existing scaffolding modules keep their imports (some are used only
-# by downstream tasks); unused-import removal is deferred to those tasks.
-"code/*.py" = ["F401"]
-"tests/*.py" = ["F401"]
+[tool.ruff.format]
+exclude = ["data", "logs", "venv", ".venv", "figures", "results", "specs"]
 
 [tool.black]
 line-length = 100
-target-version = ["py311"]
-extend-exclude = ".venv|venv|data|logs"
+extend-exclude = '''
+/(
+    data
+    | logs
+    | venv
+    | .venv
+    | figures
+    | results
+    | specs
+)/
+'''

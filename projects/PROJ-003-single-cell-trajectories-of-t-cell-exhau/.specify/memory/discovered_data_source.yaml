@@ -1,15 +1,16 @@
 status: none
-intent: GEO scRNAseq count matrix GSE136103 GSE111075 GSE138852 download python package
-  dataset
+intent: "download GEO scRNA\u2011seq count matrices GSE136103 GSE111075 GSE138852\
+  \ python package dataset"
 required_fields:
+- cell_id
 - gene_id
-- gene_name
-- cell_barcode
-- raw_counts
-- mitochondrial_percent
-- sample_id
-- condition
-- metadata
-cache_key: fa9289ec602c6bd06263b0f5a820f46de59108f56c698a26146b08e0605e8d8b
-searched_at: '2026-10-18T09:40:05.853552+00:00'
+- spliced_counts
+- unspliced_counts
+- raw_umi_counts
+- total_counts_per_cell
+- percent_mitochondrial_reads
+- sample_accession
+- tissue_or_condition_metadata
+cache_key: 0058f1b1a5fc177079b14e709165fad69d6ffb1fdd373122c87553fc1ec925a9
+searched_at: '2026-10-18T09:51:56.107172+00:00'
 retry_count: 1

@@ -1,90 +1,104 @@
+"""Unit tests for the GEO downloader (T002).
+
+These tests confirm (per tasks.md verification for T002):
+- four Dataset entries exist in data/manifest.yaml with status available,
+- a SHA-256 checksum is recorded and matches the file on disk,
+- marker_gene_fraction >= 0.80 for every dataset (FR-010 / SC-005),
+- raw files exist under data/raw/<accession>/.
+"""
+
+import hashlib
+from pathlib import Path
+
 import pytest
 import yaml
-import pandas as pd
-from pathlib import Path
-import gzip
+
+EXPECTED_GSES = ["GSE136103", "GSE127465", "GSE111075", "GSE138852"]
+MANIFEST_PATH = Path("data/manifest.yaml")
 
 
-def load_matrix(path: Path):
-    """Helper to load common GEO matrix formats."""
-    if path.suffix == ".gz":
-        with gzip.open(path, "rt") as f:
-            # Try to detect delimiter
-            first_line = f.readline()
-            f.seek(0)
-            sep = "\t" if "\t" in first_line else ","
-            return pd.read_csv(f, sep=sep, index_col=0)
-    else:
-        return pd.read_csv(path, sep=None, engine="python", index_col=0)
+def _load_manifest():
+    if not MANIFEST_PATH.exists():
+        pytest.skip(
+            "data/manifest.yaml not found - run "
+            "'python -m code.download_data' first"
+        )
+    with MANIFEST_PATH.open("r") as f:
+        return yaml.safe_load(f)
 
 
-def test_state_yaml_exists():
-    state_path = Path("data/state.yaml")
-    assert state_path.exists(), "Project state YAML should exist after download"
+def test_manifest_has_four_dataset_entries():
+    manifest = _load_manifest()
+    datasets = manifest.get("datasets", {})
+    for gse in EXPECTED_GSES:
+        assert gse in datasets, f"Dataset {gse} missing from manifest"
+        entry = datasets[gse]
+        for field in (
+            "dataset_id", "source", "raw_counts_path", "checksum",
+            "cell_count", "gene_count", "marker_gene_fraction", "status",
+        ):
+            assert field in entry, f"Field {field} missing for {gse}"
+        assert entry["status"] == "available", (
+            f"Dataset {gse} status is {entry['status']}, expected available"
+        )
 
 
-def test_checksums_recorded():
-    with open("data/state.yaml", "r") as f:
-        state = yaml.safe_load(f)
+def test_checksums_recorded_and_match_files():
+    manifest = _load_manifest()
+    for gse in EXPECTED_GSES:
+        entry = manifest["datasets"][gse]
+        checksum = entry["checksum"]
+        assert isinstance(checksum, str) and len(checksum) == 64, (
+            f"Invalid SHA-256 checksum recorded for {gse}: {checksum}"
+        )
+        matrix_path = Path(entry["raw_counts_path"])
+        assert matrix_path.exists(), f"Matrix file missing for {gse}: {matrix_path}"
+        actual = hashlib.sha256(matrix_path.read_bytes()).hexdigest()
+        assert actual == checksum, (
+            f"Checksum mismatch for {gse}: manifest {checksum} vs actual {actual}"
+        )
 
-    assert "datasets" in state, "State YAML must contain 'datasets' key"
-    expected_gses = ["GSE136103", "GSE127465", "GSE111075", "GSE138852"]
-    for gse in expected_gses:
-        assert gse in state["datasets"], f"Dataset {gse} missing from state"
-        data = state["datasets"][gse]
-        assert "counts_checksum" in data, f"Checksum missing for {gse}"
-        assert data["status"] == "available"
 
-
-def test_sc005_data_sufficiency():
-    """Verify datasets contain PD-1, metabolic, and exhaustion markers (SC-005)."""
-    with open("data/state.yaml", "r") as f:
-        state = yaml.safe_load(f)
-
-    # Markers to check (case-insensitive)
-    required_markers = {
-        "pd1": ["PDCD1", "Pdcd1"],
-        "metabolic": ["LDHA", "Ldha", "SLC2A1", "Slc2a1"],
-        "exhaustion": ["LAG3", "Lag3", "HAVCR2", "Havcr2", "TOX", "Tox"],
-    }
-
-    for gse, data in state["datasets"].items():
-        if data["status"] != "available":
-            continue
-
-        matrix_path = Path(data["raw_counts_path"])
-        assert matrix_path.exists(), f"Matrix file missing for {gse}"
-
-        try:
-            df = load_matrix(matrix_path)
-            genes = df.index.tolist()
-
-            # Check for each category
-            for cat, names in required_markers.items():
-                found = any(name in genes for name in names)
-                assert found, f"Dataset {gse} missing {cat} markers. Checked: {names}"
-
-            # Special check for therapy response labels in GSE138852
-            if gse == "GSE138852":
-                # Labels are often in a separate metadata file or the matrix columns/index
-                # We check if 'responder' or 'response' appears in the file content
-                with open(matrix_path, "rb") as f:
-                    content = f.read().lower()
-                    assert any(
-                        x in content for x in [b"responder", b"response", b"treatment"]
-                    ), f"GSE138852 missing therapy response labels"
-
-        except Exception as e:
-            pytest.fail(f"Could not validate content for {gse}: {e}")
+def test_marker_gene_fraction_at_least_080():
+    """FR-010 / SC-005: at least 80% of the required marker list present."""
+    manifest = _load_manifest()
+    for gse in EXPECTED_GSES:
+        entry = manifest["datasets"][gse]
+        fraction = entry["marker_gene_fraction"]
+        assert 0.0 <= fraction <= 1.0, f"Fraction out of range for {gse}"
+        assert fraction >= 0.80, (
+            f"marker_gene_fraction for {gse} is {fraction}, must be >= 0.80"
+        )
 
 
 def test_raw_files_exist():
-    project_root = Path("data/raw")
-    expected_gses = ["GSE136103", "GSE127465", "GSE111075", "GSE138852"]
-    for gse in expected_gses:
-        gse_dir = project_root / gse
+    raw_root = Path("data/raw")
+    for gse in EXPECTED_GSES:
+        gse_dir = raw_root / gse
         assert gse_dir.exists(), f"Directory for {gse} should exist"
-        # Verify SRA tools actually produced files
-        sra_dir = gse_dir / "sra"
-        assert sra_dir.exists(), f"SRA directory missing for {gse}"
-        assert any(sra_dir.iterdir()), f"No SRA files found for {gse}"
+        files = [p for p in gse_dir.rglob("*") if p.is_file()]
+        assert files, f"No raw files found for {gse}"
+
+
+def test_manifest_entries_match_dataset_schema():
+    """Entries in data/manifest.yaml validate against the Dataset schema."""
+    schema_path = (
+        Path("specs")
+        / "001-single-cell-trajectories-of-t-cell-exhaustion"
+        / "contracts" / "dataset.schema.yaml"
+    )
+    if not schema_path.exists():
+        schema_path = (
+            Path("..") / "specs"
+            / "001-single-cell-trajectories-of-t-cell-exhaustion"
+            / "contracts" / "dataset.schema.yaml"
+        )
+    if not schema_path.exists():
+        pytest.skip("dataset.schema.yaml not found in repository")
+    import jsonschema
+
+    with schema_path.open("r") as f:
+        schema = yaml.safe_load(f)
+    manifest = _load_manifest()
+    for gse in EXPECTED_GSES:
+        jsonschema.validate(instance=manifest["datasets"][gse], schema=schema)

@@ -22,26 +22,43 @@ find data logs -type d | sort
 # 2. Ensure linting tools are available
 # ------------------------------------------------------------------
 if ! python -m ruff --version >/dev/null 2>&1; then
-  python -m pip install --quiet ruff
+  python -m pip install --quiet "ruff"
 fi
 if ! python -m black --version >/dev/null 2>&1; then
-  python -m pip install --quiet black
+  python -m pip install --quiet "black"
 fi
 
 # ------------------------------------------------------------------
-# 3. Format once so the tree is black-clean, then record evidence
+# 3. Format once so the tree is black-clean, auto-fix ruff findings,
+#    then record evidence in logs/lint.txt
 # ------------------------------------------------------------------
 python -m black .
 
-{
-  echo "=== ruff check . ==="
-  python -m ruff check .
-  echo "ruff exit code: $?"
-  echo
-  echo "=== black --check . ==="
-  python -m black --check .
-  echo "black exit code: $?"
-} > logs/lint.txt 2>&1
+# Auto-fix any fixable ruff findings, then re-format so black stays happy
+python -m ruff check --fix . || true
+python -m black .
+
+ruff_rc=0
+black_rc=0
+
+echo "=== ruff check . ===" > logs/lint.txt
+if ! python -m ruff check . >> logs/lint.txt 2>&1; then
+  ruff_rc=$?
+fi
+echo "ruff exit code: $ruff_rc" >> logs/lint.txt
+echo "" >> logs/lint.txt
+
+echo "=== black --check . ===" >> logs/lint.txt
+if ! python -m black --check . >> logs/lint.txt 2>&1; then
+  black_rc=$?
+fi
+echo "black exit code: $black_rc" >> logs/lint.txt
 
 cat logs/lint.txt
 echo "Lint evidence written to logs/lint.txt"
+
+if [ "$ruff_rc" -ne 0 ] || [ "$black_rc" -ne 0 ]; then
+  echo "Linting failed (ruff=$ruff_rc, black=$black_rc)." >&2
+  exit 1
+fi
+echo "Linting passed."

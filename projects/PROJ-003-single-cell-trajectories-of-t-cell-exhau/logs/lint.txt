@@ -8,3 +8,9 @@ ruff failed
    | ^^^^^^^^^^^
 unknown field `line-length`, expected one of `exclude`, `preview`, `indent-style`, `quote-style`, `nested-string-quote-style`, `skip-magic-trailing-comma`, `line-ending`, `docstring-code-format`, `docstring-code-line-length`
 
+ruff exit code: 0
+
+=== black --check . ===
+All done! ✨ 🍰 ✨
+23 files would be left unchanged.
+black exit code: 0

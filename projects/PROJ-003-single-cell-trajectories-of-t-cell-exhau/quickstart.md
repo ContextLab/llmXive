@@ -29,8 +29,8 @@ bash code/setup_lint.sh
 This creates the required directory layout — including `data/results/`
 (with a `.gitkeep` placeholder), `data/results/fork_points/`,
 `data/results/validation/`, `data/results/report/` and `logs/` — formats the
-codebase, and writes the lint evidence (`ruff check.` and `black --check.`,
-both required to exit 0) to `logs/lint.txt`.
+codebase, and writes the lint evidence (`ruff check.` and
+`black --check.`, both required to exit 0) to `logs/lint.txt`.
 
 ## Running the full pipeline
 

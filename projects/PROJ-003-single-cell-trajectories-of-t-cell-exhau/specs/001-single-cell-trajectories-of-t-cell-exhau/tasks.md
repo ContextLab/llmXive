@@ -10,14 +10,14 @@ The goal is to deliver a fully reproducible, CPU‑only pipeline that satisfies 
 | Goal | Run a thin, reproducible pipeline on a single GEO dataset and verify the project scaffolding. |
 |------|-----------------------------------------------------------------------------------------------|
 
-- [ ] **T001** Create the required project layout, **add a `data/results/` directory with a placeholder file**, configure linting/formatting, and document a runnable command in `quickstart.md`.   <!-- FAILED-IN-EXECUTION: code/setup_lint.sh exit=2 -->
+- [ ] **T001** Create the required project layout, **add a `data/results/` directory with a placeholder file**, configure linting/formatting, and document a runnable command in `quickstart.md`.
   - **File path**: `projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/` (tree) and `quickstart.md`.  
   - **Verification**:  
     - `tree` shows `data/results/` containing a placeholder (e.g., `.gitkeep`).  
     - `ruff check .` and `black --check .` both return exit‑code 0 and their outputs are saved to `logs/lint.txt`.  
     - `quickstart.md` contains the command `python -m code.run_all` and a brief usage example.
 
-- [ ] **T002** Implement a robust GEO downloader (`code/download_data.py`) that:  
+- [ ] **T002** Implement a robust GEO downloader (`code/download_data.py`) that:   <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
   1. Queries the NCBI GEO metadata endpoint for each accession (GSE136103, GSE127465, GSE111075, GSE138852).  
   2. Retrieves the supplementary count matrix (either `.mtx`/`.h5` or raw FASTQ converted to counts).  
   3. Saves files under `data/raw/<accession>/` and records a **SHA‑256 checksum** in `data/manifest.yaml`.  
