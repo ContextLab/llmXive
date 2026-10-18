@@ -1,9 +1,16 @@
 # Project dependencies
 scanpy
 harmonypy
-datasets
-scikit-misc
-# The 'datasets' package pulls in huggingface_hub and related utilities.
-# 'scikit-misc' provides the missing dependency required by scanpy's
-# highly_variable_genes implementation. It is required for the downstream
-# preprocessing step (code/data_pipeline.py).
+scvelo
+pandas
+numpy
+scipy
+matplotlib
+seaborn
+scikit-learn
+statsmodels
+pytest
+PyYAML
+requests
+jsonschema
+# llmxive_toolkit is provided by the environment and does not need to be listed.

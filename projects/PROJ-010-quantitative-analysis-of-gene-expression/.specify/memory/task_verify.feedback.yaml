@@ -3,6 +3,8 @@ T001:
     exit=1'
   task: d3af69753f756bdef327b0aa0e1b0d9b2f3d7950a7023627b404554f4f5a42b7
 T002:
+  reason: 'Requested task execution failed; rerun successfully: src/data_pipeline/preprocess.py
+    exit=1'
   task: 127b959e3c2d4741617b352a9c4c37ccd53116a8ee8557cb3a326ae962ca6ece
 T003:
   task: 9bfb8c2a9ef4324951125b115c51a24c13f5e85886c60f04a2ebb28d8efb8ea8

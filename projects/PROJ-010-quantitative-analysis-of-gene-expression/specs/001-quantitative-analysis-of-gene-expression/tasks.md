@@ -10,7 +10,7 @@ Verification steps are listed as indented continuation lines. All paths are rela
 
 ## Phase 0 – Data acquisition, preprocessing, and methodological alignment
 
-- [ ] T001 [P1] [US-1] Implement a fail‑loudly streaming data loader for the verified BICCN Human MTG dataset and auxiliary GEO/BrainSpan metadata.   <!-- FAILED-IN-EXECUTION: code/data_pipeline/setup_data.py exit=1 -->
+- [ ] T001 [P1] [US-1] Implement a fail‑loudly streaming data loader for the verified BICCN Human MTG dataset and auxiliary GEO/BrainSpan metadata.   <!-- FAILED-IN-EXECUTION: code/data_pipeline/setup_data.py exit=1 --> <!-- FAILED: unspecified -->
   - **File**: `code/data_pipeline/setup_data.py`  
   - **Steps**:  
     • Stream `https://huggingface.co/datasets/BICCN/human_mtg_scRNA` via `datasets.load_dataset(..., streaming=True)`.  
@@ -24,7 +24,7 @@ Verification steps are listed as indented continuation lines. All paths are rela
     • `data/raw/checksums.txt` exists and matches re‑downloaded files.  
     • Log reports the total number of cells streamed and the stratified sample size per stage.
 
-- [ ] T002 [P1] [US-1] Implement preprocessing, integration, and stage‑keyed window definition.  
+- [ ] T002 [P1] [US-1] Implement preprocessing, integration, and stage‑keyed window definition.   <!-- FAILED-IN-EXECUTION: src/data_pipeline/preprocess.py exit=1 -->
   - **File**: `code/data_pipeline/preprocess.py`  
   - **Steps**:  
     • QC: filter cells with <200 genes, genes expressed in <3 cells, and >5 % mitochondrial reads.  
