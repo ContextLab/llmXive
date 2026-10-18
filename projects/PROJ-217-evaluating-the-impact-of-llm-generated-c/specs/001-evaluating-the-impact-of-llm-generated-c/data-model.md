@@ -1,25 +1,29 @@
-# Data Model: Evaluating the Impact of LLM‑Generated Code Comments on Code Readability
+# Data Model: Evaluating the Impact of LLM-Generated Code Comments on Code Readability
 
 ## Overview
-Five core entities flow through the pipeline; each is stored under `data/` in the indicated format.
+Six core entities flow through the pipeline; each stored under `data/`.
 
 | Entity | Primary File(s) | Format | Key Fields |
 |--------|----------------|--------|------------|
-| **CodeSnippet** | `raw_snippets.jsonl` (post‑validation) | JSON Lines | `snippet_id` (UUID), `code` (str), `human_comment` (str), `metadata` (object) |
+| **CodeSnippet** | `raw_snippets.jsonl` | JSON Lines | `snippet_id` (UUID), `code`, `human_comment`, `metadata` |
+| **ValidatedSnippet** | `validated_snippets.jsonl` | JSON Lines | `snippet_id`, `code`, `human_comment`, `metadata` (post‑validation) |
 | **CommentVariant** | `llm_comments.jsonl` | JSON Lines | `snippet_id`, `code`, `human_comment`, `llm_comment`, `no_comment` (empty) |
-| **ReadabilityMetric** | `readability_metrics.csv` | CSV | `snippet_id`, `BLEU` (0‑1 or null), `ROUGE_L` (0‑1 or null), `Semantic_Similarity` (0‑1 or null), `Comment_Length` (int), `Flesch_Kincaid` (float) |
-| **HumanEvaluation** | `human_study_responses.csv` | CSV | `participant_id`, `snippet_id`, `condition` (`llm`/`human`/`none`), `completion_time_sec` (float), `accuracy` (0/1), `subjective_helpfulness` (1‑5) |
-| **AnalysisResult** | `results/` (JSON/CSV/TXT) | Various | Structured per the `contracts/analysis.schema.yaml`. |
+| **ReadabilityMetric** | `readability_metrics.csv` | CSV | `snippet_id`, `variant_type` (llm/human/none), `BLEU_vs_source`, `BLEU_vs_human`, `ROUGE_L_vs_source`, `ROUGE_L_vs_human`, `Semantic_Similarity_vs_source`, `Semantic_Similarity_vs_human`, `Comment_Length`, `Flesch_Kincaid` (metrics computed for *all* comment variants; `null` where not applicable) |
+| **HumanEvaluation** | `human_study_responses.csv` | CSV | `participant_id`, `snippet_id`, `condition`, `completion_time_sec`, `accuracy`, `subjective_helpfulness` |
+| **AnalysisResult** | `results/` | JSON/CSV/TXT/PDF/PNG | conforms to `contracts/analysis.schema.yaml` |
 
 ## File‑level Schemas
-- **`raw_snippets.jsonl`** – each line conforms to the *CodeSnippet* schema (see `contracts/analysis.schema.yaml` for the merged schema).  
-- **`llm_comments.jsonl`** – extends *CodeSnippet* with `llm_comment`; `no_comment` is always the empty string.  
-- **`readability_metrics.csv`** – one row per `snippet_id`; primary metrics are populated **only for LLM comments**; they are `null` for human/none rows.  
-- **`human_study_responses.csv`** – one row per participant‑snippet‑condition interaction; each participant contributes **three rows per snippet** (one for each condition) due to the within‑subject, counterbalanced design; `condition` must be one of the three allowed values.  
-- **`analysis_dataset.csv`** – result of merging the above tables on `snippet_id` (and `condition` for human data).  
+- `raw_snippets.jsonl` – one CodeSnippet per line; produced from checksum‑verified parquet; invalid records go to `excluded_records.json` with `reason`. <br>
+- `validated_snippets.jsonl` – subset of `raw_snippets.jsonl` after docstring relevance checks; immutable after creation. <br>
+- `llm_comments.jsonl` – extends `validated_snippets.jsonl` with `llm_comment`; `no_comment` always empty string. <br>
+- `readability_metrics.csv` – one row per `snippet_id` **per comment variant** (LLM, Human, None). For each variant we record **two sets** of similarity scores: one against the source code (`*_vs_source`) and one against the human docstring (`*_vs_human`). For the **None** variant all metric fields are `null`. <br>
+- `human_study_responses.csv` – one row per participant‑snippet‑condition; three rows per participant‑snippet in the Latin‑Square design. <br>
+- `merged_dataset.csv` – merge of `llm_comments.jsonl`, `readability_metrics.csv`, and `human_study_responses.csv` on `snippet_id` + `condition`; conforms to `contracts/dataset.schema.yaml`. <br>
+- `results/analysis_results.json` – JSON summary of power analysis, mixed‑effects ANOVA, mixed logistic regression, and correlation tables (see `contracts/analysis.schema.yaml`). <br>
 
-All transformations are pure functions; no in‑place file modifications occur, satisfying **Data Hygiene** (Principle III).  
+All transformations are pure functions writing new files; no in‑place edits (Principle III). Raw parquet is preserved unchanged; derivations to new filenames; SHA‑256 of every `data/` file recorded in `data/artifact_hashes.yaml`.
 
 ---
+
 
 

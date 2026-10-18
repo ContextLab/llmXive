@@ -1,13 +1,12 @@
 status: none
-intent: download CodeSearchNet Python dataset BLEU reference ROUGE-L Sentence-BERT
-  embeddings human evaluation csv python package dataset
+intent: "CodeSearchNet Python dataset test split BLEU ROUGE\u2011L validation HuggingFace\
+  \ python package dataset"
 required_fields:
 - snippet_id
 - code
 - human_docstring
-- llm_generated_comment
-- no_comment
-- invalid_docstring
-cache_key: ef3d484dd0c1007e613a438001015bf4e7fc137a2fba70d226c287e2a60cee02
-searched_at: '2026-10-18T05:16:41.938099+00:00'
+- llm_comment
+- baseline_comment
+cache_key: 124027f1a6eabfd3cc608d1b4b16a70f5c4a93790a4d840ce292e0e5085e6d0d
+searched_at: '2026-10-18T05:38:13.142876+00:00'
 retry_count: 1

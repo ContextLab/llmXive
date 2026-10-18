@@ -1,51 +1,31 @@
-# Quickstart: Evaluating LLM‑Generated Comments on Code Readability
-
-> **Goal**: Run the full end‑to‑end pipeline on a fresh GitHub Actions runner (or local machine) and obtain the final analysis tables, figures, and reproducible summary report.
+# Quickstart: Evaluating LLM-Generated Comments on Code Readability
 
 ## Prerequisites
-1. **Python 3.11** installed.  
-2. **GitHub Actions runner** (CPU, ≤ 7 GB RAM) – no GPU required.  
-3. **HuggingFace API token** with inference access. Export it:  
-   ```bash
-   export HF_TOKEN="hf_XXXXXXXXXXXXXXXX"
-   ```
-4. **Git LFS** not required; all data are fetched via the `datasets` library.
+1. Python 3.11.
+2. CPU‑only runner (≤ 7 GB RAM); no GPU required.
+3. HuggingFace token with inference access: `export HF_TOKEN="hf_..."`.
+4. `export PROJECT_SEED=42`.
 
 ## Step‑by‑Step
-
 | Step | Command | Description |
 |------|---------|-------------|
-| 0️⃣  | `python -m venv .venv && source .venv/bin/activate` | Create isolated environment. |
-| 0️⃣  | `pip install -r requirements.txt` | Install pinned dependencies. |
-| 0️⃣  | `export PROJECT_SEED=42` | Set deterministic random seed (default = 42). |
-| 1️⃣  | `python -m src.data.download` | Download CodeSearchNet parquet files, verify SHA‑256 checksums, produce `data/raw_snippets.jsonl`. |
-| 2️⃣  | `python -m src.data.prepare` | Filter malformed docstrings, write `data/validated_snippets.jsonl` and `data/excluded_records.json`. |
-| 3️⃣  | `python -m src.data.generate_comments` | Call HuggingFace API, apply retry/back‑off, produce `data/llm_comments.jsonl`. |
-| 4️⃣  | `python -m src.data.metrics` | Compute BLEU, ROUGE‑L, Semantic similarity (LLM‑only) + aux metrics → `data/readability_metrics.csv`. |
-| 5️⃣  | `python -m src.utils.validate_recruitment` | Verify access to Prolific/Mturk API, check consent files, perform a dry‑run of participant creation (no real participants). |
-| 6️⃣  | *(Obtain human study CSV manually and place it at `data/human_study_responses.csv`)* | Ensure columns match the schema in `contracts/dataset.schema.yaml`. |
-| 7️⃣  | `python -m src.data.analysis` | Runs power analysis, one‑way ANOVA, and correlation (LLM‑only); writes `results/` folder with JSON, CSV, PDF, PNG files. |
-| 8️⃣  | `pytest -q` | Verify **all** output files against both `contracts/dataset.schema.yaml` and `contracts/analysis.schema.yaml`. |
-| 9️⃣  | `cat results/results_summary.md` | View the concise, reproducible report. |
+| 0 | `python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt` | Isolated env with pinned deps |
+| 1 | `python -m src.data.download` | Download verified CodeSearchNet parquet (retry + column‑tolerant mapping), verify SHA‑256 → `data/raw_snippets.jsonl` |
+| 2 | `python -m src.data.prepare` | Validate docstrings, filter, and write `data/validated_snippets.jsonl`; excluded records → `data/excluded_records.json` with `reason` |
+| 3 | `python -m src.utils.validate_environment` | FR‑006 environment/recruitment validation (Prolific API check, consent PDF load); boolean success flag + `recruitment_validation.log` |
+| 4 | `python -m src.data.generate_comments` | HF Inference API (retry/backoff, 2048‑token truncation) → `data/llm_comments.jsonl` |
+| 5 | `python -m src.data.metrics` | BLEU, ROUGE‑L, Sentence‑BERT + aux metrics for **all comment variants** → `data/readability_metrics.csv` |
+| 6 | *(place human study CSV at `data/human_study_responses.csv`)* | Must conform to `contracts/dataset.schema.yaml` **after** merging (see Step 7). |
+| 7 | `python -m src.data.analysis` | Power analysis, mixed‑effects ANOVA, mixed logistic regression, correlation (aggregated per snippet) → `results/analysis_results.json`, figures in `results/` |
+| 8 | `pytest -q` | Contract validation of all outputs (`merged_dataset.csv`, `analysis_results.json`, etc.) |
+| 9 | `cat results/results_summary.md` | Final report |
 
 ## Expected Outputs
-- `data/llm_comments.jsonl` – three comment variants per snippet (`llm`, `human`, `none`).  
-- `data/readability_metrics.csv` – BLEU, ROUGE‑L, Semantic similarity (null for non‑LLM rows), comment length, readability score.  
-- `results/anova_results.json` – F‑statistic & p‑value for time & accuracy.  
-- `results/correlations.csv` – Pearson *r* and Bonferroni‑corrected *p* for each LLM metric‑outcome pair.  
-- `results/power_report.txt` – Achieved statistical power (target ≥ 0.80).  
-- `results/fig_time_by_condition.pdf`, `results/fig_corr_heatmap.png` – ready for paper inclusion.  
-- `results/results_summary.md` – markdown summary that cites exact rows in `analysis_dataset.csv`.  
+- `data/llm_comments.jsonl`, `data/readability_metrics.csv`, `data/merged_dataset.csv`
+- `results/analysis_results.json`, `results/fig_time_by_condition.pdf`, `results/fig_corr_heatmap.png`, `results/results_summary.md`
 
 ## Re‑run Guidance
-- Set the random seed before any stochastic step to guarantee reproducibility:  
-  ```python
-  import random, numpy as np, torch, os
-  seed = int(os.getenv("PROJECT_SEED", "42"))
-  random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
-  ```  
-- All scripts read the seed from the environment variable `PROJECT_SEED` (default = 42).  
+All scripts read `PROJECT_SEED` (default 42) and seed `random`, `numpy`, `torch` deterministically. Downloads are checksum‑verified against the same canonical verified URLs on every run.
 
 ---
-
 

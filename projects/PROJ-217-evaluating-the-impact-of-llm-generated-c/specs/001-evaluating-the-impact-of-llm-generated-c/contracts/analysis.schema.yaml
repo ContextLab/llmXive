@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
-description: "Schema for the JSON file containing ANOVA, power analysis, and correlation results."
+description: "Schema for the JSON file containing power analysis, mixed‑effects ANOVA, mixed logistic regression, and correlation results."
 type: object
 required:
   - power_analysis
@@ -35,6 +35,7 @@ properties:
       - p_value
       - df_between
       - df_within
+      - reject_null
     properties:
       F:
         type: number
@@ -48,6 +49,9 @@ properties:
       df_within:
         type: integer
         description: "Degrees of freedom within groups."
+      reject_null:
+        type: boolean
+        description: "True if p < 0.05, rejecting the null of no group difference."
   anova_accuracy:
     type: object
     required:
@@ -55,6 +59,7 @@ properties:
       - p_value
       - df_between
       - df_within
+      - reject_null
     properties:
       F:
         type: number
@@ -68,9 +73,12 @@ properties:
       df_within:
         type: integer
         description: "Degrees of freedom within groups."
+      reject_null:
+        type: boolean
+        description: "True if p < 0.05, rejecting the null of no group difference."
   correlation_metrics:
     type: array
-    description: "List of correlation results for each metric‑outcome pair."
+    description: "Correlation results for each metric‑outcome pair (LLM rows only, aggregated per snippet)."
     items:
       type: object
       required:
@@ -94,5 +102,4 @@ properties:
           description: "Unadjusted p‑value."
         p_value_corrected:
           type: number
-          description: "Bonferroni‑corrected p‑value (α divided by number of tests)."
-
+          description: "Bonferroni‑corrected p‑value (alpha divided by number of tests)."
