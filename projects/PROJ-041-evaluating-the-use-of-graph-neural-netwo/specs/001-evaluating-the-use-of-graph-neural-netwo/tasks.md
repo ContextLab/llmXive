@@ -15,7 +15,7 @@ All paths are relative to the repository root.
 
 ## Phase 2 – Data acquisition & preprocessing  
 
-- [ ] T002 **Download CTU‑13 Scenario 1 NetFlow CSV (real, verified URL)**   <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 -->
+- [ ] T002 **Download CTU‑13 Scenario 1 NetFlow CSV (real, verified URL)**   <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 -->
   *Script*: `code/data/download_ctu13.py`  
   1. Downloads `Scenario1/CTU-13-Dataset-1.csv` from the official repository  
      `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/master/Scenario1/CTU-13-Dataset-1.csv` — HTTP 404].  

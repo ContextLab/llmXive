@@ -1,8 +1,12 @@
 T001:
   c: false
-  h: 438eab952336b3d7fcdfa405079ffe91a9224af7bb36a125f21eb361e9759ab8
-  r: "The required utility modules `code/utils/seed.py` and `code/utils/memory_monitor.py`\
-    \ are missing, causing the layout\u2011creation test to fail (test_create_layout\
-    \ error). Consequently the deterministic seed handling and RAM\u2011limit wrapper\
-    \ are not implemented, so the task\u2019s core requirements are not satisfied."
-  sig: 9707153ae84bf7df4176195e3ddbbbb2327458df420b404066a247acda8b537d
+  h: 3c946a858013ca77ddc18c9b13cf100d0581ec3371a383f9b351dbba9be8ca36
+  r: "The project layout directories, `requirements.txt`, `pyproject.toml`, `seed.py`\
+    \ and `memory_monitor.py` exist, but the provided test suite shows failures: the\
+    \ layout\u2011creation script is not found at the expected path and the seed reproducibility\
+    \ test errors out because `numpy` isn\u2019t imported. Moreover, there is no evidence\
+    \ that `seed.set_seed(42)` actually produces a reproducible RNG state, that `run_with_limit`\
+    \ raises `MemoryLimitError` for a >7\u202FGB allocation, or that a sample JSON\
+    \ validates against the `contracts/*.schema.yaml` files. These missing or failing\
+    \ checks mean the task is not fully"
+  sig: f98ae37adac9c85a58e4d4783dc47f4b3aaf09f292edad8b692b5f0dbccc6a0b
