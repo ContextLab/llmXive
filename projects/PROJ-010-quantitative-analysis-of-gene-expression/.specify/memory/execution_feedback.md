@@ -18,7 +18,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/data_pipeline/setup_data.py  --seed 42  --output_dir data/raw -> rc=1
-^^^^^^^^^^^
+^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-010-quantitative-analysis-of-gene-expression/lib/python3.11/site-packages/datasets/load.py", line 1667, in load_dataset
     builder_instance = load_dataset_builder(
                        ^^^^^^^^^^^^^^^^^^^^^
@@ -29,7 +29,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
     raise e1 from None
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-010-quantitative-analysis-of-gene-expression/lib/python3.11/site-packages/datasets/load.py", line 1134, in dataset_module_factory
     raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'BICCN/human_mtg_scRNA' doesn't exist on the Hub or cannot be accessed.
+datasets.exceptions.DatasetNotFoundError: Dataset 'scanpy/10x_5k_human_pbmc' doesn't exist on the Hub or cannot be accessed.
 
 - python src/data_pipeline/preprocess.py  --dataset human_mtg  --dataset_url "https://huggingface.co/datasets/BICCN/human_mtg_scRNA"  --output data/processed/integrated_atlas.h5ad  --seed 42 -> rc=1
 
