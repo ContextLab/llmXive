@@ -1,9 +1,12 @@
 T001:
   c: false
-  h: 06dc4f5a58ffeeb35ba4ff2ef5b9baeda31acc6303063231d66322d7abac16d0
-  r: "The provided `code/requirements.txt` lists minimum version constraints (e.g.,\
-    \ `torch>=2.2.0`) instead of exact, pinned versions, and `code/config.py` does\
-    \ not contain any logic that enforces a 6.3\u202FGB memory limit (only sets `device`\
-    \ to CPU). Both the pinned\u2011dependency and memory\u2011limit requirements\
-    \ are therefore unmet."
-  sig: 2e826235a358593de2a85190bfee9a2fce318d76414d8fda0cdc1515b077ea89
+  h: f9518d603544a8b0e18f4e00450137ba10abef633a20cb0633b7d0ad2a53a844
+  r: 'The layout, pinned `requirements.txt`, and a `config.py` with CPU-only enforcement
+    and a 6.3 GB memory check exist, and the unit tests passed. However, `config.py`
+    imports `psutil`, which is not listed in `code/requirements.txt`, so a fresh `pip
+    install -r code/requirements.txt` would not guarantee the module is importable
+    (the passing test run only worked because psutil happened to be present in the
+    venv). Additionally, the config''s docstring openly states the "original implementation
+    (not shown)" is elided, i.e., the file is a partial stand-in rather than the full
+    configuration module. Fix: '
+  sig: 0053d3cb6b60ee40ea9d35e22a85fc8bc4bd7f63975eaffcef16672a95b9dfc5

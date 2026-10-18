@@ -1,0 +1,17 @@
+{
+  "timestamp": "data",
+  "results_summary": {
+    "total_runs": 3,
+    "files_processed": [
+      "evaluation_report",
+      "temperature_sweep_results",
+      "comparison_report"
+    ]
+  },
+  "statistical_analysis": {
+    "error": "Insufficient results for paired analysis",
+    "experimental_count": 0,
+    "baseline_count": 0
+  },
+  "interpretation": "Insufficient data to generate a statistical interpretation."
+}

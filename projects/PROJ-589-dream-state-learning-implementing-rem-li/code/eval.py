@@ -1,21 +1,20 @@
 """
 Evaluation script for Dream-State Learning project.
 
-This script orchestrates the evaluation phase, loading results from training
-runs and generating comparative analysis reports.
-
-Usage:
-    python code/eval.py --results-dir data/results/
+This script loads JSON result files produced by ``code/train.py`` and
+performs a paired statistical analysis.  It has been hardened to tolerate
+missing or incomplete data (e.g. when only a single seed has been run)
+without raising ``TypeError`` – a situation that previously caused the
+pipeline to fail.
 """
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
-# Add project root to path for imports
+# Ensure the project root is on the import path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -33,80 +32,67 @@ logger = get_logger(__name__)
 
 def load_training_results(results_dir: Path) -> Dict[str, Any]:
     """
-    Load all training result files from the specified directory.
-
-    Args:
-        results_dir: Path to the directory containing result JSON files
-
-    Returns:
-        Dictionary mapping seed/model type to result data
+    Load all JSON result files from ``results_dir``.  Files that cannot be
+    parsed are skipped with a warning.
     """
     if not results_dir.exists():
         raise FileNotFoundError(f"Results directory not found: {results_dir}")
 
-    results = {}
-    result_files = list(results_dir.glob("*.json"))
-
-    if not result_files:
-        logger.warning(f"No JSON files found in {results_dir}")
-        return results
-
-    for result_file in result_files:
+    results: Dict[str, Any] = {}
+    for result_file in results_dir.glob("*.json"):
         try:
             with open(result_file, "r") as f:
                 data = json.load(f)
-                key = result_file.stem
-                results[key] = data
-                logger.info(f"Loaded results from {result_file}")
+                results[result_file.stem] = data
+                logger.info(f"Loaded {result_file.name}")
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse {result_file}: {e}")
-            continue
+            logger.error(f"Failed to parse {result_file.name}: {e}")
         except Exception as e:
-            logger.error(f"Error loading {result_file}: {e}")
-            continue
+            logger.error(f"Error loading {result_file.name}: {e}")
 
     return results
 
 def run_statistical_analysis(results: Dict[str, Any], config: Config) -> Dict[str, Any]:
     """
-    Run statistical analysis on the loaded results.
-
-    Args:
-        results: Dictionary of training results
-        config: Configuration object
-
-    Returns:
-        Analysis results dictionary
+    Extract experimental and baseline accuracies from ``results`` and run a
+    paired t‑test.  If insufficient data are present, a descriptive
+    placeholder is returned instead of raising.
     """
-    experimental_results = []
-    baseline_results = []
+    experimental: List[float] = []
+    baseline: List[float] = []
 
     for key, data in results.items():
-        if "experimental" in key.lower() or "dream" in key.lower():
+        # Keys containing ``dream`` or ``experimental`` are treated as
+        # experimental; ``baseline`` or ``wake`` are treated as baseline.
+        lower_key = key.lower()
+        if ("dream" in lower_key) or ("experimental" in lower_key):
             if "accuracy" in data:
-                experimental_results.append(data["accuracy"])
-        elif "baseline" in key.lower() or "wake" in key.lower():
+                experimental.append(data["accuracy"])
+        elif ("baseline" in lower_key) or ("wake" in lower_key):
             if "accuracy" in data:
-                baseline_results.append(data["accuracy"])
+                baseline.append(data["accuracy"])
 
-    if len(experimental_results) < 2 or len(baseline_results) < 2:
-        logger.warning("Insufficient results for paired statistical analysis")
+    if len(experimental) < 2 or len(baseline) < 2:
+        logger.warning(
+            "Insufficient results for paired statistical analysis "
+            f"(experimental={len(experimental)}, baseline={len(baseline)})."
+        )
         return {
             "error": "Insufficient results for paired analysis",
-            "experimental_count": len(experimental_results),
-            "baseline_count": len(baseline_results),
+            "experimental_count": len(experimental),
+            "baseline_count": len(baseline),
         }
 
-    # Run paired t-test
-    t_stat, p_value = run_ttest_paired(experimental_results, baseline_results)
+    # Paired t‑test
+    t_stat, p_value = run_ttest_paired(experimental, baseline)
 
     analysis = {
         "t_statistic": float(t_stat),
         "p_value": float(p_value),
-        "experimental_mean": float(sum(experimental_results) / len(experimental_results)),
-        "baseline_mean": float(sum(baseline_results) / len(baseline_results)),
-        "experimental_count": len(experimental_results),
-        "baseline_count": len(baseline_results),
+        "experimental_mean": float(sum(experimental) / len(experimental)),
+        "baseline_mean": float(sum(baseline) / len(baseline)),
+        "experimental_count": len(experimental),
+        "baseline_count": len(baseline),
         "significance_level": config.get("significance_level", 0.05),
         "is_significant": p_value < config.get("significance_level", 0.05),
     }
@@ -119,19 +105,12 @@ def generate_evaluation_report(
     output_dir: Path,
 ) -> Path:
     """
-    Generate and save the evaluation report.
-
-    Args:
-        results: Raw training results
-        analysis: Statistical analysis results
-        output_dir: Directory to save the report
-
-    Returns:
-        Path to the saved report
+    Produce a JSON report that combines the raw results, the statistical
+    analysis, and a human‑readable interpretation.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Unpack the required fields for interpretation
+    # Extract values needed for the interpretation; handle missing keys
     exp_mean = analysis.get("experimental_mean")
     base_mean = analysis.get("baseline_mean")
     diff = None
@@ -140,13 +119,18 @@ def generate_evaluation_report(
     p_value = analysis.get("p_value")
     alpha = analysis.get("significance_level", 0.05)
 
-    interpretation = generate_interpretation(
-        exp_mean=exp_mean,
-        base_mean=base_mean,
-        diff=diff,
-        p_value=p_value,
-        alpha=alpha,
-    )
+    # Guard against ``None`` values – ``generate_interpretation`` expects
+    # real numbers.
+    if exp_mean is None or base_mean is None or p_value is None:
+        interpretation = "Insufficient data to generate a statistical interpretation."
+    else:
+        interpretation = generate_interpretation(
+            exp_mean=exp_mean,
+            base_mean=base_mean,
+            diff=diff,
+            p_value=p_value,
+            alpha=alpha,
+        )
 
     report = {
         "timestamp": str(Path(output_dir).parent),
@@ -166,7 +150,6 @@ def generate_evaluation_report(
     return report_path
 
 def main():
-    """Main entry point for the evaluation script."""
     parser = argparse.ArgumentParser(
         description="Evaluate Dream-State Learning training results"
     )
@@ -174,21 +157,18 @@ def main():
         "--results-dir",
         type=str,
         default="data/results/",
-        help="Directory containing training result files (default: data/results/)",
+        help="Directory containing training result JSON files (default: data/results/)",
     )
     parser.add_argument(
         "--output-dir",
         type=str,
         default="data/results/",
-        help="Directory to save evaluation report (default: data/results/)",
+        help="Directory to save the evaluation report (default: data/results/)",
     )
 
     args = parser.parse_args()
 
-    # Initialize configuration
     config = Config()
-
-    # Load results
     logger.info(f"Loading results from {args.results_dir}")
     results = load_training_results(Path(args.results_dir))
 
@@ -197,16 +177,13 @@ def main():
         sys.exit(1)
 
     logger.info(f"Loaded {len(results)} result files")
-
-    # Run statistical analysis
     logger.info("Running statistical analysis")
     analysis = run_statistical_analysis(results, config)
 
-    # Generate and save report
     logger.info("Generating evaluation report")
     report_path = generate_evaluation_report(results, analysis, Path(args.output_dir))
 
-    # Print summary
+    # Print a concise summary for the CLI user
     print("\n" + "=" * 50)
     print("EVALUATION SUMMARY")
     print("=" * 50)

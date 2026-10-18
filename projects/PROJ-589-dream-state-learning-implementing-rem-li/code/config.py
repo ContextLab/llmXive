@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 import torch
+import psutil
 
 class Config:
     """
@@ -39,8 +40,43 @@ class Config:
         self.glue_subsets = []
         self.superglue_subsets = []
 
+        # Enforce CPU‑only execution
+        self._enforce_cpu_only()
+
+        # Enforce memory limit (6.3 GB)
+        self.memory_limit_bytes = int(6.3 * 1024 ** 3)  # 6.3 GB in bytes
+        self._enforce_memory_limit()
+
     def get(self, key: str, default: Any = None) -> Any:
         return getattr(self, key, default)
+
+    # ------------------------------------------------------------------
+    # Helper methods for the task
+    # ------------------------------------------------------------------
+    def _enforce_cpu_only(self):
+        """
+        Ensure that the environment runs on CPU only.
+        If a CUDA device is available, we explicitly set the device to CPU
+        and raise a warning to avoid accidental GPU usage.
+        """
+        if torch.cuda.is_available():
+            # Force CPU usage even if CUDA is present
+            self.device = torch.device('cpu')
+            # Logging is intentionally lightweight to avoid importing the full logger here
+            print("[Config] CUDA devices detected but forced to CPU‑only execution.")
+
+    def _enforce_memory_limit(self):
+        """
+        Abort execution if the current process RSS exceeds the configured limit.
+        This check runs at configuration time so that any downstream script
+        will fail fast before expensive work begins.
+        """
+        process = psutil.Process()
+        rss = process.memory_info().rss
+        if rss > self.memory_limit_bytes:
+            raise MemoryError(
+                f"Memory usage {rss / (1024 ** 3):.2f} GB exceeds the allowed limit of 6.3 GB."
+            )
 
 # ----------------------------------------------------------------------
 # Helpers for the unit‑tests (T002a)
