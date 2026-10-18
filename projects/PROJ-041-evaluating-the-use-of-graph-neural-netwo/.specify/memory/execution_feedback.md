@@ -13,30 +13,32 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 command(s) failed: python code/main.py  --scenarios all      # processes every scenario present in the dataset (rc=1); python -m pytest code/tests/test_graph_construction.py -q (rc=4); 1 declared deliverable(s) absent: data/raw/ctu13_scenario1.csv
+**Summary**: 2 command(s) failed: python code/main.py  --scenarios all      # processes every scenario present in the dataset (rc=1); python -m pytest code/tests/test_graph_construction.py -q (rc=1); 1 declared deliverable(s) absent: data/raw/ctu13_scenario1.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py  --scenarios all      # processes every scenario present in the dataset -> rc=1
-e', 'dataset'], seeds=[42, 123, 456, 789, 101112]
-2026-10-18 15:10:14,603 INFO create_layout: Project directories ready: code, code/data, code/models, code/analysis, code/utils, data, data/raw, data/processed, data/results, data/models, data/targets, docs, tests, contracts, figures, logs
-2026-10-18 15:10:14,604 INFO create_layout: Config already exists at /home/runner/work/llmXive/llmXive/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/code/config.yaml; leaving untouched
-2026-10-18 15:10:14,604 INFO create_layout: Project layout creation complete.
-2026-10-18 15:10:14,604 INFO data.download_ctu13: Attempting to stream CTU‑13 Scenario 1 from HuggingFace dataset ctu13/ctu13 (split=train)
-2026-10-18 15:10:14,705 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/ctu13/ctu13 "HTTP/1.1 401 Unauthorized"
-2026-10-18 15:10:14,705 ERROR __main__: Failed to download CTU‑13 dataset: Failed to load dataset ctu13/ctu13:train: Dataset 'ctu13/ctu13' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/ctu13/ctu13 to ask for access.
+rting project bootstrap with scenarios=['all', '#', 'processes', 'every', 'scenario', 'present', 'in', 'the', 'dataset'], seeds=[42, 123, 456, 789, 101112]
+2026-10-18 16:11:20,109 INFO create_layout: Project directories ready: code, code/data, code/models, code/analysis, code/utils, data, data/raw, data/processed, data/results, data/models, data/targets, docs, tests, contracts, figures, logs
+2026-10-18 16:11:20,109 INFO create_layout: Config already exists at /home/runner/work/llmXive/llmXive/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/code/config.yaml; leaving untouched
+2026-10-18 16:11:20,109 INFO create_layout: Project layout creation complete.
+2026-10-18 16:11:20,109 INFO data.download_ctu13: Attempting to download CTU‑13 Scenario 1 CSV from https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/main/Scenario1/CTU-13-Dataset-1.csv
+2026-10-18 16:11:20,121 ERROR __main__: Failed to download CTU‑13 dataset: Failed to download CSV from https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/main/Scenario1/CTU-13-Dataset-1.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/main/Scenario1/CTU-13-Dataset-1.csv
 
-- python -m pytest code/tests/test_graph_construction.py -q -> rc=4
-============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-8.2.2, pluggy-1.7.0
-rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo
-configfile: pyproject.toml
-plugins: anyio-4.15.1
-collected 0 items
+- python -m pytest code/tests/test_graph_construction.py -q -> rc=1
+nd contains at least one byte of data.
+        """
+        csv_path = paths.data("raw", "ctu13_scenario1.csv")
+>       assert csv_path.exists(), f"Expected CSV at {csv_path} to exist"
+E       AssertionError: Expected CSV at /home/runner/work/llmXive/llmXive/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/data/raw/ctu13_scenario1.csv to exist
+E       assert False
+E        +  where False = <bound method Path.exists of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/data/raw/ctu13_scenario1.csv')>()
+E        +    where <bound method Path.exists of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/data/raw/ctu13_scenario1.csv')> = PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/data/raw/ctu13_scenario1.csv').exists
 
-============================ no tests ran in 0.00s =============================
-
-ERROR: file or directory not found: code/tests/test_graph_construction.py
+code/tests/test_graph_construction.py:21: AssertionError
+=========================== short test summary info ============================
+FAILED code/tests/test_graph_construction.py::test_raw_ctu13_csv_exists - Ass...
+============================== 1 failed in 0.02s ===============================
 
 
 
@@ -52,6 +54,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/create_layout.py` — NOT invoked by the run-book
     - `code/data/download_ctu13.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
+    - `code/tests/test_graph_construction.py` — IS a run-book command
   Make ONE of these WRITE `data/raw/ctu13_scenario1.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 

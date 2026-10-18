@@ -2,10 +2,9 @@
 download_ctu13.py
 ------------------
 
-Updated to use the verified HuggingFace dataset identifier
-``ctu13/ctu13`` (as referenced in the quick‑start documentation). The
-script streams the NetFlow records for Scenario 1, writes them to a CSV,
-creates a SHA‑256 checksum side‑car, and updates ``code/config.yaml``.
+Downloads the CTU‑13 Scenario 1 NetFlow CSV from a verified public URL,
+writes it to ``data/raw/ctu13_scenario1.csv``, creates a SHA‑256 checksum
+side‑car, and updates ``code/config.yaml`` with the active dataset name.
 """
 
 import csv
@@ -13,8 +12,8 @@ import hashlib
 import sys
 from pathlib import Path
 
+import requests
 import yaml
-from datasets import load_dataset
 from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
@@ -22,10 +21,12 @@ log = get_logger(__name__)
 # --------------------------------------------------------------------------- #
 # Constants
 # --------------------------------------------------------------------------- #
-# Verified HuggingFace dataset identifier for CTU‑13.
-HF_DATASET = "ctu13/ctu13"
-# The dataset provides a ``train`` split containing the NetFlow records.
-HF_SPLIT = "train"
+# Verified public URL for the CTU‑13 Scenario 1 CSV.
+# The repository uses the default ``main`` branch; using ``master`` results in 404.
+CSV_URL = (
+    "https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/main/"
+    "Scenario1/CTU-13-Dataset-1.csv"
+)
 
 TARGET_DIR = paths.data("raw")
 TARGET_CSV = TARGET_DIR / "ctu13_scenario1.csv"
@@ -64,48 +65,33 @@ def update_config(active_dataset: str) -> None:
     config_path.parent.mkdir(parents=True, exist_ok=True)
     with config_path.open("w") as f:
         yaml.safe_dump(cfg, f, sort_keys=False)
-    log.info("Updated config %s with active_dataset=%s", config_path, active_dataset)
+    log.info(
+        "Updated config %s with active_dataset=%s", config_path, active_dataset
+    )
 
 # --------------------------------------------------------------------------- #
 # Main download routine
 # --------------------------------------------------------------------------- #
 def main() -> None:
     """
-    Streams the CTU‑13 Scenario 1 NetFlow records from HuggingFace and writes
-    them to ``data/raw/ctu13_scenario1.csv``.
+    Downloads the CTU‑13 Scenario 1 CSV from the public GitHub URL
+    and writes it to ``data/raw/ctu13_scenario1.csv``.
     """
-    log.info(
-        "Attempting to stream CTU‑13 Scenario 1 from HuggingFace dataset %s (split=%s)",
-        HF_DATASET,
-        HF_SPLIT,
-    )
-
-    try:
-        # ``load_dataset`` with ``streaming=True`` returns an iterable dataset.
-        ds = load_dataset(HF_DATASET, split=HF_SPLIT, streaming=True)
-    except Exception as exc:
-        raise RuntimeError(
-            f"Failed to load dataset {HF_DATASET}:{HF_SPLIT}: {exc}"
-        ) from exc
+    log.info("Attempting to download CTU‑13 Scenario 1 CSV from %s", CSV_URL)
 
     # Ensure target directory exists.
     TARGET_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Stream rows to CSV.
     try:
-        with TARGET_CSV.open("w", newline="", encoding="utf-8") as csvfile:
-            writer = None
-            for idx, record in enumerate(ds):
-                # The dataset yields dictionaries; write header from first record.
-                if writer is None:
-                    fieldnames = list(record.keys())
-                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                    writer.writeheader()
-                writer.writerow(record)
-                if (idx + 1) % 100_000 == 0:
-                    log.info("Written %d rows to %s", idx + 1, TARGET_CSV)
+        with requests.get(CSV_URL, stream=True, timeout=60) as r:
+            r.raise_for_status()
+            # Stream directly to file to avoid loading whole CSV into memory.
+            with TARGET_CSV.open("wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:  # filter out keep-alive chunks
+                        f.write(chunk)
     except Exception as exc:
-        raise RuntimeError(f"Failed while writing CSV to {TARGET_CSV}: {exc}") from exc
+        raise RuntimeError(f"Failed to download CSV from {CSV_URL}: {exc}") from exc
 
     log.info("Saved CSV to %s", TARGET_CSV)
 
@@ -122,9 +108,13 @@ def main() -> None:
     try:
         update_config(active_dataset="ctu13_scenario1")
     except Exception as exc:
-        raise RuntimeError(f"Failed to update config file {CONFIG_FILE}: {exc}") from exc
+        raise RuntimeError(
+            f"Failed to update config file {CONFIG_FILE}: {exc}"
+        ) from exc
 
-    log.info("CTU‑13 Scenario 1 download and registration completed successfully.")
+    log.info(
+        "CTU‑13 Scenario 1 download and registration completed successfully."
+    )
 
 # --------------------------------------------------------------------------- #
 # Entry point
