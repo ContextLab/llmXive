@@ -28,7 +28,7 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'geopandas'
 
 - python code/analysis.py -> rc=1
- 03:20:51 - __main__ - INFO - Starting analysis pipeline.
+ 03:23:27 - __main__ - INFO - Starting analysis pipeline.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 317, in <module>

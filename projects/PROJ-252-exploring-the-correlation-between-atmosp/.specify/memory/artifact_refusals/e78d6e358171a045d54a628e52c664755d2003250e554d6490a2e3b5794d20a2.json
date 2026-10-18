@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "9f957c760c1aff97504a16f3783c49e344dd16b88f7fa4e23bce6bd6f0346d36",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused empty contents without execution: 'requirements.txt'"
+}
