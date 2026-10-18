@@ -9,7 +9,7 @@
 
 ```bash
 # 1. Clone the repository
-git clone 
+git clone <repository-url>
 cd plant-root-architecture
 
 # 2. Create a virtual environment
@@ -23,10 +23,10 @@ pip install -r code/requirements.txt
 ## Running the Full Pipeline
 
 ```bash
-# Step 1: Ingest data (requires at least one verified merged dataset)
-python code/ingestion.py
+# Step 1: Ingest root phenotypes and soil nutrients (separate downloads)
+python code/ingestion.py   # Handles PlantPheno and open soil dataset; falls back to merged dataset if needed
 
-# Step 2: Preprocess (filter, log‑transform, z‑score, missing‑data handling)
+# Step 2: Preprocess (filter, log‑transform, z‑score, missing‑data handling, covariate imputation)
 python code/preprocessing.py
 
 # Step 3: Fit models and evaluate (species‑stratified CV)
@@ -51,9 +51,11 @@ pytest tests/contract/test_schemas.py
 All tests should pass. Failure indicates schema mismatches or missing artifacts.
 
 ## Troubleshooting
-- **Merged dataset unavailable** – The pipeline will abort with a clear error logged in `artifacts/logs/fallback.log`. Ensure at least one of the verified merged dataset URLs is reachable.  
+- **RootPheno or soil dataset unavailable** – The pipeline will abort with a clear error logged in `artifacts/logs/fallback.log`. Ensure at least one of the verified URLs is reachable.  
 - **MemoryError** – Reduce dataset size by limiting to the top 5 species: `python code/preprocessing.py --max-species 5`.  
 - **Schema test failures** – Ensure the three schema files exist under `contracts/` and that the dataset columns match the schema (nullability for `phosphorus`/`nitrogen` is allowed).  
 
 ---
+
+
 

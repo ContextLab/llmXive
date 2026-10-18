@@ -36,17 +36,23 @@
 | `elevation` | float | Optional covariate (may be null). |
 | `data_source_type` | string | `"observational"` (after FR‑012 filtering). |
 | `sample_size_per_species` | integer | Number of rows for the species after filtering (used for SC‑005). |
+| `soil_moisture_missing` | integer | Indicator (1 if imputed, 0 otherwise). |
+| `temperature_missing` | integer | Indicator (1 if imputed, 0 otherwise). |
+| `elevation_missing` | integer | Indicator (1 if imputed, 0 otherwise). |
 
 ## Data Flow Overview
-1. **Ingestion** (`T007`, `T008`) – Load a verified merged dataset via HuggingFace.  
-2. **Filtering** (`T009`‑`T010`) – Keep observational rows, enforce n ≥ 30 per species.  
-3. **Missing‑Data Logic** (`T011`) – Apply FR‑025 species‑level missing‑nutrient policy (impute or exclude).  
-4. **Transformation** (`T012`‑`T014`) – Log‑transform roots, z‑score nutrients, two‑stage imputation.  
-5. **Persistence** (`T015`) – Write Parquet file for downstream steps.  
+1. **Ingestion** (`T008`, `T009`) – Load PlantPheno and an open soil dataset via HuggingFace.  
+2. **Merging** (`T010`) – Spatial/temporal join with explicit tolerances; fallback to merged dataset if needed.  
+3. **Filtering** (`T011`‑`T013`) – Keep observational rows, enforce n ≥ 20 per species, apply FR‑025 missing‑nutrient policy.  
+4. **Transformation** (`T014`‑`T016`) – Log‑transform roots, z‑score nutrients, impute missing covariates with indicators, k‑NN impute remaining nutrients.  
+5. **Persistence** (`T018`) – Write Parquet file for downstream steps.  
 
 ## Schema Constraints (mirrored in `contracts/dataset.schema.yaml`)
 - `species`: required, non‑null string.  
 - Root metrics: required numbers (already log‑transformed).  
 - `phosphorus`, `nitrogen`: numbers **or null** (`nullable: true`).  
-- Optional covariates may be null.  
-- No additional properties permitted.
+- Optional covariates may be null; missing‑indicator flags are required integers (0/1).  
+- No additional properties permitted.  
+
+---
+

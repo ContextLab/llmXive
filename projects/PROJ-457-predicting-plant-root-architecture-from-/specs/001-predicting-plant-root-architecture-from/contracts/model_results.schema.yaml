@@ -55,7 +55,7 @@ properties:
     properties:
       mean_out_of_sample_r2:
         type: "number"
-        description: "Mean R-squared from species‑stratified cross‑validation."
+        description: "Mean R-squared from species-stratified cross-validation."
     required:
       - mean_out_of_sample_r2
   success_criteria:
