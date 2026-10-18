@@ -1,111 +1,110 @@
+"""Project structure setup for PROJ-456 (T001).
+
+Creates the directory tree defined in plan.md's Project Structure
+section, restricted to PROJECT-OWNED outputs only (code/, data/,
+tests/, docs/). The platform owns the top-level ``state/`` directory
+and derives artifact hashes at verification time, so this script
+never creates or writes into a project-local ``state/`` directory;
+if a stale shadow ``state/`` directory exists inside the project
+tree (created by an earlier version of this script), it is removed.
+"""
+
 import os
+import shutil
 import sys
 from pathlib import Path
 
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)
+
+# Project-owned directories (relative to the project root).
+PROJECT_DIRS = [
+    "code",
+    "data/raw",
+    "data/processed",
+    "data/templates",
+    "data/logs",
+    "data/outputs",
+    "tests/unit",
+    "tests/integration",
+    "docs",
+]
+
+# Placeholder files required so the package imports cleanly.
+PLACEHOLDER_FILES = [
+    "code/__init__.py",
+    "tests/__init__.py",
+    "tests/unit/__init__.py",
+    "tests/integration/__init__.py",
+]
+
+
 def create_directory_structure(base_dir: Path) -> None:
-    """
-    Create the project directory structure for PROJ-456.
-    
-    Required structure:
+    """Create the project-owned directory structure for PROJ-456.
+
+    Required structure (project-owned portions of plan.md):
+
     projects/PROJ-456-decoding-affective-state-from-resting-st/
         ├── code/
         ├── data/
         │   ├── raw/
         │   ├── processed/
         │   ├── templates/
-        │   └── logs/
+        │   ├── logs/
+        │   └── outputs/
         ├── tests/
-        │   └── unit/
-        ├── docs/
-        └── state/
+        │   ├── unit/
+        │   └── integration/
+        └── docs/
+
+    Note: ``state/`` is intentionally NOT created — it is owned by
+    the platform, which resolves and hashes artifacts there itself.
     """
-    project_root = base_dir / "projects" / "PROJ-456-decoding-affective-state-from-resting-st"
-    
-    # Define all required directories
-    directories = [
-        project_root,
-        project_root / "code",
-        project_root / "data",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "templates",
-        project_root / "data" / "logs",
-        project_root / "tests",
-        project_root / "tests" / "unit",
-        project_root / "docs",
-        project_root / "state",
-    ]
-    
-    # Create directories
-    for dir_path in directories:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path.relative_to(base_dir)}")
-    
-    # Create .gitkeep files to ensure directories are tracked by git
-    for dir_path in directories:
-        gitkeep = dir_path / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.write_text("# Keep this directory in git\n")
-    
-    print(f"\nProject structure created successfully at: {project_root}")
+    base_dir = Path(base_dir)
+    for rel in PROJECT_DIRS:
+        d = base_dir / rel
+        d.mkdir(parents=True, exist_ok=True)
+        log.info("Ensured directory: %s", d)
+
+    # Remove any shadow platform-owned directory created by earlier
+    # versions of this script. The platform owns `state/`; a copy
+    # inside the project is a stale shadow and must not exist.
+    shadow_state = base_dir / "state"
+    if shadow_state.is_dir():
+        shutil.rmtree(shadow_state)
+        log.info("Removed shadow platform-owned directory: %s", shadow_state)
+
 
 def create_placeholder_files(base_dir: Path) -> None:
-    """
-    Create essential placeholder files for the project.
-    """
-    project_root = base_dir / "projects" / "PROJ-456-decoding-affective-state-from-resting-st"
-    
-    # Create README.md
-    readme_content = """# Decoding Affective State from Resting-State EEG Microstates
+    """Create essential package placeholder files (``__init__.py``)."""
+    base_dir = Path(base_dir)
+    for rel in PLACEHOLDER_FILES:
+        f = base_dir / rel
+        f.parent.mkdir(parents=True, exist_ok=True)
+        if not f.exists():
+            f.touch()
+            log.info("Created placeholder file: %s", f)
 
-## Project Overview
-This project implements an automated pipeline for decoding affective states from resting-state EEG microstate analysis.
 
-## Directory Structure
-- `code/`: Source code for the pipeline
-- `data/`: Data storage (raw, processed, templates, logs)
-- `tests/`: Unit and integration tests
-- `docs/`: Documentation
-- `state/`: Pipeline state and metadata
-
-## Prerequisites
-- Python 3.8+
-- mne (CPU-only)
-- numpy
-- scipy
-
-## Execution
-Run the pipeline using the main entry point scripts in `code/`.
-"""
-    (project_root / "README.md").write_text(readme_content)
-    
-    # Create requirements.txt
-    requirements_content = """numpy>=1.21.0
-scipy>=1.7.0
-mne>=1.0.0
-pandas>=1.3.0
-scikit-learn>=1.0.0
-"""
-    (project_root / "requirements.txt").write_text(requirements_content)
-    
-    # Create __init__.py files
-    (project_root / "code" / "__init__.py").write_text("# Code package\n")
-    (project_root / "tests" / "__init__.py").write_text("# Tests package\n")
-    (project_root / "tests" / "unit" / "__init__.py").write_text("# Unit tests package\n")
-    
-    print("Placeholder files created successfully.")
-
-def main():
-    """
-    Main entry point for project structure setup.
-    """
-    # Determine base directory (current working directory)
-    base_dir = Path.cwd()
-    
-    print("Starting project structure creation...")
+def main() -> None:
+    """Entry point for project structure setup."""
+    base_dir = paths.root
+    print(f"Setting up project structure under: {base_dir}")
     create_directory_structure(base_dir)
     create_placeholder_files(base_dir)
-    print("\nSetup complete!")
+
+    # Verify the expected structure now exists on disk.
+    missing = [rel for rel in PROJECT_DIRS if not (base_dir / rel).is_dir()]
+    if missing:
+        print(f"ERROR: missing directories after setup: {missing}")
+        sys.exit(1)
+    if (base_dir / "state").exists():
+        print("ERROR: shadow state/ directory still present")
+        sys.exit(1)
+
+    print("Project structure setup complete (project-owned dirs only).")
+
 
 if __name__ == "__main__":
     main()

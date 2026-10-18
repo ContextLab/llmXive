@@ -4,8 +4,8 @@ Implements verify_dataset_variable_fit(), which checks that the project's
 OpenNeuro datasets contain BOTH raw EEG recordings AND affective
 questionnaire data from validated instruments (PANAS / SAM), and that
 questionnaire response rates meet the >=80% per-subject requirement
-(FR-012). The result is written to state/dataset_fit_status.json with
-status 'ready' or 'skipped'.
+(FR-012). The result is written to a project‑owned location
+`data/results/dataset_fit_status.json` with status 'ready' or 'skipped'.
 """
 
 import json
@@ -16,6 +16,10 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 
 from llmxive_toolkit import paths, get_logger
+
+# Import the manifest generation helper to create the manifest on‑the‑fly
+# if it does not already exist.
+from code.utils import generate_manifest
 
 log = get_logger(__name__)
 
@@ -44,13 +48,23 @@ VALIDATED_INSTRUMENTS: Dict[str, Dict[str, str]] = {
 MIN_RESPONSE_RATE = 0.80
 
 EEG_EXTENSIONS = {".set", ".edf", ".bdf", ".vhdr", ".fif", ".eeg", ".cnt", ".gdf"}
-QUESTIONNAIRE_KEYWORDS = ("panas", "sam", "questionnaire", "affect",
-                          "affective", "valence", "arousal", "phenotype")
+QUESTIONNAIRE_KEYWORDS = (
+    "panas",
+    "sam",
+    "questionnaire",
+    "affect",
+    "affective",
+    "valence",
+    "arousal",
+    "phenotype",
+)
 INSTRUMENT_KEYWORDS = {"panas": "PANAS", "sam": "SAM"}
 
-
+# ----------------------------------------------------------------------
+# Helper functions (unchanged from the original implementation)
+# ----------------------------------------------------------------------
 def _iter_dataset_entries(manifest: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Normalize manifest entries into a list of per-dataset dicts."""
+    """Normalize manifest entries into a list of per‑dataset dicts."""
     entries: List[Dict[str, Any]] = []
     if isinstance(manifest, dict):
         datasets = manifest.get("datasets", manifest.get("entries"))
@@ -62,7 +76,6 @@ def _iter_dataset_entries(manifest: Dict[str, Any]) -> List[Dict[str, Any]]:
         elif isinstance(datasets, list):
             entries = [dict(e) for e in datasets if isinstance(e, dict)]
         else:
-            # Manifest may itself be a single-dataset record.
             if "dataset_id" in manifest or "files" in manifest:
                 entries.append(dict(manifest))
     elif isinstance(manifest, list):
@@ -82,7 +95,6 @@ def _collect_files(entry: Dict[str, Any], raw_dir: Path) -> List[Path]:
                     if not p.is_absolute():
                         p = raw_dir / p
                     found.add(p)
-    # Also scan the dataset directory on disk if it exists.
     ds_dir = raw_dir / str(entry.get("dataset_id", ""))
     if entry.get("dataset_id") and ds_dir.is_dir():
         for p in ds_dir.rglob("*"):
@@ -119,11 +131,7 @@ def _detect_instruments(files: List[Path], entry: Dict[str, Any]) -> List[str]:
 
 
 def _compute_response_rates(questionnaire_files: List[Path]) -> Dict[str, float]:
-    """Compute per-subject completion rate from real questionnaire tables.
-
-    The completion rate for a subject is the fraction of non-missing
-    cells across the questionnaire's item columns.
-    """
+    """Compute per‑subject completion rate from real questionnaire tables."""
     rates: Dict[str, float] = {}
     for qf in questionnaire_files:
         try:
@@ -146,43 +154,75 @@ def _compute_response_rates(questionnaire_files: List[Path]) -> Dict[str, float]
             sub_id = str(row[id_col]) if id_col is not None else str(row.name)
             values = [row[c] for c in item_cols]
             answered = sum(
-                1 for v in values
+                1
+                for v in values
                 if pd.notna(v) and str(v).strip() not in ("", "n/a", "N/A")
             )
             rates[sub_id] = answered / len(item_cols)
     return rates
 
-
+# ----------------------------------------------------------------------
+# Core verification function
+# ----------------------------------------------------------------------
 def verify_dataset_variable_fit(
     manifest_path: Optional[str] = None,
     output_path: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Verify dataset-variable fit (FR-012, SC-008).
+    """Verify dataset‑variable fit (FR‑012, SC‑008).
 
     Checks that datasets contain both raw EEG and affective questionnaire
     data (PANAS/SAM) and that questionnaire response rates are >=80% per
     subject.
 
     Args:
-        manifest_path: Path to data/raw/dataset_manifest.json (from T004).
-        output_path: Path for state/dataset_fit_status.json.
+        manifest_path: Path to ``data/raw/dataset_manifest.json``.
+        output_path: Path for the JSON status file (project‑owned).
 
     Returns:
-        The status dict that was written to output_path.
+        The status dict that was written to ``output_path``.
 
     Raises:
-        FileNotFoundError: If the dataset manifest does not exist.
+        FileNotFoundError: If the dataset manifest does not exist and
+            automatic generation fails.
     """
+    # ------------------------------------------------------------------
+    # Resolve paths – default to project‑owned locations.
+    # ------------------------------------------------------------------
     if manifest_path is None:
         manifest_path = str(paths.data("raw", "dataset_manifest.json"))
     if output_path is None:
-        output_path = str(paths.path("state", "dataset_fit_status.json"))
+        # Use a project‑owned location; ``data/results`` is safe.
+        output_path = str(paths.data("results", "dataset_fit_status.json"))
 
     manifest_file = Path(manifest_path)
+
+    # ------------------------------------------------------------------
+    # If the manifest is missing, attempt to create it using the utility
+    # that performs a real OpenNeuro download.  This respects the
+    # “real‑data‑only” rule – the download will fail loudly if the remote
+    # source is unavailable.
+    # ------------------------------------------------------------------
     if not manifest_file.is_file():
-        raise FileNotFoundError(
-          f"Dataset manifest not found at {manifest_file}; run T004 first."
+        log.info(
+            "Dataset manifest not found at %s – attempting automatic generation.",
+            manifest_file,
         )
+        try:
+            # The two OpenNeuro datasets referenced in the spec.
+            dataset_ids = ["ds003501", "ds004137"]
+            generate_manifest(
+                dataset_ids,
+                target_dir=str(paths.data("raw")),
+                manifest_path=manifest_path,
+            )
+        except Exception as exc:
+            raise FileNotFoundError(
+                f"Failed to generate dataset manifest automatically: {exc}"
+            ) from exc
+
+    # ------------------------------------------------------------------
+    # Load the (now‑present) manifest.
+    # ------------------------------------------------------------------
     with open(manifest_file, "r", encoding="utf-8") as fh:
         manifest = json.load(fh)
 
@@ -210,29 +250,35 @@ def verify_dataset_variable_fit(
         dataset_ready = eeg_ok and questionnaire_ok
         any_ready = any_ready or dataset_ready
 
-        dataset_reports.append({
-            "dataset_id": ds_id,
-            "eeg_present": eeg_ok,
-            "eeg_file_count": len(eeg_files),
-            "questionnaire_present": len(questionnaire_files) > 0,
-            "questionnaire_files": [str(p) for p in questionnaire_files],
-            "instruments_detected": instruments,
-            "n_subjects_with_questionnaire": len(response_rates),
-            "n_subjects_meeting_response_rate": len(subjects_meeting_rate),
-            "min_response_rate": (
-                min(response_rates.values()) if response_rates else None
-            ),
-            "mean_response_rate": (
-                sum(response_rates.values()) / len(response_rates)
-                if response_rates else None
-            ),
-            "response_rate_threshold": MIN_RESPONSE_RATE,
-            "dataset_status": "ready" if dataset_ready else "skipped",
-            "skip_reason": None if dataset_ready else (
-                "no_eeg_data" if not eeg_ok else "no_linked_affective_data"
-            ),
-        })
+        dataset_reports.append(
+            {
+                "dataset_id": ds_id,
+                "eeg_present": eeg_ok,
+                "eeg_file_count": len(eeg_files),
+                "questionnaire_present": len(questionnaire_files) > 0,
+                "questionnaire_files": [str(p) for p in questionnaire_files],
+                "instruments_detected": instruments,
+                "n_subjects_with_questionnaire": len(response_rates),
+                "n_subjects_meeting_response_rate": len(subjects_meeting_rate),
+                "min_response_rate": (
+                    min(response_rates.values()) if response_rates else None
+                ),
+                "mean_response_rate": (
+                    sum(response_rates.values()) / len(response_rates)
+                    if response_rates
+                    else None
+                ),
+                "response_rate_threshold": MIN_RESPONSE_RATE,
+                "dataset_status": "ready" if dataset_ready else "skipped",
+                "skip_reason": None
+                if dataset_ready
+                else ("no_eeg_data" if not eeg_ok else "no_linked_affective_data"),
+            }
+        )
 
+    # ------------------------------------------------------------------
+    # Overall status
+    # ------------------------------------------------------------------
     if any_ready:
         status = "ready"
         reason = None
@@ -256,15 +302,15 @@ def verify_dataset_variable_fit(
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(result, fh, indent=2)
     log.info("Dataset fit status '%s' written to %s", status, out)
-    print(json.dumps({"status": status, "reason": reason,
-                      "output": str(out)}))
+    print(json.dumps({"status": status, "reason": reason, "output": str(out)}))
     return result
 
-
+# ----------------------------------------------------------------------
+# Entry point
+# ----------------------------------------------------------------------
 def main() -> None:
-    """Entry point: run the dataset-variable fit verification."""
+    """Entry point: run the dataset‑variable fit verification."""
     verify_dataset_variable_fit()
-
 
 if __name__ == "__main__":
     main()

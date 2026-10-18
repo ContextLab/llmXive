@@ -27,6 +27,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-456-decoding-affective-state-from-resting-st/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-456-decoding-affective-state-from-resting-st/main.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/ -> rc=2
+11/dataclasses.py:545: in _init_fn
     raise TypeError(f'non-default argument {f.name!r} '
 E   TypeError: non-default argument 'method' follows default argument
 _ ERROR collecting projects/PROJ-456-decoding-affective-state-from-resting-st/tests/unit/test_preprocessing.py _
@@ -38,11 +39,10 @@ code/preprocessing.py:80: in <module>
     raise AttributeError(f"No {package_name} attribute {name}")
 E   AttributeError: No mne.io attribute io
 =========================== short test summary info ============================
-ERROR tests/test_utils_manifest.py
 ERROR tests/unit/test_microstate.py - TypeError: non-default argument 'method...
 ERROR tests/unit/test_preprocessing.py - AttributeError: No mne.io attribute io
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 1.41s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 2 errors in 0.83s ===============================
 
 
 - python main.py --stage validate -> rc=2
@@ -61,14 +61,10 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/raw/dataset_manifest.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis.py` — NOT invoked by the run-book
+    - `code/utils.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/dataset_manifest.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/templates/microstate_template.npy` is declared but was NOT written. Scripts referencing it:
     - `code/microstate.py` — NOT invoked by the run-book
     - `code/preprocessing.py` — NOT invoked by the run-book
     - `code/save_processed.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/templates/microstate_template.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-## Platform-owned paths written inside the project
-
-A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
-
-Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

@@ -5,12 +5,13 @@ T001:
     write only project-owned outputs.'
   task: 269b473463e412a0b812752bd3fd01e2c284766221ad7227889c4bbdd9d7235c
 T004:
-  reason: "The required output `data/raw/dataset_manifest.json` does not exist, and\
-    \ `code/utils.py` never actually downloads OpenNeuro datasets \u2014 `download_and_verify_dataset`\
-    \ builds a URL it never uses and merely checks for pre-existing local directories\
-    \ (\"mock_path\"), so no real data fetching or EEG+questionnaire verification\
-    \ occurs. The file's `main()` also only sets up unrelated T007 logging infrastructure\
-    \ rather than producing the manifest."
+  reason: "The repository contains the required `code/utils.py` implementation, but\
+    \ the mandated output file `data/raw/dataset_manifest.json` does not exist. The\
+    \ task explicitly requires this manifest to be generated (with verification status\
+    \ and file paths) after downloading the corrected datasets (`ds003501` and `ds004137`).\
+    \ Without the manifest file, the core deliverable is missing. The implementer\
+    \ must run `generate_manifest` (or the module\u2019s `main`) to create `data/raw/dataset_manifest.json`\
+    \ and ensure it contains the expected JSON entries."
   task: 275151cd0e2359fa19666afe96456c030e2315f24ef464f25f9a89ddf8f17cd5
 T005:
   reason: 'the task writes platform-owned path(s) inside the project: `state/checksums.json`
@@ -21,6 +22,9 @@ T005:
 T006:
   task: b3710d4167393e5ee920224cb6cfe39463df91dd8e604bd35c81b5c739175baf
 T007:
+  reason: "Checked `code/utils.py` which contains the logging setup, but the required\
+    \ output file `data/logs/exclusion.log` is missing; no evidence shows the logger\
+    \ was run to create the log file. The task\u2019s output artifact is absent."
   task: a3cd28875c21c78b0f114a8fd4d545f885ccfa116f1f52467523d0103ae71459
 T008:
   task: 38ee28e965103f277c49b51257ae82ec3da49011855aaba638d7e1c238ca5ec5
@@ -46,10 +50,27 @@ T011:
     \ pytest output) was supplied either; the test must be a"
   task: 03c151c1a52e95a8189d638710aa8ad8ddb0bf86ac0a04138dfc6ce596efa50f
 T012:
+  reason: "The `download_eeg()` function in `code/preprocessing.py` only creates the\
+    \ output directory and checks for an existing path; it never performs a real download\
+    \ of the OpenNeuro dataset (ds004137) and merely raises a `FileNotFoundError`\
+    \ if the data is absent. Consequently, the required CPU\u2011only streaming download\
+    \ is not implemented. The function must contain actual download logic (e.g., using\
+    \ `datalad`, `mne-bids`, or HTTP streaming) that retrieves the specified dataset."
   task: 219d7966179bd2239b54535024910abd8689b1c21a26626c6464cd68930b1ff0
 T013:
+  reason: "The `apply_bandpass_filter()` function is present and applies a 1\u2011\
+    40\u202FHz FIR filter, but the implementation does not include any verification\
+    \ of the passband (e.g., checking the filter\u2019s frequency response or confirming\
+    \ that the intended band is retained). Adding a passband verification step is\
+    \ required to meet the task specification."
   task: 72ac8cfc60b5c7dc77ef47b4d736dfd988dbb5c498f086a1ac0513cf4972f533
 T014:
+  reason: "The `run_ica_artifact_removal()` function exists, but it does **not** use\
+    \ ADJUST or MARA to detect ocular/muscle components; it simply hard\u2011codes\
+    \ removal of components `[0, 1]` and uses a proxy variance\u2011retention calculation.\
+    \ A genuine CPU\u2011compatible implementation must call the actual ADJUST/MARA\
+    \ algorithms (or their MNE equivalents) to identify bad ICA components rather\
+    \ than placeholder logic."
   task: 4c3391b65962622c7f68adf48ef9679b060283a7ba8447b9c97a6396b299574d
 T015:
   task: b29bc60f845d5d4cf4c8494460e51aa8deaf4f762177471d7f704327c85f6b8d

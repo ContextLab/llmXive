@@ -1,13 +1,14 @@
 T004:
   c: false
-  h: a4f559182d7a5d65b4ab7da16f871481a9e3152f56d3bcb4ce805f8902bebcdd
-  r: "The required output `data/raw/dataset_manifest.json` does not exist, and `code/utils.py`\
-    \ never actually downloads OpenNeuro datasets \u2014 `download_and_verify_dataset`\
-    \ builds a URL it never uses and merely checks for pre-existing local directories\
-    \ (\"mock_path\"), so no real data fetching or EEG+questionnaire verification\
-    \ occurs. The file's `main()` also only sets up unrelated T007 logging infrastructure\
-    \ rather than producing the manifest."
-  sig: 8869103ffd660a486262f876add7fa2f505a6f845d89dc9e9bf724486697ed08
+  h: 8cde1018a7b5584c1fbda02994f9a790411ce0dba70d898092322cf22f078321
+  r: "The repository contains the required `code/utils.py` implementation, but the\
+    \ mandated output file `data/raw/dataset_manifest.json` does not exist. The task\
+    \ explicitly requires this manifest to be generated (with verification status\
+    \ and file paths) after downloading the corrected datasets (`ds003501` and `ds004137`).\
+    \ Without the manifest file, the core deliverable is missing. The implementer\
+    \ must run `generate_manifest` (or the module\u2019s `main`) to create `data/raw/dataset_manifest.json`\
+    \ and ensure it contains the expected JSON entries."
+  sig: cf3e0c230205fb8115add9870e2e179c390007b9774267d0de19381d7ff93fb8
 T006:
   c: true
   h: dff327bdee561f5478f7dfdff0b92810d05a41d5dd216c6f90ba56959a2133ff
@@ -18,16 +19,12 @@ T006:
     \ configuration, not a placeholder."
   sig: 2e738c3c6407c61e979551f9e3c11b36da64fe3cb168271fca7bde6dfe90ec5b
 T007:
-  c: true
-  h: b8b41f58fd54b9ee2eeb6d0e4f51817f8da1446e265bca563c16987437ab1cb4
-  r: "`code/utils.py` contains a real `setup_exclusion_logging()` implementation (directory\
-    \ creation, file handler, timestamped formatter, idempotent handler setup) plus\
-    \ a `log_exclusion()` helper, and `data/logs/exclusion.log` exists non-empty with\
-    \ the initialization header written by an actual execution (exit 0). Unit tests\
-    \ for the logging functions passed (4/4), and no fabricated exclusion records\
-    \ were injected \u2014 the log contains only the genuine initialization header,\
-    \ which matches the task's scope of building logging infrastructure."
-  sig: 8470f105925cfb8fdc3124fb862212ced95798946e7b90af701a86c62a219b25
+  c: false
+  h: 64a8536e6e1f1fa9f8572b6f084f021069cd265916a940fc628d7782ef4f6736
+  r: "Checked `code/utils.py` which contains the logging setup, but the required output\
+    \ file `data/logs/exclusion.log` is missing; no evidence shows the logger was\
+    \ run to create the log file. The task\u2019s output artifact is absent."
+  sig: ed56efbaf339b4b63f8722f80ba85e563310d628867ea3f4ad4356fb4f64ebe7
 T008:
   c: true
   h: f2ac5ff974b90ee5e46650b4d7a37e3f91aacb494cc3747e6dfcd47d987841e2
@@ -62,3 +59,40 @@ T011:
     \ would raise a `TypeError` and the test cannot pass. No execution evidence (e.g.,\
     \ pytest output) was supplied either; the test must be a"
   sig: d4b3d0c52396c5a42c4080d21b36efa220eea550318d80fa0755aaa2b924bc9b
+T012:
+  c: false
+  h: 6694579ddda71e0c02a0f7e6368264a6ccffc14bd5f1f9dda054c19142c6aeea
+  r: "The `download_eeg()` function in `code/preprocessing.py` only creates the output\
+    \ directory and checks for an existing path; it never performs a real download\
+    \ of the OpenNeuro dataset (ds004137) and merely raises a `FileNotFoundError`\
+    \ if the data is absent. Consequently, the required CPU\u2011only streaming download\
+    \ is not implemented. The function must contain actual download logic (e.g., using\
+    \ `datalad`, `mne-bids`, or HTTP streaming) that retrieves the specified dataset."
+  sig: 8d290ed4a54434e38752fc2f62992edcba9d18ad7626faceafd724a15358e3e6
+T013:
+  c: false
+  h: c6262aa3db0509107749f176e6502d3e8de25e030538788f1f0d0ce3964fe0ec
+  r: "The `apply_bandpass_filter()` function is present and applies a 1\u201140\u202F\
+    Hz FIR filter, but the implementation does not include any verification of the\
+    \ passband (e.g., checking the filter\u2019s frequency response or confirming\
+    \ that the intended band is retained). Adding a passband verification step is\
+    \ required to meet the task specification."
+  sig: 773b8d0555066fb5369dfdd941b22cb0869e1090a4001f8ee7504e7111600e47
+T014:
+  c: false
+  h: c5fdaf8fec3aeca374ac16641f2a6400c73e5c732b5daacf297e3f1494b57160
+  r: "The `run_ica_artifact_removal()` function exists, but it does **not** use ADJUST\
+    \ or MARA to detect ocular/muscle components; it simply hard\u2011codes removal\
+    \ of components `[0, 1]` and uses a proxy variance\u2011retention calculation.\
+    \ A genuine CPU\u2011compatible implementation must call the actual ADJUST/MARA\
+    \ algorithms (or their MNE equivalents) to identify bad ICA components rather\
+    \ than placeholder logic."
+  sig: 1a6053ca1a4690ad12ff6cd6724e57cbaaf0426e2c8c372caac31b2b9f7e5c48
+T015:
+  c: true
+  h: 730d281b569d4c0aaea80af14f9c73478967fd128874f4fc16cc12b5c69a8c63
+  r: "Checked `code/preprocessing.py` where `apply_average_rereference()` is fully\
+    \ implemented using MNE\u2019s `set_eeg_reference('average')` and returns the\
+    \ re\u2011referenced `Raw` object. The file exists, is non\u2011empty, and the\
+    \ function meets the task\u2019s specification."
+  sig: 149a8d1900e8b1a06b3e56bdbfb307a7a57662754a6f4051673e6b2f288d2a9d
