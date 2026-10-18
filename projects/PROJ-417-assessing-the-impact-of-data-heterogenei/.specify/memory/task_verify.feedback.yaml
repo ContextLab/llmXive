@@ -1,81 +1,30 @@
 T001:
-  reason: "Checked `code/requirements.txt` (contains an extra `psutil` package not\
-    \ listed among the allowed CPU\u2011only dependencies) and the required `data/raw/cochrane_base.csv`\
-    \ (missing, though the synthetic fallback exists). The extra dependency violates\
-    \ the task\u2019s strict dependency list, so the implementation does not fully\
-    \ meet the specification."
-  task: 820b146fe1b32473acbfb41cc6f7ff7e537670eff16194aff3b79a1e562fcb0e
-T002:
-  task: 376c0c4fb1e229234eefaf5ae8ac1e0b9c66b3336815d38a00be84c0f02fecb1
-T003:
-  task: 4384087d40e88678368e8be20ac6f3a68bef64c7c531dfa2d2681e582a7e300e
-T004:
-  reason: 'Requested task execution failed; rerun successfully: code/run_tests.sh
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/fetch_openml.py
     exit=1'
-  task: 8a154f87ae88709e1935a37c714ab4dd02b425d066a708f75377172d1debd8e6
+  task: 70ad3f2d2f2d612ce6cdc79f479c40ae8ef519c61adaff42ab48f07d5ffeb4d8
+T002:
+  task: 03c57268b8b61790e59dac4bc0c5118ce06937c9335e820ff5ae23f342189ab7
+T003:
+  task: 9403354e2d6743306dba4686bb542c32363d08cf8628c5a587cc400f86724286
+T004:
+  task: d6dbe6460ffbf763d285b5a4aa103e897fc55ad0c7f70755df32c9db34d85ca5
 T005:
-  task: df33e18308f5bbb0b22232f1a70d8d9edd213857ec8c5f80372cd182ad89c75e
+  task: 2799ea3d62a784af85a0573dbf6dbe8742a75fcad0763177f55bfeeb5400fcdf
 T006:
-  reason: "Checked `code/main.py`, `data/results/simulation_raw.json`, and the execution\
-    \ log `code/.tasks/T006.code_run_primary_sweep.py.log`. The JSON file is present\
-    \ but its size (\u224875\u202FKB) and the displayed excerpt suggest far fewer\
-    \ than the required 2\u202F500 replicate records, and no count is provided. The\
-    \ log records a run of a different script (`run_primary_sweep.py`) lasting only\
-    \ seconds and does not contain the required runtime or RAM usage information,\
-    \ nor does it show that `code/main.py` was invoked with the full\u2011sweep parameters.\
-    \ Consequently the task\u2019s quantitative and performance verification req"
-  task: 232d3906c31bebc21659e01463b3a2edec5c46026f659b64be4780441b3fe4bb
+  task: 8a4686bf0ddcb630d4e9015397da163b5814c31dffa734e88545b21ad1c1b85b
 T007:
-  reason: "Checked `code/analysis/stats.py` \u2013 it implements the exact binomial\
-    \ test, Shapiro\u2011Wilk test, conditional ANOVA/Kruskal\u2011Wallis logic, and\
-    \ a Bonferroni correction step. However, the required output file `data/results/aggregated_metrics.csv`\
-    \ is missing, so the verification artifact does not exist. The task is not fully\
-    \ satisfied."
-  task: 5bf4c12f156890cd2598ec9dc2b9e05669b146683ab829415bb7175c81149aa7
+  task: e3c2b7bfebd806a076939b4aae2eff04ec925b9a764c58dc3bf1d5cd490a5497
 T008:
-  reason: "The stability_analysis.json exists and has the right shape, but its values\
-    \ are not credible as genuine Monte Carlo results: a coverage-rate difference\
-    \ of 0.611 between two sweeps at the same \u03C4\xB2=0.1 (and 0.471 at \u03C4\xB2\
-    =0.5) is statistically implausible for real replicate simulations and suggests\
-    \ the sensitivity sweep data is broken, tiny-sample, or fabricated. Additionally,\
-    \ the sensitivity sweep log shows it \"completed\" in 1.1 seconds with no evidence\
-    \ it actually ran \u03C4\xB2 \u2208 {0.05, 0.1, 0.5} with real replicates, and\
-    \ \u03C4\xB2=0.05 does not appear in the stability comparison at all; the underlying\
-    \ `estimati"
-  task: 060588d92881ef7ed5127eb03e228579803df114d9d0d638ab02ce896dbec738
+  task: f056e97fbaca74cf2897aa8724afe3ad5e803cb1c7fa95f891120a927f9e00ef
 T009:
-  reason: "The `data/results/` directory listing (13 entries) contains no `coverage_vs_tau2.png`\
-    \ or `mean_bias_vs_tau2.png`, even though the execution log claims they were generated\
-    \ \u2014 the required verification `ls data/results/*.png` fails. The implementer\
-    \ must re-run `python code/visualization/plots.py` from the project root so both\
-    \ PNGs actually persist in `data/results/`."
-  task: 507093c60286cfcbe8e55e11ebf43696a07166ee0e72c54de5f4aac512b5f81d
+  task: 94459f56290172695adb7a0ce700090199e9a9842a77560ecdab597c35b547a4
 T010:
-  reason: "The `report.md` file does contain the required \u201Cassociational\u201D\
-    \ label and references to the result files, but it lists REML convergence failures\
-    \ that are not present in the source `data/results/reml_failures.json` (the JSON\
-    \ reports zero failures). This inconsistency means the report does not correctly\
-    \ compile the actual results, violating the task\u2019s requirement to include\
-    \ accurate REML failure counts. The report should reflect the true contents of\
-    \ `reml_failures.json`."
-  task: a22e5b45552fe90467ca594327afb55b363924e6c4c4a1942cdc9a0df37e0a42
+  task: 577140f9b173d73ee4aa60fca0e6086eb4fe6d636c0e2ca3c13df3f1cfed4390
 T011:
-  reason: The required integration test file `tests/integration/test_pipeline.py`
-    does not exist, so the task's verification criterion ("all integration tests pass")
-    cannot be demonstrated. Additionally, the SHA-256 checksums recorded in `state/artifact_hashes.yaml`
-    do not match the actual artifacts on disk (e.g., `reml_failures.json` recorded
-    as `2431e823...` but actual is `d2f0794a...`; `estimation_results.csv` recorded
-    `693f333e...` vs actual `280db05d...`; `run_summary.json` recorded `945467ce...`
-    vs actual `eff3e981...`), so checksums do not match the run. The `reml_failures.json`
-    also contains a f
-  task: 82306112c171373a57017966a62f1e67961c7c24bcd4aacb00c5fad4df287108
+  task: 40cf8285938963da8f1028c6d0ee64795a7e5c51918229514edf2cf1de548f82
 T012:
-  reason: "The handoff document exists and includes an artifact/FR-ID mapping and\
-    \ an N<5 limitation note, but its Results Overview is fabricated relative to the\
-    \ underlying data: it claims coverage declining to \u224851% at \u03C4\xB2=2.0\
-    \ and mean bias \u2248-3%, yet `run_summary.json`/`estimation_results.csv` contain\
-    \ only \u03C4\xB2 \u2208 {0, 0.1} with 10 replicates (not the claimed 5 levels\
-    \ \xD7 500 replicates); it claims REML converged for all replicates while `reml_failures.json`\
-    \ records a \"simulated crash\" failure; and it contains unresolved template placeholders\
-    \ (`{{claim:c_66cac4ad}}`, `[UNRESOLVED-CLAIM: c_bb1a1daf]`) and a liter"
-  task: a49a61bae509e264f0cfc92bc391951e6552f6a460598ea5478d6763bc25baf4
+  task: a70679c10a1638f53371580ec35e9f31665c64ee62f7b9b1c80da4262b1a16ca
+T013:
+  task: bfba92705f7336e0403d6172c369c706361190508f91de1aa6d9f583f7d7fe3a
+T014:
+  task: e605f05e3f21df9a480892f9692aa21b34cce5620c691014286261f94a404456

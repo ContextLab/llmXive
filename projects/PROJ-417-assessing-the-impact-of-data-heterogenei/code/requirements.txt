@@ -1,7 +1,6 @@
 numpy
-scipy
 pandas
-scikit-learn
+scipy
 matplotlib
 pyyaml
-psutil
+pytest
