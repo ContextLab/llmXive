@@ -1,15 +1,18 @@
 status: none
-intent: download Vaccine Adverse Event Reporting System 2020 2023 MedDRA SOC mapping
-  python package dataset
+intent: VAERS 2020-2023 MedDRA mapping python package dataset
 required_fields:
 - VAERS_ID
-- REPORT_DATE
 - VAX_TYPE
-- VAX_NAME
-- AGE_YRS
+- VACCINE_NAME
+- MEDDRA_CODE
+- MEDDRA_PT
+- SYSTEM_ORGAN_CLASS
+- AGE
 - SEX
-- MEDDRA_PT_CODE
-- MEDDRA_SOC
-cache_key: dbf0da4a501d544006ea95360eb8162a3289b26d669115c11ce42d14dd5559ab
-searched_at: '2026-10-18T18:32:24.446152+00:00'
+- VACCINATION_DATE
+- ONSET_DATE
+- REPORT_DATE
+- STATE
+cache_key: 61ff0e4766c26c6064da66a878e5cdb0aa7cad3cc09d8a4f2516f87509dc9700
+searched_at: '2026-10-18T18:34:02.677417+00:00'
 retry_count: 1

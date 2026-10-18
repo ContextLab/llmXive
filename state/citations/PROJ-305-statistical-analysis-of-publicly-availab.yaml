@@ -31,7 +31,7 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/chrisvoncsefalvay/vaers-outcomes/resolve/main/data/vaers_2020_2023.parquet
   verified_at: '2026-10-12T02:46:32.386404Z'
-- artifact_hash: 809fa23b8481cc084a5799dfd3f81aeeeb0c3235c61eb6b54497b985986d2c28
+- artifact_hash: 11d84f59329416b73c1067f74021d91c0814a992ba4499101cc575582ca61e35
   artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://vaers.hhs.gov/data/datasets/{Y}VAERSDATA.csv.zip`
   verification_status: mismatch
   verified_against_url: https://vaers.hhs.gov/data/datasets/%7BY%7DVAERSDATA.csv.zip
-  verified_at: '2026-10-18T18:31:31.828382Z'
-- artifact_hash: 809fa23b8481cc084a5799dfd3f81aeeeb0c3235c61eb6b54497b985986d2c28
+  verified_at: '2026-10-18T18:33:10.977899Z'
+- artifact_hash: 11d84f59329416b73c1067f74021d91c0814a992ba4499101cc575582ca61e35
   artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -52,8 +52,8 @@
   value: https://vaers.hhs.gov/data/datasets/{Y}VAERSVAX.csv.zip`
   verification_status: mismatch
   verified_against_url: https://vaers.hhs.gov/data/datasets/%7BY%7DVAERSVAX.csv.zip
-  verified_at: '2026-10-18T18:31:31.828382Z'
-- artifact_hash: 809fa23b8481cc084a5799dfd3f81aeeeb0c3235c61eb6b54497b985986d2c28
+  verified_at: '2026-10-18T18:33:10.977899Z'
+- artifact_hash: 11d84f59329416b73c1067f74021d91c0814a992ba4499101cc575582ca61e35
   artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -63,4 +63,4 @@
   value: https://vaers.hhs.gov/data/datasets/{Y}VAERSSYMPTOMS.csv.zip`
   verification_status: mismatch
   verified_against_url: https://vaers.hhs.gov/data/datasets/%7BY%7DVAERSSYMPTOMS.csv.zip
-  verified_at: '2026-10-18T18:31:31.828382Z'
+  verified_at: '2026-10-18T18:33:10.977899Z'
