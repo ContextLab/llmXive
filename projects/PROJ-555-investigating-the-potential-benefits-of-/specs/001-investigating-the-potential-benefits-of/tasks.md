@@ -12,12 +12,12 @@
   - If either check fails, write a descriptive error entry to `state/spec_validation.log` and raise `RuntimeError` to halt the pipeline.  
   - Verification: `grep -q "up to 30 valid sites" spec.md && grep -q "linear slope fallback" spec.md` succeeds; `state/spec_validation.log` is non‑empty only on failure.
 
-- [ ] T002 Create required project directory hierarchy with placeholder files.  
+- [X] T002 Create required project directory hierarchy with placeholder files.  
   - Make the following directories (if they do not exist): `data/raw/landsat/`, `data/processed/`, `data/ecotourism/`, `data/results/`, `figures/`.  
   - Add an empty `.gitkeep` file in each directory to guarantee its presence in version control.  
   - Verification: `find data -type d -exec test -e {}/.gitkeep \; -print` lists all created folders.
 
-- [ ] T003 [US1] Retrieve protected‑area metadata (WDPA) and produce site metadata.  
+- [ ] T003 [US1] Retrieve protected‑area metadata (WDPA) and produce site metadata.   <!-- FAILED-IN-EXECUTION: code/fetch_site_coordinates.py exit=1 -->
   - Download the canonical WDPA CSV from `[UNRESOLVED-CLAIM: https://d1gam3xoknrgr2.cloudfront.net/current/WDPA_WDOECM_csv.zip` — HTTP 404].  
   - Stream the zip, filter for candidate sites, and write `data/processed/site_metadata.csv` with columns `site_id,site_type,latitude,longitude,biome,protection_status,pairing_id`.  
   - Log the exact request URL, HTTP status, and timestamp to `data/raw/query_log.json`.  

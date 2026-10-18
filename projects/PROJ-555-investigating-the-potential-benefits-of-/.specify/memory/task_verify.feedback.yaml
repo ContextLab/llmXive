@@ -1,0 +1,56 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/spec_validation.log`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 04c818a7483817ca5e8e2c8dc4c05a491331be740f7ad298fc5e377207d060e5
+T002:
+  task: 8b1a3987560574fafee229e153ac7c2e540ab228dc7134e8839a5b63f71b6009
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/fetch_site_coordinates.py
+    exit=1'
+  task: 856285909bc72baef4fcecc98a3d9c3188856398783db24370cf70390d2f84ff
+T004:
+  task: 60ff5a8e4ac6848d1aee9c996faf5df3ccf584347c9e2b181adbf8a973f57b86
+T005:
+  task: 5189fca652912fce80b937d75120a0a9e79b352736cba02db155eb0e6a5c236c
+T006:
+  task: 817457cdaf98d9fe7ce8301514ae4075bd22e892ba8c10e5df19cdeaff6a2632
+T007:
+  task: dcd3def23493ed91f6f872d795664628d2ca3b8f00525c42632c7ae79a0cfede
+T008:
+  task: 13956e02b9adb52fd76fe7599b3cdb6a31266d311cd9c5915fc5823d691ed998
+T009:
+  task: fadf2f459f1f0b368ce9bd9ba38be68b31df26fceb51f27dae8916eefa8af309
+T010:
+  task: 7cba576a00d87042bd81d937d3b16c244e7e5225e495878cc7f0559c67ad05e0
+T011:
+  task: 9d09fa033bbcfa6fd8c23ea7d3beda072a43c963bf638df394aa734ebf549a62
+T012:
+  task: bc5d825ce8edb96ea4a30d96f7666e2a4d837d7ef9357044fc66e25e63bd7240
+T013:
+  task: b2e0d458436735d3d7d2497c231061b88cfee03f88dd025decbaaf52fea5dcb8
+T014:
+  task: 39af3b219d8ded44a8c8a58731c3bfa9751446a2f22f693d2bb0b42da5a725d5
+T015:
+  task: 3d7985a0141efc08569690ae237e580c931eb6353199e819b89c9ac32813b037
+T016:
+  task: b4e2e2400ec540feaa25f2ab354da839ac17c365affd4d30c56117983895f595
+T017:
+  task: 6a39284411be5000e081929eee279de6f6ff0c9113c568a835a441a72cc9c270
+T018:
+  task: 6bc16af2ef5ed0994410a85f72e361bd018b4afc0440edcb3d9de2967e1310f8
+T019:
+  task: 0179e4591a8f9d279a7fce19a5d26f733a54378fb85d19b481acb83dd6b2e728
+T020:
+  task: 8ba473aeb0c0e0bf1d1f976c3452aed18257bdf6463993387af7236a92d8cb25
+T021:
+  task: 941b205a62bcb3d3a6118aac7ead5b90833402026eeb0bd9e4669902738b1b15
+T022:
+  task: 568939f8afe3f74f5b7063b9dad336b4272b1c08233d3ff821d86dd86f5cd46d
+T023:
+  task: 5e1c46f4d167564aba4d156ba550335385afb0c70fa1879d46d5c833122ec0bf
+T024:
+  task: 4bf6ba8800237f147bf93312f29b05780af0b2a75b4549131d1ed67b0f0579c3
+T025:
+  task: ac5863a02e0e1df693405420eea55ba7050cfb47cfecdcb4a2ef35d7e92244fd

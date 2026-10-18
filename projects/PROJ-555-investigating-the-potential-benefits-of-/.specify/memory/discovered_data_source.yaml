@@ -1,0 +1,19 @@
+status: none
+intent: Landsat Surface Reflectance USGS EarthExplorer CHIRPS MODIS climate python
+  package dataset
+required_fields:
+- site_id
+- latitude
+- longitude
+- date
+- blue_reflectance
+- green_reflectance
+- red_reflectance
+- nir_reflectance
+- swir_reflectance
+- precipitation_mm
+- temperature_c
+- annual_revenue_usd
+cache_key: e7f3a17502d5477b215e060e0a7eed7e29dc7c3415e450b41cc343eb9fec7cbf
+searched_at: '2026-10-18T13:33:10.757881+00:00'
+retry_count: 1
