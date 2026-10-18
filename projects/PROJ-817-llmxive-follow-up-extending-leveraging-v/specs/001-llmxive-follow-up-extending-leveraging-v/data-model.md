@@ -1,28 +1,32 @@
-# Data Model: llmXive follow-up: extending "Leveraging Verifier-Based Reinforcement Learning in Image Editing"
-
-## Overview
-The project produces a series of intermediate and final artifacts. Each artifact is described by a JSON/YAML schema that the implementation tests will validate.
+# Data Model: llmXive follow‑up – Graph‑augmented Verifier Study
 
 ## 1. Raw Dataset (`raw_parquet`)
-- **Location**: `data/raw/` (downloaded parquet files from the three verified URLs).  
-- **Schema** (informal): columns `image_id`, `prompt`, `source_image_path`, etc., as provided by InstructPix2Pix. No modification is performed.
+- **Location**: `data/raw/` (three parquet files downloaded from the verified URLs).  
+- **Schema (informal)**: columns include `image_id`, `prompt`, `source_image_path`, etc., exactly as provided by InstructPix2Pix. No modification is performed.
 
 ## 2. Curated Prompt CSV (`curated_prompts.csv`)
 | Column | Type | Description |
 |--------|------|-------------|
 | `prompt_id` | string | Deterministic UUID for the prompt. |
-| `instruction_type` | enum(`conflicting`, `neutral`) | Ground‑truth label. |
+| `instruction_type` | enum(`conflicting`, `neutral`) | Ground‑truth label (balanced 500/500). |
 | `prompt_text` | string | Full natural‑language instruction. |
 | `synthetic_score` | number (0.0‑1.0) | Rule‑based feasibility heuristic (used only for conflict generation). |
 | `human_score` | number (0.0‑1.0) | Independent human‑annotated feasibility score (primary ground‑truth). |
 | `checksum` | string | SHA‑256 of the original parquet row (data hygiene). |
 
-## 3. Constraint Graph JSON (`graph_<prompt_id>.json`)
+## 3. Human Validation CSV (`human_validation.csv`)
+| Column | Type | Description |
+|--------|------|-------------|
+| `prompt_id` | string | Links to `curated_prompts.csv`. |
+| `human_rating` | number (0.0‑1.0) | Average rating from crowd workers. |
+| `annotation_source` | string | e.g., `"MTurk"` or `"internal_form"`. |
+
+## 4. Constraint Graph JSON (`graph_<prompt_id>.json`)
 ```yaml
 graph_id: string          # same as prompt_id
 nodes:
   - id: string            # e.g., "node_1"
-    label: string         # principle text
+    label: string         # principle phrase
     type: enum("principle")
 edges:
   - source: string        # node id
@@ -34,31 +38,24 @@ metadata:
   parse_timestamp: string   # ISO‑8601
 ```
 
-## 4. Baseline Scores CSV (`baseline_scores.csv`)
+## 5. Baseline Scores CSV (`baseline_scores.csv`)
 | Column | Type | Description |
 |--------|------|-------------|
 | `prompt_id` | string | Links to `curated_prompts.csv`. |
 | `verifier_score` | number (0.0‑1.0) | Alignment score from baseline verifier. |
-| `human_score` | number (0.0‑1.0) | Primary ground‑truth (copied from curated CSV). |
+| `human_score` | number (0.0‑1.0) | Copied from `curated_prompts.csv`. |
 | `alignment_delta` | number | `verifier_score - human_score`. |
 
-## 5. Augmented Scores CSV (`augmented_scores.csv`)
-Same schema as baseline, but includes three condition rows per prompt:
-- `graph_augmented` (graph context)
-- `control_filler` (random JSON filler)
-- `control_empty` (empty `{}`)
-
-## 6. Human Validation CSV (`human_validation.csv`)
+## 6. Augmented Scores CSV (`augmented_scores.csv`)
+Same columns as `baseline_scores.csv` plus:
 | Column | Type | Description |
 |--------|------|-------------|
-| `prompt_id` | string | Links to `curated_prompts.csv`. |
-| `human_rating` | number (0.0‑1.0) | Average rating from crowd workers. |
-| `annotation_source` | string | e.g., `"MTurk"` or `"internal_form"`. |
+| `condition` | enum(`graph_augmented`, `control_filler`, `control_empty`) | Indicates which context was used. |
 
 ## 7. Final Evaluation Report (`report.json`)
 ```yaml
 report_version: "1.0.0"
-generated_at: "2026-10-16T12:34:56Z"
+generated_at: "2026-10-17T12:00:00Z"
 runtime_seconds: integer
 memory_peak_gb: number
 tests:
