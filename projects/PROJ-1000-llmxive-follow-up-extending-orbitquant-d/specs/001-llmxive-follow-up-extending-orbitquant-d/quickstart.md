@@ -3,7 +3,7 @@
 ## Prerequisites
 - Python 3.11 or newer  
 - Git  
-- (Optional) Kaggle API token for GPU off‑load (`kaggle.json` placed in `~/.kaggle/`)
+- (Optional) Kaggle API token for GPU off‑load (`kaggle.json` placed in `~/.kaggle/`)
 
 ## Setup
 
@@ -66,6 +66,3 @@ pytest tests/integration/
 ```
 
 All test artifacts are written to `data/processed/` or `figures/`; no `state/` directory is touched.
-
----
-

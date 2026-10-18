@@ -1,10 +1,10 @@
 status: none
-intent: coco 2017 validation set download python package dataset
+intent: ms coco 2017 validation set parquet download python package dataset
 required_fields:
+- prompt_id
 - prompt_text
 - image_id
-- semantic_entropy
-- activation_variance_by_layer
-cache_key: 6b7e4a0de014a386546556b9b1b94eee0250f1337171ef8df4885dd03978efbe
-searched_at: '2026-10-12T11:28:28.279010+00:00'
+- caption
+cache_key: aa5ce915065b3f8ce028845ae675ad2655bc87a62de172977ffbd556868ade17
+searched_at: '2026-10-18T02:19:49.076223+00:00'
 retry_count: 1
