@@ -1,4 +1,4 @@
-# Core dependencies (already available in the base environment)
+# Core dependencies (already available in the execution environment)
 numpy
 pandas
 scipy
@@ -13,7 +13,10 @@ jsonschema
 psutil
 
 # Additional dependencies required for this project
-huggingface_hub>=0.20.0
-# Note: RDKit is required for later stages of the pipeline but is not
-# needed for the dataset download task (T001). It can be installed
-# separately when those stages are executed.
+rdkit-pypi
+torch==2.0.0
+torch-geometric
+torch-scatter
+torch-sparse
+torch-cluster
+torch-spline-conv

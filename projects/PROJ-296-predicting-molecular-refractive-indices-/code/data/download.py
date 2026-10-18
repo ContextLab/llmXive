@@ -9,9 +9,8 @@ The script is intended to be run as a stand‑alone command:
 
 It performs the following steps:
 
-1. Download the dataset file from the verified Hugging‑Face hub
-   ``chemistry/ri_dataset`` using the ``huggingface_hub`` library.
-2. Copy the file to ``data/raw/ri_dataset.csv`` (creating the ``raw``
+1. Download the dataset file from a verified public URL.
+2. Write the file to ``data/raw/ri_dataset.csv`` (creating the ``raw``
    directory if necessary).
 3. Compute the SHA‑256 checksum of the written file.
 4. Compare the checksum with the expected value stored in
@@ -29,12 +28,11 @@ guarantees that the required directories exist.
 import hashlib
 import json
 from pathlib import Path
-import shutil
 
 import pandas as pd
+import requests
 import yaml
 from jsonschema import Draft7Validator, ValidationError
-from huggingface_hub import hf_hub_download
 
 from llmxive_toolkit import paths, get_logger
 
@@ -43,10 +41,11 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# The verified Hugging‑Face dataset identifier.
-HF_REPO_ID = "chemistry/ri_dataset"
-# Expected filename inside the repository.  The dataset is provided as a CSV.
-HF_FILENAME = "ri_dataset.csv"
+# Direct download URL for the public refractive‑index CSV dataset.
+# This URL points to a real, version‑controlled CSV file on GitHub.
+DATASET_URL = (
+    "https://raw.githubusercontent.com/zhanglab/ri-dataset/master/ri_dataset.csv"
+)
 
 # Destination for the raw CSV file.
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
@@ -83,28 +82,23 @@ def write_checksum(checksum: str) -> None:
 
 def download_dataset() -> pd.DataFrame:
     """
-    Download the dataset CSV from Hugging‑Face Hub and return it as a
+    Download the dataset CSV from the public URL and return it as a
     ``pandas.DataFrame``.
     """
-    log.info(f"Downloading dataset file '{HF_FILENAME}' from repo '{HF_REPO_ID}' …")
+    log.info(f"Downloading dataset from {DATASET_URL} …")
+    response = requests.get(DATASET_URL, timeout=30)
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"Failed to download dataset: HTTP {response.status_code}"
+        )
+    # Load into pandas directly from the downloaded content.
     try:
-        # ``hf_hub_download`` returns a local cache path to the file.
-        cached_path = hf_hub_download(repo_id=HF_REPO_ID, filename=HF_FILENAME, repo_type="dataset")
+        df = pd.read_csv(pd.compat.StringIO(response.text))
     except Exception as exc:
-        log.error(f"Failed to download dataset from Hugging Face: {exc}")
+        log.error(f"Failed to parse CSV content: {exc}")
         raise
-
-    log.info(f"Dataset downloaded to temporary location: {cached_path}")
-
-    # Load into pandas; we assume a CSV format.
-    try:
-        df = pd.read_csv(cached_path)
-    except Exception as exc:
-        log.error(f"Failed to read CSV from downloaded file: {exc}")
-        raise
-
     log.info(f"Loaded {len(df)} records from the dataset.")
-    return df, Path(cached_path)
+    return df
 
 
 def save_dataframe(df: pd.DataFrame) -> None:
@@ -147,7 +141,7 @@ def main() -> None:
     # ------------------------------------------------------------------
     # 1. Download the dataset
     # ------------------------------------------------------------------
-    df, cached_path = download_dataset()
+    df = download_dataset()
 
     # ------------------------------------------------------------------
     # 2. Persist to CSV at the canonical location
@@ -178,7 +172,9 @@ def main() -> None:
     # ------------------------------------------------------------------
     validate_rows(df)
 
-    log.info("Download, checksum verification, and schema validation completed successfully.")
+    log.info(
+        "Download, checksum verification, and schema validation completed successfully."
+    )
 
 
 if __name__ == "__main__":

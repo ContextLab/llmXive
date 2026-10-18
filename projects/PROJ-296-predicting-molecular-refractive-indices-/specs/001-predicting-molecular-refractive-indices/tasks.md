@@ -4,13 +4,13 @@
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] **T001** [US1] Download the curated refractive‑index dataset as a **CSV** via `wget` from the verified URL, verify its SHA‑256 checksum, and store it under `data/raw/ri_dataset.csv`.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
+- [ ] **T001** [US1] Download the curated refractive‑index dataset as a **CSV** via `wget` from the verified URL, verify its SHA‑256 checksum, and store it under `data/raw/ri_dataset.csv`.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED: unspecified -->
   *File*: `code/data/download.py`  
   *Verification*:  
   • Checksum matches the published value (recorded in `state/download_checksum.txt`).  
   • Load the CSV with pandas and validate each row against `contracts/dataset.schema.yaml` (no schema errors).  
 
-- [ ] **T002** [US1] Preprocess raw records: parse SMILES with RDKit, filter molecules with molecular weight ≥ 500 Da, apply temperature normalization (Edlén equation when temperature is present), and generate node/edge features plus a global MW feature. Output processed splits `data/processed/train.csv`, `val.csv`, `test.csv`.  
+- [ ] **T002** [US1] Preprocess raw records: parse SMILES with RDKit, filter molecules with molecular weight ≥ 500 Da, apply temperature normalization (Edlén equation when temperature is present), and generate node/edge features plus a global MW feature. Output processed splits `data/processed/train.csv`, `val.csv`, `test.csv`.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1; code/data/preprocess.py exit=1 -->
   *File*: `code/data/preprocess.py`  
   *Verification*:  
   • Log file `logs/preprocess.log` reports counts of total, filtered, and excluded molecules.  
