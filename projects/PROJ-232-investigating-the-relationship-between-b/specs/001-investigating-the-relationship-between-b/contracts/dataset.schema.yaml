@@ -1,34 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "OpenNeuro ds000233 Dataset Schema"
+title: "Verified HCP Parquet Dataset Schema"
 type: "object"
 properties:
   subject_id:
     type: "string"
-    description: "Unique identifier for the subject (e.g., OpenNeuro ID)"
+    description: "Unique identifier for the participant (e.g., HCP ID)."
   age:
     type: "integer"
     minimum: 0
     maximum: 120
-    description: "Age of the subject in years"
+    description: "Age of the participant in years."
   sex:
     type: "string"
     enum: ["M", "F"]
-    description: "Biological sex of the subject"
-  bmrq_total:
-    type: "number"
-    description: "Total score on the Budapest Music Reward Questionnaire (BMRQ)"
+    description: "Biological sex of the participant."
   fd_mean:
     type: "number"
     minimum: 0
-    description: "Mean Framewise Displacement (motion metric)"
-  motion_excluded:
-    type: "boolean"
-    description: "Flag indicating if subject was excluded due to high motion (FD > 0.5)"
+    description: "Mean Framewise Displacement (mm) computed during preprocessing."
+  fc_upper_tri:
+    type: "array"
+    items:
+      type: "number"
+    description: "Upper‑triangular elements (including diagonal) of the functional connectivity matrix for the network under study, stored as a flat list."
+  behavioral_proxy:
+    type: "number"
+    description: "Optional music‑related behavioral score present in the dataset (e.g., music listening hours)."
 required:
   - subject_id
   - age
   - sex
-  - bmrq_total
   - fd_mean
-  - motion_excluded
+  - fc_upper_tri
 additionalProperties: false

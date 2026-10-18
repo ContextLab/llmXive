@@ -1,88 +1,64 @@
 # Research: Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Musical Emotion Perception
 
 ## Research Question
+*Exploratory Primary*: **Can resting‑state functional‑connectivity network metrics predict any available music‑related behavioral proxy** (e.g., `music_emotion_score`) present in the verified HCP parquet collection?  
+*Original (unavailable)*: Predict BMRQ total scores. Since BMRQ is not present in any open dataset, the original hypothesis cannot be tested; this limitation is documented in the Data‑Gap Report. The proxy is used **only for exploratory analysis** and is **not assumed** to measure the same construct (musical reward sensitivity) as the validated BMRQ.
 
-Does individual variation in resting-state functional connectivity (specifically global integration and segregation metrics) predict trait musical reward sensitivity (BMRQ scores)?
+## Construct Validity Disclaimer
+The optional `behavioral_proxy` column (if present) is **not** a validated measure of musical reward sensitivity. It may capture related but distinct aspects of music‑related behavior. Consequently, any significant associations reported are **exploratory** and should not be interpreted as evidence that resting‑state network dynamics predict the BMRQ construct. Future work should replicate findings with a formally validated musical emotion or reward questionnaire.
 
 ## Dataset Strategy
 
 ### Verified Datasets
-Based on the provided verified datasets block and external verification:
-1.  **OpenNeuro ds000233 (Music & Emotion)**:
-    *   URL: `https://openneuro.org/datasets/ds000233`
-    *   Content: Resting-state fMRI (NIfTI) and **BMRQ (Budapest Music Reward Questionnaire)** behavioral scores.
-    *   Access: Open, directly downloadable via `openneuro-py` or `bids-validator`.
-    *   **Status**: **VERIFIED**. Contains the exact BMRQ variable required by the spec.
-
-**Critical Gap Analysis**:
-*   **BMRQ Scores**: OpenNeuro contains BMRQ. **No gap**.
-*   **fMRI Data**: OpenNeuro provides raw NIfTI files. **No gap**.
-*   **Pre-computed Matrices**: OpenNeuro ds000233 does **not** provide pre-computed connectivity matrices. They must be generated via the pipeline.
-*   **Conclusion**: The specific dataset required by the spec is **available** via OpenNeuro ds000233.
+| Dataset | URL(s) | Contents | Status |
+|---|---|---|---|
+| **HCP Parquet Collection** | `https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet` <br> `https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv` <br> `https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet` | Demographics (`subject_id`, `age`, `sex`), motion metric (`fd_mean`), and pre‑computed functional‑connectivity vectors (`fc_upper_tri`). May contain an optional music‑related column (e.g., `music_emotion_score`). No BMRQ column. | **VERIFIED** |
+| **BMRQ** | *No verified source* | Budapest Music Reward Questionnaire total scores. | **UNVERIFIED** – cannot be fetched programmatically. |
 
 ### Variable Mapping & Feasibility
 
-| Variable | Spec Requirement | Verified Source Availability | Action Plan |
-| :--- | :--- | :--- | :--- |
-| **Resting-state fMRI** | Raw NIfTI (rs-fMRI) | **Available** in OpenNeuro ds000233. | Download raw NIfTI. Preprocess with fMRIPrep (Off-CI). |
-| **BMRQ Score** | Total score (Music Reward) | **Available** in OpenNeuro ds000233. | Directly use for regression. No proxy. |
-| **Demographics** | Age, Sex | **Available** in OpenNeuro ds000233. | Use for partial correlation. |
-| **Motion (FD)** | Framewise Displacement | **Available** (derived from fMRIPrep). | Use for partial correlation. |
+| Required Variable (Spec) | Presence in Verified Dataset | Action |
+|---|---|---|
+| `subject_id` | ✅ | Use as primary key. |
+| `age` | ✅ | Covariate for partial correlation. |
+| `sex` | ✅ | Covariate. |
+| `fd_mean` | ✅ | Covariate (motion). |
+| `BMRQ total` | ❌ (absent; no verified source) | Generate **Data‑Gap Report**; primary BMRQ hypothesis is **not** tested. |
+| `alternative music‑related score` (e.g., `music_emotion_score`) | *Conditional* – present only if the parquet files contain such a column. | If present, run **exploratory** analysis; otherwise skip behavioral modeling. |
+| `functional connectivity matrix` | ✅ (reconstructed from `fc_upper_tri`) | Proceed with graph‑metric calculations. |
 
-**Decision**: Proceed with OpenNeuro ds000233. The pipeline will download raw data, preprocess (Off-CI), and analyze. If BMRQ is missing (unexpected), the pipeline halts and generates a Data Gap Report.
+**Conclusion**: Because the BMRQ variable is unavailable, the study proceeds **only** if an alternative music‑related proxy exists; otherwise the pipeline stops after Phase 0 with a Data‑Gap Report.
 
 ## Statistical Rigor & Methodology
 
-### 1. Multiple Comparison Correction
-*   **Method**: Benjamini-Hochberg False Discovery Rate (FDR).
-*   **Application**: Applied to all edge-level correlations (200x199/2 edges) and network metric correlations.
-*   **Threshold**: q < 0.05.
-
-### 2. Sample Size & Power
-*   **Constraint**: CI runner limits (N=1 validation). Full dataset (N≈100) processed Off-CI.
-*   **Power Analysis**: 
-    *   Target: r ≥ 0.20.
-    *   Task 3.1 calculates achieved power for the actual N used.
-    *   If Power < 0.80, the report explicitly flags this limitation.
-*   **Stability Analysis**: 
-    *   **CI Run (N=1)**: **Skipped**. Bootstrap is invalid for N=1.
-    *   **Full Run (Off-CI)**: A sufficient number of bootstrap iterations mandated to assess metric stability.
-
-### 3. Causal Inference
-*   **Design**: Observational (Resting-state fMRI + Trait Survey).
-*   **Claim**: **Associational only**. No causal claims.
-*   **Confound Control**: Partial correlation controlling for Age, Sex, and FD.
-
-### 4. Measurement Validity & Multicollinearity
-*   **BMRQ**: Validated by OpenNeuro ds000233 documentation.
-*   **fMRI**: Validated by fMRIPrep (standard) and Schaefer 200 (standard atlas).
-*   **Collinearity**: 
-    *   Global efficiency and modularity are mathematically coupled.
-    *   **Action**: Compute Variance Inflation Factor (VIF) for all predictors.
-    *   **Threshold**: If VIF > 5, predictors are either removed or combined via PCA before regression.
-    *   **Reporting**: Report VIF values and the method used to handle collinearity.
+| Aspect | Method | Details |
+|---|---|---|
+| **Multiple‑Comparison Correction** | Benjamini‑Hochberg FDR | Applied to all metric‑wise partial correlations (global + 3 network‑specific + edge‑level set). Threshold `q < 0.05`. |
+| **Sample‑Size & Power** | `statsmodels.stats.power.CorrelationPower` | Target effect size `r ≥ 0.20`, α = 0.05. Achieved power is computed **per metric** and stored in the `power_achieved` column of `analysis_results.csv`. |
+| **Causal Inference** | Observational | All statements are **associational**; no causal claims are made. |
+| **Measurement Validity** | The proxy variable (if any) is **not** the validated BMRQ; its construct validity is limited. This limitation is explicitly reported and results are treated as exploratory. |
+| **Collinearity** | Variance Inflation Factor (VIF) | Predictors with VIF > 5 are removed before regression; VIF values are logged in `results/vif_report.json`. |
 
 ## Compute Feasibility
 
-*   **CPU-First**:
-    *   **CI (N=1)**: Validates pipeline logic, schema, and syntax. Runs in <15 min.
-    *   **Off-CI (Full N)**: `fMRIPrep` requires >7 GB RAM. Designated for local/GPU environment.
-    *   **Graph Metrics**: `NetworkX` and `bctpy` are CPU-efficient for 200x200 matrices.
-*   **GPU Escape Hatch**: Not required for this pipeline (no deep learning training).
-*   **Memory**: 
-    *   **CI**: 7 GB RAM limit. `fMRIPrep` is **not** run for N>1.
-    *   **Off-CI**: >16 GB RAM required for full fMRIPrep.
+- **CPU‑First**: All steps (download, matrix reconstruction, graph metrics, regression) run comfortably within the 7 GB RAM limit on the GitHub Actions free tier.  
+- **GPU Escape Hatch**: Not required.  
 
 ## Decision Rationale
 
-*   **Why OpenNeuro ds000233?**: It is the only verified open dataset containing the specific BMRQ instrument.
-*   **Why Off-CI for fMRIPrep?**: The 7 GB RAM limit on CI is insufficient for fMRIPrep. The CI pipeline validates logic, not heavy computation.
-*   **Why FDR?**: High-dimensional edge testing (thousands of edges) requires strict control of false positives.
-*   **Why VIF/PCA?**: To prevent spurious independent effect claims due to mathematical coupling of graph metrics.
+1. **Dataset Choice** – The HCP parquet collection is the only *verified* open source that supplies both demographics and pre‑computed connectivity features.  
+2. **BMRQ Absence** – No verified BMRQ source exists; the primary hypothesis therefore cannot be tested. The pipeline detects this early and aborts, avoiding wasted compute.  
+3. **Exploratory Path** – If a music‑related proxy is present, the same analytical workflow can be reused, preserving most of the intended scientific workflow while being transparent about construct‑validity limits.  
+4. **Statistical Choices** – FDR correction and VIF checks ensure robustness given the high dimensionality of edge‑level features.  
 
 ## Limitations
 
-1.  **CI Constraints**: Full preprocessing and analysis cannot be performed on the CI runner due to RAM limits.
-2.  **Power**: If the final sample size (N) is small (<80), power to detect r=0.20 will be low. This is explicitly reported.
-3.  **Data Availability**: If OpenNeuro ds000233 is unavailable or lacks BMRQ, the study halts. No proxies.
-4.  **Stability**: Bootstrap stability analysis is only performed on the full dataset (Off-CI), not on the CI validation sample.
+- **Primary behavioral measure missing** → The original hypothesis (BMRQ prediction) cannot be evaluated without a scope revision.  
+- **No raw fMRI** → fMRIPrep preprocessing is omitted; we rely on already‑derived connectivity vectors.  
+- **Power** – Sample size is limited to the number of subjects present in the parquet files (a modest number of participants). If `N < 80`, power to detect `r = 0.20` may fall below 0.80; this will be reported per metric.  
+- **Exploratory nature** – Findings based on a proxy behavioral variable are preliminary and should be interpreted cautiously.  
+
+---
+
+
+

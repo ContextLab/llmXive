@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1)
 
-The system MUST retrieve resting-state fMRI data and paired musical emotion behavioral scores from the HCP 1200 Subjects Release (specifically the subset with Music Task behavioral data) and preprocess the fMRI data to extract functional connectivity matrices.
+The system MUST retrieve resting-state fMRI data and paired musical emotion behavioral scores from the HCP Subjects Release (specifically the subset with Music Task behavioral data). and preprocess the fMRI data to extract functional connectivity matrices.
 
 **Why this priority**: Without clean, matched neural and behavioral data from the same subjects, no analysis can occur. This is the foundational step for the entire research question.
 
@@ -95,7 +95,7 @@ The system MUST perform partial correlation analyses controlling for covariates 
 
 - The Human Connectome Project (HCP) Subjects Release contains a specific subset of subjects with paired resting-state fMRI and BMRQ (or equivalent Music Reward) behavioral data, accessible via the HCP database or a cited linked dataset (e.g., HCP Music Task data).
 - fMRIPrep can run successfully in CPU-only mode on the GitHub Actions free tier without requiring CUDA or GPU acceleration.
-- The Schaefer 200 atlas is compatible with the HCP data preprocessing pipeline and provides a valid parcellation for the brain regions of interest.
+- The Schaefer atlas is compatible with the HCP data preprocessing pipeline and provides a valid parcellation for the brain regions of interest..
 - The computational load of graph theory metrics on 200x200 matrices fits within the 7 GB RAM limit of the CI runner.
 - The study design is observational; therefore, all findings will be framed as associational rather than causal.
 - Effect sizes for resting-state connectivity predicting individual differences in musical traits are expected to be small to moderate, consistent with current literature in neuroaesthetics and connectomics.
