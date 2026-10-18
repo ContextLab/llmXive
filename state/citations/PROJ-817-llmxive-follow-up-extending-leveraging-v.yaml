@@ -1,4 +1,4 @@
-- artifact_hash: cd8aeb0f7e3c14140e20ff158561dbc83143c5b230a0d14280de84eeb67cc59e
+- artifact_hash: 9f776e13486b4221042cab9deaa45d1bb4b23ba0d12fe8bea6bc72cff7b4ab93
   artifact_path: projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/specs/001-llmxive-follow-up-extending-leveraging-v/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://huggingface.co/datasets/timbrooks/instructpix2pix`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/timbrooks/instructpix2pix
-  verified_at: '2026-10-17T17:09:47.205126Z'
+  verified_at: '2026-10-18T04:11:11.808242Z'

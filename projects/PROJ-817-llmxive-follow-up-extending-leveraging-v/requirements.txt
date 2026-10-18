@@ -1,3 +1,2 @@
-datasets>=2.21.0
-pyarrow>=15.0.0
-numpy>=2.0.0
+datasets
+pyarrow

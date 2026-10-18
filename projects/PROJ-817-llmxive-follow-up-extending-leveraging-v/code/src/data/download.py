@@ -24,7 +24,6 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-import requests
 from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
@@ -62,7 +61,8 @@ def _iter_stream_hf():
     """Yield rows from the HF streaming loader.
 
     Primary method uses the ``datasets`` library. If that fails, it falls
-    back to loading the canonical parquet files via the HF Hub API.
+    back to loading the canonical parquet files via the hf:// protocol,
+    avoiding REST API authentication issues.
     """
     try:
         from datasets import load_dataset
@@ -76,39 +76,23 @@ def _iter_stream_hf():
             yield row
     except Exception as exc:
         log.warning(
-            "Primary HF streaming loader failed (%s); falling back to Parquet shards",
+            "Primary HF streaming loader failed (%s); falling back to hf:// parquet shards",
             exc,
         )
-        yield from _iter_stream_parquet_shards()
-
-def _iter_stream_parquet_shards():
-    """Fallback: Stream from canonical parquet shards on HF Hub.
-
-    Fetches the list of parquet files for the dataset and streams them
-    one by one using the 'parquet' loader.
-    """
-    from datasets import load_dataset
-    
-    log.info("Fetching parquet shard list from HF Hub API...")
-    api_url = f"https://huggingface.co/api/datasets/{DATASET_ID}/parquet/default/{SPLIT}"
-    resp = requests.get(api_url, timeout=30)
-    if resp.status_code != 200:
-        raise RuntimeError(f"Failed to fetch parquet shards from HF API: status {resp.status_code}")
-    
-    urls = resp.json() # This is usually a list of URLs to parquet files
-    if not isinstance(urls, list):
-        raise RuntimeError(f"HF API returned unexpected format for shards: {type(urls)}")
-
-    for url in urls:
-        log.info("Streaming shard: %s", url)
         try:
-            # Load the specific shard as a streaming dataset
-            ds_shard = load_dataset("parquet", data_files=url, split="train", streaming=True)
-            for row in ds_shard:
+            from datasets import load_dataset
+            # Fallback to canonical parquet shards using the hf:// protocol
+            # This is the robust way to access public shards without the REST API.
+            ds = load_dataset(
+                "parquet", 
+                data_files=f"hf://datasets/{DATASET_ID}/{SPLIT}/*.parquet", 
+                streaming=True
+            )
+            for row in ds:
                 yield row
-        except Exception as shard_exc:
-            log.error("Failed to stream shard %s: %s", url, shard_exc)
-            continue
+        except Exception as fallback_exc:
+            log.error("Fallback loader also failed: %s", fallback_exc)
+            raise RuntimeError("Unable to stream dataset from Hugging Face") from fallback_exc
 
 def collect_prompt_sample(
     n_prompts: int = N_PROMPTS,
@@ -161,7 +145,7 @@ def collect_prompt_sample(
         len(df),
         scanned,
     )
-    df.attrs["source"] = "datasets.load_dataset streaming (or Parquet fallback)"
+    df.attrs["source"] = "datasets.load_dataset streaming (or hf:// fallback)"
     df.attrs["scanned_rows"] = scanned
     return df
 

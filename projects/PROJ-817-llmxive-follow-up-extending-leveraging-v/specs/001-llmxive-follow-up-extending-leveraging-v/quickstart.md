@@ -37,7 +37,7 @@ python -m code.src.data.conflict_generator # injects contradictions into neutral
 - **Dataset ID**: `timbrooks/instructpix2pix` (Hugging Face)
 - **Split**: `train`
 - **Streaming rule**: `datasets.load_dataset("timbrooks/instructpix2pix", split="train", streaming=True)` — the full stream is scanned in fixed-size chunks without loading it into RAM.
-- **Real fallbacks** (same dataset, no synthetic data, used only if the primary loader fails on the runner): (1) the dataset's canonical auto-converted parquet shards listed by the official HF datasets-server API and the Hub parquet API, streamed shard-by-shard with `load_dataset("parquet", data_files=<url>, streaming=True)`. The source actually used is recorded in `data/raw/prompts_sample_provenance.json`.
+- **Real fallbacks** (same dataset, no synthetic data, used only if the primary loader fails on the runner): (1) the dataset's canonical auto-converted parquet shards accessed via the `hf://` protocol using `datasets.load_dataset("parquet", data_files=..., streaming=True)`. The source actually used is recorded in `data/raw/prompts_sample_provenance.json`.
 - **Checksums**: each output row carries a SHA-256 checksum over its `(edit_prompt, original_prompt, edit_type)` values; the output file's own SHA-256 is recorded in `data/raw/prompts_sample_provenance.json`.
 - **Output**: `data/raw/prompts_sample.parquet` — a sample of real `(image, edit_prompt)` prompt texts with non-null prompts and checksums, sized for exploratory analysis. The loader raises on any fetch error; there is no synthetic fallback.
 - **Runnable command**: `python -m code.src.data.download`
