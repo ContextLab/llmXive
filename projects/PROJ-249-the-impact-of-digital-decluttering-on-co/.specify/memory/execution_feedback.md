@@ -52,15 +52,12 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'utils.config'
 
 - python -m pytest tests/ -v -> rc=2
-_pattern.py:92
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
-  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+OJ-249-the-impact-of-digital-decluttering-on-co/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89
+  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-249-the-impact-of-digital-decluttering-on-co/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45
-  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+../../.llmxive-venvs/PROJ-249-the-impact-of-digital-decluttering-on-co/lib/python3.11/site-packages/matplotlib/_mathtext.py:45
+  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-249-the-impact-of-digital-decluttering-on-co/lib/python3.11/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
     ParserElement.enablePackrat()
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
@@ -69,7 +66,7 @@ ERROR tests/test_linting_config.py
 ERROR tests/unit/test_bootstrap_ci.py
 ERROR tests/unit/test_config.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 23 warnings, 3 errors in 1.30s ========================
+======================== 20 warnings, 3 errors in 0.97s ========================
 
 
 

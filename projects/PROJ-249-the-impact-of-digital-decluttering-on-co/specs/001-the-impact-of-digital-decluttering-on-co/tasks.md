@@ -16,7 +16,7 @@ The following spec-level changes are required to make the tasks and spec consist
 
 ## Phase 1 — Setup and first end-to-end analysis
 
-- [ ] T001 [P] [US1] Establish the project layout, configuration, pinned dependencies, and checksum manifest.
+- [X] T001 [P] [US1] Establish the project layout, configuration, pinned dependencies, and checksum manifest.
   Create `code/` (with `scoring/`, `analysis/`, `validation/`, `viz/`), `code/tests/`, `data/raw/`, `data/processed/`, `data/results/`, and document a single runnable command (e.g. `python -m code.pipeline.run_all --config code/config/study_config.yaml`) in the feature's `quickstart.md`. Create `code/config/study_config.yaml` with exactly these keys: `seed` (int), `n_participants` (int), `dropout_rate` (float), `effect_sizes` (per-metric dict: SART, Ospan, PSS-10, PANAS-PA, PANAS-NA), `practice_effect_grid` ([0.0, 0.2, 0.4]), `bootstrap_resamples` (10000), `start_date` (ISO date), `pilot_n` (5). Create `code/requirements.txt` pinning every Python dependency (constitution Reproducibility Requirement). Initialize `data/checksums.sha256` as the checksum manifest for all files under `data/` (constitution Principle III); it starts covering `code/config/study_config.yaml`-derived raw outputs as they appear and is appended to by every later task that writes under `data/`.
   *Verification*: the documented command executes end-to-end on the seeded simulation config without error; `quickstart.md` names it exactly; `code/requirements.txt` lists pinned versions; `study_config.yaml` contains all listed keys.
 

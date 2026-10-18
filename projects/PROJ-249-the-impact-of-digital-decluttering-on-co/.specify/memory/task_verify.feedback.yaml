@@ -1,6 +1,11 @@
 T001:
   task: 174633505f219c4b658f23ecedce846d2811425ec8414da62663e7d2ceae657f
 T002:
+  reason: "The scoring modules exist, but the unit\u2011test suite `code/tests/test_scoring.py`\
+    \ fails (six tests error with `NameError: name 'pytest' is not defined`). Because\
+    \ the required tests do not all pass, the task\u2019s verification condition is\
+    \ not satisfied. The missing import (and any related test fixes) must be added\
+    \ for the test suite to succeed."
   task: d1fa575b4e16934ab78d0c2914e360889d774ea4c38fe50367ff533b8b8dfe41
 T003:
   task: c8b14947bf6d6a4a0b6dcb00d594097a0474861d1d4c3c7f83e1d3c8854ae8b3
