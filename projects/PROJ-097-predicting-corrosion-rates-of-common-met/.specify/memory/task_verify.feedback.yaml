@@ -1,4 +1,6 @@
 T001:
+  reason: 'Requested task execution failed; rerun successfully: src/pipeline/run_all.py
+    exit=1'
   task: 4ee9e609e2658ed00f60f64a868e5d9a9300e160b77a37df767c23acb056d29d
 T002:
   task: 5ecb012897dfd740bcc238dafc82ccbd7426fb166c8d6d5e34faa109d04f27bc

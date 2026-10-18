@@ -11,10 +11,8 @@ T013:
   sig: 46ff0d56b5712d7219fa026683907a81623dfa559dadcc565bfa5eeda652d5f3
 T015:
   c: true
-  h: 991cc197cf6ad6b540e71ac20997b28771d41455889459175a3cd8a56d377d51
-  r: The artifact `specs/001-predicting-corrosion-rates-of-common-met/quickstart.md`
-    exists (3574 bytes) and contains the exact required command strings `python -m
-    src.pipeline.run_all` and `pytest src/tests/`. The task explicitly states execution
-    is not required at this stage, so the missing `src/tests/` directory is not a
-    defect for this documentation task.
-  sig: 20ad5fe91c2658af04ce6a321ba67f6c996ff2a18f005e87283f0d2f7a0ad326
+  h: 3b5dd7f7723c3ff366510c92a956f3c77505bd47a6d52365df0ef8a2cbdd7d2e
+  r: "Checked `specs/001-predicting-corrosion-rates-of-common-met/quickstart.md` \u2013\
+    \ it exists, is non\u2011empty, and includes the exact command strings `python\
+    \ -m src.pipeline.run_all` and `pytest src/tests/` as required."
+  sig: 1f79138199d015dac32f1a80aab355bf4925f3c15a048ce589e09099c94cdd00
