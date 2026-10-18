@@ -17,43 +17,37 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 ## Failing / missing run-book commands
 
-- python code/data/download.py -> rc=1
-on:
+- python -c "import rdkit; print(rdkit.__version__)" -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 200, in <module>
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'rdkit'
+
+- python code/data/download.py -> rc=1
+n:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 199, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 163, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 162, in main
     df = download_dataset()
          ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 100, in download_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 99, in download_dataset
     raise RuntimeError(
-RuntimeError: Failed to download dataset file 'ri_dataset.csv' from 'zhanglab/ri-dataset': 401 Client Error. (Request ID: Root=1-6ad4fd11-29f7082a0b239395351fd691;0f8dbe09-a0eb-40c4-a884-4fa8732ee54f)
+RuntimeError: Failed to download dataset file 'ri_dataset.csv' from 'chemistry/ri_dataset': 401 Client Error. (Request ID: Root=1-6ad55326-42d010c66a0ca62d3046f445;93a32445-19bd-4ac9-853e-9bd0d407a880)
 
-Repository Not Found for url: https://huggingface.co/datasets/zhanglab/ri-dataset/resolve/main/ri_dataset.csv.
+Repository Not Found for url: https://huggingface.co/datasets/chemistry/ri_dataset/resolve/main/ri_dataset.csv.
 Please make sure you specified the correct `repo_id` and `repo_type`.
 If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
 For more details, see https://huggingface.co/docs/huggingface_hub/authentication
 Invalid username or password.
 
 - python code/data/preprocess.py --filter-mw 500 --split-ratio 0.8,0.1,0.1 -> rc=1
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1026, in read_csv
-    return _read(filepath_or_buffer, kwds)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 620, in _read
-    parser = TextFileReader(filepath_or_buffer, **kwds)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1620, in __init__
-    self._engine = self._make_engine(f, self.engine)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1880, in _make_engine
-    self.handles = get_handle(
-                   ^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 873, in get_handle
-    handle = open(
-             ^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/data/raw/ri_dataset.csv'
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/preprocess.py", line 28, in <module>
+    from rdkit import Chem
+ModuleNotFoundError: No module named 'rdkit'
 
 - python training/train.py --epochs 200 --batch-size 32 --seed 42 -> rc=2
 

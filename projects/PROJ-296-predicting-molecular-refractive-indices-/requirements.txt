@@ -1,19 +1,9 @@
-# Core dependencies (already provided in the environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependencies required for this project
-huggingface_hub
-rdkit-pypi
-# PyTorch and PyTorch Geometric are installed in the CI environment;
-# they are not listed here to avoid version conflicts.
+# Project dependencies
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil)
+# are already provided by the execution environment.
+#
+# Additional third‑party packages required for this task:
+huggingface_hub>=0.23.0
+# PyTorch and PyTorch Geometric are required later in the pipeline;
+# they are installed separately as per the quickstart instructions.

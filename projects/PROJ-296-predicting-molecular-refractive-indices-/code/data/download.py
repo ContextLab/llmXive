@@ -41,8 +41,8 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Hugging Face repository identifier for the refractive‑index dataset.
-HF_REPO_ID = "zhanglab/ri-dataset"
+# Updated to a publicly accessible Hugging Face dataset.
+HF_REPO_ID = "chemistry/ri_dataset"
 
 # Name of the CSV file inside the repository.
 HF_DATASET_FILENAME = "ri_dataset.csv"
@@ -93,7 +93,6 @@ def download_dataset() -> pd.DataFrame:
             repo_id=HF_REPO_ID,
             filename=HF_DATASET_FILENAME,
             repo_type="dataset",
-            # Do not cache forever; we want a fresh copy each run.
             force_download=False,
         )
     except Exception as exc:
