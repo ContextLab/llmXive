@@ -1,37 +1,34 @@
 T001:
-  reason: "The \"downloaded\" files are not GWTC posterior samples at all: the execution\
-    \ log shows Zenodo record 3966973 served a PNG (\"xem video n\xE0o c\u1EE7a k\xEA\
-    nh youtube...png\") saved as `gwtc1.h5`, and record 3966974 served an `inscription_metadata_1804.json`\
-    \ (Sanskrit epigraphy metadata) saved as `gwtc2.h5` \u2014 the DOIs were unresolved\
-    \ claims pointing at unrelated records, and the code's fallback of \"first file\
-    \ if no .h5\" silently accepted wrong content. Additionally, `pytest tests/unit/test_download.py`\
-    \ FAILED (test_download_all, exit 1), and the \"checksum verification\" only hashes\
-    \ whatever was downloaded ra"
-  task: e125bcd44b2f5eb7a0ae82bf60a9a63afcfcdbbe2d2716db10c6337263eaff7a
-T002:
-  reason: 'Requested task execution failed; rerun successfully: src/data/preprocess.py
+  reason: 'Requested task execution failed; rerun successfully: code/src/data/download_gwtc.py
     exit=1'
-  task: d3f4e2c2c703902a166e24098ec91139de94b3a8f91af723fe378a495e8e7952
+  task: 61e98b51f8f655c1f375abe67dc156bd7221db770c352f5c7f8b0a572ba9c613
+T002:
+  task: f4c8cfd172a8a3afd2000a88058885270e6ad7a07957f9193587905c7ef1cc27
 T003:
-  reason: 'Requested task execution failed; rerun successfully: src/main.py exit=1'
-  task: e782dd93df1a3073e4aa0f971be03d856554d46546fc0dc145a229263a1a01d7
+  task: b7dc55744f27cd5c3559d9ec7433214c0cd65e752dd4c12de68f00d5d206c940
+T004:
+  task: 8915c04c003b986adc2f17c49725011b0370002d9af1f14606ecb46c05c03754
 T005:
-  task: 9c09d3656e88a0086183fc4ca4ff8feabf2e725c27f877761f287ef6cb6c4224
+  task: 090965ee8cdd428f529cdf9eb92ba58dc37fe492100e98b9936f77a9d5cde9c2
 T006:
-  task: 7a3822d2dc64eb78c3180039dc2590f442b3e236a49875b4dfdbfe0c59f62c41
+  task: aec2fd67b51a1c50c6641381126e49b6d8cdc22f2598ce01fb148cd2df4b115d
 T007:
-  task: 8433f2761ee3e2a48804dd9d0f32bafdb4bbb40133286bbf2fbc67489aeb4ad8
+  task: 71652128ff41a2cc9e9fa3c141e0b4a959f1e4f0a9c8fc65ae60e0b6777e5f3f
 T008:
-  task: b6a6a8f369941f71120c940af541725b44b7f21ab1c5d56ad2fe49be90bea00f
+  task: a36cd760508b309fbbfe0f0cc0ac5967e2e81bb5fc752de3d7ed62c7719f1731
 T009:
-  task: 395e75ed9d4db149b0b7d1697001cbf8a8fdae0ae48e67473f043bf744cb843e
+  task: 97eccd51753cce1cc9bce7b3cf8583875d77ee763f144157aa87b00a2cce966e
 T010:
-  task: f6354e5a7c1e8620e26670d0ad6078a791d4fb09e6fa1eacd7a0e5355845e837
+  task: 73cab37a84954ff051dd25281a82a6333dd35b1f11fe9df00082198ea2af6cb6
 T011:
-  task: f3e079fead426224a065a5b80b33ac086013abf232f5387f198f1af3abc76819
+  task: 9eecfb6bce55307b4a5dd37806858edbf70574f8be6d86f23bcd01f984d196dc
 T012:
-  task: 05a5bef412240ebd842dd9fd411824f8ed520e904e7e55b5881941da738f4cf0
+  task: e3d771d35c776f2a48fcc9cc0932b3f983d7826c4cb1b39e71a37c33f03bae87
 T013:
-  task: e13d93e80d756eb68aa9e520ec4fce2472bffaea89ac022259eb6593d589a34c
+  task: 225d38f2d39c4b653b0afe4d95d480481a26adc065f78c3404f65132a18c0ff9
+T014:
+  task: 10a596d172b62e4f8c7fe52cb016b1bbf9e4872c83a420d4a8048d002e2cdc94
 T015:
-  task: c62f1fe7608c7ab3a811f0c5b7cac52d7103bd086b3eabe15476391ef4df5cab
+  task: 189374b02ecf1e0d3b514123b29a90c5bc6949d9ebb17d4878bbbbf826c8d62a
+T016:
+  task: 7934321328c0ef48e99e11045ed8030673620c57169e30a65b4490df550cd8f0

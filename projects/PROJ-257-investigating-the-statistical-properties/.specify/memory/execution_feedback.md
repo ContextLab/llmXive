@@ -12,7 +12,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the synthetic BBH catalog (AM-001 hypo…”; 1 command(s) failed: python src/main.py (rc=1)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the synthetic BBH catalog (AM-001 hypo…”; 2 command(s) failed: python src/main.py (rc=1); python -m pytest tests/ (rc=2)
 
 ## Failing / missing run-book commands
 
@@ -22,6 +22,29 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/src/main.py", line 25, in <module>
     from src.data.download import download_all
 ModuleNotFoundError: No module named 'src.data.download'
+
+- python -m pytest tests/ -> rc=2
+/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_download_gwtc.py:14: in <module>
+    import h5py
+E   ModuleNotFoundError: No module named 'h5py'
+________________ ERROR collecting tests/unit/test_preprocess.py ________________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/tests/unit/test_preprocess.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_preprocess.py:7: in <module>
+    import h5py
+E   ModuleNotFoundError: No module named 'h5py'
+=========================== short test summary info ============================
+ERROR tests/unit/test_download.py
+ERROR tests/unit/test_download_gwtc.py
+ERROR tests/unit/test_preprocess.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 3 errors in 0.51s ===============================
+
 
 ## Platform-owned paths written inside the project
 

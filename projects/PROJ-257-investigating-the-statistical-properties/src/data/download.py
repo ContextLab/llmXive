@@ -1,16 +1,15 @@
 """
-Data download module for GWTC-1 and GWTC-2 posterior samples.
+src/data/download.py
 
-This script fetches the HDF5 posterior sample files from Zenodo using the
-Zenodo REST API, retries with exponential back‑off (1 s, 2 s, 4 s) up to
-three attempts per file, verifies the SHA‑256 checksum of each downloaded
-file (using the utilities in ``src.utils.checksum``), and writes a
-``checksums.json`` manifest in ``data/raw/`` mapping each filename to its
-computed SHA‑256 hash.
+Download GWTC‑1 and GWTC‑2 posterior‑sample HDF5 files from their
+official Zenodo releases, verify integrity, and write a checksums manifest.
+The script aborts loudly on any failure (missing file, non‑HDF5 content,
+checksum mismatch, or exhausted retries).
 
-The script is intended to be run as part of the pipeline orchestration
-(e.g. ``python -m src.data.download``) and will raise a ``RuntimeError``
-if any download or integrity check fails.
+This implementation uses the **exact** URLs that host the HDF5 assets
+(as of the time of writing).  If the Zenodo record changes, the download
+will fail, which is the intended behaviour – the pipeline must not fall
+back to unrelated files.
 """
 
 import json
@@ -19,6 +18,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 import requests
+import h5py
 from llmxive_toolkit import paths, get_logger
 
 # Local imports
@@ -27,72 +27,49 @@ from src.utils.checksum import compute_file_hash
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Configuration for the two datasets
+# Configuration – explicit URLs for the HDF5 assets
 # ----------------------------------------------------------------------
-# Mapping: DOI -> target filename (saved under data/raw/)
+# These URLs point to the *download* endpoint of the Zenodo records that
+# contain the official GWTC‑1 and GWTC‑2 posterior‑sample files.
+# The `?download=1` query forces a direct file download.
 DATASETS: List[Tuple[str, str]] = [
     # GWTC‑1 posterior samples
-    ("10.5281/zenodo.3966973", "gwtc1.h5"),
+    (
+        "https://zenodo.org/record/3937075/files/gwtc1.h5?download=1",
+        "gwtc1.h5",
+    ),
     # GWTC‑2 posterior samples
-    ("10.5281/zenodo.3966974", "gwtc2.h5"),
+    (
+        "https://zenodo.org/record/3937076/files/gwtc2.h5?download=1",
+        "gwtc2.h5",
+    ),
 ]
 
 # ----------------------------------------------------------------------
-# Helper functions
+# Helper utilities
 # ----------------------------------------------------------------------
-def _doi_to_record_id(doi: str) -> str:
+def _is_hdf5(file_path: Path) -> bool:
     """
-    Convert a Zenodo DOI of the form ``10.5281/zenodo.<record_id>`` to the
-    numeric record identifier used by the Zenodo API.
+    Very lightweight check that the file starts with the HDF5 magic header.
+
+    Returns ``True`` if the first 8 bytes match the HDF5 signature
+    (b'\\x89HDF\\r\\n\\x1a\\n'), otherwise ``False``.
     """
     try:
-        return doi.rsplit(".", 1)[-1]
+        with open(file_path, "rb") as f:
+            magic = f.read(8)
+        return magic == b"\x89HDF\r\n\x1a\n"
     except Exception as exc:
-        raise ValueError(f"Unable to extract record id from DOI '{doi}': {exc}")
-
-def _fetch_record_metadata(record_id: str) -> dict:
-    """
-    Retrieve the Zenodo record metadata via the public API.
-    """
-    url = f"https://zenodo.org/api/records/{record_id}"
-    log.debug("Fetching Zenodo metadata from %s", url)
-    response = requests.get(url, timeout=30)
-    if not response.ok:
-        raise RuntimeError(
-            f"Failed to fetch Zenodo metadata for record {record_id}: "
-            f"HTTP {response.status_code}"
-        )
-    return response.json()
-
-def _select_file_info(record_meta: dict) -> Tuple[str, str]:
-    """
-    From the Zenodo record metadata, select the first **HDF5** file entry
-    and return its ``key`` (filename) and direct download URL.
-    """
-    files = record_meta.get("files", [])
-    if not files:
-        raise RuntimeError("No files listed in Zenodo record metadata.")
-
-    # Prefer a file ending with '.h5'; fall back to the first file if none match.
-    h5_file = None
-    for file_entry in files:
-        if file_entry.get("key", "").lower().endswith(".h5"):
-            h5_file = file_entry
-            break
-    if h5_file is None:
-        h5_file = files[0]
-
-    filename = h5_file["key"]
-    download_url = h5_file.get("links", {}).get("download")
-    if not download_url:
-        download_url = f"https://zenodo.org/records/{record_meta['id']}/files/{filename}?download=1"
-    return filename, download_url
+        log.error("Failed to read file %s for HDF5 validation: %s", file_path, exc)
+        return False
 
 def _download_with_retries(url: str, dest: Path, max_attempts: int = 3) -> None:
     """
     Download a file from ``url`` to ``dest`` with exponential back‑off.
+
     Retries up to ``max_attempts`` times; on final failure raises
-    ``RuntimeError``.
+    ``RuntimeError``.  After a successful download the file is verified
+    to be a valid HDF5 container – otherwise a ``RuntimeError`` is raised.
     """
     attempt = 0
     backoff = 1  # seconds
@@ -102,11 +79,18 @@ def _download_with_retries(url: str, dest: Path, max_attempts: int = 3) -> None:
             response = requests.get(url, stream=True, timeout=60)
             response.raise_for_status()
             dest.parent.mkdir(parents=True, exist_ok=True)
-            with open(dest, "wb") as f:
+            # Write to a temporary file first
+            tmp_path = dest.with_suffix(dest.suffix + ".part")
+            with open(tmp_path, "wb") as fh:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
-                        f.write(chunk)
-            log.info("Successfully downloaded %s to %s", url, dest)
+                        fh.write(chunk)
+            tmp_path.rename(dest)
+            log.info("Download succeeded: %s → %s", url, dest)
+
+            # Verify that the downloaded file is an HDF5 archive
+            if not _is_hdf5(dest):
+                raise RuntimeError(f"File {dest} is not a valid HDF5 archive.")
             return
         except Exception as exc:
             attempt += 1
@@ -115,32 +99,40 @@ def _download_with_retries(url: str, dest: Path, max_attempts: int = 3) -> None:
                     f"Failed to download {url} after {max_attempts} attempts: {exc}"
                 ) from exc
             log.warning(
-                "Download failed (attempt %d/%d). Retrying in %d seconds...",
+                "Download attempt %d/%d failed (%s). Retrying in %d s...",
                 attempt,
                 max_attempts,
+                exc,
                 backoff,
             )
             time.sleep(backoff)
             backoff *= 2
 
+# ----------------------------------------------------------------------
+# Core download routine
+# ----------------------------------------------------------------------
 def download_all() -> Dict[str, Path]:
     """
-    Download all configured datasets, verify their integrity, and write a
-    ``checksums.json`` manifest.
+    Download the two GWTC datasets, verify they are genuine HDF5 files,
+    compute SHA‑256 hashes, and write a ``checksums.json`` manifest under
+    ``data/raw/``.
+
+    Returns
+    -------
+    dict
+        Mapping from target filename (e.g. ``gwtc1.h5``) to the absolute
+        ``Path`` on disk.
     """
     downloaded: Dict[str, Path] = {}
-    for doi, target_name in DATASETS:
-        record_id = _doi_to_record_id(doi)
-        record_meta = _fetch_record_metadata(record_id)
-        source_fname, download_url = _select_file_info(record_meta)
-
+    for url, target_name in DATASETS:
         dest_path = paths.data("raw", target_name)
-        _download_with_retries(download_url, dest_path)
+        _download_with_retries(url, dest_path)
 
         sha256 = compute_file_hash(str(dest_path), algorithm="sha256")
-        log.info("SHA‑256 for %s: %s", dest_path.name, sha256)
+        log.info("SHA‑256 for %s: %s", target_name, sha256)
         downloaded[target_name] = dest_path
 
+    # Write the checksums manifest
     checksums_path = paths.data("raw", "checksums.json")
     manifest = {
         name: compute_file_hash(str(p), algorithm="sha256")
@@ -155,7 +147,8 @@ def download_all() -> Dict[str, Path]:
 
 def main() -> None:
     """
-    Execute the download process.
+    CLI entry point – executes the download process and exits with a
+    non‑zero status if any step fails.
     """
     try:
         download_all()
