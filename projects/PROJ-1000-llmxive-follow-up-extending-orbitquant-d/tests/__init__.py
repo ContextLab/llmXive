@@ -1,1 +1,3 @@
-"""Test package marker."""
+"""
+Package marker for the `tests` module.
+"""

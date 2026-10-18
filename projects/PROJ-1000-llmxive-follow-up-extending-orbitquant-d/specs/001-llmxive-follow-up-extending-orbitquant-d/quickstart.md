@@ -38,10 +38,10 @@ Initialization complete
 ```
 
 This indicates that:
-- All required sub-directories under `code/` (analysis, models, quantization,
+- All required sub‑directories under `code/` (analysis, models, quantization,
   evaluation, utils, data, runners, validation, security) have been created,
   each with an `__init__.py` package marker.
-- The `tests/` and `tests/unit/` directories are in place.
+- The `tests/` directory is in place.
 - The `data/raw`, `data/processed` (with `logs/`, `activation_stats/`,
   `rotation_matrices/`, `generated_images/`) and `figures/` directories are
   also in place.
@@ -49,14 +49,14 @@ This indicates that:
 Note: the entry point uses `parse_known_args`, so piping its output
 (e.g. `python -m code.main --phase init | grep "Initialization complete"`)
 works both in a shell and when the pipe fragment is passed as literal
-arguments by a non-shell runner.
+arguments by a non‑shell runner.
 
 ## Verification
 
 You can run a few quick checks to confirm the setup:
 
 ```bash
-# Count the number of sub-directories under code/
+# Count the number of sub‑directories under code/
 find code/ -type d | wc -l   # should be ≥ 8
 
 # Ensure the config module imports without error
