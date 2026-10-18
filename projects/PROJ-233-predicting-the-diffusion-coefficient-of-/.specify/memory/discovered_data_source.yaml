@@ -1,0 +1,15 @@
+status: none
+intent: NIST Standard Reference Database hydrogen diffusion Journal Materials Science
+  Materials Project python package dataset
+required_fields:
+- composition
+- processing_history
+- temperature
+- diffusion_coefficient
+- mean_electronegativity
+- atomic_radius_variance
+- free_volume_proxy
+- grain_boundary_density
+cache_key: fd5f3dd30a08b2edf8156deeddfc2d53408b447fb5f3774154f4a5fe108045ac
+searched_at: '2026-10-18T14:32:40.093296+00:00'
+retry_count: 1

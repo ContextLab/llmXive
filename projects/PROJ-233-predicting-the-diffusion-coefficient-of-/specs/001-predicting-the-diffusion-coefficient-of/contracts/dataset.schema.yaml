@@ -1,0 +1,30 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Hydrogen Diffusion Dataset Schema"
+type: object
+additionalProperties: false
+required:
+  - sample_id
+  - composition
+  - processing_params
+  - temperature
+  - diffusion_coefficient
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for each material sample."
+  composition:
+    type: array
+    items:
+      type: string
+    description: "List of element symbols (e.g., ['Fe', 'Cr'])."
+  processing_params:
+    type: object
+    description: "Dictionary of processing‑history numeric parameters (e.g., annealing temperature, cooling rate)."
+    additionalProperties:
+      type: number
+  temperature:
+    type: number
+    description: "Measurement temperature in Kelvin."
+  diffusion_coefficient:
+    type: number
+    description: "Hydrogen diffusion coefficient in m²/s (raw target)."
