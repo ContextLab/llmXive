@@ -17,14 +17,17 @@ REPO_TYPE = "dataset"
 def _list_repo_files() -> List[str]:
     """
     Retrieve a list of all file paths in the remote repository.
+    Filters out directories and hidden files.
     """
     api = HfApi()
     # `repo_files` returns a list of file paths relative to the repo root.
     repo_files = api.list_repo_files(repo_id=REPO_ID, repo_type=REPO_TYPE)
-    # Filter out any hidden files that are not part of the dataset payload
-    # (e.g., .gitattributes, .gitignore, README, etc.)
-    data_files = [f for f in repo_files if not f.startswith(".")]
-    log.debug(f"Found {len(data_files)} files in the repository.")
+    # Keep only regular files (skip entries ending with '/')
+    data_files = [
+        f for f in repo_files
+        if not f.startswith(".") and not f.endswith("/")
+    ]
+    log.debug(f"Found {len(data_files)} data files in the repository.")
     return data_files
 
 def _download_file(filename: str, target_dir: Path) -> Path:
