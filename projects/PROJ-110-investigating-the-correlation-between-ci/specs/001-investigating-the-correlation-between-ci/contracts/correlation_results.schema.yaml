@@ -8,6 +8,9 @@ properties:
   trait:
     type: string
     description: "Metabolic trait (e.g., 'BMI', 'fasting_glucose')."
+  tissue:
+    type: string
+    description: "GTEx tissue where the correlation was estimated."
   rho:
     type: number
     description: "Spearman or Pearson correlation coefficient."
@@ -28,6 +31,7 @@ properties:
 required:
   - gene_symbol
   - trait
+  - tissue
   - rho
   - p_raw
   - p_adj

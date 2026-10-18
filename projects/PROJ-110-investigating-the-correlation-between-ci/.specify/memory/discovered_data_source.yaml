@@ -1,17 +1,15 @@
 status: none
-intent: METSIM muscle RNAseq TPM and phenotype with GTEx v8 and MESA python package
-  dataset
+intent: METSIM muscle RNA-seq TPM dataset download dbGaP python package dataset
 required_fields:
 - sample_id
+- gene_id
+- tpm
 - bmi
 - fasting_glucose
 - systolic_bp
 - diastolic_bp
 - triglycerides
-- hdl
-- pmi
-- gene_id
-- tpm
-cache_key: 00e0d48955fe7baf17763ac03696f334c44e518df1c7b37fb3fc29cfcd690e5b
-searched_at: '2026-09-22T18:40:56.915214+00:00'
+- hdl_cholesterol
+cache_key: 559fb5ac5cd3634f326c2d15a51e12437a77d241525892f93b77f6282963bdbe
+searched_at: '2026-10-18T08:19:01.338843+00:00'
 retry_count: 1

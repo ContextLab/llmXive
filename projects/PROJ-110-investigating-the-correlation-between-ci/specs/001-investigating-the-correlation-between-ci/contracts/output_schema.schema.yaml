@@ -1,5 +1,3 @@
-# This file is DEPRECATED. Please use output.schema.yaml as the single source of truth.
-# This file is kept for backward compatibility but contains no new definitions.
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema (Deprecated)"
 description: "This schema is deprecated. Use output.schema.yaml."

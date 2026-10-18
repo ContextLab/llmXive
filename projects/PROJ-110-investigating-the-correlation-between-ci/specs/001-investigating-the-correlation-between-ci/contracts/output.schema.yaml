@@ -1,34 +1,34 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Output Schema"
 description: "Schema for statistical analysis results and model outputs."
-type: "object"
+type: object
 properties:
   statistical_results:
-    type: "array"
+    type: array
     items:
-      type: "object"
+      type: object
       properties:
         gene_symbol:
-          type: "string"
+          type: string
         tissue:
-          type: "string"
+          type: string
         test_type:
-          type: "string"
-          enum: ["wilcoxon", "logistic_regression", "correlation"]
+          type: string
+          enum: ["ANCOVA", "logistic_regression", "correlation"]
         statistic:
-          type: "number"
+          type: number
         p_value:
-          type: "number"
+          type: number
           minimum: 0
           maximum: 1
         adj_p_value:
-          type: "number"
+          type: number
           minimum: 0
           maximum: 1
         effect_size:
-          type: "number"
+          type: number
         significant:
-          type: "boolean"
+          type: boolean
       required:
         - gene_symbol
         - tissue
@@ -37,33 +37,33 @@ properties:
         - adj_p_value
         - significant
   model_metrics:
-    type: "object"
+    type: object
     properties:
       auc_mean:
-        type: "number"
+        type: number
         minimum: 0
         maximum: 1
       auc_std:
-        type: "number"
+        type: number
         minimum: 0
       cv_folds:
-        type: "integer"
+        type: integer
         minimum: 1
       odds_ratios:
-        type: "object"
+        type: object
         additionalProperties:
-          type: "object"
+          type: object
           properties:
             or:
-              type: "number"
+              type: number
             se:
-              type: "number"
+              type: number
             p_value:
-              type: "number"
+              type: number
             ci_lower:
-              type: "number"
+              type: number
             ci_upper:
-              type: "number"
+              type: number
           required:
             - or
             - se

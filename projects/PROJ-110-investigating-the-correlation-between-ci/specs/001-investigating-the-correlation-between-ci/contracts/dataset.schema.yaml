@@ -7,7 +7,7 @@ properties:
     description: "Unique identifier for each donor."
   tissue:
     type: string
-    description: "GTEx or METSIM tissue name (e.g., 'Muscle_Skeletal')."
+    description: "GTEx tissue name (e.g., 'Muscle_Skeletal')."
   age:
     type: integer
     minimum: 0
@@ -19,7 +19,7 @@ properties:
   PMI:
     type: number
     minimum: 0
-    description: "Post‑mortem interval in hours; may be null if unavailable."
+    description: "Post‑mortem interval in hours; may be null."
   time_of_death:
     type: number
     minimum: 0

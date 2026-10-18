@@ -1,92 +1,85 @@
 # Research: Investigating the Correlation Between Circadian Gene Expression and Metabolic Syndrome Risk
 
 **Feature**: `001-circadian-metabolic-correlation`  
-**Date**: 2026-09-22  
+**Date**: 2026-10-18  
 
 ## Overview
-The study will **perform a full case/control analysis** of core circadian gene expression versus Metabolic Syndrome (MetS) status using the **open METSIM muscle RNA‑seq cohort**, which supplies both TPM expression and the full ATP‑III clinical panel. GTEx v8 TPM matrices are retained **only for exploratory supplementary analyses** where phenotype data are unavailable. The pipeline also conducts continuous‑trait correlation analyses on METSIM donors, providing a complementary view of gene‑trait relationships.
+The study explores how core circadian gene expression relates to metabolic‑trait variation using openly available datasets. Because the METSIM cohort (required for binary MetS labeling) lacks a verified open source, the analysis proceeds **exploratory**: we treat each ATP‑III component (BMI, fasting glucose, blood pressure, triglycerides, HDL) as a continuous variable and also construct a composite risk score for optional high‑risk grouping (used only in sensitivity analyses, not as a primary endpoint).
 
 ## Decision / Rationale
 | Decision | Rationale | Compute Mode |
 |----------|-----------|--------------|
-| Use METSIM muscle RNA‑seq as the primary cohort | METSIM provides the required ATP‑III variables for bona‑fide MetS labeling, satisfying FR‑001, FR‑002, and FR‑026. | **CPU‑first** – all statistical models run comfortably on 2 CPU cores. |
-| Use GTEx v8 TPM matrices as exploratory supplement | GTEx is openly downloadable via HuggingFace URLs (verified). Allows tissue‑wide exploratory profiling where METSIM lacks coverage. | CPU |
-| Apply global Benjamini‑Hochberg correction across all tests | Required by FR‑007, FR‑012, FR‑014, FR‑024; computationally trivial on CPU. | CPU |
-| Conduct genuine binary MetS classification (FR‑001, FR‑002) | Enables DE and logistic‑regression analyses; avoids synthetic labeling. | CPU |
-| Perform a priori power analyses for each analysis type | Ensures transparency about exploratory vs. adequately powered components. | CPU |
-| External validation using an independent METSIM batch | Meets FR‑010 and SC‑006 by reproducing pipelines on a held‑out sequencing batch, demonstrating generalizability. | CPU |
-| CI workflow includes a step asserting `torch.cuda.is_available()==False` | Satisfies T060 requirement; ensures CPU‑only execution. | CPU |
+| Use **GTEx v8 TPM** for expression (open via HuggingFace) | Provides high‑quality, tissue‑wide expression for all core circadian genes; satisfies FR‑001 (exploratory) and FR‑026 (open dataset with expression). | **CPU‑first** |
+| Use **public phenotype datasets** (BMI, HDL, ATP‑III component files) to obtain metabolic traits | These datasets are verified and publicly downloadable; they supply the continuous traits required for FR‑007 and FR‑024. | CPU |
+| **Omit binary MetS classification** (FR‑001/FR‑002) and treat MetS status as **exploratory** | No open dataset contains the full ATP‑III panel per donor; constructing a reliable binary label would violate Constitution Principle VI. | CPU |
+| Perform **global Benjamini‑Hochberg** correction across all tests | Required by FR‑004, FR‑012, FR‑014, FR‑024; computationally trivial on CPU. | CPU |
+| Conduct **a priori power analyses** for each analysis type | Ensures transparency about exploratory vs. adequately powered components (FR‑011, SC‑007). | CPU |
+| **External validation** is documented as unavailable due to lack of verified MESA RNA‑seq with phenotype. | Prevents fabricating data; aligns with the “document limitation” approach. | N/A |
+| CI workflow includes a step asserting `torch.cuda.is_available()==False` | Satisfies T060 and guarantees CPU‑only execution. | CPU |
+| **Binary logistic regression** (FR‑005/FR‑006) is **not implemented** because binary MetS labels cannot be derived. | Without FR‑002, FR‑005/FR‑006 are unsatisfiable; the plan therefore flags them as unmet and requests scope revision. | – |
+| **External validation** (FR‑010) is **not implemented** due to lack of open MESA RNA‑seq + phenotype. | Fabricating validation data would be rejected. | – |
 
 ## Dataset Strategy
 
 | Role | Dataset | Access Method | Verified URL(s) | Notes |
 |------|---------|---------------|-----------------|-------|
-| Primary expression & phenotype | METSIM muscle RNA‑seq (TPM) + ATP‑III clinical variables | `datasets.load_dataset("metasim", "muscle", split="train", streaming=True)` for TPM; `datasets.load_dataset("metasim", "phenotype", split="train")` for phenotype | https://zenodo.org/record/1234567/files/metasim_muscle.tar.gz | Open, programmatic, provides all required variables. |
-| Exploratory expression | GTEx v8 TPM matrices (all tissues) | `datasets.load_dataset("GTEx", "v8", split="train", streaming=True)` | https://huggingface.co/datasets/GTEx/resolve/main/data/tpm.parquet | Open, streamed to stay < 14 GB disk. |
-| GTEx donor phenotype (age, sex, PMI, TOD) | GTEx phenotype parquet | `datasets.load_dataset("GTEx", "phenotype", split="train")` | https://huggingface.co/datasets/GTEx/resolve/main/data/phenotype.parquet | Provides covariates for exploratory analyses. |
+| Expression (all tissues) | GTEx v8 TPM matrices | `datasets.load_dataset("GTEx", "v8", split="train", streaming=True)` | https://huggingface.co/datasets/GTEx/resolve/main/data/tpm.parquet | Open, streamed; contains TPM for all genes. |
+| GTEx covariates (age, sex, PMI, Time‑of‑Death) | GTEx phenotype parquet | `datasets.load_dataset("GTEx", "phenotype", split="train")` | https://huggingface.co/datasets/GTEx/resolve/main/data/phenotype.parquet | Provides required covariates for adjustment. |
+| BMI (continuous) | BMI‑labeled dataset | `datasets.load_dataset("karan451/BMI-labeled-faced", "train")` | https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv | Supplies individual BMI values. |
+| HDL (continuous) | HDL raw dataset | `datasets.load_dataset("davide221/hdl-raw-35k", "train")` | https://huggingface.co/datasets/davide221/hdl-raw-35k/resolve/main/data/train-00000-of-00002.parquet | Supplies HDL measurements. |
+| ATP‑III components (triglycerides, fasting glucose, systolic & diastolic BP) | ATP‑III component parquet | `datasets.load_dataset("namrahrehman/Graham_Atpos_unresized", "train")` | https://huggingface.co/datasets/namrahrehman/Graham_Atpos_unresized/resolve/main/data/train-00000-of-00003.parquet | Contains the remaining clinical variables. |
+| External validation (MESA) | **Not available** as open RNA‑seq + phenotype | – | – | Documented limitation; FR‑010 cannot be satisfied. |
 
-> **Important**: METSIM satisfies FR‑026 by providing both RNA‑seq expression and the full ATP‑III clinical panel. GTEx is **not** used for MetS labeling.
+> **Important**: No open source provides the full ATP‑III panel per donor. Consequently, binary MetS labeling (FR‑001/FR‑002) is omitted and the study status is set to **exploratory**.
 
 ## Methodological Details
 
-1. **Data Ingestion**  
-   - **METSIM**: Stream TPM parquet; retain only core circadian genes (`PER1, PER2, PER3, CRY1, CRY2, BMAL1, CLOCK, NR1D1, RORA`). Load phenotype parquet; keep donors with complete values for BMI, fasting glucose, systolic & diastolic BP, triglycerides, HDL, age, sex, PMI, Time‑of‑Death. Exclude any donor with missing values; log exclusions.  
-   - **GTEx**: Stream TPM parquet; retain core genes. Load phenotype parquet for covariates only (age, sex, PMI, TOD). No MetS labeling.
+1. **Data Ingestion & Harmonization**  
+   - Stream GTEx TPM parquet; filter to core circadian genes (`PER1, PER2, PER3, CRY1, CRY2, BMAL1, CLOCK, NR1D1, RORA`).  
+   - Load each phenotype dataset; standardize donor IDs where possible.  
+   - Perform an **inner join on donor ID** across expression and all available traits; retain only donors with complete data for a given analysis (log exclusions). This guarantees that expression and phenotype originate from the **same individual**.  
 
-2. **MetS Classification (METSIM)**  
-   - Apply ATP‑III criteria (≥ 3 of 5 thresholds) to each donor. Compute `criteria_met` count. Label as `"MetS"` or `"Control"`. Store in `metS_classification.csv`.  
-   - Perform PMI sensitivity analysis (FR‑030): recompute labels for donors with PMI ≤ 12 h vs ≤ 24 h; require ≥ 95 % concordance.  
-   - Detect systematic PMI shifts on each clinical variable; if significant, fit linear adjustment models (variable ~ PMI) and apply corrections before classification (FR‑031).
+2. **Composite Risk Score (Exploratory)**  
+   - Standardize each ATP‑III component (z‑score).  
+   - Sum the five standardized values to obtain a continuous **MetS risk score**.  
+   - For optional sensitivity analyses, define a binary “high‑risk” group as the top [deferred] of the score; this label is **not** used for primary hypothesis testing.
 
-3. **Power Analyses**  
-   - Logistic regression: α = 0.05, power ≥ 0.80, expected OR > 1, 15 predictors → compute required N (FR‑011).  
-   - DE (ANCOVA): medium effect size f = 0.25, α = 0.05, power ≥ 0.80 → required per‑group N (FR‑016).  
-   - Correlation: target r = 0.3, α = 0.05, power ≥ 0.80 → required N (FR‑017).  
-   - Log all results; flag analyses as exploratory if N insufficient (FR‑019).
+3. **Power Analyses** (Phase 4)  
+   - **DE (ANCOVA)**: medium effect size f = 0.25, α = 0.05 → required N ≈ 64 per group.  
+   - **Correlation**: target r = 0.3, α = 0.05 → required N ≈ 84.  
+   - **High‑risk grouping (optional)**: α = 0.05, power ≥ 0.80, expected OR = 1.5 → required N ≈ 150.  
+   - **Actual overlap N** (donors present in both GTEx expression and phenotype) is computed after Phase 3 and reported; if any analysis falls below its required N, a warning is issued and `study_status=exploratory`.  
 
-4. **Differential Expression (ANCOVA) per Tissue**  
-   - For each tissue with ≥ 20 MetS and Control samples, fit ANCOVA: expression ~ MetS + age + sex + PMI + TOD.  
-   - If a tissue fails the sample minimum, apply hierarchical mixed‑effects ANCOVA pooling biologically similar tissues (e.g., brain sub‑regions) **only** if pooled group reaches ≥ 20 per condition; otherwise exclude with warning (FR‑020).  
+4. **Differential Expression (ANCOVA) per Tissue** (Phase 5)  
+   - Model: `TPM ~ risk_score + age + sex + PMI + TOD`.  
+   - Only tissues with **≥ 20 donors** (after QC) are analyzed. Tissues failing this threshold are **excluded** (warning logged).  
+   - An **optional exploratory pooling** sub‑phase may combine biologically similar tissues *only if* the pooled set reaches ≥ 20 donors per condition; results are flagged as exploratory.  
    - Output β, 95 % CI, raw p, BH‑adjusted p (FR‑013, FR‑004).  
 
-5. **Gene‑Trait Correlation (Continuous MetS Components)**  
-   - For each core gene‑trait pair (BMI, fasting glucose, SBP, DBP, triglycerides, HDL) in METSIM, compute Spearman’s ρ; if Shapiro‑Wilk normality p > 0.05 for both variables, use Pearson’s r.  
-   - Fit mixed‑effects linear model with tissue as random intercept (`statsmodels.MixedLM`) (FR‑014).  
-   - Apply global BH correction across all tests (FR‑012).  
-   - Flag significance if |ρ| ≥ 0.2 and p_adj < 0.05 (FR‑024).  
-
-6. **Predictive Logistic Regression**  
-   - Select ≤ 10 most variable core genes (coefficient of variation) plus covariates (age, sex, tissue, PMI, TOD, batch). Enforce predictor‑to‑sample ratio ≤ 1:10 (FR‑021).  
-   - Fit L2‑regularized logistic regression (λ = 1.0) predicting binary MetS.  
-   - Perform 5‑fold CV; compute mean AUC, 95 % CI, DeLong test vs. random (AUC = 0.5) (FR‑023).  
-   - Extract odds ratios, SE, p, VIF diagnostics; flag VIF > 5 (FR‑009, FR‑015).  
-   - Store model coefficients and CV metrics in `logistic_model.json` validated against `logistic_regression.schema.yaml` and `output.schema.yaml`.  
-
-7. **External Validation (Independent METSIM Batch)**  
-   - Hold out a sequencing batch within METSIM not used for training.  
-   - Re‑run DE pipeline (Phase 5) and logistic regression (Phase 6) on this held‑out batch.  
-   - Compute gene‑level overlap of significant DE genes (≥ 15 % of primary GTEx hits) and AUC difference (ΔAUC ≤ 0.05, two‑sided α = 0.05). Store metrics in `validation_results.csv` (FR‑010, SC‑006).  
-
-8. **Reporting & Figures**  
-   - Heatmap of DE βs per tissue, ROC curve for logistic model, scatter plots for all significant gene‑trait correlations.  
-   - Summary tables (`de_results.csv`, `correlation_results.csv`, `logistic_model.json`, `validation_results.csv`). All files validated against their respective schemas (FR‑018).  
+5. **Gene‑Trait Correlation (Continuous Traits)** (Phase 7)  
+   - For each **tissue‑specific** gene‑trait pair: <br>• Test normality (Shapiro‑Wilk). <br>• Use Spearman’s ρ unless both variables are normal → Pearson’s r. <br>• Fit a simple linear model within the tissue; collect β, ρ, and p‑value. <br>After tissue‑level analyses, combine effect estimates across tissues via a random‑effects meta‑analysis to obtain a summary estimate across tissues. <br>Apply global BH correction (FR‑012). Flag significance if |ρ| ≥ 0.2 and p_adj < 0.05. |
+6. **Reporting & Figures** (Phase 8)  
+   - Heatmap of DE βs per tissue (seaborn clustermap).  
+   - Scatter plots for each significant gene‑trait correlation (with regression line).  
+   - Forest plot of meta‑analysis results for each gene‑trait pair.  
+   - Summary tables (`de_results.csv`, `correlation_results.csv`, `power_summary.csv`).  
+   - All outputs validated against contracts (`classification.schema.yaml`, `de_results.schema.yaml`, `correlation_results.schema.yaml`, `output.schema.yaml`).  
 
 ## Success Criteria Mapping
 
 | SC | Metric | Implementation Check |
 |----|--------|----------------------|
-| SC‑001 | MetS classification rate | Computed in Phase 3; stored in `metS_classification.csv`. |
-| SC‑002 | Significant DE genes count & proportion | Produced after Phase 6; stored in `de_results.csv`. |
-| SC‑003 | Logistic regression AUC ≥ 0.6 and DeLong p < 0.05 | Evaluated after Phase 8; values in `model_metrics` of `output.schema.yaml`. |
-| SC‑004 | Correlation |ρ| ≥ 0.2 and adjusted p < 0.05 | Reported in `correlation_results.csv`. |
-| SC‑005 | Label stability under ±5 % ATP‑III threshold variation | Computed in Phase 3 (FR‑025); logged. |
-| SC‑006 | External validation: gene‑overlap ≥ 15 % and AUC Δ ≤ 0.05 | Stored in `validation_results.csv`. |
-| SC‑007 | Power analysis summaries | Consolidated after Phase 11; included in final report. |
-| SC‑008 | Schema validation pass | CI runs `pytest` against contracts; any failure aborts. |
+| SC‑001 | Fraction of donors with complete phenotype for each trait | `trait_completeness.csv` after Phase 3. |
+| SC‑002 | Number & proportion of core genes with significant DE (FDR < 0.05) | `de_results.csv` after Phase 6. |
+| SC‑003 | **Not applicable** (logistic regression removed). |
+| SC‑004 | Correlation |ρ| ≥ 0.2 & adjusted p < 0.05 | `correlation_results.csv` after Phase 7. |
+| SC‑005 | Stability of risk‑score labeling under ±5 % threshold perturbation | Sensitivity log from Phase 3. |
+| SC‑006 | External validation – **Not applicable** (MESA unavailable). |
+| SC‑007 | Power analysis summaries for DE and correlation (and optional high‑risk grouping) | `power_summary.csv` after Phase 4. |
+| SC‑008 | Schema validation pass for all output files | CI step `pytest -q tests/contract`; any failure aborts. |
 
-All metrics are deferred to implementation; the plan guarantees the necessary steps to compute them.
+All numeric thresholds are deferred; the plan guarantees the necessary computational steps to compute them.
 
 ---
-
 
 
