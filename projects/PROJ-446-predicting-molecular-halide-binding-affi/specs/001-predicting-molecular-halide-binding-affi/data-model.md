@@ -1,53 +1,46 @@
 # Data Model: Predicting Molecular Halide Binding Affinities
 
 ## Overview
-
-This document defines the data structures used in the pipeline. It ensures that the implementation adheres to the schema constraints defined in `contracts/` and supports the statistical requirements of the study.
+The data model defines the schema for all intermediate and final artifacts produced by the pipeline. Each artifact is validated against a JSON Schema located in `contracts/`.
 
 ## Entity Definitions
 
 ### 1. HostMolecule
-Represents the organic host compound.
-- **Attributes**:
-  - `host_id`: Unique string identifier (e.g., "HOST_001").
-  - `smiles`: Canonical SMILES string.
-  - `inchi`: InChI string (optional, for verification).
-  - `source`: "NIST", "PubChem", or "Simulated".
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `host_id` | string | Unique identifier (e.g., `HOST_001`). |
+| `smiles` | string | Canonical SMILES string (RDKit‑parsable). |
+| `inchi` | string (optional) | InChI representation. |
+| `source` | string (`"NIST"`, `"PubChem"`, `"Simulated"`) | Origin of the record. |
 
 ### 2. BindingMeasurement
-Represents a single experimental or simulated binding event.
-- **Attributes**:
-  - `measurement_id`: Unique string.
-  - `host_id`: Foreign key to `HostMolecule`.
-  - `halide_identity`: One of "F-", "Cl-", "Br-", "I-".
-  - `binding_constant`: Float (log K or ΔG).
-  - `solvent`: One of "acetonitrile", "chloroform", "dichloromethane".
-  - `reference_doi`: String (or "SIMULATED" if simulated).
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `measurement_id` | string | Unique identifier. |
+| `host_id` | string | FK to `HostMolecule`. |
+| `halide_identity` | string (`"F-"`, `"Cl-"`, `"Br-"`, `"I-"`) | Halide ion. |
+| `binding_constant` | number | Log K or ΔG (simulated if needed). |
+| `solvent` | string (`"acetonitrile"`, `"chloroform"`, `"dichloromethane"`) | Solvent used. |
+| `reference_doi` | string | DOI of source or `"SIMULATED"`. |
 
 ### 3. ModelRun
-Represents a trained model instance and its performance.
-- **Attributes**:
-  - `run_id`: Unique string.
-  - `model_type`: "random_forest" or "gradient_boosting".
-  - `fold_metrics`: List of dicts (fold index, R², RMSE).
-  - `metrics_mean`: Dict (R²_mean, RMSE_mean).
-  - `metrics_std`: Dict (R²_std, RMSE_std).
-  - `feature_stability`: List of dicts (feature_name, CV, is_stable).
-  - `data_mode`: "Real" or "Simulated".
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `run_id` | string | Unique identifier for the model‑run. |
+| `model_type` | string (`"random_forest"` or `"gradient_boosting"`) | Algorithm used. |
+| `data_mode` | string (`"Real"` or `"Simulated"`) | Data provenance. |
+| `metrics` | object | `{r2_mean, r2_std, rmse_mean, rmse_std}` (see `contracts/model_output.schema.yaml`). |
+| `fold_metrics` | list of objects | Each object: `{fold:int, r2:number, rmse:number}`. |
+| `feature_stability` | list of objects | `{feature_name:string, cv:number, is_stable:boolean}`. |
 
-## Data Flow
+## Data Flow & File Layout
+- **CSV Implementation**: The pipeline writes a **single wide‑format CSV** (`halide_binding_data.csv`) where **each row corresponds to a single measurement** and **contains both host‑level fields** (`host_id`, `smiles`, `charge_density`, `cavity_volume`, `source`) **and measurement‑level fields** (`halide_identity`, `binding_constant`, `solvent`). This CSV **directly implements the combined entity** described by `HostMolecule` + `BindingMeasurement` and conforms to `contracts/dataset.schema.yaml`.  
+- The logical separation into `HostMolecule` and `BindingMeasurement` is retained in this documentation for clarity and future extensibility only; **no separate physical files are produced** for these entities. The physical storage is one CSV per dataset (primary and independent evaluation) to satisfy the Constitution’s Single Source of Truth requirement.  
+- In Simulated mode, each host row carries exactly one halide measurement by construction (single‑halide mode per FR‑011).
 
-1. **Raw Input**: Scraped HTML or Simulated Generator Output.
-2. **Processed CSV**: `data/processed/halide_binding_data.csv` (Wide format: one row per measurement).
-   - Columns: `host_id`, `smiles`, `halide_identity`, `binding_constant`, `solvent`, `charge_density`, `cavity_volume`, `ecfp_0`, `ecfp_1`, ...
-3. **Model Output**: `data/processed/model_runs.json` (Aggregated metrics).
-4. **Feature Output**: `data/processed/feature_analysis.json` (Stability and interpretation).
-
-## Schema Constraints
-
-- **Data Types**: All floats must be standard IEEE 754. SMILES must be valid RDKit parsable strings.
-- **Constraints**:
-  - `halide_identity` MUST be in ["F-", "Cl-", "Br-", "I-"].
-  - `solvent` MUST be in ["acetonitrile", "chloroform", "dichloromethane"].
-  - `binding_constant` MUST be numeric.
-- **Missing Data**: No nulls allowed in `host_id`, `smiles`, or `binding_constant`.
+## Data Files
+1. `data/processed/halide_binding_data.csv` – wide format, validated against `dataset.schema.yaml`.  
+2. `data/processed/independent_eval.csv` – independent evaluation set (feature‑independent targets), also validated against `dataset.schema.yaml`.  
+3. `data/processed/model_runs.json` – list of `ModelRun` objects, validated against `model_output.schema.yaml`.  
+4. `data/processed/feature_analysis.json` – feature‑stability results.  
+5. `data/processed/report.md` – final narrative report (structure checked against `output.schema.yaml`).

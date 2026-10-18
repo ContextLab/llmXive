@@ -1,17 +1,18 @@
 status: none
-intent: download halide binding constants NIST Chemistry WebBook PubChem ThermoML
+intent: download halide binding constants from NIST Chemistry WebBook and PubChem
   python package dataset
 required_fields:
 - host_smiles
 - host_inchi
 - halide_identity
-- binding_constant_logK
-- binding_constant_deltaG
-- solvent
+- binding_constant_value
+- binding_constant_units
+- solvent_type
 - source_database
-- reference_id
-- measurement_temperature
+- source_record_id
+- measurement_temperature_K
 - measurement_error
-cache_key: 0df985e7f9880dcaf90a31749056f3dfe6b6df7dc6d0e98b424d262239d932ff
-searched_at: '2026-10-18T16:20:12.372916+00:00'
+- reference_citation
+cache_key: e17c01431dc9a036185d5ffb3b53500d195468eb3bb16618e8d70a4791bc84f4
+searched_at: '2026-10-18T16:25:08.231778+00:00'
 retry_count: 1
