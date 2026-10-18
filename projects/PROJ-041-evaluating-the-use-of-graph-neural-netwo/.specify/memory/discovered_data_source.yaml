@@ -1,15 +1,19 @@
 status: none
-intent: CTU-13 NetFlow dataset download HuggingFace mirror python package dataset
+intent: securely download CTU-13 NetFlow traffic including metadata as Python package
+  dataset
 required_fields:
+- timestamp
 - src_ip
 - dst_ip
 - src_port
 - dst_port
 - protocol
-- packets
-- bytes
+- packet_count
+- byte_count
+- flow_duration
+- label
+- scenario_id
 - start_time
-- end_time
-cache_key: a2cfeef9371064965d824e768fb737d9648f54788469aed8cbb7eaff8132e8ce
-searched_at: '2026-10-18T14:20:31.577738+00:00'
+cache_key: f4c5bd316f7c0c3c83af4fb6d5ccfd989d58c1b622ed736118fc634538431336
+searched_at: '2026-10-18T15:10:47.209780+00:00'
 retry_count: 1

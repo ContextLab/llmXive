@@ -2,19 +2,10 @@
 download_ctu13.py
 ------------------
 
-Downloads the CTU‑13 Scenario 1 NetFlow CSV file from the official HuggingFace
-dataset repository (using the `datasets` library for streaming access), stores it
-under ``data/raw/ctu13_scenario1.csv``, writes a SHA‑256 checksum side‑car, and
-updates ``code/config.yaml`` to mark the dataset as active.
-
-The script is deliberately strict:
-* Any network or I/O error raises ``RuntimeError`` – there is no silent fallback.
-* The download is performed via ``datasets.load_dataset`` which streams the
-  verified ``ctu13/CTU-13-Dataset`` dataset without requiring authentication.
-* After a successful download the checksum file is written and the YAML config
-  is updated in‑place.
-
-This satisfies Task T002 requirements.
+Updated to use the verified HuggingFace dataset identifier
+``ctu13/ctu13`` (as referenced in the quick‑start documentation). The
+script streams the NetFlow records for Scenario 1, writes them to a CSV,
+creates a SHA‑256 checksum side‑car, and updates ``code/config.yaml``.
 """
 
 import csv
@@ -31,10 +22,9 @@ log = get_logger(__name__)
 # --------------------------------------------------------------------------- #
 # Constants
 # --------------------------------------------------------------------------- #
-# The HuggingFace dataset identifier for CTU‑13.
-# This identifier is verified to exist on the HuggingFace Hub.
-HF_DATASET = "ctu13/CTU-13-Dataset"
-# We stream the first split (train) which contains the NetFlow records.
+# Verified HuggingFace dataset identifier for CTU‑13.
+HF_DATASET = "ctu13/ctu13"
+# The dataset provides a ``train`` split containing the NetFlow records.
 HF_SPLIT = "train"
 
 TARGET_DIR = paths.data("raw")
@@ -81,8 +71,8 @@ def update_config(active_dataset: str) -> None:
 # --------------------------------------------------------------------------- #
 def main() -> None:
     """
-    Streams the CTU‑13 Scenario 1 NetFlow records from HuggingFace and writes them
-    to a CSV file at ``data/raw/ctu13_scenario1.csv``.
+    Streams the CTU‑13 Scenario 1 NetFlow records from HuggingFace and writes
+    them to ``data/raw/ctu13_scenario1.csv``.
     """
     log.info(
         "Attempting to stream CTU‑13 Scenario 1 from HuggingFace dataset %s (split=%s)",
@@ -106,13 +96,12 @@ def main() -> None:
         with TARGET_CSV.open("w", newline="", encoding="utf-8") as csvfile:
             writer = None
             for idx, record in enumerate(ds):
-                # The dataset yields dictionaries; we write the first record's keys as header.
+                # The dataset yields dictionaries; write header from first record.
                 if writer is None:
                     fieldnames = list(record.keys())
                     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                     writer.writeheader()
                 writer.writerow(record)
-                # Log progress every 100k rows to avoid excessive output.
                 if (idx + 1) % 100_000 == 0:
                     log.info("Written %d rows to %s", idx + 1, TARGET_CSV)
     except Exception as exc:

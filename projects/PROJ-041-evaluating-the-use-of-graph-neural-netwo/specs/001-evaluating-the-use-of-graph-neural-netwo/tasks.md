@@ -7,7 +7,7 @@ All paths are relative to the repository root.
 
 ## Phase 1 – Project bootstrap  
 
-- [ ] T001 **Create project layout & core utilities**  
+- [ ] T001 **Create project layout & core utilities**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Creates* `code/`, `data/`, `docs/`, `tests/`, writes `requirements.txt` (pinning Python 3.11 and all scientific libraries), adds a minimal `pyproject.toml`, implements deterministic seed handling (`code/utils/seed.py`) and a RAM‑limit wrapper (`code/utils/memory_monitor.py`).  
   **Verification**: `tree` shows the directories; `pip install -r requirements.txt` succeeds; `seed.set_seed(42)` yields reproducible RNG state; `memory_monitor.run_with_limit` raises `MemoryLimitError` when a dummy allocation exceeds 7 GB; a sample JSON validates against `contracts/*.schema.yaml` without error.
 
