@@ -61,19 +61,18 @@ def main() -> int:
     # ------------------------------------------------------------------
     # Step 0: Auto-format the codebase in-place.
     # ------------------------------------------------------------------
-    # We format the pyproject.toml and the source directories.
-    fmt_rc = _run_command(["black", str(pyproject_path)] + targets)
+    # We format the source directories.
+    fmt_rc = _run_command(["black"] + targets)
     if fmt_rc != 0:
-        sys.stderr.write("Black auto-formatting encountered an error.\n")
-        # We don't necessarily fail here if formatting just happened,
-        # but if the tool is missing (127), we must fail.
+        # Black returns 1 if it reformatted files, which is fine.
+        # We only fail if it's a system error (like 127).
         if fmt_rc == 127:
             return 127
 
     # ------------------------------------------------------------------
     # Step 1: Black formatting check.
     # ------------------------------------------------------------------
-    rc = _run_command(["black", "--check", str(pyproject_path)] + targets)
+    rc = _run_command(["black", "--check"] + targets)
     if rc != 0:
         sys.stderr.write("Black check failed: files are not formatted.\n")
         return rc

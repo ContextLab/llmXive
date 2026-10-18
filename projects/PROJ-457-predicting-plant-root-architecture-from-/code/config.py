@@ -10,8 +10,7 @@ CONFIG_PATH = PROJECT_ROOT / "config.yaml"
 
 # Canonical default configuration. Every key any pipeline script may
 # request is present here, so ``config["KEY"]`` never raises KeyError
-# even when ``config.yaml`` is missing or partial (root cause of the
-# ``KeyError: 'ARTIFACTS_PATH'`` failure in data_ingestion.py).
+# even when ``config.yaml`` is missing or partial.
 DEFAULT_CONFIG: Dict[str, Any] = {
     "DATA_PATH": "data",
     "RAW_DATA_PATH": "data/raw",
