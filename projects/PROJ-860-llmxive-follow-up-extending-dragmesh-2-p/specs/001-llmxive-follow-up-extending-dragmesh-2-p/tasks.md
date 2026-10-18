@@ -1,130 +1,99 @@
 # Tasks: llmXive Follow-up: Virtual Tactile Zero-Shot Adaptation
 
-**Inputs**: Design documents from `/specs/001-virtual-tactile-adaptation/`  
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contracts in `specs/001-virtual-tactile-adaptation/contracts/`
+**Revision note**: Consolidated from the prior 60-task list into substantive research tasks. All FR-001–FR-011 and SC-001–SC-006 requirements are preserved. Removed platform-owned work (directory creation, `state/...` hash writes, CI configuration, citation-validation scaffolding) per stage-ownership rules. Object count corrected to **10** per FR-003 (the prior list's 25 conflicted with the spec). T030 documentation was rejected by verification and is retained as an unchecked redo.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL – only include them if explicitly requested in the feature specification.
+<!-- ID Mapping: Task IDs in this file (T001‑T030 plus added T014‑T025) are authoritative. Plan IDs (e.g., T015a) are superseded by the tasks below. -->
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 0: Specification Amendments
 
-- [ ] T001a Create project directory structure per `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/` plan: Execute `mkdir -p code tests data/raw data/generated data/results state/projects` to establish the physical repository layout.  
-- [ ] T001b Create empty skeleton files for project configuration: Create empty files `README.md`, `.gitignore`, and `code/requirements.txt` to establish file paths. **Do NOT populate content yet.**  
-- [ ] T002 Populate `code/requirements.txt` with specific dependencies: Add `pybullet`, `numpy`, `scipy`, `pandas`, `datasets`, `pytest`, `statsmodels` with pinned versions to satisfy Constitution Principle I (Reproducibility). (DEPENDS ON T001b)  
-- [ ] T003 Create `code/pytest.ini` with specific timeout configuration: Set `timeout=3600` for unit tests and `timeout=21600` for integration tests to enforce the 6 h limit. (DEPENDS ON T001b)  
-- [ ] T001c Compute SHA256 hashes for `README.md`, `.gitignore`, `requirements.txt` (from T002), and `pytest.ini` (from T003) and write them to `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` under `artifact_hashes`. **Pre‑check**: Verify all target files exist before checksumming. **Clarification**: Compute SHA256 of the *populated* `requirements.txt` and `pytest.ini` created in T002/T003, not the empty skeleton files. (DEPENDS ON T002, T003)
+- [ ] T017 [US1 US2] **Amendment Proposal** – Create `amendment_proposal.md` documenting the addition of a paired‑t‑test analysis (aligned with Constitution Principle VII) and version it. This fulfills the original plan’s Phase 0 task T000.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1: Setup and first end-to-end analysis
 
-- [ ] T004 Setup CPU‑only PyBullet physics environment in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/environment.py` (enforce `FR‑004`, no CUDA).  
-  - Insert a **global** runtime check at the start of `environment.py` that explicitly verifies PyBullet is running in CPU mode by calling `pbd.configureDebugVisualizer(pbd.COV_ENABLE_GUI,0)` and ensuring no CUDA flags are set; raise an error if GPU usage is detected.  
-- [ ] T008b [P] Implement `validate_citations.py` script in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/validate_citations.py` (Constitution Principle II: Verified Accuracy).  
-- [ ] T008c Execute `validate_citations.py` against DragMesh‑2 and PICA baseline citations: Run the script to verify all citations in `plan.md` and `spec.md` before any data download tasks (T005d, T012d) are permitted. **Requirement**: If any citation fails validation, the pipeline must halt immediately with a non‑zero exit code. **Output**: Generate `citations_validation.log` in `data/results/` containing the validation status and any errors. (DEPENDS ON T008b)  
-- [ ] T005b Implement strict real‑data fetcher verification logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py`  
-  - Add function `def verify_manifest_integrity(manifest_path: str) -> None:` that checks existence, non‑emptiness, and raises `FileNotFoundError` or `ConnectionError` on failure. No synthetic fallback. (DEPENDS ON T001b, T002)  
-- [ ] T005d Download DragMesh‑2 dataset from verified HuggingFace URL in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py`: Use `datasets.load_dataset` to fetch the DragMesh‑2 manifest and data to `data/raw/`. **Error Handling**: MUST raise `ConnectionError` or `FileNotFoundError` if fetch fails; NO synthetic fallbacks. (DEPENDS ON T008c)  
-- [ ] T005c Verify manifest integrity and record local checksum in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/verify_manifest.py`: Compute SHA256 of `data/raw/dataset_manifest.jsonl`. **Requirement**: If the manifest is missing or empty, raise `FileNotFoundError` immediately and halt. If the file exists and is non‑empty, record the hash to `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` under the key `artifact_hashes.data_raw`. (DEPENDS ON T005d)  
-- [ ] T005e Execute fetcher verification on fetched data in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/verify_manifest.py`: Run `verify_manifest_integrity('data/raw/dataset_manifest.jsonl')`. **Requirement**: This task executes the check. If the manifest is missing or empty, it must raise an error and halt the pipeline. (DEPENDS ON T005d, T005c, T005b)  
-- [ ] T005f Analyze dataset friction distribution in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/dataset_analyzer.py`: Scan the downloaded DragMesh‑2 manifest (from T005d) to extract friction coefficients for all objects. Generate `data/generated/friction_distribution_report.json` containing the min, max, mean, and a list of object IDs with friction in the 0.8–1.2 range. **Requirement**: This report is the **only** source for determining the training exclusion filter in T012h. If no high‑friction objects exist, the filter is a no‑op. (DEPENDS ON T005d, T005c)  
-- [ ] T005a Implement `VirtualTactileEstimator` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py`: Calculate $k_{\text{est}} = \frac{|\Delta \tau_{\text{hand}}|}{\max(|\Delta v_{\text{object}}|,\;\epsilon)\; N}$ with moving‑average filter (window = 5) applied to the torque signal **before** differentiation, epsilon = $10^{-4}$, and clamp output to $[1\times10^{-4},\,10]$. (FR‑001, FR‑006, FR‑007)  
-- [ ] T006 Implement `AdaptiveRewardScheduler` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/scheduler.py` mapping $k_{\text{est}}$ to reward weights with explicit logic:  
-  - If $k_{\text{est}}$ exceeds the **90th percentile** of the training distribution, increase `r_detach` by ≥ 20 %.  
-  - If $k_{\text{est}}$ falls below the **10th percentile**, decrease `r_detach` by ≥ 15 %. (FR‑002, FR‑011)  
-  - **Verification**: Include a self‑test block that prints the calculated $k_{\text{est}}$ and the resulting reward multiplier, and asserts that the magnitude of the adjustment matches the spec’s thresholds.  
-- [ ] T007 Create `NovelObjectSet` generator class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/generator.py` to produce a set of randomized articulated geometries with friction coefficients **outside** the training range (0.2–0.6). The class MUST accept `count`, `seed`, `friction_min`, and `friction_max` arguments and output JSON manifests to `data/generated/`. (FR‑003)  
-- [ ] T008a Implement seed‑fixation enforcement logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/seed_config.py` that explicitly sets seeds for `numpy`, `random`, and `torch` (if used) to satisfy Constitution Principle I (Reproducibility). (Note: This sets global seeds before T012h and T013e run.)  
-- [ ] T009a Implement checksum verification logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/checksum_verify.py`: Compute SHA256 hashing function for files in `data/raw` and `data/generated`. (DEPENDS ON T001a)  
-- [ ] T009c Execute checksum verification and update state: Run `checksum_verify.py` to hash all files in `data/raw` and `data/generated` and write results to `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml`. (DEPENDS ON T005f, T009a)  
-- [ ] T016a Create logging configuration in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/logging_config.py` with specific file paths and formats.  
-- [ ] T016b Add specific log statements for reward weight adjustments and $k_{\text{est}}$ values in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py`: Logs MUST include the constants `epsilon=1e‑4` and `filter_window=5` alongside runtime values to ensure reproducibility (Constitution Principle I).  
-- [ ] T015f [P] Generate GLMM amendment proposal: Create `docs/amendments/001-glm-replacement.md` proposing the replacement of the paired‑t‑test mandated by FR‑005/SC‑005 with a GLMM to handle zero‑success baselines. **Requirement**: Document the new success criteria (Odds Ratio, p‑value) and place the proposal **before** any training or analysis tasks. (DEPENDS ON T008c)  
-- [ ] T015g [P] Approve GLMM amendment proposal: Review `docs/amendments/001-glm-replacement.md`. If approved, mark the document as “APPROVED” and write `approval_signature.txt` to `data/results/`. This acts as the gate allowing T012h and T015a to proceed. (DEPENDS ON T015f)  
+- [ ] T001 [US1 US2 US3] Establish the code layout and fetch the real DragMesh-2 data with fail‑loud semantics in `code/data_loader.py`.
+  - Implement `load_dragmesh_manifest()` using `datasets.load_dataset` or `hf_hub_download` against the DragMesh‑2 dataset referenced in `plan.md`, writing the trajectory manifest to `data/raw/dragmesh_manifest.jsonl`. On any fetch failure the loader MUST raise (no synthetic/mock fallback).
+  - Set global seeds (`numpy`, `random`, `torch` if used) to 42 in `code/seed_config.py` for reproducibility (Constitution Principle I).
+  - Enforce CPU‑only: PyBullet `DIRECT` mode, `torch` CPU build; a unit test in `code/tests/test_cpu_only.py` scans `code/` for `torch.cuda` / `device="cuda"` and fails if found (FR-004).
+  - Document the runnable fetch command in `specs/001-virtual-tactile-adaptation/quickstart.md`.
+  - **Verification**: `python code/data_loader.py` produces a non‑empty `data/raw/dragmesh_manifest.jsonl` on the real source; the CPU‑only test passes.
 
-**Checkpoint**: Foundation ready – user‑story implementation can now begin in parallel.
+- [ ] T016 [US1 US2 US3] **Requirements Pinning** – Create a `requirements.txt` at `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/requirements.txt` that pins exact versions of all Python dependencies used in the project (e.g., `pybullet==3.25.0`, `torch==2.2.0+cpu`, `numpy`, `pandas`, `scipy`, `statsmodels`, `psutil`, etc.). This satisfies Constitution Principle I.
 
-## Phase 3: User Story 1 – Zero‑Shot Adaptation to Unseen Damping (Priority P1)
+- [ ] T002 [US1 US2] Implement the `VirtualTactileEstimator` in `code/estimators/virtual_tactile.py`.
+  - Compute $k_{\text{norm}} = \frac{|\Delta \tau_{\text{hand}}|}{\max(|\Delta v_{\text{object}}|,\;\epsilon)\;N}$ each timestep (FR-001), using $\epsilon = 10^{-4}$.
+  - Apply a moving‑average filter (window = 5) to the torque derivative before computing the ratio (FR-006); clamp output to $[1\times10^{-4}, 10]$ (FR-007).
+  - **Verification**: Unit tests in `code/tests/test_estimator.py` will be executed **after** real simulation data is available (see T022). The estimator must emit a JSON object conforming to the amended `estimator_output.schema.yaml` (epsilon_clamped and is_valid are booleans, not const‑true).
 
-- [ ] T010 Unit test for `AdaptiveRewardScheduler` logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_scheduler.py`  
-  - **Requirement**: Assert that for $k_{\text{est}} > 1.0$ the reward weight increases by ≥ 20 %; for $k_{\text{est}} < 0.2$ the reward weight decreases by ≥ 15 %.  
-- [ ] T012b Verify and fetch PICA baseline in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/baseline_fetcher.py`: Query the verified HuggingFace registry for the `dragmesh/pica-baseline-v` checkpoint, resolve the actual SHA256 hash, and write it to `data/raw/baseline/`. (DEPENDS ON T008c)  
-- [ ] T012d Download PICA baseline policy in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/baseline_fetcher.py`: Download the artifact resolved in T012b to `data/raw/baseline/`. **Strict Requirement**: Write to `data/raw/baseline/` (no alternate paths). (DEPENDS ON T012b)  
-- [ ] T012c Load and validate static PICA baseline policy in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/baseline_runner.py`: Dry‑run load of the checkpoint to ensure it can be deserialized on CPU. No full evaluation is performed here. (DEPENDS ON T012b, T012d)  
-- [ ] T012h Implement the training loop in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py` integrating `VirtualTactileEstimator` (T005a) and `AdaptiveRewardScheduler` (T006).  
-  - **Requirement**: Assert CPU‑only mode at runtime start to enforce **FR‑004**.  
-  - **Filter Logic**: Read `data/generated/friction_distribution_report.json` (from T005f). If high‑friction objects (0.8–1.2) are present, exclude them from the training set to ensure zero‑shot evaluation. If none exist, train on the full DragMesh‑2 dataset. (DEPENDS ON T005a, T006, T008a, T005f, T015g)  
-- [ ] T013a Generate NovelObjectSet for zero‑shot evaluation: `python code/generator.py --count 25 --seed 42 --friction-min 0.8 --friction-max 1.2 --output data/generated/novel_objects/` producing **25** high‑friction objects (0.8–1.2).  
-  - **Requirement**: Deterministic generation via `seed=42`. (DEPENDS ON T007)  
-- [ ] T013b Verify generated artifacts exist and are valid in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/verify_generated.py`: Ensure at least 25 JSON manifests exist in `data/generated/novel_objects/`, each non‑empty, and compute SHA256 hashes to write to `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml`. (DEPENDS ON T013a)  
-- [ ] T013c Partition generated object set into subsets in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/generator.py`: Write manifest `data/generated/subsets.yaml` mapping each object ID to `high_friction`. (DEPENDS ON T013b)  
-- [ ] T013d Implement pre‑flight check for evaluation in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/evaluate.py`: Verify existence of `data/generated/` artifacts and successful execution of T013c before proceeding. Halt with clear error if missing or insufficient diversity. (DEPENDS ON T013b, T013c)  
-- [ ] T013e Implement inference runner in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/evaluate.py`: Run inference on novel objects using **both** adaptive and static policies.  
-  - **Requirement**: Assert CPU‑only mode at runtime.  
-  - Read `data/generated/subsets.yaml` to tag results with friction category.  
-  - Output per‑trial rows to `data/results/eval_logs.csv` with columns `trial_id,object_id,policy_type,friction_category,success,k_est`. (DEPENDS ON T013d, T012h)  
-- [ ] T013f Stream large result logs to `data/results/eval_logs.csv` in append mode rather than accumulating all objects × trials in memory. Preserve columns `object_id`, `policy_type`, and `friction_category` for pairing. (DEPENDS ON T013e)  
-- [ ] T014 Aggregate success‑rate data: `code/aggregate.py` reads `eval_logs.csv` and writes `data/results/aggregated.csv` containing per‑object and per‑policy success statistics. (DEPENDS ON T013f)  
-- [ ] T015a Implement GLMM analysis in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/glmm_analysis.py`: Fit a **Generalized Linear Mixed Model** (logit link) on `aggregated.csv` with `policy_type` as fixed effect and `object_id` as random intercept. Output model summary to `data/results/glmm_summary.json` including p‑value and odds ratios. (DEPENDS ON T014, T015g)  
-- [ ] T015b Implement `analysis.py` to read `glmm_summary.json`, extract overall p‑value, odds ratio for high‑friction subset, and compute improvement % (adaptive vs. static). Write JSON report `data/results/analysis_glmm.json` with fields `p_value`, `odds_ratio_high`, `improvement_pct_high_friction`. (DEPENDS ON T015a)  
-- [ ] T015c Validate analysis results: Read `analysis_glmm.json` and write verification JSON `data/results/analysis_validation.json` containing `p_value`, `improvement_pct_high_friction`, and boolean flags `pass_sc001` (≥ 15 % improvement) and `pass_sc005` (p < 0.05). (DEPENDS ON T015b)  
-- [ ] T015d Enforce statistical significance (SC‑005): CI must FAIL if `p_value >= 0.05`. Log outcome. (DEPENDS ON T015c)  
-- [ ] T015e Enforce high‑friction improvement threshold (SC‑001): CI must FAIL if `improvement_pct_high_friction < 15`. Log outcome. (DEPENDS ON T015c)  
-- [ ] T015h Record amendment approval in state: Update `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` to record approval of Amendment 001 and link it to `approval_signature.txt` from T015g. (DEPENDS ON T015g)
+- [ ] T003 [US1] Implement the `AdaptiveRewardScheduler` in `code/policies/adaptive_pica.py`.
+  - Map the percentile position of $k_{\text{norm}}$ within the **training‑distribution** (collected by T021) to reward multipliers: > 90th percentile ⇒ increase $r_{\text{detach}}$ by ≥ 20 %; < 10th percentile ⇒ decrease by ≥ 15 % (FR-002, FR‑011).
+  - **Verification**: `pytest code/tests/test_scheduler.py` passes.
 
-**Checkpoint**: User Story 1 fully functional and testable.
+- [ ] T021 [US1] **Training‑distribution Baseline Collection** – Run a short sweep on objects whose friction coefficients are sampled uniformly from 0.2–0.6 (the training range). Log $k_{\text{norm}}$ values to `data/results/training_baseline.csv`. These statistics will be used by the AdaptiveRewardScheduler to compute percentiles during adaptive runs.
 
-## Phase 4: User Story 2 – Virtual Tactile Stiffness Estimation (Priority P2)
+- [ ] T023 [US1 US3] **Environment Setup** – Implement `code/environment/drag_mesh_env.py`:
+  - PyBullet `DIRECT`‑mode physics engine for dexterous hand manipulation.
+  - Log per‑timestep `torque_hand`, `velocity_object`, and `normal_force` to `data/logs/simulation_run_<run_id>.csv`.
+  - **Crucially**, invoke `VirtualTactileEstimator` **online** each timestep to compute `k_norm` and feed it to the reward scheduler (addresses FR‑001 real‑time requirement).
 
-- [ ] T033a Unit test for stiction handling (epsilon clamp) in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_stiction.py`: Verify that when $\Delta v_{\text{object}} \approx 0$, the estimator applies $\epsilon = 10^{-4}$ and returns a high, finite $k_{\text{est}}$. (DEPENDS ON T005a)  
-- [ ] T033b Unit test for range clamping logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_clamping.py`: Verify that inputs outside the defined bounds produce clamped outputs. (DEPENDS ON T005a)  
-- [ ] T033c Unit test for moving‑average filter logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_filter.py`: Verify that the filter window size is 5 and correctly smooths the torque signal before differentiation. (DEPENDS ON T005a)  
-- [ ] T033d Unit test for noise robustness in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_noise.py`: Verify estimator stability under simulated simulation jitter. (DEPENDS ON T005a)  
-- [ ] T021a Sweep generator script: `code/sweep_generator.py` creates `data/generated/sweep.csv` with columns `[trial_id, friction_value, raw_torque, raw_velocity]` by simulating interactions with known friction values.  
-  - **Requirement**: Include explicit stiction cases where `raw_velocity ≈ 0`. Output **raw** signals only; no derivatives or $k_{\text{est}}$ are computed here. (DEPENDS ON T004)  
-- [ ] T021b Execute sweep: `python code/sweep_generator.py --n_trials 40 --friction-min 0.0 --friction-max 2.5 --output data/generated/sweep.csv`. Ensure ground‑truth friction for each trial is recorded. (DEPENDS ON T021a)  
-- [ ] T021c Run estimator on raw sweep data: `python code/estimator.py --input data/generated/sweep.csv --output data/generated/sweep_processed.csv`. This invokes `VirtualTactileEstimator` (T005a) to compute $k_{\text{est}}$, applying filter and clamping. (DEPENDS ON T021b, T005a)  
-- [ ] T021d Correlation analysis: `code/correlation_analysis.py` reads `sweep_processed.csv`, computes Pearson $r$ between $k_{\text{est}}$ and ground‑truth friction, and writes `data/results/correlation_report.json`. **Requirement**: Must achieve $r ≥ 0.8$ over ≥ 30 trials. (DEPENDS ON T021c)  
-- [ ] T038 Adaptive policy on sweep data: `code/sweep_policy_eval.py` runs the adaptive policy on `sweep.csv`, using the estimator to compute $k_{\text{est}}$ on‑the‑fly, and outputs `data/results/sweep_policy_results.csv` with columns `trial_id,policy_type,success,k_est`. Validate that adaptive success rate exceeds static baseline by ≥ 10 % for the varying‑friction scenario (SC‑002). (DEPENDS ON T021b, T005a)
+- [ ] T024 [US1] **Novel Object Generator** – Implement `code/environment/articulated_object_gen.py`:
+  - Generate **exactly 10** novel articulated objects with friction coefficients **≥ 0.8** or **≤ 0.1** (FR‑010, FR‑003).
+  - Write each manifest to `data/generated/novel_objects/<object_id>.json` conforming to `contracts/dataset.schema.yaml`.
 
-**Checkpoint**: User Stories 1 & 2 independently functional.
+- [ ] T025 [US1] **Smoke Pipeline** – `code/main.py --mode smoke` runs a minimal end‑to‑end pass:
+  - Uses the environment (T023) and generator (T024) for **2** objects, executes three policies (`static`, `adaptive`, `ablation_random`) for a few episodes each.
+  - Writes trial rows to `data/results/sweep.csv` (conforms to `contracts/sweep_output.schema.yaml`).
+  - **Verification**: The command completes on CPU and produces real rows.
 
-## Phase 5: User Story 3 – CPU‑Tractable Inference Pipeline (Priority P3)
+## Phase 2: Complete the study and validate its evidence
 
-- [ ] T026 Optimize `code/generator.py` for low memory usage during geometry generation (streaming writes, avoid large in‑memory lists).  
-- [ ] T027 Optimize `code/train.py` batch sizes and simulation steps to fit within the 6 h wall‑clock limit and ≤ 7 GB RAM.  
-- [ ] T028a Create orchestration script `code/run_benchmark.py`:  
-  - Executes generation (T013a), training (T012h), evaluation (T013e), aggregation (T014), and analysis (T015a).  
-  - Writes a summary JSON `data/results/benchmark_summary.json` containing total wall‑clock time, peak memory, and boolean flags `pass_sc003`, `pass_sc004`. (DEPENDS ON T013a, T012h, T013e, T014)  
-- [ ] T028b Add step wrappers inside `run_benchmark.py` for each pipeline stage (generation, training, evaluation, aggregation, analysis). (DEPENDS ON T028a)  
-- [ ] T025 Implement memory‑profiling script `code/memory_profiler.py` using `tracemalloc` to capture peak memory usage; integrate it into `run_benchmark.py` so that `benchmark_summary.json` includes `peak_memory_gb`. (MANDATORY for SC‑004)  
-- [ ] T029 Execute full benchmark: `python code/run_benchmark.py --output data/results/benchmark_metrics.json`. Log wall‑clock time and peak memory. (SC‑003, SC‑004 measurement)  
-- [ ] T029b Enforce limits: CI must FAIL (non‑zero exit) if `wall_clock_time > 21600` s (6 h) **or** `peak_memory_gb > 7`. Log specific violation. (DEPENDS ON T029)
+- [ ] T005 [US1] **Full Policy Comparison** – `code/main.py --mode full` evaluates all 10 objects across all three policies, re‑using the same objects and initial conditions for each policy. The adaptive policy now receives live `k_norm` values from the estimator (via T023). **Before starting the full run, truncate or delete `data/results/sweep.csv` to ensure only full‑run trials are present.** Results are streamed to `data/results/sweep.csv` (append mode). Runtime and memory are logged for each trial.
 
-**Checkpoint**: Entire pipeline verified to run within CPU‑only resource constraints.
+- [ ] T006 [US2] **Correlation‑Validation Experiment** – `code/analysis/correlation_experiment.py`:
+  - Run ≥ 30 trials with known ground‑truth friction values spanning 0.0–2.5.
+  - Compute $k_{\text{norm}}$ using the online estimator.
+  - Perform **partial correlation** controlling for normal force `N`.
+  - Write `data/results/correlation_report.json` with `pearson_r`, `n_trials`, and a pass flag (`r ≥ 0.8`).
 
-## Phase N: Polish & Cross‑Cutting Concerns
+- [ ] T007 [US1] **Statistical Analyses** – `code/analysis/statistical_test.py`:
+  - Fit a GLMM (logit link) on `data/results/sweep.csv` with `policy_type` fixed effect and `object_id` random intercept; output `glmm_summary.json` (p‑value, odds ratio).
+  - Perform a paired‑t‑test on per‑object success rates (adaptive vs. static); output `t_test_summary.json`.
+  - Conduct a power analysis; if predicted power < 0.8, trigger **spec amendment** task T018 to formally relax FR‑003 (see below).
 
-- [ ] T030 Documentation updates in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md` and `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/README.md`:  
-  - Populate both files with **Installation**, **Running the pipeline**, **Results**, and **Reproducibility** sections.  
-  - Include concrete CLI examples for each major script (data download, object generation, training, evaluation, benchmark).  
-  - Add a checklist linking to core tasks (T010‑T029) and describing expected output artifacts (e.g., `data/results/glmm_summary.json`, `benchmark_summary.json`).  
-  - Verify that the files are non‑empty, correctly formatted in Markdown, and committed to the repository.  
-- [ ] T031 Code cleanup and refactoring of `code/estimator.py` and `code/scheduler.py` (remove dead code, improve docstrings).  
-- [ ] T032 Performance optimization for simulation loop in `code/environment.py` (reduce sub‑steps, enable `DIRECT` mode).  
-- [ ] T039 Implement reproducibility audit script `code/audit_reproducibility.py`: Generate a deterministic report of all random seeds, environment variables, and dependency hashes used in the final run; write to `data/results/reproducibility_audit.json`. (Addresses Constitution Principle I)  
-- [ ] T035 Verify `validate_citations.py` passes against all data sources (run as CI step).  
+- [ ] T008 [US1] **Reward‑Threshold Sensitivity** – `code/analysis/sensitivity.py`:
+  - Re‑evaluate adaptive policy under alternative percentile thresholds (80/20, 85/15) on the same dataset.
+  - Report results to `data/results/sensitivity_report.json` and select the most robust setting.
 
-## Dependencies & Execution Order
+- [ ] T009 [US3] **Resource & Correctness Checks** – Integration test `code/tests/test_cpu_pipeline.py`:
+  - Run the smoke pipeline, asserting wall‑clock time ≤ 6 h and **peak RSS memory ≤ 7 GB** (using `psutil`).
+  - Verify no CUDA imports via static code scan.
+  - **Verification**: `pytest code/tests/test_cpu_pipeline.py` passes.
 
-| Phase | Depends on |
-|-------|------------|
-| Phase 1 | – |
-| Phase 2 | Phase 1 |
-| Phase 3 (US 1) | Phase 2 |
-| Phase 4 (US 2) | Phase 2 |
-| Phase 5 (US 3) | Phase 2 |
-| Phase N (Polish) | All prior phases (especially tasks that generate artifacts referenced in the docs) |
+- [ ] T010 [US1 US2] **Result Summarization & PASS/FAIL Flag** – `code/analysis/make_figures.py`:
+  - Produce success‑rate tables, $k_{\text{norm}}$ vs. friction scatter plot, and sensitivity comparison figures under `figures/`.
+  - Write `data/logs/experiment_summary.json` containing:
+    - `adaptive_success_rate`, `static_success_rate`, `improvement_pct` (computed as `(adaptive‑static)*100`),
+    - `p_value` (GLMM), `t_test_p`, `correlation_r`,
+    - `conclusion` set to `"PASS"` **iff** both improvement thresholds (≥ 15 % for high‑friction, ≥ 10 % for low‑friction) from the acceptance scenarios are met **and** `p_value < 0.05` and `correlation_r ≥ 0.8`. This ties the flag to concrete, documented numbers rather than the deferred SC placeholders.
 
-Tasks marked **[P]** can run in parallel when their file targets differ. All other tasks must respect the ordering indicated in the “DEPENDS ON” notes.
+- [ ] T014 [US2] **Estimator Schema Amendment** – Edit `specs/001-virtual-tactile-adaptation/contracts/estimator_output.schema.yaml`:
+  - Change `epsilon_clamped` and `is_valid` from `const: true` to `"type": "boolean"` (no constant), allowing `false` where appropriate.
 
----  
+- [ ] T018 [US1] **Spec Amendment for Object‑Count Escalation** – If the power analysis in T007 reports insufficient power, create `spec_amendment_object_count.md` that formally updates FR‑003 to allow up to 20 objects for the study, while preserving the original “exactly 10” as the default. This keeps the change traceable and complies with Constitution VII.
 
-*All tasks are written to be executable on a standard GitHub Actions free‑tier runner (2 CPU, 7 GB RAM) without any CUDA or GPU‑specific calls. Real data sources are fetched directly; any failure to fetch aborts the pipeline loudly, satisfying the “no synthetic fallback” rule.*
+- [ ] T020 [US3] **Sweep Schema Path Alignment** – Edit `specs/001-virtual-tactile-adaptation/contracts/sweep_output.schema.yaml` description to reference `data/results/sweep.csv` (the actual file location).
+
+- [ ] T022 [US2] **Estimator Real‑Trace Validation** – After running T025 (full pipeline), execute `code/tests/test_estimator_real.py` which loads `data/logs/simulation_run_*.csv` and verifies that the estimator outputs conform to the amended schema on real data.
+
+## Phase 3: Reproducible results and paper handoff
+
+- [ ] T011 Write a concise methods/results account in `specs/001-virtual-tactile-adaptation/research.md`, linking every claim to concrete artifacts (`experiment_summary.json`, figures, statistical JSONs).
+
+- [ ] T012 (REDO) Populate the documentation with actual content.
+  - Write non‑empty `docs/README.md` and `docs/CHANGELOG.md` (and the project root `README.md`) with Installation, Running the pipeline, Results, and Reproducibility sections, concrete CLI examples, and a list of expected output artifacts.
+
+- [ ] T013 Re‑run the documented workflow end‑to‑end from a clean state and record the exact commands, runtime, and handoff details in `specs/001-virtual-tactile-adaptation/quickstart.md`.
+
+- [ ] T019 **Data‑Model Friction Constraint Alignment** – Amend `specs/001-virtual-tactile-adaptation/data-model.md` to change the friction constraint from “> 0.0” to “≥ 0.0”, matching FR‑010 and `dataset.schema.yaml`.
+
+- [ ] **T015 Coverage Mapping Document** – Create `docs/coverage_mapping.md` that enumerates the correspondence between plan task IDs (e.g., T015a, T020) and the current tasks IDs (T001‑T025). This document resolves the disjoint ID spaces and clarifies that tasks.md supersedes plan IDs for execution.
