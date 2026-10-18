@@ -1,0 +1,42 @@
+status: verified
+kind: pypi_package
+ref: openml
+access_python: "import openml, pandas as pd\n# Adult dataset ID on OpenML\ndataset\
+  \ = openml.datasets.get_dataset(1590, download_all_files=True)\n# Load as pandas\
+  \ DataFrame\nX, y, _, _ = dataset.get_data(dataset_format='dataframe')\ndf = X.copy()\n\
+  # Include target column if needed\nif y is not None:\n    df[dataset.default_target_attribute]\
+  \ = y\nprint(f\"RECORDS={len(df)}\")\ndesired = [\"age\",\"workclass\",\"fnlwgt\"\
+  ,\"education\",\"education-num\",\"marital-status\",\"occupation\",\"relationship\"\
+  ,\"race\",\"sex\",\"capital-gain\",\"capital-loss\"]\nfields = [col for col in desired\
+  \ if col in df.columns]\nprint(\"FIELDS=\" + \",\".join(fields))"
+record_count: 48842
+sample_fields:
+- age
+- workclass
+- fnlwgt
+- education
+- education-num
+- marital-status
+- occupation
+- relationship
+- race
+- sex
+- capital-gain
+- capital-loss
+field_coverage: 1.0
+required_fields:
+- age
+- workclass
+- fnlwgt
+- education
+- education-num
+- marital-status
+- occupation
+- relationship
+- race
+- sex
+- capital-gain
+- capital-loss
+intent: OpenML python package download UCI Adult Credit Card Fraud Covertype Higgs
+  dataset
+cache_key: 6745e3f2e8a505d5469e8563f3f29aebf2e60f6d816043845b4a1fb1c5479fab

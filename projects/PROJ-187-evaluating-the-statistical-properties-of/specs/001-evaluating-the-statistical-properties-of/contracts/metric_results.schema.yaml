@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metric Results Schema"
+type: object
+required:
+  - dataset
+  - model
+  - seed
+  - column
+  - metric_type
+  - statistic
+  - p_value
+  - effect_size
+  - corrected_p_value
+  - faithful
+properties:
+  dataset:
+    type: string
+    description: "Canonical name of the source dataset (e.g., Adult, UCI_HAR)."
+  model:
+    type: string
+    enum: ["CTGAN", "DPGAN", "CopulaGAN"]
+    description: "Synthetic generator that produced the data."
+  seed:
+    type: integer
+    description: "Random seed used for model training and data generation."
+  column:
+    type: string
+    description: "Name of the column the metric refers to."
+  metric_type:
+    type: string
+    enum: ["KS", "ChiSquare", "PearsonDiff", "SpearmanDiff", "PermutationCorr"]
+    description: "Type of fidelity metric."
+  statistic:
+    type: number
+    description: "Raw test statistic (e.g., KS distance, absolute correlation difference)."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Unadjusted p‑value from the hypothesis test."
+  effect_size:
+    type: number
+    description: "Effect‑size measure associated with the statistic (e.g., KS value, Cohen's d)."
+  corrected_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Benjamini‑Hochberg FDR‑adjusted p‑value."
+  faithful:
+    type: boolean
+    description: "True if column passes corrected p‑value ≥ 0.05, effect‑size thresholds, and power ≥ 0.8 (inconclusive otherwise)."
+  power_estimate:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Post‑hoc power estimate for the KS or Chi‑square test (optional)."
+additionalProperties: false
