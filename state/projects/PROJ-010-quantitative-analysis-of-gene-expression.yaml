@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-010-quantitative-analysis-of-gene-expression
-last_run_id: c0d9a9db-28fa-4e33-8485-62c996f586d7
+last_run_id: 194eb139-5ad4-4437-b5e1-16f868e0737f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-010-quantitative-analysis-of-gene-expression/specs/001-quantitative-analysis-of-gene-expression
 title: Quantitative Analysis of Gene Expression Dynamics during Human Brain Development
-updated_at: '2026-10-18T17:25:03.451500Z'
+updated_at: '2026-10-18T17:27:41.891636Z'
