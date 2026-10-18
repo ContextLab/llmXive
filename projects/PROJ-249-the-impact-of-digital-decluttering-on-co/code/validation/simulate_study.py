@@ -11,14 +11,14 @@ five participants.
 All outputs are written under the ``data/`` directory and SHA‑256
 checksums for every generated file are appended to ``data/checksums.sha256``.
 The script is deterministic: the random number generator is seeded from
-``code/config/study_config.yaml`` and no fallback synthetic data is used.
+``code/config/study_config.yaml`` and deterministic timestamps are used
+instead of the current time. No fallback synthetic data is used.
 """
 
 import csv
 import hashlib
 import json
-import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 from pathlib import Path
 
 import numpy as np
@@ -55,7 +55,6 @@ def _sha256_of_file(file_path: Path) -> str:
 def _append_checksum(file_path: Path):
     """Append a checksum line for ``file_path`` to the manifest."""
     manifest = paths.data("checksums.sha256")
-    # Ensure manifest exists
     manifest.parent.mkdir(parents=True, exist_ok=True)
     manifest.touch(exist_ok=True)
 
@@ -74,10 +73,7 @@ def _generate_participant_ids(n: int) -> list[str]:
 
 def _simulate_sart_trials(rng: np.random.Generator, n_trials: int = 100) -> pd.DataFrame:
     """Create a SART trial‑level DataFrame."""
-    # Randomly decide which trials are targets (e.g., 20% targets)
     is_target = rng.random(n_trials) < 0.2
-    # Simulate responses with some error rate; for simplicity 10% error on targets,
-    # 5% error on non‑targets.
     error_rate_target = 0.1
     error_rate_nontarget = 0.05
     errors = np.where(
@@ -87,7 +83,7 @@ def _simulate_sart_trials(rng: np.random.Generator, n_trials: int = 100) -> pd.D
     )
     response = np.where(is_target, ~errors, errors)  # correct response = not error
     accuracy = response == is_target
-    rt_ms = rng.integers(100, 5001, size=n_trials)  # inclusive lower bound, exclusive upper
+    rt_ms = rng.integers(100, 5001, size=n_trials)  # 100‑5000 ms inclusive lower bound
 
     df = pd.DataFrame(
         {
@@ -102,9 +98,7 @@ def _simulate_sart_trials(rng: np.random.Generator, n_trials: int = 100) -> pd.D
 def _simulate_ospan_trials(rng: np.random.Generator, n_trials: int = 20) -> pd.DataFrame:
     """Create an O‑Span trial‑level DataFrame."""
     items = [f"item{idx}" for idx in range(1, n_trials + 1)]
-    # Randomly decide if the response is correct (≈70% correct)
     correct = rng.random(n_trials) < 0.7
-    # Simulated response string – just echo the item when correct, else empty
     response = np.where(correct, items, "")
     df = pd.DataFrame(
         {
@@ -117,9 +111,7 @@ def _simulate_ospan_trials(rng: np.random.Generator, n_trials: int = 20) -> pd.D
 
 def _simulate_questionnaire_scores(rng: np.random.Generator, metric: str) -> float:
     """Return a plausible single‑value score for the given questionnaire metric."""
-    # Use the ranges defined in ``code/config/synthetic_data_config.yaml`` as a guide.
     if metric == "pss10_total":
-        # Typical range 0‑40
         return float(rng.integers(0, 41))
     if metric == "panas_positive":
         return float(rng.integers(10, 51))
@@ -127,15 +119,15 @@ def _simulate_questionnaire_scores(rng: np.random.Generator, metric: str) -> flo
         return float(rng.integers(10, 51))
     raise ValueError(f"Unsupported questionnaire metric: {metric}")
 
-def _write_participants_csv(participant_ids: list[str], start_date: datetime):
+def _write_participants_csv(participant_ids: list[str], start_date: date):
     """Write ``data/raw/participants.csv``."""
     rows = []
-    for pid in participant_ids:
-        enrollment = start_date + timedelta(days=int(pid[1:]) % 7)  # spread a week
+    for idx, pid in enumerate(participant_ids, start=1):
+        enrollment = start_date + timedelta(days=(idx - 1) % 7)
         rows.append(
             {
                 "participant_id": pid,
-                "enrollment_date": enrollment.date().isoformat(),
+                "enrollment_date": enrollment.isoformat(),
             }
         )
     df = pd.DataFrame(rows)
@@ -184,21 +176,18 @@ def _write_trial_level_csv(
     else:
         raise ValueError(f"Unsupported metric for trial‑level export: {metric}")
 
-    # Ensure the folder exists
     out_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write header on first write; subsequent writes append without header.
     write_header = not out_path.exists()
     df.to_csv(out_path, mode="a", header=write_header, index=False)
     _append_checksum(out_path)
 
-def _write_compliance_log(participant_id: str, rng: np.random.Generator):
-    """Create a 7‑day compliance CSV for a participant."""
+def _write_compliance_log(participant_id: str, rng: np.random.Generator, base_date: date):
+    """Create a deterministic 7‑day compliance CSV for a participant."""
     log_dir = paths.data("raw", "compliance_logs")
     log_dir.mkdir(parents=True, exist_ok=True)
 
     rows = []
-    start = datetime.now().date() - timedelta(days=7)
+    start = base_date - timedelta(days=7)
     for day_offset in range(7):
         day = start + timedelta(days=day_offset)
         minutes = int(rng.integers(0, 1441))
@@ -207,7 +196,7 @@ def _write_compliance_log(participant_id: str, rng: np.random.Generator):
         is_compliant = minutes <= 30 and not news and notif
         rows.append(
             {
-                "id": str(uuid.uuid4()),
+                "id": f"{participant_id}_{day_offset}",
                 "participant_id": participant_id,
                 "date": day.isoformat(),
                 "social_media_minutes": minutes,
@@ -227,22 +216,14 @@ def _score_behavioural_tasks(
     phase: str,
     sart_df: pd.DataFrame,
     ospan_df: pd.DataFrame,
-    rng: np.random.Generator,
 ) -> dict:
     """
     Return a mapping from metric_type to scored value for the given participant
     and phase. Uses the official scoring functions.
     """
-    # The scoring functions expect a DataFrame with the same columns we generated.
     sart_scores = score_sart_session(sart_df)
     ospan_scores = score_ospan_session(ospan_df)
 
-    # Expected keys based on the dataset schema:
-    #   - sart_commission_errors
-    #   - sart_omission_errors
-    #   - sart_mean_rt
-    #   - ospan_span_score
-    #   - ospan_total_correct
     scores = {
         "sart_commission_errors": sart_scores.get("commission_errors", np.nan),
         "sart_omission_errors": sart_scores.get("omission_errors", np.nan),
@@ -257,9 +238,11 @@ def _write_measurements(
     phase: str,
     behavioural_scores: dict,
     rng: np.random.Generator,
+    base_datetime: datetime,
 ):
     """Write scored measurement rows (including questionnaires) for one participant/phase."""
-    timestamp = datetime.now().isoformat()
+    # Deterministic timestamp: base_datetime plus a small offset per participant/phase
+    timestamp = (base_datetime + timedelta(minutes=hash(participant_id) % 60)).isoformat()
     rows = []
 
     # Behavioural metrics
@@ -288,24 +271,20 @@ def _write_measurements(
 
     df = pd.DataFrame(rows)
     out_path = paths.data("raw", "simulated_measurements.csv")
-    # Write header on first write; subsequent writes append.
     write_header = not out_path.exists()
     df.to_csv(out_path, mode="a", header=write_header, index=False)
     _append_checksum(out_path)
 
-def _run_smoke_analysis(participant_ids: list[str], rng: np.random.Generator):
+def _run_smoke_analysis(participant_ids: list[str], base_datetime: datetime):
     """
     Compute mean change for the first five participants that have both phases.
     Results are written to ``data/results/smoke_results.json``.
     """
-    # Load the measurements we just wrote.
     meas_path = paths.data("raw", "simulated_measurements.csv")
     meas_df = pd.read_csv(meas_path)
 
-    # Keep only the first five participants (alphabetical order)
     selected = participant_ids[:5]
 
-    # Pivot to have baseline and post columns
     pivot = meas_df.pivot_table(
         index=["participant_id", "metric_type"],
         columns="session_type",
@@ -313,13 +292,9 @@ def _run_smoke_analysis(participant_ids: list[str], rng: np.random.Generator):
         aggfunc="first",
     ).reset_index()
 
-    # Filter to rows where both baseline and post exist
     pivot = pivot.dropna(subset=["baseline", "post_intervention"], how="any")
-
-    # Compute change = post - baseline
     pivot["change"] = pivot["post_intervention"] - pivot["baseline"]
 
-    # Aggregate mean change per metric
     mean_changes = (
         pivot.groupby("metric_type")["change"]
         .mean()
@@ -327,9 +302,8 @@ def _run_smoke_analysis(participant_ids: list[str], rng: np.random.Generator):
         .rename(columns={"change": "mean_change"})
     )
 
-    # Build JSON structure
     result = {
-        "generated_at": datetime.now().isoformat(),
+        "generated_at": base_datetime.isoformat(),
         "metrics": [
             {"metric": row["metric_type"], "mean_change": row["mean_change"]}
             for _, row in mean_changes.iterrows()
@@ -340,7 +314,6 @@ def _run_smoke_analysis(participant_ids: list[str], rng: np.random.Generator):
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2)
-
     _append_checksum(out_path)
 
 # ----------------------------------------------------------------------
@@ -352,8 +325,7 @@ def main():
     seed = cfg["seed"]
     n_participants = cfg["n_participants"]
     dropout_rate = cfg["dropout_rate"]
-    start_date_str = cfg["start_date"]
-    start_date = datetime.fromisoformat(start_date_str).date()
+    start_date = datetime.fromisoformat(cfg["start_date"]).date()
 
     rng = np.random.default_rng(seed)
 
@@ -366,6 +338,9 @@ def main():
     # Write participants registry
     _write_participants_csv(participant_ids, start_date)
 
+    # Deterministic base datetime for timestamps
+    base_datetime = datetime.combine(start_date, datetime.min.time())
+
     # Simulate data per participant
     for pid in participant_ids:
         # ----- Baseline phase -----
@@ -374,7 +349,6 @@ def main():
 
         # Inject a low‑attention case for the first participant (ensure <50% accuracy)
         if pid == participant_ids[0]:
-            # Force many commission errors by flipping responses on target trials
             target_mask = sart_baseline["is_target"]
             sart_baseline.loc[target_mask, "response"] = ~sart_baseline.loc[
                 target_mask, "response"
@@ -384,40 +358,32 @@ def main():
             )
 
         behavioural_scores_baseline = _score_behavioural_tasks(
-            pid, "baseline", sart_baseline, ospan_baseline, rng
+            pid, "baseline", sart_baseline, ospan_baseline
         )
-        _write_measurements(pid, "baseline", behavioural_scores_baseline, rng)
+        _write_measurements(pid, "baseline", behavioural_scores_baseline, rng, base_datetime)
         _write_trial_level_csv(sart_baseline, pid, "baseline", "sart")
         _write_trial_level_csv(ospan_baseline, pid, "baseline", "ospan")
-        _write_compliance_log(pid, rng)
+        _write_compliance_log(pid, rng, start_date)
 
         # ----- Post‑intervention phase (skip if dropout) -----
         if pid in dropout_ids:
-            continue  # No post data for this participant
+            continue
 
-        # Apply effect sizes from config to the behavioural scores
-        # Effect sizes are in Cohen's d; we approximate by shifting the mean.
-        # For simplicity we just add a deterministic offset derived from the
-        # effect size and the baseline standard deviation (estimated from the
-        # baseline scores themselves).
-        effect_sizes = cfg["effect_sizes"]
-        # Simulate post‑phase raw trials again (still random but seeded)
+        # Simulate post‑phase raw trials
         sart_post = _simulate_sart_trials(rng)
         ospan_post = _simulate_ospan_trials(rng)
 
-        # Adjust post scores according to the declared effect sizes.
-        # We compute the baseline scores again to know the std dev.
+        # Score baseline and post
         baseline_behav = _score_behavioural_tasks(
-            pid, "baseline", sart_baseline, ospan_baseline, rng
+            pid, "baseline", sart_baseline, ospan_baseline
         )
-        # Create a copy to modify
         post_behav = _score_behavioural_tasks(
-            pid, "post_intervention", sart_post, ospan_post, rng
+            pid, "post_intervention", sart_post, ospan_post
         )
-        # Apply shift = d * std for each metric where an effect size is defined.
+
+        # Apply effect sizes from config (Cohen's d shift)
+        effect_sizes = cfg["effect_sizes"]
         for metric, d in effect_sizes.items():
-            # Map the high‑level metric name to the corresponding metric_type(s)
-            # For simplicity we only shift the primary composite scores:
             if metric == "SART":
                 key = "sart_commission_errors"
             elif metric == "Ospan":
@@ -433,17 +399,17 @@ def main():
             base_val = baseline_behav.get(key, np.nan)
             if np.isnan(base_val):
                 continue
-            # Estimate a std dev of 5 for questionnaire metrics, 3 for behavioural ones
+            # Estimate a std dev of 5 for questionnaires, 3 for behavioural metrics
             std_est = 5.0 if "pss10" in key or "panas" in key else 3.0
             shift = d * std_est
             post_behav[key] = float(base_val + shift)
 
-        _write_measurements(pid, "post_intervention", post_behav, rng)
+        _write_measurements(pid, "post_intervention", post_behav, rng, base_datetime)
         _write_trial_level_csv(sart_post, pid, "post_intervention", "sart")
         _write_trial_level_csv(ospan_post, pid, "post_intervention", "ospan")
 
     # After all participants are processed, generate the smoke results JSON.
-    _run_smoke_analysis(participant_ids, rng)
+    _run_smoke_analysis(participant_ids, base_datetime)
 
     log.info("Study simulation completed successfully.")
 

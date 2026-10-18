@@ -1,1 +1,1 @@
-"""Pipeline entry points for the digital decluttering study."""
+"""Pipeline orchestration package for the digital decluttering study."""

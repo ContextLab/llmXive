@@ -1,9 +1,4 @@
 T001:
-  reason: The required `data/checksums.sha256` manifest file is missing, so the checksum
-    requirement is not satisfied despite the correct directory layout, config file,
-    quickstart command, and pinned requirements. The task cannot be considered complete
-    until the manifest file is present and includes checksums for all files under
-    `data/`.
   task: 174633505f219c4b658f23ecedce846d2811425ec8414da62663e7d2ceae657f
 T002:
   task: d1fa575b4e16934ab78d0c2914e360889d774ea4c38fe50367ff533b8b8dfe41
