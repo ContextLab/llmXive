@@ -1,20 +1,22 @@
 T001:
   c: true
-  h: 8e9b3b6bdf0b95dc3d3afc4bfaa580b6b397d93bc5ada6754b1cb6a820c38c79
-  r: Checked `code/config/study_config.yaml` for required keys, `quickstart.md` for
-    the exact command, the directory layout, `code/requirements.txt` for pinned versions,
-    and `data/checksums.sha256` for a manifest covering all current data files; all
-    are present and correctly populated.
-  sig: af70bdeb25343518ec5d642b1e9aea0a13097ee01a9190848af538f67a80f2a5
+  h: 235e02ab51f1d7e7fc895b484d3cc30b41f82665a79e93be4aa5238a24b8b31e
+  r: "The project layout directories exist, `code/config/study_config.yaml` contains\
+    \ all required keys, `quickstart.md` documents the exact command, `code/requirements.txt`\
+    \ is present with pinned versions, and `data/checksums.sha256` lists checksums\
+    \ for the data files. The execution log shows `python -m code.pipeline.run_all\
+    \ --config code/config/study_config.yaml` ran successfully with exit code\u202F\
+    0."
+  sig: 211f7273e88885440ce61493702ea27c390f3512ab9e6bd349a8275558fff5b8
 T002:
-  c: true
-  h: 46997ca613f4e37173b165642a8d8cef75e9ad29beb5f7e017a7fa469165e03f
-  r: "Checked the scoring implementations in `code/scoring/sart.py`, `ospan.py`, `pss10.py`,\
-    \ and `panas.py` and the comprehensive unit tests in `code/tests/test_scoring.py`,\
-    \ which include the synthetic pilot\u2011check using the `pilot_n` value from\
-    \ the study config. All required artifacts exist, are non\u2011empty, and their\
-    \ contents satisfy the specified logic and edge\u2011case testing."
-  sig: 0e3aa361d11c87983da4bdd54072a460a3b4169e74498d0ae8d60ed0942d1df1
+  c: false
+  h: b44788a3d5b805bd6c05d633a34196cca9c73fc51f37a6d98c34bd654c8dd4db
+  r: "The scoring modules and unit\u2011test file exist and their code matches the\
+    \ required logic, but the test suite cannot run as\u2011is: the required `code/config/study_config.yaml`\
+    \ (providing `pilot_n` and `seed`) is missing, and there is no evidence that `pytest\
+    \ code/tests/test_scoring.py` was executed and passed. Without the config file\
+    \ and a passing test run, the task\u2019s verification step is not satisfied."
+  sig: 662595c4b00cab008f8cacdda7316cb6a0dc01cedee1e4a6a3f7d4a54fec808d
 T009:
   c: false
   h: 4597374f973ff302b8c066b016acbdd6656e3a50917d9c2ce369b9ffe4cb8fd8

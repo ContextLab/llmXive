@@ -1,10 +1,21 @@
 T001:
   task: 174633505f219c4b658f23ecedce846d2811425ec8414da62663e7d2ceae657f
 T002:
+  reason: "The scoring modules and unit\u2011test file exist and their code matches\
+    \ the required logic, but the test suite cannot run as\u2011is: the required `code/config/study_config.yaml`\
+    \ (providing `pilot_n` and `seed`) is missing, and there is no evidence that `pytest\
+    \ code/tests/test_scoring.py` was executed and passed. Without the config file\
+    \ and a passing test run, the task\u2019s verification step is not satisfied."
   task: d1fa575b4e16934ab78d0c2914e360889d774ea4c38fe50367ff533b8b8dfe41
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/validation/simulate_study.py
-    exit=1'
+  reason: "Checked `code/validation/simulate_study.py`, the generated CSVs (`participants.csv`,\
+    \ `sart_trials.csv`, `ospan_trials.csv`) and the per\u2011participant compliance\
+    \ logs. While the script runs deterministically and creates the required files,\
+    \ the produced `data/raw/simulated_measurements.csv` does not include the required\
+    \ `id` (and other schema fields) expected by `contracts/dataset.schema.yaml`,\
+    \ and the contents of `data/results/smoke_results.json` and `data/checksums.sha256`\
+    \ were not inspected to confirm they contain the correct mean\u2011change values\
+    \ and valid SHA\u2011256 entries. Without evidence that t"
   task: c8b14947bf6d6a4a0b6dcb00d594097a0474861d1d4c3c7f83e1d3c8854ae8b3
 T004:
   task: cd760a88680e11e4ed9a06f51ce6631ba4a8c9f4c6943a4d18a1c9bdecf7836c

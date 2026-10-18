@@ -1,0 +1,7 @@
+{
+  "task_id": "T004",
+  "fingerprint": "c362dc6beeada8e100b3a2afacf555cea734dc4909a63d195d2399d7bdba532a",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/compliance/compute_compliance.py': unresolved names ['v'] \u2014 likely missing imports. Add the necessary `import` or `from ... import ...` statements."
+}
