@@ -1,9 +1,11 @@
 status: none
-intent: Hugging Face Hub dataset containing text label metadata python package dataset
+intent: HuggingFace dataset with text label metadata python package dataset
 required_fields:
 - text
 - label
 - metadata
-cache_key: 8b0bba8ada1c5c72dcd7d8631af1485012721fc08a70a011d8744029a78aee3a
-searched_at: '2026-10-17T23:06:56.601771+00:00'
+- id
+- split
+cache_key: a9979843c6682f0cf1f286adda4456f44499a5f9df097d84d4b0852d3e80893e
+searched_at: '2026-10-18T00:12:33.169310+00:00'
 retry_count: 1

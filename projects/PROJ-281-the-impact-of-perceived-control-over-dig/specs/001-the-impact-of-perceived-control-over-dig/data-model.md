@@ -32,7 +32,7 @@ Defines immutable, version‑controlled data artifacts that flow through the pip
 |-------|------|-------------|
 | `post_id` | string | FK to `SocialPost`. |
 | `filter_flag` | boolean | Derived from `filter_applied` (False if column missing). |
-| `timestamp_regularity` | float ∈[0,1] | Normalized inverse‑std of inter‑post intervals per user. |
+| `timestamp_regularity` | float ∈[0,1] | Normalized inverse‑std of inter‑post intervals per user; set to 0 if `timestamp` missing. |
 | `control_proxy` | float ∈[0,1] | Weighted combination (0.6 × `filter_flag` + 0.4 × `timestamp_regularity`). |
 
 *Saved to `data/processed/proxy_results.csv`.*
@@ -53,9 +53,10 @@ Conforms to `contracts/analysis.schema.yaml` and includes:
 - `correlation_coefficient`
 - `p_value`
 - `is_significant`
-- `normality_test_p_value`
+- `normality_test_p_value` *(p‑value of Shapiro‑Wilk test on regression residuals)*
 - `sample_size`
 - `confidence_threshold`
+- `achieved_power`
 
 ### 6. `CoverageReport` (JSON)
 Tracks:
@@ -76,3 +77,4 @@ Tracks:
 All files are immutable after creation; any re‑run produces new versioned files with updated hashes.
 
 ---
+

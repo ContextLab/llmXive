@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AnalysisResultSchema"
-description: "Schema for the final statistical analysis results."
+description: "Schema for the final statistical analysis results. `normality_test_p_value` refers to the Shapiro‑Wilk test on regression residuals."
 type: "object"
 properties:
   correlation_method:
@@ -20,13 +20,16 @@ properties:
     description: "True if p_value < 0.05."
   normality_test_p_value:
     type: "number"
-    description: "P-value from the Shapiro-Wilk normality test on marginal distributions of the variables."
+    description: "P-value from the Shapiro‑Wilk test on regression residuals."
   sample_size:
     type: "integer"
     description: "Number of records included in the final analysis."
   confidence_threshold:
     type: "number"
     description: "The confidence threshold used for filtering (e.g., 0.6)."
+  achieved_power:
+    type: "number"
+    description: "Post‑hoc power estimate for the observed effect size."
 required:
   - correlation_method
   - correlation_coefficient
@@ -35,3 +38,4 @@ required:
   - normality_test_p_value
   - sample_size
   - confidence_threshold
+  - achieved_power
