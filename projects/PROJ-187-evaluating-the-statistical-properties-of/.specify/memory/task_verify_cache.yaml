@@ -1,0 +1,10 @@
+T000:
+  c: true
+  h: 89a38908e2afd7e1796e6875f1eb851d22668812445f45fa300cb71fc7d3b134
+  r: The `requirements.txt` exists at the project root (881 bytes) and contains all
+    14 required dependencies pinned to exact versions, including the mandated `sdv==1.12.0`,
+    `ctgan==0.5.2`, and `torch==2.2.0` with a documented CPU-wheel install note. The
+    file is substantive and matches the task's stated deliverable; the venv install/`pip
+    check` verification was not evidenced, but the artifact itself fully satisfies
+    the task's requirement.
+  sig: 7863e7885f5c09177f8b6ec4b08cfac4b457364d9dec9ae28a958e2f6f7250d6
