@@ -43,13 +43,13 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create `code/` directory structure (`code/data`, `code/inference`, `code/scoring`, `code/analysis`, `code/utils`)
-- [ ] T001b Create `data/` directory structure (`data/raw`, `data/processed`, `data/gold`)
-- [ ] T001c Create `tests/` directory structure (`tests/unit`, `tests/integration`)
+- [X] T001a Create `code/` directory structure (`code/data`, `code/inference`, `code/scoring`, `code/analysis`, `code/utils`)
+- [X] T001b Create `data/` directory structure (`data/raw`, `data/processed`, `data/gold`)
+- [X] T001c Create `tests/` directory structure (`tests/unit`, `tests/integration`)
 - [X] T001d Create `code/__init__.py` and `tests/__init__.py`
 - [X] T001e Create `pyproject.toml` with project metadata and build backend
 - [ ] T001f Create `.gitignore` for Python and research artifacts (`.pyc`, `__pycache__`, `data/`, `*.log`)
-- [X] T001g Initialize `requirements.txt` with pinned versions for `transformers>=4.40`, `torch>=2.0 (cpuonly)`, `datasets>=2.19`, `scipy`, `statsmodels`, `pandas`, `pyyaml`, `huggingface_hub`, `pytest` (per plan.md Primary Dependencies)
+- [~] T001g Initialize `requirements.txt` with pinned versions for `transformers>=4.40`, `torch>=2.0 (cpuonly)`, `datasets>=2.19`, `scipy`, `statsmodels`, `pandas`, `pyyaml`, `huggingface_hub`, `pytest` (per plan.md Primary Dependencies)
 
 ---
 
@@ -59,10 +59,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T007 Create base data models/entities in `code/data/models.py` (Prompt, Response, BenchmarkResult, Score)
-- [X] T004 Setup environment configuration management in `code/utils/config.py` (seeds, token limits, model paths)
-- [X] T005 [P] Implement checksumming and data hygiene utilities in `code/utils/checksum.py` (depends on T007 models)
-- [X] T006 [P] Configure audit logging infrastructure for failures/truncations in `code/utils/logging.py` (depends on T007 models)
+- [ ] T007 Create base data models/entities in `code/data/models.py` (Prompt, Response, BenchmarkResult, Score)
+- [~] T004 Setup environment configuration management in `code/utils/config.py` (seeds, token limits, model paths)
+- [~] T005 [P] Implement checksumming and data hygiene utilities in `code/utils/checksum.py` (depends on T007 models)
+- [~] T006 [P] Configure audit logging infrastructure for failures/truncations in `code/utils/logging.py` (depends on T007 models)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,12 +76,12 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T009 [P] [US1] Contract test for dataset loader in `tests/unit/test_data_loader.py`
-- [ ] T010 [P] [US1] Integration test for full inference pipeline on sample prompts in `tests/integration/test_inference.py`
+- [~] T009 [P] [US1] Contract test for dataset loader in `tests/unit/test_data_loader.py`
+- [~] T010 [P] [US1] Integration test for full inference pipeline on sample prompts in `tests/integration/test_inference.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement deterministic dataset downloader in `code/data/download.py`. **Source**: Download `HuggingFaceH4/mmlu` (STEM subset). **Verification**: Verify the dataset ID is valid and contains STEM problems. **Note**: While spec.md FR-001 mentions "IMO/IPhO", the verified source for high-difficulty deterministic benchmarks in the plan is `HuggingFaceH4/mmlu` (STEM subset). This dataset serves the requirement for deterministic, verifiable ground-truth answers. Parse into `code/data/processed/mmlu_stem.jsonl`.
+- [ ] T011 [P] [US1] Implement deterministic dataset downloader in `code/data/download.py`. **Source**: Download `HuggingFaceH4/mmlu` (STEM subset). **Verification**: Verify the dataset ID is valid and contains STEM problems. **Note**: While spec.md FR-001 mentions "IMO/IPhO", the verified source for high-difficulty deterministic benchmarks in the plan is `HuggingFaceH4/mmlu` (STEM subset). This dataset serves the requirement for deterministic, verifiable ground-truth answers. Parse into `code/data/processed/mmlu_stem.jsonl`. <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
 - [ ] T012 [P] [US1] Implement OpenSci-Reason dataset loader and curation in `code/data/download.py` using `datasets.load_dataset("nvidia/OpenScience", streaming=True)`. **Curation Logic**: Filter to create a curated `OpenSci-Reason` dataset by **removing prompts with single verifiable ground-truth answers** (e.g., multiple-choice with one correct option, or prompts with a single numerical answer) and **keeping prompts requiring open-ended reasoning or multiple valid solution paths**. **Implementation Detail**: Stream the dataset, apply the filter logic (regex/keyword exclusion for factual Q&A), and sample a representative set of items. Output to `code/data/processed/opensci_reason.jsonl`. **Note**: Source is `nvidia/OpenScience` (NSF/ERC abstracts).
 - [ ] T013 [US1] Implement unified JSONL preprocessing in `code/data/preprocess.py`. **Inputs**: `code/data/processed/mmlu_stem.jsonl`, `code/data/processed/opensci_reason.jsonl`. **Output**: `code/data/processed/unified.jsonl` (merges all, adds `domain` field: "deterministic" for MMLU-STEM, "ill-structured" for OpenSci). **Note**: Depends on completion of T011 and T012.
 - [ ] T014 [US1] Implement CPU-only inference runner with multi-sample generation in `code/inference/runner.py` (batch_size=1, temperature=0.7). **Critical Logic**: For the OpenSci-Reason dataset, **loop generation multiple times per prompt**. Check for distinctness (string similarity < 0.8); if fewer than 3 distinct valid responses are generated, flag the prompt as "incomplete" in the output. For MMLU-STEM, generate 1 response. Enforce `max_tokens=2048` to prevent CI timeouts (FR-006). **Note**: This task directly implements FR-003 (3 candidates) and FR-006 (token limit).

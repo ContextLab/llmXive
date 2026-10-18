@@ -1,30 +1,52 @@
 T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `code/` directory or its subfolders (`code/data`, `code/inference`,
-    `code/scoring`, `code/analysis`, `code/utils`) is provided; the required directory
-    structure is absent.
+  c: true
+  h: a738336300607c3e40b0db205564f52e193e4623d9ec393d996613fa4d81d9cd
+  r: The `code/` directory exists with all five required subdirectories (`data`, `inference`,
+    `scoring`, `analysis`, `utils`) confirmed both by the current directory listing
+    and the execution log (exit 0), and the log shows `__init__.py` markers and `.gitkeep`
+    files in place. The task only asked for the directory structure, which is fully
+    satisfied.
+  sig: 06128931745dc96685528ffdab13f8f750e4ab926cb31012ffc620bb825113bc
 T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the `data/` directory or its subfolders (`raw`,\
-    \ `processed`, `gold`) actually exist; the claim is unsubstantiated. The implementer\
-    \ must supply a file\u2011system listing, screenshot, or script output confirming\
-    \ the creation of these directories."
+  c: true
+  h: f77a3dc0deeca736793e9d6d542d4f60ceb2a3108a45b7e0ea567524fc8f0e40
+  r: The `data/` directory exists with all three required subdirectories (`raw`, `processed`,
+    `gold`) confirmed by the collector, and the execution log shows `code/setup_data_dirs.py`
+    ran successfully (exit 0) verifying each path exists.
+  sig: 830b14760cc4878c234ece487f69a8c676ebdcd68891f0617781cf3cbb69105b
 T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that a `tests/` directory (with `unit` and `integration`\
-    \ sub\u2011directories) actually exists in the repository; the implementer\u2019\
-    s response contains only the task description and no file\u2011system listing\
-    \ or code showing the directories were created. The required directory structure\
-    \ is therefore missing."
+  c: true
+  h: 8fd5513380056b3eb505c17bf2a8b7767a811233ac5b7eac99efe8565775e01a
+  r: The `tests/` directory exists with both `tests/unit` and `tests/integration`
+    subdirectories, each containing an `__init__.py` plus test files, and the execution
+    log (exit 0) confirms the directories were created and verified with the expected
+    structure.
+  sig: d2b5178d86e1e822eb75ee10c2e57858e8c9aa2f1a2dd2a7f45eeebf4b49b13e
+T001d:
+  c: true
+  h: 0ba7334595dd25d22a2e380df912611814cc91bb10ee5857537b80bbe5e6dd8b
+  r: Both `code/__init__.py` and `tests/__init__.py` exist at the resolved project
+    paths with non-empty docstring/comment content, matching the task's requirement
+    to create these package marker files.
+  sig: 3b8548a67316a959acbf4a84df392fcb08d3c70aa351d861c115100be587579c
+T001e:
+  c: true
+  h: 75d495cde655717a1a7eb794923c0aaad1303d4224adc01026632b2aa8271ec6
+  r: "The `pyproject.toml` exists at the project root (1506 bytes) and contains valid\
+    \ project metadata (name, version, description, authors, classifiers, dependencies\
+    \ matching the spec's needs like transformers/torch/scipy/statsmodels), a setuptools\
+    \ build backend, optional dev dependencies, console script entry points, and tool\
+    \ configuration for pytest/black/isort \u2014 exactly what T001e asked for."
+  sig: cf6383887911de8b6d4fc34dc8dad3e969c0c55d900f0c0f0cb727c73cd0efdd
 T001f:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file was provided in the evidence, and therefore the required
-    list of ignored patterns (`.pyc`, `__pycache__/`, `data/`, `*.log`, etc.) is missing.
-    The task is not satisfied.
+  h: f254c661f1f407fbcb067d5e2f3a47bf803ece36d2c9a1d0a8b304313e7d1055
+  r: "The task requires a `.gitignore` file covering `.pyc`, `__pycache__`, `data/`,\
+    \ and `*.log`, but the evidence shows no `.gitignore` at the project root \u2014\
+    \ only a `data/` directory with `gold/`, `processed/`, and `raw/` subdirectories.\
+    \ The required artifact is missing entirely and must be created with the specified\
+    \ Python and research-artifact ignore patterns."
+  sig: 8fcfb3c61fa8eae4cccd098c1326b05efda6dc218a5b44733be9e67be5e15cff
 T009:
   c: false
   h: ace595a2b116037cf799d84a962591e24fe728e70ed4ca396479adfcaef1d9e5

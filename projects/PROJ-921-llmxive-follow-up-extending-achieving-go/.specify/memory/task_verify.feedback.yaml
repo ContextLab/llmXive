@@ -1,0 +1,88 @@
+T001a:
+  task: 2af0bc12be417ec260a06af1188289375c5b68e24a34d38bca7ae40ecab89c0a
+T001b:
+  task: e1ce813586af84466e38e9d92d7f6c3d184b413ba0b7a1ba758aa88f55af00a8
+T001c:
+  task: 6fd09f7ffaacf4489f01fa5cbc6df6c5b4368345f45e7bf7a513af80fd91aeae
+T001d:
+  task: 393c6a232aedc05c1691106a2c355c543c65fb50294cf7dcc22e35cd1081ea7f
+T001e:
+  task: f2cf448a8531f24d83c8ce657e2d7fd40b00930493acd2354d838c84ffcbb36a
+T001f:
+  reason: "The task requires a `.gitignore` file covering `.pyc`, `__pycache__`, `data/`,\
+    \ and `*.log`, but the evidence shows no `.gitignore` at the project root \u2014\
+    \ only a `data/` directory with `gold/`, `processed/`, and `raw/` subdirectories.\
+    \ The required artifact is missing entirely and must be created with the specified\
+    \ Python and research-artifact ignore patterns."
+  task: 1da3a43acd14023b763da1a7c2c6e16d5a5939ad9edb967f5f92218c9c886733
+T001g:
+  task: 1e292bf28a87b066339fe96f20b001f3ca44ed3413ed4af88f111d6f03e3e0f5
+T004:
+  task: 0585554305ad48ca007783d6dd5262ec5355262c2753ae730d112592a0ff955a
+T005:
+  task: 2efaf968447914f55b59e9f815a49381a9931711b1d990966e5999caa6350b3f
+T006:
+  task: 9e3ef267255bafdd3bd84d89587b1f53fec13c76034c0ac0e99e8782a52e5e71
+T007:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/models.py'
+  task: 5cbe011ecb7b75b1547a12df20cbc82f6bf6dfad2f2474e7609dd30672a19bcc
+T009:
+  task: a16c2e0dd74627b7313b8bfac6921aef5c653b498e667ebc6545a22ebcf1890a
+T010:
+  task: f005516e6923ac4cc79b1f3aa12b8ab240a53e799df8c5f082dd5edb35085a41
+T011:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1'
+  task: cd964b382bfe1ee6046dc7ad4c32785949bb1ae698d748914c07c149754dbff0
+T012:
+  task: b45dd7abb8fe8f83da3786c226548b95c879869590e67302ab2e5438bfc7c7c2
+T013:
+  task: 3bc0ee4add8eb4d0000ba1bfb53b5ea969acdf2c4fded3d2e0e1760450a406c4
+T014:
+  task: 7d59950dc8b011c0b960b572c0959e2b60ff621d3822b1be9f0cbf17cc674f9a
+T017:
+  task: 105dcacc6538c1793d38a5fbd6d2da18d095b504e33ea5dd83829fb5ba3cf56b
+T018:
+  task: 0f8f8a38445711a35c9d132c728830bb1bcdddfafbb02d543fa827543a89132e
+T019:
+  task: 5535b85b451eded48145b7bf29c24cc4cd1f800f98ed02a5e31d44c1e6cb50c3
+T020:
+  task: eb85d2d749bf2f151a42279cad6c0a7a9eea5efbe44e45537b8352b59afebfc3
+T020b:
+  task: 9a25ce01d43259a360c4878b36068dea3e40d4da6c66b1f01feb03a99dbf8102
+T021:
+  task: 38101688476da0eddb6777e5769854d0766098a72d1aa2b95036248ea7cb9f73
+T022:
+  task: 5162f1229fb66cd79172704b625e9d8cc44b382b92d3ba0a48366b8d783f253e
+T023:
+  task: 941ea4afff7757f4e89bc49572c82571b134b40773bb8e90f7fe0e979192ff93
+T024:
+  task: de6771437a82c4b85584ee3b4f89783ebf54110420ca51ab15907a954bb98fac
+T025:
+  task: ffb98a52107ebaa3070e7bb3474aa17073fba1352407306786b9f3341786b3b0
+T026:
+  task: 9f4a33bcb70f6a8c23e5960bf6cae5fcb4aeacb28092084659d2a796c8ad2d10
+T027:
+  task: 757e80c9526f53fd3a19391b91b3259d4de94af95d2995089bd3751f1564e110
+T030:
+  task: cd679ebbe8a39116cdf60f0735a6e38119eb200995ab5ba0651913664d717bb7
+T031:
+  task: b40a4fdf4c9eb21f3fba92e46caff5157d208091e0e72806c61b851e297813f3
+T032:
+  task: 7fdf57a6dd02f6fbb0630589a2f5c8d4d3a3733df90f9d20184e1e3a6064dbfa
+T033:
+  task: b18abcebaaa3b78f48ad022d981b8b46f476e7c97bbc1311069efa1fcf031796
+T034:
+  task: 1a62ccaa81d4da26320de1ec947af540547e24614537c31f1ea52a8af7fde409
+T035:
+  task: d148a5c9d6acbafb6e71ad5fb2a029db17f36ce5ed6a440ad5e1611d0d88308c
+T036:
+  task: a0c3c1b88bc2fe14e57a8b7a95dd6447de53d57a6bd9fb2351fb0b52b2fbbe72
+T037:
+  task: 97de5aada36bd76db66a2cf81c9870532c9e30b99f89532773b99b8f1a8cb8c6
+T038:
+  task: 92479e707b5bb33c50ec5bb5deeddf35e4631fa95b667965c04dad039faeb47f
+T039:
+  task: 49ca9f3b148ef41e626ce1bcc67e80abe72b9edbf7e198ef950c23d9e8918848
+T040:
+  task: d25ec67d185db5d2146ac069f8499f08a4eb7c5c99aebacf3ebefd677df1e032
