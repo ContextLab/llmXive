@@ -13,8 +13,8 @@ It performs the following steps:
   2. Writes the streamed records to a raw JSON‑Lines file.
   3. Creates a deterministic stratified sample of the first 5 000 cells per
      developmental stage (seed‑controlled, but the sampling is order‑based).
-  4. Downloads GEO accession GSE123456 (bulk RNA‑seq) and the BrainSpan
-     developmental‑stage metadata (ZIP archive) via public REST APIs.
+  4. Downloads a real GEO Series (human brain development bulk RNA‑seq) and the
+     BrainSpan developmental‑stage metadata (ZIP archive) via their public REST APIs.
   5. Computes SHA‑256 checksums for every raw file and writes them to
      `data/raw/checksums.txt`.
   6. Logs total cells streamed and per‑stage sample sizes.
@@ -208,7 +208,8 @@ def main() -> None:
     )
 
     # 2️⃣ Download auxiliary GEO dataset
-    geo_accession = "GSE123456"
+    # Real GEO accession that contains human brain development bulk RNA‑seq data
+    geo_accession = "GSE104276"
     geo_path = output_dir / f"{geo_accession}.tsv"
     download_geo_series(geo_accession, geo_path)
 
