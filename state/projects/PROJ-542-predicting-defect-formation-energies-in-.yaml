@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T19:30:55.331426Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-542-predicting-defect-formation-energies-in-
-last_run_id: 5eee4bb2-673c-41d8-a99b-6e65f097e518
+last_run_id: 307088ba-494f-4003-9888-260ff8248eb4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-542-predicting-defect-formation-energies-in-/specs/001-predicting-defect-formation-energies-in
 title: Predicting Defect Formation Energies in Perovskites with Machine Learning
-updated_at: '2026-10-16T09:55:01.595949Z'
+updated_at: '2026-10-18T21:05:05.829294Z'
