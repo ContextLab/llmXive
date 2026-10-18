@@ -20,17 +20,6 @@
   verification_status: pending
   verified_against_url: https://osf.io/9k2v6/
   verified_at: '2026-10-06T22:53:52.439715Z'
-- artifact_hash: aeaae819fe63d3c6431913dff98dce63fc5c0931f888566637c2ea2f21a7f6be
-  artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.10286623
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.10286623
-  verified_at: '2026-10-10T21:20:57.103088Z'
 - artifact_hash: 06ab8c612650d95bd6fff35b759c23265e9b411ae5205143e0344ec304f2275e
   artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/research.md
   cite_id: c-001
