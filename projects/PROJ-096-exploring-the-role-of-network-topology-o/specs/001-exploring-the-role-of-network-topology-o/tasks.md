@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization, governance alignment, and basic structure
 
-- [ ] T000a [P] **Verify Spec Amendment**: Create `scripts/verify_spec.py` to parse `specs/001-exploring-the-role-of-network-topology-synchronization/spec.md`.
+- [ ] T000a [P] **Verify Spec Amendment**: Create `scripts/verify_spec.py` to parse `specs/001-exploring-the-role-of-network-topology-synchronization/spec.md`. <!-- FAILED-IN-EXECUTION: scripts/verify_spec.py exit=1 -->
  **Logic**:
  1. Assert that the text "synthetic regular ring lattice of N=500 nodes" is present in FR-001.
  2. Assert that the text "ca-AstroPh" is NOT present as a base graph requirement in FR-001.
@@ -66,7 +66,7 @@
 - [ ] T003b [P] **Verify Linting Configuration**: Create `code/__init__.py` if it does not exist. Run `black --check code/` and `flake8 code/` on the `code/` directory. Redirect output to `data/checksums.txt` (append).
  **Verification**: `test -f code/__init__.py && black --check code/ && flake8 code/ && echo 'OK' || exit 1`.
 
-- [~] T003c [P] **Setup Pre-commit Hooks**: Install `pre-commit` and configure `.pre-commit-config.yaml` to run `autoflake` and `isort` on every commit. **Note**: This automates import cleanup, making manual import cleanup tasks unnecessary.
+- [ ] T003c [P] **Setup Pre-commit Hooks**: Install `pre-commit` and configure `.pre-commit-config.yaml` to run `autoflake` and `isort` on every commit. **Note**: This automates import cleanup, making manual import cleanup tasks unnecessary.
  **Verification**: `test -f.pre-commit-config.yaml && pre-commit install && echo 'OK' || exit 1`.
 
 ---
@@ -77,15 +77,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [~] T004 [P] Implement `code/utils/graph_utils.py` for connectivity checks and metric calculations.
+- [ ] T004 [P] Implement `code/utils/graph_utils.py` for connectivity checks and metric calculations.
  **Functions to implement**: `is_connected(G: nx.Graph) -> bool`, `average_degree(G: nx.Graph) -> float`, `clustering_coefficient(G: nx.Graph) -> float`.
  **Verification**: `python -c "from code.utils.graph_utils import is_connected, average_degree, clustering_coefficient; print('OK')"`.
 
-- [~] T005 [P] Implement `code/utils/stats_utils.py` for correlation, p-value, and multiple-comparison correction.
+- [ ] T005 [P] Implement `code/utils/stats_utils.py` for correlation, p-value, and multiple-comparison correction.
  **Functions to implement**: `spearman_corr(x, y) -> tuple`, `p_value(spearman_stat, n) -> float`, `bonferroni_correction(p_values, alpha) -> list`.
  **Verification**: `python -c "from code.utils.stats_utils import spearman_corr, p_value, bonferroni_correction; print('OK')"`.
 
-- [~] T006 [P] **Setup Data Directory Structure and Metadata Schema**: Create `data/processed/`, `data/raw/`, and initialize `data/checksums.txt`. Define the `graph_metadata.json` schema in `docs/data_model.md` (or inline comment) containing keys: `node_count` (int), `avg_degree` (float), `p` (float), `seed` (int), `checksum` (string).
+- [ ] T006 [P] **Setup Data Directory Structure and Metadata Schema**: Create `data/processed/`, `data/raw/`, and initialize `data/checksums.txt`. Define the `graph_metadata.json` schema in `docs/data_model.md` (or inline comment) containing keys: `node_count` (int), `avg_degree` (float), `p` (float), `seed` (int), `checksum` (string).
  **Checksum Format**: `data/checksums.txt` must contain SHA256 hashes of ALL data artifacts (raw downloads and generated `.gpickle` files), formatted as `hash filename`.
  **Verification**: `test -d data/processed && test -f data/checksums.txt && echo 'OK' || exit 1`.
 
@@ -106,8 +106,8 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [~] T010 [P] [US1] Contract test for graph generation in `tests/test_topology.py` (verify N=500, connected, degree preservation)
-- [~] T011 [P] [US1] Integration test for metadata logging in `tests/test_topology.py` (verify seed and p saved to `graph_metadata.json`)
+- [ ] T010 [P] [US1] Contract test for graph generation in `tests/test_topology.py` (verify N=500, connected, degree preservation)
+- [ ] T011 [P] [US1] Integration test for metadata logging in `tests/test_topology.py` (verify seed and p saved to `graph_metadata.json`)
 
 ### Implementation for User Story 1
 

@@ -47,13 +47,39 @@ T003b:
     and does not show any linting results. Provide logs of the linting commands (or
     the updated `checksums.txt` with the appended output) to satisfy the task.
   sig: 7ddfd1de7c3ace155bea8626e6c1ef1fe0ec6944982766f948587871b10cfee5
+T003c:
+  c: false
+  h: b1b13f5dd3e6a5a398992c7dca3c5347dcc5dc873194e865e53561784d4e2521
+  r: The provided `.pre-commit-config.yaml` exists but does not include an `autoflake`
+    hook as required, and there is no evidence that `pre-commit install` was run (no
+    installed hook scripts). The task therefore fails to meet the specification.
+  sig: f2948718e54c4c4b58f608c8c8dbeb4fdacdbd349cfdec329631e2179cf42c11
+T004:
+  c: false
+  h: 91f0b08b70a74dbff01b9602851fae1c5af4fd942597dba9734c6ef5bd63b064
+  r: The file `code/utils/graph_utils.py` exists, but it only provides `is_connected`.
+    It lacks the required `average_degree` and `clustering_coefficient` functions
+    (the clustering function is named `calculate_clustering_coefficient`). Consequently
+    the verification import will fail. Implement the missing functions (or rename
+    the existing ones) to match the task specification.
+  sig: 37d366219e4d0cc21b1c4ab2ec11259f602295a6c5664d8af4168ce4c4e9a80d
+T005:
+  c: false
+  h: 141d79f207896103921c95bdd112f294a564cfbac7c8c2ea54d950be3b8acaff
+  r: The file `code/utils/stats_utils.py` exists but does not define the required
+    functions `spearman_corr` and `p_value`, and its `bonferroni_correction` signature
+    and return type differ from the specification. Consequently the verification import
+    will fail.
+  sig: 08a49d72c3f3c7bf272698a89e7b009c186e0be447590417af078d4c8f103fe4
 T006:
   c: false
-  h: 74291fc98d8c729f9b965ddfe53c47bf757730448e4f9b10b24fbaf07016a46e
-  r: The `data/checksums.txt` file exists, but the required directories `data/processed/`
-    and `data/raw/` are not shown as present, and the `docs/data_model.md` file (which
-    should contain the `graph_metadata.json` schema) is missing. Both the directory
-    structure and the metadata schema need to be created to satisfy the task.
+  h: b90b05960fe34030312d11e13e1cd7cc383b25d9efd392b5427f3bfeb5496f6d
+  r: "The `docs/data_model.md` correctly defines the required schema, and the `data/processed/`\
+    \ and `data/raw/` directories exist, but `data/checksums.txt` contains only comment\
+    \ lines and no SHA256\u202Fhash entries for any data artifacts, violating the\
+    \ required checksum format (and there are no `.gpickle` files present to be listed).\
+    \ The task therefore remains unfinished."
+  sig: 0e2eebf235e3ba5f8076bbec857b949dcd5fdd39cb07db46354c61bb78b6f2fe
 T009b:
   c: false
   h: 13bf40463558579d361cc92cfe80b9afc2bbcab068a0629fd5b7de483de1f4ca
@@ -61,6 +87,28 @@ T009b:
     \ (`SC_003_VIOLATION=true` or an `error` field) cannot be verified; consequently\
     \ the generation of `compute_contingency.md` does not satisfy the task\u2019s\
     \ conditional requirement. The existing markdown file alone is insufficient."
+T010:
+  c: false
+  h: 03f0d32fca10131dda9f0d73f0887b7c73778b64a42679d82f175ea940b71d4e
+  r: "The `tests/test_topology.py` file is present, but it does not correctly implement\
+    \ the required contract test: it uses undefined constants (`NUM_NODES`, `K_NEIGHBORS`),\
+    \ calls `validate_graph` with the wrong signature, and only checks N=100 in some\
+    \ cases. Consequently it does not reliably verify that generated graphs have N\u202F\
+    =\u202F500, are connected, and preserve the average degree. The test must be fixed\
+    \ to import or define the correct constants, call the validation function correctly,\
+    \ and assert the N=500 contract."
+  sig: b8be13758e638e62b5713676667d7efd79a7ba8ca09fadc6d1dd88d2be1c105f
+T011:
+  c: false
+  h: 53e8f5da1ea7c91e3e96b0aa4d09998b088cc7ce52a1c5cc9dd581326ff57484
+  r: "The provided `tests/test_topology.py` contains integration\u2011style checks,\
+    \ but it never reads or validates the central `graph_metadata.json` produced by\
+    \ the batch generation. It only inspects per\u2011graph JSON files created by\
+    \ `save_graph_and_metadata` and even calls that function with mismatched arguments,\
+    \ so the test would fail or not exercise the intended logging. Consequently the\
+    \ requirement \u201Cverify seed and p saved to `graph_metadata.json`\u201D is\
+    \ not satisfied."
+  sig: df73615921430fb69315e4966b6a2b4b5f95721b6101f3ea929841627b27c931
 T016:
   c: false
   h: 5e410fac2c67b14c650f361a292d0beb15921f3d8b8d09978a85953f232ddc00

@@ -1,8 +1,6 @@
 T000a:
-  reason: "The required file `scripts/verify_spec.py` is missing, and the specification\
-    \ still contains the phrase \u201Cca-AstroPh\u201D within FR\u2011001, so the\
-    \ second assertion would fail even if the script existed. Both the script implementation\
-    \ and the spec amendment need to be corrected."
+  reason: 'Requested task execution failed; rerun successfully: scripts/verify_spec.py
+    exit=1'
   task: 39264bc1657f10920109ac838e372aef27b22656c748099a8cb146f097a9b681
 T001:
   reason: The required directories are present, and `data/checksums.txt` exists, but
@@ -33,12 +31,29 @@ T003b:
     (or the updated `checksums.txt` with the appended output) to satisfy the task.
   task: 0b1c1f9963d346495e76de450bc4772f09f0d8c4e88c7bf7270ef01907f7697a
 T003c:
+  reason: The provided `.pre-commit-config.yaml` exists but does not include an `autoflake`
+    hook as required, and there is no evidence that `pre-commit install` was run (no
+    installed hook scripts). The task therefore fails to meet the specification.
   task: 5ea9f25d6185cf73fcc3711d078cd48cfc6164980bd44c637f00c390c27dce42
 T004:
+  reason: The file `code/utils/graph_utils.py` exists, but it only provides `is_connected`.
+    It lacks the required `average_degree` and `clustering_coefficient` functions
+    (the clustering function is named `calculate_clustering_coefficient`). Consequently
+    the verification import will fail. Implement the missing functions (or rename
+    the existing ones) to match the task specification.
   task: 6135b1cd686318da641fcd293695f94ef6f96931b6285605770585c7d7a9e83b
 T005:
+  reason: The file `code/utils/stats_utils.py` exists but does not define the required
+    functions `spearman_corr` and `p_value`, and its `bonferroni_correction` signature
+    and return type differ from the specification. Consequently the verification import
+    will fail.
   task: 19c812f166469446ba397725b0a2aa1ad52621e8652d7594400d35287f017198
 T006:
+  reason: "The `docs/data_model.md` correctly defines the required schema, and the\
+    \ `data/processed/` and `data/raw/` directories exist, but `data/checksums.txt`\
+    \ contains only comment lines and no SHA256\u202Fhash entries for any data artifacts,\
+    \ violating the required checksum format (and there are no `.gpickle` files present\
+    \ to be listed). The task therefore remains unfinished."
   task: aa62dd06d1ce2f610569ec9f1bff094720de9a2fa30bbf5b47e74ac59672b9fe
 T008:
   reason: 'declared artifact(s) missing/empty/invalid: data/processed/analysis_config.yaml'
@@ -48,8 +63,22 @@ T009:
 T009b:
   task: b7238d09bb88c345cb3235376850e904fa17b4e8b5f2062027db4d6a07fa4274
 T010:
+  reason: "The `tests/test_topology.py` file is present, but it does not correctly\
+    \ implement the required contract test: it uses undefined constants (`NUM_NODES`,\
+    \ `K_NEIGHBORS`), calls `validate_graph` with the wrong signature, and only checks\
+    \ N=100 in some cases. Consequently it does not reliably verify that generated\
+    \ graphs have N\u202F=\u202F500, are connected, and preserve the average degree.\
+    \ The test must be fixed to import or define the correct constants, call the validation\
+    \ function correctly, and assert the N=500 contract."
   task: 89edf6a51fb677900262bc7dcd09160dce806051e7b2ad47acb32484cb3369a8
 T011:
+  reason: "The provided `tests/test_topology.py` contains integration\u2011style checks,\
+    \ but it never reads or validates the central `graph_metadata.json` produced by\
+    \ the batch generation. It only inspects per\u2011graph JSON files created by\
+    \ `save_graph_and_metadata` and even calls that function with mismatched arguments,\
+    \ so the test would fail or not exercise the intended logging. Consequently the\
+    \ requirement \u201Cverify seed and p saved to `graph_metadata.json`\u201D is\
+    \ not satisfied."
   task: c60ce4232cb0d1314ff7a7fcea3491a932340df087c2966b60c2c61118c36ea0
 T012:
   task: 8302ec833c7e66fb9af263a515a2c7ca558ee28b65a44b7a820d351d652b1a17

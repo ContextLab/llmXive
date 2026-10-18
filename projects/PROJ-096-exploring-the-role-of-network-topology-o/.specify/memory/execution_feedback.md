@@ -25,7 +25,7 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/generate_topology.py: synthetic/fake INPUT data not authorized by the spec — “…-> nx.Graph:     """     Generate a synthetic regular ring lattice.…”; code/generate_topology.py: synthetic/fake INPUT data not authorized by the spec — “…corrected_requirement": "Generate synthetic regular ring lattice (N=…”; 1 hollow-result signal(s) — the analysis ran but computed nothing: data/processed/simulation_results.csv: header only, ZERO data rows — the analysis produced no rows; every produced artifact is gitignored (data/processed/simulation_results.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/generate_topology.py (rc=1); python code/analyze_results.py (rc=2); python -m pytest tests/ -v (rc=1); 7 declared deliverable(s) absent: data/processed/config.json; data/processed/correlation_results.json; data/processed/graph_metadata.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/generate_topology.py: synthetic/fake INPUT data not authorized by the spec — “…-> nx.Graph:     """     Generate a synthetic regular ring lattice.…”; code/generate_topology.py: synthetic/fake INPUT data not authorized by the spec — “…corrected_requirement": "Generate synthetic regular ring lattice (N=…”; 1 hollow-result signal(s) — the analysis ran but computed nothing: data/processed/simulation_results.csv: header only, ZERO data rows — the analysis produced no rows; every produced artifact is gitignored (data/processed/simulation_results.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/generate_topology.py (rc=1); python code/analyze_results.py (rc=2); python -m pytest tests/ -v (rc=2); 7 declared deliverable(s) absent: data/processed/config.json; data/processed/correlation_results.json; data/processed/graph_metadata.json
 
 ## Failing / missing run-book commands
 
@@ -41,12 +41,30 @@ NameError: name 'sys' is not defined
 
 - python code/analyze_results.py -> rc=2
 
-2026-10-10 07:22:19,144 - __main__ - INFO - Loading simulation results from data/processed/simulation_results.csv
-2026-10-10 07:22:19,144 - __main__ - ERROR - Value error: No valid data rows found in simulation results
+2026-10-18 09:24:09,766 - __main__ - INFO - Loading simulation results from data/processed/simulation_results.csv
+2026-10-18 09:24:09,766 - __main__ - ERROR - Value error: No valid data rows found in simulation results
 
-- python -m pytest tests/ -v -> rc=1
+- python -m pytest tests/ -v -> rc=2
+ ERROR collecting tests/test_topology.py ____________________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-096-exploring-the-role-of-network-topology-o/tests/test_topology.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/test_topology.py:23: in <module>
+    from generate_topology import (
+E   ImportError: cannot import name 'K_NEIGHBORS' from 'generate_topology' (/home/runner/work/llmXive/llmXive/projects/PROJ-096-exploring-the-role-of-network-topology-o/code/generate_topology.py)
+=========================== short test summary info ============================
+ERROR tests/test_config.py
+ERROR tests/test_data_structure.py
+ERROR tests/test_edge_cases.py
+ERROR tests/test_logging.py
+ERROR tests/test_setup_data_structure.py
+ERROR tests/test_simulation.py
+ERROR tests/test_topology.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 7 errors in 0.74s ===============================
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-096-exploring-the-role-of-network-topology-o/code/.venv/bin/python: No module named pytest
 
 
 ## Declared deliverables still missing
@@ -64,17 +82,15 @@ NameError: name 'sys' is not defined
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `networkx` to the project's `requirements.txt` and `pip install networkx`.
-- **Verified**: this loads **60** real records with fields: node_id, source, target.
+- **Verified**: this loads **60** real records with fields: edge_source, edge_target.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
 import networkx as nx
-# generate a regular ring lattice (Watts-Strogatz with rewiring prob 0)
-G = nx.watts_strogatz_graph(n=30, k=4, p=0)
-# build records: each edge as a dict with node_id, source, target (node_id = source)
-records = [{'node_id': u, 'source': u, 'target': v} for u, v in G.edges()]
-print(f'RECORDS={len(records)}')
-print('FIELDS=node_id,source,target')
+G = nx.watts_strogatz_graph(n=30, k=4, p=0.0)  # regular ring lattice
+edges = [{"edge_source": u, "edge_target": v} for u, v in G.edges()]
+print(f"RECORDS={len(edges)}")
+print("FIELDS=edge_source,edge_target")
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
@@ -122,3 +138,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/generate_report.py` — NOT invoked by the run-book
     - `code/validate_quickstart.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/stability_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.
