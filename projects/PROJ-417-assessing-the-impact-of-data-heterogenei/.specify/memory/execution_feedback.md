@@ -30,10 +30,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 FETCHING OPENML DATASET
 ============================================================
 Fetching OpenML dataset ID 4210 ...
-API metadata fetch failed (HTTP Error 412: Precondition Failed); trying direct download URL ...
 ============================================================
 
-ERROR: REAL_DATA_FETCH_FAILED: downloaded file failed CSV validation.
+ERROR: REAL_DATA_FETCH_FAILED: unable to download dataset ID 4210: Dataset with data_id 4210 not found.
 
 - python code/main.py --mode dry-run --replicates-per-level 10 --tau-values 0 0.1 --seed 42 -> rc=2
 
@@ -44,11 +43,12 @@ usage: main.py [-h] [--mode {full,dry-run}] [--seed SEED]
 main.py: error: unrecognized arguments: --replicates-per-level 10 --tau-values 0 0.1
 
 - python -m pytest tests/unit/ -> rc=1
-unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_sensitivity
+tivity
 FAILED tests/unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_default
 FAILED tests/unit/test_estimators.py::TestREML::test_failure_logging_and_fallback
 FAILED tests/unit/test_plots.py::test_plots_generate_files - SystemExit: 1
 FAILED tests/unit/test_reml_failure_log.py::test_log_reml_failure_appends_events
+FAILED tests/unit/test_stats.py::test_conditional_test_normal_data - Assertio...
 FAILED tests/unit/test_stats.py::test_conditional_test_non_normal_data - Asse...
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_missing_field
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_wrong_type
@@ -56,7 +56,7 @@ ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_sav
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
-============= 12 failed, 65 passed, 13 warnings, 6 errors in 1.03s =============
+============= 13 failed, 64 passed, 13 warnings, 6 errors in 1.81s =============
 
 
 - python -m pytest tests/integration/ -> rc=1
@@ -71,7 +71,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 0.43s =========================
+========================= 1 failed, 1 warning in 0.36s =========================
 
 
 
