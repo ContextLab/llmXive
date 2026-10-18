@@ -1,13 +1,9 @@
 status: none
-intent: GSM8K Llama-3-8B quantization gap dataset gradient norms curvature python
-  package dataset
-required_fields:
-- prompt
-- gradient_norm
-- local_curvature
-- kl_divergence_int8
-- kl_divergence_int4
-- kl_divergence_fp8
-cache_key: 05be9355d311edeccbc776b53898592443bf511b4aea67c888f24b6c11949cb8
-searched_at: '2026-10-18T21:18:02.954316+00:00'
+intent: '### User Story 1 - Hardware-Validated Gap Dataset Generation (Priority: P1)
+  As a researcher, I need to generate a dataset pairing full-precision training signals
+  (gradient norms, local curvature) with ground-truth policy divergence measured by
+  a CPU-based quantized inference engine, so that I can tr'
+required_fields: []
+cache_key: f8d6a09ccc6c7d15cc35c449d627fc8dc1fc693c7457c508a58c7c50a40c497e
+searched_at: '2026-10-18T21:25:43.435561+00:00'
 retry_count: 1
