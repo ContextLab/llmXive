@@ -13,14 +13,14 @@ Defines the schema for raw, intermediate, and analysis‑ready artifacts. All fi
 | `timestamp` | datetime | UTC origin time | USGS |
 | `latitude` | float | Epicenter latitude (‑90 → 90) | USGS |
 | `longitude` | float | Epicenter longitude (‑180 → 180) | USGS |
-| `depth_km` | float | Depth in km | USGS |
-| `magnitude` | float | Magnitude (Mw or Ml) | USGS |
+| `depth_km` | float | Depth in kilometers | USGS |
+| `magnitude` | float | Magnitude of the earthquake | USGS |
 | `location_type` | string | `"land"` or `"ocean"` (derived via global land‑mask) | Derived |
 
 ### Pressure Grid Point
 | Field | Type | Description | Source |
 |---|---|---|---|
-| `timestamp` | datetime | UTC date (00:00) | NOAA |
+| `timestamp` | datetime | UTC date (00:00) | NOAA (verified HuggingFace subset) |
 | `latitude` | float | Grid centre latitude | NOAA |
 | `longitude` | float | Grid centre longitude | NOAA |
 | `pressure_hpa` | float | Sea‑level pressure (hPa) | NOAA |
@@ -33,28 +33,40 @@ Defines the schema for raw, intermediate, and analysis‑ready artifacts. All fi
 | `enso_phase` | string | `"El Niño"`, `"La Niña"`, or `"Neutral"` | NOAA |
 | `pdo_phase` | string | `"Positive"`, `"Negative"`, or `"Neutral"` | NOAA |
 
+### ERA5 Meteorological Covariate (optional for matching)
+| Field | Type | Description | Source |
+|---|---|---|---|
+| `temperature_k` | float | Near‑surface temperature (K) | ERA5 |
+| `humidity` | float | Near‑surface relative humidity (%) | ERA5 |
+| `timestamp` | datetime | UTC date | ERA5 |
+| `latitude` | float | Grid latitude | ERA5 |
+| `longitude` | float | Grid longitude | ERA5 |
+
 ### Analysis Record (final dataset)
 | Field | Type | Description | Source |
 |---|---|---|---|
-| `event_id` | string | FK to Earthquake Event | Earthquake |
-| `window_type` | string | `"event"` or `"control"` | Derived |
-| `timestamp` | datetime | Start of the analysis window | Derived |
-| `pressure_anomaly` | float | Deviation from baseline period (30‑day left‑censored moving average) | Derived |
-| `magnitude` | float | Earthquake magnitude (if event) | Earthquake |
-| `region` | string | `"Ring of Fire"` or `"Other"` | Derived |
-| `is_land` | boolean | True if the event is on land | Derived |
-| `climate_index` | string | ENSO or PDO phase label (e.g., `"El Niño"`) | ENSO/PDO Index |
-| `pdo_phase` | string | PDO phase label (e.g., `"Positive"`) | ENSO/PDO Index |
+| `event_id` | string | Reference to the earthquake event. |
+| `window_type` | string | `"event"` or `"control"` |
+| `timestamp` | datetime | Start time of the analysis window. |
+| `pressure_anomaly` | number | Deviation from a 30‑day left‑censored moving average. |
+| `magnitude` | number | Earthquake magnitude (if event). |
+| `region` | string | `"Ring of Fire"` or `"Other"` |
+| `is_land` | boolean | True if the event is on land. |
+| `climate_index` | string | ENSO or PDO phase label (optional; not populated in pilot). |
+| `pdo_phase` | string | `"Positive"`, `"Negative"`, or `"Neutral"` |
+| `temperature_k` | number | Temperature covariate used for matching (not in final analysis). |
+| `humidity` | number | Humidity covariate used for matching (not in final analysis). |
 
 ## Data Pipeline Flow
 
 1. **Raw**  
    - `data/raw/usgs_2013_2023.csv` (USGS catalog)  
-   - `data/raw/ncep_global_pressure.nc` (global pressure NetCDF)  
+   - *No persisted raw pressure NetCDF* – pressure data is streamed from the verified HuggingFace subset at runtime.  
    - `data/raw/enso_pdo.csv` (monthly climate indices)  
+   - `data/raw/era5_covariates.parquet` (temperature & humidity for matching).  
 
 2. **Interim**  
-   - `data/interim/pressure_grid_1deg.parquet` (interpolated grid)  
+   - `data/interim/pressure_grid_coarse_deg.parquet` (interpolated grid)  
    - `data/interim/aligned_events.csv` (earthquake‑grid pairing)  
 
 3. **Processed**  

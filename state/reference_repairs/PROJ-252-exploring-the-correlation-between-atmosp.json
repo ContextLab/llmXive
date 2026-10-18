@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-10-18T13:28:49.602672+00:00",
+    "project": "PROJ-252-exploring-the-correlation-between-atmosp",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/lowo/ncep-TestData1/resolve/main/ncep-\u6d4b\u8bd5\u6570\u636e\u96c61.zip",
+        "reason": "malformed URL: 'ascii' codec can't encode characters in position 53-57: ordinal not in range(128)",
+        "replacement_url": "https://huggingface.co/datasets/Jumtra/test_data_100QA/resolve/main/data/train-00000-of-00001-edf77873d8606b7a.parquet",
+        "intent": "lowo ncep TestData1 Proxy Pressure Dataset test zip Daily sea\u2011level global \u2013 serves as a stand\u2011in for the full NCEP/NCAR reanalysis required but unavailable"
+      }
+    ]
+  }
+]

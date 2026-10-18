@@ -1,18 +1,43 @@
-status: none
-intent: NOAA NCEP/NCAR Reanalysis pressure dataset python package and USGS Earthquake
-  Catalog python package dataset
+status: verified
+kind: pypi_package
+ref: obspy
+access_python: 'import obspy
+
+  from obspy.clients.fdsn import Client
+
+  client = Client("USGS")
+
+  cat = client.get_events(starttime=obspy.UTCDateTime("2020-01-01"), endtime=obspy.UTCDateTime("2020-01-31"))
+
+  records = len(cat)
+
+  print(f"RECORDS={records}")
+
+  fields = ["event_id","time","magnitude","depth_km","latitude","longitude"]
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 16975
+sample_fields:
+- event_id
+- time
+- magnitude
+- depth_km
+- latitude
+- longitude
+field_coverage: 0.5
 required_fields:
 - event_id
 - time
 - magnitude
-- depth
+- depth_km
 - latitude
 - longitude
-- mslp
-- pressure_anomaly
+- pressure_grid_lat
+- pressure_grid_lon
+- pressure_value_hPa
+- pressure_anomaly_hPa
+- pressure_window_hours
 - enso_phase
-- pdo_phase
-- control_window_label
-cache_key: 7ae17a0ee3b082392f7f6f92f53cdc227c84a2b38b065fe95deafbd52b37b1be
-searched_at: '2026-10-18T13:21:34.143169+00:00'
-retry_count: 1
+intent: download NOAA NCEP/NCAR reanalysis surface pressure python package and USGS
+  ANSS earthquake catalog dataset
+cache_key: dc70ee9b77e3fcf926615d1e24da2a96daa12947eb8d85a1f76c901f1e62de18

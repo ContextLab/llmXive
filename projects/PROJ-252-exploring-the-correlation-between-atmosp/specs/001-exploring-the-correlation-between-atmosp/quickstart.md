@@ -5,7 +5,7 @@
 - Python 3.11 or newer
 - `git`
 - Internet access (for data download)
-- ~Adequate free disk space (approximately GB)
+- ~Adequate free disk space (≈ 2 GB; pressure data is streamed)
 
 ## Setup
 
@@ -28,15 +28,18 @@ The pipeline follows the ordered steps required by the specification.
 
 ```bash
 # Step 0: Verify installation (optional)
-pytest tests/   # should exit with a success status
+pytest tests/   # should exit with status 0
 
-# Step 1: Download raw datasets (NOAA pressure and USGS earthquake catalog)
+# Step 0b: Initialise random seed (creates logs/seed_initialization.log)
+python -m code.seed_init
+
+# Step 1: Download raw datasets (USGS catalog, pressure via verified HuggingFace subset, ENSO/PDO, ERA5 covariates)
 python -m code.download
 
-# Step 2: Preprocess – interpolation, anomaly calculation, filtering
+# Step 2: Preprocess – interpolation, anomaly calculation, filtering, control‑window matching
 python code/preprocess.py
 
-# Step 3: Statistical analysis (KS test, permutation, bootstrap, sensitivity, FDR correction)
+# Step 3: Statistical analysis (KS test, block‑permutation, hierarchical bootstrap, bootstrap resampling, sensitivity, FDR correction, mixed‑effects supplement)
 python code/analysis.py
 
 # Step 4: Generate the final report
@@ -45,12 +48,14 @@ python code/report.py
 
 ### Expected Outputs
 
-- `data/raw/pressure.nc` – full NOAA NCEP/NCAR sea‑level pressure NetCDF file (2013‑2023).  
 - `data/raw/usgs_2013_2023.csv` – USGS earthquake catalog (M ≥ 4.0, depth ≤ 70 km).  
-- `logs/download_success.log` – log confirming successful download and record counts.  
+- Pressure data is **streamed** from `noaa/ncep-reanalysis-pressure`; no persistent NetCDF file is written.  
+- `data/raw/enso_pdo.csv` – ENSO/PDO climate indices.  
+- `data/raw/era5_covariates.parquet` – temperature & humidity covariates used for matching.  
+- `logs/seed_initialization.log` – confirms random seed set (required by FR‑008).  
 - `data/processed/analysis_ready.parquet` – analysis‑ready table.  
-- `data/processed/analysis_results.json` – statistical results, effect sizes, and robustness metrics.  
-- `docs/pilot_report.md` – human‑readable summary with pilot disclaimer and associational framing.  
+- `data/processed/analysis_results.json` – statistical results, effect sizes, robustness metrics.  
+- `docs/pilot_report.md` – human‑readable summary with associational framing, power‑analysis note, and all reporting metrics.  
 
 ## Validation
 
