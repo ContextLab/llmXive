@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Curated Diffusion Dataset Schema"
-description: "Schema for the filtered FCC solute-diffusion dataset used in the analysis."
+description: "Schema for the filtered FCC diffusion dataset used in the analysis."
 type: "object"
 properties:
   host_element:
@@ -15,12 +15,12 @@ properties:
     description: "Must be FCC."
   diffusion_mode:
     type: "string"
-    enum: ["solute", "impurity"]
-    description: "Must be solute or impurity diffusion (not self)."
+    enum: ["self", "solute", "impurity"]
+    description: "Diffusion mode; self rows supply baselines, solute/impurity rows supply training data (pending FR-001 spec amendment)."
   concentration_at_percent:
     type: "number"
     minimum: 0
-    description: "Solute concentration in atomic percent."
+    description: "Solute concentration in atomic percent; retained as a covariate in the inferential model."
   activation_energy_eV:
     type: "number"
     minimum: 0
@@ -28,6 +28,12 @@ properties:
   size_mismatch:
     type: "number"
     description: "Calculated size mismatch: (r_solute - r_host) / r_host."
+  electronegativity_diff:
+    type: "number"
+    description: "Absolute Pauling electronegativity difference between solute and host."
+  valence_electron_diff:
+    type: "integer"
+    description: "Difference in valence electron count between solute and host."
   baseline_shift_eV:
     type: "number"
     description: "Difference between alloy activation energy and pure host baseline."
@@ -37,5 +43,7 @@ required:
   - concentration_at_percent
   - activation_energy_eV
   - size_mismatch
+  - electronegativity_diff
+  - valence_electron_diff
   - baseline_shift_eV
 additionalProperties: false

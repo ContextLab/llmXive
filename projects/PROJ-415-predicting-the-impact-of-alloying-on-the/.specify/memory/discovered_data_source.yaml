@@ -1,5 +1,5 @@
 status: none
-intent: download NIST SRD 150 diffusion in solids dataset csv python package dataset
+intent: download NIST SRD 150 diffusion in solids dataset python package dataset
 required_fields:
 - material
 - crystal_structure
@@ -7,8 +7,6 @@ required_fields:
 - activation_energy_eV_per_atom
 - solute_concentration_at_percent
 - temperature_K
-- diffusion_coefficient
-- reference
-cache_key: 0c84ae3675c6e82fce6f740aa60a27a921eeb2a2a8171bfd03dae0c5a19593b1
-searched_at: '2026-10-08T14:52:21.569619+00:00'
+cache_key: 148d0fada7ff2ed0cba6f8b8c8a53227a5f6da953583882ba2ea97c88a7e6b84
+searched_at: '2026-10-18T12:34:57.593929+00:00'
 retry_count: 1
