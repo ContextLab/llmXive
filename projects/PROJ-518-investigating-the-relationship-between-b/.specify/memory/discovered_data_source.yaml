@@ -1,13 +1,13 @@
 status: none
-intent: download Human Connectome Project S1200 OpenNeuro ds000224 dataset python
-  package dataset
+intent: download Human Connectome Project 1200 OpenNeuro ds000224 resting fMRI and
+  CAQ python package dataset
 required_fields:
-- participant_id
+- subject_id
 - resting_state_fmri_path
-- creative_achievement_score
 - age
 - sex
 - education
-cache_key: 45d5c32537448d4a67164c9aab496c916c2e36dce7eb08a4cf5227893f7d35e1
-searched_at: '2026-10-14T02:26:51.774718+00:00'
+- creative_achievement_score
+cache_key: 2b7f56390b110c654876a47485b4df67bf504a295d875dd7a88ec6527881efcc
+searched_at: '2026-10-18T15:33:32.526139+00:00'
 retry_count: 1

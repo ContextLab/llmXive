@@ -14,8 +14,8 @@
 ## Completed work (preserved — verified by prior review receipts)
 
 - [X] T002 Pinned dependencies in `requirements.txt` (nilearn, networkx, scikit-learn, numpy, pandas, matplotlib, scipy, brainconn, statsmodels).
-- [ ] T005 `code/config.py` with `WINDOW_SIZES = [20,30,40]`, `STEP = 5`, `FWE_METHOD`, and `validate_fwe_config()`.
-- [ ] T006 `code/utils/logging.py` `log_exclusion(reason, subject_id)` writing CSV rows to `data_exclusion_log.txt` with standardized reason codes (`MISSING_SCAN`, `MISSING_SCORE`, `HIGH_MOTION`).
+- [X] T005 `code/config.py` with `WINDOW_SIZES = [20,30,40]`, `STEP = 5`, `FWE_METHOD`, and `validate_fwe_config()`.
+- [X] T006 `code/utils/logging.py` `log_exclusion(reason, subject_id)` writing CSV rows to `data_exclusion_log.txt` with standardized reason codes (`MISSING_SCAN`, `MISSING_SCORE`, `HIGH_MOTION`).
 
 **Note (T007 correction, retained)**: The earlier `code/utils/versioning.py` task that wrote artifact hashes into `state/projects/...yaml` has been removed; hashing now only updates `data/checksums.json`. No task may write to `state/` — platform state is owned by the platform.
 
@@ -35,7 +35,7 @@
   *Description*: Implement `filter_subjects(manifest, behavioral)` in `code/data/loader.py` that (a) skips subjects whose resting‑state scan is unavailable (`MISSING_SCAN`), (b) excludes subjects with missing behavioral/creativity scores (`MISSING_SCORE`), and (c) flags and omits subjects with mean framewise displacement > 0.5 mm in > 20 % of volumes (`HIGH_MOTION`). All decisions are written via `log_exclusion` to `data/interim/data_exclusion_log.txt`. Output the included‑subject table to `data/interim/included_subjects.csv` with columns `subject_id, age, sex, education, creativity_score, rest_fmri_path`. Relies on the manifest produced by T102.
   *Verification*: `pytest code/tests/unit/test_filter_subjects.py` with fixtures covering all three edge cases, asserting correct exclusion codes and that the run does not abort on a missing scan. Satisfies FR‑009 and all three spec edge cases.
 
-- [ ] T104 US1 **Repair and run fMRI preprocessing.**
+- [ ] T104 US1 **Repair and run fMRI preprocessing.** <!-- FAILED-IN-EXECUTION: code/data/run_preprocess.py exit=-1 (TIMEOUT) -->
   *Description*: Fix the failing `code/data/run_preprocess.py` (previous exit=1). `preprocess_fmri` in `code/data/preprocess.py` performs motion correction, spatial normalization, and band‑pass filtering 0.01–0.1 Hz, writing output to `data/processed/fmri_clean/{subject_id}.nii.gz` (canonical path per data‑model; rename any legacy `data/processed/{subject_id}_preprocessed.nii.gz` outputs and update downstream references). Process subjects one at a time with memory‑mapped arrays to stay under 7 GB RAM.
   *Deliverables*: `data/processed/fmri_clean/{subject_id}.nii.gz` for every included subject.
   *Verification*: `python code/data/run_preprocess.py` exits 0; `pytest code/tests/unit/test_preprocess.py` asserting each output file exists, is loadable via `nilearn`, and has the expected affine/shape. Satisfies FR‑001.

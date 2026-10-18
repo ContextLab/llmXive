@@ -9,59 +9,46 @@ T002:
   sig: 0188a323a75a54bb4baa367e16f2c6471cb663d85dbcec608a0887255d86e6d5
 T005:
   c: true
-  h: 115407a104afb382d33f55808e4a4919d92cdd45b689d64c1ddbe8be3e48be77
-  r: "Checked `projects/PROJ-518-investigating-the-relationship-between-b/code/config.py`:\
-    \ it defines the default `WINDOW_SIZES = [20, 30, 40]`, `STEP = 5`, a configurable\
-    \ `FWE_METHOD` (default \u201Cmax-t\u201D), and provides the `validate_fwe_config()`\
-    \ function that enforces allowed FWE methods. The file exists, is non\u2011empty,\
-    \ and meets all specified elements."
-  sig: 9ba41ba7623cdc15085c41e544a7d2c4a65caeb7354f2b07361b7f22e36d3129
+  h: d8ab08e525ee3c41c39d3b6ef542eca45e53bbbe974cf5a8fc0b2d9ea0b063c1
+  r: Checked `code/config.py`, which defines `WINDOW_SIZES` (default `[20,30,40]`),
+    `STEP` (default `5`), `FWE_METHOD` (default `"max-t"`), and provides a working
+    `validate_fwe_config()` that raises on invalid methods. The file exists and contains
+    the required functionality.
+  sig: 217a42ea7dbe6f5881390cf88ec1b4a2e48241179cfc705acffd12ebf4978e6f
 T006:
   c: true
-  h: fc52d7715de5e3d0742518b5bd8cbd9e1fc20c896ca7cd3792bc313ed4c74b96
-  r: "Checked `code/utils/logging.py` \u2013 it defines `log_exclusion` that validates\
-    \ the three required reason codes, creates/opens `data/interim/data_exclusion_log.txt`,\
-    \ writes a CSV header and rows with subject_id, reason, timestamp. Unit tests\
-    \ (`code/tests/unit/test_logging.py`) all pass, confirming header creation, appending\
-    \ without duplicate header, and error on invalid reasons."
-  sig: 7d77d442dbc4c9c70041300188c98b6472bbb06e7ee563ca02096eee80a23aa2
-T012:
+  h: 04ff7928ad0667ccbe1700f7f641d04e74c4081b3ea417ed3cbcfb5d80116f22
+  r: Checked `code/utils/logging.py`, which defines `log_exclusion(reason, subject_id)`,
+    validates the reason against a set that includes the required codes (`MISSING_SCAN`,
+    `MISSING_SCORE`, `HIGH_MOTION`), and appends a CSV row (subject_id, reason, timestamp)
+    to `data_interim/data_exclusion_log.txt`. The function and its behavior meet the
+    task specification.
+  sig: 874fd9819e8049b7880d31c20be4e2abc52eeffc24098ec7acec6842d6a86477
+T101:
   c: false
-  h: e557c3bf0ce4d171abca5f18706b2a109e7eb5355a6c54287d276deeb30336a7
-  r: The evidence contains only a generic project root mapping and no file such as
-    `fetch_hcp_data.py`, a module defining `fetch_hcp_data(subject_id)`, nor any logs,
-    scripts, or downloaded data under `data/raw/hcp_{subject_id}/` demonstrating that
-    raw fMRI and behavioral JSON were retrieved from OpenNeuro. Without the implementation
-    and proof of successful fetching, the task requirement is not met.
-  sig: 1dadb7591bd01c59369ed8ba94d771e9c262161e601cc701f004206696afe3f7
-? "T018/T019/T020b Subject filtering (missing scans, missing scores, motion > 0.5\u202F\
-  mm FD in >\u202F20\u202F% volumes) with standardized exclusion logging."
-: c: false
-  h: 831f2ddedaa5d1771853d313c200c53a4ec6e8bdab07205d9d0af4967a238ec1
-  r: "Checked the project root (`projects/PROJ-518-investigating-the-relationship-between-b`)\
-    \ for any code, configuration, or output that implements subject\u2011level filtering\
-    \ (e.g., a Python script/module, a command\u2011line tool, or an exclusion log\
-    \ file) and found no such artifacts; the only evidence is a generic project location\
-    \ description with no filtering implementation or logging output. Consequently\
-    \ the required functionality for detecting missing scans, missing scores, and\
-    \ high\u2011motion subjects and producing a standardized exclusion log is missing."
-  sig: 29f78b973389cd48c2498776113848c3e99c776c91011a832732610b9e4733b1
-T022:
-  c: true
-  h: 502321bfc3687c81fdd5671b64444e875238c929eab8c76dfe9c24b3bafb8a32
-  r: "The repository contains a non\u2011empty `code/viz/plots.py` with a correctly\
-    \ defined `plot_flexibility_vs_creativity` function that creates a scatter plot,\
-    \ adds a regression line and a 95\u202F% confidence band, ensures the output directory\
-    \ exists, and saves the figure to `docs/outputs/flexibility_vs_creativity.png`.\
-    \ The required code artifact is present and implements the specified behavior."
-"T033\u2013T036.3":
+  h: 2ce0a1b6e8a67ebe99e8a0aa3a1eb1640a970631a1fcf6afe1cf42fbd9da1e68
+  r: "The required test suite `code/tests/contract/test_loader.py` is missing, so\
+    \ the claim that the implementation passes the specified pytest verification cannot\
+    \ be confirmed. Additionally, `run_validation()` logs only the error code, not\
+    \ the explicit missing field name (\u201CCAQ\u201D), which does not fully meet\
+    \ the logging requirement. Fix by adding the missing test file (and ensuring it\
+    \ checks for exit code\u202F1 and the logged `DATA_MISSING_CREATIVITY` message)\
+    \ and adjust the logging to include the field name if needed."
+  sig: 4caa7af57990b895400e2e11169333b169e6733bced2debf4db094dec6ba1b68
+T102:
   c: false
-  h: 9fa966c170288ef0dfd074c7450ef3c04709c32e32168dbc38877959cb8078af
-  r: "The `validate_caq_availability` function raises a locally\u2011defined `DataMissingCreativityError`\
-    \ instead of the one imported from `code.errors`, so `run_validation()` never\
-    \ catches it and does not invoke `sys.exit(1)`. Consequently the contract tests\
-    \ in `tests/contract/test_loader.py` (which expect the error class from `code.errors`)\
-    \ will fail, and the recorded pytest run did not even execute the tests due to\
-    \ unrelated argument errors. The exception class mismatch and failing test execution\
-    \ must be fixed."
-  sig: 346b3d9646ffeecc5a360a79f2a557cd5f36f12547e97444d1dc17dff90f4e3b
+  h: 88917277ccb2d9ce42a3169ff874dcb6c11b10f925b27527878f6a792fc02ec8
+  r: 'Missing required artifacts: `data/checksums.json` and `data/raw/manifest.json`
+    are not present, and the unit test `code/tests/unit/test_loader_fetch.py` is absent,
+    so the fetch function cannot be verified to have downloaded real files, recorded
+    checksums, or updated the manifest as specified.'
+  sig: c6e9a3da4360469614d71ea1cf617b8347a21bb80a851493775d7e1d7207cd2f
+T103:
+  c: false
+  h: 61d0a36b533c4cda03c61a245fb58ccf60fdf5861f1b9a55c413921517dd6a03
+  r: "The repository contains the `filter_subjects` implementation, but the required\
+    \ unit test `code/tests/unit/test_filter_subjects.py` is missing, and there is\
+    \ no evidence that `data/interim/data_exclusion_log.txt` or `data/interim/included_subjects.csv`\
+    \ are created (the files are absent). Without the test and generated outputs,\
+    \ the task\u2019s verification criteria are not satisfied."
+  sig: 9e710767121ef008d6790a1804a128ea7852776f8ca91ddeca28814f71fe9a46

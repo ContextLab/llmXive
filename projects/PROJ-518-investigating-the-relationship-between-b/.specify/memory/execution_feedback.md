@@ -19,62 +19,70 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 9 fabricated/simulated-result signal(s) — results are not real measurements: code/scripts/run_regression_summary.py: self-declared fabricated metric — “…p in participants:         # Mock value for demonstration         sta…”; code/scripts/profile_all_stages.py: synthetic/fake INPUT data not authorized by the spec — “…..")          # Generate mock data for profiling (real data…”; code/scripts/profile_permutation.py: synthetic/fake INPUT data not authorized by the spec — “…"Generate representative mock data for profiling."""     rn…”; 3 command(s) failed: python code/main.py --validate-only (rc=1); python code/main.py --window-length 30 --permutations 10000 (rc=1); python code/main.py --sweep-windows (rc=1); 2 declared deliverable(s) absent: data/interim/permutation_results.csv; data/interim/sensitivity_summary.csv
+**Summary**: 9 fabricated/simulated-result signal(s) — results are not real measurements: code/scripts/run_regression_summary.py: self-declared fabricated metric — “…p in participants:         # Mock value for demonstration         sta…”; code/scripts/profile_all_stages.py: synthetic/fake INPUT data not authorized by the spec — “…..")          # Generate mock data for profiling (real data…”; code/scripts/profile_permutation.py: synthetic/fake INPUT data not authorized by the spec — “…"Generate representative mock data for profiling."""     rn…”; 3 command(s) failed: python code/main.py --validate-only (rc=1); python code/main.py --window-length 30 --permutations 10000 (rc=1); python code/main.py --sweep-windows (rc=1); 4 declared deliverable(s) absent: data/checksums.json; data/interim/permutation_results.csv; data/interim/sensitivity_summary.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --validate-only -> rc=1
-Starting Brain Dynamics and Creativity Pipeline...
 
-2026-10-14 02:26:07,875 INFO root: Pipeline execution started.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 89, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 120, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 71, in main
-    run_validation()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 32, in run_validation
-    manifest_path = config.DATA_PATH / "manifest.json"
-                    ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
-TypeError: unsupported operand type(s) for /: 'NoneType' and 'str'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 94, in main
+    logging.FileHandler(Path(__file__).parents[2] / "data" / "pipeline.log")
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
+    return open_func(self.baseFilename, self.mode,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/data/pipeline.log'
 
 - python code/main.py --window-length 30 --permutations 10000 -> rc=1
-Starting Brain Dynamics and Creativity Pipeline...
 
-2026-10-14 02:26:07,905 INFO root: Pipeline execution started.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 89, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 120, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 71, in main
-    run_validation()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 32, in run_validation
-    manifest_path = config.DATA_PATH / "manifest.json"
-                    ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
-TypeError: unsupported operand type(s) for /: 'NoneType' and 'str'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 94, in main
+    logging.FileHandler(Path(__file__).parents[2] / "data" / "pipeline.log")
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
+    return open_func(self.baseFilename, self.mode,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/data/pipeline.log'
 
 - python code/main.py --sweep-windows -> rc=1
-Starting Brain Dynamics and Creativity Pipeline...
 
-2026-10-14 02:26:07,935 INFO root: Pipeline execution started.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 89, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 120, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 71, in main
-    run_validation()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 32, in run_validation
-    manifest_path = config.DATA_PATH / "manifest.json"
-                    ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
-TypeError: unsupported operand type(s) for /: 'NoneType' and 'str'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 94, in main
+    logging.FileHandler(Path(__file__).parents[2] / "data" / "pipeline.log")
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
+    return open_func(self.baseFilename, self.mode,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/data/pipeline.log'
 
 
 ## Declared deliverables still missing
 
+- data/checksums.json
 - data/interim/permutation_results.csv
 - data/interim/sensitivity_summary.csv
+- data/raw/manifest.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/checksums.json` is declared but was NOT written. Scripts referencing it:
+    - `code/data/loader.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/interim/permutation_results.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/saving.py` — NOT invoked by the run-book
     - `code/scripts/profile_all_stages.py` — NOT invoked by the run-book
@@ -90,3 +98,9 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/scripts/save_results.py` — NOT invoked by the run-book
     - `code/scripts/verify_sensitivity.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/interim/sensitivity_summary.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/manifest.json` is declared but was NOT written. Scripts referencing it:
+    - `code/config.py` — NOT invoked by the run-book
+    - `code/data/loader.py` — NOT invoked by the run-book
+    - `code/scripts/save_analysis_results.py` — NOT invoked by the run-book
+    - `code/scripts/update_readme.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/manifest.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

@@ -4,86 +4,65 @@ T005:
   task: 6de41d786bc69313186005076278b5cfd4832cd1edf76a0fba57908c84771147
 T006:
   task: d77b0feb8d377937631f5ae45861a38998e5c9efd0f87329d27cad6b7d5053e1
-T012:
-  reason: The evidence contains only a generic project root mapping and no file such
-    as `fetch_hcp_data.py`, a module defining `fetch_hcp_data(subject_id)`, nor any
-    logs, scripts, or downloaded data under `data/raw/hcp_{subject_id}/` demonstrating
-    that raw fMRI and behavioral JSON were retrieved from OpenNeuro. Without the implementation
-    and proof of successful fetching, the task requirement is not met.
-  task: 51f04d48f576d921c680353d9ba5b02b935cf2c320fefa26314b64ccd3038462
-T013:
-  reason: 'Requested task execution failed; rerun successfully: code/data/run_preprocess.py
-    exit=1'
-  task: b25f9c16054a5f2bf9204f5423a57941849578ee1db9fe9590d14ca34c31fd1d
-? "T014/T014.0\u2013T014.6 Sliding\u2011window connectivity, per\u2011participant\
-  \ static connectivity strength, covariate construction, and alignment validation\
-  \ in `code/analysis/connectivity.py`."
-: task: b269aef8206caab58a59a534fa293ed07a3d8557b4e03d7813b0b43228d59946
-"T015/T016 Louvain community detection (\u03B3\u202F=\u202F1.0) and whole\u2011brain flexibility metric in `code/analysis/dynamics.py`.":
-  task: 7dee6592ff52d93cd0ec94d0591ea9fb57a748caa2eae4683f0719859f1ce804
-? "T018/T019/T020b Subject filtering (missing scans, missing scores, motion > 0.5\u202F\
-  mm FD in >\u202F20\u202F% volumes) with standardized exclusion logging."
-: reason: "Checked the project root (`projects/PROJ-518-investigating-the-relationship-between-b`)\
-    \ for any code, configuration, or output that implements subject\u2011level filtering\
-    \ (e.g., a Python script/module, a command\u2011line tool, or an exclusion log\
-    \ file) and found no such artifacts; the only evidence is a generic project location\
-    \ description with no filtering implementation or logging output. Consequently\
-    \ the required functionality for detecting missing scans, missing scores, and\
-    \ high\u2011motion subjects and producing a standardized exclusion log is missing."
-  task: c64645fbf2481df4aa73800593cc43acd58b8e6d97df17a19e7d6b9a00cf9a3f
-T022:
-  task: 017235b4785913f0c0f9c91ba8b09b2c6e54611492958376ca5e24139a8b8eda
-T027:
-  task: c131cae2774e6b266972ffdb4d032bd37abf49c6320e8a4ca85e626e1922ff09
-"T033\u2013T036.3":
-  reason: "The `validate_caq_availability` function raises a locally\u2011defined\
-    \ `DataMissingCreativityError` instead of the one imported from `code.errors`,\
-    \ so `run_validation()` never catches it and does not invoke `sys.exit(1)`. Consequently\
-    \ the contract tests in `tests/contract/test_loader.py` (which expect the error\
-    \ class from `code.errors`) will fail, and the recorded pytest run did not even\
-    \ execute the tests due to unrelated argument errors. The exception class mismatch\
-    \ and failing test execution must be fixed."
-  task: 5c860d88f11d92ba50024b7ed488ca8d41a13d4a46788cac3a4cf922b9106ea8
-T041:
-  task: 00618c7605b5341ae76942ddae5cab8ea17479d4a9d8274bf7e00ad8281c2930
-? "T043/T051/T051b/T017/T017.1/T017.2 OLS regression (`creativity ~ excess_flexibility\
-  \ + age + sex + education + static_strength`), static\u2011only baseline, \u0394\
-  R\xB2 computation and 4\u2011decimal formatting, `data/interim/results.csv` with\
-  \ `global_empirical_p_value` from the permutation test."
-: reason: 'declared artifact(s) missing/empty/invalid: data/interim/results.csv'
-  task: 2e56210a39a2217c917017c2c960d3b38678cbf3fdd33341f713c50e536d81c0
-"T045/T045.1\u2013T045.3 ROI\u2011wise correlations and FWE correction (max\u2011T / Bonferroni).":
-  task: 20ed85e3a0ce01ce3a9b5b89b049a8345d47bcbb645d779d86a55b0665e96207
-? "T046/T046.1 Sensitivity sweep over window lengths {20,\u202F30,\u202F40} with per\u2011\
-  window connectivity recomputation and `construct_sensitivity_df`."
-: task: 4450722989f53e61f78ab1d0993a120ff8d625b9ce2d7e327bcf4a2e5dceff1d
-"T057/T058 Image compression (\u2264\u202F5\u202FMB, `RuntimeError` on failure) and NaN\u2011robust plotting.":
-  task: c2b4c79f9cfe5ff45f108e30042cd9e34948c991de1ec80c237e8cb3c1271242
-? "T060/T060.1 Runtime profiling on a real 10\u2011subject subset, scaling projection,\
-  \ and `docs/outputs/profiling_report.txt` (memory\u202F<\u202F7\u202FGB, runtime\u202F\
-  <\u202F6\u202Fh)."
-: task: fd5956c015c44eed7c15fb29c118894ac3af66127b31a272c147db16726ab06f
 T101:
-  task: 50542c27a57ea8e6783a78d02120de7ada8c0f148da97de298ebc98d533c2e34
+  reason: "The required test suite `code/tests/contract/test_loader.py` is missing,\
+    \ so the claim that the implementation passes the specified pytest verification\
+    \ cannot be confirmed. Additionally, `run_validation()` logs only the error code,\
+    \ not the explicit missing field name (\u201CCAQ\u201D), which does not fully\
+    \ meet the logging requirement. Fix by adding the missing test file (and ensuring\
+    \ it checks for exit code\u202F1 and the logged `DATA_MISSING_CREATIVITY` message)\
+    \ and adjust the logging to include the field name if needed."
+  task: 4cc415b86ad30070cdf188e4af9629cf24ed78153156b896c3ca723e1707dc12
 T102:
-  task: c81c08e99e492657f53a36b13913f380c3df7cb8d2f9f9dd1fb04939e7984e45
+  reason: 'Missing required artifacts: `data/checksums.json` and `data/raw/manifest.json`
+    are not present, and the unit test `code/tests/unit/test_loader_fetch.py` is absent,
+    so the fetch function cannot be verified to have downloaded real files, recorded
+    checksums, or updated the manifest as specified.'
+  task: 872b9bd50ddce618d0a7ab2d2515fc8c68f3323ef30f90fcafa411e2cf0a3250
 T103:
-  task: cfe844e40851662317b5eef898d895c10d8ee542fabf9ab572a7cecd2a22a70c
+  reason: "The repository contains the `filter_subjects` implementation, but the required\
+    \ unit test `code/tests/unit/test_filter_subjects.py` is missing, and there is\
+    \ no evidence that `data/interim/data_exclusion_log.txt` or `data/interim/included_subjects.csv`\
+    \ are created (the files are absent). Without the test and generated outputs,\
+    \ the task\u2019s verification criteria are not satisfied."
+  task: 55ebae9287e1348ccec0cc52da4be6daa9627ac23264a8c575775505550c9cf1
 T104:
-  task: df54a806a9f8173ef1c8aa0719c9c58534a092b6f47b8195f0549d5e34ba7abf
+  reason: 'Requested task execution failed; rerun successfully: code/data/run_preprocess.py
+    exit=-1 (TIMEOUT)'
+  task: c930973bbcf0a55e7116c8502dfe868150bf6023394b260455bb5b1cc4c94e69
 T105:
-  task: 2843f21cb5ffdef5de3236de44fed8e6dd1141b876294f5ebe9dcb6ce325f364
+  task: a6a75c753eb9550885cf8bae6de1a4b6cd5c3cb9f0dbe5b94292e7ed0216a879
 T106:
-  task: 2abefa5ace04bcc72d754ba58b25f8f16f95accbdbb6d189dfd603b794fa281a
+  task: 3f558504ada8a7884fab165f4d0bccf693194a539eac30838859ced1bd4afc45
 T107:
-  task: f7191b9bc9ddf0444cb031b7cbe8754de35f776353097d359c7f5c626ccf9735
+  task: bdd4649ad219c2fd8ab589c619d6b1f2f869bff36950c434deed8effaa7e5d68
 T108:
-  task: eab483f5c177c88128e3058c822a3959fcf764ff2868a38fe039ec96ed1231b9
+  task: 6622a014940406de859c6abfd2f4baf3c4f792ad7f657c7cc6776e30e00c70ca
+T109:
+  task: 4bac713eeda8db2ceeabe7b9fa04f73e4264bdd2d844dcd64dbf9b48cae27ecd
+T110:
+  task: 02bd0a1540011845e890a7cd384ad1d2256fabd0a19f2c5761878cf5027d5a71
 T111:
-  task: 5398075bc35c2c5e4fdf9c12827cd1e7425fe105db4722b153be4f169ebb7202
+  task: cc1e513365ee66e577f0ab376ac2330aa1f00b2cc4f7dadbb4eaa7bb70eb8d02
 T112:
-  task: 7887cb59e0abf8bd01e517713c9a6725f47458b466d6390a7a835bda78b6cc2f
+  task: 4eba0f325911cc4cfdf625ec7c726878e784eb928ca1e51aabd0305f4b354bd7
 T113:
-  task: b0e3f4409eefc6edd1760cb36688aeb63b558997618c00d13641a5f90208e1af
+  task: 0fa0bbf1577f58bf166d35f11e5a6f5ca78afbd12453b7c99a61305d8ab3f141
 T114:
-  task: bf4c3f770d0aa609e30ec26b246a3db559b24394bbec18bc49949ff7d31a1152
+  task: 4d69375d48730285e7938e9c8ddcfd2ad69d919c01e766ff3ab5251c94037716
+T115:
+  task: 19a8d8213759fea51c5d88484461e9e4fa20336d7626e8da3096ae1dfa99bcd7
+T116:
+  task: 1ee657863df9f7268608ab1782341d0f8bc6a05b3a7dd363d934c488b05fe730
+T117:
+  task: 083b8f4d9a216cc24278e7b5c3e7787a7b6a77b624e3417c397d88803f988df7
+T118:
+  task: a9dac28c7217535b5a9de1e588068c46584dc08d3a682d726c3fbbc13dd55d5c
+T119:
+  task: efe8a44c2de0c203fe05ffc044b3c9f8a912677d89326368d85b586c2871ab66
+T120:
+  task: c81d4630ee794b725998416dc3eab4921df703fb783f95edcc36d70a45566f3d
+T121:
+  task: 14582758289f89bbd92d3e881a933bdfdb5b687bc97827def7a955cfffe9f9a7
+T122:
+  task: 801208d72f75b97257b19127d773424e6d1e79e17de0b192414a1b81f4745f6c

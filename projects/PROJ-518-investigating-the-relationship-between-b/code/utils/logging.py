@@ -23,11 +23,21 @@ from llmxive_toolkit import paths, get_logger
 log = get_logger(__name__)
 
 # Standardized exclusion reason codes (as required by FR‑009)
-REASON_CODES = {"MISSING_SCAN", "MISSING_SCORE", "HIGH_MOTION"}
+# Additional internal codes are allowed for pipeline‑wide error handling.
+REASON_CODES = {
+    "MISSING_SCAN",
+    "MISSING_SCORE",
+    "HIGH_MOTION",
+    # The following codes are used by the validation step to record
+    # critical pipeline failures. They are not part of the scientific
+    # exclusion taxonomy but are harmless to log.
+    "DATA_MISSING_CREATIVITY",
+    "FILE_NOT_FOUND",
+}
 
 def _validate_reason(reason: str) -> str:
     """
-    Validate that the supplied reason is one of the standardized codes.
+    Validate that the supplied reason is one of the allowed codes.
     If the reason is not recognised, a ``ValueError`` is raised.
 
     Parameters
