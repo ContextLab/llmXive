@@ -1,0 +1,15 @@
+T001:
+  c: true
+  h: 83752b02eb84e85e392a304efe106938391c1adcb8e64a48150d8b4464c6d33f
+  r: Checked `code/acquire.py` for the required download and checksum logic and the
+    two unit tests in `tests/unit/test_acquire.py` which verify the correct RuntimeError
+    is raised for missing files and missing checksum entries; both tests pass.
+  sig: d752c9941046857dd8344194449c67c5264dfaeb54eabe341b79dfe30fdc69db
+T002:
+  c: false
+  h: 38b2f9423744482630fcd0db3b95a0aa79699005915f1bf6471b9e4a2487b54b
+  r: The `data/raw/sra_fastq/` directory is empty and `data/checksums/checksums.txt`
+    contains no entries for any FASTQ files. No test verifies that `download_sra_fastq`
+    actually creates `.fastq.gz` files or records their checksums, so the required
+    download artifact is missing.
+  sig: e462a854aae0ccde3c7c2cba4a177141788d2edae00e15d37d51ec1655696a22

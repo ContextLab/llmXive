@@ -7,7 +7,7 @@ Tasks are ordered to respect data flow and computational dependencies; each unch
 
 ---
 
-- [ ] **T001** [US1] **Download metabolomics profiles and verify checksum**  
+- [X] **T001** [US1] **Download metabolomics profiles and verify checksum**  
   *Implementation*: `code/acquire.py` adds `download_metabolomics(url: str, out_path: Path) -> None`. The function fetches a verified MetaboLights TSV/CSV (e.g., `[UNRESOLVED-CLAIM: https://ftp.ebi.ac.uk/pub/databases/metabolights/MTBLS1234/files/MTBLS1234.tsv` — HTTP 404]), writes it to `data/raw/metabolomics/`, and verifies the SHA‑256 checksum recorded in `data/checksums/checksums.txt`. If the HTTP request fails or the checksum entry is missing, the function raises `RuntimeError("Metabolomics data unavailable – aborting per FR‑008")`.  
   *Verification*: Unit test `tests/unit/test_acquire.py::test_metabolomics_missing_file` checks missing file abort, and `tests/unit/test_acquire.py::test_metabolomics_missing_checksum` checks missing checksum abort; both assert the exact RuntimeError message.
 
@@ -15,7 +15,7 @@ Tasks are ordered to respect data flow and computational dependencies; each unch
   *Implementation*: `code/acquire.py` defines `download_sra_fastq(accessions: List[str], out_dir: Path) -> None` which uses `pysradb`/`sra-tools` to fetch FASTQ.gz files into `data/raw/sra_fastq/`. SHA‑256 checksums are written to `data/checksums/checksums.txt`.  
   *Verification*: After execution, `data/raw/sra_fastq/` contains at least one `.fastq.gz` file and matching checksum entries; test `tests/unit/test_acquire.py::test_sra_download` validates existence and checksum correctness.
 
-- [ ] **T003** [US1] **Process raw FASTQ reads with DADA2 (via `rpy2`) to generate an ASV table**  
+- [ ] **T003** [US1] **Process raw FASTQ reads with DADA2 (via `rpy2`) to generate an ASV table**   <!-- FAILED-IN-EXECUTION: code/curate.py exit=1 -->
   *Implementation*: `code/curate.py` runs the full DADA2 pipeline on the FASTQ files from T002, outputs a wide CSV `data/processed/asv_table.csv` with columns `asv_*`. No fallback to pre‑computed tables is permitted.  
   *Verification*: `tests/unit/test_curate.py::test_asv_table_schema` validates that every `asv_*` column is an integer ≥ 0 and that the file size estimate fits within the 7 GB RAM budget.
 

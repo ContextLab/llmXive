@@ -1,0 +1,43 @@
+T001:
+  task: e12052aa04b9dc2cd311da3b4e00ee56a1664433394c8bb6c3226e1eb8093bad
+T002:
+  reason: The `data/raw/sra_fastq/` directory is empty and `data/checksums/checksums.txt`
+    contains no entries for any FASTQ files. No test verifies that `download_sra_fastq`
+    actually creates `.fastq.gz` files or records their checksums, so the required
+    download artifact is missing.
+  task: 304fdf59f64a708d2f05d9cdf963f9d73eae2681825fdfccabe8d82142253864
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/curate.py exit=1'
+  task: 0aad51b29a3195d74707f3b5b50362d72a6cc0f30c3d7b013f6a7f03177e445e
+T004:
+  task: 711e646d793eed330047828684aa76ae80ed877cc2bfd7a7b4c1eefcc1242868
+T005:
+  task: 728f2058af55c76ed2e6eb2fe4ede5ff015ede24a50f74f4d5f4ab36e957ae5b
+T006:
+  task: 77e671847736a7440a3d5659571f4676d064c8de7053b870d2aad8384c2b806e
+T007:
+  task: 7dd23443e4fb1ae31df3aed71eea5b907d7b1634c5f40fc43ba7c8a67a0d91b1
+T008:
+  task: 265c8fe97918740af53213e439eba5c353c6da7122ac2271609c2500a7009bd5
+T009:
+  task: 25b93e8f6dc3340eeedef3c7f638423cbd65c7de42435e3bb14c6315dbad0a3a
+T010:
+  task: b7dc678ac86de13d52d8e8cdd71b63f9c2dbc987fab79a96326983a2160aab4e
+T011:
+  task: 6d107c04d9b8f44de8e6353439e063d68a02554e4dfd1293e1f84de6aed91800
+T012:
+  task: 0a968f6c35fcaf978fcb4c69b8bd4ac50424c1d5dd58d5ee1cffd99940683d01
+T014:
+  task: 560157325075f7da2f360b7467c9adbbb0e9f562d2ffdb5281e749b2b6e34de4
+T015:
+  task: dbb6ab794dcd9a03bdb1929425de881539bb9f571a8563b5f39f4b7264cbbfa8
+T016:
+  task: 51ff7d51068ed5806c5e6c7b2d9d894bd157570ae3dae18497daf7d17021beb0
+T017:
+  task: 2067801a776f885e2b74b714196f301c908fdbfb1e0336da71d90311ddba31f4
+T018:
+  task: f0150b69c0b959910fb9ac978e1ca2c4ccbcc6f165001f363e5f292801179869
+T019:
+  task: bad86dac021dd16a360daedb649394ff1b6acbc3776b0fe26bdb8a90b4fd4096
+T020:
+  task: 3ab1c044453756b40c5031ff730c40f06cf90c4eea5be21dc617207ba30d4c0d
