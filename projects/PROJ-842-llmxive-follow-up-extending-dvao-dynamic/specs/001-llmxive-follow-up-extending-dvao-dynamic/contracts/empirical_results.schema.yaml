@@ -44,11 +44,23 @@ properties:
     description: "P-value from t-test on the regression slope (validating scaling law)"
     minimum: 0
     maximum: 1
+  regression_slope:
+    type: number
+    description: "Slope beta from log-log regression of sample count vs N."
+  r_squared:
+    type: number
+    description: "R-squared value of the regression fit."
+    minimum: 0
+    maximum: 1
   heuristic_bias_t_p_value:
     type: number
     description: "P-value from one-sample t-test on heuristic bias (validating estimator)"
     minimum: 0
     maximum: 1
+  convergence_speed_episodes:
+    type: integer
+    description: "Number of episodes required to reach the predefined reward threshold (FR‑019)."
+    minimum: 1
 required:
   - experiment_id
   - n_objectives
@@ -59,5 +71,8 @@ required:
   - theoretical_sample_bound
   - pareto_frontier_distance
   - scaling_slope_t_p_value
+  - regression_slope
+  - r_squared
   - heuristic_bias_t_p_value
+  - convergence_speed_episodes
 additionalProperties: false

@@ -1,37 +1,20 @@
-# Data Model: llmXive follow-up: extending "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-rewar"
+# Data Model: llmXive follow‑up: extending “DVAO: Dynamic Variance‑adaptive Advantage Optimization for Multi‑reward”
 
 ## Overview
+All artifacts are stored as JSON files under `data/processed/`. Each file conforms to a strict JSON‑Schema (see `contracts/`), enabling automated validation in the CI pipeline.
 
-This document defines the data structures used for theoretical derivation, synthetic environment generation, and empirical results. All data is stored in JSON or CSV formats within the `data/processed/` directory.
+## Core Entities & Files
 
-## Core Entities
+| Entity | Produced By | File | Schema |
+|--------|--------------|------|--------|
+| **Theoretical Bound** | `src/derivation/sample_complexity.py` | `theoretical_bound.json` | `contracts/theoretical_bound.schema.yaml` |
+| **Synthetic MDP Configuration** | `src/environment/synthetic_mdp.py` | `noise_properties.json` | `contracts/synthetic_mdp.schema.yaml` |
+| **Empirical Run Results** | `src/analysis/statistics.py` (after full suite) | `empirical_results.json` | `contracts/empirical_results.schema.yaml` |
+| **Construct‑Validity Summary** | `scripts/validate_construct_validity.py` | `construct_validity_results.json` | `contracts/construct_validity_results.schema.yaml` |
+| **Statistical Summary** | `src/analysis/statistics.py` | `statistical_results.json` | `contracts/statistical_result.schema.yaml` |
+| **Pareto Oracle Output** (optional debugging) | `src/analysis/pareto_oracle.py` | `pareto_oracle.json` | (internal, not exposed to paper) |
 
-### 1. Theoretical Derivation Output
-Represents the closed-form mathematical derivation results.
-*   **Source**: `src/derivation/sample_complexity.py`
-*   **Output**: `data/processed/theoretical_bound.json`
-
-### 2. Synthetic MDP Configuration
-Parameters used to generate a specific environment instance.
-*   **Source**: `src/environment/synthetic_mdp.py`
-*   **Output**: `data/processed/noise_properties.json`
-
-### 3. Empirical Results
-Aggregated results from training runs, including heuristic performance and statistical tests.
-*   **Source**: `src/analysis/statistics.py`
-*   **Output**: `data/processed/empirical_results.json`
-
-### 4. Construct Validity Results
-Results from testing different reward distributions.
-*   **Source**: `scripts/validate_construct_validity.py`
-*   **Output**: `data/processed/construct_validity_results.json`
-
-### 5. Statistical Results
-Aggregated statistical analysis including slope and bias tests.
-*   **Source**: `src/analysis/statistics.py`
-*   **Output**: `data/processed/statistical_results.json`
-
-## Data Schemas
+## Schema Highlights
 
 ### `theoretical_bound.json`
 ```yaml
@@ -40,25 +23,15 @@ type: object
 properties:
   n_range:
     type: array
-    items:
-      type: integer
-    description: "Range of N values tested"
+    items: {type: integer}
   variance_equation:
     type: string
-    description: "Closed-form equation string for variance as function of N and sigma"
   sample_complexity_bound:
     type: string
-    description: "Closed-form equation string for sample complexity bound"
   assumptions:
     type: array
-    items:
-      type: string
-    description: "List of assumptions (e.g., independent noise, i.i.d.)"
-required:
-  - n_range
-  - variance_equation
-  - sample_complexity_bound
-  - assumptions
+    items: {type: string}
+required: [n_range, variance_equation, sample_complexity_bound, assumptions]
 ```
 
 ### `noise_properties.json`
@@ -66,37 +39,28 @@ required:
 $schema: "http://json-schema.org/draft-07/schema#"
 type: object
 properties:
-  experiment_id:
-    type: string
-    description: "Unique identifier for the environment generation"
-  n_objectives:
-    type: integer
-    description: "Number of objectives N"
-  target_correlation:
-    type: number
-    description: "Target correlation coefficient rho"
+  experiment_id: {type: string}
+  n_objectives: {type: integer}
+  target_correlation: {type: number}
   achieved_correlation_matrix:
     type: array
     items:
       type: array
-      items:
-        type: number
-    description: "Actual correlation matrix achieved"
-  noise_distribution_type:
-    type: string
-    description: "Type of noise distribution (Gaussian, Heavy-tailed, etc.)"
-  effective_state_space_size:
-    type: integer
-    description: "Actual state space size used (may be reduced if N > 50)"
+      items: {type: number}
+  noise_distribution_type: {type: string}
+  effective_state_space_size: {type: integer}
+  seed: {type: integer}
 required:
   - experiment_id
   - n_objectives
   - achieved_correlation_matrix
   - noise_distribution_type
   - effective_state_space_size
+  - seed
+additionalProperties: false
 ```
 
-### `empirical_results.json`
+### `empirical_results.json` (excerpt)
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 type: object
@@ -110,36 +74,54 @@ properties:
   window_size_k:
     type: number
     description: "Moving window size fraction"
+    minimum: 0
+    maximum: 1
   heuristic_variance_mean:
     type: number
     description: "Mean variance estimated by heuristic"
+    minimum: 0
   theoretical_noise_variance:
     type: number
     description: "Known injected noise variance sigma^2"
+    minimum: 0
   deviation_ratio:
     type: number
     description: "Ratio of heuristic variance to theoretical variance"
+    minimum: 0
   sample_count_to_pareto:
     type: integer
     description: "Number of episodes to reach Pareto threshold"
+    minimum: 1
   theoretical_sample_bound:
     type: number
     description: "Theoretical lower bound on sample count"
+    minimum: 0
   pareto_frontier_distance:
     type: number
     description: "Distance of final policy to true Pareto frontier"
+    minimum: 0
   scaling_slope_t_p_value:
     type: number
     description: "P-value from t-test on the regression slope (validating scaling law)"
+    minimum: 0
+    maximum: 1
   regression_slope:
     type: number
     description: "Slope beta from log-log regression of sample count vs N."
   r_squared:
     type: number
     description: "R-squared value of the regression fit."
+    minimum: 0
+    maximum: 1
   heuristic_bias_t_p_value:
     type: number
     description: "P-value from one-sample t-test on heuristic bias (validating estimator)"
+    minimum: 0
+    maximum: 1
+  convergence_speed_episodes:
+    type: integer
+    description: "Number of episodes required to reach the predefined reward threshold (FR‑019)."
+    minimum: 1
 required:
   - experiment_id
   - n_objectives
@@ -153,6 +135,8 @@ required:
   - regression_slope
   - r_squared
   - heuristic_bias_t_p_value
+  - convergence_speed_episodes
+additionalProperties: false
 ```
 
 ### `construct_validity_results.json`
@@ -160,108 +144,25 @@ required:
 $schema: "http://json-schema.org/draft-07/schema#"
 type: object
 properties:
-  distribution_type:
-    type: string
-    description: "Type of reward distribution (Linear, Sparse, Non-Convex)"
-  n_objectives:
-    type: integer
-    description: "Number of objectives N"
-  deviation_from_bound:
-    type: number
-    description: "Deviation of empirical sample complexity from theoretical bound"
-  pass_criteria_met:
-    type: boolean
-    description: "True if deviation < 10%"
-required:
-  - distribution_type
-  - n_objectives
-  - deviation_from_bound
-  - pass_criteria_met
+  distribution_type: {type: string}
+  n_objectives: {type: integer}
+  deviation_from_bound: {type: number}
+  pass_criteria_met: {type: boolean}
+required: [distribution_type, n_objectives, deviation_from_bound, pass_criteria_met]
 ```
 
-### `statistical_results.json`
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-type: object
-properties:
-  config_id:
-    type: string
-    description: "Configuration ID"
-  num_objectives:
-    type: integer
-    description: "Number of objectives (N)"
-  window_ratio:
-    type: number
-    description: "The ratio k / rollout_size used."
-  regression_slope:
-    type: number
-    description: "Slope beta from log-log regression of sample count vs N."
-  r_squared:
-    type: number
-    description: "R-squared value of the regression fit."
-  slope_ci_lower:
-    type: number
-    description: "Lower bound of 95% CI for slope."
-  slope_ci_upper:
-    type: number
-    description: "Upper bound of 95% CI for slope."
-  scaling_slope_t_p_value:
-    type: number
-    description: "P-value from t-test on the regression slope."
-  heuristic_bias_t_p_value:
-    type: number
-    description: "P-value from one-sample t-test on heuristic bias."
-  mean_bias:
-    type: number
-    description: "Mean difference (Heuristic - Known) variance."
-  pareto_distance:
-    type: number
-    description: "Distance of the final policy from the theoretical Pareto frontier."
-  convergence_status:
-    type: string
-    enum:
-      - "stable"
-      - "unstable"
-      - "failed"
-    description: "Status of the heuristic convergence."
-  false_positive_rate:
-    type: number
-    description: "Rate of false positives in stability detection."
-  noise_distribution_type:
-    type: string
-    enum:
-      - "gaussian"
-      - "heavy_tailed"
-      - "sparse"
-      - "non_convex"
-    description: "Type of noise distribution used in the simulation."
-  sample_complexity_ratio:
-    type: number
-    description: "Ratio of empirical samples used to theoretical lower bound K."
-  coincidence_delta:
-    type: integer
-    description: "Difference between failure point N and Pareto distance point."
-  timestamp:
-    type: string
-    format: date-time
-    description: "ISO8601 timestamp of analysis."
-required:
-  - config_id
-  - num_objectives
-  - window_ratio
-  - regression_slope
-  - r_squared
-  - slope_ci_lower
-  - slope_ci_upper
-  - scaling_slope_t_p_value
-  - heuristic_bias_t_p_value
-  - mean_bias
-  - pareto_distance
-  - convergence_status
-  - false_positive_rate
-  - noise_distribution_type
-  - sample_complexity_ratio
-  - coincidence_delta
-  - timestamp
-additionalProperties: false
+## Data Flow Diagram (conceptual)
 ```
+Derivation → theoretical_bound.json
+          ↘
+Synthetic MDP → noise_properties.json → (used by) → heuristic.py / baseline_scalarization.py
+          ↘
+Full training runs → empirical_results.json → statistics.py → statistical_results.json
+          ↘
+Construct‑validity sweeps → construct_validity_results.json
+```
+All downstream artifacts (figures, tables) reference the JSON source that generated them, satisfying Principle IV (single source of truth).
+
+---
+
+

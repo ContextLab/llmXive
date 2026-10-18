@@ -1,14 +1,14 @@
 status: none
-intent: download MORL-Bench multi objective RL dataset MOPED python package dataset
+intent: download multi-objective reinforcement learning benchmark suite MORLBench
+  python package dataset
 required_fields:
-- environment_id
-- num_objectives
-- state_features
-- action_space
+- mdp_id
+- state_id
+- action_id
+- next_state_id
 - reward_vector
-- transition_function
-- noise_parameters
-- pareto_optimal_labels
-cache_key: 79d0f6f560a17e2cc24fef091c7c0d7a15716156fc98b7e2158b9c1b360545f4
-searched_at: '2026-09-22T05:11:02.962777+00:00'
+- done
+- noise_std
+cache_key: f85b18941a343eb6c5347dde55c1f3a49cbb7e337dcb0bc12bb9c33c88365326
+searched_at: '2026-10-18T07:25:37.292395+00:00'
 retry_count: 1
