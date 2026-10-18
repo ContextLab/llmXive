@@ -1,1 +1,1 @@
-"""Statistical fidelity evaluation package."""
+"""Statistical fidelity study package."""

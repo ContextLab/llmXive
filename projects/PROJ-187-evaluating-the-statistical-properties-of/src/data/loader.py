@@ -56,7 +56,13 @@ def load_har() -> pd.DataFrame:
     """UCI Human Activity Recognition via HuggingFace udayl/UCI_HAR."""
     from datasets import load_dataset
 
-    ds = load_dataset("udayl/UCI_HAR", split="train")
+    # The repository exposes its CSV files under the "csv_files" config
+    # (the verified source URL is csv_files/train.csv); fall back to the
+    # default config, which resolves to the same real data.
+    try:
+        ds = load_dataset("udayl/UCI_HAR", "csv_files", split="train")
+    except Exception:
+        ds = load_dataset("udayl/UCI_HAR", split="train")
     df = ds.to_pandas()
     if df is None or len(df) == 0:
         raise RuntimeError("HF dataset udayl/UCI_HAR split=train returned no data")
@@ -91,10 +97,8 @@ def sha256_file(path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
-
 def current_rss_bytes() -> int:
     return psutil.Process().memory_info().rss
-
 
 def _is_categorical(series: pd.Series) -> bool:
     return (
@@ -103,7 +107,6 @@ def _is_categorical(series: pd.Series) -> bool:
         or series.dtype == bool
         or pd.api.types.is_string_dtype(series)
     )
-
 
 def _relpath(p: Path) -> str:
     try:
