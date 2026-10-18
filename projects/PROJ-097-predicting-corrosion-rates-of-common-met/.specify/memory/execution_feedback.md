@@ -7,31 +7,39 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.pipeline.run_all -> rc=1
-   ^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 267, in ingest
-    frame, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 378, in _fetch
+jects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 165, in _fetch_with_metadata
+    df, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 485, in _fetch
     return _fetch_with_metadata(dataset_id, max_candidates)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 330, in _fetch_with_metadata
-    for did in _candidate_dataset_ids(max_candidates):
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 133, in _candidate_dataset_ids
-    raise RuntimeError(
-RuntimeError: No OpenML datasets matched corrosion search keywords ('corrosion', 'corros', 'seawater metal'); no qualifying real dataset found.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 165, in _fetch_with_metadata
+    df, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 485, in _fetch
+    return _fetch_with_metadata(dataset_id, max_candidates)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RecursionError: maximum recursion depth exceeded
 
 - python -m pytest src/tests/ -> rc=1
-/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/.runtime-home/.config/openml/config: not readable
-2026-10-18 20:13:27,222 INFO root: Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
-2026-10-18 20:13:30,306 INFO root: 3.0834486s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
------------------------------- Captured log call -------------------------------
-INFO     openml.config:config.py:328 Error opening file /home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/.runtime-home/.config/openml/config: not readable
-INFO     root:_api_calls.py:103 Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
-INFO     root:_api_calls.py:115 3.0834486s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+ngest(dataset_id=args.dataset_id, max_candidates=args.max_candidates)
+src/pipeline/ingest.py:365: in ingest
+    frame, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
+src/pipeline/ingest.py:485: in _fetch
+    return _fetch_with_metadata(dataset_id, max_candidates)
+src/pipeline/ingest.py:165: in _fetch_with_metadata
+    df, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
+src/pipeline/ingest.py:485: in _fetch
+    return _fetch_with_metadata(dataset_id, max_candidates)
+E   RecursionError: maximum recursion depth exceeded
+!!! Recursion detected (same locals & position)
 =========================== short test summary info ============================
-FAILED src/tests/test_ingest.py::test_ingest_creates_raw_and_provenance - Run...
-============================== 1 failed in 4.91s ===============================
+FAILED src/tests/test_ingest.py::test_ingest_creates_raw_and_provenance - Rec...
+FAILED src/tests/test_train.py::test_first_run_metrics_created - FileNotFound...
+FAILED src/tests/test_vif.py::test_vif_diagnostics_created - RecursionError: ...
+ERROR src/tests/test_features.py::test_features_parquet_created - AssertionEr...
+ERROR src/tests/test_features.py::test_feature_names_json - AssertionError: f...
+========================= 3 failed, 2 errors in 1.07s ==========================
 
 
 
@@ -54,12 +62,25 @@ FAILED src/tests/test_ingest.py::test_ingest_creates_raw_and_provenance - Run...
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/cleaned_dataset.csv` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
-- `data/processed/features.parquet` is declared but was NOT written. Scripts referencing it:
+- `data/processed/cleaned_dataset.csv` is declared but was NOT written. Scripts referencing it:
+    - `src/pipeline/features.py` — NOT invoked by the run-book
     - `src/pipeline/ingest.py` — NOT invoked by the run-book
+    - `src/pipeline/train.py` — NOT invoked by the run-book
+    - `src/pipeline/vif.py` — NOT invoked by the run-book
+    - `src/tests/test_ingest.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/cleaned_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/features.parquet` is declared but was NOT written. Scripts referencing it:
+    - `src/pipeline/features.py` — NOT invoked by the run-book
+    - `src/pipeline/ingest.py` — NOT invoked by the run-book
+    - `src/pipeline/run_all.py` — IS a run-book command
+    - `src/tests/test_features.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/features.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/bh_interaction_importance.json` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
-- `data/results/first_run_metrics.json` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
+- `data/results/first_run_metrics.json` is declared but was NOT written. Scripts referencing it:
+    - `src/pipeline/evaluate.py` — NOT invoked by the run-book
+    - `src/pipeline/train.py` — NOT invoked by the run-book
+    - `src/tests/test_train.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/results/first_run_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/heldout_metrics.json` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
 - `data/results/interaction_test.json` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
 - `data/results/runtime_log.json` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
@@ -67,4 +88,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/results/shap_interaction_matrix.npy` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
 - `data/results/shap_rankings.json` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
 - `data/results/target_perm_fullnull.json` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
-- `data/results/vif_diagnostics.json` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
+- `data/results/vif_diagnostics.json` is declared but was NOT written. Scripts referencing it:
+    - `src/pipeline/vif.py` — NOT invoked by the run-book
+    - `src/tests/test_vif.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/results/vif_diagnostics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

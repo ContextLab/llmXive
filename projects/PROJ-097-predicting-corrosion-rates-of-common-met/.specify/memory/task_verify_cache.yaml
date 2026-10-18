@@ -1,3 +1,21 @@
+T002:
+  c: false
+  h: 8a8c31c3851557943d7e65f80aaba627b1297d77f93644a7f8f98493d3b20077
+  r: 'Checked `src/pipeline/ingest.py` (implements validation, harmonization, imputation,
+    encoding) and `src/tests/test_ingest.py`. The pytest run fails with a `NameError:
+    name ''_fetch_with_metadata'' is not defined` in the CLI wrapper, so the ingestion
+    script never completes, and consequently `data/processed/cleaned_dataset.csv`
+    is not created. The required unit test does not pass and the cleaned CSV is missing.'
+  sig: c56b36e7a0a1e6e5eef7d9731b156f43b11d35220e749e9699c0a9645718e5fb
+T003:
+  c: false
+  h: 0584e340c78675fad5efd7e4e84c11cf03f4281b5cf91ea61421b5f1ad7166a3
+  r: "The `src/pipeline/features.py` script implements the required engineering steps,\
+    \ but the required output file `data/processed/features.parquet` is missing, and\
+    \ the script exits with an error because the prerequisite `cleaned_dataset.csv`\
+    \ is not present. Consequently no feature matrix (or residualization evidence)\
+    \ can be inspected, so the task\u2019s deliverables are not satisfied."
+  sig: addd19087b232d270b3b9e46ffdff25ed0c7a234c134d4bf799659e63c0ed0c6
 T013:
   c: true
   h: 4931a668c046e4ab61cf0a4b01d37bd7ee9175087a780033c95d3f0e80422bd3
@@ -11,8 +29,9 @@ T013:
   sig: 46ff0d56b5712d7219fa026683907a81623dfa559dadcc565bfa5eeda652d5f3
 T015:
   c: true
-  h: 3b5dd7f7723c3ff366510c92a956f3c77505bd47a6d52365df0ef8a2cbdd7d2e
-  r: "Checked `specs/001-predicting-corrosion-rates-of-common-met/quickstart.md` \u2013\
-    \ it exists, is non\u2011empty, and includes the exact command strings `python\
-    \ -m src.pipeline.run_all` and `pytest src/tests/` as required."
-  sig: 1f79138199d015dac32f1a80aab355bf4925f3c15a048ce589e09099c94cdd00
+  h: e4a8e3a30bd5c1bc292801dd91a86235fad5edd54d20bfef5bd500e3e6be5974
+  r: "Checked `specs/001-predicting-corrosion-rates-of-common-met/quickstart.md` (3574\u202F\
+    bytes) and confirmed it contains the exact command strings `python -m src.pipeline.run_all`\
+    \ and `pytest src/tests/` as required. The file exists in the feature\u2019s spec\
+    \ directory."
+  sig: 0c9e76ebe03a5b3878e331d57610399473036af20134fa9adc623ce7910292cd

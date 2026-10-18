@@ -3,10 +3,22 @@ T001:
     exit=1'
   task: 4ee9e609e2658ed00f60f64a868e5d9a9300e160b77a37df767c23acb056d29d
 T002:
+  reason: 'Checked `src/pipeline/ingest.py` (implements validation, harmonization,
+    imputation, encoding) and `src/tests/test_ingest.py`. The pytest run fails with
+    a `NameError: name ''_fetch_with_metadata'' is not defined` in the CLI wrapper,
+    so the ingestion script never completes, and consequently `data/processed/cleaned_dataset.csv`
+    is not created. The required unit test does not pass and the cleaned CSV is missing.'
   task: 5ecb012897dfd740bcc238dafc82ccbd7426fb166c8d6d5e34faa109d04f27bc
 T003:
+  reason: "The `src/pipeline/features.py` script implements the required engineering\
+    \ steps, but the required output file `data/processed/features.parquet` is missing,\
+    \ and the script exits with an error because the prerequisite `cleaned_dataset.csv`\
+    \ is not present. Consequently no feature matrix (or residualization evidence)\
+    \ can be inspected, so the task\u2019s deliverables are not satisfied."
   task: 88e0fda99d2ef4e1c9ad9f275aff39c547748a45ef4d44cc9c6aed77d7326110
 T004:
+  reason: 'Requested task execution failed; rerun successfully: src/pipeline/train.py
+    exit=1; src/pipeline/evaluate.py exit=1'
   task: a0aa2b1ef35f79d4d54ff806d9d5da9292c30f6d46321e5536e72741d8c17df8
 T005:
   task: f9870ab7179c2009cf80566b62d1754b35be91ade10aa6750333f60018d2c6c9
@@ -35,4 +47,5 @@ T016:
 T017:
   task: d9a0b82ee836b0b2e5e9d7863d92f634846eeea79a258563eff080b56b3e4436
 T019:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/vif_diagnostics.json'
   task: 087fc7e634cb08d4fb8f8f618374214ad3d54f7df9dbbddfb378e51a504931fb
