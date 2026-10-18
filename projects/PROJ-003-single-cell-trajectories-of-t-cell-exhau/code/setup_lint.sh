@@ -1,29 +1,38 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# ----------------------------------------------------------------------
+# Linting helper for the project.
+#
+# This script runs ``ruff`` and ``black`` on the repository, writes the
+# combined output to ``logs/lint.txt`` and exits with a non‑zero status
+# if any tool reports a problem.
+# ----------------------------------------------------------------------
 
-# ------------------------------------------------------------
-# Project layout creation
-# ------------------------------------------------------------
-# Ensure required directories exist
-mkdir -p data/results
+set -e
+
+# Ensure the logs directory exists.
 mkdir -p logs
 
-# Create placeholder file so the directory is non‑empty
-touch data/results/.gitkeep
+# Run ruff.
+if ! ruff_output=$(ruff check . 2>&1); then
+    echo "$ruff_output" > logs/lint.txt
+    echo "Ruff reported errors – exiting with status 1."
+    exit 1
+fi
 
-# ------------------------------------------------------------
-# Linting
-# ------------------------------------------------------------
-# Run ruff and black, capture their output in logs/lint.txt.
-# The script will exit with a non‑zero status if either tool reports errors,
-# ensuring that the CI fails when linting is not clean.
-LOG_FILE="logs/lint.txt"
+# Run black in check mode.
+if ! black_output=$(black --check . 2>&1); then
+    {
+        echo "$ruff_output"
+        echo "$black_output"
+    } > logs/lint.txt
+    echo "Black reported formatting issues – exiting with status 1."
+    exit 1
+fi
+
+# If both tools succeeded, combine their (empty) output.
 {
-  echo "=== ruff check ==="
-  ruff check .
-  echo "=== black --check ==="
-  black --check .
-  echo "=== Linting completed successfully ==="
-} > "$LOG_FILE" 2>&1
+    echo "$ruff_output"
+    echo "$black_output"
+} > logs/lint.txt
 
-echo "Lint log written to $LOG_FILE"
+echo "Linting passed – logs written to logs/lint.txt."

@@ -1,50 +1,47 @@
-"""Establish the required directory structure for the T-cell exhaustion project.
+"""Create the required directory structure for the project.
 
-This script creates the base layout defined in the project plan to ensure
-that data loaders, preprocessing scripts, and result generators have
-consistent paths to write to.
+This module provides a single public function ``setup_directories`` that
+creates the standard layout under the project root and returns the root
+``Path``. The function is idempotent – existing directories are left
+untouched.
 """
 
-import os
 from pathlib import Path
 
 
 def setup_directories() -> Path:
     """Create the required directory structure for the project.
 
-    Creates the following directories relative to the project root:
-    - code/
-    - data/raw/
-    - data/processed/
-    - data/results/
-    - tests/unit/
-    - tests/integration/
-
-    Returns:
-        Path: The project root path where directories were created.
+    The following directories are created (if they do not already exist):
+    
+    - ``code/``
+    - ``data/raw/``
+    - ``data/processed/``
+    - ``data/results/``
+    - ``tests/unit/``
+    - ``tests/integration/``
+    
+    Returns
+    -------
+    Path
+        The absolute path to the project root (the directory that contains
+        the ``code`` folder).
     """
-    # Project root is the parent of the 'code' directory
+    # Resolve the directory that contains this file – that is the ``code``
+    # folder. The project root is its parent.
     project_root = Path(__file__).resolve().parent.parent
 
-    directories = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "tests/unit",
-        "tests/integration",
+    # Define the directories we need relative to the project root.
+    dirs = [
+        project_root / "code",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "results",
+        project_root / "tests" / "unit",
+        project_root / "tests" / "integration",
     ]
 
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        # Create .gitkeep to ensure directories are present in the filesystem
-        # and visible to the environment collector.
-        (full_path / ".gitkeep").touch()
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
     return project_root
-
-
-if __name__ == "__main__":
-    root = setup_directories()
-    print(f"Project layout established at: {root}")

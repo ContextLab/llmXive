@@ -1,15 +1,15 @@
 status: none
-intent: download scRNA-seq NCBI GEO GSE136103 GSE111075 GSE138852 via scvelo python
-  package
+intent: scRNA-seq count matrices GEO GSE136103 GSE111075 GSE138852 SRA NCBI GEO python
+  package dataset
 required_fields:
 - gene_id
 - gene_name
 - cell_barcode
 - raw_counts
+- spliced_counts
+- unspliced_counts
 - mitochondrial_percent
 - sample_metadata
-- velocity_vectors
-- pseudotime
-cache_key: 30cdb364a0aa26c309ffe4641d8678357cf67a3ca2f4e455c602f1193e113fbc
-searched_at: '2026-10-18T16:11:51.736368+00:00'
+cache_key: 5e83896aabf364a3756df6d6c86631a639eae2ba51406503b978b71aba0d17cd
+searched_at: '2026-10-18T19:10:54.920136+00:00'
 retry_count: 1

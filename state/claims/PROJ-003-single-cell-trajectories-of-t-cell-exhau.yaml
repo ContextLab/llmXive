@@ -915,3 +915,69 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-18T16:07:53Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: "pipeline reproduces byte\u2011identical final artifacts under data/results"
+  claim_id: c_461be6f9
+  context: "code.run_all reads the global random seed and reproduces byte\u2011identical\
+    \ final artifacts under data/results."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "code.run_all reads the global random seed from code/config.yaml (`seed:\
+    \ 42`), logs each stage to `logs/<stage>.log`, and reproduces byte\u2011identical\
+    \ final artifacts under `data/results/`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T19:07:01Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: final report includes heatmaps, statistics, and observational disclaimer
+  claim_id: c_7a2fbd02
+  context: The final HTML report contains heatmaps, statistics, and the required observational
+    disclaimer.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Final report with heatmaps, statistics, and the required observational
+    disclaimer.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T19:07:01Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: script retries and logs failures to logs/download.log
+  claim_id: c_b3fff05e
+  context: When download_data.py exits with an error, the script retries and logs
+    failures to logs/download.log.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the script retries and logs failures to `logs/download.log`
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T19:07:01Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: ruff check and black --check pass
+  claim_id: c_88e1e562
+  context: The lint evidence file logs that ruff check and black --check both pass.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Evidence that `ruff check .` and `black --check .` pass (SC\u2011001)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T19:07:01Z'

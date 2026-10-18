@@ -8,14 +8,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/download_data.py  --datasets GSE136103 GSE127465 GSE111075 GSE138852  --output data/raw/ -> rc=-1
 SE111nnn/GSE111075/suppl/GSE111075_RAW.tar -> /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/data/raw/GSE111075/counts/GSE111075_RAW.tar
-2026-10-18 16:10:18,198 - INFO - File filelist.txt has only 4 genes; trying next candidate
-2026-10-18 16:10:18,198 - WARNING - Could not parse GSE111075_RAW.tar: 'utf-8' codec can't decode byte 0x8b in position 513: invalid start byte
-2026-10-18 16:10:18,198 - ERROR - Failed to process GSE111075: Could not extract a valid gene list for GSE111075 from any downloaded file
-2026-10-18 16:10:18,201 - INFO - Processing GSE138852 ...
-2026-10-18 16:10:18,371 - WARNING - Metadata fetch attempt 1/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-18 16:10:20,472 - WARNING - Metadata fetch attempt 2/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-18 16:10:24,632 - WARNING - Metadata fetch attempt 3/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-18 16:10:30,800 - WARNING - Metadata fetch attempt 4/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+2026-10-18 19:09:42,269 - INFO - File filelist.txt has only 4 genes; trying next candidate
+2026-10-18 19:09:42,269 - WARNING - Could not parse GSE111075_RAW.tar: 'utf-8' codec can't decode byte 0x8b in position 513: invalid start byte
+2026-10-18 19:09:42,269 - ERROR - Failed to process GSE111075: Could not extract a valid gene list for GSE111075 from any downloaded file
+2026-10-18 19:09:42,272 - INFO - Processing GSE138852 ...
+2026-10-18 19:09:42,372 - WARNING - Metadata fetch attempt 1/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+2026-10-18 19:09:44,555 - WARNING - Metadata fetch attempt 2/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+2026-10-18 19:09:48,661 - WARNING - Metadata fetch attempt 3/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+2026-10-18 19:09:54,763 - WARNING - Metadata fetch attempt 4/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
 
 
 [TIMEOUT after 120s]
@@ -28,11 +28,18 @@ SE111nnn/GSE111075/suppl/GSE111075_RAW.tar -> /home/runner/work/llmXive/llmXive/
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-003-single-cell-trajectories-of-t-cell-exhau/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/code/batch_correct.py': [Errno 2] No such file or directory
 
 - python code/velocity.py --input data/processed/ --output data/processed/ -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/code/velocity.py", line 18, in <module>
-    import scvelo as scv
-ModuleNotFoundError: No module named 'scvelo'
+/PROJ-003-single-cell-trajectories-of-t-cell-exhau/lib/python3.11/site-packages/scvelo/datasets/_datasets.py", line 10, in <module>
+    from scvelo.core import cleanup
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-003-single-cell-trajectories-of-t-cell-exhau/lib/python3.11/site-packages/scvelo/core/__init__.py", line 1, in <module>
+    from ._anndata import (
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-003-single-cell-trajectories-of-t-cell-exhau/lib/python3.11/site-packages/scvelo/core/_anndata.py", line 15, in <module>
+    from scvelo import logging as logg
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-003-single-cell-trajectories-of-t-cell-exhau/lib/python3.11/site-packages/scvelo/logging.py", line 12, in <module>
+    from scvelo import settings
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-003-single-cell-trajectories-of-t-cell-exhau/lib/python3.11/site-packages/scvelo/settings.py", line 91, in <module>
+    warnings.filterwarnings("ignore", category=cbook.mplDeprecation)
+                                               ^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'matplotlib.cbook' has no attribute 'mplDeprecation'
 
 - python code/forkpoint.py --input data/processed/ --output data/results/fork_points/ -> rc=2
 
