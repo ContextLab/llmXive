@@ -1,50 +1,18 @@
-status: verified
-kind: pypi_package
-ref: pm4py
-access_python: "import pm4py\nfrom pm4py.objects.log.obj import EventLog, Trace\n\
-  import random, datetime\n\n# generate synthetic log with required fields\ndef generate_log(num_traces=10):\n\
-  \    log = EventLog()\n    for i in range(num_traces):\n        t = Trace()\n  \
-  \      t.attributes[\"workflow_id\"] = f\"W{i}\"\n        t.attributes[\"delegation_depth\"\
-  ] = random.randint(1, 5)\n        t.attributes[\"policy_constraint_count\"] = random.randint(0,\
-  \ 3)\n        t.attributes[\"policy_constraints\"] = [f\"c{j}\" for j in range(t.attributes[\"\
-  policy_constraint_count\"])]\n        t.attributes[\"budget_cap\"] = round(random.uniform(1000,\
-  \ 5000), 2)\n        t.attributes[\"workflow_metadata\"] = {\"type\": \"synthetic\"\
-  }\n        t.attributes[\"full_context_execution_log\"] = \"full_log_placeholder\"\
-  \n        t.attributes[\"compressed_context_execution_log\"] = \"compressed_log_placeholder\"\
-  \n        t.attributes[\"policy_violation_flags\"] = random.choice([True, False])\n\
-  \        t.attributes[\"execution_timestamp\"] = datetime.datetime.utcnow().isoformat()\n\
-  \        t.attributes[\"agent_ids\"] = [f\"A{j}\" for j in range(random.randint(1,\
-  \ 3))]\n        t.attributes[\"task_sequence\"] = [\"task1\", \"task2\", \"task3\"\
-  ]\n        log.append(t)\n    return log\n\nlog = generate_log()\nrecords = [trace.attributes\
-  \ for trace in log]\nprint(f\"RECORDS={len(records)}\")\nfields = sorted(records[0].keys())\n\
-  print(\"FIELDS=\" + \",\".join(fields))"
-record_count: 10
-sample_fields:
-- agent_ids
-- budget_cap
-- compressed_context_execution_log
-- delegation_depth
-- execution_timestamp
-- full_context_execution_log
-- policy_constraint_count
-- policy_constraints
-- policy_violation_flags
-- task_sequence
-- workflow_id
-- workflow_metadata
-field_coverage: 1.0
+status: none
+intent: synthetic business process workflow logs with delegation depth pm4py dataset
+  python package dataset
 required_fields:
 - workflow_id
 - delegation_depth
-- policy_constraint_count
-- policy_constraints
+- policy_complexity
 - budget_cap
-- workflow_metadata
-- full_context_execution_log
-- compressed_context_execution_log
-- policy_violation_flags
-- execution_timestamp
-- agent_ids
-- task_sequence
-intent: pm4py synthetic workflow log generator OpenXES dataset python package dataset
-cache_key: dd335eab8caef958e59f19a7d2f327615ffb0b72c172daa4d0e80ab5e5e6d50c
+- agent_sequence
+- activity_name
+- timestamp
+- full_context_log
+- compressed_context_log
+- policy_nodes
+- policy_violations
+cache_key: dce3beb83a6cfddbea595793e02489574f862a2d9f963ac984ed47711571abaf
+searched_at: '2026-10-18T19:17:21.313460+00:00'
+retry_count: 1

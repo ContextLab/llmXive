@@ -1,7 +1,0 @@
-{
-  "task_id": "T101",
-  "fingerprint": "d43198164df1092716fd8bd5edf73e198a8fd9de8397cd0943981aa01574ca9a",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refused 'generators/__init__.py': it would replace working code with a file that has none. To leave a file unchanged, leave it out of `artifacts`; to re-run it unchanged, give `path`, `execute: true` and `args` and omit `contents`."
-}
