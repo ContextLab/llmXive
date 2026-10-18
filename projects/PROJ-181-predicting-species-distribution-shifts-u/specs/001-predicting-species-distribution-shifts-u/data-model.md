@@ -42,8 +42,8 @@ erDiagram
 | Field | Type | Description |
 |-------|------|-------------|
 | `model_id` | UUID (string) | Unique model identifier. |
-| `algorithm` | string (`RF`, `Bioclim`, `MaxEnt`) | Algorithm used. |
 | `species` | string | Target species. |
+| `algorithm` | string (`RF`, `Bioclim`, `MaxEnt`) | Algorithm used. |
 | `training_period` | string (`1970-2000`) | Temporal window of training data. |
 | `file_path` | string | Relative path under `models/`. |
 | `checksum` | string (SHA‑256) | File integrity hash. |
@@ -85,7 +85,7 @@ erDiagram
 | Model files | Pickle (`.pkl`) | `contracts/model_artifact.schema.yaml` |
 | Metric JSONs | JSON | `contracts/model_metrics.schema.yaml` |
 | Data sufficiency JSON | JSON | `contracts/data_sufficiency.schema.yaml` |
-| Logging configuration | YAML (Python `logging.config.dictConfig`) | No schema required but must be present in `logs/`. |
+| Logging configuration | YAML (Python `logging.config.dictConfig`) | No schema required but must exist in `logs/`. |
 
 ## 4. Data Flow
 1. **Download** (`code/download.py`) → `data/raw/` (occurrence CSVs, climate GeoTIFFs).  

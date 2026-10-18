@@ -1,19 +1,14 @@
 status: none
-intent: download North American bird occurrence records GBIF eBird climate rasters
-  WorldClim v2 python package dataset
+intent: download North American bird occurrence data GBIF eBird with WorldClim v2
+  climate rasters python package dataset
 required_fields:
 - species
 - decimalLatitude
 - decimalLongitude
 - eventDate
-- year
 - month
-- basisOfRecord
-- coordinateUncertaintyInMeters
-- occurrenceID
-- taxonKey
-- kingdom
-- phylum
-cache_key: 6eff378062936c5fefb91ec0ec1524c2a8271de616db5082bd407571298ffc34
-searched_at: '2026-10-18T22:07:17.949956+00:00'
+- temperature
+- precipitation
+cache_key: 4626badac6a74a8de738be7e9c952f79480d5c5e4f6e87a0fe0d1dad60e7047e
+searched_at: '2026-10-18T23:07:36.753437+00:00'
 retry_count: 1

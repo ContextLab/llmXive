@@ -63,7 +63,7 @@ python code/main.py download
 ```
 - Fetches historical & recent GBIF/eBird occurrences.  
 - Streams WorldClim v2.1 and CMIP6 rasters tile‑by‑tile to keep RAM low.  
-- Computes SHA‑256 checksums; aborts on mismatch (fulfills T010).  
+- Downloads accompanying checksum (`*.md5`) files, computes SHA‑256 for each raster, and **aborts on mismatch** (fulfills T010).  
 - Populates `data/manifest.json`.
 
 ### Step 2 – Preprocess (T003)
@@ -71,7 +71,7 @@ python code/main.py download
 python code/main.py preprocess
 ```
 - Filters breeding‑season records, removes duplicates, applies spatial thinning.  
-- Extracts climate variables, logs counts before/after each operation to `logs/preprocess.log`.  
+- Extracts climate variables, logs counts before/after each operation to `logs/preprocess.log` (structured via `utils/logging_config.py`).  
 - Writes `data/processed/features.csv` and `metrics/data_sufficiency.json`.
 
 ### Step 3 – Train Models (FR‑004)
@@ -87,7 +87,7 @@ python code/main.py train
 python code/main.py evaluate
 ```
 - Calculates AUC/TSS on recent occurrences (2005‑2020).  
-- Projects models onto 2050 climate, computes `delta_Suitability`.  
+- Projects models onto 2050 climate, computes `delta_suitability`.  
 - Runs hierarchical bootstrap (10 000 iterations) and Benjamini‑Hochberg correction.  
 - Outputs `metrics/model_performance.json` and `results/summary_table.csv`.
 
@@ -105,7 +105,7 @@ Creates `reports/findings.md` containing tables, figures, and the mandatory disc
 | **GDAL / GEOS import errors** | System libraries missing | Install via `brew` (macOS) or `apt-get` (Ubuntu) as shown above. |
 | **GBIF rate‑limit errors** | Too many rapid API calls | The downloader implements exponential back‑off; re‑run after a short wait. |
 | **GPU detected & pipeline aborts** | Runner has CUDA enabled (unlikely on free tier) | Ensure `torch` is not installed, or run on a pure‑CPU runner. |
-| **Checksum mismatch** | Corrupted raster download | Delete the offending file and re‑run `code/main.py download`. |
+| **Checksum mismatch** | Corrupted raster download | Delete the offending file, verify internet stability, and re‑run `code/main.py download`. |
 | **Insufficient records for a species** | `<100` records after thinning | Species will be flagged as `INSUFFICIENT_DATA`; check `metrics/data_sufficiency.json`. |
 | **Missing `.gitkeep` or `.flake8`** | Initial scaffold not run | Re‑run `python code/main.py scaffold`. |
 

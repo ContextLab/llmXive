@@ -53,12 +53,12 @@ All raster files are streamed tile‑by‑tile to keep memory usage low. Downloa
 ### 3.3 Evaluation & Projection (FR‑005, FR‑009, FR‑010)
 1. **Historical validation**: Compute AUC and TSS on recent (2005‑2020) occurrences using contemporary climate (2005‑2020 WorldClim).  
 2. **Future projection**: Predict suitability at the same recent occurrence locations under 2050 climate.  
-3. **Niche‑stability metric**: `delta_Suitability = mean(suitability_2050) – mean(suitability_2005‑2020)`.  
+3. **Niche‑stability metric**: `delta_suitability = mean(suitability_2050) – mean(suitability_2005‑2020)`.  
 4. **Threshold sweep** (FR‑005): Evaluate thresholds 0.49, 0.51, 0.55, 0.60 (baseline 0.5 ± {0.01, 0.05, 0.10}); record false‑positive/negative rates.  
 5. **Hierarchical bootstrap** (FR‑010):  
    - Level 1: Resample species with replacement.  
    - Level 2: Within each species, resample spatial blocks.  
-   - Perform 10 000 iterations on `delta_Suitability`.  
+   - Perform 10 000 iterations on `delta_suitability`.  
 6. **Multiple‑comparison correction**: Apply Benjamini‑Hochberg (FDR = 0.05) across the four threshold tests (FR‑005).  
 7. **Report generation**: Store all metrics in `metrics/model_performance.json` (schema `model_metrics.schema.yaml`) and a summary CSV in `results/summary_table.csv`. Append the disclaimer `"Findings are associational and assume niche stability"` to every report file (FR‑008).  
 
