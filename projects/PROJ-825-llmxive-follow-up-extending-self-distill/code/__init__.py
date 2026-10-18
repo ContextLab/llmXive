@@ -1,3 +1,3 @@
 """
-Code package initialization.
+Top-level package for the project.
 """

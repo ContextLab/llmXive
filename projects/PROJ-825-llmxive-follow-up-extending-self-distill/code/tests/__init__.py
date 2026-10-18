@@ -1,3 +1,3 @@
 """
-Test suite package.
+Package marker for test modules.
 """

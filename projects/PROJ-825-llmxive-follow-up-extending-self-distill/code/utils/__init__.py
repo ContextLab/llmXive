@@ -1,3 +1,3 @@
 """
-Package marker for the utils submodule.
+Package marker for utility modules.
 """

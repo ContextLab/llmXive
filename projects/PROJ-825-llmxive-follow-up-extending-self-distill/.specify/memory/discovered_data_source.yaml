@@ -1,17 +1,16 @@
 status: none
-intent: ALFWorld and WebShop environment datasets with Qwen2.5-0.5B and retriever
-  models python package dataset
+intent: ALFWorld WebShop environment datasets Qwen2.5-0.5B retriever HuggingFace python
+  package dataset
 required_fields:
-- step
-- environment
-- observation
+- environment_name
+- task_id
+- initial_state
+- goal_description
+- observation_text
 - action
 - reward
-- done
-- token_entropy
-- context_stability
-- gating_score
-- retrieved_context_id
-cache_key: c1f85d41b0c3a37b170f6d129b127e38a24364972dbcb4bf83c0802168d8f96e
-searched_at: '2026-10-14T00:50:57.898246+00:00'
+- episode_length
+- trajectory
+cache_key: 6cdf0b34d2c5f458916ac18eb016e2966cea43db9dd02e58268146c806b94a71
+searched_at: '2026-10-18T14:35:16.412985+00:00'
 retry_count: 1

@@ -1,3 +1,3 @@
 """
-Package marker for the metrics submodule.
+Package marker for metric utilities.
 """

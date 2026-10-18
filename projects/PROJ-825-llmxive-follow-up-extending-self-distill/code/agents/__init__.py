@@ -1,3 +1,3 @@
 """
-Package marker for the agents submodule.
+Package marker for agent implementations.
 """

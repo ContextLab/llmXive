@@ -1,74 +1,54 @@
+T000b:
+  task: b94b1edd8b495314702152e615fa498a2e6bd8be4cfeb12fc02d1e007ee21684
+T000c:
+  task: 4358c323c74c577554ac36ebc90a3df0650b99e10ada306623f6c71a0bb57619
+T000d:
+  task: a55ccdcd1b54497a848017283551aa4fb5d984bb45ebfbe6e703a8b23ba72db1
+T000e:
+  task: 262c49b3e57fd1e46fbe78a99b3ac61602da0faaea8cf744b85e9e854bbe77c3
 T001:
   task: 193e1bf6ef7e4eecfaa25e507920d1e1ff12e9c9bac00849e626a19cf4969900
 T002:
-  task: f83f2a546e5c1d58794c524a26f004a3903717a83af668361cbd9bb85fb1b89a
+  task: 953c3609fe967361196da0170e4701ad10b53d1807160651f9cab386655cfe49
 T003:
-  task: ff86d068e4e90793853ccf3a69ae1e23f2fa310862d557dc1252192cd4b05c3d
+  task: dfc5712442715badcc07a411f2e73cf306afad23214dfae5bf173c5cad908665
 T004:
-  task: 377fe2f0f8e382aaaed5e7c0a303d5808399070058d4386982059eca185daa9c
+  task: 4257a460ce54c55699b2130ee189f576c9a48973ac516d24eb55a0210a05019f
 T005:
-  reason: 'Requested task execution failed; rerun successfully: code/scripts/verify_lint_t005.sh
-    exit=1'
-  task: a0d054ab2f1bcf6983c044e177c0d4c70761dac7e3989cdcb06ae8b843ce777b
+  task: b922d96f9edcb60fa9eb7176bc1ab68ecd6374b9ca6edc4833d961138ecc94b1
 T006:
-  task: 3eced8a1ff1ca2b4bd9cec9ae3c6f689cf4f8e2eb3048512af6b75a5254a1c6b
+  task: 6947fc9e5d4187cacff8d82a1fdcd96cea8ac4c21ad22b7c7205e31bebe0058b
 T007:
-  reason: "The logger and test files exist and the historical pytest run passed, but\
-    \ the required contract `training_run.schema.yaml` is MISSING from the project\
-    \ \u2014 the test's schema validation step (`SCHEMA_PATH = .../contracts/training_run.schema.yaml`)\
-    \ would fail on a fresh run, and the task's verification criterion explicitly\
-    \ requires round-trip validation against that schema. The implementer must add\
-    \ the schema (with fields matching what the logger emits: variant, env, seed,\
-    \ step, reward, cpu_time_sec, peak_memory_mb, run_id, timestamp) so the test passes\
-    \ against a real, present contract."
-  task: d5ca8a19dd361dbbdd528295b209fc0175a57685986505c2ca6550c84c37c3b7
+  task: 3c73ab736b3ad20b5bf45c48c35200874ce32232c6d272165eefb6f375515cf1
 T008:
-  reason: 'The wrapper files exist and do raise `RuntimeError` on missing packages
-    with no mock fallback, but the recorded test run (`code/.tasks/T008...log`, exit
-    2) shows the `environments` package is broken: `code/environments/__init__.py`
-    tries to import `create_alfworld_env` and `verify_alfworld_install`, which do
-    not exist in `alfworld_env.py`, so importing the wrapper via the package fails
-    with an `ImportError` unrelated to the intended loud-failure behavior. Fix `__init__.py`
-    (or add the missing helpers) and re-run `code/tests/test_environment_wrappers.py`
-    so it passes and actually demonstrates t'
-  task: ba733a71d5516e1fd99b632b5eb0d75f3ca0b488b83878855c9ebc844636b861
+  task: c04c17aa8b856a2cf75c8c0a03b41c34516c84655a9f0ae444ccdfbfa7a59bd2
 T009:
-  reason: "The file `code/agents/base_agent.py` exists and defines a reasonable abstract\
-    \ RL loop interface, but the required verification `python -c \"from code.agents.base_agent\
-    \ import BaseAgent\"` cannot succeed: (1) there is no `code/agents/__init__.py`\
-    \ package marker in the evidence (only `code/utils/__init__.py` was confirmed),\
-    \ so `code.agents` is not an importable package; (2) `base_agent.py` uses `from\
-    \ config import TrainingConfig, ...` and `from utils.logging import ...`, which\
-    \ only resolve if `code/` itself is on `sys.path` \u2014 running the verification\
-    \ from the project root (where `code.agents...` r"
-  task: 78c10ba4845ef84b856db68c26dc12f3507b7d199326bdb879a3a4c18fdf99de
+  task: dd7178d2147c9ea7f9b22efe0a87d9f633c98b0144d063438b9dd05599d5ff9d
 T010:
-  reason: "The profiler and test exist and are non-stub, but the task's verification\
-    \ explicitly requires recording `cpu_time_sec` and `peak_memory_mb`, while the\
-    \ implementation records `cpu_time` and `rss_memory_mb` (per-step RSS, not peak\
-    \ per step) \u2014 the field names/semantics do not match the stated requirement.\
-    \ Additionally, there is no execution evidence (e.g., pytest output) that the\
-    \ tests actually pass, and the test asserting `metrics.cpu_time >= 0.01` after\
-    \ a 0.01s sleep is fragile since `time.process_time()` may register ~0 CPU time\
-    \ during a sleep."
-  task: 89ba5e27ee3aa60fd8bac6fe40e63aff622dacaaa729490e868eb4199357701b
+  task: 385196c886766c4e99fdb9c2dc75a4f8f98aebf53c4f4e1700d1988353d86156
 T011:
-  reason: 'Requested task execution failed; rerun successfully: code/scripts/dry_run_memory_check.py
-    exit=1'
-  task: 9ffd29fedad9e09f1f685cf5e23c364b38c0bdcb94482298dd84aaf01e5c2d0c
+  task: b453aee8ec72b7ef2b8ae15e1bb5ee55c5cdfda2ad8a6f43a81c3d9790099d01
 T012:
-  task: 05456f8e6c673d8bc28731ca1869e5dc3fe4e807cfa2face99c7aef09a081402
+  task: 4d0f243e7d0cad61837799fc2c3a27276dfd2c52e231b536b10379a5959455a0
 T013:
-  task: 6fb42aa8d92acbfde679895153db092fcca6822bac181f11b72ef6758b46105a
-T014:
-  task: b2d68671b195591f7b4607d7303e91b730cc87e6332ad32629113661f662aadf
+  task: b8ca91a8ac8e1f990bad1e0239095409ce91ca93f0025c90048237ba6f4f998e
+T014a:
+  task: 9c3cb305d9ee8cd27517ddd902fda8b215e902f4a567f8b97f23c56c2e34d852
+T014b:
+  task: 1044f9b2e1ab76a7ec0c77f18bf4f4abd1b90573975ea2c2d76cd6d4231049d7
 T015:
-  task: fc1a80b85a85e84626e79079c5687de92095a5789a016cc2db300c7b5957c083
-T016:
-  task: 999f116b6b7087d1cb9ea8684a3bd97ba094089dd605e1cc38abf30c55721d38
+  task: db9c62371996b49d1e2fff47e1b9ad9edd61d20b1df48c0f5c96da0a77ae7ec3
+T015a:
+  task: 40636d9eea82a4bb6ab5e7d69520f7e39db6d957e04217965acea4f8428f3e2e
+T016a:
+  task: f8e70df17edaf41b92eae4f50df1fbfeead45116c5bb50f7e1fa6b93260dd0cc
+T016b:
+  task: be2e63d0c1af223405316b0a5f4ed42b9df5aec61f54353fd3d3af793c430788
 T017:
-  task: 6772ea6726acede4cbe0c7387b152236a7d1c11322a88a6bdd18c9e097319f97
+  task: e63d5399f26cd8f3515fa23a61d59d12a368b16d893246c32c0e08dd17a44063
 T018:
-  task: 19d8f0bcf482251370f859008a9d196d9bb7fee02c509f2db50dcf28cdfa85db
+  task: b5925ffbd04fc0833c5876932d19e561e63b3d826a131ffb64eb0778084f8651
 T019:
-  task: 8897de0891509f683d68d09b078f5fba77b17cb7d3c69585a9dff580b4761208
+  task: dd0ea2cff057fd81dd7b20289eaea2d9451ed83e9772815c2d29efdbbc2bed7a
+T020:
+  task: 4b5892c610960cc7edfd858d16ade7e4acfd63fce1e58eb2bf1f3f87697e7ff3
