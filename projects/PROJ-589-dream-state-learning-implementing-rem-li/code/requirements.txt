@@ -6,6 +6,7 @@ accelerate==0.20.0
 pytest==7.3.1
 scipy==1.10.1
 numpy==1.24.3
+pandas==2.0.3
+pyyaml==6.0
 ruff==0.0.275
 black==23.3.0
-pyyaml  # auto-added: imported by run-book but missing from venv

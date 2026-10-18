@@ -1,0 +1,31 @@
+T001:
+  reason: "The `code/requirements.txt` and `code/config.py` files exist and the config\
+    \ module imports cleanly (as shown by the pytest log), but there is no recorded\
+    \ evidence that `pip install -r code/requirements.txt` was actually run and succeeded.\
+    \ Add a command\u2011execution log (or similar proof) showing the pip install\
+    \ completing without errors."
+  task: c1c042daeb1e86fb984ff3075e3d3961b6603d6a951d3dfafe44e3aac19a881f
+T002a:
+  task: a646a90bad7336a59fbc351037e9ab92d2350a493ef9e668aa7d170e92cfffce
+T002b:
+  task: e8568f1eb777439b96db668244b2df613a6de065aac92634ff92d0e99b3ce2e9
+T003:
+  task: cb966e6faa9c429375eed09031ccda16a2c7acaf05661b99b5780124a7bab0c3
+T004:
+  task: 740262d3af4bdfc3883dfb43a8c8466bf223e80158c9d149c7b05d0aa6666289
+T005:
+  task: 78f33c2dc73e312de6a1cace4859c4b9b450a81923cc409cb5eb39c039af0a41
+T006:
+  task: b67aed75fe5b033e080200dee542602b03ffd11bdf4b28ea3ac038aa2f3332c6
+T007:
+  task: 6d0befc76a3356e88afd27e3121405b0bb6a4c7639e37b699ed5efb55f553ebe
+T008:
+  task: 6ebbb2a104795994e9e60c0a1fed7b23a7bd24d02ed6dc7a81ceccc05f5cc7c0
+T009:
+  task: beac5ee12705e71aacbed12f4bced3952338f00e9e89599bcd347fe4eb4a90ac
+T010:
+  task: 9a0a729a074598b27031f68f762390e74152d7a6ffa5c3e5627af03d5eb75929
+T011:
+  task: 13f0a44f1a60596c0398cf369f0ffb41b513fb8242f727f5bd583819cdfb467d
+T012:
+  task: 7aa67af3418db323cb5963c429084d33ecaf5ddb9285730fc71eec8a132b8dde

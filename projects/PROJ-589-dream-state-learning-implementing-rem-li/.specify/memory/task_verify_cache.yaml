@@ -1,47 +1,9 @@
-T019:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no code, configuration, or log output showing that\
-    \ logging for wake/dream phase transitions, entropy metrics, or warm\u2011up status\
-    \ has been added. Without any artifact (e.g., modified training script, logging\
-    \ module, or sample log files), the task requirement is not satisfied. The next\
-    \ implementer must add the required logging statements and supply the resulting\
-    \ code and example logs."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided evidence contains only the Dream-State Learning feature specification\
-    \ and no code, script, or report that implements \u201Creporting for variance\
-    \ in final accuracy across temperature sweep.\u201D There is no artifact (e.g.,\
-    \ a generated report, logging output, or function) that computes or displays the\
-    \ variance of final accuracies over different temperature settings, so the task\
-    \ requirement is unmet."
-T053:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided evidence only describes the Dream\u2011State Learning feature and\
-    \ its user stories; there is no code, configuration, benchmark results, or documentation\
-    \ showing batching or data\u2011loading optimizations applied across the stories.\
-    \ Consequently, the required performance\u2011optimization artifacts are missing."
-T054:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any files under `tests/unit/` was provided; the response contains
-    only a feature specification and no actual unit test code or files, so the required
-    additional unit tests are missing.
-T055:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, checkpoints, or evaluation reports were provided, and the\
-    \ only material shown is a feature specification for a Dream\u2011State Learning\
-    \ experiment, which does not address the \u201CT055 Security hardening\u201D task\
-    \ at all. Consequently, there is no evidence that the required security\u2011\
-    hardening deliverables exist or meet the specification."
-T056:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No validation output, log file, or report for the `quickstart.md` check is present.
-    The implementer provided only the feature specification for Dream-State Learning,
-    with no evidence that the quickstart documentation was parsed, validated, or that
-    any errors were reported or fixed. Consequently the required artifact for task
-    T056 is missing.
+  h: 8f0aa634cbd2fb34df4998464ba6d48add13e80ed7f7d17c1a7710f7bb436add
+  r: "The `code/requirements.txt` and `code/config.py` files exist and the config\
+    \ module imports cleanly (as shown by the pytest log), but there is no recorded\
+    \ evidence that `pip install -r code/requirements.txt` was actually run and succeeded.\
+    \ Add a command\u2011execution log (or similar proof) showing the pip install\
+    \ completing without errors."
+  sig: 6a7f954a6434d4699b1a173d46aa53617f1f9b656e9cc63cbe89dbbb23af41cd
