@@ -52,7 +52,7 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'utils.config'
 
 - python -m pytest tests/ -v -> rc=2
-OJ-249-the-impact-of-digital-decluttering-on-co/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89
+ering-on-co/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89
   /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-249-the-impact-of-digital-decluttering-on-co/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
@@ -65,8 +65,9 @@ OJ-249-the-impact-of-digital-decluttering-on-co/lib/python3.11/site-packages/mat
 ERROR tests/test_linting_config.py
 ERROR tests/unit/test_bootstrap_ci.py
 ERROR tests/unit/test_config.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 24 warnings, 3 errors in 1.90s ========================
+ERROR tests/unit/test_edge_cases.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 24 warnings, 4 errors in 1.99s ========================
 
 
 
@@ -85,22 +86,28 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/processed/aggregated_compliance.csv` is declared but was NOT written. Scripts referencing it:
     - `code/compliance/compute_compliance.py` — NOT invoked by the run-book
+    - `code/compliance/tests/test_compute_compliance.py` — NOT invoked by the run-book
+    - `code/pipeline/merge_data.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/aggregated_compliance.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/change_scores.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/change_scores.py` — NOT invoked by the run-book
     - `code/analysis/generate_sensitivity_report.py` — NOT invoked by the run-book
     - `code/analysis/statistical_summary.py` — NOT invoked by the run-book
+    - `code/pipeline/merge_data.py` — NOT invoked by the run-book
     - `code/pipeline/validate_quickstart.py` — NOT invoked by the run-book
     - `code/viz/generate_plots.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/change_scores.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/compliance_flags.json` is declared but was NOT written. Scripts referencing it:
     - `code/compliance/compute_compliance.py` — NOT invoked by the run-book
+    - `code/compliance/tests/test_compute_compliance.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/compliance_flags.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/descriptive_baseline.csv` is declared but was NOT written. Scripts referencing it:
     - `code/pipeline/handle_dropouts.py` — NOT invoked by the run-book
+    - `code/pipeline/merge_data.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/descriptive_baseline.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/exclusions.json` is declared but was NOT written. Scripts referencing it:
     - `code/pipeline/handle_dropouts.py` — NOT invoked by the run-book
+    - `code/pipeline/merge_data.py` — NOT invoked by the run-book
     - `code/validation/attention_check.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/exclusions.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/synthetic_baseline.csv` is declared but was NOT written. Scripts referencing it:

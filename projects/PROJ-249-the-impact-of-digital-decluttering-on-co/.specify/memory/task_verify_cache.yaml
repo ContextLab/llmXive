@@ -1,36 +1,27 @@
 T001:
   c: true
-  h: 6c8ec7c18131808339200bf77d76c494af18810b71940cf34da2450334173e6e
-  r: 'All required artifacts exist and match the spec: `code/config/study_config.yaml`
-    contains exactly the listed keys (seed, n_participants, dropout_rate, per-metric
-    effect_sizes, practice_effect_grid [0.0,0.2,0.4], bootstrap_resamples 10000, start_date,
-    pilot_n 5); `code/requirements.txt` pins all dependencies with exact versions;
-    `quickstart.md` documents the exact command `python -m code.pipeline.run_all --config
-    code/config/study_config.yaml`; the required directories (`code/scoring/`, `analysis/`,
-    `validation/`, `viz/`, `tests/`, `data/raw|processed|results/`) all exist; and
-    `data/checksums.s'
-  sig: 21cf10227cd280704a8ed2729a834fd86f5411543c2fb48a694f3a7ffa645ea1
-T002:
-  c: false
-  h: b44788a3d5b805bd6c05d633a34196cca9c73fc51f37a6d98c34bd654c8dd4db
-  r: "The scoring modules and unit\u2011test file exist and their code matches the\
-    \ required logic, but the test suite cannot run as\u2011is: the required `code/config/study_config.yaml`\
-    \ (providing `pilot_n` and `seed`) is missing, and there is no evidence that `pytest\
-    \ code/tests/test_scoring.py` was executed and passed. Without the config file\
-    \ and a passing test run, the task\u2019s verification step is not satisfied."
-  sig: 662595c4b00cab008f8cacdda7316cb6a0dc01cedee1e4a6a3f7d4a54fec808d
+  h: 93a00225fc0f4279761aa1b7a248e84f0b9edc0ed642212762181fecdbdd008c
+  r: I verified the directory layout (`code/` with scoring/analysis/validation/viz,
+    `code/tests/`, `data/raw|processed|results`), `study_config.yaml` containing all
+    required keys with correct types and values (grid [0.0,0.2,0.4], bootstrap 10000,
+    pilot_n 5, per-metric effect_sizes), `requirements.txt` with fully pinned versions,
+    `quickstart.md` naming the exact command `python -m code.pipeline.run_all --config
+    code/config/study_config.yaml`, and a non-empty `data/checksums.sha256` manifest
+    covering files under `data/`. Execution evidence is present via `data/results/pipeline_status.json`
+    and `smoke
+  sig: 62125f9737868b319ad243a093ee8e7cae709a43faee8dc6f9f4a4b7adb24683
 T003:
   c: false
-  h: d288e2e05d2906fcd4fd381986174ade1cac5c11c204650473e1b0021784bc79
-  r: 'The script is not deterministic as required: `simulated_measurements.csv` uses
-    `uuid.uuid4()` for record IDs (random per run) and `hash(participant_id)` for
-    timestamps (Python string hashing is salted per process unless PYTHONHASHSEED
-    is fixed), so re-running cannot produce byte-identical CSVs. It also violates
-    explicit requirements by using "lightweight internal scoring to avoid reliance
-    on buggy external functions" instead of deriving measurements via `code/scoring/`,
-    and dropout is implemented as complete absence of post data rather than "dropout
-    after Day 3." Additionally, there is no evid'
-  sig: 9f3f257facba097fc2a641dc8a358e6bfbcd105989bc5daf84bf5150517f315e
+  h: 577051351f8dc2934b31e9ee542d6f0c195c076a82ac326fc373c59548f32b3a
+  r: "The script and output files exist, but several explicit requirements are violated:\
+    \ (1) measurements are scored by ad-hoc internal `_score_sart`/`_score_ospan`\
+    \ functions that the code itself comments \"avoids buggy external functions\"\
+    \ instead of being \"derived from the trial files via `code/scoring/`\" as required,\
+    \ and the config effect-size shifts are applied directly to post scores so they\
+    \ no longer derive from the trial-level data at all; (2) re-running is not byte-identical\
+    \ \u2014 trial CSVs and `simulated_measurements.csv` are opened in append mode\
+    \ (`mode=\"a\"`) without clearing, so a second run d"
+  sig: 2faed7a4aa68f4220261e19a4ec5fd842f64e86bc3998028f8fa574998f8a35c
 T009:
   c: false
   h: 4597374f973ff302b8c066b016acbdd6656e3a50917d9c2ce369b9ffe4cb8fd8

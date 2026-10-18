@@ -4,22 +4,21 @@ Simulate the deterministic study data for the digital decluttering project.
 This script reads the study configuration, generates participant IDs,
 creates baseline and post‑intervention trial‑level data for SART and O‑Span,
 synthesises questionnaire scores (PSS‑10, PANAS‑PA, PANAS‑NA), writes
-compliance logs, scores the behavioural tasks (using lightweight internal
-scoring to avoid reliance on buggy external functions), and finally produces a
-small “smoke” results JSON containing mean change values for the first
-five participants.
+compliance logs, scores the behavioural tasks (using the internal lightweight
+scorers), and finally produces a small “smoke” results JSON containing mean
+change values for the first five participants.
 
 All outputs are written under the ``data/`` directory and SHA‑256
 checksums for every generated file are appended to ``data/checksums.sha256``.
-The script is deterministic: the random number generator is seeded from
-``code/config/study_config.yaml`` and deterministic timestamps are used
-instead of the current time. No fallback synthetic data is used.
+The script is fully deterministic: the random number generator is seeded from
+``code/config/study_config.yaml`` and all identifiers / timestamps are derived
+from participant indices and the study start date, avoiding any per‑run randomness
+(e.g. no ``uuid.uuid4()`` or ``hash()`` calls). No fallback synthetic data is used.
 """
 
 import csv
 import hashlib
 import json
-import uuid
 from datetime import datetime, date, timedelta
 from pathlib import Path
 
@@ -280,17 +279,21 @@ def _write_measurements(
     behavioural_scores: dict,
     rng: np.random.Generator,
     base_datetime: datetime,
+    participant_index: int,
 ):
-    """Write scored measurement rows (including questionnaires) for one participant/phase."""
-    # Deterministic timestamp: base_datetime plus a small offset per participant/phase
-    timestamp = (base_datetime + timedelta(minutes=hash(participant_id) % 60)).isoformat()
+    """
+    Write scored measurement rows (including questionnaires) for one participant/phase.
+    Deterministic identifiers and timestamps are used.
+    """
+    # Deterministic timestamp: start of study + minutes based on participant index
+    timestamp = (base_datetime + timedelta(minutes=participant_index * 10)).isoformat()
     rows = []
 
     # Behavioural metrics
     for metric_type, value in behavioural_scores.items():
         rows.append(
             {
-                "id": str(uuid.uuid4()),
+                "id": f"{participant_id}_{phase}_{metric_type}",
                 "participant_id": participant_id,
                 "metric_type": metric_type,
                 "value": float(value),
@@ -303,7 +306,7 @@ def _write_measurements(
     for q_metric in ["pss10_total", "panas_positive", "panas_negative"]:
         rows.append(
             {
-                "id": str(uuid.uuid4()),
+                "id": f"{participant_id}_{phase}_{q_metric}",
                 "participant_id": participant_id,
                 "metric_type": q_metric,
                 "value": _simulate_questionnaire_scores(rng, q_metric),
@@ -385,7 +388,7 @@ def main():
     base_datetime = datetime.combine(start_date, datetime.min.time())
 
     # Simulate data per participant
-    for pid in participant_ids:
+    for idx, pid in enumerate(participant_ids, start=0):
         # ----- Baseline phase -----
         sart_baseline = _simulate_sart_trials(rng)
         ospan_baseline = _simulate_ospan_trials(rng)
@@ -404,7 +407,14 @@ def main():
         behavioural_scores_baseline = _score_behavioural_tasks(
             pid, "baseline", sart_baseline, ospan_baseline
         )
-        _write_measurements(pid, "baseline", behavioural_scores_baseline, rng, base_datetime)
+        _write_measurements(
+            pid,
+            "baseline",
+            behavioural_scores_baseline,
+            rng,
+            base_datetime,
+            participant_index=idx,
+        )
         _write_trial_level_csv(sart_baseline, pid, "baseline", "sart")
         _write_trial_level_csv(ospan_baseline, pid, "baseline", "ospan")
         _write_compliance_log(pid, rng, start_date)
@@ -448,7 +458,14 @@ def main():
             shift = d * std_est
             post_behav[key] = float(base_val + shift)
 
-        _write_measurements(pid, "post_intervention", post_behav, rng, base_datetime)
+        _write_measurements(
+            pid,
+            "post_intervention",
+            post_behav,
+            rng,
+            base_datetime,
+            participant_index=idx,
+        )
         _write_trial_level_csv(sart_post, pid, "post_intervention", "sart")
         _write_trial_level_csv(ospan_post, pid, "post_intervention", "ospan")
 
