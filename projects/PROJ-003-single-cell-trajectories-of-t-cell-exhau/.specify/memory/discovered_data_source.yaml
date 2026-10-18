@@ -1,14 +1,15 @@
 status: none
-intent: single-cell RNA-seq count matrix GSE136103 GSE111075 GSE138852 GEO SRA python
-  package dataset
+intent: download scRNA-seq NCBI GEO GSE136103 GSE111075 GSE138852 via scvelo python
+  package
 required_fields:
+- gene_id
+- gene_name
 - cell_barcode
-- gene_symbol
 - raw_counts
 - mitochondrial_percent
-- sample_id
-- therapy_response_label
-- marker_gene_presence
-cache_key: e090a0012e0528b7d9fd3389959ba421425ba8f76e39790c202811f60c09b0fd
-searched_at: '2026-10-18T14:14:30.678715+00:00'
+- sample_metadata
+- velocity_vectors
+- pseudotime
+cache_key: 30cdb364a0aa26c309ffe4641d8678357cf67a3ca2f4e455c602f1193e113fbc
+searched_at: '2026-10-18T16:11:51.736368+00:00'
 retry_count: 1

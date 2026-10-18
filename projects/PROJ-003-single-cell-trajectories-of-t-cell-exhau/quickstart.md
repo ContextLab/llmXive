@@ -80,10 +80,10 @@ python code/velocity.py --input data/processed/ --output data/processed/
 | Path | Description |
 |------|-------------|
 | `data/results/fork_points/<dataset>_fork_points.csv` | Ranked fork-point genes (`gene_symbol`, `branch_id`, `timing_rank`). |
-| `data/results/validation/power_analysis.json` | Power-analysis result (FR-011). |
-| `data/results/validation/<dataset>_enrichment.json` | BH-corrected enrichment p-values, bootstrap CI. |
+| `data/results/validation/power_analysis.json` | Power‑analysis result (FR‑011). |
+| `data/results/validation/<dataset>_enrichment.json` | BH‑corrected enrichment p‑values, bootstrap CI. |
 | `data/results/report/final_report.html` | Final report with heatmaps, statistics, and the observational disclaimer. |
-| `logs/lint.txt` | Evidence that `ruff check.` and `black --check.` pass (SC-001). |
+| `logs/lint.txt` | Evidence that `ruff check.` and `black --check.` pass (SC‑001). |
 
 ## Configuration (seed pinning)
 
@@ -98,5 +98,5 @@ you need a different seed for a controlled experiment.
 | `ruff`/`black` not found | Linting tools not installed | `bash code/setup_lint.sh` installs them automatically |
 | `download_data.py` exits with error | GEO endpoint temporarily unavailable | Rerun later; the script retries and logs failures to `logs/download.log` |
 | scVelo fails or hangs | Missing spliced/unspliced layers | Check `logs/velocity.log`; the dataset is flagged and excluded from cross-dataset validation |
-| Report missing disclaimer | Modified `report.py` | Use the unmodified version; the FR-009 disclaimer is inserted automatically |
+| Report missing disclaimer | Modified `report.py` | Use the unmodified version; the FR‑009 disclaimer is inserted automatically |
 ```

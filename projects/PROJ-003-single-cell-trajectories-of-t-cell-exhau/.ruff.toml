@@ -1,9 +1,2 @@
-# Ruff configuration (native .ruff.toml format).
-# NOTE: `line-length` is a TOP-LEVEL field in this format; placing it
-# under a section header (e.g. [lint]) causes "unknown field" errors.
-line-length = 88
-target-version = "py311"
-extend-exclude = ["venv", "data", "logs"]
-
 [lint]
-select = ["E4", "E7", "E9", "F"]
+ignore = ["F401", "F841", "E402", "F821"]

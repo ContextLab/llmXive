@@ -7,16 +7,15 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_data.py  --datasets GSE136103 GSE127465 GSE111075 GSE138852  --output data/raw/ -> rc=-1
-ta/raw/GSE111075/counts/GSE111075_RAW.tar
-2026-10-18 14:12:46,295 - INFO - File filelist.txt has only 4 genes; trying next candidate
-2026-10-18 14:12:46,295 - WARNING - Could not parse GSE111075_RAW.tar: 'utf-8' codec can't decode byte 0x8b in position 513: invalid start byte
-2026-10-18 14:12:46,295 - ERROR - Failed to process GSE111075: Could not extract a valid gene list for GSE111075 from any downloaded file
-2026-10-18 14:12:46,298 - INFO - Processing GSE138852 ...
-2026-10-18 14:12:46,390 - WARNING - Metadata fetch attempt 1/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-18 14:12:48,477 - WARNING - Metadata fetch attempt 2/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-18 14:12:52,559 - WARNING - Metadata fetch attempt 3/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-18 14:12:58,657 - WARNING - Metadata fetch attempt 4/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-18 14:13:06,745 - WARNING - Metadata fetch attempt 5/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+SE111nnn/GSE111075/suppl/GSE111075_RAW.tar -> /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/data/raw/GSE111075/counts/GSE111075_RAW.tar
+2026-10-18 16:10:18,198 - INFO - File filelist.txt has only 4 genes; trying next candidate
+2026-10-18 16:10:18,198 - WARNING - Could not parse GSE111075_RAW.tar: 'utf-8' codec can't decode byte 0x8b in position 513: invalid start byte
+2026-10-18 16:10:18,198 - ERROR - Failed to process GSE111075: Could not extract a valid gene list for GSE111075 from any downloaded file
+2026-10-18 16:10:18,201 - INFO - Processing GSE138852 ...
+2026-10-18 16:10:18,371 - WARNING - Metadata fetch attempt 1/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+2026-10-18 16:10:20,472 - WARNING - Metadata fetch attempt 2/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+2026-10-18 16:10:24,632 - WARNING - Metadata fetch attempt 3/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+2026-10-18 16:10:30,800 - WARNING - Metadata fetch attempt 4/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
 
 
 [TIMEOUT after 120s]

@@ -880,3 +880,38 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-18T14:08:07Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: code.run_all reproduces byte-identical final artifacts
+  claim_id: c_2ff4991d
+  context: 'code.run_all reads the global random seed from code/config.yaml (`seed:
+    42`), logs each stage to `logs/<stage>.log`, and reproduces byte-identical final
+    artifacts under `data/results/`.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'code.run_all reads the global random seed from code/config.yaml (seed:
+    42), logs each stage to logs/<stage>.log, and reproduces byte-identical final
+    artifacts under data/results/'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T16:07:53Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: download script retries and logs failures
+  claim_id: c_21e1e448
+  context: download_data.py exits with error | GEO endpoint temporarily unavailable
+    | Rerun later; the script retries and logs failures to `logs/download.log`
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the script retries and logs failures to logs/download.log
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T16:07:53Z'
