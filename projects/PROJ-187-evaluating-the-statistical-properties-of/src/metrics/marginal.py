@@ -8,6 +8,10 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+# Ensure compatibility with test suite expecting np.trapezoid (alias for np.trapz)
+if not hasattr(np, "trapezoid"):
+    np.trapezoid = np.trapz
+
 log = logging.getLogger(__name__)
 
 ZERO_VARIANCE_FLAG = "zero_variance_synthetic"

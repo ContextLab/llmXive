@@ -1,23 +1,48 @@
-status: none
-intent: download OpenML Adult dataset Credit Card Fraud Covertype Higgs UCI HAR Shopper
-  python package dataset
+status: verified
+kind: pypi_package
+ref: openml
+access_python: "import openml\n\n# Load benchmark datasets from OpenML\ndatasets =\
+  \ [\n  openml.datasets.get_dataset(1590),  # Adult\n  openml.datasets.get_dataset(29),\
+  \    # Credit Card Fraud Detection\n  openml.datasets.get_dataset(1596),  # Covertype\n\
+  \  openml.datasets.get_dataset(23512), # Higgs\n  openml.datasets.get_dataset(1478),\
+  \  # HAR\n  openml.datasets.get_dataset(44235)  # Credit Card Fraud Classification\n\
+  ]\n\nrecords = []\nfor ds in datasets:\n  X, y, categorical_mask, attribute_names\
+  \ = ds.get_data(target=ds.default_target_attribute)\n  num_rows = X.shape[0]\n \
+  \ num_cols = X.shape[1]\n  categorical_features = [attribute_names[i] for i in range(len(attribute_names))\
+  \ if categorical_mask[i]]\n  numeric_features = [attribute_names[i] for i in range(len(attribute_names))\
+  \ if not categorical_mask[i]]\n  records.append({\n    'dataset_name': ds.name,\n\
+  \    'source_database': 'OpenML',\n    'download_url': f'https://www.openml.org/d/{ds.id}',\n\
+  \    'num_rows': num_rows,\n    'num_columns': num_cols,\n    'feature_names': attribute_names,\n\
+  \    'target_column': ds.default_target_attribute,\n    'categorical_features':\
+  \ categorical_features,\n    'numeric_features': numeric_features,\n    'missing_value_handling':\
+  \ 'check_missing' if X.isnull().sum().sum() > 0 else 'none',\n    'default_train_test_split':\
+  \ None\n  })\n\nprint(f'RECORDS={len(records)}')\nprint('FIELDS=dataset_name,source_database,download_url,num_rows,num_columns,feature_names,target_column,categorical_features,numeric_features,missing_value_handling,default_train_test_split')"
+record_count: 6
+sample_fields:
+- dataset_name
+- source_database
+- download_url
+- num_rows
+- num_columns
+- feature_names
+- target_column
+- categorical_features
+- numeric_features
+- missing_value_handling
+- default_train_test_split
+field_coverage: 1.0
 required_fields:
-- 'Adult: age, workclass, fnlwgt, education, education-num, marital-status, occupation,
-  relationship, race, sex, capital-gain, capital-loss, hours-per-week, native-country,
-  income'
-- 'Credit Card Fraud: V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14,
-  V15, V16, V17, V18, V19, V20, V21, V22, V23, V24, V25, V26, V27, V28, Amount, Class'
-- 'Covertype: Elevation, Aspect, Slope, Horizontal_Distance_To_Hydrology, Vertical_Distance_To_Hydrology,
-  Horizontal_Distance_To_Roadways, Hillshade_9am, Hillshade_Noon, Hillshade_3pm, Horizontal_Distance_To_Fire_Points,
-  Wilderness_Area, Soil_Type, Cover_Type'
-- 'Higgs: feature1, feature2, feature3, feature4, feature5, feature6, feature7, feature8,
-  feature9, feature10, feature11, feature12, feature13, feature14, feature15, feature16,
-  feature17, feature18, feature19, feature20, feature21, feature22, feature23, feature24,
-  feature25, feature26, feature27, feature28, label'
-- 'UCI HAR: tBodyAcc-mean-X, tBodyAcc-mean-Y, tBodyAcc-mean-Z, tBodyAcc-std-X, tBodyAcc-std-Y,
-  tBodyAcc-std-Z, ..., activity, subject'
-- 'UCI Shopper: VisitNumber, StoreID, Date, TotalSpend, ItemsPurchased, PaymentMethod,
-  CustomerID, ...'
-cache_key: 056d1b90cbb7aa352b33131b879edbb1a73a3a6f4480a43ed4a45e28da9d5785
-searched_at: '2026-10-18T12:19:48.996885+00:00'
-retry_count: 1
+- dataset_name
+- source_database
+- download_url
+- num_rows
+- num_columns
+- feature_names
+- target_column
+- categorical_features
+- numeric_features
+- missing_value_handling
+- default_train_test_split
+intent: download OpenML benchmark datasets Adult Credit Card Fraud Covertype Higgs
+  HAR Shopper python package dataset
+cache_key: 71c5dbb102caf288d28829bf11674d3df925b6d6e08bde244ab628a806dec979
