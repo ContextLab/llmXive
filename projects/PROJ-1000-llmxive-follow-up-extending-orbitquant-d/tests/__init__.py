@@ -1,3 +1,1 @@
-"""
-Placeholder package marker for the `tests` directory.
-"""
+# Placeholder for the tests package.

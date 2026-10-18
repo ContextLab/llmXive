@@ -1,33 +1,23 @@
 """
 Entry point for project initialization.
 
-This script creates the required directory structure under the `code/`
-package and prints a confirmation message. It is invoked by the quick‑start
-command:
-
+Usage:
     python -m code.main --phase init
-
-The script is deliberately simple: it validates the `--phase` argument,
-creates the directories, and prints ``Initialization complete`` so that
-the verification step can grep the expected phrase.
 """
 import argparse
 import sys
-from pathlib import Path
 
-from llmxive_toolkit import paths
+from llmxive_toolkit import paths, get_logger
 
-# -------------------------------------------------------------------------
-# Directory creation
-# -------------------------------------------------------------------------
-def _create_project_dirs() -> None:
+# Initialize logger (optional, can be omitted if not needed)
+log = get_logger(__name__)
+
+def _create_subdirectories():
     """
-    Create all required project‑owned directories.
-
-    The list includes the sub‑packages required by later tasks as well as
-    common data/processed and figures folders. Each call is idempotent.
+    Create all required sub‑directories under the `code/` package
+    and the `tests/` directory. Uses `llmxive_toolkit.paths` helpers
+    to ensure the directories are created inside the project root.
     """
-    # Code sub‑packages
     subdirs = [
         "analysis",
         "models",
@@ -41,42 +31,31 @@ def _create_project_dirs() -> None:
     ]
 
     for sub in subdirs:
+        # `paths.code` creates the directory if it does not exist.
         dir_path = paths.code(sub)
-        dir_path.mkdir(parents=True, exist_ok=True)
+        log.info(f"Created code subdirectory: {dir_path}")
 
-    # Tests package
-    paths.tests("").mkdir(parents=True, exist_ok=True)
+    # Ensure the top‑level `tests/` directory exists.
+    tests_path = paths.tests("")
+    log.info(f"Created tests directory: {tests_path}")
 
-    # Data folders
-    paths.data("raw").mkdir(parents=True, exist_ok=True)
-    paths.data("processed").mkdir(parents=True, exist_ok=True)
-
-    # Figures folder
-    paths.figures("").mkdir(parents=True, exist_ok=True)
-
-# -------------------------------------------------------------------------
-# CLI handling
-# -------------------------------------------------------------------------
-def _parse_args(argv: list) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Project initialization script")
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Project entry point.")
     parser.add_argument(
         "--phase",
-        choices=["init"],
+        type=str,
         required=True,
-        help="Initialization phase to run",
+        help="Initialization phase to run (currently only 'init' is supported).",
     )
-    # parse_known_args allows the quick‑start pipe to work without extra args
-    args, _ = parser.parse_known_args(argv)
-    return args
-
-def main(argv: list | None = None) -> int:
-    args = _parse_args(argv or sys.argv[1:])
+    args = parser.parse_args(argv)
 
     if args.phase == "init":
-        _create_project_dirs()
-        # The exact phrase is required by the verification grep
+        _create_subdirectories()
+        # Print the exact phrase expected by the verification step.
         print("Initialization complete")
-    return 0
+        return 0
+    else:
+        parser.error(f"Unsupported phase: {args.phase}")
 
 if __name__ == "__main__":
     sys.exit(main())
