@@ -1,0 +1,16 @@
+{
+  "mode": "control_shuffle",
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51
+  ],
+  "message": "Placeholder output \u2013 full implementation pending."
+}

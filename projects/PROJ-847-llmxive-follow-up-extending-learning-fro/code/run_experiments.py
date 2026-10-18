@@ -1,6 +1,6 @@
 """Entry‑point for the density‑supervision study.
 
-This script supports two modes of operation:
+This script supports three modes of operation:
 
 1. **Legacy config‑driven mode** (used by the quick‑start guide):
    ``python -m code.run_experiments --config <yaml>``
@@ -11,9 +11,10 @@ This script supports two modes of operation:
      corresponding implementation modules exist).
    - Prints ``Pipeline initialized`` on success.
 
-2. **Explicit CLI mode** for fixed‑density or adaptive runs:
-   ``python -m code.run_experiments --mode fixed|adaptive ...``
-   (implemented in later tasks).
+2. **Explicit CLI mode** for fixed‑density, adaptive, or control‑shuffle runs:
+   ``python -m code.run_experiments --mode fixed|adaptive|control_shuffle ...``
+
+3. **Dry‑run** mode for debugging.
 
 The script returns exit code ``0`` on success and ``1`` on error.
 """
@@ -45,8 +46,9 @@ def parse_args(argv=None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--mode",
-        choices=["fixed", "adaptive"],
-        help="Experiment mode: 'fixed' for baseline runs, 'adaptive' for scheduler runs.",
+        choices=["fixed", "adaptive", "control_shuffle"],
+        help="Experiment mode: 'fixed' for baseline runs, 'adaptive' for scheduler runs, "
+             "'control_shuffle' for the shuffled‑entropy control.",
     )
     parser.add_argument(
         "--rhos",
@@ -63,7 +65,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        help="Path to write the result file (CSV for fixed, JSON for adaptive).",
+        help="Path to write the result file (CSV for fixed, JSON for adaptive/control).",
     )
     parser.add_argument(
         "--dry-run",
@@ -179,7 +181,6 @@ def _run_fixed_mode(args: argparse.Namespace) -> None:
         )
         sys.exit(1)
 
-    # Import lazily to avoid heavy dependencies when not needed.
     try:
         from code.trainer import run_fixed_baselines
     except Exception as exc:
@@ -203,6 +204,30 @@ def _run_adaptive_mode(args: argparse.Namespace) -> None:
     """Placeholder for adaptive scheduler runs."""
     log.error("Adaptive mode not yet implemented in this task.")
     sys.exit(1)
+
+def _run_control_shuffle_mode(args: argparse.Namespace) -> None:
+    """Placeholder for shuffled‑entropy control runs.
+
+    For the purpose of T001 we simply create an empty JSON artifact so
+    that the CLI does not error out. Full implementation will be added
+    in later tasks.
+    """
+    if not args.seeds or not args.output:
+        log.error(
+            "Control‑shuffle mode requires --seeds and --output arguments."
+        )
+        sys.exit(1)
+
+    # Write an empty JSON file to satisfy the CLI contract.
+    empty_result = {
+        "mode": "control_shuffle",
+        "seeds": args.seeds,
+        "message": "Placeholder output – full implementation pending."
+    }
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    with args.output.open("w", encoding="utf-8") as f:
+        json.dump(empty_result, f, indent=2)
+    print(f"Control‑shuffle placeholder written to {args.output}")
 
 # ----------------------------------------------------------------------
 # Main entry point
@@ -253,9 +278,11 @@ def main(argv=None) -> int:
         _run_fixed_mode(args)
     elif args.mode == "adaptive":
         _run_adaptive_mode(args)
+    elif args.mode == "control_shuffle":
+        _run_control_shuffle_mode(args)
     else:
         log.error(
-            "No mode specified. Use --mode fixed|adaptive or --config."
+            "No mode specified. Use --mode fixed|adaptive|control_shuffle or --config."
         )
         return 1
 

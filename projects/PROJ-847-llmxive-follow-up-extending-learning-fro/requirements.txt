@@ -1,4 +1,8 @@
-# Core dependencies are pre‑installed in the platform.
-# Additional third‑party packages required by this task:
-transformers>=4.40.0
-tqdm>=4.66.0
+# Core dependencies already provided by the platform:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+
+# Additional third‑party packages required by this project:
+datasets
+torch
+transformers
