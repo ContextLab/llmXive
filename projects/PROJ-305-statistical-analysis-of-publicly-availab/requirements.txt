@@ -1,3 +1,14 @@
+pandas
+numpy
+scipy
+matplotlib
+datasets
+pyarrow
+statsmodels
+psutil
+memory_profiler
+requests
+jsonschema
+pytest
 ruff
 black
-isort

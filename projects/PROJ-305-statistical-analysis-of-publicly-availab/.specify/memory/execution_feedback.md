@@ -18,25 +18,28 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/data/download.py -> rc=1
- NameResolutionError("HTTPSConnection(host='download.cdc.gov', port=443): Failed to resolve 'download.cdc.gov' ([Errno -2] Name or service not known)")). Attempting raw CSV download from GitHub mirror.
-2026-10-18 18:33:11,443 INFO __main__: Downloading CSV https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv
-2026-10-18 18:33:11,454 ERROR __main__: Failed to download CSV https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv
-2026-10-18 18:33:11,454 ERROR __main__: Failed to process year 2020 file type VAERSDATA: ZIP error: HTTPSConnectionPool(host='download.cdc.gov', port=443): Max retries exceeded with url: /pub/cdc/vaers/2020VAERSDATA.csv.zip (Caused by NameResolutionError("HTTPSConnection(host='download.cdc.gov', port=443): Failed to resolve 'download.cdc.gov' ([Errno -2] Name or service not known)")); CSV error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv
-2026-10-18 18:33:11,454 ERROR __main__: One or more years failed to download. Exiting with error.
+/data/datasets/2020VAERSDATA.csv: 404 Client Error: Not Found for url: https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv
+2026-10-18 19:06:41,944 WARNING __main__: Primary download failed for https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv: 404 Client Error: Not Found for url: https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv. Attempting fallback from GitHub mirror.
+2026-10-18 19:06:41,944 INFO __main__: Downloading CSV https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv
+2026-10-18 19:06:41,955 ERROR __main__: Failed to download CSV https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv
+2026-10-18 19:06:41,955 ERROR __main__: Both primary and fallback downloads failed for 2020VAERSDATA.csv: primary error: 404 Client Error: Not Found for url: https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv; fallback error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv
+2026-10-18 19:06:41,955 ERROR __main__: Failed to download data for year 2020. Exiting.
 
 - python src/data/validate.py -> rc=2
-2026-10-18 18:33:11,829 - validate - INFO - Loading schema from contracts/dataset.schema.yaml
-2026-10-18 18:33:11,832 - validate - INFO - Loading data from data/processed/cleaned_vaers.parquet
-2026-10-18 18:33:11,832 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.parquet
+2026-10-18 19:06:42,275 - validate - INFO - Loading schema from contracts/dataset.schema.yaml
+2026-10-18 19:06:42,277 - validate - INFO - Loading data from data/processed/cleaned_vaers.parquet
+2026-10-18 19:06:42,277 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.parquet
 
 
 - python code/src/data/clean.py -> rc=1
 
-2026-10-18 18:33:12,204 - clean - INFO - Starting data cleaning process
-2026-10-18 18:33:12,205 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
+2026-10-18 19:06:42,595 - clean - INFO - Starting data cleaning process
+2026-10-18 19:06:42,596 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
 
 - python src/main.py -> rc=1
-2026-10-18 18:33:12,900 - pipeline - INFO - No action specified. Use --full or --phase N
+2026-10-18 19:06:43,146 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
+2026-10-18 19:06:43,171 - matplotlib.font_manager - INFO - generated new fontManager
+2026-10-18 19:06:43,374 - pipeline - INFO - No action specified. Use --full or --phase N
 
 
 - python -m pytest -q tests/contract/ -> rc=4

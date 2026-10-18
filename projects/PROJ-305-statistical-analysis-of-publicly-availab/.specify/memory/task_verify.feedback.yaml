@@ -1,4 +1,12 @@
 T001:
+  reason: 'The collector evidence shows several required directories do not exist:
+    `src/validation/`, `tests/fixtures/`, `data/processed/`, `data/results/`, and
+    `output/figures/` are all MISSING. While `logs/structure.txt` is non-empty (4567
+    bytes) and `quickstart.md` documents `python -m src.main`, the structure log itself
+    confirms these directories were never created (it lists only `src/analysis`, `src/data`,
+    `src/utils`, `data/raw`, `output/temporal_profiles`, etc.), so the directory-creation
+    requirement and its verification (grep count of listed directories) cannot succeed.
+    The implementer must creat'
   task: de50249f593ddc8019c25a35b37b31183354ee5e012db928b26b15b83cceeedf
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py

@@ -1,10 +1,12 @@
 T001:
-  c: true
-  h: dc7ddbcb13cd7235b3da2ec9e914ba7cfac9e67cba49ab3b1c8fef99a50aea38
-  r: "Checked that all required directories exist (e.g., `src/data/`, `tests/unit/`,\
-    \ `data/raw/`, `output/figures/`, `logs/`), that `logs/structure.txt` is present\
-    \ and non\u2011empty (5559\u202Fbytes, showing a tree of the project), and that\
-    \ `quickstart.md` documents the runnable command `python -m src.main`. The execution\
-    \ log shows `code/create_structure.py` ran successfully, confirming the structure\
-    \ file was generated."
-  sig: 9c7e180406c5d21b369e0c26beefe8918018e8ebdec66c2e9b01d442c0c1186b
+  c: false
+  h: 21e50cf494d6c3365221f6d6deab3e72a3aa4d1070e231c7384a9cebcfcd615e
+  r: 'The collector evidence shows several required directories do not exist: `src/validation/`,
+    `tests/fixtures/`, `data/processed/`, `data/results/`, and `output/figures/` are
+    all MISSING. While `logs/structure.txt` is non-empty (4567 bytes) and `quickstart.md`
+    documents `python -m src.main`, the structure log itself confirms these directories
+    were never created (it lists only `src/analysis`, `src/data`, `src/utils`, `data/raw`,
+    `output/temporal_profiles`, etc.), so the directory-creation requirement and its
+    verification (grep count of listed directories) cannot succeed. The implementer
+    must creat'
+  sig: 4f5014d9f4d393a96635d3108f8b0a6d2c1f6e20afa131582e26236a8c0a7cdd
