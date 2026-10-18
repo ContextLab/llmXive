@@ -2,7 +2,7 @@
 
 **Inputs**: `specs/001-predicting-material-properties-from-comp/spec.md`, `plan.md` (rev. 2), `data-model.md`, `contracts/`, reviewer feedback (ada-lovelace-simulated, 2026-10-14).
 
-**Scope context (from plan.md)**: No verified open dataset with `formula`, `band_gap`, `hardness`, `crystal_system` is currently available, and the Materials Project REST API is credential-gated. Tasks below therefore (a) build the complete, contract-tested pipeline, (b) run all software validation on small hand-crafted fixtures used **only** for code verification — never reported as study results, and (c) mark the scientific training/evaluation run as **gated**: it executes only when a conforming verified dataset is attached (a one-line loader change). No synthetic data will be presented as scientific results. The reviewer's concern that hardness values lack a verified source is addressed by T002's explicit provenance check: if the attached dataset lacks a hardness column with a named origin, hardness remains a gated target and the gap is reported, not papered over.
+**Scope context (from plan.md)**: No verified open dataset with `formula`, `band_gap`, `hardness`, `crystal_system` is currently available, and the Materials Project REST API is credential-gated. Tasks below therefore (a) build the complete, contract-tested pipeline, (b) run all software validation on small hand-crafted fixtures used **only** for code verification — never reported as study results, and (c) mark the scientific training/evaluation run as **gated**: it executes only when a conforming verified dataset is attached (a one-line loader change). No synthetic data will be presented as scientific results. The reviewer's concern that hardness values lack a verified source is addressed by T002's explicit provenance gate: if the attached dataset lacks a hardness column with a named origin, hardness remains a gated target and the gap is reported, not papered over.
 
 ## Phase 1: Setup and first end-to-end analysis
 
@@ -73,4 +73,4 @@
 
 ## Revision behavior
 
-No tasks are marked complete in this initial generation. If a verified dataset with the four required columns (and a named hardness provenance) is attached, tasks T007, T009, T011–T012 un-gate without structural changes (one-line loader input change per plan.md). If the spec kickback restores an open CIF source, T010 extends to the US-2 deliverables rather than being replaced. Fixture-based code validation is never re-labeled as scientific results.
+No tasks are marked complete in this generation. If a verified dataset with the four required columns (and a named hardness provenance) is attached, tasks T007, T009, T011–T012 un-gate without structural changes (one-line loader input change per plan.md). If the spec kickback restores an open CIF source, T010 extends to the US-2 deliverables rather than being replaced. Fixture-based code validation is never re-labeled as scientific results.
