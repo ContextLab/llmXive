@@ -1,0 +1,152 @@
+{
+  "task": "T001",
+  "skeleton_directories": [
+    "code",
+    "data/raw",
+    "data/processed",
+    "data/synthetic",
+    "data/reports",
+    "data/figures",
+    "tests/unit",
+    "tests/integration",
+    "docs"
+  ],
+  "directories_created": [
+    "data/synthetic",
+    "data/reports",
+    "data/figures"
+  ],
+  "requirements_path": "/home/runner/work/llmXive/llmXive/projects/PROJ-302-evaluating-the-impact-of-code-generation/requirements.txt",
+  "all_required_packages_pinned": true,
+  "package_results": [
+    {
+      "package": "datasets",
+      "status": "imported",
+      "installed_version": "2.14.0",
+      "pinned_version": "2.14.0"
+    },
+    {
+      "package": "scikit-learn",
+      "status": "imported",
+      "installed_version": "1.3.0",
+      "pinned_version": "1.3.0"
+    },
+    {
+      "package": "pandas",
+      "status": "imported",
+      "installed_version": "2.0.3",
+      "pinned_version": "2.0.3"
+    },
+    {
+      "package": "numpy",
+      "status": "imported",
+      "installed_version": "1.24.3",
+      "pinned_version": "1.24.3"
+    },
+    {
+      "package": "scipy",
+      "status": "imported",
+      "installed_version": "1.11.1",
+      "pinned_version": "1.11.1"
+    },
+    {
+      "package": "statsmodels",
+      "status": "imported",
+      "installed_version": "0.14.0",
+      "pinned_version": "0.14.0"
+    },
+    {
+      "package": "radon",
+      "status": "imported",
+      "installed_version": "6.0.1",
+      "pinned_version": "6.0.1"
+    },
+    {
+      "package": "torch",
+      "status": "imported",
+      "installed_version": "2.0.1+cu117",
+      "pinned_version": "2.0.1"
+    },
+    {
+      "package": "transformers",
+      "status": "imported",
+      "installed_version": "4.31.0",
+      "pinned_version": "4.31.0"
+    },
+    {
+      "package": "matplotlib",
+      "status": "imported",
+      "installed_version": "3.7.2",
+      "pinned_version": "3.7.2"
+    },
+    {
+      "package": "seaborn",
+      "status": "imported",
+      "installed_version": "0.12.2",
+      "pinned_version": "0.12.2"
+    },
+    {
+      "package": "pyyaml",
+      "status": "imported",
+      "installed_version": "6.0",
+      "pinned_version": "6.0"
+    },
+    {
+      "package": "requests",
+      "status": "imported",
+      "installed_version": "2.31.0",
+      "pinned_version": "2.31.0"
+    },
+    {
+      "package": "gitpython",
+      "status": "imported",
+      "installed_version": "3.1.32",
+      "pinned_version": "3.1.32"
+    },
+    {
+      "package": "pytest",
+      "status": "imported",
+      "installed_version": "7.4.0",
+      "pinned_version": "7.4.0"
+    },
+    {
+      "package": "ruff",
+      "status": "imported",
+      "installed_version": "unknown",
+      "pinned_version": "0.0.287"
+    },
+    {
+      "package": "black",
+      "status": "imported",
+      "installed_version": "23.7.0",
+      "pinned_version": "23.7.0"
+    },
+    {
+      "package": "pyarrow",
+      "status": "imported",
+      "installed_version": "13.0.0",
+      "pinned_version": "13.0.0"
+    },
+    {
+      "package": "codecarbon",
+      "status": "error",
+      "pinned_version": "2.2.0",
+      "error": "mutable default <class 'codecarbon.core.units.Energy'> for field energy_delta is not allowed: use default_factory"
+    },
+    {
+      "package": "tenacity",
+      "status": "imported",
+      "installed_version": "unknown",
+      "pinned_version": "8.2.3"
+    }
+  ],
+  "failures": [
+    {
+      "package": "codecarbon",
+      "status": "error",
+      "pinned_version": "2.2.0",
+      "error": "mutable default <class 'codecarbon.core.units.Energy'> for field energy_delta is not allowed: use default_factory"
+    }
+  ],
+  "success": false
+}

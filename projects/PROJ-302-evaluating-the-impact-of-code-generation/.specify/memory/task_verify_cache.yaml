@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: ae64489c9ee6553117839b4b6b52f82120db7c550933a02796908f4cbb8876bd
-  r: Checked the project skeleton (code/, data/, tests/, docs/ directories exist)
-    and the `requirements.txt` file (it pins many packages but omits `statsmodels`).
-    No evidence is provided that `pip install -r requirements.txt` was run in a fresh
-    virtual environment and succeeded. The missing `statsmodels` entry and lack of
-    install verification mean the task is not fully satisfied.
-  sig: f124d2374587394d0a46646ba7ecd85c3f39bc47a506dd6f5cbfd12ac041eaa9
 T003:
   c: false
   h: 56e32c036cb77551798260d9e620e6bec0799fbcad7d4369efac866abb619716
@@ -14,10 +5,14 @@ T003:
     the required separate `.ruff.toml` file is missing, so the task of creating both
     configuration files is not fully satisfied.
 T014:
-  c: true
-  h: b3c9d0a070b5a031430ef0d976200a23d6a57cf148a767afc06c4da28323d1db
-  r: "Checked `code/runtime.py` for the instrumentation implementation, `data/processed/runtime_report.json`\
-    \ for a full stage mapping and total_seconds \u2264\u202F21600, and the successful\
-    \ execution of `python -m code.verification` (exit\u202F0) as shown in the logs.\
-    \ All required artifacts exist, contain correct data, and the verification passes."
-  sig: 48911fbf41c68caeca363fc5d6a708d070f7b611bc420cbf13fb0e32b03c63bb
+  c: false
+  h: 7bfa6142859d6320056c7cd83d03895c1f530e6bcd0d12d911015697c6edf960
+  r: "`code/runtime.py` is a reasonable instrumentation module and `data/processed/runtime_report.json`\
+    \ exists with all ten stages and `total_seconds` \u2264 21600, but the recorded\
+    \ durations (mostly ~2e-06 s, total 0.0023 s) are physically impossible for a\
+    \ real pipeline run \u2014 they indicate the report was produced by a trivial\
+    \ script that started/ended stages with no work between them, i.e., fabricated\
+    \ timing data rather than measurements from an actual full pipeline run. Additionally,\
+    \ there is no evidence the instrumentation is integrated at the pipeline entry\
+    \ point (no modified `code/main.py` or simila"
+  sig: b9866392d36e9f737b5beab262a57cd86399959586c90dc49c9cf39c6177c3cf

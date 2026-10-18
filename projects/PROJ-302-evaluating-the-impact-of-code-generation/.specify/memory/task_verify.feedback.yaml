@@ -1,9 +1,6 @@
 T001:
-  reason: Checked the project skeleton (code/, data/, tests/, docs/ directories exist)
-    and the `requirements.txt` file (it pins many packages but omits `statsmodels`).
-    No evidence is provided that `pip install -r requirements.txt` was run in a fresh
-    virtual environment and succeeded. The missing `statsmodels` entry and lack of
-    install verification mean the task is not fully satisfied.
+  reason: 'Requested task execution failed; rerun successfully: code/verify_setup.py
+    exit=1'
   task: 8590e09b1dffe53fee82926ca7f85abd4391695f1caaf97a1ec5a6c4f741aae7
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data_acquisition.py
@@ -32,6 +29,14 @@ T012:
 T013:
   task: 62e513034d6881bf00a182bbc09be10a496a85850785e08b6205bc2add0fc163
 T014:
+  reason: "`code/runtime.py` is a reasonable instrumentation module and `data/processed/runtime_report.json`\
+    \ exists with all ten stages and `total_seconds` \u2264 21600, but the recorded\
+    \ durations (mostly ~2e-06 s, total 0.0023 s) are physically impossible for a\
+    \ real pipeline run \u2014 they indicate the report was produced by a trivial\
+    \ script that started/ended stages with no work between them, i.e., fabricated\
+    \ timing data rather than measurements from an actual full pipeline run. Additionally,\
+    \ there is no evidence the instrumentation is integrated at the pipeline entry\
+    \ point (no modified `code/main.py` or simila"
   task: 8126075a3476aa13c9550aa360f2ecd078c28197cad19bce1e6fce5993ebff57
 T015:
   task: 6f798c352024caa92a9361c7814e40a1b1adb75f7e4e376a286d2becfff1c710
