@@ -1,9 +1,8 @@
 T001:
-  c: false
-  h: 8f0aa634cbd2fb34df4998464ba6d48add13e80ed7f7d17c1a7710f7bb436add
-  r: "The `code/requirements.txt` and `code/config.py` files exist and the config\
-    \ module imports cleanly (as shown by the pytest log), but there is no recorded\
-    \ evidence that `pip install -r code/requirements.txt` was actually run and succeeded.\
-    \ Add a command\u2011execution log (or similar proof) showing the pip install\
-    \ completing without errors."
-  sig: 6a7f954a6434d4699b1a173d46aa53617f1f9b656e9cc63cbe89dbbb23af41cd
+  c: true
+  h: a2055d42c124a36ab6d38edb30ae5339f7b68a07544750c2c72d00999a867568
+  r: "Checked the `code/requirements.txt` (pinned dependency list) and the `code/config.py`\
+    \ (defines `DEVICE = \"cpu\"` and `MAX_MEMORY_GB = 6.3` with importable code).\
+    \ Both files exist, contain valid content, and meet the CPU\u2011only and memory\u2011\
+    limit specifications."
+  sig: 192e334b355e62b360b208b12f6fb8e00222f9b4ef5480b929c33781df160c43
