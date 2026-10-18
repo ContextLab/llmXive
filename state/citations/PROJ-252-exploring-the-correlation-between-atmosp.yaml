@@ -108,7 +108,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
   verified_at: '2026-10-12T12:06:24.950545Z'
-- artifact_hash: 4d9ddf0d79c8be844cd7135ae30cd3fed48fd9ff368aa887cd2f021cc8821a39
+- artifact_hash: ef8343becc719ca1afa2cf66a62d9db4b5db3254ae3408e1f843752c55781b3a
   artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -118,8 +118,8 @@
   value: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
-  verified_at: '2026-10-18T08:27:44.115905Z'
-- artifact_hash: 4d9ddf0d79c8be844cd7135ae30cd3fed48fd9ff368aa887cd2f021cc8821a39
+  verified_at: '2026-10-18T10:08:47.551716Z'
+- artifact_hash: ef8343becc719ca1afa2cf66a62d9db4b5db3254ae3408e1f843752c55781b3a
   artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -129,8 +129,8 @@
   value: https://earthquake.usgs.gov/fdsnws/event/1/query?format=csv&starttime=2013-01-01&endtime=2023-12-31&minmagnitude=4&maxdepth=70
   verification_status: unreachable
   verified_against_url: https://earthquake.usgs.gov/fdsnws/event/1/query?format=csv&starttime=2013-01-01&endtime=2023-12-31&minmagnitude=4&maxdepth=70
-  verified_at: '2026-10-18T08:27:44.115905Z'
-- artifact_hash: 4d9ddf0d79c8be844cd7135ae30cd3fed48fd9ff368aa887cd2f021cc8821a39
+  verified_at: '2026-10-18T10:08:47.551716Z'
+- artifact_hash: ef8343becc719ca1afa2cf66a62d9db4b5db3254ae3408e1f843752c55781b3a
   artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -140,4 +140,4 @@
   value: https://huggingface.co/datasets/noaa/enso-pdo-indices/resolve/main/enso_pdo.csv`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/noaa/enso-pdo-indices/resolve/main/enso_pdo.csv
-  verified_at: '2026-10-18T08:27:44.115905Z'
+  verified_at: '2026-10-18T10:08:47.551716Z'

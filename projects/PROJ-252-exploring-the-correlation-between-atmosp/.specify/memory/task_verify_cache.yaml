@@ -1,8 +1,12 @@
 T001:
-  c: true
-  h: be36f01f8f688ddc9b25f565d85241570864e110a665480b507bd22761dfba51
-  r: I have verified the existence and content of `requirements.txt` (containing all
-    required exact version pins), `code/seed_init.py` (correctly setting seeds and
-    writing the required log message), and `docs/quickstart.md` (containing the exact
-    requested command). Execution logs confirm that `code/seed_init.py` runs successfully.
-  sig: 97664b3790d3a19b8f60fe12c9ad826edb7dfa22db9f7207be4c5616d7029c46
+  c: false
+  h: e0cf9d69626c8e890c08b44865b1044929111f8c06e50ca933e997d004b9f648
+  r: "`requirements.txt` and `code/seed_init.py` match the spec (all pins present,\
+    \ seeds set to 42, log line written), but `docs/quickstart.md` does not contain\
+    \ the required single quick-start command `pip install -r requirements.txt &&\
+    \ python -m code.seed_init && python -m code.main` \u2014 it instead documents\
+    \ a multi-step pipeline (`python code/download.py`, `preprocess.py`, etc.) and\
+    \ never mentions `seed_init` at all. Additionally, there is no evidence `logs/seed_initialization.log`\
+    \ was ever created (no run/execution evidence), and the seed script relies on\
+    \ `paths.path` without ensuring the `logs/` d"
+  sig: eae28d2e58e4575558aed58abf65ea242540a33ace34be79534a1ab4838c66ce
