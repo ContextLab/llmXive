@@ -1,16 +1,19 @@
 import pytest
-from datasets import load_dataset
+from datasets import load_dataset, DatasetDict
 from llmxive_toolkit import paths
+
+# The official π‑Bench dataset is hosted as "allenai/pi_bench" on the Hub.
+DATASET_ID = "allenai/pi_bench"
 
 def test_pi_bench_load():
     """
-    Verify that the pi_bench dataset can be loaded from the raw directory.
+    Verify that the π‑Bench dataset can be loaded from the raw directory.
     The `datasets` library performs checksum verification during download,
     so a successful load implies that all files match the published SHA‑256
     checksums.
     """
     raw_dir = paths.data("raw")
-    ds = load_dataset("pi_bench", data_dir=str(raw_dir))
+    ds: DatasetDict = load_dataset(DATASET_ID, data_dir=str(raw_dir))
 
     # Ensure the dataset object contains at least one split.
     assert ds, "Dataset should contain at least one split."
