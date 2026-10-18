@@ -21,13 +21,12 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ============================================================
 FETCHING VERIFIED BASE META‑ANALYSIS DATASET
 ============================================================
-Fetching verified meta‑analysis base data from:
-  SUCCESS: downloaded from https://www.openml.org/data/v1/download/4210
+Fetching verified meta‑analysis base data from OpenML dataset ID: 4210
 ============================================================
 
-  WARNING: REAL_DATA_FETCH_FAILED: unable to download from https://raw.githubusercontent.com/wviechtb/metafor/master/data/dat.bcg.dat: HTTP Error 404: Not Found
-  WARNING: REAL_DATA_FETCH_FAILED: unable to download from https://raw.githubusercontent.com/wviechtb/metafor/master/data/dat.bcg: HTTP Error 404: Not Found
-ERROR: REAL_DATA_FETCH_FAILED: downloaded data yielded fewer than 5 usable trials (got 0).
+/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/scripts/fetch_openml.py:84: FutureWarning: ``download_all_files`` is experimental and is likely to break with new releases.
+  dataset = openml.datasets.get_dataset(OPENML_DATASET_ID, download_all_files=True)
+ERROR: REAL_DATA_FETCH_FAILED: unable to fetch OpenML dataset 4210: https://www.openml.org/api/v1/xml/data/4210 returned code 111: Unknown dataset
 
 - python -m pytest tests/unit/ -> rc=1
 unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_sensitivity
@@ -42,7 +41,7 @@ ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_sav
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
-============= 12 failed, 65 passed, 13 warnings, 6 errors in 1.74s =============
+============= 12 failed, 65 passed, 13 warnings, 6 errors in 1.81s =============
 
 
 - python -m pytest tests/integration/ -> rc=1
@@ -57,7 +56,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 0.52s =========================
+========================= 1 failed, 1 warning in 0.54s =========================
 
 
 
