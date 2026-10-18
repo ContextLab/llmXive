@@ -1,14 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-10-18T18:06:06.685359+00:00'
+last_used: alan-turing
+last_used_at: '2026-10-18T20:05:57.342434+00:00'
 last_outcome: committed
 history:
-- slug: albert-einstein
-  started_at: '2026-06-27T12:57:27.645125+00:00'
-  ended_at: '2026-06-27T13:34:09.558432+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-352-statistical-analysis-of-early-universe-c/reviews/research/albert-einstein-simulated__2026-06-27__research.md
 - slug: dan-rockmore
   started_at: '2026-06-27T13:34:09.558432+00:00'
   ended_at: '2026-06-27T14:34:11.915328+00:00'
@@ -1307,3 +1300,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-010-quantitative-analysis-of-gene-expression/reviews/research/ada-lovelace-simulated__2026-10-18__research.md
+- slug: alan-turing
+  started_at: '2026-10-18T18:06:06.685359+00:00'
+  ended_at: '2026-10-18T20:05:57.342434+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-305-statistical-analysis-of-publicly-availab/reviews/research/alan-turing-simulated__2026-10-18__research.md
