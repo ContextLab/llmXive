@@ -43,7 +43,7 @@ ERROR tests/unit/test_download.py
 ERROR tests/unit/test_download_gwtc.py
 ERROR tests/unit/test_preprocess.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 0.51s ===============================
+============================== 3 errors in 0.38s ===============================
 
 
 ## Platform-owned paths written inside the project
