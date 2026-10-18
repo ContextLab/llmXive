@@ -1,1 +1,3 @@
-"""Analysis sub-package."""
+"""
+Package marker for the `code.analysis` sub‑module.
+"""

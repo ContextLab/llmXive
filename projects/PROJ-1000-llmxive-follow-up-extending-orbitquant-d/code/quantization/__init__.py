@@ -1,1 +1,3 @@
-"""Quantization sub-package."""
+"""
+Package marker for the `code.quantization` sub‑module.
+"""

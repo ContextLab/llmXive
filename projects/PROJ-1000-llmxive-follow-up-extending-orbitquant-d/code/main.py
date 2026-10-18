@@ -1,81 +1,81 @@
 """
 Entry point for project initialization.
 
-The script supports a simple command‑line interface with a `--phase` argument.
-When invoked with ``--phase init`` it creates the required sub‑directories
-under the ``code/`` package, adds ``__init__.py`` markers so that each
-directory is a proper Python package, and prints a confirmation line that
-the quick‑start verification expects.
-
-Example usage (as described in ``specs/001-llmxive-follow-up-extending-orbitquant-d/quickstart.md``):
+This script creates the required directory structure under the `code/`
+package and prints a confirmation message. It is invoked by the quick‑start
+command:
 
     python -m code.main --phase init
 
-This will output:
-
-    Initialization complete
+The script is deliberately simple: it validates the `--phase` argument,
+creates the directories, and prints ``Initialization complete`` so that
+the verification step can grep the expected phrase.
 """
 import argparse
 import sys
 from pathlib import Path
 
-# List of sub‑directories that must exist after initialization.
-# The quick‑start verification only counts directories, so we include a
-# generous set that satisfies the “≥ 8 directories” requirement.
-SUBDIRS = [
-    "analysis",
-    "models",
-    "quantization",
-    "evaluation",
-    "utils",
-    "data",
-    "runners",
-    "validation",
-    "security",
-]
+from llmxive_toolkit import paths
 
-def _ensure_package_dir(parent: Path, name: str) -> None:
+# -------------------------------------------------------------------------
+# Directory creation
+# -------------------------------------------------------------------------
+def _create_project_dirs() -> None:
     """
-    Create ``parent/name`` if it does not exist and add an ``__init__.py`` file.
+    Create all required project‑owned directories.
+
+    The list includes the sub‑packages required by later tasks as well as
+    common data/processed and figures folders. Each call is idempotent.
     """
-    dir_path = parent / name
-    dir_path.mkdir(parents=True, exist_ok=True)
-    init_file = dir_path / "__init__.py"
-    if not init_file.exists():
-        init_file.touch()
+    # Code sub‑packages
+    subdirs = [
+        "analysis",
+        "models",
+        "quantization",
+        "evaluation",
+        "utils",
+        "data",
+        "runners",
+        "validation",
+        "security",
+    ]
 
-def init_phase() -> None:
-    """
-    Create the required directory skeleton under the project root.
-    """
-    project_root = Path(__file__).resolve().parent  # ``code/`` directory
-    for sub in SUBDIRS:
-        _ensure_package_dir(project_root, sub)
+    for sub in subdirs:
+        dir_path = paths.code(sub)
+        dir_path.mkdir(parents=True, exist_ok=True)
 
-    # Ensure the top‑level ``tests`` package exists as well.
-    tests_dir = project_root.parent / "tests"
-    tests_dir.mkdir(parents=True, exist_ok=True)
-    (tests_dir / "__init__.py").touch()
+    # Tests package
+    paths.tests("").mkdir(parents=True, exist_ok=True)
 
-    # Print the exact string the quick‑start expects.
-    print("Initialization complete")
+    # Data folders
+    paths.data("raw").mkdir(parents=True, exist_ok=True)
+    paths.data("processed").mkdir(parents=True, exist_ok=True)
 
-def main(argv: list | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Project entry point")
+    # Figures folder
+    paths.figures("").mkdir(parents=True, exist_ok=True)
+
+# -------------------------------------------------------------------------
+# CLI handling
+# -------------------------------------------------------------------------
+def _parse_args(argv: list) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Project initialization script")
     parser.add_argument(
         "--phase",
         choices=["init"],
         required=True,
-        help="Select the phase to execute (currently only ``init`` is supported).",
+        help="Initialization phase to run",
     )
-    args = parser.parse_args(argv)
+    # parse_known_args allows the quick‑start pipe to work without extra args
+    args, _ = parser.parse_known_args(argv)
+    return args
+
+def main(argv: list | None = None) -> int:
+    args = _parse_args(argv or sys.argv[1:])
 
     if args.phase == "init":
-        init_phase()
-    else:
-        # Future phases could be added here.
-        parser.error(f"Unsupported phase: {args.phase}")
-
+        _create_project_dirs()
+        # The exact phrase is required by the verification grep
+        print("Initialization complete")
     return 0
 
 if __name__ == "__main__":

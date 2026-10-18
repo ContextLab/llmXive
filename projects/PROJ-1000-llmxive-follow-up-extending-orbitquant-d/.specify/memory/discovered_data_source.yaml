@@ -1,8 +1,11 @@
 status: none
-intent: download MS COCO 2017 dataset in parquet format python package dataset
+intent: download MS-COCO 2017 captions dataset python package dataset
 required_fields:
-- prompt
+- prompt_text
 - image_id
-cache_key: 4a23d9c87c0129c174e5f6ede7658c070617dfedd5515de535b0497a23cbf8f4
-searched_at: '2026-10-18T07:10:12.393333+00:00'
+- semantic_entropy
+- activation_variance
+- layer_name
+cache_key: 9577d9c560fe478b136dcda10ffe34e72fe3091426d306c658acd30129a5aba0
+searched_at: '2026-10-18T10:09:25.833308+00:00'
 retry_count: 1

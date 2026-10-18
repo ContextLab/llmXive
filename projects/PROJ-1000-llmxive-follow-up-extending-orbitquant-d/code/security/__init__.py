@@ -1,1 +1,3 @@
-"""Security sub-package."""
+"""
+Package marker for the `code.security` sub‑module.
+"""

@@ -1,3 +1,3 @@
 """
-Package marker for the `tests` module.
+Placeholder package marker for the `tests` directory.
 """
