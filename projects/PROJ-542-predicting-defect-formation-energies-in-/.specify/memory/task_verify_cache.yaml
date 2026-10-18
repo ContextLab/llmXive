@@ -1,0 +1,7 @@
+T001:
+  c: true
+  h: ee9855eff0766085827678a352601363c618deebb3f0e7f4971be8f9012199d6
+  r: "Checked `quickstart.md` (contains the required `python -m src.pipeline.run`\
+    \ command) and `src/tests/test_quickstart.py` execution log (test passed, confirming\
+    \ the command prints \u201CPipeline completed successfully\u201D)."
+  sig: d6d3786aa5d91c90d0608c7fb3040531bb9b681d7ab6b4221b7178b76258047a

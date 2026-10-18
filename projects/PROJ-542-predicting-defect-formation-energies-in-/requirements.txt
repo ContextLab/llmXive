@@ -1,0 +1,6 @@
+# Project dependencies
+pymatgen>=2024.5.0
+mp-api>=0.34.0
+# The base environment already provides numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil.  No additional entries are required.

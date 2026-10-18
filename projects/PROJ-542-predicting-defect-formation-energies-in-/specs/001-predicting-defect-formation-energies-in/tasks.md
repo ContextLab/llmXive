@@ -11,11 +11,11 @@ The tasks below cover every functional requirement (FR‑001 – FR‑012), 
 | Goal | Run a minimal pipeline that produces a validated feature matrix from real Materials Project data. |
 |------|---------------------------------------------------------------------------------------------------|
 
-- [ ] **T001** [US‑1] Create a `quickstart.md` that documents the single command to run the full pipeline (`python -m src.pipeline.run`).  
+- [X] **T001** [US‑1] Create a `quickstart.md` that documents the single command to run the full pipeline (`python -m src.pipeline.run`).  
   *File:* `quickstart.md`  
   *Verification:* The command executes on a fresh GitHub Actions runner, prints “Pipeline completed successfully”, and the CI test `src/tests/test_quickstart.py` asserts the success message (fulfills FR‑010 and SC‑004).  
 
-- [ ] **T002** [US‑1] Implement `src/data/download.py` to fetch oxygen‑vacancy defect formation energies for perovskites from the Materials Project API (API key read from `MP_API_KEY`).  
+- [ ] **T002** [US‑1] Implement `src/data/download.py` to fetch oxygen‑vacancy defect formation energies for perovskites from the Materials Project API (API key read from `MP_API_KEY`).   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   *File:* `src/data/download.py` → output `data/raw/materials_defects.csv`  
   *Verification:*  
   – If `MP_API_KEY` is missing, the script aborts with a clear error message.  

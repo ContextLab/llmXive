@@ -1,0 +1,67 @@
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: pipeline downloads defect dataset automatically
+  claim_id: c_be90c46f
+  context: Option A (automatic) description states that the pipeline will download
+    the defect dataset automatically.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline will download the defect dataset automatically.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T21:11:57Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: pipeline run prints completion message upon success
+  claim_id: c_34d91041
+  context: Running the full pipeline with python -m src.pipeline.run will execute
+    the workflow and, if successful, print "Pipeline completed successfully".
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command will execute the end\u2011to\u2011end workflow and, upon\
+    \ successful completion, print: 'Pipeline completed successfully'."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T21:11:57Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: all tests pass confirming CSV and JSON match schemas
+  claim_id: c_6429c918
+  context: The Validate Contracts step runs pytest -q and expects all tests to pass,
+    confirming schema compliance.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass, confirming that the CSV and JSON artefacts match
+    their schemas.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T21:11:57Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: quickstart guide ensures reproducible workflow for new researcher
+  claim_id: c_bf906d40
+  context: "The guide claims to satisfy requirement FR\u2011010, which guarantees\
+    \ reproducibility of the entire workflow."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The Quickstart guide satisfies FR\u2011010, ensuring the entire workflow\
+    \ can be reproduced by a new researcher."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T21:11:57Z'
