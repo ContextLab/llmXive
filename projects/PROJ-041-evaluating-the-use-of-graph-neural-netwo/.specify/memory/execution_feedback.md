@@ -18,13 +18,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py  --scenarios all      # processes every scenario present in the dataset -> rc=1
-', 'dataset'], seeds=[42, 123, 456, 789, 101112]
-2026-10-18 18:10:14,803 INFO create_layout: Project directories ready: code, code/data, code/models, code/analysis, code/utils, data, data/raw, data/processed, data/results, data/models, data/targets, docs, tests, contracts, figures, logs
-2026-10-18 18:10:14,804 INFO create_layout: Config already exists at /home/runner/work/llmXive/llmXive/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/code/config.yaml; leaving untouched
-2026-10-18 18:10:14,804 INFO create_layout: Project layout creation complete.
-2026-10-18 18:10:14,804 INFO data.download_ctu13: Streaming CTU‑13 dataset from HuggingFace (ctu13/ctu13) – will write up to 5000 rows
-2026-10-18 18:10:14,860 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/ctu13/ctu13 "HTTP/1.1 401 Unauthorized"
-2026-10-18 18:10:14,860 ERROR __main__: Failed to download CTU‑13 dataset: Failed to load HuggingFace dataset ctu13/ctu13: Dataset 'ctu13/ctu13' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/ctu13/ctu13 to ask for access.
+
+2026-10-18 21:17:01,170 INFO __main__: Starting project bootstrap with scenarios=['all', '#', 'processes', 'every', 'scenario', 'present', 'in', 'the', 'dataset'], seeds=[42, 123, 456, 789, 101112]
+2026-10-18 21:17:01,171 INFO create_layout: Project directories ready: code, code/data, code/models, code/analysis, code/utils, data, data/raw, data/processed, data/results, data/models, data/targets, docs, tests, contracts, figures, logs
+2026-10-18 21:17:01,171 INFO create_layout: Config already exists at /home/runner/work/llmXive/llmXive/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/code/config.yaml; leaving untouched
+2026-10-18 21:17:01,171 INFO create_layout: Project layout creation complete.
+2026-10-18 21:17:01,171 INFO data.download_ctu13: Downloading CTU‑13 Scenario 1 CSV from https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/master/Scenario1/CTU-13-Dataset-1.csv (up to 5000 rows)
+2026-10-18 21:17:01,201 ERROR __main__: Failed to download CTU‑13 dataset: Failed to download CTU‑13 CSV: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/master/Scenario1/CTU-13-Dataset-1.csv
 
 - python -m pytest code/tests/test_graph_construction.py -q -> rc=1
 nd contains at least one byte of data.
@@ -39,7 +39,7 @@ E        +    where <bound method Path.exists of PosixPath('/home/runner/work/ll
 code/tests/test_graph_construction.py:21: AssertionError
 =========================== short test summary info ============================
 FAILED code/tests/test_graph_construction.py::test_raw_ctu13_csv_exists - Ass...
-============================== 1 failed in 0.03s ===============================
+============================== 1 failed in 0.02s ===============================
 
 
 

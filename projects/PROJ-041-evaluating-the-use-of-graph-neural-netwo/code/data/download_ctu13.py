@@ -2,14 +2,15 @@
 download_ctu13.py
 ------------------
 
-Downloads a subset of the CTU‑13 Scenario 1 NetFlow records using the
-HuggingFace ``datasets`` library, writes it to ``data/raw/ctu13_scenario1.csv``,
-creates a SHA‑256 checksum side‑car, and updates ``code/config.yaml`` with the
-active dataset name.
+Downloads a subset of the CTU‑13 Scenario 1 NetFlow records from the
+official GitHub repository, writes it to ``data/raw/ctu13_scenario1.csv``,
+creates a SHA‑256 checksum side‑car, and updates ``code/config.yaml`` with
+the active dataset name.
 
-The script streams the dataset to avoid loading the entire collection into
-memory and writes only the first ``MAX_ROWS`` records (a configurable limit)
-to keep runtime and storage modest while still using real data.
+The script streams the CSV directly from GitHub to avoid loading the entire
+file into memory and writes only the first ``MAX_ROWS`` data rows (the
+header is always written) to keep runtime and storage modest while still
+using real data.
 """
 
 import csv
@@ -17,8 +18,8 @@ import hashlib
 import sys
 from pathlib import Path
 
+import requests
 import yaml
-from datasets import load_dataset
 from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
@@ -26,14 +27,17 @@ log = get_logger(__name__)
 # --------------------------------------------------------------------------- #
 # Constants
 # --------------------------------------------------------------------------- #
-# HuggingFace dataset identifier for the CTU‑13 NetFlow records.
-HF_DATASET = "ctu13/ctu13"
-# Number of rows to write – enough for a non‑empty file while staying fast.
+# Direct URL to the raw CSV for Scenario 1 in the CTU‑13 dataset.
+CSV_URL = (
+    "https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/master/"
+    "Scenario1/CTU-13-Dataset-1.csv"
+)
+# Number of data rows (excluding the header) to write – enough for a
+# non‑empty file while staying fast.
 MAX_ROWS = 5_000
 
 TARGET_DIR = paths.data("raw")
 TARGET_CSV = TARGET_DIR / "ctu13_scenario1.csv"
-CHECKSUM_FILE = TARGET_CSV.with_suffix(TARGET_CSV.suffix + ".sha256")
 CONFIG_FILE = paths.code("config.yaml")
 
 # --------------------------------------------------------------------------- #
@@ -47,11 +51,13 @@ def compute_sha256(file_path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
+
 def write_checksum(file_path: Path, checksum: str) -> None:
     """Write *checksum* to a ``.sha256`` side‑car next to *file_path*."""
     checksum_path = file_path.with_suffix(file_path.suffix + ".sha256")
     checksum_path.write_text(f"{checksum}  {file_path.name}\n")
     log.info("Wrote checksum to %s", checksum_path)
+
 
 def update_config(active_dataset: str) -> None:
     """Set ``active_dataset`` in ``code/config.yaml`` (creates file if missing)."""
@@ -77,47 +83,48 @@ def update_config(active_dataset: str) -> None:
 # --------------------------------------------------------------------------- #
 def main() -> None:
     """
-    Streams the CTU‑13 NetFlow dataset from HuggingFace and writes the first
-    ``MAX_ROWS`` records to ``data/raw/ctu13_scenario1.csv``.
+    Streams the CTU‑13 Scenario 1 CSV from GitHub and writes the first
+    ``MAX_ROWS`` data rows to ``data/raw/ctu13_scenario1.csv``.
     """
     log.info(
-        "Streaming CTU‑13 dataset from HuggingFace (%s) – will write up to %d rows",
-        HF_DATASET,
+        "Downloading CTU‑13 Scenario 1 CSV from %s (up to %d rows)",
+        CSV_URL,
         MAX_ROWS,
     )
 
-    # Ensure target directory exists.
+    # Ensure the target directory exists.
     TARGET_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Load the dataset in streaming mode to avoid full download.
+    # Stream the CSV file.
     try:
-        ds = load_dataset(HF_DATASET, split="train", streaming=True)
+        response = requests.get(CSV_URL, stream=True, timeout=30)
+        response.raise_for_status()
     except Exception as exc:
-        raise RuntimeError(f"Failed to load HuggingFace dataset {HF_DATASET}: {exc}") from exc
+        raise RuntimeError(f"Failed to download CTU‑13 CSV: {exc}") from exc
 
-    # Determine column order from the first example.
+    line_iterator = response.iter_lines(decode_unicode=True)
+
     try:
-        first_example = next(iter(ds))
+        header_line = next(line_iterator)
     except StopIteration:
-        raise RuntimeError(f"The dataset {HF_DATASET} is empty.") from None
-    fieldnames = list(first_example.keys())
+        raise RuntimeError("Downloaded CSV is empty.") from None
 
-    # Write CSV header and rows.
+    header = next(csv.reader([header_line]))
+
     rows_written = 0
     with TARGET_CSV.open("w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        # Write the first example we already fetched.
-        writer.writerow(first_example)
-        rows_written += 1
+        writer = csv.writer(csvfile)
+        writer.writerow(header)  # always write the header
 
-        for example in ds:
+        for line in line_iterator:
             if rows_written >= MAX_ROWS:
                 break
-            writer.writerow(example)
+            # ``line`` is a raw CSV line; parse it safely with ``csv.reader``.
+            row = next(csv.reader([line]))
+            writer.writerow(row)
             rows_written += 1
 
-    log.info("Wrote %d rows to %s", rows_written, TARGET_CSV)
+    log.info("Wrote %d data rows to %s", rows_written, TARGET_CSV)
 
     # Compute and write checksum.
     try:
@@ -136,9 +143,7 @@ def main() -> None:
             f"Failed to update config file {CONFIG_FILE}: {exc}"
         ) from exc
 
-    log.info(
-        "CTU‑13 Scenario 1 download and registration completed successfully."
-    )
+    log.info("CTU‑13 Scenario 1 download and registration completed successfully.")
 
 # --------------------------------------------------------------------------- #
 # Entry point
