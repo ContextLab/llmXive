@@ -141,10 +141,9 @@ def fetch_pubchem_records(halide: str, max_retries: int = 3, base_delay: int = 2
     with exponential back‑off on HTTP 429/503 errors.
     Returns a list of dictionaries with keys: cid, smiles, inchi, value, unit.
     """
-    # Simplified query: we always request a generic “crown ether” set of compounds.
-    # This guarantees a successful response and provides real numeric data (XLogP3)
-    # which we treat as a placeholder binding constant (unit = logK) per the spec.
-    query = "crown ether"
+    # Use the halide name itself as the query term – PubChem will return
+    # compounds whose names contain the halide (e.g., "sodium fluoride").
+    query = halide
     url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{query}/property/IsomericSMILES,InChI,XLogP3/JSON"
 
     response = _request_with_backoff(url, max_retries, base_delay)

@@ -32,7 +32,7 @@ def test_standardize_affinity_value_logk():
 
 def test_standardize_affinity_value_dg():
     mod = _load_data_ingestion_module()
-    # ΔG (kcal/mol) converted to logK using the constant 1.364
+    # ΔG (kcal/mol) converted to log K using the constant 1.364
     dg = -5.0
     expected = -dg / 1.364
     result = mod.standardize_affinity_value(dg, "kcal/mol")
