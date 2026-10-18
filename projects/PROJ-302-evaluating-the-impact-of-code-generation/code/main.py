@@ -1,32 +1,55 @@
 """
-Entry point for the end‑to‑end evaluation pipeline.
+Main entry point for the evaluation pipeline with runtime instrumentation.
 
-This script orchestrates the individual pipeline stages while
-recording start/end timestamps for each stage via the
-``code.runtime`` utilities (Task T014).  The implementation is
-deliberately defensive: even if a downstream stage raises an
-exception, the runtime recorder is always flushed so that
-``runtime_report.json`` contains timing entries for **all** stages
-as required by the verification test.
+This script initializes the RuntimeRecorder with all required pipeline stages,
+wraps each stage in a context manager that records start/end timestamps,
+and invokes the corresponding stage implementation (if available).
+
+The stages are:
+  1. data_acquisition
+  2. prompt_engineering
+  3. synthetic_generation
+  4. feature_extraction
+  5. timestamp_simulation
+  6. matching
+  7. analysis
+  8. sensitivity
+  9. visualization
+  10. report_generation
+
+Each stage module is expected to expose a ``main`` function that performs the
+work for that stage. If a module or its ``main`` function is missing, the
+stage is still timed (the timer will record the brief duration of the
+attempted import) and a warning is logged, allowing the pipeline to continue.
 """
 
 import importlib
-import logging
+import argparse
 import sys
-from pathlib import Path
+import logging
 
-from llmxive_toolkit import get_logger, paths
-from code.runtime import init_runtime, write_report, stage
+from llmxive_toolkit import get_logger
+from code.runtime import init_runtime, stage, write_report
 
-# ------------------------------------------------------------------
-# Global logger
-# ------------------------------------------------------------------
 log = get_logger(__name__)
 
-# ------------------------------------------------------------------
-# List of canonical pipeline stages (must match verification)
-# ------------------------------------------------------------------
-PIPELINE_STAGES = [
+# Mapping from stage name to the module that implements it.
+# Adjust these imports if the actual module names differ.
+STAGE_MODULES = {
+    "data_acquisition": "code.data_acquisition",
+    "prompt_engineering": "code.prompt_engineering",
+    "synthetic_generation": "code.synthetic_generation",
+    "feature_extraction": "code.feature_extraction",
+    "timestamp_simulation": "code.timestamp_simulation",
+    "matching": "code.analysis.matching",
+    "analysis": "code.analysis.statistical_test",
+    "sensitivity": "code.analysis.sensitivity",
+    "visualization": "code.analysis.visualization",
+    "report_generation": "code.analysis.report_generator",
+}
+
+# Ordered list of all stages that must appear in the runtime report.
+ALL_STAGES = [
     "data_acquisition",
     "prompt_engineering",
     "synthetic_generation",
@@ -39,69 +62,67 @@ PIPELINE_STAGES = [
     "report_generation",
 ]
 
-def _run_stage_module(module_name: str):
+
+def run_stage(stage_name: str) -> None:
     """
-    Import ``code.<module_name>`` and, if it defines a ``main`` function,
-    execute it inside the ``stage`` context manager.  If the module does
-    not exist or lacks a ``main`` entry point, the stage is still timed
-    (a no‑op) so that the runtime report contains an entry for every
-    expected stage.
+    Import the module for ``stage_name`` and execute its ``main`` function
+    if it exists. Any exception is propagated so that failures are visible
+    to the caller (and thus to the CI verification step).
     """
-    full_name = f"code.{module_name}"
-    try:
-        module = importlib.import_module(full_name)
-    except ModuleNotFoundError:
-        log.warning(f"Stage module '{full_name}' not found – recording empty stage.")
-        with stage(module_name):
-            pass
+    module_path = STAGE_MODULES.get(stage_name)
+    if not module_path:
+        log.warning(f"No module mapping defined for stage '{stage_name}'. Skipping.")
         return
 
-    # If the module provides a ``main`` callable, run it.
-    entry = getattr(module, "main", None)
-    if callable(entry):
-        with stage(module_name):
-            log.info(f"Running stage '{module_name}' via {full_name}.main()")
-            entry()
-    else:
-        # No explicit entry point – still record the timing.
-        with stage(module_name):
-            log.info(f"Stage '{module_name}' has no main() – recorded as empty.")
-            pass
-
-def main(argv=None):
-    """
-    Execute the full pipeline.
-
-    Parameters
-    ----------
-    argv : list[str] | None
-        Optional list of command‑line arguments (defaults to ``sys.argv``).
-
-    Returns
-    -------
-    int
-        Exit code (0 = success, non‑zero = failure).
-    """
-    if argv is None:
-        argv = sys.argv[1:]
-
-    # Initialise the global runtime recorder.
-    init_runtime(PIPELINE_STAGES, output_path=paths.data("processed", "runtime_report.json"))
-
-    # Run each stage in order, protecting against unexpected crashes.
     try:
-        for stage_name in PIPELINE_STAGES:
-            _run_stage_module(stage_name)
-    except Exception as exc:  # pragma: no cover – any unexpected error is logged
-        log.exception("Unhandled exception in pipeline execution", exc_info=exc)
-        # Continue to the finally block to ensure the report is written.
-        return 1
-    finally:
-        # Flush the timings regardless of success/failure.
-        write_report()
-        log.info(f"Runtime report written to {paths.data('processed', 'runtime_report.json')}")
+        module = importlib.import_module(module_path)
+    except ImportError as e:
+        log.error(f"Failed to import module '{module_path}' for stage '{stage_name}': {e}")
+        raise
 
-    return 0
+    if hasattr(module, "main"):
+        log.info(f"Running main() of '{module_path}' for stage '{stage_name}'.")
+        module.main()
+    else:
+        log.warning(f"Module '{module_path}' does not define a main() function. Skipping execution.")
+
+
+def main(argv: list | None = None) -> None:
+    """
+    Entry point for the pipeline. Parses command‑line arguments (currently
+    only ``--full-run`` is recognized, but additional arguments can be added
+    in the future) and executes all pipeline stages while recording timing
+    information.
+    """
+    parser = argparse.ArgumentParser(description="Run the full evaluation pipeline.")
+    parser.add_argument(
+        "--full-run",
+        action="store_true",
+        help="Execute the complete pipeline (default behavior).",
+    )
+    # Accept any other arguments without parsing errors.
+    args, unknown = parser.parse_known_args(argv)
+
+    # Initialise the global runtime recorder with the complete stage list.
+    init_runtime(ALL_STAGES)
+
+    # Execute each stage inside the ``stage`` context manager.
+    for st in ALL_STAGES:
+        with stage(st):
+            try:
+                run_stage(st)
+            except Exception as exc:
+                # Log the error and abort the pipeline – the verification step
+                # expects a complete runtime report, so a failure here is
+                # intentional and visible.
+                log.exception(f"Stage '{st}' failed with error: {exc}")
+                raise
+
+    # Finalise and write the runtime report.
+    write_report()
+    log.info("Pipeline completed successfully. Runtime report written.")
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # ``sys.argv[1:]`` passes all command‑line arguments except the script name.
+    main(sys.argv[1:])

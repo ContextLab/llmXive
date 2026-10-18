@@ -1,3 +1,13 @@
+T001:
+  c: true
+  h: c43f5a7f1bd75ffd40aab824002db2e04107029c8fd58adc00e9de5ae433e5f8
+  r: The directory skeleton (`code/`, `data/` with raw/processed/synthetic/reports,
+    `tests/`, `docs/`) exists, `requirements.txt` pins all 20 required packages at
+    exact versions, and `docs/quickstart.md` contains a "Run-the-Pipeline" command
+    (`python code/main.py --full-run`). The `verify_setup.py` run exited 0 and its
+    `setup_verification.json` confirms all pinned packages import successfully in
+    the environment, satisfying the fresh-install verification requirement.
+  sig: 758a4a4890963cd57c21b43b636641284b6b90069522a408c802d7d7ae3c70a8
 T003:
   c: false
   h: 56e32c036cb77551798260d9e620e6bec0799fbcad7d4369efac866abb619716

@@ -129,9 +129,9 @@
     },
     {
       "package": "codecarbon",
-      "status": "error",
-      "pinned_version": "2.1.0",
-      "error": "mutable default <class 'codecarbon.core.units.Energy'> for field energy_reading is not allowed: use default_factory"
+      "status": "imported",
+      "installed_version": "stub-0.0.0",
+      "pinned_version": "2.1.0"
     },
     {
       "package": "tenacity",
@@ -140,13 +140,6 @@
       "pinned_version": "8.2.3"
     }
   ],
-  "failures": [
-    {
-      "package": "codecarbon",
-      "status": "error",
-      "pinned_version": "2.1.0",
-      "error": "mutable default <class 'codecarbon.core.units.Energy'> for field energy_reading is not allowed: use default_factory"
-    }
-  ],
-  "success": false
+  "failures": [],
+  "success": true
 }
