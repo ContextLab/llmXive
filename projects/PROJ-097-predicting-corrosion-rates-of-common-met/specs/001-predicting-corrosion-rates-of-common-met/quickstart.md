@@ -1,67 +1,90 @@
 # Quickstart: Predicting Corrosion Rates with Interaction Effects
 
-This guide shows how to run the full analysis on a fresh GitHub Actions runner (or locally).
+This guide documents the single end-to-end command to reproduce the full analysis
+(data ingestion, validation, feature engineering, model training, significance
+testing, SHAP interpretability, and reporting) on a CPU-only environment
+(2 vCPUs, ~7 GB RAM, ≤ 6 h wall-time).
 
 ## Prerequisites
-- Python 3.11
+
+- Python 3.11
 - Git
-- Internet access (to download the public dataset)
+- Internet access (to download the public corrosion dataset via the `openml` package)
 
 ## Steps
 
-1. **Clone the repository**
-   ```bash
-   git clone 
-   cd corrosion-ml
-   ```
+1. **Create a virtual environment and install dependencies**
 
-2. **Create a virtual environment and install dependencies**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate
+    pip install -r src/requirements.txt
+    ```
 
-3. **Run the pipeline**
-   ```bash
-   python -m src.pipeline.run \
-       --seed 42 \
-       --max-depth 5 \
-       --n-estimators 200 \
-       --cv-folds 5 \
-       --permutes 200
-   ```
-   - The script will:
-     1. Attempt to download and validate the dataset. If the required columns are not present, it will abort with a clear `MISSING_VARIABLE` error (FR‑001).
-     2. Impute, scale, and one‑hot encode.
-     3. Engineer interaction features (environment × environment and environment × composition one‑hot columns).
-     4. Perform GroupKFold CV, train Full & Null models.
-     5. Run a hierarchical permutation‑importance test (200 permutations) and BH correction.
-     6. Compute SHAP interaction values **for the top‑10 interaction features** (by absolute SHAP magnitude) to stay within the CPU budget, and generate figures.
-     7. Write `report.md` and all artifact files under `outputs/`.
+    (The identical pins are mirrored in `code/requirements.txt` for reproducibility.)
 
-4. **Inspect results**
-   - Cleaned data: `data/cleaned_dataset.csv`
-   - Model artifact: `outputs/model_artifact.yaml`
-   - Figures: `outputs/figures/*.png`
-   - Full reproducible report: `outputs/report.md`
+2. **Run the full pipeline (single command)**
 
-5. **Run contract tests (optional)**
-   ```bash
-   pytest -k contract
-   ```
+    ```bash
+    python -m src.pipeline.run_all
+    ```
 
-## Expected Runtime & Resources
-- Total wall‑time ≤ 6 h on the GitHub Actions free tier.  
-- Peak RAM ≤ 7 GB (monitored automatically; fallback sampling will trigger if exceeded).  
+    The pipeline will, in order:
 
-## Re‑running with a Subset (for debugging)
-```bash
-python -m src.pipeline.run --sample-fraction 0.1
-```
-This samples [deferred] of rows (maintaining group distribution) and speeds up execution.
+    1. Fetch a real tabular corrosion dataset via the `openml` Python package
+       (fail-loud search; no synthetic fallback) and record provenance
+       (dataset ID, version, URL, SHA-256 checksum) in `metadata/dataset.yaml`.
+    2. Validate required columns (pH, salinity, temperature, composition,
+       corrosion_rate, source_id), harmonize corrosion rate to mm/year, impute
+       missing non-target values, standardize numeric predictors, and one-hot
+       encode composition, writing `data/processed/cleaned_dataset.csv`.
+    3. Compute VIF diagnostics for base predictors
+       (`data/results/vif_diagnostics.json`).
+    4. Engineer residualized interaction and degree-2 polynomial features,
+       writing `data/processed/features.parquet`.
+    5. Train Full, Null, and mean-only baseline models under 5-fold
+       StratifiedGroupKFold on `source_id` with a constrained grid search
+       (`max_depth ∈ {3,4,5}`, `n_estimators ∈ {50,100,150}`), persisting the
+       best model and metadata.
+    6. Evaluate on a group-aware 80/20 held-out split and run the paired
+       sign-flip Full-vs-Null permutation test, per-column permutation
+       importance with Benjamini-Hochberg correction, and the
+       target-permutation Full-vs-Null test.
+    7. Compute SHAP interaction values and generate figures under
+       `outputs/figures/`.
+    8. Run the hyperparameter sensitivity sweep (Jaccard stability) and write
+       summary tables to `data/results/`.
 
----
+3. **Run the test suite**
 
+    ```bash
+    pytest src/tests/
+    ```
 
+    This runs the ingestion unit tests, contract tests, and pipeline tests.
 
+## Key outputs
+
+- Cleaned data: `data/processed/cleaned_dataset.csv`
+- Feature matrix: `data/processed/features.parquet`
+- Best model: `data/results/best_model.joblib` with metadata in
+  `data/results/model_artifact.yaml`
+- Metrics and significance tests: `data/results/*.json`
+  (e.g. `first_run_metrics.json`, `heldout_metrics.json`,
+  `interaction_test.json`, `bh_interaction_importance.json`,
+  `target_perm_fullnull.json`, `sensitivity_maxdepth.json`)
+- Figures: `outputs/figures/*.png`
+- Dataset provenance: `metadata/dataset.yaml`
+
+## Expected runtime and resources
+
+- Total wall-time ≤ 6 h on a 2-vCPU, 7 GB RAM CPU-only runner.
+- Peak RSS ≤ 7 GB (monitored via psutil; a documented stratified-sampling
+  strategy with a logged seed triggers if exceeded).
+
+## Notes
+
+- All findings are **associational**, not causal: the data are observational.
+- If a required column is missing from a candidate dataset, ingestion halts
+  with `Error: MISSING_VARIABLE [name] in [source]` (FR-001). A missing
+  optional `crystal_structure` column logs a warning and proceeds.

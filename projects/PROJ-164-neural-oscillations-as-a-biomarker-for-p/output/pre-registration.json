@@ -1,0 +1,14 @@
+{
+  "artifact": "pre-registration",
+  "task_id": "T009a",
+  "timestamp": "2026-10-18T15:29:51.563109+00:00",
+  "analysis_plan_hash": "224759349c1edec204688e7fc5f3a7b489a06b9bb28c448ae5e86f7485bfa379",
+  "parameters": {
+    "r2_target": 0.1,
+    "power": 0.8,
+    "alpha": 0.05,
+    "k_predictors": null
+  },
+  "k_predictors_status": "placeholder",
+  "notes": "Preliminary pre-registration draft generated before source verification (T011). The predictor count is a placeholder and will be updated by the power analysis gate (T009) once the verified dataset and actual feature count are known."
+}

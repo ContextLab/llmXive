@@ -1,0 +1,19 @@
+status: none
+intent: EEG raw time series paired tDCS motor outcome dataset OpenNeuro PhysioNet
+  Kaggle python package dataset
+required_fields:
+- subject_id
+- session_id
+- eeg_time_series
+- eeg_sampling_rate
+- eeg_channel_names
+- eeg_channel_locations
+- tDCS_stimulation_parameters
+- tDCS_current_mA
+- tDCS_duration_sec
+- tDCS_montage
+- motor_performance_score
+- timestamp_alignment
+cache_key: 5167ca25ac3dd347dc44bbc91df9bad32e0f4f5d9022a751a67a76ffbffe355c
+searched_at: '2026-10-18T15:39:22.372629+00:00'
+retry_count: 1

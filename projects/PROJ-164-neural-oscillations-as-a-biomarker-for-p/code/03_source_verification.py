@@ -1,169 +1,214 @@
+"""T011: Source Verification Task.
+
+Searches OpenNeuro, PhysioNet, and Kaggle for a single-source dataset
+containing BOTH raw EEG time-series and paired tDCS motor outcome scores
+for the same subjects, using the query "EEG AND tDCS AND motor".
+
+Produces data/verified_source_manifest.json with the mandatory fields:
+search_scope, query_string, status ("found"/"absent"), N_actual, and
+mode_flag. If no paired dataset is found, logs "Data Insufficient:
+No single-source paired dataset found" and sets mode_flag to
+"Data Insufficient" so downstream tasks (T013-T050) skip execution.
+"""
+
 import json
 import logging
-import os
+import re
 import sys
-from pathlib import Path
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-# Import utilities from the project's existing API surface
-from utils.io_helpers import write_json, load_json
-from utils.logging_setup import get_logger, log_info, log_error, log_warning
+import requests
 
-# Configure logger
-logger = get_logger("source_verification")
+from llmxive_toolkit import paths, get_logger
 
-# Constants
-SEARCH_QUERY = "EEG AND tDCS AND motor"
-SEARCH_SOURCES = ["OpenNeuro", "PhysioNet", "Kaggle"]
-MANIFEST_PATH = Path("data/processed/verified_source_manifest.json")
-MODE_FLAG_PATH = Path("state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml")
+log = get_logger(__name__)
 
+QUERY_STRING = "EEG AND tDCS AND motor"
+SEARCH_SCOPE = ["OpenNeuro", "PhysioNet", "Kaggle"]
+MANIFEST_PATH = paths.data("verified_source_manifest.json")
+REQUEST_TIMEOUT_S = 30
 
-class MockSearchResult:
+OPENNEURO_SEARCH_URL = "https://openneuro.org/api/search"
+PHYSIONET_SEARCH_URL = "https://physionet.org/content/"
+KAGGLE_SEARCH_URL = "https://www.kaggle.com/api/v1/datasets/list"
+
+def _http_get(url: str, params: Dict[str, str]) -> requests.Response:
+    """GET a URL with a timeout. Raises loudly on network failure."""
+    resp = requests.get(url, params=params, timeout=REQUEST_TIMEOUT_S,
+                        headers={"User-Agent": "llmXive-PROJ-164-T011/1.0"})
+    resp.raise_for_status()
+    return resp
+
+def search_openneuro(query: str) -> List[Dict[str, Any]]:
+    """Query the OpenNeuro public search API. Returns normalized results."""
+    resp = _http_get(OPENNEURO_SEARCH_URL, {"q": query})
+    payload = resp.json()
+    results = payload.get("results", payload if isinstance(payload, list) else [])
+    out: List[Dict[str, Any]] = []
+    for r in results:
+        if not isinstance(r, dict):
+            continue
+        out.append({
+            "source": "OpenNeuro",
+            "id": r.get("id") or r.get("accession"),
+            "name": r.get("name") or r.get("title") or "",
+            "description": (r.get("description") or "")[:500],
+            "url": "https://openneuro.org/datasets/{}".format(r.get("id")) if r.get("id") else "",
+            "subjects": r.get("subjects"),
+        })
+    return out
+
+def search_physionet(query: str) -> List[Dict[str, Any]]:
+    """Query the PhysioNet content search page and parse dataset links."""
+    resp = _http_get(PHYSIONET_SEARCH_URL, {"query": query.replace(" AND ", " ")})
+    hrefs = re.findall(r'href="(/content/[a-z0-9-]+/[0-9.]+/)"', resp.text)
+    out: List[Dict[str, Any]] = []
+    for href in dict.fromkeys(hrefs):  # dedupe, preserve order
+        slug = href.strip("/").split("/")[-2]
+        out.append({
+            "source": "PhysioNet",
+            "id": slug,
+            "name": slug,
+            "description": "",
+            "url": "https://physionet.org{}".format(href),
+            "subjects": None,
+        })
+    return out
+
+def search_kaggle(query: str) -> List[Dict[str, Any]]:
+    """Query the Kaggle public datasets list endpoint.
+
+    The public list endpoint may require authentication; a 401/403 is
+    recorded as a source-level search error rather than a fabricated
+    result set.
     """
-    Mock class representing a search result from a data repository.
-    In a real implementation, this would be populated by API calls.
+    resp = _http_get(KAGGLE_SEARCH_URL, {"search": query.replace(" AND ", " ")})
+    payload = resp.json()
+    out: List[Dict[str, Any]] = []
+    for r in payload if isinstance(payload, list) else []:
+        out.append({
+            "source": "Kaggle",
+            "id": r.get("ref") or r.get("id"),
+            "name": r.get("title") or r.get("ref") or "",
+            "description": (r.get("subtitle") or "")[:500],
+            "url": "https://www.kaggle.com/datasets/{}".format(r.get("ref")) if r.get("ref") else "",
+            "subjects": None,
+        })
+    return out
+
+def is_paired_eeg_tdcs(entry: Dict[str, Any]) -> bool:
+    """Heuristic check: does the entry mention BOTH EEG and tDCS?
+
+    A single-source paired dataset must contain raw EEG time-series and
+    tDCS motor outcome scores for the same subjects.
     """
-    def __init__(self, source: str, dataset_id: str, title: str, n_subjects: int, has_eeg: bool, has_tdcs: bool):
-        self.source = source
-        self.dataset_id = dataset_id
-        self.title = title
-        self.n_subjects = n_subjects
-        self.has_eeg = has_eeg
-        self.has_tdcs = has_tdcs
+    text = " ".join([
+        str(entry.get("name") or ""),
+        str(entry.get("description") or ""),
+    ]).lower()
+    has_eeg = "eeg" in text or "electroencephal" in text
+    has_tdcs = "tdcs" in text or "transcranial direct current" in text
+    return has_eeg and has_tdcs
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "source": self.source,
-            "dataset_id": self.dataset_id,
-            "title": self.title,
-            "n_subjects": self.n_subjects,
-            "has_eeg": self.has_eeg,
-            "has_tdcs": self.has_tdcs
-        }
-
-
-class MockOpenNeuroClient:
-    """
-    Mock client for OpenNeuro API.
-    Since OpenNeuro, PhysioNet, and Kaggle do not have a simple unified API
-    that can be queried with "EEG AND tDCS AND motor" without complex scraping
-    or specific dataset IDs, and no verified real source is provided in the
-    context, this implementation simulates the search logic.
-    
-    In a production environment, this would use:
-    - OpenNeuro: https://openneuro.org/api/graphql
-    - PhysioNet: https://physionet.org/api/
-    - Kaggle: https://www.kaggle.com/api/v1/datasets/
-    
-    This mock explicitly checks for the *absence* of a single-source paired dataset
-    based on the task description's implication that such a dataset is rare or non-existent
-    for this specific combination in a single source.
-    """
-    def search(self, query: str) -> List[MockSearchResult]:
-        log_info(f"Searching OpenNeuro for: {query}")
-        # Simulate search: No single-source dataset found with BOTH EEG and tDCS motor data
-        # Real OpenNeuro has EEG and tDCS separately, but rarely paired in a single dataset
-        # specifically for "motor" response prediction as a unified biomarker study.
-        return []
-
-
-class MockPhysioNetClient:
-    """
-    Mock client for PhysioNet API.
-    """
-    def search(self, query: str) -> List[MockSearchResult]:
-        log_info(f"Searching PhysioNet for: {query}")
-        # Simulate search: No single-source dataset found
-        return []
-
-
-class MockKaggleClient:
-    """
-    Mock client for Kaggle API.
-    """
-    def search(self, query: str) -> List[MockSearchResult]:
-        log_info(f"Searching Kaggle for: {query}")
-        # Simulate search: No single-source dataset found
-        return []
-
+def _search_all_sources(query: str) -> Dict[str, Any]:
+    """Run all three source searches, recording per-source outcomes."""
+    searchers = {
+        "OpenNeuro": search_openneuro,
+        "PhysioNet": search_physionet,
+        "Kaggle": search_kaggle,
+    }
+    per_source: Dict[str, Any] = {}
+    for source, fn in searchers.items():
+        try:
+            per_source[source] = {
+                "status": "searched",
+                "n_results": None,
+                "results": fn(query),
+            }
+            per_source[source]["n_results"] = len(per_source[source]["results"])
+            log.info("Searched %s for '%s': %d results",
+                     source, query, per_source[source]["n_results"])
+        except Exception as exc:  # record the failure honestly
+            per_source[source] = {"status": "search_error", "error": str(exc)}
+            log.warning("Search of %s failed: %s", source, exc)
+    return per_source
 
 def verify_source() -> Dict[str, Any]:
+    """Search OpenNeuro, PhysioNet, and Kaggle for a paired EEG + tDCS dataset.
+
+    Returns the manifest dict with search_scope, query_string, status
+    ("found"/"absent"), dataset details, N_actual, and mode_flag.
     """
-    Searches OpenNeuro, PhysioNet, and Kaggle for a paired EEG + tDCS motor dataset.
-    
-    Returns:
-        Dict containing the manifest data:
-        - search_scope: list of sources searched
-        - query: the search query string
-        - status: "found" or "absent"
-        - dataset: details if found, else None
-        - N_actual: number of subjects if found, else 0
-    """
-    log_info("Starting Source Verification Task (T011)")
-    
-    clients = [
-        ("OpenNeuro", MockOpenNeuroClient()),
-        ("PhysioNet", MockPhysioNetClient()),
-        ("Kaggle", MockKaggleClient())
-    ]
-    
-    found_dataset = None
-    total_subjects = 0
-    
-    for source_name, client in clients:
-        try:
-            results = client.search(SEARCH_QUERY)
-            for res in results:
-                if res.has_eeg and res.has_tdcs:
-                    found_dataset = res
-                    total_subjects = res.n_subjects
-                    log_info(f"Found paired dataset in {source_name}: {res.dataset_id}")
-                    break
-            if found_dataset:
-                break
-        except Exception as e:
-            log_error(f"Error searching {source_name}: {e}")
+    per_source = _search_all_sources(QUERY_STRING)
+
+    searched_ok = [s for s, r in per_source.items() if r.get("status") == "searched"]
+    if not searched_ok:
+        raise RuntimeError(
+            "Source verification could not reach ANY of the search APIs "
+            "({}); refusing to declare a dataset absent without a real "
+            "search.".format(SEARCH_SCOPE)
+        )
+
+    candidates: List[Dict[str, Any]] = []
+    for source, record in per_source.items():
+        if record.get("status") != "searched":
             continue
-    
-    manifest = {
-        "search_scope": SEARCH_SOURCES,
-        "query": SEARCH_QUERY,
-        "status": "found" if found_dataset else "absent",
-        "dataset": found_dataset.to_dict() if found_dataset else None,
-        "N_actual": total_subjects if found_dataset else 0
-    }
-    
+        for entry in record["results"]:
+            if is_paired_eeg_tdcs(entry):
+                candidates.append(entry)
+
+    if candidates:
+        best = candidates[0]
+        n_actual = best.get("subjects")
+        n_actual = int(n_actual) if isinstance(n_actual, (int, float)) else 0
+        manifest = {
+            "search_scope": SEARCH_SCOPE,
+            "query_string": QUERY_STRING,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "per_source": {
+                s: {"status": r.get("status"), "n_results": r.get("n_results")}
+                for s, r in per_source.items()
+            },
+            "status": "found",
+            "dataset": best,
+            "N_actual": n_actual,
+            "mode_flag": "Primary",
+        }
+        log.info("Primary Mode: single-source paired dataset found: %s", best.get("url"))
+    else:
+        manifest = {
+            "search_scope": SEARCH_SCOPE,
+            "query_string": QUERY_STRING,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "per_source": {
+                s: {"status": r.get("status"), "n_results": r.get("n_results")}
+                for s, r in per_source.items()
+            },
+            "status": "absent",
+            "dataset": None,
+            "N_actual": 0,
+            "mode_flag": "Data Insufficient",
+            "reason": ("No single-source dataset containing both raw EEG and "
+                       "paired tDCS motor outcome scores was found in "
+                       "OpenNeuro, PhysioNet, or Kaggle. Cross-repository "
+                       "pairing is prohibited (FR-015), so the pipeline "
+                       "terminates downstream statistical tasks."),
+        }
+        log.warning("Data Insufficient: No single-source paired dataset found")
+
+    MANIFEST_PATH.write_text(json.dumps(manifest, indent=2) + "\n")
+    log.info("Manifest written to %s (status=%s)", MANIFEST_PATH, manifest["status"])
     return manifest
 
-
-def main():
-    """
-    Main entry point for T011.
-    1. Searches for the dataset.
-    2. Writes the manifest to data/processed/verified_source_manifest.json.
-    3. Logs the outcome.
-    4. If not found, logs "Data Insufficient" message.
-    """
-    # Ensure output directory exists
-    MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
-    
+def main() -> int:
+    logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s %(levelname)s %(name)s %(message)s")
     manifest = verify_source()
-    
-    # Write manifest
-    write_json(MANIFEST_PATH, manifest)
-    log_info(f"Manifest written to {MANIFEST_PATH}")
-    
     if manifest["status"] == "absent":
-        log_warning("Data Insufficient: No single-source paired dataset found")
-        log_info("Pipeline will terminate downstream tasks (T013-T050) via mode flag.")
-        # The mode flag logic is handled by T012 which reads this manifest.
-        # We ensure the manifest clearly states 'absent'.
-    else:
-        log_info(f"Data found: {manifest['dataset']['dataset_id']} with {manifest['N_actual']} subjects.")
-    
+        log.warning("Downstream tasks T013-T050 will be skipped "
+                    "(mode_flag=%s).", manifest["mode_flag"])
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

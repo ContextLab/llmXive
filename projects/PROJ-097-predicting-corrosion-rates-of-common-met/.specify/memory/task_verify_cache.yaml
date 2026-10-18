@@ -1,0 +1,20 @@
+T013:
+  c: true
+  h: 4931a668c046e4ab61cf0a4b01d37bd7ee9175087a780033c95d3f0e80422bd3
+  r: Both `src/requirements.txt` and `code/requirements.txt` exist, are non-empty,
+    and contain the exact nine pinned dependencies with the specified version constraints
+    (pandas==2.2.*, numpy==2.0.*, scikit-learn==1.5.*, shap==0.45.*, statsmodels==0.14.*,
+    openml==0.14.*, psutil==5.9.*, pyyaml==6.0.*, pytest==8.*); the two files' contents
+    are identical (the 1-byte size difference is only a trailing newline). No pip-install
+    execution evidence was supplied, but the pins are mutually compatible and the
+    artifact requirement itself is fully met.
+  sig: 46ff0d56b5712d7219fa026683907a81623dfa559dadcc565bfa5eeda652d5f3
+T015:
+  c: true
+  h: 991cc197cf6ad6b540e71ac20997b28771d41455889459175a3cd8a56d377d51
+  r: The artifact `specs/001-predicting-corrosion-rates-of-common-met/quickstart.md`
+    exists (3574 bytes) and contains the exact required command strings `python -m
+    src.pipeline.run_all` and `pytest src/tests/`. The task explicitly states execution
+    is not required at this stage, so the missing `src/tests/` directory is not a
+    defect for this documentation task.
+  sig: 20ad5fe91c2658af04ce6a321ba67f6c996ff2a18f005e87283f0d2f7a0ad326

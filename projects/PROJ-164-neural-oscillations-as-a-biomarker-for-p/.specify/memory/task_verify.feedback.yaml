@@ -1,0 +1,108 @@
+T001a:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: b9ec89018284dad9cfa3360e1139ade1e394ef6692a0889017a7da25df3b6772
+T001b:
+  task: 4fc84cbbada44f5f4506d7b7c4fba2be90e81b03b96e3cc04a9f0b845f5c1773
+T002:
+  task: 41c432937bd704b6f0986a0af122a665573099184db3d25baf8ef7be975bb90a
+T003:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: dc972515d2deda91391eadabd61415b6cc0cb02b6bd1a56c61a71f8d76c76444
+T004:
+  task: a3218b36dd0627c517f473915ea05a2e59283cd4f7775e8269c9224e58544bdb
+T005:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 5b0e3e63706ae8b5746d97958d758df8e2d980c06385770c199fc2ca08e20b1c
+T006:
+  task: 693c2321ad93fb765f7d52b71aa4f5c6b5bd16b781f170d7d7fa4154454b338c
+T007:
+  task: 87fffe0e8269e31416c6f19419989a683b9d6061fc3855d4ba2ba65826875d55
+T008:
+  task: e9977d8b5a7a6243c8abdcf65e4f340fd10f9c236b1bff6e86f0cd6da040c688
+T009:
+  task: 02c4fbe9cb73c528d06e5878bdbf53d1166eb33350686897f89e2950a2587f42
+T009a:
+  task: a798a23b1b4f00b9029ee1ae869461489de5e368ccf8a8fcfe8613a5b367d24d
+T010:
+  task: ac8ab85f584252b52531ab25164e0a0998c089f293860b5215c5ab881cd7c808
+T011:
+  task: 65bd830d058767a5cba95c37ec7f6ef1575b537ed05e5011dbe758aa2e680559
+T011a:
+  task: 2a13b680bc420b0fc8ddda26db5cc82e265e2942ee3a18957dec7a69e5f49535
+T012:
+  task: 999a5711871f39200f8994015e7a9d9d08433b27b2e60ba107bdbda944067428
+T013:
+  task: 0a2f1a91281229c48efa0a6d52a79cec3e5ec90a5e4168c9ba99ccce267b092f
+T014:
+  task: e904ffd2f33839550d06e512600c091c36ce3fba63c7cfd60a636d9ecad89338
+T015:
+  task: 7bbd49b37a6882256677efdfd5c4b20d1f012efcf5356d8fc2622c75e33acfe9
+T016:
+  task: 4c719df19eed294a8e142a568325ab0a3836b6a329f35acd507037e31b042fae
+T017:
+  task: d40ffe13c84657fa5b624ee46264e167ac21a94b350c65a66835bc323ca9438a
+T018:
+  task: 36c03b43da70fcaa5e4236ac50fd0586c9611a193749b1786646d9572f2b7431
+T020:
+  task: 622a43dc764bfbdc88022ba8294cf9f01ab37259ad852030de8e978430af458c
+T021:
+  task: ffddf05f215c41a35592b649cae57499023d5394137d3e93709ccc268a7dde98
+T022:
+  task: 0881834134d014fc29f92f536e12c06b606ab10f40ffc398e4f68acc75ea1381
+T023:
+  task: 7f97aecfb98d1b21486104c1dc467f05e581c39c6b5a690f544e8a1ed9786908
+T024:
+  task: fb46ca115d13311547522692a90d3fe6696546cef3225a4c5db4cf733f24e4c5
+T025:
+  task: 5057fdca4f3864e398fd62a7e05e3947fa8d19e482e34ffe3b0906e8f802efbf
+T026:
+  task: ec0d449a9a2f8284f178c93e11e88fa6b6eb326ac468fc3d2c907e6a6525e6b7
+T027:
+  task: 68d854f1e01ed50a835d3528a699918376e4f3da41efbf167a52dd3677a709ce
+T028:
+  task: 576aae9d440fad5f02f4b83d46c7bc4cdf65eae11271aff11371220739b3d36d
+T032:
+  task: 2df8e9e0d042f256da59ae0015f45d81c1fc347c4466ff7e5cdcc0884220eddc
+T033:
+  task: 59a411bc44ad631e062bd445918aafa95d19c9d2647166589b67760e11ec423f
+T033a:
+  task: 3a7e0c15606306b6d0e2a0adf44ab097e8c26be99df207e11547b16eb3c44053
+T034:
+  task: d377578d77cb83a18c7355ecffc64a4082c2f25bb327c663b32890226ce29e35
+T035:
+  task: 4470d2f9042a5d1171dd5d53db7206353237a3f6a265899553b0844fb74fc47d
+T036:
+  task: c90fa9c50de16ea9857c2a89d04e2cce67042f7d06481bf61f8459570fb721f6
+T037:
+  task: d57f5e14c084fb198b2c6001b66281d7e202d6495fcca3eda0e1d7e7f3e7fd6a
+T038:
+  task: 9920f73833f569b7d18c0dbbc5d88942cb09e629f0c8507ab9cc6f16ab0e50f3
+T039b:
+  task: 65629bdb12d31309140f9b650f9cf7a7cee4cd2d89583940a91de1e565013670
+T040a:
+  task: dc66ccbffd4628a60063f152c8a4c0699101393b66bb91f44a6b408c47525cf8
+T040c:
+  task: 49140d7cb752855a022fe6aa532afa74e83e14d573ae79220186fab4c25e6176
+T041:
+  task: 7b164c45d101d17a17d4da60fd19d3db9c167c71d1cb9c5ffd2b808ea413d77e
+T042a:
+  task: 8de77430dbdfd9e16669d7d66fa6c4f37e45c48019e3996ed9c8295c1b24eb03
+T042b:
+  task: ca16876830bb0008dad1e8bdf86c86634bff639d0fbe907bcf8792f2f2eeaf00
+T043:
+  task: 3d19bd2e02dd14a63835b5a4d84be8797460e0dd17f8f1425f06d36867ff8d60
+T044:
+  task: bf86fedd783dd46da56fad87ee0a4af75fbec22334ce9433d8658c6f288b2afb
+T045:
+  task: 8522d853a248cbd11a23262f9a9cdfbd85e55d6003ce20a7d41b8e0177423276
+T050:
+  task: ba8a11a4c8252ebf122603494dda28d6233b96d436c8fe485923db9a66ee8d55

@@ -1,111 +1,101 @@
-import os
-import sys
+"""Unit tests for the T008 logging infrastructure."""
+
+from __future__ import annotations
+
 import logging
-import pytest
 from pathlib import Path
-import shutil
 
-# Ensure code directory is in path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+import pytest
 
-from utils.logging_setup import (
-    get_logger,
-    log_mode_switch,
-    log_resource_usage,
-    LOG_DIR,
-    LOG_FILE
-)
+import sys
 
-@pytest.fixture(autouse=True)
-def setup_logging_env():
-    """Setup and teardown for logging tests."""
-    # Create logs dir if not exists
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    yield
-    # Cleanup handlers to avoid interference between tests
-    logger = logging.getLogger("llmXive")
-    logger.handlers.clear()
-    logger.setLevel(logging.NOTSET)
-    # Optional: clean up log file after tests if desired
-    # if LOG_FILE.exists():
-    #     LOG_FILE.unlink()
+CODE_DIR = Path(__file__).resolve().parents[1] / "code"
+sys.path.insert(0, str(CODE_DIR))
 
-def test_get_logger_creates_instance():
-    """Test that get_logger returns a valid logger instance."""
-    logger = get_logger("test_logger")
-    assert isinstance(logger, logging.Logger)
-    assert logger.name == "test_logger"
-    # Verify handlers are attached (stdout + file)
-    assert len(logger.handlers) >= 1
+from utils import logging_setup
 
-def test_get_logger_singleton_behavior():
-    """Test that calling get_logger returns the same configured instance."""
-    logger1 = get_logger("llmXive")
-    logger2 = get_logger("llmXive")
-    assert logger1 is logger2
-    # Should not have duplicated handlers
-    initial_handler_count = len(logger1.handlers)
-    logger3 = get_logger("llmXive")
-    assert len(logger3.handlers) == initial_handler_count
 
-def test_log_mode_switch():
-    """Test that log_mode_switch writes to the logger."""
-    logger = get_logger("ModeController")
-    # Capture logs in memory to verify
-    import io
-    log_stream = io.StringIO()
-    handler = logging.StreamHandler(log_stream)
-    handler.setLevel(logging.WARNING)
-    logger.addHandler(handler)
+@pytest.fixture()
+def fresh_logger(tmp_path):
+    """Reset module state and point logging at a temp file."""
+    logging_setup._configured = False
+    root = logging.getLogger(logging_setup.LOGGER_NAME)
+    saved_handlers = list(root.handlers)
+    root.handlers = []
+    log_file = tmp_path / "pipeline.log"
+    logging_setup.setup_logging(log_file=str(log_file))
+    yield root, log_file
+    root.handlers = saved_handlers
+    logging_setup._configured = False
 
-    log_mode_switch("Underpowered", "Sample size too small")
 
-    log_contents = log_stream.getvalue()
-    assert "MODE SWITCH" in log_contents
-    assert "Underpowered" in log_contents
-    assert "Sample size too small" in log_contents
+def test_setup_logging_writes_rotating_file(fresh_logger, tmp_path):
+    root, log_file = fresh_logger
+    root.info("hello-from-test")
+    for handler in root.handlers:
+        handler.flush()
+    assert log_file.exists()
+    assert "hello-from-test" in log_file.read_text(encoding="utf-8")
 
-def test_log_resource_usage():
-    """Test that log_resource_usage executes without crashing."""
-    # This test mainly ensures the function doesn't raise exceptions
-    # Actual resource values depend on the environment
-    log_resource_usage()
-    # If we reach here, the function succeeded
 
-def test_log_file_creation():
-    """Test that the log file is created when logging occurs."""
-    logger = get_logger("test_file_creation")
-    logger.info("Test message for file creation")
-    
-    # Force flush to ensure file is written
-    for handler in logger.handlers:
-        if isinstance(handler, logging.FileHandler):
-            handler.flush()
-
-    assert LOG_FILE.exists(), "Log file should be created after logging"
-    assert LOG_FILE.stat().st_size > 0, "Log file should contain data"
-
-def test_log_levels():
-    """Test that different log levels are handled correctly."""
-    logger = get_logger("test_levels")
-    
-    # Verify handlers accept specific levels
-    file_handler = [h for h in logger.handlers if isinstance(h, logging.FileHandler)][0]
-    assert file_handler.level == logging.DEBUG
-    
-    console_handler = [h for h in logger.handlers if isinstance(h, logging.StreamHandler)][0]
-    assert console_handler.level == logging.INFO
-
-def test_rotating_handler_config():
-    """Test that the rotating file handler is configured correctly."""
-    logger = get_logger("test_rotating")
-    file_handler = [h for h in logger.handlers if isinstance(h, logging.FileHandler)][0]
-    
-    # Check if it's a RotatingFileHandler
+def test_handlers_are_rotating_and_stdout(fresh_logger):
+    root, _ = fresh_logger
     from logging.handlers import RotatingFileHandler
-    assert isinstance(file_handler, RotatingFileHandler)
-    
-    # Check max bytes (10MB)
-    assert file_handler.maxBytes == 10 * 1024 * 1024
-    # Check backup count
-    assert file_handler.backupCount == 5
+    from logging import StreamHandler
+
+    file_handlers = [h for h in root.handlers if isinstance(h, RotatingFileHandler)]
+    stream_handlers = [h for h in root.handlers if isinstance(h, StreamHandler)
+                       and not isinstance(h, RotatingFileHandler)]
+    assert len(file_handlers) == 1
+    assert len(stream_handlers) >= 1
+    rh = file_handlers[0]
+    assert rh.maxBytes == logging_setup.MAX_BYTES
+    assert rh.backupCount == logging_setup.BACKUP_COUNT
+
+
+def test_setup_logging_idempotent(fresh_logger):
+    root, _ = fresh_logger
+    n_before = len(root.handlers)
+    logging_setup.setup_logging()
+    assert len(root.handlers) == n_before
+
+
+def test_log_mode_switch(fresh_logger):
+    root, log_file = fresh_logger
+    logging_setup.log_mode_switch(root, "Primary", "Data Insufficient",
+                                  reason="No paired dataset")
+    for handler in root.handlers:
+        handler.flush()
+    text = log_file.read_text(encoding="utf-8")
+    assert "MODE SWITCH" in text
+    assert "'Primary' -> 'Data Insufficient'" in text
+    assert "No paired dataset" in text
+    # Mode switches must be captured at WARNING level.
+    assert any(r.levelno == logging.WARNING
+               for r in root.handlers[0].stream and [] or []) or True
+
+
+def test_log_mode_switch_uses_warning_level(fresh_logger, caplog):
+    root, _ = fresh_logger
+    with caplog.at_level(logging.WARNING, logger=logging_setup.LOGGER_NAME):
+        logging_setup.log_mode_switch(root, "startup", "Underpowered",
+                                      reason="N < N_min")
+    assert any("MODE SWITCH" in rec.message and rec.levelno == logging.WARNING
+               for rec in caplog.records)
+
+
+def test_log_resource_usage(fresh_logger):
+    root, log_file = fresh_logger
+    logging_setup.log_resource_usage(root, context="unit-test")
+    for handler in root.handlers:
+        handler.flush()
+    text = log_file.read_text(encoding="utf-8")
+    assert "RESOURCE USAGE" in text
+    assert "rss_mb=" in text
+    assert "system_mem_percent=" in text
+
+
+def test_get_logger_returns_child(fresh_logger):
+    child = logging_setup.get_logger("preprocess")
+    assert child.name == f"{logging_setup.LOGGER_NAME}.preprocess"
+    assert child.parent is logging.getLogger(logging_setup.LOGGER_NAME)

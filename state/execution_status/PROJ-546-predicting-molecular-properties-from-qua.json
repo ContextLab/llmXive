@@ -10,10 +10,10 @@
     "python code/main.py train -> rc=2\n    usage: main.py [-h] [--skip-fetch]\nmain.py: error: unrecognized arguments: train"
   ],
   "fix_rounds": 0,
-  "model_tier": 1,
+  "model_tier": 2,
   "total_attempts": 5,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-12T04:27:28Z"
+  "updated_at": "2026-10-18T15:22:23Z"
 }

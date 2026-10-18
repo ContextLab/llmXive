@@ -1,99 +1,140 @@
+"""Logging infrastructure for the PROJ-164 pipeline (Task T008).
+
+Provides:
+- ``setup_logging``: idempotent configuration of stdout + rotating file
+  logging to ``logs/pipeline.log`` (RotatingFileHandler, 5 MB per file,
+  3 backups) to prevent disk overflow.
+- ``get_logger``: return a named logger under the configured root.
+- ``log_mode_switch``: structured logging of pipeline mode switches
+  (Primary / Data Insufficient / Underpowered).
+- ``log_resource_usage``: periodic CPU / memory usage capture (NFR-001).
+"""
+
+from __future__ import annotations
+
 import logging
 import os
 import sys
-import resource
-from pathlib import Path
+from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from typing import Optional
 
-# Constants
-LOG_DIR = Path("logs")
-LOG_FILE = LOG_DIR / "pipeline.log"
-MAX_BYTES = 10 * 1024 * 1024  # 10 MB
-BACKUP_COUNT = 5
-FORMAT_STRING = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+import psutil
 
-# Ensure log directory exists
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+LOGGER_NAME = "proj164"
+DEFAULT_LOG_FILE = "pipeline.log"
+MAX_BYTES = 5 * 1024 * 1024  # 5 MB per log file
+BACKUP_COUNT = 3             # pipeline.log + 3 rotated backups
 
-# Global logger instance
-_logger: Optional[logging.Logger] = None
+LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
 
-def get_logger(name: str = "llmXive") -> logging.Logger:
+_configured = False
+
+
+def _default_log_dir() -> Path:
+    """Return the project ``logs/`` directory, creating it if needed."""
+    try:
+        from llmxive_toolkit import paths
+
+        return paths.path("logs").parent / "logs"
+    except Exception:
+        # Fallback: locate logs/ relative to this file (code/utils/).
+        root = Path(__file__).resolve().parents[1]
+        logs = root / "logs"
+        logs.mkdir(parents=True, exist_ok=True)
+        return logs
+
+
+def setup_logging(
+    log_file: Optional[str] = None,
+    level: int = logging.INFO,
+    max_bytes: int = MAX_BYTES,
+    backup_count: int = BACKUP_COUNT,
+) -> logging.Logger:
+    """Configure stdout + rotating-file logging (idempotent).
+
+    Args:
+        log_file: Path to the log file. Defaults to ``logs/pipeline.log``
+            in the project root. A parent directory is created if needed.
+        level: Logging level for handlers.
+        max_bytes: Rotation size threshold for the file handler.
+        backup_count: Number of rotated backups to keep.
+
+    Returns:
+        The configured root logger for the pipeline.
     """
-    Returns a configured logger instance.
-    The logger writes to both stdout and a rotating file handler.
+    global _configured
+
+    if log_file is None:
+        log_path = _default_log_dir() / DEFAULT_LOG_FILE
+    else:
+        log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger = logging.getLogger(LOGGER_NAME)
+    logger.setLevel(level)
+    logger.propagate = False
+
+    if _configured:
+        return logger
+
+    formatter = logging.Formatter(LOG_FORMAT)
+
+    file_handler = RotatingFileHandler(
+        log_path, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8"
+    )
+    file_handler.setLevel(level)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+    stream_handler = logging.StreamHandler(stream=sys.stdout)
+    stream_handler.setLevel(level)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
+
+    _configured = True
+    logger.info("Logging initialized: file=%s (rotation: %d bytes, %d backups)",
+                log_path, max_bytes, backup_count)
+    return logger
+
+
+def get_logger(name: str, log_file: Optional[str] = None) -> logging.Logger:
+    """Return a named child logger of the pipeline root logger.
+
+    Configures logging on first use so callers do not need to call
+    ``setup_logging`` explicitly.
     """
-    global _logger
-    if _logger is None:
-        _logger = logging.getLogger(name)
-        _logger.setLevel(logging.DEBUG)
-        
-        # Prevent adding handlers multiple times if called repeatedly in same process
-        if _logger.handlers:
-            return _logger
-
-        # Console Handler (stdout)
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(logging.Formatter(FORMAT_STRING))
-        _logger.addHandler(console_handler)
-
-        # Rotating File Handler
-        file_handler = RotatingFileHandler(
-            LOG_FILE,
-            maxBytes=MAX_BYTES,
-            backupCount=BACKUP_COUNT,
-            encoding="utf-8"
-        )
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(logging.Formatter(FORMAT_STRING))
-        _logger.addHandler(file_handler)
-
+    setup_logging(log_file=log_file)
+    if not name.startswith(LOGGER_NAME):
+        name = f"{LOGGER_NAME}.{name}"
     return logging.getLogger(name)
 
-def log_mode_switch(mode: str, reason: str) -> None:
-    """
-    Logs a mode switch event with high visibility.
-    Used when the pipeline transitions between Primary, Data Insufficient, or Underpowered.
-    """
-    logger = get_logger("ModeController")
-    logger.warning(f"MODE SWITCH: {mode} | Reason: {reason}")
-    # Also log to critical for immediate attention in logs
-    logger.critical(f"Pipeline mode set to: {mode}")
 
-def log_resource_usage() -> None:
-    """
-    Logs current memory and CPU resource usage.
-    Uses resource module for Unix-like systems.
-    Falls back gracefully on Windows if resource limits aren't applicable in the same way.
-    """
-    logger = get_logger("ResourceMonitor")
-    try:
-        usage = resource.getrusage(resource.RUSAGE_SELF)
-        maxrss_mb = usage.ru_maxrss / 1024  # Convert KB to MB (on Linux/macOS)
-        # Note: On Windows, ru_maxrss is in bytes, so division by 1024**2 would be needed.
-        # For cross-platform safety in this specific script context, we assume standard CI env (Linux).
-        
-        logger.info(f"Resource Usage - Max RSS: {maxrss_mb:.2f} MB, User CPU: {usage.ru_utime:.2f}s, Sys CPU: {usage.ru_stime:.2f}s")
-    except AttributeError:
-        # resource module might not be fully available or behave differently on some platforms
-        logger.debug("Resource monitoring skipped: resource module not fully available.")
-    except Exception as e:
-        logger.warning(f"Failed to log resource usage: {e}")
+def log_mode_switch(logger: logging.Logger, old_mode: str, new_mode: str,
+                    reason: str = "") -> None:
+    """Log a pipeline mode switch (FR-001 / FR-008 evidence trail)."""
+    logger.warning("MODE SWITCH: '%s' -> '%s' | reason: %s",
+                   old_mode, new_mode, reason or "unspecified")
 
-def log_warning(message: str) -> None:
-    """Convenience wrapper to log a warning."""
-    get_logger().warning(message)
 
-def log_info(message: str) -> None:
-    """Convenience wrapper to log info."""
-    get_logger().info(message)
+def log_resource_usage(logger: logging.Logger, context: str = "") -> None:
+    """Log current process and system resource usage (NFR-001)."""
+    process = psutil.Process(os.getpid())
+    mem = process.memory_info().rss / (1024 ** 2)
+    sys_mem = psutil.virtual_memory()
+    logger.info(
+        "RESOURCE USAGE%s | pid=%d | cpu_percent=%.1f%% | rss_mb=%.1f | "
+        "system_mem_used_mb=%.1f | system_mem_percent=%.1f%%",
+        f" [{context}]" if context else "",
+        process.pid,
+        process.cpu_percent(interval=0.1),
+        mem,
+        sys_mem.used / (1024 ** 2),
+        sys_mem.percent,
+    )
 
-def log_error(message: str) -> None:
-    """Convenience wrapper to log an error."""
-    get_logger().error(message)
 
-def log_debug(message: str) -> None:
-    """Convenience wrapper to log debug info."""
-    get_logger().debug(message)
+def utc_timestamp() -> str:
+    """Return an ISO-8601 UTC timestamp string."""
+    return datetime.now(timezone.utc).isoformat()

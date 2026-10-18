@@ -1,26 +1,31 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
+
 **Verdict**: pass
 
-The question asks about a fundamental physical relationship: whether differential acceleration scales with gravitational binding energy, which is the specific signature of a Strong Equivalence Principle violation (the Nordtvedt effect). While the methodology involves subtracting a GR-only ephemeris, this is a necessary step to isolate the residual signal of interest, not the subject of the inquiry itself. The core question remains a test of gravitational theory independent of the specific numerical integration tools used.
+The question asks about a physical relationship — whether SEP-violation signals in orbital dynamics scale with gravitational binding energy fraction — which is a substantive question about the nature of gravity, independent of any particular analysis technique. The Fourier/template-fitting and regression machinery are means, not the object of inquiry. (Minor note: the title says "Weak Equivalence Principle" but the question is about the *Strong* Equivalence Principle / Nordtvedt effect; this is a labeling inconsistency, not a framing failure.)
 
 ### Circularity check
+
 **Verdict**: pass
 
-The predictor (gravitational binding energy fraction $\Omega$) is derived from independent interior structure models and bulk planetary properties (mass, radius, density profiles). The predicted variable (differential acceleration residuals) is derived from high-precision ranging data compared against a dynamical model. These are two distinct data sources; the residuals are not mathematically constructed from the binding energy values, so the relationship is empirical rather than mechanical.
+The predictor ($\Omega$, gravitational binding energy fraction) comes from planetary interior-structure models; the predicted variable (amplitude of Nordtvedt-polarization modes in ranging residuals) comes from independent radiometric ranging observations. These are genuinely independent data sources, and the injected-signal validation step provides an additional check that the extraction is not manufacturing the correlation.
 
 ### Triviality check
-**Verdict**: pass
 
-A null result (no correlation) is highly informative as it would tighten the upper bound on the Nordtvedt parameter $\eta$ for the planetary regime, complementing Lunar Laser Ranging results. A positive result (significant correlation) would constitute a major discovery of physics beyond General Relativity. Since current planetary constraints are often limited by degeneracies, a rigorous re-analysis yielding a tighter bound or a detection is publishable in either outcome.
+**Verdict**: concern
+
+Both outcomes are individually informative: a null tightens constraints on $\eta$ at high-$\Omega$, and a positive would be major evidence for scalar-tensor-type physics. The concern is statistical rather than conceptual: with only four planets (Mercury, Venus, Earth, Mars), the regression has essentially no degrees of freedom, so the most likely outcome is an uninformative wide confidence interval on the slope rather than a decisive result in either direction. The question is not trivial, but the achievable evidential weight is limited.
 
 ### Question-narrowing check
+
 **Verdict**: pass
 
-The question explicitly names a domain relationship (scaling of differential acceleration with binding energy) rather than an implementation constraint. The mention of "derived from high-precision ranging residuals" describes the measurement technique required to observe the phenomenon, not a constraint on the method's performance (e.g., "can we do this in 6 hours?"). The scientific query stands regardless of the specific software or hardware used to execute the calculation.
+The question names a domain relationship (residual perturbation amplitude vs. $\Omega$, controlling for GR and $J_2$). The compute constraints (2-core CPU, 6 hours, 7GB RAM) appear only in the methodology, not in the research question itself.
 
 ### Overall verdict
+
 **Verdict**: validated
 
-The research question targets a substantive gap in fundamental physics (testing SEP in the planetary regime) using a defensible empirical approach. It avoids circularity by using independent sources for binding energy and orbital residuals, and the potential outcomes (tightening bounds or detecting a violation) are both scientifically significant. The question is framed around the physical phenomenon rather than the computational method.
+All four checks pass, with one minor concern: the four-planet regression limits statistical power, and the title's "Weak Equivalence Principle" should be corrected to "Strong Equivalence Principle" for consistency with the question and motivation. Neither issue undermines the core question, which is a well-posed, non-circular, domain-level physics question with informative outcomes in both directions.

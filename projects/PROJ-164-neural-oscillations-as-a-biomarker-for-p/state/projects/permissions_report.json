@@ -1,0 +1,10 @@
+{
+  "task_id": "T001b",
+  "timestamp": "2026-10-18T15:29:12.771285+00:00",
+  "directory": "/home/runner/work/llmXive/llmXive/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p/data/raw",
+  "mode_flag": "Data Insufficient",
+  "permissions_before": "755",
+  "permissions_after": "555",
+  "policy_applied": "restricted (555)",
+  "manifest": "/home/runner/work/llmXive/llmXive/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p/data/verified_source_manifest.json"
+}

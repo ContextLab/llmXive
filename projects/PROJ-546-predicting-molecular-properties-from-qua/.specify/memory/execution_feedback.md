@@ -7,40 +7,51 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py run -> rc=1
-
+data: Fetching Zenodo record metadata from https://zenodo.org/api/records/1048765
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 17, in <module>
-    from evaluate_models import main as evaluate_models_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/evaluate_models.py", line 21, in <module>
-    from config import PROJECT_ROOT
-ImportError: cannot import name 'PROJECT_ROOT' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 170, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 167, in main
+    args.func(args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 96, in run_full_pipeline
+    run_fetch(args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 37, in run_fetch
+    fetch_data_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/fetch_data.py", line 193, in main
+    fetch_and_prepare()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/fetch_data.py", line 97, in fetch_and_prepare
+    raise RuntimeError(
+RuntimeError: No CSV file found in the Zenodo record. The experimental barrier dataset must be provided as a CSV.
 
 - python code/main.py fetch -> rc=1
+uting Fetch Phase...
+2026-10-18 15:19:49,419 - INFO - Fetching Zenodo record metadata from https://zenodo.org/api/records/1048765
 
+2026-10-18 15:19:49,419 INFO fetch_data: Fetching Zenodo record metadata from https://zenodo.org/api/records/1048765
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 17, in <module>
-    from evaluate_models import main as evaluate_models_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/evaluate_models.py", line 21, in <module>
-    from config import PROJECT_ROOT
-ImportError: cannot import name 'PROJECT_ROOT' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 170, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 167, in main
+    args.func(args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 37, in run_fetch
+    fetch_data_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/fetch_data.py", line 193, in main
+    fetch_and_prepare()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/fetch_data.py", line 97, in fetch_and_prepare
+    raise RuntimeError(
+RuntimeError: No CSV file found in the Zenodo record. The experimental barrier dataset must be provided as a CSV.
 
 - python code/main.py optimize -> rc=1
+2026-10-18 15:19:51,168 - INFO - Executing Optimization Phase (T013)...
+Error: Input file data/raw/barrier_dataset.csv not found.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 17, in <module>
-    from evaluate_models import main as evaluate_models_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/evaluate_models.py", line 21, in <module>
-    from config import PROJECT_ROOT
-ImportError: cannot import name 'PROJECT_ROOT' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/config.py)
 
 - python code/main.py train -> rc=1
+2026-10-18 15:19:52,123 - INFO - Executing Training Phase (T021)...
+2026-10-18 15:19:52,123 - INFO - Starting model training (T021)
+2026-10-18 15:19:52,123 - INFO - Loading Semi-Empirical data from data/descriptors_semi.csv
+2026-10-18 15:19:52,123 - ERROR - Training failed: Semi-empirical descriptors file not found: data/descriptors_semi.csv
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 17, in <module>
-    from evaluate_models import main as evaluate_models_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/evaluate_models.py", line 21, in <module>
-    from config import PROJECT_ROOT
-ImportError: cannot import name 'PROJECT_ROOT' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/config.py)
 
 
 ## Declared deliverables still missing

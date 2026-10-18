@@ -5,8 +5,24 @@
     "Kaggle"
   ],
   "query_string": "EEG AND tDCS AND motor",
-  "timestamp": "2023-10-27T10:00:00.000000",
-  "found_datasets": [],
-  "status": "No single-source paired dataset found",
-  "mode_flag": "Data Insufficient"
+  "timestamp": "2026-10-18T15:35:57.929303+00:00",
+  "per_source": {
+    "OpenNeuro": {
+      "status": "search_error",
+      "n_results": null
+    },
+    "PhysioNet": {
+      "status": "searched",
+      "n_results": 10
+    },
+    "Kaggle": {
+      "status": "searched",
+      "n_results": 0
+    }
+  },
+  "status": "absent",
+  "dataset": null,
+  "N_actual": 0,
+  "mode_flag": "Data Insufficient",
+  "reason": "No single-source dataset containing both raw EEG and paired tDCS motor outcome scores was found in OpenNeuro, PhysioNet, or Kaggle. Cross-repository pairing is prohibited (FR-015), so the pipeline terminates downstream statistical tasks."
 }

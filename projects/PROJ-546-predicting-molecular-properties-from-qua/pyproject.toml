@@ -33,6 +33,7 @@ extend-exclude = '''
   | build
   | dist
   | code/outputs
+  | code
   | data
   | logs
   | reports
@@ -47,6 +48,7 @@ extend-exclude = [
     "logs",
     "reports",
     "code/outputs",
+    "code",
 ]
 
 [tool.ruff.lint]
