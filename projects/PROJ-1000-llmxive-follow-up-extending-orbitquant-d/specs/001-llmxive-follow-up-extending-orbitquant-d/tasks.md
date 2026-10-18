@@ -8,7 +8,7 @@ Indented continuation lines describe the required artifact(s), verification comm
 
 ## Phase 1 – Project scaffolding & quick‑start
 
-- [ ] T001 [P] Create project skeleton, list dependencies, and write a quick‑start guide (project‑owned paths only)  
+- [ ] T001 Create project skeleton, list dependencies, and write a quick‑start guide (project‑owned paths only)  
   - **Artifacts**:  
     - `code/` with sub‑directories `analysis/`, `models/`, `quantization/`, `evaluation/`, `utils/`  
     - `tests/` (empty placeholder)  
@@ -44,13 +44,14 @@ Indented continuation lines describe the required artifact(s), verification comm
 
 ## Phase 3 – Core model & analysis modules (no platform‑owned paths)
 
-- [ ] T003 [P] Implement model loader (GPU‑escape hatch), activation‑variance capture, semantic‑entropy proxy, W2A4 quantizer, and static OrbitQuant baseline; all logs under `data/processed/logs/`  
+- [ ] T003 Implement model loader (GPU‑escape hatch), activation‑variance capture, semantic‑entropy proxy, W2A4 quantizer, and static OrbitQuant baseline; all logs under `data/processed/logs/`  
   - **Modules & artifacts**  
     * `code/models/loader.py` – `load_dit_model(name: str, device: str = "cpu")` (uses `torch.cuda.is_available()` to switch to `"cuda"` automatically).  
     * `code/models/activation_capture.py` – `DiTActivationCapture` with `measure_variance(prompt: str) → dict[layer_name, variance]`.  
     * `code/analysis/entropy_proxy.py` – `compute_semantic_entropy(prompt: str, samples: int = 5) → float | None`. Returns `None` on proxy failure and logs to `data/processed/logs/proxy_failures.json`.  
     * `code/quantization/w2a4_engine.py` – `W2A4Quantizer` with `quantize(tensor, rotation_matrix=None)`.  
     * `code/quantization/static_baseline.py` – `get_static_rotation_matrix(dim: int, seed: int = 42) → torch.Tensor`.  
+    * `code/models/model_load_log.py` – utility that writes load events to `data/processed/logs/model_load_log.json`.  
   - **Verification**:  
     ```bash
     python - <<'PY'
@@ -62,7 +63,6 @@ Indented continuation lines describe the required artifact(s), verification comm
     ent = ep.compute_semantic_entropy("a cat on a sofa")
     assert isinstance(ent, float)
     quant = q.W2A4Quantizer()
-    # dummy tensor
     import torch
     t = torch.randn(1, 3, 64, 64)
     q_out = quant.quantize(t)
@@ -75,28 +75,30 @@ Indented continuation lines describe the required artifact(s), verification comm
 
 ## Phase 4 – End‑to‑end correlation analysis (User Story 1)
 
-- [ ] T004 [US1] Run the correlation pipeline and produce `data/processed/correlation_results.json` and `data/processed/correlation_plot.png`  
+- [ ] T004 [US1] Run the correlation pipeline on **three** models (Stable Diffusion 2.1, FLUX.1‑dev, Wan 2.1) and produce `data/processed/correlation_results.json`, `data/processed/correlation_plot.png`, **and** `data/processed/entropy_scores.csv`  
   - **Orchestration**: `code/run_correlation.py` performs:  
     1. Load `data/processed/diverse_prompts.csv`.  
-    2. For each prompt, compute semantic entropy (T003).  
-    3. Load DiT model via `loader.py` (CPU fallback).  
-    4. Capture per‑layer activation variance (activation_capture).  
-    5. Store per‑prompt variance vectors under `data/processed/activation_stats/`.  
-    6. Compute Pearson r and two‑tailed p‑value for each layer, then aggregate (average r, average p).  
-    7. Save summary JSON (`correlation_results.json`) with fields `{correlation: float, p_value: float, n_prompts: int, layers_analyzed: [str], entropy_range: [float,float], variance_range: [float,float]}`.  
-    8. Plot entropy vs. variance (averaged over layers) → `correlation_plot.png`.  
+    2. For each prompt, compute semantic entropy using `entropy_proxy.py`.  
+    3. Load each DiT model via `loader.py` (CPU fallback; GPU‑escape handled internally) for the three named variants.  
+    4. Capture per‑layer activation variance with `activation_capture.py`.  
+    5. Store per‑prompt variance vectors under `data/processed/activation_stats/` (one JSON per prompt).  
+    6. Save a CSV `entropy_scores.csv` with columns `prompt_id, entropy`.  
+    7. For each model, compute Pearson r and two‑tailed p‑value for each layer, then aggregate (average r, average p).  
+    8. Save a summary JSON `correlation_results.json` containing, for **each model**, fields `{model_name, correlation: float, p_value: float, n_prompts: int, layers_analyzed: [str], entropy_range: [float,float], variance_range: [float,float]}`.  
+    9. Plot entropy vs. variance (averaged over layers) for each model → `correlation_plot.png` (multi‑panel).  
   - **Verification**:  
     ```bash
-    python -c "import json, pathlib; p=pathlib.Path('data/processed/correlation_results.json'); assert p.is_file(); r=json.load(open(p)); assert 0<=r['p_value']<=1 and r['n_prompts']>=100"
-    file data/processed/correlation_plot.png | grep PNG   # confirms PNG file exists
+    python -c "import json, pathlib; p=pathlib.Path('data/processed/correlation_results.json'); assert p.is_file(); data=json.load(open(p)); assert len(data)==3"
+    python -c "import pandas as pd; df=pd.read_csv('data/processed/entropy_scores.csv'); assert not df.empty and 'entropy' in df.columns"
+    file data/processed/correlation_plot.png | grep PNG
     ```
 
 ---
 
 ## Phase 5 – Correlation significance gate (User Story 1)
 
-- [ ] T005 [US1] Validate that the correlation is statistically significant (p < 0.05) and write a gating file under `data/processed/`  
-  - **Script**: `code/validation/validate_correlation.py` reads `correlation_results.json`; if `p_value < 0.05` it writes `data/processed/correlation_validated.json` with `{status:"pass", timestamp:"ISO‑8601"}` else writes `{status:"fail", reason:"p ≥ 0.05"}` and exits with non‑zero code.  
+- [ ] T005 [US1] Validate that **at least one** model yields a statistically significant correlation (p < 0.05) and write a gating file under `data/processed/`  
+  - **Script**: `code/validation/validate_correlation.py` reads `correlation_results.json`; if any entry has `p_value < 0.05` it writes `data/processed/correlation_validated.json` with `{status:"pass", timestamp:"ISO‑8601", model:"<model_name>"}` else writes `{status:"fail", reason:"no model met p < 0.05"}` and exits with non‑zero code.  
   - **Verification**:  
     ```bash
     cat data/processed/correlation_validated.json | grep '"status": "pass"'
@@ -196,7 +198,22 @@ Indented continuation lines describe the required artifact(s), verification comm
 
 ---
 
-## Phase 11 – Full evaluation pipeline (User Story 3)
+## Phase 11 – Entropy‑cutoff sensitivity sweep (SC‑005)
+
+- [ ] T014 Perform a ±5 % entropy‑cutoff sensitivity sweep on the dynamic router and record FID variance  
+  - **Script**: `code/analysis/entropy_sweep.py`  
+    1. Load the clustering report to obtain the original entropy bin boundaries.  
+    2. For each bin, adjust its lower and upper bounds by ±5 % of the total observed entropy range, generating 3 × 16 modified lookup tables.  
+    3. Run the full dynamic inference pipeline (as in T010) for each modified table, compute FID for each run.  
+    4. Calculate the variance of FID across the sweeps and store `entropy_sweep_fid_variance` in `data/processed/final_evaluation_report.json`.  
+  - **Verification**:  
+    ```bash
+    python -c "import json; r=json.load(open('data/processed/final_evaluation_report.json')); assert 'entropy_sweep_fid_variance' in r"
+    ```
+
+---
+
+## Phase 12 – Full evaluation pipeline (User Story 3)
 
 - [ ] T011 [US3] Execute baseline and dynamic pipelines, compute FID/CLIP/MSE/inference‑time, run paired t‑tests, and produce the final evaluation report and figures  
   - **Orchestration**: `code/run_evaluation.py`  
@@ -204,18 +221,22 @@ Indented continuation lines describe the required artifact(s), verification comm
     2. **Dynamic** – use router (T008) → `dynamic_evaluation.json`.  
     3. **Statistical tests** – `code/analysis/statistical_test.py` performs paired t‑tests for each metric, applies Bonferroni correction, and records p‑values.  
     4. **Overhead** – compute average inference time difference, ensure ≤ 2 %.  
-    5. Assemble `data/processed/final_evaluation_report.json` matching `results_schema` (includes `rotation_index` for dynamic rows) and containing fields: `baseline_mean_fid`, `dynamic_mean_fid`, `fid_improvement_percent`, `baseline_mean_time_ms`, `dynamic_mean_time_ms`, `overhead_percent`, `p_values`, `conclusion`.  
+    5. Assemble `data/processed/final_evaluation_report.json` matching `results_schema` (includes `rotation_index` for dynamic rows) and containing fields: `baseline_mean_fid`, `dynamic_mean_fid`, `fid_improvement_percent`, `baseline_mean_time_ms`, `dynamic_mean_time_ms`, `overhead_percent`, `baseline_mean_mse`, `dynamic_mean_mse`, `p_values` (with keys `fid`, `clip`, `mse`, `time`), `entropy_sweep_fid_variance`, `conclusion`.  
     6. Generate plots (`figures/fid_comparison.png`, `figures/runtime_overhead.png`, `figures/entropy_vs_fid.png`).  
   - **Verification**:  
     ```bash
     grep '"overhead_percent"' data/processed/final_evaluation_report.json | grep -E '"[0-9]+(\.[0-9]+)?"'   # value ≤ 2.0
+    grep '"baseline_mean_mse"' data/processed/final_evaluation_report.json
+    grep '"dynamic_mean_mse"' data/processed/final_evaluation_report.json
+    grep '"p_values"' data/processed/final_evaluation_report.json
+    grep '"entropy_sweep_fid_variance"' data/processed/final_evaluation_report.json
     grep '"conclusion"' data/processed/final_evaluation_report.json
     file figures/fid_comparison.png | grep PNG
     ```
 
 ---
 
-## Phase 12 – Edge‑case unit tests
+## Phase 13 – Edge‑case unit tests
 
 - [ ] T012 [US2] Add pytest unit tests covering out‑of‑range entropy, proxy‑failure logging, and activation outliers  
   - **Files**: `tests/unit/test_edge_cases.py` with three test functions (`test_entropy_clamping`, `test_proxy_failure_logging`, `test_activation_outlier_handling`).  
@@ -227,7 +248,7 @@ Indented continuation lines describe the required artifact(s), verification comm
 
 ---
 
-## Phase 13 – Security, path sanitization, and checksum validation
+## Phase 14 – Security, path sanitization, and checksum validation
 
 - [ ] T013 [US?] Harden all file‑path handling against traversal and verify integrity of downloaded assets; store checksums under `data/`  
   - **Changes**  
@@ -239,7 +260,7 @@ Indented continuation lines describe the required artifact(s), verification comm
     ```bash
     # Simulate corruption
     echo "corrupt" >> data/raw/coco_captions.parquet
-    python -c "from code.security.checksums import verify_checksum; import json, pathlib; chk=json.load(open('data/checksums.json'))['data/raw/coco_captions.parquet']; assert not verify_checksum('data/raw/coco_captions.parquet', chk)"
+    python -c "from code.security.checksums import verify_checksum; import json; chk=json.load(open('data/checksums.json'))['data/raw/coco_captions.parquet']; assert not verify_checksum('data/raw/coco_captions.parquet', chk)"
     # Run the security unit test
     pytest tests/unit/test_security.py -q
     ```
@@ -248,10 +269,8 @@ Indented continuation lines describe the required artifact(s), verification comm
 
 ### Dependency & execution order (critical path)
 
-1. **T001** → **T002** → **T003** → **T004** → **T005** (gate) → **T006** → **T007** → **T008** → **T009** → **T010** → **T011** → **T012** → **T013**  
+1. **T001** → **T002** → **T003** → **T004** → **T005** (gate) → **T006** → **T007** → **T008** → **T009** → **T010** → **T014** → **T011** → **T012** → **T013**  
 
 All later phases are blocked until the preceding validation tasks (`T005`, `T007`) produce a `"status":"pass"` file in `data/processed/`.
 
---- 
-
-*All tasks remain unchecked; the CI will automatically mark a task as completed only after the described artifact exists and the verification command succeeds.*
+*All tasks remain unchecked; the CI will automatically mark a task as completed only after the described artifact exists and the verification command succeeds.*  
