@@ -42,3 +42,25 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/PROJ-211-predicting-gene-expression-from-chromati
   verified_at: '2026-09-06T21:48:51.075813Z'
+- artifact_hash: ff03f630dd088ab641a66f453115442b1667ff6be928fe1d7099327997a4f95d
+  artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.encodeproject.org/search/...`
+  verification_status: unreachable
+  verified_against_url: https://www.encodeproject.org/search/
+  verified_at: '2026-10-18T09:22:18.224948Z'
+- artifact_hash: ff03f630dd088ab641a66f453115442b1667ff6be928fe1d7099327997a4f95d
+  artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.annotation.bed`
+  verification_status: mismatch
+  verified_against_url: https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.annotation.bed
+  verified_at: '2026-10-18T09:22:18.224948Z'
