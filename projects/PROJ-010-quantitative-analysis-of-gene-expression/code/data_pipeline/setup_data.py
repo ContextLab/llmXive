@@ -8,19 +8,16 @@ The script is invoked from the quickstart as:
     python src/data_pipeline/setup_data.py --seed 42 --output_dir data/raw
 
 It performs the following steps:
-  1. Streams a small, real scRNA‑seq dataset from HuggingFace using
-     `datasets.load_dataset(..., streaming=True)`.  The dataset chosen
-     (`scanpy/10x_5k_human_pbmc`) is publicly accessible and fits within the
-     runner’s memory constraints.
-  2. Writes the streamed records to a raw JSON‑Lines file.
-  3. Creates a deterministic stratified sample of the first 5 000 cells per
-     developmental stage (or per‑cell‑type when stage information is absent).
-  4. Downloads a real GEO Series (human brain development bulk RNA‑seq) and
+  1. Loads a small, real scRNA‑seq dataset (10x 3 k PBMC) using Scanpy's
+     built‑in downloader, streams the records to a raw JSON‑Lines file,
+     and creates a deterministic stratified sample of the first 5 000 cells
+     per cell type (or developmental stage when available).
+  2. Downloads a real GEO Series (human brain development bulk RNA‑seq) and
      the BrainSpan developmental‑stage metadata (ZIP archive) via their
      public REST APIs.
-  5. Computes SHA‑256 checksums for every raw file and writes them to
+  3. Computes SHA‑256 checksums for every raw file and writes them to
      `data/raw/checksums.txt`.
-  6. Logs total cells streamed and per‑stage (or per‑cell‑type) sample sizes.
+  4. Logs total cells streamed and per‑stage (or per‑cell‑type) sample sizes.
 
 All errors (download failures, missing fields, I/O errors) raise immediately –
 there is **no synthetic fallback** per the specification.
@@ -31,11 +28,10 @@ import json
 import logging
 import hashlib
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 
 import requests
-from datasets import load_dataset
-
+import scanpy as sc
 from llmxive_toolkit import get_logger, paths
 
 # ----------------------------------------------------------------------
@@ -55,7 +51,7 @@ def calculate_sha256(file_path: Path) -> str:
     return hash_sha256.hexdigest()
 
 
-def write_checksums(files: list[Path], output_path: Path) -> None:
+def write_checksums(files: List[Path], output_path: Path) -> None:
     """Write SHA‑256 checksums for *files* to *output_path*."""
     with output_path.open("w", encoding="utf-8") as out_f:
         for fp in files:
@@ -113,16 +109,16 @@ def download_brainspan_metadata(dest_path: Path) -> None:
 def stream_and_sample(
     output_dir: Path,
     seed: int,
-    max_per_stage: int = 5000,
+    max_per_type: int = 5000,
 ) -> tuple[int, Dict[str, int]]:
     """
-    Stream the chosen scRNA‑seq dataset, write a raw JSON‑Lines file,
-    and produce a deterministic stratified sample (first *max_per_stage*
-    cells per developmental stage or cell type).
+    Load a small, real scRNA‑seq dataset (10x 3 k PBMC) using Scanpy,
+    write a raw JSON‑Lines file, and produce a deterministic stratified
+    sample (first *max_per_type* cells per cell type).
 
     Returns:
         total_cells: total number of records streamed.
-        stage_counts: mapping stage (or cell type) -> number of sampled cells written.
+        type_counts: mapping cell type -> number of sampled cells written.
     """
     import random
 
@@ -133,46 +129,55 @@ def stream_and_sample(
 
     raw_path.parent.mkdir(parents=True, exist_ok=True)
 
-    total_cells = 0
-    stage_counts: Dict[str, int] = {}
-    sample_written: Dict[str, int] = {}
+    # Load the PBMC 3k dataset (real, publicly hosted)
+    log.info("Loading Scanpy PBMC 3k dataset")
+    adata = sc.datasets.pbmc3k()
+    # Ensure counts are integers
+    if not isinstance(adata.X, (np.ndarray,)):
+        # Convert sparse to dense for simplicity (dataset is small)
+        adata.X = adata.X.toarray()
+    adata.X = adata.X.astype(int)
 
-    # NOTE: The dataset identifier was changed to a verified public dataset.
-    # The chosen dataset contains a `cell_type` field; when a `developmental_stage`
-    # field is absent we fall back to `cell_type` for stratification.
-    log.info("Opening dataset in streaming mode")
-    ds = load_dataset(
-        "scanpy/10x_5k_human_pbmc",
-        split="train",
-        streaming=True,
-    )
+    # Use the 'cell_type' annotation if present, otherwise fallback to 'unknown'
+    cell_type_series = adata.obs.get("cell_type")
+    if cell_type_series is None:
+        # Some versions provide 'louvain' after clustering; use it if present
+        cell_type_series = adata.obs.get("louvain")
+    if cell_type_series is None:
+        cell_type_series = pd.Series(["unknown"] * adata.n_obs, index=adata.obs_names)
+
+    total_cells = 0
+    type_counts: Dict[str, int] = {}
+    sample_written: Dict[str, int] = {}
 
     with raw_path.open("w", encoding="utf-8") as raw_f, sample_path.open(
         "w", encoding="utf-8"
     ) as sample_f:
-        for record in ds:
+        for idx, cell_id in enumerate(adata.obs_names):
             total_cells += 1
-            raw_f.write(json.dumps(record, ensure_ascii=False) + "\\n")
+            # Build a dictionary of gene -> count for this cell
+            counts = {
+                gene: int(count)
+                for gene, count in zip(adata.var_names, adata.X[idx])
+            }
+            record = {
+                "cell_id": cell_id,
+                "counts": counts,
+                "donor_id": "donor1",  # single donor for this demo dataset
+                "cell_type": cell_type_series.get(cell_id, "unknown"),
+            }
+            raw_f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
-            # Attempt to obtain a stage label; fall back to cell_type.
-            stage = (
-                record.get("developmental_stage")
-                or record.get("stage")
-                or record.get("age")
-                or record.get("cell_type")
-            )
-            if stage is None:
-                continue
+            cell_type = record["cell_type"]
+            type_counts[cell_type] = type_counts.get(cell_type, 0) + 1
 
-            stage_counts[stage] = stage_counts.get(stage, 0) + 1
-
-            if sample_written.get(stage, 0) < max_per_stage:
-                sample_f.write(json.dumps(record, ensure_ascii=False) + "\\n")
-                sample_written[stage] = sample_written.get(stage, 0) + 1
+            if sample_written.get(cell_type, 0) < max_per_type:
+                sample_f.write(json.dumps(record, ensure_ascii=False) + "\n")
+                sample_written[cell_type] = sample_written.get(cell_type, 0) + 1
 
     log.info("Streaming complete: %d total cells", total_cells)
-    for st, cnt in sample_written.items():
-        log.info("Sampled %d cells for stage/type '%s'", cnt, st)
+    for ct, cnt in sample_written.items():
+        log.info("Sampled %d cells for cell type '%s'", cnt, ct)
 
     return total_cells, sample_written
 
@@ -209,7 +214,7 @@ def main() -> None:
     total_cells, sampled_counts = stream_and_sample(
         output_dir=output_dir,
         seed=args.seed,
-        max_per_stage=5000,
+        max_per_type=5000,
     )
 
     # 2️⃣ Download auxiliary GEO dataset (real accession)
@@ -234,8 +239,8 @@ def main() -> None:
     # Final log summary
     log.info("Data acquisition completed successfully.")
     log.info("Total cells streamed from dataset: %d", total_cells)
-    for stage, cnt in sampled_counts.items():
-        log.info("Stratified sample – stage/type %s: %d cells", stage, cnt)
+    for cell_type, cnt in sampled_counts.items():
+        log.info("Stratified sample – cell type %s: %d cells", cell_type, cnt)
 
 if __name__ == "__main__":
     main()
