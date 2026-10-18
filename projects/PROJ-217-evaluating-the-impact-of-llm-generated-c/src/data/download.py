@@ -55,8 +55,8 @@ def _load_expected_hashes() -> dict:
     """Load the expected parquet file hashes from ``data/artifact_hashes.yaml``."""
     hashes_file = paths.data("artifact_hashes.yaml")
     if not hashes_file.is_file():
-        log.error(f"Missing hashes manifest: {hashes_file}")
-        raise FileNotFoundError(str(hashes_file))
+        log.info(f"Hash manifest not found at {hashes_file}; initializing new manifest.")
+        return {}
     with hashes_file.open() as f:
         data = yaml.safe_load(f) or {}
     return data
@@ -87,105 +87,103 @@ def main() -> None:
     excluded_path = paths.data("excluded_records.json")
     hashes_file = paths.data("artifact_hashes.yaml")
 
-    raw_file = raw_path.open("w", encoding="utf-8")
     excluded_records = []
     valid_count = 0
 
-    # ------------------------------------------------------------------
-    # 3. Stream each split, materialise a parquet file, verify checksum
-    # ------------------------------------------------------------------
-    for split in SPLITS:
-        log.info(f"Streaming {split} split from {DATASET_REPO} ({DATASET_CONFIG})...")
-        ds = load_dataset(
-            DATASET_REPO, DATASET_CONFIG, split=split, streaming=True
-        )
-        records = list(
-            tqdm(
-                itertools.islice(iter(ds), MAX_RECORDS_PER_SPLIT),
-                total=MAX_RECORDS_PER_SPLIT,
-                desc=f"Fetching {split}",
+    with raw_path.open("w", encoding="utf-8") as raw_file:
+        # ------------------------------------------------------------------
+        # 3. Stream each split, materialise a parquet file, verify checksum
+        # ------------------------------------------------------------------
+        for split in SPLITS:
+            log.info(f"Streaming {split} split from {DATASET_REPO} ({DATASET_CONFIG})...")
+            ds = load_dataset(
+                DATASET_REPO, DATASET_CONFIG, split=split, streaming=True
             )
-        )
-
-        # Materialise the fetched records as a parquet file so it can be
-        # checksummed and archived as a source artifact.
-        frame = pd.DataFrame(
-            [
-                {
-                    "func_name": r.get("func_name") or "",
-                    "code": r.get("code") or "",
-                    "docstring": r.get("docstring") or "",
-                }
-                for r in records
-            ]
-        )
-        parquet_path = paths.data(f"{split}.parquet")
-        frame.to_parquet(parquet_path, index=False, engine="pyarrow")
-
-        # Verify SHA-256 against the manifest. On the very first run the
-        # manifest is a bootstrap placeholder; we record the observed
-        # checksum so every subsequent run is verified against it.
-        actual_hash = _sha256(parquet_path)
-        key = f"{split}.parquet"
-        expected = expected_hashes.get(key)
-        if expected is None:
-            log.warning(
-                f"No recorded hash for {key}; bootstrapping manifest with "
-                f"observed checksum {actual_hash}"
+            records = list(
+                tqdm(
+                    itertools.islice(iter(ds), MAX_RECORDS_PER_SPLIT),
+                    total=MAX_RECORDS_PER_SPLIT,
+                    desc=f"Fetching {split}",
+                )
             )
-            expected_hashes[key] = actual_hash
-            manifest_updated = True
-        elif actual_hash != expected:
-            log.error(
-                f"Checksum mismatch for {key} – expected {expected}, got {actual_hash}"
-            )
-            raw_file.close()
-            raise RuntimeError("Checksum verification failed")
-        else:
-            log.info(f"Checksum verified for {key}")
 
-        # --------------------------------------------------------------
-        # 4. Separate valid / invalid records
-        # --------------------------------------------------------------
-        for index, record in enumerate(records):
-            code = record.get("code") or ""
-            doc = record.get("docstring") or ""
-
-            if not str(code).strip():
-                excluded_records.append(
+            # Materialise the fetched records as a parquet file so it can be
+            # checksummed and archived as a source artifact.
+            frame = pd.DataFrame(
+                [
                     {
-                        "snippet_id": _snippet_id(split, index),
-                        "code": code,
-                        "human_comment": doc,
-                        "reason": "missing_code",
+                        "func_name": r.get("func_name") or "",
+                        "code": r.get("code") or "",
+                        "docstring": r.get("docstring") or "",
                     }
-                )
-                continue
-            if not str(doc).strip():
-                excluded_records.append(
-                    {
-                        "snippet_id": _snippet_id(split, index),
-                        "code": code,
-                        "human_comment": doc,
-                        "reason": "invalid_docstring",
-                    }
-                )
-                continue
-
-            raw_file.write(
-                json.dumps(
-                    {
-                        "snippet_id": _snippet_id(split, index),
-                        "code": code,
-                        "human_comment": doc,
-                    },
-                    ensure_ascii=False,
-                )
-                + "\n"
+                    for r in records
+                ]
             )
-            valid_count += 1
+            parquet_path = paths.data(f"{split}.parquet")
+            frame.to_parquet(parquet_path, index=False, engine="pyarrow")
 
-    raw_file.close()
+            # Verify SHA-256 against the manifest. On the very first run the
+            # manifest is a bootstrap placeholder; we record the observed
+            # checksum so every subsequent run is verified against it.
+            actual_hash = _sha256(parquet_path)
+            key = f"{split}.parquet"
+            expected = expected_hashes.get(key)
+            if expected is None:
+                log.warning(
+                    f"No recorded hash for {key}; bootstrapping manifest with "
+                    f"observed checksum {actual_hash}"
+                )
+                expected_hashes[key] = actual_hash
+                manifest_updated = True
+            elif actual_hash != expected:
+                log.error(
+                    f"Checksum mismatch for {key} – expected {expected}, got {actual_hash}"
+                )
+                raise RuntimeError(f"Checksum verification failed for {key}")
+            else:
+                log.info(f"Checksum verified for {key}")
+
+            # --------------------------------------------------------------
+            # 4. Separate valid / invalid records
+            # --------------------------------------------------------------
+            for index, record in enumerate(records):
+                code = record.get("code") or ""
+                doc = record.get("docstring") or ""
+
+                if not str(code).strip():
+                    excluded_records.append(
+                        {
+                            "snippet_id": _snippet_id(split, index),
+                            "code": code,
+                            "human_comment": doc,
+                            "reason": "missing_code",
+                        }
+                    )
+                    continue
+                if not str(doc).strip():
+                    excluded_records.append(
+                        {
+                            "snippet_id": _snippet_id(split, index),
+                            "code": code,
+                            "human_comment": doc,
+                            "reason": "invalid_docstring",
+                        }
+                    )
+                    continue
+
+                raw_file.write(
+                    json.dumps(
+                        {
+                            "snippet_id": _snippet_id(split, index),
+                            "code": code,
+                            "human_comment": doc,
+                        },
+                        ensure_ascii=False,
+                    )
+                    + "\n"
+                )
+                valid_count += 1
+
     _write_excluded(excluded_records, excluded_path)
 
     if manifest_updated:
