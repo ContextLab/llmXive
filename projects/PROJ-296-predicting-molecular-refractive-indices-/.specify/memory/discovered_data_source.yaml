@@ -1,9 +1,8 @@
 status: none
-intent: download refractive_index dataset from HuggingFace Datasets python package
-  dataset
+intent: refractive_index dataset Hugging Face download python package dataset
 required_fields:
-- SMILES
+- smiles
 - refractive_index
-cache_key: aa6cdded4f1e628ac742d7c3ed5a4f96d6a156c5de8c6358699c83e367db955f
-searched_at: '2026-10-18T01:45:35.828281+00:00'
+cache_key: d6a2ecc290e2bf716175fa3c1a6c0f2e768e1dcc24be89307000522ca9b6531a
+searched_at: '2026-10-18T03:09:06.489526+00:00'
 retry_count: 1

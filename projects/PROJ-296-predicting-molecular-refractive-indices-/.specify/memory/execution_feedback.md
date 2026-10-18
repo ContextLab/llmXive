@@ -17,37 +17,31 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 ## Failing / missing run-book commands
 
+- python -c "import rdkit; print(rdkit.__version__)" -> rc=1
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'rdkit'
+
 - python code/data/download.py -> rc=1
 
-2026-10-18 01:44:50,642 INFO __main__: Downloading dataset from https://raw.githubusercontent.com/zhanglab/ri-dataset/master/ri_dataset.csv …
+2026-10-18 03:08:15,881 INFO __main__: Downloading dataset from https://raw.githubusercontent.com/zhanglab/ri-dataset/main/ri_dataset.csv …
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 181, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 192, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 144, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 155, in main
     df = download_dataset()
          ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 91, in download_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 93, in download_dataset
     raise RuntimeError(
 RuntimeError: Failed to download dataset: HTTP 404
 
 - python code/data/preprocess.py --filter-mw 500 --split-ratio 0.8,0.1,0.1 -> rc=1
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1026, in read_csv
-    return _read(filepath_or_buffer, kwds)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 620, in _read
-    parser = TextFileReader(filepath_or_buffer, **kwds)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1620, in __init__
-    self._engine = self._make_engine(f, self.engine)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1880, in _make_engine
-    self.handles = get_handle(
-                   ^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 873, in get_handle
-    handle = open(
-             ^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/data/raw/ri_dataset.csv'
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/preprocess.py", line 28, in <module>
+    from rdkit import Chem
+ModuleNotFoundError: No module named 'rdkit'
 
 - python training/train.py --epochs 200 --batch-size 32 --seed 42 -> rc=2
 
