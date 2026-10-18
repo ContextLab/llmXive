@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 4d75c3d666c7dbccc209a2cb0d7c27fd1ffcca0fb538705074e453b3d16c36ba
+  artifact_path: projects/PROJ-327-can-publicly-available-microbiome-data-p/specs/001-can-publicly-available-microbiome-data-p/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://ftp.ebi.ac.uk/pub/databases/metabolights/MTBLS2295/files/MTBLS2295.tsv`
+  verification_status: mismatch
+  verified_against_url: https://ftp.ebi.ac.uk/pub/databases/metabolights/MTBLS2295/files/MTBLS2295.tsv
+  verified_at: '2026-10-18T15:32:03.450177Z'
