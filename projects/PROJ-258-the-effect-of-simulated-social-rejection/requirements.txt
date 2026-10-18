@@ -1,8 +1,7 @@
-pandas
+pandas>=2.0
 numpy
 scipy
 statsmodels
+pyarrow
 pyyaml
 requests
-datasets
-tqdm

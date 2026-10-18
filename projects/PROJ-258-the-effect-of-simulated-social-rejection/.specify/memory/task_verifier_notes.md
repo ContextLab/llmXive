@@ -2,11 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T003** — Requested task execution failed; rerun successfully: code/ingest.py exit=1
-- **T004** — Requested task execution failed; rerun successfully: code/ingest.py exit=1
-- **T005** — The repository contains the implementation of `process_overlap_and_design()` in `code/ingest.py`, but the required output files (`data/interim/overlap_report.json`, `data/interim/design_branch.json`, and `data/processed/metadata.json`) are absent, so the task’s deliverables have not been produced.
-- **T006** — The `state/projects/PROJ-258-the-effect-of-simulated-social-rejection.yaml` only contains a hash entry for `ds000208` (with an outdated timestamp) and lacks the required entry for `ds003392`; additionally, the required `data/raw/CITATION.md` file is absent.
-- **T007** — Requested task execution failed; rerun successfully: code/preprocess.py exit=1
-- **T008** — The file `code/preprocess.py` defines helper functions `_flag_outliers_iqr` and `_zscore_normalize` that perform the required IQR outlier flagging and per‑condition Z‑score normalization, but there is no code that actually applies these functions to each dataset and writes the results to `data/interim/preprocessed_<dataset_id>.csv` as the task specifies (the main pipeline `run_preprocessing` is truncated and never calls the new helpers nor saves the preprocessed files). Implement a loop that loads each raw CSV, runs the outlier‑flagging then normalization, and saves the output to the required
-- **T009** — The required `data/processed/features_ds000208.csv` file is missing, and the outlier audit trail `data/interim/outlier_log.json` contains only an empty list (`[]`) instead of per‑condition IQR thresholds and flagged‑row counts. The code defines helper functions for aggregation and logging, but they are never invoked to produce the needed output files. The task’s deliverables are therefore not present.
-- **T010** — Requested task execution failed; rerun successfully: code/analyze.py exit=1
+- **T001** — The required directories and `__init__.py` placeholders, `requirements.txt`, and `quickstart.md` (which lists `python -m code.pipeline`) are present, but there is no evidence that `python -c "import pandas"` was executed successfully; the task’s verification step is missing.
+- **T002** — Requested task execution failed; rerun successfully: code/ingest.py exit=2

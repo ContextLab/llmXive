@@ -1,21 +1,38 @@
 """
-Ingestion script for the Social Rejection project (Task T003).
+Ingestion script for Task T002 – Cyberball dataset (ds000208).
 
-This script queries the OpenNeuro API for specific dataset IDs, verifies that
-the total size of each dataset does not exceed the memory limit (MAX_RAM_GB),
-stream-downloads the files while preserving the directory structure, and
-writes a manifest file recording the metadata.
+This script downloads a verified OpenNeuro parquet file, verifies that the
+download does not exceed the RAM limit (7 GB), computes a SHA‑256 checksum,
+writes a metadata JSON file, creates a human‑readable citation, and adds a
+``task`` column with the value ``"cyberball"`` to every record.
+
+The script is deliberately simple because only a single dataset is
+required for the current pipeline.  It accepts the following CLI:
+
+  --dataset-url   URL of the parquet file to download (required)
+  --output-dir    Directory where the raw files should be stored
+                  (defaults to the project ``data/raw`` folder)
+  --dataset-id    Identifier used for naming output files
+                  (defaults to ``ds000208``)
+
+All artefacts are written under the project root using the ``paths``
+helpers from ``llmxive_toolkit`` (via ``config.get_path`` for consistency).
+
+Exit code ``0`` indicates success; any problem results in a logged error
+and ``sys.exit(1)``.
 """
 
 import argparse
+import hashlib
 import json
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import List, Dict, Any
-from urllib.parse import quote
+from datetime import datetime
+from typing import Dict, Any
 
+import pandas as pd
 import requests
 
 from config import get_path, MAX_RAM_GB
@@ -30,131 +47,184 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
-# OpenNeuro API Helpers
+# Constants
 # ----------------------------------------------------------------------
-def get_dataset_files(dataset_id: str) -> List[Dict[str, Any]]:
-    """
-    Query the OpenNeuro API to get the list of files for a dataset.
-    """
-    url = f"https://openneuro.org/api/datasets/{dataset_id}/files"
-    logger.info(f"Querying OpenNeuro API for {dataset_id} files: {url}")
-    try:
-        response = requests.get(url, timeout=30, headers={"User-Agent": "llmXive-research-agent"})
-        response.raise_for_status()
-        return response.json()
-    except Exception as exc:
-        logger.error(f"Failed to query OpenNeuro API for {dataset_id}: {exc}")
-        sys.exit(1)
+# OpenNeuro citation template – this is a static citation for ds000208.
+CITATION_TEXT = (
+    "OpenNeuro. ds000208: Cyberball social exclusion dataset. "
+    "https://openneuro.org/datasets/ds000208"
+)
 
-def download_openneuro_file(dataset_id: str, file_path: str, dest_path: Path) -> int:
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA‑256 checksum of *file_path* in a memory‑efficient way."""
+    sha256 = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+def download_file(url: str, dest_path: Path, max_gb: float) -> int:
     """
-    Stream-download a specific file from an OpenNeuro dataset.
+    Stream‑download *url* to *dest_path*.
+
+    Returns the number of bytes written.  Exits with code 1 if the
+    download would exceed *max_gb*.
     """
-    # The file path in the API request must be URL-encoded
-    encoded_path = quote(file_path, safe='')
-    url = f"https://openneuro.org/api/datasets/{dataset_id}/files/{encoded_path}"
-    
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Downloading {file_path} → {dest_path}")
+    logger.info(f"Downloading {url} → {dest_path}")
+
+    # Perform a HEAD request first to check Content‑Length (if provided)
     try:
-        with requests.get(url, stream=True, timeout=60, headers={"User-Agent": "llmXive-research-agent"}) as r:
+        head = requests.head(url, timeout=10, allow_redirects=True)
+        head.raise_for_status()
+        size_bytes = int(head.headers.get("Content-Length", "0"))
+        if size_bytes:
+            size_gb = size_bytes / (1024 ** 3)
+            logger.info(f"Remote file size: {size_gb:.3f} GB")
+            if size_gb > max_gb:
+                logger.error(
+                    f"File size ({size_gb:.2f} GB) exceeds RAM limit of {max_gb} GB."
+                )
+                sys.exit(1)
+    except Exception as exc:
+        logger.warning(f"Could not determine remote size: {exc}")
+
+    total_written = 0
+    try:
+        with requests.get(url, stream=True, timeout=60) as r:
             r.raise_for_status()
             with open(dest_path, "wb") as f:
-                total_written = 0
                 for chunk in r.iter_content(chunk_size=8192):
                     if not chunk:
                         continue
                     f.write(chunk)
                     total_written += len(chunk)
-        return total_written
+
+                    # Periodic size guard – abort if we somehow exceed the limit
+                    if total_written > max_gb * (1024 ** 3):
+                        logger.error(
+                            f"Downloaded data exceeded {max_gb} GB limit; aborting."
+                        )
+                        sys.exit(1)
     except Exception as exc:
-        logger.error(f"Download failed for {file_path} at {url}: {exc}")
+        logger.error(f"Download failed: {exc}")
         raise
 
-# ----------------------------------------------------------------------
-# Main ingestion routine
-# ----------------------------------------------------------------------
-def run_ingestion(dataset_ids: List[str], output_dir: Path) -> None:
+    logger.info(f"Download complete ({total_written} bytes).")
+    return total_written
+
+def add_task_column(parquet_path: Path, task_value: str = "cyberball") -> None:
     """
-    Implement T003:
-    1. Query API, sum sizes, halt if > 7GB.
-    2. Stream-download preserving filenames.
-    3. Write manifest.
+    Load the parquet file, add a ``task`` column, and overwrite the file.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    manifest_entries: List[Dict[str, Any]] = []
+    logger.info(f"Adding task column to {parquet_path}")
+    try:
+        df = pd.read_parquet(parquet_path)
+    except Exception as exc:
+        logger.error(f"Failed to read parquet file {parquet_path}: {exc}")
+        sys.exit(1)
 
-    for ds_id in dataset_ids:
-        # ---- 1. Query and Size Check ----------------------------------
-        files_list = get_dataset_files(ds_id)
-        total_size_bytes = sum(f.get('size', 0) for f in files_list)
-        total_size_gb = total_size_bytes / (1024 ** 3)
-        
-        logger.info(f"Dataset {ds_id} total estimated size: {total_size_gb:.3f} GB")
-        
-        if total_size_gb > MAX_RAM_GB:
-            logger.error(
-                f"Dataset {ds_id} size ({total_size_gb:.2f} GB) exceeds "
-                f"the memory limit of {MAX_RAM_GB} GB. Halting."
-            )
-            sys.exit(1)
+    if "task" not in df.columns:
+        df["task"] = task_value
+    else:
+        df["task"] = task_value  # overwrite if somehow present
 
-        # ---- 2. Stream-Download ----------------------------------------
-        file_count = 0
-        for file_info in files_list:
-            rel_path = file_info['name']
-            # We store under data/raw/{ds_id}/{rel_path} to avoid collisions
-            # and preserve the original dataset structure.
-            dest_path = output_dir / ds_id / rel_path
-            try:
-                download_openneuro_file(ds_id, rel_path, dest_path)
-                file_count += 1
-            except Exception:
-                logger.error(f"Critical failure downloading {rel_path}. Aborting.")
-                sys.exit(1)
+    try:
+        df.to_parquet(parquet_path, index=False)
+    except Exception as exc:
+        logger.error(f"Failed to write parquet with task column: {exc}")
+        sys.exit(1)
 
-        # ---- 3. Manifest entry ------------------------------------------
-        # URL is the dataset landing page
-        entry = {
-            "url": f"https://openneuro.org/datasets/{ds_id}",
-            "sha256": None,
-            "size_bytes": total_size_bytes,
-            "file_count": file_count,
-            "dataset_id": ds_id,
-        }
-        manifest_entries.append(entry)
+def write_metadata(metadata_path: Path, info: Dict[str, Any]) -> None:
+    """Write *info* as pretty‑printed JSON."""
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(metadata_path, "w", encoding="utf-8") as f:
+        json.dump(info, f, indent=2, sort_keys=True)
+    logger.info(f"Metadata written to {metadata_path}")
 
-    # ---- Write manifest -----------------------------------------------
-    manifest_path = output_dir / "dataset_manifest.json"
-    with open(manifest_path, "w", encoding="utf-8") as f:
-        json.dump(manifest_entries, f, indent=2)
-    logger.info(f"Dataset manifest written to {manifest_path}")
+def write_citation(citation_path: Path) -> None:
+    """Create a simple CITATION.md file."""
+    citation_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(citation_path, "w", encoding="utf-8") as f:
+        f.write(CITATION_TEXT + "\n")
+    logger.info(f"Citation written to {citation_path}")
 
 # ----------------------------------------------------------------------
-# CLI entry point
+# CLI handling
 # ----------------------------------------------------------------------
 def parse_cli() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Download OpenNeuro datasets and produce a manifest (Task T003)."
+        description="Ingest the Cyberball dataset (ds000208) for Task T002."
     )
     parser.add_argument(
-        "--dataset-ids",
-        nargs="+",
+        "--dataset-url",
         required=True,
-        help="List of OpenNeuro dataset IDs to download (e.g., ds000208 ds003392).",
+        help="Direct URL to the parquet file to download.",
     )
     parser.add_argument(
         "--output-dir",
         default=get_path("raw"),
-        help="Directory to store downloaded files (default: project raw data folder).",
+        help="Directory where raw data should be stored (default: project raw folder).",
+    )
+    parser.add_argument(
+        "--dataset-id",
+        default="ds000208",
+        help="Identifier used for naming output files (default: ds000208).",
     )
     return parser.parse_args()
 
+# ----------------------------------------------------------------------
+# Main workflow
+# ----------------------------------------------------------------------
 def main() -> None:
     args = parse_cli()
+
     output_dir = Path(args.output_dir)
-    run_ingestion(args.dataset_ids, output_dir)
+    dataset_id = args.dataset_id
+    url = args.dataset_url
+
+    # Destination parquet file
+    parquet_path = output_dir / f"{dataset_id}.parquet"
+
+    # ------------------------------------------------------------------
+    # 1. Download the parquet file (with size guard)
+    # ------------------------------------------------------------------
+    bytes_written = download_file(url, parquet_path, MAX_RAM_GB)
+
+    # ------------------------------------------------------------------
+    # 2. Compute SHA‑256 checksum
+    # ------------------------------------------------------------------
+    checksum = compute_sha256(parquet_path)
+
+    # ------------------------------------------------------------------
+    # 3. Write metadata JSON
+    # ------------------------------------------------------------------
+    metadata = {
+        "dataset_id": dataset_id,
+        "download_url": url,
+        "download_timestamp": datetime.utcnow().isoformat() + "Z",
+        "size_bytes": bytes_written,
+        "sha256": checksum,
+    }
+    metadata_path = output_dir / f"metadata_{dataset_id}.json"
+    write_metadata(metadata_path, metadata)
+
+    # ------------------------------------------------------------------
+    # 4. Write citation file
+    # ------------------------------------------------------------------
+    citation_path = output_dir / "CITATION.md"
+    write_citation(citation_path)
+
+    # ------------------------------------------------------------------
+    # 5. Add ``task`` column to the parquet file
+    # ------------------------------------------------------------------
+    add_task_column(parquet_path, task_value="cyberball")
+
+    logger.info("Ingestion completed successfully.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

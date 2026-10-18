@@ -1,3 +1,3 @@
 """
-Package initializer for the test suite.
+Marker file for the test suite package.
 """

@@ -1,69 +1,8 @@
 T001:
-  c: true
-  h: 974e62e14ba353d265bb05287184132d61fc8e982de4999d5406db46f36a593e
-  r: All required directories (`code/`, `data/raw/`, `data/interim/`, `data/processed/`,
-    `tests/`, `reports/`) exist with placeholder `__init__.py` files in `code/` and
-    `tests/`; `requirements.txt` contains all six required packages (pandas, numpy,
-    scipy, statsmodels, pyyaml, requests) plus extras; and `quickstart.md` documents
-    both `pip install -r requirements.txt` installation and pipeline usage. The only
-    minor deviation is that quickstart documents per-step script invocations rather
-    than the exact single command `python -m code.pipeline`, but `code/pipeline.py`
-    exists and the documented commands
-  sig: f30e652f76794abab481960a2ebc7884dfc7c312ca1338a77b21c3e54e0fe77d
-T002:
-  c: true
-  h: b86f67745bc1e257525d6115c2f5046f032d8fdc2957cd653943a281d8e83c4a
-  r: 'The file `code/config.py` exists (2795 bytes) and defines all required items:
-    `PROJECT_ROOT`, `RAW_DIR`, `INTERIM_DIR`, `PROCESSED_DIR`, `REPORTS_DIR`, `MAX_RAM_GB
-    = 7`, `ALPHA_SET = {0.01, 0.05, 0.1}`, and `SEED = 42`, with no stubs or placeholders.
-    The extra helpers and directory-creation side effect are harmless additions that
-    don''t conflict with the requirements.'
-  sig: 9695895221f9bd8385a835a525048d854805b83ef96c9183c2f5d6f0a370605c
-T005:
   c: false
-  h: 42cda291d0af7d3d6f638660b4845e5480478f65bdf4d56a787c87ccb1418328
-  r: "The repository contains the implementation of `process_overlap_and_design()`\
-    \ in `code/ingest.py`, but the required output files (`data/interim/overlap_report.json`,\
-    \ `data/interim/design_branch.json`, and `data/processed/metadata.json`) are absent,\
-    \ so the task\u2019s deliverables have not been produced."
-T006:
-  c: false
-  h: 5100d716b25196c92831976ddfc12e0af91d878b2a3058c5c94338d804e2fdac
-  r: The `state/projects/PROJ-258-the-effect-of-simulated-social-rejection.yaml` only
-    contains a hash entry for `ds000208` (with an outdated timestamp) and lacks the
-    required entry for `ds003392`; additionally, the required `data/raw/CITATION.md`
-    file is absent.
-T008:
-  c: false
-  h: 670d82c6c79fa0015273adda7b17568545b5577205b2178d3b2e7402c06fe9d7
-  r: "The file `code/preprocess.py` defines helper functions `_flag_outliers_iqr`\
-    \ and `_zscore_normalize` that perform the required IQR outlier flagging and per\u2011\
-    condition Z\u2011score normalization, but there is no code that actually applies\
-    \ these functions to each dataset and writes the results to `data/interim/preprocessed_<dataset_id>.csv`\
-    \ as the task specifies (the main pipeline `run_preprocessing` is truncated and\
-    \ never calls the new helpers nor saves the preprocessed files). Implement a loop\
-    \ that loads each raw CSV, runs the outlier\u2011flagging then normalization,\
-    \ and saves the output to the required "
-T009:
-  c: false
-  h: bf2479f336ef1612ebf50ffbeee6b734e34aace146eccc83cdf9049f94a5addd
-  r: "The required `data/processed/features_ds000208.csv` file is missing, and the\
-    \ outlier audit trail `data/interim/outlier_log.json` contains only an empty list\
-    \ (`[]`) instead of per\u2011condition IQR thresholds and flagged\u2011row counts.\
-    \ The code defines helper functions for aggregation and logging, but they are\
-    \ never invoked to produce the needed output files. The task\u2019s deliverables\
-    \ are therefore not present."
-T013:
-  c: false
-  h: de374b2426a587f8e0cf98371c925a0c444ede2c470ba69cebd0c87a94a270b7
-  r: "The repository lacks a `validate_schema(df)` function in `code/ingest.py`, and\
-    \ the required `data/interim/validation_report.json` file does not exist, so the\
-    \ schema\u2011checking behavior and the output artifact are missing."
-T019:
-  c: false
-  h: 40a76abfe750de3d3740edeed3c71e8804980974d32da3d809e2d9ac2e9799da
-  r: The repository lacks the required `data/processed/metadata.json` file, and the
-    provided `code/ingest.py` excerpt does not contain a `write_metadata(design_type,
-    used_datasets)` implementation (the file is truncated before any such function
-    could appear). Both the function and its output file are missing, so the task
-    is not satisfied.
+  h: bb0ce76f0929c0a338de6389a71cf2f1bd7f0fe244b78326b90fa1fc93979e8b
+  r: "The required directories and `__init__.py` placeholders, `requirements.txt`,\
+    \ and `quickstart.md` (which lists `python -m code.pipeline`) are present, but\
+    \ there is no evidence that `python -c \"import pandas\"` was executed successfully;\
+    \ the task\u2019s verification step is missing."
+  sig: 6a3dc18e1fdcce47bf3348079e5dac836325d1cfc117ae82e5dd2f93fcc803bf

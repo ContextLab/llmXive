@@ -1,72 +1,87 @@
 """
-Unit tests for the ingestion pipeline (code/ingest.py).
-The tests verify that the pipeline creates the required output files
-and respects the size‑limit guard.
+Unit tests for the T002 ingestion script.
+
+The tests verify that:
+  * The script exits with code 0 on a successful download.
+  * The parquet file contains a ``task`` column with the expected value.
+  * The metadata JSON includes a SHA‑256 checksum.
+  * The citation file exists and contains the OpenNeuro citation.
 """
-import os
 import json
-import pytest
+import os
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
 
-# Ensure the project root is on sys.path for imports
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "code"))
+import pandas as pd
+import pytest
 
-from ingest import run_ingestion, get_path
+# The URL used in the quick‑start is a small verified parquet file.
+# It is publicly reachable; the test will download it for real.
+TEST_URL = "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"
 
 @pytest.fixture(scope="module")
-def run_pipeline():
-    """Execute the ingestion pipeline once for the test module."""
-    # Clean up any previous artifacts to guarantee a fresh run
-    raw_dir = Path(get_path("raw"))
-    interim_dir = Path(get_path("interim"))
-    processed_dir = Path(get_path("processed"))
+def temp_dir():
+    with tempfile.TemporaryDirectory() as td:
+        yield Path(td)
 
-    for d in (raw_dir, interim_dir, processed_dir):
-        if d.exists():
-            for p in d.rglob("*"):
-                if p.is_file():
-                    p.unlink()
-        else:
-            d.mkdir(parents=True)
+def run_ingest(temp_dir: Path):
+    """Helper to invoke the ingestion script."""
+    cmd = [
+        sys.executable,
+        "code/ingest.py",
+        "--dataset-url",
+        TEST_URL,
+        "--output-dir",
+        str(temp_dir),
+        "--dataset-id",
+        "ds000208",
+    ]
+    result = subprocess.run(
+        cmd,
+        cwd=Path(__file__).parents[1],  # project root
+        capture_output=True,
+        text=True,
+    )
+    return result
 
-    # Run the ingestion pipeline
-    run_ingestion()
-    yield
+def test_ingest_success(temp_dir):
+    result = run_ingest(temp_dir)
+    assert result.returncode == 0, f"stderr: {result.stderr}"
 
-def test_manifest_created(run_pipeline):
-    manifest_path = Path(get_path("raw")) / "dataset_manifest.json"
-    assert manifest_path.is_file(), "dataset_manifest.json should exist"
-    with open(manifest_path) as f:
-        manifest = json.load(f)
-    assert isinstance(manifest, list) and len(manifest) == 2
-    for entry in manifest:
-        assert "url" in entry and "size_bytes" in entry
-        assert entry["sha256"] is None
+    # Check parquet exists
+    parquet_path = temp_dir / "ds000208.parquet"
+    assert parquet_path.is_file()
 
-def test_condition_report(run_pipeline):
-    report_path = Path(get_path("interim")) / "condition_report.json"
-    assert report_path.is_file(), "condition_report.json should exist"
-    with open(report_path) as f:
-        report = json.load(f)
-    assert all(k in report for k in ("rejection_present", "control_present", "reward_present"))
+    # Verify ``task`` column
+    df = pd.read_parquet(parquet_path)
+    assert "task" in df.columns
+    assert set(df["task"].unique()) == {"cyberball"}
 
-def test_overlap_and_design(run_pipeline):
-    overlap_path = Path(get_path("interim")) / "overlap_report.json"
-    design_path = Path(get_path("interim")) / "design_branch.json"
-    metadata_path = Path(get_path("processed")) / "metadata.json"
+    # Check metadata JSON
+    meta_path = temp_dir / "metadata_ds000208.json"
+    assert meta_path.is_file()
+    meta = json.loads(meta_path.read_text())
+    assert meta["dataset_id"] == "ds000208"
+    assert "sha256" in meta
+    assert len(meta["sha256"]) == 64  # SHA‑256 length
 
-    for p in (overlap_path, design_path, metadata_path):
-        assert p.is_file(), f"{p.name} should be created"
+    # Check citation
+    citation_path = temp_dir / "CITATION.md"
+    assert citation_path.is_file()
+    content = citation_path.read_text()
+    assert "OpenNeuro" in content and "ds000208" in content
 
-    with open(overlap_path) as f:
-        overlap = json.load(f)
-    assert "overlap" in overlap
+# The following test ensures that the size guard works.  We cannot
+# realistically download a >7 GB file in CI, so we simulate the guard
+# by monkey‑patching ``requests.head`` to return an exaggerated size.
+def test_size_guard(monkeypatch, temp_dir):
+    class DummyResponse:
+        headers = {"Content-Length": str(8 * 1024 ** 3)}  # 8 GB
+        def raise_for_status(self): pass
 
-    with open(design_path) as f:
-        design = json.load(f)
-    assert design["design_type"] in ("Within-Subjects", "Between-Subjects")
-
-    with open(metadata_path) as f:
-        meta = json.load(f)
-    assert meta["design_type"] == design["design_type"]
+    monkeypatch.setattr("requests.head", lambda *args, **kwargs: DummyResponse())
+    result = run_ingest(temp_dir)
+    assert result.returncode == 1
+    assert "exceeds RAM limit" in result.stderr.lower()

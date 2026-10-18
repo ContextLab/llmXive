@@ -4152,3 +4152,19 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-09T12:21:26Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/quickstart.md
+  attempts: 1
+  canonical: OpenNeuro ds000208 Cyberball social exclusion dataset
+  claim_id: c_43c6a74e
+  context: 'If you use this pipeline in your research, please cite the OpenNeuro dataset:
+    OpenNeuro. ds000208: Cyberball social exclusion dataset. https://openneuro.org/datasets/ds000208'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: 'OpenNeuro. ds000208: Cyberball social exclusion dataset.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-18T01:43:57Z'
