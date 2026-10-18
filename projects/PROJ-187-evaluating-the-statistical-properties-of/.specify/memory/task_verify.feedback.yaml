@@ -7,6 +7,8 @@ T001:
     write only project-owned outputs.'
   task: f6cd19fa53b1b931017f7a76051d33e90e02c869a522b360b66c8cb6653460d7
 T002:
+  reason: 'Requested task execution failed; rerun successfully: src/cli/run_fidelity.py
+    exit=1'
   task: 4f23a5fad785d75f76773049576d3c326b0ec5f6c13c36a626d04386f1595965
 T003:
   task: d353501366e12547bf97834e8c72f21a2b8c7ee7e79905a3d84867b120d07638
