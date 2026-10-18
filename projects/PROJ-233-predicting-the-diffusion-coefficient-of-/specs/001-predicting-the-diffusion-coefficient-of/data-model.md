@@ -1,23 +1,27 @@
-# Data Model: Predicting the Diffusion Coefficient of Hydrogen in Metals
+# Data Model: Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional and Microstructural Descriptors
 
 ## Core Entities
 
 | Entity | Description | Key Fields |
 |--------|-------------|------------|
-| **MaterialSample** | Raw observation from the diffusion dataset (or synthetic generator). | `sample_id: string` (unique), `composition: list<string>`, `processing_params: dict<string, float>`, `temperature: float` (K), `diffusion_coefficient: float` (m²/s) |
-| **DescriptorSet** | Derived numeric features for a `MaterialSample`. | `sample_id: string` (FK), `mean_electronegativity: float`, `atomic_radius_variance: float`, `free_volume_proxy: float`, `grain_boundary_density: float`, `temperature: float`, `log10_D: float` |
-| **ModelPerformance** | Metrics for a trained model on a given outer‑fold test set. | `model_type: enum[xgboost, random_forest, linear]`, `outer_fold: int`, `rmse_log10: float`, `r2_log10: float`, `hyperparameters: dict<string, any>` |
-| **InteractionTerm** | Pairwise SHAP interaction result. | `descriptor_a: string`, `descriptor_b: string`, `mean_abs_shap_interaction: float`, `ci_lower: float`, `ci_upper: float`, `delta_r2_ablation: float` |
-| **BootstrapResult** | One bootstrap iteration’s summary. | `iteration: int`, `feature_importances: dict<string, float>`, `outer_r2: float` |
+| **MaterialSample** | One real observation from the input dataset. | `sample_id: string` (unique), `composition: array<string>`, **optional** `composition_fractions: array<number>` (same length as `composition`; if omitted, equal‑weighting is assumed for descriptor calculations), `processing_params: object<string, number>`, `temperature: float` (K), `diffusion_coefficient: float` (m²/s, harmonized) |
+| **DescriptorSet** | Derived numeric features per sample. | `sample_id: string` (FK), `mean_electronegativity: float`, `atomic_radius_variance: float`, `free_volume_proxy: float`, `grain_boundary_density: float`, `temperature: float`, `inv_temperature: float` (1/K, reciprocal of temperature), `log10_D: float` |
+| **ModelPerformance** | Records for one model on one outer fold. | `model_type: enum[xgboost, random_forest, linear]`, `outer_fold: int` (1–5), `rmse_log10: float`, `r2_log10: float`, `hyperparameters: object<string, number>` |
+| **InteractionTerm** | Pairwise SHAP interaction result. | `descriptor_a: string`, `descriptor_b: string`, `mean_abs_shap_interaction: float`, `ci_lower: float`, `ci_upper: float`, `delta_r2_ablation: float` (ΔR² when this interaction is removed from the model on the hold‑out) |
+| **BootstrapResult** | One bootstrap iteration summary. | `iteration: int`, `feature_importances: object<string, number>`, `outer_r2: float` |
+| **ExternalValidation** | Hold‑out evaluation of the best model. | `rmse_log10: float`, `r2_log10: float`, `interaction_variance_share: float` (primary SC‑006 metric: **ablation ΔR² share**, 0–1) |
+| **PowerAnalysis** | Post‑hoc power analysis record for interaction effect detection (FR‑009). | `effect_size_f2: float`, `min_detectable_f2: float`, `alpha: float`, `n_samples: int`, `ci_width_top_feature: float` |
 
 ## Relationships
-- `DescriptorSet.sample_id` → `MaterialSample.sample_id` (one‑to‑one).  
-- `ModelPerformance` is linked to a specific outer fold.  
-- `InteractionTerm` is derived from the best performing non‑linear model (global).  
-- `BootstrapResult` aggregates across all samples; each iteration is independent.
 
-## Schema Contracts
-- See `contracts/dataset.schema.yaml` (raw & derived tables).  
-- See `contracts/model_performance.schema.yaml` (performance, interactions, and bootstrap results).
+- `DescriptorSet.sample_id` → `MaterialSample.sample_id` (one‑to‑one).
+- `ModelPerformance` rows are keyed by (model_type, outer_fold).
+- `InteractionTerm` derives from the best non‑linear model; CIs derive from `BootstrapResult` iterations.
+- `ExternalValidation` and `PowerAnalysis` each reference the single best‑model run.
 
----
+## Provenance Rules (Constitution III, VII)
+
+- Raw input is checksummed (e.g., using a cryptographic hash) and never modified in place; each derivation writes a new file.
+- `log10_D` / `diffusion_coefficient` never enter imputation or scaling.
+- Every derived file records its source file hash and generating code block.
+- If `composition_fractions` is omitted, the pipeline assumes equal weighting for computing mean electronegativity and atomic‑radius variance, and this assumption is documented in the processing code.

@@ -1,11 +1,11 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
 title: "Hydrogen Diffusion Dataset Schema"
+description: "Schema for real input rows consumed by the ingestion pipeline."
 type: object
 additionalProperties: false
 required:
   - sample_id
   - composition
-  - processing_params
   - temperature
   - diffusion_coefficient
 properties:
@@ -17,9 +17,14 @@ properties:
     items:
       type: string
     description: "List of element symbols (e.g., ['Fe', 'Cr'])."
+  composition_fractions:
+    type: array
+    items:
+      type: number
+    description: "Optional list of fractional amounts for each element in `composition`. If omitted, equal‑weighting is assumed for descriptor calculations."
   processing_params:
     type: object
-    description: "Dictionary of processing‑history numeric parameters (e.g., annealing temperature, cooling rate)."
+    description: "Numeric processing‑history parameters (e.g., annealing temperature, cooling rate)."
     additionalProperties:
       type: number
   temperature:
@@ -27,4 +32,4 @@ properties:
     description: "Measurement temperature in Kelvin."
   diffusion_coefficient:
     type: number
-    description: "Hydrogen diffusion coefficient in m²/s (raw target)."
+    description: "Hydrogen diffusion coefficient (m^2/s after unit harmonization)."

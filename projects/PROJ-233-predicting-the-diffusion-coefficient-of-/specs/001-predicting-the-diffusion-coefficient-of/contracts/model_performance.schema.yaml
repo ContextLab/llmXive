@@ -1,6 +1,6 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
 title: "Model Results Schema"
-description: "Combined schema for model performance, interaction terms, and bootstrap results."
+description: "Records for model performance, interaction terms, bootstrap results, and external validation."
 type: object
 properties:
   model_performance:
@@ -21,7 +21,6 @@ properties:
       hyperparameters:
         type: object
         additionalProperties: { type: number }
-  
   interaction_term:
     type: object
     required: [descriptor_a, descriptor_b, mean_abs_shap_interaction, ci_lower, ci_upper, delta_r2_ablation]
@@ -32,7 +31,6 @@ properties:
       ci_lower: { type: number }
       ci_upper: { type: number }
       delta_r2_ablation: { type: number }
-
   bootstrap_result:
     type: object
     required: [iteration, feature_importances, outer_r2]
@@ -42,3 +40,14 @@ properties:
         type: object
         additionalProperties: { type: number }
       outer_r2: { type: number }
+  external_validation:
+    type: object
+    required: [rmse_log10, r2_log10, interaction_variance_share]
+    properties:
+      rmse_log10: { type: number }
+      r2_log10: { type: number }
+      interaction_variance_share:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Primary metric for SC‑006: proportion of explained variance attributable to pairwise interactions, computed via **ablation ΔR² share** on an independent hold‑out set."

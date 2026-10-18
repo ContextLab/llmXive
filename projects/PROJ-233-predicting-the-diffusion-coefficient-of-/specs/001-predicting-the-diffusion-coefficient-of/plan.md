@@ -1,34 +1,36 @@
 # Implementation Plan: Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional and Microstructural Descriptors
 
-**Branch**: `001-hydrogen-diffusion-prediction` | **Date**: 2026-10-18 | **Spec**: [spec.md]  
+**Branch**: `001-hydrogen-diffusion-prediction` | **Date**: 2026-10-18 | **Spec**: [spec.md]
 **Input**: Feature specification from `/specs/001-hydrogen-diffusion-prediction/spec.md`
 
 ## Summary
-The project must build a reproducible pipeline that (1) ingests hydrogen‑diffusion measurements together with compositional and processing descriptors, (2) trains XGBoost and Random‑Forest regressors with nested cross‑validation and Bayesian hyper‑parameter search, (3) compares them to a linear baseline, (4) quantifies pairwise descriptor interactions with SHAP, (5) validates interaction importance via multiple bootstrap refits, (6) **adds an independent external validation using a separately generated synthetic test set** to substantiate the constitutional claim about variance explained, and (7) **performs a formal post‑hoc power analysis** to assess the ability of the sample size to detect interaction effects.
 
-**Crucial Note on Scope**: A synthetic benchmark dataset is generated because no verified open‑source diffusion dataset with the required descriptors is available. The pipeline is ready to consume a real dataset when it becomes available.
+Build a reproducible, CPU‑only pipeline that (1) ingests hydrogen‑diffusion measurements with compositional, microstructural, and temperature descriptors, (2) trains XGBoost and Random‑Forest regressors under nested 5‑fold cross‑validation with an inner Optuna Bayesian search (≤ 2 h), (3) compares them to a linear baseline on log₁₀(D), (4) quantifies pairwise interactions via SHAP interaction values (descriptive only), (5) validates interaction importance with an **ablation‑based ΔR² share** on an independent hold‑out set (primary metric for SC‑006) and bootstrap‑derived confidence intervals, (6) enforces resource guards (6 h / ~7 GB), (7) performs **both** an **a‑priori simulation‑based power analysis** confirming the ≥ 200‑sample requirement **and** a post‑hoc analysis reporting observed effect size f², minimum detectable f², and CI width for the top‑ranked descriptor, and (8) reports results with full provenance. The plan also contains a **Scope‑Correction** section because the spec’s assumed data sources are not openly downloadable.
 
 ## Technical Context
-- **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scikit-learn==1.5.*`, `xgboost==2.0.*`, `shap==0.45.*`, `optuna==3.6.*`, `datasets==2.19.*`, `mlflow==2.14.*`
-- **Storage**: File‑based CSV/Parquet in `data/` (raw, derived, and results)  
-- **Testing**: `pytest==8.2.*` (unit & contract tests)  
-- **Target Platform**: Linux runner on GitHub Actions (2 CPU cores, ~7 GB RAM)  
-- **Constraints**: CPU‑first; no GPU required. All heavy loops are bounded by explicit time/iteration caps.  
-- **Scale/Scope**: Pipeline benchmark using a synthetic dataset of 200 rows (seeded `SEED=42`). An additional external synthetic test set (seeded `SEED=999`) of 80 rows is generated for out‑of‑sample validation.
+
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scikit-learn==1.5.*`, `xgboost==2.0.*`, `shap==0.45.*`, `optuna==3.6.*`, `statsmodels==0.14.*`, `psutil==5.9.*`, `pyyaml==6.0.*`
+- **Storage**: file‑based CSV/Parquet under `data/` (raw, processed, results)
+- **Testing**: `pytest==8.2.*`
+- **Target Platform**: GitHub Actions free‑tier Linux runner (2 CPU, ~7 GB RAM, no GPU)
+- **Performance Goals**: full pipeline within 6 h wall‑clock and ~7 GB RAM (FR-006, SC-004)
+- **Constraints**: CPU‑only (per spec assumption "No GPU Requirement"); all loops time‑bounded; no synthetic stand‑ins for real measurements.
 
 ## Constitution Check
+
 | Principle | Compliance Statement |
 |-----------|----------------------|
-| I. Reproducibility | All scripts are deterministic; external datasets are fetched via canonical URLs. Random seeds are pinned (`SEED=42` for training data, `SEED=999` for external test). |
-| II. Verified Accuracy | No external citations are introduced beyond verified sources. |
-| III. Data Hygiene | Raw files are checksummed; every transformation writes a new file with provenance metadata. |
-| IV. Single Source of Truth | Every figure/table references a single row in `data/processed/*.parquet` and a single entry in the experiment log. |
-| V. Versioning Discipline | All artifacts are content‑hashed; `state/projects/PROJ-233-...yaml` is updated on change. |
-| VI. Numerical Stability & Interaction Validation | Bayesian optimization is time‑capped; 1,000 bootstraps provide CIs. External validation assesses whether >70 % variance claim holds on unseen data. |
-| VII. Independent Validation & Descriptor Provenance | Descriptor calculations and proxies use literature formulas independent of the diffusion target. k‑NN imputation is trained only on predictor columns. |
+| I. Reproducibility | All seeds pinned (`SEED=42`); deterministic pipeline; raw data fetched/loaded from a single canonical file path and checksummed. |
+| II. Verified Accuracy | No citations beyond verified sources; the unverified NIST/JMS data sources are explicitly flagged, not cited as reachable. |
+| III. Data Hygiene | Raw file checksummed into `data/checksums.sha256`; every transformation writes a new derived file with documented provenance; no PII. |
+| IV. Single Source of Truth | Every figure/statistic traces to one row in `data/processed/*.parquet` and one code block; no hand‑typed numbers. |
+| V. Versioning Discipline | All artifacts content‑hashed; project state `updated_at` maintained by the platform. |
+| VI. Numerical Stability & Interaction Validation | Bayesian optimization time‑capped with graceful exit; a substantial number of bootstrap refits (fixed hyperparameters) yield CIs for importance rankings; interaction claims validated on an independent hold‑out via ablation ΔR² (not solely SHAP). |
+| VII. Independent Validation & Descriptor Provenance | Target `log10_D` never used as predictor or in imputation/scaling; k‑NN imputation (k=5) fit on predictor columns only inside training folds; proxy derivations documented as independent of diffusion measurements. |
 
 ## Project Structure
+
 ```text
 specs/001-hydrogen-diffusion-prediction/
 ├── plan.md
@@ -37,63 +39,71 @@ specs/001-hydrogen-diffusion-prediction/
 ├── quickstart.md
 ├── contracts/
 │   ├── dataset.schema.yaml
-│   └── model_performance.schema.yaml
+│   ├── model_performance.schema.yaml
+│   └── power_analysis.schema.yaml
 └── tasks.md
-```
 
-```text
 src/
 ├── pipeline/
-│   ├── ingest.py          # FR‑001, FR‑008
-│   ├── preprocess.py      # scaling, k‑NN imputation
-│   ├── train.py           # FR‑002, FR‑003, FR‑008
-│   ├── evaluate.py        # performance metrics
-│   ├── shap_interaction.py# FR‑004
-│   └── bootstrap.py       # FR‑005
+│   ├── ingest.py           # FR-001, FR-008: load real data, compute descriptors, unit harmonization, 1/T feature
+│   ├── preprocess.py       # FR-001: k‑NN imputation (k=5, predictors only), StandardScaler
+│   ├── train.py            # FR-002, FR-003: nested CV + Optuna, linear baseline
+│   ├── evaluate.py         # FR-003, FR-010: metrics, external hold‑out evaluation (ablation ΔR² share)
+│   ├── shap_interaction.py # FR-004: SHAP interaction values (descriptive only)
+│   ├── bootstrap.py        # FR-005, limitation note (fixed hyperparameters)
+│   ├── power.py            # FR-009: a‑priori simulation power analysis + post‑hoc effect‑size & min‑detectable‑f²
+│   └── guard.py            # FR-006: RAM/wall‑clock monitor, fallback sampling
 ├── utils/
-│   ├── logger.py
 │   └── seeds.py
 └── cli/
-    └── run_pipeline.py    # entry point
+    └── run_pipeline.py
+
 tests/
 ├── contract/
 │   └── test_contracts.py
-└── unit/
-    ├── test_ingest.py
-    ├── test_train.py
-    └── test_bootstrap.py
+├── unit/
+│   ├── test_ingest.py      # uses small hard‑coded fixture rows (spec US‑1 independent test)
+│   ├── test_train.py
+│   └── test_bootstrap.py
+└── data/
+    └── fixture_rows.csv    # tiny labeled test fixture — NOT used to produce results; satisfies independent tests
 ```
 
-## Phase Mapping (covers all FR & SC)
+**Structure Decision**: single‑project layout (`src/` + `tests/`); a `requirements.txt` lives at the repository root (see quickstart). No frontend, packaging, or infrastructure scaffolding.
 
-| Phase | Tasks (linked to FR/SC) |
-|-------|--------------------------|
-| **0 – Dataset Strategy & Verification** | Verify NIST URL. Since variables are missing, generate a non‑trivial synthetic benchmark dataset matching the schema (FR‑001, SC‑005). Also generate a separate synthetic external test set (different seed) for validation. |
-| **1 – Data Ingestion & Descriptor Engineering** | Implement `ingest.py` to load raw/synthetic data; fetch compositional properties; compute `mean_electronegativity`, `atomic_radius_variance`; derive `free_volume_proxy` & `grain_boundary_density`; **ensure `temperature` is retained as a primary predictor (FR‑001, FR‑008, SC‑005)**. Apply k‑NN imputation (k=5) on predictor columns only; StandardScaler on all numeric features. |
-| **2 – Nested Model Training** | `train.py` runs outer k‑fold CV; inside each outer training fold, an Optuna Bayesian search (max 2 h) tunes XGBoost and RF; **train models on `log10_D` target using the full descriptor set including `temperature` (FR‑002, FR‑008)**. Fit imputer & scaler inside inner folds only. |
-| **3 – Baseline Linear Model & Comparison** | Train ordinary least‑squares on the same inner‑fold pipelines; compute RMSE & R² on log‑scale for each outer test fold; aggregate to produce `ModelPerformance` records (FR‑003, SC‑001). |
-| **4 – SHAP Interaction Analysis** | After selecting the best non‑linear model, compute SHAP interaction values (`shap.TreeExplainer`) and produce a ranked interaction table (FR‑004). |
-| **4b – External Validation** | Evaluate the best‑performing non‑linear model (with tuned hyper‑parameters) on the **separate synthetic external test set** (80 samples). Record RMSE, R², and variance explained. Compare the variance explained to the constitutional >70 % target, and log whether the claim is met (addresses concern methodology‑97e5e7c6). |
-| **5 – Bootstrap Robustness Validation** | `bootstrap.py` performs 1,000 resamples. For each: (a) refit the full nested pipeline **using the best fixed hyper‑parameters** (to ensure CI feasibility); (b) **re‑calculate SHAP interaction values on the bootstrap model**; (c) perform ablation on a held‑out slice of the bootstrap sample to calculate ΔR². Compute 95 % CIs for top‑5 importances (FR‑005, SC‑002, SC‑003). |
-| **6 – Resource‑Guard & Fallback Logic** | Wrap pipeline in a monitor tracking RAM (via `psutil`) and wall‑clock time. If RAM > 6 GB → switch to 150‑sample subset; if time > 5 h 55 m → abort optimization/bootstraps, log best‑so‑far, exit with code 0 (FR‑006, SC‑004). |
-| **7 – Results Packaging** | Write `ModelPerformance`, `InteractionTerm`, and `BootstrapResult` tables to `data/results/` as Parquet; generate summary figures (RMSE, SHAP heatmap, CI violin plots). |
-| **8 – Power Analysis** *(new phase)* | After the full nested‑CV run, compute the effect size (Cohen’s f²) for the interaction terms using the variance explained by the best non‑linear model versus the linear baseline. Run a post‑hoc power analysis (e.g., `statsmodels.stats.power.FTestPower`) with α = 0.05, the observed effect size, and the sample size (N ≈ 200). Record achieved power and, if power < 0.8, flag the limitation in the final report. This directly satisfies concern methodology‑acb4dfc8. |
-| **9 – Documentation & Contract Validation** | Validate all result files against the YAML contracts in `contracts/`; generate summary report. |
+## Phase Mapping (covers every FR and SC)
 
-## Timeline (≈ 8 – 15 substantive tasks)
-1. Generate non‑trivial synthetic benchmark dataset (training) and external synthetic test set.  
-2. Implement ingestion & descriptor calculations (including temperature).  
-3. Write preprocessing utilities (imputation, scaling).  
-4. Build nested CV training loop with Optuna.  
-5. Add linear baseline pipeline.  
-6. Integrate SHAP interaction extraction.  
-7. Implement external validation evaluation on the separate test set and explicit >70 % variance check.  
-8. Implement bootstrap refit loop (fixed‑params, re‑calculated interactions).  
-9. Add resource‑guard wrapper.  
-10. **Add Power Analysis step** to compute effect size, perform post‑hoc power calculation, and record results.  
-11. Write contract schemas & validation tests.  
-12. Produce figures & summary report.  
-13. Assemble quick‑start script & README.  
+| Phase | Work (FR/SC covered) |
+|-------|----------------------|
+| **0 – Data acquisition gate & provenance** | Define the real‑input contract (`data/raw/diffusion_measurements.csv` per `contracts/dataset.schema.yaml`). Document that **no verified open source** for the NIST/JMS sources exists; the pipeline **exits non‑zero** with an explicit “no verified data source” message if the file is missing. Checksum raw data (Constitution III). **FR‑001 (data side), SC‑005; scope flag recorded.** |
+| **1 – Ingestion & descriptor engineering** | `ingest.py`: harmonize units to m²/s (US‑1 scenario 3); compute `mean_electronegativity`, `atomic_radius_variance` from element‑property tables bundled in‑repo with cited provenance; derive `free_volume_proxy`, `grain_boundary_density` via documented literature formulas independent of D (FR‑007); retain `temperature` **and** create `inv_temperature = 1 / temperature` (physically motivated Arrhenius feature) (FR‑008). `preprocess.py`: k‑NN imputation (k=5) on predictor columns only, StandardScaler on all numeric features including `inv_temperature`, fitted inside training folds (FR‑001). |
+| **2 – Nested model training** | `train.py`: outer 5‑fold CV; inner Optuna TPE search (≤ 2 h, 5‑min grace exit with code 0 and “Optimization terminated due to time budget” log; grid‑fallback (`max_depth=6, learning_rate=0.1, n_estimators=200`) on non‑convergence) for XGBoost and RF; target `log10_D`; imputer/scaler fit inside inner folds only (FR‑002). |
+| **3 – Linear baseline & comparison** | OLS baseline in the same nested pipeline; RMSE and R² on log₁₀(D) per outer fold; Holm‑adjusted pairwise model comparison; explicit best‑model statement (FR‑003, SC‑001). |
+| **4 – SHAP interaction analysis** | `shap.TreeExplainer.shap_interaction_values` on the best non‑linear model; ranked pairwise interaction table with mean |SHAP| magnitudes (descriptive). **Note**: this SHAP‑ratio is *not* used for SC‑006; it is reported only for interpretability. |
+| **4b – Independent hold‑out evaluation** | Pre‑CV stratified hold‑out test set (a representative proportion of samples) disjoint from all CV folds. Evaluate the tuned best model; **compute interaction‑variance share via ablation ΔR²**: (R²_full − R²_without_interactions) / R²_full. Also compute a bootstrap‑derived 95 % CI for this share (≤ 40 hold‑out samples, CI reported). Report against the ≥ 70 % criterion (FR‑010, SC‑006). |
+| **5 – Bootstrap robustness** | `bootstrap.py`: b = 1…1000 resamples; **refit full pipeline (imputation, scaling, model) with the **best hyperparameters fixed** for feasibility (limitation noted in SC‑002 interpretation). SHAP interactions recomputed per resample; ablation ΔR² for top interactions on held‑out slices; 95 % percentile CIs for top‑5 importances (FR‑005, SC‑002, SC‑003). |
+| **6 – Resource guard** | `guard.py`: `psutil` RAM polling (threshold 6 GB → log “Memory limit approached – switching to sampled subset”, 150‑sample subset, fixed seed = 42); wall‑clock abort after a prolonged runtime., exit code 0 with best‑so‑far results (FR‑006, SC‑004). |
+| **7a – A‑priori power analysis** | `power.py`: **simulation‑based power analysis** (Monte‑Carlo) that confirms the **n ≥ 200** requirement for detecting interaction effect size *f*² ≥ 0.15 with α = 0.05 and that bootstrap 95 % CI widths for top‑feature importance are ≤ 0.1. This satisfies FR‑009’s design‑time requirement. |
+| **7b – Post‑hoc power analysis** | After data are loaded, compute observed effect size `f² = (R²_nl − R²_lin)/(1 − R²_nl)` using `statsmodels.stats.power.FTestPower`; report the **minimum detectable f²** at 0.80 power given the realized sample size; also report the 95 % CI width for the top‑ranked descriptor. Flag if power < 0.80 or CI > 0.1. |
+| **8 – Results packaging & contracts** | Write `model_performance`, `interaction_terms`, `bootstrap_ci`, `external_validation`, `power_analysis` tables to `data/results/`; figures (RMSE comparison, SHAP heatmap, CI violins, hold‑out plot, power plot); validate all outputs against `contracts/`; summary report mapping each SC to its measurement. |
 
-## Power Analysis Note (addressing methodology‑acb4dfc8)
-A post‑hoc power analysis will be performed after the synthetic data generation step. Using the observed effect size (Cohen’s f²) from the full‑dataset nested‑CV results, we will compute the achieved statistical power for detecting interaction effects at α = 0.05. The analysis will be reported in the final results; if power is below 0.8, the CI widths will be highlighted as a limitation.
+## Timeline (≈ 12 substantive tasks)
+
+1. Data acquisition gate: input contract, refusal‑on‑missing‑real‑data, checksumming, provenance docs (Phase 0).
+2. Ingestion: unit harmonization, descriptor computation, proxy derivation, **1/T feature** (Phase 1).
+3. Preprocessing: fold‑internal k‑NN imputation and scaling (Phase 1).
+4. Nested CV training loop with Optuna, time budget, grid fallback (Phase 2).
+5. Linear baseline and model‑comparison report with Holm adjustment (Phase 3).
+6. SHAP interaction extraction and ranked table (Phase 4).
+7. External hold‑out evaluation with **ablation ΔR² share** and bootstrap CI (Phase 4b).
+8. Bootstrap refit loop with fixed hyperparameters, limitation note (Phase 5).
+9. Resource guard with sampling fallback and graceful timeout (Phase 6).
+10. **A‑priori simulation power analysis** + post‑hoc effect‑size & min‑detectable‑f² reporting (Phases 7a & 7b).
+11. Contract schemas and validation tests (Phase 8).
+12. Figures, summary report, quickstart (Phase 8).
+
+## Scope Correction Requested
+
+The spec must be amended to resolve the data‑availability mismatch: either (a) name a concrete, verified, openly downloadable dataset containing hydrogen diffusion coefficients plus composition/processing/temperature fields, or (b) authorize a documented manual data‑entry effort from open publications with per‑row provenance (still requiring ≥ 95 % non‑null descriptors per SC‑005). Until such a source is provided, the pipeline is fully implemented and tested **but produces no result tables**, and no synthetic data will be substituted.
+
+--- 

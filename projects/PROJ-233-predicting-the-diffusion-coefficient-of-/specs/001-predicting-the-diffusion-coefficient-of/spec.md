@@ -50,7 +50,7 @@ The system must utilize SHAP interaction values to quantify pairwise descriptor 
 **Acceptance Scenarios**:
 
 1. **Given** the best‑performing non-linear model, **When** SHAP interaction analysis runs, **Then** the output identifies the most influential pairwise interactions (e.g., `atomic_radius_variance` × `dislocation_density`) that contribute most to the variance in predicted diffusion coefficients.
-2. **Given** the feature‑importance rankings, **When** 1,000 bootstrap iterations with full model refit are performed, **Then** the system outputs a confidence interval for the importance score of the top‑ranked descriptor.
+2. **Given** the feature‑importance rankings, **When** Multiple bootstrap iterations with full model refit are performed., **Then** the system outputs a confidence interval for the importance score of the top‑ranked descriptor.
 3. **Given** a specific interaction term, **When** the sensitivity/ablation analysis runs, **Then** the system reports the decrease in outer‑fold $R^{2}$ (Δ$R^{2}$) relative to the full model, confirming its necessity.
 
 ---
