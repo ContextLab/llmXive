@@ -1,144 +1,79 @@
----  
-description: "Task list template for feature implementation"  
----  
+# Tasks: Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC Metals
 
-# Tasks: Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC Metals  
+**Inputs**: Active `spec.md`, `plan.md`, data‑model and contracts under `specs/001-predict-alloy-diffusion/`.
+**Re‑plan note**: Consolidates the prior fragmented task list (T002–T073) into 12 substantive tasks, adds missing tasks to satisfy the plan’s coverage map, and makes all transformations write new derivative files to respect Constitution Principle III. Parallel execution is removed where it caused race conditions. All runtime‑measurement and script‑naming requirements are now explicit.
 
-**Input**: Design documents from `/specs/001-predict-alloy-diffusion/`  
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`  
+## Phase 1: Setup and first end‑to‑end analysis
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL – only include them if explicitly requested in the feature specification.  
+- [ ] T001 [US1] [FR-001] Implement real‑data acquisition and streaming ingestion in `code/data/streaming_loader.py`. Fetch diffusion data **directly from the official NIST SRD 150 URL** (no mirrors). Stream in configurable chunks, filter rows to `crystal_structure == "FCC"` and retain **both** `diffusion_mode == "self"` (baseline set) **and** `diffusion_mode == "solute"` (training set) as mandated by the **amended FR‑001**. Convert activation energies to eV/atom and concentrations to at.%. Enforce the Data Availability Check: if fewer than 1 valid row is found, raise and halt with the exact message `"ERROR: No verified real dataset found. Synthetic data is not permitted for this research goal."` Write `data/curated/baselines.csv` (self rows) and `data/curated/solute_raw.csv` (solute rows).  
+  - Verification: `pytest code/tests/test_streaming_loader.py` confirms the halt error on empty input, no synthetic fallback, and correct column handling.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.  
+- [ ] T013 [US1] [FR-007] Create `code/ingestion/ingest.py` as a thin wrapper that calls `streaming_loader.py`, logs provenance, and writes `data/curated/data_provenance.json` (source_url, SHA‑256 hash, timestamp, filter_criteria, chunks_processed, rows_retained).  
+  - Verification: unit test checks that provenance JSON contains all required fields and matches the streamed data.
 
-## Format: `[ID] [P?] [Story] Description`  
+- [ ] T002 [US1] Implement curation and exclusion logging in `code/data/curation.py`: read `data/curated/solute_raw.csv`, drop rows with missing solute concentration (log count with reason code `"MISSING_CONCENTRATION"` to `data/logs/exclusions.log`), and flag solutes whose atomic radius is unavailable, excluding them and appending records to `errors/missing_atomic_data.csv`. Output the cleaned set to `data/curated/curated_clean.csv` (preserves schema).  
+  - Verification: unit test feeds a fixture with known missing values and asserts exclusion counts and error‑file contents.
 
-- **[P]**: Can run in parallel (different files, no dependencies)  
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)  
-- Include exact file paths in descriptions  
+- [ ] T003 [US2] [FR-002] Implement feature engineering in `code/processing/feature_engineering.py`: compute `size_mismatch = (solute_radius - host_radius) / host_radius`, `electronegativity_diff` (Pauling scale), and `valence_electron_diff` via the pinned `periodictable==0.20.1`. Write the enriched dataset **without extra columns** to `data/curated/engineered.csv` (conforms to `dataset.schema.yaml`). Write the additional descriptor columns (`electronegativity_diff`, `valence_electron_diff`) to a separate file `data/curated/engineered_extra.csv`.  
+  - Verification: `pytest code/tests/test_feature_engineering.py` checks `size_mismatch` against manual calculations and asserts zero nulls in `engineered.csv`.
 
-### Path Conventions  
+- [ ] T004 [US3] [FR-006, FR-008] Implement `code/processing/baseline.py`: read `data/curated/baselines.csv` to extract pure‑host activation energies `Q_host`. For any host missing from this baseline set, halt with `"ERROR: Baseline activation energy for host [X] not found in NIST SRD 150. Pipeline halted."` Compute `baseline_shift_eV = activation_energy_eV - Q_host` for each row in `data/curated/engineered.csv` and write the result to `data/curated/baseline_shifted.csv`.  
+  - Verification: `pytest code/tests/test_baseline.py` confirms correct baseline shifts and exact halt message on missing hosts.
 
-- **Single project**: `code/`, `tests/`, `data/`, `models/`, `validation/`, `reports/`  
+- [ ] T005 Run the end‑to‑end data pipeline (T001 → T004) via the command documented in `quickstart.md`. This produces `data/curated/baseline_shifted.csv`, `data/curated/baselines.csv`, and `data/curated/data_provenance.json`. Afterwards execute the **schema‑validation script** `code/validation/validate_curated.py` to ensure `baseline_shifted.csv` conforms to `dataset.schema.yaml` and contains ≥1 valid row.  
+  - Verification: `validate_curated.py` returns exit code 0; its success is asserted in the integration test.
 
----  
+## Phase 2: Complete the study and validate its evidence
 
-## Phase 1: Setup and first end‑to‑end analysis  
+- [ ] T006 [US2] [FR-003, FR-004] Implement Random Forest training in `code/models/train_rf.py`: split `data/curated/baseline_shifted.csv` (80/20 hold‑out before tuning if <50 rows, otherwise nested 5‑fold CV with stratification by host metal, falling back to random split with warning). Perform `GridSearchCV` over `max_depth` 3‑10 and `n_estimators` 50‑200, maximizing R²; tie‑break on lowest `max_depth` then lowest `n_estimators`. Save the model to `models/final_rf.pkl` and metrics (R², RMSE, MAE) to `models/rf_metrics.json`. Record training CPU time to `data/logs/training_time_rf.log` and assert it is ≤15 minutes on a 2‑core runner.  
+  - Verification: `pytest code/tests/test_train_rf.py` checks deterministic seeds, split logic, tie‑breaking, metric schema, and runtime assertion.
 
-- [ ] T001 Create project structure per implementation plan. Directories: `code/`, `tests/`, `data/raw/`, `data/curated/`, `models/`, `validation/`, `reports/`.  
-- [ ] T002.1 [P] [US1] [FR-001] Create `code/utils/errors.py` with `DataFetchError` exception.  
-- [ ] T003 Configure linting (ruff/flake8) and formatting (black).  
-- [ ] T003.1 [P] Create `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections.  
-- [ ] T003.2 [US1] Implement `code/utils/constants.py` with version‑pinned periodic‑table data.  
-- [ ] T004 [P] Implement `code/config.py` with global constants, random seeds, and path definitions (`FILTER_CRITERIA`, `THRESHOLD_RANGE`, etc.).  
-- [ ] T005 [US1] Generate `contracts/diffusion_record.schema.yaml` defining the `DiffusionRecord` entity schema.  
-- [ ] T065 [US1] [FR-001] Implement `code/data/verified_sources.py` listing canonical NIST/Materials Project URLs and SHA‑256 hashes.  
-- [ ] T006 [US1] [FR-001] Implement `code/data/acquisition.py` to fetch **real** diffusion data from the verified sources, perform a HEAD check, stream large files, and halt with the exact error message if no verified dataset is found.  
-- [ ] T007 [US1] Implement `tests/contract/test_schema.py` to validate `DiffusionRecord` objects against the schema.  
-- [ ] T008 [P] Implement `tests/unit/test_constants.py` to verify periodic‑table data integrity.  
-- [ ] T030.0 [US3] [FR-006] Implement `code/data/baseline_fetch.py` to fetch pure‑host baseline activation energies from a verified external source.  
-- [ ] T051.1 [US1] [FR-007] Implement `code/data/provenance.py` to create an initial `data/curated/data_provenance.json` stub (source URL, constants version, raw row count, `source_type="real"`).  
+- [ ] T014 [US2] [FR-003, FR-004] Implement Gradient Boosting training in `code/models/train_gb.py` with the same protocol as T006, saving to `models/final_gb.pkl` and `models/gb_metrics.json`. Runtime and tie‑breaking requirements are identical to T006.  
+  - Verification: `pytest code/tests/test_train_gb.py` analogous to RF test.
 
----  
+- [ ] T007 [US3] [FR-005] Implement Linear Regression in `code/models/train_linear.py`: fit on the same training split using the three feature columns `size_mismatch`, `electronegativity_diff`, `valence_electron_diff`. Extract the `size_mismatch` coefficient, its standard error, p‑value, and a 95 % bootstrap confidence interval (≥1000 resamples, stratified by host when possible). Write results to `models/linear_coef.json` conforming to `model_output.schema.yaml`.  
+  - Verification: `pytest code/tests/test_train_linear.py` validates coefficient extraction and CI ordering.
 
-## Phase 2: Data Ingestion & Curation (Priority P1)  
+- [ ] T008 [US3] [FR-005, FR-009] Implement `code/validation/stability_index_report.py`: use predictions from the **Random Forest** model (`models/final_rf.pkl`) together with baseline shifts to sweep the classification threshold over `{0.45,0.46,…,0.55}` eV. Compute classification rates, calculate the stability index `std(rates) / (0.55‑0.45)`, and write `validation/stability_index_report.json` (schema‑compliant) and a plot `validation/threshold_sweep.png`.  
+  - Verification: `pytest code/tests/test_sensitivity.py` validates sweep grid, index formula, and report schema.
 
-- [ ] T012 [US1] [FR-001] Implement `code/data/ingestion.py` to load raw CSV, filter `crystal_structure == "FCC"` and `diffusion_mode == "self"`, convert units to eV/atom, and enforce the **Data Availability Check** (halt with exact error if < 1 valid row).  
-- [ ] T013 [US1] Implement `code/data/curation.py` to drop rows with missing concentration or missing atomic‑radius data, log exclusions to `data/logs/exclusions.log`, write missing‑radius records to `errors/missing_atomic_data.csv`, and output `data/curated/filtered.csv`.  
-- [ ] T051.2 [US1] Update `data/curated/data_provenance.json` with final filtered‑row count.  
-- [ ] T014 [US1] Add edge‑case handling in `code/data/ingestion.py` for single‑host‑metal datasets (fallback to random split, log warning).  
+- [ ] T009 [US3] Implement `code/validation/stats.py` to aggregate bootstrap statistics (from T007), model metrics (from T006/T014), and stability metrics (from T008) into `validation/validation_report.json`. Include fields `significance_verified`, `model_comparison` (R²/RMSE/MAE vs. mean predictor), and `stability_target_met`.  
+  - Verification: existence and schema compliance of the report; all values trace back to source artifacts.
 
----  
+## Phase 3: Reproducible results and paper handoff
 
-## Phase 3: Feature Engineering (Priority P2)  
+- [ ] T010 Generate tables and figures from validated outputs:  
+  * `data/results/model_comparison.csv` (metrics table)  
+  * `figures/shift_vs_mismatch.png` (scatter with fitted linear trend)  
+  * Create a **spot‑check script** `code/validation/spot_check.py` that randomly samples 5 rows from `data/curated/baseline_shifted.csv` and confirms that plotted values match the CSV entries.  
+  - Verification: spot‑check script runs without error; a test `pytest code/tests/test_spot_check.py` asserts consistency.
 
-- [ ] T017 [P] [US2] Implement `code/data/descriptors.py` to compute `size_mismatch = (solute_radius - host_radius) / host_radius` and other descriptors (electronegativity diff, valence‑electron diff) using `constants.py`.  
-- [ ] T015 [P] [US2] Unit test for `size_mismatch` calculation (`tests/unit/test_descriptors.py`).  
+- [ ] T011 Write a concise methods/results account in `specs/001-predicting-the-impact-of-alloying-on-the/research.md` (or `reports/final_report.md`). Every numeric claim must reference a value from `models/*.json`, `validation/*.json`, or the curated CSV files. Include discussion of limitations, observational nature, and any low‑R² outcomes as valid findings.  
+  - Verification: a lint script checks that each number is sourced from a JSON/CSV artifact.
 
----  
+- [ ] T012 Re‑run the documented workflow end‑to‑end (as per `quickstart.md`). Verify: all tests pass, curated files validate against schemas, **peak RSS ≤ 7 GB**, **total runtime ≤ 6 h**, **training CPU‑time ≤ 15 min** (already logged), **model‑training CPU‑time ≤ 2 CPU‑hours**, and **raw dataset size ≤ 10 MB** (checked via `data/logs/dataset_size.log`). Log resource usage to `data/logs/resource_usage.log` and confirm SC‑004 and Principle VI compliance. Document the paper‑stage handoff (tables, figures, report locations) in `quickstart.md`.  
+  - Verification: a final integration test parses `resource_usage.log` and asserts all limits.
 
-## Phase 4: Baseline Calculation (Supporting FR‑006 & FR‑008)  
+- [ ] T015 [FR-001 amendment] Amend the specification `specs/001-predicting-the-impact-of-alloying-on-the/spec.md` to update FR-001: the data ingestion requirement now explicitly allows filtering for **both** `diffusion_mode == "self"` (to create the baseline set) **and** `diffusion_mode == "solute"` (to create the training set). Update the associated User Story 1 acceptance scenarios to reflect this dual‑mode requirement and the corresponding error handling.  
+  - Verification: a schema‑validation test ensures the updated spec contains the amended FR‑001 text; future tasks referencing FR‑001 will be compliant.
 
-- [ ] T030 [US3] [FR-008] Implement `code/validation/baseline.py` to read `data/curated/filtered.csv` and the external baseline file (`data/external/pure_host_baseline_cleaned.csv`), compute `baseline_shift = activation_energy - Q_host`, exclude rows lacking a host baseline, and write `data/curated/baseline_shifts.csv`.  
+## Dependencies and requirement coverage (updated)
 
----  
+| Requirement | Task(s) | Key artifacts |
+|---|---|---|
+| FR-001 (ingest/filter) | T001, T015 | `code/data/streaming_loader.py`, `data/curated/solute_raw.csv`, `data/curated/baselines.csv` |
+| FR-002 (size_mismatch) | T003 | `code/processing/feature_engineering.py`, `data/curated/engineered.csv` |
+| FR-003 (RF/GB) | T006, T014 | `models/final_rf.pkl`, `models/final_gb.pkl` |
+| FR-004 (nested CV/hold‑out) | T006, T014 | metric JSONs |
+| FR-005 (linear + sweep) | T007, T008 | `models/linear_coef.json`, `validation/stability_index_report.json` |
+| FR-006 (baseline source) | T004 | `code/processing/baseline.py`, `data/curated/baselines.csv` |
+| FR-007 (provenance) | T013 | `data/curated/data_provenance.json` |
+| FR-008 (baseline_shift) | T004 | `data/curated/baseline_shifted.csv` |
+| FR-009 (stability report) | T008 | `validation/stability_index_report.json` |
+| SC-001 (R² > mean) | T006, T014, T009 | metric JSONs |
+| SC-002 (coef significance) | T007, T009 | `models/linear_coef.json` |
+| SC-003 (stability ≤ 0.05) | T008, T009 | `validation/stability_index_report.json` |
+| SC-004 (resource limits) | T012 | `data/logs/resource_usage.log` |
 
-## Phase 5: Model Training (Priority P2)  
-
-- [ ] T018 [US2] [FR-003] Implement `code/models/training.py` to train a Random Forest regressor with `GridSearchCV` (5‑fold CV, `max_depth` 3‑10, `n_estimators` 50‑200, tie‑break on lowest complexity). Save best model to `models/final_rf.pkl` and training metrics to `models/rf_metrics.json`.  
-- [ ] T019 [US2] [FR-003] Extend `training.py` to train a Gradient Boosting regressor with identical hyper‑parameter search. Save to `models/final_gb.pkl` and `models/gb_metrics.json`.  
-- [ ] T018.1 [US2] Implement a mean‑predictor baseline model, evaluate R², and save to `models/mean_metrics.json` (supports SC‑001).  
-- [ ] T020 [US2] Train a Linear Regression model, extract the `size_mismatch` coefficient, p‑value, and 95 % bootstrap CI; write results to `models/linear_coef.json`.  
-- [ ] T021 [US2] Aggregate all training‑phase artifacts (`rf_metrics.json`, `gb_metrics.json`, `mean_metrics.json`, `linear_coef.json`) into a single `models/metrics.json`.  
-
----  
-
-## Phase 6: Inference & Performance Evaluation  
-
-- [ ] T022 [US2] Implement `code/models/inference.py` to evaluate the RF and GB models on the held‑out test set (generated by the split logic in `training.py`), compute R², RMSE, MAE, and write `models/inference_metrics.json`.  
-
----  
-
-## Phase 7: Statistical Validation & Sensitivity Analysis (Priority P3)  
-
-- [ ] T026 [US3] Implement `code/validation/stats.py` to bootstrap the `size_mismatch` coefficient (≥ 1000 resamples), compute p‑value and 95 % CI, and write `reports/validation_report.json` (includes a boolean `significance_verified`).  
-- [ ] T031 [US3] Implement `code/validation/sensitivity.py` to sweep classification thresholds from 0.45 eV to 0.55 eV in 0.01 eV steps, compute classification rates, and save `reports/sensitivity_sweep.csv`.  
-- [ ] T032 [US3] Extend `sensitivity.py` to calculate the stability index (`std(classification_rates) / (max‑min)`), verify it ≤ 0.05 1/eV, and write `reports/stability_metrics.json`.  
-- [ ] T033 [US3] Generate a consolidated `reports/validation_report.json` containing model R²/MAE/RMSE, linear‑model statistics, and stability metrics.  
-
----  
-
-## Phase 8: End‑to‑End Execution & Reporting  
-
-- [ ] T071 Run the full pipeline (`code/main.py`) on the verified real dataset, producing the final curated CSV, model artifacts, and all JSON reports. Verify that each downstream artifact exists and validates against its schema.  
-- [ ] T072 Execute `code/utils/report_generator.py` to aggregate `models/metrics.json`, `models/inference_metrics.json`, `models/linear_coef.json`, `reports/validation_report.json`, and `reports/stability_metrics.json` into a human‑readable `reports/final_report.md`.  
-- [ ] T073 Run `code/utils/monitor_resources.py` during the full pipeline execution and confirm that peak RAM ≤ 7 GB and total runtime ≤ 6 h; log results to `logs/resource_usage.log` and embed the summary in `final_report.md`.  
-
----  
-
-## Phase 9: Revision & Robustness (Addressing Reviewer Concerns)  
-
-- [ ] T053 Refactor `code/data/curation.py` to enforce strict separation of real vs. mock data handling and improve exclusion‑logging detail.  
-- [ ] T056 Update `code/config.py` with a `DATA_STREAMING_CONFIG` section (`STREAMING_CHUNK_SIZE = 1000`, `MAX_MEMORY_MB = 6000`, etc.).  
-- [ ] T057 Enforce “Fail Loudly” in `code/data/acquisition.py`; remove any fallback to synthetic data and raise `DataFetchError` on network failure.  
-- [ ] T058 Add explicit streaming logic to `code/data/acquisition.py` using `datasets.load_dataset(..., streaming=True)` or pandas chunked reads.  
-- [ ] T060 Implement automated hyper‑parameter fallback for memory‑constrained environments in `training.py`.  
-- [ ] T063 Add unit test `tests/unit/test_gridsearch_fallback.py` to verify the fallback logic from T060.  
-- [ ] T064 Add integration test `tests/integration/test_sensitivity_stability.py` to validate the full sensitivity pipeline against the ±5 % stability target.  
-- [ ] T066 Add a pre‑flight network‑connectivity check in `code/main.py` that verifies all URLs in `VERIFIED_SOURCES` before the pipeline starts.  
-- [ ] T067 Add unit test `tests/unit/test_baseline_external.py` to ensure `baseline.py` uses the external baseline file, not the main dataset.  
-- [ ] T068 Add deterministic‑seed checks in `training.py` to guarantee reproducibility (`random_state=config.RANDOM_SEED`).  
-- [ ] T069 Implement `code/utils/report_generator.py` to combine all JSON artifacts into `reports/final_report.md`.  
-- [ ] T070 Add `code/utils/monitor_resources.py` to log peak RAM/CPU usage during pipeline execution.  
-- [ ] T061 Extend `tests/contract/test_data.py` to validate `data/curated/data_provenance.json` fields (source_type, url, constants_version, row_counts, filter_criteria, cv_strategy).  
-
----  
-
-## Phase 10: Missing / Incorrect Artifact – **T062**  
-
-- [ ] T062 Implement `code/data/streaming_loader.py` – a reusable streaming loader that (1) reads a remote CSV in configurable chunk sizes, (2) applies the same `FILTER_CRITERIA` (`crystal_structure == "FCC"` and `diffusion_mode == "self"`), (3) yields filtered rows as dictionaries, (4) writes the filtered subset to `data/curated/filtered.csv`, and (5) updates `data/curated/data_provenance.json` with streaming statistics (chunks processed, rows retained).  
-  - **Verification**: Unit test `tests/unit/test_streaming_loader.py` confirms that streaming over a real NIST CSV produces the same filtered output as `code/data/ingestion.py` when run on a small sampled file, and that the provenance JSON includes keys `chunks_processed` and `rows_retained`.  
-
----  
-
-## Dependencies & Requirement Coverage  
-
-| Spec/FR/SC | Implemented by Task(s) | Path(s) |
-|------------|------------------------|---------|
-| FR‑001 | T006, T012, T062 | `code/data/acquisition.py`, `code/data/ingestion.py`, `code/data/streaming_loader.py` |
-| FR‑002 | T017 | `code/data/descriptors.py` |
-| FR‑003 | T018, T019, T060, T063 | `code/models/training.py` |
-| FR‑004 | T018, T019, T018.1, T022 | `code/models/*` |
-| FR‑005 | T026, T031, T032, T033 | `code/validation/*` |
-| FR‑006 | T030 | `code/validation/baseline.py` |
-| FR‑007 | T051.1, T051.2, T061 | `code/data/provenance.py` |
-| FR‑008 | T030 | `code/validation/baseline.py` |
-| FR‑009 | T032, T033 | `code/validation/*` |
-| SC‑001 | T018.1, T022 | `models/mean_metrics.json`, `models/inference_metrics.json` |
-| SC‑002 | T020, T026 | `models/linear_coef.json`, `reports/validation_report.json` |
-| SC‑003 | T032, T033 | `reports/stability_metrics.json`, `reports/validation_report.json` |
-| SC‑004 | T073, T070 | `logs/resource_usage.log`, `reports/final_report.md` |
-
----  
-
-**Note**: All tasks marked `[P]` can be executed in parallel provided their file dependencies are satisfied. Tasks without `[P]` must respect the ordering indicated by the dependency notes. The unchecked tasks (T071‑T075 and the newly added T062) constitute the minimal executable end‑to‑end study required to produce the final scientific results.
+Execution order (updated):  
+T015 → T001 → T013 → T002 → T003 → T004 → T005 → (T006 & T014 in parallel) → T007 → T008 → T009 → T010 → T011 → T012.
