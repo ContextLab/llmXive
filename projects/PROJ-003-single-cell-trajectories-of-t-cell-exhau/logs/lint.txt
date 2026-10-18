@@ -1,0 +1,10 @@
+=== ruff check . ===
+ruff failed
+  Cause: Failed to load configuration `/home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/.ruff.toml`
+  Cause: Failed to parse /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/.ruff.toml
+  Cause: TOML parse error at line 18, column 1
+   |
+18 | line-length = 88
+   | ^^^^^^^^^^^
+unknown field `line-length`, expected one of `exclude`, `preview`, `indent-style`, `quote-style`, `nested-string-quote-style`, `skip-magic-trailing-comma`, `line-ending`, `docstring-code-format`, `docstring-code-line-length`
+

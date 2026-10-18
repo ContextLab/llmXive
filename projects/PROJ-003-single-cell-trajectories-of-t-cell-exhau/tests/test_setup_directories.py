@@ -4,6 +4,7 @@ Tests for the setup_directories module.
 These tests verify that the directory structure is created correctly
 and that the required subdirectories exist.
 """
+
 import os
 import tempfile
 from pathlib import Path
@@ -25,7 +26,7 @@ class TestSetupDirectories:
         # Temporarily change the working directory to tmp_path
         original_cwd = os.getcwd()
         os.chdir(str(tmp_path))
-        
+
         try:
             # Create a mock code directory structure
             code_dir = tmp_path / "code"
@@ -33,15 +34,18 @@ class TestSetupDirectories:
             (code_dir / "setup_directories.py").write_text(
                 Path(__file__).parent.parent / "code" / "setup_directories.py"
             )
-            
+
             # Import and run the function
             import importlib.util
-            spec = importlib.util.spec_from_file_location("setup_directories", code_dir / "setup_directories.py")
+
+            spec = importlib.util.spec_from_file_location(
+                "setup_directories", code_dir / "setup_directories.py"
+            )
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            
+
             module.setup_directories()
-            
+
             # Verify directories exist
             assert (tmp_path / "data" / "raw").exists()
             assert (tmp_path / "data" / "processed").exists()
@@ -53,7 +57,7 @@ class TestSetupDirectories:
         """Test that tests/unit and tests/integration are created."""
         original_cwd = os.getcwd()
         os.chdir(str(tmp_path))
-        
+
         try:
             # Create a mock code directory structure
             code_dir = tmp_path / "code"
@@ -61,14 +65,17 @@ class TestSetupDirectories:
             (code_dir / "setup_directories.py").write_text(
                 Path(__file__).parent.parent / "code" / "setup_directories.py"
             )
-            
+
             import importlib.util
-            spec = importlib.util.spec_from_file_location("setup_directories", code_dir / "setup_directories.py")
+
+            spec = importlib.util.spec_from_file_location(
+                "setup_directories", code_dir / "setup_directories.py"
+            )
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            
+
             module.setup_directories()
-            
+
             # Verify directories exist
             assert (tmp_path / "tests" / "unit").exists()
             assert (tmp_path / "tests" / "integration").exists()
@@ -79,7 +86,7 @@ class TestSetupDirectories:
         """Test that __init__.py files are created for test packages."""
         original_cwd = os.getcwd()
         os.chdir(str(tmp_path))
-        
+
         try:
             # Create a mock code directory structure
             code_dir = tmp_path / "code"
@@ -87,14 +94,17 @@ class TestSetupDirectories:
             (code_dir / "setup_directories.py").write_text(
                 Path(__file__).parent.parent / "code" / "setup_directories.py"
             )
-            
+
             import importlib.util
-            spec = importlib.util.spec_from_file_location("setup_directories", code_dir / "setup_directories.py")
+
+            spec = importlib.util.spec_from_file_location(
+                "setup_directories", code_dir / "setup_directories.py"
+            )
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            
+
             module.setup_directories()
-            
+
             # Verify __init__.py files exist
             assert (tmp_path / "tests" / "unit" / "__init__.py").exists()
             assert (tmp_path / "tests" / "integration" / "__init__.py").exists()
@@ -105,7 +115,7 @@ class TestSetupDirectories:
         """Test that created directories are writable."""
         original_cwd = os.getcwd()
         os.chdir(str(tmp_path))
-        
+
         try:
             # Create a mock code directory structure
             code_dir = tmp_path / "code"
@@ -113,14 +123,17 @@ class TestSetupDirectories:
             (code_dir / "setup_directories.py").write_text(
                 Path(__file__).parent.parent / "code" / "setup_directories.py"
             )
-            
+
             import importlib.util
-            spec = importlib.util.spec_from_file_location("setup_directories", code_dir / "setup_directories.py")
+
+            spec = importlib.util.spec_from_file_location(
+                "setup_directories", code_dir / "setup_directories.py"
+            )
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            
+
             module.setup_directories()
-            
+
             # Try to write a file to each directory
             test_content = "test"
             (tmp_path / "data" / "raw" / "test.txt").write_text(test_content)
@@ -128,7 +141,7 @@ class TestSetupDirectories:
             (tmp_path / "data" / "results" / "test.txt").write_text(test_content)
             (tmp_path / "tests" / "unit" / "test.txt").write_text(test_content)
             (tmp_path / "tests" / "integration" / "test.txt").write_text(test_content)
-            
+
             # Verify files were created
             assert (tmp_path / "data" / "raw" / "test.txt").read_text() == test_content
             assert (tmp_path / "data" / "processed" / "test.txt").read_text() == test_content

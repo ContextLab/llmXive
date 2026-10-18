@@ -5,6 +5,7 @@ It creates the standard directory tree (code/, data/raw/, data/processed/,
 data/results/, tests/unit/, tests/integration/) and copies the quickstart
 documentation to the project root.
 """
+
 import shutil
 import sys
 from pathlib import Path
@@ -12,6 +13,7 @@ from pathlib import Path
 # Import the helper that creates the directory structure.
 # This function is defined in `code/setup_directories.py`.
 from setup_directories import setup_directories
+
 
 def main() -> None:
     # Determine the project root (two levels up from this file).
@@ -29,13 +31,16 @@ def main() -> None:
         except Exception:
             # Fallback: temporarily change the working directory.
             import os
+
             os.chdir(project_root)
 
     setup_directories()
 
     # 2. Copy the quickstart documentation from the specs folder to the
     # project root (as required by the task description).
-    src_quickstart = project_root / "specs" / "001-single-cell-trajectories-of-t-cell-exhau" / "quickstart.md"
+    src_quickstart = (
+        project_root / "specs" / "001-single-cell-trajectories-of-t-cell-exhau" / "quickstart.md"
+    )
     dst_quickstart = project_root / "quickstart.md"
 
     if not src_quickstart.is_file():
@@ -50,6 +55,7 @@ def main() -> None:
         sys.exit(1)
 
     print("Project layout initialized successfully.")
+
 
 if __name__ == "__main__":
     main()

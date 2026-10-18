@@ -6,6 +6,7 @@ Fixes the previous issue where providing a directory for --output caused
 a failure in adata.write_h5ad. Now correctly iterates over datasets in
 the input directory and writes individual .h5ad files.
 """
+
 import argparse
 import logging
 import os
@@ -19,7 +20,7 @@ import scanpy as sc
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
 
@@ -143,8 +144,10 @@ def python_preprocess(input_path: Path, output_path: Path) -> bool:
     else:
         mito_counts = adata[:, mito_mask].X.sum(axis=1)
         total_counts = adata.X.sum(axis=1)
-        if hasattr(mito_counts, "A"): mito_counts = mito_counts.A.ravel()
-        if hasattr(total_counts, "A"): total_counts = total_counts.A.ravel()
+        if hasattr(mito_counts, "A"):
+            mito_counts = mito_counts.A.ravel()
+        if hasattr(total_counts, "A"):
+            total_counts = total_counts.A.ravel()
         adata.obs["percent.mt"] = (mito_counts / total_counts) * 100
 
     initial_n = adata.n_obs
@@ -175,10 +178,18 @@ def verify_outputs(output_path: Path) -> bool:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run Seurat QC/normalisation via R, with a Scanpy fallback.")
-    parser.add_argument("--input", type=str, required=True, help="Path to raw count matrix (file or directory).")
-    parser.add_argument("--output", type=str, required=True, help="Path for the processed .h5ad file or directory.")
-    parser.add_argument("--check-only", action="store_true", help="Only verify the R environment and exit.")
+    parser = argparse.ArgumentParser(
+        description="Run Seurat QC/normalisation via R, with a Scanpy fallback."
+    )
+    parser.add_argument(
+        "--input", type=str, required=True, help="Path to raw count matrix (file or directory)."
+    )
+    parser.add_argument(
+        "--output", type=str, required=True, help="Path for the processed .h5ad file or directory."
+    )
+    parser.add_argument(
+        "--check-only", action="store_true", help="Only verify the R environment and exit."
+    )
     args = parser.parse_args()
 
     input_path = Path(args.input)
@@ -195,10 +206,10 @@ def main() -> None:
         if not datasets:
             logger.error(f"No dataset directories found in {input_path}")
             sys.exit(1)
-        
+
         # Ensure output is a directory
         output_path.mkdir(parents=True, exist_ok=True)
-        
+
         all_success = True
         for ds_dir in datasets:
             ds_id = ds_dir.name
@@ -207,26 +218,26 @@ def main() -> None:
             if not raw_files:
                 logger.warning(f"No raw matrix found for {ds_id}, skipping.")
                 continue
-            
+
             target_out = output_path / f"{ds_id}.h5ad"
             logger.info(f"Processing dataset {ds_id}...")
-            
+
             success = False
             if r_available:
                 if run_r_preprocessing(raw_files[0], target_out):
                     success = verify_outputs(target_out)
-            
+
             if not success:
                 logger.warning(f"R failed for {ds_id}, trying Python fallback.")
                 if python_preprocess(raw_files[0], target_out):
                     success = verify_outputs(target_out)
-            
+
             if not success:
                 logger.error(f"Preprocessing failed for {ds_id}")
                 all_success = False
             else:
                 logger.info(f"Successfully processed {ds_id} -> {target_out}")
-        
+
         if not all_success:
             sys.exit(1)
     else:
@@ -235,13 +246,14 @@ def main() -> None:
         if r_available:
             if run_r_preprocessing(input_path, output_path):
                 success = verify_outputs(output_path)
-        
+
         if not success:
             if python_preprocess(input_path, output_path):
                 success = verify_outputs(output_path)
-        
+
         if not success:
             sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

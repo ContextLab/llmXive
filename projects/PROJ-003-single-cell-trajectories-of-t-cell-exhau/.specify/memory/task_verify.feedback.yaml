@@ -1,39 +1,34 @@
 T001:
-  reason: The required `data/results/` directory is explicitly MISSING from the project
-    tree (only `data/raw/` and `data/processed/` exist with `.gitkeep` markers), so
-    the required layout is incomplete. Additionally, there is no execution evidence
-    that `ruff check .` and `black --check .` pass (the verification criterion), and
-    the quickstart references scripts like `code/forkpoint.py`, `code/validate.py`,
-    and `code/report.py` that do not appear in the `code/` directory listing.
-  task: 231868e21db34ce4001f4416ba6d7b166aa02a1769439741ce88241733c0c168
+  reason: 'Requested task execution failed; rerun successfully: code/setup_lint.sh
+    exit=2'
+  task: b9685e3620b819631a0c75f53f51b94993da653bd7647440589048b348e9e414
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/download_data.py
-    exit=1'
-  task: 7323bcb445421bb832f3e8298ae91ac21dea8acb68e4b90eb172291de55afab2
+  task: 6fd15c2d594d6cd6cac3b92231ce32318dc7cf73d58ac92418b2c5ac0155068a
 T003:
-  reason: "The artifacts exist, but the actual execution log shows the QC filter never\
-    \ functioned on real data: for GSE127465 the run reported \"No mitochondrial genes\
-    \ detected; setting percent.mt to 0\" and \"Cells before QC: 41861, after QC:\
-    \ 41861\" \u2014 zero cells filtered, because the .mtx loader only reads `genes.tsv`/`barcodes.tsv`\
-    \ if present and otherwise leaves generic var names, so the `MT-` pattern never\
-    \ matches. Additionally, `tests/unit/test_preprocess.py` imports `python_preprocess`\
-    \ but never calls it; both tests re-implement the filtering logic inline on synthetic\
-    \ AnnData objects, so they verify n"
-  task: f96a5c48d52499e6c125bc08ce80c074a0c54e001d9fe20bfab707c4a24d1157
+  task: b622d2a4f187a93853831486cdb3492021522c21e8d33e052946283d9967448a
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/velocity.py exit=1'
-  task: 5694d903690096b24885dd9c2a2c5d212525103c28b0b243c5e3141bc006cb20
+  task: 4df553fb569384063e914dc351023403d6bcb86e0ebd4f26c63f47235bff611d
 T005:
-  task: 207ac523fc60270f7698516649c4987d59a653f96074b61d73f71e5433d94009
-T005_run:
-  task: 218e163dc100e2a8383e9c42a7ef25cf81a595d864de4b4d6666477e97b8ef1a
+  task: f0e49ebaa8560914d3a7730ae896663fbfe519527ef63c14f82ed4db26581e81
 T006:
-  task: 40bfde7b4814459416518ecb06db6f1b8e581f7b1790c3762ce0e4550f35c4c9
+  task: 2f15b4e9587e86528e2aef19171a74abcc9b8d16834b4a2cc6906aa58314abe0
 T007:
-  task: 90e6abef9625a35d4e2d3dcff866d342587eb65cb9c33af7a2f0c21651f44a0e
+  task: 6f9e13b94af962ed3c27d95983a0a0f4626c0ede853f2ec20a307d75903f0709
 T008:
-  task: 8e2ddb3a6abed467a5a44bf770956f468bcabc2950fe26bcb7a1c76a69d3b44a
+  task: aa0f989547f7c7c59f4d23f5d61fbb494fac60d3419ceac034b7823008270faa
 T009:
-  task: 4228248d5df068a02ca039e96bea537a6953fab85e205e1226595e0a067b5af9
+  task: a366d79f7353d22908cb5aead7789a3560300b0db1a3a1ce662dfebdcfb03586
 T010:
-  task: 318309e4cc625f28ea27a9e4b1409072cfc8f0f12ef164078e1c6ff5a2456cb9
+  task: 7aa26dedbe858fc40e921200f51366a99bf9b4f78a0871f234e5ace375a26bc5
+T011:
+  task: 75a065eea9d696f8a526a8fe87034d41786c8b170a08073c25330cea544d02bb
+T012:
+  task: 6dfbf45e6882e187105c8c26b83e3a25813c6776632ef96bbfdf5702ce44beb1
+T013:
+  task: 5ef91963e5da4086dfb5470f8d1a83f084e56c4da6d72d89b4095dca31c8e115
+T014:
+  task: b69165df053be99894a6a383e4ab43a5daa81f4090485d27a9d8b0c9c0b0c425
+T015:
+  task: 444002806660fd147034994e5f05430d5a96c41cc1922fe3f18289f7f6afb6a3
+T016:
+  task: 188549a5aa3ce4ca1977fe82cd8af41dc0e282c18a791e5c2e5491ca743b9369

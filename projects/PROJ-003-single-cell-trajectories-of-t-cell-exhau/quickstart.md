@@ -1,74 +1,101 @@
 # Quickstart: Single-Cell Trajectories of T-Cell Exhaustion
 
+Project: `projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau`
+
 ## Prerequisites
 
-- Python 3.10+
-- R 4.3+ (for Seurat preprocessing)
-- Git
-- Access to GitHub Actions runner (or local environment with 2 CPU cores, 7 GB RAM)
+- Linux (or a GitHub Actions runner) with 2 CPU cores and >= 7 GB RAM.
+- Python 3.11+ (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+ seaborn, pytest, PyYAML, requests are already provided by the platform).
+- R 4.3+ with Seurat v4 (optional; the preprocessing wrapper falls back to a
+ Scanpy-based implementation when R is unavailable).
+- Git.
 
 ## Installation
 
-1. **Clone Repository**:
- ```bash
- git clone <repo-url>
- cd projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau
- ```
+```bash
+git clone <repo-url>
+cd projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau
+python -m venv venv && source venv/bin/activate
+pip install -r code/requirements.txt
+```
 
-2. **Create Virtual Environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install Dependencies**:
- ```bash
- pip install -r code/requirements.txt
- ```
-
-## Data Download
-
-**Critical Step**: Verify dataset availability before proceeding.
+## One-time setup (layout + lint evidence)
 
 ```bash
-# Attempt to download raw count matrices
+bash code/setup_lint.sh
+```
+
+This creates the required directory layout — including `data/results/`
+(with a `.gitkeep` placeholder), `data/results/fork_points/`,
+`data/results/validation/`, `data/results/report/` and `logs/` — formats the
+codebase, and writes the lint evidence (`ruff check.` and `black --check.`,
+both required to exit 0) to `logs/lint.txt`.
+
+## Running the full pipeline
+
+The single entry point that orchestrates every stage
+(download -> preprocess -> velocity -> fork-point detection -> power
+analysis -> enrichment -> validation -> report) is:
+
+```bash
+python -m code.run_all
+```
+
+Usage example (from a clean checkout, run from the project root):
+
+```bash
+# 1. set up layout and lint evidence
+bash code/setup_lint.sh
+# 2. run the complete pipeline end-to-end
+python -m code.run_all
+```
+
+`code.run_all` reads the global random seed from `code/config.yaml`
+(`seed: 42`), logs each stage to `logs/<stage>.log`, and reproduces
+byte-identical final artifacts under `data/results/`.
+
+## Stage-by-stage commands
+
+The orchestrator invokes the same stage scripts that can also be run
+individually once the corresponding task is implemented:
+
+```bash
+# Data download (Phase 1)
 python code/download_data.py --datasets GSE136103,GSE127465,GSE111075,GSE138852
-```
 
-**Note**: If any dataset fails to download (due to access restrictions), the pipeline will halt and report the gap.
-
-## Running the Pipeline
-
-### 1. Preprocessing (Seurat v4)
-```bash
+# Preprocessing / QC & normalisation (Phase 2)
 python code/preprocess.py --input data/raw/ --output data/processed/
-```
 
-### 2. Velocity Estimation (scVelo)
-```bash
+# Velocity & pseudotime (Phase 4)
 python code/velocity.py --input data/processed/ --output data/processed/
+
+# Fork-point detection, power analysis, enrichment, validation and the
+# final HTML report are invoked by `python -m code.run_all` in the same
+# order as the plan (Phases 5-8).
 ```
 
-### 3. Fork-Point Identification
-```bash
-python code/forkpoint.py --input data/processed/ --output data/results/fork_points/
-```
+## Expected outputs
 
-### 4. Validation & Reporting
-```bash
-python code/validate.py --input data/results/fork_points/ --output data/results/validation/
-python code/report.py --input data/results/validation/ --output data/results/report/
-```
+| Path | Description |
+|------|-------------|
+| `data/results/fork_points/<dataset>_fork_points.csv` | Ranked fork-point genes (`gene_symbol`, `branch_id`, `timing_rank`). |
+| `data/results/validation/power_analysis.json` | Power-analysis result (FR-011). |
+| `data/results/validation/<dataset>_enrichment.json` | BH-corrected enrichment p-values, bootstrap CI. |
+| `data/results/report/final_report.html` | Final report with heatmaps, statistics, and the observational disclaimer. |
+| `logs/lint.txt` | Evidence that `ruff check.` and `black --check.` pass (SC-001). |
 
-## Expected Outputs
+## Configuration (seed pinning)
 
-- `data/results/fork_points/ranked_genes.csv`: List of fork-point genes with timing ranks.
-- `data/results/validation/enrichment_report.json`: Bootstrap enrichment statistics.
-- `data/results/report/final_report.html`: Final report with heatmaps and disclaimers.
+All scripts read the random seed from `code/config.yaml` (default
+`seed: 42`) to guarantee reproducibility. Do not modify this file unless
+you need a different seed for a controlled experiment.
 
 ## Troubleshooting
 
-- **Dataset Download Failed**: Check GEO/SRA status; verify accession IDs; abort if no open substitute exists.
-- **Memory Overflow**: Reduce dataset size via sampling; enable streaming.
-- **scVelo Convergence Failed**: Increase regularization; flag as "Alignment Failed".
-- **No Significant Fork-Points**: Check divergence threshold; verify data quality.
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `ruff`/`black` not found | Linting tools not installed | `bash code/setup_lint.sh` installs them automatically |
+| `download_data.py` exits with error | GEO endpoint temporarily unavailable | Rerun later; the script retries and logs failures to `logs/download.log` |
+| scVelo fails or hangs | Missing spliced/unspliced layers | Check `logs/velocity.log`; the dataset is flagged and excluded from cross-dataset validation |
+| Report missing disclaimer | Modified `report.py` | Use the unmodified version; the FR-009 disclaimer is inserted automatically |

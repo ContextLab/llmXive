@@ -4,8 +4,10 @@ This script creates the base layout defined in the project plan to ensure
 that data loaders, preprocessing scripts, and result generators have
 consistent paths to write to.
 """
+
 import os
 from pathlib import Path
+
 
 def setup_directories() -> Path:
     """Create the required directory structure for the project.
@@ -41,6 +43,7 @@ def setup_directories() -> Path:
         (full_path / ".gitkeep").touch()
 
     return project_root
+
 
 if __name__ == "__main__":
     root = setup_directories()
