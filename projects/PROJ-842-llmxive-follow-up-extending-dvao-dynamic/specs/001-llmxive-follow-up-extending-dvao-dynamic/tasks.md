@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project foundation & verification
 
-- [ ] T000 [P] **Run citation verification & checksum recording** – execute `src/verification/verify_citations.py`, pin all random seeds, compute SHA‑256 checksums for every file under `data/`, and store them in `state/artifact_hashes.yaml`.  
+- [ ] T000 [P] **Run citation verification & checksum recording** – execute `src/verification/verify_citations.py`, pin all random seeds, compute SHA‑256 checksums for every file under `data/`, and store them in `state/artifact_hashes.yaml`.   <!-- FAILED-IN-EXECUTION: src/verification/verify_citations.py exit=1 -->
   *Verification*: `python -m src.verification.verify_citations && python -c "import yaml, pathlib; h=yaml.safe_load(open('state/artifact_hashes.yaml')); assert isinstance(h, dict)"`.
 
 - [ ] T001 [P] **Create project entry point & config** – add `src/main.py` with an `if __name__ == "__main__":` CLI that loads a YAML config, and create `src/config/defaults.yaml` (default N=5, k=0.01, rho=0, distribution=linear) plus `config/small_demo.yaml` (tiny demo config).  

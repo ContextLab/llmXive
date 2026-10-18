@@ -1,14 +1,16 @@
 status: none
-intent: download multi-objective reinforcement learning benchmark suite MORLBench
-  python package dataset
+intent: MORL benchmark suite OpenAI Gym multi-objective reinforcement learning python
+  package dataset
 required_fields:
-- mdp_id
-- state_id
-- action_id
-- next_state_id
-- reward_vector
-- done
-- noise_std
-cache_key: f85b18941a343eb6c5347dde55c1f3a49cbb7e337dcb0bc12bb9c33c88365326
-searched_at: '2026-10-18T07:25:37.292395+00:00'
+- N
+- epsilon_i
+- weighted_advantage_variance
+- sample_complexity_lower_bound
+- reward_family
+- noise_distribution
+- seed
+- episode_count
+- state_space_size
+cache_key: 711655ba20590554670ba97cb01cfd39787f9f7d9b7744c51b3286f8554b1706
+searched_at: '2026-10-18T07:50:19.795397+00:00'
 retry_count: 1
