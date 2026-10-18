@@ -11,44 +11,28 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 - every produced artifact is gitignored (data/raw/cochrane_base_synthetic.csv, data/results/estimation_results.csv, data/results/reml_failures.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --mode dry-run --replicates-per-level 10 --tau-values 0 0.1 --seed 42`
-  - script usage: `main.py [-h] [--mode {full,dry-run}] [--seed SEED]`
-  - argparse error: `main.py: error: unrecognized arguments: --replicates-per-level 10 --tau-values 0 0.1`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/raw/cochrane_base_synthetic.csv, data/results/estimation_results.csv, data/results/reml_failures.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python code/scripts/fetch_openml.py   # downloads to data/raw/openml_4210.csv (rc=1); python code/main.py --mode dry-run --replicates-per-level 10 --tau-values 0 0.1 --seed 42 (rc=2); python -m pytest tests/unit/ (rc=1); 5 declared deliverable(s) absent: data/raw/cochrane_base.csv; data/results/aggregated_metrics.csv; data/results/coverage_vs_tau2.png
+**Summary**: every produced artifact is gitignored (data/raw/cochrane_base_synthetic.csv, data/results/estimation_results.csv, data/results/reml_failures.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/scripts/fetch_openml.py   # writes data/raw/cochrane_base.csv (rc=1); python -m pytest tests/unit/ (rc=1); python -m pytest tests/integration/ (rc=1); 5 declared deliverable(s) absent: data/raw/cochrane_base.csv; data/results/aggregated_metrics.csv; data/results/coverage_vs_tau2.png
 
 ## Failing / missing run-book commands
 
-- python code/scripts/fetch_openml.py   # downloads to data/raw/openml_4210.csv -> rc=1
+- python code/scripts/fetch_openml.py   # writes data/raw/cochrane_base.csv -> rc=1
 ============================================================
-FETCHING OPENML DATASET
+FETCHING VERIFIED BASE META-ANALYSIS DATASET
 ============================================================
-Fetching OpenML dataset ID 4210 ...
+Fetching verified meta-analysis base data from:
+  https://raw.githubusercontent.com/wviechtb/metafor/master/data/dat.bcg.dat
 ============================================================
 
-ERROR: REAL_DATA_FETCH_FAILED: unable to download dataset ID 4210: Dataset with data_id 4210 not found.
-
-- python code/main.py --mode dry-run --replicates-per-level 10 --tau-values 0 0.1 --seed 42 -> rc=2
-
-usage: main.py [-h] [--mode {full,dry-run}] [--seed SEED]
-               [--levels LEVELS [LEVELS ...]] [--replicates REPLICATES]
-               [--base-data BASE_DATA] [--skip-generation]
-               [--validate-contracts] [--verbose]
-main.py: error: unrecognized arguments: --replicates-per-level 10 --tau-values 0 0.1
+ERROR: REAL_DATA_FETCH_FAILED: unable to download the base meta-analysis dataset from https://raw.githubusercontent.com/wviechtb/metafor/master/data/dat.bcg.dat: HTTP Error 404: Not Found
 
 - python -m pytest tests/unit/ -> rc=1
-tivity
+unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_sensitivity
 FAILED tests/unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_default
 FAILED tests/unit/test_estimators.py::TestREML::test_failure_logging_and_fallback
 FAILED tests/unit/test_plots.py::test_plots_generate_files - SystemExit: 1
 FAILED tests/unit/test_reml_failure_log.py::test_log_reml_failure_appends_events
-FAILED tests/unit/test_stats.py::test_conditional_test_normal_data - Assertio...
 FAILED tests/unit/test_stats.py::test_conditional_test_non_normal_data - Asse...
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_missing_field
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_wrong_type
@@ -56,7 +40,7 @@ ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_sav
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
-============= 13 failed, 64 passed, 13 warnings, 6 errors in 1.81s =============
+============= 12 failed, 65 passed, 13 warnings, 6 errors in 2.96s =============
 
 
 - python -m pytest tests/integration/ -> rc=1
@@ -71,7 +55,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 0.36s =========================
+========================= 1 failed, 1 warning in 0.54s =========================
 
 
 
@@ -95,7 +79,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/scripts/adapt_parameters.py` — NOT invoked by the run-book
     - `code/scripts/fetch_cochrane.py` — NOT invoked by the run-book
     - `code/scripts/fetch_openml.py` — IS a run-book command
-    - `code/scripts/generate_synthetic_base.py` — IS a run-book command
+    - `code/scripts/generate_synthetic_base.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/cochrane_base.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/aggregated_metrics.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/aggregate_metrics.py` — NOT invoked by the run-book
