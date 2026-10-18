@@ -7,12 +7,12 @@ Tasks are ordered to respect data flow and compute limits. All paths are relativ
 
 ---
 
-- [X] T001 [P] [US1] **Download and verify the π‑Bench dataset**   <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED: unspecified -->
+- [ ] T001 [P] [US1] **Download and verify the π‑Bench dataset**   <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED: unspecified -->
   *Create* `data/raw/` with the official release (≈ 100 tasks).  
   *Verification*: checksum of each downloaded file matches the published SHA‑256 list; a pytest test (`tests/test_dataset_download.py`) asserts successful load via `datasets.load_dataset("pi_bench")`.  
   *File*: `code/pipelines/download_pi_bench.py`
 
-- [ ] T002 [P] [US1] **Parse raw interaction traces into a normalized CSV**  
+- [ ] T002 [P] [US1] **Parse raw interaction traces into a normalized CSV**   <!-- FAILED-IN-EXECUTION: code/pipelines/parse_traces.py exit=1 -->
   *Read* JSON files from `data/raw/`, extract `task_id`, `turn_index`, `speaker`, `utterance`, and optional `ground_truth_intent`.  
   *Write* `data/derived/normalized_traces.csv`.  
   *Verification*: schema validation (pandas dtypes) and a unit test (`tests/test_parse_traces.py`) confirming 1‑to‑1 mapping of turns to rows.  
