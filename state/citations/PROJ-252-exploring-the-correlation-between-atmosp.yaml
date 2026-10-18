@@ -119,3 +119,25 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
   verified_at: '2026-10-12T12:06:24.950545Z'
+- artifact_hash: 84b49e147b120d7122f05a90eb9b09191adf3191d67a9e40b4c7fb0382cd344a
+  artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
+  verified_at: '2026-10-18T03:14:26.484092Z'
+- artifact_hash: 84b49e147b120d7122f05a90eb9b09191adf3191d67a9e40b4c7fb0382cd344a
+  artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://earthquake.usgs.gov/fdsnws/event/1/query?format=csv&starttime=2013-01-01&endtime=2023-12-31&minmagnitude=4&maxdepth=70`
+  verification_status: unreachable
+  verified_against_url: https://earthquake.usgs.gov/fdsnws/event/1/query?format=csv&starttime=2013-01-01&endtime=2023-12-31&minmagnitude=4&maxdepth=70
+  verified_at: '2026-10-18T03:14:26.484092Z'
