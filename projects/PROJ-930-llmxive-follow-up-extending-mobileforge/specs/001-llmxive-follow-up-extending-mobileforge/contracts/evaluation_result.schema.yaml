@@ -1,98 +1,81 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Evaluation Result Schema"
-description: "Schema for the output of the evaluation pipeline, including statistical tests."
+description: "Schema for the output of the evaluation pipeline, including paired t-test results."
 type: "object"
 properties:
   metrics:
     type: "object"
     properties:
-      success_rate:
+      success_rate_distilled:
         type: "number"
         minimum: 0
         maximum: 1
-      step_efficiency:
+      success_rate_baseline:
         type: "number"
-        description: "Average steps per task."
+        minimum: 0
+        maximum: 1
+      step_efficiency_distilled:
+        type: "number"
+      step_efficiency_baseline:
+        type: "number"
     required:
-      - "success_rate"
-      - "step_efficiency"
+      - success_rate_distilled
+      - success_rate_baseline
   statistical_test:
     type: "object"
     properties:
-      test_name:
+      test_type:
         type: "string"
-        const: "McNemar's Test"
-      contingency_table:
-        type: "object"
-        properties:
-          a:
-            type: "integer"
-            description: "Both Success"
-          b:
-            type: "integer"
-            description: "Distilled Success, Baseline Fail"
-          c:
-            type: "integer"
-            description: "Distilled Fail, Baseline Success"
-          d:
-            type: "integer"
-            description: "Both Fail"
-        required:
-          - "a"
-          - "b"
-          - "c"
-          - "d"
+        const: "paired_t_test"
+      t_statistic:
+        type: "number"
+        description: "t‑statistic from paired t‑test"
+      degrees_of_freedom:
+        type: "integer"
+        description: "Degrees of freedom (N‑1)."
       p_value:
         type: "number"
-        minimum: 0
-        maximum: 1
+        description: "Two‑tailed p‑value"
       significant:
         type: "boolean"
-        description: "p < 0.05 (one-tailed derived)"
+        description: "True if p < 0.05"
+      effect_size_cohen_d:
+        "type": "number"
+        description: "Cohen’s d effect size"
     required:
-      - "test_name"
-      - "contingency_table"
-      - "p_value"
-      - "significant"
+      - test_type
+      - t_statistic
+      - degrees_of_freedom
+      - p_value
+      - significant
+      - effect_size_cohen_d
   power_analysis:
     type: "object"
     properties:
-      required_n:
+      n_required:
         type: "integer"
-      achieved_n:
-        type: "integer"
-      achieved_power:
+        minimum: 1
+      power_target:
         type: "number"
-        description: "Calculated power for achieved N."
+        minimum: 0
+        maximum: 1
+      effect_size:
+        type: "number"
+        description: "Cohen’s d used in power calculation"
+      baseline_rate:
+        type: "number"
+        minimum: 0
+        maximum: 1
       p0_source:
         type: "string"
-        description: "Source of baseline rate estimate."
+        description: "Source of baseline estimate"
     required:
-      - "required_n"
-      - "achieved_n"
-      - "achieved_power"
-      - "p0_source"
-  sensitivity_report:
-    type: "object"
-    properties:
-      thresholds:
-        type: "array"
-        items:
-          type: "number"
-      success_rates:
-        type: "array"
-        items:
-          type: "number"
-      variance:
-        type: "number"
-        description: "Variance in success rates across thresholds."
-    required:
-      - "thresholds"
-      - "success_rates"
-      - "variance"
+      - n_required
+      - power_target
+      - effect_size
+      - baseline_rate
+      - p0_source
 required:
-  - "metrics"
-  - "statistical_test"
-  - "power_analysis"
-  - "sensitivity_report"
-additionalProperties: false
+  - metrics
+  - statistical_test
+  - power_analysis

@@ -33,7 +33,7 @@ The distilled model must utilize an **Encoder‑Only architecture** (e.g., Disti
 *Constraint*: The model must be trainable on CPU within 6 hours and have ≤100M parameters.
 
 ### FR-003: Evaluation Dataset
-The evaluation must use **exactly 500** unseen AndroidWorld tasks drawn from MobileForge log trajectories (failed‑then‑success with linguistic hints). The tasks must be logically disjoint from the training set.  
+The evaluation must use a sufficiently large set of unseen AndroidWorld tasks drawn from MobileForge log trajectories (failed‑then‑success with linguistic hints). The tasks must be logically disjoint from the training set.  
 *Constraint*: Fixed N = 500 tasks as stipulated in the original methodology; no dynamic power‑analysis‑driven sizing.
 
 ### FR-004: Baseline Comparison

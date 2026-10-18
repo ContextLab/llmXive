@@ -26,26 +26,24 @@ properties:
     properties:
       test_type:
         type: "string"
-        const: "McNemar"
+        const: "paired_t_test"
+      t_statistic:
+        type: "number"
+      degrees_of_freedom:
+        type: "integer"
       p_value:
         type: "number"
       significant:
         type: "boolean"
-      contingency_table:
-        type: "array"
-        items:
-          type: "array"
-          items:
-            type: "integer"
-          minItems: 2
-          maxItems: 2
-        minItems: 2
-        maxItems: 2
+      effect_size_cohen_d:
+        type: "number"
     required:
       - test_type
+      - t_statistic
+      - degrees_of_freedom
       - p_value
       - significant
-      - contingency_table
+      - effect_size_cohen_d
   power_analysis:
     type: "object"
     properties:

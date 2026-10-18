@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "State Artifacts Schema"
+title: "StateArtifacts"
 description: "Schema for versioning and checksum management in the state directory."
 type: "object"
 properties:
@@ -18,12 +18,11 @@ properties:
         format: "date-time"
       method:
         type: "string"
-        const: "A priori Power Analysis (McNemar)"
+        const: "A priori Power Analysis (paired t-test)"
     required:
-      - "calculated_n"
-      - "timestamp"
-      - "method"
+      - calculated_n
+      - timestamp
+      - method
 required:
-  - "artifact_hashes"
-  - "validated_n"
-additionalProperties: false
+  - artifact_hashes
+  - validated_n

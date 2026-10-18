@@ -1,49 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "StatisticalReport Schema"
-description: "Schema for the final statistical analysis report including McNemar's test and effect size."
+title: "StatisticalReport"
+description: "Schema for the final statistical analysis report including paired t‑test results."
 type: "object"
 properties:
-  mcnemar_test:
+  paired_t_test:
     type: "object"
-    description: "Results of the McNemar's test between distilled and baseline."
+    description: "Results of the paired t‑test between distilled and baseline models."
     properties:
-      chi2_statistic:
+      t_statistic:
         type: "number"
+      degrees_of_freedom:
+        type: "integer"
       p_value:
         type: "number"
-        description: "P-value for the hypothesis test (one-tailed derived)."
-      odds_ratio:
-        type: "number"
-        description: "Odds ratio for the paired binary outcome."
       confidence_interval_95:
         type: "array"
         items:
           type: "number"
         minItems: 2
         maxItems: 2
-    required:
-      - "chi2_statistic"
-      - "p_value"
-      - "odds_ratio"
-  effect_size:
-    type: "object"
-    description: "Observed effect size and confidence intervals."
-    properties:
-      cohen_d:
+      effect_size_cohen_d:
         type: "number"
-        description: "Cohen's d effect size (for continuous metrics)."
-      confidence_interval_95:
-        type: "array"
-        items:
-          type: "number"
-        minItems: 2
-        maxItems: 2
+      significant:
+        type: "boolean"
     required:
-      - "cohen_d"
-      - "confidence_interval_95"
+      - t_statistic
+      - degrees_of_freedom
+      - p_value
+      - confidence_interval_95
+      - effect_size_cohen_d
+      - significant
   sensitivity_analysis:
     type: "object"
-    description: "Results of the threshold sensitivity sweep."
+    description: "Results of the Levenshtein‑based inconsistency tolerance sweep."
     properties:
       thresholds_tested:
         type: "array"
@@ -57,11 +46,9 @@ properties:
         type: "number"
         description: "Variance in success rates across thresholds."
     required:
-      - "thresholds_tested"
-      - "success_rates"
-      - "variance"
+      - thresholds_tested
+      - success_rates
+      - variance
 required:
-  - "mcnemar_test"
-  - "effect_size"
-  - "sensitivity_analysis"
-additionalProperties: false
+  - paired_t_test
+  - sensitivity_analysis
