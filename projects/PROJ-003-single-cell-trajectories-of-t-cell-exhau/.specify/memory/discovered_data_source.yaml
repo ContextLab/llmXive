@@ -1,14 +1,14 @@
 status: none
-intent: "GEO scRNA\u2011seq count matrix downloader python package for scVelo analysis\
-  \ python package dataset"
+intent: single-cell RNA-seq count matrix GSE136103 GSE111075 GSE138852 GEO SRA python
+  package dataset
 required_fields:
-- gene_symbol
-- gene_id
 - cell_barcode
+- gene_symbol
 - raw_counts
-- sample_accession
-- mitochondrial_gene_percentage
-- cell_quality_metrics
-cache_key: 457be40db928cbcd042ed10a556b833b51610c04d417cd638557982c38f832e2
-searched_at: '2026-10-18T13:13:08.686437+00:00'
+- mitochondrial_percent
+- sample_id
+- therapy_response_label
+- marker_gene_presence
+cache_key: e090a0012e0528b7d9fd3389959ba421425ba8f76e39790c202811f60c09b0fd
+searched_at: '2026-10-18T14:14:30.678715+00:00'
 retry_count: 1

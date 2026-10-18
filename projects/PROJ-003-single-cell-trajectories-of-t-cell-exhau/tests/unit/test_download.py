@@ -2,8 +2,8 @@
 
 These tests confirm (per tasks.md verification for T002):
 - four Dataset entries exist in data/manifest.yaml with status available,
-- a SHA-256 checksum is recorded and matches the file on disk,
-- marker_gene_fraction >= 0.80 for every dataset (FR-010 / SC-005),
+- a SHA‑256 checksum is recorded and matches the file on disk,
+- marker_gene_fraction >= 0.80 for every dataset (FR‑010 / SC‑005),
 - raw files exist under data/raw/<accession>/.
 """
 
@@ -53,7 +53,7 @@ def test_checksums_recorded_and_match_files():
         checksum = entry["checksum"]
         assert (
             isinstance(checksum, str) and len(checksum) == 64
-        ), f"Invalid SHA-256 checksum recorded for {gse}: {checksum}"
+        ), f"Invalid SHA‑256 checksum recorded for {gse}: {checksum}"
         matrix_path = Path(entry["raw_counts_path"])
         assert matrix_path.exists(), f"Matrix file missing for {gse}: {matrix_path}"
         actual = hashlib.sha256(matrix_path.read_bytes()).hexdigest()
@@ -63,7 +63,7 @@ def test_checksums_recorded_and_match_files():
 
 
 def test_marker_gene_fraction_at_least_080():
-    """FR-010 / SC-005: at least 80% of the required marker list present."""
+    """FR‑010 / SC‑005: at least 80 % of the required marker list present."""
     manifest = _load_manifest()
     for gse in EXPECTED_GSES:
         entry = manifest["datasets"][gse]

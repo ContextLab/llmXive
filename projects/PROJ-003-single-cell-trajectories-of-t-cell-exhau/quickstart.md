@@ -99,3 +99,4 @@ you need a different seed for a controlled experiment.
 | `download_data.py` exits with error | GEO endpoint temporarily unavailable | Rerun later; the script retries and logs failures to `logs/download.log` |
 | scVelo fails or hangs | Missing spliced/unspliced layers | Check `logs/velocity.log`; the dataset is flagged and excluded from cross-dataset validation |
 | Report missing disclaimer | Modified `report.py` | Use the unmodified version; the FR-009 disclaimer is inserted automatically |
+```

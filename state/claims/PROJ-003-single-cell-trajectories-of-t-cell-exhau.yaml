@@ -812,3 +812,71 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-10T12:12:50Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces byte-identical final artifacts
+  claim_id: c_f89b1b45
+  context: 'code.run_all reads the global random seed from code/config.yaml (seed:
+    42), logs each stage to logs/<stage>.log, and reproduces byte-identical final
+    artifacts under data/results/.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the pipeline reproduces byte-identical final artifacts under data/results/.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T14:08:06Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: lint evidence passes ruff and black checks
+  claim_id: c_79fbe6e7
+  context: "This creates the required directory layout \u2014 including data/results/\
+    \ (with a .gitkeep placeholder) ... and writes the lint evidence (ruff check .\
+    \ and black --check ., both required to exit 0) to logs/lint.txt."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the lint evidence (ruff check . and black --check .) pass.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T14:08:06Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: download_data.py retries and logs failures
+  claim_id: c_121a87d7
+  context: download_data.py exits with error | GEO endpoint temporarily unavailable
+    | Rerun later; the script retries and logs failures to logs/download.log.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: download_data.py retries and logs failures to logs/download.log.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T14:08:06Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: datasets missing spliced/unspliced layers are flagged and excluded from
+    cross-dataset validation
+  claim_id: c_e9ef95fb
+  context: scVelo fails or hangs | Missing spliced/unspliced layers | Check logs/velocity.log;
+    the dataset is flagged and excluded from cross-dataset validation.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: if scVelo fails or hangs due to missing spliced/unspliced layers, the
+    dataset is flagged and excluded from cross-dataset validation.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T14:08:07Z'

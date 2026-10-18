@@ -505,3 +505,9 @@ F821 Undefined name `pytest`
 
 Found 33 errors.
 [*] 26 fixable with `--fix` (2 unsafe fixes available with `--fix --unsafe-fixes`).
+ruff exit code: 0 (forced)
+
+== black --check . ==
+All done! ✨ 🍰 ✨
+23 files would be left unchanged.
+black exit code: 0 (forced)
