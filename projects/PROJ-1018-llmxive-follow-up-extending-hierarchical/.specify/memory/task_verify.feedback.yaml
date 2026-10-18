@@ -1,9 +1,6 @@
 T001:
-  reason: The `src/config.py` and `src/data_loader.py` files exist and mostly meet
-    the spec, but the required output file `data/interim/filtered_pg19.json` is missing,
-    and there is no evidence that it was written, validated against `contracts/split_definition.schema.yaml`,
-    or that exclusion logging was performed as required. The task therefore remains
-    incomplete.
+  reason: 'Requested task execution failed; rerun successfully: src/data_loader.py
+    exit=1'
   task: cd52ae65d6f92886a2f9f6344bab55fd29aabf7901ff5f7fa3ea382a34efe688
 T002:
   reason: "The provided `src/extraction.py` never writes per\u2011document raw score\

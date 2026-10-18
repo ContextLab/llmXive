@@ -5,16 +5,14 @@ import random
 import numpy as np
 import torch
 
-
 @dataclass
 class Config:
     """
-    Base configuration manager for the llmXive hierarchical sparse attention pipeline.
-    Defines core hyperparameters and paths required for reproducibility and execution.
+    Central configuration for the hierarchical sparse attention pipeline.
     """
     seed: int = 42
     chunk_size: int = 2048
-    model_path: str = "lmsys/pg-19-test"  # Default to dataset ID or path
+    model_path: str = "lmsys/pg-19-test"
     k_clusters: int = 100
 
     # Additional fields for robustness
@@ -29,14 +27,13 @@ class Config:
     log_level: str = "INFO"
     log_format: str = "json"
 
-    # New fields required by T001
+    # Fields required by T001
     min_tokens: int = 32000
     skip_short_documents: bool = True
     PAD_SHORT_DOCS: bool = False
 
     def __post_init__(self):
-        """Validate and initialize configuration state."""
-        # Ensure the short‑document handling flag is set as required
+        """Validate configuration and set deterministic seeds."""
         assert self.skip_short_documents, (
             "skip_short_documents must be True according to the task specification."
         )
@@ -53,11 +50,27 @@ class Config:
 
     def _ensure_directories(self) -> None:
         """Create output directories if they do not exist."""
-        for dir_path in [self.output_dir, self.interim_dir, self.processed_dir, self.figures_dir]:
+        for dir_path in [
+            self.output_dir,
+            self.interim_dir,
+            self.processed_dir,
+            self.figures_dir,
+        ]:
             os.makedirs(dir_path, exist_ok=True)
 
+    # Compatibility aliases used by older scripts
+    @property
+    def data_interim_dir(self) -> str:
+        """Alias for ``interim_dir`` kept for backward compatibility."""
+        return self.interim_dir
+
+    @property
+    def data_processed_dir(self) -> str:
+        """Alias for ``processed_dir`` kept for backward compatibility."""
+        return self.processed_dir
+
     def to_dict(self) -> Dict[str, Any]:
-        """Convert configuration to a dictionary for serialization."""
+        """Serialize configuration to a plain dictionary."""
         return {
             "seed": self.seed,
             "chunk_size": self.chunk_size,
@@ -78,7 +91,7 @@ class Config:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Config":
-        """Load configuration from a dictionary."""
+        """Instantiate a Config from a dictionary."""
         return cls(
             seed=data.get("seed", 42),
             chunk_size=data.get("chunk_size", 2048),
