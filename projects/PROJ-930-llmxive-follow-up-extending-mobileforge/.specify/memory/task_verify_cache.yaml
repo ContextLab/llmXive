@@ -1,23 +1,23 @@
 T001:
-  c: true
-  h: 6d8cea2b37ba5e37ab03fdedb7c2f1320786ba3c35bd7794a3fd62ec8030117a
-  r: 'The execution log for `code/setup_project_dirs.py` (exit 0) explicitly confirms
-    creation of all nine required paths: `code/data/{raw,processed,evaluation}`, `code/models`,
-    `code/utils`, `code/tests/{unit,integration}`, `data`, and `outputs`, and the
-    collector confirms the top-level `code/`, `data/`, and `outputs/` directories
-    exist with their expected subdirectories (e.g., `data/raw`, `data/processed`)
-    populated with real artifacts. No evidence contradicts the current existence of
-    these directories.'
-  sig: d10fb47465909599d41346d6fb0da694fd6b985b8e9b23e835f967a65f511ad7
-T002:
   c: false
-  h: 2e8c1a223c0ad9f80e95894e9aebb0a168a383e87ba7db36d127c4fabd67b6c3
-  r: '`code/requirements.txt` exists and the install log at `outputs/install_log.txt`
-    shows a successful `pip install -r code/requirements.txt`, but the file contains
-    12 lines: the 11 required pins plus an extra `pyarrow==14.0.1`, violating the
-    "exactly the 11 required lines (no extra packages)" requirement. Remove the pyarrow
-    line (the root-level `requirements.txt` shows the correct 11-line content).'
-  sig: fe87d73c7931b468f6375bf07490b11e32e69115b0ff179002c97b720466ff63
+  h: 46b557704188a3ccec40d36508d7f6584b0787b0bffc13728b7cf2cb6044add1
+  r: 'The evidence confirms only the top-level directories (`code/`, `data/`, `outputs/`)
+    and some subdirectories (`code/data/`, `code/tests/`, `code/utils/`, `data/processed/`),
+    but the required nested directories are not shown to exist: `code/models/` is
+    absent from the 28-entry `code/` listing, and there is no evidence of `code/data/raw`,
+    `code/data/processed`, `code/data/evaluation`, `code/tests/unit`, `code/tests/integration`,
+    or `data/raw` (the `data/` listing contains only 4 entries with no `raw/` directory;
+    checksums.json references to `data/raw/...` files are not proof those paths exist
+    at '
+  sig: b0268a0c8de8ac502eeda57a168f82d35b904599dc00054f35ddd0f3b94805d0
+T002:
+  c: true
+  h: edef8d8658a4b75b50e3ade97d9a30fdebc5f1657ee11e63752754ccd4c1ab3f
+  r: '`code/requirements.txt` exists with exactly the 11 required pinned lines (trailing
+    newline only difference, no extra packages), and `outputs/install_log.txt` shows
+    a real `pip install -r code/requirements.txt` run resolving all 11 pins without
+    error, corroborated by the exit-0 execution record for `code/install_deps.py`.'
+  sig: 688ccc10cf53b50e9e6d74c0cf3765297dadfef386b28193c91768bc77a9c91b
 T003:
   c: true
   h: 616aa762119b08312d9124c1ef38bba2ebb4c56194bfa29bd99f08424ed3faca
@@ -54,25 +54,24 @@ T006:
   sig: 96229dc32ebc6176fc4df46fdc0370d5b284ab9427d41fbfc9ec2d6e53cb297a
 T007:
   c: true
-  h: ede909f2f0e666e11fc6c75928e220aa71a5515282fac22e22c3e1c3b6a037d9
+  h: a3509fa01acb018e9e0503909961a0ebd3c16613be5f13617abd770f4a5dded3
   r: "The script `code/utils/power_analysis.py` exists and implements a real statsmodels-based\
-    \ power calculation (GofChisquarePower, a chi-square-based estimator appropriate\
-    \ for McNemar's paired binary design), enforces the \"before extraction\" rule\
-    \ by aborting if `data/processed` is non-empty, and writes the schema-conformant\
-    \ output. The output `outputs/power_analysis.json` contains `n_required: 197`\
-    \ (consistent with the known chi-square solution for h=0.2, \u03B1=0.05, power=0.8,\
-    \ ceil to 197) plus the full required `parameters` block and timestamp, matching\
-    \ the schema's required fields and `additionalPr"
-  sig: 280024bad71e85918adea5e7719bc4f87738a41b27dda7830092444145468072
+    \ power calculation (GofChisquarePower, an acceptable McNemar-appropriate estimator\
+    \ per the task's \"e.g.\" wording), enforces the before-extraction rule by aborting\
+    \ if `data/processed` is non-empty, and writes the schema-conforming output. The\
+    \ output `outputs/power_analysis.json` contains `n_required: 197` \u2014 which\
+    \ matches the analytically expected value (z\u2080.\u2080\u2082\u2085+z\u2080\
+    .\u2088)\xB2/h\xB2 \u2248 196.2 rounded up \u2014 plus the full `parameters` block\
+    \ and timestamp, satisfying the schema's required fields and constraints (integer\
+    \ \u22651, no"
+  sig: f52318e107c3cc9d2b320aa67074917f5c1224353c1f346fad215e3799dc5097
 T008:
-  c: true
-  h: 91d7a886adb5562a1638dbdf67d840ffaac354d070429aa4bba34480114e33c5
-  r: The script exists at the canonical path `code/data/raw/download_mobileforge.py`,
-    was actually executed (exit 0, real HuggingFace download of 10,426 train examples
-    shown in stderr), saved the dataset to `data/raw/mobileforge_logs` (3 files whose
-    SHA-256 hashes appear in `data/checksums.json`), raises on network/checksum errors
-    with no synthetic fallback, and wrote the success log `outputs/download_log.txt`
-    matching the run. The dataset ID differs from the task's illustrative snippet
-    (`OSTShushack/ExtractionDataset` vs `mobileforge/logs`), but the script documents
-    this as the Plan/Quickstart-spe
-  sig: 674e691ca493ee247283b7f2cbb7d451229ecd0b52a9d776b14db65918ffebff
+  c: false
+  h: 98971fb0acfebec665dea9bf81b6244fd0ba166aff817ea6f10de075b8d93eba
+  r: "The required script `data/raw/download_mobileforge.py` (and `code/data/raw/download_mobileforge.py`)\
+    \ does not exist at all, so the core deliverable is missing. Moreover, the download\
+    \ log shows the dataset actually fetched was `OSTShushack/ExtractionDataset`,\
+    \ not the required `mobileforge/logs`, and the checksums.json contains only 3\
+    \ files checksummed against the saved dataset while the log claims success \u2014\
+    \ the artifacts contradict the task's stated requirements."
+  sig: 996810139d6f3bde0e4cbb10b74cc9823e449ae23dd3b54e417d5c58d967f1a1

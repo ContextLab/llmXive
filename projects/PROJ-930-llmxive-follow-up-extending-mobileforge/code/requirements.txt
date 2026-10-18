@@ -9,4 +9,3 @@ tqdm==4.66.2
 pytest==8.2.2
 ruff==0.4.2
 black==24.4.2
-pyarrow==14.0.1

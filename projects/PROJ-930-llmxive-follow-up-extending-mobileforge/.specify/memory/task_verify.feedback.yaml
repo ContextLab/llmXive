@@ -1,11 +1,14 @@
 T001:
+  reason: 'The evidence confirms only the top-level directories (`code/`, `data/`,
+    `outputs/`) and some subdirectories (`code/data/`, `code/tests/`, `code/utils/`,
+    `data/processed/`), but the required nested directories are not shown to exist:
+    `code/models/` is absent from the 28-entry `code/` listing, and there is no evidence
+    of `code/data/raw`, `code/data/processed`, `code/data/evaluation`, `code/tests/unit`,
+    `code/tests/integration`, or `data/raw` (the `data/` listing contains only 4 entries
+    with no `raw/` directory; checksums.json references to `data/raw/...` files are
+    not proof those paths exist at'
   task: 0b95ce60d5289d14226227233e721cb10e6685a45f625b0b69464950b8334e59
 T002:
-  reason: '`code/requirements.txt` exists and the install log at `outputs/install_log.txt`
-    shows a successful `pip install -r code/requirements.txt`, but the file contains
-    12 lines: the 11 required pins plus an extra `pyarrow==14.0.1`, violating the
-    "exactly the 11 required lines (no extra packages)" requirement. Remove the pyarrow
-    line (the root-level `requirements.txt` shows the correct 11-line content).'
   task: b3772d14fb0e795473d2175e5c351b1f5239d20ce32e2630de995fdace6e8d47
 T003:
   task: ad5a92ead3758ddc99605d93e1955e0a5f139b4b5f3d5fcbe7d1e7a21a7b40cc
@@ -18,6 +21,12 @@ T006:
 T007:
   task: 47e9695df357f279967c27d39ecc4c50e5e9a6f860b91d64eb3e1581ce09a52d
 T008:
+  reason: "The required script `data/raw/download_mobileforge.py` (and `code/data/raw/download_mobileforge.py`)\
+    \ does not exist at all, so the core deliverable is missing. Moreover, the download\
+    \ log shows the dataset actually fetched was `OSTShushack/ExtractionDataset`,\
+    \ not the required `mobileforge/logs`, and the checksums.json contains only 3\
+    \ files checksummed against the saved dataset while the log claims success \u2014\
+    \ the artifacts contradict the task's stated requirements."
   task: eb9dd80f416e32c7d89376215bcdc951dc82cf4c65a76388463fe800a6581fce
 T009:
   reason: 'Requested task execution failed; rerun successfully: code/data/raw/validate_extraction_dataset.py
