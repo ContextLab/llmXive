@@ -1,76 +1,113 @@
-# Tasks: Predicting Material Properties from Compositional Data with Graph Neural Networks
+# Tasks: Predicting Material Properties from Compositional Data with Graph Neural Networks  
 
-**Inputs**: `specs/001-predicting-material-properties-from-comp/spec.md`, `plan.md` (rev. 2), `data-model.md`, `contracts/`, reviewer feedback (ada-lovelace-simulated, 2026-10-14).
+**Inputs**: `specs/001-predicting-material-properties-from-comp/spec.md`, `plan.md`, `data-model.md`, `contracts/`, reviewer feedback (2026‑10‑14).  
 
-**Scope context (from plan.md)**: No verified open dataset with `formula`, `band_gap`, `hardness`, `crystal_system` is currently available, and the Materials Project REST API is credential-gated. Tasks below therefore (a) build the complete, contract-tested pipeline, (b) run all software validation on small hand-crafted fixtures used **only** for code verification — never reported as study results, and (c) mark the scientific training/evaluation run as **gated**: it executes only when a conforming verified dataset is attached (a one-line loader change). No synthetic data will be presented as scientific results. The reviewer's concern that hardness values lack a verified source is addressed by T002's explicit provenance gate: if the attached dataset lacks a hardness column with a named origin, hardness remains a gated target and the gap is reported, not papered over.
+The goal is to deliver a fully reproducible, CPU‑only pipeline that satisfies every functional requirement (FR‑001 – FR‑011) and success criterion (SC‑001 – SC‑006), while respecting the data‑availability constraints identified in the plan and reviewer comments. All tasks are unchecked; completed tasks will be checked automatically when their verification passes.
 
-## Phase 1: Setup and first end-to-end analysis
+---
 
-- [ ] T001 [P] [US-1] Establish the project layout and data contract: create `contracts/materials_dataset.schema.yaml` and `contracts/model_metrics.schema.yaml` exactly as specified in the active data model, pin dependencies (`requirements.txt`: torch, torch-geometric, pandas, numpy, scikit-learn, pymatgen, matplotlib, psutil, pytest), add `src/utils/seeds.py` (pinned seed=42 helpers), and document the runnable commands in `specs/001-predicting-material-properties-from-comp/quickstart.md`.
-  - Verification: `pytest tests/contract/` passes; `quickstart.md` names every entry-point command used by later tasks.
+- [ ] **T001** [P] [US‑1] Create project contracts and pin dependencies.  
+  - Create `contracts/materials_dataset.schema.yaml` and `contracts/model_metrics.schema.yaml` exactly as defined in the active data model.  
+  - Add `requirements.txt` with pinned versions: `torch==2.3.0`, `torch-geometric==2.5.3`, `pandas==2.2.2`, `numpy==1.26.4`, `scikit-learn==1.5.0`, `pymatgen==2024.7.0`, `matplotlib==3.9.0`, `psutil==5.9.8`, `pytest==8.3.2`.  
+  - Add `src/utils/seeds.py` that sets `torch.manual_seed(42)`, `np.random.seed(42)`, and `random.seed(42)`.  
+  - Document the runnable commands (loader, trainer, evaluator, inference) in `specs/001-predicting-material-properties-from-comp/quickstart.md`.  
+  - **Verification**: `pytest tests/contract/` passes; `quickstart.md` lists every entry‑point command referenced by later tasks.
 
-- [ ] T002 [P] [US-1] Implement the chunked dataset loader `src/data/loader.py`: reads a CSV/parquet dataset in chunks (≤5,000 rows per chunk), validates every row against `contracts/materials_dataset.schema.yaml`, records the SHA-256 checksum of the input file, drops rows with missing required fields with logged warnings, drops duplicate `material_id` (first occurrence kept) while counting formula-duplicate polymorphs, applies the 1.5×IQR outlier rule per target (`band_gap`, `hardness`) with a logged drop count, skips materials containing elements absent from the periodic-table lookup with a warning, retains zero-band-gap metals, and writes the cleaned data to a NEW derived file `data/processed/materials_processed.csv` (raw file never modified). Peak RAM is monitored via `psutil` and the loader asserts ≤6 GB (FR-001, FR-004, SC-003).
-  - **Provenance gate (reviewer concern)**: the loader MUST fail loudly (raise) if the input lacks a hardness column or if the attached dataset's provenance does not name the origin of hardness values; NO synthetic or imputed hardness fallback is permitted. The loader accepts either a locally attached verified dataset path or the contract-conformant fixture `tests/fixtures/tiny_materials.csv` (software tests only — fixture results are never written to `data/results/` as study results).
-  - Verification: `pytest tests/contract/test_dataset_schema.py tests/unit/test_loader.py` passes, including a test that a missing-hardness input raises and that peak RAM stays ≤6 GB on the fixture.
+- [ ] **T002** [P] [US‑1] Implement robust chunked dataset loader (`src/data/loader.py`).  
+  - Load a CSV/Parquet file in chunks of ≤ 5 000 rows using `pandas.read_csv(..., chunksize=5000)`.  
+  - Validate each row against `contracts/materials_dataset.schema.yaml`; drop rows with missing required fields, duplicate `material_id` (keep first), and rows outside the 1.5 × IQR rule for **band_gap** or **hardness** (log drop count).  
+  - Skip materials containing elements absent from the periodic‑table lookup, logging a warning. Retain zero‑band‑gap metals.  
+  - **Provenance gate**: raise a `ValueError` if the loaded file lacks a **hardness** column **or** if the column’s metadata does not contain a named source (e.g., “Materials Project hardness dataset”). No synthetic imputation is performed.  
+  - Write the cleaned data to `data/processed/materials_processed.csv` (raw file never modified).  
+  - Monitor peak RAM via `psutil`; assert ≤ 6 GB (FR‑001).  
+  - **Verification**: `pytest tests/unit/test_loader.py` passes, including tests that a missing hardness column raises, that RAM stays ≤ 6 GB on the fixture, and that outlier removal logs correctly.
 
-- [ ] T003 [P] [US-1] Implement the composition-only graph builder `src/graphs/composition.py`: parse formulas with `pymatgen` `Composition`; node features `[element fraction, atomic number, electronegativity, valence electrons, atomic radius]` (5 features, standardized — element fraction is the documented FR-002 deviation flagged for spec kickback); fully-connected clique edge_index with self-loops; `edge_weight` = Euclidean distance in the 4-D periodic-property space, wired into `GCNConv` via `edge_weight`; `y = [band_gap, hardness]`; graphs built in-memory during training with optional cache under `data/processed/graphs/`. Include the representational caveat (clique weights are a deterministic function of node features) in the module docstring. Unit tests on `tests/fixtures/tiny_materials.csv` verify FeO ≠ Fe2O3 graphs (element-fraction feature), self-loops, symmetry of edge weights, and skip-and-warn for unknown elements (FR-002 with noted deviation; edge cases).
-  - Verification: `pytest tests/unit/test_graph_builder.py` passes.
+- [ ] **T003** [P] [US‑1] Build composition‑only graph constructor (`src/graphs/composition.py`).  
+  - Parse formulas with `pymatgen.Composition`.  
+  - Create node feature matrix **[element_fraction, atomic_number, electronegativity, valence_electrons, atomic_radius]** (5 features; the extra *element_fraction* is a documented deviation from FR‑002 and will be reflected in a spec amendment task).  
+  - Build a fully‑connected clique including self‑loops; compute edge weights as Euclidean distance in the 4‑D periodic‑property space (excluding fraction).  
+  - Return a PyG `Data` object with `x`, `edge_index`, `edge_weight`, and target `y = [band_gap, hardness]`.  
+  - Optionally cache each graph under `data/processed/graphs/{material_id}.pt`.  
+  - **Verification**: `pytest tests/unit/test_graph_builder.py` confirms distinct graphs for FeO vs Fe₂O₃, correct self‑loops, symmetric edge weights, and proper warning on unknown elements.
 
-- [ ] T004 [P] [US-1] Implement stratified splitting and cross-validation in `src/training/split.py`: crystal-system-stratified 80/10/10 split with a material-ID disjointness assertion (no ID in both train and test), and 5-fold CV layered on the training portion, stratified by crystal system (FR-004, FR-007, SC-006).
-  - Verification: `pytest tests/unit/test_split.py` passes, including the ID-disjointness and stratification checks on the fixture.
+- [ ] **T004** [P] [US‑1] Implement crystal‑system‑stratified splitting and 5‑fold CV (`src/training/split.py`).  
+  - Perform an 80/10/10 train/val/test split stratified by `crystal_system`. Ensure no `material_id` appears in more than one split.  
+  - On the training split, generate 5 CV folds stratified by `crystal_system`.  
+  - Export split indices to `data/processed/splits/*.json`.  
+  - **Verification**: `pytest tests/unit/test_split.py` validates stratification, disjointness, and reproducibility with the seeded RNG.
 
-- [ ] T005 [P] [US-1] Implement the models and training loop: `src/models/gnn.py` (`CompositionGNN`: ≤3 `GCNConv` layers with `edge_weight`, hidden dim ≤128, ReLU, global mean pooling, two linear heads for band gap and hardness) and `src/models/rf_baseline.py` (`RandomForestRegressor` on composition-weighted elemental feature aggregates including element fractions); `src/training/train_gnn.py` with Adam lr=1e-3, early stopping patience=10, max 200 epochs, batch size ≤32, CPU-only; `src/utils/runtime_guard.py` warns-and-continues if an epoch exceeds 30 min and logs a warning then halts if total runtime exceeds 6 h, with a peak-RAM monitor (FR-003, FR-009, SC-003, SC-004).
-  - Verification: `pytest tests/unit/test_runtime_guard.py` passes (injected-clock tests for both limits); a short fixture training run converges without error on CPU.
+- [ ] **T005** [P] [US‑1] Implement lightweight GNN and Random Forest baseline with runtime guards (`src/models/gnn.py`, `src/models/rf_baseline.py`, `src/utils/runtime_guard.py`, `src/training/train_gnn.py`).  
+  - **GNN**: ≤ 3 `GCNConv` layers, hidden dimension ≤ 128, ReLU activations, global mean pooling, two linear heads (band_gap, hardness).  
+  - **Optimizer**: Adam, lr = 1e‑3, early stopping patience = 10, max 200 epochs, batch size ≤ 32, CPU‑only execution.  
+  - **RF baseline**: `RandomForestRegressor` trained on composition‑weighted elemental aggregates (including element fraction).  
+  - **Runtime guard**: warn and continue if any epoch exceeds 30 min; log warning and halt if total runtime exceeds 6 h; also log peak RAM (≤ 6 GB).  
+  - **Verification**: `pytest tests/unit/test_runtime_guard.py` passes (mocked timers); a short fixture training run completes without error on CPU.
 
-- [ ] T006 [US-1] **First end-to-end analysis (code validation run).** Wire `src/training/evaluate.py` (R²/MAE/RMSE per target per fold, mean ± std, fold-disagreement band = mean ± 1.96 × std of fold predictions — labeled a fold-disagreement band, not a calibrated prediction interval, per the FR-007 deviation note; per-crystal-system metrics) and run the full pipeline end-to-end on the contract-conformant fixture via the quickstart command, confirming the pipeline executes and emits schema-valid artifacts. **Fixture outputs are written under `data/results/` ONLY IF a verified real dataset is attached; otherwise this task validates code paths on the fixture without emitting study-result artifacts.**
-  - Verification: the documented quickstart command runs to completion; if gated, the run logs the data-availability gap and exits with a clear "gated: no verified dataset" status rather than fabricating results.
+- [ ] **T006** [P] [US‑1] Execute first end‑to‑end code‑validation run on the hand‑crafted fixture.  
+  - Run the loader on `tests/fixtures/tiny_materials.csv`, build composition graphs, perform the stratified split, train GNN and RF for a few epochs, evaluate metrics, and generate `data/results/fixture_run.json` (schema‑valid but clearly marked “fixture‑only”).  
+  - Ensure the pipeline respects all guards and exits gracefully if a verified dataset is missing (logs “gated: no verified dataset”).  
+  - **Verification**: the quickstart command completes; `data/results/fixture_run.json` validates against `contracts/model_metrics.schema.yaml`; CI logs indicate the gated status.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] **T007** [US‑1] **(gated)** Run the full scientific study on the attached verified dataset (≤ 10 000 records).  
+  - Execute the full pipeline: loader → graph builder → stratified split → 5‑fold CV training of GNN and RF → evaluation.  
+  - Emit `data/results/composition_only.json` conforming to `contracts/model_metrics.schema.yaml` (including `rf_baseline` and `delta_vs_rf` blocks).  
+  - Save per‑fold checkpoints to `outputs/gnn_checkpoint_<fold>_<hash>.pt`.  
+  - Produce `data/metrics_by_system.csv` (per‑crystal‑system R², MAE, RMSE).  
+  - Log runtime and memory usage to `data/results/runtime_report.json`.  
+  - **Verification**: schema validation passes; `dataset_checksum` matches the SHA‑256 of the input file; total wall‑time ≤ 6 h and peak RAM ≤ 6 GB (recorded in the runtime report).
 
-- [ ] T007 [US-1] **(gated)** Attach the verified dataset and run the complete scientific study: execute the loader, graph builder, 5-fold CV training of the GNN and RF baseline on the full ≤10,000-record dataset, and emit `data/results/composition_only.json` conforming to `contracts/model_metrics.schema.yaml` — per-target `r2/mae/rmse` mean±std, the `rf_baseline` block, and the `delta_vs_rf` block (explicitly labeled a baseline gap, NOT a structure information-loss ΔR²) — plus `data/metrics_by_system.csv` (crystal_system, target, r2/mae/rmse mean±std) and per-fold checkpoints `outputs/gnn_checkpoint_<hash>.pt` with metadata (hyperparameters, seed, fold, dataset checksum). Zero-band-gap metals are retained and reported descriptively; paired per-fold R² comparison (corrected resampled t-test style) between GNN and RF is reported descriptively (FR-006 RF portion, FR-007, SC-001, SC-004, SC-006).
-  - Verification: `data/results/composition_only.json` validates against the metrics schema; `dataset_checksum` matches the SHA-256 of the attached input; total runtime ≤6 h and peak RAM ≤6 GB are logged.
+- [ ] **T008** [US‑1] Implement formula inference entry point (`src/inference/predict.py`).  
+  - Accept `--formula "Fe2O3"`; build the composition graph on‑the‑fly; load the five fold checkpoints; compute predictions for band gap and hardness.  
+  - Return mean prediction ± 1.96 × std across folds (fold‑disagreement band) with an ISO‑8601 timestamp.  
+  - Write `data/predictions.json` containing `formula`, `timestamp`, `band_gap_pred`, `hardness_pred`, and the two band definitions.  
+  - **Verification**: `pytest tests/unit/test_inference.py` passes on fixture checkpoints; running the command on a real formula produces a valid JSON file.
 
-- [ ] T008 [US-1] Implement the formula-inference entry point `src/inference/predict.py --formula "Fe2O3"`: builds the composition graph for a new formula, loads the 5 fold checkpoints, returns predicted band gap and hardness with an ISO-8601 timestamp and the fold-disagreement band per target, emitting `data/predictions.json` per the data model. Unit-tested on the fixture checkpoints (US-1 scenario 2).
-  - Verification: `pytest tests/unit/test_inference.py` passes; `data/predictions.json` contains formula, timestamp, both predictions, and both bands.
+- [ ] **T009** [US‑3] **(gated)** Perform interpretability analysis on learned node embeddings.  
+  - Extract node embeddings from the final GNN checkpoint to `outputs/node_embeddings.npy`.  
+  - Run PCA on the embeddings; compute Pearson correlations (two‑tailed) between each principal component and external properties **not used as inputs nor targets** (thermal conductivity, sound velocity, first ionization energy). Apply Bonferroni correction; flag significance at p < 0.05.  
+  - Generate `interpretability_report.md` with a table of PC, property, r, raw p, adjusted p, and a “Low Interpretability” banner if no correlation meets significance.  
+  - **Verification**: report exists; all p‑values are computed from real embeddings; unit test `tests/unit/test_interpretability.py` checks the low‑interpretability branch with a null‑correlation fixture.
 
-- [ ] T009 [US-3] **(gated)** Implement and run the interpretability analysis: `src/interpret/extract_embeddings.py` extracts node embeddings from the final trained model to `outputs/node_embeddings.npy` ([n_elements, hidden_dim]); `src/interpret/pca_correlation.py` performs PCA and computes Pearson correlations (two-tailed p-values, Bonferroni correction) between principal components and external properties NOT used as inputs and NOT targets — thermal conductivity, sound velocity, first ionization energy only (atomic mass and bulk modulus excluded as quasi-circular) — emitting `interpretability_report.md` with a table (PC, property, r, p, adjusted-significance flag) and a "Low Interpretability" banner with suggested causes when no correlation reaches p < 0.05 (FR-008, SC-005).
-  - Verification: report exists; every reported p-value is computed from the real embeddings; the Low-Interpretability branch is unit-tested with a null-correlation fixture.
+- [ ] **T010** [US‑2] Implement structure‑aware pipeline code‑path stub (no scientific claim until an open CIF source is provided).  
+  - `src/data/cif_fetch.py`: attempt download from `https://materialsproject.org/rest/v2/materials/{mpid}/cif`; verify SHA‑256 checksum; on failure, log a warning and skip the material (FR‑010, FR‑011).  
+  - `src/graphs/structure.py`: build a crystal graph from CIF atom positions and coordination; unit‑tested on `tests/fixtures/tiny.cif`.  
+  - Cache successful graphs under `data/processed/structure_graphs/`.  
+  - **Verification**: `pytest tests/unit/test_structure_graph.py` passes, including the missing‑CIF skip case. No `results_structure_aware.json` or `comparison_summary.csv` are emitted until a verified open CIF source is attached.
 
-- [ ] T010 [P] [US-2] Implement the structure-aware code path as a tested stub (no scientific claim): `src/data/cif_fetch.py` with CIF fetch/checksum/skip-and-warn logic that, given the credential-gated MP API, logs a warning and excludes materials lacking obtainable CIFs without terminating (FR-010, FR-011 code path); `src/graphs/structure.py` building a crystal graph from CIF atom positions and coordination, unit-tested on `tests/fixtures/tiny.cif` so the code path is real. If the spec kickback restores a verified open CIF source, this task extends to emit `results_structure_aware.json` and `comparison_summary.csv` (ΔR²/ΔMAE/ΔRMSE per target on the shared ≤2,000-material subset) per US-2 — until then these artifacts are NOT produced and the SC-002 gap is documented as a limitation.
-  - Verification: `pytest tests/unit/test_structure_graph.py` passes, including the missing-CIF skip-and-warn case; no structure-aware result artifact is emitted under the current scope.
+- [ ] **T011** [US‑1] Add independent validation, sensitivity, and runtime reporting.  
+  - Run contract validation on both schemas (`pytest tests/contract/`).  
+  - Perform a seed‑stability check: re‑run one CV fold with three different seeds (42, 43, 44) and record the spread of R² in `data/results/seed_sensitivity.json`.  
+  - Write `data/results/runtime_report.json` (if gated run) or a “code‑validation‑only” version (if only fixture run) summarizing peak RAM, total wall‑time, and whether limits were breached.  
+  - **Verification**: all tests pass; the JSON files are schema‑valid and correctly labelled.
 
-- [ ] T011 [US-1] Add independent validation and sensitivity checks and record their actual outcomes alongside the result artifacts: contract tests for both schemas; unit tests for graph builder, structure graph, splits, runtime guards, and inference; a seed-stability sensitivity check (re-run one fold under 3 pinned seeds and report the spread of R²); a memory/time measurement report written to `data/results/runtime_report.json` (peak RAM vs 6 GB, wall time vs 6 h) from the gated scientific run or, if gated, from the fixture run clearly labeled as code-validation-only (SC-003, SC-004).
-  - Verification: `pytest tests/` passes in full; `data/results/runtime_report.json` exists with measured values and an honest gated/non-gated label.
+- [ ] **T012** [US‑1] Generate final tables and figures from validated outputs.  
+  - Parity plots: `figures/pred_vs_true_band_gap.png` and `figures/pred_vs_true_hardness.png` (fold‑mean predictions vs. true values with fold‑disagreement bands).  
+  - Per‑system performance bar chart: `figures/metrics_by_system.png` (R² per crystal system).  
+  - All figures are produced from `data/results/composition_only.json` and `data/metrics_by_system.csv` **only when the gated scientific run has completed**.  
+  - **Verification**: each figure can be regenerated by a single command documented in `quickstart.md`; the files exist and are non‑empty.
 
-- [ ] T012 [US-1] Generate the specified tables and figures directly from validated outputs: `figures/pred_vs_true_band_gap.png` and `figures/pred_vs_true_hardness.png` (parity plots with fold-mean predictions and fold-disagreement bands), and `figures/metrics_by_system.png` (per-crystal-system R² bars), all rendered from `data/results/composition_only.json` and `data/metrics_by_system.csv` — produced only when the gated run has executed; no figure is rendered from fixture or invented data.
-  - Verification: each figure file, when present, is reproducible from the named JSON/CSV by a single documented command; when gated, the task records the gap instead.
+- [ ] **T013** [US‑1] Write the methods & results narrative (`specs/001-predicting-material-properties-from-comp/research.md`).  
+  - Describe data acquisition, loader provenance checks, composition‑graph construction (including the element‑fraction deviation), model architecture, training regime, runtime guards, and the RF baseline gap (`delta_vs_rf`).  
+  - Summarize per‑system results, interpretability findings, and explicitly discuss limitations: (a) absence of a verified open dataset (if still gated), (b) inability to compute the structure‑aware ΔR² gap, (c) hardness provenance issue raised by reviewers, (d) low statistical power of 5‑fold paired comparison, (e) spec deviations (FR‑002, FR‑006, FR‑007).  
+  - Cite every numeric claim to the exact artifact path.  
+  - **Verification**: a script `src/utils/verify_research.py` checks that every number in the markdown matches a value in the referenced JSON/CSV files.
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] **T014** [P] Re‑run the full documented workflow from scratch and record the paper‑stage handoff.  
+  - Using only the commands listed in `quickstart.md`, execute the entire pipeline end‑to‑end (including gated steps if the verified dataset is present).  
+  - Confirm all tests (`pytest tests/`) pass, all schema validations succeed, and all result artifacts are present and unchanged across runs (byte‑identical given the pinned seed).  
+  - Append a “Paper‑stage handoff” section to `research.md` listing the artifacts the paper pipeline must consume and noting that no structure‑information‑loss claim can be made under the current scope.  
+  - **Verification**: a CI job that runs the handoff script reports “handshake successful”.
 
-- [ ] T013 [P] Write the methods/results account `specs/001-predicting-material-properties-from-comp/research.md` linked to the actual output cells and figure files: describe the composition-graph construction (including the element-fraction deviation and the clique-weight representational caveat), the GNN-vs-RF baseline gap from the `delta_vs_rf` block, per-system results, the interpretability findings, and — honestly and prominently — the negative/limitation findings: the unavailability of a verified dataset (if still gated), the non-computability of SC-002 and the structure-aware comparison, the hardness-provenance gap raised in review, the weak power of the 5-fold paired comparison, and all flagged spec deviations (FR-002, FR-006, FR-007).
-  - Verification: every numeric claim in the document cites a named artifact path; no number appears that is not present in a result file.
+- [ ] **T015** [US‑1] Amend the specification to reflect documented deviations and reviewer‑driven clarifications.  
+  - Update **FR‑002** in `specs/001-predicting-material-properties-from-comp/spec.md` to explicitly include **element_fraction** as a required node feature.  
+  - Clarify **FR‑006** to state that the ΔR² comparison is *only* between the composition‑only GNN and the Random Forest baseline; the structure‑aware ΔR² is omitted pending an open CIF source.  
+  - Revise **FR‑007** wording to describe the “fold‑disagreement band” rather than a calibrated 95 % confidence interval.  
+  - Add a note in the spec acknowledging the hardness provenance requirement highlighted by the reviewer.  
+  - **Verification**: the updated spec passes a lint check (`specs/001-predicting-material-properties-from-comp/spec.md` contains the revised clauses) and the contract tests remain satisfied.
 
-- [ ] T014 Re-run the documented workflow from its declared inputs via the quickstart commands, confirm all tests and artifact checks pass (`pytest tests/`, schema validation of `data/results/composition_only.json` and `data/predictions.json` when present), and write the paper-stage handoff in `specs/001-predicting-material-properties-from-comp/research.md`: the questions the paper stage must address (composition-signal quantification, per-system error analysis, interpretability), the artifacts to cite, and the explicit statement that no structure information-loss claim may be made under the current scope.
-  - Verification: a clean re-run reproduces byte-identical metrics given the pinned seed; the handoff section names every result artifact and its schema.
+---  
 
-## Dependencies and requirement coverage
+**Execution order**:  
+1 → 5 → 3 → 4 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15.  
 
-| Requirement | Tasks | Demonstrating command |
-|---|---|---|
-| FR-001 (chunked load, ≤6 GB) | T002, T011 | quickstart load command; `data/results/runtime_report.json` |
-| FR-002 (composition graph, +element-fraction deviation) | T003 | `pytest tests/unit/test_graph_builder.py` |
-| FR-003 (lightweight CPU GNN) | T005 | quickstart train command |
-| FR-004 (stratified split, ID disjointness) | T002, T004 | `pytest tests/unit/test_split.py` |
-| FR-005/FR-010/FR-011 (CIF path, code-path stub) | T010 | `pytest tests/unit/test_structure_graph.py` |
-| FR-006 (metrics + RF baseline gap; ΔR² vs structure not computable — documented limitation) | T007 | schema validation of `data/results/composition_only.json` |
-| FR-007 (5-fold CV, fold-disagreement band) | T004, T006, T007, T008 | metrics JSON; `data/predictions.json` |
-| FR-008 (embedding PCA/correlation) | T009 | `interpretability_report.md` |
-| FR-009 (runtime guards) | T005, T011 | `pytest tests/unit/test_runtime_guard.py` |
-| SC-001–SC-006 | T007, T009, T011, T012 | result artifacts; non-computable criteria documented in T013 |
-| US-1 scenario 2 (formula inference) | T008 | `python src/inference/predict.py --formula "Fe2O3"` |
-
-**Execution order**: T001–T005 are independent of each other except T005's training loop depends on T003's graphs; T006 requires T002–T005; T007 requires T006 plus an attached verified dataset; T008 requires T007's checkpoints (fixture checkpoints for unit tests); T009 requires T007; T010 is independent; T011–T012 follow T007; T013–T014 close the study.
-
-## Revision behavior
-
-No tasks are marked complete in this generation. If a verified dataset with the four required columns (and a named hardness provenance) is attached, tasks T007, T009, T011–T012 un-gate without structural changes (one-line loader input change per plan.md). If the spec kickback restores an open CIF source, T010 extends to the US-2 deliverables rather than being replaced. Fixture-based code validation is never re-labeled as scientific results.
+All tasks respect data flow, use only project‑owned paths, and avoid any synthetic data fabrication. The pipeline is ready to be executed once a verified dataset (and, optionally, an open CIF source) is attached.
