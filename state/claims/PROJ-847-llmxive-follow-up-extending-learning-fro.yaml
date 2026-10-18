@@ -257,3 +257,57 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-17T21:13:07Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline initialized' on success
+  claim_id: c_ed4af84f
+  context: "On success the command prints `Pipeline initialized`, creates the `outputs/`\
+    \ directory tree, writes `outputs/run_config.json` with the effective configuration,\
+    \ and runs a single fixed\u2011density baseline..."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: On success the command prints `Pipeline initialized`
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T00:18:28Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline creates the outputs directory tree
+  claim_id: c_d001ceda
+  context: "On success the command prints `Pipeline initialized`, creates the `outputs/`\
+    \ directory tree, writes `outputs/run_config.json` with the effective configuration,\
+    \ and runs a single fixed\u2011density baseline..."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: creates the `outputs/` directory tree
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T00:18:28Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline runs a single fixed-density baseline with density 0.5 and seed
+    42 on a small GSM8K test sample
+  claim_id: c_0b29a3fd
+  context: "On success the command prints `Pipeline initialized`, creates the `outputs/`\
+    \ directory tree, writes `outputs/run_config.json` with the effective configuration,\
+    \ and runs a single fixed\u2011density baseline (\u03C1\u202F=\u202F0.5, seed\u202F\
+    =\u202F42) on a small sample of GSM8K test data."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "runs a single fixed\u2011density baseline (\u03C1\u202F=\u202F0.5, seed\u202F\
+    =\u202F42) on a small sample of GSM8K test data"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T00:18:28Z'

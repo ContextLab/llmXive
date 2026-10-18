@@ -24,7 +24,7 @@ The platform runner already provides `numpy`, `pandas`, `scipy`,
 python -m code.run_experiments --config configs/quickstart.yaml
 ```
 
-On success the command prints `Pipeline initialized`, creates the
+On success the command prints `Pipeline initialized` [UNRESOLVED-CLAIM: c_ed4af84f — status=not_enough_info], creates the
 `outputs/` directory tree, writes `outputs/run_config.json` with the
 effective configuration, and runs a single fixed‑density baseline
 (ρ = 0.5, seed = 42) on a small sample of GSM8K test data.

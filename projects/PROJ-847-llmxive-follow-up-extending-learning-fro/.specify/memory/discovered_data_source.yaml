@@ -1,9 +1,11 @@
 status: none
-intent: download GSM8K train test and BigBench logical subset python package dataset
+intent: download GSM8K parquet and BigBench logical subset python package dataset
 required_fields:
+- id
 - question
 - answer
 - split
-cache_key: dd4208d2f543ddae8b31a29d089de92e2ea7c927a97feb1e4233ee4210ec1203
-searched_at: '2026-10-17T22:10:03.351322+00:00'
+- metadata
+cache_key: fd319a411a366398a8017bce19e4d09eadc83f8573d2980ac3e77b88de960f6b
+searched_at: '2026-10-18T00:19:58.650196+00:00'
 retry_count: 1
