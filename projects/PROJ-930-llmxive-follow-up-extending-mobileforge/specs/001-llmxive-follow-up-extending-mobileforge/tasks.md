@@ -6,7 +6,7 @@
 
 ## Phase 1 – Project bootstrap (infrastructure only)
 
-- [ ] T001 **Create the full directory tree required for the study**  
+- [X] T001 **Create the full directory tree required for the study**  
   *Creates* `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/{data/raw,data/processed,data/evaluation,models,utils,tests/unit,tests/integration}` and `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/data/`, `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/outputs/`.  
   **Verification** – after running the task, a `tree` (or equivalent) shows all listed directories; CI checks that each path exists.
 
@@ -62,7 +62,7 @@
 
 ## Phase 3 – Data pipeline (US‑1)
 
-- [ ] T008 **Implement `data/raw/download_mobileforge.py`** that fetches the official MobileForge logs via the HuggingFace Hub: <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 -->
+- [ ] T008 **Implement `data/raw/download_mobileforge.py`** that fetches the official MobileForge logs via the HuggingFace Hub: <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 -->
   ```python
   from datasets import load_dataset
   ds = load_dataset("mobileforge/logs", split="train", streaming=False)

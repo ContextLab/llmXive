@@ -1,10 +1,4 @@
 T001:
-  reason: "The collector's listing of `code/data/` shows only `processed/` plus files\
-    \ \u2014 `data/raw/` and `data/evaluation/` are absent, and there is no evidence\
-    \ that `tests/unit/` and `tests/integration/` exist (the `tests/` directory's\
-    \ contents are not shown). The task requires all of `code/{data/raw, data/processed,\
-    \ data/evaluation, tests/unit, tests/integration}` plus `data/` and `outputs/`;\
-    \ the run log's success message is not corroborated by the actual tree."
   task: 0b95ce60d5289d14226227233e721cb10e6685a45f625b0b69464950b8334e59
 T002:
   task: b3772d14fb0e795473d2175e5c351b1f5239d20ce32e2630de995fdace6e8d47
