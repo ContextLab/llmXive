@@ -7,35 +7,31 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.pipeline.run_all -> rc=1
-ine/ingest.py", line 309, in _fetch_with_metadata
-    import openml
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-097-predicting-corrosion-rates-of-common-met/lib/python3.11/site-packages/openml/__init__.py", line 127, in <module>
-    import openml.extensions.sklearn  # noqa: E402, F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-097-predicting-corrosion-rates-of-common-met/lib/python3.11/site-packages/openml/extensions/sklearn/__init__.py", line 8, in <module>
-    from .extension import SklearnExtension
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-097-predicting-corrosion-rates-of-common-met/lib/python3.11/site-packages/openml/extensions/sklearn/extension.py", line 53, in <module>
-    for type_cat, nptypes in np.sctypes.items()
-                             ^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-097-predicting-corrosion-rates-of-common-met/lib/python3.11/site-packages/numpy/__init__.py", line 397, in __getattr__
-    raise AttributeError(
-AttributeError: `np.sctypes` was removed in the NumPy 2.0 release. Access dtypes explicitly instead.. Did you mean: 'dtypes'?
+   ^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 267, in ingest
+    frame, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 378, in _fetch
+    return _fetch_with_metadata(dataset_id, max_candidates)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 330, in _fetch_with_metadata
+    for did in _candidate_dataset_ids(max_candidates):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 133, in _candidate_dataset_ids
+    raise RuntimeError(
+RuntimeError: No OpenML datasets matched corrosion search keywords ('corrosion', 'corros', 'seawater metal'); no qualifying real dataset found.
 
 - python -m pytest src/tests/ -> rc=1
-r(
-                f"`np.{attr}` was removed in the NumPy 2.0 release. "
-                f"{__expired_attributes__[attr]}"
-            )
-E           AttributeError: `np.sctypes` was removed in the NumPy 2.0 release. Access dtypes explicitly instead.
-
-../../.llmxive-venvs/PROJ-097-predicting-corrosion-rates-of-common-met/lib/python3.11/site-packages/numpy/__init__.py:397: AttributeError
------------------------------ Captured stderr call -----------------------------
-2026-10-18 17:14:23,458 INFO openml.config: Error opening file /home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/.runtime-home/.config/openml/config: not readable
+/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/.runtime-home/.config/openml/config: not readable
+2026-10-18 20:13:27,222 INFO root: Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-10-18 20:13:30,306 INFO root: 3.0834486s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
 ------------------------------ Captured log call -------------------------------
 INFO     openml.config:config.py:328 Error opening file /home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/.runtime-home/.config/openml/config: not readable
+INFO     root:_api_calls.py:103 Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+INFO     root:_api_calls.py:115 3.0834486s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
 =========================== short test summary info ============================
-FAILED src/tests/test_ingest.py::test_ingest_creates_raw_and_provenance - Att...
-============================== 1 failed in 1.29s ===============================
+FAILED src/tests/test_ingest.py::test_ingest_creates_raw_and_provenance - Run...
+============================== 1 failed in 4.91s ===============================
 
 
 

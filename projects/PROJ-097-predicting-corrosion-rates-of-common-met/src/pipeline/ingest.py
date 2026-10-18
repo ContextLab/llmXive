@@ -21,6 +21,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
+import numpy as np
+# Compatibility shim for NumPy 2.0+: ``openml`` (via its sklearn extension)
+# expects ``np.sctypes`` which was removed. Provide a minimal placeholder
+# to allow the import to succeed. The exact contents are not used by the
+# ingestion logic.
+if not hasattr(np, "sctypes"):
+    np.sctypes = {}
+
 import pandas as pd
 import yaml
 
