@@ -2,18 +2,19 @@
 memory_monitor.py
 ------------------
 
-Simple RAM‑limit wrapper based on ``tracemalloc``.
+Simple RAM-limit wrapper based on ``tracemalloc``.
 Provides ``MemoryLimitError`` and a ``run_with_limit`` helper that executes a
 callable while monitoring peak memory usage. If the peak exceeds the supplied
 limit (in GB) a ``MemoryLimitError`` is raised.
 """
 
 import tracemalloc
-from typing import Callable, Any
+from typing import Any, Callable
+
 
 class MemoryLimitError(RuntimeError):
     """Raised when the observed peak memory usage exceeds the allowed limit."""
-    pass
+
 
 def run_with_limit(limit_gb: float, func: Callable[..., Any], *args, **kwargs) -> Any:
     """
@@ -47,6 +48,6 @@ def run_with_limit(limit_gb: float, func: Callable[..., Any], *args, **kwargs) -
         peak_gb = peak / (1024 ** 3)  # convert bytes to gigabytes
         if peak_gb > limit_gb:
             raise MemoryLimitError(
-                f"Peak memory usage {peak_gb:.2f} GB exceeds limit of {limit_gb:.2f} GB"
+                f"Peak memory usage {peak_gb:.2f} GB exceeds limit of {limit_gb:.2f} GB"
             )
     return result

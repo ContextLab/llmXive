@@ -1,4 +1,4 @@
-# Core dependencies (CPU‑only)
+# Core dependencies (CPU-only) — Python 3.11
 torch==2.3.0
 torch-geometric==2.5.0
 networkx==3.2.1
@@ -13,3 +13,5 @@ pytest==8.2.2
 pytest-memprof==1.0.0
 datasets==2.19.0
 pyyaml==6.0.2
+pyarrow==16.1.0
+jsonschema==4.22.0

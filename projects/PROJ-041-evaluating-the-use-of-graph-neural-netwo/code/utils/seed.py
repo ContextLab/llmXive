@@ -18,6 +18,7 @@ try:
 except Exception:  # torch may not be installed in minimal environments
     torch = None  # type: ignore
 
+
 def set_seed(seed: int) -> None:
     """
     Set the random seed for Python's ``random``, NumPy, and PyTorch
@@ -34,5 +35,3 @@ def set_seed(seed: int) -> None:
 
     if torch is not None:
         torch.manual_seed(seed)
-        # Enforce deterministic algorithms where possible.
-        torch.use_deterministic_algorithms(True)

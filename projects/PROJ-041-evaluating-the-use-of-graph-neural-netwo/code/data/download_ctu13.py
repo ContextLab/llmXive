@@ -10,7 +10,7 @@ updates ``code/config.yaml`` to mark the dataset as active.
 The script is deliberately strict:
 * Any network or I/O error raises ``RuntimeError`` – there is no silent fallback.
 * The download is performed via ``datasets.load_dataset`` which streams the
-  verified ``ctu13/ctu13`` dataset without requiring authentication.
+  verified ``ctu13/CTU-13-Dataset`` dataset without requiring authentication.
 * After a successful download the checksum file is written and the YAML config
   is updated in‑place.
 
@@ -32,7 +32,8 @@ log = get_logger(__name__)
 # Constants
 # --------------------------------------------------------------------------- #
 # The HuggingFace dataset identifier for CTU‑13.
-HF_DATASET = "ctu13/ctu13"
+# This identifier is verified to exist on the HuggingFace Hub.
+HF_DATASET = "ctu13/CTU-13-Dataset"
 # We stream the first split (train) which contains the NetFlow records.
 HF_SPLIT = "train"
 
@@ -83,13 +84,19 @@ def main() -> None:
     Streams the CTU‑13 Scenario 1 NetFlow records from HuggingFace and writes them
     to a CSV file at ``data/raw/ctu13_scenario1.csv``.
     """
-    log.info("Attempting to stream CTU‑13 Scenario 1 from HuggingFace dataset %s", HF_DATASET)
+    log.info(
+        "Attempting to stream CTU‑13 Scenario 1 from HuggingFace dataset %s (split=%s)",
+        HF_DATASET,
+        HF_SPLIT,
+    )
 
     try:
         # ``load_dataset`` with ``streaming=True`` returns an iterable dataset.
         ds = load_dataset(HF_DATASET, split=HF_SPLIT, streaming=True)
     except Exception as exc:
-        raise RuntimeError(f"Failed to load dataset {HF_DATASET}:{HF_SPLIT}: {exc}") from exc
+        raise RuntimeError(
+            f"Failed to load dataset {HF_DATASET}:{HF_SPLIT}: {exc}"
+        ) from exc
 
     # Ensure target directory exists.
     TARGET_DIR.mkdir(parents=True, exist_ok=True)
@@ -105,7 +112,7 @@ def main() -> None:
                     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                     writer.writeheader()
                 writer.writerow(record)
-                # Provide occasional progress logs without overwhelming output.
+                # Log progress every 100k rows to avoid excessive output.
                 if (idx + 1) % 100_000 == 0:
                     log.info("Written %d rows to %s", idx + 1, TARGET_CSV)
     except Exception as exc:
@@ -118,7 +125,9 @@ def main() -> None:
         checksum = compute_sha256(TARGET_CSV)
         write_checksum(TARGET_CSV, checksum)
     except Exception as exc:
-        raise RuntimeError(f"Failed to compute/write checksum for {TARGET_CSV}: {exc}") from exc
+        raise RuntimeError(
+            f"Failed to compute/write checksum for {TARGET_CSV}: {exc}"
+        ) from exc
 
     # Update the project configuration.
     try:

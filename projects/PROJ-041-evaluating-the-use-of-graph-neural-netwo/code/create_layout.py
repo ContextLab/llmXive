@@ -1,56 +1,74 @@
 """
 create_layout.py
-----------------
+-----------------
 
-Creates the core project layout and essential utility files.
-Ensures that the directories `code/`, `data/`, `docs/`, and `tests/` exist,
-copies the top‑level `requirements.txt` and `pyproject.toml` into the `code/`
-directory, and creates a minimal configuration file.
+Creates the project directory layout (``code/``, ``data/``, ``docs/``,
+``tests/``, ``contracts/``, ``figures/``) and a minimal ``code/config.yaml``
+if one does not already exist. Safe to re-run: existing files are never
+overwritten.
 """
 
 from pathlib import Path
-from llmxive_toolkit import get_logger
+
+import yaml
+
+from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
-def _ensure_dirs():
+DIRECTORIES = [
+    Path("code"),
+    Path("code/data"),
+    Path("code/models"),
+    Path("code/analysis"),
+    Path("code/utils"),
+    Path("data"),
+    Path("data/raw"),
+    Path("data/processed"),
+    Path("data/results"),
+    Path("data/models"),
+    Path("data/targets"),
+    Path("docs"),
+    Path("tests"),
+    Path("contracts"),
+    Path("figures"),
+    Path("logs"),
+]
+
+
+def _ensure_dirs() -> None:
     """Create the main project directories."""
-    for d in ["code", "data", "docs", "tests"]:
-        p = Path(d)
-        p.mkdir(parents=True, exist_ok=True)
-        log.info("Ensured directory %s", p)
+    for d in DIRECTORIES:
+        d.mkdir(parents=True, exist_ok=True)
+    log.info("Project directories ready: %s", ", ".join(str(d) for d in DIRECTORIES))
 
-    # utils subdirectory inside code
-    utils_path = Path("code/utils")
-    utils_path.mkdir(parents=True, exist_ok=True)
-    log.info("Ensured utils directory %s", utils_path)
 
-def _copy_root_file(root_name: str, target_dir: Path):
-    """Copy a file from the repository root into the target directory."""
-    root_path = Path(root_name)
-    target_path = target_dir / root_name
-    if not root_path.is_file():
-        raise RuntimeError(f"Root file {root_name!r} not found.")
-    target_path.write_text(root_path.read_text())
-    log.info("Copied %s to %s", root_path, target_path)
-
-def _create_config():
+def _create_config() -> None:
     """Create a minimal configuration file if it does not exist."""
-    config_path = Path("code/config.yaml")
-    if not config_path.exists():
-        config_path.write_text("active_dataset: null\n")
-        log.info("Created placeholder config %s", config_path)
-    else:
-        log.info("Config %s already exists", config_path)
+    config_path = paths.code("config.yaml")
+    if config_path.exists():
+        log.info("Config already exists at %s; leaving untouched", config_path)
+        return
+    cfg = {
+        "active_dataset": None,
+        "raw_csv_path": "data/raw/ctu13_scenario1.csv",
+        "processed_dir": "data/processed",
+        "results_dir": "data/results",
+        "node_limit": 5000,
+        "memory_limit_gb": 7,
+        "seeds": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+    }
+    with config_path.open("w") as f:
+        yaml.safe_dump(cfg, f, sort_keys=False)
+    log.info("Wrote minimal config to %s", config_path)
+
 
 def main() -> None:
-    """Entry point for the layout‑creation script."""
-    log.info("Starting project layout creation")
+    """Entry point for the layout-creation script."""
     _ensure_dirs()
-    _copy_root_file("requirements.txt", Path("code"))
-    _copy_root_file("pyproject.toml", Path("code"))
     _create_config()
-    log.info("Project layout creation completed successfully")
+    log.info("Project layout creation complete.")
+
 
 if __name__ == "__main__":
     main()

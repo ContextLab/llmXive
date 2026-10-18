@@ -46,6 +46,7 @@ ERROR: file or directory not found: code/tests/test_memory_limits.py
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/raw/ctu13_scenario1.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/create_layout.py` — NOT invoked by the run-book
     - `code/data/download_ctu13.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/ctu13_scenario1.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
