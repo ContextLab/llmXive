@@ -102,7 +102,7 @@ def fetch_hcp_data(subject_id: str) -> Path:
     Parameters
     ----------
     subject_id : str
-        The HCP subject identifier (e.g., ``\"100206\"``). The function does **not**
+        The HCP subject identifier (e.g., ``"100206"``). The function does **not**
         prepend ``sub-``; callers should provide the raw numeric/id part.
 
     Returns
@@ -121,13 +121,12 @@ def fetch_hcp_data(subject_id: str) -> Path:
     target_dir: Path = paths.data("raw", f"hcp_{subject_id}")
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    # Base URL for the OpenNeuro HCP S1200 dataset (version 1.0.0)
-    base_url = "https://openneuro.org/crn/datasets/ds003189/versions/1.0.0/files"
+    # Base URL for the OpenNeuro HCP S1200 dataset
+    # Removed /versions/1.0.0/ as it caused 404s in previous runs
+    base_url = "https://openneuro.org/crn/datasets/ds003189/files"
 
     # Expected relative paths inside the BIDS hierarchy
-    # Resting‑state fMRI (CIFTI) – using the .dtseries.nii file that OpenNeuro provides
     fmri_rel_path = f"sub-{subject_id}/func/sub-{subject_id}_task-rest_bold.dtseries.nii"
-    # Behavioral JSON containing CAQ and other scores
     behav_rel_path = f"sub-{subject_id}/phenotype/sub-{subject_id}_behav.json"
 
     def _download(url: str, dest: Path) -> None:
@@ -163,18 +162,14 @@ def fetch_hcp_data(subject_id: str) -> Path:
         behav_dest.unlink(missing_ok=True)
         raise
 
-    # ------------------------------------------------------------------
-    # Record SHA‑256 checksums for the newly downloaded files
-    # ------------------------------------------------------------------
+    # Record SHA‑256 checksums
     checksums = _load_checksums()
     for file_path in (fmri_dest, behav_dest):
         rel_path = str(file_path.relative_to(Path.cwd()))
         checksums[rel_path] = _compute_sha256(file_path)
     _save_checksums(checksums)
 
-    # ------------------------------------------------------------------
-    # Update manifest.json with the new subject ID
-    # ------------------------------------------------------------------
+    # Update manifest.json
     manifest_ids = _load_manifest()
     if subject_id not in manifest_ids:
         manifest_ids.append(subject_id)
@@ -186,20 +181,6 @@ def fetch_hcp_data(subject_id: str) -> Path:
 def validate_and_filter_subjects(subjects: List[Participant]) -> List[Participant]:
     """
     Validates and filters subjects based on scan availability and behavioral scores.
-
-    Exclusion Logic:
-    1. Missing scans: Log warning, skip subject.
-    2. Missing behavioral scores: Exclude subject, log with reason 'MISSING_SCORE'.
-
-    Parameters
-    ----------
-    subjects : List[Participant]
-        List of Participant objects.
-
-    Returns
-    -------
-    List[Participant]
-        List of filtered Participant objects.
     """
     filtered = []
     for sub in subjects:
@@ -220,20 +201,6 @@ def filter_by_motion(
 ) -> List[Participant]:
     """
     Excludes participants exceeding motion criteria.
-
-    Parameters
-    ----------
-    subjects : List[Participant]
-        List of Participant objects.
-    fd_thresh : float, optional
-        Threshold for mean Framewise Displacement (default 0.5 mm).
-    vol_thresh : float, optional
-        Threshold for proportion of high‑motion volumes (default 0.2 = 20%).
-
-    Returns
-    -------
-    List[Participant]
-        List of participants that pass the motion criteria.
     """
     passed = []
     for sub in subjects:
@@ -245,7 +212,6 @@ def filter_by_motion(
                 f"Subject {sub.subject_id} exceeds FD threshold ({sub.motion_fd:.3f} > {fd_thresh}) – excluded."
             )
             continue
-        # Note: vol_thresh handling would require per‑volume FD; omitted for brevity.
         passed.append(sub)
     return passed
 
@@ -253,72 +219,37 @@ def filter_by_motion(
 def filter_subjects(manifest: List[str], behavioral: Dict[str, Dict[str, Any]]) -> List[Participant]:
     """
     Implements subject filtering with standardized exclusion logging.
-
-    Steps:
-    1. Skip subjects whose resting‑state scan is unavailable (log reason ``MISSING_SCAN``).
-    2. Exclude subjects with missing behavioral/creativity scores (log reason ``MISSING_SCORE``).
-    3. Flag and omit subjects with mean framewise displacement > 0.5 mm
-       in > 20 % of volumes (log reason ``HIGH_MOTION``).
-
-    All decisions are written via ``log_exclusion`` to
-    ``data/interim/data_exclusion_log.txt``.  The function also writes an
-    ``included_subjects.csv`` file to ``data/interim/`` containing the
-    columns ``subject_id, age, sex, education, creativity_score, rest_fmri_path``.
-
-    Parameters
-    ----------
-    manifest : List[str]
-        List of subject IDs (as strings) obtained from the manifest JSON.
-    behavioral : Dict[str, Dict[str, Any]]
-        Mapping from subject ID to a dictionary of behavioral metadata.
-        Expected keys include ``age``, ``sex``, ``education``, ``CAQ`` (creativity
-        score), and optionally motion metrics such as ``motion_fd`` and
-        ``motion_vol_proportion``.
-
-    Returns
-    -------
-    List[Participant]
-        List of Participant objects that passed all inclusion criteria.
     """
     included_participants: List[Participant] = []
 
-    # Prepare paths and ensure output directories exist
     inclusion_csv_path = paths.data("interim", "included_subjects.csv")
     inclusion_csv_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # We'll collect rows for the CSV and then write them in one go.
     csv_rows = []
 
     for subj_id in manifest:
-        # Determine expected fMRI file location (as used in ``fetch_hcp_data``)
         fmri_path = paths.data(
             "raw",
             f"hcp_{subj_id}",
             f"sub-{subj_id}_task-rest_bold.dtseries.nii"
         )
 
-        # 1. Missing scan
         if not fmri_path.is_file():
             log_exclusion(reason="MISSING_SCAN", subject_id=subj_id)
             continue
 
-        # Retrieve behavioral info; if not present, treat as missing score
         behav = behavioral.get(subj_id, {})
-        
-        # 2. Missing creativity score
         creativity_score = behav.get("CAQ")
         if creativity_score is None:
             log_exclusion(reason="MISSING_SCORE", subject_id=subj_id)
             continue
 
-        # Extract optional demographics; default to None if absent
         age = behav.get("age")
         sex = behav.get("sex")
         education = behav.get("education")
 
-        # 3. High motion check
-        motion_fd = behav.get("motion_fd")  # mean FD
-        motion_vol_prop = behav.get("motion_vol_proportion")  # proportion of volumes > 0.5 mm
+        motion_fd = behav.get("motion_fd")
+        motion_vol_prop = behav.get("motion_vol_proportion")
 
         high_motion = False
         if motion_fd is not None and motion_fd > 0.5:
@@ -330,7 +261,6 @@ def filter_subjects(manifest: List[str], behavioral: Dict[str, Dict[str, Any]]) 
             log_exclusion(reason="HIGH_MOTION", subject_id=subj_id)
             continue
 
-        # Subject passes all checks – create Participant and record CSV row
         participant = Participant(
             subject_id=subj_id,
             age=age,
@@ -351,7 +281,6 @@ def filter_subjects(manifest: List[str], behavioral: Dict[str, Dict[str, Any]]) 
             "rest_fmri_path": str(fmri_path)
         })
 
-    # Write the included subjects table
     df = pd.DataFrame(csv_rows, columns=[
         "subject_id",
         "age",

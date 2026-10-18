@@ -7,13 +7,8 @@ T006:
 T101:
   task: 4cc415b86ad30070cdf188e4af9629cf24ed78153156b896c3ca723e1707dc12
 T102:
-  reason: "The required deliverables `data/raw/hcp_{subject_id}/` directories, `data/checksums.json`,\
-    \ and `data/raw/manifest.json` are all MISSING \u2014 no data was ever actually\
-    \ downloaded. The historical test run failed (exit 1) with a 404 error on the\
-    \ OpenNeuro URL, showing the fetch implementation's file paths/dataset structure\
-    \ are wrong and no real data was fetched; the test also lacks the required fetch-failure-raises\
-    \ test case. `code/config.py`'s `SAMPLE_SUBJECT_IDS` is empty since the manifest\
-    \ doesn't exist."
+  reason: 'Requested task execution failed; rerun successfully: code/data/run_fetch.py
+    exit=1'
   task: 872b9bd50ddce618d0a7ab2d2515fc8c68f3323ef30f90fcafa411e2cf0a3250
 T103:
   reason: "The recorded pytest run of `code/tests/unit/test_filter_subjects.py` FAILED\

@@ -26,7 +26,7 @@
   *Deliverables*: `code/errors.py`, updated `code/data/loader.py`, updated `code/main.py`.
   *Verification*: `pytest code/tests/contract/test_loader.py` — tests import `DataMissingCreativityError` from `code.errors` and assert both the pass‑through case (valid JSON with CAQ) and the halt case (missing CAQ → exit code 1, error code `DATA_MISSING_CREATIVITY` logged). Satisfies FR‑011 / US‑4.
 
-- [ ] T102 US1 **Fetch real HCP resting‑state fMRI and behavioral data from OpenNeuro.**
+- [ ] T102 US1 **Fetch real HCP resting‑state fMRI and behavioral data from OpenNeuro.** <!-- FAILED-IN-EXECUTION: code/data/run_fetch.py exit=1 -->
   *Description*: Implement `fetch_hcp_data(subject_id)` in `code/data/loader.py` that downloads each subject's resting‑state fMRI (CIFTI) and behavioral JSON from the canonical HCP S1200 OpenNeuro mirror (`https://openneuro.org/datasets/ds003189`). Write raw files to `data/raw/hcp_{subject_id}/`. The loader MUST fail loudly: if the real fetch fails, raise — NO synthetic fallback. Record SHA‑256 checksums of all raw files in `data/checksums.json`. Additionally, generate a manifest file `data/raw/manifest.json` listing all downloaded subject IDs. Define the sampled subject list via a constant `SAMPLE_SUBJECT_IDS` in `code/config.py` (e.g., first 1000 IDs from the manifest or a fixed‑seed random sample). 
   *Deliverables*: populated `data/raw/hcp_{subject_id}/`, `data/checksums.json`, `data/raw/manifest.json`, and `code/config.py` constant.
   *Verification*: `pytest code/tests/unit/test_loader_fetch.py` asserting downloaded files exist, are non‑empty, match recorded checksums, and that a fetch failure raises an exception. Satisfies FR‑009 provenance and Constitution VI.

@@ -26,25 +26,22 @@ T006:
   sig: 874fd9819e8049b7880d31c20be4e2abc52eeffc24098ec7acec6842d6a86477
 T101:
   c: true
-  h: 5303359a38b7881c94208a2a2456d8be8f7a7bb8501bfcca4472dd34c071fcf8
-  r: 'All three deliverables exist and match the spec: `code/errors.py` defines `DataMissingCreativityError`
-    once, `loader.py` implements `validate_caq_availability` raising it with "DATA_MISSING_CREATIVITY"
-    when CAQ is missing/null, and `main.py::run_validation()` imports the shared class,
-    catches it, logs the error code, and calls `sys.exit(1)`. The contract test log
-    shows all 3 tests in `code/tests/contract/test_loader.py` passing (exit 0), covering
-    both the pass-through and halt cases.'
-  sig: ccb501fcdb082ed0744bac05338d4a27ffbb7b4f7184bb6683f32a25b32c21be
-T102:
-  c: false
-  h: 292d7a1a19d0e842922cf7077189357a70717af84eb09febf4ae3657331e095b
-  r: "The required deliverables `data/raw/hcp_{subject_id}/` directories, `data/checksums.json`,\
-    \ and `data/raw/manifest.json` are all MISSING \u2014 no data was ever actually\
-    \ downloaded. The historical test run failed (exit 1) with a 404 error on the\
-    \ OpenNeuro URL, showing the fetch implementation's file paths/dataset structure\
-    \ are wrong and no real data was fetched; the test also lacks the required fetch-failure-raises\
-    \ test case. `code/config.py`'s `SAMPLE_SUBJECT_IDS` is empty since the manifest\
-    \ doesn't exist."
-  sig: 3e9228f694c4b67746d0a5bb659962d974f2cb0a594c27c336e92fce5bf26c73
+  h: 5afd48df9c896c912fbeb0b98b04d39b98c726541dad4fa0c9fcab1830fb94b4
+  r: 'I have verified the following:
+
+    1. `code/errors.py` defines the `DataMissingCreativityError` class.
+
+    2. `code/data/loader.py` implements `validate_caq_availability`, which imports
+    the error class and raises `DataMissingCreativityError("DATA_MISSING_CREATIVITY")`
+    when the CAQ field is missing or null.
+
+    3. `code/main.py` implements `run_validation`, which imports the error class,
+    catches it, logs the error, and calls `sys.exit(1)`.
+
+    4. `code/tests/contract/test_loader.py` contains tests for the success case, the
+    exception raising case, and the system exit case, all of which passed according
+    to the p'
+  sig: f8e6058bc6c343a1b857dc362d00d1dbb0909171d92b91ded9435aa8502b2ee3
 T103:
   c: false
   h: cf8f01c8eb64ba0786624a24f2ad757bcf27b994dc56bd34ea435482c26316ee
