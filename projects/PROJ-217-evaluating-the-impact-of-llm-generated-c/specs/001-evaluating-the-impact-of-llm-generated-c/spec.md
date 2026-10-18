@@ -7,13 +7,13 @@
 
 ## User Scenarios & Testing
 
-### User Story 1 - Automated Comment Generation and Dataset Preparation (Priority: P1)
+### User Story 1 - Automated Comment Generation and Dataset Preparation (Priority: P1) (US-1)
 
 The system MUST ingest a subset of the CodeSearchNet Python dataset, generate LLM comments for code snippets using the HuggingFace API (CodeLlama-7B), and align these with existing human-written docstrings (after validation) and "no-comment" baselines to create the experimental dataset.
 
-**Why this priority**: This is the foundational data preparation step. Without a structured, three-condition dataset (LLM, Human, None), no subsequent analysis, measurement, or statistical testing can occur. It delivers the raw material for the entire study.
+**Why this priority**: This is the foundational data preparation step. Without a structured, three‑condition dataset (LLM, Human, None), no subsequent analysis, measurement, or statistical testing can occur. It delivers the raw material for the entire study.
 
-**Independent Test**: The pipeline can be tested by running the generation script on a representative sample of snippets. and verifying that the output JSON contains exactly three comment variants per snippet, with no missing fields, and that the generated comments are non-empty strings.
+**Independent Test**: The pipeline can be tested by running the generation script on a representative sample of snippets and verifying that the output JSON contains exactly three comment variants per snippet, with no missing fields, and that the generated comments are non‑empty strings.
 
 **Acceptance Scenarios**:
 
@@ -22,42 +22,44 @@ The system MUST ingest a subset of the CodeSearchNet Python dataset, generate LL
 
 ---
 
-### User Story 2 - Automated Readability Metric Calculation (Priority: P2)
+### User Story 2 - Automated Readability Metric Calculation (Priority: P2) (US-2)
 
-The system MUST calculate lexical similarity metrics (BLEU, ROUGE-L) and semantic similarity (Sentence-BERT) for each comment variant against the source code and the human baseline, producing a structured results table.
+The system MUST calculate lexical similarity metrics (BLEU, ROUGE‑L) and semantic similarity (Sentence‑BERT) for each comment variant against the source code and the human baseline, producing a structured results table.
 
-**Why this priority**: These metrics provide an objective, quantitative baseline for *lexical similarity* to human-written comments. They allow for immediate, low-cost screening of comment quality and are essential for the correlation analysis planned in the methodology.
+**Why this priority**: These metrics provide an objective, quantitative baseline for *lexical similarity* to human‑written comments. They allow for immediate, low‑cost screening of comment quality and are essential for the correlation analysis planned in the methodology.
 
-**Independent Test**: The metric calculation module can be tested by feeding it a fixed subset of several CodeSearchNet validation snippets with pre-calculated reference scores provided in the test fixtures, verifying that the system outputs matching values within a tolerance of 0.001.
+**Independent Test**: The metric calculation module can be tested by feeding it a fixed subset of several CodeSearchNet validation snippets with pre‑calculated reference scores provided in the test fixtures, verifying that the system outputs matching values within a tolerance of 0.001.
 
 **Acceptance Scenarios**:
 
-1. **Given** a code snippet and its corresponding LLM-generated comment, **When** the metric calculator is run, **Then** the output includes BLEU score (0-1), ROUGE-L score (0-1), and Cosine Similarity (from Sentence-BERT) for that pair.
-2. **Given** a batch of multiple code-comment pairs, **When** the batch processing is executed, **Then** the system completes the calculation within 30 minutes on a CPU-only environment and outputs a CSV with one row per pair containing all three metrics.
+1. **Given** a code snippet and its corresponding LLM‑generated comment, **When** the metric calculator is run, **Then** the output includes BLEU score (0‑1), ROUGE‑L score (0‑1), and Cosine Similarity (from Sentence‑BERT) for that pair.
+2. **Given** a batch of multiple code‑comment pairs, **When** the batch processing is executed, **Then** the system completes the calculation within 30 minutes on a CPU‑only environment and outputs a CSV with one row per pair containing all three metrics.
 
 ---
 
-### User Story 3 - Statistical Analysis and Hypothesis Testing (Priority: P3)
+### User Story 3 - Statistical Analysis and Hypothesis Testing (Priority: P3) (US-3)
 
-The system MUST conduct a new controlled user study to measure task completion time and accuracy across the three conditions (LLM, Human, None), and perform a one-way ANOVA to test for significant differences. It MUST also conduct a power analysis to justify the sample size.
+The system MUST conduct a new controlled user study to measure task completion time and accuracy across the three conditions (LLM, Human, None), and perform a one‑way ANOVA to test for significant differences. It MUST also conduct a power analysis to justify the sample size.
 
-**Why this priority**: This is the core research output. It directly answers the research question by determining if the observed differences are statistically significant, transforming raw data into a scientific conclusion.
+**Justification**: The original research question concerns the *impact* of LLM‑generated comments on developer comprehension. Existing CodeSearchNet benchmarks provide only static readability scores and lack task‑performance data. A controlled user study is therefore required to obtain the necessary human performance metrics.
 
-**Independent Test**: The analysis script can be tested by running it on a synthetic dataset with N=30 (10 per group), mean difference of a modest magnitude, and standard deviation of a low magnitude, verifying that the ANOVA returns a p-value < 0.05.
+**Design for causal inference**: Each participant will evaluate every selected code snippet under **all three comment conditions** in a counter‑balanced order (within‑subject design). Snippet‑condition pairings are randomized per participant to eliminate confounds between snippet difficulty and comment type.
+
+**Independent Test**: The analysis script can be tested by running it on a synthetic dataset with N = 30 (10 per group), mean difference of a modest magnitude, and low variance, verifying that the ANOVA returns a p‑value < 0.05 and that the power analysis reports achieved power ≥ 0.80.
 
 **Acceptance Scenarios**:
 
-1. **Given** the merged dataset of task completion times and accuracy scores for the three conditions, **When** the ANOVA test is executed, **Then** the output includes the F-statistic, p-value, and a boolean flag indicating whether the null hypothesis (no difference between groups) is rejected at α = 0.05.
-2. **Given** the automated metric scores and the task performance scores, **When** the correlation analysis is run, **Then** the output includes Pearson correlation coefficients and p-values for each metric against the task performance, indicating the strength of the relationship.
-3. **Given** the final sample size and effect size, **When** the power analysis is run, **Then** the output includes the achieved statistical power (target ≥ 0.80) or a report of the limitation if power is insufficient.
+1. **Given** the merged dataset of task completion times and accuracy scores for the three conditions, **When** the ANOVA test is executed, **Then** the output includes the F‑statistic, p‑value, and a boolean flag indicating whether the null hypothesis (no difference between groups) is rejected at α = 0.05.
+2. **Given** the automated metric scores and the task performance scores, **When** the correlation analysis is run, **Then** the output includes Pearson correlation coefficients and p‑values for each metric against the task performance, indicating the strength of the relationship.
+3. **Given** the final sample size and effect size, **When** the power analysis is run, **Then** the output includes the achieved statistical power (target ≥ 0.80) or a report of the limitation if power is insufficient.
 
 ---
 
 ### Edge Cases
 
 - **What happens when the HuggingFace API rate limit is hit?** The system MUST implement a retry mechanism with exactly 3 attempts and exponential backoff, pausing for 60 seconds before proceeding, ensuring the job does not fail due to transient network issues.
-- **How does the system handle code snippets that are too large for the CodeLlama-7B (7B parameter model) context window?** The system MUST truncate the code snippet to a predefined maximum token limit and log a warning, ensuring the pipeline continues without crashing, while noting the limitation in the final report.
-- **What if the Sentence-BERT model fails to load due to memory constraints?** The system MUST fallback to a smaller, CPU-optimized embedding model (e.g., `all-MiniLM-L6-v2`) and log the switch, ensuring the metric calculation proceeds within the 7GB RAM memory limit.
+- **How does the system handle code snippets that are too large for the CodeLlama‑7B (7B parameter model) context window?** The system MUST truncate the code snippet to a maximum of **2048 tokens**, log a warning, and continue processing, while noting the limitation in the final report.
+- **What if the Sentence‑BERT model fails to load due to memory constraints?** The system MUST fallback to a smaller, CPU‑optimized embedding model (e.g., `all-MiniLM-L6-v2`) and log the switch, ensuring the metric calculation proceeds within the 7 GB RAM memory limit.
 
 ## Requirements
 
@@ -65,17 +67,19 @@ The system MUST conduct a new controlled user study to measure task completion t
 
 - **FR-001**: The system MUST download and parse the CodeSearchNet Python dataset to extract code snippets and existing docstrings, validating JSON structure and docstring relevance before processing (See US-1).
 - **FR-002**: The system MUST generate comments for each code snippet using the CodeLlama-7B model via the HuggingFace API, handling API timeouts with a retry logic of at most 3 attempts (See US-1).
-- **FR-003**: The system MUST calculate BLEU, ROUGE-L, and Sentence-BERT semantic similarity scores for every code-comment pair in the dataset, ensuring all scores are normalized to a 0-1 range (See US-2).
-- **FR-004**: The system MUST collect and merge the generated comments, automated metrics, and newly measured human evaluation data (task time, accuracy, subjective ratings) from the user study into a single analysis-ready dataset (See US-3).
-- **FR-005**: The system MUST execute a one-way ANOVA test on the merged dataset to compare means across the three conditions (LLM, Human, None) and output the F-statistic and p-value (See US-3).
-- **FR-006**: The system MUST validate the availability and relevance of the data collection environment and participant recruitment tools before the user study begins (See US-3).
-- **FR-007**: The system MUST perform a power analysis to justify the sample size (N ≥ 30 per group) or report the achieved power if the sample size is fixed (See US-3).
+- **FR-003**: The system MUST calculate BLEU, ROUGE‑L, and Sentence‑BERT semantic similarity scores for every code‑comment pair in the dataset, ensuring all scores are normalized to a 0‑1 range (See US-2).
+- **FR-004**: The system MUST collect and merge the generated comments, automated metrics, and newly measured human evaluation data (task time, accuracy, subjective ratings) from the user study into a single analysis‑ready dataset (See US-3).
+- **FR-005**: The system MUST execute a one‑way ANOVA test on the merged dataset to compare means across the three conditions (LLM, Human, None) and output the F‑statistic and p‑value (See US-3).
+- **FR-006**: The system MUST validate the availability and relevance of the data collection environment and participant recruitment tools before the user study begins. Validation includes: (a) confirming API access to the recruitment platform, (b) loading and displaying the consent workflow without errors, and (c) passing an environment‑check script that verifies required packages and hardware resources. The validation script must return a boolean success flag (See US-3).
+- **FR-007**: The system MUST perform a power analysis to justify the sample size (N ≥ 30 per group) or report the achieved power if the sample size is fixed (See US-3).
+- **FR-008**: The system MUST assign each code snippet to all three comment conditions and randomize the presentation order per participant, ensuring a balanced within‑subject design (See US-3).
+- **FR-009**: The system MUST validate all output files against the appropriate contracts: `contracts/dataset.schema.yaml` for the merged dataset and `contracts/analysis.schema.yaml` for analysis results (See US-3).
 
 ### Key Entities
 
 - **CodeSnippet**: Represents a unit of Python code from CodeSearchNet, containing source code, original docstring, and complexity metadata.
-- **CommentVariant**: Represents a specific comment instance for a snippet, categorized by type (LLM-generated, Human-written, or None).
-- **ReadabilityMetric**: Represents a quantitative score (BLEU, ROUGE-L, Similarity) calculated for a specific CommentVariant.
+- **CommentVariant**: Represents a specific comment instance for a snippet, categorized by type (LLM‑generated, Human‑written, or None).
+- **ReadabilityMetric**: Represents a quantitative score (BLEU, ROUGE‑L, Similarity) calculated for a specific CommentVariant.
 - **HumanEvaluation**: Represents a record of developer interaction, containing task completion time, accuracy, and subjective helpfulness rating.
 
 ## Success Criteria
@@ -86,14 +90,19 @@ The system MUST conduct a new controlled user study to measure task completion t
 
 - **SC-001**: Task completion time is measured against the baseline "no comment" condition to determine if LLM or human comments significantly reduce time (See US-3).
 - **SC-002**: Task accuracy is measured against the baseline "no comment" condition to determine if comment type significantly improves correctness (See US-3).
-- **SC-003**: Automated readability scores (BLEU, ROUGE-L, Similarity) are measured against task performance scores (time/accuracy) to validate the correlation between automated metrics and human comprehension (See US-2).
-- **SC-004**: Statistical significance (p-value < 0.05) is measured against the one-way ANOVA results to confirm whether differences between conditions are non-random (See US-3).
-- **SC-005**: Computational feasibility is measured against the available RAM limit (≤ 7GB) and runtime constraint (≤ 30 minutes) to ensure the analysis completes on free-tier CI. (See US-2).
+- **SC-003**: Automated readability scores (BLEU, ROUGE‑L, Similarity) are measured against task performance scores (time/accuracy) to validate the correlation between automated metrics and human comprehension (See US-2).
+- **SC-004**: Statistical significance (p‑value < 0.05) is measured against the one‑way ANOVA results to confirm whether differences between conditions are non‑random (See US-3).
+- **SC-005**: Computational feasibility is measured against the available RAM limit (≤ 7 GB) and runtime constraint (≤ 30 minutes) to ensure the analysis completes on free‑tier CI. (See US-2).
+- **SC-006**: Dataset preparation completeness is measured by confirming that ≥ 90 % of the target number of snippets (minimum 150) are successfully processed with all three comment variants present and logged in `dataset_preparation.log` (See US-1).
+- **SC-007**: Environment and recruitment validation passes when the validation script returns a success flag of `True` and logs no errors; otherwise the study is halted (See US-3).
+- **SC-008**: No code snippet exceeds the 2048‑token limit after truncation; any truncation events are recorded in `truncation_warnings.log` (See US-3).
+- **SC-009**: Power analysis reports an achieved statistical power of ≥ 0.80; if power is lower, a limitation report is generated and the study design is revised (See US-3).
+- **SC-010**: All output files (`merged_dataset.csv`, `analysis_results.json`, etc.) validate successfully against `contracts/dataset.schema.yaml` and `contracts/analysis.schema.yaml` without schema errors (See US-3).
 
 ## Assumptions
 
 - **Assumption about data availability**: The CodeSearchNet dataset contains sufficient Python snippets with valid docstrings to support a sample size of at least 30 tasks per group for statistical power, as required by the methodology.
-- **Assumption about API access**: The HuggingFace free tier provides sufficient quota for generating comments for a representative set of code snippets without requiring a paid subscription or rate-limiting the entire pipeline.
-- **Assumption about model suitability**: The CodeLlama-7B model is capable of generating coherent, context-aware comments for Python code within the 7GB RAM memory limit of the CI runner when using default precision and batch processing.
-- **Assumption about human data**: The human evaluation data (task completion time, accuracy) will be generated via a new controlled user study on the selected CodeSearchNet snippets, as no pre-existing benchmark contains these metrics for these specific snippets.
-- **Assumption about statistical validity**: The dataset of ≥ 30 tasks per group is sufficient to perform a one-way ANOVA with α = 0.05 and power ≥ 0.80 for moderate effect sizes, subject to the power analysis in FR-007.
+- **Assumption about API access**: The HuggingFace free tier provides sufficient quota for generating comments for a representative set of code snippets without requiring a paid subscription or rate‑limiting the entire pipeline.
+- **Assumption about model suitability**: The CodeLlama‑7B model is capable of generating coherent, context‑aware comments for Python code within the 7 GB RAM memory limit of the CI runner when using default precision and batch processing.
+- **Assumption about human data**: The human evaluation data (task completion time, accuracy) will be generated via a new controlled user study on the selected CodeSearchNet snippets, as no pre‑existing benchmark contains these metrics for these specific snippets.
+- **Assumption about statistical validity**: The dataset of ≥ 30 tasks per group is sufficient to perform a one‑way ANOVA with α = 0.05 and power ≥ 0.80 for moderate effect sizes, subject to the power analysis in FR‑007.
