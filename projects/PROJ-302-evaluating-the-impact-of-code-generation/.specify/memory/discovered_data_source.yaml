@@ -1,19 +1,19 @@
 status: none
-intent: GHTorrent GitHub pull request metadata dataset and CodeSearchNet synthetic
-  code python package dataset
+intent: GHTorrent GitHub Pull Request Dataset download Python package for PR metadata
+  python package dataset
 required_fields:
 - repository_id
 - repository_name
 - stars
 - pull_request_id
 - pr_created_at
-- pr_merged_at
 - pr_closed_at
+- pr_merged_at
+- review_timestamp_first_comment
+- review_timestamp_approval
 - commit_sha
 - commit_message
-- file_path
-- lines_added
-- lines_deleted
-cache_key: a157e89ef26dc715b45dd7b80d20435f91c706e72f555cd18bd61a96604c677d
-searched_at: '2026-10-18T10:10:23.358079+00:00'
+- commit_timestamp
+cache_key: 92364c49ad07e649c4ab00e6af506404438fe93614f073dbedd40c5abe8b0f43
+searched_at: '2026-10-18T10:11:39.092348+00:00'
 retry_count: 1

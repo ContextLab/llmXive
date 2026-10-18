@@ -14,7 +14,7 @@ All tasks are expressed as canonical checklist items; unchecked boxes indicate w
   *Create the directory layout shown in `plan.md` (`code/`, `data/`, `tests/`, `docs/`). Add a `requirements.txt` that pins exact versions of all packages (e.g., pandas, pyarrow, datasets, scikit‑learn, statsmodels, scipy, radon, transformers, torch, matplotlib, seaborn, tenacity, requests, codecarbon). Commit the skeleton and ensure `pip install -r requirements.txt` succeeds in a fresh venv.*  
   - **Verification**: `requirements.txt` exists with the listed versions; `docs/quickstart.md` contains a “Run‑the‑pipeline” command; a fresh `python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt` finishes without errors.
 
-- [ ] T014 [US‑1] **Runtime measurement & instrumentation (early)**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T014 [US‑1] **Runtime measurement & instrumentation (early)**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Instrument the pipeline (via `code/runtime.py`) to record start/end timestamps for each major stage (data acquisition, prompt engineering, synthetic generation, feature extraction, timestamp simulation, matching, analysis, sensitivity, visualization, report generation). This instrumentation is integrated at the entry point of the pipeline so that all subsequent tasks automatically emit timing data.*  
   - **Verification**: After a full pipeline run, `data/processed/runtime_report.json` exists, contains a `stage_times` mapping for every stage, and `total_seconds` ≤ 21 600. Running `python -m code.verification` exits with status 0.
 

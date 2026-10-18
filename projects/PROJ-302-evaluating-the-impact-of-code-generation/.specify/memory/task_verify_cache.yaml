@@ -1,28 +1,18 @@
 T001:
   c: true
-  h: c43f5a7f1bd75ffd40aab824002db2e04107029c8fd58adc00e9de5ae433e5f8
-  r: The directory skeleton (`code/`, `data/` with raw/processed/synthetic/reports,
-    `tests/`, `docs/`) exists, `requirements.txt` pins all 20 required packages at
-    exact versions, and `docs/quickstart.md` contains a "Run-the-Pipeline" command
-    (`python code/main.py --full-run`). The `verify_setup.py` run exited 0 and its
-    `setup_verification.json` confirms all pinned packages import successfully in
-    the environment, satisfying the fresh-install verification requirement.
-  sig: 758a4a4890963cd57c21b43b636641284b6b90069522a408c802d7d7ae3c70a8
+  h: 28c496f8173b56a8e1ccb11b7485e4232c45f5b8ca6e2a674e5197b10894a251
+  r: The directory skeleton (`code/`, `data/`, `tests/`, `docs/`) exists with non-empty
+    contents, `requirements.txt` pins exact versions of all listed packages (pandas,
+    pyarrow, datasets, scikit-learn, statsmodels, scipy, radon, transformers, torch,
+    matplotlib, seaborn, tenacity, requests, codecarbon), and `docs/quickstart.md`
+    contains a "Run-the-Pipeline" command (`python code/main.py --full-run`). The
+    `verify_setup.py` run exited 0 and its `setup_verification.json` output confirms
+    all 20 pinned packages import successfully in the environment, matching the fresh-install
+    verification requirement.
+  sig: b39706207672b694d44b6f6d180f274f73387c1bab06fff0e55a53154cdb24a9
 T003:
   c: false
   h: 56e32c036cb77551798260d9e620e6bec0799fbcad7d4369efac866abb619716
   r: The repository contains a `pyproject.toml` with Black and Ruff settings, but
     the required separate `.ruff.toml` file is missing, so the task of creating both
     configuration files is not fully satisfied.
-T014:
-  c: false
-  h: 7bfa6142859d6320056c7cd83d03895c1f530e6bcd0d12d911015697c6edf960
-  r: "`code/runtime.py` is a reasonable instrumentation module and `data/processed/runtime_report.json`\
-    \ exists with all ten stages and `total_seconds` \u2264 21600, but the recorded\
-    \ durations (mostly ~2e-06 s, total 0.0023 s) are physically impossible for a\
-    \ real pipeline run \u2014 they indicate the report was produced by a trivial\
-    \ script that started/ended stages with no work between them, i.e., fabricated\
-    \ timing data rather than measurements from an actual full pipeline run. Additionally,\
-    \ there is no evidence the instrumentation is integrated at the pipeline entry\
-    \ point (no modified `code/main.py` or simila"
-  sig: b9866392d36e9f737b5beab262a57cd86399959586c90dc49c9cf39c6177c3cf
