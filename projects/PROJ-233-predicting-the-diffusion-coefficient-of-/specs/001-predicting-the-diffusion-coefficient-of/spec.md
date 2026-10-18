@@ -49,7 +49,7 @@ The system must utilize SHAP interaction values to quantify pairwise descriptor 
 
 **Acceptance Scenarios**:
 
-1. **Given** the best‑performing non‑linear model, **When** SHAP interaction analysis runs, **Then** the output identifies the most influential pairwise interactions (e.g., `atomic_radius_variance` × `dislocation_density`) that contribute most to the variance in predicted diffusion coefficients.
+1. **Given** the best‑performing non-linear model, **When** SHAP interaction analysis runs, **Then** the output identifies the most influential pairwise interactions (e.g., `atomic_radius_variance` × `dislocation_density`) that contribute most to the variance in predicted diffusion coefficients.
 2. **Given** the feature‑importance rankings, **When** 1,000 bootstrap iterations with full model refit are performed, **Then** the system outputs a confidence interval for the importance score of the top‑ranked descriptor.
 3. **Given** a specific interaction term, **When** the sensitivity/ablation analysis runs, **Then** the system reports the decrease in outer‑fold $R^{2}$ (Δ$R^{2}$) relative to the full model, confirming its necessity.
 
@@ -88,6 +88,8 @@ The system must respect the CI environment limits (≤ 6 h wall‑clock time
 - **FR-006**: System MUST enforce a hard timeout of **6 hours** for the entire CI job and **gracefully exit with a partial result** if exceeded, **referencing the Computational Constraints assumption** (See Assumption: Computational Constraints; See US-4).
 - **FR-007**: System MUST ensure **descriptor‑target provenance independence**: the target diffusion coefficient must never be used as a predictor or in the imputation/scaling steps, and each literature‑derived proxy correlation must be documented as independent of diffusion measurements (See US-1; Constitution Principle VII).
 - **FR-008**: System MUST record the measurement **temperature** for each sample and include it as a predictor in all models (See US-1).
+- **FR-009**: System MUST perform an a‑priori power analysis targeting detection of interaction effect sizes of at least *f*² = 0.15 with power ≥ 0.80 and α = 0.05, confirming that a sample size of **≥ 200** satisfies the requirement that bootstrap‑derived 95 % confidence‑interval widths for feature‑importance scores are ≤ 0.1 (See US-3; based on Cohen 1988 and Efron & Tibshirani 1993). (See US-3)
+- **FR-010**: System MUST compute the proportion of total $R^{2}$ attributable to pairwise interaction terms (e.g., via SHAP interaction sum or hierarchical variance decomposition) on an **independent external hold‑out test set** and must achieve **≥ 70 %** of the total variance explained by these interaction contributions (See US-3; aligns with Constitution Principle VII). (See US-3)
 
 ### Key Entities
 
@@ -107,6 +109,7 @@ The system must respect the CI environment limits (≤ 6 h wall‑clock time
 - **SC-003**: The contribution of specific pairwise interactions to prediction performance is measured by the decrease in outer‑fold $R^{2}$ (Δ$R^{2}$) when the interaction term is ablated, compared to its SHAP interaction magnitude (See US-3).
 - **SC-004**: The computational feasibility is measured against the 6‑hour CI job limit and ~7 GB RAM constraint, ensuring the full pipeline (ingestion, training, bootstrapping) completes without resource exhaustion (See US-4).
 - **SC-005**: Data pipeline completeness is measured by the **percentage of required descriptor columns that are non‑null** (target ≥ 95 %) and by confirming that all required columns are present (See US-1).
+- **SC-006**: The proportion of total $R^{2}$ attributable to pairwise interaction terms, evaluated on an independent external test set, must be **≥ 70 %** (See US-3; satisfies Constitution Principle VII).
 
 ## Assumptions
 
@@ -116,3 +119,4 @@ The system must respect the CI environment limits (≤ 6 h wall‑clock time
 - **Methodological Framing**: It is assumed that the study is observational; therefore, all findings regarding feature importance and interactions will be framed as associational rather than causal, as no randomization is applied.
 - **Standard Practices**: The selection of a 5‑fold CV, k = 5 for imputation, StandardScaler normalization, and a 2‑hour Bayesian‑optimization budget follows community‑standard practice for datasets of this size.
 - **No GPU Requirement**: It is assumed that XGBoost and Random Forest implementations used are optimized for CPU execution and do not require CUDA or GPU acceleration.
+- **Power Analysis Justification**: Based on Cohen (1988) and Efron & Tibshirani (1993), a sample size of **≥ 200** provides ≥ 80 % power to detect interaction effect sizes of *f*² ≥ 0.15 and yields bootstrap 95 % CI widths for feature‑importance scores of ≤ 0.1, satisfying the reliability requirement for SC‑002.
