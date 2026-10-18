@@ -2,5 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — Requested task execution failed; rerun successfully: src/cli/run_fidelity.py exit=1
-- **T002** — Requested task execution failed; rerun successfully: src/cli/run_fidelity.py exit=1
+- **T001** — the task writes platform-owned path(s) inside the project: `state/` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T002** — The only execution record for `tests/unit/test_metrics.py` (exit 1) shows 2 of 16 tests failing: `test_zero_variance_synthetic_flagged_and_ks_skipped` (the FR-011 zero-variance flag was not set, so the core requirement is not actually working as tested) and `test_kde_estimate_returns_grid_and_pdf` (`np.trapezoid` doesn't exist in the installed NumPy, a test-code bug). There is no evidence of a subsequent passing run after any fix, so the task's verification requirement (`pytest tests/unit/test_metrics.py` validating KS/chi-square/Fisher-z and FR-011 handling) is not met. Fix the zero-variance

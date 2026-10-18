@@ -1,42 +1,23 @@
-status: verified
-kind: pypi_package
-ref: openml
-access_python: "import openml, pandas as pd\n# Adult dataset ID on OpenML\ndataset\
-  \ = openml.datasets.get_dataset(1590, download_all_files=True)\n# Load as pandas\
-  \ DataFrame\nX, y, _, _ = dataset.get_data(dataset_format='dataframe')\ndf = X.copy()\n\
-  # Include target column if needed\nif y is not None:\n    df[dataset.default_target_attribute]\
-  \ = y\nprint(f\"RECORDS={len(df)}\")\ndesired = [\"age\",\"workclass\",\"fnlwgt\"\
-  ,\"education\",\"education-num\",\"marital-status\",\"occupation\",\"relationship\"\
-  ,\"race\",\"sex\",\"capital-gain\",\"capital-loss\"]\nfields = [col for col in desired\
-  \ if col in df.columns]\nprint(\"FIELDS=\" + \",\".join(fields))"
-record_count: 48842
-sample_fields:
-- age
-- workclass
-- fnlwgt
-- education
-- education-num
-- marital-status
-- occupation
-- relationship
-- race
-- sex
-- capital-gain
-- capital-loss
-field_coverage: 1.0
+status: none
+intent: download OpenML Adult dataset Credit Card Fraud Covertype Higgs UCI HAR Shopper
+  python package dataset
 required_fields:
-- age
-- workclass
-- fnlwgt
-- education
-- education-num
-- marital-status
-- occupation
-- relationship
-- race
-- sex
-- capital-gain
-- capital-loss
-intent: OpenML python package download UCI Adult Credit Card Fraud Covertype Higgs
-  dataset
-cache_key: 6745e3f2e8a505d5469e8563f3f29aebf2e60f6d816043845b4a1fb1c5479fab
+- 'Adult: age, workclass, fnlwgt, education, education-num, marital-status, occupation,
+  relationship, race, sex, capital-gain, capital-loss, hours-per-week, native-country,
+  income'
+- 'Credit Card Fraud: V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14,
+  V15, V16, V17, V18, V19, V20, V21, V22, V23, V24, V25, V26, V27, V28, Amount, Class'
+- 'Covertype: Elevation, Aspect, Slope, Horizontal_Distance_To_Hydrology, Vertical_Distance_To_Hydrology,
+  Horizontal_Distance_To_Roadways, Hillshade_9am, Hillshade_Noon, Hillshade_3pm, Horizontal_Distance_To_Fire_Points,
+  Wilderness_Area, Soil_Type, Cover_Type'
+- 'Higgs: feature1, feature2, feature3, feature4, feature5, feature6, feature7, feature8,
+  feature9, feature10, feature11, feature12, feature13, feature14, feature15, feature16,
+  feature17, feature18, feature19, feature20, feature21, feature22, feature23, feature24,
+  feature25, feature26, feature27, feature28, label'
+- 'UCI HAR: tBodyAcc-mean-X, tBodyAcc-mean-Y, tBodyAcc-mean-Z, tBodyAcc-std-X, tBodyAcc-std-Y,
+  tBodyAcc-std-Z, ..., activity, subject'
+- 'UCI Shopper: VisitNumber, StoreID, Date, TotalSpend, ItemsPurchased, PaymentMethod,
+  CustomerID, ...'
+cache_key: 056d1b90cbb7aa352b33131b879edbb1a73a3a6f4480a43ed4a45e28da9d5785
+searched_at: '2026-10-18T12:19:48.996885+00:00'
+retry_count: 1

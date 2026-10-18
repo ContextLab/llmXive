@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "ef308aa0538001bc29bfada7b4267121e5c32cc94ee6a3377ccfa3813e6232ed",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'src/cli/run_fidelity.py': imports nonexistent names from sibling files: `from src.data.loader import _load_processed_data` (available: Callable, Dict, HAR_VERIFIED_URL, HIGH_CARDINALITY_THRESHOLD, LOADERS, List, MAX_ROWS_AFTER_MITIGATION, Path...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list.\n[implementer] refusing to write 'tests/unit/test_trainer.py': imports nonexistent names from sibling files: `from src.data.loader import _load_processed_data` (available: Callable, Dict, HAR_VERIFIED_URL, HIGH_CARDINALITY_THRESHOLD, LOADERS, List, MAX_ROWS_AFTER_MITIGATION, Path...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

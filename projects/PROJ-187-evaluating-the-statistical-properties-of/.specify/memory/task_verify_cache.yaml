@@ -8,3 +8,15 @@ T000:
     check` verification was not evidenced, but the artifact itself fully satisfies
     the task's requirement.
   sig: 7863e7885f5c09177f8b6ec4b08cfac4b457364d9dec9ae28a958e2f6f7250d6
+T002:
+  c: false
+  h: 9709023ca39120a2c7b3f96663e0a6ffbc255cb63df6533d938424b732602aee
+  r: 'The only execution record for `tests/unit/test_metrics.py` (exit 1) shows 2
+    of 16 tests failing: `test_zero_variance_synthetic_flagged_and_ks_skipped` (the
+    FR-011 zero-variance flag was not set, so the core requirement is not actually
+    working as tested) and `test_kde_estimate_returns_grid_and_pdf` (`np.trapezoid`
+    doesn''t exist in the installed NumPy, a test-code bug). There is no evidence
+    of a subsequent passing run after any fix, so the task''s verification requirement
+    (`pytest tests/unit/test_metrics.py` validating KS/chi-square/Fisher-z and FR-011
+    handling) is not met. Fix the zero-variance '
+  sig: e834a0064dacedda51b3bc4b972af240327b303a4e94e0c8cec8d996de3a3095

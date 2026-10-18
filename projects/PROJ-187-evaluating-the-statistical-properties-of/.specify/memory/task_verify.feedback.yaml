@@ -1,12 +1,20 @@
 T000:
   task: b53f901e90c5ce7c7efea2543a2b76d08531a6644669e541e478dfa81e505aa8
 T001:
-  reason: 'Requested task execution failed; rerun successfully: src/cli/run_fidelity.py
-    exit=1'
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
   task: f6cd19fa53b1b931017f7a76051d33e90e02c869a522b360b66c8cb6653460d7
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/cli/run_fidelity.py
-    exit=1'
+  reason: 'The only execution record for `tests/unit/test_metrics.py` (exit 1) shows
+    2 of 16 tests failing: `test_zero_variance_synthetic_flagged_and_ks_skipped` (the
+    FR-011 zero-variance flag was not set, so the core requirement is not actually
+    working as tested) and `test_kde_estimate_returns_grid_and_pdf` (`np.trapezoid`
+    doesn''t exist in the installed NumPy, a test-code bug). There is no evidence
+    of a subsequent passing run after any fix, so the task''s verification requirement
+    (`pytest tests/unit/test_metrics.py` validating KS/chi-square/Fisher-z and FR-011
+    handling) is not met. Fix the zero-variance'
   task: 4f23a5fad785d75f76773049576d3c326b0ec5f6c13c36a626d04386f1595965
 T003:
   task: d353501366e12547bf97834e8c72f21a2b8c7ee7e79905a3d84867b120d07638
