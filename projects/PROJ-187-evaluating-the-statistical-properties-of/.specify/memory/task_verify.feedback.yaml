@@ -1,10 +1,8 @@
 T000:
   task: b53f901e90c5ce7c7efea2543a2b76d08531a6644669e541e478dfa81e505aa8
 T001:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
-    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
-    state/ and derives artifact hashes at verification time. Re-scope the step to
-    write only project-owned outputs.'
+  reason: 'Requested task execution failed; rerun successfully: src/cli/run_fidelity.py
+    exit=1'
   task: f6cd19fa53b1b931017f7a76051d33e90e02c869a522b360b66c8cb6653460d7
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/cli/run_fidelity.py

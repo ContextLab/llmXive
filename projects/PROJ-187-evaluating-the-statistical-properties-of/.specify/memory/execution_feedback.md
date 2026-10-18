@@ -7,17 +7,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.cli.run_fidelity  --seeds 42 123 2026  --max-epochs 30  --early-stopping-delta 0.001  --early-stopping-patience 3 -> rc=1
-main
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/src/cli/run_fidelity.py", line 34, in <module>
     from sdv.tabular import CTGAN
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/__init__.py", line 17, in <module>
     from sdv import (
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/data_processing/__init__.py", line 3, in <module>
-    from sdv.data_processing.data_processor import DataProcessor
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/data_processing/data_processor.py", line 12, in <module>
-    from rdt.transformers import AnonymizedFaker, IDGenerator, get_default_transformers
-ImportError: cannot import name 'IDGenerator' from 'rdt.transformers' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/rdt/transformers/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/constraints/__init__.py", line 2, in <module>
+    from sdv.constraints.base import Constraint
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/constraints/base.py", line 11, in <module>
+    from rdt import HyperTransformer
+ImportError: cannot import name 'HyperTransformer' from 'rdt' (/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/rdt/__init__.py)
 
 - python -m pytest -q tests/contract -> rc=1
 E                                                                        [100%]
@@ -33,6 +35,6 @@ E           Failed: Metric results file not found: /home/runner/work/llmXive/llm
 tests/contract/test_metric_schema.py:34: Failed
 =========================== short test summary info ============================
 ERROR tests/contract/test_metric_schema.py::test_metric_results_schema - Fail...
-1 error in 0.26s
+1 error in 0.20s
 
 
