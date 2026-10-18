@@ -1,0 +1,184 @@
+"""
+src/data/featurize.py
+---------------------
+
+Compute twelve compositional descriptors for perovskite ABX3 oxides using
+``pymatgen``. The script reads a CSV produced by ``src.data.download`` and
+writes a feature matrix with exactly 12 descriptor columns (four per site:
+atomic radius, Pauling electronegativity, oxidation state, valence electron
+count) plus the target ``formation_energy``.
+
+Rows where any oxidation state cannot be determined are dropped; the
+number of excluded rows is logged (FR‑008).
+
+The module provides a ``main`` function that can be executed via
+``python -m src.featurize <input_csv> <output_csv>`` (see the thin wrapper
+in ``src/featurize.py``).
+"""
+
+import argparse
+import sys
+from pathlib import Path
+from typing import List
+
+import numpy as np
+import pandas as pd
+from pymatgen.core import Composition, Element
+
+from llmxive_toolkit import get_logger, paths
+
+log = get_logger(__name__)
+
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
+def _parse_sites(composition: str) -> dict:
+    """
+    Parse a perovskite composition string (e.g. ``BaTiO3``) and return a
+    mapping ``{'A': Element, 'B': Element, 'X': Element}``.
+
+    The function assumes the composition is an oxide ABX3, i.e. it contains
+    exactly two non‑oxygen elements and oxygen. The two cations are sorted
+    alphabetically to obtain a deterministic ordering.
+    """
+    comp = Composition(composition)
+    # Identify oxygen element
+    oxygen = Element("O")
+    # Non‑oxygen elements are the A and B sites
+    cations = [el for el in comp.elements if el != oxygen]
+    if len(cations) != 2:
+        raise ValueError(f"Expected exactly two cation elements in {composition}, got {cations}")
+
+    # Deterministic ordering: alphabetical by symbol
+    a_elem, b_elem = sorted(cations, key=lambda e: e.symbol)
+    return {"A": a_elem, "B": b_elem, "X": oxygen}
+
+def _descriptor_for_element(el: Element) -> dict:
+    """
+    Compute the four required descriptors for a single element.
+
+    - atomic radius: ``el.atomic_radius`` (fallback to ``covalent_radius``)
+    - electronegativity (Pauling): ``el.X`` (may be ``None``)
+    - oxidation state: first entry of ``el.common_oxidation_states`` if
+      available, otherwise ``None``.
+    - valence electron count: element group number (``el.group``) – a
+      reasonable proxy for main‑group elements.
+    """
+    # Atomic radius – pymatgen may return ``None``; use covalent radius as fallback
+    atomic_radius = el.atomic_radius if el.atomic_radius is not None else el.covalent_radius
+    electronegativity = el.X  # Pauling scale; may be ``None``
+    oxidation_state = (
+        el.common_oxidation_states[0] if el.common_oxidation_states else None
+    )
+    valence_electrons = el.group if el.group is not None else None
+    return {
+        "atomic_radius": atomic_radius,
+        "electronegativity": electronegativity,
+        "oxidation_state": oxidation_state,
+        "valence_electrons": valence_electrons,
+    }
+
+def _row_to_features(row: pd.Series) -> dict:
+    """
+    Convert a single input row to a dictionary of feature values.
+    """
+    comp_str = row["composition"]
+    sites = _parse_sites(comp_str)
+
+    feature_dict = {}
+    for site_label, element in sites.items():
+        desc = _descriptor_for_element(element)
+        prefix = f"{site_label}_"
+        feature_dict[f"{prefix}atomic_radius"] = desc["atomic_radius"]
+        feature_dict[f"{prefix}electronegativity"] = desc["electronegativity"]
+        feature_dict[f"{prefix}oxidation_state"] = desc["oxidation_state"]
+        feature_dict[f"{prefix}valence_electrons"] = desc["valence_electrons"]
+    # Preserve the target column
+    feature_dict["formation_energy"] = row["formation_energy"]
+    return feature_dict
+
+# ----------------------------------------------------------------------
+# Main processing function
+# ----------------------------------------------------------------------
+def compute_features(input_csv: Path, output_csv: Path) -> None:
+    """
+    Read ``input_csv`` (produced by ``src.data.download``), compute the
+    twelve compositional descriptors, drop rows with undefined oxidation
+    states, and write the resulting matrix to ``output_csv``.
+    """
+    df = pd.read_csv(input_csv)
+
+    # Ensure required columns exist
+    required_cols = {"composition", "formation_energy"}
+    if not required_cols.issubset(df.columns):
+        missing = required_cols - set(df.columns)
+        raise ValueError(f"Input CSV missing required columns: {missing}")
+
+    feature_rows: List[dict] = []
+    excluded = 0
+
+    for _, row in df.iterrows():
+        try:
+            feats = _row_to_features(row)
+            # Verify that none of the oxidation states are missing
+            if any(
+                pd.isna(feats[col])
+                for col in [
+                    "A_oxidation_state",
+                    "B_oxidation_state",
+                    "X_oxidation_state",
+                ]
+            ):
+                raise ValueError("Missing oxidation state")
+            feature_rows.append(feats)
+        except Exception as exc:
+            excluded += 1
+            log.debug(f"Excluding row {row.get('composition', '<unknown>')}: {exc}")
+
+    if excluded:
+        log.info(f"Excluded {excluded} rows due to undeterminable oxidation states (FR‑008).")
+
+    if not feature_rows:
+        raise RuntimeError("All rows were excluded; no features to write.")
+
+    features_df = pd.DataFrame(feature_rows)
+
+    # Ensure no missing values in the target column
+    if features_df["formation_energy"].isna().any():
+        raise RuntimeError("Missing values detected in the target 'formation_energy' column (FR‑002).")
+
+    # Write CSV – the ``paths`` helper creates the parent directory if needed
+    output_path = paths.path(output_csv) if isinstance(output_csv, (str, Path)) else output_csv
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    features_df.to_csv(output_path, index=False)
+    log.info(f"Wrote feature matrix with {len(features_df)} rows to {output_path}")
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Compute compositional descriptors for perovskite defect data."
+    )
+    parser.add_argument(
+        "input_csv",
+        type=str,
+        help="Path to the raw defect CSV (e.g., data/raw/materials_defects.csv).",
+    )
+    parser.add_argument(
+        "output_csv",
+        type=str,
+        help="Path where the feature matrix will be written (e.g., data/processed/features.csv).",
+    )
+    args = parser.parse_args()
+    input_path = Path(args.input_csv)
+    output_path = Path(args.output_csv)
+
+    if not input_path.is_file():
+        log.error(f"Input file not found: {input_path}")
+        sys.exit(1)
+
+    compute_features(input_path, output_path)
+
+if __name__ == "__main__":
+    main()

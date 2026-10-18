@@ -1,10 +1,23 @@
 T001:
+  c: true
+  h: b3a35e894039ee14255bd31c41c1b00d0c478b339af4f55ae8fef30e551db2d9
+  r: '`quickstart.md` exists (2114 bytes) and documents the single command `python
+    -m src.pipeline.run` with the expected "Pipeline completed successfully" output,
+    and `src/tests/test_quickstart.py` asserts that message via a real subprocess
+    run; the historical execution log shows the test passed (exit 0, 1 passed). Minor
+    cosmetic typos in the venv setup lines (missing spaces in `python -m venv.venv`)
+    don''t affect the task''s core requirement of documenting the pipeline command
+    and its CI-verifiable success message.'
+  sig: 320b1ea2bf3c42318e5bdd27f0af6ff2e91ae1f3ec3dc1c79f3253367d715660
+T002:
   c: false
-  h: 93daf4476dcbf9813096e2fcc8c1200fb9b43c25c3983691385a555604c444e8
-  r: "The `quickstart.md` file exists and correctly documents the `python -m src.pipeline.run`\
-    \ command, and the test `src/tests/test_quickstart.py` is present. However, there\
-    \ is no provided evidence (e.g., CI run logs or test execution output) showing\
-    \ that the command actually runs on a fresh GitHub Actions runner and prints \u201C\
-    Pipeline completed successfully\u201D. Without this execution proof, the verification\
-    \ requirement is not satisfied."
-  sig: 86a5dd8551ac00bd80b555cd28fcef5cf3e248c3e72474ea0572af442740390c
+  h: 0446f87f658ee4474cecb0a0169c5c89b368aa4163091bd9fb1efdaebad4804c
+  r: "The required output `data/raw/materials_defects.csv` does not exist, and the\
+    \ only execution record is the missing-key path (exit 0), so there is no evidence\
+    \ of a successful download, schema validation, or the \u2265500-row requirement.\
+    \ Additionally, the script violates FR-007's missing-key requirement by exiting\
+    \ cleanly with code 0 instead of aborting with an error, and it queries a fabricated\
+    \ Materials Project endpoint (`/rest/v2/defects/query` with `X-API-KEY` header)\
+    \ that does not exist in the real MP API, so even a run with a valid key would\
+    \ fail."
+  sig: 5b2433cb59735eb52572fe0ab8fc02ff3d0220f4c211d311d127986153d7e1ba
