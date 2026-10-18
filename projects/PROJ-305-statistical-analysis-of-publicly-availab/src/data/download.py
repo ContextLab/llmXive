@@ -2,21 +2,20 @@
 VAERS Data Download Script
 =========================
 
-This script downloads the VAERS CSV zip archives for the years 2020‑2023
-from the official HHS website.  For each year Y ∈ {2020,2021,2022,2023}
-it attempts to download the three zip files:
+This script downloads the VAERS CSV files for the years 2020‑2023 from
+publicly‑available sources.  For each year Y ∈ {2020,2021,2022,2023} it
+downloads three files:
 
-  * {Y}VAERSDATA.csv.zip
-  * {Y}VAERSVAX.csv.zip
-  * {Y}VAERSSYMPTOMS.csv.zip
+  * {Y}VAERSDATA.csv
+  * {Y}VAERSVAX.csv
+  * {Y}VAERSSYMPTOMS.csv
 
-The zip files are streamed to disk, extracted, and the resulting CSVs are
-stored under ``data/raw/{Y}/`` with their original filenames.  After each
-successful extraction a SHA‑256 checksum of the extracted CSV is computed
-and appended to ``data/checksums.txt`` as well as to the human‑readable
-log file ``logs/download_checksums.txt``.  Any HTTP error, missing file,
-or checksum failure aborts the script with a non‑zero exit status – no
-synthetic fallback is performed.
+The files are streamed directly to disk under ``data/raw/{Y}/`` with their
+original filenames.  After each successful download a SHA‑256 checksum
+of the file is computed and appended to ``data/checksums.txt`` as well as
+to the human‑readable log file ``logs/download_checksums.txt``.
+Any HTTP error or checksum failure aborts the script with a non‑zero
+exit status – no synthetic fallback is performed.
 
 The script uses only the standard library plus ``requests`` (available in
 the environment) and the ``llmxive_toolkit`` helpers for path handling
@@ -26,7 +25,6 @@ and logging.
 import hashlib
 import logging
 import sys
-import zipfile
 from pathlib import Path
 
 import requests
@@ -35,9 +33,9 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Base URL for the official VAERS CSV zip files
-BASE_URL = "https://vaers.hhs.gov/data/datasets"
-# Fallback GitHub mirror (raw zip files)
+# Primary source – official HHS site (CSV, not zip)
+PRIMARY_BASE_URL = "https://vaers.hhs.gov/data/datasets"
+# Fallback – CDC GitHub mirror (raw CSV files)
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/CDCgov/VAERS-data/master"
 
 YEARS = [2020, 2021, 2022, 2023]
@@ -79,28 +77,6 @@ def stream_download(url: str, dest_path: Path) -> None:
         raise
 
 
-def extract_zip(zip_path: Path, extract_dir: Path) -> Path:
-    """
-    Extract the first CSV file from *zip_path* into *extract_dir*.
-    Returns the path to the extracted CSV.
-    """
-    try:
-        with zipfile.ZipFile(zip_path, "r") as zip_ref:
-            # Identify CSV members (there should be exactly one)
-            csv_members = [m for m in zip_ref.namelist() if m.lower().endswith(".csv")]
-            if not csv_members:
-                raise RuntimeError(f"No CSV found inside {zip_path}")
-            # Extract all (they are small) – we only need the first CSV
-            zip_ref.extractall(path=extract_dir)
-            extracted_path = extract_dir / csv_members[0]
-            if not extracted_path.exists():
-                raise RuntimeError(f"Extracted CSV missing: {extracted_path}")
-            return extracted_path
-    except zipfile.BadZipFile as exc:
-        log.error(f"Corrupt zip file {zip_path}: {exc}")
-        raise
-
-
 def record_checksum(csv_path: Path, checksums_file: Path) -> None:
     """Compute SHA‑256 of *csv_path* and append a line to *checksums_file*."""
     checksum = sha256_checksum(csv_path)
@@ -118,20 +94,22 @@ def record_checksum(csv_path: Path, checksums_file: Path) -> None:
 # ----------------------------------------------------------------------
 def download_year(year: int) -> None:
     """
-    Download and extract the three VAERS zip files for *year*.
+    Download the three VAERS CSV files for *year*.
     On any failure the function raises ``SystemExit(1)``.
     """
     for ftype in FILE_TYPES:
-        zip_name = f"{year}{ftype}.csv.zip"
-        primary_url = f"{BASE_URL}/{zip_name}"
-        fallback_url = f"{GITHUB_RAW_URL}/{zip_name}"
+        filename = f"{year}{ftype}.csv"
+        # Primary URL (official HHS CSV)
+        primary_url = f"{PRIMARY_BASE_URL}/{filename}"
+        # Fallback URL (CDC GitHub raw CSV)
+        fallback_url = f"{GITHUB_RAW_URL}/{filename}"
         raw_dir = paths.data("raw", str(year))
-        zip_path = raw_dir / f"vaers_{year}_{ftype}.zip"
+        dest_path = raw_dir / filename
 
         # Try primary then fallback
         for url in (primary_url, fallback_url):
             try:
-                stream_download(url, zip_path)
+                stream_download(url, dest_path)
                 log.info(f"Successfully downloaded {url}")
                 break
             except Exception as exc:
@@ -139,30 +117,15 @@ def download_year(year: int) -> None:
                 if url == fallback_url:
                     raise SystemExit(1) from exc
 
-        # Extract CSV
+        # Record checksum of the downloaded CSV
         try:
-            csv_path = extract_zip(zip_path, raw_dir)
-            log.info(f"Extracted CSV to {csv_path}")
+            record_checksum(dest_path, paths.data("checksums.txt"))
         except Exception as exc:
-            log.error(f"Extraction failed for {zip_path}: {exc}")
+            log.error(f"Checksum recording failed for {dest_path}: {exc}")
             raise SystemExit(1) from exc
 
-        # Record checksum of the extracted CSV (not the zip)
-        try:
-            record_checksum(csv_path, paths.data("checksums.txt"))
-        except Exception as exc:
-            log.error(f"Checksum recording failed for {csv_path}: {exc}")
-            raise SystemExit(1) from exc
-
-        # Clean up zip file (optional – keep only CSVs)
-        try:
-            zip_path.unlink()
-        except Exception:
-            pass  # non‑critical
-
-
-def main() -> None:
-    """Entry point – iterate over YEARS and download each year's archives."""
+def fetch_vaers_data() -> None:
+    """Public entry point used by the pipeline orchestrator."""
     log.info("Starting VAERS data download")
     for yr in YEARS:
         try:
@@ -175,8 +138,13 @@ def main() -> None:
             log.error(f"Unexpected error for year {yr}: {exc}")
             sys.exit(1)
 
-    log.info("All years downloaded, extracted, and verified successfully")
+    log.info("All years downloaded and verified successfully")
     sys.exit(0)
+
+
+def main() -> None:
+    """CLI entry point – mirrors ``fetch_vaers_data``."""
+    fetch_vaers_data()
 
 
 if __name__ == "__main__":

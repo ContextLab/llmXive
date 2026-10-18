@@ -18,29 +18,27 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/data/download.py -> rc=1
-atasets/2020VAERSDATA.csv.zip
-2026-10-18 20:07:18,154 ERROR __main__: Failed to download https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv.zip: 404 Client Error: Not Found for url: https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv.zip
-2026-10-18 20:07:18,154 WARNING __main__: Download failed for https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv.zip: 404 Client Error: Not Found for url: https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv.zip
-2026-10-18 20:07:18,154 INFO __main__: Downloading https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv.zip
-2026-10-18 20:07:18,178 ERROR __main__: Failed to download https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv.zip: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv.zip
-2026-10-18 20:07:18,178 WARNING __main__: Download failed for https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv.zip: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv.zip
-2026-10-18 20:07:18,178 ERROR __main__: Failed to download data for year 2020. Exiting.
+Downloading https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv
+2026-10-18 20:09:21,272 ERROR __main__: Failed to download https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv: 404 Client Error: Not Found for url: https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv
+2026-10-18 20:09:21,272 WARNING __main__: Download failed for https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv: 404 Client Error: Not Found for url: https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv
+2026-10-18 20:09:21,272 INFO __main__: Downloading https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv
+2026-10-18 20:09:21,294 ERROR __main__: Failed to download https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv
+2026-10-18 20:09:21,294 WARNING __main__: Download failed for https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/CDCgov/VAERS-data/master/2020VAERSDATA.csv
+2026-10-18 20:09:21,294 ERROR __main__: Failed to download data for year 2020. Exiting.
 
 - python src/data/validate.py -> rc=2
-2026-10-18 20:07:18,611 - validate - INFO - Loading schema from contracts/dataset.schema.yaml
-2026-10-18 20:07:18,614 - validate - INFO - Loading data from data/processed/cleaned_vaers.parquet
-2026-10-18 20:07:18,614 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.parquet
+2026-10-18 20:09:21,708 - validate - INFO - Loading schema from contracts/dataset.schema.yaml
+2026-10-18 20:09:21,711 - validate - INFO - Loading data from data/processed/cleaned_vaers.parquet
+2026-10-18 20:09:21,711 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.parquet
 
 
 - python code/src/data/clean.py -> rc=1
 
-2026-10-18 20:07:19,048 - clean - INFO - Starting data cleaning process
-2026-10-18 20:07:19,049 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
+2026-10-18 20:09:22,108 - clean - INFO - Starting data cleaning process
+2026-10-18 20:09:22,109 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
 
 - python src/main.py -> rc=1
-2026-10-18 20:07:19,948 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-18 20:07:20,064 - matplotlib.font_manager - INFO - generated new fontManager
-2026-10-18 20:07:20,350 - pipeline - INFO - No action specified. Use --full or --phase N
+2026-10-18 20:09:22,881 - pipeline - INFO - No action specified. Use --full or --phase N
 
 
 - python -m pytest -q tests/contract/ -> rc=4
