@@ -1,10 +1,10 @@
-# Core dependencies (already in the platform)
+# Core scientific stack (already provided by the platform)
 numpy
 pandas
 scipy
+matplotlib
 scikit-learn
 statsmodels
-matplotlib
 seaborn
 pytest
 PyYAML
@@ -12,7 +12,7 @@ requests
 jsonschema
 psutil
 
-# Additional required packages for this project
-pybullet
+# Project‑specific dependencies
+pybullet==3.25.0
 torch==2.2.0+cpu
-datasets
+huggingface_hub==0.23.0
