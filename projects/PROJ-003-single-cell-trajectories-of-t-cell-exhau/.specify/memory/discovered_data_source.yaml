@@ -1,19 +1,15 @@
 status: none
-intent: GEO scRNA-seq T cell exhaustion datasets GSE136103 GSE127465 GSE111075 GSE138852
-  python package dataset
+intent: GEO GSE136103 GSE127465 GSE111075 GSE138852 download python package dataset
 required_fields:
 - cell_barcode
-- gene_symbol
+- gene_id
 - raw_counts
-- mitochondrial_gene_flag
-- CD3D_expression
-- CD3E_expression
-- CD3G_expression
-- PDCD1_expression
-- LAG3_expression
-- TOX_expression
-- therapy_response
+- spliced_counts
+- unspliced_counts
+- mitochondrial_percent
 - sample_id
-cache_key: 8293bae3bc9f8e71dc57fa8a25acb04aea214edd5d52efd684d0896dd8f1621b
-searched_at: '2026-10-10T15:51:23.756946+00:00'
+- condition
+- batch
+cache_key: 5851a6d899c654348296795e033e0f1e6dad09759b8b44cc612437c798b6885a
+searched_at: '2026-10-18T09:13:06.229184+00:00'
 retry_count: 1

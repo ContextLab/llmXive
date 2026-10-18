@@ -8,23 +8,23 @@ properties:
     description: "Identifier of the source dataset."
   pseudotime_path:
     type: "string"
-    description: "Path to the file containing per-cell pseudotime values."
+    description: "Path to the file containing per‑cell pseudotime values."
   velocity_graph_path:
     type: "string"
     description: "Path to the velocity graph (e.g., .h5ad)."
   alignment_status:
     type: "string"
     enum: ["success", "failed", "partial"]
-    description: "Result of the Markov-chain alignment step (retried with higher regularization up to 2 times)."
+    description: "Result of the Markov‑chain alignment step (retried with higher regularization up to 2 times)."
   runtime_seconds:
     type: "number"
-    description: "Wall-clock runtime of the velocity step (SC-001)."
+    description: "Wall‑clock runtime of the velocity step (SC‑001)."
   peak_memory_mb:
     type: "number"
-    description: "Peak memory usage in MB logged via psutil (SC-001)."
+    description: "Peak memory usage in MB logged via psutil (SC‑001)."
   fork_points:
     type: "array"
-    description: "List of fork-point objects identified in this trajectory."
+    description: "List of fork‑point objects identified in this trajectory."
     items:
       type: "object"
       properties:
