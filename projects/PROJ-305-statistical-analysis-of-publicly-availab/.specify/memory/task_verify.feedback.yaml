@@ -1,10 +1,4 @@
 T001:
-  reason: "The required directory tree and a non\u2011empty `logs/structure.txt` are\
-    \ present, and `quickstart.md` exists, but the quickstart documentation does **not**\
-    \ contain the exact runnable command `python -m src.main` (it shows `python src/main.py`\
-    \ instead). This violates the task\u2019s specification, so the artifact is incomplete.\
-    \ Adding the correct command (and confirming the grep\u2011count verification)\
-    \ is needed."
   task: de50249f593ddc8019c25a35b37b31183354ee5e012db928b26b15b83cceeedf
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py

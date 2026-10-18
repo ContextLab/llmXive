@@ -32,13 +32,12 @@ pip install -r src/requirements.txt
  ```bash
  python src/data/download.py
  ```
- - Downloads the **full** 2020‑2023 VAERS parquet file from
- `...` (actual URL defined in the script)
- - Writes SHA‑256 checksum to `data/checksums.txt`. [UNRESOLVED-CLAIM: c_2b8293bf — status=not_enough_info]
+ - Downloads the official 2020‑2023 VAERS CSV zip archives from the CDC public repository. [UNRESOLVED-CLAIM: c_c63ac4f7 — status=not_enough_info]
+ - Writes SHA‑256 checksums to `data/checksums.txt`.
 
 3. **Validate the raw schema**
  ```bash
- python src/data/validate.py
+ python -m src.data.validate
  ```
  - Exits with `E_SCHEMA_MISSING` if any of `VAX_TYPE`, `SOC_CODE`, `REPT_DATE` are absent (fulfills FR‑001 & SC‑004).
 
@@ -46,11 +45,11 @@ pip install -r src/requirements.txt
  ```bash
  python src/data/clean.py
  ```
- - Produces `data/processed/cleaned.parquet` with three groups (`COVID-related`, `Non‑COVID‑Non‑Flu`, `Flu‑only`).
+ - Produces `data/processed/cleaned.parquet` with three groups (`COVID‑related`, `Non‑COVID‑Non‑Flu`, `Flu‑only`).
 
 5. **Run the full analysis pipeline**
  ```bash
- python src/main.py
+ python -m src.main
  ```
  This orchestrates:
  - Disproportionality calculations (`output/signals.csv`)
@@ -64,13 +63,13 @@ pip install -r src/requirements.txt
  ```bash
  pytest -q tests/contract/
  ```
- All JSON‑schema contracts must pass. [UNRESOLVED-CLAIM: c_a7c12640 — status=not_enough_info]
+ All JSON‑schema contracts must pass. [UNRESOLVED-CLAIM: c_6e1d4864 — status=not_enough_info]
 
 7. **Inspect results**
- - `output/signals.csv` – table of ROR/PRR/IC with adjusted p‑values. [UNRESOLVED-CLAIM: c_1c12eb52 — status=not_enough_info]
+ - `output/signals.csv` – table of ROR/PRR/IC with adjusted p‑values.
  - `output/temporal_profiles/` – PNG plots for the top signals.
- - `output/sensitivity_analysis.csv` – Δ‑metrics vs. Flu baseline. [UNRESOLVED-CLAIM: c_274aed6d — status=not_enough_info]
- - `output/report.md` – human‑readable summary, memory usage, and limitations. [UNRESOLVED-CLAIM: c_b55adc26 — status=not_enough_info]
+ - `output/sensitivity_analysis.csv` – Δ‑metrics vs. Flu baseline.
+ - `output/report.md` – human‑readable summary, memory usage, and limitations.
 
 ## Troubleshooting
 

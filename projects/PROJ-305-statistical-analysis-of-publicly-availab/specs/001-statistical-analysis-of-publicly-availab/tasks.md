@@ -8,13 +8,13 @@ The goal is a reproducible, CPU‑only pipeline that (1) downloads real VAERS 20
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [P] [US1] Establish the project layout, runnable commands, and the filesystem evidence artifact.  
+- [X] T001 [P] [US1] Establish the project layout, runnable commands, and the filesystem evidence artifact.  
   - Create all required directories (`src/data/`, `src/analysis/`, `src/utils/`, `src/validation/`, `tests/unit/`, `tests/integration/`, `tests/fixtures/`, `data/raw/`, `data/processed/`, `data/results/`, `output/figures/`, `output/temporal_profiles/`, `logs/`).  
   - Produce `logs/structure.txt` by executing `tree -a -L 3` (fallback to `find . -maxdepth 3 -type d` if `tree` unavailable) from the repository root.  
   - Document the runnable command (`python -m src.main`) and input provenance in `quickstart.md`.  
   - **Verification**: `test -s logs/structure.txt` and a grep count of listed directories must succeed.
 
-- [ ] T002 [US1] Download the real VAERS 2020–2023 CSV archives and the bundled MedDRA→SOC mapping.   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+- [ ] T002 [US1] Download the real VAERS 2020–2023 CSV archives and the bundled MedDRA→SOC mapping.   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   - Implement `src/data/download.py` to stream‑download for each year Y ∈ {2020,2021,2022,2023} the three official HHS CSV zip files:  
     * `[UNRESOLVED-CLAIM: https://vaers.hhs.gov/data/datasets/{Y}VAERSDATA.csv.zip` — HTTP 404]  
     * `[UNRESOLVED-CLAIM: https://vaers.hhs.gov/data/datasets/{Y}VAERSVAX.csv.zip` — HTTP 404]  

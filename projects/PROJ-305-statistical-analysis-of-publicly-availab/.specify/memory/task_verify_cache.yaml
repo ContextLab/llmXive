@@ -1,10 +1,10 @@
 T001:
-  c: false
-  h: cb938d6644443bfe4eabc0da0c099126bab4b599ed3e3eb38de670017dd6f629
-  r: "The required directory tree and a non\u2011empty `logs/structure.txt` are present,\
-    \ and `quickstart.md` exists, but the quickstart documentation does **not** contain\
-    \ the exact runnable command `python -m src.main` (it shows `python src/main.py`\
-    \ instead). This violates the task\u2019s specification, so the artifact is incomplete.\
-    \ Adding the correct command (and confirming the grep\u2011count verification)\
-    \ is needed."
-  sig: 1f2eedd997c5cb6977669e753381edf5969fe6311c12e678c7b3777ef8069980
+  c: true
+  h: dc7ddbcb13cd7235b3da2ec9e914ba7cfac9e67cba49ab3b1c8fef99a50aea38
+  r: "Checked that all required directories exist (e.g., `src/data/`, `tests/unit/`,\
+    \ `data/raw/`, `output/figures/`, `logs/`), that `logs/structure.txt` is present\
+    \ and non\u2011empty (5559\u202Fbytes, showing a tree of the project), and that\
+    \ `quickstart.md` documents the runnable command `python -m src.main`. The execution\
+    \ log shows `code/create_structure.py` ran successfully, confirming the structure\
+    \ file was generated."
+  sig: 9c7e180406c5d21b369e0c26beefe8918018e8ebdec66c2e9b01d442c0c1186b

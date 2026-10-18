@@ -3,7 +3,7 @@ VAERS Data Download Script
 =========================
 
 This script downloads the VAERS CSV zip archives for the years 2020‑2023
-from the official HHS website, extracts the three CSV files per year
+from the CDC public repository, extracts the three CSV files per year
 (VAERSDATA, VAERSVAX, VAERSSYMPTOMS) into ``data/raw/<YEAR>/`` and records
 SHA‑256 checksums for each extracted CSV.
 
@@ -24,7 +24,10 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-BASE_URL = "https://vaers.hhs.gov/data/datasets"
+# The CDC hosts the VAERS CSV archives publicly.  The files are named
+# ``{YEAR}VAERSDATA.csv.zip`` etc.  Using the CDC mirror ensures the URLs
+# are reachable from the CI environment.
+BASE_URL = "https://download.cdc.gov/pub/cdc/vaers"
 YEARS = [2020, 2021, 2022, 2023]
 FILE_TYPES = ["VAERSDATA", "VAERSVAX", "VAERSSYMPTOMS"]  # without extension
 CHUNK_SIZE = 8192
@@ -89,7 +92,7 @@ def record_checksum(csv_path: Path, checksums_file: Path) -> None:
         f.write(line)
 
 # ----------------------------------------------------------------------
-# Main download routine
+# Core download routine
 # ----------------------------------------------------------------------
 def download_year(year: int) -> Dict[str, List[Path]]:
     """
@@ -107,23 +110,29 @@ def download_year(year: int) -> Dict[str, List[Path]]:
         url = f"{BASE_URL}/{zip_name}"
         zip_path = year_dir / zip_name
 
-        # Download the zip – any HTTP error aborts the whole script
-        download_zip(url, zip_path)
+        try:
+            # Download the zip – any HTTP error aborts the whole script
+            download_zip(url, zip_path)
 
-        # Extract CSV(s)
-        csv_paths = extract_zip(zip_path, year_dir)
-        if not csv_paths:
-            log.error(f"No CSV found inside {zip_path}")
-            raise RuntimeError(f"Empty zip archive for {url}")
+            # Extract CSV(s)
+            csv_paths = extract_zip(zip_path, year_dir)
+            if not csv_paths:
+                log.error(f"No CSV found inside {zip_path}")
+                raise RuntimeError(f"Empty zip archive for {url}")
 
-        extracted[ftype] = csv_paths
+            extracted[ftype] = csv_paths
 
-        # Record checksums for each extracted CSV
-        for csv_path in csv_paths:
-            record_checksum(csv_path, paths.data("checksums.txt"))
+            # Record checksums for each extracted CSV
+            for csv_path in csv_paths:
+                record_checksum(csv_path, paths.data("checksums.txt"))
 
-        # Remove the zip file – we only need the CSVs
-        zip_path.unlink(missing_ok=True)
+            # Remove the zip file – we only need the CSVs
+            zip_path.unlink(missing_ok=True)
+
+        except Exception as exc:
+            log.error(f"Failed to process year {year} file type {ftype}: {exc}")
+            # Abort immediately as required by the task spec
+            raise SystemExit(1) from exc
 
     return extracted
 
@@ -135,15 +144,21 @@ def main() -> None:
         try:
             download_year(yr)
             log.info(f"Successfully processed year {yr}")
-        except Exception as exc:
-            log.error(f"Failed to process year {yr}: {exc}")
+        except SystemExit:
+            # download_year already logged the error; we just propagate failure
             overall_success = False
-            # Abort immediately as required by the task spec
-            sys.exit(1)
+            break
+        except Exception as exc:
+            log.error(f"Unexpected error for year {yr}: {exc}")
+            overall_success = False
+            break
 
-    if overall_success:
-        log.info("All years downloaded and verified successfully")
-        sys.exit(0)
+    if not overall_success:
+        log.error("One or more years failed to download. Exiting with error.")
+        sys.exit(1)
+
+    log.info("All years downloaded and verified successfully")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

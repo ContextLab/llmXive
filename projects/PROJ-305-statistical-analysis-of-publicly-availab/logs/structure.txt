@@ -2,9 +2,19 @@
 ├── .gitignore
 ├── .gitkeep
 ├── .pre-commit-config.yaml
+├── .pytest_cache
+│   ├── .gitignore
+│   ├── CACHEDIR.TAG
+│   ├── README.md
+│   └── v
+│       └── cache
 ├── .python-version
 ├── .ruff.toml
 ├── .runtime-home
+│   ├── .cache
+│   │   └── matplotlib
+│   └── .config
+│       └── matplotlib
 ├── .specify
 │   ├── memory
 │   │   ├── constitution.md
@@ -53,6 +63,7 @@
 │   ├── data
 │   │   ├── .gitkeep
 │   │   ├── __init__.py
+│   │   ├── processed
 │   │   └── raw
 │   ├── figures
 │   │   └── .gitkeep
@@ -101,9 +112,13 @@
 │   ├── research_question_validation.md
 │   └── statistical-analysis-of-publicly-availab.md
 ├── logs
+│   ├── analysis.log
+│   ├── clean.log
 │   ├── download.log
 │   ├── lint.txt
-│   └── structure.txt
+│   ├── pipeline.log
+│   ├── structure.txt
+│   └── validate.log
 ├── output
 │   ├── .gitkeep
 │   ├── figures
@@ -154,4 +169,4 @@
         ├── test_validate.py
         └── test_validate_e_schema_missing.py
 
-52 directories, 103 files
+60 directories, 110 files

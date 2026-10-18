@@ -19,26 +19,25 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python src/data/download.py -> rc=1
 
-2026-10-18 18:28:24,248 INFO __main__: Starting VAERS data download
-2026-10-18 18:28:24,248 INFO __main__: Downloading https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv.zip
-2026-10-18 18:28:24,334 ERROR __main__: Failed to download https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv.zip: 404 Client Error: Not Found for url: https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv.zip
-2026-10-18 18:28:24,334 ERROR __main__: Failed to process year 2020: 404 Client Error: Not Found for url: https://vaers.hhs.gov/data/datasets/2020VAERSDATA.csv.zip
+2026-10-18 18:31:32,371 INFO __main__: Starting VAERS data download
+2026-10-18 18:31:32,371 INFO __main__: Downloading https://download.cdc.gov/pub/cdc/vaers/2020VAERSDATA.csv.zip
+2026-10-18 18:31:32,395 ERROR __main__: Failed to download https://download.cdc.gov/pub/cdc/vaers/2020VAERSDATA.csv.zip: HTTPSConnectionPool(host='download.cdc.gov', port=443): Max retries exceeded with url: /pub/cdc/vaers/2020VAERSDATA.csv.zip (Caused by NameResolutionError("HTTPSConnection(host='download.cdc.gov', port=443): Failed to resolve 'download.cdc.gov' ([Errno -2] Name or service not known)"))
+2026-10-18 18:31:32,396 ERROR __main__: Failed to process year 2020 file type VAERSDATA: HTTPSConnectionPool(host='download.cdc.gov', port=443): Max retries exceeded with url: /pub/cdc/vaers/2020VAERSDATA.csv.zip (Caused by NameResolutionError("HTTPSConnection(host='download.cdc.gov', port=443): Failed to resolve 'download.cdc.gov' ([Errno -2] Name or service not known)"))
+2026-10-18 18:31:32,396 ERROR __main__: One or more years failed to download. Exiting with error.
 
 - python src/data/validate.py -> rc=2
-2026-10-18 18:28:24,713 - validate - INFO - Loading schema from contracts/dataset.schema.yaml
-2026-10-18 18:28:24,716 - validate - INFO - Loading data from data/processed/cleaned_vaers.parquet
-2026-10-18 18:28:24,716 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.parquet
+2026-10-18 18:31:32,781 - validate - INFO - Loading schema from contracts/dataset.schema.yaml
+2026-10-18 18:31:32,784 - validate - INFO - Loading data from data/processed/cleaned_vaers.parquet
+2026-10-18 18:31:32,784 - validate - ERROR - Data file not found: data/processed/cleaned_vaers.parquet
 
 
 - python code/src/data/clean.py -> rc=1
 
-2026-10-18 18:28:25,125 - clean - INFO - Starting data cleaning process
-2026-10-18 18:28:25,125 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
+2026-10-18 18:31:33,163 - clean - INFO - Starting data cleaning process
+2026-10-18 18:31:33,164 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
 
 - python src/main.py -> rc=1
-2026-10-18 18:28:25,736 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-18 18:28:25,795 - matplotlib.font_manager - INFO - generated new fontManager
-2026-10-18 18:28:26,053 - pipeline - INFO - No action specified. Use --full or --phase N
+2026-10-18 18:31:33,868 - pipeline - INFO - No action specified. Use --full or --phase N
 
 
 - python -m pytest -q tests/contract/ -> rc=4
