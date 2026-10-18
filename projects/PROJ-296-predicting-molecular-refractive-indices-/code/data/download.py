@@ -5,13 +5,13 @@ dataset schema (``contracts/dataset.schema.yaml``).
 
 The script is intended to be run as a stand‑alone command:
 
-    python code/data/download.py
+    python data/download.py
 
 It performs the following steps:
 
-1. Download the dataset from the verified Hugging‑Face hub
-   ``chemistry/ri_dataset`` using the ``datasets`` library.
-2. Write the data to ``data/raw/ri_dataset.csv`` (creating the ``raw``
+1. Download the dataset file from the verified Hugging‑Face hub
+   ``chemistry/ri_dataset`` using the ``huggingface_hub`` library.
+2. Copy the file to ``data/raw/ri_dataset.csv`` (creating the ``raw``
    directory if necessary).
 3. Compute the SHA‑256 checksum of the written file.
 4. Compare the checksum with the expected value stored in
@@ -29,11 +29,12 @@ guarantees that the required directories exist.
 import hashlib
 import json
 from pathlib import Path
+import shutil
 
 import pandas as pd
 import yaml
 from jsonschema import Draft7Validator, ValidationError
-from datasets import load_dataset
+from huggingface_hub import hf_hub_download
 
 from llmxive_toolkit import paths, get_logger
 
@@ -43,9 +44,9 @@ log = get_logger(__name__)
 # Configuration
 # ----------------------------------------------------------------------
 # The verified Hugging‑Face dataset identifier.
-HF_DATASET_ID = "chemistry/ri_dataset"
-# Name of the split to download – the dataset is small enough to fit in memory.
-HF_SPLIT = "train"
+HF_REPO_ID = "chemistry/ri_dataset"
+# Expected filename inside the repository.  The dataset is provided as a CSV.
+HF_FILENAME = "ri_dataset.csv"
 
 # Destination for the raw CSV file.
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
@@ -82,15 +83,28 @@ def write_checksum(checksum: str) -> None:
 
 def download_dataset() -> pd.DataFrame:
     """
-    Download the dataset from Hugging‑Face and return it as a ``pandas.DataFrame``.
-    The function raises an exception if the download fails.
+    Download the dataset CSV from Hugging‑Face Hub and return it as a
+    ``pandas.DataFrame``.
     """
-    log.info(f"Downloading dataset '{HF_DATASET_ID}' (split='{HF_SPLIT}') …")
-    ds = load_dataset(HF_DATASET_ID, split=HF_SPLIT)
-    # ``datasets`` returns a ``Dataset`` object; convert to ``pandas``.
-    df = ds.to_pandas()
-    log.info(f"Downloaded {len(df)} records.")
-    return df
+    log.info(f"Downloading dataset file '{HF_FILENAME}' from repo '{HF_REPO_ID}' …")
+    try:
+        # ``hf_hub_download`` returns a local cache path to the file.
+        cached_path = hf_hub_download(repo_id=HF_REPO_ID, filename=HF_FILENAME, repo_type="dataset")
+    except Exception as exc:
+        log.error(f"Failed to download dataset from Hugging Face: {exc}")
+        raise
+
+    log.info(f"Dataset downloaded to temporary location: {cached_path}")
+
+    # Load into pandas; we assume a CSV format.
+    try:
+        df = pd.read_csv(cached_path)
+    except Exception as exc:
+        log.error(f"Failed to read CSV from downloaded file: {exc}")
+        raise
+
+    log.info(f"Loaded {len(df)} records from the dataset.")
+    return df, Path(cached_path)
 
 
 def save_dataframe(df: pd.DataFrame) -> None:
@@ -133,15 +147,15 @@ def main() -> None:
     # ------------------------------------------------------------------
     # 1. Download the dataset
     # ------------------------------------------------------------------
-    df = download_dataset()
+    df, cached_path = download_dataset()
 
     # ------------------------------------------------------------------
-    # 2. Persist to CSV
+    # 2. Persist to CSV at the canonical location
     # ------------------------------------------------------------------
     save_dataframe(df)
 
     # ------------------------------------------------------------------
-    # 3. Verify checksum
+    # 3. Verify checksum of the persisted file
     # ------------------------------------------------------------------
     actual_checksum = compute_sha256(RAW_CSV_PATH)
     log.info(f"Computed SHA‑256: {actual_checksum}")

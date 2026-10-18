@@ -1,0 +1,19 @@
+# Core dependencies (already available in the base environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional dependencies required for this project
+huggingface_hub>=0.20.0
+# Note: RDKit is required for later stages of the pipeline but is not
+# needed for the dataset download task (T001). It can be installed
+# separately when those stages are executed.
