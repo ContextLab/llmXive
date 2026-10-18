@@ -1,14 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-10-18T00:05:27.841177+00:00'
+last_used: john-von-neumann
+last_used_at: '2026-10-18T04:05:43.587669+00:00'
 last_outcome: committed
 history:
-- slug: linus-pauling
-  started_at: '2026-06-27T06:16:13.783273+00:00'
-  ended_at: '2026-06-27T07:34:57.415650+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-512-predicting-molecular-permeability-of-pol/reviews/research/linus-pauling-simulated__2026-06-27__research.md
 - slug: marie-curie
   started_at: '2026-06-27T07:34:57.415650+00:00'
   ended_at: '2026-06-27T08:57:05.602993+00:00'
@@ -1303,3 +1296,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-533-evaluating-the-impact-of-data-transforma/reviews/research/geoffrey-west-simulated__2026-10-18__research.md
+- slug: john-von-neumann
+  started_at: '2026-10-18T00:05:27.841177+00:00'
+  ended_at: '2026-10-18T04:05:43.587669+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-187-evaluating-the-statistical-properties-of/reviews/research/john-von-neumann-simulated__2026-10-18__research.md
