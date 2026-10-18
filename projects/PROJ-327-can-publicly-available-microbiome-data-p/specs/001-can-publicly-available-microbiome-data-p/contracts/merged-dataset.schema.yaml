@@ -1,0 +1,47 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Merged Microbiome‑Metabolomics Dataset"
+type: object
+required:
+  - sample_id
+  - species
+  - condition
+  - study_id
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the biological sample."
+  species:
+    type: string
+    enum: ["arabidopsis", "tomato"]
+    description: "Plant species; canonicalized to lower‑case."
+  condition:
+    type: string
+    enum: ["herbivore_stress"]
+    description: "Experimental condition; only herbivore stress is retained."
+  study_id:
+    type: string
+    description: "Identifier of the original study/publication."
+  species_arabidopsis:
+    type: integer
+    enum: [0, 1]
+    description: "One‑hot encoding for Arabidopsis species."
+  species_tomato:
+    type: integer
+    enum: [0, 1]
+    description: "One‑hot encoding for Tomato species."
+  # ASV columns – allow any number, each must be integer ≥0
+  asv_.*:
+    type: integer
+    minimum: 0
+    description: "Counts for a specific Amplicon Sequence Variant."
+  # Metabolite columns – allow any number, each must be numeric ≥0
+  metab_.*:
+    type: number
+    minimum: 0
+    description: "Median‑scaled intensity for a defense metabolite."
+additionalProperties: false
+description: |
+  Each row corresponds to a single sample with matched microbiome (ASV) and
+  metabolomics measurements. All ASV and metabolite column names must start with
+  `asv_` or `metab_` respectively, enabling flexible dimensionality while
+  preserving schema validation. Species one‑hot columns are required for modeling.

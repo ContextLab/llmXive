@@ -1,0 +1,16 @@
+status: none
+intent: Arabidopsis thaliana Solanum lycopersicum herbivore stress paired 16S SRA
+  MetaboLights dataset python package dataset
+required_fields:
+- sample_id
+- species
+- treatment
+- asv_id
+- asv_count
+- metabolite_id
+- metabolite_intensity
+- sra_accession
+- metabolights_accession
+cache_key: aca81f6b1fa44a3f59615a80bae802c253cb2c3bd659b5d39285ce786c2528ee
+searched_at: '2026-10-18T15:26:15.405345+00:00'
+retry_count: 1
