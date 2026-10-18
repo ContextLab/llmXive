@@ -7,14 +7,13 @@ essential bootstrap steps required for the initial execution:
 
 1. Creates the project layout and a minimal ``code/config.yaml`` (via
    ``create_layout.main``).
-2. Downloads the CTU‑13 Scenario 1 NetFlow CSV (via
+2. Downloads a subset of the CTU‑13 Scenario 1 NetFlow records (via
    ``code.data.download_ctu13.main``), producing
    ``data/raw/ctu13_scenario1.csv`` and its SHA‑256 checksum.
 
 The script accepts ``--scenarios`` and ``--seeds`` arguments to stay
-compatible with the documented quick‑start command line, but it does not
-yet implement the full analysis pipeline – that is addressed in later
-tasks.
+compatible with the documented quick‑start command line, but it does not yet
+implement the full analysis pipeline – that is addressed in later tasks.
 """
 
 import argparse
@@ -27,8 +26,15 @@ from llmxive_toolkit import get_logger
 log = get_logger(__name__)
 
 def _parse_args():
-    parser = argparse.ArgumentParser(description="Bootstrap the project and download the dataset.")
-    parser.add_argument("--scenarios", nargs="+", default=["all"], help="Scenarios to process (placeholder).")
+    parser = argparse.ArgumentParser(
+        description="Bootstrap the project and download the dataset."
+    )
+    parser.add_argument(
+        "--scenarios",
+        nargs="+",
+        default=["all"],
+        help="Scenarios to process (placeholder).",
+    )
     parser.add_argument(
         "--seeds",
         nargs="+",
@@ -44,12 +50,16 @@ def _parse_args():
 
 def main():
     args = _parse_args()
-    log.info("Starting project bootstrap with scenarios=%s, seeds=%s", args.scenarios, args.seeds)
+    log.info(
+        "Starting project bootstrap with scenarios=%s, seeds=%s",
+        args.scenarios,
+        args.seeds,
+    )
 
     # Step 1: create directory layout and config file
     create_layout_main()
 
-    # Step 2: download the CTU‑13 Scenario 1 CSV
+    # Step 2: download the CTU‑13 Scenario 1 CSV (now via HuggingFace)
     try:
         download_ctu13_main()
     except Exception as exc:

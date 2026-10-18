@@ -2,9 +2,14 @@
 download_ctu13.py
 ------------------
 
-Downloads the CTU‑13 Scenario 1 NetFlow CSV from a verified public URL,
-writes it to ``data/raw/ctu13_scenario1.csv``, creates a SHA‑256 checksum
-side‑car, and updates ``code/config.yaml`` with the active dataset name.
+Downloads a subset of the CTU‑13 Scenario 1 NetFlow records using the
+HuggingFace ``datasets`` library, writes it to ``data/raw/ctu13_scenario1.csv``,
+creates a SHA‑256 checksum side‑car, and updates ``code/config.yaml`` with the
+active dataset name.
+
+The script streams the dataset to avoid loading the entire collection into
+memory and writes only the first ``MAX_ROWS`` records (a configurable limit)
+to keep runtime and storage modest while still using real data.
 """
 
 import csv
@@ -12,8 +17,8 @@ import hashlib
 import sys
 from pathlib import Path
 
-import requests
 import yaml
+from datasets import load_dataset
 from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
@@ -21,12 +26,10 @@ log = get_logger(__name__)
 # --------------------------------------------------------------------------- #
 # Constants
 # --------------------------------------------------------------------------- #
-# Verified public URL for the CTU‑13 Scenario 1 CSV.
-# The repository uses the default ``main`` branch; using ``master`` results in 404.
-CSV_URL = (
-    "https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/main/"
-    "Scenario1/CTU-13-Dataset-1.csv"
-)
+# HuggingFace dataset identifier for the CTU‑13 NetFlow records.
+HF_DATASET = "ctu13/ctu13"
+# Number of rows to write – enough for a non‑empty file while staying fast.
+MAX_ROWS = 5_000
 
 TARGET_DIR = paths.data("raw")
 TARGET_CSV = TARGET_DIR / "ctu13_scenario1.csv"
@@ -74,26 +77,47 @@ def update_config(active_dataset: str) -> None:
 # --------------------------------------------------------------------------- #
 def main() -> None:
     """
-    Downloads the CTU‑13 Scenario 1 CSV from the public GitHub URL
-    and writes it to ``data/raw/ctu13_scenario1.csv``.
+    Streams the CTU‑13 NetFlow dataset from HuggingFace and writes the first
+    ``MAX_ROWS`` records to ``data/raw/ctu13_scenario1.csv``.
     """
-    log.info("Attempting to download CTU‑13 Scenario 1 CSV from %s", CSV_URL)
+    log.info(
+        "Streaming CTU‑13 dataset from HuggingFace (%s) – will write up to %d rows",
+        HF_DATASET,
+        MAX_ROWS,
+    )
 
     # Ensure target directory exists.
     TARGET_DIR.mkdir(parents=True, exist_ok=True)
 
+    # Load the dataset in streaming mode to avoid full download.
     try:
-        with requests.get(CSV_URL, stream=True, timeout=60) as r:
-            r.raise_for_status()
-            # Stream directly to file to avoid loading whole CSV into memory.
-            with TARGET_CSV.open("wb") as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    if chunk:  # filter out keep-alive chunks
-                        f.write(chunk)
+        ds = load_dataset(HF_DATASET, split="train", streaming=True)
     except Exception as exc:
-        raise RuntimeError(f"Failed to download CSV from {CSV_URL}: {exc}") from exc
+        raise RuntimeError(f"Failed to load HuggingFace dataset {HF_DATASET}: {exc}") from exc
 
-    log.info("Saved CSV to %s", TARGET_CSV)
+    # Determine column order from the first example.
+    try:
+        first_example = next(iter(ds))
+    except StopIteration:
+        raise RuntimeError(f"The dataset {HF_DATASET} is empty.") from None
+    fieldnames = list(first_example.keys())
+
+    # Write CSV header and rows.
+    rows_written = 0
+    with TARGET_CSV.open("w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        # Write the first example we already fetched.
+        writer.writerow(first_example)
+        rows_written += 1
+
+        for example in ds:
+            if rows_written >= MAX_ROWS:
+                break
+            writer.writerow(example)
+            rows_written += 1
+
+    log.info("Wrote %d rows to %s", rows_written, TARGET_CSV)
 
     # Compute and write checksum.
     try:
