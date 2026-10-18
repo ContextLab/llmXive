@@ -27,13 +27,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208 -> rc=1
 
-2026-10-18 01:51:56,002 - INFO - Downloading https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet → data/raw/ds000208.parquet
-2026-10-18 01:51:56,290 - INFO - Remote file size: 0.432 GB
-2026-10-18 01:52:02,314 - INFO - Download complete (464086010 bytes).
-2026-10-18 01:52:02,732 - INFO - Metadata written to data/raw/metadata_ds000208.json
-2026-10-18 01:52:02,733 - INFO - Citation written to data/raw/CITATION.md
-2026-10-18 01:52:02,733 - INFO - Adding task column to data/raw/ds000208.parquet
-2026-10-18 01:52:02,736 - ERROR - Failed to read parquet file data/raw/ds000208.parquet: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+2026-10-18 15:08:52,698 - INFO - Downloading https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet → data/raw/ds000208.parquet
+2026-10-18 15:08:52,975 - INFO - Remote file size: 0.432 GB
+2026-10-18 15:09:03,175 - INFO - Download complete (464086010 bytes).
+2026-10-18 15:09:03,585 - INFO - Metadata written to data/raw/metadata_ds000208.json
+2026-10-18 15:09:03,585 - INFO - Citation written to data/raw/CITATION.md
+2026-10-18 15:09:03,585 - INFO - Adding task column to data/raw/ds000208.parquet
+2026-10-18 15:09:03,588 - ERROR - Failed to read parquet file data/raw/ds000208.parquet: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
 A suitable version of pyarrow or fastparquet is required for parquet support.
 Trying to import the above resulted in these errors:
  - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
@@ -102,8 +102,7 @@ usage: report.py [-h] --input INPUT --output OUTPUT
 report.py: error: the following arguments are required: --input
 
 - python -m pytest tests/ -> rc=2
-ml
-plugins: anyio-4.15.1
+nfigfile: pyproject.toml
 collecting ... collected 60 items / 1 error
 
 ==================================== ERRORS ====================================
@@ -119,7 +118,7 @@ E   ImportError: cannot import name 'MAX_RUNTIME_SECONDS' from 'performance_moni
 =========================== short test summary info ============================
 ERROR tests/test_performance.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.75s ===============================
+=============================== 1 error in 1.00s ===============================
 
 
 
