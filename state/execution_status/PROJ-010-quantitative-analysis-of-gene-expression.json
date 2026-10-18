@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-14T03:19:20Z",
+  "updated_at": "2026-10-18T18:16:24Z",
   "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
   "replan_rounds": 1
 }

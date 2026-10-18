@@ -1,14 +1,15 @@
 status: none
-intent: download human developmental scRNA-seq BICCN MTG BrainSpan PsychENCODE GEO
-  GWAS dataset python package dataset
+intent: download human developmental scRNAseq datasets GEO BrainSpan BICCN MTG PsychENCODE
+  GWAS Catalog python package dataset
 required_fields:
 - gene_id
+- gene_symbol
 - cell_barcode
-- raw_counts
-- normalized_counts
+- expression_counts
 - developmental_stage
 - donor_id
-- batch_id
-cache_key: 7f9942368b26dcb630f5244a7ea1080625ff6a65e9f472243598c4cc7bff27ce
-searched_at: '2026-10-18T17:31:51.969185+00:00'
+- sample_id
+- cell_type
+cache_key: 80e784b631d7ec4c7835e161814a42f273895bce842250732513c591aa7d0077
+searched_at: '2026-10-18T18:16:24.729885+00:00'
 retry_count: 1
