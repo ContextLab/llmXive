@@ -1,15 +1,15 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Results Schema"
+title: "Analysis results schema"
 type: "object"
 properties:
   metric_name:
     type: "string"
-    description: "Name of the network metric (e.g., 'global_efficiency' or 'dmn_efficiency')."
+    description: "Network metric name, e.g. 'global_efficiency'."
   correlation_r:
     type: "number"
     minimum: -1
     maximum: 1
-    description: "Pearson correlation coefficient between the metric and the behavioral proxy."
+    description: "Partial correlation coefficient with the MER score."
   p_value:
     type: "number"
     minimum: 0
@@ -19,19 +19,19 @@ properties:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "FDR‑adjusted p‑value (Benjamini‑Hochberg)."
+    description: "Benjamini‑Hochberg FDR‑adjusted p‑value."
   significant:
     type: "boolean"
-    description: "True if `p_value_fdr < 0.05`."
+    description: "True if p_value_fdr < 0.05."
   sample_size:
     type: "integer"
     minimum: 1
-    description: "Number of subjects included in the correlation test."
+    description: "Number of subjects in the test."
   power_achieved:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "Achieved statistical power for detecting an effect size of r = 0.20 at α = 0.05."
+    description: "Achieved power for detecting r = 0.20 at alpha = 0.05."
 required:
   - metric_name
   - correlation_r

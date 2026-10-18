@@ -1,35 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Verified HCP Parquet Dataset Schema"
+title: "Subject-level input dataset schema"
 type: "object"
 properties:
   subject_id:
     type: "string"
-    description: "Unique identifier for the participant (e.g., HCP ID)."
+    description: "Unique participant identifier."
   age:
     type: "integer"
     minimum: 0
     maximum: 120
-    description: "Age of the participant in years."
+    description: "Age in years."
   sex:
     type: "string"
     enum: ["M", "F"]
-    description: "Biological sex of the participant."
+    description: "Sex of the participant."
   fd_mean:
     type: "number"
     minimum: 0
-    description: "Mean Framewise Displacement (mm) computed during preprocessing."
+    description: "Mean framewise displacement in mm; rows with fd_mean > 0.5 are excluded."
+  mer_score:
+    type: "number"
+    description: "Music Emotion Rating total score (behavioral outcome)."
   fc_upper_tri:
     type: "array"
     items:
       type: "number"
-    description: "Upper‑triangular elements (including diagonal) of the functional connectivity matrix for the network under study, stored as a flat list."
-  behavioral_proxy:
-    type: "number"
-    description: "Optional music‑related behavioral score present in the dataset (e.g., music listening hours)."
+    minItems: a sufficiently large number of items
+    maxItems: a sufficiently large number
+    description: "Upper‑triangular elements (with diagonal) of the 200x200 functional connectivity matrix."
 required:
   - subject_id
   - age
   - sex
   - fd_mean
+  - mer_score
   - fc_upper_tri
 additionalProperties: false

@@ -1,13 +1,15 @@
 status: none
-intent: OpenNeuro ds000233 music emotion fMRI BMRQ dataset download python package
+intent: Human Connectome Project music task dataset download Nilearn python package
   dataset
 required_fields:
 - subject_id
-- resting_state_fmri_nifti
-- bmrq_total_score
-- bmrq_subscale_scores
-- scan_session
-- run_number
-cache_key: 6e4ec9543d3e56ff86ac4cb35ac86df75f8139f1583e262a6670319a431c20a5
-searched_at: '2026-10-18T13:19:13.471189+00:00'
+- age
+- sex
+- resting_state_fmri_path
+- music_emotion_score
+- fd_mean
+- functional_connectivity_upper_triangular
+- schaefer_atlas_labels
+cache_key: a07318b9ad0f38df2392cb2af64a5a15eebe41f86053e9b9daf2322816858385
+searched_at: '2026-10-18T13:34:05.157574+00:00'
 retry_count: 1
