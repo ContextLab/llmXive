@@ -30,7 +30,7 @@ The following spec-level changes are required to make the tasks and spec consist
 
 ## Phase 2 — Complete the study and validate its evidence
 
-- [ ] T004 [US2] Implement the compliance-log pipeline.
+- [ ] T004 [US2] Implement the compliance-log pipeline. <!-- FAILED-IN-EXECUTION: code/compliance/compute_compliance.py exit=1 -->
   `code/compliance/parse_logs.py` reads `data/raw/compliance_logs/`, applies the rules (social media ≤ 30 min, `news_consumption=False`, `notifications_off=True` → compliant), computes per-participant weekly compliance percentage, and writes `data/processed/aggregated_compliance.csv` and `data/processed/compliance_flags.json` (FR-004, FR-010). Plausibility validation: 0 ≤ minutes ≤ 1440, flag out-of-range and the "0 minutes all 7 days" extreme case without exclusion (edge cases in spec). Append SHA-256 checksums for both `data/processed/` outputs to `data/checksums.sha256`.
   *Verification*: `pytest code/tests/test_compliance.py` covers compliant/non-compliant days, out-of-range entries, and the extreme case; `sha256sum -c data/checksums.sha256` passes.
 

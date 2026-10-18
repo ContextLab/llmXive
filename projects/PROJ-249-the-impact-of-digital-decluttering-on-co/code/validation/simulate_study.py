@@ -19,6 +19,7 @@ instead of the current time. No fallback synthetic data is used.
 import csv
 import hashlib
 import json
+import uuid
 from datetime import datetime, date, timedelta
 from pathlib import Path
 
@@ -289,6 +290,7 @@ def _write_measurements(
     for metric_type, value in behavioural_scores.items():
         rows.append(
             {
+                "id": str(uuid.uuid4()),
                 "participant_id": participant_id,
                 "metric_type": metric_type,
                 "value": float(value),
@@ -301,6 +303,7 @@ def _write_measurements(
     for q_metric in ["pss10_total", "panas_positive", "panas_negative"]:
         rows.append(
             {
+                "id": str(uuid.uuid4()),
                 "participant_id": participant_id,
                 "metric_type": q_metric,
                 "value": _simulate_questionnaire_scores(rng, q_metric),
