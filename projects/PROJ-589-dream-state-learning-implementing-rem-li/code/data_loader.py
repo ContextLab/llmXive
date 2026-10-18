@@ -25,23 +25,12 @@ logger = get_logger(__name__)
 
 def _load_glue_subset(subset_name: str):
     """
-    Lazy import of the `datasets` library to avoid import‑time failures
-    caused by optional heavy dependencies (e.g., pyarrow). This function
-    attempts to load a GLUE subset using the HuggingFace `datasets` API.
-    If the import fails, a clear error is raised so that the caller can
-    handle the situation (e.g., by skipping dataset download in environments
-    where pyarrow is unavailable).
+    Load a GLUE subset using the HuggingFace `datasets` library.
+    This replaces the previous `hf://` URI approach which caused import errors.
     """
-    try:
-        from data.loader import load_glue_subset  # Local wrapper that uses `datasets`
-    except Exception as e:
-        raise ImportError(
-            "Failed to import the dataset loading utilities. This often occurs "
-            "when the optional `datasets` dependency cannot be imported (e.g., "
-            "missing or incompatible `pyarrow`)."
-        ) from e
-
-    return load_glue_subset(subset_name)
+    from datasets import load_dataset
+    # The canonical identifier for GLUE subsets is ("glue", subset_name)
+    return load_dataset('glue', subset_name)
 
 def download_datasets():
     """
@@ -77,7 +66,6 @@ def download_datasets():
 
         try:
             if dataset_type == "glue":
-                # Lazy loading; may raise ImportError if `datasets` cannot be imported
                 dataset = _load_glue_subset(subset_name)
             else:
                 # Placeholder for SuperGLUE handling; not required for current tests
@@ -93,11 +81,6 @@ def download_datasets():
         except DataIntegrityError as e:
             logger.error(f"Data integrity check failed for {subset_name}: {e}")
             raise
-        except ImportError as e:
-            # In constrained environments (e.g., CI without compatible pyarrow) we skip
-            logger.warning(
-                f"Skipping download of {subset_name} because the required libraries are unavailable: {e}"
-            )
         except Exception as e:
             logger.error(f"Failed to download/verify {subset_name}: {e}")
             raise

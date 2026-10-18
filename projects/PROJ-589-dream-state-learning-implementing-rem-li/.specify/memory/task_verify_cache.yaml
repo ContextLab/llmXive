@@ -1,8 +1,9 @@
 T001:
-  c: true
-  h: a2055d42c124a36ab6d38edb30ae5339f7b68a07544750c2c72d00999a867568
-  r: "Checked the `code/requirements.txt` (pinned dependency list) and the `code/config.py`\
-    \ (defines `DEVICE = \"cpu\"` and `MAX_MEMORY_GB = 6.3` with importable code).\
-    \ Both files exist, contain valid content, and meet the CPU\u2011only and memory\u2011\
-    limit specifications."
-  sig: 192e334b355e62b360b208b12f6fb8e00222f9b4ef5480b929c33781df160c43
+  c: false
+  h: 06dc4f5a58ffeeb35ba4ff2ef5b9baeda31acc6303063231d66322d7abac16d0
+  r: "The provided `code/requirements.txt` lists minimum version constraints (e.g.,\
+    \ `torch>=2.2.0`) instead of exact, pinned versions, and `code/config.py` does\
+    \ not contain any logic that enforces a 6.3\u202FGB memory limit (only sets `device`\
+    \ to CPU). Both the pinned\u2011dependency and memory\u2011limit requirements\
+    \ are therefore unmet."
+  sig: 2e826235a358593de2a85190bfee9a2fce318d76414d8fda0cdc1515b077ea89
