@@ -17,8 +17,42 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/train.py --seed 42 --steps 10 --mode debug -> rc=1
- by President Mohammad Khatami had called for an independent inquiry into the 54-year-old photojournalist \'s death .")][(\'idx\', 111), (\'label\', 1), (\'sentence1\', \'The suite comes complete with a word processor , spreadsheet , presentation software and other components , while continuing its tradition of utilizing an XML-based file format .\'), (\'sentence2\', \'The suite includes a word processor , spreadsheet , presentation application ( analogous to PowerPoint ) , and other components -- all built around the XML file format .\')][(\'idx\', 112), (\'label\', 1), (\'sentence1\', \'Downstream at Mount Vernon , the Skagit River was expected to crest at 36 feet -- 8 feet above flood stage -- tonight , Burke said .\'), (\'sentence2\', \'The Skagit was expected to crest during the night at 38 feet at Mount Vernon , 10 feet above flood stage , the National Weather Service said .\')][(\'idx\', 113), (\'label\', 0), (\'sentence1\', \'The blue-chip Dow Jones industrial average eased 44 points , or 0.47 percent , to 9,543 , after scoring five consecutive up sessions .\'), (\'sentence2\', \'The Dow Jones industrial average .DJI rose 18.25 points , or 0.19 percent , to 9,586.71 .\')]'
+ = Trainer(model=model, config=config, device=device)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/models/trainer.py", line 113, in __init__
+    self.memory_monitor = MemoryMonitor(config, self.logger)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/utils/memory_monitor.py", line 61, in __init__
+    self.checkpoint_dir = Path(checkpoint_dir)
+                          ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py", line 871, in __new__
+    self = cls._from_parts(args)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py", line 509, in _from_parts
+    drv, root, parts = self._parse_args(args)
+                       ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py", line 493, in _parse_args
+    a = os.fspath(a)
+        ^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not Logger
 
 - python code/train.py --seeds 0,1,2,3,4 --ratio 4:1 --warmup 20 -> rc=1
- by President Mohammad Khatami had called for an independent inquiry into the 54-year-old photojournalist \'s death .")][(\'idx\', 111), (\'label\', 1), (\'sentence1\', \'The suite comes complete with a word processor , spreadsheet , presentation software and other components , while continuing its tradition of utilizing an XML-based file format .\'), (\'sentence2\', \'The suite includes a word processor , spreadsheet , presentation application ( analogous to PowerPoint ) , and other components -- all built around the XML file format .\')][(\'idx\', 112), (\'label\', 1), (\'sentence1\', \'Downstream at Mount Vernon , the Skagit River was expected to crest at 36 feet -- 8 feet above flood stage -- tonight , Burke said .\'), (\'sentence2\', \'The Skagit was expected to crest during the night at 38 feet at Mount Vernon , 10 feet above flood stage , the National Weather Service said .\')][(\'idx\', 113), (\'label\', 0), (\'sentence1\', \'The blue-chip Dow Jones industrial average eased 44 points , or 0.47 percent , to 9,543 , after scoring five consecutive up sessions .\'), (\'sentence2\', \'The Dow Jones industrial average .DJI rose 18.25 points , or 0.19 percent , to 9,586.71 .\')]'
+ = Trainer(model=model, config=config, device=device)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/models/trainer.py", line 113, in __init__
+    self.memory_monitor = MemoryMonitor(config, self.logger)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/utils/memory_monitor.py", line 61, in __init__
+    self.checkpoint_dir = Path(checkpoint_dir)
+                          ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py", line 871, in __new__
+    self = cls._from_parts(args)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py", line 509, in _from_parts
+    drv, root, parts = self._parse_args(args)
+                       ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py", line 493, in _parse_args
+    a = os.fspath(a)
+        ^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not Logger
 

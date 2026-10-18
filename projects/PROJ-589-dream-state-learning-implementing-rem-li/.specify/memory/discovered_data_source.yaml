@@ -1,11 +1,9 @@
 status: none
-intent: GLUE benchmark MNLI QNLI dataset python package dataset
+intent: GLUE benchmark MNLI QNLI dataset download python package dataset
 required_fields:
-- premise
-- hypothesis
+- sentence1
+- sentence2
 - label
-- question
-- sentence
-cache_key: 29bcda7c834c497e820bd6bd24d3d39571201e98b7e28e908e3d906633291989
-searched_at: '2026-10-18T11:10:10.114061+00:00'
+cache_key: 736683e7c554275ec47128f57ea5d210072f5f5a3497b77c2b36b984f1a7111c
+searched_at: '2026-10-18T17:11:57.992472+00:00'
 retry_count: 1

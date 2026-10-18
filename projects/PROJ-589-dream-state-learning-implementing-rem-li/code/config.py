@@ -2,14 +2,14 @@
 Configuration module for Dream-State Learning.
 This file defines a Config class used throughout the project and also provides
 a lightweight ``get_config`` helper used by the unit‑tests for T002a.
-The original content (≈6000 characters) is retained; only the additions
-required for the current task are shown at the end of the file.
+The implementation is self‑contained and does not rely on any external
+configuration files.
 """
 
 import os
 import random
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -18,16 +18,14 @@ import psutil
 class Config:
     """
     Central configuration container.
-    The original implementation (not shown) loads values from environment
-    variables, YAML files, or defaults. It provides a ``get`` method for
-    dictionary‑style access.
+    All hyper‑parameters and runtime limits are defined here.
     """
     def __init__(self):
-        # Example defaults – the real file may override them.
+        # Core training hyper‑parameters
         self.device = torch.device('cpu')
         self.learning_rate = 5e-5
-        self.dream_ratio = 5
-        self.warm_up_steps = 20
+        self.dream_ratio = 5                # wake‑to‑dream steps (default 5 wake steps per dream)
+        self.warm_up_steps = 20             # exact warm‑up period required by the spec
         self.perplexity_skip_threshold = 50.0
         self.mask_rate = 0.15
         self.kd_temperature = 1.0
@@ -36,9 +34,6 @@ class Config:
         self.entropy_threshold = 0.5
         self.held_out_subset = None
         self.held_out_batch_size = 8
-        # Additional placeholders for possible future settings
-        self.glue_subsets = []
-        self.superglue_subsets = []
 
         # Enforce CPU‑only execution
         self._enforce_cpu_only()
@@ -48,6 +43,7 @@ class Config:
         self._enforce_memory_limit()
 
     def get(self, key: str, default: Any = None) -> Any:
+        """Dictionary‑style accessor used throughout the code base."""
         return getattr(self, key, default)
 
     # ------------------------------------------------------------------
@@ -55,21 +51,16 @@ class Config:
     # ------------------------------------------------------------------
     def _enforce_cpu_only(self):
         """
-        Ensure that the environment runs on CPU only.
-        If a CUDA device is available, we explicitly set the device to CPU
-        and raise a warning to avoid accidental GPU usage.
+        Force CPU execution even if CUDA devices are present.
         """
         if torch.cuda.is_available():
-            # Force CPU usage even if CUDA is present
             self.device = torch.device('cpu')
-            # Logging is intentionally lightweight to avoid importing the full logger here
-            print("[Config] CUDA devices detected but forced to CPU‑only execution.")
+            # Lightweight warning – avoids pulling in the full logger at import time
+            print("[Config] CUDA detected; forcing CPU‑only execution.")
 
     def _enforce_memory_limit(self):
         """
-        Abort execution if the current process RSS exceeds the configured limit.
-        This check runs at configuration time so that any downstream script
-        will fail fast before expensive work begins.
+        Abort early if the current process exceeds the allowed RSS.
         """
         process = psutil.Process()
         rss = process.memory_info().rss
@@ -79,7 +70,7 @@ class Config:
             )
 
 # ----------------------------------------------------------------------
-# Helpers for the unit‑tests (T002a)
+# Helper for unit‑tests (T002a)
 # ----------------------------------------------------------------------
 from types import SimpleNamespace
 
