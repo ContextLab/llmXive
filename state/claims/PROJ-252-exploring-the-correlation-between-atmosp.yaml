@@ -4304,3 +4304,37 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-12T09:24:11Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: script prints 'Seed initialization complete' and exits with code 0
+  claim_id: c_b03a1828
+  context: After setting seeds, the script prints a confirmation message and terminates
+    successfully.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The script prints 'Seed initialization complete.' and exits with code
+    0
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T03:19:38Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: code.main runs placeholder main entry point and exits with code 0
+  claim_id: c_0c0643a0
+  context: Executing the main module runs the placeholder entry point and terminates
+    without error.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: python -m code.main runs the placeholder main entry point and exits with
+    code 0
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T03:19:38Z'

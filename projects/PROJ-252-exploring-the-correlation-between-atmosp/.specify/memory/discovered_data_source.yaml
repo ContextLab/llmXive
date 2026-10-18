@@ -1,19 +1,19 @@
 status: none
-intent: download NOAA NCEP/NCAR reanalysis surface pressure and USGS 2013-2023 earthquake
-  catalog python package dataset
+intent: download NOAA NCEP/NCAR reanalysis USGS earthquake catalog ENSO PDO python
+  package dataset
 required_fields:
 - event_id
-- origin_time
-- latitude
-- longitude
+- time
 - magnitude
 - depth
-- pressure_grid_lat
-- pressure_grid_lon
-- pressure_timestamp
-- pressure_anomaly_0_48h
-- daily_pressure_anomaly
-- control_window_label
-cache_key: a423339a298ad8ab3fb327b2c646c9ccb64a2adb38bf905ace91f06f2645aeaa
-searched_at: '2026-10-12T11:52:52.732536+00:00'
+- latitude
+- longitude
+- mslp
+- pressure_anomaly
+- year
+- month
+- enso_phase
+- pdo_phase
+cache_key: 60d2d6602162602b392d4da1ad0d5967169630d4bbebfea62ab2a8c7af3564aa
+searched_at: '2026-10-18T03:22:18.210474+00:00'
 retry_count: 1

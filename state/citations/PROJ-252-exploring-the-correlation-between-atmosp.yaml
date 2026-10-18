@@ -1,14 +1,3 @@
-- artifact_hash: 35aa126e3ae13cfb79b77d8ee0b3c85c564a27584248aa98fc6378fb5aca2453
-  artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: query
-  kind: url
-  value: https://earthquake.usgs.gov/fdsnws/event/1/query`
-  verification_status: pending
-  verified_against_url: https://earthquake.usgs.gov/fdsnws/event/1/query
-  verified_at: '2026-10-12T09:24:12.198290Z'
 - artifact_hash: 2f2464eb0f347d25ea04df0e06a659707f9482f425cd0ac61b733b81c0838cc9
   artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/spec.md
   cite_id: c-001
@@ -119,7 +108,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
   verified_at: '2026-10-12T12:06:24.950545Z'
-- artifact_hash: b2b0995ab6fe639adfc598f0a3b31c9d7a011313a29604e3fbaf84ba343b6fc5
+- artifact_hash: 4e5549f4c6180f595db18cd1da2d5f95eb019ff72adae4dc12e269edeaa14fcb
   artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -129,8 +118,8 @@
   value: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
-  verified_at: '2026-10-18T03:18:18.769263Z'
-- artifact_hash: b2b0995ab6fe639adfc598f0a3b31c9d7a011313a29604e3fbaf84ba343b6fc5
+  verified_at: '2026-10-18T03:20:38.267638Z'
+- artifact_hash: 4e5549f4c6180f595db18cd1da2d5f95eb019ff72adae4dc12e269edeaa14fcb
   artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -140,8 +129,8 @@
   value: https://earthquake.usgs.gov/fdsnws/event/1/query?format=csv&starttime=2013-01-01&endtime=2023-12-31&minmagnitude=4&maxdepth=70
   verification_status: unreachable
   verified_against_url: https://earthquake.usgs.gov/fdsnws/event/1/query?format=csv&starttime=2013-01-01&endtime=2023-12-31&minmagnitude=4&maxdepth=70
-  verified_at: '2026-10-18T03:18:18.769263Z'
-- artifact_hash: b2b0995ab6fe639adfc598f0a3b31c9d7a011313a29604e3fbaf84ba343b6fc5
+  verified_at: '2026-10-18T03:20:38.267638Z'
+- artifact_hash: 4e5549f4c6180f595db18cd1da2d5f95eb019ff72adae4dc12e269edeaa14fcb
   artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -151,4 +140,4 @@
   value: https://huggingface.co/datasets/noaa/enso-pdo-indices/resolve/main/enso_pdo.csv`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/noaa/enso-pdo-indices/resolve/main/enso_pdo.csv
-  verified_at: '2026-10-18T03:18:18.769263Z'
+  verified_at: '2026-10-18T03:20:38.267638Z'
