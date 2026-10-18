@@ -1,24 +1,19 @@
-# Project dependencies
-pandas
+# Core dependencies (already provided in the environment)
 numpy
+pandas
 scipy
-scikit-learn
 matplotlib
+scikit-learn
+statsmodels
 seaborn
 pytest
 PyYAML
 requests
 jsonschema
-tqdm
-# Additional dependencies required for data acquisition and preprocessing
-datasets>=2.0.0
-rdkit-pypi>=2024.3.2
-# PyTorch and PyTorch Geometric (CPU‑only) are needed for later tasks but are
-# listed here to ensure the environment can be built once for the whole
-# pipeline.
-torch>=2.0.0
-torch-geometric
-torch-scatter
-torch-sparse
-torch-cluster
-torch-spline-conv
+psutil
+
+# Additional dependencies required for this project
+huggingface_hub
+rdkit-pypi
+# PyTorch and PyTorch Geometric are installed in the CI environment;
+# they are not listed here to avoid version conflicts.

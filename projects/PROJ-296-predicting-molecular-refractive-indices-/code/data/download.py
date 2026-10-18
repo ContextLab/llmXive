@@ -10,7 +10,7 @@ The script is intended to be run as a stand‑alone command:
 
 It performs the following steps:
 
-1. Download the dataset via the Hugging Face ``datasets`` library.
+1. Download the dataset CSV from Hugging Face Hub using ``hf_hub_download``.
 2. Persist the file to ``data/raw/ri_dataset.csv`` (creating the ``raw``
    directory if necessary).
 3. Compute the SHA‑256 checksum of the persisted file.
@@ -32,20 +32,20 @@ from pathlib import Path
 import pandas as pd
 import yaml
 from jsonschema import Draft7Validator, ValidationError
+from huggingface_hub import hf_hub_download
 
 from llmxive_toolkit import paths, get_logger
-
-# The ``datasets`` library is used to fetch the canonical dataset from
-# Hugging Face.  It is listed in ``requirements.txt``.
-from datasets import load_dataset
 
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Hugging Face dataset identifier for the refractive‑index dataset.
-HF_DATASET_ID = "zhanglab/ri-dataset"
+# Hugging Face repository identifier for the refractive‑index dataset.
+HF_REPO_ID = "zhanglab/ri-dataset"
+
+# Name of the CSV file inside the repository.
+HF_DATASET_FILENAME = "ri_dataset.csv"
 
 # Destination for the raw CSV file.
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
@@ -82,27 +82,38 @@ def write_checksum(checksum: str) -> None:
 
 def download_dataset() -> pd.DataFrame:
     """
-    Download the dataset via the Hugging Face ``datasets`` library and
-    return it as a ``pandas.DataFrame``.
+    Download the dataset CSV from Hugging Face Hub and return it as a
+    ``pandas.DataFrame``.
     """
-    log.info(f"Downloading dataset '{HF_DATASET_ID}' via huggingface_hub …")
+    log.info(
+        f"Downloading '{HF_DATASET_FILENAME}' from repository '{HF_REPO_ID}' via huggingface_hub …"
+    )
     try:
-        ds = load_dataset(HF_DATASET_ID, split="train")
+        local_path = hf_hub_download(
+            repo_id=HF_REPO_ID,
+            filename=HF_DATASET_FILENAME,
+            repo_type="dataset",
+            # Do not cache forever; we want a fresh copy each run.
+            force_download=False,
+        )
     except Exception as exc:
-        raise RuntimeError(f"Failed to load dataset '{HF_DATASET_ID}': {exc}") from exc
+        raise RuntimeError(
+            f"Failed to download dataset file '{HF_DATASET_FILENAME}' from '{HF_REPO_ID}': {exc}"
+        ) from exc
 
-    # Convert the Dataset object to a pandas DataFrame.
+    log.info(f"Dataset downloaded to temporary location {local_path}")
+
     try:
-        df = ds.to_pandas()
+        df = pd.read_csv(local_path)
     except Exception as exc:
-        raise RuntimeError(f"Failed to convert dataset to pandas DataFrame: {exc}") from exc
+        raise RuntimeError(f"Failed to read downloaded CSV into pandas: {exc}") from exc
 
-    log.info(f"Loaded {len(df)} records from the Hugging Face dataset.")
+    log.info(f"Loaded {len(df)} records from the CSV.")
     return df
 
 
 def save_dataframe(df: pd.DataFrame) -> None:
-    """Write *df* to the CSV path, creating parent directories if needed."""
+    """Write *df* to the canonical CSV path, creating parent directories if needed."""
     RAW_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(RAW_CSV_PATH, index=False)
     log.info(f"Saved raw CSV to {RAW_CSV_PATH}")
@@ -138,8 +149,7 @@ def validate_rows(df: pd.DataFrame) -> None:
     This function delegates to the lightweight validator defined above.
     """
     log.info(f"Loading schema from {SCHEMA_PATH}")
-    # The full schema is loaded for documentation purposes, but we only
-    # enforce the minimal checks required for the raw file.
+    # Load the full schema for documentation; we only enforce the minimal checks.
     with SCHEMA_PATH.open("r", encoding="utf-8") as f:
         _ = yaml.safe_load(f)  # noqa: F841 – intentionally ignored
 
