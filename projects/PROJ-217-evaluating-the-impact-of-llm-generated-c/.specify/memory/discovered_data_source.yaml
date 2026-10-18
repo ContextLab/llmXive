@@ -1,17 +1,13 @@
 status: none
-intent: CodeSearchNet Python dataset with BLEU ROUGE-L and Sentence-BERT embeddings
-  python package dataset
+intent: download CodeSearchNet Python dataset BLEU reference ROUGE-L Sentence-BERT
+  embeddings human evaluation csv python package dataset
 required_fields:
 - snippet_id
 - code
 - human_docstring
 - llm_generated_comment
-- no_comment_baseline
-- invalid_docstring_flag
-- bleu_reference_score
-- rougeL_reference_score
-- sentence_bert_embedding_vector
-- human_evaluation_rating
-cache_key: cd9060e4be6eed484761e01552d7297285643f3d842a96cc011ed17d54107273
-searched_at: '2026-10-11T03:17:08.676235+00:00'
+- no_comment
+- invalid_docstring
+cache_key: ef3d484dd0c1007e613a438001015bf4e7fc137a2fba70d226c287e2a60cee02
+searched_at: '2026-10-18T05:16:41.938099+00:00'
 retry_count: 1

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
-description: "Schema for the JSON file containing ANOVA and power analysis results."
+description: "Schema for the JSON file containing ANOVA, power analysis, and correlation results."
 type: object
 required:
   - power_analysis
@@ -44,8 +44,10 @@ properties:
         description: "Two‑tailed p‑value."
       df_between:
         type: integer
+        description: "Degrees of freedom between groups."
       df_within:
         type: integer
+        description: "Degrees of freedom within groups."
   anova_accuracy:
     type: object
     required:
@@ -62,8 +64,10 @@ properties:
         description: "Two‑tailed p‑value."
       df_between:
         type: integer
+        description: "Degrees of freedom between groups."
       df_within:
         type: integer
+        description: "Degrees of freedom within groups."
   correlation_metrics:
     type: array
     description: "List of correlation results for each metric‑outcome pair."
@@ -78,7 +82,7 @@ properties:
       properties:
         metric:
           type: string
-          enum: ["BLEU", "ROUGE_L", "Semantic_Similarity"]
+          enum: ["BLEU", "ROUGE_L", "Semantic_Similarity", "Comment_Length"]
         outcome:
           type: string
           enum: ["completion_time_sec", "accuracy", "subjective_helpfulness"]
@@ -90,4 +94,5 @@ properties:
           description: "Unadjusted p‑value."
         p_value_corrected:
           type: number
-          description: "Bonferroni‑corrected p‑value (α/3)."
+          description: "Bonferroni‑corrected p‑value (α divided by number of tests)."
+
