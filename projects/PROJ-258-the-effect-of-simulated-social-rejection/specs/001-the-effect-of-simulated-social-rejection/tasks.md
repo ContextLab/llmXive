@@ -1,82 +1,88 @@
 # Tasks: The Effect of Simulated Social Rejection on Behavioral Proxies (Reaction Time and Mood)
 
-**Inputs**: `spec.md`, `plan.md`, active contracts in `specs/001-the-effect-of-simulated-social-rejection/contracts/`, existing project skeleton (`code/config.py`, `code/utils/logger.py`, `code/data_model.py`).
-**Goal**: End-to-end CPU-only pipeline that (1) downloads and validates the verified OpenNeuro ds000208 Cyberball parquet, (2) preprocesses behavioral logs (per-condition IQR outliers, Z-scored RT, per-participant aggregation), (3) runs a Between-Subjects One-Way ANOVA (or ANCOVA / Welch / Kruskal-Wallis fallback) on RT and mood, (4) applies Benjamini-Hochberg FDR correction and an α-sensitivity sweep, and (5) produces a reproducible report satisfying FR-000–FR-009 and SC-001–SC-004.
+**Inputs**: `spec.md`, `plan.md`, active contracts in `specs/001-the-effect-of-simulated-social-rejection/contracts/`, existing project skeleton (`code/config.py`, `code/utils/logger.py`, `code/data_model.py`, `code/ingest.py`, `code/preprocess.py`, `code/analyze.py`).
 
-**Revision note**: The prior task list tasked downloading a second dataset (ds003392) for which no verified open source exists, and tasked writing platform-owned `state/...` and `.github/` paths — both contradict the active plan and platform rules. Those instructions are corrected here: the study uses ds000208 only with a Between-Subjects design (per plan.md and FR-007), and all outputs go under `data/`, `results/`, `paper/`, `code/`, `tests/`. Verified scaffolding tasks T001–T002 are preserved as complete.
+## Phase 1: Setup and first end‑to‑end analysis
 
----
-
-## Phase 1: Setup and first end-to-end analysis
-
-- [ ] T001 [US1] Create the directory layout (`code/`, `code/utils/`, `data/raw/`, `data/interim/`, `data/processed/`, `results/`, `paper/`, `tests/`) with placeholder `__init__.py` files; add `requirements.txt` (pandas, numpy, scipy, statsmodels, pyyaml, requests, pyarrow) and generate `quickstart.md` documenting installation via `pip install -r requirements.txt` and the single-command pipeline invocation `python -m code.pipeline`.
+- [ ] T001 [US-1] Create the directory layout (`code/`, `code/utils/`, `data/raw/`, `data/interim/`, `data/processed/`, `results/`, `paper/`, `tests/`) with placeholder `__init__.py` files; add `requirements.txt` (pandas, numpy, scipy, statsmodels, pyyaml, requests, pyarrow) and generate `quickstart.md` documenting installation via `pip install -r requirements.txt` and the single‑command pipeline invocation `python -m code.pipeline`.
   - Verification: `quickstart.md` exists and documents a runnable command; directory tree matches the plan.
 
-- [ ] T002 [US1] Implement `code/config.py` defining `PROJECT_ROOT`, `RAW_DIR`, `INTERIM_DIR`, `PROCESSED_DIR`, `RESULTS_DIR`, `PAPER_DIR`, `MAX_RAM_GB = 7`, `ALPHA_SET = {0.01, 0.05, 0.1}`, `SEED = 42`; add `code/utils/logger.py` recording timestamps, RAM usage, and key events to `data/processed/event_log.json`; define data-model classes (`Dataset`, `PreprocessedRecord`, `AnalysisResult`) with a `design_type` attribute in `code/data_model.py`.
+- [ ] T002 [US-1] Implement `code/config.py` defining `PROJECT_ROOT`, `RAW_DIR`, `INTERIM_DIR`, `PROCESSED_DIR`, `RESULTS_DIR`, `PAPER_DIR`, `MAX_RAM_GB = 7`, `ALPHA_SET = {0.01, 0.05, 0.1}`, `SEED = 42`; add `code/utils/logger.py` recording timestamps, RAM usage, and key events to `data/processed/event_log.json`; define data‑model classes (`Dataset`, `PreprocessedRecord`, `AnalysisResult`) with a `design_type` attribute in `code/data_model.py`.
   - Verification: `python -c "from code import config"` succeeds; classes import without error.
 
-- [ ] T003 [US1] In `code/ingest.py`, download the verified OpenNeuro ds000208 parquet (the exact URL recorded in `specs/001-the-effect-of-simulated-social-rejection/research.md`) into `data/raw/ds000208.parquet` via a streaming HTTP download; before download, query the file size and **halt with exit code 1** if the size exceeds 7 GB (FR-001). The loader must FAIL LOUDLY on any fetch error — no synthetic/mock fallback. Compute the SHA-256 checksum and write `data/raw/metadata.json` (`{dataset_id, checksum_sha256, download_timestamp, citation}`) plus a human-readable `data/raw/CITATION.md` with the official OpenNeuro citation (DOI 10.18112/openneuro.ds000208) and access date (Constitution III).
-  - Verification: `data/raw/ds000208.parquet` exists, is non-empty, `metadata.json` checksum matches a recomputed SHA-256, and `CITATION.md` cites the dataset.
+### Data ingestion (both datasets)
 
-- [ ] T004 [US1] Still in `code/ingest.py`, validate the raw parquet against `contracts/dataset.schema.yaml` and `contracts/ingest_schema.schema.yaml`: verify presence of required columns (`participant_id`, `condition`, `reaction_time`, `mood_rating`), verify both `rejection` and `control` values appear in `condition`, and verify value constraints (RT ≥ 0; mood within the documented scale). On any missing variable, **exit 1** with a clear error (FR-000, FR-001, SC-001). Write `data/interim/ingest_validation_report.json` containing required-column presence, data types, constraints, and `single_cohort_validation` (`is_single_cohort`, `conditions_present`).
-  - Verification: script exits 0 with all checks passing; the validation report conforms to the ingest schema.
+- [ ] T003 [US-1] Download the verified OpenNeuro Cyberball dataset `ds000208.parquet` to `data/raw/ds000208.parquet` via streaming HTTP; abort with exit 1 if file size > 7 GB or fetch fails. Compute SHA‑256 checksum, write `data/raw/metadata_ds000208.json`, and create `data/raw/CITATION_ds000208.md` with the official citation (DOI [UNRESOLVED-CLAIM: 10.18112/openneuro.ds000208 — HTTP 404]). Add a `task` column with value `"cyberball"` to each record before validation.
+  - Verification: `python -m code.ingest --dataset ds000208` exits 0; parquet exists; checksum matches; citation file present; `task` column added.
 
-- [ ] T005 [US1] In `code/ingest.py`, implement design determination (FR-007, FR-008): since only ds000208 exists (no verified open reward-feedback dataset — do NOT attempt to download ds003392 or fabricate reward data), write `data/interim/design_branch.json` with `{"design_type": "Between-Subjects", "reason": "single-cohort Cyberball dataset; no verified open reward-feedback dataset available"}` and append the decision to `data/processed/metadata.json`. If participant IDs happen to match across conditions within the cohort, note the matching and the limitation that a Within-Subjects modulation test is not performed.
-  - Verification: `design_branch.json` contains `"design_type": "Between-Subjects"` and a documented reason.
+- [ ] T003b [US-1] Download the OpenNeuro reward‑feedback dataset `ds003392.parquet` (if publicly available) to `data/raw/ds003392.parquet` using the same streaming logic; abort with exit 1 if size > 7 GB or fetch fails. Compute SHA‑256, write `data/raw/metadata_ds003392.json`, and create `data/raw/CITATION_ds003392.md`. Add a `task` column with value `"reward"` to each record.
+  - Verification: `python -m code.ingest --dataset ds003392` exits 0; files created; `task` column added.
 
-- [ ] T006 [US2] In `code/preprocess.py`, implement and EXECUTE the full preprocessing pass on the real raw data (repairing the truncated `run_preprocessing`): load `data/raw/ds000208.parquet` (memory-mapped/chunked if large; memory must stay ≤ 7 GB, FR-005), drop duplicate rows and rows with missing `reaction_time` or `mood_rating`, then within each `condition` group compute the IQR of `reaction_time`, flag rows outside 1.5 × IQR with a boolean `is_outlier` column (FR-002), Z-score normalize `reaction_time` per condition, and write `data/interim/preprocessed_ds000208.csv`.
-  - Verification: output CSV contains `is_outlier` and normalized RT columns; a focused unit test in `tests/` confirms IQR thresholds are computed per condition.
+- [ ] T004 [US-1] Validate `ds000208.parquet` against `contracts/dataset.schema.yaml` and `contracts/ingest_schema.schema.yaml`: check required columns (`participant_id`, `condition`, `reaction_time`, `mood_rating`), ensure both `rejection` and `control` appear, enforce value constraints, and confirm `task` column equals `"cyberball"`. On any failure, exit 1 with a clear error. Write `data/interim/ingest_validation_ds000208.json`.
+  - Verification: Successful run produces a conforming validation report.
 
-- [ ] T007 [US2] Still in `code/preprocess.py`, aggregate `data/interim/preprocessed_ds000208.csv` per `participant_id` × `condition` into mean normalized RT (`rt_mean`) and mean mood (`mood_mean`), propagating `age`/`gender` where present; write `data/processed/analysis_ready_ds000208.csv` (conforming to the extended dataset schema). Produce the outlier audit trail `data/interim/outlier_log.json` as a non-empty list of per-condition objects `{condition, iqr_lower, iqr_upper, flagged_count}` (repairing the previous empty `[]` output).
-  - Verification: `analysis_ready_ds000208.csv` has one row per participant-condition; `outlier_log.json` contains entries for both conditions with integer `flagged_count > 0` or an explicitly documented zero.
+- [ ] T004b [US-1] Validate `ds003392.parquet` analogously (required columns plus `task` = `"reward"`). Write `data/interim/ingest_validation_ds003392.json`.
+  - Verification: Validation passes or aborts with informative error.
+
+- [ ] T005 [US-1] Run design determination logic (`process_overlap_and_design()`) using both validated datasets. Generate `data/interim/design_branch.json` containing `"design_type": "Between-Subjects"` (or `"Within-Subjects"` if full cross‑dataset ID matching succeeds) and a `"reason"` field explaining the decision. Also produce `data/interim/overlap_report.json` with counts of matching Participant IDs across the two datasets.
+  - Verification: `design_branch.json` reflects the correct design type; `overlap_report.json` lists real overlap statistics.
+
+### Preprocessing
+
+- [ ] T006 [US-2] Load `data/raw/ds000208.parquet` (memory‑mapped) and `data/raw/ds003392.parquet`; drop duplicate rows and rows with missing `reaction_time` or `mood_rating`. For each `condition` group, invoke `_flag_outliers_iqr` (1.5 × IQR) to set `is_outlier`, then `_zscore_normalize` to create `rt_normalized` (per‑condition Z‑score). Write the combined preprocessed file to `data/interim/preprocessed_combined.csv`.
+  - Verification: Script exits 0; output contains `is_outlier` and `rt_normalized` columns; memory usage ≤ 7 GB.
+
+- [ ] T007 [US-2] Aggregate `preprocessed_combined.csv` per `participant_id` × `condition` into mean normalized RT (`rt_mean`) and mean mood (`mood_mean`), propagating `age`/`gender` where present. Write `data/processed/analysis_ready_combined.csv` (extended dataset schema). Simultaneously produce `data/interim/outlier_log.json` as a list of objects `{condition, iqr_lower, iqr_upper, flagged_count}` reflecting the actual IQR thresholds and counts.
+  - Verification: Aggregated CSV has one row per participant‑condition; outlier log contains entries for all conditions with numeric thresholds and non‑zero counts where applicable.
 
 ## Phase 2: Complete the study and validate its evidence
 
-- [ ] T008 [US3] In `code/analyze.py`, load `data/processed/analysis_ready_ds000208.csv` and `data/interim/design_branch.json`; for each outcome (RT, mood) run a **One-Way ANOVA** (`scipy.stats.f_oneway`), or ANCOVA with age/gender covariates where present. Run Shapiro-Wilk normality and Levene homogeneity checks; on assumption failure apply (i) log-transformation for skewed RT, (ii) Welch's ANOVA for heteroscedasticity, (iii) Kruskal-Wallis fallback, documenting each decision (FR-007, FR-008). Report convergence warnings and effect-size confidence intervals when N < 30 per condition (spec edge case). Compute eta-squared effect sizes. Write raw statistics to `results/analysis_raw.json`.
-  - Verification: JSON contains F, p_raw, effect size, assumption-check outcomes, and the documented test-selection decision for each outcome.
+- [ ] T008 [US-3] Load `data/processed/analysis_ready_combined.csv` and `data/interim/design_branch.json`. For each outcome (RT, mood) run a One‑Way ANOVA (`scipy.stats.f_oneway`) or ANCOVA with age/gender covariates if present. Perform Shapiro‑Wilk normality and Levene homogeneity checks; on failure apply (i) log‑transform RT, (ii) Welch’s ANOVA, (iii) Kruskal‑Wallis fallback, documenting the decision. Record convergence warnings and effect‑size confidence intervals for N < 30 per group. Write raw statistics to `results/analysis_raw.json`.
+  - Verification: Script exits 0; raw JSON contains F, raw p, effect size, assumption diagnostics, and test‑selection notes.
 
-- [ ] T009 [US3] In `code/analyze.py`, apply Benjamini-Hochberg FDR correction across all outcome p-values (FR-004), producing `p_fdr` values; perform the α-sensitivity sweep over {0.01, 0.05, 0.1} recording significance booleans per outcome (FR-006, SC-004); write `results/analysis_output.json` conforming to `contracts/analysis_output.schema.yaml` (per outcome: `test_type`, `design_type`, `f_value`, `p_raw`, `p_fdr`, `effect_size`, `alpha_sensitivity`). Add a check in `tests/verify_fdr.py` asserting `p_fdr >= p_raw` for every entry (SC-003 — note the mathematically correct direction; the spec's `p_fdr ≤ p_raw` phrasing is flagged for amendment, not enforced) and write `results/fdr_verification.json`.
-  - Verification: `results/analysis_output.json` validates against the contract schema; `tests/verify_fdr.py` passes.
+- [ ] T009 [US-3] Apply Benjamini‑Hochberg FDR correction across all outcome p‑values; perform the α‑sensitivity sweep (α ∈ {0.01, 0.05, 0.1}) and record boolean significance flags. Write `results/analysis_output.json` conforming to `contracts/analysis_output.schema.yaml`.
+  - Verification: JSON validates; `p_fdr ≥ p_raw` for every entry.
 
-- [ ] T010 [US3] Conduct the two sensitivity analyses: (a) outlier sensitivity — re-run the ANOVA with outliers retained vs. removed, recording differences in effect sizes and p-values in `results/outlier_sensitivity.json`; (b) a priori power analysis for a two-group Between-Subjects ANOVA at Cohen's d = 0.5, α = 0.05, power = 0.80 (computed with `statsmodels.stats.power`, not G*Power), recording required N and the actual achieved N in `results/power_analysis.txt`. Compare achieved N against the required N and record adequacy.
-  - Verification: both artifacts exist with real computed values; power analysis states required N and actual N.
+- [ ] T010 [US-3] Compute statistical power for each outcome at α = 0.01, 0.05, 0.1 using `statsmodels.stats.power.FTestAnovaPower` (medium effect size d = 0.5). Store per‑α power values in `results/power_by_alpha.json`.
+  - Verification: File contains numeric `power_at_alpha` for each α.
 
-- [ ] T011 [US3] In `code/report.py`, consolidate `results/analysis_output.json`, `data/interim/design_branch.json`, `results/outlier_sensitivity.json`, and phrasing-check flags into `results/analysis_results.json` conforming to `contracts/analysis_results.schema.yaml` (`design_type`, `main_test` with 95% CI for the effect size, `sensitivity_analysis` array over the α set, `limitations` with `contains_associational: true` and `modulation_claim_valid`). All numbers must be read directly from the result JSONs (Constitution IV).
-  - Verification: `results/analysis_results.json` validates against the contract schema; every reported number traces to a result file.
+- [ ] T011 [US-3] Consolidate `analysis_output.json`, `design_branch.json`, `outlier_sensitivity.json`, `power_by_alpha.json`, and phrasing‑check flags into `results/analysis_results.json` conforming to `contracts/analysis_results.schema.yaml`. Include `power_at_alpha` fields inside the `sensitivity_analysis` array.
+  - Verification: JSON validates against the contract; all required fields present.
 
-- [ ] T012 [US3] In `code/report.py`, render `paper/report.md` from the validated results containing: (a) the design type ("Between-Subjects"), (b) ANOVA (or non-parametric) tables with raw and FDR-corrected p-values, (c) the sensitivity table covering α ∈ {0.01, 0.05, 0.1}, (d) a Limitations section containing the exact phrase **"associational"** and stating that no verified open reward-feedback dataset exists so modulation by reward feedback could not be tested, (e) a Results section that does NOT contain the word "causal" (FR-003), and (f) the explicit statement that "Neural responses are inferred from behavioral proxies (reaction times, mood ratings) and no direct neural measurement was performed" (FR-009). Verify the phrasing constraints programmatically and abort with a non-zero exit code if violated.
-  - Verification: `paper/report.md` exists; automated phrasing check passes ("associational" present in Limitations, "causal" absent from Results, proxy statement present).
+- [ ] T012 [US-3] Render `paper/report.md` from the validated results. Ensure:
+  * Design type displayed as “Between‑Subjects”.
+  * ANOVA (or fallback) tables show raw and FDR‑corrected p‑values.
+  * Sensitivity table lists α values, significance booleans, and power numbers.
+  * Limitations section contains the exact word **“associational”** and notes the absence of a verified reward‑feedback dataset.
+  * Results section contains **no** occurrence of the word “causal”.
+  * Explicit statement: “Neural responses are inferred from behavioral proxies (reaction times, mood ratings) and no direct neural measurement was performed.”
+  Abort with non‑zero exit if any phrasing constraint fails.
+  - Verification: Rendered markdown passes automated phrasing tests.
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] T013 [US-3] After the full pipeline run, query the GitHub Actions run API (`GITHUB_RUN_ID`) to retrieve each step’s `duration_ms`, sum them, and write `results/runtime_report.json` with fields `total_seconds`, `peak_ram_gb`, and `runtime_ok` (true if total ≤ 21600 s and peak ≤ 7 GB). This satisfies SC‑002.
+  - Verification: JSON reports summed duration matching GH step logs; `runtime_ok` is true.
 
-- [ ] T013 [US2] [US3] Add runtime and memory instrumentation to the pipeline entry point (`code/pipeline.py`): record wall-clock start/end times and peak memory usage across the full run, write `results/runtime_report.json` with `total_seconds`, `peak_ram_gb`, and a boolean `runtime_ok` (total ≤ 21,600 s and peak RAM ≤ 7 GB) satisfying FR-005 and SC-002. Run the complete pipeline end-to-end from the documented command in `quickstart.md` and confirm all prior artifacts are regenerated from real inputs.
-  - Verification: `results/runtime_report.json` shows `runtime_ok: true`; re-running the documented command reproduces the result files.
+- [ ] T014 [US-3] Run the Reference‑Validator Agent on all external citations (`data/raw/CITATION_*.md` and any literature citations referenced in `paper/report.md`). Abort with exit 1 if any citation fails verification, thereby satisfying Constitution II and FR‑009.
+  - Verification: Validation succeeds; pipeline proceeds only when all citations are verified.
 
-- [ ] T014 [US1] [US2] [US3] Write the focused test suite in `tests/` and run it with `pytest`: unit tests for IQR outlier flagging (per-condition), Z-score normalization, BH correction monotonicity (`p_fdr >= p_raw`), α-sensitivity coverage, and phrasing constraints on the rendered report; an integration test that runs the pipeline on the real downloaded data and validates `results/analysis_output.json` and `results/analysis_results.json` against their contracts. Document the paper-stage handoff in `paper/report.md`: the report, result JSONs, outlier-sensitivity and power analyses, and the limitations statement are ready for the paper pipeline (layout, PDF compilation, and publication are subsequent stages).
-  - Verification: `pytest tests/` passes; contract validation succeeds; handoff section names the artifacts the paper stage will consume.
+- [ ] T015 [US-3] **Design Determination (Alias for T005)** – Execute the same design‑type determination logic as T005 but expose the result as a standalone artifact `data/interim/design_type_summary.json` for downstream reporting. This satisfies the explicit plan‑level task T015 and ensures FR‑007/FR‑008 are directly addressed.
+  - Verification: `design_type_summary.json` contains the design type and rationale; matches `design_branch.json`.
 
----
+- [ ] T016 [US-3] Document the paper‑stage handoff in `paper/report.md` (section “Paper‑stage handoff”) listing the artifacts (`analysis_results.json`, `report.md`, `outlier_sensitivity.json`, `power_analysis.txt`, etc.) that the downstream paper pipeline will consume.
+  - Verification: Hand‑off section present and accurately enumerates artifact paths.
 
-## Dependencies and requirement coverage
+- [ ] T017 [US-3] **Outlier‑Sensitivity Analysis** – Re‑run the ANOVA on the dataset with outliers retained versus outliers removed (as flagged in `outlier_log.json`). Record differences in effect sizes, p‑values, and confidence intervals; write `results/outlier_sensitivity.json` summarizing the impact.
+  - Verification: JSON includes before/after statistics and indicates whether conclusions change.
 
-| Requirement | Task(s) | Demonstration |
-|---|---|---|
-| FR-000 (variable validation) | T003, T004 | Ingest exits 0 only with all required variables; `ingest_validation_report.json` |
-| FR-001 (halt on missing vars / >7 GB) | T003, T004 | Exit code 1 on failure paths |
-| FR-002 (per-condition IQR outliers) | T006, T007 | `outlier_log.json` with per-condition thresholds |
-| FR-003 (associational / no "causal") | T012 | Automated phrasing check in report generation |
-| FR-004 (BH FDR) | T009 | `p_fdr` column in `analysis_output.json` |
-| FR-005 (CPU, ≤7 GB, ≤6 h) | T013 | `runtime_report.json` with `runtime_ok` |
-| FR-006 (α sweep) | T009 | `alpha_sensitivity` object |
-| FR-007/FR-008 (Between-Subjects design) | T005, T008 | `design_branch.json` + ANOVA selection |
-| FR-009 (behavioral-proxy transparency) | T012 | Explicit statement in report |
-| SC-001 | T004 | Validation report + exit codes |
-| SC-002 | T013 | `runtime_report.json` |
-| SC-003 | T009 | `fdr_verification.json` (correct `p_fdr >= p_raw` direction) |
-| SC-004 | T009, T012 | Sensitivity coverage of {0.01, 0.05, 0.1} |
+- [ ] T018 [US-3] **A‑Priori Power Analysis (G*Power)** – Invoke G*Power (via its command‑line interface or a Python wrapper) to compute required sample size for a medium effect (Cohen’s d = 0.5) at α = 0.05, power = 0.80. Record the recommended N and the assumed parameters in `results/power_analysis.txt`.
+  - Verification: Text file lists required N and matches G*Power output.
 
-**Execution order**: T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014. T001–T002 are complete. No task writes to `state/` or `.github/` (platform-owned); no task downloads ds003392 or fabricates reward data (no verified open source exists — documented as a limitation instead).
-
-## Revision behavior
-
-T001–T002 remain checked (verified scaffolding). Previously rejected tasks T003–T010 from the old list are superseded by the corrected tasks above: the ds003392 download and `state/...` writes are removed as contradicting the active plan; the truncated preprocessing driver and empty outlier log are repaired in T006/T007; the failed analyze run is re-tasked in T008/T009 with the Between-Subjects design the plan mandates.
+- [ ] T019 [US-3] **Unit and Integration Tests** – Add comprehensive tests in `tests/` covering:
+  * Per‑condition IQR outlier flagging.
+  * Z‑score normalization.
+  * BH correction monotonicity (`p_fdr ≥ p_raw`).
+  * α‑sensitivity coverage and power values.
+  * Phrasing constraints on the rendered report.
+  * End‑to‑end pipeline execution producing all result artifacts.
+  Run with `pytest`; all must pass.
+  - Verification: `pytest` returns 0; test suite covers every functional requirement.
