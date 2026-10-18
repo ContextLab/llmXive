@@ -7,19 +7,19 @@
     },
     {
       "metric": "ospan_total_correct",
-      "mean_change": -0.35294117647058826
+      "mean_change": -0.23529411764705882
     },
     {
       "metric": "panas_negative",
-      "mean_change": 1.5588235294117647
+      "mean_change": -2.4411764705882355
     },
     {
       "metric": "panas_positive",
-      "mean_change": 1.5
+      "mean_change": 2.1470588235294117
     },
     {
       "metric": "pss10_total",
-      "mean_change": -3.088235294117647
+      "mean_change": -0.5882352941176471
     },
     {
       "metric": "sart_commission_errors",
@@ -27,11 +27,11 @@
     },
     {
       "metric": "sart_mean_rt",
-      "mean_change": -25.04999999999994
+      "mean_change": 45.04823529411768
     },
     {
       "metric": "sart_omission_errors",
-      "mean_change": -0.8529411764705882
+      "mean_change": -0.9117647058823529
     }
   ]
 }

@@ -1,27 +1,21 @@
 T001:
-  c: true
-  h: 93a00225fc0f4279761aa1b7a248e84f0b9edc0ed642212762181fecdbdd008c
-  r: I verified the directory layout (`code/` with scoring/analysis/validation/viz,
-    `code/tests/`, `data/raw|processed|results`), `study_config.yaml` containing all
-    required keys with correct types and values (grid [0.0,0.2,0.4], bootstrap 10000,
-    pilot_n 5, per-metric effect_sizes), `requirements.txt` with fully pinned versions,
-    `quickstart.md` naming the exact command `python -m code.pipeline.run_all --config
-    code/config/study_config.yaml`, and a non-empty `data/checksums.sha256` manifest
-    covering files under `data/`. Execution evidence is present via `data/results/pipeline_status.json`
-    and `smoke
-  sig: 62125f9737868b319ad243a093ee8e7cae709a43faee8dc6f9f4a4b7adb24683
-T003:
   c: false
-  h: 577051351f8dc2934b31e9ee542d6f0c195c076a82ac326fc373c59548f32b3a
-  r: "The script and output files exist, but several explicit requirements are violated:\
-    \ (1) measurements are scored by ad-hoc internal `_score_sart`/`_score_ospan`\
-    \ functions that the code itself comments \"avoids buggy external functions\"\
-    \ instead of being \"derived from the trial files via `code/scoring/`\" as required,\
-    \ and the config effect-size shifts are applied directly to post scores so they\
-    \ no longer derive from the trial-level data at all; (2) re-running is not byte-identical\
-    \ \u2014 trial CSVs and `simulated_measurements.csv` are opened in append mode\
-    \ (`mode=\"a\"`) without clearing, so a second run d"
-  sig: 2faed7a4aa68f4220261e19a4ec5fd842f64e86bc3998028f8fa574998f8a35c
+  h: 8af324571b006b6e475277ebda05cdc3d730ed4a6ac7dea2bc1ba37d47fbdcd4
+  r: "The project layout, config file, requirements.txt, quickstart.md, and checksum\
+    \ manifest all exist and contain the required content, but there is no evidence\
+    \ (e.g., execution logs, test run output) that the documented command `python\
+    \ -m code.pipeline.run_all --config code/config/study_config.yaml` actually runs\
+    \ end\u2011to\u2011end without error. Provide a successful run log or pytest results\
+    \ confirming the pipeline execution."
+  sig: 8849babf0e5264f129cb4c148f9cc3ff128bb3c33e2119a7e623b41b99acad45
+T002:
+  c: true
+  h: ccc77eaf36ecf3a72c97e6107df01dfec1d251c326ae7eee16e96c91f1916efe
+  r: Checked the implementations in `code/scoring/sart.py`, `ospan.py`, `pss10.py`,
+    `panas.py` and the comprehensive unit tests in `code/tests/test_scoring.py`, which
+    all passed (see the pytest execution log) and verify the required logic, range
+    bounds, edge cases, and the synthetic pilot check.
+  sig: cb2f2359448a5e83ec9355f7d0c75c6a505807f7b452f7cee6131f5b3010d776
 T009:
   c: false
   h: 4597374f973ff302b8c066b016acbdd6656e3a50917d9c2ce369b9ffe4cb8fd8

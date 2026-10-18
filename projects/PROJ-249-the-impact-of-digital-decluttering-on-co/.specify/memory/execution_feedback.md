@@ -67,7 +67,7 @@ ERROR tests/unit/test_bootstrap_ci.py
 ERROR tests/unit/test_config.py
 ERROR tests/unit/test_edge_cases.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 24 warnings, 4 errors in 1.99s ========================
+======================== 24 warnings, 4 errors in 1.73s ========================
 
 
 

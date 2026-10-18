@@ -1,15 +1,14 @@
 status: none
-intent: psychology baseline SART OSPAN PSS-10 PANAS dataset download open science
-  python package dataset
+intent: SART OSPAN PSS-10 PANAS baseline data from OSF Task Repository python package
+  dataset
 required_fields:
 - participant_id
-- assessment_timestamp
+- timestamp
 - sart_commission_errors
-- sart_omission_errors
-- ospan_total_score
+- ospan_score
 - pss10_total_score
-- panas_positive_affect_score
-- panas_negative_affect_score
-cache_key: d81e16b20a5d28c8242160f3b3d78fd3927adfb1d458f059a695fdf41ca9836c
-searched_at: '2026-10-18T09:10:21.381022+00:00'
+- panas_positive_affect
+- panas_negative_affect
+cache_key: 14d86c9744fad8c32dfce59e8d8333584d90a82bbdf8ea328256f86f08641824
+searched_at: '2026-10-18T10:21:08.907746+00:00'
 retry_count: 1
