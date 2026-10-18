@@ -1,13 +1,13 @@
 status: none
-intent: download pi-bench interaction traces dataset python package dataset
+intent: download pi-bench interaction traces dataset with ground truth intents python
+  package dataset
 required_fields:
 - dialogue_id
-- turn_index
+- turn_number
 - speaker
 - utterance_text
+- hidden_intent_label
 - timestamp
-- ground_truth_intent
-- intent_label
-cache_key: d9a1e5c8441453fb123d53e368f74ae109e2e3b72d467023747367693f5a3ed7
-searched_at: '2026-10-18T02:19:33.600663+00:00'
+cache_key: 8b02b489c1db1e3f879697c4669d044794626b97d801194f96961fa588f368df
+searched_at: '2026-10-18T02:27:44.653595+00:00'
 retry_count: 1

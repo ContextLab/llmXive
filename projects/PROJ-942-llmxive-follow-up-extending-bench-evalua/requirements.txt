@@ -1,0 +1,7 @@
+# Project dependencies
+datasets>=2.14
+# Existing environment already provides the following packages:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+# Additional packages required by later pipeline stages will be added
+# in their respective tasks.
