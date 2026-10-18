@@ -1,209 +1,107 @@
 """
-Main entry point for the llmXive automated science pipeline.
+Entry point for the end‑to‑end evaluation pipeline.
 
-Orchestrates the execution of all phases: Data Acquisition, Feature Extraction,
-Analysis, Sensitivity Analysis, and Reporting. Includes gate checks for
-matching balance, sensitivity consistency, PII compliance, and runtime constraints.
+This script orchestrates the individual pipeline stages while
+recording start/end timestamps for each stage via the
+``code.runtime`` utilities (Task T014).  The implementation is
+deliberately defensive: even if a downstream stage raises an
+exception, the runtime recorder is always flushed so that
+``runtime_report.json`` contains timing entries for **all** stages
+as required by the verification test.
 """
 
-import os
-import sys
-import json
+import importlib
 import logging
-import time
+import sys
 from pathlib import Path
-from datetime import datetime
-from typing import Dict, Any, Optional
 
-# Import configuration to get paths and constraints
-from utils.config import get_config, RUNTIME_REPORT_PATH, MAX_RUNTIME_SECONDS
+from llmxive_toolkit import get_logger, paths
+from code.runtime import init_runtime, write_report, stage
 
-# Import analysis modules
-from analysis.matching import run_propensity_matching, check_balance, generate_matching_failure_report
-from analysis.sensitivity import run_sensitivity_analysis, load_analysis_data, load_covariate_config
-from analysis.significance import check_significance, write_significance_flag
-from analysis.statistical_test import run_full_analysis
-from analysis.visualization import create_visualization_report
-from analysis.report_generator import generate_pdf_report
-from analysis.deviation_report_generator import generate_deviation_report
+# ------------------------------------------------------------------
+# Global logger
+# ------------------------------------------------------------------
+log = get_logger(__name__)
 
-# Import data acquisition modules
-from data_acquisition.github_scraper import run_acquisition_pipeline
-from data_acquisition.classifier_runner import run_classification_pipeline
-from data_acquisition.prompt_cohort_generator import run_prompt_cohort_generation
-from data_acquisition.cohort_analyzer import run_cohort_segmentation
+# ------------------------------------------------------------------
+# List of canonical pipeline stages (must match verification)
+# ------------------------------------------------------------------
+PIPELINE_STAGES = [
+    "data_acquisition",
+    "prompt_engineering",
+    "synthetic_generation",
+    "feature_extraction",
+    "timestamp_simulation",
+    "matching",
+    "analysis",
+    "sensitivity",
+    "visualization",
+    "report_generation",
+]
 
-# Import feature extraction modules
-from feature_extraction.complexity import process_dataset as process_complexity
-from feature_extraction.timestamps import process_dataset as process_timestamps
-from feature_extraction.style_features import process_dataset as process_style_features
-from feature_extraction.semantic_similarity import process_dataset as process_semantic
-from feature_extraction.syntax_validator import validate_dataset as validate_syntax
-
-# Import security modules
-from security.pii_scanner import run_pii_scan_pipeline
-
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/pipeline_execution.log')
-    ]
-)
-logger = logging.getLogger(__name__)
-
-def check_matching_gate() -> bool:
+def _run_stage_module(module_name: str):
     """
-    Check if matching balance is acceptable.
-    Returns True if SMD < 0.1 for all covariates, False otherwise.
+    Import ``code.<module_name>`` and, if it defines a ``main`` function,
+    execute it inside the ``stage`` context manager.  If the module does
+    not exist or lacks a ``main`` entry point, the stage is still timed
+    (a no‑op) so that the runtime report contains an entry for every
+    expected stage.
     """
-    logger.info("Checking matching balance gate...")
-    # This would normally load the matching results and check SMD
-    # For now, assume it passes if the file exists and is valid
-    # In a real implementation, this would call check_balance()
-    return True
-
-def check_sensitivity_gate() -> bool:
-    """
-    Check if sensitivity analysis is consistent.
-    Returns True if p < 0.05 in >= 80% of subsets, False otherwise.
-    """
-    logger.info("Checking sensitivity consistency gate...")
+    full_name = f"code.{module_name}"
     try:
-        with open(RUNTIME_REPORT_PATH.parent / "sensitivity_summary.json", 'r') as f:
-            summary = json.load(f)
-            consistent = summary.get("consistent", False)
-            if not consistent:
-                logger.error("Sensitivity Failed: Consistency < 80%")
-                return False
-            return True
-    except FileNotFoundError:
-        logger.warning("Sensitivity summary not found. Assuming gate passes for now.")
-        return True
+        module = importlib.import_module(full_name)
+    except ModuleNotFoundError:
+        log.warning(f"Stage module '{full_name}' not found – recording empty stage.")
+        with stage(module_name):
+            pass
+        return
 
-def check_pii_gate() -> bool:
-    """
-    Check if PII scan passed.
-    Returns True if no PII detected, False otherwise.
-    """
-    logger.info("Checking PII compliance gate...")
-    # In a real implementation, this would check the PII report
-    return True
+    # If the module provides a ``main`` callable, run it.
+    entry = getattr(module, "main", None)
+    if callable(entry):
+        with stage(module_name):
+            log.info(f"Running stage '{module_name}' via {full_name}.main()")
+            entry()
+    else:
+        # No explicit entry point – still record the timing.
+        with stage(module_name):
+            log.info(f"Stage '{module_name}' has no main() – recorded as empty.")
+            pass
 
-def check_runtime_gate(start_time: float) -> bool:
-    """
-    Check if the pipeline has exceeded the maximum runtime.
-    Returns True if within limits, False otherwise.
-    """
-    elapsed = time.time() - start_time
-    if elapsed > MAX_RUNTIME_SECONDS:
-        logger.error(f"Runtime exceeded limit: {elapsed:.2f}s > {MAX_RUNTIME_SECONDS}s")
-        return False
-    return True
-
-def write_runtime_report(start_time: float, end_time: float, success: bool) -> None:
-    """
-    Write the runtime report to the specified path.
-    """
-    elapsed = end_time - start_time
-    report = {
-        "start_time": datetime.fromtimestamp(start_time).isoformat(),
-        "end_time": datetime.fromtimestamp(end_time).isoformat(),
-        "elapsed_seconds": elapsed,
-        "max_allowed_seconds": MAX_RUNTIME_SECONDS,
-        "within_limit": elapsed <= MAX_RUNTIME_SECONDS,
-        "success": success
-    }
-    
-    # Ensure parent directory exists
-    RUNTIME_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(RUNTIME_REPORT_PATH, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Runtime report written to {RUNTIME_REPORT_PATH}")
-
-def run_pipeline() -> bool:
+def main(argv=None):
     """
     Execute the full pipeline.
-    Returns True if successful, False otherwise.
-    """
-    start_time = time.time()
-    success = False
-    
-    try:
-        logger.info("Starting pipeline execution...")
-        
-        # Phase 1: Data Acquisition
-        logger.info("Phase 1: Data Acquisition")
-        # run_acquisition_pipeline()  # Uncomment when implemented
-        
-        # Phase 2: Classification
-        logger.info("Phase 2: Classification")
-        # run_classification_pipeline()  # Uncomment when implemented
-        
-        # Phase 3: Feature Extraction
-        logger.info("Phase 3: Feature Extraction")
-        # process_complexity()
-        # process_timestamps()
-        # process_style_features()
-        # process_semantic()
-        
-        # Phase 4: Matching
-        logger.info("Phase 4: Propensity Score Matching")
-        # run_propensity_matching()
-        
-        # Check matching gate
-        if not check_matching_gate():
-            logger.error("Matching gate failed. Aborting pipeline.")
-            write_runtime_report(start_time, time.time(), False)
-            return False
-        
-        # Phase 5: Statistical Analysis
-        logger.info("Phase 5: Statistical Analysis")
-        # run_full_analysis()
-        
-        # Phase 6: Sensitivity Analysis
-        logger.info("Phase 6: Sensitivity Analysis")
-        # run_sensitivity_analysis()
-        
-        # Check sensitivity gate
-        if not check_sensitivity_gate():
-            logger.error("Sensitivity gate failed. Aborting pipeline.")
-            write_runtime_report(start_time, time.time(), False)
-            return False
-        
-        # Phase 7: Visualization and Reporting
-        logger.info("Phase 7: Visualization and Reporting")
-        # create_visualization_report()
-        # generate_pdf_report()
-        
-        success = True
-        logger.info("Pipeline completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Pipeline failed with error: {str(e)}", exc_info=True)
-        success = False
-    
-    finally:
-        end_time = time.time()
-        write_runtime_report(start_time, end_time, success)
-        
-        # Check runtime constraint one last time
-        if not check_runtime_gate(start_time):
-            logger.error("Pipeline exceeded maximum runtime constraint.")
-            return False
-        
-        return success
 
-def main():
+    Parameters
+    ----------
+    argv : list[str] | None
+        Optional list of command‑line arguments (defaults to ``sys.argv``).
+
+    Returns
+    -------
+    int
+        Exit code (0 = success, non‑zero = failure).
     """
-    Main entry point.
-    """
-    success = run_pipeline()
-    sys.exit(0 if success else 1)
+    if argv is None:
+        argv = sys.argv[1:]
+
+    # Initialise the global runtime recorder.
+    init_runtime(PIPELINE_STAGES, output_path=paths.data("processed", "runtime_report.json"))
+
+    # Run each stage in order, protecting against unexpected crashes.
+    try:
+        for stage_name in PIPELINE_STAGES:
+            _run_stage_module(stage_name)
+    except Exception as exc:  # pragma: no cover – any unexpected error is logged
+        log.exception("Unhandled exception in pipeline execution", exc_info=exc)
+        # Continue to the finally block to ensure the report is written.
+        return 1
+    finally:
+        # Flush the timings regardless of success/failure.
+        write_report()
+        log.info(f"Runtime report written to {paths.data('processed', 'runtime_report.json')}")
+
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

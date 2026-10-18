@@ -1,10 +1,10 @@
 """
 Data acquisition script for T002.
 
-Streams pull‑request metadata for three high‑profile GitHub repositories
+Streams pull‑request metadata for three high‑star GitHub repositories
 (tensorflow/tensorflow, pytorch/pytorch, numpy/numpy) using the GitHub
-REST API.  The script respects API rate limits by applying exponential
-back‑off via `tenacity`.  Results are stored as Parquet files under
+REST API. The script respects API rate limits by applying exponential
+back‑off via `tenacity`. Results are stored as Parquet files under
 `data/raw/` and a consolidated commit‑message table is written to
 `data/raw/commit_messages.parquet`.
 
@@ -19,7 +19,12 @@ from typing import List, Dict, Any, Optional
 
 import requests
 import pandas as pd
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+)
 
 # Project‑wide utilities
 from llmxive_toolkit import paths, get_logger
@@ -37,7 +42,23 @@ REPOS = [
 
 GITHUB_API = "https://api.github.com"
 PER_PAGE = 100  # maximum allowed by GitHub
-MAX_PAGES = 100  # safety cap
+
+# Determine a safe page limit:
+# * With an authenticated token we can fetch many pages.
+# * Without a token the unauthenticated rate limit is ~60 requests/hour,
+#   so we restrict to a small number of pages to avoid hitting the limit.
+_TOKEN = os.getenv("GITHUB_TOKEN")
+if _TOKEN:
+    MAX_PAGES = 100  # original safety cap
+else:
+    # Limit to 5 pages (≈500 PRs) when no token is available.
+    # This keeps the script within the unauthenticated rate limit.
+    MAX_PAGES = 5
+    log.info(
+        "GITHUB_TOKEN not set – limiting PR fetch to %d pages per repo "
+        "to stay within unauthenticated rate limits.",
+        MAX_PAGES,
+    )
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -81,8 +102,16 @@ def _fetch_all_prs(owner: str, repo: str) -> List[Dict[str, Any]]:
         if not batch:
             break
         prs.extend(batch)
-        log.info("Fetched %d PRs from %s/%s (page %d)", len(batch), owner, repo, page)
-    log.info("Total PRs fetched for %s/%s: %d", owner, repo, len(prs))
+        log.info(
+            "Fetched %d PRs from %s/%s (page %d)",
+            len(batch),
+            owner,
+            repo,
+            page,
+        )
+    log.info(
+        "Total PRs fetched for %s/%s: %d", owner, repo, len(prs)
+    )
     return prs
 
 def _fetch_pr_files(owner: str, repo: str, pr_number: int) -> List[Dict[str, Any]]:
@@ -119,11 +148,9 @@ def extract_repository_data(owner: str, repo: str) -> pd.DataFrame:
         deletions = pr.get("deletions", 0)
         changed_files = pr.get("changed_files", 0)
 
-        # CI duration – GitHub does not expose CI time directly via PR API.
-        # We approximate with the time between PR creation and merge (if merged).
+        # Approximate CI duration as total PR lifetime.
         ci_duration = None
         if created_at and merged_at:
-            # Store as seconds
             ci_duration = (
                 pd.to_datetime(merged_at) - pd.to_datetime(created_at)
             ).total_seconds()
@@ -146,7 +173,11 @@ def extract_repository_data(owner: str, repo: str) -> pd.DataFrame:
 
         # Commit messages (concatenated per PR)
         commits = _fetch_pr_commits(owner, repo, pr_number)
-        messages = [c["commit"]["message"] for c in commits if "commit" in c]
+        messages = [
+            c["commit"]["message"]
+            for c in commits
+            if "commit" in c and "message" in c["commit"]
+        ]
         concatenated = "\n---\n".join(messages)
         commit_records.append(
             {"pr_id": pr_id, "commit_message": concatenated}
@@ -155,12 +186,11 @@ def extract_repository_data(owner: str, repo: str) -> pd.DataFrame:
     pr_df = pd.DataFrame(pr_records)
     commit_df = pd.DataFrame(commit_records)
 
-    # Write parquet files for this repository
+    # Write repository‑specific PR metadata parquet
     out_path = paths.data("raw", f"{owner}_{repo}.parquet")
     pr_df.to_parquet(out_path, engine="pyarrow", index=False)
     log.info("Wrote PR metadata parquet to %s", out_path)
 
-    # Append commit messages to a global file (handled later)
     return commit_df
 
 def aggregate_commit_messages(commit_dfs: List[pd.DataFrame]) -> None:

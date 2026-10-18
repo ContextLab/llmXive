@@ -13,28 +13,30 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data_acquisition/synthetic_generator.py: synthetic/fake INPUT data not authorized by the spec — “…llback: Create a minimal synthetic input for demonstration if no…”
 - code/feature_extraction/syntax_validator.py: synthetic/fake INPUT data not authorized by the spec — “…""" Syntax Validator for Generated Synthetic Code.  This module valid…”
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- every produced artifact is gitignored (data/processed/runtime_report.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data_acquisition/prompt_cohort_generator.py: synthetic/fake INPUT data not authorized by the spec — “…all back to filtering or synthetic data.  Output: data/processed…”; code/data_acquisition/prompt_generator.py: synthetic/fake INPUT data not authorized by the spec — “…load)  Implements T014b: Generate a small synthetic cohort of code snippets…”; code/data_acquisition/synthetic_generator.py: synthetic/fake INPUT data not authorized by the spec — “…llback: Create a minimal synthetic input for demonstration if no…”; 1 command(s) failed: python code/main.py --full-run (rc=1); 6 declared deliverable(s) absent: data/processed/analysis_results.json; data/processed/covariate_config.json; data/processed/merged_features.parquet
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data_acquisition/prompt_cohort_generator.py: synthetic/fake INPUT data not authorized by the spec — “…all back to filtering or synthetic data.  Output: data/processed…”; code/data_acquisition/prompt_generator.py: synthetic/fake INPUT data not authorized by the spec — “…load)  Implements T014b: Generate a small synthetic cohort of code snippets…”; code/data_acquisition/synthetic_generator.py: synthetic/fake INPUT data not authorized by the spec — “…llback: Create a minimal synthetic input for demonstration if no…”; every produced artifact is gitignored (data/processed/runtime_report.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 declared deliverable(s) absent: data/processed/analysis_results.json; data/processed/covariate_config.json; data/processed/merged_features.parquet
 
 ## Failing / missing run-book commands
 
-- python code/main.py --full-run -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-302-evaluating-the-impact-of-code-generation/code/main.py", line 19, in <module>
-    from utils.config import get_config, RUNTIME_REPORT_PATH, MAX_RUNTIME_SECONDS
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-302-evaluating-the-impact-of-code-generation/code/utils/config.py", line 84, in <module>
-    raise EnvironmentError(
-OSError: GITHUB_TOKEN environment variable is not set. Please set it to your GitHub Personal Access Token to proceed.
-
+- (no per-command failures; the run produced no real data/figure artifacts — ensure scripts WRITE their declared outputs under data/ and figures/)
 
 ## Declared deliverables still missing
 
 - data/processed/analysis_results.json
 - data/processed/covariate_config.json
 - data/processed/merged_features.parquet
-- data/processed/runtime_report.json
 - data/processed/sensitivity_summary.json
 - data/raw/commit_messages.parquet
 
@@ -48,25 +50,15 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/processed/analysis_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/covariate_config.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/sensitivity.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
     - `code/quickstart_validator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/covariate_config.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/merged_features.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/sensitivity.py` — NOT invoked by the run-book
     - `code/quickstart_validator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/merged_features.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/runtime_report.json` is declared but was NOT written. Scripts referencing it:
-    - `code/main.py` — IS a run-book command
-    - `code/quickstart_validator.py` — NOT invoked by the run-book
-    - `code/runtime.py` — NOT invoked by the run-book
-    - `code/utils/config.py` — NOT invoked by the run-book
-    - `code/verification.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/runtime_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/sensitivity_summary.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/sensitivity.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
     - `code/quickstart_validator.py` — NOT invoked by the run-book
-    - `code/utils/config.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sensitivity_summary.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/commit_messages.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/data_acquisition/prompt_generator.py` — NOT invoked by the run-book

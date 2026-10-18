@@ -1,10 +1,9 @@
 T001:
-  reason: "The skeleton directories (`code/`, `data/`, `tests/`, `docs/`) exist, but\
-    \ `requirements.txt` does not pin exact versions for all listed packages (e.g.,\
-    \ scikit\u2011learn, statsmodels, scipy, radon, transformers, torch, matplotlib,\
-    \ seaborn, codecarbon, datasets are missing or only mentioned in a comment). No\
-    \ evidence is provided that `pip install -r requirements.txt` runs successfully\
-    \ in a fresh virtual environment. The task therefore remains incomplete."
+  reason: Checked the project skeleton (code/, data/, tests/, docs/ directories exist)
+    and the `requirements.txt` file (it pins many packages but omits `statsmodels`).
+    No evidence is provided that `pip install -r requirements.txt` was run in a fresh
+    virtual environment and succeeded. The missing `statsmodels` entry and lack of
+    install verification mean the task is not fully satisfied.
   task: 8590e09b1dffe53fee82926ca7f85abd4391695f1caaf97a1ec5a6c4f741aae7
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data_acquisition.py
@@ -33,11 +32,6 @@ T012:
 T013:
   task: 62e513034d6881bf00a182bbc09be10a496a85850785e08b6205bc2add0fc163
 T014:
-  reason: "The repository contains the instrumentation module `code/runtime.py`, and\
-    \ the verification script runs without error, but the required output file `data/processed/runtime_report.json`\
-    \ is missing and there is no evidence that it includes a `stage_times` entry for\
-    \ every listed stage or that `total_seconds` \u2264\u202F21600. Additionally,\
-    \ integration of the recorder with the actual pipeline entry point is not demonstrated."
   task: 8126075a3476aa13c9550aa360f2ecd078c28197cad19bce1e6fce5993ebff57
 T015:
   task: 6f798c352024caa92a9361c7814e40a1b1adb75f7e4e376a286d2becfff1c710

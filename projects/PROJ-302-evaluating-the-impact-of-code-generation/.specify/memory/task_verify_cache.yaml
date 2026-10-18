@@ -1,13 +1,12 @@
 T001:
   c: false
-  h: 3f8c3f39b790444770b1d7b3ca36809bbd6a06647c1ab9d61ffee963dfc73786
-  r: "The skeleton directories (`code/`, `data/`, `tests/`, `docs/`) exist, but `requirements.txt`\
-    \ does not pin exact versions for all listed packages (e.g., scikit\u2011learn,\
-    \ statsmodels, scipy, radon, transformers, torch, matplotlib, seaborn, codecarbon,\
-    \ datasets are missing or only mentioned in a comment). No evidence is provided\
-    \ that `pip install -r requirements.txt` runs successfully in a fresh virtual\
-    \ environment. The task therefore remains incomplete."
-  sig: 4f85b828ccab978c688a99322994a29ef4f18491a6293b777f65e15d58eaa050
+  h: ae64489c9ee6553117839b4b6b52f82120db7c550933a02796908f4cbb8876bd
+  r: Checked the project skeleton (code/, data/, tests/, docs/ directories exist)
+    and the `requirements.txt` file (it pins many packages but omits `statsmodels`).
+    No evidence is provided that `pip install -r requirements.txt` was run in a fresh
+    virtual environment and succeeded. The missing `statsmodels` entry and lack of
+    install verification mean the task is not fully satisfied.
+  sig: f124d2374587394d0a46646ba7ecd85c3f39bc47a506dd6f5cbfd12ac041eaa9
 T003:
   c: false
   h: 56e32c036cb77551798260d9e620e6bec0799fbcad7d4369efac866abb619716
@@ -15,11 +14,10 @@ T003:
     the required separate `.ruff.toml` file is missing, so the task of creating both
     configuration files is not fully satisfied.
 T014:
-  c: false
-  h: 217d85f4aea7fda77b63acd0c05d9282881e3ad1b3c1467a68e9ff67481b4cb5
-  r: "The repository contains the instrumentation module `code/runtime.py`, and the\
-    \ verification script runs without error, but the required output file `data/processed/runtime_report.json`\
-    \ is missing and there is no evidence that it includes a `stage_times` entry for\
-    \ every listed stage or that `total_seconds` \u2264\u202F21600. Additionally,\
-    \ integration of the recorder with the actual pipeline entry point is not demonstrated."
-  sig: 5eab73bfe4c72297b812a11b8770f60cb31ed56d7fb2773ae50e9a00889b15c3
+  c: true
+  h: b3c9d0a070b5a031430ef0d976200a23d6a57cf148a767afc06c4da28323d1db
+  r: "Checked `code/runtime.py` for the instrumentation implementation, `data/processed/runtime_report.json`\
+    \ for a full stage mapping and total_seconds \u2264\u202F21600, and the successful\
+    \ execution of `python -m code.verification` (exit\u202F0) as shown in the logs.\
+    \ All required artifacts exist, contain correct data, and the verification passes."
+  sig: 48911fbf41c68caeca363fc5d6a708d070f7b611bc420cbf13fb0e32b03c63bb

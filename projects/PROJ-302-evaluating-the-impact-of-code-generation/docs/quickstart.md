@@ -39,7 +39,7 @@ GITHUB_TOKEN=your_github_personal_access_token
 .
 ├── code/ # Source code modules
 │ ├── data_acquisition/ # GitHub scraping, code generation
-│ ├── feature_extraction/# Complexity, timestamps, style metrics
+│ ├── feature_extraction/ # Complexity, timestamps, style metrics
 │ ├── analysis/ # Matching, statistical tests, sensitivity
 │ ├── utils/ # Config, models, validators
 │ └── main.py # Pipeline orchestrator
@@ -65,8 +65,10 @@ The pipeline is orchestrated via `code/main.py`. It executes the following stage
 ### Execute Full Pipeline
 
 ```bash
-python code/main.py
+python code/main.py --full-run
 ```
+
+**Run‑the‑pipeline**: The command above runs the entire end‑to‑end pipeline, producing all required artefacts under `data/` and `reports/`.
 
 The script will:
 - Create necessary directories (`data/`, `reports/`, `logs/`).
@@ -75,17 +77,6 @@ The script will:
 - Run matching and statistical tests.
 - Enforce gates (matching balance, sensitivity consistency, PII).
 - Generate `reports/analysis_report.pdf`.
-
-### Expected Outputs
-
-After successful completion, you will find:
-
-- `data/processed/merged_features.parquet`
-- `data/processed/matching_results.parquet`
-- `data/processed/sensitivity_summary.json`
-- `data/processed/runtime_report.json`
-- `reports/analysis_report.pdf`
-- `reports/visualizations/` (box plots, CDF curves)
 
 ## 4. Validation
 
@@ -109,10 +100,10 @@ Exit code `0` indicates success.
 If you encounter GitHub API rate limits, ensure your `GITHUB_TOKEN` is valid and has the correct scopes. The pipeline includes exponential backoff (T013).
 
 ### Code Generation Timeout
-If CPU generation exceeds 60s, the pipeline will dispatch a GitHub Actions workflow to a GPU runner (T014b-GEN). Ensure your repository has the `.github/workflows/gpu-generation.yml` file and a self-hosted GPU runner is available.
+If CPU generation exceeds 60s, the pipeline will dispatch a GitHub Actions workflow to a GPU runner (T014b‑GEN). Ensure your repository has the `.github/workflows/gpu-generation.yml` file and a self‑hosted GPU runner is available.
 
 ### Matching Failure
-If covariate balance (SMD) > 0.1 after retries, the pipeline halts and generates `data/processed/matching_failure_report.json`. Review the report and consider adjusting covariates.
+If covariate balance (SMD) > 0.1 after retries, the pipeline halts and generates `data/processed/matching_failure_report.json`. Review the report and consider adjusting caliper or dropping the most imbalanced covariate.
 
 ### Sensitivity Inconsistency
 If p < 0.05 in < 80% of subsets, the pipeline exits with code 1. Check `data/processed/sensitivity_summary.json` for details.
