@@ -8,8 +8,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python src/data/download.py --check-only -> rc=1
 
-2026-10-18 01:31:24,364 INFO code.src.data.download: Fetching OpenNeuro file index from https://openneuro.org/api/v1/datasets/ds000233/files with params {'recursive': 'true'}
-2026-10-18 01:31:24,476 ERROR code.src.data.download: Pipeline failed: Failed to retrieve file index for dataset ds000233: 404 Client Error: Not Found for url: https://openneuro.org/api/v1/datasets/ds000233/files?recursive=true
+2026-10-18 13:17:09,600 INFO code.src.data.download: Attempting to fetch file index from primary OpenNeuro API: https://openneuro.org/api/v1/datasets/ds000233/files
+2026-10-18 13:17:09,972 WARNING code.src.data.download: Primary OpenNeuro API failed (404 Client Error: Not Found for url: https://openneuro.org/api/v1/datasets/ds000233/files?recursive=true); attempting alternative endpoint.
+2026-10-18 13:17:09,972 INFO code.src.data.download: Fetching file index from alternative OpenNeuro API: https://openneuro.org/crn/datasets/ds000233/files
+2026-10-18 13:17:10,260 ERROR code.src.data.download: Pipeline failed: Failed to retrieve file index for dataset ds000233: 404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000233/files?recursive=true
 
 - python src/analysis/connectivity.py --subjects 50 -> rc=1
 

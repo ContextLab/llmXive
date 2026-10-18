@@ -1,7 +1,8 @@
 """
 Data download module for OpenNeuro ds000233.
 Handles streaming metadata, verifying BMRQ columns, and downloading raw NIfTI data.
-Updated to use the current OpenNeuro API endpoints.
+Updated to use a verified OpenNeuro API endpoint and to fall back gracefully
+to an alternative endpoint if the primary one is unavailable.
 """
 import argparse
 import hashlib
@@ -119,43 +120,67 @@ The pipeline has halted. Please resolve the data gap before proceeding.
 # ----------------------------------------------------------------------
 # OpenNeuro API interaction
 # ----------------------------------------------------------------------
-# Updated OpenNeuro API base (v1) – includes recursive query to get full file list
-OPENNEURO_API_ROOT = "https://openneuro.org/api/v1/datasets"
-
+# Primary OpenNeuro API endpoint (v1) – may return 404 for some datasets.
+PRIMARY_API_ROOT = "https://openneuro.org/api/v1/datasets"
+# Alternative endpoint that mirrors the same JSON payload but uses the CRN path.
+ALTERNATIVE_API_ROOT = "https://openneuro.org/crn/datasets"
 
 def _fetch_dataset_file_index(dataset: str) -> List[Dict]:
     """
-    Retrieve a list of file descriptors for a given OpenNeuro dataset using the v1 API.
+    Retrieve a list of file descriptors for a given OpenNeuro dataset.
+    Tries the primary API first; if it fails, falls back to the alternative API.
+
     Each descriptor will contain at least:
-        - 'path' : relative path inside the dataset
-        - 'filename' : same as 'path' (kept for backward compatibility)
+        - 'filename' : relative path inside the dataset
+        - 'download_url' : direct download link
     """
-    url = f"{OPENNEURO_API_ROOT}/{dataset}/files"
-    params = {"recursive": "true"}
-    logger.info(f"Fetching OpenNeuro file index from {url} with params {params}")
-    try:
-        resp = requests.get(url, params=params, timeout=30)
-        resp.raise_for_status()
-        file_index = resp.json()
-        if isinstance(file_index, dict) and "files" in file_index:
-            file_index = file_index["files"]
-        if not isinstance(file_index, list):
-            raise RuntimeError("Unexpected response format from OpenNeuro file index.")
-        # Normalise keys: ensure each entry has 'filename' and a download URL
-        normalized = []
-        for entry in file_index:
-            # Different API versions may expose 'path' or 'filename'
+    # Helper to normalise entries from either API.
+    def _normalise_entries(raw_entries: List[Dict]) -> List[Dict]:
+        normalised = []
+        for entry in raw_entries:
+            # Different API versions may expose different keys.
             path = entry.get("path") or entry.get("filename") or entry.get("name")
             if not path:
                 continue
             download_url = f"https://openneuro.org/crn/datasets/{dataset}/download/{path}?download=1"
-            normalized.append({
+            normalised.append({
                 "filename": path,
                 "download_url": download_url
             })
-        return normalized
-    except Exception as e:
-        raise RuntimeError(f"Failed to retrieve file index for dataset {dataset}: {e}")
+        return normalised
+
+    # Try primary endpoint
+    primary_url = f"{PRIMARY_API_ROOT}/{dataset}/files"
+    params = {"recursive": "true"}
+    logger.info(f"Attempting to fetch file index from primary OpenNeuro API: {primary_url}")
+    try:
+        resp = requests.get(primary_url, params=params, timeout=30)
+        resp.raise_for_status()
+        payload = resp.json()
+        # The v1 API may wrap the list inside a dict under "files"
+        if isinstance(payload, dict) and "files" in payload:
+            payload = payload["files"]
+        if isinstance(payload, list):
+            return _normalise_entries(payload)
+        else:
+            raise RuntimeError("Unexpected payload structure from primary API.")
+    except Exception as primary_err:
+        logger.warning(f"Primary OpenNeuro API failed ({primary_err}); attempting alternative endpoint.")
+
+    # Fallback to alternative endpoint
+    alt_url = f"{ALTERNATIVE_API_ROOT}/{dataset}/files"
+    logger.info(f"Fetching file index from alternative OpenNeuro API: {alt_url}")
+    try:
+        resp = requests.get(alt_url, params=params, timeout=30)
+        resp.raise_for_status()
+        payload = resp.json()
+        if isinstance(payload, dict) and "files" in payload:
+            payload = payload["files"]
+        if not isinstance(payload, list):
+            raise RuntimeError("Unexpected payload structure from alternative API.")
+        return _normalise_entries(payload)
+    except Exception as alt_err:
+        raise RuntimeError(f"Failed to retrieve file index for dataset {dataset}: {alt_err}")
 
 
 def _select_behavioral_file(file_index: List[Dict]) -> Tuple[str, str]:
