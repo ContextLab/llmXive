@@ -1,0 +1,51 @@
+T001:
+  reason: The `src/config.py` and `src/data_loader.py` files exist and mostly meet
+    the spec, but the required output file `data/interim/filtered_pg19.json` is missing,
+    and there is no evidence that it was written, validated against `contracts/split_definition.schema.yaml`,
+    or that exclusion logging was performed as required. The task therefore remains
+    incomplete.
+  task: cd52ae65d6f92886a2f9f6344bab55fd29aabf7901ff5f7fa3ea382a34efe688
+T002:
+  reason: "The provided `src/extraction.py` never writes per\u2011document raw score\
+    \ tensors to `data/interim/raw_scores/` and its `DynamicHiLSWrapper` does not\
+    \ actually load a HiLS checkpoint or enforce CUDA\u2011only execution. `src/aggregation.py`\
+    \ expects `.pt` files that do not exist, and its output JSON lacks the required\
+    \ `checksum` field. Moreover, `tests/test_extraction.py` fails during import because\
+    \ the `datasets` dependency cannot be loaded (pyarrow version mismatch), so the\
+    \ end\u2011to\u2011end extraction test never runs. The essential artifacts and\
+    \ behaviors required by the task are missing."
+  task: 5cfdb46a0fdd989fd6b2d7e31dd533a01ee632d8d270a0adae16dbd54d235f04
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/run_static_inference.py
+    exit=1'
+  task: 9c21191c60a08e6b75b91080df1c9a789a7e9ed1c1432f89ce629e0cf5701ada
+T004:
+  task: 64a3f85a75370fc9d9a15852b9db99c8167f5ef6488398964bc3c19c423c124b
+T005:
+  task: f64995e15716f1432e8d2672729488e04943d1c8e6bcaa89826a6f46c5870c97
+T006:
+  task: d67d2029ae9fd62aa7e08732787c6bdeb8c4c8fd940efd478a4e65d58a193b7b
+T007:
+  task: af12c2da475d8577cabfd37a02a7b6abc6959ce991e2a524599ac1d75ad612a6
+T008:
+  task: 4fd16aa7e3c50c65d5216cd1af4ffcbb02cf563b5c86a6d5aca9a97cec3ecd6f
+T009:
+  task: 77a8bf13d47b0fd28da892b00ce0a70d4af90a4680a25458855413b44d2d8868
+T010:
+  task: e1e893534159d384e714bb5037721b4271203bffae027cfefb9147b2d2bd65e9
+T011:
+  task: 653ed45f106acae46a9effb9b9a771cb7da2c018806c7f5358c0d3b4ff044202
+T012:
+  task: f3c595280517c6b92fe8f2f5b2c798a1997e118f2292bb16eb22dc053371bd8b
+T013:
+  task: fbe30e69c819fc4b7df3678b4f4c42cbc2e51665dcb8330992e0bac961615527
+T014:
+  task: d7ccd5bfab8f58e6d11f8279ed3921c4713cb04d265b7cd871b71d57c3778773
+T015:
+  task: 3fe8f73a6cbc8dbee7bd92dd55f35e094e303d6597a56cc9dece0f58dab7fa1b
+T016:
+  task: 5147160fe1bd22580e8a51cc0389d207663b8f242046f46287e4ec4670c4d2f9
+T017:
+  task: 0cb9656ae0ffe3b50a3b520766e56fcbf1220602c2beb589ebf907bcba898d37
+T018:
+  task: 309da8478a72def0ded853d8a08f59a9cadb7f1e96c7ee00e9fba634c85ee42d

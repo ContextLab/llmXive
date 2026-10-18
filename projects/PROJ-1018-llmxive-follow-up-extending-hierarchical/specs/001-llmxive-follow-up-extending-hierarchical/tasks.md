@@ -28,7 +28,7 @@
   - `tests/test_extraction.py` validates the schema of the profile JSON and runs an end‑to‑end test on a small real sample (≈ 3 documents) asserting non‑empty score matrices with expected chunk counts.
   - Verification: running extraction on the validation split produces `data/interim/relevance_profiles.json` with no null/NaN scores and chunk counts matching `token_count / chunk_size`.
 
-- [ ] T003 [US2] Build the static index (PCA + spherical K‑Means) and run a first small end‑to‑end static inference, producing a real result row.
+- [ ] T003 [US2] Build the static index (PCA + spherical K‑Means) and run a first small end‑to‑end static inference, producing a real result row. <!-- FAILED-IN-EXECUTION: code/run_static_inference.py exit=1 -->
   *Files*: `src/clustering.py`, `src/inference.py`, `tests/test_clustering.py`.
   *Requirements*: FR-002, FR-003 (initial), US‑2 acceptance scenarios.
   - Apply PCA (`n_components=64`) to L2‑normalized relevance profiles, then run `sklearn.cluster.KMeans` (Euclidean distance) on the normalized vectors (spherical K‑Means). `run_kmeans` retries up to 3 random seeds on empty‑cluster failures and aborts with a clear error after the third attempt (no fallback to a lower K).
