@@ -19,59 +19,36 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 9 fabricated/simulated-result signal(s) — results are not real measurements: code/scripts/run_regression_summary.py: self-declared fabricated metric — “…p in participants:         # Mock value for demonstration         sta…”; code/scripts/profile_all_stages.py: synthetic/fake INPUT data not authorized by the spec — “…..")          # Generate mock data for profiling (real data…”; code/scripts/profile_permutation.py: synthetic/fake INPUT data not authorized by the spec — “…"Generate representative mock data for profiling."""     rn…”; 3 command(s) failed: python code/main.py --validate-only (rc=1); python code/main.py --window-length 30 --permutations 10000 (rc=1); python code/main.py --sweep-windows (rc=1); 4 declared deliverable(s) absent: data/checksums.json; data/interim/permutation_results.csv; data/interim/sensitivity_summary.csv
+**Summary**: 9 fabricated/simulated-result signal(s) — results are not real measurements: code/scripts/run_regression_summary.py: self-declared fabricated metric — “…p in participants:         # Mock value for demonstration         sta…”; code/scripts/profile_all_stages.py: synthetic/fake INPUT data not authorized by the spec — “…..")          # Generate mock data for profiling (real data…”; code/scripts/profile_permutation.py: synthetic/fake INPUT data not authorized by the spec — “…"Generate representative mock data for profiling."""     rn…”; 3 command(s) failed: python code/main.py --validate-only (rc=1); python code/main.py --window-length 30 --permutations 10000 (rc=1); python code/main.py --sweep-windows (rc=1); 5 declared deliverable(s) absent: data/checksums.json; data/interim/included_subjects.csv; data/interim/permutation_results.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --validate-only -> rc=1
+Starting Brain Dynamics and Creativity Pipeline...
+CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 120, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 94, in main
-    logging.FileHandler(Path(__file__).parents[2] / "data" / "pipeline.log")
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
-    return open_func(self.baseFilename, self.mode,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/data/pipeline.log'
+2026-10-18 15:38:42,582 INFO root: Pipeline execution started.
+2026-10-18 15:38:42,582 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
 - python code/main.py --window-length 30 --permutations 10000 -> rc=1
+Starting Brain Dynamics and Creativity Pipeline...
+CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 120, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 94, in main
-    logging.FileHandler(Path(__file__).parents[2] / "data" / "pipeline.log")
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
-    return open_func(self.baseFilename, self.mode,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/data/pipeline.log'
+2026-10-18 15:38:42,987 INFO root: Pipeline execution started.
+2026-10-18 15:38:42,988 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
 - python code/main.py --sweep-windows -> rc=1
+Starting Brain Dynamics and Creativity Pipeline...
+CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 120, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-518-investigating-the-relationship-between-b/code/main.py", line 94, in main
-    logging.FileHandler(Path(__file__).parents[2] / "data" / "pipeline.log")
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
-    return open_func(self.baseFilename, self.mode,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/data/pipeline.log'
+2026-10-18 15:38:43,394 INFO root: Pipeline execution started.
+2026-10-18 15:38:43,394 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
 
 ## Declared deliverables still missing
 
 - data/checksums.json
+- data/interim/included_subjects.csv
 - data/interim/permutation_results.csv
 - data/interim/sensitivity_summary.csv
 - data/raw/manifest.json
@@ -82,7 +59,12 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/checksums.json` is declared but was NOT written. Scripts referencing it:
     - `code/data/loader.py` — NOT invoked by the run-book
+    - `code/tests/unit/test_loader_fetch.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/interim/included_subjects.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/data/loader.py` — NOT invoked by the run-book
+    - `code/tests/unit/test_filter_subjects.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/interim/included_subjects.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/interim/permutation_results.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/saving.py` — NOT invoked by the run-book
     - `code/scripts/profile_all_stages.py` — NOT invoked by the run-book
@@ -103,4 +85,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/loader.py` — NOT invoked by the run-book
     - `code/scripts/save_analysis_results.py` — NOT invoked by the run-book
     - `code/scripts/update_readme.py` — NOT invoked by the run-book
+    - `code/tests/unit/test_filter_subjects.py` — NOT invoked by the run-book
+    - `code/tests/unit/test_loader_fetch.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/manifest.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

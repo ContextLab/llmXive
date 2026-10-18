@@ -25,30 +25,35 @@ T006:
     task specification.
   sig: 874fd9819e8049b7880d31c20be4e2abc52eeffc24098ec7acec6842d6a86477
 T101:
-  c: false
-  h: 2ce0a1b6e8a67ebe99e8a0aa3a1eb1640a970631a1fcf6afe1cf42fbd9da1e68
-  r: "The required test suite `code/tests/contract/test_loader.py` is missing, so\
-    \ the claim that the implementation passes the specified pytest verification cannot\
-    \ be confirmed. Additionally, `run_validation()` logs only the error code, not\
-    \ the explicit missing field name (\u201CCAQ\u201D), which does not fully meet\
-    \ the logging requirement. Fix by adding the missing test file (and ensuring it\
-    \ checks for exit code\u202F1 and the logged `DATA_MISSING_CREATIVITY` message)\
-    \ and adjust the logging to include the field name if needed."
-  sig: 4caa7af57990b895400e2e11169333b169e6733bced2debf4db094dec6ba1b68
+  c: true
+  h: 5303359a38b7881c94208a2a2456d8be8f7a7bb8501bfcca4472dd34c071fcf8
+  r: 'All three deliverables exist and match the spec: `code/errors.py` defines `DataMissingCreativityError`
+    once, `loader.py` implements `validate_caq_availability` raising it with "DATA_MISSING_CREATIVITY"
+    when CAQ is missing/null, and `main.py::run_validation()` imports the shared class,
+    catches it, logs the error code, and calls `sys.exit(1)`. The contract test log
+    shows all 3 tests in `code/tests/contract/test_loader.py` passing (exit 0), covering
+    both the pass-through and halt cases.'
+  sig: ccb501fcdb082ed0744bac05338d4a27ffbb7b4f7184bb6683f32a25b32c21be
 T102:
   c: false
-  h: 88917277ccb2d9ce42a3169ff874dcb6c11b10f925b27527878f6a792fc02ec8
-  r: 'Missing required artifacts: `data/checksums.json` and `data/raw/manifest.json`
-    are not present, and the unit test `code/tests/unit/test_loader_fetch.py` is absent,
-    so the fetch function cannot be verified to have downloaded real files, recorded
-    checksums, or updated the manifest as specified.'
-  sig: c6e9a3da4360469614d71ea1cf617b8347a21bb80a851493775d7e1d7207cd2f
+  h: 292d7a1a19d0e842922cf7077189357a70717af84eb09febf4ae3657331e095b
+  r: "The required deliverables `data/raw/hcp_{subject_id}/` directories, `data/checksums.json`,\
+    \ and `data/raw/manifest.json` are all MISSING \u2014 no data was ever actually\
+    \ downloaded. The historical test run failed (exit 1) with a 404 error on the\
+    \ OpenNeuro URL, showing the fetch implementation's file paths/dataset structure\
+    \ are wrong and no real data was fetched; the test also lacks the required fetch-failure-raises\
+    \ test case. `code/config.py`'s `SAMPLE_SUBJECT_IDS` is empty since the manifest\
+    \ doesn't exist."
+  sig: 3e9228f694c4b67746d0a5bb659962d974f2cb0a594c27c336e92fce5bf26c73
 T103:
   c: false
-  h: 61d0a36b533c4cda03c61a245fb58ccf60fdf5861f1b9a55c413921517dd6a03
-  r: "The repository contains the `filter_subjects` implementation, but the required\
-    \ unit test `code/tests/unit/test_filter_subjects.py` is missing, and there is\
-    \ no evidence that `data/interim/data_exclusion_log.txt` or `data/interim/included_subjects.csv`\
-    \ are created (the files are absent). Without the test and generated outputs,\
-    \ the task\u2019s verification criteria are not satisfied."
-  sig: 9e710767121ef008d6790a1804a128ea7852776f8ca91ddeca28814f71fe9a46
+  h: cf8f01c8eb64ba0786624a24f2ad757bcf27b994dc56bd34ea435482c26316ee
+  r: "The recorded pytest run of `code/tests/unit/test_filter_subjects.py` FAILED\
+    \ (exit 1): the test asserts `participant.fmri_path == fmri_004` but `filter_subjects`\
+    \ returns a toolkit-resolved absolute path while the test builds a relative one,\
+    \ so the single test covering all three exclusion codes does not pass. Additionally,\
+    \ the required output `data/interim/included_subjects.csv` does not exist, and\
+    \ the exclusion log contains only unrelated `FILE_NOT_FOUND`/SYSTEM entries rather\
+    \ than the MISSING_SCAN/MISSING_SCORE/HIGH_MOTION rows the tests should have produced\
+    \ \u2014 fix the path comparison (e.g., re"
+  sig: ff4cf64e898ad73c59a603f68312d3db6af1e0361f08e65956920c622eb035e4

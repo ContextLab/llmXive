@@ -85,13 +85,17 @@ def main():
     """
     Execute the research pipeline.
     """
+    # Ensure the data directory exists so that the log file can be created.
+    data_dir = Path(__file__).parents[2] / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+
     # Setup basic logging configuration for the pipeline
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
             logging.StreamHandler(sys.stdout),
-            logging.FileHandler(Path(__file__).parents[2] / "data" / "pipeline.log")
+            logging.FileHandler(data_dir / "pipeline.log")
         ]
     )
 
