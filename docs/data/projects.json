@@ -28708,7 +28708,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-18T12:12:33.174068+00:00",
+  "generated_at": "2026-10-18T12:22:15.134947+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -29945,7 +29945,7 @@
           ]
         },
         {
-          "contributions": 13,
+          "contributions": 14,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -29994,6 +29994,14 @@
       "id": "PROJ-003-single-cell-trajectories-of-t-cell-exhau",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 370.701143,
+          "ended_at": "2026-10-18T12:14:40.990844Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T12:08:30.289701Z"
+        },
         {
           "agent": "personality",
           "duration_s": 31.080469,
@@ -30065,14 +30073,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-10T15:42:46.857288Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1565.593471,
-          "ended_at": "2026-10-10T15:42:33.566599Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-10T15:16:27.973128Z"
         }
       ],
       "paper_status": null,
@@ -66381,7 +66381,7 @@
       "artifact_links": {
         "citations": "state/citations/PROJ-187-evaluating-the-statistical-properties-of.yaml",
         "code": "projects/PROJ-187-evaluating-the-statistical-properties-of/code",
-        "data": null,
+        "data": "projects/PROJ-187-evaluating-the-statistical-properties-of/data",
         "idea": "projects/PROJ-187-evaluating-the-statistical-properties-of/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -66399,18 +66399,7 @@
       },
       "authors": [
         {
-          "contributions": 8,
-          "kind": "llm",
-          "name": "zai-org.glm-5.3",
-          "roles": [
-            "clarifier",
-            "implementer",
-            "personality",
-            "tasker"
-          ]
-        },
-        {
-          "contributions": 7,
+          "contributions": 10,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -66419,6 +66408,17 @@
             "john-von-neumann-simulated",
             "planner",
             "research_question_validator"
+          ]
+        },
+        {
+          "contributions": 8,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "clarifier",
+            "implementer",
+            "personality",
+            "tasker"
           ]
         },
         {
@@ -66450,6 +66450,30 @@
       "id": "PROJ-187-evaluating-the-statistical-properties-of",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 42.851433,
+          "ended_at": "2026-10-18T12:17:09.192740Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T12:16:26.341307Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 138.912977,
+          "ended_at": "2026-10-18T12:16:26.338344Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T12:14:07.425367Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 345.128299,
+          "ended_at": "2026-10-18T12:14:07.421951Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T12:08:22.293652Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 183.914978,
@@ -66505,30 +66529,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-18T04:08:10.555166Z"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 32.726997,
-          "ended_at": "2026-10-18T04:05:43.587669+00:00",
-          "model": "zai-org.glm-5.3",
-          "outcome": "committed",
-          "started_at": "2026-10-18T04:05:10.860672+00:00"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 446.786122,
-          "ended_at": "2026-10-18T03:54:31.871660Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "success",
-          "started_at": "2026-10-18T03:47:05.085538Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 18.934812,
-          "ended_at": "2026-10-18T03:47:05.082013Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "success",
-          "started_at": "2026-10-18T03:46:46.147201Z"
         }
       ],
       "paper_status": null,
@@ -173724,6 +173724,54 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 42.851433,
+      "ended_at": "2026-10-18T12:17:09.192740Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-187-evaluating-the-statistical-properties-of",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T12:16:26.341307Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 138.912977,
+      "ended_at": "2026-10-18T12:16:26.338344Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-187-evaluating-the-statistical-properties-of",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T12:14:07.425367Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 370.701143,
+      "ended_at": "2026-10-18T12:14:40.990844Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-003-single-cell-trajectories-of-t-cell-exhau",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T12:08:30.289701Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 345.128299,
+      "ended_at": "2026-10-18T12:14:07.421951Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-187-evaluating-the-statistical-properties-of",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T12:08:22.293652Z"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "Richard Feynman (simulated)",
@@ -179746,54 +179794,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-17T07:12:09.591816Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 143.498437,
-      "ended_at": "2026-10-17T07:13:05.552518Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-551-asymptotic-behavior-of-random-matrix-eig",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-17T07:10:42.054081Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 393.985703,
-      "ended_at": "2026-10-17T07:12:09.589478Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-104-evaluating-the-use-of-llms-for-automated",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-17T07:05:35.603775Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 227.130811,
-      "ended_at": "2026-10-17T07:10:42.049374Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-551-asymptotic-behavior-of-random-matrix-eig",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-17T07:06:54.918563Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 29.47134,
-      "ended_at": "2026-10-17T07:06:08.635031Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-217-evaluating-the-impact-of-llm-generated-c",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-17T07:05:39.163691Z"
     }
   ],
   "reviewed_preprints": [
