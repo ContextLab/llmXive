@@ -1,0 +1,6 @@
+{
+  "validation_mode": "internal_fallback",
+  "external_data_available": false,
+  "metrics": {},
+  "error": "Model artifacts not found at /home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/data/processed/model_run.json"
+}

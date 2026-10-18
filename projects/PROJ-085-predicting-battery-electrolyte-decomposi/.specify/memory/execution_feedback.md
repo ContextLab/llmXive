@@ -2,54 +2,29 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 command(s) failed: python code/data/descriptors.py (rc=1); python code/data/target_calc.py (rc=1); python code/models/trainer.py (rc=1); 3 declared deliverable(s) absent: data/processed/bins.csv; data/processed/electrolyte_features.csv; data/processed/model_run.json
+**Summary**: 2 command(s) failed: python code/data/target_calc.py (rc=1); python code/models/trainer.py (rc=1); 3 declared deliverable(s) absent: data/processed/bins.csv; data/processed/electrolyte_features.csv; data/processed/model_run.json
 
 ## Failing / missing run-book commands
-
-- python code/data/descriptors.py -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/data/descriptors.py", line 18, in <module>
-    from utils.logging_config import get_logger, log_missing_geometric_data, log_metallic_outlier
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/utils/__init__.py", line 1, in <module>
-    from .constants import get_reactions_schema_template, create_empty_reactions_yaml
-ImportError: cannot import name 'get_reactions_schema_template' from 'utils.constants' (/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/utils/constants.py)
 
 - python code/data/target_calc.py -> rc=1
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/data/target_calc.py", line 18, in <module>
     from utils.constants import get_reactions_schema_template
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/utils/__init__.py", line 1, in <module>
-    from .constants import get_reactions_schema_template, create_empty_reactions_yaml
 ImportError: cannot import name 'get_reactions_schema_template' from 'utils.constants' (/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/utils/constants.py)
 
 - python code/models/trainer.py -> rc=1
+Running Trainer Pipeline...
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/models/trainer.py", line 20, in <module>
-    from utils.logging_config import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/utils/__init__.py", line 1, in <module>
-    from .constants import get_reactions_schema_template, create_empty_reactions_yaml
-ImportError: cannot import name 'get_reactions_schema_template' from 'utils.constants' (/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/utils/constants.py)
-
-- python code/models/evaluator.py -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/models/evaluator.py", line 9, in <module>
-    from utils.logging_config import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/utils/__init__.py", line 1, in <module>
-    from .constants import get_reactions_schema_template, create_empty_reactions_yaml
-ImportError: cannot import name 'get_reactions_schema_template' from 'utils.constants' (/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/utils/constants.py)
-
-- python code/models/evaluator.py --sweep -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/models/evaluator.py", line 9, in <module>
-    from utils.logging_config import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/utils/__init__.py", line 1, in <module>
-    from .constants import get_reactions_schema_template, create_empty_reactions_yaml
-ImportError: cannot import name 'get_reactions_schema_template' from 'utils.constants' (/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/utils/constants.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/models/trainer.py", line 193, in <module>
+    run_trainer_pipeline("low")
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/models/trainer.py", line 149, in run_trainer_pipeline
+    df = load_processed_features()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/code/models/trainer.py", line 35, in load_processed_features
+    raise FileNotFoundError(f"Processed features file not found at {path}")
+FileNotFoundError: Processed features file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-085-predicting-battery-electrolyte-decomposi/data/processed/electrolyte_features.csv
 
 
 ## Declared deliverables still missing
