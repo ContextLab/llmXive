@@ -97,3 +97,36 @@
   verification_status: pending
   verified_against_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE36520
   verified_at: '2026-10-14T03:38:30.715579Z'
+- artifact_hash: f63ab21b21d8d1530f6f0c310b41ca68c83a48f184a1eb826c79c6f414ce46ad
+  artifact_path: projects/PROJ-010-quantitative-analysis-of-gene-expression/specs/001-quantitative-analysis-of-gene-expression/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/BICCN/human_mtg_scRNA`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/BICCN/human_mtg_scRNA
+  verified_at: '2026-10-18T17:25:02.447929Z'
+- artifact_hash: f63ab21b21d8d1530f6f0c310b41ca68c83a48f184a1eb826c79c6f414ce46ad
+  artifact_path: projects/PROJ-010-quantitative-analysis-of-gene-expression/specs/001-quantitative-analysis-of-gene-expression/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.ebi.ac.uk/gwas/rest/api`
+  verification_status: unreachable
+  verified_against_url: https://www.ebi.ac.uk/gwas/rest/api
+  verified_at: '2026-10-18T17:25:02.447929Z'
+- artifact_hash: f63ab21b21d8d1530f6f0c310b41ca68c83a48f184a1eb826c79c6f414ce46ad
+  artifact_path: projects/PROJ-010-quantitative-analysis-of-gene-expression/specs/001-quantitative-analysis-of-gene-expression/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Home :: BrainSpan: Atlas of the Developing Human Brain'
+  kind: url
+  value: https://www.brainspan.org/`
+  verification_status: pending
+  verified_against_url: https://www.brainspan.org/
+  verified_at: '2026-10-18T17:25:02.447929Z'
