@@ -1,9 +1,9 @@
 # Quickstart: Predicting Molecular Reactivity
 
 ## Prerequisites
-- Python 3.10+
-- Git
-- (Optional) Docker for local CI simulation
+- Python 3.10+  
+- Git  
+- (Optional) Docker for local CI simulation  
 
 ## Installation
 
@@ -22,30 +22,33 @@ pip install -r requirements.txt
 # 4. Verify linting and formatting (required by T002)
 ruff check . --output-format=json > artifacts/ruff_report.json
 black --check . > artifacts/black_report.txt
-# Both commands must exit with status 0; otherwise fix the reported issues.
+# Both commands must exit with status 0; otherwise fix the reported issues.
 ```
 
 ## Data Setup
 
 ```bash
-# Create required directories
+# Create required directories (tasks T001a‑T001b)
 mkdir -p data/raw data/processed data/assets artifacts/logs
 touch data/raw/.gitkeep data/processed/.gitkeep data/assets/.gitkeep artifacts/logs/.gitkeep
 
-# 1. Curate static assets (copy the CSVs provided in the repo)
+# 1. Static assets (provided in the repo)
 #    - reference_substructures_raw.csv (50 rows)
 #    - kinetic_dataset_raw.csv (≥20 rows)
 
-# 2. Compute empty checksums file (T003)
+# 2. Initialize an empty checksums file (Task T003)
 echo "{}" > data/raw/checksums.json
 
 # 3. Download QM9 subset (streamed)
 python code/data/download.py --dataset qm9 --output data/raw
 # The script streams to data/raw/qm9_subset.parquet.
 
-# 4. Populate checksums (T006)
+# 4. Populate checksums for all raw files (Task T006)
 python code/utils/checksums.py --dir data/raw --output data/raw/checksums.json
-# This updates the previously empty JSON with SHA‑256 hashes.
+# This updates the previously empty JSON with SHA‑256 hashes for:
+#   - qm9_subset.parquet
+#   - reference_substructures_raw.csv
+#   - kinetic_dataset_raw.csv
 ```
 
 ## Running the Full Pipeline
@@ -108,12 +111,13 @@ After a successful run, `artifacts/` should contain:
 - `attribution_maps.json` (explanation data)  
 - `exclusion_report.json` (invalid SMILES log)  
 - `memory_adjustment.log` (any batch‑size reductions)  
+- `ruff_report.json` & `black_report.txt` (lint/format verification)  
 - `checksums_artifacts.json` (SHA‑256 of all output files)  
 - `ssot.log` (single‑source‑of‑truth validation)  
 
 ## Troubleshooting
 - **Lint/format failures**: Fix reported style issues, then re‑run the `ruff`/`black` commands.  
-- **Memory OOM**: Reduce batch size via `--batch-size` flag in `trainer.py`; the script will also auto‑adjust.  
+- **Memory OOM**: Reduce batch size via `--batch-size` flag in `trainer.py`; the script also auto‑adjusts.  
 - **Download errors**: The downloader retries up to 3 times with exponential backoff; persistent failure aborts with a clear error message.  
 
 ---
