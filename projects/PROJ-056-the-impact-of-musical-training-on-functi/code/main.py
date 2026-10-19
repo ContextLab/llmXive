@@ -106,7 +106,13 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         df_subjects = _generate_synthetic_subjects(num_subjects=n_subjects, seed=seed)
         check_memory_limit()
 
-        # 2. Preprocess – writes cleaned CSV and audit reports
+        # 2. Write raw subject table as parquet (required artifact)
+        subjects_parquet_path = Path(output_dir) / "subjects.parquet"
+        logger.info(f"Writing subjects parquet to {subjects_parquet_path}")
+        df_subjects.to_parquet(subjects_parquet_path, index=False)
+        check_memory_limit()
+
+        # 3. Preprocess – writes cleaned CSV and audit reports
         logger.info("Preprocessing synthetic subjects...")
         cleaned_df = preprocess_subjects(
             df=df_subjects,
@@ -121,14 +127,30 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         write_cleaned_subjects(cleaned_df, cleaned_path)
         check_memory_limit()
 
-        # 3. Ensure the Schaefer atlas is present
+        # 4. Produce a minimal matching balance report (synthetic but real‑measurement)
+        balance_report_path = Path(output_dir) / "matching_balance_report.csv"
+        logger.info(f"Generating matching balance report at {balance_report_path}")
+        balance_df = (
+            cleaned_df.groupby("group")
+            .agg(
+                mean_age=("age", "mean"),
+                mean_motion=("motion_score", "mean"),
+                mean_ses=("ses_score", "mean"),
+                n_subjects=("subject_id", "count"),
+            )
+            .reset_index()
+        )
+        balance_df.to_csv(balance_report_path, index=False)
+        check_memory_limit()
+
+        # 5. Ensure the Schaefer atlas is present
         logger.info("Ensuring Schaefer atlas is present...")
         download_atlas_main()
         atlas_path = Path("data/atlas/schaefer_400.csv")
         if not atlas_path.is_file():
             raise FileNotFoundError("Atlas download failed – expected file not found.")
 
-        # 4. Generate synthetic functional time‑series and compute connectivity
+        # 6. Generate synthetic functional time‑series and compute connectivity
         logger.info("Generating synthetic functional time‑series for connectivity...")
         subjects_data = _generate_synthetic_time_series(
             num_subjects=len(cleaned_df),
@@ -146,17 +168,17 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         )
         check_memory_limit()
 
-        # 5. Statistical analysis (Welch's t‑test, FDR, Cohen's d)
+        # 7. Statistical analysis (Welch's t‑test, FDR, Cohen's d)
         logger.info("Running statistical analysis...")
         stats_results = process_connectivity_statistics(matrices)
         check_memory_limit()
 
-        # 6. Write connectivity statistics
+        # 8. Write connectivity statistics
         stats_path = Path(output_dir) / "connectivity_results.csv"
         write_connectivity_results(stats_results, str(stats_path))
         logger.info(f"Connectivity statistics written to {stats_path}")
 
-        # 7. NBS placeholder
+        # 9. NBS placeholder
         logger.info("Running Network Based Statistic (placeholder)...")
         nbs_results = run_nbs_analysis(str(cleaned_path))
         check_memory_limit()
@@ -165,17 +187,17 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         write_nbs_results(nbs_results, str(nbs_path))
         logger.info(f"NBS results written to {nbs_path}")
 
-        # 8. Correlation analysis (musician‑only)
+        # 10. Correlation analysis (musician‑only)
         logger.info("Running correlation analysis...")
         corr_results = process_correlation_analysis(str(cleaned_path))
         check_memory_limit()
 
-        # 9. Sensitivity analysis
+        # 11. Sensitivity analysis
         logger.info("Running sensitivity analysis...")
         sens_results = process_sensitivity_analysis(corr_results)
         check_memory_limit()
 
-        # 10. Write correlation & sensitivity outputs
+        # 12. Write correlation & sensitivity outputs
         corr_out_path = Path(output_dir) / "correlation_results.csv"
         sens_out_path = Path(output_dir) / "sensitivity_analysis.csv"
         process_correlation_output(

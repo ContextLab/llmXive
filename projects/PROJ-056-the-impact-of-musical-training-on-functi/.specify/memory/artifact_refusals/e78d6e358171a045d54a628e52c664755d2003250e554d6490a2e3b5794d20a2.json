@@ -1,7 +1,0 @@
-{
-  "task_id": "T001",
-  "fingerprint": "cf0b06a9c17d73c890b88f933b8625e1ffb19aa5b910647c6fb310ec8ce3e11d",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'code/main.py': imports nonexistent names from sibling files: `from analysis.run_nbs import write_nbs_results` (available: Optional, Path, _load_connectivity_matrices, logger, logging, main, np, pd...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}

@@ -1,16 +1,15 @@
 status: none
-intent: ABCD Study resting state fMRI with phenotypic data musician group python package
-  dataset
+intent: ABCD Study and HCP-Adolescent resting state fMRI python package dataset download
 required_fields:
 - subject_id
-- group_label
-- musical_training_years
 - age
 - sex
-- head_motion_mean_fd
-- scanner_site
-- socioeconomic_status
-- resting_state_fmri_file_path_or_connectivity_matrix
-cache_key: 3417d1e2e3e42e79d8c988bbd1af854f92d5671c3d92623d68b89311bdcda8da
-searched_at: '2026-10-19T05:08:43.255281+00:00'
+- musical_training_years
+- group_label
+- resting_state_fmri_file_or_connectivity_matrix
+- mean_framewise_displacement
+- site_id
+- scanner_type
+cache_key: 0876bf4e04e5c6d356935d8a704458cfa6694171b3794f06a842b9d64d9ece7f
+searched_at: '2026-10-19T08:13:56.626485+00:00'
 retry_count: 1

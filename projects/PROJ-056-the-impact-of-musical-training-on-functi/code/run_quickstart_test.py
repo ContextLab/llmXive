@@ -33,6 +33,7 @@ def main() -> int:
     expected_files = [
         "data/processed/subjects_cleaned.csv",
         "data/processed/matching_balance_report.csv",
+        "data/processed/subjects.parquet",
         "data/processed/connectivity_matrices.npy",
         "data/processed/connectivity_results.csv",
         "data/processed/nbs_results.csv",
