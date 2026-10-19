@@ -20,9 +20,9 @@
 | `electronegativity_diff` | `number` | Δχ descriptor (FR‑002). |
 | `vec` | `number` | Valence Electron Concentration (FR‑002). |
 | `weighted_mean_radius` | `number` | Diagnostic only; never used as predictor. |
-| `vif_radius` | `number` | VIF for radius mismatch after any removal. |
-| `vif_electro` | `number` | VIF for electronegativity difference after any removal. |
-| `vif_vec` | `number` | VIF for VEC after any removal. |
+| `vif_radius` | `number` | VIF for radius mismatch (computed for diagnostics). |
+| `vif_electro` | `number` | VIF for electronegativity difference (computed for diagnostics). |
+| `vif_vec` | `number` | VIF for VEC (computed for diagnostics). |
 
 ### ModelArtifact
 | Field | Type | Description |
@@ -33,9 +33,8 @@
 | `performance_metrics` | `object` | `{ "r2_mean": number, "r2_std": number, "mae_mean": number }`. |
 | `feature_importances` | `object` | Mapping `feature → importance` (bootstrapped mean). |
 | `sensitivity_variance` | `number` | σ² of R² across `max_depth` sweep (FR‑006). |
-| `fdr_corrected_pvalues` | `object` | Predictor‑pair → Benjamini‑Hochberg adjusted p‑value (FR‑008). |
 | `associational_statement` | `string` | Must be exactly `"These findings are associational only"` (FR‑004). |
-| `collinearity_flag` | `boolean` | `true` if any predictor had VIF > 5 before removal (FR‑007). |
+| `collinearity_flag` | `boolean` | `true` if any predictor has VIF > 5 (FR‑007 flag). |
 | `correlations` | `object` | Predictor‑pair → `{ "pearson": number, "spearman": number, "p_raw": number, "p_adj": number }`. |
 | `feature_importance_ci` | `object` | Feature → `{ "lower": number, "upper": number }` (95 % CI). |
 
@@ -52,10 +51,8 @@
 
 - **Missing data**: Any record lacking `tg_value` or a complete `elements` mapping is dropped during ingestion (FR‑001). No imputation is performed.  
 - **Predictor set**: Only `radius_mismatch`, `electronegativity_diff`, and `vec` are ever passed to the model; `weighted_mean_radius` is strictly diagnostic (FR‑002).  
-- **Collinearity**: VIF is computed on the three predictors; if any VIF > 5, the offending predictor is removed before model fitting (FR‑007). The final predictor list is stored in `DescriptorSet`.  
+- **Collinearity**: VIF is computed for the three predictors; any VIF > 5 is recorded in `collinearity_flag` but **no predictor is removed** (FR‑007).  
 - **Randomness**: All stochastic processes use fixed seeds (`np.random.seed(42)`, `random_state=42`).  
 - **Reproducibility**: Every artifact is written to disk and validated against a JSON/YAML schema; the exact file paths are hard‑coded in the pipeline.  
 
 ---
-
-

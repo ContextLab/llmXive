@@ -41,7 +41,7 @@ python code/descriptors.py
 # 2. Train the Gradient Boosting model with LOFO CV
 python code/train.py
 
-# 3. Post‑hoc analyses (VIF, sensitivity, correlation, FDR)
+# 3. Post‑hoc analyses (VIF flagging, sensitivity, correlation, FDR)
 python code/analyze.py
 
 # 4. Generate the final report (figures + markdown)
@@ -67,9 +67,7 @@ pytest tests/integration/
 ## Expected Outputs
 - `data/processed/descriptors.csv` – table of computed features.  
 - `artifacts/models/best_model.pkl` – trained Gradient Boosting model.  
-- `artifacts/metrics/stats.json` – performance metrics, VIF values, sensitivity variance, FDR‑adjusted p‑values, `correlations`, and bootstrapped feature‑importance CIs.  
+- `artifacts/metrics/stats.json` – performance metrics, VIF flags, sensitivity variance, FDR‑adjusted p‑values, `correlations`, and bootstrapped feature‑importance CIs.  
 - `paper/report.md` – complete scientific report ready for manuscript inclusion, containing all required plots and the exact phrase “These findings are associational only”.  
 
 ---
-
-

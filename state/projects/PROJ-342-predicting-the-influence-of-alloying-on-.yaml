@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T07:08:12.893593Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-342-predicting-the-influence-of-alloying-on-
-last_run_id: d844e01a-6827-4ffa-a12c-76c87d8c88a8
+last_run_id: 35a14c26-866f-419b-afbb-9c7213b1b78a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on
 title: Predicting the Influence of Alloying on the Glass Transition Temperature of
   Metallic Glasses
-updated_at: '2026-10-19T21:43:48.635501Z'
+updated_at: '2026-10-19T21:50:20.437545Z'
