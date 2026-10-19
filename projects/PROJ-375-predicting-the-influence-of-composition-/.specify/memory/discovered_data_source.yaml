@@ -1,6 +1,6 @@
 status: none
-intent: download metallic glass composition and CTE data from Materials Project and
-  AFLOWlib python package dataset
+intent: download metallic glass composition and CTE dataset Materials Project AFLOWlib
+  python package dataset
 required_fields:
 - composition
 - cte
@@ -9,6 +9,6 @@ required_fields:
 - valence_electron_concentration
 - atomic_size_coefficient_of_variation
 - amorphous_state_flag
-cache_key: 8f25acd99d86d1c3b4f520a5ef5d11cf6f5f5e1e51c5b15cebb69015dfbeec41
-searched_at: '2026-10-19T15:10:30.502070+00:00'
+cache_key: 21d2ca4a5527c493f4adf014fe56c57db0d9c9268a3d9e6258f68949df64e433
+searched_at: '2026-10-19T16:12:14.246657+00:00'
 retry_count: 1

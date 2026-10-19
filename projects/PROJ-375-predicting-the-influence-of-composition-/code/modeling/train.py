@@ -86,8 +86,7 @@ def split_and_save(df: pd.DataFrame, test_size: float = 0.2, random_state: int =
     Perform a stratified split by ``alloy_family`` if present, otherwise random.
     Writes the splits to parquet files and returns the two DataFrames.
     """
-    # The current dataset does not contain an explicit ``alloy_family`` column.
-    # We therefore fall back to a simple random split.
+    # No explicit alloy_family column – fall back to random split.
     logger.info("Performing random train‑test split.")
     train_df, test_df = train_test_split(df, test_size=test_size, random_state=random_state)
 

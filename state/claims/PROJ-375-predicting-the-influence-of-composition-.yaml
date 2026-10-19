@@ -449,3 +449,106 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-19T13:28:16Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: total wall-clock time approximately 1 to 2 hours
+  claim_id: c_436068e5
+  context: The document states the expected total runtime of the pipeline.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total wall\u2011clock time: ~1\u20132 hours (including API download and\
+    \ model training)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T16:09:45Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM usage approximately 4 GB
+  claim_id: c_59d7ae11
+  context: The resource usage section lists the maximum memory consumption observed.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Peak RAM: ~4 GB (well under the 7 GB limit)'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T16:09:45Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline uses 2 CPU cores
+  claim_id: c_b9e88c82
+  context: The document specifies the number of CPU cores allocated during execution.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'CPU cores used: 2 (enforced by `n_jobs=2`)'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T16:09:45Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: AFLOWlib API does not require an API key
+  claim_id: c_634f0e41
+  context: The data source description notes that the AFLOWlib endpoint is publicly
+    accessible without authentication.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: document to keep abreast of any future API changes. Note that no API
+        key is presently required for access . Users
+      source_id: '1804.10847'
+      url: https://arxiv.org/abs/1804.10847
+      value: no API key
+    filled: true
+  kind: entity_fact
+  raw_text: AFLOWlib API does not require an API key for the public REST endpoint
+    used in this project
+  resolved_value: no API key
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-19T16:10:15Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: Materials Project API key is required to query thermal expansion data
+  claim_id: c_5458cdbf
+  context: The setup instructions explain that an API key must be provided to access
+    Materials Project data.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "The Materials Project (MP) API key is required to query the MP REST endpoint\
+    \ for thermal\u2011expansion data"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T16:11:09Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: computes VIF over four descriptors
+  claim_id: c_d8f4214b
+  context: During model training the pipeline calculates VIF for the descriptor set.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Computes Variance Inflation Factors (VIF) over the four descriptors
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T16:11:09Z'

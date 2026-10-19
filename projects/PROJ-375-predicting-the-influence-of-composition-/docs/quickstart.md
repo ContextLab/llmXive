@@ -14,7 +14,7 @@ python code/modeling/evaluate.py
 
 ## (a) Setting up the `MP_API_KEY` environment variable
 
-The Materials Project (MP) API key is required to query the MP REST endpoint for thermal‑expansion data.
+The Materials Project (MP) API key is required to query the MP REST endpoint for thermal‑expansion data [UNRESOLVED-CLAIM: c_5458cdbf — status=not_enough_info].
 
 1. Obtain a free API key from the Materials Project dashboard: <https://next-gen.materialsproject.org/api>.
 2. Export the key in your shell before running the pipeline.
@@ -27,7 +27,7 @@ export MP_API_KEY="YOUR_MP_API_KEY"
 $env:MP_API_KEY="YOUR_MP_API_KEY"
 ```
 
-*Note:* The AFLOWlib API does not require an API key for the public REST endpoint used in this project, but the script will still look for `AFLOWLIB_API_KEY` if you have one. Setting it is optional.
+*Note:* The {{claim:c_634f0e41}} (1804.10847, https://arxiv.org/abs/1804.10847), but the script will still look for `AFLOWLIB_API_KEY` if you have one. Setting it is optional.
 
 ```bash
 export AFLOWLIB_API_KEY="YOUR_AFLOWLIB_KEY" # optional
@@ -66,7 +66,7 @@ python code/modeling/train.py
 ```
 
 - Loads the cleaned dataset from `data/processed/clean_mg_data.parquet`.
-- Computes Variance Inflation Factors (VIF) over the four descriptors.
+- Computes Variance Inflation Factors (VIF) over the four descriptors [UNRESOLVED-CLAIM: c_d8f4214b — status=not_enough_info].
 - Drops descriptors with VIF > 5.0, prioritising retention of `weighted_mean_atomic_radius`.
 - **Fallback**: if all descriptors exceed VIF > 5.0, applies PCA retaining exactly the first two principal components.
 - Performs a stratified train‑test split by alloy family (or random 80/20 if stratification fails).
@@ -221,82 +221,3 @@ This indicates that the Materials Project API returned no entries matching the a
 ### "Test split not found at data/processed/test.parquet"
 
 Ensure that `python code/modeling/train.py` completed successfully before running `python code/modeling/evaluate.py`.
-
-## Verifying the output
-
-After the pipeline completes, verify that the cleaned dataset has the required columns:
-
-```bash
-python - <<'PY'
-import pandas as pd
-df = pd.read_parquet('data/processed/clean_mg_data.parquet')
-required_cols = [
- 'material_id', 'composition', 'cte',
- 'weighted_mean_atomic_radius', 'electronegativity_variance', 'vec',
- 'atomic_size_coefficient_of_variation',
- 'source_method', 'amorphous_flag', 'checksum'
-]
-missing = [c for c in required_cols if c not in df.columns]
-if missing:
- print(f"ERROR: Missing columns: {missing}")
-else:
- print(f"✓ All required columns present")
- print(f"✓ Dataset shape: {df.shape}")
- print(f"✓ No missing values in descriptors: {df[['weighted_mean_atomic_radius', 'electronegativity_variance', 'vec', 'atomic_size_coefficient_of_variation']].notna().all().all()}")
-PY
-```
-
-Validate the schema:
-
-```bash
-python - <<'PY'
-import yaml
-import jsonschema
-import pandas as pd
-
-with open('specs/001-predicting-the-influence-of-composition/contracts/mg_dataset.schema.yaml') as f:
- schema = yaml.safe_load(f)
-
-df = pd.read_parquet('data/processed/clean_mg_data.parquet')
-for idx, row in df.iterrows():
- try:
- jsonschema.validate(instance=row.to_dict(), schema=schema)
- except jsonschema.ValidationError as e:
- print(f"Row {idx} failed validation: {e.message}")
- break
-else:
- print(f"✓ Schema validation passed for all {len(df)} rows")
-PY
-```
-
-Check that evaluation metrics were generated:
-
-```bash
-python - <<'PY'
-import json
-from pathlib import Path
-
-metrics_path = Path('results/model_performance.json')
-if metrics_path.exists():
- with open(metrics_path) as f:
- metrics = json.load(f)
- print(f"✓ Model performance metrics:")
- print(f" - Linear Regression R²: {metrics['linear_regression'].get('r2', 'N/A')}")
- print(f" - Random Forest R²: {metrics['random_forest'].get('r2', 'N/A')}")
- print(f" - Permutation test p-value: {metrics['permutation_test'].get('p_value', 'N/A')}")
- print(f" - Null result flag: {metrics.get('null_result_flag', 'N/A')}")
-else:
- print("ERROR: Model performance metrics not found")
-PY
-```
-
-## Next steps
-
-After the pipeline completes successfully:
-
-1. **Inspect the logs**: `cat logs/pipeline.log` to verify data sources and processing decisions
-2. **Review ingestion statistics**: `cat data/results/ingestion_stats.json` to see the number of entries collected
-3. **Check model performance**: `cat results/model_performance.json` to see R², MAE, RMSE, and p‑values
-4. **Proceed to downstream tasks**: T002 (amorphous filtering refinement), T003 (VIF/PCA handling), T004 (baseline comparison), etc.
-
-For detailed research methods, data sources, and results interpretation, see `docs/research.md` (to be generated after initial run).

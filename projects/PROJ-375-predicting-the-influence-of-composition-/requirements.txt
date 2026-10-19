@@ -1,19 +1,16 @@
-pymatgen
-mendeleev
-joblib
-scikit-learn
-pandas
+# Core dependencies (pre‑installed in the execution environment)
 numpy
+pandas
 scipy
+matplotlib
+scikit-learn
 statsmodels
 seaborn
-matplotlib
 pytest
 PyYAML
 requests
 jsonschema
 psutil
-ruff
-# The base environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil. The above lines are added for clarity and version pinning.
+
+# Additional packages required by this project
+mendeleev

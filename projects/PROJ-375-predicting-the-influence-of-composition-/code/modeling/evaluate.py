@@ -15,7 +15,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
-from sklearn.utils import resample
 from joblib import load
 
 from utils.io import setup_logging
@@ -71,7 +70,7 @@ def run_permutation_test(model, X, y, n_iterations=1000, random_state=42):
     rng = np.random.default_rng(random_state)
     actual = r2_score(y, model.predict(X))
     perm_scores = []
-    for i in range(n_iterations):
+    for _ in range(n_iterations):
         y_perm = rng.permutation(y)
         score = r2_score(y_perm, model.predict(X))
         perm_scores.append(score)
