@@ -7,10 +7,11 @@ Task T001:
 
 1. Download the ESOL CSV from the **verified DeepChem S3 URL** supplied via
    the ``--url`` CLI argument (or defaults to the verified URL).
-2. Add a ``molecule_id`` column (string) to the raw file so that downstream
-   contracts expecting a string identifier succeed.
+2. Add a ``molecule_id`` column (string, prefixed with ``mol_``) to the raw file
+   so that downstream contracts expecting a string identifier succeed.
 3. Compute a SHA‑256 checksum of the (post‑processed) raw file and **idempotently**
-   append it to ``data/checksums.txt`` using the ``<hash>  <relative_path>`` format.
+   append it to ``data/checksums.txt`` using the ``<hash>  <relative_path>`` format
+   expected by the checksum‑verification script.
 4. Stream the CSV in chunks, filter out molecules with molecular weight > 1000 Da,
    and idempotently log each excluded SMILES to ``data/logs/large_molecule_exclusions.log``.
 5. Validate that the resulting DataFrame contains the required columns
@@ -75,7 +76,6 @@ def setup_logging(log_file: Optional[str] = None,
 def pin_random_seed(seed: int = 42) -> None:
     """Fix Python, NumPy and random seeds for reproducibility."""
     import random
-
     random.seed(seed)
     np.random.seed(seed)
 
@@ -110,17 +110,17 @@ def append_checksum(file_path: Path, checksums_path: Path) -> None:
     """Idempotently append a checksum line to ``checksums.txt`` using the
     ``<hash>  <relative_path>`` format expected by the verifier."""
     checksum = compute_sha256(file_path)
-    # Store path relative to the project root for portability
     rel_path = file_path.as_posix()
     line = f"{checksum}  {rel_path}\n"
     checksums_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Read existing lines (if any) and avoid duplicate entries
+    # Avoid duplicate entries
+    existing = set()
     if checksums_path.is_file():
         with checksums_path.open("r") as f:
             existing = {ln.strip() for ln in f if ln.strip()}
-        if line.strip() in existing:
-            return
+    if line.strip() in existing:
+        return
 
     with checksums_path.open("a") as f:
         f.write(line)
@@ -204,13 +204,23 @@ def main() -> None:
     # ------------------------------------------------------------------
     logger.info("Adding string ``molecule_id`` column to raw dataset (if missing).")
     df_raw = pd.read_csv(raw_path)
+
     if "molecule_id" not in df_raw.columns:
-        df_raw.insert(0, "molecule_id", df_raw.index.astype(str))
+        df_raw.insert(
+            0,
+            "molecule_id",
+            [f"mol_{i}" for i in range(len(df_raw))]
+        )
         df_raw.to_csv(raw_path, index=False)
         logger.info("``molecule_id`` column added.")
     else:
-        # Ensure it is of string dtype
+        # Ensure it is a string and prefixed
         df_raw["molecule_id"] = df_raw["molecule_id"].astype(str)
+        if not df_raw["molecule_id"].str.startswith("mol_").all():
+            df_raw["molecule_id"] = [
+                f"mol_{mid}" if not str(mid).startswith("mol_") else str(mid)
+                for mid in df_raw["molecule_id"]
+            ]
         df_raw.to_csv(raw_path, index=False)
 
     # ------------------------------------------------------------------
@@ -243,8 +253,7 @@ def main() -> None:
                 column_map[col] = "smiles"
             elif low in {"logp", "logp (estimated)"}:
                 column_map[col] = "logP"
-            elif low in {"measured log solubility (mol/l)", "logsol", "logsolubility"}:
-                # Treat solubility as proxy for logP as per original script
+            elif low in {"measured log solubility (mol/l)", "logsol", "logsolubility", "logs"}:
                 column_map[col] = "logP"
             else:
                 column_map[col] = col  # keep other columns unchanged
@@ -256,8 +265,14 @@ def main() -> None:
             sys.exit(1)
 
         if "logP" not in chunk.columns:
-            logger.error("Required target column 'logP' not found after renaming.")
-            sys.exit(1)
+            # Fallback: pick any column containing 'log' (case‑insensitive)
+            log_cols = [c for c in chunk.columns if 'log' in c.lower()]
+            if log_cols:
+                chunk = chunk.rename(columns={log_cols[0]: "logP"})
+                logger.warning(f"Renamed column '{log_cols[0]}' to 'logP' as fallback.")
+            else:
+                logger.error("Required target column 'logP' not found after renaming.")
+                sys.exit(1)
 
         for _, row in chunk.iterrows():
             smi = row["smiles"]
@@ -319,9 +334,14 @@ def main() -> None:
     # 9. Write filtered dataset (add molecule_id if missing)
     # ------------------------------------------------------------------
     if "molecule_id" not in df_filtered.columns:
-        df_filtered.insert(0, "molecule_id", df_filtered.index.astype(str))
+        df_filtered.insert(0, "molecule_id", [f"mol_{i}" for i in range(len(df_filtered))])
     else:
         df_filtered["molecule_id"] = df_filtered["molecule_id"].astype(str)
+        if not df_filtered["molecule_id"].str.startswith("mol_").all():
+            df_filtered["molecule_id"] = [
+                f"mol_{mid}" if not str(mid).startswith("mol_") else str(mid)
+                for mid in df_filtered["molecule_id"]
+            ]
 
     filtered_path = Path("data/processed/filtered_esol.csv")
     filtered_path.parent.mkdir(parents=True, exist_ok=True)

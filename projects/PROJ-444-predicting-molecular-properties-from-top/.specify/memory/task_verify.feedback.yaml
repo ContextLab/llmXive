@@ -1,6 +1,12 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/01_data_ingestion.py
-    exit=1'
+  reason: "`data/checksums.txt` contains three lines for `data/raw/esol.csv` with\
+    \ three different hashes (including a stale `path: hash` format line), directly\
+    \ failing verification #2 (single line per file, no duplicates after re-run) \u2014\
+    \ the idempotency logic breaks because the script rewrites the raw CSV (adding\
+    \ `molecule_id`) after checksumming on each run. Additionally, the log shows the\
+    \ `logP` target was filled by the fallback renaming of \"ESOL predicted log solubility\
+    \ in mols per litre\" \u2014 the *predicted* column \u2014 rather than the measured\
+    \ log solubility, so the schema-validated `logP` values are the w"
   task: 496f3ab1178c311a70018388ff750ebf54f3faa7eb9a1b552d0f1f1ac7fc82dd
 T001a:
   reason: "The current `data/checksums.txt` uses a `path: hash` (colon) format, but\

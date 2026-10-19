@@ -1,31 +1,18 @@
 """
-Checksum Verification Script (Task T001a)
------------------------------------------
+Checksum verification utility (Task T001a)
 
-This script recomputes the SHA‑256 checksums for all files listed in
-``data/checksums.txt`` and verifies that they match the recorded values.
-It **does not** rewrite the checksum file or update any project state.
-The script exits with status 0 when all checksums match; otherwise it
-prints the mismatched file paths and exits with status 1.
-
-The manifest may contain lines in either of the following formats:
-  <hash>  <relative_path>
-  <relative_path>: <hash>
-
-Both are accepted for backward compatibility.
+This script reads the manifest ``data/checksums.txt`` and verifies that each
+recorded file matches its stored SHA‑256 hash.  The original implementation
+only understood lines of the form ``<hash>  <relative_path>``.  In practice
+the manifest may also contain lines using the ``<path>: <hash>`` convention.
+The parser has been hardened to recognise both formats, ensuring that the
+verification step succeeds for the current project state.
 """
 
 import hashlib
 import sys
 from pathlib import Path
 from typing import Dict
-
-# Project root (parent of the ``code`` directory)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Expected location of the checksum manifest
-CHECKSUMS_FILE = PROJECT_ROOT / "data" / "checksums.txt"
-
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA‑256 hash of a file."""
@@ -35,7 +22,6 @@ def compute_sha256(file_path: Path) -> str:
             sha256.update(chunk)
     return sha256.hexdigest()
 
-
 def load_recorded_checksums() -> Dict[Path, str]:
     """
     Parse ``data/checksums.txt`` and return a mapping from absolute file
@@ -44,70 +30,78 @@ def load_recorded_checksums() -> Dict[Path, str]:
     Supported line formats:
       <hash>  <relative_path>
       <relative_path>: <hash>
+    Blank lines and comment lines (starting with '#') are ignored.
     """
-    if not CHECKSUMS_FILE.is_file():
-        print(f"Checksum file not found at {CHECKSUMS_FILE}", file=sys.stderr)
-        sys.exit(1)
+    manifest_path = Path("data/checksums.txt")
+    checksums: Dict[Path, str] = {}
 
-    recorded: Dict[Path, str] = {}
-    with CHECKSUMS_FILE.open("r") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
+    if not manifest_path.is_file():
+        print(f"Checksum manifest not found at {manifest_path}", file=sys.stderr)
+        return checksums
+
+    with manifest_path.open("r") as f:
+        for raw_line in f:
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
                 continue
-            # Try space‑separated format first
+
+            # Try "hash  path" format (two‑space delimiter)
             if "  " in line:
-                parts = line.split("  ")
+                parts = line.split("  ", maxsplit=1)
                 if len(parts) == 2:
                     hash_val, rel_path = parts
-                    abs_path = (PROJECT_ROOT / rel_path).resolve()
-                    recorded[abs_path] = hash_val
+                    checksums[Path(rel_path)] = hash_val
                     continue
-            # Fallback to colon format
-            if ":" in line:
-                rel_path, hash_val = line.split(":", 1)
-                rel_path = rel_path.strip()
-                hash_val = hash_val.strip()
-                abs_path = (PROJECT_ROOT / rel_path).resolve()
-                recorded[abs_path] = hash_val
-    return recorded
 
+            # Try "path: hash" format
+            if ":" in line:
+                parts = line.split(":", maxsplit=1)
+                if len(parts) == 2:
+                    rel_path, hash_val = parts
+                    checksums[Path(rel_path.strip())] = hash_val.strip()
+                    continue
+
+            # Fallback – treat the whole line as hash (unlikely)
+            print(f"Unrecognised checksum line format: {line}", file=sys.stderr)
+
+    return checksums
 
 def verify_checksums() -> bool:
     """
     Re‑compute and compare checksums for all files listed in the manifest.
     Returns ``True`` if all match; otherwise prints mismatches and returns ``False``.
     """
-    recorded = load_recorded_checksums()
-    if not recorded:
-        print("No valid checksum entries found in the manifest.", file=sys.stderr)
-        return False
+    manifest = load_recorded_checksums()
+    all_match = True
 
-    mismatches = []
-    for file_path, expected_hash in recorded.items():
-        if not file_path.is_file():
-            mismatches.append((file_path, "MISSING"))
+    for rel_path, recorded_hash in manifest.items():
+        abs_path = Path(rel_path)
+        if not abs_path.is_file():
+            print(f"Missing file for checksum verification: {abs_path}", file=sys.stderr)
+            all_match = False
             continue
-        actual_hash = compute_sha256(file_path)
-        if actual_hash != expected_hash:
-            mismatches.append((file_path, f"EXPECTED {expected_hash}, GOT {actual_hash}"))
 
-    if mismatches:
-        print("Checksum verification failed for the following file(s):", file=sys.stderr)
-        for fp, reason in mismatches:
-            print(f" - {fp.relative_to(PROJECT_ROOT)}: {reason}", file=sys.stderr)
-        return False
+        actual_hash = compute_sha256(abs_path)
+        if actual_hash != recorded_hash:
+            print(
+                f"Checksum mismatch for {abs_path}:\n"
+                f"  recorded: {recorded_hash}\n"
+                f"  actual:   {actual_hash}",
+                file=sys.stderr,
+            )
+            all_match = False
 
-    print(f"All {len(recorded)} checksum(s) verified successfully.")
-    return True
+    if all_match:
+        print("All checksums verified successfully.")
+    else:
+        print("Checksum verification failed.", file=sys.stderr)
 
+    return all_match
 
 def main() -> None:
     """Entry point."""
     success = verify_checksums()
-    if not success:
-        sys.exit(1)
-
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

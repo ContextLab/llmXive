@@ -14,6 +14,6 @@
   "target_property": "logP",
   "target_value_mean": -2.988192375886525,
   "target_value_std": 1.6832198243710366,
-  "elapsed_seconds": 4.012234210968018,
+  "elapsed_seconds": 4.78223991394043,
   "durable_copy": "data/results/topological_features_30x30.csv"
 }
