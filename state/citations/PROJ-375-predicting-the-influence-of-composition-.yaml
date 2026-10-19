@@ -110,7 +110,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/metallic-glass-cte
   verified_at: '2026-10-17T07:31:30.284018Z'
-- artifact_hash: f4d9fa2f46938d8fa10a4d922e586347e9ab16adaf44351e1281a669c5bda1da
+- artifact_hash: 25e0b320c453561f46a078096168ef7baf8285592b4167c19eb230a1a7810dc7
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -120,8 +120,8 @@
   value: https://next-gen.materialsproject.org/api
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/api
-  verified_at: '2026-10-19T13:26:48.290180Z'
-- artifact_hash: f4d9fa2f46938d8fa10a4d922e586347e9ab16adaf44351e1281a669c5bda1da
+  verified_at: '2026-10-19T14:20:14.341726Z'
+- artifact_hash: 25e0b320c453561f46a078096168ef7baf8285592b4167c19eb230a1a7810dc7
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
   cite_id: c-002
   cited_authors: []
@@ -131,8 +131,8 @@
   value: https://aflowlib.org/rest/search`
   verification_status: mismatch
   verified_against_url: https://aflowlib.org/rest/search
-  verified_at: '2026-10-19T13:26:48.290180Z'
-- artifact_hash: 4b7e2aa772d8e93727716b4b9c75a73ae2791cc91ef5d0fa9163ee69f61d1000
+  verified_at: '2026-10-19T14:20:14.341726Z'
+- artifact_hash: 8ffb92156fbc4897f2a651a08888e14e106fa186c6af0394bf59a621f1dd648c
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -142,4 +142,4 @@
   value: https://aflowlib.org`
   verification_status: pending
   verified_against_url: https://aflowlib.org
-  verified_at: '2026-10-19T13:28:16.389847Z'
+  verified_at: '2026-10-19T14:20:44.601620Z'

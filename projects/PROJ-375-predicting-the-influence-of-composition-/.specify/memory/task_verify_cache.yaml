@@ -1,15 +1,3 @@
-T001:
-  c: false
-  h: 654e27229d259d9a667f157ce1af599a21982abf53bb0ff2b6f2c91241558b4c
-  r: "Checked `docs/quickstart.md`, `code/ingestion/fetch_data.py`, `code/modeling/train.py`,\
-    \ `code/modeling/evaluate.py`, and the absence of any `logs/pipeline.log` or execution\
-    \ evidence. The quickstart doc is present but its AFLOWlib URL description is\
-    \ garbled, and the ingestion script catches AFLOW fetch failures instead of raising\
-    \ as required. No log file or run output is provided to prove the documented command\
-    \ sequence executes end\u2011to\u2011end and records the source URLs. The pipeline\
-    \ therefore does not demonstrably meet the provenance and strict\u2011failure\
-    \ requirements."
-  sig: 464dd500d2db525e1d752a19cb419e429ae2fcf744bb9b58da3340dab165b842
 T003:
   c: false
   h: 435a7289d5cb3fee6627c5475dd9a2c9decab9d53ec99c8a95e17425b15f7b77
