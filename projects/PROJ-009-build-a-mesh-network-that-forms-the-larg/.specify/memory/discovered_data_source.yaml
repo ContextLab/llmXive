@@ -1,19 +1,15 @@
 status: none
-intent: download Edge Device Execution Log dataset from OpenML with CPU utilization
+intent: download EdgeBench MECBench execution logs dataset with CPU utilization and
   packet counts python package dataset
 required_fields:
 - node_id
-- ip_address
+- task_id
 - timestamp
-- wall_clock_time
-- packet_count_sent
-- packet_count_received
+- wall_clock_time_seconds
+- packet_count
 - cpu_utilization_percent
 - memory_usage_mb
-- task_id
-- task_chunk_id
 - heartbeat_status
-- event_type
-cache_key: 089b219dd785442c2b35526da6491840d63d23d6306798765509bdd3f0b85e95
-searched_at: '2026-10-19T08:27:45.672582+00:00'
+cache_key: 0f6e082de983eba0bd9df01f5646175e61d12ba5207eb76a4546a41fa25fbadf
+searched_at: '2026-10-19T08:32:05.210260+00:00'
 retry_count: 1

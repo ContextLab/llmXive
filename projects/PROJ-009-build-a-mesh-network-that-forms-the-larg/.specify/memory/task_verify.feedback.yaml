@@ -1,14 +1,20 @@
 T001:
-  reason: "The repository contains `quickstart.md`, `code/orchestrator/config.py`,\
-    \ and a contract\u2011test file, but the contract test suite never validates any\
-    \ schemas (it is skipped because no data files are present) and the schema names\
-    \ it would use do not match the keys defined in `contract_validator.py`. Moreover,\
-    \ there is no `code/orchestrator/cli.py` (or equivalent entry point) to run `python\
-    \ -m code.orchestrator.cli --help`, so the quick\u2011start command cannot be\
-    \ exercised. These missing/non\u2011functional pieces prevent the task\u2019s\
-    \ verification criteria from being satisfied."
+  reason: "The quick\u2011start guide and contract\u2011validation test exist and\
+    \ the pytest run exits\u202F0, but there is no `code/orchestrator/cli` module\
+    \ nor any execution log showing that `python -m code.orchestrator.cli --help`\
+    \ runs without error, which is a required verification step. Adding a functional\
+    \ CLI (or evidence of its successful invocation) is needed."
   task: dc5f2a1973faddb12c7a1aff8958e42d0b355283a6fbecd5a85d7cf6c695a2a2
 T002:
+  reason: "The repository contains a `node_manager.py` with discovery, profiling,\
+    \ and metadata\u2011writing functions, but it does **not** define the required\
+    \ `PhysicalNode` dataclass, the `validate_schema` call references a non\u2011\
+    existent \u201Cphysical\u2011node\u201D schema (the validator only knows \u201C\
+    ExecutionRun\u201D and \u201CRegressionModel\u201D), and no `data/raw/physical_node_<ip>.json`\
+    \ files are present. Moreover, the unit test suite only covers node discovery\
+    \ and the factory; it lacks tests for tool\u2011presence checks, CPU profiling,\
+    \ radio metrics, thermal read\u2011outs, or parsing of the provided sample logs,\
+    \ so the test coverage is f"
   task: bef133af3e196f6832bb52ce028cc817c40e9fb5c4e91f629b8863852d3b7edd
 T003:
   task: bab1106e379ad867863164936ed38ace08062cd1b9407a560b3cfc80fcbed820

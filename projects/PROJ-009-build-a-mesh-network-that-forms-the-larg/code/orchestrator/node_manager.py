@@ -633,3 +633,18 @@ class NodeManager:
                         ip_list.append(ip)
 
         return ip_list
+
+# ----------------------------------------------------------------------
+# Factory function
+# ----------------------------------------------------------------------
+def create_node_manager(config: Optional[Dict[str, Any]] = None) -> NodeManager:
+    """
+    Factory function to create a :class:`NodeManager` instance.
+
+    Args:
+        config: Optional configuration dictionary passed to :class:`NodeManager`.
+
+    Returns:
+        An initialized :class:`NodeManager`.
+    """
+    return NodeManager(config=config)

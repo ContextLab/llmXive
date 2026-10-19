@@ -1,2 +1,6 @@
-paramiko>=3.0.0
-# other dependencies are provided by the platform (numpy, pandas, etc.)
+paramiko
+pyyaml
+statsmodels
+scipy
+# The following are already provided by the environment:
+# numpy, pandas, matplotlib, scikit-learn, jsonschema, pytest, requests

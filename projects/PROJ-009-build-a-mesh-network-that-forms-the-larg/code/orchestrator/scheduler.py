@@ -8,7 +8,7 @@ This module provides:
 * Exceptions ``OOMError``, ``StragglerDetectedError`` and ``NetworkSaturationException``.
 * A small CLI that can be invoked via ``python code/orchestrator/scheduler.py``.
   The CLI accepts the arguments used in ``quickstart.md`` (``--config``,
-  ``--granularity``, ``--nodes``, ``--latency`` and ``--sweep``) but
+  ``--granularity``, ``--nodes``/``--node-count``, ``--latency``/``--injected-latency`` and ``--sweep``) but
   degrades gracefully when a real test‑bed is not available – it uses a
   minimal in‑memory mock node manager so that the script always runs on CI.
   It writes the required ``data/raw/dropout_events.json`` file (even if the
@@ -426,6 +426,22 @@ class _MockNodeManager:
         return ("running", "", 0)
 
 # ----------------------------------------------------------------------
+# Helper factory used by other modules (e.g. sweep_runner)
+# ----------------------------------------------------------------------
+def create_scheduler(node_manager: Any = None,
+                     wall_clock_timer: Any = None,
+                     instrumentor: Any = None) -> Scheduler:
+    """
+    Factory that returns a ``Scheduler`` instance.
+    If ``node_manager`` is omitted a mock implementation is used,
+    which guarantees that the scheduler can be instantiated on CI
+    without a real test‑bed.
+    """
+    if node_manager is None:
+        node_manager = _MockNodeManager()
+    return Scheduler(node_manager, wall_clock_timer, instrumentor)
+
+# ----------------------------------------------------------------------
 # CLI entry point
 # ----------------------------------------------------------------------
 logger = get_logger(__name__)
@@ -487,8 +503,12 @@ def main(argv: Optional[List[str]] = None) -> int:
                         help="Granularity setting (fine/medium/coarse)")
     parser.add_argument("--nodes", type=int, default=None,
                         help="Number of nodes to use for the run")
+    parser.add_argument("--node-count", type=int, dest="nodes", default=None,
+                        help=argparse.SUPPRESS)  # alias for compatibility
     parser.add_argument("--latency", type=int, default=None,
                         help="Injected latency in ms")
+    parser.add_argument("--injected-latency", type=int, dest="latency", default=None,
+                        help=argparse.SUPPRESS)  # alias for compatibility
     parser.add_argument("--sweep", action="store_true",
                         help="Run a full parameter sweep (all combos)")
 
@@ -520,8 +540,6 @@ def main(argv: Optional[List[str]] = None) -> int:
     # ------------------------------------------------------------------
     # Simple demonstration run – assign a single dummy chunk to each node
     # ------------------------------------------------------------------
-    from orchestrator.models import TaskChunk  # type: ignore
-
     dummy_chunk = TaskChunk(
         id="demo_chunk",
         size_mb=256,
@@ -542,15 +560,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         scheduler.monitor_task(task_id)
 
     # ------------------------------------------------------------------
-    # Compute dropout rate (fraction of nodes that never reported a
-    # successful heartbeat).  In this mock implementation all nodes are
-    # alive, so the rate is zero.
+    # Compute dropout events.  In this mock implementation all nodes are
+    # alive, so the list is empty.
     # ------------------------------------------------------------------
-    dropout_rate = 0.0
+    dropout_events: List[Dict[str, Any]] = []  # empty list conforms to schema
     dropout_path = paths.data("raw", "dropout_events.json")
     dropout_path.parent.mkdir(parents=True, exist_ok=True)
     with dropout_path.open("w", encoding="utf-8") as f:
-        json.dump({"dropout_rate": dropout_rate}, f, indent=2)
+        json.dump(dropout_events, f, indent=2)
 
     logger.info(f"Dropout events written to {dropout_path}")
 

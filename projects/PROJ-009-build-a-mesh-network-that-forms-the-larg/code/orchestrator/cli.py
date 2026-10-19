@@ -13,7 +13,8 @@ Sub‑commands are:
 
 All commands simply log what would happen and exit with status 0.
 This is sufficient for the T001 verification that the CLI prints usage
-without error and that the contract‑validation test suite runs successfully.
+without error and that the contract‑validation test suite runs
+successfully.
 """
 
 import argparse

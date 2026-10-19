@@ -1,12 +1,22 @@
 T001:
   c: false
-  h: 8890a0c262739e5a156c2ce04e310fee9fadf71352309bc4aaeb06da1a2ae90f
-  r: "The repository contains `quickstart.md`, `code/orchestrator/config.py`, and\
-    \ a contract\u2011test file, but the contract test suite never validates any schemas\
-    \ (it is skipped because no data files are present) and the schema names it would\
-    \ use do not match the keys defined in `contract_validator.py`. Moreover, there\
-    \ is no `code/orchestrator/cli.py` (or equivalent entry point) to run `python\
-    \ -m code.orchestrator.cli --help`, so the quick\u2011start command cannot be\
-    \ exercised. These missing/non\u2011functional pieces prevent the task\u2019s\
-    \ verification criteria from being satisfied."
-  sig: 7fcc582dcd6d9306a70a2d95e5d9102a5c3656a3ca7865c7bdad98f11142601e
+  h: 38e1de51c8f3f216fa19048482bdb8c5dd44c4122c17c018a389dfb5ad9d2780
+  r: "The quick\u2011start guide and contract\u2011validation test exist and the pytest\
+    \ run exits\u202F0, but there is no `code/orchestrator/cli` module nor any execution\
+    \ log showing that `python -m code.orchestrator.cli --help` runs without error,\
+    \ which is a required verification step. Adding a functional CLI (or evidence\
+    \ of its successful invocation) is needed."
+  sig: 199af19f273cd0f37eff1ae28ac042bfb0701ae586396d29e0129fdb61c1e0af
+T002:
+  c: false
+  h: 8719a9b8f4bd337e26473d8ab720a08962479c645750b283d0c71c46eb3b96cb
+  r: "The repository contains a `node_manager.py` with discovery, profiling, and metadata\u2011\
+    writing functions, but it does **not** define the required `PhysicalNode` dataclass,\
+    \ the `validate_schema` call references a non\u2011existent \u201Cphysical\u2011\
+    node\u201D schema (the validator only knows \u201CExecutionRun\u201D and \u201C\
+    RegressionModel\u201D), and no `data/raw/physical_node_<ip>.json` files are present.\
+    \ Moreover, the unit test suite only covers node discovery and the factory; it\
+    \ lacks tests for tool\u2011presence checks, CPU profiling, radio metrics, thermal\
+    \ read\u2011outs, or parsing of the provided sample logs, so the test coverage\
+    \ is f"
+  sig: feafd64592653a3371429112735fcd496ee689db93d201edbcd8d9a13f2016db

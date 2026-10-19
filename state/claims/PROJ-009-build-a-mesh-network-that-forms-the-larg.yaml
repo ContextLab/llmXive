@@ -731,3 +731,50 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator pretends to discover 15 nodes
+  claim_id: c_0b43ded0
+  context: 'What happens: The orchestrator pretends to discover 15 nodes.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator pretends to discover 15 nodes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T08:29:09Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: test suite validates JSON files against contracts schemas
+  claim_id: c_3476b03f
+  context: The test suite scans the `data/` directory and validates any JSON files
+    against the schemas in `contracts/`.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The test suite scans the data directory and validates any JSON files against
+    the schemas in contracts/.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T08:29:09Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: sweep runner iterates over all config combinations
+  claim_id: c_5d7e86b1
+  context: The sweep runner iterates over all combinations defined in `config.yaml`.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sweep runner iterates over all combinations defined in config.yaml.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T08:29:10Z'
