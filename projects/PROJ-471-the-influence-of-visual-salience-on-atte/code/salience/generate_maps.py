@@ -65,6 +65,7 @@ def _load_deepgaze_model() -> torch.nn.Module:
     """
     try:
         # Load model via torch hub
+        # DeepGaze II implementation usually requires timm
         model = torch.hub.load(
             "deepgaze/deepgaze-ii",
             "deepgaze_ii",
@@ -135,6 +136,9 @@ def main() -> int:
         metadata_path = paths.interim("salience_metadata.json")
         err_logger = _setup_error_logger()
 
+        if not raw_images_dir.exists():
+            raise RuntimeError(f"DATA_MISSING_002: Stimuli directory not found at {raw_images_dir}")
+
         # 2. Load model (Guaranteed DeepGaze II)
         deepgaze_model = _load_deepgaze_model()
 
@@ -146,8 +150,6 @@ def main() -> int:
         
         if not image_paths:
             logger.warning(f"No images found in {raw_images_dir}. Nothing to process.")
-            # We don't download samples here to avoid fabrication signals; 
-            # if data is missing, it's a data-layer failure.
             return 0
 
         logger.info(f"Found {len(image_paths)} images. Processing on CPU...")

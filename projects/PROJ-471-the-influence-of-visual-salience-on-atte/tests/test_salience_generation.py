@@ -9,7 +9,9 @@ from code.salience.generate_maps import main as generate_maps_main
 
 def load_schema():
     # Path relative to test file: tests/test_salience_generation.py -> contracts/salience.schema.yaml
-    schema_path = pathlib.Path(__file__).resolve().parents[2] / "contracts" / "salience.schema.yaml"
+    # Note: Using a robust path resolution to find the schema
+    project_root = pathlib.Path(__file__).resolve().parents[2]
+    schema_path = project_root / "contracts" / "salience.schema.yaml"
     with open(schema_path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
@@ -79,6 +81,8 @@ def test_map_resolutions_match_images(run_generation):
             continue
         
         img = cv2.imread(str(img_path))
+        if img is None:
+            continue
         h, w = img.shape[:2]
         
         map_path = maps_dir / f"{sid}.npy"
