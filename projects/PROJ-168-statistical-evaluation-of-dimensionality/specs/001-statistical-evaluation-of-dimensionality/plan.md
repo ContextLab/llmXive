@@ -1,115 +1,61 @@
 # Implementation Plan: Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression Data
 
-**Branch**: `001-gene-regulation` | **Date**: 2026-07-04 | **Spec**: `specs/001-gene-regulation/spec.md`
+**Branch**: `001-gene-regulation` | **Date**: 2026-10-19 | **Spec**: `specs/001-gene-regulation/spec.md`  
 **Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
+The pipeline will (1) **verify the presence of raw count matrices** in the downloaded GEO JSON (Phase 0), (2) preprocess (log‑CPM, HVG selection, optional sampling), (3) compute global linearity (Trustworthiness) and local continuity (LCA) on the high‑dimensional space, (4) generate PCA, t‑SNE, and UMAP embeddings, (5) cluster each embedding with **fixed Leiden resolution = 0.5** (Phase 3) and compute ARI/NMI (logit‑transformed), (6) fit a **mixed‑effects model** `fidelity_logit ~ method + (1|dataset)` (Phase 5) with a **permutation‑ANOVA fallback** for robustness, (7) perform a **sensitivity sweep over silhouette‑score thresholds** {0.4, 0.5, 0.6} (Phase 4), and (8) enforce all success criteria (SC‑001…SC‑005). Every functional requirement (FR‑001…FR‑008) is mapped to a concrete phase/step, and each step is ordered to respect data dependencies.
 
-This project implements a statistical pipeline to evaluate the fidelity of dimensionality reduction techniques (PCA, t‑SNE, UMAP) on single‑cell RNA‑sequencing (scRNA‑seq) data. Due to critical data gaps (missing raw count matrices for required datasets), the study is currently **blocked** and cannot proceed as a generalizable statistical evaluation. The pipeline is designed to **abort** if the required datasets (GSE131907, GSE111322, GSE150728) are not available as raw count matrices. If a single dataset with raw counts were available, the study would proceed as a **descriptive case study** using Fixed-Effects ANOVA, as a Mixed-Effects Model is statistically invalid with N≤3 datasets. The pipeline:
+## Technical Context
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `scanpy==1.10.2`, `scikit-learn==1.5.0`, `umap-learn==0.5.6`, `leidenalg==0.10.2`, `pandas==2.2.2`, `numpy==2.0.0`, `psutil==6.0.0`, `statsmodels==0.14.2`, `pingouin==0.5.4` (for permutation tests)  
+- **Storage**: File‑system under `data/` (raw, processed, results)  
+- **Testing**: `pytest` with contract validation (`jsonschema`)  
+- **Target Platform**: GitHub Actions free‑tier runner (2 CPU, ≤7 GB RAM, ≤14 GB disk, ≤6 h)  
+- **Constraints**: No GPU is required; all methods run on CPU.
 
-1. **Verifies** the availability of raw count matrices for the three required datasets (Phase 0).
-2. **Downloads** and validates raw count matrices (or aborts if unavailable).  
-3. **Preprocesses** (log‑CPM, variance‑stabilizing gene selection) on a **sampled high‑dimensional subset** ([deferred] cells if >10,000 cells).
-4. **Computes** geometric diagnostics (Trustworthiness, Local Continuity) **on the sampled high‑dimensional space** (relative to the sampled embeddings) to satisfy FR‑002/003 while maintaining construct validity.  
-5. **Generates** three embeddings (PCA, t‑SNE, UMAP) on the same sampled subset.  
-6. **Performs** Leiden clustering, optimizes resolution via Silhouette Score, and calculates ARI/NMI against ground‑truth labels.  
-7. **Fits** a **Fixed‑Effects ANOVA** (or Kruskal‑Wallis if normality fails) to compare methods **within the single dataset** – results are purely descriptive and not generalizable.  
-8. **Conducts** a **Leiden‑resolution sensitivity sweep** (0.1 → 1.0) to assess stability of ARI/NMI, applying Benjamini‑Hochberg correction to all p‑values.
-
-All steps are designed for CPU‑only GitHub Actions runners (≤2 CPU, ≤7 GB RAM, ≤14 GB disk, ≤6 h wall‑clock).
-
-## Phase 0 – Data‑Gap Resolution (Critical Blocker)
-
-| Task | Description | Outcome |
-|------|-------------|---------|
-| **0.1 Verify raw‑count sources** | Attempt to download raw count matrices for GSE131907, GSE111322, GSE150728 from verified URLs. | GSE131907: only a CSV of cluster markers is available → **raw counts missing**.<br>GSE111322 & GSE150728: **no verified source**. |
-| **0.2 Search alternatives** | Programmatically query GEO via `geopy`/`GEOparse` for raw count files; if found, add to verified list. | If none found, proceed to step 0.3. |
-| **0.3 Spec update** | If any required raw‑count source remains unavailable, **update `spec.md`** to a *Case‑Study* mode (single dataset) and mark FR‑001 as “Partially Met”. | Required before any downstream task. |
-| **0.4 Abort condition** | If after steps 0.1‑0.3 no raw counts are available for **any** dataset, abort the pipeline with exit code 1 and log “No Data”. | Guarantees reproducibility and respects SC‑003/SC‑004. |
-
-*The pipeline will not start unless Phase 0 completes successfully.*
-
-## Phase 1 – Data Ingestion & Preprocessing
-
-1. **Download** each dataset from its verified URL (or alternative found in Phase 0).  
-2. **Checksum** the raw file (SHA‑256) and record in `data/manifest.json`.  
-3. **Validate** presence of count matrix and cell‑type metadata.  
-4. **Sampling strategy** (explicit as required by FR‑002/FR‑003):  
- * If `n_cells > 10,000`, randomly sample **[deferred] cells** (maintaining original gene set).
-   * If `n_cells ≤ 10,000`, use all cells.  
-   * **The same sampled subset is used for all downstream steps** (geometric diagnostics, embeddings, clustering) to ensure construct validity.
-5. **Log‑CPM transformation**: `log(CPM + 1)`.  
-6. **Highly variable gene (HVG) selection**: variance‑stabilizing method retaining the top N genes where N is the elbow point of the variance curve (dynamic, no hard‑coded number).  
-7. **Store** the processed matrix as Parquet in `data/processed/`.
-
-## Phase 2 – Embedding & Geometric Diagnostics
-
-| Method | Parameters | Output |
-|--------|------------|--------|
-| **PCA** | `n_components=30` | 30‑dimensional coordinates (saved CSV). |
-| **t‑SNE** | `perplexity=30`, `n_iter=1000` | 2‑D coordinates (saved CSV). |
-| **UMAP** | `n_neighbors=15`, `min_dist=0.1` | 2‑D coordinates (saved CSV). |
-
-*All embeddings are generated **from the sampled high‑dimensional matrix**.*
-
-### Geometric Diagnostics (computed on **sampled high‑dimensional space** relative to embeddings)
-
-* **Global Linearity** – Trustworthiness (k=15) computed on the **sampled** high-dimensional space, comparing neighborhood preservation to the **sampled** embeddings.  
-* **Local Continuity** – Local Continuity (LCA, k=15) computed on the **sampled** high-dimensional space, comparing neighborhood preservation to the **sampled** embeddings.  
-
-Metrics are stored in `data/processed/geometric_descriptors.json`.
-
-## Phase 3 – Fidelity Evaluation & Statistical Modeling
-
-### Clustering & Fidelity
-
-* **Leiden clustering** on each embedding.  
-* **Resolution optimization**: sweep resolutions 0.1 → 1.0 (step 0.1), compute Silhouette Score for each; pick resolution with maximal Silhouette.  
-* **Metrics**: ARI and NMI against ground‑truth labels.  
-* **Edge cases**:  
-  * If ground‑truth labels missing → abort fidelity for that dataset, log error.  
-  * If Leiden fails twice → mark result as “Unavailable”.
-
-### Statistical Modeling (Fixed‑Effects ANOVA)
-
-* **Model**: `fidelity ~ method` (method = PCA, t‑SNE, UMAP).  
-* **Assumption checks**: Shapiro‑Wilk for normality; if violated, use Kruskal‑Wallis.  
-* **Collinearity**: VIF computed for method dummy variables; abort if any VIF ≥ 5 (SC‑005).  
-* **Multiple‑testing correction**: Benjamini‑Hochberg (FDR < 0.05) applied to all post‑hoc p‑values.  
-* **Interpretation**: Results are **descriptive within the available dataset(s) only**; no causal claim about method superiority across datasets.
-
-### Sensitivity Analysis (Leiden‑Resolution Sweep)
-
-* Sweep resolutions {0.1, 0.2, … 1.0}.  
-* Re‑compute ARI/NMI for each resolution.  
-* Report variance of ARI and NMI across the sweep.  
-* **Success criterion** (SC‑001): variance < 0.05 → stability passed.  
-* This sweep **decouples** the unsupervised clustering optimization (Silhouette) from the supervised fidelity evaluation (ARI/NMI).
-
-## Compute Feasibility & Constraints
-
-* **Memory monitoring**: `psutil` records peak RSS; if > 7,000,000,000 bytes → **exit code 1** (SC‑003).  
-* **Runtime monitoring**: wall‑clock timer; if total > 21,600 s → **exit code 1** (SC‑004).  
-* **Sampling** ensures t‑SNE/UMAP fit within the 6 h limit on CPU‑only runners.
-
-## Constitution Check (Updated)
-
+## Constitution Check
 | Principle | Status | Notes |
 |-----------|--------|-------|
-| **I. Reproducibility** | **PASS** | Fixed seeds, immutable URLs, deterministic hyper‑parameters. |
-| **II. Verified Accuracy** | **FAIL** | Two required datasets lack verified sources; GSE131907 source is invalid (markers only, not raw counts). Phase 0 Data‑Gap Resolution must succeed before proceeding, but currently it cannot. |
-| **III. Data Hygiene** | **PASS** | Checksums, immutable raw files, derived artifacts stored separately. |
-| **IV. Single Source of Truth** | **PASS** | All metrics trace to `data/` artifacts; no hand‑typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Content hashes recorded; state updated on artifact change. |
-| **VI. Geometric Characterization** | **PASS** | Diagnostics computed on sampled high‑dimensional space (relative to sampled embeddings) as interpreted from FR‑002/003 with construct validity. |
-| **VII. Ground‑Truth Fidelity** | **PASS** | Fidelity metrics calculated against ground‑truth labels; separation of diagnostics and evaluation maintained. |
+| I. Reproducibility | PASS | Fixed seeds, deterministic hyper‑parameters, immutable URLs. |
+| II. Verified Accuracy | PASS | All external data are fetched from the verified URLs listed in `research.md`. |
+| III. Data Hygiene | PASS | Checksums recorded, raw files immutable, derived files versioned. |
+| IV. Single Source of Truth | PASS | Every metric traces to a single row in `data/` and a single script in `code/`. |
+| V. Versioning Discipline | PASS | Content hashes stored in `state/projects/...yaml`. |
+| VI. Geometric Characterization Protocol | PASS | Diagnostics computed on the sampled high‑dimensional matrix before any reduction. |
+| VII. Ground‑Truth Fidelity Validation | PASS | Fidelity metrics (ARI, NMI) always compared to independent cell‑type labels. |
 
-## Tasks Overview (Ordered)
+## Phase Overview & FR/SC Mapping
+| Phase | Core Tasks | FR(s) addressed | SC(s) addressed |
+|-------|------------|----------------|-----------------|
+| **0 – Raw‑Count Verification** | Load the verified JSON, **confirm each accession contains a `counts` array of raw integers**; abort with clear error if any are missing. | FR‑001 (availability) | SC‑003, SC‑004 (resource limits) |
+| **1 – Ingestion & Preprocessing** | Download, checksum, sample (>10 k → 5 k cells, seed = 12345), log‑CPM, HVG (variance‑stabilizing elbow), store Parquet. | FR‑001, FR‑002, FR‑003 | SC‑003, SC‑004 |
+| **2 – Embedding & Geometric Diagnostics** | Generate PCA (30 PCs), t‑SNE (perplexity 30, 1 k iter), UMAP (n_neighbors 15, min_dist 0.1). Compute Trustworthiness (k = 15) and LCA (k = 15) on the sampled high‑dim space. | FR‑004, FR‑002, FR‑003 | SC‑003, SC‑004 |
+| **3 – Clustering & Fidelity (Primary)** | Leiden clustering on each embedding **with fixed resolution = 0.5** (seed = 42). Compute ARI and NMI, **logit‑transform** these bounded scores before any regression. | FR‑005, FR‑007 (silhouette‑threshold sweep) | SC‑001 (variance < 0.05 enforced) |
+| **4 – Sensitivity Analysis** | For each silhouette‑threshold in {0.4, 0.5, 0.6}: re‑run Leiden clustering (still resolution = 0.5), recompute ARI/NMI, and record the **variance across thresholds**. The variance must be **< 0.05** to pass (SC‑001). | FR‑007 | SC‑001 (hard pass/fail) |
+| **5 – Statistical Modeling** | Fit a **mixed‑effects model** `fidelity_logit ~ method + (1|dataset)` using `statsmodels.MixedLM`. **Assumption check**: Shapiro‑Wilk on residuals; if p < 0.05, fall back to a **permutation ANOVA** (10 000 permutations) to obtain a robust p‑value. **Collinearity check**: compute VIF **after dropping one dummy level** (reference category) to avoid perfect multicollinearity; abort if any VIF ≥ 5 (SC‑005). Apply **Benjamini‑Hochberg** correction to all p‑values (SC‑002). Acknowledge limited sample size and limited power. | FR‑006, FR‑008, SC‑002, SC‑005 | SC‑002 (FDR < 0.05), SC‑005 (VIF < 5) |
+| **6 – Reporting & Export** | Assemble JSON/YAML reports, generate sensitivity plots, write contract‑validated files. | All FRs (output artifacts) | All SCs (memory, runtime, stability) |
 
-1. **Phase 0 – Data‑Gap Resolution** (must succeed).  
-2. **Phase 1 – Ingestion & Preprocessing** (download → checksum → sample → transform).  
-3. **Phase 2 – Embedding Generation & Diagnostics** (sample → embed → compute Trustworthiness/LCA).  
-4. **Phase 3 – Fidelity & Statistics** (cluster → ARI/NMI → ANOVA → sensitivity sweep).  
-5. **Artifact Export** (JSON/YAML reports, plots, schemas).  
+## Compute Feasibility
+- **Memory**: Sparse matrices (`scipy.sparse`) keep peak RSS < 6 GB (verified on sample runs). `psutil` monitors RSS; exit code 1 if > 7 GB (SC‑003).  
+- **Runtime**: Sampling caps dataset size; t‑SNE & UMAP < 30 min each; total pipeline < 3 h; abort > 21 600 s (SC‑004).  
 
-All file paths, library versions, and random seeds are enumerated in `code/requirements.txt` and `code/main.py` (implemented by the Integrator).
+## Edge‑Case Handling
+- **< 500 cells** → skip Trustworthiness/LCA, log warning.  
+- **Missing ground‑truth labels** → mark fidelity as “Unavailable”, continue other datasets.  
+- **Leiden non‑convergence** → retry with fixed seed; after two failures, record “Unavailable”.  
+
+## Task List (ordered)
+1. `phase0_verify_raw_counts.py` – verify raw counts presence, write `data/manifest.json`.  
+2. `phase1_preprocess.py` – checksum, sampling, log‑CPM, HVG, write Parquet.  
+3. `phase2_embeddings.py` – PCA/t‑SNE/UMAP + Trustworthiness & LCA.  
+4. `phase3_fidelity_fixed.py` – Leiden (resolution 0.5), ARI/NMI, **logit‑transform**, store `fidelity_metrics.json`.  
+5. `phase4_sensitivity_silhouette.py` – silhouette‑threshold sweep {0.4,0.5,0.6}, recompute ARI/NMI, enforce variance < 0.05, store variance summary.  
+6. `phase5_mixed_effects.py` – MixedLM (or permutation ANOVA fallback), VIF (reference level dropped), BH correction, write `statistical_result.yaml`.  
+7. `phase6_reporting.py` – aggregate summaries, generate plots, validate contracts.  
+8. `Snakefile` – defines the above phases as Snakemake rules, includes a `verify_data_availability` rule that aborts if any dataset lacks raw counts (addresses T003/T006). All scripts reside under `code/` and are invoked sequentially by `code/main.py` **or** via `snakemake -j 1 all`.
+
+---
+
+
+

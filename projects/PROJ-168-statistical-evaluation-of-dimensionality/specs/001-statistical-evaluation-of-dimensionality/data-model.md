@@ -1,91 +1,43 @@
 # Data Model: Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression Data
 
-## 1. Overview
+## Overview
+The pipeline stores all artifacts under `data/` with strict versioning and checksum tracking. The model defines six core entity types that flow from raw ingestion to the final statistical report.
 
-This document defines the data structures used throughout the pipeline, from raw ingestion to final statistical reporting. All artifacts are stored in `data/` with checksums.
+## Entities
 
-## 2. Entity Definitions
+| Entity | Fields | Description |
+|--------|--------|-------------|
+| **Dataset** | `dataset_id` (str), `source_url` (str), `status` (enum), `checksum` (str), `raw_path` (str), `processed_path` (str, nullable) | Represents a GEO accession; status indicates availability. |
+| **PreprocessedMatrix** | `dataset_id`, `matrix_path` (Parquet), `n_cells`, `n_genes`, `hvg_count`, `geometric_descriptors` (object) | Log‑CPM transformed, HVG‑selected, possibly sampled matrix. |
+| **Embedding** | `dataset_id`, `method` (enum), `embedding_path` (CSV), `dimensions` (int), `hyperparameters` (object), `clustering` (object) | Low‑dimensional representation plus clustering results. |
+| **FidelityMetric** | `dataset_id`, `method`, `metric_type` (enum), `value` (float), `silhouette_score` (float), `optimal_resolution` (float) | ARI or NMI for a given embedding (logit‑transformed for modeling). |
+| **MixedEffectsModel** | `model_type` (enum), `formula` (str), `fixed_effects` (array), `random_effects` (object), `vif_values` (object), `collinearity_passed` (bool), `permutation_p_value` (float, nullable) | Captures the mixed‑effects regression output, including VIF after dropping a reference level. |
+| **StatisticalResult** | `model_summary` (object), `sensitivity_analysis` (object), `execution_metadata` (object) | Final ANOVA/Permutation output, VIF diagnostics, and runtime stats. |
 
-### 2.1 Dataset
-Represents a single scRNA‑seq experiment.
-* `dataset_id`: String (e.g., "GSE131907")
-* `source_url`: String (Verified URL)
-* `status`: Enum ["Available", "Unavailable", "Error"]
-* `error_message`: String (if Unavailable/Error)
-* `checksum`: String (SHA‑256 of raw file)
-* `raw_file_path`: String (relative path in `data/raw/`)
-* `processed_file_path`: String (relative path in `data/processed/`, nullable)
-* `fallback_strategy`: Enum ["skip", "abort", "case_study"] (action when dataset cannot be obtained)
-
-### 2.2 PreprocessedMatrix
-Log‑CPM transformed, HVG‑selected matrix (potentially sampled).
-* `dataset_id`: String
-* `matrix_path`: String (Parquet)
-* `n_cells`: Integer (after sampling)
-* `n_genes`: Integer (post‑HVG)
-* `hvg_count`: Integer
-* `geometric_descriptors`: Object
-  * `trustworthiness`: Float (computed on sampled high‑D space)
-  * `local_continuity`: Float (computed on sampled high‑D space)
-
-### 2.3 Embedding
-Low‑dimensional representation of cells.
-* `dataset_id`: String
-* `method`: Enum ["PCA", "tSNE", "UMAP"]
-* `embedding_path`: String (CSV/Parquet)
-* `dimensions`: Integer (2 or 3)
-* `hyperparameters`: Object (e.g., `{"perplexity": 30}`)
-* `clustering_result`: Object
-  * `labels`: List[Integer]
-  * `silhouette_score`: Float (at optimal resolution)
-  * `optimal_resolution`: Float
-
-### 2.4 FidelityMetric
-Performance metric for a specific embedding.
-* `dataset_id`: String
-* `method`: String
-* `metric_type`: Enum ["ARI", "NMI"]
-* `value`: Float (0.0–1.0)
-* `ground_truth_labels`: List[Integer] (reference only)
-
-### 2.5 StatisticalResult
-Output of the Fixed‑Effects ANOVA and sensitivity analysis.
-* `model_summary`: Object
-  * `formula`: String ("fidelity ~ method")
-  * `fixed_effects`: List[Object] (term, estimate, std_error, p_value, p_value_fdr)
-  * `random_effects_variance`: Null (Fixed‑Effects ANOVA)
-  * `vif_values`: Object (method → VIF)
-  * `collinearity_passed`: Boolean
-* `sensitivity_analysis`: Object
-  * `thresholds`: List[Float] (Leiden resolutions)
-  * `variance_ari`: Float
-  * `variance_nmi`: Float
-  * `stability_passed`: Boolean
-* `execution_metadata`: Object
-  * `peak_memory_bytes`: Integer
-  * `total_runtime_seconds`: Number
-  * `datasets_processed`: Integer
-  * `datasets_skipped`: Integer
-  * `exit_code`: Integer (0 = success, 1 = failure)
-
-## 3. Data Flow Diagram
-
+## Data Flow Diagram
 ```mermaid
 graph TD
-    A[Raw GEO Data] -->|Download & Checksum| B(PreprocessedMatrix)
-    B -->|Sampling (5k cells if >10k)| C[SampledMatrix]
-    C -->|PCA/t‑SNE/UMAP| D[Embedding]
-    D -->|Geometric Diagnostics| E[GeometricDescriptors]
-    D -->|Leiden Clustering| F[ClusterLabels]
-    F -->|ARI/NMI vs GT| G[FidelityMetrics]
-    G -->|Fixed‑Effects ANOVA| H[StatisticalResult]
-    G -->|Resolution Sweep| I[SensitivityAnalysis]
+    A[Raw GEO JSON] -->|Phase 0| B[Dataset Manifest]
+    B -->|Phase 1| C[PreprocessedMatrix]
+    C -->|Phase 2| D[Embedding]
+    D -->|Phase 3| E[FidelityMetric]
+    E -->|Phase 5| F[MixedEffectsModel]
+    F -->|Phase 6| G[StatisticalResult]
 ```
 
-## 4. Storage Formats
+## Storage Formats
+- **Raw JSON**: `data/raw/<dataset_id>.json` (as extracted from the GSE JSON).  
+- **Processed Matrix**: Parquet (`data/processed/<dataset_id>_logcpm.parquet`).  
+- **Embeddings**: CSV (`data/embeddings/<dataset_id>_<method>.csv`).  
+- **Geometric Descriptors**: JSON (`data/processed/<dataset_id>_geometric.json`).  
+- **Fidelity Metrics**: JSON (`data/metrics/fidelity_<dataset_id>.json`).  *Values are stored **logit‑transformed** to match modeling requirements.*  
+- **Statistical Result**: YAML (`data/results/statistical_result.yaml`).  
+- **Manifest & Checksums**: `data/manifest.json` (generated after Phase 0).  
 
-* **Raw Data**: CSV/MTX (as provided).  
-* **Processed Data**: Parquet (sparse‑friendly).  
-* **Embeddings**: CSV (human‑readable) or Parquet.  
-* **Metrics/Results**: JSON (pipeline‑friendly) and YAML (schema‑validated).  
-* **Checksums**: JSON manifest at `data/manifest.json`.
+## Contracts
+All output files are validated against schemas in `contracts/` (e.g., `statistical_result.schema.yaml`). The manifest records a SHA‑256 checksum for every raw file, enabling reproducibility checks (Constitution III).
+
+---
+
+
+

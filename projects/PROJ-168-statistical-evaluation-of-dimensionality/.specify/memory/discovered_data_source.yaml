@@ -1,32 +1,14 @@
-status: verified
-kind: pypi_package
-ref: scanpy
-access_python: 'import scanpy as sc
-
-  adata = sc.datasets.pbmc3k()
-
-  # Number of cells (records)
-
-  records = adata.n_obs
-
-  print(f"RECORDS={records}")
-
-  # Fields available in this AnnData object
-
-  # gene_id -> adata.var_names, cell_barcode -> adata.obs_names, raw_counts -> adata.X
-
-  fields = ["gene_id", "cell_barcode", "raw_counts"]
-
-  print("FIELDS=" + ",".join(fields))'
-record_count: 2700
-sample_fields:
-- gene_id
-- cell_barcode
-- raw_counts
-field_coverage: 1.0
+status: none
+intent: download GEO scRNA-seq count matrices from GSE identifiers via scanpy python
+  package dataset
 required_fields:
+- cell_id
 - gene_id
-- cell_barcode
+- gene_name
 - raw_counts
-intent: scRNA-seq count matrix GEO Gene Expression Omnibus python package dataset
-cache_key: fe100ced00686fdde30a4554e5f83f8c0446044b577af5e4c332e8871851fbf5
+- log_cpm
+- highly_variable_flag
+- cell_type_annotation
+cache_key: d38695fd935461ab6c14e03c9e08a077f4e0b8270e84b2356e5e5ef1f772d783
+searched_at: '2026-10-19T18:27:44.246610+00:00'
+retry_count: 1

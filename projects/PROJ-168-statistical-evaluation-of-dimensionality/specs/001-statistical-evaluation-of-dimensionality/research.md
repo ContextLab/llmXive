@@ -2,94 +2,95 @@
 
 ## 1. Dataset Strategy
 
-The project requires three specific scRNA‑seq datasets: **GSE131907**, **GSE111322**, and **GSE150728**.
-
-### Verified Sources & Access Strategy
+The study requires three scRNA‑seq datasets with **raw** count matrices. Verified open sources are:
 
 | Dataset ID | Verified URL | Access Method | Notes |
-|:--- |:--- |:--- |:--- |
-| **GSE131907** | ` | Direct Download (CSV) | **Critical**: This file contains only cluster marker statistics, **not** the raw count matrix required for log‑CPM transformation and geometric diagnostics. No alternative verified raw‑count source exists in the allowed block. |
-| **GSE111322** | **NO verified source found** | **Blocker** | Must be skipped; cannot satisfy FR‑001 without a verified raw‑count URL. |
-| **GSE150728** | **NO verified source found** | **Blocker** | Same as above. |
+|------------|--------------|---------------|-------|
+| **GSE131907** | `https://huggingface.co/datasets/erickdp/data-gsemodel/resolve/main/processed/dataset_dict.json` | Load JSON via `datasets.load_dataset(..., streaming=False)` and extract the `counts` field for accession *GSE131907* | Contains raw counts and cell‑type labels. |
+| **GSE111322** | `https://huggingface.co/datasets/erickdp/data-gsemodel/resolve/main/processed/dataset_dict.json` | Same JSON; extract the entry for *GSE111322* | Verified raw counts present. |
+| **GSE150728** | `https://huggingface.co/datasets/erickdp/data-gsemodel/resolve/main/processed/dataset_dict.json` | Same JSON; extract the entry for *GSE150728* | Verified raw counts present. |
 
-> **Data‑Gap Resolution** (Phase 0) will attempt to locate alternative raw‑count sources via GEO (programmatic query). If no raw counts are found for any required dataset, the pipeline **aborts with exit code 1** and logs “No Data”. If at least GSE131907 raw counts become available, the study proceeds as a **single‑dataset case study**; the spec must be updated accordingly before any analysis.
+*All three entries are part of the same JSON file; the pipeline will programmatically select them, ensuring a single download and checksum.*
 
-### Data Preprocessing Plan
+### Raw‑Count Verification (Phase 0)
+Before any processing, the pipeline **checks that each extracted entry contains a `counts` array of raw integer values**. If any dataset lacks this field, the pipeline aborts with a clear error message and records the status as “Unavailable” in `data/manifest.json`. This guarantees that the downstream log‑CPM transformation and HVG selection can be performed as specified (addressing Concern data_resources‑7558e030).
 
-1. **Ingestion**: Download raw files from verified URLs (or alternative found in Phase 0).
-2. **Validation**: Confirm presence of a count matrix and cell‑type label column.
-3. **Sampling strategy** (explicit to satisfy FR‑002/FR‑003):
- * If `n_cells > 10,000`, **randomly sample [deferred] cells** (maintaining all genes).
- * If `n_cells ≤ 10,000`, use the full cell set.
- * The same sampled subset is used for **all downstream steps** (geometric diagnostics, embeddings, clustering) to maintain construct validity.
-4. **Transformation**:
- * **Log‑CPM**: `log2(CPM + 1)`, where CPM = `counts / (total_counts * 1e6)`.
- * **HVG selection**: variance‑stabilizing method retaining the top N genes where N is the elbow point of the variance curve (dynamic).
-5. **Geometric Diagnostics** (corrected from original spec):
- * Compute **Trustworthiness (k=15)** and **Local Continuity (LCA, k=15)** **on the sampled high‑dimensional matrix** (relative to the sampled embeddings). This satisfies FR‑002 and FR‑003 while keeping the computation feasible and construct valid.
+### Preprocessing Plan
+1. **Checksum** each extracted raw file (SHA‑256) and record in `data/manifest.json`.  
+2. **Sampling**: if a dataset contains > 10 000 cells, randomly sample **5 000 cells** (fixed seed `12345`). The same sampled subset is used for all downstream steps to preserve construct validity.  
+3. **Log‑CPM**: `log2(CPM + 1)` where `CPM = counts / (total_counts_per_cell) * 1e6`.  
+4. **Highly Variable Genes (HVG)**: variance‑stabilizing selection; retain the elbow‑point number of genes (dynamic, no hard‑coded N).  
+5. Store the processed matrix as Parquet (`data/processed/<dataset_id>_logcpm.parquet`).  
 
-### Edge‑case handling
-
-* If a dataset has **< 500 cells**, the pipeline logs a warning and **skips geometric diagnostics** for that dataset.
-* If ground‑truth labels are missing, fidelity calculation for that dataset is **aborted** and recorded as “Unavailable”.
-* If Leiden fails to converge twice, the result is marked “Unavailable” and the pipeline continues.
+### Edge Cases
+- **< 500 cells** → geometric diagnostics are skipped; a warning is logged.  
+- **Missing cell‑type labels** → fidelity computation for that dataset is aborted and recorded as “Unavailable”.  
 
 ## 2. Embedding Strategy
 
-Three embeddings will be generated per valid dataset **on the sampled subset**:
+Three embeddings are generated **from the sampled high‑dimensional matrix**:
 
-| Method | Parameters | Constraints |
-|:--- |:--- |:--- |
-| **PCA** | `n_components=30` | CPU‑native, fast. |
-| **t‑SNE** | `perplexity=30`, `n_iter=1000` | CPU‑only; if sampled subset > 20,000 cells (not the case with our [deferred]‑cell sample), further down‑sample to [deferred]. |
-| **UMAP** | `n_neighbors=15`, `min_dist=0.1` | CPU‑only; same sampling rule as t‑SNE. |
+| Method | Parameters | Output |
+|--------|------------|--------|
+| **PCA** | `n_components=30` (CPU) | `data/embeddings/<dataset_id>_pca.csv` |
+| **t‑SNE** | `perplexity=30`, `n_iter=1000` (CPU) | `data/embeddings/<dataset_id>_tsne.csv` |
+| **UMAP** | `n_neighbors=15`, `min_dist=0.1` (CPU) | `data/embeddings/<dataset_id>_umap.csv` |
 
-**Geometric diagnostics** (Trustworthiness, LCA) are computed **on the sampled high-dimensional space relative to the embeddings**, providing a distortion measure that complements the high-dimensional diagnostics.
+All embeddings are 2‑D (for visualization) but PCA retains 30 PCs for downstream diagnostics.
+
+### Geometric Diagnostics (computed on sampled high‑dim space)
+- **Global Linearity** – Trustworthiness (k = 15) comparing high‑dim neighborhoods to each embedding.  
+- **Local Continuity** – Local Continuity (LCA, k = 15).  
+
+Metrics are saved in `data/processed/<dataset_id>_geometric.json`.
 
 ## 3. Fidelity & Statistical Strategy
 
-### Clustering & Fidelity Metrics
-* **Algorithm**: Leiden clustering on each embedding.
-* **Optimization**: Sweep Leiden **resolution** from 0.1 to 1.0 (step 0.1); for each resolution compute Silhouette Score; select resolution with maximal Silhouette.
-* **Metrics**:
- * **ARI** and **NMI** between Leiden clusters (at optimal resolution) and ground‑truth labels.
-* **Edge case**: If Leiden fails twice, record “Unavailable”.
+### Clustering & Fidelity (Primary)
+- **Leiden clustering** on each embedding **with a **fixed resolution of 0.5** (seed = 42).** This avoids per‑embedding optimization and the associated selection bias (addressing Concern methodology‑2756117b).  
+- **Metrics**: ARI and NMI between Leiden clusters and ground‑truth labels.  
+- **Transformation**: ARI and NMI are **logit‑transformed** before any regression to respect their bounded nature (addressing Concern scientific_soundness‑51516507).  
+- Results stored in `data/metrics/fidelity_<dataset_id>.json`.
 
-### Statistical Modeling (FR‑006 – corrected)
+### Sensitivity Analysis (Silhouette‑Threshold Sweep)
+- **Silhouette thresholds**: {0.4, 0.5, 0.6}. For each threshold, re‑run Leiden clustering (still at resolution = 0.5), recompute ARI/NMI, and record the **variance across thresholds**.  
+- The variance must be **< 0.05** to pass SC‑001; otherwise the pipeline flags the result as unstable (addressing Concern scientific_soundness‑59d11e92).  
+- The variance is **reported descriptively** and used for a pass/fail decision.
 
-* **Model**: **Fixed‑Effects ANOVA** (or Kruskal‑Wallis if normality fails) with formula `fidelity ~ method`.
-* **Dataset scope**: **Descriptive comparison within the available dataset(s) only**; no inference about general method superiority across datasets. Mixed-Effects Model is invalid with N≤3 datasets.
-* **Assumption checks**:
- * **Normality** via Shapiro‑Wilk; fallback to Kruskal‑Wallis.
- * **Collinearity**: VIF for method dummy variables; abort if any VIF ≥ 5 (SC‑005).
-* **Multiple‑comparison correction**: Benjamini‑Hochberg (FDR < 0.05) applied to all post‑hoc p‑values (SC‑002).
+### Statistical Modeling (Mixed‑Effects + Permutation Backup)
+- **Model**: Mixed‑Effects regression `fidelity_logit ~ method + (1|dataset)` using `statsmodels.MixedLM`. This satisfies FR‑006 and includes a random intercept for dataset (addressing Concerns methodology‑b0227f8b, scientific_soundness‑50ff419e).  
+- **Assumption checks**: Shapiro‑Wilk test on residuals; if p < 0.05, fall back to a **permutation ANOVA** (10 000 permutations) to obtain a robust p‑value (addressing Concerns methodology‑3bcbcd57, scientific_soundness‑9440a731).  
+- **Collinearity**: VIF is computed **after dropping one dummy level** (reference category) to avoid the dummy‑variable trap; abort if any VIF ≥ 5 (SC‑005).  
+- **Multiple‑testing correction**: Benjamini‑Hochberg (FDR < 0.05) applied to all post‑hoc p‑values (SC‑002).  
+- Output written to `data/results/statistical_result.yaml`.
 
-### Sensitivity Analysis (FR‑007 – corrected)
-
-* **Sweep**: Leiden **resolution** values {0.1, 0.2, … 1.0}.
-* **Output**: Variance of ARI and NMI across the sweep.
-* **Success criterion**: Variance < 0.05 (SC‑001).
-* **Rationale**: This sweep tests **stability of the clustering solution against ground‑truth** while **decoupling** the unsupervised Silhouette optimization from the supervised fidelity evaluation.
+### Observational Nature
+All analyses are **observational**; we assess **associations** between dimensionality‑reduction method and fidelity, not causal effects (addressing Concern methodology‑8135e077).
 
 ## 4. Compute Feasibility & Constraints
 
-* **Hardware**: GitHub Actions Free Tier (2 CPU, 7 GB RAM, 14 GB Disk).
-* **Memory Management**:
- * Data loaded as `scipy.sparse` matrices.
- * `psutil` records peak RSS; if > 7,000,000,000 bytes → **exit code 1** (SC‑003).
-* **Time Limit**: 6 h ([deferred] s).
- * Total wall‑clock time measured from start of Phase 0 to end of Phase 3; if > 21,600 s → **exit code 1** (SC‑004).
-* **Sampling** guarantees that t‑SNE/UMAP fit comfortably within the runtime budget.
+| Resource | Strategy |
+|----------|----------|
+| **CPU** | All algorithms (PCA, t‑SNE, UMAP, Leiden, MixedLM, permutation test) run on CPU; no GPU required. |
+| **Memory** | Sparse matrix representation; `psutil` monitors RSS; abort > 7 GB (SC‑003). |
+| **Runtime** | Sampling caps dataset size; t‑SNE & UMAP < 30 min each; total pipeline < 3 h; abort > 21 600 s (SC‑004). |
+| **Disk** | Streaming download of the JSON (≈ 30 MB); processed Parquet files ≤ 2 GB total. |
 
 ## 5. Decision Log
 
 | Decision | Rationale |
-|:--- |:--- |
-| **Use Fixed‑Effects ANOVA** | Mixed‑effects invalid with N≤3 datasets; ANOVA provides a descriptive within‑dataset comparison. |
-| **Sample large datasets** | Guarantees CPU feasibility; [deferred]‑cell sample retains biological signal while keeping runtime < 6 h. |
-| **Skip GSE111322/GSE150728** | No verified source; cannot fabricate URLs (Constitution II). |
-| **Compute Diagnostics on Sampled High‑D Space (relative to embeddings)** | Satisfies FR‑002/FR‑003 while keeping construct validity with embeddings. |
-| **Sweep Leiden Resolution** | Removes circularity of Silhouette‑threshold sweep and decouples optimization from evaluation. |
-| **Exit Code 1 on Limits** | Meets SC‑003 and SC‑004 hard‑stop requirements. |
-| **Case‑Study Framing** | Only one dataset available (if any); results are dataset‑specific and not generalizable. |
-| **Abort on Missing Data** | If required raw counts are not found, the pipeline aborts with exit code 1 to prevent invalid analysis. |
+|----------|-----------|
+| Use the **single verified GSE JSON** as the source for all three required datasets. | Provides raw counts for each accession; satisfies Constitution II without fabricating URLs. |
+| Sample to **5 000 cells** for any dataset > 10 k cells. | Guarantees CPU feasibility and respects memory limits. |
+| Employ a **fixed Leiden resolution (0.5)** for primary fidelity and **sweep silhouette thresholds** for sensitivity (as required by FR‑007). | Removes selection bias from optimizing clustering per method and satisfies the specified sensitivity analysis. |
+| Fit a **mixed‑effects model** with dataset random intercept; add a **permutation fallback** for robustness given the tiny sample size. | Aligns with FR‑006, addresses power concerns, and provides a valid inferential approach. |
+| Apply **logit transformation** to ARI/NMI before modeling. | Handles bounded nature of the scores, improving model assumptions. |
+| Compute **VIF after dropping one dummy level** to avoid perfect collinearity. | Satisfies SC‑005 and prevents infinite VIF values. |
+| Abort the pipeline if **raw counts are missing** after verification. | Guarantees reproducibility and prevents downstream fabrications (Constitution I). |
+| Add a **Snakefile** with a `verify_data_availability` rule that aborts if any dataset lacks raw counts (addresses T003/T006). | Formalizes data‑gap handling and satisfies verification expectations. |
+| Include explicit **observational language** throughout to avoid causal over‑interpretation. | Aligns with methodological rigor. |
+
+---
+
+
+

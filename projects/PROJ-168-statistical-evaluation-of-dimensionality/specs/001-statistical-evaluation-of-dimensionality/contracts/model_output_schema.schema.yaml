@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Statistical Model Output Schema"
 description: "Schema for Linear Mixed-Effects Model results, ANOVA F-tests, or Descriptive Mode flag"
-type: "object"
+type: object
 properties:
   term:
     type: "string"
