@@ -61,9 +61,9 @@ Creates missing `.gitkeep` files in `metrics/` and `logs/`, verifies that `.flak
 ```bash
 python code/main.py download
 ```
-- Fetches historical & recent GBIF/eBird occurrences.  
+- Fetches historical & recent GBIF/eBird occurrences using the verified `pygbif` recipe.  
 - Streams WorldClim v2.1 and CMIP6 rasters tile‑by‑tile to keep RAM low.  
-- Downloads accompanying checksum (`*.md5`) files, computes SHA‑256 for each raster, and **aborts on mismatch** (fulfills T010).  
+- Downloads accompanying `.md5` checksum files, computes SHA‑256 for each raster, and **aborts on mismatch** (fulfills T010).  
 - Populates `data/manifest.json`.
 
 ### Step 2 – Preprocess (T003)
@@ -79,7 +79,7 @@ python code/main.py preprocess
 python code/main.py train
 ```
 - Checks for CUDA (`utils/gpu_check.py`) and exits if a GPU is detected.  
-- Performs spatial block cross‑validation, trains RF, Bioclim, and MaxEnt‑style models.  
+- Performs spatial block CV, trains RF, Bioclim, and MaxEnt‑style models.  
 - Saves model pickles under `models/` and logs to `logs/train.log`.
 
 ### Step 4 – Evaluate & Project (FR‑005, FR‑009, FR‑010)
@@ -95,7 +95,7 @@ python code/main.py evaluate
 ```bash
 python code/main.py report
 ```
-Creates `reports/findings.md` containing tables, figures, and the mandatory disclaimer:  
+Creates `reports/findings.md` containing tables, ROC curves, bootstrap CI plots, and the mandatory disclaimer:  
 > **Findings are associational and assume niche stability** (FR‑008).
 
 ## Troubleshooting
@@ -107,7 +107,7 @@ Creates `reports/findings.md` containing tables, figures, and the mandatory disc
 | **GPU detected & pipeline aborts** | Runner has CUDA enabled (unlikely on free tier) | Ensure `torch` is not installed, or run on a pure‑CPU runner. |
 | **Checksum mismatch** | Corrupted raster download | Delete the offending file, verify internet stability, and re‑run `code/main.py download`. |
 | **Insufficient records for a species** | `<100` records after thinning | Species will be flagged as `INSUFFICIENT_DATA`; check `metrics/data_sufficiency.json`. |
-| **Missing `.gitkeep` or `.flake8`** | Initial scaffold not run | Re‑run `python code/main.py scaffold`. |
+| **Missing `.gitkeep` or `.flake8`** | Scaffold not run | Re‑run `python code/main.py scaffold`. |
 
 All generated files conform to the JSON/YAML schemas in `specs/001-predicting-species-distribution-shifts/contracts/`.
 

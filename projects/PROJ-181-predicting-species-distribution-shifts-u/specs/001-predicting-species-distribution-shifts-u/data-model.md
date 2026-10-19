@@ -33,7 +33,7 @@ erDiagram
 | Field | Type | Description |
 |-------|------|-------------|
 | `occurrence_id` | string (FK → `OccurrenceRecord.id`) | Link to occurrence. |
-| `variable_name` | string (e.g., `bio1`) | Bioclim variable. |
+| `variable_name` | string (e.g., `bio1`) | Bioclim variable name. |
 | `value` | float | Extracted climate value. |
 | `raster_source` | string (URL/identifier) | Provenance of the raster. |
 | `year` | integer | Year of the climate data (e.g., 2000, 2050). |
@@ -44,7 +44,7 @@ erDiagram
 | `model_id` | UUID (string) | Unique model identifier. |
 | `species` | string | Target species. |
 | `algorithm` | string (`RF`, `Bioclim`, `MaxEnt`) | Algorithm used. |
-| `training_period` | string (`1970-2000`) | Temporal window of training data. |
+| `train_period` | string (`1970-2000`) | Temporal window of training data. |
 | `file_path` | string | Relative path under `models/`. |
 | `checksum` | string (SHA‑256) | File integrity hash. |
 | `hyperparameters` | JSON object | Algorithm‑specific settings. |
@@ -63,7 +63,7 @@ erDiagram
 | `status` | string (`PASS` / `INSUFFICIENT_DATA`) | Sufficiency flag (FR‑006). |
 | `delta_suitability` | float | Mean suitability shift (2050 – 2005‑2020). |
 | `p_value` | float (0 → 1) | From hierarchical bootstrap. |
-| `effect_size` | float | Cohen’s h (expected = 0.50). |
+| `effect_size` | float | Cohen’s h (expected = 0.50, source: Wikipedia). |
 | `corrected_p_value` | float (0 → 1) | After Benjamini‑Hochberg correction. |
 
 ### 2.5 DataSufficiency

@@ -1,14 +1,104 @@
-status: none
-intent: download North American bird occurrence data GBIF eBird with WorldClim v2
-  climate rasters python package dataset
+status: verified
+kind: pypi_package
+ref: pygbif
+access_python: "from pygbif import occurrences as occ\n\n# Retrieve a sample of records\
+  \ (no restrictive filters)\nresult = occ.search(limit=200)\nrecords = result.get(\"\
+  results\", [])\n\nprint(f\"RECORDS={len(records)}\")\nif records:\n    print(\"\
+  FIELDS=\" + \",\".join(records[0].keys()))"
+record_count: 200
+sample_fields:
+- key
+- datasetKey
+- publishingOrgKey
+- datasetCategory
+- installationKey
+- hostingOrganizationKey
+- publishingCountry
+- protocol
+- lastCrawled
+- lastParsed
+- crawlId
+- extensions
+- basisOfRecord
+- occurrenceStatus
+- classifications
+- taxonKey
+- kingdomKey
+- phylumKey
+- classKey
+- orderKey
+- familyKey
+- genusKey
+- speciesKey
+- acceptedTaxonKey
+- scientificName
+- acceptedScientificName
+- kingdom
+- phylum
+- order
+- family
+- genus
+- species
+- genericName
+- specificEpithet
+- infraspecificEpithet
+- taxonRank
+- taxonomicStatus
+- decimalLatitude
+- decimalLongitude
+- continent
+- gadm
+- year
+- month
+- day
+- eventDate
+- startDayOfYear
+- endDayOfYear
+- issues
+- lastInterpreted
+- license
+- isSequenced
+- identifiers
+- media
+- facts
+- relations
+- isInCluster
+- recordedBy
+- dnaSequenceID
+- nucleotideSequence
+- geodeticDatum
+- class
+- countryCode
+- recordedByIDs
+- identifiedByIDs
+- gbifRegion
+- country
+- publishedByGbifRegion
+- http://unknown.org/download
+- datasetTitle
+- catalogNumber
+- http://unknown.org/crawl_attempt
+- http://unknown.org/orphanEndpoint
+- institutionCode
+- locality
+- http://unknown.org/status
+- http://unknown.org/griddedDataset
+- collectionCode
+- gbifID
+field_coverage: 0.667
 required_fields:
 - species
 - decimalLatitude
 - decimalLongitude
 - eventDate
+- year
 - month
-- temperature
-- precipitation
-cache_key: 4626badac6a74a8de738be7e9c952f79480d5c5e4f6e87a0fe0d1dad60e7047e
-searched_at: '2026-10-18T23:07:36.753437+00:00'
-retry_count: 1
+- basisOfRecord
+- coordinateUncertaintyInMeters
+- countryCode
+- bio1
+- bio2
+- bio12
+intent: download North American bird occurrence eBird GBIF dataset with WorldClim
+  v2 climate rasters python package dataset
+cache_key: 4ce349b0fb844146bfb9ae2ca4d669ff71db81c3aa6daf70d1663be4bc504c25
