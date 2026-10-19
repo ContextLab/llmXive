@@ -10,7 +10,7 @@ properties:
       type: number
   p_values:
     type: object
-    description: "P-values for each coefficient"
+    description: "P‑values for each coefficient"
     additionalProperties:
       type: number
   r_squared:

@@ -15,7 +15,7 @@ properties:
     description: "Baseline network bandwidth measured before load (Mbps)"
   baseline_snr_db:
     type: number
-    description: "Baseline signal-to-noise ratio measured before load (dB)"
+    description: "Baseline signal‑to‑noise ratio measured before load (dB)"
   current_latency:
     type: number
     description: "Measured network latency in milliseconds"

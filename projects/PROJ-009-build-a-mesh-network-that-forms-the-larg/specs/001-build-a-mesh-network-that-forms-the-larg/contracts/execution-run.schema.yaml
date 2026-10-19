@@ -27,10 +27,10 @@ properties:
     description: "Number of straggler events detected"
   baseline_bandwidth_Mbps:
     type: number
-    description: "Average baseline bandwidth (pre-run) across nodes"
+    description: "Average baseline bandwidth (pre‑run) across nodes"
   baseline_snr_db:
     type: number
-    description: "Average baseline SNR (pre-run) across nodes"
+    description: "Average baseline SNR (pre‑run) across nodes"
   runtime_bandwidth_Mbps:
     type: number
     description: "Average runtime bandwidth during the run"
@@ -43,14 +43,4 @@ properties:
   os_noise:
     type: number
     description: "Optional measure of OS‑level noise (e.g., stddev of 1‑min load average); present when supported"
-required:
-  - node_count
-  - granularity_setting
-  - injected_latency
-  - total_throughput
-  - normalized_efficiency
-  - coordination_overhead_ratio
-  - straggler_count
-  - baseline_bandwidth_Mbps
-  - baseline_snr_db
 additionalProperties: false

@@ -39,6 +39,7 @@ erDiagram
         float runtime_snr_db
         number cpu_temperature_avg "Optional average CPU temperature (°C) across nodes; recorded when supported"
         number os_noise "Optional measure of OS‑level noise (e.g., stddev of 1‑min load average); recorded when supported"
+        number wifi_interference "Optional measure of Wi‑Fi interference (RSSI variance) captured during run"
     }
     RegressionModel {
         dict coefficients
@@ -55,10 +56,10 @@ erDiagram
 | Attribute | Type | Description | Source |
 |-----------|------|-------------|--------|
 | `ip_address` | string | Unique IPv4 address | SSH discovery |
-| `hardware_spec` | string | CPU model + RAM | `lscpu` / `free` |
+| `hardware_spec` | string | CPU model and RAM | `lscpu` / `free` |
 | `baseline_bandwidth_Mbps` | float | Pre‑load bandwidth (iperf) | Local measurement |
 | `baseline_snr_db` | float | Pre‑load SNR (iwconfig) | Local measurement |
-| `current_latency` | float | Median RTT during run (ms) | `ping` |
+| `current_latency` | float | Measured network latency in milliseconds | `ping` |
 | `packet_loss_rate` | float | Fraction of lost packets (0‑1) | `tcpdump` analysis |
 | `cpu_utilization` | float | Avg. CPU % during run | `mpstat` |
 
@@ -81,34 +82,36 @@ erDiagram
 | `normalized_efficiency` | float | Throughput / Theoretical capacity (tasks/sec) | Derived |
 | `coordination_overhead_ratio` | float | Handshake time / total time | Aggregation |
 | `straggler_count` | int | Number of straggler events detected | Scheduler |
-| `baseline_bandwidth_Mbps` | float | Avg. baseline bandwidth | Aggregated from nodes |
-| `baseline_snr_db` | float | Avg. baseline SNR | Aggregated |
-| `runtime_bandwidth_Mbps` | float | Avg. runtime bandwidth | Derived |
-| `runtime_snr_db` | float | Avg. runtime SNR | Derived |
+| `baseline_bandwidth_Mbps` | float | Avg. baseline bandwidth (pre‑run) across nodes | Aggregated |
+| `baseline_snr_db` | float | Avg. baseline SNR (pre‑run) across nodes | Aggregated |
+| `runtime_bandwidth_Mbps` | float | Avg. runtime bandwidth during the run | Derived |
+| `runtime_snr_db` | float | Avg. runtime SNR during the run | Derived |
 | `cpu_temperature_avg` | number | Optional average CPU temperature (°C) across nodes; recorded when supported | Sensor reading (`sensors`) |
 | `os_noise` | number | Optional measure of OS‑level noise (e.g., stddev of 1‑min load average); recorded when supported | System load (`uptime`) |
+| `wifi_interference` | number | Optional measure of Wi‑Fi interference (RSSI variance) captured during run | `iwconfig` variance output |
 
 ### RegressionModel
 | Attribute | Type | Description | Source |
 |-----------|------|-------------|--------|
-| `coefficients` | dict | Model coefficients (key: variable name, value: coefficient) | `statsmodels` |
-| `p_values` | dict | P-values for each coefficient | `statsmodels` |
+| `coefficients` | object | Model coefficients (key: variable name, value: coefficient) | `statsmodels` |
+| `p_values` | object | P‑values for each coefficient | `statsmodels` |
 | `r_squared` | float | Coefficient of determination | `statsmodels` |
-| `residuals` | list | Residual errors per observation | `statsmodels` |
-| `theoretical_bound_deviation` | float | Empirical / theoretical efficiency ratio | Validation script |
+| `residuals` | array | List of residual errors | `statsmodels` |
+| `theoretical_bound_deviation` | float | Ratio of empirical throughput to theoretical bound | Validation script |
 
 ## 3. Data Flow
 1. **Baseline Capture** → `node_manager` records `baseline_*` fields.  
-2. **Orchestration** → `scheduler` creates `TaskChunk`s, assigns to nodes, logs heartbeats & dropout events (`dropout_events.json`).  
+2. **Orchestration** → `scheduler` creates `TaskChunk`s, assigns to nodes, logs heartbeat & dropout events (`dropout_events.json`).  
 3. **Instrumentation** → `instrumentor` streams `tcpdump` and `mpstat` outputs, writes per‑run CSVs to `data/raw/` and per‑node metadata JSONs (`physical_node_<ip>.json`).  
 4. **Aggregation** → `analysis/regression.py` reads raw CSVs and node JSONs, computes per‑run metrics → `ExecutionRun` rows stored in `data/processed/execution_runs.csv`.  
-5. **Statistical Modeling** → same script fits OLS, writes `data/processed/regression_model.json`.  
+5. **Statistical Modeling** → same script fits OLS, optional polynomial/GAM, writes `data/processed/regression_model.json`.  
 6. **Theoretical Validation** → `analysis/theoretical_bound.py` reads the model output, writes `data/processed/theoretical_bound_validation.json`.  
 
 ## 4. Data Hygiene & Checksums
-- Raw files under `data/raw/` receive SHA‑256 checksums stored in `state/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg.yaml`.  
-- Derived files under `data/processed/` are new, never overwrite raw data.  
+- Raw files under `data/raw/` receive SHA‑256 checksums recorded in `state/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg.yaml`.  
+- Derived files under `data/processed/` are new and never overwrite raw data.  
 - All JSON/YAML artefacts are validated against schemas in `contracts/` before commit.
 
 ---
+
 

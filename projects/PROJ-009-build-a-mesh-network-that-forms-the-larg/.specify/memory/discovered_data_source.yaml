@@ -1,18 +1,16 @@
 status: none
-intent: edge computing benchmark execution logs dataset cpu utilization packet count
-  python package
+intent: Distributed Execution Log Dataset heterogeneous devices csv python package
+  dataset
 required_fields:
 - node_id
 - timestamp
 - task_id
-- task_chunk_id
-- wall_clock_time
 - packet_count
-- cpu_utilization_percent
-- memory_usage_mb
-- event_type
-- event_timestamp
+- cpu_utilization
+- latency
+- memory_usage
 - status
-cache_key: 3a5be6dd5cebfbb4a3f7814feb57fd1374b829e77e8974307c116a1c90e45f97
-searched_at: '2026-10-19T13:21:38.303001+00:00'
+- heartbeat_timestamp
+cache_key: 72d0bede1be10f99135a9cd981d2d2bb95bbf91b6c3f1b1bf9b17cad86d59322
+searched_at: '2026-10-19T13:26:26.818484+00:00'
 retry_count: 1
