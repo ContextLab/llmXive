@@ -13,25 +13,46 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/models.py: self-declared fabricated metric — “…e math.         # We'll set a dummy value to satisfy the dataclass fiel…”; code/main.py: synthetic/fake INPUT data not authorized by the spec — “…elp="Run mode: 'sim' for simulated data, 'real' for the full pip…”; 4 run-book script(s) missing (plan/impl path mismatch): python code/download.py --source huggingface --dataset chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3; python code/summarize.py --mode sim; python code/simulate_study.py --participants 12 --tasks-per-condition 10 --seed 42; 6 declared deliverable(s) absent: data/analysis_results/results.csv; data/analysis_results/sensitivity_analysis.csv; data/interaction_logs/anonymized_logs.csv
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/models.py: self-declared fabricated metric — “…e math.         # We'll set a dummy value to satisfy the dataclass fiel…”; code/main.py: synthetic/fake INPUT data not authorized by the spec — “…elp="Run mode: 'sim' for simulated data, 'real' for the full pip…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/simulation/simulate_study.py --participants 12 --tasks-per-condition 10 --seed 42; 3 command(s) failed: python code/data_prep/download_defects4j.py (rc=1); python code/data_prep/generate_summaries.py --mode sim (rc=1); python code/analysis/run_statistics.py --input data/interaction_logs/anonymized_logs.csv --mode ci (rc=1); 6 declared deliverable(s) absent: data/analysis_results/results.csv; data/analysis_results/sensitivity_analysis.csv; data/interaction_logs/anonymized_logs.csv
 
 ## Failing / missing run-book commands
 
-- python code/download.py --source huggingface --dataset chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3 -> rc=2
+- python code/data_prep/download_defects4j.py -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-140-evaluating-the-efficacy-of-code-summariz/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/download.py': [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/data_prep/download_defects4j.py", line 26, in <module>
+    from utils.logging_utils import setup_logging, get_logger
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/utils/__init__.py", line 14, in <module>
+    from .config_manager import Config, get_config
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/utils/config_manager.py", line 5, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
 
-- python code/summarize.py --mode sim -> rc=2
+- python code/data_prep/generate_summaries.py --mode sim -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-140-evaluating-the-efficacy-of-code-summariz/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/summarize.py': [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/data_prep/generate_summaries.py", line 25, in <module>
+    from utils.config_manager import get_config
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/utils/__init__.py", line 14, in <module>
+    from .config_manager import Config, get_config
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/utils/config_manager.py", line 5, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
 
-- python code/simulate_study.py --participants 12 --tasks-per-condition 10 --seed 42 -> rc=2
+- python code/simulation/simulate_study.py --participants 12 --tasks-per-condition 10 --seed 42 -> rc=2
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-140-evaluating-the-efficacy-of-code-summariz/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/simulate_study.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-140-evaluating-the-efficacy-of-code-summariz/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/simulation/simulate_study.py': [Errno 2] No such file or directory
 
-- python code/analysis.py --input data/interaction_logs/anonymized_logs.csv --mode ci -> rc=2
+- python code/analysis/run_statistics.py --input data/interaction_logs/anonymized_logs.csv --mode ci -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-140-evaluating-the-efficacy-of-code-summariz/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/analysis.py': [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/analysis/run_statistics.py", line 36, in <module>
+    from utils.config_manager import get_config
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/utils/__init__.py", line 14, in <module>
+    from .config_manager import Config, get_config
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/code/utils/config_manager.py", line 5, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
 
 
 ## Declared deliverables still missing
@@ -50,23 +71,23 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/analysis_results/results.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/config.py` — NOT invoked by the run-book
     - `code/analysis/correction_utils.py` — NOT invoked by the run-book
-    - `code/analysis/run_statistics.py` — NOT invoked by the run-book
-    - `code/data_prep/download_defects4j.py` — NOT invoked by the run-book
-    - `code/data_prep/generate_summaries.py` — NOT invoked by the run-book
+    - `code/analysis/run_statistics.py` — IS a run-book command
+    - `code/data_prep/download_defects4j.py` — IS a run-book command
+    - `code/data_prep/generate_summaries.py` — IS a run-book command
     - `code/data_prep/generate_summaries_real_llm.py` — NOT invoked by the run-book
     - `code/data_prep/setup_data_directories.py` — NOT invoked by the run-book
     - `code/generation/generate_rule_summaries.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/analysis_results/results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/analysis_results/sensitivity_analysis.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/config.py` — NOT invoked by the run-book
-    - `code/analysis/run_statistics.py` — NOT invoked by the run-book
+    - `code/analysis/run_statistics.py` — IS a run-book command
     - `code/tests/test_statistics.py` — NOT invoked by the run-book
     - `code/utils/generate_artifact_hashes.py` — NOT invoked by the run-book
     - `code/utils/update_hashes.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/analysis_results/sensitivity_analysis.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/interaction_logs/anonymized_logs.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/config.py` — NOT invoked by the run-book
-    - `code/analysis/run_statistics.py` — NOT invoked by the run-book
+    - `code/analysis/run_statistics.py` — IS a run-book command
     - `code/quickstart_validator.py` — NOT invoked by the run-book
     - `code/tests/test_anonymize_logs.py` — NOT invoked by the run-book
     - `code/tests/test_data_integrity.py` — NOT invoked by the run-book
@@ -81,7 +102,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/utils/update_hashes.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/interaction_logs/missing_ground_truth.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/defects4j/ground_truth.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/run_statistics.py` — NOT invoked by the run-book
+    - `code/analysis/run_statistics.py` — IS a run-book command
     - `code/download/download_defects4j.py` — NOT invoked by the run-book
     - `code/download/download_defectsj.py` — NOT invoked by the run-book
     - `code/generation/generate_summaries_offline.py` — NOT invoked by the run-book
@@ -92,8 +113,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/raw/defects4j/ground_truth.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/summaries/rule_summaries.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/config.py` — NOT invoked by the run-book
-    - `code/analysis/run_statistics.py` — NOT invoked by the run-book
-    - `code/data_prep/generate_summaries.py` — NOT invoked by the run-book
+    - `code/analysis/run_statistics.py` — IS a run-book command
+    - `code/data_prep/generate_summaries.py` — IS a run-book command
     - `code/generation/generate_rule_summaries.py` — NOT invoked by the run-book
     - `code/generation/generate_summaries_offline.py` — NOT invoked by the run-book
     - `code/utils/generate_baseline_results.py` — NOT invoked by the run-book

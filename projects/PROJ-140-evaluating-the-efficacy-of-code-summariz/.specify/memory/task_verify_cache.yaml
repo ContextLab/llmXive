@@ -1,8 +1,10 @@
 T001:
-  c: false
-  h: 91da22c9fb45bcf5832d00f9914510ac99128063a838993827de798080ebfd49
-  r: "The quickstart.md file exists and contains the required layout, provenance,\
-    \ seed, and command description, but there is no provided evidence (e.g., execution\
-    \ log, test result, CI check) that `python -m code.main --mode sim --help` actually\
-    \ runs and exits with status\u202F0. This verification step is missing."
-  sig: 15b4296de8ce06eaae3c6129be1377eb29e86f6ad5f244b946f3865756b54151
+  c: true
+  h: 379b3da962be4978e8b8c7487a1bda90488eab505a26e28e0e9e50c98376c20f
+  r: 'The quickstart.md exists (3733 bytes) and covers all required content: project
+    layout (`code/`, `data/`), the pinned Defects4J version (matching `data/defects4j_version.txt`
+    containing `2.0`), fixed seed 42, and the exact run command `python -m code.main
+    --mode sim`. The verification criterion is satisfied by the recorded execution
+    of `tests/test_main_cli.py::test_main_cli_help_exit_code` passing (exit 0), which
+    exercises the `--help` CLI path.'
+  sig: 06723ea66ffa65a11fd4e68c31df393d50984ea261d7f12a2d2ea5a198febaf5

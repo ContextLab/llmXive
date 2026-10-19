@@ -1,19 +1,20 @@
-"""
-Test that the ``code.main`` module can be invoked as a module and that the
-``--help`` flag works without error. This mirrors the verification step
-described in the quickstart documentation.
-"""
-
 import subprocess
 import sys
+import pytest
 
-def test_code_main_help():
-    """Run ``python -m code.main --mode sim --help`` and assert success."""
-    result = subprocess.run(
-        [sys.executable, "-m", "code.main", "--mode", "sim", "--help"],
-        capture_output=True,
-        text=True,
-    )
-    # The help output should be non‑empty and the process must exit with 0.
-    assert result.returncode == 0, f"Non‑zero exit code: {result.returncode}"
-    assert "usage:" in result.stdout.lower(), "Help text not found in stdout"
+def test_main_cli_help_exit_code():
+    """
+    Verifies that 'python -m code.main --mode sim --help' exits with status 0.
+    This satisfies the verification requirement for T001.
+    """
+    # We use sys.executable to ensure we use the same python environment
+    cmd = [sys.executable, "-m", "code.main", "--mode", "sim", "--help"]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    
+    assert result.returncode == 0, f"CLI failed with exit code {result.returncode}. Stderr: {result.stderr}"
+    assert "Code Summarization Bug Localization pipeline" in result.stdout
+    assert "--mode" in result.stdout
+
+if __name__ == "__main__":
+    # Allow running this test directly via python tests/test_main_cli.py
+    pytest.main([__file__])

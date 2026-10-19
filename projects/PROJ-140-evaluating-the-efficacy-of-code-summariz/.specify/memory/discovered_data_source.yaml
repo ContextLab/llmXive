@@ -1,6 +1,5 @@
 status: none
-intent: Defects4J v2.0 bug localization dataset download pip install python package
-  dataset
+intent: Defects4J v2.0 Java bugs Chart Time Math download python package dataset
 required_fields:
 - participant_id
 - task_id
@@ -9,7 +8,9 @@ required_fields:
 - selected_line_number
 - ground_truth_buggy_line
 - project_name
-- buggy_method_id
-cache_key: 2ed18bccd248a44d080a900607c34b93d5fd6a4df841d5ec461ffb9d5cf9a996
-searched_at: '2026-10-19T19:16:46.352669+00:00'
+- bug_id
+- method_name
+- summary_type
+cache_key: 786751f60215675a807176e778d7c651f05d781f303658cec8ab91efc8a972d5
+searched_at: '2026-10-19T22:12:00.291989+00:00'
 retry_count: 1

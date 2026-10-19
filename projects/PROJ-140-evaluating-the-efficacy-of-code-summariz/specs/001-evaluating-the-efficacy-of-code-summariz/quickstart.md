@@ -8,7 +8,10 @@
 │   ├─ __init__.py
 │   ├─ main.py               # Entry point (`python -m code.main --mode sim`)
 │   ├─ analysis/             # Statistical analysis modules
+│   │   └─ run_statistics.py  # Main analysis script
 │   ├─ data_prep/            # Data download & summary generation utilities
+│   │   ├─ download_defects4j.py
+│   │   └─ generate_summaries.py
 │   └─ ...                    # Other sub‑packages (backend, utils, etc.)
 ├─ data/                     # All data artifacts
 │   ├─ raw/                  # Raw downloads (Defects4J, etc.)
@@ -50,24 +53,24 @@ The command above should display the help text and exit with a successful status
 
 1. **Download Defects4J** (real data)  
    ```bash
-   python code/download.py --source huggingface --dataset chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3
+   python code/data_prep/download_defects4j.py
    ```
-   This creates `data/raw/defects4j.parquet` and writes the version string to `data/defects4j_version.txt`.
+   This creates `data/raw/defects4j/` and writes the version string to `data/defects4j_version.txt`.
 
 2. **Generate summaries (simulation mode)** – used for CI and testing  
    ```bash
-   python code/summarize.py --mode sim
+   python code/data_prep/generate_summaries.py --mode sim
    ```
 
 3. **Simulate participant interactions** (CI test)  
    ```bash
-   python code/simulate_study.py --participants 12 --tasks-per-condition 10 --seed 42
+   python code/simulation/simulate_study.py --participants 12 --tasks-per-condition 10 --seed 42
    ```
    Output: `data/interaction_logs/anonymized_logs.csv`
 
 4. **Run statistical analysis**  
    ```bash
-   python code/analysis.py --input data/interaction_logs/anonymized_logs.csv --mode ci
+   python code/analysis/run_statistics.py --input data/interaction_logs/anonymized_logs.csv --mode ci
    ```
    Output: `data/analysis_results/results.csv` (and accompanying JSON summary).
 

@@ -27,7 +27,7 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def _stream_defects4j(dataset_name: str) -> "datasets.arrow_dataset.Dataset":
+def _stream_defects4j(dataset_name: str):
     """
     Load the Defects4J‑related dataset in streaming mode.
     """
@@ -147,8 +147,8 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Write outputs
     # ------------------------------------------------------------------
-    csv_path: Path = paths.data("raw", "defects4j", "ground_truth.csv")
-    json_path: Path = paths.data("interaction_logs", "missing_ground_truth.json")
+    csv_path = paths.data("raw", "defects4j", "ground_truth.csv")
+    json_path = paths.data("interaction_logs", "missing_ground_truth.json")
 
     # Write CSV
     df = pd.DataFrame(sampled_methods)
