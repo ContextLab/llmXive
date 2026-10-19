@@ -1,5 +1,5 @@
 # Project dependencies
-datasets>=2.0.0
-# Existing environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil
+# Upgrade numpy to version 2.0 or newer to satisfy pyarrow requirements used by the HuggingFace datasets library.
+numpy>=2.0
+datasets
+# (Other dependencies are provided by the platform's base environment.)

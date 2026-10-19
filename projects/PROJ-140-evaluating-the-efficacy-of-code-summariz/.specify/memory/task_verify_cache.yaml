@@ -1,9 +1,9 @@
 T001:
   c: true
-  h: 102206ad002259c66b3848b12f41a25a520700b14a61ff155129bc28ff486b30
-  r: 'The quickstart.md exists (3.6 KB) and covers all required content: project layout
-    (`code/`, `data/`), the pinned Defects4J version (matching `data/defects4j_version.txt`
+  h: bad77f86e99874413da6864b1c60d3c24c7e11537b4a7c8edbbd1b4d86b97701
+  r: 'The quickstart.md exists (3622 bytes) and covers all required content: project
+    layout (`code/`, `data/`), the pinned Defects4J v2.0 version (confirmed by `data/defects4j_version.txt`
     containing `2.0`), fixed seed 42, and the exact run command `python -m code.main
-    --mode sim`. The execution log shows `python -m code.main --mode sim --help` was
-    actually run and exited with status 0, satisfying the verification criterion.'
-  sig: 5ccc1986817e32cecd3a6211fda1c1d8c07857bc82d4facc9d725d6c0fd2a0e6
+    --mode sim`. The verification criterion is met by an execution log showing `python
+    -m code.main --mode sim --help` ran with exit code 0.'
+  sig: 0810d76713ecf663b01e2081f8a6b742d82c5ed12313f9a82d2bc9f4f65aa5d5

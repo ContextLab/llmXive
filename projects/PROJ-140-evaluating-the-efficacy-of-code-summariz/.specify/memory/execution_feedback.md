@@ -55,7 +55,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data_prep/generate_summaries.py` — NOT invoked by the run-book
     - `code/data_prep/generate_summaries_real_llm.py` — NOT invoked by the run-book
     - `code/data_prep/setup_data_directories.py` — NOT invoked by the run-book
-    - `code/quickstart_validator.py` — NOT invoked by the run-book
+    - `code/generation/generate_rule_summaries.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/analysis_results/results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/analysis_results/sensitivity_analysis.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/config.py` — NOT invoked by the run-book
@@ -94,6 +94,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/config.py` — NOT invoked by the run-book
     - `code/analysis/run_statistics.py` — NOT invoked by the run-book
     - `code/data_prep/generate_summaries.py` — NOT invoked by the run-book
+    - `code/generation/generate_rule_summaries.py` — NOT invoked by the run-book
     - `code/generation/generate_summaries_offline.py` — NOT invoked by the run-book
     - `code/utils/generate_baseline_results.py` — NOT invoked by the run-book
     - `code/utils/package_reproducibility.py` — NOT invoked by the run-book

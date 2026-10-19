@@ -5,6 +5,8 @@ T002:
     exit=1'
   task: b2a29856a3078f24058e18d0b0d71870095a339dfb6fb84bc3b988041226f9d9
 T003a:
+  reason: 'Requested task execution failed; rerun successfully: code/generation/generate_rule_summaries.py
+    exit=1'
   task: f80fe9de0f84471422b4f1de99203d5d9abdb6a9e38638055e493eef93c522dc
 T003b:
   task: a350118ddea6fa008bf2bcec3b504dbc6bb139016cf35f5924c36ee4af770f94
