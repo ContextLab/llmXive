@@ -40,6 +40,7 @@ def _stream_defects4j() -> "datasets.arrow_dataset.Dataset":
     # If the identifier changes, this line should be updated accordingly.
     return load_dataset("defects4j", split="train", streaming=True)
 
+
 def _collect_methods(
     ds,
     target_projects=("Chart", "Time", "Math"),
@@ -98,6 +99,7 @@ def _collect_methods(
         )
 
     return project_buckets, missing
+
 
 def _sample_stratified(
     project_buckets: dict[str, list[dict]],
@@ -173,6 +175,7 @@ def main() -> None:
     with json_path.open("w", encoding="utf-8") as f:
         json.dump(missing, f, indent=2, ensure_ascii=False)
     log.info(f"Wrote missing‑ground‑truth log with {len(missing)} entries to {json_path}")
+
 
 if __name__ == "__main__":
     main()

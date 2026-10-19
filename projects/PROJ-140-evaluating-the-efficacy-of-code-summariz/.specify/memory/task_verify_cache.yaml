@@ -1,9 +1,8 @@
 T001:
-  c: false
-  h: 24f9e66c50e98489391c6c8801f91fd85405a37f56b764616335f18c84639f99
-  r: "The quickstart.md file exists and contains the required layout, provenance,\
-    \ seed, and command description, but there is no provided evidence (e.g., a test\
-    \ log or command\u2011line output) showing that `python -m code.main --mode sim\
-    \ --help` actually runs and exits with status\u202F0. This execution proof is\
-    \ required to satisfy the task\u2019s verification step."
-  sig: 50499b4c1605734c37f28875dc2aea637019dcce944ebe05cba314cf173fae4b
+  c: true
+  h: 4cb4de37557bb6f07e5d072a048ef32fbbc3d89b718bec5c4454be50109aa3bf
+  r: "Checked `specs/001-evaluating-the-efficacy-of-code-summarization-bug-localization/quickstart.md`\
+    \ (contains layout, Defects4J version, seed 42, and the exact command) and the\
+    \ test log `code/.tasks/T001.tests_test_main_cli.py.log` confirming `python -m\
+    \ code.main --mode sim --help` exits with status\u202F0."
+  sig: 951332025e33728577a4d14979e8f1d4dcd41029f680c2755434575bd8b1bfac

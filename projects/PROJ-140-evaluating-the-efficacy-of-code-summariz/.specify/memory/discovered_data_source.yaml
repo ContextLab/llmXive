@@ -1,16 +1,14 @@
 status: none
-intent: Defects4J v2.0 Java buggy method dataset pip installable python package dataset
+intent: Defects4J v2.0 Java bugs Chart Time Math download python package dataset
 required_fields:
-- bug_id
+- participant_id
+- condition
+- task_id
+- timestamp_ms
+- selected_line_number
+- ground_truth_line_number
 - project_name
-- buggy_file_path
-- buggy_line_start
-- buggy_line_end
-- buggy_method_name
-- buggy_source_code
-- ground_truth_buggy_line_numbers
-- commit_hash
-- failing_test_cases
-cache_key: c4ce0d13f3334f98249a836fc336a8489c2d0b4ca67d763de423c9924cd395b3
-searched_at: '2026-10-19T00:31:43.024231+00:00'
+- buggy_method_signature
+cache_key: f173c99318ee5398ede66b5c61e1a8de5504f25e3e78c1de3e9dd2a9a93ec62a
+searched_at: '2026-10-19T00:33:25.998705+00:00'
 retry_count: 1
