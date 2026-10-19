@@ -1,20 +1,22 @@
 """
 Utility module for configuration handling.
-Provides a simple wrapper to retrieve environment variables.
+
+Provides a simple wrapper to fetch environment variables with optional default values.
 """
+
 import os
 from typing import Optional
 
+
 def get_env_var(name: str, default: Optional[str] = None) -> Optional[str]:
     """
-    Retrieve an environment variable value.
+    Retrieve the value of an environment variable.
 
     Args:
-        name: The name of the environment variable.
-        default: Value to return if the variable is not set. If not provided,
-                 None is returned.
+        name: Name of the environment variable.
+        default: Value to return if the variable is not set. Defaults to None.
 
     Returns:
-        The value of the environment variable, or ``default`` if it is not set.
+        The environment variable value as a string, or the default if not set.
     """
     return os.getenv(name, default)

@@ -1,16 +1,4 @@
-# Core dependencies (pre‑installed in the execution environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional packages required by this project
-mendeleev
+# Project dependencies
+# Existing dependencies (numpy, pandas, scikit-learn, etc.) are provided by the platform.
+# Additional required packages:
+mendeleev>=0.12

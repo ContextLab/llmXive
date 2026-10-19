@@ -132,7 +132,7 @@
   verification_status: mismatch
   verified_against_url: https://aflowlib.org/rest/search
   verified_at: '2026-10-19T18:09:02.109933Z'
-- artifact_hash: 0ef050ba613e7c2ba83706137d825fa12499d29ca7a676e1ed452eb8bb980756
+- artifact_hash: 4f7e65ba9ee188143a64a234c5457d2e21089bfb1520d54d9b77ac2fb45bb05f
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -142,4 +142,4 @@
   value: https://aflowlib.org`
   verification_status: pending
   verified_against_url: https://aflowlib.org
-  verified_at: '2026-10-19T18:09:43.739066Z'
+  verified_at: '2026-10-19T21:18:55.577581Z'
