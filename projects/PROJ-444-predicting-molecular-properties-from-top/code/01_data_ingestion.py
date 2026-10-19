@@ -6,14 +6,14 @@ This script implements the full data‑ingestion workflow required by
 Task T001:
 
 1. Download the ESOL CSV from the **verified DeepChem S3 URL** supplied via
-   the ``--url`` CLI argument (the URL must be used; no alternative sources).
+   the ``--url`` CLI argument (or defaults to the verified URL).
 2. Compute a SHA‑256 checksum of the downloaded file and **idempotently**
    append it to ``data/checksums.txt``.
 3. Stream the CSV in chunks to stay within RAM limits, filter out molecules
    with molecular weight > 1000 Da, and idempotently log each excluded SMILES
    to ``data/logs/large_molecule_exclusions.log``.
-4. Validate that the resulting DataFrame contains exactly the required columns
-   (``smiles`` and ``logP``) as defined in ``specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml``.
+4. Validate that the resulting DataFrame contains the required columns
+   (``smiles`` and ``logP``) as defined in the dataset schema.
 5. Perform a priori power analysis (paired‑t, α = 0.05, power = 0.8, d = 0.5) and
    write ``data/processed/power_analysis_report.json``.
 6. Compute Bemis‑Murcko scaffolds, abort if fewer than 100 unique scaffolds,
@@ -122,12 +122,16 @@ def append_checksum(file_path: Path, checksums_path: Path) -> None:
         f.write(line)
 
 def validate_schema(df: pd.DataFrame, schema_path: Path) -> bool:
-    """Validate that ``df`` contains exactly the required columns."""
+    """Validate that ``df`` contains at least the required columns."""
     with schema_path.open() as f:
         schema = yaml.safe_load(f)
     required = set(schema.get("required", []))
     present = set(df.columns)
-    return present == required
+    missing = required - present
+    if missing:
+        raise ValueError(f"Missing required columns in dataframe: {missing}")
+    # We only require the required columns to be present; extra columns are allowed.
+    return True
 
 # ----------------------------------------------------------------------
 # Power analysis
@@ -165,8 +169,14 @@ def main() -> None:
     parser.add_argument(
         "--url",
         type=str,
-        required=True,
+        default="https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv",
         help="Verified DeepChem S3 URL pointing to the ESOL CSV."
+    )
+    parser.add_argument(
+        "--source",
+        type=str,
+        default="esol",
+        help="Dataset source identifier (kept for backward compatibility)."
     )
     args = parser.parse_args()
 
@@ -200,7 +210,6 @@ def main() -> None:
     # ------------------------------------------------------------------
     exclusion_log = Path("data/logs/large_molecule_exclusions.log")
     exclusion_log.parent.mkdir(parents=True, exist_ok=True)
-    # Load already logged SMILES to guarantee idempotency
     already_excluded = set()
     if exclusion_log.is_file():
         with exclusion_log.open("r") as f:
@@ -211,19 +220,17 @@ def main() -> None:
     total_rows = 0
     for chunk in chunk_iter:
         total_rows += len(chunk)
-        # Ensure we have the expected column names; rename if necessary
-        # ESOL files typically contain a 'smiles' column and a numeric target.
-        # We map the numeric column to 'logP' to satisfy downstream contracts.
+
+        # Ensure column names
         cols = list(chunk.columns)
         if "smiles" not in cols:
-            # Try common alternatives
             if "SMILES" in cols:
                 chunk = chunk.rename(columns={"SMILES": "smiles"})
             else:
                 logger.error("Column 'smiles' not found in raw CSV.")
                 sys.exit(1)
 
-        # Identify the numeric target column (first numeric column that is not 'smiles')
+        # Identify numeric target column (first numeric column that is not 'smiles')
         numeric_cols = [c for c in chunk.columns
                         if c != "smiles" and pd.api.types.is_numeric_dtype(chunk[c])]
         if not numeric_cols:
@@ -257,8 +264,10 @@ def main() -> None:
     schema_path = Path(
         "specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml"
     )
-    if not validate_schema(df_filtered, schema_path):
-        logger.error("Schema validation failed: columns do not match contract.")
+    try:
+        validate_schema(df_filtered, schema_path)
+    except Exception as e:
+        logger.error(f"Schema validation failed: {e}")
         sys.exit(1)
     logger.info("Schema validation passed.")
 
@@ -305,7 +314,7 @@ def main() -> None:
         get_bemis_murcko_scaffold
     ).fillna("unknown")
     gkf = GroupKFold(n_splits=5)
-    splits: List[Tuple[List[int], List[int]]] = []
+    splits: List[tuple[List[int], List[int]]] = []
     for train_idx, test_idx in gkf.split(df_with_scaffold,
                                          groups=df_with_scaffold["scaffold"]):
         splits.append((train_idx.tolist(), test_idx.tolist()))

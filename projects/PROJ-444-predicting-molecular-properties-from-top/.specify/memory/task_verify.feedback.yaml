@@ -1,16 +1,41 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/01_data_ingestion.py
-    exit=1'
+  reason: "Checked `code/01_data_ingestion.py`, `data/checksums.txt`, `data/processed/power_analysis_report.json`,\
+    \ `data/processed/scaffold_counts.json`, `data/processed/splits.json`, and the\
+    \ presence of `dataset.schema.yaml` and `data/logs/large_molecule_exclusions.log`.\
+    \ The required schema file is missing, `data/checksums.txt` contains duplicate\
+    \ entries for `esol.csv` (violating the idempotent\u2011append rule), and the\
+    \ exclusions log file does not exist at all. These defects prevent the task from\
+    \ being fully satisfied."
   task: 496f3ab1178c311a70018388ff750ebf54f3faa7eb9a1b552d0f1f1ac7fc82dd
 T001a:
   task: 11e7aa709c71d191684aeba17863cb9ee2b6d75f611ba94b223c92f6328c8d2e
 T002:
+  reason: "Checked `data/processed/topological_features_10x10.csv` and the contract\
+    \ test log. The CSV lacks the required `features` and `feature_names` columns\
+    \ (test\u202F`test_schema_compliance` fails) and the vectorization code uses a\
+    \ default \u03C3\u202F=\u202F0.1 instead of the required kernel bandwidth\u202F\
+    =\u202F1.0, so the output does not meet the specified schema or parameter settings."
   task: 47d418c4356f9320a43da6b0433855dd9f05120dcb7c1e43708dbff1344b2536
 T003:
+  reason: "The required `feature_matrix.schema.yaml` file is missing, causing the\
+    \ contract test to lack its schema, and the test suite fails (`pytest` exits with\
+    \ code\u202F1) because `test_feature_matrix_dimensions` expects 101 columns but\
+    \ the feature CSV has 103. Both issues prevent the task\u2019s verification criteria\
+    \ from being satisfied."
   task: 0aaf2c411477df4bbb5a97d28ebcf491a716baab7f878970972cc932e048d413
 T004:
+  reason: "The script and the generated `traditional_features.csv` and `combined_features.csv`\
+    \ exist and appear to contain the required descriptors with no NaNs, and the run\
+    \ log shows a successful exit.\u202FHowever, the task requires merging with **`topological_features_10x10.csv`**,\
+    \ yet the code loads a file named `persistence_images_10x10.csv` and no artifact\
+    \ named `topological_features_10x10.csv` is present in the evidence. Consequently\
+    \ we cannot verify that the three CSVs have matching row counts as stipulated.\
+    \ The missing (or mis\u2011named) topological feature file must be provided or\
+    \ the script renamed to"
   task: 95e4d61e3c6a2f77de87ca95871376e4d580a2647375c3e01ca383486b22834f
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/04_model_training.py
+    exit=1'
   task: f5e5ea64448897afb2ebe7afa84ac63b584d2cb4c72f71b986b19908a269992d
 T006:
   task: d145237ccb8421c114ed3d1c2676b4059fe5777c2c6343789366f3da5dd68501
@@ -29,6 +54,11 @@ T012:
 T013:
   task: 6e4cf62a90ede17b92214dd4a79448e89d6edaa424fbb06d6d3dd01dcc3af058
 T014:
+  reason: The `dataset.schema.yaml` file is absent, causing `test_schema_file_exists`
+    to fail in the current repo, and the existing `esol.csv` does not match the expected
+    schema (it lacks a `logP` column and has many extra columns), leading to failures
+    in `test_columns_match_schema_exactly`, `test_required_fields_non_null`, and `test_field_types_match_schema`.
+    The pytest suite therefore does not pass.
   task: dbea2243c05a199a8f63e9a0c196ab67abb1ae40c87c19db947eb6b8cc3d058f
 T015:
   task: ed4c4e73904edc44b820a9129e2d3de331f115c59949fc079272c68b67820141

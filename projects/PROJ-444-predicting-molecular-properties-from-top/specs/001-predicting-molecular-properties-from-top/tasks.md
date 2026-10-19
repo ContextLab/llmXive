@@ -8,7 +8,7 @@ The goal is to deliver a complete, reproducible, CPU‑only study that satisfies
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [US1] *Data ingestion, provenance, and scaffold split creation*   <!-- FAILED-IN-EXECUTION: code/01_data_ingestion.py exit=1 -->
+- [ ] T001 [US1] *Data ingestion, provenance, and scaffold split creation*
   - In `code/01_data_ingestion.py`, download the **ESOL** dataset from the verified DeepChem S3 URL `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv` (the `--url` argument **must** be used).  
   - Verify required columns `smiles` and `logP` (conforms to `dataset.schema.yaml`); abort with a clear Data Gap error if missing.  
   - Compute SHA‑256 checksum of `data/raw/esol.csv` and **idempotently** append it to `data/checksums.txt`.  
@@ -26,7 +26,7 @@ The goal is to deliver a complete, reproducible, CPU‑only study that satisfies
     5. Scaffold exclusivity across folds is confirmed by a quick script.  
     6. `data/logs/large_molecule_exclusions.log` has no duplicate entries after re‑run.
 
-- [ ] T001a *Checksum verification*  
+- [X] T001a *Checksum verification*  
   - Run `code/00_checksum_verify.py` to recompute and compare checksums for all files listed in `data/checksums.txt`.  
   - Abort if any mismatch is detected, ensuring downstream tasks operate on verified inputs.  
   - **Verification**: Script exits with status 0 only when all checksums match; otherwise it prints mismatched paths.
@@ -57,7 +57,7 @@ The goal is to deliver a complete, reproducible, CPU‑only study that satisfies
 
 ## Phase 2: Complete the study and validate its evidence
 
-- [ ] T005 [US2] *Baseline model training and evaluation (including feature importance)*  
+- [ ] T005 [US2] *Baseline model training and evaluation (including feature importance)*   <!-- FAILED-IN-EXECUTION: code/04_model_training.py exit=1 -->
   - Load `data/processed/splits.json`. Train **Ridge Regression (α = 1.0)** and **Random Forest (100 trees, max_depth = 10, seed = 42)** on three feature sets: `traditional`, `topological`, `combined`, using the 5‑fold scaffold‑based CV (FR‑003, FR‑004).  
   - Enforce CPU‑only execution with a dependency‑free GPU guard (check for `/dev/nvidia*` or `nvidia-smi`; abort if present) (FR‑008).  
   - Write `reports/metrics/model_metrics.json` conforming to `model_metrics.schema.yaml` (includes per‑fold R²/RMSE, means, and `feature_importance` arrays for traditional and topological descriptors).  

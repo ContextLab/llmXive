@@ -1,0 +1,59 @@
+T001:
+  c: false
+  h: a189409ca4584fcde9a7ecc295a6df43df4a7dc01c2cd50880c6c33897df59b6
+  r: "Checked `code/01_data_ingestion.py`, `data/checksums.txt`, `data/processed/power_analysis_report.json`,\
+    \ `data/processed/scaffold_counts.json`, `data/processed/splits.json`, and the\
+    \ presence of `dataset.schema.yaml` and `data/logs/large_molecule_exclusions.log`.\
+    \ The required schema file is missing, `data/checksums.txt` contains duplicate\
+    \ entries for `esol.csv` (violating the idempotent\u2011append rule), and the\
+    \ exclusions log file does not exist at all. These defects prevent the task from\
+    \ being fully satisfied."
+  sig: fd6b76425e4de0635bb687a7fc6d139c2b1d3b26b1d55a73b84308219375dd86
+T001a:
+  c: true
+  h: 3a87d570e8cbc765a011e2a4ce16a86e96ccda7051fa4b445164dc204104345c
+  r: "Checked `code/00_checksum_verify.py` (3515\u202Fbytes) which reads `data/checksums.txt`,\
+    \ recomputes SHA\u2011256 hashes for the listed files, prints mismatches, and\
+    \ exits\u202F0 only when all match. Execution log `code/.tasks/T001a.code_00_checksum_verify.py.log`\
+    \ shows the script ran, reported \u201CAll\u202F2 checksum(s) verified successfully.\u201D\
+    \ and exited with status\u202F0, confirming the required behavior."
+  sig: 6293446547347312a624989d198251596091ba7e282132f3c66eed5a66f6965b
+T002:
+  c: false
+  h: 2e82337eef3e25b77588b819ac3f4ebf782d2fd1d4de5a1bb9cc4ca9f9f95566
+  r: "Checked `data/processed/topological_features_10x10.csv` and the contract test\
+    \ log. The CSV lacks the required `features` and `feature_names` columns (test\u202F\
+    `test_schema_compliance` fails) and the vectorization code uses a default \u03C3\
+    \u202F=\u202F0.1 instead of the required kernel bandwidth\u202F=\u202F1.0, so\
+    \ the output does not meet the specified schema or parameter settings."
+  sig: 2dfba77cd7d59cf2a1c2121be5d1818844fc15010e61dfa84219b0d3a9f18fdb
+T003:
+  c: false
+  h: aec7e37ef8ad5fbdd88141e988ff4f417cc010abe432c102890ff40eac213fe7
+  r: "The required `feature_matrix.schema.yaml` file is missing, causing the contract\
+    \ test to lack its schema, and the test suite fails (`pytest` exits with code\u202F\
+    1) because `test_feature_matrix_dimensions` expects 101 columns but the feature\
+    \ CSV has 103. Both issues prevent the task\u2019s verification criteria from\
+    \ being satisfied."
+  sig: 080755772ea27523b5281d5cb7593f8b840643244423b6b3ba36882d0abb01ad
+T004:
+  c: false
+  h: ecc3ec1bca824b4dc2f7848c8957a015dbca72a234b68d3a301bfba447cd2264
+  r: "The script and the generated `traditional_features.csv` and `combined_features.csv`\
+    \ exist and appear to contain the required descriptors with no NaNs, and the run\
+    \ log shows a successful exit.\u202FHowever, the task requires merging with **`topological_features_10x10.csv`**,\
+    \ yet the code loads a file named `persistence_images_10x10.csv` and no artifact\
+    \ named `topological_features_10x10.csv` is present in the evidence. Consequently\
+    \ we cannot verify that the three CSVs have matching row counts as stipulated.\
+    \ The missing (or mis\u2011named) topological feature file must be provided or\
+    \ the script renamed to "
+  sig: 74b0c57d085eec9ef912e382e5eab693ad5df5975a5c2a70d54a321fe16cf421
+T014:
+  c: false
+  h: 577f19bdbd1806d22d83a600d916eca97ceae718d659f70a7150682d1775fd22
+  r: The `dataset.schema.yaml` file is absent, causing `test_schema_file_exists` to
+    fail in the current repo, and the existing `esol.csv` does not match the expected
+    schema (it lacks a `logP` column and has many extra columns), leading to failures
+    in `test_columns_match_schema_exactly`, `test_required_fields_non_null`, and `test_field_types_match_schema`.
+    The pytest suite therefore does not pass.
+  sig: ef521b6c9e064f709c99d7cef220a5a4bedb97ac9509723d9e0c8db680cf0beb
