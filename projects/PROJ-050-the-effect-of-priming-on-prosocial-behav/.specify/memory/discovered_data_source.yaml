@@ -1,35 +1,14 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: "from datasets import load_dataset, get_dataset_infos\n\n# Retrieve\
-  \ dataset metadata to get the total number of records without downloading\ninfos\
-  \ = get_dataset_infos(\"fddemarco/pushshift-reddit-comments\")\nif isinstance(infos,\
-  \ dict):\n    info = next(iter(infos.values()))\nelse:\n    info = infos\nrecords\
-  \ = info.splits[\"train\"].num_examples\n\n# Stream a single example to obtain field\
-  \ names\nstream = load_dataset(\"fddemarco/pushshift-reddit-comments\", split=\"\
-  train\", streaming=True)\nfirst_record = next(iter(stream))\nfields = list(first_record.keys())\n\
-  \nprint(f\"RECORDS={records}\")\nprint(\"FIELDS=\" + \",\".join(fields))"
-record_count: 15034827
-sample_fields:
-- author
-- body
-- controversiality
-- created_utc
-- link_id
-- score
-- subreddit
-- subreddit_id
-- id
-field_coverage: 0.625
+status: none
+intent: Pushshift Reddit comments archive and Hugging Face reddit_comments dataset
+  python package dataset
 required_fields:
 - comment_id
 - comment_body
-- author
-- created_utc
+- post_title
 - subreddit
-- thread_id
-- thread_title
+- created_utc
 - score
-intent: download Reddit comments dataset Hugging Face Datasets pushshift archive python
-  package dataset
-cache_key: d052b76fd06c2d9a4ce4838f6eae7ab392091e992240ae8857ea65cd8588ba94
+- author
+cache_key: cbc709f0e05c69f75a54774a3f85527132cb8c6abf712375558f031da341f318
+searched_at: '2026-10-19T14:42:37.806247+00:00'
+retry_count: 1

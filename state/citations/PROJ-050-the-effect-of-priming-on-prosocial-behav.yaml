@@ -1,11 +1,22 @@
-- artifact_hash: f686f11e563b29dc5d22394d269226748aacc13eb5eb114b7240416f6b85bad9
-  artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/quickstart.md
+- artifact_hash: 3fa9bd2760afffad58ca915d0bed7ff598aba715b0d8bbd80befa0255a06d734
+  artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://github.com/your-org/PROJ-050-the-effect-of-priming-on-prosocial-behav.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/PROJ-050-the-effect-of-priming-on-prosocial-behav
-  verified_at: '2026-10-19T14:29:49.641333Z'
+  value: https://huggingface.co/datasets/pushshift.io/reddit
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/pushshift.io/reddit
+  verified_at: '2026-10-19T14:38:04.057323Z'
+- artifact_hash: 3fa9bd2760afffad58ca915d0bed7ff598aba715b0d8bbd80befa0255a06d734
+  artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Hugging Face - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q108943604
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q108943604
+  verified_at: '2026-10-19T14:38:04.057323Z'

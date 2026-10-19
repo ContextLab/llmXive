@@ -1,0 +1,73 @@
+T001:
+  task: 2a8005bb6ca83fc07662be5bb2d39f3c0b758d64362ab0f730325bfced78d147
+T002:
+  reason: "The `code/requirements.txt` file exists and correctly pins all required\
+    \ packages (plus some extras), but there is no artifact showing that a Python\u202F\
+    3.11 virtual environment was actually created (e.g., a `venv/` directory, `pyproject.toml`/`environment.yml`\
+    \ specifying Python\u202F3.11, or any command\u2011output evidence). The task\u2019\
+    s \u201Cinitialize a Python\u202F3.11 environment\u201D requirement is therefore\
+    \ unmet."
+  task: b24a321e6b9f28ba478b131f6f1b7289535ca7ca54088ed7b97f8ebb3ba30544
+T003:
+  task: 683e07505363d7081d49ebb3ea2155c3c623d30977528faddbdf21997bf22e98
+T004:
+  reason: "The evidence shows that `data/raw/`, `data/processed/`, and `data/validation/`\
+    \ directories exist (though empty), but the required `data/results/` directory\
+    \ is missing; the script created a top\u2011level `results/` folder instead of\
+    \ the expected `data/results/`. The task\u2019s requirement is therefore not fully\
+    \ met."
+  task: ba308406cabe344a2ffb57dbb61e320646cb03477741e6912c3dafd4bcc03031
+T005:
+  task: 46bd50777ec33d94fd3c62a1f3a03c97d56040ac856703233ecdfc7c7383e121
+T006:
+  task: 05f9d963f0064674508dfdb70fea4552636fa51456201cc67247d356dbee1612
+T007:
+  task: 5ac03502181c23616d4cc49e4f63e3cba0352ff2c6d6a2222dac1b421d22aac0
+T008:
+  task: c0db801c6668a1d230e346323fe4fb1904c7d66ad0d6e200f6594dc1badda4ba
+T009:
+  task: cbb66cbd1ae2a0384e065877e472fb62832a8f502e1cf1876c44ff2579c8a24e
+T010:
+  task: fe99d3d9ece442cbee6146e6549254771f738f86f2924ec7dbf6ede7b41da16f
+T011:
+  task: d80fab2b28c663302733b6657ad24a21cf526c3db854771014baff7d4b4bf7f3
+T012:
+  task: 8b8e68e704f8096443b030837554be3880a2174be62224253b37e3bd0b8d51bd
+T013:
+  task: 50e0d850ae84c67dfe3e95cc04fa5296026b85e5484573340b921a91a93ae357
+T014:
+  task: 1c75aa202277dd2a0050f4b6a9a7541ec970667d8dab79117ff818cf08558210
+T015:
+  task: 29495161d71ff103625e3def10561913b94a49aafdbaa9acfe988a8c4618ed3e
+T016:
+  task: cc680e7da1acfa9b7113710e5168ec5f41cf382892a1cd7bb2e950192da38a64
+T017:
+  task: dd87ccdd1e4ea1aa919580c7dadb1b76958e20f2b4ec20a94d9fdfb59e714712
+T018:
+  task: c7ea48738e472946cd42bf984f9c29d90b25914367e6226bfc882806c53ed1ad
+T019:
+  task: bd028d0cdff55515c8d53da3c5a8b3e062c317230b9db3da44dfcdc2d66fd27a
+T020:
+  task: ad17ec6ecc1d7268786771a86966a6b94284e62db6435d339d90ca7c77a435df
+T021:
+  task: 965653eabf1a5ff9a7b97632c14633c80f425760f7586a5f26ade095c5920eaa
+T022:
+  task: 611a707bc78511325694315011553d56b9e12e231621680617d66f756b9b3f23
+T023:
+  task: fd87cf90b8521c5e3254d643a191fdd317c4db0e08d75313b52333df2bf6fe5d
+T024:
+  task: 9b60cc8209fc870cc872440b2ea93bdc3586fd8b2ba70c9c8f6ef4e640437c60
+T025:
+  task: 10789ae8e6bfa0f2d926ada0f0a90962a8e81f6f318ded74870db142208eba90
+T026:
+  reason: 'Requested task execution failed; rerun successfully: code/00_check_dataset.py
+    exit=1'
+  task: b6fd3530e33596ba92d73d79f277a6886c6988e3e852c3d3cb3d8be2bc01f882
+T027:
+  task: 62905d00bbc3a07e38a299c2b7a7736a05b7ef9cf8d7ad910cd88c1c747ff71c
+T028:
+  task: 1b91c9b291b5574dd9e627edcf8629a2d68f0810eb765214be61e22257f388ad
+T029:
+  task: 0ef668de9d8bbc4f2eef9fcfa49216f9c4f90453f63e2ba7d2476e0b0c058316
+T032:
+  task: 88183e6daac56c3facac78e3c338ce951bdcbca0b4a41e521fd6e96768c2849d

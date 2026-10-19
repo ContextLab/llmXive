@@ -17,6 +17,13 @@ pip install -r requirements.txt
 ## Running the Pipeline
 > **Important**: The current pipeline cannot perform the priming classification because the verified dataset lacks thread titles. Proceed only after the dataset issue is resolved or the scope is revised.
 
+**Entry‑point command**: To execute the full pipeline from a single command, run:
+```bash
+python -m pipeline.run
+```
+
+This command internally invokes the sequential steps defined in the pipeline (data verification, ingestion, scoring, validation, and, when available, statistical analysis).  
+
 ### Step 0: Verify Data‑Fit (optional)
 ```bash
 python code/00_check_dataset.py   # prints missing fields, exits if title missing
@@ -61,7 +68,4 @@ pytest tests/unit/
 ## Troubleshooting
 - **Missing Thread Title**: If `00_check_dataset.py` aborts, coordinate with the project lead to obtain a title‑bearing dataset.  
 - **Convergence Failure**: `04_analyze.py` will automatically retry with relaxed optimizer tolerances and log the outcome.  
-- **Insufficient Sample Size**: If `raw_counts.json` reports < 4 000 comments per group, the script will log a warning and continue; the final report will note the actual N.  
-
----
-
+- **Insufficient Sample Size**: If `raw_counts.json` reports < 4 000 comments per group, the script will log a warning and continue; the final report will note the actual N.

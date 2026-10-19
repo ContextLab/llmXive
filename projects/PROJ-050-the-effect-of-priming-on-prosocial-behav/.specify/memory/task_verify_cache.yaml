@@ -1,3 +1,53 @@
+T001:
+  c: true
+  h: 69ee66d7e4e14baa9fdc83f6a80b4cb4fbd20ff9f63bb043f3aa8cfe3173ddcb
+  r: Checked the presence of the full project directory tree under `projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/`
+    (code, data, docs, figures, results, specs, tests, etc.) and the execution log
+    `code/.tasks/T001.code_setup_project_layout.py.log` showing the layout creation
+    script exited successfully.
+  sig: 80e5454347f3bad764bc1a66692c6e79a93bc23caea9776fbba16cc9fd229e79
+T002:
+  c: false
+  h: f57e721cca9aa076cd385992765cbfbbe2c2a33a2922c486c65190d0be5cfe3b
+  r: "The `code/requirements.txt` file exists and correctly pins all required packages\
+    \ (plus some extras), but there is no artifact showing that a Python\u202F3.11\
+    \ virtual environment was actually created (e.g., a `venv/` directory, `pyproject.toml`/`environment.yml`\
+    \ specifying Python\u202F3.11, or any command\u2011output evidence). The task\u2019\
+    s \u201Cinitialize a Python\u202F3.11 environment\u201D requirement is therefore\
+    \ unmet."
+  sig: 9c9d122590b5ba1de22eb718d3ce4fef5795b7a81f982478e9304b1a5c90a3ec
+T003:
+  c: true
+  h: 92d0c5ede08abf6914c87be2bdbb0bf8e31d066b65da6c14655ccf2d24d92854
+  r: "Checked `quickstart.md` (specs/001-the-effect-on-priming-on-prosocial-behav/quickstart.md)\
+    \ which contains the documented entry\u2011point command `python -m pipeline.run`\
+    \ as required."
+  sig: e3642d5ecad62afc95002e8d011168643bcde6fb0947f41524b490523ef86a0a
+T004:
+  c: false
+  h: 42e45e4a88e5e3387271362f732435d6bf08883b1be0089b6e38cc88932b5994
+  r: "The evidence shows that `data/raw/`, `data/processed/`, and `data/validation/`\
+    \ directories exist (though empty), but the required `data/results/` directory\
+    \ is missing; the script created a top\u2011level `results/` folder instead of\
+    \ the expected `data/results/`. The task\u2019s requirement is therefore not fully\
+    \ met."
+  sig: 405337c52acadbd28073c2eff329a0f916aad5fb15e0a545a397ab80e2961d97
+T005:
+  c: true
+  h: cc0e0ceccc689dc536e199a028ee9f701098097924b9af6eaede806b955fc968
+  r: "Checked the `code/utils/checksum.py` file (8563\u202Fbytes) which implements\
+    \ SHA\u2011256 checksum computation, saving/loading of checksum JSON, verification\
+    \ of individual and all files, and a CLI for generating and verifying checksums,\
+    \ fulfilling the required utility for raw\u2011data integrity verification."
+  sig: 8607261df253a1097b1f7258fd64dc243dca9589d697028f0d2955b9d9c073fe
+T006:
+  c: true
+  h: fce90875c979309d5c209cf0b15ccf0b1d47fea41587fb8a422ea56c75b0bedd
+  r: "Checked `code/utils/schema_validator.py` (8840\u202Fbytes) which defines loading\
+    \ of the three YAML schemas and provides `validate_dataset_schema`, `validate_scored_schema`,\
+    \ and `validate_model_results_schema` helper functions as required. The file is\
+    \ non\u2011empty and implements the requested validation utilities."
+  sig: 05b70dbb8247f7ca2b3f6cd589dc01e98f35d29222cd4242cd412396492dc64f
 T020:
   c: false
   h: c9eafd40438f6e734dfdfa1a0fb8df710ad8e0938fbfab951b2b956c085c1f4e

@@ -828,3 +828,145 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T19:04:44Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: "pushshift.io/reddit dataset is publicly available under CC\u2011BY\u2011\
+    4.0 license"
+  claim_id: c_99a68b40
+  context: "The dataset is publicly available under a permissive license (CC\u2011\
+    BY\u20114.0) and can be downloaded programmatically without authentication."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset is publicly available under a permissive license (CC\u2011\
+    BY\u20114.0) and can be downloaded programmatically without authentication."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T14:36:55Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: pushshift.io/reddit dataset contains thread titles and comment bodies
+  claim_id: c_dfada89b
+  context: It contains both the thread titles (in the submissions split) and the comment
+    bodies (in the comments split), fulfilling the core requirement for the priming
+    analysis.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: It contains both the thread titles (in the submissions split) and the
+    comment bodies (in the comments split), fulfilling the core requirement for the
+    priming analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T14:37:30Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: pushshift.io/reddit dataset is hosted on Hugging Face
+  claim_id: c_82ac8aa7
+  context: The dataset is hosted on Hugging Face, ensuring reliable access and versioning.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q131939003
+        url: https://www.wikidata.org/wiki/Q131939003
+        value: https://huggingface.co
+      quote: 'P856: https://huggingface.co/'
+      source_id: Q108943604
+      url: https://www.wikidata.org/wiki/Q108943604
+      value: https://huggingface.co/
+    filled: true
+  kind: entity_fact
+  raw_text: The dataset is hosted on Hugging Face, ensuring reliable access and versioning.
+  resolved_value: https://huggingface.co/
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-19T14:37:48Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: submissions split provides title field
+  claim_id: c_46d6b0fc
+  context: The submissions split provides the required `title` field (along with `subreddit`,
+    `id`, `created_utc`, etc.).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Redditch
+      source_id: Q1032085
+      url: https://www.wikidata.org/wiki/Q1032085
+      value: Redditch
+    filled: true
+  kind: entity_fact
+  raw_text: The submissions split provides the required `title` field (along with
+    `subreddit`, `id`, `created_utc`, etc.).
+  resolved_value: Redditch
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-19T14:38:30Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: comments split provides body, author info, timestamps, and link_id referencing
+    parent submission
+  claim_id: c_691ffae4
+  context: The comments split provides the comment text (`body`), author information,
+    timestamps, and a `link_id` that references the parent submission (`t3_<submission_id>`).
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The comments split provides the comment text (`body`), author information,
+    timestamps, and a `link_id` that references the parent submission (`t3_<submission_id>`).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T14:39:21Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: dataset is publicly available under CC-BY-4.0 license and can be downloaded
+    programmatically without authentication
+  claim_id: c_31850b17
+  context: "The dataset is publicly available under a permissive license (CC\u2011\
+    BY\u20114.0) and can be downloaded programmatically without authentication."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset is publicly available under a permissive license (CC\u2011\
+    BY\u20114.0) and can be downloaded programmatically without authentication."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T14:39:21Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: dataset contains thread titles and comment bodies
+  claim_id: c_cc62c33b
+  context: It contains both the thread titles (in the submissions split) and the comment
+    bodies (in the comments split), fulfilling the core requirement for the priming
+    analysis.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: It contains both the thread titles (in the submissions split) and the
+    comment bodies (in the comments split), fulfilling the core requirement for the
+    priming analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T14:39:21Z'
