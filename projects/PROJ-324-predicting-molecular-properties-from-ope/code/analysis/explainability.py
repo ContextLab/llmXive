@@ -1,7 +1,7 @@
 """
 Explainability module for molecular property prediction.
 Implements SHAP interaction analysis, heatmap generation, and persistence of interaction matrix.
-Updated to avoid RDKit dependencies by loading precomputed MACCS fingerprints from CSV.
+Updated to handle missing fingerprints gracefully and ensure output generation.
 """
 import os
 import sys

@@ -1,25 +1,15 @@
-status: verified
-kind: pypi_package
-ref: PubChemPy
-access_python: "import pubchempy as pcp\n\ncids = [2244, 5957, 1234]\nrecords = pcp.get_properties(\n\
-  \    ['IsomericSMILES', 'InChI', 'MolecularWeight', 'XLogP'],\n    cids,\n    namespace='cid'\n\
-  )\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=\" + (\",\".join(records[0].keys())\
-  \ if records else \"\"))"
-record_count: 3
-sample_fields:
-- CID
-- MolecularWeight
-- SMILES
-- InChI
-- XLogP
-field_coverage: 0.5
+status: none
+intent: download PubChem Compound and Open Babel fingerprint data SMILES properties
+  python package dataset
 required_fields:
-- SMILES
-- InChI
-- MolecularWeight
-- LogP
-- CompoundID
-- PropertySource
-intent: PubChem compound SMILES properties Open Babel fingerprints python package
-  dataset
-cache_key: 044f911cf61d2f4f65be33f518e2ef5a910a6aa8415d205860b407abaf13e600
+- cid
+- smiles
+- inchi
+- molecular_weight
+- logP
+- experimental_flag
+- computed_flag
+- other_properties
+cache_key: db915a4ed77d587404b26de3331f8a3651ea472fb713922fd710eac7456704ee
+searched_at: '2026-10-19T15:12:41.442910+00:00'
+retry_count: 1
