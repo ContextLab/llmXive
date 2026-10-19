@@ -1,15 +1,13 @@
-# Project dependencies (explicitly listed for clarity)
-# Core scientific stack – already available in the execution environment
+datasets
+pyarrow
 pandas
 numpy
 scipy
 matplotlib
-pyarrow
 statsmodels
 psutil
 memory_profiler
 requests
 jsonschema
+PyYAML
 pytest
-ruff
-black

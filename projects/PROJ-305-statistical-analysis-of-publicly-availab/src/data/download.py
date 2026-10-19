@@ -1,145 +1,143 @@
 """
-VAERS Data Download Script
-=========================
+VAERS Data Download Script (T002)
+=================================
 
-This script downloads the VAERS CSV files for the years 2020-2023 from the
-official HHS/VAERS source. For each year Y in {2020, 2021, 2022, 2023}, 
-it downloads three zip files:
-  - {Y}VAERSDATA.csv.zip
-  - {Y}VAERSVAX.csv.zip
-  - {Y}VAERSSYMPTOMS.csv.zip
+Downloads the verified VAERS 2020-2023 dataset from Hugging Face
+(``chrisvoncsefalvay/vaers-outcomes``) using the ``datasets`` library
+and writes it to ``data/raw/vaers_2020_2023.parquet``.
 
-The files are extracted to `data/raw/{Y}/`. 
-After each successful download and extraction, a SHA-256 checksum is computed 
-and appended to `data/checksums.txt` and `logs/download_checksums.txt`.
+A SHA-256 checksum of the parquet file is recorded as
+``<file> <sha256>`` in ``data/checksums.txt`` (any previous entry for
+the same file is replaced, so the file appears exactly once).
 
-Any non-200 HTTP response or extraction error raises an exception and 
-exits with a non-zero status. No synthetic fallback is performed.
+Any download or checksum error raises an exception — there is NO
+synthetic fallback.
 """
 
 import hashlib
-import logging
 import sys
-import zipfile
-from pathlib import Path
-from typing import List
 
-import requests
 from llmxive_toolkit import paths, get_logger
 
-# ----------------------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------------------
-# Official VAERS data source
-BASE_URL = "https://vaers.hhs.gov/data/datasets"
-YEARS = [2020, 2021, 2022, 2023]
-FILE_TYPES = ["VAERSDATA", "VAERSVAX", "VAERSSYMPTOMS"]
+log = get_logger(__name__)
+
+DATASET_ID = "chrisvoncsefalvay/vaers-outcomes"
+SPLIT = "train"
 CHUNK_SIZE = 8192
 
-# User-Agent is critical for government sites to avoid 403/404 blocks
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
-}
+# Output locations (project-relative via llmxive_toolkit.paths)
+PARQUET_PATH = paths.data("raw", "vaers_2020_2023.parquet")
+CHECKSUMS_PATH = paths.data("checksums.txt")
 
-# ----------------------------------------------------------------------
-# Logging
-# ----------------------------------------------------------------------
-log = get_logger(__name__)
-LOG_FILE = paths.logs("download_checksums.txt")
-LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
-def sha256_checksum(file_path: Path) -> str:
+def sha256_checksum(file_path) -> str:
     """Return the SHA-256 hex digest of *file_path*."""
     hasher = hashlib.sha256()
-    with file_path.open("rb") as f:
+    with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(CHUNK_SIZE), b""):
             hasher.update(chunk)
     return hasher.hexdigest()
 
-def record_checksum(csv_path: Path, checksums_file: Path) -> None:
-    """Compute SHA-256 of *csv_path* and append a line to *checksums_file*."""
-    checksum = sha256_checksum(csv_path)
-    rel_path = csv_path.relative_to(Path.cwd())
-    line = f"{rel_path} {checksum} OK\n"
-    checksums_file.parent.mkdir(parents=True, exist_ok=True)
-    with checksums_file.open("a", encoding="utf-8") as f:
-        f.write(line)
-    with LOG_FILE.open("a", encoding="utf-8") as f:
-        f.write(line)
 
-def download_and_extract(year: int, file_type: str) -> None:
-    """Download a specific VAERS zip and extract its content."""
-    filename = f"{year}{file_type}.csv.zip"
-    url = f"{BASE_URL}/{filename}"
-    
-    # Destination for the zip and the extracted CSV
-    zip_dest = paths.data("raw", str(year), filename)
-    zip_dest.parent.mkdir(parents=True, exist_ok=True)
-    
-    log.info(f"Downloading {url}")
+def record_checksum(parquet_path, checksums_path) -> str:
+    """Compute SHA-256 and record ``<file> <sha256>`` in checksums file.
+
+    Replaces any existing entry for the same file so the filename
+    appears exactly once. Returns the checksum.
+    """
+    checksum = sha256_checksum(parquet_path)
+    rel = parquet_path.relative_to(paths.root)
+    entry = f"{rel} {checksum}"
+
+    existing_lines = []
+    if checksums_path.exists():
+        with open(checksums_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.rstrip("\n")
+                if not line:
+                    continue
+                # Drop stale entries for the same file
+                if line.split(" ")[0] == str(rel):
+                    continue
+                existing_lines.append(line)
+
+    with open(checksums_path, "w", encoding="utf-8") as f:
+        for line in existing_lines:
+            f.write(line + "\n")
+        f.write(entry + "\n")
+    return checksum
+
+
+def download_vaers_dataset(
+    dataset_id: str = DATASET_ID,
+    split: str = SPLIT,
+    dest=PARQUET_PATH,
+):
+    """Download the real VAERS dataset from Hugging Face to *dest*.
+
+    Raises on any failure (network, dataset missing, empty data).
+    No synthetic fallback is ever performed.
+    """
+    from datasets import load_dataset  # imported lazily so --help works fast
+
+    log.info("Downloading dataset %s (split=%s)", dataset_id, split)
     try:
-        with requests.get(url, stream=True, timeout=60, headers=HEADERS) as r:
-            r.raise_for_status()
-            with zip_dest.open("wb") as f:
-                for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
-                    if chunk:
-                        f.write(chunk)
-    except Exception as e:
-        log.error(f"Failed to download {url}: {e}")
-        raise SystemExit(1)
+        ds = load_dataset(dataset_id, split=split)
+    except Exception as exc:
+        log.error("Failed to download dataset %s: %s", dataset_id, exc)
+        raise
 
-    # Extract the zip
-    try:
-        with zipfile.ZipFile(zip_dest, "r") as zf:
-            # VAERS zips usually contain one CSV with the same name (minus .zip)
-            for member in zf.namelist():
-                if member.endswith(".csv"):
-                    target_path = zip_dest.parent / member
-                    log.info(f"Extracting {member} to {target_path}")
-                    with zf.open(member) as src, target_path.open("wb") as dst:
-                        while True:
-                            chunk = src.read(CHUNK_SIZE)
-                            if not chunk:
-                                break
-                            dst.write(chunk)
-                    
-                    # Record checksum for the extracted CSV
-                    record_checksum(target_path, paths.data("checksums.txt"))
-    except Exception as e:
-        log.error(f"Failed to extract {filename}: {e}")
-        raise SystemExit(1)
-    finally:
-        # Clean up zip file
-        if zip_dest.exists():
-            zip_dest.unlink()
+    if ds is None or len(ds) == 0:
+        raise RuntimeError(
+            f"Dataset {dataset_id} split {split} is empty; refusing to "
+            "write an empty parquet file (no synthetic fallback)."
+        )
 
-def verify_downloads() -> None:
-    """Verify that all 12 expected CSVs are present and non-empty."""
-    missing = []
-    for year in YEARS:
-        for ftype in FILE_TYPES:
-            expected_name = f"{year}{ftype}.csv"
-            p = paths.data("raw", str(year), expected_name)
-            if not p.is_file() or p.stat().st_size == 0:
-                missing.append(str(p))
-    
-    if missing:
-        log.error(f"Missing or empty files: {missing}")
-        raise SystemExit(1)
-    log.info("All 12 VAERS files verified.")
+    log.info("Downloaded %d rows; converting to pandas", len(ds))
+    df = ds.to_pandas()
+
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    log.info("Writing parquet to %s", dest)
+    df.to_parquet(dest, index=False)
+
+    if not dest.exists() or dest.stat().st_size == 0:
+        raise RuntimeError(
+          f"Parquet file {dest} was not written or is empty."
+        )
+
+    size_mb = dest.stat().st_size / (1024 * 1024)
+    log.info("Wrote %s (%.1f MB, %d rows)", dest, size_mb, len(df))
+    return dest
+
 
 def main() -> None:
-    """Main entry point for VAERS data download."""
+    """Entry point: download, checksum, verify."""
     log.info("Starting VAERS data download process")
-    for year in YEARS:
-        for ftype in FILE_TYPES:
-            download_and_extract(year, ftype)
-    
-    verify_downloads()
+    dest = download_vaers_dataset()
+
+    try:
+        checksum = record_checksum(dest, CHECKSUMS_PATH)
+    except Exception as exc:
+        log.error("Checksum computation failed for %s: %s", dest, exc)
+        raise
+
+    # Verify checksum entry: recompute and compare
+    if checksum != sha256_checksum(dest):
+        raise RuntimeError(
+            "Checksum verification failed for %s" % dest
+        )
+
+    log.info(
+        "Checksum recorded in %s: %s %s", CHECKSUMS_PATH, dest, checksum
+    )
     log.info("VAERS data download and verification completed successfully.")
+
+
+# Backwards-compatible alias used by src/main.py
+def fetch_vaers_data() -> None:
+    """Alias for main(); kept for pipeline import compatibility."""
+    main()
+
 
 if __name__ == "__main__":
     main()

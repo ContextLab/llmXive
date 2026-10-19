@@ -1,10 +1,10 @@
 T001:
   c: true
-  h: 262b47abfe159c6741b8647ba823eae9b304464ea739f1ca421157adaa7688c1
-  r: "All 13 required directories exist (confirmed by collector listing and the `logs/structure.txt`\
-    \ tree snapshot, which lists all of them including `src/validation/`, `tests/fixtures/`,\
-    \ `data/results/`, `output/temporal_profiles/`, `logs/`); `logs/structure.txt`\
-    \ is non-empty (5245 bytes) and was produced by an actual executed run of `code/create_structure.py`\
-    \ (exit 0 log). `quickstart.md` documents the runnable command `python -m src.main`\
-    \ and input provenance (VAERS 2020\u20132023 CDC data)."
-  sig: f890807d725be63599a73f43903f03f7c03e6a7d642b13eb5fc4a132eb94c97d
+  h: 34730b85b3f12e1b49c67ae6c6aae2abffbe56979f919b14e6999bcefaeb9b44
+  r: All required directories (src/data, src/analysis, src/utils, src/validation,
+    tests/unit, tests/integration, data/raw, data/processed, output, logs) exist and
+    are confirmed in `logs/structure.txt` (5790 bytes, non-empty, real `tree -a -L
+    3` output listing 61 directories). `quickstart.md` documents the runnable command
+    `python -m src.main` and input provenance (Hugging Face VAERS dataset with checksum),
+    and the T001 execution log shows the structure script ran successfully (exit 0).
+  sig: 5c00f0588111d392d678407a4e5a34fcb6d26faca920e3d7c08377cf375cd37b

@@ -2,9 +2,19 @@
 ├── .gitignore
 ├── .gitkeep
 ├── .pre-commit-config.yaml
+├── .pytest_cache
+│   ├── .gitignore
+│   ├── CACHEDIR.TAG
+│   ├── README.md
+│   └── v
+│       └── cache
 ├── .python-version
 ├── .ruff.toml
 ├── .runtime-home
+│   ├── .cache
+│   │   └── matplotlib
+│   └── .config
+│       └── matplotlib
 ├── .specify
 │   ├── memory
 │   │   ├── constitution.md
@@ -14,7 +24,6 @@
 │   │   ├── research_question_validated.yaml
 │   │   ├── task_verifier_notes.md
 │   │   ├── task_verify.feedback.yaml
-│   │   ├── task_verify.yaml
 │   │   ├── task_verify_cache.yaml
 │   │   └── tasker_rounds.yaml
 │   ├── scripts
@@ -41,6 +50,8 @@
 │   ├── Makefile
 │   ├── README.md
 │   ├── __init__.py
+│   ├── __pycache__
+│   │   └── __init__.cpython-311.pyc
 │   ├── contracts
 │   │   ├── .gitkeep
 │   │   ├── dataset.schema.yaml
@@ -50,6 +61,7 @@
 │   ├── data
 │   │   ├── .gitkeep
 │   │   ├── __init__.py
+│   │   ├── processed
 │   │   └── raw
 │   ├── figures
 │   │   └── .gitkeep
@@ -71,6 +83,7 @@
 │   ├── src
 │   │   ├── .gitkeep
 │   │   ├── __init__.py
+│   │   ├── __pycache__
 │   │   ├── analysis
 │   │   ├── data
 │   │   ├── main.py
@@ -100,8 +113,13 @@
 │   ├── research_question_validation.md
 │   └── statistical-analysis-of-publicly-availab.md
 ├── logs
+│   ├── analysis.log
+│   ├── clean.log
+│   ├── download.log
 │   ├── lint.txt
-│   └── structure.txt
+│   ├── pipeline.log
+│   ├── structure.txt
+│   └── validate.log
 ├── output
 │   ├── .gitkeep
 │   ├── figures
@@ -158,4 +176,4 @@
         ├── test_validate.py
         └── test_validate_e_schema_missing.py
 
-51 directories, 108 files
+61 directories, 116 files
