@@ -1,91 +1,56 @@
 """
-Checksum utilities for data integrity verification.
-
-Provides SHA256 verification for downloaded files to ensure data integrity
-throughout the pipeline.
+Utility functions for computing and verifying file checksums.
 """
-
 import hashlib
 from pathlib import Path
-from typing import Optional
+from typing import Union
 
-
-def verify_file(path: str, expected_hash: str) -> bool:
+def compute_file_hash(file_path: Union[str, Path], algorithm: str = "sha256") -> str:
     """
-    Verify the SHA256 checksum of a file against an expected hash.
+    Compute the cryptographic hash of a file.
 
-    Args:
-        path: Path to the file to verify.
-        expected_hash: Expected SHA256 hash string (hexadecimal).
+    Parameters
+    ----------
+    file_path : Union[str, Path]
+        Path to the file.
+    algorithm : str
+        Hashing algorithm to use (default 'sha256').
 
-    Returns:
-        True if the file's SHA256 hash matches the expected hash.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the expected_hash format is invalid.
+    Returns
+    -------
+    str
+        The hex digest of the file.
     """
-    file_path = Path(path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
+    path = Path(file_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"File not found for checksum: {path}")
 
-    # Validate expected hash format (64 hex characters for SHA256)
-    expected_hash = expected_hash.lower().strip()
-    if len(expected_hash) != 64 or not all(c in '0123456789abcdef' for c in expected_hash):
-        raise ValueError(
-            f"Invalid SHA256 hash format. Expected 64 hex characters, got: {expected_hash}"
-        )
+    hash_func = hashlib.new(algorithm)
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_func.update(chunk)
+    return hash_func.hexdigest()
 
-    sha256_hash = hashlib.sha256()
+def verify_file(file_path: Union[str, Path], expected_hash: str, algorithm: str = "sha256") -> bool:
+    """
+    Verify that a file matches the expected hash.
+
+    Parameters
+    ----------
+    file_path : Union[str, Path]
+        Path to the file.
+    expected_hash : str
+        The expected hex digest.
+    algorithm : str
+        Hashing algorithm to use (default 'sha256').
+
+    Returns
+    -------
+    bool
+        True if hashes match, False otherwise.
+    """
     try:
-        with open(file_path, 'rb') as f:
-            # Read in chunks to handle large files efficiently
-            for chunk in iter(lambda: f.read(8192), b''):
-                sha256_hash.update(chunk)
-    except IOError as e:
-        raise IOError(f"Failed to read file {path}: {e}")
-
-    computed_hash = sha256_hash.hexdigest()
-
-    if computed_hash != expected_hash:
+        actual_hash = compute_file_hash(file_path, algorithm=algorithm)
+        return actual_hash == expected_hash
+    except Exception:
         return False
-
-    return True
-
-
-def compute_file_hash(path: str, algorithm: str = 'sha256') -> str:
-    """
-    Compute the hash of a file using the specified algorithm.
-
-    Args:
-        path: Path to the file.
-        algorithm: Hash algorithm to use ('sha256', 'sha512', 'md5').
-
-    Returns:
-        Hexadecimal hash string.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the algorithm is not supported.
-    """
-    file_path = Path(path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
-
-    if algorithm == 'sha256':
-        hasher = hashlib.sha256()
-    elif algorithm == 'sha512':
-        hasher = hashlib.sha512()
-    elif algorithm == 'md5':
-        hasher = hashlib.md5()
-    else:
-        raise ValueError(f"Unsupported algorithm: {algorithm}. Use 'sha256', 'sha512', or 'md5'.")
-
-    try:
-        with open(file_path, 'rb') as f:
-            for chunk in iter(lambda: f.read(8192), b''):
-                hasher.update(chunk)
-    except IOError as e:
-        raise IOError(f"Failed to read file {path}: {e}")
-
-    return hasher.hexdigest()

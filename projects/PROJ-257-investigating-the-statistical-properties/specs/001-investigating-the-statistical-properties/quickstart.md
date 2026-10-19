@@ -12,7 +12,7 @@ pip install -r requirements.txt
 
 ## Running the Pipeline
 ```bash
-python src/main.py
+python -m src.main
 ```
 
 **Options**:

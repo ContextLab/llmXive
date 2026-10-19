@@ -5,10 +5,6 @@ Download GWTC‑1 and GWTC‑2 posterior sample HDF5 files from Zenodo using the
 official download implementation in ``src.data.download``. The function
 writes the files under ``data/raw/`` and creates a ``checksums.json`` manifest.
 If any step fails the script aborts with a non‑zero exit status.
-
-This script replaces the previous placeholder‑file approach with a real
-download, satisfying the requirement that the pipeline works on actual data
-rather than fabricated stand‑ins.
 """
 
 import sys

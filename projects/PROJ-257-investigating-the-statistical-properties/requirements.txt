@@ -1,5 +1,11 @@
-# Project dependencies
-# Existing environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil, llmxive_toolkit
-h5py>=3.0
+numpy
+scipy
+pandas
+matplotlib
+requests
+tqdm
+pytest
+h5py
+statsmodels
+memory-profiler
+requests-mock
