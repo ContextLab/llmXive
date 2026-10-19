@@ -1,4 +1,10 @@
 T001:
+  reason: 'The `requirements.txt` and `code/utils/io_utils.py` exist and correctly
+    set seeds (42 via config), but the task''s verification requirements are unmet:
+    there is no evidence of a virtual environment setup, no `pip freeze` output matching
+    pinned versions, and no test script confirming seed consistency across runs. The
+    implementer must provide a seed-consistency test script (with execution evidence)
+    and a `pip freeze`/environment record.'
   task: e3af1dd229ffe87236b521b8abbf52daaad1346096b67eb2ee51221d5f6555e0
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data_loader.py

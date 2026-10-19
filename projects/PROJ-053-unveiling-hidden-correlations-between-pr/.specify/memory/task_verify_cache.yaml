@@ -1,13 +1,13 @@
 T001:
-  c: true
-  h: 2accd61da354a03aa11f0f043206925e6ed2c4858c71f7cf1a5c61bca6265fde
-  r: 'The required artifacts exist and match the task: `requirements.txt` contains
-    the pinned dependencies, `code/utils/io_utils.py` sets `np.random.seed(42)` and
-    `random.seed(42)` (via config''s seed of 42, applied at import time), and the
-    historical execution record shows `tests/test_seed_consistency.py` passed (exit
-    0, 1 passed) under `python -m pytest -v` from the project root, confirming seed
-    consistency across runs.'
-  sig: 59cd886032dc61b896f0c054a2b9ac7db45d2fab4eabc98109ff5b573a411d70
+  c: false
+  h: f1c88815209db95706f5067b7e62df5d6c5bdda76643a3cd62d7d8b33c892bad
+  r: 'The `requirements.txt` and `code/utils/io_utils.py` exist and correctly set
+    seeds (42 via config), but the task''s verification requirements are unmet: there
+    is no evidence of a virtual environment setup, no `pip freeze` output matching
+    pinned versions, and no test script confirming seed consistency across runs. The
+    implementer must provide a seed-consistency test script (with execution evidence)
+    and a `pip freeze`/environment record.'
+  sig: f3251c0b7ee359b50fadcbc18f1f4e8ccf1b74a5d9434b4eacfad118ba7b5979
 T003:
   c: false
   h: a47cc7bd361ce4a220059d536160e345c3c3ecdc6122aaeef3e4d9cab4ac53ec

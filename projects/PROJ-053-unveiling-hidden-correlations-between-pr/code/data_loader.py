@@ -1,7 +1,7 @@
 """
 Strict Data Loader for the NIST AM‑Bench dataset.
 
-This script downloads the raw dataset from Zenodo (or a known fallback URL),
+This script downloads the raw dataset from Zenodo (via API search and fallbacks),
 validates its schema, checks for source independence between predictors and
 targets, and writes a SHA‑256 checksum file.
 
@@ -9,7 +9,6 @@ Execution:
     python -m code.data_loader
 """
 import hashlib
-import json
 import logging
 import time
 import zipfile
@@ -24,36 +23,33 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Search term used to locate the dataset on Zenodo.
+# Zenodo API endpoints
 ZENODO_SEARCH_URL = "https://zenodo.org/api/records/"
 ZENODO_QUERY = "NIST AM Bench"
 MAX_SEARCH_RESULTS = 5
 
-# Required columns (case‑insensitive, both space‑ and underscore‑separated)
+# Required columns (normalized names: lowercase, spaces to underscores)
 REQUIRED_PREDICTORS = [
-    "laser power",
     "laser_power",
-    "scan speed",
     "scan_speed",
-    "layer thickness",
     "layer_thickness",
 ]
-REQUIRED_TARGETS = ["yield strength", "yield_strength", "ductility"]
+REQUIRED_TARGETS = ["yield_strength", "ductility"]
 MIN_SAMPLES = 50
 
 # Retry configuration
 MAX_RETRIES = 3
 BACKOFF_FACTOR = 2  # exponential back‑off multiplier (seconds)
 
-# Acceptable file extensions (CSV, ZIP, Excel, plain text)
+# Acceptable file extensions
 ACCEPTED_EXTENSIONS = (".csv", ".zip", ".xlsx", ".xls", ".txt", ".json")
 
-# Fallback direct URL (verified Zenodo record) – used if search yields no
-# acceptable file. This URL points to a CSV version of the NIST AM‑Bench
-# dataset and is known to be publicly accessible.
-FALLBACK_DOWNLOAD_URL = (
-    "https://zenodo.org/record/10428042/files/NIST_AM_Bench.csv?download=1"
-)
+# Fallback URLs: Using the API-based download pattern which is more stable than direct links
+# Record ID 10428042 is the NIST AM-Bench record.
+FALLBACK_DOWNLOAD_URLS = [
+    "https://zenodo.org/api/records/10428042/files/NIST_AM_Bench.csv/download",
+    "https://zenodo.org/record/10428042/files/NIST_AM_Bench.csv?download=1",
+]
 
 # ----------------------------------------------------------------------
 # Logging
@@ -73,19 +69,23 @@ def _search_zenodo() -> List[dict]:
         "sort": "mostviewed",
     }
     log.info("Searching Zenodo for dataset: %s", ZENODO_QUERY)
-    response = requests.get(ZENODO_SEARCH_URL, params=params, timeout=30)
-    response.raise_for_status()
-    data = response.json()
-    hits = data.get("hits", {}).get("hits", [])
-    if not hits:
-        raise FileNotFoundError("No Zenodo records found for query.")
-    log.info("Found %d candidate record(s).", len(hits))
-    return hits
+    try:
+        response = requests.get(ZENODO_SEARCH_URL, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        hits = data.get("hits", {}).get("hits", [])
+        if not hits:
+            log.warning("No Zenodo records found for query.")
+            return []
+        log.info("Found %d candidate record(s).", len(hits))
+        return hits
+    except Exception as e:
+        log.error("Zenodo API search failed: %s", e)
+        return []
 
 def _choose_download_url(records: List[dict]) -> str:
     """
-    From the list of Zenodo records, pick the first file URL whose
-    extension matches one of ACCEPTED_EXTENSIONS.
+    Pick the first acceptable file URL from search results or use fallbacks.
     """
     for rec in records:
         files = rec.get("files", [])
@@ -95,17 +95,11 @@ def _choose_download_url(records: List[dict]) -> str:
             if any(lower_name.endswith(ext) for ext in ACCEPTED_EXTENSIONS):
                 download_url = f.get("links", {}).get("download")
                 if download_url:
-                    log.info(
-                        "Selected file '%s' from record %s.",
-                        filename,
-                        rec.get("id"),
-                    )
+                    log.info("Selected file '%s' from Zenodo record.", filename)
                     return download_url
-    # No acceptable file found – fall back to the known URL
-    log.warning(
-        "No acceptable file found in Zenodo search results; falling back to known URL."
-    )
-    return FALLBACK_DOWNLOAD_URL
+    
+    log.warning("No acceptable file found in search results; trying fallbacks.")
+    return FALLBACK_DOWNLOAD_URLS[0]
 
 def _download_with_retries(url: str, dest_path: Path) -> None:
     """
@@ -125,74 +119,50 @@ def _download_with_retries(url: str, dest_path: Path) -> None:
             return
         except Exception as e:
             attempt += 1
+            if attempt == MAX_RETRIES:
+                raise FileNotFoundError(f"Failed to download after {MAX_RETRIES} attempts: {url}. Error: {e}")
             wait = BACKOFF_FACTOR ** attempt
             log.warning("Download failed (%s). Retrying in %s seconds...", e, wait)
             time.sleep(wait)
-    raise FileNotFoundError(f"Failed to download after {MAX_RETRIES} attempts: {url}")
 
 def _extract_zip_if_needed(zip_path: Path, target_csv_path: Path) -> None:
     """
-    If the downloaded file is a ZIP archive, extract the first CSV
-    inside and move it to ``target_csv_path``.
+    Extract the first CSV from a ZIP archive.
     """
     if zip_path.suffix.lower() != ".zip":
-        return  # nothing to do
+        return
 
     log.info("Extracting ZIP archive %s", zip_path)
     with zipfile.ZipFile(zip_path, "r") as zf:
         csv_names = [n for n in zf.namelist() if n.lower().endswith(".csv")]
         if not csv_names:
-            raise FileNotFoundError(
-                f"No CSV files found inside ZIP archive {zip_path}"
-            )
+            raise FileNotFoundError(f"No CSV files found inside ZIP archive {zip_path}")
         first_csv = csv_names[0]
         extracted_path = zf.extract(first_csv, path=zip_path.parent)
-        extracted_path = Path(extracted_path)
-        extracted_path.rename(target_csv_path)
-        log.info(
-            "Extracted CSV %s from ZIP and saved to %s",
-            first_csv,
-            target_csv_path,
-        )
+        Path(extracted_path).rename(target_csv_path)
     zip_path.unlink(missing_ok=True)
 
-def _convert_excel_to_csv(excel_path: Path, target_csv_path: Path) -> None:
+def _convert_format_to_csv(file_path: Path, target_csv_path: Path) -> None:
     """
-    Convert an Excel file (.xlsx or .xls) to CSV.
+    Convert Excel, JSON, or TXT to CSV.
     """
-    log.info("Converting Excel file %s to CSV %s", excel_path, target_csv_path)
-    try:
-        df = pd.read_excel(excel_path, engine="openpyxl")
-    except Exception as e:
-        raise ValueError(f"Failed to read Excel file {excel_path}: {e}")
+    suffix = file_path.suffix.lower()
+    log.info("Converting %s file %s to CSV", suffix, file_path)
+    if suffix in (".xlsx", ".xls"):
+        df = pd.read_excel(file_path, engine="openpyxl")
+    elif suffix == ".json":
+        df = pd.read_json(file_path)
+    elif suffix == ".txt":
+        df = pd.read_csv(file_path, sep=",")
+    else:
+        raise ValueError(f"Unsupported conversion format: {suffix}")
+    
     df.to_csv(target_csv_path, index=False)
-    log.info("Conversion to CSV completed.")
-    excel_path.unlink(missing_ok=True)
-
-def _convert_txt_to_csv(txt_path: Path, target_csv_path: Path) -> None:
-    """
-    Convert a plain‑text delimited file (assumed comma‑separated) to CSV.
-    """
-    log.info("Converting TXT file %s to CSV %s", txt_path, target_csv_path)
-    df = pd.read_csv(txt_path, sep=",")
-    df.to_csv(target_csv_path, index=False)
-    log.info("Conversion to CSV completed.")
-    txt_path.unlink(missing_ok=True)
-
-def _convert_json_to_csv(json_path: Path, target_csv_path: Path) -> None:
-    """
-    Convert a JSON file (array of records) to CSV.
-    """
-    log.info("Converting JSON file %s to CSV %s", json_path, target_csv_path)
-    df = pd.read_json(json_path)
-    df.to_csv(target_csv_path, index=False)
-    log.info("Conversion to CSV completed.")
-    json_path.unlink(missing_ok=True)
+    file_path.unlink(missing_ok=True)
 
 def _normalize_column_name(col: str) -> str:
     """
-    Helper to make column name comparison case‑insensitive and tolerant
-    of spaces vs. underscores.
+    Make column name comparison case‑insensitive and tolerant of spaces vs. underscores.
     """
     return col.lower().strip().replace(" ", "_")
 
@@ -200,26 +170,16 @@ def _validate_dataframe(df: pd.DataFrame) -> None:
     """
     Validate that the dataframe meets all strict requirements.
     """
-    # Sample count
+    # 1. Sample count
     if len(df) < MIN_SAMPLES:
-        raise ValueError(
-            f"Insufficient samples: {len(df)} found, minimum required is {MIN_SAMPLES}."
-        )
+        raise ValueError(f"Insufficient samples: {len(df)} found, minimum required is {MIN_SAMPLES}.")
     log.info("Sample count validation passed (%d rows).", len(df))
 
-    # Column presence (case‑insensitive, spaces/underscores)
+    # 2. Column presence
     cols_normalized = [_normalize_column_name(c) for c in df.columns]
-
-    missing_predictors = [
-        col
-        for col in REQUIRED_PREDICTORS
-        if _normalize_column_name(col) not in cols_normalized
-    ]
-    missing_targets = [
-        col
-        for col in REQUIRED_TARGETS
-        if _normalize_column_name(col) not in cols_normalized
-    ]
+    
+    missing_predictors = [p for p in REQUIRED_PREDICTORS if p not in cols_normalized]
+    missing_targets = [t for t in REQUIRED_TARGETS if t not in cols_normalized]
 
     if missing_predictors or missing_targets:
         raise ValueError(
@@ -228,27 +188,17 @@ def _validate_dataframe(df: pd.DataFrame) -> None:
         )
     log.info("Required column validation passed.")
 
-    # Source‑independence check: ensure no target is a near‑perfect linear
-    # function of any predictor (|corr| >= 0.9999)
+    # 3. Source‑independence check
     name_map = { _normalize_column_name(c): c for c in df.columns }
-
-    predictor_cols = [
-        name_map[_normalize_column_name(col)]
-        for col in REQUIRED_PREDICTORS
-        if _normalize_column_name(col) in cols_normalized
-    ]
-    target_cols = [
-        name_map[_normalize_column_name(col)]
-        for col in REQUIRED_TARGETS
-        if _normalize_column_name(col) in cols_normalized
-    ]
+    predictor_cols = [name_map[p] for p in REQUIRED_PREDICTORS]
+    target_cols = [name_map[t] for t in REQUIRED_TARGETS]
 
     for t in target_cols:
-        t_series = df[t].astype(float)
+        t_series = pd.to_numeric(df[t], errors='coerce')
         for p in predictor_cols:
-            p_series = df[p].astype(float)
+            p_series = pd.to_numeric(df[p], errors='coerce')
             if p_series.nunique() <= 1:
-                continue  # zero variance predictor cannot be used for correlation
+                continue
             corr = t_series.corr(p_series)
             if abs(corr) >= 0.9999:
                 raise ValueError(
@@ -277,39 +227,34 @@ def main() -> None:
     """
     Orchestrates the strict data loading process.
     """
-    # Resolve output paths using llmxive_toolkit helpers
     raw_csv_path: Path = paths.data("raw", "am_raw_data.csv")
     checksum_path: Path = paths.data("checksums", "am_raw_data.sha256")
-
-    # Ensure parent directories exist
     raw_csv_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Step 1: Locate dataset on Zenodo (or fallback)
+    # Step 1: Locate dataset
     records = _search_zenodo()
     download_url = _choose_download_url(records)
 
-    # Determine file extension from URL
+    # Determine file extension
     parsed = urlparse(download_url)
     suffix = Path(parsed.path).suffix.lower()
-    if suffix not in ACCEPTED_EXTENSIONS:
-        raise ValueError(f"Unexpected file extension '{suffix}' from URL {download_url}")
+    if suffix == "" or suffix not in ACCEPTED_EXTENSIONS:
+        # Handle cases where suffix is missing in URL (e.g., /download endpoint)
+        # Default to .csv for the fallback NIST AM-Bench
+        suffix = ".csv"
 
-    # Choose a temporary download location that preserves the extension
     temp_download_path = raw_csv_path.with_suffix(suffix)
 
-    # Step 2: Download with retry logic
+    # Step 2: Download
     _download_with_retries(download_url, temp_download_path)
 
-    # Step 3: Handle archive / format conversion
+    # Step 3: Handle format
     if suffix == ".zip":
         _extract_zip_if_needed(temp_download_path, raw_csv_path)
-    elif suffix in (".xlsx", ".xls"):
-        _convert_excel_to_csv(temp_download_path, raw_csv_path)
-    elif suffix == ".txt":
-        _convert_txt_to_csv(temp_download_path, raw_csv_path)
-    elif suffix == ".json":
-        _convert_json_to_csv(temp_download_path, raw_csv_path)
-    else:  # Assume CSV
+    elif suffix in (".xlsx", ".xls", ".txt", ".json"):
+        _convert_format_to_csv(temp_download_path, raw_csv_path)
+    else:
+        # Assume CSV
         temp_download_path.rename(raw_csv_path)
 
     # Step 4: Load and validate

@@ -18,18 +18,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --step download -> rc=1
-nodo.org/record/10428042/files/NIST_AM_Bench.csv?download=1 (attempt 3).
-2026-10-19 00:14:45,718 WARNING data_loader: Download failed (404 Client Error: NOT FOUND for url: https://zenodo.org/records/10428042/files/NIST_AM_Bench.csv). Retrying in 8 seconds...
+g/api/records/10428042/files/NIST_AM_Bench.csv/download
+
+During handling of the above exception, another exception occurred:
+
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/main.py", line 93, in <module>
     run_download_step()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/main.py", line 33, in run_download_step
     download_data_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data_loader.py", line 301, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data_loader.py", line 249, in main
     _download_with_retries(download_url, temp_download_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data_loader.py", line 131, in _download_with_retries
-    raise FileNotFoundError(f"Failed to download after {MAX_RETRIES} attempts: {url}")
-FileNotFoundError: Failed to download after 3 attempts: https://zenodo.org/record/10428042/files/NIST_AM_Bench.csv?download=1
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data_loader.py", line 123, in _download_with_retries
+    raise FileNotFoundError(f"Failed to download after {MAX_RETRIES} attempts: {url}. Error: {e}")
+FileNotFoundError: Failed to download after 3 attempts: https://zenodo.org/api/records/10428042/files/NIST_AM_Bench.csv/download. Error: 404 Client Error: NOT FOUND for url: https://zenodo.org/api/records/10428042/files/NIST_AM_Bench.csv/download
 
 - python code/main.py --step preprocess -> rc=1
 
@@ -44,10 +46,10 @@ FileNotFoundError: No CSV files found in raw data directory: /home/runner/work/l
 
 - python code/main.py --step train -> rc=1
 
-2026-10-19 00:14:56,183 - models.gpr_trainer - INFO - Starting GPR training step...
-2026-10-19 00:14:56,183 INFO models.gpr_trainer: Starting GPR training step...
-2026-10-19 00:14:56,183 - models.gpr_trainer - ERROR - Processed train or test CSV not found.
-2026-10-19 00:14:56,183 ERROR models.gpr_trainer: Processed train or test CSV not found.
+2026-10-19 15:11:19,933 - models.gpr_trainer - INFO - Starting GPR training step...
+2026-10-19 15:11:19,933 INFO models.gpr_trainer: Starting GPR training step...
+2026-10-19 15:11:19,933 - models.gpr_trainer - ERROR - Processed train or test CSV not found.
+2026-10-19 15:11:19,933 ERROR models.gpr_trainer: Processed train or test CSV not found.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/main.py", line 97, in <module>
     run_train_step()
@@ -59,8 +61,8 @@ FileNotFoundError: Processed data files missing.
 
 - python code/main.py --step analyze -> rc=1
 
-2026-10-19 00:14:57,417 - importance - INFO - Starting permutation importance analysis...
-2026-10-19 00:14:57,417 INFO importance: Starting permutation importance analysis...
+2026-10-19 15:11:21,259 - importance - INFO - Starting permutation importance analysis...
+2026-10-19 15:11:21,259 INFO importance: Starting permutation importance analysis...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/main.py", line 99, in <module>
     run_analyze_step()
