@@ -1,45 +1,22 @@
-T001:
-  c: false
-  h: fbc3cfeab5c99b96b60b5d39e276554df16477c4934195570b7c343042f60efe
-  r: "The quickstart.md exists and documents a single command, and `data/descriptors_subset.csv`\
-    \ exists with 50 rows of the required columns, but the task's verification explicitly\
-    \ requires `data/processed/descriptors.csv` to exist \u2014 and the collector\
-    \ reports that file as MISSING. The execution log also shows the run only wrote\
-    \ `data/descriptors_subset.csv`, never the `data/processed/descriptors.csv` output\
-    \ the quickstart promises, so the documented command does not produce the documented\
-    \ artifacts. Fix `scripts/run_minimal.sh` (or the pipeline) to also write `data/processed/descriptors.csv`\
-    \ and re-"
-  sig: 0898f9fa759a8b63198c5b0329e7e28ad946b19a5087213d3bd09cbd6df0e824
 T002:
   c: true
-  h: 618d83be86e1f996bf29cf42d678a231ba8655a8acb50d834f57ea7b950a45e4
-  r: The script `code/src/pipeline/generate_clips.py` exists and deterministically
-    generates CartPole interaction clips with the required `states`, `actions`, and
-    `observations` arrays; `data/raw/` contains exactly 50 non-empty `clip_*.npz`
-    files, and the sampled file contents confirm all three arrays are present. The
-    execution log shows the generation ran successfully (exit 0) and produced 50 clips.
-  sig: 48fc4edff500f192871dd42a3e07da88549ed08aba0cd15d08a73ce3c453d3cd
-T003:
-  c: false
-  h: f39353eafed431ea5391dc7a3533cb4198b88ad36ce9627fdcd5b220bcc9cb21
-  r: "The required output `data/processed/descriptors.csv` is MISSING \u2014 the extraction\
-    \ script exists and looks substantive, but there is no evidence it was ever run\
-    \ (no CSV, no execution logs), so the schema validation, no-nulls check, and variance-ratio\
-    \ assertion (US-1 Acceptance Scenario 2) are unverified. The implementer must\
-    \ execute the pipeline on the raw clips and produce the validated CSV."
-  sig: 4cf064f8e9608f3677dd82a89d38b8b63f218336e415a34564d10c1b804ff62f
+  h: 13025accecd27ea712c62960a8b4611e9c65ea7fff65899251667fb1743fd705
+  r: The script `code/src/pipeline/generate_clips.py` exists and generates real CartPole-v1
+    interaction data with fixed seeds (reproducible), saving `states`, `actions`,
+    and `observations` arrays. The `data/raw/` directory contains exactly 50 `clip_*.npz`
+    files, and the binary contents of sampled clips (clip_000, clip_049) confirm all
+    three required arrays (`states.npy`, `actions.npy`, `observations.npy`) are present
+    with non-trivial, varying sizes consistent with real episode trajectories.
+  sig: d1423ff7007247120a5a73285305597a205101456a35767951bc94ae0d7b7763
 T004:
-  c: false
-  h: 69b72c7af20c271bbb2d3f334fbb602e1c270cb8f4c2f9e2f6b0dc6c89b79cc8
-  r: "The task requires that `run_end_to_end.py --subset 50` actually runs and prints\
-    \ a 50-row summary table, but the evidence contains only source files \u2014 no\
-    \ execution log, no generated `data/processed/descriptors.csv` or `data/descriptors_subset.csv`,\
-    \ and no captured stdout showing the 50-row table with the three descriptor columns.\
-    \ Additionally, there are two conflicting copies of `generate_clips.py` and `extract_descriptors.py`\
-    \ (`code/src/...` and `src/...`), and the `code/src` version of `extract_descriptors.py`\
-    \ depends on a schema file (`specs/.../contracts/descriptor.schema.yaml`) and\
-    \ a varia"
-  sig: e2caf2d94a8cb3daf1e65b0ba21822af75e35d8b02d49e3d0ece42535169909a
+  c: true
+  h: 0c52d2fbb58d307046ba768b1d6eca4c2b5a4b41f9175baa53f151baa1f64a82
+  r: The run_end_to_end.py script exists and the historical execution log shows a
+    successful run (exit 0) printing a 50-row table with clip_id, variance, autocorr_lag1,
+    and spectral_density columns, all non-null finite values, backed by real CartPole-generated
+    clips and SVD-based descriptor computation (not fabricated data). The stderr confirms
+    50 clips generated and 50 descriptor rows written, matching the task's requirement.
+  sig: b00f0bac01b4c4298bd86b5cbdb05a042af524c00993912007690ac7a7019c61
 T005:
   c: false
   h: 95e9fb38239f9a81cd5a314591aaa33d7eade3dc5a086bc22cc958d6fa8d8282

@@ -12,7 +12,6 @@ each record using jsonschema. Any validation error will cause the test to
 fail.
 """
 
-import json
 import pathlib
 
 import pandas as pd
@@ -72,21 +71,24 @@ def test_descriptors_schema():
 
     for idx, row in df.iterrows():
         # Build a JSON‑compatible dict; convert numeric fields to appropriate types
-        record = {
-            "clip_id": row["clip_id"],
-            "variance": float(row["variance"]),
-            "autocorr_lag1": float(row["autocorr_lag1"]),
-            "spectral_density": float(row["spectral_density"]),
-        }
+        try:
+            record = {
+                "clip_id": row["clip_id"],
+                "variance": float(row["variance"]),
+                "autocorr_lag1": float(row["autocorr_lag1"]),
+                "spectral_density": float(row["spectral_density"]),
+            }
+        except ValueError as exc:
+            errors.append(f"Row {idx} conversion error: {exc}")
+            continue
+
         try:
             validator.validate(record)
         except ValidationError as exc:
             errors.append(f"Row {idx} (clip_id={record['clip_id']}): {exc.message}")
 
     if errors:
-        # Join all errors for a clear pytest failure message
         error_msg = "\n".join(errors)
-        raise AssertionError(f"Descriptor schema validation failed:\n{error_msg}")
+        raise AssertionError(f"Descriptor schema validation failed:\\n{error_msg}")
 
-    # If we reach this point, all rows conform
     log.info("All %d descriptor records conform to the schema.", len(df))

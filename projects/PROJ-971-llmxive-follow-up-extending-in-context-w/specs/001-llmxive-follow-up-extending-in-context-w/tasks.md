@@ -17,9 +17,9 @@ The goal is a complete, reproducible CPU‑only study satisfying FR‑001–FR�
   *Additional verification*: selects a known high‑variance clip and a low‑variance clip; asserts `variance_high > 2 * variance_low` to satisfy US‑1 Acceptance Scenario 2.  
   *Verification*: CSV validates against the schema and the variance‑ratio check passes.
 
-- [ ] T004 **Run the minimal end‑to‑end pipeline** – `code/src/pipeline/run_end_to_end.py --subset 50` prints a 50‑row summary table with all three descriptor columns.  
+- [X] T004 **Run the minimal end‑to‑end pipeline** – `code/src/pipeline/run_end_to_end.py --subset 50` prints a 50‑row summary table with all three descriptor columns.  
 
-- [ ] T007 **Compute task‑complexity metric** – `code/src/pipeline/compute_complexity.py` writes `data/processed/task_complexity.csv` (complexity.schema.yaml) and `data/processed/correlation.txt` with Pearson r/p between latent variance and `subgoal_count`.
+- [ ] T007 **Compute task‑complexity metric** – `code/src/pipeline/compute_complexity.py` writes `data/processed/task_complexity.csv` (complexity.schema.yaml) and `data/processed/correlation.txt` with Pearson r/p between latent variance and `subgoal_count`. <!-- FAILED-IN-EXECUTION: scripts/run_minimal.sh exit=1 -->
 
 ---
 

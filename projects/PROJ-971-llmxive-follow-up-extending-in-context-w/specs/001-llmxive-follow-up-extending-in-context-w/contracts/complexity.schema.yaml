@@ -1,12 +1,14 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: "Task Complexity Record"
 type: object
-properties:
-  clip_id:
-    type: string
-  subgoal_count:
-    type: integer
-    minimum: 1
 required:
   - clip_id
   - subgoal_count
+properties:
+  clip_id:
+    type: string
+    pattern: "^clip_\\d+$"
+  subgoal_count:
+    type: integer
+    minimum: 1
 additionalProperties: false

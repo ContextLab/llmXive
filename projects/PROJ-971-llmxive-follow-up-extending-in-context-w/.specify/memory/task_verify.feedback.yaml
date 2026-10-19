@@ -1,12 +1,12 @@
 T001:
-  reason: "The quickstart.md exists and documents a single command, and `data/descriptors_subset.csv`\
-    \ exists with 50 rows of the required columns, but the task's verification explicitly\
-    \ requires `data/processed/descriptors.csv` to exist \u2014 and the collector\
-    \ reports that file as MISSING. The execution log also shows the run only wrote\
-    \ `data/descriptors_subset.csv`, never the `data/processed/descriptors.csv` output\
-    \ the quickstart promises, so the documented command does not produce the documented\
-    \ artifacts. Fix `scripts/run_minimal.sh` (or the pipeline) to also write `data/processed/descriptors.csv`\
-    \ and re-"
+  reason: "The quickstart.md exists and documents a single command, and the run log\
+    \ shows `scripts/run_minimal.sh` exiting 0 with 50 clips written to `data/descriptors_subset.csv`\
+    \ \u2014 but the task's verification explicitly requires `data/processed/descriptors.csv`\
+    \ to exist, and the collector reports that file as MISSING. The quickstart itself\
+    \ claims the pipeline writes both outputs and instructs `ls data/processed/descriptors.csv`,\
+    \ yet the execution log shows only `data/descriptors_subset.csv` was produced,\
+    \ so the documented command's own verification step would fail. The implementer\
+    \ must make the pipeline"
   task: e0a7c78ac8e9e8cad9542ecc62bd22edd9c82d5fbe7c37fb714f2def7e65a425
 T002:
   task: 28d1f8c658e9f4da6991a31c0413b3066f85153a1803d57e9954047d278e9ebe
@@ -15,14 +15,6 @@ T003:
     exit=1'
   task: 12f4ec4c4e55658a1f7ebd32133859d968ab71b715117afd737a4162174fd8b2
 T004:
-  reason: "The task requires that `run_end_to_end.py --subset 50` actually runs and\
-    \ prints a 50-row summary table, but the evidence contains only source files \u2014\
-    \ no execution log, no generated `data/processed/descriptors.csv` or `data/descriptors_subset.csv`,\
-    \ and no captured stdout showing the 50-row table with the three descriptor columns.\
-    \ Additionally, there are two conflicting copies of `generate_clips.py` and `extract_descriptors.py`\
-    \ (`code/src/...` and `src/...`), and the `code/src` version of `extract_descriptors.py`\
-    \ depends on a schema file (`specs/.../contracts/descriptor.schema.yaml`) and\
-    \ a varia"
   task: 38c33a84128d4ce7f18a01f55d5a504dcbc14eec7fe112e46e08240347770c59
 T005:
   reason: "The produced `data/processed/labels.csv` is 1 byte (empty) \u2014 the run\
@@ -37,13 +29,8 @@ T006:
     exit=1'
   task: 25c79ef82ba4f463b10960207827c16afb2a158dc98bce892a46f14dcf425680
 T007:
-  reason: "The required output artifacts `data/processed/task_complexity.csv`, `data/processed/correlation.txt`,\
-    \ and `complexity.schema.yaml` do not exist on disk \u2014 only the script was\
-    \ written, with no evidence it was ever run. Additionally, the script's fallback\
-    \ derives `subgoal_count` deterministically from `variance` itself, which would\
-    \ fabricate the correlation rather than compute an independent complexity metric;\
-    \ it must use real scene/subgoal data (or a genuinely independent source), and\
-    \ the outputs must actually be generated."
+  reason: 'Requested task execution failed; rerun successfully: scripts/run_minimal.sh
+    exit=1'
   task: f22a3a5d18f246fd8259190deb0fa4ad54e79e40869feb978b442f2596c9a4a4
 T008:
   task: 3ef7b8b1d4fe779595adc1d342b2bee0279af9d6ad35abdd387b18fdd335c456

@@ -1,20 +1,23 @@
-# JSON Schema for descriptor CSV records
-# This schema validates each row of `data/processed/descriptors.csv`
-# and the legacy `data/descriptors_subset.csv`.
-# All fields are required and must be non‑null.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Descriptor Record"
 type: object
-properties:
-  clip_id:
-    type: string
-  variance:
-    type: number
-  autocorr_lag1:
-    type: number
-  spectral_density:
-    type: number
 required:
   - clip_id
   - variance
   - autocorr_lag1
   - spectral_density
+properties:
+  clip_id:
+    type: string
+    pattern: "^clip_\\d+$"
+  variance:
+    type: number
+    minimum: 0
+  autocorr_lag1:
+    type: number
+    minimum: -1
+    maximum: 1
+  spectral_density:
+    type: number
+    minimum: 0
 additionalProperties: false

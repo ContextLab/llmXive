@@ -20,14 +20,15 @@ def _load_schema() -> dict:
     """
     Load the JSON‑Schema for a descriptor record.
     """
+    # The schema lives under the spec directory for this feature branch.
     schema_path = (
         Path(__file__).parents[2]
         / "specs"
-        / "001-llmxive-follow-up-extending-in-context-w"
+        / "001-auto-icwm-latent-dynamics"
         / "contracts"
         / "descriptor.schema.yaml"
     )
-    with open(schema_path, "r") as f:
+    with open(schema_path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 def _variance(tokens: np.ndarray) -> float:
@@ -139,9 +140,15 @@ def extract_all_descriptors(input_dir: Path, output_path: Path) -> None:
     validator = Draft7Validator(schema)
 
     for _, row in df.iterrows():
-        validator.validate(row.to_dict())
+        # Convert numpy scalar types to native Python types for jsonschema
+        record = {
+            k: (float(v) if isinstance(v, (np.floating, np.integer)) else v)
+            for k, v in row.to_dict().items()
+        }
+        validator.validate(record)
 
-    assert not df.isnull().any().any(), "Null values detected in descriptor CSV"
+    if df.isnull().any().any():
+        raise AssertionError("Null values detected in descriptor CSV")
 
     # ------------------------------------------------------------------
     # Acceptance scenario: high‑variance vs low‑variance clip
