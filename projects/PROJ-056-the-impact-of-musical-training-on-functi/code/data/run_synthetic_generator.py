@@ -1,47 +1,44 @@
 """
-Synthetic data generation entry‑point.
+Entry‑point script for synthetic data generation.
 
-This script is used by the verification pipeline to create:
-  * ``data/raw/mock_nifti/`` – a directory of mock NIfTI files (one per subject)
-  * ``data/processed/subjects.parquet`` – a Parquet table with behavioural metadata
-
-The implementation relies on :pyfunc:`synthetic_generator.generate_synthetic_dataset`,
-which now guarantees a balanced cohort (≈75 musicians, ≈75 non‑musicians),
-respects the schema defined in ``contracts/subject.schema.yaml``, and injects
-a small seeded rate of missing training‑history values and corrupted NIfTI files
-(logged) so that downstream preprocessing can demonstrate exclusion handling.
-
-Running this script will **always** write the two artefacts to the exact
-locations expected by downstream modules and unit tests.
+The script is invoked directly from the command line
+(e.g. ``python code/data/run_synthetic_generator.py --n-subjects 150 --seed 42``)
+and writes the two artefacts required by the pipeline:
+  * ``data/processed/subjects.parquet``
+  * ``data/raw/mock_nifti/`` (one mock NIfTI per subject)
 """
 
 import sys
 from pathlib import Path
+from argparse import ArgumentParser
 
-# Import the generator from the sibling module using a direct import
-# (the ``code/data`` directory is on ``sys.path`` when the script is executed)
-import synthetic_generator
+from data.synthetic_generator import generate_synthetic_dataset
+from utils.logging import get_logger
+
+log = get_logger(__name__)
 
 def main() -> int:
-    """
-    Execute the synthetic data generation.
+    parser = ArgumentParser(description="Generate synthetic dataset for verification.")
+    parser.add_argument(
+        "--n-subjects",
+        type=int,
+        default=150,
+        help="Total number of synthetic subjects (will be rounded to an even, balanced number).",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility.",
+    )
+    args = parser.parse_args()
 
-    The function uses a deterministic seed (42) so that repeated runs
-    produce identical data – this is required for reproducible unit tests.
-    """
-    # Target ~150 subjects → 75 per group (the default MIN_SUBJECTS_PER_GROUP is 50,
-    # so 150 satisfies the “≈75 per group” description while keeping the dataset
-    # small enough for quick verification runs.
-    n_subjects = 150
+    log.info(f"Generating synthetic dataset: n_subjects={args.n_subjects}, seed={args.seed}")
+    generate_synthetic_dataset(n_subjects=args.n_subjects, seed=args.seed)
 
-    # The generator writes the required files automatically.
-    # We keep the seed fixed for reproducibility.
-    synthetic_generator.generate_synthetic_dataset(n_subjects=n_subjects, seed=42)
-
-    # Verify that the expected artefacts now exist; raise if not.
+    # Verify artefacts
     subjects_path = Path("data/processed/subjects.parquet")
     nifti_dir = Path("data/raw/mock_nifti")
-
     missing = []
     if not subjects_path.is_file():
         missing.append(str(subjects_path))
