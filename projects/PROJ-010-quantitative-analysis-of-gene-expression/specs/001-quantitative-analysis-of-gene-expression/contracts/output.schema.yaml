@@ -9,7 +9,7 @@ items:
       description: "Name of the neurological disorder"
     vulnerability_window:
       type: "string"
-      description: "Developmental stage where rewiring is most enriched (e.g., 'Fetal 20w')"
+      description: "Developmental stage where rewiring is most enriched (e.g., 'Fetal_20w')"
     odds_ratio:
       type: "number"
       description: "Enrichment odds ratio (target: ≥ 1.5)"
@@ -18,7 +18,7 @@ items:
       description: "FDR‑corrected p‑value (formatted as 'p < 1/N' if zero permutations exceed observed)"
     is_validated:
       type: "boolean"
-      description: "Whether signal was replicated in independent cohort (scRNA and/or bulk)"
+      description: "Whether the signal was replicated in an independent cohort (scRNA and/or bulk)"
   required:
     - "disorder"
     - "vulnerability_window"

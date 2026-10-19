@@ -1,10 +1,10 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "BrainSpan Integrated Dataset Schema"
+title: "Integrated Brain Single‑Cell Dataset Schema"
 type: "object"
 properties:
   cells:
     type: "integer"
-    description: "Total number of integrated cells (target: ≥ 50000)"
+    description: "Total number of integrated cells/samples (target: ≥ 50000)"
   genes:
     type: "integer"
     description: "Number of features/genes retained after HVG filtering"
@@ -13,7 +13,7 @@ properties:
     properties:
       developmental_stage:
         type: "string"
-        description: "Stage label (e.g., 'Fetal 12-16w')"
+        description: "Stage label (e.g., 'Fetal_12_16w' or 'Adult')"
       donor_id:
         type: "string"
         description: "Unique identifier for the sample donor"
@@ -28,4 +28,3 @@ required:
   - "cells"
   - "genes"
   - "metadata"
-

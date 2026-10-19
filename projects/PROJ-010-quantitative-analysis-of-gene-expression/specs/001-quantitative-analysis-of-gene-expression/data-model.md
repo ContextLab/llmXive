@@ -11,20 +11,20 @@
 | `stage_id` | string | Unique identifier, e.g., `"Fetal_12_16w"` |
 | `start_age_days` | integer | Lower bound of age (days) |
 | `end_age_days` | integer | Upper bound of age (days) |
-| `cell_count` | integer | Number of cells assigned to this window |
-| `centroid_pseudotime` | float | Mean pseudotime of cells in the window |
+| `cell_count` | integer | Number of cells/samples assigned to this window |
+| `centroid_age` | float | Mean age (days) of samples in the window |
 
 ### RegulatoryNetwork
 | Field | Type | Description |
 |-------|------|-------------|
 | `stage_id` | string (FK) | Links to `DevelopmentalStage` |
 | `edges` | list of **Edge** objects | Each edge: `{tf, target, weight}` |
-| `hubs` | list of strings | TFs with degree ≥ 10, or top 20 TFs if fewer than 20 meet threshold |
+| `hubs` | list of strings | TFs with degree ≥ 10, or top‑20 TFs if fewer meet threshold |
 
 **Edge** object  
 - `tf`: string (TF gene symbol)  
 - `target`: string (target gene symbol)  
-- `weight`: float (GRNBoost2 importance score, motif-validated)  
+- `weight`: float (GRNBoost2 importance score, motif‑validated)  
 
 ### RewiringEvent
 | Field | Type | Description |
@@ -33,8 +33,8 @@
 | `tf` | string | TF undergoing topological change |
 | `stage_a` | string (FK) | Earlier developmental window |
 | `stage_b` | string (FK) | Later developmental window |
-| `weight_delta` | float | Δ(edge weight) between windows (z‑score normalized) |
-| `stability_score` | float | Consistency across sensitivity thresholds |
+| `weight_delta_z` | float | Z‑score‑normalized Δ(edge weight) between windows |
+| `stability_score` | float | Consistency across sensitivity thresholds (0–1) |
 
 ### DisorderRiskProfile
 | Field | Type | Description |
@@ -46,11 +46,11 @@
 
 ## Storage Schema
 - **Processed AnnData**: `data/processed/integrated_atlas.h5ad`  
-- **Networks (GRNBoost2)**: `data/processed/networks/{stage_id}.json` (Adjacency list)  
-- **Networks (Motif-Validated)**: `data/processed/networks_motif/{stage_id}.json` (Adjacency list, filtered for motif evidence)  
-- **Rewiring Table**: `data/processed/rewiring_events.csv`  
-- **Enrichment Results**: `data/processed/disorder_enrichment.csv`  
+- **GRNs (raw)**: `data/processed/networks/{stage_id}.json` (list of Edge objects)  
+- **GRNs (motif‑validated)**: `data/processed/networks_motif/{stage_id}.json`  
+- **Rewiring Table**: `data/processed/rewiring_events.csv` (columns: `event_id, tf, stage_a, stage_b, weight_delta_z, stability_score`)  
+- **Enrichment Results**: `data/processed/disorder_enrichment.csv` (columns: `disorder, vulnerability_window, odds_ratio, p_value, is_validated`)  
 
-Each file conforms to a JSON or CSV schema located in `contracts/`.
+All files conform to schemas located in `contracts/`.
 
 ---

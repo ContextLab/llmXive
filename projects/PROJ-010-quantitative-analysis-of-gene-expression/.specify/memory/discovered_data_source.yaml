@@ -1,14 +1,15 @@
 status: none
-intent: download human single-cell RNA-seq BICCN MTG BrainSpan PsychENCODE GWAS Catalog
-  dataset python package dataset
+intent: download human single-cell RNA-seq BICCN MTG, BrainSpan, PsychENCODE, GEO
+  datasets python package dataset
 required_fields:
 - gene_id
-- cell_id
-- expression_counts
+- gene_name
+- cell_barcode
+- raw_counts
+- normalized_counts
 - developmental_stage
 - donor_id
 - batch_id
-- species
-cache_key: b44ebb2127a5f13c5d332cbecd73a4d6007f418d648b57e48bbe6b349fe88cbc
-searched_at: '2026-10-19T01:27:02.116650+00:00'
+cache_key: 6874cf83979526c76c8b328a68d07790b1a8ce6040cce926c58613c9dfd6d948
+searched_at: '2026-10-19T19:15:13.502501+00:00'
 retry_count: 1
