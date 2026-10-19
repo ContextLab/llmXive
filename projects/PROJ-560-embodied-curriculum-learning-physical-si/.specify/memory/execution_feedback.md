@@ -18,31 +18,33 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/src/cli.py  --mode=secondary_analysis  --input=data/raw/public_dataset.csv  --output=data/processed/analysis_result.json -> rc=1
+2026-10-19 17:16:15,647 - __main__ - INFO - Starting secondary analysis on data/raw/public_dataset.csv
+2026-10-19 17:16:15,647 - data_loader - ERROR - Input file not found: data/raw/public_dataset.csv
+2026-10-19 17:16:15,647 - __main__ - ERROR - Gain‑score calculation failed: 'NoneType' object has no attribute 'columns'
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/cli.py", line 18, in <module>
-    from stats_engine import finalize_results
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/stats_engine.py", line 15, in <module>
-    from .config import INFERENTIAL_FRAMING_STRING
-ImportError: attempted relative import with no known parent package
 
 - python code/src/cli.py  --mode=synthetic  --n_participants=100  --effect_size=0.5  --output=data/synthetic/generated_dataset.csv -> rc=1
+2026-10-19 17:16:16,325 - __main__ - INFO - Starting synthetic data generation with n=1000, seed=42
+2026-10-19 17:16:16,326 - root - INFO - Random seed set to 42
+2026-10-19 17:16:16,326 - root - INFO - Random seed set to 42
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/cli.py", line 18, in <module>
-    from stats_engine import finalize_results
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/stats_engine.py", line 15, in <module>
-    from .config import INFERENTIAL_FRAMING_STRING
-ImportError: attempted relative import with no known parent package
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/cli.py", line 263, in <module>
+    sys.exit(main() or 0)
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/cli.py", line 252, in main
+    return run_synthetic_generation(args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/cli.py", line 141, in run_synthetic_generation
+    df.to_csv(csv_path, index=False)
+    ^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'to_csv'
 
 - python code/src/cli.py  --mode=secondary_analysis  --input=data/raw/public_dataset.csv  --sweep_thresholds=0.01,0.05,0.10  --output=data/processed/full_report.json -> rc=1
+2026-10-19 17:16:17,006 - __main__ - INFO - Starting secondary analysis on data/raw/public_dataset.csv
+2026-10-19 17:16:17,006 - data_loader - ERROR - Input file not found: data/raw/public_dataset.csv
+2026-10-19 17:16:17,006 - __main__ - ERROR - Gain‑score calculation failed: 'NoneType' object has no attribute 'columns'
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/cli.py", line 18, in <module>
-    from stats_engine import finalize_results
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/stats_engine.py", line 15, in <module>
-    from .config import INFERENTIAL_FRAMING_STRING
-ImportError: attempted relative import with no known parent package
 
 
 ## Declared deliverables still missing

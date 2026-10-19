@@ -1,11 +1,11 @@
 T001:
   c: true
-  h: 1e8e37dcdc76b958c6d9a99ad990bd13a3d8717d94564ea4403ec6429db5a542
+  h: 4e39c1c85359a5f115458023d3b854e441e31b0444ebc0b8923919e0f2c80305
   r: Checked that all required directories (`code/src/`, `code/tests/`, `data/raw/`,
     `data/processed/`, `data/synthetic/`, `data/results/`, `data/derivation_logs/`)
     exist and that `code/requirements.txt` contains the exact pinned versions of pandas,
-    scipy, statsmodels, numpy, pyyaml, and pytest.
-  sig: 75cbe3742e3504072450a34d08024d05d957c7159747bd585361521ff8049331
+    scipy, statsmodels, numpy, pyyaml, and pytest as specified.
+  sig: 879d3d0e3e587e007264fab9470c7d6da48f155224ecc658b6f7d057a102d09b
 T013:
   c: false
   h: 919d31008db600a92884f670a4484b836bc35d5e157d524122d0bb514138fce9
