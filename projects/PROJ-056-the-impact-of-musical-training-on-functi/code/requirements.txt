@@ -1,1 +1,17 @@
-nibabel
+# Core scientific stack (already available in the environment)
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+pytest
+pyyaml
+requests
+jsonschema
+psutil
+
+# Additional dependencies required for the repaired entry points
+networkx
+pyarrow

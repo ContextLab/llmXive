@@ -1,15 +1,16 @@
 status: none
-intent: download ABCD Study and HCP-Adolescents resting state fMRI with confound metadata
-  python package dataset
+intent: ABCD Study resting state fMRI with phenotypic data musician group python package
+  dataset
 required_fields:
 - subject_id
 - group_label
 - musical_training_years
 - age
 - sex
-- mean_framewise_displacement
-- resting_state_fmri_file
-- connectivity_matrix
-cache_key: 3729e40f9e24897a1f76b45de9c4b2ee3b2e86e69e35865f74b279bd6b4ea8f3
-searched_at: '2026-10-19T04:11:53.726587+00:00'
+- head_motion_mean_fd
+- scanner_site
+- socioeconomic_status
+- resting_state_fmri_file_path_or_connectivity_matrix
+cache_key: 3417d1e2e3e42e79d8c988bbd1af854f92d5671c3d92623d68b89311bdcda8da
+searched_at: '2026-10-19T05:08:43.255281+00:00'
 retry_count: 1
