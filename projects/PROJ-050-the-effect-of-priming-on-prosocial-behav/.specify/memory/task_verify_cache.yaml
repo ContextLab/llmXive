@@ -1,21 +1,19 @@
 T001:
   c: true
-  h: 69ee66d7e4e14baa9fdc83f6a80b4cb4fbd20ff9f63bb043f3aa8cfe3173ddcb
-  r: Checked the presence of the full project directory tree under `projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/`
-    (code, data, docs, figures, results, specs, tests, etc.) and the execution log
-    `code/.tasks/T001.code_setup_project_layout.py.log` showing the layout creation
-    script exited successfully.
-  sig: 80e5454347f3bad764bc1a66692c6e79a93bc23caea9776fbba16cc9fd229e79
+  h: f72b920d146455f481bec4954c03c7ad49b45d99adeb2f873f2e0ea4497ba2b4
+  r: "Checked the existence of `projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/`\
+    \ with its full set of sub\u2011directories (code, data, docs, results, etc.)\
+    \ and the creation log `code/.tasks/T001.code_setup_project_layout.py.log` showing\
+    \ the layout script exited successfully. The required directory structure is present."
+  sig: f9e7527af2b116f875e7cf048a16be14d173b2fc336be7568efe7dc9c47a7a36
 T002:
   c: false
-  h: f57e721cca9aa076cd385992765cbfbbe2c2a33a2922c486c65190d0be5cfe3b
-  r: "The `code/requirements.txt` file exists and correctly pins all required packages\
-    \ (plus some extras), but there is no artifact showing that a Python\u202F3.11\
-    \ virtual environment was actually created (e.g., a `venv/` directory, `pyproject.toml`/`environment.yml`\
-    \ specifying Python\u202F3.11, or any command\u2011output evidence). The task\u2019\
-    s \u201Cinitialize a Python\u202F3.11 environment\u201D requirement is therefore\
-    \ unmet."
-  sig: 9c9d122590b5ba1de22eb718d3ce4fef5795b7a81f982478e9304b1a5c90a3ec
+  h: 09d7a02f005eaf4a82c8e2b43db74077af3171c64881d13f69af2cd7b4de1e50
+  r: "Checked `code/requirements.txt`: it lists the required packages but uses \u201C\
+    >=\u201D version specifiers instead of exact pins and omits the `hashlib` entry\
+    \ (which the task explicitly asked to pin). The file therefore does not satisfy\
+    \ the \u201Cpin dependencies\u201D requirement."
+  sig: e9934b5936f759ab163d03567ff310adadc794efd796dce49124854642477f58
 T003:
   c: true
   h: 92d0c5ede08abf6914c87be2bdbb0bf8e31d066b65da6c14655ccf2d24d92854
@@ -48,6 +46,41 @@ T006:
     \ and `validate_model_results_schema` helper functions as required. The file is\
     \ non\u2011empty and implements the requested validation utilities."
   sig: 05b70dbb8247f7ca2b3f6cd589dc01e98f35d29222cd4242cd412396492dc64f
+T007:
+  c: true
+  h: cc4c6f90fc36ebb74796b019e79d1029df5fbc556967ec264b63fd4d9ba271c1
+  r: "Checked `code/config.py` (3417\u202Fbytes) which defines `TARGET_N`, dataset\
+    \ identifiers (`DATASET_NAME`, `DATASET_SPLIT`, `DATASET_STREAMING`), and output\
+    \ directory paths (`RAW_DATA_DIR`, `PROCESSED_DATA_DIR`, `VALIDATION_DATA_DIR`,\
+    \ `RESULTS_DIR`, `FIGURES_DIR`), all reading defaults from environment variables.\
+    \ This matches the task\u2019s requirement."
+  sig: 9ed7ce8b45d560d1ad32a9ea7c511eb4218d4bb2acf9cb298951717f392a6d66
+T008:
+  c: true
+  h: cc6f53d046c2c1b2dfc9aebbf74d35642500fc7b583c4ffc7f92926b3d36afbb
+  r: "Checked `code/utils/logger.py` (3895\u202Fbytes) which defines `setup_logger`\
+    \ that creates a per\u2011process log file named with the PID (and timestamp)\
+    \ under the project\u2019s `logs/` directory, and provides helper functions for\
+    \ project\u2011wide logger access. The implementation matches the task\u2019s\
+    \ specification."
+  sig: 4b8ed156841a36551b50872009f2cf13bc522662226c8975913810f5f8ff6a12
+T009:
+  c: true
+  h: 3a1f90a266b0e811b373302b859d1733c742ff7e838bf5b41c0cacd0316ab6e0
+  r: "The `pytest.ini` file is present at the project root with appropriate configuration\
+    \ content, and the three required test directories (`tests/unit/`, `tests/integration/`,\
+    \ `tests/contract/`) exist with multiple test files inside each. This evidence\
+    \ confirms the task\u2019s deliverables are fully provided."
+  sig: 2b55d88e969a2834eed531aaaeb26490cfa77247c62c3e5c8658e2eb90fcec7e
+T010:
+  c: true
+  h: 444552f3b786dca104629d2b4ace2f49b1e3a264cac2a15c0c7fd837f205d2c4
+  r: "Checked `docs/dataset_acquisition.md`, which records the public HuggingFace\
+    \ \u201Cpushshift.io/reddit\u201D dataset, provides its URL, the `datasets` library\
+    \ access code, and notes that the submissions split contains a `title` field (fulfilling\
+    \ the requirement). The file also includes the required failure\u2011handling\
+    \ clause."
+  sig: 2b3a8729bdd6f7afcd59927d007a2ee8ef3950ec79bd188eaab3cad56ef7c10b
 T020:
   c: false
   h: c9eafd40438f6e734dfdfa1a0fb8df710ad8e0938fbfab951b2b956c085c1f4e

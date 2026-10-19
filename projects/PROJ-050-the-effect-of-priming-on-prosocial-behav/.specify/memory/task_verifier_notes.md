@@ -2,6 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T002** — The `code/requirements.txt` file exists and correctly pins all required packages (plus some extras), but there is no artifact showing that a Python 3.11 virtual environment was actually created (e.g., a `venv/` directory, `pyproject.toml`/`environment.yml` specifying Python 3.11, or any command‑output evidence). The task’s “initialize a Python 3.11 environment” requirement is therefore unmet.
+- **T002** — Checked `code/requirements.txt`: it lists the required packages but uses “>=” version specifiers instead of exact pins and omits the `hashlib` entry (which the task explicitly asked to pin). The file therefore does not satisfy the “pin dependencies” requirement.
 - **T004** — The evidence shows that `data/raw/`, `data/processed/`, and `data/validation/` directories exist (though empty), but the required `data/results/` directory is missing; the script created a top‑level `results/` folder instead of the expected `data/results/`. The task’s requirement is therefore not fully met.
 - **T026** — Requested task execution failed; rerun successfully: code/00_check_dataset.py exit=1

@@ -1,0 +1,14 @@
+name: priming-prosocial-env
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pandas=2.2.2
+  - numpy=1.26.4
+  - scikit-learn=1.5.0
+  - statsmodels=0.14.2
+  - vaderSentiment=3.3.2
+  - datasets=2.18.0
+  - pyyaml=6.0.1
+  - tqdm=4.66.2
+  - matplotlib=3.9.0

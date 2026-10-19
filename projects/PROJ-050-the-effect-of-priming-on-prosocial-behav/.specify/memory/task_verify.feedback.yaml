@@ -1,12 +1,10 @@
 T001:
   task: 2a8005bb6ca83fc07662be5bb2d39f3c0b758d64362ab0f730325bfced78d147
 T002:
-  reason: "The `code/requirements.txt` file exists and correctly pins all required\
-    \ packages (plus some extras), but there is no artifact showing that a Python\u202F\
-    3.11 virtual environment was actually created (e.g., a `venv/` directory, `pyproject.toml`/`environment.yml`\
-    \ specifying Python\u202F3.11, or any command\u2011output evidence). The task\u2019\
-    s \u201Cinitialize a Python\u202F3.11 environment\u201D requirement is therefore\
-    \ unmet."
+  reason: "Checked `code/requirements.txt`: it lists the required packages but uses\
+    \ \u201C>=\u201D version specifiers instead of exact pins and omits the `hashlib`\
+    \ entry (which the task explicitly asked to pin). The file therefore does not\
+    \ satisfy the \u201Cpin dependencies\u201D requirement."
   task: b24a321e6b9f28ba478b131f6f1b7289535ca7ca54088ed7b97f8ebb3ba30544
 T003:
   task: 683e07505363d7081d49ebb3ea2155c3c623d30977528faddbdf21997bf22e98

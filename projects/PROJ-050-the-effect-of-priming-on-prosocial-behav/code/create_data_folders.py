@@ -6,6 +6,7 @@ Script to create the required data directory structure for the project:
 - data/processed/
 - data/validation/
 - data/results/
+- results/  (legacy top‑level results folder used by some existing scripts)
 
 The script uses the llmxive_toolkit `paths` helper which creates the parent
 directories automatically when constructing a Path. We explicitly call
@@ -45,7 +46,7 @@ def _ensure_dir(p: Path) -> Path:
 
 def create_folders() -> list[Path]:
     """
-    Create the four required data directories.
+    Create the required data directories (including the legacy ``results/``).
 
     Returns
     -------
@@ -56,7 +57,8 @@ def create_folders() -> list[Path]:
         paths.data("raw"),
         paths.data("processed"),
         paths.data("validation"),
-        paths.results(""),  # results/ directory; empty string yields the folder itself
+        paths.data("results"),   # <-- new required folder under ``data/``
+        paths.results(""),       # legacy top‑level ``results/`` folder
     ]
     created = [_ensure_dir(d) for d in dirs]
     return created
