@@ -1,13 +1,14 @@
 status: none
-intent: speedrun.com run data python package speedruncom API downloadable dataset
-  python package dataset
+intent: speedrun.com API python package download speedrun run data csv python package
+  dataset
 required_fields:
+- run_id
+- game_id
+- category
 - run_time_seconds
 - runner_id
 - attempt_number
-- category
 - submission_date
-- game_id
-cache_key: 244cc7e52a584a4f3071dca928cc38119bd3b5eb063468ffae705e1261187b54
-searched_at: '2026-10-19T23:18:59.390012+00:00'
+cache_key: bc5c060f173e56df591aa97d9c5d80e2892f088824f99aaaa0ac0642428cdc4b
+searched_at: '2026-10-19T23:23:34.257199+00:00'
 retry_count: 1

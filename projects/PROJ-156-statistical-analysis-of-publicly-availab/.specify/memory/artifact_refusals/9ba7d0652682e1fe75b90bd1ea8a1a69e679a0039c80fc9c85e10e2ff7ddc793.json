@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "ccb8027fc712412c07ca7dcd7a6eba1e6948884b59db07f686f4677d771ec2f0",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/test_preprocess.py': unresolved names ['unittest'] \u2014 likely missing imports. Add the necessary `import` or `from ... import ...` statements."
+}

@@ -1,11 +1,11 @@
 """
-Script to compute SHA-256 checksums for all files in the data/ directory.
+Script to compute SHA-256 checksums for all files in the project's data/ directory.
 
-This implements Constitution Principle V: Data Integrity and Reproducibility.
-It generates a manifest file listing the SHA-256 hash for every file found
-under data/raw, data/processed, and data/checkpoints.
-
-Output: state/artifact_hashes.json
+Implements Constitution Principle V (Data Integrity) while respecting the platform's
+restriction that only project-owned directories may be written to. The resulting
+manifest is stored under ``data/artifact_hashes.json`` (instead of the platform‑owned
+``state/`` directory) so that the script can be executed without violating the
+repository contract.
 """
 import hashlib
 import json
@@ -26,7 +26,7 @@ def compute_sha256(file_path: str) -> str:
         return None
 
 def collect_data_files(base_dir: str) -> list:
-    """Recursively collect all files in the data directory."""
+    """Recursively collect all files in the given base directory."""
     data_path = Path(base_dir)
     if not data_path.exists():
         print(f"Warning: Data directory {base_dir} does not exist.", file=sys.stderr)
@@ -43,15 +43,16 @@ def collect_data_files(base_dir: str) -> list:
     return sorted(files)
 
 def main():
-    """Main entry point for hash artifact generation."""
-    # Determine project root (assuming script is in code/scripts/)
+    """Entry point for artifact‑hash generation."""
+    # Determine the project root (assumes this script lives in ``code/scripts/``)
     script_dir = Path(__file__).resolve().parent
     project_root = script_dir.parent.parent
+
     data_dir = project_root / "data"
-    output_dir = project_root / "state"
+    output_dir = data_dir  # Write the manifest inside the data folder (project‑owned)
     output_file = output_dir / "artifact_hashes.json"
 
-    # Ensure output directory exists
+    # Ensure the output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"Scanning data directory: {data_dir}")
@@ -59,7 +60,6 @@ def main():
 
     if not files:
         print("No data files found to hash.")
-        # Write empty manifest
         manifest = {
             "status": "empty",
             "files": [],

@@ -1,6 +1,4 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/scripts/fetch_data.py
-    exit=1'
   task: 88935aad767cc2a2b025c84e512a279e29d4778dedcefa2b09414fd7de4ae50e
 T002:
   task: a1ecd32df040da361bbc08866a17d912ef5c4e8387076748ed43f04dc713ef31
@@ -15,19 +13,24 @@ T007a:
     to write only project-owned outputs.'
   task: f0d94641b38bfe8f26e86fd7a90e3c52fbf038ba2e374e858bb6ed6bbf937fd2
 T008a:
-  reason: 'The `checkpoint.py` file exists but its `save_checkpoint` and `load_checkpoint`
-    signatures do not match the required `save_checkpoint(state: dict, path: str)`
-    / `load_checkpoint(path: str) -> dict`, and the current implementation saves files
-    to the wrong location, causing the provided unit tests to fail (2 of 4 tests error).
-    The task therefore is not satisfied.'
+  reason: "The provided `code/scripts/utils/checkpoint.py` lacks the `delete_checkpoint`,\
+    \ `CHECKPOINT_DIR`, and `BASE_DIR` symbols that the unit tests import, and its\
+    \ `save_checkpoint`/`load_checkpoint` functions ignore the monkey\u2011patched\
+    \ checkpoint directory, causing the tests `test_save_and_load_checkpoint` and\
+    \ `test_delete_checkpoint` to fail (files are not created in the temporary directory).\
+    \ The required API and passing tests are therefore not satisfied."
   task: 75acc5a9c6223c951058bce09787db6c4a2f59d04d7fbfdb0a2d8dceda80f3c2
 T009:
   task: cabac4ca3e56df117389238211c505ce4536fe4452d111b2b82a68badff880f3
 T010:
+  reason: Checked `contracts/run_record.schema.yaml` (present and appears to follow
+    the required schema) but the required unit test `tests/test_run_record_schema.py`
+    is missing, so the verification step cannot be satisfied.
   task: 01b9cdd0eb876397039fc3983abf6699925a86c8fe1cabf82fdefd764f34a117
 T014:
   task: e2d5bbbd8998a7cae5dc7b1f3b42fe94353d6c32d9abf8403e717a9f6c9ea9fb
 T015a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/checkpoints/fetch_checkpoint.json'
   task: 9ff15f6f93bd20596ec57fc9e0eca41073173c7283ccc5407b5b24bf08c98d40
 T015b:
   task: d286d3af02700f8cfdd7afcd4ffa9fb3570cd6196eb4fe57dc12c767d684f569
@@ -50,12 +53,18 @@ T030:
 T032:
   task: a1e4817529006300883e2a15aa4a11e01794664c00ea93236a983b3c8d43e97e
 T033a:
-  reason: The `code/scripts/utils/pagination.py` helper is present, but the required
-    unit test `tests/test_pagination.py` is missing and there is no provided evidence
-    that `fetch_data.py` actually calls `paginate_api`. Both are needed to satisfy
-    the task.
+  reason: The pagination helper and its unit tests are present and pass, but there
+    is no evidence of a `fetch_data.py` script that imports and calls `paginate_api`
+    as required by the task. Adding a `fetch_data.py` that uses the new helper is
+    needed to satisfy the specification.
   task: bc9195dc6d244946d11b8113dce33f5e9428f24d8e03d3d26f6f6bc2dd077795
 T033b:
+  reason: "The file `code/scripts/utils/pressure.py` exists and the unit tests pass,\
+    \ but the implemented function `calculate_lagged_pressure` takes a list of dictionaries\
+    \ (`run_records`) instead of the required DataFrame argument `df` and does not\
+    \ return a DataFrame with a new column as the specification states. This signature\
+    \ and return\u2011type mismatch means the task\u2019s explicit requirement is\
+    \ not satisfied."
   task: f53a295446e0df0b4764eab4d36e3e365267a4d94874d9ac9a4b4a14cbfb81c1
 T034a:
   task: 90fbaeb801969970feab3f70af8e515d9a619f857e5bea4249f794489c0f4cd3

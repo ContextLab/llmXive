@@ -26,7 +26,7 @@
 - [ ] T033a [P] Refactor pagination logic into reusable helper `code/scripts/utils/pagination.py::paginate_api`.  
   – **Verification**: Helper file exists; `fetch_data.py` calls `paginate_api`; unit test `tests/test_pagination.py` validates full page list.  
 
-- [ ] T001    Create `code/scripts/fetch_data.py` that iterates over `config.yaml`’s `games`, calls the speedrun.com API, respects rate‑limits, uses `paginate_api`, and writes raw JSON to `data/raw/{game_id}.json`.   <!-- FAILED-IN-EXECUTION: code/scripts/fetch_data.py exit=1 -->
+- [X] T001    Create `code/scripts/fetch_data.py` that iterates over `config.yaml`’s `games`, calls the speedrun.com API, respects rate‑limits, uses `paginate_api`, and writes raw JSON to `data/raw/{game_id}.json`.
   – **Verification**: After running on a test game, a non‑empty file appears under `data/raw/`.  
 
 - [ ] T015a    Add checkpoint integration to `fetch_data.py` (FR‑012). After each game download, call `save_checkpoint({"completed_games": [...]}, "data/checkpoints/fetch_checkpoint.json")`.  
