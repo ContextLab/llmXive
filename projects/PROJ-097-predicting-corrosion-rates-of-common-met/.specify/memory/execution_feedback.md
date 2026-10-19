@@ -7,39 +7,33 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.pipeline.run_all -> rc=1
-jects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 165, in _fetch_with_metadata
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 358, in ingest
+    frame, mapping = _fetch_with_metadata(
+                     ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 166, in _fetch_with_metadata
     df, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 485, in _fetch
-    return _fetch_with_metadata(dataset_id, max_candidates)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 165, in _fetch_with_metadata
-    df, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 485, in _fetch
-    return _fetch_with_metadata(dataset_id, max_candidates)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-RecursionError: maximum recursion depth exceeded
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 206, in fetch_dataset
+    for did in _candidate_dataset_ids(max_candidates):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 119, in _candidate_dataset_ids
+    raise RuntimeError(
+RuntimeError: No OpenML datasets matched corrosion search keywords ('corrosion', 'corros', 'seawater metal'); no qualifying real dataset found.
 
 - python -m pytest src/tests/ -> rc=1
-ngest(dataset_id=args.dataset_id, max_candidates=args.max_candidates)
-src/pipeline/ingest.py:365: in ingest
-    frame, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
-src/pipeline/ingest.py:485: in _fetch
-    return _fetch_with_metadata(dataset_id, max_candidates)
-src/pipeline/ingest.py:165: in _fetch_with_metadata
-    df, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
-src/pipeline/ingest.py:485: in _fetch
-    return _fetch_with_metadata(dataset_id, max_candidates)
-E   RecursionError: maximum recursion depth exceeded
-!!! Recursion detected (same locals & position)
+-19 01:24:08,820 INFO root: Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-10-19 01:24:10,892 INFO root: 2.0716856s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+------------------------------ Captured log call -------------------------------
+INFO     root:_api_calls.py:103 Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+INFO     root:_api_calls.py:115 2.0716856s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
 =========================== short test summary info ============================
-FAILED src/tests/test_ingest.py::test_ingest_creates_raw_and_provenance - Rec...
+FAILED src/tests/test_ingest.py::test_ingest_creates_raw_and_provenance - Run...
 FAILED src/tests/test_train.py::test_first_run_metrics_created - FileNotFound...
-FAILED src/tests/test_vif.py::test_vif_diagnostics_created - RecursionError: ...
+FAILED src/tests/test_vif.py::test_vif_diagnostics_created - RuntimeError: No...
 ERROR src/tests/test_features.py::test_features_parquet_created - AssertionEr...
 ERROR src/tests/test_features.py::test_feature_names_json - AssertionError: f...
-========================= 3 failed, 2 errors in 1.07s ==========================
+========================= 3 failed, 2 errors in 7.06s ==========================
 
 
 

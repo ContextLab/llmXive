@@ -29,9 +29,9 @@ T013:
   sig: 46ff0d56b5712d7219fa026683907a81623dfa559dadcc565bfa5eeda652d5f3
 T015:
   c: true
-  h: e4a8e3a30bd5c1bc292801dd91a86235fad5edd54d20bfef5bd500e3e6be5974
-  r: "Checked `specs/001-predicting-corrosion-rates-of-common-met/quickstart.md` (3574\u202F\
-    bytes) and confirmed it contains the exact command strings `python -m src.pipeline.run_all`\
-    \ and `pytest src/tests/` as required. The file exists in the feature\u2019s spec\
-    \ directory."
-  sig: 0c9e76ebe03a5b3878e331d57610399473036af20134fa9adc623ce7910292cd
+  h: 898b4f996e4140ab4a2253f02c2c0a626835aa89081efdf2c96f386d7b382290
+  r: The file `specs/001-predicting-corrosion-rates-of-common-met/quickstart.md` exists
+    (3574 bytes) and contains the exact required command strings `python -m src.pipeline.run_all`
+    and `pytest src/tests/`, plus supporting prerequisites and output documentation;
+    execution was not required at this stage.
+  sig: 0f53a5d4078d4b0711b3120834f921b5997d395ef5c268b3e7a12172326f0e11

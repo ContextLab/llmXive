@@ -2,8 +2,9 @@
 
 This module fetches a real corrosion dataset from OpenML, records provenance,
 validates required columns, harmonizes units, imputes missing values,
-standardizes numeric predictors, one‑hot encodes the composition column,
-and writes a cleaned CSV to ``data/processed/cleaned_dataset.csv``.
+standardizes numeric predictors, one‑hot encodes the composition column
+(while preserving the original column), and writes a cleaned CSV to
+``data/processed/cleaned_dataset.csv``.
 """
 
 from __future__ import annotations
@@ -165,9 +166,7 @@ def _fetch_with_metadata(
     df, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
     # Attach minimal metadata for provenance; missing values are allowed.
     df.attrs["openml_dataset_id"] = dataset_id
-    df.attrs["openml_dataset_name"] = (
-        mapping.get("source_id", "unknown")
-    )
+    df.attrs["openml_dataset_name"] = mapping.get("source_id", "unknown")
     df.attrs["openml_dataset_version"] = None
     df.attrs["openml_url"] = (
         f"https://www.openml.org/d/{dataset_id}"
@@ -345,12 +344,6 @@ def _standardize_numeric(df: pd.DataFrame, exclude: List[str]) -> pd.DataFrame:
         df_std[col] = (df_std[col] - mean) / std
     return df_std
 
-def _one_hot_encode(df: pd.DataFrame, column: str) -> pd.DataFrame:
-    """One‑hot encode ``column`` and concatenate to the DataFrame."""
-    dummies = pd.get_dummies(df[column], prefix=column, dtype=int)
-    df_no = df.drop(columns=[column])
-    return pd.concat([df_no, dummies], axis=1)
-
 # ----------------------------------------------------------------------
 # Main ingestion & cleaning workflow
 # ----------------------------------------------------------------------
@@ -360,9 +353,11 @@ def ingest(dataset_id: Optional[int] = None, max_candidates: int = 25) -> Path:
     Returns the path to the raw CSV file.
     """
     # ------------------------------------------------------------------
-    # 1. Fetch raw data and column mapping
+    # 1. Fetch raw data and column mapping (with metadata)
     # ------------------------------------------------------------------
-    frame, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
+    frame, mapping = _fetch_with_metadata(
+        dataset_id=dataset_id, max_candidates=max_candidates
+    )
 
     # ------------------------------------------------------------------
     # 2. Record provenance (raw file)
@@ -418,11 +413,8 @@ def ingest(dataset_id: Optional[int] = None, max_candidates: int = 25) -> Path:
         )
 
     # Preserve original composition for stratified‑group splitting later.
-    if "composition" in cleaned.columns:
-        cleaned["composition_original"] = cleaned["composition"].astype(str)
-    else:
-        # Should never happen because mapping guarantees it.
-        cleaned["composition_original"] = "unknown"
+    comp_original_col = rename_map.get("composition", "composition")
+    cleaned["composition_original"] = cleaned[comp_original_col].astype(str)
 
     # Harmonize corrosion_rate units.
     cr_col = rename_map.get("corrosion_rate", "corrosion_rate")
@@ -431,16 +423,20 @@ def ingest(dataset_id: Optional[int] = None, max_candidates: int = 25) -> Path:
     # Optional column warning.
     for opt in OPTIONAL_VARIABLES:
         if opt not in cleaned.columns:
-            log.warning("Optional column '%s' not present; proceeding without it.", opt)
+            log.warning(
+                "Optional column '%s' not present; proceeding without it.", opt
+            )
 
     # Impute missing values (excluding target).
     cleaned = _impute_missing(cleaned, target_col=cr_col)
 
-    # One‑hot encode composition.
+    # One‑hot encode composition **but keep the original column**.
+    # This satisfies the test that expects a 'composition' column.
     comp_col = rename_map.get("composition", "composition")
-    cleaned = _one_hot_encode(cleaned, comp_col)
+    dummies = pd.get_dummies(cleaned[comp_col], prefix=comp_col, dtype=int)
+    cleaned = pd.concat([cleaned, dummies], axis=1)
 
-    # Standardize numeric predictors (exclude target and source_id).
+    # Standardize numeric predictors (exclude target and grouping columns).
     cleaned = _standardize_numeric(
         cleaned,
         exclude=[cr_col, "source_id"],
@@ -478,15 +474,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    # Wire in the metadata‑attaching fetch so provenance is complete.
-    global fetch_dataset
-
-    def _fetch(dataset_id=None, max_candidates=25):
-        return _fetch_with_metadata(dataset_id, max_candidates)
-
-    fetch_dataset = _fetch
-
+    # Directly call ingest which now uses the metadata‑aware fetch.
     raw_path = ingest(dataset_id=args.dataset_id, max_candidates=args.max_candidates)
+
+    # Verify checksum against provenance.
     meta_path = paths.metadata("dataset.yaml")
     with open(meta_path, "r", encoding="utf-8") as fh:
         meta = yaml.safe_load(fh)
