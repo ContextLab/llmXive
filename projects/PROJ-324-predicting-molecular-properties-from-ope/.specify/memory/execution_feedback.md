@@ -7,25 +7,25 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download.py -> rc=1
-:13:38,110 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1964: 'Compound' object has no attribute 'water_solubility'
-2026-10-19 18:13:38,110 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1964: 'Compound' object has no attribute 'boiling_point'
-2026-10-19 18:13:38,110 - __main__ - WARNING - Failed to fetch RecordType for CID 1964: 'Compound' object has no attribute 'record_type'
-2026-10-19 18:13:38,110 - __main__ - ERROR - Failed to fetch data for CID 1964: 'Compound' object has no attribute 'record_type'
-2026-10-19 18:13:38,402 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1973: 'Compound' object has no attribute 'water_solubility'
-2026-10-19 18:13:38,402 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1973: 'Compound' object has no attribute 'boiling_point'
-2026-10-19 18:13:38,402 - __main__ - WARNING - Failed to fetch RecordType for CID 1973: 'Compound' object has no attribute 'record_type'
-2026-10-19 18:13:38,402 - __main__ - ERROR - Failed to fetch data for CID 1973: 'Compound' object has no attribute 'record_type'
-2026-10-19 18:13:38,403 - __main__ - ERROR - No data fetched. Check CID list and PubChemPy connectivity.
+:18:14,329 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1964: 'Compound' object has no attribute 'water_solubility'
+2026-10-19 20:18:14,329 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1964: 'Compound' object has no attribute 'boiling_point'
+2026-10-19 20:18:14,329 - __main__ - WARNING - Failed to fetch RecordType for CID 1964: 'Compound' object has no attribute 'record_type'
+2026-10-19 20:18:14,329 - __main__ - ERROR - Failed to fetch data for CID 1964: 'Compound' object has no attribute 'record_type'
+2026-10-19 20:18:14,495 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1973: 'Compound' object has no attribute 'water_solubility'
+2026-10-19 20:18:14,495 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1973: 'Compound' object has no attribute 'boiling_point'
+2026-10-19 20:18:14,495 - __main__ - WARNING - Failed to fetch RecordType for CID 1973: 'Compound' object has no attribute 'record_type'
+2026-10-19 20:18:14,495 - __main__ - ERROR - Failed to fetch data for CID 1973: 'Compound' object has no attribute 'record_type'
+2026-10-19 20:18:14,505 - __main__ - ERROR - No data fetched. Check CID list and PubChemPy connectivity.
 
 - python code/data/preprocess.py -> rc=1
 
-2026-10-19 18:13:38,874 - __main__ - ERROR - Raw data file not found: data/raw/pubchem_raw.csv. Run T008 first.
+2026-10-19 20:18:14,987 - __main__ - ERROR - Raw data file not found: data/raw/pubchem_raw.csv. Run T008 first.
 
 - python code/data/fingerprint.py -> rc=1
 
-2026-10-19 18:13:39,820 - __main__ - INFO - Ensured output directories: [PosixPath('data/processed'), PosixPath('data/derived')]
-2026-10-19 18:13:39,821 - __main__ - ERROR - Open Babel (obabel) not found in PATH. Please install it.
-2026-10-19 18:13:39,821 - __main__ - ERROR - Open Babel not available. Cannot proceed.
+2026-10-19 20:18:15,975 - __main__ - INFO - Ensured output directories: [PosixPath('data/processed'), PosixPath('data/derived')]
+2026-10-19 20:18:15,975 - __main__ - ERROR - Open Babel (obabel) not found in PATH. Please install it.
+2026-10-19 20:18:15,975 - __main__ - ERROR - Open Babel not available. Cannot proceed.
 
 - python code/models/baseline.py -> rc=1
 ope/code/models/baseline.py", line 87, in process_dataset
@@ -58,7 +58,7 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'data.preprocess'
 
 - python code/analysis/stats.py -> rc=1
-2026-10-19 18:13:42,203 - stats - INFO - Generating Experimental Validation Protocol (T058)...
+2026-10-19 20:18:18,665 - stats - INFO - Generating Experimental Validation Protocol (T058)...
 ERROR: Metadata file not found at data/raw/dataset_metadata.json. Run T031 first.
 
 
@@ -85,7 +85,7 @@ ERROR tests/unit/test_lint_config.py
 ERROR tests/unit/test_lint_format.py
 ERROR tests/unit/test_linting_config.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 14 warnings, 6 errors in 1.48s ========================
+======================== 14 warnings, 6 errors in 1.53s ========================
 
 
 

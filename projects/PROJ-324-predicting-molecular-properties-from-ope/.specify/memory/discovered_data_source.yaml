@@ -1,13 +1,13 @@
 status: none
-intent: pubchem download smiles experimental properties python package dataset
+intent: PubChem Compound download CSV SMILES properties python package dataset
 required_fields:
-- cid
-- smiles
-- molecular_weight
-- logP
-- hydrogen_bond_donors
-- hydrogen_bond_acceptors
-- experimental_flag
-cache_key: 19c6c00206ba88c35edb39dd58459125c0104c958ec23420e0c3e006796c9eea
-searched_at: '2026-10-19T18:14:43.870508+00:00'
+- SMILES
+- InChI
+- MolecularWeight
+- LogP
+- ExperimentalOrComputedFlag
+- PropertyName
+- PropertyValue
+cache_key: 1c8a63c3806699aba913549cd86996bebfe20343a76d8d01db89369737706497
+searched_at: '2026-10-19T20:18:48.131919+00:00'
 retry_count: 1
