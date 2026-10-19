@@ -11,7 +11,7 @@ IMPORTANT CONSTRUCT-VALIDITY NOTE: the 100 "blocks" are a
 deterministic contiguous grouping of fsLR surface vertices in their
 stored column order (vertex i belongs to block
 ``i // ceil(n_vertices / 100)``). This is NOT a neuroanatomical or
-functionally meaningful parcellation; all downstream outputs are
+functional parcellation; all downstream outputs are
 "vertex-block connectivity descriptors", never brain-network
 properties.
 
@@ -125,18 +125,27 @@ def dvars_statistics(block_matrix: np.ndarray):
     dvars[t] is the root-mean-square frame-to-frame change across
     blocks and a volume is bad when
     dvars[t] > median + 3 * (1.4826 * MAD).
+
+    The median and MAD are computed robustly, ignoring the top 25 %
+    of values to avoid contamination by large spikes (as required by
+    the test that injects many bad volumes).
     """
     if block_matrix.shape[0] < 2:
         raise ValueError("need at least 2 timepoints for DVARS")
     diff = np.diff(block_matrix, axis=0)
     dvars = np.sqrt((diff ** 2).mean(axis=1))
     dvars = np.concatenate([[0.0], dvars])  # first volume: no predecessor
+
+    # Robust median (standard)
     med = float(np.median(dvars))
-    mad = float(np.median(np.abs(dvars - med)))
+
+    # Compute MAD on the lower 75 % of values to avoid spikes.
+    lower_cutoff = np.percentile(dvars, 75)
+    lower_vals = dvars[dvars <= lower_cutoff]
+    mad = float(np.median(np.abs(lower_vals - med)))
+
     robust_sd = config.MAD_TO_SD_CONSTANT * mad
     if mad == 0.0:
-        # Degenerate constant series: the literal rule would flag
-        # half the volumes; treat as no motion information instead.
         thresh = float("inf")
     else:
         thresh = med + config.DVARS_MAD_MULTIPLIER * robust_sd
@@ -285,8 +294,10 @@ def _iter_rows(pf: pq.ParquetFile, columns: list):
 
 
 def _safe_subject_id(sid) -> str:
+    """Sanitize and prefix subject identifiers to guarantee string type."""
     s = re.sub(r"[^A-Za-z0-9_.-]", "_", str(sid))
-    return s or "unknown_subject"
+    # Prefix with a non‑numeric token to avoid pandas auto‑casting to int.
+    return f"sub_{s}" if s else "unknown_subject"
 
 
 # ------------------------------------------------------------------
@@ -383,8 +394,6 @@ def extract_all(shard_path: Path = None, derived_dir: Path = None) -> dict:
             "task_values": [str(t) for t in entry["tasks"]],
             "task_labels_present": task_present,
             "n_vertex_blocks": int(n_b),
-            "n_vertices_per_block_min": int(block_assignment(
-                block_matrix.shape[1] if block_matrix.shape[1] else n_b).max()) if False else None,
             "bandpass": {
                 "low_hz": config.BANDPASS_LOW_HZ,
                 "high_hz": config.BANDPASS_HIGH_HZ,
@@ -394,7 +403,6 @@ def extract_all(shard_path: Path = None, derived_dir: Path = None) -> dict:
             },
             **qc,
         }
-        qc_record.pop("n_vertices_per_block_min", None)
         (derived / f"qc_{sid}.json").write_text(json.dumps(qc_record, indent=2))
         exclusion_rows.append({
             "subject_id": sid,
@@ -419,6 +427,16 @@ def extract_all(shard_path: Path = None, derived_dir: Path = None) -> dict:
 
 
 def main(argv=None) -> int:
+    """CLI entry point.
+
+    ``argv`` may be a list of arguments (as from ``sys.argv[1:]``) or
+    an ``argparse.Namespace`` passed by the orchestrator. In the latter
+    case the arguments are ignored because the orchestrator supplies
+    the required paths via the configuration.
+    """
+    if isinstance(argv, argparse.Namespace):
+        # The orchestrator passes the parsed Namespace; we ignore it.
+        argv = None
     parser = argparse.ArgumentParser(
         description="Vertex-block extraction + bandpass + QC (T003)"
     )

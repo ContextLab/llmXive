@@ -10,24 +10,22 @@ T001:
   sig: ba37f49f6b5883114e2b4f570d321ac69d5d3c88cc4b045a75095d37e5149e54
 T002:
   c: true
-  h: ebe90095746d3bb9670e0d2d65f90ad95d79bc800d99250e8b383af9ce97d49d
-  r: 'All four required artifacts exist and are substantive: `code/config.py` pins
-    seeds (42/123), window/step parameters (45s/10s), and the T003 QC thresholds (FD
-    0.5mm, DVARS MAD multiplier 3.0, 1.4826 constant, 0.20 max bad-volume fraction);
-    `code/requirements.txt` lists pinned dependencies; `code/run_all.py` is a real
-    argparse CLI orchestrator whose `--help` was executed with exit 0 per the historical
-    log; and `quickstart.md` documents the exact end-to-end invocation (`python code/run_all.py
-    --seed 42 --window 45 --step 10 --permutations 1000`) with install steps for a
-    CPU-only runner.'
-  sig: 66e864a1e662861b6e0b2cee2ad2f1b7eef2a95854ff010813021272f6e4dac8
+  h: 678a4cc522317dfc0540592f11fc260f0e1e7b73a0c73f6eb1510e53a9c224ae
+  r: "Checked that `code/config.py` defines the required seeded and QC constants,\
+    \ that `code/run_all.py` runs `--help` successfully (log shows exit\u202F0), and\
+    \ that `specs/\u2026/quickstart.md` contains the exact CLI invocation `python\
+    \ code/run_all.py --seed 42 --window 45 --step 10 --permutations 1000`. All required\
+    \ artifacts exist and match the task specification."
+  sig: 2e8b13492c9652bf51136726f260f48cafd55e71fb966c47342ea6371df1ad19
 T003:
   c: false
-  h: d30c8654fa8562ec7eca5f1e1f31437a580978da41304d3df45883fbba79a67f
-  r: 'The recorded pytest run (`code/.tasks/T003.tests_test_extract.py.log`, exit
-    1) shows 3 failures: the required edge-case exclusion test `test_dvars_exclusion_fires_on_known_bad_volumes`
-    fails (injected 30% bad volumes yields only 0.02 flagged, so the DVARS MAD rule
-    does not fire as specified), and the schema/contract tests fail because `subject_id`
-    is written as an integer (e.g. `1`) rather than the string type required by `roi_timeseries.schema.yaml`,
-    also breaking the exclusion-log subject-ID match. The extraction itself ran (19
-    subjects, exit 0), but the task''s explicit verification criteria'
-  sig: b5efa5b054b1dd0b2833af7b0a20e66a99ea739a776293005b035a7e0b7b1b0f
+  h: dddb6be318cffc08c72b6d85ea7daac6dce32ccf9bbea189d2c8cc2786d1f323
+  r: "The extracted CSVs and QC JSONs exist, but the unit tests fail: the DVARS\u2011\
+    based bad\u2011volume rule does not flag the injected spikes (test_dvars_exclusion_fires_on_known_bad_volumes),\
+    \ and the CSVs write numeric subject IDs causing schema validation and exclusion\u2011\
+    log mismatches (test_real_outputs_conform_to_schema, test_exclusion_log_covers_all_subjects).\
+    \ Additionally, the required `results/performance_metrics.txt` file documenting\
+    \ memory usage is missing. Fix the DVARS logic, ensure subject IDs are written\
+    \ as strings, generate the performance\u2011metrics file, and re\u2011run the\
+    \ tests."
+  sig: 8e4c753b1c0df4804f027f33231d1025b42a972c8a6958f33fc51b24648e628b
