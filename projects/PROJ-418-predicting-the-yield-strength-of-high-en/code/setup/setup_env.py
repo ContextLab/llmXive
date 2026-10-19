@@ -42,11 +42,14 @@ if not logger.handlers:
     logger.setLevel(logging.INFO)
 
 # ----------------------------------------------------------------------
-# Constants
+# Project‑root aware paths
 # ----------------------------------------------------------------------
-DEFAULT_VENV_PATH = Path(".venv")
-REQUIREMENTS_PATH = Path("requirements.txt")
-SCHEMA_PATH = Path("contracts/requirements.schema.yaml")
+# ``setup_env.py`` lives under ``code/setup``; the project root is two levels up.
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+DEFAULT_VENV_PATH = PROJECT_ROOT / ".venv"
+REQUIREMENTS_PATH = PROJECT_ROOT / "requirements.txt"
+SCHEMA_PATH = PROJECT_ROOT / "contracts" / "requirements.schema.yaml"
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -76,8 +79,10 @@ def _pip_executable(venv_path: Path) -> Path:
         return venv_path / "bin" / "pip"
     return venv_path / "Scripts" / "pip.exe"
 
-def install_requirements(venv_path: Path = DEFAULT_VENV_PATH,
-                         requirements_path: Path = REQUIREMENTS_PATH) -> None:
+def install_requirements(
+    venv_path: Path = DEFAULT_VENV_PATH,
+    requirements_path: Path = REQUIREMENTS_PATH,
+) -> None:
     """
     Install the exact dependencies from ``requirements_path`` into the
     virtual environment located at ``venv_path``.
@@ -87,7 +92,9 @@ def install_requirements(venv_path: Path = DEFAULT_VENV_PATH,
     if not pip_path.is_file():
         raise FileNotFoundError(f"pip executable not found at {pip_path}")
 
-    logger.info(f"Installing dependencies from {requirements_path} into {venv_path}")
+    logger.info(
+        f"Installing dependencies from {requirements_path} into {venv_path}"
+    )
     result = subprocess.run(
         [str(pip_path), "install", "-r", str(requirements_path)],
         stdout=subprocess.PIPE,
@@ -125,7 +132,9 @@ def validate_requirements_schema(
     The contract is expected to describe a JSON array of strings.  If the
     data does not conform, ``jsonschema.ValidationError`` is raised.
     """
-    logger.info(f"Validating {requirements_path} against schema {schema_path}")
+    logger.info(
+        f"Validating {requirements_path} against schema {schema_path}"
+    )
 
     if not schema_path.is_file():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")

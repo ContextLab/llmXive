@@ -15,14 +15,14 @@
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T001 [P1] [FR-001] **Data acquisition – real HEA dataset (Zenodo).**   <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 -->
+- [ ] T001 [P1] [FR-001] **Data acquisition – real HEA dataset (Zenodo).**
   Implement `code/data/fetch_heas.py` that downloads the curated HEA yield‑strength dataset from the Zenodo archive (URL placeholder **INSERT_ZENODO_URL_HERE**).  
   - Writes a **CSV** `data/raw/heas_raw.csv` with columns `alloy_id, composition, yield_strength, phase, temperature`.  
   - Validates each row against `contracts/dataset.schema.yaml`.  
   - Aborts with a clear error if any required field is missing (fulfills FR‑009).  
   **Verification:** a unit test `code/tests/test_fetch_heas.py` checks that a record missing `yield_strength` raises `ValueError`; after execution `data/raw/heas_raw.csv` exists, is non‑empty, and passes JSON‑schema validation.
 
-- [ ] T002 [P1] [FR-002] **Descriptor calculation (CSV).**  
+- [ ] T002 [P1] [FR-002] **Descriptor calculation (CSV).**   <!-- FAILED-IN-EXECUTION: generate_processed_descriptors.py exit=1 -->
   Implement `code/data/descriptors.py` that reads `data/raw/heas_raw.csv`, loads the frozen elemental‑property table `data/raw/elemental_properties.csv` (validated against `contracts/elemental_properties.schema.yaml`), and computes the five composition‑only descriptors: `mixing_entropy`, `atomic_size_mismatch` (δ), `electronegativity_variance` (Δχ), `vec`, `tm_variance`.  
   - Writes **CSV** `data/processed/hea_descriptors.csv` containing `alloy_id, composition, mixing_entropy, atomic_size_mismatch, electronegativity_variance, vec, tm_variance, yield_strength`.  
   - Validates rows against both `contracts/descriptor.schema.yaml` and `contracts/hea_schema.schema.yaml`.  
