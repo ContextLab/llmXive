@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T22:30:05.227838Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-414-investigating-the-relationship-between-b
-last_run_id: 0f853813-7b71-4f92-bd1a-019cc376fc72
+last_run_id: ec84949b-2021-4c30-823e-34beaa4ab409
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-414-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b
 title: Investigating the Relationship Between Brain Network Dynamics and Individual
   Differences in Musical Improvisation Skill
-updated_at: '2026-10-19T04:22:09.597912Z'
+updated_at: '2026-10-19T04:22:24.499638Z'
