@@ -1,120 +1,115 @@
-# Implementation Plan: Neuro-Symbolic Learning Networks
+# Implementation Plan: Neuro‑Symbolic Learning Networks
 
-**Branch**: `[PROJ-559-neuro-symbolic]` | **Date**: 2026-06-24 | **Spec**: `spec.md`
+**Branch**: `[PROJ-559-neuro-symbolic]` | **Date**: 2026‑10‑19 | **Spec**: `specs/PROJ-559-neuro-symbolic/spec.md`  
 **Input**: Feature specification from `specs/PROJ-559-neuro-symbolic/spec.md`
 
 ## Summary
-
-This project implements a lightweight neuro-symbolic explanation framework to evaluate the pedagogical impact of three explanation types (neural-only, symbolic-only, neuro-symbolic) on student performance. The system ingests mathematics problems from public datasets (**ASSISTments as the sole verified source**; Khan Academy is attempted but excluded if no direct download URL exists), generates explanations using a quantized small LLM (neural) and a rule-based solver (symbolic), and combines them via a translation layer. A BKT-based student simulator, calibrated strictly against real human pilot data (or scope-reduced if unavailable), generates interaction logs. The pipeline culminates in a mixed-effects regression analysis comparing the three conditions, incorporating real student data where available, while strictly adhering to CPU-first constraints (2 cores, 7 GB RAM) and reproducibility standards.
-
-**Critical Design Decision & Scope Limitation**: The study employs a **between-subjects design** where each simulated student is assigned to exactly one explanation condition per problem to avoid carryover effects. **Crucially, due to the lack of a verified, direct-download URL for the full Khan Academy dataset in the `# Verified datasets` block, the study is scoped to the ASSISTments dataset only.** External validity claims regarding "general mathematics education" are restricted to the ASSISTments domain. If a second verified dataset becomes available, the Scope Reduction Protocol is lifted; otherwise, the final report will explicitly state that findings are limited to the ASSISTments corpus to maintain scientific integrity (Constitution Principle II).
+Implement a lightweight neuro‑symbolic explanation framework that (1) ingests math/logic problems from the public **ASSISTments** dataset, (2) generates three distinct explanation artifacts per problem (`neural`, `symbolic`, `neuro‑symbolic`), (3) presents a selected explanation to a Bayesian Knowledge Tracing (BKT) student simulator, (4) logs interaction data (correctness, response time, comprehension rating), (5) calibrates the simulator against a real‑human pilot (≥ 50 participants), (6) runs a mixed‑effects regression on combined simulated + real data (≥ 200 participants) to compare the three conditions on reasoning accuracy, response time, and self‑reported comprehension, and (7) enforces all functional (FR‑001–FR‑022) and success criteria (SC‑001–SC‑012) while staying within GitHub Actions free‑tier limits (≤ 2 CPU cores, ≤ 7 GB RAM).
 
 ## Technical Context
-
-**Language/Version**: Python 3.11 (primary logic, data processing), R 4.3+ (statistical analysis via `rpy2`), Bash (orchestration).
-**Primary Dependencies**: `transformers` (quantized LLM), `scikit-learn` (simulator logic), `pandas`, `numpy`, `statsmodels` (mixed-effects), `pyyaml`, `datasets` (Hugging Face).
-**Storage**: Local file system (`data/raw`, `data/processed`, `data/pilot`), CSV/Parquet formats.
-**Testing**: `pytest` (unit/integration), `pytest-cov` (coverage), CI resource monitoring scripts.
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, 7 GB RAM).
-**Project Type**: Data science research pipeline / CLI tool.
-**Performance Goals**: < 6h total runtime; < 7 GB peak RAM; < 2 cores active average.
-**Constraints**: No local GPU; strict timeout handling for downloads; deterministic seeding for reproducibility.
-**Scale/Scope**: A large number of simulated interactions (multiple per condition) + ~200 real interactions; ~500-1,000 problem instances.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11 (core pipeline), R 4.3+ (optional mixed‑effects via `lme4`), Bash orchestration.
+- **Primary Dependencies**: `transformers` (4‑bit quantized TinyLlama‑1.1B‑Chat), `datasets`, `pandas`, `numpy`, `scikit‑learn`, `statsmodels`, `pyyaml`, `rpy2`, `llmxive_toolkit`.
+- **Storage**: File‑system under `data/` (raw, processed, traces, pilot, results).
+- **Testing**: `pytest` + CI resource‑monitoring scripts.
+- **Target Platform**: Linux runner on GitHub Actions (2 vCPU, 7 GB RAM, 14 GB disk).
+- **Project Type**: Research pipeline / CLI tool.
+- **Performance Goals**: End‑to‑end ≤ 6 h, peak RAM ≤ 7 GB, peak CPU ≤ 2 cores.
+- **Constraints**: CPU‑first; if LLM inference exceeds memory, auto‑offload to Kaggle GPU (real 4‑bit model, ≤ 2 h GPU time).
+- **Scale/Scope**: ≥ 5 000 interaction logs (≥ 2 000 simulated per condition + ≥ 200 real), ≥ 1 000 problems (stratified across ASSISTments and optional Khan Academy).
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
 | Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All random seeds pinned in `config.yaml`. External datasets fetched via verified Hugging Face URLs. CI runs isolated `venv`. |
-| **II. Verified Accuracy** | **PASS** | **Automated Gate**: The `Reference-Validator Agent` is implemented as a specific GitHub Actions step (`validate-citations`) that runs as a `pre-merge` check on PRs. It invokes `code/tools/reference_validator.py` which parses citations, checks reachability, calculates the `CITATION_TITLE_OVERLAP_THRESHOLD` (a configurable similarity threshold), and exits with code 1 if the threshold is not met or a source is unreachable. This physically blocks the pipeline transition. Dataset URLs are cross-referenced against the `# Verified datasets` block. |
-| **III. Data Hygiene** | **PASS** | `data/raw` files are immutable. Checksums (SHA-256) generated and stored in `state/` upon download. Derivations written to new files. |
-| **IV. Single Source of Truth** | **PASS** | Analysis scripts read directly from `data/processed`. No manual data entry in reports. |
-| **V. Versioning Discipline** | **PASS** | **SSoT File**: `state/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin.yaml`. Updated by `state-updater.sh` after each phase with content hashes. |
-| **VI. Educational Evaluation Rigor** | **PASS** | Mixed-effects model includes `explanation_condition`, `prior_knowledge`, and `problem_difficulty` as fixed effects (see `analysis/regression_analysis.py`). |
-| **VII. Explanation Traceability** | **PASS** | Every generated explanation stored with metadata (problem_id, model_version, condition) in `data/traces/`. |
+|-----------|--------|--------------------------|
+| **I. Reproducibility** | PASS | Fixed random seeds (`config.yaml`), immutable raw files, deterministic pipelines, CI‑run isolation. |
+| **II. Verified Accuracy** | PASS | `tools/reference_validator.py` validates all external URLs against the verified‑datasets block with `CITATION_TITLE_OVERLAP_THRESHOLD = 0.8`. |
+| **III. Data Hygiene** | PASS | Raw files checksum‑verified (`sha256` stored in `state/`); all transformations write new files; no PII. |
+| **IV. Single Source of Truth** | PASS | Every figure/table generated directly from `data/processed/` via scripts; no manual entry. |
+| **V. Versioning Discipline** | PASS | Content‑hashes recorded in `state/projects/...yaml`; any change updates the hash and invalidates dependent artifacts. |
+| **VI. Educational Evaluation Rigor** | PASS | Mixed‑effects model includes required covariates; effect sizes with 95 % CI reported; no metric substitution. |
+| **VII. Explanation Traceability** | PASS | Each explanation stored under `data/traces/` with metadata (`explanation_id`, `model_version`, timestamps). |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/PROJ-559-neuro-symbolic/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output (Schemas)
-```
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
 
-### Source Code (repository root)
-
-```text
 projects/PROJ-559-neuro-symbolic/
 ├── code/
-│   ├── __init__.py
-│   ├── config.yaml              # Global config, seeds, dataset URLs
+│   ├── config.yaml
 │   ├── data/
-│   │   ├── download_assistments.py
-│   │   ├── download_khan.py
-│   │   ├── unify_datasets.py    # Handles partial success if Khan missing
-│   │   ├── validate_schema.py   # Reads from ../contracts/
-│   │   └── download_utils.py    # Timeout handling, checksums
+│   │   ├── download_assistments.py          # T012 – produces data/raw/assistments.csv + checksum
+│   │   ├── download_khan.py                 # T012c – graceful timeout, error‑code 1, logs message
+│   │   ├── unify_datasets.py                # T012e – merges datasets, produces unified_problems.csv + checksum
+│   │   └── validate_schema.py               # T012a – validates unified_problems.csv against problem.schema.yaml
 │   ├── generation/
-│   │   ├── symbolic_solver.py   # Rule-based logic for math problems
-│   │   ├── neural_generator.py  # Quantized LLM wrapper (small-scale/4-bit)
-│   │   ├── neuro_symbolic.py    # Translation/merging layer
-│   │   ├── batch_generate.py    # Orchestrates generation
-│   │   └── quality_check.py     # T016: Coherence check
+│   │   ├── neural_generator.py
+│   │   ├── symbolic_solver.py
+│   │   ├── neuro_symbolic.py
+│   │   └── batch_generate.py                # orchestrates FR‑002, FR‑017, FR‑018, FR‑019
 │   ├── simulation/
-│   │   ├── bkt_model.py         # Bayesian Knowledge Tracing logic
-│   │   ├── simulator.py         # Interaction loop
-│   │   ├── pilot_calibrator.py  # Calibration against human pilot (T031)
-│   │   └── run_simulation.py    # Main simulation driver
+│   │   ├── bkt_model.py
+│   │   ├── pilot_calibrator.py              # T030a/b/c – consumes data/pilot/real_pilot_data.csv
+│   │   ├── simulator.py
+│   │   └── run_simulation.py                # FR‑009, FR‑020
 │   ├── analysis/
-│   │   ├── merge_data.py        # Merge sim + real data (T060)
-│   │   ├── regression_analysis.py # Mixed-effects model (statsmodels)
-│   │   └── report_generator.py  # Markdown output
+│   │   ├── merge_data.py
+│   │   ├── regression_analysis.py           # FR‑006, SC‑003, multiple‑comparison correction
+│   │   └── report_generator.py
 │   ├── tools/
-│   │   └── reference_validator.py # Implements the Verified Accuracy gate
+│   │   └── reference_validator.py
 │   └── tests/
 │       ├── test_download.py
 │       ├── test_generation.py
 │       └── test_simulation.py
 ├── data/
-│   ├── raw/                     # Downloaded datasets (immutable)
-│   ├── pilot/                   # Pilot calibration data (T030b)
-│   ├── processed/               # Unified problems, logs
-│   └── traces/                  # Explanation artifacts
-├── contracts/                   # SCHEMAS (Root level)
-│   ├── problem.schema.yaml
+│   ├── raw/
+│   ├── processed/
+│   ├── traces/
+│   └── pilot/
+├── contracts/
+│   ├── analysis_output.schema.yaml
+│   ├── explanation.schema.yaml
 │   ├── interaction_log.schema.yaml
-│   └── explanation.schema.yaml
-├── state/                       # SSoT State File
+│   ├── pilot_data.schema.yaml
+│   ├── problem.schema.yaml
+│   └── simulation_log.schema.yaml
+├── state/
 │   └── projects/PROJ-559-neuro-symbolic-learning-networks-bridgin.yaml
 ├── requirements.txt
 └── README.md
 ```
 
-**Structure Decision**: A modular monorepo structure was chosen to separate concerns. The `contracts/` directory is at the repository root to ensure `validate_schema.py` can easily locate schemas. The `state/` directory contains the Single Source of Truth file, updated by `state-updater.sh`.
+## Phase‑by‑Phase Plan (covers every FR/SC)
 
-## Complexity Tracking
+| Phase | Tasks (maps to FR/SC) | Key Outputs |
+|-------|-----------------------|--------------|
+| **0. CI & Citation Gate** | Run `reference_validator.py` (FR‑022). | Pass/Fail CI gate. |
+| **1. Data Ingestion** | - `download_assistments.py` (FR‑001, FR‑007, SC‑008).<br>- `download_khan.py` (optional, FR‑001, FR‑007, SC‑008).<br>- `unify_datasets.py` (FR‑001, FR‑012, FR‑021).<br>- Generate checksums (`state/`), log any missing/corrupt records (FR‑018). | `data/raw/assistants.csv`, optional `khan_academy.csv`, `data/processed/unified_problems.csv`. |
+| **2. Schema Validation** | `validate_schema.py` validates `unified_problems.csv` against `problem.schema.yaml` (FR‑001, FR‑018). | Pass/Fail; logs schema violations. |
+| **3. Explanation Generation** | `batch_generate.py` loops over problems: <br>• Neural generation via quantized LLM (FR‑002, FR‑017).<br>• Symbolic solving (rule‑based) (FR‑002).<br>• Neuro‑symbolic merging (FR‑002).<br>• Timeout handling (FR‑017) and missing‑record skipping (FR‑018).<br>• Validation of comprehension rating range (FR‑019). | `data/traces/explanation_<condition>_<problem_id>.txt`, metadata JSON, logs of timeouts & skips (SC‑009, SC‑010, SC‑011). |
+| **4. Human Pilot Collection** | Manual step: collect ≥ 50 pilot interactions → `data/pilot/real_pilot_data.csv`.<br>Run `pilot_calibrator.py` (FR‑010, SC‑007). | Calibrated BKT parameters, calibration report (RMSE, TOST). |
+| **5. Simulation Run** | `run_simulation.py` uses calibrated BKT to simulate ≥ 2 000 students per condition (FR‑009, FR‑020). Logs all required fields (FR‑004, FR‑005). | `data/processed/interaction_logs_simulated.csv`. |
+| **6. Real‑Student Data Integration** | Manual step: collect ≥ 200 real interactions → `data/processed/real_student_data.csv`.<br>Merge with simulated logs (`merge_data.py`) adding `data_source` column (FR‑011). | `data/processed/merged_interaction_logs.csv`. |
+| **7. Mixed‑Effects Regression** | `regression_analysis.py` fits LMM with fixed effects (condition, prior_knowledge, difficulty, data_source) and random intercepts (problem_id, student_id) (FR‑006).<br>- Applies Holm‑Bonferroni correction for 3 pairwise tests (SC‑003).<br>- Reports Cohen’s d with 95 % CI (SC‑003).<br>- Checks collinearity between difficulty and response time; if VIF > 5, note in diagnostics. | `results/analysis_output.yaml` (conforms to `analysis_output.schema.yaml`). |
+| **8. Reporting & CI Summary** | `report_generator.py` creates markdown summary, tables, and CI‑summary metrics (SC‑001, SC‑002, SC‑005, SC‑006, SC‑009‑SC‑012). | `results/report.md`. |
+| **9. Resource Monitoring** | Wrapper script records peak CPU/memory (FR‑008). Fails if > 2 cores or > 7 GB (SC‑006). | CI job summary logs. |
+| **10. Scope‑Reduction Protocol** | Embedded in `download_khan.py` and `unify_datasets.py`; if Khan missing, limit claims to ASSISTments and log limitation (SC‑001). | Updated `report.md` “Limitations” section. |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Neuro-Symbolic Translation Layer** | Required to fuse symbolic traces with neural narratives (FR-002, US-1). | A simple concatenation fails to provide the "reasoning" integration required for the "neuro-symbolic" condition, reducing validity. |
-| **BKT Simulator + Calibration** | Required to generate realistic student responses without human cost (US-2, FR-010). | Pure random noise or static rules fail to model learning trajectories, invalidating the "response time" and "comprehension" metrics. **Must be calibrated on real human data (T030b) or scope reduced.** |
-| **Hybrid Analysis (Sim + Real)** | Required to support generalizable claims (US-7, FR-011). | Relying solely on simulation is scientifically invalid for educational claims; real data is essential for the final conclusion. |
-| **Partial Ingestion (Khan)** | Required to handle missing Khan data without aborting. | A hard abort would prevent the study from proceeding with ASSISTments, violating the "attempt" requirement of FR-001. **Scope Reduction Protocol now limits claims to ASSISTments if Khan is missing.** |
+### Edge‑Case Handling (US‑4, US‑2, US‑3)
+- **Generation timeout** → abort that problem, log, continue (≤ 2 % allowed per SC‑010).  
+- **Corrupt problem record** → log warning, skip (≤ 1 % allowed per SC‑011).  
+- **Non‑numeric comprehension rating** → validation error, omit record (≤ 0.5 % allowed per SC‑012).  
 
-## Scope Reduction Protocol (Critical)
+### Compute Feasibility
+- **LLM**: TinyLlama‑1.1B‑Chat quantized to 4‑bit (`bitsandbytes`), ~2 GB VRAM, runs on CPU (< 1 GB RAM). If OOM, auto‑offload to Kaggle GPU (real GPU, no fabrication).  
+- **Simulation**: Pure NumPy loops, < 500 MB RAM.  
+- **Analysis**: `statsmodels` mixed‑effects on ≤ 10 000 rows, < 1 GB RAM.  
 
-In the event that the **Khan Academy** dataset cannot be downloaded (due to lack of a verified URL or timeout), the system executes the following protocol to maintain scientific integrity:
-1.  **Log Failure**: The `download_khan.py` script logs `ERROR: Failed to download Khan Academy within 300 seconds – aborting pipeline` and exits with code 0 (graceful skip) but sets a global flag `khan_available = False`.
-2.  **Proceed with ASSISTments**: The pipeline continues using only the ASSISTments dataset.
-3.  **Downgrade Claims**: The `report_generator.py` automatically detects `khan_available = False` and modifies the final report's "Limitations" section to state: *"Findings are generalizable only to the ASSISTments corpus; claims regarding broader mathematics education are not supported due to single-dataset constraints."*
-4.  **No Fabrication**: No synthetic data or proxy datasets are used to replace Khan Academy.
-5.  **Constitution Compliance**: This protocol satisfies Constitution Principle II (Verified Accuracy) by ensuring no false claims about dataset coverage are made.
+### Power / Sample‑Size (deferred)
+- Target power ≥ 0.80 for effect size ≥ 0.1 will be confirmed after data collection; placeholder `[deferred]` used per guidelines.
+
+---
