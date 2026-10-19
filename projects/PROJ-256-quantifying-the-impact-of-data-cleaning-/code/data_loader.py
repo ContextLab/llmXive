@@ -33,7 +33,7 @@ DATASET_SPECS: List[Dict] = [
     {
         "name": "Iris",
         "openml_id": 61,
-        "outcome_column": "outcome",
+        "outcome_column": "class",
         "url": None,
     },
     {
@@ -108,10 +108,12 @@ def _download_openml_dataset(openml_id: int, raw_dir: Path) -> Path:
     and return the path to the written CSV file.
     """
     logger.info(f"Downloading OpenML dataset ID {openml_id}")
+    # The OpenML library may return data in parquet format; pyarrow is now
+    # declared as a dependency so pandas can read it.
     dataset = openml.datasets.get_dataset(openml_id)
     X, y, _, _ = dataset.get_data(dataset_format="dataframe")
     df = X.copy()
-    # Ensure the target column exists; name it ``outcome`` if not already present.
+    # Ensure the target column exists; name it according to the spec if missing.
     if y.name not in df.columns:
         df[y.name] = y
     csv_path = raw_dir / f"{openml_id}.csv"
@@ -136,9 +138,12 @@ def _load_schema() -> Dict:
     Load the JSON‑Schema for dataset metadata.
     The schema lives under the project ``specs`` directory.
     """
-    # The repository layout places contract schemas under
-    # ``specs/<project‑id>/contracts``.
-    schema_path = Path("specs") / "001-quantifying-the-impact-of-data-cleaning" / "contracts" / "dataset.schema.yaml"
+    schema_path = (
+        Path("specs")
+        / "001-quantifying-the-impact-of-data-cleaning"
+        / "contracts"
+        / "dataset.schema.yaml"
+    )
     if not schema_path.is_file():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     import yaml  # PyYAML is available in the base environment.

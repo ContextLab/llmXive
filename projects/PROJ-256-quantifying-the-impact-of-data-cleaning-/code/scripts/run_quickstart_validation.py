@@ -1,26 +1,32 @@
 """
-Quick‑start validation script.
+Utility script to validate quickstart artifacts.
 
-In the original repository this script lived at ``code/run_quickstart_validation.py``.
-It has been migrated to ``code/scripts/`` to keep maintenance utilities separate
-from the research code.
+Runs the project's quickstart validation tests.
 """
 
-import sys
 import subprocess
+import sys
+from llmxive_toolkit import get_logger
 
-def main() -> None:
-    """
-    Execute the project's quick‑start validation suite.
+log = get_logger(__name__)
 
-    The command simply runs the pytest marker ``quickstart`` which the
-    repository's CI uses to verify that the pipeline can be executed
-    from a clean checkout.
-    """
+def main():
+    """Run pytest with the 'quickstart' marker."""
     try:
-        subprocess.run([sys.executable, "-m", "pytest", "-m", "quickstart", "-v"], check=True)
-    except subprocess.CalledProcessError as exc:
-        sys.exit(exc.returncode)
+        result = subprocess.run(
+            [sys.executable, "-m", "pytest", "-m", "quickstart", "-v"],
+            check=False,
+        )
+        if result.returncode == 0:
+            log.info("Quickstart validation passed.")
+        else:
+            log.error(
+                f"Quickstart validation failed with exit code {result.returncode}"
+            )
+            sys.exit(result.returncode)
+    except Exception as e:
+        log.exception("Error during quickstart validation")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

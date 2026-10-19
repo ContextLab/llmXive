@@ -4299,3 +4299,24 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-19T07:45:35Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/sample_size_justification.md
+  attempts: 1
+  canonical: 12 datasets sufficient to detect medium effect with 80% power
+  claim_id: c_72f2696c
+  context: "The paragraph discusses dataset selection and cites a meta\u2011analysis\
+    \ that examined 38 experiments across 12 datasets."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A recent meta\u2011analysis of data\u2011cleaning studies (Smith\u202F\
+    et\u202Fal.,\u202F2022) examined 38 experiments across 12 publicly available datasets\
+    \ and found that 12 datasets were sufficient to detect a medium\u2011sized effect\
+    \ (Cohen\u2019s\u202Fd\u202F\u2248\u202F0.5) with \u2265\u202F80\u202F% power\
+    \ when outcomes varied in size (n\u202F<\u202F50, 50\u2011200,\u202F>\u202F200)\
+    \ and missingness (none, MCAR, MAR, MNAR)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T07:49:34Z'

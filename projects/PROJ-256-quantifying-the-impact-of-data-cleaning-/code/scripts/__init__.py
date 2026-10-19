@@ -1,1 +1,1 @@
-"""Package marker for the scripts submodule."""
+"""Package marker for utility scripts."""

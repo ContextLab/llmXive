@@ -8,9 +8,9 @@ T001:
 T002:
   task: 35ddba82552914e7577d56269b35d3460006bf1405b3e4711f5c84672b3dd161
 T003:
-  reason: "The `sample_size_justification.md` file exists but its content contains\
-    \ 172 words, exceeding the 150\u2011word limit, causing the `test_word_count_within_limit`\
-    \ unit test to fail. The task therefore does not meet the specified requirement."
+  reason: "The `sample_size_justification.md` file exists but contains 172 words,\
+    \ exceeding the 150\u2011word limit, causing the unit test `test_word_count_within_limit`\
+    \ to fail. Reduce the justification to \u2264150 words."
   task: c8835ab899a4173704d1ba17ae54b242031361d7e9dd82d0ea7ed8613d645f44
 T004:
   task: e21c7d1404382af46af96cf3950db91f26107ea82cd8f63fbaa828750f034f91

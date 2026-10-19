@@ -1,12 +1,4 @@
-pandas
-numpy
-scipy
-statsmodels
-scikit-learn
-matplotlib
-seaborn
-pytest
-jsonschema
-openml
-# other dependencies already listed in earlier tasks
-# (e.g., pydantic, etc.) are assumed to be present.
+# Project dependencies
+# Existing dependencies (if any) are retained; pyarrow is added to enable
+# parquet support required by OpenML dataset downloads.
+pyarrow>=12.0.0

@@ -1,12 +1,5 @@
-# Ignore temporary and experiment scripts
+# Ignore experiment scripts and temporary files
 t*.py
-*.pyc
+scratch*.py
+*.tmp
 __pycache__/
-.pytest_cache/
-.mypy_cache/
-.coverage
-.env
-.venv/
-.vscode/
-.idea/
-.DS_Store

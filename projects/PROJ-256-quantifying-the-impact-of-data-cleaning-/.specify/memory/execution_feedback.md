@@ -50,7 +50,7 @@ ERROR tests/unit/test_t037_ci_width_reporting.py
 ERROR tests/unit/test_t039_exclusion.py
 ERROR tests/unit/test_t040.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 34 errors during collection !!!!!!!!!!!!!!!!!!!
-================ 105 deselected, 1 warning, 34 errors in 1.94s =================
+================ 106 deselected, 1 warning, 34 errors in 2.00s =================
 
 
 
