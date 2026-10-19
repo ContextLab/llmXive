@@ -9,3 +9,14 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/assistments/2009
   verified_at: '2026-08-20T01:26:18.212187Z'
+- artifact_hash: f5179f73a8f533e2f6e7d870d5c8f8140f6ee664cdb7892f430e526cf2ef4074
+  artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: http://invalid.test/timeout`
+  verification_status: unreachable
+  verified_against_url: http://invalid.test/timeout
+  verified_at: '2026-10-19T18:21:16.933918Z'
