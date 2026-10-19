@@ -1,13 +1,13 @@
 status: none
-intent: Wisconsin Card Sorting Test dataset older adults OpenNeuro Hugging Face OpenML
+intent: Wisconsin Card Sorting Test older adults dataset with MMSE stimulus labels
   python package dataset
 required_fields:
 - participant_id
 - age
-- wcst_categories_completed
+- mmse_score
+- wcst_total_score
 - wcst_perseverative_errors
 - stimulus_label
-- mmse_score
-cache_key: 5e8b43e9fb50965371978d97e8f824be31e131f3c5cedf344da105751c876f52
-searched_at: '2026-10-15T21:28:53.446543+00:00'
+cache_key: cec2c5aa53a6c54e41843ea06b19d9d402cab1e1623a198968ad8c5cd2e9749a
+searched_at: '2026-10-19T22:18:52.310333+00:00'
 retry_count: 1
