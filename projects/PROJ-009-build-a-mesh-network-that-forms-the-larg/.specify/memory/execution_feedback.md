@@ -19,9 +19,18 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/orchestrator/cli.py: self-declared fabricated metric — “…ark once per node and collect dummy metrics     rows = []     for idx, n…”; 6 command(s) failed: python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 (rc=1); python code/orchestrator/cli.py sweep --config config.yaml (rc=1); python code/analysis/theoretical_bound.py  --input data/processed/regression_model.json  --config config.yaml (rc=1); 3 declared deliverable(s) absent: data/raw/dropout_events.json; data/raw/run_001.csv; data/raw/validation_status.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/orchestrator/cli.py: self-declared fabricated metric — “…ark once per node and collect dummy metrics     rows = []     for idx, n…”; 7 command(s) failed: python code/orchestrator/cli.py calibrate --config config.yaml (rc=1); python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 (rc=1); python code/orchestrator/cli.py sweep --config config.yaml (rc=1); 3 declared deliverable(s) absent: data/raw/dropout_events.json; data/raw/run_001.csv; data/raw/validation_status.json
 
 ## Failing / missing run-book commands
+
+- python code/orchestrator/cli.py calibrate --config config.yaml -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/cli.py", line 38, in <module>
+    from orchestrator.benchmark import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/benchmark.py", line 25, in <module>
+    from orchestrator.timeout_guard import enforce_pipeline_timeout, PipelineTimeoutError
+ImportError: cannot import name 'PipelineTimeoutError' from 'orchestrator.timeout_guard' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/timeout_guard.py)
 
 - python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 -> rc=1
 
@@ -75,7 +84,7 @@ ERROR tests/unit/test_scheduler_straggler.py
 ERROR tests/unit/test_sweep_runner.py
 ERROR tests/unit/test_timeout_guard.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 0.90s ===============================
+============================== 7 errors in 0.67s ===============================
 
 
 - python -m pytest tests/contract/ -v -> rc=1
@@ -84,7 +93,7 @@ ERROR tests/contract/test_regression_model_schema.py::TestRegressionModelSchema:
 assert False
  +  where False = <bound method Path.exists of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml')>()
  +    where <bound method Path.exists of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml')> = PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml').exists
-=================== 1 failed, 17 passed, 15 errors in 0.23s ====================
+=================== 1 failed, 17 passed, 15 errors in 0.21s ====================
 
 
 - python -m pytest tests/integration/ -v --mock-testbed -> rc=4

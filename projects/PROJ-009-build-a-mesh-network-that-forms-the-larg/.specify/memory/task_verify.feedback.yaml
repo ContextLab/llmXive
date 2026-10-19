@@ -1,42 +1,36 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/orchestrator/cli.py
-    exit=1'
-  task: dc5f2a1973faddb12c7a1aff8958e42d0b355283a6fbecd5a85d7cf6c695a2a2
+  task: e884b52214a5b7f5436a0114eb7824303a2913e5fba3d839d30ee0936138a5bc
 T002:
-  reason: "The required `data/raw/physical_node_*.json` files do not exist, and `collect_and_write_metadata`\
-    \ cannot produce them: it calls `validate_schema(metadata, \"physical-node\")`,\
-    \ but `contract_validator.py` only defines \"ExecutionRun\" and \"RegressionModel\"\
-    \ schemas, so it would raise `ValueError: Unknown schema: physical-node` \u2014\
-    \ the schema file `contracts/physical-node.schema.yaml` is an empty stub (`properties:\
-    \ {}`) that is never actually loaded. Additionally, the test suite covers only\
-    \ discovery and the factory; it contains no tests for tool-presence checks, CPU\
-    \ profiling, radio metrics, thermal r"
-  task: bef133af3e196f6832bb52ce028cc817c40e9fb5c4e91f629b8863852d3b7edd
+  task: 84a1cd9c624be555f7aba06b6ba0e64588518351f80f5e5995a05855f0fc2d2e
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/orchestrator/cli.py
-    exit=1'
-  task: bab1106e379ad867863164936ed38ace08062cd1b9407a560b3cfc80fcbed820
+  task: 3c604650a8548f24ca90fe9c8d37468d97edf3cbd4f6d0c5b18dec1f62c59c30
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/orchestrator/cli.py
-    exit=1'
-  task: 69182d8d4c3be01b1aee6ca7d0465bdc04aaa34c3d280db2b7bff1bb7858f157
+  task: 412ee364d49d1b521e29aaa0ac9d7b3d220bbf3eb487bfc427956b11dfebe35d
 T005:
-  task: 7f2d5e6df802c9ab089e308deac1f15549c91fe2ffe6dac9baf79159a8f35639
+  task: caea2b8f775fbda88bbdee14abfe63da74b1d07ca807d00e53872afd3e01728b
 T006:
-  task: 126e8c1e0a24e0cd1e2398185a97ef8ade67d97124925646efe3a99cae0fd1e6
+  task: 704b9c17d90c5f025b1e01fb5d8968eb5b4f8a086884bc8edb1bf0e6e8c11879
 T007:
-  task: 33da44a0ade020257777366fcbcaf066a72e36594007ffa5e6352d46480ed65b
+  task: 7df65a5ff65902bd5c7d47490418b4c33536d93b434b445820192e14e6031cc6
 T008:
-  task: 01b19a37943c06cc362c1a66ce9d7bcea912eb47e20e4cc28ecaf378b02223f6
+  task: bd95139247f6dd9b43fb0255556e926ddd395776c220a67380bf8d92f398d6b7
 T009:
-  task: 40e245e54335727b40aba7fa60c438f944578ff26b646455ddf22ee3cc4bb7c8
+  task: c1c20bcd57768a30dac885ca38a7a4d21ad6e4c67008760da48b063b68c85c00
 T010:
-  task: fd869f9b6b6b0adc1595ce8081309acbf08c42958a704cb0b48542a01e74491e
+  task: 7c339fcca49025eba1a80984359c21d32c0cfcf537b04069459d31f06423795e
 T011:
-  task: 5977b77cdebc0b3bf97df650f84eb9c5c6308c6ed8305ec6493f0cfb5024abbb
+  task: 3db1851d7745d123dbda2a02c10e5c5376d7aa66daf1b328e471bc02a9a23e77
 T012:
-  task: 888a13db568f78a2775dfd197a31191b39442d3fc99e310b5a7fcac1c76fc636
+  task: b5222f0ff94b4268f132b35dc53e8f6b8700f2be43d217402203c9368bf29702
 T013:
-  task: 170b32b11c36196b7b0b91dc080af11ce59b81397ca1290456c508ed026eb9e8
+  task: 7954e87fd3b4d9b18741b38efa7ca6b8d2d5e66542173836f7906602c2015427
 T014:
-  task: 92c34b3e2550e13692b932877e41cf368642e3d3230f7ff886308092ddbe8e43
+  task: 67be875fd782e152af56a288602ef73d5e703608ccbc1d32da689b24e4dc35a9
+T015:
+  task: 9597f4d9e2ffcdec91fc93d9ca62fa51556ec7f3603321716a604fd999992803
+T016:
+  task: a281dee33d7bbb9a9128901e7edbf91dfe1700f3abbca915ff0129efe915a11a
+T017:
+  task: 43c92dca2dd07bcb5b24b9aa5c51727299214b7515083a46c1e9319c73aa248d
+T018:
+  task: e80c4ccaf9899141d237b490ddf4a5362fd708eaf5c9725b82e854201f0dd006

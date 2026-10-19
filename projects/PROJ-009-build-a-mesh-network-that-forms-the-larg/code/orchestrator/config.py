@@ -1,3 +1,10 @@
+"""
+Configuration management for the mesh network orchestrator.
+
+Loads YAML configuration files and provides a global random_seed
+(Principle I: Reproducibility) that is mirrored in sweep_config.yaml
+and used by all stochastic components.
+"""
 from __future__ import annotations
 
 import os
@@ -25,6 +32,7 @@ class Config:
     benchmark: Dict[str, Any] = field(default_factory=dict)
     analysis: Dict[str, Any] = field(default_factory=dict)
     ci_timeout_seconds: int = 21600  # default CI wall‑clock limit (seconds)
+    random_seed: int = 42  # Global reproducibility seed (Principle I)
 
 class ConfigError(Exception):
     """Raised when configuration loading or validation fails."""
@@ -43,11 +51,14 @@ class ConfigManager:
             raise ConfigError(f"Config file not found: {self.path}")
         with self.path.open("rt") as f:
             raw = yaml.safe_load(f)
+        if raw is None:
+            raw = {}
         self.config = Config(
             testbed=raw.get("testbed", {}),
             benchmark=raw.get("benchmark", {}),
             analysis=raw.get("analysis", {}),
-            ci_timeout_seconds=raw.get("ci_timeout_seconds", 21600)
+            ci_timeout_seconds=raw.get("ci_timeout_seconds", 21600),
+            random_seed=raw.get("random_seed", 42)
         )
 
     def get(self) -> Config:
@@ -75,6 +86,7 @@ def save_config(config: Config, path: Optional[Path] = None) -> None:
         "benchmark": config.benchmark,
         "analysis": config.analysis,
         "ci_timeout_seconds": config.ci_timeout_seconds,
+        "random_seed": config.random_seed,
     }
     with target.open("wt") as f:
         yaml.safe_dump(data, f)

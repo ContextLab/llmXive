@@ -1,16 +1,9 @@
 status: none
-intent: Distributed Execution Log Dataset heterogeneous devices csv python package
-  dataset
-required_fields:
-- node_id
-- timestamp
-- task_id
-- packet_count
-- cpu_utilization
-- latency
-- memory_usage
-- status
-- heartbeat_timestamp
-cache_key: 72d0bede1be10f99135a9cd981d2d2bb95bbf91b6c3f1b1bf9b17cad86d59322
-searched_at: '2026-10-19T13:26:26.818484+00:00'
+intent: '### User Story 1 - Physical Testbed Orchestration & Data Acquisition (Priority:
+  P1) The researcher MUST be able to deploy a dynamic scheduler to a physical mesh
+  of heterogeneous consumer devices (laptops, Raspberry Pis, mobile devices) over
+  a local Wi-Fi network, inject controlled network impairment'
+required_fields: []
+cache_key: 827f576c81d0c6c3b109864e91e4ce9130fb2a4179624de11b8ed3f567a9e42e
+searched_at: '2026-10-19T14:00:11.352184+00:00'
 retry_count: 1
