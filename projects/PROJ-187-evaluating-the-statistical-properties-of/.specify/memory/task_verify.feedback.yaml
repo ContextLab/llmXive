@@ -7,18 +7,20 @@ T001:
     write only project-owned outputs.'
   task: f6cd19fa53b1b931017f7a76051d33e90e02c869a522b360b66c8cb6653460d7
 T002:
-  reason: 'The only execution record for `tests/unit/test_metrics.py` (exit 1) shows
-    2 of 16 tests failing: `test_zero_variance_synthetic_flagged_and_ks_skipped` (the
-    FR-011 zero-variance flag was not set, so the core requirement is not actually
-    working as tested) and `test_kde_estimate_returns_grid_and_pdf` (`np.trapezoid`
-    doesn''t exist in the installed NumPy, a test-code bug). There is no evidence
-    of a subsequent passing run after any fix, so the task''s verification requirement
-    (`pytest tests/unit/test_metrics.py` validating KS/chi-square/Fisher-z and FR-011
-    handling) is not met. Fix the zero-variance'
   task: 4f23a5fad785d75f76773049576d3c326b0ec5f6c13c36a626d04386f1595965
 T003:
+  reason: "The verification test `pytest tests/unit/test_trainer.py` fails (exit 1,\
+    \ both tests FAILED with an `ImportError: cannot import name 'HyperTransformer'\
+    \ from 'rdt'`), and no `outputs/synthetic/*.csv` artifacts exist, so there is\
+    \ no evidence any model actually trained or produced synthetic data. Additionally,\
+    \ the trainer never implements the mandatory FR-013 early stopping (delta=0.001,\
+    \ patience=3) \u2014 the parameters are accepted but ignored \u2014 and the seed\
+    \ is never passed to the SDV models, so FR-017 reproducibility is not honored;\
+    \ the failure path also writes an empty header-only CSV rather than r"
   task: d353501366e12547bf97834e8c72f21a2b8c7ee7e79905a3d84867b120d07638
 T004:
+  reason: 'Requested task execution failed; rerun successfully: src/cli/run_fidelity.py
+    exit=1'
   task: 5721ac7e6c0ad30a607c038e668c31babf4293644275a8027a42d42b77d7561e
 T005:
   task: 50a35dacf3b8ecc7d77926462e99d5989816be8e9fff56b546ccffc969493b58

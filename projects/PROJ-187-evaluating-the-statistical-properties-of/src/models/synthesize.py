@@ -49,7 +49,6 @@ def generate_and_save(
         Path to the written CSV file. The corresponding JSON metadata file
         is written alongside it with the same stem and a ``.json`` suffix.
     """
-    # Train the model and obtain synthetic rows.
     try:
         synth_df = train_model(
             model_name=model_name,
@@ -68,20 +67,12 @@ def generate_and_save(
         status = "failure"
 
     # Determine output locations.
-    csv_path = paths.outputs(
-        "synthetic",
-        f"{dataset_name}_{model_name}_seed{seed}.csv",
-    )
+    csv_path = paths.outputs("synthetic", f"{dataset_name}_{model_name}_seed{seed}.csv")
     json_path = csv_path.with_suffix(".json")
 
     # Write CSV.
     synth_df.to_csv(csv_path, index=False)
-    log.info(
-        "Synthetic CSV written: %s (status=%s, rows=%d)",
-        csv_path,
-        status,
-        len(synth_df),
-    )
+    log.info("Synthetic CSV written: %s (status=%s, rows=%d)", csv_path, status, len(synth_df))
 
     # Assemble side‑car metadata.
     metadata = {

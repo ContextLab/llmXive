@@ -9,14 +9,26 @@ T000:
     the task's requirement.
   sig: 7863e7885f5c09177f8b6ec4b08cfac4b457364d9dec9ae28a958e2f6f7250d6
 T002:
+  c: true
+  h: c3fead4f00e831c61ca89e781918dffb8df9ace5ad72c188798eb43096d932e9
+  r: "Both `src/metrics/marginal.py` and `src/metrics/correlation.py` exist with full\
+    \ implementations of all required metrics (KS/chi-square with p-values, KDE, Pearson/Spearman\
+    \ diffs, Fisher-z deviations with \xB10.999 clipping, permutation test enforcing\
+    \ \u22651000 permutations with fixed seed, and FR-011 zero-variance flagging with\
+    \ graceful KS skip), and `tests/unit/test_metrics.py` contains hand-computed-value\
+    \ assertions for KS, chi-square, and Fisher-z plus zero-variance crash-safety\
+    \ tests, including an Adult-data test that is properly skip-guarded on T001 output\
+    \ availability. The code is substantive w"
+  sig: 4168c3e7b0521f60c0ebf05e0d4b770e38892ce4740ee4f1e613f5ac61ee9443
+T003:
   c: false
-  h: 9709023ca39120a2c7b3f96663e0a6ffbc255cb63df6533d938424b732602aee
-  r: 'The only execution record for `tests/unit/test_metrics.py` (exit 1) shows 2
-    of 16 tests failing: `test_zero_variance_synthetic_flagged_and_ks_skipped` (the
-    FR-011 zero-variance flag was not set, so the core requirement is not actually
-    working as tested) and `test_kde_estimate_returns_grid_and_pdf` (`np.trapezoid`
-    doesn''t exist in the installed NumPy, a test-code bug). There is no evidence
-    of a subsequent passing run after any fix, so the task''s verification requirement
-    (`pytest tests/unit/test_metrics.py` validating KS/chi-square/Fisher-z and FR-011
-    handling) is not met. Fix the zero-variance '
-  sig: e834a0064dacedda51b3bc4b972af240327b303a4e94e0c8cec8d996de3a3095
+  h: eab734edc49eead0e5a4589e2e2aebd2e998b1aec7ab0e7e2af3dc4ac575a586
+  r: "The verification test `pytest tests/unit/test_trainer.py` fails (exit 1, both\
+    \ tests FAILED with an `ImportError: cannot import name 'HyperTransformer' from\
+    \ 'rdt'`), and no `outputs/synthetic/*.csv` artifacts exist, so there is no evidence\
+    \ any model actually trained or produced synthetic data. Additionally, the trainer\
+    \ never implements the mandatory FR-013 early stopping (delta=0.001, patience=3)\
+    \ \u2014 the parameters are accepted but ignored \u2014 and the seed is never\
+    \ passed to the SDV models, so FR-017 reproducibility is not honored; the failure\
+    \ path also writes an empty header-only CSV rather than r"
+  sig: c3d80b23b42fa54d353744accc5c157e6e4e89cf5b9af8cca4e18c4316b2ab6b

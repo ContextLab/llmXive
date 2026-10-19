@@ -1,3 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-type: object
-additionalProperties: true
+title: Metric Results Schema
+type: array
+items:
+  type: object
+  required: [dataset, model, seed, column]
+  properties:
+    dataset: { type: string }
+    model: { type: string }
+    seed: { type: integer }
+    column: { type: string }
+    column_type: { type: string, enum: [continuous, categorical] }
+    real_mean: { type: ["number", "null"] }
+    synth_mean: { type: ["number", "null"] }
+    mean_diff: { type: ["number", "null"] }
+    real_var: { type: ["number", "null"] }
+    synth_var: { type: ["number", "null"] }
+    var_diff: { type: ["number", "null"] }
+    ks_stat: { type: ["number", "null"] }
+    ks_pvalue: { type: ["number", "null"] }
+    chi2_stat: { type: ["number", "null"] }
+    chi2_pvalue: { type: ["number", "null"] }
+    metric_type: { type: string, enum: [PearsonDiff, SpearmanDiff, FisherZ, PermutationCorr] }
+    real_val: { type: ["number", "null"] }
+    synth_val: { type: ["number", "null"] }
+    diff: { type: ["number", "null"] }
+    pvalue: { type: ["number", "null"] }
+    fisher_z_deviation: { type: ["number", "null"] }
