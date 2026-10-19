@@ -1,47 +1,34 @@
 T001:
-  reason: "The script ingests the **Lipophilicity** dataset via `skfp.datasets.moleculenet.load_lipophilicity`\
-    \ (4200 records) rather than the required **ESOL** dataset from the specified\
-    \ deepchem S3 URL \u2014 the `--url` argument is parsed but never used, so `data/raw/esol.csv`\
-    \ actually contains Lipophilicity data mislabeled as ESOL. Additionally, the required\
-    \ \"chunked sparse-matrix fallback\" for processing is entirely absent from the\
-    \ code, and the exclusion log contains duplicated entries (the same 5 SMILES written\
-    \ twice) from repeated appends, indicating the log/checksum append logic isn't\
-    \ idempotent. The"
-  task: b229e561fa0112f053eb188efae9dc8ab20dafe932c0b8790a489c485a5ccd91
-T002:
-  task: 04058a84286fbe24491ef2930867809e75c10afc111e5df506a32ea0689a362b
-T003:
-  reason: 'The test file exists and is substantive, but the recorded execution log
-    shows `pytest code/tests/test_feature_matrix.py` FAILED (exit 1): `test_feature_matrix_schema`
-    crashes with `ValueError: You are trying to merge on int64 and object columns
-    for key ''molecule_id''` when merging the features CSV with `filtered_esol.csv`.
-    The task''s verification criterion (pytest passes) is not met; fix the merge by
-    casting both `molecule_id` columns to a consistent type (e.g., `astype(str)`)
-    before merging.'
-  task: 501ebfbcc6631c9eff6a8e14f853419773959a81585383e2b7a143d62d860d70
-T004:
-  reason: 'Requested task execution failed; rerun successfully: code/03_feature_engineering.py
+  reason: 'Requested task execution failed; rerun successfully: code/01_data_ingestion.py
     exit=1'
-  task: 2566a533abbd495dade7016cf9fd2406b99c8c7e6ea1d3bd27f959502575c9d2
+  task: 496f3ab1178c311a70018388ff750ebf54f3faa7eb9a1b552d0f1f1ac7fc82dd
+T001a:
+  task: 11e7aa709c71d191684aeba17863cb9ee2b6d75f611ba94b223c92f6328c8d2e
+T002:
+  task: 47d418c4356f9320a43da6b0433855dd9f05120dcb7c1e43708dbff1344b2536
+T003:
+  task: 0aaf2c411477df4bbb5a97d28ebcf491a716baab7f878970972cc932e048d413
+T004:
+  task: 95e4d61e3c6a2f77de87ca95871376e4d580a2647375c3e01ca383486b22834f
 T005:
-  task: a5998bc1afe82b2bcd95997bbd118f5d5e38479a0807510280ba64e31ea69fab
+  task: f5e5ea64448897afb2ebe7afa84ac63b584d2cb4c72f71b986b19908a269992d
 T006:
-  task: d08c938b9cfaab92c3929f0a58cbb8c49a87ed6d8ed9bed90be2609cc1cc393c
+  task: d145237ccb8421c114ed3d1c2676b4059fe5777c2c6343789366f3da5dd68501
 T007:
-  task: e09ac6bfcf76a20514df607231fd4c6204875f1139886b8e7f65333c61584c89
+  task: d2dd9112693182a52945d9fc9c13cc429b59c4eb237f04f28e131b9fd9fe9556
 T008:
-  task: a05cd938536591839262a2109309a005457e17e3198ffdb5e785b775d2cc2f43
+  task: 828f2ee9ff6572bf7a3e0ea1859bafe614b0551342e63eff1a73e495090b02dc
 T009:
-  task: b646a7c5032687d1f68863fe467111173107aca9f8216c9752056f023a4acc39
+  task: 82cfe927dc023ce8810ab936914986d76c0c108cab108dc99edd160c90211897
 T010:
-  task: 40157ed8d89fbde69dacfcefb38c203d761cd28c86d86befe3950369fad32f30
+  task: 1c402be83f6105a239ceb26c57d9e1c0a340661b0eb5e8e7b708d1028183b94d
 T011:
-  task: f054fa33b91622acc6e0a492da763dad24115fb4fd8f9f0dfb7a48461bd2b620
+  task: 232bbe8d105ac9e43d871871d9bd1dc2707ccc09862ccee4a7c23e8ca1a31bb6
 T012:
-  task: d89c6cc165647b057ca77cdd1208b86af971165286b9fa9e12fdb1d69b992894
+  task: 6427c207de3ea4ccca4d6b81d3295b144b8ea3cb137e96b09b818a7bca0667c8
 T013:
-  task: 1ef72eac4390b13c6cb01a63e9065e0356623e5a60ab7e7304975869598aa834
+  task: 6e4cf62a90ede17b92214dd4a79448e89d6edaa424fbb06d6d3dd01dcc3af058
 T014:
-  task: da4b2e9d3074aadfa40af76e3568ecff5c38149a740a185fb247fa1026135a16
+  task: dbea2243c05a199a8f63e9a0c196ab67abb1ae40c87c19db947eb6b8cc3d058f
 T015:
-  task: f277646243fa1ecd38407e73c815f898130d740e0d417daef75e33c7cbe42680
+  task: ed4c4e73904edc44b820a9129e2d3de331f115c59949fc079272c68b67820141

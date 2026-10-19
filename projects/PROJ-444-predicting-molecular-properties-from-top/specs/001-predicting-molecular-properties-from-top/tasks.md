@@ -8,7 +8,7 @@ The goal is to deliver a complete, reproducible, CPU‑only study that satisfies
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [US1] *Data ingestion, provenance, and scaffold split creation*  
+- [ ] T001 [US1] *Data ingestion, provenance, and scaffold split creation*   <!-- FAILED-IN-EXECUTION: code/01_data_ingestion.py exit=1 -->
   - In `code/01_data_ingestion.py`, download the **ESOL** dataset from the verified DeepChem S3 URL `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv` (the `--url` argument **must** be used).  
   - Verify required columns `smiles` and `logP` (conforms to `dataset.schema.yaml`); abort with a clear Data Gap error if missing.  
   - Compute SHA‑256 checksum of `data/raw/esol.csv` and **idempotently** append it to `data/checksums.txt`.  
