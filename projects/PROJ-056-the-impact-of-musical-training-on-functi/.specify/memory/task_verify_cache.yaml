@@ -1,11 +1,10 @@
-T003:
+T001:
   c: false
-  h: fdcb8aa43440d62bdd3107044b41e9d2a26426aeca8481aba43ade74686fde83
-  r: "Checked `code/main.py` for the required CLI options and the verification\u2011\
-    mode workflow. While the script defines `--mode verification` and `--mode analysis`,\
-    \ the verification path never writes the expected CSV outputs (e.g., `subjects_cleaned.csv`\
-    \ is only logged, not created) and no execution logs or generated CSV files are\
-    \ provided to prove that running `python -m code.main --mode verification` produces\
-    \ the three required verification\u2011mode CSVs without error. The task therefore\
-    \ lacks concrete evidence of successful wiring."
-  sig: bcdb6565c0b3a14c744feca374d55b714446704968a1b40f1c73b3e510468fe6
+  h: 3e2608a777332795faec4ff81246a8b3f20628570e4ab804f9fa9e91082dbc01
+  r: "The quickstart markdown is present, but the entry\u2011point scripts are broken:\
+    \ `code/main.py` imports several analysis modules that are not in the repository\
+    \ (e.g., `analysis.stats`, `analysis.run_nbs`), causing an import error; `code/data/run_synthetic_generator.py`\
+    \ imports a non\u2011existent `synthetic_generator` module; `code/run_quickstart_test.py`\
+    \ invokes a pytest file that is not provided. Consequently the required commands\
+    \ cannot run end\u2011to\u2011end and the task is not satisfied."
+  sig: 805af9b7ba6bfd65fca94101ed8a9f96bfc994fab4b3a8b7766592d22fa1b9f4

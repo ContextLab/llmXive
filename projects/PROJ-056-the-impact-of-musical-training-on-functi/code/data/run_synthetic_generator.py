@@ -5,9 +5,11 @@ This script is used by the verification pipeline to create:
   * ``data/raw/mock_nifti/`` – a directory of mock NIfTI files (one per subject)
   * ``data/processed/subjects.parquet`` – a Parquet table with behavioural metadata
 
-The implementation relies on :pyfunc:`data.synthetic_generator.generate_synthetic_dataset`,
-which already guarantees a balanced cohort (≈75 musicians, ≈75 non‑musicians)
-and respects the schema defined in ``contracts/subject.schema.yaml``.
+The implementation relies on :pyfunc:`synthetic_generator.generate_synthetic_dataset`,
+which now guarantees a balanced cohort (≈75 musicians, ≈75 non‑musicians),
+respects the schema defined in ``contracts/subject.schema.yaml``, and injects
+a small seeded rate of missing training‑history values and corrupted NIfTI files
+(logged) so that downstream preprocessing can demonstrate exclusion handling.
 
 Running this script will **always** write the two artefacts to the exact
 locations expected by downstream modules and unit tests.
@@ -16,8 +18,9 @@ locations expected by downstream modules and unit tests.
 import sys
 from pathlib import Path
 
-# Import the generator from the existing module
-from data.synthetic_generator import generate_synthetic_dataset
+# Import the generator from the sibling module using a direct import
+# (the ``code/data`` directory is on ``sys.path`` when the script is executed)
+import synthetic_generator
 
 def main() -> int:
     """
@@ -33,7 +36,7 @@ def main() -> int:
 
     # The generator writes the required files automatically.
     # We keep the seed fixed for reproducibility.
-    generate_synthetic_dataset(n_subjects=n_subjects, seed=42)
+    synthetic_generator.generate_synthetic_dataset(n_subjects=n_subjects, seed=42)
 
     # Verify that the expected artefacts now exist; raise if not.
     subjects_path = Path("data/processed/subjects.parquet")

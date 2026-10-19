@@ -1,3 +1,14 @@
-networkx
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
 nibabel
 tqdm
+pyyaml
+jsonschema
+requests
+psutil
+# llmxive_toolkit is provided by the environment and does not need to be listed

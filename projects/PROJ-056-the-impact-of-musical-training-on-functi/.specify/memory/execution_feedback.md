@@ -19,109 +19,87 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 29 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/run_nbs.py: self-declared fabricated metric — “…index=False)     print(f"NBS placeholder results written to {output_path}")…”; code/analysis/connectivity.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset for verification...")…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# Verification mode uses synthetic data         logger.info("Gen…”; 3 command(s) failed: python code/main.py --mode synthetic --n-subjects <representative_number> (rc=1); python code/main.py --mode real --data-path /path/to/verified/ABCD_or_HCP_Adolescents (rc=1); python -m pytest tests/ (rc=2); 11 declared deliverable(s) absent: data/atlas/schaefer_400.csv; data/processed/connectivity_matrices.npy; data/processed/connectivity_results.csv
+**Summary**: 31 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/run_nbs.py: self-declared fabricated metric — “…index=False)     print(f"NBS placeholder results written to {output_path}")…”; code/analysis/connectivity.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset for verification...")…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# Verification mode uses synthetic data         logger.info("Gen…”; 4 command(s) failed: python code/main.py --mode synthetic --n-subjects 100 --seed 42 (rc=1); python code/data/run_synthetic_generator.py --n-subjects 100 --seed 42 (rc=1); python code/main.py --mode real --data-path /path/to/verified/dataset (rc=1); 3 declared deliverable(s) absent: data/processed/matching_balance_report.csv; data/processed/subjects.parquet; data/processed/subjects_cleaned.csv
 
 ## Failing / missing run-book commands
 
-- python code/main.py --mode synthetic --n-subjects <representative_number> -> rc=1
+- python code/main.py --mode synthetic --n-subjects 100 --seed 42 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 49, in <module>
-    from analysis.download_atlas import main as download_atlas_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/analysis/download_atlas.py", line 11, in <module>
-    from nilearn import datasets
-ModuleNotFoundError: No module named 'nilearn'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 42, in <module>
+    from analysis.stats import process_connectivity_statistics
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/analysis/stats.py", line 7, in <module>
+    import networkx as nx
+ModuleNotFoundError: No module named 'networkx'
 
-- python code/main.py --mode real --data-path /path/to/verified/ABCD_or_HCP_Adolescents -> rc=1
+- python code/data/run_synthetic_generator.py --n-subjects 100 --seed 42 -> rc=1
+ generate_synthetic_dataset
+    subjects_df.to_parquet(subjects_parquet_path, index=False)
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/util/_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/frame.py", line 3113, in to_parquet
+    return to_parquet(
+           ^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 476, in to_parquet
+    impl = get_engine(engine)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 67, in get_engine
+    raise ImportError(
+ImportError: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
+
+- python code/main.py --mode real --data-path /path/to/verified/dataset -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 49, in <module>
-    from analysis.download_atlas import main as download_atlas_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/analysis/download_atlas.py", line 11, in <module>
-    from nilearn import datasets
-ModuleNotFoundError: No module named 'nilearn'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 42, in <module>
+    from analysis.stats import process_connectivity_statistics
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/analysis/stats.py", line 7, in <module>
+    import networkx as nx
+ModuleNotFoundError: No module named 'networkx'
 
 - python -m pytest tests/ -> rc=2
-llecting projects/PROJ-056-the-impact-of-musical-training-on-functi/tests/unit/test_nbs_results.py _
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/tests/unit/test_nbs_results.py'.
+py)
+_ ERROR collecting projects/PROJ-056-the-impact-of-musical-training-on-functi/tests/unit/test_stats.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/tests/unit/test_stats.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_nbs_results.py:8: in <module>
-    from analysis.run_nbs import load_connectivity_matrices, run_nbs_analysis
-E   ImportError: cannot import name 'load_connectivity_matrices' from 'analysis.run_nbs' (/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/analysis/run_nbs.py)
+tests/unit/test_stats.py:11: in <module>
+    from analysis.stats import fdr_correction_benjamini_hochberg
+code/analysis/stats.py:7: in <module>
+    import networkx as nx
+E   ModuleNotFoundError: No module named 'networkx'
 =========================== short test summary info ============================
+ERROR tests/integration/test_group_comparison.py
 ERROR tests/unit/test_download_atlas.py
+ERROR tests/unit/test_nbs.py
 ERROR tests/unit/test_nbs_output.py
 ERROR tests/unit/test_nbs_results.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 1.25s ===============================
+ERROR tests/unit/test_stats.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 6 errors in 1.08s ===============================
 
 
 
 ## Declared deliverables still missing
 
-- data/atlas/schaefer_400.csv
-- data/processed/connectivity_matrices.npy
-- data/processed/connectivity_results.csv
-- data/processed/correlation_results.csv
 - data/processed/matching_balance_report.csv
-- data/processed/nbs_results.csv
-- data/processed/network_metrics.csv
-- data/processed/sensitivity_analysis.csv
 - data/processed/subjects.parquet
 - data/processed/subjects_cleaned.csv
-- data/raw/behavioural/subjects_raw.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/atlas/schaefer_400.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/connectivity.py` — NOT invoked by the run-book
-    - `code/analysis/download_atlas.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
-  Make ONE of these WRITE `data/atlas/schaefer_400.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/connectivity_matrices.npy` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/connectivity.py` — NOT invoked by the run-book
-    - `code/analysis/correlation.py` — NOT invoked by the run-book
-    - `code/analysis/networks.py` — NOT invoked by the run-book
-    - `code/analysis/run_nbs.py` — NOT invoked by the run-book
-    - `code/analysis/stats.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/connectivity_matrices.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/connectivity_results.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/connectivity.py` — NOT invoked by the run-book
-    - `code/analysis/output_connectivity_results.py` — NOT invoked by the run-book
-    - `code/analysis/stats.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/connectivity_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/correlation_results.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/correlation.py` — NOT invoked by the run-book
-    - `code/analysis/output_correlation_results.py` — NOT invoked by the run-book
-    - `code/analysis/sensitivity.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/correlation_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/matching_balance_report.csv` is declared but was NOT written. Scripts referencing it:
     - `code/data/preprocess.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/matching_balance_report.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/nbs_results.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/output_nbs_results.py` — NOT invoked by the run-book
-    - `code/analysis/run_nbs.py` — NOT invoked by the run-book
-    - `code/analysis/stats.py` — NOT invoked by the run-book
-    - `code/analysis/write_nbs_results.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/nbs_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/network_metrics.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/networks.py` — NOT invoked by the run-book
-    - `code/analysis/stats.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/network_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/sensitivity_analysis.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/output_correlation_results.py` — NOT invoked by the run-book
-    - `code/analysis/sensitivity.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/sensitivity_analysis.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/subjects.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/connectivity.py` — NOT invoked by the run-book
     - `code/analysis/correlation.py` — NOT invoked by the run-book
@@ -139,6 +117,3 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/preprocess.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/subjects_cleaned.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/behavioural/subjects_raw.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/data/real_ingest.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/behavioural/subjects_raw.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

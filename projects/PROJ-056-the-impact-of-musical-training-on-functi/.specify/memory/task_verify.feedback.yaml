@@ -1,37 +1,39 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/run_quickstart_test.py
-    exit=5'
-  task: b59e5278d734a9b11befb1946f76f1e0a39930893a16dae6e84ed836907a24f0
+  reason: "The quickstart markdown is present, but the entry\u2011point scripts are\
+    \ broken: `code/main.py` imports several analysis modules that are not in the\
+    \ repository (e.g., `analysis.stats`, `analysis.run_nbs`), causing an import error;\
+    \ `code/data/run_synthetic_generator.py` imports a non\u2011existent `synthetic_generator`\
+    \ module; `code/run_quickstart_test.py` invokes a pytest file that is not provided.\
+    \ Consequently the required commands cannot run end\u2011to\u2011end and the task\
+    \ is not satisfied."
+  task: a920de1aaa24fd338d1b01930b214de8e4263eb263ce9e97ac175d53daf1f265
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/run_synthetic_generator.py
     exit=1'
-  task: 332f508cb3901082579715e7a42a49c212ea027440b7535f6172ae590aa1e980
+  task: 65a1caa4e398f9e68bba509121d53f99860a0dca0c084c96a9306d4a004ea1e7
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
-  task: 71da3cfcb3f9641fcc2571ea6fb02fb7ee0667649a1fa2f1ef46164251bd5b91
-T101:
-  task: 8681ac8a4c565935efec1fe7a733ab847a405e06d04a02834edc04cf22483497
-T102:
-  task: 2bebaccd50a2aaa7ef023800768894aa9ad93fb2a82485df1fa887d62075c0b6
-T103:
-  task: 73639989282f96c4e31f5c4bd5e19ecf5eb323aa71700604e7aab0e779233233
-T104:
-  task: a3c90c638cba93bceab11ba9b1db6669d81a2173f3e0ca19be733901270fd59c
-T105:
-  task: 336ca0cc68abdf417c608ad8aad2a7b15141d5d58aacc7d5adf94a5591fef57a
-T106:
-  task: 5001565e1f78f91e56215800974148c3448ac7ce6d8d9b54fa656fabb6f9c412
-T107:
-  task: 8ac5907b6b8ff2b4ab36294d5f0946eee954472dfd11a793844411ae6156d4c6
-T108:
-  task: 428427132281068c2901227fc16c47a6b98bf48a7a8cd2dd58056aee9c15b84a
-T109:
-  task: 796af4de7df00e1b26a2883b584f0423a3b41d94d53d20bf7a3d45c8b11b94df
-T110:
-  task: 5f17e8cf945455427c3163640f5c9b5bd5dcfd2e5d3c7b92c1c2b4e65ca3cd16
-T111:
-  reason: 'Requested task execution failed; rerun successfully: code/data/real_ingest.py
-    exit=1'
-  task: 8e315edfaa05a071e5aca5e5919e9e2a4fa7302edf14451616928c92f7effb23
-T112:
-  task: a2fd8a590ac20da824c47df427a8290ff9b60a744eecc4bdfa49bc9aa6c01a72
+  task: cd82f445c94db43b0a43d51b68fddbb52d7136dd9b1faecf1e84a62c2c58546e
+T004:
+  task: 0ffb0927a3c1684bde7b6b2d0f19cab24f51539025ea1f785146ce79b91b0703
+T005:
+  task: 8482980a7e854be895411be40e76815be2605b015dc73cb80a50ebc1d7489108
+T006:
+  task: df23b693f1dfcc64339a6de319d9a23140fae5f685770616d12a3484184daf71
+T007:
+  task: 960454c098d99995f50e47dce7f4b0f178478f6f2d00d38c77adc294746ec005
+T007a:
+  task: d700c13c46c8ce358eb734d809a71592c653eeb2c393ecd22ce35d92b17013b8
+T008:
+  task: 0cfeb883b10e926921569dc5c8ee0ff900634e28058946d473c132861f0ba328
+T008a:
+  task: 9a58a5013228fe0f2f05a657b3aee4a2b896be6edd482ea12507654e6944636e
+T008b:
+  task: 5fa15e070b5137499c09da0b54c8e543d5664b0deb431c85096dbaf70815b175
+T009:
+  task: c518a00fc631e582070a61359900b7549e3df646ba3f0bce1287a8086898f256
+T010:
+  task: 9d16d3f49dee5594c5137aade2da105c5951de6c157a373e66f68b8f130f65da
+T011:
+  task: fdcd794a1efb02f5e59cdbea4d9b53dc9c196a50d6426f0fff80c61452b3741b
+T012:
+  task: 9a3b4f68094a5af5b2f73c8c692409bd1c9e47b9b52927c74105de098cf59240

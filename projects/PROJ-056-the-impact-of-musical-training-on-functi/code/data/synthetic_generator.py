@@ -20,7 +20,7 @@ import pandas as pd
 
 from utils.memory_monitor import MemoryLimitExceeded
 from llmxive_toolkit import paths, get_logger
-from data.mock_nifti import create_mock_nifti
+from data.mock_nifti import create_mock_nifti, create_corrupted_nifti
 
 log = get_logger(__name__)
 
@@ -29,6 +29,12 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 MIN_SUBJECTS_PER_GROUP: int = 50
 """Minimum number of subjects required per group (musician / non‑musician)."""
+
+# Proportion of non‑musician subjects that will have missing training history
+MISSING_TRAINING_RATE: float = 0.05  # 5 %
+
+# Proportion of subjects that will receive a corrupted NIfTI file
+CORRUPTED_NIFTI_RATE: float = 0.05  # 5 %
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -69,7 +75,8 @@ def generate_subject_data(
     Notes
     -----
     * Musicians receive ``years_of_training >= 1`` (uniform 1‑15 years).
-    * Non‑musicians receive exactly ``0`` years of training.
+    * Non‑musicians receive exactly ``0`` years of training, but a small
+      seeded subset will have missing values (NaN) to test exclusion handling.
     * ``sex`` is encoded as ``0`` (female) or ``1`` (male) to satisfy the
       unit‑test expectation.
     * Age is limited to the adolescent range 10‑18 years.
@@ -117,6 +124,17 @@ def generate_subject_data(
             "ses_score": ses_scores,
         }
     )
+
+    # Inject missing training history for a small fraction of non‑musicians
+    if seed is not None:
+        np.random.seed(seed + 999)  # deterministic offset
+    non_musician_mask = df["group"] == "non_musician"
+    non_musician_indices = df[non_musician_mask].index.to_numpy()
+    n_missing = int(len(non_musician_indices) * MISSING_TRAINING_RATE)
+    if n_missing > 0:
+        missing_idxs = np.random.choice(non_musician_indices, size=n_missing, replace=False)
+        df.loc[missing_idxs, "years_of_training"] = np.nan
+        log.info(f"Injected missing training history for {n_missing} non‑musician subjects.")
 
     # Final validation – ensure group balance
     _validate_subject_counts(df)
@@ -263,6 +281,8 @@ def generate_synthetic_dataset(
 
     * Creates a behavioural table and writes it as ``data/processed/subjects.parquet``.
     * Generates a mock NIfTI file for each subject under ``data/raw/mock_nifti/``.
+    * Injects a small seeded rate of missing training‑history values (non‑musicians only)
+      and a small seeded rate of corrupted NIfTI files.
     * Returns the behavioural ``DataFrame`` for downstream consumption.
 
     Parameters
@@ -303,16 +323,30 @@ def generate_synthetic_dataset(
     # Use a simple 4‑D shape: (10, 10, 10, n_timepoints)
     nifti_shape = (10, 10, 10, n_timepoints)
 
-    for subj_id in subjects_df["subject_id"]:
+    # Determine which subjects will receive corrupted files
+    if seed is not None:
+        np.random.seed(seed + 555)  # deterministic offset for corruption selection
+    subject_ids = subjects_df["subject_id"].tolist()
+    n_corrupt = int(len(subject_ids) * CORRUPTED_NIFTI_RATE)
+    corrupt_ids = set()
+    if n_corrupt > 0:
+        corrupt_ids = set(np.random.choice(subject_ids, size=n_corrupt, replace=False))
+        log.info(f"Injecting corrupted NIfTI files for {n_corrupt} subjects.")
+
+    for subj_id in subject_ids:
         nifti_path = nifti_dir / f"{subj_id}.nii.gz"
-        # ``create_mock_nifti`` will ensure the file is a valid NIfTI‑1 image.
-        create_mock_nifti(
-            output_path=str(nifti_path),
-            shape=nifti_shape,
-            dtype=np.float32,
-            seed=seed,
-        )
-    log.info(f"Created {len(subjects_df)} mock NIfTI files in {nifti_dir}")
+        if subj_id in corrupt_ids:
+            # Create a deliberately corrupted file
+            create_corrupted_nifti(str(nifti_path))
+        else:
+            # ``create_mock_nifti`` will ensure the file is a valid NIfTI‑1 image.
+            create_mock_nifti(
+                output_path=str(nifti_path),
+                shape=nifti_shape,
+                dtype=np.float32,
+                seed=seed,
+            )
+    log.info(f"Created {len(subject_ids)} mock NIfTI files in {nifti_dir}")
 
     return subjects_df
 
