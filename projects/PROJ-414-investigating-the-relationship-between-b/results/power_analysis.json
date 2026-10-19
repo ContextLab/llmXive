@@ -1,0 +1,9 @@
+{
+  "target_power": 0.8,
+  "effect_size_d": 0.5,
+  "effect_size_r": 0.24253562503633297,
+  "required_n": 133,
+  "available_n": 30,
+  "power_status": "insufficient",
+  "n_ge_20_floor_check": true
+}

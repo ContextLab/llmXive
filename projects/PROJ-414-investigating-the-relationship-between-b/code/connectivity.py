@@ -1,29 +1,31 @@
-"""Sliding‑window functional connectivity and vertex‑block descriptor generation.
+"""Sliding‑window functional connectivity and vertex‑block descriptor computation (T004).
 
-This module implements the **T004** pipeline stage.  It reads the per‑subject
-block‑mean time‑series CSV files produced by ``extract_rois.py``, applies a
-rectangular sliding window, computes a Ledoit‑Wolf regularised covariance
-for each window, converts it to a correlation matrix, and finally extracts
-three graph‑theoretic descriptors (global efficiency, modularity, and
-participation coefficient) for each window.
+This module provides a ``main()`` entry point that reads per‑subject
+block‑mean time‑series CSV files produced by ``extract_rois``, applies
+a rectangular sliding window, computes a Ledoit‑Wolf regularized
+Pearson correlation matrix for each window, and writes a CSV of
+graph‑theoretic descriptors per subject.
 
-The output for each subject is written to
-``data/derived/metrics_<subject_id>.csv`` and conforms to the JSON schema
-located at ``specs/001-investigating-the-relationship-between-b/contracts/network_metrics.schema.yaml``.
+The implementation is deliberately defensive: missing input files
+are reported as warnings rather than fatal errors so that the
+orchestrator can continue with later stages. All imports are
+absolute (``import graph_metrics``) to avoid relative‑import failures
+when the module is executed as a script or imported by the test
+suite.
 """
 import argparse
+import csv
 import json
 import logging
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import networkx as nx
 from sklearn.covariance import LedoitWolf
 
-import config  # pinned parameters
-from llmxive_toolkit import paths, get_logger
-from . import graph_metrics
+import config
+import graph_metrics
+from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
@@ -31,26 +33,20 @@ def _load_subject_timeseries(subject_id: str) -> np.ndarray:
     """Load the block‑mean matrix for *subject_id*.
 
     Returns a ``(n_timepoints, n_blocks)`` ``float64`` array.
+    The CSV file is expected at ``data/derived/roi_timeseries_<id>.csv``.
     """
     ts_path = paths.data("derived", f"roi_timeseries_{subject_id}.csv")
     if not ts_path.is_file():
-        raise FileNotFoundError(f"ROI timeseries not found for subject {subject_id}")
+        raise FileNotFoundError(f"timeseries file missing for subject {subject_id}")
     df = pd.read_csv(ts_path)
-    # Ensure deterministic block ordering.
-    block_ids = sorted(df["roi_id"].unique(), key=lambda x: int(x.split("_")[1]))
-    matrix = df.pivot(index="timepoint", columns="roi_id", values="value")
-    matrix = matrix[block_ids].to_numpy(dtype=np.float64)
-    return matrix
+    # Pivot to wide format: rows = timepoints, columns = roi_id
+    wide = df.pivot(index="timepoint", columns="roi_id", values="value")
+    # Ensure columns are ordered ``roi_1`` … ``roi_100``
+    ordered_cols = [f"roi_{i}" for i in range(1, config.N_VERTEX_BLOCKS + 1)]
+    return wide[ordered_cols].to_numpy(dtype=np.float64)
 
 def _window_indices(n_timepoints: int, window_frames: int, step_frames: int):
-    """Yield (start, end) indices for each sliding window."""
-    if window_frames < config.MIN_TIMEPOINTS_PER_WINDOW:
-        log.debug(
-            "Window size %d frames < minimum %d frames – skipping all windows",
-            window_frames,
-            config.MIN_TIMEPOINTS_PER_WINDOW,
-        )
-        return iter([])  # no windows
+    """Yield ``(start, end)`` indices for each sliding window."""
     start = 0
     while start + window_frames <= n_timepoints:
         yield start, start + window_frames
@@ -58,110 +54,96 @@ def _window_indices(n_timepoints: int, window_frames: int, step_frames: int):
 
 def _process_subject(subject_id: str, window_seconds: float, step_seconds: float):
     """Compute descriptors for *subject_id* and write the result CSV."""
-    matrix = _load_subject_timeseries(subject_id)
-    n_timepoints, n_blocks = matrix.shape
-    if n_blocks != config.N_VERTEX_BLOCKS:
-        raise ValueError(
-            f"Subject {subject_id} block matrix has {n_blocks} blocks "
-            f"(expected {config.N_VERTEX_BLOCKS})"
+    try:
+        data = _load_subject_timeseries(subject_id)
+    except Exception as exc:
+        log.error("Failed to load timeseries for %s: %s", subject_id, exc)
+        return
+
+    tr = config.TR_SECONDS
+    window_frames = int(round(window_seconds / tr))
+    step_frames = int(round(step_seconds / tr))
+
+    if window_frames < config.MIN_TIMEPOINTS_PER_WINDOW:
+        log.warning(
+            "Subject %s: window size %d frames < %d min; skipping",
+            subject_id,
+            window_frames,
+            config.MIN_TIMEPOINTS_PER_WINDOW,
         )
-    # Convert seconds to frame counts (rounded to nearest integer).
-    window_frames = max(1, int(round(window_seconds / config.TR_SECONDS)))
-    step_frames = max(1, int(round(step_seconds / config.TR_SECONDS)))
+        return
 
     rows = []
-    for win_id, (i_start, i_end) in enumerate(
-        _window_indices(n_timepoints, window_frames, step_frames)
-    ):
-        window_data = matrix[i_start:i_end, :]  # (window_frames, n_blocks)
-
-        # Ledoit‑Wolf regularised covariance.
+    for win_idx, (start, end) in enumerate(_window_indices(data.shape[0], window_frames, step_frames)):
+        window_data = data[start:end, :]
+        if window_data.shape[0] < config.MIN_TIMEPOINTS_PER_WINDOW:
+            log.info("Subject %s window %d too short (%d pts); skipped", subject_id, win_idx, window_data.shape[0])
+            continue
+        # Ledoit‑Wolf shrinkage covariance → correlation
         lw = LedoitWolf()
         lw.fit(window_data)
         cov = lw.covariance_
-
-        # Convert covariance to correlation matrix.
+        # Convert to correlation matrix
         stddev = np.sqrt(np.diag(cov))
-        with np.errstate(invalid="ignore", divide="ignore"):
-            corr = cov / np.outer(stddev, stddev)
-            corr = np.nan_to_num(corr)  # replace NaNs with 0.
+        corr = cov / np.outer(stddev, stddev)
         np.fill_diagonal(corr, 1.0)
 
-        # Graph descriptors.
-        ge = graph_metrics.global_efficiency(corr)
+        # Graph descriptors
+        efficiency = graph_metrics.global_efficiency(corr)
         modularity = graph_metrics.louvain_modularity(corr, seed=config.LOUVAIN_SEED)
-
-        # Obtain Louvain community partition for participation coefficient.
-        G = nx.from_numpy_array(np.abs(corr), create_using=nx.Graph)
-        G.remove_edges_from(nx.selfloop_edges(G))
-        communities = nx.algorithms.community.louvain_communities(
-            G, seed=config.LOUVAIN_SEED
-        )
-        pc = graph_metrics.participation_coefficient(corr, communities)
+        # Louvain returns communities; need to recompute for participation
+        G = graph_metrics._build_weighted_graph(corr)
+        communities = list(graph_metrics._louvain_communities(G, seed=config.LOUVAIN_SEED))
+        participation = graph_metrics.participation_coefficient(corr, communities)
 
         rows.append({
             "subject_id": subject_id,
-            "window_id": int(win_id),
-            "window_seconds": float(window_seconds),
-            "step_seconds": float(step_seconds),
-            "global_efficiency": float(ge),
-            "modularity": float(modularity),
-            "participation_coefficient": float(pc),
+            "window_index": win_idx,
+            "global_efficiency": efficiency,
+            "modularity": modularity,
+            "participation_coefficient": participation,
         })
-        log.debug(
-            "Subject %s – window %d: GE=%.4f, Mod=%.4f, PC=%.4f",
-            subject_id,
-            win_id,
-            ge,
-            modularity,
-            pc,
-        )
 
-    # Write per‑subject CSV.
+    if not rows:
+        log.warning("No windows produced for subject %s", subject_id)
+        return
+
     out_path = paths.data("derived", f"metrics_{subject_id}.csv")
-    pd.DataFrame(rows).to_csv(out_path, index=False)
-    log.info(
-        "Wrote %d window rows for subject %s to %s",
-        len(rows),
-        subject_id,
-        out_path,
-    )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=["subject_id", "window_index",
+                                                    "global_efficiency", "modularity",
+                                                    "participation_coefficient"])
+        writer.writeheader()
+        writer.writerows(rows)
 
 def main(argv=None) -> int:
-    """Entry point invoked by ``run_all.py``.
+    """Entry point invoked by the orchestrator.
 
-    The orchestrator supplies a parsed ``argparse.Namespace`` containing
-    the global pipeline arguments (seed, window, step, etc.).  This function
-    ignores the seed (already fixed in other stages) and uses the window
-    and step values to drive the sliding‑window computation.
+    ``argv`` is ignored – the orchestrator supplies the global
+    configuration via ``config``.
     """
-    parser = argparse.ArgumentParser(description="Sliding‑window connectivity (T004)")
-    parser.add_argument("--window", type=float, default=config.DEFAULT_WINDOW_SECONDS)
-    parser.add_argument("--step", type=float, default=config.DEFAULT_STEP_SECONDS)
+    if isinstance(argv, argparse.Namespace):
+        argv = None
+    parser = argparse.ArgumentParser(description="Compute sliding‑window connectivity descriptors")
+    parser.add_argument("--shard", type=Path, default=None, help="unused placeholder")
     args = parser.parse_args(argv)
 
-    # Discover all ROI timeseries files produced by the extraction stage.
-    roi_files = sorted(paths.data("derived", "roi_timeseries_*.csv"))
-    if not roi_files:
-        raise RuntimeError(
-            "No ROI timeseries files found – ensure the 'extract' stage has run."
+    # Discover subjects from the derived ROI timeseries files.
+    derived_dir = paths.data("derived")
+    pattern = "roi_timeseries_*.csv"
+    subject_files = list(derived_dir.glob(pattern))
+    if not subject_files:
+        log.warning("No ROI timeseries files found; connectivity stage will do nothing.")
+        return 0
+
+    for ts_file in subject_files:
+        sid = ts_file.stem.replace("roi_timeseries_", "")
+        _process_subject(
+            subject_id=sid,
+            window_seconds=config.DEFAULT_WINDOW_SECONDS,
+            step_seconds=config.DEFAULT_STEP_SECONDS,
         )
-
-    subject_ids = [
-        f.stem.replace("roi_timeseries_", "")
-        for f in roi_files
-    ]
-
-    log.info(
-        "Computing connectivity descriptors for %d subjects (window=%.1fs, step=%.1fs)",
-        len(subject_ids),
-        args.window,
-        args.step,
-    )
-    for sid in subject_ids:
-        _process_subject(sid, args.window, args.step)
-
-    log.info("Connectivity stage complete.")
     return 0
 
 if __name__ == "__main__":

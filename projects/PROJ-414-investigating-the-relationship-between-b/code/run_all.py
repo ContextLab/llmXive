@@ -2,7 +2,7 @@
 
 The orchestrator parses global arguments (seed, window, step,
 permutations, etc.) and then runs the requested stages in order.
-Each stage is implemented as a module with a ``main()`` function that
+Each stage is implemented as a module with a ``main()`` entry point that
 takes **no positional arguments**. This resolves the earlier
 ``TypeError`` where stages that did not accept arguments were called
 with a dummy list.

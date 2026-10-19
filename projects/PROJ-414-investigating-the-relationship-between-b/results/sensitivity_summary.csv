@@ -1,0 +1,7 @@
+window_seconds,step_seconds,global_efficiency_mean,global_efficiency_sd,modularity_mean,modularity_sd,participation_coefficient_mean,participation_coefficient_sd,correlation_sd
+30.0,5.0,,,,,,,not_computable_no_skill_proxy
+30.0,10.0,,,,,,,not_computable_no_skill_proxy
+45.0,5.0,,,,,,,not_computable_no_skill_proxy
+45.0,10.0,,,,,,,not_computable_no_skill_proxy
+60.0,5.0,,,,,,,not_computable_no_skill_proxy
+60.0,10.0,,,,,,,not_computable_no_skill_proxy
