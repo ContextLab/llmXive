@@ -1,16 +1,18 @@
 status: none
-intent: QM9 dataset download python package torch_geometric with reference substructures
-  and kinetic dataset python package dataset
+intent: download QM9 dataset for RDKit graph preprocessing python package dataset
 required_fields:
-- smiles
-- molecule_id
+- SMILES
 - atomic_number
 - hybridization
 - formal_charge
 - bond_type
 - conjugation
-- homo_energy
-- lumo_energy
-cache_key: 97982415e7a690a18338a7424ea0b378f29a61fbb40c9d042424ada271c84cb9
-searched_at: '2026-10-19T11:11:14.158158+00:00'
+- HOMO
+- LUMO
+- dipole_moment
+- reference_substructure_SMILES
+- reference_substructure_DOI
+- kinetic_experimental_rate
+cache_key: 569898a803754eee73a38ff7021c0e9feab47755c58444afaf87247c84917780
+searched_at: '2026-10-19T12:11:25.812679+00:00'
 retry_count: 1
