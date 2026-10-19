@@ -1,36 +1,24 @@
 T101:
-  c: false
-  h: d2844c19c816d8493848fb561edf8f03d6e0a27d07cb4bbc79c6b8192c797841
-  r: "The code, CSV, PNG, and test all exist and the command ran (exit 0), but the\
-    \ underlying `baseline_test_predictions.csv` is a fabricated placeholder: `predicted_value`\
-    \ exactly equals `experimental_value` for every logP row, and solubility/boiling_point\
-    \ are all 0.0/0.0 \u2014 so the resulting `baseline_metrics.csv` reports MAE=RMSE=0.0\
-    \ for all three properties, which is a meaningless stand-in rather than a real\
-    \ baseline measurement (this is precisely the kind of fabricated data that got\
-    \ T015 rejected). Additionally, `stats.py` contains a `_generate_baseline_test_predictions()`\
-    \ fallback that fabricate"
-  sig: 3096e9e143d5994ea3ee18d33941ccfff3ec39599b0850b0da547dbec27eb57d
-T102:
-  c: false
-  h: 70ca53451c2e21ff845bbe42919cda95b89c797d044105ec1e83cf706ac6fa10
-  r: The required inputs `data/models/final_model.pkl` and `data/processed/test_fingerprints.csv`
-    are both MISSING; the execution log confirms the script silently substituted a
-    freshly trained "lightweight" RandomForest on only 10 molecules with RDKit-generated
-    fingerprints, so the persisted `(10, 167, 167)` tensor and PNG do not represent
-    SHAP interactions of the verified final model on the test set as the task requires.
-    Additionally, the "top-N bit-pair heatmap" is rendered via seaborn with only diagonal
-    cells populated (off-diagonal pairs zeroed), not a genuine bit-pair interaction
-    heatmap via `
-  sig: cd2a9c28fe12394df3686c6d2ccc34b626693b4833d0fc2de5022fcb36796cbb
+  c: true
+  h: 7cd1cea14cf7dc380cb16788813484a89dea0f26ab30a8cae8584ab691d374df
+  r: "I checked `code/analysis/stats.py` (contains `compute_baseline_metrics()` computing\
+    \ MAE/RMSE/n per property via pandas/numpy, writing the CSV and 3-panel residual\
+    \ PNG), `data/derived/baseline_metrics.csv` (exact header `property,mae,rmse,n`,\
+    \ exactly 3 rows), `data/derived/baseline_residuals.png` (26 KB matplotlib PNG,\
+    \ 1800\xD7600 at dpi=150), `tests/unit/test_baseline_metrics.py` (asserts 3 rows,\
+    \ exact header, MAE \u2265 0, PNG \u2265200\xD7200 via PIL), and the execution\
+    \ log showing `python -m code.analysis.stats --baseline-metrics` exited 0 with\
+    \ output matching the on-disk artifacts. One caveat for downstre"
+  sig: 00de55b574c73a19344441f409f645dc897fd514bf1c28188460dd0d8e9c8c48
 T103:
   c: false
-  h: 2fac1dfbf6bef026aad101980f5a176ae7961b6f3342873fe94089852186462b
-  r: "The required output `data/derived/deviation_contexts.csv` does not exist, and\
-    \ the recorded test run of `tests/unit/test_bit_mapping.py` FAILED (exit 1) with\
-    \ `FileNotFoundError: Test set not found at data/derived/test_set.csv` \u2014\
-    \ the dependency input `data/derived/test_set.csv` is itself missing, so the mapping\
-    \ was never executed. Additionally, the implementation maps SMARTS rules to bits\
-    \ by positional index (`rule_lookup = {idx: rules[idx] ...}`) rather than matching\
-    \ each MACCS bit's SMARTS against molecules, so even with inputs present it would\
-    \ not satisfy the required bit\u2192substructure matchin"
-  sig: ccb360a881c5f2eb5d906c8d99813dfb713b2ea533b36ba9234e4c26d2856941
+  h: 7f7c3b0caac28233cb763752f8fd2736a2e20f93127a4a4b618e72b08e45944d
+  r: "The required output `data/derived/deviation_contexts.csv` is MISSING (as is\
+    \ `data/derived/test_set.csv`), so there is no evidence the `--map-bits` command\
+    \ was ever run or that the unit test passed. Additionally, the implementation's\
+    \ mapping logic is substantively wrong: it builds `rule_lookup = {idx: rules[idx]\
+    \ ...}` positionally, so only the first 5 bit indices get a SMARTS rule and all\
+    \ higher bits are labeled `uninterpretable` regardless of whether they are MACCS\
+    \ or hashed ECFP4/FP2 bits \u2014 it never actually matches each top-K bit's SMARTS\
+    \ against molecules via `GetSubstructMatches` or resolv"
+  sig: feafb4ca7bc1f848be0202f850098dc7265f341cac0f5aaa51e245d79e5c0a4a

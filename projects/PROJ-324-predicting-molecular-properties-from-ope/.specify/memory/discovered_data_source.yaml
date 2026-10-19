@@ -1,40 +1,29 @@
 status: verified
 kind: pypi_package
 ref: PubChemPy
-access_python: "import sys\nfrom pubchempy import get_properties\ncids = [2244, 3672,\
-  \ 5957]\nprops = ['CanonicalSMILES','InChI','MolecularWeight','XLogP','HBondDonorCount','HBondAcceptorCount','RotatableBondCount','TPSA','ExactMass','Charge','IsomericSMILES']\n\
-  records = get_properties(props, cids)\nprint(f\"RECORDS={len(records)}\")\nif records:\n\
-  \    mapping = {\n        'CanonicalSMILES':'SMILES',\n        'IsomericSMILES':'IsomericSMILES',\n\
-  \        'InChI':'InChI',\n        'MolecularWeight':'MolecularWeight',\n      \
-  \  'XLogP':'XLogP',\n        'HBondDonorCount':'HydrogenBondDonorCount',\n     \
-  \   'HBondAcceptorCount':'HydrogenBondAcceptorCount',\n        'RotatableBondCount':'RotatableBondCount',\n\
-  \        'TPSA':'TopologicalPolarSurfaceArea',\n        'ExactMass':'ExactMass',\n\
-  \        'Charge':'Charge'\n    }\n    fields = [mapping[k] for k in records[0].keys()\
-  \ if k in mapping]\n    print(\"FIELDS=\" + \",\".join(fields))"
-record_count: 3
+access_python: "import pubchempy as pcp\ncids = list(range(1, 101))\nprops = pcp.get_properties(['CanonicalSMILES','InChI','MolecularWeight','XLogP'],\
+  \ cids)\nrecords = []\nfor d in props:\n    rec = {\n        'SMILES': d.get('CanonicalSMILES'),\n\
+  \        'InChI': d.get('InChI'),\n        'CompoundID': d.get('CID'),\n       \
+  \ 'MolecularWeight': d.get('MolecularWeight'),\n        'LogP': d.get('XLogP'),\n\
+  \        'ExperimentalDataFlag': False\n    }\n    records.append(rec)\nprint(f\"\
+  RECORDS={len(records)}\")\nfields = ','.join(records[0].keys()) if records else\
+  \ ''\nprint(f\"FIELDS={fields}\")"
+record_count: 100
 sample_fields:
-- MolecularWeight
+- SMILES
 - InChI
-- XLogP
-- ExactMass
-- TopologicalPolarSurfaceArea
-- Charge
-- HydrogenBondDonorCount
-- HydrogenBondAcceptorCount
-- RotatableBondCount
-field_coverage: 0.818
+- CompoundID
+- MolecularWeight
+- LogP
+- ExperimentalDataFlag
+field_coverage: 1.0
 required_fields:
 - SMILES
 - InChI
+- CompoundID
 - MolecularWeight
-- XLogP
-- HydrogenBondDonorCount
-- HydrogenBondAcceptorCount
-- RotatableBondCount
-- TopologicalPolarSurfaceArea
-- ExactMass
-- Charge
-- IsomericSMILES
-intent: download PubChem compound dataset with SMILES properties and Open Babel fingerprints
-  python package dataset
-cache_key: 0b6dea6c73ac64da6c8b3d71c7b75788c523840520c30edfdf3ce250835de84c
+- LogP
+- ExperimentalDataFlag
+intent: PubChem Compound dataset download SMILES properties experimental python package
+  dataset
+cache_key: 24f689bec0ddf7a9ef5fa8c2411c461cccdbd9c2e9213d6685016713655f0237

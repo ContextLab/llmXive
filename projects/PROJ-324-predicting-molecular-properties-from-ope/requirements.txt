@@ -1,3 +1,14 @@
-# Existing dependencies are already present in the environment.
-# Adding SHAP library for interaction value computation.
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+pyyaml
+requests
+jsonschema
+psutil
+pubchempy
 shap
