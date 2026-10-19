@@ -32,11 +32,11 @@ validate.py: error: the following arguments are required: --input
 
 - python code/src/data/clean.py -> rc=1
 
-2026-10-19 07:37:25,816 - clean - INFO - Starting data cleaning process
-2026-10-19 07:37:25,817 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
+2026-10-19 07:41:33,167 - clean - INFO - Starting data cleaning process
+2026-10-19 07:41:33,167 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
 
 - python src/main.py -> rc=1
-2026-10-19 07:37:26,328 - pipeline - INFO - No action specified. Use --full or --phase N
+2026-10-19 07:41:33,670 - pipeline - INFO - No action specified. Use --full or --phase N
 
 
 - python -m pytest -q tests/contract/ -> rc=4

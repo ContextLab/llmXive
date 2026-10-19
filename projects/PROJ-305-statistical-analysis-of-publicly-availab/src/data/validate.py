@@ -14,7 +14,7 @@ import sys
 import logging
 import argparse
 from pathlib import Path
-from typing import List, Set, Dict, Any
+from typing import List, Dict, Any
 
 import pandas as pd
 import yaml
@@ -112,7 +112,6 @@ def main() -> None:
     parser.add_argument("--input", type=str, required=True, help="Path to data file.")
     parser.add_argument("--schema", type=str, default="specs/001-statistical-analysis-of-publicly-availab/contracts/dataset.schema.yaml", help="Path to schema.")
     
-    # Handle case where script is run as module vs script
     args = parser.parse_args()
 
     try:

@@ -21,7 +21,7 @@ The goal is a reproducible, CPU‑only pipeline that (1) downloads real VAERS 20
   - On any download or checksum error raise an exception (no synthetic fallback).  
   - **Verification**: `grep -c "vaers_2020_2023.parquet" data/checksums.txt` returns 1 and the file size > 0 KB.
 
-- [ ] T003 [P] [US1] Implement the schema validator CLI `src/data/validate.py`.   <!-- FAILED-IN-EXECUTION: src/data/validate.py exit=1 -->
+- [ ] T003 [P] [US1] Implement the schema validator CLI `src/data/validate.py`.   <!-- FAILED-IN-EXECUTION: src/data/validate.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/validate.py exit=1 -->
   - Load `specs/001-statistical-analysis-of-publicly-availab/contracts/dataset.schema.yaml` and verify required columns (`VAERS_ID`, `VAX_TYPE`, `SOC_CODE`, `SOC_NAME`, `REPT_DATE`) are present and non‑null.  
   - CLI: `python -m src.data.validate --input <path>`.  
   - On success write `logs/validate_pass.txt` (“PASS”) and exit 0; on failure write `logs/validate_fail.txt` with details and exit 1.  

@@ -19,13 +19,3 @@ T002:
     The execution log shows a real Hugging Face download (exit 0) with no synthetic
     fallback, and errors raise exceptions as required.
   sig: 88bcbfefa4791ac030b4229f60b641432d1dc8af00ae8e8be7782128f4999713
-T003:
-  c: false
-  h: a3bcf2eddced4dd7de4db83190b65dcd94c6f0c326e8eed86be4b4f933dff92e
-  r: "The provided `src/data/validate.py` does not match the required CLI (`--input`\
-    \ option, single failure exit\u202F1) and the unit\u2011test suite fails (missing\u2011\
-    column and valid\u2011run tests raise `SystemExit`\u202F3). Moreover the required\
-    \ fixture `tests/fixtures/malformed_missing_vax_type.csv` is absent. Fix the CLI\
-    \ arguments, unify exit codes, ensure CSV reading works, add the missing fixture,\
-    \ and make all tests pass."
-  sig: 382fc45cb688fb0127204c8d1077b52fbac0e810aa93a30915c41c6d83a1e49f
