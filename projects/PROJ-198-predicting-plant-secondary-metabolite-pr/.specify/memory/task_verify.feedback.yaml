@@ -1,6 +1,14 @@
 T001:
   task: d83bc269745b8f87625151982a3cd2551c354fbab94e61a02b41f8e330f419c0
 T002:
+  reason: "The evidence packet shows `.ruff.toml`, `pyproject.toml` (with a `[tool.black]`\
+    \ section), and `code/config.py` (which does load `.env` via python-dotenv), but\
+    \ two required artifacts are absent: `.flake8` and `.env.example` \u2014 the latter\
+    \ is essential to the second verification step (sourcing it to obtain non-empty\
+    \ `NCBI_API_KEY`/`PMDB_API_TOKEN`), and no execution evidence (exit codes for\
+    \ `ruff --quiet .` / `black --check .`, or the env-sourcing test) was provided.\
+    \ The implementer must add `.flake8` and `.env.example` (with non-empty example\
+    \ key values) and demonstrate the verification commands"
   task: 237f5458bbb5eb6d63cb8ea891bcca1939b1fdbd90bd407c886a80a61f55a735
 T003:
   task: 70c3a6076013af70ca88953d5eeb0eebfdfb224dc36471144dd9e4a9cca83f32

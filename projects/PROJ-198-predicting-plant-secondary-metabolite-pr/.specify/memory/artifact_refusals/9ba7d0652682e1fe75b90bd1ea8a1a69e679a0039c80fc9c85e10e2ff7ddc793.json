@@ -1,7 +1,0 @@
-{
-  "task_id": "T002",
-  "fingerprint": "f8d50702244ce5d995118beb27993b2f69c048daf2ba50f4fa5d60f1ee5b546b",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'code/cli/main.py': imports nonexistent names from sibling files: `from code.data.download import download_genomes, download_metabolites` (available: Dict, List, Path, logging). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}

@@ -1,3 +1,16 @@
-# Core dependencies are provided by the execution environment.
-# Additional project‑specific dependencies:
-python-dotenv>=1.0.0
+# Project dependencies
+scikit-learn
+pandas
+numpy
+biopython
+requests
+pyyaml
+dendropy
+statsmodels
+pymc3
+tqdm
+pydantic
+pydantic-settings
+black
+ruff
+python-dotenv

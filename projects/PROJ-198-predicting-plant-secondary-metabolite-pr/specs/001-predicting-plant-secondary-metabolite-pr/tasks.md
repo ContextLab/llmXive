@@ -16,7 +16,7 @@
   1. `ruff --quiet .` and `black --check .` exit with code 0.  
   2. After sourcing `.env.example`, `config.get("NCBI_API_KEY")` and `config.get("PMDB_API_TOKEN")` return non‑empty strings.  
 
-- [ ] **T003** [ ] **Implement Pydantic schemas**  
+- [X] **T003** [ ] **Implement Pydantic schemas**  
   *Path:* `code/models/schemas.py` (Species, BGCFeature, Metabolite, ModelOutput)  
   *Verification:* Sample JSON objects validate against the models without errors.
 

@@ -8,87 +8,75 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…t_logger(__name__)     # Simulated data loading (replace with re…”
-- code/scripts/quickstart_validation.py: synthetic/fake INPUT data not authorized by the spec — “…# In CI, we might use mock data if no real species are c…”
-- data/README.md: synthetic/fake INPUT data not authorized by the spec — “…├── mock_genomes.json # Mock genome data for CI testing │ ├── moc…”
-- data/README.md: synthetic/fake INPUT data not authorized by the spec — “…─ mock_metabolites.csv # Mock metabolite data for CI testing │ └── moc…”
-- data/README.md: synthetic/fake INPUT data not authorized by the spec — “…(`CI_MODE=true`) - Uses mock data files in `data/raw/` - N…”
-- data/README.md: synthetic/fake INPUT data not authorized by the spec — “…scientific analysis  ## Mock Data Files  The mock data fil…”
-- data/README.md: synthetic/fake INPUT data not authorized by the spec — “…## Mock Data Files  The mock data files are minimal, curat…”
+- code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…tion entry point – loads mock data, aligns, saves, and repo…”
+- code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…ger(__name__)     # Load mock data files (used when CI_MODE…”
+- code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…:         logger.error(f"Mock data not found: {e}")…”
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…Load genome‑related mock data.      When ``CI_MODE`` (…”
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loaded mock genome data with {len(df)} rows")…”
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…Load metabolite‑related mock data.      In CI mode the fun…”
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loaded mock metabolite data with {len(df)} rows")…”
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…pipeline that loads the mock data, aligns it,     and writ…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 fabricated/simulated-result signal(s) — results are not real measurements: code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…t_logger(__name__)     # Simulated data loading (replace with re…”; code/scripts/quickstart_validation.py: synthetic/fake INPUT data not authorized by the spec — “…# In CI, we might use mock data if no real species are c…”; data/README.md: synthetic/fake INPUT data not authorized by the spec — “…├── mock_genomes.json # Mock genome data for CI testing │ ├── moc…”; 4 command(s) failed: python code/cli/main.py --step download_and_align (rc=1); python code/cli/main.py --step train_and_evaluate (rc=1); python code/cli/main.py --step download_and_align --limit 5 (rc=1); 1 declared deliverable(s) absent: data/processed/aligned_matrix.csv
+**Summary**: 16 fabricated/simulated-result signal(s) — results are not real measurements: code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…tion entry point – loads mock data, aligns, saves, and repo…”; code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…ger(__name__)     # Load mock data files (used when CI_MODE…”; code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…:         logger.error(f"Mock data not found: {e}")…”; 4 command(s) failed: python code/cli/main.py --step download_and_align (rc=1); python code/cli/main.py --step train_and_evaluate (rc=1); python code/cli/main.py --step download_and_align --limit 5 (rc=1); 1 declared deliverable(s) absent: data/processed/aligned_matrix.csv
 
 ## Failing / missing run-book commands
 
 - python code/cli/main.py --step download_and_align -> rc=1
-  from code.config import load_config
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 15, in <module>
-    from .config_env import get_env_manager
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config_env.py", line 8, in <module>
-    class EnvConfig(BaseSettings):
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py", line 119, in __new__
-    config_wrapper = ConfigWrapper.for_model(bases, namespace, kwargs)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_config.py", line 179, in for_model
-    raise PydanticUserError('"Config" and "model_config" cannot be used together', code='config-both')
-pydantic.errors.PydanticUserError: "Config" and "model_config" cannot be used together
 
-For further information visit https://errors.pydantic.dev/2.14/u/config-both
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 24, in <module>
+    from code.modeling.phylo import construct_covariance_matrix, load_phylogeny, train_pgls
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/modeling/phylo.py", line 81, in <module>
+    ) -> Dict[str, Any]:
+                   ^^^
+NameError: name 'Any' is not defined. Did you mean: 'any'?
 
 - python code/cli/main.py --step train_and_evaluate -> rc=1
-  from code.config import load_config
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 15, in <module>
-    from .config_env import get_env_manager
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config_env.py", line 8, in <module>
-    class EnvConfig(BaseSettings):
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py", line 119, in __new__
-    config_wrapper = ConfigWrapper.for_model(bases, namespace, kwargs)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_config.py", line 179, in for_model
-    raise PydanticUserError('"Config" and "model_config" cannot be used together', code='config-both')
-pydantic.errors.PydanticUserError: "Config" and "model_config" cannot be used together
 
-For further information visit https://errors.pydantic.dev/2.14/u/config-both
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 24, in <module>
+    from code.modeling.phylo import construct_covariance_matrix, load_phylogeny, train_pgls
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/modeling/phylo.py", line 81, in <module>
+    ) -> Dict[str, Any]:
+                   ^^^
+NameError: name 'Any' is not defined. Did you mean: 'any'?
 
 - python code/cli/main.py --step download_and_align --limit 5 -> rc=1
-  from code.config import load_config
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 15, in <module>
-    from .config_env import get_env_manager
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config_env.py", line 8, in <module>
-    class EnvConfig(BaseSettings):
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py", line 119, in __new__
-    config_wrapper = ConfigWrapper.for_model(bases, namespace, kwargs)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_config.py", line 179, in for_model
-    raise PydanticUserError('"Config" and "model_config" cannot be used together', code='config-both')
-pydantic.errors.PydanticUserError: "Config" and "model_config" cannot be used together
 
-For further information visit https://errors.pydantic.dev/2.14/u/config-both
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 24, in <module>
+    from code.modeling.phylo import construct_covariance_matrix, load_phylogeny, train_pgls
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/modeling/phylo.py", line 81, in <module>
+    ) -> Dict[str, Any]:
+                   ^^^
+NameError: name 'Any' is not defined. Did you mean: 'any'?
 
 - python -m pytest tests/ -> rc=2
-
-ERROR tests/integration/test_align.py - pydantic.errors.PydanticUserError: "C...
-ERROR tests/integration/test_quickstart_validation.py - pydantic.errors.Pydan...
+n.py:11: in <module>
+    from code.modeling.phylo import PhylogenyError
+code/modeling/phylo.py:81: in <module>
+    ) -> Dict[str, Any]:
+E   NameError: name 'Any' is not defined
+=========================== short test summary info ============================
+ERROR tests/integration/test_align.py - TypeError: setup_logging() got an une...
 ERROR tests/models/test_models.py
 ERROR tests/test_config.py
-ERROR tests/unit/test_align.py - pydantic.errors.PydanticUserError: "Config" ...
 ERROR tests/unit/test_cleanup_refactor.py
-ERROR tests/unit/test_config_env.py - pydantic.errors.PydanticUserError: "Con...
 ERROR tests/unit/test_data_hygiene.py - NameError: name 'List' is not defined
 ERROR tests/unit/test_download.py
-ERROR tests/unit/test_edge_cases.py - pydantic.errors.PydanticUserError: "Con...
+ERROR tests/unit/test_edge_cases.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_env_manager.py
 ERROR tests/unit/test_linting_config.py
-ERROR tests/unit/test_modeling.py - pydantic.errors.PydanticUserError: "Confi...
+ERROR tests/unit/test_modeling.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_models.py
-ERROR tests/unit/test_pca_optimization.py - pydantic.errors.PydanticUserError...
+ERROR tests/unit/test_pca_optimization.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_project_structure.py
 ERROR tests/unit/test_report.py
 ERROR tests/unit/test_train.py - NameError: name 'Any' is not defined
-!!!!!!!!!!!!!!!!!!! Interrupted: 18 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 8 warnings, 18 errors in 1.15s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 15 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 15 errors in 0.69s ==============================
 
 
 
@@ -103,12 +91,12 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/aligned_matrix.csv` is declared but was NOT written. Scripts referencing it:
     - `code/cli/main.py` — IS a run-book command
     - `code/data/align.py` — NOT invoked by the run-book
+    - `code/data/download.py` — NOT invoked by the run-book
     - `code/data/refactored_align.py` — NOT invoked by the run-book
     - `code/modeling/optimization.py` — NOT invoked by the run-book
     - `code/modeling/train.py` — NOT invoked by the run-book
     - `code/scripts/apply_pca_optimization.py` — NOT invoked by the run-book
     - `code/scripts/quickstart_validation.py` — NOT invoked by the run-book
-    - `code/scripts/validate_quickstart.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/aligned_matrix.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
