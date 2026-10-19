@@ -1,13 +1,14 @@
 T001:
   c: true
-  h: 363063731b3c6ffd34f9c1fa99935550a94797a1dc35a50b1dd7b257cae5bad6
-  r: All required directories exist (code/, code/utils/, data/raw, data/interim, data/processed,
-    results/, paper/, tests/) with `__init__.py` markers where applicable; `requirements.txt`
-    contains all seven specified packages with pandas>=2.0; and `quickstart.md` documents
-    the single-command pipeline `python -m code.pipeline`. The quickstart contains
-    some unresolved claim annotations, but those pertain to later tasks' test outcomes,
-    not this layout/dependency task's requirements.
-  sig: 3e1b109dc7ac80f14229652dfca32c6ab7ea191632567df6c818548f78afcc61
+  h: 8846e2b61719cf1db019faa163855c401406192cd7c82bfd4a94bd1382ecc225
+  r: All required directories exist (code/, code/utils/, data/raw/, data/interim/,
+    data/processed/, results/, paper/, tests/) with `__init__.py` markers where applicable;
+    `requirements.txt` contains all seven specified packages with pandas>=2.0; and
+    `quickstart.md` documents the single-command pipeline `python -m code.pipeline`.
+    The quickstart contains odd injected "[UNRESOLVED-CLAIM...]" annotations in the
+    Testing section, but these are cosmetic and don't affect the task's verification
+    criteria (file exists, lists the command, directory tree matches).
+  sig: 00590e38d67778737dcffcab616eae0fa5f472a9d513797afe68ae8420eb6ab4
 T003:
   c: false
   h: b457e03011d939223c283a4ea16596c1f88ad41686f7fb90c22b936cb711b0e6
