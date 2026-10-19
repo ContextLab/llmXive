@@ -1,16 +1,15 @@
 status: none
-intent: nilearn fetch_abcd and fetch_hcp adolescent resting state fMRI NIH Data Archive
-  ConnectomeDB python package dataset
+intent: ABCD Study and HCP Development resting-state fMRI NDA python package dataset
 required_fields:
 - subject_id
 - group_label
-- musical_training_years
+- resting_state_fmri_file_or_connectivity_matrix
 - age
 - sex
+- head_motion_parameter
+- musical_training_years
 - site
-- scanner
-- motion_parameters
-- resting_state_connectivity_matrix
-cache_key: 975aa146f730e25e95de7598dcf67997b9fd38c2900a409460826e7770e2148c
-searched_at: '2026-10-19T11:08:13.561460+00:00'
+- scanner_model
+cache_key: c14570f1d0f38700f74cf235378552bc55e1046d568d27f348ce95891cb45ec9
+searched_at: '2026-10-19T17:12:17.007201+00:00'
 retry_count: 1

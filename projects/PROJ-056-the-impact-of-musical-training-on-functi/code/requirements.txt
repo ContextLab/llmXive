@@ -1,5 +1,15 @@
-# Project dependencies
-# Existing standard libraries are available by default.
-# Added dependencies required for entry point execution.
-networkx
+numpy
+pandas
+scipy
+statsmodels
+seaborn
+matplotlib
+scikit-learn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+nibabel
+tqdm
 pyarrow

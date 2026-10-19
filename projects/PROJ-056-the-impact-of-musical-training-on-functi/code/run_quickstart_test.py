@@ -1,8 +1,7 @@
 """
 Executes the quick‑start smoke test by running the full synthetic pipeline
-and then checking that all declared outputs exist and are schema‑valid.
+and then checking that all declared outputs exist.
 """
-
 import subprocess
 import sys
 import pathlib
@@ -23,10 +22,8 @@ def main() -> int:
     ]
     print("Running synthetic pipeline...")
     result = subprocess.run(pipeline_cmd, cwd=project_root, capture_output=True, text=True)
-    print(result.stdout)
-    print(result.stderr, file=sys.stderr)
     if result.returncode != 0:
-        print("Synthetic pipeline failed.", file=sys.stderr)
+        print(result.stderr, file=sys.stderr)
         return result.returncode
 
     # 2. Verify that expected output files exist
@@ -45,7 +42,7 @@ def main() -> int:
         print(f"Missing expected output files: {', '.join(missing)}", file=sys.stderr)
         return 1
 
-    print("All expected outputs are present.")
+    print("Quickstart smoke test passed: All outputs present.")
     return 0
 
 if __name__ == "__main__":
