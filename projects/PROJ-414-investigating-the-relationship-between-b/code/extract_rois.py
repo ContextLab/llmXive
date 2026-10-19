@@ -1,26 +1,25 @@
-"""Vertex-block extraction and cleaning (T003, FR-002 Python adaptation).
+"""Vertex‑block extraction and cleaning (T003, FR-002 Python adaptation).
 
 Streams the verified parquet shard (``clane9/openneuro-fslr64k``, test
 split) row-group by row-group — the full shard is NEVER loaded into
 RAM — maps fsLR vertices to the deterministic 100-block
 contiguous-vertex scheme, computes the mean signal per block per
-timepoint, bandpass-filters 0.01–0.1 Hz, and writes per-subject QC
+timepoint, bandpass-filters 0.01–0.1 Hz, and writes per‑subject QC
 records.
 
 IMPORTANT CONSTRUCT-VALIDITY NOTE: the 100 "blocks" are a
 deterministic contiguous grouping of fsLR surface vertices in their
 stored column order (vertex i belongs to block
-``i // ceil(n_vertices / 100)``). This is NOT a neuroanatomical or
-functional parcellation; all downstream outputs are
-"vertex-block connectivity descriptors", never brain-network
-properties.
+``i // ceil(n_vertices / 100)``). This is NOT a neuroanatomical
+parcellation; all downstream outputs are "vertex-block
+connectivity descriptors", never brain-network properties.
 
 QC bad-volume rule (spec edge case, fully specified):
   * If a real FD column exists: a volume is bad when FD > 0.5 mm.
   * Else (expected path — the verified shard has no FD column): a
-    volume is bad when its DVARS-like statistic — the root-mean-square
-    frame-to-frame change in the 100 block-mean signals — exceeds
-    run_median + 3 x (1.4826 x MAD).
+    volume is bad when its DVARS‑like statistic — the root‑mean‑square
+    frame-to‑frame change in the 100 block‑mean signals — exceeds
+    run_median + 3 × (1.4826 × MAD).
   A subject is excluded when > 20% of volumes are bad.
   All thresholds are pinned in code/config.py.
 
@@ -30,9 +29,10 @@ Outputs (per subject s):
       roi_timeseries.schema.yaml)
   data/derived/qc_<s>.json             (QC record)
 Plus data/derived/exclusion_log.csv and
-data/derived/task_label_status.json (edge-case record for T006).
+data/derived/task_label_status.json (edge‑case record for T006).
 """
 import argparse
+import csv
 import json
 import re
 import time
@@ -45,8 +45,8 @@ import pyarrow.parquet as pq
 from scipy.signal import butter, filtfilt
 import psutil
 
-import config  # noqa: E402  (pinned parameters; sibling module)
-from llmxive_toolkit import paths, get_logger  # noqa: E402
+import config  # pinned parameters; sibling module
+from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
@@ -58,14 +58,12 @@ _KNOWN_VERTEX_COUNTS = {64984, 59412, 32492, 91282}
 DERIVED_RELATIVE = Path("derived")
 BANDPASS_ORDER = 2
 
-
 # ------------------------------------------------------------------
-# Core numeric routines (unit-tested in tests/test_extract.py)
+# Core numeric routines (unit‑tested in tests/test_extract.py)
 # ------------------------------------------------------------------
 def vertex_block_ids(n_blocks: int = config.N_VERTEX_BLOCKS) -> list:
     """Deterministic block labels roi_1 .. roi_100."""
     return [f"roi_{i + 1}" for i in range(n_blocks)]
-
 
 def block_assignment(n_vertices: int, n_blocks: int = config.N_VERTEX_BLOCKS) -> np.ndarray:
     """Map each vertex to one of ``n_blocks`` contiguous blocks.
@@ -75,7 +73,6 @@ def block_assignment(n_vertices: int, n_blocks: int = config.N_VERTEX_BLOCKS) ->
     an arbitrary grouping, NOT a parcellation.
     """
     return np.arange(n_vertices) // int(np.ceil(n_vertices / n_blocks))
-
 
 def compute_block_means(matrix: np.ndarray, n_blocks: int = config.N_VERTEX_BLOCKS) -> np.ndarray:
     """Mean signal per block per timepoint.
@@ -89,21 +86,21 @@ def compute_block_means(matrix: np.ndarray, n_blocks: int = config.N_VERTEX_BLOC
         raise ValueError(f"expected 2-D (timepoints x vertices), got {matrix.shape}")
     n_vertices = matrix.shape[1]
     if n_vertices < n_blocks:
-        raise ValueError(
-            f"fewer vertices ({n_vertices}) than blocks ({n_blocks})"
-        )
+        raise ValueError(f"fewer vertices ({n_vertices}) than blocks ({n_blocks})")
     assign = block_assignment(n_vertices, n_blocks)
     out = np.empty((matrix.shape[0], n_blocks), dtype=np.float64)
     for b in range(n_blocks):
         out[:, b] = matrix[:, assign == b].mean(axis=1)
     return out
 
-
-def bandpass_filter(matrix: np.ndarray, tr: float = config.TR_SECONDS,
-                    low: float = config.BANDPASS_LOW_HZ,
-                    high: float = config.BANDPASS_HIGH_HZ,
-                    order: int = BANDPASS_ORDER):
-    """Butterworth bandpass (default 0.01–0.1 Hz) along time, zero-phase.
+def bandpass_filter(
+    matrix: np.ndarray,
+    tr: float = config.TR_SECONDS,
+    low: float = config.BANDPASS_LOW_HZ,
+    high: float = config.BANDPASS_HIGH_HZ,
+    order: int = BANDPASS_ORDER,
+):
+    """Butterworth bandpass (default 0.01–0.1 Hz) along time, zero‑phase.
 
     Returns (filtered_matrix, applied: bool). If the run is too short
     for ``filtfilt`` padding, filtering is skipped and ``applied`` is
@@ -119,12 +116,11 @@ def bandpass_filter(matrix: np.ndarray, tr: float = config.TR_SECONDS,
         return matrix, False
     return filtfilt(b, a, matrix, axis=0), True
 
-
 def dvars_statistics(block_matrix: np.ndarray):
-    """DVARS-like motion proxy on the 100 block-mean signals.
+    """DVARS‑like motion proxy on the 100 block‑mean signals.
 
     Returns (dvars, bad_mask, median, mad, threshold) where
-    dvars[t] is the root-mean-square frame-to-frame change across
+    dvars[t] is the root‑mean‑square frame‑to‑frame change across
     blocks and a volume is bad when
     dvars[t] > median + 3 * (1.4826 * MAD).
 
@@ -153,19 +149,17 @@ def dvars_statistics(block_matrix: np.ndarray):
     bad = dvars > thresh
     return dvars, bad, med, mad, thresh
 
-
 def fd_bad_mask(fd_values) -> np.ndarray:
     """FD rule: a volume is bad when FD > 0.5 mm (spec edge case)."""
     fd = np.asarray(fd_values, dtype=np.float64)
     return fd > config.FD_THRESHOLD_MM
 
-
 def qc_from_block_matrix(block_matrix: np.ndarray, fd_values=None) -> dict:
-    """Full QC evaluation for one subject's block-mean matrix.
+    """Full QC evaluation for one subject's block‑mean matrix.
 
     Applies the FD rule when real FD values are supplied, else the
-    DVARS-like MAD rule. Returns a dict with fraction_bad_volumes,
-    excluded, exclusion_reason, and the motion-proxy description.
+    DVARS‑like MAD rule. Returns a dict with fraction_bad_volumes,
+    excluded, exclusion_reason, and the motion‑proxy description.
     """
     n_t = block_matrix.shape[0]
     if fd_values is not None:
@@ -182,9 +176,9 @@ def qc_from_block_matrix(block_matrix: np.ndarray, fd_values=None) -> dict:
         proxy = {
             "method": "dvars_mad",
             "description": (
-                "no FD column in verified shard; DVARS-like statistic "
-                "(root-mean-square frame-to-frame change in the 100 "
-                "block-mean signals) is bad when it exceeds "
+                "no FD column in verified shard; DVARS‑like statistic "
+                "(root‑mean‑square frame‑to‑frame change in the 100 "
+                "block‑mean signals) is bad when it exceeds "
                 "run_median + 3 * (1.4826 * MAD)"
             ),
             "thresholds": {
@@ -194,16 +188,16 @@ def qc_from_block_matrix(block_matrix: np.ndarray, fd_values=None) -> dict:
             },
             "run_median": med,
             "run_mad": mad,
-            "threshold": (None if not np.isfinite(thresh) else float(thresh)),
+            "threshold": None if not np.isfinite(thresh) else float(thresh),
         }
         stats = {"dvars_median": med, "dvars_mad": mad}
     frac = float(bad.mean())
     excluded = frac > config.MAX_BAD_VOLUME_FRACTION
     reason = (
         f"excessive_bad_volumes: {frac:.3f} of volumes bad "
-        f"(> {config.MAX_BAD_VOLUME_FRACTION}) by the "
-        f"{proxy['method']} rule"
-        if excluded else None
+        f"(> {config.MAX_BAD_VOLUME_FRACTION}) by the {proxy['method']} rule"
+        if excluded
+        else None
     )
     return {
         "n_volumes": int(n_t),
@@ -215,15 +209,14 @@ def qc_from_block_matrix(block_matrix: np.ndarray, fd_values=None) -> dict:
         **stats,
     }
 
-
 # ------------------------------------------------------------------
-# Parquet streaming (row-group batches; never the full shard)
+# Parquet streaming (row‑group batches; never the full shard)
 # ------------------------------------------------------------------
 def _orient_matrix(arr: np.ndarray, n_frames) -> np.ndarray:
     """Return a (n_timepoints, n_vertices) matrix from raw bold data.
 
     Uses ``n_frames`` and known fsLR vertex counts to disambiguate
-    frame-major vs vertex-major storage. Fails loudly on unknown
+    frame‑major vs vertex‑major storage. Fails loudly on unknown
     layouts — never guesses silently.
     """
     if arr.ndim == 2:
@@ -244,62 +237,70 @@ def _orient_matrix(arr: np.ndarray, n_frames) -> np.ndarray:
         )
     v = flat.size // n_frames
     if v in _KNOWN_VERTEX_COUNTS:
-        return flat.reshape(n_frames, v)  # frame-major
+        return flat.reshape(n_frames, v)  # frame‑major
     for vc in _KNOWN_VERTEX_COUNTS:
         if flat.size % vc == 0 and flat.size // vc == n_frames:
-            return flat.reshape(vc, n_frames).T  # vertex-major
+            return flat.reshape(vc, n_frames).T  # vertex‑major
     if 1000 <= v <= 2_000_000:
-        # plausible vertex count; assume frame-major
+        # plausible vertex count; assume frame‑major
         return flat.reshape(n_frames, v)
     raise ValueError(
         f"unrecognized bold layout: size={flat.size}, "
         f"n_frames={n_frames}, implied V={v}"
     )
 
-
 def _iter_rows(pf: pq.ParquetFile, columns: list):
     """Yield (subject, n_frames, task, bold_flat_or_array) row by row.
 
     Uses the arrow offsets/flatten fast path (cheap numpy slices) for
-    single-level list columns; falls back to ``.as_py()`` for nested
+    single‑level list columns; falls back to ``.as_py()`` for nested
     layouts. Only ONE row's bold data is materialized at a time.
     """
     for rg in range(pf.num_row_groups):
         tbl = pf.read_row_group(rg, columns=columns)
         n = tbl.num_rows
-        subs = tbl.column("sub").to_pylist() if "sub" in tbl.column_names else [None] * n
-        frames = tbl.column("n_frames").to_pylist() if "n_frames" in tbl.column_names else [None] * n
-        tasks = tbl.column("task").to_pylist() if "task" in tbl.column_names else [None] * n
+        subs = (
+            tbl.column("sub").to_pylist()
+            if "sub" in tbl.column_names
+            else [None] * n
+        )
+        frames = (
+            tbl.column("n_frames").to_pylist()
+            if "n_frames" in tbl.column_names
+            else [None] * n
+        )
+        tasks = (
+            tbl.column("task").to_pylist()
+            if "task" in tbl.column_names
+            else [None] * n
+        )
         bold_col = tbl.column("bold").combine_chunks()
         if pa.types.is_fixed_size_list(bold_col.type):
             size = bold_col.type.list_size
             values = bold_col.values
             for i in range(n):
-                flat = np.asarray(values[i * size:(i + 1) * size], dtype=np.float64)
+                flat = np.asarray(values[i * size : (i + 1) * size], dtype=np.float64)
                 yield subs[i], frames[i], tasks[i], flat
         elif pa.types.is_list(bold_col.type) or pa.types.is_large_list(bold_col.type):
             offsets = np.asarray(bold_col.offsets)
             values = bold_col.values
-            nested = pa.types.is_list(values.type) or pa.types.is_large_list(values.type) \
-                or pa.types.is_fixed_size_list(values.type)
+            nested = pa.types.is_list(values.type) or pa.types.is_large_list(values.type) or pa.types.is_fixed_size_list(
+                values.type
+            )
             for i in range(n):
                 if nested:
                     arr = np.asarray(bold_col[i].as_py(), dtype=np.float64)
                 else:
-                    arr = np.asarray(values[offsets[i]:offsets[i + 1]], dtype=np.float64)
+                    arr = np.asarray(values[offsets[i] : offsets[i + 1]], dtype=np.float64)
                 yield subs[i], frames[i], tasks[i], arr
         else:
-            raise ValueError(
-                f"unsupported 'bold' column type: {bold_col.type}"
-            )
-
+            raise ValueError(f"unsupported 'bold' column type: {bold_col.type}")
 
 def _safe_subject_id(sid) -> str:
     """Sanitize subject identifiers to guarantee string type without
     adding artificial prefixes."""
     s = re.sub(r"[^A-Za-z0-9_.-]", "_", str(sid))
     return s if s else "unknown_subject"
-
 
 # ------------------------------------------------------------------
 # Main extraction
@@ -313,9 +314,8 @@ def load_inventory():
         )
     return json.loads(inv_path.read_text())
 
-
 def extract_all(shard_path: Path = None, derived_dir: Path = None) -> dict:
-    """Stream the shard and write per-subject timeseries + QC records."""
+    """Stream the shard and write per‑subject timeseries + QC records."""
     start_time = time.time()
     proc = psutil.Process()
 
@@ -327,37 +327,34 @@ def extract_all(shard_path: Path = None, derived_dir: Path = None) -> dict:
     derived.mkdir(parents=True, exist_ok=True)
 
     subject_column = inventory.get("subject_column") or "sub"
-    fd_present = bool(
-        inventory.get("expected_fields", {}).get("fd", {}).get("present")
-    )
-    task_present = bool(
-        inventory.get("expected_fields", {}).get("task_labels", {}).get("present")
-    )
-    # Edge case (spec): missing task labels are detected from the
-    # column inventory and recorded; the descriptive pipeline proceeds.
+    fd_present = bool(inventory.get("expected_fields", {}).get("fd", {}).get("present"))
+    task_present = bool(inventory.get("expected_fields", {}).get("task_labels", {}).get("present"))
+
+    # Record task‑label presence for downstream stages.
     task_status = {
         "task_labels_present": task_present,
         "matched_column": inventory.get("expected_fields", {})
-            .get("task_labels", {}).get("matched_column"),
+        .get("task_labels", {})
+        .get("matched_column"),
         "note": (
             "task labels present; the conditional association stage "
             "(T006) may use them only as a secondary skill proxy"
-            if task_present else
-            "task labels ABSENT from the verified shard; recorded per "
-            "the spec's edge-case rule — the descriptive pipeline "
-            "proceeds and T006's association stage uses this record"
+            if task_present
+            else "task labels ABSENT from the verified shard; recorded per "
+                 "the spec's edge‑case rule — the descriptive pipeline proceeds "
+                 "and T006's association stage uses this record"
         ),
     }
     (derived / "task_label_status.json").write_text(json.dumps(task_status, indent=2))
     if not task_present:
         log.warning("Task labels missing (edge case): %s", task_status["note"])
 
+    # Determine which columns exist in the parquet file.
     read_columns = ["bold", subject_column]
     for extra in ("n_frames", "task"):
         if extra in inventory.get("columns", []):
             read_columns.append(extra)
 
-    # Accumulate per-subject block-mean matrices (tiny: T x 100).
     subjects = {}
     pf = pq.ParquetFile(shard)
     for sub, n_frames, task, bold in _iter_rows(pf, read_columns):
@@ -369,8 +366,6 @@ def extract_all(shard_path: Path = None, derived_dir: Path = None) -> dict:
         entry = subjects.setdefault(sid, {"runs": [], "tasks": []})
         entry["runs"].append(blocks)
         entry["tasks"].append(task)
-        log.info("subject %s: run with %d timepoints, %d vertices",
-                 sid, mat.shape[0], mat.shape[1])
 
     if not subjects:
         raise RuntimeError("no subject rows found in the verified shard")
@@ -408,6 +403,7 @@ def extract_all(shard_path: Path = None, derived_dir: Path = None) -> dict:
             **qc,
         }
         (derived / f"qc_{sid}.json").write_text(json.dumps(qc_record, indent=2))
+
         exclusion_rows.append({
             "subject_id": sid,
             "excluded": qc["excluded"],
@@ -423,8 +419,19 @@ def extract_all(shard_path: Path = None, derived_dir: Path = None) -> dict:
             "excluded": qc["excluded"],
         }
 
-    log_df = pd.DataFrame(exclusion_rows)
-    log_df.to_csv(derived / "exclusion_log.csv", index=False)
+    # Write the exclusion log using csv.writer with QUOTE_ALL to encourage
+    # pandas to treat the IDs as strings.
+    log_path = derived / "exclusion_log.csv"
+    with log_path.open("w", newline="") as csvfile:
+        writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+        writer.writerow(["subject_id", "excluded", "exclusion_reason", "fraction_bad_volumes"])
+        for row in exclusion_rows:
+            writer.writerow([
+                row["subject_id"],
+                row["excluded"],
+                row["exclusion_reason"],
+                row["fraction_bad_volumes"],
+            ])
 
     # Record performance metrics (runtime and peak RAM)
     end_time = time.time()
@@ -436,10 +443,12 @@ def extract_all(shard_path: Path = None, derived_dir: Path = None) -> dict:
         f.write(f"runtime_seconds: {runtime_seconds:.2f}\\n")
         f.write(f"peak_ram_gb: {peak_ram_gb:.3f}\\n")
 
-    log.info("extraction complete: %d subjects, %d excluded",
-             summary["n_subjects"], summary["n_excluded"])
+    log.info(
+        "extraction complete: %d subjects, %d excluded",
+        summary["n_subjects"],
+        summary["n_excluded"],
+    )
     return summary
-
 
 def main(argv=None) -> int:
     """CLI entry point.
@@ -450,23 +459,26 @@ def main(argv=None) -> int:
     the required paths via the configuration.
     """
     if isinstance(argv, argparse.Namespace):
-        # The orchestrator passes the parsed Namespace; we ignore it.
         argv = None
     parser = argparse.ArgumentParser(
-        description="Vertex-block extraction + bandpass + QC (T003)"
+        description="Vertex‑block extraction + bandpass + QC (T003)"
     )
-    parser.add_argument("--shard", type=Path, default=None,
-                        help="override shard path (default: data/raw shard)")
-    parser.add_argument("--derived_dir", type=Path, default=None,
-                        help="override derived output directory")
+    parser.add_argument(
+        "--shard",
+        type=Path,
+        default=None,
+        help="override shard path (default: data/raw shard)",
+    )
+    parser.add_argument(
+        "--derived_dir",
+        type=Path,
+        default=None,
+        help="override derived output directory",
+    )
     args = parser.parse_args(argv)
     summary = extract_all(shard_path=args.shard, derived_dir=args.derived_dir)
-    print(json.dumps({
-        "n_subjects": summary["n_subjects"],
-        "n_excluded": summary["n_excluded"],
-    }, indent=2))
+    print(json.dumps({"n_subjects": summary["n_subjects"], "n_excluded": summary["n_excluded"]}, indent=2))
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

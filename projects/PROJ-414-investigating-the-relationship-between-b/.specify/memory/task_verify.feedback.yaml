@@ -1,11 +1,6 @@
 T001:
   task: fadcde45a87fc55f5cc4353ef64d2cc038786c1b4607cf13411ec44b06b2b6c3
 T002:
-  reason: "The required files (`code/config.py`, `code/requirements.txt`, `code/run_all.py`,\
-    \ `quickstart.md`) exist and contain appropriate content, but there is no concrete\
-    \ evidence (e.g., command output or test log) showing that `python code/run_all.py\
-    \ --help` actually runs and exits with status\u202F0. Provide execution evidence\
-    \ or a test confirming the help command succeeds."
   task: c3fda50ffb63055e11ebee04cdc8946187689b6134db04c01724d8b75ac90358
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/run_all.py exit=1'
@@ -15,10 +10,28 @@ T004:
     exit=1'
   task: 88a328ff1fc2fb7005f7c72b97dbf724ec87e757b15cd681f26a54e6389a50a3
 T005:
+  reason: "The required artifact `data/derived/pca_scores.csv` is MISSING, and the\
+    \ recorded pytest run of `tests/test_pca.py` failed (exit 1): `test_pca_variance_threshold`\
+    \ raised \"No metric files found in data/derived\" and the other two tests were\
+    \ skipped. The code in `code/dimensionality.py` looks plausible, but it has never\
+    \ been executed successfully against real metric data, so there is no evidence\
+    \ the PCA output, \u226580% variance threshold, or schema compliance actually\
+    \ hold. The implementer must run the metrics stage (or otherwise produce `metrics_*.csv`\
+    \ inputs) and then the PCA stage to generate `pca"
   task: ea2931a53e227242d997a7532c4d9bb9c6c87de6c57cf3e4be45a55b9709f31f
 T006:
+  reason: "The required artifact `results/power_analysis.json` \u2014 which the task\
+    \ says must \"always be produced, both paths\" \u2014 is MISSING from disk, and\
+    \ the recorded test run (`code/.tasks/T006.tests_test_analysis.py.log`) exited\
+    \ 2 with a collection error (`import statsmodels.api` fails with `TypeError: deprecate_kwarg()\
+    \ missing 1 required positional argument`), so no test ever validated the power\
+    \ computation or the permutation/FDR behavior. Additionally, the permutation in\
+    \ `_run_association` shuffles the raw skill proxy rather than Freedman\u2013Lane\
+    \ residuals, yet labels itself `peredman_lane`/`freedman_lane`"
   task: 74ed5992998e1376ddb6d0a0eb6eaeecd2b107152aa561fb52c50a3e1ab8caad
 T007:
+  reason: 'Requested task execution failed; rerun successfully: code/sensitivity.py
+    exit=1'
   task: 857edd13f118046d35d20e91b15f77f44bba1f57c19790db4c610f702bd5aed0
 T008:
   task: 606ab7a0e126af3a21cf924a517bce073d07a6d4764cea0cf892fa8f3927ca4d

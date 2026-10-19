@@ -75,6 +75,7 @@ COLUMN_INVENTORY_RELATIVE = Path("raw") / "column_inventory.json"
 STAGE_ORDER = [
     "download",
     "extract",
+    "fix_exclusion_log",
     "metrics",
     "pca",
     "analysis",

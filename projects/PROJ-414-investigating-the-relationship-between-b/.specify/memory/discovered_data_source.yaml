@@ -1,18 +1,14 @@
 status: none
-intent: OpenNeuro ds000246 ds001600 Schaefer 100 atlas nilearn python package dataset
+intent: OpenNeuro ds000246 ds001600 fMRI dataset download python package dataset
 required_fields:
 - subject_id
 - session_id
-- task
-- run
-- timepoint
-- roi_label
-- roi_mni_x
-- roi_mni_y
-- roi_mni_z
-- mean_bold_signal
-- framewise_displacement
-- improv_rating
-cache_key: d95e71d4bc38149f76ae2e90133437035e018607e69a51b773fe700043c68023
-searched_at: '2026-10-14T15:42:07.701744+00:00'
+- run_id
+- task_name
+- bold_nifti_file
+- json_sidecar_metadata
+- acquisition_parameters
+- bids_directory_path
+cache_key: ed3203006256b71e382df88b9bcf8ec331ecf9f50256b7225f751164ce456cc2
+searched_at: '2026-10-19T07:30:08.003172+00:00'
 retry_count: 1

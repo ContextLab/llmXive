@@ -24,6 +24,7 @@ log = get_logger(__name__)
 STAGE_MODULES = {
     "download": "download_openneuro",
     "extract": "extract_rois",
+    "fix_exclusion_log": "fix_exclusion_log",
     "metrics": "connectivity",
     "pca": "dimensionality",
     "analysis": "analysis",
@@ -32,26 +33,48 @@ STAGE_MODULES = {
     "manifest": "manifest",  # placeholder – may be added later
 }
 
-
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run the full brain‑network dynamics pipeline."
     )
-    parser.add_argument("--seed", type=int, default=config.DEFAULT_SEED,
-                        help="Global random seed")
-    parser.add_argument("--window", type=float, default=config.DEFAULT_WINDOW_SECONDS,
-                        help="Sliding‑window length in seconds")
-    parser.add_argument("--step", type=float, default=config.DEFAULT_STEP_SECONDS,
-                        help="Sliding‑window step in seconds")
-    parser.add_argument("--permutations", type=int, default=config.N_PERMUTATIONS,
-                        help="Number of Freedman–Lane permutations")
-    parser.add_argument("--output_dir", type=Path, default=None,
-                        help="Override the default results directory")
-    parser.add_argument("--stage", action="append", dest="stages",
-                        choices=config.STAGE_ORDER,
-                        help="Run only the specified stage(s) in order")
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=config.DEFAULT_SEED,
+        help="Global random seed",
+    )
+    parser.add_argument(
+        "--window",
+        type=float,
+        default=config.DEFAULT_WINDOW_SECONDS,
+        help="Sliding‑window length in seconds",
+    )
+    parser.add_argument(
+        "--step",
+        type=float,
+        default=config.DEFAULT_STEP_SECONDS,
+        help="Sliding‑window step in seconds",
+    )
+    parser.add_argument(
+        "--permutations",
+        type=int,
+        default=config.N_PERMUTATIONS,
+        help="Number of Freedman–Lane permutations",
+    )
+    parser.add_argument(
+        "--output_dir",
+        type=Path,
+        default=None,
+        help="Override the default results directory",
+    )
+    parser.add_argument(
+        "--stage",
+        action="append",
+        dest="stages",
+        choices=config.STAGE_ORDER,
+        help="Run only the specified stage(s) in order",
+    )
     return parser
-
 
 def run_stage(stage: str, args: argparse.Namespace) -> None:
     """Import the module for *stage* and execute its ``main()``."""
@@ -63,14 +86,14 @@ def run_stage(stage: str, args: argparse.Namespace) -> None:
     except ImportError as exc:
         log.error("failed to import module for stage %s: %s", stage, exc)
         raise
-    # All stage modules define ``main()`` that takes no arguments.
     if not hasattr(module, "main"):
         raise AttributeError(f"module {module_name} has no main()")
     log.info("=== stage: %s (%s) ===", stage, module_name)
-    exit_code = module.main()
+    # Call the stage's main with an empty argv list so it parses only
+    # its own arguments (if any) and does not see the global CLI args.
+    exit_code = module.main([])
     if exit_code not in (0, None):
         raise SystemExit(exit_code)
-
 
 def main(argv=None) -> int:
     parser = build_parser()
@@ -90,7 +113,11 @@ def main(argv=None) -> int:
 
     log.info(
         "Pipeline run: seed=%s window=%s step=%s permutations=%s stages=%s",
-        args.seed, args.window, args.step, args.permutations, stages_to_run,
+        args.seed,
+        args.window,
+        args.step,
+        args.permutations,
+        stages_to_run,
     )
 
     for stage in stages_to_run:
@@ -98,7 +125,6 @@ def main(argv=None) -> int:
 
     log.info("Pipeline completed successfully")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

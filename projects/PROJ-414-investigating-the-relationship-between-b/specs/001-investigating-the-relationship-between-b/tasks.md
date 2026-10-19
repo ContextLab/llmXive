@@ -30,7 +30,7 @@ The following contradictions are rooted in `spec.md` (and one path in `plan.md`)
   &nbsp;&nbsp;• `data/raw/column_inventory.json` lists the real parquet schema, explicitly marks each expected behavioral field as present or absent, and records `available_subject_count` as a positive integer equal to the distinct subject IDs actually present in the parquet (no fabricated columns, no guessed count).
   &nbsp;&nbsp;• `pytest tests/test_download.py` asserts the file loads with pyarrow, that the inventory reflects the actual schema, and that `available_subject_count` matches a pyarrow-computed distinct-subject count.
 
-- [ ] **T002 [P1] [US1]** Establish the code layout and runnable entry point per the plan (`code/config.py` with pinned seeds, window/step parameters, and the QC threshold constants defined in T003; `code/requirements.txt`; `code/run_all.py` CLI orchestrator) and document the exact end-to-end command in the active feature's `quickstart.md`.
+- [X] **T002 [P1] [US1]** Establish the code layout and runnable entry point per the plan (`code/config.py` with pinned seeds, window/step parameters, and the QC threshold constants defined in T003; `code/requirements.txt`; `code/run_all.py` CLI orchestrator) and document the exact end-to-end command in the active feature's `quickstart.md`.
   *Artifact paths*: `code/config.py`, `code/requirements.txt`, `code/run_all.py`, `specs/001-investigating-the-relationship-between-b/quickstart.md`.
   *Verification*:
   &nbsp;&nbsp;• `python code/run_all.py --help` exits 0.
@@ -68,7 +68,7 @@ The following contradictions are rooted in `spec.md` (and one path in `plan.md`)
   &nbsp;&nbsp;• On the expected no-proxy path, the run exits 0 with the halt message logged and no fabricated `regression_results.csv`.
   &nbsp;&nbsp;• No synthetic behavioral scores are ever generated (grep-level check: no `random`/mock skill columns in the code path).
 
-- [ ] **T007 [P3] [US3]** Implement the sensitivity analysis in `code/sensitivity.py`: re-run descriptor computation (and the association stage if it ran) for window ∈ {30, 45, 60} s × step ∈ {5, 10} s and report mean, SD, and range of descriptor values (and correlation coefficients if T006 ran) across the 6 combinations.
+- [ ] **T007 [P3] [US3]** Implement the sensitivity analysis in `code/sensitivity.py`: re-run descriptor computation (and the association stage if it ran) for window ∈ {30, 45, 60} s × step ∈ {5, 10} s and report mean, SD, and range of descriptor values (and correlation coefficients if T006 ran) across the 6 combinations. <!-- FAILED-IN-EXECUTION: code/sensitivity.py exit=1 -->
   *Artifact path*: `results/sensitivity_summary.csv` (exactly 6 rows for the parameter grid).
   *Verification*:
   &nbsp;&nbsp;• `pytest tests/test_sensitivity.py` asserts the 6 combinations completed without error and the summary contains the required statistics.

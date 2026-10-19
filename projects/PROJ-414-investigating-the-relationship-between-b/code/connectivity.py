@@ -18,6 +18,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import networkx as nx
 from sklearn.covariance import LedoitWolf
 
 import config  # pinned parameters
@@ -35,8 +36,7 @@ def _load_subject_timeseries(subject_id: str) -> np.ndarray:
     if not ts_path.is_file():
         raise FileNotFoundError(f"ROI timeseries not found for subject {subject_id}")
     df = pd.read_csv(ts_path)
-    # Pivot to (timepoint, block) matrix; ensure columns are ordered
-    # according to the deterministic block IDs.
+    # Ensure deterministic block ordering.
     block_ids = sorted(df["roi_id"].unique(), key=lambda x: int(x.split("_")[1]))
     matrix = df.pivot(index="timepoint", columns="roi_id", values="value")
     matrix = matrix[block_ids].to_numpy(dtype=np.float64)
@@ -50,7 +50,7 @@ def _window_indices(n_timepoints: int, window_frames: int, step_frames: int):
             window_frames,
             config.MIN_TIMEPOINTS_PER_WINDOW,
         )
-        return
+        return iter([])  # no windows
     start = 0
     while start + window_frames <= n_timepoints:
         yield start, start + window_frames
@@ -70,35 +70,32 @@ def _process_subject(subject_id: str, window_seconds: float, step_seconds: float
     step_frames = max(1, int(round(step_seconds / config.TR_SECONDS)))
 
     rows = []
-    for win_id, (i_start, i_end) in enumerate(_window_indices(n_timepoints, window_frames, step_frames)):
-        window_data = matrix[i_start:i_end, :]  # shape (window_frames, n_blocks)
+    for win_id, (i_start, i_end) in enumerate(
+        _window_indices(n_timepoints, window_frames, step_frames)
+    ):
+        window_data = matrix[i_start:i_end, :]  # (window_frames, n_blocks)
+
         # Ledoit‑Wolf regularised covariance.
         lw = LedoitWolf()
         lw.fit(window_data)
         cov = lw.covariance_
-        # Convert to correlation matrix.
+
+        # Convert covariance to correlation matrix.
         stddev = np.sqrt(np.diag(cov))
-        # Guard against division by zero.
         with np.errstate(invalid="ignore", divide="ignore"):
             corr = cov / np.outer(stddev, stddev)
             corr = np.nan_to_num(corr)  # replace NaNs with 0.
-        # Ensure diagonal = 1.
         np.fill_diagonal(corr, 1.0)
 
         # Graph descriptors.
         ge = graph_metrics.global_efficiency(corr)
-        # Louvain modularity (seeded).
         modularity = graph_metrics.louvain_modularity(corr, seed=config.LOUVAIN_SEED)
-        # Participation coefficient requires the community partition.
-        # Re‑use the communities from the modularity step to avoid recomputation.
-        communities = None
-        # The Louvain function returns a list of sets; we regenerate it here.
-        # (graph_metrics.louvain_modularity already called it, but we need the
-        #  partition again; the cost is negligible for 100‑node graphs.)
-        communities = graph_metrics.louvain_communities = None  # placeholder to silence linters
-        # Direct call to obtain communities.
-        communities = __import__("networkx").algorithms.community.louvain_communities(
-            __import__("networkx").from_numpy_array(np.abs(corr)), seed=config.LOUVAIN_SEED
+
+        # Obtain Louvain community partition for participation coefficient.
+        G = nx.from_numpy_array(np.abs(corr), create_using=nx.Graph)
+        G.remove_edges_from(nx.selfloop_edges(G))
+        communities = nx.algorithms.community.louvain_communities(
+            G, seed=config.LOUVAIN_SEED
         )
         pc = graph_metrics.participation_coefficient(corr, communities)
 
@@ -123,7 +120,12 @@ def _process_subject(subject_id: str, window_seconds: float, step_seconds: float
     # Write per‑subject CSV.
     out_path = paths.data("derived", f"metrics_{subject_id}.csv")
     pd.DataFrame(rows).to_csv(out_path, index=False)
-    log.info("Wrote %d window rows for subject %s to %s", len(rows), subject_id, out_path)
+    log.info(
+        "Wrote %d window rows for subject %s to %s",
+        len(rows),
+        subject_id,
+        out_path,
+    )
 
 def main(argv=None) -> int:
     """Entry point invoked by ``run_all.py``.

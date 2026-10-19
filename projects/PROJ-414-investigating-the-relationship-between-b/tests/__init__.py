@@ -1,1 +1,1 @@
-# This file ensures that the tests package is recognized by pytest.
+# This file ensures the ``tests`` package is importable. No additional code needed.
