@@ -1,246 +1,188 @@
 # Tasks: Evaluating Calibration of Probabilistic Weather Forecasts
 
-**Input**: Design documents from `/specs/001-evaluating-calibration-of-probabilistic-/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-763-evaluating-calibration-of-probabilistic-/code/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (pandas, numpy, scikit-learn, properscoring, pymc, arviz, matplotlib, seaborn, requests, tqdm, statsmodels)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+**Inputs**: `spec.md`, `plan.md`, data‑model, contracts, and any reviewer feedback.  
+All paths are relative to the repository root.  
+Tasks are grouped by research phase; each task is a single checkbox item that can be marked complete independently.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Data acquisition & integrity gate  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] **T001** **Download SubseasonalRodeo dataset** – Implement `code/src/download.py` to `wget` the verified URL, verify SHA‑256 checksum, and write the raw archive to `data/raw/subseasonal_rodeo.tar.gz`.  
+  - *Verification*: script raises an exception (non‑zero exit) if download fails or checksum mismatches.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T002** **Data Availability Gate** – Within `code/src/download.py` check that the extracted files contain either `probability_value` or `precip_prob` fields. If missing, exit with code 1 and log “Data Availability Gate Failed”. No synthetic fallback.  
 
-- [ ] T004 Setup directory structure: `data/raw/`, `data/processed/`, `results/`, `src/`, `tests/`, `scripts/`
-- [ ] T005 [P] Implement `src/utils.py` with logging configuration, random seed setting, and error handling utilities
-- [ ] T006 [P] Create `scripts/hash_artifacts.py` to compute SHA-256 hashes for `data/` and `results/` and write to `state/` (Constitution Principle V)
-- [ ] T007 Implement `src/download.py` (FR-001): Download SubseasonalRodeo dataset via `wget`/`requests`, verify checksum, and **FAIL LOUDLY** (raise exception) if download fails or checksum mismatches. **Explicitly check for `probability_value` fields in the loaded data; if missing, halt execution immediately with error code `NO_PROB_DATA` and generate `data_unavailability_report.md`. NO synthetic fallbacks. This is the EXCLUSIVE Data Availability Gate for the entire pipeline.**
-- [ ] T008 [P] Implement `src/align.py` (FR-002): Align forecast probabilities with observations by `grid_id`, `lead_time`, and `date`. Discard records with missing values. Handle edge cases (zero observed events) gracefully. **Assumes data has passed the Data Availability Gate in T007; do NOT re-check for `probability_value` here.**
-- [ ] T008b [P] Implement `src/data/autocorr.py` (Plan Phase 0): Calculate the Autocorrelation Function (ACF) of forecast errors and determine `lag_95` and `effective_autocorrelation_length`. **Mandate generation of `data/processed/autocorr_metadata.json` containing the schema: `{"lag_95": <int>, "effective_autocorrelation_length": <int>}`.**
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] **T003** **Streaming loader skeleton** – Add `code/src/loader.py` that uses `datasets.load_dataset(..., streaming=True)` to iterate over the extracted Parquet files, yielding records as dictionaries. This loader will be reused by all downstream phases and must respect the gate from T002.  
 
 ---
 
-## Phase 3: User Story 1 - Baseline Calibration Assessment (Priority: P1) 🎯 MVP
+## Phase 1 – Alignment of forecasts and observations  
 
-**Goal**: Download dataset, align data, compute baseline metrics (Brier, CRPS, Reliability Diagrams) for raw forecasts.
+- [ ] **T004** **Align records** – Implement `code/src/align.py` to join forecast and observation tables on `grid_id`, `lead_time`, and matching dates, discarding any rows with missing values. Output aligned parquet to `data/processed/aligned.parquet`.  
+  - *Verification*: schema validation against `contracts/dataset.schema.yaml`.  
 
-**Independent Test**: The pipeline executes successfully, outputting `results/results_baseline.csv` (non-null metrics) and `results/reliability_diagram_raw.png`.
-
-### Implementation for User Story 1
-
-- [ ] T009 [US1] Implement `src/metrics.py`: Brier score and CRPS calculation functions handling edge cases (division by zero, empty bins).
-- [ ] T010 [US1] Implement `src/metrics.py`: Kernel-smoothed reliability diagram generation and plotting logic.
-- [ ] T011 [US1] Implement `src/main.py` (Baseline Module): Orchestrate data loading, alignment, and baseline metric computation. **CRITICAL: After loading data, explicitly validate that `probability_value` fields exist. If missing, halt execution immediately with error code `NO_PROB_DATA` and generate `data_unavailability_report.md` (Data Availability Gate enforcement).** Output `results/results_baseline.csv` (schema: metric_name, lead_time, method, value, confidence_interval, convergence_status) and `results/reliability_diagram_raw.png`.
-- [ ] T013 [P] [US1] Unit tests for metric logic in `tests/unit/test_metrics.py` (Brier, CRPS).
-- [ ] T014 [P] [US1] Contract test for `results_baseline.csv` schema in `tests/contract/test_baseline_schema.py`.
-
-**Checkpoint**: MVP Definition of Done for US1 is met (T011, T013, T014). T012 is a Success Criterion validation, not a blocking MVP deliverable.
+- [ ] **T005** **Alignment unit‑test** – Add `tests/unit/test_align.py` that loads a tiny streamed sample (≤ 100 rows) and asserts correct join size and field presence.  
 
 ---
 
-## Phase 3.5: Success Criteria Validation (SC-004)
+## Phase 2 – Baseline calibration assessment (US‑1)  
 
-**Purpose**: Validate Success Criteria that are not part of the MVP Independent Test but are required for the full project.
+- [ ] **T006** [US1] **Baseline metric functions** – In `code/src/metrics.py` provide:
+  - `compute_brier(aligned_df)`  
+  - `compute_crps(aligned_df)`  
+  - `compute_reliability_slope(aligned_df)` (linear regression on probability bins for SC‑003)  
+  - `compute_pit_ks(aligned_df)` (Kolmogorov‑Smirnov test for SC‑004)  
+  - handling of zero‑event bins (return `np.nan` with warning).  
 
-- [ ] T012 [US1] Implement `src/metrics.py`: Probability Integral Transform (PIT) histogram calculation and KS statistic computation (SC-004). Generate `results/pit_histogram.png` and `results/pit_data.csv`. **Note**: This task validates SC-004 but is not required for the US1 Independent Test (MVP).
+- [ ] **T007** [US1] **Baseline reliability diagram** – Extend `code/src/metrics.py` with `plot_reliability(aligned_df, out_path)` that creates a kernel‑smoothed diagram (`results/reliability_diagram_raw.png`).  
 
----
+- [ ] **T008** [US1] **Run baseline pipeline** – Create `code/src/run_baseline.py` that calls the loader, alignment (T004), metric functions (T006) and diagram (T007), and writes:
+  - `results/results_baseline.csv` (conforms to `contracts/output.schema.yaml` → `results_baseline`, including reliability slope and PIT‑KS p‑value)  
+  - `results/reliability_diagram_raw.png`  
+  - `results/pit_histogram_raw.png` (PIT histogram & KS statistic).  
 
-## Phase 4: User Story 2 - Isotonic Recalibration (Priority: P2)
+- [ ] **T009** **Baseline contract test** – Add `tests/contract/test_baseline_schema.py` that validates `results/results_baseline.csv` against `contracts/output.schema.yaml`.  
 
-**Goal**: Apply isotonic regression to correct biases and measure improvement vs. baseline.
+- [ ] **T027** **Compute reliability‑slope deviation** – Extend the baseline, isotonic, and Bayesian evaluation scripts to calculate the absolute deviation of the reliability‑slope from 1.0 for each method, outputting `results/reliability_slope_{method}.csv` (columns: `lead_time`, `variable`, `slope_deviation`).  
 
-**Independent Test**: Pipeline outputs `results_isotonic.csv` and `reliability_diagram_isotonic.png`. Brier score improves (or within noise) vs baseline.
+- [ ] **T028** **Validate reliability‑slope SC‑003** – Add a verification script `code/src/validate_reliability_slope.py` that reads the CSVs produced by T027 and asserts all `slope_deviation` ≤ 0.05. The script fails with a non‑zero exit code if any violation is found, satisfying SC‑003.  
 
-### Implementation for User Story 2
+- [ ] **T029** **Compute PIT‑KS test** – Implement a function (e.g., in `metrics.py`) that computes the Kolmogorov‑Smirnov statistic comparing the PIT values to a uniform distribution for each method, writing `results/pit_ks_{method}.json` containing the p‑value.  
 
-- [ ] T015 [US2] Implement `src/recalibrate_isotonic.py`: Isotonic regression fitting on a chronological train-test split. **Explicitly iterate over each lead time AND variable (precipitation, temperature) for the fitting process.** Handle sparse lead times (<100 samples) by fallback to raw forecast. **Output: A dictionary of fitted models keyed by (lead_time, variable).**
-- [ ] T015b [US2] Implement `src/recalibrate_isotonic.py` (Sensitivity): **Explicitly orchestrate the re-running of the isotonic model with /40 and 80/20 split ratios.** **Loop over split ratios [0.6, 0.8], invoke the fitting logic from T015 for each ratio, and generate distinct result artifacts (`results_isotonic_60_40.csv`, `results_isotonic_80_20.csv`).** **Mandate that these sensitivity runs also respect the per-variable/lead-time granularity for the resulting artifacts.**
-- [ ] T017a [US2] Implement `src/compare.py` (Standard DM): Diebold-Mariano test logic with Shapiro-Wilk pre-check and Wilcoxon fallback for **Baseline vs. Isotonic** comparison. **Explicitly mandate iterating over every lead_time and variable combination.** **Input: The per-bin models and results from T015.** **Output: A table of DM test results for each (lead_time, variable) pair.**
-- [ ] T017b [US2] Implement `src/compare.py` (Sensitivity Bootstrap): **Trigger condition: varying split ratios.** Implement bootstrapped confidence intervals for score differences as required by FR-006 for sensitivity analysis runs. **Input: The sensitivity artifacts from T015b.**
-- [ ] T016 [US2] Implement `src/main.py` (Isotonic Module): **Depends on T017a/T017b outputs.** Apply fitted isotonic model to test split, compute recalibrated metrics, and output `results/results_isotonic.csv` and `results/reliability_diagram_isotonic.png`.
-- [ ] T018 [P] [US2] Unit tests for isotonic logic and chronological splitting in `tests/unit/test_isotonic.py`.
-- [ ] T019 [P] [US2] Contract test for `results_isotonic.csv` schema in `tests/contract/test_isotonic_schema.py`.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Bayesian Hierarchical Recalibration (Priority: P3)
-
-**Goal**: Implement Bayesian hierarchical logistic regression with lead-time decay prior. Compare to isotonic.
-
-**Independent Test**: Pipeline outputs `results_bayesian.csv` with convergence status. R-hat ≤ 1.05. CRPS improves vs isotonic (or comparable).
-
-### Implementation for User Story 3
-
-- [ ] T020 [US3] Implement `src/recalibrate_bayesian.py`: Define Bayesian hierarchical logistic regression model in PyMC. **Mandate implementation of the exponential decay functional form** as the structured prior to respect the physics of forecast degradation (lead-time decay). **Explicitly define support for prior strengths: 'weak', 'medium', 'strong'.**
-- [ ] T021 [US3] Implement `src/recalibrate_bayesian.py`: **Depends on T020.** MCMC sampling logic with **4 chains** (not 2) and a sufficient number of draws (500) for a *single* prior configuration. Include convergence diagnostics (R-hat, ESS). **Verify runtime against SC-005 (60 mins); if exceeded, reduce draws and re-run.** Handle non-convergence by flagging in output. **This task defines the standard sampling procedure.**
-- [ ] T021b [US3] Implement `src/recalibrate_bayesian.py` (Sensitivity): **Orchestrate the iteration over the 'weak', 'medium', and 'strong' prior strengths defined in T020.** **Explicitly mandate calling the sampling logic from T021 for EACH of these prior strength iterations.** **Log the comparative results of these three runs.**
-- [ ] T022 [US3] Implement `src/main.py` (Bayesian Module): Generate posterior predictive probabilities, compute metrics, and output `results/results_bayesian.csv`.
-- [ ] T023a [US3] Implement `src/compare.py` (Baseline vs. Bayesian): Diebold-Mariano/Wilcoxon test logic for **Baseline vs. Bayesian** comparison. **Explicitly include conditional logic to skip this test if the Bayesian model convergence status is 'Unconverged' or 'Exploratory'.** Calculate confidence intervals for score differences.
-- [ ] T023b [US3] Implement `src/compare.py` (Isotonic vs. Bayesian): Diebold-Mariano/Wilcoxon test logic for **Isotonic vs. Bayesian** comparison. **Explicitly include conditional logic to skip this test if the Bayesian model convergence status is 'Unconverged' or 'Exploratory'.** Calculate confidence intervals for score differences.
-- [ ] T023 [US3] Implement `src/compare.py` (Full Comparison Matrix): Aggregate results from T017a (Baseline vs. Isotonic), T023a (Baseline vs. Bayesian), and T023b (Isotonic vs. Bayesian) into a single comparison table. **If T023a or T023b are skipped due to convergence status, explicitly mark those cells as 'N/A' or 'Skipped (Unconverged)' rather than crashing.** Handle bootstrapping logic if sensitivity analysis is triggered (per FR-006).
-- [ ] T024 [P] [US3] Unit tests for model definition and sampling logic in `tests/unit/test_bayesian.py`.
-- [ ] T025 [P] [US3] Contract test for `results_bayesian.csv` schema (including `convergence_status` column) in `tests/contract/test_bayesian_schema.py`.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T030** **Validate PIT‑KS SC‑004** – Add `code/src/validate_pit_ks.py` that reads the JSON files from T029 and asserts each p‑value > 0.05. The script exits non‑zero on failure, fulfilling SC‑004.  
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 3 – Isotonic regression recalibration (US‑2)  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] **T010** [US2] **Isotonic trainer** – Implement `code/src/isotonic/train.py` that:
+  1. Performs a blocked split (years 1‑N train, N+1 test) based on `forecast_date`.  
+  2. Verifies no data leakage: assert `max(train_date) < min(test_date)` (SC‑009).
+  3. For each `lead_time` × `variable`, fits `sklearn.IsotonicRegression` on the training set.
+  4. If samples < 200, pool with nearest adjacent lead‑time or fall back to raw forecast (FR‑004).
+  5. Saves model metadata to `results/isotonic_model_meta.json`.  
+  - *Verification*: script produces `results/isotonic_model_meta.json` and passes a basic content check.
 
-- [ ] T026 [P] Documentation updates in `docs/` and `README.md` explaining the pipeline and statistical methods.
-- [ ] T027 Code cleanup and refactoring (ensure PEP8, docstrings).
-- [ ] T028 Performance optimization: Ensure streaming/chunking logic in `src/align.py` and `src/metrics.py` fits within 7GB RAM constraints.
-- [ ] T029 [P] Run `scripts/hash_artifacts.py` and verify `state/` file generation.
-- [ ] T030 Run full pipeline integration test and verify runtime ≤ 30 minutes (SC-005).
+- [ ] **T011** **Isotonic sensitivity splits** – Extend `code/src/isotonic/train.py` to loop over split ratios `70/30`, `60/40`, `80/20`. For each ratio produce `results/results_isotonic_<ratio>.csv` and corresponding diagram `results/reliability_diagram_isotonic_<ratio>.png`.  
+  - *Verification*: ensure all `results_isotonic_<ratio>.csv` and diagrams exist for all three ratios.
 
----
+- [ ] **T012** **Isotonic evaluation driver** – Create `code/src/run_isotonic.py` that loads the fitted models, applies them to the test split, computes Brier/CRPS (reuse functions from T006), and writes the primary result file `results/results_isotonic.csv`.  
+  - *Verification*: `results/results_isotonic.csv` validates against `contracts/output.schema.yaml`.
 
-## Dependencies & Execution Order
+- [ ] **T013** **Diebold‑Mariano for baseline vs isotonic** – Implement `code/src/compare/dm_isotonic.py` that:
+  - Runs Shapiro‑Wilk on daily Brier error differences per lead time/variable.  
+  - If p ≥ 0.05, uses HAC‑adjusted DM test; otherwise switches to a 7‑day block bootstrap.  
+  - Writes `results/dm_baseline_vs_isotonic.json` conforming to `contracts/metrics.schema.yaml`.  
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data alignment logic (reused)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data alignment logic (reused)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] **T014** **Isotonic contract & unit tests** – Add:
+  - `tests/unit/test_isotonic.py` (model fitting & minimum‑sample logic)  
+  - `tests/contract/test_isotonic_schema.py` (validate `results_isotonic.csv`).  
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 4 – Bayesian hierarchical recalibration (US‑3)  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for baseline schema in tests/contract/test_baseline_schema.py"
-Task: "Unit tests for metric logic in tests/unit/test_metrics.py"
+- [ ] **T015** [US3] **Bayesian model definition** – In `code/src/bayesian/model.py` define a hierarchical logistic regression in PyMC:
+  - Lead‑time decay prior (`lead_time_decay_coefficient` < 0).  
+  - Configurable prior strength (`weak`, `medium`, `strong`).  
+  - Include a `flat` prior option for sensitivity.  
+  - *Verification*: unit test ensures model can be instantiated and required parameters are present.
 
-# Launch all models for User Story 1 together:
-Task: "Implement Brier/CRPS functions in src/metrics.py"
-Task: "Implement Reliability Diagram plotting in src/metrics.py"
-```
+- [ ] **T016** **Bayesian sampling driver** – Create `code/src/bayesian/run_sampling.py` that:
+  - Accepts a prior‑type argument.  
+  - Runs 4 chains with ≥ 2000 draws each (default).  
+  - Enforces a 60‑minute wall‑clock timeout.  
+  - Computes R‑hat and ESS; if any R‑hat > 1.05 or ESS < 400, marks status `unconverged`.  
+  - On timeout or non‑convergence writes fallback results using isotonic metrics to `results/results_fallback.csv` (method=`isotonic`, status=`fallback`).  
+  - Otherwise writes `results/results_bayesian.csv` with convergence status `converged`.  
+  - *Verification*: `results/results_bayesian.csv` or `results_fallback.csv` validates against schema and contains convergence status.
 
----
+- [ ] **T017** **Bayesian prior‑sensitivity runs** – Orchestrate three runs of `run_sampling.py` for `weak`, `medium`, `strong` decay, plus a `flat` run. Log each run’s metric values to `results/prior_sensitivity_log.csv` (matches `contracts/metrics.schema.yaml` → `prior_sensitivity_log`).  
+  - *Verification*: `results/prior_sensitivity_log.csv` validates against schema; assert physics‑informed Brier < flat Brier (SC‑006).
 
-## Implementation Strategy
+- [ ] **T018** **Bayesian evaluation driver** – Implement `code/src/run_bayesian.py` that:
+  - Loads posterior predictive probabilities, computes Brier/CRPS (reuse T006), and writes the appropriate result file (`results_bayesian.csv` or `results_fallback.csv`).  
+  - *Verification*: output files exist and match `contracts/output.schema.yaml`.
 
-### MVP First (User Story 1 Only)
+- [ ] **T019** **Diebold‑Mariano for isotonic vs Bayesian** – Extend `code/src/compare/dm_bayesian.py` to perform the same normality‑check → DM‑HAC or block‑bootstrap logic for the comparison pair `isotonic_vs_bayesian`. Output `results/dm_isotonic_vs_bayesian.json`.  
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (Baseline metrics, raw reliability diagram).
-5. Deploy/demo if ready.
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories.
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1 (Baseline)
-   - Developer B: User Story 2 (Isotonic)
-   - Developer C: User Story 3 (Bayesian)
-3. Stories complete and integrate independently.
+- [ ] **T020** **Bayesian contract & unit tests** – Add:
+  - `tests/unit/test_bayesian.py` (model building, prior handling, convergence flagging)  
+  - `tests/contract/test_bayesian_schema.py` (validate `results_bayesian.csv` / `results_fallback.csv`).  
 
 ---
 
-## Notes
+## Phase 5 – Full result aggregation & success‑criterion checks  
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- **CRITICAL**: Do NOT use synthetic data fallbacks. If `src/download.py` fails, the pipeline must stop.
-- **CRITICAL**: Ensure Bayesian MCMC chains are scaled (target a sufficient number of draws and chains) to fit 6h CI limit and verify runtime.
-- **CRITICAL**: Handle sparse data in isotonic regression (fallback to raw) as per edge cases.
-- **CRITICAL**: Explicitly iterate over variables and lead times in isotonic and baseline tasks.
-- **CRITICAL**: Implement exponential decay functional form for Bayesian prior.
-- **CRITICAL**: Ensure all comparison pairs (Baseline vs Isotonic, Baseline vs Bayesian, Isotonic vs Bayesian) are tested.
-- **CRITICAL**: Use bootstrapped CIs for sensitivity analysis (varying split ratios) as per FR-006.
-- **CRITICAL**: PIT histogram (T012) is a Success Criterion (SC-004) but not part of the US1 MVP Independent Test.
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [ ] **T021** **Summary table generation** – Implement `code/src/summary.py` that merges:
+  - `results_baseline.csv`, `results_isotonic.csv`, `results_bayesian.csv` (or fallback)  
+  - DM test JSON files (baseline‑vs‑isotonic, isotonic‑vs‑bayesian)  
+  - Prior‑sensitivity log  
+  - Produces `results/summary_table.csv` and a human‑readable `results/README.md` describing which success criteria (SC‑001 – SC‑009) are met.  
+  - *Verification*: `results/summary_table.csv` matches schema and `results/README.md` lists all SC statuses.
+
+- [ ] **T022** **Automated success‑criterion validation script** – Add `code/src/validate_sc.py` that parses `summary_table.csv` and the DM/bootstrapped results to assert:
+  - SC‑001: DM p‑value < 0.05 **or** bootstrap CI excludes 0.  
+  - SC‑002: Bayesian CRPS reduction ≥ 1 % **or** DM p‑value < 0.05.  
+  - SC‑003‑SC‑006: metric thresholds (reliability slope ≤ 0.05 deviation, PIT KS > 0.05, prior‑informed better than flat).  
+  - SC‑007: Data‑availability gate enforced (checked in T002).  
+  - SC‑008: Normality test p‑values logged (DM scripts).  
+  - SC‑009: No leakage between train/test dates (verified in split logic).  
+  - *Verification*: add a unit test that mocks failing SCs and asserts the script exits with code 1.
+
+- [ ] **T023** **End‑to‑end CI runnable script** – Create `run_pipeline.sh` that sequentially invokes:
+  1. `code/src/download.py`  
+  2. `code/src/run_baseline.py`  
+  3. `code/src/run_isotonic.py`  
+  4. `code/src/bayesian/run_sampling.py` (default prior)  
+  5. `code/src/run_bayesian.py` (handles fallback internally)  
+  6. `code/src/summary.py`  
+  7. `code/src/validate_sc.py`  
+  - *Runtime Enforcement (FR‑008)*: Script must measure and log wall‑clock time for each step; abort with error if total runtime > 6 h, isotonic step > 30 min, or Bayesian step > 60 min.  
+  - *Verification*: script aborts on any non‑zero exit.
+
+---
+
+## Phase 6 – Documentation & reproducible handoff  
+
+- [ ] **T024** **Quick‑start guide** – Write `quickstart.md` documenting:
+  - Required environment (`Python 3.11`, `requirements.txt`).  
+  - One‑line command to run the full pipeline (`bash run_pipeline.sh`).  
+  - How to interpret the `results/` directory.  
+
+- [ ] **T025** **Contract test integration** – Update `tests/__init__.py` (if needed) so that `pytest` automatically discovers all contract tests (T009, T014, T020) during CI.  
+
+- [ ] **T026** **Paper‑stage handoff** – Add `paper/handoff.yaml` summarizing:
+  - Dataset source URL and checksum.  
+  - All metric CSVs and figures required for manuscript tables/plots.  
+  - Version of each model (isotonic, Bayesian) and random seed used.  
+
+---
+
+### Execution order & dependencies  
+
+| Task | Depends on |
+|------|------------|
+| T001 → T002 → T003 | – |
+| T004 | T003 |
+| T005 | T004 |
+| T006 → T007 → T008 | T004 |
+| T009 | T008 |
+| T027 | T008 |
+| T028 | T027 |
+| T029 | T008 |
+| T030 | T029 |
+| T010 → T011 → T012 | T004 |
+| T013 | T012 |
+| T014 | T012, T013 |
+| T015 → T016 → T018 → T019 | T004 |
+| T017 | T015 |
+| T020 | T018, T019 |
+| T021 → T022 | T008, T012, T016 (or fallback), T013, T019, T017 |
+| T023 | All prior tasks |
+| T024 → T025 → T026 | T023 (for reproducibility evidence) |
+
+All tasks can be executed in parallel where their dependencies are satisfied.  
+
+**Note**: No task creates synthetic data or fabricates results. Every computation consumes the real SubseasonalRodeo dataset (or the verified NOAA GFS fields within it). All scripts fail loudly on missing fields, checksum errors, or convergence failures, satisfying the “Data Availability Gate” and the strict CPU‑first / GPU‑only policy.
