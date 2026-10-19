@@ -44,7 +44,7 @@ properties:
     description: "Benjamini‑Hochberg adjusted p-value."
   is_signal:
     type: boolean
-    description: "True if the SOC meets the signal criteria (2/3 metrics)."
+    description: "True if the SOC meets the signal criteria (2/3 metrics and bootstrap FDR ≤ 0.05)."
   signal_metrics:
     type: array
     items:

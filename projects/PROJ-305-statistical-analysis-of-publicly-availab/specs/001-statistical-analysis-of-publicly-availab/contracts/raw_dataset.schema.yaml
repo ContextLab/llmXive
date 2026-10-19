@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw VAERS Dataset Schema"
+description: "Schema for the raw VAERS parquet file downloaded from the verified source. Only the minimal columns needed for downstream processing are required."
+type: object
+properties:
+  VAERS_ID:
+    type: integer
+    description: "Unique identifier for the adverse event report."
+  VAX_TYPE:
+    type: string
+    description: "Vaccine type (e.g., 'COVID-19', 'Influenza', 'Tetanus')."
+  SOC_CODE:
+    type: string
+    description: "MedDRA System Organ Class code."
+  REPT_DATE:
+    type: string
+    format: date
+    description: "Date of the adverse event report (YYYY-MM-DD)."
+  AGE:
+    type: number
+    description: "Age of the patient in years."
+  SEX:
+    type: string
+    enum: ["M", "F", "U"]
+    description: "Gender of the patient."
+required:
+  - VAERS_ID
+  - VAX_TYPE
+  - SOC_CODE
+  - REPT_DATE
+additionalProperties: true

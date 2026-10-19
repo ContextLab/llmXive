@@ -38,32 +38,33 @@ PY
    python src/data/download.py
    ```
    - Downloads the verified parquet from  
-     `.  
+     `https://huggingface.co/datasets/chrisvoncsefalvay/vaers-outcomes/resolve/main/data/test-00000-of-00001.parquet`.  
    - Writes SHA‑256 checksum to `data/checksums.txt`.
 
 3. **Validate the raw schema**  
    ```bash
-   python src/data/validate.py
+   python src/data/validate_raw.py
    ```
-   - Exits with `E_SCHEMA_MISSING` if any of `VAX_TYPE`, `SOC_CODE`, `REPT_DATE` are absent (fulfills FR‑001 & SC‑004).
+   - Exits with a clear error if any of `VAERS_ID`, `VAX_TYPE`, `SOC_CODE`, or `REPT_DATE` are absent (fulfills FR‑001 & SC‑004).
 
 4. **Clean, map, and split the data**  
    ```bash
    python src/data/clean.py
    ```
-   - Produces `data/processed/cleaned.parquet` with three groups (`COVID-related`, `Non-COVID-Non-Flu`, `Flu-only`).
+   - Produces `data/processed/cleaned.parquet` with three groups (`COVID-19`, `Non-COVID-Non-Flu`, `Flu-only`).  
+   - Validates the cleaned file against `contracts/cleaned_dataset.schema.yaml`.
 
 5. **Run the full analysis pipeline**  
    ```bash
    python src/main.py
    ```
    This orchestrates:
-   - Disproportionality calculations (`output/signals.csv`)  
-   - Benjamini‑Hochberg correction  
-   - Signal flagging (2‑out‑of‑3 rule **plus** bootstrap‑estimated FDR ≤ 0.05)  
-   - Temporal profiling (canonical CSV files `output/temporal_profiles/<SOC>.csv`; optional PNG plots are also written for visual inspection)  
-   - Temporal‑bias robustness check (re‑compute metrics after dropping spike weeks; signals must remain significant)  
-   - Flu‑only sensitivity analysis (`output/sensitivity_analysis.csv`)  
+   - Disproportionality calculations (`output/signals.csv`).  
+   - Benjamini‑Hochberg correction.  
+   - Signal flagging (2‑out‑of‑3 rule **plus** bootstrap‑estimated FDR ≤ 0.05).  
+   - Temporal profiling (canonical CSV files `output/temporal_profiles/<SOC>.csv`; optional PNG plots).  
+   - Temporal‑bias robustness check (signals must survive spike‑week removal).  
+   - Flu‑only sensitivity analysis (`output/sensitivity_analysis.csv`).  
    - Memory profiling and final `output/report.md`.
 
 6. **Verify contracts**  
@@ -82,17 +83,15 @@ PY
 
 | Symptom | Likely Cause | Remedy |
 |---------|--------------|--------|
-| `E_SCHEMA_MISSING` from `validate.py` | Required columns absent in the downloaded parquet | Confirm the dataset URL; if missing, select a different verified VAERS parquet URL from the list. |
+| `E_SCHEMA_MISSING` from `validate_raw.py` | Required columns absent in the downloaded parquet | Confirm the dataset URL; if missing, select a different verified VAERS parquet URL from the list. |
 | MemoryError | Dataset larger than 7 GB RAM | Set `USE_CHUNKED=True` in `src/utils/config.py`; the pipeline will process the parquet in 500 k‑row chunks. |
 | `logs/structure.txt` missing | Step 1 not executed or `tree` not installed | Install `tree` (`sudo apt-get install tree`) and re‑run step 1. |
-| Plot functions raise `ImportError` | Placeholder code in `src/utils/plots.py` not replaced | Ensure the full implementation of `plot_weekly_counts` and `plot_signal_table` is present (provided in the repository). |
+| Plot functions raise `ImportError` | Placeholder code in `src/utils/plots.py` not replaced | Ensure the full implementation of `plot_weekly_counts` is present (provided in the repository). |
 | Lint failures (`ruff` exit 1) | Style violations | Run `ruff check src/` locally, fix reported issues, then re‑run the lint script. |
 
 ## Next Steps
 - Review `output/report.md` and incorporate the findings into the manuscript (`paper/`).  
 - Run the full test suite (`pytest -q`) to ensure ongoing compliance.  
-- To experiment with the full VAERS archive (beyond the bundled parquet), replace the download URL with the larger dataset identifier; the same pipeline will handle it provided memory constraints are respected.
+- To experiment with a larger VAERS archive, replace the download URL with the full dataset identifier; the same pipeline will handle it provided memory constraints are respected.
 
 ---
-
-

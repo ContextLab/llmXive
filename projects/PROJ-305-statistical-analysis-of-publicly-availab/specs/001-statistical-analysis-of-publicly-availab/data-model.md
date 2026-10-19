@@ -14,9 +14,6 @@ The data model defines the shape of raw, intermediate, and final artifacts used 
 | `REPT_DATE` | string (date) | Date the report was submitted (YYYY‑MM‑DD). |
 | `AGE` | number | Patient age in years (may be missing). |
 | `SEX` | string | “M”, “F”, or “U”. |
-| `VAX_DATE` | string (date) | Date of vaccination (often missing). |
-| `EVENT_DATE` | string (date) | Date of adverse event (may be missing). |
-| `OUTCOME` | string | Outcome description. |
 | *(additional fields are allowed but ignored after validation)* |
 
 ### 2. Cleaned & Grouped Record (`data/processed/cleaned.parquet`)
@@ -25,7 +22,7 @@ The data model defines the shape of raw, intermediate, and final artifacts used 
 | `VAERS_ID` | integer | Propagated from raw. |
 | `VAX_GROUP` | string | `"COVID-19"`, `"Non-COVID-Non-Flu"` or `"Flu-only"` (derived). |
 | `SOC_CODE` | string | MedDRA SOC code (mapped). |
-| `SOC_NAME` | string | Human‑readable SOC name (from mapping file). |
+| `SOC_NAME` | string | Human‑readable SOC name (from `meddra_to_soc.csv`). |
 | `REPT_DATE` | date | Parsed `YYYY‑MM‑DD`. |
 | `AGE` | number | Numeric age (may be NaN). |
 | `SEX` | string | “M”, “F”, “U”. |
@@ -73,9 +70,8 @@ The data model defines the shape of raw, intermediate, and final artifacts used 
 ## Constraints
 - **Memory**: All DataFrames must stay ≤ 7 GB; `src/utils/config.py` sets `MAX_MEMORY_GB = 7`.  
 - **Date format**: `REPT_DATE` stored as ISO `YYYY‑MM‑DD`.  
-- **SOC Mapping**: `data/meddra_to_soc.csv` must contain ≥ 95 % of observed `SOC_CODE`s; missing codes are logged and excluded.  
+- **SOC Mapping Coverage**: `data/meddra_to_soc.csv` must contain ≥ 95 % of observed `SOC_CODE`s; missing codes are logged and excluded.  
 - **Continuity correction**: 0.5 added to any zero cell before metric calculation.  
-- **Schema validation**: `src/data/validate.py` enforces `contracts/dataset.schema.yaml` before any downstream step.  
+- **Schema validation**: `src/data/validate_raw.py` validates against `contracts/raw_dataset.schema.yaml`; `src/data/validate_clean.py` validates against `contracts/cleaned_dataset.schema.yaml`.  
 
 ---
-
