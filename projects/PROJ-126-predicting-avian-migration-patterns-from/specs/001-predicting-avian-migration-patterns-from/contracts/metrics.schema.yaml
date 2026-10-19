@@ -1,31 +1,40 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelPerformanceMetric"
-description: "Schema for model evaluation metrics and statistical test results."
+description: "Schema for aggregated model evaluation metrics, statistical test results, and feasibility diagnostics."
 type: "object"
+required:
+  - "model_name"
+  - "metric_type"
+  - "value"
 properties:
   model_name:
     type: "string"
-    description: "Name of the model (e.g., 'combined', 'temp_only')."
+    description: "Identifier of the evaluated model (e.g., 'combined', 'temp_only', 'ndvi_only', 'naive_baseline')."
   metric_type:
     type: "string"
     enum:
       - "RMSE"
       - "MAE"
       - "Pearson_R"
-      - "Diebold_Mariano_P"
+      - "Spatial_Permutation_P"
+      - "Permutation_Importance_Diff"
+      - "Threshold_Sensitivity_Flag"
+      - "Feasibility"
   value:
     type: "number"
-    description: "The metric value."
+    description: "Numeric value of the metric (e.g., RMSE value, p‑value, correlation)."
   p_value_dm:
     type: ["number", "null"]
-    description: "P-value from Diebold-Mariano test (only for combined vs baseline)."
+    description: "P‑value from Diebold‑Mariano test (included for legacy compatibility; null when not used)."
   confidence_interval_lower:
     type: ["number", "null"]
+    description: "Lower bound of the 95 % confidence interval (if applicable)."
   confidence_interval_upper:
     type: ["number", "null"]
+    description: "Upper bound of the 95 % confidence interval (if applicable)."
   threshold_sweep:
     type: "object"
-    description: "Results from the sensitivity analysis (3, 5, 10)."
+    description: "Results of the first‑arrival threshold sensitivity analysis."
     properties:
       threshold_3:
         type: "number"
@@ -34,21 +43,20 @@ properties:
       threshold_10:
         type: "number"
     required:
-      - threshold_3
-      - threshold_5
-      - threshold_10
+      - "threshold_3"
+      - "threshold_5"
+      - "threshold_10"
   feasibility:
     type: "object"
-    description: "Compute feasibility metrics."
+    description: "Runtime and memory usage metrics."
     properties:
       elapsed_time_hours:
         type: "number"
+        description: "Total wall‑clock time of the pipeline."
       peak_ram_gb:
         type: "number"
+        description: "Maximum resident set size observed."
     required:
-      - elapsed_time_hours
-      - peak_ram_gb
-required:
-  - model_name
-  - metric_type
-  - value
+      - "elapsed_time_hours"
+      - "peak_ram_gb"
+additionalProperties: false

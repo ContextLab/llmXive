@@ -1,76 +1,41 @@
 # Data Model: Predicting Avian Migration Patterns
 
-## Entity-Relationship Overview
-
-The data model revolves around the `GridCellObservation` entity, which aggregates raw eBird checklists and environmental data into a unified spatiotemporal unit. This entity strictly conforms to the `grid_cell_observation.schema.yaml` contract.
+## Entity‑Relationship Overview
+The pipeline revolves around a single canonical entity – **GridCellObservation** – which aggregates citizen‑science bird records and remote‑sensing covariates into a spatiotemporal grid cell. All downstream artifacts (model inputs, metrics, visualizations) derive from this entity, satisfying the Single Source of Truth principle.
 
 ### Core Entities
 
-1.  **RawChecklist**
-    -   **Source**: eBird Basic Dataset (EBD).
-    -   **Description**: Individual observation record.
-    -   **Attributes**: `checklist_id`, `date`, `latitude`, `longitude`, `species_code`, `obs_count`, `duration_min`, `distance_km`, `num_observers`.
+| Entity | Source | Key Attributes |
+|--------|--------|----------------|
+| **RawChecklist** | eBird Basic Dataset (CSV) | `checklist_id`, `date`, `latitude`, `longitude`, `species_code`, `obs_count`, `duration_min`, `distance_km`, `num_observers` |
+| **GridCellObservation** | Aggregated `RawChecklist` + MODIS rasters | `grid_cell_id`, `year`, `week_number`, `total_obs_count`, `cumulative_count`, `first_arrival_week`, `lst_lag_1‑4`, `evi_lag_1‑4`, `effort_covariate`, `data_quality_flag`, `threshold_used` |
+| **ModelPrediction** | XGBoost output (post‑hoc GP corrected) | `grid_cell_id`, `year`, `week_number`, `predicted_arrival_day_of_year`, `actual_arrival_day_of_year`, `residual`, `shap_lst`, `shap_evi` |
+| **ModelPerformanceMetric** | Statistical tests | `model_name`, `metric_type`, `value`, `p_value_dm`, `confidence_interval_lower`, `confidence_interval_upper`, `threshold_sweep`, `feasibility` |
 
-2.  **GridCellObservation**
-    -   **Source**: Aggregated `RawChecklist` + Environmental Data.
-    -   **Description**: A 0.5° x 0.5° grid cell for a specific week.
-    -   **Attributes**:
-        -   `grid_cell_id` (string: "{lat}_{lon}")
-        -   `year` (int)
-        -   `week_number` (int)
-        -   `total_obs_count` (int)
-        -   `first_arrival_week` (int, nullable)
-        -   `lst_lag_1` (float) - Land Surface Temperature 1 week prior
-        -   `lst_lag_2` (float)
-        -   `lst_lag_3` (float)
-        -   `lst_lag_4` (float)
-        -   `evi_lag_1` (float) - Enhanced Vegetation Index 1 week prior
-        -   `evi_lag_2` (float)
-        -   `evi_lag_3` (float)
-        -   `evi_lag_4` (float)
-        -   `data_quality_flag` (enum: "valid", "insufficient_data", "missing_env", "low_effort")
-        -   `threshold_used` (int: 3, 5, or 10)
+## Data Flow Diagram
+1. **Ingestion** (`data_loader.py`) → `RawChecklist` CSV (`data/raw/ebd_subset.csv`).  
+2. **Filtering** (complete‑checklist criteria) → retained rows.  
+3. **Spatial Binning** → `GridCellObservation` rows (`data/processed/first_arrival_sweep.csv`).  
+4. **Environmental Enrichment** (MODIS resampling) → lagged temperature/NDVI fields attached.  
+5. **Model Training** (`model_training.py`) → `ModelPrediction` (`data/outputs/predictions.csv`).  
+6. **Evaluation** → `ModelPerformanceMetric` (`data/processed/metrics.json`).  
+7. **Visualization** (`visualization.py`) → PNG maps (`data/outputs/`).  
 
-3.  **ModelPrediction**
-    -   **Source**: XGBoost Model Output.
-    -   **Description**: Predicted arrival date and residuals.
-    -   **Attributes**:
-        -   `grid_cell_id`
-        -   `year`
-        -   `week_number`
-        -   `predicted_arrival_day_of_year` (int)
-        -   `actual_arrival_day_of_year` (int)
-        -   `residual` (float)
-        -   `shap_lst` (float)
-        -   `shap_evi` (float)
+All CSV/JSON artifacts are validated against the JSON‑Schema contracts in `contracts/`.
 
-4.  **ModelPerformanceMetric**
-    -   **Source**: Statistical Tests.
-    -   **Description**: Aggregated metrics for model evaluation.
-    -   **Attributes**:
-        -   `model_name` (string)
-        -   `metric_type` (string: "RMSE", "MAE", "Pearson_R")
-        -   `value` (float)
-        -   `p_value_dm` (float, nullable)
-        -   `confidence_interval_lower` (float)
-        -   `confidence_interval_upper` (float)
+## Data Constraints & Validation Rules
+- **Grid Resolution**: Fixed at 0.5° × 0.5° (enforced in `preprocessing.py`).  
+- **Temporal Range**: 2015 – 2022 inclusive (validated during loading).  
+- **Species Filter**: Only `species_code == "SRUT"` (Redstart).  
+- **Observation Minimum**: Exclude cells with `<10` total annual observations (FR‑003).  
+- **Effort Offset**: The effort covariate is used **only** to adjust the cumulative‑count threshold (see Phase 1.3); it is **not** included as a predictor in the model (addresses scientific_soundness‑c51f4471).  
+- **Environmental Coverage**: MODIS pixels covering ≥ 95 % of the regional study domain; cells failing this receive `data_quality_flag="missing_env"` and are omitted from training (FR‑011).  
+- **Schema Compliance**: Every output file must validate against its respective contract (`grid_cell_observation.schema.yaml`, `metrics.schema.yaml`).  
 
-## Data Flow
+## Mapping to Contracts
+- **`grid_cell_observation.schema.yaml`** defines the exact column names, types, required fields, and allowed enum values for `first_arrival_sweep.csv`.  
+- **`metrics.schema.yaml`** defines the JSON structure stored in `metrics.json`, including the new `Spatial_Permutation_P` metric type.
 
-1.  **Ingestion**: `RawChecklist` data is downloaded from EBD.
-2.  **Filtering**: Records are filtered for `complete_checklist` criteria.
-3.  **Aggregation**: Filtered records are binned into `GridCellObservation` (0.5° grid, weekly).
-4.  **Enrichment**: Environmental data (Temp, EVI) is interpolated to the grid cell. Lag features are created.
-5.  **Derivation**: `first_arrival_week` is calculated based on cumulative counts.
-6.  **Modeling**: `GridCellObservation` (training split) -> `ModelPrediction`.
-7.  **Evaluation**: `ModelPrediction` -> `ModelPerformanceMetric`.
+---
 
-## Data Constraints & Validations
 
--   **Grid Resolution**: Fixed at 0.5°.
--   **Temporal Range**: 2015-2023.
--   **Species**: *Setophaga ruticilla*.
--   **Minimum Observations**: Grid cells with <10 total annual observations are excluded from modeling.
--   **Missing Data**: If environmental data is missing for a grid cell (e.g., no MODIS data within 10km), the `data_quality_flag` is set to "missing_env", and the row is excluded from training but may be included in sensitivity analysis if the target is derivable.
--   **Low Effort**: Grid cells with low observer effort (e.g., short duration, few observers) are flagged as "low_effort" and excluded from modeling to control for bias.
--   **Schema Compliance**: All output data from `preprocessing.py` MUST conform to `grid_cell_observation.schema.yaml`.
