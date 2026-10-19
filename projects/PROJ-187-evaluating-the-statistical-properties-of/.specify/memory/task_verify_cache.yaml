@@ -22,13 +22,12 @@ T002:
   sig: 4168c3e7b0521f60c0ebf05e0d4b770e38892ce4740ee4f1e613f5ac61ee9443
 T003:
   c: false
-  h: eab734edc49eead0e5a4589e2e2aebd2e998b1aec7ab0e7e2af3dc4ac575a586
-  r: "The verification test `pytest tests/unit/test_trainer.py` fails (exit 1, both\
-    \ tests FAILED with an `ImportError: cannot import name 'HyperTransformer' from\
-    \ 'rdt'`), and no `outputs/synthetic/*.csv` artifacts exist, so there is no evidence\
-    \ any model actually trained or produced synthetic data. Additionally, the trainer\
-    \ never implements the mandatory FR-013 early stopping (delta=0.001, patience=3)\
-    \ \u2014 the parameters are accepted but ignored \u2014 and the seed is never\
-    \ passed to the SDV models, so FR-017 reproducibility is not honored; the failure\
-    \ path also writes an empty header-only CSV rather than r"
-  sig: c3d80b23b42fa54d353744accc5c157e6e4e89cf5b9af8cca4e18c4316b2ab6b
+  h: 5f45e9ac6a097649c7a75ded460a93d7aed79bddadd3d3970010a33f616c1938
+  r: "The `src/models/trainer.py` fails to import the real\u202F`sdv` package because\
+    \ the local `rdt` module still shadows the dependency, causing an ImportError\
+    \ and preventing `generate_and_save` from creating the required CSV and JSON files\
+    \ (the `outputs/synthetic/` directory is empty). Consequently the unit tests in\
+    \ `tests/unit/test_trainer.py` fail, so the task\u2019s functional and output\
+    \ requirements are not met. Fix the import\u2011shadowing issue (and ensure early\u2011\
+    stopping logic) so that the trainer runs and the synthetic files are written."
+  sig: 6c64d4cb29577ceac88c21234d31dcac5d41d24274624da4113029bdf9ba37ff

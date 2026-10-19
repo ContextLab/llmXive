@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-18T12:21:20Z",
-  "project_id": "PROJ-187-evaluating-the-statistical-properties-of"
+  "updated_at": "2026-10-19T06:33:01Z",
+  "project_id": "PROJ-187-evaluating-the-statistical-properties-of",
+  "replan_rounds": 1
 }

@@ -18,19 +18,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.cli.run_fidelity --smoke -> rc=1
-_import
-  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+oad_unlocked
   File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
   File "<frozen importlib._bootstrap_external>", line 940, in exec_module
   File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/__init__.py", line 17, in <module>
     from sdv import (
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/constraints/__init__.py", line 2, in <module>
-    from sdv.constraints.base import Constraint
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/constraints/base.py", line 11, in <module>
-    from rdt import HyperTransformer
-ImportError: cannot import name 'HyperTransformer' from 'rdt' (/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/rdt/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/data_processing/__init__.py", line 3, in <module>
+    from sdv.data_processing.data_processor import DataProcessor
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/data_processing/data_processor.py", line 12, in <module>
+    from rdt.transformers import AnonymizedFaker, IDGenerator, get_default_transformers
+ImportError: cannot import name 'IDGenerator' from 'rdt.transformers' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/rdt/transformers/__init__.py)
 
 - python -m pytest -q tests/contract -> rc=1
 E                                                                        [100%]

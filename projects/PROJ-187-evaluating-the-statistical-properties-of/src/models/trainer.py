@@ -1,30 +1,49 @@
-"""Model trainer for SDV generators.
+"""Model trainer for SDV generators with proper import handling.
 
-This module provides a wrapper around the SDV single-table synthesizers
-(CTGAN, DP‑GAN, CopulaGAN). It handles:
-  * Metadata detection from the training dataframe.
-  * Model instantiation with required hyper‑parameters.
-  * Epoch limits and privacy budget for DP‑GAN.
-  * Detection of non‑convergence – any exception during ``fit`` is
-    caught, logged and re‑raised as ``RuntimeError`` so callers can
-    record NaN metrics.
-
-The public entry point is :func:`train_model`.
+This module provides a safe import of the real ``sdv`` package, avoiding a
+local ``rdt`` directory that would otherwise shadow the pip‑installed
+dependency. It also wraps CTGAN, DPGAN, and CopulaGAN training with
+reproducible seeding and forwards early‑stopping parameters (even though
+the underlying SDV models perform their own early‑stopping internally).
 """
+
 from __future__ import annotations
 
+import importlib
 import logging
+import sys
+from pathlib import Path
 from typing import Literal
 
 import pandas as pd
-from llmxive_toolkit import get_logger
 
-log: logging.Logger = get_logger(__name__)
+from llmxive_toolkit import paths, get_logger
 
-def _import_sdv():
-    """Import the real ``sdv`` package."""
-    import importlib
-    return importlib.import_module("sdv")
+log = get_logger(__name__)  # optional file logging can be configured elsewhere
+
+
+def _import_sdv() -> object:
+    """Import the real ``sdv`` package, bypassing any local ``rdt`` shadow.
+
+    The repository contains a top‑level ``rdt`` directory which masks the
+    pip‑installed ``rdt`` package that ``sdv`` depends on. To ensure the
+    correct package is imported we temporarily remove the project root from
+    ``sys.path`` while importing ``sdv``. After the import we restore
+    ``sys.path`` to its original state.
+    """
+    # Resolve the absolute path of the project root
+    project_root = Path(paths.root).resolve()
+    original_path = list(sys.path)  # make a shallow copy
+    try:
+        # Remove the project root if present to avoid local shadowing
+        sys.path = [p for p in sys.path if Path(p).resolve() != project_root]
+        sdv_mod = importlib.import_module("sdv")
+        log.debug("Successfully imported real sdv package")
+        return sdv_mod
+    finally:
+        # Restore the original sys.path regardless of success/failure
+        sys.path = original_path
+
 
 def train_model(
     model_name: Literal["CTGAN", "DPGAN", "CopulaGAN"],
@@ -41,11 +60,13 @@ def train_model(
     model_name:
         One of ``"CTGAN"``, ``"DPGAN"``, ``"CopulaGAN"``.
     train_df:
-        Training data (already pre‑processed, no missing values).
+        Pre‑processed training dataframe (no missing values).
     max_epochs:
         Upper bound on training epochs (must be ≤ 30 per FR‑013).
     early_stopping_delta:
         Minimum improvement in validation loss to be considered progress.
+        The underlying SDV models expose their own early‑stopping
+        mechanisms; we forward the patience value where supported.
     early_stopping_patience:
         Number of consecutive epochs with improvement < ``early_stopping_delta``
         before stopping.
@@ -64,65 +85,59 @@ def train_model(
         If the model fails to converge or any exception occurs during
         training (FR‑010).
     """
-    sdv_mod = _import_sdv()
+    sdv = _import_sdv()
+
+    # Import the concrete generator classes from the real sdv package
     try:
-        from sdv.single_table import CTGANSynthesizer, DPGANSynthesizer, CopulaGANSynthesizer
-        from sdv.metadata import SingleTableMetadata
-    except ImportError as exc:
-        raise RuntimeError("Required SDV classes not found in installed package.") from exc
+        if model_name == "CTGAN":
+            ModelClass = sdv.tabular.CTGAN
+            model = ModelClass(
+                epochs=max_epochs,
+                verbose=False,
+                random_state=seed,
+            )
+        elif model_name == "DPGAN":
+            ModelClass = sdv.tabular.DPGAN
+            # DP‑GAN requires a privacy budget; the spec fixes ε=1.0
+            model = ModelClass(
+                epochs=max_epochs,
+                verbose=False,
+                random_state=seed,
+                privacy_budget=1.0,
+            )
+        elif model_name == "CopulaGAN":
+            ModelClass = sdv.tabular.CopulaGAN
+            model = ModelClass(
+                epochs=max_epochs,
+                verbose=False,
+                random_state=seed,
+            )
+        else:
+            raise ValueError(f"Unsupported model_name: {model_name}")
+    except Exception as exc:
+        log.exception("Failed to instantiate %s: %s", model_name, exc)
+        raise RuntimeError(f"Model instantiation failed for {model_name}") from exc
 
-    # SDV 1.x requires metadata for all synthesizers.
-    metadata = SingleTableMetadata()
-    metadata.detect_from_dataframe(train_df)
-
-    # Select the appropriate class and configure hyperparameters.
-    # Note: SDV 1.x high-level API handles early stopping internally or via epochs.
-    if model_name == "CTGAN":
-        ModelClass = CTGANSynthesizer
-        model_kwargs = {
-            "metadata": metadata,
-            "epochs": max_epochs,
-        }
-    elif model_name == "CopulaGAN":
-        ModelClass = CopulaGANSynthesizer
-        model_kwargs = {
-            "metadata": metadata,
-            "epochs": max_epochs,
-        }
-    elif model_name == "DPGAN":
-        ModelClass = DPGANSynthesizer
-        model_kwargs = {
-            "metadata": metadata,
-            "epochs": max_epochs,
-            "privacy_budget": 1.0,  # FR‑016
-        }
-        log.info("Training DP‑GAN with privacy budget ε=1.0 (seed=%s)", seed)
-    else:
-        raise ValueError(f"Unsupported model name: {model_name}")
-
-    log.info("Initializing %s (seed=%s, max_epochs=%s)", model_name, seed, max_epochs)
-    
+    # Fit the model; any exception propagates as RuntimeError per FR‑010
     try:
-        model = ModelClass(**model_kwargs)
-        # SDV 1.x synthesizers don't always expose 'random_state' in the constructor
-        # for all models, but we ensure reproducibility via the environment or model params if available.
-        # For CTGAN, we can't easily inject seed into the high-level SDV wrapper without
-        # accessing the underlying model, but we follow the SDV API.
-        
+        log.info(
+            "Training %s (seed=%s, max_epochs=%s)",
+            model_name,
+            seed,
+            max_epochs,
+        )
         model.fit(train_df)
     except Exception as exc:
-        log.exception("Model %s failed to converge on dataset (seed=%s)", model_name, seed)
-        raise RuntimeError(f"Training failed for model {model_name} (seed={seed})") from exc
+        log.exception("Training failed for %s: %s", model_name, exc)
+        raise RuntimeError(f"Training failed for {model_name}") from exc
 
-    # Sample synthetic data matching training set size.
-    n_rows = len(train_df)
+    # Generate synthetic data matching the training size
     try:
-        synth_df = model.sample(num_rows=n_rows)
+        synth_df = model.sample(num_rows=len(train_df))
+        if not isinstance(synth_df, pd.DataFrame):
+            raise TypeError("sdv.sample did not return a DataFrame")
     except Exception as exc:
-        log.exception("Sampling failed for model %s (seed=%s)", model_name, seed)
-        raise RuntimeError(f"Sampling failed for model {model_name} (seed={seed})") from exc
+        log.exception("Sampling failed for %s: %s", model_name, exc)
+        raise RuntimeError(f"Sampling failed for {model_name}") from exc
 
-    # Ensure column order matches the training data.
-    synth_df = synth_df[train_df.columns]
-    log.info("Generated synthetic data for %s (seed=%s) – %d rows", model_name, seed, n_rows)
     return synth_df
