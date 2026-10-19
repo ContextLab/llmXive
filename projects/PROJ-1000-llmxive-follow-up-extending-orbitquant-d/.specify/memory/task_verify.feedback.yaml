@@ -1,15 +1,8 @@
 T001:
-  reason: "The required `code/models/` sub\u2011directory is reported as missing,\
-    \ and there is no execution evidence showing that `python -m code.main --phase\
-    \ init` actually prints \u201CInitialization complete\u201D as the verification\
-    \ step demands."
   task: cd7f1b44a68975ba867476c14812b1133dcad0e1e09c26941c02c961d97d0122
 T002:
-  reason: "The required `data/raw/coco_captions.parquet` file is missing (the provided\
-    \ script writes a CSV instead of a Parquet file), and the expected preprocessing\
-    \ script `code/data/preprocess_coco.py` does not exist (the log shows a different\
-    \ `preprocess.py` was run). Consequently the task\u2019s first two steps are not\
-    \ satisfied, even though the diverse prompts script and CSV output are present."
+  reason: 'Requested task execution failed; rerun successfully: code/data/download_coco.py
+    exit=1; code/data/preprocess_coco.py exit=1'
   task: 2dd5599c8aeb8cb0c68f204b9f38368864466c71f791e5ac22f54ad12cbf0af1
 T003:
   task: 34a117c7140658087a5fd55cde6c05f436ea51e4d263e2f50bcb56e48650391d

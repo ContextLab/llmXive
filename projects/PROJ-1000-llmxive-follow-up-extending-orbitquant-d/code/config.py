@@ -10,7 +10,6 @@ working directory.
 """
 from pathlib import Path
 from dataclasses import dataclass
-
 from llmxive_toolkit import paths
 
 # ---------------------------------------------------------------------------
@@ -44,26 +43,10 @@ MODEL_LOAD_LOG_PATH = LOGS_DIR / "model_load_log.json"
 PROXY_FAILURES_LOG_PATH = LOGS_DIR / "proxy_failures.json"
 ROUTER_EDGE_CASES_LOG_PATH = LOGS_DIR / "router_edge_cases.json"
 
-
 @dataclass(frozen=True)
 class Config:
     """
     Simple immutable configuration holder.
-
-    Attributes
-    ----------
-    project_root: Path
-        The root directory of the project.
-    code_dir: Path
-        Base directory for source code.
-    tests_dir: Path
-        Base directory for tests.
-    raw_data_dir: Path
-        Base directory for raw downloaded artifacts.
-    processed_data_dir: Path
-        Directory for processed CSV/JSON outputs.
-    seed: int
-        Random seed for any stochastic operations.
     """
     project_root: Path = PROJECT_ROOT
     code_dir: Path = CODE_DIR
@@ -72,28 +55,22 @@ class Config:
     processed_data_dir: Path = PROCESSED_DATA_DIR
     seed: int = SEED
 
-    # Convenience properties used by other modules
     @property
     def coco_captions_dir(self) -> Path:
-        """Directory where COCO caption files are stored."""
         return self.raw_data_dir / "coco_captions"
 
     @property
     def diverse_prompts_path(self) -> Path:
-        """Default output path for the diverse prompts CSV."""
         return self.processed_data_dir / "diverse_prompts.csv"
 
     @property
     def prompts_csv_path(self) -> Path:
-        """Path for the merged prompts CSV produced by preprocessing."""
         return self.processed_data_dir / "prompts.csv"
 
     @property
     def clustering_report_path(self) -> Path:
-        """Path to the clustering report JSON."""
         return self.processed_data_dir / "clustering_report.json"
 
     @property
     def data_processed_path(self) -> Path:
-        """Alias for the processed-data directory (used by runners)."""
         return self.processed_data_dir

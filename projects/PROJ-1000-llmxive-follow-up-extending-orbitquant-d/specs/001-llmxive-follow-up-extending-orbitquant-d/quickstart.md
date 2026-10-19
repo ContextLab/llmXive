@@ -43,13 +43,8 @@ This indicates that:
   each with an `__init__.py` package marker.
 - The `tests/` directory is in place.
 - The `data/raw`, `data/processed` (with `logs/`, `activation_stats/`,
-  `rotation_matrices/`, `generated_images/`) and `figures/` directories are
-  also in place.
-
-Note: the entry point uses `parse_known_args`, so piping its output
-(e.g. `python -m code.main --phase init | grep "Initialization complete"`)
-works both in a shell and when the pipe fragment is passed as literal
-arguments by a non‑shell runner.
+  `rotation_matrices/`, `generated_images/`) and `figures/` directories
+  are also in place.
 
 ## Verification
 
@@ -68,7 +63,3 @@ grep -c "torch" requirements.txt   # should be ≥ 1
 # Confirm the init phase prints its confirmation message
 python -m code.main --phase init | grep "Initialization complete"
 ```
-
-Once these checks pass, the project skeleton is ready for further
-development and data acquisition steps (see `code/data/download_coco.py`
-and `code/data/download_diverse_prompts.py` in the next task).

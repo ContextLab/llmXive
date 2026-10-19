@@ -2,13 +2,10 @@ torch
 diffusers
 transformers
 datasets
+pyarrow
 scikit-learn
 numpy
 pandas
 matplotlib
 scipy
 tqdm
-accelerate
-sentence-transformers
-pycocotools
-pyarrow<15.0.0

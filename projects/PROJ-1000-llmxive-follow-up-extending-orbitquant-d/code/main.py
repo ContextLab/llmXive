@@ -1,61 +1,52 @@
-"""
-Entry point for project initialization.
-
-Usage:
-    python -m code.main --phase init
-"""
 import argparse
-import sys
+import os
+from pathlib import Path
+from llmxive_toolkit import paths
 
-from llmxive_toolkit import paths, get_logger
-
-# Initialize logger (optional, can be omitted if not needed)
-log = get_logger(__name__)
-
-def _create_subdirectories():
+def initialize_skeleton():
     """
-    Create all required sub‑directories under the `code/` package
-    and the `tests/` directory. Uses `llmxive_toolkit.paths` helpers
-    to ensure the directories are created inside the project root.
+    Creates the required project directory structure.
     """
-    subdirs = [
-        "analysis",
-        "models",
-        "quantization",
-        "evaluation",
-        "utils",
-        "data",
-        "runners",
-        "validation",
-        "security",
+    # Code directories
+    code_dirs = [
+        "analysis", "models", "quantization", "evaluation", 
+        "utils", "data", "runners", "validation", "security"
     ]
+    for d in code_dirs:
+        dir_path = paths.code(d)
+        dir_path.mkdir(parents=True, exist_ok=True)
+        # Create __init__.py to make them packages
+        (dir_path / "__init__.py").touch()
 
-    for sub in subdirs:
-        # `paths.code` creates the directory if it does not exist.
-        dir_path = paths.code(sub)
-        log.info(f"Created code subdirectory: {dir_path}")
+    # Tests directory
+    paths.path("tests").mkdir(parents=True, exist_ok=True)
 
-    # Ensure the top‑level `tests/` directory exists.
-    tests_path = paths.tests("")
-    log.info(f"Created tests directory: {tests_path}")
+    # Data and Figures directories
+    data_dirs = [
+        "raw", 
+        "processed/logs", 
+        "processed/activation_stats", 
+        "processed/rotation_matrices", 
+        "processed/generated_images"
+    ]
+    for d in data_dirs:
+        paths.data(d).mkdir(parents=True, exist_ok=True)
+    
+    paths.figures("").mkdir(parents=True, exist_ok=True)
 
-def main(argv=None):
-    parser = argparse.ArgumentParser(description="Project entry point.")
-    parser.add_argument(
-        "--phase",
-        type=str,
-        required=True,
-        help="Initialization phase to run (currently only 'init' is supported).",
-    )
-    args = parser.parse_args(argv)
+    print("Initialization complete")
+
+def main():
+    parser = argparse.ArgumentParser(description="Project Orchestrator")
+    parser.add_argument("--phase", type=str, required=True, help="Phase to execute")
+    
+    # Use parse_known_args to avoid crashes if the runner passes shell-piped strings as args
+    args, _ = parser.parse_known_args()
 
     if args.phase == "init":
-        _create_subdirectories()
-        # Print the exact phrase expected by the verification step.
-        print("Initialization complete")
-        return 0
+        initialize_skeleton()
     else:
-        parser.error(f"Unsupported phase: {args.phase}")
+        print(f"Phase {args.phase} not implemented in main.py")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

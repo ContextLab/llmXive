@@ -1,10 +1,14 @@
 T001:
-  c: false
-  h: 30f7533d1269fe6d9dd5dae9b379f734f44af8a82fec0fc924d17bc06d41f03d
-  r: "The required `code/models/` sub\u2011directory is reported as missing, and there\
-    \ is no execution evidence showing that `python -m code.main --phase init` actually\
-    \ prints \u201CInitialization complete\u201D as the verification step demands."
-  sig: 27533b194252ee705ec8114e5c8adf16da5bb289f5fbe6ae2852132884484c71
+  c: true
+  h: b50cc0c1c8966dfa0c0b922e198efef2dede00eabd79295ece0280ba108d6eb5
+  r: 'The required artifacts exist and match the task: `code/` contains all required
+    sub-directories (analysis, models, quantization, evaluation, utils, plus extras),
+    `tests/` exists, `requirements.txt` lists all ten required packages including
+    torch, `code/config.py` defines global seeds and path helpers via `llmxive_toolkit.paths`,
+    and `specs/.../quickstart.md` documents `python -m code.main --phase init`. The
+    historical execution log shows that command ran with exit 0 and printed "Initialization
+    complete", matching the quickstart''s documented output.'
+  sig: de6aec9346ddbd12d23b1f59a196d616c30b418b29dccf53541f2f1810050eeb
 T002:
   c: false
   h: 46cb4798903e9ae6c2dfa9553b51c4b49e07730aea75f553f208b4c3465792fe
