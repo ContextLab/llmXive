@@ -22,21 +22,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/bin/python: Error while finding module specification for 'pipeline.run' (ModuleNotFoundError: No module named 'pipeline')
 
 - python code/00_check_dataset.py   # prints missing fields, exits if title missing -> rc=1
-cial-behav/lib/python3.11/site-packages/datasets/load.py", line 2556, in load_dataset
+-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 2587, in load_dataset
     builder_instance = load_dataset_builder(
                        ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 2228, in load_dataset_builder
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 2259, in load_dataset_builder
     dataset_module = dataset_module_factory(
                      ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 1873, in dataset_module_factory
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 1904, in dataset_module_factory
     raise e1 from None
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 1819, in dataset_module_factory
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 1850, in dataset_module_factory
     raise DatasetNotFoundError(
-datasets.exceptions.DatasetNotFoundError: Dataset 'pushshift.io/reddit' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/pushshift.io/reddit to ask for access.
+datasets.exceptions.DatasetNotFoundError: Dataset 'pushshift/reddit' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/pushshift/reddit to ask for access.
 
 - python code/01_ingest.py -> rc=1
-2026-10-19 14:43:56 - ingest_feasibility - INFO - === Starting T015b: Feasibility Check for FR-002c ===
-2026-10-19 14:43:56 - ingest_feasibility - ERROR - Feasibility check failed: get_logger() missing 1 required positional argument: 'name'
+2026-10-19 14:46:36 - ingest_feasibility - INFO - === Starting T015b: Feasibility Check for FR-002c ===
+2026-10-19 14:46:36 - ingest_feasibility - ERROR - Feasibility check failed: get_logger() missing 1 required positional argument: 'name'
 
 
 - python code/02_score.py -> rc=1
@@ -72,7 +72,7 @@ E   ModuleNotFoundError: No module named 'code._00_power_analysis'
 ERROR tests/unit/test_directory_setup.py
 ERROR tests/unit/test_power_analysis.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.19s ===============================
+============================== 2 errors in 0.63s ===============================
 
 
 

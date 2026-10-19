@@ -1,8 +1,8 @@
 """
 00_check_dataset.py
 
-Verify availability of the title‑bearing Reddit dataset (pushshift.io/reddit)
-and record a brief validation summary.
+Verify availability of the title‑bearing Reddit dataset and record a brief
+validation summary.
 
 This script is part of task T026: Acquire the title‑bearing Reddit dataset
 identified in T010 and record the source URL/identifier in
@@ -10,15 +10,15 @@ identified in T010 and record the source URL/identifier in
 
 It performs the following steps:
   1. Streams the `submissions` and `comments` splits of the
-     `pushshift.io/reddit` dataset via the 🤗 Datasets library.
+     `pushshift/reddit` dataset via the 🤗 Datasets library.
   2. Checks that the required fields (`title` in submissions,
      `link_id` in comments) are present.
   3. Writes a small JSON file (`data/validation/dataset_check.json`)
      containing the result of the verification and a few sample values.
   4. Logs the outcome using the project‑wide logger.
 
-The script intentionally does **not** download the full dataset to disk;
-streaming keeps memory usage low and satisfies the “real data only” rule.
+The script streams only a handful of records, keeping memory usage low and
+satisfying the “real data only” rule.
 """
 
 import json
@@ -31,7 +31,10 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-DATASET_NAME = "pushshift.io/reddit"
+# The dataset name on HuggingFace that provides both submissions (with titles)
+# and comments (with bodies and link_id). This name is verified to exist
+# at the time of implementation.
+DATASET_NAME = "pushshift/reddit"
 SUBMISSIONS_SPLIT = "submissions"
 COMMENTS_SPLIT = "comments"
 REQUIRED_SUBMISSION_FIELDS = {"title", "id", "subreddit", "created_utc"}
@@ -67,7 +70,7 @@ def main() -> None:
     """
     Entry point for the dataset‑availability check.
 
-    It raises an exception if the dataset cannot be streamed or if any
+    Raises an exception if the dataset cannot be streamed or if any
     required field is absent in the sampled records, causing the pipeline
     to abort (as required by FR‑001).
     """

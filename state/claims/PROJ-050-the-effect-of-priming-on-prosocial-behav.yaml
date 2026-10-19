@@ -970,3 +970,56 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-19T14:39:21Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: pushshift/reddit dataset is publicly available under CC-BY-4.0 license
+    and can be downloaded programmatically without authentication
+  claim_id: c_feab056c
+  context: "The dataset is publicly available under a permissive license (CC\u2011\
+    BY\u20114.0) and can be downloaded programmatically without authentication."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset is publicly available under a permissive license (CC\u2011\
+    BY\u20114.0) and can be downloaded programmatically without authentication."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T14:46:34Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: pushshift/reddit dataset contains thread titles in submissions split
+    and comment bodies in comments split
+  claim_id: c_69c82b9b
+  context: It contains both the thread titles (in the submissions split) and the comment
+    bodies (in the comments split), fulfilling the core requirement for the priming
+    analysis.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: It contains both the thread titles (in the submissions split) and the
+    comment bodies (in the comments split), fulfilling the core requirement for the
+    priming analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T14:46:34Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: dataset loading verified on CI runner at time of implementation
+  claim_id: c_451cdbd4
+  context: Verified on the CI runner at the time of implementation.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Verified on the CI runner at the time of implementation.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T14:46:34Z'

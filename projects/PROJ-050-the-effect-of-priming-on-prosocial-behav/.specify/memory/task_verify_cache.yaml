@@ -7,13 +7,13 @@ T001:
     \ the layout script exited successfully. The required directory structure is present."
   sig: f9e7527af2b116f875e7cf048a16be14d173b2fc336be7568efe7dc9c47a7a36
 T002:
-  c: false
-  h: 09d7a02f005eaf4a82c8e2b43db74077af3171c64881d13f69af2cd7b4de1e50
-  r: "Checked `code/requirements.txt`: it lists the required packages but uses \u201C\
-    >=\u201D version specifiers instead of exact pins and omits the `hashlib` entry\
-    \ (which the task explicitly asked to pin). The file therefore does not satisfy\
-    \ the \u201Cpin dependencies\u201D requirement."
-  sig: e9934b5936f759ab163d03567ff310adadc794efd796dce49124854642477f58
+  c: true
+  h: d638f8620f58f115a4b302d4c0e58ee8bad37edd74ef3006a367d02562927268
+  r: "Checked the `code/requirements.txt` file (689\u202Fbytes) which lists pinned\
+    \ versions for pandas, numpy, scikit\u2011learn, statsmodels, vaderSentiment,\
+    \ datasets, pyyaml, tqdm and notes that hashlib is part of the Python\u202F3.11\
+    \ standard library, satisfying the task\u2019s dependency\u2011pinning requirement."
+  sig: dfb7e6f0d09ab02b8f7554183decd3fe9c38a22444cc4503b172d00ab9d29798
 T003:
   c: true
   h: 92d0c5ede08abf6914c87be2bdbb0bf8e31d066b65da6c14655ccf2d24d92854
@@ -21,15 +21,6 @@ T003:
     \ which contains the documented entry\u2011point command `python -m pipeline.run`\
     \ as required."
   sig: e3642d5ecad62afc95002e8d011168643bcde6fb0947f41524b490523ef86a0a
-T004:
-  c: false
-  h: 42e45e4a88e5e3387271362f732435d6bf08883b1be0089b6e38cc88932b5994
-  r: "The evidence shows that `data/raw/`, `data/processed/`, and `data/validation/`\
-    \ directories exist (though empty), but the required `data/results/` directory\
-    \ is missing; the script created a top\u2011level `results/` folder instead of\
-    \ the expected `data/results/`. The task\u2019s requirement is therefore not fully\
-    \ met."
-  sig: 405337c52acadbd28073c2eff329a0f916aad5fb15e0a545a397ab80e2961d97
 T005:
   c: true
   h: cc0e0ceccc689dc536e199a028ee9f701098097924b9af6eaede806b955fc968
@@ -74,13 +65,11 @@ T009:
   sig: 2b55d88e969a2834eed531aaaeb26490cfa77247c62c3e5c8658e2eb90fcec7e
 T010:
   c: true
-  h: 444552f3b786dca104629d2b4ace2f49b1e3a264cac2a15c0c7fd837f205d2c4
-  r: "Checked `docs/dataset_acquisition.md`, which records the public HuggingFace\
-    \ \u201Cpushshift.io/reddit\u201D dataset, provides its URL, the `datasets` library\
-    \ access code, and notes that the submissions split contains a `title` field (fulfilling\
-    \ the requirement). The file also includes the required failure\u2011handling\
-    \ clause."
-  sig: 2b3a8729bdd6f7afcd59927d007a2ee8ef3950ec79bd188eaab3cad56ef7c10b
+  h: b5aa6aac90e32ae1766f0c48b17ddabe4a677da53047673581236955ea8c6cc2
+  r: Checked `docs/dataset_acquisition.md`, which documents the public `pushshift/reddit`
+    Hugging Face dataset, provides its URL, identifier, and access method, and confirms
+    the presence of a `title` field for thread titles, fulfilling T010.
+  sig: 15c1ce125d33736199db13fbffb2711877f7d1288b18989fa772fd907c0a2778
 T020:
   c: false
   h: c9eafd40438f6e734dfdfa1a0fb8df710ad8e0938fbfab951b2b956c085c1f4e

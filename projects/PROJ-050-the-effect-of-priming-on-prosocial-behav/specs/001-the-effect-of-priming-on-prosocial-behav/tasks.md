@@ -8,7 +8,7 @@
 ## Phase 1 – Project bootstrap (already completed)
 
 - [X] T001 Establish the project directory layout under `projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/`.
-- [ ] T002 Initialize a Python 3.11 environment; pin dependencies in `code/requirements.txt` (pandas, numpy, scikit‑learn, statsmodels, vaderSentiment, datasets, pyyaml, hashlib, tqdm).
+- [X] T002 Initialize a Python 3.11 environment; pin dependencies in `code/requirements.txt` (pandas, numpy, scikit‑learn, statsmodels, vaderSentiment, datasets, pyyaml, hashlib, tqdm).
 - [X] T003 Document the runnable entry‑point command in `quickstart.md` (e.g., `python -m pipeline.run`).
 
 ---
@@ -27,7 +27,7 @@
 ## Phase 3 – Data‑fit resolution & ingestion (US 1)
 
 - [X] T010 [US1] **Identify and secure a public Reddit dataset that includes thread titles** (e.g., a full Pushshift dump via the `pushshift.io` API or an HF dataset with a `title` field). Document the chosen source, URL/identifier, and access method in `docs/dataset_acquisition.md`. **If no such dataset exists, raise a project‑blocking issue** (FR‑001 cannot be satisfied without titles).
-- [ ] T026 Acquire the title‑bearing Reddit dataset identified in T010 and record the source URL/identifier in `docs/dataset_acquisition.md`. <!-- FAILED-IN-EXECUTION: code/00_check_dataset.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/00_check_dataset.py exit=1 -->
+- [ ] T026 Acquire the title‑bearing Reddit dataset identified in T010 and record the source URL/identifier in `docs/dataset_acquisition.md`. <!-- FAILED-IN-EXECUTION: code/00_check_dataset.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/00_check_dataset.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/00_check_dataset.py exit=1 -->
 - [ ] T011 [US1] Implement `code/01_ingest.py` to **stream** the acquired dataset, filter for subreddits `AskReddit`, `science`, `relationships`, compute `user_tenure` from `created_utc`, hash `author` with SHA‑256 → `user_id`, classify `thread_type` using regex `/(thank|help|support|care)/i` on the **thread title**, and write:
   - `data/processed/anonymized.csv` (conforms to `dataset.schema.yaml`, includes `thread_type` values “Prime” or “Control”)
   - `data/processed/raw_counts.json` (raw vs. processed comment counts, satisfies SC‑001)

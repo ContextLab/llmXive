@@ -1,10 +1,18 @@
-pandas>=2.2.0
-numpy>=1.26.0
-scikit-learn>=1.4.0
-statsmodels>=0.14.0
-vaderSentiment>=3.3.2
-datasets>=2.18.0
-pyyaml>=6.0.1
-tqdm>=4.66.0
-# Pin pyarrow to a version compatible with the bundled NumPy 1.26.x
+# Exact pinned versions for the project environment.
+# These versions are known to be compatible with Python 3.11 and the
+# libraries already available in the execution environment.
+#
+# NOTE: `hashlib` is part of the Python standard library and does not
+# require installation via pip. It is listed here for completeness
+# with the task specification, but no version pin is needed.
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.4.2
+statsmodels==0.14.2
+vaderSentiment==3.3.2
+datasets==2.19.0
+pyyaml==6.0.1
+tqdm==4.66.2
+# pyarrow is required by the `datasets` library; pin to a compatible version.
 pyarrow<15
+# hashlib is provided by the Python standard library (no pip package).  </details>
