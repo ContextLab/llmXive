@@ -25,8 +25,7 @@ This script:
 - Downloads the **verified** parquet shard
   (`clane9/openneuro-fslr64k`, test split, `test-00000-of-00016.parquet`)
   to `data/raw/` via `huggingface_hub.hf_hub_download`; it fails loudly on
-  any fetch error and never falls back to synthetic data. The previously
-  guessed OpenNeuro dataset IDs (ds000246/ds001600) are NOT retried.
+  any fetch error and never falls back to synthetic data.
 - Records its SHA-256 in `data/checksums.json`.
 - Streams the parquet with `pyarrow`, inventories the real columns, and
   writes `data/raw/column_inventory.json` listing which
@@ -53,29 +52,17 @@ Run a subset of stages (e.g. the Phase‑1 checkpoint):
 python code/run_all.py --stage download --stage extract --stage metrics
 ```
 
-Stages whose modules are introduced by later tasks fail loudly with a
-clear message naming the missing module — nothing is skipped silently.
-
-**Expected path:** if no real skill‑proxy column exists in the data (the
-anticipated outcome), the association stage prints a clear data‑mismatch
-message, records the scope gap, and the remaining stages (descriptor
-sensitivity, descriptive topology figure, manifest) still complete — the
-descriptive characterization is the primary deliverable. The power
-analysis never aborts the pipeline; under‑power gates the association
-stage only.
+**Expected path:** if no real skill‑proxy column exists in the data, the
+association stage prints a clear data‑mismatch message and the remaining
+stages still complete.
 
 ## 4. Inspect results
 
-- `results/manifest.csv` — master manifest (Single Source of Truth)
-- `results/regression_results.csv` — coefficients, Freedman–Lane
-  permutation p, FDR p, significance (only if the association stage ran)
+- `results/manifest.csv` — master manifest
+- `results/regression_results.csv` — association results (if proxy exists)
 - `results/sensitivity_summary.csv` — window/step robustness table
-  (correlation SD marked `not_computable_no_skill_proxy` on the expected
-  path)
 - `results/power_analysis.json` — required vs. available N
-  (correlation/F-test framework)
 - `results/fig_network_topology.png` — descriptive vertex‑block topology
-  figure (group comparison only if real task labels exist)
 
 ## 5. Run tests
 
@@ -83,15 +70,9 @@ stage only.
 pytest -q tests
 ```
 
-Test modules (unit and contract) are introduced alongside their
-implementation tasks (T003 onward); contract tests validate every output
-file against `specs/001-investigating-the-relationship-between-b/contracts/*.schema.yaml`.
-
 ## 6. Re‑run one sensitivity setting
 
 ```bash
 python code/run_all.py --seed 123 --window 30 --step 5 --permutations 1000 \
     --output_dir results/window30_step5
 ```
-
-Same seed ⇒ deterministic results (Constitution Principle I).

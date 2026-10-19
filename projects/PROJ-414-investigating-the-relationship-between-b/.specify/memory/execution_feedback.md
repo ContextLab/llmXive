@@ -22,56 +22,55 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/run_all.py --seed 42 --window 45 --step 10 --permutations 1000 -> rc=2
 016.parquet
-2026-10-19 12:23:23,995 INFO code.download_openneuro: /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/raw/test-00000-of-00016.parquet already exists; skipping download.
-2026-10-19 12:23:24,281 INFO code.download_openneuro: SHA-256 66c90ba52e1b8e11da9f152d4e0248b83606b99c64120091928be074a93359f7 written to /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/checksums.json
-2026-10-19 12:23:24,284 INFO code.download_openneuro: Column inventory written to /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/raw/column_inventory.json (8 columns, available_subject_count=19)
-2026-10-19 12:23:24,284 INFO code.download_openneuro: Expected fields ABSENT from shard (honest record): ['expert_rating', 'task_condition', 'years_of_training', 'age', 'fd', 'instrument', 'genre', 'practice_intensity', 'education']
-2026-10-19 12:23:24,655 INFO __main__: === stage: extract (extract_rois) ===
+2026-10-19 15:22:27,518 INFO code.download_openneuro: /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/raw/test-00000-of-00016.parquet already exists; skipping download.
+2026-10-19 15:22:27,799 INFO code.download_openneuro: SHA-256 66c90ba52e1b8e11da9f152d4e0248b83606b99c64120091928be074a93359f7 written to /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/checksums.json
+2026-10-19 15:22:27,801 INFO code.download_openneuro: Column inventory written to /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/raw/column_inventory.json (8 columns, available_subject_count=19)
+2026-10-19 15:22:27,801 INFO code.download_openneuro: Expected fields ABSENT from shard (honest record): ['expert_rating', 'task_condition', 'years_of_training', 'age', 'fd', 'instrument', 'genre', 'practice_intensity', 'education']
+2026-10-19 15:22:28,210 INFO __main__: === stage: extract (extract_rois) ===
 usage: run_all.py [-h] [--shard SHARD] [--derived_dir DERIVED_DIR]
 run_all.py: error: unrecognized arguments: --seed 42 --window 45 --step 10 --permutations 1000
 
 - python code/run_all.py --stage download --stage extract --stage metrics -> rc=2
 -00016.parquet
-2026-10-19 12:23:25,079 INFO code.download_openneuro: /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/raw/test-00000-of-00016.parquet already exists; skipping download.
-2026-10-19 12:23:25,372 INFO code.download_openneuro: SHA-256 66c90ba52e1b8e11da9f152d4e0248b83606b99c64120091928be074a93359f7 written to /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/checksums.json
-2026-10-19 12:23:25,376 INFO code.download_openneuro: Column inventory written to /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/raw/column_inventory.json (8 columns, available_subject_count=19)
-2026-10-19 12:23:25,376 INFO code.download_openneuro: Expected fields ABSENT from shard (honest record): ['expert_rating', 'task_condition', 'years_of_training', 'age', 'fd', 'instrument', 'genre', 'practice_intensity', 'education']
-2026-10-19 12:23:25,753 INFO __main__: === stage: extract (extract_rois) ===
+2026-10-19 15:22:28,660 INFO code.download_openneuro: /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/raw/test-00000-of-00016.parquet already exists; skipping download.
+2026-10-19 15:22:28,940 INFO code.download_openneuro: SHA-256 66c90ba52e1b8e11da9f152d4e0248b83606b99c64120091928be074a93359f7 written to /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/checksums.json
+2026-10-19 15:22:28,943 INFO code.download_openneuro: Column inventory written to /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/raw/column_inventory.json (8 columns, available_subject_count=19)
+2026-10-19 15:22:28,943 INFO code.download_openneuro: Expected fields ABSENT from shard (honest record): ['expert_rating', 'task_condition', 'years_of_training', 'age', 'fd', 'instrument', 'genre', 'practice_intensity', 'education']
+2026-10-19 15:22:29,351 INFO __main__: === stage: extract (extract_rois) ===
 usage: run_all.py [-h] [--shard SHARD] [--derived_dir DERIVED_DIR]
 run_all.py: error: unrecognized arguments: --stage download --stage extract --stage metrics
 
 - python -m pytest -q tests -> rc=1
-hs
-        monkeypatch.setattr(paths, "data", lambda *parts: tmp_path / pathlib.Path(*parts))
-    
-        # Create a minimal parquet file with a single subject
-        import pyarrow as pa
-        import pyarrow.parquet as pq
-    
-        n_timepoints = 50
-        n_vertices = 1000
->       bold = np.random.rand(n_timepoints * n_vertices).astype(np.float32)
-E       NameError: name 'np' is not defined
+79: in main
+    summary = extract_all(shard_path=args.shard, derived_dir=args.derived_dir)
+code/extract_rois.py:322: in extract_all
+    inventory = load_inventory()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-tests/test_extract.py:61: NameError
+    def load_inventory():
+        inv_path = paths.data("raw", "column_inventory.json")
+        if not inv_path.is_file():
+>           raise RuntimeError(
+                f"column inventory missing: {inv_path}. Run "
+                "python code/download_openneuro.py first (T001)."
+            )
+E           RuntimeError: column inventory missing: /tmp/pytest-of-runner/pytest-1/test_full_extraction0/raw/column_inventory.json. Run python code/download_openneuro.py first (T001).
+
+code/extract_rois.py:311: RuntimeError
 =========================== short test summary info ============================
 FAILED tests/test_analysis.py::test_association_halts_when_no_proxy - FileNot...
 FAILED tests/test_connectivity.py::test_process_subject - AssertionError: ass...
-FAILED tests/test_extract.py::test_block_assignment - NameError: name 'np' is...
-FAILED tests/test_extract.py::test_compute_block_means - NameError: name 'np'...
-FAILED tests/test_extract.py::test_bandpass_filter_applied - NameError: name ...
-FAILED tests/test_extract.py::test_dvars_statistics - NameError: name 'np' is...
-FAILED tests/test_extract.py::test_qc_exclusion - NameError: name 'np' is not...
-FAILED tests/test_extract.py::test_full_extraction - NameError: name 'np' is ...
-8 failed, 11 passed in 0.67s
+FAILED tests/test_extract.py::test_dvars_statistics - assert np.int64(0) == 1
+FAILED tests/test_extract.py::test_full_extraction - RuntimeError: column inv...
+4 failed, 17 passed in 0.96s
 
 
 - python code/run_all.py --seed 123 --window 30 --step 5 --permutations 1000  --output_dir results/window30_step5 -> rc=2
 INFO code.download_openneuro: /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/raw/test-00000-of-00016.parquet already exists; skipping download.
-2026-10-19 12:23:27,734 INFO code.download_openneuro: SHA-256 66c90ba52e1b8e11da9f152d4e0248b83606b99c64120091928be074a93359f7 written to /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/checksums.json
-2026-10-19 12:23:27,738 INFO code.download_openneuro: Column inventory written to /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/raw/column_inventory.json (8 columns, available_subject_count=19)
-2026-10-19 12:23:27,738 INFO code.download_openneuro: Expected fields ABSENT from shard (honest record): ['expert_rating', 'task_condition', 'years_of_training', 'age', 'fd', 'instrument', 'genre', 'practice_intensity', 'education']
-2026-10-19 12:23:28,126 INFO __main__: === stage: extract (extract_rois) ===
+2026-10-19 15:22:31,593 INFO code.download_openneuro: SHA-256 66c90ba52e1b8e11da9f152d4e0248b83606b99c64120091928be074a93359f7 written to /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/checksums.json
+2026-10-19 15:22:31,595 INFO code.download_openneuro: Column inventory written to /home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/data/raw/column_inventory.json (8 columns, available_subject_count=19)
+2026-10-19 15:22:31,595 INFO code.download_openneuro: Expected fields ABSENT from shard (honest record): ['expert_rating', 'task_condition', 'years_of_training', 'age', 'fd', 'instrument', 'genre', 'practice_intensity', 'education']
+2026-10-19 15:22:32,006 INFO __main__: === stage: extract (extract_rois) ===
 usage: run_all.py [-h] [--shard SHARD] [--derived_dir DERIVED_DIR]
 run_all.py: error: unrecognized arguments: --seed 123 --window 30 --step 5 --permutations 1000 --output_dir results/window30_step5
 

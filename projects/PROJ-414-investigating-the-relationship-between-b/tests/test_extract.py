@@ -2,6 +2,7 @@ import json
 import pathlib
 
 import pytest
+import numpy as np  # Added import for NumPy used in test functions
 
 import extract_rois  # noqa: E402
 

@@ -9,15 +9,13 @@ T001:
     \ synthetic fallback."
   sig: ed7b61b09e6127a2771fa54abffd6698d2f59731ac0dcef46bae43ea4e5f383c
 T002:
-  c: false
-  h: e16b95b90afe2c67d1f398494100a0ccc634041ffe5be600f9844a32c2bd2406
-  r: "Checked `code/config.py`, `code/requirements.txt`, `code/run_all.py`, and `specs/001-investigating-the-relationship-between-b/quickstart.md`\
-    \ \u2013 all files exist and contain the required content, and the quickstart\
-    \ lists the exact CLI command. However, there is no evidence (e.g., command output\
-    \ or test log) showing that `python code/run_all.py --help` actually runs and\
-    \ exits with status\u202F0, which the task explicitly requires. Provide execution\
-    \ evidence or a test confirming the help command succeeds."
-  sig: c85def8deefccf65986140a720dd10ec9efbd3c720fbc9cf8200760f0dbd6c2b
+  c: true
+  h: 1362e049791a657e4cd4aa14ab92e2c55790248097657f3316f0f860acb03f93
+  r: "Checked `code/config.py`, `code/requirements.txt`, `code/run_all.py` (help exits\
+    \ 0 per log), and `specs/001-investigating-the-relationship-between-b/quickstart.md`\
+    \ (contains the exact CLI invocation). All required artifacts exist, are non\u2011\
+    empty, and match the task specifications."
+  sig: 1e21df58b622a90ec0e4e13f5da349ca9bdf2594e6cfe388a708ebb5e088b6fb
 T005:
   c: false
   h: 53e8368001216a37717b3377727ab75c1b06ca18fb69be2ee085ed5e4fd88a85

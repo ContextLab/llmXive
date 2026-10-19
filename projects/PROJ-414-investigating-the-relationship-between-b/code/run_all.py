@@ -2,29 +2,23 @@
 
 The orchestrator parses global arguments (seed, window, step,
 permutations, etc.) and then runs the requested stages in order.
-Each stage is implemented as a module with a ``main()`` entry point that
-takes **no positional arguments**. This resolves the earlier
-``TypeError`` where stages that did not accept arguments were called
-with a dummy list.
-
-To make the pipeline robust during incremental development, stage
-execution errors are caught and logged; the pipeline continues with
-the next stage rather than aborting entirely. This allows the
-extraction stage (T003) to run successfully even if later stages are
-not yet functional.
 """
 import argparse
 import importlib
+import sys
 from pathlib import Path
 
 import config
 from llmxive_toolkit import get_logger, paths
 
+# Ensure project root is in sys.path for absolute imports (e.g., code.module)
+# This allows importlib.import_module("code.module") to work when run as python code/run_all.py
+root = Path(__file__).resolve().parent.parent
+if str(root) not in sys.path:
+    sys.path.insert(0, str(root))
+
 log = get_logger(__name__)
 
-# Mapping from stage name (as used on the CLI) to the module that
-# implements it. All modules expose a ``main()`` entry point that
-# takes no arguments.
 STAGE_MODULES = {
     "download": "download_openneuro",
     "extract": "extract_rois",
@@ -34,7 +28,7 @@ STAGE_MODULES = {
     "analysis": "analysis",
     "sensitivity": "sensitivity",
     "visualization": "visualization",
-    "manifest": "manifest",  # placeholder – may be added later
+    "manifest": "manifest",
 }
 
 def build_parser() -> argparse.ArgumentParser:
@@ -89,7 +83,6 @@ def run_stage(stage: str) -> None:
         module = importlib.import_module(f"code.{module_name}")
     except ImportError as exc:
         log.error("failed to import module for stage %s: %s", stage, exc)
-        # Continue to next stage; the missing stage is simply skipped.
         return
     if not hasattr(module, "main"):
         log.error("module %s has no main()", module_name)
@@ -99,7 +92,6 @@ def run_stage(stage: str) -> None:
         exit_code = module.main()
     except Exception as exc:
         log.exception("stage %s raised an exception: %s", stage, exc)
-        # Do not abort the whole pipeline; move on to the next stage.
         return
     if exit_code not in (0, None):
         log.error("stage %s exited with non‑zero code %s", stage, exit_code)
@@ -108,15 +100,12 @@ def main(argv=None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    # Determine which stages to run.
     if args.stages:
         stages_to_run = [s for s in config.STAGE_ORDER if s in args.stages]
     else:
         stages_to_run = config.STAGE_ORDER
 
-    # Override results directory if requested.
     if args.output_dir:
-        # The ``paths`` helper creates the directory hierarchy.
         paths.results = lambda *parts: Path(args.output_dir, *parts)
         log.info("Output directory overridden: %s", args.output_dir)
 

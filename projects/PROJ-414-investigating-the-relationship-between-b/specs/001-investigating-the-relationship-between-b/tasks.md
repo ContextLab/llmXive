@@ -30,7 +30,7 @@ The following contradictions are rooted in `spec.md` (and one path in `plan.md`)
   &nbsp;&nbsp;• `data/raw/column_inventory.json` lists the real parquet schema, explicitly marks each expected behavioral field as present or absent, and records `available_subject_count` as a positive integer equal to the distinct subject IDs actually present in the parquet (no fabricated columns, no guessed count).
   &nbsp;&nbsp;• `pytest tests/test_download.py` asserts the file loads with pyarrow, that the inventory reflects the actual schema, and that `available_subject_count` matches a pyarrow-computed distinct-subject count.
 
-- [ ] **T002 [P1] [US1]** Establish the code layout and runnable entry point per the plan (`code/config.py` with pinned seeds, window/step parameters, and the QC threshold constants defined in T003; `code/requirements.txt`; `code/run_all.py` CLI orchestrator) and document the exact end-to-end command in the active feature's `quickstart.md`.
+- [X] **T002 [P1] [US1]** Establish the code layout and runnable entry point per the plan (`code/config.py` with pinned seeds, window/step parameters, and the QC threshold constants defined in T003; `code/requirements.txt`; `code/run_all.py` CLI orchestrator) and document the exact end-to-end command in the active feature's `quickstart.md`.
   *Artifact paths*: `code/config.py`, `code/requirements.txt`, `code/run_all.py`, `specs/001-investigating-the-relationship-between-b/quickstart.md`.
   *Verification*:
   &nbsp;&nbsp;• `python code/run_all.py --help` exits 0.

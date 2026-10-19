@@ -1,13 +1,6 @@
 T001:
   task: fadcde45a87fc55f5cc4353ef64d2cc038786c1b4607cf13411ec44b06b2b6c3
 T002:
-  reason: "Checked `code/config.py`, `code/requirements.txt`, `code/run_all.py`, and\
-    \ `specs/001-investigating-the-relationship-between-b/quickstart.md` \u2013 all\
-    \ files exist and contain the required content, and the quickstart lists the exact\
-    \ CLI command. However, there is no evidence (e.g., command output or test log)\
-    \ showing that `python code/run_all.py --help` actually runs and exits with status\u202F\
-    0, which the task explicitly requires. Provide execution evidence or a test confirming\
-    \ the help command succeeds."
   task: c3fda50ffb63055e11ebee04cdc8946187689b6134db04c01724d8b75ac90358
 T003:
   reason: 'Requested task execution failed; rerun successfully: tests/test_extract.py
