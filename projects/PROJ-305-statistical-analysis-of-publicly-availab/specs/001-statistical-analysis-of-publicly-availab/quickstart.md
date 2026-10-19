@@ -24,16 +24,21 @@ pip install -r src/requirements.txt
 
 1. **Create directory tree & verification log**  
    ```bash
-   python -c "import subprocess, pathlib; pathlib.Path('logs').mkdir(exist_ok=True); subprocess.run(['tree','-a','-L','3'], stdout=open('logs/structure.txt','w'))"
+   python - <<'PY'
+import pathlib, subprocess
+pathlib.Path('logs').mkdir(exist_ok=True)
+with open('logs/structure.txt', 'w') as f:
+    subprocess.run(['tree', '-a', '-L', '3'], stdout=f)
+PY
    ```
-   *`logs/structure.txt` is required for verification task T001.*
+   *`logs/structure.txt` satisfies verification task T001.*
 
 2. **Download the VAERS dataset**  
    ```bash
    python src/data/download.py
    ```
-   - Downloads the **full** 2020‑2023 VAERS parquet file from  
-     `  
+   - Downloads the verified parquet from  
+     `.  
    - Writes SHA‑256 checksum to `data/checksums.txt`.
 
 3. **Validate the raw schema**  
@@ -55,8 +60,9 @@ pip install -r src/requirements.txt
    This orchestrates:
    - Disproportionality calculations (`output/signals.csv`)  
    - Benjamini‑Hochberg correction  
-   - Signal flagging (2‑out‑of‑3 rule)  
-   - Temporal profiling (plots in `output/temporal_profiles/`)  
+   - Signal flagging (2‑out‑of‑3 rule **plus** bootstrap‑estimated FDR ≤ 0.05)  
+   - Temporal profiling (canonical CSV files `output/temporal_profiles/<SOC>.csv`; optional PNG plots are also written for visual inspection)  
+   - Temporal‑bias robustness check (re‑compute metrics after dropping spike weeks; signals must remain significant)  
    - Flu‑only sensitivity analysis (`output/sensitivity_analysis.csv`)  
    - Memory profiling and final `output/report.md`.
 
@@ -67,8 +73,8 @@ pip install -r src/requirements.txt
    All JSON‑schema contracts must pass.
 
 7. **Inspect results**  
-   - `output/signals.csv` – table of ROR/PRR/IC with adjusted p‑values.  
-   - `output/temporal_profiles/` – PNG plots for the top signals.  
+   - `output/signals.csv` – table of ROR/PRR/IC with adjusted p‑values, bootstrap‑FDR flag, and stability indicator.  
+   - `output/temporal_profiles/` – CSV files for weekly counts (canonical) and optional PNG plots for the top signals.  
    - `output/sensitivity_analysis.csv` – Δ‑metrics vs. Flu baseline.  
    - `output/report.md` – human‑readable summary, memory usage, and limitations.
 
@@ -76,16 +82,17 @@ pip install -r src/requirements.txt
 
 | Symptom | Likely Cause | Remedy |
 |---------|--------------|--------|
-| `E_SCHEMA_MISSING` from `validate.py` | Required columns absent in the downloaded parquet | Confirm the dataset URL; if missing, request a different verified VAERS source or abort (project will be blocked). |
-| MemoryError | Dataset larger than 7 GB RAM | Set `USE_CHUNKED=True` in `src/utils/config.py` and re‑run; the pipeline will process the parquet in 500 k‑row chunks. |
+| `E_SCHEMA_MISSING` from `validate.py` | Required columns absent in the downloaded parquet | Confirm the dataset URL; if missing, select a different verified VAERS parquet URL from the list. |
+| MemoryError | Dataset larger than 7 GB RAM | Set `USE_CHUNKED=True` in `src/utils/config.py`; the pipeline will process the parquet in 500 k‑row chunks. |
 | `logs/structure.txt` missing | Step 1 not executed or `tree` not installed | Install `tree` (`sudo apt-get install tree`) and re‑run step 1. |
-| Plot functions raise `ImportError` | `src/utils/plots.py` placeholder not replaced | Ensure the full implementation of `plot_weekly_counts` and `plot_signal_table` exists (provided in the repository). |
-| Lint failures (`code/run_lint.py` exit 1) | Style violations | Run `ruff check src/` locally, fix reported issues, then re‑run the lint script. |
+| Plot functions raise `ImportError` | Placeholder code in `src/utils/plots.py` not replaced | Ensure the full implementation of `plot_weekly_counts` and `plot_signal_table` is present (provided in the repository). |
+| Lint failures (`ruff` exit 1) | Style violations | Run `ruff check src/` locally, fix reported issues, then re‑run the lint script. |
 
 ## Next Steps
 - Review `output/report.md` and incorporate the findings into the manuscript (`paper/`).  
 - Run the full test suite (`pytest -q`) to ensure ongoing compliance.  
-- If you wish to experiment with the full VAERS archive (beyond the bundled parquet), replace the download URL with the full dataset identifier and re‑run; the same pipeline will handle it provided memory constraints are respected.
+- To experiment with the full VAERS archive (beyond the bundled parquet), replace the download URL with the larger dataset identifier; the same pipeline will handle it provided memory constraints are respected.
 
 ---
+
 

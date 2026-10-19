@@ -90,7 +90,7 @@ The system must generate a descriptive weekly reporting profile for top candidat
 
 ## Assumptions
 
-- The VAERS 2020-2023 datasets are publicly available and downloadable via `wget` without authentication or rate-limiting that exceeds the 6-hour CI job limit.
+- The VAERS multi-year datasets are publicly available and downloadable via `wget` without authentication or rate-limiting that exceeds the 6-hour CI job limit.
 - The MedDRA coding system in the VAERS data is consistent enough to allow aggregation into System Organ Classes (SOC) without requiring manual curation of every code.
 - The background incidence rates for adverse events, if required for context, are available in the cited literature or CDC resources and can be hard-coded or fetched as static values rather than dynamic API calls.
 - The relationship between vaccine type and adverse event reporting is observational; therefore, all findings will be framed as associational signals rather than causal evidence.
