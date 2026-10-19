@@ -1,0 +1,13 @@
+status: none
+intent: download MetaboLights plant metabolomics PMN herbivory HPID dataset python
+  package dataset
+required_fields:
+- species_name
+- metabolite_id
+- metabolite_concentration
+- herbivory_score
+- sample_id
+- experiment_id
+cache_key: 553954269de3c87ab7f26f337af764707d52b328cafbebe69c6db21f3850fb51
+searched_at: '2026-10-19T22:09:29.247112+00:00'
+retry_count: 1
