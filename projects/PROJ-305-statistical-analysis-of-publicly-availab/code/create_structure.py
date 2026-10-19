@@ -1,32 +1,11 @@
-"""
-Project Structure Setup Script
-===============================
-
-This script creates the required directory layout for the VAERS
-statistical analysis project and writes a snapshot of the first three
-levels of the repository tree to ``logs/structure.txt``.  It uses the
-system ``tree`` command when available and falls back to ``find`` if
-``tree`` is not installed.
-
-The script is intended to be run as an entry point:
-
-    python -m code.create_structure
-"""
-
 import subprocess
 import sys
+import os
 from pathlib import Path
-
 from llmxive_toolkit import paths, get_logger
 
-# ----------------------------------------------------------------------
-# Logger
-# ----------------------------------------------------------------------
-log = get_logger(__name__)  # optional: get_logger(__name__, log_file="logs/run.log")
+log = get_logger(__name__)
 
-# ----------------------------------------------------------------------
-# Required directory list (matches the task specification)
-# ----------------------------------------------------------------------
 REQUIRED_DIRS = [
     "src/data",
     "src/analysis",
@@ -43,58 +22,49 @@ REQUIRED_DIRS = [
     "logs",
 ]
 
+def create_directories():
+    """Create all required project directories."""
+    for dir_path in REQUIRED_DIRS:
+        p = Path(dir_path)
+        p.mkdir(parents=True, exist_ok=True)
+        log.info(f"Created directory: {dir_path}")
 
-def create_directories() -> None:
-    """Create every directory in ``REQUIRED_DIRS`` (including parents)."""
-    for d in REQUIRED_DIRS:
-        Path(d).mkdir(parents=True, exist_ok=True)
-    log.info(f"Created {len(REQUIRED_DIRS)} required directories.")
-
-
-def write_structure_snapshot() -> None:
+def write_structure_snapshot():
     """
-    Capture a three‑level directory listing.
-
-    Primary method: ``tree -a -L 3``.
-    Fallback: ``find . -maxdepth 3 -type d``.
-    The result is written to ``logs/structure.txt`` using the
-    ``llmxive_toolkit.paths`` helper (which also creates the parent folder).
+    Capture a three-level directory listing and write to logs/structure.txt.
+    Uses 'tree' if available, otherwise falls back to 'find'.
     """
-    output_path = paths.logs("structure.txt")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    output_file = paths.logs("structure.txt")
+    log.info(f"Writing structure snapshot to {output_file}")
+    
     try:
-        # ``tree`` prints a nicely‑formatted hierarchy.
+        # Try 'tree' first
         result = subprocess.run(
-            ["tree", "-a", "-L", "3"],
-            capture_output=True,
-            text=True,
-            check=True,
+            ["tree", "-a", "-L", "3"], 
+            capture_output=True, 
+            text=True, 
+            check=True
         )
-        content = result.stdout
-        log.info("Directory snapshot generated via `tree`.")
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        # ``tree`` not installed or failed – use ``find`` as a reliable fallback.
-        log.warning("`tree` command unavailable; falling back to `find`.")
+        output = result.stdout
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        log.info("Tree command unavailable, falling back to find")
+        # Fallback to find . -maxdepth 3 -type d
         result = subprocess.run(
-            ["find", ".", "-maxdepth", "3", "-type", "d"],
-            capture_output=True,
-            text=True,
-            check=True,
+            ["find", ".", "-maxdepth", "3", "-type", "d"], 
+            capture_output=True, 
+            text=True, 
+            check=True
         )
-        # ``find`` returns one directory per line; join with newlines.
-        content = "\n".join(result.stdout.splitlines())
+        output = result.stdout
 
-    output_path.write_text(content, encoding="utf-8")
-    log.info(f"Wrote directory structure snapshot to {output_path}")
+    with output_file.open("w", encoding="utf-8") as f:
+        f.write(output)
 
-
-def main() -> None:
-    """Entry point used by ``python -m code.create_structure``."""
+def main():
+    """Main entry point for project scaffolding."""
     create_directories()
     write_structure_snapshot()
-
+    log.info("Project structure established and snapshot recorded.")
 
 if __name__ == "__main__":
-    # Allow direct execution as ``python code/create_structure.py``.
     main()

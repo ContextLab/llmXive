@@ -1,9 +1,10 @@
 T001:
-  c: false
-  h: 34bc984f8b3553d29fb3ea56894d2c1b5b39a1498cc595a696c3c83298b107e8
-  r: "The required directories all exist, and `quickstart.md` documents the runnable\
-    \ command, but `logs/structure.txt` does not list the expected directories (unit\
-    \ test `test_structure_contains_some_required_dirs` fails), so the verification\
-    \ step is not satisfied. The structure snapshot must be regenerated to include\
-    \ the required paths (or depth increased) so the grep\u2011count check passes."
-  sig: 595c316b0ce55c53e4370cdd7e6f702905acee2ec81c31c8f7ce0ac1a1415f5d
+  c: true
+  h: 262b47abfe159c6741b8647ba823eae9b304464ea739f1ca421157adaa7688c1
+  r: "All 13 required directories exist (confirmed by collector listing and the `logs/structure.txt`\
+    \ tree snapshot, which lists all of them including `src/validation/`, `tests/fixtures/`,\
+    \ `data/results/`, `output/temporal_profiles/`, `logs/`); `logs/structure.txt`\
+    \ is non-empty (5245 bytes) and was produced by an actual executed run of `code/create_structure.py`\
+    \ (exit 0 log). `quickstart.md` documents the runnable command `python -m src.main`\
+    \ and input provenance (VAERS 2020\u20132023 CDC data)."
+  sig: f890807d725be63599a73f43903f03f7c03e6a7d642b13eb5fc4a132eb94c97d

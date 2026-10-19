@@ -1,9 +1,4 @@
 T001:
-  reason: "The required directories all exist, and `quickstart.md` documents the runnable\
-    \ command, but `logs/structure.txt` does not list the expected directories (unit\
-    \ test `test_structure_contains_some_required_dirs` fails), so the verification\
-    \ step is not satisfied. The structure snapshot must be regenerated to include\
-    \ the required paths (or depth increased) so the grep\u2011count check passes."
   task: de50249f593ddc8019c25a35b37b31183354ee5e012db928b26b15b83cceeedf
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py

@@ -1,9 +1,12 @@
 # Quickstart: Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports
 
+## Input Provenance
+This pipeline utilizes the Vaccine Adverse Event Reporting System (VAERS) data, specifically the 2020-2023 CSV archives provided by the CDC (Centers for Disease Control and Prevention) through their official public data repository. [UNRESOLVED-CLAIM: c_b655bdcb — status=not_enough_info]
+
 ## Prerequisites
-- Python 3.11+
+- Python 3.11+
 - Git (to clone the repository)
-- Access to a GitHub Actions runner **or** a local Linux/macOS environment with ≥ 7 GB RAM and ≥ 10 GB free disk space.
+- Access to a GitHub Actions runner **or** a local Linux/macOS environment with ≥ 7 GB RAM and ≥ 10 GB free disk space.
 
 ## Installation
 
@@ -32,20 +35,20 @@ pip install -r src/requirements.txt
  ```bash
  python src/data/download.py
  ```
- - Downloads the official 2020‑2023 VAERS CSV zip archives from the CDC public repository. [UNRESOLVED-CLAIM: c_c63ac4f7 — status=not_enough_info]
+ - Downloads the official 2020‑2023 VAERS CSV zip archives.
  - Writes SHA‑256 checksums to `data/checksums.txt`.
 
 3. **Validate the raw schema**
  ```bash
  python -m src.data.validate
  ```
- - Exits with `E_SCHEMA_MISSING` if any of `VAX_TYPE`, `SOC_CODE`, `REPT_DATE` are absent (fulfills FR‑001 & SC‑004).
+ - Exits with `E_SCHEMA_MISSING` if any of `VAX_TYPE`, `SOC_CODE`, `REPT_DATE` are absent.
 
 4. **Clean, map, and split the data**
  ```bash
  python src/data/clean.py
  ```
- - Produces `data/processed/cleaned.parquet` with three groups (`COVID‑related`, `Non‑COVID‑Non‑Flu`, `Flu‑only`).
+ - Produces `data/processed/cleaned.parquet` with three groups (`COVID-related`, `Non-COVID-Non-Flu`, `Flu-only`).
 
 5. **Run the full analysis pipeline**
  ```bash
@@ -63,7 +66,7 @@ pip install -r src/requirements.txt
  ```bash
  pytest -q tests/contract/
  ```
- All JSON‑schema contracts must pass. [UNRESOLVED-CLAIM: c_6e1d4864 — status=not_enough_info]
+ All JSON‑schema contracts must pass.
 
 7. **Inspect results**
  - `output/signals.csv` – table of ROR/PRR/IC with adjusted p‑values.
@@ -75,13 +78,8 @@ pip install -r src/requirements.txt
 
 | Symptom | Likely Cause | Remedy |
 |---------|--------------|--------|
-| `E_SCHEMA_MISSING` from `validate.py` | Required columns absent in the downloaded parquet | Confirm the dataset URL; if missing, request a different verified VAERS source or abort (project will be blocked). |
-| MemoryError | Dataset larger than 7 GB RAM | Set `USE_CHUNKED=True` in `src/utils/config.py` and re‑run; the pipeline will process the parquet in 500 k‑row chunks. |
-| `logs/structure.txt` missing | Step 1 not executed or `tree` not installed | Install `tree` (`sudo apt-get install tree`) and re‑run step 1. |
-| Plot functions raise `ImportError` | `src/utils/plots.py` placeholder not replaced | Ensure the full implementation of `plot_weekly_counts` and `plot_signal_table` exists (provided in the repository). |
-| Lint failures (`code/run_lint.py` exit 1) | Style violations | Run `ruff check src/` locally, fix reported issues, then re‑run the lint script. |
-
-## Next Steps
-- Review `output/report.md` and incorporate the findings into the manuscript (`paper/`).
-- Run the full test suite (`pytest -q`) to ensure ongoing compliance.
-- If you wish to experiment with the full VAERS archive (beyond the bundled parquet), replace the download URL with the full dataset identifier and re‑run; the same pipeline will handle it provided memory constraints are respected.
+| `E_SCHEMA_MISSING` from `validate.py` | Required columns absent in the downloaded parquet | Confirm the dataset URL; if missing, request a different verified VAERS source or abort. |
+| MemoryError | Dataset larger than 7 GB RAM | Set `USE_CHUNKED=True` in `src/utils/config.py` and re‑run. |
+| `logs/structure.txt` missing | Step 1 not executed or `tree` not installed | Run `python -m code.create_structure`. |
+| Plot functions raise `ImportError` | `src/utils/plots.py` placeholder not replaced | Ensure the full implementation of `plot_weekly_counts` and `plot_signal_table` exists. |
+| Lint failures (`code/run_lint.py` exit 1) | Style violations | Run `ruff check src/` locally and fix reported issues. |

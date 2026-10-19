@@ -36,14 +36,11 @@
 │   ├── .ruff.toml
 │   ├── .tasks
 │   │   ├── T001.code_create_structure.py.log
-│   │   ├── T001.tests_unit_test_structure.py.log
 │   │   ├── T002.src_data_download.py.log
 │   │   └── T016b.atomize.yaml
 │   ├── Makefile
 │   ├── README.md
 │   ├── __init__.py
-│   ├── __pycache__
-│   │   └── __init__.cpython-311.pyc
 │   ├── contracts
 │   │   ├── .gitkeep
 │   │   ├── dataset.schema.yaml
@@ -90,8 +87,11 @@
 │   └── soc_cluster.schema.yaml
 ├── data
 │   ├── .gitkeep
+│   ├── meddra_soc_mapping.csv
+│   ├── meddra_to_soc.csv
 │   ├── processed
 │   ├── raw
+│   │   └── 2020
 │   └── results
 │       └── __init__.py
 ├── figures
@@ -148,7 +148,6 @@
     │   ├── test_signal_detection.py
     │   └── test_temporal_profiles.py
     └── unit
-        ├── __pycache__
         ├── test_bh_correction.py
         ├── test_disproportionality.py
         ├── test_download.py
@@ -159,4 +158,4 @@
         ├── test_validate.py
         └── test_validate_e_schema_missing.py
 
-52 directories, 108 files
+51 directories, 108 files

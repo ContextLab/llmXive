@@ -422,3 +422,40 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-18T18:31:31Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: Pipeline utilizes CDC VAERS 2020-2023 CSV archives
+  claim_id: c_b655bdcb
+  context: This pipeline utilizes the Vaccine Adverse Event Reporting System (VAERS)
+    data, specifically the 2020-2023 CSV archives provided by the CDC (Centers for
+    Disease Control and Prevention) through their official public data repository.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This pipeline utilizes the Vaccine Adverse Event Reporting System (VAERS)
+    data, specifically the 2020-2023 CSV archives provided by the CDC (Centers for
+    Disease Control and Prevention) through their official public data repository.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T02:17:55Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: 'Processed data contains three groups: COVID-related, Non-COVID-Non-Flu,
+    and Flu-only'
+  claim_id: c_916d4bf0
+  context: python src/data/clean.py - Produces data/processed/cleaned.parquet with
+    three groups (COVID-related, Non-COVID-Non-Flu, Flu-only).
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Produces data/processed/cleaned.parquet with three groups (COVID-related,
+    Non-COVID-Non-Flu, Flu-only).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T02:17:55Z'

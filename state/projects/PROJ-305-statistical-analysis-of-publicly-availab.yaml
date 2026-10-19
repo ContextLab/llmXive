@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T10:41:01.052345Z'
-current_stage: in_progress
+current_stage: clarified
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-305-statistical-analysis-of-publicly-availab
-last_run_id: eef1a007-8492-43e9-8a45-6af8015bc914
+last_run_id: 1054c41e-3721-47b1-8acc-2dd052ca01d7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports
-updated_at: '2026-10-18T18:29:51.414852Z'
+updated_at: '2026-10-19T02:22:49.885205Z'
