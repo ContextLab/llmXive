@@ -1,0 +1,47 @@
+T001:
+  task: e71ed789e3e90ccfcf8b19fce0677893f50c4ba2f4e3132a1571482b994ea842
+T003:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/research.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: f10eebd036af10f8808ab6a5f93e7f2d8235196f00281f6949b338afa09718f6
+T004:
+  task: 57e2366dfb256310a5da7b7fc23f2d634d6fad67914f0e674b27dbbb8b07165a
+T005:
+  reason: "The `code/utils.py` defines `ResourceMonitor` and a self\u2011test that\
+    \ generated `results/monitoring.csv`, but the CSV header written by the module\
+    \ is `step_name,wall_time_s,peak_ram_bytes` while the task requires the header\
+    \ `step,wall_time_s,peak_ram_bytes`. Moreover, `get_logger` merely forwards to\
+    \ `llmxive_toolkit.get_logger` without any evidence that the returned logger is\
+    \ set to INFO level and has a file handler for `results/pipeline.log`. The implementation\
+    \ must be corrected to write the exact required header and to explicitly configure\
+    \ the logger as specified."
+  task: 5e338ee5a51984bc4da15d982a811a1f887e54324dc797f10844bb03b4008a2a
+T006:
+  reason: "The repository contains `data/manifest.json` and the data\u2011gap resolver\
+    \ script, but no `Snakefile` (or any Snakemake workflow) is present. Consequently\
+    \ the required `verify_data_availability` rule, its dependency on `download`,\
+    \ and the minimal `data_gap_resolver` rule are missing. A proper Snakefile must\
+    \ be added to satisfy the task."
+  task: 2d1197d3235a3786e9187652b73cca1ed39ecf3cf1288fbd958263f23fad6606
+T007:
+  reason: 'Requested task execution failed; rerun successfully: code/data_gap_resolver.py
+    exit=1'
+  task: c1572f6b372c445f745e654ba7230e17783b6342c5f2459380cacf11bc8c3f81
+T008:
+  task: a8b7634bafc0411e33bed3e2a453bbc145a16c5f98fc52c0233a5e87e102ccee
+T009:
+  task: 9d5e602dcd490e8ab6c461b1ab273a26d826310d45c4feba9a87691474c2de77
+T010:
+  task: 089b11bc2ddeff957188503cce7bb7200ab20e1c121ea7f3c3e7dae5d2641eed
+T011:
+  task: 340b10e332b6d54b07fdee6b8531ea44d4cbcf686b4cf6eea64866827133f531
+T012:
+  task: a0ef43edce3a2fa5918bf9d5abe7654a3edef4e7dde9d413ecd1fc943646c4fd
+T013:
+  task: 2953d686afa3a064c8a3d06fa89960bf2427370d3699c6a26e014f237f08014f
+T014:
+  task: 3b1e8c44ea0186544bb7d78bdd41db7c7cd1d420e00a5e3c13899cdba9f0afd4
+T015:
+  task: 41d0a479aa3b491b9e150c00ffb321f1c01ddb06f77148a08314921f4aba4f03

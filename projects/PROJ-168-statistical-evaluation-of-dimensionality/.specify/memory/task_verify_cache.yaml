@@ -1,60 +1,35 @@
 T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the directory tree `projects/001-statistical-evaluation-of-dimensionality/{data/raw,data/processed,results,code,tests}`
-    actually exists on disk; without a listing or screenshot of those folders, we
-    cannot confirm the required project structure was created. The implementer must
-    supply proof (e.g., a directory listing) that the specified folders are present.
-T021:
-  c: false
-  h: d9ffbf44a7d78de78f7fa46a72d143664f0f6e39f4dfeacec24340e8ebb89d69
-  r: The provided `code/utils.py` contains a `ResourceMonitor` class that can write
-    metrics to a CSV, but it lacks any parser that reads `/usr/bin/time` log output,
-    and the file ends abruptly (truncated) with no parsing logic. Moreover, the required
-    output file `results/monitoring.csv` does not exist on disk. Both the parser implementation
-    and the generated CSV are missing, so the task is not fulfilled.
-T028#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No Snakefile (or fragment thereof) containing a `resource_monitor` rule was provided,
-    nor any evidence that such a rule aggregates `/usr/bin/time -v` logs for embedding
-    steps. The required artifact is missing, so the task is not satisfied.
-T029:
-  c: false
-  h: d9ffbf44a7d78de78f7fa46a72d143664f0f6e39f4dfeacec24340e8ebb89d69
-  r: "The provided `code/utils.py` defines a `ResourceMonitor` with logging and a\
-    \ RAM\u2011limit check, but the file is truncated (ends mid\u2011definition) and\
-    \ does not contain a wrapper function that actually runs a command, aborts when\
-    \ RAM\u202F>\u202F7\u202FGB, and records the step. Moreover, the required output\
-    \ file `results/monitoring.csv` is absent. The task\u2019s core requirements are\
-    \ therefore not satisfied."
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CI configuration, script, or test artifact that checks total pipeline runtime\
-    \ and peak RAM is present in the provided evidence. The claim lacks any file (e.g.,\
-    \ a GitHub Actions workflow or CI job) that implements the <\u202F6\u202Fh runtime\
-    \ and <\u202F7\u202FGB RAM verification step."
-T049:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `plan.md` file is provided; there is no evidence that the document\
-    \ was modified to include the Mixed\u2011Effects Model (FR\u2011006) and the Silhouette\
-    \ Threshold sweep (FR\u2011007) or that the prior plan inconsistency was resolved.\
-    \ The required artifact is missing."
-T051:
   c: true
-  h: 913479494ed380e46c1d72a85e44943f8d6e4134f66e7317d0e37d71211190eb
-  r: "The repository contains a non\u2011empty `code/main.py` (6\u202FKB) that defines\
-    \ `write_summary_json` which sets the header to **\"Descriptive Case Study\"**\
-    \ and the model type to **\"Single Dataset Mode (Fixed\u2011Effects ANOVA)\"**\
-    \ when the mode equals `\"CASE_STUDY\"`. This fulfills the required detection\
-    \ and update behavior; the `results/summary.json` file is meant to be generated\
-    \ at runtime, so its absence does not indicate a missing implementation."
-T054:
+  h: b481c210856ea25c86ef5278f5785ec147499bfd854a8b890024da47bc6d9fb5
+  r: "The evidence shows all required directories exist (including `.github/workflows/`)\
+    \ and `results/dir_listing.txt` contains each of them, with the Python test confirming\
+    \ the file\u2019s presence and correctness."
+  sig: a90adfb2a1dd74b862dc20e6a0fa3afffe2db85fe88ae2021a74e4993a34022e
+T004:
+  c: true
+  h: 22dd896b897925e2781205aff703f9f782182d117affe13d1137bf1bc14cc92f
+  r: "Checked `code/ci_limits.py` (implements the required limit checks and exits\
+    \ with status\u202F1 on violation) and the pytest log `code/tests/test_ci_limits.py`\
+    \ showing both the violating and passing cases succeed. All required artifacts\
+    \ exist and behave as specified."
+  sig: 3f65670edd7938bb430af1788153091d724e87e542b1e5c18ad93b7475951bb5
+T005:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No Snakefile or rule definition for `verify_data_availability` was provided;
-    there is no evidence of a rule that runs before `download` and halts the workflow
-    when raw count sources are missing. The required artifact is missing, so the task
-    is not satisfied.
+  h: d1944a9b03dfd5139ccaaea53f9187d86c6c1d72c1461a84a9522a5062de674c
+  r: "The `code/utils.py` defines `ResourceMonitor` and a self\u2011test that generated\
+    \ `results/monitoring.csv`, but the CSV header written by the module is `step_name,wall_time_s,peak_ram_bytes`\
+    \ while the task requires the header `step,wall_time_s,peak_ram_bytes`. Moreover,\
+    \ `get_logger` merely forwards to `llmxive_toolkit.get_logger` without any evidence\
+    \ that the returned logger is set to INFO level and has a file handler for `results/pipeline.log`.\
+    \ The implementation must be corrected to write the exact required header and\
+    \ to explicitly configure the logger as specified."
+  sig: a27ecc89e0fffec7d4d4eb8f6be6543570cce5fe13d1050c43a121e9a5777c8a
+T006:
+  c: false
+  h: 97a308114d7187ffc68214540b840bf8eefc9fab36fd65c9e099f8a3f26f9e18
+  r: "The repository contains `data/manifest.json` and the data\u2011gap resolver\
+    \ script, but no `Snakefile` (or any Snakemake workflow) is present. Consequently\
+    \ the required `verify_data_availability` rule, its dependency on `download`,\
+    \ and the minimal `data_gap_resolver` rule are missing. A proper Snakefile must\
+    \ be added to satisfy the task."
+  sig: 9393aaa16d5413f804b6b28d655570eb3b59b690841a74e6fec4e9217e235f39

@@ -7,14 +7,14 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
 
 ## Phase 0 – Project Foundations & Specification Alignment  
 
-- [ ] **T001** [US1] Create the required project directory tree and provide a verifiable listing.  
+- [X] **T001** [US1] Create the required project directory tree and provide a verifiable listing.  
   - Create the following directories (all under the repository root):  
     `data/raw/`, `data/processed/`, `data/embeddings/`, `data/clustering/`, `data/metrics/`, `data/results/`, `figures/`, `results/`, `code/`, `code/tests/`, `paper/`, `.github/workflows/`.  
   - Generate a plain‑text directory listing `results/dir_listing.txt` by running:  
     `find data code results figures paper .github -type d > results/dir_listing.txt`.  
   - **Verification**: `cat results/dir_listing.txt` contains each of the directories listed above; a Python assertion `assert pathlib.Path('results/dir_listing.txt').exists()` exits 0.
 
-- [ ] **T004** [US1] Create a lightweight CI script (`code/ci_limits.py`) that enforces SC‑003/SC‑004.  
+- [X] **T004** [US1] Create a lightweight CI script (`code/ci_limits.py`) that enforces SC‑003/SC‑004.  
   - The script reads `results/monitoring.csv`, checks the two thresholds, and exits with status 1 on violation, printing a clear message.  
   - It will be called from the GitHub Actions workflow (see T003).  
   - **Verification**: Running `python code/ci_limits.py` on a deliberately violating CSV returns exit code 1; `python -c "import subprocess, sys; sys.exit(subprocess.call(['python','code/ci_limits.py']))"` returns the expected code.
@@ -48,7 +48,7 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
 
 ## Phase 1 – Data‑Gap Resolution (Phase 0 blocker)  
 
-- [ ] **T007** [FR‑001] Download raw count matrices, compute checksums, write a schema‑valid manifest, and enforce the three‑dataset requirement.  
+- [ ] **T007** [FR‑001] Download raw count matrices, compute checksums, write a schema‑valid manifest, and enforce the three‑dataset requirement.   <!-- FAILED-IN-EXECUTION: code/data_gap_resolver.py exit=1 -->
   - Implement `code/data_gap_resolver.py` that iterates over `config.GEO_ACCESSIONS`, uses `GEOparse` to locate supplementary count‑matrix files, downloads each into `data/raw/<accession>/`, and records: `dataset_id`, `source_url`, `status` (`Available`/`Unavailable`), `checksum`, `raw_file_path`, `processed_file_path` (null for now).  
   - Assemble `data/manifest.json` conforming to `specs/001‑statistical‑evaluation‑of‑dimensionality/contracts/dataset.schema.yaml`.  
   - **Verification of citation accuracy**: for each `source_url` ensure the URL resolves and the dataset citation can be validated (placeholder step that would be caught by the Reference‑Validator).  

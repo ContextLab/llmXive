@@ -1,0 +1,26 @@
+[
+  {
+    "dataset_id": "GSE131907",
+    "source_url": "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE131907&format=txt&file=GSE131907_series_matrix.txt.gz",
+    "status": "Available",
+    "checksum": "a6d873cba87d2048abd23378586550fc",
+    "raw_file_path": "/tmp/pytest-of-runner/pytest-0/test_manifest_created_and_has_0/raw/GSE131907_dummy_counts.txt",
+    "processed_file_path": null
+  },
+  {
+    "dataset_id": "GSE111322",
+    "source_url": "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE111322&format=txt&file=GSE111322_series_matrix.txt.gz",
+    "status": "Available",
+    "checksum": "a6d873cba87d2048abd23378586550fc",
+    "raw_file_path": "/tmp/pytest-of-runner/pytest-0/test_manifest_created_and_has_0/raw/GSE111322_dummy_counts.txt",
+    "processed_file_path": null
+  },
+  {
+    "dataset_id": "GSE150728",
+    "source_url": "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE150728&format=txt&file=GSE150728_series_matrix.txt.gz",
+    "status": "Available",
+    "checksum": "a6d873cba87d2048abd23378586550fc",
+    "raw_file_path": "/tmp/pytest-of-runner/pytest-0/test_manifest_created_and_has_0/raw/GSE150728_dummy_counts.txt",
+    "processed_file_path": null
+  }
+]

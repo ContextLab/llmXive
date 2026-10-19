@@ -2,276 +2,195 @@ import os
 import sys
 import json
 import logging
-import hashlib
-import requests
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 
-# Configure logging
+# Project imports
+from config import Config
+from download import (
+    download_dataset,
+    calculate_md5,
+    DownloadError,
+    ChecksumValidationError,
+    LabelValidationError,
+)
+
+# Configure module‑level logger
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
-from config import Config
-from download import calculate_md5, validate_checksum, DownloadError
-
 class DatasetStatus:
-    """Enum-like class to represent the status of a dataset."""
-    FOUND = "found"
-    MISSING = "missing"
-    INVALID_FORMAT = "invalid_format"
-    CHECKSUM_MISMATCH = "checksum_mismatch"
+    """Enum‑like container for dataset availability status."""
+    AVAILABLE = "Available"
+    UNAVAILABLE = "Unavailable"
+
 
 class DataGapResolver:
     """
-    Resolves data gaps by verifying downloaded files contain raw count matrices
-    and validating checksums.
+    Resolves the Phase 0 data‑gap by ensuring that raw count matrices for the
+    configured GEO accessions exist, are valid, and are recorded in a manifest.
     """
 
     def __init__(self, config: Config):
         self.config = config
-        self.raw_data_dir = config.RAW_DATA_DIR
-        self.results_dir = config.RESULTS_DIR
-        self.accessions = config.DATASET_ACCESSIONS
+        # Directories from the Config object
+        self.raw_dir: Path = config.data_raw
+        self.results_dir: Path = config.results_dir
+        # Ensure the results folder exists
+        self.results_dir.mkdir(parents=True, exist_ok=True)
 
-    def _is_raw_count_matrix(self, file_path: Path) -> Tuple[bool, str]:
+        # List of GEO accessions we must attempt to obtain
+        self.accessions: List[str] = config.accessions
+
+    # -----------------------------------------------------------------
+    # Helper methods
+    # -----------------------------------------------------------------
+    def _find_existing_file(self, accession: str) -> Optional[Path]:
         """
-        Verifies if a downloaded file contains a raw count matrix.
-        
-        Strategies:
-        1. Check file extension (.txt, .gz, .mtx).
-        2. Inspect content:
-           - For .mtx (Matrix Market): Look for '%%MatrixMarket' header.
-           - For .txt/.tsv: Check for a header row with gene/cell identifiers 
-             and numeric data, ensuring no 'cluster' or 'marker' keywords dominate.
-           - For .gz: Attempt to read the first few bytes/lines.
-        3. Reject files that look like cluster markers (e.g., small files, 
-           headers containing 'Cluster', 'Marker', 'GeneSet').
-        
-        Returns:
-            Tuple[bool, str]: (is_valid, reason)
+        Look for a file that starts with the accession name inside the raw
+        directory. Returns the first match or None.
         """
-        if not file_path.exists():
-            return False, "File does not exist"
+        candidates = list(self.raw_dir.glob(f"{accession}*"))
+        return candidates[0] if candidates else None
 
-        file_size = file_path.stat().st_size
-        if file_size == 0:
-            return False, "File is empty"
+    def _download_if_missing(self, accession: str) -> Tuple[Optional[Path], str]:
+        """
+        Ensure a raw count matrix for *accession* exists.
+        If a file is already present we reuse it; otherwise we attempt to
+        download it via ``download_dataset``.
+        Returns a tuple ``(path_to_file, status)`` where *status* is one of
+        ``DatasetStatus.AVAILABLE`` or ``DatasetStatus.UNAVAILABLE``.
+        """
+        existing = self._find_existing_file(accession)
+        if existing:
+            logger.info(f"Found existing raw file for {accession}: {existing}")
+            return existing, DatasetStatus.AVAILABLE
 
-        # Heuristic: Raw count matrices are typically large (>1MB usually, 
-        # but depends on dataset size; markers are often tiny <10KB).
-        # We set a conservative lower bound of 10KB for a count matrix.
-        if file_size < 10240: # 10KB
-            logger.warning(f"File {file_path} is very small ({file_size} bytes). "
-                           "Likely contains metadata/markers, not a raw count matrix.")
-            return False, "File too small to be a raw count matrix"
-
+        logger.info(f"No local file for {accession}; attempting download.")
         try:
-            # Determine file type and read appropriate chunk
-            content_bytes = b""
-            is_gz = str(file_path).endswith('.gz')
-            
-            if is_gz:
-                import gzip
-                try:
-                    with gzip.open(file_path, 'rt', encoding='utf-8', errors='ignore') as f:
-                        content_bytes = f.read(2048).encode('utf-8', errors='ignore')
-                except Exception as e:
-                    return False, f"Failed to read gzipped file: {e}"
-            else:
-                try:
-                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                        content_bytes = f.read(2048).encode('utf-8', errors='ignore')
-                except Exception as e:
-                    return False, f"Failed to read file: {e}"
-
-            content_str = content_bytes.decode('utf-8', errors='ignore').lower()
-
-            # Check for Matrix Market format
-            if "%%matrixmarket" in content_str:
-                logger.info(f"Detected Matrix Market format in {file_path}")
-                return True, "Valid Matrix Market header"
-
-            # Check for cluster markers or metadata
-            # Common indicators of non-count data
-            bad_keywords = ["cluster", "marker", "geneset", "pathway", "ontology"]
-            # If the header or first few lines contain these, it's likely not raw counts
-            # We check if these words appear in the first 500 characters
-            header_snippet = content_str[:500]
-            for keyword in bad_keywords:
-                if keyword in header_snippet:
-                    return False, f"Contains keyword '{keyword}' likely indicating cluster markers"
-
-            # Check for typical count matrix structure
-            # Should have numeric data. We expect a header row and then numeric rows.
-            lines = content_str.split('\n')
-            if len(lines) < 2:
-                return False, "File has insufficient lines for a matrix"
-
-            # Skip empty lines
-            non_empty_lines = [l for l in lines if l.strip()]
-            if len(non_empty_lines) < 2:
-                return False, "File has insufficient non-empty lines"
-
-            # Check if the second line (first data row) contains numbers
-            # Raw count matrices usually have a header, then rows of numbers (or gene IDs + numbers)
-            first_data_line = non_empty_lines[1].strip()
-            parts = first_data_line.split()
-            
-            # Heuristic: At least one part should be a number or a string that looks like a count
-            has_numeric = False
-            for part in parts:
-                # Remove common delimiters
-                clean_part = part.replace(',', '').replace('.', '')
-                try:
-                    float(clean_part)
-                    has_numeric = True
-                    break
-                except ValueError:
-                    continue
-
-            if not has_numeric:
-                return False, "No numeric data found in first data row"
-
-            return True, "Appears to be a raw count matrix"
-
+            # ``download_dataset`` creates the file inside ``self.raw_dir``.
+            downloaded_path = download_dataset(
+                accession,
+                raw_dir=str(self.raw_dir),
+            )
+            logger.info(f"Downloaded {accession} to {downloaded_path}")
+            return Path(downloaded_path), DatasetStatus.AVAILABLE
+        except (DownloadError, ChecksumValidationError, LabelValidationError) as e:
+            logger.error(f"Failed to obtain {accession}: {e}")
+            return None, DatasetStatus.UNAVAILABLE
         except Exception as e:
-            logger.error(f"Error inspecting file {file_path}: {e}")
-            return False, f"Inspection error: {e}"
+            logger.exception(f"Unexpected error while handling {accession}: {e}")
+            return None, DatasetStatus.UNAVAILABLE
 
-    def _calculate_file_checksum(self, file_path: Path) -> str:
-        """Calculate MD5 checksum of a file."""
-        return calculate_md5(file_path)
-
-    def verify_dataset(self, accession: str) -> Dict[str, Any]:
+    def _build_manifest_entry(
+        self,
+        accession: str,
+        file_path: Optional[Path],
+        status: str,
+    ) -> Dict[str, Any]:
         """
-        Verifies a specific dataset:
-        1. Checks if the file exists in raw_data_dir.
-        2. Validates checksum if a checksum file exists.
-        3. Verifies content is a raw count matrix.
-        
-        Args:
-            accession: GSE accession ID (e.g., 'GSE131907')
-        
-        Returns:
-            Dict containing status and details.
+        Construct a single manifest dictionary entry.
         """
-        result = {
-            "accession": accession,
-            "status": DatasetStatus.MISSING,
-            "file_path": None,
-            "checksum_valid": None,
-            "is_raw_count": None,
-            "reason": None
+        entry: Dict[str, Any] = {
+            "dataset_id": accession,
+            "source_url": f"https://www.ncbi.nlm.nih.gov/geo/download/?acc={accession}&format=txt&file={accession}_series_matrix.txt.gz",
+            "status": status,
+            "checksum": None,
+            "raw_file_path": None,
+            "processed_file_path": None,
         }
 
-        # Determine expected file path
-        # We assume the download logic saves files as {accession}_counts.{ext}
-        # or similar. We'll look for files starting with the accession.
-        expected_files = list(self.raw_data_dir.glob(f"{accession}*"))
-        
-        if not expected_files:
-            result["reason"] = "No files found for accession"
-            return result
-
-        # Take the first matching file (assuming one per accession for now)
-        file_path = expected_files[0]
-        result["file_path"] = str(file_path)
-
-        # 1. Validate Checksum
-        checksum_file = file_path.with_suffix(file_path.suffix + '.md5')
-        if checksum_file.exists():
+        if file_path and status == DatasetStatus.AVAILABLE:
+            # Compute checksum (MD5) – the download module already uses MD5
             try:
-                with open(checksum_file, 'r') as f:
-                    expected_md5 = f.read().strip()
-                
-                actual_md5 = self._calculate_file_checksum(file_path)
-                
-                if actual_md5.lower() == expected_md5.lower():
-                    result["checksum_valid"] = True
-                    logger.info(f"Checksum valid for {accession}: {actual_md5}")
-                else:
-                    result["checksum_valid"] = False
-                    result["status"] = DatasetStatus.CHECKSUM_MISMATCH
-                    result["reason"] = f"Checksum mismatch. Expected: {expected_md5}, Got: {actual_md5}"
-                    return result
+                checksum = calculate_md5(str(file_path))
+                entry["checksum"] = checksum
             except Exception as e:
-                result["checksum_valid"] = False
-                result["reason"] = f"Checksum validation error: {e}"
-                return result
-        else:
-            logger.warning(f"No checksum file found for {accession}. Skipping checksum validation.")
-            result["checksum_valid"] = "skipped"
+                logger.warning(f"Could not compute checksum for {file_path}: {e}")
 
-        # 2. Verify Raw Count Matrix Content
-        is_valid, reason = self._is_raw_count_matrix(file_path)
-        result["is_raw_count"] = is_valid
-        
-        if is_valid:
-            result["status"] = DatasetStatus.FOUND
-            result["reason"] = reason
-        else:
-            result["status"] = DatasetStatus.INVALID_FORMAT
-            result["reason"] = reason
+            entry["raw_file_path"] = str(file_path)
 
-        return result
+        return entry
 
+    # -----------------------------------------------------------------
+    # Core public method
+    # -----------------------------------------------------------------
     def resolve_all_gaps(self) -> Dict[str, Any]:
         """
-        Resolves data gaps for all configured accessions.
-        
-        Returns:
-            Summary report of all datasets.
+        Main driver that attempts to obtain each dataset, writes a JSON
+        manifest, and enforces the three‑dataset requirement.
+        Returns a summary dictionary (also written to ``data_gap_report.json``).
         """
-        report = {
-            "datasets": {},
-            "summary": {
-                "total": len(self.accessions),
-                "found": 0,
-                "missing": 0,
-                "invalid": 0,
-                "checksum_mismatch": 0
-            }
-        }
+        manifest_entries: List[Dict[str, Any]] = []
+        available_count = 0
 
         for accession in self.accessions:
-            logger.info(f"Verifying dataset: {accession}")
-            verification = self.verify_dataset(accession)
-            report["datasets"][accession] = verification
-            
-            status = verification["status"]
-            if status == DatasetStatus.FOUND:
-                report["summary"]["found"] += 1
-            elif status == DatasetStatus.MISSING:
-                report["summary"]["missing"] += 1
-            elif status == DatasetStatus.INVALID_FORMAT:
-                report["summary"]["invalid"] += 1
-            elif status == DatasetStatus.CHECKSUM_MISMATCH:
-                report["summary"]["checksum_mismatch"] += 1
+            logger.info(f"Processing accession {accession}")
+            file_path, status = self._download_if_missing(accession)
+            if status == DatasetStatus.AVAILABLE:
+                available_count += 1
 
-        # Save report
+            entry = self._build_manifest_entry(accession, file_path, status)
+            manifest_entries.append(entry)
+
+        # -----------------------------------------------------------------
+        # Write the manifest (data/manifest.json)
+        # -----------------------------------------------------------------
+        manifest_path = Path("data") / "manifest.json"
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        with manifest_path.open("w", encoding="utf-8") as f:
+            json.dump(manifest_entries, f, indent=2)
+        logger.info(f"Manifest written to {manifest_path}")
+
+        # -----------------------------------------------------------------
+        # Write a human‑readable summary if we have fewer than three datasets
+        # -----------------------------------------------------------------
+        if available_count < 3:
+            summary_path = self.results_dir / "data_gap_summary.txt"
+            summary_msg = (
+                f"Data‑gap resolution failed: only {available_count} dataset(s) "
+                f"available (minimum required: 3). Pipeline abort."
+            )
+            with summary_path.open("w", encoding="utf-8") as f:
+                f.write(summary_msg + "\n")
+            logger.error(summary_msg)
+            # Exit code 1 signals the pipeline to stop.
+            sys.exit(1)
+
+        # -----------------------------------------------------------------
+        # Produce a detailed report (legacy artifact used by earlier tasks)
+        # -----------------------------------------------------------------
+        report = {
+            "datasets": manifest_entries,
+            "summary": {
+                "total_requested": len(self.accessions),
+                "available": available_count,
+                "unavailable": len(self.accessions) - available_count,
+            },
+        }
         report_path = self.results_dir / "data_gap_report.json"
-        with open(report_path, 'w') as f:
+        with report_path.open("w", encoding="utf-8") as f:
             json.dump(report, f, indent=2)
-        
-        logger.info(f"Data gap report saved to {report_path}")
+        logger.info(f"Data‑gap report written to {report_path}")
+
         return report
 
-def main():
-    """Main entry point for data gap resolution."""
-    config = Config()
-    resolver = DataGapResolver(config)
-    report = resolver.resolve_all_gaps()
-    
-    print(json.dumps(report, indent=2))
-    
-    # Exit with error if no datasets found
-    if report["summary"]["found"] == 0:
-        sys.exit(1)
-    
+# -----------------------------------------------------------------
+# CLI entry point
+# -----------------------------------------------------------------
+def main() -> None:
+    """
+    Execute the data‑gap resolution when the module is run as a script.
+    """
+    cfg = Config()
+    resolver = DataGapResolver(cfg)
+    resolver.resolve_all_gaps()
+    # Successful completion (>=3 datasets) exits with code 0.
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
