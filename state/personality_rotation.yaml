@@ -1,14 +1,7 @@
 last_used: marie-curie
-last_used_at: '2026-10-19T18:06:35.595718+00:00'
-last_outcome: committed
+last_used_at: '2026-10-19T22:08:00.709256+00:00'
+last_outcome: librarian_held
 history:
-- slug: rosalind-franklin
-  started_at: '2026-06-27T19:32:53.045906+00:00'
-  ended_at: '2026-06-27T20:05:48.807194+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-324-predicting-molecular-properties-from-ope/reviews/research/rosalind-franklin-simulated__2026-06-27__research.md
 - slug: stephen-wolfram
   started_at: '2026-06-27T20:05:48.807194+00:00'
   ended_at: '2026-06-27T20:38:43.620047+00:00'
@@ -1313,3 +1306,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-505-exploring-the-statistical-relationship-b/reviews/research/marie-curie-simulated__2026-10-19__research.md
+- slug: richard-feynman
+  started_at: '2026-10-19T18:06:35.595718+00:00'
+  ended_at: '2026-10-19T22:08:00.709256+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-342-predicting-the-influence-of-alloying-on-/reviews/research/_held/richard-feynman-simulated__2026-10-19__research.md
