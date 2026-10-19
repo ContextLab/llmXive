@@ -1,13 +1,13 @@
 status: none
-intent: Something-Something V2 video dataset download python package dataset
+intent: download Something-Something V2 video dataset python package dataset
 required_fields:
 - video_id
-- video_file_path
-- action_label
+- original_video_path
+- counterfactual_video_path
 - primary_object_class
-- primary_object_bbox_per_frame
-- frame_rate
-- duration
-cache_key: 82103e75c676a227425e40659fb7bc62b8af27329b7e1e3067cb09494aa587d6
-searched_at: '2026-10-12T07:57:54.498172+00:00'
+- counterfactual_object_class
+- object_mask_or_bbox
+- optical_flow_divergence_value
+cache_key: 2b303e3f27cfcdda799d9e0a6608e479b5329e254af3d981d538064ad5311c51
+searched_at: '2026-10-19T15:09:08.413715+00:00'
 retry_count: 1

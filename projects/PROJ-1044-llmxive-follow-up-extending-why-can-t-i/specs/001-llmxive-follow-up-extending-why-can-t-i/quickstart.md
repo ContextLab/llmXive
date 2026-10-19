@@ -27,8 +27,8 @@ python -m src.pipeline.run_all \
     --num_videos 200 \
     --lambda_values 0.1 0.5 1.0 \
     --seeds $SEED_LIST \
-    --optical_flow_divergence_threshold 0.15 \
-    --feature_similarity_threshold 0.9 \
+    --flow_divergence_thresh 0.15 \
+    --feature_sim_thresh 0.9 \
     --output_dir ./output
 
 # 5️⃣ Inspect the main artifacts
@@ -50,7 +50,7 @@ ls output/figures/
 |-------|--------|------------|
 | **Synthetic video creation** | `src/data/synthetic_generator.py` | `output/data/videos/orig/*.mp4` |
 | **Counterfactual generation & validation** | `src/data/counterfactual.py` | `output/data/videos/cf/*.mp4`, `metadata.csv` |
-| **Optical‑flow extraction** | `src/data/optical_flow.py` | `output/data/flow/*.npy` |
+| **Optical‑flow extraction** | `src/data/optical_flow.py` (Farneback) | `output/data/flow/*.npy` |
 | **Model training** | `src/train/trainer.py` (loops over λ & seeds) | `output/checkpoints/*.pt` |
 | **Evaluation** | `src/eval/evaluator.py` | `per_seed.csv`, `summary.csv` |
 | **Report & figures** | `src/eval/report.py` | `figures/*.png` (ΔAcc vs λ, bootstrap CI, example frames) |
