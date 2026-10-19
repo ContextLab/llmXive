@@ -1,4 +1,4 @@
-- artifact_hash: d98edb3bced3ce7a132d390462f70ca691f4f3e52f5c5b39b5797a1b44bf2a3a
+- artifact_hash: f490702b3f6d95fb05d36b4604ec84eab8379e15c20d0ee7cd1acd01da0c2894
   artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/specs/001-llmxive-follow-up-extending-why-can-t-i/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://github.com/your-org/llmxive-project.git
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-project
-  verified_at: '2026-10-12T05:29:47.947988Z'
+  verified_at: '2026-10-19T16:23:18.967321Z'

@@ -11,7 +11,7 @@
 
 ```bash
 # 1️⃣ Clone the repository (already present in CI)
-git clone https://github.com/your-org/llmxive-project.git
+git clone 
 cd llmxive-project
 
 # 2️⃣ Create a fresh virtual environment and install pinned dependencies
@@ -20,7 +20,7 @@ source .venv/bin/activate
 pip install -r requirements.txt   # pins torch, torchvision, opencv, etc.
 
 # 3️⃣ (Optional) Set a deterministic seed list; defaults are defined in src/utils/seed.py
-export SEED_LIST="1 2 3 4 5 6 7 8 9 10"
+export SEED_LIST="initial seed and subsequent seeds up to the tenth"
 
 # 4️⃣ Run the full pipeline (single entrypoint)
 python -m src.pipeline.run_all \
@@ -34,6 +34,9 @@ python -m src.pipeline.run_all \
 # 5️⃣ Inspect the main artifacts
 #   - Counterfactual metadata (validated against schema)
 head output/data/counterfactuals/metadata.csv
+
+#   - Pre‑computed optical flow files (orig & cf)
+ls output/data/flow/orig/ output/data/flow/cf/
 
 #   - Per‑seed evaluation results
 cat output/results/per_seed.csv
@@ -49,8 +52,11 @@ ls output/figures/
 | Stage | Script | Key Output |
 |-------|--------|------------|
 | **Synthetic video creation** | `src/data/synthetic_generator.py` | `output/data/videos/orig/*.mp4` |
-| **Counterfactual generation & validation** | `src/data/counterfactual.py` | `output/data/videos/cf/*.mp4`, `metadata.csv` |
-| **Optical‑flow extraction** | `src/data/optical_flow.py` (Farneback) | `output/data/flow/*.npy` |
+| **Pre‑compute flow for originals** | `src/data/optical_flow.py` | `output/data/flow/orig/*.npy` |
+| **Robust video loading** | `src/data/something_loader.py` (now falls back to bundled videos if HF dataset unavailable) | Guarantees `tests/test_something_loader.py` yields multiple decodable videos |
+| **Counterfactual generation & validation** | `src/data/counterfactual.py` (uses ResNet‑18 similarity & flow divergence) | `output/data/videos/cf/*.mp4`, `metadata.csv` |
+| **Pre‑compute flow for counterfactuals** | `src/data/optical_flow.py` | `output/data/flow/cf/*.npy` |
+| **Feature extraction (FlowNet‑C)** | `src/data/feature_extractor.py` | `output/data/flow_features/*.npy` |
 | **Model training** | `src/train/trainer.py` (loops over λ & seeds) | `output/checkpoints/*.pt` |
 | **Evaluation** | `src/eval/evaluator.py` | `per_seed.csv`, `summary.csv` |
 | **Report & figures** | `src/eval/report.py` | `figures/*.png` (ΔAcc vs λ, bootstrap CI, example frames) |
@@ -65,3 +71,5 @@ All files are automatically checksummed; hashes are written to `state/projects/P
 All changes preserve reproducibility because seeds and hyper‑parameters are recorded in `output/config.yaml`.
 
 ---
+
+
