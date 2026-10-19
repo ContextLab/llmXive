@@ -56,7 +56,7 @@ The following contradictions are rooted in `spec.md` (and one path in `plan.md`)
 
 ## Phase 2: Complete the study and validate its evidence
 
-- [ ] **T005 [P2] [US2]** Implement PCA dimensionality reduction in `code/dimensionality.py`: stack window-descriptor vectors across subjects, retain components explaining ≥80% cumulative variance, and write per-subject PC scores.
+- [X] **T005 [P2] [US2]** Implement PCA dimensionality reduction in `code/dimensionality.py`: stack window-descriptor vectors across subjects, retain components explaining ≥80% cumulative variance, and write per-subject PC scores.
   *Artifact path*: `data/derived/pca_scores.csv` (conforms to `specs/.../contracts/pca_scores.schema.yaml`).
   *Verification*:
   &nbsp;&nbsp;• `pytest tests/test_pca.py` checks orthogonality of components, the ≥80% variance threshold, and schema compliance (per-subject `n_components_retained`, `variance_explained_total`, dynamic `pc_scores` mapping).
@@ -74,7 +74,7 @@ The following contradictions are rooted in `spec.md` (and one path in `plan.md`)
   &nbsp;&nbsp;• `pytest tests/test_sensitivity.py` asserts the 6 combinations completed without error and the summary contains the required statistics.
   &nbsp;&nbsp;• If T006 did not run, the correlation-SD field is written as `not_computable_no_skill_proxy` (SC-002 as amended pending spec revision: explicitly unmeasurable on the expected path — stated honestly, not faked; see kickback #4).
 
-- [ ] **T008 [P3] [US3]** Implement visualization in `code/visualization.py`: if real task-condition labels exist, mean adjacency per condition with NetworkX graph construction and Matplotlib rendering (edge width ∝ weight, node color ∝ Louvain community) — this path satisfies FR-007 as written. If no labels exist (expected path), a single-group descriptive topology figure of the mean vertex-block descriptor graph — no group comparison and no PC-1 median split; this path satisfies FR-007 only as AMENDED (conditional fallback, plan scope-gap #5, kickback #5).
+- [ ] **T008 [P3] [US3]** Implement visualization in `code/visualization.py`: if real task-condition labels exist, mean adjacency per condition with NetworkX graph construction and Matplotlib rendering (edge width ∝ weight, node color ∝ Louvain community) — this path satisfies FR-007 as written. If no labels exist (expected path), a single-group descriptive topology figure of the mean vertex-block descriptor graph — no group comparison and no PC-1 median split; this path satisfies FR-007 only as AMENDED (conditional fallback, plan scope-gap #5, kickback #5). <!-- FAILED-IN-EXECUTION: code/visualization.py exit=1 -->
   *Artifact path*: `results/fig_network_topology.png`.
   *Verification*:
   &nbsp;&nbsp;• The PNG loads without error; `pytest tests/test_visualization.py` checks the mean adjacency has shape (100, 100) and node labels are the deterministic block IDs (labeled vertex blocks, not atlas regions).

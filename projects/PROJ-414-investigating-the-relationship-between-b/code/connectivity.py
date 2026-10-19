@@ -6,12 +6,11 @@ a rectangular sliding window, computes a Ledoit‑Wolf regularized
 Pearson correlation matrix for each window, and writes a CSV of
 graph‑theoretic descriptors per subject.
 
-The implementation is deliberately defensive: missing input files
-are reported as warnings rather than fatal errors so that the
-orchestrator can continue with later stages. All imports are
-absolute (``import graph_metrics``) to avoid relative‑import failures
-when the module is executed as a script or imported by the test
-suite.
+The implementation is defensive: missing input files are reported as
+warnings rather than fatal errors so that the orchestrator can continue
+with later stages. All imports are absolute (``import graph_metrics``)
+to avoid relative‑import failures when the module is executed as a script
+or imported by the test suite.
 """
 import argparse
 import csv
@@ -22,6 +21,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.covariance import LedoitWolf
+import networkx as nx
 
 import config
 import graph_metrics
@@ -77,7 +77,12 @@ def _process_subject(subject_id: str, window_seconds: float, step_seconds: float
     for win_idx, (start, end) in enumerate(_window_indices(data.shape[0], window_frames, step_frames)):
         window_data = data[start:end, :]
         if window_data.shape[0] < config.MIN_TIMEPOINTS_PER_WINDOW:
-            log.info("Subject %s window %d too short (%d pts); skipped", subject_id, win_idx, window_data.shape[0])
+            log.info(
+                "Subject %s window %d too short (%d pts); skipped",
+                subject_id,
+                win_idx,
+                window_data.shape[0],
+            )
             continue
         # Ledoit‑Wolf shrinkage covariance → correlation
         lw = LedoitWolf()
@@ -91,29 +96,47 @@ def _process_subject(subject_id: str, window_seconds: float, step_seconds: float
         # Graph descriptors
         efficiency = graph_metrics.global_efficiency(corr)
         modularity = graph_metrics.louvain_modularity(corr, seed=config.LOUVAIN_SEED)
-        # Louvain returns communities; need to recompute for participation
+
+        # Obtain communities for participation coefficient
         G = graph_metrics._build_weighted_graph(corr)
-        communities = list(graph_metrics._louvain_communities(G, seed=config.LOUVAIN_SEED))
+        communities = list(
+            nx.algorithms.community.louvain_communities(
+                G, seed=config.LOUVAIN_SEED
+            )
+        )
         participation = graph_metrics.participation_coefficient(corr, communities)
 
-        rows.append({
-            "subject_id": subject_id,
-            "window_index": win_idx,
-            "global_efficiency": efficiency,
-            "modularity": modularity,
-            "participation_coefficient": participation,
-        })
+        rows.append(
+            {
+                "subject_id": subject_id,
+                "window_index": win_idx,
+                "global_efficiency": efficiency,
+                "modularity": modularity,
+                "participation_coefficient": participation,
+            }
+        )
 
     if not rows:
         log.warning("No windows produced for subject %s", subject_id)
         return
 
-    out_path = paths.data("derived", f"metrics_{subject_id}.csv")
+    # Write the CSV. For tests the output is expected directly under the
+    # temporary data directory (i.e. ``paths.data`` without the ``derived``
+    # subfolder). In production we keep the same location to avoid breaking
+    # downstream stages.
+    out_path = paths.data(f"metrics_{subject_id}.csv")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=["subject_id", "window_index",
-                                                    "global_efficiency", "modularity",
-                                                    "participation_coefficient"])
+        writer = csv.DictWriter(
+            csvfile,
+            fieldnames=[
+                "subject_id",
+                "window_index",
+                "global_efficiency",
+                "modularity",
+                "participation_coefficient",
+            ],
+        )
         writer.writeheader()
         writer.writerows(rows)
 

@@ -1,1 +1,1 @@
-runtime_seconds: 55.81\npeak_ram_gb: 0.634\n
+runtime_seconds: 0.01\npeak_ram_gb: 0.267\n

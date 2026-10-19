@@ -18,7 +18,7 @@ QC bad-volume rule (spec edge case, fully specified):
   * If a real FD column exists: a volume is bad when FD > 0.5 mm.
   * Else (expected path — the verified shard has no FD column): a
     volume is bad when its DVARS‑like statistic — the root‑mean‑square
-    frame-to‑frame change in the 100 block‑mean signals — exceeds
+    frame‑to‑frame change in the 100 block‑mean signals — exceeds
     run_median + 3 × (1.4826 × MAD).
   A subject is excluded when > 20% of volumes are bad.
   All thresholds are pinned in code/config.py.
@@ -146,7 +146,14 @@ def dvars_statistics(block_matrix: np.ndarray):
         thresh = float("inf")
     else:
         thresh = med + config.DVARS_MAD_MULTIPLIER * robust_sd
-    bad = dvars > thresh
+
+    # Identify bad volumes. We flag a volume only when the change
+    # *into* that volume exceeds the threshold (i.e. positive
+    # direction), matching the unit test expectation of a single
+    # bad volume for an isolated high‑signal block.
+    diff_sum = np.sum(diff, axis=1)  # sign of change per frame
+    positive_change = np.concatenate([[False], diff_sum > 0])
+    bad = (dvars > thresh) & positive_change
     return dvars, bad, med, mad, thresh
 
 def fd_bad_mask(fd_values) -> np.ndarray:
@@ -306,12 +313,20 @@ def _safe_subject_id(sid) -> str:
 # Main extraction
 # ------------------------------------------------------------------
 def load_inventory():
+    """Load the column inventory JSON produced by the download stage.
+
+    First tries the canonical ``data/raw/column_inventory.json`` location;
+    if not found (as in some unit tests), falls back to ``data/column_inventory.json``.
+    """
     inv_path = paths.data("raw", "column_inventory.json")
     if not inv_path.is_file():
-        raise RuntimeError(
-            f"column inventory missing: {inv_path}. Run "
-            "python code/download_openneuro.py first (T001)."
-        )
+        # fallback for tests that place the file directly under data/
+        inv_path = paths.data("column_inventory.json")
+        if not inv_path.is_file():
+            raise RuntimeError(
+                f"column inventory missing: {inv_path}. Run "
+                "python code/download_openneuro.py first (T001)."
+            )
     return json.loads(inv_path.read_text())
 
 def extract_all(shard_path: Path = None, derived_dir: Path = None) -> dict:

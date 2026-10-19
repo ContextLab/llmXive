@@ -3,8 +3,8 @@
 The script iterates over the six (window, step) combinations defined in
 ``config.SENSITIVITY_WINDOW_SECONDS`` and ``config.SENSITIVITY_STEP_SECONDS``.
 For each combination it re‑runs the connectivity stage (by importing the
-module and invoking its ``main``) and then recomputes PCA.  Because the
-full re‑run would be expensive, the implementation here simply loads the
+module and invoking its ``main``) and then recomputes PCA.  Because the full
+re‑run would be expensive, the implementation here simply loads the
 already‑computed descriptor CSVs (if they exist) and records basic
 statistics (mean, standard deviation, min, max) for each descriptor.
 If the association stage did not run, the correlation‑SD field is set to
@@ -24,15 +24,35 @@ from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Configuration fall‑backs
+# ----------------------------------------------------------------------
+# The plan defines these lists, but during isolated testing the config
+# module may not have them. Provide sensible defaults to keep the script
+# robust.
+SENSITIVITY_WINDOWS = getattr(
+    config, "SENSITIVITY_WINDOW_SECONDS", [30.0, 45.0, 60.0]
+)
+SENSITIVITY_STEPS = getattr(
+    config, "SENSITIVITY_STEP_SECONDS", [5.0, 10.0]
+)
+
 def _collect_descriptor_stats() -> dict:
     """Load all metric CSVs and compute summary statistics per descriptor."""
     metric_files = list(paths.data("derived").glob("metrics_*.csv"))
     if not metric_files:
+        log.warning("No metric files found for sensitivity analysis.")
         return {}
     dfs = [pd.read_csv(f) for f in metric_files]
     all_df = pd.concat(dfs, ignore_index=True)
     stats = {}
-    for col in ["global_efficiency", "modularity", "participation_coefficient"]:
+    for col in [
+        "global_efficiency",
+        "modularity",
+        "participation_coefficient",
+    ]:
+        if col not in all_df.columns:
+            continue
         vals = all_df[col].dropna()
         stats[col] = {
             "mean": float(vals.mean()),
@@ -55,19 +75,25 @@ def _correlation_sd_from_analysis() -> float | str:
     return float(df[col].std(ddof=1))
 
 def main(argv=None) -> int:
+    """CLI entry point for the sensitivity analysis."""
     if isinstance(argv, argparse.Namespace):
         argv = None
     parser = argparse.ArgumentParser(description="Sensitivity analysis")
-    parser.add_argument("--output_dir", type=Path, default=None, help="Override results directory")
+    parser.add_argument(
+        "--output_dir",
+        type=Path,
+        default=None,
+        help="Override the default results directory",
+    )
     args = parser.parse_args(argv)
 
+    # Allow the caller (e.g., run_all) to redirect results output.
     if args.output_dir:
-        # Override the ``paths.results`` helper for this run.
         paths.results = lambda *parts: Path(args.output_dir, *parts)
 
     rows = []
-    for win in config.SENSITIVITY_WINDOW_SECONDS:
-        for step in config.SENSITIVITY_STEP_SECONDS:
+    for win in SENSITIVITY_WINDOWS:
+        for step in SENSITIVITY_STEPS:
             # In a full implementation we would re‑run connectivity &
             # PCA with the new parameters. Here we reuse existing data
             # to stay within the execution budget.
@@ -80,8 +106,12 @@ def main(argv=None) -> int:
                 "global_efficiency_sd": stats.get("global_efficiency", {}).get("sd"),
                 "modularity_mean": stats.get("modularity", {}).get("mean"),
                 "modularity_sd": stats.get("modularity", {}).get("sd"),
-                "participation_coefficient_mean": stats.get("participation_coefficient", {}).get("mean"),
-                "participation_coefficient_sd": stats.get("participation_coefficient", {}).get("sd"),
+                "participation_coefficient_mean": stats.get(
+                    "participation_coefficient", {}
+                ).get("mean"),
+                "participation_coefficient_sd": stats.get(
+                    "participation_coefficient", {}
+                ).get("sd"),
                 "correlation_sd": corr_sd,
             }
             rows.append(row)
@@ -90,10 +120,14 @@ def main(argv=None) -> int:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", newline="") as csvfile:
         fieldnames = [
-            "window_seconds", "step_seconds",
-            "global_efficiency_mean", "global_efficiency_sd",
-            "modularity_mean", "modularity_sd",
-            "participation_coefficient_mean", "participation_coefficient_sd",
+            "window_seconds",
+            "step_seconds",
+            "global_efficiency_mean",
+            "global_efficiency_sd",
+            "modularity_mean",
+            "modularity_sd",
+            "participation_coefficient_mean",
+            "participation_coefficient_sd",
             "correlation_sd",
         ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
