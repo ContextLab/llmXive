@@ -4,17 +4,14 @@ code/setup/setup_env.py
 
 This script sets up a reproducible project environment:
 
-1. Creates a Python virtual environment (default location ``.venv``) with ``pip``.
-2. Installs the exact dependencies listed in ``requirements.txt`` into that
+1. Creates a Python virtual environment (default location `.venv`) with `pip`.
+2. Installs the exact dependencies listed in `requirements.txt` into that
    virtual environment.
-3. Validates ``requirements.txt`` against the JSON‑schema contract located at
-   ``contracts/requirements.schema.yaml`` using ``jsonschema``.
+3. Validates `requirements.txt` against the JSON‑schema contract located at
+   `contracts/requirements.schema.yaml` using `jsonschema`.
 
 The script is deliberately strict – any failure raises an exception so the
 execution guard can detect the problem (FR‑001, FR‑018).
-
-The module provides small, testable helper functions that the unit‑test in
-``code/tests/test_setup_env.py`` exercises.
 """
 
 import os
@@ -44,7 +41,7 @@ if not logger.handlers:
 # ----------------------------------------------------------------------
 # Project‑root aware paths
 # ----------------------------------------------------------------------
-# ``setup_env.py`` lives under ``code/setup``; the project root is two levels up.
+# `setup_env.py` lives under `code/setup`; the project root is two levels up.
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 DEFAULT_VENV_PATH = PROJECT_ROOT / ".venv"
@@ -56,11 +53,7 @@ SCHEMA_PATH = PROJECT_ROOT / "contracts" / "requirements.schema.yaml"
 # ----------------------------------------------------------------------
 def create_virtualenv(venv_path: Path = DEFAULT_VENV_PATH) -> None:
     """
-    Create a virtual environment at ``venv_path`` with ``pip`` included.
-
-    The function is idempotent – if the directory already exists it is
-    removed first to guarantee a clean environment (useful for the test
-    suite).
+    Create a virtual environment at `venv_path` with `pip` included.
     """
     if venv_path.exists():
         logger.info(f"Removing existing virtual environment at {venv_path}")
@@ -72,8 +65,7 @@ def create_virtualenv(venv_path: Path = DEFAULT_VENV_PATH) -> None:
 
 def _pip_executable(venv_path: Path) -> Path:
     """
-    Return the path to the ``pip`` executable inside the virtual environment.
-    Handles POSIX (``bin``) and Windows (``Scripts``) layouts.
+    Return the path to the `pip` executable inside the virtual environment.
     """
     if (venv_path / "bin" / "pip").exists():
         return venv_path / "bin" / "pip"
@@ -84,8 +76,8 @@ def install_requirements(
     requirements_path: Path = REQUIREMENTS_PATH,
 ) -> None:
     """
-    Install the exact dependencies from ``requirements_path`` into the
-    virtual environment located at ``venv_path``.
+    Install the exact dependencies from `requirements_path` into the
+    virtual environment located at `venv_path`.
     """
     pip_path = _pip_executable(venv_path)
 
@@ -111,8 +103,7 @@ def install_requirements(
 
 def _load_requirements(requirements_path: Path = REQUIREMENTS_PATH) -> list:
     """
-    Load ``requirements.txt`` and return a list of requirement strings,
-    ignoring comments and empty lines.
+    Load `requirements.txt` and return a list of requirement strings.
     """
     requirements = []
     with requirements_path.open("r", encoding="utf-8") as f:
@@ -128,9 +119,6 @@ def validate_requirements_schema(
 ) -> None:
     """
     Validate the list of requirement strings against the JSON‑schema contract.
-
-    The contract is expected to describe a JSON array of strings.  If the
-    data does not conform, ``jsonschema.ValidationError`` is raised.
     """
     logger.info(
         f"Validating {requirements_path} against schema {schema_path}"
@@ -144,7 +132,6 @@ def validate_requirements_schema(
 
     data = _load_requirements(requirements_path)
 
-    # ``jsonschema.validate`` works with any JSON‑serialisable Python object.
     try:
         validate(instance=data, schema=schema)
     except ValidationError as exc:
@@ -159,10 +146,6 @@ def validate_requirements_schema(
 def main() -> None:
     """
     Execute the full environment‑setup workflow.
-
-    1. Create a clean virtual environment at ``.venv``.
-    2. Install pinned dependencies from ``requirements.txt``.
-    3. Validate the requirements file against the contract.
     """
     logger.info("Starting project environment setup")
     create_virtualenv()

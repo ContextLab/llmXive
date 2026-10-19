@@ -1,20 +1,8 @@
 T000:
-  reason: The artifacts exist and the script/test logic is broadly correct, but `requirements.txt`
-    contains unpinned entries (`pandas`, `numpy`, `pyyaml`, `jsonschema` with no version
-    specifiers), directly contradicting the task's requirement to install *pinned*
-    dependencies for a reproducible environment. Additionally, the test's import `from
-    setup.setup_env import ...` requires `code/` on `sys.path` (no `conftest.py` or
-    path setup is present in the evidence), so the pytest suite may fail at collection;
-    fix by pinning all dependency versions and ensuring the test can import the module
-    (e.g., add `code/
   task: a798e05e887a53a2fabdeb332dc75a5c1c3abfd15e51bd450dcf16b96a99d362
 T001:
-  reason: The script hardcodes a 3-row "literature" dataset instead of downloading
-    from Zenodo (the URL placeholder was never resolved), and the required unit test
-    `code/tests/test_fetch_heas.py` is missing entirely, so the FR-009 missing-`yield_strength`
-    ValueError behavior is unverified. The CSV exists but is a fabricated stand-in
-    for the required real curated dataset, and 3 rows is far too small for the study's
-    power requirements.
+  reason: 'Requested task execution failed; rerun successfully: code/data/fetch_heas.py
+    exit=1'
   task: eb8f8211bd04eb537ba91f8358867b475d5f7010902523f6943d161b3c12fbf5
 T002:
   reason: 'Requested task execution failed; rerun successfully: generate_processed_descriptors.py

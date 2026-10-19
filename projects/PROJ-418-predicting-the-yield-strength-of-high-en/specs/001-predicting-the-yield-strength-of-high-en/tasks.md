@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project Setup  
 
-- [ ] T000 [P0] [FR-001] **Project environment setup.**  
+- [X] T000 [P0] [FR-001] **Project environment setup.**  
   Implement `code/setup/setup_env.py` that creates a virtual environment, installs pinned dependencies from `requirements.txt`, and validates `requirements.txt` against `contracts/requirements.schema.yaml`.  
   **Verification:** a pytest `code/tests/test_setup_env.py` asserts that the virtualenv is created, all packages install without error, and the schema validation passes.
 
@@ -15,7 +15,7 @@
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T001 [P1] [FR-001] **Data acquisition – real HEA dataset (Zenodo).**
+- [ ] T001 [P1] [FR-001] **Data acquisition – real HEA dataset (Zenodo).** <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 -->
   Implement `code/data/fetch_heas.py` that downloads the curated HEA yield‑strength dataset from the Zenodo archive (URL placeholder **INSERT_ZENODO_URL_HERE**).  
   - Writes a **CSV** `data/raw/heas_raw.csv` with columns `alloy_id, composition, yield_strength, phase, temperature`.  
   - Validates each row against `contracts/dataset.schema.yaml`.  
