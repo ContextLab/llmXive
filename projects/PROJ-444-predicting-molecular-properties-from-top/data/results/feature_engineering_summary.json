@@ -1,0 +1,16 @@
+{
+  "task": "T004",
+  "n_molecules": 1128,
+  "n_traditional_features": 1031,
+  "n_topological_features": 100,
+  "n_total_features": 1131,
+  "nan_count": 0,
+  "row_counts_match": true,
+  "target_property": "logP",
+  "logp_mean": -2.988192375886525,
+  "logp_std": 1.6832198243710366,
+  "durable_copies": [
+    "data/results/traditional_features.csv",
+    "data/results/combined_features.csv"
+  ]
+}

@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import json
 import yaml
-import pytest
 from pathlib import Path
 
 # Paths
@@ -43,6 +42,14 @@ def test_schema_compliance():
         f"Expected {grid*grid} feature columns, found {len(feature_cols)}"
     )
 
+    # The schema-mandated array columns must be present and well-formed
+    assert "features" in df.columns, "Missing 'features' column"
+    assert "feature_names" in df.columns, "Missing 'feature_names' column"
+    parsed = json.loads(df["features"].iloc[0])
+    assert len(parsed) == grid * grid, "features array has wrong length"
+    names = json.loads(df["feature_names"].iloc[0])
+    assert len(names) == grid * grid, "feature_names array has wrong length"
+
 def test_no_nan_values():
     df = pd.read_csv(TDA_CSV)
     assert not df.isnull().values.any(), "NaN values found in TDA feature matrix"
@@ -53,6 +60,10 @@ def test_image_vector_length():
     # All rows must have the same length
     lengths = df[feature_cols].apply(lambda row: len(row.dropna()), axis=1)
     assert lengths.nunique() == 1, "Inconsistent feature vector lengths"
+
+def test_molecule_id_is_string():
+    df = pd.read_csv(TDA_CSV, dtype={"molecule_id": str})
+    assert df["molecule_id"].map(lambda v: isinstance(v, str)).all()
 
 def test_valid_molecules_count():
     # The number of rows should match the filtered ESOL dataset (excluding any invalid SMILES)

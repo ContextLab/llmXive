@@ -1,32 +1,35 @@
 """
-TDA Computation Pipeline: Graph Construction, Shortest‑Path Filtration,
-and Persistence‑Image Generation.
+TDA Computation Pipeline: Graph Construction, Shortest-Path Filtration,
+and Persistence-Image Generation.
 
-Implements FR‑001 (shortest‑path distance filtration) and FR‑002
-(baseline 10×10 persistence images). The script now accepts both
-``--grid`` and ``--resolution`` CLI arguments (default 10) to match the
-quick‑start run‑book. It writes the resulting feature matrix to two
-locations for backward compatibility:
+Implements FR-001 (shortest-path distance filtration) and FR-002
+(baseline 10x10 persistence images, kernel_bandwidth sigma = 1.0).
 
-  * data/processed/topological_features_{grid}x{grid}.csv
-  * data/processed/persistence_images_{grid}x{grid}.csv
+Output CSV columns (per feature_matrix.schema.yaml / data-model.md):
+  * molecule_id        (string)
+  * target_property    (constant string, e.g. "logP")
+  * target_value       (float)
+  * features           (JSON-serialised array<float>, length grid^2)
+  * feature_names      (JSON-serialised array<string>, length grid^2)
+  * pixel_0 .. pixel_{grid^2-1}  (flat float columns for convenience)
 
-The CSV includes the required ``target_property`` and ``target_value``
-columns as defined in ``feature_matrix.schema.yaml``. Invalid SMILES are
-logged to ``data/logs/invalid_smiles.log``; molecules that cannot be
-processed receive a zero‑vector fallback via ``handle_empty_diagram``.
+The file is written to data/processed/topological_features_{g}x{g}.csv
+(plus a legacy copy persistence_images_{g}x{g}.csv) and a durable,
+non-gitignored copy is written to data/results/ together with a
+summary JSON of measured run statistics.
 """
 
 import argparse
+import json
 import logging
 import sys
 import time
 import traceback
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from rdkit import RDLogger
 
 # Ensure project utils are importable
@@ -42,6 +45,9 @@ from utils.persistence_utils import (
     handle_empty_diagram,
 )
 
+# Kernel bandwidth mandated by data-model.md (sigma = 1.0)
+KERNEL_BANDWIDTH = 1.0
+
 RDLogger.DisableLog('rdApp.*')
 
 
@@ -52,7 +58,7 @@ def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
     if not logger.handlers:
         formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
+      )
         sh = logging.StreamHandler(sys.stdout)
         sh.setFormatter(formatter)
         logger.addHandler(sh)
@@ -84,8 +90,10 @@ def process_molecule(
     resolution: int = 10,
 ) -> Optional[Dict[str, Any]]:
     """
-    Convert a SMILES string to a graph, compute its persistence diagram,
-    and vectorise it into a persistence image of size ``resolution``×``resolution``.
+    Convert a SMILES string to a graph, compute its persistence diagram
+    (shortest-path distance filtration), and vectorise it into a
+    persistence image of size ``resolution`` x ``resolution`` using
+    kernel bandwidth sigma = 1.0.
     Returns a dict with ``molecule_id`` and the flattened feature vector,
     or ``None`` if the molecule cannot be processed.
     """
@@ -98,20 +106,21 @@ def process_molecule(
                 )
             return None
 
-        # 1. Shortest‑path filtration (distance matrix)
+        # 1. Shortest-path filtration (distance matrix)
         dist_matrix = build_shortest_path_filtration(graph)
 
         # 2. Persistence diagram
         diagram = compute_persistence_diagram(dist_matrix)
 
-        # 3. Vectorise to persistence image
+        # 3. Vectorise to persistence image (sigma = 1.0, FR-002 / data-model.md)
         if not diagram:
             image = handle_empty_diagram(resolution=resolution)
         else:
-            # Use σ = 1.0 as required by the specification (kernel_bandwidth = 1.0)
-            image = vectorize(diagram, resolution=resolution, sigma=1.0)
+            image = vectorize(
+                diagram, resolution=resolution, sigma=KERNEL_BANDWIDTH
+            )
 
-        features = image.ravel()
+        features = np.asarray(image, dtype=float).ravel()
         return {"molecule_id": molecule_id, "features": features}
     except Exception as exc:
         if invalid_logger:
@@ -129,13 +138,15 @@ def generate_tda_features_csv(
     invalid_log_path: Path,
     resolution: int = 10,
     target_property_name: str = "logP",
-) -> tuple[int, int]:
+) -> tuple:
     """
     Iterate over ``input_df`` and write a CSV containing:
         * molecule_id (string)
         * target_property (constant string, e.g. "logP")
-        * target_value   (float from the input dataframe)
-        * pixel_0 … pixel_{resolution*resolution‑1}
+        * target_value (float from the input dataframe)
+        * features (JSON array<float> of length resolution^2)
+        * feature_names (JSON array<string> of length resolution^2)
+        * pixel_0 ... pixel_{resolution^2-1}
     Two CSV files are written: a primary file matching the task
     specification and a legacy file kept for backward compatibility
     with downstream scripts.
@@ -145,8 +156,11 @@ def generate_tda_features_csv(
     invalid_logger = setup_invalid_smiles_logger(str(invalid_log_path))
 
     logger.info(
-        f"Generating TDA features (grid {resolution}×{resolution}) for {len(input_df)} molecules..."
+        "Generating TDA features (grid %dx%d, sigma=%.1f) for %d molecules..."
+        % (resolution, resolution, KERNEL_BANDWIDTH, len(input_df))
     )
+
+    feature_names = [f"pixel_{i}" for i in range(resolution * resolution)]
 
     records = []
     processed = 0
@@ -159,7 +173,7 @@ def generate_tda_features_csv(
 
         result = process_molecule(
             smiles,
-            mol_id,
+            str(mol_id),
             logger,
             invalid_logger,
             resolution=resolution,
@@ -169,63 +183,63 @@ def generate_tda_features_csv(
             failed += 1
             continue
 
+        features = [float(v) for v in result["features"]]
         row_dict = {
-            "molecule_id": result["molecule_id"],
+            "molecule_id": str(result["molecule_id"]),
             "target_property": target_property_name,
-            "target_value": float(target_value) if pd.notnull(target_value) else np.nan,
+            "target_value": float(target_value),
+            # Schema-mandated array columns (serialised as JSON strings)
+            "features": json.dumps(features),
+            "feature_names": json.dumps(feature_names),
         }
-        for i, val in enumerate(result["features"]):
-            row_dict[f"pixel_{i}"] = float(val)
+        for i, val in enumerate(features):
+            row_dict[feature_names[i]] = val
 
         records.append(row_dict)
         processed += 1
 
         if processed % 500 == 0:
-            logger.info(f"Processed {processed} molecules (failed: {failed})")
+            logger.info("Processed %d molecules (failed: %d)" % (processed, failed))
 
     # Ensure output directories exist
     output_path_primary.parent.mkdir(parents=True, exist_ok=True)
     output_path_legacy.parent.mkdir(parents=True, exist_ok=True)
 
+    header = (
+        ["molecule_id", "target_property", "target_value", "features", "feature_names"]
+        + feature_names
+    )
+
     if records:
-        out_df = pd.DataFrame(records)
-        # Write primary file
+        out_df = pd.DataFrame(records, columns=header)
+        out_df["molecule_id"] = out_df["molecule_id"].astype(str)
         out_df.to_csv(output_path_primary, index=False)
-        # Write legacy file for compatibility with existing code
         out_df.to_csv(output_path_legacy, index=False)
         logger.info(
-            f"Wrote {len(out_df)} feature rows to {output_path_primary} "
-            f"and {output_path_legacy}"
+            "Wrote %d feature rows to %s and %s"
+            % (len(out_df), output_path_primary, output_path_legacy)
         )
     else:
-        # Write empty CSV with correct header
-        header = [
-            "molecule_id",
-            "target_property",
-            "target_value",
-        ] + [f"pixel_{i}" for i in range(resolution * resolution)]
         pd.DataFrame(columns=header).to_csv(output_path_primary, index=False)
         pd.DataFrame(columns=header).to_csv(output_path_legacy, index=False)
-        logger.warning(
-            "No valid molecules processed; created empty CSVs with header."
-        )
+        logger.warning("No valid molecules processed; created empty CSVs with header.")
 
     return processed, failed
 
 
 def _parse_cli_args() -> argparse.Namespace:
     """
-    Parse command‑line arguments. ``--grid`` is the preferred argument
-    name (as used in the quick‑start documentation); ``--resolution``
+    Parse command-line arguments. ``--grid`` is the preferred argument
+    name (as used in the quick-start documentation); ``--resolution``
     is retained for backward compatibility.
     """
     parser = argparse.ArgumentParser(
-        description="Compute baseline TDA (persistence‑image) features."
+        description="Compute baseline TDA (persistence-image) features."
     )
     parser.add_argument(
         "--grid",
         type=int,
-        help="Grid size for the persistence image (e.g., 10 for 10×10).",
+        help="Grid size for the persistence image (e.g., 10 for 10x10).",
     )
     parser.add_argument(
         "--resolution",
@@ -239,7 +253,6 @@ def _parse_cli_args() -> argparse.Namespace:
 def main() -> None:
     args = _parse_cli_args()
 
-    # Resolve which grid size to use
     grid_size = args.grid if args.grid is not None else args.resolution
     if grid_size <= 0:
         print("Error: --grid / --resolution must be a positive integer.")
@@ -254,8 +267,8 @@ def main() -> None:
     df = pd.read_csv(filtered_path)
     if "molecule_id" not in df.columns:
         df["molecule_id"] = df.index.astype(str)
+    df["molecule_id"] = df["molecule_id"].astype(str)
 
-    # Define output paths
     primary_output = (
         project_root
         / "data"
@@ -282,10 +295,49 @@ def main() -> None:
     )
     elapsed = time.time() - start
 
+    # ------------------------------------------------------------------
+    # Durable, non-gitignored evidence copy under data/results/
+    # ------------------------------------------------------------------
+    results_dir = project_root / "data" / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    durable_csv = results_dir / f"topological_features_{grid_size}x{grid_size}.csv"
+
+    out_df = pd.read_csv(primary_output)
+    out_df.to_csv(durable_csv, index=False)
+
+    pixel_cols = [c for c in out_df.columns if c.startswith("pixel_")]
+    pixel_block = out_df[pixel_cols].to_numpy(dtype=float)
+    summary = {
+        "grid_size": grid_size,
+        "kernel_bandwidth": KERNEL_BANDWIDTH,
+        "filtration": "shortest_path_distance",
+        "n_input_molecules": int(len(df)),
+        "n_processed": int(proc_cnt),
+        "n_failed": int(fail_cnt),
+        "n_feature_columns": int(len(pixel_cols)),
+        "nan_count": int(out_df.isnull().sum().sum()),
+        "feature_mean": float(pixel_block.mean()),
+        "feature_std": float(pixel_block.std()),
+        "feature_max": float(pixel_block.max()),
+        "mean_l2_norm": float(
+            np.linalg.norm(pixel_block, axis=1).mean()
+        ),
+        "target_property": "logP",
+        "target_value_mean": float(out_df["target_value"].astype(float).mean()),
+        "target_value_std": float(out_df["target_value"].astype(float).std()),
+        "elapsed_seconds": float(elapsed),
+        "durable_copy": str(durable_csv.relative_to(project_root)),
+    }
+    summary_path = results_dir / f"tda_summary_{grid_size}x{grid_size}.json"
+    with summary_path.open("w") as f:
+        json.dump(summary, f, indent=2)
+
     print(
-        f"TDA feature generation completed in {elapsed:.2f}s – "
-        f"processed: {proc_cnt}, failed: {fail_cnt}"
+        "TDA feature generation completed in %.2fs - processed: %d, failed: %d"
+        % (elapsed, proc_cnt, fail_cnt)
     )
+    print(f"Durable evidence copy: {durable_csv}")
+    print(f"Run summary: {summary_path}")
     if proc_cnt == 0:
         sys.exit(1)
 

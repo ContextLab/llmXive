@@ -1,36 +1,29 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/processed/combined_features.csv, data/processed/filtered_esol.csv, data/processed/persistence_images_10x10.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/processed/combined_features.csv, data/processed/filtered_esol.csv, data/processed/persistence_images_10x10.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 run-book script(s) missing (plan/impl path mismatch): python code/06_feature_importance.py; python code/06_diagnostics.py; python code/05_sensitivity_analysis.py --grids 10 20 30; 4 command(s) failed: python code/04_model_training.py (rc=1); python code/07_resource_monitor.py (rc=1); python -m pytest tests/contract/ (rc=1)
+**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python code/06_feature_importance.py; python code/06_diagnostics.py; 5 command(s) failed: python code/01_data_ingestion.py --source esol --url https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv (rc=1); python code/00_checksum_verify.py (rc=1); python code/07_resource_monitor.py (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/04_model_training.py -> rc=1
-r/work/llmXive/llmXive/.llmxive-venvs/PROJ-444-predicting-molecular-properties-from-top/lib/python3.11/site-packages/sklearn/utils/validation.py", line 3058, in validate_data
-    X, y = check_X_y(X, y, **check_params)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-444-predicting-molecular-properties-from-top/lib/python3.11/site-packages/sklearn/utils/validation.py", line 1330, in check_X_y
-    X = check_array(
-        ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-444-predicting-molecular-properties-from-top/lib/python3.11/site-packages/sklearn/utils/validation.py", line 1038, in check_array
-    array = _asarray_with_order(array, order=order, dtype=dtype, xp=xp)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-444-predicting-molecular-properties-from-top/lib/python3.11/site-packages/sklearn/utils/_array_api.py", line 983, in _asarray_with_order
-    array = numpy.asarray(array, order=order, dtype=dtype)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ValueError: could not convert string to float: 'logP'
+- python code/01_data_ingestion.py --source esol --url https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv -> rc=1
+2026-10-19 06:50:05,038 - data_ingestion - INFO - Raw file already exists at data/raw/esol.csv; skipping download.
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/01_data_ingestion.py", line 343, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/01_data_ingestion.py", line 205, in main
+    append_checksum(raw_path, Path("data/checksums.txt"))
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/01_data_ingestion.py", line 111, in append_checksum
+    line = f"{file_path.relative_to(Path.cwd())}: {checksum}\n"
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py", line 730, in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+ValueError: 'data/raw/esol.csv' is not in the subpath of '/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top' OR one path is relative and the other is absolute.
+
+- python code/00_checksum_verify.py -> rc=1
+
+No valid checksum entries found in the manifest.
 
 - python code/06_feature_importance.py -> rc=2
 
@@ -40,16 +33,13 @@ ValueError: could not convert string to float: 'logP'
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-444-predicting-molecular-properties-from-top/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/06_diagnostics.py': [Errno 2] No such file or directory
 
-- python code/05_sensitivity_analysis.py --grids 10 20 30 -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-444-predicting-molecular-properties-from-top/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/05_sensitivity_analysis.py': [Errno 2] No such file or directory
-
 - python code/07_resource_monitor.py -> rc=1
-2026-10-19 06:36:36,298 - ERROR - No command provided to monitor.
+2026-10-19 06:50:48,224 - ERROR - No command provided to monitor.
 
 
 - python -m pytest tests/contract/ -> rc=1
-======== short test summary info ============================
+osixPath('data/processed/traditional_descriptors.csv').exists
+=========================== short test summary info ============================
 FAILED tests/contract/test_metrics_schema.py::test_metrics_schema_compliance
 FAILED tests/contract/test_t009_schemas.py::test_dataset_schema_exists_and_valid
 FAILED tests/contract/test_t009_schemas.py::test_feature_matrix_schema_exists_and_valid
@@ -60,10 +50,9 @@ FAILED tests/contract/test_t016_features.py::test_traditional_descriptors_file_e
 FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_schema
 FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_no_nan
 FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_non_negative
-FAILED tests/contract/test_tda_10x10_schema.py::test_schema_compliance - Asse...
 FAILED tests/contract/test_tda_schema.py::test_tda_schema_compliance - Assert...
 FAILED tests/contract/test_tda_schema.py::test_traditional_descriptors_schema
-=================== 13 failed, 6 passed, 6 skipped in 0.45s ====================
+=================== 12 failed, 8 passed, 6 skipped in 0.59s ====================
 
 
 - python -m pytest tests/unit/ -> rc=2
@@ -81,7 +70,7 @@ ERROR tests/unit/test_persistence_utils.py
 ERROR tests/unit/test_persistence_utils_sparse.py
 ERROR tests/unit/test_t015_edge_cases.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 0.46s ===============================
+============================== 4 errors in 0.45s ===============================
 
 
 ## Platform-owned paths written inside the project

@@ -1,0 +1,19 @@
+{
+  "grid_size": 10,
+  "kernel_bandwidth": 1.0,
+  "filtration": "shortest_path_distance",
+  "n_input_molecules": 1128,
+  "n_processed": 1128,
+  "n_failed": 0,
+  "n_feature_columns": 100,
+  "nan_count": 0,
+  "feature_mean": 0.42868903943986847,
+  "feature_std": 1.9736367809951654,
+  "feature_max": 53.66769335962779,
+  "mean_l2_norm": 17.625781405128176,
+  "target_property": "logP",
+  "target_value_mean": -2.988192375886525,
+  "target_value_std": 1.6832198243710366,
+  "elapsed_seconds": 1.0450410842895508,
+  "durable_copy": "data/results/topological_features_10x10.csv"
+}

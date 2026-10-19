@@ -1,59 +1,55 @@
-T001:
-  c: false
-  h: a189409ca4584fcde9a7ecc295a6df43df4a7dc01c2cd50880c6c33897df59b6
-  r: "Checked `code/01_data_ingestion.py`, `data/checksums.txt`, `data/processed/power_analysis_report.json`,\
-    \ `data/processed/scaffold_counts.json`, `data/processed/splits.json`, and the\
-    \ presence of `dataset.schema.yaml` and `data/logs/large_molecule_exclusions.log`.\
-    \ The required schema file is missing, `data/checksums.txt` contains duplicate\
-    \ entries for `esol.csv` (violating the idempotent\u2011append rule), and the\
-    \ exclusions log file does not exist at all. These defects prevent the task from\
-    \ being fully satisfied."
-  sig: fd6b76425e4de0635bb687a7fc6d139c2b1d3b26b1d55a73b84308219375dd86
 T001a:
-  c: true
-  h: 3a87d570e8cbc765a011e2a4ce16a86e96ccda7051fa4b445164dc204104345c
-  r: "Checked `code/00_checksum_verify.py` (3515\u202Fbytes) which reads `data/checksums.txt`,\
-    \ recomputes SHA\u2011256 hashes for the listed files, prints mismatches, and\
-    \ exits\u202F0 only when all match. Execution log `code/.tasks/T001a.code_00_checksum_verify.py.log`\
-    \ shows the script ran, reported \u201CAll\u202F2 checksum(s) verified successfully.\u201D\
-    \ and exited with status\u202F0, confirming the required behavior."
-  sig: 6293446547347312a624989d198251596091ba7e282132f3c66eed5a66f6965b
-T002:
   c: false
-  h: 2e82337eef3e25b77588b819ac3f4ebf782d2fd1d4de5a1bb9cc4ca9f9f95566
-  r: "Checked `data/processed/topological_features_10x10.csv` and the contract test\
-    \ log. The CSV lacks the required `features` and `feature_names` columns (test\u202F\
-    `test_schema_compliance` fails) and the vectorization code uses a default \u03C3\
-    \u202F=\u202F0.1 instead of the required kernel bandwidth\u202F=\u202F1.0, so\
-    \ the output does not meet the specified schema or parameter settings."
-  sig: 2dfba77cd7d59cf2a1c2121be5d1818844fc15010e61dfa84219b0d3a9f18fdb
+  h: e8eb8b0ec1e9dc3c6d77662f3cf5fa0d94b94ca6789e348fa665d7bef38fd04e
+  r: "The current `data/checksums.txt` uses a `path: hash` (colon) format, but the\
+    \ script only parses lines of the form `<hash>  <path>` (two-space split) and\
+    \ skips everything else \u2014 running it against the current manifest would find\
+    \ zero valid entries and exit 1, so it cannot actually verify the recorded checksum.\
+    \ Moreover, the historical log claims \"All 2 checksum(s) verified successfully\"\
+    \ while the current manifest contains only one entry, showing the execution record\
+    \ is stale/contradicted by the on-disk artifacts. Fix the parser to handle the\
+    \ manifest's actual format (or regenerate the manifest "
+  sig: 7b42c2d0539720e9e7c771f0b813d31f29198c95459d77b33a6c307d7024ca57
+T002:
+  c: true
+  h: 30f819bce49aadd11ae03940099adaf741b3f930cc11dc4f2add910a2ff92db8
+  r: "The output CSV exists (6.6 MB, 1128 rows matching filtered_esol.csv, 100 pixel\
+    \ columns plus target_property/target_value), the run log shows `02_tda_computation.py\
+    \ --grid 10` executed successfully with sigma=1.0 and 0 failures, and the contract\
+    \ test suite (6 tests: schema, no-NaN, vector length, string molecule_id, row\
+    \ count) passed. The pixel-value decay rate in the CSV (factor ~0.54 per grid\
+    \ step of ~1.11) matches a Gaussian with \u03C3=1.0, confirming the documented\
+    \ bandwidth was actually used rather than the \u03C3=0.1 default in `persistence_utils.vectorize`;\
+    \ the empty invalid_smiles.log is consist"
+  sig: 59cbd8403b51d5fd8cf903bba3e6ce20339a51395a1e5f839facc588763098a7
 T003:
   c: false
-  h: aec7e37ef8ad5fbdd88141e988ff4f417cc010abe432c102890ff40eac213fe7
-  r: "The required `feature_matrix.schema.yaml` file is missing, causing the contract\
-    \ test to lack its schema, and the test suite fails (`pytest` exits with code\u202F\
-    1) because `test_feature_matrix_dimensions` expects 101 columns but the feature\
-    \ CSV has 103. Both issues prevent the task\u2019s verification criteria from\
-    \ being satisfied."
-  sig: 080755772ea27523b5281d5cb7593f8b840643244423b6b3ba36882d0abb01ad
+  h: ac0ff7e6324776a4d2af4224262979f0b31bf4782fa6746bc3d0cce3c5385610
+  r: "The required contract file `feature_matrix.schema.yaml` is reported MISSING\
+    \ on disk, yet the test hard-codes `SCHEMA_PATH = specs/001-predicting-molecular-properties-from-top/contracts/feature_matrix.schema.yaml`\
+    \ and would `pytest.fail` if it were absent \u2014 so the historical exit-0 log\
+    \ cannot reflect the current state, and the schema-validation requirement has\
+    \ no artifact behind it. Additionally, `_build_record` fabricates records (falling\
+    \ back to `logP`/`\"logP\"` and pixel columns) rather than validating the CSV's\
+    \ actual contents, weakening the contract test. The implementer must add the actual"
+  sig: ed17d8fb4fb88cb097d0338950a0a9b3ab7ae0bcff1d99b1ab0a785534c37ce3
 T004:
-  c: false
-  h: ecc3ec1bca824b4dc2f7848c8957a015dbca72a234b68d3a301bfba447cd2264
-  r: "The script and the generated `traditional_features.csv` and `combined_features.csv`\
-    \ exist and appear to contain the required descriptors with no NaNs, and the run\
-    \ log shows a successful exit.\u202FHowever, the task requires merging with **`topological_features_10x10.csv`**,\
-    \ yet the code loads a file named `persistence_images_10x10.csv` and no artifact\
-    \ named `topological_features_10x10.csv` is present in the evidence. Consequently\
-    \ we cannot verify that the three CSVs have matching row counts as stipulated.\
-    \ The missing (or mis\u2011named) topological feature file must be provided or\
-    \ the script renamed to "
-  sig: 74b0c57d085eec9ef912e382e5eab693ad5df5975a5c2a70d54a321fe16cf421
+  c: true
+  h: 83d96019798d1028af0dc61ca5872fd68267efd9777ab8981fbc9cf1a1c207ce
+  r: The script computes the required RDKit descriptors (MW, atom counts, 1024-bit
+    Morgan radius 2), merges on string-cast `molecule_id` with the TDA features, and
+    both output CSVs exist with real content (1128 rows, 1032 traditional + 100 pixel
+    columns plus logP). The execution log shows exit 0 with row counts matching (1128
+    across all three matrices) and NaN count 0, matching the verification requirements.
+  sig: fca63d4c865867b1ce86915912728b1715546565b9b3e8a69059b99e41107341
 T014:
   c: false
-  h: 577f19bdbd1806d22d83a600d916eca97ceae718d659f70a7150682d1775fd22
-  r: The `dataset.schema.yaml` file is absent, causing `test_schema_file_exists` to
-    fail in the current repo, and the existing `esol.csv` does not match the expected
-    schema (it lacks a `logP` column and has many extra columns), leading to failures
-    in `test_columns_match_schema_exactly`, `test_required_fields_non_null`, and `test_field_types_match_schema`.
-    The pytest suite therefore does not pass.
-  sig: ef521b6c9e064f709c99d7cef220a5a4bedb97ac9509723d9e0c8db680cf0beb
+  h: 9fb8e26a09946625de4a846ab69ee6107f9d3676b3087d24aaffd393ce949796
+  r: 'The historical execution log shows `pytest code/tests/test_dataset_schema.py`
+    exited 1 with `test_field_types_match_schema` FAILED: `molecule_id` is read back
+    as int64, not string, so the schema contract on string type is violated (the test''s
+    `_ensure_raw_dataset` writes molecule_id as strings but pandas re-infers integers
+    on read, and the column-match check then skips regeneration). The task''s verification
+    requirement is that the pytest run passes, which it does not; fix by quoting the
+    molecule_id column on write (or casting on read) so the type assertion holds.'
+  sig: a2716da679a1b152b6f1c508eeaacebc18e5ed1ab85b9fe0b540a83b28d035f7

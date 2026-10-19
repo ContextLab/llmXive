@@ -1,2 +1,14 @@
-scikit-fingerprints
 rdkit
+gudhi
+dionysus2
+scikit-learn
+pandas
+numpy
+matplotlib
+seaborn
+pyyaml
+requests
+pytest
+memory-profiler
+statsmodels
+scikit-fingerprints

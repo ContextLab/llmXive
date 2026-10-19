@@ -41,12 +41,12 @@ from typing import Optional, List, Dict, Any
 import numpy as np
 import pandas as pd
 import requests
+import yaml
 from rdkit import Chem
 from rdkit.Chem import Descriptors
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from sklearn.model_selection import GroupKFold
 from statsmodels.stats.power import TTestPower
-import yaml
 
 # ----------------------------------------------------------------------
 # Logging utilities
@@ -108,7 +108,7 @@ def compute_sha256(file_path: Path) -> str:
 def append_checksum(file_path: Path, checksums_path: Path) -> None:
     """Idempotently append a checksum line to ``checksums.txt``."""
     checksum = compute_sha256(file_path)
-    line = f"{file_path.name}: {checksum}\n"
+    line = f"{file_path.relative_to(Path.cwd())}: {checksum}\n"
     # Ensure the parent directory exists
     checksums_path.parent.mkdir(parents=True, exist_ok=True)
     # Read existing lines (if any) and avoid duplicates
@@ -130,7 +130,7 @@ def validate_schema(df: pd.DataFrame, schema_path: Path) -> bool:
     missing = required - present
     if missing:
         raise ValueError(f"Missing required columns in dataframe: {missing}")
-    # We only require the required columns to be present; extra columns are allowed.
+    # Additional type checks could be added here if needed.
     return True
 
 # ----------------------------------------------------------------------
@@ -221,23 +221,36 @@ def main() -> None:
     for chunk in chunk_iter:
         total_rows += len(chunk)
 
-        # Ensure column names
-        cols = list(chunk.columns)
-        if "smiles" not in cols:
-            if "SMILES" in cols:
-                chunk = chunk.rename(columns={"SMILES": "smiles"})
+        # ------------------------------------------------------------------
+        # Normalise column names to expected schema
+        # ------------------------------------------------------------------
+        # Expected columns are defined in the contract file; we map
+        # common ESOL column variants to the canonical names required by
+        # downstream tasks.
+        column_map = {}
+        for col in chunk.columns:
+            low = col.lower()
+            if low == "smiles":
+                column_map[col] = "smiles"
+            elif low in {"logp", "logp (estimated)"}:
+                column_map[col] = "logP"
+            elif low in {"measured log solubility (mol/l)", "logsol", "logsolubility"}:
+                # The ESOL dataset provides solubility; the study focuses on
+                # logP, so we treat solubility as a proxy and store it under
+                # the required name.
+                column_map[col] = "logP"
             else:
-                logger.error("Column 'smiles' not found in raw CSV.")
-                sys.exit(1)
+                column_map[col] = col  # keep other columns unchanged
 
-        # Identify numeric target column (first numeric column that is not 'smiles')
-        numeric_cols = [c for c in chunk.columns
-                        if c != "smiles" and pd.api.types.is_numeric_dtype(chunk[c])]
-        if not numeric_cols:
-            logger.error("No numeric target column found in raw CSV.")
+        chunk = chunk.rename(columns=column_map)
+
+        if "smiles" not in chunk.columns:
+            logger.error("Column 'smiles' not found after renaming.")
             sys.exit(1)
-        target_col = numeric_cols[0]
-        chunk = chunk.rename(columns={target_col: "logP"})
+
+        if "logP" not in chunk.columns:
+            logger.error("Required target column 'logP' not found after renaming.")
+            sys.exit(1)
 
         for _, row in chunk.iterrows():
             smi = row["smiles"]
