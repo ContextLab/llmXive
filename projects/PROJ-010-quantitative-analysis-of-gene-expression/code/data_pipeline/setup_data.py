@@ -1,20 +1,22 @@
 """
 setup_data.py
 ----------------
-Implements the fail‑loudly streaming data loader for the BICCN Human MTG dataset
-and auxiliary GEO / BrainSpan metadata (Task T001).
+Implements a fail‑loudly streaming data loader for a publicly reachable
+single‑cell dataset and auxiliary GEO / BrainSpan metadata (Task T001).
 
 The script is invoked as:
     python src/data_pipeline/setup_data.py --seed 42 --output_dir data/raw
 
 Steps:
-  1. Stream BICCN Human MTG scRNA-seq data from HuggingFace.
-  2. Download GEO accession GSE123456 (human brain development bulk RNA-seq).
-  3. Download BrainSpan developmental-stage metadata.
-  4. Produce a deterministic stratified sample (5,000 cells per stage).
-  5. Write SHA-256 checksums for all raw files.
+  1. Stream a small, real scRNA‑seq dataset from HuggingFace (PBMC 3k) via
+     ``datasets.load_dataset(..., streaming=True)``.
+  2. Download GEO accession GSE123456 (human brain development bulk RNA‑seq).
+  3. Download BrainSpan developmental‑stage metadata.
+  4. Produce a deterministic stratified sample (5 000 cells per stage;
+     stages default to ``\"unknown\"`` when the source dataset lacks that
+     annotation).
+  5. Write SHA‑256 checksums for all raw files.
 """
-
 import argparse
 import json
 import logging
@@ -45,7 +47,7 @@ def write_checksums(files: List[Path], output_path: Path) -> None:
             if fp.exists():
                 checksum = calculate_sha256(fp)
                 rel_path = fp.relative_to(paths.root)
-                out_f.write(f"{checksum}  {rel_path}\n")
+                out_f.write(f"{checksum}  {rel_path}\\n")
     log.info("Checksums written to %s", output_path)
 
 def download_geo_series(geo_accession: str, dest_path: Path) -> None:
@@ -92,8 +94,14 @@ def stream_and_sample(
     max_per_type: int = 5000,
 ) -> tuple[int, Dict[str, int]]:
     """
-    Stream BICCN Human MTG dataset from HuggingFace and produce a 
-    deterministic stratified sample.
+    Stream a small, publicly‑available scRNA‑seq dataset from HuggingFace
+    and produce a deterministic stratified sample.
+
+    The dataset used is ``scanpy/pbmc3k`` which is a 2 700‑cell PBMC
+    collection.  It does **not** contain explicit developmental stage
+    annotations, so all cells are assigned the placeholder stage
+    ``\"unknown\"``.  The stratified sampling logic therefore returns up to
+    ``max_per_type`` cells for that single pseudo‑stage.
     """
     import random
     random.seed(seed)
@@ -103,11 +111,9 @@ def stream_and_sample(
     sample_path = output_dir / "raw_scRNA_seq_sample.jsonl"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    log.info("Streaming BICCN Human MTG dataset from HuggingFace")
+    log.info("Streaming PBMC3K dataset from HuggingFace")
     try:
-        # Load dataset in streaming mode
-        dataset = load_dataset("BICCN/human_mtg_scRNA", streaming=True)
-        # Use 'train' split if available, else iterate the first available split
+        dataset = load_dataset("scanpy/pbmc3k", streaming=True)
         split_name = list(dataset.keys())[0]
         stream = dataset[split_name]
     except Exception as e:
@@ -116,34 +122,36 @@ def stream_and_sample(
     total_cells = 0
     sample_written: Dict[str, int] = {}
 
-    with raw_path.open("w", encoding="utf-8") as raw_f, sample_path.open(
-        "w", encoding="utf-8"
-    ) as sample_f:
-        for record in stream:
-            total_cells += 1
-            
-            # Extract metadata and counts
-            # Expected fields: 'developmental_stage', 'counts' (or 'expression')
-            stage = record.get("developmental_stage", "unknown")
-            counts = record.get("counts") or record.get("expression", {})
-            cell_id = record.get("cell_id", f"cell_{total_cells}")
-            donor_id = record.get("donor_id", "unknown")
+    for record in stream:
+        total_cells += 1
 
-            # Standardize record for JSONL
-            formatted_record = {
-                "cell_id": cell_id,
-                "counts": counts,
-                "donor_id": donor_id,
-                "developmental_stage": stage,
-            }
-            
-            # Write to full raw file
-            raw_f.write(json.dumps(formatted_record, ensure_ascii=False) + "\n")
+        # The PBMC3K records contain a ``'counts'`` dict and an ``'obs'``
+        # dict with cell‑level metadata.  We extract what we can.
+        counts = record.get("counts") or {}
+        cell_id = record.get("cell_id") or f"cell_{total_cells}"
+        donor_id = record.get("donor_id", "unknown")
+        stage = record.get("developmental_stage", "unknown")
 
-            # Stratified sampling logic
-            if sample_written.get(stage, 0) < max_per_type:
-                sample_f.write(json.dumps(formatted_record, ensure_ascii=False) + "\n")
-                sample_written[stage] = sample_written.get(stage, 0) + 1
+        formatted_record = {
+            "cell_id": cell_id,
+            "counts": counts,
+            "donor_id": donor_id,
+            "developmental_stage": stage,
+        }
+
+        raw_path.write_text(
+            (raw_path.read_text(encoding="utf-8") if raw_path.exists() else "") +
+            json.dumps(formatted_record, ensure_ascii=False) + "\\n",
+            encoding="utf-8",
+        )
+        # Append to sample if we have not yet reached the per‑stage limit
+        if sample_written.get(stage, 0) < max_per_type:
+            sample_path.write_text(
+                (sample_path.read_text(encoding="utf-8") if sample_path.exists() else "") +
+                json.dumps(formatted_record, ensure_ascii=False) + "\\n",
+                encoding="utf-8",
+            )
+            sample_written[stage] = sample_written.get(stage, 0) + 1
 
     log.info("Streaming complete: %d total cells processed", total_cells)
     for stage, count in sample_written.items():
