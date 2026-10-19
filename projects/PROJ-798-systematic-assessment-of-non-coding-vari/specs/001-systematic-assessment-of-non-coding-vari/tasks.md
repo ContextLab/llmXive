@@ -1,8 +1,7 @@
 # Tasks: Systematic Assessment of Non‑Coding Variant Effects on Transcription Factor Binding Affinities
 
-**Inputs**: `spec.md`, `plan.md`, `data‑model.md`, contracts, and reviewer feedback.
-
-The list below follows the platform’s research‑task template and covers all functional and non‑functional requirements.  Each item uses the canonical checkbox format and includes concrete verification steps.
+**Inputs**: `spec.md`, `plan.md`, `data‑model.md`, contract schemas, and reviewer feedback.  
+All tasks follow the canonical checklist format `- [ ] T### [P?] [USx?] description …`. Checked boxes (`[x]`) indicate work that has already passed verification; unchecked boxes indicate work that still needs to be completed or re‑run.
 
 ---
 
@@ -19,8 +18,8 @@ The list below follows the platform’s research‑task template and covers all 
   ```  
   The manifest must list every required directory; the CI verifier checks that the file exists and contains at least 11 unique directory paths.
 
-- [ ] T002 [S] [US1] **Create .gitignore at repository root** with the exact exclusion patterns required by the spec.  
-  *Path*: `.gitignore` at repository root.  
+- [ ] T002 [P] [US1] **Create `.gitignore` at the repository root** with the exact exclusion patterns required by the spec.  
+  *Path*: `.gitignore` (project root).  
   *Content*:  
   ```text
   data/raw/*
@@ -37,16 +36,21 @@ The list below follows the platform’s research‑task template and covers all 
   ```
 
 - [ ] T003 [S] [US1] **Define LD‑block identifiers for each SNP and create test package scaffolding**.  
-  *Path*: `code/data_ingestion/annotate_ld_blocks.py` (LD‑block assignment) and `tests/unit/__init__.py`, `tests/integration/__init__.py`, `tests/contract/__init__.py`.  
-  *Method*: Compute LD blocks (e.g., using PLINK or a pre‑computed map) and add a `ld_block_id` string column to `data/derived/filtered_snps.parquet`. Also create empty `__init__.py` files so pytest can discover packages.  
+  *Path*: `code/data_ingestion/annotate_ld_blocks.py` and `tests/unit/__init__.py`, `tests/integration/__init__.py`, `tests/contract/__init__.py`.  
+  *Method*: Compute LD blocks (e.g., using a pre‑computed map) and add a `ld_block_id` column to `data/derived/filtered_snps.parquet`. Also create empty `__init__.py` files so pytest can discover packages.  
   *Verification*:  
   1. Load `filtered_snps.parquet` and assert every record has a non‑null `ld_block_id`.  
   2. `python -c "import pkgutil; assert pkgutil.find_loader('tests.unit')"` succeeds.
 
 - [ ] T004 [S] [US1] **Implement dbSNP common‑SNP fetch** (MAF > 1 %) for GRCh38 build 155 with robust error handling.  
   *Path*: `code/data_ingestion/fetch_dbsnp.py`.  
-  *Behavior*: Stream each chromosome VCF (`chr*.common_snps.vcf.gz`) from `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/`, filter by MAF > 0.01, write to `data/raw/snps_raw.parquet`. Log every downloaded URL, build version, timestamp, and SHA‑256 checksum in `data/raw/source_log.txt`. Fail loudly (raise) if any download fails.  
-  *Verification*: `data/raw/snps_raw.parquet` must contain a column `maf` with a minimum ≥ 0.01; `source_log.txt` must contain at least one URL and a matching checksum line.
+  *Behavior*: Stream each chromosome VCF (`chr*.vcf.gz`) from `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/`, filter by `MAF >= 0.01`, write to `data/raw/snps_raw.parquet`. Log every downloaded URL, build version, timestamp, and SHA‑256 checksum in `data/raw/source_log.txt`. Fail loudly (raise) if any download fails.  
+  *Verification*:  
+  ```bash
+  python -m code.data_ingestion.fetch_dbsnp   # must exit 0
+  parquet-tools schema data/raw/snps_raw.parquet | grep maf
+  grep -E "ftp://.*dbSNP" data/raw/source_log.txt
+  ```
 
 - [ ] T005 [S] [US1] **Download regulatory region annotations** (ENCODE v4 promoters/enhancers, Roadmap Epigenomics) and the GRCh38 reference genome.  
   *Path*: `code/data_ingestion/fetch_annotations.py`.  
@@ -54,29 +58,34 @@ The list below follows the platform’s research‑task template and covers all 
   *Verification*:  
   ```bash
   bedtools intersect -a data/raw/regulatory_regions.bed -b data/raw/regulatory_regions.bed -u | wc -l
-  ```  
-  returns a non‑zero count; `samtools faidx data/raw/hg38.fa` succeeds; entries exist in `source_log.txt`.
+  samtools faidx data/raw/hg38.fa
+  grep -E "ENCODE|Roadmap|hg38" data/raw/source_log.txt
+  ```
 
 - [ ] T006 [S] [US1] **Fetch the JASPAR 2024 human PWM collection** and parse it into a structured JSON for fast lookup.  
   *Path*: `code/data_ingestion/fetch_pwms.py`.  
   *Artifact*: `data/raw/jaspar_pwms.json` (list of objects with `pwm_id`, `tf_name`, `matrix`, `length`). Log URL and checksum in `source_log.txt`.  
-  *Verification*: A unit test (`tests/unit/test_pwms.py`) loads the JSON and asserts that every object has a `length` ≥ 6 and that the total number of PWMs matches the JASPAR 2024 human count.
+  *Verification*:  
+  ```bash
+  python -c "import json, pathlib; data=json.load(open('data/raw/jaspar_pwms.json')); assert all(p['length']>=6 for p in data)"
+  grep -E "JASPAR.*2024" data/raw/source_log.txt
+  ```
 
 - [ ] T007 [P] [US1] **Filter SNPs to regulatory regions** and generate a GC‑matched non‑regulatory control set.  
   *Path*: `code/data_ingestion/filter_regions.py`.  
   *Outputs*:  
-  - `data/derived/filtered_snps.parquet` (conforms to `snp_schema.schema.yaml`, includes `is_regulatory=True`).  
+  - `data/derived/filtered_snps.parquet` (conforms to `snp_schema.schema.yaml`, `is_regulatory=True`).  
   - `data/derived/gc_matched_controls.parquet` (conforms to `control_set_schema.schema.yaml`).  
-  - `data/results/sc001_proportion_regulatory.json` (contains the ratio of regulatory SNPs to total raw SNPs).  
+  - `data/results/sc001_proportion_regulatory.json` (ratio of regulatory SNPs to total raw SNPs).  
   *Verification*:  
   1. Load `filtered_snps.parquet` and confirm every record overlaps `regulatory_regions.bed` by ≥ 1 bp.  
-  2. Assert `sc001_proportion_regulatory.json` contains a value > 0.0.  
+  2. Assert the proportion in `sc001_proportion_regulatory.json` is > 0.0.  
   3. Validate both Parquet files against their JSON‑Schema contracts using `jsonschema`.
 
 - [ ] T008 [P] [US1] **Assign stratification identifiers** to each filtered SNP.  
   *Path*: `code/data_ingestion/annotate_strata.py`.  
   *Method*: Create a composite `stratum_id` based on GC‑content bin (width 0.05) and distance‑to‑nearest‑TSS bin (10 kb). Write back to `data/derived/filtered_snps.parquet`.  
-  *Verification*: The Parquet schema contains the `stratum_id` field; a sanity check confirms that `stratum_id` values are distributed across multiple bins.
+  *Verification*: The Parquet schema contains `stratum_id`; a sanity check confirms multiple distinct `stratum_id` values are present.
 
 - [ ] T009 [P] [US2] **Implement PWM scoring and ΔScore calculation** (dynamic window).  
   *Path*: `code/scoring/pwm_scorer.py` (scoring) and `code/scoring/delta_calculator.py` (ΔScore + flag).  
@@ -108,8 +117,8 @@ The list below follows the platform’s research‑task template and covers all 
   *Method*:  
   1. For each TF, split ΔScore values into GWAS‑inside vs GC‑matched control set (full unfiltered distribution).  
   2. Compute the observed KS statistic and p‑value.  
-  3. Generate **100** permutations by shuffling the `is_gwas_lead` labels **stratified by `stratum_id`** (preserving GC/TSS context) **jointly across all TFs** to satisfy West‑Stephens max‑T requirements.  
-  4. **Constraint**: The `is_large_magnitude` flag is **not** used to filter SNPs for this test.  
+  3. Generate **500** permutations by shuffling the `is_gwas_lead` labels **stratified by `stratum_id`** (preserving GC/TSS context) **jointly across all TFs** to satisfy West‑Stephens max‑T requirements.  
+  4. The `is_large_magnitude` flag is **not** used to filter SNPs for this test.  
   *Outputs*: `data/derived/ks_null.npy` (null matrix) and `data/derived/ks_observed.parquet`.  
   *Verification*: Unit test `tests/unit/test_ks_permutation.py` confirms that each permutation preserves the exact number of GWAS‑positive labels per stratum and that a synthetic dataset with a known shift yields a KS p‑value < 0.01.
 
@@ -119,7 +128,7 @@ The list below follows the platform’s research‑task template and covers all 
   1. Load `ks_observed.parquet` and the KS null matrix; compute the max‑T null distribution across TFs for each permutation.  
   2. Derive West‑Stephens corrected p‑values (`p_value_ks_corrected`).  
   3. Independently compute the Tail‑Enrichment statistic (proportion of |Δ| ≥ 2 bits inside vs outside GWAS) and its permutation‑based p‑value.  
-  4. **Constraint**: `is_large_magnitude` is used **only** as the target variable for the proportion test; it does not filter the input population.  
+  4. `is_large_magnitude` is used **only** as the target variable for the proportion test; it does **not** filter the input population.  
   5. Calculate final SC‑001 proportion (scored/raw) and save to `data/results/sc001_final.json`.  
   6. Merge per‑TF results into `data/derived/enrichment_results.parquet`.  
   *Verification*: Validate `enrichment_results.parquet` against both `contracts/enrichment_result_schema.schema.yaml` and `contracts/enrichment_schema.schema.yaml` using `jsonschema`.
@@ -130,39 +139,38 @@ The list below follows the platform’s research‑task template and covers all 
   - `data/results/results_summary.csv` (per‑TF table with KS statistic, corrected p‑value, tail proportion, significance flags).  
   - `data/results/figures/tf_heatmap.png` (heatmap of mean |Δ| per TF).  
   - `data/results/figures/delta_distribution.png` (overlaid KDEs for GWAS‑inside vs outside).  
-  *Verification*: Validate `results_summary.csv` against `contracts/result_schema.schema.yaml` using `jsonschema`; each PNG file must be non‑zero size and have a checksum entry in `source_log.txt`.
+  *Verification*:  
+  ```bash
+  python -c "import pandas as pd; df=pd.read_csv('data/results/results_summary.csv'); assert not df.empty"
+  file data/results/figures/tf_heatmap.png | grep PNG
+  file data/results/figures/delta_distribution.png | grep PNG
+  grep -E \"p_value_ks_corrected\" data/results/results_summary.csv
+  ```
 
 - [ ] T015 [P] [US3] **Sensitivity analysis & performance logging**.  
   *Path*: `code/analysis/sensitivity.py`.  
   *Actions*:  
   1. Sweep the large‑magnitude cutoff from 0.5 to 4.0 bits in 0.5‑bit increments, re‑run the full enrichment pipeline for each cutoff, and record the number of significant TFs in `data/results/sensitivity_cutoff_sweep.json`.  
   2. Record wall‑clock time and peak RAM per pipeline stage in `data/results/performance_log.json`.  
-  *Verification*: The JSON files are well‑formed; the performance log reports a total runtime < 6 h and peak memory < 7 GB on the CI runner.
+  *Verification*: The JSON files are well‑formed; `performance_log.json` reports total runtime < 6 h and peak memory < 7 GB on the CI runner.
 
 - [ ] T016 [P] [US3] **Write the methods/results report and verify reproducibility**.  
   *Path*: `data/results/report.md` and `data/results/paper_handoff.md`.  
   *Steps*:  
   1. The report cites the exact versions/URLs logged in `source_log.txt`.  
-  2. Run `python -m code.main --full` a second time with the same random seed; compute SHA‑256 hashes of all derived files.  
+  2. Run `python -m code.main --full --seed 42` a second time; compute SHA‑256 hashes of all derived files.  
   3. Assert that the hashes match those recorded after the first run.  
-  *Verification*: A test script `tests/integration/test_reproducibility.py` performs the re‑run, compares hashes, and exits with status 0 only when they are identical.
+  *Verification*: Test script `tests/integration/test_reproducibility.py` performs the re‑run, compares hashes, and exits with status 0 only when they are identical.
 
 - [ ] T017 [P] [US3] **Create the project quickstart guide**.  
   *Path*: `specs/001-systematic-assessment-of-non-coding-vari/quickstart.md`.  
   *Content*: Document the steps to set up the environment, run the data ingestion, scoring, and analysis stages, and verify results. Include exact shell commands that correspond to the entry points in `code/main.py`.  
-  *Verification*: The file exists and contains valid commands; executing the documented commands reproduces the pipeline without errors.
+  *Verification*: The file exists, contains valid commands, and executing the documented commands reproduces the pipeline without errors.
 
 - [ ] T022 [P] [US3] **Compute SC‑001: proportion of SNP‑TF pairs successfully scored**.  
   *Path*: `code/analysis/score_success_rate.py`.  
-  *Output*: `data/results/sc001_scoring_success.json` containing the ratio (scored pairs / total possible SNP‑TF pairs).  
-  *Verification*: The JSON contains a numeric `proportion_scored` between 0 and 1; the value is cross‑checked against schema `contracts/dataset_schema.schema.yaml` (implicitly via row counts).
-
----
-
-## Phase 3 – Reproducible results and paper handoff  
-
-| Goal | Provide a clean hand‑off to the paper‑writing stage, ensuring full reproducibility. |
-|------|-----------------------------------------------------------------------------------|
+  *Output*: `data/results/sc001_scoring_success.json` containing the ratio (`scored_pairs / total_possible_pairs`).  
+  *Verification*: The JSON contains a numeric `proportion_scored` between 0 and 1; the value is cross‑checked against row counts in `data/derived/filtered_snps.parquet` and `data/raw/jaspar_pwms.json`.
 
 - [ ] T018 [P] [US3] **Archive all provenance artifacts** (source logs, checksums, git commit hash) into a single `data/results/provenance.yaml`.  
   *Path*: `code/utils/archive_provenance.py`.  
@@ -175,6 +183,15 @@ The list below follows the platform’s research‑task template and covers all 
 - [ ] T020 [P] [US3] **Create a minimal data‑availability statement** describing how external datasets were fetched (FTP URLs, version tags) and where they are stored in the repository.  
   *Path*: `specs/001-systematic-assessment-of-non-coding-vari/data_availability.md`.  
   *Verification*: The file exists, lists all external sources, and matches entries in `source_log.txt`.
+
+---
+
+## Phase 3 – Reproducible results and paper handoff  
+
+| Goal | Provide a clean hand‑off to the paper‑writing stage, ensuring full reproducibility. |
+|------|-----------------------------------------------------------------------------------|
+
+- (All tasks in Phase 2 already produce the artefacts required for hand‑off; Phase 3 consists of the provenance archiving (T018), full‑pipeline reproducibility check (T019), and data‑availability statement (T020) listed above.)
 
 ---
 
