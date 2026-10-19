@@ -3,6 +3,8 @@ T001:
     exit=1'
   task: 61e98b51f8f655c1f375abe67dc156bd7221db770c352f5c7f8b0a572ba9c613
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/src/data/record_availability.py
+    exit=1'
   task: f4c8cfd172a8a3afd2000a88058885270e6ad7a07957f9193587905c7ef1cc27
 T003:
   task: b7dc55744f27cd5c3559d9ec7433214c0cd65e752dd4c12de68f00d5d206c940

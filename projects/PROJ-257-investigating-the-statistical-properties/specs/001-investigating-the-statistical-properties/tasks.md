@@ -17,7 +17,7 @@ specification.
   *Outputs*: `data/raw/gwtc1.h5`, `data/raw/gwtc2.h5` (validated HDF5 files).  
   *Verification*: `pytest tests/unit/test_download_gwtc.py` checks SHA‑256 checksum, HDF5 readability, and that both files exist.
 
-- [ ] T002 [P0] [US0] **Record data‑availability metadata**  
+- [ ] T002 [P0] [US0] **Record data‑availability metadata**   <!-- FAILED-IN-EXECUTION: code/src/data/record_availability.py exit=1 -->
   *Implementation*: `code/src/data/record_availability.py` reads the checksum file produced by T001 and writes a JSON report conforming to `specs/001‑investigating‑the‑statistical‑properties/contracts/result.schema.yaml`.  
   *Output*: `data/results/data_availability.json`.  
   *Verification*: `pytest tests/unit/test_data_availability.py` validates the JSON against the schema and asserts `status == "verified"` for both sources.

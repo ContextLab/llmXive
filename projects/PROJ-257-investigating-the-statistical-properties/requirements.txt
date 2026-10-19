@@ -1,2 +1,5 @@
-# Additional testing dependency required for the download unit tests
-requests_mock
+# Project dependencies
+# Existing environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil, llmxive_toolkit
+h5py>=3.0
