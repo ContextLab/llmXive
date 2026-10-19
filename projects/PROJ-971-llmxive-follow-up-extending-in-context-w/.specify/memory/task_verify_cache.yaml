@@ -1,18 +1,18 @@
 T001:
   c: true
-  h: fba4a0d4ffef24aafb9d8c8858984e6220c145935e538f189d53031545534217
-  r: "Checked `quickstart.md` for the described single command and verified via `scripts/run_minimal.sh`\
-    \ log that it exits cleanly and produces both `data/processed/descriptors.csv`\
-    \ and `data/descriptors_subset.csv`, which are present and non\u2011empty."
-  sig: b78abd0f45e925a1b6c1a9a7737d20d0eb80cedd54cb9cd31834e8dfbeb156ac
+  h: 0e3185a14d4fa1416efce07e0097e53fe6b67bb711079a11a32896a6ad53baf9
+  r: "Checked `quickstart.md` for the documented command, the `scripts/run_minimal.sh`\
+    \ execution log showing a zero\u2011exit run, and the presence of both `data/descriptors_subset.csv`\
+    \ and `data/processed/descriptors.csv`. All artifacts exist, are non\u2011empty,\
+    \ and the command completes without error, satisfying the task\u2019s requirement."
+  sig: f28d9041d65b6eba6fa124125e4cdc29841c3fd045b77f3a6a02dd45d8203041
 T002:
   c: true
-  h: 5db98bea0bbcba793453eadcc29b3593a9ce1d5d37a48a4e9696781779dcdf2b
-  r: Checked `code/src/pipeline/generate_clips.py` (which writes the three required
-    arrays) and the `data/raw/` directory, which contains exactly 50 `.npz` files;
-    the shown zip contents of sample clips include `states.npy`, `actions.npy`, and
-    `observations.npy`, confirming each file has the required arrays.
-  sig: b8ef4b13425a8e311b8cc533094d4794943c51f7b444a19313ef92b9ea7f61cc
+  h: 4bc8546f28818fe99db2f39b610b0088b5774b78eeaf9279e81167860ad37c03
+  r: Checked `code/src/pipeline/generate_clips.py` (which creates `.npz` files with
+    `states`, `actions`, `observations`) and the `data/raw/` directory containing
+    exactly 50 `clip_*.npz` files, each showing the three required arrays in its contents.
+  sig: de617fdef4692607569fbf24fa198512033d581a2209c88da2475bf484f0315f
 T003:
   c: true
   h: bd63bc84c531ef4a06595ab0ba89dae5b765407cfa0e64043799efccf3d541de
@@ -31,11 +31,20 @@ T004:
     \ a 50\u2011row table containing the three descriptor columns (`variance`, `autocorr_lag1`,\
     \ `spectral_density`)."
   sig: 093006524cc11b3f36a216db57bce882001f1d412b6aed9c3bbc89ec5cf08a52
-T007:
+T006:
   c: false
-  h: b0df1cf3330817796a57e6999ab33d967656e2d1e2edd3faa49b751e5f59e4cf
-  r: "The script `code/src/pipeline/compute_complexity.py` correctly generates `data/processed/task_complexity.csv`\
-    \ and `data/processed/correlation.txt`, but the required accompanying schema file\
-    \ `complexity.schema.yaml` is missing, violating the task\u2019s specification\
-    \ that the CSV be provided with its schema."
-  sig: a6e959b22a2e9b682c2f72f6b43134a43835db4461a80079a7979175dfe84fe0
+  h: 642b0ead9dd5450502ec2e2946818f57cd8f730c01fccc71f793e964a069d57b
+  r: "The `train_regressor.py` script runs and writes `metrics.json`, but the metrics\
+    \ show a baseline MSE of\u202F0.0 and a validation MSE >\u202F0, so `meets_sc006`\
+    \ is false \u2013 the regressor does **not** beat the temperature\u2011only baseline\
+    \ as required. Additionally, the promised verification test `code/tests/test_train_regressor_metrics.py`\
+    \ is missing."
+  sig: 27642b84baae5d21d156afed562882fd6d233f3ab8449166b1eb8618486d6539
+T016:
+  c: false
+  h: 8b7f68f9d95ee7505d849c767998535ecee600a4d2783cac9eec2c81a3df7a57
+  r: The test `code/tests/test_descriptor_schema.py` exists, but it raises a `FileNotFoundError`
+    because the required schema file `specs/001-auto-icwm-latent-dynamics/contracts/descriptor.schema.yaml`
+    is missing, causing pytest to fail. The missing schema file must be added (or
+    the path corrected) and the test must pass for the task to be considered complete.
+  sig: 674de34973ea463ca4c2b94a68b03225929aa886c27f2d93d98871fe494903a7

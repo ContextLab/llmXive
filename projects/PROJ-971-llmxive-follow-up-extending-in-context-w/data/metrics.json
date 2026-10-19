@@ -1,10 +1,10 @@
 {
   "n_train": 40,
   "n_val": 10,
-  "train_mse": 0.10284470480438127,
-  "val_mse": 0.6465333211309493,
-  "baseline_mse": 0.475,
-  "global_mean_tau": 1.0,
+  "train_mse": 8.821753908705432e-06,
+  "val_mse": 8.68586175784003e-06,
+  "baseline_mse": 0.0,
+  "global_mean_tau": 0.5,
   "meets_sc006": false,
   "seed": 42
 }

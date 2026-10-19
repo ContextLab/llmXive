@@ -1,15 +1,13 @@
-# JSON Schema for task_complexity.csv
-# Each row must contain:
-#   - clip_id: string identifier of the clip (e.g., "clip_000")
-#   - subgoal_count: integer >= 1 representing the number of sub‑goals
 type: object
 properties:
   clip_id:
     type: string
+    pattern: "^clip_\\d+$"
   subgoal_count:
     type: integer
     minimum: 1
 required:
   - clip_id
+  - subgoal_count
   - subgoal_count
 additionalProperties: false
