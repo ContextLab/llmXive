@@ -3,22 +3,24 @@ VAERS Data Download Script (T002)
 =================================
 
 Downloads the verified VAERS 2020-2023 dataset from Hugging Face
-(``chrisvoncsefalvay/vaers-outcomes``) and writes it to
-``data/raw/vaers_2020_2023.parquet``.
+(``chrisvoncsefalvay/vaers-outcomes``) using the ``datasets``
+library, exactly as required by the task:
 
-The previous implementation used ``datasets.load_dataset``, which
-failed in the execution environment because the installed pyarrow
-build requires NumPy >= 2.0 while the environment pins NumPy 1.26.
-This version avoids the ``datasets``/``pyarrow`` import chain
-entirely: it queries the public Hugging Face Hub HTTP API to list
-the repository files, downloads the largest real parquet shard via
-plain HTTPS streaming (``requests``), and copies the bytes verbatim
-to the destination. The parquet magic bytes (``PAR1``) are verified
-before the file is accepted.
+    datasets.load_dataset("chrisvoncsefalvay/vaers-outcomes",
+                          split="train")
+
+The dataset is streamed in batches and written to
+``data/raw/vaers_2020_2023.parquet`` via ``pyarrow`` so that the
+full real dataset drives the output without ever materialising it
+all in memory at once.
 
 A SHA-256 checksum of the file is recorded as
-``<file> <sha256>`` in ``data/checksums.txt`` (any previous entry for
-the same file is replaced, so the file appears exactly once).
+``<file> <sha256>`` in ``data/checksums.txt`` (any previous entry
+for the same file is replaced, so the file appears exactly once).
+A durable, non-gitignored summary (row count, columns, size,
+checksum) is also written to ``data/results/download_summary.txt``
+so reviewers can inspect the acquisition without reading the
+gitignored raw parquet.
 
 Any download or checksum error raises an exception — there is NO
 synthetic fallback.
@@ -26,22 +28,23 @@ synthetic fallback.
 
 import hashlib
 import shutil
-import sys
 
-import requests
+import pyarrow as pa
+import pyarrow.parquet as pq
+from datasets import load_dataset
 
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
 DATASET_ID = "chrisvoncsefalvay/vaers-outcomes"
-REPO_TYPE = "datasets"
+BATCH_SIZE = 50_000
 CHUNK_SIZE = 1024 * 1024
-TIMEOUT_S = 120
 
 # Output locations (project-relative via llmxive_toolkit.paths)
 PARQUET_PATH = paths.data("raw", "vaers_2020_2023.parquet")
 CHECKSUMS_PATH = paths.data("checksums.txt")
+SUMMARY_PATH = paths.data("results", "download_summary.txt")
 
 
 def sha256_checksum(file_path) -> str:
@@ -82,62 +85,97 @@ def record_checksum(parquet_path, checksums_path) -> str:
     return checksum
 
 
-def _list_repo_parquet_files(dataset_id: str):
-    """List .parquet files in the Hugging Face dataset repository.
+def _open_streaming_split(dataset_id: str):
+    """Open the real dataset as a streaming iterable of batches.
 
-    Uses the public Hub HTTP API (no pyarrow/datasets import).
-    Raises on any HTTP or content error.
+    Prefers the ``train`` split as required by the task; if the
+    repository does not expose one, falls back to the first
+    available split. Raises on any failure (no synthetic data).
     """
-    url = f"https://huggingface.co/api/{REPO_TYPE}/{dataset_id}/tree/main"
-    params = {"recursive": "true", "expand": "false"}
-    resp = requests.get(url, params=params, timeout=TIMEOUT_S)
-    resp.raise_for_status()
-    entries = resp.json()
-    if not isinstance(entries, list):
-        raise RuntimeError(
-            f"Unexpected response listing {dataset_id}: not a JSON list"
+    try:
+        ds = load_dataset(dataset_id, split="train", streaming=True)
+        log.info("Opened streaming split 'train' of %s", dataset_id)
+        return ds, "train"
+    except Exception as exc:
+        log.warning(
+            "Could not open split 'train' directly (%s); listing "
+            "available splits", exc,
         )
-    files = [
-        e for e in entries
-        if e.get("type") == "file" and e.get("path", "").endswith(".parquet")
-    ]
-    if not files:
-        raise RuntimeError(
-            f"No parquet files found in Hugging Face dataset {dataset_id}"
-        )
-    return files
+        dset_dict = load_dataset(dataset_id, streaming=True)
+        splits = list(dset_dict.keys())
+        if not splits:
+            raise RuntimeError(
+                f"Dataset {dataset_id} exposes no splits"
+            )
+        split = splits[0]
+        log.info("Falling back to split %r of %s", split, dataset_id)
+        return dset_dict[split], split
 
 
-def _select_parquet(files):
-    """Select the parquet shard to download.
+def download_vaers_dataset(
+    dataset_id: str = DATASET_ID,
+    dest=PARQUET_PATH,
+):
+    """Download the real VAERS dataset from Hugging Face to *dest*.
 
-    Prefers the largest file (the full dataset shard rather than a
-    metadata sample). Returns (path, size).
+    Uses ``datasets.load_dataset`` (streaming) and writes the full
+    real data to a parquet file. Raises on any failure — network,
+    dataset missing, empty result, bad content. No synthetic
+    fallback is ever performed.
+
+    Returns (dest, row_count, columns, split).
     """
-    def size_of(e):
-        return e.get("size") or 0
+    ds, split = _open_streaming_split(dataset_id)
 
-    best = max(files, key=size_of)
-    return best["path"], size_of(best)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_suffix(dest.suffix + ".part")
 
+    writer = None
+    n_rows = 0
+    columns = None
+    try:
+        for batch in ds.iter(batch_size=BATCH_SIZE):
+            if not batch:
+                raise RuntimeError(
+                    "Received an empty batch while streaming the "
+                    "real dataset; refusing to write an empty file."
+                )
+            if columns is None:
+                columns = list(batch.keys())
+            table = pa.Table.from_pydict(
+                {k: list(v) for k, v in batch.items()}
+            )
+            if writer is None:
+                writer = pq.ParquetWriter(str(tmp), table.schema)
+            writer.write_table(table)
+            n_rows += table.num_rows
+            if n_rows % 500_000 < BATCH_SIZE:
+                log.info("Streamed %d rows so far", n_rows)
+    finally:
+        if writer is not None:
+            writer.close()
 
-def _download_file(repo_path: str, dest, dataset_id: str):
-    """Stream the real file from the Hub to *dest* (no synthetic data)."""
-    url = (
-        f"https://huggingface.co/{REPO_TYPE}/{dataset_id}"
-        f"/resolve/main/{repo_path}"
+    if n_rows == 0 or writer is None:
+        raise RuntimeError(
+            "The real dataset produced zero rows; refusing to "
+            "write an empty parquet file."
+        )
+
+    shutil.move(str(tmp), str(dest))
+
+    if not dest.exists() or dest.stat().st_size == 0:
+        raise RuntimeError(
+            f"Parquet file {dest} was not written or is empty."
+        )
+
+    _verify_parquet_magic(dest)
+
+    size_mb = dest.stat().st_size / (1024 * 1024)
+    log.info(
+        "Wrote %s (%d rows, %.1f MB) from split %r",
+        dest, n_rows, size_mb, split,
     )
-    log.info("Downloading %s", url)
-    with requests.get(url, stream=True, timeout=TIMEOUT_S) as resp:
-        resp.raise_for_status()
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        tmp = dest.with_suffix(dest.suffix + ".part")
-        with open(tmp, "wb") as f:
-            for chunk in resp.iter_content(chunk_size=CHUNK_SIZE):
-                if chunk:
-                    f.write(chunk)
-        shutil.move(str(tmp), str(dest))
-    return dest
+    return dest, n_rows, columns, split
 
 
 def _verify_parquet_magic(path) -> None:
@@ -145,8 +183,8 @@ def _verify_parquet_magic(path) -> None:
     size = path.stat().st_size
     if size <= 8:
         raise RuntimeError(
-            f"Downloaded file {path} is too small to be a parquet file "
-            f"({size} bytes)."
+            f"Downloaded file {path} is too small to be a parquet "
+            f"file ({size} bytes)."
         )
     with open(path, "rb") as f:
         head = f.read(4)
@@ -159,39 +197,31 @@ def _verify_parquet_magic(path) -> None:
         )
 
 
-def download_vaers_dataset(
-    dataset_id: str = DATASET_ID,
-    dest=PARQUET_PATH,
-):
-    """Download the real VAERS dataset from Hugging Face to *dest*.
-
-    Raises on any failure (network, dataset missing, bad content).
-    No synthetic fallback is ever performed.
-    """
-    log.info("Listing parquet files in dataset %s", dataset_id)
-    files = _list_repo_parquet_files(dataset_id)
-    repo_path, size = _select_parquet(files)
-    log.info(
-        "Selected %s (%.1f MB) from %d parquet file(s)",
-        repo_path, size / (1024 * 1024), len(files),
-    )
-
-    _download_file(repo_path, dest, dataset_id)
-
-    if not dest.exists() or dest.stat().st_size == 0:
-        raise RuntimeError(f"Parquet file {dest} was not written or is empty.")
-
-    _verify_parquet_magic(dest)
-
-    size_mb = dest.stat().st_size / (1024 * 1024)
-    log.info("Wrote %s (%.1f MB)", dest, size_mb)
-    return dest
+def _write_summary(dest, n_rows, columns, split, checksum) -> None:
+    """Write durable acquisition evidence outside gitignored caches."""
+    rel = dest.relative_to(paths.root)
+    size_bytes = dest.stat().st_size
+    lines = [
+        "VAERS 2020-2023 dataset acquisition summary (T002)",
+        f"source: Hugging Face dataset {DATASET_ID!r} "
+        f"(datasets.load_dataset, streaming)",
+        f"split: {split}",
+        f"file: {rel}",
+        f"sha256: {checksum}",
+        f"size_bytes: {size_bytes}",
+        f"size_mb: {size_bytes / (1024 * 1024):.1f}",
+        f"row_count: {n_rows}",
+        f"columns ({len(columns)}): {', '.join(columns)}",
+    ]
+    SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SUMMARY_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    log.info("Wrote acquisition summary to %s", SUMMARY_PATH)
 
 
 def main() -> None:
-    """Entry point: download, checksum, verify."""
+    """Entry point: download, checksum, verify, summarise."""
     log.info("Starting VAERS data download process")
-    dest = download_vaers_dataset()
+    dest, n_rows, columns, split = download_vaers_dataset()
 
     try:
         checksum = record_checksum(dest, CHECKSUMS_PATH)
@@ -202,6 +232,8 @@ def main() -> None:
     # Verify checksum entry: recompute and compare
     if checksum != sha256_checksum(dest):
         raise RuntimeError("Checksum verification failed for %s" % dest)
+
+    _write_summary(dest, n_rows, columns, split, checksum)
 
     log.info(
         "Checksum recorded in %s: %s %s", CHECKSUMS_PATH, dest, checksum

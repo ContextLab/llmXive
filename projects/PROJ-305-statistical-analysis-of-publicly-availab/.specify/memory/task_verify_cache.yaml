@@ -1,21 +1,15 @@
 T001:
-  c: false
-  h: a7d86fdb687b15b2787fedd86c72ac3fe3ae12d016705b26c0b157eeb4949307
-  r: "Checked the directory tree and found `logs/structure.txt` present and non\u2011\
-    empty, and `quickstart.md` documents the runnable command. However, the required\
-    \ `data/processed/` directory is missing, violating the task\u2019s layout requirement.\
-    \ Adding this directory (even as an empty placeholder) is needed to complete T001."
-  sig: e19619ea617d54a421565de0c3458a1839733b9bd4b7157306c61b94e1d298fd
-T002:
-  c: false
-  h: 75c6f5239fc444a5f0621968adb731e0c1325c2100c3f8a2c57e80b7982d5bca
-  r: Checked `src/data/download.py` and found it downloads the parquet via a custom
-    HTTP request instead of using `datasets.load_dataset` as the task explicitly required.
-    Although the file and checksum are correctly created, the implementation does
-    not satisfy the stipulated use of the `datasets` library. The script must be revised
-    to employ `datasets.load_dataset("chrisvoncsefalvay/vaers-outcomes", split="train")`
-    for fetching the data.
-  sig: 6b6367173d8a003d23fb7fc4aa5733d24d22bf2bb2ed1c9d242007c45bed56f0
+  c: true
+  h: ffd4badcb53910959942265b29d01762117ec381416351e24bad5c74c131d497
+  r: All required directories (`src/data/`, `src/analysis/`, `src/utils/`, `src/validation/`,
+    `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `output/`,
+    `logs/`) exist per the collector evidence; `logs/structure.txt` is non-empty (5130
+    bytes) and contains a real `tree -a -L 3` listing of the project including all
+    required directories, with an execution log showing `create_structure.py` exited
+    0 and wrote that file. `quickstart.md` documents the runnable command `python
+    -m src.main` and detailed input provenance (Hugging Face VAERS dataset with checksum),
+    satisfying all task req
+  sig: 406e079ee0c0b7bf8456dd575becde7b431a43fa1537dd1c545afc32e51cc335
 T003:
   c: false
   h: a3bcf2eddced4dd7de4db83190b65dcd94c6f0c326e8eed86be4b4f933dff92e

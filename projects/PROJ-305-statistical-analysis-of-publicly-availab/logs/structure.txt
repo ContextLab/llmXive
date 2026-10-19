@@ -2,19 +2,9 @@
 ├── .gitignore
 ├── .gitkeep
 ├── .pre-commit-config.yaml
-├── .pytest_cache
-│   ├── .gitignore
-│   ├── CACHEDIR.TAG
-│   ├── README.md
-│   └── v
-│       └── cache
 ├── .python-version
 ├── .ruff.toml
 ├── .runtime-home
-│   ├── .cache
-│   │   └── matplotlib
-│   └── .config
-│       └── matplotlib
 ├── .specify
 │   ├── memory
 │   │   ├── constitution.md
@@ -24,6 +14,7 @@
 │   │   ├── research_question_validated.yaml
 │   │   ├── task_verifier_notes.md
 │   │   ├── task_verify.feedback.yaml
+│   │   ├── task_verify.yaml
 │   │   ├── task_verify_cache.yaml
 │   │   └── tasker_rounds.yaml
 │   ├── scripts
@@ -44,14 +35,10 @@
 │   ├── .gitkeep
 │   ├── .ruff.toml
 │   ├── .tasks
-│   │   ├── T001.code_create_structure.py.log
-│   │   ├── T002.src_data_download.py.log
 │   │   └── T016b.atomize.yaml
 │   ├── Makefile
 │   ├── README.md
 │   ├── __init__.py
-│   ├── __pycache__
-│   │   └── __init__.cpython-311.pyc
 │   ├── contracts
 │   │   ├── .gitkeep
 │   │   ├── dataset.schema.yaml
@@ -61,7 +48,6 @@
 │   ├── data
 │   │   ├── .gitkeep
 │   │   ├── __init__.py
-│   │   ├── processed
 │   │   └── raw
 │   ├── figures
 │   │   └── .gitkeep
@@ -83,7 +69,6 @@
 │   ├── src
 │   │   ├── .gitkeep
 │   │   ├── __init__.py
-│   │   ├── __pycache__
 │   │   ├── analysis
 │   │   ├── data
 │   │   ├── main.py
@@ -100,11 +85,11 @@
 │   └── soc_cluster.schema.yaml
 ├── data
 │   ├── .gitkeep
+│   ├── checksums.txt
 │   ├── meddra_soc_mapping.csv
 │   ├── meddra_to_soc.csv
 │   ├── processed
 │   ├── raw
-│   │   └── 2020
 │   └── results
 │       └── __init__.py
 ├── figures
@@ -113,13 +98,8 @@
 │   ├── research_question_validation.md
 │   └── statistical-analysis-of-publicly-availab.md
 ├── logs
-│   ├── analysis.log
-│   ├── clean.log
-│   ├── download.log
 │   ├── lint.txt
-│   ├── pipeline.log
-│   ├── structure.txt
-│   └── validate.log
+│   └── structure.txt
 ├── output
 │   ├── .gitkeep
 │   ├── figures
@@ -176,4 +156,4 @@
         ├── test_validate.py
         └── test_validate_e_schema_missing.py
 
-61 directories, 116 files
+50 directories, 107 files
