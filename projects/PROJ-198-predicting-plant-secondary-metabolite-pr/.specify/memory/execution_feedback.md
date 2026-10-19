@@ -8,6 +8,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
+- code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…t_logger(__name__)     # Simulated data loading (replace with re…”
 - code/scripts/quickstart_validation.py: synthetic/fake INPUT data not authorized by the spec — “…# In CI, we might use mock data if no real species are c…”
 - data/README.md: synthetic/fake INPUT data not authorized by the spec — “…├── mock_genomes.json # Mock genome data for CI testing │ ├── moc…”
 - data/README.md: synthetic/fake INPUT data not authorized by the spec — “…─ mock_metabolites.csv # Mock metabolite data for CI testing │ └── moc…”
@@ -17,67 +18,78 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/scripts/quickstart_validation.py: synthetic/fake INPUT data not authorized by the spec — “…# In CI, we might use mock data if no real species are c…”; data/README.md: synthetic/fake INPUT data not authorized by the spec — “…├── mock_genomes.json # Mock genome data for CI testing │ ├── moc…”; data/README.md: synthetic/fake INPUT data not authorized by the spec — “…─ mock_metabolites.csv # Mock metabolite data for CI testing │ └── moc…”; 4 command(s) failed: python code/cli/main.py --step download_and_align (rc=1); python code/cli/main.py --step train_and_evaluate (rc=1); python -m pytest tests/ (rc=2); 1 declared deliverable(s) absent: data/processed/aligned_matrix.csv
+**Summary**: 7 fabricated/simulated-result signal(s) — results are not real measurements: code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…t_logger(__name__)     # Simulated data loading (replace with re…”; code/scripts/quickstart_validation.py: synthetic/fake INPUT data not authorized by the spec — “…# In CI, we might use mock data if no real species are c…”; data/README.md: synthetic/fake INPUT data not authorized by the spec — “…├── mock_genomes.json # Mock genome data for CI testing │ ├── moc…”; 4 command(s) failed: python code/cli/main.py --step download_and_align (rc=1); python code/cli/main.py --step train_and_evaluate (rc=1); python code/cli/main.py --step download_and_align --limit 5 (rc=1); 1 declared deliverable(s) absent: data/processed/aligned_matrix.csv
 
 ## Failing / missing run-book commands
 
 - python code/cli/main.py --step download_and_align -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 11, in <module>
-    from code.data.align import align_data, save_aligned_matrix
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/align.py", line 7, in <module>
-    from config import get_data_path
+  from code.config import load_config
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 15, in <module>
     from .config_env import get_env_manager
-ImportError: attempted relative import with no known parent package
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config_env.py", line 8, in <module>
+    class EnvConfig(BaseSettings):
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py", line 119, in __new__
+    config_wrapper = ConfigWrapper.for_model(bases, namespace, kwargs)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_config.py", line 179, in for_model
+    raise PydanticUserError('"Config" and "model_config" cannot be used together', code='config-both')
+pydantic.errors.PydanticUserError: "Config" and "model_config" cannot be used together
+
+For further information visit https://errors.pydantic.dev/2.14/u/config-both
 
 - python code/cli/main.py --step train_and_evaluate -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 11, in <module>
-    from code.data.align import align_data, save_aligned_matrix
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/align.py", line 7, in <module>
-    from config import get_data_path
+  from code.config import load_config
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 15, in <module>
     from .config_env import get_env_manager
-ImportError: attempted relative import with no known parent package
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config_env.py", line 8, in <module>
+    class EnvConfig(BaseSettings):
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py", line 119, in __new__
+    config_wrapper = ConfigWrapper.for_model(bases, namespace, kwargs)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_config.py", line 179, in for_model
+    raise PydanticUserError('"Config" and "model_config" cannot be used together', code='config-both')
+pydantic.errors.PydanticUserError: "Config" and "model_config" cannot be used together
+
+For further information visit https://errors.pydantic.dev/2.14/u/config-both
+
+- python code/cli/main.py --step download_and_align --limit 5 -> rc=1
+  from code.config import load_config
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 15, in <module>
+    from .config_env import get_env_manager
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config_env.py", line 8, in <module>
+    class EnvConfig(BaseSettings):
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py", line 119, in __new__
+    config_wrapper = ConfigWrapper.for_model(bases, namespace, kwargs)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/_internal/_config.py", line 179, in for_model
+    raise PydanticUserError('"Config" and "model_config" cannot be used together', code='config-both')
+pydantic.errors.PydanticUserError: "Config" and "model_config" cannot be used together
+
+For further information visit https://errors.pydantic.dev/2.14/u/config-both
 
 - python -m pytest tests/ -> rc=2
-c V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
-    @validator("algorithm", "cv_method")
 
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-=========================== short test summary info ============================
-ERROR tests/integration/test_align.py
+ERROR tests/integration/test_align.py - pydantic.errors.PydanticUserError: "C...
+ERROR tests/integration/test_quickstart_validation.py - pydantic.errors.Pydan...
 ERROR tests/models/test_models.py
 ERROR tests/test_config.py
-ERROR tests/unit/test_align.py
+ERROR tests/unit/test_align.py - pydantic.errors.PydanticUserError: "Config" ...
 ERROR tests/unit/test_cleanup_refactor.py
+ERROR tests/unit/test_config_env.py - pydantic.errors.PydanticUserError: "Con...
 ERROR tests/unit/test_data_hygiene.py - NameError: name 'List' is not defined
-ERROR tests/unit/test_edge_cases.py - NameError: name 'Any' is not defined
+ERROR tests/unit/test_download.py
+ERROR tests/unit/test_edge_cases.py - pydantic.errors.PydanticUserError: "Con...
 ERROR tests/unit/test_env_manager.py
 ERROR tests/unit/test_linting_config.py
-ERROR tests/unit/test_modeling.py - NameError: name 'Any' is not defined
+ERROR tests/unit/test_modeling.py - pydantic.errors.PydanticUserError: "Confi...
 ERROR tests/unit/test_models.py
-ERROR tests/unit/test_pca_optimization.py - NameError: name 'Any' is not defined
+ERROR tests/unit/test_pca_optimization.py - pydantic.errors.PydanticUserError...
 ERROR tests/unit/test_project_structure.py
 ERROR tests/unit/test_report.py
 ERROR tests/unit/test_train.py - NameError: name 'Any' is not defined
-!!!!!!!!!!!!!!!!!!! Interrupted: 15 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 8 warnings, 15 errors in 0.91s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 18 errors during collection !!!!!!!!!!!!!!!!!!!
+======================== 8 warnings, 18 errors in 1.15s ========================
 
-
-- python code/cli/main.py --step download_and_align --limit 5 -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 11, in <module>
-    from code.data.align import align_data, save_aligned_matrix
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/align.py", line 7, in <module>
-    from config import get_data_path
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 15, in <module>
-    from .config_env import get_env_manager
-ImportError: attempted relative import with no known parent package
 
 
 ## Declared deliverables still missing

@@ -6,7 +6,7 @@
 
 ## Phase 1 – Project scaffolding & reproducibility  
 
-- [ ] **T001** [ ] **Create core directory layout**  
+- [X] **T001** [ ] **Create core directory layout**  
   *Path(s):* `code/`, `code/data/`, `code/modeling/`, `code/utils/`, `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`  
   *Verification:* Run `tree` (or equivalent) at the repository root and confirm all listed directories exist.
 

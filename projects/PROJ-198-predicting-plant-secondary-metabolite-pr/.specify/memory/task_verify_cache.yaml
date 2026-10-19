@@ -1,25 +1,8 @@
 T001:
   c: true
-  h: 07a12ec3f2619557825a49d1d95b4b3d2a89c90cd575877dc93243235fbd9a15
-  r: All nine required directories (`code/`, `code/data/`, `code/modeling/`, `code/utils/`,
-    `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) exist
-    at the project root with non-empty listings including `.gitkeep` markers, matching
-    the task's directory-layout requirement.
-  sig: 3703e1b2eabe7a04da7cb6ca2f5f6292d0efd69bd992cf4463a66978fe3de9d0
-T004:
-  c: true
-  h: 0289d24f145631478540f0ed6c499e55a1f5f431891c27871cf75cec5f6f748c
-  r: "The file `code/models/schemas.py` exists (6383 bytes) and defines all four required\
-    \ Pydantic models (Species, BGCFeature, Metabolite, ModelOutput) with substantive,\
-    \ validated fields (non-empty string validators, count/abundance \u2265 0, R\xB2\
-    /pearson/p-value range constraints) matching the spec's data needs (InChIKeys,\
-    \ log-transformed abundance, BGC presence/count, model performance metrics). No\
-    \ stubs, TODOs, or placeholders are present."
-  sig: f840b7172c6cc143aef09d6cb7fea4a63e1661f96bec85c98e1dd87defc2d85d
-T018:
-  c: true
-  h: d06fa43e41d100dc9445e77d3b65cef30287c5ff8502d735d08a25c4ac88b436
-  r: "The file `code/data/align.py` contains a non\u2011placeholder implementation\
-    \ of `save_aligned_matrix()` that defaults to writing `aligned_matrix.csv` under\
-    \ `data/processed/` via `get_data_path()`. The function creates the directory\
-    \ if needed and saves the DataFrame, satisfying the task\u2019s requirement."
+  h: ba1623eabb9eb47b42d7e4056f343fc4a92aa1a67d6c4812868e32210def6e98
+  r: "Checked the collector\u2011reported directory listings showing that `code/`,\
+    \ `code/data/`, `code/modeling/`, `code/utils/`, `code/cli/`, `data/raw/`, `data/interim/`,\
+    \ `data/processed/`, and `tests/` all exist, and the `code/.tasks/T001.code_create_layout.py.log`\
+    \ confirms the layout creation script ran successfully."
+  sig: e417fc1d19f2c56cbe8122b3e78e9d481bf2731cddf66a806bf1813f1d339bd7
