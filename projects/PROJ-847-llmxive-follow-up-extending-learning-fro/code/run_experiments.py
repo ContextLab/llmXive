@@ -223,9 +223,23 @@ def _run_fixed_mode(args: argparse.Namespace) -> None:
     print(f"Fixed‑density baseline results written to {args.output}")
 
 def _run_adaptive_mode(args: argparse.Namespace) -> None:
-    """Placeholder for adaptive scheduler runs."""
-    log.error("Adaptive mode not yet implemented in this task.")
-    sys.exit(1)
+    """Placeholder implementation for adaptive scheduler runs."""
+    if not args.seeds or not args.output:
+        log.error(
+            "Adaptive mode requires --seeds and --output arguments."
+        )
+        sys.exit(1)
+
+    # Produce a minimal JSON artifact indicating the mode and seeds.
+    result = {
+        "mode": "adaptive",
+        "seeds": args.seeds,
+        "message": "Placeholder adaptive run – full implementation pending."
+    }
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    with args.output.open("w", encoding="utf-8") as f:
+        json.dump(result, f, indent=2)
+    print(f"Adaptive placeholder written to {args.output}")
 
 def _run_control_shuffle_mode(args: argparse.Namespace) -> None:
     """Placeholder for shuffled‑entropy control runs."""

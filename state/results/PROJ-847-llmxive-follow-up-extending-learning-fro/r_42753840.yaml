@@ -1,0 +1,15 @@
+captured:
+  path: outputs/control_shuffle.json
+  sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+created_at: '2026-10-19T20:09:00Z'
+env_sha: c9d915cdbff407f5
+hmac: 0fd3ca8442d335bf2eee8c3b78da98313224834af6e707a095c396fdff8a5164
+inputs:
+  command: quickstart run-book
+kind: table
+output_sha256: 4275384009b4dc9a3f2ca86c7ff353b7fe3d89ed2c8b161766f8b4736190418b
+producer:
+  artifact: outputs/control_shuffle.json
+  stage: implementation_preview
+result_id: r_42753840
+value: outputs/control_shuffle.json
