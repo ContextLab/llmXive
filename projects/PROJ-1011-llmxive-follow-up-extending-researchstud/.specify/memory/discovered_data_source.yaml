@@ -1,11 +1,10 @@
 status: none
-intent: Nature Climate Change Health Affairs ML abstracts PeerRead python package
-  dataset
+intent: Scientific article abstract corpus OpenReview OpenAlex python package dataset
 required_fields:
 - title
 - abstract
 - venue
 - acceptance_status
-cache_key: 088cee1d6d1e88d9619e740d3fcc3d62f99f27406c3dc6923da3e945310767b5
-searched_at: '2026-10-19T09:43:08.401112+00:00'
+cache_key: 8269bc7e2d6dcf1e9ebb8dcac914fc675ba037cce832275a84f8f7987ac48c9d
+searched_at: '2026-10-19T09:45:31.898126+00:00'
 retry_count: 1

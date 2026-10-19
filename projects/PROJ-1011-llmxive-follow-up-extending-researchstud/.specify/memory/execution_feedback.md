@@ -120,7 +120,7 @@ ERROR tests/unit/test_pairing_validation.py
 ERROR tests/unit/test_pattern_mapping_validation.py
 ERROR tests/unit/test_preprocessing_validation.py - FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/tests/code/01_data_acquisition.py'
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 2.64s ===============================
+============================== 7 errors in 2.24s ===============================
 
 
 - python code/05_statistical_analysis.py --dry-run -> rc=1
