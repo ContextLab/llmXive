@@ -1,9 +1,10 @@
 """
-Bootstrap script for the Visual Salience project.
+Bootstrap script for the Visual Salience project (T001).
 
-This script creates the required project layout, writes a pinned
-``requirements.txt`` file inside the ``code/`` directory and prints a
-directory tree as proof of successful setup.
+This script creates the required project layout — including the
+top-level ``logs/`` directory required by the task — writes a pinned
+``requirements.txt`` at the project root (mirrored into ``code/``)
+and prints a directory tree as proof of successful setup.
 """
 import os
 import sys
@@ -15,7 +16,6 @@ from llmxive_toolkit import get_logger, paths
 log = get_logger(__name__)
 
 # Pinned requirements: All dependencies required by the pipeline.
-# The top‑level ``requirements.txt`` must contain the same list.
 _REQUIREMENTS = """\
 python==3.11
 torch==2.2.0
@@ -33,16 +33,27 @@ huggingface_hub
 """
 
 def _write_requirements_file() -> Path:
-    """Write the pinned ``requirements.txt`` inside the ``code/`` folder."""
-    req_path = paths.code("requirements.txt")
-    req_path.parent.mkdir(parents=True, exist_ok=True)
-    req_path.write_text(_REQUIREMENTS.strip() + "\n")
-    log.info(f"Wrote pinned requirements to {req_path}")
-    return req_path
+    """Write the pinned ``requirements.txt`` at the project root.
+
+    A mirror copy is also placed inside ``code/`` so that both the
+    documented ``pip install -r requirements.txt`` entry point and the
+    historical ``code/requirements.txt`` reference resolve.
+    """
+    root_req = paths.root / "requirements.txt"
+    root_req.parent.mkdir(parents=True, exist_ok=True)
+    root_req.write_text(_REQUIREMENTS.strip() + "\n")
+    log.info(f"Wrote pinned requirements to {root_req}")
+
+    code_req = paths.code("requirements.txt")
+    code_req.parent.mkdir(parents=True, exist_ok=True)
+    code_req.write_text(_REQUIREMENTS.strip() + "\n")
+    log.info(f"Wrote mirrored requirements to {code_req}")
+    return root_req
 
 def _create_directories() -> None:
     """
-    Ensure that all required top‑level directories exist.
+    Ensure that all required directories exist, including the
+    top-level ``logs/`` directory required by the task description.
     """
     needed_dirs = [
         paths.code(),                     # code/
@@ -50,7 +61,7 @@ def _create_directories() -> None:
         paths.data("interim"),            # data/interim/
         paths.data("processed"),          # data/processed/
         paths.data("results"),            # data/results/
-        paths.data("logs"),               # data/logs/
+        paths.root / "logs",              # logs/  (top-level, required by T001)
         paths.code("tests"),              # code/tests/
         paths.docs(),                     # docs/
     ]
@@ -59,11 +70,13 @@ def _create_directories() -> None:
         d.mkdir(parents=True, exist_ok=True)
         log.debug(f"Ensured directory exists: {d}")
 
-def _print_directory_tree(root: Path = paths.root) -> None:
+def _print_directory_tree(root: Path = None) -> None:
     """
     Print a concise tree of the project layout.
     Only directories are shown to keep the output readable.
     """
+    if root is None:
+        root = paths.root
     print("\nProject directory tree:")
     for dirpath, dirnames, _ in os.walk(root):
         # Sort for deterministic output

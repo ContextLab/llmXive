@@ -1,13 +1,10 @@
 import json
-import os
 import subprocess
 from pathlib import Path
 
-import pytest
-
 from llmxive_toolkit import paths
 
-# Helper to run the verification script
+# Helper to run the verification script as a module
 def run_verify():
     result = subprocess.run(
         ["python", "-m", "code.ingestion.verify_data"],

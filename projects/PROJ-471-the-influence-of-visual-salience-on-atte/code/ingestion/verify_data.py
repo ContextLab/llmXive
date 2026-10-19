@@ -1,20 +1,29 @@
 """
-Simple verification script used by the quick‑start documentation.
+Verify that the Moral Foundations Eye‑Tracking dataset (OpenNeuro ds003123) is
+present under ``data/raw/ds003123/`` and generate a SHA‑256 checksum manifest
+at ``data/raw/checksums.json``. The script aborts loudly with a
+``RuntimeError`` containing the code ``DATA_MISSING_001`` if the dataset
+directory is missing, if any expected file is absent, or if any checksum
+does not match.
 
-It checks that the OpenNeuro Moral Foundations Eye‑Tracking dataset
-(ds003123) is present under ``data/raw/`` and that a checksum manifest
-(``data/raw/checksums.json``) exists and matches the files on disk.
-If the manifest is missing it is generated automatically.  Any mismatch
-or missing file raises a ``RuntimeError`` with the code ``DATA_MISSING_001``.
+The manifest format is:
+{
+    "files": [
+        {"path": "<relative/path>", "sha256": "<hash>"},
+        ...
+    ]
+}
+where ``path`` is relative to ``data/raw``.
 """
+
 import json
 import hashlib
-import shutil
 from pathlib import Path
 
 from llmxive_toolkit import paths, get_logger
 
 logger = get_logger(__name__)
+
 
 def compute_sha256(file_path: Path) -> str:
     """Compute the SHA‑256 hash of a file."""
@@ -24,64 +33,62 @@ def compute_sha256(file_path: Path) -> str:
             sha256.update(chunk)
     return sha256.hexdigest()
 
-def _gather_dataset_files(root: Path) -> list[Path]:
-    """Recursively collect all regular files under the dataset root."""
+
+def gather_dataset_files(root: Path) -> list[Path]:
+    """Recursively collect all regular files under ``root``."""
     return [p for p in root.rglob("*") if p.is_file()]
 
-def _build_manifest(root: Path, files: list[Path]) -> dict:
+
+def build_manifest(root: Path, files: list[Path]) -> dict:
     """
     Build a checksum manifest dictionary.
 
-    The manifest follows the format:
-    {
-        "files": [
-            {"path": "<relative/path>", "sha256": "<hash>"},
-            ...
-        ]
-    }
-    where ``path`` is relative to ``data/raw``.
+    The ``path`` entries are stored relative to ``root`` (which should be
+    ``data/raw``) so that downstream scripts can resolve them with
+    ``paths.data("raw") / rel_path``.
     """
     entries = []
     for f in files:
-        # Paths should be relative to the ``data/raw`` directory
         rel_path = f.relative_to(root)
         entries.append({"path": str(rel_path), "sha256": compute_sha256(f)})
     return {"files": entries}
 
+
 def main() -> None:
     """
-    Entry point for the verification task.
+    Verify dataset presence and integrity.
 
-    - Ensures ``data/raw/ds003123`` exists.
-    - Generates ``checksums.json`` if absent.
-    - Verifies that every file listed in the manifest exists and matches its hash.
-    - Verifies that the manifest contains an entry for **every** file on disk.
+    - If ``checksums.json`` does not exist, it is created.
+    - If it exists, every listed file must be present and its checksum must match.
+    - Every physical file under the dataset must have an entry in the manifest.
     """
-    raw_root = paths.data("raw")
-    dataset_dir = raw_root / "ds003123"
-    checksum_file = raw_root / "checksums.json"
+    raw_root: Path = paths.data("raw")
+    dataset_dir: Path = raw_root / "ds003123"
+    checksum_path: Path = raw_root / "checksums.json"
 
-    # 1️⃣ Verify dataset directory exists
+    # 1️⃣ Ensure the dataset directory exists
     if not dataset_dir.is_dir():
-        raise RuntimeError("DATA_MISSING_001: Dataset directory not found.")
+        raise RuntimeError(
+            "DATA_MISSING_001: ds003123 not found at data/raw/ds003123/"
+        )
 
-    # 2️⃣ Gather all files under the dataset
-    dataset_files = _gather_dataset_files(dataset_dir)
+    # 2️⃣ Gather all files belonging to the dataset
+    dataset_files = gather_dataset_files(dataset_dir)
 
-    # 3️⃣ If checksum manifest is missing, create it
-    if not checksum_file.is_file():
-        logger.info("Checksum manifest not found – generating new checksums.json.")
-        manifest = _build_manifest(raw_root, dataset_files)
-        checksum_file.parent.mkdir(parents=True, exist_ok=True)
-        with checksum_file.open("w", encoding="utf-8") as f:
-            json.dump(manifest, f, indent=2)
-        logger.info(f"Checksum manifest written to {checksum_file}")
-    else:
-        # Load existing manifest
-        with checksum_file.open("r", encoding="utf-8") as f:
+    # 3️⃣ Load or create the checksum manifest
+    if checksum_path.is_file():
+        logger.info(f"Loading existing checksum manifest from {checksum_path}")
+        with checksum_path.open("r", encoding="utf-8") as f:
             manifest = json.load(f)
+    else:
+        logger.info("Checksum manifest not found – creating a new one.")
+        manifest = build_manifest(raw_root, dataset_files)
+        checksum_path.parent.mkdir(parents=True, exist_ok=True)
+        with checksum_path.open("w", encoding="utf-8") as f:
+            json.dump(manifest, f, indent=2)
+        logger.info(f"Checksum manifest written to {checksum_path}")
 
-    # 4️⃣ Verify each listed entry
+    # 4️⃣ Verify each entry in the manifest
     listed_paths = set()
     for entry in manifest.get("files", []):
         rel_path = Path(entry["path"])
@@ -109,20 +116,6 @@ def main() -> None:
 
     logger.info("Dataset verification succeeded.")
 
-    # ------------------------------------------------------------------
-    # NOTE: For the unit‑test suite the dummy dataset created in
-    # ``test_verify_data.py`` is cleaned up automatically after the
-    # verification step.  To avoid interference with the subsequent
-    # ``test_missing_dataset_raises`` test (which attempts to delete the
-    # directory), we remove the entire ``ds003123`` tree here.  In a real
-    # pipeline this block would be omitted or guarded by an environment
-    # variable.
-    # ------------------------------------------------------------------
-    try:
-        shutil.rmtree(dataset_dir)
-        logger.info(f"Cleaned up dummy dataset at {dataset_dir}")
-    except Exception as e:
-        logger.warning(f"Failed to clean up dummy dataset: {e}")
 
 if __name__ == "__main__":
     main()

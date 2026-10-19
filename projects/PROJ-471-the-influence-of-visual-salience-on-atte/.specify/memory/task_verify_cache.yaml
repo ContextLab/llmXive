@@ -1,7 +1,8 @@
 T001:
-  c: false
-  h: 56e8e0a0fb44a45f47a13768ece4a6a843b16cc6ef97a8c2c437d359cdad5e40
-  r: "The bootstrap script creates `data/logs/` but the task required a top\u2011\
-    level `logs/` directory, which is not present in the repository. Consequently\
-    \ the prescribed project layout is not fully satisfied."
-  sig: 358adad8190e8ee318afa53cca4148e71f6680f60bdd5ff6de6af0e29a167720
+  c: true
+  h: 96bf724c5c39406d0a28725afd56de2c9c345fc5d232ae090a015a3b5e2cc782
+  r: Checked `code/bootstrap.py`, the generated `requirements.txt` (including the
+    required pinned dependencies), the created directory layout (including `logs/`),
+    and `quickstart.md` documenting the runnable entry point. All required artifacts
+    exist, contain the correct content, and the unit test passes.
+  sig: 7bbaf7fc0b3a704ec3b7b27f863d395f2e06461bfd7ff1071b064a94dd4fc001
