@@ -1,15 +1,15 @@
 status: none
-intent: pi-Bench interaction traces dataset with hidden intents download source code
-  repository python package dataset
+intent: "download \u03C0-Bench interaction traces with hidden intents dataset python\
+  \ package dataset"
 required_fields:
 - task_id
+- dialogue_id
 - turn_index
 - speaker
-- utterance_text
-- hidden_intent_label
+- utterance
 - timestamp
-- dialogue_id
-- metadata_conflict_flag
-cache_key: 3ab734c8e914345dd1ff920f7f053d75615ef53aaa056fceeccd7a11355834a1
-searched_at: '2026-10-18T18:12:38.596823+00:00'
+- hidden_intent_label
+- hidden_intent_source
+cache_key: 1469f033bfff57ffc89273c998548ab721b733582f899895ea97f0f9863592dc
+searched_at: '2026-10-19T05:10:02.601368+00:00'
 retry_count: 1

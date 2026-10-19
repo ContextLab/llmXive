@@ -2,6 +2,7 @@ import hashlib
 from pathlib import Path
 
 import pytest
+from datasets import load_dataset
 from llmxive_toolkit import paths
 
 @pytest.mark.parametrize("expected_min_files", [1])
@@ -10,8 +11,9 @@ def test_pi_bench_downloaded(expected_min_files: int):
     Verify that the π‑Bench dataset has been downloaded into ``data/raw``.
     The test checks:
     1. The raw directory exists.
-    2. At least ``expected_min_files`` files are present (the dataset contains many files).
-    3. A checksum manifest (checksums.txt) exists and its entries match the actual file contents.
+    2. At least ``expected_min_files`` files are present.
+    3. A checksum manifest (checksums.txt) exists and its entries match.
+    4. The data can be loaded via datasets.load_dataset.
     """
     raw_dir: Path = paths.data("raw")
     assert raw_dir.is_dir(), f"Raw data directory {raw_dir} does not exist."
@@ -45,3 +47,11 @@ def test_pi_bench_downloaded(expected_min_files: int):
                 f"Checksum mismatch for {rel_path_str}: "
                 f"expected {expected_hash}, got {actual_hash}"
             )
+
+    # Verification: assert successful load via datasets
+    # We attempt to load the local files using the 'json' loader to ensure the files are valid
+    try:
+        dataset = load_dataset("json", data_files=str(raw_dir / "**/*.json"), recursive=True)
+        assert dataset is not None
+    except Exception as e:
+        pytest.fail(f"Failed to load downloaded pi-bench files via datasets.load_dataset: {e}")
