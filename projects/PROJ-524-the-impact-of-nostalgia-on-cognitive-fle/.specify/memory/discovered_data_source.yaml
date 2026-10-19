@@ -1,13 +1,13 @@
 status: none
-intent: Wisconsin Card Sorting Test older adults dataset with MMSE stimulus labels
-  python package dataset
+intent: download WCST dataset with age 65 stimulus label MMSE HuggingFace MMSense
+  MMS-e python package dataset
 required_fields:
 - participant_id
 - age
 - mmse_score
-- wcst_total_score
-- wcst_perseverative_errors
+- wcst_total_correct
+- wcst_categories_completed
 - stimulus_label
-cache_key: cec2c5aa53a6c54e41843ea06b19d9d402cab1e1623a198968ad8c5cd2e9749a
-searched_at: '2026-10-19T22:18:52.310333+00:00'
+cache_key: 663ea9650806f22109d61ded3097e2e14bea51261c4e00a6ef884ef2060195ef
+searched_at: '2026-10-19T22:20:34.327976+00:00'
 retry_count: 1

@@ -1,7 +1,7 @@
 {
   "task_id": "T001",
   "fingerprint": "8e86ce7fa689c224fc1785bc981a902464d4226679e250ffd9581d13f04d4f5a",
-  "count": 1,
+  "count": 2,
   "model": "openai.gpt-oss-120b",
   "reason": "[implementer] refused pipeline control evidence or reviewed requirements: 'specs/001-nostalgia-cognitive-flexibility/spec.md'"
 }
