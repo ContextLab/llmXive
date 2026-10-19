@@ -1,118 +1,194 @@
 """
 Real-data ingestion from NASA CDAWeb via pyspedas.
-Fetches ACE SWICS, WIND SMS, and OMNI data, preserves raw files,
-and generates SHA-256 checksums.
+
+Fetches ACE SWICS composition, WIND SMS/STICS composition, and OMNI
+hourly bulk/IMF/indices data, preserves the raw CDF files UNCHANGED
+under data/raw/, and writes SHA-256 checksums to
+data/raw/checksums.yaml.
+
+The loader FAILS LOUDLY on any fetch failure (ConnectionError /
+RuntimeError). There is no synthetic fallback anywhere in this
+module.
+
+Root cause fixed from the previous failed run: ``pyspedas.omni`` is a
+*module*, not a callable. The correct pyspedas API is
+``pyspedas.omni.data(trange=...)`` (and analogously
+``pyspedas.ace.swics`` / ``pyspedas.wind.sms``). The file lists
+returned by the loaders (``downloadonly=True``) are used directly,
+so no guessed cache-layout assumptions are made.
 """
 import argparse
 import hashlib
 import shutil
 import yaml
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, List
+from pathlib import Path
+from typing import Callable, List
 
 import pyspedas
-import pytplot
+import pyspedas.omni   # noqa: F401  (ensures the mission subpackage is imported)
+import pyspedas.ace    # noqa: F401
+import pyspedas.wind   # noqa: F401
+
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
+
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
+        for byte_block in iter(lambda: f.read(1 << 20), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def preserve_raw_files(source_subdir: str, target_dir: Path):
-    """
-    Copies raw files from the pyspedas cache to the project's data/raw directory.
-    """
-    cache_root = Path(pyspedas.settings.pyspedas_data_path)
-    source_dir = cache_root / source_subdir
-    
-    if not source_dir.exists():
-        raise RuntimeError(f"Pyspedas cache directory {source_dir} not found. Download may have failed.")
 
+def _validate_date(date_str: str) -> str:
+    """Validate a YYYY-MM-DD date string, raising loudly on bad input."""
+    try:
+        datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError as e:
+        raise ValueError(f"Invalid date '{date_str}' (expected YYYY-MM-DD): {e}") from e
+    return date_str
+
+
+def _fetch_cdf_files(loader: Callable, source_name: str, trange: List[str]) -> List[Path]:
+    """
+    Download the raw CDF files for one source via pyspedas/CDAWeb.
+
+    Uses ``downloadonly=True`` so the loader returns the list of
+    downloaded local file paths without loading them into tplot.
+    Raises ConnectionError on any fetch failure — never a fallback.
+    """
+    log.info("Fetching %s via pyspedas (CDAWeb) for %s..%s",
+             source_name, trange[0], trange[1])
+    try:
+        files = loader(trange=trange, downloadonly=True)
+    except Exception as e:
+        raise ConnectionError(
+            f"Failed to fetch {source_name} from CDAWeb via pyspedas: {e}"
+        ) from e
+    if not files:
+        raise RuntimeError(
+            f"pyspedas returned an empty file list for {source_name}; "
+            "the CDAWeb fetch did not succeed"
+        )
+    cdfs = [Path(f) for f in files if str(f).lower().endswith(".cdf")]
+    if not cdfs:
+        raise RuntimeError(
+            f"No CDF files downloaded for {source_name}; "
+            f"loader returned {files!r}"
+        )
+    for f in cdfs:
+        if not f.exists():
+            raise RuntimeError(f"Downloaded file missing on disk: {f}")
+    log.info("Fetched %d raw CDF file(s) for %s", len(cdfs), source_name)
+    return cdfs
+
+
+def preserve_raw_files(files: List[Path], target_dir: Path) -> int:
+    """
+    Copy raw files UNCHANGED (byte-for-byte, shutil.copy2) from the
+    pyspedas cache into the project's data/raw directory.
+
+    Returns the number of files preserved; raises RuntimeError if
+    nothing could be preserved.
+    """
     target_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Copy all files from the specific pyspedas cache subdirectory
     files_copied = 0
-    for item in source_dir.rglob("*"):
-        if item.is_file():
-            # Maintain relative structure if necessary, but here we flatten to the target_dir
-            shutil.copy2(item, target_dir / item.name)
-            files_copied += 1
-    
-    log.info(f"Preserved {files_copied} raw files from {source_subdir} to {target_dir}")
+    for item in files:
+        item = Path(item)
+        if not item.is_file():
+            raise RuntimeError(f"Expected raw file {item} is missing")
+        shutil.copy2(item, target_dir / item.name)
+        files_copied += 1
     if files_copied == 0:
-        raise RuntimeError(f"No files found in pyspedas cache for {source_subdir}")
+        raise RuntimeError(
+            f"No files preserved into {target_dir}; download must have failed"
+        )
+    log.info("Preserved %d raw file(s) unchanged in %s", files_copied, target_dir)
+    return files_copied
 
-def download_and_preserve():
+
+def download_and_preserve(start: str = "2000-01-01",
+                          end: str = "2020-12-31") -> dict:
     """
-    Main routine to fetch data and save raw artifacts.
+    Main routine: fetch real data from CDAWeb via pyspedas and save
+    raw artifacts plus SHA-256 checksums.
+
+    Sources (all real, NASA CDAWeb):
+      - OMNI hourly (bulk parameters, IMF, Dst, Kp)
+      - ACE SWICS ion composition (H, He, C, O, Fe charge-state fluxes)
+      - WIND SMS/STICS ion composition
+
+    Raises ConnectionError/RuntimeError on any failure. No synthetic
+    fallback exists.
     """
-    # Dates defined by CLI or defaults
-    start = "2000-01-01"
-    end = "2020-12-31"
-    
-    # Define target paths using llmxive_toolkit
-    raw_ace = paths.data("raw", "ace_swics")
-    raw_wind = paths.data("raw", "wind_sms")
-    raw_omni = paths.data("raw", "omni")
-    checksum_file = paths.data("raw", "checksums.yaml")
+    start = _validate_date(start)
+    end = _validate_date(end)
+    trange = [start, end]
 
-    # 1. Fetch OMNI data
-    log.info("Fetching OMNI hourly data...")
-    try:
-        pyspedas.omni(start=start, end=end)
-        preserve_raw_files("omni", raw_omni)
-    except Exception as e:
-        log.error(f"OMNI fetch failed: {e}")
-        raise ConnectionError(f"Failed to fetch OMNI data: {e}")
+    raw_root = paths.data("raw")
+    raw_ace = raw_root / "ace_swics"
+    raw_wind = raw_root / "wind_sms"
+    raw_omni = raw_root / "omni"
+    checksum_file = raw_root / "checksums.yaml"
 
-    # 2. Fetch ACE SWICS data
-    log.info("Fetching ACE SWICS composition data...")
-    try:
-        pyspedas.ace_swics(start=start, end=end)
-        preserve_raw_files("ace_swics", raw_ace)
-    except Exception as e:
-        log.error(f"ACE SWICS fetch failed: {e}")
-        raise ConnectionError(f"Failed to fetch ACE SWICS data: {e}")
+    # 1. OMNI hourly data (velocity, density, IMF, Bz, Dst, Kp)
+    omni_files = _fetch_cdf_files(pyspedas.omni.data, "OMNI hourly", trange)
+    preserve_raw_files(omni_files, raw_omni)
 
-    # 3. Fetch WIND SMS data
-    log.info("Fetching WIND SMS composition data...")
-    try:
-        pyspedas.wind_sms(start=start, end=end)
-        preserve_raw_files("wind_sms", raw_wind)
-    except Exception as e:
-        log.error(f"WIND SMS fetch failed: {e}")
-        raise ConnectionError(f"Failed to fetch WIND SMS data: {e}")
+    # 2. ACE SWICS composition data
+    ace_files = _fetch_cdf_files(pyspedas.ace.swics, "ACE SWICS composition", trange)
+    preserve_raw_files(ace_files, raw_ace)
 
-    # 4. Generate Checksums
+    # 3. WIND SMS/STICS composition data
+    wind_files = _fetch_cdf_files(pyspedas.wind.sms, "WIND SMS/STICS composition", trange)
+    preserve_raw_files(wind_files, raw_wind)
+
+    # 4. Generate SHA-256 checksums for every preserved raw file
     log.info("Generating SHA-256 checksums for all raw files...")
     checksums = {}
     for folder in [raw_ace, raw_wind, raw_omni]:
-        for file in folder.rglob("*"):
+        for file in sorted(folder.rglob("*")):
             if file.is_file():
-                # Store relative path from data/raw
-                rel_path = file.relative_to(paths.data("raw"))
+                rel_path = file.relative_to(raw_root)
                 checksums[str(rel_path)] = compute_sha256(file)
 
+    if not checksums:
+        raise RuntimeError("No raw files found to checksum; ingestion failed")
+
     with open(checksum_file, "w", encoding="utf-8") as f:
-        yaml.safe_dump(checksums, f)
-    
-    log.info(f"Checksums written to {checksum_file}")
+        yaml.safe_dump(checksums, f, sort_keys=True)
+
+    log.info("Checksums for %d raw files written to %s",
+             len(checksums), checksum_file)
+    log.info("Real-data ingestion complete for period %s..%s "
+             "(%d raw files preserved unchanged)", start, end,
+             len(ace_files) + len(wind_files) + len(omni_files))
+    return {
+        "start": start,
+        "end": end,
+        "n_omni_files": len(omni_files),
+        "n_ace_files": len(ace_files),
+        "n_wind_files": len(wind_files),
+        "checksums_file": str(checksum_file),
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Download REAL solar-wind/geomagnetic data from "
+                    "NASA CDAWeb via pyspedas (no synthetic fallback).")
+    parser.add_argument("--start", type=str, default="2000-01-01",
+                        help="Start date YYYY-MM-DD")
+    parser.add_argument("--end", type=str, default="2020-12-31",
+                        help="End date YYYY-MM-DD")
+    args = parser.parse_args()
+    summary = download_and_preserve(start=args.start, end=args.end)
+    log.info("Ingestion summary: %s", summary)
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--start", type=str, default="2000-01-01")
-    parser.add_argument("--end", type=str, default="2020-12-31")
-    args = parser.parse_args()
-    
-    # Override defaults if provided
-    # Note: pyspedas functions are called inside download_and_preserve
-    # but we'll pass the dates if we want to make it dynamic.
-    # For this implementation, we use the internal defaults but the CLI is provided for the runner.
-    download_and_preserve()
+    main()

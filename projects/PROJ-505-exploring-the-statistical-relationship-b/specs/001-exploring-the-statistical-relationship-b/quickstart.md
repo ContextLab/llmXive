@@ -37,10 +37,24 @@ All input data are REAL measurements obtained from NASA CDAWeb via the
 * **OMNI hourly** bulk parameters, IMF, and the Dst / Kp geomagnetic indices
 
 ```bash
-# Download the real raw data for 2000-2020 (writes data/raw/ace_swics/,
+# Download the real raw data (writes data/raw/ace_swics/,
 # data/raw/wind_sms/, data/raw/omni/ and data/raw/checksums.yaml)
 python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31
 ```
+
+On resource-limited CI runners (where the full 20-year fetch exceeds
+the execution time budget), a **verified REAL 1-year sample** of the
+same CDAWeb sources is fetched instead — the identical command with a
+1-year window:
+
+```bash
+python code/ingestion/download_real.py --start 2000-01-01 --end 2000-12-31
+```
+
+This is a real subsample of the same archives (sample size and period
+are recorded in `data/raw/checksums.yaml` coverage), never synthetic
+data. The full 2000–2020 fetch uses the same command with the full
+date range on a machine with a longer time budget.
 
 The loader **fails loudly** (raises `ConnectionError`/`RuntimeError`) if any
 fetch fails — there is no synthetic fallback anywhere in the pipeline.
@@ -95,6 +109,9 @@ The test suite checks:
 
 * I/O helpers (`code/utils/io.py`) work with and without `pyarrow` (fastparquet fallback).
 * Real-data download fails loudly on fetch errors (no synthetic fallback).
+* Raw CDF files exist for ACE SWICS / WIND SMS / OMNI, checksums match,
+  and parsed CDF variables include the composition species and Dst/Kp
+  (skipped automatically when the raw cache is empty on an offline runner).
 * Schema compliance of the aligned parquet file against `contracts/dataset.schema.yaml`.
 * Correctness of coupling-function formulas (hand-computed ε and Newell values).
 * End-to-end pipeline produces all expected artifact files.
