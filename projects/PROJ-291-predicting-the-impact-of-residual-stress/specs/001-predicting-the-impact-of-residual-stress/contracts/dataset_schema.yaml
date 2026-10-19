@@ -35,7 +35,7 @@ properties:
     description: "Yield strength in megapascals (optional)."
   residual_stress_measured:
     type: number
-    description: "Directly measured residual stress in MPa (optional)."
+    description: "Directly measured residual stress in MPa."
   is_proxy:
     type: boolean
     description: "True if residual stress was computed via proxy formula."
@@ -44,7 +44,7 @@ properties:
     description: "Proxy‑computed residual stress in MPa (present only when is_proxy is true)."
   fatigue_life_cycles:
     type: integer
-    description: "Number of cycles to failure (target variable)."
+    description: "Number of cycles to failure."
   source:
     type: string
     description: "Origin of the record (e.g., 'synthetic', dataset name)."

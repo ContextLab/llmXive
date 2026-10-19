@@ -100,7 +100,7 @@ The researcher performs bootstrap mediation analysis (10,000 resamples) on the s
 
 - Public datasets (NIST, UCI, OpenML) contain sufficient samples (≥50) with at least one of: measured residual stress or the necessary process parameters to compute the proxy.
 - The empirical correlation `σ_res ≈ k·heat_input·cooling_rate` is a valid approximation for Feature Set C construction ONLY, with material-specific coefficients: k_steel=0.8, k_aluminum=0.6.
-- The GitHub Actions free-tier runner (2 CPU cores, ~7 GB RAM) is sufficient to train shallow neural networks and perform 10,000 bootstrap resamples on the available dataset size.
+- The GitHub Actions free-tier runner (2 CPU cores, ~7 GB RAM) is sufficient to train shallow neural networks and perform a substantial number of bootstrap resamples on the available dataset size.
 - The datasets are primarily observational; therefore, all findings regarding the "mediation" effect are framed as associational, not causal, unless the dataset explicitly includes randomization.
 - The variable "residual stress" in the datasets is either directly measured or can be reasonably estimated; if a dataset lacks both, it will be excluded from the stress-mediated analysis.
 - The material classes (e.g., steels, aluminum) are clearly labeled in the metadata, allowing for valid stratification.

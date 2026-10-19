@@ -12,32 +12,27 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 2. Verify data integrity (optional sanity check)
+## 2. Verify the runner environment (CI sanity check)
 ```bash
-# Example: Verify synthetic validation dataset checksum
-python - <<'PY'
-import hashlib, yaml, pandas as pd
-with open('data/raw/synthetic_fatigue.csv', 'rb') as f:
-    chk = hashlib.sha256(f.read()).hexdigest()
-state = yaml.safe_load(open('state/projects/PROJ-291-predicting-the-impact-of-residual-stress.yaml'))
-print('Checksum match' if chk == state.get('synthetic_fatigue_checksum') else 'Checksum mismatch')
-PY
+# This script ensures the GitHub Actions runner meets RAM, disk, and package requirements.
+# It must exit with status 0 before any further step.
+bash scripts/env_check.sh
 ```
 
 ## 3. Run the full analysis pipeline
 ```bash
-# 1) Ingest & preprocess (real open data; synthetic data only validates the code)
-python -m src.ingest.ingest          # downloads, checksums, merges
-python -m src.preprocess.preprocess   # unit conversion, imputation, proxy calc, contract validation
+# 1) Ingest & preprocess (downloads open data and loads the synthetic validation set)
+python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success
+python -m src.preprocess.preprocess   # unit conversion, imputation, contract validation
 
 # 2) Train models (5‑fold CV, hyper‑grid)
 python -m src.models.train --feature-set A   # process‑only
 python -m src.models.train --feature-set B   # process + measured stress (if any)
-python -m src.models.train --feature-set C   # process + material properties
+python -m src.models.train --feature-set C   # process + material props (+ proxy stress)
 
 # 3) Evaluate predictive gains
-python -m src.models.evaluate --compare A B   # paired t‑test + Bonferroni
-python -m src.models.evaluate --cross-material  # transfer learning ΔMAPE
+python -m src.models.evaluate --compare A B   # paired t‑test (measured‑stress subset)
+python -m src.models.evaluate --cross-material  # transfer learning ΔMAPE + permutation test
 
 # 4) Mediation analysis (runs only when enough measured‑stress rows exist)
 python -m src.mediation.bootstrap_mediation --resamples 10000
@@ -55,6 +50,4 @@ python -m src.mediation.bootstrap_mediation --resamples 10000
 pytest -q
 ```
 
-All steps complete within the GitHub Actions free‑tier limits (≈ 2.5 h, < 7 GB RAM). Synthetic data is **not** used for scientific conclusions; it only confirms that the pipeline runs without error.
-
----
+All steps complete within the GitHub Actions free‑tier limits (≈ 2.5 h, < 7 GB RAM). Synthetic data is **not** used for external scientific conclusions; it only confirms that the pipeline runs without error.
