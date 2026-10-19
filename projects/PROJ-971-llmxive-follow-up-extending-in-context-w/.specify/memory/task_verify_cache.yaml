@@ -1,18 +1,41 @@
 T001:
-  c: false
-  h: 261d503c4196e66bbe2a19abc8451a46be7569e34ade5ef2cdd61e06a50cb513
-  r: The quickstart.md and the run log show the command executes without error and
-    produces `data/processed/descriptors_subset.csv`. However, the task requires the
-    existence of `data/processed/descriptors.csv` (the renamed version of the subset
-    file), which is listed as MISSING. The expected file name does not match the provided
-    artifact, so the verification condition is not satisfied. The implementer must
-    generate and commit `data/processed/descriptors.csv` (or rename the existing subset
-    file accordingly).
-  sig: c3fb31c3f6bfb873f1ab9bdb34bb437382e8629666d58c886291ce73f4a7802b
+  c: true
+  h: b9a63ebfe93e9c671fd3d679e6a005ef387252848ae8e037ae94cfd3163a4a9e
+  r: "Checked `quickstart.md` for the described single command and verified via `scripts/run_minimal.sh`\
+    \ log (exit\u202F0) that the command runs without error and produces both `data/processed/descriptors.csv`\
+    \ and `data/descriptors_subset.csv`."
+  sig: ef6845fd8e0e688f9193bf8c2778cedab8aaaf88125a61d04cd386d6f60d64d8
 T002:
   c: true
-  h: e98c17da7ad6baa5f7583dabc2fc4450563e5799499d19fdbca14e927421f347
-  r: Checked `code/src/pipeline/generate_clips.py` (creates .npz with the three required
-    arrays) and the `data/raw/` directory containing exactly 50 `clip_*.npz` files,
-    each showing the expected `states`, `actions`, and `observations` entries.
-  sig: ab4e5afeeb05a3d300fc0edd62b9a945903bc8a858ed02a260120b88dd94b133
+  h: acc66ca0df8166d5ec51ad3e1a8084c7d035728cf647ffa0ff651c9333f3206b
+  r: Checked `code/src/pipeline/generate_clips.py` (which writes the three required
+    arrays) and the `data/raw/` directory, which contains exactly 50 `.npz` files
+    each holding `states`, `actions`, and `observations` as confirmed by the file
+    listings and binary contents.
+  sig: 38a7288dfd250138f21ec13961168fbd9c4a51259b473ac8ac647631e2ff94d7
+T003:
+  c: true
+  h: bd63bc84c531ef4a06595ab0ba89dae5b765407cfa0e64043799efccf3d541de
+  r: "Checked `code/src/pipeline/extract_descriptors.py` for correct encoder use,\
+    \ descriptor calculations, schema validation, null\u2011check, and variance\u2011\
+    ratio assertion; verified `data/processed/descriptors.csv` contains the required\
+    \ columns, passes the JSON schema, has no nulls, and its max/min variance satisfy\
+    \ the >\u202F2\xD7 condition."
+  sig: 176d2840dcf5aeae9130a5d319fc07d48650182a10caeba7c01258652c669871
+T004:
+  c: false
+  h: addf3065d5d7625cba7796887b11612a25c4e732c61d1d08892d3ceeffb73199
+  r: "The required script `code/src/pipeline/run_end_to_end.py` does not exist, and\
+    \ the only execution evidence is from a different script (`scripts/run_minimal.sh`)\
+    \ which merely reports generation of CSV files and does not show the required\
+    \ 50\u2011row printed summary with all three descriptor columns. Consequently\
+    \ the task\u2019s core deliverable is missing."
+  sig: a5f6d715070e393921b859beabc7fb6c9b27df0a2055c3472c286c8dd399e045
+T007:
+  c: false
+  h: b0df1cf3330817796a57e6999ab33d967656e2d1e2edd3faa49b751e5f59e4cf
+  r: "The script `code/src/pipeline/compute_complexity.py` correctly generates `data/processed/task_complexity.csv`\
+    \ and `data/processed/correlation.txt`, but the required accompanying schema file\
+    \ `complexity.schema.yaml` is missing, violating the task\u2019s specification\
+    \ that the CSV be provided with its schema."
+  sig: a6e959b22a2e9b682c2f72f6b43134a43835db4461a80079a7979175dfe84fe0

@@ -2,5 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — The quickstart.md and the run log show the command executes without error and produces `data/processed/descriptors_subset.csv`. However, the task requires the existence of `data/processed/descriptors.csv` (the renamed version of the subset file), which is listed as MISSING. The expected file name does not match the provided artifact, so the verification condition is not satisfied. The implementer must generate and commit `data/processed/descriptors.csv` (or rename the existing subset file accordingly).
-- **T003** — Requested task execution failed; rerun successfully: scripts/run_minimal.sh exit=1
+- **T004** — The required script `code/src/pipeline/run_end_to_end.py` does not exist, and the only execution evidence is from a different script (`scripts/run_minimal.sh`) which merely reports generation of CSV files and does not show the required 50‑row printed summary with all three descriptor columns. Consequently the task’s core deliverable is missing.
+- **T007** — The script `code/src/pipeline/compute_complexity.py` correctly generates `data/processed/task_complexity.csv` and `data/processed/correlation.txt`, but the required accompanying schema file `complexity.schema.yaml` is missing, violating the task’s specification that the CSV be provided with its schema.
+- **T005** — Requested task execution failed; rerun successfully: src/pipeline/grid_search_labels.py exit=1

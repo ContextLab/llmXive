@@ -1,0 +1,32 @@
+- artifact_path: projects/PROJ-971-llmxive-follow-up-extending-in-context-w/quickstart.md
+  attempts: 1
+  canonical: full descriptor CSV has >1 rows (header + 50 rows)
+  claim_id: c_c0b3933b
+  context: 'After completion, verify: wc -l data/processed/descriptors.csv   # should
+    be > 1 (header + 50 rows)'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the full descriptor CSV should contain more than 1 line (header + 50 rows)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T05:25:27Z'
+- artifact_path: projects/PROJ-971-llmxive-follow-up-extending-in-context-w/quickstart.md
+  attempts: 1
+  canonical: shortcut subset CSV row count matches full descriptor CSV
+  claim_id: c_f0b01334
+  context: 'wc -l data/descriptors_subset.csv      # should match the same row count'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the shortcut subset CSV should have the same row count as the full descriptor
+    CSV
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T05:25:27Z'

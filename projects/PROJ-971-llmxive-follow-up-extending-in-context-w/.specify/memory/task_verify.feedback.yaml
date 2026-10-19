@@ -1,25 +1,27 @@
 T001:
-  reason: The quickstart.md and the run log show the command executes without error
-    and produces `data/processed/descriptors_subset.csv`. However, the task requires
-    the existence of `data/processed/descriptors.csv` (the renamed version of the
-    subset file), which is listed as MISSING. The expected file name does not match
-    the provided artifact, so the verification condition is not satisfied. The implementer
-    must generate and commit `data/processed/descriptors.csv` (or rename the existing
-    subset file accordingly).
   task: e0a7c78ac8e9e8cad9542ecc62bd22edd9c82d5fbe7c37fb714f2def7e65a425
 T002:
   task: 28d1f8c658e9f4da6991a31c0413b3066f85153a1803d57e9954047d278e9ebe
 T003:
-  reason: 'Requested task execution failed; rerun successfully: scripts/run_minimal.sh
-    exit=1'
   task: 12f4ec4c4e55658a1f7ebd32133859d968ab71b715117afd737a4162174fd8b2
 T004:
+  reason: "The required script `code/src/pipeline/run_end_to_end.py` does not exist,\
+    \ and the only execution evidence is from a different script (`scripts/run_minimal.sh`)\
+    \ which merely reports generation of CSV files and does not show the required\
+    \ 50\u2011row printed summary with all three descriptor columns. Consequently\
+    \ the task\u2019s core deliverable is missing."
   task: 38c33a84128d4ce7f18a01f55d5a504dcbc14eec7fe112e46e08240347770c59
 T005:
+  reason: 'Requested task execution failed; rerun successfully: src/pipeline/grid_search_labels.py
+    exit=1'
   task: b07512d7440ab7650626c9b52ec7f4e3321f8e80d016932f70630b5fee29abcf
 T006:
   task: 25c79ef82ba4f463b10960207827c16afb2a158dc98bce892a46f14dcf425680
 T007:
+  reason: "The script `code/src/pipeline/compute_complexity.py` correctly generates\
+    \ `data/processed/task_complexity.csv` and `data/processed/correlation.txt`, but\
+    \ the required accompanying schema file `complexity.schema.yaml` is missing, violating\
+    \ the task\u2019s specification that the CSV be provided with its schema."
   task: f22a3a5d18f246fd8259190deb0fa4ad54e79e40869feb978b442f2596c9a4a4
 T008:
   task: 3ef7b8b1d4fe779595adc1d342b2bee0279af9d6ad35abdd387b18fdd335c456

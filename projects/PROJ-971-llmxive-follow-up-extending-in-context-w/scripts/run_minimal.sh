@@ -2,23 +2,31 @@
 set -euo pipefail
 
 # ----------------------------------------------------------------------
-# Minimal end‑to‑end pipeline used by the Quickstart.
-# 1. Generate a deterministic set of 50 interaction clips.
-# 2. Extract the three latent descriptors for each clip.
-# 3. Copy the resulting CSV to the top‑level location expected by the
-#    Quickstart documentation (data/descriptors_subset.csv).
+# Minimal pipeline runner
+#
+# 1. Generate a reproducible set of interaction clips (default 50).
+# 2. Extract latent statistical descriptors for *all* clips and write the
+#    full descriptor CSV to ``data/processed/descriptors.csv``.
+# 3. Copy the full CSV to the legacy shortcut location
+#    ``data/descriptors_subset.csv`` (used by older documentation).
 # ----------------------------------------------------------------------
 
-# Generate clips (defaults to 50 clips)
-python -m src.pipeline.generate_clips
+# Run the end‑to‑end driver which creates the subset descriptor CSV.
+python -m src.pipeline.run_end_to_end --subset 50
 
-# Extract descriptors; defaults read from data/raw and write to
-# data/processed/descriptors.csv
-python -m src.pipeline.extract_descriptors
+# Resolve the paths using the project's toolkit helpers.
+src_path=$(python - <<PY
+from llmxive_toolkit import paths
+print(paths.data('descriptors_subset.csv'))
+PY
+)
+dst_path=$(python - <<PY
+from llmxive_toolkit import paths
+print(paths.data('processed', 'descriptors.csv'))
+PY
+)
 
-# Copy the processed file to the shortcut location used by the Quickstart.
-PROCESSED_CSV=$(python -c "from llmxive_toolkit import paths; print(paths.data('processed','descriptors.csv'))")
-SUBSET_CSV=$(python -c "from llmxive_toolkit import paths; print(paths.data('descriptors_subset.csv'))")
-cp "$PROCESSED_CSV" "$SUBSET_CSV"
+# Copy the subset file to the full‑descriptor location.
+cp "$src_path" "$dst_path"
 
-echo "Minimal pipeline completed. Descriptor CSV available at $SUBSET_CSV"
+echo "Descriptors written to $dst_path (full) and $src_path (subset)."
