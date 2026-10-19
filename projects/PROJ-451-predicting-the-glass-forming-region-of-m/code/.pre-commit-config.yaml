@@ -1,4 +1,4 @@
-# Pre-commit configuration for llmXive project
+# Pre-commit configuration for PROJ-451 (glass-forming-region ML)
 # Install hooks with: pre-commit install
 # Run all hooks on all files: pre-commit run --all-files
 
@@ -9,11 +9,7 @@ repos:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
-        # Using ruff format instead of black for consistency,
-        # but keeping black hook as requested in task description
-        # Note: ruff format is a drop-in replacement for black
-        # If strict black is required, uncomment below and remove ruff-format:
-        # - id: black
+
   - repo: https://github.com/psf/black
     rev: 23.11.0
     hooks:

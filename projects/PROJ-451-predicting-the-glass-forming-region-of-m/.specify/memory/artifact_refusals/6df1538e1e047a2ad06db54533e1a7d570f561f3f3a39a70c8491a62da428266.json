@@ -1,0 +1,7 @@
+{
+  "task_id": "T010a",
+  "fingerprint": "69f78addb8afea869a639f4a6f041b7cab6a7b6f1b61cf38b8731a52481dbc84",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/scripts/ingest_zenodo.py': imports nonexistent names from sibling files: `from utils.config import ensure_data_directories, get_raw_data_path` (available: CV_STABILITY_THRESHOLD, ConfigValidationError, Final, LABEL_DROP_THRESHOLD, MIN_DATASET_SIZE, Path, _get_env_float, _get_env_int...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

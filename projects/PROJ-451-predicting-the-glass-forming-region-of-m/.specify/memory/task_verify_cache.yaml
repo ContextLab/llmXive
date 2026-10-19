@@ -1,3 +1,55 @@
+T001a:
+  c: false
+  h: e734d749f3d2c54d8fc171ff5122c9d3412842e9d9bca16da1c48aac913f54ce
+  r: The provided `setup.sh` does not contain the exact required command `mkdir -p
+    projects/PROJ-451-predicting-the-glass-forming-region-of-m/{code,data,tests,docs,notebooks}`
+    (it uses separate `mkdir -p` calls) and the `touch` commands are prefixed with
+    `${PROJECT_ROOT}` instead of the plain `touch data/raw/.gitkeep data/processed/.gitkeep`.
+    Consequently the script does not meet the stipulated content requirements.
+  sig: 2ceadface58bee490baf0cd860451701770ac8b5af65b22f9f0af3457517e799
+T001c:
+  c: false
+  h: c75b645c14496dcf35cf10cfc7715e725228f9b9cce738a9afcaec463a8d0f0d
+  r: "The provided `requirements.txt` exists but lists version ranges (e.g., `pandas>=2.0.0`)\
+    \ instead of exact, pinned versions, and there is no evidence that `pip install\
+    \ -r requirements.txt` was run followed by `pip freeze > requirements.txt`. Hence\
+    \ the task\u2019s verification condition is not met."
+  sig: cbc3213c224f3ef41fba1b84c9c50929e44db40f264d4c2ec19998a6fd423054
+T002a:
+  c: false
+  h: 3436f4d985df7e9b3f6f5dc2b203c301b6baff593e6d2095c8ba03d26c3ba054
+  r: The `.ruff.toml` file exists and correctly defines `line-length = 88`, `target-version
+    = "py311"`, and ignores `E501`, but there is no provided evidence (e.g., command
+    output or logs) showing that `ruff check` was executed and completed without configuration
+    errors. Provide a run of `ruff check` (or its output) to verify the config is
+    valid.
+  sig: 76ed136ea0d0770bf384ad32b2dcac9c35eb3cc01fc15c89a19a677f9b7a6808
+T002b:
+  c: false
+  h: d127fd9a26e02ca57924d2a75eef2bb2e0878ee947fb6a1a256c93b1a0e9e473
+  r: Checked the `pyproject.toml` file, which does contain the required `[tool.black]`
+    section with `line-length = 88` and `target-version = ['py311']`. However, there
+    is no provided evidence (e.g., command output or logs) showing that `black --check`
+    was run and completed without configuration errors. This verification step is
+    missing.
+  sig: 8f340f692022af51d7bf026e9b387e5fb222d6794ff5fe6a30ecbbb9fca8d64a
+T002c:
+  c: false
+  h: 374af421cd5d00c51e87d3f0bb3be7803c497fbca0d6a53881d9d2cfe13d6a02
+  r: The `.pre-commit-config.yaml` file exists and contains the required ruff and
+    black hooks, and a verification script reports the config is valid, but there
+    is no concrete evidence that `pre-commit install` and `pre-commit run --all-files`
+    were actually executed and succeeded. Execution logs or command output confirming
+    those two commands passed are required.
+  sig: 75bbe326e6a4fd1cef4a191a53b1f249bcf466d6e06aecab4268b8fb35e79ba8
+T004:
+  c: false
+  h: b905124a89077c4eebf5e07238798d4163e44170da72670c0a123828d4d144c6
+  r: "Checked `data/provenance.json` (1239\u202Fbytes). The file defines sources,\
+    \ checksums, etc., but it does **not** contain the required `row_metadata` object\
+    \ that maps row indices to source tags (e.g., `\"row_0\": \"Science Advances\"\
+    `). Adding this field (and populating it) is needed to satisfy the task specification."
+  sig: 286c4c9294b4024c6cec66d86ec643e06eee407a23129fe36e97b0cc1fd1bffd
 T010c:
   c: false
   h: b6ac17158d9553471f9b96c50b99a620b0d0bf1b093bcbdd10b282e3dcaa0529
