@@ -75,7 +75,7 @@
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
   verified_at: '2026-10-19T14:16:08.374488Z'
-- artifact_hash: 2d6f7dc70dbbf98a0ef2a6760df1c0485595f8592ad5a194cd4cce5625ae7594
+- artifact_hash: d7e3ac995e6189f57e6c5abb01c82e176267ae7a407058f86708c3cdeebe4834
   artifact_path: projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/specs/001-predicting-the-yield-strength-of-bcc-ste/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,4 +85,4 @@
   value: https://huggingface.co/datasets/matnavi/steel_yield_strength/resolve/main/data/steel_yield_strength.csv`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/matnavi/steel_yield_strength/resolve/main/data/steel_yield_strength.csv
-  verified_at: '2026-10-19T14:16:17.116524Z'
+  verified_at: '2026-10-19T14:17:53.057142Z'

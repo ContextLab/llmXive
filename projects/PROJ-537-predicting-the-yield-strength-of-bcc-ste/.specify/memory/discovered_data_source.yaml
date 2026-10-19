@@ -1,17 +1,45 @@
-status: none
-intent: MatNavi NIST Materials Data Repository Materials Project experimental yield
-  strength python package dataset
-required_fields:
+status: verified
+kind: pypi_package
+ref: matminer
+access_python: "import pandas as pd\nfrom matminer.datasets import load_dataset\n\n\
+  df = load_dataset(\"elastic_tensor_2015\")\nprint(f\"RECORDS={len(df)}\")\nif not\
+  \ df.empty:\n    print(\"FIELDS=\" + \",\".join(df.columns))"
+record_count: 1181
+sample_fields:
 - material_id
 - formula
-- composition
+- nsites
 - space_group
+- volume
+- structure
+- elastic_anisotropy
+- G_Reuss
+- G_VRH
+- G_Voigt
+- K_Reuss
+- K_VRH
+- K_Voigt
+- poisson_ratio
+- compliance_tensor
+- elastic_tensor
+- elastic_tensor_original
+- cif
+- kpoint_density
+- poscar
+field_coverage: 0.5
+required_fields:
+- material_id
+- composition_formula
+- alloy_name
 - crystal_structure
+- space_group_number
 - experimental_yield_strength
+- yield_strength_units
 - shear_modulus
 - bulk_modulus
-- young_modulus
-- temperature
-cache_key: 27280d16acade4c427c1652900f1ebec01c4ae77aed3633e4425b2e47dd79961
-searched_at: '2026-10-19T14:17:26.263637+00:00'
-retry_count: 1
+- elastic_tensor_components
+- mp_id
+- mp_material_id
+intent: MatNavi NIST Materials Data Repository Materials Project elastic constants
+  python package dataset
+cache_key: d654a4be822936288b85df6aa6b9fb964281e1311f80ae80b98485a57070cb57
