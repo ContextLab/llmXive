@@ -2,13 +2,15 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 15 declared deliverable(s) absent: data/processed/behavioral/fd_mean.csv; data/processed/behavioral/power_metrics.json; data/processed/behavioral/retention_metrics.json
+**Summary**: 1 command(s) failed: python code/data/validate_metadata.py (rc=1); 15 declared deliverable(s) absent: data/processed/behavioral/fd_mean.csv; data/processed/behavioral/power_metrics.json; data/processed/behavioral/retention_metrics.json
 
 ## Failing / missing run-book commands
 
-- python code/main.py -> rc=2
+- python code/data/validate_metadata.py -> rc=1
+Download module loaded.
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-377-investigating-the-impact-of-network-cent/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-377-investigating-the-impact-of-network-cent/code/main.py': [Errno 2] No such file or directory
+2026-10-19 00:46:08,832 INFO __main__: Metadata missing; re-running T001 downloader /home/runner/work/llmXive/llmXive/projects/PROJ-377-investigating-the-impact-of-network-cent/code/data/download.py
+2026-10-19 00:46:08,946 ERROR __main__: Fatal: Metadata file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-377-investigating-the-impact-of-network-cent/data/raw/metadata.csv
 
 
 ## Declared deliverables still missing
@@ -107,7 +109,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/exclusion_logging.py` — NOT invoked by the run-book
     - `code/data/preprocess.py` — NOT invoked by the run-book
     - `code/data/retention_validation.py` — NOT invoked by the run-book
-    - `code/data/validate_metadata.py` — NOT invoked by the run-book
+    - `code/data/validate_metadata.py` — IS a run-book command
     - `code/data/validation.py` — NOT invoked by the run-book
     - `code/data/validation_gate.py` — NOT invoked by the run-book
     - `code/utils/config.py` — NOT invoked by the run-book

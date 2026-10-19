@@ -47,7 +47,7 @@
 **⚠️ CRITICAL**: No preprocessing (Phase 1) can begin until this phase passes.
 
 - [X] T001 [US1] Download a dataset from OpenNeuro using `openneuro-cli` in `code/data/download.py`.
-- [ ] T002 [D] [US1] **Fatal Gate**: Verify presence of required columns (`pre_motor_score`, `post_motor_score`, `age`, `sex`, `subject_id`) in the downloaded metadata. **If missing, log "Fatal: Dataset lacks behavioral motor task metrics" and exit immediately. Do not proceed.** (Depends on T001) <!-- FAILED-IN-EXECUTION: code/data/validate_metadata.py exit=1 -->
+- [ ] T002 [D] [US1] **Fatal Gate**: Verify presence of required columns (`pre_motor_score`, `post_motor_score`, `age`, `sex`, `subject_id`) in the downloaded metadata. **If missing, log "Fatal: Dataset lacks behavioral motor task metrics" and exit immediately. Do not proceed.** (Depends on T001) <!-- FAILED-IN-EXECUTION: code/data/validate_metadata.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/validate_metadata.py exit=1 -->
 - [ ] T003 [D] [US1] **Retention & Behavioral Validation**: Read the downloaded metadata from `data/raw/metadata.csv`. Calculate retention rate (subjects with valid data / total subjects). **If < 80% due to missing behavioral data, log "Fatal: Retention < 80% due to missing behavioral data" and exit. If < 80% due to motion artifacts, log warning and proceed.** Save the retention rate proportion, total subjects, and retained subjects count to `data/processed/behavioral/retention_metrics.json` to satisfy SC-001. (Depends on T001)
 - [ ] T004a [D] [US1] **Power Calculation**: Read `data/processed/behavioral/retention_metrics.json` (T003). Calculate the number of retained subjects (N). Compare N against the spec's threshold of ≥ 50 subjects. Output the result to `data/processed/behavioral/power_metrics.json` with keys `n_subjects`, `threshold`, `meets_threshold`. (Depends on T003)
 - [ ] T004b [D] [US1] **Power Logging**: If N < 50 (from T004a), log warning "Underpowered for small effects (r=0.3)" and set `pipeline_metrics.power_warning: true` in the `reproducibility_report.json`. If 50 <= N < 85, log warning "N < 85: Power may be limited for small effects". If N >= 85, log success. **Note: This is an advisory research check, not a spec-mandated gate.** (Depends on T004a)
@@ -96,14 +96,14 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T014 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
-- [~] T015 [P] [US1] Integration test for download and exclusion logic in `tests/integration/test_data_ingestion.py`
+- [ ] T014 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
+- [ ] T015 [P] [US1] Integration test for download and exclusion logic in `tests/integration/test_data_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [~] T016 [D] [US1] Implement fMRIPrep preprocessing wrapper with memory-efficient settings (float32, batch processing) in `code/data/preprocess.py`. **Depends on T013 (config) and T005b (data dirs).** (Depends on T013, T005b)
+- [ ] T016 [D] [US1] Implement fMRIPrep preprocessing wrapper with memory-efficient settings (float32, batch processing) in `code/data/preprocess.py`. **Depends on T013 (config) and T005b (data dirs).** (Depends on T013, T005b)
 - [ ] T017 [D] [US1] Implement behavioral metric extraction (pre/post motor scores, age, sex) from `data/raw/metadata.csv`. **Explicitly verify the presence of columns**: `pre_motor_score`, `post_motor_score`, `age`, `sex`, `subject_id`. **If missing, raise error.** **Output**: Save subject IDs, scores, and demographics to `data/processed/behavioral/subject_scores.csv` with columns `subject_id`, `pre_motor_score`, `post_motor_score`, `age`, `sex`, `improvement_score`. **Also log excluded subjects and reasons to `data/processed/logs/exclusion_log.csv` here.** (Depends on T003, T016)
-- [~] T018 [D] [US1] Implement retention rate calculation and power check (N >= 50 warning) in `code/data/preprocess.py` (Logic moved to T003/T004a/b, this task ensures logging). (Depends on T017)
+- [ ] T018 [D] [US1] Implement retention rate calculation and power check (N >= 50 warning) in `code/data/preprocess.py` (Logic moved to T003/T004a/b, this task ensures logging). (Depends on T017)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -119,8 +119,8 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T021 [P] [US2] Contract test for centrality metric calculation in `tests/contract/test_centrality.py`
-- [~] T022 [P] [US2] Integration test for regression model fitting in `tests/integration/test_regression.py`
+- [ ] T021 [P] [US2] Contract test for centrality metric calculation in `tests/contract/test_centrality.py`
+- [ ] T022 [P] [US2] Integration test for regression model fitting in `tests/integration/test_regression.py`
 
 ### Implementation for User Story 2
 

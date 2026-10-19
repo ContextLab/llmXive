@@ -99,3 +99,72 @@ T013:
     \ `vif_threshold`, `pvalue_threshold`) plus accessor functions, fulfilling the\
     \ environment configuration management requirement."
   sig: 5e945669bcaacc930636bbfc7ca27ecbe541119b1ebad2d159a5eca9d92825c9
+T014:
+  c: false
+  h: 26449da84424e6a0068fc8d7870f19e6ef2a183e711725963287eed6ebe224ab
+  r: 'The test file exists but is written against a schema that does not match the
+    actual data models: it constructs `Subject(participant_id=..., motor_score_pre=...,
+    motor_score_post=..., mean_fd=...)` while `code/data/subject.py` defines `Subject(subject_id,
+    age, sex, pre_motor_score, post_motor_score, ...)` with no defaults, and it constructs
+    `ConnectivityMatrix(data=..., atlas_name=...)` while the real class signature
+    is `ConnectivityMatrix(matrix, region_names, subject_id, method)` and rejects
+    non-square matrices (which the test asserts are accepted). Every test would raise
+    `TypeError`/`ValueEr'
+  sig: 6c8651fe0ac55612af76bcf796f74b37314ab7db3a4a0736485e85015a7e3140
+T015:
+  c: false
+  h: 74039d1879422d3d1daa0c05e04359ecab2bfdc278edaae413a61647ed84aed2
+  r: 'The test file exists but would fail at collection/run time: it calls `validate_metadata_columns(mock_path)`
+    with one argument while the actual function in `code/data/validation_gate.py`
+    requires `required_columns` (so the missing-column test would raise TypeError,
+    not SystemExit); it imports `data.download`, `data.validation_gate`, etc., which
+    resolve to `code/data/...` only if `code/` is on the path (unverified, and the
+    fixture also sets nonexistent config attributes like `config.data_raw_dir` and
+    `config.output_paths` that don''t exist on the `Config` dataclass). Moreover,
+    the "integration" t'
+  sig: 8e90f47bc5a2b01ae455ffb9125b7443522c8810583ead33cd33dbef52e47ffb
+T016:
+  c: false
+  h: 31f44f9ed507b405abc0f9395e7ecff9614d8386ba1e33c06c93899f99697461
+  r: "The core deliverable \u2014 the fMRIPrep preprocessing wrapper with memory-efficient\
+    \ settings (float32, batch processing) \u2014 is an explicit stub: `preprocess_fmriprep`\
+    \ contains only `# Placeholder for actual fmriprep call` and `return True`, with\
+    \ no fmriprep command construction, no float32 conversion, and no batch processing\
+    \ logic. The file instead implements unrelated T017/T018 functionality (retention/power\
+    \ check logging), which does not satisfy T016's requirement."
+  sig: 0d9474f9102c8c3b6c1cd5d79b9f5e76f72f2942f4c79e2087e7b9cc1d74983b
+T018:
+  c: false
+  h: fa6a3afc95c41ae9dbeee5d7ca40bd149997d5bda6ba3ce528bf1fe9a5c82a80
+  r: 'The code in `code/data/preprocess.py` cannot run: it calls `check_power(retained_subjects,
+    threshold=50)` passing an int, but `power_check.check_power` expects the retention
+    dict and does `retention_data[''retained_subjects'']`, which would raise a TypeError;
+    it also reads `output_paths.retention_metrics`, `power_metrics`, `reproducibility_report`,
+    and `exclusion_log`, but the `OutputPaths` dataclass in `utils/config.py` defines
+    none of those attributes (AttributeError), and the imported `data.power_logging`
+    module is not present among the resolved artifacts. Additionally, there is no
+    execution '
+  sig: f0c77185cd55eb86971ccdf9d9bc9f606d126af6bc685cb1e05b92824f778331
+T021:
+  c: false
+  h: 4d9ee6a5361b1ec022e38ad3aa2e51850e35fb213273e2dd50690255361a33da
+  r: 'The test file `tests/contract/test_centrality.py` exists and is substantive,
+    but it does not match the actual `code/analysis/centrality.py` / `code/utils/config.py`
+    interfaces, so it would fail at collection/run time: the `centrality_config` fixture
+    calls `CentralityConfig(top_hubs=3, centrality_types=[...], threshold=0.5)` while
+    the real dataclass only accepts `top_hubs_n`, `threshold_fd`, `vif_threshold`,
+    `min_retention_rate`, `power_threshold_n`, `hub_selection_method` (TypeError);
+    `compute_centrality_metrics` returns dict-of-numpy-arrays, not dict-of-dicts,
+    so `isinstance(metrics[key], dic'
+  sig: afaaf14b3a0b9aa4415d587d52a91f7469e5db3980dba9960f3b4ed96a1d8f18
+T022:
+  c: false
+  h: 65f4abc89a3553aa5a6bd14e76a10708e826db951fec5fb8bce47d8018d1c1dc
+  r: 'The test file exists and is substantial, but it is incompatible with the actual
+    `code/analysis/regression.py` it imports, so it cannot pass: it calls `load_centrality_or_pca_data(path,
+    ''Global'')` (module accepts only `file_path`), calls `run_regression_analysis`
+    with keyword args `behavioral_path/centrality_path/fd_path/formula_path/output_path/model_type`
+    (module signature is `behavioral_file/centrality_file/fd_file/model_predictors_file/output_summary_file/output_plot_file`
+    and expects a predictors CSV with `model_type`/`formula_string` columns, not a
+    `formula.txt`), and asserts a summary co'
+  sig: ff30b47481cc87a56a24d67dadbaf0624d2a7e32d4f080fd471cee87758ec587
