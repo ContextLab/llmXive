@@ -1,13 +1,15 @@
 status: none
-intent: PubChem Compound download CSV SMILES properties python package dataset
+intent: download PubChem Compound SMILES and properties python package dataset
 required_fields:
+- CID
 - SMILES
 - InChI
+- MolecularFormula
 - MolecularWeight
-- LogP
+- logP
+- BoilingPoint
+- MeltingPoint
 - ExperimentalOrComputedFlag
-- PropertyName
-- PropertyValue
-cache_key: 1c8a63c3806699aba913549cd86996bebfe20343a76d8d01db89369737706497
-searched_at: '2026-10-19T20:18:48.131919+00:00'
+cache_key: 127d2901b60fa00b5884d717145c181361e3b9a7821df7164d849a04aa62bdc3
+searched_at: '2026-10-19T20:19:51.512504+00:00'
 retry_count: 1

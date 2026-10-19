@@ -84,4 +84,3 @@ The question is framed as a **statistical** investigation of 2‑D fingerprint c
 All artifacts will be validated against the JSON/YAML contracts in `contracts/`.
 
 ---
-

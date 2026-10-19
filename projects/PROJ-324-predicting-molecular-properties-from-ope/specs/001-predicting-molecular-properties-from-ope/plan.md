@@ -106,7 +106,7 @@ All FRs are explicitly addressed.
 
 ## Compute Feasibility
 - **CPU‑first**: RandomForest (`n_estimators=300`, `max_depth=15`) fits < 2 GB RAM; SHAP TreeExplainer runs on CPU.  
-- **Memory**: Fingerprint matrices of a few thousand by a few thousand bits (roughly on the order of a megabyte) together with model objects comfortably fit within a modest RAM capacity.  
+- **Memory**: Fingerprint matrices of a few thousand by a few thousand bits (≈ 1 MB) plus model objects comfortably fit within 7 GB RAM.  
 - **No GPU Needed**: The pipeline does not invoke CUDA; therefore no escape hatch is required.
 
 ## Risk Mitigation
@@ -115,4 +115,3 @@ All FRs are explicitly addressed.
 - **Timeout guard**: Each script logs start/end timestamps; CI aborts > 5 h with a clear error (fulfills NFR‑003).  
 
 ---
-
