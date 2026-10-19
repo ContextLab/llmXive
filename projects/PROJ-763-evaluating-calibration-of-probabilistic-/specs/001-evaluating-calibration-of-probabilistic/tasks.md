@@ -8,10 +8,10 @@ Tasks are grouped by research phase; each task is a single checkbox item that ca
 
 ## Phase 0 – Data acquisition & integrity gate  
 
-- [ ] **T001** **Download SubseasonalRodeo dataset** – Implement `code/src/download.py` to `wget` the verified URL, verify SHA‑256 checksum, and write the raw archive to `data/raw/subseasonal_rodeo.tar.gz`.  
+- [ ] **T001** **Download SubseasonalRodeo dataset** – Implement `code/src/download.py` to `wget` the verified URL, verify SHA‑256 checksum, and write the raw archive to `data/raw/subseasonal_rodeo.tar.gz`.   <!-- FAILED: unspecified -->
   - *Verification*: script raises an exception (non‑zero exit) if download fails or checksum mismatches.  
 
-- [ ] **T002** **Data Availability Gate** – Within `code/src/download.py` check that the extracted files contain either `probability_value` or `precip_prob` fields. If missing, exit with code 1 and log “Data Availability Gate Failed”. No synthetic fallback.  
+- [ ] **T002** **Data Availability Gate** – Within `code/src/download.py` check that the extracted files contain either `probability_value` or `precip_prob` fields. If missing, exit with code 1 and log “Data Availability Gate Failed”. No synthetic fallback.   <!-- FAILED-IN-EXECUTION: code/src/download.py exit=1 -->
 
 - [ ] **T003** **Streaming loader skeleton** – Add `code/src/loader.py` that uses `datasets.load_dataset(..., streaming=True)` to iterate over the extracted Parquet files, yielding records as dictionaries. This loader will be reused by all downstream phases and must respect the gate from T002.  
 

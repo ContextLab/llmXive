@@ -1,0 +1,67 @@
+T001:
+  reason: "The provided `code/src/download.py` does not implement the required download\u2011\
+    via\u2011wget, SHA\u2011256 verification, or writing of `data/raw/subseasonal_rodeo.tar.gz`;\
+    \ instead it performs a data\u2011availability gate on parquet files. Moreover,\
+    \ the expected archive file `data/raw/subseasonal_rodeo.tar.gz` is missing. The\
+    \ task\u2019s core requirement is therefore not satisfied."
+  task: 25dcea8c21282151bf759c4b54312bf97743ad91098157cd98f8df9726bdcc72
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/src/download.py
+    exit=1'
+  task: 4aa560d04eb46509ed8a9a56f76e652da7b88c2e0902f186b4a1943014c5047e
+T003:
+  task: 5b3a6b4e98b8b75d57c0ee7f8abe8b45a8f42a1064cf688ae2a3868416800ea4
+T004:
+  task: e046ba3bd1039f819457975998124e704188339a6f1ae57dd547b7db63b040e6
+T005:
+  task: bc9ee532491f721397757d6d08cd8109228dbe5393e34a100995d304aed1489e
+T006:
+  task: eda4dddb376245024084b6607d07d71c5dd7fa5ab9ba4b1204a898a94a3fd2ef
+T007:
+  task: d4ffd9c12a81893aadc330c5e0da2cdccef3f85fbf03db71bb32371bfd4d45ab
+T008:
+  task: fafe1b90c79e4caaf14befec023b1c7ae967a5c4250db3865289913e3ecd6d06
+T009:
+  task: 44796fc78c17fd621a6c2c4bcc9dd976bef666e97295ba31decfae891b1ed211
+T010:
+  task: 37e7d53d0367a979056a12d25f9012c3cc19c84268f6a28ef321deb3a68de6e8
+T011:
+  task: f6576ae9b35e076d5c0f5fe32b834d4369018d83acb2caf2681a4ee0ea13c314
+T012:
+  task: 31ef15e03e36bd9918492d9b4adc9df69f0519cffd052b6b781ee18d6ed9252d
+T013:
+  task: 0eb8c9997e0de07238effdc21f680880a773090e7e1864444cc99175570241ab
+T014:
+  task: bd5a04ae1ec362fbba0ed0637b3678988657c6aa4eeebc9a10ed213e587a7498
+T015:
+  task: 58bde5eeecab78bdd01358b39cde6a4179fc232056b19a9146267930a83056c3
+T016:
+  task: ca88ff28c03d5eeff3331682761f84c48a9cb65d7e561f5b2982aa9ce041e53a
+T017:
+  task: b0b5141283a039e6d65ffca9cc793158e4a0f09c59503af195013690100465f0
+T018:
+  task: 0013eda58ea25e2abf23d26d606db96080c22b0528eee58dc608ebf66495cd84
+T019:
+  task: 9b696a6bf9c011d03c60ac2db519d4c8e88adf6aec21a758e9b2dd116d9a895e
+T020:
+  task: b05a098092579b6312d5b57a346f0f3d006375b0adcc5e4fe3a5da583b212bb2
+T021:
+  task: 4d5d557909977e24d4510efb27a58d6fef12c3a0d8e2f739e6f5b314a545fafa
+T022:
+  task: 66a6adc2d0f1a97bb85ba5c29bec4025a390d5c6ca1c8ce131821089ecf677f8
+T023:
+  task: 20a9d78f24a59d11b62ae72f11e41e11397db8431679ff6576ca3aaa4853dcc0
+T024:
+  task: de2d58dd884f607f18c6860835d37fef2a30c761ee63a4eb19ae402a2aa4314a
+T025:
+  task: 37d5ddf8027d37be957542706bc8f12272ea5fa22bb136af390340c38bf8660a
+T026:
+  task: ed062a0bdffa5f36658cf6c3f1857302273339dbbd4d50c7d8e4e446fa22d0fd
+T027:
+  task: 6a9c484847002e73b8c3372a79281ecb18b43762155471097805198f23b9e7df
+T028:
+  task: 19ae03b0e68829e43005eb565ff8961bb96e482fd0ae70d32e80c015f24a0a64
+T029:
+  task: f5bd97e37bd1421fe65538c7e6c85e34a18f58655ea1d2f0ffd6d34e47287767
+T030:
+  task: 130d1c2820ce2097c0ebcbbf3731b25d7b98b734311de2d2babd1ae73dcd1261
