@@ -1,0 +1,82 @@
+T001:
+  reason: The `tests/test_scaffold_directories.py` test failed, reporting a missing
+    required directory (`.../projects/PROJ-1011-.../projects/PROJ-1011-...`). Although
+    `code/`, `data/`, and `tests/` exist, the expected project scaffold (including
+    the nested `projects` folder) is not fully created, so the layout requirement
+    is not met.
+  task: 7d15377fc20fcac1afdc69839d491611fd0b299eb7bab59f7c4411e3b85a1410
+T002:
+  reason: "Checked `requirements.txt` (exists) and `run_pipeline.sh` (exists, executable,\
+    \ ran successfully). The `requirements.txt` lists version ranges with `>=` instead\
+    \ of exact pinned versions for Python\u202F3.11, violating the \u201Cpinned dependencies\u201D\
+    \ requirement. The file must be updated to use exact version pins (e.g., `numpy==1.24.0`)."
+  task: db12d6470571002767838275bed2a22a95939023be9d89e6718905aa73ebe63f
+T003:
+  task: cb1f9fd7a5b073e7c15b02e7e722339e68068fe65f7ae9dc0e9ab96b98b2eae1
+T004:
+  reason: "The three required data directories are present, but the `data/CHECKSUMS`\
+    \ manifest file is missing, causing the provided test `test_data_dirs_and_checksum`\
+    \ to fail. The task must add a non\u2011empty `CHECKSUMS` file in the `data/`\
+    \ directory."
+  task: d7a2f84ef64e8cad0748f7b2bfa72b76ecd86ae4cfc5e4ad8bb7de9c5bcddd86
+T005:
+  task: a7ce6886be4423549dbb379d93a1ab0b054d8e4eee4f50d7b4b03a0f74ba14e6
+T006:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 68c044fc5a33d80e3a6cb3709a8cacceb55a9ed6d824eca176f772d5288120e4
+T007:
+  reason: "The repository only contains `code/models/abstract.py`; the required `pattern_card.py`,\
+    \ `proposal.py`, and `rating.py` data\u2011model modules are absent, and the JSON\u2011\
+    Schema files under `contracts/` that the tests load are also missing, causing\
+    \ all `test_model_classes` cases to fail. These missing files must be added and\
+    \ conform to the test\u2019s schema\u2011validation expectations."
+  task: a655ae0e0279109dfe5562cf710544b96b5ecdce370b5b5dc8e839c255b32f19
+T007b:
+  task: 82ea7da84133d5408f89328db95b8dbf9b156013b93edf80edbb66ee2693c99f
+T008:
+  reason: 'Requested task execution failed; rerun successfully: code/error_handling_wrapper.py
+    exit=1'
+  task: dc7a54fbc55cf234dd7bbf781432027bf55e771741742f13de4e3f895502b2c9
+T009:
+  task: 0061ea0c62812a4ca84678acfc795d1629ee2ff5d6e019b1ea62f3c565f9dfcc
+T011:
+  task: 087fe32b7c82ec6dfb67ea585159b065517c84adb9dcb3f035721be267cc554c
+T012:
+  task: 5538f08527d4d939377f33fbe453b17e443662b1f6bd387705b9f1cb2b7af35c
+T020:
+  task: b1b5d75331e94ccbc2185c920f051dd5172937cf5e5cc7f12ed5aee33a47482e
+T024:
+  task: 47db70fdcdf27e2f50af3f0a0ee8ab58ad46b8dfef72d71a033086f95d45c946
+T024b:
+  task: 47743af6629bd8101bc8106578d77c18d3f0c71e9228d5badf71ffabd375a5bc
+T036:
+  task: 4f5385925889ccbd67dee807933d231add2f5a09cb58109dea12d8b9401ce915
+T037:
+  task: e4e3bc190a11825adf02d131f415d989b60ae79cfd499d65870e53f1e47e2774
+T040:
+  task: 15d7f4d36c6bc10211f241849e8675c490ccf711524edcfc0e09f8e6b89ad2dd
+T050:
+  task: 17bbc0e3d09814bd238be253c3f07266f844456c5e6640443e3827f126db0d39
+T055:
+  task: cd5dab8c10f37545749ab9d75c1dff0a5174e3b71cdcea89f8b649648067a632
+T059a:
+  task: 06b7197778833106da6d890ca3e37d4f9736f07b331ec60f08c795dcea50e276
+T059b:
+  task: 99b9498976f63df0c2a8e2d921f0ef21b11607b7217746e428dd4ac78df5f226
+T061:
+  task: d06d7cfdcfc94abd8ae62533c8012cd8ffda5b427afca771aba95e1ac9593af5
+T064:
+  task: 8b352eddb8cae46ccf6dfd99d7e13e88314c80af6b3b20fcb5d9c64b94704b16
+T068:
+  task: 5e282f1cb51abcdab9c967e7f5e08508def11347482cb03e930b0a8a256c4125
+T069:
+  task: f1f337493b957b9183423e9521d3c6a79e4359525f125ed82f564492fd7ba7b9
+T070:
+  task: 1feacb350a645a750bc79c1540fc14e7cc5061bc249152444ca24898f9bda1e1
+T071:
+  task: a3a3f316c71894cca74db9b8fc111264509d822b2189fa1fb3e17650e2c25dd9
+T072:
+  task: ba6769a2fcc43df1b6e71583389609a114cbd1d3301d874653d7dc92edf80bff

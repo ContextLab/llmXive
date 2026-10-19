@@ -115,7 +115,21 @@ def update_state_for_artifact(
         "updated_at": datetime.datetime.now().isoformat(),
     }
 
-    manifest = load_manifest()
+    # Load existing manifest, creating a fresh one if it does not exist
+    try:
+        manifest = load_manifest()
+    except FileNotFoundError:
+        # Initialize a minimal manifest structure
+        manifest = {
+            "artifacts": {},
+            "version_history": [],
+            "last_updated": None,
+            "current_version": version,
+        }
+
+    # Ensure the top‑level keys exist
+    manifest.setdefault("artifacts", {})
+    manifest.setdefault("version_history", [])
     manifest["artifacts"][str(path.relative_to(Path.cwd()))] = entry
     manifest["last_updated"] = datetime.datetime.now().isoformat()
 

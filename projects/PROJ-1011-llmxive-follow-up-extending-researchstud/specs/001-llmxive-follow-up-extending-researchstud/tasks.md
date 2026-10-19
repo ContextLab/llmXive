@@ -13,13 +13,13 @@
 - [ ] **T002** Add `requirements.txt` (pinned Python 3.11 dependencies) and `run_pipeline.sh`.  
   *Verification*: `test_requirements_present` checks file existence and that `run_pipeline.sh` is executable.
 
-- [ ] **T003** Add `quickstart.md` with the command `./run_pipeline.sh --stage all`.  
+- [X] **T003** Add `quickstart.md` with the command `./run_pipeline.sh --stage all`.  
   *Verification*: `test_quickstart_content` parses the markdown and confirms the command string.
 
 - [ ] **T004** Create data directories (`data/raw/`, `data/processed/`, `data/results/`) and a `data/CHECKSUMS` manifest.  
   *Verification*: `test_data_dirs_and_checksum` confirms directories exist and manifest file is present.
 
-- [ ] **T005** Implement seed‑pinning utility (`code/utils/config.py`) for reproducibility.  
+- [X] **T005** Implement seed‑pinning utility (`code/utils/config.py`) for reproducibility.  
   *Verification*: `test_seed_pinning` imports the config and checks that `numpy.random.seed`, `random.seed`, and `torch.manual_seed` are set.
 
 - [ ] **T006** Add state‑management helper (`code/utils/update_state.py`) for artifact hash tracking.  
@@ -28,7 +28,7 @@
 - [ ] **T007** Define data‑model classes (`code/models/abstract.py`, `pattern_card.py`, `proposal.py`, `rating.py`).  
   *Verification*: `test_model_classes` imports each class and validates schema‑conformance via `jsonschema`.
 
-- [ ] **T008** Create error‑handling wrapper that **fails loudly** on data‑fetch errors and logs a model‑fallback switch.  
+- [ ] **T008** Create error‑handling wrapper that **fails loudly** on data‑fetch errors and logs a model‑fallback switch.   <!-- FAILED-IN-EXECUTION: code/error_handling_wrapper.py exit=1 -->
   *Verification*: `test_error_wrapper` triggers a simulated fetch failure and asserts a non‑zero exit code.
 
 - [ ] **T009** Create `data-sources.yaml` with verified URLs for the ML corpus, *Nature Climate Change*, and *Health Affairs*; include a `fallback` entry for each venue.  

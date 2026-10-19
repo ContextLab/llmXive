@@ -1,5 +1,7 @@
 # Quickstart: llmXive follow-up: extending "ResearchStudio-Idea"
 
+./run_pipeline.sh --stage all
+
 *(In-place revision; steps preserved, expected outputs aligned to the redone tasks; fail-first acquisition semantics made explicit.)*
 
 ## Prerequisites

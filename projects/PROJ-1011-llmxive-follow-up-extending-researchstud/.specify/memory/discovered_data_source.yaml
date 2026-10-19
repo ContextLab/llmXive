@@ -1,11 +1,11 @@
 status: none
-intent: download OpenReview Crossref Semantic Scholar abstracts dataset with titles
-  venues acceptance_status python package dataset
+intent: Nature Climate Change Health Affairs ML abstracts PeerRead python package
+  dataset
 required_fields:
 - title
 - abstract
 - venue
 - acceptance_status
-cache_key: 014beb9d7bd0a99723af32972045f0e281554d6f764e7fb00836bbf2dc500dbd
-searched_at: '2026-10-15T06:34:49.340359+00:00'
+cache_key: 088cee1d6d1e88d9619e740d3fcc3d62f99f27406c3dc6923da3e945310767b5
+searched_at: '2026-10-19T09:43:08.401112+00:00'
 retry_count: 1

@@ -9,55 +9,96 @@ from typing import Any, Dict, List, Optional
 @dataclass
 class Proposal:
     """
-    Represents a research proposal, either pattern-guided or baseline.
+    Represents a single generated research proposal.
+
+    Attributes
+    ----------
+    proposal_id : str
+        Deterministic identifier for the proposal (UUID‑like hash).
+    problem_statement : str
+        The problem statement extracted from the source abstract.
+    group_type : str
+        Either ``pattern-guided`` or ``baseline`` indicating the generation mode.
+    text : str
+        Full generated proposal text.
+    patterns_used : Optional[List[str]]
+        List of pattern IDs injected into the prompt (only for pattern‑guided proposals).
+    pattern_confidence_scores : Optional[List[float]]
+        Cosine similarity scores (or other confidence) for the injected patterns.
+    generation_metadata : Dict[str, Any]
+        Arbitrary metadata produced by the LLM generation step (model name, timestamps,
+        token usage, etc.).
+    created_at : datetime
+        Timestamp when the proposal was generated.
+    metadata : Dict[str, Any]
+        Additional free‑form metadata that may be added downstream.
+    _hash : Optional[str]
+        Internal deterministic hash of the immutable fields; generated on demand.
     """
+
     proposal_id: str
     problem_statement: str
-    proposal_text: str
-    generation_type: str  # 'pattern_guided' or 'baseline'
-    pattern_id: Optional[str] = None  # If pattern_guided, reference the pattern
-    model_used: Optional[str] = None
-    generation_timestamp: datetime = field(default_factory=datetime.utcnow)
+    group_type: str  # 'pattern-guided' or 'baseline'
+    text: str
+    patterns_used: Optional[List[str]] = field(default_factory=list)
+    pattern_confidence_scores: Optional[List[float]] = field(default_factory=list)
+    generation_metadata: Dict[str, Any] = field(default_factory=dict)
+    created_at: datetime = field(default_factory=datetime.utcnow)
     metadata: Dict[str, Any] = field(default_factory=dict)
     _hash: Optional[str] = field(default=None, repr=False, compare=False)
 
-    def __post_init__(self):
-        """Generate a deterministic hash for the record."""
+    def __post_init__(self) -> None:
+        """Generate a deterministic hash if not supplied."""
         if self._hash is None:
-            content = f"{self.proposal_id}|{self.problem_statement}|{self.proposal_text}|{self.generation_type}|{self.pattern_id or ''}"
-            self._hash = hashlib.sha256(content.encode('utf-8')).hexdigest()
+            # Use stable fields only; exclude mutable metadata that may change over time
+            hash_input = (
+                f"{self.proposal_id}|"
+                f"{self.problem_statement}|"
+                f"{self.group_type}|"
+                f"{self.text}"
+            )
+            self._hash = hashlib.sha256(hash_input.encode('utf-8')).hexdigest()
 
     @property
     def hash(self) -> str:
+        """Public accessor for the deterministic hash."""
         return self._hash
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
+        """Serialize the proposal to a plain dictionary suitable for JSONL output."""
         return {
             "proposal_id": self.proposal_id,
             "problem_statement": self.problem_statement,
-            "proposal_text": self.proposal_text,
-            "generation_type": self.generation_type,
-            "pattern_id": self.pattern_id,
-            "model_used": self.model_used,
-            "generation_timestamp": self.generation_timestamp.isoformat(),
+            "group_type": self.group_type,
+            "text": self.text,
+            "patterns_used": self.patterns_used,
+            "pattern_confidence_scores": self.pattern_confidence_scores,
+            "generation_metadata": self.generation_metadata,
+            "created_at": self.created_at.isoformat(),
             "metadata": self.metadata,
-            "hash": self._hash
+            "hash": self._hash,
         }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Proposal":
-        """Construct from a dictionary."""
-        gen_time = datetime.fromisoformat(data["generation_timestamp"]) if data.get("generation_timestamp") else datetime.utcnow()
+        """Re‑create a Proposal instance from a dictionary (e.g. loaded from JSONL)."""
+        created_at = (
+            datetime.fromisoformat(data["created_at"])
+            if isinstance(data.get("created_at"), str)
+            else datetime.utcnow()
+        )
 
         return cls(
             proposal_id=data["proposal_id"],
             problem_statement=data["problem_statement"],
-            proposal_text=data["proposal_text"],
-            generation_type=data["generation_type"],
-            pattern_id=data.get("pattern_id"),
-            model_used=data.get("model_used"),
-            generation_timestamp=gen_time,
+            group_type=data["group_type"],
+            text=data["text"],
+            patterns_used=data.get("patterns_used", []),
+            pattern_confidence_scores=data.get(
+                "pattern_confidence_scores", []
+            ),
+            generation_metadata=data.get("generation_metadata", {}),
+            created_at=created_at,
             metadata=data.get("metadata", {}),
-            _hash=data.get("hash")
+            _hash=data.get("hash"),
         )
