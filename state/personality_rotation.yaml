@@ -1,14 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-10-19T10:05:59.496013+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-10-19T12:05:43.659370+00:00'
 last_outcome: committed
 history:
-- slug: john-von-neumann
-  started_at: '2026-06-27T17:28:06.234270+00:00'
-  ended_at: '2026-06-27T17:52:25.240682+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/reviews/research/john-von-neumann-simulated__2026-06-27__research.md
 - slug: linus-pauling
   started_at: '2026-06-27T17:52:25.240682+00:00'
   ended_at: '2026-06-27T18:26:58.904108+00:00'
@@ -1311,3 +1304,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-759-energy-profiling-of-quantized-llm-infere/reviews/research/freeman-dyson-simulated__2026-10-19__research.md
+- slug: geoffrey-west
+  started_at: '2026-10-19T10:05:59.496013+00:00'
+  ended_at: '2026-10-19T12:05:43.659370+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/reviews/research/geoffrey-west-simulated__2026-10-19__research.md
