@@ -112,15 +112,15 @@ def evaluate_policy(
 
     successes = []
     for _ in range(N_EPISODES):
-        # In a deterministic setting the latent sequence does not change
-        # across episodes; we keep the implementation simple and reuse it.
-        # The policy looks at the last ``k`` tokens (or all if fewer).
+        # Deterministic policy: latent sequence does not change across episodes.
         recent = latents[-k:] if k <= T else latents
         pred = tau * recent.mean(axis=0)  # shape (D,)
 
         # Broadcast the prediction to the shape of actions for MSE.
-        # We compare only the first ``actions.shape[1]`` dimensions.
-        pred_expanded = np.broadcast_to(pred[: actions_norm.shape[1]], actions_norm.shape)
+        # Compare only the first ``actions.shape[1]`` dimensions.
+        pred_expanded = np.broadcast_to(
+            pred[: actions_norm.shape[1]], actions_norm.shape
+        )
 
         mse = np.mean((pred_expanded - actions_norm) ** 2)
         successes.append(1.0 if mse < TOLERANCE else 0.0)
@@ -135,7 +135,7 @@ def grid_search_clip(
 ) -> dict:
     """
     Evaluate the full (τ, k) grid for one clip and pick the best pair.
-    Returns a dict with keys ``clip_id``, ``tau``, ``k``, ``success_rate``.
+    Returns a dict with keys ``tau``, ``k``, ``success_rate``.
     """
     best_rate = -1.0
     best_tau = None
@@ -158,8 +158,7 @@ def list_clip_files(input_dir: pathlib.Path) -> List[pathlib.Path]:
     """
     Return a list of ``clip_*.npz`` files sorted by their numeric id.
     """
-    files = sorted(input_dir.glob("clip_*.npz"))
-    return files
+    return sorted(input_dir.glob("clip_*.npz"))
 
 # ----------------------------------------------------------------------
 def _load_schema() -> dict:

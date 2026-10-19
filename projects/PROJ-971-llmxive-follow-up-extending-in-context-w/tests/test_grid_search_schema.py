@@ -2,7 +2,7 @@
 test_grid_search_schema.py
 
 This test validates the ``labels.csv`` produced by the grid‑search
-labeling script.  It checks:
+labeling script.  Checks:
 
 * Conformance to the JSON‑Schema contract.
 * All ``success_rate`` values lie in the interval [0, 1].

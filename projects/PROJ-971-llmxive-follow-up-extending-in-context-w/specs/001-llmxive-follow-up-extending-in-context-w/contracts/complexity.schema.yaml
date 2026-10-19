@@ -1,14 +1,15 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Task Complexity Record"
+# JSON Schema for task_complexity.csv
+# Each row must contain:
+#   - clip_id: string identifier of the clip (e.g., "clip_000")
+#   - subgoal_count: integer >= 1 representing the number of sub‑goals
 type: object
-required:
-  - config_id
-  - subgoal_count
 properties:
-  config_id:
+  clip_id:
     type: string
-    description: "Identifier for the robot configuration / simulation scene."
   subgoal_count:
     type: integer
     minimum: 1
-    description: "Number of distinct sub‑goals defined in the environment."
+required:
+  - clip_id
+  - subgoal_count
+additionalProperties: false
