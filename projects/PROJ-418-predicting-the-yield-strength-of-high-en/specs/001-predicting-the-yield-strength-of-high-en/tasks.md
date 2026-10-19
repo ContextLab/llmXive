@@ -1,84 +1,133 @@
-# Tasks: Predicting the Yield Strength of High-Entropy Alloys
+# Tasks: Predicting the Yield Strength of High‑Entropy Alloys
 
-**Inputs**: `spec.md`, `plan.md`, existing artifacts, JSON-schema contracts in `specs/001-predicting-the-yield-strength-of-high-en/contracts/`.
-**Goal**: Smallest complete study answering the research question — a composition-only Random Forest predictor of single-phase HEA yield strength, validated on a held-out test set and an independent external set, with full statistical rigor (power analysis, VIF, permutation importance with Holm–Bonferroni correction, three-seed stability) and a provenance-tracked report.
-
-**Data source note**: The spec's Zenodo URLs are blank placeholders; the plan names the Materials Project REST API as the canonical source. All data tasks therefore use the real `mp_api` package (package-based fetch) with a required `MP_API_KEY` environment variable. Loaders FAIL LOUDLY on any fetch/validation error — no synthetic fallback, ever. If the primary query returns too few experimental yield-strength records to support the power analysis, the pipeline aborts and reports the exact mismatch for scope revision rather than fabricating data.
+**Inputs**: `spec.md`, `plan.md`, JSON‑schema contracts in `specs/001-predicting-the-yield-strength-of-high-en/contracts/`.  
+**Goal**: Deliver the smallest complete study that satisfies every functional requirement (FR‑001 – FR‑024) and success criterion (SC‑001 – SC‑011) in the specification. All data are real, fetched from the authorized Zenodo archive; no synthetic fall‑backs are permitted. Every numeric value in the final markdown report must be programmatically generated and linked to a provenance ID.
 
 ---
 
-## Phase 1: Setup and first end-to-end analysis
+## Phase 0 – Project Setup  
 
-- [ ] T001 [P1] [US-1] Implement the real data acquisition module `code/data/fetch_heas.py` that queries the Materials Project REST API via the `mp_api` package (requires `MP_API_KEY` env var) for single-phase HEA entries with experimentally measured yield strength, and writes raw records to `data/raw/heas_raw.jsonl` (one JSON object per line: `alloy_id`, `composition`, `yield_strength` in MPa, plus phase/temperature metadata).
-  - Implementation: use `mp_api.client.MPRester`; normalize yield strength to MPa; filter to single-phase, room-temperature entries; abort with a clear error (FR-009) if any record lacks required fields — no try/except fallback to synthetic data.
-  - Verification: `data/raw/heas_raw.jsonl` exists, is non-empty, every line validates against `contracts/dataset.schema.yaml`, and record count is logged. A unit test in `code/tests/test_fetch.py` confirms the loader raises on a record missing `yield_strength`.
-
-- [ ] T002 [P1] [US-1] Implement the deterministic descriptor calculator `code/data/descriptors.py` computing the five composition-only descriptors — `mixing_entropy`, `atomic_size_mismatch` (δ), `electronegativity_variance` (Δχ), `vec`, `tm_variance` — from a frozen elemental-property reference table `data/raw/elemental_properties.csv` (element, atomic_radius, electronegativity, valence_electrons, melting_point; validate each row against `contracts/elemental_properties.schema.yaml`).
-  - Implementation: pure functions, no randomness; unit tests in `code/tests/test_descriptors.py` check known values (e.g., equiatomic CoCrFeMnNi: mixing entropy = 1.369 J/mol/K, VEC = 8.0) to 3 decimals.
-  - Verification: `pytest code/tests/test_descriptors.py` passes; descriptor functions raise `KeyError` with a clear message for an element absent from the reference table.
-
-- [ ] T003 [P1] [US-1] Build the processed dataset and run a thin end-to-end analysis: `code/data/build_dataset.py` loads `data/raw/heas_raw.jsonl`, computes descriptors via T002, and writes `data/processed/hea_descriptors.csv` (columns: `alloy_id`, `composition`, the five descriptors, `yield_strength`), validated row-wise against `contracts/descriptor.schema.yaml` and `contracts/hea_schema.schema.yaml`. Then `code/models/train_quick.py` performs a fixed-seed (42) 80/20 split, trains a small RandomForestRegressor (`n_estimators=100`), and writes real held-out R², Pearson r, and p-value to `data/results/quick_metrics.json`.
-  - Verification: `data/processed/hea_descriptors.csv` exists with ≥ 1 row per real alloy and all descriptor columns populated; `data/results/quick_metrics.json` contains real computed numbers (no placeholders); the documented command in `quickstart.md` executes end-to-end.
-
-**Checkpoint**: The documented command runs on real Materials Project data and produces checkable numerical outputs. No report writing from expected or invented results.
-
-## Phase 2: Complete the study and validate its evidence
-
-- [ ] T004 [US-1] Perform the statistical power analysis (FR-015, FR-022, SC-009) in `code/analysis/power.py`: target power ≥ 0.80, α = 0.05, effect size derived from R² ≥ 0.6 (Cohen's f² = 1.5) using `statsmodels.stats.power.FTestPower`. Write required minimum N and achieved power to `data/results/power_analysis.json`. Abort with an informative error if actual N < required N — do not proceed on an underpowered dataset (FR-023).
-  - Verification: `data/results/power_analysis.json` exists with numeric `required_n` and `achieved_power`; pipeline aborts (non-zero exit, clear message) when N is insufficient.
-
-- [ ] T005 [US-1] Implement the full train/test pipeline `code/models/train_full.py`: fixed-seed 42, 80/20 split into `data/processed/train.parquet` / `data/processed/test.parquet` (schema `contracts/processed_data.schema.yaml`); compute VIF on the training descriptors (statsmodels), drop any descriptor with VIF > 5, record values and removals in `data/results/vif_summary.json` (FR-016, SC-010); train RandomForestRegressor (`n_estimators=500`, `max_features='sqrt'`) with 5-fold CV hyperparameter grid search on the cleaned training matrix; persist the model to `data/results/model_rf.joblib` and CV scores to `data/results/cv_metrics.json` (FR-003).
-  - Verification: no descriptor with VIF > 5 remains in the final feature set (asserted in code); `data/results/model_rf.joblib` and `data/results/cv_metrics.json` exist; rerunning with the same seed reproduces identical CV scores.
-
-- [ ] T006 [US-1] Evaluate on the held-out test set and compute descriptor–target correlations: `code/analysis/evaluate.py` predicts on the test set, computes R², Pearson r, two-tailed p-value, MAE, RMSE, and 95% bootstrap confidence intervals (1000 resamples, seeded), writing `data/results/metrics.json` validated against `contracts/metrics.schema.yaml` (FR-004, SC-001–SC-003). In the same module, compute Pearson r and two-tailed p for each descriptor using **training data only**, flag those with |r| > 0.5 and p < 0.01, and write `data/results/descriptor_correlation.json` (FR-014, SC-007).
-  - Verification: `data/results/metrics.json` validates against the schema and contains real measured values; `data/results/descriptor_correlation.json` reports per-descriptor r, p, and a boolean flag; success-threshold checks (R² ≥ 0.6, |r| ≥ 0.5, p < 0.05) are reported as pass/fail without weakening thresholds.
-
-- [ ] T007 [US-1] Compute permutation importance with significance testing: `code/analysis/importance.py` runs `sklearn.inspection.permutation_importance` with ≥ 1000 permutations per feature on the held-out test set (FR-005), performs a non-parametric permutation test per feature, applies Holm–Bonferroni correction (α = 0.05), and writes `data/results/perm_importance.json` validated against `contracts/importance.schema.yaml` (FR-006, SC-003).
-  - Verification: every feature record has `importance_score`, `raw_p_value`, `holm_bonferroni_p`; features with corrected p < 0.05 are flagged; a unit test in `code/tests/test_importance.py` verifies the Holm–Bonferroni implementation against a hand-computed example.
-
-- [ ] T008 [US-1] Obtain and evaluate the independent external validation set: `code/data/fetch_external.py` performs a second Materials Project query with a disjoint filter (different date range / distinct entry set) to produce `data/external/validation.jsonl`, validated against `contracts/dataset.schema.yaml` (FR-017). Compute descriptors via T002, run inference with the trained model, and write R², |r|, p-value to `data/results/external_metrics.json` (schema `contracts/metrics.schema.yaml`). Document measurement-protocol and processing-condition differences between primary and external datasets, noting confounds, in `data/results/external_provenance.md` (FR-023, FR-024, SC-008).
-  - Verification: external set shares no `alloy_id` with the training/test data (asserted); `data/results/external_metrics.json` validates against the schema; the provenance document states comparability limitations honestly.
-
-- [ ] T009 [US-1] Run the stability assessment: `code/analysis/stability.py` executes the full train/evaluate/importance pipeline three times with seeds [111, 222, 333], records the top-5 feature rankings per run in `data/results/stability_rankings.json`, computes the maximum rank difference across runs, and reports whether it is ≤ 1 (FR-021, SC-006). Do not relax the ≤ 1 threshold; if it fails, record the actual maximum difference and the honest failure in the results file.
-  - Verification: `data/results/stability_rankings.json` contains three ranked lists and a computed `max_rank_difference`; all three runs use the same real dataset.
-
-- [ ] T010 [US-1] Add independent correctness, sensitivity, and runtime checks: `code/tests/test_pipeline.py` covers (a) schema validation of every artifact against its contract (`dataset`, `descriptor`, `metrics`, `importance`, `manifest`), (b) a sensitivity check varying the test-split fraction (e.g., 0.15/0.20/0.25) recording metric variation in `data/results/sensitivity_analysis.json`, and (c) a runtime assertion that the full pipeline completes within the free-runner budget (≤ 6 h, ≤ 7 GB RAM), recording wall-clock time and peak memory in `data/results/runtime.json`.
-  - Verification: `pytest code/tests/` passes; `data/results/sensitivity_analysis.json` and `data/results/runtime.json` contain real measured values; any schema violation fails the test suite loudly.
-
-- [ ] T011 [US-1] Generate the specified tables and figures directly from validated outputs: `code/reporting/figures.py` produces (a) predicted-vs-measured scatter with the 1:1 line and bootstrap CI band (`figures/pred_vs_meas.png`), (b) descriptor–target correlation bar chart with p-value annotations (`figures/descriptor_corr.png`), and (c) permutation-importance ranking with corrected p-value markers (`figures/perm_importance.png`). Each figure is generated from the JSON artifacts of T006–T008, never from hard-coded values.
-  - Verification: all three figure files exist and are non-empty; regenerating from unchanged inputs produces byte-identical files (seeded, deterministic).
-
-## Phase 3: Reproducible results and paper handoff
-
-- [ ] T012 [US-1] Assemble the provenance-tracked report and manifest: `code/reporting/report.py` generates `paper/report.md` with all required sections — dataset statistics, power-analysis justification, VIF summary, model performance with CIs, descriptor–target correlations (training only), permutation importance with Holm–Bonferroni p-values, external-validation metrics and protocol documentation, stability assessment, and provenance log (FR-008, SC-004). Every numeric value is emitted programmatically with a provenance ID (e.g., `[PV-metrics-r2]`) linked in `data/results/provenance_linking.json` to its source artifact and generating code block (FR-010, FR-024, SC-011). Write `data/results/manifest.json` (run_id, timestamp, seeds, package versions, SHA-256 checksums of all inputs/outputs) validated against `contracts/manifest.schema.yaml`.
-  - Verification: `paper/report.md` contains all nine required sections (regex check in `code/tests/test_report.py`); every number in the report has an entry in `data/results/provenance_linking.json`; `data/results/manifest.json` validates against its schema and checksums match the actual files.
-
-- [ ] T013 [US-1] Re-run the documented workflow end-to-end from its declared inputs and verify all success criteria: `code/verify_success_criteria.py` parses every artifact under `data/results/` and writes `data/results/verification_report.json` with pass/fail for SC-001 through SC-011, reporting failures honestly (e.g., if R² < 0.6 on real data, the report states the actual value and the negative finding). Update `quickstart.md` with the exact runnable commands and expected outputs, and write `data/results/final_handoff.json` (artifact paths, manifest hashes, pointer to `paper/report.md`) for the paper stage — paper layout, PDF compilation, and publication remain with the downstream paper pipeline.
-  - Verification: a clean re-run from `data/raw/` reproduces all artifacts with identical checksums (seeded); `data/results/verification_report.json` exists with an entry for every SC; `quickstart.md` documents Prerequisites, Quick Start, and Expected Output sections.
+- [ ] T000 [P0] [FR-001] **Project environment setup.**  
+  Implement `code/setup/setup_env.py` that creates a virtual environment, installs pinned dependencies from `requirements.txt`, and validates `requirements.txt` against `contracts/requirements.schema.yaml`.  
+  **Verification:** a pytest `code/tests/test_setup_env.py` asserts that the virtualenv is created, all packages install without error, and the schema validation passes.
 
 ---
 
-## Dependencies and requirement coverage
+## Phase 1 – Setup and first end‑to‑end analysis  
+
+- [ ] T001 [P1] [FR-001] **Data acquisition – real HEA dataset (Zenodo).**  
+  Implement `code/data/fetch_heas.py` that downloads the curated HEA yield‑strength dataset from the Zenodo archive (URL placeholder **INSERT_ZENODO_URL_HERE**).  
+  - Writes a **CSV** `data/raw/heas_raw.csv` with columns `alloy_id, composition, yield_strength, phase, temperature`.  
+  - Validates each row against `contracts/dataset.schema.yaml`.  
+  - Aborts with a clear error if any required field is missing (fulfills FR‑009).  
+  **Verification:** a unit test `code/tests/test_fetch_heas.py` checks that a record missing `yield_strength` raises `ValueError`; after execution `data/raw/heas_raw.csv` exists, is non‑empty, and passes JSON‑schema validation.
+
+- [ ] T002 [P1] [FR-002] **Descriptor calculation (CSV).**  
+  Implement `code/data/descriptors.py` that reads `data/raw/heas_raw.csv`, loads the frozen elemental‑property table `data/raw/elemental_properties.csv` (validated against `contracts/elemental_properties.schema.yaml`), and computes the five composition‑only descriptors: `mixing_entropy`, `atomic_size_mismatch` (δ), `electronegativity_variance` (Δχ), `vec`, `tm_variance`.  
+  - Writes **CSV** `data/processed/hea_descriptors.csv` containing `alloy_id, composition, mixing_entropy, atomic_size_mismatch, electronegativity_variance, vec, tm_variance, yield_strength`.  
+  - Validates rows against both `contracts/descriptor.schema.yaml` and `contracts/hea_schema.schema.yaml`.  
+  **Verification:** `code/tests/test_descriptors.py` contains known‑value checks (e.g., CoCrFeMnNi) and asserts that missing element symbols raise a clear `KeyError`.
+
+---
+
+## Phase 2 – Complete study and validation  
+
+- [ ] T004 [US‑1] **Statistical power analysis.**  
+  Implement `code/analysis/power.py` that:  
+  - Uses `statsmodels.stats.power.FTestPower` with target power ≥ 0.80, α = 0.05, effect size derived from R² ≥ 0.6 (Cohen’s f² ≈ 1.5).  
+  - Computes required minimum sample size and achieved power based on the actual count of rows in `data/raw/heas_raw.csv`.  
+  - Writes `data/results/power_analysis.json` (`required_n`, `achieved_power`).  
+  - Aborts with a clear error if actual N < required N (fulfills FR‑015, FR‑023).  
+  **Verification:** a test `code/tests/test_power.py` asserts that the abort path triggers when a deliberately truncated CSV is supplied.
+
+- [ ] T005 [US‑1] **Full training pipeline with VIF handling.**  
+  Implement `code/models/train_full.py` that:  
+  1. Loads `data/processed/hea_descriptors.csv`.  
+  2. Performs the same 80/20 split (seed 42) and saves `data/processed/train.parquet` / `data/processed/test.parquet` (validated against `contracts/processed_data.schema.yaml`).  
+  3. Computes Variance Inflation Factor for each descriptor on the training set (statsmodels).  
+  4. Drops any descriptor with VIF > 5, records the VIF values and dropped features in `data/results/vif_summary.json`.  
+  5. Trains a **RandomForestRegressor** (`n_estimators=500`, `max_features='sqrt'`) with 5‑fold cross‑validation on the cleaned training matrix.  
+  6. Persists the final model to `data/results/model_rf.joblib` and CV scores to `data/results/cv_metrics.json`.  
+  **Verification:** after run, `data/results/vif_summary.json` shows no descriptor with VIF > 5 remaining; re‑running with the same seed reproduces identical CV metrics (asserted in `code/tests/test_train_full.py`).
+
+- [ ] T006 [US‑1] **Test‑set evaluation & descriptor‑target correlation (training data).**  
+  Implement `code/analysis/evaluate.py` that:  
+  - Loads the trained model and `data/processed/test.parquet`.  
+  - Predicts yield strength, computes R², Pearson r, two‑tailed p‑value, MAE, RMSE, and 95 % bootstrap confidence intervals (1 000 resamples, seeded).  
+  - Writes `data/results/metrics.json` validated against `contracts/metrics.schema.yaml`.  
+  - Separately, using **only the training data**, computes Pearson r and p‑value for each descriptor; flags those with |r| > 0.5 and p < 0.01, and writes `data/results/descriptor_correlation.json`.  
+  **Verification:** `code/tests/test_evaluate.py` checks that the JSON files conform to their schemas and that at least one descriptor passes the |r| > 0.5 / p < 0.01 threshold (or records a truthful failure).
+
+- [ ] T007 [US‑1] **Permutation importance with Holm–Bonferroni correction.**  
+  Implement `code/analysis/importance.py` that runs `sklearn.inspection.permutation_importance` on the held‑out test set with **≥ 1 000 permutations per feature**.  
+  - Performs a non‑parametric permutation test for each feature, obtains raw p‑values, applies Holm‑Bonferroni correction (α = 0.05).  
+  - Writes `data/results/perm_importance.json` validated against `contracts/importance.schema.yaml`.  
+  **Verification:** a unit test `code/tests/test_importance.py` verifies the correction against a hand‑computed example and that every feature record contains `importance_score`, `raw_p_value`, and `holm_bonferroni_p`.
+
+- [ ] T008 [US‑1] **External validation dataset acquisition & evaluation.**  
+  Implement `code/data/fetch_external.py` that performs a second, disjoint Zenodo query (different release) and writes **CSV** `data/external/validation.csv` (same columns as `heas_raw.csv`).  
+  - Validates against `contracts/dataset.schema.yaml`.  
+  - Re‑uses `code/data/descriptors.py` to generate `data/external/validation_descriptors.csv`.  
+  - Loads the trained model from T005, predicts on this external set, and writes `data/results/external_metrics.json` (schema `contracts/metrics.schema.yaml`).  
+  - Documents measurement‑protocol differences and any confounds in `data/results/external_provenance.md`.  
+  **Verification:** a test `code/tests/test_external.py` asserts that `validation.csv` shares no `alloy_id` with the primary data and that the metrics file passes schema validation.
+
+- [ ] T009 [US‑1] **Stability assessment across three seeds.**  
+  Implement `code/analysis/stability.py` that repeats the full pipeline (T005 → T006 → T007) for seeds **111, 222, 333**.  
+  - For each run, records the top‑5 feature rankings in `data/results/stability_rankings_seed{XXX}.json`.  
+  - Aggregates the three rankings into `data/results/stability_rankings.json` and computes the maximum rank difference; writes a flag `max_rank_difference ≤ 1` (fulfills FR‑021, SC‑006).  
+  **Verification:** `code/tests/test_stability.py` checks that the aggregated JSON contains three ranking lists and that the computed `max_rank_difference` matches the raw rankings.
+
+- [ ] T010 [US‑1] **Figure generation.**  
+  Implement `code/reporting/figures.py` that produces PNG files directly from the validated JSON artifacts:  
+  1. `figures/pred_vs_meas.png` – predicted vs. measured scatter with 1:1 line and bootstrap CI band.  
+  2. `figures/descriptor_corr.png` – bar chart of descriptor‑target Pearson r with p‑value annotations.  
+  3. `figures/perm_importance.png` – ranked permutation‑importance plot with corrected‑p‑value markers.  
+  All figures are generated deterministically (seeded) and saved under `figures/`.  
+  **Verification:** a test `code/tests/test_figures.py` asserts that each PNG file is non‑empty and that re‑generation with unchanged inputs yields identical byte streams (hash comparison).
+
+- [ ] T011 [US‑1] **Provenance‑tracked report and manifest.**  
+  Implement `code/reporting/report.py` that assembles `paper/report.md` containing the nine mandatory sections (dataset statistics, power‑analysis justification, VIF summary, model performance with CIs, descriptor‑target correlations, permutation importance with corrected p‑values, external‑validation results & protocol, stability assessment, provenance log).  
+  - Every numeric value is emitted with a provenance ID (e.g., `[PV-r2]`) and a mapping entry in `data/results/provenance_linking.json` linking the ID to the source artifact and code block (fulfills FR‑010, FR‑024, SC‑011).  
+  - Writes `data/results/manifest.json` (run_id, timestamp, seeds, package_versions, SHA‑256 checksums of **all** input and output files) validated against `contracts/manifest.schema.yaml`.  
+  **Verification:** `code/tests/test_report.py` uses regexes to confirm all required section headings exist, that each numeric token matches an entry in `provenance_linking.json`, and that the manifest checksums are correct.
+
+- [ ] T012 [US‑1] **Success‑criteria verification and handoff.**  
+  Implement `code/verify_success_criteria.py` that parses every artifact under `data/results/` and produces `data/results/verification_report.json` with a pass/fail entry for each SC‑001 – SC‑011 (including honest failure messages if thresholds are not met).  
+  - Updates `quickstart.md` with the exact runnable command sequence and the expected location of `paper/report.md`.  
+  - Writes `data/results/final_handoff.json` containing artifact paths, their manifest hashes, and a pointer to `paper/report.md` for the downstream paper stage.  
+  **Verification:** after a clean run, `verification_report.json` reports “pass” for every criterion; `final_handoff.json` contains matching SHA‑256 hashes (checked by a test `code/tests/test_handoff.py`).
+
+- [ ] T013 [US‑1] **Full reproducibility check.**  
+  Execute the documented workflow from scratch (`python -m code.pipeline.full_run`) on a fresh clone, then re‑run `code/verify_success_criteria.py`.  
+  - Confirm that **all** generated files (`*.csv`, `*.json`, `*.joblib`, `*.png`, `report.md`) have identical SHA‑256 checksums to those recorded in `manifest.json`.  
+  - If any mismatch occurs, the task fails and the discrepancy is logged.  
+  **Verification:** a CI step runs this task; success is required for the pipeline to be marked “pass”.
+
+---
+
+### Dependency & Requirement Mapping
 
 | Requirement | Task(s) | Demonstrating command |
-|---|---|---|
-| FR-001 (data acquisition) | T001 | `python -m code.data.fetch_heas` |
-| FR-002 (descriptors) | T002, T003 | `pytest code/tests/test_descriptors.py` |
-| FR-003 (model training) | T005 | `python -m code.models.train_full` |
-| FR-004 (test evaluation) | T006 | `python -m code.analysis.evaluate` |
-| FR-005/FR-006 (permutation importance) | T007 | `python -m code.analysis.importance` |
-| FR-008/FR-010/FR-024 (report, provenance) | T012 | `python -m code.reporting.report` |
-| FR-009 (missing-field abort) | T001, T002 | `pytest code/tests/test_fetch.py` |
-| FR-014 (descriptor correlations) | T006 | `data/results/descriptor_correlation.json` |
-| FR-015/FR-022/FR-023 (power analysis) | T004 | `python -m code.analysis.power` |
-| FR-016 (VIF) | T005 | `data/results/vif_summary.json` |
-| FR-017 (external validation) | T008 | `data/results/external_metrics.json` |
-| FR-018 (contract validation) | T010, T012 | `pytest code/tests/test_pipeline.py` |
-| FR-021 (stability) | T009 | `data/results/stability_rankings.json` |
-| SC-001–SC-011 | T013 | `python -m code.verify_success_criteria` |
+|-------------|---------|-----------------------|
+| FR‑001 (data acquisition) | T001 | `python -m code.data.fetch_heas` |
+| FR‑002 (descriptor calculation) | T002 | `python -m code.data.descriptors` |
+| FR‑003 (model training) | T005 | `python -m code.models.train_full` |
+| FR‑004 (test evaluation) | T006 | `python -m code.analysis.evaluate` |
+| FR‑005 / FR‑006 (permutation importance) | T007 | `python -m code.analysis.importance` |
+| FR‑008 / FR‑010 / FR‑024 (report & provenance) | T011 | `python -m code.reporting.report` |
+| FR‑009 (missing‑field abort) | T001, T002 | unit tests in `code/tests/` |
+| FR‑014 (descriptor‑target correlation) | T006 | `data/results/descriptor_correlation.json` |
+| FR‑015 / FR‑022 / FR‑023 (power analysis) | T004 | `python -m code.analysis.power` |
+| FR‑016 (VIF) | T005 | `data/results/vif_summary.json` |
+| FR‑017 (external validation) | T008 | `python -m code.data.fetch_external` |
+| FR‑018 (contract validation) | T010, T011, T012 | `pytest code/tests/` |
+| FR‑021 (stability) | T009 | `data/results/stability_rankings.json` |
+| SC‑001 – SC‑011 (success criteria) | T012 | `python -m code.verify_success_criteria` |
+| SC‑013 (CI success) – out‑of‑scope | — | — |
 
-**Execution order**: T001 → T002 → T003 (first end-to-end result) → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013. T008 depends on the model from T005; T009 depends on the full pipeline of T005–T007; all verification tasks (T010, T013) follow their prerequisites.
+**Execution order:** T000 → T001 → T002 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013. All downstream tasks depend only on the artifacts produced by their predecessors.
 
-## Revision behavior
+--- 
 
-The previously rejected tasks T008, T060, and T200 (missing `data/raw/heas_raw.csv` and `data/processed/hea_descriptors.csv`) are superseded by T001 and T003 above, which specify the real Materials Project fetch (per plan.md, since the spec's Zenodo URLs are blank), fail-loudly validation, and the concrete artifact paths. Scaffolding, logging-setup, checksum-utility, README-sync, and CI-only tasks from the prior list are folded into the tasks that need them (the platform supplies `llmxive_toolkit` paths/logging; checksums are recorded in T012's manifest). No scientific requirement was dropped: every FR and SC in the active spec maps to at least one task above.
+*All tasks are unchecked (`[ ]`) until the corresponding implementation passes its verification step. Checked boxes will be added automatically by the CI system once the artifact validation succeeds.*  
