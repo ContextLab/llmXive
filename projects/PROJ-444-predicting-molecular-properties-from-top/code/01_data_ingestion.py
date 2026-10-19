@@ -132,7 +132,6 @@ def write_checksum(file_path: Path, checksums_path: Path) -> None:
                     h, p = parts
                     existing_entries[Path(p)] = h
                 elif ":" in ln:
-                    # legacy "path: hash" format
                     p, h = [seg.strip() for seg in ln.split(":", 1)]
                     existing_entries[Path(p)] = h
 
@@ -255,6 +254,8 @@ def main() -> None:
     # ------------------------------------------------------------------
     exclusion_log = Path("data/logs/large_molecule_exclusions.log")
     exclusion_log.parent.mkdir(parents=True, exist_ok=True)
+
+    # Load already logged SMILES to keep operation idempotent
     already_excluded: set = set()
     if exclusion_log.is_file():
         with exclusion_log.open("r") as f:
@@ -274,26 +275,34 @@ def main() -> None:
                 column_map[col] = "smiles"
             elif low in {"logp", "logp (estimated)"}:
                 column_map[col] = "logP"
-            elif low in {"measured log solubility (mol/l)", "logsol", "logsolubility", "logs"}:
+            elif low in {"measured log solubility (mol/l)", "measured log solubility (mol/l)", "measured log solubility (mol/l)"}:
                 column_map[col] = "logP"
             else:
                 column_map[col] = col  # keep other columns unchanged
 
         chunk = chunk.rename(columns=column_map)
 
+        # Verify required columns exist
         if "smiles" not in chunk.columns:
             logger.error("Column 'smiles' not found after renaming.")
             sys.exit(1)
 
         if "logP" not in chunk.columns:
-            # Fallback: pick any column containing 'log' (case‑insensitive)
-            log_cols = [c for c in chunk.columns if 'log' in c.lower()]
-            if log_cols:
-                chunk = chunk.rename(columns={log_cols[0]: "logP"})
-                logger.warning(f"Renamed column '{log_cols[0]}' to 'logP' as fallback.")
+            # Prefer the measured solubility column if present
+            measured_candidates = [c for c in chunk.columns if 'measured' in c.lower() and 'log' in c.lower()]
+            if measured_candidates:
+                chosen = measured_candidates[0]
+                chunk = chunk.rename(columns={chosen: "logP"})
+                logger.warning(f"Renamed measured column '{chosen}' to 'logP'.")
             else:
-                logger.error("Required target column 'logP' not found after renaming.")
-                sys.exit(1)
+                # Fallback: pick any column containing 'log' (case‑insensitive)
+                log_cols = [c for c in chunk.columns if 'log' in c.lower()]
+                if log_cols:
+                    chunk = chunk.rename(columns={log_cols[0]: "logP"})
+                    logger.warning(f"Renamed column '{log_cols[0]}' to 'logP' as fallback.")
+                else:
+                    logger.error("Required target column 'logP' not found after renaming.")
+                    sys.exit(1)
 
         for _, row in chunk.iterrows():
             smi = row["smiles"]
@@ -308,6 +317,11 @@ def main() -> None:
 
     logger.info(f"Total raw rows processed: {total_rows}")
     logger.info(f"Filtered dataset size after MW cut: {len(filtered_rows)}")
+
+    # Ensure the exclusion log exists even if no exclusions were written
+    if not exclusion_log.is_file():
+        exclusion_log.touch()
+        logger.info("Created empty large_molecule_exclusions.log (no exclusions).")
 
     # ------------------------------------------------------------------
     # 5. Build DataFrame of filtered data

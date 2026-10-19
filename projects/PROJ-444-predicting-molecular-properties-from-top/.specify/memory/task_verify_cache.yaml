@@ -1,3 +1,12 @@
+T001:
+  c: false
+  h: 11637d36a9a911c379b0ab32b1fadd72620edcac54e783ee146babff4c07b0b9
+  r: "The pipeline runs and produces the expected files, but the required schema file\
+    \ `dataset.schema.yaml` is missing, so the script cannot truly validate that the\
+    \ dataframe conforms to the schema as stipulated. Add the missing `dataset.schema.yaml`\
+    \ (defining at least the required `smiles` and `logP` columns) to satisfy the\
+    \ column\u2011validation requirement."
+  sig: 1080c32bcd13cf6b442220d2c8b160444b4405d70ed1fe24a2e350c5658f27a7
 T001a:
   c: true
   h: 08dfa268bab90c92413c2eac5347d244e29fbccd8e5ac5ebc9052a405e0a3b15
@@ -73,3 +82,14 @@ T007:
     \ the task requires the actual run and its output JSON with three entries for\
     \ grids 10/20/30, which is absent."
   sig: bc599b0541aefbdfbee4165aa46e5c377d89d74980bd65a54917762f2b0d94f2
+T014:
+  c: false
+  h: 2ace72e488fae33eb0785c896d58cb09e7a1bf211857b6febd54803c37422221
+  r: "The test file `code/tests/test_dataset_schema.py` exists, but the required contract\
+    \ file `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`\
+    \ is missing, causing all pytest checks to fail (FileNotFoundError and assertion\
+    \ errors). Without the schema, the dataset cannot be validated, so the task\u2019\
+    s verification condition is not met. Adding a proper `dataset.schema.yaml` that\
+    \ defines the required columns (e.g., `molecule_id`, `smiles`, `logP`) and ensuring\
+    \ the CSV matches it will be needed for completion."
+  sig: 4b90c7111e14b5f3ff6ef74c20b032941d34af7ebbd57f1016d172f6e3fe330e

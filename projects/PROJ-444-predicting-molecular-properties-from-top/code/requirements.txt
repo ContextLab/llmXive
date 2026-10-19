@@ -1,15 +1,3 @@
-# Core dependencies (already present in the environment)
-pandas
-numpy
-scikit-learn
-scipy
-matplotlib
-seaborn
-pytest
-pyyaml
-requests
-
-# Additional chemistry / TDA libraries required for T002
 rdkit-pypi
 gudhi
-networkx
+scikit-fingerprints

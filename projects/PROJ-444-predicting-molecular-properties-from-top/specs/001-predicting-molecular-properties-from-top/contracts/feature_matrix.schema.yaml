@@ -1,36 +1,24 @@
-# Contract for a single topological feature-matrix record (T003 / FR-002).
-# Each record describes one molecule's vectorized persistence image
-# together with the target property it is paired with.
+$schema: "http://json-schema.org/draft-07/schema#"
 type: object
 required:
   - molecule_id
-  - features
-  - feature_names
   - target_property
   - target_value
 properties:
   molecule_id:
     type: string
-    description: Unique molecule identifier (always treated as a string).
-  features:
-    type: array
-    description: Flattened persistence image values (10x10 = 100 floats).
-    items:
-      type: number
-    minItems: 100
-    maxItems: 100
-  feature_names:
-    type: array
-    description: Names of the feature entries (pixel_0 ... pixel_99).
-    items:
-      type: string
-    minItems: 100
-    maxItems: 100
   target_property:
     type: string
-    description: Name of the predicted physicochemical property (e.g. "logP").
-    enum:
-      - logP
+    enum: ["logP"]
   target_value:
     type: number
-    description: Experimental value of the target property for this molecule.
+  # Dynamically allow any number of pixel columns named pixel_0, pixel_1, …
+  pixel_0:
+    type: number
+  pixel_1:
+    type: number
+  # Use patternProperties to capture all pixel_* columns
+  patternProperties:
+    "^pixel_\\d+$":
+      type: number
+additionalProperties: true

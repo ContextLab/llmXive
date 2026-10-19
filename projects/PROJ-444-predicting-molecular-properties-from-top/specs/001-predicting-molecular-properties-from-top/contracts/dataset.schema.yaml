@@ -1,5 +1,4 @@
-# Dataset schema for ESOL raw data
-# Required columns: molecule_id (string), smiles (string), logP (numeric)
+$schema: "http://json-schema.org/draft-07/schema#"
 type: object
 required:
   - molecule_id
@@ -8,10 +7,8 @@ required:
 properties:
   molecule_id:
     type: string
-    description: Unique identifier for each molecule (string representation of row index)
   smiles:
     type: string
-    description: SMILES representation of the molecule
   logP:
     type: number
-    description: Predicted octanol‑water partition coefficient (logP)
+additionalProperties: true

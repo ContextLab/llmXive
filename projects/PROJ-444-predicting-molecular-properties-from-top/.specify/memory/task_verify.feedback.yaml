@@ -1,12 +1,9 @@
 T001:
-  reason: "Two substantive defects: (1) `data/logs/large_molecule_exclusions.log`\
-    \ is MISSING \u2014 the script only creates it when an exclusion occurs, so the\
-    \ required artifact (and verification item 6) is unmet; it should be created (even\
-    \ if empty) on every run. (2) The execution log shows the `logP` column was populated\
-    \ by renaming \"ESOL predicted log solubility in mols per litre\" \u2014 a model's\
-    \ *predictions* \u2014 rather than the measured solubility column present in the\
-    \ raw CSV, so `filtered_esol.csv` carries a fabricated/wrong target variable.\
-    \ Other artifacts (raw CSV with 1128 rows and correct first SMILES, c"
+  reason: "The pipeline runs and produces the expected files, but the required schema\
+    \ file `dataset.schema.yaml` is missing, so the script cannot truly validate that\
+    \ the dataframe conforms to the schema as stipulated. Add the missing `dataset.schema.yaml`\
+    \ (defining at least the required `smiles` and `logP` columns) to satisfy the\
+    \ column\u2011validation requirement."
   task: 496f3ab1178c311a70018388ff750ebf54f3faa7eb9a1b552d0f1f1ac7fc82dd
 T001a:
   task: 11e7aa709c71d191684aeba17863cb9ee2b6d75f611ba94b223c92f6328c8d2e
@@ -71,13 +68,13 @@ T012:
 T013:
   task: 6e4cf62a90ede17b92214dd4a79448e89d6edaa424fbb06d6d3dd01dcc3af058
 T014:
-  reason: "The recorded pytest run of `code/tests/test_dataset_schema.py` failed with\
-    \ exit 1 \u2014 all 6 tests FAILED because `dataset.schema.yaml` is MISSING (the\
-    \ collector confirms it does not exist), so the schema contract the test is supposed\
-    \ to validate against is absent. Additionally, the test's schema path (`PROJECT_ROOT/specs/.../contracts/dataset.schema.yaml`)\
-    \ resolves outside the project root, and its `_ensure_raw_dataset` fallback would\
-    \ delete the existing real ESOL CSV (which has ESOL solubility columns) and replace\
-    \ it with Lipophilicity logP data, contradicting the dataset it claims to validate."
+  reason: "The test file `code/tests/test_dataset_schema.py` exists, but the required\
+    \ contract file `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`\
+    \ is missing, causing all pytest checks to fail (FileNotFoundError and assertion\
+    \ errors). Without the schema, the dataset cannot be validated, so the task\u2019\
+    s verification condition is not met. Adding a proper `dataset.schema.yaml` that\
+    \ defines the required columns (e.g., `molecule_id`, `smiles`, `logP`) and ensuring\
+    \ the CSV matches it will be needed for completion."
   task: dbea2243c05a199a8f63e9a0c196ab67abb1ae40c87c19db947eb6b8cc3d058f
 T015:
   task: ed4c4e73904edc44b820a9129e2d3de331f115c59949fc079272c68b67820141
