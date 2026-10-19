@@ -1,3 +1,6 @@
 # Project dependencies
-# Upgrade numpy to version 2.0 or newer to satisfy pyarrow requirements used by HuggingFace datasets
-numpy>=2.0
+# Existing environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema,
+# psutil, llmxive_toolkit
+datasets>=2.14.0
+# The above version ensures streaming support and compatibility with Python 3.11.

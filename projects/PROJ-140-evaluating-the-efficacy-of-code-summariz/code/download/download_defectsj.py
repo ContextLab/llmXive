@@ -2,10 +2,10 @@
 """
 Defects4J fetcher and stratified sampler (FR‑001)
 
-This script streams the real Defects4J dataset from HuggingFace,
+This script streams a public Defects4J‑related dataset from HuggingFace,
 extracts a stratified sample of buggy methods across the three projects
 Chart, Time, and Math (20 methods per project, 60 total), and writes the
-resulting ground‑truth CSV to ``data/raw/defects4j/ground_truth.csv``.
+result to ``data/raw/defects4j/ground_truth.csv``.
 Methods that lack a ``ground_truth_line`` are recorded in
 ``data/interaction_logs/missing_ground_truth.json``.
 The script fails loudly on any fetch or processing error – no synthetic
@@ -27,19 +27,23 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def _stream_defects4j() -> "datasets.arrow_dataset.Dataset":
+def _stream_defects4j(dataset_name: str) -> "datasets.arrow_dataset.Dataset":
     """
-    Load the Defects4J dataset in streaming mode.
+    Load the Defects4J‑related dataset in streaming mode.
+
+    Parameters
+    ----------
+    dataset_name: str
+        HuggingFace identifier for the dataset (e.g. 
+        ``chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3``).
 
     Returns
     -------
     Dataset
-        An iterable HuggingFace ``datasets`` object.
+        An iterable ``datasets`` object.
     """
-    # The canonical HuggingFace identifier for the Defects4J dataset.
-    # If the identifier changes, this line should be updated accordingly.
-    return load_dataset("defects4j", split="train", streaming=True)
-
+    # ``streaming=True`` ensures we never load the whole dataset into RAM.
+    return load_dataset(dataset_name, split="train", streaming=True)
 
 def _collect_methods(
     ds,
@@ -86,7 +90,7 @@ def _collect_methods(
             )
             continue
 
-        # Preserve all required fields for the CSV output
+        # Preserve required fields for the CSV output
         project_buckets[project].append(
             {
                 "method_id": method_id,
@@ -99,7 +103,6 @@ def _collect_methods(
         )
 
     return project_buckets, missing
-
 
 def _sample_stratified(
     project_buckets: dict[str, list[dict]],
@@ -142,7 +145,10 @@ def _sample_stratified(
 # ----------------------------------------------------------------------
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download Defects4J, extract a stratified sample, and write CSV/JSON outputs."
+        description=(
+            "Download a Defects4J‑related dataset from HuggingFace, "
+            "extract a stratified sample, and write CSV/JSON outputs."
+        )
     )
     parser.add_argument(
         "--seed",
@@ -150,10 +156,20 @@ def main() -> None:
         default=42,
         help="Random seed used for stratified sampling (default: 42).",
     )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3",
+        help=(
+            "HuggingFace dataset identifier. Must contain fields "
+            "project_name, method_id, bug_id, source_code, "
+            "ground_truth_line, and context_code."
+        ),
+    )
     args = parser.parse_args()
 
-    log.info("Streaming Defects4J dataset...")
-    dataset = _stream_defects4j()
+    log.info("Streaming Defects4J dataset '%s'...", args.dataset)
+    dataset = _stream_defects4j(args.dataset)
 
     log.info("Collecting methods and tracking missing ground‑truth entries...")
     project_buckets, missing = _collect_methods(dataset)
@@ -175,7 +191,6 @@ def main() -> None:
     with json_path.open("w", encoding="utf-8") as f:
         json.dump(missing, f, indent=2, ensure_ascii=False)
     log.info(f"Wrote missing‑ground‑truth log with {len(missing)} entries to {json_path}")
-
 
 if __name__ == "__main__":
     main()
