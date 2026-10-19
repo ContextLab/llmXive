@@ -1,11 +1,18 @@
 T001:
-  reason: "The pipeline runs and produces the expected files, but the required schema\
-    \ file `dataset.schema.yaml` is missing, so the script cannot truly validate that\
-    \ the dataframe conforms to the schema as stipulated. Add the missing `dataset.schema.yaml`\
-    \ (defining at least the required `smiles` and `logP` columns) to satisfy the\
-    \ column\u2011validation requirement."
+  reason: "The repository contains the ingestion script, checksum file, power\u2011\
+    analysis report, scaffold count, and exclusion log, all of which appear correct.\
+    \ However, the required schema file `dataset.schema.yaml` is missing, so the script\
+    \ cannot perform the mandated column validation against the schema and will raise\
+    \ a file\u2011not\u2011found error. Adding the missing `dataset.schema.yaml` (defining\
+    \ at least the required `smiles` and `logP` columns) is needed for the task to\
+    \ be truly complete."
   task: 496f3ab1178c311a70018388ff750ebf54f3faa7eb9a1b552d0f1f1ac7fc82dd
 T001a:
+  reason: "The script `code/00_checksum_verify.py` is present and correctly implements\
+    \ checksum verification, but the file it is supposed to check \u2013 `data/raw/esol.csv`\
+    \ (referenced in `data/checksums.txt`) \u2013 is not provided in the evidence,\
+    \ so the verification cannot succeed. Add the missing `data/raw/esol.csv` (with\
+    \ a matching SHA\u2011256 hash) to satisfy the task."
   task: 11e7aa709c71d191684aeba17863cb9ee2b6d75f611ba94b223c92f6328c8d2e
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/02_tda_computation.py
@@ -68,13 +75,10 @@ T012:
 T013:
   task: 6e4cf62a90ede17b92214dd4a79448e89d6edaa424fbb06d6d3dd01dcc3af058
 T014:
-  reason: "The test file `code/tests/test_dataset_schema.py` exists, but the required\
-    \ contract file `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`\
-    \ is missing, causing all pytest checks to fail (FileNotFoundError and assertion\
-    \ errors). Without the schema, the dataset cannot be validated, so the task\u2019\
-    s verification condition is not met. Adding a proper `dataset.schema.yaml` that\
-    \ defines the required columns (e.g., `molecule_id`, `smiles`, `logP`) and ensuring\
-    \ the CSV matches it will be needed for completion."
+  reason: The test script `code/tests/test_dataset_schema.py` is present and the raw
+    CSV `data/raw/esol.csv` exists, but the required schema file `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`
+    is missing, causing the contract test to fail. The missing schema must be added
+    for the task to be complete.
   task: dbea2243c05a199a8f63e9a0c196ab67abb1ae40c87c19db947eb6b8cc3d058f
 T015:
   task: ed4c4e73904edc44b820a9129e2d3de331f115c59949fc079272c68b67820141

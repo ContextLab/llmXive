@@ -1,8 +1,9 @@
 status: none
-intent: MoleculeNet Lipophilicity dataset SMILES logP download python package dataset
+intent: MoleculeNet Lipophilicity dataset SMILES logP download DeepChem python package
+  dataset
 required_fields:
 - smiles
 - logP
-cache_key: e4b3747296e0588bf8e6c15e63f863c1a2b0e7c3912a63ea23dfba0f773b1230
-searched_at: '2026-10-19T11:22:38.679173+00:00'
+cache_key: a1fc0c73451b47c052da4bd553b938f058c801fb4cb50adf80b201533bb722f0
+searched_at: '2026-10-19T12:20:33.297083+00:00'
 retry_count: 1

@@ -1,33 +1,23 @@
 T001:
   c: false
-  h: 11637d36a9a911c379b0ab32b1fadd72620edcac54e783ee146babff4c07b0b9
-  r: "The pipeline runs and produces the expected files, but the required schema file\
-    \ `dataset.schema.yaml` is missing, so the script cannot truly validate that the\
-    \ dataframe conforms to the schema as stipulated. Add the missing `dataset.schema.yaml`\
-    \ (defining at least the required `smiles` and `logP` columns) to satisfy the\
-    \ column\u2011validation requirement."
-  sig: 1080c32bcd13cf6b442220d2c8b160444b4405d70ed1fe24a2e350c5658f27a7
+  h: 0f904d938c6ba4a8ec2ae989e94ccf487477a0d38220ecb8dfd13a3ae51e0175
+  r: "The repository contains the ingestion script, checksum file, power\u2011analysis\
+    \ report, scaffold count, and exclusion log, all of which appear correct. However,\
+    \ the required schema file `dataset.schema.yaml` is missing, so the script cannot\
+    \ perform the mandated column validation against the schema and will raise a file\u2011\
+    not\u2011found error. Adding the missing `dataset.schema.yaml` (defining at least\
+    \ the required `smiles` and `logP` columns) is needed for the task to be truly\
+    \ complete."
+  sig: 5a16c1f5292e6860694225acf1747d349fb270d7aaaf17adb937ca939d238913
 T001a:
-  c: true
-  h: 08dfa268bab90c92413c2eac5347d244e29fbccd8e5ac5ebc9052a405e0a3b15
-  r: The script `code/00_checksum_verify.py` exists (3552 bytes) and implements real
-    SHA-256 recomputation against `data/checksums.txt`, exiting 0 on success and 1
-    with mismatched paths otherwise. The execution log confirms an actual run exited
-    0 with "All checksums verified successfully," and the manifest's single entry
-    (data/raw/esol.csv, hash d22e608f...) matches the hash recorded by the update
-    script's log, so the verification was genuinely performed on the real data file.
-  sig: 2d2e07edfcf69cafb0e879fe496fac2ff12fd0df91f1505e275a1c4ab868ec80
-T002:
   c: false
-  h: be90fe73b9350bc6cec10b1f2239b7488344d777a1bf25c2020af3afc23551ff
-  r: 'The required artifacts are missing at their specified paths: `data/processed/filtered_esol.csv`,
-    `data/processed/topological_features_10x10.csv` (only a `data/results/` copy exists,
-    and the collector explicitly marks the requested path MISSING), and `data/logs/invalid_smiles.log`
-    does not exist at all. Additionally, `code/utils/persistence_utils.py` defaults
-    to `sigma=0.1`, contradicting the required kernel_bandwidth of 1.0, and no computation
-    script (e.g., `02_tda_computation.py`) is present to demonstrate the run; the
-    summary JSON''s claims cannot substitute for the missing deliverables.'
-  sig: 342e656556fcb2bf13026fb918a9f74d4e5302cf0ce3d3395648da5c8e00bf35
+  h: bde6b1d1710a0a2e066fcc7ba663f33acb8e033216b095e483fe420ac4331831
+  r: "The script `code/00_checksum_verify.py` is present and correctly implements\
+    \ checksum verification, but the file it is supposed to check \u2013 `data/raw/esol.csv`\
+    \ (referenced in `data/checksums.txt`) \u2013 is not provided in the evidence,\
+    \ so the verification cannot succeed. Add the missing `data/raw/esol.csv` (with\
+    \ a matching SHA\u2011256 hash) to satisfy the task."
+  sig: 1ce86be0d205111a0877dbc38e2f0de6dae16df97ce5ce5f05ca9ac9cb37e036
 T003:
   c: false
   h: ac0ff7e6324776a4d2af4224262979f0b31bf4782fa6746bc3d0cce3c5385610
@@ -84,12 +74,9 @@ T007:
   sig: bc599b0541aefbdfbee4165aa46e5c377d89d74980bd65a54917762f2b0d94f2
 T014:
   c: false
-  h: 2ace72e488fae33eb0785c896d58cb09e7a1bf211857b6febd54803c37422221
-  r: "The test file `code/tests/test_dataset_schema.py` exists, but the required contract\
-    \ file `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`\
-    \ is missing, causing all pytest checks to fail (FileNotFoundError and assertion\
-    \ errors). Without the schema, the dataset cannot be validated, so the task\u2019\
-    s verification condition is not met. Adding a proper `dataset.schema.yaml` that\
-    \ defines the required columns (e.g., `molecule_id`, `smiles`, `logP`) and ensuring\
-    \ the CSV matches it will be needed for completion."
-  sig: 4b90c7111e14b5f3ff6ef74c20b032941d34af7ebbd57f1016d172f6e3fe330e
+  h: d865447e78c5768254ab5ef5ac8768d4a45221942e2adad59512b8148142322e
+  r: The test script `code/tests/test_dataset_schema.py` is present and the raw CSV
+    `data/raw/esol.csv` exists, but the required schema file `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`
+    is missing, causing the contract test to fail. The missing schema must be added
+    for the task to be complete.
+  sig: 5ed2c2b09dcfba41b10249203f72ee80c31787df1bb8342460e4422b8d419f8d

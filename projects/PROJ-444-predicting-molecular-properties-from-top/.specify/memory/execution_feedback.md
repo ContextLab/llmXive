@@ -9,11 +9,11 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/processed/filtered_esol.csv, data/processed/power_analysis_report.json, data/processed/scaffold_counts.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/processed/filtered_esol.csv, data/processed/persistence_images_10x10.csv, data/processed/power_analysis_report.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/processed/filtered_esol.csv, data/processed/power_analysis_report.json, data/processed/scaffold_counts.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 run-book script(s) missing (plan/impl path mismatch): python code/06_feature_importance.py; python code/06_diagnostics.py; 6 command(s) failed: python code/03_feature_engineering.py (rc=1); python code/04_model_training.py (rc=1); python code/05_sensitivity_analysis.py --grids 10 20 30 (rc=1); 2 declared deliverable(s) absent: data/processed/combined_features.csv; data/processed/traditional_features.csv
+**Summary**: every produced artifact is gitignored (data/processed/filtered_esol.csv, data/processed/persistence_images_10x10.csv, data/processed/power_analysis_report.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 run-book script(s) missing (plan/impl path mismatch): python code/06_feature_importance.py; python code/06_diagnostics.py; 6 command(s) failed: python code/03_feature_engineering.py (rc=1); python code/04_model_training.py (rc=1); python code/05_sensitivity_analysis.py --grids 10 20 30 (rc=1); 2 declared deliverable(s) absent: data/processed/combined_features.csv; data/processed/traditional_features.csv
 
 ## Failing / missing run-book commands
 
@@ -60,8 +60,8 @@ FileNotFoundError: Missing /home/runner/work/llmXive/llmXive/projects/PROJ-444-p
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-444-predicting-molecular-properties-from-top/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/06_diagnostics.py': [Errno 2] No such file or directory
 
 - python code/05_sensitivity_analysis.py --grids 10 20 30 -> rc=1
-2026-10-19 11:21:45,454 - INFO - === Sensitivity Analysis (Task T007, FR-006) ===
-2026-10-19 11:21:45,454 - INFO - Grid resolutions: [10, 20, 30]
+2026-10-19 12:19:12,980 - INFO - === Sensitivity Analysis (Task T007, FR-006) ===
+2026-10-19 12:19:12,980 - INFO - Grid resolutions: [10, 20, 30]
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/05_sensitivity_analysis.py", line 293, in <module>
@@ -74,12 +74,14 @@ Traceback (most recent call last):
 FileNotFoundError: Missing /home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/data/processed/combined_features.csv - run T004 first.
 
 - python code/07_resource_monitor.py -> rc=1
-2026-10-19 11:21:45,606 - ERROR - No command provided to monitor.
+2026-10-19 12:19:13,161 - ERROR - No command provided to monitor.
 
 
 - python -m pytest tests/contract/ -> rc=1
-tence_images_10x10.csv')>()
-E    +    where <bound method Path.exists of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/data/processed/persistence_images_10x10.csv')> = PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/data/processed/persistence_images_10x10.csv').exists
+t_persistence_images_10x10_non_negative __________________
+tests/contract/test_tda_10x10.py:65: in test_persistence_images_10x10_non_negative
+    pytest.fail("No image columns found.")
+E   Failed: No image columns found.
 =========================== short test summary info ============================
 FAILED tests/contract/test_metrics_schema.py::test_metrics_schema_compliance
 FAILED tests/contract/test_t009_schemas.py::test_dataset_schema_exists_and_valid
@@ -88,8 +90,10 @@ FAILED tests/contract/test_t009_schemas.py::test_model_metrics_schema_exists_and
 FAILED tests/contract/test_t009_schemas.py::test_all_schemas_are_valid_yaml
 FAILED tests/contract/test_t016_features.py::test_tda_features_file_exists - ...
 FAILED tests/contract/test_t016_features.py::test_traditional_descriptors_file_exists
-FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_exists
-=================== 8 failed, 10 passed, 10 skipped in 0.85s ===================
+FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_schema
+FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_no_nan
+FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_non_negative
+=================== 10 failed, 12 passed, 6 skipped in 1.39s ===================
 
 
 - python -m pytest tests/unit/ -> rc=2
@@ -107,7 +111,7 @@ E   ImportError: cannot import name 'check_memory_requirement' from 'utils.persi
 ERROR tests/unit/test_data_ingestion.py
 ERROR tests/unit/test_persistence_utils_sparse.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.53s ===============================
+============================== 2 errors in 0.74s ===============================
 
 
 

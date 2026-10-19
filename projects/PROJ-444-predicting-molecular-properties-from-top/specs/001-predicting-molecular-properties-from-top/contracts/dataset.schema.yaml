@@ -1,4 +1,5 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+# JSON Schema for the ESOL dataset used in the project
+# Defines the required columns and their data types.
 type: object
 required:
   - molecule_id
@@ -7,8 +8,10 @@ required:
 properties:
   molecule_id:
     type: string
+    description: Unique identifier for each molecule (stringified row index).
   smiles:
     type: string
+    description: SMILES representation of the molecule.
   logP:
     type: number
-additionalProperties: true
+    description: Log‑partition coefficient (logP) value.

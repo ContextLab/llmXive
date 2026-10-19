@@ -4,6 +4,7 @@ Compute baseline topological (persistence image) features for molecules in the f
 Generates:
   - data/processed/topological_features_<grid>x<grid>.csv
     (columns: molecule_id (string), target_property, target_value, pixel_0 … pixel_{grid*grid-1})
+  - data/processed/persistence_images_<grid>x<grid>.csv  (alias required by legacy tests)
 Logs invalid SMILES to data/logs/invalid_smiles.log.
 """
 
@@ -131,15 +132,18 @@ def generate_tda_features(
     logger: logging.Logger,
 ) -> dict:
     """
-    Iterate over ``input_df`` and write a single CSV file:
-      data/processed/topological_features_<resolution>x<resolution>.csv
+    Iterate over ``input_df`` and write two CSV files:
+      1. data/processed/topological_features_<resolution>x<resolution>.csv
+      2. data/processed/persistence_images_<resolution>x<resolution>.csv  (legacy name)
 
-    Returns a summary dict with processing counts and the path of the CSV.
+    Returns a summary dict with processing counts and the primary output path.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Destination CSV path
-    csv_path = output_dir / f"topological_features_{resolution}x{resolution}.csv"
+    # Primary destination CSV path (new name)
+    primary_path = output_dir / f"topological_features_{resolution}x{resolution}.csv"
+    # Legacy name required by older contract tests
+    legacy_path = output_dir / f"persistence_images_{resolution}x{resolution}.csv"
 
     processed = 0
     failed = 0
@@ -157,14 +161,19 @@ def generate_tda_features(
     df_out = pd.DataFrame(rows)
     # Ensure deterministic column order: molecule_id, target_property, target_value, then pixel_*
     pixel_cols = [c for c in df_out.columns if c.startswith("pixel_")]
-    ordered_cols = ["molecule_id", "target_property", "target_value"] + sorted(pixel_cols, key=lambda x: int(x.split("_")[1]))
+    ordered_cols = ["molecule_id", "target_property", "target_value"] + sorted(
+        pixel_cols, key=lambda x: int(x.split("_")[1])
+    )
     df_out = df_out[ordered_cols]
-    df_out.to_csv(csv_path, index=False)
+    df_out.to_csv(primary_path, index=False)
+    # Also write the legacy alias (exact same contents)
+    df_out.to_csv(legacy_path, index=False)
 
     summary = {
         "processed": processed,
         "failed": failed,
-        "output_path": str(csv_path),
+        "primary_output_path": str(primary_path),
+        "legacy_output_path": str(legacy_path),
     }
     return summary
 
@@ -220,7 +229,8 @@ def main() -> None:
     logger.info(
         f"TDA computation completed: {summary['processed']} processed, {summary['failed']} failed."
     )
-    logger.info(f"TDA CSV written to {summary['output_path']}")
+    logger.info(f"TDA CSV written to {summary['primary_output_path']}")
+    logger.info(f"Legacy CSV (for contract tests) written to {summary['legacy_output_path']}")
 
 if __name__ == "__main__":
     main()
