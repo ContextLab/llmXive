@@ -22,7 +22,7 @@ from pathlib import Path
 # ``huggingface_hub`` is available in the execution environment.
 # Import only the symbols that are guaranteed to exist; avoid
 # version‑specific exception classes that may be missing.
-from huggingface_hub import hf_hub_download, HfHubHTTPError
+from huggingface_hub import hf_hub_download
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -93,12 +93,7 @@ def download_parquet() -> Path:
             filename=PARQUET_FILENAME,
             repo_type="dataset",
         )
-    except HfHubHTTPError as exc:
-        log.error("Failed to download dataset (HTTP error): %s", exc)
-        raise RuntimeError(
-            f"Unable to download {DATASET_ID}:{PARQUET_FILENAME}"
-        ) from exc
-    except Exception as exc:  # Catch any other unexpected errors
+    except Exception as exc:  # Catch any download‑related errors
         log.error("Failed to download dataset: %s", exc)
         raise RuntimeError(
             f"Unable to download {DATASET_ID}:{PARQUET_FILENAME}"

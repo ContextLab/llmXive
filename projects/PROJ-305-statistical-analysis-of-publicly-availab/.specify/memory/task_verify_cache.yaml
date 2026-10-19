@@ -1,15 +1,15 @@
 T001:
-  c: true
-  h: f08151ce68b5f7cc8cf8952f8ca3e1b7e0547c8e28dee5d050b7bacd83cf31b3
-  r: "`logs/structure.txt` exists, is non-empty (5922 bytes), and is genuine `tree\
-    \ -a -L 3` output listing all required directories (`src/data`, `src/analysis`,\
-    \ `src/utils`, `src/validation`, `tests/unit`, `tests/integration`, `data/raw`,\
-    \ `data/processed`, `output`, `logs` \u2014 \"60 directories, 120 files\"), satisfying\
-    \ the `test -s` and grep-count verification. `quickstart.md` (4162 bytes) documents\
-    \ the runnable command `python -m src.main` and detailed input provenance (Hugging\
-    \ Face `chrisvoncsefalvay/vaers-outcomes` with checksum). The collector's \"MISSING\"\
-    \ flags on `data/raw/` and `data/processed/` a"
-  sig: 260ed042f5b18f5e09d7b32f4d0d727c8f7079c883783ec130d92d2c6fac2d5e
+  c: false
+  h: ff75dedff5f9f1597896054622b01dc863a8f8b9fca01879e82e70a6f79c1b09
+  r: "The collector confirms `data/processed/` does not exist at the project root,\
+    \ even though `logs/structure.txt` lists it under `data/` (notably without the\
+    \ trailing `/` that `tree` uses for directories, unlike `data/raw/` which the\
+    \ collector confirms exists) \u2014 so the structure evidence misrepresents the\
+    \ filesystem and one of the ten required directories is genuinely missing. `logs/structure.txt`\
+    \ is non-empty and `quickstart.md` does document `python -m src.main` and input\
+    \ provenance, but the missing `data/processed/` directory (and the structure log's\
+    \ inaccurate listing of it) fails the task's d"
+  sig: 7baa7b99d1b671bc8be521c5dad96ba3780a2bd8b1b6a90ca50e491bcd32ce39
 T003:
   c: false
   h: a3bcf2eddced4dd7de4db83190b65dcd94c6f0c326e8eed86be4b4f933dff92e
