@@ -1,14 +1,11 @@
 status: none
-intent: ICWM interaction clips equivalent Meta-World robot manipulation dataset python
-  package dataset
+intent: download ICWM interaction clips dataset pre-trained encoder python package
+  dataset
 required_fields:
 - clip_id
-- states
-- actions
-- observations
 - variance
 - autocorr_lag1
 - spectral_density
-cache_key: 347e8ad142dae9847b1b231de335c4d9762fa01810086d8e31232ec3b2f318e1
-searched_at: '2026-10-14T18:43:32.069227+00:00'
+cache_key: ab1ec83ea90852c2b5a1d451c9ff3ed062a179b0ba40b4fc7eefa9dbe856c820
+searched_at: '2026-10-19T05:24:48.153906+00:00'
 retry_count: 1

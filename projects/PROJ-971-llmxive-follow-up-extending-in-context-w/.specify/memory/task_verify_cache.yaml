@@ -1,80 +1,18 @@
 T001:
-  c: true
-  h: ef34883b1abf90217339ea8d04b337f05b134929bdda8b5be17c6f0095e3ce7b
-  r: '`quickstart.md` exists (resolved to the spec''s canonical location) and documents
-    a single command (`bash -c "source scripts/quickstart.sh && ./scripts/run_minimal.sh"`)
-    that runs the minimal pipeline on 50 clips. The historical execution log shows
-    `run_minimal.sh` exited 0 and produced `data/descriptors_subset.csv` with 51 lines
-    (header + 50 clips), and the CSV on disk matches the logged values exactly with
-    the required columns (clip_id, variance, autocorr_lag1, spectral_density) and
-    finite, non-null values.'
-  sig: 8504168e057df8bbb0e13b2853603b83c7df9d5113247e35ce028e0aa565c3b2
+  c: false
+  h: 261d503c4196e66bbe2a19abc8451a46be7569e34ade5ef2cdd61e06a50cb513
+  r: The quickstart.md and the run log show the command executes without error and
+    produces `data/processed/descriptors_subset.csv`. However, the task requires the
+    existence of `data/processed/descriptors.csv` (the renamed version of the subset
+    file), which is listed as MISSING. The expected file name does not match the provided
+    artifact, so the verification condition is not satisfied. The implementer must
+    generate and commit `data/processed/descriptors.csv` (or rename the existing subset
+    file accordingly).
+  sig: c3fb31c3f6bfb873f1ab9bdb34bb437382e8629666d58c886291ce73f4a7802b
 T002:
   c: true
-  h: b86bfcfadda28b80b753c00fc1f17c51d6e24865973b04cffa0c05ce7bb0e20d
-  r: The script `src/pipeline/generate_clips.py` exists and deterministically generates
-    CartPole clips with the required `states`, `actions`, and `observations` arrays
-    (confirmed in the .npz contents of clip_000 and clip_049). The execution log shows
-    it ran successfully with `--num-clips 50`, `data/raw/` contains exactly 50 `clip_*.npz`
-    files, and the unit test verifying 50 clips with required arrays passed (exit
-    0).
-  sig: f8860b351d6edaa01359094db75bebadd1fd5aeb0fd00ec89b74d7bffee98604
-T003:
-  c: true
-  h: 4c0df0c7d68110d505d931fa4b5d7a66afb28c7482ba8154502a5f5b7eb64e46
-  r: The script `src/pipeline/extract_descriptors.py` exists and implements the required
-    pipeline (loads clips, runs the CPU-only ICWM encoder, computes variance, lag-1
-    autocorrelation, and Welch spectral density, writes the CSV). The output `data/descriptors_subset.csv`
-    contains 50 rows with the schema-required columns (clip_id, variance, autocorr_lag1,
-    spectral_density) and no null/NaN values, and execution logs plus passing tests
-    (schema validation, empty-input handling) confirm it ran successfully.
-  sig: 6c2313e7ff433a8736eba4bbdd2a82e5610adb42d229ea67fd1703e6f005cf3c
-T004:
-  c: true
-  h: bd6b8a0f53a643f20ac8c9bc522521d42e273247a2e9b7d004da91794bbcfcda
-  r: "The driver `src/pipeline/run_end_to_end.py` exists, calls `generate_clips` and\
-    \ `extract_all_descriptors`, and prints the full summary table with column validation.\
-    \ The execution log (exit 0) shows a printed table with exactly 50 rows (clip_000\u2013\
-    clip_049) and all three descriptor columns (variance, autocorr_lag1, spectral_density)\
-    \ with finite values, matching the CI verification requirement."
-  sig: 794edc3becaf380a982470a7396bdf0fe68559b984c773069ddd44c6b31442ec
-T005:
-  c: false
-  h: 57c9fa5053ad2b083d3338aa1054650f86819f9ce016d7f5c669defe3ed62229
-  r: "The script and `data/labels.csv` exist and the run log matches the CSV values,\
-    \ but the task's verification criterion explicitly requires `labels.csv` to validate\
-    \ against `label.schema.yaml`, and that schema file is MISSING from the project\
-    \ \u2014 so validation cannot be performed. Additionally, the \"ICWM policy\"\
-    \ being grid-searched is a fabricated heuristic (tanh of a mean latent projection\
-    \ with Gaussian noise) rather than any real policy evaluation, and the reported\
-    \ \"success_rate\" is a fraction of timesteps below an MSE tolerance, not a policy\
-    \ success rate; the next implementer should add the sche"
-  sig: ac2433cc37becd9b066162d07ae9554ae587dfe9f1f789fd4fe938d0e4c68f0a
-T006:
-  c: false
-  h: c290f6f3a7ccea0eff3dec4e573cb21b58148b01fff381383a31bebcca09491d
-  r: "The script and artifacts exist and the pipeline runs, but the task's explicit\
-    \ verification condition fails: `data/metrics.json` reports `val_mse = 0.6465`\
-    \ vs `baseline_mse = 0.475` (`meets_sc006: false`), i.e. the model is worse than\
-    \ the global-mean-\u03C4 baseline, and the unit test `test_train_regressor_metrics`\
-    \ failed (exit 1) on exactly this assertion. The implementer must improve the\
-    \ regressor (or its regularization/features) so that `val_mse < 0.9 * baseline_mse`\
-    \ actually holds on the real data."
-  sig: 72066739ce8b528e6413663f1efe4b145a19e78d78af0526334822ad95f41afd
-T007:
-  c: true
-  h: 6dc740a0b103f086b97543af402e7913da13207c04095916db49494b45f2a95d
-  r: "Checked `src/pipeline/compute_complexity.py` (implements parsing/fallback, writes\
-    \ CSV and correlation), the generated `data/complexity.csv`, and `data/correlation.txt`\
-    \ which contains\u202Fr\u202F=\u202F0.971572 (\u202F>\u202F0.5) and\u202Fp\u202F\
-    =\u202F1.08752e\u201131 (\u202F<\u202F0.05)."
-  sig: e92f95a7f80aa1315f24b2e9971b0787d5a3f63b369cb4fa4def7aafa9b97a7e
-T013:
-  c: true
-  h: 8cf17425c7595d3f1cbfce6c7e3f5c0cd747deee73ce7c52cd2c6791748000b3
-  r: Checked the implementation of `src/pipeline/generate_novel_clips.py` and the
-    `data/raw_novel/` directory, which contains exactly 200 `.npz` files each holding
-    the `states`, `actions`, and `observations` arrays required by the task. The execution
-    log confirms the script ran successfully and produced the expected number of novel
-    clips.
-  sig: cd6dc77d106ef4b61cc43832506a75f75b3e7dfbb786e4a205641b00ee543493
+  h: e98c17da7ad6baa5f7583dabc2fc4450563e5799499d19fdbca14e927421f347
+  r: Checked `code/src/pipeline/generate_clips.py` (creates .npz with the three required
+    arrays) and the `data/raw/` directory containing exactly 50 `clip_*.npz` files,
+    each showing the expected `states`, `actions`, and `observations` entries.
+  sig: ab4e5afeeb05a3d300fc0edd62b9a945903bc8a858ed02a260120b88dd94b133
