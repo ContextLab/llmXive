@@ -1,5 +1,5 @@
 """
-Utility functions for saving and loading JSON checkpoint files.
+Utility functions for saving, loading, and deleting JSON checkpoint files.
 Provides a simple API used throughout the pipeline and unit tests.
 """
 import json
@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Any, Dict, Union
 
 # Default directory for checkpoints (project‑owned location)
-DEFAULT_CHECKPOINT_DIR = Path("data") / "checkpoints"
+# Exposed as CHECKPOINT_DIR for tests that monkey‑patch it.
+CHECKPOINT_DIR: Path = Path("data") / "checkpoints"
 
 def ensure_checkpoint_dir(base_dir: Union[str, Path] = None) -> Path:
     """
@@ -17,14 +18,14 @@ def ensure_checkpoint_dir(base_dir: Union[str, Path] = None) -> Path:
     ----------
     base_dir : str | Path, optional
         If provided, the directory is created relative to this path.
-        Otherwise ``DEFAULT_CHECKPOINT_DIR`` is used.
+        Otherwise ``CHECKPOINT_DIR`` is used.
 
     Returns
     -------
     pathlib.Path
         The path to the directory that now exists.
     """
-    dir_path = Path(base_dir) if base_dir is not None else DEFAULT_CHECKPOINT_DIR
+    dir_path = Path(base_dir) if base_dir is not None else CHECKPOINT_DIR
     dir_path.mkdir(parents=True, exist_ok=True)
     return dir_path
 
@@ -34,7 +35,7 @@ def get_checkpoint_path(*args: Any) -> Path:
 
     Two calling styles are supported:
     1. ``get_checkpoint_path("fetch_checkpoint.json")`` – returns
-       ``<DEFAULT_CHECKPOINT_DIR>/fetch_checkpoint.json``.
+       ``<CHECKPOINT_DIR>/fetch_checkpoint.json``.
     2. ``get_checkpoint_path(custom_dir, "fetch_data")`` – returns
        ``<custom_dir>/fetch_data`` (the name can include an extension).
 
@@ -52,12 +53,25 @@ def get_checkpoint_path(*args: Any) -> Path:
     if len(args) == 1:
         # Only a filename – use default checkpoint directory
         filename = args[0]
-        base_dir = DEFAULT_CHECKPOINT_DIR
+        base_dir = CHECKPOINT_DIR
     elif len(args) == 2:
         base_dir, filename = args
     else:
         raise ValueError("get_checkpoint_path expects 1 or 2 arguments")
     return Path(base_dir) / filename
+
+def _resolve_path(path: Union[str, Path]) -> Path:
+    """
+    Resolve a possibly‑relative checkpoint path. If ``path`` has no parent
+    directory (i.e. is just a filename), it is interpreted relative to
+    ``CHECKPOINT_DIR``. This mirrors the behaviour expected by the unit
+    tests, which monkey‑patch ``CHECKPOINT_DIR``.
+    """
+    p = Path(path)
+    if not p.parent or p.parent == Path():
+        # No directory component – treat as relative to CHECKPOINT_DIR
+        p = CHECKPOINT_DIR / p
+    return p
 
 def save_checkpoint(state_or_path: Union[Dict, str, Path],
                     path_or_state: Union[Dict, str, Path, None] = None) -> None:
@@ -78,10 +92,10 @@ def save_checkpoint(state_or_path: Union[Dict, str, Path],
     # Resolve arguments
     if isinstance(state_or_path, dict) and path_or_state is not None:
         state = state_or_path
-        path = Path(path_or_state)
+        path = _resolve_path(path_or_state)
     elif isinstance(path_or_state, dict) and state_or_path is not None:
         state = path_or_state
-        path = Path(state_or_path)
+        path = _resolve_path(state_or_path)
     else:
         raise ValueError("save_checkpoint requires one dict and one path argument")
 
@@ -92,9 +106,12 @@ def save_checkpoint(state_or_path: Union[Dict, str, Path],
     with open(path, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2, sort_keys=True)
 
-def load_checkpoint(path: Union[str, Path]) -> Dict:
+def load_checkpoint(path: Union[str, Path]) -> Union[Dict, None]:
     """
     Load a checkpoint JSON file.
+
+    Returns ``None`` if the file does not exist, matching the expectation
+    of the unit tests.
 
     Parameters
     ----------
@@ -103,13 +120,13 @@ def load_checkpoint(path: Union[str, Path]) -> Dict:
 
     Returns
     -------
-    dict
-        The checkpoint contents, or an empty dict if the file does not exist.
+    dict | None
+        The checkpoint contents, or ``None`` if the file does not exist.
     """
-    path = Path(path)
-    if not path.is_file():
-        return {}
-    with open(path, "r", encoding="utf-8") as f:
+    p = _resolve_path(path)
+    if not p.is_file():
+        return None
+    with open(p, "r", encoding="utf-8") as f:
         return json.load(f)
 
 def delete_checkpoint(path: Union[str, Path]) -> bool:
@@ -126,7 +143,7 @@ def delete_checkpoint(path: Union[str, Path]) -> bool:
     bool
         ``True`` if the file was removed, ``False`` otherwise.
     """
-    p = Path(path)
+    p = _resolve_path(path)
     try:
         p.unlink()
         return True

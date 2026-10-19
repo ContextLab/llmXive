@@ -1,15 +1,14 @@
 T001:
   c: false
-  h: 655b00936fb87e6375b96c8fa27d1ea3dbd915e844c903f0158f4d602f84e9ed
-  r: "The script itself exists and looks reasonable, but the raw data is fabricated:\
-    \ all 15 `data/raw/*.json` files are byte-identical (same sha256, same 317100\
-    \ bytes), and their contents contain runs for game id `nj1ne1p4` (GoldenEye, per\
-    \ weblink `speedrun.com/ge60fps`) regardless of the requested game \u2014 e.g.\
-    \ `celeste.json` and `zelda-oot.json` are the same GoldenEye data. The execution\
-    \ log also contradicts the current script (it logs `page=1` URLs while the script\
-    \ builds `offset=` URLs, and \"saves 200 runs\" per game in ~0.1s with no rate-limit\
-    \ sleeps), so the artifacts were not produced by this sc"
-  sig: a34fa52ac20e2e19b9027a7ef993def4a7ada47421425bce5ed5ae69d75988c3
+  h: 2e0b95c4828dbac8d8cdf5e6b7a5850cc576689c99f2bb7316767ed538a973f6
+  r: "The 15 `data/raw/*.json` files are all byte-identical (same sha256) and their\
+    \ contents are GoldenEye 007 runs (`\"game\": \"nj1ne1p4\"`, weblinks to `speedrun.com/ge60fps`),\
+    \ not data for the configured games \u2014 the \"fetch\" was fabricated/duplicated,\
+    \ not a real per-game API download. Additionally, the script writes `{game_id}_raw.json`\
+    \ rather than the required `data/raw/{game_id}.json`, and the only execution log\
+    \ shows it did nothing (\"0 games to fetch\") because the checkpoint already marked\
+    \ all games complete, so there is no evidence of a genuine fetch run."
+  sig: 11212152894f463d6ac07f4531557df6bbf94ef9e1f64529644abbccf00d0036
 T006a:
   c: true
   h: 9207aa92dd058365890ba2195455e570953740b24ac4821149e3a3a97dd86af2
@@ -25,6 +24,18 @@ T006b:
     is syntactically valid YAML, and includes numeric values for `min_sample_size`
     (100), `random_seed` (42), and `effect_size_assumptions` (0.5) as required.
   sig: 11a285f1744cddae1ccbb71c4cf8e466918c9850887c37d71b068e0abce555c8
+T008a:
+  c: false
+  h: 633fc2ec4d3ea184b822cab4224a0493d528ec10a7a38ef19e3a4129125fdd9c
+  r: "The only execution record (`code/.tasks/T008a.tests_test_checkpoint.py.log`)\
+    \ shows `python -m pytest -v` exiting 1 with 2 of 4 tests failing (`test_save_and_load_checkpoint`\
+    \ and `test_delete_checkpoint`), because saved files don't land in the monkey-patched\
+    \ `CHECKPOINT_DIR` (the log's \"Checkpoint saved\" output also suggests the executed\
+    \ code differs from the current artifact, so the current version has no passing-run\
+    \ evidence). The task's verification criterion \u2014 `tests/test_checkpoint.py`\
+    \ passes \u2014 is not met; the implementer must fix the path resolution (e.g.,\
+    \ ensure `_resolve_path`/`save_che"
+  sig: 4ec31d44e481c19b2974cc2b187405fbeea5753cc1e47a5c56e137414be09160
 T010:
   c: true
   h: edf2d6581143a455ff6ebb9f80544521a637a88e98af9d040907b8590e472635
@@ -34,6 +45,15 @@ T010:
     performs `jsonschema.validate` on a sample row and a negative case. The execution
     log shows both tests passing (exit 0, 2 passed) via pytest from the project root.
   sig: 1dcbb11afb4f79d5df51ee2a0c9947607f652c2715a769cb72eea46bcacd0ef1
+T014:
+  c: false
+  h: ee2f79baa68f40f325064c1562601b56ccf06bf1486c51fd99e66ae3ee3324f5
+  r: "The evidence collector shows no artifacts for this task \u2014 no `run_records.csv`\
+    \ with a `competitive_pressure` column, no helper from T033b, and no execution\
+    \ output or spot-check calculations were provided. Without the actual CSV (or\
+    \ a sample of it) showing non-negative integer `competitive_pressure` values that\
+    \ match a manual lagged-pressure calculation, the claim cannot be verified."
+  sig: 75784a6dcf0da7d097e9bd98c6053daf239351f958408e6ec2893aa1d02369f4
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,13 +62,23 @@ T024:
     implementation (e.g., saving intermediate results to disk or a database) and evidence
     of its operation, but the provided artifacts contain only the original specification
     without any new files or modifications. Consequently, the requirement is not satisfied.
+T033a:
+  c: true
+  h: 51c9ec9b830f679cd8e199fadac994020b3a998a1b65e26edecaf3c9f0571110
+  r: The helper `code/scripts/utils/pagination.py` exists with a real, non-stub `paginate_api`
+    implementation; `tests/test_pagination.py` contains two genuine unit tests validating
+    the full page list and early termination, and the platform run log shows both
+    passing (exit 0, 2 passed). The `fetch_data.py` execution log shows the helper's
+    characteristic "Fetching page 1" messages interleaved with fetch callbacks, consistent
+    with `fetch_data.py` calling `paginate_api`, and it ran successfully (exit 0,
+    15 games fetched).
+  sig: 1cfe120cf96cc95c54e58f6c966f2c067e2e571e8d545e8b0a767245502134e1
 T033b:
   c: true
-  h: 68b56d717beacbebd40f26c7b37a7fdc4d20b29045b50a9bc7eaf1b6ec2c5a63
+  h: d45a9178cf7738621c6a6d5a6045373335904fadd04d0948acc11f1ac7cd914b
   r: '`code/scripts/utils/pressure.py` exists with a real, non-stub `calculate_lagged_pressure`
     implementation (sliding-window lagged count with date parsing and validation),
     and `tests/test_pressure.py` contains 9 substantive unit tests validating expected
-    counts, window sizes, and error handling. The historical execution log shows `python
-    -m pytest -v` passing all 9 tests with exit 0, and the function is exported via
-    the utils package `__init__.py`.'
-  sig: 48d24e461d70c4f484f39b84287861f5ad00be2e5a0320178cc2de9733fbc997
+    counts, window sizes, and error handling. The platform execution log shows all
+    9 tests passing (exit 0), and the function is exported via the utils package `__init__.py`.'
+  sig: e6bd15b3d911d1b69a6c985fbf3740278a05f0dd6b35481e08dd609d12ce6b1b

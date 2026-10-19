@@ -23,7 +23,7 @@
 
 ## Phase 1 – Data acquisition (User Story 1, P1)
 
-- [ ] T033a [P] Refactor pagination logic into reusable helper `code/scripts/utils/pagination.py::paginate_api`.  
+- [X] T033a [P] Refactor pagination logic into reusable helper `code/scripts/utils/pagination.py::paginate_api`.  
   – **Verification**: Helper file exists; `fetch_data.py` calls `paginate_api`; unit test `tests/test_pagination.py` validates full page list.  
 
 - [ ] T001    Create `code/scripts/fetch_data.py` that iterates over `config.yaml`’s `games`, calls the speedrun.com API, respects rate‑limits, uses `paginate_api`, and writes raw JSON to `data/raw/{game_id}.json`.
@@ -48,7 +48,7 @@
 - [ ] T014    Compute lagged competitive pressure for each run (FR‑006) using the helper from T033b and write column `competitive_pressure` to `run_records.csv`.  
   – **Verification**: Column exists, non‑negative integers; spot‑check matches manual calculation.  
 
-- [ ] T015b    Add checkpoint integration to `preprocess.py` (FR‑012). After each game’s records are processed, call `save_checkpoint({"last_game": game_id, "rows_written": n}, "data/checkpoints/preprocess_checkpoint.json")`.  
+- [ ] T015b    Add checkpoint integration to `preprocess.py` (FR‑012). After each game’s records are processed, call `save_checkpoint({"last_game": game_id, "rows_written": n}, "data/checkpoints/preprocess_checkpoint.json")`.   <!-- FAILED-IN-EXECUTION: code/scripts/preprocess.py exit=1 -->
   – **Verification**: Interrupt after first game; re‑run resumes without re‑processing completed game.  
 
 ---  

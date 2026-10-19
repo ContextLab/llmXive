@@ -15,7 +15,7 @@ import hashlib
 from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 
 # ----------------------------------------------------------------------
 # Local utility imports
@@ -285,6 +285,10 @@ def generate_runner_profiles(
         )
     return profiles
 
+def _parse_date(date_str: str) -> datetime:
+    """Parse ISO‑8601 date strings (handles trailing ``Z``)."""
+    return datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+
 # ----------------------------------------------------------------------
 # CSV writer utility
 # ----------------------------------------------------------------------
@@ -310,12 +314,11 @@ def main() -> None:
     games: List[str] = config.get("games", [])
     salt: str = config.get("salt", "default_salt")
     # ``min_sample_size`` is part of the schema but not used here
-    # (kept for backward compatibility)
     _ = config.get("min_sample_size", 100)
 
     # Resolve checkpoint location (default location lives under ``data/checkpoints``)
     checkpoint_path = get_checkpoint_path("preprocess")
-    checkpoint_data = load_checkpoint(checkpoint_path)
+    checkpoint_data = load_checkpoint(checkpoint_path) or {}
 
     start_idx = checkpoint_data.get("last_game_idx", 0)
     processed_runs: List[Dict[str, Any]] = checkpoint_data.get("processed_runs", [])
@@ -385,6 +388,16 @@ def main() -> None:
             # ------------------------------------------------------------------
             valid_runs = calculate_lagged_pressure(valid_runs)
 
+            # Ensure the pressure column is an integer and named 'competitive_pressure'
+            for run in valid_runs:
+                if "competitive_pressure" in run:
+                    # Cast to int (non‑negative)
+                    run["competitive_pressure"] = int(max(run["competitive_pressure"], 0))
+                elif "lagged_competitive_pressure" in run:
+                    # Fallback for older helper implementations
+                    run["competitive_pressure"] = int(max(run["lagged_competitive_pressure"], 0))
+                    del run["lagged_competitive_pressure"]
+
             # ------------------------------------------------------------------
             # Append to global collections
             # ------------------------------------------------------------------
@@ -408,7 +421,7 @@ def main() -> None:
         "game_id",
         "total_prior_runs",
         "time_since_first_run_days",
-        "lagged_competitive_pressure",
+        "competitive_pressure",
     ]
     save_to_csv(processed_runs, "data/processed/run_records.csv", run_record_fields)
 
