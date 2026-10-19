@@ -1,14 +1,5 @@
-numpy
-pandas
-scipy
-scikit-learn
-statsmodels
-matplotlib
-seaborn
-nibabel
+# Project dependencies
+# Existing standard libraries are available by default.
+# Added dependencies required for entry point execution.
+networkx
 pyarrow
-tqdm
-jsonschema
-requests
-psutil
-# llmxive_toolkit is provided by the environment; no need to list it.
