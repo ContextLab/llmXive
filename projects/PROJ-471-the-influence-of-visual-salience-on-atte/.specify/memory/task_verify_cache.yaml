@@ -1,21 +1,24 @@
 T001:
   c: true
-  h: 5b33c956e459ba215b497f2c9a08f4cde9ae53d0ec9ef7962f9dff39d0eaf35a
-  r: "Checked `code/bootstrap.py` execution, the generated `requirements.txt` (both\
-    \ root and `code/` copy) contain all required pinned dependencies, the required\
-    \ directory layout (including top\u2011level `logs/`) is created, and `quickstart.md`\
-    \ documents the entry point `python -m code.main --stage smoke`. All artifacts\
-    \ exist and pass the provided unit test."
-  sig: f20b882079b8d8698938af37e07fa3731e7f3e41051cca43794a08e8349ccff3
+  h: 10a71f3072af3337c38b1240681ef82d33e3e613839fcfc75046219837a51104
+  r: 'The required artifacts exist and match the task: `code/bootstrap.py` creates
+    the directory tree (code/, data/raw, interim, processed, logs/) and writes the
+    pinned `requirements.txt` (confirmed on disk with the exact pinned list), `quickstart.md`
+    documents the `python -m code.main --stage smoke` entry point, and `tests/test_bootstrap.py`
+    asserts file existence and content. The directories (data/raw, data/interim, data/processed)
+    are present on disk, consistent with the bootstrap having been run.'
+  sig: 664756127b41ad3859a1a7a3004222054a60e9cde863bfb1fbb737a651a11feb
 T002:
-  c: true
-  h: c457ff634093f7a4a341edd7dd4a990d2df997730e079449968f9d241c45785a
-  r: "Checked `code/ingestion/verify_data.py` which validates the presence of `data/raw/ds003123/`,\
-    \ computes SHA\u2011256 checksums, writes them to `data/raw/checksums.json`, and\
-    \ raises a `RuntimeError` containing \u201CDATA_MISSING_001\u201D when the directory\
-    \ is missing. The accompanying `tests/test_verify_data.py` passes both the success\
-    \ and missing\u2011dataset scenarios, confirming correct behavior."
-  sig: 817fd24cae1d90230b979cffebdcc28dfb2c41011f4f804bc896d4b67ebd4368
+  c: false
+  h: cf61ecbb0dc2b96dc09ea80a3965d1dc3ff54185d137ab7a7b941b5541b90f5e
+  r: "The dataset `data/raw/ds003123/` is MISSING and `data/raw/checksums.json` contains\
+    \ an empty manifest (`{\"files\": []}`), so no real checksums were ever recorded.\
+    \ Worse, `verify_data.py` ends with `shutil.rmtree(dataset_dir)`, deleting the\
+    \ dataset after a successful verification \u2014 a destructive bug that explains\
+    \ why the directory is gone and makes the script unusable for its stated purpose.\
+    \ There is also no execution evidence (no test run output) that the success or\
+    \ DATA_MISSING_001 paths actually passed."
+  sig: 15a8f4ec9ea1173f2c8acb9bee2a7c60665ca37107961fb8d18488745a38b206
 T004:
   c: false
   h: cdf4ecfc415938618b991bfc4c3e60e7565afb878087425c34a55251a8d38cf2
