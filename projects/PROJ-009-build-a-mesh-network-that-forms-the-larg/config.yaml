@@ -1,0 +1,7 @@
+testbed:
+  nodes: []
+benchmark:
+  granularity: []
+analysis:
+  max_runtime_hours: 6
+ci_timeout_seconds: 21600

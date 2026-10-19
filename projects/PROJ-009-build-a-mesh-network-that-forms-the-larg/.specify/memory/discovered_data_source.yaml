@@ -1,14 +1,15 @@
 status: none
-intent: PerfKit Benchmarker results repository dataset CPU network packet counts python
-  package dataset
+intent: EdgeDevicePerformanceLogs M-Lab NDT CAIDA Anonymized Internet Traces MLPerf
+  Edge Benchmark python package dataset
 required_fields:
 - node_id
 - timestamp
-- wall_clock_time
+- cpu_utilization_percent
 - packet_count
-- cpu_utilization
+- latency_ms
 - task_id
-- memory_usage
-cache_key: acb6c5a99313640cd50bd51148e570695ac178b7a5c733282e670895a1738366
-searched_at: '2026-10-19T10:10:39.583978+00:00'
+- task_chunk_id
+- memory_usage_mb
+cache_key: 632645a33dfe537772987b1f32bf4147c6906b4cf2189a68cff07bae848d1578
+searched_at: '2026-10-19T11:11:28.561525+00:00'
 retry_count: 1

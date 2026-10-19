@@ -24,6 +24,7 @@ class Config:
     testbed: Dict[str, Any] = field(default_factory=dict)
     benchmark: Dict[str, Any] = field(default_factory=dict)
     analysis: Dict[str, Any] = field(default_factory=dict)
+    ci_timeout_seconds: int = 21600  # default CI wall‑clock limit (seconds)
 
 class ConfigError(Exception):
     """Raised when configuration loading or validation fails."""
@@ -45,7 +46,8 @@ class ConfigManager:
         self.config = Config(
             testbed=raw.get("testbed", {}),
             benchmark=raw.get("benchmark", {}),
-            analysis=raw.get("analysis", {})
+            analysis=raw.get("analysis", {}),
+            ci_timeout_seconds=raw.get("ci_timeout_seconds", 21600)
         )
 
     def get(self) -> Config:
@@ -72,6 +74,7 @@ def save_config(config: Config, path: Optional[Path] = None) -> None:
         "testbed": config.testbed,
         "benchmark": config.benchmark,
         "analysis": config.analysis,
+        "ci_timeout_seconds": config.ci_timeout_seconds,
     }
     with target.open("wt") as f:
         yaml.safe_dump(data, f)

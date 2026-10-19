@@ -812,3 +812,68 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-19T10:08:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: CLI run creates CSV and JSON files run_001, dropout_events, validation_status
+  claim_id: c_e748c1e5
+  context: During a single benchmark run, the orchestrator logs the requested parameters
+    and creates output files.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A CSV file `data/raw/run_001.csv`, `data/raw/dropout_events.json`, and
+    `data/raw/validation_status.json` are created.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T11:09:34Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: Orchestrator discovers 15 nodes in single benchmark run
+  claim_id: c_80897db1
+  context: In the single benchmark run command, the orchestrator pretends to discover
+    15 nodes.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator pretends to discover 15 nodes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T11:09:34Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: Sweep runner generates no real data
+  claim_id: c_ad8d6553
+  context: When executing the full parameter sweep, the sweep runner acknowledges
+    the request but no real data are generated.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: No real data are generated at this stage.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T11:09:34Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: CLI placeholder files cause contract tests to pass
+  claim_id: c_5dc12b79
+  context: The contract tests scan the data directory and validate JSON files; with
+    the placeholder files created by the CLI, the tests pass.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: With the placeholder files created by the CLI, the tests pass.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T11:09:34Z'

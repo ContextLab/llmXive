@@ -19,7 +19,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/orchestrator/cli.py: self-declared fabricated metric — “…ark once per node and collect dummy metrics     # ----------------------…”; 6 command(s) failed: python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 (rc=1); python code/orchestrator/cli.py sweep --config config.yaml (rc=1); python code/analysis/theoretical_bound.py  --input data/processed/regression_model.json  --config config.yaml (rc=1); 1 declared deliverable(s) absent: data/raw/dropout_events.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/orchestrator/cli.py: self-declared fabricated metric — “…ark once per node and collect dummy metrics     # ----------------------…”; 6 command(s) failed: python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 (rc=1); python code/orchestrator/cli.py sweep --config config.yaml (rc=1); python code/analysis/theoretical_bound.py  --input data/processed/regression_model.json  --config config.yaml (rc=1); 3 declared deliverable(s) absent: data/raw/dropout_events.json; data/raw/run_001.csv; data/raw/validation_status.json
 
 ## Failing / missing run-book commands
 
@@ -28,30 +28,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/cli.py", line 39, in <module>
     from orchestrator.benchmark import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/benchmark.py", line 227, in <module>
-    @enforce_pipeline_timeout()
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/timeout_guard.py", line 33, in enforce_pipeline_timeout
-    timeout_seconds = get_config().ci_timeout_seconds
-                      ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/config.py", line 64, in get_config
-    raise ConfigError("Default config.yaml not found")
-orchestrator.config.ConfigError: Default config.yaml not found
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/benchmark.py", line 25, in <module>
+    from orchestrator.timeout_guard import enforce_pipeline_timeout, PipelineTimeoutError
+ImportError: cannot import name 'PipelineTimeoutError' from 'orchestrator.timeout_guard' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/timeout_guard.py)
 
 - python code/orchestrator/cli.py sweep --config config.yaml -> rc=1
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/cli.py", line 39, in <module>
     from orchestrator.benchmark import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/benchmark.py", line 227, in <module>
-    @enforce_pipeline_timeout()
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/timeout_guard.py", line 33, in enforce_pipeline_timeout
-    timeout_seconds = get_config().ci_timeout_seconds
-                      ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/config.py", line 64, in get_config
-    raise ConfigError("Default config.yaml not found")
-orchestrator.config.ConfigError: Default config.yaml not found
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/benchmark.py", line 25, in <module>
+    from orchestrator.timeout_guard import enforce_pipeline_timeout, PipelineTimeoutError
+ImportError: cannot import name 'PipelineTimeoutError' from 'orchestrator.timeout_guard' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/timeout_guard.py)
 
 - python code/analysis/theoretical_bound.py  --input data/processed/regression_model.json  --config config.yaml -> rc=1
 
@@ -67,24 +55,27 @@ Traceback (most recent call last):
 FileNotFoundError: Input file not found: data/processed/regression_model.json
 
 - python -m pytest tests/unit/ -v -> rc=2
-trap>:1147: in _find_and_load_unlocked
+bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
     ???
 <frozen importlib._bootstrap>:690: in _load_unlocked
     ???
 /home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
     exec(co, module.__dict__)
-tests/unit/test_sweep_runner.py:13: in <module>
-    from orchestrator.sweep_runner import SweepRunner, SweepConfig, generate_default_configs
-E   ImportError: cannot import name 'SweepRunner' from 'orchestrator.sweep_runner' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/sweep_runner.py)
+tests/unit/test_timeout_guard.py:8: in <module>
+    from orchestrator.timeout_guard import (
+E   ImportError: cannot import name 'run_with_timeout' from 'orchestrator.timeout_guard' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/timeout_guard.py)
 =========================== short test summary info ============================
-ERROR tests/unit/test_benchmark.py - orchestrator.config.ConfigError: Default config.yaml not found
+ERROR tests/unit/test_benchmark.py
 ERROR tests/unit/test_data_aggregator.py
 ERROR tests/unit/test_remote_wall_clock_timer.py - NameError: name 'pytest' is not defined
 ERROR tests/unit/test_scheduler_execution.py
 ERROR tests/unit/test_scheduler_straggler.py
 ERROR tests/unit/test_sweep_runner.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 0.80s ===============================
+ERROR tests/unit/test_timeout_guard.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 7 errors in 0.95s ===============================
 
 
 - python -m pytest tests/contract/ -v -> rc=1
@@ -93,7 +84,7 @@ ERROR tests/contract/test_regression_model_schema.py::TestRegressionModelSchema:
 assert False
  +  where False = <bound method Path.exists of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml')>()
  +    where <bound method Path.exists of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml')> = PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml').exists
-=================== 1 failed, 17 passed, 15 errors in 0.22s ====================
+=================== 1 failed, 17 passed, 15 errors in 0.23s ====================
 
 
 - python -m pytest tests/integration/ -v --mock-testbed -> rc=4
@@ -108,6 +99,8 @@ __main__.py: error: unrecognized arguments: --mock-testbed
 ## Declared deliverables still missing
 
 - data/raw/dropout_events.json
+- data/raw/run_001.csv
+- data/raw/validation_status.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -119,3 +112,14 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/orchestrator/scheduler.py` — NOT invoked by the run-book
     - `code/tests/contract/test_contracts.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/dropout_events.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/run_001.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/radio_metrics_extractor.py` — NOT invoked by the run-book
+    - `code/orchestrator/cli.py` — IS a run-book command
+  Make ONE of these WRITE `data/raw/run_001.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/validation_status.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/instrumentation_validator.py` — NOT invoked by the run-book
+    - `code/analysis/radio_metrics_validator.py` — NOT invoked by the run-book
+    - `code/orchestrator/cli.py` — IS a run-book command
+    - `code/orchestrator/network_saturation_handler.py` — NOT invoked by the run-book
+    - `code/orchestrator/scheduler_execution.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/validation_status.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

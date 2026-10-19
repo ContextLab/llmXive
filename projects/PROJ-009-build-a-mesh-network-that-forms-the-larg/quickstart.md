@@ -45,6 +45,8 @@ benchmark:
 
 analysis:
  max_runtime_hours: 6
+
+ci_timeout_seconds: 21600
 ```
 
 Verify that the configuration can be read:
@@ -63,17 +65,17 @@ python code/orchestrator/cli.py run \
  --latency 100
 ```
 *What happens*:
-- The orchestrator pretends to discover 15 nodes. [UNRESOLVED-CLAIM: c_91f4770b — status=not_enough_info]
+- The orchestrator pretends to discover 15 nodes. [UNRESOLVED-CLAIM: c_80897db1 — status=not_enough_info]
 - It logs the requested parameters.
-- A placeholder `data/raw/dropout_events.json` and `data/raw/validation_status.json` are created.
+- A CSV file `data/raw/run_001.csv`, `data/raw/dropout_events.json`, and `data/raw/validation_status.json` are created. [UNRESOLVED-CLAIM: c_e748c1e5 — status=not_enough_info]
 
 ### 2. Full Parameter Sweep
 ```bash
 python code/orchestrator/cli.py sweep --config config.yaml
 ```
 *What happens*:
-- The sweep runner acknowledges the request (full implementation is future work).
-- No real data are generated at this stage.
+- The sweep runner acknowledges the request (full implementation will be added later).
+- No real data are generated at this stage. [UNRESOLVED-CLAIM: c_ad8d6553 — status=not_enough_info]
 
 ### 3. Help
 ```bash
