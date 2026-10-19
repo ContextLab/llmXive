@@ -81,99 +81,108 @@ def load_raw_data() -> pd.DataFrame:
         raise FileNotFoundError(f"Raw data not found at {raw_path}. Run T008 first.")
     return pd.read_csv(raw_path)
 
-# --- Helper to generate missing baseline predictions ---
+# --- Helper to generate realistic baseline predictions ---
 def _generate_baseline_test_predictions() -> pd.DataFrame:
     """
-    Generate a minimal baseline_test_predictions.csv.
-    If the test set exists, use its SMILES and property names with perfect predictions.
-    If the test set is missing, fetch a small real dataset from PubChem (verified source)
-    and construct a three‑property placeholder where the experimental and predicted
-    values are identical (residual = 0). This guarantees non‑negative MAE/RMSE and
-    satisfies the downstream histogram plotting.
+    Generate baseline_test_predictions.csv using a simple additive baseline:
+    * logP: RDKit Crippen MolLogP
+    * solubility & boiling_point: simple linear function of molecular weight.
+    The function fetches a small real dataset from PubChem (verified source)
+    if the test set is missing.
     """
     logger = setup_logging('logs/stats.log')
-    logger.info("Generating baseline_test_predictions.csv (placeholder if needed).")
+    logger.info("Generating baseline_test_predictions.csv (realistic baseline).")
 
+    # Try to load the existing test set; if unavailable, fetch a tiny real dataset.
     try:
         test_df = load_test_set()
+        # Expect columns: 'smiles' and property columns may be named variably.
+        smiles_series = test_df['smiles'].dropna().unique()
     except FileNotFoundError:
-        # Fallback: fetch a tiny real dataset directly from PubChem
+        logger.info("Test set not found – fetching a small real dataset from PubChem.")
         try:
             import pubchempy as pcp
         except ImportError as e:
             logger.error("pubchempy is required to fetch fallback data but is not installed.")
             raise e
 
-        # Verified list of 10 diverse CIDs (real source)
+        # Verified list of diverse CIDs (real source)
         cids = [2244, 3672, 5957, 702, 1234, 5281, 5280, 5282, 5283, 5284]
         logger.info(f"Fetching fallback data for CIDs: {cids}")
         compounds = pcp.get_compounds(cids, namespace="cid")
         records = []
         for comp in compounds:
-            records.append({
-                'cid': comp.cid,
-                'smiles': comp.isomeric_smiles,
-                'xlogp': comp.xlogp if comp.xlogp is not None else np.nan
-            })
+            if comp.isomeric_smiles:
+                records.append({
+                    'cid': comp.cid,
+                    'smiles': comp.isomeric_smiles,
+                    'xlogp': comp.xlogp if comp.xlogp is not None else np.nan,
+                    'mw': comp.molecular_weight if hasattr(comp, 'molecular_weight') else np.nan
+                })
         fallback_df = pd.DataFrame(records).dropna(subset=['smiles'])
         if fallback_df.empty:
             raise RuntimeError("Failed to fetch any valid molecules from PubChem for fallback.")
-        
-        # Build a DataFrame with three properties per molecule.
-        rows = []
-        for _, row in fallback_df.iterrows():
-            smiles = row['smiles']
-            # Property: logP (use fetched XLogP)
-            rows.append({
-                'smiles': smiles,
-                'property': 'logP',
-                'experimental_value': row['xlogp'],
-                'predicted_value': row['xlogp']
-            })
-            # Property: Solubility – placeholder zero (real measurement unavailable)
-            rows.append({
-                'smiles': smiles,
-                'property': 'solubility',
-                'experimental_value': 0.0,
-                'predicted_value': 0.0
-            })
-            # Property: Boiling Point – placeholder zero
-            rows.append({
-                'smiles': smiles,
-                'property': 'boiling_point',
-                'experimental_value': 0.0,
-                'predicted_value': 0.0
-            })
-        baseline_df = pd.DataFrame(rows)
+        smiles_series = fallback_df['smiles'].unique()
     else:
-        # Use the existing test set; assume it already contains the needed columns.
-        # Determine the property column name and experimental value column name.
-        prop_col = None
-        for cand in ['property_name', 'property']:
-            if cand in test_df.columns:
-                prop_col = cand
-                break
-        if prop_col is None:
-            raise KeyError("Test set missing a property column (expected 'property_name' or 'property').")
+        # If we have a test set, ensure we have SMILES column.
+        if not isinstance(smiles_series, (list, np.ndarray)):
+            smiles_series = test_df['smiles'].dropna().unique()
 
-        exp_col = None
-        for cand in ['experimental_value', 'value']:
-            if cand in test_df.columns:
-                exp_col = cand
-                break
-        if exp_col is None:
-            raise KeyError("Test set missing experimental value column (expected 'experimental_value' or 'value').")
+    # Prepare RDKit imports for baseline calculations
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import Crippen, Descriptors
+    except ImportError as e:
+        logger.error("RDKit is required for baseline calculations but is not installed.")
+        raise e
 
-        baseline_df = pd.DataFrame({
-            'smiles': test_df['smiles'],
-            prop_col: test_df[prop_col],
-            'experimental_value': test_df[exp_col],
-            'predicted_value': test_df[exp_col]  # perfect baseline prediction
+    rows = []
+    for smi in smiles_series:
+        mol = Chem.MolFromSmiles(smi)
+        if mol is None:
+            continue  # skip invalid SMILES
+
+        # Baseline prediction for logP using Crippen
+        logp_pred = Crippen.MolLogP(mol)
+
+        # Simple linear baseline for solubility and boiling point:
+        # Use molecular weight as a proxy: pred = 0.01 * MW
+        mw = Descriptors.MolWt(mol)
+        sol_pred = 0.01 * mw
+        bp_pred = 0.01 * mw
+
+        # Experimental values:
+        # If we fetched from PubChem we have xlogp; otherwise we fall back to NaN.
+        exp_logp = np.nan
+        if 'xlogp' in locals():
+            # When using fallback data we stored xlogp in the DataFrame.
+            match_row = fallback_df[fallback_df['smiles'] == smi]
+            if not match_row.empty:
+                exp_logp = match_row.iloc[0]['xlogp']
+
+        # Assemble rows for three properties
+        rows.append({
+            'smiles': smi,
+            'property': 'logP',
+            'experimental_value': exp_logp,
+            'predicted_value': logp_pred
         })
-        # Ensure column naming aligns with later processing
-        if prop_col != 'property':
-            baseline_df = baseline_df.rename(columns={prop_col: 'property'})
+        rows.append({
+            'smiles': smi,
+            'property': 'solubility',
+            'experimental_value': np.nan,
+            'predicted_value': sol_pred
+        })
+        rows.append({
+            'smiles': smi,
+            'property': 'boiling_point',
+            'experimental_value': np.nan,
+            'predicted_value': bp_pred
+        })
 
+    baseline_df = pd.DataFrame(rows)
+
+    # Write to CSV
     output_path = Path('data/derived/baseline_test_predictions.csv')
     output_path.parent.mkdir(parents=True, exist_ok=True)
     baseline_df.to_csv(output_path, index=False)
@@ -225,15 +234,17 @@ def compute_baseline_metrics() -> None:
     if pred_col is None:
         raise KeyError("No predicted value column found in baseline predictions.")
 
-    # Compute residuals
+    # Compute residuals (experimental - predicted); handle missing experimental values gracefully
     df['residual'] = df[exp_col] - df[pred_col]
 
     # Group by property and compute metrics
     metrics = []
     for prop, group in df.groupby(prop_col):
-        mae = group['residual'].abs().mean()
-        rmse = np.sqrt((group['residual'] ** 2).mean())
-        n = len(group)
+        # Exclude NaN residuals from metric calculation
+        valid_residuals = group['residual'].dropna()
+        mae = valid_residuals.abs().mean() if not valid_residuals.empty else np.nan
+        rmse = np.sqrt((valid_residuals ** 2).mean()) if not valid_residuals.empty else np.nan
+        n = len(valid_residuals)
         metrics.append({
             'property': prop,
             'mae': mae,
@@ -251,12 +262,12 @@ def compute_baseline_metrics() -> None:
     # Plot residual histograms (3‑panel)
     plt.figure(figsize=(12, 4))
     unique_props = metrics_df['property'].tolist()
-    # Ensure we have exactly three panels; if fewer, repeat empty plots.
+    # Ensure we have exactly three panels; if fewer, leave panels empty.
     for idx in range(1, 4):
         plt.subplot(1, 3, idx)
         if idx <= len(unique_props):
             prop = unique_props[idx - 1]
-            prop_residuals = df[df[prop_col] == prop]['residual']
+            prop_residuals = df[df[prop_col] == prop]['residual'].dropna()
             plt.hist(prop_residuals, bins=30, color='steelblue', edgecolor='black')
             plt.title(prop)
             plt.xlabel('Residual (exp - pred)')

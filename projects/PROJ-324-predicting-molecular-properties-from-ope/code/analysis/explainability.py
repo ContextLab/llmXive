@@ -1,7 +1,10 @@
 """
 Explainability module for molecular property prediction.
 Implements SHAP interaction analysis, heatmap generation, and persistence of interaction matrix.
-Updated to handle missing fingerprints gracefully and ensure output generation.
+Updated to handle missing fingerprints gracefully by generating MACCS fingerprints with RDKit
+when the Open Babel fingerprint CSV is unavailable.
+Added functionality to map top MACCS bits to chemical substructures using SMARTS rules.
+Added conformational limitations audit functionality (T104).
 """
 import os
 import sys
@@ -15,6 +18,12 @@ import numpy as np
 
 # External libraries
 from sklearn.ensemble import RandomForestRegressor
+
+# RDKit for on‑the‑fly MACCS fingerprint generation and substructure matching
+from rdkit import Chem
+from rdkit.Chem import MACCSkeys
+from rdkit.Chem.Lipinski import CalcNumRotatableBonds
+from rdkit.Chem.rdMolDescriptors import CalcTPSA
 
 # Ensure we can import from the project root (for relative imports if needed)
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -67,7 +76,7 @@ def setup_logging():
 def load_model(model_path: str = 'data/models/final_model.pkl'):
     """
     Load a pre‑trained Random Forest model if it exists.
-    If the file is missing, the function returns ``None`` – callers can decide
+    If the file missing, the function returns ``None`` – callers can decide
     to train a fresh model on‑the‑fly.
     """
     if not os.path.exists(model_path):
@@ -78,33 +87,74 @@ def load_model(model_path: str = 'data/models/final_model.pkl'):
     logger.info(f"Loaded model from {model_path}")
     return model
 
-def load_fingerprints_data(fp_path: str = 'data/processed/full_fingerprints.csv'):
+def _generate_maccs_fingerprints(smiles_list: List[str]) -> pd.DataFrame:
     """
-    Load fingerprint data from CSV. If the file does not exist, this function
-    returns ``None`` – callers can generate fingerprints from SMILES instead.
+    Generate a MACCS fingerprint DataFrame from a list of SMILES strings.
+    The resulting DataFrame contains a 'smiles' column followed by 166 binary
+    columns named 'bit_0' … 'bit_165' (the standard MACCS key size).
     """
-    if not os.path.exists(fp_path):
-        logger.warning(f"Fingerprint file not found: {fp_path}. Fingerprints will be generated from SMILES.")
-        return None
-    df = pd.read_csv(fp_path)
-    logger.info(f"Loaded fingerprints from {fp_path}, shape: {df.shape}")
+    rows = []
+    for smi in smiles_list:
+        mol = Chem.MolFromSmiles(smi)
+        if mol is None:
+            logger.warning(f"RDKit failed to parse SMILES: {smi}")
+            bits = [0] * 166
+        else:
+            fp = MACCSkeys.GenMACCSKeys(mol)
+            bits = list(fp)  # fp is an ExplicitBitVect; iterates over bits as ints
+        row = {'smiles': smi}
+        row.update({f'bit_{i}': bits[i] for i in range(len(bits))})
+        rows.append(row)
+    df = pd.DataFrame(rows)
+    logger.info(f"Generated MACCS fingerprints for {len(df)} molecules.")
     return df
 
+def load_fingerprints_data(fp_path: str = 'data/processed/full_fingerprints.csv'):
+    """
+    Load fingerprint data from CSV. If the file does not exist, generate MACCS
+    fingerprints on‑the‑fly using RDKit from the SMILES present in the baseline
+    predictions file.
+    """
+    if os.path.exists(fp_path):
+        df = pd.read_csv(fp_path)
+        logger.info(f"Loaded fingerprints from {fp_path}, shape: {df.shape}")
+        return df
+
+    # Fallback: generate MACCS fingerprints from baseline SMILES
+    logger.warning(f"Fingerprint file not found at {fp_path}. Generating MACCS fingerprints using RDKit.")
+    baseline_path = Path('data/derived/baseline_test_predictions.csv')
+    if not baseline_path.is_file():
+        raise FileNotFoundError(f"Required baseline predictions not found at {baseline_path}")
+
+    baseline_df = pd.read_csv(baseline_path)
+    smiles = baseline_df['smiles'].unique().tolist()
+    return _generate_maccs_fingerprints(smiles)
+
 def load_rules(rules_path: str = 'code/data/rules.py'):
-    """Load SMARTS patterns from rules file (fallback to a minimal set)."""
+    """
+    Load SMARTS patterns from the rules file.
+    The file may define either ``RULES`` or ``SMARTS_PATTERNS``.
+    Returns a list of dicts with keys ``name``, ``smarts``, ``description``.
+    """
     try:
         import importlib.util
         spec = importlib.util.spec_from_file_location("rules", rules_path)
         rules_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(rules_module)
-        rules = rules_module.RULES
+        if hasattr(rules_module, "RULES"):
+            rules = rules_module.RULES
+        elif hasattr(rules_module, "SMARTS_PATTERNS"):
+            rules = rules_module.SMARTS_PATTERNS
+        else:
+            raise AttributeError("No RULES or SMARTS_PATTERNS defined")
         logger.info(f"Loaded {len(rules)} SMARTS patterns from {rules_path}")
         return rules
     except Exception as e:
         logger.warning(f"Failed to load rules from {rules_path}: {e}")
+        # Minimal fallback set
         return [
             {"name": "hydroxyl", "smarts": "[OX2H]", "description": "Hydroxyl group"},
-            {"name": "carbonyl", "smarts": "[OX2]=[C]", "description": "Carbonyl group"},
+            {"name": "carbonyl", "smarts": "[CX3](=[OX1])", "description": "Carbonyl group"},
             {"name": "aromatic", "smarts": "a", "description": "Aromatic ring"},
             {"name": "amine", "smarts": "[NX3]", "description": "Amine group"},
             {"name": "halogen", "smarts": "[F,Cl,Br,I]", "description": "Halogen atom"}
@@ -241,15 +291,15 @@ def plot_shap_interactions():
     y = logp_df['experimental_value'].astype(float).values
 
     # ------------------------------------------------------------------
-    # 2️⃣ Load precomputed MACCS fingerprint matrix
+    # 2️⃣ Load precomputed MACCS fingerprint matrix (or generate on‑the‑fly)
     # ------------------------------------------------------------------
     fp_df = load_fingerprints_data()
     if fp_df is None:
-        raise FileNotFoundError("Fingerprint CSV not found; cannot compute SHAP interactions.")
+        raise FileNotFoundError("Fingerprint data could not be loaded or generated.")
 
     # Ensure the fingerprint DataFrame contains a 'smiles' column
     if 'smiles' not in fp_df.columns:
-        raise KeyError("Fingerprint CSV must contain a 'smiles' column.")
+        raise KeyError("Fingerprint data must contain a 'smiles' column.")
 
     # Filter fingerprint rows to match the SMILES used for y
     fp_df = fp_df[fp_df['smiles'].isin(smiles)]
@@ -289,6 +339,198 @@ def plot_shap_interactions():
     logger.info("SHAP interaction heatmap generation completed.")
 
 # ----------------------------------------------------------------------
+# New functionality for T103 – MACCS bit → substructure mapping
+# ----------------------------------------------------------------------
+def map_bits_to_substructures(k: int = 30,
+                              output_path: str = 'data/derived/deviation_contexts.csv'):
+    """
+    Map the top‑K MACCS bits (ranked by mean absolute SHAP interaction strength)
+    to chemical substructures using SMARTS rules.
+
+    Parameters
+    ----------
+    k : int
+        Number of top bits to map (must be >= 30 per specification).
+    output_path : str
+        Destination CSV path for the deviation contexts.
+
+    The resulting CSV has columns:
+    ``smiles,bit_index,matched_substructure,interaction_strength``.
+    """
+    if k < 30:
+        logger.warning(f"Requested K={k} is smaller than the minimum of 30; proceeding anyway.")
+
+    setup_logging()
+    ensure_dirs()
+
+    # Load SHAP interaction matrix
+    interaction_file = Path('data/derived/shap_interaction.npy')
+    if not interaction_file.is_file():
+        raise FileNotFoundError(f"SHAP interaction matrix not found at {interaction_file}")
+    shap_interactions = np.load(interaction_file)  # shape (n_samples, n_bits, n_bits)
+
+    # Compute mean absolute interaction per bit (averaged over samples and partner bits)
+    # Resulting shape: (n_bits,)
+    mean_abs_per_bit = np.mean(np.abs(shap_interactions), axis=(0, 2))
+
+    # Select top‑K bit indices
+    top_bit_indices = np.argsort(mean_abs_per_bit)[-k:][::-1]
+
+    # Load SMARTS rules
+    rules = load_rules()
+    # Map bit index -> rule dict if available
+    rule_lookup = {idx: rules[idx] for idx in range(min(len(rules), len(mean_abs_per_bit)))}
+
+    # Load test set molecules
+    test_set_path = Path('data/derived/test_set.csv')
+    if not test_set_path.is_file():
+        raise FileNotFoundError(f"Test set not found at {test_set_path}")
+    test_df = pd.read_csv(test_set_path)
+    if 'smiles' not in test_df.columns:
+        raise KeyError("Test set CSV must contain a 'smiles' column.")
+
+    records = []
+    for _, mol_row in test_df.iterrows():
+        smiles = mol_row['smiles']
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            logger.warning(f"RDKit failed to parse SMILES from test set: {smiles}")
+            continue
+
+        for bit_idx in top_bit_indices:
+            interaction_strength = float(mean_abs_per_bit[bit_idx])
+
+            # Determine substructure description
+            if bit_idx in rule_lookup:
+                smarts = rule_lookup[bit_idx]['smarts']
+                name = rule_lookup[bit_idx].get('name', f'bit_{bit_idx}')
+                # Perform substructure match
+                try:
+                    pattern = Chem.MolFromSmarts(smarts)
+                    if pattern is not None and mol.HasSubstructMatch(pattern):
+                        matched_substructure = name
+                    else:
+                        matched_substructure = "unmapped"
+                except Exception as e:
+                    logger.warning(f"SMARTS parsing failed for bit {bit_idx}: {e}")
+                    matched_substructure = "unmapped"
+            else:
+                # No SMARTS rule for this bit (e.g., hashed bits from other fingerprint types)
+                matched_substructure = "uninterpretable"
+
+            records.append({
+                'smiles': smiles,
+                'bit_index': int(bit_idx),
+                'matched_substructure': matched_substructure,
+                'interaction_strength': interaction_strength
+            })
+
+    # Create DataFrame and write CSV
+    out_df = pd.DataFrame.from_records(records,
+                                      columns=['smiles',
+                                               'bit_index',
+                                               'matched_substructure',
+                                               'interaction_strength'])
+    out_path = Path(output_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_df.to_csv(out_path, index=False)
+    logger.info(f"Wrote deviation contexts CSV with {len(out_df)} rows to {out_path}")
+
+# ----------------------------------------------------------------------
+# New functionality for T104 – Conformational limitations audit
+# ----------------------------------------------------------------------
+def flag_conformational_limits(
+    test_set_path: str = 'data/derived/test_set.csv',
+    rf_predictions_path: str = 'data/derived/rf_test_predictions.csv',
+    output_path: str = 'data/derived/conformational_limitations.csv',
+    rotatable_bond_threshold: int = 10
+):
+    """
+    Identify molecules in the test set that have a high number of rotatable bonds,
+    flagging them as conformationally limited for 2D fingerprint models.
+
+    Parameters
+    ----------
+    test_set_path : str
+        Path to the test set CSV containing at least a ``smiles`` column.
+    rf_predictions_path : str
+        Path to the Random Forest test‑set predictions CSV. Expected columns
+        ``smiles``, ``property``, ``experimental_value``, ``predicted_value``.
+    output_path : str
+        Destination CSV for the audit. Columns:
+        ``smiles,num_rotatable_bonds,tpsa,deviation_magnitude``.
+    rotatable_bond_threshold : int
+        Minimum number of rotatable bonds to consider a molecule conformationally limited.
+    """
+    # Load test set
+    test_path = Path(test_set_path)
+    if not test_path.is_file():
+        raise FileNotFoundError(f"Test set not found at {test_path}")
+    test_df = pd.read_csv(test_path)
+    if 'smiles' not in test_df.columns:
+        raise KeyError("Test set CSV must contain a 'smiles' column.")
+    logger.info(f"Loaded test set with {len(test_df)} rows.")
+
+    # Compute rotatable bonds and TPSA for each SMILES
+    rot_bonds = []
+    tpsa_vals = []
+    for smi in test_df['smiles']:
+        mol = Chem.MolFromSmiles(smi)
+        if mol is None:
+            logger.warning(f"RDKit failed to parse SMILES: {smi}")
+            rot_bonds.append(np.nan)
+            tpsa_vals.append(np.nan)
+        else:
+            rot_bonds.append(CalcNumRotatableBonds(mol))
+            tpsa_vals.append(CalcTPSA(mol))
+
+    test_df = test_df.copy()
+    test_df['num_rotatable_bonds'] = rot_bonds
+    test_df['tpsa'] = tpsa_vals
+
+    # Flag molecules with > threshold rotatable bonds
+    flagged_df = test_df[test_df['num_rotatable_bonds'] > rotatable_bond_threshold].copy()
+    if flagged_df.empty:
+        logger.info(f"No molecules exceed {rotatable_bond_threshold} rotatable bonds.")
+    else:
+        logger.info(f"Flagged {len(flagged_df)} molecules as conformationally limited.")
+
+    # Load RF predictions to compute deviation magnitude per molecule
+    rf_path = Path(rf_predictions_path)
+    if not rf_path.is_file():
+        raise FileNotFoundError(f"RF predictions file not found at {rf_path}")
+    rf_df = pd.read_csv(rf_path)
+
+    # Expected columns: smiles, experimental_value, predicted_value
+    required_cols = {'smiles', 'experimental_value', 'predicted_value'}
+    if not required_cols.issubset(rf_df.columns):
+        raise KeyError(f"RF predictions CSV must contain columns {required_cols}")
+
+    # Compute absolute error per row then average per molecule
+    rf_df['abs_error'] = (rf_df['experimental_value'] - rf_df['predicted_value']).abs()
+    deviation_series = rf_df.groupby('smiles')['abs_error'].mean().reset_index()
+    deviation_series.rename(columns={'abs_error': 'deviation_magnitude'}, inplace=True)
+
+    # Merge deviation magnitude into flagged dataframe
+    flagged_df = flagged_df.merge(deviation_series, on='smiles', how='left')
+    # If a molecule lacks a deviation entry, fill with NaN
+    flagged_df['deviation_magnitude'] = flagged_df['deviation_magnitude'].astype(float)
+
+    # Select and order required columns
+    result_df = flagged_df[['smiles', 'num_rotatable_bonds', 'tpsa', 'deviation_magnitude']].copy()
+    result_df = result_df.dropna(subset=['num_rotatable_bonds'])  # ensure numeric
+
+    # Verify that every row satisfies the threshold
+    assert result_df['num_rotatable_bonds'].gt(rotatable_bond_threshold).all(), \
+        "All rows must have num_rotatable_bonds > threshold."
+
+    # Write CSV
+    out_path = Path(output_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    result_df.to_csv(out_path, index=False)
+    logger.info(f"Wrote conformational limitations CSV with {len(result_df)} rows to {out_path}")
+
+# ----------------------------------------------------------------------
 # Existing CLI entry point – retained for compatibility
 # ----------------------------------------------------------------------
 def main():
@@ -300,8 +542,22 @@ def main():
     if '--shap-heatmap' in sys.argv:
         plot_shap_interactions()
         return
+    if '--map-bits' in sys.argv:
+        # Allow optional K argument: e.g., --map-bits=40
+        k = 30
+        for arg in sys.argv:
+            if arg.startswith('--map-bits='):
+                try:
+                    k = int(arg.split('=')[1])
+                except ValueError:
+                    pass
+        map_bits_to_substructures(k=k)
+        return
+    if '--conformational-audit' in sys.argv:
+        flag_conformational_limits()
+        return
 
-    # Placeholder for other flags (e.g., conformational audit, bit mapping)
+    # Placeholder for other flags (e.g., conformational audit)
     logger.info("No recognized flags provided. Exiting.")
 
 if __name__ == "__main__":

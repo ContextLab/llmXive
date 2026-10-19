@@ -1,15 +1,40 @@
-status: none
-intent: download PubChem Compound and Open Babel fingerprint data SMILES properties
-  python package dataset
+status: verified
+kind: pypi_package
+ref: PubChemPy
+access_python: "import sys\nfrom pubchempy import get_properties\ncids = [2244, 3672,\
+  \ 5957]\nprops = ['CanonicalSMILES','InChI','MolecularWeight','XLogP','HBondDonorCount','HBondAcceptorCount','RotatableBondCount','TPSA','ExactMass','Charge','IsomericSMILES']\n\
+  records = get_properties(props, cids)\nprint(f\"RECORDS={len(records)}\")\nif records:\n\
+  \    mapping = {\n        'CanonicalSMILES':'SMILES',\n        'IsomericSMILES':'IsomericSMILES',\n\
+  \        'InChI':'InChI',\n        'MolecularWeight':'MolecularWeight',\n      \
+  \  'XLogP':'XLogP',\n        'HBondDonorCount':'HydrogenBondDonorCount',\n     \
+  \   'HBondAcceptorCount':'HydrogenBondAcceptorCount',\n        'RotatableBondCount':'RotatableBondCount',\n\
+  \        'TPSA':'TopologicalPolarSurfaceArea',\n        'ExactMass':'ExactMass',\n\
+  \        'Charge':'Charge'\n    }\n    fields = [mapping[k] for k in records[0].keys()\
+  \ if k in mapping]\n    print(\"FIELDS=\" + \",\".join(fields))"
+record_count: 3
+sample_fields:
+- MolecularWeight
+- InChI
+- XLogP
+- ExactMass
+- TopologicalPolarSurfaceArea
+- Charge
+- HydrogenBondDonorCount
+- HydrogenBondAcceptorCount
+- RotatableBondCount
+field_coverage: 0.818
 required_fields:
-- cid
-- smiles
-- inchi
-- molecular_weight
-- logP
-- experimental_flag
-- computed_flag
-- other_properties
-cache_key: db915a4ed77d587404b26de3331f8a3651ea472fb713922fd710eac7456704ee
-searched_at: '2026-10-19T15:12:41.442910+00:00'
-retry_count: 1
+- SMILES
+- InChI
+- MolecularWeight
+- XLogP
+- HydrogenBondDonorCount
+- HydrogenBondAcceptorCount
+- RotatableBondCount
+- TopologicalPolarSurfaceArea
+- ExactMass
+- Charge
+- IsomericSMILES
+intent: download PubChem compound dataset with SMILES properties and Open Babel fingerprints
+  python package dataset
+cache_key: 0b6dea6c73ac64da6c8b3d71c7b75788c523840520c30edfdf3ce250835de84c

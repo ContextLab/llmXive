@@ -1,12 +1,36 @@
 T101:
   c: false
-  h: b929340db1b756cab0ecfdd349ccb6fec0e59f50c348b3eff169f6507e38c8cd
-  r: "The `baseline_test_predictions.csv` on disk is a fabricated placeholder: `predicted_value`\
-    \ equals `experimental_value` for every row (perfect predictions), and solubility/boiling_point\
-    \ values are all 0.0 \u2014 exactly matching the `_generate_baseline_test_predictions()`\
-    \ fallback in `stats.py`, which fabricates \"perfect baseline prediction\" data.\
-    \ Consequently `baseline_metrics.csv` reports MAE=RMSE=0.0 for all three properties,\
-    \ which is not a genuine baseline measurement (FR-005 baseline side). The code,\
-    \ CSV, PNG, and test exist and match the schema, but the underlying predictions\
-    \ are synthetic sta"
-  sig: d912fe4ea6e1bad1962be56d544c8017d7fef6a5bd069dbd42a699de1133764e
+  h: d2844c19c816d8493848fb561edf8f03d6e0a27d07cb4bbc79c6b8192c797841
+  r: "The code, CSV, PNG, and test all exist and the command ran (exit 0), but the\
+    \ underlying `baseline_test_predictions.csv` is a fabricated placeholder: `predicted_value`\
+    \ exactly equals `experimental_value` for every logP row, and solubility/boiling_point\
+    \ are all 0.0/0.0 \u2014 so the resulting `baseline_metrics.csv` reports MAE=RMSE=0.0\
+    \ for all three properties, which is a meaningless stand-in rather than a real\
+    \ baseline measurement (this is precisely the kind of fabricated data that got\
+    \ T015 rejected). Additionally, `stats.py` contains a `_generate_baseline_test_predictions()`\
+    \ fallback that fabricate"
+  sig: 3096e9e143d5994ea3ee18d33941ccfff3ec39599b0850b0da547dbec27eb57d
+T102:
+  c: false
+  h: 70ca53451c2e21ff845bbe42919cda95b89c797d044105ec1e83cf706ac6fa10
+  r: The required inputs `data/models/final_model.pkl` and `data/processed/test_fingerprints.csv`
+    are both MISSING; the execution log confirms the script silently substituted a
+    freshly trained "lightweight" RandomForest on only 10 molecules with RDKit-generated
+    fingerprints, so the persisted `(10, 167, 167)` tensor and PNG do not represent
+    SHAP interactions of the verified final model on the test set as the task requires.
+    Additionally, the "top-N bit-pair heatmap" is rendered via seaborn with only diagonal
+    cells populated (off-diagonal pairs zeroed), not a genuine bit-pair interaction
+    heatmap via `
+  sig: cd2a9c28fe12394df3686c6d2ccc34b626693b4833d0fc2de5022fcb36796cbb
+T103:
+  c: false
+  h: 2fac1dfbf6bef026aad101980f5a176ae7961b6f3342873fe94089852186462b
+  r: "The required output `data/derived/deviation_contexts.csv` does not exist, and\
+    \ the recorded test run of `tests/unit/test_bit_mapping.py` FAILED (exit 1) with\
+    \ `FileNotFoundError: Test set not found at data/derived/test_set.csv` \u2014\
+    \ the dependency input `data/derived/test_set.csv` is itself missing, so the mapping\
+    \ was never executed. Additionally, the implementation maps SMARTS rules to bits\
+    \ by positional index (`rule_lookup = {idx: rules[idx] ...}`) rather than matching\
+    \ each MACCS bit's SMARTS against molecules, so even with inputs present it would\
+    \ not satisfy the required bit\u2192substructure matchin"
+  sig: ccb360a881c5f2eb5d906c8d99813dfb713b2ea533b36ba9234e4c26d2856941

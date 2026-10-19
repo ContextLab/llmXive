@@ -2,30 +2,30 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis/validation_audit.py; 7 command(s) failed: python code/data/download.py (rc=1); python code/data/preprocess.py (rc=1); python code/data/fingerprint.py (rc=1); 8 declared deliverable(s) absent: data/derived/data_quality_report.csv; data/derived/rf_test_predictions.csv; data/derived/shap_interaction.npy
+**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis/validation_audit.py; 8 command(s) failed: python code/data/download.py (rc=1); python code/data/preprocess.py (rc=1); python code/data/fingerprint.py (rc=1); 8 declared deliverable(s) absent: data/derived/conformational_limitations.csv; data/derived/data_quality_report.csv; data/derived/deviation_contexts.csv
 
 ## Failing / missing run-book commands
 
 - python code/data/download.py -> rc=1
 __main__ - WARNING - Failed to fetch BoilingPoint for CID 1955: 'Compound' object has no attribute 'boiling_point'
-2026-10-19 15:11:53,775 - __main__ - WARNING - Failed to fetch RecordType for CID 1955: 'Compound' object has no attribute 'record_type'
-2026-10-19 15:11:53,775 - __main__ - ERROR - Failed to fetch data for CID 1955: 'Compound' object has no attribute 'record_type'
-2026-10-19 15:11:53,914 - __main__ - ERROR - Failed to fetch data for CID 1964: PubChem HTTP Error 503 PUGREST.ServerBusy: Too many requests or server too busy
-2026-10-19 15:11:54,087 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1973: 'Compound' object has no attribute 'water_solubility'
-2026-10-19 15:11:54,087 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1973: 'Compound' object has no attribute 'boiling_point'
-2026-10-19 15:11:54,087 - __main__ - WARNING - Failed to fetch RecordType for CID 1973: 'Compound' object has no attribute 'record_type'
-2026-10-19 15:11:54,087 - __main__ - ERROR - Failed to fetch data for CID 1973: 'Compound' object has no attribute 'record_type'
-2026-10-19 15:11:54,088 - __main__ - ERROR - No data fetched. Check CID list and PubChemPy connectivity.
+2026-10-19 16:10:45,618 - __main__ - WARNING - Failed to fetch RecordType for CID 1955: 'Compound' object has no attribute 'record_type'
+2026-10-19 16:10:45,618 - __main__ - ERROR - Failed to fetch data for CID 1955: 'Compound' object has no attribute 'record_type'
+2026-10-19 16:10:45,723 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1964: 'Compound' object has no attribute 'water_solubility'
+2026-10-19 16:10:45,723 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1964: 'Compound' object has no attribute 'boiling_point'
+2026-10-19 16:10:45,724 - __main__ - WARNING - Failed to fetch RecordType for CID 1964: 'Compound' object has no attribute 'record_type'
+2026-10-19 16:10:45,724 - __main__ - ERROR - Failed to fetch data for CID 1964: 'Compound' object has no attribute 'record_type'
+2026-10-19 16:10:45,798 - __main__ - ERROR - Failed to fetch data for CID 1973: PubChem HTTP Error 503 PUGREST.ServerBusy: Too many requests or server too busy
+2026-10-19 16:10:45,799 - __main__ - ERROR - No data fetched. Check CID list and PubChemPy connectivity.
 
 - python code/data/preprocess.py -> rc=1
 
-2026-10-19 15:11:54,570 - __main__ - ERROR - Raw data file not found: data/raw/pubchem_raw.csv. Run T008 first.
+2026-10-19 16:10:46,271 - __main__ - ERROR - Raw data file not found: data/raw/pubchem_raw.csv. Run T008 first.
 
 - python code/data/fingerprint.py -> rc=1
 
-2026-10-19 15:11:55,557 - __main__ - INFO - Ensured output directories: [PosixPath('data/processed'), PosixPath('data/derived')]
-2026-10-19 15:11:55,557 - __main__ - ERROR - Open Babel (obabel) not found in PATH. Please install it.
-2026-10-19 15:11:55,557 - __main__ - ERROR - Open Babel not available. Cannot proceed.
+2026-10-19 16:10:47,221 - __main__ - INFO - Ensured output directories: [PosixPath('data/processed'), PosixPath('data/derived')]
+2026-10-19 16:10:47,221 - __main__ - ERROR - Open Babel (obabel) not found in PATH. Please install it.
+2026-10-19 16:10:47,221 - __main__ - ERROR - Open Babel not available. Cannot proceed.
 
 - python code/models/baseline.py -> rc=1
 ope/code/models/baseline.py", line 87, in process_dataset
@@ -58,17 +58,23 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'data.preprocess'
 
 - python code/analysis/stats.py -> rc=1
-2026-10-19 15:11:58,299 - stats - INFO - Generating Experimental Validation Protocol (T058)...
+2026-10-19 16:10:49,629 - stats - INFO - Generating Experimental Validation Protocol (T058)...
 ERROR: Metadata file not found at data/raw/dataset_metadata.json. Run T031 first.
 
+
+- python code/analysis/explainability.py -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/analysis/explainability.py", line 25, in <module>
+    from rdkit.Chem.Lipinski import CalcNumRotatableBonds
+ImportError: cannot import name 'CalcNumRotatableBonds' from 'rdkit.Chem.Lipinski' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-324-predicting-molecular-properties-from-ope/lib/python3.11/site-packages/rdkit/Chem/Lipinski.py)
 
 - python code/analysis/validation_audit.py -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-324-predicting-molecular-properties-from-ope/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/analysis/validation_audit.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/ -> rc=2
-e-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+che/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
   /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
@@ -80,44 +86,83 @@ e-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 =========================== short test summary info ============================
 ERROR tests/contract/test_fingerprint_generation.py
 ERROR tests/unit/test_baseline.py
+ERROR tests/unit/test_bit_mapping.py
 ERROR tests/unit/test_fingerprint_generation.py
 ERROR tests/unit/test_lint_config.py
 ERROR tests/unit/test_lint_format.py
 ERROR tests/unit/test_linting_config.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 14 warnings, 6 errors in 1.29s ========================
+ERROR tests/unit/test_shap_interactions.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 14 warnings, 8 errors in 1.50s ========================
 
 
 
 ## Declared deliverables still missing
 
+- data/derived/conformational_limitations.csv
 - data/derived/data_quality_report.csv
+- data/derived/deviation_contexts.csv
 - data/derived/rf_test_predictions.csv
-- data/derived/shap_interaction.npy
-- data/derived/shap_interactions.png
 - data/derived/test_set.csv
 - data/derived/train_set.csv
 - data/raw/dataset_metadata.json
 - data/raw/pubchem_raw.csv
 
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `PubChemPy` to the project's `requirements.txt` and `pip install PubChemPy`.
+- **Verified**: this loads **3** real records with fields: MolecularWeight, InChI, XLogP, ExactMass, TopologicalPolarSurfaceArea, Charge, HydrogenBondDonorCount, HydrogenBondAcceptorCount, RotatableBondCount.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import sys
+from pubchempy import get_properties
+cids = [2244, 3672, 5957]
+props = ['CanonicalSMILES','InChI','MolecularWeight','XLogP','HBondDonorCount','HBondAcceptorCount','RotatableBondCount','TPSA','ExactMass','Charge','IsomericSMILES']
+records = get_properties(props, cids)
+print(f"RECORDS={len(records)}")
+if records:
+    mapping = {
+        'CanonicalSMILES':'SMILES',
+        'IsomericSMILES':'IsomericSMILES',
+        'InChI':'InChI',
+        'MolecularWeight':'MolecularWeight',
+        'XLogP':'XLogP',
+        'HBondDonorCount':'HydrogenBondDonorCount',
+        'HBondAcceptorCount':'HydrogenBondAcceptorCount',
+        'RotatableBondCount':'RotatableBondCount',
+        'TPSA':'TopologicalPolarSurfaceArea',
+        'ExactMass':'ExactMass',
+        'Charge':'Charge'
+    }
+    fields = [mapping[k] for k in records[0].keys() if k in mapping]
+    print("FIELDS=" + ",".join(fields))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
+
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/derived/conformational_limitations.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/explainability.py` — IS a run-book command
+  Make ONE of these WRITE `data/derived/conformational_limitations.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/derived/data_quality_report.csv` is declared but was NOT written. Scripts referencing it:
     - `code/data/preprocess.py` — IS a run-book command
   Make ONE of these WRITE `data/derived/data_quality_report.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/derived/deviation_contexts.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/explainability.py` — IS a run-book command
+  Make ONE of these WRITE `data/derived/deviation_contexts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/derived/rf_test_predictions.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/explainability.py` — IS a run-book command
     - `code/analysis/stats.py` — IS a run-book command
     - `code/models/rf.py` — IS a run-book command
   Make ONE of these WRITE `data/derived/rf_test_predictions.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/derived/shap_interaction.npy` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/explainability.py` — IS a run-book command
-  Make ONE of these WRITE `data/derived/shap_interaction.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/derived/shap_interactions.png` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/explainability.py` — IS a run-book command
-  Make ONE of these WRITE `data/derived/shap_interactions.png` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/derived/test_set.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/explainability.py` — IS a run-book command
     - `code/analysis/stats.py` — IS a run-book command
     - `code/data/fingerprint.py` — IS a run-book command
     - `code/data/preprocess.py` — IS a run-book command
