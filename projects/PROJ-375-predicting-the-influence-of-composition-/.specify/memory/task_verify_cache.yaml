@@ -1,31 +1,15 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no evidence (e.g., a directory tree listing or screenshots)
-    that the required folders (`code/ingestion`, `code/features`, `code/modeling`,
-    `code/utils`, `data/raw`, `data/processed`, `tests/unit`, `tests/integration`)
-    actually exist in the repository. Without such proof, we cannot verify the task
-    was completed.
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact was provided showing that a `docs` directory exists in the repository
-    root; without a file listing, screenshot, or other proof, we cannot confirm the
-    `mkdir -p docs` command was executed. The implementer must supply evidence (e.g.,
-    directory listing) that the `docs` folder was created.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `code/models` directory was presented; the implementer did\
-    \ not provide a file\u2011system listing, screenshot, or any artifact confirming\
-    \ that `mkdir -p code/models` was executed. The required directory is therefore\
-    \ missing from the supplied evidence."
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `results` directory being created (e.g., no listing, screenshot,
-    or commit showing `mkdir -p results`). The required artifact is missing, so the
-    task is not verified as completed.
+  h: 654e27229d259d9a667f157ce1af599a21982abf53bb0ff2b6f2c91241558b4c
+  r: "Checked `docs/quickstart.md`, `code/ingestion/fetch_data.py`, `code/modeling/train.py`,\
+    \ `code/modeling/evaluate.py`, and the absence of any `logs/pipeline.log` or execution\
+    \ evidence. The quickstart doc is present but its AFLOWlib URL description is\
+    \ garbled, and the ingestion script catches AFLOW fetch failures instead of raising\
+    \ as required. No log file or run output is provided to prove the documented command\
+    \ sequence executes end\u2011to\u2011end and records the source URLs. The pipeline\
+    \ therefore does not demonstrably meet the provenance and strict\u2011failure\
+    \ requirements."
+  sig: 464dd500d2db525e1d752a19cb419e429ae2fcf744bb9b58da3340dab165b842
 T003:
   c: false
   h: 435a7289d5cb3fee6627c5475dd9a2c9decab9d53ec99c8a95e17425b15f7b77
@@ -41,49 +25,3 @@ T012:
     \ the required schema file `contracts/mg_dataset.schema.yaml` is missing, so the\
     \ test cannot load or validate against the contract. Both the artifact and its\
     \ content fail to meet the task\u2019s requirement."
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `fetch_data.py` file (or its contents) was provided in the evidence, so we
-    cannot verify that a script querying the Materials Project and AFLOWlib APIs using
-    environment variables exists or functions as required. The required artifact is
-    missing.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `code/features/descriptors.py` file or any code implementing the required
-    calculations is present in the provided evidence; therefore the weighted mean
-    atomic radius, electronegativity variance, VEC, and atomic size mismatch are not
-    actually implemented. The task remains undone.
-T017a:
-  c: false
-  h: 7b0ff66abdd2aff7f358cace863274147fe6fe4b355dd82c5ba4c3909b1b1797
-  r: "The `code/features/descriptors.py` file shown contains no comment explaining\
-    \ why `size_mismatch` is kept despite a high VIF, and the required `results/metrics.json`\
-    \ file does not exist at all. Both the documentation comment and the JSON flag\
-    \ for VIF\u202F>\u202F5.0 are missing."
-T039:
-  c: false
-  h: 167ff16913c6f560615a5076dc44402aab6bf93787cf522ba0028c77b0660cd5
-  r: "The repository lacks the required `results/divergence.csv` file, and the `code/modeling/evaluate.py`\
-    \ script does not contain any implementation that computes feature\u2011importance\
-    \ ranks, correlation ranks, or a divergence score nor writes them to a CSV. The\
-    \ existing code focuses on permutation testing and metric calculation, not the\
-    \ requested divergence analysis. The missing output file and absent functionality\
-    \ must be added to satisfy the task."
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required documentation files (`docs/quickstart.md` and `docs/research.md`)\
-    \ was provided, nor any content showing the mandated sections (API key setup,\
-    \ run commands, example outputs, data sources, citations for Zhang et\u202Fal.,\
-    \ and MP/AFLOW references). The implementer must add these markdown files with\
-    \ the specified information."
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files, diff logs, lint reports, or any other evidence showing that the\
-    \ `code/ingestion/` and `code/features/` modules were cleaned up, had unused imports\
-    \ removed, line lengths limited to <\u202F88 characters, or error handling made\
-    \ consistent were provided. The implementer\u2019s claim cannot be verified without\
-    \ those artifacts."

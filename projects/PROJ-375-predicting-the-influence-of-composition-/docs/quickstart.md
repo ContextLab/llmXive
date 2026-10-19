@@ -1,127 +1,115 @@
 # Quickstart Guide: Predicting the Influence of Composition on the Thermal Expansion of Metallic Glasses
 
-This guide provides instructions for setting up the environment, configuring API keys, and running the full pipeline to generate thermal expansion predictions for metallic glasses.
+## Overview
 
-## Prerequisites
+This guide walks you through setting up the environment, configuring the required API keys, and running the complete research pipeline end‑to‑end. The pipeline consists of three core scripts:
 
-- Python 3.11 or higher
-- `pip` package manager
-- API Keys for external data sources (see below)
+1. **Data ingestion** – fetches raw metallic‑glass data from the Materials Project and AFLOWlib.
+2. **Model training** – prepares features, splits the data, and trains Linear Regression and Random Forest models.
+3. **Model evaluation** – evaluates the trained models, runs permutation significance testing, and produces diagnostic artefacts.
 
-## 1. Installation
-
-Clone the repository and install dependencies:
+The exact command sequence is:
 
 ```bash
-cd PROJ-375-predicting-the-influence-of-composition-
-pip install -r code/requirements.txt
+python code/ingestion/fetch_data.py && \
+python code/modeling/train.py && \
+python code/modeling/evaluate.py
 ```
 
-**Note:** The `requirements.txt` includes `ruff` for linting, `mendeleev` for elemental properties, and `scikit-learn` for modeling.
+## (a) Setting up the `MP_API_KEY` environment variable
 
-## 2. Environment Configuration
+The Materials Project (MP) API key is required to query the MP REST endpoint for thermal‑expansion data.
 
-The pipeline requires API keys for data sources. Set these as environment variables before running the scripts.
-
-### Required API Keys
-
-- **Materials Project**: `MP_API_KEY`
- - Get your key at: https://next-gen.materialsproject.org/api
-- **AFLOWlib**: `AFLOWlib_API_KEY` (Optional, used as primary source)
- - Get your key at:
-- **Zenodo Fallback**: `ZENODO_ID` (Optional, defaults to '1234567' if not set)
-
-### Setting Environment Variables
-
-**Linux/macOS:**
-```bash
-export MP_API_KEY="your_materials_project_key"
-export AFLOWlib_API_KEY="your_aflow_key"
-export ZENODO_ID="your_zenodo_dataset_id"
-```
-
-**Windows (PowerShell):**
-```powershell
-$env:MP_API_KEY="your_materials_project_key"
-$env:AFLOWlib_API_KEY="your_aflow_key"
-$env:ZENODO_ID="your_zenodo_dataset_id"
-```
-
-## 3. Running the Pipeline
-
-The pipeline is executed via the main training script which orchestrates data ingestion, feature extraction, model training, and evaluation.
+1. Obtain a free API key from the Materials Project dashboard: <https://next-gen.materialsproject.org/api>.
+2. Export the key in your shell before running the pipeline.
 
 ```bash
-python code/main.py
+# Linux / macOS
+export MP_API_KEY="YOUR_MP_API_KEY"
+
+# Windows PowerShell
+$env:MP_API_KEY="YOUR_MP_API_KEY"
 ```
 
-If `code/main.py` is not present as a single entry point, run the stages sequentially:
-
-### Stage 1: Data Ingestion
-```bash
-python code/ingestion/fetch_data.py
-```
-*Output:* `data/raw/mp_afraw.csv`
-
-### Stage 2: Feature Extraction & Cleaning
-```bash
-python code/ingestion/save_clean_data.py
-```
-*Output:* `data/processed/clean_mg_data.parquet`
-
-### Stage 3: Model Training & Evaluation
-```bash
-python code/modeling/train.py
-```
-*Output:* `code/models/`, `results/metrics.json`, `results/feature_importance.csv`
-
-## 4. Expected Outputs
-
-Upon successful completion, the following artifacts will be generated:
-
-- **Raw Data:** `data/raw/mp_afraw.csv` (Composition, CTE, Amorphous Flag)
-- **Processed Data:** `data/processed/clean_mg_data.parquet` (With calculated descriptors)
-- **Models:** `code/models/` (Serialized `.pkl` files and metadata)
-- **Metrics:** `results/metrics.json` (R², MAE, RMSE, Permutation P-value, Divergence Analysis)
-- **Feature Importance:** `results/feature_importance.csv`
-- **Correlations:** `results/correlations.csv`
-- **Divergence Analysis:** `results/divergence.csv`
-
-### Example Output Snippet (`results/metrics.json`)
-
-```json
-{
- "baseline_type": "null_model",
- "spec_root_cause_SC001": "elemental_cte_data_unavailable",
- "r2_score": 0.65,
- "mae": 1.2e-5,
- "rmse": 1.5e-5,
- "permutation_p_value": 0.001,
- "sc003_divergence_metric": 0.85,
- "sc003_interpretation": "non_linear_effects_detected",
- "spec_root_cause_SC003": "linear_match_unsound_for_nonlinear_models",
- "vif_warning": "High VIF detected for size_mismatch (VIF=6.2) - retained per FR-002",
- "runtime_seconds": 120.5,
- "peak_memory_mb": 2500
-}
-```
-
-## 5. Validation
-
-To validate the pipeline setup without running the full training (e.g., if data is already present):
+*Note:* The AFLOWlib API does not require an API key for the public REST endpoint used in this project, but the script will still look for `AFLOWLIB_API_KEY` if you have one. Setting it is optional.
 
 ```bash
-python code/main.py --validate
+export AFLOWLIB_API_KEY="YOUR_AFLOWLIB_KEY" # optional
 ```
 
-This checks for the existence of required directories, valid API keys, and schema compliance of existing data files.
+## (b) Exact run commands
 
-## 6. Troubleshooting
+The pipeline is orchestrated with three independent Python scripts. Run them sequentially **in a single command line** as shown below. Each script will log its activity to `logs/pipeline.log`.
 
-- **DataFetchError:** If the script raises `DataFetchError: No valid metallic glass entries found`, ensure your API keys are correct and the `ZENODO_ID` is valid if using the fallback.
-- **Resource Limit Exceeded:** If `ResourceLimitExceeded` is raised, check that your system has sufficient RAM (limit: 7GB) and that `n_jobs` in `code/modeling/train.py` is set to 2 or fewer.
-- **Missing `mendeleev` Data:** If `mendeleev` fails to find an element, verify the composition strings in the raw data are valid chemical formulas (e.g., "Zr50Cu40Al10").
+```bash
+python code/ingestion/fetch_data.py && \
+python code/modeling/train.py && \
+python code/modeling/evaluate.py
+```
 
-## 7. Documentation
+- `code/ingestion/fetch_data.py` – contacts MP (via `pymatgen.ext.matproj.MPRester`) and AFLOWlib (via the public REST API at ` Name or service not known)"))]). It saves raw JSON responses under `data/raw/` and records SHA‑256 checksums in `data/checksums.txt`.
+- `code/modeling/train.py` – loads the cleaned dataset, computes descriptors, performs VIF filtering, splits the data, and trains Linear Regression and Random Forest models. Model artefacts are written to `models/`.
+- `code/modeling/evaluate.py` – evaluates the test split, writes `results/model_performance.json`, runs the ≥ 1000‑iteration permutation test, and produces divergence diagnostics.
 
-For detailed research methodology and data source citations, refer to `docs/research.md`.
+## (c) Verified data sources
+
+The pipeline relies on two external, publicly accessible data sources:
+
+1. **Materials Project (MP)**
+ - Accessed through `pymatgen.ext.matproj.MPRester`.
+ - Query endpoint: *Thermal Properties* (`/materials/v2/` with `include=properties` and `amorphous=true`).
+ - Provides composition, thermal‑expansion coefficient (`thermal_expansion_coefficient`), and metadata such as `material_type`.
+
+2. **AFLOWlib**
+ - Accessed via its public REST API: `.
+ - Query parameters: `structure_type=amorphous` and `properties=composition,cte`.
+ - Returns JSON records with composition strings and CTE values.
+
+Both sources are queried **without any synthetic fallback**. If a request fails (e.g., network error, missing API key), the loader raises an exception and the pipeline aborts, ensuring full provenance.
+
+## Logging and provenance
+
+All scripts initialise logging with `setup_logging()` from `code/utils/io.py`. The logger writes to `logs/pipeline.log`, which records:
+
+- The exact URLs requested for MP and AFLOWlib.
+- Query parameters used.
+- HTTP response status codes.
+- SHA‑256 checksums of the raw JSON payloads.
+
+This log file serves as the immutable provenance record for the entire run.
+
+## Directory structure (created on demand)
+
+The following project folders are created automatically by the toolkit's `paths` helper when first referenced:
+
+```
+code/
+ ingestion/
+ features/
+ modeling/
+ utils/
+data/
+ raw/
+ processed/
+ results/
+models/
+figures/
+docs/
+logs/
+```
+
+The `code/setup_directories.py` script (included in the repository) can be run beforehand to materialise all required folders:
+
+```bash
+python code/setup_directories.py
+```
+
+After running the pipeline, you should see artefacts such as:
+
+- `data/raw/<source>_raw.json`
+- `data/processed/clean_mg_data.parquet`
+- `models/linear_regression.pkl`, `models/random_forest.pkl`
+- `results/model_performance.json`
+- `logs/pipeline.log`
+
+These files can be inspected to verify that the pipeline executed successfully and that all provenance information is captured.

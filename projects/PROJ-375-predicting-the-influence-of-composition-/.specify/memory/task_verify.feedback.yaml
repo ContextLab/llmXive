@@ -1,0 +1,34 @@
+T001:
+  reason: "Checked `docs/quickstart.md`, `code/ingestion/fetch_data.py`, `code/modeling/train.py`,\
+    \ `code/modeling/evaluate.py`, and the absence of any `logs/pipeline.log` or execution\
+    \ evidence. The quickstart doc is present but its AFLOWlib URL description is\
+    \ garbled, and the ingestion script catches AFLOW fetch failures instead of raising\
+    \ as required. No log file or run output is provided to prove the documented command\
+    \ sequence executes end\u2011to\u2011end and records the source URLs. The pipeline\
+    \ therefore does not demonstrably meet the provenance and strict\u2011failure\
+    \ requirements."
+  task: c3c58b6198ec12d3c4c15305e9e55b37f0199146748c67c33b35bd38a3e72230
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion/fetch_data.py
+    exit=1'
+  task: 75389529595432f1bf38fec542402ec19db40fee2565c19b7244e49179c36cb8
+T003:
+  task: 25045bd4d27ecf1481d4ac6cc63ae4927b12ed69960a5a89bcf5f07a28b58ab7
+T004:
+  task: 56578b6d7bb2ab4aaeb00539d6ca2657a80e3957f1c6cce537e2f372a70a9237
+T005:
+  task: 970a0f2b8f30a2ac088e3b71fe666585a4ed7cf8602073ae6743c064bc7dec04
+T006:
+  task: e0cc600ab6b434f5f5444e230cbbcfc9ae364424bf21da9ae8969d535e1099f2
+T007:
+  task: 8c171b9993894dfd10bb277a68b73f65c9d3844ea68d063029d1bb3b18408f93
+T008:
+  task: 6aca74fa368609b3748755f4b87569833b862df8d63c6fa796d23419dec11025
+T009:
+  task: 4a54d3f2639a7705c2fc4b821e3bcdf7e81dd37fab8be85d52623af4fd03083b
+T010:
+  task: 98827d05e23918e35009de21a1f28d9fad666d89b7d30d5d43e9476ea3c84ee6
+T011:
+  task: abfbe24a174e08779e2b26f206b6c9e400a298ba2190f17d8a560153617ae0c1
+T012:
+  task: 8f9cd920dded0b6fcc3164a7625024458b366bf7250cbc6cf2e967737d8962c4

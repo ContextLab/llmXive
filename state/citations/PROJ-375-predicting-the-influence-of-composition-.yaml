@@ -1,25 +1,3 @@
-- artifact_hash: f2793a368a7c8f55bfb6f9a4d2f7ad362f0769bfadc285688fecb7b4d02fcece
-  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://next-gen.materialsproject.org/api
-  verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/api
-  verified_at: '2026-09-03T07:28:22.752315Z'
-- artifact_hash: f2793a368a7c8f55bfb6f9a4d2f7ad362f0769bfadc285688fecb7b4d02fcece
-  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://aflow.org/api
-  verification_status: mismatch
-  verified_against_url: https://aflow.org/api
-  verified_at: '2026-09-03T07:28:22.752315Z'
 - artifact_hash: 21769782334a530fbe18ea24a9da4b163abf81445eeb2d0c4ab4a2de8ee1fb41
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
   cite_id: c-001
@@ -132,7 +110,40 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/metallic-glass-cte
   verified_at: '2026-10-17T07:31:30.284018Z'
-- artifact_hash: 1fca8813a0e7d57c14c6934eaa34d1ab79c5336adc2962428ac617e9028cba69
+- artifact_hash: a36ce505efd564101fb25b3ef4dfc482cb087b44a0b93f7341f84753105f80b6
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://next-gen.materialsproject.org/api
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/api
+  verified_at: '2026-10-19T13:22:40.469069Z'
+- artifact_hash: a36ce505efd564101fb25b3ef4dfc482cb087b44a0b93f7341f84753105f80b6
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Aflow - Automatic FLOW for Materials Discovery
+  kind: url
+  value: https://aflowlib.org`
+  verification_status: pending
+  verified_against_url: https://aflowlib.org
+  verified_at: '2026-10-19T13:22:40.469069Z'
+- artifact_hash: a36ce505efd564101fb25b3ef4dfc482cb087b44a0b93f7341f84753105f80b6
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://aflowlib.org/rest/`
+  verification_status: mismatch
+  verified_against_url: https://aflowlib.org/rest/
+  verified_at: '2026-10-19T13:22:40.469069Z'
+- artifact_hash: 4c76ae42bae96f01bfbd27fb20a75a80fce87f5527d36bb765fa4aa231c3b7f6
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -142,4 +153,4 @@
   value: https://aflowlib.org`
   verification_status: pending
   verified_against_url: https://aflowlib.org
-  verified_at: '2026-10-19T13:22:06.991029Z'
+  verified_at: '2026-10-19T13:24:35.905959Z'

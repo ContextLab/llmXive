@@ -93,7 +93,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-03T07:31:31Z'
 - artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
   attempts: 1
@@ -286,3 +286,40 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T07:38:53Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline consists of three core scripts
+  claim_id: c_8009d371
+  context: Overview section describing the pipeline's three core scripts.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline consists of three core scripts: Data ingestion \u2013 fetches\
+    \ raw metallic\u2011glass data from the Materials Project and AFLOWlib; Model\
+    \ training \u2013 prepares features, splits the data, and trains Linear Regression\
+    \ and Random Forest models; Model evaluation \u2013 evaluates the trained models,\
+    \ runs permutation significance testing, and produces diagnostic artefacts."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:22:56Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: evaluate script runs at least 1000 iteration permutation test
+  claim_id: c_3a113d45
+  context: "Model evaluation \u2013 evaluates the test split, writes results/model_performance.json,\
+    \ runs the \u2265\u202F1000\u2011iteration permutation test, and produces divergence\
+    \ diagnostics."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The evaluate script runs a \u2265\u202F1000\u2011iteration permutation\
+    \ test."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:22:56Z'
