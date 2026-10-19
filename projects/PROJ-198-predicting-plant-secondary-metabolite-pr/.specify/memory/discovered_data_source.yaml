@@ -1,15 +1,17 @@
 status: none
-intent: download plant genomic assemblies NCBI RefSeq and metabolite tables KNApSAcK
-  MetaboLights MIBiG python package dataset
+intent: download plant genomic assemblies NCBI RefSeq KNApSAcK metabolite dataset
+  python package dataset
 required_fields:
 - species_name
-- genome_assembly_accession
-- assembly_fasta_url
+- genome_accession
+- genome_fasta_url
 - annotation_gff_url
-- bgc_type
-- bgc_count
+- bgc_type_presence_matrix
+- bgc_type_count_matrix
 - metabolite_inchikey
-- metabolite_abundance_log
-cache_key: d31ea52baa0687398ab88dfdd73a7e790ae68caa304abdf1004695d61051a1b4
-searched_at: '2026-10-19T01:54:24.850665+00:00'
+- metabolite_raw_abundance
+- metabolite_log_abundance
+- metabolite_class
+cache_key: 0add00f370926728f545103776630704cd6ba620c1a761babcdcb8d25b13bd1b
+searched_at: '2026-10-19T02:00:12.548365+00:00'
 retry_count: 1

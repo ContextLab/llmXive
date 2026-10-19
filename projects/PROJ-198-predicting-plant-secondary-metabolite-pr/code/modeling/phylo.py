@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Union
 
 import dendropy
 import numpy as np
@@ -95,7 +95,9 @@ def train_pgls(
         raise ValueError("X and y must have the same number of samples")
 
     if len(X) != phylogenetic_covariance.shape[0]:
-        raise ValueError("Number of samples must match covariance matrix dimension")
+        raise ValueError(
+            "Number of samples must match covariance matrix dimension"
+        )
 
     try:
         import statsmodels.api as sm
@@ -108,7 +110,9 @@ def train_pgls(
         try:
             cov_inv = np.linalg.inv(phylogenetic_covariance)
         except np.linalg.LinAlgError:
-            logger.warning("Covariance matrix is singular, adding small regularization")
+            logger.warning(
+                "Covariance matrix is singular, adding small regularization"
+            )
             cov_inv = np.linalg.inv(
                 phylogenetic_covariance
                 + 1e-6 * np.eye(phylogenetic_covariance.shape[0])
@@ -127,13 +131,15 @@ def train_pgls(
         coefficients = {
             "intercept": float(results.params[0]),
             "features": {
-                species[i]: float(results.params[i + 1]) for i in range(X.shape[1])
+                species[i]: float(results.params[i + 1])
+                for i in range(X.shape[1])
             },
         }
 
         # Feature importance (absolute coefficient magnitude)
         feature_importance = {
-            species[i]: float(abs(results.params[i + 1])) for i in range(X.shape[1])
+            species[i]: float(abs(results.params[i + 1]))
+            for i in range(X.shape[1])
         }
 
         logger.info(f"PGLS R² = {r_squared:.4f}")

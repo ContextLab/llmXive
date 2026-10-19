@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "f8d50702244ce5d995118beb27993b2f69c048daf2ba50f4fa5d60f1ee5b546b",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'code/scripts/verify_t002.py': SyntaxError at line 44: unindent does not match any outer indentation level. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 4526"
+}

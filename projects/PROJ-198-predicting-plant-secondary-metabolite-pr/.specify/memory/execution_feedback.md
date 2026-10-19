@@ -26,39 +26,47 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/cli/main.py --step download_and_align -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 24, in <module>
-    from code.modeling.phylo import construct_covariance_matrix, load_phylogeny, train_pgls
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/modeling/phylo.py", line 81, in <module>
-    ) -> Dict[str, Any]:
-                   ^^^
-NameError: name 'Any' is not defined. Did you mean: 'any'?
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 27, in <module>
+    from code.utils.report import generate_report
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/utils/report.py", line 15, in <module>
+    from config import get_config, get_data_path
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 20, in <module>
+    from .config_env import get_env_manager
+ImportError: attempted relative import with no known parent package
 
 - python code/cli/main.py --step train_and_evaluate -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 24, in <module>
-    from code.modeling.phylo import construct_covariance_matrix, load_phylogeny, train_pgls
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/modeling/phylo.py", line 81, in <module>
-    ) -> Dict[str, Any]:
-                   ^^^
-NameError: name 'Any' is not defined. Did you mean: 'any'?
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 27, in <module>
+    from code.utils.report import generate_report
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/utils/report.py", line 15, in <module>
+    from config import get_config, get_data_path
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 20, in <module>
+    from .config_env import get_env_manager
+ImportError: attempted relative import with no known parent package
 
 - python code/cli/main.py --step download_and_align --limit 5 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 24, in <module>
-    from code.modeling.phylo import construct_covariance_matrix, load_phylogeny, train_pgls
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/modeling/phylo.py", line 81, in <module>
-    ) -> Dict[str, Any]:
-                   ^^^
-NameError: name 'Any' is not defined. Did you mean: 'any'?
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 27, in <module>
+    from code.utils.report import generate_report
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/utils/report.py", line 15, in <module>
+    from config import get_config, get_data_path
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 20, in <module>
+    from .config_env import get_env_manager
+ImportError: attempted relative import with no known parent package
 
 - python -m pytest tests/ -> rc=2
-n.py:11: in <module>
-    from code.modeling.phylo import PhylogenyError
-code/modeling/phylo.py:81: in <module>
-    ) -> Dict[str, Any]:
-E   NameError: name 'Any' is not defined
+eback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_report.py:14: in <module>
+    from utils.report import (
+code/utils/report.py:15: in <module>
+    from config import get_config, get_data_path
+code/config.py:20: in <module>
+    from .config_env import get_env_manager
+E   ImportError: attempted relative import with no known parent package
 =========================== short test summary info ============================
 ERROR tests/integration/test_align.py - TypeError: setup_logging() got an une...
 ERROR tests/models/test_models.py
@@ -66,17 +74,13 @@ ERROR tests/test_config.py
 ERROR tests/unit/test_cleanup_refactor.py
 ERROR tests/unit/test_data_hygiene.py - NameError: name 'List' is not defined
 ERROR tests/unit/test_download.py
-ERROR tests/unit/test_edge_cases.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_env_manager.py
 ERROR tests/unit/test_linting_config.py
-ERROR tests/unit/test_modeling.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_models.py
-ERROR tests/unit/test_pca_optimization.py - NameError: name 'Any' is not defined
 ERROR tests/unit/test_project_structure.py
 ERROR tests/unit/test_report.py
-ERROR tests/unit/test_train.py - NameError: name 'Any' is not defined
-!!!!!!!!!!!!!!!!!!! Interrupted: 15 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 15 errors in 0.69s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 11 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 11 errors in 1.16s ==============================
 
 
 
