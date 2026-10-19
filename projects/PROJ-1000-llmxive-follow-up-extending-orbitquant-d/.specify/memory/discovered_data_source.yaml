@@ -1,16 +1,11 @@
 status: none
-intent: MS COCO 2017 validation parquet PromptSource text prompts python package dataset
+intent: MS COCO 2017 validation set torchvision coco dataset python package dataset
 required_fields:
 - image_id
 - file_name
+- image_path
 - captions
-- height
-- width
-- annotation_id
-- prompt_id
 - prompt_text
-- task_name
-- source_dataset
-cache_key: c4692d8e658302cb82d2bbcf382e7deb8ff3777e801d895a84c5d06c20b9f8c3
-searched_at: '2026-10-19T03:19:12.248934+00:00'
+cache_key: b89c3ae305a067722b60e2fed8f2fe2f02339f72f969e07fa97dda30956f10cb
+searched_at: '2026-10-19T03:26:42.317614+00:00'
 retry_count: 1

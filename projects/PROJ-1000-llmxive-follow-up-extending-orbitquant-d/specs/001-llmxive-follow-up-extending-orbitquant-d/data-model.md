@@ -7,7 +7,7 @@ All project artifacts reside under `data/`. Schemas in `contracts/` validate eac
 
 | Entity | File Pattern | Schema |
 |--------|--------------|--------|
-| Prompt Metadata | `data/processed/prompts.csv` | `contracts/prompt_schema.schema.yaml` (not required for verification but defined for completeness) |
+| Prompt Metadata | `data/processed/prompts.csv` | `contracts/prompt_schema.schema.yaml` |
 | Semantic Entropy Scores | `data/processed/entropy_scores.csv` | `contracts/entropy_schema.schema.yaml` |
 | Activation Variance Record | `data/processed/activation_stats/*.json` | `contracts/activation_schema.schema.yaml` |
 | Rotation Matrix Definition | `data/processed/rotation_matrices/matrix_{i}.npy` + `data/processed/rotation_matrices/metadata_{i}.json` | `contracts/rotation_matrix_schema.schema.yaml` |
@@ -27,4 +27,6 @@ All project artifacts reside under `data/`. Schemas in `contracts/` validate eac
 4. **PII** – Captions contain no personal identifiers; a simple regex filter removes any token matching email/phone patterns.  
 
 ---
+
+
 

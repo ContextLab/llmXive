@@ -1,7 +1,6 @@
 # Quickstart: Project Skeleton Initialization
 
-This guide explains how to set up the project skeleton and verify that the
-basic configuration is working.
+This guide explains how to set up the project skeleton and verify that the basic configuration is working.
 
 ## Prerequisites
 - Python 3.11 or newer
@@ -38,13 +37,25 @@ Initialization complete
 ```
 
 This indicates that:
-- All required sub‑directories under `code/` (analysis, models, quantization,
-  evaluation, utils, data, runners, validation, security) have been created,
-  each with an `__init__.py` package marker.
+- All required sub‑directories under `code/` (analysis, models, quantization, evaluation, utils, data, runners, validation, security) have been created, each with an `__init__.py` package marker.
 - The `tests/` directory is in place.
-- The `data/raw`, `data/processed` (with `logs/`, `activation_stats/`,
-  `rotation_matrices/`, `generated_images/`) and `figures/` directories
-  are also in place.
+- The `data/raw`, `data/processed` (with `logs/`, `activation_stats/`, `rotation_matrices/`, `generated_images/`) and `figures/` directories are also in place.
+
+## Verify Dataset Access
+
+The pipeline relies on the HuggingFace `coco2017` dataset, which includes both
+images and captions. Run the following snippet to confirm it can be streamed
+without manual download:
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset('coco2017', split='validation', streaming=True)
+first = next(iter(ds))
+print(f"Image URL: {first['image']}  Caption: {first['caption']}")
+```
+
+If the script prints a valid image URL and caption, the dataset is reachable.
 
 ## Verification
 
@@ -63,3 +74,8 @@ grep -c "torch" requirements.txt   # should be ≥ 1
 # Confirm the init phase prints its confirmation message
 python -m code.main --phase init | grep "Initialization complete"
 ```
+
+---
+
+
+
