@@ -1,14 +1,3 @@
-- artifact_hash: 7f4b50fae472ac15aa5a22d98fa95a22f1dbf7b8d3edf7c1fa241a3729bb88a4
-  artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: OpenNeuro
-  kind: url
-  value: https://openneuro.org/datasets/
-  verification_status: pending
-  verified_against_url: https://openneuro.org/datasets/
-  verified_at: '2026-07-21T17:13:45.916561Z'
 - artifact_hash: 99ad2d082a1ce813040dea20d043b5772dbcd3822170acdd238d935a43cf30fd
   artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/plan.md
   cite_id: c-001
@@ -42,3 +31,25 @@
   verification_status: pending
   verified_against_url: https://openneuro.org/datasets/
   verified_at: '2026-10-19T01:50:03.062430Z'
+- artifact_hash: 366e34794712faf4dfeb514eb39a1236403b4afdef29e529d16ac45b4d25bba1
+  artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds000030`
+  verification_status: pending
+  verified_against_url: https://openneuro.org/datasets/ds000030
+  verified_at: '2026-10-19T02:02:38.533227Z'
+- artifact_hash: 366e34794712faf4dfeb514eb39a1236403b4afdef29e529d16ac45b4d25bba1
+  artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://openneuro.org/crn/datasets/ds000030/subjects/{sub}?type=func`
+  verification_status: mismatch
+  verified_against_url: https://openneuro.org/crn/datasets/ds000030/subjects/%7Bsub%7D?type=func
+  verified_at: '2026-10-19T02:02:38.533227Z'
