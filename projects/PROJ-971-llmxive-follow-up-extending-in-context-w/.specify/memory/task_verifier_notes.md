@@ -2,7 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — The quickstart.md exists and documents a single command, and the run log shows `scripts/run_minimal.sh` exiting 0 with 50 clips written to `data/descriptors_subset.csv` — but the task's verification explicitly requires `data/processed/descriptors.csv` to exist, and the collector reports that file as MISSING. The quickstart itself claims the pipeline writes both outputs and instructs `ls data/processed/descriptors.csv`, yet the execution log shows only `data/descriptors_subset.csv` was produced, so the documented command's own verification step would fail. The implementer must make the pipeline
+- **T001** — Requested task execution failed; rerun successfully: scripts/run_minimal.sh exit=1
 - **T003** — Requested task execution failed; rerun successfully: code/src/pipeline/extract_descriptors.py exit=1
 - **T007** — Requested task execution failed; rerun successfully: scripts/run_minimal.sh exit=1
 - **T005** — The produced `data/processed/labels.csv` is 1 byte (empty) — the run log shows it completed in 0.5s with no clips processed, so no labels were actually generated. Additionally, the required `label.schema.yaml` and `src/pipeline/config.yaml` (fixed seeds) do not exist, and the "policy evaluation" is a synthetic MSE heuristic on precomputed latents, not N=5 robosuite episodes with success from environment termination flags, nor is there any clip-to-configuration-ID mapping.

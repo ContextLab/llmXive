@@ -10,13 +10,13 @@ T002:
   sig: d1423ff7007247120a5a73285305597a205101456a35767951bc94ae0d7b7763
 T004:
   c: true
-  h: 0c52d2fbb58d307046ba768b1d6eca4c2b5a4b41f9175baa53f151baa1f64a82
-  r: The run_end_to_end.py script exists and the historical execution log shows a
-    successful run (exit 0) printing a 50-row table with clip_id, variance, autocorr_lag1,
-    and spectral_density columns, all non-null finite values, backed by real CartPole-generated
-    clips and SVD-based descriptor computation (not fabricated data). The stderr confirms
-    50 clips generated and 50 descriptor rows written, matching the task's requirement.
-  sig: b00f0bac01b4c4298bd86b5cbdb05a042af524c00993912007690ac7a7019c61
+  h: ed3ae5e429fd90b3ed90006b7bb1568f4c5be53ccca24584757aab9eebdb1548
+  r: The execution log shows `run_end_to_end` (via scripts/run_minimal.sh, exit 0)
+    generating 50 CartPole clips, extracting descriptors, and printing a 50-row table
+    with exactly the required columns (clip_id, variance, autocorr_lag1, spectral_density)
+    and non-null finite values; the driver script and its dependencies (generate_clips,
+    extract_descriptors, icwm_encoder) all exist with real implementations.
+  sig: 6448c9e0da3ed3c8895fed40d31eeee6d872581ee9d79b25205e110189868f5b
 T005:
   c: false
   h: 95e9fb38239f9a81cd5a314591aaa33d7eade3dc5a086bc22cc958d6fa8d8282

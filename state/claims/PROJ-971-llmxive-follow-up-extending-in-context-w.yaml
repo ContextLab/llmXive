@@ -48,3 +48,33 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-19T22:08:31Z'
+- artifact_path: projects/PROJ-971-llmxive-follow-up-extending-in-context-w/quickstart.md
+  attempts: 1
+  canonical: data/processed/descriptors.csv contains 50 rows plus a header
+  claim_id: c_22d1bc63
+  context: 'wc -l data/processed/descriptors.csv # should be > 1 (header + 50 rows)'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: should be > 1 (header + 50 rows)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T23:15:15Z'
+- artifact_path: projects/PROJ-971-llmxive-follow-up-extending-in-context-w/quickstart.md
+  attempts: 1
+  canonical: data/descriptors_subset.csv has the same row count as data/processed/descriptors.csv
+  claim_id: c_f084ff56
+  context: 'wc -l data/descriptors_subset.csv # should match the same row count'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: should match the same row count
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T23:15:15Z'

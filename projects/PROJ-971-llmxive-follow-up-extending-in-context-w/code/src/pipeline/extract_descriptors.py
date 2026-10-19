@@ -22,11 +22,7 @@ def _load_schema() -> dict:
     """
     # The schema lives under the spec directory for this feature branch.
     schema_path = (
-        Path(__file__).parents[2]
-        / "specs"
-        / "001-auto-icwm-latent-dynamics"
-        / "contracts"
-        / "descriptor.schema.yaml"
+        paths.root / "specs" / "001-llmxive-follow-up-extending-in-context-w" / "contracts" / "descriptor.schema.yaml"
     )
     with open(schema_path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)

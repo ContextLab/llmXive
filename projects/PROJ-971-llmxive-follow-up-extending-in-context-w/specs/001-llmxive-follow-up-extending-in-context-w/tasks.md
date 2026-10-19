@@ -7,7 +7,7 @@ The goal is a complete, reproducible CPU‑only study satisfying FR‑001–FR�
 
 ## Phase 1 – Setup and first end‑to‑end analysis (verified; preserve)
 
-- [ ] T001 **Document project layout & quickstart** – `quickstart.md` describes the single command running the minimal pipeline on 50 clips.  
+- [ ] T001 **Document project layout & quickstart** – `quickstart.md` describes the single command running the minimal pipeline on 50 clips.   <!-- FAILED-IN-EXECUTION: scripts/run_minimal.sh exit=1 -->
   *Verification*: the documented command finishes without error and `data/descriptors_subset.csv` (now `data/processed/descriptors.csv`) exists.
 
 - [X] T002 **Generate a small dataset of interaction clips** – `code/src/pipeline/generate_clips.py` creates 50 reproducible clips (`data/raw/clip_*.npz`, arrays `states`, `actions`, `observations`).  

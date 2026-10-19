@@ -1,12 +1,6 @@
 T001:
-  reason: "The quickstart.md exists and documents a single command, and the run log\
-    \ shows `scripts/run_minimal.sh` exiting 0 with 50 clips written to `data/descriptors_subset.csv`\
-    \ \u2014 but the task's verification explicitly requires `data/processed/descriptors.csv`\
-    \ to exist, and the collector reports that file as MISSING. The quickstart itself\
-    \ claims the pipeline writes both outputs and instructs `ls data/processed/descriptors.csv`,\
-    \ yet the execution log shows only `data/descriptors_subset.csv` was produced,\
-    \ so the documented command's own verification step would fail. The implementer\
-    \ must make the pipeline"
+  reason: 'Requested task execution failed; rerun successfully: scripts/run_minimal.sh
+    exit=1'
   task: e0a7c78ac8e9e8cad9542ecc62bd22edd9c82d5fbe7c37fb714f2def7e65a425
 T002:
   task: 28d1f8c658e9f4da6991a31c0413b3066f85153a1803d57e9954047d278e9ebe

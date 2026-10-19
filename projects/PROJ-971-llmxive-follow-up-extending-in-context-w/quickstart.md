@@ -30,10 +30,10 @@ After completion, verify:
 
 ```bash
 ls data/processed/descriptors.csv
-wc -l data/processed/descriptors.csv # should be > 1 (header + 50 rows)
+wc -l data/processed/descriptors.csv # should be > 1 (header + 50 rows) [UNRESOLVED-CLAIM: c_22d1bc63 — status=not_enough_info]
 
 ls data/descriptors_subset.csv
-wc -l data/descriptors_subset.csv # should match the same row count
+wc -l data/descriptors_subset.csv # should match the same row count [UNRESOLVED-CLAIM: c_f084ff56 — status=not_enough_info]
 ```
 
 ## What the Pipeline Does
