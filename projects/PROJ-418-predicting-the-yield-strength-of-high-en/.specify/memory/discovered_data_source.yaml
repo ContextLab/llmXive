@@ -1,14 +1,14 @@
 status: none
-intent: Materials Project high entropy alloy yield strength dataset download python
-  package dataset
+intent: download High Entropy Alloy yield strength dataset from Materials Project
+  and Zenodo python package dataset
 required_fields:
 - sample_id
-- element_symbols
+- composition
 - element_fractions
-- yield_strength_MPa
-- measurement_temperature_K
-- measurement_method
-- reference_entry_id
-cache_key: 1470fceeb3ac0405b08976889c673f24e31a2fab08ca2585b06b8412437a3781
-searched_at: '2026-10-19T13:19:29.670752+00:00'
+- yield_strength
+- measurement_temperature
+- processing_route
+- source_reference
+cache_key: 5cee03ffc037fc6912cb97b3eae7875576e200766812696d9d4b9b52705cabf4
+searched_at: '2026-10-19T13:21:59.619209+00:00'
 retry_count: 1
