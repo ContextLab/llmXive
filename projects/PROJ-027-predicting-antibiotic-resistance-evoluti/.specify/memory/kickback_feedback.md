@@ -1,13 +1,19 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 10 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'science'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T101` (rejected 1x): Requested task execution failed; rerun successfully: code/main.py exit=1
-- `T102` (rejected 1x): Requested task execution failed; rerun successfully: code/main.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan pivots from predicting phenotypic antibiotic resistance (the original research question and SC‑001) to predicting the presence of resistance genes. This change means the methodology cannot answer the stated research question about resistance *phenotypes*, violating causal validity and rendering the core claim of the spec unsatisfied.
+- FR‑001 is marked as ‘unmet due to data gap’ and replaced by a gene‑presence prediction, yet the specification’s functional requirements and success criteria (e.g., SC‑001 AUC‑ROC on held‑out test set) still refer to resistance phenotypes. The plan therefore fails to meet the required FR/SC without a documented amendment to the spec.
+- Using binary gene‑presence as a proxy for phenotypic resistance assumes perfect genotype‑phenotype correspondence, which is not guaranteed (e.g., gene expression, regulatory mutations, or unknown mechanisms). This threatens construct validity of the outcome variable.
+- The power justification cites prior work for medium‑effect SNPs/genes with N≈800‑1000, but many target genes will have far fewer than 50 positive isolates and are simply skipped. For the remaining genes, the plan provides no per‑gene power analysis, risking insufficient power to detect true associations for low‑prevalence genes.
+- FR-001 (download *E. coli* FASTA sequences **and** susceptibility metadata) is marked as unmet in the plan (see plan.md line 31‑33) and replaced by a gene‑presence prediction task; thus the specification requirement is not satisfied.
+- The plan explicitly states FR‑001 is ‘unmet due to data gap’ and pivots to a different outcome, leaving the original functional requirement unaddressed.
+- The research.md table lists the “Resistance gene database” source as 
+`https://huggingface.co/datasets/cardiffnlp/tweet_eval/resolve/main/emoji/test-00000-of-00001.parquet`, which is a placeholder unrelated to the CARD database. This citation does not correspond to the actual CARD reference used by ARIBA, making the dataset citation incorrect for the intended gene‑presence prediction outcome.
+- The plan’s Constitution Check table marks Principle IV (Single Source of Truth) as satisfied, but the plan does not explicitly designate which artifact serves as the SSoT (e.g., data-model.md). Constitution Principle I requires a clear SSoT designation; the absence of an explicit statement may cause downstream verification failures.
+- The validation target is the binary presence/absence of a resistance gene (derived from ARIBA). The predictor set includes SNP‑derived features that are called from the same whole‑genome sequence and therefore can directly encode the presence of that gene (e.g., absence of SNPs in the gene region when the gene is missing). Even though the exact target column is removed (mechanism‑blind filter), the remaining SNP features are not independent of the outcome, making the evaluation circular: the model is essentially learning a proxy of the same information it is supposed to predict, guaranteeing high AUC by definition rather than demonstrating a genuine genotype‑to‑phenotype relationship.
+- The permutation test permutes residuals of a PGLS model that itself is built on the same SNP and gene‑presence data used for prediction. Because the predictors already contain information that deterministically reflects the outcome, the null distribution does not represent a true independence baseline, so the p‑value assessment is not meaningful.

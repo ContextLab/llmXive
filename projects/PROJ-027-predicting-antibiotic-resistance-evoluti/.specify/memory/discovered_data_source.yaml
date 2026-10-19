@@ -1,14 +1,14 @@
 status: none
-intent: E coli PRJNA528852 pathogen detection genomic sequences and MIC metadata download
-  python package dataset
+intent: E coli genomic susceptibility dataset NCBI Pathogen Detection PRJNA528852
+  CARD RefSeq python package dataset
 required_fields:
 - isolate_id
-- fasta_url
+- fasta_file_path
+- antibiotic
 - mic_value
-- phenotype
-- snp_counts_per_gene
-- total_snp_count
-- resistance_gene_presence
-cache_key: c4d114e919ad9608b738b42cc11511e71163a77f535f1342bfacb51348498939
-searched_at: '2026-10-19T23:23:20.510394+00:00'
+- phenotype_R_S
+- snp_count_per_gene
+- resistance_gene_presence_binary
+cache_key: d007aa1a5a163d1a6d4cc148cb94baefb0f697773fa080c90c31f5aa9afaf9e3
+searched_at: '2026-10-19T23:27:13.057111+00:00'
 retry_count: 1

@@ -35,7 +35,7 @@ As a data scientist, I need to train logistic regression and random forest model
 
 1. **Given** a pre-processed feature matrix with a binary resistance label, **When** the training script executes with a fixed random seed, **Then** it produces separate trained models (Logistic Regression and Random Forest) for each antibiotic class and saves their weights to disk.
 2. **Given** the trained models, **When** they are evaluated on the held-out test set, **Then** the system outputs AUC-ROC scores and precision-recall curves for each antibiotic class, excluding the canonical resistance gene for that class from the input features.
-3. **Given** the cross-validation results, **When** the feature importance is calculated, **Then** the top 10 genomic features contributing to the prediction (excluding the target resistance gene) are ranked and exported to a summary table.
+3. **Given** the cross-validation results, **When** the feature importance is calculated, **Then** the top genomic features contributing to the prediction (excluding the target resistance gene) are ranked and exported to a summary table.
 
 ---
 
