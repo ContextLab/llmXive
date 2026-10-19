@@ -1,22 +1,53 @@
+T001a:
+  c: true
+  h: d7bd7ad9e01c594cacc4656610e1184434ed2f397d114c07f5366fa63836bec7
+  r: The evidence confirms the `code/` directory exists at the project root (`projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/code/`)
+    with 20 non-empty entries including `__init__.py`, `__main__.py`, and multiple
+    subdirectories, satisfying the task's sole requirement that `pathlib.Path.cwd().joinpath('code').is_dir()`
+    returns true.
+  sig: b1ef821a2ea523f61b7fe9f37ec5cfcc81c2d662e1990f2835ccc3ebd53611bf
+T001b:
+  c: true
+  h: 4dbaad5d2760b68d9bd6ba808e0b953c5a641a4d6bbacc9ac0da22a5bcde90b8
+  r: The `data/` directory exists at the project root (confirmed by the collector
+    with 5 entries including `.gitkeep`, `__init__.py`, and `raw/`/`interim/`/`processed/`
+    subdirectories), which fully satisfies the task's sole requirement that `pathlib.Path.cwd().joinpath('data').is_dir()`
+    returns true.
+  sig: b59644f7b0548e99ce54ae6cc827a063a3890ff810144e79070447980c44224d
 T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `tests/` directory was provided; the claim cannot be verified
-    because the required folder is missing from the supplied artifacts. The implementer
-    must add the `tests/` directory (with at least one file or placeholder) so that
-    `pathlib.Path(__file__).parent.joinpath('tests').is_dir()` returns `True`.
+  c: true
+  h: 8ac4f546a97326d929eaea87f2bfb0fd5005fc731fdc9b4f13f0358a60be9cdc
+  r: The `tests/` directory exists at the project root (confirmed by the collector
+    with 11 entries), satisfying the task's sole requirement, verifiable via `pathlib.Path.cwd().joinpath('tests').is_dir()`.
+    The directory contains substantive content (conftest.py, unit/integration/contract
+    subdirectories, test files), not just a placeholder.
+  sig: 9d98d37c799b91f5623243a95941f2a54c9fd491f6cc35b65583ee4a5e0358f2
 T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The provided evidence contains no indication that a `docs/` directory exists
-    in the project, nor any code snippet using `pathlib.Path(__file__).parent.joinpath('docs').is_dir()`
-    to verify it. The required directory artifact is missing, so the task is not satisfied.
+  c: true
+  h: 8a645c3936b0bc0372138069a507e1ee0eb68b935be35d4daf87a2e7a31abc66
+  r: The evidence confirms the `docs/` directory exists at the project root with 12
+    non-empty entries (including README.md, SENSITIVITY_ANALYSIS.md, etc.), satisfying
+    the task's sole requirement that `pathlib.Path.cwd().joinpath('docs').is_dir()`
+    returns true.
+  sig: 1d664d14bad77fea04621848de9a8de49dfb7e993322997da30afa941ae46aff
 T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file was presented in the evidence; the implementer did not supply
-    any content covering Python, data, or IDE ignore patterns, so the required artifact
-    is missing.
+  h: c14c1e19762ebc991625080aa2568ce65c95df1f475afa25f160e5ea3e69cb2f
+  r: "The task requires creating a `.gitignore` covering Python, data, and IDE files,\
+    \ but the evidence collector lists no artifacts on disk \u2014 no `.gitignore`\
+    \ (or any file) was found in the project root `projects/PROJ-199-predicting-the-impact-of-cold-rolling-re`.\
+    \ With no file present, the requirement is unmet; the implementer must actually\
+    \ create a non-empty `.gitignore` including Python artifacts (e.g. `__pycache__/`,\
+    \ `*.pyc`), data outputs, and IDE files (e.g. `.vscode/`, `.idea/`)."
+  sig: 7bbb7bebe8031460b41f2f158e9c159e9a32337c01cb24a7bbf9707e81cf7689
+T003:
+  c: true
+  h: 6c1e12a6374a57c3d8c6c96838aa8913cc528f6d2068ea88d780b9517d77f2f1
+  r: The `requirements.txt` exists at the project root (148 bytes) and contains all
+    eight required packages (orix, scikit-learn, shap, pandas, numpy, pyyaml, requests,
+    pytest) with explicit version specifiers (e.g., `orix>=0.11.0`, `scikit-learn>=1.0.0`),
+    plus two extra packages, satisfying the pinning requirement.
+  sig: f825fef7b39cd4d11b074575a168e17c1443c2303ba0d7a9fe7fa879f45101a4
 T018c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

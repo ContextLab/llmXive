@@ -1,73 +1,86 @@
-# Quickstart: Running the Energy Profiling Benchmark
+# Quickstart: Energy Profiling Benchmark
 
-This guide walks you through reproducing the full experiment on a fresh GitHub Actions runner or a local Linux machine with comparable resources.
+## 1. Clone and enter the environment
 
-## 1. Clone the Repository & Enter the Project
 ```bash
-git clone https://github.com/your-org/energy-profiling-quantized-llm.git
-cd energy-profiling-quantized-llm
-```
-
-## 2. Create a Virtual Environment & Install Dependencies
-```bash
+git clone <repository-url>
+cd <repository>
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt   # pins exact versions (see plan.md)
+pip install -r code/requirements.txt
 ```
 
-## 3. Verify the Energy‑Measurement Backend (optional)
-The benchmark script performs an internal pyRAPL initialization check.  
-If you wish to run the check manually:
+## 2. Check the energy‑measurement backend (optional)
+
+The benchmark performs this check internally; to run it manually:
 
 ```bash
-python -c "import pyRAPL; pyRAPL.setup(); print('pyRAPL available')"
+python - <<'PY'
+import pyRAPL
+pyRAPL.setup()
+print('pyRAPL available')
+PY
 ```
 
-If this command fails, the script will automatically fall back to `powerstat`, or log “Energy measurement unavailable”.
+If this fails, the benchmark will fall back to the external INA series power monitor (Pi 4) or to the sysfs powercap interface; otherwise it proceeds with CI‑level measurements.
 
-## 4. Run the Full Benchmark
-```bash
-python -m code.benchmark \
-  --prompt-length 500 \
-  --repetitions 10 \
-  --output-dir data/results \
-  --log-dir logs
-```
-
-- The script downloads the GPT‑Neo checkpoints (if not cached), quantizes them, and executes the energy‑aware inference loop.  
-- Expected runtime on the CI runner: **≈ 4.5 h**.
-
-## 5. Dry‑Run Mode (sanity check)
-You can perform a quick dry‑run that loads a model and performs the pyRAPL availability check without full inference:
+## 3. Dry‑run sanity check
 
 ```bash
 python -m code.benchmark --config data/configs/125M_4bit.json --dry-run
 ```
 
-You should see a line like `pyRAPL available` (or the fallback message) and then exit with status 0.
+Expected: the model loads (or is skipped with a logged reason), the energy backend is probed, and the process exits successfully.
 
-## 6. Inspect the Results
-- **Aggregated CSV**: `data/results/aggregated.csv`  
-- **Statistical Summary**: `data/results/summary.json`  
-- **Figures**: `figures/energy_vs_quantization.png`, `figures/energy_scaling_loglog.png`, `figures/cpu_freq_trace.png`  
+## 4. Run the pyRAPL availability test
 
-Example to view the CSV with pandas:
+```bash
+pytest -q tests/test_pyrapl_load.py
+```
+
+This test verifies the `pyRAPL` import/init path and passes when the fallback chain engages correctly.
+
+## 5. Run the full benchmark
+
+```bash
+python -m code.benchmark \
+  --prompt-length several hundred \
+  --repetitions multiple \
+  --output-dir data/results \
+  --log-dir logs
+```
+
+Downloads WikiText‑2 and model checkpoints, quantizes (torchao INT8/INT4), and executes multiple seeded runs per configuration. Expected CI runtime is on the order of several hours.
+
+## 6. Inspect results
+
+- `data/results/aggregated.csv` — per‑config mean ± std  
+- `data/results/summary.json` — exponents, Bonferroni‑corrected p‑values, flags, achieved power, measurement‑authority labels  
+- `figures/energy_vs_quantization.png`, `figures/energy_scaling_loglog.png`, `figures/cpu_freq_trace.png`
+
 ```python
 import pandas as pd
-df = pd.read_csv('data/results/aggregated.csv')
+df = pd.read_csv("data/results/aggregated.csv")
 print(df.head())
 ```
 
-## 7. Run Contract Validation Tests (optional but recommended)
+## 7. Contract validation tests
+
 ```bash
 pytest -q tests/contract
 ```
-All tests should pass, confirming that generated JSON/CSV files conform to the schemas in `contracts/`.
 
-## 8. Optional Edge‑Hardware Validation (Raspberry Pi 4)
-If you have a Raspberry Pi 4 available, run the same command on that device. The script auto‑detects the platform, logs CPU frequency/throttling, and produces a separate set of logs under `logs/pi4_*.log`. Compare the resulting `aggregated.csv` with the CI results to assess proxy fidelity.
+## 8. Raspberry Pi 4 (authoritative energy measurement)
 
----
+On a Pi 4 equipped with an INA219 I²C power monitor:
 
+```bash
+python -m code.benchmark \
+  --prompt-length 500 \
+  --repetitions 12 \
+  --output-dir data/results_pi4 \
+  --log-dir logs \
+  --platform pi4
+```
 
-
+Logs (including CPU frequency/throttling logs) are written to `logs/pi*_*.log`; these readings are the authoritative energy measurements per FR‑002.  

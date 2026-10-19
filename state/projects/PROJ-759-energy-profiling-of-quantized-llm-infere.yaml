@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-22T09:11:51.365229Z'
-current_stage: clarified
+current_stage: specified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-759-energy-profiling-of-quantized-llm-infere
-last_run_id: eaad09f5-80b3-4dd9-8339-a39260b0ee29
+last_run_id: 91fe9ba3-8c8c-4c63-b210-9b22f24e3cee
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-759-energy-profiling-of-quantized-llm-infere/specs/001-energy-profiling-of-quantized-llm-infere
 title: Energy Profiling of Quantized LLM Inference on Edge CPUs
-updated_at: '2026-10-14T19:51:33.920465Z'
+updated_at: '2026-10-19T09:52:38.702231Z'

@@ -1,0 +1,16 @@
+status: none
+intent: Materials Project MTData EBSD orientation dataset for Al Cu Ni downloadable
+  python package dataset
+required_fields:
+- material
+- reduction_level
+- euler_phi1
+- euler_Phi
+- euler_phi2
+- confidence_index
+- x_coordinate
+- y_coordinate
+- phase
+cache_key: d69364a55f5512192dc304e2054abd9b962ae834fbbfe30fbc3fb22188e475ce
+searched_at: '2026-10-19T09:54:05.373812+00:00'
+retry_count: 1

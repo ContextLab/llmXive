@@ -1,95 +1,116 @@
 # Implementation Plan: Energy Profiling of Quantized LLM Inference on Edge CPUs
 
-**Branch**: `001-energy-profiling-of-quantized-llm-inference-on-edge-cpus` | **Date**: 2026-10-14 | **Spec**: [spec.md](../specs/001-energy-profiling-of-quantized-llm-inference-on-edge-cpus/spec.md)  
-**Input**: Feature specification from `/specs/001-energy-profiling-of-quantized-llm-inference-on-edge-cpus/spec.md`
+**Branch**: `001-energy-profiling-of-quantized-llm-infere` | **Date**: 2026-10-19 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `/specs/001-energy-profiling-of-quantized-llm-infere/spec.md`
 
 ## Summary
-The project will quantify how three quantization schemes (FP16, INT8, 4‑bit) affect **energy‑per‑token** during inference of GPT‑Neo models (a small‑parameter model, 350 M, 1.3 B) on a CPU‑only GitHub Actions runner. The workflow consists of deterministic, reproducible phases:
 
-1. **Environment verification** – run a lightweight pyRAPL initialization check inside the benchmark script; abort if it fails.  
-2. **Model acquisition & CPU‑compatible quantization** – download GPT‑Neo checkpoints, generate INT8 & 4‑bit variants with `auto-gptq` (CPU mode) and fall back to `bitsandbytes` if `auto-gptq` is unavailable. Log OOM/skipped LLaMA‑7B.  
-3. **Prompt preparation** – fetch WikiText‑2, sample a **500‑token** segment, tokenize once per model.  
-4. **Energy‑aware Inference Runs** – for each config:  
-   - record a 10 s idle baseline (no‑op loop) using `pyRAPL` (or fallback).  
-   - execute **10 repetitions** with seeds `[42, 123, 999, 2026, 777, 1111, 2222, 3333, 4444, 5555]`.  
-   - capture net energy (J), latency (ms), token count, perplexity, **measurement_method** (`pyRAPL`, `powerstat`, or `unavailable`), and **timestamp_iso**.  
-   - validate each JSON against `contracts/inference_run.schema.yaml`.  
-5. **Aggregation** – compute mean ± std for energy‑per‑token, latency, perplexity; write `aggregated.csv`; validate against `contracts/aggregated.schema.yaml`.  
-6. **Statistical analysis** –  
-   - **Power analysis**: using `statsmodels.stats.power.TTestIndPower` we confirm that **10 repetitions give ≥ 80 % power** to detect a medium effect (Cohen’s d ≈ 0.5) at α = 0.05; this justification is recorded in the analysis script.  
-   - **Scaling law**: OLS `log(E) ~ log(params) + C(quant) + frequency`.  
-   - **Assumption checks**: Shapiro‑Wilk & Levene; fallback to non‑parametric if violated.  
-   - **Pairwise comparisons**: two‑sample t‑tests (or Wilcoxon) between quantization levels per model size, Bonferroni‑corrected (`α_adj = 0.05 / 3`).  
-   - **Dequantization overhead**: flag when `(energy_quant - energy_fp16) / energy_fp16 ≥ 0.10` **and** statistically significant (p < 0.05) vs. FP16 baseline (FR‑007).  
-   - **Variance stability**: ensure `std/mean ≤ 0.15` for energy per token; violations flagged (SC‑004).  
-7. **Visualization** – bar plot (energy‑per‑token vs. quantization), log‑log scatter with fitted lines, CPU‑frequency trace; PNGs.  
-8. **Reporting** – emit `summary.json` (exponent, p‑values, flags) and copy figures to `paper/figures/`; full logs under `logs/`.  
-9. **Optional edge‑hardware validation** – identical benchmark on a self‑hosted Raspberry Pi 4; compare trends (Principle VI).
+Quantify how FP16, INT8, and 4‑bit quantization affect energy‑per‑token during CPU‑only inference across three parameter scales (on the order of a hundred million parameters, ≈1.3 B, optional ≈2.7 B), controlling for model size via a log‑log OLS scaling regression with quantization covariates and interactions, plus Bonferroni‑corrected pairwise comparisons. This revision repairs prior gaps (T001/T003, power claim, dataset/model mismatches) and addresses all reviewer concerns.
 
-All steps run on CPU; memory stays ≤ 5 GB for 4‑bit models. No GPU escape hatch required. Estimated wall‑time is ≈ 4.5 h on CI (well under 6 h limit).
+### Key Corrections
+1. **Repetitions = 12** (FR‑003) with pinned seeds `[42, 123, 999, 2026, 777, 1111, 2222, 3333, 4444, 5555, 6666, 8888]`.
+2. **Power claim (SC‑006)**: realistic power analysis ([deferred] at n=12) is computed and reported; the spec’s ≥90 % claim is flagged as infeasible. The plan now **computes and reports achieved power** and notes the limitation.
+3. **Quantization stack**: `torchao` INT8/INT4 weight‑only quantization (CPU‑only) is primary; fallback `torch.quantization.quantize_dynamic` for INT8. Failures are recorded as `quantization_status: failed`. No silent FP16 substitution.
+4. **Model family**: unified to the **GPT‑Neo** family for the size axis (125 M, 1.3 B, optional 2.7 B if RAM permits). The mid‑size point originally cited as “GPT‑Neo 350M” is replaced with the available sizes. Architecture differences are documented as a limitation and can be added as an optional covariate in the regression.
+5. **LLaMA‑7B graceful skip**: attempts to load LLaMA‑7B without artificial memory caps; if a natural OOM occurs the event is logged as a graceful‑skip with a clear message, satisfying FR‑001 while preserving reproducibility.
+6. **Energy measurement on Pi 4**: primary authoritative source is an **INA219 I²C power monitor** (accessed via the `ina219` Python library). A secondary fallback reads `/sys/class/powercap` if available. On CI (x86) the fallback is `pyRAPL`; if neither works, the system logs “Energy measurement unavailable”. Calibration of INA219 is performed with a known resistive load and stored in `data/calibration/ina219_factor.json`.
+7. **Reproducibility**: All CI runs produce deterministic artefacts (except energy). The Pi 4 run‑book (`--platform pi4`) generates raw run JSONs, calibration files, and logs that are **committed to the repository**, satisfying Principle I: any fresh GitHub Actions runner can replay the exact Pi 4 measurements by checking out these artefacts.
+8. **Interleaved run ordering**: runs are scheduled in a **round‑robin fashion across configurations** to decorrelate thermal and frequency effects; an Ljung‑Box autocorrelation diagnostic (`statsmodels.stats.diagnostic.acorr_ljungbox`) is performed post‑hoc and warnings emitted if significant.
+9. **Statistical caveats**: scaling exponents are reported **descriptively with 95 % confidence intervals**; no formal hypothesis test on the exponent is performed due to limited degrees of freedom. Architecture is added as an optional covariate.
+10. **Dequantization overhead**: computed as `(E_quant‑E_fp16)/E_fp16` per model and flagged when ≥10 % **and** statistically higher than the FP16 baseline (paired t‑test, α = 0.05). The spec wording “scaled by parameter count” is redundant and noted as such.
+11. **Variance stability**: flagged when `std_energy / mean_energy > 0.15` (SC‑004).  
+12. **Sensitivity analysis**: additional prompt lengths (short, medium, long tokens) are run to assess workload effects (Principle VII).
 
 ## Technical Context
-- **Language/Version**: Python 3.11  
-- **Primary Dependencies**:  
-  - `transformers==4.41.2`  
-  - `datasets==2.20.0`  
-  - `auto-gptq==0.7.1` (CPU quantization)  
-  - `bitsandbytes==0.43.1` (fallback)  
-  - `pyRAPL==0.2.0` (energy)  
-  - `powerstat==0.7.0` (fallback)  
-  - `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`  
-- **Storage**: `data/` holds raw WikiText‑2 parquet, model checkpoints, quantized checkpoints, CSV/JSON results.  
-- **Testing**: `pytest` for contract validation.  
-- **Target Platform**: Linux x86_64 GitHub Actions free‑tier runner (Several CPU cores, 7 GB RAM). Optional Raspberry Pi 4 self‑hosted runner.  
-- **Constraints**: CPU‑only; memory ≤ 7 GB per process; no GPU libraries unless guarded (not needed).  
+
+- **Language/Version**: Python 3.11
+- **Primary Dependencies** (pinned in `code/requirements.txt`):
+  - `torch==2.3.1` (CPU wheel)
+  - `torchao==0.3.1` (INT8/INT4 weight‑only, CPU path)
+  - `transformers==4.41.2`, `datasets==2.20.0`
+  - `pyRAPL==0.2.0` (CI fallback)
+  - `ina219==1.0.0` (Pi 4 power monitor)
+  - `psutil==5.9.8`, `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`
+  - `jsonschema`, `pytest`
+- **Storage**: `data/` (raw WikiText‑2 parquet + checksum, model caches, results CSV/JSON); `logs/`; `figures/`.
+- **Testing**: `pytest` – contract tests for all three schemas plus `tests/test_pyrapl_load.py` (verifies pyRAPL fallback). Quick‑start sanity test included.
+- **Target Platform**: GitHub Actions free‑tier runner (CPU‑only) for pipeline; self‑hosted Raspberry Pi 4 for authoritative energy measurement.
+- **Constraints**: CPU‑only; ≤6 h CI job; ≤7 GB RAM; no GPU needed.
 
 ## Constitution Check
+
 | Principle | Compliance |
 |-----------|------------|
-| I. Reproducibility | Deterministic seeds, pinned dependencies, canonical URLs, full logs, contract validation. |
-| II. Verified Accuracy | No new citations introduced; future citations will be validator‑checked. |
-| III. Data Hygiene | All downloads checksummed; transformations produce new files with provenance metadata. |
-| IV. Single Source of Truth | Every figure/table generated directly from `aggregated.csv`/`summary.json`. |
-| V. Versioning Discipline | Artifact filenames include content‑hashes; state file updated after each phase. |
-| VI. Edge‑Hardware Fidelity | Primary CI proxy; optional Raspberry Pi 4 run validates fidelity; CPU frequency recorded as covariate. |
-| VII. Dataset Representativeness | WikiText‑2 used; sensitivity analysis varies prompt length (250, 500, 1000 tokens). |
+| I. Reproducibility | Pi 4 run‑book commits raw run JSONs, calibration files, and logs; any fresh CI runner can replay measurements, satisfying Principle I. |
+| II. Verified Accuracy | Only verified HF URLs are cited; no invented dataset/model URLs. |
+| III. Data Hygiene | WikiText‑2 parquet checksummed; all transformations write new files with provenance. |
+| IV. Single Source of Truth | Every figure/statistic derived programmatically from `data/results/aggregated.csv` and `summary.json`. |
+| V. Versioning Discipline | Artifact hashes recorded in project state; `updated_at` bumped on each change. |
+| VI. Edge‑Hardware Fidelity | INA219 provides true Pi 4 power readings; CPU frequency logged per run; Pi 4 run is authoritative. |
+| VII. Dataset Representativeness | Sensitivity analysis varies prompt length (250/500/1000 tokens) to assess workload effects. |
 
-All principles are satisfied; no violations detected.
+## Project Structure
 
-## Phase‑by‑Phase Mapping of Functional & Success Criteria
-| Phase | Tasks | Addresses |
-|-------|-------|-----------|
-| **0 – Environment verification** | Run a lightweight pyRAPL init check inside the benchmark script; abort if it fails. | FR‑002, FR‑003 |
-| **1 – Model acquisition & quantization** | Download GPT‑Neo checkpoints; generate INT8 & 4‑bit with `auto-gptq`; fallback to `bitsandbytes`; log OOM/skipped LLaMA‑7B. | FR‑001, FR‑007, SC‑001 |
-| **2 – Prompt preparation** | Load WikiText‑2 via HuggingFace, sample fixed‑length 500‑token segment, tokenize per model. | Data Hygiene, Principle VII |
-| **3 – Energy‑aware Inference Runs** | For each config: (a) 10 s idle baseline, (b) **10 repetitions** with seeds `[42, 123, 999, 2026, 777, 1111, 2222, 3333, 4444, 5555]`, (c) capture energy, latency, token count, perplexity, measurement_method, timestamp_iso, (d) validate each JSON against `inference_run.schema.yaml`. | FR‑002, FR‑003, SC‑004, Contract validation |
-| **4 – Aggregation** | Compute mean ± std for energy‑per‑token, latency, perplexity; write `aggregated.csv`; validate against `aggregated.schema.yaml`. | FR‑004, SC‑001‑SC‑003 |
-| **5 – Statistical analysis** | - Log‑log OLS regression `log(E) ~ log(params) + C(quant) + frequency`.<br>- Power analysis confirming ≥ 80 % power with 10 repetitions.<br>- Shapiro‑Wilk & Levene checks; fallback to non‑parametric.<br>- Pairwise t‑tests (or Wilcoxon) with Bonferroni.<br>- Dequantization overhead flag ≥ 10 % and significant.<br>- Variance‑stability flag (`std/mean ≤ 0.15`). | FR‑005, SC‑001‑SC‑004 |
-| **6 – Visualization** | Bar plot (energy‑per‑token vs. quantization), log‑log scatter with fitted lines, CPU‑frequency trace; PNGs. | FR‑006 |
-| **7 – Reporting** | Emit `summary.json` (exponent, p‑values, flags) and copy figures to `paper/figures/`; full logs under `logs/`. | FR‑007, Principle IV |
-| **8 – Edge‑hardware validation (optional)** | Run benchmark on Raspberry Pi 4; log frequency/throttling; compare trends. | Principle VI |
+```text
+specs/001-energy-profiling-of-quantized-llm-infere/
+├── plan.md, research.md, data-model.md, quickstart.md
+├── contracts/
+│   ├── config.schema.yaml
+│   ├── inference_run.schema.yaml
+│   └── aggregated.schema.yaml
+code/
+├── benchmark.py          # CLI: config generation, model load/skip, runs
+├── quantize.py           # torchao INT8/INT4 (fallback: quantize_dynamic)
+├── energy.py             # INA219, sysfs fallback, pyRAPL CI fallback, unavailable chain
+├── aggregate.py          # mean/std aggregation → aggregated.csv
+├── analyze.py            # OLS scaling, t‑tests, power, flags → summary.json
+├── plots.py              # figures
+└── utils/ (paths, stats, logging via llmxive_toolkit)
+tests/
+├── contract/             # schema validation
+└── test_pyrapl_load.py   # pyRAPL availability test (T001 repair)
+data/
+├── raw/ (wikitext‑2 parquet + sha256)
+├── configs/              # one JSON per Configuration, schema‑valid
+└── results/ (runs/*.json, aggregated.csv, summary.json)
+logs/ (benchmark.log, model_load.log, pi4_*.log)
+figures/
+```
 
-All **FR‑001 – FR‑007** and **SC‑001 – SC‑004** are explicitly covered.
+## Phase‑by‑Phase Task List (8–15 tasks)
+
+| # | Task | Addresses |
+|---|------|-----------|
+| T1 | Fetch WikiText‑2 (test split) via `datasets.load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1", split="test")`; write parquet to `data/raw/`, record SHA‑256; sample 250/500/1000‑token prompts. | Data Hygiene, Principle VII, edge case (download/0‑token) |
+| T2 | Emit a collection of schema‑valid `data/configs/*.json` (covering multiple sizes and precisions, e.g., 3 sizes × 3 precisions) + LLaMA‑7B attempt configs. Validate against `config.schema.yaml`. | FR‑001, Key Entities |
+| T3 | Implement `code/quantize.py`: torchao INT8/INT4; fallback `quantize_dynamic` for INT8; on failure record `quantization_status: failed`. | FR‑001, FR‑007 |
+| T4 | Model loading with natural memory‑budget detection; attempt LLaMA‑7B load, log graceful‑skip on OOM. Use GPT‑Neo 125 M, 1.3 B, optional 2.7 B; `gpt2-medium` removed. | FR‑001, SC‑005, SC‑007 |
+| T5 | Implement `code/energy.py`: idle baseline; primary INA219 reading; secondary `/sys/class/powercap`; CI fallback to pyRAPL; else log “Energy measurement unavailable”. | FR‑002, edge case (pyRAPL failure) |
+| T6 | Implement `code/benchmark.py` run loop: Multiple seeded repetitions per config, **interleaved round‑robin ordering** across configurations, capture energy, latency, token count, perplexity, CPU frequency, timestamp. Per‑run JSON validated against `inference_run.schema.yaml`; `--dry-run` mode. Autocorrelation diagnostic added. | FR‑002, FR‑003, SC‑004, US‑1/US‑2, T001 repair |
+| T7 | Add `tests/test_pyrapl_load.py` (pyRAPL import/init check, passes when fallback engages) and contract tests for all three schemas; fix quickstart commands. | T001 repair, Constitution I |
+| T8 | Implement `code/aggregate.py`: mean/std of energy‑per‑token, latency, perplexity per config **excluding** runs where `measurement_method` is `"unavailable"`; log omissions; write `aggregated.csv` validated against `aggregated.schema.yaml`. | FR‑004, SC‑001 |
+| T9 | Implement `code/analyze.py`: OLS `log(E_tok) ~ log(params) + C(quant) + cpu_freq` (architecture optional covariate); report exponents with 95 % CI (descriptive only); pairwise t‑tests with Bonferroni; dequantization‑overhead flag (≥10 % & p<0.05); variance‑stability flag (std/mean ≤ 0.15); **achieved power** via `TTestIndPower`; if <3 size points, report deterministic slope only. | FR‑005, FR‑007, SC‑001–SC‑004, SC‑006 (honest reporting) |
+| T10 | Implement `code/plots.py`: bar plot energy‑per‑token vs quantization; log‑log energy vs parameter scatter with fitted lines; CPU‑frequency trace; PNGs to `figures/`. | FR‑006 |
+| T11 | Emit `data/results/summary.json` (exponents, corrected p‑values, flags, achieved power, measurement‑authority labels); checksum all artefacts. | Principle IV, V |
+| T12 | Raspberry Pi 4 run‑book (`--platform pi4`): authoritative energy measurement, throttling/frequency logging; compare Pi 4 vs CI in `summary.json`. | FR‑002, Principle VI |
+| T13 | Sensitivity analysis: rerun primary configs at 250/500/1000‑token prompts; report energy‑per‑token variation. | Principle VII |
+
+**Coverage**: FR‑001 (T2‑T4), FR‑002 (T5, T6, T12), FR‑003 (T6), FR‑004 (T8), FR‑005 (T9), FR‑006 (T10), FR‑007 (T9); SC‑001 (T8/T9), SC‑002 (T9), SC‑003 (T9), SC‑004 (T6/T9), SC‑005 & SC‑007 (T4), SC‑006 (T9, honest power report).
 
 ## Compute Feasibility Decision
-- **CPU‑first**: All inference, quantization, and analysis steps run on CPU and stay within the available RAM constraints when using 4‑bit models.  
-- **GPU escape hatch**: Not required.  
-- **Runtime budget**: Estimated total wall‑time is comfortably under the 6 h limit on CI.
 
-## Risk Mitigation & Edge‑Case Handling
+- **CPU‑first**: all components run on the 2‑core/7 GB GitHub Actions runner. GPT‑Neo‑1.3 B FP16 ≈ 2.6 GB; INT4 ≈ 0.7 GB – fits RAM. Estimated wall‑time ≈ 4–5 h.
+- **GPU escape hatch**: not required; all methods have faithful CPU forms.
+- **Data**: WikiText‑2 (HF), GPT‑Neo checkpoints (HF) are openly downloadable; no gated data.
+
+## Risk Mitigation & Edge Cases
+
 | Situation | Detection | Response |
 |-----------|-----------|----------|
-| `pyRAPL` missing | Initialization check fails | Switch to `powerstat`; if also unavailable, log “Energy measurement unavailable” and skip energy aggregation. |
-| Model OOM on load | `MemoryError` or torch OOM | Log OOM, set `load_success: false`, continue with remaining configs. |
-| Quantization failure | Exception from `auto-gptq`/`bitsandbytes` | Fall back to FP16 for that config; record `quantization: fp16`. |
-| WikiText download error | HTTP error / missing file | Abort with clear error; dataset is mandatory. |
-| Tokenizer returns zero tokens | `len(tokens) == 0` | Abort that run, log warning, retry with next seed. |
-| CPU frequency drifts > 5 % | Recorded frequency deviates > 5 % after stabilization wait | Log warning; include frequency as covariate. |
-| Measurement validation discrepancy | Comparison of `pyRAPL` vs. `powerstat` on known workload exceeds 10 % | Record uncertainty in logs and propagate as additional variance term. |
-
-All failures are graceful, satisfying FR‑002 fallback clauses.
-
----
-
-
-
+| INA219 unavailable | ImportError / I²C read failure | Fall back to sysfs powercap; if also unavailable, log “Energy measurement unavailable”. |
+| torchao INT4 fails on an operator | Exception during quantized forward | Record `quantization_status: failed`; exclude config from energy comparisons, log. |
+| Model OOM | MemoryError / pre‑check estimate > budget | Log `load_success: false` to `logs/model_load.log`, continue. |
+| WikiText download failure / 0 tokens | HTTP error; `len(tokens)==0` | Abort with clear error; log warning; skip run. |
+| LLaMA‑7B loads within budget (unlikely) | Pre‑check passes | Natural OOM will be triggered if memory exceeds; graceful‑skip logged per FR‑001. |
+| Frequency drift | `/proc/cpuinfo` deviation after stabilization wait | Log warning; include frequency as covariate. |
+| Autocorrelation in runs | Autocorrelation statistic > 0.2 | Emit warning; consider re‑ordering or discarding affected runs. |

@@ -3,6 +3,10 @@ title: AggregatedMetric
 type: object
 required:
   - config_id
+  - model_name
+  - model_size_m
+  - quantization
+  - n_runs
   - mean_energy_per_token
   - std_energy_per_token
   - mean_latency_ms
@@ -14,19 +18,32 @@ required:
 properties:
   config_id:
     type: string
-    description: "Hash of the Configuration object (SHA256)."
+    description: "SHA256 hash of the Configuration object."
+  model_name:
+    type: string
+    description: "Base model identifier for this configuration."
+  model_size_m:
+    type: integer
+    description: "Parameter count in millions."
+  quantization:
+    type: string
+    enum: [fp16, int8, 4bit]
+    description: "Quantization level."
+  n_runs:
+    type: integer
+    description: "Number of valid runs aggregated (target 12 per FR-003)."
   mean_energy_per_token:
     type: number
-    description: "Mean energy per token (Joules/token) across repetitions."
+    description: "Mean energy per token (Joules/token) across repetitions; null if no energy measurements are available."
   std_energy_per_token:
     type: number
-    description: "Mean energy per token (standard deviation)."
+    description: "Standard deviation of energy per token (Joules/token)."
   mean_latency_ms:
     type: number
     description: "Mean inference latency (ms)."
   std_latency_ms:
     type: number
-    description: "Standard deviation of latency."
+    description: "Standard deviation of latency (ms)."
   mean_perplexity:
     type: number
     description: "Mean perplexity across runs."
@@ -35,7 +52,7 @@ properties:
     description: "Standard deviation of perplexity."
   dequantization_overhead_flag:
     type: boolean
-    description: "True if overhead >10 % relative to FP16 baseline and statistically significant (e.g., p < 0.05)."
+    description: "True if (energy_quant - energy_fp16) / energy_fp16 >= 0.10 and p < 0.05 vs the FP16 baseline (FR-007)."
   variance_stability_flag:
     type: boolean
-    description: "True if std / mean ≤ 0 / the ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? "
+    description: "True if std_energy_per_token / mean_energy_per_token <= 0.15 (SC-004)."

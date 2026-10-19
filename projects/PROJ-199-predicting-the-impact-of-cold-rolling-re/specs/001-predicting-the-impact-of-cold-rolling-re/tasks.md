@@ -47,9 +47,9 @@
 - [X] T001b [P] Create `data/` directory. **Verify**: Ensure directory exists via `pathlib.Path.cwd().joinpath('data').is_dir()`.
 - [X] T001c [P] Create `tests/` directory. **Verify**: Ensure directory exists via `pathlib.Path.cwd().joinpath('tests').is_dir()`.
 - [X] T001d [P] Create `docs/` directory. **Verify**: Ensure directory exists via `pathlib.Path.cwd().joinpath('docs').is_dir()`.
-- [X] T002 [P] Create `.gitignore` for Python, data, and IDE files.
+- [ ] T002 [P] Create `.gitignore` for Python, data, and IDE files.
 - [X] T003 [P] Initialize Python project with `requirements.txt` (pinning `orix`, `scikit-learn`, `shap`, `pandas`, `numpy`, `pyyaml`, `requests`, `pytest` with explicit version specifiers, e.g., `>=1.0.0`, to ensure reproducibility per Constitution Principle I). **Verify**: Ensure file exists and contains pinned versions.
-- [X] T004 [P] Configure linting (flake8/black) and formatting tools. **Verify**: Ensure config files (e.g., `.flake8`, `pyproject.toml` for black) exist.
+- [~] T004 [P] Configure linting (flake8/black) and formatting tools. **Verify**: Ensure config files (e.g., `.flake8`, `pyproject.toml` for black) exist.
 
 ---
 
@@ -59,12 +59,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T005 [P] Create subdirectories `raw`, `processed`, `interim` within the existing `data/` folder with `.gitkeep` (Required by Plan.md Project Structure and FR-001 Data Hygiene). **Verify**: Ensure all subdirectories and `.gitkeep` files exist.
-- [X] T006 [P] Implement base configuration loader for environment variables and seed management (`code/__init__.py`).
-- [X] T007 [P] Setup logging infrastructure to track data lineage and processing steps (`code/utils/logging.py`).
-- [X] T008a [P] Implement Pydantic model for 'EBSD Sample' (`code/data/models.py`).
-- [X] T008b [P] Implement Pydantic model for 'Texture Descriptor' (`code/data/models.py`).
-- [X] T009a [P] [US1] Unit test for point filtering logic in `tests/unit/test_preprocess.py`. **Logic**:
+- [~] T005 [P] Create subdirectories `raw`, `processed`, `interim` within the existing `data/` folder with `.gitkeep` (Required by Plan.md Project Structure and FR-001 Data Hygiene). **Verify**: Ensure all subdirectories and `.gitkeep` files exist.
+- [~] T006 [P] Implement base configuration loader for environment variables and seed management (`code/__init__.py`).
+- [~] T007 [P] Setup logging infrastructure to track data lineage and processing steps (`code/utils/logging.py`).
+- [~] T008a [P] Implement Pydantic model for 'EBSD Sample' (`code/data/models.py`).
+- [~] T008b [P] Implement Pydantic model for 'Texture Descriptor' (`code/data/models.py`).
+- [~] T009a [P] [US1] Unit test for point filtering logic in `tests/unit/test_preprocess.py`. **Logic**:
  1. `test_filter_points_below_confidence`: Verify that `code/data/preprocess.py` filters out individual data points with confidence index < 0.1 while keeping the sample object valid.
  2. `test_sample_rejection_not_triggered`: Verify that a sample with mixed confidence values (some < 0.1, some >= 0.1) is NOT rejected entirely, but processed with the valid points only. (US-1 Scenario 2, FR-002).
  3. **Dependency**: This task tests the logic implemented in T014 (`code/data/preprocess.py`).
@@ -84,19 +84,19 @@
 
 > **NOTE**: Tests marked [P] can be written in parallel with implementation, but execution depends on the implementation being complete.
 
-- [X] T010 [P] [US1] Contract test for data schema in `tests/contract/test_data_schema.py`
-- [X] T011 [P] [US1] Write test stubs and assertions for the download and filter flow (can be written in parallel with T012 implementation) in `tests/integration/test_data_pipeline.py`
+- [~] T010 [P] [US1] Contract test for data schema in `tests/contract/test_data_schema.py`
+- [~] T011 [P] [US1] Write test stubs and assertions for the download and filter flow (can be written in parallel with T012 implementation) in `tests/integration/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [X] T012b [US1] Implement `code/data/generate_synthetic.py` to create a verified synthetic EBSD dataset. **Logic**:
+- [~] T012b [US1] Implement `code/data/generate_synthetic.py` to create a verified synthetic EBSD dataset. **Logic**:
  1. **Purpose**: Provide a fallback data source when real data is unavailable, ensuring the pipeline does not crash (Plan.md Technical Context).
  2. **Generation**: Generate synthetic orientation data for Al, Cu, and Ni across the resolved reduction levels using a deterministic seed.
  3. **Metadata**: Ensure the generated data includes 'reduction' percentage and 'confidence' index fields.
  4. **Output**: Save to `data/raw/synthetic_ebsd.parquet`. (FR-001).
  5. **Dependency**: T012 depends on T012b.
 
-- [X] T012 [US1] Implement `code/data/download.py` to fetch EBSD data. **Logic**:
+- [~] T012 [US1] Implement `code/data/download.py` to fetch EBSD data. **Logic**:
  1. **Prerequisites**: This task requires `research.md`. **CRITICAL**: If `research.md` is missing or does not contain a valid `reduction_levels` list, the script MUST raise a `ValueError` with a clear message: "Missing reduction_levels in research.md. Define reduction levels (e.g., [0, 20, 40, 60, 80]) in research.md to proceed." **DO NOT** use hardcoded defaults. (FR-001, Spec US-1).
  2. **Primary Sources**: Attempt to fetch from Materials Project (API endpoint: `https://materialsproject.org/rest/v2/...`) and MTData repositories.
  3. **Fallback**: If primary sources fail (network error, 404), invoke the `generate_synthetic` function from `code/data/generate_synthetic.py` (T012b) to generate a verified synthetic EBSD dataset with reduction metadata. **DO NOT** raise `DataUnavailableError` unless BOTH real fetch AND synthetic generation fail. (FR-001, Constitution Principle I, Plan.md Technical Context).
@@ -107,14 +107,14 @@
  - **Execution**: Use the resolved list to filter or request data. If a specific level is missing in the source data, log a warning and proceed with available levels. If ALL levels for a specific metal are missing, log a warning and proceed with available metals/levels.
  6. **Data Hygiene**: Ensure all downloaded files are checksummed upon receipt. (FR-001).
 
-- [X] T014 [US1] Implement `code/data/preprocess.py` to filter confidence index < 0.1 and re-index orientations to FCC symmetry using `orix`. **Logic**:
+- [~] T014 [US1] Implement `code/data/preprocess.py` to filter confidence index < 0.1 and re-index orientations to FCC symmetry using `orix`. **Logic**:
  1. Read reduction levels from the resolved list (as determined in T012).
  2. If specific levels are missing, proceed with available levels and log a warning.
  3. If ALL levels are missing, the script will have already failed in T012; this task assumes valid input exists. (FR-002).
  4. Integrate exclusion logic: flag samples where >50% of points are filtered as "low reliability" and EXCLUDE them from the final training set (Edge Case). (FR-001).
  5. **Symmetry Enforcement**: This is the sole mechanism for symmetry enforcement; no custom loss functions are used.
 
-- [ ] T015 [US1] Generate consolidated Parquet output to `data/processed/cleaned_ebsd.parquet` with metadata (material, reduction, confidence). **Logic**:
+- [ ] T015 [US1] Generate consolidated Parquet output to `data/processed/cleaned_ebsd.parquet` with metadata (material, reduction, confidence). **Logic**: <!-- FAILED-IN-EXECUTION: code/data/consolidate_cleaned.py exit=1 -->
  1. **Dependency**: This task depends on T012 (Download) and T014 (Preprocess).
  2. **Partial Data Handling**: If valid data exists (even if partial), generate the Parquet file with the available rows. Log a summary of excluded/missing entries.
  3. **Zero-Data Handling**: If the input data results in zero valid rows (e.g., all samples excluded due to low confidence or missing data), **fail** the task and do not generate an empty file. Log an error.
@@ -131,12 +131,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T016 [P] [US2] Unit test for Brass/Copper/S/Goss calculation logic in `tests/unit/test_descriptors.py`
-- [X] T017 [P] [US2] Benchmark test against Rosenstock et al. (2018) values in `tests/unit/test_benchmark_validation.py`
+- [~] T016 [P] [US2] Unit test for Brass/Copper/S/Goss calculation logic in `tests/unit/test_descriptors.py`
+- [~] T017 [P] [US2] Benchmark test against Rosenstock et al. (2018) values in `tests/unit/test_benchmark_validation.py`
 
 ### Implementation for User Story 2
 
-- [X] T018 [US2] Implement `code/features/descriptors.py` to calculate Texture Index and volume fractions using MTEX-style search algorithms. **Logic**:
+- [~] T018 [US2] Implement `code/features/descriptors.py` to calculate Texture Index and volume fractions using MTEX-style search algorithms. **Logic**:
  1. **Reference**: Use the Euler angle ranges defined in Rosenstock et al. as the baseline.
  2. **Search Window**: Implement a configurable search window of ±5 degrees around the central values to account for lattice rotation spread. **Use `orix`'s `Orientation` class symmetry definitions** to ensure alignment with standard FCC symmetry.
  3. **Euler Ranges (phi1, Phi, phi2 in degrees)**: Define ranges as [phi1_min, phi1_max, Phi_min, Phi_max, phi2_min, phi2_max] using `orix`'s standard definitions.
@@ -148,7 +148,7 @@
  5. **Output**: Calculate and return scalar values for each component. (FR-003).
  6. **Artifact**: Output the calculated descriptors to `data/processed/descriptors.csv`.
 
-- [X] T018b [US2] Implement explicit benchmark comparison logic in `code/features/benchmark_validation.py`. **Logic**:
+- [ ] T018b [US2] Implement explicit benchmark comparison logic in `code/features/benchmark_validation.py`. **Logic**:
  1. **Purpose**: Explicitly implement the Independent Test for US-2 (Rosenstock et al. validation).
  2. **Input**: Load `data/processed/descriptors.csv` and `data/processed/benchmark_data.json` (fetched by T018c).
  3. **Calculation**: For each matching sample in the dataset, calculate the absolute difference (delta) between the calculated volume fractions and the benchmark values.
@@ -183,12 +183,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T022 [P] [US3] Contract test for model output schema in `tests/contract/test_model_output.py`
-- [X] T023 [P] [US3] Integration test for k-fold CV pipeline in `tests/integration/test_model_training.py`
+- [~] T022 [P] [US3] Contract test for model output schema in `tests/contract/test_model_output.py`
+- [~] T023 [P] [US3] Integration test for k-fold CV pipeline in `tests/integration/test_model_training.py`
 
 ### Implementation for User Story 3
 
-- [X] T024 [US3] Implement `code/models/train.py` to fit separate polynomial (degree=2) and joint Gaussian Process (RBF kernel) models. **Mandatory**:
+- [~] T024 [US3] Implement `code/models/train.py` to fit separate polynomial (degree=2) and joint Gaussian Process (RBF kernel) models. **Mandatory**:
  1. **Hyperparameters**: Use GP length_scale search space [lower bound, upper bound]; Polynomial regularization (alpha) in a range spanning from a small to a moderate magnitude..
  2. **Feature Engineering**: Include 'Material Type' as a categorical feature (one-hot encoded) in the joint model to satisfy FR-008.
  3. **Variance Reporting**: After training, calculate the residual variance attributed to missing microstructural variables using the utility function in `code/analysis/variance_utils.py` (extracted from T032 logic) and **explicitly include this metric in the final model report output** (e.g., `model_report.json`). (FR-008).

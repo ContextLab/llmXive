@@ -5,24 +5,32 @@ required:
   - model_name
   - model_size_m
   - quantization
-  - seed
+  - quantization_status
+  - seeds
 properties:
   model_name:
     type: string
-    description: "Identifier of the base model (e.g., 'gpt-neo-125M')."
+    description: "HF identifier of the base model (e.g. 'EleutherAI/gpt-neo-125M', 'gpt2-medium')."
   model_size_m:
     type: integer
-    description: "Model parameter count in millions (e.g., 125)."
+    description: "Parameter count in millions (e.g. 125, 355, 1300)."
   quantization:
     type: string
     enum: [fp16, int8, 4bit]
     description: "Quantization level applied to the model."
-  seed:
-    type: integer
-    description: "Random seed used for this run (ensures reproducibility)."
+  quantization_status:
+    type: string
+    enum: [ok, failed]
+    description: "Whether the quantized checkpoint was actually produced; 'failed' configs are excluded from energy comparison and never point at the FP16 checkpoint."
+  seeds:
+    type: array
+    items:
+      type: integer
+    minItems: 12
+    description: "The pinned random seeds for this configuration's runs."
   checkpoint_path:
     type: string
-    description: "Absolute path to the (quantized) model checkpoint on disk."
+    description: "Path to the (quantized) checkpoint; empty string if load was skipped."
   load_success:
     type: boolean
-    description: "True if the model loaded without OOM; false otherwise."
+    description: "True if the model loaded without OOM; false otherwise (e.g. LLaMA-7B graceful skip)."
