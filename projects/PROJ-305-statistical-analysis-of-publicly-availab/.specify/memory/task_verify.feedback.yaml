@@ -1,10 +1,24 @@
 T001:
+  reason: "Checked the directory tree and found `logs/structure.txt` present and non\u2011\
+    empty, and `quickstart.md` documents the runnable command. However, the required\
+    \ `data/processed/` directory is missing, violating the task\u2019s layout requirement.\
+    \ Adding this directory (even as an empty placeholder) is needed to complete T001."
   task: 72277866824112601def85e1634728980763e25c3d0025d6e98f32b9171d0147
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/data/download.py
-    exit=1'
+  reason: Checked `src/data/download.py` and found it downloads the parquet via a
+    custom HTTP request instead of using `datasets.load_dataset` as the task explicitly
+    required. Although the file and checksum are correctly created, the implementation
+    does not satisfy the stipulated use of the `datasets` library. The script must
+    be revised to employ `datasets.load_dataset("chrisvoncsefalvay/vaers-outcomes",
+    split="train")` for fetching the data.
   task: 488f4c6e9af1d80434e62c98331a043159037641a8d28db3b08ed914b429e62d
 T003:
+  reason: "The provided `src/data/validate.py` does not match the required CLI (`--input`\
+    \ option, single failure exit\u202F1) and the unit\u2011test suite fails (missing\u2011\
+    column and valid\u2011run tests raise `SystemExit`\u202F3). Moreover the required\
+    \ fixture `tests/fixtures/malformed_missing_vax_type.csv` is absent. Fix the CLI\
+    \ arguments, unify exit codes, ensure CSV reading works, add the missing fixture,\
+    \ and make all tests pass."
   task: 1877409b306cac2b2efd8bb7b15cd6a873e3fd6c8164d185fb0cb128558d06b8
 T004:
   task: 070adf540059ea81343f7f4b578c8df8ec71731bb82ce7e2b71f75990f58f147

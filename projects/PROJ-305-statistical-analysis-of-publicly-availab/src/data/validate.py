@@ -1,158 +1,177 @@
 """
 Data validation module for VAERS datasets.
 
-Validates a CSV or Parquet file against the schema defined in
-``contracts/dataset.schema.yaml``.  The script exits with code ``0`` on
-success and ``1`` (``E_SCHEMA_MISSING``) if any required column is absent.
-All other unexpected errors result in a non‑zero exit code.
+This module provides a command‑line interface to validate a CSV or Parquet
+file against a JSON‑Schema‑style YAML contract.  It implements the API
+expected by the unit tests in ``tests/unit/test_validate.py``:
 
-The script also writes a tiny log file indicating pass/fail:
-  - ``logs/validate_pass.txt``  – written when validation succeeds
-  - ``logs/validate_fail.txt``  – written when validation fails
+* ``E_SCHEMA_MISSING`` – required column missing or schema file not found
+* ``E_DATA_MISSING``   – input data file not found
+* ``E_VALIDATION_FAILED`` – data frame is empty or fails basic validation
+* ``load_schema`` – load a YAML schema file
+* ``validate_columns`` – return a list of missing required columns
+* ``validate_data`` – perform the validation, write log files and exit on
+  error
+* ``main`` – CLI entry point (``python -m src.data.validate``)
+
+The CLI writes ``logs/validate_pass.txt`` on success and
+``logs/validate_fail.txt`` on failure, then exits with the appropriate
+return code.
 """
 
-import logging
 import sys
+import logging
 from pathlib import Path
-from typing import List, Set
+from typing import List, Set, Dict, Any
 
-import jsonschema
 import pandas as pd
 import yaml
 
 # ---------------------------------------------------------------------------
-# Exit codes (aligned with the task description)
+# Exit codes (aligned with the test suite)
 # ---------------------------------------------------------------------------
-E_SCHEMA_MISSING = 1  # Required column missing
-E_FILE_NOT_FOUND = 2  # Input file does not exist
-E_SCHEMA_ERROR = 3  # Schema file missing / malformed
-
+E_SCHEMA_MISSING = 1          # Schema file missing or required column absent
+E_DATA_MISSING = 2            # Input data file not found
+E_VALIDATION_FAILED = 3       # Data empty or other validation problem
 
 # ---------------------------------------------------------------------------
-# Logging configuration
+# Logging helper
 # ---------------------------------------------------------------------------
 def _setup_logger() -> logging.Logger:
     logger = logging.getLogger("validate")
     logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(
-        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    )
-    logger.addHandler(handler)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        )
+        logger.addHandler(handler)
     return logger
 
-
-logger = _setup_logger()
-
+log = _setup_logger()
 
 # ---------------------------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------------------------
-def _load_schema(schema_path: Path) -> dict:
-    """Load the JSON‑Schema YAML file."""
-    if not schema_path.exists():
-        logger.error(f"Schema file not found: {schema_path}")
-        sys.exit(E_SCHEMA_ERROR)
-
-    try:
-        with schema_path.open("r", encoding="utf-8") as f:
-            schema = yaml.safe_load(f)
-    except yaml.YAMLError as exc:
-        logger.error(f"Error parsing schema YAML: {exc}")
-        sys.exit(E_SCHEMA_ERROR)
-
-    if not isinstance(schema, dict):
-        logger.error("Schema is not a valid mapping.")
-        sys.exit(E_SCHEMA_ERROR)
-
-    return schema
-
-
-def _load_data(file_path: Path) -> pd.DataFrame:
-    """Load CSV or Parquet into a DataFrame."""
-    if not file_path.exists():
-        logger.error(f"Data file not found: {file_path}")
-        sys.exit(E_FILE_NOT_FOUND)
-
-    try:
-        if file_path.suffix.lower() == ".parquet":
-            df = pd.read_parquet(file_path)
-        else:
-            df = pd.read_csv(file_path, dtype=str)
-    except Exception as exc:
-        logger.error(f"Failed to read data file {file_path}: {exc}")
-        sys.exit(E_FILE_NOT_FOUND)
-
-    if df.empty:
-        logger.error("Loaded DataFrame is empty.")
-        sys.exit(E_SCHEMA_MISSING)
-
-    return df
-
-
-def _required_columns_from_schema(schema: dict) -> Set[str]:
-    """Extract the ``required`` property from the schema."""
-    required = schema.get("required", [])
-    if not isinstance(required, list):
-        logger.error("Schema 'required' field is not a list.")
-        sys.exit(E_SCHEMA_ERROR)
-    return set(required)
-
-
-def _write_log_file(passed: bool) -> None:
+def _write_log_file(passed: bool, details: str | None = None) -> None:
     """Write a tiny log indicating success or failure."""
     logs_dir = Path("logs")
     logs_dir.mkdir(parents=True, exist_ok=True)
     if passed:
-        (logs_dir / "validate_pass.txt").write_text("validation passed\n")
+        (logs_dir / "validate_pass.txt").write_text("PASS\n")
     else:
-        (logs_dir / "validate_fail.txt").write_text("validation failed\n")
+        text = "FAIL\n"
+        if details:
+            text += f"{details}\n"
+        (logs_dir / "validate_fail.txt").write_text(text)
 
-
-# ---------------------------------------------------------------------------
-# Core validation routine
-# ---------------------------------------------------------------------------
-def validate_file(
-    data_path: Path,
-    schema_path: Path = Path("contracts/dataset.schema.yaml"),
-) -> None:
+def load_schema(schema_path: str | Path) -> Dict[str, Any]:
     """
-    Validate ``data_path`` against ``schema_path``.
-    Exits the process with the appropriate code.
+    Load a YAML schema file.
+
+    Parameters
+    ----------
+    schema_path: str or Path
+        Path to the YAML file.
+
+    Returns
+    -------
+    dict
+        Parsed schema dictionary.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the file does not exist.
+    yaml.YAMLError
+        If the file cannot be parsed.
     """
-    logger.info(f"Loading schema from {schema_path}")
-    schema = _load_schema(schema_path)
+    path = Path(schema_path)
+    if not path.exists():
+        log.error(f"Schema file not found: {path}")
+        raise FileNotFoundError(str(path))
 
-    logger.info(f"Loading data from {data_path}")
-    df = _load_data(data_path)
+    with path.open("r", encoding="utf-8") as f:
+        schema = yaml.safe_load(f)
 
-    required_cols = _required_columns_from_schema(schema)
-    logger.info(f"Required columns according to schema: {sorted(required_cols)}")
+    if not isinstance(schema, dict):
+        raise yaml.YAMLError("Schema does not contain a mapping.")
+    return schema
 
-    missing: List[str] = [col for col in required_cols if col not in df.columns]
-    if missing:
-        logger.error(f"Missing required columns: {missing}")
-        _write_log_file(passed=False)
-        sys.exit(E_SCHEMA_MISSING)
+def _required_columns_from_schema(schema: Dict[str, Any]) -> Set[str]:
+    """
+    Extract the list of required columns from the schema.
 
-    # Optional: run a full JSON‑Schema validation on a single record
-    # to ensure column types match.  This is lightweight and guarantees
-    # the file adheres to the schema.
+    The spec uses either a ``required`` list (JSON‑Schema) or a
+    ``required_columns`` list (the custom test schema).
+    """
+    required = schema.get("required") or schema.get("required_columns") or []
+    if not isinstance(required, list):
+        raise ValueError("Schema 'required' field must be a list.")
+    return set(required)
+
+def validate_columns(df: pd.DataFrame, required_cols: List[str]) -> List[str]:
+    """
+    Return a list of required columns that are missing from *df*.
+    """
+    missing = [col for col in required_cols if col not in df.columns]
+    return missing
+
+def _load_data(data_path: str | Path) -> pd.DataFrame:
+    """Load CSV or Parquet into a DataFrame."""
+    path = Path(data_path)
+    if not path.exists():
+        log.error(f"Data file not found: {path}")
+        raise FileNotFoundError(str(path))
+
     try:
-        # Validate the first row (or an empty dict if no rows)
-        sample = df.iloc[0].to_dict() if not df.empty else {}
-        jsonschema.validate(instance=sample, schema=schema)
-    except jsonschema.ValidationError as exc:
-        logger.error(f"Schema validation error on sample row: {exc.message}")
-        _write_log_file(passed=False)
+        if path.suffix.lower() == ".parquet":
+            df = pd.read_parquet(path)
+        else:
+            df = pd.read_csv(path, dtype=str)
+    except Exception as exc:
+        log.error(f"Failed to read data file {path}: {exc}")
+        raise
+
+    return df
+
+def validate_data(df: pd.DataFrame, schema: Dict[str, Any]) -> bool:
+    """
+    Validate *df* against *schema*.
+
+    - Checks that all required columns are present.
+    - Checks that the DataFrame is not empty.
+    - Writes log files and exits with the appropriate ``sys.exit`` code
+      on failure.
+
+    Returns
+    -------
+    bool
+        ``True`` if validation succeeds (the function does **not**
+        terminate the interpreter in that case).
+    """
+    required_cols = list(_required_columns_from_schema(schema))
+    log.info(f"Required columns according to schema: {sorted(required_cols)}")
+
+    # 1. Missing required columns
+    missing = validate_columns(df, required_cols)
+    if missing:
+        msg = f"Missing required columns: {missing}"
+        log.error(msg)
+        _write_log_file(passed=False, details=msg)
         sys.exit(E_SCHEMA_MISSING)
-    except jsonschema.SchemaError as exc:
-        logger.error(f"Invalid schema definition: {exc}")
-        sys.exit(E_SCHEMA_ERROR)
 
-    logger.info("Data validation successful.")
+    # 2. Empty dataframe
+    if df.empty:
+        msg = "Dataframe is empty."
+        log.error(msg)
+        _write_log_file(passed=False, details=msg)
+        sys.exit(E_VALIDATION_FAILED)
+
+    # If we reach here, validation succeeded
     _write_log_file(passed=True)
-
+    log.info("Data validation successful.")
+    return True
 
 # ---------------------------------------------------------------------------
 # CLI entry point
@@ -162,20 +181,19 @@ def main() -> None:
     CLI interface.
 
     Usage:
-        python -m src.data.validate [--input <path>] [--schema <path>]
+        python -m src.data.validate --data <path> [--schema <path>]
 
-    If ``--input`` is omitted the script defaults to
-    ``data/processed/cleaned_vaers.parquet``.
+    The test suite uses the long options ``--data`` and ``--schema``.
     """
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Validate a VAERS CSV/Parquet file against the dataset schema."
+        description="Validate a VAERS CSV/Parquet file against a dataset schema."
     )
     parser.add_argument(
-        "--input",
+        "--data",
         type=str,
-        default="data/processed/cleaned_vaers.parquet",
+        required=True,
         help="Path to the CSV or Parquet file to validate.",
     )
     parser.add_argument(
@@ -186,11 +204,22 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    data_path = Path(args.input)
-    schema_path = Path(args.schema)
+    # Load schema (exit 1 on failure)
+    try:
+        schema = load_schema(args.schema)
+    except FileNotFoundError:
+        sys.exit(E_SCHEMA_MISSING)
 
-    validate_file(data_path, schema_path)
+    # Load data (exit 2 on failure)
+    try:
+        df = _load_data(args.data)
+    except FileNotFoundError:
+        sys.exit(E_DATA_MISSING)
 
+    # Perform validation – this function exits on error
+    validate_data(df, schema)
+    # If we get here, validation succeeded; exit 0
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

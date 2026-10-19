@@ -2,14 +2,12 @@ status: none
 intent: download VAERS 2020-2023 dataset with MedDRA SOC mapping python package dataset
 required_fields:
 - VAERS_ID
-- YEAR
 - VAX_TYPE
-- MEDDRA_CODE
-- SOC
-- AGE
-- SEX
+- VAX_MANUFACTURER
+- REPORT_DATE
+- MEDDRA_PT_CODE
+- MEDDRA_SOC
 - SYMPTOM_TEXT
-- ONSET_DATE
-cache_key: 8c21a87d2c7c1f6639e3dcb749fa34ec96bc8a756259745625d04f78b07c102b
-searched_at: '2026-10-19T02:55:31.886545+00:00'
+cache_key: 1e6d08271003b24811469d2d833deeaadf3b781bc61b649e79c363e5c937f119
+searched_at: '2026-10-19T03:19:44.502195+00:00'
 retry_count: 1
