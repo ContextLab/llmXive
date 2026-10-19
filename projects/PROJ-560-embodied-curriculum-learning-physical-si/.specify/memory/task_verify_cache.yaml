@@ -1,8 +1,11 @@
-T002a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `code/requirements.in` file was provided; the claim lacks the
-    required artifact listing the eight dependencies, so the task is not satisfied.
+T001:
+  c: true
+  h: 1e8e37dcdc76b958c6d9a99ad990bd13a3d8717d94564ea4403ec6429db5a542
+  r: Checked that all required directories (`code/src/`, `code/tests/`, `data/raw/`,
+    `data/processed/`, `data/synthetic/`, `data/results/`, `data/derivation_logs/`)
+    exist and that `code/requirements.txt` contains the exact pinned versions of pandas,
+    scipy, statsmodels, numpy, pyyaml, and pytest.
+  sig: 75cbe3742e3504072450a34d08024d05d957c7159747bd585361521ff8049331
 T013:
   c: false
   h: 919d31008db600a92884f670a4484b836bc35d5e157d524122d0bb514138fce9
@@ -11,42 +14,3 @@ T013:
     \ the required log file `data/derivation_logs/skipped_records.log` is absent.\
     \ Consequently the task\u2019s core requirement\u2014computing gain scores while\
     \ logging skipped rows\u2014is not satisfied."
-T017a:
-  c: false
-  h: ef25879224fbb21370f246557b8d0f447abfa0379738564b054781348392d283
-  r: "The `setup_logging` function only adds a file handler when a `log_file` argument\
-    \ is supplied and does not default to `data/derivation_logs/skipped_records.log`;\
-    \ the required log file is absent from the repository. The task demands a hard\u2011\
-    coded handler that writes JSONL entries to that specific path, which is not present.\
-    \ The implementer must configure the handler to target `data/derivation_logs/skipped_records.log`\
-    \ by default (and ensure the file is created)."
-T026c:
-  c: true
-  h: 6776e3b060c1485946404fd6f9e542e6b033bbd7f8d70fe70e04194e4cd8ea4c
-  r: The `code/src/stats_engine.py` file contains a fully implemented `finalize_results`
-    function that loads `results_us2.json`, merges sensitivity analysis results and
-    the robustness warning, ensures the output directory exists, and writes the merged
-    dictionary to `data/processed/results.json`. No placeholder code or stubs are
-    present. The missing `results.json` file is expected to be generated at runtime,
-    not a required static artifact.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code artifacts, type\u2011hinted files, updated docstrings, or ruff check\
-    \ reports are present; therefore we cannot confirm that the required cleanup,\
-    \ type\u2011hinting, and docstring completion (and fixing of all ANN errors) were\
-    \ actually performed. The implementer must provide the modified source files and\
-    \ evidence (e.g., ruff output showing zero ANN errors)."
-T039:
-  c: false
-  h: 68e8eca79f84f6a9367ce4fbe3e7d13e295702cead413c75c063764a88b68eda
-  r: The required output file `data/processed/perf_log.json` does not exist, and there
-    is no evidence that the CLI was executed, timed, or that the duration was recorded.
-    Consequently the performance verification task is not satisfied.
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `quickstart.md` file, its execution, or any validation logs/output\
-    \ is present; the implementer provided only feature specifications and user stories,\
-    \ without the required artifact demonstrating that the end\u2011to\u2011end flow\
-    \ was run and succeeded."
