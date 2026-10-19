@@ -10,10 +10,10 @@ The goal is a complete, reproducible CPU‑only study satisfying FR‑001–FR�
 - [ ] T001 **Document project layout & quickstart** – `quickstart.md` describes the single command running the minimal pipeline on 50 clips.  
   *Verification*: the documented command finishes without error and `data/descriptors_subset.csv` (now `data/processed/descriptors.csv`) exists.
 
-- [ ] T002 **Generate a small dataset of interaction clips** – `code/src/pipeline/generate_clips.py` creates 50 reproducible clips (`data/raw/clip_*.npz`, arrays `states`, `actions`, `observations`).  
+- [X] T002 **Generate a small dataset of interaction clips** – `code/src/pipeline/generate_clips.py` creates 50 reproducible clips (`data/raw/clip_*.npz`, arrays `states`, `actions`, `observations`).  
   *Verification*: `ls data/raw/ | wc -l` equals 50; each `.npz` contains the required arrays.
 
-- [ ] T003 **Extract latent statistical descriptors** – `code/src/pipeline/extract_descriptors.py` runs the CPU‑only ICWM encoder, computes variance, lag‑1 autocorrelation, Welch spectral density (near‑zero‑variance edge case: autocorr = 0, spectral = 0), writes `data/processed/descriptors.csv` validating against `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml`, no nulls.
+- [ ] T003 **Extract latent statistical descriptors** – `code/src/pipeline/extract_descriptors.py` runs the CPU‑only ICWM encoder, computes variance, lag‑1 autocorrelation, Welch spectral density (near‑zero‑variance edge case: autocorr = 0, spectral = 0), writes `data/processed/descriptors.csv` validating against `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml`, no nulls. <!-- FAILED-IN-EXECUTION: code/src/pipeline/extract_descriptors.py exit=1 -->
   *Additional verification*: selects a known high‑variance clip and a low‑variance clip; asserts `variance_high > 2 * variance_low` to satisfy US‑1 Acceptance Scenario 2.  
   *Verification*: CSV validates against the schema and the variance‑ratio check passes.
 

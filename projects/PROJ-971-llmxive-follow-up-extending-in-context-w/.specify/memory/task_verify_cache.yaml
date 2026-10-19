@@ -1,25 +1,24 @@
 T001:
   c: false
-  h: 33928f0bc9de88bd9c069829d6a779791d28dd9f423c458d43d7d74325880b51
-  r: 'The task''s own verification criterion requires `data/processed/descriptors.csv`
-    to exist, but the collector reports it as MISSING; only the legacy shortcut `data/descriptors_subset.csv`
-    (50 rows, correct columns) is present. Additionally, the quickstart''s single
-    command depends on `scripts/quickstart.sh` and `scripts/run_minimal.sh`, neither
-    of which appears in the evidence, so there is no proof the documented command
-    runs without error. Fix: create the scripts (or correct the documented command)
-    and produce `data/processed/descriptors.csv` alongside the subset copy.'
-  sig: dd976a82198b693a983de134f98ac46723c865a86356b2926d90c0dcdf2423a8
+  h: fbc3cfeab5c99b96b60b5d39e276554df16477c4934195570b7c343042f60efe
+  r: "The quickstart.md exists and documents a single command, and `data/descriptors_subset.csv`\
+    \ exists with 50 rows of the required columns, but the task's verification explicitly\
+    \ requires `data/processed/descriptors.csv` to exist \u2014 and the collector\
+    \ reports that file as MISSING. The execution log also shows the run only wrote\
+    \ `data/descriptors_subset.csv`, never the `data/processed/descriptors.csv` output\
+    \ the quickstart promises, so the documented command does not produce the documented\
+    \ artifacts. Fix `scripts/run_minimal.sh` (or the pipeline) to also write `data/processed/descriptors.csv`\
+    \ and re-"
+  sig: 0898f9fa759a8b63198c5b0329e7e28ad946b19a5087213d3bd09cbd6df0e824
 T002:
-  c: false
-  h: f6c214e5d6a5d0e397b0d59c7c2fa51556b2843ac684814c767a0722fe50fd18
-  r: "The required artifacts `data/raw/clip_*.npz` do not exist \u2014 the collector\
-    \ confirms `data/raw/` is empty (0 entries) and the pattern matches no files,\
-    \ so the verification criterion \"50 files each containing `states`, `actions`,\
-    \ `observations`\" fails. The script `generate_clips.py` exists and looks functional,\
-    \ but there is no evidence it was ever run; downstream CSVs referencing clip IDs\
-    \ do not substitute for the actual clip files. The implementer must execute the\
-    \ script to produce the 50 `.npz` clips in `data/raw/`."
-  sig: 1aabc615ae3f99dd475e6b174bb458d8ede46b7a197c1ea13dd80b4b1ec842c7
+  c: true
+  h: 618d83be86e1f996bf29cf42d678a231ba8655a8acb50d834f57ea7b950a45e4
+  r: The script `code/src/pipeline/generate_clips.py` exists and deterministically
+    generates CartPole interaction clips with the required `states`, `actions`, and
+    `observations` arrays; `data/raw/` contains exactly 50 non-empty `clip_*.npz`
+    files, and the sampled file contents confirm all three arrays are present. The
+    execution log shows the generation ran successfully (exit 0) and produced 50 clips.
+  sig: 48fc4edff500f192871dd42a3e07da88549ed08aba0cd15d08a73ce3c453d3cd
 T003:
   c: false
   h: f39353eafed431ea5391dc7a3533cb4198b88ad36ce9627fdcd5b220bcc9cb21

@@ -30,3 +30,21 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-19T05:25:27Z'
+- artifact_path: projects/PROJ-971-llmxive-follow-up-extending-in-context-w/quickstart.md
+  attempts: 1
+  canonical: run_minimal.sh writes full descriptor CSV and subset CSV
+  claim_id: c_179d56c8
+  context: The run_minimal.sh script is described as generating reproducible clips,
+    extracting three descriptors, and writing both the full descriptor table and the
+    shortcut subset CSV.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: scripts/run_minimal.sh generates a set of reproducible clips, extracts
+    the three descriptors, and writes both data/processed/descriptors.csv and data/descriptors_subset.csv
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T22:08:31Z'

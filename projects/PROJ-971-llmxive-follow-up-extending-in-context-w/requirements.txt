@@ -1,9 +1,17 @@
-numpy==1.26.*
-pandas==2.2.*
-scipy==1.12.*
-scikit-learn==1.5.*
-statsmodels==0.14.*
-matplotlib==3.8.*
-torch==2.3.*
-pyts==0.12.*
-robosuite==1.4.*
+# Core dependencies (already available in the environment)
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+matplotlib
+torch
+pyts
+pingouin
+# Additional runtime dependency for clip generation
+gymnasium
+# Testing framework (already available)
+pytest
+# YAML and JSON schema validation
+PyYAML
+jsonschema
