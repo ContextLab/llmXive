@@ -1,6 +1,6 @@
 status: none
-intent: nilearn fetch_abcd and fetch_hcp_adolescent resting state fMRI dataset python
-  package dataset
+intent: download ABCD Study and HCP-Adolescents resting state fMRI with confound metadata
+  python package dataset
 required_fields:
 - subject_id
 - group_label
@@ -8,10 +8,8 @@ required_fields:
 - age
 - sex
 - mean_framewise_displacement
-- rs_fmri_nifti_path
+- resting_state_fmri_file
 - connectivity_matrix
-- site
-- scanner_model
-cache_key: 6b83dd4ae157b9853939bc142499009cc21d0c41160e66c3ecac24cf5b746f4c
-searched_at: '2026-10-19T03:16:57.848134+00:00'
+cache_key: 3729e40f9e24897a1f76b45de9c4b2ee3b2e86e69e35865f74b279bd6b4ea8f3
+searched_at: '2026-10-19T04:11:53.726587+00:00'
 retry_count: 1

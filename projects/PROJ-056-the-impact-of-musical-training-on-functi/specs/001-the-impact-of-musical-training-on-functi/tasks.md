@@ -6,7 +6,7 @@
 
 ## Phase 1 — Repair entry points and run a first end-to-end analysis
 
-- [ ] T001 [P] [US-1] Repair the four failing entry points and document the runnable command in `specs/001-the-impact-of-musical-training-on-functi/quickstart.md` <!-- FAILED-IN-EXECUTION: code/main.py exit=1; code/data/run_synthetic_generator.py exit=1; code/run_quickstart_test.py exit=5 -->
+- [ ] T001 [P] [US-1] Repair the four failing entry points and document the runnable command in `specs/001-the-impact-of-musical-training-on-functi/quickstart.md` <!-- FAILED-IN-EXECUTION: code/main.py exit=1; code/data/run_synthetic_generator.py exit=1; code/run_quickstart_test.py exit=5 --> <!-- FAILED-IN-EXECUTION: code/run_quickstart_test.py exit=5 -->
   - Fix `code/main.py` (verifier: exit=2): correct argparse so `python code/main.py --mode synthetic --n-subjects 100 --seed 42` runs end-to-end; add `--n-permutations` and `--seed` flags. Verify only argparse parsing, `--help` output, and that `code/data/real_ingest.py` stub exits cleanly with a status JSON when no dataset is supplied.
   - Fix `code/data/run_synthetic_generator.py` (exit=1): standalone executable with `if __name__ == "__main__"` and importable-from-repo-root relative imports.
   - Fix `code/data/real_ingest.py` (exit=1): when no verified dataset path is supplied, print a clear "data source unavailable" message, write a JSON status file, and exit 0 — never an unhandled exception, never a synthetic fallback (spec edge case: unavailable data source).
