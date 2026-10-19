@@ -26,6 +26,7 @@ properties:
     description: "DOI of the source dataset"
   status:
     type: "string"
+    description: "Validation status"
     enum:
       - "valid"
       - "dropped_missing_tg"
