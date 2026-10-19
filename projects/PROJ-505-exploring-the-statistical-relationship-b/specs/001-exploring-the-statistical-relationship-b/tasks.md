@@ -1,15 +1,12 @@
 # Tasks: Exploring the Statistical Relationship Between Solar Wind Composition and Geomagnetic Indices
 
 **Inputs**: `spec.md`, `plan.md`, `data-model.md`, existing project skeleton.  
-**Goal**: Build a reproducible end‑to‑end pipeline that (a) creates the required directory layout, (b) fetches real data when possible and falls back to a documented synthetic generator, (c) aligns the time series, (d) derives coupling functions, (e) fits baseline and full multivariate regressions, (f) validates significance with block permutation and sensitivity analysis, and (g) produces a final JSON report that explicitly labels the data source. All steps must be verifiable by concrete file‑system artefacts or automated tests.
-
----
 
 ## Phase 1 – Project scaffolding & foundational utilities  
 
 - [ ] T001 [P] Create the full project directory tree under `projects/PROJ-505-exploring-the-statistical-relationship-b/`  
 
-  ```
+  ```text
   projects/PROJ-505-exploring-the-statistical-relationship-b/
   ├─ code/
   │  ├─ ingestion/
@@ -28,9 +25,22 @@
 
 - [ ] T002 [P] Fix `requirements.txt` so that **every** line follows the pattern `package==major.minor.*` (no version ranges, no extra packages).  
 
-  **File**: `requirements.txt` (project root) – must contain only the pinned core scientific stack (e.g., `pandas==2.2.*`, `numpy==1.26.*`, `scikit-learn==1.5.*`, `statsmodels==0.14.*`, `scipy==1.13.*`, `pytest==8.2.*`).  
+  **File**: `requirements.txt` (project root) – must contain only the pinned core scientific stack, e.g.:  
 
-  **Verification** – Lint the file with a regex check; CI test asserts that each non‑comment line matches `^[a-zA-Z0-9_-]+==[0-9]+\.[0-9]+\.\*$`.
+  ```
+  pandas==2.2.*
+  numpy==2.0.*
+  scikit-learn==1.5.*
+  statsmodels==0.14.*
+  scipy==1.14.*
+  pytest==8.3.*
+  fastparquet==2024.*
+  pyarrow==15.0.*   # optional fallback, still pinned
+  ```  
+
+  The previously‑present line `pyarrow>=15.0.0` has been removed/changed to the pinned format.  
+
+  **Verification** – CI runs a regex check: each non‑comment line must match `^[a-zA-Z0-9_-]+==[0-9]+\.[0-9]+\.\*$`.
 
 - [ ] T003 [P] Add a lightweight configuration module defining the random seed and canonical data‑path constants.  
 
@@ -49,27 +59,25 @@
 
 - [ ] T004 [P] Refactor `code/utils/io.py` so that Parquet I/O works even when `pyarrow` is unavailable.  
 
-  *Implementation notes* – attempt `import pyarrow` inside a try/except; if unavailable, fall back to `fastparquet`. Provide `load_parquet(path)`, `save_parquet(df, path)`, and `sha256_checksum(path)` functions that raise a clear error only if **both** engines are missing.  
+  *Implementation notes* – attempt `import pyarrow` inside a `try/except`; if unavailable, fall back to `fastparquet`. Provide the functions `load_parquet(path)`, `save_parquet(df, path)`, and `sha256_checksum(path)` that raise a clear error **only if both engines are missing**.  
 
   **Verification** – Unit tests `tests/unit/test_io.py` must pass on a runner without `pyarrow`; they check that `save_parquet` creates a file, `load_parquet` reads it back identically, and the checksum matches.
 
----
-
 ## Phase 2 – Data ingestion & alignment (User Story 1, **P1**)  
 
-- [ ] T005 [US1] Implement real‑data download scripts for ACE composition and NOAA geomagnetic indices.  
+- [ ] T005 [US1] Implement robust real‑data download scripts for ACE composition and NOAA geomagnetic indices.  
 
   **Files**: `code/ingestion/download_ace.py`, `code/ingestion/download_noaa.py`  
 
-  *Behavior* – each script performs an HTTP GET to the official CDAWeb/NOAA endpoint, writes the raw response bytes unchanged to `data/raw/` (e.g., `ace_YYYYMMDD.cdf`), parses the needed columns, and raises `ConnectionError` on any network failure.  
+  *Behavior* – each script performs an HTTP GET to the official CDAWeb/NOAA endpoint, writes the raw response bytes unchanged to `data/raw/` (e.g., `ace_YYYYMMDD.cdf`), parses the needed columns, and raises `ConnectionError` on any network failure.  
 
-  **Verification** – Integration test `tests/integration/test_download_real.py` asserts that on successful download a raw file exists with matching SHA‑256 checksum and that parsing yields the three composition columns without NaNs. When the endpoint is unreachable the script must raise `ConnectionError` (checked by a mock‑failure test).
+  **Verification** – Integration test `tests/integration/test_download_real.py` asserts that on successful download a raw file exists with matching SHA‑256 checksum and that parsing yields the three composition columns without NaNs. When the endpoint is unreachable the script must raise `ConnectionError` (checked via a mock‑failure test).
 
-- [ ] T006 [US1] Implement the deterministic synthetic data generator that produces a 20‑year hourly dataset conforming to `SolarWindGeomagneticDataset` schema.  
+- [ ] T006 [US1] Implement a deterministic synthetic data generator that produces a 20‑year hourly dataset conforming to the `SolarWindGeomagneticDataset` schema.  
 
   **File**: `code/ingestion/generate_synthetic_data.py`  
 
-  *Key points* – uses `np.random.default_rng(SEED)`, stores generation parameters in `data/raw/synthetic_config.yaml`, writes `data/processed/synthetic_aligned.parquet`. All required columns are present, contain no NaNs, and respect realistic physical ranges (e.g., velocity 300‑800 km s⁻¹).  
+  *Key points* – uses `np.random.default_rng(SEED)`, stores generation parameters in `data/raw/synthetic_config.yaml`, writes `data/processed/synthetic_aligned.parquet`. All required columns are present, contain no NaNs, and respect realistic physical ranges (e.g., velocity 300‑800 km s⁻¹).  
 
   **Verification** – After execution, `tests/unit/test_synthetic.py` loads the parquet file, runs a schema validation against `contracts/dataset.schema.yaml`, and confirms the row count ≈ 175 k (20 yr × 8760 h) and absence of missing values.
 
@@ -90,8 +98,6 @@
 - [ ] T021 [US1] Generate an alignment verification report (`data/artifacts/alignment_report.json`) summarizing the maximum temporal offset, any > 6 h gaps, and confirming the ≤ 30 min constraint is satisfied.  
 
   **Verification** – Unit test asserts the JSON contains fields `max_offset_minutes` (≤ 30) and `gap_hours` (list, each ≤ 6).
-
----
 
 ## Phase 3 – Feature engineering & regression (User Story 2, **P2**)  
 
@@ -125,8 +131,6 @@
 
   **Verification** – Test confirms the JSON contains `ci_lower`, `ci_upper`, and that `ci_lower < delta_r2 < ci_upper`.
 
----
-
 ## Phase 4 – Significance testing & sensitivity (User Story 3, **P3**)  
 
 - [ ] T017 [US3] Run baseline and full regressions specifically for the permutation‑test stage, persisting the fitted model objects.  
@@ -158,8 +162,6 @@
 - [ ] T020 [US3] Summarize stability of significance findings across the three thresholds, producing `data/artifacts/threshold_stability.csv` with columns `threshold, num_significant_predictors`.  
 
   **Verification** – Test confirms three rows (one per threshold) and that the counts are non‑negative integers.
-
----
 
 ## Phase 5 – Orchestration, reporting & documentation  
 
@@ -200,9 +202,7 @@
 
   **Verification** – Dedicated integration test `tests/integration/test_e2e.py` runs `code/main.py` and asserts existence, schema, and logical consistency of each file (e.g., `delta_r2` equals `full_r2 - baseline_r2`; CI bounds contain `delta_r2`).
 
----
-
-### Dependency & execution order summary  
+## Dependency & execution order summary  
 
 | Task | Depends on |
 |------|------------|
@@ -220,7 +220,7 @@
 | T012 | T011 |
 | T020 | T012 |
 | T013 | T005–T012, T018, T019, T020 |
-| T014 | – (documentation can be written any time after T013) |
+| T014 | – (can be written after T013) |
 | T015 | T013 (full pipeline) |
 
-All tasks now satisfy every functional requirement (FR‑001 → FR‑011), address all success criteria (SC‑001 → SC‑004), respect the Constitution (e.g., raw synthetic files are preserved, no fabricated data), and provide independently shippable units for each user story. Unchecked boxes indicate work that remains to be implemented; once a verification test passes the CI system will mark the task as completed.
+All tasks now satisfy every functional requirement (FR‑001 → FR‑011), address all success criteria (SC‑001 → SC‑004), respect the Constitution (raw synthetic files are preserved, no fabricated data), and provide independently shippable units for each user story. Unchecked boxes indicate work that remains to be implemented; once a verification test passes the CI system will automatically mark the task as completed.
