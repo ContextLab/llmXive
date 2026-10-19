@@ -11,7 +11,7 @@ The tasks below cover every functional requirement (FR‑001 – FR‑012), 
 | Goal | Run a minimal pipeline that produces a validated feature matrix from real Materials Project data. |
 |------|---------------------------------------------------------------------------------------------------|
 
-- [X] **T001** [US‑1] Create a `quickstart.md` that documents the single command to run the full pipeline (`python -m src.pipeline.run`).  
+- [ ] **T001** [US‑1] Create a `quickstart.md` that documents the single command to run the full pipeline (`python -m src.pipeline.run`).  
   *File:* `quickstart.md`  
   *Verification:* The command executes on a fresh GitHub Actions runner, prints “Pipeline completed successfully”, and the CI test `src/tests/test_quickstart.py` asserts the success message (fulfills FR‑010 and SC‑004).  
 
@@ -34,11 +34,11 @@ The tasks below cover every functional requirement (FR‑001 – FR‑012), 
   – Raises `ValueError` if rows < 50 (FR‑009).  
   – Emits a warning if rows < 500 but continues, logging the achieved statistical power (SC‑005).  
 
-- [ ] **T013** [FR‑006] After featurization, run `src/utils/check_descriptor_gaps.py` to scan the feature matrix for any missing descriptor columns (e.g., absent radius or electronegativity values) and log each gap with row identifiers.  
+- [X] **T013** [FR‑006] After featurization, run `src/utils/check_descriptor_gaps.py` to scan the feature matrix for any missing descriptor columns (e.g., absent radius or electronegativity values) and log each gap with row identifiers.  
   *File:* `src/utils/check_descriptor_gaps.py` → appends a “descriptor_gaps.log” in `data/processed/`.  
   *Verification:* The log is created and the CI test asserts that if any gaps are found the pipeline aborts with a clear message, satisfying FR‑006.  
 
-- [ ] **T015** [Constitution‑III] Compute SHA‑256 checksums for `data/raw/materials_defects.csv` immediately after download and write them to `data/checksums/raw_defects.sha256`.  
+- [X] **T015** [Constitution‑III] Compute SHA‑256 checksums for `data/raw/materials_defects.csv` immediately after download and write them to `data/checksums/raw_defects.sha256`.  
   *File:* `src/utils/checksum.py` (invoked by the pipeline).  
   *Verification:* CI test confirms the checksum file exists and matches the file content.  
 
@@ -59,11 +59,11 @@ The tasks below cover every functional requirement (FR‑001 – FR‑012), 
   – The script runs on CPU‑only runners (no CUDA import).  
   – `cv_metrics.json` conforms to `contracts/model_performance.schema.yaml` (FR‑003).  
 
-- [ ] **T006** [US‑2] Create a deterministic 80/20 **train‑test split** (`src/models/split.py`) that respects GroupKFold groups (no overlap).  
+- [~] **T006** [US‑2] Create a deterministic 80/20 **train‑test split** (`src/models/split.py`) that respects GroupKFold groups (no overlap).  
   *File:* `src/models/split.py` → outputs `data/processed/train.csv` and `data/processed/test.csv`.  
   *Verification:* The split logs the number of samples in each set and confirms zero intersection with CV groups (FR‑011).  
 
-- [ ] **T007** [US‑3] Implement `src/models/evaluate.py` to:  
+- [ ] **T007** [US‑3] Implement `src/models/evaluate.py` to:   <!-- FAILED-IN-EXECUTION: src/models/evaluate.py exit=1 -->
   1. Load the best model (lowest mean CV RMSE).  
   2. Predict on `test.csv`.  
   3. Compute RMSE, MAE, R².  

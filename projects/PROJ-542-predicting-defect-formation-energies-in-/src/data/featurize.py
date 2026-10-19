@@ -27,6 +27,9 @@ from pymatgen.core import Composition, Element
 
 from llmxive_toolkit import get_logger, paths
 
+# Import the download routine so we can auto‑fetch the raw data if needed.
+from src.data.download import main as _download_main
+
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
@@ -47,7 +50,9 @@ def _parse_sites(composition: str) -> dict:
     # Non‑oxygen elements are the A and B sites
     cations = [el for el in comp.elements if el != oxygen]
     if len(cations) != 2:
-        raise ValueError(f"Expected exactly two cation elements in {composition}, got {cations}")
+        raise ValueError(
+            f"Expected exactly two cation elements in {composition}, got {cations}"
+        )
 
     # Deterministic ordering: alphabetical by symbol
     a_elem, b_elem = sorted(cations, key=lambda e: e.symbol)
@@ -133,10 +138,14 @@ def compute_features(input_csv: Path, output_csv: Path) -> None:
             feature_rows.append(feats)
         except Exception as exc:
             excluded += 1
-            log.debug(f"Excluding row {row.get('composition', '<unknown>')}: {exc}")
+            log.debug(
+                f"Excluding row {row.get('composition', '<unknown>')}: {exc}"
+            )
 
     if excluded:
-        log.info(f"Excluded {excluded} rows due to undeterminable oxidation states (FR‑008).")
+        log.info(
+            f"Excluded {excluded} rows due to undeterminable oxidation states (FR‑008)."
+        )
 
     if not feature_rows:
         raise RuntimeError("All rows were excluded; no features to write.")
@@ -145,13 +154,21 @@ def compute_features(input_csv: Path, output_csv: Path) -> None:
 
     # Ensure no missing values in the target column
     if features_df["formation_energy"].isna().any():
-        raise RuntimeError("Missing values detected in the target 'formation_energy' column (FR‑002).")
+        raise RuntimeError(
+            "Missing values detected in the target 'formation_energy' column (FR‑002)."
+        )
 
     # Write CSV – the ``paths`` helper creates the parent directory if needed
-    output_path = paths.path(output_csv) if isinstance(output_csv, (str, Path)) else output_csv
+    output_path = (
+        paths.path(output_csv)
+        if isinstance(output_csv, (str, Path))
+        else output_csv
+    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     features_df.to_csv(output_path, index=False)
-    log.info(f"Wrote feature matrix with {len(features_df)} rows to {output_path}")
+    log.info(
+        f"Wrote feature matrix with {len(features_df)} rows to {output_path}"
+    )
 
 # ----------------------------------------------------------------------
 # CLI entry point
@@ -174,9 +191,24 @@ def main() -> None:
     input_path = Path(args.input_csv)
     output_path = Path(args.output_csv)
 
+    # If the input file does not exist, attempt to download it automatically.
     if not input_path.is_file():
-        log.error(f"Input file not found: {input_path}")
-        sys.exit(1)
+        log.info(
+            f"Input file {input_path} not found – attempting to download raw dataset."
+        )
+        try:
+            _download_main()
+        except Exception as exc:
+            log.error(
+                f"Automatic download failed: {exc}. Ensure the raw CSV exists at {input_path}."
+            )
+            sys.exit(1)
+        # Re‑check after download
+        if not input_path.is_file():
+            log.error(
+                f"After download, input file still missing: {input_path}. Aborting."
+            )
+            sys.exit(1)
 
     compute_features(input_path, output_path)
 

@@ -1,6 +1,8 @@
-# Project dependencies
-mp-api>=0.38.0
-pymatgen>=2024.6.10
-# The base environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil.  No additional pins are required.
+# Existing dependencies are provided by the base environment.
+# Adding any new third‑party packages required for this task.
+# statsmodels is already available in the base environment, but we
+# explicitly pin it for reproducibility.
+statsmodels>=0.14.0
+mp-api>=0.41.0
+pymatgen>=2024.5.1
+# NOTE: No additional packages beyond the base environment are required.

@@ -1,23 +1,61 @@
 T001:
-  c: true
-  h: b3a35e894039ee14255bd31c41c1b00d0c478b339af4f55ae8fef30e551db2d9
-  r: '`quickstart.md` exists (2114 bytes) and documents the single command `python
-    -m src.pipeline.run` with the expected "Pipeline completed successfully" output,
-    and `src/tests/test_quickstart.py` asserts that message via a real subprocess
-    run; the historical execution log shows the test passed (exit 0, 1 passed). Minor
-    cosmetic typos in the venv setup lines (missing spaces in `python -m venv.venv`)
-    don''t affect the task''s core requirement of documenting the pipeline command
-    and its CI-verifiable success message.'
-  sig: 320b1ea2bf3c42318e5bdd27f0af6ff2e91ae1f3ec3dc1c79f3253367d715660
-T002:
   c: false
-  h: 0446f87f658ee4474cecb0a0169c5c89b368aa4163091bd9fb1efdaebad4804c
-  r: "The required output `data/raw/materials_defects.csv` does not exist, and the\
-    \ only execution record is the missing-key path (exit 0), so there is no evidence\
-    \ of a successful download, schema validation, or the \u2265500-row requirement.\
-    \ Additionally, the script violates FR-007's missing-key requirement by exiting\
-    \ cleanly with code 0 instead of aborting with an error, and it queries a fabricated\
-    \ Materials Project endpoint (`/rest/v2/defects/query` with `X-API-KEY` header)\
-    \ that does not exist in the real MP API, so even a run with a valid key would\
-    \ fail."
-  sig: 5b2433cb59735eb52572fe0ab8fc02ff3d0220f4c211d311d127986153d7e1ba
+  h: 6b7b4d4b7efa939778f6ad7a40c2c1f35bcebcb92ec53f8b92200369e0e27fb6
+  r: "`quickstart.md` and `src/tests/test_quickstart.py` exist and contain the required\
+    \ command and success-message assertion, but there is no evidence that `src/pipeline/run`\
+    \ actually exists or executes \u2014 no pipeline module artifact, no run log,\
+    \ and no CI output showing \"Pipeline completed successfully\" or a passing test.\
+    \ The verification criteria (command executes on a fresh runner, prints the success\
+    \ message, test passes) are unmet; additionally, the quickstart's setup command\
+    \ `python -m venv.venv` is malformed (missing space), and the underlying data\
+    \ files are 3-row samples, not the \u2265500-row dat"
+  sig: 3feda4655bf145731173de5eea955e1fa93ed7d873b476a34689758369ff0580
+T004:
+  c: false
+  h: 3fb7ab1b9474e8c0f27fd718871b8268e6dfceed82ec0f4200834053ebd66dc1
+  r: The script `src/data/validate.py` exists and correctly implements the FR-009/SC-005
+    logic (ValueError below 50 rows, warning plus TTestPower power calculation below
+    500 rows), but the required output artifact `data/processed/validation.log` is
+    MISSING, so there is no evidence the validation step was ever executed or that
+    the power analysis actually ran. The implementer should run the script (with a
+    valid `data/processed/features.csv`) to produce the log.
+  sig: 3938751da1ed3122ca0bf5e89e7862d4e59309fa03d87bad7894ed7fb22ca571
+T005:
+  c: false
+  h: 2cc181ae06aacab43804e5fa583d28251d818ed9cd92115193428ea8664e8ed8
+  r: "The required outputs `models/rf_cv.pkl`, `models/gb_cv.pkl`, and `data/processed/cv_metrics.json`\
+    \ are all MISSING \u2014 the script was never executed, so there is no evidence\
+    \ the CV ran or produced metrics. Additionally, the script has a runtime bug (`List`\
+    \ used in `_aggregate_metrics` without being imported, causing a `NameError`),\
+    \ and the JSON it would write (`{\"cv_metrics\": ...}` only) violates `contracts/model_performance.schema.yaml`,\
+    \ which requires `test_metrics`, `bootstrap_ci`, `paired_ttest`, and `feature_importances`\
+    \ at the top level with `additionalProperties: false`."
+  sig: 5910275e5e9c487f457ba3cce570e6aca129d435e44fdd1194b674f1896cf3cd
+T013:
+  c: true
+  h: fac572187ff2754c93e34f42e85d63352dfffa2542b34940f70396e3646771e0
+  r: The script `src/utils/check_descriptor_gaps.py` exists with a full implementation
+    that scans all 12 descriptor columns, logs each gap with row identifiers (composition
+    or row index) to `data/processed/descriptor_gaps.log`, and raises a RuntimeError
+    to abort the pipeline when gaps are found, satisfying FR-006. The log file exists
+    in `data/processed/`, and the CI test run (`src/tests/test_descriptor_gaps.py`)
+    passed both the no-missing and with-missing cases, confirming the abort behavior
+    is actually tested.
+  sig: 0d45ebb7696202619435928c770f9205fdce4c6a2bcf1f1ff1a6264391b38bd2
+T015:
+  c: true
+  h: 32d2cd3249a18a796fb0315d167a4e88d38f366b10304f5c63cb4080198a560a
+  r: The checksum file `data/checksums/raw_defects.sha256` exists and contains `3579d79c...ead8f7`,
+    which exactly matches the collector-computed SHA-256 of `data/raw/materials_defects.csv`,
+    and `src/utils/checksum.py` is a real, functional implementation (chunked hashlib.sha256,
+    writes digest, CLI entry point) rather than a stub.
+  sig: bd15f8a6232cd9414bf8e2394cd6c321478407e39d362d4810edcb0a8a6f22b4
+T016:
+  c: false
+  h: 9ce1d2b82789dbcbf6ad836f951a4641c15ffab6b62743da944435aa30639a3e
+  r: "The required output `data/checksums/features.sha256` is MISSING \u2014 the utility\
+    \ script `src/utils/checksum.py` exists and looks functional, but it was never\
+    \ invoked (second invocation) to actually write the checksum file. The implementer\
+    \ must run the checksum utility on `data/processed/features.csv` and write the\
+    \ digest to `data/checksums/features.sha256` so the CI test can verify it matches."
+  sig: e2a3103be2998f3ce8c50a7ce150b7d3cbb137c9828825380e7fb6296ae7e782
