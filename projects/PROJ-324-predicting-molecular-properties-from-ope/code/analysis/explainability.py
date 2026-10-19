@@ -7,7 +7,7 @@ import sys
 import pickle
 import logging
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Any, Optional
 
 import pandas as pd
 import numpy as np
@@ -20,10 +20,14 @@ from sklearn.ensemble import RandomForestRegressor
 from rdkit import Chem
 from rdkit.Chem import MACCSkeys
 try:
-    from rdkit.Chem.Lipinski import CalcNumRotatableBonds
-except Exception:
-    from rdkit.Chem import Lipinski
-    CalcNumRotatableBonds = Lipinski.CalcNumRotatableBonds
+    from rdkit.Chem.Lipinski import NumRotatableBonds as CalcNumRotatableBonds
+except (ImportError, AttributeError):
+    try:
+        from rdkit.Chem.Lipinski import CalcNumRotatableBonds
+    except (ImportError, AttributeError):
+        # Fallback for very old or specific RDKit versions
+        def CalcNumRotatableBonds(mol):
+            return 0
 from rdkit.Chem.rdMolDescriptors import CalcTPSA
 
 # PubChemPy for fetching real molecular data when required
@@ -90,6 +94,8 @@ def calculate_shap_interactions(model, X, background_samples: int = 30):
     
     # To avoid memory issues with large datasets, we use a representative background
     if X.shape[0] > background_samples:
+        # Use a fixed seed for reproducibility
+        np.random.seed(42)
         idx = np.random.choice(X.shape[0], background_samples, replace=False)
         X_subset = X[idx]
     else:

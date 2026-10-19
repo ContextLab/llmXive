@@ -1,27 +1,13 @@
-status: verified
-kind: pypi_package
-ref: PubChemPy
-access_python: "import pubchempy as pcp\n\ncids = [2244, 3672, 5280]  # aspirin, caffeine,\
-  \ glucose\ncompounds = pcp.get_compounds(cids, namespace='cid')\n\nrecords = []\n\
-  for comp in compounds:\n    rec = {\n        'CompoundID': comp.cid,\n        'SMILES':\
-  \ getattr(comp, 'isomeric_smiles', None),\n        'MolecularWeight': getattr(comp,\
-  \ 'molecular_weight', None),\n        'LogP': getattr(comp, 'xlogp', None)\n   \
-  \ }\n    records.append(rec)\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=CompoundID,SMILES,MolecularWeight,LogP\"\
-  )"
-record_count: 3
-sample_fields:
-- CompoundID
-- SMILES
-- MolecularWeight
-- LogP
-field_coverage: 0.667
+status: none
+intent: pubchem download smiles experimental properties python package dataset
 required_fields:
-- CompoundID
-- SMILES
-- MolecularWeight
-- LogP
-- Solubility
-- ExperimentalPropertyFlag
-intent: download PubChem compound SMILES and properties via pubchempy python package
-  dataset
-cache_key: a7ebc18eace878bae7b555cec4f5f337026430ea35d61b18944e4024854a98a7
+- cid
+- smiles
+- molecular_weight
+- logP
+- hydrogen_bond_donors
+- hydrogen_bond_acceptors
+- experimental_flag
+cache_key: 19c6c00206ba88c35edb39dd58459125c0104c958ec23420e0c3e006796c9eea
+searched_at: '2026-10-19T18:14:43.870508+00:00'
+retry_count: 1

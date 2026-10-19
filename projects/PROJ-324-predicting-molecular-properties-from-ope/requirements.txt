@@ -1,12 +1,8 @@
 pubchempy
 rdkit
-scikit-learn
 shap
+scikit-learn
 pandas
 numpy
 matplotlib
-seaborn
 pyyaml
-requests
-jsonschema
-psutil

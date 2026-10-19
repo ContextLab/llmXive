@@ -2,60 +2,30 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis/validation_audit.py; 8 command(s) failed: python code/data/download.py (rc=1); python code/data/preprocess.py (rc=1); python code/data/fingerprint.py (rc=1); 9 declared deliverable(s) absent: data/derived/conformational_limitations.csv; data/derived/data_quality_report.csv; data/derived/deviation_contexts.csv
+**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis/validation_audit.py; 7 command(s) failed: python code/data/download.py (rc=1); python code/data/preprocess.py (rc=1); python code/data/fingerprint.py (rc=1); 9 declared deliverable(s) absent: data/derived/conformational_limitations.csv; data/derived/data_quality_report.csv; data/derived/deviation_contexts.csv
 
 ## Failing / missing run-book commands
 
 - python code/data/download.py -> rc=1
-'water_solubility'
-2026-10-19 17:16:57,976 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1955: 'Compound' object has no attribute 'boiling_point'
-2026-10-19 17:16:57,976 - __main__ - WARNING - Failed to fetch RecordType for CID 1955: 'Compound' object has no attribute 'record_type'
-2026-10-19 17:16:57,976 - __main__ - ERROR - Failed to fetch data for CID 1955: 'Compound' object has no attribute 'record_type'
-2026-10-19 17:16:58,179 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1964: 'Compound' object has no attribute 'water_solubility'
-2026-10-19 17:16:58,179 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1964: 'Compound' object has no attribute 'boiling_point'
-2026-10-19 17:16:58,179 - __main__ - WARNING - Failed to fetch RecordType for CID 1964: 'Compound' object has no attribute 'record_type'
-2026-10-19 17:16:58,179 - __main__ - ERROR - Failed to fetch data for CID 1964: 'Compound' object has no attribute 'record_type'
-2026-10-19 17:16:58,274 - __main__ - ERROR - Failed to fetch data for CID 1973: PubChem HTTP Error 502 Bad Gateway
-2026-10-19 17:16:58,275 - __main__ - ERROR - No data fetched. Check CID list and PubChemPy connectivity.
+:13:38,110 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1964: 'Compound' object has no attribute 'water_solubility'
+2026-10-19 18:13:38,110 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1964: 'Compound' object has no attribute 'boiling_point'
+2026-10-19 18:13:38,110 - __main__ - WARNING - Failed to fetch RecordType for CID 1964: 'Compound' object has no attribute 'record_type'
+2026-10-19 18:13:38,110 - __main__ - ERROR - Failed to fetch data for CID 1964: 'Compound' object has no attribute 'record_type'
+2026-10-19 18:13:38,402 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1973: 'Compound' object has no attribute 'water_solubility'
+2026-10-19 18:13:38,402 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1973: 'Compound' object has no attribute 'boiling_point'
+2026-10-19 18:13:38,402 - __main__ - WARNING - Failed to fetch RecordType for CID 1973: 'Compound' object has no attribute 'record_type'
+2026-10-19 18:13:38,402 - __main__ - ERROR - Failed to fetch data for CID 1973: 'Compound' object has no attribute 'record_type'
+2026-10-19 18:13:38,403 - __main__ - ERROR - No data fetched. Check CID list and PubChemPy connectivity.
 
 - python code/data/preprocess.py -> rc=1
-pe/lib/python3.11/site-packages/rdkit/Chem/AllChem.py", line 33, in <module>
-    from rdkit.Chem.rdReducedGraphs import *
-AttributeError: _ARRAY_API not found
 
-A module that was compiled using NumPy 1.x cannot be run in
-NumPy 2.2.6 as it may crash. To support both 1.x and 2.x
-versions of NumPy, modules must be compiled with NumPy 2.0.
-Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
-
-If you are a user of the module, the easiest solution will be to
-downgrade to 'numpy<2' or try to upgrade the affected module.
-We expect that some modules will need time to support NumPy 2.
-
-Traceback (most recent call last):  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/data/preprocess.py", line 9, in <module>
-    from rdkit.Chem import AllChem, DataStructs
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-324-predicting-molecular-properties-from-ope/lib/python3.11/site-packages/rdkit/Chem/AllChem.py", line 34, in <module>
-    from rdkit.Chem.rdShapeHelpers import *
-AttributeError: _ARRAY_API not found
-2026-10-19 17:16:58,630 - __main__ - ERROR - Raw data file not found: data/raw/pubchem_raw.csv. Run T008 first.
+2026-10-19 18:13:38,874 - __main__ - ERROR - Raw data file not found: data/raw/pubchem_raw.csv. Run T008 first.
 
 - python code/data/fingerprint.py -> rc=1
->=2.12'.
 
-If you are a user of the module, the easiest solution will be to
-downgrade to 'numpy<2' or try to upgrade the affected module.
-We expect that some modules will need time to support NumPy 2.
-
-Traceback (most recent call last):  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/data/fingerprint.py", line 18, in <module>
-    from data.preprocess import ensure_dirs as ensure_data_dirs
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/data/preprocess.py", line 9, in <module>
-    from rdkit.Chem import AllChem, DataStructs
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-324-predicting-molecular-properties-from-ope/lib/python3.11/site-packages/rdkit/Chem/AllChem.py", line 34, in <module>
-    from rdkit.Chem.rdShapeHelpers import *
-AttributeError: _ARRAY_API not found
-2026-10-19 17:16:59,330 - __main__ - INFO - Ensured output directories: [PosixPath('data/processed'), PosixPath('data/derived')]
-2026-10-19 17:16:59,372 - __main__ - ERROR - Open Babel returned error code: 1
-2026-10-19 17:16:59,372 - __main__ - ERROR - Open Babel not available. Cannot proceed.
+2026-10-19 18:13:39,820 - __main__ - INFO - Ensured output directories: [PosixPath('data/processed'), PosixPath('data/derived')]
+2026-10-19 18:13:39,821 - __main__ - ERROR - Open Babel (obabel) not found in PATH. Please install it.
+2026-10-19 18:13:39,821 - __main__ - ERROR - Open Babel not available. Cannot proceed.
 
 - python code/models/baseline.py -> rc=1
 ope/code/models/baseline.py", line 87, in process_dataset
@@ -88,33 +58,18 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'data.preprocess'
 
 - python code/analysis/stats.py -> rc=1
-2026-10-19 17:17:01,399 - stats - INFO - Generating Experimental Validation Protocol (T058)...
+2026-10-19 18:13:42,203 - stats - INFO - Generating Experimental Validation Protocol (T058)...
 ERROR: Metadata file not found at data/raw/dataset_metadata.json. Run T031 first.
 
-
-- python code/analysis/explainability.py -> rc=1
-llmxive-venvs/PROJ-324-predicting-molecular-properties-from-ope/lib/python3.11/site-packages/rdkit/Chem/__init__.py", line 24, in <module>
-    from rdkit.Chem.rdmolops import *
-AttributeError: _ARRAY_API not found
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/analysis/explainability.py", line 23, in <module>
-    from rdkit.Chem.Lipinski import CalcNumRotatableBonds
-ImportError: cannot import name 'CalcNumRotatableBonds' from 'rdkit.Chem.Lipinski' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-324-predicting-molecular-properties-from-ope/lib/python3.11/site-packages/rdkit/Chem/Lipinski.py)
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/analysis/explainability.py", line 26, in <module>
-    CalcNumRotatableBonds = Lipinski.CalcNumRotatableBonds
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: module 'rdkit.Chem.Lipinski' has no attribute 'CalcNumRotatableBonds'. Did you mean: 'NumRotatableBonds'?
 
 - python code/analysis/validation_audit.py -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-324-predicting-molecular-properties-from-ope/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/analysis/validation_audit.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/ -> rc=2
-rn.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+e-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45
@@ -125,15 +80,12 @@ rn.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cach
 =========================== short test summary info ============================
 ERROR tests/contract/test_fingerprint_generation.py
 ERROR tests/unit/test_baseline.py
-ERROR tests/unit/test_bit_mapping.py - AttributeError: module 'rdkit.Chem.Lip...
-ERROR tests/unit/test_conformational_limits.py - AttributeError: module 'rdki...
 ERROR tests/unit/test_fingerprint_generation.py
 ERROR tests/unit/test_lint_config.py
 ERROR tests/unit/test_lint_format.py
 ERROR tests/unit/test_linting_config.py
-ERROR tests/unit/test_shap_interactions.py - AttributeError: module 'rdkit.Ch...
-!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 14 warnings, 9 errors in 1.02s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 14 warnings, 6 errors in 1.48s ========================
 
 
 
@@ -148,36 +100,6 @@ ERROR tests/unit/test_shap_interactions.py - AttributeError: module 'rdkit.Ch...
 - data/processed/test_fingerprints.csv
 - data/raw/dataset_metadata.json
 - data/raw/pubchem_raw.csv
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `PubChemPy` to the project's `requirements.txt` and `pip install PubChemPy`.
-- **Verified**: this loads **3** real records with fields: CompoundID, SMILES, MolecularWeight, LogP.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import pubchempy as pcp
-
-cids = [2244, 3672, 5280]  # aspirin, caffeine, glucose
-compounds = pcp.get_compounds(cids, namespace='cid')
-
-records = []
-for comp in compounds:
-    rec = {
-        'CompoundID': comp.cid,
-        'SMILES': getattr(comp, 'isomeric_smiles', None),
-        'MolecularWeight': getattr(comp, 'molecular_weight', None),
-        'LogP': getattr(comp, 'xlogp', None)
-    }
-    records.append(rec)
-
-print(f"RECORDS={len(records)}")
-print("FIELDS=CompoundID,SMILES,MolecularWeight,LogP")
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

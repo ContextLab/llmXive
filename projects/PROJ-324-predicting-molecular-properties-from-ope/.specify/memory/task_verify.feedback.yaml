@@ -1,4 +1,12 @@
 T101:
+  reason: "The code, CSV, PNG, and test all exist with the right schema, but the underlying\
+    \ `baseline_test_predictions.csv` is degenerate/fabricated: `predicted_value`\
+    \ exactly equals `experimental_value` for every logP row, and solubility/boiling_point\
+    \ are all 0.0 for both columns \u2014 so the resulting `baseline_metrics.csv`\
+    \ reports MAE=RMSE=0.0 for all three properties, which is a meaningless placeholder\
+    \ rather than a genuine baseline evaluation (FR-005 baseline side). Additionally,\
+    \ `tests/unit/test_baseline_metrics.py` skips entirely if the predictions file\
+    \ is absent and ignores its `tmp_path`/`monkeypatc"
   task: 96c7a9a7e03f451d8b5b6e8c36c6cf8f3516b86589a5477a9ecd2c323c3bfb40
 T102:
   reason: 'Requested task execution failed; rerun successfully: code/analysis/explainability.py
