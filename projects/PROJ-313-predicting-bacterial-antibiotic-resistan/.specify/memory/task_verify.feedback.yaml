@@ -3,6 +3,8 @@ T001:
     exit=1'
   task: 763496f65e5a68309c7c6f33ee5957f03c94b21b21f0ca5e70d71840069c592c
 T002:
+  reason: 'Requested task execution failed; rerun successfully: src/pipeline/extract_baseline.py
+    exit=1'
   task: e0b9ceb6fb27868f248f7565cd7aa6d48cca719d08b27b26f9c358b5bad1a396
 T003:
   task: fbb0e8973f4840819e9ebdd998ea5cf958ed97c10877e9861064baf1adb7ae51

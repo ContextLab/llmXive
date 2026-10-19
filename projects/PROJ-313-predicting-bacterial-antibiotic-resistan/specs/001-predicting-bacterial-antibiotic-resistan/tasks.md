@@ -10,7 +10,7 @@
   *Creates* `data/raw/ncbi_parquet/*.parquet` and `data/raw/assemblies/*.fasta`.  
   *Verification*: `src/pipeline/download.py` exits with status 0, logs sample‑size table `data/processed/sample_sizes.csv`, and records any download/API warnings (FR‑008).  
 
-- [ ] **T002** [P] [FR‑002] Query the CARD API for each isolate, build a binary ARG‑presence matrix, and save as `data/processed/arg_matrix.csv`.  
+- [ ] **T002** [P] [FR‑002] Query the CARD API for each isolate, build a binary ARG‑presence matrix, and save as `data/processed/arg_matrix.csv`.   <!-- FAILED-IN-EXECUTION: src/pipeline/extract_baseline.py exit=1 -->
   *Creates* `data/processed/arg_matrix.csv`.  
   *Verification*: Row count matches isolates in `sample_sizes.csv`; a checksum column is added; schema validated by `tests/contract/test_arg_matrix_schema.py`.  
 

@@ -30,8 +30,10 @@ from llmxive_toolkit import paths, get_logger
 # Configuration
 # ----------------------------------------------------------------------
 TARGET_SPECIES = {"Escherichia coli", "Staphylococcus aureus"}
-# Limit isolates per species to keep runtime & memory modest (adjust as needed)
-MAX_ISOLATES_PER_SPECIES = 200
+# Keep the run lightweight for the CI test – download only a couple of
+# isolates per species.  The scientific pipeline can later increase this
+# limit via `src/pipeline/config.py` if needed.
+MAX_ISOLATES_PER_SPECIES = 2
 # NCBI FTP base URL for assemblies
 NCBI_FTP_BASE = "https://ftp.ncbi.nlm.nih.gov/genomes/all"
 

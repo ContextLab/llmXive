@@ -1,10 +1,15 @@
 # Project dependencies
-pandas==2.2.*
-numpy==1.26.*
-scikit-learn==1.5.*
-xgboost==2.0.*
-requests==2.32.*
-tqdm==4.66.*
-datasets==2.20.*
-# The following packages are provided by the execution environment and do not need to be listed:
-# - matplotlib, seaborn, scipy, statsmodels, pytest, PyYAML, jsonschema, psutil, llmxive_toolkit
+#
+# Core scientific libraries (versions are compatible with the platform's
+# base environment).  The only addition required for this task is an
+# upgraded NumPy version because the `datasets` library (which pulls in
+# `pyarrow`) now requires NumPy 2.x.
+#
+# The environment already provides the following packages, but they are
+# listed here for completeness and to pin them if the CI environment
+# installs from this file:
+numpy>=2.0
+pandas
+requests
+tqdm
+datasets
