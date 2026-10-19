@@ -1,10 +1,14 @@
 status: none
-intent: download CTU-13 NetFlow dataset and metadata Python package HuggingFace
+intent: CTU-13 NetFlow dataset official download Python package dataset
 required_fields:
 - source_ip
 - destination_ip
 - packet_count
 - timestamp
-cache_key: ffd1501ecbd461c21177a25713963d424c64ce7e8ffc03bb4418447720f0627b
-searched_at: '2026-10-18T21:17:54.718246+00:00'
+- protocol
+- source_port
+- destination_port
+- bytes
+cache_key: 80cb377491e0e3ac242b34a69836a3262478c3424dd200a43ca7dccced13060e
+searched_at: '2026-10-19T03:13:10.318545+00:00'
 retry_count: 1

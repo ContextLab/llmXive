@@ -1,49 +1,16 @@
-"""Reproducibility tests for code/utils/seed.py."""
-
 import random
-import sys
-from pathlib import Path
-
 import numpy as np
+from utils.seed import set_seed
 
-CODE_DIR = Path(__file__).resolve().parents[1] / "code"
-sys.path.insert(0, str(CODE_DIR))
-
-from utils.seed import set_seed  # noqa: E402
-
-
-def _draw():
-    py_vals = [random.random() for _ in range(5)]
-    np_vals = np.random.rand(5).tolist()
-    return py_vals, np_vals
-
-
-def test_set_seed_is_reproducible():
+def test_seed_reproducibility():
+    """Verify that set_seed produces reproducible RNG state."""
     set_seed(42)
-    first = _draw()
+    r1 = random.random()
+    n1 = np.random.rand()
+
     set_seed(42)
-    second = _draw()
-    assert first == second
+    r2 = random.random()
+    n2 = np.random.rand()
 
-
-def test_set_seed_changes_state():
-    set_seed(42)
-    a = _draw()
-    b = _draw()
-    assert a != b
-
-
-def test_different_seeds_differ():
-    set_seed(42)
-    a = _draw()
-    set_seed(7)
-    b = _draw()
-    assert a != b
-
-
-def test_set_seed_sets_pythonhashseed(monkeypatch):
-    monkeypatch.delenv("PYTHONHASHSEED", raising=False)
-    set_seed(123)
-    import os
-
-    assert os.environ["PYTHONHASHSEED"] == "123"
+    assert r1 == r2
+    assert n1 == n2

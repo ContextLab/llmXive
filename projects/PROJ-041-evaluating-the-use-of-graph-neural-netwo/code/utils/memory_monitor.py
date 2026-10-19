@@ -35,7 +35,7 @@ def run_with_limit(limit_gb: float, func: Callable[..., Any], *args, **kwargs) -
         The return value from *func* if the memory limit is not breached.
 
     Raises
-    ------
+    -------
     MemoryLimitError
         If the observed peak memory usage exceeds *limit_gb*.
     """
