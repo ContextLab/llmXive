@@ -1,15 +1,9 @@
 status: none
-intent: OpenML and HuggingFace binary classification missingness MCAR MNAR python
-  package dataset
+intent: OpenML wine quality Malawi HW4 classification MNAR datasets python package
+  dataset
 required_fields:
-- feature columns
-- target column (binary or continuous outcome)
-- missingness indicator column
-- missingness level (MCAR or MNAR)
-- dataset size (number of instances)
-- bin/category column if applicable
-- source URL or dataset ID
-- loader function or method name
-cache_key: 526e264f925d007e648c7c7c4611522e178b3a822eccd4d9d2bd8614482af0d6
-searched_at: '2026-10-14T21:25:19.902799+00:00'
+- target
+- features
+cache_key: 257716e4cf6465b9a111afdbb23eca547e130dac6f15c767fb003e19e42aa7d5
+searched_at: '2026-10-19T07:42:31.736199+00:00'
 retry_count: 1

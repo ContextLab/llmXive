@@ -1,3 +1,29 @@
+T001:
+  c: false
+  h: 64ceec3084e626cfe3240378f769eb0429574692517ba258bc65e5b228acd0f6
+  r: "The original utility scripts (`code/run_lint.py` and `code/run_quickstart_validation.py`)\
+    \ still exist as stub files that raise errors instead of being removed, and the\
+    \ required test `tests/unit/test_filesystem_hygiene.py` is missing; there is no\
+    \ evidence that `t*.py` experiment scripts were deleted or that `.gitignore` was\
+    \ updated. Consequently the filesystem\u2011hygiene task is not fully satisfied."
+  sig: 9055e1e379a69f9fa2203c41120ef316bb4119164bd4e8c77fba9ef36db0caf6
+T003:
+  c: false
+  h: 0c0caa7dc899b0acd95f2e2d7b266651a770fcfa7e8f26c2d71d700e7088e41d
+  r: "The required `sample_size_justification.md` exists and its content is under\
+    \ 150 words, but the verification test `tests/unit/test_sample_size_justification.py`\
+    \ is missing, so the task\u2019s automated check cannot be performed. The missing\
+    \ test file must be added for the task to be considered complete."
+  sig: ac3137408234258c6af6c542756677f9f19f0fcc718de93e2f38a23414a7ac1f
+T004:
+  c: false
+  h: e0934c56af3a1b75cc5a81a3867ed431c8adab2f3bd6a4d392b2d70df3a6ce93
+  r: "Checked `contracts/cleaned_metrics.schema.yaml` \u2013 it exists and contains\
+    \ the required fields plus the optional `cohens_d`, `r_squared`, and `effect_size_cv`.\
+    \ However the required verification file `tests/contract/test_cleaned_schema.py`\
+    \ is missing, so the schema is not being validated as the task specifies. The\
+    \ missing test must be added (or restored) for the task to be complete."
+  sig: f82f2917863f5e1217b65a110aed66ed6383da4e17c9fb563032e7e71d23f638
 T005:
   c: false
   h: 17a20cce7364aa3e9d876af372aa4d6dc63831c67c3993b5724bb4f69f867d62
@@ -5,49 +31,13 @@ T005:
     based `compute_file_checksum`. However, the required `state/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-.yaml`\
     \ file is missing, so the checksum cannot be recorded or verified as stipulated.\
     \ The missing YAML file must be added with the appropriate checksum entries."
-T030:
+T019:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or log output implementing the dataset\u2011size binning sensitivity\
-    \ analysis is provided, nor any evidence that warnings are logged when a bin contains\
-    \ fewer than one dataset. The required artifact (implementation that depends on\
-    \ baseline metrics and logs CONSTRAINT_VIOLATION warnings) is missing."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No comparison report artifact was supplied; there is no file, data structure,\
-    \ or documented output containing the required fields (baseline_metrics, cleaned_metrics,\
-    \ absolute_diff, relative_diff, sensitivity_analysis). Consequently the task\u2019\
-    s deliverable is missing."
-T1219:
-  c: false
-  h: 38ab8d367fa2ba6e4e34e89a7f0443ee56c6cb668c02c1472a79b6538cbadb61
-  r: "The repository lacks the required `contracts/cleaned_metrics.schema.yaml` file,\
-    \ so schema validation cannot be performed. Moreover, the provided excerpt of\
-    \ `code/reporting.py` does not include any implementation that consumes cleaning\u2011\
-    function metadata and writes `cleaned_metrics.json` with exactly the four specified\
-    \ numeric fields. Both the schema dependency and the core functionality are missing."
-T1220:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, diff, or audit output was provided showing that bootstrap calls were
-    changed to use `config.BOOTSTRAP_ITERATIONS` and that any fallback logic was removed.
-    Without these artifacts, we cannot confirm the required configuration update was
-    made. The implementer must supply the modified source files (or a diff) and evidence
-    (e.g., a static analysis report) that no fallback remains.
-T1223:
-  c: true
-  h: afab1c8943e47efad71adf5ae5d7a8594e3459e9d58f065327e4581e32103317
-  r: "The provided `code/data_loader.py` exists, is non\u2011empty, and contains logic\
-    \ that raises on download errors, logs checksum verification results, and explicitly\
-    \ avoids mock\u2011data fallbacks, satisfying the task\u2019s requirements (the\
-    \ alternative shell script is not needed)."
-T1227:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission provides only the task description and specification; there are
-    no actual pipeline outputs (e.g., `baseline_metrics.json`, `cleaned_metrics.json`,
-    `sensitivity_metrics.json`) nor validation logs to confirm they were generated,
-    conform to schemas, or contain the required fields such as `p_value_delta` and
-    `direction`. Without these artifacts, the claim that the full pipeline was executed
-    and verified cannot be substantiated.
+  h: 7f214ddfe7e74f20dfd320dd18f7a79e86b0c27d3315255050686b9b260cbc1c
+  r: "The repository contains `code/random_seeds.py` and it is imported in `code/main.py`,\
+    \ but the required unit test `tests/unit/test_random_seeds.py` is missing, so\
+    \ the claim that the seeds are correctly pinned and produce deterministic outputs\
+    \ cannot be verified. Additionally, the module does not demonstrate applying `random_state=42`\
+    \ to any scikit\u2011learn functions. The missing test (and lack of scikit\u2011\
+    learn usage) must be added/fixed for the task to be considered complete."
+  sig: 9df90a76d9f5f4dada472c7ffec66f6b58aa4dbf4f18c2978786db210a1e351e

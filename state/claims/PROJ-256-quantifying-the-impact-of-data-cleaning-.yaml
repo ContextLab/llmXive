@@ -63,7 +63,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-14T09:42:45Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -123,7 +123,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-14T09:43:56Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -409,7 +409,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-14T19:55:57Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 0
@@ -428,7 +428,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-14T19:57:16Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -535,7 +535,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-14T22:16:47Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -1453,7 +1453,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-15T00:03:26Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -3785,7 +3785,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-08T22:28:54Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -4090,7 +4090,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-08T22:44:29Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
@@ -4197,3 +4197,35 @@
   source_type: external
   status: verified
   updated_at: '2026-09-08T22:57:46Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/sample_size_justification.md
+  attempts: 1
+  canonical: "10-15 datasets give ~80% power to detect a medium effect (Cohen's d\u2248\
+    0.5) in effect\u2011size changes due to data cleaning"
+  claim_id: c_15a162c7
+  context: "Based on the meta\u2011analysis by Smith et\u202Fal., 2020 (\u201CThe\
+    \ Effect of Data\u2011Cleaning on Statistical Inference: A Systematic Review of\
+    \ 12 Empirical Studies\u201D), the authors demonstrated that using 10\u201315\
+    \ datasets provides approximately 80\u202F% power to detect a medium effect (Cohen\u2019\
+    s\u202Fd\u202F\u2248\u202F0.5) in changes to effect\u2011size estimates caused\
+    \ by typical cleaning operations."
+  evidence:
+    asserted: '2020.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Based on the meta\u2011analysis by Smith et\u202Fal., 2020 (\u201CThe\
+    \ Effect of Data\u2011Cleaning on Statistical Inference: A Systematic Review of\
+    \ 12 Empirical Studies\u201D), the authors demonstrated that using 10\u201315\
+    \ datasets provides approximately 80\u202F% power to detect a medium effect (Cohen\u2019\
+    s\u202Fd\u202F\u2248\u202F0.5) in changes to effect\u2011size estimates caused\
+    \ by typical cleaning operations."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-19T07:41:07Z'

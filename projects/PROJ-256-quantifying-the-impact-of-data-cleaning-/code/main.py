@@ -12,6 +12,9 @@ import sys
 import pandas as pd
 import numpy as np
 
+# Import the random seed module to ensure deterministic behaviour as early as possible.
+import random_seeds
+
 from config import get_config, reload_config
 from utils import setup_logging, pin_random_seed
 from data_loader import ensure_data_exists

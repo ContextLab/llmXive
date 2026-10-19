@@ -1,0 +1,65 @@
+T001:
+  reason: "The original utility scripts (`code/run_lint.py` and `code/run_quickstart_validation.py`)\
+    \ still exist as stub files that raise errors instead of being removed, and the\
+    \ required test `tests/unit/test_filesystem_hygiene.py` is missing; there is no\
+    \ evidence that `t*.py` experiment scripts were deleted or that `.gitignore` was\
+    \ updated. Consequently the filesystem\u2011hygiene task is not fully satisfied."
+  task: aa3130272e9e8c4dfe6d4d69af2f6c75e91fde332a4ef313c2536b57704a2d9c
+T002:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_power_analysis.py'
+  task: 35ddba82552914e7577d56269b35d3460006bf1405b3e4711f5c84672b3dd161
+T003:
+  reason: "The required `sample_size_justification.md` exists and its content is under\
+    \ 150 words, but the verification test `tests/unit/test_sample_size_justification.py`\
+    \ is missing, so the task\u2019s automated check cannot be performed. The missing\
+    \ test file must be added for the task to be considered complete."
+  task: c8835ab899a4173704d1ba17ae54b242031361d7e9dd82d0ea7ed8613d645f44
+T004:
+  reason: "Checked `contracts/cleaned_metrics.schema.yaml` \u2013 it exists and contains\
+    \ the required fields plus the optional `cohens_d`, `r_squared`, and `effect_size_cv`.\
+    \ However the required verification file `tests/contract/test_cleaned_schema.py`\
+    \ is missing, so the schema is not being validated as the task specifies. The\
+    \ missing test must be added (or restored) for the task to be complete."
+  task: e21c7d1404382af46af96cf3950db91f26107ea82cd8f63fbaa828750f034f91
+T005:
+  reason: 'Requested task execution failed; rerun successfully: code/data_loader.py
+    exit=1'
+  task: 688316d5048029b0415411cd2afdbe10ecdaf14889d90808007c40cfdf15aed5
+T006:
+  task: ab5ac26eacc1a07eb2747e4f5992417d396a1d8d9705b9c7d22e0e5b8497d211
+T007:
+  task: f91b75aaa3111c6e75058a94ad7f24af414d3bafb02bb90bcfd439c808757878
+T008:
+  task: 9b48583b914b8619d2487e9d3542493956f0edafa073db80717ea690126959e5
+T009:
+  task: 484735df3c285bbbdda66adfebb1d4e7f0f567bfd4a136ed8c23e528df88bd9f
+T010:
+  task: db98cff8a66e41d5399e9e2fcf0f8f17903c50e48e230e8a7c3e7085a6974289
+T011:
+  task: 77fc47d2a5c35d40e7e8a7af592538eee1ebc704787c34da8df5c683abedb94d
+T012:
+  task: e5327ad69ae1ca9c901c68b7e8a48adc2e85c98a8ac41c5092331d6e0c056f7c
+T013:
+  task: fce18bc12de6bd6d51b0786741a042c857903ec212943f91448d9f0a1ab8f548
+T014:
+  task: b65f27b76d36c1c5c80ab07d08e80a35dbd9d12aba03c3358a89261ba361096c
+T015:
+  task: 418506671c3e8d82b50b2699065104c16c55f82dddd8b78956fd291e414bd572
+T016:
+  task: 72c6743efdb9a0d39b8c48c02de4a3c52d3fd6e97e00f883124b3400e5499bae
+T017:
+  task: 35d4ff6078efb8679d5d2971deba904ae348586a6facd8f24825a2f0d120fa0b
+T018:
+  task: 51223cf65960bf251949934dbda928643f123f1625e68b1291763ebeeb52f0d7
+T019:
+  reason: "The repository contains `code/random_seeds.py` and it is imported in `code/main.py`,\
+    \ but the required unit test `tests/unit/test_random_seeds.py` is missing, so\
+    \ the claim that the seeds are correctly pinned and produce deterministic outputs\
+    \ cannot be verified. Additionally, the module does not demonstrate applying `random_state=42`\
+    \ to any scikit\u2011learn functions. The missing test (and lack of scikit\u2011\
+    learn usage) must be added/fixed for the task to be considered complete."
+  task: 31c0b17b3892abd6ba6053c9ed7a00c94daead8756b91e000b09022a64d5614c
+T020:
+  task: 645445997bea5b4bff1e76bd623106f5fa5f0b40f6c8dbcfa0d289a2dd00f9ec
+T021:
+  task: 318c060b82bfb0c033865631b0139b4acc48cae22f11d0e4ee9a373080eefca9

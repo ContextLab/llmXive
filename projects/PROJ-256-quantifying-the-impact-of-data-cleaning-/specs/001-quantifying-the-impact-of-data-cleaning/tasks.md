@@ -33,7 +33,7 @@ Each task is written in the canonical `- [ ] T### [P?] [USx?] …` form, lists t
 
 ## Phase 2 – Data acquisition & baseline analysis
 
-- [ ] T005 **Download & validate raw datasets (FR‑001, FR‑005, FR‑007, FR‑014)** – Implement `code/data_loader.py` to (a) download the 12 verified datasets (direct URLs for the five UCI CSVs and `openml.datasets.get_dataset` for the remainder), (b) compute SHA‑256 checksums, (c) validate each raw file against `contracts/dataset.schema.yaml`, (d) extract the documented outcome column, sample size, and missingness proportion, and (e) write `data/processed/dataset_metadata.json`.  
+- [ ] T005 **Download & validate raw datasets (FR‑001, FR‑005, FR‑007, FR‑014)** – Implement `code/data_loader.py` to (a) download the 12 verified datasets (direct URLs for the five UCI CSVs and `openml.datasets.get_dataset` for the remainder), (b) compute SHA‑256 checksums, (c) validate each raw file against `contracts/dataset.schema.yaml`, (d) extract the documented outcome column, sample size, and missingness proportion, and (e) write `data/processed/dataset_metadata.json`.   <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
   *Verification*: `tests/integration/test_data_acquisition.py` checks that all datasets appear, checksums match, and schema validation passes.
 
 - [ ] T020 **Record raw‑file checksums in project state (Constitution III)** – After successful download, update `state/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-.yaml` with a map `artifact_hashes` containing each raw dataset’s SHA‑256 checksum.  

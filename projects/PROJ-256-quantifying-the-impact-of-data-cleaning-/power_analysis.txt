@@ -1,0 +1,11 @@
+Power analysis:
+
+1. Two‑sample t‑test (Cohen's d = 0.5):
+   Required sample size per group = 64
+   Achieved power = 0.801
+
+2. Paired Wilcoxon signed‑rank test (medium effect, approximated by a paired t‑test):
+   Required total sample size = 34
+   Achieved power = 0.808
+
+Both designs exceed the target power of 0.80, justifying the chosen dataset collection size for the study.
