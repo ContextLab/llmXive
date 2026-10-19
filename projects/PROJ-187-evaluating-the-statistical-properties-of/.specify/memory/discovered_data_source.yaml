@@ -1,10 +1,16 @@
 status: none
-intent: tabular benchmark datasets Adult Credit Card Fraud Covertype Higgs HAR Shopper
-  OpenML python package dataset
+intent: OpenML Adult Credit Card Fraud Covertype Higgs HAR Shopper python package
+  dataset
 required_fields:
-- feature columns (numeric and categorical)
-- target label column
-- dataset identifier
-cache_key: 0791b918f9b3ab7b84704ad327552ba4459e289d875fba34acbb3ce62ed9ef41
-searched_at: '2026-10-19T06:32:56.631998+00:00'
+- 'Adult: age, workclass, fnlwgt, education, education-num, marital-status, occupation,
+  relationship, race, sex, capital-gain, capital-loss, hours-per-week, native-country,
+  income'
+- "Credit Card Fraud: V1\u2011V28, Amount, Class"
+- 'Covertype: all 54 original attributes (numeric features, 4 binary wilderness area
+  flags, 40 binary soil type flags) plus target Cover_Type'
+- "Higgs: f1\u2011f28 feature columns and label"
+- "HAR: 561 time\u2011 and frequency\u2011domain feature columns and activity label"
+- 'Shopper: all original ~15 columns as provided by the UCI Shopper dataset'
+cache_key: c9aacde3aac3d76af2928f4f7f538b32715f6083cb4ad809df020d77e6b7e5f1
+searched_at: '2026-10-19T06:37:52.055113+00:00'
 retry_count: 1

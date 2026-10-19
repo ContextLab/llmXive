@@ -1,48 +1,37 @@
-- artifact_hash: 430caac6cf942886fa3be12c0bac26ec93185c17ee1d2ebe786e8fa1ebc64cd3
+- artifact_hash: 661a1f22957800e17115f5ece9a814f2cb8b7e6abdcdc4fd50bc16ee5064a862
   artifact_path: projects/PROJ-187-evaluating-the-statistical-properties-of/specs/001-evaluating-the-statistical-properties-of/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: test.csv
   kind: url
-  value: https://www.openml.org/data/v1/download/1590/adult.arff
-  verification_status: mismatch
-  verified_against_url: https://www.openml.org/data/v1/download/1590/adult.arff
-  verified_at: '2026-10-18T03:35:32.207840Z'
-- artifact_hash: 430caac6cf942886fa3be12c0bac26ec93185c17ee1d2ebe786e8fa1ebc64cd3
+  value: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/639716e4eb65a32e3457879f/24fe0797a6827178aa6f9a2718f509fc302d2b6e8fceae923c0de9536dce8dd6?response-content-type=text%2Fcsv%3B+charset%3Dutf-8&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.csv%3B+filename%3D%22test.csv%22%3B&user_id=public&xip=b0z0H3HcGpg&X-Xet-Cas-Uid=public&Expires=1792395908&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM5NzE2ZTRlYjY1YTMyZTM0NTc4NzlmLzI0ZmUwNzk3YTY4MjcxNzhhYTZmOWEyNzE4ZjUwOWZjMzAyZDJiNmU4ZmNlYWU5MjNjMGRlOTUzNmRjZThkZDZcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QuY3N2JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC5jc3YlMjIlM0ImdXNlcl9pZD1wdWJsaWMmeGlwPWIwejBIM0hjR3BnJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTIzOTU5MDh9fX1dfQ__&Signature=MEUCIAuyHv2t%7Eoy4gEXH8-6B01Hoo6HShksJWUZ9K%7Ei3VYcIAiEAulV9omu-rCVtw8wwyfMJRnd3mN%7EylUJEj4vLJss8pnY_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-19T06:45:08.753657Z'
+- artifact_hash: 661a1f22957800e17115f5ece9a814f2cb8b7e6abdcdc4fd50bc16ee5064a862
   artifact_path: projects/PROJ-187-evaluating-the-statistical-properties-of/specs/001-evaluating-the-statistical-properties-of/plan.md
   cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: train.csv
-  kind: url
-  value: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/train.csv
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/639716e4eb65a32e3457879f/624c669f6df9728f982746965e64defbb8b433ff9f560349005d9d5b395a297f?user_id=public&xip=J0R7pbQB_xY&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.csv%3B+filename%3D%22train.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&Expires=1792298133&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM5NzE2ZTRlYjY1YTMyZTM0NTc4NzlmLzYyNGM2NjlmNmRmOTcyOGY5ODI3NDY5NjVlNjRkZWZiYjhiNDMzZmY5ZjU2MDM0OTAwNWQ5ZDViMzk1YTI5N2ZcXD91c2VyX2lkPXB1YmxpYyZ4aXA9SjBSN3BiUUJfeFkmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLmNzdiUzQitmaWxlbmFtZSUzRCUyMnRyYWluLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MjI5ODEzM319fV19&Signature=MEYCIQD51oSaBf3mEbyQGRJ3XzxXPoaiS7AFKCbCFWhs4ZUrxgIhAL1H0DEeTY8wHOdol2rMhTA0u9zkTAMr4Swtcwj9%7Euvp&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-18T03:35:32.207840Z'
-- artifact_hash: 430caac6cf942886fa3be12c0bac26ec93185c17ee1d2ebe786e8fa1ebc64cd3
-  artifact_path: projects/PROJ-187-evaluating-the-statistical-properties-of/specs/001-evaluating-the-statistical-properties-of/plan.md
-  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: train-00000-of-00001-3316810f8df41d3a.parquet
   kind: url
   value: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/644837633e498d669199caec/410e57fd181132f1e890fcb5ad539c80fb61fdb75c80c052cbea492d8c743169?xip=J0R7pbQB_xY&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-3316810f8df41d3a.parquet%3B+filename%3D%22train-00000-of-00001-3316810f8df41d3a.parquet%22%3B&user_id=public&Expires=1792298136&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ODM3NjMzZTQ5OGQ2NjkxOTljYWVjLzQxMGU1N2ZkMTgxMTMyZjFlODkwZmNiNWFkNTM5YzgwZmI2MWZkYjc1YzgwYzA1MmNiZWE0OTJkOGM3NDMxNjlcXD94aXA9SjBSN3BiUUJfeFkmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLTMzMTY4MTBmOGRmNDFkM2EucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLTMzMTY4MTBmOGRmNDFkM2EucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMjk4MTM2fX19XX0_&Signature=MEUCIDAonQriv9jlO9OtrawfeF79rSI9vlN4mZQIsWzTPeqLAiEAjqZ3u1taWlGyKIaejxUeleAs9NA0ichadpCxr4RyLLw_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-18T03:35:32.207840Z'
-- artifact_hash: 083b1652e47e3094865cb9040485d4b0c44a20b5feb0decdba628f5526e46032
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/644837633e498d669199caec/410e57fd181132f1e890fcb5ad539c80fb61fdb75c80c052cbea492d8c743169?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-3316810f8df41d3a.parquet%3B+filename%3D%22train-00000-of-00001-3316810f8df41d3a.parquet%22%3B&user_id=public&xip=b0z0H3HcGpg&X-Xet-Cas-Uid=public&Expires=1792395909&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ODM3NjMzZTQ5OGQ2NjkxOTljYWVjLzQxMGU1N2ZkMTgxMTMyZjFlODkwZmNiNWFkNTM5YzgwZmI2MWZkYjc1YzgwYzA1MmNiZWE0OTJkOGM3NDMxNjlcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtMzMxNjgxMGY4ZGY0MWQzYS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtMzMxNjgxMGY4ZGY0MWQzYS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJnhpcD1iMHowSDNIY0dwZyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMzk1OTA5fX19XX0_&Signature=MEQCIH-d3VXhLtkilGlgXnJQSu9plU8H-5yt8dOBxeqGA-%7EWAiBzNV7j6ckYUFocUGjrqy5780Aje1KWDmpIZE1RbdhRmA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-19T06:45:08.753657Z'
+- artifact_hash: 5fdaf214686335c0635923b8415541eacfb0c8975369b2ea0ede7dc4f8822e17
   artifact_path: projects/PROJ-187-evaluating-the-statistical-properties-of/specs/001-evaluating-the-statistical-properties-of/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: train.csv
+  fetched_title: test.csv
   kind: url
-  value: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/train.csv
+  value: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/639716e4eb65a32e3457879f/624c669f6df9728f982746965e64defbb8b433ff9f560349005d9d5b395a297f?user_id=public&xip=J0R7pbQB_xY&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.csv%3B+filename%3D%22train.csv%22%3B&Expires=1792298141&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM5NzE2ZTRlYjY1YTMyZTM0NTc4NzlmLzYyNGM2NjlmNmRmOTcyOGY5ODI3NDY5NjVlNjRkZWZiYjhiNDMzZmY5ZjU2MDM0OTAwNWQ5ZDViMzk1YTI5N2ZcXD91c2VyX2lkPXB1YmxpYyZ4aXA9SjBSN3BiUUJfeFkmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YlM0IrY2hhcnNldCUzRHV0Zi04JlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0cmFpbi5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi5jc3YlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MjI5ODE0MX19fV19&Signature=MEQCIFq9d0Rqg3mvKY%7E1BigPA9hhc0HiYKRU6HKQXgzaeJ7wAiArsnL1jhKss6joP364wAZ2kBeb2wXcBd7nm5jIvWZiMQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-18T03:35:40.940887Z'
-- artifact_hash: 083b1652e47e3094865cb9040485d4b0c44a20b5feb0decdba628f5526e46032
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/639716e4eb65a32e3457879f/24fe0797a6827178aa6f9a2718f509fc302d2b6e8fceae923c0de9536dce8dd6?xip=b0z0H3HcGpg&X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.csv%3B+filename%3D%22test.csv%22%3B&Expires=1792395928&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM5NzE2ZTRlYjY1YTMyZTM0NTc4NzlmLzI0ZmUwNzk3YTY4MjcxNzhhYTZmOWEyNzE4ZjUwOWZjMzAyZDJiNmU4ZmNlYWU5MjNjMGRlOTUzNmRjZThkZDZcXD94aXA9YjB6MEgzSGNHcGcmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YlM0IrY2hhcnNldCUzRHV0Zi04JnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0ZXN0LmNzdiUzQitmaWxlbmFtZSUzRCUyMnRlc3QuY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTIzOTU5Mjh9fX1dfQ__&Signature=MEUCICimQnfU3bI5H6%7EG3TDommElBfN5kvuHYkAdHw1MeGP3AiEAqTI28l%7ErUoIqchrwkOGbhc2vHbNRxziVh665JKYSEDk_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-19T06:45:27.987547Z'
+- artifact_hash: 5fdaf214686335c0635923b8415541eacfb0c8975369b2ea0ede7dc4f8822e17
   artifact_path: projects/PROJ-187-evaluating-the-statistical-properties-of/specs/001-evaluating-the-statistical-properties-of/research.md
   cite_id: c-002
   cited_authors: []
@@ -51,16 +40,16 @@
   kind: url
   value: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/644837633e498d669199caec/410e57fd181132f1e890fcb5ad539c80fb61fdb75c80c052cbea492d8c743169?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-3316810f8df41d3a.parquet%3B+filename%3D%22train-00000-of-00001-3316810f8df41d3a.parquet%22%3B&user_id=public&xip=J0R7pbQB_xY&Expires=1792298142&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ODM3NjMzZTQ5OGQ2NjkxOTljYWVjLzQxMGU1N2ZkMTgxMTMyZjFlODkwZmNiNWFkNTM5YzgwZmI2MWZkYjc1YzgwYzA1MmNiZWE0OTJkOGM3NDMxNjlcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtMzMxNjgxMGY4ZGY0MWQzYS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtMzMxNjgxMGY4ZGY0MWQzYS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJnhpcD1KMFI3cGJRQl94WSIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMjk4MTQyfX19XX0_&Signature=MEUCIGRoM09pBr8EUOtqvof6sUOO9iPbNaAOKfKNhoc8SvKMAiEA2et44xE%7EL--BiBLv%7Es5xagNPFMQG2OWBhYkrL7Iat90_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-18T03:35:40.940887Z'
-- artifact_hash: 51aa649e9366fd04b085cfaf906f6ca62502b5a7ecc87d0da944f903ebebe2ae
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/644837633e498d669199caec/410e57fd181132f1e890fcb5ad539c80fb61fdb75c80c052cbea492d8c743169?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-3316810f8df41d3a.parquet%3B+filename%3D%22train-00000-of-00001-3316810f8df41d3a.parquet%22%3B&xip=b0z0H3HcGpg&user_id=public&Expires=1792395928&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ODM3NjMzZTQ5OGQ2NjkxOTljYWVjLzQxMGU1N2ZkMTgxMTMyZjFlODkwZmNiNWFkNTM5YzgwZmI2MWZkYjc1YzgwYzA1MmNiZWE0OTJkOGM3NDMxNjlcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtMzMxNjgxMGY4ZGY0MWQzYS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtMzMxNjgxMGY4ZGY0MWQzYS5wYXJxdWV0JTIyJTNCJnhpcD1iMHowSDNIY0dwZyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMzk1OTI4fX19XX0_&Signature=MEUCIBxSTmGHjrPWMLRKTJETt-0yVVRMI65dGVFtkfEA2PWsAiEAtQVOJIGFVJOlG3f6k285rb2dNPrl4nZjvULlV43UBvE_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-19T06:45:27.987547Z'
+- artifact_hash: c634dedccdbd7e5e5ef957161426001c0988f401bda7185ea88fab22c820d801
   artifact_path: projects/PROJ-187-evaluating-the-statistical-properties-of/specs/001-evaluating-the-statistical-properties-of/data-model.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: OpenML
+  fetched_title: test.csv
   kind: url
-  value: https://www.openml.org/d/1590
+  value: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
   verification_status: pending
-  verified_against_url: https://www.openml.org/search?type=data&sort=runs&id=1590
-  verified_at: '2026-10-18T03:35:55.262953Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/639716e4eb65a32e3457879f/24fe0797a6827178aa6f9a2718f509fc302d2b6e8fceae923c0de9536dce8dd6?response-content-type=text%2Fcsv%3B+charset%3Dutf-8&user_id=public&xip=b0z0H3HcGpg&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.csv%3B+filename%3D%22test.csv%22%3B&Expires=1792395940&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM5NzE2ZTRlYjY1YTMyZTM0NTc4NzlmLzI0ZmUwNzk3YTY4MjcxNzhhYTZmOWEyNzE4ZjUwOWZjMzAyZDJiNmU4ZmNlYWU5MjNjMGRlOTUzNmRjZThkZDZcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmdXNlcl9pZD1wdWJsaWMmeGlwPWIwejBIM0hjR3BnJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0ZXN0LmNzdiUzQitmaWxlbmFtZSUzRCUyMnRlc3QuY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTIzOTU5NDB9fX1dfQ__&Signature=MEQCIFuWXd9H7Zf5lnuLm7Wr0pYfBWQoAG55SEl2GTGiVL9rAiB09Jn939AhY6xxo9X%7ElSqTSdVIo5qoB65GUv9V4bGJWQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-19T06:45:40.484808Z'
