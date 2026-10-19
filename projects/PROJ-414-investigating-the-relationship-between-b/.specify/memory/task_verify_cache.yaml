@@ -10,16 +10,16 @@ T001:
   sig: ed7b61b09e6127a2771fa54abffd6698d2f59731ac0dcef46bae43ea4e5f383c
 T002:
   c: true
-  h: d2cc6b9ce843c8920d80230ce048ce31ca4aaf13b2353e1fa743742e47e802f1
+  h: 9cd13b6e6b73fbae6d989364d5a6c15493da18a734c138b5611937c95b57ce19
   r: 'All four required artifacts exist and are substantive: `code/config.py` pins
     seeds, window/step parameters, and the QC threshold constants (FD 0.5 mm, DVARS
     MAD multiplier 3.0, 1.4826, 0.20 bad-volume fraction); `code/requirements.txt`
-    lists the pinned dependencies; `code/run_all.py` is a real argparse CLI orchestrator;
+    lists pinned dependencies; `code/run_all.py` is a real argparse CLI orchestrator;
     and `quickstart.md` documents the exact end-to-end invocation (`python code/run_all.py
-    --seed 42 --window 45 --step 10 --permutations 1000`) with install steps. The
-    verification criterion `python code/run_all.py --help` exiting 0 is evidenced
-    by the passing `tests/test_run_all.'
-  sig: e00dcff84522bd7584a0d145c4932caaf9610e16b36953b165b01af828edb66a
+    --seed 42 --window 45 --step 10 --permutations 1000`) with install steps for a
+    CPU-only runner. The `--help` exit-0 verification is evidenced by the passing
+    `tests/test_run_all.py::test_run_all_h'
+  sig: 2fcf6d21fc7f466aa200b599a2f065649827eb4b4af5ce120aa98fdd3fe2659d
 T005:
   c: false
   h: 53e8368001216a37717b3377727ab75c1b06ca18fb69be2ee085ed5e4fd88a85

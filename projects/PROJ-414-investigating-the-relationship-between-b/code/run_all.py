@@ -3,14 +3,12 @@
 The orchestrator parses global arguments (seed, window, step,
 permutations, etc.) and then runs the requested stages in order.
 Each stage is implemented as a module with a ``main()`` function that
-takes **no positional arguments**. The orchestrator therefore imports
-the module and calls ``module.main()`` without forwarding the parsed
-``argparse.Namespace``. This fixes the earlier ``TypeError`` where
-``run_stage`` attempted to call ``main(args)``.
+takes **no positional arguments**. This resolves the earlier
+``TypeError`` where stages that did not accept arguments were called
+with a dummy list.
 """
 import argparse
 import importlib
-import sys
 from pathlib import Path
 
 import config
@@ -76,7 +74,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     return parser
 
-def run_stage(stage: str, args: argparse.Namespace) -> None:
+def run_stage(stage: str) -> None:
     """Import the module for *stage* and execute its ``main()``."""
     if stage not in STAGE_MODULES:
         raise ValueError(f"unknown stage: {stage}")
@@ -89,9 +87,9 @@ def run_stage(stage: str, args: argparse.Namespace) -> None:
     if not hasattr(module, "main"):
         raise AttributeError(f"module {module_name} has no main()")
     log.info("=== stage: %s (%s) ===", stage, module_name)
-    # Call the stage's main with an empty argv list so it parses only
-    # its own arguments (if any) and does not see the global CLI args.
-    exit_code = module.main([])
+    # All stage entry points are defined to accept no positional
+    # arguments (they read configuration from ``code/config.py``).
+    exit_code = module.main()
     if exit_code not in (0, None):
         raise SystemExit(exit_code)
 
@@ -121,7 +119,7 @@ def main(argv=None) -> int:
     )
 
     for stage in stages_to_run:
-        run_stage(stage, args)
+        run_stage(stage)
 
     log.info("Pipeline completed successfully")
     return 0

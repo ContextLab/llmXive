@@ -1,302 +1,219 @@
-"""Analysis module for power analysis and conditional association.
+"""Power‑analysis (and optional conditional association) for the
+improvisation‑skill pipeline.
 
-This module implements the a priori power analysis (reporting‑only) and,
-if a suitable skill‑proxy column exists in the dataset, performs an OLS
-regression of the PCA component scores on that proxy with covariates,
-using Freedman–Lane residual permutation testing (1000 permutations) and
-Benjamini–Hochberg FDR correction.
-
-The module is invoked by ``code/run_all.py`` as a pipeline stage.  It
-receives no positional arguments (the orchestrator calls ``main([])``) and
-reads all required configuration from ``code/config.py`` and the
-verified data inventory in ``data/raw/column_inventory.json``.
+Only the power‑analysis portion is guaranteed to run because the
+verified dataset does not contain any skill‑proxy columns.  The
+module follows the public API declared in the project specification
+(see ``code/analysis.py`` API surface).  All heavy numerical work
+uses ``statsmodels`` which is already available in the runtime
+environment.
 """
 import json
-import logging
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import statsmodels.stats.power as sm_power
 import statsmodels.api as sm
-from statsmodels.stats.multitest import multipletests
-from statsmodels.stats.power import FTestPower
-
-from llmxive_toolkit import get_logger, paths
 
 import config
+from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------
+# Helper functions that match the declared public API
+# ------------------------------------------------------------------
 def _load_column_inventory() -> dict:
-    """Load the column inventory JSON produced by the download stage.
-
-    Expected keys (at minimum):
-      - ``available_subject_count``: int
-      - ``present_columns``: list of column names present in the shard
-    """
-    inventory_path = paths.data("raw", "column_inventory.json")
-    if not inventory_path.is_file():
-        raise FileNotFoundError(f"Column inventory not found: {inventory_path}")
-    with inventory_path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+    """Load the column inventory JSON produced by the download stage."""
+    inv_path = paths.data("raw", "column_inventory.json")
+    if not inv_path.is_file():
+        raise RuntimeError(f"Column inventory missing: {inv_path}")
+    return json.loads(inv_path.read_text())
 
 def _determine_skill_proxy(present_columns: list) -> str | None:
-    """Return the name of the best available skill‑proxy column, or ``None``.
-
-    Priority order (as defined in the plan/spec):
-      1. ``expert_rating``
-      2. ``task_condition``
-      3. ``years_of_training``
-    """
-    priority = ["expert_rating", "task_condition", "years_of_training"]
-    for col in priority:
-        if col in present_columns:
-            return col
+    """Return the best available skill‑proxy column name, or ``None``."""
+    for cand in ("expert_rating", "task_condition", "years_of_training"):
+        if cand in present_columns:
+            return cand
     return None
 
 def _load_pca_scores() -> pd.DataFrame:
-    """Load per‑subject PCA scores produced by ``code/dimensionality.py``."""
-    pca_path = paths.data("derived", "pca_scores.csv")
+    """Load per‑subject PCA scores produced by ``dimensionality.py``."""
+    pca_path = Path("data/derived/pca_scores.csv")
     if not pca_path.is_file():
-        raise FileNotFoundError(f"PCA scores not found: {pca_path}")
-    df = pd.read_csv(pca_path, dtype=str)  # keep subject IDs as strings
-    # Ensure numeric PC columns are floats
-    pc_cols = [c for c in df.columns if c.startswith("pc_")]
-    df[pc_cols] = df[pc_cols].astype(float)
-    return df
+        raise RuntimeError(f"PCA scores not found: {pca_path}")
+    return pd.read_csv(pca_path)
 
 def _load_subject_metadata(skill_proxy: str, covariate_cols: list) -> pd.DataFrame:
-    """Load the subject‑level metadata required for the regression.
-
-    The raw shard is a Parquet file; we read only the columns we need
-    (subject ID, the skill proxy, and any covariates that are present).
-    """
-    import pyarrow.parquet as pq
-
-    shard_path = paths.data("raw", config.RAW_SHARD_RELATIVE)
-    if not shard_path.is_file():
-        raise FileNotFoundError(f"Raw shard not found: {shard_path}")
-
-    # Identify the subject‑ID column using the helper from download_openneuro
-    from download_openneuro import find_subject_column
-
-    subject_col = find_subject_column(shard_path)
-    if subject_col is None:
-        raise ValueError("Subject‑ID column could not be identified in the shard")
-
-    needed = [subject_col, skill_proxy] + covariate_cols
-    # pyarrow will read only the requested columns, keeping memory low
-    table = pq.read_table(shard_path, columns=needed)
-    df = table.to_pandas()
-    # Normalise subject IDs to the zero‑padded string format used elsewhere
-    df[subject_col] = df[subject_col].astype(str).str.zfill(2)
-    df.rename(columns={subject_col: "subject_id"}, inplace=True)
+    """Load the subject‑level metadata required for the regression."""
+    # The raw parquet contains many columns; we only keep those that are
+    # present and needed for the model.
+    inventory = _load_column_inventory()
+    shard_path = paths.data("raw", config.SHARD_BASENAME)
+    # Load lazily – only the columns we need.
+    needed = [inventory.get("subject_column", "sub"), skill_proxy] + covariate_cols
+    df = pd.read_parquet(shard_path, columns=needed)
+    df = df.rename(columns={inventory.get("subject_column", "sub"): "subject_id"})
     return df
 
-# ----------------------------------------------------------------------
-# Power analysis
-# ----------------------------------------------------------------------
 def _compute_required_n(r: float, n_predictors: int) -> int:
-    """Return the required total sample size to detect a partial correlation *r*.
+    """Return the required total sample size to detect a partial
+    correlation *r* with 80 % power (two‑tailed α = 0.05).
 
-    Uses the F‑test power calculation from ``statsmodels``.
+    The calculation uses the F‑test formulation for a linear model:
+    effect size f² = r² / (1 − r²).  ``statsmodels`` solves for the total
+    number of observations needed.
     """
-    # Convert correlation to Cohen's f² for a multiple regression
-    f2 = r ** 2 / (1 - r ** 2)
-    power_solver = FTestPower()
-    # ``solve_power`` returns the total number of observations (N)
-    required_n = power_solver.solve_power(
+    f2 = r ** 2 / (1.0 - r ** 2)
+    power_analysis = sm_power.FTestPower()
+    # ``solve_power`` returns the required total number of observations.
+    n_needed = power_analysis.solve_power(
         effect_size=f2,
         df_num=n_predictors,
         alpha=config.ALPHA,
         power=config.TARGET_POWER,
     )
-    # ``solve_power`` may return a float; round up to the next integer
-    return int(np.ceil(required_n))
+    # ``solve_power`` may return a float; round up to the next integer.
+    return int(np.ceil(n_needed))
 
 def _run_power_analysis(inventory: dict) -> dict:
-    """Perform the a priori power analysis and write the JSON result.
-
-    Returns the dictionary that is written to ``results/power_analysis.json``.
-    """
-    # Cohen's d → correlation (r) conversion (two‑group case)
-    d = config.COHENS_D
-    r = d / np.sqrt(d ** 2 + 4)
-
-    # Number of predictors = skill proxy + any covariates that are present
-    present = inventory.get("present_columns", [])
+    """Perform the a‑priori power analysis and write the JSON result."""
+    available_n = inventory.get("available_subject_count", 0)
+    # Determine how many predictors will be in the regression:
+    # skill proxy + all covariates that are present.
+    present_cols = inventory.get("present_columns", [])
+    skill_proxy = _determine_skill_proxy(present_cols)
     covariates = [
-        col
-        for col in ["age", "fd", "instrument", "genre", "practice_intensity", "education"]
-        if col in present
+        col for col in (
+            "age",
+            "fd",
+            "instrument",
+            "genre",
+            "practice_intensity",
+            "education",
+        )
+        if col in present_cols
     ]
-    n_predictors = 1 + len(covariates)  # skill proxy + covariates
+    n_predictors = 1 + len(covariates) if skill_proxy else len(covariates)
+
+    # Convert the Cohen's d (0.5) to a correlation coefficient r.
+    d = config.COHENS_D
+    r = d / (np.sqrt(d ** 2 + 4))
 
     required_n = _compute_required_n(r, n_predictors)
-    available_n = int(inventory.get("available_subject_count", 0))
 
     power_status = "sufficient" if available_n >= required_n else "insufficient"
-    n_ge_20_floor = available_n >= config.N_MIN_SUBJECTS_FLOOR
+    n_ge_20_floor_check = available_n >= config.N_MIN_SUBJECTS_FLOOR
 
-    power_report = {
-        "required_N": required_n,
-        "available_N": available_n,
+    result = {
+        "required_n": required_n,
+        "available_n": available_n,
         "power_status": power_status,
-        "n_ge_20_floor_check": n_ge_20_floor,
-        "effect_size": {"cohens_d": d, "r_equivalent": r},
+        "n_ge_20_floor_check": n_ge_20_floor_check,
+        "effect_size_r": r,
     }
 
     out_path = paths.results("power_analysis.json")
-    out_path.write_text(json.dumps(power_report, indent=2))
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(result, indent=2))
     log.info("Power analysis written to %s", out_path)
-    return power_report
+    return result
 
-# ----------------------------------------------------------------------
-# Association analysis (conditional)
-# ----------------------------------------------------------------------
 def _run_association(
     skill_proxy: str,
     covariates: list,
     pca_df: pd.DataFrame,
     meta_df: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Perform OLS regression with permutation testing for each PC.
+    """Perform OLS regression with Freedman–Lane permutation testing.
 
-    Returns a DataFrame ready to be written as ``regression_results.csv``.
+    This function is only called when a real skill‑proxy column exists.
     """
-    # Merge PCA scores with metadata on ``subject_id``
-    df = pd.merge(pca_df, meta_df, on="subject_id", how="inner")
+    # Merge PCA scores with the metadata on ``subject_id``.
+    df = pca_df.merge(meta_df, on="subject_id")
+    # Build the design matrix.
+    X_cols = [skill_proxy] + covariates
+    X = df[X_cols]
+    X = sm.add_constant(X, has_constant="add")
+    y = df[[col for col in df.columns if col.startswith("pc_")]]
 
-    # Identify PC columns (those that start with ``pc_``)
-    pc_cols = [c for c in df.columns if c.startswith("pc_")]
-    results = []
+    # Fit the full model.
+    model = sm.OLS(y, X).fit()
+    # Residuals for Freedman–Lane permutations.
+    resid = model.resid
 
-    # Fixed random seed for reproducibility
+    # Permutation loop.
     rng = np.random.default_rng(config.DEFAULT_SEED)
+    n_perm = config.N_PERMUTATIONS
+    perm_coefs = np.empty((n_perm, y.shape[1], X.shape[1]))
+    for i in range(n_perm):
+        # Shuffle residuals and add back the fitted values of the reduced
+        # model (all covariates except the skill proxy).
+        shuffled = resid.copy()
+        rng.shuffle(shuffled, axis=0)
+        # Re‑fit the model with shuffled residuals.
+        y_perm = model.fittedvalues + shuffled
+        perm_model = sm.OLS(y_perm, X).fit()
+        perm_coefs[i] = perm_model.params.values
 
-    for pc in pc_cols:
-        y = df[pc].values
-        # Build design matrix: intercept + skill proxy + covariates
-        X = df[[skill_proxy] + covariates].astype(float)
-        X = sm.add_constant(X, has_constant="add")
-        model = sm.OLS(y, X).fit()
-        orig_coef = model.params[skill_proxy]
+    # Compute p‑values (two‑tailed) for the skill‑proxy coefficient.
+    # Index of the skill proxy in the parameter vector.
+    skill_idx = list(X.columns).index(skill_proxy)
+    observed = model.params.iloc[skill_idx]
+    perm_dist = perm_coefs[:, :, skill_idx]
+    # Two‑sided empirical p‑value.
+    p_vals = (np.abs(perm_dist) >= np.abs(observed)).mean(axis=0)
 
-        # Permutation test (Freedman–Lane style – simplified by shuffling the proxy)
-        perm_coefs = np.empty(config.N_PERMUTATIONS)
-        for i in range(config.N_PERMUTATIONS):
-            shuffled = rng.permutation(df[skill_proxy].values)
-            X_perm = X.copy()
-            X_perm[skill_proxy] = shuffled
-            perm_model = sm.OLS(y, X_perm).fit()
-            perm_coefs[i] = perm_model.params[skill_proxy]
+    # Benjamini–Hochberg FDR correction.
+    from statsmodels.stats.multitest import multipletests
 
-        # Two‑sided p‑value
-        raw_p = (np.sum(np.abs(perm_coefs) >= np.abs(orig_coef)) + 1) / (config.N_PERMUTATIONS + 1)
+    _, fdr_p, _, _ = multipletests(p_vals, alpha=config.FDR_ALPHA, method="fdr_bh")
 
-        results.append(
-            {
-                "pc": pc,
-                "skill_proxy_used": skill_proxy,
-                "coefficient": float(orig_coef),
-                "raw_p": float(raw_p),
-                "fdr_p": np.nan,  # placeholder – will be filled after FDR correction
-                "significance": False,  # placeholder – set after FDR
-                "null_result_flag": False,  # will be set after FDR
-                "permutation_scheme": "freedman_lane",
-                "covariates_included": covariates,
-            }
-        )
-
-    # Apply Benjamini–Hochberg FDR correction across PCs
-    raw_ps = [r["raw_p"] for r in results]
-    _, fdr_ps, _, _ = multipletests(raw_ps, alpha=config.FDR_ALPHA, method="fdr_bh")
-    for res, fdr_p in zip(results, fdr_ps):
-        res["fdr_p"] = float(fdr_p)
-        res["significance"] = fdr_p < config.FDR_ALPHA
-        # A null result is simply a non‑significant finding
-        res["null_result_flag"] = not res["significance"]
-
-    return pd.DataFrame(results)
-
-# ----------------------------------------------------------------------
-# Main entry point
-# ----------------------------------------------------------------------
-def main(argv=None) -> int:
-    """Run power analysis and, if possible, the conditional association.
-
-    ``argv`` is ignored – the orchestrator supplies global arguments via
-    the configuration module.
-    """
-    try:
-        inventory = _load_column_inventory()
-    except Exception as e:
-        log.error("Failed to load column inventory: %s", e)
-        return 1
-
-    # ------------------------------------------------------------------
-    # 1) Power analysis (always executed)
-    # ------------------------------------------------------------------
-    power_report = _run_power_analysis(inventory)
-
-    # ------------------------------------------------------------------
-    # 2) Conditional association
-    # ------------------------------------------------------------------
-    skill_proxy = _determine_skill_proxy(inventory.get("present_columns", []))
-    if skill_proxy is None:
-        log.info(
-            "No skill‑proxy column present in the data. Association stage halted "
-            "as expected (scope‑gap)."
-        )
-        # No regression_results.csv is produced – this is the intended path.
-        return 0
-
-    # Check whether we have enough subjects for the required power.
-    if power_report["power_status"] == "insufficient":
-        log.info(
-            "Available N (%d) is below the required N (%d); association stage "
-            "skipped due to under‑power.",
-            power_report["available_N"],
-            power_report["required_N"],
-        )
-        return 0
-
-    # Load PCA scores
-    try:
-        pca_df = _load_pca_scores()
-    except Exception as e:
-        log.error("Failed to load PCA scores: %s", e)
-        return 1
-
-    # Determine which covariates are actually present
-    present_cols = inventory.get("present_columns", [])
-    covariates = [
-        col
-        for col in ["age", "fd", "instrument", "genre", "practice_intensity", "education"]
-        if col in present_cols
-    ]
-
-    # Load per‑subject metadata (skill proxy + covariates)
-    try:
-        meta_df = _load_subject_metadata(skill_proxy, covariates)
-    except Exception as e:
-        log.error("Failed to load subject metadata: %s", e)
-        return 1
-
-    # Run the regression + permutation testing
-    try:
-        results_df = _run_association(skill_proxy, covariates, pca_df, meta_df)
-    except Exception as e:
-        log.exception("Association analysis failed")
-        return 1
-
-    # Write results CSV
+    # Assemble results.
+    results = pd.DataFrame({
+        "pc": [f"pc_{i+1}" for i in range(y.shape[1])],
+        "coef": observed,
+        "perm_p": p_vals,
+        "fdr_p": fdr_p,
+    })
     out_path = paths.results("regression_results.csv")
-    results_df.to_csv(out_path, index=False)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    results.to_csv(out_path, index=False)
     log.info("Regression results written to %s", out_path)
+    return results
 
+def main(argv=None) -> int:
+    """Entry point used by the pipeline orchestrator."""
+    # ``argv`` is ignored – configuration is read from ``code/config.py``.
+    inventory = _load_column_inventory()
+    present_cols = inventory.get("present_columns", [])
+    skill_proxy = _determine_skill_proxy(present_cols)
+
+    # Always run the power analysis (report‑only).
+    _run_power_analysis(inventory)
+
+    # Conditional association stage.
+    if skill_proxy:
+        # Load PCA scores (produced by the PCA stage).
+        pca_df = _load_pca_scores()
+        # Load subject‑level metadata for the regression.
+        covariates = [
+            col for col in (
+                "age",
+                "fd",
+                "instrument",
+                "genre",
+                "practice_intensity",
+                "education",
+            )
+            if col in present_cols
+        ]
+        meta_df = _load_subject_metadata(skill_proxy, covariates)
+        _run_association(skill_proxy, covariates, pca_df, meta_df)
+    else:
+        log.info(
+            "No skill‑proxy column found; skipping association stage as "
+            "the expected path."
+        )
     return 0
