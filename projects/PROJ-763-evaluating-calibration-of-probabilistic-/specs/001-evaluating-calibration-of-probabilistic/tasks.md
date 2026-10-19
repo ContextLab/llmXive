@@ -8,7 +8,7 @@ Tasks are grouped by research phase; each task is a single checkbox item that ca
 
 ## Phase 0 – Data acquisition & integrity gate  
 
-- [ ] **T001** **Download SubseasonalRodeo dataset** – Implement `code/src/download.py` to `wget` the verified URL, verify SHA‑256 checksum, and write the raw archive to `data/raw/subseasonal_rodeo.tar.gz`.   <!-- FAILED: unspecified -->
+- [ ] **T001** **Download SubseasonalRodeo dataset** – Implement `code/src/download.py` to `wget` the verified URL, verify SHA‑256 checksum, and write the raw archive to `data/raw/subseasonal_rodeo.tar.gz`.   <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: data/download.sh exit=1; data/verify.sh exit=1 -->
   - *Verification*: script raises an exception (non‑zero exit) if download fails or checksum mismatches.  
 
 - [ ] **T002** **Data Availability Gate** – Within `code/src/download.py` check that the extracted files contain either `probability_value` or `precip_prob` fields. If missing, exit with code 1 and log “Data Availability Gate Failed”. No synthetic fallback.   <!-- FAILED-IN-EXECUTION: code/src/download.py exit=1 -->

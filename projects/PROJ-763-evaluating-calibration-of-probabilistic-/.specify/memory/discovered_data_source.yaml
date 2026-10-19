@@ -1,15 +1,14 @@
 status: none
-intent: download SubseasonalRodeo dataset NOAA GFS ensemble forecasts python package
-  dataset
+intent: SubseasonalRodeo dataset NOAA GFS ensemble forecasts download HuggingFace
+  repository python package dataset
 required_fields:
-- forecast_reference_time
-- forecast_target_time
+- forecast_initialization
+- target_time
 - lead_time
-- latitude
-- longitude
 - ensemble_member
 - probability
 - observation
-cache_key: 3fd5f471b7d581ed5ad6c8ee39db3c0566bb517b4132ca3cd63e03d360a6e0f1
-searched_at: '2026-10-19T19:32:17.071551+00:00'
+- location
+cache_key: 8c9a0e806d02e1bd01b8d5740d0cefb684fa1a420197a2936fd23e5ade9a0bc6
+searched_at: '2026-10-19T19:36:30.558179+00:00'
 retry_count: 1

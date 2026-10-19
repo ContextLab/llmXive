@@ -1,9 +1,6 @@
 T001:
-  reason: "The provided `code/src/download.py` does not implement the required download\u2011\
-    via\u2011wget, SHA\u2011256 verification, or writing of `data/raw/subseasonal_rodeo.tar.gz`;\
-    \ instead it performs a data\u2011availability gate on parquet files. Moreover,\
-    \ the expected archive file `data/raw/subseasonal_rodeo.tar.gz` is missing. The\
-    \ task\u2019s core requirement is therefore not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: data/download.sh exit=1;
+    data/verify.sh exit=1'
   task: 25dcea8c21282151bf759c4b54312bf97743ad91098157cd98f8df9726bdcc72
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/src/download.py
