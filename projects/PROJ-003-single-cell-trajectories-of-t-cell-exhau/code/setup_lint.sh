@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
-# Setup linting: run ruff and black, capture their output in logs/lint.txt
-
+# ----------------------------------------------------------------------
+# Run ruff and black in check mode, capture their output, and store it
+# in logs/lint.txt. The script exits on any error (set -e) so the CI
+# will fail if either tool returns a non‑zero status.
+# ----------------------------------------------------------------------
 set -e
 
-# Ensure the logs directory exists
 LOG_DIR="logs"
 mkdir -p "$LOG_DIR"
 
-# Run ruff and black, capture both stdout and stderr
 {
     echo "=== ruff check ==="
     ruff check .
     echo "=== black --check ==="
     black --check .
-} > "$LOG_DIR/lint.txt" 2>&1
-
-echo "Linting completed. Output written to $LOG_DIR/lint.txt"
+} > "$LOG_DIR/lint.txt"

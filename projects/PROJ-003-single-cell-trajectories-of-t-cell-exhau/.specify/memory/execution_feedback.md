@@ -7,16 +7,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_data.py  --datasets GSE136103 GSE127465 GSE111075 GSE138852  --output data/raw/ -> rc=-1
-ta/raw/GSE111075/counts/GSE111075_RAW.tar
-2026-10-19 01:28:16,436 - INFO - File filelist.txt has only 4 genes; trying next candidate
-2026-10-19 01:28:16,436 - WARNING - Could not parse GSE111075_RAW.tar: 'utf-8' codec can't decode byte 0x8b in position 513: invalid start byte
-2026-10-19 01:28:16,436 - ERROR - Failed to process GSE111075: Could not extract a valid gene list for GSE111075 from any downloaded file
-2026-10-19 01:28:16,439 - INFO - Processing GSE138852 ...
-2026-10-19 01:28:16,614 - WARNING - Metadata fetch attempt 1/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-19 01:28:18,767 - WARNING - Metadata fetch attempt 2/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-19 01:28:22,876 - WARNING - Metadata fetch attempt 3/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-19 01:28:29,041 - WARNING - Metadata fetch attempt 4/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-19 01:28:37,145 - WARNING - Metadata fetch attempt 5/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+lm.nih.gov/geo/series/GSE111nnn/GSE111075/suppl/filelist.txt -> /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/data/raw/GSE111075/counts/filelist.txt
+2026-10-19 13:22:15,150 - INFO - Downloading https://ftp.ncbi.nlm.nih.gov/geo/series/GSE111nnn/GSE111075/suppl/GSE111075_RAW.tar -> /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/data/raw/GSE111075/counts/GSE111075_RAW.tar
+2026-10-19 13:22:16,991 - INFO - File filelist.txt has only 4 genes; trying next candidate
+2026-10-19 13:22:16,991 - WARNING - Could not parse GSE111075_RAW.tar: 'utf-8' codec can't decode byte 0x8b in position 513: invalid start byte
+2026-10-19 13:22:16,991 - ERROR - Failed to process GSE111075: Could not extract a valid gene list for GSE111075 from any downloaded file
+2026-10-19 13:22:16,994 - INFO - Processing GSE138852 ...
+2026-10-19 13:22:17,066 - WARNING - Metadata fetch attempt 1/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+2026-10-19 13:22:19,141 - WARNING - Metadata fetch attempt 2/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
 
 
 [TIMEOUT after 120s]

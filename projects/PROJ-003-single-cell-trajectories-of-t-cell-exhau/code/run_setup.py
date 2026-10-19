@@ -1,32 +1,20 @@
-"""High‑level setup entry point.
-
-The script installs the SRA Toolkit (if needed) and creates the
-project directory layout. It is intended to be called from the quick‑start
-``bash code/setup_lint.sh`` script before any analysis runs.
 """
-
-import sys
+Bootstrap script that creates the project layout and ensures the SRA Toolkit
+is available. It simply calls the two helper entry points defined in the
+sibling modules.
+"""
 
 from install_sra_toolkit import main as install_sra
 from init_project import main as init_proj
 
-
 def main() -> None:
-    """Run the full environment bootstrap."""
-    # Install and verify the SRA Toolkit.
-    try:
-        install_sra()
-    except Exception as exc:
-        sys.stderr.write(f"SRA Toolkit setup failed: {exc}\\n")
-        sys.exit(1)
-
-    # Create the directory layout.
-    try:
-        init_proj()
-    except Exception as exc:
-        sys.stderr.write(f"Project layout creation failed: {exc}\\n")
-        sys.exit(1)
-
+    """
+    Run the full environment bootstrap:
+    1. Create the standard directory layout.
+    2. Install and verify the SRA Toolkit / NCBI settings.
+    """
+    init_proj()
+    install_sra()
 
 if __name__ == "__main__":
     main()
