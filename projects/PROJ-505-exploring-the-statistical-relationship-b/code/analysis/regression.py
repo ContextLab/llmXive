@@ -1,8 +1,7 @@
 """
 Regression analysis module: baseline vs full model, VIF, coefficients.
-Provides utilities required by the unit and integration tests.
+Updated to match integration test expectations.
 """
-import os
 import json
 from pathlib import Path
 from typing import List, Dict, Any
@@ -12,8 +11,8 @@ import numpy as np
 import statsmodels.api as sm
 from statsmodels.regression.linear_model import OLS
 
-# Updated import path
 from code.utils.logging import AnalysisError, get_logger, log_duration
+from code.config import PROC_DIR, ARTIFACT_DIR
 
 logger = get_logger(__name__)
 
@@ -31,12 +30,11 @@ def get_coupling_function_columns() -> List[str]:
     """
     return ["epsilon", "newell", "v_bs", "v_bt"]
 
-
 def _prepare_features(
     df: pd.DataFrame,
     coupling_cols: List[str],
     composition_cols: List[str],
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """
     Prepare feature matrices for baseline and full models and target series.
 
@@ -45,14 +43,13 @@ def _prepare_features(
         X_full: baseline + composition predictors (with constant)
         y_dst: Dst target
         y_kp:  Kp target
-        clean_df: dataframe after dropping rows with any NaNs in used columns
     """
     required = set(coupling_cols + composition_cols + ["Dst", "Kp"])
     missing = required - set(df.columns)
     if missing:
         raise AnalysisError(f"Missing required columns for regression: {missing}")
 
-    # Drop rows with NaNs in any of the needed columns
+    # Drop rows with any NaNs in required columns
     clean_df = df.dropna(subset=list(required)).copy()
 
     X_base = clean_df[coupling_cols].copy()
@@ -65,15 +62,14 @@ def _prepare_features(
     y_dst = clean_df["Dst"]
     y_kp = clean_df["Kp"]
 
-    return X_base, X_full, y_dst, y_kp, clean_df
-
+    return X_base, X_full, y_dst, y_kp
 
 def _calculate_vif(X: pd.DataFrame) -> pd.DataFrame:
     """
     Compute Variance Inflation Factor for each predictor (excluding the constant).
     Returns a DataFrame with columns ['feature', 'vif'].
     """
-    vif_data = []
+    vif_records = []
     cols = [c for c in X.columns if c != "const"]
     for col in cols:
         other_cols = [c for c in cols if c != col]
@@ -82,10 +78,9 @@ def _calculate_vif(X: pd.DataFrame) -> pd.DataFrame:
         X_other = sm.add_constant(X_other, has_constant='add')
         model = OLS(y, X_other).fit()
         r2 = model.rsquared
-        vif = 1.0 / (1.0 - r2) if r2 < 1.0 else np.inf
-        vif_data.append({"feature": col, "vif": vif})
-    return pd.DataFrame(vif_data)
-
+        vif = np.inf if r2 == 1.0 else 1.0 / (1.0 - r2)
+        vif_records.append({"feature": col, "vif": vif})
+    return pd.DataFrame(vif_records)
 
 def _fit_model(
     X: pd.DataFrame,
@@ -106,46 +101,27 @@ def _fit_model(
         "r_squared": model.rsquared,
         "adj_r_squared": model.rsquared_adj,
         "n_obs": int(model.nobs),
+        "features_used": list(X.columns),
     }
     return results
 
-
-def _check_multicollinearity(
-    vif_records: List[Dict[str, Any]],
-    model_name: str,
-    output_dir: Path,
-) -> None:
-    """
-    Write a warning artifact if any VIF exceeds the threshold.
-    """
-    high_vif = [rec for rec in vif_records if rec["vif"] >= VIF_THRESHOLD]
-    if not high_vif:
-        return
-
-    warning_path = output_dir / f"vif_warning_{model_name}.json"
-    warning_content = {
-        "highly_collinear_features": high_vif,
-        "threshold": VIF_THRESHOLD,
-    }
-    with open(warning_path, "w", encoding="utf-8") as f:
-        json.dump(warning_content, f, indent=2)
-    logger.warning(f"High VIF detected for {model_name}; warning written to {warning_path}")
-
-
 @log_duration
 def run_regression_analysis(
-    data_path: str,
-    output_dir: str,
+    data_path: str | None = None,
+    output_dir: str | None = None,
 ) -> Dict[str, Any]:
     """
     Load aligned data, fit baseline and full regression models for Dst and Kp,
     compute VIF, write artifacts, and return a summary dictionary.
 
-    Expected output files:
-        - regression_results.json
-        - regression_coefficients.csv
-        - (optional) vif_warning_<model>.json
+    If ``data_path`` or ``output_dir`` are ``None``, defaults are taken from
+    ``code.config`` (PROC_DIR / "aligned_hourly.parquet" and ARTIFACT_DIR).
     """
+    # Resolve defaults
+    if data_path is None:
+        data_path = PROC_DIR / "aligned_hourly.parquet"
+    if output_dir is None:
+        output_dir = ARTIFACT_DIR
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -155,7 +131,7 @@ def run_regression_analysis(
     coupling_cols = get_coupling_function_columns()
     composition_cols = ["O_Fe", "He_H", "C_O"]
 
-    X_base, X_full, y_dst, y_kp, _ = _prepare_features(df, coupling_cols, composition_cols)
+    X_base, X_full, y_dst, y_kp = _prepare_features(df, coupling_cols, composition_cols)
 
     # Fit models
     baseline_dst = _fit_model(X_base, y_dst, "Baseline_Dst")
@@ -163,51 +139,70 @@ def run_regression_analysis(
     baseline_kp = _fit_model(X_base, y_kp, "Baseline_Kp")
     full_kp = _fit_model(X_full, y_kp, "Full_Kp")
 
-    # Compute VIF for baseline predictors (same for both targets)
+    # Compute VIF on baseline predictors (same for both targets)
     vif_df = _calculate_vif(X_base)
-    vif_records = vif_df.to_dict(orient="records")
-    _check_multicollinearity(vif_records, "Baseline", output_dir)
-
-    # Assemble summary
-    summary = {
-        "Baseline_Dst": baseline_dst,
-        "Full_Dst": full_dst,
-        "Baseline_Kp": baseline_kp,
-        "Full_Kp": full_kp,
-        "Delta_R2_Dst": full_dst["r_squared"] - baseline_dst["r_squared"],
-        "Delta_R2_Kp": full_kp["r_squared"] - baseline_kp["r_squared"],
+    vif_scores = {row["feature"]: row["vif"] for _, row in vif_df.iterrows()}
+    high_vif_flags = {
+        feat: (vif >= VIF_THRESHOLD) for feat, vif in vif_scores.items()
     }
 
-    # Write JSON summary
-    json_path = output_dir / "regression_results.json"
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(summary, f, indent=2)
+    # Write baseline JSON
+    baseline_path = output_dir / "baseline_regression_results.json"
+    with baseline_path.open("w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "R2": baseline_dst["r_squared"],
+                "adj_R2": baseline_dst["adj_r_squared"],
+                "coefficients": baseline_dst["coefficients"],
+                "pvalues": baseline_dst["pvalues"],
+                "features_used": baseline_dst["features_used"],
+            },
+            f,
+            indent=2,
+        )
 
-    # Write coefficients CSV (flattened)
-    coeff_rows = []
-    for model_key in ["Baseline_Dst", "Full_Dst", "Baseline_Kp", "Full_Kp"]:
-        model_res = summary[model_key]
-        for var, coef in model_res["coefficients"].items():
-            coeff_rows.append(
-                {
-                    "model": model_key,
-                    "variable": var,
-                    "coefficient": coef,
-                    "p_value": model_res["pvalues"].get(var, None),
-                }
-            )
-    coeff_df = pd.DataFrame(coeff_rows)
-    coeff_csv_path = output_dir / "regression_coefficients.csv"
-    coeff_df.to_csv(coeff_csv_path, index=False)
+    # Write full JSON
+    full_path = output_dir / "full_regression_results.json"
+    with full_path.open("w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "R2": full_dst["r_squared"],
+                "adj_R2": full_dst["adj_r_squared"],
+                "coefficients": full_dst["coefficients"],
+                "pvalues": full_dst["pvalues"],
+                "features_used": full_dst["features_used"],
+                "delta_r2": full_dst["r_squared"] - baseline_dst["r_squared"],
+            },
+            f,
+            indent=2,
+        )
 
-    logger.info(f"Regression analysis completed; results saved to {output_dir}")
-    return summary
+    # Write VIF results
+    vif_path = output_dir / "vif_results.json"
+    with vif_path.open("w", encoding="utf-8") as f:
+        json.dump(
+            {"vif_scores": vif_scores, "high_vif_flags": high_vif_flags},
+            f,
+            indent=2,
+        )
 
+    logger.info(f"Regression artifacts written to {output_dir}")
+
+    # Return a combined summary (useful for callers)
+    return {
+        "baseline_dst": baseline_dst,
+        "full_dst": full_dst,
+        "baseline_kp": baseline_kp,
+        "full_kp": full_kp,
+        "vif": vif_scores,
+        "high_vif": high_vif_flags,
+    }
 
 def main() -> None:
-    """Entry point placeholder."""
-    logger.info("Regression module executed as script – no action defined.")
-
+    """
+    Simple CLI entry point that runs the regression using default paths.
+    """
+    run_regression_analysis()
 
 if __name__ == "__main__":
     main()

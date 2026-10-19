@@ -13,7 +13,7 @@
 
 ## Phase 1 – Setup, utilities, and first end-to-end analysis
 
-- [X] T001 [P] Fix `requirements.txt` so that **every** non-comment line matches the pattern `package==major.minor.*`, removing the offending `pyarrow>=15.0.0` line flagged by the verifier (pin it as `pyarrow==15.0.*` or drop it in favor of `fastparquet==2024.*`). Add `pyspedas==1.6.*`, `pytplot==2.2.*`, `cdflib==1.3.*` for real CDAWeb data access. Document the runnable pipeline command in the feature's `quickstart.md`.
+- [ ] T001 [P] Fix `requirements.txt` so that **every** non-comment line matches the pattern `package==major.minor.*`, removing the offending `pyarrow>=15.0.0` line flagged by the verifier (pin it as `pyarrow==15.0.*` or drop it in favor of `fastparquet==2024.*`). Add `pyspedas==1.6.*`, `pytplot==2.2.*`, `cdflib==1.3.*` for real CDAWeb data access. Document the runnable pipeline command in the feature's `quickstart.md`.
   **Verification** – CI regex check: each non-comment line matches `^[a-zA-Z0-9_-]+==[0-9]+\.[0-9]+\.\*$`; `pip install -r requirements.txt` succeeds.
 
 - [X] T002 [P] Refactor `code/utils/io.py` so Parquet I/O does NOT hard-require `pyarrow` (verifier: `save_parquet` forced the pyarrow engine and tests failed with ImportError). Attempt `import pyarrow` inside `try/except`; fall back to `fastparquet`; raise a clear error only if both engines are missing. Provide `load_parquet(path)`, `save_parquet(df, path)`, `sha256_checksum(path)`.
@@ -39,7 +39,7 @@
   **File**: `code/analysis/regression.py` → `data/artifacts/baseline_model.json`, `data/artifacts/full_model.json`, `data/artifacts/vif_warnings.txt`
   **Verification** – `pytest tests/integration/test_regression.py`: both JSONs contain coefficient dicts for all predictors, p-values in [0,1]; `vif_warnings.txt` lists only predictors with VIF ≥ 5 (or is empty).
 
-- [ ] T007 [US2] Compute the incremental ΔR² = R²_full − R²_baseline (FR-006) and perform 5-fold time-series cross-validation (`TimeSeriesSplit`) reporting out-of-sample R² for both models and cross-validated ΔR² (FR-007).
+- [ ] T007 [US2] Compute the incremental ΔR² = R²_full − R²_baseline (FR-006) and perform 5-fold time-series cross-validation (`TimeSeriesSplit`) reporting out-of-sample R² for both models and cross-validated ΔR² (FR-007). <!-- FAILED-IN-EXECUTION: code/analysis/cross_validation.py exit=1 -->
   **File**: `code/analysis/cross_validation.py` → `data/artifacts/cv_metrics.json`, `data/artifacts/delta_r2.json`
   **Verification** – Test asserts `delta_r2 == full_r2 − baseline_r2` within 1e-8 and that CV keys exist for both targets.
 

@@ -7,13 +7,11 @@ and return a Series aligned with the input.
 
 import numpy as np
 import pandas as pd
-from typing import Optional, Tuple, Dict, Any
+from typing import Optional
 
-# Updated import path
 from code.utils.logging import AnalysisError, get_logger, log_duration
 
 logger = get_logger(__name__)
-
 
 def compute_akasofu_epsilon(
     V: pd.Series,
@@ -28,12 +26,11 @@ def compute_akasofu_epsilon(
     ε = V * B^2 * l0^2 * sin^4(theta/2)
     where B = sqrt(By^2 + Bz^2) and l0 = 7 RE (taken as constant).
     """
-    # Physical constants
     l0 = 7.0  # Earth radii, dimensionless scaling factor
 
-    B = np.sqrt(By**2 + Bz**2)
+    B = np.sqrt(By ** 2 + Bz ** 2)
     if theta is None:
-        # If theta not supplied, approximate with IMF clock angle
+        # Approximate clock angle using By and Bz
         theta = np.arctan2(By, Bz).abs()
     sin_term = np.sin(theta / 2.0) ** 4
     epsilon = V * (B ** 2) * (l0 ** 2) * sin_term
@@ -52,7 +49,6 @@ def compute_newell_function(
     dΦ_MP/dt = V^(4/3) * Bt^(2/3) * sin^(8/3)(θ/2)
     """
     if theta is None:
-        # Approximate clock angle as above
         theta = np.arctan2(Bt, Bz).abs()
     sin_term = np.sin(theta / 2.0) ** (8.0 / 3.0)
     newell = (V ** (4.0 / 3.0)) * (Bt ** (2.0 / 3.0)) * sin_term
@@ -86,7 +82,8 @@ def compute_all_coupling_functions(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["epsilon"] = compute_akasofu_epsilon(df["V"], df["Bt"], df["By"], df["Bz"])
     df["newell"] = compute_newell_function(df["V"], df["Bt"], df["Bz"])
-    df["v_bs"] = compute_v_bs(df["V"], df["Bt"])  # Using Bt as proxy for Bs
+    # Use Bt as a proxy for the total field magnitude when computing V*B terms
+    df["v_bs"] = compute_v_bs(df["V"], df["Bt"])
     df["v_bt"] = compute_v_bt(df["V"], df["Bt"])
     return df
 
@@ -101,7 +98,3 @@ def get_coupling_function_columns() -> list:
 def main() -> None:
     """Entry point for debugging coupling function calculations."""
     logger.info("Coupling function module loaded.")
-
-
-if __name__ == "__main__":
-    main()

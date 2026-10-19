@@ -15,9 +15,7 @@ import shutil
 import yaml
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, List
-
-import pyspedas.cdaweb as cdaweb  # Unified CDAWeb downloader
+from typing import List
 
 from llmxive_toolkit import paths, get_logger
 
@@ -26,7 +24,7 @@ log = get_logger(__name__)
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with file_path.open("rb") as f:
         for byte_block in iter(lambda: f.read(1 << 20), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
@@ -37,7 +35,9 @@ def _validate_date(date_str: str) -> str:
     try:
         datetime.strptime(date_str, "%Y-%m-%d")
     except ValueError as e:
-        raise ValueError(f"Invalid date '{date_str}' (expected YYYY-MM-DD): {e}") from e
+        raise ValueError(
+            f"Invalid date '{date_str}' (expected YYYY-MM-DD): {e}"
+        ) from e
     return date_str
 
 
@@ -56,6 +56,15 @@ def _fetch_cdf_files(datatype: str, source_name: str, trange: List[str]) -> List
         trange[1],
     )
     try:
+        # Lazy import to keep the module importable without pyspedas
+        from pyspedas import cdaweb  # type: ignore
+    except Exception as e:
+        raise ImportError(
+            "pyspedas is required for real-data ingestion but is not installed."
+        ) from e
+
+    try:
+        # pyspedas.cdaweb returns a list of file paths (strings)
         files = cdaweb.cdaweb(trange=trange, datatype=datatype, downloadonly=True)
     except Exception as e:
         raise ConnectionError(
@@ -111,7 +120,7 @@ def download_and_preserve(start: str = "2000-01-01", end: str = "2020-12-31") ->
     Sources (all real, NASA CDAWeb):
       - OMNI hourly (bulk parameters, IMF, Dst, Kp)
       - ACE SWICS ion composition (H, He, C, O, Fe charge-state fluxes)
-      - WIND SMS/STICS ion composition
+      - WIND SMS/STICS composition
 
     Raises ConnectionError/RuntimeError on any failure. No synthetic
     fallback exists.
@@ -150,7 +159,7 @@ def download_and_preserve(start: str = "2000-01-01", end: str = "2020-12-31") ->
     if not checksums:
         raise RuntimeError("No raw files found to checksum; ingestion failed")
 
-    with open(checksum_file, "w", encoding="utf-8") as f:
+    with checksum_file.open("w", encoding="utf-8") as f:
         yaml.safe_dump(checksums, f, sort_keys=True)
 
     log.info(

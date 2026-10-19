@@ -1,4 +1,9 @@
 T001:
+  reason: The `requirements.txt` correctly pins all packages to the `package==major.minor.*`
+    pattern and the `quickstart.md` documents the pipeline command, but there is no
+    provided evidence (e.g., pip install log or CI run output) showing that `pip install
+    -r requirements.txt` actually succeeds. Adding such installation verification
+    logs will satisfy the task fully.
   task: 0e9c840354158a72b81b8edec609cb12436c310046cc21b529219ce4685836d6
 T002:
   task: ba37300200a30aed0a0a0d413404f22ea49df2c44a3de76426bb7528eacacbd3
@@ -7,12 +12,32 @@ T003:
     exit=1'
   task: 689ed5ca98734d9f7a8b643e0b7b1d14217499554738fbd0f8063f6ba3fffba3
 T004:
+  reason: "The alignment script exists, but the unit test fails because `_load_ace_composition`\
+    \ (and the WIND loader) look for \u201C*.cdf\u201D files, while the test creates\
+    \ \u201C*.csv\u201D placeholders; consequently no data are loaded, `AlignmentError`\
+    \ is raised, and neither `data/processed/aligned_hourly.parquet` nor `data/artifacts/alignment_report.json`\
+    \ is produced. The required output files are missing and the verification test\
+    \ does not pass."
   task: 0941b55dccfe738a4e9d9d4a3733ddca40dc23410f2e1dfd8481e876ca91e364
 T005:
+  reason: "The required `data/processed/with_coupling.parquet` file is missing, and\
+    \ the unit\u2011test suite `tests/unit/test_coupling.py` fails (functions have\
+    \ wrong signatures and do not compute the formulas expected). Consequently the\
+    \ coupling\u2011function derivation and the baseline regression artifact are not\
+    \ produced."
   task: 8888dfdf4bd68c2042eb633a50b4dbaf8246e09aa9123af78d963210972a1930
 T006:
+  reason: "The expected artifact files `data/artifacts/baseline_model.json`, `full_model.json`,\
+    \ and `vif_warnings.txt` do not exist (they are missing), and the regression script\
+    \ writes differently\u2011named JSONs (`baseline_regression_results.json`, `full_regression_results.json`,\
+    \ `vif_results.json`). Moreover, the integration test fails with a `FileNotFoundError`\
+    \ because the script reads the default data path instead of the test\u2019s temporary\
+    \ path, so no artifacts are produced. The required outputs and naming conventions\
+    \ are therefore not satisfied."
   task: 6d2d5bda4303682744b5abcad72dca4a18f09493ac7f5849aa8f1c70180440cb
 T007:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/cross_validation.py
+    exit=1'
   task: 428a5c23917529754b82c330491c86ae3af64b6c04258ae7a8af35138e95a949
 T008:
   task: 90c4bd2ea46c0d3c57e4f151de97debfca9815bf1dc3c9fe1ac04a3338d27dea

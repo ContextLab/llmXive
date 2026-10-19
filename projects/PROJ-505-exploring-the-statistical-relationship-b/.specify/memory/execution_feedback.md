@@ -12,87 +12,125 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for ACE and NO…”
 - code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a deterministic synthetic solar‑wind / geomagnetic…”
 - code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…er(         description="Generate deterministic synthetic solar‑wind and geomagnet…”
-- code/main.py: synthetic/fake INPUT data not authorized by the spec — “…failed ({e}); generating synthetic data.")         # Generate sy…”
-- code/main.py: synthetic/fake INPUT data not authorized by the spec — “…thetic data.")         # Generate synthetic aligned dataset directly…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.     run_ingestion(confi…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for ACE and NO…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a deterministic synthetic solar‑wind / geomagnetic…”; 5 command(s) failed: python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31 (rc=1); python code/ingestion/download_real.py --start 2000-01-01 --end 2000-12-31 (rc=1); python -m code.main (rc=1); 1 declared deliverable(s) absent: data/processed/aligned_hourly.parquet
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.     run_ingestion(confi…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for ACE and NO…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a deterministic synthetic solar‑wind / geomagnetic…”; 5 command(s) failed: python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31 (rc=1); python code/ingestion/download_real.py --start 2000-01-01 --end 2000-12-31 (rc=1); python -m code.main (rc=1); 5 declared deliverable(s) absent: data/artifacts/alignment_report.json; data/artifacts/cv_metrics.json; data/artifacts/delta_r2.json
 
 ## Failing / missing run-book commands
 
 - python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31 -> rc=1
+lationship-b/lib/python3.11/site-packages/pyspedas/__init__.py)
+
+The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 20, in <module>
-    import pyspedas.cdaweb as cdaweb  # Unified CDAWeb downloader
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'pyspedas.cdaweb'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 208, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 203, in main
+    summary = download_and_preserve(start=args.start, end=args.end)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 139, in download_and_preserve
+    omni_files = _fetch_cdf_files("omni_h0", "OMNI hourly", trange)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 62, in _fetch_cdf_files
+    raise ImportError(
+ImportError: pyspedas is required for real-data ingestion but is not installed.
 
 - python code/ingestion/download_real.py --start 2000-01-01 --end 2000-12-31 -> rc=1
+lationship-b/lib/python3.11/site-packages/pyspedas/__init__.py)
+
+The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 20, in <module>
-    import pyspedas.cdaweb as cdaweb  # Unified CDAWeb downloader
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'pyspedas.cdaweb'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 208, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 203, in main
+    summary = download_and_preserve(start=args.start, end=args.end)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 139, in download_and_preserve
+    omni_files = _fetch_cdf_files("omni_h0", "OMNI hourly", trange)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 62, in _fetch_cdf_files
+    raise ImportError(
+ImportError: pyspedas is required for real-data ingestion but is not installed.
 
 - python -m code.main -> rc=1
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 11, in <module>
-    from code.ingestion.align import align_data
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/align.py", line 15, in <module>
-    from utils.logging import AlignmentError, get_logger, log_duration, check_memory_usage
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/utils/__init__.py", line 4, in <module>
-    from .io import *
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/utils/io.py", line 4, in <module>
-    from code.utils.io import (
-ImportError: cannot import name 'compute_md5' from 'code.utils.io' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/io.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 77, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/logging.py", line 76, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 34, in main
+    raise FileNotFoundError(
+FileNotFoundError: Aligned data not found at data/processed/aligned_hourly.parquet. Run the alignment step before executing the main driver.
 
 - python -m code.main --quick -> rc=1
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 11, in <module>
-    from code.ingestion.align import align_data
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/align.py", line 15, in <module>
-    from utils.logging import AlignmentError, get_logger, log_duration, check_memory_usage
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/utils/__init__.py", line 4, in <module>
-    from .io import *
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/utils/io.py", line 4, in <module>
-    from code.utils.io import (
-ImportError: cannot import name 'compute_md5' from 'code.utils.io' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/io.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 77, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/logging.py", line 76, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 34, in main
+    raise FileNotFoundError(
+FileNotFoundError: Aligned data not found at data/processed/aligned_hourly.parquet. Run the alignment step before executing the main driver.
 
 - python -m pytest tests/ -> rc=2
-atplotlib/_fontconfig_pattern.py:89
-../../.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89
-  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
-    parser.resetCache()
-
-../../.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages/matplotlib/_mathtext.py:45
-  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
-    ParserElement.enablePackrat()
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+505-exploring-the-statistical-relationship-b/code/ingestion/align.py)
+_ ERROR collecting projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit/test_regression.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit/test_regression.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_regression.py:14: in <module>
+    from analysis.regression import (
+E   ImportError: cannot import name '_check_multicollinearity' from 'analysis.regression' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/regression.py)
 =========================== short test summary info ============================
-ERROR tests/integration/test_download_real.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-======================== 14 warnings, 1 error in 2.27s =========================
+ERROR tests/unit/test_ingestion.py
+ERROR tests/unit/test_regression.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 2 errors in 1.53s ===============================
 
 
 
 ## Declared deliverables still missing
 
+- data/artifacts/alignment_report.json
+- data/artifacts/cv_metrics.json
+- data/artifacts/delta_r2.json
 - data/processed/aligned_hourly.parquet
+- data/processed/with_coupling.parquet
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/aligned_hourly.parquet` is declared but was NOT written. Scripts referencing it:
+- `data/artifacts/alignment_report.json` is declared but was NOT written. Scripts referencing it:
     - `code/ingestion/align.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/artifacts/alignment_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/artifacts/cv_metrics.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/cross_validation.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/artifacts/cv_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/artifacts/delta_r2.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/cross_validation.py` — NOT invoked by the run-book
+    - `code/analysis/integrate_results.py` — NOT invoked by the run-book
+    - `code/analysis/regression.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/artifacts/delta_r2.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/aligned_hourly.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/regression.py` — NOT invoked by the run-book
+    - `code/ingestion/align.py` — NOT invoked by the run-book
+    - `code/main.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/aligned_hourly.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/with_coupling.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/cross_validation.py` — NOT invoked by the run-book
+    - `code/main.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/with_coupling.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

@@ -1,17 +1,47 @@
 T001:
-  c: true
-  h: 0d8fd38911bb5e260e3ef600f50581524c6ce236bd4e0b19c1b06b3f7b910641
-  r: "Checked `requirements.txt` (all non\u2011comment lines match `package==major.minor.*`\
-    \ and the non\u2011conforming `pyarrow>=15.0.0` line is removed/commented out,\
-    \ with `fastparquet==2024.*` present) and `quickstart.md` (documents the runnable\
-    \ pipeline command `python -m code.main`)."
-  sig: b69dfed45e45e3354c3919b01bdfef432b931f5a73b24c3b1e5e5a9b03b84fb9
+  c: false
+  h: dd7d9d5903a4d4559e110b0783ebc019f03db9851a550deca21713fe12e9d7ef
+  r: The `requirements.txt` correctly pins all packages to the `package==major.minor.*`
+    pattern and the `quickstart.md` documents the pipeline command, but there is no
+    provided evidence (e.g., pip install log or CI run output) showing that `pip install
+    -r requirements.txt` actually succeeds. Adding such installation verification
+    logs will satisfy the task fully.
+  sig: 69478e36c78a1de5bf92b4e5ac5bbe96b2234cbe243a633ac87f83d96ca1bab8
 T002:
   c: true
-  h: 56c8b3fc99d121c666e5f15a7266f7c537bd25d8746217d42ba0a1bf8a31bb40
-  r: "Checked `code/utils/io.py` \u2013 it lazily imports `pyarrow` and `fastparquet`,\
-    \ selects an available engine, and raises a clear error if neither is present,\
-    \ providing `load_parquet`, `save_parquet`, and `sha256_checksum`. Also verified\
-    \ `tests/unit/test_io.py` which exercises these functions and would pass when\
-    \ only `fastparquet` is installed."
-  sig: 51cb4e060895109b5380a6d19eb68bc1b792eea7e36596f53d932f6cbbafa8a3
+  h: 3d90b30259a2afb6ed5cc41bb4ddf3fba188d5682be86cfb0bf93b38e4da2a14
+  r: The `code/utils/io.py` file implements `_get_parquet_engine` with a try/except
+    import of `pyarrow` and fallback to `fastparquet`, and raises an informative ImportError
+    if neither is available. It provides the required `save_parquet`, `load_parquet`,
+    and `sha256_checksum` functions, and the accompanying `tests/unit/test_io.py`
+    validates their behavior without needing `pyarrow`.
+  sig: 29b28285a51cbe72cbe12af4e1043feebcd93b2e9458181c343cdffc906845ee
+T004:
+  c: false
+  h: 1a7fe970338fb61a03f4d73af210dfb993d171951b8b5d0bee5c451047f908b6
+  r: "The alignment script exists, but the unit test fails because `_load_ace_composition`\
+    \ (and the WIND loader) look for \u201C*.cdf\u201D files, while the test creates\
+    \ \u201C*.csv\u201D placeholders; consequently no data are loaded, `AlignmentError`\
+    \ is raised, and neither `data/processed/aligned_hourly.parquet` nor `data/artifacts/alignment_report.json`\
+    \ is produced. The required output files are missing and the verification test\
+    \ does not pass."
+  sig: 22ba6703b05853355f16d88d4bea7330064c9d8ce1324eaf6c7a8f4950f07ba5
+T005:
+  c: false
+  h: fb76be50f36ed84867eba4376b97cac2cb320c146d72de8a6e3ec90c7c89616d
+  r: "The required `data/processed/with_coupling.parquet` file is missing, and the\
+    \ unit\u2011test suite `tests/unit/test_coupling.py` fails (functions have wrong\
+    \ signatures and do not compute the formulas expected). Consequently the coupling\u2011\
+    function derivation and the baseline regression artifact are not produced."
+  sig: 7e9924970213cf42aed1a1b55dd4fab638811cba1378b7412972a0262a0171c5
+T006:
+  c: false
+  h: 604dc88e93802bd937a748f8754c62a568b3ccdb38b9e1731545ec02fd9d7e22
+  r: "The expected artifact files `data/artifacts/baseline_model.json`, `full_model.json`,\
+    \ and `vif_warnings.txt` do not exist (they are missing), and the regression script\
+    \ writes differently\u2011named JSONs (`baseline_regression_results.json`, `full_regression_results.json`,\
+    \ `vif_results.json`). Moreover, the integration test fails with a `FileNotFoundError`\
+    \ because the script reads the default data path instead of the test\u2019s temporary\
+    \ path, so no artifacts are produced. The required outputs and naming conventions\
+    \ are therefore not satisfied."
+  sig: 22c6c30b745583b921dbc4ac16ff01879a5e1894d8df25ccbe56326c9b8ebbc2
