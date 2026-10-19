@@ -4,7 +4,7 @@ description: "Represents the ground truth event."
 type: "object"
 properties:
   grid_id:
-    type: "integer"
+    type: "string"
     description: "Unique identifier for the grid point (matches Forecast Record)."
   observation_date:
     type: "string"
@@ -16,8 +16,12 @@ properties:
   event_value:
     type: "number"
     description: "Continuous value for the event (e.g., temperature, precipitation amount)."
+  variable:
+    type: "string"
+    description: "Variable name (e.g., \"precipitation\", \"temperature\")."
 required:
   - grid_id
   - observation_date
   - event_occurred
+  - variable
 additionalProperties: false
