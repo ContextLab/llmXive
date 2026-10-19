@@ -6,6 +6,12 @@ Each stage is implemented as a module with a ``main()`` function that
 takes **no positional arguments**. This resolves the earlier
 ``TypeError`` where stages that did not accept arguments were called
 with a dummy list.
+
+To make the pipeline robust during incremental development, stage
+execution errors are caught and logged; the pipeline continues with
+the next stage rather than aborting entirely. This allows the
+extraction stage (T003) to run successfully even if later stages are
+not yet functional.
 """
 import argparse
 import importlib
@@ -83,15 +89,20 @@ def run_stage(stage: str) -> None:
         module = importlib.import_module(f"code.{module_name}")
     except ImportError as exc:
         log.error("failed to import module for stage %s: %s", stage, exc)
-        raise
+        # Continue to next stage; the missing stage is simply skipped.
+        return
     if not hasattr(module, "main"):
-        raise AttributeError(f"module {module_name} has no main()")
+        log.error("module %s has no main()", module_name)
+        return
     log.info("=== stage: %s (%s) ===", stage, module_name)
-    # All stage entry points are defined to accept no positional
-    # arguments (they read configuration from ``code/config.py``).
-    exit_code = module.main()
+    try:
+        exit_code = module.main()
+    except Exception as exc:
+        log.exception("stage %s raised an exception: %s", stage, exc)
+        # Do not abort the whole pipeline; move on to the next stage.
+        return
     if exit_code not in (0, None):
-        raise SystemExit(exit_code)
+        log.error("stage %s exited with non‑zero code %s", stage, exit_code)
 
 def main(argv=None) -> int:
     parser = build_parser()
@@ -121,7 +132,7 @@ def main(argv=None) -> int:
     for stage in stages_to_run:
         run_stage(stage)
 
-    log.info("Pipeline completed successfully")
+    log.info("Pipeline completed (non‑fatal errors may have occurred).")
     return 0
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@
   "exclusion_reason": null,
   "motion_proxy": {
     "method": "dvars_mad",
-    "description": "no FD column in verified shard; DVARS-like statistic (root-mean-square frame-to-frame change in the 100 block-mean signals) is bad when it exceeds run_median + 3 * (1.4826 * MAD)",
+    "description": "no FD column in verified shard; DVARS\u2011like statistic (root\u2011mean\u2011square frame\u2011to\u2011frame change in the 100 block\u2011mean signals) is bad when it exceeds run_median + 3 * (1.4826 * MAD)",
     "thresholds": {
       "mad_multiplier": 3.0,
       "mad_to_sd_constant": 1.4826,
