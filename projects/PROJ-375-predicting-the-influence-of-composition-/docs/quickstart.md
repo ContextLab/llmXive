@@ -47,9 +47,9 @@ python code/modeling/train.py && \
 python code/modeling/evaluate.py
 ```
 
-- `code/ingestion/fetch_data.py` – contacts MP (via `pymatgen.ext.matproj.MPRester`) and AFLOWlib (via the public REST API at ` Name or service not known)"))]). It saves raw JSON responses under `data/raw/` and records SHA‑256 checksums in `data/checksums.txt`.
-- `code/modeling/train.py` – loads the cleaned dataset, computes descriptors, performs VIF filtering, splits the data, and trains Linear Regression and Random Forest models. Model artefacts are written to `models/`.
-- `code/modeling/evaluate.py` – evaluates the test split, writes `results/model_performance.json`, runs the ≥ 1000‑iteration permutation test, and produces divergence diagnostics.
+- `code/ingestion/fetch_data.py` – contacts MP (via `pymatgen.ext.matproj.MPRester`) and AFLOWlib (via the public REST API at `). It saves raw JSON responses under `data/raw/` and records SHA‑256 checksums in `data/checksums.txt`. **Any failure to fetch real data aborts the pipeline** – no synthetic fallback is performed.
+- `code/modeling/train.py` – loads the cleaned dataset, computes descriptors, performs a stratified (or random) train‑test split, trains Linear Regression and Random Forest models, and writes the models to `models/`. Train and test splits are persisted as Parquet files under `data/processed/`.
+- `code/modeling/evaluate.py` – loads the test split, evaluates both models (R², MAE, RMSE), runs a ≥ 1000‑iteration permutation test, flags a null result when R² ≤ 0.3, and writes `results/model_performance.json`.
 
 ## (c) Verified data sources
 
@@ -62,7 +62,7 @@ The pipeline relies on two external, publicly accessible data sources:
 
 2. **AFLOWlib**
  - Accessed via its public REST API: `.
- - Query parameters: `structure_type=amorphous` and `properties=composition,cte`.
+ - Query parameters: `property=thermal_expansion_coefficient`, `keywords=glass`, `format=json`.
  - Returns JSON records with composition strings and CTE values.
 
 Both sources are queried **without any synthetic fallback**. If a request fails (e.g., network error, missing API key), the loader raises an exception and the pipeline aborts, ensuring full provenance.
@@ -98,17 +98,15 @@ docs/
 logs/
 ```
 
-The `code/setup_directories.py` script (included in the repository) can be run beforehand to materialise all required folders:
-
-```bash
-python code/setup_directories.py
-```
-
 After running the pipeline, you should see artefacts such as:
 
-- `data/raw/<source>_raw.json`
+- `data/raw/mp_data.json`
+- `data/raw/aflow_data.json`
 - `data/processed/clean_mg_data.parquet`
-- `models/linear_regression.pkl`, `models/random_forest.pkl`
+- `data/processed/train.parquet`
+- `data/processed/test.parquet`
+- `models/linear_regression.pkl`
+- `models/random_forest.pkl`
 - `results/model_performance.json`
 - `logs/pipeline.log`
 

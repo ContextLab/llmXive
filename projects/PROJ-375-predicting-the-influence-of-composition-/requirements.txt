@@ -1,3 +1,19 @@
-# Project‑specific dependencies (not already in the base environment)
-pymatgen>=2024.0
-mendeleev>=0.12
+pymatgen
+mendeleev
+joblib
+scikit-learn
+pandas
+numpy
+scipy
+statsmodels
+seaborn
+matplotlib
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+ruff
+# The base environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil. The above lines are added for clarity and version pinning.

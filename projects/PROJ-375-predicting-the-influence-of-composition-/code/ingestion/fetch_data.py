@@ -68,9 +68,6 @@ def _query_materials_project(api_key: str) -> List[Dict[str, Any]]:
     """
     logger.info("Querying Materials Project for metallic‑glass CTE entries.")
     with MPRester(api_key) as mpr:
-        # The MP REST API does not expose a dedicated ``material_type`` field
-        # for amorphous structures, but we can request all entries that have
-        # a thermal_expansion_coefficient property and then filter locally.
         criteria = {"thermal_expansion_coefficient": {"$exists": True}}
         properties = [
             "material_id",
@@ -100,7 +97,6 @@ def _query_aflow() -> List[Dict[str, Any]]:
     import requests
 
     logger.info("Querying AFLOWlib for metallic‑glass CTE entries.")
-    # AFLOWlib's public API endpoint for property queries
     url = "https://aflowlib.org/rest/search"
     params = {
         "property": "thermal_expansion_coefficient",
@@ -128,17 +124,14 @@ def _is_amorphous(entry: Dict[str, Any]) -> bool:
     - ``structure_type`` substring "amorphous".
     - Missing space‑group information.
     """
-    # Primary metadata fields
     material_type = entry.get("material_type", "")
     if isinstance(material_type, str) and material_type.lower() in {"amorphous", "glass"}:
         return True
 
-    # Description fallback
     description = entry.get("description", "")
     if isinstance(description, str) and "glass" in description.lower():
         return True
 
-    # Documented fall‑backs
     tags = entry.get("tags", [])
     if isinstance(tags, list) and any("glass" in str(t).lower() for t in tags):
         return True
@@ -147,7 +140,6 @@ def _is_amorphous(entry: Dict[str, Any]) -> bool:
     if isinstance(structure_type, str) and "amorphous" in structure_type.lower():
         return True
 
-    # Missing space‑group is a heuristic for amorphous (no symmetry)
     if entry.get("spacegroup") is None:
         return True
 
@@ -157,38 +149,29 @@ def _is_amorphous(entry: Dict[str, Any]) -> bool:
 # 4️⃣ Entry normalisation & field extraction
 # -------------------------------------------------------------------------
 
-def _normalise_entry(
-    entry: Dict[str, Any], source: str
-) -> Optional[Dict[str, Any]]:
+def _normalise_entry(entry: Dict[str, Any], source: str) -> Optional[Dict[str, Any]]:
     """
     Pull the required fields from a raw entry and return a flat dictionary.
     Returns ``None`` when the entry does not meet the inclusion criteria.
     """
-    # Amorphous flag
-    amorphous_flag = _is_amorphous(entry)
-    if not amorphous_flag:
+    if not _is_amorphous(entry):
         return None
 
-    # CTE extraction – MP uses ``thermal_expansion_coefficient``,
-    # AFLOW may use ``cte`` or similar; we try a few keys.
     cte = entry.get("thermal_expansion_coefficient")
     if cte is None:
         cte = entry.get("cte")
     if cte is None:
-        # Some MP entries store the value inside a nested dict
         thermo = entry.get("thermo", {})
         cte = thermo.get("thermal_expansion_coefficient")
     if cte is None:
-        return None  # discard entries without a CTE
+        return None
 
-    # Composition – prefer ``pretty_formula``; fall back to ``composition``.
     composition = entry.get("pretty_formula") or entry.get("composition")
     if not composition:
         return None
 
     material_id = entry.get("material_id") or entry.get("id") or "unknown"
 
-    # Source method – MP entries are DFT; AFLOW may be experimental.
     source_method = entry.get("source_method", "DFT")
     if source_method not in {"DFT", "Experimental"}:
         source_method = "DFT"
@@ -202,7 +185,7 @@ def _normalise_entry(
         "source_method": source_method,
         "thermal_history": str(thermal_history),
         "amorphous_flag": True,
-        "source": source,  # internal use only
+        "source": source,
     }
 
 # -------------------------------------------------------------------------
@@ -210,40 +193,28 @@ def _normalise_entry(
 # -------------------------------------------------------------------------
 
 @fail_loud_loader
-def fetch_data() -> Tuple[Optional[Dict[str, Any]], str]:
+def fetch_data() -> Tuple[pd.DataFrame, str]:
     """
-    Orchestrates data fetching from MP, AFLOW, and (optionally) Zenodo.
-    Returns a tuple ``(combined_dataframe, source)`` where *source* is the
-    primary successful source identifier.
+    Orchestrates data fetching from MP and AFLOW.
+    Returns a tuple ``(cleaned_dataframe, source)``.
     """
     mp_key = get_env_var("MP_API_KEY")
     if not mp_key:
         raise RuntimeError("Environment variable MP_API_KEY is required.")
 
-    # -----------------------------------------------------------------
-    # Fetch MP data
-    # -----------------------------------------------------------------
+    # ------------------- MP -------------------
     mp_entries_raw = _query_materials_project(mp_key)
     mp_path = paths.data("raw", "mp_data.json")
     _save_json(mp_entries_raw, mp_path)
 
-    # -----------------------------------------------------------------
-    # Fetch AFLOW data (optional – warnings only)
-    # -----------------------------------------------------------------
-    try:
-        aflow_entries_raw = _query_aflow()
-        aflow_path = paths.data("raw", "aflow_data.json")
-        _save_json(aflow_entries_raw, aflow_path)
-    except Exception as e:
-        logger.warning(f"AFLOWlib query failed: {e}")
-        aflow_entries_raw = []
-        aflow_path = None
+    # ------------------- AFLOW -------------------
+    aflow_entries_raw = _query_aflow()
+    aflow_path = paths.data("raw", "aflow_data.json")
+    _save_json(aflow_entries_raw, aflow_path)
 
-    # -----------------------------------------------------------------
-    # Compute checksums and write manifest
-    # -----------------------------------------------------------------
+    # ------------------- Checksums -------------------
     checksums: List[str] = []
-    for p in [mp_path, aflow_path] if aflow_path else [mp_path]:
+    for p in [mp_path, aflow_path]:
         checksum = compute_sha256(str(p))
         checksums.append(f"{p.name}: {checksum}")
 
@@ -252,9 +223,7 @@ def fetch_data() -> Tuple[Optional[Dict[str, Any]], str]:
     checksums_path.write_text("\n".join(checksums), encoding="utf-8")
     logger.info(f"Checksums written to {checksums_path}")
 
-    # -----------------------------------------------------------------
-    # Normalise and combine entries
-    # -----------------------------------------------------------------
+    # ------------------- Normalise -------------------
     combined: List[Dict[str, Any]] = []
     for raw_entry in mp_entries_raw:
         norm = _normalise_entry(raw_entry, source="materials_project")
@@ -268,65 +237,58 @@ def fetch_data() -> Tuple[Optional[Dict[str, Any]], str]:
     if not combined:
         raise RuntimeError("No metallic‑glass entries with CTE were found after filtering.")
 
-    # -----------------------------------------------------------------
-    # Build DataFrame and compute descriptors
-    # -----------------------------------------------------------------
     df = pd.DataFrame(combined)
-    raw_counts = {
-        "materials_project": len(mp_entries_raw),
-        "aflowlib": len(aflow_entries_raw),
-    }
 
-    # Apply descriptor extraction
+    # ------------------- Descriptors -------------------
     descriptor_rows: List[Dict[str, Any]] = []
-    for idx, row in df.iterrows():
+    for _, row in df.iterrows():
         try:
             desc = extract_descriptors(row["composition"])
             descriptor_rows.append(desc)
         except Exception as e:
             logger.warning(f"Descriptor extraction failed for {row['composition']}: {e}")
-            descriptor_rows.append(
-                {
-                    "weighted_mean_atomic_radius": None,
-                    "electronegativity_variance": None,
-                    "vec": None,
-                    "atomic_size_coefficient_of_variation": None,
-                }
-            )
+            descriptor_rows.append({
+                "weighted_mean_atomic_radius": None,
+                "electronegativity_variance": None,
+                "vec": None,
+                "atomic_size_coefficient_of_variation": None,
+            })
     desc_df = pd.DataFrame(descriptor_rows)
+
+    # Drop rows with any missing descriptor (required by schema)
     df = pd.concat([df.reset_index(drop=True), desc_df], axis=1)
+    before_drop = len(df)
+    df = df.dropna(subset=[
+        "weighted_mean_atomic_radius",
+        "electronegativity_variance",
+        "vec",
+        "atomic_size_coefficient_of_variation",
+    ])
+    dropped = before_drop - len(df)
+    if dropped:
+        logger.info(f"Dropped {dropped} rows due to missing descriptor values.")
 
-    # Merge checksum (use MP checksum for all rows coming from MP, etc.)
-    checksum_map = {}
-    if mp_path:
-        checksum_map["materials_project"] = compute_sha256(str(mp_path))
-    if aflow_path:
-        checksum_map["aflowlib"] = compute_sha256(str(aflow_path))
+    # ------------------- Checksums per source -------------------
+    checksum_map = {
+        "materials_project": compute_sha256(str(mp_path)),
+        "aflowlib": compute_sha256(str(aflow_path)),
+    }
     df["checksum"] = df["source"].map(checksum_map)
-
-    # Drop the internal ``source`` column – not part of the schema
     df = df.drop(columns=["source"])
 
-    # -----------------------------------------------------------------
-    # Validation against schema
-    # -----------------------------------------------------------------
+    # ------------------- Validation -------------------
     from features.dataset_models import validate_dataframe_schema
-
     if not validate_dataframe_schema(df):
         raise RuntimeError("Cleaned DataFrame does not conform to the dataset schema.")
 
-    # -----------------------------------------------------------------
-    # Persist cleaned data
-    # -----------------------------------------------------------------
+    # ------------------- Persist cleaned data -------------------
     processed_path = paths.data("processed", "clean_mg_data.parquet")
     processed_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(processed_path, index=False)
     logger.info(f"Cleaned dataset written to {processed_path}")
 
-    # -----------------------------------------------------------------
-    # Ingestion statistics
-    # -----------------------------------------------------------------
-    total_raw = sum(raw_counts.values())
+    # ------------------- Ingestion statistics -------------------
+    total_raw = len(mp_entries_raw) + len(aflow_entries_raw)
     kept = len(df)
     ingestion_stats = {
         "total_raw_entries": total_raw,
@@ -338,13 +300,11 @@ def fetch_data() -> Tuple[Optional[Dict[str, Any]], str]:
     stats_path.write_text(json.dumps(ingestion_stats, indent=2), encoding="utf-8")
     logger.info(f"Ingestion stats written to {stats_path}")
 
-    # -----------------------------------------------------------------
-    # Data‑availability report (per source)
-    # -----------------------------------------------------------------
+    # ------------------- Data‑availability report -------------------
     report = {}
     for src in ["materials_project", "aflowlib"]:
-        raw = raw_counts.get(src, 0)
-        post_filter = df[df["source_method"] == ("DFT" if src == "materials_project" else "Experimental")].shape[0]
+        raw = len(mp_entries_raw) if src == "materials_project" else len(aflow_entries_raw)
+        post_filter = df[df["checksum"] == checksum_map[src]].shape[0]
         valid_cte = df[df["cte"].notna()].shape[0]
         report[src] = {
             "raw_hit_count": raw,
@@ -356,9 +316,7 @@ def fetch_data() -> Tuple[Optional[Dict[str, Any]], str]:
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     logger.info(f"Data‑availability report written to {report_path}")
 
-    # -----------------------------------------------------------------
-    # Graceful degradation warning
-    # -----------------------------------------------------------------
+    # ------------------- Graceful degradation warning -------------------
     if kept == 0:
         raise RuntimeError("No valid metallic‑glass entries remain after filtering.")
     if kept < 500:

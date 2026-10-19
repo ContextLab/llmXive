@@ -323,3 +323,129 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-19T13:22:56Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline relies on two external data sources Materials Project and AFLOWlib
+  claim_id: c_9923adb2
+  context: 'The pipeline relies on two external, publicly accessible data sources:
+    Materials Project and AFLOWlib.'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: 'The pipeline relies on two external, publicly accessible data sources:
+    Materials Project and AFLOWlib.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T13:27:56Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: Materials Project provides composition, thermal expansion coefficient,
+    and material_type metadata
+  claim_id: c_34a37095
+  context: "Materials Project provides composition, thermal\u2011expansion coefficient,\
+    \ and metadata such as material_type."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "Materials Project provides composition, thermal\u2011expansion coefficient,\
+    \ and metadata such as material_type."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T13:28:08Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: AFLOWlib returns JSON records with composition strings and thermal expansion
+    coefficient values
+  claim_id: c_b121992b
+  context: AFLOWlib returns JSON records with composition strings and CTE values.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: AFLOWlib returns JSON records with composition strings and CTE values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T13:28:16Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline saves raw JSON responses under data/raw and records SHA-256
+    checksums in data/checksums.txt
+  claim_id: c_6176bb60
+  context: "The pipeline saves raw JSON responses under data/raw/ and records SHA\u2011\
+    256 checksums in data/checksums.txt."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline saves raw JSON responses under data/raw/ and records SHA\u2011\
+    256 checksums in data/checksums.txt."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:28:16Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline produces artefacts including mp_data.json, aflow_data.json,
+    clean_mg_data.parquet, train.parquet, test.parquet, linear_regression.pkl, random_forest.pkl,
+    model_performance.json, and pipeline.log
+  claim_id: c_762bd9f9
+  context: After running the pipeline, you should see artefacts such as data/raw/mp_data.json,
+    data/raw/aflow_data.json, data/processed/clean_mg_data.parquet, data/processed/train.parquet,
+    data/processed/test.parquet, models/linear_regression.pkl, models/random_forest.pkl,
+    results/model_performance.json, and logs/pipeline.log.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: After running the pipeline, you should see artefacts such as data/raw/mp_data.json,
+    data/raw/aflow_data.json, data/processed/clean_mg_data.parquet, data/processed/train.parquet,
+    data/processed/test.parquet, models/linear_regression.pkl, models/random_forest.pkl,
+    results/model_performance.json, and logs/pipeline.log.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:28:16Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: all scripts initialise logging with setup_logging and write to logs/pipeline.log
+  claim_id: c_aa298ed3
+  context: All scripts initialise logging with setup_logging() from code/utils/io.py
+    and the logger writes to logs/pipeline.log.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All scripts initialise logging with setup_logging() from code/utils/io.py
+    and the logger writes to logs/pipeline.log.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:28:16Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline aborts on any failure to fetch real data without synthetic fallback
+  claim_id: c_df4ed6f8
+  context: "Any failure to fetch real data aborts the pipeline \u2013 no synthetic\
+    \ fallback is performed."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Any failure to fetch real data aborts the pipeline \u2013 no synthetic\
+    \ fallback is performed."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:28:16Z'
