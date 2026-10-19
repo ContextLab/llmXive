@@ -1,15 +1,11 @@
 """
 Main entry point for the llmXive research pipeline: The Impact of Musical Training on Functional Connectivity.
 
-This script orchestrates the entire research workflow, supporting two distinct modes:
-1. Synthetic verification mode (`--mode synthetic`): runs the pipeline on synthetic data to validate code correctness,
-   data flow, and memory constraints without requiring real biological data.
-2. Real-data mode (`--mode real`): runs the pipeline on real, verified neuroimaging data (e.g., ABCD, HCP)
-   to produce scientifically valid results.
+This script orchestrates the entire workflow, supporting two modes:
+1. Synthetic verification mode (`--mode synthetic`): runs the pipeline on synthetic data.
+2. Real‑data mode (`--mode real`): graceful stub that reports data‑source unavailability.
 
-Usage:
-    python code/main.py --mode synthetic --n-subjects 100 --seed 42
-    python code/main.py --mode real --data-path /path/to/verified/dataset
+The implementation relies only on internal modules that are provided in the repository.
 """
 
 import argparse
@@ -23,19 +19,23 @@ import time
 import numpy as np
 import pandas as pd
 
-# Project root is the parent of the 'code' directory
+# Ensure the project root is the working directory
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 os.chdir(PROJECT_ROOT)
 
-# Ensure the code directory is on the import path
+# Make sure the code directory is importable
 if str(PROJECT_ROOT / "code") not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
 # ----------------------------------------------------------------------
-# Local imports – these must match the existing API surface
+# Local imports – these now exist in the repository
 # ----------------------------------------------------------------------
 from utils.logging import configure_logger, get_logger
-from utils.memory_monitor import check_memory_limit, get_memory_usage_report, MemoryLimitExceeded
+from utils.memory_monitor import (
+    check_memory_limit,
+    get_memory_usage_report,
+    MemoryLimitExceeded,
+)
 from data.preprocess import preprocess_subjects
 from data.output_cleaned_subjects import write_cleaned_subjects
 from analysis.connectivity import generate_group_connectivity_results
@@ -54,21 +54,7 @@ logger = get_logger(__name__)
 # Helper functions for synthetic data generation (verification mode)
 # ----------------------------------------------------------------------
 def _generate_synthetic_subjects(num_subjects: int = 100, seed: int = 0) -> pd.DataFrame:
-    """
-    Generate a deterministic synthetic behavioural table for verification.
-
-    Parameters
-    ----------
-    num_subjects : int
-        Total number of subjects (will be split evenly between musician and non‑musician).
-    seed : int
-        Random seed for reproducibility.
-
-    Returns
-    -------
-    pd.DataFrame
-        Synthetic subject metadata with required columns.
-    """
+    """Create a deterministic synthetic behavioural table."""
     np.random.seed(seed)
     per_group = num_subjects // 2
     total = per_group * 2
@@ -76,7 +62,7 @@ def _generate_synthetic_subjects(num_subjects: int = 100, seed: int = 0) -> pd.D
 
     groups = (["musician"] * per_group) + (["non_musician"] * per_group)
     years_of_training = (
-        np.random.randint(1, 11, size=per_group).tolist() +  # musicians: >=1 yr
+        np.random.randint(1, 11, size=per_group).tolist() +  # musicians: ≥1 yr
         [0] * per_group                                      # non‑musicians: 0 yr
     )
     ages = np.random.randint(12, 19, size=total).tolist()
@@ -95,11 +81,9 @@ def _generate_synthetic_subjects(num_subjects: int = 100, seed: int = 0) -> pd.D
     })
     return df
 
-def _generate_synthetic_time_series(num_subjects: int, n_timepoints: int = 200, n_rois: int = 400, seed: int = 0):
-    """
-    Produce a deterministic list of dictionaries suitable for
-    ``generate_group_connectivity_results`` in verification mode.
-    """
+def _generate_synthetic_time_series(num_subjects: int, n_timepoints: int = 200,
+                                    n_rois: int = 400, seed: int = 0):
+    """Create a list of dicts with random time‑series data for each subject."""
     np.random.seed(seed)
     subjects_data = []
     for i in range(num_subjects):
@@ -112,34 +96,17 @@ def _generate_synthetic_time_series(num_subjects: int, n_timepoints: int = 200, 
 # Verification (synthetic) mode implementation
 # ----------------------------------------------------------------------
 def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
-    """
-    Execute the pipeline using synthetic data for verification.
-
-    Parameters
-    ----------
-    output_dir : str
-        Directory where all processed outputs will be written.
-    n_subjects : int
-        Total number of synthetic subjects (even number; split evenly between groups).
-    seed : int
-        Random seed for reproducibility.
-
-    Returns
-    -------
-    bool
-        True if the pipeline completes without error, False otherwise.
-    """
+    """Execute the pipeline on synthetic data."""
     logger.info("Starting VERIFICATION MODE pipeline.")
     start_time = time.time()
 
     try:
-        # 1. Generate synthetic subject metadata
+        # 1. Synthetic subject metadata
         logger.info("Generating synthetic subject metadata...")
         df_subjects = _generate_synthetic_subjects(num_subjects=n_subjects, seed=seed)
         check_memory_limit()
 
-        # 2. Preprocess – creates subjects_cleaned.csv,
-        #    dataset_validity_report.csv, matching_balance_report.csv
+        # 2. Preprocess – writes cleaned CSV and audit reports
         logger.info("Preprocessing synthetic subjects...")
         cleaned_df = preprocess_subjects(
             df=df_subjects,
@@ -154,7 +121,7 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         write_cleaned_subjects(cleaned_df, cleaned_path)
         check_memory_limit()
 
-        # 3. Ensure the Schaefer atlas is available (bundled stub)
+        # 3. Ensure the Schaefer atlas is present
         logger.info("Ensuring Schaefer atlas is present...")
         download_atlas_main()
         atlas_path = Path("data/atlas/schaefer_400.csv")
@@ -180,7 +147,7 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         check_memory_limit()
 
         # 5. Statistical analysis (Welch's t‑test, FDR, Cohen's d)
-        logger.info("Running statistical analysis (Welch's t-test, FDR, Cohen's d)...")
+        logger.info("Running statistical analysis...")
         stats_results = process_connectivity_statistics(matrices)
         check_memory_limit()
 
@@ -189,8 +156,8 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         write_connectivity_results(stats_results, str(stats_path))
         logger.info(f"Connectivity statistics written to {stats_path}")
 
-        # 7. Network‑Based Statistic (placeholder implementation)
-        logger.info("Running Network Based Statistic (NBS) placeholder...")
+        # 7. NBS placeholder
+        logger.info("Running Network Based Statistic (placeholder)...")
         nbs_results = run_nbs_analysis(str(cleaned_path))
         check_memory_limit()
 
@@ -199,11 +166,11 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         logger.info(f"NBS results written to {nbs_path}")
 
         # 8. Correlation analysis (musician‑only)
-        logger.info("Running correlation analysis (Years of Training vs Connectivity)...")
+        logger.info("Running correlation analysis...")
         corr_results = process_correlation_analysis(str(cleaned_path))
         check_memory_limit()
 
-        # 9. Sensitivity analysis over FDR thresholds
+        # 9. Sensitivity analysis
         logger.info("Running sensitivity analysis...")
         sens_results = process_sensitivity_analysis(corr_results)
         check_memory_limit()
@@ -221,67 +188,41 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         logger.info(f"Sensitivity results written to {sens_out_path}")
 
         elapsed = time.time() - start_time
-        logger.info(f"Verification Mode completed successfully in {elapsed:.2f} seconds.")
+        logger.info(f"Verification Mode completed in {elapsed:.2f} seconds.")
         logger.info(f"Memory Report: {get_memory_usage_report()}")
         return True
 
     except MemoryLimitExceeded as e:
-        logger.error(f"Memory limit exceeded during verification: {e}")
+        logger.error(f"Memory limit exceeded: {e}")
         logger.error(get_memory_usage_report())
         return False
     except Exception as e:
-        logger.error(f"Verification Mode failed with unexpected error: {e}")
+        logger.error(f"Verification Mode failed: {e}")
         logger.error(traceback.format_exc())
         return False
 
 # ----------------------------------------------------------------------
-# Real‑data mode implementation (graceful stub when no dataset is available)
+# Real‑data mode (graceful stub)
 # ----------------------------------------------------------------------
 def run_real_mode(data_path: str, output_dir: str) -> bool:
-    """
-    Execute the pipeline using real neuroimaging data.
-
-    This implementation follows the specification's edge‑case: if no
-    verified dataset is supplied, the real‑data ingestion script will
-    report unavailability and exit 0 with a status JSON. The pipeline
-    therefore aborts early with a clear message rather than raising an
-    unhandled exception.
-
-    Parameters
-    ----------
-    data_path : str
-        Path to the real data directory or manifest.
-    output_dir : str
-        Directory for processed outputs.
-
-    Returns
-    -------
-    bool
-        True if successful, False otherwise.
-    """
+    """Execute the pipeline on real data – currently a stub."""
     logger.info("Starting REAL‑DATA MODE pipeline.")
-    logger.warning("Real‑data mode is currently a graceful stub pending a verified dataset.")
+    logger.warning("Real‑data mode is a graceful stub pending a verified dataset.")
     start_time = time.time()
 
     try:
-        # 1. Attempt to ingest real data – this will invoke the stub
-        #    which writes a JSON status file and returns a DataFrame
-        #    placeholder if the dataset is unavailable.
         from data.real_ingest import main as real_ingest_main
 
         exit_code = real_ingest_main()
         if exit_code != 0:
-            logger.error("Real‑data ingestion failed (see status JSON).")
+            logger.error("Real‑data ingestion failed.")
             return False
 
-        # Since no real data is present, we stop here. In a future
-        # iteration, the code below would mirror the verification
-        # workflow but using the loaded real subjects and time‑series.
         logger.info("Real‑data ingestion reported no dataset; pipeline ends gracefully.")
         return True
 
     except Exception as e:
-        logger.error(f"Real‑data mode failed with unexpected error: {e}")
+        logger.error(f"Real‑data mode failed: {e}")
         logger.error(traceback.format_exc())
         return False
 
@@ -289,7 +230,6 @@ def run_real_mode(data_path: str, output_dir: str) -> bool:
 # CLI entry point
 # ----------------------------------------------------------------------
 def main():
-    """Main entry point for the script."""
     parser = argparse.ArgumentParser(
         description="Main pipeline for Musical Training Connectivity Analysis",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -304,13 +244,13 @@ def main():
         type=str,
         required=True,
         choices=["synthetic", "real"],
-        help="Mode of operation: 'synthetic' (verification) or 'real' (real data).",
+        help="Mode of operation.",
     )
     parser.add_argument(
         "--n-subjects",
         type=int,
         default=100,
-        help="Total number of synthetic subjects (even number). Ignored in real mode.",
+        help="Number of synthetic subjects (ignored in real mode).",
     )
     parser.add_argument(
         "--seed",
@@ -346,21 +286,15 @@ def main():
 
     args = parser.parse_args()
 
-    # Configure logging
     configure_logger(level=args.log_level)
-    logger.info(f"Pipeline initialized. Mode: {args.mode}, Data: {args.data_path}")
+    logger.info(f"Pipeline initialized. Mode: {args.mode}")
 
-    # Ensure output directory exists
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
 
-    # Execute pipeline
     if args.mode == "synthetic":
         success = run_verification_mode(args.output_dir, args.n_subjects, args.seed)
-    elif args.mode == "real":
-        success = run_real_mode(args.data_path, args.output_dir)
     else:
-        logger.error(f"Unknown mode: {args.mode}")
-        sys.exit(1)
+        success = run_real_mode(args.data_path, args.output_dir)
 
     if success:
         logger.info("Pipeline execution finished successfully.")

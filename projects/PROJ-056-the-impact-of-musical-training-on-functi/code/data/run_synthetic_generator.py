@@ -1,11 +1,9 @@
 """
 Entry‑point script for synthetic data generation.
 
-The script is invoked directly from the command line
-(e.g. ``python code/data/run_synthetic_generator.py --n-subjects 150 --seed 42``)
-and writes the two artefacts required by the pipeline:
-  * ``data/processed/subjects.parquet``
-  * ``data/raw/mock_nifti/`` (one mock NIfTI per subject)
+Generates:
+  * data/processed/subjects.parquet
+  * data/raw/mock_nifti/ (one mock NIfTI per subject)
 """
 
 import sys
@@ -23,7 +21,7 @@ def main() -> int:
         "--n-subjects",
         type=int,
         default=150,
-        help="Total number of synthetic subjects (will be rounded to an even, balanced number).",
+        help="Total number of synthetic subjects (rounded to even, balanced).",
     )
     parser.add_argument(
         "--seed",
@@ -36,7 +34,6 @@ def main() -> int:
     log.info(f"Generating synthetic dataset: n_subjects={args.n_subjects}, seed={args.seed}")
     generate_synthetic_dataset(n_subjects=args.n_subjects, seed=args.seed)
 
-    # Verify artefacts
     subjects_path = Path("data/processed/subjects.parquet")
     nifti_dir = Path("data/raw/mock_nifti")
     missing = []

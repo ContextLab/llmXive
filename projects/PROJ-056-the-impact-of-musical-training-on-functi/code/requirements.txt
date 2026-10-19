@@ -1,1 +1,13 @@
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+pytest
+pyyaml
+requests
+jsonschema
+psutil
 pyarrow>=12.0.0

@@ -2,7 +2,7 @@
 
 ## 1. Prerequisites
 - Python 3.11+
-- ~2 GB free RAM (7 GB ceiling enforced by the pipeline)
+- ~a few GB free RAM (7 GB ceiling enforced by the pipeline)
 - Git
 
 ## 2. Installation
@@ -18,7 +18,7 @@ pip install -r code/requirements.txt
 
 ### 3.1 Synthetic Verification Mode (default)
 ```bash
-python code/main.py --mode synthetic --n-subjects 100 --seed 42
+python code/main.py --mode synthetic --n-subjects <desired number of subjects> --seed 42
 ```
 Generates a mock cohort (with seeded missingness/corruption so the inclusion audit is exercised), computes connectivity and network metrics, runs all statistical tests, and writes results under `data/processed/`. **Synthetic mode validates the pipeline only** — it contains no real group effect and supports no scientific conclusion about musical training.
 
@@ -53,7 +53,7 @@ cat data/logs/memory_usage.log
 - `data/results/results_summary.csv` — single source of truth aggregating all primary outcomes.
 
 ## 6. Troubleshooting
-- **Memory pressure** — the pipeline streams per subject and, if a step still approaches 7 GB, automatically applies deterministic seeded subsetting (logged) to comply with FR‑006; a hard abort occurs only if subsetting cannot bring usage under the limit.
+- **Memory pressure** — the pipeline streams per subject and, if a step still approaches 7 GB, automatically applies deterministic seeded subsetting (logged) to comply with FR‑006; a hard abort occurs only if subsetting cannot bring usage below the limit.
 - **"Sample Size Insufficient"** — fewer than 50 subjects per group after filtering (the log also records the equivalent "Insufficient Data for Power" phrasing); expected behavior, not a bug.
 - **Real‑data mode reports unavailability** — no verified dataset is configured; this is the documented current state, not an error to work around.
 - **Long runtime** — reduce `--n-permutations` (minimum 500 for exploratory runs).

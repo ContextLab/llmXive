@@ -1,28 +1,29 @@
 """
-Unit test for the quick‑start documentation.
-
-This test verifies two things:
-1. The top‑level README lists the required project folders.
-2. The quick‑start guide contains the exact verification command
-   `python -m code.main --mode verification`.
+Minimal test that ensures the quickstart command runs without error.
 """
 
+import subprocess
+import sys
 import pathlib
 
-PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[2]
-
-
-def test_readme_contains_top_level_folders():
-    readme_path = PROJECT_ROOT / "README.md"
-    assert readme_path.is_file(), "README.md not found at project root"
-    content = readme_path.read_text()
-    for folder in ("code/", "data/", "tests/"):
-        assert folder in content, f"Folder '{folder}' missing from README.md"
-
-
-def test_quickstart_contains_verification_command():
-    quickstart_path = PROJECT_ROOT / "quickstart.md"
-    assert quickstart_path.is_file(), "quickstart.md not found at project root"
-    content = quickstart_path.read_text()
-    expected_cmd = "python -m code.main --mode verification"
-    assert expected_cmd in content, f"Verification command '{expected_cmd}' not found in quickstart.md"
+def test_quickstart_runs():
+    project_root = pathlib.Path(__file__).resolve().parents[2]
+    cmd = [
+        sys.executable,
+        "code/main.py",
+        "--mode",
+        "synthetic",
+        "--n-subjects",
+        "20",
+        "--seed",
+        "1",
+    ]
+    result = subprocess.run(cmd, cwd=project_root, capture_output=True, text=True)
+    assert result.returncode == 0, f"Quickstart failed: {result.stderr}"
+    # Verify that a few key outputs exist
+    expected = [
+        "data/processed/subjects_cleaned.csv",
+        "data/processed/connectivity_matrices.npy",
+    ]
+    for rel in expected:
+        assert (project_root / rel).exists(), f"Missing output {rel}"

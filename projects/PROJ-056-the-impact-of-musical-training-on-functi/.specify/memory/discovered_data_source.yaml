@@ -1,18 +1,17 @@
 status: none
-intent: ABCD Study resting state fMRI dataset with phenotypic variables download python
+intent: nilearn fetch_abcd and fetch_hcp_adolescent resting state fMRI dataset python
   package dataset
 required_fields:
 - subject_id
-- resting_state_fmri_nifti_path
-- musical_training_years
 - group_label
+- musical_training_years
 - age
 - sex
-- head_motion_mean
-- head_motion_max
+- mean_framewise_displacement
+- rs_fmri_nifti_path
+- connectivity_matrix
 - site
-- scanner
-- assessment_date
-cache_key: 2d36d792c1242a67384c0821c89754d59b6eec1cf94dde81cad7012cdfb9fdbf
-searched_at: '2026-10-19T02:31:05.323607+00:00'
+- scanner_model
+cache_key: 6b83dd4ae157b9853939bc142499009cc21d0c41160e66c3ecac24cf5b746f4c
+searched_at: '2026-10-19T03:16:57.848134+00:00'
 retry_count: 1

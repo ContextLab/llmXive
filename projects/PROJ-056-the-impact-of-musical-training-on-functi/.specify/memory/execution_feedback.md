@@ -19,68 +19,90 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 23 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/run_nbs.py: self-declared fabricated metric — “…index=False)     print(f"NBS placeholder results written to {output_path}")…”; code/analysis/connectivity.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset for verification...")…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# Verification mode uses synthetic data         logger.info("Gen…”; 4 command(s) failed: python code/main.py --mode synthetic --n-subjects 100 --seed 42 (rc=1); python code/data/run_synthetic_generator.py --n-subjects 100 --seed 42 (rc=1); python code/main.py --mode real --data-path /path/to/verified/dataset (rc=1); 3 declared deliverable(s) absent: data/processed/matching_balance_report.csv; data/processed/subjects.parquet; data/processed/subjects_cleaned.csv
+**Summary**: 25 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/run_nbs.py: self-declared fabricated metric — “…index=False)     print(f"NBS placeholder results written to {output_path}")…”; code/analysis/connectivity.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset for verification...")…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# Verification mode uses synthetic data         logger.info("Gen…”; 5 command(s) failed: python code/main.py --mode synthetic --n-subjects <desired number of subjects> --seed 42 (rc=1); python code/data/run_synthetic_generator.py --n-subjects 100 --seed 42 (rc=1); python code/main.py --mode real --data-path /path/to/verified/dataset (rc=1); 3 declared deliverable(s) absent: data/processed/matching_balance_report.csv; data/processed/subjects.parquet; data/processed/subjects_cleaned.csv
 
 ## Failing / missing run-book commands
 
-- python code/main.py --mode synthetic --n-subjects 100 --seed 42 -> rc=1
+- python code/main.py --mode synthetic --n-subjects <desired number of subjects> --seed 42 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 42, in <module>
-    from analysis.stats import process_connectivity_statistics
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/analysis/stats.py", line 7, in <module>
-    import networkx as nx
-ModuleNotFoundError: No module named 'networkx'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 39, in <module>
+    from data.preprocess import preprocess_subjects
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/preprocess.py", line 11, in <module>
+    from data.synthetic_generator import generate_synthetic_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/synthetic_generator.py", line 17, in <module>
+    from data.mock_nifti import create_mock_nifti, create_corrupted_nifti
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/mock_nifti.py", line 23, in <module>
+    import nibabel as nib
+ModuleNotFoundError: No module named 'nibabel'
 
 - python code/data/run_synthetic_generator.py --n-subjects 100 --seed 42 -> rc=1
-py", line 112, in generate_synthetic_dataset
-    df.to_parquet(subjects_path, index=False)
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/util/_decorators.py", line 333, in wrapper
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/frame.py", line 3113, in to_parquet
-    return to_parquet(
-           ^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 476, in to_parquet
-    impl = get_engine(engine)
-           ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 67, in get_engine
-    raise ImportError(
-ImportError: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
-A suitable version of pyarrow or fastparquet is required for parquet support.
-Trying to import the above resulted in these errors:
- - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
- - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/run_synthetic_generator.py", line 13, in <module>
+    from data.synthetic_generator import generate_synthetic_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/synthetic_generator.py", line 17, in <module>
+    from data.mock_nifti import create_mock_nifti, create_corrupted_nifti
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/mock_nifti.py", line 23, in <module>
+    import nibabel as nib
+ModuleNotFoundError: No module named 'nibabel'
 
 - python code/main.py --mode real --data-path /path/to/verified/dataset -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 42, in <module>
-    from analysis.stats import process_connectivity_statistics
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/analysis/stats.py", line 7, in <module>
-    import networkx as nx
-ModuleNotFoundError: No module named 'networkx'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 39, in <module>
+    from data.preprocess import preprocess_subjects
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/preprocess.py", line 11, in <module>
+    from data.synthetic_generator import generate_synthetic_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/synthetic_generator.py", line 17, in <module>
+    from data.mock_nifti import create_mock_nifti, create_corrupted_nifti
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/mock_nifti.py", line 23, in <module>
+    import nibabel as nib
+ModuleNotFoundError: No module named 'nibabel'
+
+- python code/run_quickstart_test.py -> rc=1
+Running synthetic pipeline...
+
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/main.py", line 39, in <module>
+    from data.preprocess import preprocess_subjects
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/preprocess.py", line 11, in <module>
+    from data.synthetic_generator import generate_synthetic_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/synthetic_generator.py", line 17, in <module>
+    from data.mock_nifti import create_mock_nifti, create_corrupted_nifti
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/mock_nifti.py", line 23, in <module>
+    import nibabel as nib
+ModuleNotFoundError: No module named 'nibabel'
+
+Synthetic pipeline failed.
 
 - python -m pytest tests/ -> rc=2
-e-impact-of-musical-training-on-functi/tests/unit/test_synthetic_generator.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
 tests/unit/test_synthetic_generator.py:23: in <module>
     from data.synthetic_generator import (
-E   ImportError: cannot import name 'generate_subject_data' from 'data.synthetic_generator' (/home/runner/work/llmXive/llmXive/projects/PROJ-056-the-impact-of-musical-training-on-functi/code/data/synthetic_generator.py)
+code/data/synthetic_generator.py:17: in <module>
+    from data.mock_nifti import create_mock_nifti, create_corrupted_nifti
+code/data/mock_nifti.py:23: in <module>
+    import nibabel as nib
+E   ModuleNotFoundError: No module named 'nibabel'
 =========================== short test summary info ============================
+ERROR tests/integration/test_correlation_analysis.py
 ERROR tests/integration/test_group_comparison.py
+ERROR tests/integration/test_ingestion.py
 ERROR tests/unit/test_download_atlas.py
+ERROR tests/unit/test_matching.py
 ERROR tests/unit/test_nbs.py
 ERROR tests/unit/test_nbs_output.py
 ERROR tests/unit/test_nbs_results.py
 ERROR tests/unit/test_output_cleaned_subjects.py
+ERROR tests/unit/test_preprocess.py
+ERROR tests/unit/test_preprocess_validity.py
 ERROR tests/unit/test_stats.py
 ERROR tests/unit/test_synthetic_generator.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 8 errors in 0.78s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 13 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 13 errors in 1.06s ==============================
 
 
 
@@ -96,7 +118,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/processed/matching_balance_report.csv` is declared but was NOT written. Scripts referencing it:
     - `code/data/preprocess.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
+    - `code/run_quickstart_test.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/matching_balance_report.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/subjects.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/connectivity.py` — NOT invoked by the run-book
@@ -114,4 +136,5 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/output_cleaned_subjects.py` — NOT invoked by the run-book
     - `code/data/preprocess.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
+    - `code/run_quickstart_test.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/subjects_cleaned.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
