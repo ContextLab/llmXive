@@ -1,6 +1,6 @@
-# Core dependencies (already provided by the platform)
-# Additional dependencies required for the project
-scvelo>=0.2.5,<0.3
-anndata>=0.9,<0.11
-rpy2>=3.5.1
-# rpy2 is used by the preprocessing wrapper to call R/Seurat when available.
+GEOparse>=2.0
+# Existing platform packages (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
+# already available and need not be listed. Adding GEOparse provides the
+# reliable fallback for GEO series that lack explicit supplementary file
+# listings.

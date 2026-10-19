@@ -1,7 +1,7 @@
 {
-  "model_tier": 1,
+  "model_tier": 2,
   "fix_rounds": 0,
-  "updated_at": "2026-10-18T13:13:08Z",
+  "updated_at": "2026-10-19T01:30:13Z",
   "project_id": "PROJ-003-single-cell-trajectories-of-t-cell-exhau",
   "replan_rounds": 1
 }

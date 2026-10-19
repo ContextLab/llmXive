@@ -1,38 +1,18 @@
 #!/usr/bin/env bash
-# ----------------------------------------------------------------------
-# Linting helper for the project.
-#
-# This script runs ``ruff`` and ``black`` on the repository, writes the
-# combined output to ``logs/lint.txt`` and exits with a non‑zero status
-# if any tool reports a problem.
-# ----------------------------------------------------------------------
+# Setup linting: run ruff and black, capture their output in logs/lint.txt
 
 set -e
 
-# Ensure the logs directory exists.
-mkdir -p logs
+# Ensure the logs directory exists
+LOG_DIR="logs"
+mkdir -p "$LOG_DIR"
 
-# Run ruff.
-if ! ruff_output=$(ruff check . 2>&1); then
-    echo "$ruff_output" > logs/lint.txt
-    echo "Ruff reported errors – exiting with status 1."
-    exit 1
-fi
-
-# Run black in check mode.
-if ! black_output=$(black --check . 2>&1); then
-    {
-        echo "$ruff_output"
-        echo "$black_output"
-    } > logs/lint.txt
-    echo "Black reported formatting issues – exiting with status 1."
-    exit 1
-fi
-
-# If both tools succeeded, combine their (empty) output.
+# Run ruff and black, capture both stdout and stderr
 {
-    echo "$ruff_output"
-    echo "$black_output"
-} > logs/lint.txt
+    echo "=== ruff check ==="
+    ruff check .
+    echo "=== black --check ==="
+    black --check .
+} > "$LOG_DIR/lint.txt" 2>&1
 
-echo "Linting passed – logs written to logs/lint.txt."
+echo "Linting completed. Output written to $LOG_DIR/lint.txt"

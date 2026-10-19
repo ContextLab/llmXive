@@ -17,7 +17,7 @@ The goal is to deliver a fully reproducible, CPU‑only pipeline that satisfies 
     - `ruff check .` and `black --check .` both return exit‑code 0 and their outputs are saved to `logs/lint.txt`.  
     - `quickstart.md` contains the command `python -m code.run_all` and a brief usage example.
 
-- [ ] **T002** Implement a robust GEO downloader (`code/download_data.py`) that:   <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
+- [ ] **T002** Implement a robust GEO downloader (`code/download_data.py`) that:   <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
   1. Queries the NCBI GEO metadata endpoint for each accession (GSE136103, GSE127465, GSE111075, GSE138852).  
   2. Retrieves the supplementary count matrix (either `.mtx`/`.h5` or raw FASTQ converted to counts).  
   3. Saves files under `data/raw/<accession>/` and records a **SHA‑256 checksum** in `data/manifest.yaml`.  

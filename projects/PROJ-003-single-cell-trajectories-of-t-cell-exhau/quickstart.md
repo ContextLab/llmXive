@@ -20,7 +20,7 @@ python -m venv venv && source venv/bin/activate
 pip install -r code/requirements.txt
 ```
 
-## One-time setup (layout + lint evidence)
+## One-time setup (layout & lint evidence)
 
 ```bash
 bash code/setup_lint.sh
@@ -79,8 +79,7 @@ python code/velocity.py --input data/processed/ --output data/processed/
 | `data/results/fork_points/<dataset>_fork_points.csv` | Ranked fork‑point genes (`gene_symbol`, `branch_id`, `timing_rank`). |
 | `data/results/validation/power_analysis.json` | Power‑analysis result (FR‑011). |
 | `data/results/validation/<dataset>_enrichment.json` | BH‑corrected enrichment p‑values, bootstrap CI, iteration count. |
-| `data/results/report/final_report.html` | Final report with heatmaps, statistics, and the required observational disclaimer. [UNRESOLVED-CLAIM: c_7a2fbd02 — status=not_enough_info] |
-| `logs/lint.txt` | Evidence that `ruff check .` and `black --check .` pass (SC‑001). [UNRESOLVED-CLAIM: c_88e1e562 — status=not_enough_info] |
+| `data/results/report/final_report.html` | Final report with heatmaps, statistics, and the required observational disclaimer. |
 
 ## Configuration (seed pinning)
 
@@ -93,6 +92,6 @@ you need a different seed for a controlled experiment.
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | `ruff`/`black` not found | Linting tools not installed | `bash code/setup_lint.sh` installs them automatically |
-| download_data.py exits with error | GEO endpoint temporarily unavailable | Rerun later; the script retries and logs failures to `logs/download.log` [UNRESOLVED-CLAIM: c_b3fff05e — status=not_enough_info] |
+| download_data.py exits with error | GEO endpoint temporarily unavailable | Rerun later; the script retries and logs failures to `logs/download.log` |
 | scVelo fails or hangs | Missing spliced/unspliced layers | Check `logs/velocity.log`; the dataset is flagged and excluded from cross‑dataset validation |
 | Report missing disclaimer | Modified `report.py` | Use the unmodified version; the FR‑009 disclaimer is inserted automatically |

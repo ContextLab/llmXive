@@ -981,3 +981,38 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-18T19:07:01Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: "pipeline reproduces byte\u2011identical final artifacts"
+  claim_id: c_cca6e2d7
+  context: "code.run_all reads the global random seed from code/config.yaml (seed:\
+    \ 42), logs each stage to logs/<stage>.log, and reproduces byte\u2011identical\
+    \ final artifacts under data/results/."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "logs each stage to `logs/<stage>.log`, and reproduces byte\u2011identical\
+    \ final artifacts under `data/results/`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T01:23:00Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: seed 42 guarantees reproducibility
+  claim_id: c_78993334
+  context: 'All scripts read the random seed from code/config.yaml (default seed:
+    42) to guarantee reproducibility.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'All scripts read the random seed from `code/config.yaml` (`seed: 42`)
+    to guarantee reproducibility.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T01:23:00Z'

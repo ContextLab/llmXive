@@ -1,15 +1,13 @@
 status: none
-intent: scRNA-seq count matrices GEO GSE136103 GSE111075 GSE138852 SRA NCBI GEO python
-  package dataset
+intent: download GEO scRNAseq GSE136103 GSE111075 GSE138852 python package dataset
 required_fields:
-- gene_id
-- gene_name
 - cell_barcode
+- gene_id
 - raw_counts
 - spliced_counts
 - unspliced_counts
-- mitochondrial_percent
+- mitochondrial_percentage
 - sample_metadata
-cache_key: 5e83896aabf364a3756df6d6c86631a639eae2ba51406503b978b71aba0d17cd
-searched_at: '2026-10-18T19:10:54.920136+00:00'
+cache_key: 36225682595a7177f137659981b68ed42a1581a94ba907bd8d9379d454012a49
+searched_at: '2026-10-19T01:29:55.178880+00:00'
 retry_count: 1
