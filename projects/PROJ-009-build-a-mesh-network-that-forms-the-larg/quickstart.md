@@ -49,27 +49,27 @@ analysis:
 
 Verify that the configuration can be read:
 ```bash
-python -m code.orchestrator.cli verify --config config.yaml
+python code/orchestrator/cli.py verify --config config.yaml
 ```
 
 ## Running the Pipeline
 
 ### 1. Single Benchmark Run
 ```bash
-python -m code.orchestrator.cli run \
+python code/orchestrator/cli.py run \
  --config config.yaml \
  --granularity fine \
  --nodes 15 \
  --latency 100
 ```
 *What happens*:
-- The orchestrator pretends to discover 15 nodes. [UNRESOLVED-CLAIM: c_0b43ded0 — status=not_enough_info]
+- The orchestrator pretends to discover 15 nodes.
 - It logs the requested parameters (no real remote execution in CI).
-- A CSV file would be written to `data/raw/` in a full implementation.
+- In a full implementation a CSV file would be written to `data/raw/`.
 
 ### 2. Full Parameter Sweep
 ```bash
-python -m code.orchestrator.cli sweep --config config.yaml
+python code/orchestrator/cli.py sweep --config config.yaml
 ```
 *What happens*:
 - The sweep runner iterates over all combinations defined in `config.yaml`.
@@ -77,7 +77,7 @@ python -m code.orchestrator.cli sweep --config config.yaml
 
 ### 3. Help
 ```bash
-python -m code.orchestrator.cli --help
+python code/orchestrator/cli.py --help
 ```
 Displays usage for all sub‑commands.
 

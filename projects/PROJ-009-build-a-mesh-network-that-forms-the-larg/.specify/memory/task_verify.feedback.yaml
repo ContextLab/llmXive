@@ -1,9 +1,12 @@
 T001:
-  reason: "The quick\u2011start guide and contract\u2011validation test exist and\
-    \ the pytest run exits\u202F0, but there is no `code/orchestrator/cli` module\
-    \ nor any execution log showing that `python -m code.orchestrator.cli --help`\
-    \ runs without error, which is a required verification step. Adding a functional\
-    \ CLI (or evidence of its successful invocation) is needed."
+  reason: "Checked `quickstart.md`, `code/orchestrator/config.py`, and `code/tests/contract/test_contracts.py`.\
+    \ The project lacks a runnable CLI module (`code/orchestrator/cli.py` or equivalent)\
+    \ required for the quick\u2011start command, and the contract\u2011validation\
+    \ tests reference schema files in a `contracts/` directory that are not present,\
+    \ so the tests cannot actually validate any JSON/CSV against the three schemas.\
+    \ Additionally, there is no execution evidence that `pytest code/tests/contract/`\
+    \ exits\u202F0 or that the help command runs without error. These missing artifacts\
+    \ must be added and verified."
   task: dc5f2a1973faddb12c7a1aff8958e42d0b355283a6fbecd5a85d7cf6c695a2a2
 T002:
   reason: "The repository contains a `node_manager.py` with discovery, profiling,\

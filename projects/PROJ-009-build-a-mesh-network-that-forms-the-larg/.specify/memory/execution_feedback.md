@@ -36,33 +36,54 @@ Traceback (most recent call last):
 FileNotFoundError: Input file not found: data/processed/regression_model.json
 
 - python -m pytest tests/unit/ -v -> rc=2
-trap>:1147: in _find_and_load_unlocked
+figs
+code/orchestrator/sweep_runner.py:3: in <module>
+    from orchestrator.scheduler import create_scheduler
+code/orchestrator/scheduler.py:34: in <module>
+    from orchestrator.models import PhysicalNode, TaskChunk, TaskStatus
+code/orchestrator/models.py:13: in <module>
+    from pydantic import BaseModel, Field, field_validator, model_validator
+E   ModuleNotFoundError: No module named 'pydantic'
+=========================== short test summary info ============================
+ERROR tests/unit/test_benchmark.py - orchestrator.config.ConfigError: Default config.yaml not found
+ERROR tests/unit/test_data_aggregator.py
+ERROR tests/unit/test_heartbeat_monitoring.py
+ERROR tests/unit/test_instrumentor_remote.py
+ERROR tests/unit/test_models.py
+ERROR tests/unit/test_monte_carlo.py
+ERROR tests/unit/test_remote_wall_clock_timer.py - NameError: name 'pytest' is not defined
+ERROR tests/unit/test_scheduler.py
+ERROR tests/unit/test_scheduler_execution.py
+ERROR tests/unit/test_scheduler_straggler.py
+ERROR tests/unit/test_sweep_runner.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 11 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 11 errors in 0.73s ==============================
+
+
+- python -m pytest tests/contract/ -v -> rc=2
+ort_path
+    importlib.import_module(module_name)
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
     ???
 <frozen importlib._bootstrap>:690: in _load_unlocked
     ???
 /home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
     exec(co, module.__dict__)
-tests/unit/test_sweep_runner.py:13: in <module>
-    from orchestrator.sweep_runner import SweepRunner, SweepConfig, generate_default_configs
-E   ImportError: cannot import name 'SweepRunner' from 'orchestrator.sweep_runner' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/sweep_runner.py)
+tests/contract/test_execution_run_schema.py:19: in <module>
+    from orchestrator.models import ExecutionRun, NodeStatus, TaskStatus
+code/orchestrator/models.py:13: in <module>
+    from pydantic import BaseModel, Field, field_validator, model_validator
+E   ModuleNotFoundError: No module named 'pydantic'
 =========================== short test summary info ============================
-ERROR tests/unit/test_benchmark.py - orchestrator.config.ConfigError: Default config.yaml not found
-ERROR tests/unit/test_data_aggregator.py
-ERROR tests/unit/test_remote_wall_clock_timer.py - NameError: name 'pytest' is not defined
-ERROR tests/unit/test_scheduler_execution.py
-ERROR tests/unit/test_scheduler_straggler.py
-ERROR tests/unit/test_sweep_runner.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 0.60s ===============================
-
-
-- python -m pytest tests/contract/ -v -> rc=1
-/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml')> = PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml').exists
-ERROR tests/contract/test_regression_model_schema.py::TestRegressionModelSchema::test_invalid_validation_status - AssertionError: Schema file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml
-assert False
- +  where False = <bound method Path.exists of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml')>()
- +    where <bound method Path.exists of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml')> = PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml').exists
-=================== 1 failed, 17 passed, 15 errors in 0.21s ====================
+ERROR tests/contract/test_execution_run_schema.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.11s ===============================
 
 
 - python -m pytest tests/integration/ -v --mock-testbed -> rc=4

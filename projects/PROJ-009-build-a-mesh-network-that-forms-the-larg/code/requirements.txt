@@ -1,5 +1,1 @@
-# Project dependencies
-# Core scientific stack (already available in the environment) is not re‑listed.
-# Additional third‑party packages required by the implementation:
-paramiko>=2.12.0
-# End of requirements.txt
+paramiko>=2.12

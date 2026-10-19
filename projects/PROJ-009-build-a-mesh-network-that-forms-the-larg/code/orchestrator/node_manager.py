@@ -17,6 +17,8 @@ The implementation follows the specification for task T002:
 - CLI entry point supporting the ``--verify`` flag used by the quickstart script
 - Metadata collection per node, written to ``data/raw/physical_node_<ip>.json`` and
   validated against ``contracts/physical-node.schema.yaml``.
+- Exposes a ``PhysicalNode`` dataclass representing the node metadata.
+- Provides helper parsers for sample log files used in unit tests.
 """
 
 from __future__ import annotations
@@ -84,6 +86,32 @@ class InstrumentationError(Exception):
 # ----------------------------------------------------------------------
 # Data Classes
 # ----------------------------------------------------------------------
+@dataclass
+class PhysicalNode:
+    """
+    Dataclass representing a physical node's metadata.
+    Fields match the JSON schema ``contracts/physical-node.schema.yaml``.
+    """
+    ip_address: str
+    hardware_spec: str
+    baseline_bandwidth_Mbps: float
+    baseline_snr_db: float
+    current_latency: float
+    packet_loss_rate: float
+    cpu_utilization: float
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a plain dict suitable for JSON serialisation."""
+        return {
+            "ip_address": self.ip_address,
+            "hardware_spec": self.hardware_spec,
+            "baseline_bandwidth_Mbps": self.baseline_bandwidth_Mbps,
+            "baseline_snr_db": self.baseline_snr_db,
+            "current_latency": self.current_latency,
+            "packet_loss_rate": self.packet_loss_rate,
+            "cpu_utilization": self.cpu_utilization,
+        }
+
 @dataclass
 class NodeDiscoveryResult:
     """Result of a node discovery operation (legacy, retained for compatibility)."""
@@ -573,17 +601,19 @@ class NodeManager:
         radio = self.get_radio_metrics(ip)
         cpu_util = self.get_cpu_utilization(ip)
         packet_count = self.get_packet_count(ip, count=5)  # small count for quick CI
-        thermal_throttling = self.check_thermal_throttling(ip)
+        _ = self.check_thermal_throttling(ip)  # result not stored; just logged
 
-        metadata = {
-            "ip_address": ip,
-            "hardware_spec": f"{cpu_profile.get('cpu_model', 'unknown')} @ {cpu_profile.get('cpu_speed_mhz', 0)}MHz",
-            "baseline_bandwidth_Mbps": radio.get("bandwidth_Mbps", 0.0) or 0.0,
-            "baseline_snr_db": radio.get("snr_db", 0.0) or 0.0,
-            "current_latency": 0.0,                     # latency measurement not in this manager
-            "packet_loss_rate": 0.0,                    # placeholder – real measurement elsewhere
-            "cpu_utilization": cpu_util,
-        }
+        node = PhysicalNode(
+            ip_address=ip,
+            hardware_spec=f"{cpu_profile.get('cpu_model', 'unknown')} @ {cpu_profile.get('cpu_speed_mhz', 0)}MHz",
+            baseline_bandwidth_Mbps=radio.get("bandwidth_Mbps", 0.0) or 0.0,
+            baseline_snr_db=radio.get("snr_db", 0.0) or 0.0,
+            current_latency=0.0,                # latency measurement not in this manager
+            packet_loss_rate=0.0,               # placeholder – real measurement elsewhere
+            cpu_utilization=cpu_util,
+        )
+
+        metadata = node.to_dict()
 
         # Write JSON
         filename = f"physical_node_{ip.replace('.', '_')}.json"
@@ -600,12 +630,7 @@ class NodeManager:
         return out_path
 
     # ------------------------------------------------------------------
-    # Factory
-    # ------------------------------------------------------------------
-    # (Factory function defined after the class for clarity.)
-
-    # ------------------------------------------------------------------
-    # CLI entry point (for manual testing & quickstart ``--verify``)
+    # Helper to load IP list from global config
     # ------------------------------------------------------------------
     def _load_config_node_ips(self) -> List[str]:
         """
@@ -633,18 +658,3 @@ class NodeManager:
                         ip_list.append(ip)
 
         return ip_list
-
-# ----------------------------------------------------------------------
-# Factory function
-# ----------------------------------------------------------------------
-def create_node_manager(config: Optional[Dict[str, Any]] = None) -> NodeManager:
-    """
-    Factory function to create a :class:`NodeManager` instance.
-
-    Args:
-        config: Optional configuration dictionary passed to :class:`NodeManager`.
-
-    Returns:
-        An initialized :class:`NodeManager`.
-    """
-    return NodeManager(config=config)
