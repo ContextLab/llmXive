@@ -8,17 +8,12 @@ The script writes the real parquet file to
 `data/raw/vaers_2020_2023.parquet` and records a SHA‑256 checksum in
 `data/checksums.txt`. No synthetic fallback is performed; any download,
 I/O, or checksum error raises an exception and aborts the run.
-
-The script provides two entry points:
-  * `python src/data/download.py` – CLI entry point used by the quickstart.
-  * `fetch_vaers_data()` – callable used by the pipeline orchestrator.
 """
 
 import hashlib
 import sys
 from pathlib import Path
 
-import pandas as pd
 from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
@@ -81,14 +76,11 @@ def download_parquet() -> Path:
         # load_dataset handles the download and caching
         ds = load_dataset(DATASET_ID, split="train")
         
-        # Convert to pandas to save as a single parquet file at a specific path
-        df = ds.to_pandas()
-        
         # Ensure destination directory exists
         PARQUET_PATH.parent.mkdir(parents=True, exist_ok=True)
         
-        # Save to parquet
-        df.to_parquet(PARQUET_PATH, index=False)
+        # Save directly to parquet using datasets method to be memory efficient
+        ds.to_parquet(PARQUET_PATH)
         
     except Exception as exc:
         log.error("Failed to acquire dataset: %s", exc)

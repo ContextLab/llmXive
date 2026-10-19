@@ -1,16 +1,11 @@
 status: none
-intent: VAERS 2020-2023 dataset MedDRA SOC mapping OpenFDA python package dataset
+intent: download VAERS 2020-2023 dataset with MedDRA SOC mapping python package dataset
 required_fields:
 - VAERS_ID
 - VAX_TYPE
 - VAX_NAME
-- SYMPTOM1
-- SYMPTOM2
-- SYMPTOM3
 - MEDDRA_CODE
 - SOC
-- AGE_YRS
-- SEX
-cache_key: 51854b9018219ac663666194c6b0b58aa14cdc272b1d5a2a1022cdb1526e01de
-searched_at: '2026-10-19T07:32:46.113609+00:00'
+cache_key: 6d6e11bac3ecff79ba9fe2e06231d6f748286df0067e569ebc2ac00ace300e89
+searched_at: '2026-10-19T07:38:22.963280+00:00'
 retry_count: 1

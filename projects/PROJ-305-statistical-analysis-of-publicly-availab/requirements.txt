@@ -1,5 +1,2 @@
 datasets
-pyarrow
-memory_profiler
-ruff
-black
+pyarrow==15.0.0

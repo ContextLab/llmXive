@@ -14,14 +14,14 @@ The goal is a reproducible, CPU‑only pipeline that (1) downloads real VAERS 20
   - Document the runnable command (`python -m src.main`) and input provenance in `quickstart.md`.  
   - **Verification**: `test -s logs/structure.txt` and a grep count of listed directories must succeed.
 
-- [ ] T002 [P] [US1] Download the verified VAERS 2020‑2023 parquet dataset from Hugging Face. <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+- [X] T002 [P] [US1] Download the verified VAERS 2020‑2023 parquet dataset from Hugging Face.
   - Implement `src/data/download.py` that uses `datasets.load_dataset("chrisvoncsefalvay/vaers-outcomes", split="train")` (or the appropriate split) to fetch the parquet file.  
   - Write the downloaded parquet to `data/raw/vaers_2020_2023.parquet`.  
   - Compute a SHA‑256 checksum of the file and record `<file> <sha256>` in `data/checksums.txt`.  
   - On any download or checksum error raise an exception (no synthetic fallback).  
   - **Verification**: `grep -c "vaers_2020_2023.parquet" data/checksums.txt` returns 1 and the file size > 0 KB.
 
-- [ ] T003 [P] [US1] Implement the schema validator CLI `src/data/validate.py`.  
+- [ ] T003 [P] [US1] Implement the schema validator CLI `src/data/validate.py`.   <!-- FAILED-IN-EXECUTION: src/data/validate.py exit=1 -->
   - Load `specs/001-statistical-analysis-of-publicly-availab/contracts/dataset.schema.yaml` and verify required columns (`VAERS_ID`, `VAX_TYPE`, `SOC_CODE`, `SOC_NAME`, `REPT_DATE`) are present and non‑null.  
   - CLI: `python -m src.data.validate --input <path>`.  
   - On success write `logs/validate_pass.txt` (“PASS”) and exit 0; on failure write `logs/validate_fail.txt` with details and exit 1.  
