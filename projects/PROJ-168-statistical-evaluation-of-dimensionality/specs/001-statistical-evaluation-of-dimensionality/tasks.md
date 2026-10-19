@@ -7,14 +7,14 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
 
 ## Phase 0 – Project Foundations & Specification Alignment  
 
-- [X] **T001** [US1] Create the required project directory tree and provide a verifiable listing.  
+- [ ] **T001** [US1] Create the required project directory tree and provide a verifiable listing.  
   - Create the following directories (all under the repository root):  
     `data/raw/`, `data/processed/`, `data/embeddings/`, `data/clustering/`, `data/metrics/`, `data/results/`, `figures/`, `results/`, `code/`, `code/tests/`, `paper/`, `.github/workflows/`.  
   - Generate a plain‑text directory listing `results/dir_listing.txt` by running:  
     `find data code results figures paper .github -type d > results/dir_listing.txt`.  
   - **Verification**: `cat results/dir_listing.txt` contains each of the directories listed above; a Python assertion `assert pathlib.Path('results/dir_listing.txt').exists()` exits 0.
 
-- [X] **T004** [US1] Create a lightweight CI script (`code/ci_limits.py`) that enforces SC‑003/SC‑004.  
+- [ ] **T004** [US1] Create a lightweight CI script (`code/ci_limits.py`) that enforces SC‑003/SC‑004.  
   - The script reads `results/monitoring.csv`, checks the two thresholds, and exits with status 1 on violation, printing a clear message.  
   - It will be called from the GitHub Actions workflow (see T003).  
   - **Verification**: Running `python code/ci_limits.py` on a deliberately violating CSV returns exit code 1; `python -c "import subprocess, sys; sys.exit(subprocess.call(['python','code/ci_limits.py']))"` returns the expected code.
@@ -25,7 +25,7 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
   - The workflow now references the script created in T004, guaranteeing the script exists before the workflow runs.  
   - **Verification**: `yq eval '.jobs.build.steps[] | select(.name == "Enforce limits")' .github/workflows/research.yml` returns a non‑null object; a dry‑run of the workflow (`act -j build --dry-run`) shows the limit‑enforcement step present.
 
-- [ ] **T005** [US1] Implement a full `code/utils.py` containing a robust `ResourceMonitor`.  
+- [X] **T005** [US1] Implement a full `code/utils.py` containing a robust `ResourceMonitor`.  
   - The module must provide:  
     * `get_logger(name)` – a logger configured with INFO level and a file handler `results/pipeline.log`.  
     * `MemoryLimitExceeded` exception.  

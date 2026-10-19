@@ -1,4 +1,10 @@
 T001:
+  reason: "The evidence shows that only `data/raw/`, `data/processed/`, `results/`,\
+    \ `code/`, and `code/tests/` exist; the required directories `data/embeddings/`,\
+    \ `data/clustering/`, `data/metrics/`, `data/results/`, `figures/`, `paper/`,\
+    \ and `.github/workflows/` are missing despite being listed in `results/dir_listing.txt`.\
+    \ The task\u2019s core requirement of creating the full directory tree is therefore\
+    \ not satisfied."
   task: e71ed789e3e90ccfcf8b19fce0677893f50c4ba2f4e3132a1571482b994ea842
 T003:
   reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/research.yml`
@@ -7,13 +13,13 @@ T003:
     to write only project-owned outputs.'
   task: f10eebd036af10f8808ab6a5f93e7f2d8235196f00281f6949b338afa09718f6
 T004:
+  reason: "The repository contains `code/ci_limits.py` and a non\u2011violating `results/monitoring.csv`,\
+    \ but there is no evidence that the script was run on a CSV that breaches the\
+    \ SC\u2011003 or SC\u2011004 limits and exits with status\u202F1 as required.\
+    \ A deliberately violating CSV and the corresponding execution output (exit code\u202F\
+    1 and error message) are missing."
   task: 57e2366dfb256310a5da7b7fc23f2d634d6fad67914f0e674b27dbbb8b07165a
 T005:
-  reason: "The `code/utils.py` module exists and implements the requested functions,\
-    \ but the required output file `results/monitoring.csv` was not created \u2013\
-    \ it is listed as MISSING, so the self\u2011test did not generate the CSV with\
-    \ the header and a row. The task\u2019s verification step (checking the CSV contents)\
-    \ cannot be satisfied until this file is produced."
   task: 5e338ee5a51984bc4da15d982a811a1f887e54324dc797f10844bb03b4008a2a
 T006:
   reason: "The repository contains `data/manifest.json` and the data\u2011gap resolver\

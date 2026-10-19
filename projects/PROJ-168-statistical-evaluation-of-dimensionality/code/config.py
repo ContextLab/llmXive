@@ -19,7 +19,7 @@ class Config:
         self.data_processed = self.data_dir / "processed"
         self.results_dir = PROJECT_ROOT / "results"
         self.figures_dir = self.results_dir / "figures"
-        
+
         # Create directories if they don't exist
         self.data_raw.mkdir(parents=True, exist_ok=True)
         self.data_processed.mkdir(parents=True, exist_ok=True)
@@ -40,13 +40,18 @@ class Config:
         self.hvg_top_n = 2000
         # Sampling threshold configured as order of magnitude (10^4 = 10,000 cells)
         # If a dataset exceeds this, deterministic sampling is applied.
-        self.sampling_threshold = 10000 
+        self.sampling_threshold = 10000
         self.n_pcs = 50
         self.leiden_resolutions = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
         # Resource Limits
         self.max_ram_gb = 7.0
         self.max_runtime_hours = 6.0
+
+        # Compute resources (used by code/main.py when launching Snakemake).
+        # GitHub Actions ubuntu-latest runners provide 2 vCPUs (SC-003/SC-004
+        # budget assumes <= 2 CPUs), so default to 2 unless overridden.
+        self.N_CORES = int(os.environ.get("N_CORES", "2"))
 
     def _set_global_seeds(self):
         """Set global random seeds for reproducibility."""
