@@ -1,1 +1,2 @@
 datasets
+pyarrow==14.0.1

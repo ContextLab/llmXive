@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-19T16:11:41Z",
-  "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz"
+  "updated_at": "2026-10-19T22:15:29Z",
+  "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+  "replan_rounds": 1
 }
