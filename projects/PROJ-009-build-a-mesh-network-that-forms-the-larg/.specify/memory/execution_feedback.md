@@ -1,26 +1,57 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
+
+The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
+
+1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
+2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
+3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
+
+- code/orchestrator/cli.py: self-declared fabricated metric — “…ark once per node and collect dummy metrics     # ----------------------…”
+
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
-- run-book command: `python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100`
-  - script usage: `orchestrator run [-h] --config CONFIG --granularity`
-  - argparse error: `orchestrator run: error: the following arguments are required: --nodes, --latency`
 - run-book command: `python -m pytest tests/integration/ -v --mock-testbed`
   - argparse error: `__main__.py: error: unrecognized arguments: --mock-testbed`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 command(s) failed: python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 (rc=2); python code/analysis/theoretical_bound.py  --input data/processed/regression_model.json  --config config.yaml (rc=1); python -m pytest tests/unit/ -v (rc=2); 2 declared deliverable(s) absent: data/raw/dropout_events.json; data/raw/validation_status.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/orchestrator/cli.py: self-declared fabricated metric — “…ark once per node and collect dummy metrics     # ----------------------…”; 6 command(s) failed: python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 (rc=1); python code/orchestrator/cli.py sweep --config config.yaml (rc=1); python code/analysis/theoretical_bound.py  --input data/processed/regression_model.json  --config config.yaml (rc=1); 1 declared deliverable(s) absent: data/raw/dropout_events.json
 
 ## Failing / missing run-book commands
 
-- python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 -> rc=2
+- python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 -> rc=1
 
-usage: orchestrator run [-h] --config CONFIG --granularity
-                        {fine,medium,coarse} --nodes NODES --latency LATENCY
-orchestrator run: error: the following arguments are required: --nodes, --latency
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/cli.py", line 39, in <module>
+    from orchestrator.benchmark import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/benchmark.py", line 227, in <module>
+    @enforce_pipeline_timeout()
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/timeout_guard.py", line 33, in enforce_pipeline_timeout
+    timeout_seconds = get_config().ci_timeout_seconds
+                      ^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/config.py", line 64, in get_config
+    raise ConfigError("Default config.yaml not found")
+orchestrator.config.ConfigError: Default config.yaml not found
+
+- python code/orchestrator/cli.py sweep --config config.yaml -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/cli.py", line 39, in <module>
+    from orchestrator.benchmark import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/benchmark.py", line 227, in <module>
+    @enforce_pipeline_timeout()
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/timeout_guard.py", line 33, in enforce_pipeline_timeout
+    timeout_seconds = get_config().ci_timeout_seconds
+                      ^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/config.py", line 64, in get_config
+    raise ConfigError("Default config.yaml not found")
+orchestrator.config.ConfigError: Default config.yaml not found
 
 - python code/analysis/theoretical_bound.py  --input data/processed/regression_model.json  --config config.yaml -> rc=1
 
@@ -36,54 +67,33 @@ Traceback (most recent call last):
 FileNotFoundError: Input file not found: data/processed/regression_model.json
 
 - python -m pytest tests/unit/ -v -> rc=2
-figs
-code/orchestrator/sweep_runner.py:3: in <module>
-    from orchestrator.scheduler import create_scheduler
-code/orchestrator/scheduler.py:34: in <module>
-    from orchestrator.models import PhysicalNode, TaskChunk, TaskStatus
-code/orchestrator/models.py:13: in <module>
-    from pydantic import BaseModel, Field, field_validator, model_validator
-E   ModuleNotFoundError: No module named 'pydantic'
-=========================== short test summary info ============================
-ERROR tests/unit/test_benchmark.py - orchestrator.config.ConfigError: Default config.yaml not found
-ERROR tests/unit/test_data_aggregator.py
-ERROR tests/unit/test_heartbeat_monitoring.py
-ERROR tests/unit/test_instrumentor_remote.py
-ERROR tests/unit/test_models.py
-ERROR tests/unit/test_monte_carlo.py
-ERROR tests/unit/test_remote_wall_clock_timer.py - NameError: name 'pytest' is not defined
-ERROR tests/unit/test_scheduler.py
-ERROR tests/unit/test_scheduler_execution.py
-ERROR tests/unit/test_scheduler_straggler.py
-ERROR tests/unit/test_sweep_runner.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 11 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 11 errors in 0.73s ==============================
-
-
-- python -m pytest tests/contract/ -v -> rc=2
-ort_path
-    importlib.import_module(module_name)
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-<frozen importlib._bootstrap>:1204: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1176: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
+trap>:1147: in _find_and_load_unlocked
     ???
 <frozen importlib._bootstrap>:690: in _load_unlocked
     ???
 /home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
     exec(co, module.__dict__)
-tests/contract/test_execution_run_schema.py:19: in <module>
-    from orchestrator.models import ExecutionRun, NodeStatus, TaskStatus
-code/orchestrator/models.py:13: in <module>
-    from pydantic import BaseModel, Field, field_validator, model_validator
-E   ModuleNotFoundError: No module named 'pydantic'
+tests/unit/test_sweep_runner.py:13: in <module>
+    from orchestrator.sweep_runner import SweepRunner, SweepConfig, generate_default_configs
+E   ImportError: cannot import name 'SweepRunner' from 'orchestrator.sweep_runner' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/sweep_runner.py)
 =========================== short test summary info ============================
-ERROR tests/contract/test_execution_run_schema.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.11s ===============================
+ERROR tests/unit/test_benchmark.py - orchestrator.config.ConfigError: Default config.yaml not found
+ERROR tests/unit/test_data_aggregator.py
+ERROR tests/unit/test_remote_wall_clock_timer.py - NameError: name 'pytest' is not defined
+ERROR tests/unit/test_scheduler_execution.py
+ERROR tests/unit/test_scheduler_straggler.py
+ERROR tests/unit/test_sweep_runner.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 6 errors in 0.80s ===============================
+
+
+- python -m pytest tests/contract/ -v -> rc=1
+/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml')> = PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml').exists
+ERROR tests/contract/test_regression_model_schema.py::TestRegressionModelSchema::test_invalid_validation_status - AssertionError: Schema file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml
+assert False
+ +  where False = <bound method Path.exists of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml')>()
+ +    where <bound method Path.exists of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml')> = PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/contracts/regression_model_schema.yaml').exists
+=================== 1 failed, 17 passed, 15 errors in 0.22s ====================
 
 
 - python -m pytest tests/integration/ -v --mock-testbed -> rc=4
@@ -98,20 +108,14 @@ __main__.py: error: unrecognized arguments: --mock-testbed
 ## Declared deliverables still missing
 
 - data/raw/dropout_events.json
-- data/raw/validation_status.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/raw/dropout_events.json` is declared but was NOT written. Scripts referencing it:
+    - `code/orchestrator/cli.py` — IS a run-book command
     - `code/orchestrator/heartbeat_monitoring.py` — NOT invoked by the run-book
     - `code/orchestrator/scheduler.py` — NOT invoked by the run-book
     - `code/tests/contract/test_contracts.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/dropout_events.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/validation_status.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/instrumentation_validator.py` — NOT invoked by the run-book
-    - `code/analysis/radio_metrics_validator.py` — NOT invoked by the run-book
-    - `code/orchestrator/network_saturation_handler.py` — NOT invoked by the run-book
-    - `code/orchestrator/scheduler_execution.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/validation_status.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

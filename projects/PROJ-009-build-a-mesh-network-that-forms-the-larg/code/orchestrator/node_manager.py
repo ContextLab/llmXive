@@ -347,7 +347,7 @@ class NodeManager:
     def start_heartbeat_monitoring(self, interval: float = 5.0,
                                    callback: Optional[Callable[[str], None]] = None):
         """
-        Start a background thread that periodically pings all active nodes.
+        Start a background thread that periodically ping all active nodes.
         If a node fails to respond, its status is set to ``heartbeat_lost`` and
         an optional ``callback`` is invoked with the node IP.
         """
@@ -658,3 +658,14 @@ class NodeManager:
                         ip_list.append(ip)
 
         return ip_list
+
+# ----------------------------------------------------------------------
+# Factory helper
+# ----------------------------------------------------------------------
+def create_node_manager(config: Optional[Dict[str, Any]] = None) -> NodeManager:
+    """
+    Factory function used by the test suite to instantiate a ``NodeManager`` with
+    a custom configuration dictionary. Mirrors the historic ``create_node_manager``
+    entry point that existed before the refactor.
+    """
+    return NodeManager(config=config)

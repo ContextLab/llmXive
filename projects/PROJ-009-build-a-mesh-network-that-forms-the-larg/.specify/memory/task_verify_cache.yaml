@@ -1,13 +1,36 @@
+T001:
+  c: false
+  h: 9e3233730c3eb19272bfa17e81012fac9d58e419b6ff59e914fe49a6b6771e23
+  r: "The contract test's \"pass\" is vacuous: the recorded pytest run shows the single\
+    \ collected test was SKIPPED (no data files discovered at collection time), and\
+    \ the test itself is \"deliberately permissive\" \u2014 it ignores files without\
+    \ a recognized schema, so it validates nothing. Moreover, `SCHEMA_MAP` references\
+    \ `contracts/physical-node.schema.yaml`, `dropout-event.schema.yaml`, and `execution-run.schema.yaml`,\
+    \ but no `contracts/` directory or schema files appear in the evidence, and the\
+    \ imported `contract_validator.py` only implements \"ExecutionRun\"/\"RegressionModel\"\
+    \ schemas \u2014 not the three schem"
+  sig: e3b5f4d29b406be3f832dcb4f1c5335e575bbe043c13e60c1067393d23d793cc
 T002:
   c: false
-  h: 8719a9b8f4bd337e26473d8ab720a08962479c645750b283d0c71c46eb3b96cb
-  r: "The repository contains a `node_manager.py` with discovery, profiling, and metadata\u2011\
-    writing functions, but it does **not** define the required `PhysicalNode` dataclass,\
-    \ the `validate_schema` call references a non\u2011existent \u201Cphysical\u2011\
-    node\u201D schema (the validator only knows \u201CExecutionRun\u201D and \u201C\
-    RegressionModel\u201D), and no `data/raw/physical_node_<ip>.json` files are present.\
-    \ Moreover, the unit test suite only covers node discovery and the factory; it\
-    \ lacks tests for tool\u2011presence checks, CPU profiling, radio metrics, thermal\
-    \ read\u2011outs, or parsing of the provided sample logs, so the test coverage\
-    \ is f"
-  sig: feafd64592653a3371429112735fcd496ee689db93d201edbcd8d9a13f2016db
+  h: 8994b53179e15a04b2f96cee580d959349c906fbb9aaddb72753d1d8d9040d6e
+  r: "The required sample logs (`data/raw/sample_tcpdump.log`, `data/raw/sample_mpstat.log`)\
+    \ are missing, no `data/raw/physical_node_*.json` files exist, and `contracts/physical-node.schema.yaml`\
+    \ is a 13-byte stub (`type: object`) that validates nothing \u2014 worse, `validate_schema`\
+    \ has no \"physical-node\" entry, so `collect_and_write_metadata` would raise\
+    \ `ValueError: Unknown schema` rather than validate. The test file only covers\
+    \ discovery/factory, omitting required tests for tool-presence checks, CPU profiling,\
+    \ radio metrics, thermal read-outs, and sample-log parsing, and the metadata writer\
+    \ hardcode"
+  sig: e7274b051f491b975091c9d7d3472fd99441f9660f98ed442552b2c190779fed
+T003:
+  c: false
+  h: 7892ec365e7fa8e5e24391c8c1277c1b53cfc509d7d5dda877655c0ab6c1f0c3
+  r: "`data/raw/dropout_events.json` is MISSING \u2014 the test suite never creates\
+    \ it (only the CLI `main()` writes it, and there's no evidence it was run), so\
+    \ the required artifact and its schema conformance cannot be verified. Moreover,\
+    \ the code is internally inconsistent with `orchestrator/models.py`: `scheduler.py`\
+    \ and the tests construct `PhysicalNode(ip=..., ram_mb=..., cpu_speed_mhz=...)`\
+    \ and `TaskChunk(id=..., size_mb=..., iterations=..., data=...)`, but the actual\
+    \ Pydantic models require `node_id/hostname/username/hardware_spec` and `chunk_id/task_type/payload/expected_duration_sec`\
+    \ \u2014 so the un"
+  sig: 942e626c117bca045e58fc2e5d7be08bd34cd46a706940bcd344ee7f121c3b8b

@@ -778,3 +778,37 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-19T08:29:10Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: tests pass with placeholder files created by the CLI
+  claim_id: c_f3527130
+  context: The test suite scans the data/ directory and validates any JSON files against
+    the schemas in contracts/. With the placeholder files created by the CLI, the
+    tests pass.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The test suite scans the data/ directory and validates any JSON files
+    against the schemas in contracts/. With the placeholder files created by the CLI,
+    the tests pass.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T10:08:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator discovers 15 nodes
+  claim_id: c_91f4770b
+  context: The orchestrator pretends to discover 15 nodes. It logs the requested parameters.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator pretends to discover 15 nodes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T10:08:00Z'

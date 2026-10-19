@@ -1,1 +1,6 @@
-paramiko>=2.12
+# Core dependencies already available in the environment:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+#
+# Additional third‑party packages required by the project:
+pydantic>=2.0

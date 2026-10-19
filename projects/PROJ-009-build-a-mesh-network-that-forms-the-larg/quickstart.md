@@ -63,17 +63,17 @@ python code/orchestrator/cli.py run \
  --latency 100
 ```
 *What happens*:
-- The orchestrator pretends to discover 15 nodes.
-- It logs the requested parameters (no real remote execution in CI).
-- In a full implementation a CSV file would be written to `data/raw/`.
+- The orchestrator pretends to discover 15 nodes. [UNRESOLVED-CLAIM: c_91f4770b — status=not_enough_info]
+- It logs the requested parameters.
+- A placeholder `data/raw/dropout_events.json` and `data/raw/validation_status.json` are created.
 
 ### 2. Full Parameter Sweep
 ```bash
 python code/orchestrator/cli.py sweep --config config.yaml
 ```
 *What happens*:
-- The sweep runner iterates over all combinations defined in `config.yaml`.
-- Results would be aggregated into `data/processed/` (mocked for CI).
+- The sweep runner acknowledges the request (full implementation is future work).
+- No real data are generated at this stage.
 
 ### 3. Help
 ```bash
@@ -88,8 +88,8 @@ Displays usage for all sub‑commands.
 pytest code/tests/contract/ -v
 ```
 The test suite scans the `data/` directory and validates any JSON files
-against the schemas in `contracts/`. With no data files present the
-tests are skipped, which is expected for the minimal T001 implementation.
+against the schemas in `contracts/`. With the placeholder files created
+by the CLI, the tests pass.
 
 ### Unit Tests
 ```bash

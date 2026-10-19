@@ -1,16 +1,14 @@
 status: none
-intent: PhysicalNodeTaskLog EdgeBench IoTBench performance logs dataset python package
-  dataset
+intent: PerfKit Benchmarker results repository dataset CPU network packet counts python
+  package dataset
 required_fields:
 - node_id
 - timestamp
 - wall_clock_time
 - packet_count
-- cpu_utilization_percent
+- cpu_utilization
 - task_id
-- memory_usage_mb
-- network_latency_ms
-- status
-cache_key: e25930fb37d3cf8686279550e105dd60c46d40a45f6fe6a204dda6929f778478
-searched_at: '2026-10-19T09:19:36.376184+00:00'
+- memory_usage
+cache_key: acb6c5a99313640cd50bd51148e570695ac178b7a5c733282e670895a1738366
+searched_at: '2026-10-19T10:10:39.583978+00:00'
 retry_count: 1

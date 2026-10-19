@@ -46,7 +46,7 @@ The following checklist implements the smallest complete study that satisfies ev
   - `data/raw/dropout_events.json` – created by a mock run in the test suite.  
   *Verification* – Scheduler tests pass and `dropout_events.json` conforms to `contracts/dropout-event.schema.yaml`.  
 
-- [ ] **T004** [US1] Wire the end‑to‑end CLI (`code/orchestrator/cli.py`) to (a) discover nodes, (b) perform a single Monte‑Carlo integration benchmark on a **small** subset (e.g., 4 nodes), (c) collect per‑node metrics, and (d) write a raw CSV `data/raw/run_001.csv` with columns matching the `PhysicalNode` and `TaskChunk` contracts.  The CLI must enforce the hard timeout (FR‑007) for this tiny run.  
+- [ ] **T004** [US1] Wire the end‑to‑end CLI (`code/orchestrator/cli.py`) to (a) discover nodes, (b) perform a single Monte‑Carlo integration benchmark on a **small** subset (e.g., 4 nodes), (c) collect per‑node metrics, and (d) write a raw CSV `data/raw/run_001.csv` with columns matching the `PhysicalNode` and `TaskChunk` contracts.  The CLI must enforce the hard timeout (FR‑007) for this tiny run.   <!-- FAILED-IN-EXECUTION: code/orchestrator/cli.py exit=1 -->
   *Artifacts*  
   - `code/orchestrator/cli.py` (sub‑command `run‑single`).  
   - `data/raw/run_001.csv`.  

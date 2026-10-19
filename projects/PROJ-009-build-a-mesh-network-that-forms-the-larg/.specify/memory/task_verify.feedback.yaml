@@ -1,27 +1,36 @@
 T001:
-  reason: "Checked `quickstart.md`, `code/orchestrator/config.py`, and `code/tests/contract/test_contracts.py`.\
-    \ The project lacks a runnable CLI module (`code/orchestrator/cli.py` or equivalent)\
-    \ required for the quick\u2011start command, and the contract\u2011validation\
-    \ tests reference schema files in a `contracts/` directory that are not present,\
-    \ so the tests cannot actually validate any JSON/CSV against the three schemas.\
-    \ Additionally, there is no execution evidence that `pytest code/tests/contract/`\
-    \ exits\u202F0 or that the help command runs without error. These missing artifacts\
-    \ must be added and verified."
+  reason: "The contract test's \"pass\" is vacuous: the recorded pytest run shows\
+    \ the single collected test was SKIPPED (no data files discovered at collection\
+    \ time), and the test itself is \"deliberately permissive\" \u2014 it ignores\
+    \ files without a recognized schema, so it validates nothing. Moreover, `SCHEMA_MAP`\
+    \ references `contracts/physical-node.schema.yaml`, `dropout-event.schema.yaml`,\
+    \ and `execution-run.schema.yaml`, but no `contracts/` directory or schema files\
+    \ appear in the evidence, and the imported `contract_validator.py` only implements\
+    \ \"ExecutionRun\"/\"RegressionModel\" schemas \u2014 not the three schem"
   task: dc5f2a1973faddb12c7a1aff8958e42d0b355283a6fbecd5a85d7cf6c695a2a2
 T002:
-  reason: "The repository contains a `node_manager.py` with discovery, profiling,\
-    \ and metadata\u2011writing functions, but it does **not** define the required\
-    \ `PhysicalNode` dataclass, the `validate_schema` call references a non\u2011\
-    existent \u201Cphysical\u2011node\u201D schema (the validator only knows \u201C\
-    ExecutionRun\u201D and \u201CRegressionModel\u201D), and no `data/raw/physical_node_<ip>.json`\
-    \ files are present. Moreover, the unit test suite only covers node discovery\
-    \ and the factory; it lacks tests for tool\u2011presence checks, CPU profiling,\
-    \ radio metrics, thermal read\u2011outs, or parsing of the provided sample logs,\
-    \ so the test coverage is f"
+  reason: "The required sample logs (`data/raw/sample_tcpdump.log`, `data/raw/sample_mpstat.log`)\
+    \ are missing, no `data/raw/physical_node_*.json` files exist, and `contracts/physical-node.schema.yaml`\
+    \ is a 13-byte stub (`type: object`) that validates nothing \u2014 worse, `validate_schema`\
+    \ has no \"physical-node\" entry, so `collect_and_write_metadata` would raise\
+    \ `ValueError: Unknown schema` rather than validate. The test file only covers\
+    \ discovery/factory, omitting required tests for tool-presence checks, CPU profiling,\
+    \ radio metrics, thermal read-outs, and sample-log parsing, and the metadata writer\
+    \ hardcode"
   task: bef133af3e196f6832bb52ce028cc817c40e9fb5c4e91f629b8863852d3b7edd
 T003:
+  reason: "`data/raw/dropout_events.json` is MISSING \u2014 the test suite never creates\
+    \ it (only the CLI `main()` writes it, and there's no evidence it was run), so\
+    \ the required artifact and its schema conformance cannot be verified. Moreover,\
+    \ the code is internally inconsistent with `orchestrator/models.py`: `scheduler.py`\
+    \ and the tests construct `PhysicalNode(ip=..., ram_mb=..., cpu_speed_mhz=...)`\
+    \ and `TaskChunk(id=..., size_mb=..., iterations=..., data=...)`, but the actual\
+    \ Pydantic models require `node_id/hostname/username/hardware_spec` and `chunk_id/task_type/payload/expected_duration_sec`\
+    \ \u2014 so the un"
   task: bab1106e379ad867863164936ed38ace08062cd1b9407a560b3cfc80fcbed820
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/orchestrator/cli.py
+    exit=1'
   task: 69182d8d4c3be01b1aee6ca7d0465bdc04aaa34c3d280db2b7bff1bb7858f157
 T005:
   task: 7f2d5e6df802c9ab089e308deac1f15549c91fe2ffe6dac9baf79159a8f35639
