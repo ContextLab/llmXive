@@ -1,56 +1,33 @@
 # Data Model: Predicting Plant Secondary Metabolite Profiles from Genomic Data
 
 ## Overview
+Defines the entities, transformations, and JSON schemas that govern every artifact produced by the pipeline. All files are validated against the schemas in `contracts/` using Pydantic models; failures abort the run, guaranteeing Constitution Principle III (Data Hygiene).
 
-This document defines the data entities, transformations, and schemas required for the project. All data artifacts must conform to the schemas defined in `contracts/`. Runtime validation will be enforced via Pydantic models.
+## Core Entities
 
-## Entities
+| Entity | Fields | Description |
+|--------|--------|-------------|
+| **Species** | `species_name` (str), `phylogenetic_clade` (str), `genome_status` (str), `metabolome_status` (str), `genome_size_mb` (float) | Metadata for each plant; used for filtering and stratification. |
+| **BGCFeature** | `species_name` (str), `bgc_type` (str), `count` (int), `presence` (bool), `mapping_source` (str) | One row per BGC type per species; counts derived from antiSMASH JSON. |
+| **MetaboliteTarget** | `species_name` (str), `inchikey` (str), `abundance_raw` (float), `abundance_log` (float), `compound_class` (str) | Harmonized metabolite data; log‑transformed for modeling. |
+| **AlignedRecord** | `species_id` (str), `clade` (str), `bgc_features` (dict\<bgc_type → int\>), `metabolite_targets` (dict\<InChIKey → float\>) | Single row of the final feature‑target matrix (output of alignment). |
+| **ModelOutput** | `model_type` (str), `r_squared` (float), `pearson_r` (float), `p_value` (float), `feature_importance` (dict), `cross_val_scores` (list\<float\>), `cv_method` (str) | Results from each regression model, ready for SSoT. |
 
-### 1. Species
-- `species_name` (str): Scientific name (e.g., *Arabidopsis thaliana*).  
-- `phylogenetic_clade` (str): Clade identifier for stratification.  
-- `genome_status` (str): `"available"` or `"missing"`.  
-- `metabolome_status` (str): `"available"` or `"missing"`.  
-- `genome_size_mb` (float): Assembly size (used for filtering > 500 MB).
-
-### 2. BGC Feature
-- `species_name` (str): FK to Species.  
-- `bgc_type` (str): Predicted class (e.g., `"terpenoid"`, `"alkaloid"`, `"unknown"`).  
-- `count` (int): Number of BGCs of this type.  
-- `presence` (bool): `true` if `count > 0`.  
-- `mapping_source` (str): `"MIBiG"` or `"Pfam"` (fallback).
-
-### 3. Metabolite Target
-- `species_name` (str): FK to Species.  
-- `inchikey` (str): Unique chemical identifier.  
-- `abundance_raw` (float): Raw abundance.  
-- `abundance_log` (float): `log(abundance_raw + 1)`.  
-- `compound_class` (str): Chemical class (e.g., `"flavonoid"`).
-
-### 4. Model Output
-- `model_type` (str): `"RandomForest"`, `"ElasticNet"`, `"GradientBoosting"`, or `"PGLS"`.  
-- `r_squared` (float): Coefficient of determination.  
-- `pearson_r` (float): Pearson correlation coefficient.  
-- `p_value` (float): Significance against phylogenetic permutation baseline.  
-- `feature_importance` (dict): Feature → importance score.  
-- `cross_val_scores` (list[float]): R² scores from the chosen validation method.  
-- `cv_method` (str): `"LOO"`, `"5Fold"` or `"Bootstrap"` (recorded as `"LOO"` for N < 20, `"5Fold"` for N ≥ 20, `"Bootstrap"` when bootstrapping is used).  
-
-## Data Flow
-
-1. **Raw** – Downloaded FASTA/GFF (genomes) and CSV/TSV (metabolites).  
+## Data Flow Diagram
+1. **Raw Input** – FASTA/GFF (genomes) + CSV/TSV (metabolites).  
 2. **Intermediate** – `bgc_predictions.json`, `metabolite_harmonized.csv`, `tree_pruned.nwk`.  
-3. **Processed** – `aligned_matrix.csv` (final feature‑target matrix), optional `pca_features.csv`.  
-4. **Final** – `model_metrics.json`, `sensitivity_analysis.csv`.
+3. **Processed** – `aligned_matrix.csv` (conforms to `aligned_dataset.schema.yaml`).  
+4. **Final** – `model_metrics.json` (conforms to `model_output.schema.yaml`).  
 
 ## Validation & Hygiene
+- **Schema Validation** – After each major step (`download`, `antismash`, `align`, `train`, `evaluate`) the produced file is validated against its corresponding schema in `contracts/`.  
+- **Checksums** – SHA‑256 checksums are computed for all raw and derived files; stored in project state (`state/projects/...yaml`).  
+- **Zero‑BGC Handling** – Species with zero predicted BGCs are retained (`count = 0`, `presence = false`).  
+- **Missing Modality** – Species lacking genome **or** metabolite data are excluded; a warning is logged.  
+- **Numeric Ranges** – R² ∈ [‑1, 1]; counts ≥ 0; log‑abundances bounded by realistic limits (‑1000 → 1000).  
 
-- After each transformation step (download, antiSMASH parsing, alignment, PCA, model training, evaluation) the resulting artifact is validated against its corresponding JSON schema in `contracts/` using Pydantic.  
-- Checksums are computed for all raw and derived files; checksum records are stored in the project state file.  
-- Zero‑BGC rows are **preserved** during alignment; they are treated as valid data points with `count = 0` and `presence = 0` (addresses Edge‑Case requirement).  
-
-Numeric fields are validated for realistic ranges (e.g., R² ∈ [‑1, 1], counts ≥ 0). Missing values are explicitly handled (filtered or imputed with documented method).
+## Contracts Referenced
+- `contracts/aligned_dataset.schema.yaml` – validates the final aligned matrix.  
+- `contracts/model_output.schema.yaml` – validates each model’s result object.  
 
 ---
-
-
