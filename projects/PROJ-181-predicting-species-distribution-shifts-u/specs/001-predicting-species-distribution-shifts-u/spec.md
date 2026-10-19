@@ -66,8 +66,8 @@ The system MUST project trained models onto future climate scenarios (CMIP SSP, 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download North American bird occurrence data (mid‑to‑late 20th century) via GBIF API or eBird and climate rasters from WorldClim v2 via wget or equivalent, ensuring all required predictor variables are present for every record (See US-1).
-- **FR-002**: System MUST download recent occurrence records (early 21st century to present) via GBIF API or eBird for evaluation purposes (See US-3).
+- **FR-001**: System MUST download North American bird occurrence data (mid‑to‑late twentieth century) via GBIF API or eBird and climate rasters from WorldClim v2 via wget or equivalent, ensuring all required predictor variables are present for every record (See US-1).
+- **FR-002**: System MUST download recent occurrence records (early twenty‑first century to present) via GBIF API or eBird for evaluation purposes (See US-3).
 - **FR-003**: System MUST spatially thin occurrence points using a maximum distance thinning method with a default minimum distance threshold of **10 km** (or a dynamic calculation based on the 95th percentile of nearest‑neighbor distances if specified) to reduce spatial autocorrelation before model training (See US-1). *(Reference to FR-014)*
 - **FR-004**: System MUST train all SDM algorithms using CPU‑only libraries (e.g., `scikit-learn`) with no GPU/CUDA dependencies to ensure compatibility with free‑tier CI runners (See US-2).
 - **FR-005**: System MUST perform a sensitivity analysis on the suitability probability threshold by sweeping absolute differences across the set **{0.40, 0.45, 0.50, 0.55, 0.60}** from a baseline threshold of 0.5, and apply Benjamini‑Hochberg multiple‑comparison correction for paired hypothesis tests (See US-3).

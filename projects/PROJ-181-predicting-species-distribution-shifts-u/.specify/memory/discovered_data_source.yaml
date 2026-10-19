@@ -1,16 +1,18 @@
 status: none
-intent: download GBIF and eBird American bird occurrence dataset with WorldClim v2
-  climate variables python package dataset
+intent: GBIF eBird North American bird occurrence WorldClim v2 python package dataset
 required_fields:
-- species
+- species_name
+- scientific_name
+- common_name
 - latitude
 - longitude
-- eventDate
+- observation_date
 - year
 - month
-- dataset_source
-- bio1_temperature
-- bio12_precipitation
-cache_key: 40c1c2d878702ec64f33459a3f51f1ac3ff7a1e09c85433e049e97c71521ff8c
-searched_at: '2026-10-19T02:13:24.640798+00:00'
+- data_source
+- bio1_annual_mean_temperature
+- bio2_mean_diurnal_range
+- bio3_isothermality
+cache_key: e98a66725df7526804b0ea41adeb39f7069d6b63f454d7728acbd8a39cab9ffa
+searched_at: '2026-10-19T02:29:08.236843+00:00'
 retry_count: 1

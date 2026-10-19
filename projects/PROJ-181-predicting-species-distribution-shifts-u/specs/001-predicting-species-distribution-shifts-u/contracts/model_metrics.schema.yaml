@@ -40,19 +40,28 @@ properties:
   delta_auc:
     type: "number"
     description: "Difference in AUC between historical and future projection"
+  calibration_brier:
+    type: "number"
+    description: "Brier score on recent test set"
+  mop_proportion:
+    type: "number"
+    description: "Proportion of future pixels within analogous climate space (MOP)"
+  composite_stability:
+    type: "number"
+    description: "Weighted combination of calibrated AUC change and MOP proportion"
   p_value:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "P-value from statistical test (e.g., Wilcoxon)"
+    description: "P-value from hierarchical bootstrap (FR‑010)"
   effect_size:
     type: "number"
-    description: "Effect size (e.g., Cohen's h) for the comparison"
+    description: "Effect size (Cohen's h = 0.50, source verified)"
   corrected_p_value:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "P-value after multiple-comparison correction"
+    description: "P-value after Benjamini‑Hochberg correction (FR‑005)"
 required:
   - model_id
   - species

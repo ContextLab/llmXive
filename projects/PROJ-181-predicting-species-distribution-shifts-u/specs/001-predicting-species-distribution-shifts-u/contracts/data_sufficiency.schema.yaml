@@ -20,7 +20,7 @@ properties:
       - "INSUFFICIENT_DATA"
   power_value:
     type: "number"
-    description: "Calculated power for detecting a minimum AUC difference of 0.05 (source: statistical power analysis)"
+    description: "Calculated power for detecting a minimally meaningful AUC difference (source: statistical power analysis)"
 required:
   - species
   - period

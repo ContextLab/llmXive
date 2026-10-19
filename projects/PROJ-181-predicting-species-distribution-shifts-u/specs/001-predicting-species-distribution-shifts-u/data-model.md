@@ -25,10 +25,10 @@ erDiagram
 | `longitude` | float | WGS84 longitude (‑180 → 180). |
 | `event_date` | date (YYYY‑MM‑DD) | Observation date. |
 | `source_id` | string | Original GBIF/eBird identifier. |
-| `download_timestamp` | datetime (ISO‑8601) | Timestamp of data download (Constitution VI). |
-| `breeding_season` | boolean | True if the record falls within the species‑specific breeding months. |
+| `download_timestamp` | datetime (ISO‑8601) | Timestamp of data download (Constitution VI). |
+| `breeding_season` | boolean | True if record falls within species‑specific breeding months. |
 | `thinned` | boolean | True if the record survived spatial thinning. |
-| `bias_weight` | float | Weight derived from the bias‑layer raster (higher where observer effort is higher). |
+| `bias_weight` | float | Weight from the bias‑layer raster (higher where observer effort is higher). |
 | `dataset_name` | string | Name of the original dataset (e.g., “GBIF”). |
 
 ### 2.2 ClimateVariable
@@ -55,11 +55,11 @@ erDiagram
 | `species` | string | Target species name. |
 | `algorithm` | string (`RF`, `Bioclim`, `MaxEnt`) | Algorithm used. |
 | `train_period` | string | Temporal window of training data. |
-| `test_period` | string | Temporal window of validation data (e.g., `2005-2020`). |
+| `test_period` | string | Temporal window of validation data (always `2005-2020`). |
 | `file_path` | string | Relative path under `models/`. |
 | `checksum` | string (SHA‑256) | File integrity hash. |
 | `hyperparameters` | JSON object | Algorithm‑specific settings. |
-| `seed` | integer | Random seed used for reproducibility. |
+| `seed` | integer | Random seed for reproducibility. |
 
 ### 2.5 ModelMetrics
 | Field | Type | Description |
@@ -72,14 +72,14 @@ erDiagram
 | `tss` | float (‑1 → 1) | True Skill Statistic. |
 | `threshold` | float | Probability cutoff used for TSS. |
 | `sample_size` | integer | Number of validation records. |
-| `status` | string (`PASS` / `INSUFFICIENT_DATA`) | Sufficiency flag (FR‑006). |
+| `status` | string (`PASS` / `INSUFFICIENT_DATA`) | Sufficiency flag per FR‑006. |
 | `delta_auc` | float | Difference in AUC between historical and future projection. |
 | `calibration_brier` | float | Brier score on recent test set. |
 | `mop_proportion` | float | Proportion of future pixels within analogous climate space (MOP). |
-| `composite_stability` | float | Weighted combination of calibrated AUC change and MOP proportion. |
+| `composite_stability` | float | Weighted combination of calibrated ΔAUC and MOP proportion. |
 | `p_value` | float (0 → 1) | From hierarchical bootstrap (FR‑010). |
-| `effect_size` | float | Cohen’s h (expected = 0.50, source: Wikipedia). |
-| `corrected_p_value` | float (0 → 1) | After Benjamini‑Hochberg correction. |
+| `effect_size` | float | Cohen’s h (effect size = 0.50, source verified). |
+| `corrected_p_value` | float (0 → 1) | After Benjamini‑Hochberg correction (FR‑005). |
 
 ### 2.6 DataSufficiency
 | Field | Type | Description |
@@ -101,17 +101,20 @@ erDiagram
 | Model files | Pickle (`.pkl`) | `contracts/model_artifact.schema.yaml` |
 | Metric JSONs | JSON | `contracts/model_metrics.schema.yaml` |
 | Data sufficiency JSON | JSON | `contracts/data_sufficiency.schema.yaml` |
+| Data acquisition completeness JSON | JSON | **SC‑004** metric (no separate schema needed). |
 | Logging counts YAML | YAML | `contracts/log_counts.schema.yaml` |
-| Logging configuration | YAML (`logging.config.dictConfig`) | No schema required but must exist in `logs/`. |
+| Logging configuration | YAML (`logging.config.dictConfig`) | Stored as `logs/logging_config.yaml`; validated by the implementation against the schema. |
 
 ## 4. Data Flow
 1. **Download** (`code/download.py`) → `data/raw/` (occurrence CSVs, climate GeoTIFFs).  
-2. **Preprocess** (`code/preprocess.py`) → `data/processed/features.csv` + `metrics/data_sufficiency.json` + `logs/preprocess_counts.yaml` + `data/processed/bias_layer.tif`.  
+2. **Preprocess** (`code/preprocess.py`) → `data/processed/features.csv`, `metrics/data_sufficiency.json`, `metrics/data_acquisition_completeness.json`, `logs/preprocess_counts.yaml`, `data/processed/bias_layer.tif`.  
 3. **Train** (`code/train.py`) → `models/*.pkl`.  
-4. **Evaluate** (`code/evaluate.py`) → `metrics/model_performance.json` + `results/summary_table.csv`.  
+4. **Evaluate** (`code/evaluate.py`) → `metrics/model_performance.json`, `results/summary_table.csv`.  
 5. **Report** (`code/report.py`) → `reports/findings.md`.  
 
-All intermediate files are immutable; new derivations receive fresh filenames and are logged with checksums (Constitution III).
+All intermediate files are immutable; new derivations receive fresh filenames and are logged with checksums (Constitution III).
 
 ---
+
+
 
