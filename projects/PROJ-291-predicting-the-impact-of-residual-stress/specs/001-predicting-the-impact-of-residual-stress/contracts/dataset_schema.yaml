@@ -38,10 +38,10 @@ properties:
     description: "Directly measured residual stress in MPa."
   is_proxy:
     type: boolean
-    description: "True if residual stress was computed via proxy formula."
+    description: "True if the proxy value is used in place of a missing measured stress; otherwise false."
   residual_stress_proxy:
     type: number
-    description: "Proxy‑computed residual stress in MPa (present only when is_proxy is true)."
+    description: "Proxy‑computed residual stress in MPa (present for all rows; may be identical to measured value when is_proxy is false)."
   fatigue_life_cycles:
     type: integer
     description: "Number of cycles to failure."

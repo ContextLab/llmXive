@@ -25,7 +25,7 @@ The researcher downloads public fatigue datasets (NIST, UCI, OpenML), parses CSV
 
 ### User Story 2 - Baseline and Stress‑Mediated Model Training (US-2) (Priority: P2)
 
-The researcher trains baseline regression models (Feature Set A: Process Parameters Only), stress‑mediated models (Feature Set B: Process + Measured or **Estimated** Residual Stress), and material‑property models (Feature Set C: Process + Material Properties + Estimated Residual Stress Proxy) using Random Forest, Gradient Boosting, and a shallow neural network on a CPU‑only environment (GitHub Actions free‑tier), performing 5‑fold cross‑validation to select hyperparameters.
+The researcher trains baseline regression models (Feature Set A: Process Parameters Only), stress‑mediated models (Feature Set B: Process + Measured or **Estimated** Residual Stress), and material‑property models (Feature Set C: Process + Material Properties + Estimated Residual Stress Proxy) using Random Forest, Gradient Boosting, and a shallow neural network on a CPU‑only environment (GitHub Actions free‑tier), performing k-fold cross-validation to select hyperparameters.
 
 **Why this priority**: This implements the core comparative analysis to answer the research question regarding predictive value. It delivers the primary scientific result: the comparison of model performance across the three feature sets.
 

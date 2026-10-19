@@ -27,20 +27,20 @@ python -m src.preprocess.preprocess   # unit conversion, imputation, contract va
 
 # 2) Train models (5‑fold CV, hyper‑grid)
 python -m src.models.train --feature-set A   # process‑only
-python -m src.models.train --feature-set B   # process + measured stress (if any)
+python -m src.models.train --feature-set B   # process + measured stress (balanced subset)
 python -m src.models.train --feature-set C   # process + material props (+ proxy stress)
 
 # 3) Evaluate predictive gains
-python -m src.models.evaluate --compare A B   # paired t‑test (measured‑stress subset)
+python -m src.models.evaluate --compare A B   # Wilcoxon signed‑rank test (≥10 % MAPE improvement required)
 python -m src.models.evaluate --cross-material  # transfer learning ΔMAPE + permutation test
 
-# 4) Mediation analysis (runs only when enough measured‑stress rows exist)
+# 4) Mediation analysis (runs only when ≥64 measured‑stress rows are present)
 python -m src.mediation.bootstrap_mediation --resamples 10000
 ```
 
 ## 4. Inspect results
 - Model metrics: `results/reports/model_performance.csv`  
-- Paired t‑test: `results/reports/paired_t_test.csv`  
+- Wilcoxon test: `results/reports/wilcoxon_test.csv`  
 - Cross‑material ΔMAPE: `results/reports/cross_material.csv`  
 - Mediation (if executed): `results/reports/mediation_summary.csv`  
 - Figures (PNG): `results/reports/*.png`
