@@ -31,17 +31,19 @@ properties:
     format: "date-time"
     description: "Timestamp of the event."
   error_details:
-    type: ["string", "null"]
+    type:
+      - "string"
+      - "null"
     description: "Optional details about the error."
   graph_type:
     type: "string"
     description: "The type of graph used for this execution (for ablation)."
 required:
-  - log_id
-  - task_id
-  - step_index
-  - outcome
-  - failure_mode
-  - timestamp
-  - graph_type
+  - "log_id"
+  - "task_id"
+  - "step_index"
+  - "outcome"
+  - "failure_mode"
+  - "timestamp"
+  - "graph_type"
 additionalProperties: false

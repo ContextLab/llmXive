@@ -1,15 +1,16 @@
 status: none
-intent: RoboDojo dataset for symbolic planning task specifications and visual observations
-  python package dataset
+intent: RoboDojo LERobot v3.0 dataset download python package GitHub
 required_fields:
 - task_id
-- task_name
-- task_specification_description
-- semantic_embeddings
-- visual_observation_images
-- object_affordances
+- video_uri_or_path
+- initial_symbolic_state
+- goal_symbolic_state
+- object_affordance_definitions
 - symbolic_state_predicates
-- environment_metadata
-cache_key: 752d34ab9987194a6df0f174a6ac8cea1149e3e1c480bf661f934e55869a163b
-searched_at: '2026-09-28T00:55:34.286403+00:00'
+- semantic_embedding_vector
+- metadata_timestamp
+- environment_configuration
+- action_sequence_ground_truth
+cache_key: 529a84d00a291e60a9a72bc217ba901b2e4474d99e350c5f34a4540985448b20
+searched_at: '2026-10-19T10:26:13.541689+00:00'
 retry_count: 1
