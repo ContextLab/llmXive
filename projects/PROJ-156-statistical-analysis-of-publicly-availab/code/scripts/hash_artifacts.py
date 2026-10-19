@@ -5,7 +5,7 @@ This implements Constitution Principle V: Data Integrity and Reproducibility.
 It generates a manifest file listing the SHA-256 hash for every file found
 under data/raw, data/processed, and data/checkpoints.
 
-Output: data/checkpoints/data_checksums.json
+Output: state/artifact_hashes.json
 """
 import hashlib
 import json
@@ -29,14 +29,14 @@ def collect_data_files(base_dir: str) -> list:
     """Recursively collect all files in the data directory."""
     data_path = Path(base_dir)
     if not data_path.exists():
-        print(f"Warning: Data directory {data_dir} does not exist.", file=sys.stderr)
+        print(f"Warning: Data directory {base_dir} does not exist.", file=sys.stderr)
         return []
-    
+
     files = []
     for root, _, filenames in os.walk(data_path):
         for filename in filenames:
             # Skip the checksum file itself to avoid circular dependency
-            if filename == "data_checksums.json":
+            if filename == "artifact_hashes.json":
                 continue
             full_path = Path(root) / filename
             files.append(str(full_path))
@@ -48,8 +48,8 @@ def main():
     script_dir = Path(__file__).resolve().parent
     project_root = script_dir.parent.parent
     data_dir = project_root / "data"
-    output_dir = project_root / "data" / "checkpoints"
-    output_file = output_dir / "data_checksums.json"
+    output_dir = project_root / "state"
+    output_file = output_dir / "artifact_hashes.json"
 
     # Ensure output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -70,7 +70,7 @@ def main():
         return
 
     print(f"Found {len(files)} files. Computing checksums...")
-    
+
     checksums = {}
     for file_path in files:
         relative_path = str(Path(file_path).relative_to(project_root))

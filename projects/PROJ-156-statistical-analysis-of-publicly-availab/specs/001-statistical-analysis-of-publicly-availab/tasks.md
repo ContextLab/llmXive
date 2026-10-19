@@ -7,10 +7,10 @@
 
 ## Phase 0 – Core utilities (must exist before any user‑story work)
 
-- [ ] T006a [P] Define the configuration schema (keys: `games`, `min_sample_size`, `random_seed`, `lagged_pressure_window_days`, `effect_size_assumptions`).  
+- [X] T006a [P] Define the configuration schema (keys: `games`, `min_sample_size`, `random_seed`, `lagged_pressure_window_days`, `effect_size_assumptions`).  
   – **Verification**: `code/config_schema.yaml` is present and `yamllint` passes.  
 
-- [ ] T006b    Create `code/config.yaml` according to the schema defined in T006a.  
+- [X] T006b    Create `code/config.yaml` according to the schema defined in T006a.  
   – **Verification**: File exists, is valid YAML, and contains numeric values for `min_sample_size`, `random_seed`, `effect_size_assumptions`.  
 
 - [ ] T007a    Implement `code/scripts/hash_artifacts.py` (SHA‑256 checksums for all files under `data/`).  
@@ -26,7 +26,7 @@
 - [ ] T033a [P] Refactor pagination logic into reusable helper `code/scripts/utils/pagination.py::paginate_api`.  
   – **Verification**: Helper file exists; `fetch_data.py` calls `paginate_api`; unit test `tests/test_pagination.py` validates full page list.  
 
-- [ ] T001    Create `code/scripts/fetch_data.py` that iterates over `config.yaml`’s `games`, calls the speedrun.com API, respects rate‑limits, uses `paginate_api`, and writes raw JSON to `data/raw/{game_id}.json`.  
+- [ ] T001    Create `code/scripts/fetch_data.py` that iterates over `config.yaml`’s `games`, calls the speedrun.com API, respects rate‑limits, uses `paginate_api`, and writes raw JSON to `data/raw/{game_id}.json`.   <!-- FAILED-IN-EXECUTION: code/scripts/fetch_data.py exit=1 -->
   – **Verification**: After running on a test game, a non‑empty file appears under `data/raw/`.  
 
 - [ ] T015a    Add checkpoint integration to `fetch_data.py` (FR‑012). After each game download, call `save_checkpoint({"completed_games": [...]}, "data/checkpoints/fetch_checkpoint.json")`.  

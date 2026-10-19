@@ -1,0 +1,65 @@
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/fetch_data.py
+    exit=1'
+  task: 88935aad767cc2a2b025c84e512a279e29d4778dedcefa2b09414fd7de4ae50e
+T002:
+  task: a1ecd32df040da361bbc08866a17d912ef5c4e8387076748ed43f04dc713ef31
+T006a:
+  task: b3195e2b81de0c3733c6a71a103e7aa8ed6306eab78ad7c82e0da405fdb58f0a
+T006b:
+  task: 0bbe7bbf29abe4a38def9f1d27c9556014e127236d80b9e1312f1a18bfa48e1c
+T007a:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/artifact_hashes.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: f0d94641b38bfe8f26e86fd7a90e3c52fbf038ba2e374e858bb6ed6bbf937fd2
+T008a:
+  reason: 'The `checkpoint.py` file exists but its `save_checkpoint` and `load_checkpoint`
+    signatures do not match the required `save_checkpoint(state: dict, path: str)`
+    / `load_checkpoint(path: str) -> dict`, and the current implementation saves files
+    to the wrong location, causing the provided unit tests to fail (2 of 4 tests error).
+    The task therefore is not satisfied.'
+  task: 75acc5a9c6223c951058bce09787db6c4a2f59d04d7fbfdb0a2d8dceda80f3c2
+T009:
+  task: cabac4ca3e56df117389238211c505ce4536fe4452d111b2b82a68badff880f3
+T010:
+  task: 01b9cdd0eb876397039fc3983abf6699925a86c8fe1cabf82fdefd764f34a117
+T014:
+  task: e2d5bbbd8998a7cae5dc7b1f3b42fe94353d6c32d9abf8403e717a9f6c9ea9fb
+T015a:
+  task: 9ff15f6f93bd20596ec57fc9e0eca41073173c7283ccc5407b5b24bf08c98d40
+T015b:
+  task: d286d3af02700f8cfdd7afcd4ffa9fb3570cd6196eb4fe57dc12c767d684f569
+T020:
+  task: d7950fe9b1b03613905898f48aa7374d5d7d4703912e95916c987cf58548dbb2
+T021a:
+  task: f678e05fc9ee9ac4409a5163c12fe519f58e42547fa27cf0728cd0f2654afd37
+T023:
+  task: 785e48231bfcd34ead6af975e00adc13340996af736b52f5e8094a944bd3faeb
+T024:
+  task: e0afbd25f637769bd65c50af396aac420ff0f35640dfab157923fec5fadcd638
+T027:
+  task: 0b71acc974780d0df741c5a2423d6d68e5751a2f75aa0141b5c0581c6ecffa40
+T028b:
+  task: 203d42ccac59ac8fb1dd62d6f73d81cc3f1013a4118cb67e8d9d886d52532154
+T029b:
+  task: 9735f424494472458bf14b5f190a71514d6df27d85b32881d5aa0e78c6876bd1
+T030:
+  task: eabe90c4c981116b77d80042d1b0fcf0ba68deefae11277a151d07da7b4fc3f8
+T032:
+  task: a1e4817529006300883e2a15aa4a11e01794664c00ea93236a983b3c8d43e97e
+T033a:
+  reason: The `code/scripts/utils/pagination.py` helper is present, but the required
+    unit test `tests/test_pagination.py` is missing and there is no provided evidence
+    that `fetch_data.py` actually calls `paginate_api`. Both are needed to satisfy
+    the task.
+  task: bc9195dc6d244946d11b8113dce33f5e9428f24d8e03d3d26f6f6bc2dd077795
+T033b:
+  task: f53a295446e0df0b4764eab4d36e3e365267a4d94874d9ac9a4b4a14cbfb81c1
+T034a:
+  task: 90fbaeb801969970feab3f70af8e515d9a619f857e5bea4249f794489c0f4cd3
+T036:
+  task: 593b5767bdb628d447e67c64cf1c190f25eafae4ecf2ad4c4476dcb2eff7db98
+T037:
+  task: 8fee9b916207cfa4ed69febbaf2369fef2622393a752d1de31dc265a61eedb37

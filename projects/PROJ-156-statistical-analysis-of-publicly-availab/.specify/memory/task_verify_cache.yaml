@@ -1,10 +1,27 @@
-T018:
+T006a:
+  c: true
+  h: 9207aa92dd058365890ba2195455e570953740b24ac4821149e3a3a97dd86af2
+  r: "The `code/config_schema.yaml` file exists (963\u202Fbytes) and defines a JSON\u2011\
+    Schema object with the required keys `games`, `min_sample_size`, `random_seed`,\
+    \ `lagged_pressure_window_days`, and `effect_size_assumptions`. Its syntax is\
+    \ valid YAML (passes yamllint) and matches the task\u2019s specification."
+  sig: 608b5dabffa2219dad2a3e1af1530a0878b080d3d627a088711144d08118b96a
+T006b:
+  c: true
+  h: d2e0fc472abd394c1664c904ebfde5fd2e07cbe779061f87f7a642732a111749
+  r: Checked `code/config.yaml` (resolved path `code/config.yaml`), which exists,
+    is syntactically valid YAML, and includes numeric values for `min_sample_size`
+    (100), `random_seed` (42), and `effect_size_assumptions` (0.5) as required.
+  sig: 11a285f1744cddae1ccbb71c4cf8e466918c9850887c37d71b068e0abce555c8
+T008a:
   c: false
-  h: 06cac892ee1e24aa683834ff55ae885190e43d1eb2d4719e0babb267478f3d48
-  r: "The provided `test_models.py` contains mixed\u2011effects model tests, not a\
-    \ contract test for `distribution_fit.schema.yaml`, and the required `distribution_fit.schema.yaml`\
-    \ file is missing entirely. Both the test and the schema artifact are absent,\
-    \ so the task is not satisfied."
+  h: e6c446720b1cd30343e95c2aadbe7fbd7a0878d8d89a0ebe12f75c4fdde4ca0f
+  r: 'The `checkpoint.py` file exists but its `save_checkpoint` and `load_checkpoint`
+    signatures do not match the required `save_checkpoint(state: dict, path: str)`
+    / `load_checkpoint(path: str) -> dict`, and the current implementation saves files
+    to the wrong location, causing the provided unit tests to fail (2 of 4 tests error).
+    The task therefore is not satisfied.'
+  sig: e53ec47482b9418a4c88e7d3823cbdd8f9a7793489c2bf45b39c9688f0454897
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,3 +30,11 @@ T024:
     implementation (e.g., saving intermediate results to disk or a database) and evidence
     of its operation, but the provided artifacts contain only the original specification
     without any new files or modifications. Consequently, the requirement is not satisfied.
+T033a:
+  c: false
+  h: 63665f8f9972fdfd70328e133f70ef17d089e5f02b8d2142b9d6e7c2dd90d91f
+  r: The `code/scripts/utils/pagination.py` helper is present, but the required unit
+    test `tests/test_pagination.py` is missing and there is no provided evidence that
+    `fetch_data.py` actually calls `paginate_api`. Both are needed to satisfy the
+    task.
+  sig: e02cf8bd942291e7085915bc1e6e2b00ffaa4911cb048b7e8e096425531af9a6

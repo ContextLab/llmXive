@@ -1,5 +1,8 @@
 """
+fetch_data.py
+
 Fetch raw speedrun data from speedrun.com API with checkpointing support.
+Refactored to use the reusable pagination helper ``paginate_api``.
 """
 import json
 import os
@@ -10,179 +13,183 @@ import urllib.error
 import logging
 from pathlib import Path
 
-# Add parent directory to path for imports
+# Ensure sibling modules can be imported
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from scripts.utils.checkpoint import ensure_checkpoint_dir, save_checkpoint, load_checkpoint, get_checkpoint_path
+from scripts.utils.checkpoint import (
+    ensure_checkpoint_dir,
+    save_checkpoint,
+    load_checkpoint,
+    get_checkpoint_path,
+)
+from scripts.utils.pagination import paginate_api  # pagination helper
 
-# Configuration
+# Configuration constants
 CONFIG_PATH = "code/config.yaml"
 API_BASE_URL = "https://www.speedrun.com/api/v1"
 TIMEOUT_PER_REQUEST = 30
 RETRY_COUNT = 3
-RETRY_DELAY = 2
+RETRY_DELAY = 2  # seconds between retries
 
 def load_config():
-    """Load configuration from YAML file."""
+    """Load configuration from the YAML file."""
     import yaml
-    with open(CONFIG_PATH, 'r') as f:
+    with open(CONFIG_PATH, "r") as f:
         return yaml.safe_load(f)
 
 def setup_logging():
-    """Setup logging with file and console handlers."""
+    """Configure a logger that writes to ``code/logs/fetch_data.log``."""
     log_dir = Path("code/logs")
     log_dir.mkdir(parents=True, exist_ok=True)
-    
-    log_file = log_dir / "fetch_data.log"
-    
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    return logging.getLogger(__name__)
+
+    logger = logging.getLogger("fetch_data")
+    logger.setLevel(logging.INFO)
+
+    # Avoid adding duplicate handlers on repeated runs
+    if not logger.handlers:
+        # File handler
+        file_handler = logging.FileHandler(log_dir / "fetch_data.log")
+        file_handler.setLevel(logging.INFO)
+        file_formatter = logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(message)s"
+        )
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
+
+        # Stream (stdout) handler
+        stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setLevel(logging.INFO)
+        logger.addHandler(stream_handler)
+
+    return logger
 
 def get_cache_key(game_id):
-    """Generate a cache key for a game."""
+    """Generate a simple cache key for a game."""
     return f"{game_id}_raw"
 
 def load_from_cache(cache_dir, game_id):
-    """Load raw data from cache if available."""
+    """Load raw data from a local cache if it exists."""
     cache_file = Path(cache_dir) / f"{game_id}_raw.json"
-    if cache_file.exists():
-        with open(cache_file, 'r') as f:
+    if cache_file.is_file():
+        with open(cache_file, "r", encoding="utf-8") as f:
             return json.load(f)
     return None
 
 def save_to_cache(cache_dir, game_id, data):
-    """Save raw data to cache."""
+    """Persist raw API data to a cache file."""
     cache_file = Path(cache_dir) / f"{game_id}_raw.json"
-    with open(cache_file, 'w') as f:
+    with open(cache_file, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
 def fetch_page(url, logger):
-    """Fetch a single page from the API with retry logic."""
-    for attempt in range(RETRY_COUNT):
+    """Fetch a single API page with retry logic."""
+    for attempt in range(1, RETRY_COUNT + 1):
         try:
-            req = urllib.request.Request(url, headers={'User-Agent': 'SpeedrunStats/1.0'})
+            req = urllib.request.Request(
+                url, headers={"User-Agent": "SpeedrunStats/1.0"}
+            )
             with urllib.request.urlopen(req, timeout=TIMEOUT_PER_REQUEST) as response:
-                return json.loads(response.read().decode('utf-8'))
+                return json.loads(response.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
-            logger.warning(f"HTTP Error {e.code} for {url} (attempt {attempt+1})")
-            if e.code == 429:  # Rate limit
-                time.sleep(RETRY_DELAY * (attempt + 1))
+            logger.warning(f"HTTP error {e.code} for {url} (attempt {attempt})")
+            if e.code == 429:  # rate‑limit
+                time.sleep(RETRY_DELAY * attempt)
             else:
                 raise
         except urllib.error.URLError as e:
-            logger.warning(f"URL Error for {url} (attempt {attempt+1}): {e.reason}")
-            time.sleep(RETRY_DELAY * (attempt + 1))
+            logger.warning(f"URL error for {url} (attempt {attempt}): {e.reason}")
+            time.sleep(RETRY_DELAY * attempt)
         except Exception as e:
-            logger.warning(f"Unexpected error for {url} (attempt {attempt+1}): {e}")
-            time.sleep(RETRY_DELAY * (attempt + 1))
-    
+            logger.warning(f"Unexpected error for {url} (attempt {attempt}): {e}")
+            time.sleep(RETRY_DELAY * attempt)
+
     raise RuntimeError(f"Failed to fetch {url} after {RETRY_COUNT} attempts")
 
 def fetch_game_runs(game_id, logger, max_pages=100):
-    """Fetch all runs for a specific game with pagination."""
-    runs = []
-    page = 1
-    
-    while page <= max_pages:
-        url = f"{API_BASE_URL}/games/{game_id}/runs?per-page=100&order=asc&page={page}"
-        logger.info(f"Fetching page {page} for game {game_id}")
-        
-        response = fetch_page(url, logger)
-        data = response.get('data', [])
-        
-        if not data:
-            break
-        
-        runs.extend(data)
-        
-        # Check for pagination
-        pagination = response.get('pagination', {})
-        if not pagination.get('has_next', False):
-            break
-        
-        page += 1
-        time.sleep(0.5)  # Be respectful to the API
-    
-    return runs
+    """Fetch all runs for a game using the generic ``paginate_api`` helper."""
+    # Build the URL for a given page number
+    url_builder = lambda page: (
+        f"{API_BASE_URL}/games/{game_id}/runs?"
+        f"per-page=100&order=asc&page={page}"
+    )
+    # Delegate pagination to the helper
+    return paginate_api(fetch_page, url_builder, logger, max_pages=max_pages)
 
 def save_raw_data(data_dir, game_id, runs):
-    """Save raw data to disk."""
+    """Write the raw JSON payload for a game to ``data/raw/{game_id}.json``."""
     data_path = Path(data_dir)
     data_path.mkdir(parents=True, exist_ok=True)
-    
-    output_file = data_path / f"{game_id}_raw.json"
-    with open(output_file, 'w') as f:
+
+    output_file = data_path / f"{game_id}.json"
+    with open(output_file, "w", encoding="utf-8") as f:
         json.dump(runs, f, indent=2)
-    
-    logger.info(f"Saved {len(runs)} runs for {game_id} to {output_file}")
+
+    logging.getLogger("fetch_data").info(
+        f"Saved {len(runs)} runs for {game_id} to {output_file}"
+    )
 
 def main():
-    """Main entry point with checkpointing support."""
+    """Entry point – iterate over configured games, fetch data, checkpoint."""
     logger = setup_logging()
-    logger.info("Starting data fetch with checkpointing")
-    
+    logger.info("Starting data acquisition with checkpoint support")
+
     config = load_config()
-    games = config.get('games', [])
-    min_sample_size = config.get('min_sample_size', 100)
-    
+    games = config.get("games", [])
+    if not games:
+        logger.error("No games specified in config.yaml")
+        sys.exit(1)
+
     raw_data_dir = "data/raw"
     checkpoint_dir = "data/checkpoints"
     ensure_checkpoint_dir(checkpoint_dir)
-    
+
+    # Resolve checkpoint file path (e.g., data/checkpoints/fetch_data.json)
     checkpoint_path = get_checkpoint_path(checkpoint_dir, "fetch_data")
-    checkpoint = load_checkpoint(checkpoint_path)
-    
-    # Determine starting point
-    if checkpoint and 'completed_games' in checkpoint:
-        completed_games = set(checkpoint['completed_games'])
-        games_to_fetch = [g for g in games if g not in completed_games]
-        logger.info(f"Resuming from checkpoint. Completed: {completed_games}, Remaining: {games_to_fetch}")
-    else:
-        completed_games = set()
-        games_to_fetch = games
-        logger.info("Starting fresh. Games to fetch: {games_to_fetch}")
-    
-    # Process each game
+    checkpoint = load_checkpoint(checkpoint_path) or {}
+
+    completed_games = set(checkpoint.get("completed_games", []))
+    games_to_fetch = [g for g in games if g not in completed_games]
+
+    logger.info(
+        f"{len(completed_games)} games already completed; "
+        f"{len(games_to_fetch)} remaining."
+    )
+
     for game_id in games_to_fetch:
-        logger.info(f"Processing game: {game_id}")
-        
+        logger.info(f"Fetching runs for game: {game_id}")
+
         try:
-            # Check cache first
-            cached_data = load_from_cache(raw_data_dir, game_id)
-            if cached_data:
-                logger.info(f"Loaded {game_id} from cache")
-                runs = cached_data
+            # Attempt to load from local cache first
+            cached = load_from_cache(raw_data_dir, game_id)
+            if cached is not None:
+                logger.info(f"Loaded cached data for {game_id}")
+                runs = cached
             else:
-                # Fetch from API
                 runs = fetch_game_runs(game_id, logger)
+                # Cache the fresh result for potential future runs
                 save_to_cache(raw_data_dir, game_id, runs)
-            
-            # Save to raw data directory
+
+            # Persist the raw JSON for downstream steps
             save_raw_data(raw_data_dir, game_id, runs)
-            
+
             # Update checkpoint
             completed_games.add(game_id)
-            checkpoint = {
-                'completed_games': list(completed_games),
-                'total_games': len(games),
-                'last_updated': time.time()
+            checkpoint_state = {
+                "completed_games": list(completed_games),
+                "total_games": len(games),
+                "last_updated": time.time(),
             }
-            save_checkpoint(checkpoint_path, checkpoint)
-            
-            logger.info(f"Successfully fetched {len(runs)} runs for {game_id}")
-            
-        except Exception as e:
-            logger.error(f"Failed to fetch {game_id}: {e}")
+            save_checkpoint(checkpoint_path, checkpoint_state)
+            logger.info(f"Successfully processed {game_id}")
+
+        except Exception as exc:
+            logger.error(f"Failed to process {game_id}: {exc}")
+            # Re‑raise so the CI run aborts – we want loud failure
             raise
-    
-    logger.info(f"All games processed. Total completed: {len(completed_games)}/{len(games)}")
+
+    logger.info(
+        f"All games processed. Completed {len(completed_games)}/{len(games)}."
+    )
     return 0
 
 if __name__ == "__main__":
