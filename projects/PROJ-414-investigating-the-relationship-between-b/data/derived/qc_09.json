@@ -14,10 +14,10 @@
     "applied": true
   },
   "n_volumes": 200,
-  "n_bad_volumes": 6,
-  "fraction_bad_volumes": 0.03,
-  "excluded": false,
-  "exclusion_reason": null,
+  "n_bad_volumes": 44,
+  "fraction_bad_volumes": 0.22,
+  "excluded": true,
+  "exclusion_reason": "excessive_bad_volumes: 0.220 of volumes bad (> 0.2) by the dvars_mad rule",
   "motion_proxy": {
     "method": "dvars_mad",
     "description": "no FD column in verified shard; DVARS-like statistic (root-mean-square frame-to-frame change in the 100 block-mean signals) is bad when it exceeds run_median + 3 * (1.4826 * MAD)",
@@ -26,10 +26,10 @@
       "mad_to_sd_constant": 1.4826,
       "max_bad_volume_fraction": 0.2
     },
-    "run_median": 0.31154892010921137,
-    "run_mad": 0.06822466361293614,
-    "threshold": 0.6149985789268286
+    "run_median": 0.2755681244113252,
+    "run_mad": 0.03729478516509277,
+    "threshold": 0.44144786986862483
   },
-  "dvars_median": 0.31154892010921137,
-  "dvars_mad": 0.06822466361293614
+  "dvars_median": 0.2755681244113252,
+  "dvars_mad": 0.03729478516509277
 }

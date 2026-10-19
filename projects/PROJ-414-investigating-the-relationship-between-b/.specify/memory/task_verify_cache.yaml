@@ -1,31 +1,19 @@
 T001:
   c: true
-  h: 86584ebc948163863e313e8691b133885f283e3b8c3fd9386f42563aba892400
-  r: The 464 MB parquet shard exists with SHA-256 matching both `data/checksums.json`
-    and the inventory; the download script fetched from the verified `clane9/openneuro-fslr64k`
-    repo (exit 0, real HF API/download logs, no synthetic fallback) and honestly recorded
-    the real 8-column schema with behavioral covariates marked absent and `available_subject_count=19`.
-    All 4 pytest tests passed, including the pyarrow-computed distinct-subject count
-    check against the inventory.
-  sig: ba37f49f6b5883114e2b4f570d321ac69d5d3c88cc4b045a75095d37e5149e54
+  h: c2bc96b888985ed8467d615a26edb4a23ec92443c03880335dacd27b9d772165
+  r: "The parquet shard `data/raw/test-00000-of-00016.parquet` exists and is non\u2011\
+    empty, `data/checksums.json` contains the correct SHA\u2011256 matching the file,\
+    \ and `data/raw/column_inventory.json` accurately reflects the real schema, field\
+    \ presence, and distinct subject count (validated by the supplied pytest suite).\
+    \ The download script uses `hf_hub_download` and raises on any error, with no\
+    \ synthetic fallback."
+  sig: ed7b61b09e6127a2771fa54abffd6698d2f59731ac0dcef46bae43ea4e5f383c
 T002:
-  c: true
-  h: 678a4cc522317dfc0540592f11fc260f0e1e7b73a0c73f6eb1510e53a9c224ae
-  r: "Checked that `code/config.py` defines the required seeded and QC constants,\
-    \ that `code/run_all.py` runs `--help` successfully (log shows exit\u202F0), and\
-    \ that `specs/\u2026/quickstart.md` contains the exact CLI invocation `python\
-    \ code/run_all.py --seed 42 --window 45 --step 10 --permutations 1000`. All required\
-    \ artifacts exist and match the task specification."
-  sig: 2e8b13492c9652bf51136726f260f48cafd55e71fb966c47342ea6371df1ad19
-T003:
   c: false
-  h: dddb6be318cffc08c72b6d85ea7daac6dce32ccf9bbea189d2c8cc2786d1f323
-  r: "The extracted CSVs and QC JSONs exist, but the unit tests fail: the DVARS\u2011\
-    based bad\u2011volume rule does not flag the injected spikes (test_dvars_exclusion_fires_on_known_bad_volumes),\
-    \ and the CSVs write numeric subject IDs causing schema validation and exclusion\u2011\
-    log mismatches (test_real_outputs_conform_to_schema, test_exclusion_log_covers_all_subjects).\
-    \ Additionally, the required `results/performance_metrics.txt` file documenting\
-    \ memory usage is missing. Fix the DVARS logic, ensure subject IDs are written\
-    \ as strings, generate the performance\u2011metrics file, and re\u2011run the\
-    \ tests."
-  sig: 8e4c753b1c0df4804f027f33231d1025b42a972c8a6958f33fc51b24648e628b
+  h: 720e4e46501b059d36b5b8660f3dfe4969ecdc7ad28d7a94fc6d7f07737b74be
+  r: "The required files (`code/config.py`, `code/requirements.txt`, `code/run_all.py`,\
+    \ `quickstart.md`) exist and contain appropriate content, but there is no concrete\
+    \ evidence (e.g., command output or test log) showing that `python code/run_all.py\
+    \ --help` actually runs and exits with status\u202F0. Provide execution evidence\
+    \ or a test confirming the help command succeeds."
+  sig: 5918012f9452d5804edcbffa54ac999ef908f9b6f35647b7b10280884f691cde

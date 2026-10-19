@@ -14,8 +14,8 @@
     "applied": true
   },
   "n_volumes": 184,
-  "n_bad_volumes": 8,
-  "fraction_bad_volumes": 0.043478260869565216,
+  "n_bad_volumes": 17,
+  "fraction_bad_volumes": 0.09239130434782608,
   "excluded": false,
   "exclusion_reason": null,
   "motion_proxy": {
@@ -26,10 +26,10 @@
       "mad_to_sd_constant": 1.4826,
       "max_bad_volume_fraction": 0.2
     },
-    "run_median": 0.27181525453192434,
-    "run_mad": 0.04132323199896089,
-    "threshold": 0.4556127258169026
+    "run_median": 0.25435574018456525,
+    "run_mad": 0.029057596336300992,
+    "threshold": 0.3835981171691648
   },
-  "dvars_median": 0.27181525453192434,
-  "dvars_mad": 0.04132323199896089
+  "dvars_median": 0.25435574018456525,
+  "dvars_mad": 0.029057596336300992
 }

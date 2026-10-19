@@ -1,16 +1,14 @@
 T001:
   task: fadcde45a87fc55f5cc4353ef64d2cc038786c1b4607cf13411ec44b06b2b6c3
 T002:
+  reason: "The required files (`code/config.py`, `code/requirements.txt`, `code/run_all.py`,\
+    \ `quickstart.md`) exist and contain appropriate content, but there is no concrete\
+    \ evidence (e.g., command output or test log) showing that `python code/run_all.py\
+    \ --help` actually runs and exits with status\u202F0. Provide execution evidence\
+    \ or a test confirming the help command succeeds."
   task: c3fda50ffb63055e11ebee04cdc8946187689b6134db04c01724d8b75ac90358
 T003:
-  reason: "The extracted CSVs and QC JSONs exist, but the unit tests fail: the DVARS\u2011\
-    based bad\u2011volume rule does not flag the injected spikes (test_dvars_exclusion_fires_on_known_bad_volumes),\
-    \ and the CSVs write numeric subject IDs causing schema validation and exclusion\u2011\
-    log mismatches (test_real_outputs_conform_to_schema, test_exclusion_log_covers_all_subjects).\
-    \ Additionally, the required `results/performance_metrics.txt` file documenting\
-    \ memory usage is missing. Fix the DVARS logic, ensure subject IDs are written\
-    \ as strings, generate the performance\u2011metrics file, and re\u2011run the\
-    \ tests."
+  reason: 'Requested task execution failed; rerun successfully: code/run_all.py exit=1'
   task: ec30d7a4863f37e1ac5c1292bcac41a97132e035a0e8f110f4b3bf0311d586c2
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/connectivity.py

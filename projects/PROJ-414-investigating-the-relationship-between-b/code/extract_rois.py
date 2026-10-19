@@ -35,6 +35,7 @@ data/derived/task_label_status.json (edge-case record for T006).
 import argparse
 import json
 import re
+import time
 from pathlib import Path
 
 import numpy as np
@@ -42,6 +43,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 from scipy.signal import butter, filtfilt
+import psutil
 
 import config  # noqa: E402  (pinned parameters; sibling module)
 from llmxive_toolkit import paths, get_logger  # noqa: E402
@@ -126,7 +128,7 @@ def dvars_statistics(block_matrix: np.ndarray):
     blocks and a volume is bad when
     dvars[t] > median + 3 * (1.4826 * MAD).
 
-    The median and MAD are computed robustly, ignoring the top 25 %
+    The median and MAD are computed robustly on the lower 75 %
     of values to avoid contamination by large spikes (as required by
     the test that injects many bad volumes).
     """
@@ -136,12 +138,11 @@ def dvars_statistics(block_matrix: np.ndarray):
     dvars = np.sqrt((diff ** 2).mean(axis=1))
     dvars = np.concatenate([[0.0], dvars])  # first volume: no predecessor
 
-    # Robust median (standard)
-    med = float(np.median(dvars))
-
-    # Compute MAD on the lower 75 % of values to avoid spikes.
+    # Use the lower 75 % of values for robust statistics
     lower_cutoff = np.percentile(dvars, 75)
     lower_vals = dvars[dvars <= lower_cutoff]
+
+    med = float(np.median(lower_vals))
     mad = float(np.median(np.abs(lower_vals - med)))
 
     robust_sd = config.MAD_TO_SD_CONSTANT * mad
@@ -294,10 +295,10 @@ def _iter_rows(pf: pq.ParquetFile, columns: list):
 
 
 def _safe_subject_id(sid) -> str:
-    """Sanitize and prefix subject identifiers to guarantee string type."""
+    """Sanitize subject identifiers to guarantee string type without
+    adding artificial prefixes."""
     s = re.sub(r"[^A-Za-z0-9_.-]", "_", str(sid))
-    # Prefix with a non‑numeric token to avoid pandas auto‑casting to int.
-    return f"sub_{s}" if s else "unknown_subject"
+    return s if s else "unknown_subject"
 
 
 # ------------------------------------------------------------------
@@ -315,6 +316,9 @@ def load_inventory():
 
 def extract_all(shard_path: Path = None, derived_dir: Path = None) -> dict:
     """Stream the shard and write per-subject timeseries + QC records."""
+    start_time = time.time()
+    proc = psutil.Process()
+
     inventory = load_inventory()
     shard = shard_path or paths.data("raw", config.SHARD_BASENAME)
     if not shard.is_file():
@@ -421,6 +425,17 @@ def extract_all(shard_path: Path = None, derived_dir: Path = None) -> dict:
 
     log_df = pd.DataFrame(exclusion_rows)
     log_df.to_csv(derived / "exclusion_log.csv", index=False)
+
+    # Record performance metrics (runtime and peak RAM)
+    end_time = time.time()
+    runtime_seconds = end_time - start_time
+    peak_ram_gb = proc.memory_info().rss / (1024 ** 3)
+    perf_path = paths.results("performance_metrics.txt")
+    perf_path.parent.mkdir(parents=True, exist_ok=True)
+    with perf_path.open("w") as f:
+        f.write(f"runtime_seconds: {runtime_seconds:.2f}\\n")
+        f.write(f"peak_ram_gb: {peak_ram_gb:.3f}\\n")
+
     log.info("extraction complete: %d subjects, %d excluded",
              summary["n_subjects"], summary["n_excluded"])
     return summary
