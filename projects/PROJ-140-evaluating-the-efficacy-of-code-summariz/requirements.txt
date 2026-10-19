@@ -1,6 +1,3 @@
 # Project dependencies
-# Existing environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema,
-# psutil, llmxive_toolkit
-datasets>=2.14.0
-# The above version ensures streaming support and compatibility with Python 3.11.
+datasets>=2.0.0
+# (Other dependencies are provided by the platform runtime)

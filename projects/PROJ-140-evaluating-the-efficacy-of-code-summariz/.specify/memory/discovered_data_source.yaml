@@ -1,15 +1,15 @@
 status: none
-intent: download Defects4J v2.0 dataset Python package for buggy method extraction
-  python package dataset
+intent: download Defects4J v2.0 dataset python package defects4j GitHub python package
+  dataset
 required_fields:
 - participant_id
-- condition
 - task_id
+- condition
 - timestamp_ms
 - selected_line_number
 - ground_truth_buggy_line
 - project_name
-- buggy_method_identifier
-cache_key: 1da8cde4542f82f86cec25d486f942add4c6e612d05eb70db0d400530227bb1e
-searched_at: '2026-10-19T00:34:38.833226+00:00'
+- buggy_method_id
+cache_key: 0a29cf2c05ff99920b763d974af7af34e843a539afd60f7d287360738ce9a80f
+searched_at: '2026-10-19T02:12:44.972250+00:00'
 retry_count: 1

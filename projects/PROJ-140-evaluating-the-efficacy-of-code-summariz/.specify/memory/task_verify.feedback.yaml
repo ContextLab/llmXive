@@ -1,4 +1,12 @@
 T001:
+  reason: "The quickstart file exists (3614 bytes) with correct content \u2014 layout,\
+    \ pinned Defects4J v2.0 (matching `data/defects4j_version.txt` containing `2.0`),\
+    \ seed 42, and the run command \u2014 but the task's explicit verification step\
+    \ (`python -m code.main --mode sim --help` exiting with status 0) has no execution\
+    \ evidence: no command output, exit code, or run log was supplied, and `code/main.py`'s\
+    \ contents were not shown to confirm it defines a `--mode sim` CLI with a working\
+    \ `--help`. The next implementer should run the command from the project root\
+    \ and capture its exit status/output as evidence."
   task: 4a48e661b023376b74dbfd397691074cca374f3f3af036d425664943d683a4c3
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/download/download_defectsj.py
