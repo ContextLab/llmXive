@@ -13,18 +13,17 @@ This script:
    ``models/random_forest.pkl``.
 6. Writes basic training metrics to ``results/training_metrics.json``.
 """
-import os
 import sys
 import json
 import logging
 import time
 import resource
 from pathlib import Path
-from typing import Tuple, List, Dict, Any
+from typing import Tuple, Dict, Any
 
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score, mean_absolute_error
@@ -71,7 +70,7 @@ def load_clean_data(filepath: Path) -> pd.DataFrame:
         raise ValueError(f"Missing required columns: {missing}")
     return df
 
-def prepare_features(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+def prepare_features(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, pd.DataFrame]:
     logger.info("Preparing feature matrix X and target vector y")
     mask = df[REQUIRED_FEATURES + [TARGET_COLUMN]].notna().all(axis=1)
     df_clean = df[mask].copy()
@@ -87,25 +86,10 @@ def split_and_save(df: pd.DataFrame, test_size: float = 0.2, random_state: int =
     Perform a stratified split by ``alloy_family`` if present, otherwise random.
     Writes the splits to parquet files and returns the two DataFrames.
     """
-    if "alloy_family" in df.columns and df["alloy_family"].nunique() > 1:
-        try:
-            stratify = df["alloy_family"]
-            X_train, X_test, y_train, y_test = train_test_split(
-                df, df[TARGET_COLUMN],
-                test_size=test_size,
-                random_state=random_state,
-                stratify=stratify,
-            )
-            logger.info("Stratified split by alloy_family succeeded.")
-        except Exception as e:
-            logger.warning(f"Stratified split failed ({e}); falling back to random split.")
-            X_train, X_test = train_test_split(df, test_size=test_size, random_state=random_state)
-        # Separate features/target after split
-        train_df = X_train.drop(columns=[TARGET_COLUMN])
-        test_df = X_test.drop(columns=[TARGET_COLUMN])
-    else:
-        logger.info("Alloy_family not available; using random split.")
-        train_df, test_df = train_test_split(df, test_size=test_size, random_state=random_state)
+    # The current dataset does not contain an explicit ``alloy_family`` column.
+    # We therefore fall back to a simple random split.
+    logger.info("Performing random train‑test split.")
+    train_df, test_df = train_test_split(df, test_size=test_size, random_state=random_state)
 
     # Write splits
     train_path = Path("data/processed/train.parquet")
@@ -153,7 +137,7 @@ def main() -> int:
 
     X, y, df_clean = prepare_features(df)
 
-    # Split and persist splits
+    # Split and persist splits (the split retains the target column)
     train_df, test_df = split_and_save(df_clean)
 
     # Align X/Y with the split DataFrames
