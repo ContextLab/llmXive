@@ -33,7 +33,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset with 1 000 records of code metrics and HallucinationIndices, **When** the analysis script runs, **Then** it outputs a Spearman ρ and p‑value for the relationship between token count and HallucinationIndex, controlling for generated description length via rank‑regression residualization.
+1. **Given** a dataset with 1 000 records of code metrics and HallucinationIndices, **When** the analysis script runs, **Then** it outputs a Spearman ρ and p‑value for the relationship between token count and HallucinationIndex, controlling for generated description length via the partial‑Spearman method (see FR‑019).
 2. **Given** a dataset where function names use mixed naming styles, **When** the naming‑style metric is calculated, **Then** the system correctly categorizes each function and reports the correlation between naming style and HallucinationIndex.
 3. **Given** the analysis is observational, **When** the report is generated, **Then** it explicitly frames findings as associational (e.g., “a positive correlation was observed”) rather than causal.
 
@@ -50,7 +50,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** a calculated HallucinationIndex, **When** the sensitivity analysis runs, **Then** it reports the proportion of functions with index ≥ threshold for each threshold in {0.01, 0.05, 0.1}.
-2. **Given** a manually verified subset of **≥ 5 % of the dataset (≥ 50 items)**, **When** the validation runs, **Then** it reports Pearson r between the automated index (entity‑F1 component) and the median manual score, and Krippendorff’s α for inter‑rater reliability (α > 0.7).
+2. **Given** a manually verified subset of **≥ 5 % of the dataset (≥ 50 items)**, **When** the validation runs, **Then** it reports Pearson r between the automated **entity‑F1** component and the median manual **entity‑F1** score, and Krippendorff’s α for inter‑rater reliability (α > 0.7).
 3. **Given** three hypothesis tests (length, naming, complexity), **When** the multiple‑comparison correction runs, **Then** it applies Bonferroni correction and reports the adjusted p‑values.
 4. **Given** the dataset is observational, **When** the final report is generated, **Then** it includes a disclaimer that no causal claims are made.
 
@@ -72,21 +72,24 @@
   \text{HallucinationIndex}=0.5\,(1-\text{entity‑overlap F1})\;+\;0.5\,(1-\text{semantic similarity})
   \]
 
-  where both components are bounded in \([0,1]\); the resulting index is also in \([0,1]\) (See US-1).
-- **FR-004**: System MUST perform **partial Spearman rank‑correlation** between the HallucinationIndex and the three predictors (function token count, identifier‑entropy metric, cyclomatic complexity) while controlling for generated description length via rank‑regression residualization (See US-2).
+  where both components are bounded in \([0,1]\); the resulting index is also in \([0,1]\) (See US-1). The two components will each be independently validated (see FR‑020).
+- **FR-004**: System MUST perform **partial Spearman rank‑correlation** between the HallucinationIndex and each predictor (function token count, identifier‑entropy metric, cyclomatic complexity) while controlling for generated description length using the partial‑Spearman method defined in FR‑019 (See US-2).
 - **FR-005**: System MUST apply a **Bonferroni** family‑wise error correction to the p‑values of all correlation tests and report the adjusted significance (See US-3).
 - **FR-006**: System MUST conduct a sensitivity analysis sweeping the HallucinationIndex classification threshold (`index ≥ threshold`) over the set {0.01, 0.05, 0.1} and report the variation in the “high‑hallucination” rate (See US-3).
 - **FR-007**: System MUST output a final JSON/CSV report containing (a) correlation coefficients and raw/adjusted p‑values, (b) regression coefficients with 95 % confidence intervals, (c) sensitivity‑analysis results, and (d) the phrase “correlation observed” to explicitly frame findings as associational (See US-2, US-3).
 - **FR-008**: System MUST fit a multiple linear regression model (`HallucinationIndex ~ Length + Entropy + CyclomaticComplexity + DescriptionLength`) and report β‑coefficients with 95 % confidence intervals (See US-2).
-- **FR-009**: System MUST randomly select a **stratified subset of at least 5 % of the dataset (≥ 50 items)** for manual verification. For this subset, three independent annotators must label factual accuracy using the 0‑3 rubric described in the idea. The system MUST compute the median of the three normalized scores, calculate Krippendorff’s α, and flag the subset if α < 0.7 or if score spread exceeds 1.0 (see US-3).
+- **FR-009**: System MUST randomly select a **stratified subset of at least 5 % of the dataset (≥ 50 items)** for manual verification. For this subset, three independent annotators must (a) label factual accuracy using the 0‑3 rubric **and** (b) assign an entity‑F1 score (0–1) for each function. The system MUST compute the median of the three normalized factual scores, compute the median manual entity‑F1, calculate Krippendorff’s α for the factual scores, and flag the subset if α < 0.7 or if score spread exceeds 1.0 (see US-3).
 - **FR-010**: System MUST compare HallucinationIndices and correlation results generated by `codegen-350M` and `starcoderbase-1b` to assess model‑specific variance (See US-1, US-2).
-- **FR-011**: System MUST compute Pearson’s r between the automated entity‑F1 component and the median manual score. If r < 0.7, the system MUST flag the index calibration as “needs review” and report the 95 % confidence interval for the correlation (See US-3).
+- **FR-011**: System MUST compute Pearson’s r between the **automated entity‑F1 component** and the **median manual entity‑F1 score** collected in FR‑009. If r < 0.7, the system MUST flag the index calibration as “needs review” and report the 95 % confidence interval for the correlation (See US-3, FR‑020). *Rationale*: using a manual entity‑F1 rating isolates the overlap component from semantic‑similarity judgments, preserving statistical independence.
 - **FR-012**: System MUST **reject** any mode of operation that generates placeholder, simulated, or hard‑coded scores. No `--simulate` flag or equivalent is permitted (See US-1).
 - **FR-013**: System MUST orchestrate the manual verification workflow described in FR‑009, including generation of the adjudication report when a senior reviewer is invoked (See US-3).
 - **FR-014**: System MUST assign an entity‑F1 score of **0.0** and flag `empty_output=True` for any function where the LLM returns an empty string or non‑text output (See Edge Cases).
 - **FR-015**: System MUST skip any function lacking a reference docstring, log `missing_docstring=True`, and exclude the row from all downstream statistical analyses (See Edge Cases).
 - **FR-016**: System MUST set cyclomatic complexity to **NaN** and flag `radon_parse_failure=True` when `radon` cannot parse a function; such rows are excluded from regression models (See Edge Cases).
 - **FR-017**: System MUST designate a senior reviewer (e.g., a senior researcher) who, when invoked by FR‑009 step 5, resolves flagged reliability issues and produces a final adjudicated manual score.
+- **FR-018**: System MUST record provenance metadata for every generated description, including a unique **generation_id**, **timestamp**, **model_name**, and **input_function_hash**. This metadata must be stored alongside each metric row and be verifiable in the final report (See US-1, SC-007).
+- **FR-019**: System MUST compute partial Spearman correlations by (a) ranking all variables, (b) regressing the ranked HallucinationIndex on the ranked description length to obtain residuals, and (c) calculating Spearman ρ between each predictor’s ranked values and the residuals from step (b). This preserves the non‑parametric nature of Spearman while controlling for description length (See US-2).
+- **FR-020**: System MUST validate the **semantic‑similarity** component of the HallucinationIndex by (a) sampling a stratified subset of ≥ 5 % of generated descriptions, (b) obtaining human judgments of semantic similarity on a 0‑1 Likert scale, and (c) computing Pearson’s r between the automated semantic‑similarity scores and the human ratings. A correlation ≥ 0.7 is required; otherwise, the component is flagged for review (See US-3).
 
 ### Key Entities
 
@@ -104,7 +107,7 @@
 - **SC-004**: Sensitivity analysis must produce a table showing the “high‑hallucination” rate for thresholds {0.01, 0.05, 0.1}. Presence of this table constitutes pass (See US-3).
 - **SC-005**: All hypothesis‑test p‑values must have Bonferroni‑adjusted counterparts reported. Presence of adjusted p‑values constitutes pass (See US-3).
 - **SC-006**: Regression coefficients for the two models (`codegen-350M` and `starcoderbase-1b`) must have the **same sign** and an **absolute difference ≤ 0.15**. This tolerance is based on pilot analyses indicating that larger discrepancies reflect model‑specific behavior rather than systematic effects (See US-2, Assumptions).
-- **SC-007**: The final output dataset must contain **no simulated, placeholder, or hard‑coded values**; every metric must be traceable to an actual LLM generation event (See FR‑012).
+- **SC-007**: Every metric row in the final dataset must include non‑empty provenance fields (`generation_id`, `timestamp`, `model_name`). Automated checks must verify that these fields are present and correctly formatted for **all** rows (See FR-018).
 
 ## Assumptions
 
@@ -115,6 +118,6 @@
 - The entity‑extraction logic (using `spacy` with `en_core_web_sm`) correctly identifies parameters and return types in standard docstring formats (Google, NumPy, reStructuredText) and in the source‑code AST.
 - The identifier‑entropy metric (Shannon entropy of identifier tokens) is a reasonable proxy for “descriptiveness” and aligns with the entropy‑based measure proposed in the original idea.
 - The manually verified subset size of **≥ 5 %** provides a stable estimate of inter‑rater reliability for the prototype scope.
-- The GitHub Actions free‑tier runner provides sufficient disk space (~14 GB) for the dataset, model weights, and intermediate CSVs without external storage.
+- The GitHub Actions free‑tier runner provides sufficient disk space for the dataset, model weights, and intermediate CSVs. without external storage.
 - The study is observational; all reported relationships are framed as **associational** correlations, not causal effects.
 - The acceptable absolute difference of **≤ 0.15** between regression coefficients across the two models is justified by pilot analyses that showed larger differences correspond to model‑specific idiosyncrasies rather than true underlying relationships.
