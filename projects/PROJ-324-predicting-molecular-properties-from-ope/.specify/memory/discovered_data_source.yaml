@@ -1,28 +1,29 @@
 status: verified
 kind: pypi_package
 ref: PubChemPy
-access_python: "import pubchempy as pcp\ncids = [2244, 5957]\nprops = [\"IsomericSMILES\"\
-  , \"MolecularWeight\"]\n# Retrieve properties for the list of CIDs\ndata = pcp.get_properties(props,\
-  \ cids, 'cid')\nrecords = []\nfor entry in data:\n    cid = entry.get('CID')\n \
-  \   smiles = entry.get('IsomericSMILES')\n    for prop in props:\n        if prop\
-  \ in entry:\n            records.append({\n                'CID': cid,\n       \
-  \         'SMILES': smiles,\n                'Property_Name': prop,\n          \
-  \      'Property_Value': entry[prop],\n                'Property_Type': 'computed'\n\
-  \            })\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=CID,SMILES,Property_Name,Property_Value,Property_Type\"\
-  )"
-record_count: 2
+access_python: "import pubchempy as pcp\ncids = [2244, 5957, 702]\ncompounds = pcp.get_compounds(cids,\
+  \ 'cid')\nrecords = []\nfor c in compounds:\n    rec = {\n        'CompoundID':\
+  \ c.cid,\n        'SMILES': getattr(c, 'isomeric_smiles', None),\n        'MolecularFormula':\
+  \ getattr(c, 'molecular_formula', None),\n        'MolecularWeight': getattr(c,\
+  \ 'molecular_weight', None),\n        'LogP': getattr(c, 'xlogp', None),\n     \
+  \   'ExperimentalOrComputedFlag': None\n    }\n    records.append(rec)\nprint(f\"\
+  RECORDS={len(records)}\")\nif records:\n    print(\"FIELDS=\" + \",\".join(records[0].keys()))\n\
+  else:\n    print(\"FIELDS=\")"
+record_count: 3
 sample_fields:
-- CID
+- CompoundID
 - SMILES
-- Property_Name
-- Property_Value
-- Property_Type
+- MolecularFormula
+- MolecularWeight
+- LogP
+- ExperimentalOrComputedFlag
 field_coverage: 1.0
 required_fields:
-- CID
+- CompoundID
 - SMILES
-- Property_Name
-- Property_Value
-- Property_Type
-intent: PubChem compound SMILES properties download python package dataset
-cache_key: 98180b15a619ebdd79b426ae7200c3c168dfd8e69dd256e040aa60db5d34f810
+- MolecularFormula
+- MolecularWeight
+- LogP
+- ExperimentalOrComputedFlag
+intent: download PubChem compound SMILES and properties as python package dataset
+cache_key: da658c96f5fa781e173bb3ea55cdc5c64382af836fafb40b4c6f2bc772165c53

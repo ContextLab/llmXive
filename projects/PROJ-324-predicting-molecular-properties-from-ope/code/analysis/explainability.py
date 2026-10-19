@@ -122,7 +122,7 @@ def calculate_shap_interactions(model, X, background_samples: int = 100):
     # Sample background data if dataset is large
     if X.shape[0] > background_samples:
         indices = np.random.choice(X.shape[0], background_samples, replace=False)
-        background_data = X.iloc[indices] if isinstance(X, pd.DataFrame) else X[indices]
+        background_data = X[indices] if isinstance(X, np.ndarray) else X.iloc[indices]
     else:
         background_data = X
     
@@ -169,7 +169,7 @@ def generate_interaction_heatmap(shap_values, output_path: str = 'data/derived/s
         # Take mean absolute interaction values
         interaction_matrix = np.mean(np.abs(shap_values), axis=0)
         
-        # Show top 50x50 interactions for readability
+        # Show top N x N interactions for readability
         n_top = min(50, interaction_matrix.shape[0])
         top_matrix = interaction_matrix[:n_top, :n_top]
         
@@ -314,34 +314,34 @@ def compute_steric_descriptors(smiles_list: List[str]) -> pd.DataFrame:
 def generate_associational_report(shap_data, steric_data, output_path: str = 'data/derived/associational_report.md'):
     """Generate report on associational correlations between SHAP values and steric descriptors."""
     with open(output_path, 'w') as f:
-        f.write("# Associational Correlation Report\n\n")
-        f.write("**Note**: This report describes statistical associations, not causal mechanisms.\n\n")
+        f.write("# Associational Correlation Report\\n\\n")
+        f.write("**Note**: This report describes statistical associations, not causal mechanisms.\\n\\n")
         
         if not shap_data.empty and not steric_data.empty:
             # Merge on smiles if possible
             merged = pd.merge(shap_data, steric_data, on='smiles', how='inner')
             
             if not merged.empty:
-                f.write("## Topological Proxies for Steric Effects\n\n")
-                f.write("The following correlations were observed between fingerprint bit importance and steric descriptors:\n\n")
+                f.write("## Topological Proxies for Steric Effects\\n\\n")
+                f.write("The following correlations were observed between fingerprint bit importance and steric descriptors:\\n\\n")
                 
                 # Calculate correlations
                 if 'interaction_strength' in merged.columns and 'num_rotatable_bonds' in merged.columns:
                     corr = merged['interaction_strength'].corr(merged['num_rotatable_bonds'])
-                    f.write(f"- **Rotatable Bonds vs Interaction Strength**: r = {corr:.3f}\n")
+                    f.write(f"- **Rotatable Bonds vs Interaction Strength**: r = {corr:.3f}\\n")
                 
                 if 'interaction_strength' in merged.columns and 'tpsa' in merged.columns:
                     corr = merged['interaction_strength'].corr(merged['tpsa'])
-                    f.write(f"- **TPSA vs Interaction Strength**: r = {corr:.3f}\n")
+                    f.write(f"- **TPSA vs Interaction Strength**: r = {corr:.3f}\\n")
                 
-                f.write("\n### Interpretation\n\n")
+                f.write("\\n### Interpretation\\n\\n")
                 f.write("These correlations suggest that topological features captured by fingerprints ")
                 f.write("may serve as proxies for steric effects in solution. However, these are ")
-                f.write("statistical associations and do not imply direct physical mechanisms.\n")
+                f.write("statistical associations and do not imply direct physical mechanisms.\\n")
             else:
-                f.write("No overlapping data found between SHAP and steric descriptor results.\n")
+                f.write("No overlapping data found between SHAP and steric descriptor results.\\n")
         else:
-            f.write("Insufficient data to generate report.\n")
+            f.write("Insufficient data to generate report.\\n")
     
     logger.info(f"Saved associational report to {output_path}")
 
@@ -434,10 +434,53 @@ def generate_conformational_limitations_report(df: pd.DataFrame, output_path: st
     
     return result_df
 
+def plot_shap_interactions():
+    """
+    Compute SHAP interaction values for the MACCS fingerprint block,
+    persist the interaction matrix, and generate a heatmap.
+    """
+    logger = setup_logging()
+    ensure_dirs()
+
+    # Load model and fingerprint data
+    model = load_model()
+    fp_df = load_fingerprints_data()
+
+    # Extract fingerprint matrix
+    if 'fingerprint' in fp_df.columns:
+        # Assume comma‑separated bits (e.g., "0,1,0,...")
+        fp_matrix = fp_df['fingerprint'].apply(lambda s: [int(b) for b in s.split(',') if b.strip()!='']).tolist()
+        X = np.array(fp_matrix)
+    else:
+        # Fallback: use any columns that start with fp_
+        fp_cols = [c for c in fp_df.columns if c.startswith('fp_')]
+        if not fp_cols:
+            raise ValueError("No fingerprint columns found in fingerprint data.")
+        X = fp_df[fp_cols].values
+
+    # Compute SHAP interaction values
+    shap_interactions = calculate_shap_interactions(model, X)
+
+    # Persist the full interaction tensor
+    npy_path = Path('data/derived/shap_interaction.npy')
+    np.save(npy_path, shap_interactions)
+    logger.info(f"Saved SHAP interaction matrix to {npy_path}")
+
+    # Generate heatmap of top‑N interactions
+    heatmap_path = Path('data/derived/shap_interactions.png')
+    generate_interaction_heatmap(shap_interactions, str(heatmap_path))
+
+    logger.info("SHAP interaction heatmap generation completed.")
+
 def main():
     """Main function to run explainability analysis."""
     logger = setup_logging()
     logger.info("Starting explainability analysis...")
+    
+    # Simple CLI handling
+    if '--shap-heatmap' in sys.argv:
+        plot_shap_interactions()
+        return
     
     try:
         # Ensure directories exist

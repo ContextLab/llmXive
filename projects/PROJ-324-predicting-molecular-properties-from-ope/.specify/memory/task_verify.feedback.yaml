@@ -1,0 +1,22 @@
+T101:
+  reason: "The required input file `data/derived/baseline_test_predictions.csv` is\
+    \ missing, so `compute_baseline_metrics()` cannot run and the expected outputs\
+    \ `data/derived/baseline_metrics.csv` and `data/derived/baseline_residuals.png`\
+    \ were never created. Additionally, the unit test fails to import `pytest` in\
+    \ the conftest, so it never validates the CSV/PNG generation. The task\u2019s\
+    \ core artifacts are absent."
+  task: 96c7a9a7e03f451d8b5b6e8c36c6cf8f3516b86589a5477a9ecd2c323c3bfb40
+T102:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/explainability.py
+    exit=1'
+  task: e5ca6f736e85a054444543f91e6863de353877f52754565b964275c64b31a0a7
+T103:
+  task: e5c7db1b9d8d12146b32d593b571b16a791df2629833815d4238b83bbc10b8e6
+T104:
+  task: 87b25a53a8e8b5c5e1896c9861d47d9ffa01b407c0ed41a75f2ed1981e8ec87a
+T105:
+  task: a37313ae5a754b6ff08ef554f1cafce7fe4ece707f047015d4bbc6211d908d9f
+T106:
+  task: 6e0ba74145d6109c84117c782c1a32f17d9073d3abc21302002d2c495d6a0b48
+T107:
+  task: e61479aedb22d3364f96f36c55c83ba516557d67d204cdccc447461293406b80

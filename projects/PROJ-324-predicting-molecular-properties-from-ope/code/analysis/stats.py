@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 from scipy.stats import ttest_rel, wilcoxon
 import warnings
+
 warnings.filterwarnings('ignore')
 
 # --- Logging Setup ---
@@ -82,10 +83,89 @@ def load_raw_data() -> pd.DataFrame:
 
 # --- Core Analysis Functions ---
 
+def compute_baseline_metrics() -> None:
+    """
+    Compute MAE, RMSE, and count per property from baseline test predictions.
+    Writes:
+      - data/derived/baseline_metrics.csv
+      - data/derived/baseline_residuals.png (3‑panel histogram)
+    """
+    logger = setup_logging('logs/stats.log')
+    logger.info("Computing baseline metrics...")
+
+    # Load predictions
+    df = load_baseline_predictions()
+    logger.info(f"Loaded {len(df)} rows from baseline_test_predictions.csv")
+
+    # Determine column names for property, experimental, and predicted values
+    # Expected long format: ['smiles', 'property_name', 'experimental_value', 'predicted_value']
+    # Fallbacks are handled for possible alternative naming.
+    prop_col = None
+    for cand in ['property_name', 'property', 'property_name']:
+        if cand in df.columns:
+            prop_col = cand
+            break
+    if prop_col is None:
+        raise KeyError("No property column found in baseline predictions (expected 'property_name').")
+
+    exp_col = None
+    for cand in ['experimental_value', 'value', 'experimental']:
+        if cand in df.columns:
+            exp_col = cand
+            break
+    if exp_col is None:
+        raise KeyError("No experimental value column found in baseline predictions.")
+
+    pred_col = None
+    for cand in ['predicted_value', 'prediction', 'pred']:
+        if cand in df.columns:
+            pred_col = cand
+            break
+    if pred_col is None:
+        raise KeyError("No predicted value column found in baseline predictions.")
+
+    # Compute residuals
+    df['residual'] = df[exp_col] - df[pred_col]
+
+    # Group by property and compute metrics
+    metrics = []
+    for prop, group in df.groupby(prop_col):
+        mae = group['residual'].abs().mean()
+        rmse = np.sqrt((group['residual'] ** 2).mean())
+        n = len(group)
+        metrics.append({
+            'property': prop,
+            'mae': mae,
+            'rmse': rmse,
+            'n': n
+        })
+        logger.info(f"Property {prop}: MAE={mae:.4f}, RMSE={rmse:.4f}, N={n}")
+
+    metrics_df = pd.DataFrame(metrics)
+    metrics_path = Path('data/derived/baseline_metrics.csv')
+    metrics_df.to_csv(metrics_path, index=False)
+    logger.info(f"Baseline metrics written to {metrics_path}")
+
+    # Plot residual histograms
+    plt.figure(figsize=(12, 4))
+    unique_props = metrics_df['property'].tolist()
+    for idx, prop in enumerate(unique_props, 1):
+        plt.subplot(1, 3, idx)
+        prop_residuals = df[df[prop_col] == prop]['residual']
+        plt.hist(prop_residuals, bins=30, color='steelblue', edgecolor='black')
+        plt.title(prop)
+        plt.xlabel('Residual (exp - pred)')
+        plt.ylabel('Count')
+    plt.tight_layout()
+    residuals_path = Path('data/derived/baseline_residuals.png')
+    plt.savefig(residuals_path, dpi=150)
+    plt.close()
+    logger.info(f"Baseline residuals plot saved to {residuals_path}")
+
 def generate_validation_audit() -> str:
     """
     Generate the Experimental Validation Protocol document (T058).
-    
+
     This function:
     1. Loads metadata to identify experimental sources and uncertainty status.
     2. Loads the test set to map specific molecules to their data points.
@@ -220,27 +300,33 @@ def estimate_conformational_impact() -> pd.DataFrame:
     return pd.DataFrame(results)
 
 def main():
-    """Main entry point for T058."""
-    try:
-        ensure_dirs()
-        protocol_path = generate_validation_audit()
-        print(f"SUCCESS: Experimental Validation Protocol generated at {protocol_path}")
-        
-        # Also run the conformational impact check as part of the audit
-        conformational_df = estimate_conformational_impact()
-        if not conformational_df.empty:
-            conformational_path = Path('data/derived/conformational_sensitivity_analysis.csv')
-            conformational_df.to_csv(conformational_path, index=False)
-            print(f"Conformational sensitivity analysis written to {conformational_path}")
-        
-    except FileNotFoundError as e:
-        print(f"ERROR: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"ERROR: Unexpected error during validation protocol generation: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+    """Main entry point for T058 or baseline metrics."""
+    ensure_dirs()
+    logger = setup_logging('logs/stats.log')
+    # Simple CLI handling
+    if '--baseline-metrics' in sys.argv:
+        compute_baseline_metrics()
+        print("SUCCESS: Baseline metrics and residual plot generated.")
+    else:
+        try:
+            protocol_path = generate_validation_audit()
+            print(f"SUCCESS: Experimental Validation Protocol generated at {protocol_path}")
+            
+            # Also run the conformational impact check as part of the audit
+            conformational_df = estimate_conformational_impact()
+            if not conformational_df.empty:
+                conformational_path = Path('data/derived/conformational_sensitivity_analysis.csv')
+                conformational_df.to_csv(conformational_path, index=False)
+                print(f"Conformational sensitivity analysis written to {conformational_path}")
+            
+        except FileNotFoundError as e:
+            print(f"ERROR: {e}")
+            sys.exit(1)
+        except Exception as e:
+            print(f"ERROR: Unexpected error during validation protocol generation: {e}")
+            import traceback
+            traceback.print_exc()
+            sys.exit(1)
 
 if __name__ == '__main__':
     main()
