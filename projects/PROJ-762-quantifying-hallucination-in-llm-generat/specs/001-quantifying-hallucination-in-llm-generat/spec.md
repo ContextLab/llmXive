@@ -13,7 +13,7 @@
 
 **Why this priority**: This is the core data‑generation engine. Without actual model outputs and a genuine hallucination metric, no statistical analysis can be performed.
 
-**Independent Test**: Run the pipeline on a small sample (e.g., 100 functions) and verify that a CSV is produced containing the code metrics, the entity‑overlap F1 score, the semantic‑similarity score, and the HallucinationIndex (0 ≤ index ≤ 1) derived from real LLM generations.
+**Independent Test**: Run the pipeline on a small sample (e.g., a modest number of functions) and verify that a CSV is produced. containing the code metrics, the entity‑overlap F1 score, the semantic‑similarity score, and the HallucinationIndex (0 ≤ index ≤ 1) derived from real LLM generations.
 
 **Acceptance Scenarios**:
 
@@ -33,7 +33,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset with 1 000 records of code metrics and HallucinationIndices, **When** the analysis script runs, **Then** it outputs a Spearman ρ and p‑value for the relationship between token count and HallucinationIndex, controlling for generated description length via the partial‑Spearman method (see FR‑019).
+1. **Given** a dataset with a large number of records of code metrics and HallucinationIndices, **When** the analysis script runs, **Then** it outputs a Spearman ρ and p‑value for the relationship between token count and HallucinationIndex, controlling for generated description length via the partial‑Spearman method (see FR‑019).
 2. **Given** a dataset where function names use mixed naming styles, **When** the naming‑style metric is calculated, **Then** the system correctly categorizes each function and reports the correlation between naming style and HallucinationIndex.
 3. **Given** the analysis is observational, **When** the report is generated, **Then** it explicitly frames findings as associational (e.g., “a positive correlation was observed”) rather than causal.
 
@@ -112,7 +112,7 @@
 ## Assumptions
 
 - The `codegen-350M` model fits in CPU memory (≤ 7 GB) when loaded in 16‑bit precision with a batch size of 1.
-- The `starcoderbase-1b` model is quantized to 4‑bit to satisfy the same memory constraints.
+- The `starcoderbaseb` model is quantized to 4‑bit to satisfy the same memory constraints.
 - The CodeSearchNet Python subset contains enough functions with non‑empty docstrings to achieve a statistical power of **≥ 0.8** for detecting a small effect size (Spearman ρ > 0.1) with a sample of **1 000** functions (based on standard Spearman sample‑size formulas).
 - The `radon` library successfully parses the vast majority of Python functions; any failures are random and do not bias the overall analysis.
 - The entity‑extraction logic (using `spacy` with `en_core_web_sm`) correctly identifies parameters and return types in standard docstring formats (Google, NumPy, reStructuredText) and in the source‑code AST.
