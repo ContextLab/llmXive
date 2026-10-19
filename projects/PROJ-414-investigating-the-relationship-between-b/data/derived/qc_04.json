@@ -1,0 +1,35 @@
+{
+  "subject_id": "04",
+  "n_runs": 1,
+  "task_values": [
+    "emotionalregulation"
+  ],
+  "task_labels_present": true,
+  "n_vertex_blocks": 100,
+  "bandpass": {
+    "low_hz": 0.01,
+    "high_hz": 0.1,
+    "tr_seconds": 1.0,
+    "order": 2,
+    "applied": true
+  },
+  "n_volumes": 200,
+  "n_bad_volumes": 18,
+  "fraction_bad_volumes": 0.09,
+  "excluded": false,
+  "exclusion_reason": null,
+  "motion_proxy": {
+    "method": "dvars_mad",
+    "description": "no FD column in verified shard; DVARS-like statistic (root-mean-square frame-to-frame change in the 100 block-mean signals) is bad when it exceeds run_median + 3 * (1.4826 * MAD)",
+    "thresholds": {
+      "mad_multiplier": 3.0,
+      "mad_to_sd_constant": 1.4826,
+      "max_bad_volume_fraction": 0.2
+    },
+    "run_median": 0.2566717759167272,
+    "run_mad": 0.041115668931096236,
+    "threshold": 0.439546048188457
+  },
+  "dvars_median": 0.2566717759167272,
+  "dvars_mad": 0.041115668931096236
+}

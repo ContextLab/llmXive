@@ -2,39 +2,82 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 command(s) failed: python code/download_openneuro.py (rc=1); python -m src.pipeline.run_all  --seed 42  --output_dir data/output  --min_subjects 20  --permutations 5000 (rc=1); python -m pytest -q tests/contract (rc=4)
+**Summary**: 4 command(s) failed: python code/run_all.py --seed 42 --window 45 --step 10 --permutations 1000 (rc=1); python code/run_all.py --stage download --stage extract --stage metrics (rc=1); python -m pytest -q tests (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/download_openneuro.py -> rc=1
-(most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/download_openneuro.py", line 83, in main
-    response.raise_for_status()
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-414-investigating-the-relationship-between-b/lib/python3.11/site-packages/requests/models.py", line 1167, in raise_for_status
-    raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://openneuro.org/api/datasets/ds000246/files
+- python code/run_all.py --seed 42 --window 45 --step 10 --permutations 1000 -> rc=1
 
-During handling of the above exception, another exception occurred:
-
+2026-10-19 04:33:19,139 INFO __main__: Pipeline run: seed=42 window=45.0s step=10.0s permutations=1000 tr=1.0s stages=['download', 'extract', 'metrics', 'pca', 'analysis', 'sensitivity', 'visualization', 'manifest']
+2026-10-19 04:33:19,406 INFO __main__: === stage: download (download_openneuro.main) ===
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/download_openneuro.py", line 199, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/download_openneuro.py", line 86, in main
-    raise RuntimeError(f"Failed to fetch file list from OpenNeuro API: {e}")
-RuntimeError: Failed to fetch file list from OpenNeuro API: 404 Client Error: Not Found for url: https://openneuro.org/api/datasets/ds000246/files
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/run_all.py", line 137, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/run_all.py", line 131, in main
+    run_stage(stage, args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/run_all.py", line 111, in run_stage
+    entry(args)
+TypeError: main() takes 0 positional arguments but 1 was given
 
-- python -m src.pipeline.run_all  --seed 42  --output_dir data/output  --min_subjects 20  --permutations 5000 -> rc=1
+- python code/run_all.py --stage download --stage extract --stage metrics -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-414-investigating-the-relationship-between-b/bin/python: Error while finding module specification for 'src.pipeline.run_all' (ModuleNotFoundError: No module named 'src')
+2026-10-19 04:33:19,482 INFO __main__: Pipeline run: seed=42 window=45.0s step=10.0s permutations=1000 tr=1.0s stages=['download', 'extract', 'metrics']
+2026-10-19 04:33:19,749 INFO __main__: === stage: download (download_openneuro.main) ===
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/run_all.py", line 137, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/run_all.py", line 131, in main
+    run_stage(stage, args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/run_all.py", line 111, in run_stage
+    entry(args)
+TypeError: main() takes 0 positional arguments but 1 was given
 
-- python -m pytest -q tests/contract -> rc=4
+- python -m pytest -q tests -> rc=1
+validators.py:1332: ValidationError
+____________________ test_exclusion_log_covers_all_subjects ____________________
 
-no tests ran in 0.00s
+    def test_exclusion_log_covers_all_subjects():
+        files = _derived_files()
+        log_path = paths.data("derived", "exclusion_log.csv")
+        if not files or not log_path.is_file():
+            pytest.skip("no derived outputs yet")
+        log_df = pd.read_csv(log_path)
+>       assert set(log_df["subject_id"]) == {
+            f.stem.replace("roi_timeseries_", "") for f in files
+        }
+E       AssertionError: assert {1, 2, 3, 4, 5, 6, ...} == {'01', '02', ...5', '06', ...}
+E         
+E         Extra items in the left set:
+E         1
+E         2
+E         3
+E         4
+E         5...
+E         
+E         ...Full output truncated (35 lines hidden), use '-vv' to show
 
-ERROR: file or directory not found: tests/contract
+tests/test_extract.py:181: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_extract.py::test_dvars_exclusion_fires_on_known_bad_volumes
+FAILED tests/test_extract.py::test_real_outputs_conform_to_schema - jsonschem...
+FAILED tests/test_extract.py::test_exclusion_log_covers_all_subjects - Assert...
+3 failed, 14 passed in 0.99s
 
 
-- python -m src.pipeline.run_all  --window_size 30  --step_size 5  --seed 123  --output_dir data/output/window30_step5  --permutations 5000 -> rc=1
+- python code/run_all.py --seed 123 --window 30 --step 5 --permutations 1000  --output_dir results/window30_step5 -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-414-investigating-the-relationship-between-b/bin/python: Error while finding module specification for 'src.pipeline.run_all' (ModuleNotFoundError: No module named 'src')
+2026-10-19 04:33:21,143 INFO __main__: Output directory override: results/window30_step5
+2026-10-19 04:33:21,143 INFO __main__: Pipeline run: seed=123 window=30.0s step=5.0s permutations=1000 tr=1.0s stages=['download', 'extract', 'metrics', 'pca', 'analysis', 'sensitivity', 'visualization', 'manifest']
+2026-10-19 04:33:21,407 INFO __main__: === stage: download (download_openneuro.main) ===
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/run_all.py", line 137, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/run_all.py", line 131, in main
+    run_stage(stage, args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-414-investigating-the-relationship-between-b/code/run_all.py", line 111, in run_stage
+    entry(args)
+TypeError: main() takes 0 positional arguments but 1 was given
 

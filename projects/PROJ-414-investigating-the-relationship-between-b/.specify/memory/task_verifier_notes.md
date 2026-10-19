@@ -2,4 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — Requested task execution failed; rerun successfully: code/download_openneuro.py exit=1
+- **T003** — The recorded pytest run (`code/.tasks/T003.tests_test_extract.py.log`, exit 1) shows 3 failures: the required edge-case exclusion test `test_dvars_exclusion_fires_on_known_bad_volumes` fails (injected 30% bad volumes yields only 0.02 flagged, so the DVARS MAD rule does not fire as specified), and the schema/contract tests fail because `subject_id` is written as an integer (e.g. `1`) rather than the string type required by `roi_timeseries.schema.yaml`, also breaking the exclusion-log subject-ID match. The extraction itself ran (19 subjects, exit 0), but the task's explicit verification criteria

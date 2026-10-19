@@ -22,7 +22,7 @@ The following contradictions are rooted in `spec.md` (and one path in `plan.md`)
 
 ## Phase 1: Setup and first end-to-end analysis
 
-- [ ] **T001 [P1] [US1]** Download the verified real fMRI parquet shard directly via `huggingface_hub.hf_hub_download` from the `clane9/openneuro-fslr64k` repository (test split, shard `test-00000-of-00016.parquet`), and record its SHA-256 checksum. This redoes the rejected prior T001 — the guessed `openneuro/ds000246` / `openneuro/ds001600` fetch MUST NOT be retried; the verified parquet source is the sole input. The loader must FAIL LOUDLY on any fetch error (raise, never fall back to synthetic or bundled data).
+- [X] **T001 [P1] [US1]** Download the verified real fMRI parquet shard directly via `huggingface_hub.hf_hub_download` from the `clane9/openneuro-fslr64k` repository (test split, shard `test-00000-of-00016.parquet`), and record its SHA-256 checksum. This redoes the rejected prior T001 — the guessed `openneuro/ds000246` / `openneuro/ds001600` fetch MUST NOT be retried; the verified parquet source is the sole input. The loader must FAIL LOUDLY on any fetch error (raise, never fall back to synthetic or bundled data).
   *Artifact paths*: `data/raw/test-00000-of-00016.parquet`, `data/checksums.json` (SHA-256 of the raw file), `data/raw/column_inventory.json` (real column names plus which of `subject_id`, task labels, skill proxies, and FR-011 covariates — age, FD, years of training, instrument, genre, practice intensity, education — actually exist, AND `available_subject_count`: the number of distinct subject IDs in the shard — this anchors the SC-005 power comparison and the Constitution VII N≥20 floor check).
   *Verification*:
   &nbsp;&nbsp;• `python code/download_openneuro.py` exits 0 and the parquet file exists and is non-empty.
@@ -30,7 +30,7 @@ The following contradictions are rooted in `spec.md` (and one path in `plan.md`)
   &nbsp;&nbsp;• `data/raw/column_inventory.json` lists the real parquet schema, explicitly marks each expected behavioral field as present or absent, and records `available_subject_count` as a positive integer equal to the distinct subject IDs actually present in the parquet (no fabricated columns, no guessed count).
   &nbsp;&nbsp;• `pytest tests/test_download.py` asserts the file loads with pyarrow, that the inventory reflects the actual schema, and that `available_subject_count` matches a pyarrow-computed distinct-subject count.
 
-- [ ] **T002 [P1] [US1]** Establish the code layout and runnable entry point per the plan (`code/config.py` with pinned seeds, window/step parameters, and the QC threshold constants defined in T003; `code/requirements.txt`; `code/run_all.py` CLI orchestrator) and document the exact end-to-end command in the active feature's `quickstart.md`.
+- [X] **T002 [P1] [US1]** Establish the code layout and runnable entry point per the plan (`code/config.py` with pinned seeds, window/step parameters, and the QC threshold constants defined in T003; `code/requirements.txt`; `code/run_all.py` CLI orchestrator) and document the exact end-to-end command in the active feature's `quickstart.md`.
   *Artifact paths*: `code/config.py`, `code/requirements.txt`, `code/run_all.py`, `specs/001-investigating-the-relationship-between-b/quickstart.md`.
   *Verification*:
   &nbsp;&nbsp;• `python code/run_all.py --help` exits 0.
