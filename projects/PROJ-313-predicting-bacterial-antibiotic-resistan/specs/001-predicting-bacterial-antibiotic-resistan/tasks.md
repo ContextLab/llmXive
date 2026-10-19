@@ -6,7 +6,7 @@
 
 ## Phase 1 – Data acquisition & feature construction (early end‑to‑end run)
 
-- [ ] **T001** [P] [FR‑001] Download *E. coli* and *S. aureus* isolates with AST phenotypes from the NCBI Pathogen Detection dataset, verify checksums, and write raw parquet/FASTA files to `data/raw/`.  
+- [ ] **T001** [P] [FR‑001] Download *E. coli* and *S. aureus* isolates with AST phenotypes from the NCBI Pathogen Detection dataset, verify checksums, and write raw parquet/FASTA files to `data/raw/`.   <!-- FAILED-IN-EXECUTION: src/pipeline/download.py exit=1 -->
   *Creates* `data/raw/ncbi_parquet/*.parquet` and `data/raw/assemblies/*.fasta`.  
   *Verification*: `src/pipeline/download.py` exits with status 0, logs sample‑size table `data/processed/sample_sizes.csv`, and records any download/API warnings (FR‑008).  
 

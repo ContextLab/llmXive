@@ -1,0 +1,10 @@
+# Project dependencies
+pandas==2.2.*
+numpy==1.26.*
+scikit-learn==1.5.*
+xgboost==2.0.*
+requests==2.32.*
+tqdm==4.66.*
+datasets==2.20.*
+# The following packages are provided by the execution environment and do not need to be listed:
+# - matplotlib, seaborn, scipy, statsmodels, pytest, PyYAML, jsonschema, psutil, llmxive_toolkit
