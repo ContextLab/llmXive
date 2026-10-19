@@ -1,14 +1,8 @@
 T101:
   task: 96c7a9a7e03f451d8b5b6e8c36c6cf8f3516b86589a5477a9ecd2c323c3bfb40
 T102:
-  reason: "The required inputs `data/models/final_model.pkl` and `data/processed/test_fingerprints.csv`\
-    \ are MISSING, yet `shap_interaction.npy` exists with shape (10, 167, 167) \u2014\
-    \ the script's `plot_shap_interactions()` would raise FileNotFoundError on the\
-    \ missing model, so the persisted tensor (10 samples, 167 bits \u2014 not the\
-    \ 166 MACCS bits) cannot have been produced by this code and appears fabricated\
-    \ or from an unrelated run; there is also no execution evidence of `python -m\
-    \ code.analysis.explainability --shap-heatmap`. Additionally, the heatmap uses\
-    \ `sns.heatmap` rather than the required `matplotlib.py"
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/explainability.py
+    exit=1'
   task: e5ca6f736e85a054444543f91e6863de353877f52754565b964275c64b31a0a7
 T103:
   reason: "The required output `data/derived/deviation_contexts.csv` is MISSING (as\

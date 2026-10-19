@@ -1,29 +1,27 @@
 status: verified
 kind: pypi_package
 ref: PubChemPy
-access_python: "import pubchempy as pcp\ncids = list(range(1, 101))\nprops = pcp.get_properties(['CanonicalSMILES','InChI','MolecularWeight','XLogP'],\
-  \ cids)\nrecords = []\nfor d in props:\n    rec = {\n        'SMILES': d.get('CanonicalSMILES'),\n\
-  \        'InChI': d.get('InChI'),\n        'CompoundID': d.get('CID'),\n       \
-  \ 'MolecularWeight': d.get('MolecularWeight'),\n        'LogP': d.get('XLogP'),\n\
-  \        'ExperimentalDataFlag': False\n    }\n    records.append(rec)\nprint(f\"\
-  RECORDS={len(records)}\")\nfields = ','.join(records[0].keys()) if records else\
-  \ ''\nprint(f\"FIELDS={fields}\")"
-record_count: 100
+access_python: "import pubchempy as pcp\n\ncids = [2244, 3672, 5280]  # aspirin, caffeine,\
+  \ glucose\ncompounds = pcp.get_compounds(cids, namespace='cid')\n\nrecords = []\n\
+  for comp in compounds:\n    rec = {\n        'CompoundID': comp.cid,\n        'SMILES':\
+  \ getattr(comp, 'isomeric_smiles', None),\n        'MolecularWeight': getattr(comp,\
+  \ 'molecular_weight', None),\n        'LogP': getattr(comp, 'xlogp', None)\n   \
+  \ }\n    records.append(rec)\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=CompoundID,SMILES,MolecularWeight,LogP\"\
+  )"
+record_count: 3
 sample_fields:
-- SMILES
-- InChI
 - CompoundID
+- SMILES
 - MolecularWeight
 - LogP
-- ExperimentalDataFlag
-field_coverage: 1.0
+field_coverage: 0.667
 required_fields:
-- SMILES
-- InChI
 - CompoundID
+- SMILES
 - MolecularWeight
 - LogP
-- ExperimentalDataFlag
-intent: PubChem Compound dataset download SMILES properties experimental python package
+- Solubility
+- ExperimentalPropertyFlag
+intent: download PubChem compound SMILES and properties via pubchempy python package
   dataset
-cache_key: 24f689bec0ddf7a9ef5fa8c2411c461cccdbd9c2e9213d6685016713655f0237
+cache_key: a7ebc18eace878bae7b555cec4f5f337026430ea35d61b18944e4024854a98a7
