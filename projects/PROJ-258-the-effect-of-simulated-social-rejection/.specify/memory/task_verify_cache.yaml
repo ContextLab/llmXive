@@ -1,14 +1,11 @@
 T001:
-  c: true
-  h: 8846e2b61719cf1db019faa163855c401406192cd7c82bfd4a94bd1382ecc225
-  r: All required directories exist (code/, code/utils/, data/raw/, data/interim/,
-    data/processed/, results/, paper/, tests/) with `__init__.py` markers where applicable;
-    `requirements.txt` contains all seven specified packages with pandas>=2.0; and
-    `quickstart.md` documents the single-command pipeline `python -m code.pipeline`.
-    The quickstart contains odd injected "[UNRESOLVED-CLAIM...]" annotations in the
-    Testing section, but these are cosmetic and don't affect the task's verification
-    criteria (file exists, lists the command, directory tree matches).
-  sig: 00590e38d67778737dcffcab616eae0fa5f472a9d513797afe68ae8420eb6ab4
+  c: false
+  h: 397e5ee6a7f7fae5b7eefc8f9639768e0f26adde7ddf4c4c07e0bd75b0b5c8c0
+  r: "The directory tree is present but `data/raw/` and `data/processed/` lack the\
+    \ required placeholder `__init__.py` files, and there is no provided evidence\
+    \ that `python -c \"import pandas\"` was executed successfully. These omissions\
+    \ mean the task\u2019s specifications are not fully satisfied."
+  sig: f623a0071917a7c54218bc84069401f9876e3fe8c06f0967452785160e3c0a5f
 T003:
   c: false
   h: b457e03011d939223c283a4ea16596c1f88ad41686f7fb90c22b936cb711b0e6

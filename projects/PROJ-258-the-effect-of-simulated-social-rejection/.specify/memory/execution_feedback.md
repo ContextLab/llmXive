@@ -27,18 +27,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208 -> rc=1
 
-2026-10-19 16:07:47,929 - INFO - Downloading https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet → data/raw/ds000208.parquet
-2026-10-19 16:07:47,980 - INFO - Remote file size: 0.432 GB
-2026-10-19 16:07:53,654 - INFO - Download complete (464086010 bytes).
-2026-10-19 16:07:54,100 - INFO - Metadata written to data/raw/metadata_ds000208.json
-2026-10-19 16:07:54,101 - INFO - Citation written to data/raw/CITATION.md
-2026-10-19 16:07:54,101 - INFO - Adding task column to data/raw/ds000208.parquet
-2026-10-19 16:07:54,106 - WARNING - Pandas failed to read/write parquet: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+2026-10-19 21:16:43,227 - INFO - Downloading https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet → data/raw/ds000208.parquet
+2026-10-19 21:16:43,588 - INFO - Remote file size: 0.432 GB
+2026-10-19 21:16:48,664 - INFO - Download complete (464086010 bytes).
+2026-10-19 21:16:49,124 - INFO - Metadata written to data/raw/metadata_ds000208.json
+2026-10-19 21:16:49,124 - INFO - Citation written to data/raw/CITATION.md
+2026-10-19 21:16:49,124 - INFO - Adding task column to data/raw/ds000208.parquet
+2026-10-19 21:16:49,129 - WARNING - Pandas failed to read/write parquet: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
 A suitable version of pyarrow or fastparquet is required for parquet support.
 Trying to import the above resulted in these errors:
  - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
  - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
-2026-10-19 16:07:54,106 - ERROR - Neither pandas nor pyarrow are available to manipulate parquet files.
+2026-10-19 21:16:49,129 - ERROR - Neither pandas nor pyarrow are available to manipulate parquet files.
 
 - python code/preprocess.py  --input data/raw/ds000208.parquet  --output data/processed/analysis_ready_ds000208.csv -> rc=1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

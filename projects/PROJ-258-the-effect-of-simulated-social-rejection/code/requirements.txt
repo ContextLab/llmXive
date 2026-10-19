@@ -2,6 +2,6 @@ pandas>=2.0
 numpy
 scipy
 statsmodels
-pyarrow
+pyarrow>=12.0.0
 pyyaml
 requests
