@@ -14,7 +14,7 @@ The goal is a reproducible, CPU‑only pipeline that (1) downloads real VAERS 20
   - Document the runnable command (`python -m src.main`) and input provenance in `quickstart.md`.  
   - **Verification**: `test -s logs/structure.txt` and a grep count of listed directories must succeed.
 
-- [ ] T002 [P] [US1] Download the verified VAERS 2020‑2023 parquet dataset from Hugging Face. <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+- [ ] T002 [P] [US1] Download the verified VAERS 2020‑2023 parquet dataset from Hugging Face. <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   - Implement `src/data/download.py` that uses `datasets.load_dataset("chrisvoncsefalvay/vaers-outcomes", split="train")` (or the appropriate split) to fetch the parquet file.  
   - Write the downloaded parquet to `data/raw/vaers_2020_2023.parquet`.  
   - Compute a SHA‑256 checksum of the file and record `<file> <sha256>` in `data/checksums.txt`.  

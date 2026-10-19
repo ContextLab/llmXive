@@ -17,9 +17,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python src/data/download.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 22, in <module>
-    from huggingface_hub import hf_hub_download, RepositoryNotFoundError, RevisionNotFoundError, HfHubHTTPError
-ImportError: cannot import name 'RepositoryNotFoundError' from 'huggingface_hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/huggingface_hub/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 25, in <module>
+    from huggingface_hub import hf_hub_download, HfHubHTTPError
+ImportError: cannot import name 'HfHubHTTPError' from 'huggingface_hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/huggingface_hub/__init__.py)
 
 - python src/data/validate.py -> rc=2
 
@@ -28,11 +28,13 @@ validate.py: error: the following arguments are required: --input
 
 - python code/src/data/clean.py -> rc=1
 
-2026-10-19 04:15:04,972 - clean - INFO - Starting data cleaning process
-2026-10-19 04:15:04,972 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
+2026-10-19 05:07:42,705 - clean - INFO - Starting data cleaning process
+2026-10-19 05:07:42,705 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
 
 - python src/main.py -> rc=1
-2026-10-19 04:15:05,719 - pipeline - INFO - No action specified. Use --full or --phase N
+2026-10-19 05:07:43,588 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
+2026-10-19 05:07:43,614 - matplotlib.font_manager - INFO - generated new fontManager
+2026-10-19 05:07:43,882 - pipeline - INFO - No action specified. Use --full or --phase N
 
 
 - python -m pytest -q tests/contract/ -> rc=4

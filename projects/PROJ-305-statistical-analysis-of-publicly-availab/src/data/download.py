@@ -9,17 +9,20 @@ library. The script writes the real parquet file to
 ``data/checksums.txt``. No synthetic fallback is performed; any download,
 I/O, or checksum error raises an exception and aborts the run.
 
-The script is deliberately lightweight: it does not import ``pyarrow`` (which
-is incompatible with the environment's NumPy version) and instead relies on
-the fact that the dataset repository already stores the parquet file as a
-binary asset. ``huggingface_hub`` handles the download transparently.
+The script provides two entry points:
+  * ``python src/data/download.py`` – CLI entry point used by the quickstart.
+  * ``fetch_vaers_data()`` – callable used by the pipeline orchestrator
+    (``src/main.py``). Both perform the same actions.
 """
 
 import hashlib
 import sys
 from pathlib import Path
 
-from huggingface_hub import hf_hub_download, RepositoryNotFoundError, RevisionNotFoundError, HfHubHTTPError
+# ``huggingface_hub`` is available in the execution environment.
+# Import only the symbols that are guaranteed to exist; avoid
+# version‑specific exception classes that may be missing.
+from huggingface_hub import hf_hub_download, HfHubHTTPError
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -81,20 +84,31 @@ def download_parquet() -> Path:
     synthetic fallback.
     """
     try:
-        log.info("Attempting to download %s from %s", PARQUET_FILENAME, DATASET_ID)
+        log.info(
+            "Attempting to download %s from %s", PARQUET_FILENAME, DATASET_ID
+        )
         # ``repo_type="dataset"`` tells hf_hub_download we are dealing with a dataset.
         downloaded = hf_hub_download(
             repo_id=DATASET_ID,
             filename=PARQUET_FILENAME,
             repo_type="dataset",
         )
-    except (RepositoryNotFoundError, RevisionNotFoundError, HfHubHTTPError) as exc:
+    except HfHubHTTPError as exc:
+        log.error("Failed to download dataset (HTTP error): %s", exc)
+        raise RuntimeError(
+            f"Unable to download {DATASET_ID}:{PARQUET_FILENAME}"
+        ) from exc
+    except Exception as exc:  # Catch any other unexpected errors
         log.error("Failed to download dataset: %s", exc)
-        raise RuntimeError(f"Unable to download {DATASET_ID}:{PARQUET_FILENAME}") from exc
+        raise RuntimeError(
+            f"Unable to download {DATASET_ID}:{PARQUET_FILENAME}"
+        ) from exc
 
     src_path = Path(downloaded)
     if not src_path.is_file() or src_path.stat().st_size == 0:
-        raise RuntimeError(f"Downloaded file {src_path} is missing or empty.")
+        raise RuntimeError(
+            f"Downloaded file {src_path} is missing or empty."
+        )
 
     # Ensure destination directory exists
     PARQUET_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -107,9 +121,13 @@ def download_parquet() -> Path:
         pass
 
     if not PARQUET_PATH.exists() or PARQUET_PATH.stat().st_size == 0:
-        raise RuntimeError(f"Failed to place parquet file at {PARQUET_PATH}")
+        raise RuntimeError(
+            f"Failed to place parquet file at {PARQUET_PATH}"
+        )
 
-    log.info("Parquet file stored at %s (%d bytes)", PARQUET_PATH, PARQUET_PATH.stat().st_size)
+    log.info(
+        "Parquet file stored at %s (%d bytes)", PARQUET_PATH, PARQUET_PATH.stat().st_size
+    )
     return PARQUET_PATH
 
 
@@ -132,13 +150,15 @@ def write_summary(parquet_path: Path, checksum: str) -> None:
 
 
 # ----------------------------------------------------------------------
-# Main entry point
+# Public API used by the pipeline orchestrator
 # ----------------------------------------------------------------------
-def main() -> None:
+def fetch_vaers_data() -> None:
     """
-    Orchestrates the download, checksum, and summary steps.
+    Orchestrates the download, checksum recording, and summary writing.
+    This function is imported by ``src.main``; it mirrors the behaviour
+    of the script’s ``main()`` entry point.
     """
-    log.info("Starting VAERS data download process")
+    log.info("Starting VAERS data download process (fetch_vaers_data)")
     parquet_path = download_parquet()
 
     try:
@@ -158,6 +178,18 @@ def main() -> None:
         "Checksum recorded in %s",
         CHECKSUMS_PATH,
     )
+
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    CLI wrapper used by the quickstart. Executes the same workflow as
+    ``fetch_vaers_data()`` and propagates any exception as a non‑zero
+    exit status.
+    """
+    fetch_vaers_data()
 
 
 if __name__ == "__main__":
