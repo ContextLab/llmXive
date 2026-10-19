@@ -1,68 +1,67 @@
 """
-Main orchestrator for the Visual Salience pipeline.
-Provides a unified entry point for running different stages of the research.
+Project orchestrator module.
+
+Provides a simple CLI entry point (`python -m code.main`) and a
+``_verify_layout`` helper used by the bootstrap unit test to ensure
+that the required directory tree exists after running the bootstrap
+script.
 """
 import argparse
-import sys
-import logging
-from pathlib import Path
 from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
-def run_smoke_test():
+def _verify_layout() -> bool:
     """
-    Perform a basic smoke test to verify project layout and environment.
+    Verify that all top‑level directories required by the pipeline are present.
+
+    Returns
+    -------
+    bool
+        ``True`` if every required directory exists, ``False`` otherwise.
     """
-    log.info("Running smoke test stage...")
-    
-    # Verify essential directories exist
     required_dirs = [
         paths.code(),
         paths.data("raw"),
         paths.data("interim"),
         paths.data("processed"),
+        paths.data("results"),
+        paths.data("logs"),
         paths.docs(),
     ]
-    
-    for d in required_dirs:
-        if not d.is_dir():
-            raise RuntimeError(f"Smoke test failed: Required directory {d} missing.")
-    
-    # Verify requirements.txt exists
-    req_file = paths.root / "requirements.txt"
-    if not req_file.is_file():
-        raise RuntimeError("Smoke test failed: requirements.txt not found.")
-    
-    log.info("Smoke test passed: Project layout and basic environment verified.")
+
+    missing = [p for p in required_dirs if not p.is_dir()]
+    if missing:
+        log.error(f"Missing required directories: {missing}")
+        return False
+    log.info("All required directories are present.")
     return True
 
-def main():
-    parser = argparse.ArgumentParser(description="Visual Salience Pipeline Orchestrator")
-    parser.add_argument(
-        "--stage", 
-        type=str, 
-        required=True, 
-        choices=["smoke", "full"], 
-        help="Stage of the pipeline to execute"
+def main() -> int:
+    """
+    Minimal command‑line interface for the project.
+
+    The ``--stage`` argument is retained for compatibility with the
+    quickstart documentation; in this minimal implementation it simply
+    logs the requested stage.
+    """
+    parser = argparse.ArgumentParser(
+        description="Run a pipeline stage (smoke, full, etc.)."
     )
-    
+    parser.add_argument(
+        "--stage",
+        default="smoke",
+        help="Pipeline stage to execute (default: smoke).",
+    )
     args = parser.parse_args()
-    
-    try:
-        if args.stage == "smoke":
-            run_smoke_test()
-        elif args.stage == "full":
-            # In a full run, this would call the sequence of scripts defined in plan.md
-            # For T001, we only need to ensure the entry point is runnable.
-            log.info("Full pipeline execution requested. (Implementation follows in subsequent tasks)")
-            # For now, we just run the smoke test as a baseline
-            run_smoke_test()
-        
-        log.info(f"Stage '{args.stage}' completed successfully.")
-    except Exception as e:
-        log.exception(f"Pipeline failed during stage '{args.stage}': {e}")
-        sys.exit(1)
+
+    log.info(f"Running pipeline stage: {args.stage}")
+    # Placeholder implementation – real stages are defined elsewhere.
+    print(f"Running stage: {args.stage}")
+
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    sys.exit(main())

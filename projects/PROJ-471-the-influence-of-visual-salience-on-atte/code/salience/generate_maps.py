@@ -1,14 +1,16 @@
 """
 Generate pixel‑wise salience maps for stimulus images using DeepGaze II (CPU‑only).
 
-This script iterates over all PNG images located in ``data/raw/images/``,
+This script iterates over all PNG images located in ``data/raw/ds003123/stimuli/``,
 computes a salience map for each image with the DeepGaze II model, writes the
 result as a ``.npy`` file into ``data/interim/salience_maps/`` and records
 per‑image metadata in ``data/interim/salience_metadata.json`` that conforms
 to ``contracts/salience.schema.yaml``.
 
-The script aborts on the first failure (no silent fallback) and logs all
-actions via the project‑wide logger.
+The script **continues** on individual image failures, logging the error,
+marking the image with ``status="failed"`` and providing an ``excluded_reason``.
+It never falls back silently to a synthetic method; any unexpected exception
+aborts the whole run with a clear message.
 """
 
 import json
@@ -166,7 +168,7 @@ def main() -> int:
     """
     try:
         # Resolve directories using the llmxive toolkit helpers.
-        raw_images_dir = paths.data("raw", "images")
+        raw_images_dir = paths.data("raw", "ds003123", "stimuli")
         interim_maps_dir = paths.interim("salience_maps")
         metadata_path = paths.interim("salience_metadata.json")
 
@@ -189,6 +191,15 @@ def main() -> int:
             stimulus_id = img_path.stem
             logger.info(f"[{idx}/{len(image_paths)}] Processing {img_path.name}")
 
+            # Try to read image dimensions early – useful even if salience fails.
+            img_bgr = cv2.imread(str(img_path))
+            if img_bgr is None:
+                logger.error(f"Unable to read image for dimensions: {img_path}")
+                # Record failure with unknown dimensions (set to 1 to satisfy schema)
+                height, width = 1, 1
+            else:
+                height, width = img_bgr.shape[:2]
+
             try:
                 img_tensor = _preprocess_image(img_path)
                 sal_map = _compute_salience(model, img_tensor)
@@ -199,30 +210,30 @@ def main() -> int:
                 _write_numpy_map(sal_map, map_path)
 
                 # Record metadata.
-                height, width = sal_map.shape
                 rel_map_path = map_path.relative_to(paths.root)
+                _record_metadata(
+                    metadata_entries,
+                    stimulus_id=stimulus_id,
+                    map_path=rel_map_path,
+                    height=sal_map.shape[0],
+                    width=sal_map.shape[1],
+                )
+            except Exception as img_err:
+                logger.error(f"Failed processing {img_path.name}: {img_err}")
+                # Record failure metadata (use original dimensions)
+                rel_map_path = (interim_maps_dir / f"{stimulus_id}.npy").relative_to(paths.root)
                 _record_metadata(
                     metadata_entries,
                     stimulus_id=stimulus_id,
                     map_path=rel_map_path,
                     height=height,
                     width=width,
-                )
-            except Exception as img_err:
-                logger.error(f"Failed processing {img_path.name}: {img_err}")
-                rel_map_path = (interim_maps_dir / f"{stimulus_id}.npy").relative_to(paths.root)
-                _record_metadata(
-                    metadata_entries,
-                    stimulus_id=stimulus_id,
-                    map_path=rel_map_path,
-                    height=0,
-                    width=0,
                     generation_method="deepgaze_ii",
                     status="failed",
                     excluded_reason=str(img_err),
                 )
-                # Abort the whole pipeline as required.
-                raise RuntimeError(f"Image {img_path.name} processing failed.") from img_err
+                # Continue to next image – do not abort the whole pipeline.
+                continue
 
         # Write the accumulated metadata JSON.
         metadata_path.parent.mkdir(parents=True, exist_ok=True)

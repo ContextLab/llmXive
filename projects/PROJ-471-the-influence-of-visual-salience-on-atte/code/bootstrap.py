@@ -14,17 +14,22 @@ from llmxive_toolkit import get_logger, paths
 # Initialize logger
 log = get_logger(__name__)
 
-# Pinned requirements: Only those NOT provided by the platform environment.
-# Added explicit Python version line as required by the unit test.
+# Pinned requirements: All dependencies required by the pipeline.
+# The top‑level ``requirements.txt`` must contain the same list.
 _REQUIREMENTS = """\
 python==3.11
-datasets
 torch==2.2.0
-opencv-python
+statsmodels>=0.14.0
+ultralytics>=8.0.0
+detectron2>=0.7
+pandas>=2.2.0
+numpy>=1.26.0
+scikit-image>=0.22.0
+scikit-learn>=1.3.0
+pingouin>=0.5.4
+opencv-python>=4.8.0
+datasets
 huggingface_hub
-ultralytics
-detectron2
-pingouin
 """
 
 def _write_requirements_file() -> Path:
@@ -45,6 +50,7 @@ def _create_directories() -> None:
         paths.data("interim"),            # data/interim/
         paths.data("processed"),          # data/processed/
         paths.data("results"),            # data/results/
+        paths.data("logs"),               # data/logs/
         paths.code("tests"),              # code/tests/
         paths.docs(),                     # docs/
     ]

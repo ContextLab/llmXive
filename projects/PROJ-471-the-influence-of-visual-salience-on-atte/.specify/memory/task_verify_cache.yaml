@@ -1,12 +1,7 @@
 T001:
   c: false
-  h: 80e6ad47db2b5a875a44944027c1a810d1805b648e0011c931c844782e338c02
-  r: "The bootstrap script creates the directory layout and a `quickstart.md` with\
-    \ the correct entry\u2011point command, and `code/main.py` implements the CLI,\
-    \ but the generated `requirements.txt` (both the top\u2011level file and the one\
-    \ written by `code/bootstrap.py`) does not contain the full pinned list of dependencies\
-    \ required by the task (e.g., statsmodels, pandas, numpy, scikit\u2011image, scikit\u2011\
-    learn are missing, and version specifiers differ). The task\u2019s requirement\
-    \ to generate a complete `requirements.txt` with the specified packages is therefore\
-    \ not satisfied."
-  sig: dd7990b7917f66dda614a3d5c240b895cecf8632899c5789271f895d16ed59fe
+  h: 56e8e0a0fb44a45f47a13768ece4a6a843b16cc6ef97a8c2c437d359cdad5e40
+  r: "The bootstrap script creates `data/logs/` but the task required a top\u2011\
+    level `logs/` directory, which is not present in the repository. Consequently\
+    \ the prescribed project layout is not fully satisfied."
+  sig: 358adad8190e8ee318afa53cca4148e71f6680f60bdd5ff6de6af0e29a167720

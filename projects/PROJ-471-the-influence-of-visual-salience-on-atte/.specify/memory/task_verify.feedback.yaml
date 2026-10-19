@@ -1,18 +1,15 @@
 T001:
-  reason: "The bootstrap script creates the directory layout and a `quickstart.md`\
-    \ with the correct entry\u2011point command, and `code/main.py` implements the\
-    \ CLI, but the generated `requirements.txt` (both the top\u2011level file and\
-    \ the one written by `code/bootstrap.py`) does not contain the full pinned list\
-    \ of dependencies required by the task (e.g., statsmodels, pandas, numpy, scikit\u2011\
-    image, scikit\u2011learn are missing, and version specifiers differ). The task\u2019\
-    s requirement to generate a complete `requirements.txt` with the specified packages\
-    \ is therefore not satisfied."
+  reason: "The bootstrap script creates `data/logs/` but the task required a top\u2011\
+    level `logs/` directory, which is not present in the repository. Consequently\
+    \ the prescribed project layout is not fully satisfied."
   task: 837ede49e78883ebaaea3092dab9ac81465d4bf319b4b68ba9e99daa13f83a13
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/ingestion/verify_data.py
     exit=1'
   task: 02685b8ff4f7529742c59f98d98def0273c4a7cb0652d3636c22183b2b7040f9
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/salience/generate_maps.py
+    exit=1'
   task: d9f1594af4df8f1d3a00dedc9f305d1cdef60638ac54a4e04623503437a7adbc
 T004:
   task: a0d23483d2ddefee135c45d9cd0fb4f0e9dc05ab739ac437a0d918891848ff40
