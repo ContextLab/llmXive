@@ -24,18 +24,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 31, in <module>
-    import pyspedas.wind   # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'pyspedas.wind'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 20, in <module>
+    import pyspedas.cdaweb as cdaweb  # Unified CDAWeb downloader
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'pyspedas.cdaweb'
 
 - python code/ingestion/download_real.py --start 2000-01-01 --end 2000-12-31 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 31, in <module>
-    import pyspedas.wind   # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'pyspedas.wind'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 20, in <module>
+    import pyspedas.cdaweb as cdaweb  # Unified CDAWeb downloader
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'pyspedas.cdaweb'
 
 - python -m code.main -> rc=1
 
@@ -68,23 +68,20 @@ Traceback (most recent call last):
 ImportError: cannot import name 'compute_md5' from 'code.utils.io' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/io.py)
 
 - python -m pytest tests/ -> rc=2
-lib/_fontconfig_pattern.py:92
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
-  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+atplotlib/_fontconfig_pattern.py:89
+../../.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89
+  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45
-  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+../../.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages/matplotlib/_mathtext.py:45
+  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
     ParserElement.enablePackrat()
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 ERROR tests/integration/test_download_real.py
-ERROR tests/integration/test_sensitivity.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 2 errors in 2.48s ========================
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+======================== 14 warnings, 1 error in 2.27s =========================
 
 
 

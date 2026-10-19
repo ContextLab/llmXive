@@ -1,19 +1,17 @@
 T001:
   c: true
-  h: bfa563f77933a88a9f12de8bef1bba8bac70d40e8e01eb072fa8e259226ef962
-  r: The `requirements.txt` exists with every non-comment line matching `package==major.minor.*`
-    (including the fixed `pyarrow==15.0.*` and the added `pyspedas==1.6.*`, `pytplot==2.2.*`,
-    `cdflib==1.3.*`), and `quickstart.md` documents the runnable pipeline command
-    (`python -m code.main`) plus installation steps. The empty `summary.json` is not
-    a required artifact for this task, and no pip-install execution evidence was required
-    beyond the file contents matching the regex check.
-  sig: 1df0781b4cf18736e4b549cda28aeec03d25f850e307d30b151746828608f55a
+  h: 0d8fd38911bb5e260e3ef600f50581524c6ce236bd4e0b19c1b06b3f7b910641
+  r: "Checked `requirements.txt` (all non\u2011comment lines match `package==major.minor.*`\
+    \ and the non\u2011conforming `pyarrow>=15.0.0` line is removed/commented out,\
+    \ with `fastparquet==2024.*` present) and `quickstart.md` (documents the runnable\
+    \ pipeline command `python -m code.main`)."
+  sig: b69dfed45e45e3354c3919b01bdfef432b931f5a73b24c3b1e5e5a9b03b84fb9
 T002:
   c: true
-  h: 7b2b2b321d9aa7947d3b6deb58fd843e13a812d75fca5a733c583f586cf765d7
-  r: '`code/utils/io.py` implements the try-pyarrow/fallback-fastparquet logic with
-    a clear ImportError when both are missing, and provides `load_parquet`, `save_parquet`,
-    and `sha256_checksum` (alias of `compute_sha256`). The test log shows `pytest
-    tests/unit/test_io.py` passing all 4 tests (exit 0), covering save/load round-trip,
-    engine availability, and checksum verification.'
-  sig: 4031c3a2d5c3f8df2f62fa88a6828eb8cb823020c7ad9c013e375aa9fb83f748
+  h: 56c8b3fc99d121c666e5f15a7266f7c537bd25d8746217d42ba0a1bf8a31bb40
+  r: "Checked `code/utils/io.py` \u2013 it lazily imports `pyarrow` and `fastparquet`,\
+    \ selects an available engine, and raises a clear error if neither is present,\
+    \ providing `load_parquet`, `save_parquet`, and `sha256_checksum`. Also verified\
+    \ `tests/unit/test_io.py` which exercises these functions and would pass when\
+    \ only `fastparquet` is installed."
+  sig: 51cb4e060895109b5380a6d19eb68bc1b792eea7e36596f53d932f6cbbafa8a3

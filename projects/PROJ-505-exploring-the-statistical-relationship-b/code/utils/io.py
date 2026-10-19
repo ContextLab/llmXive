@@ -1,72 +1,101 @@
 """
 I/O helper utilities for the project.
-Provides parquet read/write and SHA-256 checksum functions.
 
-Parquet I/O does NOT hard-require ``pyarrow``: the module attempts to
-import ``pyarrow`` first, falls back to ``fastparquet``, and raises a
-clear error only if both engines are missing.
+Provides robust CSV/Parquet read/write functions that gracefully
+handle the optional presence of either ``pyarrow`` or ``fastparquet``
+without hard dependencies on either. Also includes SHA‑256 checksum
+generation for data‑integrity verification.
 """
 import hashlib
+import logging
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 
-try:  # preferred engine
+# Optional imports – handled lazily in the helper functions
+try:
     import pyarrow  # noqa: F401
-    _PARQUET_ENGINE = "pyarrow"
-except ImportError:
-    try:
-        import fastparquet  # noqa: F401
-        _PARQUET_ENGINE = "fastparquet"
-    except ImportError:
-        _PARQUET_ENGINE = None
+    _HAS_PYARROW = True
+except Exception:  # pragma: no cover
+    _HAS_PYARROW = False
 
+try:
+    import fastparquet  # noqa: F401
+    _HAS_FASTPARQUET = True
+except Exception:  # pragma: no cover
+    _HAS_FASTPARQUET = False
 
-def get_parquet_engine() -> str:
-    """Return the available parquet engine name ('pyarrow' or 'fastparquet')."""
-    if _PARQUET_ENGINE is None:
-        raise ImportError(
-            "No parquet engine available. Install either 'pyarrow' or "
-            "'fastparquet' to enable parquet I/O."
-        )
-    return _PARQUET_ENGINE
+logger = logging.getLogger(__name__)
 
+def _choose_parquet_engine() -> str:
+    """
+    Choose a parquet engine based on availability.
 
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 checksum of a file."""
-    hash_sha = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            hash_sha.update(chunk)
-    return hash_sha.hexdigest()
+    Preference order:
+    1. pyarrow (if installed)
+    2. fastparquet (if installed)
+    Raises RuntimeError if neither is available.
+    """
+    if _HAS_PYARROW:
+        return "pyarrow"
+    if _HAS_FASTPARQUET:
+        return "fastparquet"
+    raise RuntimeError(
+        "Neither 'pyarrow' nor 'fastparquet' is available for Parquet I/O. "
+        "Install one of them or adjust requirements."
+    )
 
+def save_parquet(df: pd.DataFrame, path: Path | str) -> None:
+    """
+    Save a DataFrame to a Parquet file using the available engine.
 
-# Alias required by the task specification.
-sha256_checksum = compute_sha256
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame to be saved.
+    path : Path | str
+        Destination file path.
+    """
+    engine = _choose_parquet_engine()
+    logger.debug("Saving Parquet with engine='%s' to %s", engine, path)
+    df.to_parquet(path, engine=engine, index=False)
 
+def load_parquet(path: Path | str) -> pd.DataFrame:
+    """
+    Load a Parquet file into a DataFrame using the available engine.
 
-def verify_sha256(file_path: Path, expected_hash: str) -> bool:
-    """Verify that the SHA-256 checksum of a file matches the expected hash."""
-    return compute_sha256(file_path) == expected_hash
+    Parameters
+    ----------
+    path : Path | str
+        Path to the Parquet file.
 
+    Returns
+    -------
+    pd.DataFrame
+        Loaded DataFrame.
+    """
+    engine = _choose_parquet_engine()
+    logger.debug("Loading Parquet with engine='%s' from %s", engine, path)
+    return pd.read_parquet(path, engine=engine)
 
-def load_parquet(file_path: Path) -> pd.DataFrame:
-    """Load a parquet file into a DataFrame."""
-    return pd.read_parquet(file_path, engine=get_parquet_engine())
+def sha256_checksum(file_path: Path | str) -> str:
+    """
+    Compute the SHA‑256 checksum of a file.
 
+    Parameters
+    ----------
+    file_path : Path | str
+        Path to the file.
 
-def save_parquet(df: pd.DataFrame, file_path: Path) -> None:
-    """Save a DataFrame to parquet using pyarrow, falling back to fastparquet."""
+    Returns
+    -------
+    str
+        Hexadecimal SHA‑256 digest.
+    """
     file_path = Path(file_path)
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(file_path, index=False, engine=get_parquet_engine())
-
-
-__all__ = [
-    "compute_sha256",
-    "sha256_checksum",
-    "verify_sha256",
-    "load_parquet",
-    "save_parquet",
-    "get_parquet_engine",
-]
+    sha256 = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()

@@ -1,16 +1,18 @@
 status: none
-intent: download ACE SWICS WIND composition NOAA Dst Kp OMNI CDAWeb python package
+intent: pyspedas download ACE SWICS WIND composition NOAA Dst Kp hourly python package
   dataset
 required_fields:
-- timestamp
+- timestamp_utc
 - o_fe_ratio
 - he_h_ratio
 - c_o_ratio
-- solar_wind_speed
-- solar_wind_density
-- interplanetary_magnetic_field
-- dst_index
+- bulk_velocity_km_s
+- proton_density_cm3
+- imf_bx_nT
+- imf_by_nT
+- imf_bz_nT
+- dst_index_nT
 - kp_index
-cache_key: 0abac06d614eb6865a5ed68af835248e7bd1d8a17f4ba86e930097f833607d12
-searched_at: '2026-10-19T17:50:22.240071+00:00'
+cache_key: 35665315dbaf4b7332497ac13362a1cbb039f0f6cadc23e630c8cef8fbbf23cc
+searched_at: '2026-10-19T18:17:10.590672+00:00'
 retry_count: 1

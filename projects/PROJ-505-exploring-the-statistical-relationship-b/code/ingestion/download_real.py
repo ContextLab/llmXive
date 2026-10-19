@@ -7,15 +7,7 @@ under data/raw/, and writes SHA-256 checksums to
 data/raw/checksums.yaml.
 
 The loader FAILS LOUDLY on any fetch failure (ConnectionError /
-RuntimeError). There is no synthetic fallback anywhere in this
-module.
-
-Root cause fixed from the previous failed run: ``pyspedas.omni`` is a
-*module*, not a callable. The correct pyspedas API is
-``pyspedas.omni.data(trange=...)`` (and analogously
-``pyspedas.ace.swics`` / ``pyspedas.wind.sms``). The file lists
-returned by the loaders (``downloadonly=True``) are used directly,
-so no guessed cache-layout assumptions are made.
+RuntimeError). There is no synthetic fallback anywhere in this module.
 """
 import argparse
 import hashlib
@@ -25,15 +17,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, List
 
-import pyspedas
-import pyspedas.omni   # noqa: F401  (ensures the mission subpackage is imported)
-import pyspedas.ace    # noqa: F401
-import pyspedas.wind   # noqa: F401
+import pyspedas.cdaweb as cdaweb  # Unified CDAWeb downloader
 
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
-
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 checksum of a file."""
@@ -53,32 +41,36 @@ def _validate_date(date_str: str) -> str:
     return date_str
 
 
-def _fetch_cdf_files(loader: Callable, source_name: str, trange: List[str]) -> List[Path]:
+def _fetch_cdf_files(datatype: str, source_name: str, trange: List[str]) -> List[Path]:
     """
-    Download the raw CDF files for one source via pyspedas/CDAWeb.
+    Download the raw CDF files for one source via pyspedas.cdaweb.
 
     Uses ``downloadonly=True`` so the loader returns the list of
     downloaded local file paths without loading them into tplot.
     Raises ConnectionError on any fetch failure — never a fallback.
     """
-    log.info("Fetching %s via pyspedas (CDAWeb) for %s..%s",
-             source_name, trange[0], trange[1])
+    log.info(
+        "Fetching %s via pyspedas.cdaweb for %s..%s",
+        source_name,
+        trange[0],
+        trange[1],
+    )
     try:
-        files = loader(trange=trange, downloadonly=True)
+        files = cdaweb.cdaweb(trange=trange, datatype=datatype, downloadonly=True)
     except Exception as e:
         raise ConnectionError(
             f"Failed to fetch {source_name} from CDAWeb via pyspedas: {e}"
         ) from e
+
     if not files:
         raise RuntimeError(
-            f"pyspedas returned an empty file list for {source_name}; "
+            f"pyspedas.cdaweb returned an empty file list for {source_name}; "
             "the CDAWeb fetch did not succeed"
         )
     cdfs = [Path(f) for f in files if str(f).lower().endswith(".cdf")]
     if not cdfs:
         raise RuntimeError(
-            f"No CDF files downloaded for {source_name}; "
-            f"loader returned {files!r}"
+            f"No CDF files downloaded for {source_name}; loader returned {files!r}"
         )
     for f in cdfs:
         if not f.exists():
@@ -111,8 +103,7 @@ def preserve_raw_files(files: List[Path], target_dir: Path) -> int:
     return files_copied
 
 
-def download_and_preserve(start: str = "2000-01-01",
-                          end: str = "2020-12-31") -> dict:
+def download_and_preserve(start: str = "2000-01-01", end: str = "2020-12-31") -> dict:
     """
     Main routine: fetch real data from CDAWeb via pyspedas and save
     raw artifacts plus SHA-256 checksums.
@@ -135,16 +126,16 @@ def download_and_preserve(start: str = "2000-01-01",
     raw_omni = raw_root / "omni"
     checksum_file = raw_root / "checksums.yaml"
 
-    # 1. OMNI hourly data (velocity, density, IMF, Bz, Dst, Kp)
-    omni_files = _fetch_cdf_files(pyspedas.omni.data, "OMNI hourly", trange)
+    # 1. OMNI hourly data
+    omni_files = _fetch_cdf_files("omni_h0", "OMNI hourly", trange)
     preserve_raw_files(omni_files, raw_omni)
 
     # 2. ACE SWICS composition data
-    ace_files = _fetch_cdf_files(pyspedas.ace.swics, "ACE SWICS composition", trange)
+    ace_files = _fetch_cdf_files("ace_swics_1min", "ACE SWICS composition", trange)
     preserve_raw_files(ace_files, raw_ace)
 
     # 3. WIND SMS/STICS composition data
-    wind_files = _fetch_cdf_files(pyspedas.wind.sms, "WIND SMS/STICS composition", trange)
+    wind_files = _fetch_cdf_files("wind_sms_1m", "WIND SMS/STICS composition", trange)
     preserve_raw_files(wind_files, raw_wind)
 
     # 4. Generate SHA-256 checksums for every preserved raw file
@@ -162,11 +153,17 @@ def download_and_preserve(start: str = "2000-01-01",
     with open(checksum_file, "w", encoding="utf-8") as f:
         yaml.safe_dump(checksums, f, sort_keys=True)
 
-    log.info("Checksums for %d raw files written to %s",
-             len(checksums), checksum_file)
-    log.info("Real-data ingestion complete for period %s..%s "
-             "(%d raw files preserved unchanged)", start, end,
-             len(ace_files) + len(wind_files) + len(omni_files))
+    log.info(
+        "Checksums for %d raw files written to %s",
+        len(checksums),
+        checksum_file,
+    )
+    log.info(
+        "Real-data ingestion complete for period %s..%s (%d raw files preserved unchanged)",
+        start,
+        end,
+        len(ace_files) + len(wind_files) + len(omni_files),
+    )
     return {
         "start": start,
         "end": end,
@@ -179,12 +176,20 @@ def download_and_preserve(start: str = "2000-01-01",
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download REAL solar-wind/geomagnetic data from "
-                    "NASA CDAWeb via pyspedas (no synthetic fallback).")
-    parser.add_argument("--start", type=str, default="2000-01-01",
-                        help="Start date YYYY-MM-DD")
-    parser.add_argument("--end", type=str, default="2020-12-31",
-                        help="End date YYYY-MM-DD")
+        description="Download REAL solar-wind/geomagnetic data from NASA CDAWeb via pyspedas (no synthetic fallback)."
+    )
+    parser.add_argument(
+        "--start",
+        type=str,
+        default="2000-01-01",
+        help="Start date YYYY-MM-DD",
+    )
+    parser.add_argument(
+        "--end",
+        type=str,
+        default="2020-12-31",
+        help="End date YYYY-MM-DD",
+    )
     args = parser.parse_args()
     summary = download_and_preserve(start=args.start, end=args.end)
     log.info("Ingestion summary: %s", summary)
