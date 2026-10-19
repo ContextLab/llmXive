@@ -6,3 +6,12 @@ T001:
     and `quickstart.md` documenting the runnable entry point. All required artifacts
     exist, contain the correct content, and the unit test passes.
   sig: 7bbaf7fc0b3a704ec3b7b27f863d395f2e06461bfd7ff1071b064a94dd4fc001
+T002:
+  c: true
+  h: c457ff634093f7a4a341edd7dd4a990d2df997730e079449968f9d241c45785a
+  r: "Checked `code/ingestion/verify_data.py` which validates the presence of `data/raw/ds003123/`,\
+    \ computes SHA\u2011256 checksums, writes them to `data/raw/checksums.json`, and\
+    \ raises a `RuntimeError` containing \u201CDATA_MISSING_001\u201D when the directory\
+    \ is missing. The accompanying `tests/test_verify_data.py` passes both the success\
+    \ and missing\u2011dataset scenarios, confirming correct behavior."
+  sig: 817fd24cae1d90230b979cffebdcc28dfb2c41011f4f804bc896d4b67ebd4368

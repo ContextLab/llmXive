@@ -12,11 +12,22 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/create_readme.py: synthetic/fake INPUT data not authorized by the spec — “…a source is unreachable. Synthetic data fallbacks are strictly f…”; run-book completed but produced no data/figure artifacts; 2 declared deliverable(s) absent: data/interim/salience_metadata.json; data/processed/results.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/create_readme.py: synthetic/fake INPUT data not authorized by the spec — “…a source is unreachable. Synthetic data fallbacks are strictly f…”; 1 command(s) failed: python -m code.ingestion.verify_data (rc=1); 2 declared deliverable(s) absent: data/interim/salience_metadata.json; data/processed/results.json
 
 ## Failing / missing run-book commands
 
-- (no per-command failures; the run produced no real data/figure artifacts — ensure scripts WRITE their declared outputs under data/ and figures/)
+- python -m code.ingestion.verify_data -> rc=1
+
+2026-10-19 21:23:20,575 INFO __main__: Loading existing checksum manifest from /home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/data/raw/checksums.json
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 128, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 98, in main
+    raise RuntimeError(
+RuntimeError: DATA_MISSING_001: Expected file missing – ds003123/stimuli/image1.png
+
 
 ## Declared deliverables still missing
 
