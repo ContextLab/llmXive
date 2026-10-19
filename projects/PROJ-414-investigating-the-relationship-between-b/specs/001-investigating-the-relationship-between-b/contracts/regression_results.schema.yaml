@@ -13,7 +13,7 @@ required:
 properties:
   pc:
     type: string
-    description: "Principal component identifier (e.g. pc_1)."
+    description: "Principal component identifier (e.g., pc_1)."
   skill_proxy_used:
     type: string
     description: "Real column used as skill proxy, or 'none' if no proxy exists (halt path)."
@@ -24,24 +24,24 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "Permutation p-value (1000 permutations) before correction."
+    description: "Permutation p‑value (1000 permutations) before Correction."
   fdr_p:
     type: number
     minimum: 0
     maximum: 1
-    description: "Benjamini-Hochberg FDR-corrected p-value."
+    description: "Benjamini‑Hochberg FDR‑corrected p‑value."
   significance:
     type: boolean
-    description: "True if fdr_p < 0.05."
+    description: "True if fdr_p < 0.05."
   null_result_flag:
     type: boolean
-    description: "True when the result is non-significant; null results are valid outputs, not failures."
+    description: "True if the result is non‑significant (p > 0.05) after correction."
   permutation_scheme:
     type: string
-    description: "Permutation scheme used; must be 'freedman_lane' (residual permutation, valid under covariate adjustment)."
+    description: "Freedman‑Lane residual permutation scheme."
   covariates_included:
     type: array
     items:
       type: string
-    description: "Covariates actually present in the data and included in the model."
+    description: "List of covariate column names included in the regression."
 additionalProperties: false

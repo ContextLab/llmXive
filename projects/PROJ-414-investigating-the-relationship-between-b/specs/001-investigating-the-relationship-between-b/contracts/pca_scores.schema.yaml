@@ -12,15 +12,15 @@ properties:
   n_components_retained:
     type: integer
     minimum: 1
-    description: "Number of PCs retained (>=80% cumulative variance)."
+    description: "Number of PC retained (>=80% cumulative variance)."
   variance_explained_total:
     type: number
     minimum: 0
     maximum: 1
-    description: "Cumulative variance explained by retained PCs."
+    description: "Cumulative variance explained by retained PC (e.g., 0.85)."
   pc_scores:
     type: object
-    description: "Mapping of PC name (e.g. pc_1) to score; keys are dynamic."
+    description: "Mapping of pc name to score (e.g., pc_1)."
     additionalProperties:
       type: number
 additionalProperties: false

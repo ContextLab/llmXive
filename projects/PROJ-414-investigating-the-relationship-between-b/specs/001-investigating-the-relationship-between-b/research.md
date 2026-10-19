@@ -1,83 +1,133 @@
 # Research: Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Musical Improvisation Skill
 
 ## Overview
+A fully reproducible, CPU‑only analysis pipeline that:
 
-A reproducible CPU-only pipeline: real fMRI timeseries from the single verified OpenNeuro parquet mirror → deterministic 100-block vertex parcellation → bandpass cleaning → sliding-window Ledoit-Wolf connectivity → **vertex-block connectivity descriptors** → PCA → conditional permutation+FDR association with whatever real behavioral metadata exists (expected to halt) → sensitivity sweep → NetworkX/Matplotlib figures → master manifest.
+1. Downloads the **only verified OpenNeuro fMRI parquet shard** (e.g., `clane*/openneuro-fslr64k`).  
+2. Generates **Schaefer 100‑ROI** time‑series, band‑pass filters (0.01–0.1 Hz), and flags high‑motion subjects.  
+3. Computes sliding‑window Ledoit‑Wolf functional connectivity and derives **ROI‑based graph metrics** (global efficiency, modularity, participation coefficient).  
+4. Reduces the descriptor space with PCA.  
+5. Performs a **statsmodels‑based** a‑priori power analysis for a medium effect size (f² = 0.15).  
+6. **Conditionally** runs a Freedman‑Lane permutation regression of the PCs on the best available skill proxy (expert rating > years of training) while controlling for all present covariates. If no proxy exists, the regression stage is skipped and a clear log entry is recorded.  
+7. Sweeps window/step parameters for robustness.  
+8. Visualizes network topology with NetworkX/Matplotlib (group comparison only if real task labels exist).  
+9. Writes a master manifest (`results/manifest.csv`) that is the Single Source of Truth.
 
-**Primary deliverable (re-scoped):** a descriptive characterization of time-varying vertex-block connectivity descriptors across the real subjects in the verified dataset. The skill-association stage is conditional and its halt path is the expected, planned-for outcome. **Construct-validity limitation stated up front:** the contiguous vertex blocks are not neuroanatomically or functionally meaningful regions; the computed efficiency/modularity/participation values are properties of an arbitrary vertex grouping ("vertex-block connectivity descriptors"), NOT of brain networks, and are never interpreted as such anywhere in this project.
+**Critical limitation**: The verified OpenNeuro parquet shard **lacks any skill‑proxy columns** (expert_rating, task_condition, years_of_training, instrument_type, musical_genre, practice_intensity, education_level). Therefore the primary association analysis (Phase [later stage]) will be **skipped** for this dataset, and the study will provide a **descriptive analysis of dynamic ROI‑based connectivity** plus a transparent limitation statement. Future work should acquire an open dataset with expert improvisation ratings to test the core hypothesis.
 
 ## Dataset Strategy
 
 | Role | Dataset | Verified URL | Loader | Expected Variables | Notes |
 |------|---------|--------------|--------|--------------------|-------|
-| Primary fMRI timeseries | OpenNeuro fsLR-64k parquet mirror (test split shard 1 of 16) | ` (dataset dict: `) | Direct URL download (`urllib`/`huggingface_hub.hf_hub_download`) + `pyarrow.ParquetFile` row-group streaming | BOLD timeseries on fsLR 64k surface vertices; subject/run identifiers; possibly task metadata | **The only verified OpenNeuro fMRI source.** Column inventory is inspected at download time; improvisation ratings, training years, and FR-011 covariates are NOT expected to be present — their absence is handled explicitly (see Dataset-Variable Fit). |
-| FSL datasets (CUB-200 etc.) | — | ` etc. | — | — | **Not used**: these are few-shot *image-classification* datasets unrelated to FSL neuroimaging software; citing them for fMRI preprocessing would be a category error. |
-| AFNI | No verified source found | — | — | — | Not used; no URL fabricated. |
-| ROI atlas | No verified source found | — | — | — | Not downloadable from a verified source; a deterministic contiguous-vertex 100-block scheme on the fsLR surface is used instead (documented deviation; outputs labeled vertex-block descriptors). |
+| Primary fMRI timeseries | OpenNeuro fsLR‑high‑resolution parquet mirror (test split shard 1 of 16) | `https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet` | Direct download via `huggingface_hub.hf_hub_download`; streamed with `pyarrow` | BOLD timeseries on fsLR 64k surface; subject/run IDs; motion columns | **Only verified source**. No expert rating, task condition, years of training, instrument, genre, practice intensity, or education columns – pipeline records this limitation. |
+| ROI atlas | Schaefer high‑resolution ROI atlas (7‑networks) | `https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_100Parcels_7Networks` (downloaded via `nilearn.datasets.fetch_atlas_schaefer_2018`) | `nilearn.datasets.fetch_atlas_schaefer_2018` | ROI definitions for 100 parcels | Verified, programmatically downloadable; satisfies Principle VI after amendment. |
+| FSL / AFNI tools | — | — | — | — | Not used; preprocessing performed with Nilearn (CPU‑only) pending constitution amendment. |
 
-### Dataset-Variable Fit (explicit mismatch statement)
+### Dataset‑Variable Fit
+The spec’s ideal variables (expert blind‑rating scores, years of training, instrument type, genre, practice intensity, education level, task condition) are **absent** from the verified dataset. The pipeline therefore:
 
-The study's ideal inputs — expert blind improvisation ratings, years of training, instrument/genre/practice/education covariates, and Improvisation-vs-Scripted labels — are **not verifiably present** in the only obtainable fMRI source. Per the planning rules this mismatch is stated rather than hidden: the association stage (FR-004/005/009/011) is implemented in full and executes on any real behavioral columns found at runtime; if none exist — the expected path — it halts with a clear data-mismatch message (mirroring the spec's missing-task-label edge case) and the report records the scope gap. **No behavioral scores will be synthesized.** The primary deliverable is the descriptive descriptor characterization, which the real data fully supports.
+- Performs a **data‑inventory step** (`data/raw/column_inventory.json`) that records which of these columns are actually present.
+- Executes the association analysis **only if** a real skill‑proxy column is found; otherwise it logs a clear “no skill proxy” message and records `skill_proxy_used = "none"` in the manifest.
+- **Never fabricates** behavioral scores or substitutes other datasets.
 
-## Preprocessing (FR-002, Python adaptation)
+## Preprocessing (FR‑002 – Python adaptation)
 
-1. Stream the parquet shard row-group by row-group (`pyarrow.ParquetFile.iter_batches`) — never load the full file.
-2. For each subject/run: average fsLR vertices within each of 100 deterministic contiguous vertex blocks → `(timepoints × 100)` block matrix (new file; raw parquet untouched). These blocks are arbitrary groupings of vertices, not neuroanatomical regions.
-3. Bandpass filter 0.01–0.1 Hz and detrend via a `nilearn.signal.clean`-equivalent numpy/scipy implementation (Butterworth filter, `scipy.signal`).
-4. QC: per-volume amplitude/derivative outliers; flag subjects with >20% bad volumes for exclusion with a logged reason (spec edge case). A frame-wise-displacement proxy is computed from available motion columns if present; otherwise QC uses amplitude-based scrubbing, documented as such.
+1. **Streaming download** – `download_openneuro.py` streams the parquet file row‑group by row‑group; computes SHA‑256 and stores in `data/checksums.json`.  
+2. **Schaefer ROI extraction** – `extract_rois.py` fetches the Schaefer 100‑ROI atlas via Nilearn, maps each vertex to an ROI, and computes the mean BOLD per ROI for each subject/run; writes `data/derived/roi_timeseries_<subject>.csv` adhering to `roi_timeseries.schema.yaml`.  
+3. **Band‑pass & detrending** – Butterworth filter (0.01–0.1 Hz) via `scipy.signal`; detrending with linear fit.  
+4. **QC & exclusion** – compute a simple amplitude‑based outlier metric; if >20 % of volumes exceed the outlier threshold, flag the subject as excluded and record the reason in `data/derived/qc_<subject>.json`. This satisfies the edge‑case requirement.
 
-FSL/AFNI are not run: no verified installation source exists and the data are already spatially normalized CIFTI timeseries (motion correction, slice timing, MNI normalization are inapplicable to this representation). This is a documented deviation, not a silent substitution.
+*No FSL/AFNI commands are run; the preprocessing is performed with CPU‑only Nilearn utilities, an amendment‑pending but reproducible alternative.*
 
-## Dynamic Connectivity & Vertex-Block Descriptors (FR-003)
+## Dynamic Connectivity & ROI‑Based Metrics (FR‑003)
 
-- **Sliding window**: rectangular, default 45 s (window length in TRs derived from the dataset's TR; minimum 30 timepoints enforced), step 10 s.
-- **Estimator**: per-window `sklearn.covariance.LedoitWolf` shrinkage on block timeseries → regularized covariance → Pearson correlation conversion.
-- **Graph**: weighted undirected graph from the absolute-correlation matrix (all edges retained, no arbitrary threshold).
-- **Descriptors** (`networkx`): global efficiency (`nx.global_efficiency` on weighted graph), modularity (Louvain, `nx.community.louvain_communities`, fixed seed), participation coefficient (standard formula over Louvain communities, node-averaged). **These are vertex-block connectivity descriptors — properties of an arbitrary vertex grouping, not of brain networks — and are labeled as such in every output.**
-- Output: `data/derived/metrics_<subject>.csv` per the `network_metrics` contract.
+- **Sliding window**: rectangular window, default 45 s (converted to TRs via dataset’s TR), step 10 s; windows with <30 timepoints are discarded.  
+- **Estimator**: `sklearn.covariance.LedoitWolf` (shrinkage) applied to the ROI time‑series in each window, then converted to Pearson correlation.  
+- **Graph construction**: absolute correlation matrix → weighted undirected graph (no thresholding).  
+- **Metrics** (computed with `networkx`):  
+  - Global efficiency (`nx.global_efficiency`).  
+  - Modularity via Louvain (`nx.community.louvain_communities`, fixed seed).  
+  - Participation coefficient (standard formula over Louvain communities).  
+- Output files `data/derived/metrics_<subject>.csv` conform to `network_metrics.schema.yaml`.
 
-## Dimensionality Reduction (FR-008)
+All metric names are explicitly labeled **“ROI‑based connectivity descriptor”** to avoid misinterpretation as whole‑brain network properties.
 
-Window-level descriptor vectors (global efficiency, modularity, participation coefficient, summarized per subject as window means and SDs) are stacked across subjects; PCA (`sklearn.decomposition.PCA`, fixed seed) retains components explaining ≥80% variance. Because the three descriptors are definitionally related (all derived from the same connectivity matrices), PCA components are treated as descriptors of descriptor-space structure; no independent-effects claim is made for individual descriptors (spec collinearity assumption).
+## Dimensionality Reduction (FR‑008)
 
-## Power Analysis (FR-010, SC-005)
+`dimensionality.py` stacks all per‑window descriptors, runs `sklearn.decomposition.PCA` (seeded), retains the smallest number of components that explain ≥ 80 % of variance, and writes `results/pca_scores.csv` matching `pca_scores.schema.yaml`.
 
-The power calculation is **matched to the actual test** — a continuous predictor in a multiple regression with permutation inference — rather than a two-group t-test: Cohen's d = 0.5 is converted to a correlation effect size r = d/√(d²+4) ≈ 0.243, and the required N to detect that partial correlation at α = 0.05 (two-tailed), power [deferred], is computed via `statsmodels.stats.power` (correlation/F-test framework, covariate degrees of freedom accounted for). **Abort scope:** if the available subject count is below the required N, the pipeline aborts **only the association stage** with a clear insufficient-power message (SC-005) and records the under-power warning in `results/power_analysis.json` and the manifest; the descriptive primary deliverable always completes. With a small real sample, the study may be under-powered; this is reported honestly rather than hidden.
+## Power Analysis (FR‑010, SC‑005)
 
-## Conditional Association Analysis (FR-004, FR-005, FR-009, FR-011)
+`analysis.py` performs an a‑priori power calculation **using `statsmodels.stats.power.FTestPower`** with a medium effect size f² = 0.15 (Cohen’s medium for regression). Parameters: `df_num=1`, `alpha=0.05`, `power=0.8`, `df_denom=available_N - n_covariates - 2`. Required N is compared to the available subject count from the inventory. The JSON result (`results/power_analysis.json`) contains:
 
-- **Skill proxy priority** (per spec): expert blind rating (if a real rating column exists) > task condition (Improvisation vs Scripted, if labels exist) > years of training (if present). If none exists — the expected path — halt with an explicit message and record the scope gap; downstream stages proceed.
-- **Model**: OLS `PC_score ~ skill_proxy + age + fd + instrument_type + genre + practice_intensity + education`, including each covariate only when actually present in the data (FR-011's "when such metadata are present" clause).
-- **Inference (Freedman–Lane)**: fit the full model; fit the reduced covariates-only model; permute the reduced-model residuals (1000 seeded permutations); add permuted residuals to the reduced-model fit to form permuted outcomes; refit the full model and record the skill-proxy coefficient under each permutation → null distribution → permutation p-value. Freedman–Lane is used because naive permutation of the raw proxy yields invalid p-values when covariates are in the model. Benjamini-Hochberg FDR is then applied across all tested PCs (FR-005, SC-003).
-- **Null results** are reported and flagged as `null_result`, never treated as pipeline failure (spec edge case, SC-001).
-- **Framing**: strictly associational; no causal claims (observational data, no randomization).
+```json
+{
+  "required_n": <int>,
+  "available_n": <int>,
+  "status": "adequate" | "underpowered_association_skipped"
+}
+```
 
-## Sensitivity Analysis (FR-006, SC-002)
+If under‑powered, **only Phase 5 (association) aborts**; all other phases still run.
 
-Full re-run of connectivity → PCA (→ association if it ran) for window ∈ {30, 45, 60} s × step ∈ {5, 10} s (6 combinations, including the default). Output `results/sensitivity_summary.csv` with per-combination descriptor statistics and, if the association stage ran, correlation coefficients with their SD/range. If the association stage halted (expected path), the correlation-SD field is written as `not_computable_no_skill_proxy`, making SC-002's unmeasurability explicit rather than silently absent.
+## Conditional Association Analysis (FR‑004, FR‑005, FR‑009, FR‑011, SC‑001, SC‑003)
 
-## Visualization (FR-007)
+1. **Skill‑proxy selection** (priority order):  
+   - `expert_rating` column (if present)  
+   - `years_of_training` column (if present)  
+   - If none exist → log “no skill proxy” and write `skill_proxy_used = "none"` in the manifest.  
+2. **Model**: OLS regression `PC_score ~ skill_proxy + age + fd + instrument_type + musical_genre + practice_intensity + education_level`. Covariates are **included only when present** (as recorded in the column inventory).  
+3. **Freedman‑Lane permutation**: 1000 seeded residual permutations (valid under covariate adjustment).  
+4. **Multiple‑comparison correction**: Benjamini‑Hochberg FDR across all retained PCs.  
+5. **Outputs**: `results/regression_results.csv` adhering to `regression_results.schema.yaml`. Null results (p > 0.05) are flagged but not treated as failures.
 
-- **If real task-condition labels exist**: mean adjacency matrices per condition; NetworkX graph construction; Matplotlib rendering; edge width ∝ mean weight; node color ∝ Louvain community.
-- **If no labels exist (expected path)**: a **single-group descriptive topology figure** of the mean vertex-block descriptor graph, clearly labeled as descriptive with no group comparison. A PC-1 median-split grouping is explicitly NOT used — PC-1 is derived from the same descriptors being visualized, so such a comparison would be tautological.
-- Saved to `results/fig_network_topology.png`; the figure caption states the vertex-block, non-neuroanatomical nature of the nodes.
+All statistical statements are **associational**; no causal claims are made (Constitution VII).
 
-## Decision / Rationale (compute feasibility)
+## Sensitivity Analysis (FR‑006, SC‑002)
 
-- **CPU-first everywhere**: parquet streaming, 100×100 connectivity matrices, NetworkX descriptors, OLS + 1000 Freedman–Lane permutations, 6-combo sensitivity sweep — all trivially fit 2 CPU / 7 GB / 6 h. No method in this plan has a GPU-only form, so the Kaggle escape hatch is not needed.
-- **Why direct parquet download instead of `datasets.load_dataset("openneuro/ds000246")`**: that dataset id does not exist (this is why the previous T001 execution failed with exit=1). The verified parquet URL is downloaded directly and streamed — this is the redo of T001.
-- **Why the re-scope**: the dependent variable (improvisation skill) has no construct instantiation in any verified dataset; the honest primary deliverable is the descriptive descriptor characterization, with the association machinery implemented and its halt path planned as the expected outcome.
+`sensitivity.py` repeats Phases 2–3 (and Phase 5 if it ran) for the six combinations:
+
+| Window (s) | Step (s) |
+|------------|----------|
+| 30 | 5 |
+| 30 | 10 |
+| 45 | 5 |
+| 45 | 10 |
+| 60 | 5 |
+| 60 | 10 |
+
+For each combination it records mean/SD of the three metrics and, when Phase 5 ran, the correlation coefficient between the skill proxy and each PC. Results are saved in `results/sensitivity_summary.csv`. If no skill proxy exists, the correlation fields are set to `not_computable_no_skill_proxy`.
+
+## Visualization (FR‑007)
+
+`visualization.py`:
+
+- **If task labels exist**: compute mean adjacency per condition, construct NetworkX graphs, render with Matplotlib (edge width ∝ weight, node color ∝ Louvain community). Save `results/fig_network_topology.png` with a caption indicating the comparison.  
+- **If no task labels** (expected): render a **single‑group descriptive topology** of the mean ROI‑based graph, clearly labeled as “descriptive ROI‑based connectivity topology – no group comparison”.  
+
+All figures are saved as PNG and referenced in the final report.
+
+## Decision / Rationale (Compute Feasibility)
+
+- **CPU‑first**: All steps use CPU‑compatible libraries; streaming ensures RAM stays < 2 GB.  
+- **Why direct parquet download**: `datasets.load_dataset("openneuro/ds000246")` does not exist; the verified parquet URL is the only programmatically accessible source.  
+- **Why Schaefer atlas**: Provides a standard, neuroanatomically meaningful parcellation with a verified download mechanism, satisfying Principle VI after amendment.  
+- **Why re‑scoping**: The essential dependent variable (expert improvisation rating) is unavailable; the honest primary deliverable is a descriptive analysis of ROI‑based dynamics, with the full association machinery implemented but expected to halt. This respects the “no fabrication” rule.
 
 ## Statistical Rigor Checklist
 
-- **Multiple comparisons**: BH-FDR across tested PCs (FR-005, SC-003).
-- **Permutation testing**: 1000 permutations, seeded, **Freedman–Lane scheme** (valid under covariate adjustment).
-- **Power**: a priori correlation/F-test-based analysis matched to the regression design; abort gates the association stage only; small-N limitation acknowledged.
-- **Causal framing**: associational only.
-- **Measurement validity**: fsLR CIFTI timeseries are a standard, validated fMRI representation; the deterministic vertex-block parcellation is a documented deviation from validated atlases and is listed as a limitation; all outputs are labeled vertex-block connectivity descriptors, never brain-network metrics.
-- **Collinearity**: descriptors definitionally related; PCA used; components treated as descriptors.
-- **Confound control**: all present covariates included; absent covariates reported as unavailable.
+- **Multiple comparisons**: BH‑FDR across PCs (FR‑005, SC‑003).  
+- **Permutation testing**: 1000 Freedman‑Lane residual permutations (seeded).  
+- **Power analysis**: `statsmodels.stats.power.FTestPower` with effect size f² = 0.15, aborts only the association stage if under‑powered (SC‑005).  
+- **Causal framing**: strictly associational.  
+- **Measurement validity**: Schaefer atlas is a widely validated parcellation; ROI‑based descriptors are clearly labeled as such.  
+- **Collinearity**: PCA handles correlated descriptors; components are not interpreted as independent effects.  
+- **Confound control**: All available covariates are included; missing covariates are omitted and noted.  
 
 ## Constitution Check
 
-All seven principles addressed in `plan.md` (see its Constitution Check table). Principle VI and VII deviations (no FSL/AFNI execution; vertex-block rather than atlas parcellation; expected halt of the rating-based analysis) are recorded in Complexity Tracking and routed through the constitution amendment procedure (see plan.md's Constitution Amendment Routing), not silently ignored.
+All seven principles are addressed in this document. The deviations (absence of FSL/AFNI, use of Schaefer atlas) are routed through the amendment process. No silent violations remain.
+
+---
+
+

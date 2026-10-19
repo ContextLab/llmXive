@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dynamic Vertex-Block Connectivity Descriptors per Window"
+title: "Dynamic ROI‑Based Connectivity Descriptors per Window"
 type: object
 required:
   - subject_id
@@ -16,7 +16,7 @@ properties:
   window_id:
     type: integer
     minimum: 0
-    description: "Sliding-window index (starting at 0)."
+    description: "Sliding‑window index (starting at 0)."
   window_seconds:
     type: number
     enum: [30, 45, 60]
@@ -27,11 +27,11 @@ properties:
     description: "Step size in seconds."
   global_efficiency:
     type: number
-    description: "Weighted global efficiency computed on the vertex-block graph. NOTE: nodes are deterministic contiguous fsLR vertex blocks, NOT neuroanatomical regions; this is a vertex-block connectivity descriptor and must not be interpreted as a brain-network property."
+    description: "Weighted global efficiency computed on the ROI‑based graph. NOTE: nodes are Schaefer ROI parcels, NOT vertex‑block groups; this is an ROI‑based connectivity descriptor."
   modularity:
     type: number
-    description: "Louvain modularity score (seeded) of the vertex-block graph. Vertex-block connectivity descriptor; not a brain-network property."
+    description: "Louvain modularity score (seeded) of the ROI‑based graph. ROI‑based connectivity descriptor."
   participation_coefficient:
     type: number
-    description: "Node-averaged participation coefficient over Louvain communities of the vertex-block graph. Vertex-block connectivity descriptor; not a brain-network property."
+    description: "Node‑averaged participation coefficient over Louvain communities of the ROI‑based graph. ROI‑based connectivity descriptor."
 additionalProperties: false

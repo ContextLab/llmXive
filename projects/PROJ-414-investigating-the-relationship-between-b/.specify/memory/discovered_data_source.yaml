@@ -1,19 +1,17 @@
 status: none
-intent: OpenNeuro ds000246 ds001600 fMRI dataset python package download Schaefer
-  atlas
+intent: download OpenNeuro ds000246 ds001600 musician improvisation fMRI dataset python
+  package dataset
 required_fields:
-- participant_id
+- subject_id
 - session_id
 - run_id
 - task_name
 - bold_nifti_path
-- surface_parquet_path
-- timepoints
-- fsLR_64k_vertices
-- roi_labels
-- roi_time_series_matrix
-- motion_parameters_framewise_displacement
-- motion_parameters_translation
-cache_key: 3dbf093ad3f1913f5684c1232ab255e76d8413febfba87420aab899f1fa67bf9
-searched_at: '2026-10-19T09:19:25.731767+00:00'
+- repetition_time
+- slice_timing
+- affine_matrix
+- image_dimensions
+- metadata_json
+cache_key: 70c6f493b77d17096f38d00723a4cc071e9a5d121a51902792c5d424b30ea2e7
+searched_at: '2026-10-19T15:31:25.674901+00:00'
 retry_count: 1

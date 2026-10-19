@@ -13,57 +13,57 @@ properties:
     description: "True if the subject was excluded from the association analysis."
   exclusion_reason:
     type: string
-    description: "Logged reason for exclusion (e.g. '>20% bad volumes'); empty string if not excluded."
+    description: "Reason for exclusion (e.g., '>20% bad volumes'); empty string if not excluded."
   mean_global_efficiency:
     type: number
-    description: "Window-averaged global efficiency descriptor (default 45s/10s setting); vertex-block connectivity descriptor, not a brain-network property. Optional because excluded subjects may have no computed descriptors."
+    description: "Window‑averaged global efficiency descriptor (ROI‑based); optional for excluded subjects."
   mean_modularity:
     type: number
-    description: "Window-averaged modularity descriptor; vertex-block connectivity descriptor. Optional for excluded subjects."
+    description: "Window‑averaged modularity descriptor (ROI‑based); optional for excluded subjects."
   mean_participation_coefficient:
     type: number
-    description: "Window-averaged participation coefficient descriptor; vertex-block connectivity descriptor. Optional for excluded subjects."
+    description: "Window‑averaged participation coefficient descriptor (ROI‑based); optional for excluded subjects."
   age:
     type: number
-    description: "Age in years, if present in the real data."
+    description: "Age in years, if present in the raw data."
   fd:
     type: number
-    description: "Motion metric, if present in the real data."
+    description: "Motion metric (frame‑wise displacement proxy), if present."
   years_of_training:
     type: number
-    description: "Years of musical training, if present in the real data."
+    description: "Years of musical training, if present."
   task_condition:
     type: string
-    description: "Task condition label (e.g. Improvisation/Scripted), if present in the real data."
+    description: "Task label (Improvisation/Scripted), if present."
   instrument_type:
     type: string
-    description: "Instrument type covariate, if present in the real data."
+    description: "Instrument type covariate, if present."
   musical_genre:
     type: string
-    description: "Musical genre covariate, if present in the real data."
+    description: "Musical genre covariate, if present."
   practice_intensity:
     type: number
-    description: "Practice intensity covariate, if present in the real data."
+    description: "Practice intensity covariant (sic) covariate, if present."
   education_level:
     type: string
-    description: "Education level covariate, if present in the real data."
+    description: "Education level covariate, if present."
   skill_proxy_value:
     type: number
-    description: "Value of the real skill-proxy column for this subject, if present."
+    description: "Value of the real skill‑proxy column for this subject, if present."
   skill_proxy_used:
     type: string
-    description: "Which real column served as skill proxy, or 'none' (expected halt path)."
+    description: "Which column served as the skill proxy, or \"none\" (expected halt path)."
   pc_scores:
     type: object
-    description: "Mapping of PC name (e.g. pc_1) to score; keys are dynamic."
+    description: "Mapping of pc name to score; keys are dynamic (e.g., pc_1)."
     additionalProperties:
       type: number
   fdr_p_values:
     type: object
-    description: "Mapping of PC name to FDR-corrected p-value for the association, if computed."
+    description: "Mapping of pc name to FDR‑corrected p‑value for the association, if computed."
     additionalProperties:
       type: number
   power_status:
     type: string
-    description: "Power-analysis outcome for this run, e.g. 'adequate', 'underpowered_association_skipped', 'not_applicable_descriptive_only'."
+    description: "Outcome of the power analysis : \"adequate\", \"underpowered_association_skipped\", or \"not_applicable_descriptive_only\"."
 additionalProperties: true

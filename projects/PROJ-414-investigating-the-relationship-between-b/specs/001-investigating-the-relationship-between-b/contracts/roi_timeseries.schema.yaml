@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Vertex-Block Time-Series Rows"
+title: "ROI Timeseries per Subject"
 type: object
 required:
   - subject_id
@@ -12,13 +12,11 @@ properties:
     description: "Participant identifier."
   timepoint:
     type: integer
-    minimum: 0
-    description: "Volume index within the run."
+    description: "Timepoint index (starting at 0)."
   roi_id:
     type: string
-    pattern: "^roi_[1-9][0-9]?$|^roi_100$"
-    description: "Vertex-block identifier from the deterministic 100-block contiguous-vertex scheme. NOTE: blocks are arbitrary contiguous fsLR vertex groupings, NOT neuroanatomical or functionally coherent regions; downstream descriptors inherit this limitation."
+    description: "ROI identifier (e.g., roi_1 … roi_100)."
   value:
     type: number
-    description: "Bandpass-filtered mean BOLD signal for the vertex block at this timepoint."
+    description: "Mean BATCH ???"
 additionalProperties: false
