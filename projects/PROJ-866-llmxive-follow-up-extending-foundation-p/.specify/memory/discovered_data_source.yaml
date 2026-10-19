@@ -1,18 +1,19 @@
 status: none
-intent: synthetic business process workflow logs with delegation depth pm4py dataset
+intent: Synthetic Multi-Agent Workflow dataset pm4py BPI Challenge Open Policy Agent
   python package dataset
 required_fields:
 - workflow_id
 - delegation_depth
 - policy_complexity
 - budget_cap
-- agent_sequence
-- activity_name
-- timestamp
-- full_context_log
-- compressed_context_log
-- policy_nodes
+- workflow_metadata
+- full_context_execution_log
+- compressed_context_execution_log
+- ground_truth_state_machine
 - policy_violations
-cache_key: dce3beb83a6cfddbea595793e02489574f862a2d9f963ac984ed47711571abaf
-searched_at: '2026-10-18T19:17:21.313460+00:00'
+- deterministic_seed
+- creation_timestamp
+- policy_graph_structure
+cache_key: 47493c1e1ab074230494ade1cd7f5bfd329b86931a12c1146f3f73f35fc4dc48
+searched_at: '2026-10-19T17:17:57.658025+00:00'
 retry_count: 1

@@ -255,7 +255,7 @@ def step_compress(args: argparse.Namespace) -> None:
         validate_against_schema(
             COMPRESSED_LOGS_PATH,
             EXECUTION_LOG_SCHEMA,
-            "compressed‑context execution logs",
+            "compressed‑context execution",
         )
         print("[main] Skipping compressed‑context execution – file already present.", flush=True)
     else:
