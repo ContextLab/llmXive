@@ -15,9 +15,20 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.     run_ingestion(confi…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for ACE and NO…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a deterministic synthetic solar‑wind / geomagnetic…”; 5 command(s) failed: python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31 (rc=1); python code/ingestion/download_real.py --start 2000-01-01 --end 2000-12-31 (rc=1); python -m code.main (rc=1); 5 declared deliverable(s) absent: data/artifacts/alignment_report.json; data/artifacts/cv_metrics.json; data/artifacts/delta_r2.json
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.     run_ingestion(confi…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for ACE and NO…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a deterministic synthetic solar‑wind / geomagnetic…”; 7 command(s) failed: python -m code.verify_requirements (rc=1); python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31 (rc=1); python code/ingestion/download_real.py --start 2000-01-01 --end 2000-12-31 (rc=1); 5 declared deliverable(s) absent: data/artifacts/alignment_report.json; data/artifacts/cv_metrics.json; data/artifacts/delta_r2.json
 
 ## Failing / missing run-book commands
+
+- python -m code.verify_requirements -> rc=1
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/verify_requirements.py", line 30, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/verify_requirements.py", line 27, in main
+    raise RuntimeError(f"pip install failed with code {result.returncode}")
+RuntimeError: pip install failed with code 1
 
 - python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31 -> rc=1
 lationship-b/lib/python3.11/site-packages/pyspedas/__init__.py)
@@ -98,8 +109,19 @@ E   ImportError: cannot import name '_check_multicollinearity' from 'analysis.re
 ERROR tests/unit/test_ingestion.py
 ERROR tests/unit/test_regression.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.53s ===============================
+============================== 2 errors in 1.58s ===============================
 
+
+- python -m code.verify_requirements -> rc=1
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/verify_requirements.py", line 30, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/verify_requirements.py", line 27, in main
+    raise RuntimeError(f"pip install failed with code {result.returncode}")
+RuntimeError: pip install failed with code 1
 
 
 ## Declared deliverables still missing

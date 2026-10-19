@@ -2,7 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — The `requirements.txt` correctly pins all packages to the `package==major.minor.*` pattern and the `quickstart.md` documents the pipeline command, but there is no provided evidence (e.g., pip install log or CI run output) showing that `pip install -r requirements.txt` actually succeeds. Adding such installation verification logs will satisfy the task fully.
+- **T001** — Requested task execution failed; rerun successfully: code/verify_requirements.py exit=1
 - **T003** — Requested task execution failed; rerun successfully: code/ingestion/download_real.py exit=1
 - **T004** — The alignment script exists, but the unit test fails because `_load_ace_composition` (and the WIND loader) look for “*.cdf” files, while the test creates “*.csv” placeholders; consequently no data are loaded, `AlignmentError` is raised, and neither `data/processed/aligned_hourly.parquet` nor `data/artifacts/alignment_report.json` is produced. The required output files are missing and the verification test does not pass.
 - **T005** — The required `data/processed/with_coupling.parquet` file is missing, and the unit‑test suite `tests/unit/test_coupling.py` fails (functions have wrong signatures and do not compute the formulas expected). Consequently the coupling‑function derivation and the baseline regression artifact are not produced.

@@ -1,17 +1,18 @@
 status: none
-intent: ACE SWICS WIND composition dataset NOAA Dst Kp CDAWeb python package dataset
+intent: download ACE SWICS composition and NOAA geomagnetic indices via pyspedas python
+  package dataset
 required_fields:
+- timestamp
 - o_fe_ratio
 - he_h_ratio
 - c_o_ratio
 - bulk_velocity
-- proton_density
+- density
 - imf_bx
 - imf_by
 - imf_bz
 - dst_index
 - kp_index
-- coupling_function
-cache_key: 2db1498681f902db68b36fb6ce3b657b168c26b15d842c490b8bc4b21d74c4c3
-searched_at: '2026-10-19T19:18:09.700980+00:00'
+cache_key: 0fd04002fb72acec3e7bbc8c5d96047a1613aca6edb53f46e4330bb9d3d57d19
+searched_at: '2026-10-19T20:10:22.392053+00:00'
 retry_count: 1
