@@ -86,3 +86,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/PROJ-537-predicting-the-yield-strength-of-bcc-ste
   verified_at: '2026-10-15T12:49:24.733899Z'
+- artifact_hash: f46cac966973af1e5c5fbc342bdfc0b638e91e377b075ef35dbaf2ee68cb6d69
+  artifact_path: projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/specs/001-predicting-the-yield-strength-of-bcc-ste/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/matnavi/steel_yield_strength/resolve/main/data/steel_yield_strength.csv`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/matnavi/steel_yield_strength/resolve/main/data/steel_yield_strength.csv
+  verified_at: '2026-10-19T14:14:37.784622Z'
