@@ -26,7 +26,7 @@ The goal is to deliver a complete, reproducible, CPU‑only study that satisfies
     5. Scaffold exclusivity across folds is confirmed by a quick script.  
     6. `data/logs/large_molecule_exclusions.log` has no duplicate entries after re‑run.
 
-- [ ] T001a *Checksum verification*  
+- [X] T001a *Checksum verification*  
   - Run `code/00_checksum_verify.py` to recompute and compare checksums for all files listed in `data/checksums.txt`.  
   - Abort if any mismatch is detected, ensuring downstream tasks operate on verified inputs.  
   - **Verification**: Script exits with status 0 only when all checksums match; otherwise it prints mismatched paths.
@@ -35,7 +35,7 @@ The goal is to deliver a complete, reproducible, CPU‑only study that satisfies
   - `code/tests/test_dataset_schema.py` loads `data/raw/esol.csv` and validates it against `dataset.schema.yaml`.  
   - **Verification**: `pytest code/tests/test_dataset_schema.py` passes. *(Verified; reopens automatically if T001's data changes break it.)*
 
-- [ ] T002 [US1] *Baseline TDA feature computation (10 × 10 persistence images)*  
+- [ ] T002 [US1] *Baseline TDA feature computation (10 × 10 persistence images)*   <!-- FAILED-IN-EXECUTION: code/02_tda_computation.py exit=1 -->
   - Read `data/processed/filtered_esol.csv`. For each SMILES, build a molecular graph with RDKit and apply the **shortest‑path distance filtration** (FR‑001) via `code/utils/persistence_utils.py`.  
   - Vectorize each persistence diagram to a **10 × 10 persistence image** using **kernel_bandwidth = 1.0** (σ = 1.0) – the default documented in `data-model.md`. Include `target_property` (`logP`) and `target_value` fields per `feature_matrix.schema.yaml`.  
   - Write `data/processed/topological_features_10x10.csv` (columns: `molecule_id` as **string** + 100 float features).  

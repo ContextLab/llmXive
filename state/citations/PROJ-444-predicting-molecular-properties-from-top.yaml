@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv
   verified_at: '2026-10-14T19:02:34.154632Z'
-- artifact_hash: ad3fef05f021e1a9f076f9f6c85b2eabff3be0b9c25bda3d0f57ca36cdd14d33
+- artifact_hash: 6f8db4d3f4ae44950d3cad2bb1aa4c6866550ac4e7f20e3b077bdcc8d2aedd05
   artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv`
   verification_status: pending
   verified_against_url: https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv
-  verified_at: '2026-10-19T09:12:53.590325Z'
+  verified_at: '2026-10-19T11:09:07.530828Z'

@@ -1,27 +1,13 @@
-T001:
-  c: false
-  h: d55b429086e1f1676d33475688d53ed7a3fde055111d3cf69faf8c55eb7c6a8d
-  r: "`data/checksums.txt` contains three lines for `data/raw/esol.csv` with three\
-    \ different hashes (including a stale `path: hash` format line), directly failing\
-    \ verification #2 (single line per file, no duplicates after re-run) \u2014 the\
-    \ idempotency logic breaks because the script rewrites the raw CSV (adding `molecule_id`)\
-    \ after checksumming on each run. Additionally, the log shows the `logP` target\
-    \ was filled by the fallback renaming of \"ESOL predicted log solubility in mols\
-    \ per litre\" \u2014 the *predicted* column \u2014 rather than the measured log\
-    \ solubility, so the schema-validated `logP` values are the w"
-  sig: 684879ce0f3affa524d69874c47299f6cdb5893d23ef795c4eb55c8f43b9214d
 T001a:
-  c: false
-  h: e8eb8b0ec1e9dc3c6d77662f3cf5fa0d94b94ca6789e348fa665d7bef38fd04e
-  r: "The current `data/checksums.txt` uses a `path: hash` (colon) format, but the\
-    \ script only parses lines of the form `<hash>  <path>` (two-space split) and\
-    \ skips everything else \u2014 running it against the current manifest would find\
-    \ zero valid entries and exit 1, so it cannot actually verify the recorded checksum.\
-    \ Moreover, the historical log claims \"All 2 checksum(s) verified successfully\"\
-    \ while the current manifest contains only one entry, showing the execution record\
-    \ is stale/contradicted by the on-disk artifacts. Fix the parser to handle the\
-    \ manifest's actual format (or regenerate the manifest "
-  sig: 7b42c2d0539720e9e7c771f0b813d31f29198c95459d77b33a6c307d7024ca57
+  c: true
+  h: 08dfa268bab90c92413c2eac5347d244e29fbccd8e5ac5ebc9052a405e0a3b15
+  r: The script `code/00_checksum_verify.py` exists (3552 bytes) and implements real
+    SHA-256 recomputation against `data/checksums.txt`, exiting 0 on success and 1
+    with mismatched paths otherwise. The execution log confirms an actual run exited
+    0 with "All checksums verified successfully," and the manifest's single entry
+    (data/raw/esol.csv, hash d22e608f...) matches the hash recorded by the update
+    script's log, so the verification was genuinely performed on the real data file.
+  sig: 2d2e07edfcf69cafb0e879fe496fac2ff12fd0df91f1505e275a1c4ab868ec80
 T002:
   c: false
   h: be90fe73b9350bc6cec10b1f2239b7488344d777a1bf25c2020af3afc23551ff
@@ -87,14 +73,3 @@ T007:
     \ the task requires the actual run and its output JSON with three entries for\
     \ grids 10/20/30, which is absent."
   sig: bc599b0541aefbdfbee4165aa46e5c377d89d74980bd65a54917762f2b0d94f2
-T014:
-  c: false
-  h: 9fb8e26a09946625de4a846ab69ee6107f9d3676b3087d24aaffd393ce949796
-  r: 'The historical execution log shows `pytest code/tests/test_dataset_schema.py`
-    exited 1 with `test_field_types_match_schema` FAILED: `molecule_id` is read back
-    as int64, not string, so the schema contract on string type is violated (the test''s
-    `_ensure_raw_dataset` writes molecule_id as strings but pandas re-infers integers
-    on read, and the column-match check then skips regeneration). The task''s verification
-    requirement is that the pytest run passes, which it does not; fix by quoting the
-    molecule_id column on write (or casting on read) so the type assertion holds.'
-  sig: a2716da679a1b152b6f1c508eeaacebc18e5ed1ab85b9fe0b540a83b28d035f7

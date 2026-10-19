@@ -1,8 +1,24 @@
-status: none
-intent: MoleculeNet ESOL dataset download python package dataset
+status: verified
+kind: pypi_package
+ref: scikit-fingerprints
+access_python: 'import pandas as pd
+
+  from skfp.datasets.moleculenet import load_lipophilicity
+
+
+  df = load_lipophilicity(as_frame=True)
+
+  print(f"RECORDS={len(df)}")
+
+  print("FIELDS=" + ",".join(df.columns))'
+record_count: 4200
+sample_fields:
+- SMILES
+- label
+field_coverage: 0.5
 required_fields:
 - smiles
-- logP
-cache_key: f0bafef059d2956ace96d84cc9e9e999b01a8ef9907c68a2e23dc09bcb6417c9
-searched_at: '2026-10-19T08:14:33.950395+00:00'
-retry_count: 1
+- logp
+intent: download MoleculeNet ESOL dataset SMILES and logP CSV from official source
+  python package dataset
+cache_key: c871ec830ba98ddd910b71ddd3399a16fcafec16ab26fe54512e8442a163cd53

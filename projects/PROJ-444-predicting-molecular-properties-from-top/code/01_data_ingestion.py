@@ -10,7 +10,7 @@ Task T001:
 2. Add a ``molecule_id`` column (string, prefixed with ``mol_``) to the raw file
    so that downstream contracts expecting a string identifier succeed.
 3. Compute a SHA‑256 checksum of the (post‑processed) raw file and **idempotently**
-   append it to ``data/checksums.txt`` using the ``<hash>  <relative_path>`` format
+   write it to ``data/checksums.txt`` using the ``<hash>  <relative_path>`` format
    expected by the checksum‑verification script.
 4. Stream the CSV in chunks, filter out molecules with molecular weight > 1000 Da,
    and idempotently log each excluded SMILES to ``data/logs/large_molecule_exclusions.log``.
@@ -106,24 +106,44 @@ def compute_sha256(file_path: Path) -> str:
             sha256.update(chunk)
     return sha256.hexdigest()
 
-def append_checksum(file_path: Path, checksums_path: Path) -> None:
-    """Idempotently append a checksum line to ``checksums.txt`` using the
-    ``<hash>  <relative_path>`` format expected by the verifier."""
+def write_checksum(file_path: Path, checksums_path: Path) -> None:
+    """
+    Write a single checksum line for ``file_path`` to ``checksums_path``.
+    The function overwrites the checksum file with a clean manifest containing
+    exactly one line per recorded file, using the ``<hash>  <relative_path>``
+    format. This guarantees idempotency and avoids duplicate or malformed
+    entries.
+    """
     checksum = compute_sha256(file_path)
     rel_path = file_path.as_posix()
     line = f"{checksum}  {rel_path}\n"
-    checksums_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Avoid duplicate entries
-    existing = set()
+    # Load any existing entries that refer to *other* files
+    existing_entries: Dict[Path, str] = {}
     if checksums_path.is_file():
         with checksums_path.open("r") as f:
-            existing = {ln.strip() for ln in f if ln.strip()}
-    if line.strip() in existing:
-        return
+            for ln in f:
+                ln = ln.strip()
+                if not ln or ln.startswith("#"):
+                    continue
+                # Support both "<hash>  <path>" and "<path>: <hash>"
+                parts = ln.split()
+                if len(parts) == 2:
+                    h, p = parts
+                    existing_entries[Path(p)] = h
+                elif ":" in ln:
+                    # legacy "path: hash" format
+                    p, h = [seg.strip() for seg in ln.split(":", 1)]
+                    existing_entries[Path(p)] = h
 
-    with checksums_path.open("a") as f:
-        f.write(line)
+    # Update/insert the current file's checksum
+    existing_entries[file_path] = checksum
+
+    # Write back the clean manifest
+    checksums_path.parent.mkdir(parents=True, exist_ok=True)
+    with checksums_path.open("w") as f:
+        for p, h in sorted(existing_entries.items()):
+            f.write(f"{h}  {p.as_posix()}\n")
 
 def validate_schema(df: pd.DataFrame, schema_path: Path) -> bool:
     """Validate that ``df`` contains at least the required columns."""
@@ -211,30 +231,31 @@ def main() -> None:
             "molecule_id",
             [f"mol_{i}" for i in range(len(df_raw))]
         )
-        df_raw.to_csv(raw_path, index=False)
-        logger.info("``molecule_id`` column added.")
     else:
-        # Ensure it is a string and prefixed
+        # Ensure it is a string and prefixed correctly
         df_raw["molecule_id"] = df_raw["molecule_id"].astype(str)
         if not df_raw["molecule_id"].str.startswith("mol_").all():
             df_raw["molecule_id"] = [
                 f"mol_{mid}" if not str(mid).startswith("mol_") else str(mid)
                 for mid in df_raw["molecule_id"]
             ]
-        df_raw.to_csv(raw_path, index=False)
+    # Write back (preserves column order)
+    df_raw.to_csv(raw_path, index=False)
+    logger.info("``molecule_id`` column ensured.")
 
     # ------------------------------------------------------------------
-    # 3. Record checksum (idempotent)
+    # 3. Record checksum (idempotent, clean manifest)
     # ------------------------------------------------------------------
-    append_checksum(raw_path, Path("data/checksums.txt"))
-    logger.info("Checksum recorded in data/checksums.txt")
+    checksums_path = Path("data/checksums.txt")
+    write_checksum(raw_path, checksums_path)
+    logger.info(f"Checksum recorded in {checksums_path}")
 
     # ------------------------------------------------------------------
     # 4. Stream CSV, filter by molecular weight, log exclusions
     # ------------------------------------------------------------------
     exclusion_log = Path("data/logs/large_molecule_exclusions.log")
     exclusion_log.parent.mkdir(parents=True, exist_ok=True)
-    already_excluded = set()
+    already_excluded: set = set()
     if exclusion_log.is_file():
         with exclusion_log.open("r") as f:
             already_excluded = {line.strip() for line in f if line.strip()}
@@ -331,7 +352,7 @@ def main() -> None:
     logger.info(f"Scaffold diversity check passed ({len(unique_scaffolds)} scaffolds).")
 
     # ------------------------------------------------------------------
-    # 9. Write filtered dataset (add molecule_id if missing)
+    # 9. Write filtered dataset (ensure molecule_id is string)
     # ------------------------------------------------------------------
     if "molecule_id" not in df_filtered.columns:
         df_filtered.insert(0, "molecule_id", [f"mol_{i}" for i in range(len(df_filtered))])

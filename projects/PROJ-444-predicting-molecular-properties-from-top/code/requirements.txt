@@ -1,14 +1,15 @@
-rdkit
-gudhi
-dionysus2
-scikit-learn
+# Core dependencies (already present in the environment)
 pandas
 numpy
+scikit-learn
+scipy
 matplotlib
 seaborn
+pytest
 pyyaml
 requests
-pytest
-memory-profiler
-statsmodels
-scikit-fingerprints
+
+# Additional chemistry / TDA libraries required for T002
+rdkit-pypi
+gudhi
+networkx
