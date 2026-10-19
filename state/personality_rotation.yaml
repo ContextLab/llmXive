@@ -1,12 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-10-18T20:05:57.342434+00:00'
+last_used: albert-einstein
+last_used_at: '2026-10-19T00:05:32.011243+00:00'
 last_outcome: committed
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-27T13:34:09.558432+00:00'
-  ended_at: '2026-06-27T14:34:11.915328+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: daniel-kahneman
   started_at: '2026-06-27T14:34:11.915328+00:00'
   ended_at: '2026-06-27T15:33:37.621163+00:00'
@@ -1307,3 +1302,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-305-statistical-analysis-of-publicly-availab/reviews/research/alan-turing-simulated__2026-10-18__research.md
+- slug: albert-einstein
+  started_at: '2026-10-18T20:05:57.342434+00:00'
+  ended_at: '2026-10-19T00:05:32.011243+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-257-investigating-the-statistical-properties/reviews/research/albert-einstein-simulated__2026-10-19__research.md
