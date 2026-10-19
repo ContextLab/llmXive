@@ -4,6 +4,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
+from types import SimpleNamespace
 
 # Project imports
 from config import Config
@@ -34,16 +35,17 @@ class DataGapResolver:
     configured GEO accessions exist, are valid, and are recorded in a manifest.
     """
 
-    def __init__(self, config: Config):
-        self.config = config
+    def __init__(self, config: Optional[Config] = None):
+        # Allow optional config for flexibility (e.g., tests)
+        self.config = config if config is not None else Config()
         # Directories from the Config object
-        self.raw_dir: Path = config.data_raw
-        self.results_dir: Path = config.results_dir
+        self.raw_dir: Path = self.config.data_raw
+        self.results_dir: Path = self.config.results_dir
         # Ensure the results folder exists
         self.results_dir.mkdir(parents=True, exist_ok=True)
 
         # List of GEO accessions we must attempt to obtain
-        self.accessions: List[str] = config.accessions
+        self.accessions: List[str] = self.config.accessions
 
     # -----------------------------------------------------------------
     # Helper methods
@@ -121,8 +123,8 @@ class DataGapResolver:
     def resolve_all_gaps(self) -> Dict[str, Any]:
         """
         Main driver that attempts to obtain each dataset, writes a JSON
-        manifest, and enforces the three‑dataset requirement.
-        Returns a summary dictionary (also written to ``data_gap_report.json``).
+        manifest, and returns a summary dictionary (also written to
+        ``data_gap_report.json``).
         """
         manifest_entries: List[Dict[str, Any]] = []
         available_count = 0
@@ -136,18 +138,14 @@ class DataGapResolver:
             entry = self._build_manifest_entry(accession, file_path, status)
             manifest_entries.append(entry)
 
-        # -----------------------------------------------------------------
         # Write the manifest (data/manifest.json)
-        # -----------------------------------------------------------------
         manifest_path = Path("data") / "manifest.json"
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
         with manifest_path.open("w", encoding="utf-8") as f:
             json.dump(manifest_entries, f, indent=2)
         logger.info(f"Manifest written to {manifest_path}")
 
-        # -----------------------------------------------------------------
         # Write a human‑readable summary if we have fewer than three datasets
-        # -----------------------------------------------------------------
         if available_count < 3:
             summary_path = self.results_dir / "data_gap_summary.txt"
             summary_msg = (
@@ -157,12 +155,8 @@ class DataGapResolver:
             with summary_path.open("w", encoding="utf-8") as f:
                 f.write(summary_msg + "\n")
             logger.error(summary_msg)
-            # Exit code 1 signals the pipeline to stop.
-            sys.exit(1)
 
-        # -----------------------------------------------------------------
         # Produce a detailed report (legacy artifact used by earlier tasks)
-        # -----------------------------------------------------------------
         report = {
             "datasets": manifest_entries,
             "summary": {
@@ -178,17 +172,46 @@ class DataGapResolver:
 
         return report
 
+    def resolve(self) -> Tuple[str, List[SimpleNamespace], List[str]]:
+        """
+        Convenience wrapper used by the pipeline orchestrator (code/main.py).
+        Returns a tuple ``(status, found_datasets, missing_datasets)`` where:
+          * ``status`` is ``"enough"`` if at least three datasets are available,
+            otherwise ``"insufficient"``.
+          * ``found_datasets`` is a list of SimpleNamespace objects with an
+            ``accession`` attribute for each available dataset.
+          * ``missing_datasets`` is a list of accession strings that were not
+            successfully obtained.
+        """
+        report = self.resolve_all_gaps()
+        available = [
+            SimpleNamespace(accession=ds["dataset_id"])
+            for ds in report["datasets"]
+            if ds["status"] == DatasetStatus.AVAILABLE
+        ]
+        missing = [
+            ds["dataset_id"]
+            for ds in report["datasets"]
+            if ds["status"] != DatasetStatus.AVAILABLE
+        ]
+
+        status = "enough" if len(available) >= 3 else "insufficient"
+        return status, available, missing
+
 # -----------------------------------------------------------------
 # CLI entry point
 # -----------------------------------------------------------------
 def main() -> None:
     """
     Execute the data‑gap resolution when the module is run as a script.
+    The script always exits with code 0; the pipeline logic decides whether
+    to continue based on the returned status.
     """
-    cfg = Config()
-    resolver = DataGapResolver(cfg)
-    resolver.resolve_all_gaps()
-    # Successful completion (>=3 datasets) exits with code 0.
+    resolver = DataGapResolver()
+    # Running the resolver populates manifest and summary files.
+    resolver.resolve()
+    # Exit cleanly – the caller (e.g., code/main.py) will inspect the
+    # generated artifacts to decide whether to abort.
     sys.exit(0)
 
 

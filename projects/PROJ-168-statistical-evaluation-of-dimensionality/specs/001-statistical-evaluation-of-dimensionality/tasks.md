@@ -59,7 +59,7 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
 
 ## Phase 2 – Ingestion & Pre‑processing (FR‑002, FR‑003)  
 
-- [ ] **T008** [FR‑001 FR‑002 FR‑003 US1] Load each available dataset, apply log‑CPM, select HVGs, optionally sample cells, and compute geometric diagnostics.  
+- [ ] **T008** [FR‑001 FR‑002 FR‑003 US1] Load each available dataset, apply log‑CPM, select HVGs, optionally sample cells, and compute geometric diagnostics.   <!-- FAILED-IN-EXECUTION: code/preprocess_and_geometry.py exit=1 -->
   - For every entry in `data/manifest.json` with `"status":"Available"`:  
     1. Load the raw matrix (`scanpy.read_10x_mtx` or appropriate reader).  
     2. Extract ground‑truth cell‑type labels and write `data/processed/<dataset_id>_labels.csv`.  

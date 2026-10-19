@@ -1,35 +1,36 @@
 T001:
   c: true
-  h: b481c210856ea25c86ef5278f5785ec147499bfd854a8b890024da47bc6d9fb5
-  r: "The evidence shows all required directories exist (including `.github/workflows/`)\
-    \ and `results/dir_listing.txt` contains each of them, with the Python test confirming\
-    \ the file\u2019s presence and correctness."
-  sig: a90adfb2a1dd74b862dc20e6a0fa3afffe2db85fe88ae2021a74e4993a34022e
+  h: db6b875caea6e5f88d09c1545338351ee6921898f425f611a20602d9e9c3a9f4
+  r: Checked the presence of all required directories (data/raw, data/processed, data/embeddings,
+    data/clustering, data/metrics, data/results, figures, results, code, code/tests,
+    paper, .github/workflows) and the generated `results/dir_listing.txt` which lists
+    each of them, as confirmed by the passing `test_dir_structure.py`.
+  sig: 90b9b8a23985fa7ce57778cf8c9193d813a85b780df92727bcca95a430974bd8
 T004:
   c: true
-  h: 22dd896b897925e2781205aff703f9f782182d117affe13d1137bf1bc14cc92f
-  r: "Checked `code/ci_limits.py` (implements the required limit checks and exits\
-    \ with status\u202F1 on violation) and the pytest log `code/tests/test_ci_limits.py`\
-    \ showing both the violating and passing cases succeed. All required artifacts\
-    \ exist and behave as specified."
-  sig: 3f65670edd7938bb430af1788153091d724e87e542b1e5c18ad93b7475951bb5
+  h: e6f75c62559ff438cee37ea5494dfaf47570daa32c99a1fa98d0ff4dec751a4e
+  r: "The `code/ci_limits.py` script exists, is 2099\u202Fbytes, and its content implements\
+    \ the required CSV loading, threshold checks for SC\u2011003 and SC\u2011004,\
+    \ clear stderr messages, and proper exit codes. The provided pytest log shows\
+    \ both violation and pass tests succeeding, confirming the script behaves as specified.\
+    \ The missing `results/monitoring.csv` is acceptable because the script is designed\
+    \ to read it at runtime, and the tests supply appropriate temporary data."
+  sig: 089ad002ee6945388e257910e195874abb7e9397a0a5f3b45e4d23eadb5c7454
 T005:
   c: false
-  h: d1944a9b03dfd5139ccaaea53f9187d86c6c1d72c1461a84a9522a5062de674c
-  r: "The `code/utils.py` defines `ResourceMonitor` and a self\u2011test that generated\
-    \ `results/monitoring.csv`, but the CSV header written by the module is `step_name,wall_time_s,peak_ram_bytes`\
-    \ while the task requires the header `step,wall_time_s,peak_ram_bytes`. Moreover,\
-    \ `get_logger` merely forwards to `llmxive_toolkit.get_logger` without any evidence\
-    \ that the returned logger is set to INFO level and has a file handler for `results/pipeline.log`.\
-    \ The implementation must be corrected to write the exact required header and\
-    \ to explicitly configure the logger as specified."
-  sig: a27ecc89e0fffec7d4d4eb8f6be6543570cce5fe13d1050c43a121e9a5777c8a
+  h: 9160f4de8c3c90ebf1c22a88ccf2c9dce84092b7b019c151e0e5f24e2293c56b
+  r: "The `code/utils.py` module exists and implements the requested functions, but\
+    \ the required output file `results/monitoring.csv` was not created \u2013 it\
+    \ is listed as MISSING, so the self\u2011test did not generate the CSV with the\
+    \ header and a row. The task\u2019s verification step (checking the CSV contents)\
+    \ cannot be satisfied until this file is produced."
+  sig: 4de2c3db60e6b65032011d652ad795d39368fd3d503926ba565cb4c1d315d2eb
 T006:
   c: false
-  h: 97a308114d7187ffc68214540b840bf8eefc9fab36fd65c9e099f8a3f26f9e18
+  h: d60ab283ce59ce03cfc9da8f4c7669da4da9387b98f7c35239565692733b8b81
   r: "The repository contains `data/manifest.json` and the data\u2011gap resolver\
     \ script, but no `Snakefile` (or any Snakemake workflow) is present. Consequently\
     \ the required `verify_data_availability` rule, its dependency on `download`,\
-    \ and the minimal `data_gap_resolver` rule are missing. A proper Snakefile must\
-    \ be added to satisfy the task."
-  sig: 9393aaa16d5413f804b6b28d655570eb3b59b690841a74e6fec4e9217e235f39
+    \ and the minimal `data_gap_resolver` rule are missing. Adding a correctly\u2011\
+    named Snakefile with those rules is needed to satisfy the task."
+  sig: 5eeb7404ed3f1660b6048e43d3b72cbf23e0205d6be823626c0e5dbc48da46e5

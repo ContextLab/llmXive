@@ -16,24 +16,28 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/validators.py: synthetic/fake INPUT data not authorized by the spec — “…d:         logger.error("Synthetic data detected in raw director…”; code/validators.py: synthetic/fake INPUT data not authorized by the spec — “…alDataValidationError if synthetic data is detected.     """…”; code/validators.py: synthetic/fake INPUT data not authorized by the spec — “…ealDataValidationError(f"Synthetic data detected in file: {data_…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/spec_gap_resolver.py; 2 command(s) failed: python code/main.py (rc=1); python -m pytest -v tests/ (rc=2)
+**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/validators.py: synthetic/fake INPUT data not authorized by the spec — “…d:         logger.error("Synthetic data detected in raw director…”; code/validators.py: synthetic/fake INPUT data not authorized by the spec — “…alDataValidationError if synthetic data is detected.     """…”; code/validators.py: synthetic/fake INPUT data not authorized by the spec — “…ealDataValidationError(f"Synthetic data detected in file: {data_…”; 2 command(s) failed: python code/main.py (rc=1); python -m pytest -v tests/ (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/spec_gap_resolver.py -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-168-statistical-evaluation-of-dimensionality/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-168-statistical-evaluation-of-dimensionality/code/spec_gap_resolver.py': [Errno 2] No such file or directory
-
 - python code/main.py -> rc=1
-
+a‑gap report written to /home/runner/work/llmXive/llmXive/projects/PROJ-168-statistical-evaluation-of-dimensionality/results/data_gap_report.json
+2026-10-19 16:20:51,529 - INFO - Data gap resolution complete. Found: 3, Missing: 0
+2026-10-19 16:20:51,529 - INFO - Fixed-Effects Mode: 3 datasets found (N <= 3).
+2026-10-19 16:20:51,530 - INFO - Data gap report saved to /home/runner/work/llmXive/llmXive/projects/PROJ-168-statistical-evaluation-of-dimensionality/results/data_gap_report.json
+2026-10-19 16:20:51,530 - INFO - Summary report saved to /home/runner/work/llmXive/llmXive/projects/PROJ-168-statistical-evaluation-of-dimensionality/results/summary.json
+2026-10-19 16:20:51,530 - INFO - Launching Snakemake workflow in FIXED_EFFECTS mode...
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-168-statistical-evaluation-of-dimensionality/code/main.py", line 32, in <module>
-    logging.FileHandler(str(Path(project_root) / Config.LOG_FILE))
-                                                 ^^^^^^^^^^^^^^^
-AttributeError: type object 'Config' has no attribute 'LOG_FILE'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-168-statistical-evaluation-of-dimensionality/code/main.py", line 169, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-168-statistical-evaluation-of-dimensionality/code/main.py", line 144, in main
+    "--cores", str(Config.N_CORES),
+                   ^^^^^^^^^^^^^^
+AttributeError: type object 'Config' has no attribute 'N_CORES'
 
 - python -m pytest -v tests/ -> rc=2
-xive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
   /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
@@ -48,12 +52,31 @@ ERROR tests/test_clustering.py - FileNotFoundError: [Errno 2] No such file or...
 ERROR tests/test_embeddings.py
 ERROR tests/test_generate_requirements.py
 ERROR tests/test_geometry.py
-ERROR tests/test_utils.py
 ERROR tests/test_validators.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================= 13 warnings, 6 errors in 17.39s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 21 warnings, 5 errors in 9.52s ========================
 
 
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `scanpy` to the project's `requirements.txt` and `pip install scanpy`.
+- **Verified**: this loads **2700** real records with fields: gene_ids.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import scanpy as sc
+
+adata = sc.datasets.pbmc3k()
+print(f"RECORDS={adata.n_obs}")
+
+fields = list(adata.obs.columns) + list(adata.var.columns)
+print('FIELDS=' + ','.join(fields))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 ## Platform-owned paths written inside the project
 
 A script in this project created `.github/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.

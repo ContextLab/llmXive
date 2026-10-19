@@ -1,0 +1,53 @@
+import json
+import sys
+from pathlib import Path
+
+# Define the default rule
+rule all:
+    input:
+        "data/manifest.json"
+
+# Rule to verify data availability
+rule verify_data_availability:
+    input:
+        manifest="data/manifest.json"
+    output:
+        done="results/verify_data_availability.done"
+    run:
+        # Load the manifest
+        with open(input.manifest, "r", encoding="utf-8") as f:
+            try:
+                manifest = json.load(f)
+            except json.JSONDecodeError as e:
+                raise RuntimeError(f"Failed to parse manifest JSON: {e}")
+
+        # Extract statuses
+        statuses = [entry.get("status", "").lower() for entry in manifest]
+        # If all datasets are marked as Unavailable, abort the workflow
+        if statuses and all(status == "unavailable" for status in statuses):
+            sys.exit("All datasets unavailable – aborting.")
+
+        # Write a sentinel file to indicate verification passed
+        Path(output.done).write_text("verified")
+
+# Minimal data_gap_resolver rule that invokes the existing Python script
+rule data_gap_resolver:
+    output:
+        manifest="data/manifest.json"
+    shell:
+        """
+        python code/data_gap_resolver.py
+        """
+
+# Example download rule that depends on verification
+rule download:
+    input:
+        verify="results/verify_data_availability.done"
+    output:
+        dummy="data/download.done"
+    shell:
+        """
+        # Placeholder for the actual download step.
+        # In a full pipeline this would retrieve datasets.
+        echo "Download step completed." > {output.dummy}
+        """

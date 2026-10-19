@@ -1,0 +1,12 @@
+{
+  "header": "Fixed-Effects Analysis",
+  "pipeline_mode": "FIXED_EFFECTS",
+  "statistical_model": "Fixed-Effects ANOVA",
+  "datasets_found": [
+    "GSE131907",
+    "GSE111322",
+    "GSE150728"
+  ],
+  "datasets_missing": [],
+  "count": 3
+}

@@ -9,27 +9,26 @@ T003:
 T004:
   task: 57e2366dfb256310a5da7b7fc23f2d634d6fad67914f0e674b27dbbb8b07165a
 T005:
-  reason: "The `code/utils.py` defines `ResourceMonitor` and a self\u2011test that\
-    \ generated `results/monitoring.csv`, but the CSV header written by the module\
-    \ is `step_name,wall_time_s,peak_ram_bytes` while the task requires the header\
-    \ `step,wall_time_s,peak_ram_bytes`. Moreover, `get_logger` merely forwards to\
-    \ `llmxive_toolkit.get_logger` without any evidence that the returned logger is\
-    \ set to INFO level and has a file handler for `results/pipeline.log`. The implementation\
-    \ must be corrected to write the exact required header and to explicitly configure\
-    \ the logger as specified."
+  reason: "The `code/utils.py` module exists and implements the requested functions,\
+    \ but the required output file `results/monitoring.csv` was not created \u2013\
+    \ it is listed as MISSING, so the self\u2011test did not generate the CSV with\
+    \ the header and a row. The task\u2019s verification step (checking the CSV contents)\
+    \ cannot be satisfied until this file is produced."
   task: 5e338ee5a51984bc4da15d982a811a1f887e54324dc797f10844bb03b4008a2a
 T006:
   reason: "The repository contains `data/manifest.json` and the data\u2011gap resolver\
     \ script, but no `Snakefile` (or any Snakemake workflow) is present. Consequently\
     \ the required `verify_data_availability` rule, its dependency on `download`,\
-    \ and the minimal `data_gap_resolver` rule are missing. A proper Snakefile must\
-    \ be added to satisfy the task."
+    \ and the minimal `data_gap_resolver` rule are missing. Adding a correctly\u2011\
+    named Snakefile with those rules is needed to satisfy the task."
   task: 2d1197d3235a3786e9187652b73cca1ed39ecf3cf1288fbd958263f23fad6606
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/data_gap_resolver.py
     exit=1'
   task: c1572f6b372c445f745e654ba7230e17783b6342c5f2459380cacf11bc8c3f81
 T008:
+  reason: 'Requested task execution failed; rerun successfully: code/preprocess_and_geometry.py
+    exit=1'
   task: a8b7634bafc0411e33bed3e2a453bbc145a16c5f98fc52c0233a5e87e102ccee
 T009:
   task: 9d5e602dcd490e8ab6c461b1ab273a26d826310d45c4feba9a87691474c2de77

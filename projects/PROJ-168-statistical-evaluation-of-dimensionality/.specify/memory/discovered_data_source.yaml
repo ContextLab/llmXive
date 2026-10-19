@@ -1,9 +1,28 @@
-status: none
-intent: download scRNA-seq GSE GEO count matrices python package dataset
+status: verified
+kind: pypi_package
+ref: scanpy
+access_python: 'import scanpy as sc
+
+
+  adata = sc.datasets.pbmc3k()
+
+  print(f"RECORDS={adata.n_obs}")
+
+
+  fields = list(adata.obs.columns) + list(adata.var.columns)
+
+  print(''FIELDS='' + '',''.join(fields))'
+record_count: 2700
+sample_fields:
+- gene_ids
+field_coverage: 0.5
 required_fields:
-- cell_barcode
+- cell_id
 - gene_id
-- raw_counts
-cache_key: da1d156d3e26240bd11db6096ce43ce29545ec6fdb34357a379ed8bb44abe253
-searched_at: '2026-10-19T16:17:59.082388+00:00'
-retry_count: 1
+- gene_name
+- raw_count
+- log_cpm
+- highly_variable_gene_flag
+intent: download raw scRNA-seq count matrix GEO dataset and scanpy pbmc3k python package
+  dataset
+cache_key: 29bc822f45f77603574792bbbb079bcd3b965e5bd56760a2f099f012adfdaf47
