@@ -1,11 +1,13 @@
 status: none
-intent: Materials Project API high entropy alloy yield strength dataset python package
-  dataset
+intent: Materials Project API high entropy alloy yield strength and periodic table
+  properties download python package dataset
 required_fields:
-- material_id
+- alloy_id
 - composition
 - element_fractions
 - yield_strength
-cache_key: 33e5310deeb8b74072f7bc23c05d6b8124feaaca393ff58df548fae0dc3aefbc
-searched_at: '2026-10-19T11:14:06.207229+00:00'
+- measurement_temperature
+- processing_condition
+cache_key: 0e3bff87f65c8b9423fc2afc843317e5ae2141b1c74c359dbb450d77ad318a8d
+searched_at: '2026-10-19T11:18:53.317842+00:00'
 retry_count: 1
