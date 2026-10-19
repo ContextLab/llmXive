@@ -8,7 +8,7 @@ The goal is to deliver a complete, reproducible, CPU‑only study that satisfies
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [US1] *Data ingestion, provenance, and scaffold split creation*
+- [ ] T001 [US1] *Data ingestion, provenance, and scaffold split creation* <!-- FAILED-IN-EXECUTION: code/01_data_ingestion.py exit=1 -->
   - In `code/01_data_ingestion.py`, download the **ESOL** dataset from the verified DeepChem S3 URL `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv` (the `--url` argument **must** be used).  
   - Verify required columns `smiles` and `logP` (conforms to `dataset.schema.yaml`); abort with a clear Data Gap error if missing.  
   - Compute SHA‑256 checksum of `data/raw/esol.csv` and **idempotently** append it to `data/checksums.txt`.  
@@ -35,7 +35,7 @@ The goal is to deliver a complete, reproducible, CPU‑only study that satisfies
   - `code/tests/test_dataset_schema.py` loads `data/raw/esol.csv` and validates it against `dataset.schema.yaml`.  
   - **Verification**: `pytest code/tests/test_dataset_schema.py` passes. *(Verified; reopens automatically if T001's data changes break it.)*
 
-- [X] T002 [US1] *Baseline TDA feature computation (10 × 10 persistence images)*  
+- [ ] T002 [US1] *Baseline TDA feature computation (10 × 10 persistence images)*  
   - Read `data/processed/filtered_esol.csv`. For each SMILES, build a molecular graph with RDKit and apply the **shortest‑path distance filtration** (FR‑001) via `code/utils/persistence_utils.py`.  
   - Vectorize each persistence diagram to a **10 × 10 persistence image** using **kernel_bandwidth = 1.0** (σ = 1.0) – the default documented in `data-model.md`. Include `target_property` (`logP`) and `target_value` fields per `feature_matrix.schema.yaml`.  
   - Write `data/processed/topological_features_10x10.csv` (columns: `molecule_id` as **string** + 100 float features).  
@@ -47,7 +47,7 @@ The goal is to deliver a complete, reproducible, CPU‑only study that satisfies
   - Cast **both** `molecule_id` columns to `str` before any merge with `filtered_esol.csv`.  
   - **Verification**: `pytest code/tests/test_feature_matrix.py` exits 0.
 
-- [X] T004 [US1] *Traditional descriptors & combined feature matrix*  
+- [ ] T004 [US1] *Traditional descriptors & combined feature matrix*  
   - In `code/03_feature_engineering.py`, compute RDKit traditional descriptors (molecular weight, atom counts, 1024‑bit Morgan fingerprint, radius 2) and write `data/processed/traditional_features.csv`.  
   - Merge the traditional matrix with `topological_features_10x10.csv` on `molecule_id` (both cast to string) → `data/processed/combined_features.csv`.  
   - Ensure no missing values across the merged table.  
@@ -57,18 +57,18 @@ The goal is to deliver a complete, reproducible, CPU‑only study that satisfies
 
 ## Phase 2: Complete the study and validate its evidence
 
-- [~] T005 [US2] *Baseline model training and evaluation (including feature importance)*
+- [ ] T005 [US2] *Baseline model training and evaluation (including feature importance)*
   - Load `data/processed/splits.json`. Train **Ridge Regression (α = 1.0)** and **Random Forest (100 trees, max_depth = 10, seed = 42)** on three feature sets: `traditional`, `topological`, `combined`, using the 5‑fold scaffold‑based CV (FR‑003, FR‑004).  
   - Enforce CPU‑only execution with a dependency‑free GPU guard (check for `/dev/nvidia*` or `nvidia-smi`; abort if present) (FR‑008).  
   - Write `reports/metrics/model_metrics.json` conforming to `model_metrics.schema.yaml` (includes per‑fold R²/RMSE, means, and `feature_importance` arrays for traditional and topological descriptors).  
   - Log the training run (seed, split details) to `data/logs/training.log`.  
   - **Verification**: Run `code/tests/validate_model_performance.py` which checks the JSON against the schema and confirms required fields exist.
 
-- [~] T006 [P] *Model‑metrics contract test*  
+- [ ] T006 [P] *Model‑metrics contract test*  
   - `code/tests/test_metrics_schema.py` validates `reports/metrics/model_metrics.json` against `model_metrics.schema.yaml`.  
   - **Verification**: `pytest code/tests/test_metrics_schema.py` exits 0.
 
-- [~] T007 [US3] *Sensitivity sweep of vectorization resolution*  
+- [ ] T007 [US3] *Sensitivity sweep of vectorization resolution*  
   - Extend `code/02_tda_computation.py` with a `--grid` CLI argument to generate **20 × 20** and **30 × 30** persistence‑image CSVs (`topological_features_20x20.csv`, `topological_features_30x30.csv`).  
   - Run `code/05_sensitivity_analysis.py` which (a) calls the TDA script for each grid size, (b) retrains the same models (Ridge & RF, three feature sets) on each resolution using the existing splits, and (c) aggregates mean R² and its std per resolution.  
   - Write `reports/metrics/sensitivity_report.json` with entries `{ "grid_size": 10, "r2_mean": ..., "r2_std": ... }` for 10, 20, 30.  

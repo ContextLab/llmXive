@@ -11,17 +11,16 @@ T001a:
     \ manifest's actual format (or regenerate the manifest "
   sig: 7b42c2d0539720e9e7c771f0b813d31f29198c95459d77b33a6c307d7024ca57
 T002:
-  c: true
-  h: 30f819bce49aadd11ae03940099adaf741b3f930cc11dc4f2add910a2ff92db8
-  r: "The output CSV exists (6.6 MB, 1128 rows matching filtered_esol.csv, 100 pixel\
-    \ columns plus target_property/target_value), the run log shows `02_tda_computation.py\
-    \ --grid 10` executed successfully with sigma=1.0 and 0 failures, and the contract\
-    \ test suite (6 tests: schema, no-NaN, vector length, string molecule_id, row\
-    \ count) passed. The pixel-value decay rate in the CSV (factor ~0.54 per grid\
-    \ step of ~1.11) matches a Gaussian with \u03C3=1.0, confirming the documented\
-    \ bandwidth was actually used rather than the \u03C3=0.1 default in `persistence_utils.vectorize`;\
-    \ the empty invalid_smiles.log is consist"
-  sig: 59cbd8403b51d5fd8cf903bba3e6ce20339a51395a1e5f839facc588763098a7
+  c: false
+  h: be90fe73b9350bc6cec10b1f2239b7488344d777a1bf25c2020af3afc23551ff
+  r: 'The required artifacts are missing at their specified paths: `data/processed/filtered_esol.csv`,
+    `data/processed/topological_features_10x10.csv` (only a `data/results/` copy exists,
+    and the collector explicitly marks the requested path MISSING), and `data/logs/invalid_smiles.log`
+    does not exist at all. Additionally, `code/utils/persistence_utils.py` defaults
+    to `sigma=0.1`, contradicting the required kernel_bandwidth of 1.0, and no computation
+    script (e.g., `02_tda_computation.py`) is present to demonstrate the run; the
+    summary JSON''s claims cannot substitute for the missing deliverables.'
+  sig: 342e656556fcb2bf13026fb918a9f74d4e5302cf0ce3d3395648da5c8e00bf35
 T003:
   c: false
   h: ac0ff7e6324776a4d2af4224262979f0b31bf4782fa6746bc3d0cce3c5385610
@@ -34,14 +33,48 @@ T003:
     \ actual contents, weakening the contract test. The implementer must add the actual"
   sig: ed17d8fb4fb88cb097d0338950a0a9b3ab7ae0bcff1d99b1ab0a785534c37ce3
 T004:
-  c: true
-  h: 83d96019798d1028af0dc61ca5872fd68267efd9777ab8981fbc9cf1a1c207ce
-  r: The script computes the required RDKit descriptors (MW, atom counts, 1024-bit
-    Morgan radius 2), merges on string-cast `molecule_id` with the TDA features, and
-    both output CSVs exist with real content (1128 rows, 1032 traditional + 100 pixel
-    columns plus logP). The execution log shows exit 0 with row counts matching (1128
-    across all three matrices) and NaN count 0, matching the verification requirements.
-  sig: fca63d4c865867b1ce86915912728b1715546565b9b3e8a69059b99e41107341
+  c: false
+  h: 3bd43b2124f2c9b751aa23360eb41d5f85716f36092de78a97654cad48d09dac
+  r: "The script `code/03_feature_engineering.py` exists and looks correct, but both\
+    \ required output artifacts \u2014 `data/processed/traditional_features.csv` and\
+    \ `data/processed/combined_features.csv` \u2014 are MISSING, and there is no execution\
+    \ evidence (no log, no summary JSON, no durable copies under `data/results/`)\
+    \ that the script was ever run successfully. The next implementer must execute\
+    \ the script (after confirming its inputs `filtered_esol.csv` and `topological_features_10x10.csv`\
+    \ exist) and verify row counts match and NaN count is 0."
+  sig: 44c97cfef8063af12ff7a9dcaa623c47a4d616a46c6121729be6804d5cd4a96f
+T005:
+  c: false
+  h: bc42bd8b421adef96b3fddaf5899f000f03f41e292781f70e20e37843f8ee9f9
+  r: "The training log itself shows the pipeline failed with `FileNotFoundError: Missing\
+    \ .../data/processed/combined_features.csv \u2013 run T004 first`, so no models\
+    \ were trained. The required deliverables `reports/metrics/model_metrics.json`,\
+    \ `model_metrics.schema.yaml`, `code/tests/validate_model_performance.py`, and\
+    \ `data/processed/splits.json` are all missing, and the only artifact present\
+    \ (`data/logs/training.log`) contains only the error traceback."
+  sig: 04bbb50e12b00696e9345b4aa8036252b330033ca73e72ab9196794272e70153
+T006:
+  c: false
+  h: 6400f27dc0ca6b37dd37d86f2b812e281d62ee3c49380277645ad40f7d14582d
+  r: "The test file `code/tests/test_metrics_schema.py` exists and is substantive,\
+    \ but both artifacts it validates are missing: `reports/metrics/model_metrics.json`\
+    \ and `model_metrics.schema.yaml` (the latter at `specs/001-.../contracts/`).\
+    \ The test itself calls `pytest.fail` when either file is absent, so `pytest code/tests/test_metrics_schema.py`\
+    \ cannot exit 0 \u2014 the stated verification criterion is unmet. The implementer\
+    \ must produce (or locate) the schema contract and the metrics JSON from T005\
+    \ so the contract test actually passes."
+  sig: d124ab3e6ca6ec62e9be2c20175cc93e2c4c92311c5fa02eeb25782f7bd40405
+T007:
+  c: false
+  h: 5ab909b6abcd025387bfd462bbf5dc13b50a598dfd6c597405f77a794f85a45d
+  r: "The required deliverable `reports/metrics/sensitivity_report.json` is MISSING\
+    \ \u2014 the collector confirmed it does not exist, and there is no evidence (logs,\
+    \ durable copies in `data/results/`, or generated CSVs like `topological_features_20x20.csv`/`30x30.csv`)\
+    \ that `05_sensitivity_analysis.py` was ever executed. The scripts themselves\
+    \ look correctly implemented (`--grid` CLI, sweep logic, report writing), but\
+    \ the task requires the actual run and its output JSON with three entries for\
+    \ grids 10/20/30, which is absent."
+  sig: bc599b0541aefbdfbee4165aa46e5c377d89d74980bd65a54917762f2b0d94f2
 T014:
   c: false
   h: 9fb8e26a09946625de4a846ab69ee6107f9d3676b3087d24aaffd393ce949796

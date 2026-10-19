@@ -1,8 +1,8 @@
 status: none
-intent: MoleculeNet ESOL dataset SMILES logP download python package dataset
+intent: MoleculeNet ESOL dataset download python package dataset
 required_fields:
-- SMILES
+- smiles
 - logP
-cache_key: 2ab843cebf5a1a907edcbb57f721c5f852fa41507ac6b643118da2198aa78383
-searched_at: '2026-10-19T06:37:21.600647+00:00'
+cache_key: f0bafef059d2956ace96d84cc9e9e999b01a8ef9907c68a2e23dc09bcb6417c9
+searched_at: '2026-10-19T08:14:33.950395+00:00'
 retry_count: 1

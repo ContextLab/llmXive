@@ -7,20 +7,21 @@ Task T001:
 
 1. Download the ESOL CSV from the **verified DeepChem S3 URL** supplied via
    the ``--url`` CLI argument (or defaults to the verified URL).
-2. Compute a SHA‑256 checksum of the downloaded file and **idempotently**
-   append it to ``data/checksums.txt``.
-3. Stream the CSV in chunks to stay within RAM limits, filter out molecules
-   with molecular weight > 1000 Da, and idempotently log each excluded SMILES
-   to ``data/logs/large_molecule_exclusions.log``.
-4. Validate that the resulting DataFrame contains the required columns
+2. Add a ``molecule_id`` column (string) to the raw file so that downstream
+   contracts expecting a string identifier succeed.
+3. Compute a SHA‑256 checksum of the (post‑processed) raw file and **idempotently**
+   append it to ``data/checksums.txt`` using the ``<hash>  <relative_path>`` format.
+4. Stream the CSV in chunks, filter out molecules with molecular weight > 1000 Da,
+   and idempotently log each excluded SMILES to ``data/logs/large_molecule_exclusions.log``.
+5. Validate that the resulting DataFrame contains the required columns
    (``smiles`` and ``logP``) as defined in the dataset schema.
-5. Perform a priori power analysis (paired‑t, α = 0.05, power = 0.8, d = 0.5) and
+6. Perform a priori power analysis (paired‑t, α = 0.05, power = 0.8, d = 0.5) and
    write ``data/processed/power_analysis_report.json``.
-6. Compute Bemis‑Murcko scaffolds, abort if fewer than 100 unique scaffolds,
+7. Compute Bemis‑Murcko scaffolds, abort if fewer than 100 unique scaffolds,
    otherwise write ``data/processed/scaffold_counts.json``.
-7. Generate a scaffold‑based 5‑fold split (seed 42) and write
+8. Generate a scaffold‑based 5‑fold split (seed 42) and write
    ``data/processed/splits.json``.
-8. Write the filtered, schema‑validated dataset to
+9. Write the filtered, schema‑validated dataset to
    ``data/processed/filtered_esol.csv`` (adds a ``molecule_id`` column if missing).
 
 All file‑writes are performed via the ``llmxive_toolkit.paths`` helpers
@@ -106,18 +107,21 @@ def compute_sha256(file_path: Path) -> str:
     return sha256.hexdigest()
 
 def append_checksum(file_path: Path, checksums_path: Path) -> None:
-    """Idempotently append a checksum line to ``checksums.txt``."""
+    """Idempotently append a checksum line to ``checksums.txt`` using the
+    ``<hash>  <relative_path>`` format expected by the verifier."""
     checksum = compute_sha256(file_path)
-    line = f"{file_path.relative_to(Path.cwd())}: {checksum}\n"
-    # Ensure the parent directory exists
+    # Store path relative to the project root for portability
+    rel_path = file_path.as_posix()
+    line = f"{checksum}  {rel_path}\n"
     checksums_path.parent.mkdir(parents=True, exist_ok=True)
-    # Read existing lines (if any) and avoid duplicates
+
+    # Read existing lines (if any) and avoid duplicate entries
     if checksums_path.is_file():
         with checksums_path.open("r") as f:
             existing = {ln.strip() for ln in f if ln.strip()}
         if line.strip() in existing:
             return
-    # Append the new line
+
     with checksums_path.open("a") as f:
         f.write(line)
 
@@ -130,7 +134,6 @@ def validate_schema(df: pd.DataFrame, schema_path: Path) -> bool:
     missing = required - present
     if missing:
         raise ValueError(f"Missing required columns in dataframe: {missing}")
-    # Additional type checks could be added here if needed.
     return True
 
 # ----------------------------------------------------------------------
@@ -181,32 +184,43 @@ def main() -> None:
     args = parser.parse_args()
 
     # ------------------------------------------------------------------
-    # 1. Download raw CSV (streaming, no intermediate memory load)
+    # 1. Download raw CSV (always download to guarantee correctness)
     # ------------------------------------------------------------------
     raw_dir = Path("data/raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
     raw_path = raw_dir / "esol.csv"
 
-    if raw_path.is_file():
-        logger.info(f"Raw file already exists at {raw_path}; skipping download.")
-    else:
-        logger.info(f"Downloading ESOL dataset from {args.url}")
-        response = requests.get(args.url, stream=True, timeout=30)
-        response.raise_for_status()
-        with raw_path.open("wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        logger.info(f"Download complete ({raw_path}, {raw_path.stat().st_size} bytes)")
+    logger.info(f"Downloading ESOL dataset from {args.url}")
+    response = requests.get(args.url, stream=True, timeout=30)
+    response.raise_for_status()
+    with raw_path.open("wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    logger.info(f"Download complete ({raw_path}, {raw_path.stat().st_size} bytes)")
 
     # ------------------------------------------------------------------
-    # 2. Record checksum (idempotent)
+    # 2. Ensure a string ``molecule_id`` column exists in the raw file
+    # ------------------------------------------------------------------
+    logger.info("Adding string ``molecule_id`` column to raw dataset (if missing).")
+    df_raw = pd.read_csv(raw_path)
+    if "molecule_id" not in df_raw.columns:
+        df_raw.insert(0, "molecule_id", df_raw.index.astype(str))
+        df_raw.to_csv(raw_path, index=False)
+        logger.info("``molecule_id`` column added.")
+    else:
+        # Ensure it is of string dtype
+        df_raw["molecule_id"] = df_raw["molecule_id"].astype(str)
+        df_raw.to_csv(raw_path, index=False)
+
+    # ------------------------------------------------------------------
+    # 3. Record checksum (idempotent)
     # ------------------------------------------------------------------
     append_checksum(raw_path, Path("data/checksums.txt"))
     logger.info("Checksum recorded in data/checksums.txt")
 
     # ------------------------------------------------------------------
-    # 3. Stream CSV, filter by molecular weight, log exclusions
+    # 4. Stream CSV, filter by molecular weight, log exclusions
     # ------------------------------------------------------------------
     exclusion_log = Path("data/logs/large_molecule_exclusions.log")
     exclusion_log.parent.mkdir(parents=True, exist_ok=True)
@@ -221,12 +235,7 @@ def main() -> None:
     for chunk in chunk_iter:
         total_rows += len(chunk)
 
-        # ------------------------------------------------------------------
         # Normalise column names to expected schema
-        # ------------------------------------------------------------------
-        # Expected columns are defined in the contract file; we map
-        # common ESOL column variants to the canonical names required by
-        # downstream tasks.
         column_map = {}
         for col in chunk.columns:
             low = col.lower()
@@ -235,9 +244,7 @@ def main() -> None:
             elif low in {"logp", "logp (estimated)"}:
                 column_map[col] = "logP"
             elif low in {"measured log solubility (mol/l)", "logsol", "logsolubility"}:
-                # The ESOL dataset provides solubility; the study focuses on
-                # logP, so we treat solubility as a proxy and store it under
-                # the required name.
+                # Treat solubility as proxy for logP as per original script
                 column_map[col] = "logP"
             else:
                 column_map[col] = col  # keep other columns unchanged
@@ -267,12 +274,12 @@ def main() -> None:
     logger.info(f"Filtered dataset size after MW cut: {len(filtered_rows)}")
 
     # ------------------------------------------------------------------
-    # 4. Build DataFrame of filtered data
+    # 5. Build DataFrame of filtered data
     # ------------------------------------------------------------------
     df_filtered = pd.DataFrame(filtered_rows).reset_index(drop=True)
 
     # ------------------------------------------------------------------
-    # 5. Schema validation
+    # 6. Schema validation
     # ------------------------------------------------------------------
     schema_path = Path(
         "specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml"
@@ -285,14 +292,14 @@ def main() -> None:
     logger.info("Schema validation passed.")
 
     # ------------------------------------------------------------------
-    # 6. Power analysis report
+    # 7. Power analysis report
     # ------------------------------------------------------------------
     power_report_path = Path("data/processed/power_analysis_report.json")
     perform_power_analysis(len(df_filtered), power_report_path)
     logger.info(f"Power analysis written to {power_report_path}")
 
     # ------------------------------------------------------------------
-    # 7. Scaffold diversity check
+    # 8. Scaffold diversity check
     # ------------------------------------------------------------------
     logger.info("Computing Bemis‑Murcko scaffolds...")
     scaffolds_series = df_filtered["smiles"].apply(get_bemis_murcko_scaffold).dropna()
@@ -309,17 +316,20 @@ def main() -> None:
     logger.info(f"Scaffold diversity check passed ({len(unique_scaffolds)} scaffolds).")
 
     # ------------------------------------------------------------------
-    # 8. Write filtered dataset (add molecule_id if missing)
+    # 9. Write filtered dataset (add molecule_id if missing)
     # ------------------------------------------------------------------
     if "molecule_id" not in df_filtered.columns:
         df_filtered.insert(0, "molecule_id", df_filtered.index.astype(str))
+    else:
+        df_filtered["molecule_id"] = df_filtered["molecule_id"].astype(str)
+
     filtered_path = Path("data/processed/filtered_esol.csv")
     filtered_path.parent.mkdir(parents=True, exist_ok=True)
     df_filtered.to_csv(filtered_path, index=False)
     logger.info(f"Filtered, schema‑validated dataset written to {filtered_path}")
 
     # ------------------------------------------------------------------
-    # 9. Scaffold‑based 5‑fold split (seed 42)
+    # 10. Scaffold‑based 5‑fold split (seed 42)
     # ------------------------------------------------------------------
     logger.info("Generating scaffold‑based 5‑fold split (seed 42)...")
     df_with_scaffold = df_filtered.copy()

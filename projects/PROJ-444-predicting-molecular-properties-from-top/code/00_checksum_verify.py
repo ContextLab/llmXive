@@ -8,11 +8,11 @@ It **does not** rewrite the checksum file or update any project state.
 The script exits with status 0 when all checksums match; otherwise it
 prints the mismatched file paths and exits with status 1.
 
-Usage (as referenced in ``quickstart.md``):
-    python code/00_checksum_verify.py
+The manifest may contain lines in either of the following formats:
+  <hash>  <relative_path>
+  <relative_path>: <hash>
 
-The script is idempotent and safe to run at any point after the raw data
-has been downloaded and its checksums recorded by ``01_data_ingestion.py``.
+Both are accepted for backward compatibility.
 """
 
 import hashlib
@@ -41,10 +41,9 @@ def load_recorded_checksums() -> Dict[Path, str]:
     Parse ``data/checksums.txt`` and return a mapping from absolute file
     paths to the recorded hash.
 
-    The manifest is expected to contain lines of the form:
-        <hash>  <relative_path>
-
-    Lines that do not match this pattern are ignored.
+    Supported line formats:
+      <hash>  <relative_path>
+      <relative_path>: <hash>
     """
     if not CHECKSUMS_FILE.is_file():
         print(f"Checksum file not found at {CHECKSUMS_FILE}", file=sys.stderr)
@@ -56,14 +55,21 @@ def load_recorded_checksums() -> Dict[Path, str]:
             line = line.strip()
             if not line:
                 continue
-            # Split on two spaces (the format used when writing checksums)
-            parts = line.split("  ")
-            if len(parts) != 2:
-                # Skip malformed lines (e.g., legacy ``filename: hash`` lines)
-                continue
-            hash_val, rel_path = parts
-            abs_path = (PROJECT_ROOT / rel_path).resolve()
-            recorded[abs_path] = hash_val
+            # Try space‑separated format first
+            if "  " in line:
+                parts = line.split("  ")
+                if len(parts) == 2:
+                    hash_val, rel_path = parts
+                    abs_path = (PROJECT_ROOT / rel_path).resolve()
+                    recorded[abs_path] = hash_val
+                    continue
+            # Fallback to colon format
+            if ":" in line:
+                rel_path, hash_val = line.split(":", 1)
+                rel_path = rel_path.strip()
+                hash_val = hash_val.strip()
+                abs_path = (PROJECT_ROOT / rel_path).resolve()
+                recorded[abs_path] = hash_val
     return recorded
 
 
