@@ -3,7 +3,6 @@ harmonypy
 arboreto
 scvelo
 pyscenic
-datasets
 pandas
 numpy
 scipy
@@ -12,4 +11,5 @@ matplotlib
 plotly
 pyyaml
 pytest
+datasets
 requests

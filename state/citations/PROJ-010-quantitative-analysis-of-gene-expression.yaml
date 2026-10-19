@@ -53,18 +53,18 @@
   verification_status: pending
   verified_against_url: https://www.ebi.ac.uk/gwas/
   verified_at: '2026-10-14T03:38:07.163861Z'
-- artifact_hash: 5a907c0d2aa61a1ae8d81554b3c3322737a369b98ffcfaa88482a7b548f16daf
+- artifact_hash: d412b745456f1306b05d07ef53533aa27cfd2411597c36ab613122d22a76f70c
   artifact_path: projects/PROJ-010-quantitative-analysis-of-gene-expression/specs/001-quantitative-analysis-of-gene-expression/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/scanpy/pbmc3k
+  value: https://huggingface.co/datasets/BICCN/human_mtg_scRNA
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/scanpy/pbmc3k
-  verified_at: '2026-10-19T07:34:20.821038Z'
-- artifact_hash: 12882646f237407bb2d77582be8d8221926124150759b72226a38befff4fb706
+  verified_against_url: https://huggingface.co/datasets/BICCN/human_mtg_scRNA
+  verified_at: '2026-10-19T19:10:07.257331Z'
+- artifact_hash: 9f06172d4f399904a6f4c2e3f6e4f7b80c326e35c0460e2bb393e7fb2775d00f
   artifact_path: projects/PROJ-010-quantitative-analysis-of-gene-expression/specs/001-quantitative-analysis-of-gene-expression/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -74,4 +74,4 @@
   value: https://huggingface.co/datasets/BICCN/human_mtg_scRNA`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/BICCN/human_mtg_scRNA
-  verified_at: '2026-10-19T07:34:26.784288Z'
+  verified_at: '2026-10-19T19:10:40.483031Z'
