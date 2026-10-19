@@ -3,11 +3,14 @@ T001:
     exit=1'
   task: 4ee9e609e2658ed00f60f64a868e5d9a9300e160b77a37df767c23acb056d29d
 T002:
-  reason: 'Checked `src/pipeline/ingest.py` (implements validation, harmonization,
-    imputation, encoding) and `src/tests/test_ingest.py`. The pytest run fails with
-    a `NameError: name ''_fetch_with_metadata'' is not defined` in the CLI wrapper,
-    so the ingestion script never completes, and consequently `data/processed/cleaned_dataset.csv`
-    is not created. The required unit test does not pass and the cleaned CSV is missing.'
+  reason: "Checked `src/pipeline/ingest.py` (implements validation, harmonization,\
+    \ imputation, encoding) and `src/tests/test_ingest.py`. The pytest run failed\
+    \ because `fetch_dataset` raised a `RuntimeError` when no OpenML datasets matched\
+    \ the keywords, preventing the fallback download and thus no `data/processed/cleaned_dataset.csv`\
+    \ was created. The required cleaned CSV is missing and the test suite does not\
+    \ pass. Fix the dataset\u2011fetch logic (e.g., catch the \u201Cno candidates\u201D\
+    \ error and proceed to the fallback) so the cleaned CSV is written and the tests\
+    \ succeed."
   task: 5ecb012897dfd740bcc238dafc82ccbd7426fb166c8d6d5e34faa109d04f27bc
 T003:
   reason: "The `src/pipeline/features.py` script implements the required engineering\

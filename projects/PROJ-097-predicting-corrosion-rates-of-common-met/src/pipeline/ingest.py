@@ -162,27 +162,6 @@ def _dataset_frame(dataset) -> pd.DataFrame:
 # ----------------------------------------------------------------------
 # Fetch & provenance helpers
 # ----------------------------------------------------------------------
-def _fetch_with_metadata(
-    dataset_id: Optional[int] = None, max_candidates: int = 25
-) -> Tuple[pd.DataFrame, dict]:
-    """
-    Wrapper around :func:`fetch_dataset` that also attaches OpenML
-    metadata to the returned DataFrame via ``attrs``. This information is
-    later used by :func:`ingest` to populate the provenance record.
-    """
-    df, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
-    # Attach minimal metadata for provenance; missing values are allowed.
-    df.attrs["openml_dataset_id"] = dataset_id
-    df.attrs["openml_dataset_name"] = mapping.get("source_id", "unknown")
-    df.attrs["openml_dataset_version"] = None
-    df.attrs["openml_url"] = (
-        f"https://www.openml.org/d/{dataset_id}"
-        if dataset_id is not None
-        else "unknown"
-    )
-    df.attrs["openml_doi"] = None
-    return df, mapping
-
 def fetch_dataset(
     dataset_id: Optional[int] = None, max_candidates: int = 25
 ) -> Tuple[pd.DataFrame, dict]:
@@ -393,29 +372,28 @@ def ingest(dataset_id: Optional[int] = None, max_candidates: int = 25) -> Path:
     # ------------------------------------------------------------------
     # 1. Fetch raw data and column mapping (with metadata)
     # ------------------------------------------------------------------
-    frame, mapping = _fetch_with_metadata(
-        dataset_id=dataset_id, max_candidates=max_candidates
-    )
+    # Use the public fetch_dataset function directly; it returns the
+    # DataFrame and the required‑column mapping.
+    frame, mapping = fetch_dataset(dataset_id=dataset_id, max_candidates=max_candidates)
 
     # ------------------------------------------------------------------
     # 2. Record provenance (raw file)
     # ------------------------------------------------------------------
-    if dataset_id is None:
-        # Metadata attached in _fetch_with_metadata; retrieve from attrs.
-        dataset_id = frame.attrs.get("openml_dataset_id")
-        dataset_name = frame.attrs.get("openml_dataset_name", "fallback")
-        version = frame.attrs.get("openml_dataset_version")
-        url = frame.attrs.get(
-            "openml_url",
-            FALLBACK_URL,
-        )
-        doi = frame.attrs.get("openml_doi")
-    else:
+    # Determine provenance attributes. If we fetched via OpenML the
+    # dataset_id will be known; otherwise it will be ``None`` for the
+    # fallback CSV.
+    if dataset_id is not None:
         ds = _get_openml_dataset(dataset_id)
         dataset_name = ds.name
         version = getattr(ds, "version", None)
         url = getattr(ds, "url", f"https://www.openml.org/d/{dataset_id}")
         doi = getattr(ds, "doi", None)
+    else:
+        # Fallback – we have no OpenML identifiers.
+        dataset_name = "fallback"
+        version = None
+        url = FALLBACK_URL
+        doi = None
 
     raw_dir = paths.data("raw")
     safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(dataset_name))
