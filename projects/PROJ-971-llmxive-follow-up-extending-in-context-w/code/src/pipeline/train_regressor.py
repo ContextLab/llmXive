@@ -54,9 +54,24 @@ class MLP(nn.Module):
 # Helper functions
 # ----------------------------------------------------------------------
 def load_data(descriptors_path: Path, labels_path: Path) -> pd.DataFrame:
-    """Load descriptors and τ labels and merge on ``clip_id``."""
+    """Load descriptors and τ labels and merge on ``clip_id``.
+
+    The original implementation expected the labels CSV under
+    ``data/processed/labels.csv``. In practice the label file lives at
+    ``data/labels.csv``. We therefore fall back to that location if the
+    supplied path does not exist.
+    """
     log.info(f"Loading descriptors from {descriptors_path}")
     desc = pd.read_csv(descriptors_path)
+
+    # Resolve the correct labels path
+    if not labels_path.exists():
+        fallback = paths.data("labels.csv")
+        if fallback.exists():
+            log.info(f"Labels path {labels_path} not found – using fallback {fallback}")
+            labels_path = fallback
+        else:
+            raise FileNotFoundError(f"Labels CSV not found at {labels_path} or fallback {fallback}")
 
     log.info(f"Loading labels from {labels_path}")
     labs = pd.read_csv(labels_path)
@@ -196,7 +211,7 @@ def _parse_args(argv=None):
     parser.add_argument(
         "--labels",
         type=str,
-        default=str(paths.data("processed", "labels.csv")),
+        default=str(paths.data("labels.csv")),  # fallback to the actual location
         help="Path to the τ labels CSV (must contain a 'tau' column).",
     )
     parser.add_argument(

@@ -116,13 +116,18 @@ def evaluate_policy(
         recent = latents[-k:] if k <= T else latents
         pred = tau * recent.mean(axis=0)  # shape (D,)
 
-        # Broadcast the prediction to the shape of actions for MSE.
-        # Compare only the first ``actions.shape[1]`` dimensions.
-        pred_expanded = np.broadcast_to(
-            pred[: actions_norm.shape[1]], actions_norm.shape
-        )
+        # Handle both 1‑D and 2‑D action arrays.
+        if actions_norm.ndim == 1:
+            # actions are a flat vector; compare the first component of pred.
+            pred_action = pred[0] if pred.shape[0] > 0 else 0.0
+            mse = np.mean((pred_action - actions_norm) ** 2)
+        else:
+            # actions are (T, A); broadcast the first A components of pred.
+            pred_expanded = np.broadcast_to(
+                pred[: actions_norm.shape[1]], actions_norm.shape
+            )
+            mse = np.mean((pred_expanded - actions_norm) ** 2)
 
-        mse = np.mean((pred_expanded - actions_norm) ** 2)
         successes.append(1.0 if mse < TOLERANCE else 0.0)
 
     return float(np.mean(successes))
@@ -164,7 +169,7 @@ def list_clip_files(input_dir: pathlib.Path) -> List[pathlib.Path]:
 def _load_schema() -> dict:
     """Load the JSON‑Schema for a label record."""
     schema_path = (
-        pathlib.Path(__file__).parents[3]
+        paths.root
         / "specs"
         / "001-llmxive-follow-up-extending-in-context-w"
         / "contracts"

@@ -1,27 +1,59 @@
 T001:
+  reason: 'The task''s own verification criterion requires `data/processed/descriptors.csv`
+    to exist, but the collector reports it as MISSING; only the legacy shortcut `data/descriptors_subset.csv`
+    (50 rows, correct columns) is present. Additionally, the quickstart''s single
+    command depends on `scripts/quickstart.sh` and `scripts/run_minimal.sh`, neither
+    of which appears in the evidence, so there is no proof the documented command
+    runs without error. Fix: create the scripts (or correct the documented command)
+    and produce `data/processed/descriptors.csv` alongside the subset copy.'
   task: e0a7c78ac8e9e8cad9542ecc62bd22edd9c82d5fbe7c37fb714f2def7e65a425
 T002:
+  reason: "The required artifacts `data/raw/clip_*.npz` do not exist \u2014 the collector\
+    \ confirms `data/raw/` is empty (0 entries) and the pattern matches no files,\
+    \ so the verification criterion \"50 files each containing `states`, `actions`,\
+    \ `observations`\" fails. The script `generate_clips.py` exists and looks functional,\
+    \ but there is no evidence it was ever run; downstream CSVs referencing clip IDs\
+    \ do not substitute for the actual clip files. The implementer must execute the\
+    \ script to produce the 50 `.npz` clips in `data/raw/`."
   task: 28d1f8c658e9f4da6991a31c0413b3066f85153a1803d57e9954047d278e9ebe
 T003:
+  reason: "The required output `data/processed/descriptors.csv` is MISSING \u2014\
+    \ the extraction script exists and looks substantive, but there is no evidence\
+    \ it was ever run (no CSV, no execution logs), so the schema validation, no-nulls\
+    \ check, and variance-ratio assertion (US-1 Acceptance Scenario 2) are unverified.\
+    \ The implementer must execute the pipeline on the raw clips and produce the validated\
+    \ CSV."
   task: 12f4ec4c4e55658a1f7ebd32133859d968ab71b715117afd737a4162174fd8b2
 T004:
+  reason: "The task requires that `run_end_to_end.py --subset 50` actually runs and\
+    \ prints a 50-row summary table, but the evidence contains only source files \u2014\
+    \ no execution log, no generated `data/processed/descriptors.csv` or `data/descriptors_subset.csv`,\
+    \ and no captured stdout showing the 50-row table with the three descriptor columns.\
+    \ Additionally, there are two conflicting copies of `generate_clips.py` and `extract_descriptors.py`\
+    \ (`code/src/...` and `src/...`), and the `code/src` version of `extract_descriptors.py`\
+    \ depends on a schema file (`specs/.../contracts/descriptor.schema.yaml`) and\
+    \ a varia"
   task: 38c33a84128d4ce7f18a01f55d5a504dcbc14eec7fe112e46e08240347770c59
 T005:
-  reason: 'Requested task execution failed; rerun successfully: src/pipeline/grid_search_labels.py
-    exit=1'
+  reason: "The produced `data/processed/labels.csv` is 1 byte (empty) \u2014 the run\
+    \ log shows it completed in 0.5s with no clips processed, so no labels were actually\
+    \ generated. Additionally, the required `label.schema.yaml` and `src/pipeline/config.yaml`\
+    \ (fixed seeds) do not exist, and the \"policy evaluation\" is a synthetic MSE\
+    \ heuristic on precomputed latents, not N=5 robosuite episodes with success from\
+    \ environment termination flags, nor is there any clip-to-configuration-ID mapping."
   task: b07512d7440ab7650626c9b52ec7f4e3321f8e80d016932f70630b5fee29abcf
 T006:
-  reason: "The `train_regressor.py` script runs and writes `metrics.json`, but the\
-    \ metrics show a baseline MSE of\u202F0.0 and a validation MSE >\u202F0, so `meets_sc006`\
-    \ is false \u2013 the regressor does **not** beat the temperature\u2011only baseline\
-    \ as required. Additionally, the promised verification test `code/tests/test_train_regressor_metrics.py`\
-    \ is missing."
+  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/train_regressor.py
+    exit=1'
   task: 25c79ef82ba4f463b10960207827c16afb2a158dc98bce892a46f14dcf425680
 T007:
-  reason: "The script `code/src/pipeline/compute_complexity.py` correctly generates\
-    \ `data/processed/task_complexity.csv` and `data/processed/correlation.txt`, but\
-    \ the required accompanying schema file `complexity.schema.yaml` is missing, violating\
-    \ the task\u2019s specification that the CSV be provided with its schema."
+  reason: "The required output artifacts `data/processed/task_complexity.csv`, `data/processed/correlation.txt`,\
+    \ and `complexity.schema.yaml` do not exist on disk \u2014 only the script was\
+    \ written, with no evidence it was ever run. Additionally, the script's fallback\
+    \ derives `subgoal_count` deterministically from `variance` itself, which would\
+    \ fabricate the correlation rather than compute an independent complexity metric;\
+    \ it must use real scene/subgoal data (or a genuinely independent source), and\
+    \ the outputs must actually be generated."
   task: f22a3a5d18f246fd8259190deb0fa4ad54e79e40869feb978b442f2596c9a4a4
 T008:
   task: 3ef7b8b1d4fe779595adc1d342b2bee0279af9d6ad35abdd387b18fdd335c456
