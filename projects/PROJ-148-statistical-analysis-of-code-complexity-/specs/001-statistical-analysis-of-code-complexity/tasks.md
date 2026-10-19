@@ -21,19 +21,19 @@ id: "TASKS-001"
 ## Phase 0: Contracts & Schemas (Foundational Artifacts)
 
 - [X] T040 Create dataset contract schema (`contracts/dataset.schema.yaml`)
-- [X] T041 Create model output contract schema (`contracts/model_output.schema.yaml`)
-- [X] T042 Author data‑model design document (`data-model.md`)
+- [ ] T041 Create model output contract schema (`contracts/model_output.schema.yaml`)
+- [ ] T042 Author data‑model design document (`data-model.md`)
 - [X] T043 Write quickstart guide (`quickstart.md`)
 - [X] T044 Update Implementation Strategy section to map high‑level steps to task IDs (`README.md` or `docs/implementation_strategy.md`)
-- [X] T045 Contract test for bug‑label reliability validation script (`tests/contract/test_bug_label_validation.py`)
+- [ ] T045 Contract test for bug‑label reliability validation script (`tests/contract/test_bug_label_validation.py`)
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project directory layout (`code/`, `data/`, `tests/`, `requirements.txt`, `README.md`)
-- [X] T002 Initialize a Python 3.11 project and add pinned dependencies (`requirements.txt`) – pandas, scikit‑learn, lizard, statsmodels, matplotlib, seaborn, pymer4, pytest, black, flake8
-- [X] T003 [P] Configure linting and formatting tools (`pyproject.toml`, `.flake8`)
+- [~] T002 Initialize a Python 3.11 project and add pinned dependencies (`requirements.txt`) – pandas, scikit‑learn, lizard, statsmodels, matplotlib, seaborn, pymer4, pytest, black, flake8
+- [~] T003 [P] Configure linting and formatting tools (`pyproject.toml`, `.flake8`)
 
 ---
 
@@ -41,11 +41,11 @@ id: "TASKS-001"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [X] T004 Create configuration module with random seed handling (`code/utils/config.py`)
-- [X] T005 [P] Implement a reusable logging utility (`code/utils/logging.py`)
-- [X] T006 [P] Add a small helper for reproducible data‑hashing and checksum verification (`code/utils/checksum.py`)
-- [X] T050 [US1] Implement fallback handling for lizard parse failures – skip unparsable files, log warnings, and continue (`code/data/extract_metrics.py`)
-- [X] T051 [US1] Implement memory‑aware, chunked processing of source files to stay within a modest RAM limit (`code/data/extract_metrics.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T004 Create configuration module with random seed handling (`code/utils/config.py`)
+- [~] T005 [P] Implement a reusable logging utility (`code/utils/logging.py`)
+- [~] T006 [P] Add a small helper for reproducible data‑hashing and checksum verification (`code/utils/checksum.py`)
+- [~] T050 [US1] Implement fallback handling for lizard parse failures – skip unparsable files, log warnings, and continue (`code/data/extract_metrics.py`)
+- [~] T051 [US1] Implement memory‑aware, chunked processing of source files to stay within a modest RAM limit (`code/data/extract_metrics.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready – user story implementation can now begin
 
@@ -55,25 +55,25 @@ id: "TASKS-001"
 
 **Goal**: Build a reproducible pipeline that downloads ≥10 Java projects from GHTorrent, extracts code units, computes ≥5 complexity metrics with lizard, labels bug‑fix occurrences, cleans the data, and creates a stratified train/test split.
 
-**Independent Test**: Verify {{claim:c_8e4fd4a9}}, {{claim:c_1e836ca4}}, a binary `bug_label` column, and that the train/test split respects project‑level stratification with a [deferred]/30 % split.
+**Independent Test**: Verify `data/processed/dataset.parquet` contains ≥10 000 rows, ≥5 metric columns, a binary `bug_label` column, and that the train/test split respects project‑level stratification with a [deferred]/30 % split.
 
 ### Required Contract & Integration Tests
 
-- [X] T008 [US1] Contract test for dataset schema (`tests/contract/test_dataset_schema.py`)
-- [X] T009 [US1] Integration test for end‑to‑end data pipeline (`tests/integration/test_data_pipeline.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T008 [US1] Contract test for dataset schema (`tests/contract/test_dataset_schema.py`)
+- [~] T009 [US1] Integration test for end‑to‑end data pipeline (`tests/integration/test_data_pipeline.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [X] T010 [US1] Download GHTorrent Java project list and archives, enforce ≥10 projects (`code/data/download_gh.py`)
-- [X] T011 [US1] Extract Java source files and commit metadata (`code/data/extract_commits.py`)
-- [X] T012 [US1] Compute complexity metrics with lizard (cyclomatic complexity, LOC, token count, nesting depth, Halstead volume) (`code/data/extract_metrics.py`)
-- [X] T013 [US1] Label bug‑fix vs. non‑bug‑fix units using commit messages & issue IDs (`code/data/label_bug_fixes.py`)
-- [X] T014 [US1] {{claim:c_56d7c5ab}} (`code/data/validate_bug_labels.py`)
-- [X] T015 [US1] Preprocess: impute <5 % missing values, log‑transform metrics with skewness >2, remove rows with >5 % missing (`code/data/preprocess.py`)
-- [X] T049 [US1] Integrate bug‑label reliability validation into the data pipeline and enforce precision ≥ 85 % (fail pipeline if precision < 85 %) (`code/data/preprocess.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T052 [US1] Document split proportions ([deferred] train / [deferred] test) and embed in pipeline configuration (`code/data/split_dataset.py`)
-- [X] T016 [US1] Perform project‑level stratified train/test split and save splits (`code/data/split_dataset.py`) <!-- FAILED: unspecified -->
-- [X] T017 [US1] Add validation that each project appears in only one split (assertion in `split_dataset.py`)
+- [~] T010 [US1] Download GHTorrent Java project list and archives, enforce ≥10 projects (`code/data/download_gh.py`)
+- [~] T011 [US1] Extract Java source files and commit metadata (`code/data/extract_commits.py`)
+- [~] T012 [US1] Compute complexity metrics with lizard (cyclomatic complexity, LOC, token count, nesting depth, Halstead volume) (`code/data/extract_metrics.py`)
+- [~] T013 [US1] Label bug‑fix vs. non‑bug‑fix units using commit messages & issue IDs (`code/data/label_bug_fixes.py`)
+- [~] T014 [US1] Validate bug‑label reliability (sample audit, precision ≥ 85 %) (`code/data/validate_bug_labels.py`)
+- [~] T015 [US1] Preprocess: impute <5 % missing values, log‑transform metrics with skewness >2, remove rows with >5 % missing (`code/data/preprocess.py`)
+- [~] T049 [US1] Integrate bug‑label reliability validation into the data pipeline and enforce precision ≥ 85 % (fail pipeline if precision < 85 %) (`code/data/preprocess.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T052 [US1] Document split proportions ([deferred] train / [deferred] test) and embed in pipeline configuration (`code/data/split_dataset.py`)
+- [~] T016 [US1] Perform project‑level stratified train/test split and save splits (`code/data/split_dataset.py`) <!-- FAILED: unspecified -->
+- [~] T017 [US1] Add validation that each project appears in only one split (assertion in `split_dataset.py`)
 
 **Checkpoint**: User Story 1 fully functional and testable independently
 
@@ -87,18 +87,18 @@ id: "TASKS-001"
 
 ### Required Contract & Integration Tests
 
-- [X] T018 [US2] Contract test for model output schema (`tests/contract/test_model_output_schema.py`)
-- [X] T019 [US2] Integration test for training pipeline (`tests/integration/test_training_pipeline.py`) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T018 [US2] Contract test for model output schema (`tests/contract/test_model_output_schema.py`)
+- [~] T019 [US2] Integration test for training pipeline (`tests/integration/test_training_pipeline.py`) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 2
 
-- [X] T053 [US2] Perform collinearity diagnostics (e.g., VIF) on the metric set and drop/reduce highly collinear features before modeling (`code/modeling/collinearity.py`)
-- [X] T054 [US2] Contract test for collinearity diagnostics output (`tests/contract/test_collinearity.yaml`)
-- [X] T020 [US2] Train primary L1‑logistic regression on training split, enforce ≤100 iterations and assert at least one non‑zero coefficient (`code/modeling/train_primary.py`)
-- [X] T021 [US2] Train alternative Random Forest (a sufficient number of trees, max depth 10) and assert ROC‑AUC within ±0.05 of primary (`code/modeling/train_alternative.py`)
-- [X] T022 [US2] Extract and store coefficient vectors / feature importances (`code/modeling/importance.py`)
-- [X] T023 [US2] Compare ROC‑AUC of both models, compute Spearman rank correlation ≥ 0.7, and assert the tolerance (`code/modeling/compare_models.py`)
-- [X] T024 [US2] Persist model artifacts and evaluation metrics (`data/model/primary.pkl`, `data/model/alternative.pkl`)
+- [~] T053 [US2] Perform collinearity diagnostics (e.g., VIF) on the metric set and drop/reduce highly collinear features before modeling (`code/modeling/collinearity.py`)
+- [~] T054 [US2] Contract test for collinearity diagnostics output (`tests/contract/test_collinearity.yaml`)
+- [~] T020 [US2] Train primary L1‑logistic regression on training split, enforce ≤100 iterations and assert at least one non‑zero coefficient (`code/modeling/train_primary.py`)
+- [~] T021 [US2] Train alternative Random Forest (a sufficient number of trees, max depth 10) and assert ROC‑AUC within ±0.05 of primary (`code/modeling/train_alternative.py`)
+- [~] T022 [US2] Extract and store coefficient vectors / feature importances (`code/modeling/importance.py`)
+- [~] T023 [US2] Compare ROC‑AUC of both models, compute Spearman rank correlation ≥ 0.7, and assert the tolerance (`code/modeling/compare_models.py`)
+- [~] T024 [US2] Persist model artifacts and evaluation metrics (`data/model/primary.pkl`, `data/model/alternative.pkl`)
 
 **Checkpoint**: User Story 2 independently functional and testable
 
@@ -112,17 +112,17 @@ id: "TASKS-001"
 
 ### Required Contract & Integration Tests
 
-- [X] T025 [US3] Contract test for evaluation metrics (`tests/contract/test_evaluation_metrics.py`)
-- [X] T026 [US3] Contract test asserting baseline ROC‑AUC ≥ 0.50 **and that model ROC‑AUC exceeds this baseline** (`tests/contract/test_baseline_roc_auc.py`)
-- [X] T027 [US3] Contract test asserting FDR ≤ 0.05 **after Benjamini–Hochberg correction** (`tests/contract/test_fdr.py`)
+- [~] T025 [US3] Contract test for evaluation metrics (`tests/contract/test_evaluation_metrics.py`)
+- [~] T026 [US3] Contract test asserting baseline ROC‑AUC ≥ 0.50 **and that model ROC‑AUC exceeds this baseline** (`tests/contract/test_baseline_roc_auc.py`)
+- [~] T027 [US3] Contract test asserting FDR ≤ 0.05 **after Benjamini–Hochberg correction** (`tests/contract/test_fdr.py`)
 
 ### Implementation for User Story 3
 
-- [X] T028 [US3] Evaluate ROC‑AUC, PR‑AUC, and calibration plots; assert ROC‑AUC ≥ 0.50 baseline (`code/modeling/evaluate.py`)
-- [X] T029 [US3] Apply multiple‑hypothesis testing correction (Benjamini–Hochberg), output `data/model/corrected_pvalues.csv`, **record the resulting FDR and assert ≤ 0.05** (`code/modeling/correct_pvalues.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T030 [US3] Generate partial dependence plots for the three most important metrics (`code/modeling/pdp.py`)
-- [X] T031 [US3] Derive practical threshold values (predicted bug probability ≥ 0.5) and write `thresholds.csv` (`code/modeling/generate_thresholds.py`)
-- [X] T032 [US3] Assemble a concise research report (PDF/HTML) with tables, plots, and interpretation (`code/report/generate_report.py`)
+- [~] T028 [US3] Evaluate ROC‑AUC, PR‑AUC, and calibration plots; assert ROC‑AUC ≥ 0.50 baseline (`code/modeling/evaluate.py`)
+- [~] T029 [US3] Apply multiple‑hypothesis testing correction (Benjamini–Hochberg), output `data/model/corrected_pvalues.csv`, **record the resulting FDR and assert ≤ 0.05** (`code/modeling/correct_pvalues.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T030 [US3] Generate partial dependence plots for the three most important metrics (`code/modeling/pdp.py`)
+- [~] T031 [US3] Derive practical threshold values (predicted bug probability ≥ 0.5) and write `thresholds.csv` (`code/modeling/generate_thresholds.py`)
+- [~] T032 [US3] Assemble a concise research report (PDF/HTML) with tables, plots, and interpretation (`code/report/generate_report.py`)
 
 **Checkpoint**: All user stories now independently functional
 
@@ -132,29 +132,29 @@ id: "TASKS-001"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T033 Update README with usage instructions, data source citations, and reproducibility notes (`README.md`)
-- [X] T034 Add detailed documentation for each pipeline stage (`docs/data_pipeline.md`, `docs/modeling.md`)
-- [X] T035 Code cleanup and refactoring (see subtasks T055‑T057) (`code/`)
-- [X] T055 Run black on the entire `code/` directory and verify no formatting violations (`code/`)
-- [X] T056 Run flake8 on the entire `code/` directory and verify PEP8 compliance (`code/`)
-- [X] T057 Manually remove dead code and verify no import errors (`code/`)
-- [X] T036 Add additional unit tests for utility modules (`tests/unit/test_utils.py`)
-- [X] T037 Performance optimization: cache lizard metric results to avoid re‑parsing unchanged files (`code/data/cache_metrics.py`)
-- [X] T038 Security hardening: ensure downloaded archives are checksum‑verified before extraction (`code/data/download_gh.py`)
-- [X] T039 Run full test suite and enforce coverage ≥ 85 % (`pytest`, `coverage`)
+- [~] T033 Update README with usage instructions, data source citations, and reproducibility notes (`README.md`)
+- [~] T034 Add detailed documentation for each pipeline stage (`docs/data_pipeline.md`, `docs/modeling.md`)
+- [~] T035 Code cleanup and refactoring (see subtasks T055‑T057) (`code/`)
+- [~] T055 Run black on the entire `code/` directory and verify no formatting violations (`code/`)
+- [~] T056 Run flake8 on the entire `code/` directory and verify PEP8 compliance (`code/`)
+- [~] T057 Manually remove dead code and verify no import errors (`code/`)
+- [~] T036 Add additional unit tests for utility modules (`tests/unit/test_utils.py`)
+- [~] T037 Performance optimization: cache lizard metric results to avoid re‑parsing unchanged files (`code/data/cache_metrics.py`)
+- [~] T038 Security hardening: ensure downloaded archives are checksum‑verified before extraction (`code/data/download_gh.py`)
+- [~] T039 Run full test suite and enforce coverage ≥ 85 % (`pytest`, `coverage`)
 
 ### Documentation & Deliverables
 
-- [X] T040 (moved to Phase 0) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [X] T041 (moved to Phase 0) <!-- FAILED: unspecified -->
-- [X] T042 (moved to Phase 0) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T043 (moved to Phase 0)
-- [X] T044 (moved to Phase 0)
-- [X] T045 (moved to Phase 0) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T040 (moved to Phase 0) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [~] T041 (moved to Phase 0) <!-- FAILED: unspecified -->
+- [~] T042 (moved to Phase 0) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T043 (moved to Phase 0)
+- [~] T044 (moved to Phase 0)
+- [~] T045 (moved to Phase 0) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### New Tasks
 
-- [X] T060 Update spec to replace “[deferred]” placeholders with concrete [deferred]/30 % train/test split proportions (`specs/001-statistical-analysis-of-code-complexity/spec.md`)
+- [~] T060 Update spec to replace “[deferred]” placeholders with concrete [deferred]/30 % train/test split proportions (`specs/001-statistical-analysis-of-code-complexity/spec.md`)
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [X] T061 Reconcile run-book vs implementation for `code/modeling/train.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/modeling/train.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [~] T061 Reconcile run-book vs implementation for `code/modeling/train.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/modeling/train.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
