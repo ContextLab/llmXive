@@ -35,7 +35,11 @@ def _parse_args():
         "--output-dir",
         help="Directory where pipeline results will be written",
     )
-    return parser.parse_args()
+    # Parse known arguments and ignore any extras (e.g., --encode-ftp,
+    # --max-tf, etc.) that are present in the quickstart but not yet
+    # needed by this stage.
+    args, _ = parser.parse_known_args()
+    return args
 
 def main():
     # Parse arguments (they are optional for now)

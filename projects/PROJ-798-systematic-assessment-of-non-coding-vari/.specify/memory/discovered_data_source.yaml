@@ -1,19 +1,17 @@
 status: none
-intent: download dbSNP 155 GRCh38 SNPs ENCODE v4 regulatory BED Roadmap Epigenomics
-  JASPAR 2024 python package dataset
+intent: dbSNP 155 common SNPs ENCODE v4 regulatory BED Roadmap Epigenomics JASPAR
+  2024 python package dataset
 required_fields:
-- chrom
-- pos
-- rsid
-- ref
-- alt
-- maf
-- build
-- regulatory_type
-- bed_start
-- bed_end
-- tf_name
-- jaspar_id
-cache_key: 6e6a365c4ae127b8d73a50fb254395226a439e6ab484c690ef3344414dcce999
-searched_at: '2026-10-19T08:27:02.887468+00:00'
+- rsID
+- chromosome
+- position
+- reference_allele
+- alternate_allele
+- minor_allele_frequency
+- genome_build
+- regulatory_region_type
+- regulatory_region_id
+- gc_content
+cache_key: a2e9d21b7a548971a15bb87b7bf7a9f98992b9246e4340b0f8b79077ccb8690c
+searched_at: '2026-10-19T08:28:20.801042+00:00'
 retry_count: 1
