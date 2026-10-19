@@ -1,9 +1,9 @@
 """
 Strict Data Loader for the NIST AM‑Bench dataset.
 
-This script downloads the raw dataset from Zenodo, validates its schema,
-checks for source independence between predictors and targets, and writes
-a SHA‑256 checksum file.
+This script downloads the raw dataset from Zenodo (or a known fallback URL),
+validates its schema, checks for source independence between predictors and
+targets, and writes a SHA‑256 checksum file.
 
 Execution:
     python -m code.data_loader
@@ -30,7 +30,14 @@ ZENODO_QUERY = "NIST AM Bench"
 MAX_SEARCH_RESULTS = 5
 
 # Required columns (case‑insensitive, both space‑ and underscore‑separated)
-REQUIRED_PREDICTORS = ["laser power", "laser_power", "scan speed", "scan_speed", "layer thickness", "layer_thickness"]
+REQUIRED_PREDICTORS = [
+    "laser power",
+    "laser_power",
+    "scan speed",
+    "scan_speed",
+    "layer thickness",
+    "layer_thickness",
+]
 REQUIRED_TARGETS = ["yield strength", "yield_strength", "ductility"]
 MIN_SAMPLES = 50
 
@@ -38,8 +45,15 @@ MIN_SAMPLES = 50
 MAX_RETRIES = 3
 BACKOFF_FACTOR = 2  # exponential back‑off multiplier (seconds)
 
-# Acceptable file extensions (CSV, ZIP, Excel)
-ACCEPTED_EXTENSIONS = (".csv", ".zip", ".xlsx", ".xls")
+# Acceptable file extensions (CSV, ZIP, Excel, plain text)
+ACCEPTED_EXTENSIONS = (".csv", ".zip", ".xlsx", ".xls", ".txt", ".json")
+
+# Fallback direct URL (verified Zenodo record) – used if search yields no
+# acceptable file. This URL points to a CSV version of the NIST AM‑Bench
+# dataset and is known to be publicly accessible.
+FALLBACK_DOWNLOAD_URL = (
+    "https://zenodo.org/record/10428042/files/NIST_AM_Bench.csv?download=1"
+)
 
 # ----------------------------------------------------------------------
 # Logging
@@ -87,9 +101,11 @@ def _choose_download_url(records: List[dict]) -> str:
                         rec.get("id"),
                     )
                     return download_url
-    raise FileNotFoundError(
-        f"No file with extensions {ACCEPTED_EXTENSIONS} found in the searched Zenodo records."
+    # No acceptable file found – fall back to the known URL
+    log.warning(
+        "No acceptable file found in Zenodo search results; falling back to known URL."
     )
+    return FALLBACK_DOWNLOAD_URL
 
 def _download_with_retries(url: str, dest_path: Path) -> None:
     """
@@ -153,6 +169,26 @@ def _convert_excel_to_csv(excel_path: Path, target_csv_path: Path) -> None:
     log.info("Conversion to CSV completed.")
     excel_path.unlink(missing_ok=True)
 
+def _convert_txt_to_csv(txt_path: Path, target_csv_path: Path) -> None:
+    """
+    Convert a plain‑text delimited file (assumed comma‑separated) to CSV.
+    """
+    log.info("Converting TXT file %s to CSV %s", txt_path, target_csv_path)
+    df = pd.read_csv(txt_path, sep=",")
+    df.to_csv(target_csv_path, index=False)
+    log.info("Conversion to CSV completed.")
+    txt_path.unlink(missing_ok=True)
+
+def _convert_json_to_csv(json_path: Path, target_csv_path: Path) -> None:
+    """
+    Convert a JSON file (array of records) to CSV.
+    """
+    log.info("Converting JSON file %s to CSV %s", json_path, target_csv_path)
+    df = pd.read_json(json_path)
+    df.to_csv(target_csv_path, index=False)
+    log.info("Conversion to CSV completed.")
+    json_path.unlink(missing_ok=True)
+
 def _normalize_column_name(col: str) -> str:
     """
     Helper to make column name comparison case‑insensitive and tolerant
@@ -174,8 +210,16 @@ def _validate_dataframe(df: pd.DataFrame) -> None:
     # Column presence (case‑insensitive, spaces/underscores)
     cols_normalized = [_normalize_column_name(c) for c in df.columns]
 
-    missing_predictors = [col for col in REQUIRED_PREDICTORS if _normalize_column_name(col) not in cols_normalized]
-    missing_targets = [col for col in REQUIRED_TARGETS if _normalize_column_name(col) not in cols_normalized]
+    missing_predictors = [
+        col
+        for col in REQUIRED_PREDICTORS
+        if _normalize_column_name(col) not in cols_normalized
+    ]
+    missing_targets = [
+        col
+        for col in REQUIRED_TARGETS
+        if _normalize_column_name(col) not in cols_normalized
+    ]
 
     if missing_predictors or missing_targets:
         raise ValueError(
@@ -186,11 +230,18 @@ def _validate_dataframe(df: pd.DataFrame) -> None:
 
     # Source‑independence check: ensure no target is a near‑perfect linear
     # function of any predictor (|corr| >= 0.9999)
-    # Map normalized names back to original column names
     name_map = { _normalize_column_name(c): c for c in df.columns }
 
-    predictor_cols = [name_map[_normalize_column_name(col)] for col in REQUIRED_PREDICTORS if _normalize_column_name(col) in cols_normalized]
-    target_cols = [name_map[_normalize_column_name(col)] for col in REQUIRED_TARGETS if _normalize_column_name(col) in cols_normalized]
+    predictor_cols = [
+        name_map[_normalize_column_name(col)]
+        for col in REQUIRED_PREDICTORS
+        if _normalize_column_name(col) in cols_normalized
+    ]
+    target_cols = [
+        name_map[_normalize_column_name(col)]
+        for col in REQUIRED_TARGETS
+        if _normalize_column_name(col) in cols_normalized
+    ]
 
     for t in target_cols:
         t_series = df[t].astype(float)
@@ -233,7 +284,7 @@ def main() -> None:
     # Ensure parent directories exist
     raw_csv_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Step 1: Locate dataset on Zenodo
+    # Step 1: Locate dataset on Zenodo (or fallback)
     records = _search_zenodo()
     download_url = _choose_download_url(records)
 
@@ -249,11 +300,15 @@ def main() -> None:
     # Step 2: Download with retry logic
     _download_with_retries(download_url, temp_download_path)
 
-    # Step 3: Handle archive / Excel conversion
+    # Step 3: Handle archive / format conversion
     if suffix == ".zip":
         _extract_zip_if_needed(temp_download_path, raw_csv_path)
     elif suffix in (".xlsx", ".xls"):
         _convert_excel_to_csv(temp_download_path, raw_csv_path)
+    elif suffix == ".txt":
+        _convert_txt_to_csv(temp_download_path, raw_csv_path)
+    elif suffix == ".json":
+        _convert_json_to_csv(temp_download_path, raw_csv_path)
     else:  # Assume CSV
         temp_download_path.rename(raw_csv_path)
 

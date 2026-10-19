@@ -1,5 +1,16 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python code/main.py --step download`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 4 command(s) failed: python code/main.py --step download (rc=1); python code/main.py --step preprocess (rc=1); python code/main.py --step train (rc=1); 1 declared deliverable(s) absent: data/literature_baseline_importance.json
@@ -7,20 +18,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --step download -> rc=1
-
-2026-10-19 00:12:32,477 INFO data_loader: Searching Zenodo for dataset: NIST AM Bench
-2026-10-19 00:12:33,155 INFO data_loader: Found 5 candidate record(s).
+nodo.org/record/10428042/files/NIST_AM_Bench.csv?download=1 (attempt 3).
+2026-10-19 00:14:45,718 WARNING data_loader: Download failed (404 Client Error: NOT FOUND for url: https://zenodo.org/records/10428042/files/NIST_AM_Bench.csv). Retrying in 8 seconds...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/main.py", line 93, in <module>
     run_download_step()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/main.py", line 33, in run_download_step
     download_data_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data_loader.py", line 238, in main
-    download_url = _choose_download_url(records)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data_loader.py", line 90, in _choose_download_url
-    raise FileNotFoundError(
-FileNotFoundError: No file with extensions ('.csv', '.zip', '.xlsx', '.xls') found in the searched Zenodo records.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data_loader.py", line 301, in main
+    _download_with_retries(download_url, temp_download_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/data_loader.py", line 131, in _download_with_retries
+    raise FileNotFoundError(f"Failed to download after {MAX_RETRIES} attempts: {url}")
+FileNotFoundError: Failed to download after 3 attempts: https://zenodo.org/record/10428042/files/NIST_AM_Bench.csv?download=1
 
 - python code/main.py --step preprocess -> rc=1
 
@@ -35,10 +44,10 @@ FileNotFoundError: No CSV files found in raw data directory: /home/runner/work/l
 
 - python code/main.py --step train -> rc=1
 
-2026-10-19 00:12:35,560 - models.gpr_trainer - INFO - Starting GPR training step...
-2026-10-19 00:12:35,560 INFO models.gpr_trainer: Starting GPR training step...
-2026-10-19 00:12:35,560 - models.gpr_trainer - ERROR - Processed train or test CSV not found.
-2026-10-19 00:12:35,560 ERROR models.gpr_trainer: Processed train or test CSV not found.
+2026-10-19 00:14:56,183 - models.gpr_trainer - INFO - Starting GPR training step...
+2026-10-19 00:14:56,183 INFO models.gpr_trainer: Starting GPR training step...
+2026-10-19 00:14:56,183 - models.gpr_trainer - ERROR - Processed train or test CSV not found.
+2026-10-19 00:14:56,183 ERROR models.gpr_trainer: Processed train or test CSV not found.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/main.py", line 97, in <module>
     run_train_step()
@@ -50,8 +59,8 @@ FileNotFoundError: Processed data files missing.
 
 - python code/main.py --step analyze -> rc=1
 
-2026-10-19 00:12:36,796 - importance - INFO - Starting permutation importance analysis...
-2026-10-19 00:12:36,796 INFO importance: Starting permutation importance analysis...
+2026-10-19 00:14:57,417 - importance - INFO - Starting permutation importance analysis...
+2026-10-19 00:14:57,417 INFO importance: Starting permutation importance analysis...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-053-unveiling-hidden-correlations-between-pr/code/main.py", line 99, in <module>
     run_analyze_step()
