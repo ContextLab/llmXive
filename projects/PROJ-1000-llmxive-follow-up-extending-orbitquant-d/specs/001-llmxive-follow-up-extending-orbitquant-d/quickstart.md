@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 ## Initialize the Project Skeleton
 
-The project provides a command-line entry point that creates the required
+The project provides a command‑line entry point that creates the required
 directory structure under `code/` and prints a confirmation message.
 
 ```bash
@@ -55,7 +55,7 @@ first = next(iter(ds))
 print(f"Image URL: {first['image']}  Caption: {first['caption']}")
 ```
 
-If the script prints a valid image URL and caption, the dataset is reachable.
+If the script prints a valid image URL such as ` certificate verify failed: Hostname mismatch, certificate is not valid for 'images.cocodataset.org'. (_ssl.c:1016)")))] and a caption, the dataset is reachable.
 
 ## Verification
 
@@ -75,7 +75,9 @@ grep -c "torch" requirements.txt   # should be ≥ 1
 python -m code.main --phase init | grep "Initialization complete"
 ```
 
+## Important Note
+
+The quickstart does **not** run any heavy model loading or GPU‑dependent steps; it only verifies that the skeleton, dependencies, and dataset streaming are functional on a CPU‑only GitHub Actions runner.
+
 ---
-
-
 

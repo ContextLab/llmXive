@@ -26,7 +26,9 @@ All project artifacts reside under `data/`. Schemas in `contracts/` validate eac
 3. **Versioning** – After each pipeline run, `data/artifact_hashes.json` is updated with hashes of all new artifacts (project‑owned).  
 4. **PII** – Captions contain no personal identifiers; a simple regex filter removes any token matching email/phone patterns.  
 
+## Validation Steps (new)
+- **Prompt & Entropy CSV Validation**: Before any analysis, `code/analysis/correlation.py` will validate `prompts.csv` and `entropy_scores.csv` against `prompt_schema.schema.yaml` and `entropy_schema.schema.yaml` using `jsonschema`. Failures abort the pipeline.  
+- **Rotation Matrix Metadata Validation**: After matrix generation, `code/analysis/clustering.py` validates each `metadata_{i}.json` against `rotation_matrix_schema.schema.yaml`. Invalid metadata triggers a re‑run of the clustering step.
+
 ---
-
-
 
