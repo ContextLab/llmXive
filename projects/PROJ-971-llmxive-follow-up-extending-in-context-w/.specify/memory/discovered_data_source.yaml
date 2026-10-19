@@ -1,10 +1,10 @@
 status: none
-intent: ICWM interaction clips dataset download python package dataset
+intent: download ICWM interaction clips dataset python package dataset
 required_fields:
 - clip_id
-- state
-- action
-- observation
-cache_key: 1a42c95884c0e7862fa7bb4ea36fc34e607e00ae15abe2ac57b3a0cbc7d521de
-searched_at: '2026-10-19T22:09:53.281935+00:00'
+- variance
+- autocorr_lag1
+- spectral_density
+cache_key: e3461af9382497b2ea4ff2b71e6e8b15102dee0be15ade6f0797776ac95c956c
+searched_at: '2026-10-19T22:12:03.873175+00:00'
 retry_count: 1
