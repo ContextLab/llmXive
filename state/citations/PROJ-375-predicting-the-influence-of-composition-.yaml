@@ -132,7 +132,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/metallic-glass-cte
   verified_at: '2026-10-17T07:31:30.284018Z'
-- artifact_hash: 299a0a17c317f6b928715e39f3ddde54142a5ca1d9e11bd9e5764cd588272bdb
+- artifact_hash: 1fca8813a0e7d57c14c6934eaa34d1ab79c5336adc2962428ac617e9028cba69
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -142,4 +142,4 @@
   value: https://aflowlib.org`
   verification_status: pending
   verified_against_url: https://aflowlib.org
-  verified_at: '2026-10-17T07:53:28.101517Z'
+  verified_at: '2026-10-19T13:22:06.991029Z'
