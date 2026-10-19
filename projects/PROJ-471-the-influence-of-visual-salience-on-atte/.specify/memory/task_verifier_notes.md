@@ -2,4 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T003** — Requested task execution failed; rerun successfully: code/salience/generate_maps.py exit=1
+- **T003** — The expected `data/interim/salience_metadata.json` file is not present (the script writes metadata to a different `interim/` directory), and the implementation falls back to a gradient‑magnitude method when DeepGaze II cannot be loaded instead of guaranteeing DeepGaze II usage on CPU as required. Additionally, error logging is not directed to the specified `logs/salience_errors.log`. These issues prevent the task from meeting its stated requirements.
+- **T004** — The `segment_roi.py` script imports `detectron2` at module load time, causing an import error (ModuleNotFoundError) and preventing the test suite from being collected or run. Consequently no masks, metadata, or CSV files are generated, and the required verification tests cannot pass. The missing `detectron2` dependency must be installed or the script must handle its absence gracefully for the task to be considered complete.
+- **T005** — Requested task execution failed; rerun successfully: code/eye_tracking/parse_fixations.py exit=1

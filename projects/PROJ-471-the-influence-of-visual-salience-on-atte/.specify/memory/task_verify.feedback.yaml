@@ -3,12 +3,24 @@ T001:
 T002:
   task: 02685b8ff4f7529742c59f98d98def0273c4a7cb0652d3636c22183b2b7040f9
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/salience/generate_maps.py
-    exit=1'
+  reason: "The expected `data/interim/salience_metadata.json` file is not present\
+    \ (the script writes metadata to a different `interim/` directory), and the implementation\
+    \ falls back to a gradient\u2011magnitude method when DeepGaze\u202FII cannot\
+    \ be loaded instead of guaranteeing DeepGaze\u202FII usage on CPU as required.\
+    \ Additionally, error logging is not directed to the specified `logs/salience_errors.log`.\
+    \ These issues prevent the task from meeting its stated requirements."
   task: d9f1594af4df8f1d3a00dedc9f305d1cdef60638ac54a4e04623503437a7adbc
 T004:
+  reason: The `segment_roi.py` script imports `detectron2` at module load time, causing
+    an import error (ModuleNotFoundError) and preventing the test suite from being
+    collected or run. Consequently no masks, metadata, or CSV files are generated,
+    and the required verification tests cannot pass. The missing `detectron2` dependency
+    must be installed or the script must handle its absence gracefully for the task
+    to be considered complete.
   task: a0d23483d2ddefee135c45d9cd0fb4f0e9dc05ab739ac437a0d918891848ff40
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/eye_tracking/parse_fixations.py
+    exit=1'
   task: 8f081a992a7f3ded2f11ded5b93e05fb7e986fef8a3e090dab1f8cb0b6d7eb35
 T006:
   task: ff0b7dc915770d096ec012167eb152d2acc54d5db04f42b3869536db73898a4e
