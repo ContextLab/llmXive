@@ -11,7 +11,7 @@ The tasks below cover every functional requirement (FR‑001 – FR‑012), 
 | Goal | Run a minimal pipeline that produces a validated feature matrix from real Materials Project data. |
 |------|---------------------------------------------------------------------------------------------------|
 
-- [ ] **T001** [US‑1] Create a `quickstart.md` that documents the single command to run the full pipeline (`python -m src.pipeline.run`).  
+- [ ] **T001** [US‑1] Create a `quickstart.md` that documents the single command to run the full pipeline (`python -m src.pipeline.run`).   <!-- FAILED-IN-EXECUTION: src/pipeline/run.py exit=1 -->
   *File:* `quickstart.md`  
   *Verification:* The command executes on a fresh GitHub Actions runner, prints “Pipeline completed successfully”, and the CI test `src/tests/test_quickstart.py` asserts the success message (fulfills FR‑010 and SC‑004).  
 
@@ -38,7 +38,7 @@ The tasks below cover every functional requirement (FR‑001 – FR‑012), 
   *File:* `src/utils/check_descriptor_gaps.py` → appends a “descriptor_gaps.log” in `data/processed/`.  
   *Verification:* The log is created and the CI test asserts that if any gaps are found the pipeline aborts with a clear message, satisfying FR‑006.  
 
-- [X] **T015** [Constitution‑III] Compute SHA‑256 checksums for `data/raw/materials_defects.csv` immediately after download and write them to `data/checksums/raw_defects.sha256`.  
+- [ ] **T015** [Constitution‑III] Compute SHA‑256 checksums for `data/raw/materials_defects.csv` immediately after download and write them to `data/checksums/raw_defects.sha256`.  
   *File:* `src/utils/checksum.py` (invoked by the pipeline).  
   *Verification:* CI test confirms the checksum file exists and matches the file content.  
 

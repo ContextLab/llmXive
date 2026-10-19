@@ -1,13 +1,3 @@
-T001:
-  c: false
-  h: 026689735a64a7f5663e8421da56766a53137a52b0d57b740efb181e2f6b2576
-  r: "The `quickstart.md` file and the CI test `src/tests/test_quickstart.py` are\
-    \ present, but there is no evidence that the pipeline command actually runs on\
-    \ a fresh runner and prints \u201CPipeline completed successfully\u201D (no CI\
-    \ logs or test execution results, and the `src.pipeline.run` module itself is\
-    \ not shown). The implementer must provide proof that the command executes successfully\
-    \ and that the CI test passes."
-  sig: c87557dd1edc367f710b4cfddd04045c3843cd2a92f542a328bd84c5cbd483ad
 T004:
   c: false
   h: 3fb7ab1b9474e8c0f27fd718871b8268e6dfceed82ec0f4200834053ebd66dc1
@@ -40,23 +30,26 @@ T006:
   sig: d39a7c455601e504c9918b17cb1b9a29c743e6544e6de67a57c9562566d6b3f9
 T013:
   c: true
-  h: fac572187ff2754c93e34f42e85d63352dfffa2542b34940f70396e3646771e0
-  r: The script `src/utils/check_descriptor_gaps.py` exists with a full implementation
-    that scans all 12 descriptor columns, logs each gap with row identifiers (composition
-    or row index) to `data/processed/descriptor_gaps.log`, and raises a RuntimeError
-    to abort the pipeline when gaps are found, satisfying FR-006. The log file exists
-    in `data/processed/`, and the CI test run (`src/tests/test_descriptor_gaps.py`)
-    passed both the no-missing and with-missing cases, confirming the abort behavior
-    is actually tested.
-  sig: 0d45ebb7696202619435928c770f9205fdce4c6a2bcf1f1ff1a6264391b38bd2
+  h: 041c0bb175181ccd951be91ffbfd3ee9bd88aaa2b2f87b058630ca2fcedf83db
+  r: 'The script `src/utils/check_descriptor_gaps.py` exists (4.4 KB) and is a genuine,
+    non-stub implementation: it scans all 12 expected descriptor columns for NaN/missing
+    values, logs each gap with row identifiers (composition or row index) to `data/processed/descriptor_gaps.log`,
+    and raises a RuntimeError to abort the pipeline when gaps are found, satisfying
+    FR-006. The log file `descriptor_gaps.log` is confirmed present in `data/processed/`,
+    matching the required output location.'
+  sig: ceddc482636152a69dafbce9a79e6d66ae5355b51eb5199c8df91a38d49e33f9
 T015:
-  c: true
-  h: 32d2cd3249a18a796fb0315d167a4e88d38f366b10304f5c63cb4080198a560a
-  r: The checksum file `data/checksums/raw_defects.sha256` exists and contains `3579d79c...ead8f7`,
-    which exactly matches the collector-computed SHA-256 of `data/raw/materials_defects.csv`,
-    and `src/utils/checksum.py` is a real, functional implementation (chunked hashlib.sha256,
-    writes digest, CLI entry point) rather than a stub.
-  sig: bd15f8a6232cd9414bf8e2394cd6c321478407e39d362d4810edcb0a8a6f22b4
+  c: false
+  h: f10da940791c5db84cdac0fbb40e20105c86bb7fb83093e33a594a704a4464f8
+  r: "The checksum utility `src/utils/checksum.py` exists and is a real implementation,\
+    \ and `data/checksums/raw_defects.sha256` contains a 64-char hex digest. However,\
+    \ the input file `data/raw/materials_defects.csv` is MISSING, so the checksum\
+    \ cannot be verified against the file content \u2014 the task requires computing\
+    \ the checksum \"immediately after download\" of that CSV, and the CI verification\
+    \ requires the checksum to match the file content, which is impossible to confirm\
+    \ (and the checksum may be fabricated since no source file exists). The next implementer\
+    \ must produce the raw CSV and recompute/ver"
+  sig: 17b222559e8067ec0796f37fa42181b01fe34de7c45197c16927f88044280ab6
 T016:
   c: false
   h: 9ce1d2b82789dbcbf6ad836f951a4641c15ffab6b62743da944435aa30639a3e

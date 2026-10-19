@@ -1,10 +1,6 @@
 T001:
-  reason: "The `quickstart.md` file and the CI test `src/tests/test_quickstart.py`\
-    \ are present, but there is no evidence that the pipeline command actually runs\
-    \ on a fresh runner and prints \u201CPipeline completed successfully\u201D (no\
-    \ CI logs or test execution results, and the `src.pipeline.run` module itself\
-    \ is not shown). The implementer must provide proof that the command executes\
-    \ successfully and that the CI test passes."
+  reason: 'Requested task execution failed; rerun successfully: src/pipeline/run.py
+    exit=1'
   task: 5d96aab2c4e0be5c3086b4cb91a2ca052b5d8dfbad5c35b151b278eb378f4f89
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py
@@ -48,6 +44,14 @@ T009:
 T013:
   task: 2c34d5af658c7485727dae7e176037bc0b2968fe7d802c7596bc35fe43a991cb
 T015:
+  reason: "The checksum utility `src/utils/checksum.py` exists and is a real implementation,\
+    \ and `data/checksums/raw_defects.sha256` contains a 64-char hex digest. However,\
+    \ the input file `data/raw/materials_defects.csv` is MISSING, so the checksum\
+    \ cannot be verified against the file content \u2014 the task requires computing\
+    \ the checksum \"immediately after download\" of that CSV, and the CI verification\
+    \ requires the checksum to match the file content, which is impossible to confirm\
+    \ (and the checksum may be fabricated since no source file exists). The next implementer\
+    \ must produce the raw CSV and recompute/ver"
   task: f9c04962eaccba52fed7d93d3c9ff842880c4fa7ab7094347ff082652b66d9ad
 T016:
   reason: "The required output `data/checksums/features.sha256` is MISSING \u2014\
