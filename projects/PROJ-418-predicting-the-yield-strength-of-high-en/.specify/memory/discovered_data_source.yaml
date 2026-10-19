@@ -1,11 +1,12 @@
 status: none
-intent: Materials Project HEA yield strength dataset Zenodo python package dataset
+intent: Materials Project HEA yield strength dataset Zenodo download python package
+  dataset
 required_fields:
-- alloy_id
+- material_id
 - element_symbols
 - element_fractions
 - yield_strength_gpa
 - measurement_temperature_K
-cache_key: cf26b9fca23db77a2d18416b568381fbde71107f1161f44c297ec16a7953e683
-searched_at: '2026-10-02T22:11:45.864109+00:00'
+cache_key: 4cdda6a0b0deab1ae64aecc566f6cb403856cca2d843f7784de6c5db8c74c650
+searched_at: '2026-10-19T06:21:39.913283+00:00'
 retry_count: 1

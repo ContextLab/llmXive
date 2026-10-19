@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T23:25:06.369481Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-418-predicting-the-yield-strength-of-high-en
-last_run_id: 291776fc-db45-49a3-8ba0-5b72f6cea5d2
+last_run_id: 3f9a9816-57ae-49cf-83f8-04c40ead6a38
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en
 title: Predicting the Yield Strength of High-Entropy Alloys via Compositional Descriptors
-updated_at: '2026-10-19T06:19:15.952289Z'
+updated_at: '2026-10-19T06:21:42.313070Z'

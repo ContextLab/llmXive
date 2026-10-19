@@ -1,96 +1,15 @@
+T000:
+  c: false
+  h: 5ef4ed2587989dcb3bfc669e0fc67f3a29e2911fb8f4c823dfa6ef738c366d45
+  r: "The `contracts/requirements.schema.yaml` file is missing, causing the `validate_requirements_schema`\
+    \ test to fail (FileNotFoundError). Without the schema, the script cannot perform\
+    \ the required validation step, so the task\u2019s core requirement is not met.\
+    \ Add the missing schema file (matching the expected JSON\u2011schema for a list\
+    \ of strings) and ensure the test passes."
+  sig: aca3f500e8d4cb2cb26d6b03b388fb2294fe34c69794f8dc1f988d6f2b8016d9
 T008:
   c: false
   h: ba385b9c938f7ab0fa7980527b157b3c7c09529e5e968f969bfd9f8bb9857a66
   r: The required file `data/raw/heas_raw.csv` is missing, so the code cannot load
     the primary HEA dataset nor abort with a clear error as specified. The artifact
     needed to satisfy the task does not exist.
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/metrics.json` file (or its contents) is present in the provided evidence,\
-    \ so the required writer and recorded metrics for the random forest, gradient\
-    \ boosting, and linear models are not demonstrated. The task\u2019s core deliverable\
-    \ is missing."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/report.md` file or its contents were provided, so there is no evidence\
-    \ that a statistical report generator was created, nor that it includes the required\
-    \ p\u2011values, confidence intervals, VIF flags, or the integrated T029a/T029b\
-    \ disclaimers. The task\u2019s deliverable is missing."
-T098:
-  c: false
-  h: dc34d63b62a97d9044ab6cb68d34707fcdd121a6f59a29d9076a5c06034d60b5
-  r: The required raw dataset file `data/raw/heas_raw.csv` and the schema file `contracts/dataset.schema.yaml`
-    are both missing, and no validation output or logs are provided. Without these
-    artifacts the validation step cannot have been performed.
-T100:
-  c: false
-  h: ff2c6726bb0d0c5a14221fddd36c8ca2bba99997115c6724a06d1c7360e71b0f
-  r: The required descriptor CSV (`data/processed/hea_descriptors.csv`) is absent,
-    and the referenced schema file (`contracts/descriptor.schema.yaml`) is also missing,
-    so no validation could have been performed. The task therefore lacks the necessary
-    artifacts and cannot be considered completed.
-T101:
-  c: false
-  h: ff2c6726bb0d0c5a14221fddd36c8ca2bba99997115c6724a06d1c7360e71b0f
-  r: The required processed data file `data/processed/hea_descriptors.csv` does not
-    exist, and the schema file `contracts/processed_data.schema.yaml` (or `schema.yaml`)
-    is also missing, so no validation could have been performed. The task therefore
-    lacks the necessary artifacts.
-T117:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `manifest.json`, `report.md`, `metrics.json`, `stability_rankings.json`,\
-    \ or `external_metrics.json` files are presented, nor any logs or screenshots\
-    \ showing the pipeline run on a sample CSV. The required end\u2011to\u2011end\
-    \ execution evidence is missing, so the task is not satisfied."
-T118:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `report.md` file or its contents are provided; without the actual markdown\
-    \ report we cannot verify that it contains the required sections (dataset stats,\
-    \ VIF summary, model performance metrics, permutation importance with corrected\
-    \ p\u2011values, bootstrap CI, and disclaimers). The implementer must supply the\
-    \ generated `report.md` for inspection."
-T120:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/pipeline_runtime.json` file or its contents were provided; therefore\
-    \ we cannot confirm that it exists, is non\u2011empty, and contains a `\"status\"\
-    : \"pass\"` with a total runtime \u2264\u202F7200\u202Fseconds. The required artifact\
-    \ must be supplied and inspected."
-T121:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No validation logs, reports, or any other artifacts demonstrating that schema\u2011\
-    validation tasks T098\u2011T101 all passed and that no missing\u2011field errors\
-    \ occurred were provided. The implementer\u2019s claim lacks concrete evidence,\
-    \ so the requirement is not satisfied."
-T122:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `manifest.json` file or its contents were supplied, so we cannot confirm that
-    it includes the required provenance fields (seeds, versions, checksums, etc.).
-    The necessary artifact is missing, preventing verification of the task.
-T126:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/final_validation_report.json` file or any other artifact was presented.\
-    \ Without the required JSON summary aggregating T117\u2011T125 results, the task\u2019\
-    s deliverable is missing. The implementer must create and provide the specified\
-    \ report file."
-T127:
-  c: false
-  h: ba385b9c938f7ab0fa7980527b157b3c7c09529e5e968f969bfd9f8bb9857a66
-  r: The required `data/raw/heas_raw.csv` file is missing, so there is no actual dataset
-    whose checksum can be compared to the recorded value in the state file, and no
-    evidence of the pipeline aborting on a mismatch. Without the raw data (and a corresponding
-    state file), the verification cannot be performed.
-T200:
-  c: false
-  h: a6c15d95a096146640a7c83453a6ba19a8a54dac06423269d57468cc503bb2e8
-  r: The required artifact `data/processed/hea_descriptors.csv` does not exist on
-    disk, so the descriptor dataset (with VIF computation/remediation) was not generated
-    as the task specifies. No alternative evidence was provided to satisfy the deprecated
-    note.

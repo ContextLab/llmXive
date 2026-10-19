@@ -15,7 +15,7 @@
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T001 [P1] [FR-001] **Data acquisition – real HEA dataset (Zenodo).**  
+- [ ] T001 [P1] [FR-001] **Data acquisition – real HEA dataset (Zenodo).**   <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 -->
   Implement `code/data/fetch_heas.py` that downloads the curated HEA yield‑strength dataset from the Zenodo archive (URL placeholder **INSERT_ZENODO_URL_HERE**).  
   - Writes a **CSV** `data/raw/heas_raw.csv` with columns `alloy_id, composition, yield_strength, phase, temperature`.  
   - Validates each row against `contracts/dataset.schema.yaml`.  

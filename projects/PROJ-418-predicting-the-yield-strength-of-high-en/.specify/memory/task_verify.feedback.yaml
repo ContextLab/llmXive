@@ -1,0 +1,33 @@
+T000:
+  reason: "The `contracts/requirements.schema.yaml` file is missing, causing the `validate_requirements_schema`\
+    \ test to fail (FileNotFoundError). Without the schema, the script cannot perform\
+    \ the required validation step, so the task\u2019s core requirement is not met.\
+    \ Add the missing schema file (matching the expected JSON\u2011schema for a list\
+    \ of strings) and ensure the test passes."
+  task: a798e05e887a53a2fabdeb332dc75a5c1c3abfd15e51bd450dcf16b96a99d362
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/data/fetch_heas.py
+    exit=1'
+  task: eb8f8211bd04eb537ba91f8358867b475d5f7010902523f6943d161b3c12fbf5
+T002:
+  task: fe7e9f24c1c330679c7d1150e96c39218ed72568c10b0e309bc77281f89608c6
+T004:
+  task: db6e58f09605e86c436e391ba057c2912ab4b59d12057cc660910a279768c3a6
+T005:
+  task: 1f77ff6249e78d55c28c5b3f4847952ffa1a77a83f1c8f2dba3dd721799567c9
+T006:
+  task: 289d68e932f3d57c8252775db4f39aba4a46e39e2411c1a48ad23a67dc9865a8
+T007:
+  task: 850cf74acae6e9045102caf11960ca309589305fd4b76854f78773f1d2e1c9b1
+T008:
+  task: a4793cc0b1aae49fa53e09322c570b7ff3b7965d060e78422d7f7539875a1f7a
+T009:
+  task: 44c1e9a7546ab57ccfcba1e018d6ffe3c22119548c4d535a5c6ab8df3da70999
+T010:
+  task: 22bc92c027888188c3d220c471d0b408f506afaca2fa68072829a198f78b5ab2
+T011:
+  task: 0c7e8fccbf797ecf28d10c9f0c370672c03bf77a078563f59d543230264026ec
+T012:
+  task: 89bce249194251c5da47f0b58275ddb9802f290657bce4bb7bcca9415de06bfa
+T013:
+  task: 1b5e7aec30f556119f56b4a0c9512b88af671ef234f547aebe37685c9ecfe7e5
