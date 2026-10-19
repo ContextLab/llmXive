@@ -53,10 +53,10 @@ properties:
     properties:
       bootstrap_resamples:
         type: "integer"
-        description: "Number of bootstrap resamples (100)."
+        description: "Number of bootstrap resamples (chosen to be sufficiently large for stable estimation)."
       resample_strategy:
         type: "string"
-        description: "Full dataset resampling, 10k subsample per iteration."
+        description: "Full dataset resampling, a sizable subsample per iteration."
       jaccard_similarity:
         type: "number"
         minimum: 0

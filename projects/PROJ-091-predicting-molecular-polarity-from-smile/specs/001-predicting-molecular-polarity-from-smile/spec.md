@@ -13,7 +13,7 @@ The system must parse raw SMILES strings from a standard molecular dataset and c
 
 **Why this priority**: This is the foundational data pipeline. Without a valid 2D feature matrix derived strictly from 2D topology and excluding target-redundant proxies, no model can be trained, and the core research question (2D vs. 3D information) cannot be addressed. It represents the "minimum viable" data preparation.
 
-**Independent Test**: Can be tested by running the preprocessing script on a small batch of 100 SMILES strings and verifying the output is a numeric matrix where every column corresponds to a defined 2D descriptor, no 3D geometry data is present, and TPSA/functional group counts are absent.
+**Independent Test**: Can be tested by running the preprocessing script on a small batch of SMILES strings and verifying the output is a numeric matrix where every column corresponds to a defined 2D descriptor., no 3D geometry data is present, and TPSA/functional group counts are absent.
 
 **Acceptance Scenarios**:
 
@@ -103,12 +103,12 @@ The system must apply SHAP (SHapley Additive exPlanations) to quantify the contr
 
 ## Assumptions
 
-- The QM9 dataset is available via `wget`/`curl` from the Maxwell Institute or Zenodo without requiring authentication or paid access.
+- The QM dataset is available via `wget`/`curl` from the Maxwell Institute or Zenodo without requiring authentication or paid access.
 - The QM9 dataset contains the necessary dipole moment values (target variable) and SMILES strings (source) for all molecules required for the analysis.
-- RDKit is available in the GitHub Actions environment with sufficient functionality to compute a broad suite of 2D descriptors without 3D conformer generation.
+- RDKit is available in the GitHub Actions environment with sufficient functionality to compute a broad suite of planar descriptors without 3D conformer generation.
 - The GitHub Actions free‑tier runner provides at least 2 CPU cores and 6 GB of RAM, sufficient for LightGBM training on the sampled dataset.
 - The relationship between 2D topological features and dipole moments is empirically testable without requiring random assignment (observational study framing).
-- The QM9 dataset's dipole moments are calculated using a consistent quantum mechanical method, ensuring the target variable is homogeneous.
+- The QM dataset's dipole moments are calculated using a consistent quantum mechanical method, ensuring the target variable is homogeneous.
 - No GPU acceleration is required or available; all computations must be CPU‑tractable.
 - The dataset variables (predictors and outcomes) are fully contained within the QM9 release; no external data sources are needed for the 2D descriptors.
 - Schema contracts reside in `tests/contract/` relative to the project root, ensuring compatibility with the `quickstart.md` and `data-model.md` test runners.

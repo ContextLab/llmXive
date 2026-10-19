@@ -1,18 +1,14 @@
 status: verified
 kind: pypi_package
 ref: qm9pack
-access_python: 'import pandas as pd
-
-  from qm9pack import get_data
+access_python: 'import qm9pack
 
 
-  df = get_data(''qm9'')
+  df = qm9pack.get_data(''qm9'')
 
-  records = df.to_dict("records")
+  print(f"RECORDS={len(df)}")
 
-  print(f"RECORDS={len(records)}")
-
-  print("FIELDS=" + ",".join(df.columns))'
+  print(f"FIELDS={'',''.join(df.columns)}")'
 record_count: 130831
 sample_fields:
 - XYZ_file
@@ -46,9 +42,9 @@ sample_fields:
 - A_xz
 - A_yz
 - A_zz
-field_coverage: 1.0
+field_coverage: 0.5
 required_fields:
-- SMILES
-- dipole_moment
-intent: download QM9 molecular dataset SMILES dipole moment python package dataset
-cache_key: ea23b5cc73fd9eeee96d880634ea73fdde59d0d390b4d7b154be486f132d4522
+- smiles
+- molecule_id
+intent: QM9 molecular dataset download open-source python package dataset
+cache_key: 15f2db81a927e1c6c996951f2a8b8064f62e2488bbc845e16f7be2ae9f8310db
