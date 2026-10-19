@@ -1,52 +1,41 @@
-"""T001c: Create required project directories.
+"""Create the project directory skeleton required by task T001c.
 
-Creates output/, output/figures/, tests/, tests/unit/, tests/contract/,
-logs/, and data/processed/ under the project root. Idempotent: safe to
-re-run. Uses paths from llmxive_toolkit so the correct project root is
-found regardless of the current working directory.
+Creates (idempotently):
+  output/, output/figures/, tests/, tests/unit/, tests/contract/,
+  logs/, data/processed/
+
+Run: python code/setup_dirs.py
 """
-from pathlib import Path
-
 from llmxive_toolkit import paths
 
-REQUIRED_DIRS = [
-    "output",
-    "output/figures",
-    "tests",
-    "tests/unit",
-    "tests/contract",
-    "logs",
-    "data/processed",
+DIRECTORIES = [
+    ("output",),
+    ("output", "figures"),
+    ("tests",),
+    ("tests", "unit"),
+    ("tests", "contract"),
+    ("logs",),
+    ("data", "processed"),
 ]
 
-
-def create_directories(root: Path) -> list:
-    created = []
-    for rel in REQUIRED_DIRS:
-        target = root / rel
-        if not target.is_dir():
-            target.mkdir(parents=True, exist_ok=True)
-            created.append(rel)
-    return created
-
-
 def main() -> None:
-    root = paths.root
-    created = create_directories(root)
-
-    # Verify all required directories now exist; fail loudly otherwise.
-    missing = [rel for rel in REQUIRED_DIRS if not (root / rel).is_dir()]
-    if missing:
-        raise RuntimeError(f"Failed to create directories: {missing}")
-
+    created = []
+    for parts in DIRECTORIES:
+        d = paths.path(*parts)
+        if not d.exists():
+            d.mkdir(parents=True, exist_ok=True)
+            created.append(str(d))
     if created:
         print("Created directories:")
-        for rel in created:
-            print(f"  {root / rel}")
+        for c in created:
+            print(f"  {c}")
     else:
         print("All required directories already exist.")
-    print("T001c directory setup complete.")
-
+    # Verify all required directories exist; fail loudly otherwise.
+    missing = [p for p in (paths.path(*parts) for parts in DIRECTORIES) if not p.is_dir()]
+    if missing:
+        raise RuntimeError(f"Missing directories after setup: {missing}")
+    print("Directory skeleton verified OK.")
 
 if __name__ == "__main__":
     main()

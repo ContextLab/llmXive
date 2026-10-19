@@ -43,11 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a Create `data/` and `data/raw/` directories
+- [ ] T001a Create `data/` and `data/raw/` directories
 - [X] T001b Create `code/`, `code/discovery/`, `code/preprocess/`, `code/analysis/`, `code/viz/` directories
-- [ ] T001c Create `output/`, `output/figures/`, `tests/`, `tests/unit/`, `tests/contract/`, `logs/`, and `data/processed/` directories
+- [X] T001c Create `output/`, `output/figures/`, `tests/`, `tests/unit/`, `tests/contract/`, `logs/`, and `data/processed/` directories
 - [ ] T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `scikit-learn`, `requests`, `pyyaml`, `tqdm`, `pytest` [UNRESOLVED-CLAIM: c_2097fc9e — status=not_enough_info]
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -58,9 +58,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `code/config.py` for path management, random seeds, and environment variables
-- [ ] T005 [P] Create `code/__init__.py` and module `__init__.py` files for package structure
-- [X] T006 Implement `code/discovery/__init__.py` and `code/preprocess/__init__.py`
-- [X] T007 Implement `code/analysis/__init__.py` and `code/viz/__init__.py`
+- [X] T005 [P] Create `code/__init__.py` and module `__init__.py` files for package structure
+- [ ] T006 Implement `code/discovery/__init__.py` and `code/preprocess/__init__.py`
+- [~] T007 Implement `code/analysis/__init__.py` and `code/viz/__init__.py`
 - [~] T008 Create `tests/unit/__init__.py` and `tests/contract/__init__.py`
 - [~] T008b Create `data/verified_datasets.yaml` as the local registry for verified accession titles (required by T010)
 
@@ -78,8 +78,8 @@
 
 - [~] T009 [US0] Implement `code/discovery/query_geno.py` with search logic for "multi-generational", "methylation", "RNA-seq", and "fluctuating" keywords. **Output**: `output/discovery_results.json`.
 - [~] T010 [US0] Implement `validate_reference(accession, title)` in `code/discovery/query_geno.py` performing title-token overlap check (threshold ≥ 0.7) against `data/verified_datasets.yaml`. [UNRESOLVED-CLAIM: c_c7e66a7e — status=not_enough_info]
-- [ ] T011 [US0] Implement logic to filter datasets by organism (mouse, C. elegans, Drosophila) (Wikidata Q130888, https://www.wikidata.org/wiki/Q130888) and metadata completeness (fluctuation timescale/amplitude). <!-- FAILED-IN-EXECUTION: code/discovery/query_geno.py exit=1 -->
-- [ ] T012 [US0] Implement logic to flag "Partial Match" datasets and write a `halt_signal` to `output/discovery_status.json` if <3 valid datasets are found. **Checkpoint**: Pipeline halts if this file contains `halt_signal`. <!-- FAILED-IN-EXECUTION: code/discovery/query_geno.py exit=1 -->
+- [~] T011 [US0] Implement logic to filter datasets by organism (mouse, C. elegans, Drosophila) (Wikidata Q130888, https://www.wikidata.org/wiki/Q130888) and metadata completeness (fluctuation timescale/amplitude).
+- [~] T012 [US0] Implement logic to flag "Partial Match" datasets and write a `halt_signal` to `output/discovery_status.json` if <3 valid datasets are found. **Checkpoint**: Pipeline halts if this file contains `halt_signal`.
 - [~] T013 [US0] Create `tests/unit/test_discovery.py` with mock responses for GEO/ENCODE queries.
 
 **Checkpoint**: Data availability confirmed or pipeline halted appropriately via `output/discovery_status.json`.
@@ -96,7 +96,7 @@
 
 - [~] T014 [US1] Implement `code/preprocess/rna_seq.py` for RNA-seq normalization (DESeq2-like approach using `scipy`/`sklearn` for CPU feasibility) and variance calculation.
 - [~] T015 [US1] Implement `code/preprocess/methyl.py` for methylation normalization (CpG-density adjustment) and variance calculation.
-- [ ] T016 [US1] Implement **Leave-One-Generation-Out (LOGO)** jackknife logic in both `rna_seq.py` and `methyl.py` to ensure independent sample subsets for variance derivation.
+- [~] T016 [US1] Implement **Leave-One-Generation-Out (LOGO)** jackknife logic in both `rna_seq.py` and `methyl.py` to ensure independent sample subsets for variance derivation.
 - [ ] T017 [US1] Implement filtering logic to exclude genes with zero variance in both layers or missing data in either layer.
 - [ ] T018 [US1] Implement global methylation level filter (<1% exclusion) and non-model organism exclusion.
 - [ ] T019 [US1] Create `code/main.py` as an **initial/skeleton stateless orchestrator** that: (1) checks `output/discovery_status.json` for `halt_signal`, (2) creates `logs/` directory if missing, (3) invokes isolated modules `code/preprocess/rna_seq.py` and `code/preprocess/methyl.py` sequentially, (4) unifies results into `data/processed/variance_matrix.csv`, (5) logs execution to `logs/pipeline.log`, and (6) monitors runtime to fail if >6 hours (SC-004). **Note**: `main.py` must strictly forbid cross-contamination between streams.

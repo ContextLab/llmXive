@@ -42,7 +42,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/epigenetic-drift-project
   verified_at: '2026-07-08T09:32:58.555669Z'
-- artifact_hash: 543f32d9841d3d57a91c36cc90df1f756dc9a5711d469230378bb36f177ba459
+- artifact_hash: 2c8b3999f68b12b2638cee3c7faea77ea8249b104f22f79bc0143a26a6d70a34
   artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +52,8 @@
   value: https://www.wikidata.org/wiki/Q130888
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q130888
-  verified_at: '2026-10-12T13:15:23.893936Z'
-- artifact_hash: 543f32d9841d3d57a91c36cc90df1f756dc9a5711d469230378bb36f177ba459
+  verified_at: '2026-10-19T18:34:36.354282Z'
+- artifact_hash: 2c8b3999f68b12b2638cee3c7faea77ea8249b104f22f79bc0143a26a6d70a34
   artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -63,4 +63,4 @@
   value: https://www.wikidata.org/wiki/Q649075
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q649075
-  verified_at: '2026-10-12T13:15:23.893936Z'
+  verified_at: '2026-10-19T18:34:36.354282Z'

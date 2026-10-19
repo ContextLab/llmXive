@@ -1,12 +1,11 @@
 T001a:
+  reason: The task requires creating `data/` and `data/raw/`; while `data/` exists
+    (containing `processed/` and `verified_datasets.yaml`), the collector confirms
+    `data/raw/` is MISSING. The implementer must create the `data/raw/` directory.
   task: 214734118313de36634d116c53ffdbddc261ea3cb790f64fec9974ef1ec42cdc
 T001b:
   task: d61395421047392b0268817e3afa38079a66069f5d2d128f1700c2d6498fc636
 T001c:
-  reason: The evidence shows `output/`, `output/figures/`, `tests/`, `tests/unit/`,
-    `tests/contract/`, and `data/processed/` directories exist, but the required `logs/`
-    directory is not present in the listed artifacts. The task therefore is not fully
-    satisfied.
   task: 446bdd0b628c116c62e32c2b7fd6502709f1ff8b27441fec14fd11d98825c131
 T002:
   reason: "The evidence only shows the project root path; there is no pyproject.toml,\
@@ -16,21 +15,20 @@ T002:
     3.11 project with those dependencies is unsupported."
   task: 425ea4c4bd3f80fe3d801e2089b02480eaf2210a894baa962a1f03af38b44bf8
 T003:
-  reason: No configuration files or scripts for ruff linting or black formatting are
-    present in the provided artifact list (e.g., no `pyproject.toml`, `.ruff.toml`,
-    `.pre-commit-config.yaml`, or similar files), so the task of configuring these
-    tools is not demonstrated. The implementer has not supplied any evidence that
-    the tools are installed, configured, or integrated into the project.
   task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
 T004:
   task: 7a3827710195010ebe5eb9eff6e787f9b366a12becf0277ab919de0ab3b752d3
 T005:
-  reason: "The evidence includes a non\u2011empty `code/__init__.py`, but no second\
-    \ `__init__.py` file for the requested module/package (e.g., a top\u2011level\
-    \ or sub\u2011package `__init__.py`). The task explicitly required both files,\
-    \ so the missing module `__init__.py` must be added."
   task: b66f24b8753059dcd3a5b5db053c61294a586da4487387779d924b8dc8cc63e5
 T006:
+  reason: "Both `__init__.py` files exist and are non-empty, and the preprocess one\
+    \ correctly uses relative imports (`from .rna_seq import ...`) against confirmed\
+    \ existing modules. However, `code/discovery/__init__.py` uses an absolute import\
+    \ (`from query_geno import ...`), which will raise `ModuleNotFoundError` when\
+    \ the package is imported normally (e.g., `import discovery` with `code/` on the\
+    \ path), since `query_geno.py` lives inside `code/discovery/`, not at the top\
+    \ level \u2014 the exact defect the preprocess `__init__.py` docstring says was\
+    \ fixed there. The discovery `__init__.py` should be changed to re"
   task: 5dc53af70089b56886474a312c0b270d01e86d8486300954307580a80d2313c2
 T007:
   task: 60be95b4b3aff7e08b795cc3703f69c682f6987826b071797f520b42702a6066

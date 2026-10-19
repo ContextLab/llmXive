@@ -9,38 +9,38 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/main.py --stage discovery -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/main.py", line 31, in <module>
-    from analysis.correlation import run_correlation_analysis
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/analysis/__init__.py", line 5, in <module>
-    from correlation import (
-ModuleNotFoundError: No module named 'correlation'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/main.py", line 36, in <module>
+    from viz.plots import run_viz_analysis
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/viz/__init__.py", line 5, in <module>
+    from plots import (
+ModuleNotFoundError: No module named 'plots'
 
 - python code/main.py --stage preprocess -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/main.py", line 31, in <module>
-    from analysis.correlation import run_correlation_analysis
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/analysis/__init__.py", line 5, in <module>
-    from correlation import (
-ModuleNotFoundError: No module named 'correlation'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/main.py", line 36, in <module>
+    from viz.plots import run_viz_analysis
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/viz/__init__.py", line 5, in <module>
+    from plots import (
+ModuleNotFoundError: No module named 'plots'
 
 - python code/main.py --stage analysis -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/main.py", line 31, in <module>
-    from analysis.correlation import run_correlation_analysis
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/analysis/__init__.py", line 5, in <module>
-    from correlation import (
-ModuleNotFoundError: No module named 'correlation'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/main.py", line 36, in <module>
+    from viz.plots import run_viz_analysis
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/viz/__init__.py", line 5, in <module>
+    from plots import (
+ModuleNotFoundError: No module named 'plots'
 
 - python code/main.py --stage viz -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/main.py", line 31, in <module>
-    from analysis.correlation import run_correlation_analysis
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/analysis/__init__.py", line 5, in <module>
-    from correlation import (
-ModuleNotFoundError: No module named 'correlation'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/main.py", line 36, in <module>
+    from viz.plots import run_viz_analysis
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/code/viz/__init__.py", line 5, in <module>
+    from plots import (
+ModuleNotFoundError: No module named 'plots'
 
 
 ## Declared deliverables still missing

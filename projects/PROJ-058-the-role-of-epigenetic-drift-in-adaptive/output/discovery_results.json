@@ -1,0 +1,452 @@
+[
+  {
+    "accession": "GSE324852",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 100,
+    "organism": "Mus musculus",
+    "query": "multigenerational methylation RNA-seq mouse",
+    "source": "GEO",
+    "summary": "In recent years, there has been a growing emphasis on research investigating the transmission across generations of the effects of exposure to environmental factors, which may predispose to chronic diseases. It has been hypothesized that the propagation of such effects is mediated by alterations in gene regulatory elements, such as DNA methylation, histone modifications, and non-coding RNAs. Studies in Drosophila and mice have demonstrated that the compartmentalization of eukaryotic genomes into heterochromatin and euchromatin can mediate multigenerational metabolism-disrupting effects elicited by exposure to various metabolism disruptors. These findings suggest that eukaryotic nuclear genomes may possess the capacity to integrate the impact of environmental cues in a metastable manner that is phenotypically relevant. Here, we present the results of a murine model to assess whether preconception exposure to three metabolism disruptors of distinct nature, including dietary factors and environmental toxicants, intended to emulate the complexity of human exposures, results in metabolic alterations in the offspring of exposed individuals. Our findings align with our central hypothesis but also open an unexpected avenue to explore whether preconception exposure to metabolism disruptors predisposes the offspring of exposed individuals to not only typical metabolic diseases such as obesity but also to complex metabolic-psychiatric conditions such as anorexia.",
+    "title": "Preconception exposures of female mice to a panel of metabolic disruptors induce sexually dimorphic metabolic perturbations in their offspring"
+  },
+  {
+    "accession": "GSE290562",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 22,
+    "organism": "Mus musculus",
+    "query": "multigenerational methylation RNA-seq mouse",
+    "source": "GEO",
+    "summary": "In vitro fertilization (IVF) is a non-coital method of conception used to treat infertility. Although safe, IVF has been associated with adverse outcomes in the fetus, placenta, and adult life, but studies focusing on the male reproductive system are limited. Here, we used a mouse model to assess the morphological and molecular effects of IVF on male offspring. We evaluated three developmental stages: 18.5-day fetuses and 12- and 39-week adults. Regardless of age, we observed changes in the testicular-to-body weight ratio, serum testosterone levels, testicular morphology, transcriptome, and DNA methylation. Also, sperm showed changes in morphology and DNA methylation. To assess multigenerational phenotypes, we mated IVF and naturally conceived males with wild-type females. Offspring from IVF males exhibited a decreased fetal weight-to-placental weight ratio regardless of sex. At 12-weeks-of-age, offspring showed higher body weights, differences in glucose, triglycerides, insulin, total cholesterol, HDL and LDL/VLDL levels. Both sexes showed changes in gene expression in liver, testes and ovaries, and decreased global DNA methylation. Collectively, our findings demonstrate that male IVF offspring exhibit abnormal testicular and sperm morphology and molecular alterations and transmit defects multigenerationally. These experiments contribute to our understanding of the long-term impacts of IVF on adult offspring health.",
+    "title": "In Vitro Fertilization induces reproductive changes in male mouse offspring and has multigenerational effects [RNA-seq II]"
+  },
+  {
+    "accession": "GSE280285",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 72,
+    "organism": "Mus musculus",
+    "query": "multigenerational methylation RNA-seq mouse",
+    "source": "GEO",
+    "summary": "In vitro fertilization (IVF) is a non-coital method of conception used to treat infertility. Although safe, IVF has been associated with adverse outcomes in the fetus, placenta, and adult life, but studies focusing on the male reproductive system are limited. Here, we used a mouse model to assess the morphological and molecular effects of IVF on male offspring. We evaluated three developmental stages: 18.5-day fetuses and 12- and 39-week adults. Regardless of age, we observed changes in the testicular-to-body weight ratio, serum testosterone levels, testicular morphology, transcriptome, and DNA methylation. Also, sperm showed changes in morphology and DNA methylation. To assess multigenerational phenotypes, we mated IVF and naturally conceived males with wild-type females. Offspring from IVF males exhibited a decreased fetal weight-to-placental weight ratio regardless of sex. At 12-weeks-of-age, offspring showed higher body weights, differences in glucose, triglycerides, insulin, total cholesterol, HDL and LDL/VLDL levels. Both sexes showed changes in gene expression in liver, testes and ovaries, and decreased global DNA methylation. Collectively, our findings demonstrate that male IVF offspring exhibit abnormal testicular and sperm morphology and molecular alterations and transmit defects multigenerationally. These experiments contribute to our understanding of the long-term impacts of IVF on adult offspring health.",
+    "title": "In Vitro Fertilization induces reproductive changes in male mouse offspring and has multigenerational effects [RNA-Seq]"
+  },
+  {
+    "accession": "GSE307881",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 151,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "In vitro fertilization (IVF) is an assisted reproductive technology that has enabled millions of births. Although considered safe, emerging evidence suggests that IVF may have long-term health adverse outcomes in offspring, though its impact on female reproduction, especially on reproductive aging is largely unknown. Here, we use a mouse model to investigate how IVF influences female reproductive and transgenerational health outcomes. We assessed IVF-conceived fetal (E18.5) and adult (12-week and 39-week) female offspring, identifying alterations in ovarian-to-body weight ratios, ovarian morphology, serum sex hormone levels, and transcriptomic and DNA methylation profiles in ovaries, oocytes, and cumulus cells, consistent with biomarkers of accelerated reproductive aging. The offspring of IVF females and wild-type males exhibited altered fetal-to-placental weight ratios, placental morphology, and dysregulated placental gene expression. At 12-weeks-of-age, offspring showed increased body weight, disrupted lipid and glucose metabolism, and transcriptomic and epigenetic changes in liver and reproductive organs. Our results highlight the need for deeper mechanistic understanding of assisted reproduction\u2019s long-term and multigenerational impacts on female reproductive health.",
+    "title": "Mouse Offspring Conceived by In Vitro Fertilization Exhibit Accelerated Reproductive Aging Through Early Ovarian Failure"
+  },
+  {
+    "accession": "GSE235213",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 12,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "Background: Neonicotinoids, a widely used class of insecticide that used is agriculture to control insect\u2019s population, are serious public concern. Objectives: In this study, we examined the capacity of a neonicotinoid, thiacloprid (thia) to induce transgenerational effects in the male mice.",
+    "title": "Ancestral gestational exposure to widely used neonicotinoid thiacloprid leads to global DNA methylation alterations in spermatozoa in three generations of male mice [RNA-Seq]"
+  },
+  {
+    "accession": "GSE233438",
+    "gds_type": "Methylation profiling by high throughput sequencing",
+    "n_samples": 35,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "One-carbon metabolism, including the folate cycle, has a crucial role in fetal development though its molecular function is complex and unclear. The hypomorphic Mtrrgt allele is known to disrupt one-carbon metabolism, and thus methyl group availability, leading to several developmental phenotypes (e.g., neural tube closure defects, fetal growth anomalies). Remarkably, previous studies showed that some of the phenotypes were transgenerationally inherited. Here, we explored the genome-wide epigenetic impact of one-carbon metabolism in placentas associated with fetal growth phenotypes and determined whether specific DNA methylation changes were inherited. Firstly, methylome analysis of Mtrrgt/gt homozygous placentas revealed genome-wide epigenetic instability. Several DMRs were identified including at theCxcl1gene promoter and at theEn2gene locus, which may have phenotypic implications. Importantly, we discovered hypomethylation and ectopic expression of a subset of ERV elements throughout the genome of Mtrrgt/gt placentas with broad implications for genomic stability. Next, we determined that known sperm DMRs in Mtrrgt/gt males were reprogrammed in the placenta with little evidence of direct or transgenerational germline DMR inheritance. However, some sperm DMRs were associated with placental gene misexpression despite normalisation of DNA methylation, suggesting the inheritance of an alternative epigenetic mechanism. Integration of published wildtype histone ChIP-seq datasets with Mtrrgt/gt sperm methylome and placenta transcriptome data point towards H3K4me3 deposition at key loci suggesting that histone modifications might play a role in epigenetic inheritance in this context. This study sheds light on the mechanistic complexities of one-carbon metabolism in development and epigenetic inheritance.",
+    "title": "One carbon metabolism is required for epigenetic stability in the mouse placenta"
+  },
+  {
+    "accession": "GSE191199",
+    "gds_type": "Expression profiling by high throughput sequencing; Methylation profiling by high throughput sequencing",
+    "n_samples": 81,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "Obesogens such as tributyltin (TBT) are xenobiotic compounds that promote obesity, in part by distorting the normal balance of lipid metabolism. The obesogenic effects of TBT can be observed in directly exposed (F1 and F2 generations) and also subsequent generations (F3 and beyond) that were never exposed. To address the effects of TBT exposure on germ cells, we exposed pregnant transgenic OG2 mouse dams (F0), which specifically express EGFP in germline cells, to an environmentally relevant dose of TBT throughout gestation through drinking water. When fed with a high fat diet (HFD), F3 male offspring of TBT-exposed F0 dams (TBT-F3) accumulated much more body fat than did Control-F3 males. TBT-F3 males also lost more body fluid and lean compositions than did Control-F3 males. Expression of genes involved in transcriptional regulation or mesenchymal differ-entiation was upregulated in somatic cells of TBT-F1 (but not TBT-F3) E18.5 fetal testes, and promoter-associated CpG islands were hyper-methylated in TBT-F1 somatic cells. Global mRNA expression of protein-coding genes in F1 or F3 fetal testicular cells was unaffected by F0 exposure to TBT; however, expression of a subset of endogenous retroviruses was significantly affected in F1 and F3. We infer that TBT may directly target testicular somatic cells in F1 testes to irreversibly affect epigenetic suppression of endogenous retroviruses in both germline and somatic cells.",
+    "title": "Transgenerational transcriptomic and DNA methylome profiling of mouse fetal testicular germline and somatic cells after exposure of pregnant mothers to tributyltin, a potent obesogen"
+  },
+  {
+    "accession": "GSE84316",
+    "gds_type": "Methylation profiling by high throughput sequencing",
+    "n_samples": 2,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "Environmental cues during gestation could exert transgenerational effects on behavior mainly through changes in epigenetic marks such as DNA methylation. However, the role of histone modifications in the inheritance of acquired phenotypes remains largely unknown in mammals. Here, we report that gestational choline supplementation (GCS) in maternal mice exerts anxiolytic effects on male offspring across 2 generations. Correspondingly, GCS-induced H3K9 hyperacetylation in the Nr3c1 promoter in male hippocampus leads to upregulation of Nr3c1 and its encoded protein, glucocorticoid receptor (GR), across 2 generations through the male germline. Furthermore, inhibition of CREB-binding protein (CBP) histone acetyltransferase (HAT) function restored GCS-induced epigenetic and behavioral alterations, suggesting that CBP function as a HAT to increase Nr3c1 expression through H3K9 hyperacetylation. Thus, GCS-induced GR upregulation through CBP-mediated H3K9 hyperacetylation in the Nr3c1 promoter is associated with anxiolytic behavior in male offspring, highlighting the role of histone modification in acquired phenotypes across mammalian generations.",
+    "title": "Gestational choline supplementation improves cross-generational mood by epigenetic upregulation of Nr3c1 [RRBS]"
+  },
+  {
+    "accession": "GSE84315",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 4,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "Environmental cues during gestation could exert transgenerational effects on behavior mainly through changes in epigenetic marks such as DNA methylation. However, the role of histone modifications in the inheritance of acquired phenotypes remains largely unknown in mammals. Here, we report that gestational choline supplementation (GCS) in maternal mice exerts anxiolytic effects on male offspring across 2 generations. Correspondingly, GCS-induced H3K9 hyperacetylation in the Nr3c1 promoter in male hippocampus leads to upregulation of Nr3c1 and its encoded protein, glucocorticoid receptor (GR), across 2 generations through the male germline. Furthermore, inhibition of CREB-binding protein (CBP) histone acetyltransferase (HAT) function restored GCS-induced epigenetic and behavioral alterations, suggesting that CBP function as a HAT to increase Nr3c1 expression through H3K9 hyperacetylation. Thus, GCS-induced GR upregulation through CBP-mediated H3K9 hyperacetylation in the Nr3c1 promoter is associated with anxiolytic behavior in male offspring, highlighting the role of histone modification in acquired phenotypes across mammalian generations.",
+    "title": "Gestational choline supplementation improves cross-generational mood by epigenetic upregulation of Nr3c1 [RNA-Seq]"
+  },
+  {
+    "accession": "GSE84314",
+    "gds_type": "Genome binding/occupancy profiling by high throughput sequencing",
+    "n_samples": 4,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "Environmental cues during gestation could exert transgenerational effects on behavior mainly through changes in epigenetic marks such as DNA methylation. However, the role of histone modifications in the inheritance of acquired phenotypes remains largely unknown in mammals. Here, we report that gestational choline supplementation (GCS) in maternal mice exerts anxiolytic effects on male offspring across 2 generations. Correspondingly, GCS-induced H3K9 hyperacetylation in the Nr3c1 promoter in male hippocampus leads to upregulation of Nr3c1 and its encoded protein, glucocorticoid receptor (GR), across 2 generations through the male germline. Furthermore, inhibition of CREB-binding protein (CBP) histone acetyltransferase (HAT) function restored GCS-induced epigenetic and behavioral alterations, suggesting that CBP function as a HAT to increase Nr3c1 expression through H3K9 hyperacetylation. Thus, GCS-induced GR upregulation through CBP-mediated H3K9 hyperacetylation in the Nr3c1 promoter is associated with anxiolytic behavior in male offspring, highlighting the role of histone modification in acquired phenotypes across mammalian generations.",
+    "title": "Gestational choline supplementation improves cross-generational mood by epigenetic upregulation of Nr3c1 [ChIP-Seq]"
+  },
+  {
+    "accession": "GSE158266",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 6,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "Di(2-ethylhexyl) phthalate (DEHP) is a commonly used plasticizer and known endocrine disrupting chemical, which causes transgenerational reproductive toxicity in female rodents. However, the mechanisms of action underlying the transgenerational toxicity of DEHP are not understood. Therefore, this study determined the effects of prenatal and ancestral DEHP exposure on various ovarian pathways in the F1, F2, and F3 generations of mice. Pregnant CD-1 dams were orally exposed to corn oil (vehicle control) or DEHP (20\u202f\u03bcg/kg/day-750\u202fmg/kg/day) from gestation day 10.5 until birth. At postnatal day 21 for all generations, ovaries were removed for gene expression analysis of various ovarian pathways and for 5-methyl cytosine (5-mC) quantification. In the F1 generation, prenatal DEHP exposure disrupted the expression of cell cycle regulators, the expression of peroxisome-proliferator activating receptors, and the percentage of 5-mC compared to control. In the F2 generation, exposure to DEHP decreased the expression of steroidogenic enzymes, apoptosis factors, and ten-eleven translocation compared to controls. It also dysregulated the expression of phosphoinositide 3-kinase (PI3K) factors. In the F3 generation, ancestral DEHP exposure decreased the expression of steroidogenic enzymes, PI3K factors, cell cycle regulators, apoptosis factors, Esr2, DNA methylation mediators, and the percentage of 5-mC compared to controls. Overall, the data show that prenatal and ancestral DEHP exposure greatly suppress gene expression of pathways required for folliculogenesis and steroidogenesis in the ovary in a transgenerational manner and that gene expression may be influenced by DNA methylation. These results provide insight into some of the mechanisms of DEHP-mediated toxicity in the ovary across generations.",
+    "title": "Prenatal and ancestral exposure to di(2-ethylhexyl) phthalate alters gene expression and DNA methylation in mouse ovaries."
+  },
+  {
+    "accession": "GSE136377",
+    "gds_type": "Expression profiling by high throughput sequencing; Methylation profiling by high throughput sequencing",
+    "n_samples": 96,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "Exposure to environmental stressors is known to increase disease susceptibility in unexposed descendants in the absence of detectable genetic mutations. The mechanisms mediating environmentally-induced transgenerational disease susceptibility are poorly understood. We showed that great-great-grandsons of female mice exposed to tributyltin (TBT) throughout pregnancy and lactation were predisposed to obesity due to altered chromatin organization that subsequently biased DNA methylation and gene expression. Here we analyzed DNA methylomes and transcriptomes from tissues of animals ancestrally exposed to TBT spanning generations, sexes, ontogeny, and cell differentiation state. We found that TBT elicited concerted alterations in the expression of \u201cchromatin organization\u201d genes and inferred that TBT-disrupted chromatin organization might be able to self-reconstruct transgenerationally. We also found that the location of \u201cchromatin organization\u201d and \u201cmetabolic\u201d genes is biased similarly in mouse and human genomes, suggesting that exposure to environmental stressors in different species could elicit similar phenotypic effects via self-reconstruction of disrupted chromatin organization.",
+    "title": "Transgenerational self-reconstruction of disrupted chromatin organization after exposure to an environmental stressor in mice"
+  },
+  {
+    "accession": "GSE111441",
+    "gds_type": "Genome binding/occupancy profiling by high throughput sequencing; Methylation profiling by high throughput sequencing",
+    "n_samples": 30,
+    "organism": "Rattus norvegicus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "Environmental factors have been shown to induce the epigenetic transgenerational inheritance of disease through the germline. This study was designed to investigate vinclozolin induced concurrent alterations of a number of different epigenetic processes including DNA methylation and histone retention in sperm. Gestating female rats were exposed transiently to vinclozolin during fetal gonadal development and then F1, F2 and F3 generation sperm were analyzed.",
+    "title": "Alterations in sperm DNA Methylation, Non-Coding RNA expression, and histone retention mediate Vinclozolin induced epigenetic transgenerational inheritance of disease"
+  },
+  {
+    "accession": "GSE105051",
+    "gds_type": "Expression profiling by high throughput sequencing; Genome binding/occupancy profiling by high throughput sequencing; Methylation profiling by high throughput sequencing",
+    "n_samples": 40,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "Ancestral environmental exposures to non-mutagenic agents can exert effects in unexposed descendants, adding a layer of complexity to long-standing attempts to clarify the relationships between genotypic and phenotypic variations. Transgenerational inheritance of environmental exposures has significant implications for understanding disease etiology. The environmental obesogen hypothesis proposes that exposure to obesogenic chemicals can lead to increased adiposity, in vivo. Here we show that exposure of F0 mice to the obesogen tributyltin (TBT) throughout pregnancy and lactation predisposes unexposed F4 male descendants to obesity when dietary fat is increased. Analyses of body fat, plasma hormone levels, and visceral white adipose tissue DNA methylome and transcriptome collectively indicate that the TBT-dependent F4 obesity is consistent with a leptin resistant, \"thrifty phenotype\". We found that ancestral TBT exposure induced global changes in DNA methylation together with altered expression of metabolism-relevant genes when the animals were exposed to dietary challenges. Analysis of chromatin accessibility in sperm revealed significant differences between DMSO and TBT groups when guided by DNA sequence composition, a proxy for higher order chromatin organization. Taken together, these data establish an independent connection between ancestral TBT treatment and altered chromatin accessibility that may reflect changes in higher order chromatin organization transmissible through meiosis and mitosis.",
+    "title": "Ancestral perinatal obesogen exposure results in a transgenerational thrifty phenotype in mice"
+  },
+  {
+    "accession": "GSE90499",
+    "gds_type": "Methylation profiling by genome tiling array",
+    "n_samples": 18,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "Evaluation of transgenerational influence of paternal dietary methyl substrates on offspring and grand-offspring brain and behavior Dietary intake of methyl donors, such as folic acid and methionine, shows considerable intra-individual variation in human populations. While it is recognized that maternal departures from the optimum of dietary methyl donor intake can increase the risk for mental health issues and neurological disorders in offspring, it has not been explored whether paternal dietary methyl donor intake influences behavioral and cognitive functions in the next generation. Here, we report that elevated paternal dietary methyl donor intake in a mouse model, transiently applied prior to mating, resulted in offspring animals (MD F1 mice) with deficits in hippocampus-dependent learning and memory, impaired hippocampal synaptic plasticity and reduced hippocampal theta oscillations. Gene expression analyses revealed altered expression of the methionine adenosyltransferase Mat2a and BK channel subunit Kcnmb2, which was associated with changes in Kcnmb2 promoter methylation in MD F1 mice. These phenomena did not extend into the F2 offspring generation. Together, our data indicate that paternal dietary factors influence cognitive and neural functions in the offspring generation.",
+    "title": "A paternal methyl donor-rich diet altered cognitive and neural functions in offspring mice [MeDIP_chip]"
+  },
+  {
+    "accession": "GSE67733",
+    "gds_type": "Methylation profiling by genome tiling array",
+    "n_samples": 12,
+    "organism": "Homo sapiens",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "Increasing evidence has demonstrated that epigenetic factors can profoundly influence gene expression and, in turn, influence resistance or susceptibility to disease. Epigenetic drugs, such as histone deacetylase (HDAC) inhibitors, are finding their way into clinical practice, although their exact mechanisms of action are unclear. To identify mechanisms associated with HDAC inhibition, we performed microarray analysis on brain and muscle samples treated with the HDAC1/3-targeting inhibitor, HDACi 4b. Pathways analyses of microarray datasets implicate DNA methylation as significantly associated with HDAC inhibition. Further assessment of DNA methylation changes elicited by HDACi 4b in human fibroblasts from normal controls and patients with Huntington's disease (HD) using the Infinium HumanMethylation450 BeadChip revealed a limited, but overlapping, subset of methylated CpG sites that were altered by HDAC inhibition in both normal and HD cells. Among the altered loci of Y chromosome-linked genes, KDM5D, which encodes Lys (K)-specific demethylase 5D, showed increased methylation at several CpG sites in both normal and HD cells, as well as in DNA isolated from sperm from drug-treated male mice. Further, we demonstrate that first filial generation (F1) offspring from drug-treated male HD transgenic mice show significantly improved HD disease phenotypes compared with F1 offspring from vehicle-treated male HD transgenic mice, in association with increased Kdm5d expression, and decreased histone H3 Lys4 (K4) (H3K4) methylation in the CNS of male offspring. Additionally, we show that overexpression of Kdm5d in mutant HD striatal cells significantly improves metabolic deficits. These findings indicate that HDAC inhibitors can elicit transgenerational effects, via cross-talk between different epigenetic mechanisms, to have an impact on disease phenotypes in a beneficial manner.",
+    "title": "HDAC inhibition imparts beneficial transgenerational effects in Huntington's disease mice via altered DNA and histone methylation"
+  },
+  {
+    "accession": "GSE59542",
+    "gds_type": "Methylation profiling by genome tiling array",
+    "n_samples": 32,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "According to recent reports, exposure to environmental endocrine disrupting chemicals (EDs) during pregnancy may harm multiple subsequent generations. We hypothesized that EDs must directly alter DNA methylation and/or transcription in the exposed fetal germ cells to affect the grandchild. In addition, the aberrant pattern must be retained in the germ cells of the grandchild -- withstanding global epigenome remodeling -- to affect the great-grandchild. To test this hypothesis, we extensively searched for immediate and persistent epigenetic effects in purified germ cells of the exposed fetus and those of the next generation. We treated gestating female mice with previously validated doses of vinclozolin (VZ), bisphenol A (BPA), di-(2-ethylhexyl) phthalate (DEHP), or control oil, during the time when the prospermatogonia of the exposed fetus undergo global de novo DNA methylation. Using genome-wide assays, we detected changes in transcription and DNA methylation in the exposed prospermatogonia but these did not persist into the prospermatogonia of the next generation. There was no evidence for transgenerational inheritance of these epigenetic aberrations. Our results suggest that EDs exert direct epigenetic effects in the exposed fetal germ cells, but the germline corrects against deleterious effects in the next generation.",
+    "title": "DNA methylation changes in fetal germ cells exposed to endocrine disruptors and in the next generation [methylation set 2]"
+  },
+  {
+    "accession": "GSE59539",
+    "gds_type": "Methylation profiling by genome tiling array",
+    "n_samples": 32,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "According to recent reports, exposure to environmental endocrine disrupting chemicals (EDs) during pregnancy may harm multiple subsequent generations. We hypothesized that EDs must directly alter DNA methylation and/or transcription in the exposed fetal germ cells to affect the grandchild. In addition, the aberrant pattern must be retained in the germ cells of the grandchild -- withstanding global epigenome remodeling -- to affect the great-grandchild. To test this hypothesis, we extensively searched for immediate and persistent epigenetic effects in purified germ cells of the exposed fetus and those of the next generation. We treated gestating female mice with previously validated doses of vinclozolin (VZ), bisphenol A (BPA), di-(2-ethylhexyl) phthalate (DEHP), or control oil, during the time when the prospermatogonia of the exposed fetus undergo global de novo DNA methylation. Using genome-wide assays, we detected changes in transcription and DNA methylation in the exposed prospermatogonia but these did not persist into the prospermatogonia of the next generation. There was no evidence for transgenerational inheritance of these epigenetic aberrations. Our results suggest that EDs exert direct epigenetic effects in the exposed fetal germ cells, but the germline corrects against deleterious effects in the next generation.",
+    "title": "DNA methylation changes in fetal germ cells exposed to endocrine disruptors and in the next generation [methylation set 1]"
+  },
+  {
+    "accession": "GSE58642",
+    "gds_type": "Expression profiling by array",
+    "n_samples": 32,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "We treated gestating female mice with vinclozolin (VZ), bisphenol A (BPA), di-(2-ethylhexyl) phthalate (DEHP), or control oil, during the time when the prospermatogonia of the exposed fetus undergo global de novo DNA methylation. Using genome-wide assays we detected changes in transcription and DNA methylation, respectively, in fetal prospermatogonia. Our results suggest that EDs exert direct epigenetic effects in the exposed fetal germ cells, but the germline corrects against deleterious effects in the subsequent generation.",
+    "title": "Transgenerational Gene Expression Changes Caused by Exposing Fetal Germ Cells to Endocrine Disruptors"
+  },
+  {
+    "accession": "GSE59511",
+    "gds_type": "Expression profiling by array; Methylation profiling by genome tiling array",
+    "n_samples": 14,
+    "organism": "Rattus norvegicus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "This SuperSeries is composed of the SubSeries listed below.",
+    "title": "Environmentally Induced Transgenerational Epigenetic Reprogramming of Primordial Germ Cells and Subsequent Germline"
+  },
+  {
+    "accession": "GSE43559",
+    "gds_type": "Expression profiling by array",
+    "n_samples": 8,
+    "organism": "Rattus norvegicus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "A number of environmental factors (e.g. toxicants) have been shown to promote the epigenetic transgenerational inheritance of disease and phenotypic variation. Transgenerational inheritance requires the germline transmission of altered epigenetic information between generations in the absence of direct environmental exposures. The primary periods for epigenetic programming of the germline is associated with primordial germ cell development and during fetal gonadal sex determination. The current study examined the actions of an agricultural fungicide vinclozolin on gestating female (F0 generation) progeny in regards to the primordial germ cell (PGC) epigenetic reprogramming of the F3 generation (i.e. great-grandchildren). The F3 generation primordial germ cell transcriptome and epigenome (DNA methylation) was altered transgenerationally. Interestingly, the differential DNA methylation regions (DMR) and altered transcriptomes were distinct between the onset of gonadal sex determination at embryonic day 13 (E13) and after cord formation in the testis at embryonic day 16 (E16). A larger number of DMR and transcriptional alterations were observed in the E13 PGC than E16 germ cells. Observations demonstrate an altered transgenerational epigenetic reprogramming and function of the primordial germ cells and subsequent male germline is a component of vinclozolin induced epigenetic transgenerational inheritance of disease. Insights into the molecular control of germline transmitted epigenetic inheritance are provided. The combined observations demonstrate ancestral exposure of a gestating female during fetal gonadal sex determination can promote transgenerational alterations in the primordial germ cell and subsequent male germline epigenetic and transcriptional programming. This altered germline programming leads to the epigenetic transgenerational inheritance of disease and phenotypic variation. Observations support the role of the primordial germ cell programming in the molecular mechanism involved and provides insights into the molecular mechanisms that control the epigenetic transgenerational inheritance phenomena. Results suggest a cascade of epigenetic and transcriptional events during germ cell development is needed to obtain the mature germline epigenome that is then transmitted transgenerationally.",
+    "title": "Environmentally Induced Transgenerational Epigenetic Reprogramming of Primordial Germ Cells and Subsequent Germline [Affymetrix]"
+  },
+  {
+    "accession": "GSE43238",
+    "gds_type": "Methylation profiling by high throughput sequencing",
+    "n_samples": 4,
+    "organism": "Mus musculus",
+    "query": "transgenerational DNA methylation gene expression mouse",
+    "source": "GEO",
+    "summary": "The global prevalence of type 2 diabetes (T2D) is increasing, and it is contributing to the susceptibility to diabetes and its related epidemic in offspring. Although the impacts of paternal T2D on metabolism of offspring have been well established, the exact molecular and mechanistic basis that mediates these impacts remains largely unclear. Here we show that paternal T2D increases the susceptibility to diabetes in offspring through the gametic epigenetic alterations. Paternal T2D led to glucose intolerance and insulin resistance in offspring. Relative to controls, offspring of T2D fathers exhibited altered gene expression patterns in the pancreatic islets, with downregulation of several genes involved in glucose metabolism and insulin signaling pathway. Epigenomic profiling of offspring pancreatic islets revealed numerous changes in cytosine methylation depending on paternal T2D, including reproducible changes in methylation over several insulin signaling genes. Paternal T2D altered overall methylome patterns in sperm, with a large portion of differentially methylated genes overlapped with that of pancreatic islets in offspring. Our study revealed, for the first time, that T2D can be inherited transgenerationally through the mammalian germline by an epigenetic manner.",
+    "title": "Paternally induced transgenerational inheritance of susceptibility to diabetes in mammals (MeDIP-Seq)"
+  },
+  {
+    "accession": "GSE318059",
+    "gds_type": "Methylation profiling by high throughput sequencing",
+    "n_samples": 36,
+    "organism": "Rattus norvegicus",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "In traditional models of Drosophila flies and C. Elegans worms have shown epigenetic transgenerational inheritance has persisted and remained stable for hundreds of generations. Mammalian studies, however, have primarily investigated up to three or four generations. Environmental exposures to toxicants or other stressors have been linked to having a role in epigenetic alterations and epigenetic transgenerational inheritance. Changes within the epigenome have the potential to change gene expression and genetic processes, as well as potentially alter phenotypes and evolution in all organisms. In this study, an outcrossed mammalian colony of outbred rats was bred for twenty three successive generations and assessed for epigenetic alterations and incidence of pathological abnormalities. Sperm from male rats were analyzed for DNA methylation and pathology abnormalities in the female and male rats in successive generations. Observations showed an increase in disease incidence within the ten generations (F13) and twenty generations (F23) compared to the control lineage. Our results indicate that ten generations of transgenerational exposure led to an increase in epigenetic alterations and a higher incidence of pathological abnormalities. Ancestrally exposed rats to vinclozolin showed significant parturition abnormalities in both the maternal and paternal lineages after 16 generations. This included maternal deaths during labor and stillbirths. Pathological assessments revealed abnormalities across multiple tissue types and an increased incidence of disease. This suggests the physiological consequences of the generational stability of epigenetic inheritance. Observations establish the generational stability of epigenetic inheritance over twenty generations in a mammalian model system, however, new pathology in later generations involving parturition abnormalities were also observed.",
+    "title": "Generational Stability of Environmentally Induced Epigenetic Transgenerational Inheritance of Adult-Onset Disease"
+  },
+  {
+    "accession": "GSE291568",
+    "gds_type": "Genome binding/occupancy profiling by high throughput sequencing; Non-coding RNA profiling by high throughput sequencing; Expression profiling by high throughput sequencing",
+    "n_samples": 22,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "Epigenetic information can be inherited through a process known as transgenerational epigenetic inheritance (TEI). TEI can be initiated and maintained by small RNAs and histone modifications. The latter includes histone methylation, deposited by proteins with methyltransferase activity, including SET domain-containing proteins. Other SET domain-containing proteins with no catalytic methyltransferase activity, also adopt roles in chromatin and gene expression regulation. Here, we describe SET-24, a SET domain-containing protein in Caenorhabditis elegans that belongs to a family of catalytically inactive SET proteins. SET-24 localises to germline nuclei and is required for germline immortality. Additionally, the inheritance of small RNA-driven epigenetic silencing is compromised in set-24 mutants. Using quantitative proteomics and yeast two-hybrid assays, we found that SET-24 interacts with Host Cell Factor 1 (HCF-1), a protein involved in epigenetic regulation and associated with known chromatin remodelling complexes, like COMPASS, which deposits H3K4me3. In set-24 mutants, hundreds of genes display increased H3K4me3 levels at their transcription start sites. While these changes are not matched at the transcriptional level, small RNA production is disrupted in approximately one fifth of those genes, which are normally targeted by small RNA pathways. We propose that SET-24 is a factor required to maintain epigenetic memory in the germline by maintaining a chromatin environment permissible to small RNA biogenesis over generations.",
+    "title": "A SET domain-containing protein and HCF-1 maintain transgenerational epigenetic memory"
+  },
+  {
+    "accession": "GSE283649",
+    "gds_type": "Expression profiling by high throughput sequencing; Non-coding RNA profiling by high throughput sequencing",
+    "n_samples": 44,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "Small RNAs, coupled with Argonuate proteins (AGOs), regulate diverse biological processes, including immunity against parasitic genetic elements. C. elegans possesses an expanded repertoire of at least 19 AGOs functioning in an intricate gene regulatory network. Despite their crucial roles, little is known about the regulation of AGOs, and whether their expression levels, tissue specificity, and functions change in response to genetic perturbations or environmental triggers. Here, we report that PALS-22, a member of an unusually expanded protein family in C. elegans, acts as a negative regulator of antiviral RNAi involving the RIG-I homolog. The loss of pals-22 leads to enhanced silencing of transgenes and endogenous dsRNAs. We found that PALS-22 normally suppresses the expression of two AGOs, VSRA-1 and SAGO-2, which are activated by bZIP transcription factor ZIP-1. When pals-22 is eliminated, vsra-1 and sago-2 are upregulated. These AGOs in turn play key roles in defense against foreign genetic elements and intracellular pathogens, respectively. Surprisingly, while in pals-22 mutants immune genes functioning in the intracellular pathogen response (IPR) are upregulated, removing SAGO-2 or the RNA-dependent RNA polymerase RRF-3 in these mutants leads to the downregulation of these genes. This observation contrasts with the typical gene-silencing role of siRNAs. Finally, by analyzing C. elegans wild isolates and lab reference strains, we demonstrate that PALS-22 regulates the expression of several germline AGOs, affecting germline mortality and transgenerational epigenetic inheritance. In summary, PALS-22 is a key genetic node that balances the trade-off between immunity and germline health by modulating the functions of different AGOs, thereby shaping the outputs of the RNAi machinery and the dynamics of epigenetic inheritance.",
+    "title": "Dynamic Control of Argonautes by a Rapidly Evolving Immunological Switch"
+  },
+  {
+    "accession": "GSE74496",
+    "gds_type": "Non-coding RNA profiling by high throughput sequencing",
+    "n_samples": 6,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "Transgenerational epigenetic inheritance and resetting of an environmentally-triggered change in gene expression in C. elegans",
+    "title": "Trans-generatioanl epigenetic inheritance and resetting of an environmentally-triggered change in gene expression in C. elegans"
+  },
+  {
+    "accession": "GSE211846",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 93,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "Epigenetic inheritance is the transmission of altered gene expression states across dividing cells without DNA sequence variation. Induced epigenetic changes (epimutations) have been extensively studied, but importantly, epimutations also occur spontaneously in a manner reminiscent of DNA sequence change. Small RNAs are established as a source of spontaneous epimutations which transmit gene expression changes over multiple generations in C.elegans. These changes are generally short lived, but rarely long-lived changes occur. Given that chromatin state is a critical regulator of gene expression, we explored whether chromatin states also undergo spontaneous change and whether this could be a potential alternative mechanism for transgenerational epigenetic inheritance.  We compared the chromatin profiles and gene expression profiles at matched time points from a twenty generation bottlenecked lineage of C.elegans. We found that heritable changes in gene expression arose at a higher rate than the estimate for DNA sequence variation, indicating that these were true epigenetic events. In addition to recapitulating the known role for small RNAs, we provide evidence for chromatin mediated epimutations as an alternative mechanism driving epigenetic inheritance. Chromatin epimutations were heritable, enriched in the germline and synchronised with inherited gene expression changes. As with small RNA mediated epimutations, they were generally short lived with a tendency to resolve to baseline after 2-3 generations. A subset of chromatin epimutations however were long lasting, and these were uniquely enriched in piRNA clusters. Genes with long lived epimutations were implicated in multiple components of xenobiotic response pathways. This points to a mechanism for epigenetic \u2018anticipation\u2019 of environmental stressors.  Adaptive traits driven by epimutations may be selected for under adverse conditions and lost on return to normal conditions, enabling soft adaptation in the absence of genetic sequence change.",
+    "title": "Chromatin epimutations in transgenerational epigenetic inheritance"
+  },
+  {
+    "accession": "GSE148133",
+    "gds_type": "Other",
+    "n_samples": 9,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "Mobile genetic elements threaten genome integrity in all organisms. MUT-2/RDE-3 is a ribonucleotidyltransferase required for transposon silencing and RNA interference (RNAi) in C. elegans. When tethered to RNAs in heterologous expression systems, RDE-3 can add long stretches of alternating non-templated uridine (U) and guanosine (G) ribonucleotides to the 3\u2019 termini of these RNAs (polyUG or pUG tails). Here, we show that, in its natural context in C. elegans, RDE-3 adds pUG tails to transposon RNAs, as well as to targets of RNAi. pUG tails with more than 16 perfectly alternating 3\u2019 U and G nucleotides convert RNA fragments into agents of gene silencing. pUG tails promote gene silencing by recruiting RNA-dependent RNA Polymerases (RdRPs), which use pUG-tailed RNAs (pUG RNAs) as templates to synthesize small interfering RNAs (siRNAs). Our results show that cycles of pUG RNA-templated siRNA synthesis and siRNA-directed mRNA pUGylation underlie dsRNA-directed transgenerational epigenetic inheritance in the C. elegans germline. We speculate that this pUG RNA/siRNA silencing loop allows parents to inoculate progeny against the expression of unwanted or parasitic genetic elements.",
+    "title": "poly(UG)-tailed RNAs in Genome Protection and Epigenetic Inheritance [other]"
+  },
+  {
+    "accession": "GSE148074",
+    "gds_type": "Non-coding RNA profiling by array",
+    "n_samples": 12,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "Mobile genetic elements threaten genome integrity in all organisms. MUT-2/RDE-3 is a ribonucleotidyltransferase required for transposon silencing and RNA interference (RNAi) in C. elegans. When tethered to RNAs in heterologous expression systems, RDE-3 can add long stretches of alternating non-templated uridine (U) and guanosine (G) ribonucleotides to the 3\u2019 termini of these RNAs (polyUG or pUG tails). Here, we show that, in its natural context in C. elegans, RDE-3 adds pUG tails to transposon RNAs, as well as to targets of RNAi. pUG tails with more than 16 perfectly alternating 3\u2019 U and G nucleotides convert RNA fragments into agents of gene silencing. pUG tails promote gene silencing by recruiting RNA-dependent RNA Polymerases (RdRPs), which use pUG-tailed RNAs (pUG RNAs) as templates to synthesize small interfering RNAs (siRNAs). Our results show that cycles of pUG RNA-templated siRNA synthesis and siRNA-directed mRNA pUGylation underlie dsRNA-directed transgenerational epigenetic inheritance in the C. elegans germline. We speculate that this pUG RNA/siRNA silencing loop allows parents to inoculate progeny against the expression of unwanted or parasitic genetic elements.",
+    "title": "poly(UG)-tailed RNAs in Genome Protection and Epigenetic Inheritance [ncRNA-Seq]"
+  },
+  {
+    "accession": "GSE146618",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 4,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "Mobile genetic elements threaten genome integrity in all organisms. MUT-2/RDE-3 is a ribonucleotidyltransferase required for transposon silencing and RNA interference (RNAi) in C. elegans. When tethered to RNAs in heterologous expression systems, RDE-3 can add long stretches of alternating non-templated uridine (U) and guanosine (G) ribonucleotides to the 3\u2019 termini of these RNAs (polyUG or pUG tails). Here, we show that, in its natural context in C. elegans, RDE-3 adds pUG tails to transposon RNAs, as well as to targets of RNAi. pUG tails with more than 16 perfectly alternating 3\u2019 U and G nucleotides convert RNA fragments into agents of gene silencing. pUG tails promote gene silencing by recruiting RNA-dependent RNA Polymerases (RdRPs), which use pUG-tailed RNAs (pUG RNAs) as templates to synthesize small interfering RNAs (siRNAs). Our results show that cycles of pUG RNA-templated siRNA synthesis and siRNA-directed mRNA pUGylation underlie dsRNA-directed transgenerational epigenetic inheritance in the C. elegans germline. We speculate that this pUG RNA/siRNA silencing loop allows parents to inoculate progeny against the expression of unwanted or parasitic genetic elements.",
+    "title": "poly(UG)-tailed RNAs in Genome Protection and Epigenetic Inheritance [RNA-Seq]"
+  },
+  {
+    "accession": "GSE126377",
+    "gds_type": "Expression profiling by high throughput sequencing; Other; Non-coding RNA profiling by high throughput sequencing",
+    "n_samples": 36,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "Trans-generational epigenetic inheritance (TEI), which functionally intersects RNA with histone modification, recently forced a reinterpretation of the interplay between gene expression and selective pressures. Our groups integrate genetic, genomic, dynamic imaging, biochemistry and proteomic technologies to provide a functional mechanistic understanding of the interplay of TEI and the RNA interference (RNAi) phenomena in the nematode C. elegans. We discovered a family of proteins (the nuclear Argonaute-interacting proteins or NIPs), which controls the strength, inheritance and gene target specificity of nuclear RNAi. Loss of NIP-1 and NIP-2 in the soma leads to an enhancement of nuclear RNAi activities without affecting cytoplasmic RNAi. Loss of NIP-3 in the germline disables TEI and leads to a profoundly impaired response to transposable genomic elements (viral-like sequences). The genome of nip-3 mutants becomes de-stabilized; spontaneous visible mutations arise at high frequency due to an unbridled mobilization of a subset of transposable elements. Surprisingly, silencing of a distinct subset of transposable elements is coincidentally enhanced. Finally, expression imaging revealed an eminent role for the maturing male germline in TEI. This data supports a model wherein NIPs determine the potency and stability of TEI by gating and sorting small RNAs (which provide specificity) towards germline and somatic nuclear RNAi and epigenetic machineries. Our work further implies that this  molecular machinery evolved to atone an animal\u2019s epigenetic memory to preserve a species\u2019 integrity in face of genetic pathogens.",
+    "title": "RNA memories: trans-generational epigenetic inheritance of RNA-mediated gene silencing"
+  },
+  {
+    "accession": "GSE129928",
+    "gds_type": "Genome binding/occupancy profiling by high throughput sequencing",
+    "n_samples": 12,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "Chromatin state influences lifespan and may allow for the epigenetic inheritance of this complex trait. At sites of active transcription, the COMPASS complex methylates histone H3 at lysine 4 (H3K4me). In Caenorhabditis elegans, reductions in COMPASS extend lifespan, and wild-type descendants of COMPASS mutants inherit longevity for four generations. Here we show that the longevity of COMPASS mutants is itself a transgenerational trait caused by gradual changes in the repressive chromatin factor H3K9me2. H3K9me2 is required for longevity in COMPASS mutants and can confer longevity when increased in other chromatin modifier mutants. H3K9me2 levels also correlate with a transgenerational decline in wild-type lifespan after freezing or starvation. We propose that germline transcription-coupled H3K4me encroaches on H3K9me2 to limit lifespan. Loss of COMPASS complex alleviates the burden of H3K4me and therefore extends lifespan. This study suggests a causal role for a single heterochromatin factor in the establishment and inheritance of longevity.",
+    "title": "H3K9me2 protects lifespan against the transgenerational burden of germline transcription in C. elegans"
+  },
+  {
+    "accession": "GSE125601",
+    "gds_type": "Expression profiling by high throughput sequencing; Other; Non-coding RNA profiling by high throughput sequencing",
+    "n_samples": 51,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "PIWI-interacting RNAs (piRNAs) promote fertility in many animals. Yet, whether this is due to their conserved role in repressing repetitive elements (REs) remains unclear. Here, we show that the progressive loss of fertility in Caenorhabditis elegans lacking piRNAs is not caused by derepression of REs or other piRNA targets, but rather mediated by the epigenetic silencing of all the replicative histone genes. In the absence of piRNAs, downstream components of the piRNA pathway relocalize from germ granules and piRNA targets to histone mRNAs to synthesize antisense small RNAs (sRNAs) and induce transgenerational silencing. Removal of the downstream components of the piRNA pathway restores histone mRNA expression and fertility in piRNA mutants, and the inheritance of histone sRNAs in wild-type worms adversely affects their fertility for multiple generations. We conclude that the sRNA-mediated silencing of histone genes impairs fertility of piRNA mutants and may serve to maintain piRNAs across evolution.",
+    "title": "Small RNA-mediated transgenerational silencing of histone genes impairs fertility in piRNA mutants"
+  },
+  {
+    "accession": "GSE125600",
+    "gds_type": "Non-coding RNA profiling by high throughput sequencing",
+    "n_samples": 25,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "PIWI-interacting RNAs (piRNAs) promote fertility in many animals. Yet, whether this is due to their conserved role in repressing repetitive elements (REs) remains unclear. Here, we show that the progressive loss of fertility in Caenorhabditis elegans lacking piRNAs is not caused by derepression of REs or other piRNA targets, but rather mediated by the epigenetic silencing of all the replicative histone genes. In the absence of piRNAs, downstream components of the piRNA pathway relocalize from germ granules and piRNA targets to histone mRNAs to synthesize antisense small RNAs (sRNAs) and induce transgenerational silencing. Removal of the downstream components of the piRNA pathway restores histone mRNA expression and fertility in piRNA mutants, and the inheritance of histone sRNAs in wild-type worms adversely affects their fertility for multiple generations. We conclude that the sRNA-mediated silencing of histone genes impairs fertility of piRNA mutants and may serve to maintain piRNAs across evolution.",
+    "title": "Small RNA-mediated transgenerational silencing of histone genes impairs fertility in piRNA mutants (sRNA-Seq)"
+  },
+  {
+    "accession": "GSE125599",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 18,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "PIWI-interacting RNAs (piRNAs) promote fertility in many animals. Yet, whether this is due to their conserved role in repressing repetitive elements (REs) remains unclear. Here, we show that the progressive loss of fertility in Caenorhabditis elegans lacking piRNAs is not caused by derepression of REs or other piRNA targets, but rather mediated by the epigenetic silencing of all the replicative histone genes. In the absence of piRNAs, downstream components of the piRNA pathway relocalize from germ granules and piRNA targets to histone mRNAs to synthesize antisense small RNAs (sRNAs) and induce transgenerational silencing. Removal of the downstream components of the piRNA pathway restores histone mRNA expression and fertility in piRNA mutants, and the inheritance of histone sRNAs in wild-type worms adversely affects their fertility for multiple generations. We conclude that the sRNA-mediated silencing of histone genes impairs fertility of piRNA mutants and may serve to maintain piRNAs across evolution.",
+    "title": "Small RNA-mediated transgenerational silencing of histone genes impairs fertility in piRNA mutants (RNA-Seq)"
+  },
+  {
+    "accession": "GSE125598",
+    "gds_type": "Non-coding RNA profiling by high throughput sequencing; Other",
+    "n_samples": 4,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "PIWI-interacting RNAs (piRNAs) promote fertility in many animals. Yet, whether this is due to their conserved role in repressing repetitive elements (REs) remains unclear. Here, we show that the progressive loss of fertility in Caenorhabditis elegans lacking piRNAs is not caused by derepression of REs or other piRNA targets, but rather mediated by the epigenetic silencing of all the replicative histone genes. In the absence of piRNAs, downstream components of the piRNA pathway relocalize from germ granules and piRNA targets to histone mRNAs to synthesize antisense small RNAs (sRNAs) and induce transgenerational silencing. Removal of the downstream components of the piRNA pathway restores histone mRNA expression and fertility in piRNA mutants, and the inheritance of histone sRNAs in wild-type worms adversely affects their fertility for multiple generations. We conclude that the sRNA-mediated silencing of histone genes impairs fertility of piRNA mutants and may serve to maintain piRNAs across evolution.",
+    "title": "Small RNA-mediated transgenerational silencing of histone genes impairs fertility in piRNA mutants (sRNA-Seq IP)"
+  },
+  {
+    "accession": "GSE125597",
+    "gds_type": "Expression profiling by high throughput sequencing; Other",
+    "n_samples": 4,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "PIWI-interacting RNAs (piRNAs) promote fertility in many animals. Yet, whether this is due to their conserved role in repressing repetitive elements (REs) remains unclear. Here, we show that the progressive loss of fertility in Caenorhabditis elegans lacking piRNAs is not caused by derepression of REs or other piRNA targets, but rather mediated by the epigenetic silencing of all the replicative histone genes. In the absence of piRNAs, downstream components of the piRNA pathway relocalize from germ granules and piRNA targets to histone mRNAs to synthesize antisense small RNAs (sRNAs) and induce transgenerational silencing. Removal of the downstream components of the piRNA pathway restores histone mRNA expression and fertility in piRNA mutants, and the inheritance of histone sRNAs in wild-type worms adversely affects their fertility for multiple generations. We conclude that the sRNA-mediated silencing of histone genes impairs fertility of piRNA mutants and may serve to maintain piRNAs across evolution.",
+    "title": "Small RNA-mediated transgenerational silencing of histone genes impairs fertility in piRNA mutants (GRO-Seq)"
+  },
+  {
+    "accession": "GSE81707",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 8,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "The emergence and transmission of epigenetic signals across generations can quickly and efficiently alter gene expression in a population. We describe an epigenetic silencing signal whose initiation, transmission properties, genetic requirements and site of action are distinct from previously described epigenetic inheritance in C. elegans. A multi-copy transgene containing the region upstream of sid-1 silences sid-1 and upstream genes. Once  established, silencing is stable in the absence of the array and can be maintained without selection for 13 generations. We show that the silenced state can be transmitted to progeny in the absence of the silenced locus, but that inherited silencing is dependent on the nuclear RNAi Argonaute HRDE-1, which stabilizes silencing siRNAs that target sid-1 exons. Notably, at each generation, the RNAi-dependent germline silenced sid-1 locus transitions to a chromatin-dependent silenced state in somatic cells, indicating that the mechanisms of transgenerational silencing in the soma and germline are distinct.",
+    "title": "Germline- and soma-specific heritable epigenetic silencing at an endogenous locus (RNA-Seq)"
+  },
+  {
+    "accession": "GSE81706",
+    "gds_type": "Non-coding RNA profiling by high throughput sequencing",
+    "n_samples": 14,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "The emergence and transmission of epigenetic signals across generations can quickly and efficiently alter gene expression in a population. We describe an epigenetic silencing signal whose initiation, transmission properties, genetic requirements and site of action are distinct from previously described epigenetic inheritance in C. elegans. A multi-copy transgene containing the region upstream of sid-1 silences sid-1 and upstream genes. Once  established, silencing is stable in the absence of the array and can be maintained without selection for 13 generations. We show that the silenced state can be transmitted to progeny in the absence of the silenced locus, but that inherited silencing is dependent on the nuclear RNAi Argonaute HRDE-1, which stabilizes silencing siRNAs that target sid-1 exons. Notably, at each generation, the RNAi-dependent germline silenced sid-1 locus transitions to a chromatin-dependent silenced state in somatic cells, indicating that the mechanisms of transgenerational silencing in the soma and germline are distinct.",
+    "title": "Germline- and soma-specific heritable epigenetic silencing at an endogenous locus (small RNA-Seq)"
+  },
+  {
+    "accession": "GSE77654",
+    "gds_type": "Non-coding RNA profiling by high throughput sequencing",
+    "n_samples": 24,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "In C.elegans nematodes small RNAs enable transmission of epigenetic responses across multiple generations. While RNA interference (RNAi) inheritance mechanisms that enable \u201cmemorization\u201d of ancestral responses are being elucidated, it is not known why or how, after a few generations, epigenetic effects are \u201cforgotten\u201d. We show that exposure to dsRNA activates a feedback loop that determines the duration of inherited silencing. We find that gene-specific RNAi responses dictate the transgenerational duration of RNAi responses mounted against unrelated genes, elicited separately in previous generations. RNA-seq analysis reveals that aside from silencing of genes with complementary sequences, dsRNA-induced RNAi affects the production of heritable endogenous small RNAs, which regulate the expression of RNAi factors. Manipulating genes in this feedback pathway changes the duration of heritable silencing. Active control of transgenerational effects could be adaptive, since ancestral responses would be detrimental if the environments of the progeny and the ancestors would differ.",
+    "title": "A Tunable Mechanism Determines the Transgenerational Duration of Small RNA Inheritance in C.elegans"
+  },
+  {
+    "accession": "GSE74404",
+    "gds_type": "Non-coding RNA profiling by high throughput sequencing",
+    "n_samples": 24,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "Environmental stress-induced transgenerational epigenetic effects have been observed in various model organisms and human. The capacity and mechanism of such phenomena, particularly in animals, are poorly understood. In C. elegans, siRNA mediates transgenerational gene silencing through the germline nuclear RNAi pathway. At the organismal level, this pathway plays a transgenerational role in maintaining the germline immortality when C. elegans is under a mild heat stress. However, the underlying molecular mechanism is unknown. In this study, we performed a 12-generation temperature-shift experiment (15\u02daC->23\u02daC->15\u02daC) using the wild type (N2) and a mutant strain that lacks the germline-specific nuclear AGO protein HRDE-1/WAGO-9. We found that the temperature-sensitive mortal germline (Mrt) phenotype of the hrde-1 mutant is reversible, indicating a transgenerational cumulative but also reversible nature of the underlying molecular cause. By taking the whole-genome RNA and chromatin profiling approaches, we revealed an epigenetic role of HRDE-1 in repressing heat stress-induced transcriptional activation of over 280 genes, predominantly in or near LTR retrotransposons. Strikingly, for some of these elements, the heat stress-induced transcription becomes progressively activated in the hrde-1 mutant over several generations under heat stress. Furthermore, the effect of heat stress-induced transcription activation is heritable for at least two generations after the heat stress. Interestingly, the siRNA expression of these genes tend to be heat-inducible in the wild type animals, but not in the hrde-1 mutant, suggesting a role of siRNAs in repressing heat-inducible elements. Our study revealed a novel phenomenon of transgenerational feed-forward transcriptional activation, which is normally repressed in the wild type C. elegans by the germline nuclear RNAi pathway. It also provides a new paradigm to study epigenetic circuitry that connects the environment and gene regulation in the germline.",
+    "title": "Germline nuclear RNAi in C. elegans represses transgenerational inheritance of heat-induced gene transcriptional activation (sRNA profiling)"
+  },
+  {
+    "accession": "GSE74403",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 48,
+    "organism": "Caenorhabditis elegans",
+    "query": "transgenerational epigenetic inheritance C. elegans expression",
+    "source": "GEO",
+    "summary": "Environmental stress-induced transgenerational epigenetic effects have been observed in various model organisms and human. The capacity and mechanism of such phenomena, particularly in animals, are poorly understood. In C. elegans, siRNA mediates transgenerational gene silencing through the germline nuclear RNAi pathway. At the organismal level, this pathway plays a transgenerational role in maintaining the germline immortality when C. elegans is under a mild heat stress. However, the underlying molecular mechanism is unknown. In this study, we performed a 12-generation temperature-shift experiment (15\u02daC->23\u02daC->15\u02daC) using the wild type (N2) and a mutant strain that lacks the germline-specific nuclear AGO protein HRDE-1/WAGO-9. We found that the temperature-sensitive mortal germline (Mrt) phenotype of the hrde-1 mutant is reversible, indicating a transgenerational cumulative but also reversible nature of the underlying molecular cause. By taking the whole-genome RNA and chromatin profiling approaches, we revealed an epigenetic role of HRDE-1 in repressing heat stress-induced transcriptional activation of over 280 genes, predominantly in or near LTR retrotransposons. Strikingly, for some of these elements, the heat stress-induced transcription becomes progressively activated in the hrde-1 mutant over several generations under heat stress. Furthermore, the effect of heat stress-induced transcription activation is heritable for at least two generations after the heat stress. Interestingly, the siRNA expression of these genes tend to be heat-inducible in the wild type animals, but not in the hrde-1 mutant, suggesting a role of siRNAs in repressing heat-inducible elements. Our study revealed a novel phenomenon of transgenerational feed-forward transcriptional activation, which is normally repressed in the wild type C. elegans by the germline nuclear RNAi pathway. It also provides a new paradigm to study epigenetic circuitry that connects the environment and gene regulation in the germline.",
+    "title": "Germline nuclear RNAi in C. elegans represses transgenerational inheritance of heat-induced gene transcriptional activation (mRNA profiling)"
+  },
+  {
+    "accession": "GSE140950",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 42,
+    "organism": "Drosophila melanogaster",
+    "query": "transgenerational gene expression Drosophila stress",
+    "source": "GEO",
+    "summary": "At present, the experimental evidences of epigenetic inheritance caused by stresses are beginning to accumulate in some animal models. However, molecular mechanism and biological meaning underlying these phenomena has not been clearly understood yet. Previously, we showed that Drosophila transcription factor-2 (dATF-2) is involved in heterochromatin formation and that phosphorylation of dATF-2 by various stresses, such as heat shock and osmotic stresses, induces heterochromatin disruption. We also revealed these stress dependent epigenome changes mediated by dATF-2 can be inherited to next generations (Seong et al., 2011). In this study, we established a drosophila model of restraint stress (RS) to analyze the transgenerational effects of strong psychological stress. We observed that Drosophila F1 progenies, derived from RS exposed fathers, showed significant disruption of heterochromatin state and that such effect was not observed in the dATF-2 and MEKK1 mutant background. To reveal trangenerational effects and role of paternal restraint stress, we analyzed gene expression profiles of F1 progenies derived from either RS exposed or control fathers of wild-type and dATF-2 KO father.",
+    "title": "Transgenerational effects of paternal restraint stress in Drosophila"
+  },
+  {
+    "accession": "GSE97233",
+    "gds_type": "Expression profiling by high throughput sequencing",
+    "n_samples": 4,
+    "organism": "Drosophila melanogaster",
+    "query": "transgenerational gene expression Drosophila stress",
+    "source": "GEO",
+    "summary": "Animals respond to dietary changes by adapting their metabolism to available nutrients through insulin and insulin-like growth factor signalling.  Restricting calorie intake generally extends life and health span, but Drosophila fed non-ideal sugars such as galactose are stressed and have shorter life spans.  Here, we report that although these flies have shorter life spans, their offspring show significant life extension if switched to a normal sugar (glucose) diet.  We define this as TGH or trans-generational hormesis, a beneficial effect that comes from a mild stress.  We trace the effects to changes in stress responses in parents, ROS production, effects on lipid metabolism, and changes in chromatin and gene expression.  We find that this mechanism is similar to what happens to the long lived Indy mutants on normal food, but surprisingly find that Indy is required for life span extension for galactose fed flies.  Indy mutant flies grown on galactose do not live longer as do their siblings grown on glucose, rather overexpression of Indy rescues lifespan for galactose reared flies.  We define a process where sugar metabolism can generate epigenetic changes that are inherited by offspring, providing a mechanism for how transgenerational nutrient sensitivities are passed on.",
+    "title": "Trans-Generational Hormesis and the Inheritance of Aging Resistance [RNA-seq]"
+  },
+  {
+    "accession": "GSE97162",
+    "gds_type": "Genome binding/occupancy profiling by high throughput sequencing",
+    "n_samples": 4,
+    "organism": "Drosophila melanogaster",
+    "query": "transgenerational gene expression Drosophila stress",
+    "source": "GEO",
+    "summary": "Animals respond to dietary changes by adapting their metabolism to available nutrients through insulin and insulin-like growth factor signalling.  Restricting calorie intake generally extends life and health span, but Drosophila fed non-ideal sugars such as galactose are stressed and have shorter life spans.  Here, we report that although these flies have shorter life spans, their offspring show significant life extension if switched to a normal sugar (glucose) diet.  We define this as TGH or trans-generational hormesis, a beneficial effect that comes from a mild stress.  We trace the effects to changes in stress responses in parents, ROS production, effects on lipid metabolism, and changes in chromatin and gene expression.  We find that this mechanism is similar to what happens to the long lived Indy mutants on normal food, but surprisingly find that Indy is required for life span extension for galactose fed flies.  Indy mutant flies grown on galactose do not live longer as do their siblings grown on glucose, rather overexpression of Indy rescues lifespan for galactose reared flies.  We define a process where sugar metabolism can generate epigenetic changes that are inherited by offspring, providing a mechanism for how transgenerational nutrient sensitivities are passed on.",
+    "title": "Trans-Generational Hormesis and the Inheritance of Aging Resistance [ChIP-seq]"
+  }
+]
