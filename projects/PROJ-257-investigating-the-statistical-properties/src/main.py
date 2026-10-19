@@ -2,6 +2,7 @@
 
 This script orchestrates the main steps required by the project, including:
 - Downloading GWTC observational data (if not already present).
+- Recording data‑availability metadata.
 - Preprocessing the observational data.
 - Acquiring the simulation catalog (download or synthetic fallback).
 - Logging progress and emitting a concise JSON summary.
@@ -9,10 +10,8 @@ This script orchestrates the main steps required by the project, including:
 It matches the command referenced in ``quickstart.md``:
     python src/main.py
 
-The script is deliberately lightweight: it only calls the high‑level
-functions defined in the ``src.data`` and ``src.analysis`` packages.
-Each sub‑module implements its own error handling and will abort loudly
-on any failure, satisfying the project's “fail loudly” requirement.
+The script uses relative imports so it works when executed as a
+script inside the ``src`` package (``python src/main.py``).
 """
 
 import argparse
@@ -21,10 +20,12 @@ from pathlib import Path
 
 from llmxive_toolkit import get_logger, paths
 
-# Import the high‑level functions from the existing modules.
-from src.data.download import download_all
-from src.data.preprocess import preprocess
-from src.data.synthetic_gen import acquire_sim_catalog
+# Relative imports to avoid import‑collision issues when the script is run
+# directly from the ``src`` package directory.
+from .data.download import download_all
+from .data.preprocess import preprocess
+from .data.synthetic_gen import acquire_sim_catalog
+from .data.record_availability import record_availability
 
 log = get_logger(__name__)
 
@@ -37,6 +38,17 @@ def _run_download() -> dict:
         return result
     except Exception as exc:
         log.error("GWTC download failed: %s", exc)
+        raise
+
+def _run_record_availability() -> dict:
+    """Write the data‑availability JSON report."""
+    log.info("Recording data‑availability metadata...")
+    try:
+        result = record_availability()
+        log.info("Data‑availability report written.")
+        return result
+    except Exception as exc:
+        log.error("Data‑availability recording failed: %s", exc)
         raise
 
 def _run_preprocess() -> dict:
@@ -86,6 +98,8 @@ def main() -> None:
     # Step 1: GWTC download (unless explicitly skipped)
     if not args.generate_synth_only:
         download_info = _run_download()
+        # Record availability immediately after download
+        _run_record_availability()
     else:
         download_info = {}
 

@@ -9,7 +9,7 @@ specification.
 
 ## Phase 0 – CI/CD execution constraints (US‑0, priority P0)
 
-- [ ] T001 [P0] [US0] **Download GWTC‑1 and GWTC‑2 posterior sample files from the official Zenodo DOIs**   <!-- FAILED-IN-EXECUTION: code/src/data/download_gwtc.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download_gwtc.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download_gwtc.py exit=1; code/src/data/record_availability.py exit=1 -->
+- [ ] T001 [P0] [US0] **Download GWTC‑1 and GWTC‑2 posterior sample files from the official Zenodo DOIs**   <!-- FAILED-IN-EXECUTION: code/src/data/download_gwtc.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download_gwtc.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download_gwtc.py exit=1; code/src/data/record_availability.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download_gwtc.py exit=1 -->
   *Implementation*: `code/src/data/download_gwtc.py` uses the exact HDF5 URLs  
   `[UNRESOLVED-CLAIM: https://zenodo.org/record/3966973/files/gwtc1.h5` — HTTP 404] and  
   `[UNRESOLVED-CLAIM: https://zenodo.org/record/3966974/files/gwtc2.h5` — HTTP 404].  

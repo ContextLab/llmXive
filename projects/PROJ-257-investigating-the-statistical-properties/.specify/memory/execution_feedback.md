@@ -8,11 +8,12 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
+- code/src/data/download_gwtc.py: synthetic/fake INPUT data not authorized by the spec — “…HDF5 file with a single dummy dataset."""     path.parent.mkdi…”
 - src/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the synthetic BBH catalog (AM-001 hypo…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the synthetic BBH catalog (AM-001 hypo…”; 2 command(s) failed: python src/main.py (rc=1); python -m pytest tests/ (rc=2); 2 declared deliverable(s) absent: data/raw/checksums.json; data/results/data_availability.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/src/data/download_gwtc.py: synthetic/fake INPUT data not authorized by the spec — “…HDF5 file with a single dummy dataset."""     path.parent.mkdi…”; src/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the synthetic BBH catalog (AM-001 hypo…”; 2 command(s) failed: python src/main.py (rc=1); python -m pytest tests/ (rc=2); 2 declared deliverable(s) absent: data/raw/checksums.json; data/results/data_availability.json
 
 ## Failing / missing run-book commands
 
@@ -20,8 +21,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/src/main.py", line 25, in <module>
-    from src.data.download import download_all
-ModuleNotFoundError: No module named 'src.data.download'
+    from .data.download import download_all
+ImportError: attempted relative import with no known parent package
 
 - python -m pytest tests/ -> rc=2
 thon 3.11.17, pytest-8.1.1, pluggy-1.7.0
@@ -43,7 +44,7 @@ E   ModuleNotFoundError: No module named 'requests_mock'
 =========================== short test summary info ============================
 ERROR tests/unit/test_download.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.49s ===============================
+=============================== 1 error in 0.43s ===============================
 
 
 
@@ -57,6 +58,7 @@ ERROR tests/unit/test_download.py
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/raw/checksums.json` is declared but was NOT written. Scripts referencing it:
+    - `code/src/data/download_gwtc.py` — NOT invoked by the run-book
     - `code/src/data/record_availability.py` — NOT invoked by the run-book
     - `code/src/utils/__init__.py` — NOT invoked by the run-book
     - `src/data/download.py` — NOT invoked by the run-book
