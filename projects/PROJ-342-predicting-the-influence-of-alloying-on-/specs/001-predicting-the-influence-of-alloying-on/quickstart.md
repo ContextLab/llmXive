@@ -1,8 +1,8 @@
 # Quickstart: Predicting the Influence of Alloying on the Glass Transition Temperature of Metallic Glasses
 
 ## Prerequisites
-- Python 3.11+
-- Git
+- Python 3.11+  
+- Git  
 - Terminal (local or GitHub Actions)
 
 ## Installation
@@ -20,49 +20,56 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Data Setup
-
-The pipeline creates its own synthetic dataset; no external download is required.
+## Data Setup (Download Only)
 
 ```bash
-# Generate and validate the synthetic dataset
-python code/generate_synthetic.py   # creates data/raw/synthetic_mg.csv
-python code/ingest.py               # validates and produces cleaned_data.csv
+# Attempt to download the official Metallic Glass Database (DOI 10.5281/zenodo.10043838)
+# or the MatNVP subset (DOI 10.5281/zenodo.11023456).
+# The script will abort with an error if both downloads fail.
+python code/download_dataset.py   # creates data/raw/metalic_glass_raw.csv
 ```
 
-## Running the Full Pipeline
+## Full Analysis Pipeline
 
 ```bash
-python code/descriptors.py && \
-python code/train.py && \
-python code/analyze.py && \
+# Validate and clean the downloaded dataset
+python code/ingest.py               # writes data/processed/cleaned_data.csv
+
+# 1. Compute atomic descriptors
+python code/descriptors.py
+
+# 2. Train the Gradient Boosting model with LOFO CV
+python code/train.py
+
+# 3. Post‑hoc analyses (VIF, sensitivity, correlation, FDR)
+python code/analyze.py
+
+# 4. Generate the final report (figures + markdown)
 python code/report.py
 ```
 
-### Individual Commands
-| Step | Command | Purpose |
-|------|---------|---------|
-| Synthetic generation | `python code/generate_synthetic.py` | Create reproducible composition‑Tg data (FR‑001). |
-| Ingestion | `python code/ingest.py` | Validate against schema, drop invalid rows (FR‑001). |
-| Descriptors | `python code/descriptors.py` | Compute atomic descriptors; log weighted mean radius (FR‑002). |
-| Train | `python code/train.py` | LOFO CV + GBM training + hyper‑parameter grid (FR‑003). |
-| Analyze | `python code/analyze.py` | VIF, Bonferroni correction, sensitivity sweep, bootstrap CIs (FR‑006‑009). |
-| Report | `python code/report.py` | Produce `paper/report.md` with required plots and associational statement (FR‑004). |
+### One‑liner (if you trust the order)
+
+```bash
+python code/descriptors.py && python code/train.py && python code/analyze.py && python code/report.py
+```
 
 ## Testing
 
 ```bash
-# Unit tests for descriptor logic and synthetic generator
+# Unit tests for descriptor logic, download handling, and validation
 pytest tests/unit/
 
-# Integration test (runs full pipeline on a tiny subset)
+# Integration test (runs the full pipeline on a tiny subset)
 pytest tests/integration/
 ```
 
 ## Expected Outputs
-- `data/processed/descriptors.csv` – feature table.  
+- `data/processed/descriptors.csv` – table of computed features.  
 - `artifacts/models/best_model.pkl` – trained Gradient Boosting model.  
-- `artifacts/metrics/stats.json` – performance metrics, VIF, corrected p‑values, sensitivity variance.  
-- `paper/report.md` – complete scientific report ready for manuscript inclusion.  
+- `artifacts/metrics/stats.json` – performance metrics, VIF values, sensitivity variance, FDR‑adjusted p‑values, `correlations`, and bootstrapped feature‑importance CIs.  
+- `paper/report.md` – complete scientific report ready for manuscript inclusion, containing all required plots and the exact phrase “These findings are associational only”.  
 
 ---
+
+

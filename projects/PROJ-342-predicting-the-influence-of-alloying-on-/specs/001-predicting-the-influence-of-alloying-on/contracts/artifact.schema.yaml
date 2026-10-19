@@ -34,7 +34,7 @@ properties:
     description: "Variance of R2 across max_depth sweep"
   fdr_corrected_pvalues:
     type: "object"
-    description: "Bonferroni corrected p-values for feature correlations"
+    description: "Benjamini-Hochberg corrected p-values for feature correlations"
     additionalProperties:
       type: "number"
       minimum: 0
@@ -46,6 +46,42 @@ properties:
   collinearity_flag:
     type: "boolean"
     description: "True if any predictor has VIF > 5"
+  correlations:
+    type: "object"
+    description: "Correlation results for each predictor pair"
+    additionalProperties:
+      type: "object"
+      properties:
+        pearson:
+          type: "number"
+        spearman:
+          type: "number"
+        p_raw:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        p_adj:
+          type: "number"
+          minimum: 0
+          maximum: 1
+      required:
+        - pearson
+        - spearman
+        - p_raw
+        - p_adj
+  feature_importance_ci:
+    type: "object"
+    description: "Bootstrapped 95% confidence intervals for each feature importance"
+    additionalProperties:
+      type: "object"
+      properties:
+        lower:
+          type: "number"
+        upper:
+          type: "number"
+      required:
+        - lower
+        - upper
 required:
   - artifact_id
   - model_type

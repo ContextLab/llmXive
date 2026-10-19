@@ -1,14 +1,10 @@
 status: none
-intent: download metallic glass composition Tg dataset Zenodo 10.5281/zenodo.10043838
-  MatNVP Materials Project fallback
+intent: download metallic glass composition Tg dataset from Zenodo Metallic Glass
+  Database python package dataset
 required_fields:
 - material_id
-- chemical_formula
 - composition
-- elements
-- element_fractions
 - glass_transition_temperature
-- Tg
-cache_key: 45830a5344266af54f470e8ccbad64010c1dfe72123140d8ebae94fbc1030c2c
-searched_at: '2026-10-19T20:09:11.848920+00:00'
+cache_key: ade0108b698389a778c1294258126c2a3b256af8aae220586b8fa28b907da50e
+searched_at: '2026-10-19T21:13:06.518789+00:00'
 retry_count: 1
