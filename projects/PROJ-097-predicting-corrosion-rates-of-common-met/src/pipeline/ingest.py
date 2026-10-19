@@ -27,6 +27,7 @@ if not hasattr(np, "sctypes"):
 
 import pandas as pd
 import yaml
+import requests
 
 from llmxive_toolkit import paths, get_logger
 
@@ -46,6 +47,11 @@ OPTIONAL_VARIABLES: Tuple[str, ...] = ("crystal_structure",)
 
 # Keywords used to find candidate corrosion datasets on OpenML.
 SEARCH_KEYWORDS: Tuple[str, ...] = ("corrosion", "corros", "seawater metal")
+
+# Fallback CSV URL – a real, publicly‑available corrosion dataset.
+FALLBACK_URL: str = (
+    "https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv"
+)
 
 class MissingVariableError(RuntimeError):
     """Raised when a required variable is absent from a data source."""
@@ -224,26 +230,33 @@ def fetch_dataset(
         return df, mapping
 
     # ------------------------------------------------------------------
-    # Fallback: use the built‑in CSV shipped with the repository.
-    # This is a real dataset (not synthetic) and satisfies all required
-    # columns, so we can safely use it when OpenML yields nothing.
+    # Fallback: download a known real corrosion CSV from a public URL.
     # ------------------------------------------------------------------
-    builtin_path = paths.data("raw", "builtin_corrode.csv")
-    if builtin_path.is_file():
-        df = pd.read_csv(builtin_path)
-        log.info(
-            "Falling back to built‑in dataset at %s (no OpenML match).",
-            builtin_path,
-        )
-        # The built‑in file already uses the canonical column names,
-        # so the mapping is identity.
-        mapping = {var: var for var in REQUIRED_VARIABLES}
-        return df, mapping
+    log.info("No suitable OpenML dataset found; attempting fallback download.")
+    try:
+        response = requests.get(FALLBACK_URL, timeout=30)
+        response.raise_for_status()
+    except Exception as exc:
+        raise RuntimeError(
+            f"Fallback download failed for {FALLBACK_URL}: {exc}"
+        ) from exc
 
-    raise RuntimeError(
-        "FAIL: no real OpenML dataset containing all required variables "
-        f"({', '.join(REQUIRED_VARIABLES)}) was found. Candidates tried: {tried}"
+    # Load into DataFrame
+    df = pd.read_csv(pd.compat.StringIO(response.text))
+    # Verify required columns are present.
+    cols = [str(c) for c in df.columns]
+    try:
+        mapping = map_required_columns(cols, "fallback_url")
+    except MissingVariableError as exc:
+        raise RuntimeError(
+            f"Fallback dataset from {FALLBACK_URL} is missing required columns: {exc}"
+        ) from exc
+
+    log.info(
+        "Fallback dataset downloaded and qualifies; required‑column map: %s",
+        mapping,
     )
+    return df, mapping
 
 def record_provenance(
     raw_path: Path,
@@ -274,7 +287,7 @@ def record_provenance(
         "n_columns": len(columns),
         "columns": columns,
         "required_variable_map": required_map,
-        "source": "OpenML (openml Python package, openml.datasets.get_dataset) or built‑in CSV",
+        "source": "OpenML (openml Python package, openml.datasets.get_dataset) or fallback CSV",
     }
     meta_path.parent.mkdir(parents=True, exist_ok=True)
     with open(meta_path, "w", encoding="utf-8") as fh:
@@ -365,11 +378,11 @@ def ingest(dataset_id: Optional[int] = None, max_candidates: int = 25) -> Path:
     if dataset_id is None:
         # Metadata attached in _fetch_with_metadata; retrieve from attrs.
         dataset_id = frame.attrs.get("openml_dataset_id")
-        dataset_name = frame.attrs.get("openml_dataset_name", "unknown")
+        dataset_name = frame.attrs.get("openml_dataset_name", "fallback")
         version = frame.attrs.get("openml_dataset_version")
         url = frame.attrs.get(
             "openml_url",
-            f"https://www.openml.org/d/{dataset_id}",
+            FALLBACK_URL,
         )
         doi = frame.attrs.get("openml_doi")
     else:
@@ -381,7 +394,7 @@ def ingest(dataset_id: Optional[int] = None, max_candidates: int = 25) -> Path:
 
     raw_dir = paths.data("raw")
     safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(dataset_name))
-    raw_path = raw_dir / f"corrosion_{dataset_id}_{safe_name}.csv"
+    raw_path = raw_dir / f"corrosion_{dataset_id or 'fallback'}_{safe_name}.csv"
     frame.to_csv(raw_path, index=False)
     log.info("Raw data written to %s (%d records)", raw_path, len(frame))
 
