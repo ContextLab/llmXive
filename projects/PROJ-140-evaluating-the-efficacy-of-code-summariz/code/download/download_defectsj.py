@@ -30,19 +30,8 @@ log = get_logger(__name__)
 def _stream_defects4j(dataset_name: str) -> "datasets.arrow_dataset.Dataset":
     """
     Load the Defects4J‑related dataset in streaming mode.
-
-    Parameters
-    ----------
-    dataset_name: str
-        HuggingFace identifier for the dataset (e.g. 
-        ``chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3``).
-
-    Returns
-    -------
-    Dataset
-        An iterable ``datasets`` object.
     """
-    # ``streaming=True`` ensures we never load the whole dataset into RAM.
+    # streaming=True ensures we never load the whole dataset into RAM.
     return load_dataset(dataset_name, split="train", streaming=True)
 
 def _collect_methods(
@@ -52,21 +41,6 @@ def _collect_methods(
     """
     Iterate over the streamed dataset, bucket methods by project and
     record any entries missing a ground‑truth line.
-
-    Parameters
-    ----------
-    ds : Dataset
-        The streamed Defects4J dataset.
-    target_projects : tuple[str, ...]
-        Projects for which we want to sample methods.
-
-    Returns
-    -------
-    tuple
-        - ``project_buckets``: dict mapping project name → list of method dicts
-          (only those with a non‑null ``ground_truth_line``).
-        - ``missing``: list of dicts for methods where ``ground_truth_line`` is
-          missing or null.
     """
     project_buckets: dict[str, list[dict]] = {p: [] for p in target_projects}
     missing: list[dict] = []
@@ -79,13 +53,18 @@ def _collect_methods(
         method_id = record.get("method_id")
         ground_truth_line = record.get("ground_truth_line")
 
-        # Record missing ground‑truth information
-        if ground_truth_line is None:
+        # Record missing or invalid ground‑truth information
+        try:
+            if ground_truth_line is None:
+                raise ValueError("Missing ground_truth_line")
+            gt_val = int(ground_truth_line)
+        except (ValueError, TypeError):
             missing.append(
                 {
                     "method_id": method_id,
                     "project_name": project,
                     "bug_id": record.get("bug_id"),
+                    "error": "Missing or non-integer ground_truth_line"
                 }
             )
             continue
@@ -97,7 +76,7 @@ def _collect_methods(
                 "project_name": project,
                 "bug_id": record.get("bug_id"),
                 "source_code": record.get("source_code"),
-                "ground_truth_line": int(ground_truth_line),
+                "ground_truth_line": gt_val,
                 "context_code": record.get("context_code"),
             }
         )
@@ -112,20 +91,6 @@ def _sample_stratified(
     """
     Perform a stratified random sample (fixed seed) of ``per_project`` methods
     from each project bucket.
-
-    Parameters
-    ----------
-    project_buckets : dict
-        Mapping from project name to list of method dicts.
-    per_project : int
-        Number of methods to sample from each project.
-    seed : int
-        Random seed for reproducibility.
-
-    Returns
-    -------
-    list[dict]
-        Sampled method records (total ``per_project * len(project_buckets)``).
     """
     random.seed(seed)
     sampled: list[dict] = []
@@ -161,15 +126,17 @@ def main() -> None:
         type=str,
         default="chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3",
         help=(
-            "HuggingFace dataset identifier. Must contain fields "
-            "project_name, method_id, bug_id, source_code, "
-            "ground_truth_line, and context_code."
+            "HuggingFace dataset identifier."
         ),
     )
     args = parser.parse_args()
 
     log.info("Streaming Defects4J dataset '%s'...", args.dataset)
-    dataset = _stream_defects4j(args.dataset)
+    try:
+        dataset = _stream_defects4j(args.dataset)
+    except Exception as e:
+        log.error("Failed to fetch dataset from HuggingFace: %s", e)
+        raise
 
     log.info("Collecting methods and tracking missing ground‑truth entries...")
     project_buckets, missing = _collect_methods(dataset)
@@ -183,11 +150,12 @@ def main() -> None:
     csv_path: Path = paths.data("raw", "defects4j", "ground_truth.csv")
     json_path: Path = paths.data("interaction_logs", "missing_ground_truth.json")
 
-    # ``paths.data`` creates the parent directory if it does not exist.
+    # Write CSV
     df = pd.DataFrame(sampled_methods)
     df.to_csv(csv_path, index=False)
     log.info(f"Wrote ground‑truth CSV with {len(df)} rows to {csv_path}")
 
+    # Write JSON
     with json_path.open("w", encoding="utf-8") as f:
         json.dump(missing, f, indent=2, ensure_ascii=False)
     log.info(f"Wrote missing‑ground‑truth log with {len(missing)} entries to {json_path}")

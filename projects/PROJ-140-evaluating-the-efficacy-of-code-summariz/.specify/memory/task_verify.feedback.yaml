@@ -1,4 +1,8 @@
 T001:
+  reason: "The quickstart.md file exists and contains the required layout, provenance,\
+    \ seed, and command description, but there is no provided evidence (e.g., execution\
+    \ log, test result, CI check) that `python -m code.main --mode sim --help` actually\
+    \ runs and exits with status\u202F0. This verification step is missing."
   task: 4a48e661b023376b74dbfd397691074cca374f3f3af036d425664943d683a4c3
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/download/download_defectsj.py
