@@ -10,7 +10,7 @@ All tasks follow the canonical checklist format `- [ ] T### [P?] [USx?] descript
 | Goal | Obtain all real input resources, filter to the regulatory context, and create the foundational Parquet datasets required for downstream scoring. |
 |------|------------------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T001 [P] [US1] **Create the project directory layout**.  
+- [X] T001 [P] [US1] **Create the project directory layout**.  
   *Path*: `code/`, `code/data_ingestion/`, `code/scoring/`, `code/analysis/`, `code/visualization/`, `code/utils/`, `data/raw/`, `data/derived/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`.  
   *Verification*:  
   ```bash
@@ -18,7 +18,7 @@ All tasks follow the canonical checklist format `- [ ] T### [P?] [USx?] descript
   wc -l < data/results/structure_manifest.txt   # must be ≥ 11
   ```
 
-- [ ] T002 [P] [US1] **Create `.gitignore` at the repository root** with the exact exclusion patterns required by the specification.  
+- [ ] T002 [P] [US1] **Create `.gitignore` at the repository root** with the exact exclusion patterns required by the specification.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Path*: `.gitignore` (project root).  
   *Content*:  
   ```text
