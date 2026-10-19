@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: dd7d9d5903a4d4559e110b0783ebc019f03db9851a550deca21713fe12e9d7ef
-  r: The `requirements.txt` correctly pins all packages to the `package==major.minor.*`
-    pattern and the `quickstart.md` documents the pipeline command, but there is no
-    provided evidence (e.g., pip install log or CI run output) showing that `pip install
-    -r requirements.txt` actually succeeds. Adding such installation verification
-    logs will satisfy the task fully.
-  sig: 69478e36c78a1de5bf92b4e5ac5bbe96b2234cbe243a633ac87f83d96ca1bab8
 T002:
   c: true
   h: 3d90b30259a2afb6ed5cc41bb4ddf3fba188d5682be86cfb0bf93b38e4da2a14
@@ -18,14 +9,16 @@ T002:
   sig: 29b28285a51cbe72cbe12af4e1043feebcd93b2e9458181c343cdffc906845ee
 T004:
   c: false
-  h: 1a7fe970338fb61a03f4d73af210dfb993d171951b8b5d0bee5c451047f908b6
-  r: "The alignment script exists, but the unit test fails because `_load_ace_composition`\
-    \ (and the WIND loader) look for \u201C*.cdf\u201D files, while the test creates\
-    \ \u201C*.csv\u201D placeholders; consequently no data are loaded, `AlignmentError`\
-    \ is raised, and neither `data/processed/aligned_hourly.parquet` nor `data/artifacts/alignment_report.json`\
-    \ is produced. The required output files are missing and the verification test\
-    \ does not pass."
-  sig: 22ba6703b05853355f16d88d4bea7330064c9d8ce1324eaf6c7a8f4950f07ba5
+  h: 673c3b9f21391d84fbaed4776695a603360aac8e0b36262848bd6c154a9ad142
+  r: "The required output artifacts `data/processed/aligned_hourly.parquet` and `data/artifacts/alignment_report.json`\
+    \ are both MISSING \u2014 the alignment script exists but was never successfully\
+    \ run, and there is no execution or pytest evidence. Additionally, the code itself\
+    \ has substantive defects: the `max_offset_minutes` computation is incoherent\
+    \ (it reindexes OMNI by merged timestamps, always yielding ~0 rather than measuring\
+    \ actual merge offsets), rows spanning composition gaps > 6 h are not marked missing\
+    \ as required, and the test never validates against `contracts/dataset.schema.yaml`\
+    \ despite t"
+  sig: 9cf5c31f0d6266f8e242a196670af12b0b3a98f4cf3099b36ea02b998c3c36b8
 T005:
   c: false
   h: fb76be50f36ed84867eba4376b97cac2cb320c146d72de8a6e3ec90c7c89616d

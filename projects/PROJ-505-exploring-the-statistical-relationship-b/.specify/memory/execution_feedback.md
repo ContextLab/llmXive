@@ -71,12 +71,12 @@ ImportError: pyspedas is required for real-data ingestion but is not installed.
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 77, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 81, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/logging.py", line 76, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 34, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 40, in main
     raise FileNotFoundError(
 FileNotFoundError: Aligned data not found at data/processed/aligned_hourly.parquet. Run the alignment step before executing the main driver.
 
@@ -85,12 +85,12 @@ FileNotFoundError: Aligned data not found at data/processed/aligned_hourly.parqu
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 77, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 81, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/logging.py", line 76, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 34, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 40, in main
     raise FileNotFoundError(
 FileNotFoundError: Aligned data not found at data/processed/aligned_hourly.parquet. Run the alignment step before executing the main driver.
 
@@ -109,7 +109,7 @@ E   ImportError: cannot import name '_check_multicollinearity' from 'analysis.re
 ERROR tests/unit/test_ingestion.py
 ERROR tests/unit/test_regression.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.58s ===============================
+============================== 2 errors in 0.95s ===============================
 
 
 - python -m code.verify_requirements -> rc=1

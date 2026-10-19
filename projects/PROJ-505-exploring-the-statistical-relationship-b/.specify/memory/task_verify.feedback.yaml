@@ -9,12 +9,14 @@ T003:
     exit=1'
   task: 689ed5ca98734d9f7a8b643e0b7b1d14217499554738fbd0f8063f6ba3fffba3
 T004:
-  reason: "The alignment script exists, but the unit test fails because `_load_ace_composition`\
-    \ (and the WIND loader) look for \u201C*.cdf\u201D files, while the test creates\
-    \ \u201C*.csv\u201D placeholders; consequently no data are loaded, `AlignmentError`\
-    \ is raised, and neither `data/processed/aligned_hourly.parquet` nor `data/artifacts/alignment_report.json`\
-    \ is produced. The required output files are missing and the verification test\
-    \ does not pass."
+  reason: "The required output artifacts `data/processed/aligned_hourly.parquet` and\
+    \ `data/artifacts/alignment_report.json` are both MISSING \u2014 the alignment\
+    \ script exists but was never successfully run, and there is no execution or pytest\
+    \ evidence. Additionally, the code itself has substantive defects: the `max_offset_minutes`\
+    \ computation is incoherent (it reindexes OMNI by merged timestamps, always yielding\
+    \ ~0 rather than measuring actual merge offsets), rows spanning composition gaps\
+    \ > 6 h are not marked missing as required, and the test never validates against\
+    \ `contracts/dataset.schema.yaml` despite t"
   task: 0941b55dccfe738a4e9d9d4a3733ddca40dc23410f2e1dfd8481e876ca91e364
 T005:
   reason: "The required `data/processed/with_coupling.parquet` file is missing, and\

@@ -1,19 +1,25 @@
 """
 Top‑level driver that orchestrates the coupling‑function computation
 and a thin baseline regression on Dst using only the coupling functions.
-This script is deliberately lightweight: it expects that the aligned
-hourly dataset already exists at ``data/processed/aligned_hourly.parquet``.
+This script expects that the aligned hourly dataset already exists at
+``data/processed/aligned_hourly.parquet``.
 """
 
 import json
 from pathlib import Path
 
 import pandas as pd
+import statsmodels.api as sm
 
-from code.analysis.coupling_functions import compute_all_coupling_functions, get_coupling_function_columns
+from code.analysis.coupling_functions import (
+    compute_all_coupling_functions,
+    get_coupling_function_columns,
+)
 from code.utils.logging import get_logger, log_duration
 
+
 logger = get_logger(__name__)
+
 
 @log_duration
 def main() -> None:
@@ -55,10 +61,8 @@ def main() -> None:
         raise KeyError(f"Missing columns required for regression: {missing}")
 
     X = df[list(get_coupling_function_columns())]
-    X = sm.add_constant(X)  # type: ignore  # statsmodels imported lazily below
+    X = sm.add_constant(X)  # add intercept
     y = df["Dst"]
-
-    import statsmodels.api as sm  # Imported here to avoid hard dependency at import time
 
     logger.info("Fitting baseline OLS regression (Dst ~ coupling functions)")
     model = sm.OLS(y, X, missing="drop").fit()

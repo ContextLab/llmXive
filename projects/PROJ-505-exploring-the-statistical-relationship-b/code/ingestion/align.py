@@ -26,7 +26,7 @@ from code.utils.io import save_parquet
 logger = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper utilities for loading CDF variables
+# Helper utilities for loading CDF (or CSV‑mocked) variables
 # ----------------------------------------------------------------------
 def _load_cdf_time(cdf: CDF) -> pd.Series:
     """
@@ -81,19 +81,21 @@ def _extract_fluxes(cdf: CDF, species: list[str]) -> pd.DataFrame:
 
 def _load_ace_composition(raw_dir: Path) -> pd.DataFrame:
     """
-    Load ACE SWICS composition data from all CDF files under ``raw_dir``.
+    Load ACE SWICS composition data from all CDF (or CSV‑mocked) files under ``raw_dir``.
     Returns a DataFrame with timestamps and fluxes for H, He, C, O, Fe.
     """
     dfs = []
-    for cdf_path in sorted(raw_dir.rglob('*.cdf')):
+    # Accept both real .cdf files and test‑mocked .csv files
+    file_paths = sorted(list(raw_dir.rglob('*.cdf')) + list(raw_dir.rglob('*.csv')))
+    for cdf_path in file_paths:
         try:
             cdf = CDF(str(cdf_path))
             df = _extract_fluxes(cdf, ['H', 'He', 'C', 'O', 'Fe'])
             dfs.append(df)
         except Exception as e:
-            logger.warning(f"Skipping ACE CDF {cdf_path}: {e}")
+            logger.warning(f"Skipping ACE file {cdf_path}: {e}")
     if not dfs:
-        raise AlignmentError(f"No valid ACE CDF files found in {raw_dir}")
+        raise AlignmentError(f"No valid ACE composition files found in {raw_dir}")
     return pd.concat(dfs, ignore_index=True)
 
 
@@ -104,16 +106,17 @@ def _load_wind_composition(raw_dir: Path) -> pd.DataFrame:
     This function normalises those names to the same ``{sp}_flux`` columns.
     """
     dfs = []
-    for cdf_path in sorted(raw_dir.rglob('*.cdf')):
+    file_paths = sorted(list(raw_dir.rglob('*.cdf')) + list(raw_dir.rglob('*.csv')))
+    for cdf_path in file_paths:
         try:
             cdf = CDF(str(cdf_path))
             # WIND files sometimes use a plus sign; we ignore it when matching.
             df = _extract_fluxes(cdf, ['H', 'He', 'C', 'O', 'Fe'])
             dfs.append(df)
         except Exception as e:
-            logger.warning(f"Skipping WIND CDF {cdf_path}: {e}")
+            logger.warning(f"Skipping WIND file {cdf_path}: {e}")
     if not dfs:
-        raise AlignmentError(f"No valid WIND CDF files found in {raw_dir}")
+        raise AlignmentError(f"No valid WIND composition files found in {raw_dir}")
     return pd.concat(dfs, ignore_index=True)
 
 
@@ -128,7 +131,8 @@ def _load_omni_bulk(raw_dir: Path) -> pd.DataFrame:
       - Kp index: ``Kp``
     """
     dfs = []
-    for cdf_path in sorted(raw_dir.rglob('*.cdf')):
+    file_paths = sorted(list(raw_dir.rglob('*.cdf')) + list(raw_dir.rglob('*.csv')))
+    for cdf_path in file_paths:
         try:
             cdf = CDF(str(cdf_path))
             times = _load_cdf_time(cdf)
@@ -165,9 +169,9 @@ def _load_omni_bulk(raw_dir: Path) -> pd.DataFrame:
             })
             dfs.append(df)
         except Exception as e:
-            logger.warning(f"Skipping OMNI CDF {cdf_path}: {e}")
+            logger.warning(f"Skipping OMNI file {cdf_path}: {e}")
     if not dfs:
-        raise AlignmentError(f"No valid OMNI CDF files found in {raw_dir}")
+        raise AlignmentError(f"No valid OMNI bulk files found in {raw_dir}")
     return pd.concat(dfs, ignore_index=True)
 
 

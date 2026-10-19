@@ -31,9 +31,9 @@ The script writes `results/requirements_install.log`. A successful run contains 
 
 Every non‑comment line of `requirements.txt` is pinned as
 `package==major.minor.*` (e.g. `pyspedas==1.6.*`), which guarantees
-reproducible installs. The old non‑conforming `pyarrow>=15.0.0` line has
-been replaced by `pyarrow==15.0.*` plus a `fastparquet==2024.*` fallback
-engine, so Parquet I/O works even when `pyarrow` is unavailable.
+reproducible installs. The previous non‑conforming `pyarrow>=15.0.0` line
+has been removed; `fastparquet==2024.*` provides the Parquet I/O fallback
+when `pyarrow` is unavailable.
 
 ## Data Preparation (REAL data — no synthetic fallback)
 
@@ -70,7 +70,8 @@ fetch fails — there is no synthetic fallback anywhere in the pipeline.
 python -m code.main
 ```
 
-`main.py` executes the full pipeline in dependency order on the real data:
+**Runnable pipeline command:** `python -m code.main` executes the full
+pipeline in dependency order on the real data:
 
 1. Real‑data ingestion (`code/ingestion/download_real.py`) — ACE SWICS + WIND SMS + OMNI
 2. Alignment (`code/ingestion/align.py`) → `data/processed/aligned_hourly.parquet`

@@ -1,18 +1,17 @@
 status: none
-intent: download ACE SWICS composition and NOAA geomagnetic indices via pyspedas python
-  package dataset
+intent: download OMNI hourly solar wind plasma magnetic field ACE SWICS O/Fe He/H
+  C/O python package dataset
 required_fields:
-- timestamp
+- timestamp_utc_hour
 - o_fe_ratio
 - he_h_ratio
 - c_o_ratio
-- bulk_velocity
-- density
-- imf_bx
-- imf_by
+- solar_wind_speed
+- proton_density
 - imf_bz
 - dst_index
 - kp_index
-cache_key: 0fd04002fb72acec3e7bbc8c5d96047a1613aca6edb53f46e4330bb9d3d57d19
-searched_at: '2026-10-19T20:10:22.392053+00:00'
+- coupling_function
+cache_key: 7521d8eeeb8d658e79d5be6faa2be7cdfca7cb1ce20b7011c9c2e39a1b0c97b6
+searched_at: '2026-10-19T22:15:46.823626+00:00'
 retry_count: 1
