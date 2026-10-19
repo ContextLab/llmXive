@@ -10,16 +10,16 @@ T001:
   sig: ed7b61b09e6127a2771fa54abffd6698d2f59731ac0dcef46bae43ea4e5f383c
 T002:
   c: true
-  h: 9cd13b6e6b73fbae6d989364d5a6c15493da18a734c138b5611937c95b57ce19
+  h: b7f4dde565650e7374b6c793129e8cc75f9708ffa5807eea59bce660a3308f5d
   r: 'All four required artifacts exist and are substantive: `code/config.py` pins
-    seeds, window/step parameters, and the QC threshold constants (FD 0.5 mm, DVARS
-    MAD multiplier 3.0, 1.4826, 0.20 bad-volume fraction); `code/requirements.txt`
-    lists pinned dependencies; `code/run_all.py` is a real argparse CLI orchestrator;
-    and `quickstart.md` documents the exact end-to-end invocation (`python code/run_all.py
-    --seed 42 --window 45 --step 10 --permutations 1000`) with install steps for a
-    CPU-only runner. The `--help` exit-0 verification is evidenced by the passing
-    `tests/test_run_all.py::test_run_all_h'
-  sig: 2fcf6d21fc7f466aa200b599a2f065649827eb4b4af5ce120aa98fdd3fe2659d
+    seeds (42/123), window/step parameters (45s/10s, sensitivity sweeps), and the
+    T003 QC thresholds (FD 0.5mm, DVARS MAD multiplier 3.0, 1.4826 constant, 0.20
+    max bad-volume fraction); `code/requirements.txt` lists the pinned dependencies;
+    `code/run_all.py` is a real argparse CLI orchestrator with stage selection matching
+    `config.STAGE_ORDER`; and `quickstart.md` documents the exact end-to-end invocation
+    (`python code/run_all.py --seed 42 --window 45 --step 10 --permutations 1000`)
+    plus install steps runnable on a CPU-on'
+  sig: 9ef20997618d019c5e454965cbf687a3e100ea42bb769fe4dca6d1233843e015
 T005:
   c: false
   h: 53e8368001216a37717b3377727ab75c1b06ca18fb69be2ee085ed5e4fd88a85

@@ -1,19 +1,16 @@
 status: none
-intent: OpenNeuro ds000246 ds001600 Schaefer 100 atlas fsLR-64k parquet python package
-  dataset
+intent: OpenNeuro ds000246 ds001600 fMRI dataset python package dataset
 required_fields:
 - subject_id
 - run_id
-- session_id
 - task_name
 - bold_nifti_path
-- bold_timepoints
-- bold_vertices
+- preprocessed_nifti_path
+- framewise_displacement
+- tr
+- voxel_size
 - roi_time_series_matrix
-- roi_labels
-- motion_framewise_displacement
-- repetition_time_TR
-- echo_time_TE
-cache_key: 62b7254baa769b59c904f5302adc164ee296f0492514fded9a38f259da7e3342
-searched_at: '2026-10-19T07:33:43.998437+00:00'
+- atlas_name
+cache_key: 8600fd528f1034e4d3c8436062bc6e785fe46e2ce81a91130963a3322ebd5a9d
+searched_at: '2026-10-19T08:14:22.212544+00:00'
 retry_count: 1
