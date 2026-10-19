@@ -1,361 +1,91 @@
-# Tasks: llmXive follow-up: extending "Self-Improving Language Models with Bidirectional Evolutionary Search"
+# Tasks: Symbolic backward-step substitution in Bidirectional Evolutionary Search
 
-**Input**: Design documents from `/specs/001-symbolic-bes/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: `specs/001-symbolic-bes/spec.md`, `plan.md`, `data-model.md`, `contracts/`
+**Re-plan note**: Consolidates the prior task list (which contained duplicate IDs T024d-neural-run, T025–T029 and non-substantive directory/venv tasks) into a bounded set of research tasks. Research scripts never write to `state/` or `.github/`; the platform owns project state. No synthetic/mock data fallbacks are permitted anywhere — a failed real fetch or generation step must raise.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Phase 0: Design and documentation (traceability for plan items)
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
+- [ ] T012 [US1] Finalize Dataset Strategy – document the generation methodology, complexity scaling, and provenance metadata in `specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md`.  
+  Observable check: the markdown file exists and includes sections for puzzle types, scaling plan, and seed management.
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T013 [US2] Define Statistical Analysis Plan – specify TOST bounds, alpha level, power analysis, and effect‑size targets in `specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md`.  
+  Observable check: file exists and contains numeric values for delta, alpha, and required sample size.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T014 [US3] Select Baseline Architecture – choose the small CPU‑only LLM (e.g., `distilbert-base-uncased`), record the exact HuggingFace commit hash and fallback options in `specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md`.  
+  Observable check: file lists model identifier, commit hash, and device settings.
 
-## Path Conventions
+- [ ] T015 [US4] Validate Contracts – generate and place the contract schemas `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` (already present) and ensure they are syntactically valid.  
+  Observable check: `python -c "import yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"` runs without error.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T016 [US5] Create Quickstart Documentation – author `specs/001-llmxive-follow-up-extending-self-improvi/quickstart.md` with a reproducible command chain that runs the pilot end‑to‑end experiment and points to the expected output locations.  
+  Observable check: quickstart.md exists and the command `python -m code.main --pilot` executes without error on a clean repo.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+## Phase 1: Setup and first end‑to‑end analysis
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T001 [US1] Implement the puzzle dataset generator and deterministic verifier in `code/dataset/generator.py` and `code/dataset/verifier.py`, with the formal constraint grammar in `code/dataset/grammar.py`, satisfying FR‑001.  
+  - Generator creates 4x4‑Sudoku and grid‑pathfinding instances with all required fields and raises on any generation/grammar failure.  
+  - Verifier returns `(is_valid: bool, error_code: str)` per puzzle type, executes in **< 100 ms** per solution, and raises `VerifierError` on internal failures.  
+  - Tests in `code/tests/test_verifier.py`, `code/tests/test_generator.py` verify correctness **and** include a pytest‑benchmark test asserting `runtime < 0.1` seconds.  
+  - Validate generated instances against `contracts/dataset.schema.yaml`.  
+  - Observable check: `pytest code/tests/test_*.py` passes and the benchmark test succeeds.
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T002 [US2] Implement the symbolic planner and exclusion logging in `code/symbolic/parser.py`, `code/symbolic/planner.py`, and `code/symbolic/exclusion_logger.py`, satisfying FR‑002 and FR‑006.  
+  - Parser converts constraint strings to objects; planner produces sub‑goal sequences and emits `CONTRADICTION_DETECTED` / `PARSE_FAILURE` codes.  
+  - Exclusion logger writes excluded puzzle IDs and reasons to `data/processed/exclusions.json` (one‑writer per run).  
+  - Tests in `code/tests/test_symbolic_planner.py` cover contradictory, unparsable, and well‑formed instances.  
+  - Observable check: `pytest code/tests/test_symbolic_planner.py` passes.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T003 [US2] Implement the BES evolutionary loop in `code/bes/` (population, forward step, backward step, fitness, termination), satisfying FR‑003.  
+  - Forward step loads the small CPU LLM (`distilbert-base-uncased`) with `device='cpu'`; fetch failures raise.  
+  - Backward step uses the symbolic planner; on planner errors returns `EXCLUDED` and logs via the exclusion logger.  
+  - Fitness calls the deterministic verifier with a timeout; termination logs reason.  
+  - Pilot run on N=10 puzzles produces logs under `data/processed/bes_runs/<run_id>/`.  
+  - Observable check: `specs/001-llmxive-follow-up-extending-self-improvi/quickstart.md` command runs pilot and creates non‑empty `attempts.jsonl` and `evaluations.jsonl` with real `cost_time`.
 
-## Phase 0: Research & Design (Contracts & Schema)
+## Phase 2: Complete the study and validate its evidence
 
-**Purpose**: Generate design artifacts required by downstream tasks.
+- [ ] T004 [US1] Generate the full scaled dataset and validate its distribution, satisfying FR‑001 and SC‑005's data basis.  
+  - Produce `data/raw/puzzles_N10.json`, `puzzles_N100.json`, `puzzles_N500.json`.  
+  - Run `code/dataset/validate_distribution.py` against the schema and write `distribution_report.json` and `distribution_validation.json`.  
+  - Observable check: files exist, schema validation passes, and the report contains counts per type and complexity bucket.
 
-- [ ] T000d-def [P] Define the JSON schema structure for puzzle instances in text format. **Constraint**: Must define fields: `constraints` (array of strings), `initial_state` (object), `target_state` (object), `verifier_output` (object with `valid` boolean and `error_code` string), and `metadata` (object with `source_id`, `generation_seed`). Reference `data-model.md` section 2.1 for field definitions. **Output**: Must write the schema to `contracts/dataset.schema.yaml`. **Dependency**: None.
-- [ ] T000d-impl [P] Generate `data-model.md` defining the Statistical Plan and Data Entities. **Constraint**: Must explicitly define the `complexity_metric` mapping to asymptotic complexity for SC-005 and the schema for `Puzzle Instance`. Must read field definitions from the output of T000d-def (`contracts/dataset.schema.yaml`). **Dependency**: Requires T000d-def.
-- [ ] T000c-metric-def [P] Define the `complexity_metric` tuple and its mapping to asymptotic complexity classes (O(n), O(n^2), O(2^n)) in `research.md`. **Constraint**: Must explicitly state the formula: `complexity_metric = (constraint_count, variable_domain_size)` and map these to Big-O classes based on solver behavior. **Dependency**: None.
-- [ ] T000c-tost-def [P] Define TOST (Two One-Sided Tests) parameters in `research.md`. **Constraint**: Must define equivalence bounds (delta), alpha, and power for the statistical framework. **Dependency**: None.
-- [ ] T000c-stats-def [P] Define Statistical Analysis Plan parameters in `research.md`. **Constraint**: Must define the two-proportion z-test parameters (alpha=0.05) and power analysis requirements. **Dependency**: Requires T000c-stats-ref.
-- [ ] T000c-stats-ref [P] Update `research.md` with verified citations for statistical methods. **Constraint**: Must add a citation for the Two-proportion Z-test from a **primary source** (e.g., a standard textbook or peer-reviewed paper) to `research.md` and ensure it is verified by the Reference-Validator Agent. Must explicitly cite the parameters (delta, alpha, power) defined in T000c-stats-def. **Dependency**: None.
-- [ ] T000c-planner [P] Define the Symbolic Planner logic in `research.md`. **Constraint**: Must explicitly define the rule-based decomposition of puzzle constraints into sub-goals, including handling for `CONTRADICTION_DETECTED` and `PARSE_FAILURE`. Must reference FR-002. **Dependency**: Requires T000d-impl.
-- [ ] T000c-impl [P] Generate `research.md` documenting the Dataset Strategy (Synthetic Curation + Scaling Generation) and Statistical Analysis Plan. **Constraint**: Must define the dataset source path as `data/raw/generated_puzzles.json` (a path definition, not a placeholder file), scaling method (N=10..500), and statistical framework. Must reference the `complexity_metric` defined in T000c-metric-def, T000c-tost-def, T000c-stats-def, and T000c-planner. **Dependency**: Requires T000c-metric-def, T000d-impl, T000c-tost-def, T000c-stats-def, T000c-planner.
-- [ ] T000b-def [P] Define the JSON schema structure for output files in text format. **Constraint**: Must define schemas for `data/processed/exclusions.json` and `data/processed/distribution_report.json`. Reference `plan.md` section 3.2 for field definitions. **Dependency**: Requires T000d-impl.
-- [ ] T000b-gen [P] Write the `contracts/output.schema.yaml` file from T000b-def definitions. **Constraint**: Must validate the schema against `plan.md` requirements. **Dependency**: Requires T000b-def.
-- [ ] T000b-verify [P] Verify `contracts/output.schema.yaml` syntax and schema validity. **Constraint**: Add a unit test `tests/unit/test_schema.py::test_output_schema_valid` that validates the YAML file. **Dependency**: Requires T000b-gen.
-- [ ] T000d-gen [P] Write the `contracts/dataset.schema.yaml` file from T000d-def definitions. **Constraint**: Must validate the schema against `data-model.md` requirements. **Dependency**: Requires T000d-def.
-- [ ] T000d-verify [P] Verify `contracts/dataset.schema.yaml` syntax and schema validity. **Constraint**: Add a unit test `tests/unit/test_schema.py::test_dataset_schema_valid` that validates the YAML file. **Dependency**: Requires T000d-gen.
-- [X] T067 [P] [US3] Implement "Pre-Analysis Power Calculation" in `code/analysis/stats.py`. **Constraint**: If the planned sample size (N=10..500) is insufficient, the system MUST log a critical warning (but NOT halt execution, per Spec Assumptions) and proceed. **Rationale**: Prevents the "Underpowered" scenario identified in T049a by enforcing power constraints at the start, not just at the end. **Dependency**: Requires T000c-stats-def.
-- [ ] T067b-verify [P] [US3] Verify "Pre-Analysis Power" check. **Constraint**: Add a test that sets a tiny sample size (e.g., N=5) and confirms the system logs a warning before running the experiment. **Dependency**: Requires T067.
+- [ ] T005 [US2] Implement and run the neural‑verifier baseline in `code/bes/neural_verifier.py` and `code/bes/neural_baseline_runner.py`, satisfying FR‑004.  
+  - Record **wall‑clock time** **and** **energy consumption (Joules)** (estimated as `cpu_time * TDP_WATTS`).  
+  - Output `data/processed/neural_baseline_results.json` with success, time, and energy fields matching `contracts/output.schema.yaml`.  
+  - Observable check: result file contains real measured values (no placeholders).
 
----
+- [ ] T006 [US2] Execute the full symbolic‑guided experiment across all complexity scales, satisfying FR‑003/FR‑004.  
+  - Run symbolic BES on each puzzle set, aggregate via `code/bes/result_aggregator.py` into `data/processed/bes_results.json` conforming to `contracts/output.schema.yaml`.  
+  - Observable check: file validates against the schema.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T007 [US3] Implement and execute the statistical analysis in `code/analysis/stats.py` and `code/analysis/cost_calculator.py`, satisfying FR‑004, FR‑005, SC‑001‑SC‑004.  
+  - Perform two‑proportion z‑test, TOST equivalence test, and t‑test on wall‑clock time.  
+  **Add** explicit GPU‑hours estimation (using a documented conversion factor) and include `gpu_hours_estimate` in `statistical_report.json`.  
+  - Unit test `code/tests/test_stats.py::test_z_test_significance` validates the statistical functions.  
+  - Observable check: report JSON contains `p_value_z`, `p_value_t`, `significance`, and `gpu_hours_estimate`.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T008 [US3] Implement and execute the scalability analysis in `code/analysis/complexity_empirical.py` and `code/analysis/complexity_theory.py`, satisfying SC‑005.  
+  - Produce `complexity_report.json` and `sc005_validation.json`.  
+  - **New** contracts: `contracts/complexity_report.schema.yaml` and `contracts/sc005_validation.schema.yaml` (created by tasks T017‑T018) define the expected structure; validation script checks conformity.  
+  - Observable check: both JSON files exist and pass schema validation.
 
-- [ ] T001a [P] Create `data/` directory hierarchy: `data/raw`, `data/processed`. **Constraint**: Must verify directories exist and are writable.
-- [ ] T001b [P] Create `code/` directory hierarchy: `code/{dataset,symbolic,bes,analysis,utils}`. **Constraint**: Must verify directories exist and are writable.
-- [ ] T001c [P] Create `tests/` directory hierarchy: `tests/{unit,integration}`. **Constraint**: Must verify directories exist and are writable.
+- [ ] T009 [US3] Generate result tables and figures in `code/analysis/report.py`, writing to `data/results/` and `figures/`.  
+  - Tables/figures are programmatically derived from processed JSON files.  
+  - Added verification test `code/tests/test_report_links.py` that asserts every table cell and figure data point maps to a source JSON value.  
+  - Observable check: test suite passes and the output files are non‑empty.
 
-- [X] T002a [P] Initialize git repository and configure basic `.gitignore` for Python artifacts. **Constraint**: Must include `__pycache__`, `*.pyc`, `.env`, `data/processed/*`, `!data/processed/.gitkeep`.
+- [ ] T010 [US3] Write the methods/results account in `specs/001-symbolic-bes/results.md`, linked to actual artifacts.  
+  - All numbers cite the originating JSON files.
 
-- [X] T002b-create [P] Create Python virtual environment in `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/`. **Constraint**: Must run `python3 -m venv venv` and create the directory structure. **Dependency**: None.
-- [X] T002b-activate [P] Activate the virtual environment. **Constraint**: Must source the venv via `cd projects/PROJ-884-llmxive-follow-up-extending-self-improvi && source venv/bin/activate`. **Dependency**: Requires T002b-create.
-- [X] T002b-verify [P] Verify the virtual environment is active. **Constraint**: Must run `python --version` and confirm it works. **Dependency**: Requires T002b-activate.
+- [ ] T011 [All] Re‑run the documented workflow end‑to‑end from a clean `data/processed/` and record the paper‑stage handoff in `specs/001-symbolic-bes/handoff.md`.  
+  - Verify reproducibility of all result files.
 
-- [X] T002c [P] Install dependencies in `requirements.txt` containing: `scikit-learn==1.3.2`, `numpy==1.26.0`, `transformers==4.35.0`, `datasets==2.14.0`, `pyyaml==6.0.1`, `pytest==7.4.0`, `optimum[onnxruntime]>=1.13.0,<1.16.0`. **Constraint**: Use fixed versions from plan.md. Must specify `optimum[onnxruntime]` for CPU-optimized quantization flags. Do NOT include `bitsandbytes`. **Dependency**: Requires T002b-activate.
+## Phase 3: Reproducible results and paper handoff (already covered by T010‑T011)
 
-- [X] T003 [P] Configure linting (flake8/black) and formatting tools. **Constraint**: Must generate `.flake8` and `pyproject.toml` (for black) configuration files to satisfy plan.md testing requirements.
+## Additional Contract Creation Tasks
 
-- [ ] T001c-checksum [P] Implement checksum generation and state-file recording in `code/utils/checksum.py`. **Constraint**: Must generate SHA-256 checksums for all files in `data/` and record them in `state/projects/PROJ-884-llmxive-follow-up-extending-self-improvi.yaml` under `artifact_hashes`. Must run after T001a and before any data processing tasks. **Dependency**: Requires T001a.
+- [ ] T017 [US4] Define JSON schema for `complexity_report.json` as `contracts/complexity_report.schema.yaml`.  
+  - Schema captures fields: `run_id`, `method`, `complexity_class`, `empirical_R2`, `theoretical_class`, `discrepancy_flag`.
 
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 [P] Setup data directory structure: `data/raw` for immutable puzzles, `data/processed` for logs/results. **Constraint**: Must verify directories exist and are writable.
-
-- [ ] T005a-impl [P] [US1] Implement base logging infrastructure in `code/__init__.py` to capture wall-clock time and resource usage; output must be JSON format to `data/processed/experiment.log`. **Constraint**: Must produce valid JSON logging code.
-- [ ] T005a-test [P] [US1] Add unit test for log format in `tests/unit/test_logging.py`. **Constraint**: Must verify JSON structure. **Dependency**: Requires T005a-impl.
-
-- [X] T005b [P] [US1] Implement CPU utilization monitoring in `code/utils/monitor.py` using `psutil` to log `cpu_percent` for every execution step. **Constraint**: Must log at the same frequency as T005a.
-
-- [X] T006 [P] [US1] Setup random seed management utility in `code/utils/seed.py` for reproducibility
-
-- [X] T007 [P] [US1] Create base configuration loader in `code/config.py` to handle experiment parameters (population size, generations). **Constraint**: Must be functional before T007b runs.
-
-- [X] T007b [P] [US1] Initialize `code/config.py` with `DEFAULT_TDP_WATTS = 65` as a safe fallback. **Constraint**: This value MUST be overwritten by T008-tdp-env. **Dependency**: Requires T007. **Action**: If T008-tdp-env is not run, the system MUST log a warning but continue execution. **Verification**: No test required here; verification moved to T008-tdp-env to avoid circular dependency.
-
-- [ ] T008-tdp-env [P] [US1] Configure TDP constant from environment or default. **Constraint**: Must read `TDP_WATTS` from environment variable; if not set, use `65` (from T007b). Must NOT attempt to fetch or verify a literature source for TDP. Must update `code/config.py` with the final value. **Dependency**: Requires T007b. **Verification**: Must add unit test `tests/unit/test_calibrated_tdp.py::test_tdp_constant_valid` that asserts `DEFAULT_TDP_WATTS` is set correctly from env or default.
-
-- [X] T008 [P] [US1] Setup error handling framework by creating `code/exceptions.py` defining custom exception classes for `PARSE_FAILURE`, `CONTRADICTION_DETECTED`, and `VERIFIER_ERROR` (to handle internal verifier failures, addressing robustness gap)
-
-- [ ] T019d-skel [P] [US2] Implement exclusion logger skeleton in `code/symbolic/exclusion_logger.py`. **Constraint**: Must define a function `log_exclusion(reason, instance_id)` that writes to `data/processed/exclusions.json` using a generic schema. Must NOT depend on specific planner output formats. **Dependency**: Requires T000b-gen.
-- [ ] T019d-verify-skel [P] [US2] Verify exclusion logger skeleton schema. **Constraint**: Add a unit test `tests/unit/test_exclusion_logger.py::test_schema_valid` that validates the JSON structure. **Dependency**: Requires T019d-skel.
-
-- [ ] T013b-logic [P] [US2] Implement contradiction detection logic in `code/symbolic/planner.py`. **Constraint**: Must implement an algorithm to detect when a generated sub-goal is logically impossible given the puzzle state (e.g., by checking for contradictions in the constraint set). Must output `CONTRADICTION_DETECTED` if a contradiction is found. **Dependency**: Requires T000c-planner, T008.
-- [X] T013 [P] [US2] Implement `code/symbolic/planner.py` with explicit 'CONTRADICTION_DETECTED' and 'PARSE_FAILURE' error codes. **Constraint**: Must include the logic to call the exclusion logger skeleton (T019d-skel) directly within this module or via a helper. Must integrate T013b-logic. **Dependency**: Requires T019d-skel, T013b-logic, T000c-planner.
-
-- [X] T018 [P] [US2] Implement `code/symbolic/parser.py` to convert puzzle constraints into a formal language parseable by the planner
-
-- [X] T020 [P] [US2] Generate `code/bes/config.py` with configuration for a small pre-trained LLM (`distilbert-base-uncased`). **Constraint**: This task is for **configuration file generation ONLY** (no download). Must specify `device='cpu'` and explicitly forbid `bitsandbytes`. Must explicitly mandate `optimum.onnxruntime` for CPU execution. Must define a fallback model (`TinyBERT`) if the primary model exceeds memory limits. **Constraint**: Must include a verification step to ensure the fallback model satisfies SC-003 (symbolic-guided performance) before being included. **Dependency**: None.
-- [ ] T020b-onnx-convert [P] [US2] Convert the `distilbert-base-uncased` model to ONNX format. **Constraint**: Must use `optimum-cli export onnx` or a script to convert the model from HuggingFace to ONNX format. Must output the ONNX model to a cache directory. **Dependency**: Requires T020, T021b-cache.
-- [ ] T020b-verify-runtime [P] [US2] Verify ONNX runtime compatibility on target runner. **Constraint**: Must attempt to load the ONNX model using `optimum.onnxruntime` on the target runner. If it fails (e.g., missing AVX2), log an error and trigger T020b-fallback. **Dependency**: Requires T020b-onnx-convert.
-- [ ] T020b-fallback [P] [US2] Implement fallback to TinyBERT if ONNX verification fails. **Constraint**: If T020b-verify-runtime fails, switch configuration to `TinyBERT` and re-verify. **Dependency**: Requires T020b-verify-runtime.
-- [ ] T021b-fetch-hash [P] [US2] Fetch and verify HuggingFace commit hash in `code/utils/fetch_model_hash.py`. **Constraint**: Must programmatically retrieve the exact commit hash for `distilbert-base-uncased` from the HuggingFace API and verify it. **Dependency**: Requires T020.
-- [ ] T021b-write-manifest [P] [US2] Write model manifest in `data/raw/model_manifest.json`. **Constraint**: Must write the verified commit hash and file paths from T021b-fetch-hash to `data/raw/model_manifest.json`. **Dependency**: Requires T021b-fetch-hash, T020.
-- [ ] T021b-cache [P] [US2] Download the `distilbert-base-uncased` model artifact to the cache directory *before* executing T021. **Constraint**: Must use `hf_hub_download` with the `revision` parameter locked to the commit hash in `data/raw/model_manifest.json` (from T021b-write-manifest). If download fails, attempt fallback model `TinyBERT`. Must verify the model exists in cache. **Dependency**: Requires T020, T021b-write-manifest.
-
-- [X] T021 [P] [US2] Implement `code/bes/forward_step.py` to perform trajectory recombination guided by symbolic sub-goals. **Constraint**: Must load the model specified in `code/bes/config.py` (default `distilbert-base-uncased`) using `optimum` CPU-optimized inference flags (`device='cpu'`, `torch.no_grad`, `optimum.onnxruntime`). Do NOT force 8-bit quantization unless verified. **Dependency**: Requires T020, T020b-onnx-convert, T021b-cache, T020b-verify-runtime.
-
-- [X] T022 [P] [US2] Implement `code/bes/population.py` to manage the evolutionary population, ensuring memory usage stays under a manageable threshold. **Note**: Must be implemented before T023 if T023 updates population state.
-
-- [ ] T023b-impl [P] [US2] Implement `code/bes/neural_verifier.py` to implement the neural-verifier backward step. **Constraint**: Must replace the symbolic planner with a learned verifier (e.g., DistilBERT classifier) to score candidate solutions. Must output a confidence score and validity flag. Must be CPU-tractable. **Dependency**: Requires T020, T021b-cache.
-- [X] T023 [P] [US2] Implement `code/bes/backward_step.py` to integrate the symbolic planner output into the evolutionary loop, replacing the neural verifier. **Constraint**:
- 1. Must explicitly import and instantiate `code/symbolic/planner.py` (T013).
- 2. Must call the planner with puzzle constraints to generate sub-goals.
- 3. Must handle `CONTRADICTION_DETECTED` and `PARSE_FAILURE` exceptions by returning a specific `EXCLUDED` status to the evolutionary loop.
- 4. Must call `code/symbolic/exclusion_logger.py` (T019d-wire) to log the exclusion reason and instance ID.
- 5. Must NOT integrate T023b-impl (neural baseline); that is a separate baseline runner.
- **Dependency**: Requires T013, T019d-wire, T019d-skel. **Note**: T023b-impl is NOT a dependency for T023.
-- [ ] T019d-wire [P] [US2] Implement exclusion logger integration in `code/symbolic/exclusion_logger.py`. **Constraint**: Must wire the generic logger skeleton (T019d-skel) to the specific planner output format. Must depend on T013 to ensure the planner's output schema is known. **Dependency**: Requires T019d-skel, T013.
-- [ ] T019d-verify-wire [P] [US2] Verify exclusion logger integration. **Constraint**: Add a unit test that verifies the logger correctly writes specific exclusion events. **Dependency**: Requires T019d-wire.
-
-- [ ] T024a-impl [P] [US2] Implement `code/bes/parameter_generator.py` to generate the list of complexity parameters (N=10..500) for the BES loop. **Constraint**: Must output a JSON list of parameter sets. **Dependency**: None.
-- [ ] T024b-exec [P] [US2] Implement `code/bes/loop_runner.py` to execute the BES loop for a single parameter set (N). **Constraint**: Must accept parameters from Ta, run the loop, and output a log file for that N. **Dependency**: Requires T024a, T021, T023, T011-scaling-exec.
-- [ ] T024c [P] [US2] Implement `code/bes/result_aggregator.py` to aggregate logs from T024b-exec into a single result file. **Constraint**: Must combine all N-specific logs into `data/processed/bes_results.json`. **Dependency**: Requires T024b-exec.
-
-- [X] T025 [P] [US2] Implement `code/bes/evolutionary_loop.py` to orchestrate the forward (LLM) and backward (Symbolic) steps. **Constraint**:
- 1. Must process the full dataset (no pre-filter).
- 2. Must call T023 (backward step) for each item.
- 3. If T023 returns `EXCLUDED` (due to `CONTRADICTION_DETECTED` or `PARSE_FAILURE`), the loop MUST call T019d-wire to log the exclusion to `data/processed/exclusions.json` immediately.
- 4. Excluded items must be skipped in the evolutionary search but recorded for analysis.
- **Dependency**: Requires T021, T023, T019d-wire.
-- [X] T026 [P] [US2] Implement `code/bes/mutation_operator.py` to apply mutations to candidate solutions based on symbolic sub-goals. **Constraint**: Must ensure mutations are syntactically valid according to the grammar (T011a-curate). **Dependency**: Requires T025, T011a-curate.
-- [X] T027 [P] [US2] Implement `code/bes/crossover_operator.py` to recombine candidate solutions using the LLM. **Constraint**: Must use the `forward_step` module (T021) to guide recombination. **Dependency**: Requires T025, T021.
-- [X] T028 [P] [US2] Implement `code/bes/fitness_evaluator.py` to score candidates using the deterministic verifier (T012). **Constraint**: Must enforce a timeout per evaluation. **Dependency**: Requires T012, T025.
-- [X] T029 [P] [US2] Implement `code/bes/termination_condition.py` to stop the loop based on max generations or convergence. **Constraint**: Must log the termination reason. **Dependency**: Requires T025.
-- [ ] T024d-neural-run [P] [US2] Implement `code/bes/neural_baseline_runner.py` to execute the BES loop with the neural-verifier baseline variant. **Constraint**: Must use the same parameter sets (N) as Tb-exec but replace the symbolic planner with the neural verifier (T023b-impl). Must output `data/processed/neural_baseline_results.json`. **Dependency**: Requires T024a, T021, T023b-impl, T028, T029.
-
-- [ ] T016a [P] [US1] Implement `code/dataset/validate_data_against_contracts.py`. **Constraint**: This script MUST read `contracts/dataset.schema.yaml` (from T000d-gen) and validate the schema. It must NOT depend on generated data. **Dependency**: Requires T000d-gen.
-- [ ] T016b [P] [US1] Implement `code/analysis/validate_logs_against_contracts.py`. **Constraint**: This script MUST read output logs (from T029c-gen) and `contracts/output.schema.yaml` (from T000b-gen) to verify schema compliance. **Dependency**: Requires T000b-gen, T029c-gen.
-
----
-
-## Phase 3: User Story 1 - Dataset Construction and Symbolic Verification Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Instantiate a dataset of logic/arithmetic puzzles with deterministic Python verifiers capable of validating solution paths without LLMs.
-
-**Independent Test**: Run verification scripts on a known set of correct and incorrect solutions to ensure high accuracy in classification before the LLM or evolutionary loop is engaged.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T009 [P] [US1] Contract test for `code/dataset/generator.py` in `tests/unit/test_generator.py::test_generator_handles_empty_input`
-
-- [X] T010 [P] [US1] Unit test for `code/dataset/verifier.py` with known valid/invalid solutions in `tests/unit/test_verifier.py::test_verifier_rejects_invalid_solution`
-
-### Implementation for User Story 1
-
-- [ ] T011a-curate [P] [US1] Define the formal language grammar for puzzle constraints in `code/dataset/grammar.py`. **Constraint**: Must explicitly define the parseable constraint types (e.g., equality, inequality, adjacency) and output a schema for validation. **Dependency**: Requires T000d-impl.
-- [ ] T011-impl [P] [US1] Implement `code/dataset/generator.py` to create logic puzzles (Sudoku variants, constrained pathfinding) with systematic complexity scaling (N=10..500). **Constraint**: Must support command-line arguments for `N` and `count`. Must include "Fail Loudly" logic (raise exception on failure, no synthetic fallback) and "Complexity Scaling" validation (verify `complexity_metric` distribution). Must enforce metadata population (`source_id`, `generation_seed`). Must validate constraints against the grammar defined in Ta-curate. **Dependency**: Requires T000d-impl, T011a-curate.
-- [X] T011c-verify-metrics [P] [US1] Implement explicit verification of `complexity_metric` fields in `code/dataset/generator.py`. **Constraint**: The generator must validate that `constraint_count` and `variable_domain_size` are present and non-null in the metadata of every generated puzzle instance. **Dependency**: Requires T011-impl.
-- [X] T011c [P] [US1] Implement enforcement of puzzle metadata in `code/dataset/generator.py`. **Constraint**: The generator must populate the `metadata` field with a valid `source_id`, `generation_seed`, and timestamp for each generated puzzle instance. **Dependency**: Requires T011-impl
-
-- [ ] T012-impl [P] [US1] Implement `code/dataset/verifier.py` to execute deterministic validation logic for each puzzle instance, returning boolean validity and specific constraint violation codes (e.g., `DUPLICATE_ROW`, `INVALID_PATH`) within 100ms. **Note**: T012-impl validates the code, T014c/b generates the data. **Dependency**: Requires T011-impl.
-
-- [ ] T014c-impl [P] [US1] Implement `code/dataset/generate_and_validate.py`. **Constraint**: This script MUST accept a directory of raw puzzles, run the verifier, calculate checksums, and output `data/processed/distribution_report.json` with type/complexity distribution stats. Must strictly enforce "Fail Loudly" (raise exception on failure, no synthetic fallback). Must validate constraints against the grammar (T011a-curate) directly. If grammar validation fails, the script MUST raise a `PARSE_FAILURE` exception and log the item to `exclusions.json` via T019d-wire. **Dependency**: Requires T011-impl, T012, T019d-wire, T011a-curate.
-- [ ] T014c-exec [P] [US1] Execute `code/dataset/generate_and_validate.py`. **Constraint**: Must run the script generated in Tc-impl with parameters `--n` a sufficient number of instances `--count` a representative quantity `--types sudoku,pathfinding`. **Dependency**: Requires T014c-impl.
-
-- [ ] T011-scaling-gen [P] [US1] Generate specific N=10, N=100, N=500 dataset subsets. **Constraint**: Must run T011-impl with specific N values to generate distinct files: `puzzles_N10.json`, `puzzles_N100.json`, `puzzles_N500.json`. **Dependency**: Requires T011-impl, T014c-exec.
-- [ ] T011-scaling-exec [P] [US1] Execute the scaling generation. **Constraint**: Must run T011-scaling-gen for N=10, N=100, N=500. **Dependency**: Requires T011-scaling-gen, T014c-exec.
-
-- [ ] T014e-impl [P] [US1] Implement `code/dataset/validate_distribution.py`. **Constraint**: This script MUST read `data/processed/distribution_report.json` (from T014c-exec) and `contracts/dataset.schema.yaml` (from T000d-gen) to verify statistical representativeness and output `data/processed/distribution_validation.json` with fields: `is_valid`, `power_estimate`, `notes`. **Dependency**: Requires T014c-exec.
-- [ ] T014e-exec [P] [US1] Execute `code/dataset/validate_distribution.py`. **Constraint**: Must run after Te-impl. **Dependency**: Requires T014e-impl.
-
-- [ ] T050a-impl [P] [US1] Add explicit "Fail Loudly" enforcement in `code/dataset/verifier.py`. **Constraint**: Ensure the verifier raises a specific `VerifierError` if the deterministic script fails to execute or returns an unexpected type, preventing silent fallback to "invalid" for system errors. **Rationale**: Addresses the "Fail Loudly" principle for data integrity. **Dependency**: Requires T012-impl.
-- [ ] T050b-verify [P] [US1] Verify "Fail Loudly" in verifier. **Constraint**: Add a unit test that simulates a verifier script crash and confirms the system raises an exception rather than returning a boolean. **Dependency**: Requires T050a-impl.
-
-- [X] T066 [P] [US1] Implement explicit "Data Provenance" metadata injection in `code/dataset/generator.py`. **Constraint**: Every generated puzzle file must include a JSON header with `source_id` (e.g., "curated_logic_v"), `generation_seed`, `timestamp`, and `generator_version`. This metadata must be validated by `code/dataset/verifier.py` before processing. **Rationale**: Addresses the "Single Source of Truth" and "Data Hygiene" principles by ensuring every data point is traceable to its exact generation parameters. **Dependency**: Requires T011-impl.
-- [ ] T066b-verify [P] [US1] Verify "Data Provenance" metadata. **Constraint**: Add a unit test that generates a puzzle, removes the metadata header, and confirms the verifier rejects the file with a `MISSING_METADATA` error. **Dependency**: Requires T066.
-
-- [ ] T036 [P] [US1] Validate dataset distribution using `data/processed/distribution_validation.json`. **Constraint**: Must generate `data/processed/validation_gate.json` with status `PASS` or `FAIL`. The JSON schema MUST be: `{"status": "PASS"|"FAIL", "reason": "string", "distribution_stats": {...}}`. Even if validation fails, the file MUST be generated with status `FAIL` and a reason. **Output**: Must generate `data/processed/validation_gate.json`. **Dependency**: Requires T014e-exec, T044b-verify, T054b-verify.
-- [ ] T036b-verify [P] [US1] Verify `validation_gate.json` schema. **Constraint**: Add a unit test `tests/unit/test_validation_gate.py::test_schema_valid` that validates the JSON structure matches the required schema. **Dependency**: Requires T036.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Hybrid Evolutionary Search Execution (Priority: P2)
-
-**Goal**: Execute the BES framework with symbolic backward step and LLM forward step.
-
-**Independent Test**: Run the evolutionary loop on a subset of puzzles and verify that the symbolic planner successfully generates sub-goals and the LLM attempts to satisfy them.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T018a [P] [US2] Unit test for `code/symbolic/planner.py` in `tests/unit/test_planner.py::test_planner_handles_contradiction`
-
-### Implementation for User Story 2
-
-- [ ] T025-exclude-handler [P] [US2] Implement dynamic exclusion handling within `code/bes/evolutionary_loop.py` (T025). **Constraint**: Must call T019d-wire to log exclusions when T023 (backward step) returns `EXCLUDED`. **Dependency**: Requires T025, T019d-wire.
-- [X] T025 [P] [US2] Implement `code/bes/evolutionary_loop.py` to orchestrate the forward (LLM) and backward (Symbolic) steps. **Constraint**:
- 1. Must process the full dataset (no pre-filter).
- 2. Must call T023 (backward step) for each item.
- 3. If T023 returns `EXCLUDED` (due to `CONTRADICTION_DETECTED` or `PARSE_FAILURE`), the loop MUST call T019d-wire to log the exclusion to `data/processed/exclusions.json` immediately.
- 4. Excluded items must be skipped in the evolutionary search but recorded for analysis.
- **Dependency**: Requires T021, T023, T019d-wire.
-- [X] T026 [P] [US2] Implement `code/bes/mutation_operator.py` to apply mutations to candidate solutions based on symbolic sub-goals. **Constraint**: Must ensure mutations are syntactically valid according to the grammar (T011a-curate). **Dependency**: Requires T025, T011a-curate.
-- [X] T027 [P] [US2] Implement `code/bes/crossover_operator.py` to recombine candidate solutions using the LLM. **Constraint**: Must use the `forward_step` module (T021) to guide recombination. **Dependency**: Requires T025, T021.
-- [X] T028 [P] [US2] Implement `code/bes/fitness_evaluator.py` to score candidates using the deterministic verifier (T012). **Constraint**: Must enforce a timeout per evaluation. **Dependency**: Requires T012, T025.
-- [X] T029 [P] [US2] Implement `code/bes/termination_condition.py` to stop the loop based on max generations or convergence. **Constraint**: Must log the termination reason. **Dependency**: Requires T025.
-- [ ] T024d-neural-run [P] [US2] Implement `code/bes/neural_baseline_runner.py` to execute the BES loop with the neural-verifier baseline variant. **Constraint**: Must use the same parameter sets (N) as Tb-exec but replace the symbolic planner with the neural verifier (T023b-impl). Must output `data/processed/neural_baseline_results.json`. **Dependency**: Requires T024a, T021, T023b-impl, T028, T029.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Performance Measurement and Statistical Analysis (Priority: P3)
-
-**Goal**: Record success rates and costs, apply statistical tests.
-
-**Independent Test**: Run analysis on synthetic logs with known differences to verify z-test and t-test accuracy.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T029a [P] [US3] Unit test for `code/analysis/stats.py` in `tests/unit/test_stats.py::test_z_test_significance`
-
-### Implementation for User Story 3
-
-- [ ] T029a-impl [P] [US3] Implement `code/analysis/stats.py` with two-proportion z-test and t-test functions. **Constraint**: Must use `scipy.stats` or `statsmodels`. Must return p-values and effect sizes. **Dependency**: Requires T024c, T024d-neural-run.
-- [ ] T029a-compare [P] [US3] Execute the statistical comparison between symbolic-guided and neural-verifier baseline. **Constraint**: Must read `data/processed/bes_results.json` (symbolic) and `data/processed/neural_baseline_results.json` (neural) and apply the two-proportion z-test to compare success rates and t-test for cost. **Dependency**: Requires T029a-impl, T024c, T024d-neural-run.
-- [ ] T029b-impl [P] [US3] Implement `code/analysis/cost_calculator.py` to compute wall-clock time and energy (Joules) from logs. **Constraint**: Must use the calibrated TDP from `code/config.py` (from T008-tdp-env). **Dependency**: Requires T008-tdp-env, T024c.
-- [ ] T029b-neural-energy [P] [US3] Implement energy calculation for the neural-verifier baseline. **Constraint**: Must read `data/processed/neural_baseline_results.json` and apply the calibrated TDP to calculate energy in Joules for the baseline variant. **Dependency**: Requires T029b-impl, T024d-neural-run.
-- [ ] T029b-gpu-approx [P] [US3] Estimate GPU-hours from CPU runtime using an approximation factor. **Constraint**: Must calculate the GPU-hours for the neural baseline based on the CPU runtime of T023b-impl and a derived approximation factor (e.g., a significant speedup). Must explicitly state this is an approximation, not a verified citation. **Dependency**: Requires T029b-neural-energy.
-- [ ] T029c-gen [P] [US3] Generate `data/processed/statistical_report.json`. **Constraint**: Must contain success rates, p-values, cost comparisons, and a conclusion on statistical significance (p < 0.05). **Dependency**: Requires T029a-compare, T029b-impl, T029b-neural-energy, T029b-gpu-approx.
-- [ ] T029d-empirical [P] [US3] Implement `code/analysis/complexity_empirical.py`. **Constraint**: Must perform empirical log-log linear regression on the runtime data (N vs time) from `data/processed/bes_results.json` (columns: N, time) to characterize the computational complexity class. **Dependency**: Requires T024c.
-- [ ] T029d-theory [P] [US3] Implement `code/analysis/complexity_theory.py`. **Constraint**: Must perform theoretical derivation of the Big-O complexity class based on the algorithm's structure (e.g., polynomial time for nested loops). **Dependency**: Requires T024c.
-- [ ] T029d-reconcile-logic [P] [US3] Reconcile empirical and theoretical complexity results. **Constraint**: Must compare results from T029d-empirical and T029d-theory. If they disagree, apply the rule: "If empirical R-squared > 0.9, prefer empirical; otherwise, prefer theoretical." Flag as "DISCREPANCY_DETECTED" if neither fits well. Must output the 'DISCREPANCY_DETECTED' flag to `state/projects/PROJ-884-llmxive-follow-up-extending-self-improvi.yaml` and `data/processed/complexity_reconcile_status.json`. **Dependency**: Requires T029d-empirical, T029d-theory.
-- [ ] T029g [P] [US3] Generate `data/processed/complexity_report.json`. **Constraint**: Must report the reconciled complexity class (from T029d-reconcile-logic) as the final reported metric, and the empirical and theoretical complexity classes for comparison. **Dependency**: Requires T029d-reconcile-logic.
-- [ ] T029g-verify [P] [US3] Verify `complexity_report.json` against SC-005. **Constraint**: Must validate that the reconciled complexity class is present and matches the requirements of SC-005. **Dependency**: Requires T029g.
-- [ ] T029h-verify-sc005 [P] [US3] Verify SC-005 Compliance. **Constraint**: Must explicitly validate that the 'reconciled complexity class' from T029g is correctly mapped to the Success Criterion SC-005 requirements. Must output a validation status to `data/processed/sc005_validation.json` with fields `passed`, `complexity_class`, `notes`. **Dependency**: Requires T029g.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T030 [P] [All] Run end-to-end integration test for the full BES loop on a small dataset (N=10). **Constraint**: Must verify that the pipeline runs from data generation to statistical report without errors. **Dependency**: Requires T036, T029g.
-- [ ] T031 [P] [All] Update `README.md` with execution instructions and parameter explanations. **Constraint**: Must include examples for running the pilot and full experiment.
-- [ ] T032 [P] [All] Add `pytest` coverage report generation to CI workflow. **Constraint**: Must enforce a minimum coverage threshold for core modules.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [ ] T018 [US4] Define JSON schema for `sc005_validation.json` as `contracts/sc005_validation.schema.yaml`.  
+  - Schema captures: `passed`, `complexity_class`, `notes`.
