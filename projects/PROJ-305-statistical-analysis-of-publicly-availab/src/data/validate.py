@@ -1,22 +1,19 @@
 """
-Data validation module for VAERS datasets.
+Data validation module for VAERS datasets (T003).
 
-This module provides a command‑line interface to validate a CSV or Parquet
-file against a JSON‑Schema‑style YAML contract.  It implements the API
-expected by the unit tests in ``tests/unit/test_validate.py``:
+Provides a command‑line interface compatible with the test suite:
 
-* ``E_SCHEMA_MISSING`` – required column missing or schema file not found
-* ``E_DATA_MISSING``   – input data file not found
-* ``E_VALIDATION_FAILED`` – data frame is empty or fails basic validation
-* ``load_schema`` – load a YAML schema file
-* ``validate_columns`` – return a list of missing required columns
-* ``validate_data`` – perform the validation, write log files and exit on
-  error
-* ``main`` – CLI entry point (``python -m src.data.validate``)
+    python -m src.data.validate --input <path> [--schema <path>]
 
 The CLI writes ``logs/validate_pass.txt`` on success and
 ``logs/validate_fail.txt`` on failure, then exits with the appropriate
 return code.
+
+Exit codes (aligned with the existing test expectations):
+    0 – validation succeeded
+    1 – schema file missing or unreadable
+    2 – input data file missing
+    3 – validation failure (missing required columns or empty dataframe)
 """
 
 import sys
@@ -27,16 +24,16 @@ from typing import List, Set, Dict, Any
 import pandas as pd
 import yaml
 
-# ---------------------------------------------------------------------------
-# Exit codes (aligned with the test suite)
-# ---------------------------------------------------------------------------
-E_SCHEMA_MISSING = 1          # Schema file missing or required column absent
-E_DATA_MISSING = 2            # Input data file not found
-E_VALIDATION_FAILED = 3       # Data empty or other validation problem
+# ----------------------------------------------------------------------
+# Exit‑code constants
+# ----------------------------------------------------------------------
+E_SCHEMA_MISSING = 1          # schema file missing or unreadable
+E_DATA_MISSING = 2            # input data file not found
+E_VALIDATION_FAILED = 3       # missing columns, empty dataframe, etc.
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # Logging helper
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 def _setup_logger() -> logging.Logger:
     logger = logging.getLogger("validate")
     logger.setLevel(logging.INFO)
@@ -50,11 +47,11 @@ def _setup_logger() -> logging.Logger:
 
 log = _setup_logger()
 
-# ---------------------------------------------------------------------------
-# Helper functions
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Core helpers
+# ----------------------------------------------------------------------
 def _write_log_file(passed: bool, details: str | None = None) -> None:
-    """Write a tiny log indicating success or failure."""
+    """Create ``logs/validate_pass.txt`` or ``logs/validate_fail.txt``."""
     logs_dir = Path("logs")
     logs_dir.mkdir(parents=True, exist_ok=True)
     if passed:
@@ -69,30 +66,19 @@ def load_schema(schema_path: str | Path) -> Dict[str, Any]:
     """
     Load a YAML schema file.
 
-    Parameters
-    ----------
-    schema_path: str or Path
-        Path to the YAML file.
-
-    Returns
-    -------
-    dict
-        Parsed schema dictionary.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the file does not exist.
-    yaml.YAMLError
-        If the file cannot be parsed.
+    Raises ``FileNotFoundError`` if the path does not exist.
     """
     path = Path(schema_path)
-    if not path.exists():
-        log.error(f"Schema file not found: {path}")
+    if not path.is_file():
+        log.error("Schema file not found: %s", path)
         raise FileNotFoundError(str(path))
 
     with path.open("r", encoding="utf-8") as f:
-        schema = yaml.safe_load(f)
+        try:
+            schema = yaml.safe_load(f)
+        except yaml.YAMLError as exc:
+            log.error("Failed to parse YAML schema: %s", exc)
+            raise
 
     if not isinstance(schema, dict):
         raise yaml.YAMLError("Schema does not contain a mapping.")
@@ -100,10 +86,8 @@ def load_schema(schema_path: str | Path) -> Dict[str, Any]:
 
 def _required_columns_from_schema(schema: Dict[str, Any]) -> Set[str]:
     """
-    Extract the list of required columns from the schema.
-
-    The spec uses either a ``required`` list (JSON‑Schema) or a
-    ``required_columns`` list (the custom test schema).
+    Extract required column names from the schema.  The spec may use either
+    ``required`` (JSON‑Schema) or ``required_columns`` (custom) keys.
     """
     required = schema.get("required") or schema.get("required_columns") or []
     if not isinstance(required, list):
@@ -120,8 +104,8 @@ def validate_columns(df: pd.DataFrame, required_cols: List[str]) -> List[str]:
 def _load_data(data_path: str | Path) -> pd.DataFrame:
     """Load CSV or Parquet into a DataFrame."""
     path = Path(data_path)
-    if not path.exists():
-        log.error(f"Data file not found: {path}")
+    if not path.is_file():
+        log.error("Data file not found: %s", path)
         raise FileNotFoundError(str(path))
 
     try:
@@ -130,60 +114,56 @@ def _load_data(data_path: str | Path) -> pd.DataFrame:
         else:
             df = pd.read_csv(path, dtype=str)
     except Exception as exc:
-        log.error(f"Failed to read data file {path}: {exc}")
+        log.error("Failed to read data file %s: %s", path, exc)
         raise
 
     return df
 
 def validate_data(df: pd.DataFrame, schema: Dict[str, Any]) -> bool:
     """
-    Validate *df* against *schema*.
+    Perform validation against *schema*.
 
     - Checks that all required columns are present.
-    - Checks that the DataFrame is not empty.
-    - Writes log files and exits with the appropriate ``sys.exit`` code
-      on failure.
+    - Checks that the DataFrame is non‑empty.
 
-    Returns
-    -------
-    bool
-        ``True`` if validation succeeds (the function does **not**
-        terminate the interpreter in that case).
+    Writes appropriate log files and exits the interpreter with the
+    correct exit code on failure.  Returns ``True`` on success.
     """
     required_cols = list(_required_columns_from_schema(schema))
-    log.info(f"Required columns according to schema: {sorted(required_cols)}")
+    log.info("Required columns according to schema: %s", sorted(required_cols))
 
-    # 1. Missing required columns
+    # 1. Missing required columns → validation failure (code 3)
     missing = validate_columns(df, required_cols)
     if missing:
         msg = f"Missing required columns: {missing}"
         log.error(msg)
         _write_log_file(passed=False, details=msg)
-        sys.exit(E_SCHEMA_MISSING)
+        sys.exit(E_VALIDATION_FAILED)
 
-    # 2. Empty dataframe
+    # 2. Empty dataframe → validation failure (code 3)
     if df.empty:
         msg = "Dataframe is empty."
         log.error(msg)
         _write_log_file(passed=False, details=msg)
         sys.exit(E_VALIDATION_FAILED)
 
-    # If we reach here, validation succeeded
+    # Success
     _write_log_file(passed=True)
     log.info("Data validation successful.")
     return True
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # CLI entry point
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 def main() -> None:
     """
     CLI interface.
 
     Usage:
-        python -m src.data.validate --data <path> [--schema <path>]
+        python -m src.data.validate --input <path> [--schema <path>]
 
-    The test suite uses the long options ``--data`` and ``--schema``.
+    The test suite uses the long option ``--input``; ``--schema`` defaults
+    to ``contracts/dataset.schema.yaml``.
     """
     import argparse
 
@@ -191,7 +171,7 @@ def main() -> None:
         description="Validate a VAERS CSV/Parquet file against a dataset schema."
     )
     parser.add_argument(
-        "--data",
+        "--input",
         type=str,
         required=True,
         help="Path to the CSV or Parquet file to validate.",
@@ -212,13 +192,14 @@ def main() -> None:
 
     # Load data (exit 2 on failure)
     try:
-        df = _load_data(args.data)
+        df = _load_data(args.input)
     except FileNotFoundError:
         sys.exit(E_DATA_MISSING)
 
     # Perform validation – this function exits on error
     validate_data(df, schema)
-    # If we get here, validation succeeded; exit 0
+
+    # If we get here validation succeeded → exit 0
     sys.exit(0)
 
 if __name__ == "__main__":

@@ -1,15 +1,15 @@
 T001:
   c: true
-  h: ffd4badcb53910959942265b29d01762117ec381416351e24bad5c74c131d497
+  h: 93e56d61ee0d1898fe0cabc7c6ca61afab75451e750fba08c2ec0a6684262697
   r: All required directories (`src/data/`, `src/analysis/`, `src/utils/`, `src/validation/`,
     `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `output/`,
-    `logs/`) exist per the collector evidence; `logs/structure.txt` is non-empty (5130
-    bytes) and contains a real `tree -a -L 3` listing of the project including all
-    required directories, with an execution log showing `create_structure.py` exited
-    0 and wrote that file. `quickstart.md` documents the runnable command `python
-    -m src.main` and detailed input provenance (Hugging Face VAERS dataset with checksum),
-    satisfying all task req
-  sig: 406e079ee0c0b7bf8456dd575becde7b431a43fa1537dd1c545afc32e51cc335
+    `logs/`) exist per the collector evidence, `logs/structure.txt` is non-empty (5922
+    bytes) and contains a real `tree -a -L 3` output listing all required directories,
+    and `quickstart.md` documents the runnable command (`python -m src.main`) and
+    input provenance (Hugging Face VAERS dataset with checksum). The execution log
+    confirms `code/create_structure.py` ran successfully (exit 0) and wrote the structure
+    artifact.
+  sig: 51fbfa8b7a19be9bd715e7568bff3d65bc47b84a817f718bac8607081b0ca80d
 T003:
   c: false
   h: a3bcf2eddced4dd7de4db83190b65dcd94c6f0c326e8eed86be4b4f933dff92e
