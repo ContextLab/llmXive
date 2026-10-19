@@ -43,6 +43,14 @@ from typing import Dict, Any, List
 import pandas as pd
 import requests
 
+# pyarrow is optional; we import lazily where needed
+try:
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+except Exception:
+    pa = None
+    pq = None
+
 from config import get_path
 
 # ----------------------------------------------------------------------
@@ -133,20 +141,36 @@ def download_file(url: str, dest_path: Path, max_gb: float) -> int:
 def add_task_column(parquet_path: Path, task_value: str = "cyberball") -> None:
     """
     Load the parquet file, add a ``task`` column, and overwrite the file.
+    Supports both pandas and pyarrow back‑ends.
     """
     logger.info(f"Adding task column to {parquet_path}")
+
+    # Try pandas first (most convenient)
     try:
         df = pd.read_parquet(parquet_path)
-    except Exception as exc:
-        logger.error(f"Failed to read parquet file {parquet_path}: {exc}")
+        df["task"] = task_value
+        df.to_parquet(parquet_path, index=False)
+        logger.info("Task column added using pandas.")
+        return
+    except Exception as pandas_exc:
+        logger.warning(f"Pandas failed to read/write parquet: {pandas_exc}")
+
+    # Fallback to pyarrow
+    if pq is None or pa is None:
+        logger.error(
+            "Neither pandas nor pyarrow are available to manipulate parquet files."
+        )
         sys.exit(1)
 
-    df["task"] = task_value  # overwrite or create
-
     try:
-        df.to_parquet(parquet_path, index=False)
+        table = pq.read_table(parquet_path)
+        # Create a column filled with the task value
+        task_array = pa.array([task_value] * table.num_rows)
+        table = table.append_column("task", task_array)
+        pq.write_table(table, parquet_path)
+        logger.info("Task column added using pyarrow.")
     except Exception as exc:
-        logger.error(f"Failed to write parquet with task column: {exc}")
+        logger.error(f"Failed to add task column using pyarrow: {exc}")
         sys.exit(1)
 
 def write_metadata(metadata_path: Path, info: Dict[str, Any]) -> None:
@@ -260,7 +284,7 @@ def run_ingestion() -> None:
     ``data/raw/dataset_manifest.json`` containing entries for each dataset.
     If the reward dataset cannot be downloaded, writes
     ``data/interim/reward_unavailable.json`` with ``{\"available\": false}``
-    and records a minimal manifest entry for it.
+    and processing continues with a Between‑Subjects design.
     Also writes a simple design metadata file
     ``data/processed/metadata.json`` indicating a Between‑Subjects design.
     """
