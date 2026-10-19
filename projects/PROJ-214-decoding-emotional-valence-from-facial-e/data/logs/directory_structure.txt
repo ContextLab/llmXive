@@ -1,0 +1,6 @@
+data/ directory structure (T001b evidence):
+  data/raw/ -> exists, entries: ['.gitkeep']
+  data/processed/ -> exists, entries: ['.gitkeep']
+  data/models/ -> exists, entries: ['.gitkeep']
+  data/logs/ -> exists, entries: ['.gitkeep']
+newly created in this run: []

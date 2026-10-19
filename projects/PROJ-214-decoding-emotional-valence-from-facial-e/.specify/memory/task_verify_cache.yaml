@@ -1,14 +1,53 @@
 T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that `code/` and `tests/` directories exist\
-    \ at the repository root; without visible directory listings or contents, we cannot\
-    \ confirm the required artifact was created. The implementer must supply a file\u2011\
-    system view or listing confirming the presence of these directories."
+  c: true
+  h: 317b623db1cc9307d46284f3cc600e86d1783dffab230aa920edda7651569a80
+  r: Both `code/` and `tests/` directories exist at the project root with non-empty
+    contents (16 and 10 entries respectively, including real modules and tests), and
+    the verification script `code/verify_t001a.py` ran with exit code 0 confirming
+    both directories exist. The task only required creating these directories, which
+    is satisfied.
+  sig: f8569fdabfdda3e1832746e58b668e9abb00ee19fb692e7df8ffce450838e814
 T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the `data/raw`, `data/processed`, `data/models`,\
-    \ and `data/logs` directories actually exist in the repository; the implementer\u2019\
-    s claim is unsubstantiated. The required directory structure must be created and\
-    \ shown (e.g., via a directory listing)."
+  c: true
+  h: 261e1ace9eee4566b945fc938a8935fcdf63eacd23e50925c6e3f66db4357e9b
+  r: The execution log shows `code/create_data_directories.py` ran with exit 0 and
+    confirmed `data/raw`, `data/processed`, `data/models`, and `data/logs` all exist
+    at the project root, each containing a `.gitkeep` marker, with evidence written
+    to `data/logs/directory_structure.txt`. This matches the task's requirement of
+    creating exactly those four directories.
+  sig: e6b10a27ee34ea3c6424ba6971e3b4b0b980af209d17c77ee97599b7df13336d
+T002:
+  c: true
+  h: 0a4594cc133f812130dd8fe6ed76c351e142f41c40fc4bb67b15f0aa473450d6
+  r: The `requirements.txt` exists at the project root and contains all ten required
+    packages (numpy, scipy, scikit-learn, pandas, joblib, shap, requests, scikit-learn-extra,
+    pytest, pytest-cov) with reasonable version constraints; the extra `datasets`
+    entry is additive and doesn't undermine the requirement.
+  sig: 85149776b9cab1bc70672ed0b12b6f3cdf1886411435b62e58a3ec3b90c96e47
+T003a:
+  c: true
+  h: 6a4f6c0f53e6e1edd2f6f427e6b8036301babadc679afcbbb7b1c467477c9e52
+  r: "The `.ruff.toml` file exists at the project root (1486 bytes) and contains a\
+    \ valid, substantive Ruff configuration: lint rule selections (E, W, F, I, B,\
+    \ C4, UP, N, ARG, PTH), sensible ignores, per-file ignores, fixability settings,\
+    \ and a `[format]` section with isort configuration \u2014 exactly what a linting\
+    \ config task requires, with no placeholders or stubs."
+  sig: 6fef46125d43257899d1b0a1f3c5ac03176c9ac1e2bf9f5cbe76287476ce618c
+T003b:
+  c: true
+  h: da1a32923125ed2903b34070cb30f233a17eb0d8303472b78e89b8d72da054ef
+  r: 'The `.black.toml` file exists at the project root (1009 bytes) with valid Black
+    configuration: target-version py311, line-length 88, sensible excludes for generated/data
+    directories, and no placeholder content. It fully satisfies the task of creating
+    a Black formatting configuration file.'
+  sig: 5fa06f3aedda34a74c327526c0b8aea79da00c8e8db746fa0580107849f2893b
+T004:
+  c: true
+  h: 27ad42be98fbb8a0101c75654471f46c4739b4e8b6445d56900f298febb15db0
+  r: '`code/config.py` exists (5522 bytes) and contains all required elements: project
+    paths (raw/processed/models dirs, output paths), preprocessing hyperparameters
+    (filter cutoffs, notch, windowing), model hyperparameters (RF, SVM, CV), random
+    seeds (RANDOM_SEED=42, permutation state), and DEAP dataset metadata (sample rate
+    512 Hz, 32 subjects, 40 trials, target EMG channels, valence threshold), plus
+    a config summary helper. Content is substantive, not a stub.'
+  sig: 182df4282bb29adeed3000376812f5d4feba6b10cc30fddaa71f564ba30ec010
