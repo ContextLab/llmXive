@@ -1,36 +1,40 @@
 T001:
-  task: f73df3eb4a107de40d28a304aab021d86a45e204292e85132a20449ae857d4da
+  reason: "The bootstrap script creates the directory layout and a `quickstart.md`\
+    \ with the correct entry\u2011point command, and `code/main.py` implements the\
+    \ CLI, but the generated `requirements.txt` (both the top\u2011level file and\
+    \ the one written by `code/bootstrap.py`) does not contain the full pinned list\
+    \ of dependencies required by the task (e.g., statsmodels, pandas, numpy, scikit\u2011\
+    image, scikit\u2011learn are missing, and version specifiers differ). The task\u2019\
+    s requirement to generate a complete `requirements.txt` with the specified packages\
+    \ is therefore not satisfied."
+  task: 837ede49e78883ebaaea3092dab9ac81465d4bf319b4b68ba9e99daa13f83a13
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/ingestion/download_data.py
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion/verify_data.py
     exit=1'
-  task: 23e447be5293f1fd7216cc8ef6faaf10a05101d52d8a229c03fe41d671bb36f0
+  task: 02685b8ff4f7529742c59f98d98def0273c4a7cb0652d3636c22183b2b7040f9
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/salience/generate_maps.py
-    exit=1'
-  task: d8c8e27cda9cf4b96a8880f14eb4422f4bf09c4c024b7c74c536184f4a19ff26
+  task: d9f1594af4df8f1d3a00dedc9f305d1cdef60638ac54a4e04623503437a7adbc
 T004:
-  task: efa8f172bed4ed39664c997a033bbcfcbb22a2d37ff4db00bdad40baccd8dbf8
+  task: a0d23483d2ddefee135c45d9cd0fb4f0e9dc05ab739ac437a0d918891848ff40
 T005:
-  task: 29959af2da5204532db1f8f5ef690ff8fc8b0007214da560956b6de8d2225883
+  task: 8f081a992a7f3ded2f11ded5b93e05fb7e986fef8a3e090dab1f8cb0b6d7eb35
 T006:
-  task: 09913152913d6daabe9c24c518bb01d3496b142a19aefd98fd27920782782c55
+  task: ff0b7dc915770d096ec012167eb152d2acc54d5db04f42b3869536db73898a4e
 T007:
-  task: 9336e9c1c333782e658d8d9539522eed1821375a9025e8597600cdcaa6d409c6
+  task: b4616c5437efede253e101e93037d001a7292a7726d486ef6bc97c5bf0524532
 T008:
-  task: 97f8ccb2271175596e0daa7bb1c2f15ddbea7413919a7f45afa4ec700e4d1c30
+  task: 31bba67d012165af45e7c18d47416bf6478839502e92cadfa24a62b0ec9ccf4f
 T009:
-  task: 5b264d40bc1f97a6f2803ba5ff2cc181ef09e25749ab173b2d82b6bda98f43d7
+  task: b82d46863d23686d9792312437a0218c9c297840c2224406651192b382bec16e
 T010:
-  task: 58f8c2536bb383f0320c93edb150e9b9e33a1e5f7e6a94e8f75a516ab798c4c9
+  task: cf89307eb01292be1772db752e764879b01e199c7ce425f247540506a742d046
 T011:
-  task: 37c231dfc4ce3dd73cbc7ab37d64fb9d1e38164709f7066897130f183f483964
+  task: 04ddb68cdf79bd49b8768cd91c4f3b75e19551f53bdf8b82161c2add6a703bd8
 T012:
-  task: 01ddf01a208d7839e877d7ee151761197f3cb485a375e85b625bafb24ce311ed
+  task: 639a3a1a9ecd9459aa921e1c161ab4a267af6efde4fc1df8122b07ff72525542
 T013:
-  task: 0f2fd10d6eb83e10748436f3533afbdc69e324919749a009757620839eadc24f
+  task: 12aa1cc9b99703f8cd778301cdc1546921f2d4ca66a7bbf6c21d5c14a74e4f70
 T014:
-  task: dbd2cc6a709deba0f12ea49272f92d4599ff3782c5d04ae81231483c8573c69f
+  task: 8244e956867dc2bf95d8f7eb703438230b3b62448ef42b38830459a6de01f9a9
 T015:
-  task: c7d273e57c336ac9dfecadcc224452d6539edbebf34a807bb33b64298a326b37
-T016:
-  task: 461330dacb80aef9a222d13ad3bea312a0b66cf67635a4410ec96e67cc1a08ea
+  task: 4811cbc50c6b12a676ccc53415652c3d85bc1c7d60da816761632fe7ea10465f

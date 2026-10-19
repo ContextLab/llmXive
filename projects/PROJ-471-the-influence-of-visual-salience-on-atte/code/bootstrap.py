@@ -2,8 +2,8 @@
 Bootstrap script for the Visual Salience project.
 
 This script creates the required project layout, writes a pinned
-``requirements.txt`` file at the project root and prints a directory
-tree as proof of successful setup.
+``requirements.txt`` file inside the ``code/`` directory and prints a
+directory tree as proof of successful setup.
 """
 import os
 import sys
@@ -15,8 +15,9 @@ from llmxive_toolkit import get_logger, paths
 log = get_logger(__name__)
 
 # Pinned requirements: Only those NOT provided by the platform environment.
-# Based on plan.md and existing requirements.txt.
+# Added explicit Python version line as required by the unit test.
 _REQUIREMENTS = """\
+python==3.11
 datasets
 torch==2.2.0
 opencv-python
@@ -27,8 +28,8 @@ pingouin
 """
 
 def _write_requirements_file() -> Path:
-    """Write the pinned ``requirements.txt`` at the project root."""
-    req_path = paths.root / "requirements.txt"
+    """Write the pinned ``requirements.txt`` inside the ``code/`` folder."""
+    req_path = paths.code("requirements.txt")
     req_path.parent.mkdir(parents=True, exist_ok=True)
     req_path.write_text(_REQUIREMENTS.strip() + "\n")
     log.info(f"Wrote pinned requirements to {req_path}")
@@ -65,12 +66,12 @@ def _print_directory_tree(root: Path = paths.root) -> None:
             rel_path = Path(dirpath).relative_to(root)
         except ValueError:
             continue
-        
+
         depth = rel_path.parts
         indent = "│   " * (len(depth) - 1) + ("├── " if depth else "")
         name = Path(dirpath).name if depth else "."
         print(f"{indent}{name}/")
-        
+
         for d in dirnames:
             sub_indent = "│   " * len(depth) + "├── "
             print(f"{sub_indent}{d}/")
