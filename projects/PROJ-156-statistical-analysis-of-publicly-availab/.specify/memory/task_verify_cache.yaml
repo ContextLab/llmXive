@@ -1,11 +1,15 @@
 T001:
-  c: true
-  h: f2b6e690dc878d8776a433e0bfa66268991cafb6c9f1ba701722d36ee6e1ffe6
-  r: "Checked `code/scripts/fetch_data.py` (which iterates over `code/config.yaml`,\
-    \ calls helper functions that fetch runs via the API and writes them), the execution\
-    \ log showing successful runs, and the non\u2011empty JSON files in `data/raw/`.\
-    \ All required artifacts are present and functional."
-  sig: f6d2a8513e65cfc8347ded6d8f7ab427c74fc0e3a063e609fe4fdf65f9344ba3
+  c: false
+  h: 655b00936fb87e6375b96c8fa27d1ea3dbd915e844c903f0158f4d602f84e9ed
+  r: "The script itself exists and looks reasonable, but the raw data is fabricated:\
+    \ all 15 `data/raw/*.json` files are byte-identical (same sha256, same 317100\
+    \ bytes), and their contents contain runs for game id `nj1ne1p4` (GoldenEye, per\
+    \ weblink `speedrun.com/ge60fps`) regardless of the requested game \u2014 e.g.\
+    \ `celeste.json` and `zelda-oot.json` are the same GoldenEye data. The execution\
+    \ log also contradicts the current script (it logs `page=1` URLs while the script\
+    \ builds `offset=` URLs, and \"saves 200 runs\" per game in ~0.1s with no rate-limit\
+    \ sleeps), so the artifacts were not produced by this sc"
+  sig: a34fa52ac20e2e19b9027a7ef993def4a7ada47421425bce5ed5ae69d75988c3
 T006a:
   c: true
   h: 9207aa92dd058365890ba2195455e570953740b24ac4821149e3a3a97dd86af2
@@ -21,23 +25,15 @@ T006b:
     is syntactically valid YAML, and includes numeric values for `min_sample_size`
     (100), `random_seed` (42), and `effect_size_assumptions` (0.5) as required.
   sig: 11a285f1744cddae1ccbb71c4cf8e466918c9850887c37d71b068e0abce555c8
-T008a:
-  c: false
-  h: 683f201b9ef9ddc7560e5046ae68cbdb11ebe99b6c1b8aa80b83fcc120809bdc
-  r: "The provided `code/scripts/utils/checkpoint.py` lacks the `delete_checkpoint`,\
-    \ `CHECKPOINT_DIR`, and `BASE_DIR` symbols that the unit tests import, and its\
-    \ `save_checkpoint`/`load_checkpoint` functions ignore the monkey\u2011patched\
-    \ checkpoint directory, causing the tests `test_save_and_load_checkpoint` and\
-    \ `test_delete_checkpoint` to fail (files are not created in the temporary directory).\
-    \ The required API and passing tests are therefore not satisfied."
-  sig: 98713feafbbab478cc9a98b4852104596392582c8fde132a5bc73eb75ffd7a82
 T010:
-  c: false
-  h: 7ae8cc453216125bcfe10ec68a3b665d1e228efbbd13c189d5e37de61c2a0756
-  r: Checked `contracts/run_record.schema.yaml` (present and appears to follow the
-    required schema) but the required unit test `tests/test_run_record_schema.py`
-    is missing, so the verification step cannot be satisfied.
-  sig: ee169c09652431c0bc4a5322d31c2257eafb5aadcc84b7a1546a30374d4d83f9
+  c: true
+  h: edf2d6581143a455ff6ebb9f80544521a637a88e98af9d040907b8590e472635
+  r: The schema file `contracts/run_record.schema.yaml` exists with all required fields
+    (run_time_seconds, runner_id, attempt_number, category, submission_date, game_id)
+    plus optional derived fields matching the spec, and the test file `tests/test_run_record_schema.py`
+    performs `jsonschema.validate` on a sample row and a negative case. The execution
+    log shows both tests passing (exit 0, 2 passed) via pytest from the project root.
+  sig: 1dcbb11afb4f79d5df51ee2a0c9947607f652c2715a769cb72eea46bcacd0ef1
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,21 +42,13 @@ T024:
     implementation (e.g., saving intermediate results to disk or a database) and evidence
     of its operation, but the provided artifacts contain only the original specification
     without any new files or modifications. Consequently, the requirement is not satisfied.
-T033a:
-  c: false
-  h: 58331f5362185d06285e932dda3d651085edba461dc635733962745108cdcf4a
-  r: The pagination helper and its unit tests are present and pass, but there is no
-    evidence of a `fetch_data.py` script that imports and calls `paginate_api` as
-    required by the task. Adding a `fetch_data.py` that uses the new helper is needed
-    to satisfy the specification.
-  sig: 2ad89caaeb1ea146cd01f363192c370fa7158b7f974eecf92b2eea8dd8f3c3ad
 T033b:
-  c: false
-  h: 92131ffeff2f673e7f7a27c89466d2c4fa171cf65a1c225448397ce451fd1627
-  r: "The file `code/scripts/utils/pressure.py` exists and the unit tests pass, but\
-    \ the implemented function `calculate_lagged_pressure` takes a list of dictionaries\
-    \ (`run_records`) instead of the required DataFrame argument `df` and does not\
-    \ return a DataFrame with a new column as the specification states. This signature\
-    \ and return\u2011type mismatch means the task\u2019s explicit requirement is\
-    \ not satisfied."
-  sig: 98c5229cbd87ca0648e5a1f8c0c5742310480602ed20d6f753899ec561e54423
+  c: true
+  h: 68b56d717beacbebd40f26c7b37a7fdc4d20b29045b50a9bc7eaf1b6ec2c5a63
+  r: '`code/scripts/utils/pressure.py` exists with a real, non-stub `calculate_lagged_pressure`
+    implementation (sliding-window lagged count with date parsing and validation),
+    and `tests/test_pressure.py` contains 9 substantive unit tests validating expected
+    counts, window sizes, and error handling. The historical execution log shows `python
+    -m pytest -v` passing all 9 tests with exit 0, and the function is exported via
+    the utils package `__init__.py`.'
+  sig: 48d24e461d70c4f484f39b84287861f5ad00be2e5a0320178cc2de9733fbc997

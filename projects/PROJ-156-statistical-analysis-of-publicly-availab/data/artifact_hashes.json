@@ -1,5 +1,22 @@
 {
-  "status": "empty",
-  "files": [],
-  "checksum_file": "/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/data/artifact_hashes.json"
+  "status": "success",
+  "total_files": 15,
+  "checksum_file": "/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/data/artifact_hashes.json",
+  "files": {
+    "data/raw/celeste.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/chronotrigger.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/diablo.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/doom.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/earthbound.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/half-life.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/metroid-zero-mission.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/minecraft.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/pokemon-crystal.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/quake.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/starcraft.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/super-mario-64.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/super-mario-world.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/super-metro.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa",
+    "data/raw/zelda-oot.json": "5738dfdf16412846854c5282a0d5e06a687ad99ad58ffcef2eaa1f2ef2e084aa"
+  }
 }

@@ -7,24 +7,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest code/tests/ -> rc=2
-ostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-code/tests/test_pressure.py:11: in <module>
-    from scripts.utils.pressure import calculate_lagged_pressure
-code/scripts/utils/__init__.py:4: in <module>
-    from .checkpoint import save_checkpoint, load_checkpoint, delete_checkpoint, ensure_checkpoint_dir, get_checkpoint_path
-E   ImportError: cannot import name 'delete_checkpoint' from 'scripts.utils.checkpoint' (/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/utils/checkpoint.py)
+_mixed_effects.py:20: in <module>
+    from scripts.preprocess import load_config, load_schema, validate_record
+code/scripts/preprocess.py:181: in <module>
+    schema: Union[Dict[str, List[str]], List[str]] = None,
+E   NameError: name 'Union' is not defined
+_ ERROR collecting projects/PROJ-156-statistical-analysis-of-publicly-availab/code/tests/test_preprocess_checkpoint.py _
+code/tests/test_preprocess_checkpoint.py:14: in <module>
+    from scripts.preprocess import main, load_config, setup_logging
+code/scripts/preprocess.py:181: in <module>
+    schema: Union[Dict[str, List[str]], List[str]] = None,
+E   NameError: name 'Union' is not defined
 =========================== short test summary info ============================
-ERROR code/tests/test_checkpoint.py
-ERROR code/tests/test_distribution_fitting.py
-ERROR code/tests/test_fetch.py
-ERROR code/tests/test_fetch_checkpoint.py
-ERROR code/tests/test_models.py
-ERROR code/tests/test_pagination.py
-ERROR code/tests/test_preprocess_checkpoint.py
-ERROR code/tests/test_pressure.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 8 errors in 0.77s ===============================
+ERROR code/tests/test_distribution_fitting.py - NameError: name 'Union' is no...
+ERROR code/tests/test_fetch.py - NameError: name 'Union' is not defined
+ERROR code/tests/test_models.py - NameError: name 'Union' is not defined
+ERROR code/tests/test_preprocess_checkpoint.py - NameError: name 'Union' is n...
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 4 errors in 0.76s ===============================
 
 
 
@@ -34,12 +34,47 @@ ERROR code/tests/test_pressure.py
 - data/processed/distribution_fits.csv
 - data/processed/run_records.csv
 
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `speedruncomapi` to the project's `requirements.txt` and `pip install speedruncomapi`.
+- **Verified**: this loads **10000** real records with fields: id, weblink, game, level, category, videos, comment, status, players, date, date-time, submitted, times, system, splits, values, links.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+from speedruncomapi import requests
+
+url = "https://www.speedrun.com/api/v1/runs"
+params = {"max": 200, "offset": 0}
+all_runs = []
+
+while True:
+    resp = requests.get(url, params=params)
+    data = resp.json()
+    batch = data.get("data", [])
+    if not batch:
+        break
+    all_runs.extend(batch)
+    if len(batch) < params["max"]:
+        break
+    params["offset"] += params["max"]
+
+print(f"RECORDS={len(all_runs)}")
+if all_runs:
+    fields = list(all_runs[0].keys())
+    print("FIELDS=" + ",".join(fields))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
+
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/checkpoints/fetch_checkpoint.json` is declared but was NOT written. Scripts referencing it:
     - `code/scripts/fetch_data.py` — NOT invoked by the run-book
+    - `code/scripts/utils/checkpoint.py` — NOT invoked by the run-book
     - `code/tests/test_fetch_checkpoint.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/checkpoints/fetch_checkpoint.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/distribution_fits.csv` is declared but was NOT written. Scripts referencing it:

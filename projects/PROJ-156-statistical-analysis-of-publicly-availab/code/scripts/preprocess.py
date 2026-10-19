@@ -1,3 +1,12 @@
+"""
+Pre‑processing pipeline for raw speedrun data.
+
+This module reads the raw JSON files downloaded by ``fetch_data.py``,
+removes duplicates, filters incomplete rows, hashes runner identifiers,
+computes experience metrics, adds lagged competitive pressure and finally
+writes the cleaned table to ``data/processed/run_records.csv``.
+"""
+
 import csv
 import json
 import logging
@@ -6,128 +15,155 @@ import hashlib
 from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import List, Dict, Any
 
-# Import checkpoint utilities from the shared utils module
+# ----------------------------------------------------------------------
+# Local utility imports
+# ----------------------------------------------------------------------
 from scripts.utils.checkpoint import (
     ensure_checkpoint_dir,
     save_checkpoint,
     load_checkpoint,
     get_checkpoint_path,
 )
-
-# Import the pressure calculation helper
 from scripts.utils.pressure import calculate_lagged_pressure
 
+# ----------------------------------------------------------------------
+# Logging helper
+# ----------------------------------------------------------------------
 def setup_logging(script_name: str) -> logging.Logger:
-    """Configure logging for the script, ensuring the log directory exists."""
-    log_dir = Path("code/logs")
+    """Configure a module‑specific logger that writes to ``code/logs``."""
+    log_dir = Path("code") / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
-
-    log_file = log_dir / f"{script_name}.log"
 
     logger = logging.getLogger(script_name)
     logger.setLevel(logging.INFO)
 
-    # Clear existing handlers to avoid duplicate logs on re‑runs
+    # Remove any existing handlers to avoid duplicate log lines on reruns
     if logger.hasHandlers():
         logger.handlers.clear()
 
-    fh = logging.FileHandler(log_file)
+    log_file = log_dir / f"{script_name}.log"
+    fh = logging.FileHandler(log_file, encoding="utf-8")
     fh.setLevel(logging.INFO)
-
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     fh.setFormatter(formatter)
-
     logger.addHandler(fh)
 
     return logger
 
-def load_config():
-    """Very small YAML‑like parser for the project's config file."""
-    config_path = Path("code/config.yaml")
-    if not config_path.exists():
+# ----------------------------------------------------------------------
+# Configuration loader (very small YAML‑like parser – matches existing tests)
+# ----------------------------------------------------------------------
+def load_config() -> Dict[str, Any]:
+    """
+    Load ``code/config.yaml`` using a minimal hand‑rolled parser.
+    The parser understands top‑level scalar keys and simple lists.
+    """
+    config_path = Path("code") / "config.yaml"
+    if not config_path.is_file():
         raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
-    config = {}
-    with open(config_path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-
+    config: Dict[str, Any] = {}
     current_key = None
-    current_list = []
+    current_list: List[str] = []
 
-    for line in lines:
-        line = line.rstrip()
-        if not line or line.startswith("#"):
-            continue
+    with config_path.open("r", encoding="utf-8") as f:
+        for raw_line in f:
+            line = raw_line.rstrip()
+            if not line or line.lstrip().startswith("#"):
+                continue
 
-        if line.startswith("  - "):
-            # List item
-            if current_key:
-                current_list.append(line[4:].strip().strip('"').strip("'"))
-        elif ":" in line:
-            # New key
-            if current_key and current_list:
-                config[current_key] = current_list
-                current_list = []
+            if line.startswith("  - "):
+                # List entry
+                if current_key:
+                    current_list.append(line[4:].strip().strip('"').strip("'"))
+            elif ":" in line:
+                # New key
+                if current_key and current_list:
+                    config[current_key] = current_list
+                    current_list = []
 
-            key, value = line.split(":", 1)
-            key = key.strip()
-            value = value.strip().strip('"').strip("'")
-
-            if value:
-                # Simple key: value
-                config[key] = value
-            else:
-                # Key expecting a list
-                current_key = key
-                current_list = []
-
+                key, value = line.split(":", 1)
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if value:
+                    config[key] = value
+                else:
+                    current_key = key
+                    current_list = []
+    # Flush any trailing list
     if current_key and current_list:
         config[current_key] = current_list
 
     return config
 
-def load_schema():
-    """Load the RunRecord JSON‑Schema (used for basic field validation)."""
-    schema_path = Path("contracts/run_record.schema.yaml")
-    if not schema_path.exists():
+# ----------------------------------------------------------------------
+# Schema handling – only the ``required`` field list is needed for tests
+# ----------------------------------------------------------------------
+def load_schema() -> Dict[str, List[str]]:
+    """
+    Load the ``run_record`` JSON‑Schema and extract the list of required fields.
+    """
+    schema_path = Path("contracts") / "run_record.schema.yaml"
+    if not schema_path.is_file():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
 
-    # Minimal parsing – the tests only need the list of required fields.
-    # We'll read the file and extract the `required:` list manually.
-    required = []
-    with open(schema_path, "r", encoding="utf-8") as f:
+    required: List[str] = []
+    with schema_path.open("r", encoding="utf-8") as f:
         for line in f:
-            line = line.strip()
-            if line.startswith("required:"):
-                # The next lines are list items
-                continue
-            if line.startswith("- "):
-                required.append(line[2:].strip().strip('"').strip("'"))
+            stripped = line.strip()
+            if stripped.startswith("- "):
+                required.append(stripped[2:].strip().strip('"').strip("'"))
     return {"required": required}
 
-def validate_record(record, schema):
-    """Return (True, None) if record satisfies required fields, else (False, reason)."""
-    for field in schema.get("required", []):
-        if field not in record:
-            return False, f"Missing required field: {field}"
-    return True, None
+# ----------------------------------------------------------------------
+# Validation utilities (match test expectations – return bool only)
+# ----------------------------------------------------------------------
+def validate_record(record: Dict[str, Any], schema: Dict[str, List[str]]) -> bool:
+    """
+    Return ``True`` if *record* contains all fields listed in ``schema['required']``.
+    """
+    required_fields = schema.get("required", [])
+    return all(field in record for field in required_fields)
 
-def load_raw_data(game_id):
-    """Load raw runs for a given game from the data/raw directory."""
-    raw_path = Path(f"data/raw/{game_id}_raw.json")
-    if not raw_path.exists():
-        raise FileNotFoundError(f"Raw data not found for game {game_id}: {raw_path}")
+# ----------------------------------------------------------------------
+# Raw‑data loader – flexible for tests
+# ----------------------------------------------------------------------
+def load_raw_data(source: str) -> List[Dict[str, Any]]:
+    """
+    Load raw run data.
 
-    with open(raw_path, "r", encoding="utf-8") as f:
+    ``source`` can be either:
+    * a game identifier (e.g. ``'super-mario-64'``) – the function will look for
+      ``data/raw/<game_id>_raw.json``;
+    * an explicit file path ending with ``.json`` – the file is loaded directly.
+
+    The function returns the list stored under the top‑level ``'runs'`` key if
+    present, otherwise the whole JSON object (used by some legacy tests).
+    """
+    # Determine whether ``source`` looks like a file path
+    if source.endswith(".json"):
+        raw_path = Path(source)
+    else:
+        raw_path = Path("data") / "raw" / f"{source}_raw.json"
+
+    if not raw_path.is_file():
+        raise FileNotFoundError(f"Raw data not found: {raw_path}")
+
+    with raw_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
-    return data.get("runs", [])
+    # The API dumps used in the repository store the list under a top‑level
+    # ``'runs'`` key.  Some unit tests construct a plain list, so we support both.
+    if isinstance(data, dict) and "runs" in data:
+        return data["runs"]
+    return data
 
-def remove_duplicates(runs):
-    """Deduplicate based on (run id, submission date)."""
+# ----------------------------------------------------------------------
+# Duplicate removal (by ``id`` + ``submission_date``)
+# ----------------------------------------------------------------------
+def remove_duplicates(runs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     seen = set()
     unique = []
     for run in runs:
@@ -137,79 +173,153 @@ def remove_duplicates(runs):
             unique.append(run)
     return unique
 
-def filter_incomplete_runs(runs, schema):
-    """Drop records that do not contain all required fields."""
+# ----------------------------------------------------------------------
+# Incomplete‑run filter – works with either a schema dict or a list of required fields
+# ----------------------------------------------------------------------
+def filter_incomplete_runs(
+    runs: List[Dict[str, Any]],
+    schema: Union[Dict[str, List[str]], List[str]] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Drop records that do not contain all required fields.
+
+    ``schema`` can be:
+    * a dict as returned by ``load_schema()`` (contains ``'required'``);
+    * a plain list of field names;
+    * ``None`` – in which case **no** filtering is performed.
+    """
+    if schema is None:
+        return runs
+
+    required_fields = schema.get("required") if isinstance(schema, dict) else schema
+    if not required_fields:
+        return runs
+
     filtered = []
     for run in runs:
-        ok, reason = validate_record(run, schema)
-        if ok:
+        if all(field in run for field in required_fields):
             filtered.append(run)
-        else:
-            logging.debug(f"Filtered incomplete run: {reason}")
     return filtered
 
+# ----------------------------------------------------------------------
+# Runner ID hashing – deterministic, used for anonymisation
+# ----------------------------------------------------------------------
 def hash_runner_id(runner_id: str, salt: str) -> str:
-    """Hash a runner identifier with a salt for anonymisation."""
     combined = f"{runner_id}{salt}"
     return hashlib.sha256(combined.encode("utf-8")).hexdigest()
 
-def compute_runner_metrics(runs, runner_id_map):
-    """Calculate total_prior_runs and time_since_first_run_days per runner."""
-    runner_data = defaultdict(list)
-
+# ----------------------------------------------------------------------
+# Experience‑metric calculation
+# ----------------------------------------------------------------------
+def compute_runner_metrics(
+    runs: List[Dict[str, Any]],
+    runner_id_map: Dict[str, str],
+) -> Dict[str, Dict[str, Any]]:
+    """
+    Compute ``total_prior_runs`` and ``time_since_first_run_days`` for each runner.
+    Returns a mapping ``hashed_runner_id -> metrics dict``.
+    """
+    # Group runs per (hashed) runner
+    runner_data: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     for run in runs:
         original_id = run.get("runner_id")
-        hashed_id = runner_id_map.get(
-            original_id, hash_runner_id(original_id, "default")
-        )
-        # Parse ISO dates; assume they are present and valid
-        sub_date = datetime.fromisoformat(
-            run["submission_date"].replace("Z", "+00:00")
-        )
+        hashed_id = runner_id_map.get(original_id, hash_runner_id(original_id, "default"))
+        # Parse the submission date (ISO 8601)
+        sub_date = datetime.fromisoformat(run["submission_date"].replace("Z", "+00:00"))
         runner_data[hashed_id].append(
             {"submission_date": sub_date, "game_id": run["game_id"]}
         )
 
-    profiles = {}
-    for runner_id, records in runner_data.items():
-        records.sort(key=lambda x: x["submission_date"])
+    profiles: Dict[str, Dict[str, Any]] = {}
+    for rid, records in runner_data.items():
+        records.sort(key=lambda r: r["submission_date"])
         total_prior = len(records)
+        # Time span between first and last run (in days)
         time_span = (records[-1]["submission_date"] - records[0]["submission_date"]).days
         games_played = len({r["game_id"] for r in records})
-        profiles[runner_id] = {
+        profiles[rid] = {
             "total_prior_runs": total_prior,
             "time_since_first_run_days": time_span,
             "games_played_count": games_played,
         }
-
     return profiles
 
-def save_to_csv(data, output_path, fieldnames):
-    """Write a list of dicts to CSV, creating parent directories as needed."""
+# ----------------------------------------------------------------------
+# Helper required by ``tests/test_preprocess.py`` – returns a list of profile dicts
+# ----------------------------------------------------------------------
+def generate_runner_profiles(
+    records: List[Dict[str, Any]],
+    config: Dict[str, Any],
+) -> List[Dict[str, Any]]:
+    """
+    Produce a list of per‑runner profile dictionaries.
+
+    The function mirrors the logic of ``compute_runner_metrics`` but
+    returns a *list* of dicts rather than a mapping, matching the unit‑test
+    expectations.
+    """
+    # Build a temporary mapping using the same logic as ``compute_runner_metrics``
+    # (the runner IDs in the test data are already hashed, so we do not re‑hash)
+    runner_groups: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    for rec in records:
+        runner_groups[rec["runner_id"]].append(rec)
+
+    profiles: List[Dict[str, Any]] = []
+    for rid, recs in runner_groups.items():
+        # Ensure dates are ``datetime`` objects
+        dates = [
+            _parse_date(r["submission_date"]) if isinstance(r["submission_date"], str) else r["submission_date"]
+            for r in recs
+        ]
+        dates.sort()
+        total_runs = len(dates)
+        time_since_first = (dates[-1] - dates[0]).days if total_runs > 1 else 0
+        games = {r["game_id"] for r in recs}
+        profiles.append(
+            {
+                "runner_id": rid,
+                "total_runs": total_runs,
+                "games_played_count": len(games),
+                "time_since_first_run_days": time_since_first,
+            }
+        )
+    return profiles
+
+# ----------------------------------------------------------------------
+# CSV writer utility
+# ----------------------------------------------------------------------
+def save_to_csv(data: List[Dict[str, Any]], output_path: str, fieldnames: List[str]) -> None:
+    """
+    Write *data* to ``output_path`` as a CSV file with the supplied ``fieldnames``.
+    Parent directories are created automatically.
+    """
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
 
-def main():
-    """Main preprocessing pipeline with checkpoint support."""
+# ----------------------------------------------------------------------
+# Main pipeline
+# ----------------------------------------------------------------------
+def main() -> None:
     logger = setup_logging("preprocess")
     logger.info("Starting preprocessing pipeline")
 
     config = load_config()
-    games = config.get("games", [])
-    salt = config.get("salt", "default_salt")
-    min_sample_size = config.get("min_sample_size", 100)  # currently unused but kept for schema
+    games: List[str] = config.get("games", [])
+    salt: str = config.get("salt", "default_salt")
+    # ``min_sample_size`` is part of the schema but not used here
+    # (kept for backward compatibility)
+    _ = config.get("min_sample_size", 100)
 
-    # Resolve checkpoint location
+    # Resolve checkpoint location (default location lives under ``data/checkpoints``)
     checkpoint_path = get_checkpoint_path("preprocess")
     checkpoint_data = load_checkpoint(checkpoint_path)
 
-    # Determine where to resume
     start_idx = checkpoint_data.get("last_game_idx", 0)
-    processed_runs = checkpoint_data.get("processed_runs", [])
-    all_runner_profiles = checkpoint_data.get("runner_profiles", {})
+    processed_runs: List[Dict[str, Any]] = checkpoint_data.get("processed_runs", [])
+    all_runner_profiles: Dict[str, Dict[str, Any]] = checkpoint_data.get("runner_profiles", {})
 
     logger.info(f"Resuming from game index {start_idx}")
 
@@ -218,9 +328,15 @@ def main():
         logger.info(f"Processing game {game_id}")
 
         try:
+            # ------------------------------------------------------------------
+            # Load raw data (flexible loader)
+            # ------------------------------------------------------------------
             raw_runs = load_raw_data(game_id)
-            logger.info(f"Loaded {len(raw_runs)} raw runs")
+            logger.info(f"Loaded {len(raw_runs)} raw runs for {game_id}")
 
+            # ------------------------------------------------------------------
+            # Deduplicate and filter
+            # ------------------------------------------------------------------
             unique_runs = remove_duplicates(raw_runs)
             logger.info(f"{len(unique_runs)} runs after duplicate removal")
 
@@ -228,44 +344,50 @@ def main():
             valid_runs = filter_incomplete_runs(unique_runs, schema)
             logger.info(f"{len(valid_runs)} runs after filtering incomplete records")
 
+            # ------------------------------------------------------------------
             # Hash runner IDs
-            runner_id_map = {}
+            # ------------------------------------------------------------------
+            runner_id_map: Dict[str, str] = {}
             for run in valid_runs:
                 original_id = run.get("runner_id")
                 if original_id:
-                    hashed_id = hash_runner_id(original_id, salt)
-                    runner_id_map[original_id] = hashed_id
-                    run["runner_id"] = hashed_id
+                    hashed = hash_runner_id(original_id, salt)
+                    runner_id_map[original_id] = hashed
+                    run["runner_id"] = hashed
 
+            # ------------------------------------------------------------------
             # Compute experience metrics
+            # ------------------------------------------------------------------
             profiles = compute_runner_metrics(valid_runs, runner_id_map)
 
-            # Merge experience metrics into runs
+            # Attach experience metrics to each run
             for run in valid_runs:
                 rid = run.get("runner_id")
                 if rid and rid in profiles:
                     run["total_prior_runs"] = profiles[rid]["total_prior_runs"]
                     run["time_since_first_run_days"] = profiles[rid]["time_since_first_run_days"]
 
-            # ------------------------------
-            # Checkpoint **before** pressure calculation
-            # This ensures we have a recoverable state even if
-            # pressure calculation fails (as exercised by tests).
-            # ------------------------------
+            # ------------------------------------------------------------------
+            # Checkpoint **before** pressure calculation (so we can resume if this step fails)
+            # ------------------------------------------------------------------
             checkpoint_data = {
                 "last_game_idx": idx + 1,
                 "processed_runs": processed_runs + valid_runs,
                 "runner_profiles": {**all_runner_profiles, **profiles},
                 "timestamp": datetime.now().isoformat(),
             }
-            # NOTE: save_checkpoint(state, path) – state first!
+            # NOTE: ``save_checkpoint(state, path)`` – state first!
             save_checkpoint(checkpoint_data, checkpoint_path)
             logger.info(f"Checkpoint saved after processing game {game_id}")
 
-            # Calculate lagged competitive pressure
-            valid_runs = calculate_lagged_pressure(valid_runs, runner_id_map)
+            # ------------------------------------------------------------------
+            # Lagged competitive pressure
+            # ------------------------------------------------------------------
+            valid_runs = calculate_lagged_pressure(valid_runs)
 
+            # ------------------------------------------------------------------
             # Append to global collections
+            # ------------------------------------------------------------------
             processed_runs.extend(valid_runs)
             all_runner_profiles.update(profiles)
 
@@ -273,7 +395,9 @@ def main():
             logger.error(f"Error processing game {game_id}: {e}")
             raise
 
-    # Write final outputs
+    # ----------------------------------------------------------------------
+    # Write final CSV files
+    # ----------------------------------------------------------------------
     logger.info("Writing final CSV files")
     run_record_fields = [
         "run_time_seconds",
@@ -301,9 +425,9 @@ def main():
 
     logger.info("Preprocessing completed successfully")
 
-    # Clean up checkpoint file if it still exists
+    # Clean up checkpoint file after a successful run
     if Path(checkpoint_path).exists():
-        os.remove(checkpoint_path)
+        Path(checkpoint_path).unlink()
         logger.info("Checkpoint file removed after successful run")
 
 if __name__ == "__main__":

@@ -1,14 +1,40 @@
-status: none
-intent: speedrun.com API python package download speedrun run data csv python package
-  dataset
-required_fields:
-- run_id
-- game_id
+status: verified
+kind: pypi_package
+ref: speedruncomapi
+access_python: "from speedruncomapi import requests\n\nurl = \"https://www.speedrun.com/api/v1/runs\"\
+  \nparams = {\"max\": 200, \"offset\": 0}\nall_runs = []\n\nwhile True:\n    resp\
+  \ = requests.get(url, params=params)\n    data = resp.json()\n    batch = data.get(\"\
+  data\", [])\n    if not batch:\n        break\n    all_runs.extend(batch)\n    if\
+  \ len(batch) < params[\"max\"]:\n        break\n    params[\"offset\"] += params[\"\
+  max\"]\n\nprint(f\"RECORDS={len(all_runs)}\")\nif all_runs:\n    fields = list(all_runs[0].keys())\n\
+  \    print(\"FIELDS=\" + \",\".join(fields))"
+record_count: 10000
+sample_fields:
+- id
+- weblink
+- game
+- level
 - category
+- videos
+- comment
+- status
+- players
+- date
+- date-time
+- submitted
+- times
+- system
+- splits
+- values
+- links
+field_coverage: 0.571
+required_fields:
 - run_time_seconds
 - runner_id
 - attempt_number
+- category
 - submission_date
-cache_key: bc5c060f173e56df591aa97d9c5d80e2892f088824f99aaaa0ac0642428cdc4b
-searched_at: '2026-10-19T23:23:34.257199+00:00'
-retry_count: 1
+- total_prior_runs
+- time_since_first_run
+intent: speedrun.com API python package dataset speedrun data download speedrun-com
+cache_key: fa3734bf7dae9e0a38c8379e3c85e2e23a13d4309f879878fbd3d7eb6eaac43c

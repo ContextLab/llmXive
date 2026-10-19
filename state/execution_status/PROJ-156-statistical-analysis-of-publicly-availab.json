@@ -11,11 +11,11 @@
     "python code/scripts/generate_report.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/generate_report.py': [Errno 2] No such file or directory",
     "python -c \"import pandas as pd; df = pd.read_csv('data/processed/run_records.csv'); print(f'Completeness: {df.notna().mean().mean():.2%}')\" -> rc=1\n    ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py\", line 300, in _read\n    parser = TextFileReader(filepath_or_buffer, **kwds)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/.venv/lib/python3."
   ],
-  "fix_rounds": 2,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-05T10:13:34Z"
+  "updated_at": "2026-10-19T23:30:18Z"
 }

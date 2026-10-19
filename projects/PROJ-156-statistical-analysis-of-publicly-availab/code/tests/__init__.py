@@ -1,1 +1,1 @@
-# This file ensures that ``code/tests`` is treated as a package by pytest.
+# Makes ``code/tests`` a package for relative imports.

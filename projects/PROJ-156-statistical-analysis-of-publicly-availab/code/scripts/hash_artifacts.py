@@ -1,97 +1,145 @@
 """
-Script to compute SHA-256 checksums for all files in the project's data/ directory.
+hash_artifacts.py
+-----------------
+Compute SHA‑256 checksums for every file under the project's ``data/`` directory
+and write a manifest JSON file to ``data/artifact_hashes.json``.
 
-Implements Constitution Principle V (Data Integrity) while respecting the platform's
-restriction that only project-owned directories may be written to. The resulting
-manifest is stored under ``data/artifact_hashes.json`` (instead of the platform‑owned
-``state/`` directory) so that the script can be executed without violating the
-repository contract.
+This script satisfies **Task T007a** and respects the platform constraint that
+only project‑owned directories (``data/``, ``figures/``, ``code/``, ``paper/``)
+may be written to. The previous implementation incorrectly wrote to the
+platform‑owned ``state/`` directory; this version writes the manifest inside
+``data/`` as required.
+
+The script can be invoked as a module:
+
+    python -m code.scripts.hash_artifacts
+
+It will:
+
+1. Locate the project root (two directories up from this file).
+2. Recursively collect all files under ``<project_root>/data``.
+3. Compute a SHA‑256 hash for each file (reading in 4 KB blocks).
+4. Skip the manifest file itself to avoid a circular dependency.
+5. Write a JSON manifest containing:
+   - ``status`` (``empty`` if no files, otherwise ``success``),
+   - ``total_files`` (number of hashed files),
+   - ``checksum_file`` (absolute path to the manifest),
+   - ``files`` (mapping of relative file paths to their hex digests).
+
+The manifest format matches the expectations of downstream tasks (e.g.,
+T036) that will later verify artifact integrity.
 """
+
 import hashlib
 import json
-import os
 import sys
 from pathlib import Path
 
-def compute_sha256(file_path: str) -> str:
-    """Compute the SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except (IOError, OSError) as e:
-        print(f"Error reading file {file_path}: {e}", file=sys.stderr)
-        return None
 
-def collect_data_files(base_dir: str) -> list:
-    """Recursively collect all files in the given base directory."""
-    data_path = Path(base_dir)
-    if not data_path.exists():
+def compute_sha256(file_path: Path) -> str:
+    """
+    Compute the SHA‑256 hash of ``file_path``.
+
+    Parameters
+    ----------
+    file_path: Path
+        Path to the file whose hash should be computed.
+
+    Returns
+    -------
+    str
+        Hexadecimal SHA‑256 digest.
+    """
+    sha256 = hashlib.sha256()
+    # Read in binary mode, 4 KB chunks to avoid loading large files into memory.
+    with file_path.open("rb") as f:
+        for block in iter(lambda: f.read(4096), b""):
+            sha256.update(block)
+    return sha256.hexdigest()
+
+
+def collect_data_files(base_dir: Path) -> list[Path]:
+    """
+    Recursively collect all regular files under ``base_dir``.
+
+    Parameters
+    ----------
+    base_dir: Path
+        Directory to search (typically ``<project_root>/data``).
+
+    Returns
+    -------
+    list[Path]
+        Sorted list of file paths (absolute).
+    """
+    if not base_dir.is_dir():
         print(f"Warning: Data directory {base_dir} does not exist.", file=sys.stderr)
         return []
 
-    files = []
-    for root, _, filenames in os.walk(data_path):
-        for filename in filenames:
-            # Skip the checksum file itself to avoid circular dependency
-            if filename == "artifact_hashes.json":
-                continue
-            full_path = Path(root) / filename
-            files.append(str(full_path))
+    files = [p for p in base_dir.rglob("*") if p.is_file()]
+    # Sorting provides deterministic output across runs.
     return sorted(files)
 
-def main():
-    """Entry point for artifact‑hash generation."""
-    # Determine the project root (assumes this script lives in ``code/scripts/``)
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent.parent
+
+def main() -> None:
+    """
+    Entry point for artifact‑hash generation.
+
+    The manifest is written to ``data/artifact_hashes.json`` inside the
+    project repository (i.e., a project‑owned location).  The function
+    prints progress information to stdout for user visibility.
+    """
+    # Resolve the project root: <project_root>/code/scripts/hash_artifacts.py
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parents[2]   # <project_root>/code/scripts -> <project_root>
 
     data_dir = project_root / "data"
-    output_dir = data_dir  # Write the manifest inside the data folder (project‑owned)
-    output_file = output_dir / "artifact_hashes.json"
+    manifest_path = data_dir / "artifact_hashes.json"
 
-    # Ensure the output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure the output directory exists (it should, but be defensive).
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
 
     print(f"Scanning data directory: {data_dir}")
-    files = collect_data_files(str(data_dir))
+    all_files = collect_data_files(data_dir)
 
-    if not files:
+    # Exclude the manifest file itself to avoid a circular reference.
+    files_to_hash = [p for p in all_files if p != manifest_path]
+
+    if not files_to_hash:
         print("No data files found to hash.")
         manifest = {
             "status": "empty",
-            "files": [],
-            "checksum_file": str(output_file)
+            "total_files": 0,
+            "checksum_file": str(manifest_path),
+            "files": {}
         }
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(manifest, f, indent=2)
+        manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
         return
 
-    print(f"Found {len(files)} files. Computing checksums...")
+    print(f"Found {len(files_to_hash)} files. Computing checksums...")
 
     checksums = {}
-    for file_path in files:
-        relative_path = str(Path(file_path).relative_to(project_root))
-        hash_val = compute_sha256(file_path)
-        if hash_val:
-            checksums[relative_path] = hash_val
-            print(f"  {relative_path}: {hash_val[:16]}...")
-        else:
-            print(f"  Skipped {relative_path} (read error)", file=sys.stderr)
+    for file_path in files_to_hash:
+        # Compute hash relative to the project root for readability.
+        rel_path = str(file_path.relative_to(project_root))
+        try:
+            hash_val = compute_sha256(file_path)
+            checksums[rel_path] = hash_val
+            # Show a short preview of the hash for progress monitoring.
+            print(f"  {rel_path}: {hash_val[:16]}...")
+        except Exception as exc:
+            print(f"Error hashing {rel_path}: {exc}", file=sys.stderr)
 
     manifest = {
         "status": "success",
         "total_files": len(checksums),
-        "checksum_file": str(output_file),
+        "checksum_file": str(manifest_path),
         "files": checksums
     }
 
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    print(f"Checksum manifest saved to: {manifest_path}")
 
-    print(f"Checksum manifest saved to: {output_file}")
 
 if __name__ == "__main__":
     main()

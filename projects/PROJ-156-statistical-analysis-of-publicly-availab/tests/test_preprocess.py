@@ -8,7 +8,7 @@ import pytest
 from pathlib import Path
 
 # Import the module under test
-sys.path.insert(0, os.path.join(os.dirname(__file__), '..', 'code', 'scripts'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code', 'scripts'))
 from preprocess import (
     load_config,
     load_schema,
@@ -53,8 +53,8 @@ def test_remove_duplicates(sample_records):
     assert unique[2]['submission_id'] == "3"
 
 def test_filter_incomplete_runs(sample_records):
-    # Add an incomplete record
-    incomplete = {"submission_id": "4", "runner_id": "userC"} # Missing date, game, time
+    # Add an incomplete record (missing 'time')
+    incomplete = {"submission_id": "4", "runner_id": "userC"} 
     data = sample_records + [incomplete]
     filtered = filter_incomplete_runs(data, ["submission_id", "runner_id", "submission_date", "game_id", "time"])
     assert len(filtered) == 4 # Should remove the incomplete one
@@ -84,7 +84,7 @@ def test_generate_runner_profiles():
     assert profile_a['total_runs'] == 3
     assert profile_a['games_played_count'] == 2
     assert profile_a['time_since_first_run_days'] >= 2 # 1st to 3rd Jan
-    
+  
     # Check hashB
     profile_b = next(p for p in profiles if p['runner_id'] == 'hashB')
     assert profile_b['total_runs'] == 1
@@ -108,3 +108,6 @@ def test_data_completeness_threshold(sample_records):
     filtered = 96
     threshold = 0.95
     assert (filtered / initial) >= threshold
+
+if __name__ == '__main__':
+    pytest.main()
