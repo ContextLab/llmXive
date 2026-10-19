@@ -1,9 +1,13 @@
 status: none
-intent: OpenML wine quality Malawi HW4 classification MNAR datasets python package
-  dataset
+intent: binary continuous outcome missingness datasets OpenML UCI Wine Quality Malawi
+  HW4_CLASSIFICATION_mnar python package dataset
 required_fields:
-- target
 - features
-cache_key: 257716e4cf6465b9a111afdbb23eca547e130dac6f15c767fb003e19e42aa7d5
-searched_at: '2026-10-19T07:42:31.736199+00:00'
+- target
+- missingness_level
+- source_url
+- loader_name
+- verification_status
+cache_key: 6d704e8f4c52d448e780337eb4698ee84191bf448fcef76670f2a24487b6496c
+searched_at: '2026-10-19T07:47:16.377826+00:00'
 retry_count: 1

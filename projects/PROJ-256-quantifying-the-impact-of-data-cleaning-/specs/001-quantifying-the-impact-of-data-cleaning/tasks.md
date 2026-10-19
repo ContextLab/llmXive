@@ -13,27 +13,27 @@ Each task is written in the canonical `- [ ] T### [P?] [USx?] …` form, lists t
   *Move* all utility scripts (`code/run_lint.py`, `code/run_quickstart_validation.py`) into `code/scripts/`; *delete* any orphaned `t*.py` experiment scripts after confirming their logic has been merged into the canonical modules (`analysis.py`, `cleaning.py`, `reporting.py`, `main.py`). Update `.gitignore` to exclude `t*.py` and temporary scratch files.  
   *Verification*: `tests/unit/test_filesystem_hygiene.py` asserts the absence of `t*.py` files, the presence of `code/scripts/`, and that imports in `main.py` succeed.
 
-- [ ] T019 **Pin random seeds for reproducibility** – Add a module `code/random_seeds.py` that sets `numpy.random.seed(42)`, `random.seed(42)`, and uses `random_state=42` for all scikit‑learn functions. Import this module at the start of `code/main.py`.  
+- [X] T019 **Pin random seeds for reproducibility** – Add a module `code/random_seeds.py` that sets `numpy.random.seed(42)`, `random.seed(42)`, and uses `random_state=42` for all scikit‑learn functions. Import this module at the start of `code/main.py`.  
   *Verification*: `tests/unit/test_random_seeds.py` checks that the seed values are set and that repeated runs produce identical numeric outputs.
 
 ---
 
 ## Phase 1 – Foundations & power justification
 
-- [ ] T002 **Power‑analysis report (US‑003)** – Compute a priori power for (a) a two‑sample t‑test detecting Cohen’s d = 0.5 (α = 0.05, power ≥ 0.8) and (b) a paired Wilcoxon signed‑rank test detecting a medium effect (Cohen = 0.5). Write the calculations and a ≤ 150‑word justification to `power_analysis.txt`.  
+- [X] T002 **Power‑analysis report (US‑003)** – Compute a priori power for (a) a two‑sample t‑test detecting Cohen’s d = 0.5 (α = 0.05, power ≥ 0.8) and (b) a paired Wilcoxon signed‑rank test detecting a medium effect (Cohen = 0.5). Write the calculations and a ≤ 150‑word justification to `power_analysis.txt`.  
   *Verification*: `tests/unit/test_power_analysis.py` checks file existence, parses the reported power values, and asserts they are ≥ 0.8.
 
 - [ ] T003 **Sample‑size justification (US‑003)** – Document the rationale for selecting 10‑15 datasets (≤ 150 words) in `sample_size_justification.md`, citing the meta‑analysis that informed the choice.  
   *Verification*: `tests/unit/test_sample_size_justification.py` confirms the file exists and word count ≤ 150.
 
-- [ ] T004 **Cleaned‑metrics JSON‑Schema (FR‑009, FR‑011, FR‑025)** – Create `contracts/cleaned_metrics.schema.yaml` that exactly matches the fields required by the specification (including optional `cohens_d`, `r_squared`, `effect_size_cv`).  
+- [X] T004 **Cleaned‑metrics JSON‑Schema (FR‑009, FR‑011, FR‑025)** – Create `contracts/cleaned_metrics.schema.yaml` that exactly matches the fields required by the specification (including optional `cohens_d`, `r_squared`, `effect_size_cv`).  
   *Verification*: `tests/contract/test_cleaned_schema.py` validates the schema against a minimal compliant JSON example.
 
 ---
 
 ## Phase 2 – Data acquisition & baseline analysis
 
-- [ ] T005 **Download & validate raw datasets (FR‑001, FR‑005, FR‑007, FR‑014)** – Implement `code/data_loader.py` to (a) download the 12 verified datasets (direct URLs for the five UCI CSVs and `openml.datasets.get_dataset` for the remainder), (b) compute SHA‑256 checksums, (c) validate each raw file against `contracts/dataset.schema.yaml`, (d) extract the documented outcome column, sample size, and missingness proportion, and (e) write `data/processed/dataset_metadata.json`.   <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
+- [ ] T005 **Download & validate raw datasets (FR‑001, FR‑005, FR‑007, FR‑014)** – Implement `code/data_loader.py` to (a) download the 12 verified datasets (direct URLs for the five UCI CSVs and `openml.datasets.get_dataset` for the remainder), (b) compute SHA‑256 checksums, (c) validate each raw file against `contracts/dataset.schema.yaml`, (d) extract the documented outcome column, sample size, and missingness proportion, and (e) write `data/processed/dataset_metadata.json`.   <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
   *Verification*: `tests/integration/test_data_acquisition.py` checks that all datasets appear, checksums match, and schema validation passes.
 
 - [ ] T020 **Record raw‑file checksums in project state (Constitution III)** – After successful download, update `state/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-.yaml` with a map `artifact_hashes` containing each raw dataset’s SHA‑256 checksum.  

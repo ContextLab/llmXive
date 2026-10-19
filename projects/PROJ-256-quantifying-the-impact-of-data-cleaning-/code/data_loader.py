@@ -104,14 +104,14 @@ DATASET_SPECS: List[Dict] = [
 # ----------------------------------------------------------------------
 def _download_openml_dataset(openml_id: int, raw_dir: Path) -> Path:
     """
-    Download a dataset from OpenML, store it as ``<name>.csv`` in ``raw_dir``,
+    Download a dataset from OpenML, store it as ``<openml_id>.csv`` in ``raw_dir``,
     and return the path to the written CSV file.
     """
     logger.info(f"Downloading OpenML dataset ID {openml_id}")
     dataset = openml.datasets.get_dataset(openml_id)
     X, y, _, _ = dataset.get_data(dataset_format="dataframe")
     df = X.copy()
-    # If the target column is not already present, add it as ``outcome``.
+    # Ensure the target column exists; name it ``outcome`` if not already present.
     if y.name not in df.columns:
         df[y.name] = y
     csv_path = raw_dir / f"{openml_id}.csv"
@@ -124,10 +124,9 @@ def _download_csv_from_url(url: str, dest_path: Path) -> Path:
     Download a raw CSV file from ``url`` and write it to ``dest_path``.
     """
     logger.info(f"Downloading CSV from URL: {url}")
-    # Use pandas for robust CSV handling; it will raise on failure.
+    # pandas can read directly from HTTP URLs.
     df = pd.read_csv(url, header=None)
-    # Heuristic: if the first row looks like data (numeric), treat the file as header‑less.
-    # Otherwise, keep the header as‑is.
+    # Preserve the original header‑less nature of the UCI files.
     df.to_csv(dest_path, index=False, header=False)
     logger.info(f"CSV downloaded to {dest_path}")
     return dest_path
@@ -135,12 +134,14 @@ def _download_csv_from_url(url: str, dest_path: Path) -> Path:
 def _load_schema() -> Dict:
     """
     Load the JSON‑Schema for dataset metadata.
+    The schema lives under the project ``specs`` directory.
     """
-    schema_path = Path("contracts/dataset.schema.yaml")
+    # The repository layout places contract schemas under
+    # ``specs/<project‑id>/contracts``.
+    schema_path = Path("specs") / "001-quantifying-the-impact-of-data-cleaning" / "contracts" / "dataset.schema.yaml"
     if not schema_path.is_file():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    # yaml.safe_load is available via PyYAML (already in the environment)
-    import yaml
+    import yaml  # PyYAML is available in the base environment.
 
     with schema_path.open("r", encoding="utf-8") as f:
         schema = yaml.safe_load(f)
@@ -149,7 +150,7 @@ def _load_schema() -> Dict:
 def _validate_metadata(metadata: Dict, schema: Dict) -> None:
     """
     Validate a single metadata dictionary against the dataset schema.
-    Raises jsonschema.ValidationError on failure.
+    Raises ``jsonschema.ValidationError`` on failure.
     """
     jsonschema.validate(instance=metadata, schema=schema)
 
@@ -185,7 +186,7 @@ def ensure_data_exists() -> None:
             if not csv_path.is_file():
                 csv_path = _download_openml_dataset(spec["openml_id"], raw_dir)
         else:
-            # Direct URL case – use a filename derived from the name.
+            # Direct URL case – derive a safe filename from the dataset name.
             safe_name = name.lower().replace(" ", "_")
             csv_path = raw_dir / f"{safe_name}.csv"
             if not csv_path.is_file():
@@ -232,7 +233,6 @@ def main() -> None:
     CLI entry point for manual data acquisition.
     """
     ensure_data_exists()
-
 
 if __name__ == "__main__":
     main()

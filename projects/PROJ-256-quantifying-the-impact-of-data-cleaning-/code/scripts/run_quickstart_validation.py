@@ -1,17 +1,26 @@
-# NOTE: This script has been moved to `scripts/run_quickstart_validation.py`.
-# It is retained for backward compatibility but raises an informative error.
+"""
+Quick‑start validation script.
+
+In the original repository this script lived at ``code/run_quickstart_validation.py``.
+It has been migrated to ``code/scripts/`` to keep maintenance utilities separate
+from the research code.
+"""
+
 import sys
+import subprocess
 
-def _raise_migration_error():
-    raise ImportError(
-        "The script `run_quickstart_validation.py` has been moved to "
-        "`scripts/run_quickstart_validation.py`. Please import or execute it from the new location."
-    )
+def main() -> None:
+    """
+    Execute the project's quick‑start validation suite.
 
-# Re-export entry points that simply raise the migration error.
-run_script = _raise_migration_error
-validate_artifacts = _raise_migration_error
-main = _raise_migration_error
+    The command simply runs the pytest marker ``quickstart`` which the
+    repository's CI uses to verify that the pipeline can be executed
+    from a clean checkout.
+    """
+    try:
+        subprocess.run([sys.executable, "-m", "pytest", "-m", "quickstart", "-v"], check=True)
+    except subprocess.CalledProcessError as exc:
+        sys.exit(exc.returncode)
 
-if __name__ == '__main__':
-    _raise_migration_error()
+if __name__ == "__main__":
+    main()
