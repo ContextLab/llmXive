@@ -1,15 +1,13 @@
 T001:
   c: false
-  h: 6b7b4d4b7efa939778f6ad7a40c2c1f35bcebcb92ec53f8b92200369e0e27fb6
-  r: "`quickstart.md` and `src/tests/test_quickstart.py` exist and contain the required\
-    \ command and success-message assertion, but there is no evidence that `src/pipeline/run`\
-    \ actually exists or executes \u2014 no pipeline module artifact, no run log,\
-    \ and no CI output showing \"Pipeline completed successfully\" or a passing test.\
-    \ The verification criteria (command executes on a fresh runner, prints the success\
-    \ message, test passes) are unmet; additionally, the quickstart's setup command\
-    \ `python -m venv.venv` is malformed (missing space), and the underlying data\
-    \ files are 3-row samples, not the \u2265500-row dat"
-  sig: 3feda4655bf145731173de5eea955e1fa93ed7d873b476a34689758369ff0580
+  h: 026689735a64a7f5663e8421da56766a53137a52b0d57b740efb181e2f6b2576
+  r: "The `quickstart.md` file and the CI test `src/tests/test_quickstart.py` are\
+    \ present, but there is no evidence that the pipeline command actually runs on\
+    \ a fresh runner and prints \u201CPipeline completed successfully\u201D (no CI\
+    \ logs or test execution results, and the `src.pipeline.run` module itself is\
+    \ not shown). The implementer must provide proof that the command executes successfully\
+    \ and that the CI test passes."
+  sig: c87557dd1edc367f710b4cfddd04045c3843cd2a92f542a328bd84c5cbd483ad
 T004:
   c: false
   h: 3fb7ab1b9474e8c0f27fd718871b8268e6dfceed82ec0f4200834053ebd66dc1
@@ -31,6 +29,15 @@ T005:
     \ which requires `test_metrics`, `bootstrap_ci`, `paired_ttest`, and `feature_importances`\
     \ at the top level with `additionalProperties: false`."
   sig: 5910275e5e9c487f457ba3cce570e6aca129d435e44fdd1194b674f1896cf3cd
+T006:
+  c: false
+  h: 51ed8f7d84c07eb00174935c91dee41f9453cc88a2c0c52754ceea07133dcc5a
+  r: "The `src/models/split.py` script is present and implements a deterministic GroupShuffleSplit,\
+    \ but the required output artifacts `data/processed/train.csv` and `data/processed/test.csv`\
+    \ are missing, and there is no evidence of the logging output confirming the split\
+    \ size or zero group overlap. The task\u2019s core deliverable\u2014producing\
+    \ the train and test CSV files\u2014is not satisfied."
+  sig: d39a7c455601e504c9918b17cb1b9a29c743e6544e6de67a57c9562566d6b3f9
 T013:
   c: true
   h: fac572187ff2754c93e34f42e85d63352dfffa2542b34940f70396e3646771e0

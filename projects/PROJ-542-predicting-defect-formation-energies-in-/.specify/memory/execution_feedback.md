@@ -9,11 +9,11 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/processed/features.csv, data/raw/materials_defects.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/processed/features.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/processed/features.csv, data/raw/materials_defects.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python -m src.train data/processed/features.csv data/processed/cv_metrics.json (rc=1); python -m src.evaluate data/processed/features.csv data/processed/performance.json (rc=1); python -m pytest -q (rc=1); 6 declared deliverable(s) absent: data/processed/cv_metrics.json; data/processed/performance.json; data/processed/test.csv
+**Summary**: every produced artifact is gitignored (data/processed/features.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python -m src.train data/processed/features.csv data/processed/cv_metrics.json (rc=1); python -m src.evaluate data/processed/features.csv data/processed/performance.json (rc=1); python -m pytest -q (rc=1); 6 declared deliverable(s) absent: data/processed/cv_metrics.json; data/processed/performance.json; data/processed/test.csv
 
 ## Failing / missing run-book commands
 
@@ -45,7 +45,7 @@ E               subprocess.CalledProcessError: Command '['/home/runner/work/llmX
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/subprocess.py:571: CalledProcessError
 =========================== short test summary info ============================
 FAILED src/tests/test_quickstart.py::test_quickstart_pipeline - subprocess.Ca...
-1 failed, 2 passed in 0.81s
+1 failed, 2 passed in 0.58s
 
 
 - python -m src.pipeline  # the notebook respects the env var -> rc=1
@@ -79,6 +79,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `src/models/evaluate.py` — NOT invoked by the run-book
     - `src/models/split.py` — NOT invoked by the run-book
     - `src/models/train.py` — NOT invoked by the run-book
+    - `src/pipeline/run.py` — NOT invoked by the run-book
     - `src/tests/__init__.py` — NOT invoked by the run-book
     - `src/tests/test_descriptor_gaps.py` — NOT invoked by the run-book
     - `src/tests/test_quickstart.py` — NOT invoked by the run-book
@@ -88,7 +89,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `src/models/evaluate.py` — NOT invoked by the run-book
     - `src/models/split.py` — NOT invoked by the run-book
     - `src/models/train.py` — NOT invoked by the run-book
-    - `src/pipeline/run.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/train.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `figures/feature_importance.png` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
 - `figures/pred_vs_actual.png` is declared but was NOT written. Scripts referencing it:

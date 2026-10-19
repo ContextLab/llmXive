@@ -59,7 +59,7 @@ The tasks below cover every functional requirement (FR‑001 – FR‑012), 
   – The script runs on CPU‑only runners (no CUDA import).  
   – `cv_metrics.json` conforms to `contracts/model_performance.schema.yaml` (FR‑003).  
 
-- [~] **T006** [US‑2] Create a deterministic 80/20 **train‑test split** (`src/models/split.py`) that respects GroupKFold groups (no overlap).  
+- [ ] **T006** [US‑2] Create a deterministic 80/20 **train‑test split** (`src/models/split.py`) that respects GroupKFold groups (no overlap).  
   *File:* `src/models/split.py` → outputs `data/processed/train.csv` and `data/processed/test.csv`.  
   *Verification:* The split logs the number of samples in each set and confirms zero intersection with CV groups (FR‑011).  
 

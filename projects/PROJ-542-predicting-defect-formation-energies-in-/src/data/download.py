@@ -7,11 +7,11 @@ oxides from the Materials Project API using the official ``mp-api`` client.
 It validates the downloaded data against the JSON‑schema contract
 ``contracts/raw_dataset.schema.yaml`` and writes the result to
 ``data/raw/materials_defects.csv``.  The script aborts with clear error
-messages when required conditions are not met (missing API key or empty
-result set), satisfying FR‑001 and FR‑007.
+messages when required conditions are not met (missing API key, empty
+result set, or insufficient number of records), satisfying FR‑001 and FR‑007.
 
 Execution
-~~~~~~~~
+~~~~~~~~~
 The script is intended to be run as a module:
 
     python -m src.data.download
@@ -23,9 +23,8 @@ Requirements
 ~~~~~~~~~~~~
 - ``MP_API_KEY`` environment variable must contain a valid Materials Project
   API key.
-- The third‑party package ``mp-api`` is required (declared in
-  ``requirements.txt``).
-- ``pymatgen`` is required for composition handling.
+- The third‑party packages ``mp-api`` and ``pymatgen`` are required (declared
+  in ``requirements.txt``).
 - ``pandas`` and ``jsonschema`` are already available in the base environment.
 """
 
@@ -97,9 +96,6 @@ def _fetch_defect_data(api_key: str) -> List[Dict]:
         - composition
         - species
     """
-    # Import inside the function so that the module can be imported even
-    # when the optional dependency is not installed (helpful for static
-    # analysis or documentation builds).
     try:
         from mp_api.client import MPRester
     except ImportError as exc:
@@ -108,8 +104,6 @@ def _fetch_defect_data(api_key: str) -> List[Dict]:
             "Install it via 'pip install mp-api' and ensure MP_API_KEY is set."
         ) from exc
 
-    # The mp-api client handles pagination internally; we request a large
-    # limit to minimise round‑trips.
     with MPRester(api_key) as mpr:
         log.info("Querying Materials Project for oxygen‑vacancy defects...")
         docs = mpr.defects.search(
@@ -121,8 +115,7 @@ def _fetch_defect_data(api_key: str) -> List[Dict]:
                 "composition",
                 "species",
             ],
-            # The service caps at 10 000; this is far above the expected size.
-            limit=10000,
+            limit=10000,  # well above the expected size
         )
     records = [doc.dict() for doc in docs]
 
@@ -165,9 +158,7 @@ def _validate_dataframe(df: pd.DataFrame, schema_path: Path) -> None:
             "composition": row["composition"],
             "defect_type": row["defect_type"],
             "formation_energy": row["formation_energy"],
-            "metadata": row["metadata"]
-            if isinstance(row["metadata"], dict)
-            else {},
+            "metadata": row["metadata"] if isinstance(row["metadata"], dict) else {},
         }
         try:
             validate(instance=record, schema=schema)
@@ -187,49 +178,37 @@ def main() -> None:
     """
     api_key = os.getenv("MP_API_KEY")
     if not api_key:
-        # -----------------------------------------------------------------
-        # No API key – fall back to a bundled minimal real dataset.
-        # This allows the pipeline to run in CI environments where a
-        # Materials Project key is not available.
-        # -----------------------------------------------------------------
-        log.warning(
-            "MP_API_KEY not set – using bundled sample dataset "
-            "data/raw/sample_materials_defects.csv."
+        log.error(
+            "MP_API_KEY environment variable not set. "
+            "The script cannot proceed without a Materials Project API key."
         )
-        sample_path = paths.data("raw", "sample_materials_defects.csv")
-        if not sample_path.is_file():
-            log.error(
-                f"Sample dataset not found at {sample_path}. "
-                "Provide a real CSV at data/raw/materials_defects.csv or set MP_API_KEY."
-            )
-            sys.exit(1)
+        sys.exit(1)
 
-        df = pd.read_csv(sample_path)
+    # Normal path – fetch from the Materials Project API.
+    records = _fetch_defect_data(api_key)
 
-        # Ensure the sample has the required columns; if not, raise.
-        required_cols = {"composition", "defect_type", "formation_energy", "metadata"}
-        if not required_cols.issubset(df.columns):
-            missing = required_cols - set(df.columns)
-            log.error(f"Sample CSV missing required columns: {missing}")
-            sys.exit(1)
+    if not records:
+        # FR‑007: abort with the exact required message when no records are returned.
+        sys.exit("No data found for specified filters.")
 
-    else:
-        # -----------------------------------------------------------------
-        # Normal path – fetch from the Materials Project API.
-        # -----------------------------------------------------------------
-        records = _fetch_defect_data(api_key)
+    log.info(f"Fetched {len(records)} perovskite defect records (post‑filter).")
+    df = _records_to_dataframe(records)
 
-        if not records:
-            # FR‑007: abort with the exact required message when no records are returned.
-            sys.exit("No data found for specified filters.")
+    # -----------------------------------------------------------------
+    # Verify we have enough data for downstream steps (≥ 500 rows).
+    # This is not a contract requirement but enforces the success
+    # criterion described in the specification.
+    # -----------------------------------------------------------------
+    if len(df) < 500:
+        log.error(
+            f"Insufficient records retrieved ({len(df)} rows). "
+            "At least 500 rows are required for a robust analysis."
+        )
+        sys.exit(1)
 
-        log.info(f"Fetched {len(records)} perovskite defect records (post‑filter).")
-        df = _records_to_dataframe(records)
-
-    # -------------------------------------------------------------
-    # At this point ``df`` is a DataFrame with the expected schema.
     # -------------------------------------------------------------
     # Validate against the contract schema
+    # -------------------------------------------------------------
     schema_path = paths.root / "contracts" / "raw_dataset.schema.yaml"
     _validate_dataframe(df, schema_path)
 

@@ -1,8 +1,5 @@
-# Existing dependencies are provided by the base environment.
-# Adding any new third‑party packages required for this task.
-# statsmodels is already available in the base environment, but we
-# explicitly pin it for reproducibility.
-statsmodels>=0.14.0
-mp-api>=0.41.0
-pymatgen>=2024.5.1
-# NOTE: No additional packages beyond the base environment are required.
+# Project dependencies
+# Core scientific libraries are provided by the execution environment.
+# Additional third‑party packages required by the data acquisition step.
+mp-api
+pymatgen

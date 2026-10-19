@@ -1,12 +1,10 @@
 T001:
-  reason: "`quickstart.md` and `src/tests/test_quickstart.py` exist and contain the\
-    \ required command and success-message assertion, but there is no evidence that\
-    \ `src/pipeline/run` actually exists or executes \u2014 no pipeline module artifact,\
-    \ no run log, and no CI output showing \"Pipeline completed successfully\" or\
-    \ a passing test. The verification criteria (command executes on a fresh runner,\
-    \ prints the success message, test passes) are unmet; additionally, the quickstart's\
-    \ setup command `python -m venv.venv` is malformed (missing space), and the underlying\
-    \ data files are 3-row samples, not the \u2265500-row dat"
+  reason: "The `quickstart.md` file and the CI test `src/tests/test_quickstart.py`\
+    \ are present, but there is no evidence that the pipeline command actually runs\
+    \ on a fresh runner and prints \u201CPipeline completed successfully\u201D (no\
+    \ CI logs or test execution results, and the `src.pipeline.run` module itself\
+    \ is not shown). The implementer must provide proof that the command executes\
+    \ successfully and that the CI test passes."
   task: 5d96aab2c4e0be5c3086b4cb91a2ca052b5d8dfbad5c35b151b278eb378f4f89
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py
@@ -33,6 +31,11 @@ T005:
     \ at the top level with `additionalProperties: false`."
   task: 45cd2b9e9db8ae20856cfcc173419a608e1d98fc9bbecd754dfee572d9ac02db
 T006:
+  reason: "The `src/models/split.py` script is present and implements a deterministic\
+    \ GroupShuffleSplit, but the required output artifacts `data/processed/train.csv`\
+    \ and `data/processed/test.csv` are missing, and there is no evidence of the logging\
+    \ output confirming the split size or zero group overlap. The task\u2019s core\
+    \ deliverable\u2014producing the train and test CSV files\u2014is not satisfied."
   task: 54bb881df00d30784c26e5c7ef8bbd74902a80e1174b6a96c65ac749d703b2a5
 T007:
   reason: 'Requested task execution failed; rerun successfully: src/models/evaluate.py
