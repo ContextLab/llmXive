@@ -15,16 +15,18 @@ properties:
   p_value:
     type: number
     description: "Raw p-value from the test."
+    minimum: 0
+    maximum: 1
   p_value_corrected:
     type: number
-    description: "P-value after Holm-Bonferroni correction."
+    description: "P-value after Holm‑Bonferroni correction."
+    minimum: 0
+    maximum: 1
   effect_size_type:
     type: string
     enum:
       - Odds_Ratio
       - Standardized_Beta
-      - Marginal_R2
-      - Conditional_R2
     description: "Type of effect size."
   effect_size_value:
     type: number
@@ -36,10 +38,13 @@ properties:
         type: number
       upper:
         type: number
-    description: "95% confidence interval via cluster bootstrap."
+    required:
+      - lower
+      - upper
+    description: "95 % confidence interval via cluster bootstrap."
   sample_size:
     type: integer
-    description: "Number of participants (clusters)."
+    description: "Number of participants (clusters) used in the analysis."
 required:
   - comparison_pair
   - test_type
@@ -49,3 +54,4 @@ required:
   - effect_size_value
   - confidence_interval_95
   - sample_size
+additionalProperties: false

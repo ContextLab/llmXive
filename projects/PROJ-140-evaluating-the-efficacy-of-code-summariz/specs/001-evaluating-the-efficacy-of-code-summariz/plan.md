@@ -1,81 +1,80 @@
 # Implementation Plan: Evaluating the Efficacy of Code Summarization Techniques for Bug Localization
 
-**Branch**: `001-evaluating-code-summarization-bug-localization` | **Date**: 2025-01-15 | **Spec**: `spec.md`
-**Input**: Feature specification from `spec.md`
+**Branch**: `001-evaluating-code-summarization-bug-localization` | **Date**: 2026-10-19 | **Spec**: `spec.md`  
+**Input**: Feature specification from `specs/001-evaluating-code-summarization-bug-localization/spec.md`
 
 ## Summary
-This project implements a human-subject study and statistical analysis pipeline to evaluate whether code summaries (LLM-generated vs. rule-based) improve bug localization accuracy and speed compared to a baseline. The system downloads the Defects4J dataset, generates summary variants (with fallback logic), simulates/participates in a data collection loop, and executes a rigorous statistical analysis (GLMM for accuracy, LME for speed) with bootstrapped confidence intervals and multiple-comparison correction. The entire analysis pipeline is designed to run on CPU-only GitHub Actions free-tier runners within 6 hours.
+We will build a reproducible research pipeline that (1) obtains a **verified open Defects4J v2.0** dataset, (2) creates three summary conditions (baseline, rule‑based via srcML, LLM‑generated via CodeLlama‑7B with 8‑bit quantization on a GPU escape hatch), (3) logs simulated participant interactions for CI verification and real interactions for the actual study, and (4) runs a statistically rigorous analysis (GLMM for accuracy, LME for speed) with **Holm‑Bonferroni** correction (α = 0.05) and cluster bootstrap confidence intervals. All scripts are deterministic, seeded (`42`), and produce files that can be validated against JSON‑Schema contracts.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: pandas, scikit-learn, statsmodels, requests, numpy, datasets (HuggingFace), srcml (via subprocess), scipy, linearmodels  
-**Storage**: Local CSV files (interaction logs), Parquet (Defects4J), JSON (config)  
-**Testing**: pytest (unit), pytest-cov (coverage), custom CI workflows for reproducibility  
-**Target Platform**: Linux (GitHub Actions free-tier runner), CPU-only  
-**Project Type**: Research pipeline / CLI tool  
-**Performance Goals**: Analysis pipeline completes in ≤6h; Timestamp precision ≤100ms; LLM inference timeout ≤30s (with fallback)  
-**Constraints**: No GPU in CI; ≤7GB RAM; ≤14GB disk; Anonymized data only in VCS; DefectsJ v2.0 pinned  
-**Scale/Scope**: A stratified sample of buggy methods; participants (simulated for CI); A substantial number of task observations  
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas`, `numpy`, `statsmodels`, `linearmodels`, `datasets`, `srcml` (via subprocess), `torch` (8‑bit quantized CodeLlama), `scipy`, `pyyaml`  
+- **Storage**: CSV/Parquet files under `data/`  
+- **Testing**: `pytest` (unit, integration, contract validation)  
+- **Target Platform**: Linux GitHub Actions free‑tier runner (CPU‑only) for CI; optional GPU escape hatch on Kaggle for real LLM inference  
+- **Project Type**: Research pipeline / CLI tool  
+- **Constraints**: ≤ 6 h runtime, ≤ 7 GB RAM, ≤ 14 GB disk, no GPU in CI, all random seeds pinned, Defects4J version pinned (`data/defects4j_version.txt`)  
 
 ## Constitution Check
+| Principle | Check |
+|-----------|-------|
+| I. Reproducibility | All seeds (`42`) are hard‑coded; `requirements.txt` pins exact versions; dataset is loaded from a **verified HuggingFace URL**; scripts are pure functions with deterministic output. |
+| II. Verified Accuracy | Citations in `research.md` point only to the three verified Defects4J URLs provided. |
+| III. Data Hygiene | Raw downloads are checksum‑verified; derived files are written to new filenames; PII removal is enforced by `code/utils/pii.py`. |
+| IV. Single Source of Truth | Every figure/table in the eventual manuscript will be generated from `data/analysis_results/*.json` which trace back to a single row in the interaction log. |
+| V. Versioning Discipline | Content hashes of all artifacts are recorded in `state/projects/PROJ-140-.../artifact_hashes`. |
+| VI. Human‑Subject Data Protection | Interaction logs are anonymized (SHA‑256 hashed IDs) before committing; original consent files live in `.gitignore`‑ed `data/consent/`. |
+| VII. Benchmark Dataset Integrity | Defects4J version (`2.0`) is recorded in `data/defects4j_version.txt`; summaries are stored separately, leaving original source unchanged. |
 
-*Gates determined based on constitution file*
-
-- **I. Reproducibility**: All random seeds pinned in `code/`; Defects4J version pinned in `data/defects4j_version.txt`; `requirements.txt` ensures isolated environment.
-- **II. Verified Accuracy**: The Reference-Validator Agent runs on every artifact write that introduces or modifies citations (triggered by the `Reference-Validator` CI job). It verifies that all citations in `research.md` match the verified HuggingFace URLs provided in the prompt. If any citation is unreachable or mismatched, the build fails.
-- **III. Data Hygiene**: Raw Defects4J data checksummed; derived summaries written to new files; PII removed from interaction logs before commit.
-- **IV. Single Source of Truth**: All statistics in `paper/` trace to `data/analysis_results.csv`; no hand-typed numbers.
-- **V. Versioning Discipline**: The Advancement-Evaluator Agent updates the `state/projects/PROJ-140-.../updated_at` timestamp and content hashes in the state file whenever any artifact under `code/`, `data/`, or `specs/` changes. This ensures the versioning discipline is enforced automatically.
-- **VI. Human‑Subject Data Protection**: `data/interaction_logs/` contains only anonymized IDs; `data/consent/` excluded from VCS via `.gitignore`.
-- **VII. Benchmark Dataset Integrity**: Defects4J v2.0 pinned; summaries saved as separate plain-text/CSV; original source unchanged.
+All principles are satisfied; no violations.
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-evaluating-code-summarization-bug-localization/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
     ├── dataset.schema.yaml
     ├── interaction.schema.yaml
-    ├── interaction_log.schema.yaml
-    ├── analysis.schema.yaml
-    └── analysis_result.schema.yaml
-```
+    └── analysis.schema.yaml
 
-### Source Code (repository root)
-
-```text
 code/
 ├── __init__.py
-├── config.py            # Load settings, seeds, paths
-├── download.py          # Defects4J fetcher
-├── summarize.py         # LLM (with fallback) and rule-based summary generators
-├── simulate_study.py    # Simulates participant interactions for CI testing
-├── analysis.py          # GLMM, LME, bootstrapping, correction
+├── main.py                # CLI entry point
+├── config.py
+├── data_prep/
+│   ├── download_defects4j.py      # T-002 (re‑implemented)
+│   └── generate_summaries.py      # T-003a (re‑implemented)
+├── simulation/
+│   └── simulate_study.py
+├── analysis/
+│   └── run_statistics.py
 ├── utils/
-│   ├── pii.py           # Anonymization logic
-│   └── timing.py        # Latency calibration
-└── main.py              # Entry point for full pipeline
+│   ├── pii.py
+│   └── timing.py
+└── llm_gpu/
+    └── run_llm_gpu.sh          # Offline GPU escape hatch script
 
 data/
-├── raw/                 # Downloaded Defects4J (parquet)
-├── processed/           # Extracted methods, summaries
-├── interaction_logs/    # Anonymized CSV logs
-├── consent/             # .gitignored
+├── raw/
+│   └── defects4j.parquet
+├── processed/
+│   ├── methods.csv
+│   ├── summaries_rule.csv
+│   └── summaries_llm.csv   # populated only by GPU escape hatch
+├── interaction_logs/
+│   ├── simulated_logs.csv
+│   └── anonymized_logs.csv
+├── analysis_results/
+│   └── results.json
 └── defects4j_version.txt
 
 tests/
 ├── unit/
 │   ├── test_download.py
-│   ├── test_summarize.py
+│   ├── test_generate_summaries.py
 │   └── test_analysis.py
 ├── integration/
 │   └── test_pipeline.py
@@ -84,96 +83,36 @@ tests/
 
 .github/
 └── workflows/
-    ├── ci.yml           # Runs tests and analysis
-    ├── test_reproducibility.yml # Verifies CI run matches local run
-    └── validate_citations.yml   # Runs Reference-Validator Agent
+    ├── ci.yml
+    ├── test_reproducibility.yml
+    └── validate_citations.yml
 ```
 
-**Structure Decision**: Single-project structure (`code/`) chosen to simplify the research pipeline. All scripts are CLI-driven and modular. Tests are separated by type (unit, integration, contract). CI workflows explicitly handle the reproducibility check and citation validation.
-
 ## Complexity Tracking
+| Violation | Why Needed | Simpler Alternative Rejected |
+|-----------|------------|------------------------------|
+| GPU Escape Hatch for LLM | CodeLlama‑7B cannot finish within 30 s on CPU; attempting a CPU‑only approximation would be fabrication. | Running a tiny toy model would not answer the research question. |
+| Dual Data Path (sim vs. real) | CI cannot collect human data nor run GPU inference; we need a deterministic simulation for CI while preserving a real‑mode path for the actual study. | Using only the real path would break CI; using only simulation would make the study impossible. |
+| Cluster Bootstrap (participants) | Required to obtain CI for effect sizes with repeated measures; simple normal‑approx CI would be invalid with N = 12. | Parametric CIs ignore within‑subject correlation. |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| GPU Escape Hatch for LLM | LLM inference (CodeLlama-7B) cannot run on CPU within 30s timeout; requires 8-bit quantization on GPU. | CPU-only LLM inference is too slow (>30s) and violates the fallback constraint; simulation is insufficient for the "real" study, but CI uses simulation. |
-| Dual Data Path (Real vs. Sim) | CI must run without human participants; real study needs real data. | A single path would either fail CI (no humans) or fail the study (no real data). The pipeline dynamically switches based on `--mode=sim` or `--mode=real`. This is mandated by US-1 and FR-003. |
-| Statistical Rigor (Bootstrapping) | Required for effect size CIs with small N; standard asymptotic CIs are unreliable. | Simpler CIs (normal approximation) are invalid for small sample sizes and non-normal distributions of time-to-decision. |
+## Implementation Tasks (mapped to FR/SC)
 
-## Implementation Tasks
+| Task ID | Description | FR(s) addressed | SC(s) addressed |
+|---------|-------------|----------------|-----------------|
+| **T-001** | Create `requirements.txt` with exact version pins. | — | I, II |
+| **T-002** | `code/data_prep/download_defects4j.py` – load Defects4J via `datasets.load_dataset(..., streaming=True)`, verify SHA‑256 checksums, write to `data/raw/defects4j.parquet`, write version to `data/defects4j_version.txt`. | FR‑001 | I, III, VII |
+| **T-003** | `code/data_prep/generate_summaries.py` – (a) extract methods → `data/processed/methods.csv`; (b) rule‑based summaries via srcML → `data/processed/summaries_rule.csv`; (c) **GPU‑only** stub that raises informative error if `--mode=real` without GPU. | FR‑002, FR‑003 | I, III |
+| **T-004** | `code/utils/timing.py` – perform loopback latency test, assert ≤ 100 ms, log result. | FR‑003 | I |
+| **T-005** | `code/simulation/simulate_study.py` – generate Latin‑square design for 12 participants × 10 tasks/condition, produce `data/interaction_logs/simulated_logs.csv`. | FR‑003 | I |
+| **T-006** | `code/utils/pii.py` – hash participant IDs, strip any PII, write `data/interaction_logs/anonymized_logs.csv`. | FR‑003, VI | III, VI |
+| **T-007** | `code/analysis/run_statistics.py` – (a) GLMM for accuracy (logit link, random intercept); (b) LME for speed (log‑transformed time, random intercept); (c) compute Odds Ratio & standardized beta; (d) cluster bootstrap (N = 12, seed = 42) for 95 % CI; (e) Holm‑Bonferroni correction (α = 0.05). | FR‑004, FR‑005, FR‑006 | III, IV, V |
+| **T-008** | `code/main.py` – orchestrates: download → summaries → latency test → (sim or real) interaction log → analysis → writes `data/analysis_results/results.json`. | FR‑001‑FR‑007 | I |
+| **T-009** | `scripts/run_llm_gpu.sh` – **offline manual** step: runs CodeLlama‑7B 8‑bit on Kaggle GPU, writes `data/processed/summaries_llm.csv`. | FR‑002 (real mode) | VII |
+| **T-010** | CI workflow `ci.yml` – executes `python -m code.main --mode sim`, runs unit & contract tests, enforces ≤ 6 h runtime via timeout. | FR‑007 | I, V |
+| **T-011** | Reproducibility workflow `test_reproducibility.yml` – runs full pipeline on fresh runner, hashes `results.json`, compares to stored reference hash (tolerance = 1e‑6). | FR‑007 | I |
+| **T-012** | Citation validation workflow `validate_citations.yml` – runs Reference‑Validator on all markdown files. | — | II |
+| **T-013** | Documentation: update `README.md` with OSF publishing instructions, include license, usage notes. | FR‑007 | I, VI |
 
-### Phase 1: Data Acquisition & Preparation
+All functional requirements (FR‑001 – FR‑007) and success criteria (SC‑001 – SC‑005) are covered by at least one task.  
 
-- [ ] **T-001**: Download Defects4J v2.0 dataset from verified HuggingFace source.
-- [ ] **T-002**: Extract stratified sample of buggy methods across Chart, Time, Math projects.
-- [ ] **T-003**: Generate rule-based summaries using srcML.
-- [ ] **T-010**: Implement local loopback latency test (FR-003) to verify ≤100ms timestamp precision.
-- [ ] **T-014**: Implement LLM summary generation with fallback logic (FR-002). Logs errors and falls back to rule-based if timeout/empty.
-
-### Phase 2: Study Execution (Simulation for CI)
-
-- [ ] **T-020**: Generate Latin-square design for a cohort of participants × 30 tasks.
-- [ ] **T-021**: Simulate participant interactions (clicks, timestamps) with noise.
-- [ ] **T-022**: Anonymize participant IDs and log to `data/interaction_logs/anonymized_logs.csv`.
-
-### Phase 3: Statistical Analysis
-
-- [ ] **T-025**: Implement Holm-Bonferroni correction for primary tests (FR-006).
-- [ ] **T-026**: Implement cluster bootstrap (resampling participants) for CIs with resamples and fixed seed (FR-005).
-- [ ] **T-027**: Create `.github/workflows/test_reproducibility.yml` to verify CI results match local runs within tolerance (SC-004).
-- [ ] **T-031b**: Implement `code/utils/verify_pii_removal.py` to scan `data/interaction_logs/` for PII and verify `data/consent/` is excluded from VCS.
-- [ ] **T-035**: Implement compute feasibility verification (runtime, RAM, disk) to ensure ≤6h, ≤7GB RAM (SC-005).
-- [ ] **T-036**: Implement reproducibility gate workflow to compare local vs. CI results (SC-004).
-
-### Phase 4: Offline GPU Execution (Manual)
-
-- [ ] **T-014-real**: **OFFLINE MANUAL STEP**. Execute `scripts/run_llm_gpu.sh` on a machine with CUDA (Kaggle/Local GPU).
-  - **Deliverable**: `data/summaries/llm_summaries_real.csv`.
-  - **Verification**: Script checks file exists and has N rows.
-  - **Note**: This task is NOT [P] (parallel-safe) as it is a manual offline step. It is excluded from the automated CI flow.
-  - **Dependency**: T-015-llm depends on this file for real mode, or falls back to T-014 sim data for CI.
-
-### Phase 5: Integration & Reporting
-
-- [ ] **T-040**: Generate final analysis report (JSON/CSV).
-- [ ] **T-041**: Prepare reproducibility package for OSF.
-
-## Detailed Task Descriptions (Selected)
-
-### T-014-real: GPU Escape Hatch Script
-**Status**: Offline Manual
-**Description**: Run LLM inference on a GPU machine using 8-bit quantization.
-**Script**: `scripts/run_llm_gpu.sh`
-**Input**: `data/processed/methods.csv`
-**Output**: `data/summaries/llm_summaries_real.csv`
-**Verification**: `python -c "import pandas as pd; df=pd.read_csv('data/summaries/llm_summaries_real.csv'); assert len(df) == 60"`
-**Note**: This task is manually triggered and not part of the automated CI dependency graph.
-
-### T-015-llm: Load Summaries
-**Status**: Automated
-**Description**: Load LLM summaries for analysis.
-**Logic**:
-- If `mode=real`: Check if `data/summaries/llm_summaries_real.csv` exists. If yes, load it. If no, raise error: "Real LLM summaries not found. Run T-014-real manually."
-- If `mode=sim`: Load `data/summaries/llm_summaries_sim.csv` (generated by T-014).
-**Dependency**: T-014 (sim) or T-014-real (real).
-
-### T-027: Reproducibility Workflow
-**Status**: Automated
-**Description**: Create `.github/workflows/test_reproducibility.yml`.
-**Content**: Runs the analysis script in a fresh GitHub Actions environment, compares output hash with a known-good reference hash stored in `data/reproducibility_ref.json`. Fails if mismatch > tolerance.
-
-### T-031b: PII Verification
-**Status**: Automated
-**Description**: Run `code/utils/verify_pii_removal.py`.
-**Logic**:
-1. Scan `data/interaction_logs/anonymized_logs.csv` for PII patterns (email, name, IP).
-2. Verify `data/consent/` is listed in `.gitignore` and not tracked by git.
-3. Fail if PII found or `data/consent/` is tracked.
-
-## Risk Mitigation
-
-- **Risk**: LLM inference fails frequently.
-  - **Mitigation**: Fallback to rule-based summaries (T-014). Log fallback count. Sensitivity analysis excludes fallback tasks.
-- **Risk**: Small sample size (N=12).
-  - **Mitigation**: Power analysis acknowledges limitation. Report effect sizes with wide CIs. Use cluster bootstrap.
-- **Risk**: Compute limits on CI.
-  - **Mitigation**: Streaming data load. Simulation for CI. Real LLM inference offloaded to GPU (T-014-real).
+---

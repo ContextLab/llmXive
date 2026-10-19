@@ -19,12 +19,15 @@ properties:
   timestamp_ms:
     type: integer
     description: "Timestamp of the click in milliseconds."
+    minimum: 0
   selected_line:
     type: integer
     description: "Line number selected by the participant."
+    minimum: 1
   ground_truth_line:
     type: integer
     description: "Ground truth buggy line number."
+    minimum: 1
 required:
   - participant_id
   - task_id

@@ -1,5 +1,5 @@
 status: none
-intent: download Defects4J v2.0 benchmark as pip installable python package dataset
+intent: Defects4J dataset pip install python package dataset
 required_fields:
 - participant_id
 - task_id
@@ -9,6 +9,6 @@ required_fields:
 - ground_truth_buggy_line
 - project_name
 - buggy_method_id
-cache_key: 5e75510526cdce55da65a573c24313723927388837fa0bda7edd489547f7bccf
-searched_at: '2026-10-19T22:15:29.153065+00:00'
+cache_key: 05bf21537d56b926cbc790a807c73feaa51eda1c85d6e9f4ed582a6c46d83861
+searched_at: '2026-10-19T22:17:02.735870+00:00'
 retry_count: 1
