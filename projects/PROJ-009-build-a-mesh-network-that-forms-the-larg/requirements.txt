@@ -1,16 +1,2 @@
-# Core scientific stack (already provided by the platform)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional third‑party dependencies required by the project
-pydantic>=2.0
+paramiko>=3.0.0
+# other dependencies are provided by the platform (numpy, pandas, etc.)

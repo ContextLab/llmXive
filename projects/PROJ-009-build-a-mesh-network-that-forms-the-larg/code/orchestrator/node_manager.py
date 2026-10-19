@@ -15,10 +15,13 @@ The implementation follows the specification for task T002:
 - Remote ``tcpdump`` packet counting and ``mpstat`` CPU parsing with strict regexes
 - High‑resolution wall‑clock timing
 - CLI entry point supporting the ``--verify`` flag used by the quickstart script
+- Metadata collection per node, written to ``data/raw/physical_node_<ip>.json`` and
+  validated against ``contracts/physical-node.schema.yaml``.
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 import socket
@@ -29,12 +32,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional, Callable, Any
 
-# Paramiko imports – ``SocketTimeout`` does not exist; use ``socket.timeout`` instead.
 from paramiko import SSHClient, AutoAddPolicy, SSHException
 from paramiko.ssh_exception import AuthenticationException
 
 from orchestrator.logger import get_logger
 from orchestrator.config import get_config
+from orchestrator.contract_validator import validate_schema
+
+from llmxive_toolkit import paths
 
 # ----------------------------------------------------------------------
 # Custom Exceptions
@@ -167,10 +172,8 @@ class NodeManager:
         client = self._get_ssh_client(ip)
         try:
             stdin, stdout, stderr = client.exec_command(command, timeout=timeout)
-            # Wait for command completion; Paramiko's channel has a recv_exit_status method.
             exit_status = stdout.channel.recv_exit_status()
             if exit_status != 0:
-                # Non‑zero status is considered an error for instrumentation commands.
                 err = stderr.read().decode().strip()
                 self.logger.warning(f"Command '{command}' on {ip} returned {exit_status}: {err}")
             return stdout.read().decode()
@@ -246,7 +249,6 @@ class NodeManager:
                 self.logger.error(f"Node {ip}: {err}")
                 failed_nodes.append(ip)
             finally:
-                # Ensure the SSH client is closed for this iteration so the test can assert it.
                 if client:
                     try:
                         client.close()
@@ -368,7 +370,6 @@ class NodeManager:
         whether to install or abort.
         """
         for tool in tools:
-            # ``which`` returns the path if found, empty otherwise.
             cmd = f"which {tool}"
             try:
                 output = self._exec_remote(ip, cmd, timeout=self.ssh_timeout)
@@ -393,15 +394,12 @@ class NodeManager:
             # Prefer ``lscpu`` for structured output; fallback to /proc/cpuinfo.
             try:
                 output = self._exec_remote(ip, "lscpu -p=Model,CPU_MHz", timeout=self.ssh_timeout)
-                # lscpu -p produces lines like: "Model,CPU_MHz\n1234,2400.000"
                 lines = [ln for ln in output.splitlines() if not ln.startswith("#")]
                 if lines:
-                    # Take first non‑header line.
                     parts = lines[0].split(",")
                     result["cpu_model"] = parts[0]
                     result["cpu_speed_mhz"] = float(parts[1])
             except Exception:
-                # Fallback to parsing /proc/cpuinfo.
                 cpuinfo = self._exec_remote(ip, "cat /proc/cpuinfo", timeout=self.ssh_timeout)
                 model_match = re.search(r"model name\s*:\s*(.+)", cpuinfo)
                 speed_match = re.search(r"cpu MHz\s*:\s*([\d.]+)", cpuinfo)
@@ -439,7 +437,6 @@ class NodeManager:
 
         # ---- SNR ----
         try:
-            # Prefer ``iwconfig`` which prints 'Signal level=-XX dBm' and 'Noise level=-YY dBm'
             iw_output = self._exec_remote(ip, "iwconfig 2>/dev/null", timeout=self.ssh_timeout)
             signal_match = re.search(r"Signal level[=:] ?-?([\d.]+) dBm", iw_output)
             noise_match = re.search(r"Noise level[=:] ?-?([\d.]+) dBm", iw_output)
@@ -448,13 +445,9 @@ class NodeManager:
                 noise = float(noise_match.group(1))
                 metrics["snr_db"] = signal - noise
             else:
-                # Fallback to /proc/net/wireless which contains a "link quality" column.
                 proc_output = self._exec_remote(ip, "cat /proc/net/wireless", timeout=self.ssh_timeout)
-                # Example line: "wlan0: 0000   70.  0.  -256  -256   0      0      0"
-                # The 3rd column (after interface) is link quality (0‑70). We'll map to dB roughly.
                 m = re.search(r"\s*\w+:\s*\d+\s+([\d.]+)", proc_output)
                 if m:
-                    # Scale 0‑70 to 0‑30 dB as a rough estimate.
                     quality = float(m.group(1))
                     metrics["snr_db"] = (quality / 70.0) * 30.0
                 else:
@@ -464,15 +457,10 @@ class NodeManager:
 
         # ---- Bandwidth (iperf3) ----
         try:
-            # Verify iperf3 exists first.
             self.verify_remote_tools(ip, ["iperf3"])
-            # Run a short client test against localhost (assumes iperf3 server is running locally).
-            # The command runs a 1‑second test and outputs JSON; we parse the "bits_per_second".
             iperf_cmd = "iperf3 -c 127.0.0.1 -t 1 -J"
             iperf_out = self._exec_remote(ip, iperf_cmd, timeout=self.ssh_timeout + 2)
-            import json
             data = json.loads(iperf_out)
-            # ``end`` → ``sum_sent`` → ``bits_per_second``
             bps = data.get("end", {}).get("sum_sent", {}).get("bits_per_second")
             if bps:
                 metrics["bandwidth_Mbps"] = bps / 1e6
@@ -495,12 +483,9 @@ class NodeManager:
         but do not raise.
         """
         try:
-            # Many Linux systems expose temperature under
-            # /sys/class/thermal/thermal_zone0/temp (value in millidegrees Celsius).
             temp_raw = self._exec_remote(ip, "cat /sys/class/thermal/thermal_zone0/temp",
                                          timeout=self.ssh_timeout)
             temp_c = int(temp_raw.strip()) / 1000.0
-            # Arbitrary throttling threshold – 85 °C is a common limit.
             if temp_c >= 85.0:
                 self.logger.warning(f"Thermal throttling detected on {ip}: {temp_c:.1f} °C")
                 return True
@@ -522,13 +507,10 @@ class NodeManager:
             If the output cannot be parsed.
         """
         try:
-            # ``-c`` captures a fixed number of packets; ``-nn`` avoids name resolution.
             cmd = f"tcpdump -c {count} -nn -i any"
             output = self._exec_remote(ip, cmd, timeout=self.ssh_timeout + 5)
-            # tcpdump prints one line per packet; count lines.
             packet_lines = [ln for ln in output.splitlines() if ln.strip()]
             if len(packet_lines) != count:
-                # Some environments drop packets; we still return the observed count.
                 self.logger.warning(
                     f"Expected {count} packets on {ip}, got {len(packet_lines)}"
                 )
@@ -547,10 +529,8 @@ class NodeManager:
             If parsing fails.
         """
         try:
-            # ``mpstat 1 1`` reports a single interval; the last line contains ``%idle``.
             cmd = "mpstat 1 1"
             out = self._exec_remote(ip, cmd, timeout=self.ssh_timeout + 2)
-            # Find the line with the header containing \"%idle\" and the following data line.
             lines = out.strip().splitlines()
             header_idx = None
             for i, line in enumerate(lines):
@@ -560,7 +540,6 @@ class NodeManager:
             if header_idx is None or header_idx + 1 >= len(lines):
                 raise InstrumentationError("mpstat output missing header/data lines")
             data_line = lines[header_idx + 1]
-            # Split on whitespace; the last column is %idle.
             parts = re.split(r"\s+", data_line.strip())
             idle_str = parts[-1]
             idle = float(idle_str)
@@ -581,6 +560,46 @@ class NodeManager:
         return time.perf_counter()
 
     # ------------------------------------------------------------------
+    # Metadata collection & persistence
+    # ------------------------------------------------------------------
+    def collect_and_write_metadata(self, ip: str) -> Path:
+        """
+        Gather all required metrics for a node, write them to a JSON file
+        ``data/raw/physical_node_<ip>.json`` and validate against the schema.
+
+        Returns the path to the written JSON file.
+        """
+        cpu_profile = self.get_cpu_profile(ip)
+        radio = self.get_radio_metrics(ip)
+        cpu_util = self.get_cpu_utilization(ip)
+        packet_count = self.get_packet_count(ip, count=5)  # small count for quick CI
+        thermal_throttling = self.check_thermal_throttling(ip)
+
+        metadata = {
+            "ip_address": ip,
+            "hardware_spec": f"{cpu_profile.get('cpu_model', 'unknown')} @ {cpu_profile.get('cpu_speed_mhz', 0)}MHz",
+            "baseline_bandwidth_Mbps": radio.get("bandwidth_Mbps", 0.0) or 0.0,
+            "baseline_snr_db": radio.get("snr_db", 0.0) or 0.0,
+            "current_latency": 0.0,                     # latency measurement not in this manager
+            "packet_loss_rate": 0.0,                    # placeholder – real measurement elsewhere
+            "cpu_utilization": cpu_util,
+        }
+
+        # Write JSON
+        filename = f"physical_node_{ip.replace('.', '_')}.json"
+        out_path = paths.data("raw", filename)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(metadata, indent=2))
+
+        # Validate against schema
+        if not validate_schema(metadata, "physical-node"):
+            self.logger.error(f"Metadata for node {ip} failed schema validation.")
+            raise InstrumentationError(f"Schema validation failed for node {ip}")
+
+        self.logger.info(f"Wrote node metadata to {out_path}")
+        return out_path
+
+    # ------------------------------------------------------------------
     # Factory
     # ------------------------------------------------------------------
     # (Factory function defined after the class for clarity.)
@@ -598,7 +617,6 @@ class NodeManager:
         cfg = get_config()
         ip_list: List[str] = []
 
-        # New style (used by quickstart)
         testbed = getattr(cfg, "testbed", None)
         if testbed and isinstance(testbed, dict):
             for node in testbed.get("nodes", []):
@@ -607,7 +625,6 @@ class NodeManager:
                     if ip:
                         ip_list.append(ip)
 
-        # Legacy style (used by some older tests)
         if not ip_list:
             for node in getattr(cfg, "nodes", []):
                 if isinstance(node, dict):
@@ -616,22 +633,3 @@ class NodeManager:
                         ip_list.append(ip)
 
         return ip_list
-
-# ----------------------------------------------------------------------
-# Factory function expected by the test suite
-# ----------------------------------------------------------------------
-def create_node_manager(config: Optional[Dict[str, Any]] = None) -> NodeManager:
-    """
-    Convenience factory used by the unit tests.
-
-    Parameters
-    ----------
-    config : dict, optional
-        Configuration overrides for SSH timeout, port, username, etc.
-
-    Returns
-    -------
-    NodeManager
-        A freshly‑instantiated manager.
-    """
-    return NodeManager(config)

@@ -4,62 +4,30 @@
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
+- run-book command: `python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100`
+  - script usage: `orchestrator run [-h] --config CONFIG --granularity`
+  - argparse error: `orchestrator run: error: the following arguments are required: --nodes, --latency`
 - run-book command: `python -m pytest tests/integration/ -v --mock-testbed`
   - argparse error: `__main__.py: error: unrecognized arguments: --mock-testbed`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis/theoretical_bound.py --config config.yaml --input data/processed/regression_model.json; 5 command(s) failed: python code/orchestrator/scheduler.py --config config.yaml --granularity fine --nodes 15 --latency 100 (rc=1); python code/orchestrator/scheduler.py --config config.yaml --sweep (rc=1); python -m pytest tests/unit/ -v (rc=2); 2 declared deliverable(s) absent: data/raw/dropout_events.json; data/raw/validation_status.json
+**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis/theoretical_bound.py  --input data/processed/regression_model.json  --config config.yaml; 4 command(s) failed: python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 (rc=2); python -m pytest tests/unit/ -v (rc=2); python -m pytest tests/contract/ -v (rc=2); 2 declared deliverable(s) absent: data/raw/dropout_events.json; data/raw/validation_status.json
 
 ## Failing / missing run-book commands
 
-- python code/orchestrator/scheduler.py --config config.yaml --granularity fine --nodes 15 --latency 100 -> rc=1
-ython(data, self_instance=self)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pydantic_core._pydantic_core.ValidationError: 5 validation errors for PhysicalNode
-node_id
-  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.14/v/missing
-hostname
-  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.14/v/missing
-username
-  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.14/v/missing
-hardware_spec
-  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.14/v/missing
-status
-  Input should be 'idle', 'busy', 'offline' or 'error' [type=enum, input_value='active', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.14/v/enum
+- python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 -> rc=2
 
-- python code/orchestrator/scheduler.py --config config.yaml --sweep -> rc=1
-ython(data, self_instance=self)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pydantic_core._pydantic_core.ValidationError: 5 validation errors for PhysicalNode
-node_id
-  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.14/v/missing
-hostname
-  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.14/v/missing
-username
-  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.14/v/missing
-hardware_spec
-  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.14/v/missing
-status
-  Input should be 'idle', 'busy', 'offline' or 'error' [type=enum, input_value='active', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.14/v/enum
+usage: orchestrator run [-h] --config CONFIG --granularity
+                        {fine,medium,coarse} --nodes NODES --latency LATENCY
+orchestrator run: error: the following arguments are required: --nodes, --latency
 
-- python code/analysis/theoretical_bound.py --config config.yaml --input data/processed/regression_model.json -> rc=2
+- python code/analysis/theoretical_bound.py  --input data/processed/regression_model.json  --config config.yaml -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/analysis/theoretical_bound.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/unit/ -v -> rc=2
-)
-tests/unit/test_sweep_runner.py:13: in <module>
+in <module>
     from orchestrator.sweep_runner import SweepRunner, SweepConfig, generate_default_configs
 code/orchestrator/sweep_runner.py:25: in <module>
     from orchestrator.scheduler import Scheduler, create_scheduler
@@ -68,14 +36,15 @@ E   ImportError: cannot import name 'create_scheduler' from 'orchestrator.schedu
 ERROR tests/unit/test_data_aggregator.py
 ERROR tests/unit/test_logger.py
 ERROR tests/unit/test_network_impairments.py
+ERROR tests/unit/test_node_manager.py
 ERROR tests/unit/test_remote_tool_checker.py
 ERROR tests/unit/test_remote_tools_manager.py - AttributeError: module 'os' has no attribute 'dirname'
 ERROR tests/unit/test_remote_wall_clock_timer.py - NameError: name 'pytest' is not defined
 ERROR tests/unit/test_scheduler_execution.py
 ERROR tests/unit/test_scheduler_straggler.py
 ERROR tests/unit/test_sweep_runner.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 0.97s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 10 errors in 1.13s ==============================
 
 
 - python -m pytest tests/contract/ -v -> rc=2
@@ -99,7 +68,7 @@ E   ImportError: cannot import name 'OrchestratorConfig' from 'orchestrator.conf
 =========================== short test summary info ============================
 ERROR tests/contract/test_execution_run.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.24s ===============================
+=============================== 1 error in 0.25s ===============================
 
 
 - python -m pytest tests/integration/ -v --mock-testbed -> rc=4
@@ -122,7 +91,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/raw/dropout_events.json` is declared but was NOT written. Scripts referencing it:
     - `code/orchestrator/heartbeat_monitoring.py` — NOT invoked by the run-book
-    - `code/orchestrator/scheduler.py` — IS a run-book command
+    - `code/orchestrator/scheduler.py` — NOT invoked by the run-book
+    - `code/tests/contract/test_contracts.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/dropout_events.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/validation_status.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/instrumentation_validator.py` — NOT invoked by the run-book

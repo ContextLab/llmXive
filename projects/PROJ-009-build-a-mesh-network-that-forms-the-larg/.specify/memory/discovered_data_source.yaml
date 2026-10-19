@@ -1,15 +1,19 @@
 status: none
-intent: distributed systems benchmark execution logs CPU packet count python package
-  dataset
+intent: download Edge Device Execution Log dataset from OpenML with CPU utilization
+  packet counts python package dataset
 required_fields:
 - node_id
-- task_chunk_id
+- ip_address
 - timestamp
 - wall_clock_time
-- packet_count
+- packet_count_sent
+- packet_count_received
 - cpu_utilization_percent
 - memory_usage_mb
+- task_id
+- task_chunk_id
 - heartbeat_status
-cache_key: 8776fb8eafb5927e8441344ff8fe95db4ae36bb1e2744472add49836d436a901
-searched_at: '2026-10-15T05:13:37.510048+00:00'
+- event_type
+cache_key: 089b219dd785442c2b35526da6491840d63d23d6306798765509bdd3f0b85e95
+searched_at: '2026-10-19T08:27:45.672582+00:00'
 retry_count: 1

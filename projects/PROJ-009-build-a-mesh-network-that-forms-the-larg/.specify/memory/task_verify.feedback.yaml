@@ -1,50 +1,36 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/run_tests.sh
-    exit=2'
-  task: dc37f9d721b2ecda461e709079232cf81d928d17a7aae55199c64bcb2abe4877
+  reason: "The repository contains `quickstart.md`, `code/orchestrator/config.py`,\
+    \ and a contract\u2011test file, but the contract test suite never validates any\
+    \ schemas (it is skipped because no data files are present) and the schema names\
+    \ it would use do not match the keys defined in `contract_validator.py`. Moreover,\
+    \ there is no `code/orchestrator/cli.py` (or equivalent entry point) to run `python\
+    \ -m code.orchestrator.cli --help`, so the quick\u2011start command cannot be\
+    \ exercised. These missing/non\u2011functional pieces prevent the task\u2019s\
+    \ verification criteria from being satisfied."
+  task: dc5f2a1973faddb12c7a1aff8958e42d0b355283a6fbecd5a85d7cf6c695a2a2
 T002:
-  reason: "The module exists and implements most required functions, but the required\
-    \ focused unit tests are not there: `test_node_manager.py` only covers `discover_nodes`\
-    \ and the factory \u2014 there are no tests for tool verification, CPU profiling,\
-    \ radio metrics, thermal check, tcpdump packet counting, or mpstat parsing, and\
-    \ no use of a mock node generator against recorded real `tcpdump`/`mpstat` output\
-    \ samples as the task explicitly demands; there is also no execution evidence\
-    \ that any tests pass. Additionally, `get_radio_metrics` contains a synthetic-data\
-    \ fallback (mapping `/proc/net/wireless` link quali"
-  task: 3e9778df17e71a207d3a96c08f5686b718c12a9ce0ff122ac865fe144e543e86
+  task: bef133af3e196f6832bb52ce028cc817c40e9fb5c4e91f629b8863852d3b7edd
 T003:
-  reason: "The required `data/raw/dropout_events.json` is MISSING (dropout rate is\
-    \ only written by the CLI's mock path, never by the scheduler itself, and no run\
-    \ produced the file), and there is no execution evidence that the unit tests pass\
-    \ \u2014 the verification criterion. Moreover, the tests as written would fail:\
-    \ `monitor_task` sets `assignment.end_time` but `TaskAssignment` has no `end_time`\
-    \ field (AttributeError on completion), and `test_reassign_task_logic` mocks `ping_node`\
-    \ to return False globally, so `_find_alternate_node` finds no healthy node and\
-    \ returns `{\"status\": \"failed\"}`, not `\"reassigned\"`"
-  task: bc539ec1de4a5241707497e425fc468f3f042a886d8820a6994aa4bb323d9e83
+  task: bab1106e379ad867863164936ed38ace08062cd1b9407a560b3cfc80fcbed820
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/orchestrator/cli.py
-    exit=1'
-  task: b297694c183090b4c3b46db1bb5203f15500851cec3a870dd40d16fdb3cd2536
+  task: 69182d8d4c3be01b1aee6ca7d0465bdc04aaa34c3d280db2b7bff1bb7858f157
 T005:
-  task: 7a8c8bffa028b17f3ed660a1723fcf256c81809694467d46ee4a22de06811d28
+  task: 7f2d5e6df802c9ab089e308deac1f15549c91fe2ffe6dac9baf79159a8f35639
 T006:
-  task: 1755ee35aa1c0603312060b38f2b56ecdf5e80802eabe1a28858a9d0d03b4e23
+  task: 126e8c1e0a24e0cd1e2398185a97ef8ade67d97124925646efe3a99cae0fd1e6
 T007:
-  task: b4d3e2bf2f0fc31411bf6723dde5f57ca92f9ee0ab6f0f4bff5bf9fa8cad8f6f
+  task: 33da44a0ade020257777366fcbcaf066a72e36594007ffa5e6352d46480ed65b
 T008:
-  task: a8c5449d1995f269285c5cfa542ee82a9794fc5e30c95827de3705ba480bb39a
+  task: 01b19a37943c06cc362c1a66ce9d7bcea912eb47e20e4cc28ecaf378b02223f6
 T009:
-  task: 101f532e2ccc9bc714b933c69e2d777eb370831d82f387b72b3ddbbc39a0874e
+  task: 40e245e54335727b40aba7fa60c438f944578ff26b646455ddf22ee3cc4bb7c8
 T010:
-  task: 4385fc43bcdc021ab4c6ac9fc82d1ee5a234e928b5a0adbbb363d37fda72b62f
+  task: fd869f9b6b6b0adc1595ce8081309acbf08c42958a704cb0b48542a01e74491e
 T011:
-  task: 80f717e001a837e1460f41808a93a1f296af9946cedd7c0680de434c2d9f68fc
+  task: 5977b77cdebc0b3bf97df650f84eb9c5c6308c6ed8305ec6493f0cfb5024abbb
 T012:
-  task: 807ebeceab1984cdb1cb3b4faa34ea1c5573a1bb5bb00a719daeecfeecdb64c5
+  task: 888a13db568f78a2775dfd197a31191b39442d3fc99e310b5a7fcac1c76fc636
 T013:
-  task: a63d352a0f73dbd157e4e7bb5f95591d11c0e28cf8a750e0121946ee1755efd7
+  task: 170b32b11c36196b7b0b91dc080af11ce59b81397ca1290456c508ed026eb9e8
 T014:
-  task: 11c32258ea62f9f11599ffffe6a2c8fc56435d343c941bb3876dcbc7d9c62b70
-T015:
-  task: 6918e23e2c81a2614a5afb97f8ff08aed623608ad73b2283383351520852c353
+  task: 92c34b3e2550e13692b932877e41cf368642e3d3230f7ff886308092ddbe8e43

@@ -1,26 +1,12 @@
-T003:
+T001:
   c: false
-  h: 43671e3beaec165b24c2b39d3de83847073744e8e9229fb8e6d77ab4b3a274df
-  r: "The required `data/raw/dropout_events.json` is MISSING (dropout rate is only\
-    \ written by the CLI's mock path, never by the scheduler itself, and no run produced\
-    \ the file), and there is no execution evidence that the unit tests pass \u2014\
-    \ the verification criterion. Moreover, the tests as written would fail: `monitor_task`\
-    \ sets `assignment.end_time` but `TaskAssignment` has no `end_time` field (AttributeError\
-    \ on completion), and `test_reassign_task_logic` mocks `ping_node` to return False\
-    \ globally, so `_find_alternate_node` finds no healthy node and returns `{\"status\"\
-    : \"failed\"}`, not `\"reassigned\"`"
-  sig: 752eb93bc755127f02a0aa43d07700fa3ceb9fd823ad0ecfb09d945db6aabb53
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No files or code were found under `code/tests/contract/` defining YAML schemas
-    for `ExecutionRun` or `RegressionModel`, nor any implementation using `jsonschema`/`pydantic`
-    to perform runtime validation. The required artifacts are missing, so the task
-    is not satisfied.
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `remote_tools_manager.py` file (or its contents) was provided for inspection,\
-    \ so we cannot verify that the required module exists, is non\u2011empty, or implements\
-    \ the verification and installation of CLI tools on remote nodes. The task therefore\
-    \ remains unfulfilled."
+  h: 8890a0c262739e5a156c2ce04e310fee9fadf71352309bc4aaeb06da1a2ae90f
+  r: "The repository contains `quickstart.md`, `code/orchestrator/config.py`, and\
+    \ a contract\u2011test file, but the contract test suite never validates any schemas\
+    \ (it is skipped because no data files are present) and the schema names it would\
+    \ use do not match the keys defined in `contract_validator.py`. Moreover, there\
+    \ is no `code/orchestrator/cli.py` (or equivalent entry point) to run `python\
+    \ -m code.orchestrator.cli --help`, so the quick\u2011start command cannot be\
+    \ exercised. These missing/non\u2011functional pieces prevent the task\u2019s\
+    \ verification criteria from being satisfied."
+  sig: 7fcc582dcd6d9306a70a2d95e5d9102a5c3656a3ca7865c7bdad98f11142601e
