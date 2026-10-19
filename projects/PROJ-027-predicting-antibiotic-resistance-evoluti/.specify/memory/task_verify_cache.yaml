@@ -1,15 +1,3 @@
-T102:
-  c: false
-  h: 8571689c705b15a8b789d3351a486cb4d65669a57be6aaeeb90395d9ad446c67
-  r: "The `full` stage path in `code/main.py` never calls `_write_runtime_report()`\
-    \ \u2014 it's only invoked via `run_and_report` for the individual `--stage` options\
-    \ \u2014 so a T101 end-to-end run would not produce `pipeline_runtime.json` at\
-    \ all. The existing JSON (duration 0.024 s, 16.9 MB peak) is clearly from a trivial\
-    \ single-stage invocation, not the N=1000 end-to-end run the verification requires;\
-    \ additionally, peak memory is sampled only from the orchestrator process via\
-    \ `psutil.Process().rss`, ignoring all pipeline subprocesses, so it cannot reflect\
-    \ true pipeline peak RSS."
-  sig: 940c5bdbb588d481139c6accd4147f76306f10654248686c0010acc7ae7cc41d
 T104:
   c: false
   h: 840735d72e412cf08d4dd81d3c4c351bda8ca7ae0f89bca6fd03a3070e1d1160
