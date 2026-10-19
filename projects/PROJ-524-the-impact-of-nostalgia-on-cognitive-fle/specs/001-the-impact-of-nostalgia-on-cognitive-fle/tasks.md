@@ -1,113 +1,87 @@
 # Tasks: The Impact of Nostalgia on Cognitive Flexibility in Aging Adults
 
-**Inputs**: Active `spec.md`, `plan.md`, `data-model.md`, `contracts/`, and reviewer feedback from prior verification rounds.
+**Inputs**: `spec.md`, `plan.md`, existing code and data directories, reviewer feedback, and the requirement that the study be a deterministic simulation (no real WCST‑nostalgia dataset exists).
 
-## Phase 1: Setup and first end‑to‑end analysis
+## Phase 1 – Setup and first end‑to‑end analysis (simulation‑first)
 
-- [ ] T101 [US1] **Acquire a real WCST dataset**   <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 -->
-  Implement `fetch_data()` in `code/ingestion.py`.  
-  - Probe public sources in deterministic order: (a) OpenML datasets filtered by keywords `["WCST","card‑sorting","executive function"]`; select the dataset with the **largest row count**, breaking ties by the **lowest OpenML ID**. (b) If none, attempt `datasets.load_dataset("<huggingface‑repo>", name="wcst", split="train", streaming=False)`.  
-  - Write raw CSV to `data/raw/raw_dataset.csv`.  
-  - Write `data/raw/metadata.json` containing: `dataset_source`, full fetch recipe, `simulation_mode: false`, **`has_condition_labels`** (true if the source includes a column that can be mapped to `stimulus_type`, false otherwise), and the SHA‑256 checksum of the raw file.  
-  - Record column‑mapping table in the same metadata (e.g., `{ "participant_id": "subj_id", "age": "age_years", "stimulus_type": "condition", "perseverative_errors": "perseverative_err", "categories_completed": "cat_completed", "mmse_score": "MMSE" }`).  
-  - On failure of **all** real sources, raise `RealDataFetchFailed`. No synthetic fallback.
+- [ ] **T001** [US1][FR‑004][FR‑005] **Update specification to match the methodological plan**  
+  - Edit `specs/001-nostalgia-cognitive-flexibility/spec.md`  
+    - Change **FR‑004** wording from “Cohen’s d” to **“Hedges’ g (bias‑corrected, non‑pooled variance)”**.  
+    - Change **FR‑005** borderline band to **corrected p ∈ [0.020, 0.030]** (±0.005 around the Bonferroni‑corrected α = 0.025).  
+    - Add a short rationale paragraph referencing the plan’s “kick‑back notes”.  
+  - **Verification**: `grep "Hedges' g" spec.md` and `grep "\[0\.020, 0\.030\]" spec.md` succeed; unit test `tests/unit/test_spec_updates.py` checks that the rationale paragraph is present.
 
-- [ ] T102 [US1] **Clean and validate the real dataset**  
-  Implement `clean_data()` in `code/ingestion.py`, invoked via `code/main.py`. Steps:  
-  1. Load `data/raw/raw_dataset.csv`.  
-  2. Apply column mapping from T101 metadata, **renaming the MMSE column to `mmse_score` (cast to integer)** and ensuring the condition column is named `stimulus_type` (enum `"nostalgia"` | `"control"`).  
-  3. Cast `age` to integer and filter `age >= 65`; log `ERR_MISSING_AGE_FIELD` and drop rows with missing/invalid age → `data/processed/cleaned_age_filtered.csv`.  
-  4. Drop rows missing `perseverative_errors` or `categories_completed`; log `ERR_MISSING_SCORE` → `data/processed/cleaned_score_filtered.csv`.  
-  5. Detect presence of `mmse_score`: if present and at least one non‑null value, set `has_mmse: true` in `data/processed/mmse_flag.json` and filter `mmse_score >= 24`; otherwise set `has_mmse: false` and skip this filter (log `ERR_MMSE_MISSING`).  
-  6. Write **`data/processed/final_cleaned_dataset.csv`** (MMSE‑filtered when applicable) and **`data/processed/cleaned_dataset_no_mmse.csv`** (score‑filtered only).  
-  7. Produce `data/processed/exclusion_log.json` (counts per exclusion reason) and `data/processed/validity_metrics.json` (percent retained).  
-  8. Raise `DataNotFoundError` if any output file would be empty.  
-  Verification: unit tests `test_cleaning_filters_age` and `test_cleaning_filters_mmse` must pass.
+- [ ] **T002** [US1][FR‑001][FR‑006] **Deterministic simulation data generator**  
+  - Implement `code/ingestion.py` with a `generate_simulated_wcst(seed=42, n_per_group=128)` function that creates a CSV `data/raw/simulated_dataset.csv` containing the columns required by `contracts/dataset.schema.yaml` (including optional `MMSE`, `education_years`, `gender`).  
+  - Write accompanying `data/raw/metadata.json` with keys: `"simulation_mode": true`, `"seed": 42`, `"generated_rows": 256`, and a SHA‑256 checksum of the CSV.  
+  - **Verification**: Running `python -m code.ingestion` produces the two files; a pytest `test_simulation_output` checks row count, age ≥ 65, and reproducible seed.
 
-- [ ] T106 [US1] **Stimulus integrity and citation validation**  
-  - Validate each file in `data/stimuli/` against SHA‑256 checksums recorded in `data/stimuli_checksums.json`. On mismatch raise `ERR_STIMULUS_CORRUPT`. If the directory is empty, write `{"status":"absent"}` to `data/stimuli_checksums.json` and add `WARN_STIMULI_ABSENT` to `data/raw/metadata.json`.  
-  - Run `code/reference_validator.py` on the dataset source recorded in `data/raw/metadata.json`. Write `data/citation_status.json` with fields `doi`, `verification_status` (`verified` or `skipped`).  
-  - **Do not modify** `statistical_report.json` here; downstream tasks will read `citation_status.json` to set `validity_status`.  
-  Verification: both JSON files exist with the documented schema.
+- [ ] **T003** [FR‑001][FR‑006] **Checksum recording and stimulus integrity stub**  
+  - Add utility `code/utils.py` that computes SHA‑256 for any file and writes a manifest `data/raw/checksums.json` (entries for `simulated_dataset.csv` and any placeholder stimulus files under `data/stimuli/`).  
+  - If `data/stimuli/` is empty, write `{ "status": "absent" }` and log a warning in `data/raw/metadata.json`.  
+  - **Verification**: `tests/unit/test_checksums.py` confirms the manifest contains a matching hash for the CSV.
 
-- [ ] T103 [US2] **Welch’s t‑test analysis on the real cleaned data**  
-  Implement in `code/analysis.py`:  
-  1. Load `data/processed/final_cleaned_dataset.csv`.  
-  2. If `has_condition_labels` (from T101 metadata) is **false**, write `data/processed/grouped_data.json` with `{ "status": "NO_CONDITION_LABELS" }` and **skip** hypothesis testing, logging `WARN_NO_CONDITION_LABELS`.  
-  3. Otherwise, split by `stimulus_type` into nostalgia/control groups; write group sizes and descriptive stats to `data/processed/grouped_data.json`.  
-  4. For each outcome (`perseverative_errors`, `categories_completed`):  
-     - Perform assumption checks (Shapiro‑Wilk, Levene) → `data/results/assumption_checks.json`. Log any violations as `WARN_ASSUMPTION_VIOLATION`.  
-     - If a group has `n < 10` or zero variance, log `ERR_SMALL_SAMPLE` / `ERR_ZERO_VARIANCE` and **skip** that comparison.  
-     - Run Welch’s independent‑samples t‑test (`scipy.stats.ttest_ind(..., equal_var=False)`).  
-     - Compute Cohen’s d with 95 % CI, statistical power, and Minimum Detectable Effect Size (MDES).  
-  5. Apply Bonferroni correction across the two outcomes (`statsmodels.stats.multitest.multipletests`).  
-  6. Produce **`data/results/statistical_report.json`** as a **list of objects**, each conforming to `contracts/output.schema.yaml` with required keys: `comparison_name`, `p_value`, `p_value_corrected`, `effect_size`, `effect_size_ci_lower`, `effect_size_ci_upper`, `significance_status` (`significant`/`non‑significant`/`sensitive`), `mdes`, `adjustment_status` (`adjusted`), and `validity_status` (read from `data/citation_status.json`).  
+- [ ] **T004** [US1][FR‑001][FR‑006] **Cleaning and validation of the simulated dataset**  
+  - Implement `code/cleaning.py` with `clean_dataset(input_path, output_path)` that:
+    1. Loads `data/raw/simulated_dataset.csv`.  
+    2. Filters out rows where `age` < 65 or missing (FR‑001).  
+    3. Filters out rows with missing `perseverative_errors` or `categories_completed`.  
+    4. If the `MMSE` column exists, excludes rows where `MMSE` < 24 (FR‑006) and records a flag `has_mmse: true` in `data/processed/mmse_flag.json`; otherwise sets `has_mmse: false`.  
+    5. Writes the cleaned file to `data/processed/cleaned_dataset.csv` and an exclusion summary to `data/processed/exclusion_log.json`.  
+  - **Verification**: Unit tests `test_clean_age_filter` and `test_clean_mmse_filter` pass; the exclusion log totals equal the number of dropped rows.
 
-  Verification: `python code/main.py --stage analysis` creates the JSON file; unit test `test_welch_ttest` validates against a hand‑computed example.
+## Phase 2 – Complete the study and validate its evidence
 
-- [ ] T104 [US3] **Sensitivity sweep over significance thresholds**  
-  Using the **Bonferroni‑corrected** p‑values from T103, evaluate significance at thresholds **0.01, 0.04, 0.05, 0.06, 0.10**. Flag `is_sensitive_to_threshold: true` when a corrected p‑value falls within **0.04 – 0.06** (per clarified FR‑005). Write `data/results/sensitivity_report.json` with an array of objects per outcome, each containing `threshold`, `significance_status`, and the sensitivity flag.  
+- [ ] **T005** [US2][FR‑002][FR‑003][FR‑004] **Statistical analysis pipeline**  
+  - Implement `code/analysis.py` with `run_welch_analysis(clean_path, out_path)` that:
+    1. Reads `data/processed/cleaned_dataset.csv`.  
+    2. Splits by `stimulus_type` (nostalgia vs. control).  
+    3. For each outcome (`perseverative_errors`, `categories_completed`):
+       - Performs Welch’s independent‑samples t‑test (`scipy.stats.ttest_ind(..., equal_var=False)`).  
+       - Computes **Hedges’ g** with 95 % confidence intervals (bias‑corrected).  
+    4. Applies **Bonferroni correction** across the two outcomes (α = 0.025).  
+    5. Flags “sensitive” when a corrected p‑value falls in **[0.020, 0.030]** (FR‑005).  
+    6. Writes a list of result objects to `data/results/statistical_report.json` conforming to `contracts/output.schema.yaml` and sets `"validity_status": "simulation"`.  
+  - **Verification**: Integration test `tests/integration/test_analysis.py` checks that the JSON file contains exactly two entries, each with non‑null fields and the correct `significance_status` values.
 
-- [ ] T105 [US3] **MMSE robustness re‑analysis**  
-  - Re‑run the analysis pipeline on `data/processed/cleaned_dataset_no_mmse.csv`.  
-  - If `has_mmse: false` (from `mmse_flag.json`), write `data/results/robustness_report.json` with `{ "status": "SKIPPED", "reason": "MMSE_MISSING" }`.  
-  - Otherwise, produce the same structure as `statistical_report.json` (but based on the no‑MMSE‑exclusion dataset) and write to `data/results/robustness_report.json`.  
-  - Generate `data/results/sensitivity_comparison.json` comparing primary vs robustness results (differences in `significance_status` and `effect_size`).  
-  - Also write `data/results/primary_analysis_report.json` derived from the primary `statistical_report.json` and **including** the `validity_status` read from `citation_status.json`.  
+- [ ] **T006** [US3][FR‑005] **Threshold‑sweep sensitivity analysis**  
+  - Implement `code/sensitivity.py` with `run_sensitivity(report_path, out_path)` that loads the raw p‑values from `statistical_report.json` and evaluates significance at thresholds **0.01**, **0.025**, and **0.05** (Bonferroni‑corrected).  
+  - Produce `data/results/sensitivity_report.json` – an array of objects `{ "outcome": "...", "threshold": ..., "significance_status": "significant"/"non‑significant" }`.  
+  - Also add a top‑level flag `"is_sensitive_to_threshold": true` if any outcome’s corrected p‑value lies in the borderline band.  
+  - **Verification**: Unit test `test_sensitivity_band` asserts that the flag is true for the seeded data (by construction).
 
-- [ ] T107 [US2/US3] **Runtime monitoring and integration test**  
-  - Wrap the full pipeline (`code/main.py`) in a timer; if runtime > 21 600 s, log `WARN_TIMEOUT` and append to `data/results/runtime_log.json` but continue.  
-  - Add `tests/integration/test_full_pipeline.py` that runs the entire pipeline on the real dataset and asserts existence and non‑null required fields in all contracted JSON artifacts.  
+- [ ] **T007** [FR‑007] **Runtime monitoring wrapper**  
+  - Add `code/runtime_monitor.py` exposing `monitor(func, *args, **kwargs)` which records wall‑clock time; if total runtime > 6 hours (21 600 s) it logs a warning `WARN_RUNTIME_EXCEEDED` and appends the message to `data/results/runtime_log.json` while still returning the original result.  
+  - Modify `code/main.py` to invoke the full pipeline (`ingestion → cleaning → analysis → sensitivity`) through this monitor.  
+  - **Verification**: Mocked test `tests/unit/test_runtime_monitor.py` forces a long runtime and checks that the warning appears in the JSON log.
 
-- [ ] T108 [US3] **Results tables and figures**  
-  - Generate `data/results/results_table.md` containing per‑outcome group means ± SD, t‑statistics, raw and corrected p‑values, Cohen’s d with 95 % CI, power, and MDES.  
-  - Generate `data/results/robustness_summary.md` summarizing primary vs no‑MMSE results and the threshold‑sweep, explicitly noting any limitations (e.g., missing condition labels, sample size).  
-  - All numbers must be pulled directly from the corresponding JSON files.  
+- [ ] **T008** [FR‑001–FR‑006] **Contract validation of all output artifacts**  
+  - Extend `tests/contract/validate_output.py` to iterate over `data/results/*.json` and validate each against `contracts/output.schema.yaml` using `jsonschema.validate`.  
+  - Write a summary `data/results/schema_validation_log.json` with `"passed": true` and timestamps.  
+  - **Verification**: Running `pytest -k validation` yields success; the log file is non‑empty.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] **T012** [US2][FR‑004] **A priori power analysis and documentation**  
+  - Implement `code/power_analysis.py` that computes the required sample size per group for a two‑sample Welch test given effect size d = 0.5, α = 0.05, power = 0.80 (using `statsmodels.stats.power.TTestIndPower`).  
+  - Record the calculated n per group and the rationale (including the seed and simulation assumptions) in `data/raw/power_analysis.json` and append a summary to `data/raw/metadata.json`.  
+  - **Verification**: Unit test `test_power_calculation` checks that the reported n matches the analytical result (≈128) and that the JSON file exists.
 
-- [ ] T109 [US1/US2/US3] **Methods/results quickstart and documentation**  
-  - Update `specs/001-nostalgia-cognitive-flexibility/quickstart.md` and `README.md` with exact commands (`pip install -r requirements.txt`, `python code/main.py`).  
-  - Write `paper/001_results.md` detailing methods (real data source, cleaning rules, Welch’s t‑test rationale, citation validation, stimulus integrity), linking each reported number to its JSON source, and stating any honest limitations (e.g., no nostalgia labels, small sample).  
+- [ ] **T013** [US2][FR‑002] **Covariate‑adjusted linear model**  
+  - Extend `code/analysis.py` with `run_adjusted_model(clean_path, out_path)` that fits an OLS model predicting each outcome from `stimulus_type` plus covariates `education_years` and `gender`.  
+  - Record adjusted effect size, standard error, and p‑value in a new entry of `statistical_report.json` with `"adjustment_status": "adjusted"`.  
+  - **Verification**: Integration test `tests/integration/test_adjusted_model.py` validates that the adjusted entry exists and conforms to the output schema.
 
-- [ ] T110 [US1/US2/US3] **State versioning and final re‑run**  
-  - Update `state/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle.yaml` with SHA‑256 hashes and `updated_at` timestamps for **all** artifacts under `data/`.  
-  - Re‑run the full workflow from a clean slate and confirm that `pytest` passes and all artifact hashes match the recorded values.  
-  - Document the handoff in `paper/001_results.md` (paper‑stage handoff, not duplicated here).  
+- [ ] **T014** [US1][FR‑001] **Generate and archive raw WCST trial‑by‑trial logs**  
+  - Enhance `code/ingestion.py` to also produce `data/raw/trial_logs/` containing one CSV per participant (named `<participant_id>_trials.csv`) with simulated trial‑by‑trial data (e.g., trial number, stimulus presented, response correctness).  
+  - Update `data/raw/metadata.json` with a pointer to the logs directory and compute a SHA‑256 manifest `data/raw/trial_logs_checksums.json`.  
+  - **Verification**: Unit test `test_trial_logs_presence` confirms that for every participant a corresponding trial‑log file exists and that its checksum matches the manifest.
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] **T015** [FR‑001] **Fix ingestion script failure (T101)**  
+  - Debug and correct `code/ingestion.py` so that the script runs without error, properly writes the simulated dataset and associated metadata, and returns exit code 0.  
+  - Add a regression test `tests/unit/test_ingestion_success.py` that invokes the module and asserts the existence of `data/raw/simulated_dataset.csv` and a zero exit status.  
+  - **Verification**: CI step runs the test and ensures the script completes successfully.
 
-- [ ] T111 [US1/US2/US3] **Final artifact verification**  
-  - Run the reference validator one last time on all citations and stimuli.  
-  - Ensure `data/citation_status.json` reports `verified` and that `data/stimuli_checksums.json` status is consistent.  
-  - Archive a copy of the full `state/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle.yaml` as `state/archive/<timestamp>.yaml` for provenance.  
-
-### New tasks addressing coverage concerns
-
-- [ ] T112 [US1] **Validate cleaned dataset against contract schema**  
-  - Use `jsonschema.validate` to check `data/processed/final_cleaned_dataset.csv` (converted to JSON records) against `contracts/dataset.schema.yaml`.  
-  - On validation failure, raise `DatasetSchemaValidationError` with details; on success, write `data/processed/schema_validation_log.json` indicating pass.  
-  - Verification: unit test `test_dataset_schema_validation` must succeed on the cleaned dataset.
-
-- [ ] T113 [US2] **Detect repeated‑measure records and optional mixed‑effects analysis**  
-  - Scan the cleaned dataset for multiple rows sharing the same `participant_id` with differing `stimulus_type`.  
-  - If such repeated‑measure cases exist, log `WARN_REPEATED_MEASURES` and run a mixed‑effects model (`statsmodels.formula.api.mixedlm`) with `stimulus_type` as a fixed effect and `participant_id` as a random intercept, producing `data/results/mixed_effects_report.json` (same schema fields as `statistical_report.json`).  
-  - If no repeated measures are found, log `INFO_NO_REPEATED_MEASURES` and skip the mixed‑effects step.  
-  - Verification: unit test `test_mixed_effects_path` ensures the report is created only when repeated measures are present.
-
-## Dependencies and requirement coverage
-
-- **FR‑001**: Enforced in T102 (age filter).  
-- **FR‑002**: Implemented in T103 (Welch’s t‑test on both outcomes).  
-- **FR‑003**: Bonferroni correction in T103.  
-- **FR‑004**: Cohen’s d & 95 % CI in T103.  
-- **FR‑005**: Sensitivity flag on corrected p‑values in T104 (clarified).  
-- **FR‑006**: MMSE exclusion in T102; robustness check in T105.  
-- **FR‑007**: Runtime warning in T107.  
-- **US1**: T101, T102, T106.  
-- **US2**: T103, T107.  
-- **US3**: T104, T105, T108.  
-
-# Execution order
-
-T101 → T102 → T106 → T103 → T104 → T105 → T107 → T108 → T109 → T110 → T112 → T113 → T111
+- [ ] **T011** [US1–US3] **Full re‑run from a clean workspace and provenance archiving**  
+  - Add a `make clean` target (or equivalent script) that deletes `data/raw/*`, `data/processed/*`, and `data/results/*`.  
+  - Run the complete pipeline on a fresh clone, ensuring all pytest suites pass.  
+  - Record SHA‑256 hashes of every artifact under `data/` into a new archive file `state/archive/<timestamp>.yaml`.  
+  - **Verification**: CI step `test_full_reproducibility` asserts that after the clean‑run the hashes recorded in the archive match the freshly computed hashes.
