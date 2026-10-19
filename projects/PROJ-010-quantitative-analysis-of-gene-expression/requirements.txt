@@ -1,17 +1,15 @@
-# Project dependencies
-# Core scientific stack (already provided in the execution environment):
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-#
-# Additional third‑party packages required by the pipeline:
-datasets
 scanpy
 harmonypy
 arboreto
-pyscenic
 scvelo
+pyscenic
+datasets
+pandas
+numpy
+scipy
+statsmodels
+matplotlib
 plotly
-networkx
-tqdm
-# Note: Versions are not pinned; the environment will install the latest
-# compatible releases at install time.
+pyyaml
+pytest
+requests
