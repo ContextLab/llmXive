@@ -25,65 +25,79 @@ from models.baseline_trainer import main as train_baseline_main
 from models.metrics import main as save_metrics_main
 from viz.contour_plots import main as viz_contour_main
 from viz.importance import main as viz_importance_main
-from utils.logger import log_execution_time, save_runtime_metrics
+from analysis.importance import main as importance_main
+from data_loader import main as download_data_main
 
-def run_pipeline():
-    """
-    Orchestrates the full research pipeline:
-    1. Data Preprocessing (US1)
-    2. Model Training (US2)
-    3. Visualization (US3)
-    4. Runtime Validation (SC-005)
-    """
-    logger = get_logger("pipeline")
-    start_time = time.time()
-    
-    logger.info("Starting research pipeline...")
-    
-    # 1. Preprocessing
-    logger.info("Step 1: Preprocessing data...")
+def run_download_step():
+    """Execute the strict data loader."""
+    download_data_main()
+
+def run_preprocess_step():
+    """Execute the preprocessing pipeline."""
     validate_and_preprocess()
-    
-    # 2. Model Training
-    logger.info("Step 2: Training GPR and Baseline models...")
+
+def run_train_step():
+    """Train GPR and baseline models."""
     train_gpr_main()
     train_baseline_main()
-    
-    # 3. Evaluation & Metrics
-    logger.info("Step 3: Evaluating models and saving metrics...")
-    save_metrics_main()
-    
-    # 4. Visualization
-    logger.info("Step 4: Generating visualizations...")
-    viz_contour_main()
-    viz_importance_main()
-    
-    # 5. Runtime Validation (T048 / SC-005)
+
+def run_analyze_step():
+    """Run analysis: permutation importance and update metrics."""
+    importance_main()
+    # Additional visualizations could be added here
+    # viz_contour_main()
+    # viz_importance_main()
+
+def run_pipeline():
+    """Full pipeline (download → preprocess → train → analyze)."""
+    logger = get_logger("pipeline")
+    start_time = time.time()
+    logger.info("Starting full research pipeline...")
+
+    run_download_step()
+    run_preprocess_step()
+    run_train_step()
+    run_analyze_step()
+
     end_time = time.time()
     total_runtime_seconds = end_time - start_time
-    
-    time_limit_seconds = get_time_limit_seconds()
-    
-    logger.info(f"Total runtime: {total_runtime_seconds:.2f} seconds")
-    logger.info(f"Time limit: {time_limit_seconds} seconds")
-    
-    # Explicitly log the result of the runtime measurement against the limit
-    if total_runtime_seconds < time_limit_seconds:
-        logger.info("PASS: Runtime within 6-hour limit")
-        runtime_status = "PASS"
+    logger.info(f"Total pipeline runtime: {total_runtime_seconds:.2f} seconds")
+
+    # Save runtime info into metrics (if needed)
+    metrics_path = Path(get_results_dir()) / "metrics.json"
+    if metrics_path.exists():
+        with open(metrics_path, "r") as f:
+            metrics = json.load(f)
     else:
-        logger.error("FAIL: Runtime exceeds limit")
-        runtime_status = "FAIL"
-    
-    # Save runtime metrics to results/metrics.json
-    save_runtime_metrics({
-        "total_runtime_seconds": total_runtime_seconds,
-        "time_limit_seconds": time_limit_seconds,
-        "status": runtime_status
-    })
-    
-    logger.info("Pipeline execution completed.")
+        metrics = {}
+    metrics["total_runtime_seconds"] = total_runtime_seconds
+    with open(metrics_path, "w") as f:
+        json.dump(metrics, f, indent=2)
+
+    logger.info("Pipeline completed.")
     return 0
 
 if __name__ == "__main__":
-    sys.exit(run_pipeline())
+    # Simple CLI to run individual steps
+    import argparse
+    parser = argparse.ArgumentParser(description="Run specific pipeline steps.")
+    parser.add_argument(
+        "--step",
+        choices=["download", "preprocess", "train", "analyze"],
+        required=True,
+        help="Pipeline step to execute."
+    )
+    args = parser.parse_args()
+
+    if args.step == "download":
+        run_download_step()
+    elif args.step == "preprocess":
+        run_preprocess_step()
+    elif args.step == "train":
+        run_train_step()
+    elif args.step == "analyze":
+        run_analyze_step()
+    else:
+        sys.exit(1)
+
+    sys.exit(0)

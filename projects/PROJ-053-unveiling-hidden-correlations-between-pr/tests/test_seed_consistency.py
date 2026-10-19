@@ -1,37 +1,39 @@
 """
-Test that the global random seeds are set consistently.
-
-The test imports the ``set_global_seeds`` function from the project's
-``io_utils`` module, resets the RNG state, generates a small sample of
-random numbers from both ``numpy`` and the built‑in ``random`` module,
-resets the seeds again, and verifies that the newly generated numbers
-match the previously generated ones. This demonstrates that the seed
-configuration is deterministic across runs.
+Test to verify that the global random seeds are set consistently
+across runs via ``code.utils.io_utils``.
 """
 
 import importlib
+import sys
 
 import numpy as np
 import random
 
-from code.utils.io_utils import set_global_seeds
 
-def _sample_random_values():
-    """Generate a short deterministic sequence of random values."""
-    # Generate three floats from numpy and three from the built‑in random.
-    np_vals = np.random.rand(3).tolist()
-    py_vals = [random.random() for _ in range(3)]
-    return np_vals, py_vals
+def test_seed_consistency():
+    """
+    Ensure that after importing ``code.utils.io_utils`` the first
+    random draws from ``numpy`` and ``random`` are deterministic
+    and match the expected values for seed 42.
+    """
+    # Reload the module to guarantee that the seed-setting code runs
+    module_name = "code.utils.io_utils"
+    if module_name in sys.modules:
+        del sys.modules[module_name]
+    importlib.import_module(module_name)
 
-def test_global_seed_consistency():
-    # First sampling after an explicit seed reset.
-    set_global_seeds()  # Reset to the configured seed (42)
-    np_vals_first, py_vals_first = _sample_random_values()
+    # Expected values after setting the seed to 42
+    expected_numpy = 0.3745401188473625  # np.random.rand() first value
+    expected_random = 0.6394267984578837  # random.random() first value
 
-    # Reset the seeds again to the same value.
-    set_global_seeds()
-    np_vals_second, py_vals_second = _sample_random_values()
+    # Draw a single random number from each library
+    np_val = np.random.rand()
+    rand_val = random.random()
 
-    # The two sequences must be identical.
-    assert np_vals_first == np_vals_second, "NumPy random sequence is not repeatable"
-    assert py_vals_first == py_vals_second, "Python random sequence is not repeatable"
+    # Assertions
+    assert np.isclose(np_val, expected_numpy, atol=1e-12), (
+        f"Numpy random value {np_val} does not match expected {expected_numpy}"
+    )
+    assert abs(rand_val - expected_random) < 1e-12, (
+        f"Random module value {rand_val} does not match expected {expected_random}"
+    )

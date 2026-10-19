@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import joblib
 from pathlib import Path
+from typing import Tuple
 
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
