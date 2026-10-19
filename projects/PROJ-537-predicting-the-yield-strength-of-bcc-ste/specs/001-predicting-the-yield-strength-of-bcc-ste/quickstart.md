@@ -8,7 +8,7 @@
 ## Installation
 ```bash
 # 1. Clone the repository
-git clone 
+git clone <repository-url>
 cd PROJ-537-predicting-the-yield-strength-of-bcc-ste
 
 # 2. Create a virtual environment
@@ -29,7 +29,10 @@ export RANDOM_SEED=42
 
 ## Running the Full Pipeline
 ```bash
-python code/main.py
+# This single command runs the entire research pipeline end‑to‑end,
+# producing the merged dataset, trained models, interpretability
+# analyses, and the final JSON results as well as PNG figures.
+python code/run_all.py
 ```
 
 ### What the script does
@@ -58,7 +61,5 @@ All tests should pass; any failure indicates a schema mismatch.
 | `ERR_INSUFFICIENT_DATA` | The merged dataset has < 20 rows (no yield‑strength column or too many missing DFT matches). | Verify that the MatNavi dataset actually contains a `yield_strength_MPa` column. If not, the project cannot proceed per the specification. |
 | `MP_API_KEY not set` | Environment variable missing. | Export `MP_API_KEY` before running. |
 | API rate‑limit errors | Too many rapid queries. | The script already includes exponential backoff; rerun after a short pause. |
+| Missing PNGs (`shap_summary.png`, `stability_distribution.png`) | One of the interpretability steps failed. Check the logs for the failing step and ensure all required dependencies are installed. |
 | MemoryError | Unlikely with ≤ 50 rows; if present, ensure no other heavy processes are running on the CI runner. | Reduce concurrent jobs or run locally with more memory. |
-
----
-

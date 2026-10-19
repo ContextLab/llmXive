@@ -64,7 +64,7 @@
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
   verified_at: '2026-10-15T12:49:18.862893Z'
-- artifact_hash: fec4b0d5cee5c34cb3ca070482745d945bbda12c3a7de3abc0f6b76324f5ab62
+- artifact_hash: 0bc6c43c5ad024038a1c11ebfb6806718d15b8c461f6b2c13e2826fa551819c6
   artifact_path: projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/specs/001-predicting-the-yield-strength-of-bcc-ste/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -74,19 +74,8 @@
   value: https://materialsproject.org
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-10-15T12:49:24.733899Z'
-- artifact_hash: fec4b0d5cee5c34cb3ca070482745d945bbda12c3a7de3abc0f6b76324f5ab62
-  artifact_path: projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/specs/001-predicting-the-yield-strength-of-bcc-ste/quickstart.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/PROJ-537-predicting-the-yield-strength-of-bcc-ste.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/PROJ-537-predicting-the-yield-strength-of-bcc-ste
-  verified_at: '2026-10-15T12:49:24.733899Z'
-- artifact_hash: f46cac966973af1e5c5fbc342bdfc0b638e91e377b075ef35dbaf2ee68cb6d69
+  verified_at: '2026-10-19T14:16:08.374488Z'
+- artifact_hash: 2d6f7dc70dbbf98a0ef2a6760df1c0485595f8592ad5a194cd4cce5625ae7594
   artifact_path: projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/specs/001-predicting-the-yield-strength-of-bcc-ste/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -96,4 +85,4 @@
   value: https://huggingface.co/datasets/matnavi/steel_yield_strength/resolve/main/data/steel_yield_strength.csv`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/matnavi/steel_yield_strength/resolve/main/data/steel_yield_strength.csv
-  verified_at: '2026-10-19T14:14:37.784622Z'
+  verified_at: '2026-10-19T14:16:17.116524Z'

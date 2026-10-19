@@ -10,7 +10,7 @@ Unchecked items indicate work that must be (re‑)implemented or verified to sat
 
 ## Completed implementation tasks (preserved)
 
-- [ ] T001 Establish project layout and document the runnable command in `quickstart.md`.  
+- [ ] T001 Establish project layout and document the runnable command in `quickstart.md`.   <!-- FAILED-IN-EXECUTION: code/run_all.py exit=1 -->
 - [ ] T002 Implement data‑download utilities for experimental CSV and Materials Project queries (real‑fetch only, no fall‑backs).  
 - [ ] T003 Add unit tests for the ingestion scripts verifying error handling on missing API key or bad URLs.  
 - [ ] T004 Implement feature‑engineering module (`features.py`) with one‑hot encoding, fractional composition, and DFT scaling.  

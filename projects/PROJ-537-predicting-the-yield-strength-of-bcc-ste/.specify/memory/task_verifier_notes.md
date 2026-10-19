@@ -2,5 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T048** — The pipeline runs, but `code/main.py` (and `fetch_experimental.py`) deliberately fall back to bundled CSV files when the Materials Project API key is missing or when the experimental URL is a `file://` path, and the provenance log `data/provenance/dft_queries.jsonl` shows zero API queries. This violates the task’s “FAIL LOUDLY on fetch errors — no synthetic/mock fallback is permitted” requirement, so the ingestion is not performed on real remote data as mandated.
-- **T049** — The repository contains `features.py` and `train.py`, but neither script computes the required Pearson correlation, per‑fold metrics for both DFT‑enhanced and composition‑only models, nor bootstrap confidence intervals, and they do not generate `data/results/output.json`. The expected results file is missing, so the end‑to‑end analysis is not completed.
+- **T001** — Requested task execution failed; rerun successfully: code/run_all.py exit=1

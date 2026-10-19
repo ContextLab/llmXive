@@ -1,33 +1,69 @@
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/run_all.py exit=1'
+  task: 0b8e4de2a37a85fb1b5fb57df2ade74a53a3fe1e47e98155b554fa205359e047
+T002:
+  task: fb618319becb01c62835f93a71fa7d485417cf4f760f4c837c00a5e3b495752b
+T003:
+  task: 83797ca518eb2f2f18a7b44e58596f8d3111be7b2def423cf8f51e356c5dd7af
+T004:
+  task: 3b4d502e3363f9890b8ab3b220799d00d21a594224ed9f23826f0d7d4f759ad9
+T005:
+  task: 56cba108778dcd20df251c3c90fd2bba7f0fc19130198050f3d8e34830f73071
+T006:
+  task: 562aa62884be020d9c94c619c04803b30a00df9c7c7c09191c6a7a6aeca0d457
+T007:
+  task: 3ddebb001295503026f571414e9757eaf2f815ac3d5b75fb618a330923c0daf5
+T008:
+  task: 8915eb6f73328d377d6d227c0f49ba8552a6532d3528520659c3ffe6de98611c
+T009:
+  task: 69b95c3ac4799c8f937ab4e52d12087c8086f74d1214a509e4d5106a6507a962
+T010:
+  task: 6a4d152d9c35732174971e56fff3f82b830751557f8cfbb91d00e3c0ecc523c6
+T011:
+  task: 6340eb40d8d3d6529a970b9788565ebd92c9300a23a2f2e6fa28286e4b8faab4
+T012:
+  task: c3e3f1601e8e89d51a09973f6aed9128cc6455539bb903fae7837fbe1436cdd6
+T013:
+  task: 1805d407f4f3fe9a3a07d2e773b7a96694442e6489fe36a8ee3141980fdb7e84
+T014:
+  task: 106ab4ed01e1bdd5f40f6cb22c11cdb51a2c349754cb4c7016ee70205ab91f32
+T015:
+  task: 66357936fb2c8dc1ec279def1391f667e8e8b25cbbe9286460913b9032b9c878
+T016:
+  task: a62385024e118d91d6ff5d2539284bccdfe6f9291870ca452fa1bc1342e787b0
+T017:
+  task: b077424218fdaf83508f8de72d9dcc692edec3258f5ecb432638547a342edf0a
+T018:
+  task: 475f88aedc67e2c6aadc0fcf6b41362df773873e81cc7877d60141168747b021
+T019:
+  task: 7b8966e7b65a070ad9ad5672b3aa7298ff2b46b2fb2f031c711fc13fd00b3f8a
+T020:
+  task: f5e4c8382b76b66e016346d1f2ee6b1e7c6ca87c5d18e433201901005870846a
+T021:
+  task: 458955d32718c0ba4f6d10d7bd728850f704d4573168a17e88c7081461557a84
+T022:
+  task: 0df82585246843f99393e7f12d8653d6a39cd40885381dbe2f807e27bdc7d024
+T023:
+  task: 4b171e8a6c9a399864875a7c34b0e7e29c5709453e2dcbd865442eff7fead751
 T048:
-  reason: "The pipeline runs, but `code/main.py` (and `fetch_experimental.py`) deliberately\
-    \ fall back to bundled CSV files when the Materials Project API key is missing\
-    \ or when the experimental URL is a `file://` path, and the provenance log `data/provenance/dft_queries.jsonl`\
-    \ shows zero API queries. This violates the task\u2019s \u201CFAIL LOUDLY on fetch\
-    \ errors \u2014 no synthetic/mock fallback is permitted\u201D requirement, so\
-    \ the ingestion is not performed on real remote data as mandated."
-  task: d10a86146f7f25459a30daffdc9ff7a2352eabd1b4db97e8afc71434113d6a91
+  task: 747211affc7530ecbfb97528d601157ce7fa559d67bb89e798375acc8a0e0054
 T049:
-  reason: "The repository contains `features.py` and `train.py`, but neither script\
-    \ computes the required Pearson correlation, per\u2011fold metrics for both DFT\u2011\
-    enhanced and composition\u2011only models, nor bootstrap confidence intervals,\
-    \ and they do not generate `data/results/output.json`. The expected results file\
-    \ is missing, so the end\u2011to\u2011end analysis is not completed."
-  task: 9497cc12529a7ddd90cb700b666340961d59e86ffff23396d69ad2d950e09e1c
+  task: 8e1851193a78cacfc766727a8782695a33d81dfd23d55d5fecd6978ddcca42d6
 T050:
-  task: 4ac850de176950f7f9ed520db0f7dc331eede6d08e0c98c4f773f8b41ec77ec5
+  task: 29cd0b8b9db1af0578a3fbbe6bdaceec482807396b1303712b9e1ef819cd2107
 T051:
-  task: c2077fe4293f08c62fcb0606b383aa0f6b1f65c3b97383c61693670bc6756bd3
+  task: 523cd0783032b7db2955b817ac2d28b82f79e63cd2ed36175c3efa4675dc33e0
 T052:
-  task: 505a93c9fd1b9d630e76814787c39933727463edcdcb107b1298ffde208aaf6d
+  task: c443eeb2e6a891cfa40da3b5927db865cf36d4344509ac8cc8174cbd69c0f669
 T053:
-  task: ad702910b5c222674498f51fc8f0cfb6968e02a9366512c37c458d59bb555333
+  task: e9ebd1b6dd3c464af351cd4e0e2b0060fe706fc9876cf42b087fb3bdb96d0489
 T054:
-  task: 7497faad32ff758928e2c1be7d47265421f7711db1c754a9e0a3bd395ffeb4a1
+  task: cd191240c00b33fe89a0554a5e7de56ac4b8ef96f0dbc4787e3e0b109c24740f
 T055:
-  task: c86138a5b480cef1dcdc71e048ae5046c4848492476da04f427de99f7adfb6b0
+  task: edf2f6f953cad83b57cbbbe814febae0cffd152abe070744b26ab6c1fc20c232
 T056:
-  task: 4a32a57b49bba65da5f493394f82d412bf99d5ca573c0030d485b18b78032f94
+  task: 6974b900b74ac5b24585e797d1705c5cb8aaf9f1525cd5d443bd4c27daf11380
 T058:
-  task: e9e5bfc392d9ed47013db3e0b3cd840d7ead633ece4ca9c46b97a53be308ba2a
+  task: 721d78617670c6de3f9836929f2e217476d189f1b1108a0e48a2655e8ecbbc85
 T059:
-  task: b92ace6b3050336807b83ed6376ad840b8c53389b4b47be064dc795488bee3fb
+  task: aa250ac94923e5a29f0985dad460575a19655fd3c7ed67003be1c97f04a48b00
