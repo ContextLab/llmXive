@@ -1,66 +1,19 @@
 T001:
   c: true
-  h: 7d45f84dd8f716229bb97b7f088e0b4acff5f7ca69f9209bcc86cc5d2954e532
-  r: "The collector shows that `projects/PROJ-505-exploring-the-statistical-relationship-b/`\
-    \ contains the `code/` folder with `ingestion/`, `analysis/`, and `utils/`; the\
-    \ `data/` folder with `raw/`, `processed/`, and `artifacts/`; and the `tests/`\
-    \ folder with `unit/` and `integration/`. These directory listings confirm that\
-    \ every required subdirectory exists, satisfying the task\u2019s verification\
-    \ criterion."
-  sig: 0f1982e05acf08c66b9ca3d7ac4cffb41a17cc1b67bcbc2ec3d24e193ff3b185
+  h: 2bdbf8b51e35051ba406d480399df49f6c24f26f7e1d541c84f6e8088f7267ef
+  r: The `requirements.txt` exists with every non-comment line matching `package==major.minor.*`
+    (including the fixed `pyarrow==15.0.*` and the added `pyspedas==1.6.*`, `pytplot==2.2.*`,
+    `cdflib==1.3.*`), and `quickstart.md` documents the runnable pipeline command
+    (`python -m code.main`). The empty `summary.json` is not a required artifact of
+    this task, and no pip-install execution evidence was required beyond the file
+    contents matching the stated regex check.
+  sig: 9f54be91f209023faf1d10fd88573da8b2cefb2cd3020dac8ca9023f2189e9d5
 T002:
-  c: false
-  h: 21f0f37f443deffe801c13c65144524acd4733176489521b986b4a88e5d56afe
-  r: "Checked `projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt`.\
-    \ While all required packages are present with the correct `==major.minor.*` format,\
-    \ the file also contains an extra line `pyarrow>=15.0.0` that does not match the\
-    \ required pattern, violating the task\u2019s specification. The extra, non\u2011\
-    pinned entry must be removed or changed to the proper pinned format."
-  sig: fbabc68296d86f7b274b80833f0118fb3e1f0684bfa0caac4600d6c0afbe69ec
-T003:
   c: true
-  h: af731d19dbcc2d5b2d325ed8d76af5543f171acb4785e1edfc79159290d7c08e
-  r: "Checked the `code/config.py` file (resolved path `code/config.py`, 1757\u202F\
-    bytes) which defines `SEED = 42` and the `RAW_DIR`, `PROC_DIR`, and `ARTIFACT_DIR`\
-    \ path constants as required, and the module imports without error."
-  sig: a0b69092ed14096a6d10745f90b9876af34cb4a0fa70f1ef1b7652adb5831424
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils`
-    being present on disk is provided; the artifact list is empty, so the claim cannot
-    be verified. The implementer must create the directory (and optionally add placeholder
-    files) and provide a listing or screenshot confirming its existence.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or file system evidence was provided showing that `projects/PROJ-505-exploring-the-statistical-relationship-b/data/raw`
-    actually exists; without such proof the claim cannot be confirmed. The next implementer
-    must create the directory and supply a verification (e.g., a directory tree snapshot
-    or command output) that demonstrates its presence.
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was presented showing that the directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/processed`\
-    \ actually exists or contains any files; the claim is unsubstantiated. The implementer\
-    \ must provide a listing or screenshot confirming the directory\u2019s creation\
-    \ and that it holds processed data files."
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/artifacts`\
-    \ is present; the response contains only the task description and no file system\
-    \ listing or proof that the folder was created. The implementer must provide a\
-    \ concrete confirmation (e.g., a directory listing, screenshot, or command output)\
-    \ showing that the directory exists and is non\u2011empty."
-T011:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that the directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit`
-    actually exists or contains any files; the response contains only the task description
-    without any filesystem listing or confirmation. The required artifact is missing.
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/integration`
-    actually exists; the artifact list is empty, so the required folder was not created.
+  h: 7b2b2b321d9aa7947d3b6deb58fd843e13a812d75fca5a733c583f586cf765d7
+  r: '`code/utils/io.py` implements the try-pyarrow/fallback-fastparquet logic with
+    a clear ImportError when both are missing, and provides `load_parquet`, `save_parquet`,
+    and `sha256_checksum` (alias of `compute_sha256`). The test log shows `pytest
+    tests/unit/test_io.py` passing all 4 tests (exit 0), covering save/load round-trip,
+    engine availability, and checksum verification.'
+  sig: 4031c3a2d5c3f8df2f62fa88a6828eb8cb823020c7ad9c013e375aa9fb83f748

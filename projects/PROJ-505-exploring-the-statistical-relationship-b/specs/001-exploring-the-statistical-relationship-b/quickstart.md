@@ -1,9 +1,10 @@
 # Quickstart: Exploring the Statistical Relationship Between Solar Wind Composition and Geomagnetic Indices
 
 ## Prerequisites
-* Python 3.11 or newer  
-* Git  
-* Access to a GitHub Actions runner **or** a local Linux/macOS environment with ≥ 4 GB RAM  
+* Python 3.11 or newer
+* Git
+* Access to a GitHub Actions runner **or** a local Linux/macOS environment with ≥ 4 GB RAM
+* Network access to NASA CDAWeb (for real data download)
 
 ## Installation
 
@@ -20,53 +21,69 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Data Preparation
+Every non-comment line of `requirements.txt` is pinned as
+`package==major.minor.*` (e.g. `pyspedas==1.6.*`), which guarantees
+reproducible installs. The old non-conforming `pyarrow>=15.0.0` line has
+been replaced by `pyarrow==15.0.*` plus a `fastparquet==2024.*` fallback
+engine, so Parquet I/O works even when `pyarrow` is unavailable.
 
-> **Important** – The required ACE SWICS and NOAA Dst/Kp data are **not** available in any verified open repository. The pipeline therefore **directly generates** a synthetic dataset that matches the required schema.
+## Data Preparation (REAL data — no synthetic fallback)
+
+All input data are REAL measurements obtained from NASA CDAWeb via the
+`pyspedas` package:
+
+* **ACE SWICS** ion composition (O, Fe, He, H, C charge-state fluxes)
+* **WIND SMS/STICS** ion composition
+* **OMNI hourly** bulk parameters, IMF, and the Dst / Kp geomagnetic indices
 
 ```bash
-# Generate the synthetic aligned hourly dataset
-python code/ingestion/generate_synthetic_data.py \
-    --seed 42 \
-    --output data/processed/aligned.parquet
+# Download the real raw data for 2000-2020 (writes data/raw/ace_swics/,
+# data/raw/wind_sms/, data/raw/omni/ and data/raw/checksums.yaml)
+python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31
 ```
 
-### Verify the dataset
-```bash
-python code/utils/verify_data.py \
-    --input data/processed/aligned.parquet \
-    --schema contracts/dataset.schema.yaml
-```
-The script prints “Schema validation passed” if the file conforms to `dataset.schema.yaml`.
+The loader **fails loudly** (raises `ConnectionError`/`RuntimeError`) if any
+fetch fails — there is no synthetic fallback anywhere in the pipeline.
 
 ## Run the Full Analysis Pipeline
 
 ```bash
-python code/main.py
+python -m code.main
 ```
 
-`main.py` sequentially executes:
+`main.py` executes the full pipeline in dependency order on the real data:
 
-1. Alignment (`align.py`) – (already performed during synthetic generation)  
-2. Coupling‑function calculation (`coupling_functions.py`)  
-3. Baseline & full regressions (`regression.py`)  
-4. ΔR² computation  
-5. 5‑fold time‑series cross‑validation (`cross_validation.py`)  
-6. Block permutation test (`permutation_test.py`)  
-7. Sensitivity & FDR analysis (`sensitivity.py`)  
+1. Real-data ingestion (`code/ingestion/download_real.py`) — ACE SWICS + WIND SMS + OMNI
+2. Alignment (`code/ingestion/align.py`) → `data/processed/aligned_hourly.parquet`
+3. Coupling-function calculation (`code/analysis/coupling_functions.py`) → `data/processed/with_coupling.parquet`
+4. Baseline & full regressions (`code/analysis/regression.py`)
+5. ΔR² computation and 5-fold time-series cross-validation
+6. Block permutation test (max 10,000 iterations)
+7. Percentile significance, Benjamini–Hochberg FDR, and threshold sensitivity
+8. Final report aggregation → `data/artifacts/final_report.json`
+
+A quick end-to-end smoke run on a 1-year real subset is available via:
+
+```bash
+python -m code.main --quick
+```
 
 All results are written to `data/artifacts/`:
 
 | File | Content |
 |------|---------|
-| `regression_results.csv` | Coefficients, p‑values, VIF, R² for both models |
-| `delta_r2.json` | Incremental R² with 95 % CI |
-| `cv_metrics.json` | Out‑of‑sample R² (baseline & full) |
-| `permutation_results.json` | Null distributions, p‑values, significance flags |
-| `sensitivity.json` | Effect of α = 0.01/0.05/0.10 on number of significant predictors |
-| `plots/` | Visualizations (coefficient bar plots, null‑distribution histograms, CV R² boxplots) |
+| `aligned_hourly.parquet` | One row per hour, hourly-median aligned real data |
+| `baseline_model.json`, `full_model.json` | Regression coefficients, SEs, p-values, R² |
+| `delta_r2.json`, `delta_r2_ci.json` | Incremental R² and 95 % bootstrap CI |
+| `cv_metrics.json` | Out-of-sample R² (baseline & full, 5-fold TimeSeriesSplit) |
+| `permutation_results.json` | Null distributions, two-sided p-values |
+| `fdr_results.csv` | BH-FDR-corrected p-values |
+| `sensitivity.json`, `threshold_stability.csv` | Threshold sweep {0.01, 0.05, 0.10} |
+| `final_report.json` | Aggregated report with provenance and runtime |
+| `figures/` | Correlation heatmap, coefficient plots, residual diagnostics |
 
-**Interpretation**: Because the dataset is synthetic, the output demonstrates that the statistical workflow functions correctly. No scientific claim about the real solar‑wind–geomagnetic relationship should be drawn from these numbers.
+**Interpretation**: All numbers are real measurements from CDAWeb archives
+for 2000–2020. Findings are observational/associational.
 
 ## Testing
 
@@ -76,20 +93,17 @@ pytest tests/
 
 The test suite checks:
 
-* I/O helpers (`code/utils/io.py`) work with and without `pyarrow`.  
-* Schema compliance of generated parquet files.  
-* Correctness of coupling‑function formulas.  
-* End‑to‑end pipeline produces all expected artifact files.
+* I/O helpers (`code/utils/io.py`) work with and without `pyarrow` (fastparquet fallback).
+* Real-data download fails loudly on fetch errors (no synthetic fallback).
+* Schema compliance of the aligned parquet file against `contracts/dataset.schema.yaml`.
+* Correctness of coupling-function formulas (hand-computed ε and Newell values).
+* End-to-end pipeline produces all expected artifact files.
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Remedy |
 |---------|--------------|--------|
-| `ImportError: pyarrow` when saving parquet | `pyarrow` not installed on the runner | The I/O helper automatically falls back to Pandas’ `fastparquet` engine; ensure `fastparquet` is installed (`pip install fastparquet`). |
-| MemoryError during regression | Attempting to load an unexpectedly large real dataset | Use the synthetic fallback (default) or process real data in chunks (not needed for synthetic). |
-| “Schema validation failed” | Generated file missing a required column | Re‑run `generate_synthetic_data.py` – it always produces the full schema. |
-
----
-
-
-
+| `ImportError: pyarrow` when saving parquet | `pyarrow` not installed on the runner | The I/O helper automatically falls back to the `fastparquet` engine; ensure `fastparquet==2024.*` is installed (`pip install -r requirements.txt`). |
+| `ConnectionError` during download | CDAWeb unreachable or dataset ID changed | Fix network access / dataset ID and re-run `code/ingestion/download_real.py`. The pipeline intentionally does NOT fall back to synthetic data. |
+| MemoryError during regression | Loading more than the compute budget allows | Process the real data in chunks or a fixed-seed real subsample (documented in the run report); never substitute synthetic data. |
+| "Schema validation failed" | Aligned file missing a required column | Re-run `python code/ingestion/download_real.py` then `python -m code.main`. |

@@ -15,74 +15,101 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/main.py: synthetic/fake INPUT data not authorized by the spec — “…failed ({e}); generating synthetic data.")         # Generate sy…”
 - code/main.py: synthetic/fake INPUT data not authorized by the spec — “…thetic data.")         # Generate synthetic aligned dataset directly…”
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.     run_ingestion(confi…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for ACE and NO…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a deterministic synthetic solar‑wind / geomagnetic…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/utils/verify_data.py --input data/processed/synthetic_aligned.parquet; 3 command(s) failed: python code/ingestion/generate_synthetic_data.py --output data/processed/synthetic_aligned.parquet (rc=1); python code/main.py (rc=1); python -m pytest tests/ (rc=2); 1 declared deliverable(s) absent: data/processed/synthetic_aligned.parquet
+**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.     run_ingestion(confi…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for ACE and NO…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a deterministic synthetic solar‑wind / geomagnetic…”; 4 command(s) failed: python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31 (rc=1); python -m code.main (rc=1); python -m code.main --quick (rc=1); 1 declared deliverable(s) absent: data/processed/aligned_hourly.parquet
 
 ## Failing / missing run-book commands
 
-- python code/ingestion/generate_synthetic_data.py --output data/processed/synthetic_aligned.parquet -> rc=1
-/utils/io.py", line 33, in save_parquet
-    df.to_parquet(file_path, index=False, engine="pyarrow")
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/util/_decorators.py", line 333, in wrapper
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/frame.py", line 3113, in to_parquet
-    return to_parquet(
-           ^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 476, in to_parquet
-    impl = get_engine(engine)
-           ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 78, in get_engine
-    return PyArrowImpl()
-           ^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 163, in __init__
-    import_optional_dependency(
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/_optional.py", line 138, in import_optional_dependency
-    raise ImportError(msg)
-ImportError: Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+- python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31 -> rc=1
 
-- python code/utils/verify_data.py --input data/processed/synthetic_aligned.parquet -> rc=2
+19-Oct-26 17:34:00: Fetching OMNI hourly data...
+2026-10-19 17:34:00,848 INFO __main__: Fetching OMNI hourly data...
+19-Oct-26 17:34:00: OMNI fetch failed: 'module' object is not callable
+2026-10-19 17:34:00,849 ERROR __main__: OMNI fetch failed: 'module' object is not callable
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 69, in download_and_preserve
+    pyspedas.omni(start=start, end=end)
+TypeError: 'module' object is not callable
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/verify_data.py': [Errno 2] No such file or directory
-
-- python code/main.py -> rc=1
+During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 17, in <module>
-    from code.analysis.integrate_results import integrate_results
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/integrate_results.py", line 36, in <module>
-    def create_coefficients_dataframe(regression_data: Dict[str, Any]) -> pd.DataFrame:
-                                                                          ^^
-NameError: name 'pd' is not defined. Did you mean: 'id'?
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 118, in <module>
+    download_and_preserve()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 73, in download_and_preserve
+    raise ConnectionError(f"Failed to fetch OMNI data: {e}")
+ConnectionError: Failed to fetch OMNI data: 'module' object is not callable
+
+- python -m code.main -> rc=1
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 11, in <module>
+    from code.ingestion.align import align_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/align.py", line 15, in <module>
+    from utils.logging import AlignmentError, get_logger, log_duration, check_memory_usage
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/utils/__init__.py", line 4, in <module>
+    from .io import *
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/utils/io.py", line 4, in <module>
+    from code.utils.io import (
+ImportError: cannot import name 'compute_md5' from 'code.utils.io' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/io.py)
+
+- python -m code.main --quick -> rc=1
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 11, in <module>
+    from code.ingestion.align import align_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/align.py", line 15, in <module>
+    from utils.logging import AlignmentError, get_logger, log_duration, check_memory_usage
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/utils/__init__.py", line 4, in <module>
+    from .io import *
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/utils/io.py", line 4, in <module>
+    from code.utils.io import (
+ImportError: cannot import name 'compute_md5' from 'code.utils.io' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/io.py)
 
 - python -m pytest tests/ -> rc=2
-========================== ERRORS ====================================
-_ ERROR collecting projects/PROJ-505-exploring-the-statistical-relationship-b/tests/integration/test_sensitivity.py _
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/tests/integration/test_sensitivity.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/integration/test_sensitivity.py:20: in <module>
-    from analysis.sensitivity import (
-E   ImportError: cannot import name 'load_regression_results' from 'analysis.sensitivity' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/sensitivity.py)
+he/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45
+  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 ERROR tests/integration/test_sensitivity.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 1.39s ===============================
+======================== 13 warnings, 1 error in 2.56s =========================
 
 
 
 ## Declared deliverables still missing
 
-- data/processed/synthetic_aligned.parquet
+- data/processed/aligned_hourly.parquet
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/synthetic_aligned.parquet` is declared but was NOT written. Scripts referencing it:
-    - `code/ingestion/generate_synthetic_data.py` — IS a run-book command
-    - `code/main.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/synthetic_aligned.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/aligned_hourly.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/ingestion/align.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/aligned_hourly.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
