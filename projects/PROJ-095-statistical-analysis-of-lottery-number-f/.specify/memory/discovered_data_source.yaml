@@ -1,0 +1,12 @@
+status: none
+intent: California Lottery historical draws CSV jackpot sales numbers UK National
+  Lottery dataset python package dataset
+required_fields:
+- draw_date
+- draw_number
+- winning_numbers
+- jackpot_amount
+- total_sales
+cache_key: 2aa697b110648668f420c8a1ce5fd2b041dab8948786beb7e3b308a3a63ae8ee
+searched_at: '2026-10-19T12:58:57.200539+00:00'
+retry_count: 1

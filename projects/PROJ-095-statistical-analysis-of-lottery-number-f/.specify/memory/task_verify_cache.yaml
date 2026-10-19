@@ -1,19 +1,59 @@
 T001a:
+  c: true
+  h: 88acdac46203e4f53d41c43ede0417a8e6a8c438b8266d5eb0c82440be654112
+  r: The task only required creating the project directory structure (`data/raw`,
+    `data/processed`, `data/results`, `code`, `tests/unit`, `tests/integration`, `config`),
+    and the execution log shows a script that ran with exit code 0, explicitly confirming
+    each required directory exists and writing a directory manifest to `data/results/directory_manifest.json`.
+    No code/data content was required by this task, so the directory creation evidence
+    fully satisfies it.
+  sig: cbbde1213cdda8659011ad6a5080869d51caf685760b7706312e9e4d7e384153
+T001b:
+  c: true
+  h: a92e9ae196ab69b8f30cac48f79f2c0cfc5591fc484d30510493a44a9735580f
+  r: All four requested `__init__.py` files exist at their canonical paths (`code/__init__.py`,
+    `tests/__init__.py`, `tests/unit/__init__.py`, `tests/integration/__init__.py`)
+    and are non-empty package markers with brief docstring comments, exactly matching
+    the task's requirement.
+  sig: eea25f722122147a2174755a605e85ada14aae55c9bf848284cdba288b86d1d1
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the directories `data/raw`, `data/processed`,
-    `data/results`, `code`, `tests/unit`, `tests/integration`, and `config` actually
-    exist in the project repository. Without a directory listing, screenshots, or
-    a manifest confirming their creation, the task requirement cannot be verified
-    as fulfilled. The implementer must supply concrete proof (e.g., a file tree output)
-    that these directories have been created.
+  h: 888b31a2cc37d708bab15c6efc8e8d1e851aa0e2c95c819dc403d0741cd0466f
+  r: The `requirements.txt` exists and lists all seven required packages, but none
+    are pinned to a version (no `==` constraints), whereas the task explicitly requires
+    pinned dependencies with a compatible major version. Fix by pinning each package
+    (e.g., `pandas==2.2.x`, `numpy==1.26.x`, etc.) using versions verified compatible
+    with the project's Python environment.
+  sig: d03e9641ec7ab5f0b630b0f820f1be75c530fa956aab08bb39bcf3e57cc7fad7
 T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided only the lottery\u2011draw feature specification; there\
-    \ are no linting or formatting configuration files (e.g., .ruff.toml, .flake8,\
-    \ pyproject.toml with black settings) or any evidence that ruff/flake8 and black\
-    \ have been set up. Consequently the required artifact for task T003 is missing."
+  c: true
+  h: 449cf054692d984eaf15c3f166148d1bb0271d75d10fc35b320905e2f6a3f198
+  r: The only evidence is the pytest execution record for `tests/unit/test_lint_config.py`,
+    which ran with exit 0 and 5 passing tests verifying that `pyproject.toml` exists
+    and parses, that ruff and black are both configured, that their line-length settings
+    agree, and that source directories are covered. This is genuine execution evidence
+    directly matching the task's requirement to configure linting and formatting tools;
+    no other artifacts were required by this task.
+  sig: 5a279691e254862dff5b872057c495b2ff49d2a54bc6ffd429d17aefbe5d3739
+T004:
+  c: true
+  h: c7c82e1cb4178db346d870bc37d6c22a42598bbb03a713be7cdb296cdf38e420
+  r: "The artifact `code/data_utils.py` exists (5556 bytes) and implements real, functional\
+    \ checksum calculation/verification (chunked hashlib), deterministic CSV loading\
+    \ with date-based sorting and strict/non-strict checksum failure handling, plus\
+    \ checksum JSON save/load helpers \u2014 no stubs, TODOs, or placeholders. The\
+    \ code matches the task's stated requirement of deterministic CSV loading and\
+    \ checksum verification per Constitution Principle III."
+  sig: bb1be79a79cf31336f02c6a4ebe9df310407fb0100bfe91a9eb8438b7d3095f8
+T005:
+  c: true
+  h: a877b907c24fe0a124a60bc06aa62ba1d10ef2d5764f973b7a22a4a3fe41d732
+  r: "The file `code/constants.py` exists (1808 bytes) and defines all required draw\
+    \ parameters \u2014 `NUMBERS_PER_DRAW=6`, `MAX_BALL=49`, `BIRTHDAY_THRESHOLD=31`\
+    \ \u2014 plus supporting constants (birthday cluster ratio threshold, bootstrap\
+    \ iterations, control variable note) consistent with the spec, with no placeholders\
+    \ or stubs."
+  sig: 36bdda7dad3efc00da2f7b6c76b38fb1c1d4a714c22f452cc0e2a54155737d39
 T008:
   c: false
   h: 03e13a7b80b6123cabcfbacd2019531ae5e46810bc9b3a25bde699f50144344b
