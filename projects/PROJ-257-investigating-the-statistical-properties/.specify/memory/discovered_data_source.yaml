@@ -1,11 +1,11 @@
 status: none
-intent: download GWTC-1 and GWTC-2 posterior samples Zenodo python package dataset
+intent: download LIGO-Virgo GWTC-1 and GWTC-2 posterior samples Zenodo python package
 required_fields:
 - event_id
-- component_mass_1
-- component_mass_2
 - mass_ratio
 - effective_spin
-cache_key: bd02d853602a17e17f3cececa96f340b59dec8ada17c64bd680fd973227e09ba
-searched_at: '2026-10-19T02:19:53.690858+00:00'
+- component_mass_1
+- component_mass_2
+cache_key: f1bb315009deb9e9fb8933cfe6a418f4608bede6cec54bcf6d2164ac97f83384
+searched_at: '2026-10-19T08:13:19.049708+00:00'
 retry_count: 1
