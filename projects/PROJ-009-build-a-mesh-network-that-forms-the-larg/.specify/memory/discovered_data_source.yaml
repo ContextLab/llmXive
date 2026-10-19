@@ -1,15 +1,18 @@
 status: none
-intent: EdgeDevicePerformanceLogs M-Lab NDT CAIDA Anonymized Internet Traces MLPerf
-  Edge Benchmark python package dataset
+intent: edge computing benchmark execution logs dataset cpu utilization packet count
+  python package
 required_fields:
 - node_id
 - timestamp
-- cpu_utilization_percent
-- packet_count
-- latency_ms
 - task_id
 - task_chunk_id
+- wall_clock_time
+- packet_count
+- cpu_utilization_percent
 - memory_usage_mb
-cache_key: 632645a33dfe537772987b1f32bf4147c6906b4cf2189a68cff07bae848d1578
-searched_at: '2026-10-19T11:11:28.561525+00:00'
+- event_type
+- event_timestamp
+- status
+cache_key: 3a5be6dd5cebfbb4a3f7814feb57fd1374b829e77e8974307c116a1c90e45f97
+searched_at: '2026-10-19T13:21:38.303001+00:00'
 retry_count: 1

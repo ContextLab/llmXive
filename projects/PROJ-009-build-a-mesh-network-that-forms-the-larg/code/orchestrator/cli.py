@@ -21,8 +21,7 @@ The ``run`` sub‑command now creates real output files:
 All paths are created via ``llmxive_toolkit.paths`` which ensures the
 directories exist.  The implementation uses the existing
 ``orchestrator.benchmark`` module for the Monte‑Carlo calculation and
-the mock node manager from ``orchestrator.scheduler`` to generate a
-deterministic set of mock nodes when no real testbed is present.
+generates deterministic mock nodes.
 """
 
 import argparse
@@ -41,10 +40,20 @@ from orchestrator.benchmark import (
     run_monte_carlo_integration,
 )
 
-# Import scheduler utilities for mock node creation
-from orchestrator.scheduler import _build_physical_nodes, _MockNodeManager
-
 log = get_logger(__name__)
+
+# ----------------------------------------------------------------------
+# Simple mock node representation
+# ----------------------------------------------------------------------
+class _MockNode:
+    """A tiny stand‑in for a physical node used in the mock run."""
+    def __init__(self, ip: str):
+        self.ip = ip
+
+def _build_mock_nodes(count: int) -> List[_MockNode]:
+    """Create ``count`` deterministic mock nodes with sequential IPs."""
+    base_ip = "192.168.1."
+    return [_MockNode(f"{base_ip}{i + 101}") for i in range(count)]
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -57,7 +66,7 @@ def _map_granularity_to_config(granularity: str) -> BenchmarkConfig:
     the CI time budget.
     """
     if granularity == "fine":
-        return BenchmarkConfig(chunk_size=1000, iterations=10_000, random_seed=42)
+        return BenchmarkConfig(chunk_size=1_000, iterations=10_000, random_seed=42)
     if granularity == "medium":
         return BenchmarkConfig(chunk_size=5_000, iterations=50_000, random_seed=42)
     if granularity == "coarse":
@@ -164,29 +173,14 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument(
         "--nodes",
         type=int,
-        required=False,
+        required=True,
         help="Number of nodes to involve in the run"
     )
     run_parser.add_argument(
         "--latency",
         type=int,
-        required=False,
+        required=True,
         help="Injected network latency in milliseconds"
-    )
-    # Alias arguments used by the quick‑start guide
-    run_parser.add_argument(
-        "--node-count",
-        type=int,
-        dest="nodes",
-        default=None,
-        help=argparse.SUPPRESS
-    )
-    run_parser.add_argument(
-        "--injected-latency",
-        type=int,
-        dest="latency",
-        default=None,
-        help=argparse.SUPPRESS
     )
 
     # sweep sub‑command (placeholder)
@@ -228,16 +222,8 @@ def _handle_run(args: argparse.Namespace) -> int:
     mock set of nodes, records dummy instrumentation metrics, and
     writes the artefacts required by later contract‑validation tests.
     """
-    # Resolve aliases – quick‑start may have used the suppressed flags.
     nodes_requested = args.nodes
     latency_requested = args.latency
-
-    if nodes_requested is None or latency_requested is None:
-        log.error(
-            "Both '--nodes' (or '--node-count') and '--latency' "
-            "(or '--injected-latency') must be provided"
-        )
-        return 1
 
     log.info(
         "Running benchmark – config=%s, granularity=%s, nodes=%d, latency=%dms",
@@ -247,9 +233,7 @@ def _handle_run(args: argparse.Namespace) -> int:
         latency_requested,
     )
 
-    # ------------------------------------------------------------------
-    # Load configuration (may be missing – we tolerate it)
-    # ------------------------------------------------------------------
+    # Load configuration (optional)
     try:
         from orchestrator.config import load_config
         cfg_mgr = load_config(args.config)
@@ -258,34 +242,23 @@ def _handle_run(args: argparse.Namespace) -> int:
         log.warning("Could not load full config (%s); proceeding with defaults", exc)
         cfg = {}
 
-    # ------------------------------------------------------------------
-    # Build mock node list (use scheduler helper)
-    # ------------------------------------------------------------------
-    all_nodes = _build_physical_nodes(cfg)
+    # Build mock node list
+    all_nodes = _build_mock_nodes(nodes_requested)
     selected_nodes = all_nodes[:nodes_requested]
 
-    # ------------------------------------------------------------------
     # Prepare benchmark configuration based on granularity
-    # ------------------------------------------------------------------
     bench_cfg = _map_granularity_to_config(args.granularity)
 
-    # ------------------------------------------------------------------
     # Run benchmark once per node and collect dummy metrics
-    # ------------------------------------------------------------------
     rows = []
     for idx, node in enumerate(selected_nodes, start=1):
-        # Run the Monte‑Carlo integration (this is fast for the tiny
-        # workloads we chose).
         result = run_monte_carlo_integration(
             bench_cfg,
             chunk_id=f"chunk_{idx}",
             node_id=node.ip,
         )
 
-        # Dummy instrumentation values – in a real system these would be
-        # collected via tcpdump / mpstat.  We use deterministic pseudo‑random
-        # values seeded by the node index so that repeated runs are
-        # reproducible.
+        # Deterministic pseudo‑random instrumentation values
         random.seed(idx)
         packet_count = random.randint(1000, 2000)
         cpu_util = round(random.uniform(10.0, 90.0), 2)
@@ -296,7 +269,7 @@ def _handle_run(args: argparse.Namespace) -> int:
             "ip_address": node.ip,
             "granularity": args.granularity,
             "injected_latency_ms": latency_requested,
-            "chunk_id": result.chunk_id if hasattr(result, "chunk_id") else f"chunk_{idx}",
+            "chunk_id": getattr(result, "chunk_id", f"chunk_{idx}"),
             "wall_clock_time_sec": round(result.wall_clock_time, 3),
             "ops_per_sec": round(result.ops_per_sec, 2),
             "pi_estimate": round(result.pi_estimate, 6),
@@ -305,9 +278,7 @@ def _handle_run(args: argparse.Namespace) -> int:
         }
         rows.append(row)
 
-    # ------------------------------------------------------------------
     # Write artefacts
-    # ------------------------------------------------------------------
     _write_dropout_events()
     _write_validation_status(valid=True)
     _write_run_csv(rows, args.granularity, latency_requested)

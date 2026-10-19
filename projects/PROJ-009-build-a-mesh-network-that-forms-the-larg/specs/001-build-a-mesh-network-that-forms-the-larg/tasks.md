@@ -24,7 +24,7 @@ The following checklist implements the smallest complete study that satisfies ev
 
 ## Phase 1 – Setup and first end‑to‑end analysis
 
-- [ ] **T001** [US1] Create the canonical project layout, a runnable quick‑start guide, and basic contract‑validation tests.  
+- [ ] **T001** [US1] Create the canonical project layout, a runnable quick‑start guide, and basic contract‑validation tests.   <!-- FAILED-IN-EXECUTION: code/orchestrator/cli.py exit=1 -->
   *Artifacts*  
   - `quickstart.md` – command‑line usage example.  
   - `code/orchestrator/config.py` – loads YAML config with defaults.  

@@ -1,14 +1,3 @@
-T001:
-  c: false
-  h: 83b2f6ac5aebef80f8ac17ecc65cc5aca457b7076b81e903fa486629dc022de9
-  r: "The pytest run \"passed\" only because `data/` contained no files \u2014 the\
-    \ single test was SKIPPED, so no schema validation was ever exercised; the test\
-    \ is deliberately permissive and its SCHEMA_MAP names (e.g. `physical-node.schema.yaml`)\
-    \ don't even match the schemas `contract_validator.validate_schema` knows (`ExecutionRun`/`RegressionModel`),\
-    \ so a real data file would raise `ValueError: Unknown schema` rather than validate\
-    \ against the three schema files. Additionally, there is no evidence `code/orchestrator/cli.py`\
-    \ exists or that the required verification command `python -m code.orchestrator.cli"
-  sig: b35f97285c6bfe88ab056b8bf016d5cd19673762989b73d585299b8530e391e5
 T003:
   c: false
   h: 7892ec365e7fa8e5e24391c8c1277c1b53cfc509d7d5dda877655c0ab6c1f0c3
