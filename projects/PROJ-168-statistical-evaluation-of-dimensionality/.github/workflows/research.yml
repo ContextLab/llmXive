@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -32,40 +32,8 @@ jobs:
 
       - name: Run Pipeline
         run: |
-          # Execute the main pipeline script; it will exit non‑zero on failure
           python code/main.py
 
-      - name: Enforce limits
+      - name: Enforce CI limits
         run: |
-          # Ensure the monitoring CSV exists
-          if [ ! -f "results/monitoring.csv" ]; then
-            echo "ERROR: results/monitoring.csv not found. Pipeline may have failed."
-            exit 1
-          fi
-
-          # Check for any peak RAM usage exceeding 7 GB (7_000_000_000 bytes)
-          if awk -F',' 'NR>1 {if ($3 > 7000000000) {print "ERROR: Peak RAM usage exceeded 7 GB in step " $1; exit 1}}' results/monitoring.csv; then
-            echo "PASS: No step exceeded the 7 GB RAM limit."
-          else
-            exit 1
-          fi
-
-          # Compute total wall‑clock time and enforce the 6‑hour limit (21 600 s)
-          total_time=$(awk -F',' 'NR>1 {sum += $2} END {print sum}' results/monitoring.csv)
-          if (( $(echo "$total_time > 21600" | bc -l) )); then
-            echo "ERROR: Total pipeline runtime $total_time s exceeds 21 600 s limit."
-            exit 1
-          else
-            echo "PASS: Total pipeline runtime $total_time s is within the 6‑hour limit."
-          fi
-
-      - name: Upload Results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: research-results
-          path: |
-            results/
-            data/processed/
-            code/monitoring.log
-          retention-days: 7
+          python code/ci_limits.py

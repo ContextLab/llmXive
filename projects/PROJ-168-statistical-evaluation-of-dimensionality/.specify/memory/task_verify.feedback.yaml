@@ -1,10 +1,4 @@
 T001:
-  reason: "The evidence shows that only `data/raw/`, `data/processed/`, `results/`,\
-    \ `code/`, and `code/tests/` exist; the required directories `data/embeddings/`,\
-    \ `data/clustering/`, `data/metrics/`, `data/results/`, `figures/`, `paper/`,\
-    \ and `.github/workflows/` are missing despite being listed in `results/dir_listing.txt`.\
-    \ The task\u2019s core requirement of creating the full directory tree is therefore\
-    \ not satisfied."
   task: e71ed789e3e90ccfcf8b19fce0677893f50c4ba2f4e3132a1571482b994ea842
 T003:
   reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/research.yml`
@@ -13,20 +7,17 @@ T003:
     to write only project-owned outputs.'
   task: f10eebd036af10f8808ab6a5f93e7f2d8235196f00281f6949b338afa09718f6
 T004:
-  reason: "The repository contains `code/ci_limits.py` and a non\u2011violating `results/monitoring.csv`,\
-    \ but there is no evidence that the script was run on a CSV that breaches the\
-    \ SC\u2011003 or SC\u2011004 limits and exits with status\u202F1 as required.\
-    \ A deliberately violating CSV and the corresponding execution output (exit code\u202F\
-    1 and error message) are missing."
   task: 57e2366dfb256310a5da7b7fc23f2d634d6fad67914f0e674b27dbbb8b07165a
 T005:
   task: 5e338ee5a51984bc4da15d982a811a1f887e54324dc797f10844bb03b4008a2a
 T006:
-  reason: "The repository contains `data/manifest.json` and the data\u2011gap resolver\
-    \ script, but no `Snakefile` (or any Snakemake workflow) is present. Consequently\
-    \ the required `verify_data_availability` rule, its dependency on `download`,\
-    \ and the minimal `data_gap_resolver` rule are missing. Adding a correctly\u2011\
-    named Snakefile with those rules is needed to satisfy the task."
+  reason: "The evidence contains no `Snakefile` at all \u2014 the collector's artifact\
+    \ list includes only `data/manifest.json`, `code/data_gap_resolver.py`, `code/config.py`,\
+    \ and `code/download.py`. The required `verify_data_availability` rule (reading\
+    \ the manifest, aborting with \"All datasets unavailable \u2013 aborting.\" when\
+    \ all datasets are Unavailable), its prerequisite wiring to a `download` rule,\
+    \ and the `data_gap_resolver` rule calling `code/data_gap_resolver.py` are therefore\
+    \ nowhere present, and no dry-run/DAG execution evidence exists either."
   task: 2d1197d3235a3786e9187652b73cca1ed39ecf3cf1288fbd958263f23fad6606
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/data_gap_resolver.py

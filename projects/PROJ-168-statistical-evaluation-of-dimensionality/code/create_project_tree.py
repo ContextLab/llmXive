@@ -1,80 +1,101 @@
-#!/usr/bin/env python
 """
-T001 – Create required project directory tree and generate a directory listing.
-This script creates all folders required by the project specification and
-writes a plain‑text listing ``results/dir_listing.txt`` that contains each
-directory path (the same output that would be produced by the shell command
-``find data code results figures paper .github -type d``).
+Script to create the required project directory tree and generate a
+plain‑text directory listing at ``results/dir_listing.txt``.
+
+The directories created are:
+  data/raw/
+  data/processed/
+  data/embeddings/
+  data/clustering/
+  data/metrics/
+  data/results/
+  figures/
+  results/
+  code/
+  code/tests/
+  paper/
+  .github/workflows/
+
+After creation, the script runs the equivalent of:
+    find data code results figures paper .github -type d > results/dir_listing.txt
+
+The script is idempotent – running it again will not raise errors.
 """
+
 import subprocess
 from pathlib import Path
-import sys
+
+from llmxive_toolkit import paths, get_logger
+
+# Initialise logger (INFO level, console + file handled by the toolkit)
+log = get_logger(__name__)
+
+# List of directories (relative to the project root) that must exist.
+REQUIRED_DIRS = [
+    Path("data/raw"),
+    Path("data/processed"),
+    Path("data/embeddings"),
+    Path("data/clustering"),
+    Path("data/metrics"),
+    Path("data/results"),
+    Path("figures"),
+    Path("results"),
+    Path("code"),
+    Path("code/tests"),
+    Path("paper"),
+    Path(".github/workflows"),
+]
+
 
 def _create_directories() -> None:
-    """Create the directory tree required for the project."""
-    dirs = [
-        Path("data/raw"),
-        Path("data/processed"),
-        Path("data/embeddings"),
-        Path("data/clustering"),
-        Path("data/metrics"),
-        Path("data/results"),
-        Path("figures"),
-        Path("results"),
-        Path("code"),
-        Path("code/tests"),
-        Path("paper"),
-        Path(".github/workflows"),
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+    """Create all required directories (parents are created as needed)."""
+    for rel_dir in REQUIRED_DIRS:
+        abs_dir = paths.root / rel_dir
+        abs_dir.mkdir(parents=True, exist_ok=True)
+        log.info(f"Ensured directory exists: {abs_dir}")
+
 
 def _write_listing_via_find() -> None:
     """
-    Run the ``find`` command to collect all directories under the
-    specified top‑level folders and write the output to
-    ``results/dir_listing.txt``.
+    Run ``find`` to collect all directories under the top‑level folders and
+    write the result to ``results/dir_listing.txt``.
     """
-    try:
-        # ``find`` is available on the execution environment used by the
-        # evaluator. If it is missing we fall back to a pure‑Python walk.
-        result = subprocess.run(
-            [
-                "find",
-                "data",
-                "code",
-                "results",
-                "figures",
-                "paper",
-                ".github",
-                "-type",
-                "d",
-            ],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        listing = result.stdout
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        # Fallback: generate the same list using pathlib.
-        all_dirs = []
-        for base in ["data", "code", "results", "figures", "paper", ".github"]:
-            for p in Path(base).rglob("*"):
-                if p.is_dir():
-                    all_dirs.append(str(p))
-        # Sort for deterministic output matching ``find`` order.
-        listing = "\n".join(sorted(all_dirs)) + "\n"
+    # Ensure the results directory exists
+    listing_path = paths.results("dir_listing.txt")
+    listing_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Ensure the ``results`` directory exists (it is created by _create_directories).
-    Path("results/dir_listing.txt").write_text(listing)
+    # ``find`` command arguments
+    find_cmd = [
+        "find",
+        "data",
+        "code",
+        "results",
+        "figures",
+        "paper",
+        ".github",
+        "-type",
+        "d",
+    ]
+
+    log.info(f"Running find command to generate directory listing: {' '.join(find_cmd)}")
+    completed = subprocess.run(
+        find_cmd,
+        cwd=paths.root,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    # Write the stdout (the list of directories) to the target file
+    listing_path.write_text(completed.stdout)
+    log.info(f"Directory listing written to {listing_path}")
+
 
 def main() -> None:
-    """Entry point for the script."""
+    """Entry point – create directories then write the listing."""
     _create_directories()
     _write_listing_via_find()
-    # Simple verification that the file was written.
-    if not Path("results/dir_listing.txt").exists():
-        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

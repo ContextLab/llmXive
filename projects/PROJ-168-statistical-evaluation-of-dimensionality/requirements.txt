@@ -7,3 +7,4 @@ scanpy==1.10.2
 pandas==2.2.2
 numpy==2.0.0
 psutil==6.0.0
+snakemake==7.32.4

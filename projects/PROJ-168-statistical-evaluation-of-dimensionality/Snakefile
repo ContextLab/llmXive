@@ -1,114 +1,69 @@
 """
-Snakemake workflow for the statistical evaluation pipeline.
+Minimal Snakemake workflow for the dimensionality reduction pipeline.
 
-This workflow includes:
-  - data_gap_resolver: runs the data gap resolver script and produces a manifest.
-  - verify_data_availability: aborts if all datasets are marked "Unavailable".
-  - download: a placeholder rule that depends on the verification step.
+This workflow defines:
+  * verify_data_availability – aborts if all datasets in the manifest are marked "Unavailable".
+  * download               – runs the data_gap_resolver script (which writes the manifest).
+  * data_gap_resolver      – a thin wrapper around the existing Python script.
+
+The verify_data_availability rule is a prerequisite of the download rule, as required.
 """
 
-import os
-import sys
 import json
-import shutil
-import pathlib
-import subprocess
+import sys
+from pathlib import Path
 
-# Directories used throughout the workflow
-CODE_DIR = "code"
-RESULTS_DIR = "results"
-DATA_DIR = "data"
-
-# ----------------------------------------------------------------------
-# Default target
-# ----------------------------------------------------------------------
-rule all:
-    """
-    The final target of the workflow. In a full pipeline this would
-    depend on downstream analysis results; for the purpose of this
-    task we only require the download step to succeed.
-    """
-    input:
-        os.path.join(DATA_DIR, ".downloaded")
-
-# ----------------------------------------------------------------------
-# Resolve data gaps (calls the existing Python script)
-# ----------------------------------------------------------------------
-rule data_gap_resolver:
-    """
-    Executes the existing data_gap_resolver script which validates raw
-    count files and writes a report.  The report is copied to
-    `data/manifest.json` so that downstream rules can consume it.
-    """
-    output:
-        report = os.path.join(RESULTS_DIR, "data_gap_report.json"),
-        manifest = os.path.join(DATA_DIR, "manifest.json")
-    run:
-        # Run the resolver script
-        ret = subprocess.run(
-            [sys.executable, os.path.join(CODE_DIR, "data_gap_resolver.py")],
-            check=False,
-        )
-        if ret.returncode != 0:
-            sys.exit(ret.returncode)
-
-        # The resolver writes its report to results/data_gap_report.json.
-        # Copy that file to data/manifest.json so that the next rule can
-        # read a manifest in the expected location.
-        shutil.copy(output.report, output.manifest)
-
-# ----------------------------------------------------------------------
-# Verify that at least one dataset is available
-# ----------------------------------------------------------------------
 rule verify_data_availability:
     """
-    Reads `data/manifest.json` and aborts the workflow with a clear
-    error message if every dataset has `"status": "Unavailable"`.
+    Checks data/manifest.json. If every entry has "status": "Unavailable",
+    the workflow aborts with a clear error message.
     """
     input:
-        manifest = os.path.join(DATA_DIR, "manifest.json")
+        manifest="data/manifest.json"
     output:
-        touch(os.path.join(DATA_DIR, ".verified"))
+        marker="data/.verify_data_availability.done"
     run:
-        with open(input.manifest, "r") as f:
+        manifest_path = input.manifest
+        with open(manifest_path, "r", encoding="utf-8") as f:
             manifest = json.load(f)
 
-        # The manifest may contain a top‑level list or a dict with a
-        # "datasets" key.  Normalise to a list of dataset records.
-        if isinstance(manifest, dict) and "datasets" in manifest:
-            datasets = manifest["datasets"]
-        elif isinstance(manifest, list):
-            datasets = manifest
-        else:
-            datasets = []
-
-        # Determine whether all entries are marked as Unavailable.
         all_unavailable = all(
-            d.get("status", "").lower() == "unavailable" for d in datasets
+            entry.get("status", "").lower() == "unavailable"
+            for entry in manifest
         )
-
         if all_unavailable:
-            sys.exit("All datasets unavailable – aborting.")
+            print("All datasets unavailable – aborting.", file=sys.stderr)
+            sys.exit(1)
 
-        # If we get here the check passed – create the sentinel file.
-        pathlib.Path(output[0]).touch()
+        # Touch a marker file so downstream rules can depend on it.
+        Path(output.marker).touch()
 
-# ----------------------------------------------------------------------
-# Placeholder download rule (depends on verification)
-# ----------------------------------------------------------------------
-rule download:
+rule data_gap_resolver:
     """
-    In the full pipeline this rule would download raw count matrices.
-    For this task it simply demonstrates the dependency on the
-    verification step.
+    Executes the existing Python data_gap_resolver script.
+    The script writes data/manifest.json (and related summary files).
     """
-    input:
-        verified = os.path.join(DATA_DIR, ".verified")
     output:
-        touch(os.path.join(DATA_DIR, ".downloaded"))
+        manifest="data/manifest.json"
     shell:
         """
-        # No real download is performed in this minimal example.
-        # The presence of the sentinel file indicates the step succeeded.
-        touch {output}
+        python code/data_gap_resolver.py
         """
+
+rule download:
+    """
+    Depends on successful verification and runs the resolver.
+    """
+    input:
+        verified="data/.verify_data_availability.done"
+    output:
+        manifest="data/manifest.json"
+    shell:
+        """
+        python code/data_gap_resolver.py
+        """
+
+# Default target – can be extended by later tasks.
+rule all:
+    input:
+        "data/manifest.json"

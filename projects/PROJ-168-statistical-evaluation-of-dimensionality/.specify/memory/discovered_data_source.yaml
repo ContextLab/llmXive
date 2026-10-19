@@ -1,23 +1,10 @@
-status: verified
-kind: pypi_package
-ref: scanpy
-access_python: "import scanpy as sc, numpy as np\nadata = sc.datasets.pbmc3k()\ncounts\
-  \ = adata.X\nif hasattr(counts, \"toarray\"):\n    counts = counts.toarray()\nRECORDS\
-  \ = adata.n_obs\nprint(f\"RECORDS={RECORDS}\")\nprint(\"FIELDS=cell_barcode,gene_symbol,raw_count\"\
-  )"
-record_count: 2700
-sample_fields:
-- cell_barcode
-- gene_symbol
-- raw_count
-field_coverage: 0.667
+status: none
+intent: download GEO single-cell RNA-seq count matrices GSE131907 GSE115189 GSE117872
+  python package dataset
 required_fields:
 - cell_barcode
-- gene_symbol
-- raw_count
-- log_cpm
-- highly_variable_gene_flag
-- batch_id
-intent: single-cell RNA-seq count matrices GSE131907 GSE115978 GSE147390 GEO and scanpy
-  python package dataset
-cache_key: f1b523c8979a5aa935a22cab70a9ccc231c024ac695b7353da8aa4d05acc03f4
+- gene_id
+- raw_counts
+cache_key: ec36a832eb47fc6c08f8aa85f622a545dbeeb93129260d824af0aef2a2c5d719
+searched_at: '2026-10-19T18:12:56.862846+00:00'
+retry_count: 1

@@ -8,6 +8,7 @@ data/metrics
 code
 code/scripts
 code/tests
+code/workflows
 results
 figures
 paper
