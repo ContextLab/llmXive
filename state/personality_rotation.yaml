@@ -1,14 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-10-19T08:09:29.857065+00:00'
+last_used: freeman-dyson
+last_used_at: '2026-10-19T10:05:59.496013+00:00'
 last_outcome: committed
 history:
-- slug: geoffrey-west
-  started_at: '2026-06-27T16:55:24.179137+00:00'
-  ended_at: '2026-06-27T17:28:06.234270+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-770-resting-state-network-modularity-predict/reviews/research/geoffrey-west-simulated__2026-06-27__research.md
 - slug: john-von-neumann
   started_at: '2026-06-27T17:28:06.234270+00:00'
   ended_at: '2026-06-27T17:52:25.240682+00:00'
@@ -1311,3 +1304,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/reviews/research/eric-kandel-simulated__2026-10-19__research.md
+- slug: freeman-dyson
+  started_at: '2026-10-19T08:09:29.857065+00:00'
+  ended_at: '2026-10-19T10:05:59.496013+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-759-energy-profiling-of-quantized-llm-infere/reviews/research/freeman-dyson-simulated__2026-10-19__research.md
