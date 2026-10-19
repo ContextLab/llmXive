@@ -44,7 +44,7 @@ pip install -r requirements.txt
 python -m code.main --mode sim --help
 ```
 
-The command above should display the help text and exit with status 0, confirming that the module is importable and the CLI is correctly defined.
+The command above should display the help text and exit with a successful status, confirming that the module is importable and the CLI is correctly defined.
 
 ### Typical workflow
 
