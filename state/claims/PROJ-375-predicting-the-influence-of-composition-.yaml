@@ -552,3 +552,105 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-19T16:11:09Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline total wall-clock time approximately 1 to 2 hours
+  claim_id: c_32e874fc
+  context: "The document lists the expected runtime and resource usage for the end\u2011\
+    to\u2011end pipeline."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total wall\u2011clock time: ~1\u20132\u202Fhours (including API download\
+    \ and model training)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T18:09:13Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM usage is approximately 4 GB
+  claim_id: c_5937eff9
+  context: The document provides expected memory consumption for the pipeline execution.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Peak RAM: ~4\u202FGB (well under the 7\u202FGB limit)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T18:09:13Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline uses 2 CPU cores
+  claim_id: c_0a0e3550
+  context: The document specifies the number of CPU cores allocated during model training.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "CPU cores used: 2 (enforced by n_jobs=2 in scikit\u2011learn)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T18:09:14Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline does not require a GPU
+  claim_id: c_9169ed16
+  context: The resource requirements section states that no GPU is needed for execution.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'GPU required: No'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T18:09:14Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: Materials Project API is publicly accessible and needs a free API key
+  claim_id: c_547ff701
+  context: The pipeline description of external data sources notes the access method
+    for Materials Project.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P856: https://materialsproject.org'
+      source_id: Q105085929
+      url: https://www.wikidata.org/wiki/Q105085929
+      value: https://materialsproject.org
+    filled: true
+  kind: entity_fact
+  raw_text: Materials Project data source is publicly accessible; requires free API
+    key registration at https://next-gen.materialsproject.org/api
+  resolved_value: https://materialsproject.org
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-19T18:09:27Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: AFLOWlib API does not require authentication
+  claim_id: c_99728ab9
+  context: The description of the AFLOWlib data source indicates that no API key is
+    needed.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: AFLOWlib endpoint used does not require authentication
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T18:09:43Z'

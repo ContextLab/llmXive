@@ -110,7 +110,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/metallic-glass-cte
   verified_at: '2026-10-17T07:31:30.284018Z'
-- artifact_hash: 04ecc5be56fa9d87f53596da65454271a311e59602919030d441dbf7bc42f5b3
+- artifact_hash: e994f76df284daa9049b91a564741c731c37090ca9ac5faa84510f156ab48c8c
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -120,19 +120,19 @@
   value: https://next-gen.materialsproject.org/api
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/api
-  verified_at: '2026-10-19T16:11:09.182090Z'
-- artifact_hash: 04ecc5be56fa9d87f53596da65454271a311e59602919030d441dbf7bc42f5b3
+  verified_at: '2026-10-19T18:09:02.109933Z'
+- artifact_hash: e994f76df284daa9049b91a564741c731c37090ca9ac5faa84510f156ab48c8c
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: '[1804.10847] Open Astronomy Catalogs API'
+  fetched_title: null
   kind: url
-  value: https://arxiv.org/abs/1804.10847
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/1804.10847
-  verified_at: '2026-10-19T16:11:09.182090Z'
-- artifact_hash: 39fb539d68b74d23ed23944ca6d46fe1c6102f80afe17b0a8147d8bc967432f8
+  value: https://aflowlib.org/rest/search`
+  verification_status: mismatch
+  verified_against_url: https://aflowlib.org/rest/search
+  verified_at: '2026-10-19T18:09:02.109933Z'
+- artifact_hash: 0ef050ba613e7c2ba83706137d825fa12499d29ca7a676e1ed452eb8bb980756
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -142,4 +142,4 @@
   value: https://aflowlib.org`
   verification_status: pending
   verified_against_url: https://aflowlib.org
-  verified_at: '2026-10-19T16:11:09.630137Z'
+  verified_at: '2026-10-19T18:09:43.739066Z'
