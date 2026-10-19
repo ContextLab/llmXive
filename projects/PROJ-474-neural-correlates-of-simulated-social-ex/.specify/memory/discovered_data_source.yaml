@@ -1,19 +1,15 @@
 status: none
-intent: OpenNeuro ds000030 Cyberball preprocessed fMRI download Harvard-Oxford atlas
-  python package dataset
+intent: OpenNeuro ds000030 Cyberball fMRI dataset Nilearn Harvard-Oxford atlas python
+  package dataset
 required_fields:
 - subject_id
 - run_id
-- bold_nifti_path
-- events_tsv_path
-- inclusion_event_markers
-- exclusion_event_markers
-- roi_time_series_pcc
-- roi_time_series_mpfc
-- roi_time_series_left_angular_gyrus
-- roi_time_series_right_angular_gyrus
+- nifti_file_path
+- event_markers
+- roi_time_series
 - framewise_displacement_series
 - mean_framewise_displacement
-cache_key: f027ee4bbb8717176b9695fe6bf92ae3556e5c6bea3f4a5f82b29a851a813a9d
-searched_at: '2026-10-14T09:29:12.144018+00:00'
+- quality_flag
+cache_key: 16af9c00cea93dce0c79ce84d124498f7197b8f6509d681076dee10a50e1a3fc
+searched_at: '2026-10-19T01:45:46.900247+00:00'
 retry_count: 1

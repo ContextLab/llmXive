@@ -29,3 +29,4 @@ required:
   - motion_mean
   - qc_status
   - conditions
+additionalProperties: false

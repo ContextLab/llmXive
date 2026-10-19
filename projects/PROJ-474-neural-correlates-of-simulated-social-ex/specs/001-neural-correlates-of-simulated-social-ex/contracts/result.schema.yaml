@@ -33,3 +33,4 @@ required:
   - effect_size
   - confidence_interval
   - framing
+additionalProperties: false

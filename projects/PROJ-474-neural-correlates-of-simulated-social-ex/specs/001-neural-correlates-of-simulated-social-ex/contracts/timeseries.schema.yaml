@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TimeSeries"
+description: "Schema for extracted BOLD time‑series per ROI, subject, and condition."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Subject identifier."
+  roi:
+    type: string
+    enum:
+      - "PCC"
+      - "mPFC"
+      - "L_ANG"
+      - "R_ANG"
+    description: "Region of interest."
+  condition:
+    type: string
+    enum:
+      - "Inclusion"
+      - "Exclusion"
+    description: "Task condition."
+  data:
+    type: array
+    description: "BOLD signal values after confound regression."
+    items:
+      type: number
+  tr:
+    type: number
+    description: "Repetition time (seconds)."
+required:
+  - subject_id
+  - roi
+  - condition
+  - data
+  - tr
+additionalProperties: false

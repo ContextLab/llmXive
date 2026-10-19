@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ConnectivityMatrix"
-description: "Schema for connectivity matrix and strength metric."
+description: "Schema for connectivity matrix and strength metrics."
 type: object
 properties:
   subject_id:
@@ -26,10 +26,10 @@ properties:
     description: "Correlation matrix."
   strength_absolute:
     type: number
-    description: "Primary metric – mean absolute correlation across ROI edges."
+    description: "Primary metric – mean absolute correlation across the three ROI edges."
   strength_signed:
     type: number
-    description: "Mean signed correlation (provided for descriptive purposes)."
+    description: "Mean signed correlation (optional, for descriptive purposes)."
   edges:
     type: object
     description: "Individual edge correlation values (signed)."
