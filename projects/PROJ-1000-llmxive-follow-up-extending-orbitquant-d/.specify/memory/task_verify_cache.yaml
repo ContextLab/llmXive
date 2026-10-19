@@ -1,20 +1,11 @@
 T001:
   c: true
-  h: b50cc0c1c8966dfa0c0b922e198efef2dede00eabd79295ece0280ba108d6eb5
+  h: 02033762a14728b0f143f6b856dceacf449a59646c417546db056ec4fec7f7c6
   r: 'The required artifacts exist and match the task: `code/` contains all required
     sub-directories (analysis, models, quantization, evaluation, utils, plus extras),
     `tests/` exists, `requirements.txt` lists all ten required packages including
     torch, `code/config.py` defines global seeds and path helpers via `llmxive_toolkit.paths`,
     and `specs/.../quickstart.md` documents `python -m code.main --phase init`. The
-    historical execution log shows that command ran with exit 0 and printed "Initialization
-    complete", matching the quickstart''s documented output.'
-  sig: de6aec9346ddbd12d23b1f59a196d616c30b418b29dccf53541f2f1810050eeb
-T002:
-  c: false
-  h: 46cb4798903e9ae6c2dfa9553b51c4b49e07730aea75f553f208b4c3465792fe
-  r: "The required `data/raw/coco_captions.parquet` file is missing (the provided\
-    \ script writes a CSV instead of a Parquet file), and the expected preprocessing\
-    \ script `code/data/preprocess_coco.py` does not exist (the log shows a different\
-    \ `preprocess.py` was run). Consequently the task\u2019s first two steps are not\
-    \ satisfied, even though the diverse prompts script and CSV output are present."
-  sig: e6f5c06df5da05dea50eef2448b859af437cceec88b76f6036ba28d0861cb39b
+    historical execution log shows that command exiting 0 with "Initialization complete"
+    in stdout, matching the quickstart''s documented behavior.'
+  sig: edbd117e02b6a1eac6f3034185c6eaec34a4af47e8fb2712638b4111fd4867df

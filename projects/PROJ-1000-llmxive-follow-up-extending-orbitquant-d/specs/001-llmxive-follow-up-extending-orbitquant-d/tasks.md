@@ -27,7 +27,7 @@ Indented continuation lines describe the required artifact(s), verification comm
 
 ## Phase 2 – Data acquisition & prompt preparation
 
-- [ ] T002 [P] Download MS‑COCO 2017 validation captions and a diverse external prompt set; store under `data/` only   <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/preprocess_coco.py exit=1 -->
+- [ ] T002 [P] Download MS‑COCO 2017 validation captions and a diverse external prompt set; store under `data/` only   <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/preprocess_coco.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_coco.py exit=1; code/data/preprocess_coco.py exit=1 -->
   - **Steps**  
     1. `code/data/download_coco.py` → `data/raw/coco_captions.parquet` (via `datasets.load_dataset("nlpconnect/coco_captions", split="validation", streaming=False)`).  
     2. `code/data/preprocess_coco.py` → `data/processed/prompts.csv` (`image_id, caption`). Must contain ≥ 400 rows.  

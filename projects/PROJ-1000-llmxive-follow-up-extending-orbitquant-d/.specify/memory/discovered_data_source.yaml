@@ -1,12 +1,16 @@
 status: none
-intent: download MS-COCO 2017 validation set parquet python package dataset
+intent: MS COCO 2017 validation parquet PromptSource text prompts python package dataset
 required_fields:
 - image_id
-- caption
 - file_name
+- captions
 - height
 - width
-- coco_url
-cache_key: 0e24fce170d9ff15555d35a4881d25632017eb3ffdd5c4ce11b69361646ad9b8
-searched_at: '2026-10-19T03:14:22.029782+00:00'
+- annotation_id
+- prompt_id
+- prompt_text
+- task_name
+- source_dataset
+cache_key: c4692d8e658302cb82d2bbcf382e7deb8ff3777e801d895a84c5d06c20b9f8c3
+searched_at: '2026-10-19T03:19:12.248934+00:00'
 retry_count: 1

@@ -16,7 +16,6 @@ def main():
         log.info(f"Reading raw data from {input_path}...")
         df = pd.read_parquet(input_path)
         
-        # The nlpconnect/coco_captions dataset has 'image_id' and 'caption'
         # Ensure we only keep these two columns
         if 'image_id' not in df.columns or 'caption' not in df.columns:
             raise KeyError(f"Expected columns 'image_id' and 'caption' not found in {df.columns}")

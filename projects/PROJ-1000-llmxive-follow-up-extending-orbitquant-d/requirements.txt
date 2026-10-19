@@ -2,10 +2,10 @@ torch
 diffusers
 transformers
 datasets
-pyarrow
 scikit-learn
 numpy
 pandas
 matplotlib
 scipy
 tqdm
+pyarrow
