@@ -38,4 +38,3 @@ required:
   - source
   - status
 additionalProperties: false
-

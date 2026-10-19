@@ -3,49 +3,52 @@
 ## 1. Entity Definitions
 
 ### CompositionRecord
-Represents a single metallic glass entry.
-- **`record_id`**: `str` (UUID) - Unique identifier.
-- **`family`**: `str` - Alloy family (e.g., "Zr-based", "Pd-based").
-- **`elements`**: `dict` - Mapping of element symbol to atomic fraction (e.g., `{"Zr": 0.5, "Cu": 0.5}`).
-- **`tg_value`**: `float` - Glass transition temperature in Kelvin.
-- **`source`**: `str` - DOI of the source dataset.
-- **`status`**: `str` - "valid", "dropped_missing_tg", "dropped_incomplete_composition".
+| Field | Type | Description |
+|-------|------|-------------|
+| `record_id` | `string` (UUID) | Unique identifier. |
+| `family` | `string` | Alloy family (e.g., “Zr‑based”). |
+| `elements` | `object` (element → fraction) | Atomic fractions; at least two entries. |
+| `tg_value` | `number` (K) | Glass transition temperature. |
+| `source` | `string` (DOI) | Originating dataset DOI. |
+| `status` | `string` (`valid` / `dropped_missing_tg` / `dropped_incomplete_composition`) | Validation outcome. |
 
 ### DescriptorSet
-Computed atomic features for a `CompositionRecord`.
-- **`record_id`**: `str` - FK to `CompositionRecord`.
-- **`radius_mismatch`**: `float` - $\delta$.
-- **`electronegativity_diff`**: `float` - $\Delta\chi$.
-- **`vec`**: `float` - Valence Electron Concentration.
-- **`weighted_mean_radius`**: `float` - Diagnostic only.
-- **`vif_radius`**: `float` - VIF for radius mismatch (post-remediation).
-- **`vif_electro`**: `float` - VIF for electronegativity (post-remediation).
-- **`vif_vec`**: `float` - VIF for VEC (post-remediation).
+| Field | Type | Description |
+|-------|------|-------------|
+| `record_id` | `string` (FK) | Links to `CompositionRecord`. |
+| `radius_mismatch` | `number` | Δr descriptor. |
+| `electronegativity_diff` | `number` | Δχ descriptor. |
+| `vec` | `number` | Valence Electron Concentration. |
+| `weighted_mean_radius` | `number` | Diagnostic only (FR‑002). |
+| `vif_radius` | `number` | VIF for radius mismatch (post‑remediation). |
+| `vif_electro` | `number` | VIF for electronegativity diff. |
+| `vif_vec` | `number` | VIF for VEC. |
 
 ### ModelArtifact
-Trained model and metadata.
-- **`artifact_id`**: `str` - UUID.
-- **`model_type`**: `str` - "GradientBoostingRegressor".
-- **`hyperparameters`**: `dict` - e.g., `{"n_estimators": 100, "max_depth": 5}`.
-- **`performance_metrics`**: `dict` - `{"r2_mean": float, "mae_mean": float, "r2_std": float}`.
-- **`feature_importances`**: `dict` - Mapping of feature name to importance score.
-- **`sensitivity_variance`**: `float` - $\sigma^2$ of R² across `max_depth` sweep.
-- **`fdr_corrected_pvalues`**: `dict` - Feature pair -> adjusted p-value (Bonferroni).
+| Field | Type | Description |
+|-------|------|-------------|
+| `artifact_id` | `string` (UUID) | Unique model identifier. |
+| `model_type` | `string` | `"GradientBoostingRegressor"`. |
+| `hyperparameters` | `object` | Hyper‑parameter dict used for training. |
+| `performance_metrics` | `object` | `{ "r2_mean": number, "r2_std": number, "mae_mean": number }`. |
+| `feature_importances` | `object` | Feature → importance score. |
+| `sensitivity_variance` | `number` | σ² of R² across `max_depth` sweep (FR‑006). |
+| `fdr_corrected_pvalues` | `object` | Predictor‑pair → Bonferroni‑adjusted p‑value (FR‑008). |
+| `associational_statement` | `string` | Must equal `"These findings are associational only"`. |
+| `collinearity_flag` | `boolean` | True if any VIF > 5 after remediation. |
 
 ## 2. Data Flow
 
-1. **Raw Ingestion**: `data/raw/*.csv` (or zip) -> `ingest.py` -> `data/processed/cleaned_data.csv`.
-   - **Schema Enforcement**: `ingest.py` validates input against `specs/.../contracts/dataset.schema.yaml` using `jsonschema`.
-2. **Descriptor Computation**: `cleaned_data.csv` -> `descriptors.py` -> `data/processed/descriptors.csv`.
-3. **Model Training**: `descriptors.csv` -> `train.py` -> `artifacts/models/best_model.pkl`.
-4. **Analysis**: `best_model.pkl` + `descriptors.csv` -> `analyze.py` -> `artifacts/metrics/stats.json`.
-   - **Schema Enforcement**: `analyze.py` validates output against `specs/.../contracts/artifact.schema.yaml` using `jsonschema`.
-5. **Reporting**: `stats.json` + `best_model.pkl` -> `report.py` -> `paper/report.md`.
+1. **Raw ingestion** (`data/raw/`) → `ingest.py` → `data/processed/cleaned_data.csv` (validated against `dataset.schema.yaml`).  
+2. **Descriptor computation** → `descriptors.py` → `data/processed/descriptors.csv`.  
+3. **Model training** → `train.py` → `artifacts/models/best_model.pkl`.  
+4. **Statistical analysis** → `analyze.py` → `artifacts/metrics/stats.json` (validated against `artifact.schema.yaml`).  
+5. **Report generation** → `report.py` → `paper/report.md`.
 
-## 3. Data Constraints
+## 3. Constraints
 
-- **Missing Data**: Records with missing `tg_value` or incomplete `elements` are dropped immediately.
-- **Imputation**: No imputation for composition/Tg (FR-001). Listwise deletion only.
-- **Normalization**: Descriptors are not normalized (Gradient Boosting is scale-invariant), but `vec` and `radius` are kept in native units for interpretability.
-- **Encoding**: All categorical data (family) used only for splitting, not as a model feature.
-- **Collinearity Remediation**: If VIF > 5, the feature with the highest VIF is dropped iteratively until all remaining features have VIF < 5.
+- Records missing `tg_value` or with incomplete `elements` are dropped (FR‑001).  
+- No imputation; listwise deletion only.  
+- Descriptors are computed in native units; no scaling needed for GBM.  
+- `weighted_mean_radius` never used as a predictor (FR‑002).  
+- VIF remediation performed before model fitting (FR‑007).

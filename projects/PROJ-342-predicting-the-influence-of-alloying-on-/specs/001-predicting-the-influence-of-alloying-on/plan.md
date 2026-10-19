@@ -1,107 +1,82 @@
 # Implementation Plan: Predicting the Influence of Alloying on the Glass Transition Temperature of Metallic Glasses
 
-**Branch**: `001-predict-tg-metallic-glasses` | **Date**: 2024-05-21 | **Spec**: `spec.md`
+**Branch**: `001-predict-tg-metallic-glasses` | **Date**: 2024-05-21 | **Spec**: `spec.md`  
 **Input**: Feature specification from `specs/001-predicting-the-influence-of-alloying-on/spec.md`
 
 ## Summary
-
-This project implements a CPU-tractable machine learning pipeline to predict the glass transition temperature ($T_g$) of metallic glasses based on alloy composition. The system ingests public datasets (contingent on verification), computes atomic-scale descriptors (radius mismatch, electronegativity difference, VEC), and trains a Gradient Boosting Regressor using Leave-One-Family-Out (LOFO) cross-validation. The plan strictly adheres to the constraint of running on free-tier GitHub Actions (limited CPU, limited RAM) and ensures all findings are framed as associational, with rigorous statistical validation (Bonferroni correction, iterative VIF remediation, bootstrapping). **Note: Data ingestion is conditional upon successful verification of the primary Zenodo DOI (10.5281/zenodo.10043838). If verification fails, the pipeline halts with a DATA_UNAVAILABLE error. No synthetic data is used.**
+Implement a CPU‑tractable pipeline that (1) ingests the public metallic‑glass composition‑Tg dataset, (2) computes atomic‑scale descriptors (radius mismatch, electronegativity difference, VEC, and a diagnostic weighted mean radius), (3) trains a GradientBoostingRegressor using Leave‑One‑Family‑Out (LOFO) cross‑validation with a ≤10‑combination grid search, (4) performs a sensitivity sweep on `max_depth`, (5) evaluates collinearity via VIF, (6) conducts FDR‑corrected correlation testing, and (7) generates a reproducible report that explicitly frames findings as associational.
 
 ## Technical Context
-
-**Language/Version**: Python 3.10  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `matplotlib`, `seaborn`, `mendeleev==0.31.0` (pinned for fixed periodic table data), `pyyaml`, `jsonschema`  
-**Storage**: Local CSV/Parquet files in `data/` (raw and processed); model artifacts in `artifacts/`  
-**Testing**: `pytest` (unit tests for descriptors, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions runner)  
-**Project Type**: Data Science / Computational Materials Science  
-**Performance Goals**: Complete full pipeline (ingestion to reporting) within 6 hours on 2 vCPU; memory usage < 7 GB.  
-**Constraints**: No GPU; no causal language; strict adherence to LOFO split; Bonferroni correction on correlations.  
-**Scale/Scope**: Single dataset ingestion, descriptor computation, model training, and statistical reporting.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes) are deferred to the research/implementation phase.
+- **Language/Version**: Python 3.10  
+- **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `seaborn`, `mendeleev==0.31.0`, `pyyaml`, `jsonschema`, `pytest`  
+- **Storage**: CSV/Parquet files under `data/`; model artifacts under `artifacts/`  
+- **Testing**: `pytest` (unit + integration)  
+- **Target Platform**: Linux (GitHub Actions free tier)  
+- **Project Type**: Data‑science / computational materials  
+- **Performance Goals**: Full pipeline ≤ 6 h on 2 vCPU, ≤ 7 GB RAM  
+- **Constraints**: CPU‑only; no causal language; strict LOFO split; Bonferroni correction for multiple testing; weighted mean radius excluded from modeling.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Compliance Status | Implementation Note |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`; datasets fetched from canonical Zenodo DOIs; `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **BLOCKED** | **Status:** The project cannot proceed until the Reference-Validator confirms DOI 10.5281/zenodo.10043838 is reachable and contains valid Tg/composition data. If unreachable, the project halts. No review points can be awarded until this is resolved. |
-| **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw/`; checksums recorded; derived data in `data/processed/` with derivation logs. |
-| **IV. Single Source of Truth** | **PASS** | All metrics stored in `data/` JSON artifacts; figures generated directly from these artifacts. Schema enforcement via `jsonschema` in `ingest.py` and `analyze.py`. |
-| **V. Versioning Discipline** | **PASS** | Content hashes tracked in `state/projects/PROJ-342-predicting-the-influence-of-alloying-on-.yaml`; artifacts versioned by commit hash. The Advancement-Evaluator Agent updates this file upon artifact changes. |
-| **VI. Descriptor Consistency** | **PASS** | Descriptors computed by a single `code/descriptor_engine.py` using `mendeleev==0.31.0` (pinned) to ensure fixed periodic table data. |
-| **VII. Model Evaluation Transparency** | **PASS** | Metrics (R², MAE) and CV splits stored in `data/`; plots generated from stored results. |
+| Principle | Status | Note |
+|-----------|--------|------|
+| I. Reproducibility | PASS | Random seeds pinned; datasets fetched from canonical DOI. |
+| II. Verified Accuracy | BLOCKED | Requires confirmation that DOI 10.5281/zenodo.10043838 provides a usable CSV with Tg and composition. |
+| III. Data Hygiene | PASS | Raw data checksummed; derived files versioned. |
+| IV. Single Source of Truth | PASS | All metrics stored in JSON; figures generated from these files. |
+| V. Versioning Discipline | PASS | Content hashes tracked in project state file. |
+| VI. Descriptor Consistency | PASS | Single `descriptors.py` script using pinned `mendeleev`. |
+| VII. Model Evaluation Transparency | PASS | Metrics, CV splits, and plots saved and validated against schemas. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
-```text
+```
 specs/001-predict-tg-metallic-glasses/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output (Loaded by code/ via relative path)
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
     ├── dataset.schema.yaml
     └── artifact.schema.yaml
-```
 
-### Source Code (repository root)
-
-```text
 projects/PROJ-342-predicting-the-influence-of-alloying-on-/
 ├── code/
-│   ├── __init__.py
-│   ├── ingest.py               # Data loading and cleaning (FR-001) - Enforces dataset.schema.yaml
-│   ├── descriptors.py          # Atomic property computation (FR-002, VI)
-│   ├── train.py                # Model training, LOFO, GridSearch (FR-003)
-│   ├── analyze.py              # Sensitivity, VIF (iterative), Bonferroni, Bootstrapping (FR-006-009) - Enforces artifact.schema.yaml
-│   └── report.py               # Report generation (FR-004)
+│   ├── ingest.py
+│   ├── descriptors.py
+│   ├── train.py
+│   ├── analyze.py
+│   └── report.py
 ├── data/
-│   ├── raw/                    # Downloaded datasets (checksummed)
-│   └── processed/              # Cleaned CSVs, descriptor tables
+│   ├── raw/
+│   └── processed/
 ├── artifacts/
-│   ├── models/                 # Pickled sklearn models
-│   └── metrics/                # JSON logs of performance
+│   ├── models/
+│   └── metrics/
 ├── tests/
-│   ├── unit/                   # Descriptor logic tests
-│   └── integration/            # Pipeline end-to-end tests
-├── specs/001-predicting-the-influence-of-alloying-on/contracts/
-│   ├── dataset.schema.yaml     # Validation schema for data
-│   └── artifact.schema.yaml    # Validation schema for results
+│   ├── unit/
+│   └── integration/
 └── requirements.txt
 ```
 
-**Structure Decision**: Single project structure selected. The workflow is linear (Ingest -> Describe -> Train -> Analyze -> Report), making a monolithic `code/` directory with modular scripts optimal for CI execution. Contracts are located in `specs/.../contracts/` and loaded by scripts via relative path resolution (e.g., `../specs/.../contracts/`).
-
-**Contract Enforcement**: The `ingest.py` and `analyze.py` scripts will enforce these schemas using `jsonschema` to ensure the 'Single Source of Truth' (Principle IV) is maintained at the data ingestion and artifact generation stages.
-
 ## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **LOFO Split** | Essential for generalization to unseen alloy families (FR-003). | Standard K-Fold would leak family information, inflating performance metrics and violating the research goal. |
-| **Bonferroni Correction** | Required for multiple hypothesis testing on correlations (FR-008). | FDR is statistically weak for N=3 tests; Bonferroni is more appropriate for small hypothesis sets. |
-| **Iterative VIF Remediation** | Required to ensure model stability (FR-007). | A simple diagnostic flag without action leaves the model unstable and results invalid. |
+| Violation | Why Needed | Simpler Alternative Rejected |
+|-----------|------------|------------------------------|
+| LOFO split | Guarantees prediction for unseen alloy families (FR‑003). | Standard K‑Fold would leak family information. |
+| Bonferroni correction | Controls family‑wise error for the three pairwise correlations (FR‑008). | Benjamini‑Hochberg is weak for N=3. |
+| Iterative VIF removal | Expected collinearity; ensures stable regression (FR‑007). | Ignoring VIF would leave unstable coefficients. |
 
 ## FR/SC Coverage Map
-
-| Requirement ID | Plan Phase/Step | Description |
-| :--- | :--- | :--- |
-| **FR-001** | `ingest.py` | Load Zenodo 10.5281/zenodo.10043838. Halt if unreachable. Drop missing Tg/composition. |
-| **FR-002** | `descriptors.py` | Compute radius mismatch, electronegativity diff, VEC. Log mean radius (diagnostic only). |
-| **FR-003** | `train.py` | Train GradientBoostingRegressor with LOFO. Grid search (≤10 combos). |
-| **FR-004** | `report.py` | Explicitly state "These findings are associational only". |
-| **FR-005** | Pipeline Config | Runtime < 6h, RAM < 7GB. |
-| **FR-006** | `analyze.py` | Sensitivity sweep `max_depth` across a range of moderate to high depths. Report variance. |
-| **FR-007** | `analyze.py` | Calculate VIF. If >5, drop highest VIF feature iteratively until all <5. |
-| **FR-008** | `analyze.py` | Apply Bonferroni correction (α ≤ 0.05) to 3 pairwise correlations. |
-| **FR-009** | `analyze.py` | Calculate Pearson/Spearman correlations. |
-| **SC-001** | `analyze.py` | Compare R² against null model (mean prediction). |
-| **SC-002** | `analyze.py` | Bootstrap multiple resamples for feature importance stability. |
-| **SC-003** | `ingest.py` | Log retention rate (valid records / raw records). |
-| **SC-004** | CI Logs | Monitor CPU time and RAM peak. |
+| ID | Phase / Script | Description |
+|----|----------------|-------------|
+| FR‑001 | `ingest.py` | Load Zenodo 10.5281/zenodo.10043838, drop rows missing Tg or composition. |
+| FR‑002 | `descriptors.py` | Compute radius mismatch, electronegativity diff, VEC; log weighted mean radius. |
+| FR‑003 | `train.py` | LOFO CV + GradientBoostingRegressor; grid ≤10 combos. |
+| FR‑004 | `report.py` | Insert exact phrase “These findings are associational only”. |
+| FR‑005 | CI config | Enforce ≤6 h runtime, ≤7 GB RAM. |
+| FR‑006 | `analyze.py` | Sensitivity sweep `max_depth` ∈ {3,5,7}; report variance σ² of R². |
+| FR‑007 | `analyze.py` | Compute VIF; iteratively drop highest‑VIF predictor until all < 5. |
+| FR‑008 | `analyze.py` | Apply Bonferroni correction (α ≤ 0.05) to three pairwise predictor correlations. |
+| FR‑009 | `analyze.py` | Compute Pearson & Spearman coefficients + p‑values for all predictor pairs. |
+| SC‑001 | `analyze.py` | Compare test‑set R² to null (mean‑prediction) baseline. |
+| SC‑002 | `analyze.py` | Bootstrap 1000 resamples for feature‑importance confidence intervals. |
+| SC‑003 | `ingest.py` | Log retention rate (valid / raw records). |
+| SC‑004 | CI logs | Record CPU time and peak RAM usage. |

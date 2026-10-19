@@ -34,7 +34,7 @@ properties:
     description: "Variance of R2 across max_depth sweep"
   fdr_corrected_pvalues:
     type: "object"
-    description: "FDR corrected p-values for feature correlations"
+    description: "Bonferroni corrected p-values for feature correlations"
     additionalProperties:
       type: "number"
       minimum: 0
@@ -53,4 +53,3 @@ required:
   - feature_importances
   - associational_statement
 additionalProperties: false
-
