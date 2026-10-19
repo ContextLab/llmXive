@@ -1,44 +1,44 @@
 # Data Model: The Effect of Priming on Prosocial Behavior
 
-## Entities & Relationships
+## Core Entities
 
 ### Thread (Parent)
-Represents the Reddit post that provides the "Prime" or "Control" condition.
-*   `thread_id` (string): Unique identifier (e.g., `t3_abc123`).
-*   `title` (string): The title of the post (used for regex classification).
-*   `subreddit` (string): The subreddit name (e.g., "AskReddit").
-*   `thread_type` (string): Enum: `['Prime', 'Control']`. Derived from title regex.
+| Field | Type | Description |
+|-------|------|-------------|
+| `thread_id` | string | Unique identifier (`link_id` from comment). |
+| `subreddit` | string | Subreddit name (`AskReddit`, `science`, `relationships`). |
+| `thread_type` | string (enum) | **Prime** / **Control** – *only defined if a title field is available*. Currently `null` pending dataset revision. |
+| `title` | string | **Required for priming** – **absent** in the verified dataset. |
 
 ### Comment (Child)
-Represents the user reply, the unit of analysis.
-*   `comment_id` (string): Unique identifier (e.g., `t1_xyz789`).
-*   `user_id` (string): SHA-256 hash of the original username.
-*   `thread_id` (string): Foreign key to `Thread`.
-*   `text` (string): The comment body (truncated or cleaned if necessary).
-*   `vader_compound` (float): VADER sentiment score.
-*   `prosocial_intent_score` (float): Count of prosocial words from a **distinct** lexicon (excluding prime words).
-*   `thread_length` (integer): Character or word count of the comment.
-*   **Note**: `user_tenure` is **removed** from the dataset and model due to data infeasibility.
+| Field | Type | Description |
+|-------|------|-------------|
+| `comment_id` | string | Comment identifier (`id`). |
+| `user_id` | string | SHA‑256 hash of original `author`. |
+| `thread_id` | string | Foreign key to `Thread.thread_id`. |
+| `body` | string | Comment text (`body`). |
+| `vader_compound` | number (‑1 → 1) | VADER compound sentiment score. |
+| `prosocial_intent_score` | integer ≥ 0 | Count of distinct prosocial lexicon matches (excluding prime words). |
+| `thread_length` | integer ≥ 0 | Character count of `body`. |
+| `user_tenure` | integer ≥ 0 | Days since account creation, derived from `created_utc` before timestamp removal. |
+| `created_utc` | *removed* | Stripped for privacy; used only to compute `user_tenure`. |
+| `subreddit` | string | Redundant copy for convenience (random effect). |
 
 ## Data Flow
-
-1.  **Raw Ingestion**: `data/raw/hf_dump.jsonl` (Original Hugging Face data).
-2.  **Anonymization**: `data/processed/anonymized.csv` (SHA-256 hashed, timestamps removed).
-3.  **Scoring**: `data/processed/scored.csv` (Added VADER and distinct prosocial counts).
-4.  **Validation**: `data/processed/annotations.csv` (Human labels).
-5.  **Analysis**: `data/processed/model_results.json` (LMM coefficients, p-values).
+1. **Raw Streaming** → `data/raw/streamed_records.jsonl` (not persisted, streamed).  
+2. **Ingestion & Anonymization** → `data/processed/anonymized.csv` (fields: `comment_id`, `user_id`, `thread_id`, `body`, `subreddit`, `thread_type` (nullable), `user_tenure`).  
+3. **Scoring** → `data/processed/scored.csv` (adds VADER & prosocial counts).  
+4. **Human Annotation** → `data/processed/annotations.csv` (gold‑standard labels).  
+5. **Analysis** → `data/processed/model_results.json` (LMM coefficients, p‑values, convergence).  
 
 ## Constraints & Invariants
+- `comment_id` unique.  
+- `user_id` matches SHA‑256 pattern `^[a-f0-9]{64}$`.  
+- No plaintext usernames or timestamps in any processed file.  
+- `prosocial_intent_score` ≥ 0.  
+- `vader_compound` in `[-1, 1]`.  
+- `user_tenure` ≥ 0 (derived).  
+- **Lexicon Independence**: Prosocial lexicon excludes prime words (`thank`, `help`, `support`, `care`).  
 
-*   **Uniqueness**: `comment_id` is unique.
-*   **Referential Integrity**: Every `comment.thread_id` must exist in `Thread`.
-*   **Privacy**: No raw usernames or exact timestamps in `data/processed`.
-*   **Completeness**: `prosocial_intent_score` >= 0.
-*   **Range**: `vader_compound` in [-1, 1].
-*   **Lexicon Independence**: The prosocial lexicon **must not** contain the prime words ('thank', 'help', 'support', 'care').
+---
 
-## Derived Fields
-
-*   `thread_type`: `1` if `re.search(r'(thank|help|support|care)', title, re.I)` else `0`.
-*   `prosocial_intent_score`: `sum(1 for word in text.split() if word.lower() in DISTINCT_LEXICON)`.
-*   `thread_length`: `len(text)`.

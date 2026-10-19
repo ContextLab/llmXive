@@ -2,68 +2,68 @@
 
 ## Dataset Strategy
 
-### Verified Datasets
-The project relies on the **Hugging Face Dataset `jplu/tf-reddit-comments-2020`** (and related years if available) for historical Reddit data.
-*   **Source**: Hugging Face Datasets (`jplu/tf-reddit-comments-2020`).
-*   **Access**: Public API. No credentials required.
-*   **Relevance**: Contains the required subreddits (r/AskReddit, r/science, r/relationships) and date range (2020-2023).
-*   **Variables**: `title`, `selftext` (comments), `author` (will be hashed), `created_utc`, `subreddit`.
-*   **Note**: The Pushshift API is defunct; this dataset is the verified alternative.
+### Verified Dataset
+- **Name**: `fddemarco/pushshift-reddit-comments` (Hugging Face)  
+- **Access**: `datasets.load_dataset("fddemarco/pushshift-reddit-comments", split="train", streaming=True)`  
+- **Size**: 15 034 827 records (verified via `get_dataset_infos`).  
+- **Fields**: `author`, `body`, `created_utc`, `link_id`, `subreddit`, `subreddit_id`, `id`, `score`, `controversiality`.  
 
 ### Dataset Fit Analysis
-*   **Required Variables**: `title` (for priming classification), `selftext` (for prosocial scoring), `author` (for anonymization), `subreddit` (random effect).
-*   **Fit**: The Hugging Face dataset contains all necessary fields.
-*   **Caveat**: `user_tenure` (account age) is **not** in the dataset. The Reddit API is rate-limited for bulk lookups.
-    *   *Strategy*: **Drop `user_tenure`** from the LMM formula. The plan does not use a proxy (e.g., comment timestamp) as it introduces confounding. The model formula is revised to: `prosocial_keyword_count ~ thread_type + thread_length + (1|subreddit) + (1|user_id)`.
-    *   *Spec Conflict*: The original spec mandates `user_tenure`. This plan deviates due to data infeasibility. The spec must be updated.
+| Required Variable | Present? | Comment |
+|-------------------|----------|---------|
+| `title` (thread title) | **No** | Needed for priming classification (regex). |
+| `body` (comment text) | Yes | Used for VADER and prosocial keyword counting. |
+| `author` | Yes | Hashed for anonymity. |
+| `subreddit` | Yes | Random effect in LMM. |
+| `created_utc` | Yes | Removed for privacy; could be used for tenure but not available. |
+| `user_tenure` | No | Not derivable without additional API calls; omitted from model. |
+
+**Conclusion**: The dataset satisfies all variables **except** `title`. Because FR‑001 explicitly requires classification based on thread titles, the dataset is **incompatible** with the original hypothesis.  
+
+**Proposed Paths**  
+1. **Scope Revision** – Obtain an open Reddit dump that includes both comment bodies and parent post titles (e.g., the full Pushshift archive).  
+2. **Temporary Redesign** – Remove the priming condition, treat all comments as a single group, and focus on prosocial scoring and validation (requires project‑lead approval).
 
 ### Data Availability & Feasibility
-*   **Download Method**: Use `datasets.load_dataset("jplu/tf-reddit-comments-2020", streaming=True)`.
-*   **Streaming**: The dataset is streamed line-by-line to avoid loading the entire 4-year dump into RAM.
-*   **Sample Size**: Target N >= 4,000 per group. If the dataset yields fewer, we proceed with all available data and report N explicitly (US1).
+- **Download Method**: Streaming via `datasets` library; no local storage of the full raw dump.  
+- **Disk Use**: Processed CSVs estimated < 2 GB.  
+- **Runtime**: Streaming + processing of a large‑scale dataset (on the order of tens of millions of rows) expected ≈ 2 h on CPU.  
 
 ## Methodology & Statistical Rigor
 
-### 1. Data Ingestion & Anonymization (FR-001)
-*   **Fetch**: Load `jplu/tf-reddit-comments-2020` via Hugging Face `datasets` library.
-*   **Priming Classification**: Apply regex `/(thank|help|support|care)/i` to the *thread title* (parent post).
-    *   *Note*: Comments do not have titles; the "Prime" condition is assigned based on the parent thread's title.
-*   **Anonymization**:
-    *   `author` -> `SHA-256(author)`
-    *   `created_utc` -> Removed (to prevent re-identification via time).
-*   **Validation**: Check for N >= 4,000 per group.
+### 1. Data Ingestion & Anonymization (FR‑001)
+- **Streaming Load**: Iterate over the dataset, filter for subreddits `AskReddit`, `science`, `relationships`.  
+- **Anonymization**: SHA‑256 hash of `author`; drop `created_utc`.  
+- **Thread‑type Classification**: *Pending* – cannot be derived without `title`. If a title‑bearing dataset becomes available, apply regex `/(thank|help|support|care)/i`.  
 
-### 2. Prosocial Scoring & Validation (FR-002)
-*   **VADER**: Compute `compound` score for each comment text.
-*   **Prosocial Lexicon**: Count occurrences of words in a **distinct** lexicon (e.g., "assist", "aid", "caring", "kind", "encourage", "supportive").
-    *   *Critical Constraint*: The lexicon **MUST NOT** contain the prime words ('thank', 'help', 'support', 'care') to avoid tautology.
-*   **Human Validation**:
-    *   Randomly sample N=200 comments (stratified by Prime/Control).
-    *   Dual-blind human annotators label comments as "Prosocial Intent" (binary) or "Not Prosocial".
-    *   Compute Cohen's Kappa between the *thresholded prosocial intent score* and human labels.
-    *   *Metric*: Kappa value reported (no pass/fail).
+### 2. Prosocial Scoring & Validation (FR‑002, FR‑004)
+- **VADER**: Compute `compound`, `pos`, `neu`, `neg` scores for each `body`.  
+- **Distinct Prosocial Lexicon**: A curated list that **excludes** the prime words (`thank`, `help`, `support`, `care`).  
+- **Human Annotation**: Randomly sample 200 comments stratified by subreddit (and, if possible, by provisional `thread_type`). Two blind raters label “Prosocial Intent” (binary).  
+- **Metrics**:  
+  - Cohen’s Kappa (reported, no pass/fail).  
+  - Pearson correlation *r* between VADER `compound` and human prosocial ratings (require *r* ≥ 0.7 per SC‑004).  
 
-### 3. Statistical Analysis (FR-003)
-*   **Model**: Linear Mixed Model (LMM).
-    *   Formula: `prosocial_keyword_count ~ thread_type + thread_length + (1|subreddit) + (1|user_id)`
-    *   *Note*: `user_tenure` removed due to data infeasibility.
-    *   *Note*: `user_id` here is the hashed ID.
-*   **Convergence**: Monitor `statsmodels` convergence status.
-    *   *Constraint*: If `converged == False`, report failure and attempt robust optimization (e.g., different optimizer) or reduce model complexity.
-*   **Significance**: Test `thread_type` (Prime vs Control).
-    *   *Success Metric*: p-value < 0.05.
-    *   *Interpretation*: A significant p-value indicates an **associational effect**, not a causal one. The study is observational.
-*   **Multiple Comparisons**: Only one primary hypothesis (effect of priming). No correction needed for the primary test.
-*   **Causal Inference**: Observational study. Claims will be framed as "associational" only.
-*   **Collinearity**: Check VIF for predictors. If `thread_length` and `prosocial_keyword_count` are highly correlated, report this limitation.
+### 3. Linear Mixed Model (FR‑003)
+- **Formula** (after dropping unavailable predictors):  
+  `prosocial_intent_score ~ thread_type + thread_length + (1|subreddit) + (1|user_id)`  
+- **Estimator**: `statsmodels` `MixedLM`.  
+- **Convergence Check**: `model.converged` flag.  
+- **Sensitivity Analysis**: Re‑fit with optimizer tolerances `1e‑4`, `1e‑5`, `1e‑6`; record p‑values and convergence flags.  
+- **Multiple Comparisons**: Single primary test (`thread_type`); no correction needed.  
+- **Causal Claim**: Observational; results framed as *associational*.  
+- **Collinearity**: Compute VIF for `thread_length`; report if VIF > 5.  
+
+### 4. CPU Feasibility (FR‑002c)
+- **Estimate**: VADER + regex on a large‑scale dataset processes rows efficiently, completing within a practical runtime.  
+- **Memory**: Streaming ensures ≤ 1 GB.  
+- **Decision**: Feasible on CPU; no deferral needed. A comment “FR‑002c Feasible on CPU” will be logged in `02_score.py`.  
 
 ## Compute Feasibility
-*   **CPU First**: VADER, regex, and LMM (via `statsmodels`) are CPU-tractable.
-*   **Memory**: Streaming the Hugging Face dataset keeps RAM usage low (< 1GB).
-*   **Time**: Processing a substantial volume of comments and fitting one LMM is well within the 6-hour limit.
-*   **GPU**: Not required. No deep learning models are planned for scoring.
+All steps are CPU‑tractable; no GPU off‑load required. The pipeline respects the 6‑hour CI limit.
 
 ## Unresolved Panel Concerns
-*   **Fabricated Results**: The plan explicitly forbids simulated results. The human annotation sample (N=200) will be generated by real human annotators and stored in `data/processed/annotations.csv`. The LMM will be fit on real data. No placeholder values will be used in the final output.
-*   **Unit Tests**: The plan includes specific tasks (T011, T012) to generate `test_classification.py` and `test_anonymization.py` to ensure logic correctness before data processing.
-*   **Spec Conflict**: The spec mandates `user_tenure` which is infeasible. This plan drops it. The spec is flagged for update.
+- **Missing Thread Title**: Fatal for priming classification. Must be resolved before any hypothesis test involving `thread_type`.  
+- **User Tenure**: Already omitted; documented as a spec deviation.  
+
+---
