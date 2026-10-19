@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 18411,
+    "total_contributions": 18413,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2320,
+      "contribution_count": 2321,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -1072,7 +1072,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 114,
+      "contribution_count": 115,
       "kind": "llm",
       "name": "google.gemma-4-31B-it"
     },
@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-19T19:20:14.137201+00:00",
+  "generated_at": "2026-10-19T19:28:14.331002+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -29122,6 +29122,11 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-763-evaluating-calibration-of-probabilistic-",
+          "project_id": "PROJ-763-evaluating-calibration-of-probabilistic-",
+          "title": "Evaluating Calibration of Probabilistic Weather Forecasts"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-507-the-influence-of-visual-salience-on-mora",
           "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
           "title": "The Influence of Visual Salience on Moral Judgments of Simulated Scenarios"
@@ -29140,11 +29145,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i",
           "project_id": "PROJ-1044-llmxive-follow-up-extending-why-can-t-i",
           "title": "llmXive follow-up: extending \"Why Can't I Open My Drawer? Mitigating Object-Driven Shortcuts in Zero\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-050-the-effect-of-priming-on-prosocial-behav",
-          "project_id": "PROJ-050-the-effect-of-priming-on-prosocial-behav",
-          "title": "The Effect of Priming on Prosocial Behavior in Online Communities"
         }
       ],
       "inputs": [
@@ -31507,6 +31507,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "planner",
+          "duration_s": 998.095203,
+          "ended_at": "2026-10-19T19:27:35.463091Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-19T19:10:57.367888Z"
+        },
+        {
           "agent": "implementer",
           "duration_s": 240.480868,
           "ended_at": "2026-10-19T19:10:40.593167Z",
@@ -31577,14 +31585,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-18T17:30:41.240643Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 8.373524,
-          "ended_at": "2026-10-18T17:30:41.236799Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-18T17:30:32.863275Z"
         }
       ],
       "paper_status": null,
@@ -58523,6 +58523,14 @@
           "roles": [
             "tasker"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-4-31B-it",
+          "roles": [
+            "implementer"
+          ]
         }
       ],
       "citation_summary": {
@@ -58544,6 +58552,14 @@
       "id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 118.414963,
+          "ended_at": "2026-10-19T19:16:15.261304Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "success",
+          "started_at": "2026-10-19T19:14:16.846341Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 33.451951,
@@ -58615,14 +58631,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-19T00:29:57.208868Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 22.54933,
-          "ended_at": "2026-10-19T00:29:57.205491Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-19T00:29:34.656161Z"
         }
       ],
       "paper_status": null,
@@ -91001,6 +91009,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 708.867116,
+          "ended_at": "2026-10-19T19:18:45.439686Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "failed",
+          "started_at": "2026-10-19T19:06:56.572570Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 218.219912,
           "ended_at": "2026-10-19T18:13:11.969833Z",
           "model": "google.gemma-4-31B-it",
@@ -91070,14 +91086,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-19T16:08:26.379163Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 88.638037,
-          "ended_at": "2026-10-19T16:08:26.375609Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-19T16:06:57.737572Z"
         }
       ],
       "paper_status": null,
@@ -121528,7 +121536,7 @@
           ]
         },
         {
-          "contributions": 23,
+          "contributions": 28,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -121580,6 +121588,46 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 23.369684,
+          "ended_at": "2026-10-19T19:16:39.558271Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-19T19:16:16.188587Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 44.014491,
+          "ended_at": "2026-10-19T19:16:16.185034Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-19T19:15:32.170543Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 46.81052,
+          "ended_at": "2026-10-19T19:15:32.166985Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-19T19:14:45.356465Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 96.989343,
+          "ended_at": "2026-10-19T19:14:45.352384Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-19T19:13:08.363041Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 386.253794,
+          "ended_at": "2026-10-19T19:13:08.359285Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-19T19:06:42.105491Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 408.197441,
           "ended_at": "2026-10-19T18:14:39.401077Z",
           "model": "openai.gpt-oss-120b",
@@ -121617,46 +121665,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "success",
           "started_at": "2026-10-19T17:21:50.861574Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 42.85309,
-          "ended_at": "2026-10-19T17:21:50.858018Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "success",
-          "started_at": "2026-10-19T17:21:08.004928Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 0.034545,
-          "ended_at": "2026-10-19T17:20:59.908859Z",
-          "model": "deterministic-no-llm",
-          "outcome": "skipped",
-          "started_at": "2026-10-19T17:20:59.874314Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 832.755542,
-          "ended_at": "2026-10-19T17:20:45.222637Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "success",
-          "started_at": "2026-10-19T17:06:52.467095Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 726.421271,
-          "ended_at": "2026-10-19T15:20:06.004434Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-19T15:07:59.583163Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 1283.912128,
-          "ended_at": "2026-10-15T13:57:16.214589Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-15T13:35:52.302461Z"
         }
       ],
       "paper_status": null,
@@ -143579,12 +143587,13 @@
           ]
         },
         {
-          "contributions": 3,
+          "contributions": 4,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "brainstorm_submitter",
             "flesh_out",
+            "planner",
             "research_question_validator"
           ]
         },
@@ -143610,12 +143619,20 @@
         "repo_path": "projects/PROJ-763-evaluating-calibration-of-probabilistic-/specs/001-evaluating-calibration-of-probabilistic/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "clarified",
+      "current_stage": "planned",
       "description": "Field: statistics Do publicly available ensemble forecasts from NOAA\u2019s Global Ensemble Forecast System exhibit systematic mis\u2011calibration, and can simple post\u2011processing (isotonic regression or Bayesian hierarchical recalibration) improve that calibration? Weather users rely on probabilistic forecasts (e.g.,\u2026",
       "field": "statistics",
       "id": "PROJ-763-evaluating-calibration-of-probabilistic-",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "planner",
+          "duration_s": 617.068155,
+          "ended_at": "2026-10-19T19:24:59.291988Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-19T19:14:42.223833Z"
+        },
         {
           "agent": "clarifier",
           "duration_s": 503.057072,
@@ -143687,14 +143704,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "failed",
           "started_at": "2026-08-09T05:08:52.433514Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1422.678686,
-          "ended_at": "2026-08-09T05:08:52.206685Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-09T04:45:09.527999Z"
         }
       ],
       "paper_status": null,
@@ -143708,7 +143717,7 @@
       "speckit_research_dir": "projects/PROJ-763-evaluating-calibration-of-probabilistic-/specs/001-evaluating-calibration-of-probabilistic",
       "submitter": "openai.gpt-oss-120b",
       "title": "Evaluating Calibration of Probabilistic Weather Forecasts",
-      "updated_at": "2026-10-19T19:14:27.246879+00:00",
+      "updated_at": "2026-10-19T19:24:59.294640+00:00",
       "upstream_feedback": null
     },
     {
@@ -174389,6 +174398,102 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 998.095203,
+      "ended_at": "2026-10-19T19:27:35.463091Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-19T19:10:57.367888Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 617.068155,
+      "ended_at": "2026-10-19T19:24:59.291988Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-763-evaluating-calibration-of-probabilistic-",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-19T19:14:42.223833Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 708.867116,
+      "ended_at": "2026-10-19T19:18:45.439686Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['google.gemma-4-31B-it', 'zai-org.glm-5.3', 'openai.gpt-oss-120b', 'anthropic",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "failed",
+      "project_id": "PROJ-324-predicting-molecular-properties-from-ope",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-19T19:06:56.572570Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 23.369684,
+      "ended_at": "2026-10-19T19:16:39.558271Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-505-exploring-the-statistical-relationship-b",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-19T19:16:16.188587Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 44.014491,
+      "ended_at": "2026-10-19T19:16:16.185034Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-505-exploring-the-statistical-relationship-b",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-19T19:15:32.170543Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 118.414963,
+      "ended_at": "2026-10-19T19:16:15.261304Z",
+      "failure_reason": "",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-19T19:14:16.846341Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 46.81052,
+      "ended_at": "2026-10-19T19:15:32.166985Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-505-exploring-the-statistical-relationship-b",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-19T19:14:45.356465Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 96.989343,
+      "ended_at": "2026-10-19T19:14:45.352384Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-505-exploring-the-statistical-relationship-b",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-19T19:13:08.363041Z"
+    },
+    {
       "agent": "clarifier",
       "duration_s": 503.057072,
       "ended_at": "2026-10-19T19:14:27.244760Z",
@@ -174396,9 +174501,21 @@
       "model": "zai-org.glm-5.3",
       "outcome": "success",
       "project_id": "PROJ-763-evaluating-calibration-of-probabilistic-",
-      "project_stage": "clarified",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-19T19:06:04.187688Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 386.253794,
+      "ended_at": "2026-10-19T19:13:08.359285Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-505-exploring-the-statistical-relationship-b",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-19T19:06:42.105491Z"
     },
     {
       "agent": "implementer",
@@ -180345,120 +180462,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-18T18:07:27.858278Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 371.133933,
-      "ended_at": "2026-10-18T18:14:02.480307Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-187-evaluating-the-statistical-properties-of",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-10-18T18:07:51.346374Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 178.692738,
-      "ended_at": "2026-10-18T18:11:45.351496Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-942-llmxive-follow-up-extending-bench-evalua",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-18T18:08:46.658758Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 164.35643,
-      "ended_at": "2026-10-18T18:10:13.977827Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-041-evaluating-the-use-of-graph-neural-netwo",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-18T18:07:29.621397Z"
-    },
-    {
-      "action": "comment",
-      "agent": "personality",
-      "display_name": "Ada Lovelace (simulated)",
-      "duration_s": 32.61454,
-      "ended_at": "2026-10-18T18:06:06.685359+00:00",
-      "excerpt": "It may be desirable to explain a confusion at the heart of the design, for the engine can only execute what we know how to order it to perform, and here the orders are in places ambiguous. The artifact possesses, by its own account, explic\u2026",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "model_kind": "personality_simulator",
-      "outcome": "committed",
-      "personality_slug": "ada-lovelace",
-      "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
-      "project_stage": "clarified",
-      "review_path": "projects/PROJ-010-quantitative-analysis-of-gene-expression/reviews/research/ada-lovelace-simulated__2026-10-18__research.md",
-      "severity": "ok",
-      "started_at": "2026-10-18T18:05:34.070819+00:00"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 42.425855,
-      "ended_at": "2026-10-18T17:31:23.666498Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-18T17:30:41.240643Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 8.373524,
-      "ended_at": "2026-10-18T17:30:41.236799Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-18T17:30:32.863275Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 74.018233,
-      "ended_at": "2026-10-18T17:29:04.719578Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-18T17:27:50.701345Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 1277.443247,
-      "ended_at": "2026-10-18T17:28:06.580675Z",
-      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-305-statistical-analysis-of-publicly-availab",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-10-18T17:06:49.137428Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 141.314355,
-      "ended_at": "2026-10-18T17:27:41.856791Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-18T17:25:20.542436Z"
     }
   ],
   "reviewed_preprints": [
