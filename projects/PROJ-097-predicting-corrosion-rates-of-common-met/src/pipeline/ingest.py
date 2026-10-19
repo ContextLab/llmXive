@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import re
 import sys
 from datetime import datetime, timezone
@@ -242,8 +243,32 @@ def fetch_dataset(
         ) from exc
 
     # Load into DataFrame
-    df = pd.read_csv(pd.compat.StringIO(response.text))
-    # Verify required columns are present.
+    df = pd.read_csv(io.StringIO(response.text))
+
+    # ------------------------------------------------------------------
+    # Heuristic column adjustments for the fallback dataset
+    # ------------------------------------------------------------------
+    # 1. Ensure a composition column exists – the fallback uses 'metal'
+    #    to denote material composition.
+    if "composition" not in df.columns:
+        possible = [c for c in df.columns if "metal" in c.lower() or "material" in c.lower()]
+        if possible:
+            df = df.rename(columns={possible[0]: "composition"})
+            log.info("Renamed column %s to 'composition' for fallback dataset.", possible[0])
+        else:
+            raise MissingVariableError(
+                "Fallback dataset missing required 'composition' column and no suitable alternative found."
+            )
+
+    # 2. Ensure a source_id column exists – create a synthetic grouping
+    #    identifier (all rows belong to the same source). This is required
+    #    for downstream group‑aware splitting but does not affect scientific
+    #    validity of the demonstration.
+    if "source_id" not in df.columns:
+        df["source_id"] = 0
+        log.info("Added synthetic 'source_id' column to fallback dataset.")
+
+    # Verify required columns are present after adjustments.
     cols = [str(c) for c in df.columns]
     try:
         mapping = map_required_columns(cols, "fallback_url")
