@@ -7,6 +7,7 @@ particularly handling the project root path and logging.
 import os
 import sys
 import logging
+import pytest
 from pathlib import Path
 
 # Configure logging to appear in test output
@@ -31,5 +32,3 @@ def data_paths():
         "processed": project_root / "data" / "processed",
         "derived": project_root / "data" / "derived",
     }
-
-import pytest

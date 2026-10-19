@@ -7,25 +7,25 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download.py -> rc=1
-:22:01,742 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1964: 'Compound' object has no attribute 'water_solubility'
-2026-10-19 13:22:01,742 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1964: 'Compound' object has no attribute 'boiling_point'
-2026-10-19 13:22:01,742 - __main__ - WARNING - Failed to fetch RecordType for CID 1964: 'Compound' object has no attribute 'record_type'
-2026-10-19 13:22:01,743 - __main__ - ERROR - Failed to fetch data for CID 1964: 'Compound' object has no attribute 'record_type'
-2026-10-19 13:22:02,072 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1973: 'Compound' object has no attribute 'water_solubility'
-2026-10-19 13:22:02,073 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1973: 'Compound' object has no attribute 'boiling_point'
-2026-10-19 13:22:02,073 - __main__ - WARNING - Failed to fetch RecordType for CID 1973: 'Compound' object has no attribute 'record_type'
-2026-10-19 13:22:02,073 - __main__ - ERROR - Failed to fetch data for CID 1973: 'Compound' object has no attribute 'record_type'
-2026-10-19 13:22:02,074 - __main__ - ERROR - No data fetched. Check CID list and PubChemPy connectivity.
+:24:02,892 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1964: 'Compound' object has no attribute 'water_solubility'
+2026-10-19 13:24:02,892 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1964: 'Compound' object has no attribute 'boiling_point'
+2026-10-19 13:24:02,892 - __main__ - WARNING - Failed to fetch RecordType for CID 1964: 'Compound' object has no attribute 'record_type'
+2026-10-19 13:24:02,892 - __main__ - ERROR - Failed to fetch data for CID 1964: 'Compound' object has no attribute 'record_type'
+2026-10-19 13:24:03,215 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1973: 'Compound' object has no attribute 'water_solubility'
+2026-10-19 13:24:03,215 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1973: 'Compound' object has no attribute 'boiling_point'
+2026-10-19 13:24:03,215 - __main__ - WARNING - Failed to fetch RecordType for CID 1973: 'Compound' object has no attribute 'record_type'
+2026-10-19 13:24:03,216 - __main__ - ERROR - Failed to fetch data for CID 1973: 'Compound' object has no attribute 'record_type'
+2026-10-19 13:24:03,217 - __main__ - ERROR - No data fetched. Check CID list and PubChemPy connectivity.
 
 - python code/data/preprocess.py -> rc=1
 
-2026-10-19 13:22:02,537 - __main__ - ERROR - Raw data file not found: data/raw/pubchem_raw.csv. Run T008 first.
+2026-10-19 13:24:03,673 - __main__ - ERROR - Raw data file not found: data/raw/pubchem_raw.csv. Run T008 first.
 
 - python code/data/fingerprint.py -> rc=1
 
-2026-10-19 13:22:03,496 - __main__ - INFO - Ensured output directories: [PosixPath('data/processed'), PosixPath('data/derived')]
-2026-10-19 13:22:03,497 - __main__ - ERROR - Open Babel (obabel) not found in PATH. Please install it.
-2026-10-19 13:22:03,497 - __main__ - ERROR - Open Babel not available. Cannot proceed.
+2026-10-19 13:24:04,612 - __main__ - INFO - Ensured output directories: [PosixPath('data/processed'), PosixPath('data/derived')]
+2026-10-19 13:24:04,612 - __main__ - ERROR - Open Babel (obabel) not found in PATH. Please install it.
+2026-10-19 13:24:04,613 - __main__ - ERROR - Open Babel not available. Cannot proceed.
 
 - python code/models/baseline.py -> rc=1
 ope/code/models/baseline.py", line 87, in process_dataset
@@ -58,7 +58,7 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'data.preprocess'
 
 - python code/analysis/stats.py -> rc=1
-2026-10-19 13:22:05,917 - stats - INFO - Generating Experimental Validation Protocol (T058)...
+2026-10-19 13:24:06,981 - stats - INFO - Generating Experimental Validation Protocol (T058)...
 ERROR: Metadata file not found at data/raw/dataset_metadata.json. Run T031 first.
 
 
@@ -84,12 +84,27 @@ FileNotFoundError: Model file not found: data/models/final_model.pkl
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-324-predicting-molecular-properties-from-ope/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/analysis/validation_audit.py': [Errno 2] No such file or directory
 
-- python -m pytest tests/ -> rc=4
+- python -m pytest tests/ -> rc=2
+e-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
 
-ImportError while loading conftest '/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/tests/conftest.py'.
-tests/conftest.py:26: in <module>
-    @pytest.fixture(scope="session")
-E   NameError: name 'pytest' is not defined
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45
+  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/contract/test_fingerprint_generation.py
+ERROR tests/unit/test_baseline.py
+ERROR tests/unit/test_fingerprint_generation.py
+ERROR tests/unit/test_lint_config.py
+ERROR tests/unit/test_lint_format.py
+ERROR tests/unit/test_linting_config.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 14 warnings, 6 errors in 1.26s ========================
+
 
 
 ## Declared deliverables still missing
@@ -113,29 +128,29 @@ E   NameError: name 'pytest' is not defined
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `PubChemPy` to the project's `requirements.txt` and `pip install PubChemPy`.
-- **Verified**: this loads **3** real records with fields: CompoundID, SMILES, MolecularFormula, MolecularWeight, LogP, ExperimentalOrComputedFlag.
+- **Verified**: this loads **10** real records with fields: CID, SMILES, InChIKey, MolecularWeight, LogP.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
 import pubchempy as pcp
-cids = [2244, 5957, 702]
-compounds = pcp.get_compounds(cids, 'cid')
-records = []
-for c in compounds:
-    rec = {
-        'CompoundID': c.cid,
-        'SMILES': getattr(c, 'isomeric_smiles', None),
-        'MolecularFormula': getattr(c, 'molecular_formula', None),
-        'MolecularWeight': getattr(c, 'molecular_weight', None),
-        'LogP': getattr(c, 'xlogp', None),
-        'ExperimentalOrComputedFlag': None
+
+cids = [2244, 3672, 5957, 5281, 5958, 5959, 5960, 5961, 5962, 5963]
+
+compounds = pcp.get_compounds(cids, namespace="cid")
+
+records = [
+    {
+        "CID": comp.cid,
+        "SMILES": comp.smiles,
+        "InChIKey": comp.inchikey,
+        "MolecularWeight": comp.molecular_weight,
+        "LogP": comp.xlogp,
     }
-    records.append(rec)
+    for comp in compounds
+]
+
 print(f"RECORDS={len(records)}")
-if records:
-    print("FIELDS=" + ",".join(records[0].keys()))
-else:
-    print("FIELDS=")
+print("FIELDS=CID,SMILES,InChIKey,MolecularWeight,LogP")
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

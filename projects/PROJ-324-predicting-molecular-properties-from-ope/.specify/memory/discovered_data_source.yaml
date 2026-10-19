@@ -1,29 +1,30 @@
 status: verified
 kind: pypi_package
 ref: PubChemPy
-access_python: "import pubchempy as pcp\ncids = [2244, 5957, 702]\ncompounds = pcp.get_compounds(cids,\
-  \ 'cid')\nrecords = []\nfor c in compounds:\n    rec = {\n        'CompoundID':\
-  \ c.cid,\n        'SMILES': getattr(c, 'isomeric_smiles', None),\n        'MolecularFormula':\
-  \ getattr(c, 'molecular_formula', None),\n        'MolecularWeight': getattr(c,\
-  \ 'molecular_weight', None),\n        'LogP': getattr(c, 'xlogp', None),\n     \
-  \   'ExperimentalOrComputedFlag': None\n    }\n    records.append(rec)\nprint(f\"\
-  RECORDS={len(records)}\")\nif records:\n    print(\"FIELDS=\" + \",\".join(records[0].keys()))\n\
-  else:\n    print(\"FIELDS=\")"
-record_count: 3
+access_python: "import pubchempy as pcp\n\ncids = [2244, 3672, 5957, 5281, 5958, 5959,\
+  \ 5960, 5961, 5962, 5963]\n\ncompounds = pcp.get_compounds(cids, namespace=\"cid\"\
+  )\n\nrecords = [\n    {\n        \"CID\": comp.cid,\n        \"SMILES\": comp.smiles,\n\
+  \        \"InChIKey\": comp.inchikey,\n        \"MolecularWeight\": comp.molecular_weight,\n\
+  \        \"LogP\": comp.xlogp,\n    }\n    for comp in compounds\n]\n\nprint(f\"\
+  RECORDS={len(records)}\")\nprint(\"FIELDS=CID,SMILES,InChIKey,MolecularWeight,LogP\"\
+  )"
+record_count: 10
 sample_fields:
-- CompoundID
+- CID
 - SMILES
-- MolecularFormula
+- InChIKey
 - MolecularWeight
 - LogP
-- ExperimentalOrComputedFlag
-field_coverage: 1.0
+field_coverage: 0.625
 required_fields:
-- CompoundID
+- CID
 - SMILES
-- MolecularFormula
+- InChIKey
 - MolecularWeight
 - LogP
-- ExperimentalOrComputedFlag
-intent: download PubChem compound SMILES and properties as python package dataset
-cache_key: da658c96f5fa781e173bb3ea55cdc5c64382af836fafb40b4c6f2bc772165c53
+- PropertyName
+- PropertyValue
+- ExperimentalOrComputed
+intent: download PubChem Compound and ChEMBL molecular properties dataset python package
+  dataset
+cache_key: 2a3129d17d27db3678c9cc2213ec7f986ea1c1f15c8c50da4d003c638e4f979b
