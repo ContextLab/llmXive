@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Data Sufficiency Schema"
-description: "Schema for data sufficiency check results."
+description: "Schema for data sufficiency check results. Calculated power to detect a minimum AUC difference of 0.05 (source: statistical power analysis)."
 type: "object"
 properties:
   species:
@@ -20,7 +20,7 @@ properties:
       - "INSUFFICIENT_DATA"
   power_value:
     type: "number"
-    description: "Calculated power for Cohen's h=0.50 (source: Wikipedia)"
+    description: "Calculated power for detecting a minimum AUC difference of 0.05 (source: statistical power analysis)"
 required:
   - species
   - period

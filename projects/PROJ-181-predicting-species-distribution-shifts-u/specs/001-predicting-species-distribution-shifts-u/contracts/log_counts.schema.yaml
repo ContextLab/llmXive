@@ -1,0 +1,19 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Preprocess Counts Log Schema"
+description: "Schema for the YAML file that records before/after counts during preprocessing."
+type: "object"
+properties:
+  step:
+    type: "string"
+    description: "Name of the preprocessing step (e.g., 'breeding_filter', 'duplicate_removal', 'spatial_thinning')."
+  before_count:
+    type: "integer"
+    description: "Number of records before the step."
+  after_count:
+    type: "integer"
+    description: "Number of records after the step."
+required:
+  - step
+  - before_count
+  - after_count
+additionalProperties: false
