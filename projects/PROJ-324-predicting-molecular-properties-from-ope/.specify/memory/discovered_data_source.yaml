@@ -1,28 +1,25 @@
 status: verified
 kind: pypi_package
 ref: PubChemPy
-access_python: "import pubchempy as pcp\ncids = [2244, 1983, 5957]  # sample PubChem\
-  \ CIDs\ncompounds = pcp.get_compounds(cids, 'cid')\nrecords = []\nfor c in compounds:\n\
-  \    rec = {\n        \"SMILES\": getattr(c, \"isomeric_smiles\", None),\n     \
-  \   \"InChI\": getattr(c, \"inchi\", None),\n        \"MolecularWeight\": getattr(c,\
-  \ \"molecular_weight\", None),\n        \"LogP\": getattr(c, \"xlogp\", None),\n\
-  \    }\n    records.append(rec)\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=\"\
-  \ + \",\".join(records[0].keys()))"
+access_python: "import pubchempy as pcp\n\ncids = [2244, 5957, 1234]\nrecords = pcp.get_properties(\n\
+  \    ['IsomericSMILES', 'InChI', 'MolecularWeight', 'XLogP'],\n    cids,\n    namespace='cid'\n\
+  )\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=\" + (\",\".join(records[0].keys())\
+  \ if records else \"\"))"
 record_count: 3
 sample_fields:
+- CID
+- MolecularWeight
 - SMILES
 - InChI
-- MolecularWeight
-- LogP
-field_coverage: 0.571
+- XLogP
+field_coverage: 0.5
 required_fields:
 - SMILES
 - InChI
 - MolecularWeight
 - LogP
-- ExperimentalFlag
+- CompoundID
 - PropertySource
-- ComputedProperties
-intent: download real PubChem compound SMILES and experimental properties via Python
-  package dataset
-cache_key: 6ce9522f6e85c8178284f39ebe07691cce46d65b0edbcfe01b48fa1aa01afd83
+intent: PubChem compound SMILES properties Open Babel fingerprints python package
+  dataset
+cache_key: 044f911cf61d2f4f65be33f518e2ef5a910a6aa8415d205860b407abaf13e600
