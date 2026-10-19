@@ -138,5 +138,4 @@ class MemoryLimitEnforcer:
     def save_checkpoint(self, reason: str = "memory_limit") -> Path:
         """Save checkpoint at current state."""
         checkpoint_path = self.checkpoint_dir / f"checkpoint_memory_{reason}_{int(time.time())}.pt"
-        # This would be called by the trainer with actual model state
         return checkpoint_path

@@ -10,7 +10,7 @@
     - Verification: `pip install -r code/requirements.txt` completes and `code/config.py` is importable without errors.
 - [ ] T002a [US1] Implement core Wake/Dream logic: 20-step warm-up, BERT-style random token masking, DAE reconstruction loss combined with knowledge-distillation loss (Teacher-Student distribution matching), entropy-based batch retries, and perplexity-based dream phase skipping (skip if perplexity > 50 against held-out corpus). `code/models/trainer.py`, `code/data/augment.py`. <!-- FAILED-IN-EXECUTION: code/train.py exit=1 -->
     - Verification: Unit tests in `tests/unit/test_trainer.py` confirm warm-up duration, that low-entropy batches trigger retries, and that high-perplexity batches trigger a phase skip.
-- [ ] T002b [US1] Implement the training CLI entry point `code/train.py` and integrate the `memory_monitor` to abort and checkpoint on OOM. `code/train.py`, `code/utils/memory_monitor.py`.
+- [ ] T002b [US1] Implement the training CLI entry point `code/train.py` and integrate the `memory_monitor` to abort and checkpoint on OOM. `code/train.py`, `code/utils/memory_monitor.py`. <!-- FAILED-IN-EXECUTION: code/train.py exit=1 -->
     - Verification: Execute `python code/train.py` on a small GLUE subset; verify a model checkpoint is saved to `data/checkpoints/` and structured JSON logs are written to `data/logs/`.
 - [ ] T003 [US2] Implement the few-shot evaluation pipeline and result logging for the QNLI validation set. `code/eval.py`, `code/eval/metrics.py`.
     - Verification: Run `python code/eval.py` on a saved checkpoint; verify `data/results/evaluation_result.json` is produced and conforms to `evaluation_result.schema.yaml`.

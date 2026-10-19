@@ -34,6 +34,12 @@ class Config:
         self.entropy_threshold = 0.5
         self.held_out_subset = None
         self.held_out_batch_size = 8
+        
+        # Model and Path configuration
+        self.model_name = "distilbert-base-uncased"
+        self.log_dir = "data/logs"
+        self.results_dir = "data/results"
+        self.checkpoint_dir = "data/checkpoints"
 
         # Enforce CPU‑only execution
         self._enforce_cpu_only()
@@ -91,7 +97,11 @@ def get_config():
         learning_rate=5e-5,
         held_out_subset=None,
         held_out_batch_size=8,
-        device=torch.device('cpu')
+        device=torch.device('cpu'),
+        model_name="distilbert-base-uncased",
+        log_dir="data/logs",
+        results_dir="data/results",
+        checkpoint_dir="data/checkpoints"
     )
     # Provide a ``get`` method like the real Config class
     def _get(attr, default=None):
