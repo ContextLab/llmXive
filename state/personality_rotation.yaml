@@ -1,12 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-10-19T00:05:32.011243+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-10-19T02:08:47.218204+00:00'
 last_outcome: committed
 history:
-- slug: daniel-kahneman
-  started_at: '2026-06-27T14:34:11.915328+00:00'
-  ended_at: '2026-06-27T15:33:37.621163+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: david-krakauer
   started_at: '2026-06-27T15:33:37.621163+00:00'
   ended_at: '2026-06-27T15:57:17.983220+00:00'
@@ -1309,3 +1304,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-257-investigating-the-statistical-properties/reviews/research/albert-einstein-simulated__2026-10-19__research.md
+- slug: dan-rockmore
+  started_at: '2026-10-19T00:05:32.011243+00:00'
+  ended_at: '2026-10-19T02:08:47.218204+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-474-neural-correlates-of-simulated-social-ex/reviews/research/dan-rockmore-simulated__2026-10-19__research.md
