@@ -4,11 +4,9 @@ hash_artifacts.py
 Compute SHA‑256 checksums for every file under the project's ``data/`` directory
 and write a manifest JSON file to ``data/artifact_hashes.json``.
 
-This script satisfies **Task T007a** and respects the platform constraint that
+This script satisfies **Task T007a** and respects the platform constraint that
 only project‑owned directories (``data/``, ``figures/``, ``code/``, ``paper/``)
-may be written to. The previous implementation incorrectly wrote to the
-platform‑owned ``state/`` directory; this version writes the manifest inside
-``data/`` as required.
+may be written to.
 
 The script can be invoked as a module:
 
@@ -18,16 +16,13 @@ It will:
 
 1. Locate the project root (two directories up from this file).
 2. Recursively collect all files under ``<project_root>/data``.
-3. Compute a SHA‑256 hash for each file (reading in 4 KB blocks).
+3. Compute a SHA‑256 hash for each file (reading in 4 KB blocks).
 4. Skip the manifest file itself to avoid a circular dependency.
 5. Write a JSON manifest containing:
    - ``status`` (``empty`` if no files, otherwise ``success``),
    - ``total_files`` (number of hashed files),
    - ``checksum_file`` (absolute path to the manifest),
    - ``files`` (mapping of relative file paths to their hex digests).
-
-The manifest format matches the expectations of downstream tasks (e.g.,
-T036) that will later verify artifact integrity.
 """
 
 import hashlib
@@ -51,7 +46,7 @@ def compute_sha256(file_path: Path) -> str:
         Hexadecimal SHA‑256 digest.
     """
     sha256 = hashlib.sha256()
-    # Read in binary mode, 4 KB chunks to avoid loading large files into memory.
+    # Read in binary mode, 4 KB chunks to avoid loading large files into memory.
     with file_path.open("rb") as f:
         for block in iter(lambda: f.read(4096), b""):
             sha256.update(block)
@@ -86,8 +81,7 @@ def main() -> None:
     Entry point for artifact‑hash generation.
 
     The manifest is written to ``data/artifact_hashes.json`` inside the
-    project repository (i.e., a project‑owned location).  The function
-    prints progress information to stdout for user visibility.
+    project repository. The function prints progress information to stdout.
     """
     # Resolve the project root: <project_root>/code/scripts/hash_artifacts.py
     script_path = Path(__file__).resolve()
@@ -96,7 +90,7 @@ def main() -> None:
     data_dir = project_root / "data"
     manifest_path = data_dir / "artifact_hashes.json"
 
-    # Ensure the output directory exists (it should, but be defensive).
+    # Ensure the output directory exists.
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
 
     print(f"Scanning data directory: {data_dir}")

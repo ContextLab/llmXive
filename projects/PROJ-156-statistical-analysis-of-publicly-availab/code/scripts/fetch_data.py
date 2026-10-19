@@ -2,24 +2,23 @@
 fetch_data.py
 
 Data acquisition script for the Speedrun.com API.
-Refactored to use the reusable pagination helper
-`scripts.utils.pagination.paginate_api`.
+Iterates over games in config.yaml and downloads raw run data.
 """
 
 import json
 import logging
 import sys
+import time
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Third‑party API client (real source verified in the spec)
-from speedruncomapi import requests  # type: ignore
+import requests
+import yaml
 
 # Project utilities
 from scripts.utils.pagination import paginate_api
 from scripts.utils.checkpoint import (
     ensure_checkpoint_dir,
-    get_checkpoint_path,
     load_checkpoint,
     save_checkpoint,
 )
@@ -38,49 +37,47 @@ def _setup_logger() -> logging.Logger:
     return logger
 
 # ----------------------------------------------------------------------
-# Minimal YAML‑like config loader (mirrors `scripts.preprocess.load_config`)
+# Config loader
 # ----------------------------------------------------------------------
 def load_config() -> Dict[str, Any]:
     """
-    Load ``code/config.yaml`` using a tiny hand‑rolled parser.
-    Supports top‑level scalar keys and simple lists.
+    Load ``code/config.yaml`` using PyYAML.
+
+    The test suite sometimes writes the YAML file with leading indentation.
+    To be robust against such formatting, we strip leading whitespace before
+    parsing if the initial parse does not return a mapping.
     """
     config_path = Path("code") / "config.yaml"
     if not config_path.is_file():
         raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
-    config: Dict[str, Any] = {}
-    current_key: str | None = None
-    current_list: List[str] = []
-
     with config_path.open("r", encoding="utf-8") as f:
-        for raw_line in f:
-            line = raw_line.rstrip()
-            if not line or line.lstrip().startswith("#"):
-                continue
+        raw_content = f.read()
 
-            if line.startswith("  - "):
-                # List entry
-                if current_key:
-                    current_list.append(line[4:].strip().strip('"').strip("'"))
-            elif ":" in line:
-                # New key
-                if current_key and current_list:
-                    config[current_key] = current_list
-                    current_list = []
+    # First attempt: parse as‑is
+    try:
+        config = yaml.safe_load(raw_content)
+    except yaml.YAMLError as e:
+        raise RuntimeError(f"Failed to parse config.yaml: {e}")
 
-                key, value = line.split(":", 1)
-                key = key.strip()
-                value = value.strip().strip('"').strip("'")
-                if value:
-                    config[key] = value
-                else:
-                    current_key = key
-                    current_list = []
-    # Flush any trailing list
-    if current_key and current_list:
-        config[current_key] = current_list
+    # If parsing yields something other than a dict (e.g., a string because of
+    # leading indentation), retry after stripping common leading whitespace.
+    if not isinstance(config, dict):
+        # Dedent the content to remove any accidental leading spaces.
+        import textwrap
 
+        dedented = textwrap.dedent(raw_content)
+        try:
+            config = yaml.safe_load(dedented)
+        except yaml.YAMLError as e:
+            raise RuntimeError(
+                f"Failed to parse dedented config.yaml: {e}"
+            ) from e
+
+    if not isinstance(config, dict):
+        raise ValueError(
+            "config.yaml did not contain a mapping of configuration keys."
+        )
     return config
 
 # ----------------------------------------------------------------------
@@ -106,10 +103,18 @@ def _fetch_page(url: str, logger: logging.Logger) -> Dict[str, Any]:
     Returns the parsed JSON dictionary.
     """
     logger.info(f"Fetching URL: {url}")
-    response = requests.get(url)
-    if response.status_code != 200:
-        raise RuntimeError(f"Failed to fetch {url}: HTTP {response.status_code}")
-    return response.json()
+    try:
+        response = requests.get(url, timeout=30)
+        if response.status_code == 429:
+            logger.warning("Rate limit hit (429). Sleeping for 10 seconds...")
+            time.sleep(10)
+            return _fetch_page(url, logger)
+        if response.status_code != 200:
+            raise RuntimeError(f"Failed to fetch {url}: HTTP {response.status_code}")
+        return response.json()
+    except requests.RequestException as e:
+        logger.error(f"Network error fetching {url}: {e}")
+        raise
 
 # ----------------------------------------------------------------------
 # Core data‑fetching routine
@@ -120,6 +125,7 @@ def fetch_game_runs(game_id: str, logger: logging.Logger) -> List[Dict[str, Any]
     generic pagination helper.
     """
     url_builder = _url_builder_factory(game_id)
+    # paginate_api is expected to handle the loop and return the accumulated list of runs
     runs = paginate_api(_fetch_page, url_builder, logger, max_pages=10_000, sleep_seconds=0.5)
     return runs
 
@@ -129,12 +135,13 @@ def fetch_game_runs(game_id: str, logger: logging.Logger) -> List[Dict[str, Any]
 def save_raw_data(game_id: str, runs: List[Dict[str, Any]], base_dir: Path = None) -> Path:
     """
     Write the raw run payload for a single game to
-    ``data/raw/<game_id>_raw.json``.
+    ``data/raw/<game_id>.json``.
     """
     if base_dir is None:
         base_dir = Path("data") / "raw"
     base_dir.mkdir(parents=True, exist_ok=True)
-    out_path = base_dir / f"{game_id}_raw.json"
+    # Use the required filename pattern: {game_id}.json
+    out_path = base_dir / f"{game_id}.json"
     with out_path.open("w", encoding="utf-8") as f:
         json.dump({"runs": runs}, f, ensure_ascii=False, indent=2)
     return out_path
@@ -144,7 +151,6 @@ def _update_fetch_checkpoint(completed_games: List[str], checkpoint_path: Path) 
     Persist the list of successfully fetched games to the checkpoint file.
     """
     state = {"completed_games": completed_games}
-    # Ensure the checkpoint directory exists
     ensure_checkpoint_dir(checkpoint_path.parent)
     save_checkpoint(state, checkpoint_path)
 
@@ -155,13 +161,18 @@ def main() -> None:
     logger = _setup_logger()
     logger.info("Starting fetch_data pipeline")
 
-    config = load_config()
+    try:
+        config = load_config()
+    except Exception as e:
+        logger.error(f"Config load failed: {e}")
+        sys.exit(1)
+
     games: List[str] = config.get("games", [])
     if not games:
         logger.error("No games specified in config.yaml")
         sys.exit(1)
 
-    # Resolve checkpoint location (project‑owned path)
+    # Resolve checkpoint location
     checkpoint_path = Path("data") / "checkpoints" / "fetch_checkpoint.json"
     checkpoint = load_checkpoint(checkpoint_path) or {}
     completed: List[str] = checkpoint.get("completed_games", [])
@@ -175,6 +186,10 @@ def main() -> None:
         try:
             logger.info(f"Fetching runs for game: {game_id}")
             runs = fetch_game_runs(game_id, logger)
+
+            if not runs:
+                logger.warning(f"No runs found for game {game_id}. Saving empty list.")
+
             logger.info(f"Fetched {len(runs)} runs for {game_id}")
 
             save_raw_data(game_id, runs)
@@ -185,12 +200,11 @@ def main() -> None:
             logger.info(f"Checkpoint updated – {len(completed)} / {len(games)} games completed")
         except KeyboardInterrupt:
             logger.warning("Interrupted by user – checkpoint saved, exiting")
-            # Ensure checkpoint reflects progress up to this point
             _update_fetch_checkpoint(completed, checkpoint_path)
             sys.exit(1)
         except Exception as e:
             logger.error(f"Failed to fetch data for {game_id}: {e}")
-            # Save checkpoint before propagating the error
+            # Save progress so far
             _update_fetch_checkpoint(completed, checkpoint_path)
             raise
 

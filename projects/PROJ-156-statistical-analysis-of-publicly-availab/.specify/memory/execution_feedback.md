@@ -7,10 +7,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest code/tests/ -> rc=1
-plete_run_filtering
+ode/tests/test_fetch.py::TestFetchData::test_fetch_game_runs_success
+FAILED code/tests/test_fetch.py::TestFetchData::test_fetch_game_runs_with_pagination
+FAILED code/tests/test_fetch.py::TestFetchData::test_incomplete_run_filtering
 FAILED code/tests/test_fetch.py::TestFetchData::test_save_raw_data - Attribut...
-FAILED code/tests/test_fetch_checkpoint.py::TestFetchCheckpoint::test_checkpoint_creation_and_resumption
-FAILED code/tests/test_fetch_checkpoint.py::TestFetchCheckpoint::test_no_checkpoint_when_all_games_succeed
 FAILED code/tests/test_models.py::TestMixedEffectsModel::test_integration_convergence_and_vif
 FAILED code/tests/test_models.py::TestMixedEffectsModel::test_model_output_structure
 FAILED code/tests/test_preprocess.py::TestPreprocess::test_data_file_exists
@@ -20,7 +20,7 @@ FAILED code/tests/test_preprocess.py::TestPreprocess::test_run_records_conform_t
 FAILED code/tests/test_preprocess.py::TestPreprocess::test_schema_file_exists
 FAILED code/tests/test_preprocess_checkpoint.py::TestPreprocessCheckpoint::test_checkpoint_creation_after_first_game
 FAILED code/tests/test_preprocess_checkpoint.py::TestPreprocessCheckpoint::test_checkpoint_resumption
-=================== 22 failed, 23 passed, 1 skipped in 1.60s ===================
+=================== 20 failed, 25 passed, 1 skipped in 1.62s ===================
 
 
 

@@ -1,12 +1,4 @@
 T001:
-  reason: "The 15 `data/raw/*.json` files are all byte-identical (same sha256) and\
-    \ their contents are GoldenEye 007 runs (`\"game\": \"nj1ne1p4\"`, weblinks to\
-    \ `speedrun.com/ge60fps`), not data for the configured games \u2014 the \"fetch\"\
-    \ was fabricated/duplicated, not a real per-game API download. Additionally, the\
-    \ script writes `{game_id}_raw.json` rather than the required `data/raw/{game_id}.json`,\
-    \ and the only execution log shows it did nothing (\"0 games to fetch\") because\
-    \ the checkpoint already marked all games complete, so there is no evidence of\
-    \ a genuine fetch run."
   task: 88935aad767cc2a2b025c84e512a279e29d4778dedcefa2b09414fd7de4ae50e
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/scripts/preprocess.py
@@ -23,14 +15,6 @@ T007a:
     to write only project-owned outputs.'
   task: f0d94641b38bfe8f26e86fd7a90e3c52fbf038ba2e374e858bb6ed6bbf937fd2
 T008a:
-  reason: "The only execution record (`code/.tasks/T008a.tests_test_checkpoint.py.log`)\
-    \ shows `python -m pytest -v` exiting 1 with 2 of 4 tests failing (`test_save_and_load_checkpoint`\
-    \ and `test_delete_checkpoint`), because saved files don't land in the monkey-patched\
-    \ `CHECKPOINT_DIR` (the log's \"Checkpoint saved\" output also suggests the executed\
-    \ code differs from the current artifact, so the current version has no passing-run\
-    \ evidence). The task's verification criterion \u2014 `tests/test_checkpoint.py`\
-    \ passes \u2014 is not met; the implementer must fix the path resolution (e.g.,\
-    \ ensure `_resolve_path`/`save_che"
   task: 75acc5a9c6223c951058bce09787db6c4a2f59d04d7fbfdb0a2d8dceda80f3c2
 T009:
   task: cabac4ca3e56df117389238211c505ce4536fe4452d111b2b82a68badff880f3
@@ -44,13 +28,12 @@ T014:
     \ match a manual lagged-pressure calculation, the claim cannot be verified."
   task: e2d5bbbd8998a7cae5dc7b1f3b42fe94353d6c32d9abf8403e717a9f6c9ea9fb
 T015a:
-  reason: 'The checkpoint JSON exists, but the actual test run for this task (`code/tests/test_fetch_checkpoint.py`)
-    failed with exit 1: both tests failed because `fetch_data.main()` errors with
-    "No games specified in config.yaml" and exits before any download/checkpoint logic
-    runs, so checkpoint creation and interruption-resume behavior were never demonstrated.
-    The implementer must fix the config handling in `fetch_data.py` (or the test''s
-    config setup) so the checkpoint integration actually executes and the resume test
-    passes.'
+  reason: "Checked the `data/checkpoints/fetch_checkpoint.json` file (present) and\
+    \ the pytest log `code/.tasks/T015a.code_tests_test_fetch_checkpoint.py.log`,\
+    \ which shows both checkpoint\u2011creation and resumption tests failing because\
+    \ the script aborts with \u201CNo games specified in config.yaml\u201D and never\
+    \ writes a checkpoint file. The required integration and resume behavior are not\
+    \ demonstrated."
   task: 9ff15f6f93bd20596ec57fc9e0eca41073173c7283ccc5407b5b24bf08c98d40
 T015b:
   reason: 'Requested task execution failed; rerun successfully: code/scripts/preprocess.py

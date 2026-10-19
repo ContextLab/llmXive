@@ -16,7 +16,7 @@
 - [ ] T007a    Implement `code/scripts/hash_artifacts.py` (SHA‑256 checksums for all files under `data/`).  
   – **Verification**: Running `python -m code.scripts.hash_artifacts` creates `state/artifact_hashes.json` without error.  
 
-- [ ] T008a    Implement `code/scripts/utils/checkpoint.py` exposing `save_checkpoint(state: dict, path: str)` and `load_checkpoint(path: str) -> dict`.  
+- [X] T008a    Implement `code/scripts/utils/checkpoint.py` exposing `save_checkpoint(state: dict, path: str)` and `load_checkpoint(path: str) -> dict`.  
   – **Verification**: Unit test `tests/test_checkpoint.py` passes.  
 
 ---  
@@ -26,7 +26,7 @@
 - [X] T033a [P] Refactor pagination logic into reusable helper `code/scripts/utils/pagination.py::paginate_api`.  
   – **Verification**: Helper file exists; `fetch_data.py` calls `paginate_api`; unit test `tests/test_pagination.py` validates full page list.  
 
-- [ ] T001    Create `code/scripts/fetch_data.py` that iterates over `config.yaml`’s `games`, calls the speedrun.com API, respects rate‑limits, uses `paginate_api`, and writes raw JSON to `data/raw/{game_id}.json`.
+- [X] T001    Create `code/scripts/fetch_data.py` that iterates over `config.yaml`’s `games`, calls the speedrun.com API, respects rate‑limits, uses `paginate_api`, and writes raw JSON to `data/raw/{game_id}.json`.
   – **Verification**: After running on a test game, a non‑empty file appears under `data/raw/`.  
 
 - [ ] T015a    Add checkpoint integration to `fetch_data.py` (FR‑012). After each game download, call `save_checkpoint({"completed_games": [...]}, "data/checkpoints/fetch_checkpoint.json")`.  

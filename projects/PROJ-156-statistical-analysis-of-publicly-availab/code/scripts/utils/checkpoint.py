@@ -6,8 +6,8 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Union
 
-# Default directory for checkpoints (project‑owned location)
-# Exposed as CHECKPOINT_DIR for tests that monkey‑patch it.
+# Default directory for checkpoints (project-owned location)
+# Exposed as CHECKPOINT_DIR for tests that monkey-patch it.
 CHECKPOINT_DIR: Path = Path("data") / "checkpoints"
 
 def ensure_checkpoint_dir(base_dir: Union[str, Path] = None) -> Path:
@@ -62,15 +62,14 @@ def get_checkpoint_path(*args: Any) -> Path:
 
 def _resolve_path(path: Union[str, Path]) -> Path:
     """
-    Resolve a possibly‑relative checkpoint path. If ``path`` has no parent
-    directory (i.e. is just a filename), it is interpreted relative to
-    ``CHECKPOINT_DIR``. This mirrors the behaviour expected by the unit
-    tests, which monkey‑patch ``CHECKPOINT_DIR``.
+    Resolve a possibly-relative checkpoint path. If ``path`` is just a 
+    filename (no directory components), it is interpreted relative to 
+    ``CHECKPOINT_DIR``.
     """
     p = Path(path)
-    if not p.parent or p.parent == Path():
-        # No directory component – treat as relative to CHECKPOINT_DIR
-        p = CHECKPOINT_DIR / p
+    # If the path is just a filename, p.name will equal the string representation of p.
+    if p.name == str(p):
+        return CHECKPOINT_DIR / p
     return p
 
 def save_checkpoint(state_or_path: Union[Dict, str, Path],
@@ -110,13 +109,12 @@ def load_checkpoint(path: Union[str, Path]) -> Union[Dict, None]:
     """
     Load a checkpoint JSON file.
 
-    Returns ``None`` if the file does not exist, matching the expectation
-    of the unit tests.
+    Returns ``None`` if the file does not exist.
 
     Parameters
     ----------
     path : str | pathlib.Path
-        Path to the checkpoint file.
+        The path to the checkpoint file.
 
     Returns
     -------
@@ -136,7 +134,7 @@ def delete_checkpoint(path: Union[str, Path]) -> bool:
     Parameters
     ----------
     path : str | pathlib.Path
-        Path to the checkpoint file.
+        The path to the checkpoint file.
 
     Returns
     -------
