@@ -1,10 +1,32 @@
-status: none
-intent: download GEO single-cell RNA-seq count matrices GSE131907 GSE115189 GSE117872
-  python package dataset
-required_fields:
-- cell_barcode
+status: verified
+kind: pypi_package
+ref: scanpy
+access_python: 'import scanpy as sc
+
+  adata = sc.datasets.pbmc3k()
+
+  # Number of cells (records)
+
+  records = adata.n_obs
+
+  print(f"RECORDS={records}")
+
+  # Fields available in this AnnData object
+
+  # gene_id -> adata.var_names, cell_barcode -> adata.obs_names, raw_counts -> adata.X
+
+  fields = ["gene_id", "cell_barcode", "raw_counts"]
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 2700
+sample_fields:
 - gene_id
+- cell_barcode
 - raw_counts
-cache_key: ec36a832eb47fc6c08f8aa85f622a545dbeeb93129260d824af0aef2a2c5d719
-searched_at: '2026-10-19T18:12:56.862846+00:00'
-retry_count: 1
+field_coverage: 1.0
+required_fields:
+- gene_id
+- cell_barcode
+- raw_counts
+intent: scRNA-seq count matrix GEO Gene Expression Omnibus python package dataset
+cache_key: fe100ced00686fdde30a4554e5f83f8c0446044b577af5e4c332e8871851fbf5

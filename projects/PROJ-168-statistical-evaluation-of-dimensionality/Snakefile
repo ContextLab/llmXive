@@ -1,69 +1,46 @@
-"""
-Minimal Snakemake workflow for the dimensionality reduction pipeline.
-
-This workflow defines:
-  * verify_data_availability – aborts if all datasets in the manifest are marked "Unavailable".
-  * download               – runs the data_gap_resolver script (which writes the manifest).
-  * data_gap_resolver      – a thin wrapper around the existing Python script.
-
-The verify_data_availability rule is a prerequisite of the download rule, as required.
-"""
-
 import json
-import sys
-from pathlib import Path
+import os
 
-rule verify_data_availability:
-    """
-    Checks data/manifest.json. If every entry has "status": "Unavailable",
-    the workflow aborts with a clear error message.
-    """
-    input:
-        manifest="data/manifest.json"
-    output:
-        marker="data/.verify_data_availability.done"
-    run:
-        manifest_path = input.manifest
-        with open(manifest_path, "r", encoding="utf-8") as f:
-            manifest = json.load(f)
-
-        all_unavailable = all(
-            entry.get("status", "").lower() == "unavailable"
-            for entry in manifest
-        )
-        if all_unavailable:
-            print("All datasets unavailable – aborting.", file=sys.stderr)
-            sys.exit(1)
-
-        # Touch a marker file so downstream rules can depend on it.
-        Path(output.marker).touch()
-
-rule data_gap_resolver:
-    """
-    Executes the existing Python data_gap_resolver script.
-    The script writes data/manifest.json (and related summary files).
-    """
-    output:
-        manifest="data/manifest.json"
-    shell:
-        """
-        python code/data_gap_resolver.py
-        """
-
-rule download:
-    """
-    Depends on successful verification and runs the resolver.
-    """
-    input:
-        verified="data/.verify_data_availability.done"
-    output:
-        manifest="data/manifest.json"
-    shell:
-        """
-        python code/data_gap_resolver.py
-        """
-
-# Default target – can be extended by later tasks.
+# Default target for the pipeline
 rule all:
     input:
         "data/manifest.json"
+
+# T006: Minimal data_gap_resolver rule that calls the resolver script
+rule data_gap_resolver:
+    output:
+        "data/manifest.json"
+    shell:
+        "python code/data_gap_resolver.py"
+
+# T006: verify_data_availability rule
+# Reads the manifest and aborts the workflow if all datasets are Unavailable.
+rule verify_data_availability:
+    input:
+        "data/manifest.json"
+    output:
+        "data/.availability_verified"
+    run:
+        import json
+        import os
+        
+        with open(input[0], 'r') as f:
+            manifest = json.load(f)
+        
+        # Condition: Abort if ALL datasets are marked "Unavailable"
+        # We check if the manifest is empty or if every entry has status == "Unavailable"
+        if not manifest or all(d.get('status') == 'Unavailable' for d in manifest):
+            # Raising an exception in a 'run' block aborts the Snakemake workflow
+            raise Exception("All datasets unavailable – aborting.")
+        
+        # If at least one is available, create the sentinel file to allow downstream rules
+        with open(output[0], 'w') as f:
+            f.write("verified")
+
+# T006: download rule
+# The verify_data_availability rule is a prerequisite for this rule.
+rule download:
+    input:
+        "data/.availability_verified"
+    shell:
+        "python code/download.py"

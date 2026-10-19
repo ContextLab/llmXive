@@ -48,7 +48,7 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
 
 ## Phase 1 – Data‑Gap Resolution (Phase 0 blocker)  
 
-- [ ] **T007** [FR‑001] Download raw count matrices, compute checksums, write a schema‑valid manifest, and enforce the three‑dataset requirement.   <!-- FAILED-IN-EXECUTION: code/data_gap_resolver.py exit=1 -->
+- [ ] **T007** [FR‑001] Download raw count matrices, compute checksums, write a schema‑valid manifest, and enforce the three‑dataset requirement.   <!-- FAILED-IN-EXECUTION: code/data_gap_resolver.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_gap_resolver.py exit=1 -->
   - Implement `code/data_gap_resolver.py` that iterates over `config.GEO_ACCESSIONS`, uses `GEOparse` to locate supplementary count‑matrix files, downloads each into `data/raw/<accession>/`, and records: `dataset_id`, `source_url`, `status` (`Available`/`Unavailable`), `checksum`, `raw_file_path`, `processed_file_path` (null for now).  
   - Assemble `data/manifest.json` conforming to `specs/001‑statistical‑evaluation‑of‑dimensionality/contracts/dataset.schema.yaml`.  
   - **Verification of citation accuracy**: for each `source_url` ensure the URL resolves and the dataset citation can be validated (placeholder step that would be caught by the Reference‑Validator).  

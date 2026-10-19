@@ -1,13 +1,13 @@
 T001:
   c: true
-  h: 03c96aff584f94f36436cbb545202305bea0dc7955d7d82e21d8c7cca9134c37
-  r: All 12 required directories exist on disk (confirmed by the collector listing),
-    and `results/dir_listing.txt` is non-empty and contains every required directory
-    path (data/raw, data/processed, data/embeddings, data/clustering, data/metrics,
-    data/results, figures, results, code, code/tests, paper, .github/workflows). The
-    execution log shows `code/create_project_tree.py` ran with exit 0 and generated
-    the listing via the specified `find` command.
-  sig: 99468845643cbbfd09c46685c8795d3d8e26c098019c30e90c31439017011c12
+  h: 0e0b6acaea45600e4d8201be97891462dde8b9a39e75294a05952a5d7ae385f0
+  r: All 12 required directories exist on disk (confirmed by the collector's directory
+    listing), and `results/dir_listing.txt` (179 bytes, non-empty) contains every
+    required directory path (`data/raw`, `data/processed`, `data/embeddings`, `data/clustering`,
+    `data/metrics`, `data/results`, `figures`, `results`, `code`, `code/tests`, `paper`,
+    `.github/workflows`). The execution log shows `code/create_project_tree.py` ran
+    the exact `find` command and exited 0, matching the on-disk artifact.
+  sig: 897e86cd788f8d28cb237f8c0a3713be09712d50fc621c303496cb0226a1569a
 T004:
   c: true
   h: 77b475c1d7589685745769bb53b10c864a23bb514aa068263f3950050a2bfb1c
@@ -29,3 +29,15 @@ T005:
     the verification criteria. The empty `results/pipeline.log` is not a defect since
     no INFO-level log records are emitted during the self-test.'
   sig: b325ae549b26ae57f53c09d6d56515e134f2cf86b4463dab0795211f0c57b333
+T006:
+  c: false
+  h: a567e13cff1f658476c79bd33d82b43386e217e3405a56244013438b2a5419b7
+  r: "The evidence contains `data/manifest.json`, `code/data_gap_resolver.py`, `code/config.py`,\
+    \ and `code/download.py`, but no `Snakefile` at all \u2014 the core deliverable\
+    \ of T006 is absent. Consequently there is no `verify_data_availability` rule,\
+    \ no `download: verify_data_availability` dependency, no `data_gap_resolver` Snakemake\
+    \ rule, and no evidence that `snakemake -n verify_data_availability` prints \"\
+    All datasets unavailable \u2013 aborting.\" (the manifest shows all three datasets\
+    \ Unavailable, so this abort path is exactly what should be demonstrable). The\
+    \ implementer must create the Snakefile with th"
+  sig: 9943f13b29186c1a446c47753c30281e49fcf45a4208138e8d3b43d5a9572dd0

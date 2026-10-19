@@ -11,13 +11,14 @@ T004:
 T005:
   task: 5e338ee5a51984bc4da15d982a811a1f887e54324dc797f10844bb03b4008a2a
 T006:
-  reason: "The evidence contains no `Snakefile` at all \u2014 the collector's artifact\
-    \ list includes only `data/manifest.json`, `code/data_gap_resolver.py`, `code/config.py`,\
-    \ and `code/download.py`. The required `verify_data_availability` rule (reading\
-    \ the manifest, aborting with \"All datasets unavailable \u2013 aborting.\" when\
-    \ all datasets are Unavailable), its prerequisite wiring to a `download` rule,\
-    \ and the `data_gap_resolver` rule calling `code/data_gap_resolver.py` are therefore\
-    \ nowhere present, and no dry-run/DAG execution evidence exists either."
+  reason: "The evidence contains `data/manifest.json`, `code/data_gap_resolver.py`,\
+    \ `code/config.py`, and `code/download.py`, but no `Snakefile` at all \u2014 the\
+    \ core deliverable of T006 is absent. Consequently there is no `verify_data_availability`\
+    \ rule, no `download: verify_data_availability` dependency, no `data_gap_resolver`\
+    \ Snakemake rule, and no evidence that `snakemake -n verify_data_availability`\
+    \ prints \"All datasets unavailable \u2013 aborting.\" (the manifest shows all\
+    \ three datasets Unavailable, so this abort path is exactly what should be demonstrable).\
+    \ The implementer must create the Snakefile with th"
   task: 2d1197d3235a3786e9187652b73cca1ed39ecf3cf1288fbd958263f23fad6606
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/data_gap_resolver.py

@@ -1,7 +1,0 @@
-{
-  "task_id": "T007",
-  "fingerprint": "9706a1f6a02309b4fe2cf9e9c1d2fbdcbca668ee55a780a0709f1c5bcd3262b9",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refused 'tests/test_validators.py': it would replace working code with a file that has none. To leave a file unchanged, leave it out of `artifacts`; to re-run it unchanged, give `path`, `execute: true` and `args` and omit `contents`."
-}
