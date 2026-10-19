@@ -1,13 +1,5 @@
 datasets
 pyarrow
-pandas
-numpy
-scipy
-matplotlib
-statsmodels
-psutil
 memory_profiler
-requests
-jsonschema
-PyYAML
-pytest
+ruff
+black

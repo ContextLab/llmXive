@@ -15,23 +15,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/data/download.py -> rc=1
-ub.errors.RemoteEntryNotFoundError: 404 Client Error. (Request ID: Root=1-6ad5b498-2e7e6fba011ffce5675bf00c;a364afc0-7846-460a-a670-9bc44a1ae633)
-
-Entry Not Found for url: https://huggingface.co/datasets/chrisvoncsefalvay/vaers-outcomes/resolve/main/vaers_2020_2023.parquet.
-
-The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 194, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 187, in main
-    fetch_vaers_data()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 157, in fetch_vaers_data
-    parquet_path = download_parquet()
-                   ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 98, in download_parquet
-    raise RuntimeError(
-RuntimeError: Unable to download chrisvoncsefalvay/vaers-outcomes:vaers_2020_2023.parquet
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 22, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python src/data/validate.py -> rc=2
 
@@ -40,13 +35,13 @@ validate.py: error: the following arguments are required: --input
 
 - python code/src/data/clean.py -> rc=1
 
-2026-10-19 06:11:37,574 - clean - INFO - Starting data cleaning process
-2026-10-19 06:11:37,574 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
+2026-10-19 07:32:14,165 - clean - INFO - Starting data cleaning process
+2026-10-19 07:32:14,166 - clean - ERROR - No VAERS CSV files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/code/data/raw
 
 - python src/main.py -> rc=1
-2026-10-19 06:11:38,326 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-19 06:11:38,416 - matplotlib.font_manager - INFO - generated new fontManager
-2026-10-19 06:11:38,684 - pipeline - INFO - No action specified. Use --full or --phase N
+2026-10-19 07:32:14,676 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
+2026-10-19 07:32:14,742 - matplotlib.font_manager - INFO - generated new fontManager
+2026-10-19 07:32:14,910 - pipeline - INFO - No action specified. Use --full or --phase N
 
 
 - python -m pytest -q tests/contract/ -> rc=4

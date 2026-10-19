@@ -1,15 +1,15 @@
 T001:
-  c: false
-  h: ff75dedff5f9f1597896054622b01dc863a8f8b9fca01879e82e70a6f79c1b09
-  r: "The collector confirms `data/processed/` does not exist at the project root,\
-    \ even though `logs/structure.txt` lists it under `data/` (notably without the\
-    \ trailing `/` that `tree` uses for directories, unlike `data/raw/` which the\
-    \ collector confirms exists) \u2014 so the structure evidence misrepresents the\
-    \ filesystem and one of the ten required directories is genuinely missing. `logs/structure.txt`\
-    \ is non-empty and `quickstart.md` does document `python -m src.main` and input\
-    \ provenance, but the missing `data/processed/` directory (and the structure log's\
-    \ inaccurate listing of it) fails the task's d"
-  sig: 7baa7b99d1b671bc8be521c5dad96ba3780a2bd8b1b6a90ca50e491bcd32ce39
+  c: true
+  h: 5087aeae562c740d396fcaa82ecbcc46969dd9a4da90ae4967a9a7a89c7e34eb
+  r: All required directories (`src/data/`, `src/analysis/`, `src/utils/`, `src/validation/`,
+    `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `output/`,
+    `logs/`) exist per the collector evidence; `logs/structure.txt` is non-empty (5223
+    bytes) and contains a full `tree -a -L 3` listing (49 directories, 110 files)
+    including all required directories; `quickstart.md` documents the runnable command
+    `python -m src.main` and input provenance (VAERS 2020-2023 via the Hugging Face
+    dataset with checksum). The execution log shows `code/setup_project_structure.py`
+    ran with exit 0.
+  sig: 5041bdf6c4675eed2734174af2a2350d0b606c9051bdaa4c8eaf8d2e56975e6f
 T003:
   c: false
   h: a3bcf2eddced4dd7de4db83190b65dcd94c6f0c326e8eed86be4b4f933dff92e

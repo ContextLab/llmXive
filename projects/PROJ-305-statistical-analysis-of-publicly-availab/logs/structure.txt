@@ -2,19 +2,9 @@
 ├── .gitignore
 ├── .gitkeep
 ├── .pre-commit-config.yaml
-├── .pytest_cache
-│   ├── .gitignore
-│   ├── CACHEDIR.TAG
-│   ├── README.md
-│   └── v
-│       └── cache
 ├── .python-version
 ├── .ruff.toml
 ├── .runtime-home
-│   ├── .cache
-│   │   └── matplotlib
-│   └── .config
-│       └── matplotlib
 ├── .specify
 │   ├── memory
 │   │   ├── constitution.md
@@ -45,14 +35,10 @@
 │   ├── .gitkeep
 │   ├── .ruff.toml
 │   ├── .tasks
-│   │   ├── T001.code_create_structure.py.log
-│   │   ├── T002.src_data_download.py.log
 │   │   └── T016b.atomize.yaml
 │   ├── Makefile
 │   ├── README.md
 │   ├── __init__.py
-│   ├── __pycache__
-│   │   └── __init__.cpython-311.pyc
 │   ├── contracts
 │   │   ├── .gitkeep
 │   │   ├── dataset.schema.yaml
@@ -62,7 +48,6 @@
 │   ├── data
 │   │   ├── .gitkeep
 │   │   ├── __init__.py
-│   │   ├── processed
 │   │   └── raw
 │   ├── figures
 │   │   └── .gitkeep
@@ -78,13 +63,13 @@
 │   │   ├── gpu_check.py
 │   │   └── setup_linting.py
 │   ├── setup_project.py
+│   ├── setup_project_structure.py
 │   ├── setup_structure.py
 │   ├── specs
 │   │   └── .gitkeep
 │   ├── src
 │   │   ├── .gitkeep
 │   │   ├── __init__.py
-│   │   ├── __pycache__
 │   │   ├── analysis
 │   │   ├── data
 │   │   ├── main.py
@@ -114,18 +99,12 @@
 │   ├── research_question_validation.md
 │   └── statistical-analysis-of-publicly-availab.md
 ├── logs
-│   ├── analysis.log
-│   ├── clean.log
-│   ├── download.log
 │   ├── lint.txt
-│   ├── pipeline.log
-│   ├── structure.txt
-│   └── validate.log
+│   └── structure.txt
 ├── output
 │   ├── .gitkeep
-│   ├── figures
-│   │   └── __init__.py
-│   └── temporal_profiles
+│   └── figures
+│       └── __init__.py
 ├── pyproject.toml
 ├── quickstart.md
 ├── requirements.txt
@@ -179,4 +158,4 @@
         ├── test_validate.py
         └── test_validate_e_schema_missing.py
 
-60 directories, 120 files
+49 directories, 110 files

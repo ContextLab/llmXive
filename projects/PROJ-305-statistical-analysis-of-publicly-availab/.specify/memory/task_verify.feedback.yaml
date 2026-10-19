@@ -1,12 +1,4 @@
 T001:
-  reason: "The collector confirms `data/processed/` does not exist at the project\
-    \ root, even though `logs/structure.txt` lists it under `data/` (notably without\
-    \ the trailing `/` that `tree` uses for directories, unlike `data/raw/` which\
-    \ the collector confirms exists) \u2014 so the structure evidence misrepresents\
-    \ the filesystem and one of the ten required directories is genuinely missing.\
-    \ `logs/structure.txt` is non-empty and `quickstart.md` does document `python\
-    \ -m src.main` and input provenance, but the missing `data/processed/` directory\
-    \ (and the structure log's inaccurate listing of it) fails the task's d"
   task: 72277866824112601def85e1634728980763e25c3d0025d6e98f32b9171d0147
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py

@@ -35,7 +35,7 @@ pip install -r src/requirements.txt
 1. **Create the directory tree and filesystem evidence artifact (T001)**
 
  ```bash
- python code/create_structure.py
+ python code/setup_project_structure.py
  ```
 
  Writes `logs/structure.txt` (output of `tree -a -L 3`, with a `find`
@@ -106,9 +106,9 @@ pip install -r src/requirements.txt
 ## Troubleshooting
 
 | Symptom | Likely cause | Remedy |
-|---------|--------------|--------|
-| `logs/structure.txt` missing | Step 1 not executed | Run `python code/create_structure.py` |
-| Download fails | Hugging Face dataset unreachable | Confirm the dataset id `chrisvoncsefalvay/vaers-outcomes`; the script fails loudly rather than falling back to synthetic data |
+|----------|--------------|--------------------------------------------------|
+| `logs/structure.txt` missing | Step 1 not executed | Run `python code/setup_project_structure.py` |
+| Download fails | Hugging Face dataset unreachable | Confirm the dataset id `chrisvoncsefalvay/vaers-outcomes` |
 | `E_SCHEMA_MISSING` from validate | Required columns absent | Confirm the downloaded parquet matches the contract |
 | MemoryError | Dataset exceeds 7 GB RAM | Enable chunked processing in `src/utils/config.py` |
-| Lint failures | Style violations | Run `ruff check src/` and fix reported issues |
+| Lint failures (`ruff` exit 1) | Style violations | Run `ruff check src/` locally, fix reported issues |
