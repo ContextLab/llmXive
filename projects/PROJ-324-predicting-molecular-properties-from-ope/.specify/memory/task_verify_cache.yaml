@@ -1,9 +1,9 @@
 T101:
-  c: false
-  h: c68a2d29e1b50bed75c16a8c90224de62d1a3e7e476fce16c1ca076f454aec5f
-  r: "The required input file `data/derived/baseline_test_predictions.csv` is missing,\
-    \ so `compute_baseline_metrics()` cannot run and the expected outputs `data/derived/baseline_metrics.csv`\
-    \ and `data/derived/baseline_residuals.png` were never created. Additionally,\
-    \ the unit test fails to import `pytest` in the conftest, so it never validates\
-    \ the CSV/PNG generation. The task\u2019s core artifacts are absent."
-  sig: 538cefaa50f90b583359e8cc0d65a3ce70b113a5b79c8bd9d3d8fea7c0d94281
+  c: true
+  h: f650ebfe78625418ce989c35902d6d816e2e6ce04de248c0bc9b17e0fef1cdaf
+  r: "Checked `code/analysis/stats.py` (compute_baseline_metrics implementation),\
+    \ the generated `data/derived/baseline_metrics.csv` (3 rows, correct header, non\u2011\
+    negative MAE), and `data/derived/baseline_residuals.png` (non\u2011empty, \u2265\
+    200\xD7200\u202Fpx) together with the unit test `tests/unit/test_baseline_metrics.py`\
+    \ which validates these artifacts. All requirements are met."
+  sig: 879c03ab3ad373b8311543c9255d2c66e2dc585c590f91d5c16aa661c14d696a

@@ -2,30 +2,57 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis/validation_audit.py; 8 command(s) failed: python code/data/download.py (rc=1); python code/data/preprocess.py (rc=1); python code/data/fingerprint.py (rc=1); 13 declared deliverable(s) absent: data/derived/baseline_metrics.csv; data/derived/baseline_residuals.png; data/derived/baseline_test_predictions.csv
+**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis/validation_audit.py; 7 command(s) failed: python code/data/download.py (rc=1); python code/data/preprocess.py (rc=1); python code/data/fingerprint.py (rc=1); 9 declared deliverable(s) absent: data/derived/conformational_limitations.csv; data/derived/data_quality_report.csv; data/derived/rf_test_predictions.csv
 
 ## Failing / missing run-book commands
 
 - python code/data/download.py -> rc=1
-:24:02,892 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1964: 'Compound' object has no attribute 'water_solubility'
-2026-10-19 13:24:02,892 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1964: 'Compound' object has no attribute 'boiling_point'
-2026-10-19 13:24:02,892 - __main__ - WARNING - Failed to fetch RecordType for CID 1964: 'Compound' object has no attribute 'record_type'
-2026-10-19 13:24:02,892 - __main__ - ERROR - Failed to fetch data for CID 1964: 'Compound' object has no attribute 'record_type'
-2026-10-19 13:24:03,215 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1973: 'Compound' object has no attribute 'water_solubility'
-2026-10-19 13:24:03,215 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1973: 'Compound' object has no attribute 'boiling_point'
-2026-10-19 13:24:03,215 - __main__ - WARNING - Failed to fetch RecordType for CID 1973: 'Compound' object has no attribute 'record_type'
-2026-10-19 13:24:03,216 - __main__ - ERROR - Failed to fetch data for CID 1973: 'Compound' object has no attribute 'record_type'
-2026-10-19 13:24:03,217 - __main__ - ERROR - No data fetched. Check CID list and PubChemPy connectivity.
+:15:32,862 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1964: 'Compound' object has no attribute 'water_solubility'
+2026-10-19 14:15:32,862 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1964: 'Compound' object has no attribute 'boiling_point'
+2026-10-19 14:15:32,862 - __main__ - WARNING - Failed to fetch RecordType for CID 1964: 'Compound' object has no attribute 'record_type'
+2026-10-19 14:15:32,862 - __main__ - ERROR - Failed to fetch data for CID 1964: 'Compound' object has no attribute 'record_type'
+2026-10-19 14:15:33,087 - __main__ - WARNING - Failed to fetch WaterSolubility for CID 1973: 'Compound' object has no attribute 'water_solubility'
+2026-10-19 14:15:33,087 - __main__ - WARNING - Failed to fetch BoilingPoint for CID 1973: 'Compound' object has no attribute 'boiling_point'
+2026-10-19 14:15:33,087 - __main__ - WARNING - Failed to fetch RecordType for CID 1973: 'Compound' object has no attribute 'record_type'
+2026-10-19 14:15:33,087 - __main__ - ERROR - Failed to fetch data for CID 1973: 'Compound' object has no attribute 'record_type'
+2026-10-19 14:15:33,088 - __main__ - ERROR - No data fetched. Check CID list and PubChemPy connectivity.
 
 - python code/data/preprocess.py -> rc=1
+pe/lib/python3.11/site-packages/rdkit/Chem/AllChem.py", line 33, in <module>
+    from rdkit.Chem.rdReducedGraphs import *
+AttributeError: _ARRAY_API not found
 
-2026-10-19 13:24:03,673 - __main__ - ERROR - Raw data file not found: data/raw/pubchem_raw.csv. Run T008 first.
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.2.6 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+Traceback (most recent call last):  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/data/preprocess.py", line 9, in <module>
+    from rdkit.Chem import AllChem, DataStructs
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-324-predicting-molecular-properties-from-ope/lib/python3.11/site-packages/rdkit/Chem/AllChem.py", line 34, in <module>
+    from rdkit.Chem.rdShapeHelpers import *
+AttributeError: _ARRAY_API not found
+2026-10-19 14:15:33,398 - __main__ - ERROR - Raw data file not found: data/raw/pubchem_raw.csv. Run T008 first.
 
 - python code/data/fingerprint.py -> rc=1
+ser of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
 
-2026-10-19 13:24:04,612 - __main__ - INFO - Ensured output directories: [PosixPath('data/processed'), PosixPath('data/derived')]
-2026-10-19 13:24:04,612 - __main__ - ERROR - Open Babel (obabel) not found in PATH. Please install it.
-2026-10-19 13:24:04,613 - __main__ - ERROR - Open Babel not available. Cannot proceed.
+Traceback (most recent call last):  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/data/fingerprint.py", line 18, in <module>
+    from data.preprocess import ensure_dirs as ensure_data_dirs
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/data/preprocess.py", line 9, in <module>
+    from rdkit.Chem import AllChem, DataStructs
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-324-predicting-molecular-properties-from-ope/lib/python3.11/site-packages/rdkit/Chem/AllChem.py", line 34, in <module>
+    from rdkit.Chem.rdShapeHelpers import *
+AttributeError: _ARRAY_API not found
+2026-10-19 14:15:34,018 - __main__ - INFO - Ensured output directories: [PosixPath('data/processed'), PosixPath('data/derived')]
+2026-10-19 14:15:34,018 - __main__ - ERROR - Open Babel (obabel) not found in PATH. Please install it.
+2026-10-19 14:15:34,018 - __main__ - ERROR - Open Babel not available. Cannot proceed.
 
 - python code/models/baseline.py -> rc=1
 ope/code/models/baseline.py", line 87, in process_dataset
@@ -58,27 +85,9 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'data.preprocess'
 
 - python code/analysis/stats.py -> rc=1
-2026-10-19 13:24:06,981 - stats - INFO - Generating Experimental Validation Protocol (T058)...
+2026-10-19 14:15:35,630 - stats - INFO - Generating Experimental Validation Protocol (T058)...
 ERROR: Metadata file not found at data/raw/dataset_metadata.json. Run T031 first.
 
-
-- python code/analysis/explainability.py -> rc=1
-):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/analysis/explainability.py", line 490, in main
-    model = load_model()
-            ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/analysis/explainability.py", line 72, in load_model
-    raise FileNotFoundError(f"Model file not found: {model_path}")
-FileNotFoundError: Model file not found: data/models/final_model.pkl
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/analysis/explainability.py", line 532, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/analysis/explainability.py", line 490, in main
-    model = load_model()
-            ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/code/analysis/explainability.py", line 72, in load_model
-    raise FileNotFoundError(f"Model file not found: {model_path}")
-FileNotFoundError: Model file not found: data/models/final_model.pkl
 
 - python code/analysis/validation_audit.py -> rc=2
 
@@ -103,18 +112,14 @@ ERROR tests/unit/test_lint_config.py
 ERROR tests/unit/test_lint_format.py
 ERROR tests/unit/test_linting_config.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 14 warnings, 6 errors in 1.26s ========================
+======================== 14 warnings, 6 errors in 0.84s ========================
 
 
 
 ## Declared deliverables still missing
 
-- data/derived/baseline_metrics.csv
-- data/derived/baseline_residuals.png
-- data/derived/baseline_test_predictions.csv
 - data/derived/conformational_limitations.csv
 - data/derived/data_quality_report.csv
-- data/derived/deviation_contexts.csv
 - data/derived/rf_test_predictions.csv
 - data/derived/shap_interaction.npy
 - data/derived/shap_interactions.png
@@ -128,29 +133,24 @@ ERROR tests/unit/test_linting_config.py
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `PubChemPy` to the project's `requirements.txt` and `pip install PubChemPy`.
-- **Verified**: this loads **10** real records with fields: CID, SMILES, InChIKey, MolecularWeight, LogP.
+- **Verified**: this loads **3** real records with fields: SMILES, InChI, MolecularWeight, LogP.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
 import pubchempy as pcp
-
-cids = [2244, 3672, 5957, 5281, 5958, 5959, 5960, 5961, 5962, 5963]
-
-compounds = pcp.get_compounds(cids, namespace="cid")
-
-records = [
-    {
-        "CID": comp.cid,
-        "SMILES": comp.smiles,
-        "InChIKey": comp.inchikey,
-        "MolecularWeight": comp.molecular_weight,
-        "LogP": comp.xlogp,
+cids = [2244, 1983, 5957]  # sample PubChem CIDs
+compounds = pcp.get_compounds(cids, 'cid')
+records = []
+for c in compounds:
+    rec = {
+        "SMILES": getattr(c, "isomeric_smiles", None),
+        "InChI": getattr(c, "inchi", None),
+        "MolecularWeight": getattr(c, "molecular_weight", None),
+        "LogP": getattr(c, "xlogp", None),
     }
-    for comp in compounds
-]
-
+    records.append(rec)
 print(f"RECORDS={len(records)}")
-print("FIELDS=CID,SMILES,InChIKey,MolecularWeight,LogP")
+print("FIELDS=" + ",".join(records[0].keys()))
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
@@ -159,24 +159,12 @@ Write the loader to use this source/recipe, persist the records to the declared 
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/derived/baseline_metrics.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/stats.py` — IS a run-book command
-  Make ONE of these WRITE `data/derived/baseline_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/derived/baseline_residuals.png` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/stats.py` — IS a run-book command
-  Make ONE of these WRITE `data/derived/baseline_residuals.png` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/derived/baseline_test_predictions.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/stats.py` — IS a run-book command
-  Make ONE of these WRITE `data/derived/baseline_test_predictions.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/derived/conformational_limitations.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/explainability.py` — IS a run-book command
   Make ONE of these WRITE `data/derived/conformational_limitations.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/derived/data_quality_report.csv` is declared but was NOT written. Scripts referencing it:
     - `code/data/preprocess.py` — IS a run-book command
   Make ONE of these WRITE `data/derived/data_quality_report.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/derived/deviation_contexts.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/explainability.py` — IS a run-book command
-  Make ONE of these WRITE `data/derived/deviation_contexts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/derived/rf_test_predictions.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/stats.py` — IS a run-book command
     - `code/models/rf.py` — IS a run-book command

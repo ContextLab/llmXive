@@ -1,30 +1,28 @@
 status: verified
 kind: pypi_package
 ref: PubChemPy
-access_python: "import pubchempy as pcp\n\ncids = [2244, 3672, 5957, 5281, 5958, 5959,\
-  \ 5960, 5961, 5962, 5963]\n\ncompounds = pcp.get_compounds(cids, namespace=\"cid\"\
-  )\n\nrecords = [\n    {\n        \"CID\": comp.cid,\n        \"SMILES\": comp.smiles,\n\
-  \        \"InChIKey\": comp.inchikey,\n        \"MolecularWeight\": comp.molecular_weight,\n\
-  \        \"LogP\": comp.xlogp,\n    }\n    for comp in compounds\n]\n\nprint(f\"\
-  RECORDS={len(records)}\")\nprint(\"FIELDS=CID,SMILES,InChIKey,MolecularWeight,LogP\"\
-  )"
-record_count: 10
+access_python: "import pubchempy as pcp\ncids = [2244, 1983, 5957]  # sample PubChem\
+  \ CIDs\ncompounds = pcp.get_compounds(cids, 'cid')\nrecords = []\nfor c in compounds:\n\
+  \    rec = {\n        \"SMILES\": getattr(c, \"isomeric_smiles\", None),\n     \
+  \   \"InChI\": getattr(c, \"inchi\", None),\n        \"MolecularWeight\": getattr(c,\
+  \ \"molecular_weight\", None),\n        \"LogP\": getattr(c, \"xlogp\", None),\n\
+  \    }\n    records.append(rec)\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=\"\
+  \ + \",\".join(records[0].keys()))"
+record_count: 3
 sample_fields:
-- CID
 - SMILES
-- InChIKey
+- InChI
 - MolecularWeight
 - LogP
-field_coverage: 0.625
+field_coverage: 0.571
 required_fields:
-- CID
 - SMILES
-- InChIKey
+- InChI
 - MolecularWeight
 - LogP
-- PropertyName
-- PropertyValue
-- ExperimentalOrComputed
-intent: download PubChem Compound and ChEMBL molecular properties dataset python package
-  dataset
-cache_key: 2a3129d17d27db3678c9cc2213ec7f986ea1c1f15c8c50da4d003c638e4f979b
+- ExperimentalFlag
+- PropertySource
+- ComputedProperties
+intent: download real PubChem compound SMILES and experimental properties via Python
+  package dataset
+cache_key: 6ce9522f6e85c8178284f39ebe07691cce46d65b0edbcfe01b48fa1aa01afd83

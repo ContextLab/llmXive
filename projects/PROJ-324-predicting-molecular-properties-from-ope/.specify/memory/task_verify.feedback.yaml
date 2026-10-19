@@ -1,6 +1,4 @@
 T101:
-  reason: 'Requested task execution failed; rerun successfully: code/analysis/run_compute_baseline_metrics.sh
-    exit=1'
   task: 96c7a9a7e03f451d8b5b6e8c36c6cf8f3516b86589a5477a9ecd2c323c3bfb40
 T102:
   reason: 'Requested task execution failed; rerun successfully: code/analysis/explainability.py

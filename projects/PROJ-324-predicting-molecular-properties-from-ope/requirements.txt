@@ -1,16 +1,13 @@
-rdkit
-scikit-learn
+PubChemPy
 shap
+scikit-learn
+rdkit-pypi
+matplotlib
+seaborn
 pandas
 numpy
-datasets
-requests
-pubchempy
-psutil
-matplotlib
-joblib
-pytest
-black
-ruff
-bandit
-py
+tqdm
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
+# already available in the runner environment.  The entries above add the
+# packages required for the SHAP interaction workflow.
