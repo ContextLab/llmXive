@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.12869",
+  "judged_at": "2026-10-19T15:23:10Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"function-aware fill-in-the-middle as mid-training for coding agent fou\" computer science",
+  "rationale": "The paper is about natural-language-to-Java code generation, not fill-in-the-middle (FIM) objectives, mid-training strategies, or coding-agent fine-tuning — it shares only the broad \"code LLM\" domain without touching the mechanism or variables of the question. It is off-topic for a literature review on function-aware FIM mid-training.",
+  "relevant": false
+}

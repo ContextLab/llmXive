@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.04814",
+  "judged_at": "2026-10-19T15:21:37Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"function-aware fill-in-the-middle as mid-training for coding agent fou\" computer science",
+  "rationale": "The paper is the canonical benchmark for syntax-aware code FIM evaluation, directly matching the FIM mechanism and code domain of the user's follow-up on function-aware FIM as mid-training for coding agents (categories a, b, and f — same task/construct, FIM pretraining effects on code LLMs).",
+  "relevant": true
+}

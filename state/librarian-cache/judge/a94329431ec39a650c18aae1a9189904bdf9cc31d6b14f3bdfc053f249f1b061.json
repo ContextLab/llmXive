@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.22981",
+  "judged_at": "2026-10-19T15:22:25Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"function-aware fill-in-the-middle as mid-training for coding agent fou\" computer science",
+  "rationale": "The paper studies fill-in-the-middle (FIM) pretraining dynamics — the same mechanism and training objective central to the user's follow-up on function-aware FIM mid-training for coding agents — satisfying criterion (a)/(b) as same-mechanism prior work on FIM pretraining that any literature review on extending FIM mid-training would cite.",
+  "relevant": true
+}
