@@ -1,0 +1,7 @@
+# JSON Schema for requirements.txt
+# The file must be a JSON array of strings, each representing a pip requirement.
+type: array
+items:
+  type: string
+  minLength: 1
+uniqueItems: true

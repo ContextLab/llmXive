@@ -1,9 +1,8 @@
 T000:
-  reason: "The `contracts/requirements.schema.yaml` file is missing, causing the `validate_requirements_schema`\
-    \ test to fail (FileNotFoundError). Without the schema, the script cannot perform\
-    \ the required validation step, so the task\u2019s core requirement is not met.\
-    \ Add the missing schema file (matching the expected JSON\u2011schema for a list\
-    \ of strings) and ensure the test passes."
+  reason: "The `code/setup/setup_env.py` script exists, but the provided pytest `code/tests/test_setup_env.py`\
+    \ fails on the schema\u2011validation step (`FileNotFoundError: contracts/requirements.schema.yaml`),\
+    \ indicating the script does not correctly locate or validate the requirements\
+    \ file as required. The task\u2019s verification criteria are therefore not met."
   task: a798e05e887a53a2fabdeb332dc75a5c1c3abfd15e51bd450dcf16b96a99d362
 T001:
   reason: 'Requested task execution failed; rerun successfully: code/data/fetch_heas.py
