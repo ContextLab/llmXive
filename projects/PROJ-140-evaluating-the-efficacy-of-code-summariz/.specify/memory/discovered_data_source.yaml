@@ -1,12 +1,16 @@
 status: none
-intent: Defects4J v2.0 Java bug dataset for localization python package dataset
+intent: Defects4J v2.0 Java buggy method dataset pip installable python package dataset
 required_fields:
-- project
 - bug_id
+- project_name
 - buggy_file_path
-- buggy_line_number
+- buggy_line_start
+- buggy_line_end
 - buggy_method_name
-- source_code
-cache_key: 2f34fd42d5e7e6994fc4cdc4b170b154c08289234ed9475fbacac4912d53db05
-searched_at: '2026-08-12T02:16:36.707736+00:00'
+- buggy_source_code
+- ground_truth_buggy_line_numbers
+- commit_hash
+- failing_test_cases
+cache_key: c4ce0d13f3334f98249a836fc336a8489c2d0b4ca67d763de423c9924cd395b3
+searched_at: '2026-10-19T00:31:43.024231+00:00'
 retry_count: 1

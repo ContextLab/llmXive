@@ -1,0 +1,41 @@
+T001:
+  reason: "The quickstart.md file exists and contains the required layout, provenance,\
+    \ seed, and command description, but there is no provided evidence (e.g., a test\
+    \ log or command\u2011line output) showing that `python -m code.main --mode sim\
+    \ --help` actually runs and exits with status\u202F0. This execution proof is\
+    \ required to satisfy the task\u2019s verification step."
+  task: 4a48e661b023376b74dbfd397691074cca374f3f3af036d425664943d683a4c3
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/download/download_defectsj.py
+    exit=1'
+  task: b2a29856a3078f24058e18d0b0d71870095a339dfb6fb84bc3b988041226f9d9
+T003a:
+  task: f80fe9de0f84471422b4f1de99203d5d9abdb6a9e38638055e493eef93c522dc
+T003b:
+  task: a350118ddea6fa008bf2bcec3b504dbc6bb139016cf35f5924c36ee4af770f94
+T003c:
+  task: f013f0417ce19bc010f7b60faf67dfd192c799695a6bb2ffbf67e31d775b7e28
+T004a:
+  task: 1cccd297ef25be15a40e3688de2f36a3c4b1f1d462fac65070427c6aefb9914a
+T004b:
+  task: afdccbfa876d114fc0ce39686290cb1423fab328fb6dc98d9060dbc3a50be115
+T005:
+  task: fc9f84ee4dfa14cd144dad2433c3bb3e245671c6bcbee3f2cfa516b0c7140051
+T006:
+  task: bf0fbf998cf3b5109a589d62fc9f92c132117bb38d948d680c9626df5a9e2f68
+T007:
+  task: cd26329a3228774e8aa23d760b0716b8b44c0397e4a4f9cc8e9db2888412bc41
+T008:
+  task: fd3c09587cff62a0a6cf6ef0a6808a721080ec0855b706039eae1383d063e107
+T009:
+  task: a22d871d0505cab6a76e1675b3604d21d8828bb36159744ea682bc70054fb6bb
+T010:
+  task: 1538cfd7f81183cc2cebc9e8ec354e6e8b33ecc7c65a03286a54aec9b4bd8fba
+T011:
+  task: 0ded1291014ce3a24085915d60d19f2e71b70bd8fae36f98b030ea86ba634d82
+T012:
+  task: 25010b563ed5ccfb2951447cd4d91e05ac17e5828d7a6db010798a4ec4b2cfb7
+T013:
+  task: 11854bce3699db8abcf7541be52b43cb460cbc2a10a94a8f6d9b86d29cfec1be
+T014:
+  task: 5bb5f1fd877d3cf28746e9005c789d26fe005454f37f2cdc8e2c18cc4f1cc0bd

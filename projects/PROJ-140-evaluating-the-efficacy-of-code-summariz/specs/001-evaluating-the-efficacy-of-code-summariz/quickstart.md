@@ -1,78 +1,79 @@
 # Quickstart: Evaluating the Efficacy of Code Summarization Techniques for Bug Localization
 
-## 1. Prerequisites
-- Python 3.11+
-- Git
-- (Optional) CUDA-enabled GPU for LLM inference (for `--mode=real` only)
+## 1. Project Layout
 
-## 2. Installation
+```
+<project-root>/
+├─ code/                     # Source code for the pipeline
+│   ├─ __init__.py
+│   ├─ main.py               # Entry point (`python -m code.main --mode sim`)
+│   ├─ analysis/             # Statistical analysis modules
+│   ├─ data_prep/            # Data download & summary generation utilities
+│   └─ ...                    # Other sub‑packages (backend, utils, etc.)
+├─ data/                     # All data artifacts
+│   ├─ raw/                  # Raw downloads (Defects4J, etc.)
+│   ├─ processed/            # Processed method extracts, summaries
+│   ├─ interaction_logs/     # Anonymized participant interaction logs
+│   ├─ analysis_results/     # CSV/JSON results of statistical analyses
+│   └─ defects4j_version.txt # Pinned Defects4J version (see below)
+├─ specs/                    # Specification documents for this feature
+│   └─ 001-evaluating-the-efficacy-of-code-summarization-bug-localization/
+│       ├─ plan.md
+│       ├─ research.md
+│       ├─ quickstart.md     # **You are reading this file**
+│       └─ contracts/        # JSON‑Schema contracts for data validation
+├─ tests/                    # pytest test suite
+├─ docs/                     # Additional documentation (e.g., scope reduction)
+└─ requirements.txt          # Project dependencies
+```
+
+## 2. Provenance
+
+- **Defects4J version**: The study uses **Defects4J v2.0**. The exact version identifier is stored in `data/defects4j_version.txt` (the file contains the single line `2.0`).
+- **Random seeds**: All stochastic components (sampling, Latin‑square design, bootstrapping, etc.) are seeded with **42** to guarantee reproducibility. The seed is hard‑coded in the relevant scripts; no external `.seed` file is required.
+
+## 3. Running the Pipeline
+
+The entire research pipeline can be executed from the command line. The core entry point is `code.main`.
 
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd <repo-dir>
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+# Install dependencies (once)
 pip install -r requirements.txt
+
+# Verify the entry point works (syntax check only)
+python -m code.main --mode sim --help
 ```
 
-## 3. Data Setup
+The command above should display the help text and exit with status 0, confirming that the module is importable and the CLI is correctly defined.
 
-### 3.1 Download Defects4J
-Run the download script to fetch and verify the dataset:
-```bash
-python code/download.py --source "huggingface" --dataset "chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3"
-```
-This will save the dataset to `data/raw/defects4j.parquet` and record the checksum.
+### Typical workflow
 
-### 3.2 Generate Summaries (Simulation Mode)
-For CI and testing, use simulated summaries:
-```bash
-python code/summarize.py --mode sim
-```
-This generates mock LLM and rule-based summaries for testing the pipeline.
+1. **Download Defects4J** (real data)  
+   ```bash
+   python code/download.py --source huggingface --dataset chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3
+   ```
+   This creates `data/raw/defects4j.parquet` and writes the version string to `data/defects4j_version.txt`.
 
-### 3.3 Generate Summaries (Real Mode - GPU Required)
-**Note**: This step requires a GPU. Run on a machine with CUDA or use the provided Kaggle notebook.
-```bash
-python code/summarize.py --mode real --device cuda --quantize 8bit
-```
-*If run on CPU, this will fail with a clear error message directing you to the GPU escape hatch.*
+2. **Generate summaries (simulation mode)** – used for CI and testing  
+   ```bash
+   python code/summarize.py --mode sim
+   ```
 
-## 4. Running the Study
+3. **Simulate participant interactions** (CI test)  
+   ```bash
+   python code/simulate_study.py --participants 12 --tasks-per-condition 10 --seed 42
+   ```
+   Output: `data/interaction_logs/anonymized_logs.csv`
 
-### 4.1 Simulate Participant Interactions (CI Test)
-```bash
-python code/simulate_study.py --participants 12 --tasks-per-condition 10 --seed 42
-```
-Output: `data/interaction_logs/anonymized_logs.csv`.
+4. **Run statistical analysis**  
+   ```bash
+   python code/analysis.py --input data/interaction_logs/anonymized_logs.csv --mode ci
+   ```
+   Output: `data/analysis_results/results.csv` (and accompanying JSON summary).
 
-### 4.2 Run Statistical Analysis
-```bash
-python code/analysis.py --input data/interaction_logs/anonymized_logs.csv --mode ci
-```
-Output: `data/analysis_results.json` containing p-values, effect sizes, and CIs.
+## 4. Reproducibility
 
-## 5. Verification
-
-### 5.1 Run Tests
-```bash
-pytest tests/ -v --cov=code
-```
-
-### 5.2 Reproducibility Check
-Run the CI workflow locally to verify reproducibility:
-```bash
-# Simulate the CI environment
-docker run --rm -v $(pwd):/work -w /work python:3.11 bash -c "pip install -r requirements.txt && pytest tests/integration/test_pipeline.py"
-```
-
-## 6. Troubleshooting
-
-- **LLM Timeout**: If LLM generation times out, the system automatically falls back to rule-based summaries. Check `data/processed/summaries_llm.csv` for `generation_status=fallback`.
-- **Memory Error**: If RAM is exceeded, enable streaming in `download.py` (`streaming=True`).
-- **GPU Not Found**: If running `--mode=real` without a GPU, the script will exit. Use the Kaggle GPU notebook for real LLM inference.
+- All random seeds are fixed (`42`).  
+- The Defects4J version is pinned (`2.0`).  
+- The pipeline can be reproduced on any machine with Python 3.11+ and the dependencies listed in `requirements.txt`.  
+- The quickstart verification step (`python -m code.main --mode sim --help`) must succeed with exit code 0.

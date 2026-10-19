@@ -1,50 +1,9 @@
-T015:
+T001:
   c: false
-  h: 72505f3ec27d2fc5d4c563d24417d251ad7984060a01e477c93ef725c93380f1
-  r: "The `code/utils/interaction_logger.py` file is present but ends abruptly inside\
-    \ the `log_interaction` definition, so the core logging functionality is not fully\
-    \ implemented. Additionally, the required `data/interaction_logs/raw_logs.csv`\
-    \ file does not exist. Both the incomplete module and missing CSV output mean\
-    \ the task\u2019s requirement\u2014to record the specified columns to that CSV\u2014\
-    is not satisfied."
-T027:
-  c: false
-  h: 8be0308eb8c6a05539b0e1935eaaf50759c7dc974d5ab387c246bb29ee47de5e
-  r: "The required artifact `.github/workflows/test_reproducibility.yml` does not\
-    \ exist in the repository, so the integration test cannot be verified. The task\u2019\
-    s core deliverable is missing."
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README.md file or its contents were provided; the claim lacks any artifact\
-    \ showing documentation for rerunning the analysis on GitHub Actions under the\
-    \ specified free\u2011tier constraints. Consequently the required deliverable\
-    \ is missing."
-T031b:
-  c: false
-  h: 308370f070bf4fb3feb223871a202b9598143d5cc996be55ea0b7cb8645011e6
-  r: The repository contains `code/utils/verify_pii_removal.py`, but the required
-    data file `data/interaction_logs/anonymized_logs.csv` is missing, so the script
-    cannot actually scan any logs. Additionally, the displayed portion of the script
-    is truncated and does not show the logic that checks whether `data/consent/` is
-    excluded from VCS history, leaving it unclear whether that part of the requirement
-    is fulfilled. Both the missing CSV and the incomplete script cause the task to
-    be incomplete.
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md file or its contents were presented, so we cannot verify that installation
-    steps and dependencies were added. The required artifact is missing from the evidence.
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a README.md file (or its contents) was provided; thus we cannot
-    confirm that it has been updated with the required analysis execution steps and
-    expected outputs. The implementer must supply the actual README.md showing the
-    new documentation.
-T043:
-  c: false
-  h: 891e73aca7e74c34241667f8669158825188a429245e25479f52982ef5a0f253
-  r: "The required artifact `docs/quickstart.md` does not exist in the repository,\
-    \ so the validation task cannot be performed. The missing file must be added (non\u2011\
-    empty) for the task to be considered complete."
+  h: 24f9e66c50e98489391c6c8801f91fd85405a37f56b764616335f18c84639f99
+  r: "The quickstart.md file exists and contains the required layout, provenance,\
+    \ seed, and command description, but there is no provided evidence (e.g., a test\
+    \ log or command\u2011line output) showing that `python -m code.main --mode sim\
+    \ --help` actually runs and exits with status\u202F0. This execution proof is\
+    \ required to satisfy the task\u2019s verification step."
+  sig: 50499b4c1605734c37f28875dc2aea637019dcce944ebe05cba314cf173fae4b
