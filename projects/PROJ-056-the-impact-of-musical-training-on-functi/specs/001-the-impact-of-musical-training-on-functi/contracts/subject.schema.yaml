@@ -32,7 +32,7 @@ properties:
     description: "Socioeconomic status proxy score"
   rs_fmri_path:
     type: "string"
-    description: "Filesystem path to the subject's resting-state NIfTI file"
+    description: "Filesystem path to the final NIfTI file"
 required:
   - subject_id
   - group

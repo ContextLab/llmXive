@@ -10,7 +10,7 @@ properties:
     description: "Network to which the connection belongs"
   test_statistic:
     type: "number"
-    description: "t-statistic value (or correlation r for training-duration analyses)"
+    description: "t-statistic value (or correlation r for training‑duration analyses)"
   p_value:
     type: "number"
     minimum: 0.0

@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Network Metric Schema"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Link to the subject"
+  atlas:
+    type: "string"
+    description: "Atlas name (must match the connectivity matrix atlas)"
+  network:
+    type: "string"
+    description: "One of {auditory, motor, executive}"
+  mean_connectivity:
+    type: "number"
+    description: "Mean Fisher‑z intra‑network connectivity"
+  n_edges:
+    type: "integer"
+    minimum: 1
+    description: "Number of intra‑network edges used in the mean"
+  roi_indices:
+    type: "array"
+    items:
+      type: "integer"
+    description: "ROI indices that define the network"
+required:
+  - subject_id
+  - atlas
+  - network
+  - mean_connectivity
+  - n_edges
+  - roi_indices
+additionalProperties: false

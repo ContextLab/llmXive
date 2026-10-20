@@ -1,16 +1,17 @@
 status: none
-intent: ABCD Study resting state fMRI NIH Data Archive python package dataset
+intent: ABCD Study HCP Adolescents resting fMRI musician training NIH NDA ConnectomeDB
+  python package dataset
 required_fields:
 - subject_id
-- group_label (musician vs non-musician)
-- musical_training_years
+- group_label
+- resting_state_fmri_path_or_connectivity_matrix
 - age
 - sex
-- mean_framewise_displacement (motion)
-- site
-- scanner_model
-- resting_state_fmri_nifti_path
-- preprocessed_connectivity_matrix (or flattened connectivity features)
-cache_key: 3311982ab295b66d0b536558aec1e6c780463023ad390bfef4bc5e11e09f7d0f
-searched_at: '2026-10-20T04:18:13.165567+00:00'
+- head_motion_mean_framewise_displacement
+- musical_training_years
+- socioeconomic_status
+- scanner_site
+- acquisition_parameters
+cache_key: 9d68441cba2d7487f9f817a0cd825e440e6e22a12bf07b8b6c318a4f5e80cd69
+searched_at: '2026-10-20T04:22:33.119299+00:00'
 retry_count: 1
