@@ -1,14 +1,16 @@
 status: none
-intent: M-Lab network performance logs dataset and Phoronix Test Suite results python
-  package dataset
+intent: Google cluster trace task resource logs python package dataset
 required_fields:
 - node_id
-- task_chunk_id
-- start_time
-- end_time
+- task_id
+- job_id
+- timestamp
 - wall_clock_time
-- packet_count
 - cpu_utilization
-cache_key: b50e0728e4e56daae541cfc84453fd0923b5379a806353a794b118ad2c3531c5
-searched_at: '2026-10-20T16:14:11.721417+00:00'
+- memory_usage
+- packet_sent
+- packet_received
+- network_latency
+cache_key: 5e587e15dad0ec06d4b9b40869246de860d62e66a72db477ee0ed0127178a383
+searched_at: '2026-10-20T17:21:59.720229+00:00'
 retry_count: 1

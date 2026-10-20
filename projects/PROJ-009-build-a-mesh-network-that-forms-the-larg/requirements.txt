@@ -1,6 +1,3 @@
-paramiko
-pyyaml
-statsmodels
-scipy
-# The following are already provided by the environment:
-# numpy, pandas, matplotlib, scikit-learn, jsonschema, pytest, requests
+# Project dependencies – the core scientific stack is pre‑installed in the CI image.
+# Additional optional dependencies can be added here as needed.
+# (No extra packages required for T001.)

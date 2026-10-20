@@ -1,3 +1,15 @@
+T001:
+  c: false
+  h: 0ffa52f668b81641ad8f060df77d341484e38c6a82c45cd8e003793c3431c7f0
+  r: "Checked `quickstart.md`, `code/orchestrator/config.py`, `code/orchestrator/contract_validator.py`,\
+    \ and the contract test suite (`code/tests/contract/test_contracts.py`), all of\
+    \ which exist and pass. However, there is no execution evidence that the CLI\u2019\
+    s `run` sub\u2011command (the \u201Ctiny end\u2011to\u2011end run\u201D) completes\
+    \ with exit code\u202F0 as required by the task\u2019s repair clause. A test or\
+    \ log showing `python -m code.orchestrator.cli run \u2026` succeeding is missing.\
+    \ Adding such a verification (e.g., a pytest that invokes the run command and\
+    \ asserts a zero exit status) is needed to satisfy the task."
+  sig: ffcc0c4674481efc2f0c69a78fdc08055ef7a68a7b3d6681421c30b3d2664356
 T002:
   c: false
   h: b63e8f4a6d81a5b3d40687b9408e572a8ed679fe94dd44dcd1d1479f51e7f4e9

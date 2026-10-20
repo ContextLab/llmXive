@@ -1,12 +1,12 @@
 T001:
-  reason: 'The recorded execution of `pytest code/tests/contract/` (T001 log) exited
-    1 with 2 failures: `test_valid_and_invalid_objects[dropout-event.schema.yaml]`
-    and `[execution-run.schema.yaml]` fail because the test''s dummy-value generator
-    uses `"example"` for string properties, which violates the schemas'' `enum` constraints
-    (e.g. `reason` must be one of `heartbeat_loss/oom/sleep_mode/network_saturation`,
-    `granularity_setting` must be `fine/medium/coarse`). The test must construct genuinely
-    valid sample objects (respecting enums, formats, etc.) for all four schemas so
-    the suite passes, and there is n'
+  reason: "Checked `quickstart.md`, `code/orchestrator/config.py`, `code/orchestrator/contract_validator.py`,\
+    \ and the contract test suite (`code/tests/contract/test_contracts.py`), all of\
+    \ which exist and pass. However, there is no execution evidence that the CLI\u2019\
+    s `run` sub\u2011command (the \u201Ctiny end\u2011to\u2011end run\u201D) completes\
+    \ with exit code\u202F0 as required by the task\u2019s repair clause. A test or\
+    \ log showing `python -m code.orchestrator.cli run \u2026` succeeding is missing.\
+    \ Adding such a verification (e.g., a pytest that invokes the run command and\
+    \ asserts a zero exit status) is needed to satisfy the task."
   task: e884b52214a5b7f5436a0114eb7824303a2913e5fba3d839d30ee0936138a5bc
 T002:
   reason: "The required artifacts fail on multiple counts: (1) no `data/raw/physical_node_*.json`\

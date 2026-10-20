@@ -12,14 +12,21 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 command(s) failed: python code/orchestrator/cli.py calibrate --config config.yaml (rc=1); python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 (rc=2); python code/analysis/theoretical_bound.py  --input data/processed/regression_model.json  --config config.yaml (rc=1); 5 declared deliverable(s) absent: data/raw/cpu_calibration.json; data/raw/dropout_events.json; data/raw/network_calibration.json
+**Summary**: 7 command(s) failed: python code/orchestrator/node_manager.py --verify (rc=1); python code/orchestrator/cli.py calibrate --config config.yaml (rc=1); python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 (rc=2); 5 declared deliverable(s) absent: data/raw/cpu_calibration.json; data/raw/dropout_events.json; data/raw/network_calibration.json
 
 ## Failing / missing run-book commands
 
+- python code/orchestrator/node_manager.py --verify -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/node_manager.py", line 41, in <module>
+    from paramiko import SSHClient, AutoAddPolicy, SSHException
+ModuleNotFoundError: No module named 'paramiko'
+
 - python code/orchestrator/cli.py calibrate --config config.yaml -> rc=1
 
-2026-10-20 16:13:11,459 INFO orchestrator.calibration: Starting calibration procedures
-2026-10-20 16:13:11,459 ERROR __main__: Calibration routine failed: [Errno 2] No such file or directory: 'iperf3'
+2026-10-20 17:21:35,662 INFO orchestrator.calibration: Starting calibration procedures
+2026-10-20 17:21:35,663 ERROR __main__: Calibration routine failed: [Errno 2] No such file or directory: 'iperf3'
 
 - python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 -> rc=2
 
@@ -41,9 +48,7 @@ Traceback (most recent call last):
 FileNotFoundError: Input file not found: data/processed/regression_model.json
 
 - python -m pytest tests/unit/ -v -> rc=2
-ortlib._bootstrap>:690: in _load_unlocked
-    ???
-/home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
+ase-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
     exec(co, module.__dict__)
 tests/unit/test_timeout_guard.py:8: in <module>
     from orchestrator.timeout_guard import (
@@ -54,13 +59,16 @@ ERROR tests/unit/test_heartbeat_monitoring.py
 ERROR tests/unit/test_instrumentor_remote.py
 ERROR tests/unit/test_models.py
 ERROR tests/unit/test_monte_carlo.py
-ERROR tests/unit/test_remote_wall_clock_timer.py - NameError: name 'pytest' is not defined
+ERROR tests/unit/test_node_profiler.py
+ERROR tests/unit/test_remote_tool_installer.py
+ERROR tests/unit/test_remote_wall_clock_timer.py
+ERROR tests/unit/test_scheduler.py
 ERROR tests/unit/test_scheduler_execution.py
 ERROR tests/unit/test_scheduler_straggler.py
 ERROR tests/unit/test_sweep_runner.py
 ERROR tests/unit/test_timeout_guard.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 10 errors in 0.84s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 13 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 13 errors in 1.21s ==============================
 
 
 - python -m pytest tests/contract/ -v -> rc=2
@@ -83,7 +91,7 @@ E   ImportError: cannot import name 'ExecutionRun' from 'orchestrator.models' (/
 =========================== short test summary info ============================
 ERROR tests/contract/test_execution_run_schema.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.13s ===============================
+=============================== 1 error in 0.15s ===============================
 
 
 - python -m pytest tests/integration/ -v --mock-testbed -> rc=4

@@ -3,15 +3,16 @@ Contract‑validation test suite for T001.
 
 This suite checks three things required by the task:
   1. The validator can successfully validate a *valid* JSON object against each
-     of the four schemas and raises a ``jsonschema.exceptions.ValidationError``
-     for an *invalid* object.
+     of the four schemas and raises a ``jsonschema.exceptions.ValidationError`` for an *invalid* object.
   2. Requesting validation for an unknown schema name raises ``ValueError``.
   3. The global configuration random seed is an integer and matches the seed
      stored in ``config/sweep_config.yaml``.
 
 The tests construct minimal JSON objects dynamically based on the actual
 ``required`` field list in each schema, so they remain robust even if the
-schema definitions evolve.
+schema definitions evolve.  The ``dummy_for`` helper now respects ``enum``
+constraints (choosing the first allowed value) and basic ``format`` hints
+where feasible, ensuring that generated objects are truly valid.
 """
 
 import json
@@ -41,22 +42,60 @@ def test_valid_and_invalid_objects(schema_file):
     assert that validation fails with a ``jsonschema.ValidationError``.
     """
     # Load the schema from the specs directory
-    schema_path = pathlib.Path(__file__).parents[3] / "specs" / "001-build-a-mesh-network-that-forms-the-larg" / "contracts" / schema_file
+    schema_path = (
+        pathlib.Path(__file__).parents[3]
+        / "specs"
+        / "001-build-a-mesh-network-that-forms-the-larg"
+        / "contracts"
+        / schema_file
+    )
     schema = load_schema_from_yaml(schema_path)
 
-    # Helper to generate a dummy value for a given JSON‑Schema type
+    # Helper to generate a dummy value for a given JSON‑Schema property
     def dummy_for(prop_schema):
+        # Respect enum constraints first
+        if "enum" in prop_schema:
+            # Choose the first allowed enum value
+            return prop_schema["enum"][0]
+
+        # Basic format hints (e.g., email, date-time) – use generic placeholders
+        fmt = prop_schema.get("format")
+        if fmt == "email":
+            return "user@example.com"
+        if fmt in ("date-time", "date"):
+            return "2020-01-01T00:00:00Z"
+
         typ = prop_schema.get("type", "string")
         if typ == "string":
             return "example"
         if typ in ("number", "integer"):
+            # Use zero, but avoid violating ``minimum``/``maximum`` if present
+            minimum = prop_schema.get("minimum")
+            maximum = prop_schema.get("maximum")
+            if minimum is not None:
+                return max(minimum, 0)
+            if maximum is not None:
+                return min(maximum, 0)
             return 0
         if typ == "boolean":
             return False
         if typ == "array":
+            # Return empty array; schemas that require non‑empty arrays typically
+            # include ``minItems`` – honor that if present.
+            min_items = prop_schema.get("minItems", 0)
+            if min_items > 0:
+                # Populate with a single generic element
+                return [dummy_for({"type": "string"})] * min_items
             return []
         if typ == "object":
-            return {}
+            # Recursively build a minimal object if ``properties`` are defined
+            props = prop_schema.get("properties", {})
+            required = prop_schema.get("required", [])
+            obj = {}
+            for p in required:
+                obj[p] = dummy_for(props.get(p, {}))
+            return obj
+        # Fallback
         return None
 
     # Construct a minimal valid instance
