@@ -26,7 +26,8 @@ def load_molmomotion_streaming() -> Iterator[Dict[str, Any]]:
     Fetches from verified URL and implements retry logic.
     """
     config = get_config()
-    dataset_name = config.get('dataset_name', 'mlabonne/molmomotion-1m')
+    dataset_name = config.get('dataset_name', 'mlabonne/molmomotion-1m') \
+        if hasattr(config, 'get') else getattr(config, 'dataset_name', 'mlabonne/molmomotion-1m')
     max_retries = 3
     attempt = 0
 
@@ -52,18 +53,28 @@ def load_molmomotion_streaming() -> Iterator[Dict[str, Any]]:
     raise RuntimeError("Dataset loading failed after all retries")
 
 
-def subsample_instances(target_memory_gb: float = 7.0, random_seed: int = 42) -> List[Dict[str, Any]]:
+def subsample_instances(target_memory_gb: Optional[float] = None,
+                        random_seed: Optional[int] = None) -> List[Dict[str, Any]]:
     """
     Subsample instances from the streaming dataset using reservoir sampling
     to meet memory constraints while maintaining statistical representativeness.
 
+    Reads `random_seed` and `target_memory_gb` from the project configuration
+    (src.config.get_config) when not explicitly provided.
+
     Args:
-        target_memory_gb: Target memory usage in GB (default 7.0)
-        random_seed: Random seed for reproducibility
+        target_memory_gb: Target memory usage in GB (defaults to config value)
+        random_seed: Random seed for reproducibility (defaults to config value)
 
     Returns:
         List of subsampled instances
     """
+    config = get_config()
+    if target_memory_gb is None:
+        target_memory_gb = float(getattr(config, "target_memory_gb", 7.0))
+    if random_seed is None:
+        random_seed = int(getattr(config, "random_seed", 42))
+
     random.seed(random_seed)
     np.random.seed(random_seed)
 
@@ -75,25 +86,34 @@ def subsample_instances(target_memory_gb: float = 7.0, random_seed: int = 42) ->
     target_bytes = target_memory_gb * 1024 ** 3
     max_instances = int(target_bytes / bytes_per_instance)
 
-    logger.info(f"Target memory: {target_memory_gb}GB, Max instances: {max_instances}")
+    logger.info(
+        f"Subsampling with random_seed={random_seed}, "
+        f"target_memory_gb={target_memory_gb}, max_instances={max_instances}"
+    )
 
     dataset_iter = load_molmomotion_streaming()
-    reservoir = []
+    reservoir: List[Dict[str, Any]] = []
 
     for i, instance in enumerate(dataset_iter):
+        # Reservoir sampling: every streamed instance has an equal
+        # probability of ending up in the final sample. This is NOT
+        # 'first N' selection.
         if len(reservoir) < max_instances:
             reservoir.append(instance)
         else:
-            # Reservoir sampling: replace with probability max_instances / (i + 1)
             j = random.randint(0, i)
             if j < max_instances:
                 reservoir[j] = instance
 
         if (i + 1) % 10000 == 0:
-            log_memory_usage()
+            log_memory_usage(tag=f"subsample_iter_{i + 1}")
             logger.info(f"Processed {i + 1} instances, reservoir size: {len(reservoir)}")
 
-    logger.info(f"Subsampling complete. Final reservoir size: {len(reservoir)}")
+    logger.info(
+        f"Subsampling complete. Final reservoir size: {len(reservoir)} "
+        f"(streamed {i + 1} instances)"
+    )
+    log_memory_usage(tag="subsample_final")
     return reservoir
 
 
@@ -105,7 +125,9 @@ def save_instances_to_parquet(instances: List[Dict[str, Any]], output_path: str)
         instances: List of instance dictionaries
         output_path: Path to output Parquet file
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    out_dir = os.path.dirname(output_path)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
 
     # Convert to DataFrame
     df = pd.DataFrame(instances)

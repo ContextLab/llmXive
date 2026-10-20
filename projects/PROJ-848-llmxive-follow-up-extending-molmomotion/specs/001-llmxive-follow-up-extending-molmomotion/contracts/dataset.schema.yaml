@@ -1,11 +1,16 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: MolmoMotion Dataset Instance Schema
-description: |
-  Schema definition for a single instance in the MolmoMotion dataset.
-  This schema supports the subsampling and instruction synthesis pipeline (US1).
-  It defines the structure for raw trajectory data, kinematic metadata, and the
-  generated instruction pairs (natural language and structured).
+# JSON Schema for MolmoMotion subsampled trajectory instances and
+# synthesized dual-modality instruction pairs.
+#
+# This contract governs two artifacts:
+#   1. data/processed/subsampled_instances.parquet  (fields:
+#      instance_id, ground_truth_points, kinematic_metadata)
+#   2. data/processed/instruction_pairs.jsonl        (all fields below)
+#
+# Field naming follows the schema mapping table in plan.md.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: MolmoMotionDatasetInstance
 type: object
+additionalProperties: false
 required:
   - instance_id
   - ground_truth_points
@@ -15,170 +20,102 @@ required:
 properties:
   instance_id:
     type: string
-    description: |
-      Unique identifier for the trajectory instance.
-      Format: "molmo-motion-{dataset_split}-{unique_hash}"
-      Example: "molmo-motion-train-a1b2c3d4"
-    pattern: "^molmo-motion-[a-z]+-[a-zA-Z0-9]+$"
+    description: >
+      Unique identifier of a single trajectory instance from the
+      subsampled MolmoMotion-1M corpus. Used as the join key to align
+      NL and structured predictions for the paired t-test (FR-005).
+    minLength: 1
+    examples:
+      - "molmomotion-000123"
 
   ground_truth_points:
     type: array
-    description: |
-      Sequence of 3D points representing the ground truth trajectory.
-      Each point is a list of three floats [x, y, z] in meters.
-      The sequence length corresponds to the duration of the motion.
+    description: >
+      Ground-truth 3D point sequence (independent reference for ATE,
+      FR-004). Each element is an [x, y, z] coordinate in meters.
+    minItems: 1
     items:
       type: array
-      description: A single 3D point coordinate [x, y, z]
-      items:
-        type: number
-        format: float
-        description: Coordinate value in meters
+      description: A single 3D point [x, y, z] in meters.
       minItems: 3
       maxItems: 3
-    minItems: 1
-    metadata:
-      unit: meters
-      coordinate_system: "Right-handed Cartesian (X: Right, Y: Up, Z: Forward)"
+      items:
+        type: number
+    examples:
+      - [[0.0, 0.0, 0.0], [0.1, 0.0, 0.0], [0.2, 0.0, 0.0]]
 
   kinematic_metadata:
     type: object
-    description: |
-      Calculated kinematic properties derived from the ground truth trajectory.
-      Used for generating structured instructions and for analysis.
-    required:
-      - total_duration_seconds
-      - start_position
-      - end_position
-      - total_displacement_meters
-      - average_velocity_mps
-      - max_velocity_mps
-      - velocity_vector
+    description: >
+      Ground-truth kinematic metadata from which both instruction
+      modalities are derived (FR-002). Missing or null velocity /
+      duration values mark ambiguous instances that must be skipped
+      during structured instruction synthesis (logged as warnings).
+    additionalProperties: true
     properties:
-      total_duration_seconds:
-        type: number
-        format: float
-        minimum: 0
-        description: Total time elapsed for the trajectory in seconds.
-
-      start_position:
+      velocity:
+        oneOf:
+          - type: "null"
+          - type: array
+            description: Mean velocity vector [vx, vy, vz] in m/s.
+            minItems: 3
+            maxItems: 3
+            items:
+              type: number
+      duration:
+        oneOf:
+          - type: "null"
+          - type: number
+            description: Trajectory duration in seconds.
+            minimum: 0
+            exclusiveMinimum: false
+      displacement:
         type: array
-        description: The [x, y, z] coordinate of the first point.
-        items:
-          type: number
-          format: float
+        description: Total displacement vector [dx, dy, dz] in meters.
         minItems: 3
         maxItems: 3
-
-      end_position:
-        type: array
-        description: The [x, y, z] coordinate of the last point.
         items:
           type: number
-          format: float
-        minItems: 3
-        maxItems: 3
-
-      total_displacement_meters:
-        type: number
-        format: float
-        minimum: 0
-        description: Euclidean distance between start and end positions.
-
-      average_velocity_mps:
-        type: number
-        format: float
-        minimum: 0
-        description: Magnitude of the average velocity vector (displacement / time).
-
-      max_velocity_mps:
-        type: number
-        format: float
-        minimum: 0
-        description: Maximum instantaneous speed observed in the trajectory.
-
-      velocity_vector:
-        type: array
-        description: |
-          The average velocity vector [vx, vy, vz] in m/s.
-          Used for structured instruction generation (direction and magnitude).
-        items:
-          type: number
-          format: float
-        minItems: 3
-        maxItems: 3
 
   instruction_nl:
-    type: object
-    description: |
-      Natural language description of the motion.
-      Generated from kinematic metadata using a template or LLM.
-    required:
-      - text
-      - complexity_level
-    properties:
-      text:
-        type: string
-        description: |
-          The generated natural language instruction string.
-          Example: "Move the object left and slightly forward."
-        minLength: 1
-
-      complexity_level:
-        type: string
-        description: |
-          Classification of the instruction complexity based on metadata.
-          Enum: ["simple", "moderate", "complex"]
-        enum:
-          - simple
-          - moderate
-          - complex
-        metadata:
-          derivation: "Based on number of direction changes and velocity variance"
+    type: string
+    description: >
+      Coarse natural-language instruction (e.g., "move left")
+      synthesized from ground-truth metadata (FR-002).
+    minLength: 1
+    examples:
+      - "move left"
 
   instruction_struct:
     type: object
-    description: |
-      Structured kinematic instruction vector representation.
-      This is a machine-readable format of the motion intent.
+    description: >
+      Structured kinematic instruction specification (velocity vector
+      plus duration) derived strictly from ground-truth metadata
+      (FR-002), e.g. "velocity [-0.5, 0, 0], duration 2s".
+    additionalProperties: false
     required:
-      - direction_vector
-      - magnitude_mps
-      - duration_seconds
-      - motion_type
+      - velocity
+      - duration
     properties:
-      direction_vector:
+      velocity:
         type: array
-        description: |
-          Normalized unit vector [dx, dy, dz] indicating primary direction of motion.
-          Calculated from the velocity vector.
-        items:
-          type: number
-          format: float
+        description: Intended velocity vector [vx, vy, vz] in m/s.
         minItems: 3
         maxItems: 3
-
-      magnitude_mps:
+        items:
+          type: number
+      duration:
         type: number
-        format: float
+        description: Intended motion duration in seconds.
         minimum: 0
-        description: Speed magnitude in meters per second.
 
-      duration_seconds:
-        type: number
-        format: float
-        minimum: 0
-        description: Duration of the motion in seconds.
-
-      motion_type:
-        type: string
-        description: |
-          Classification of the motion type based on trajectory shape.
-          Enum: ["linear", "curvilinear", "oscillatory", "stationary"]
-        enum:
-          - linear
-          - curvilinear
-          - oscillatory
-          - stationary
-        metadata:
-          derivation: "Based on variance of velocity vector and displacement ratio"
+  synthesis_status:
+    type: string
+    description: >
+      Status of dual-modality instruction synthesis for this instance.
+      Instances with ambiguous metadata (null velocity or duration)
+      are marked "skipped" and excluded from the paired analysis.
+    enum:
+      - ok
+      - skipped
+    default: ok

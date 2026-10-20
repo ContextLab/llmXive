@@ -1,1 +1,2 @@
-# This directory is for raw, unprocessed data downloads.
+# Placeholder to keep data/raw/ under version control.
+# Raw MolmoMotion downloads (parquet, jsonl) are stored here.
