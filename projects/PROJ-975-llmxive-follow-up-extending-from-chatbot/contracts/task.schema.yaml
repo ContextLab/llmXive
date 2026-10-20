@@ -32,5 +32,4 @@ required:
   - description
   - ground_truth_path
   - complexity
-  - embedding_vector
 additionalProperties: false

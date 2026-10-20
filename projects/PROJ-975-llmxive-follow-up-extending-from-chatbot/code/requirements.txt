@@ -1,5 +1,1 @@
-# Core dependencies required for synthetic data generation
-sentence-transformers>=2.2.2
-# The following packages are already provided in the base environment:
-# numpy, pandas, scipy, scikit-learn, statsmodels, seaborn, pytest,
-# PyYAML, requests, jsonschema, psutil, matplotlib. No extra entries needed.
+sentence-transformers==2.2.2

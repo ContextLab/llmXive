@@ -1,16 +1,13 @@
 status: none
-intent: Synthetic multi-step task and skill library dataset MiniWoB reference python
+intent: ToolBench API-Bank AgentBench synthetic multi-step tasks python skills python
   package dataset
 required_fields:
 - task_id
 - task_description
 - ground_truth_solution_path
-- task_steps
 - skill_id
-- skill_name
-- skill_embedding_vector
-- semantic_overlap_score
-- overlap_level
-cache_key: 1f0d10ce7668cb7b03ac149237f7a0e0d3eafc09b0ef15f1666c0bea775b40aa
-searched_at: '2026-10-20T15:29:06.811771+00:00'
+- skill_definition
+- embedding_vector
+cache_key: 5e0748d47e4a6d8f049b695ed02e5f894f17c864893a014201db8012e5f89d39
+searched_at: '2026-10-20T15:54:01.982894+00:00'
 retry_count: 1

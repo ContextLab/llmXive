@@ -24,26 +24,27 @@ generate_data.py: error: argument --overlap: invalid choice: 'high' (choose from
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/analysis.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/contract/ -> rc=1
-"task_id": "TASK_SAMPLE_001",
-            "description": "Calculate the sum of two numbers and return the result.",
-            "ground_truth_path": ["skill_add", "skill_return"],
-            "complexity": 2
-        }
-        try:
-            validate(instance=sample_task, schema=schema)
-        except ValidationError as e:
->           pytest.fail(f"Sample task failed schema validation: {e.message}")
-E           Failed: Sample task failed schema validation: 'embedding_vector' is a required property
+e_count():
+        """Verify that negative usage_count fails validation."""
+>       schema = load_schema()
 
-tests/contract/test_task_schema.py:48: Failed
+tests/contract/test_skill_schema.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def load_schema():
+        """Load the skill schema from YAML."""
+        if not os.path.exists(SCHEMA_PATH):
+>           pytest.fail(f"Schema file not found at {SCHEMA_PATH}")
+E           Failed: Schema file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/tests/contracts/skill.schema.yaml
+
+tests/contract/test_skill_schema.py:23: Failed
 =========================== short test summary info ============================
 FAILED tests/contract/test_skill_schema.py::test_schema_loads - Failed: Schem...
 FAILED tests/contract/test_skill_schema.py::test_valid_skill_object - Failed:...
 FAILED tests/contract/test_skill_schema.py::test_missing_required_field - Fai...
 FAILED tests/contract/test_skill_schema.py::test_wrong_type_field - Failed: S...
 FAILED tests/contract/test_skill_schema.py::test_negative_usage_count - Faile...
-FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
-=================== 6 failed, 28 passed, 3 skipped in 0.22s ====================
+=================== 5 failed, 29 passed, 3 skipped in 0.21s ====================
 
 
 

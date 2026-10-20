@@ -1,13 +1,13 @@
 T001:
   c: true
-  h: 03ef4fd1984c17d46adc41ad81a06c28a1f8a2f492a33608aa50e1bb33a2b16b
+  h: a50a9c2306e541b555467343584a7a84f9b2dd24e878001076db3266d482bac4
   r: All five contract schema files exist at `contracts/` with substantive content
-    (properties, required, type constraints), the source directory `specs/.../contracts/`
-    contains the same five schemas, and the test file `tests/contract/test_schema_presence.py`
-    implements both required checks (yaml.safe_load with `properties`/`required` assertions
-    and jsonschema validation of minimal dummy instances). The historical execution
-    log shows all 10 tests passing with exit code 0.
-  sig: 3f32cb48163cac0d702f4d9d8715e949a8d9493b39f7d6dbf5e2508f434c082a
+    (properties, required, types, constraints), the source specs directory contains
+    the same five schemas, and the test file `tests/contract/test_schema_presence.py`
+    implements exactly the specified verification (yaml.safe_load, mandatory keys,
+    jsonschema dummy-instance validation). The historical execution log shows all
+    10 tests passing with exit 0.
+  sig: 035f89a1040dc33a87e3aeb25057f9795cbd7d7525ab2a3e998b36d4287918f9
 T007:
   c: false
   h: 04229e80dae1ed3ad2b60e98128c20a5ba773858b8d5070cb6cea9e404c89f5c

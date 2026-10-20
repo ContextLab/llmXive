@@ -52,11 +52,14 @@ def load_model():
         raise e
     return SentenceTransformer("sentence-transformers/all-MPNet-base-v2")
 
+# ----------------------------------------------------------------------
+# Skill generation
+# ----------------------------------------------------------------------
 def generate_skills(seed: int, count: int = 100, overlap_level: str = "medium") -> List[Dict[str, Any]]:
     """
     Generates ``count`` synthetic skill objects.  The ``overlap_level``
-    controls the amount of noise added to the base embeddings to achieve
-    the desired semantic density.
+    controls how many base templates are reused and how much noise is added
+    to achieve the desired semantic density.
     """
     random.seed(seed)
     np.random.seed(seed)
@@ -102,18 +105,23 @@ def generate_skills(seed: int, count: int = 100, overlap_level: str = "medium") 
     # Normalise to unit length
     base_embeddings /= np.linalg.norm(base_embeddings, axis=1, keepdims=True) + 1e-8
 
-    # Noise magnitude per overlap level
-    noise_map = {
-        "low": 0.4,
-        "medium": 0.2,
-        "high": 0.05,
-    }
-    noise_level = noise_map.get(overlap_level.lower(), 0.2)
+    # Choose how many distinct base templates to draw from
+    if overlap_level.lower() == "low":
+        chosen_indices = list(range(len(base_templates)))          # use many different bases
+        noise_level = 0.4
+    elif overlap_level.lower() == "medium":
+        # pick 5 distinct templates at random
+        chosen_indices = random.sample(range(len(base_templates)), 5)
+        noise_level = 0.2
+    else:  # high
+        # pick a single template
+        chosen_indices = [random.randint(0, len(base_templates) - 1)]
+        noise_level = 0.05
 
     skills: List[Dict[str, Any]] = []
     while len(skills) < count:
-        # Pick a random base template
-        idx = random.randint(0, len(base_templates) - 1)
+        # Pick a random base template from the allowed subset
+        idx = random.choice(chosen_indices)
         base_text = base_templates[idx]
         base_emb = base_embeddings[idx]
 
@@ -133,10 +141,21 @@ def generate_skills(seed: int, count: int = 100, overlap_level: str = "medium") 
                 "function_code": variant_code,
                 "embedding_vector": new_emb.tolist(),
                 "usage_count": 0,
-                # Compute mean cosine similarity later; placeholder 0.0 for now
+                # placeholder; will be filled later
                 "mean_cosine_similarity": 0.0,
             }
         )
+
+    # Compute mean cosine similarity for each skill
+    embeds = np.array([s["embedding_vector"] for s in skills])
+    normed = embeds / (np.linalg.norm(embeds, axis=1, keepdims=True) + 1e-8)
+    sim_matrix = np.dot(normed, normed.T)
+
+    for i, skill in enumerate(skills):
+        # Exclude self‑similarity
+        others = np.delete(sim_matrix[i], i)
+        skill["mean_cosine_similarity"] = float(np.mean(others))
+
     return skills
 
 def pairwise_cosine_similarity_matrix(embeddings: np.ndarray) -> np.ndarray:
@@ -188,6 +207,9 @@ def meets_overlap_criteria(metrics: Dict[str, Any], level: str) -> bool:
         return mean > 0.80 and metrics["pct_over_0_8"] >= 0.30
     return False
 
+# ----------------------------------------------------------------------
+# Task generation
+# ----------------------------------------------------------------------
 def generate_tasks_with_ground_truth(
     seed: int, skills: List[Dict[str, Any]], count: int = 500
 ) -> List[Dict[str, Any]]:

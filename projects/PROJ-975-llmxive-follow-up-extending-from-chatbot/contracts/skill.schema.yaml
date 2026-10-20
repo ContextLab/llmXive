@@ -5,8 +5,7 @@ type: object
 properties:
   skill_id:
     type: string
-    description: Unique identifier for the skill (e.g., "S1").
-    pattern: "^S[0-9]+$"
+    description: Unique identifier for the skill (e.g., "skill_001").
   function_code:
     type: string
     description: The actual Python source code string for the skill.
@@ -30,5 +29,4 @@ required:
   - function_code
   - embedding_vector
   - usage_count
-  - mean_cosine_similarity
 additionalProperties: false
