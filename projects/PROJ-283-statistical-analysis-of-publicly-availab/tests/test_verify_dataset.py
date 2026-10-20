@@ -6,6 +6,7 @@ configurations and assert that the script produces the expected
 JSON report and exit code.
 """
 
+import os
 import json
 import subprocess
 import sys

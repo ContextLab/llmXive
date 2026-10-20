@@ -18,10 +18,13 @@ def ensure_directories():
     for d in [DATA_RAW_DIR, DATA_PROCESSED_DIR, DATA_RESULTS_DIR, CONTRACTS_DIR]:
         d.mkdir(parents=True, exist_ok=True)
 
-# Dataset Configuration
-# Using the standard Lichess dataset from HuggingFace
-LICHRESS_DATASET_URL = "Lichess/lichess_db_standard_rated"
+# Lichess dataset URL (standard Lichess dataset identifier on HuggingFace)
+LICHESS_DATASET_URL = "Lichess/lichess_db_standard_rated"
 
-# T009 Verification Thresholds
+# Additional configuration constants
+SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME = 2000  # Approximate bytes per game for size estimation
+USE_MOVE_5 = False  # Whether to compute material imbalance at move 5
+
+# Dataset verification thresholds
 DATASET_SAMPLE_SIZE = 1000  # Number of games to sample for verification
 DATASET_MOVE_TIME_MISSING_THRESHOLD = 5.0  # Percentage threshold to HALT (5%)

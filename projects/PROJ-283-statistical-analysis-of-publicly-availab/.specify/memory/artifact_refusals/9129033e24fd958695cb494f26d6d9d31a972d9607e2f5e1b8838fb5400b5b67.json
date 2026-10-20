@@ -1,0 +1,7 @@
+{
+  "task_id": "T005a",
+  "fingerprint": "8c997d785c7c449512b01b87aa8bd1c480f56e3af94c1ecac333e31a57294320",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'src/validation/validate_contracts.py': imports nonexistent names from sibling files: `from src.config import get_contract_path` (available: CONTRACTS_DIR, DATASET_MOVE_TIME_MISSING_THRESHOLD, DATASET_SAMPLE_SIZE, DATA_DIR, DATA_PROCESSED_DIR, DATA_RAW_DIR, DATA_RESULTS_DIR, LICHESS_DATASET_URL...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

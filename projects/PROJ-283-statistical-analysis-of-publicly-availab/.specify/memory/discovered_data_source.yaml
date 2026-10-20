@@ -1,16 +1,17 @@
 status: none
-intent: download Lichess game JSON dataset with ratings and move times python package
+intent: Lichess game database with ratings and move times download python package
   dataset
 required_fields:
 - game_id
 - eco_code
 - white_rating
 - black_rating
+- move_times
 - average_move_time
 - material_imbalance_move10
-- elo_expected_win_prob
-- outcome
+- elo_expected_probability
+- game_result
 - outcome_deviation
-cache_key: abaaf6f1b7132bc90504c5b4e1251a842710efd527673973d4c34d58cfb2f67b
-searched_at: '2026-10-20T14:18:53.177497+00:00'
+cache_key: ad7c6d6d7329a2157670628309b0dd5f9dd6fdbd9a550fb2a3cac46f9a2fb36b
+searched_at: '2026-10-20T14:23:50.213691+00:00'
 retry_count: 1

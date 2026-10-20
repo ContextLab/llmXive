@@ -26,7 +26,7 @@ from pathlib import Path
 import pandas as pd
 
 # llmxive_toolkit helpers for consistent project paths
-from llmxive_toolkit import paths, get_logger
+from llmxive_toolkit import get_logger
 
 # ----------------------------------------------------------------------
 # Configuration
@@ -39,16 +39,21 @@ REQUIRED_COLUMNS = {
     "outcome",
 }
 
+# Use the current working directory as the project root for test isolation.
+# This allows the script to be executed in a temporary directory (as done by the tests)
+# while still supporting normal execution from the repository root.
+PROJECT_ROOT = Path.cwd()
+
 # Default raw data locations (the project may store the raw dump as Parquet or CSV)
 RAW_DATA_CANDIDATES = [
-    paths.data("raw", "games.parquet"),
-    paths.data("raw", "games.csv"),
-    paths.data("raw", "sample_games.parquet"),
-    paths.data("raw", "sample_games.csv"),
+    PROJECT_ROOT / "data" / "raw" / "games.parquet",
+    PROJECT_ROOT / "data" / "raw" / "games.csv",
+    PROJECT_ROOT / "data" / "raw" / "sample_games.parquet",
+    PROJECT_ROOT / "data" / "raw" / "sample_games.csv",
 ]
 
-# Output report location
-REPORT_PATH = paths.results("dataset_verification.json")
+# Output report location (as required by the task specification)
+REPORT_PATH = PROJECT_ROOT / "data" / "results" / "dataset_verification.json"
 
 # ----------------------------------------------------------------------
 # Logger setup
@@ -99,7 +104,8 @@ def write_report(all_present: bool, missing: list[str]) -> None:
         "all_columns_present": all_present,
         "missing_columns": missing,
     }
-    # Ensure the results directory exists (paths.results does this)
+    # Ensure the results directory exists
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(REPORT_PATH, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
     logger.info(f"Verification report written to {REPORT_PATH}")
@@ -128,9 +134,7 @@ def main() -> int:
         logger.info("All required columns are present.")
         return 0
     else:
-        logger.error(
-            f"Missing required columns: {', '.join(missing)}"
-        )
+        logger.error(f"Missing required columns: {', '.join(missing)}")
         return 1
 
 if __name__ == "__main__":

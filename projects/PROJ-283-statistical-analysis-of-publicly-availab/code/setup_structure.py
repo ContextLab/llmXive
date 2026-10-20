@@ -1,74 +1,46 @@
 """
-Script to initialize the project directory structure as per T001.
-This script ensures all required directories and __init__.py files exist.
-"""
-import os
-import sys
+Project structure creation script.
 
-def create_directories():
-    """Create the required directory structure."""
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    
-    # Define all required directories relative to the project root
-    directories = [
-        "code",
-        "code/data",
-        "code/data/raw",
-        "code/data/processed",
-        "code/data/results",
-        "code/models",
-        "code/reports",
-        "code/validation",
-        "code/config.py",  # Will be handled separately if needed, but directory is here
+This script creates the required directory hierarchy for the
+chess Elo analysis project. It can be executed directly or imported
+and called via ``create_directories()``.
+"""
+
+import sys
+from pathlib import Path
+
+def create_directories() -> None:
+    """
+    Create all required project directories.
+
+    The function is idempotent – existing directories are left untouched.
+    """
+    # Determine the project root (the directory containing the ``code`` folder)
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
+
+    # List of directories relative to the project root
+    required_dirs = [
+        "src",
         "tests",
-        "tests/contract",
-        "tests/unit",
-        "tests/integration",
         "data",
+        "specs",
         "data/raw",
         "data/processed",
         "data/results",
-        "specs",
-        "specs/contracts"
-    ]
-
-    created_count = 0
-    for dir_path in directories:
-        full_path = os.path.join(base_dir, dir_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            created_count += 1
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
-
-    # Create __init__.py files in all src/ and tests/ subdirectories
-    init_dirs = [
-        "code",
-        "code/data",
-        "code/data/raw",
-        "code/data/processed",
-        "code/data/results",
-        "code/models",
-        "code/reports",
-        "code/validation",
-        "tests",
+        "specs/contracts",
         "tests/contract",
         "tests/unit",
-        "tests/integration"
+        "tests/integration",
     ]
 
-    for dir_path in init_dirs:
-        full_path = os.path.join(base_dir, dir_path)
-        init_file = os.path.join(full_path, "__init__.py")
-        if not os.path.exists(init_file):
-            with open(init_file, "w") as f:
-                f.write(f"# {dir_path.replace('/', ' ').title()} module\n")
-            print(f"Created __init__.py: {init_file}")
-        else:
-            print(f"__init__.py already exists: {init_file}")
+    for rel_dir in required_dirs:
+        dir_path = project_root / rel_dir
+        dir_path.mkdir(parents=True, exist_ok=True)
 
-    print(f"\nProject structure initialization complete. Created {created_count} new directories.")
+    print("Project directories created successfully.")
 
 if __name__ == "__main__":
+    # When executed as a script, run the creation routine
     create_directories()
+    sys.exit(0)

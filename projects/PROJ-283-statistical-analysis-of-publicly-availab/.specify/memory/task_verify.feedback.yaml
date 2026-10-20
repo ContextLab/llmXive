@@ -7,14 +7,27 @@ T001:
 T002:
   task: b95aa42808e33238b046f19a14014f4db96a998fe6bb2b65c157d18c658d7e5e
 T003:
+  reason: "The `pyproject.toml` file is present and includes proper `ruff` and `black`\
+    \ configuration, but there is no evidence (e.g., command output, logs, or exit\u2011\
+    code records) that `ruff check` and `black --check .` were actually run and exited\
+    \ with code\u202F0. The required verification step is missing."
   task: 9a660f01141bdb2bcf17195f4eabaa42b4c60be9207888730eefc9748d0c17fc
 T004:
   task: a482c006b4ae7f54c05b5d9ed02622059fa42eddaa9c38ba42fc97d7b5c98dc4
 T005a:
   task: e6f81a232359d463ffc86890cc4f556cb4e771c9cab69f8251b223b765050a9f
 T006:
+  reason: "The file `specs/contracts/game_record.schema.yaml` exists and contains\
+    \ a non\u2011empty schema, but there is no evidence that its SHA\u2011256 hash\
+    \ matches the expected CI checksum, nor any test output showing that a pytest\
+    \ schema\u2011lint passed with a known\u2011good example. These verification steps\
+    \ are required to consider the task complete."
   task: 61c4d06ab24cf122a2583b309161390c4dc39e83e366b34041c2f3e296f0e80a
 T007:
+  reason: "The artifact `specs/contracts/model_output.schema.yaml` exists, but there\
+    \ is no evidence that its contents exactly match the specification (checksum comparison)\
+    \ nor that the required pytest schema\u2011lint test (as in T006) was run and\
+    \ passed. Provide the checksum verification and test results to satisfy the task."
   task: 7f2e9214da99f157244411934290942e129ab05690699b467c055a152c8ea68c
 T008a:
   task: e5626b535bbfdf600b5d8113842b075635116bc6a9dbe4ab6c61966660b339db

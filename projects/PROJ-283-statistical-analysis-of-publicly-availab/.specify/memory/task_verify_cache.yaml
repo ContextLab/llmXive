@@ -1,3 +1,50 @@
+T001:
+  c: true
+  h: c08e2d83bb31a1c75c9a5216093bd17f937e100a7d57f649e714d26d680d53a0
+  r: "Checked the collector\u2011confirmed directory listings showing that all required\
+    \ folders (`src/`, `tests/`, `data/`, `specs/`, `data/raw/`, `data/processed/`,\
+    \ `data/results/`, `specs/contracts/`, `tests/contract/`, `tests/unit/`, `tests/integration/`)\
+    \ exist, and the setup script log reports successful creation."
+  sig: 9e907b84ff03569ba405890a887abe2ed6b4f14c2481bd3a721435a9e58d0ab8
+T002:
+  c: true
+  h: 8f2cf628a6d91755f2e5e4dc02bc4c4a07a0cd3caf2380a40168aec0bae72386
+  r: "Checked the `requirements.txt` file (94\u202Fbytes) at `projects/PROJ-283-statistical-analysis-of-publicly-availab/requirements.txt`;\
+    \ it exists and lists all ten required packages exactly as specified."
+  sig: 9aecca85d05a8ee2e3623e1cc293deb38a29e81ce76ed9e53441244e5a2670d0
+T003:
+  c: false
+  h: 06ecd69453547deb7566ef328ec7e572e5f883a9a627bf98a3f56d966c5e418d
+  r: "The `pyproject.toml` file is present and includes proper `ruff` and `black`\
+    \ configuration, but there is no evidence (e.g., command output, logs, or exit\u2011\
+    code records) that `ruff check` and `black --check .` were actually run and exited\
+    \ with code\u202F0. The required verification step is missing."
+  sig: cba23cea9757e5ed122af7a0b36e8ce442c1905e6a90e2943f5d84eff5edb87a
+T004:
+  c: true
+  h: f5022f809895c70922602c750c3436eca18b57cb70d4a132cf77075945093648
+  r: "The `src/config.py` file (1056\u202Fbytes) is present and defines `RANDOM_SEED`,\
+    \ the required directory path constants, `LICHESS_DATASET_URL`, `SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME\
+    \ = 2000`, and `USE_MOVE_5 = False` with the correct types and values. All required\
+    \ constants are correctly set, satisfying the task specification."
+  sig: 89d695b52cd82b3a70e0fc2112ce4ed1fcec81942269438dcd8b73ed380fce4e
+T006:
+  c: false
+  h: 685327f39216c7a3a302f9ed600c4ee64181a568289e96c52c9413d652c14817
+  r: "The file `specs/contracts/game_record.schema.yaml` exists and contains a non\u2011\
+    empty schema, but there is no evidence that its SHA\u2011256 hash matches the\
+    \ expected CI checksum, nor any test output showing that a pytest schema\u2011\
+    lint passed with a known\u2011good example. These verification steps are required\
+    \ to consider the task complete."
+  sig: 97b9a8a6813d63a03f16e5567985e261e1b88bf9ae5d91ebe081dae6f213e387
+T007:
+  c: false
+  h: d593efdbc71f034b7bf83024bd4c72fb5e1be0c8599a405110fb017b1da05264
+  r: "The artifact `specs/contracts/model_output.schema.yaml` exists, but there is\
+    \ no evidence that its contents exactly match the specification (checksum comparison)\
+    \ nor that the required pytest schema\u2011lint test (as in T006) was run and\
+    \ passed. Provide the checksum verification and test results to satisfy the task."
+  sig: 627540b8b1d73aa09536855410255f907dc05a18768eddb56dcf1ef2ac9e1a93
 T015:
   c: false
   h: 101a9c1f20d4225321433b2054c38ee4f95b63d859668b651844f369d5a6e621

@@ -8,10 +8,10 @@ All paths are relative to the repository root.
 ## Phase 0 – Project Setup (already completed)
 
 - [ ] T000 **Dataset Verification** – Verify that the downloaded raw dataset contains the required columns `white_rating`, `black_rating`, `eco_code`, `move_times`, and `outcome`. Abort the pipeline with a clear error message if any column is missing. Write a verification report `data/results/dataset_verification.json` containing a boolean `all_columns_present` and a list of missing columns (if any). **Verification**: The script exits with non‑zero status on failure; the JSON file exists and reports `all_columns_present: true` for a compliant dataset.   <!-- FAILED-IN-EXECUTION: code/src/data/verify_dataset.py exit=1 -->
-- [ ] T001 **Create project structure** – Create directories `src/`, `tests/`, `data/`, `specs/`, `data/raw/`, `data/processed/`, `data/results/`, `specs/contracts/`, `tests/contract/`, `tests/unit/`, `tests/integration/`. **Verification**: Assert each directory exists on disk after execution.  
-- [ ] T002 **Initialize Python project** – Write `requirements.txt` containing `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `python-chess`, `matplotlib`, `seaborn`, `requests`, `datasets`, `pytest`. **Verification**: Check that `requirements.txt` exists and contains all listed packages.  
+- [X] T001 **Create project structure** – Create directories `src/`, `tests/`, `data/`, `specs/`, `data/raw/`, `data/processed/`, `data/results/`, `specs/contracts/`, `tests/contract/`, `tests/unit/`, `tests/integration/`. **Verification**: Assert each directory exists on disk after execution.  
+- [X] T002 **Initialize Python project** – Write `requirements.txt` containing `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `python-chess`, `matplotlib`, `seaborn`, `requests`, `datasets`, `pytest`. **Verification**: Check that `requirements.txt` exists and contains all listed packages.  
 - [ ] T003 **Configure linting and formatting** – Add `pyproject.toml` with `ruff` and `black` configuration. **Verification**: Run `ruff check` and `black --check .`; both must exit with code 0.  
-- [ ] T004 **Add global config** – Create `src/config.py` defining seeds, path constants, Lichess URL, `SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME = 2000`, and `USE_MOVE_5 = False`. **Verification**: Import the module and assert that the constants are defined and have the expected types/values.
+- [X] T004 **Add global config** – Create `src/config.py` defining seeds, path constants, Lichess URL, `SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME = 2000`, and `USE_MOVE_5 = False`. **Verification**: Import the module and assert that the constants are defined and have the expected types/values.
 
 ---
 
