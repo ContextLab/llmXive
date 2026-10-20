@@ -62,7 +62,7 @@
 
 - What happens when a dataset contains zero‑inflated taxa that cannot be log‑transformed? → The system MUST apply a small pseudocount (default = 1e‑6) before CLR transformation and document this in the output.
 - How does the system handle missing covariate data (e.g., BMI, antibiotic use)? → Samples with >20 % missing covariate data MUST be excluded; remaining missing values are imputed using the median (numeric) or mode (categorical) of the respective covariate.
-- What if one dataset has significantly fewer samples than the other? → The system will report the sample‑size disparity in the final summary. An a priori power analysis (FR-012) is mandatory; if the smaller cohort fails to meet the required sample size, the pipeline will issue a warning and suggest additional data collection.
+- What if one dataset has significantly fewer samples than the other? → The system will report the sample‑size disparity in the final summary. An a priori power analysis (FR-012) is mandatory; if the smaller cohort fails to meet the required sample size, the pipeline will issue a warning **and halt downstream analyses**, and suggest additional data collection.
 
 ## Requirements
 
@@ -79,8 +79,9 @@
 - **FR-009**: System MUST output summary tables of significant taxa with effect sizes, confidence intervals, and q‑values (See US-2, US-3).
 - **FR-010**: System MUST conduct a measurement‑error simulation to assess bias introduced by self‑reported fiber intake, reporting bias magnitude and direction (See US-2).
 - **FR-011**: System MUST report absolute median fiber intake (g/day) for high‑fiber and low‑fiber groups in each cohort (See US-3).
-- **FR-012**: System MUST perform an a priori power analysis to detect a minimum standardized effect size of β = 0.1 with 80 % power at α = 0.05 for the primary association tests, and must document the required total sample size per cohort (See US-2, Edge Cases).
-- **FR-013**: System MUST issue a warning and halt downstream analyses if either cohort fails to meet the sample‑size requirement identified in FR-012.
+- **FR-012**: System MUST perform an a priori power analysis to detect a minimum standardized effect size of β = 0.1 with 80 % power at α = 0.05 for the primary association tests. The power analysis will be conducted using **statsmodels.stats.power.CorrelationPower** for the Spearman correlation component and **statsmodels.stats.power.FTestPower** for the MaAsLin2 linear‑model component, reflecting the appropriate statistical models. This analysis is justified because detecting modest microbiome‑diet associations requires sufficient sample size to achieve reliable inference (See US-2).
+- **FR-013**: System MUST issue a warning and halt downstream analyses if either cohort fails to meet the sample‑size requirement identified in FR-012 (See US-3).
+- **FR-014**: System MUST generate visualizations for key results, including volcano plots for differential abundance findings and CLR‑based ordination (e.g., PCA) plots for each cohort, and save them as PNG files (See US-3).
 
 ### Key Entities
 
@@ -101,6 +102,7 @@
 - **SC-005**: System reports measurement‑error simulation bias (absolute and relative) for the primary association estimates (See FR-010).
 - **SC-006**: System calculates and reports cross‑cohort replication rate as a percentage with two decimal places (See US-3).
 - **SC-007**: Unified dataset produced after ingestion contains ≥ 1,000 samples total across both cohorts and passes all quality filters (See US-1).
+- **SC-008**: System reports that volcano‑plot PNG files and CLR‑ordination PNG files are generated for each cohort, with file paths listed in the final summary (See US-3).
 
 ## Assumptions
 
