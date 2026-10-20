@@ -19,7 +19,7 @@ The tasks below implement the complete end‑to‑end analysis required by the s
   - `scripts/` – helper scripts (linting, verification)  
   - **Verification**: Run `tree -L 2 .` and confirm all listed directories exist.
 
-- [ ] T002 [P] Initialise a Python 3.11 project with a fully‑pinned `requirements.txt`  
+- [X] T002 [P] Initialise a Python 3.11 project with a fully‑pinned `requirements.txt`  
   - Run `pip‑compile` (or manually pin) to produce exact versions, e.g.:  
     ```text
     astropy>=6.0,<7.0
@@ -33,7 +33,7 @@ The tasks below implement the complete end‑to‑end analysis required by the s
   - Commit the file at `requirements.txt`.  
   - **Verification**: `pip install -r requirements.txt` succeeds without version conflicts.
 
-- [ ] T003 [P] Configure code quality tools (Ruff + Black) <!-- FAILED-IN-EXECUTION: scripts/lint.sh exit=1 -->
+- [ ] T003 [P] Configure code quality tools (Ruff + Black) <!-- FAILED-IN-EXECUTION: scripts/lint.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/lint.sh exit=1 -->
   - Add `pyproject.toml` with sections `[tool.black]` (line‑length = 88) and `[tool.ruff]` (select = ["E", "F", "W", "C90"]).  
   - Add a CI helper script `scripts/lint.sh` that runs `black --check . && ruff .`.  
   - **Verification**: `bash scripts/lint.sh` exits with status 0 on the current code base.

@@ -1,11 +1,6 @@
 T001:
   task: 01045773e57799c11d6ec32524d4d3035daf7f821ddad4584dff11b6f2f6b727
 T002:
-  reason: The `requirements.txt` exists but contains version ranges (e.g. `astropy>=6.0,<7.0`),
-    not the fully-pinned exact versions the task requires (e.g. `astropy==6.1.0`);
-    it is essentially the example input, not a `pip-compile` output. Additionally,
-    there is no evidence (log, lock output, or CI record) that `pip install -r requirements.txt`
-    was run and succeeded without conflicts.
   task: 2137807558d07e0ea764f55891f38962193b28ba0a771851b28ed222b6c1f8c8
 T003:
   reason: 'Requested task execution failed; rerun successfully: scripts/lint.sh exit=1'

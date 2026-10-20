@@ -33,7 +33,7 @@ def main() -> None:
 
     # Verify that the residuals file exists; this is the contract for the
     # downstream pipeline.
-    project_root = Path(__file__).parents[2]
+    project_root = Path(__file__).parents[1]
     residuals_path = project_root / "data" / "processed" / "residuals.csv"
     if not residuals_path.is_file():
         raise FileNotFoundError(f"Residuals file not found: {residuals_path}")

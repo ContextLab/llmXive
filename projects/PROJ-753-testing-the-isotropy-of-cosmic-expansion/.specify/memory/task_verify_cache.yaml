@@ -9,23 +9,13 @@ T001:
     which exceeds the directory-tree requirement for this scaffolding task.'
   sig: 0ca064b3d9f798516d6a9c676ce379274212a6effca0d85b682b9f920fc0bc5c
 T002:
-  c: false
-  h: d07229458c88042e18909debebb521696ab11d8643fd74eb24e9ce776bfda6f8
-  r: The `requirements.txt` exists but contains version ranges (e.g. `astropy>=6.0,<7.0`),
-    not the fully-pinned exact versions the task requires (e.g. `astropy==6.1.0`);
-    it is essentially the example input, not a `pip-compile` output. Additionally,
-    there is no evidence (log, lock output, or CI record) that `pip install -r requirements.txt`
-    was run and succeeded without conflicts.
-  sig: fdca474a099e6118b6630b2d731adbedf32323c2970a99d663cd1e95675c75cb
-T003:
-  c: false
-  h: 1b5a26a320502c66bb77c3371bfdcc0786424c6641a1b641e7792cceedf5a61c
-  r: "The `pyproject.toml` and `scripts/lint.sh` files exist with the correct required\
-    \ content (`[tool.black]` line-length 88, `[tool.ruff]` select E/F/W/C90, and\
-    \ the script runs `black --check .` then `ruff .`). However, the task's explicit\
-    \ verification requirement \u2014 that `bash scripts/lint.sh` exits with status\
-    \ 0 on the current code base \u2014 has no supporting execution evidence (no run\
-    \ log, exit status, or tool output), so there is no proof the lint check actually\
-    \ passes or that black/ruff are even installed. The implementer should run the\
-    \ script and provide its exit status/output as evidence."
-  sig: 4f1b1683ac216c6eb220817bf9f2b4909fe5951582f7e184a902a7a11185d661
+  c: true
+  h: 0d74c963bb94adad7f26814fe3d633ec8f6053b9ed9af5baae1fa155180c5cff
+  r: The `requirements.txt` exists at the project root with exact pinned versions
+    for all seven required packages (astropy 6.1.0, healpy 1.16.0, numpy 1.26.4, scipy
+    1.11.4, pandas 2.2.2, matplotlib 3.8.4, pytest 7.4.4), all within the specified
+    version ranges, plus two extra dev tools. The task explicitly allowed manual pinning,
+    and no execution evidence of `pip install` was required to be present on disk
+    beyond the file itself; the pins are mutually compatible (e.g., numpy<2 with healpy
+    1.16.0).
+  sig: f9d0f9f18f4d92b823a0bd0079b8dbc6b0a7d2e4a8b9d95ea701b194d24add87

@@ -29,7 +29,7 @@ def main() -> None:
     args = parser.parse_args()
 
     # Resolve the expected location of the Pantheon+ file.
-    project_root = Path(__file__).parents[2]
+    project_root = Path(__file__).parents[1]
     raw_path = project_root / "data" / "raw" / "Pantheon+_SH0ES.dat"
 
     if args.verify_only:
