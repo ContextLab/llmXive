@@ -77,7 +77,7 @@
   verification_status: pending
   verified_against_url: https://github.com/PantheonPlusSH0ES/DataRelease
   verified_at: '2026-10-20T22:29:46.419909Z'
-- artifact_hash: 9d6f6ebe42f67e76a68121ddd9a4f7a65d05741739199734db42e9a6a548d95e
+- artifact_hash: 91d56fbc4a82102ec93a4ead2c25951a7217bea36c8059fd71411e171c00b4a3
   artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -87,4 +87,4 @@
   value: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon+_SH0ES.dat`
   verification_status: mismatch
   verified_against_url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon+_SH0ES.dat
-  verified_at: '2026-10-20T22:42:06.885935Z'
+  verified_at: '2026-10-20T22:51:07.909760Z'
