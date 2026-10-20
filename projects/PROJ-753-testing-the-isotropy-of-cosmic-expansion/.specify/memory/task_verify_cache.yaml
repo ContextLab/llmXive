@@ -1,17 +1,15 @@
 T001:
-  c: false
-  h: f0d396dd634e9cc4044bba7f1cfebe6f1384cd456353a31de112ce093de8d18e
-  r: The `code/` directory exists but does not contain the required source modules
-    (`ingest.py`, `spherical_harmonics.py`, `simulations.py`, `analysis.py`, `visualize.py`,
-    etc.) listed in the task specification. These files are missing, so the project
-    directory tree is not fully created as required.
-  sig: c5365d1e0d3e5716b59fb15554f576f11794b6c2d032e4495e147099ca1f460a
+  c: true
+  h: ef5ce0513fc9747eac9c7e7f198be8465f7af4742df719cfff625994cfe5bb12
+  r: Checked the repository tree showing all required directories (data/raw, data/processed,
+    code, tests/unit, tests/integration, tests/contract, docs, reports, figures, scripts)
+    and the passing `tests/unit/test_directory_structure.py` log confirming both the
+    directories and the expected code modules are present.
+  sig: 0a5bbdc6aa35bbb18231d37aa6a74ab9aa5b1b46c3176d026c9f0fcde1f46532
 T002:
   c: false
-  h: 50dd3e4c980cb70e6f20400f630870f17e19e64dd2672b6063313f7e4ce50ce9
-  r: "The provided `requirements.txt` contains version ranges (e.g., `astropy>=6.0,<7.0`)\
-    \ rather than fully\u2011pinned exact versions (`astropy==6.0.0`), and there is\
-    \ no evidence that `pip install -r requirements.txt` was run successfully without\
-    \ conflicts. The task requires a fully\u2011pinned file and verification of a\
-    \ conflict\u2011free install."
-  sig: 6ee97bf96c08376c23da19b1ba42a17ec6df6d99aa412520152b20b6b93609f3
+  h: 93c3bc25f9ca9ad85991de00d6fdb5575e5746fbd7f48f47bee83ac1f4a0de00
+  r: Checked the `requirements.txt` file (present, fully pinned). However, there is
+    no execution evidence (e.g., pip install log) showing that `pip install -r requirements.txt`
+    actually succeeded without version conflicts, which is required for verification.
+  sig: 39f90fbe512c07535317d85807f33f85cba4c029b473c090474790b9fb674b56

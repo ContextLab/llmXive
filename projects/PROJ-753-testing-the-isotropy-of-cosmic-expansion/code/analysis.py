@@ -25,6 +25,8 @@ def main() -> None:
         help="Magnitude of dipole to inject into synthetic data",
     )
     args = parser.parse_args()
+    # Suppress unused variable warning; arguments may be used in future tasks.
+    _ = args
 
     logger = get_logger(__name__)
 

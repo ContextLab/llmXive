@@ -8,7 +8,7 @@ Full scientific functionality will be added in later tasks.
 import argparse
 from pathlib import Path
 
-from utils import get_logger, log_processing_step
+from utils import get_logger
 
 def verify_raw_file(raw_path: Path) -> None:
     """Raise an error if the expected raw data file does not exist."""

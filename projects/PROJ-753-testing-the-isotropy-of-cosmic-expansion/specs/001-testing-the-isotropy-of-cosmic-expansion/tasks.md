@@ -8,7 +8,7 @@ The tasks below implement the complete end‑to‑end analysis required by the s
 
 ## Phase 1 – Project scaffolding, data acquisition, and first end‑to‑end run  
 
-- [ ] T001 [P] Create the required project directory tree  
+- [X] T001 [P] Create the required project directory tree  
   - `data/raw/` – will hold the Pantheon+ release file (read‑only)  
   - `data/processed/` – filtered residuals, HEALPix map, simulation results  
   - `code/` – source modules (`ingest.py`, `utils.py`, `spherical_harmonics.py`, `simulations.py`, `analysis.py`, `visualize.py`, `models.py`)  
@@ -38,7 +38,7 @@ The tasks below implement the complete end‑to‑end analysis required by the s
   - Add a CI helper script `scripts/lint.sh` that runs `black --check . && ruff .`.  
   - **Verification**: `bash scripts/lint.sh` exits with status 0 on the current code base.
 
-- [ ] T004 [US1] Download the Pantheon+ “full” sample, verify checksum, and record provenance  
+- [ ] T004 [US1] Download the Pantheon+ “full” sample, verify checksum, and record provenance   <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 -->
   - URL: `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/PantheonPlusDataRelease/PantheonPlusDataRelease/main/data/Pantheon%2B_SH0ES.dat` — HTTP 404] (the canonical release).  
   - Save to `data/raw/pantheon_plus_SH0ES.dat`.  
   - Compute SHA‑256, write `data/metadata.json` with fields `dataset_version`, `source_url`, `sha256`.  

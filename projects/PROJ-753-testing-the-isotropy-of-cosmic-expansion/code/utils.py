@@ -2,6 +2,7 @@ import csv
 import json
 import logging
 import os
+import math
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -201,14 +202,9 @@ def calculate_distance_modulus_theoretical(
     d_c = integrate_comoving_distance(z, h0, omega_m, rtol)
     # Luminosity distance
     d_l = d_c * (1 + z)
-    # Distance modulus: mu = 5 * log10(d_L / 10pc) = 5 * log10(d_L) - 5
-    # d_L is in Mpc, so d_L / 10pc = d_L * 1e6 / 10 = d_L * 1e5
-    return 5 * (d_l * 1e5) ** 0.5  # This is incorrect, let's fix
     # Correct formula: mu = 5 * log10(d_L / 10pc)
-    # d_L in Mpc -> d_L * 1e6 pc
-    # d_L / 10pc = d_L * 1e5
-    # mu = 5 * log10(d_L * 1e5) = 5 * (log10(d_L) + 5)
-    import math
+    # d_L in Mpc -> d_L * 1e6 pc; d_L / 10pc = d_L * 1e5
+    # mu = 5 * (log10(d_L) + 5)
     return 5 * (math.log10(d_l) + 5)
 
 
@@ -265,7 +261,7 @@ def save_json(data: Dict[str, Any], file_path: str, indent: int = 2) -> None:
 
     Args:
         data: Dictionary to save.
-        file_path: Path to the output JSON file.
+        file_path: Path to the JSON file.
         indent: Indentation level for pretty printing.
     """
     with open(file_path, 'w', encoding='utf-8') as f:
