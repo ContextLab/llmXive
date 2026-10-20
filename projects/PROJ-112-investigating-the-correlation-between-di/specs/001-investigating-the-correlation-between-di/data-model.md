@@ -55,8 +55,4 @@ Columns: `sample_id`, `taxon_id`, `count` (integer ≥ 0).
 - All numeric fields respect the ranges noted above.  
 - `replicated` is `True` ⇔ (`q_value < 0.05` in both cohorts) **and** `direction` identical.  
 - Samples failing the >20 % missingness rule are excluded before schema validation.  
-- `batch` must be non‑empty; it is used as a covariate in association models.  
-
----
-
-
+- `batch` must be non‑empty; it is used as a covariate in association models.

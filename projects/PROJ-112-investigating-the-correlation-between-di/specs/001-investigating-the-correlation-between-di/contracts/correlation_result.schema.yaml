@@ -11,7 +11,7 @@ properties:
     description: "Spearman correlation coefficient. Rounded to 3 decimal places."
   spearman_se:
     type: number
-    description: "Standard Error of Spearman ρ (via Fisher Z). Rounded to 3 decimal places."
+    description: "Standard Error of Spearman ρ estimated via non‑parametric bootstrap (e.g., 1 000 resamples). Rounded to 3 decimal places."
   raw_p_value:
     type: number
     minimum: 0.0

@@ -3,7 +3,7 @@
 ## Prerequisites
 - Python 3.11+
 - Git
-- Internet access (to download AGP, optional UKBB, and helper datasets)
+- Internet access (to download AGP and optional user‑provided datasets)
 - R ≥ 4.2 with packages `Maaslin2`, `ANCOMII`, `DESeq2`, `zCompositions` (installed automatically via `rpy2` when the pipeline runs)
 
 ## Installation
@@ -21,15 +21,16 @@ pip install -r requirements.txt
 ```
 
 ## Prepare Your Data
-1. **American Gut Project** data will be downloaded automatically to `data/raw/agp/` from the public FTP mirror.  
-2. **UK Biobank** gut‑microbiome data will be attempted from its open portal; if unavailable, a warning is logged and the pipeline proceeds with AGP only.  
+1. **American Gut Project** data will be downloaded automatically to `data/raw/agp/` from the public source.  
+2. **UK Biobank** gut‑microbiome data is **not** automatically downloaded because it requires credentialed access; if you have an open copy you may place it in `data/user_dataset/`.  
 3. If you wish to use a custom open dataset, place the CSV/BIOM files inside `data/user_dataset/`. The dataset **must** contain the required columns listed in the research plan.  
 
 ## Execution Steps
 1. **Data Ingestion & Cohort Download**  
    ```bash
    python -m src.ingestion.agp_loader
-   python -m src.ingestion.ukbb_loader   # may log a warning if not accessible
+   # Optional: load a user‑provided open dataset
+   python -m src.ingestion.user_loader
    ```
    *Creates* `data/raw/` files and records SHA‑256 checksums.
 
@@ -52,14 +53,14 @@ pip install -r requirements.txt
    *Outputs* `data/analysis_matrix_clr.csv`.
 
 5. **Association Analyses**  
-   - **Partial Spearman (covariate‑adjusted)**  
+   - **Partial Spearman (covariate‑adjusted, bootstrap SE)**  
      ```bash
      python -m src.analysis.association --matrix data/analysis_matrix_clr.csv --mode spearman_partial
      ```
    - **MaAsLin2 Linear Model on CLR data**  
      ```bash
      python -m src.analysis.association --matrix data/analysis_matrix_clr.csv \
-         --mode maaslin2 --covariates age,bmi,sex,antibiotic_use,batch
+         --mode maaslin2 --covariates age,bmi,sex,antibiotic_use,read_depth
      ```
    - **Merged Results** (matches `correlation_result.schema.yaml`)  
      ```bash
@@ -83,9 +84,9 @@ pip install -r requirements.txt
 8. **Power & Sensitivity Analyses**  
    ```bash
    python -m src.preprocessing.power_analysis --mode spearman \
-       --target-beta 0.1 --alpha 0.05 --power 0.80
+       --target-beta 0.1 --alpha 0.05 --power 0.80 --method correlation_power
    python -m src.preprocessing.power_analysis --mode linear \
-       --target-beta 0.1 --alpha 0.05 --power 0.80
+       --target-beta 0.1 --alpha 0.05 --power 0.80 --method ftest_power
    ```
    *Outputs* `results/power_report.txt`. If the smaller cohort fails the a priori sample‑size target, the script halts with FR‑013 warning.
 
@@ -108,8 +109,4 @@ All tests must pass; failures indicate schema mismatches.
 
 ## Reproducibility Checks
 - Re‑run the entire pipeline; checksums in `data/` must match the previous run.  
-- Random seeds are fixed in `src.utils.config`; no stochastic variation beyond what is explicitly seeded.  
-
----
-
-
+- Random seeds are fixed in `src.utils.config`; no stochastic variation beyond what is explicitly seeded.
