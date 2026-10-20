@@ -1,4 +1,9 @@
 T001:
+  reason: The required `data/processed/` directory is missing, and the verification
+    artifact `results/structure_report.txt` was never generated, so there is no evidence
+    that `python -m compileall code/` exited 0 or that the full directory tree was
+    confirmed. The implementer must create `data/processed/` and run the verification
+    commands to produce the structure report listing all expected directories.
   task: bdd0cf57caa5b9170e4fd34cb1f2797509b5128411a6090a7f43a09a977f4c33
 T002:
   task: fa65ce1c923f39aa3a9cdfbdb727a348ebc2a7dd93c8576f7e9e1d4ce9f5c891

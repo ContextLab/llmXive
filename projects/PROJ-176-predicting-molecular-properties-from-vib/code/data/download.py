@@ -12,8 +12,6 @@ from pathlib import Path
 from typing import Optional, Tuple, Dict, Any
 
 import pandas as pd
-import requests
-from scipy import stats
 from datasets import load_dataset
 
 # llmxive utilities for path handling
@@ -41,11 +39,12 @@ def download_qm9(output_dir: Optional[Path] = None) -> Path:
     """Download the QM9 dataset via HuggingFace `datasets` and store as Parquet."""
     if output_dir is None:
         output_dir = Path("data/raw")
-    _ensure_dir(output_dir / "placeholder")  # ensure the directory exists
+    # Ensure the directory exists (the placeholder file trick is kept from original code)
+    _ensure_dir(output_dir / "placeholder")
 
     logger.info("Downloading QM9 dataset via HuggingFace datasets")
-    # The dataset identifier is taken from the specification
-    ds = load_dataset('lisn519010/QM9', split='train', data_dir=str(output_dir))
+    # Load the dataset from the HF hub (do NOT pass data_dir – let HF manage the cache)
+    ds = load_dataset('lisn519010/QM9', split='train')
     out_path = output_dir / "qm9.parquet"
     ds.to_parquet(str(out_path), engine="pyarrow")
     logger.info(f"QM9 saved to {out_path}")
@@ -58,7 +57,7 @@ def download_ir_spectra(output_dir: Optional[Path] = None) -> Path:
     _ensure_dir(output_dir / "placeholder")
 
     logger.info("Downloading IR spectra dataset via HuggingFace datasets")
-    ds = load_dataset('lamblador/QM9-IR', split='train', data_dir=str(output_dir))
+    ds = load_dataset('lamblador/QM9-IR', split='train')
     out_path = output_dir / "ir_spectra.parquet"
     ds.to_parquet(str(out_path), engine="pyarrow")
     logger.info(f"IR spectra saved to {out_path}")
