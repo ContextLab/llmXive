@@ -16,9 +16,9 @@ properties:
     type: "array"
     items:
       type: "number"
-    minItems: 768
-    maxItems: 768
-    description: "768-dimensional embedding vector."
+    minItems: 384
+    maxItems: 384
+    description: "A high-dimensional embedding vector (output of all‑MiniLM‑L6‑v2)."
   usage_count:
     type: "integer"
     minimum: 0

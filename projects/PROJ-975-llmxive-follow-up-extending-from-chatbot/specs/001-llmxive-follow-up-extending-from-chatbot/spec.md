@@ -9,7 +9,7 @@
 
 ### User Story 1 - Synthetic Dataset and Skill Library Generation (Priority: P1)
 
-The researcher needs to generate a reproducible synthetic environment containing a substantial number of multi-step tasks and a configurable library of 100 overlapping Python “skills” with controlled semantic density to serve as the ground truth for the experiment.
+The researcher needs to generate a reproducible synthetic environment containing a substantial number of multi-step tasks and a configurable library of many overlapping Python “skills” with controlled semantic density to serve as the ground truth for the experiment.
 
 **Why this priority**: Without a deterministic, ground-truth dataset and a controllable skill library, no empirical measurement of retrieval fidelity or task success can occur. This is the foundational data layer required for all subsequent analysis.
 
@@ -25,7 +25,7 @@ The researcher needs to generate a reproducible synthetic environment containing
 
 ### User Story 2 - Agent Execution and Metric Collection (Priority: P2)
 
-The researcher needs to run the minimalistic "Digital Colleague" agent across varying library sizes (10, 30, 50, 100) and record task completion rates, token usage, and latency for each configuration.
+The researcher needs to run the minimalistic "Digital Colleague" agent across varying library sizes (a small library size, 30, 50, 100) and record task completion rates, token usage, and latency for each configuration.
 
 **Why this priority**: This is the core experimental loop. It generates the raw data required to test the hypothesis regarding the "tipping point" of retrieval noise.
 
@@ -65,12 +65,12 @@ The researcher needs to apply a "Skill Pruning" heuristic to the active library 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST generate a synthetic dataset of exactly 500 multi-step tasks, where each task has a unique ground-truth solution path independent of the retrieval mechanism (See US-1).
-- **FR-002**: System MUST construct a skill library of 100 Python functions with configurable semantic overlap (low, medium, high) to simulate varying degrees of redundancy (See US-1).
+- **FR-001**: System MUST generate a synthetic dataset of a sufficiently large set of multi-step tasks, where each task has a unique ground-truth solution path independent of the retrieval mechanism. (See US-1).
+- **FR-002**: System MUST construct a skill library of a substantial number of Python functions with configurable semantic overlap (low, medium, high) to simulate varying degrees of redundancy (See US-1).
   - **Low**: Mean pairwise cosine similarity < 0.30.
   - **Medium**: Mean pairwise cosine similarity > 0.50 AND at least 30% of all pairs exceed 0.50.
   - **High**: Mean pairwise cosine similarity > 0.80 AND at least 30% of all pairs exceed 0.80.
-- **FR-003**: System MUST execute the agent against the task set for library sizes of 10, 30, 50, and 100, recording task completion rates, token usage, and latency for each run (See US-2).
+- **FR-003**: System MUST execute the agent against the task set for a range of library sizes (e.g., small, medium, and large configurations), recording task completion rates, token usage, and latency for each run. (See US-2).
 - **FR-004**: System MUST implement a "Skill Pruning" heuristic that removes a skill if (usage_count == 0) AND (min_cosine_similarity_to_any_other_skill_in_library < 0.70) after every 10 tasks (See US-3).
 - **FR-005**: System MUST perform Piecewise Linear Regression with a single breakpoint to identify the library size (x0) where task success rate significantly declines, and report the breakpoint value as the "tipping point" (See US-3).
 - **FR-006**: System MUST calculate and report two metrics:

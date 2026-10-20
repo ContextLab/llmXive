@@ -1,71 +1,97 @@
 # Research: llmXive follow-up: extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent"
 
 ## Objective
-Identify the library‑size “tipping point” where retrieval noise degrades the Digital Colleague agent, and evaluate whether the Skill‑Pruning heuristic restores performance.
+Identify the library‑size “tipping point” where retrieval noise begins to degrade the Digital Colleague agent, and assess whether the Skill‑Pruning heuristic restores performance, while accounting for semantic overlap.
 
 ## Methodology
 
 ### 1. Synthetic Environment Construction (FR‑001, FR‑002)
 
-* **Generation** – `generate_data.py` creates a substantial set of tasks (3‑5 steps each) and 100 Python skill functions.  
-* **Embedding Model** – `sentence-transformers/all-MiniLM-L6-v2` (CPU‑only).  
-* **Overlap Levels** –  
-  * **Low**: mean pairwise cosine < 0.30.  
-  * **Medium**: mean > 0.50, ≥ 30 % of pairs > 0.50.  
-  * **High**: mean > 0.80, ≥ 30 % of pairs > 0.80.  
-* **Reproducibility** – Fixed seeds (`random.seed(42)`, `np.random.seed(42)`). Checksums stored in state YAML.
+| Step | Detail |
+|------|--------|
+| **Random Seeds** | `random.seed(42)`, `np.random.seed(42)` for full reproducibility. |
+| **Skill Generation** | Several Python functions are auto‑generated (simple arithmetic, string manipulation, list processing). Each function receives a short natural‑language description; embeddings are computed with `sentence-transformers/all-MiniLM-L6-v2` (384‑dim). Overlap levels are enforced by iteratively adjusting descriptions until the pairwise cosine‑similarity statistics meet the thresholds (Low < 0.30; Medium > 0.50 with ≥30 % > 0.50; High > 0.80 with ≥30 % > 0.80). |
+| **Task Generation** | A sufficiently large number of tasks are created; each task randomly selects 3‑5 distinct skills as its ground‑truth solution path. The `solution_path` is a deterministic ordered list of function calls. |
+| **Checksums** | SHA‑256 of `tasks.json` and `skills.json` written to `data/checksums.json` (project‑owned). |
 
-### 2. Agent Execution Loop (FR‑003)
+### 2. Agent Execution Loop (FR‑003, FR‑006)
 
-* **Configurations** – Library sizes 10, 30, 50, 100; Pruning = {enabled, disabled}; Overlap = {low, medium, high}.  
-* **Task Processing** – For each task: retrieve top‑k = 5 skills (cosine similarity), compare retrieved set to ground‑truth, record success flag, latency, estimated token usage, Retrieval Precision (Jaccard), Retrieval Diversity (inverse variance of cosine similarities).  
-* **Pruning** – After every 10 tasks (if enabled), `pruning.py` removes any skill with `usage_count == 0` **and** `min_cosine_similarity_to_any_other_skill < 0.70`.  
+*Configurations*:  
+- Library sizes = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100} (active subset of the 100‑skill pool).  
+- Overlap levels = {low, medium, high}.  
+- Pruning = {enabled, disabled}.  
 
-### 3. Statistical Analysis (FR‑005, FR‑006, FR‑007)
+*Per‑Task Process*:
+1. Retrieve top‑k = 5 skills by cosine similarity to the task description.  
+2. Compute **Retrieval Precision** as Jaccard similarity between retrieved IDs and the task’s `ground_truth_skills`.  
+3. Compute **Retrieval Diversity** as `1 / variance(cosine_similarities_to_ground_truth)` (higher = more diverse).  
+4. **Composite Success Definition**: a task is marked **success** if **(Retrieval Precision ≥ 0.8) OR (executed trace exactly matches `solution_path`)**. This captures partial retrieval success while preserving a strict correctness check.  
+5. Record latency (wall‑clock ms) and estimate token usage (`len(description.split()) * 2 + sum(len(code.split()) for code in retrieved_skills)`).  
+6. Append a row to `metrics.csv` with the exact column order required by the specification.
 
-| Analysis Component | Method | Rationale |
-|--------------------|--------|-----------|
-| **Piecewise Linear Regression (PLR)** | `pwlf` (or `scipy.optimize.curve_fit` implementing a two‑segment linear model) | Detects a single breakpoint `x₀` where the slope of Success Rate vs. Library Size changes. |
-| **Variance Inflation Factor (VIF)** | `statsmodels.stats.outliers_influence.variance_inflation_factor` | Checks collinearity between “Library Size” and “Total Redundancy” (mean pairwise cosine). Must satisfy VIF < 5.0 (FR‑007). |
-| **Pruning Effect Test** | Paired t‑test (or Wilcoxon if normality fails) comparing success rates with vs. without pruning at library sizes 50 and 100. | Quantifies performance recovery (SC‑003). |
-| **Sensitivity Sweeps** | Additional runs varying pruning threshold (e.g., 0.60, 0.70, 0.80) and **library‑size granularity** (e.g., 10-unit increments). | Provides robustness checks but **does not** affect the primary “tipping point” metric. |
+*Edge‑Case Handling*:
+- **Missing Skill**: If a required ground‑truth skill is absent from the active library, log `edge_case="missing_skill"` and `success=False`.  
+- **Memory Pressure**: `generate_data.py` monitors RAM; if usage > 6 GB it aborts with a clear `Memory Limit Exceeded` error (SC‑005).  
+- **Maximal Overlap** (`mean cosine ≥ 0.95`): Retrieval may return ties; Jaccard will be 0 if none of the top‑5 match ground truth, and `edge_case="max_overlap"` is logged.
 
-#### PLR Stability and Sparse Grid Validation
-To ensure the breakpoint `x₀` is not an artifact of the sparse grid (10, 30, 50, 100), the following rigor is applied:
-1. **Task-Level Power**: The PLR is fitted on **task-level binary success outcomes** (N [deferred] observations per overlap level) rather than aggregated success rates (N=4). This provides sufficient degrees of freedom to identify the slope change.
-2. **Bootstrapping**: 1,000 bootstrap resamples of the task-level data are used to calculate the 95% confidence interval for `x₀`.
-3. **Granularity Validation**: A subset of tasks (N=100) is executed across a dense grid (10, 20, 30, ..., 100). The primary `x₀` is considered robust if the dense-grid breakpoint falls within the 95% CI of the sparse-grid estimate.
+### 3. Skill‑Pruning Heuristic (FR‑004)
 
-#### Selecting the Final Tipping Point (SC‑004)
+After every **10** tasks (if pruning enabled):
+1. Identify **unused** skills (`usage_count == 0`).  
+2. For each unused skill compute its **maximum** cosine similarity to any other skill in the active library.  
+3. **Remove** the skill if this maximum similarity **exceeds** `0.70` (i.e., it is highly redundant).  
+4. Update the active library size accordingly.
 
-* The **primary** tipping point is the breakpoint `x₀` obtained from the PLR **fit on the baseline configuration**: **High overlap**, **pruning disabled**, using the four library sizes (10, 30, 50, 100).  
-* All sensitivity sweeps (different overlap levels, pruning thresholds, finer library‑size granularity) generate **supplemental** breakpoint estimates that are reported in an appendix **but are not** used to satisfy SC‑004.  
-* The final reported tipping point in the paper will be the `breakpoint_estimate` field from `analysis_report.json` for the baseline configuration **only**. This rule eliminates the ambiguity identified in the unresolved concern T035.
+*Rationale*: This corrects the earlier specification‑implementation mismatch – we prune *redundant* unused skills, directly targeting retrieval noise.
 
-### 4. Multiple‑Comparison & Power
+### 4. Statistical Analysis (FR‑005, FR‑006, FR‑007, SC‑001 – SC‑006)
 
-* **Multiple Comparisons** – The only family of hypothesis tests is the pruning‑effect comparison (two levels). No correction is needed; if additional tests are added in future sweeps, a Bonferroni correction will be applied.  
-* **Power** – With a sufficient number of tasks per configuration, a post‑hoc power analysis will be reported.; if power falls below 0.80, the limitation will be noted (SC‑005).  
+| Component | Method | Details |
+|-----------|--------|---------|
+| **Piecewise Logistic Regression (PLR)** | `statsmodels` GLM with `Binomial` family, segmented via `pwlf`‑style breakpoint optimization | Fit a two‑segment logistic model on **task‑level composite success** vs. `library_size`, `overlap_level`, and orthogonalized `total_redundancy`. The breakpoint `x₀` is the “tipping point”. |
+| **Bootstrap CI** | 1,000 resamples of task‑level data | Provides a 95 % confidence interval for `x₀`. |
+| **Hold‑out Validation** | Split tasks [deferred] train / [deferred] test; fit PLR on train, evaluate log‑likelihood improvement on test | Guarantees an independent assessment of breakpoint relevance (avoids circular validation). |
+| **Permutation Validation** | Shuffle `library_size` labels [deferred] times, refit PLR each time, build a null distribution of breakpoint locations | Confirms the observed breakpoint is not an artifact of the data. |
+| **Likelihood‑Ratio Test** | Compare the piecewise logistic model against a single‑segment logistic model (no breakpoint) | Report p‑value for breakpoint significance (addresses trivial breakpoint concern). |
+| **Granularity Validation** | Run a dense grid (library sizes 10‑100 in steps of 10) on a random subset of tasks. Verify that the breakpoint from the sparse grid (10,30,50,100) lies within the bootstrap CI of the dense‑grid estimate. |
+| **VIF Calculation** | Center `library_size`, `overlap_level`, and `total_redundancy`; orthogonalize via residual regression; compute VIF on the orthogonalized set (`statsmodels.stats.outliers_influence.variance_inflation_factor`). If VIF for any predictor exceeds 5, drop that predictor from the final model. |
+| **Pruning Effect Test** | ANCOVA: compare pruning‑enabled vs. baseline success rates while controlling for **post‑pruning total redundancy** (covariate). Report p‑value and Cohen’s d. |
+| **Multiple‑Comparison** | Only one family (pruning effect) → no correction needed; if future tests added, Bonferroni will be applied. |
+| **Power Check** | Post‑hoc power analysis on the binary success outcome (α = 0.05). If power < 0.80, note limitation in `analysis_report.json`. |
 
-## Compute Feasibility & Data Strategy
+All results are written to `data/results/analysis_report.json` with fields:
+- `breakpoint_estimate`
+- `breakpoint_ci`
+- `vif_library_size`, `vif_total_redundancy`
+- `pruning_effect_pvalue`, `pruning_effect_size`
+- `permutation_pvalue`
+- `likelihood_ratio_pvalue`
+- `sensitivity_analysis` (optional supplemental data)
 
-* **CPU‑First** – All embeddings and similarity calculations are performed with the CPU‑only `sentence-transformers` model; memory usage is on the order of a few hundred MB.  
-* **Runtime Estimate** – Empirical profiling predicts [deferred] per library‑size/overlap/pruning combo; total < 1 hour on the free‑tier runner.
-* **Data Availability** – Synthetic; no external download required.  
+### 5. Compute Feasibility & Data Strategy
 
-## Decision Rationale
+- **CPU‑First**: All embeddings computed with the CPU‑only MiniLM model; Memory footprint is on the order of a few hundred MB.  
+- **Runtime**: Empirical profiling (on a comparable runner) shows total wall‑clock < 1 hour for the full factorial experiment.  
+- **Data**: Synthetic; no external download required, satisfying the “no gated data” rule.
+
+### Decision Rationale
 
 | Decision | Reason |
 |----------|--------|
-| Synthetic data | Guarantees deterministic ground truth; real codebases lack this guarantee. |
-| CPU‑only execution | Dataset is tiny; GPU would add unnecessary complexity. |
-| PLR for tipping point | Provides an explicit breakpoint estimate, directly matching SC‑004. |
-| Jaccard for Retrieval Precision | Standard set‑overlap metric for discrete skill retrieval. |
-| Task-level binary fitting | Overcomes the "sparse grid" problem by utilizing the full sample size (N=2000) for regression. |
-| Fixed “primary” PLR configuration | Removes ambiguity from multiple sensitivity results (addresses T035). |
+| **Synthetic data** | Guarantees deterministic ground truth; avoids gated datasets. |
+| **CPU‑only embeddings (384‑dim)** | Aligns model output with schema, prevents dimension mismatch (T006). |
+| **Pruning based on high similarity** | Aligns heuristic with reviewer feedback and the intended purpose of reducing redundancy. |
+| **Task‑level PLR (logistic)** | Provides a statistically sound breakpoint estimate for binary outcomes. |
+| **Exact CSV header** | Meets the explicit requirement (T005) and simplifies contract validation. |
+| **Checksums in project‑owned file** | Avoids writing to platform‑owned `state/` path (T003). |
+| **Timeout‑guarded generation** | Uses memory‑monitoring to avoid the earlier timeout (T002). |
 
-## Limitations
+### Limitations
 
-* **External Validity** – Findings apply to the synthetic environment; real‑world codebases may exhibit additional sources of noise.  
-* **Skill Representation** – Embeddings are derived from natural‑language descriptions of code, not from execution traces.  
-* **Token Estimate** – Tokens are approximated from function length; actual LLM API usage may differ.
+- Findings are limited to the synthetic environment; real‑world codebases may introduce additional noise sources.  
+- Embedding‑based semantic overlap is a proxy; actual execution semantics could differ.  
+- Token usage is estimated, not measured from a live LLM API.  
+
+---
+
+

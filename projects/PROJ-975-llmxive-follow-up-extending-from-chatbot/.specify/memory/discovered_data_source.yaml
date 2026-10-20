@@ -1,16 +1,18 @@
 status: none
-intent: synthetic multi-step task dataset python skill library 100 overlapping skills
-  high semantic density pip install python package dataset
+intent: download synthetic multi-step task dataset with skill library python package
+  SynthTaskSkill Meta-World python package dataset
 required_fields:
 - task_id
 - task_description
-- ground_truth_solution_path (ordered list of skill_id)
-- number_of_steps
+- ground_truth_solution_path
+- ground_truth_solution_path.step_index
+- ground_truth_solution_path.skill_id
 - skill_id
 - skill_name
-- skill_description
-- embedding_vector
-- semantic_overlap_score
-cache_key: 772fdb72c4f9854226889e30ef1cc4c32ba02d71413dfc051e539eb6a8f4fc06
-searched_at: '2026-10-20T20:19:45.162804+00:00'
+- skill_embedding
+- skill_overlap_group
+- semantic_density_score
+- task_number_of_steps
+cache_key: 4afa9e45daf56d85af3b4b13c0ae48166659a64ec5110cbab984a38c1ba67f6b
+searched_at: '2026-10-20T23:34:25.759454+00:00'
 retry_count: 1
