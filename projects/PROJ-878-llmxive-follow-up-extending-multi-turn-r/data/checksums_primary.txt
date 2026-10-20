@@ -1,1 +1,1 @@
-c5c7b464d19fd3ca0100b6791c468f48b01e48d29a602520225df2eaebe28ec9  data/raw/synthetic_puzzles.jsonl\n
+4d050f8d2fc9cbb482470abda8eea18bc83f72ea929a3f385b40697cc152b657  aux_puzzles.jsonl

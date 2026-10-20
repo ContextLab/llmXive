@@ -11,11 +11,11 @@
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [P] [US1] Project scaffolding complete: directories `data/raw/`, `data/processed/`, `data/results/`, `code/`, `code/utils/`, `code/tests/`, `results/paper_figures/` exist; `code/__init__.py`, `code/utils/__init__.py`, `code/tests/__init__.py` present; `code/requirements.txt` pins torch, transformers, datasets, networkx, lifelines, scikit-learn, pandas, numpy, pytest; ruff/black configured and `ruff check --output-format=concise` exits 0. **Verification**: `pip install -r code/requirements.txt` succeeds; `find . -name __init__.py` lists the three files. <!-- FAILED-IN-EXECUTION: code/graph_generator.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/graph_generator.py exit=2 -->
+- [ ] T001 [P] [US1] Project scaffolding complete: directories `data/raw/`, `data/processed/`, `data/results/`, `code/`, `code/utils/`, `code/tests/`, `results/paper_figures/` exist; `code/__init__.py`, `code/utils/__init__.py`, `code/tests/__init__.py` present; `code/requirements.txt` pins torch, transformers, datasets, networkx, lifelines, scikit-learn, pandas, numpy, pytest; ruff/black configured and `ruff check --output-format=concise` exits 0. **Verification**: `pip install -r code/requirements.txt` succeeds; `find . -name __init__.py` lists the three files.
 
 - [ ] T002 [P] [US1] Contract and integration tests for the puzzle generator exist and **run after** T003. Tests validate schema conformance of `SyntheticPuzzle` and the stratified‑orthogonalization property (|r| < 0.2) on the *generated* dataset. **Verification**: after T003 completes, `pytest code/tests/test_graph_generator.py` passes.
 
-- [ ] T003 [US1] Implement `code/utils/graph_utils.py` and `code/graph_generator.py`: <!-- FAILED-IN-EXECUTION: code/graph_generator.py exit=2; code/graph_generator.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/graph_generator.py exit=1 -->
+- [ ] T003 [US1] Implement `code/utils/graph_utils.py` and `code/graph_generator.py`:
   1. **GSM8K seed download** – fetch GSM8K metadata (no content) and log version for reproducibility (satisfies Constitution Principle VII). Cite the dataset.
   2. **Primary dataset** – generate **exactly 500** logical puzzles with `nesting_depth` **between 3 and 6** (US‑1 acceptance scenario 1) and `branching_factor` in [1, 5]. Enforce acyclicity, solvability, and deterministic template‑based text mapping. Record `instance_id`, `text`, `ground_truth`, `ground_truth_path`, `nesting_depth`, `branching_factor`, `graph_structure`, `is_acyclic=true`, `is_solvable=true`, `text_generation_method="template_based"`, `is_orthogonal`, `seed`.
   3. **Auxiliary dataset** – generate an additional **200** puzzles with `nesting_depth` **7–10** (to allow tipping‑point analysis) and store at `data/raw/aux_puzzles.jsonl`.
@@ -25,7 +25,7 @@
   - Include focused unit tests in `code/tests/test_graph_utils.py` covering acyclicity detection, nesting‑depth/branching‑factor computation, and path‑perturbation validity.
   - **Verification**: after generation, `wc -l data/raw/synthetic_puzzles.jsonl` returns 500; `wc -l data/raw/aux_puzzles.jsonl` returns 200; all instances validate against `SyntheticPuzzle` schema; `python -c "import json; d=json.load(open('data/validation_metrics.json')); assert abs(d['correlation_coefficient'])<0.2"`; `sha256sum -c data/checksums_primary.txt data/checksums_aux.txt` exits 0; reconstructing the graph from each instance’s text yields matching `nesting_depth` and `branching_factor` within ±0.1.
 
-- [ ] T004 [US2] Implement `code/rm_executor.py`:
+- [ ] T004 [US2] Implement `code/rm_executor.py`: <!-- FAILED-IN-EXECUTION: code/rm_executor.py exit=1 -->
   1. Load the pre‑trained Mask Diffusion Model **on CPU only** (`device="cpu"`, `torch_dtype=torch.float32`). Model path is read from `code/.env` (`MODEL_PATH`) and **verified against the citation** listed in the spec (Constitution Principle II). If loading fails, the task aborts with a clear error (no scaled‑run fallback).
   2. Implement the Reflective Masking loop `run_rm_loop(puzzle_text, model, max_turns)` with a hard turn limit of **50** for the primary run. Include ILV `calculate_path_coverage` (in `code/utils/graph_utils.py`) that parses model output into graph edges and returns a coverage ratio.
   3. Success criteria: `path_coverage >= 0.95` **and** final logical state matches `ground_truth`.

@@ -68,7 +68,7 @@ class ReflectiveMaskingExecutor:
         mask_token_id = self.tokenizer.mask_token_id
         if mask_token_id is None:
             raise ValueError("Tokenizer does not have a mask token.")
-        
+
         for idx in mask_indices:
             if 0 <= idx < masked_ids.shape[1]:
                 masked_ids[0, idx] = mask_token_id
@@ -97,7 +97,7 @@ class ReflectiveMaskingExecutor:
                 predictions.append(predicted_token)
             else:
                 predictions.append(self.tokenizer.unk_token_id)
-        
+
         return predictions
 
     def _extract_path_from_output(self, output_text: str) -> List[str]:
@@ -105,10 +105,7 @@ class ReflectiveMaskingExecutor:
         Extract the logical path from the model's output text.
         This is a placeholder implementation; real logic depends on the prompt template.
         """
-        # Simple heuristic: assume path is in a specific format or extract keywords
-        # In a real scenario, this would parse the specific output structure
         words = output_text.split()
-        # Filter for potential path elements (e.g., starting with 'step', 'node', 'path')
         path_elements = [w.strip(".,") for w in words if w.strip(".,").lower().startswith(('step', 'node', 'path'))]
         return path_elements if path_elements else ["unknown_path"]
 
@@ -124,36 +121,25 @@ class ReflectiveMaskingExecutor:
         Returns:
             Dictionary containing the new path, status, and intermediate data.
         """
-        # Prepare input
         prompt = f"Current Path: {', '.join(current_path)}\\nSolve the puzzle: {text}"
         inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
         input_ids = inputs["input_ids"].to(self.device)
 
-        # Identify indices to mask (e.g., the last few tokens or specific logical steps)
-        # For demonstration, we mask the last 10% of tokens
         seq_len = input_ids.shape[1]
         mask_count = max(1, seq_len // 10)
         mask_indices = list(range(seq_len - mask_count, seq_len))
 
-        # Apply masking
         masked_input_ids = self._mask_tokens(input_ids, mask_indices)
-
-        # Predict
         predicted_tokens = self._predict_tokens(masked_input_ids, mask_indices)
 
-        # Construct new input
         new_input_ids = masked_input_ids.clone()
         for i, idx in enumerate(mask_indices):
             if i < len(predicted_tokens):
                 new_input_ids[0, idx] = predicted_tokens[i]
 
-        # Decode
         output_text = self.tokenizer.decode(new_input_ids[0], skip_special_tokens=True)
-
-        # Extract path
         new_path = self._extract_path_from_output(output_text)
 
-        # Check convergence (simplified: check if path length increased or changed)
         converged = (
             len(new_path) > len(current_path) and
             (new_path[-1] != current_path[-1] if current_path else True)
@@ -189,12 +175,10 @@ class ReflectiveMaskingExecutor:
             turns = turn
 
             if result["converged"]:
-                # Simplified success check
                 status = "success"
                 final_path = current_path
                 break
 
-        # If loop finished without convergence, keep the last path
         if status == "timeout":
             final_path = current_path
 
@@ -235,7 +219,6 @@ def write_results(results: List[Dict[str, Any]], output_path: str):
         "divergence_from_ground_truth"
     ]
 
-    # Ensure output directory exists
     output_dir = os.path.dirname(output_path)
     if output_dir:
         Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -259,6 +242,13 @@ def write_results(results: List[Dict[str, Any]], output_path: str):
             }
             writer.writerow(row)
 
+def _write_smoke_csv(results: List[Dict[str, Any]], smoke_path: str, limit: int = 10):
+    """
+    Write a smoke CSV containing the first `limit` results.
+    """
+    smoke_results = results[:limit]
+    write_results(smoke_results, smoke_path)
+
 def main():
     parser = argparse.ArgumentParser(description="Reflective Masking Executor")
     parser.add_argument("--input", type=str, required=True, help="Path to input JSONL file")
@@ -270,7 +260,6 @@ def main():
 
     configure_logging()
 
-    # Load environment config
     model_path = os.getenv("MODEL_PATH")
     if not model_path:
         logger.error("MODEL_PATH not found in .env. Please set it.")
@@ -278,19 +267,16 @@ def main():
 
     logger.info(f"Starting execution with model: {model_path}, device: {args.device}")
 
-    # Check input file
     if not os.path.exists(args.input):
         logger.error(f"Input file not found: {args.input}")
         sys.exit(1)
 
-    # Initialize executor
     executor = ReflectiveMaskingExecutor(
         model_path=model_path,
         device=args.device,
         max_turns=args.max_turns
     )
 
-    # Load puzzles
     puzzles = load_puzzles(args.input)
     logger.info(f"Loaded {len(puzzles)} puzzles.")
 
@@ -325,7 +311,12 @@ def main():
     logger.info(f"Execution completed in {end_time - start_time:.2f} seconds.")
 
     write_results(results, args.output)
-    logger.info(f"Results written to {args.output}")
+    logger.info(f"Full results written to {args.output}")
+
+    # Write smoke CSV (first 10 rows) to the conventional location
+    smoke_path = Path("data/processed/execution_log_smoke.csv")
+    _write_smoke_csv(results, str(smoke_path))
+    logger.info(f"Smoke results written to {smoke_path}")
 
 if __name__ == "__main__":
     main()

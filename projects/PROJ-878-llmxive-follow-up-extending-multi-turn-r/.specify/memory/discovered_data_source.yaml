@@ -1,14 +1,14 @@
 status: none
-intent: ProofWriter logical reasoning dataset DAG metadata download python package
+intent: download synthetic logical puzzle dataset with DAG topology metadata GSM8K
+  reference python package dataset
 required_fields:
-- puzzle_id
-- puzzle_text
+- instance_id
+- problem_text
 - dag_edges
-- nesting_depth
-- branching_factor
+- node_count
+- max_nesting_depth
+- average_branching_factor
 - ground_truth_solution
-- node_labels
-- metadata
-cache_key: f6ce7aadd34c499e4a38677026e87f6c5ba6a92cbfc407184386bbe5d82c2e1e
-searched_at: '2026-10-17T00:16:43.541779+00:00'
+cache_key: d8eb08591972dabc784a4480b16a2445e22290ea974cf498ab291e0daeed156f
+searched_at: '2026-10-20T15:14:53.062110+00:00'
 retry_count: 1

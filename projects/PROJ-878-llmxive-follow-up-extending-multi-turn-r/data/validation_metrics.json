@@ -1,9 +1,9 @@
 {
-  "total_puzzles": 500,
-  "samples_generated_primary": 500,
+  "total_puzzles": 200,
+  "samples_generated_primary": 200,
   "samples_generated_aux": 0,
-  "samples_attempted_primary": 250000,
+  "samples_attempted_primary": 100000,
   "samples_attempted_aux": 0,
-  "correlation_coefficient": 0.8994060084377533,
+  "correlation_coefficient": 0.10906547785615027,
   "cycle_rate": "[deferred]"
 }

@@ -19,12 +19,24 @@ import logging
 import random
 import hashlib
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Any
 
 import networkx as nx
 import numpy as np
 
 logger = logging.getLogger(__name__)
+
+# ----------------------------------------------------------------------
+# Compatibility shim for tests that expect `networkx.set_seed`
+# ----------------------------------------------------------------------
+if not hasattr(nx, "set_seed"):
+    def _set_seed(seed: int) -> None:
+        """Set seeds for Python's random and NumPy's RNG to emulate a
+        `networkx.set_seed` utility used in legacy tests."""
+        random.seed(seed)
+        np.random.seed(seed)
+
+    nx.set_seed = _set_seed  # type: ignore[attr-defined]
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -64,7 +76,9 @@ def _select_ground_truth_path(G: nx.DiGraph) -> Tuple[List[Any], List[Any]]:
             return path, longest_path
 
     # Fallback: return the longest path itself
-    logger.warning("Only a single path exists in the DAG; using longest path as ground truth.")
+    logger.warning(
+        "Only a single path exists in the DAG; using longest path as ground truth."
+    )
     return longest_path, longest_path
 
 
@@ -101,7 +115,9 @@ def _serialize_puzzle(
         "is_acyclic": True,
         "is_solvable": True,
         "text_generation_method": "template_based",
-        "seed": random.getstate()[1][0] if isinstance(random.getstate(), tuple) else None,
+        "seed": random.getstate()[1][0]
+        if isinstance(random.getstate(), tuple)
+        else None,
     }
     return puzzle
 
@@ -379,7 +395,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # Generate primary batch
+    # Generate primary (or auxiliary) batch
     batch = generate_batch(
         num_instances=args.count,
         min_depth=args.depth_min,

@@ -2,25 +2,45 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 command(s) failed: python code/graph_generator.py  --count 500  --depth-min 1  --depth-max 10  --branch-min 1  --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 (rc=1); python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log.csv  --max-turns 50  --batch-size 5  --device cpu (rc=1); python code/analyzer.py  --puzzles data/raw/synthetic_puzzles.jsonl  --results data/processed/execution_log.csv  --output results/statistical_report.json  --thresholds 40 50 60 (rc=1); 2 declared deliverable(s) absent: data/processed/execution_log.csv; data/processed/extended_budget_log.csv
+**Summary**: 3 command(s) failed: python code/graph_generator.py  --count 500  --depth-min 1  --depth-max 10  --branch-min 1  --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 (rc=-1); python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log.csv  --max-turns 50  --batch-size 5  --device cpu (rc=1); python code/analyzer.py  --puzzles data/raw/synthetic_puzzles.jsonl  --results data/processed/execution_log.csv  --output results/statistical_report.json  --thresholds 40 50 60 (rc=1); 3 declared deliverable(s) absent: data/processed/execution_log.csv; data/processed/execution_log_smoke.csv; data/processed/extended_budget_log.csv
 
 ## Failing / missing run-book commands
 
-- python code/graph_generator.py  --count 500  --depth-min 1  --depth-max 10  --branch-min 1  --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 -> rc=1
+- python code/graph_generator.py  --count 500  --depth-min 1  --depth-max 10  --branch-min 1  --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 -> rc=-1
+a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
+Only a single path exists in the DAG; using longest path as ground truth.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/graph_generator.py", line 34, in <module>
-    def _select_ground_truth_path(G: nx.DiGraph) -> Tuple[List[Any], List[Any]]:
-                                                               ^^^
-NameError: name 'Any' is not defined. Did you mean: 'any'?
-
+[TIMEOUT after 120s]
 - python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log.csv  --max-turns 50  --batch-size 5  --device cpu -> rc=1
-
-Input file not found: data/raw/synthetic_puzzles.jsonl
+-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/transformers/models/auto/tokenization_auto.py", line 550, in get_tokenizer_config
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/transformers/utils/hub.py", line 430, in cached_file
+    resolved_file = hf_hub_download(
+                    ^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py", line 110, in _inner_fn
+    validate_repo_id(arg_value)
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py", line 164, in validate_repo_id
+    raise HFValidationError(
+huggingface_hub.utils._validators.HFValidationError: Repo id must use alphanumeric chars or '-', '_', '.', '--' and '..' are forbidden, '-' and '.' cannot start or end the name, max length is 96: 'distilbert-base-uncased\n'.
 
 - python code/analyzer.py  --puzzles data/raw/synthetic_puzzles.jsonl  --results data/processed/execution_log.csv  --output results/statistical_report.json  --thresholds 40 50 60 -> rc=1
 
-2026-10-17 00:15:44,445 - __main__ - ERROR - Analysis failed: Execution results file not found: data/processed/execution_log.csv
+2026-10-20 15:14:31,565 - __main__ - ERROR - Analysis failed: Execution results file not found: data/processed/execution_log.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/analyzer.py", line 213, in <module>
     main()
@@ -31,16 +51,11 @@ Traceback (most recent call last):
     raise FileNotFoundError(f"Execution results file not found: {filepath}")
 FileNotFoundError: Execution results file not found: data/processed/execution_log.csv
 
-- python -c "import json; data = [json.loads(l) for l in open('data/raw/synthetic_puzzles.jsonl')]; print(f'Count: {len(data)}'); print(f'Depth Range: {min(d[\"nesting_depth\"] for d in data)}-{max(d[\"nesting_depth\"] for d in data)}')" -> rc=1
-
-Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/synthetic_puzzles.jsonl'
-
 
 ## Declared deliverables still missing
 
 - data/processed/execution_log.csv
+- data/processed/execution_log_smoke.csv
 - data/processed/extended_budget_log.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -53,10 +68,13 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/extended_budget_analysis.py` — NOT invoked by the run-book
     - `code/extended_budget_runner.py` — NOT invoked by the run-book
     - `code/generate_checksums.py` — NOT invoked by the run-book
+    - `code/rm_executor.py` — IS a run-book command
     - `code/tests/test_analyzer.py` — NOT invoked by the run-book
     - `code/tests/test_rm_executor.py` — NOT invoked by the run-book
-    - `code/verify_divergence_metric.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/execution_log.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/execution_log_smoke.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/rm_executor.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/execution_log_smoke.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/extended_budget_log.csv` is declared but was NOT written. Scripts referencing it:
     - `code/extended_budget_analysis.py` — NOT invoked by the run-book
     - `code/extended_budget_runner.py` — NOT invoked by the run-book
