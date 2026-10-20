@@ -3,60 +3,65 @@
 ## Key Entities
 
 ### 1. MoleculeGraph
-Represents the 2D molecular structure derived from SMILES.
-- **Nodes**:
-  - `atom_type`: Integer (mapped from element symbol, e.g., C=6, N=7, O=8).
-  - `formal_charge`: Integer.
-  - `is_aromatic`: Boolean.
-  - `num_hydrogens`: Integer.
-- **Edges**:
-  - `bond_type`: Integer (Single=1, Double=2, Triple=3, Aromatic=4).
-  - `is_conjugated`: Boolean.
-  - `stereo`: Integer (None=0, Cis=1, Trans=2).
-- **Connectivity**: Adjacency list or edge index (source, target).
+Represents a 2‑dimensional molecular graph derived from SMILES.
+- **Nodes**
+  - `atom_type` (int): Element atomic number (e.g., C = 6).
+  - `formal_charge` (int)
+  - `is_aromatic` (bool)
+  - `num_hydrogens` (int)
+- **Edges**
+  - `bond_type` (int): 1 = single, 2 = double, 3 = triple, 4 = aromatic.
+  - `is_conjugated` (bool)
+  - `stereo` (int): 0 = none, 1 = cis, 2 = trans.
+- **Connectivity**: PyTorch Geometric `edge_index` (source, target) plus `edge_attr`.
 
 ### 2. IonizationEnergyTarget (Proxy)
-- **Value**: Float (eV).
-- **Source**: QM9 dataset column `HOMO`.
-- **Definition**: The target variable is `-HOMO` (negative HOMO energy), used as a proxy for Ionization Energy via Koopmans' theorem (IE ≈ -HOMO).
-- **Unit**: Electron Volts (eV).
-- **Note**: This is an approximation with known systematic errors (often > 1 eV) for organic molecules. The study acknowledges this proxy nature.
+- `value` (float, eV): `-homo_au * 27.2114` (conversion from atomic units).  
+- **Source**: QM9 `homo` column (AU).  
+- **Note**: Approximation per Koopmans’ theorem; systematic bias documented in Phase 0.
 
 ### 3. AblationConfig
-- **Feature**: String (e.g., "bond_type", "atom_type").
-- **Perturbation**: String (e.g., "zeroing", "gaussian_noise").
-- **Sigma**: Float (e.g., 0.1).
+- `feature` (string): e.g., `"bond_type"`.  
+- `perturbation_type` (string): `"zeroing"` (features set to zero during training).  
+- `sigma` (float, optional): N/A for zeroing.
 
 ### 4. AttributionMap
-- **Indices**: List of integers (atom/bond indices).
-- **Scores**: List of floats (gradient magnitudes).
-- **Normalization**: Min-Max or L2 normalized.
-- **Algorithm**: **Integrated Gradients** (as defined in `model_output.schema.yaml`).
+- `indices` (list[int]): Atom or bond indices.  
+- `scores` (list[float]): Integrated Gradients magnitudes.  
+- `normalization` (string): `"min‑max"` or `"l2"`.  
+- `algorithm` (string, const): `"Integrated Gradients"` (defined in `model_output.schema.yaml`).
 
 ## Model Architecture Definition (Single Source of Truth)
-The following architecture is the definitive specification for the MPNN used in this project:
-- **Type**: **Graph Convolutional Network (GCN)**.
-- **Input**: 2D Graph (Nodes: Atom type, Formal Charge; Edges: Bond type, Conjugation, Stereo).
-- **Layers**: **3 layers**.
-- **Hidden Dimension**: **64 dimensions**.
-- **Embedding**: Atom features embedded to 64-dim; Bond features to 32-dim.
-- **Readout**: Global average pooling + MLP head (2 layers: 64 -> 1).
-- **Activation**: ReLU.
-- **Optimizer**: Adam (lr=0.001).
-- **Loss Function**: Mean Squared Error (MSE).
-- **Precision**: Float32.
-- **CPU Compatibility**: All operations are CPU-compatible (no CUDA).
+- **Type**: Graph Convolutional Network (GCN) – CPU‑compatible.  
+- **Input**: `MoleculeGraph` (node + edge features).  
+- **Layers**: 3 GCN layers.  
+- **Hidden Dimension**: 64.  
+- **Node Embedding**: Linear → 64‑dim.  
+- **Edge Embedding**: Linear → 32‑dim.  
+- **Readout**: Global average pooling → MLP (64 → 1).  
+- **Activation**: ReLU after each GCN layer and MLP hidden layer.  
+- **Optimizer**: Adam (lr = 0.001).  
+- **Loss**: Mean Squared Error (MSE).  
+- **Precision**: Float32 (CPU).  
+- **Recorded in**: `models/mpnn.py` and referenced by all contracts (FR‑021).
 
 ## Data Flow
+1. **Ingestion** – `download.py` fetches QM9 parquet → raw DataFrame.  
+2. **Preprocess** – `preprocess.py` converts SMILES → RDKit Mol → `MoleculeGraph` (PyG `Data`).  
+3. **Target Derivation** – `-homo_au * 27.2114` → `IonizationEnergyTarget`.  
+4. **Split** – `split.py` creates scaffold‑based train/val/test assignments (FR‑004).  
+5. **Training** – `train.py` consumes `train_loader`, updates MPNN, monitors RAM, respects timeout.  
+6. **Evaluation** – `evaluate.py` computes metrics, attribution, statistical tests, and writes JSON/CSV conforming to contracts.
 
-1.  **Ingestion**: `raw_parquet` -> `smiles_list` + `labels` (HOMO).
-2.  **Preprocessing**: `smiles` -> `rdkit_mol` -> `MoleculeGraph` (PyTorch Geometric `Data` object).
-3.  **Splitting**: `MoleculeGraph` list -> `train_set`, `val_set`, `test_set` (Scaffold-based).
-4.  **Training**: `train_loader` -> `MPNN` -> `predictions` -> `loss`.
-5.  **Evaluation**: `test_set` -> `predictions` -> `MAE`, `RMSE`, `AttributionMap`.
+## Storage Formats
+- **Raw QM9**: Parquet (`data/raw/qm9.parquet`).  
+- **Processed Graphs**: PyTorch Geometric `Data` objects serialized as `.pt` files (`data/processed/graphs.pt`).  
+- **Splits**: Index lists saved as `data/splits/{train,val,test}.pt`.  
+- **Checkpoints**: `code/models/best_model.pth`.  
+- **Results**: `results/metrics.csv`, `results/attribution.json`, `results/ablation.json`.  
 
-## Storage Format
-- **Raw Data**: Parquet (compressed).
-- **Processed Graphs**: PyTorch Geometric `Data` objects saved as `.pt` files (or Parquet if serializing features).
-- **Checkpoints**: `.pth` (PyTorch state dict).
-- **Results**: CSV (metrics), JSON (attribution scores).
+## Attribution Subset Note
+- Integrated Gradients attribution maps are generated for a **representative subset of 1 000 test molecules** (stratified by scaffold) to keep CPU runtime within the predefined time limit. The `AttributionMap` entity applies to this subset; full‑set attribution can be generated offline if needed.
+
+---
+

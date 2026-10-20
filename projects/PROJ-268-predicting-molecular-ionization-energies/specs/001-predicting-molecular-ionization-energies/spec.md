@@ -53,7 +53,7 @@ The researcher needs to evaluate the model's performance against a fingerprint-b
 
 1. **Given** the trained GNN and the test set, **When** evaluation runs, **Then** the GNN's MAE and RMSE are reported alongside the fingerprint‑based linear regression baseline (ECFP4, radius 2).
 2. **Given** the error distribution, **When** analyzed against molecule size, **Then** the system reports the Pearson correlation coefficient between the absolute error and the number of rotatable bonds (flexibility).
-3. **Given** the decision threshold for “acceptable prediction” (absolute error < 0.4 eV), **When** the sensitivity analysis runs, **Then** the system sweeps the threshold over the set {0.4, 0.45, 0.5, 0.55, 0.6} and reports the variation in the “success” rate (percentage of test molecules meeting the threshold).
+3. **Given** the decision threshold for “acceptable prediction” (absolute error < 0.4 eV), **When** the sensitivity analysis runs, **Then** the system sweeps the threshold over a representative set of values spanning the lower to higher end of the expected range and reports the variation in the “success” rate (percentage of test molecules meeting the threshold).
 4. **Given** the test set, **When** scaffold‑based OOD detection runs, **Then** the system flags any molecule whose Bemis‑Murcko scaffold does not appear in the training set, records the count, and notes the potential for higher prediction error in the final report.
 5. **Given** the GNN and a DFTB baseline (3‑D physics‑based calculation), **When** residuals are compared, **Then** the system computes the Pearson correlation between GNN residuals and DFTB residuals; a low correlation (|ρ| ≤ 0.2) supports the 2D‑sufficiency hypothesis (See FR‑015).
 
