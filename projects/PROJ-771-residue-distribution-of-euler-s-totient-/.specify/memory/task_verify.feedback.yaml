@@ -7,12 +7,10 @@ T003:
 T004:
   task: 2fd98537532ad7a6417db9f8575e3c720f174821d66330fda0c50564167a22b5
 T005:
-  reason: "The repository contains `code/benchmark.py` implementing the required context\
-    \ manager and `scripts/run_dummy.py` that should invoke it, but the expected output\
-    \ file `results/reports/benchmark_dummy.json` is missing, and there is no evidence\
-    \ that the script was executed to produce the JSON with numeric `wall_time_sec`\
-    \ and `peak_memory_mb` fields. The task\u2019s verification step is therefore\
-    \ not satisfied."
+  reason: The required output file `results/reports/benchmark_dummy.json` is missing;
+    without this JSON report containing numeric `wall_time_sec` and `peak_memory_mb`
+    fields, the benchmark instrumentation task is not fully satisfied. The context
+    manager code exists, but the verification artifact was not produced.
   task: e4b96a0d295d3367b45505c9dbd59a9b20d7586a197e32fd904bb9c3a116c6ae
 T006:
   task: f928cf98dc1d7c59e59806cba5bef7afb742ddae4ca6df3f19c72d3b15225a1a

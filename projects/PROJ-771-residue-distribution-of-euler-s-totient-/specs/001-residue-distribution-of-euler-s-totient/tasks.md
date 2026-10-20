@@ -34,7 +34,7 @@
 - [X] T007 [FR‑001] **Docstrings and static typing** – add comprehensive docstrings to all public callables in `code/sieve.py` and annotate with type hints. Run `mypy` over the `code/` package and ensure zero type‑checking errors.  
   *Verification*: `tests/unit/test_sieve_mypy.py` invokes `mypy` and asserts exit code 0; a docstring‑coverage test confirms every public function has a non‑empty docstring.
 
-- [X] T016 [SC‑001] **φ‑value correctness validation** – write unit tests (e.g., `tests/unit/test_phi_correctness.py`) that compare `compute_phi_linear_sieve` outputs for `n ≤ 100` against known mathematical tables. The CI must fail if any discrepancy is found.  
+- [~] T016 [SC‑001] **φ‑value correctness validation** – write unit tests (e.g., `tests/unit/test_phi_correctness.py`) that compare `compute_phi_linear_sieve` outputs for `n ≤ 100` against known mathematical tables. The CI must fail if any discrepancy is found.  
   *Verification*: Tests assert exact match for all reference values.
 
 ---

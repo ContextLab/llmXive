@@ -29,6 +29,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/run_analysis.py --primes 3,5,7,11 --n 5000000 -> rc=2
 
+2026-10-20 09:19:08,339 INFO matplotlib.font_manager: Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
+2026-10-20 09:19:08,400 INFO matplotlib.font_manager: generated new fontManager
 usage: run_analysis.py [-h] [--N N] [--primes PRIMES [PRIMES ...]]
                        [--memory_limit_mb MEMORY_LIMIT_MB] [--seed SEED]
                        [--memory_check_interval MEMORY_CHECK_INTERVAL]
@@ -50,15 +52,13 @@ run_analysis.py: error: argument --primes: invalid int value: '3,5,7,11'
 =========================== short test summary info ============================
 ERROR tests/unit/test_stats_t022.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 1 error in 1.04s =========================
+======================== 13 warnings, 1 error in 0.82s =========================
 
 
 - python -m pytest tests/integration/ -> rc=1
-ePackrat' deprecated - use 'enable_packrat'
-    ParserElement.enablePackrat()
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+ Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
+FAILED tests/integration/test_pipeline.py::test_pipeline_artifacts_exist - As...
 FAILED tests/integration/test_pipeline.py::test_sieve_module_exports - Import...
 FAILED tests/integration/test_pipeline.py::test_stats_module_exports - Import...
 FAILED tests/integration/test_pipeline.py::test_end_to_end_small_run - System...
@@ -69,6 +69,6 @@ FAILED tests/integration/test_t013_save_residues.py::TestT013Integration::test_m
 FAILED tests/integration/test_t013_save_residues.py::TestT013Integration::test_large_n_save
 FAILED tests/integration/test_t020_integration.py::test_t020_full_pipeline_integration
 FAILED tests/integration/test_t020_integration.py::test_t020_save_load_result
-================== 10 failed, 11 passed, 13 warnings in 1.14s ==================
+================== 11 failed, 10 passed, 13 warnings in 0.78s ==================
 
 

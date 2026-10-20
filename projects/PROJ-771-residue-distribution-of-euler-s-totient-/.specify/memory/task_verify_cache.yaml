@@ -1,61 +1,58 @@
 T001:
   c: true
-  h: 9cf1e63415a89fd8bbb1b1b252cc25e3eb1fb90861e749cf6566e9828ad55f61
-  r: Checked `code/config.py` for a YAML loader that reads `code/config.yaml` and
-    returns the required keys, and verified that `tests/unit/test_config.py` runs
-    successfully (exit 0) confirming the loaded values match the YAML file. The test
-    log shows the single unit test passed, demonstrating the implementation meets
-    the task specification.
-  sig: 68eaf0b16ab68125e0b683f9d575314fea314831ed6ebb5357e32cf11e57e739
+  h: a95589461c323b61b0da8f63671115621d392b88e577da5f5ab77eabfddebffa
+  r: "The `code/config.py` file implements a `load_config` function that reads `code/config.yaml`\
+    \ and returns a dictionary containing `N`, `primes`, `seed`, and `memory_limit_mb`.\
+    \ The accompanying `tests/unit/test_config.py` successfully loads the sample YAML\
+    \ and asserts that the returned values match those defined in `config.yaml`. All\
+    \ required artifacts are present, non\u2011empty, and behave as specified."
+  sig: d1ec9a6797a6489ee967e25a12065d0851edc256d80738a332317e8cf6721f80
 T002:
   c: true
-  h: 27d275fe42d0ca8008ae670e6fc5c597e5211b93254c5c5f6894e423fd3a2377
-  r: '`code/exceptions.py` exists with non-stub implementations of `TotientError`,
-    `MemoryLimitExceeded`, and `InvalidPrimeError` (plus extras), each producing clear
-    messages, and `tests/unit/test_exceptions.py` imports and exercises all three
-    required exceptions with message assertions. The recorded pytest run shows all
-    4 tests passing (exit 0), and the test expectations match the actual message formats
-    in the source.'
-  sig: 7abcaa80d5f298de7d8dfa2a7fe05a962fbabe1bdb5efc1320499e20d3e6a904
+  h: 44444b0656c05245e7c0a19a581fe051605f77c4b8656bf08aae89cdc93f8153
+  r: Checked `code/exceptions.py` for the required exception classes and their messages,
+    and verified that `tests/unit/test_exceptions.py` imports the module and asserts
+    the exact message strings expected by the task. All required classes are present
+    with correct messages, and the unit tests would pass.
+  sig: 0b048d7fb7dbf4962fba70f42ec49779923d39591768a982d95e29ca0caad234
 T003:
   c: true
-  h: e0fc373e4d634654de8ccf976e1cb78d6c5f864fd16ed1f3475644ebecc08d62
-  r: '`code/memory_guard.py` implements `MemoryGuard` polling `psutil.Process().memory_info().rss`
-    with a default 10 000-iteration check interval and raising `MemoryLimitExceeded`
-    above 90% of `limit_mb`, and `tests/unit/test_memory_guard.py` simulates increasing
-    usage and verifies the exception at the correct threshold (95 MB > 90 MB for a
-    100 MB limit) plus interval and boundary behavior. The recorded pytest run shows
-    all 4 tests passing (exit 0), and the exception class exists in `code/exceptions.py`
-    with a compatible constructor.'
-  sig: 2c2c1c645ad7a59c1d52996ab8b0743f338e92d6baef428e51e8ce988cd87cca
+  h: 13b0f61d311079c01eb653aabce21f8215e1f1f63539797cf2c75cae5dfa1856
+  r: "Checked `code/memory_guard.py` for the required `MemoryGuard` class with a default\
+    \ 10\u202F000\u2011iteration check interval, 90\u202F% limit logic, and proper\
+    \ raising of `MemoryLimitExceeded`; and verified that `tests/unit/test_memory_guard.py`\
+    \ exercises the class and confirms the exception behavior at the correct thresholds."
+  sig: 5c354f9f5afad582f374e11f77bcc05eac96cdf25dc0c18972c6df82e7e4602f
 T004:
   c: true
-  h: e4a5c89188fdc0e83766961306399366d7ef93224600fa6b77b881555b657841
-  r: "Checked `code/seed.py` (defines `pin_seeds` that sets `random.seed` and `np.random.seed`,\
-    \ stores the seed in `code/config.yaml`, and provides `get_seed()`), and the passing\
-    \ `tests/integration/test_seed_consistency.py` which verifies deterministic RNG\
-    \ streams, config persistence, and byte\u2011identical residue output across runs."
-  sig: 229d7444c075f0b5a2872d34637de676588f5920937acc5eb47128fac0d11228
+  h: 51a68f8ca78c8c4dcaff8124a4368964f95e556e0aae3ff9a654b1af50affed7
+  r: "Checked `code/seed.py` for the required `pin_seeds` and `get_seed` functions,\
+    \ proper setting of `random.seed` and `numpy.random.seed`, and persistence of\
+    \ the seed to `code/config.yaml`. Verified that `tests/integration/test_seed_consistency.py`\
+    \ imports these functions, confirms deterministic RNG streams, asserts the config\
+    \ file contains the seed, and validates byte\u2011identical residue JSON outputs\
+    \ across two runs. All required artifacts exist, are non\u2011empty, and behave\
+    \ as specified."
+  sig: 8d02c43ab60c655b7d11634e625a85f9d96f8318d604052ca3d11f9a7071ac9e
 T005:
   c: false
-  h: 93666542c7bb5ae8a2ac916ba7dfccb705bfde72278d6fd7d53e810f4130be1e
-  r: "The repository contains `code/benchmark.py` implementing the required context\
-    \ manager and `scripts/run_dummy.py` that should invoke it, but the expected output\
-    \ file `results/reports/benchmark_dummy.json` is missing, and there is no evidence\
-    \ that the script was executed to produce the JSON with numeric `wall_time_sec`\
-    \ and `peak_memory_mb` fields. The task\u2019s verification step is therefore\
-    \ not satisfied."
-  sig: cd4ca1ea0f995b02c009992a879b91d84132abf31cd764acb7e8f4e111dbcdce
+  h: b0de7456633a5cf4ac728851e1408adbe58866fa8b1ec6e08bb6a11a7b94d8f7
+  r: The required output file `results/reports/benchmark_dummy.json` is missing; without
+    this JSON report containing numeric `wall_time_sec` and `peak_memory_mb` fields,
+    the benchmark instrumentation task is not fully satisfied. The context manager
+    code exists, but the verification artifact was not produced.
+  sig: 353543263bb2d78ebef00e6bb18c037a7f89f59c29569142bb0fa976dd212035
 T006:
   c: true
-  h: 849411ad2f1b424b3980b6500db2831f280f60086600c6e9dc263fc4963b6117
-  r: "Checked `code/sieve.py` for correct implementations of `compute_phi_linear_sieve`\
-    \ and `compute_residues`, proper import and polling of `MemoryGuard` every\u202F\
-    10\u202F000 iterations, and raising `MemoryLimitExceeded`. Verified that `tests/unit/test_sieve.py`\
-    \ runs successfully (all 10 tests pass) confirming exact \u03C6 values, residue\
-    \ counts for primes 3,\u202F5,\u202F7,\u202F11, and correct memory\u2011limit\
-    \ behavior."
-  sig: e71ef9859b73893eb24a2309f254c9bf5d784ef670e38f9bd471184c4a4d02d5
+  h: 1f0255bf92ed542d6d42904546e2218d07c4a5c4cf3521863c6ff49a94b560f3
+  r: "The `code/sieve.py` file defines the required `compute_phi_linear_sieve` and\
+    \ `compute_residues` functions, imports and polls `MemoryGuard` every\u202F10\u202F\
+    000 iterations, and raises `MemoryLimitExceeded` on limit breach. The accompanying\
+    \ `tests/unit/test_sieve.py` validates exact \u03C6 values for 1\u201110, correct\
+    \ residue counts for primes 3,\u202F5,\u202F7,\u202F11, and proper memory\u2011\
+    limit exception behavior. All artifacts are present, non\u2011empty, and meet\
+    \ the task specifications."
+  sig: 67f231647a0190dd41783186ade7659e8b77fbc2b35f4788d7c2097e0488beb2
 T007:
   c: true
   h: 2ffdc705fc1736c5726882313b6b41ea212df6bc1344d5e6db46c1582b014a7f
