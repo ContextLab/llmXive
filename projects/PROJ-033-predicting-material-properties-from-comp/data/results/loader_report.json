@@ -1,0 +1,16 @@
+{
+  "input_file": "/home/runner/work/llmXive/llmXive/projects/PROJ-033-predicting-material-properties-from-comp/data/raw/materials.csv",
+  "input_sha256": "67fa8f19dbceb78d06654a69cd67f419588eb4d35ad2569820dc6ebe0146ba93",
+  "output_file": "/home/runner/work/llmXive/llmXive/projects/PROJ-033-predicting-material-properties-from-comp/data/processed/materials_processed.csv",
+  "rows_read": 2,
+  "rows_kept": 2,
+  "dropped_missing_required": 0,
+  "dropped_duplicate_material_id": 0,
+  "dropped_schema_invalid": 0,
+  "dropped_unknown_element": 0,
+  "dropped_outlier_iqr": 0,
+  "peak_ram_bytes": 82219008,
+  "ram_limit_bytes": 6442450944,
+  "ram_within_limit": true,
+  "timestamp": "2026-10-20T14:28:13.926747+00:00"
+}

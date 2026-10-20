@@ -1,30 +1,26 @@
 T001:
   task: 5157fbcf4d9066d1d00398cf3b061bce5f328217d646925316e089695aa93097
 T002:
-  reason: "The CSV exists with all five required columns and the checksum is recorded\
-    \ in `data/raw/README.md`, but the \"dataset\" is a 2-row placeholder (`mp-1,Fe2O3`\
-    \ and `mp-2,Si` with textbook values) rather than a genuinely supplied, publicly\
-    \ licensed Materials Project subset \u2014 the task itself notes it is blocked\
-    \ pending external provision of a real dataset. Additionally, there is no evidence\
-    \ the required `pytest tests/contract/test_dataset_schema.py` was ever run (the\
-    \ only execution log is for `code/verify_dataset.py`), and the schema file `contracts/materials_dataset.schema.yaml`\
-    \ that the tests depen"
+  reason: "The CSV at `data/raw/materials.csv` contains only two rows (`mp-1` Fe2O3,\
+    \ `mp-2` Si) \u2014 a hand-written placeholder, not a verified, publicly licensed\
+    \ open dataset (e.g., a Materials Project subset) as the task requires; the checksum\
+    \ in README.md matches this placeholder, so it only certifies fabricated data.\
+    \ Additionally, there is no evidence that `pytest tests/contract/test_dataset_schema.py`\
+    \ was actually run \u2014 the execution log shows only `code/verify_dataset.py`,\
+    \ not the required pytest invocation."
   task: e1a44bbbbfb115a83f06ef86404d909e1fe5956df3f3892903e773066c0ba943
 T003:
-  reason: 'Requested task execution failed; rerun successfully: src/data/loader.py
-    exit=1'
+  reason: "The pytest run for `tests/unit/test_loader.py` failed 4 of 9 tests (exit\
+    \ 1): the zero-band-gap metal m09 (Si, band_gap=0.0, hardness=0.0) is dropped\
+    \ by the 1.5\xD7IQR filter, violating the explicit requirement to retain zero-band-gap\
+    \ metals, and the outlier-removal logging test also fails (the loader dropped\
+    \ 2 rows where the test expects 1). The loader must exclude zero-band-gap metals\
+    \ from the IQR outlier rule (or otherwise retain them) and fix the outlier drop-count\
+    \ behavior so all unit tests pass."
   task: a1f31cfc33e1a4f0fb5730a6a99a5e2f0645cbaba76af0a96da0212c3260f8c8
 T004:
   task: f801d299e72c09831ef813933880d4c74983ba115b14314ccca14779483a1a38
 T005:
-  reason: "The required export `data/processed/splits/*.json` is MISSING \u2014 the\
-    \ collector confirms no matching files exist, so the split indices were never\
-    \ actually exported despite `src/training/split.py` implementing the logic. Additionally,\
-    \ there is no evidence `pytest tests/unit/test_split.py` was run or passed, and\
-    \ the test depends on `data/fixtures/tiny_materials.csv` whose existence is not\
-    \ confirmed (the only data on disk is a 2-row CSV, which could not even satisfy\
-    \ the tests' equal-count stratification assertions). The implementer must run\
-    \ `create_and_save_splits` against the processed CSV to prod"
   task: a2d44584a978546a52fc34108caff3ebade3ab660fd806af94dbb8be3a27a999
 T006:
   reason: 'Requested task execution failed; rerun successfully: src/training/train_gnn.py

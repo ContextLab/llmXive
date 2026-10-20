@@ -1,46 +1,57 @@
 T001:
   c: true
-  h: fae27f548284bb8368f0d0bace753c9b1093743491447b7e55b8742cf73bad6e
-  r: 'All required artifacts exist and match the task: both contract schemas are non-empty
-    and substantive, `requirements.txt` contains exactly the nine pinned versions
-    specified, `src/utils/seeds.py` sets `random.seed(42)`, `np.random.seed(42)`,
-    and `torch.manual_seed(42)` (with import-time default), and `quickstart.md` documents
-    the entry-point commands (loader, train, evaluate, predict, interpret, pytest).
-    The `tests/contract/` directory exists with schema test files; no evidence contradicts
-    the verification claim.'
-  sig: 1e9106fa31579b4a07f23941f0da6fdd08356ef37498551eb20a6aeb35531e1f
+  h: 86af501d855eb1f34ed409191b5cba2a861c23f69124dfd67ca249a6a16a065f
+  r: 'All required artifacts exist and match the task: both contract schemas are substantive
+    and consistent with the data model, `requirements.txt` contains exactly the nine
+    pinned versions requested, `src/utils/seeds.py` sets `random`/`np.random`/`torch`
+    seeds to 42 (with import-time invocation), and `quickstart.md` documents the entry-point
+    commands (loader, train, evaluate, predict, interpret, pytest). The `tests/contract/`
+    directory contains the two schema test files; no evidence contradicts the verification
+    claim, and the task''s own scope (contracts, pins, seeds, quickstart) is fully
+    covered.'
+  sig: 76eb7e6e3667971c32e7fc7bd6198fc7faefb2156b504aa4025386726fb95fe7
 T002:
   c: false
-  h: c7912ee24fc50039c3cfab885002e99f3067b739b0afea0082469ad18a90499c
-  r: "The CSV exists with all five required columns and the checksum is recorded in\
-    \ `data/raw/README.md`, but the \"dataset\" is a 2-row placeholder (`mp-1,Fe2O3`\
-    \ and `mp-2,Si` with textbook values) rather than a genuinely supplied, publicly\
-    \ licensed Materials Project subset \u2014 the task itself notes it is blocked\
-    \ pending external provision of a real dataset. Additionally, there is no evidence\
-    \ the required `pytest tests/contract/test_dataset_schema.py` was ever run (the\
-    \ only execution log is for `code/verify_dataset.py`), and the schema file `contracts/materials_dataset.schema.yaml`\
-    \ that the tests depen"
-  sig: cb5bcfc5ed47e5ce48155a16339a4fd1e0e5818110b71946d4fcb40b81683777
+  h: 324a8dacfce00eeb504f75e644978fcc6df02b4eab858a92d886181aa7fad209
+  r: "The CSV at `data/raw/materials.csv` contains only two rows (`mp-1` Fe2O3, `mp-2`\
+    \ Si) \u2014 a hand-written placeholder, not a verified, publicly licensed open\
+    \ dataset (e.g., a Materials Project subset) as the task requires; the checksum\
+    \ in README.md matches this placeholder, so it only certifies fabricated data.\
+    \ Additionally, there is no evidence that `pytest tests/contract/test_dataset_schema.py`\
+    \ was actually run \u2014 the execution log shows only `code/verify_dataset.py`,\
+    \ not the required pytest invocation."
+  sig: 2a8962ec9f87d5657d33b75c173fbf3e3e4043f8424dcc31182b96b47c5d14a4
+T003:
+  c: false
+  h: 5a839b66996db7ac2450484559f0f9e580136fe53c7a4b0882eec99945b76ac9
+  r: "The pytest run for `tests/unit/test_loader.py` failed 4 of 9 tests (exit 1):\
+    \ the zero-band-gap metal m09 (Si, band_gap=0.0, hardness=0.0) is dropped by the\
+    \ 1.5\xD7IQR filter, violating the explicit requirement to retain zero-band-gap\
+    \ metals, and the outlier-removal logging test also fails (the loader dropped\
+    \ 2 rows where the test expects 1). The loader must exclude zero-band-gap metals\
+    \ from the IQR outlier rule (or otherwise retain them) and fix the outlier drop-count\
+    \ behavior so all unit tests pass."
+  sig: f786db479b70e9b60fddc5826b6439dff64df9912df8741d1c48b3fa041f4543
 T004:
   c: true
-  h: 8b51a513b970cb7f4038db74fff0c4888de3e2244fbddd171787c717d3af6e45
-  r: 'The implementation at `src/graphs/composition.py` matches every requirement:
-    pymatgen `Composition` parsing (with a fallback), a 5-feature node matrix `[element_fraction,
-    Z, electronegativity, valence_electrons, atomic_radius]`, a fully-connected clique
-    with self-loops via `_build_edge_index`, Euclidean edge weights over the 4 periodic-property
-    columns (fraction excluded), a PyG `Data` object with `x`/`edge_index`/`edge_weight`/`y=[band_gap,
-    hardness]`, and optional caching under `data/processed/graphs/` (its absence is
-    fine since caching is optional and tests use `cache=False`). The test file'
-  sig: 2b44fbb4087ea30fca7f769e4ba769fb8ecbc6485465511d5c260a0bba9c9b64
+  h: b2587100368074e2c1e1f14650cf0980e56ee4e9df2feac44c607f48429ec27a
+  r: "The implementation at `src/graphs/composition.py` is substantive and matches\
+    \ the spec: pymatgen `Composition` parsing, 5-feature node matrix (fraction, Z,\
+    \ electronegativity, valence, radius), fully-connected `edge_index` with self-loops,\
+    \ Euclidean edge weights over the 4 periodic properties, `Data` with `x`/`edge_index`/`edge_weight`/`y=[band_gap,\
+    \ hardness]`, and optional caching. The test file `tests/unit/test_graph_builder.py`\
+    \ covers all four required checks (distinct FeO vs Fe\u2082O\u2083 graphs, self-loops,\
+    \ symmetric weights, unknown-element warning), and manual inspection of the code\
+    \ confirms thos"
+  sig: 93f7e9e50fbff64ac701e10f3a1b7be7f10a8abf2c1da147765e6823653ecfe5
 T005:
-  c: false
-  h: eb41afe0ef11441c8ddcd6d2e5ca875294031bc5f864d7e6d0555d75cf6fcc2f
-  r: "The required export `data/processed/splits/*.json` is MISSING \u2014 the collector\
-    \ confirms no matching files exist, so the split indices were never actually exported\
-    \ despite `src/training/split.py` implementing the logic. Additionally, there\
-    \ is no evidence `pytest tests/unit/test_split.py` was run or passed, and the\
-    \ test depends on `data/fixtures/tiny_materials.csv` whose existence is not confirmed\
-    \ (the only data on disk is a 2-row CSV, which could not even satisfy the tests'\
-    \ equal-count stratification assertions). The implementer must run `create_and_save_splits`\
-    \ against the processed CSV to prod"
-  sig: f2da2bf9d23356acd1d07d04619586a6dd42d40df3c7a69fbc8ef6469fbfd3ed
+  c: true
+  h: f85a8c2613fb279fdfbd717a3fb9019dd173282d2f679cbea9d1cd6b55701b7e
+  r: '`src/training/split.py` implements a real seeded stratified 80/10/10 split with
+    material_id disjointness assertions, 5 stratified CV folds, and JSON export; `data/processed/splits/train_val_test.json`
+    and `cv_folds.json` exist and match the actual 2-row processed CSV (the only data
+    available in the project), and the pytest log shows all 6 tests in `tests/unit/test_split.py`
+    passing (exit 0), covering stratification, disjointness, and reproducibility.
+    The degenerate-looking split contents (empty val, single-material folds) are a
+    faithful consequence of the 2-row input dataset, not a stub or fab'
+  sig: ffca7ee6c77b3608f459da82131ccf916427fd5aad4534198e01fa3adae423d7
