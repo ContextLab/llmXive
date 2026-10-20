@@ -10,12 +10,14 @@ from pathlib import Path
 
 from utils import get_logger
 
+
 def verify_raw_file(raw_path: Path) -> None:
     """Raise an error if the expected raw data file does not exist."""
     if not raw_path.is_file():
         raise FileNotFoundError(f"Raw data file not found: {raw_path}")
     logger = get_logger(__name__)
     logger.info("Raw data file verified: %s", raw_path)
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Ingest Pantheon+ data")
@@ -42,6 +44,7 @@ def main() -> None:
 
     logger = get_logger(__name__)
     logger.info("Created placeholder residuals file at %s", residuals_path)
+
 
 if __name__ == "__main__":
     main()

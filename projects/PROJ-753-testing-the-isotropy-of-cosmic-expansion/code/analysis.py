@@ -11,6 +11,7 @@ from pathlib import Path
 
 from utils import get_logger
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the isotropy analysis")
     parser.add_argument(
@@ -51,6 +52,7 @@ def main() -> None:
     }
     analysis_path.write_text(json.dumps(result, indent=2))
     logger.info("Wrote analysis result to %s", analysis_path)
+
 
 if __name__ == "__main__":
     main()

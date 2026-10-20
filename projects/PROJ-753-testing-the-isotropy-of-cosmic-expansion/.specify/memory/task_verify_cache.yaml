@@ -1,15 +1,24 @@
 T001:
   c: true
-  h: ef5ce0513fc9747eac9c7e7f198be8465f7af4742df719cfff625994cfe5bb12
+  h: 3e0940bc24fa3c766d45839c9dab5397586a9f91bea637c2be4eb381f57d7b75
   r: Checked the repository tree showing all required directories (data/raw, data/processed,
     code, tests/unit, tests/integration, tests/contract, docs, reports, figures, scripts)
-    and the passing `tests/unit/test_directory_structure.py` log confirming both the
-    directories and the expected code modules are present.
-  sig: 0a5bbdc6aa35bbb18231d37aa6a74ab9aa5b1b46c3176d026c9f0fcde1f46532
+    and the passing unit test `test_directory_structure.py` confirming their existence
+    and presence of the required code modules.
+  sig: eaf4b20c5a00afda359e7b35a6139bff0dc41147c81c720c688c9a963452dc3b
 T002:
+  c: true
+  h: 9a345777d0b307a3adf785423e47fb98529d4db2d740c14eb44c426db17c69d7
+  r: "Checked the `requirements.txt` at the project root \u2013 it contains exact\
+    \ `==` version pins for all listed packages \u2013 and the recorded `install_requirements.sh`\
+    \ run plus the pytest integration test both show `pip install -r requirements.txt`\
+    \ completing successfully with no version conflicts."
+  sig: b0e1000fb2689ce3a1f46e29df9083cdc045bbf98abcc87babefc72bdb3d3ff4
+T003:
   c: false
-  h: 93c3bc25f9ca9ad85991de00d6fdb5575e5746fbd7f48f47bee83ac1f4a0de00
-  r: Checked the `requirements.txt` file (present, fully pinned). However, there is
-    no execution evidence (e.g., pip install log) showing that `pip install -r requirements.txt`
-    actually succeeded without version conflicts, which is required for verification.
-  sig: 39f90fbe512c07535317d85807f33f85cba4c029b473c090474790b9fb674b56
+  h: 7a448b61b4e05df469b1e8c8dccef2ae68515ea095993ecf7c1bc0ef2b403ebf
+  r: "The `pyproject.toml` is correct, but `scripts/lint.sh` does not run `black --check\
+    \ . && ruff .` as required\u2014it runs `black .` (reformat) and forces Ruff to\
+    \ exit zero with `--exit-zero`. The script must be changed to the exact command\
+    \ sequence specified."
+  sig: 46650047b809ffed69785bb533643bb09d930047364fe83df009eb94e38bf2ec

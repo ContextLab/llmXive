@@ -11,6 +11,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+
 def test_requirements_install():
     # Resolve the path to the project's root requirements.txt
     project_root = Path(__file__).resolve().parents[2]

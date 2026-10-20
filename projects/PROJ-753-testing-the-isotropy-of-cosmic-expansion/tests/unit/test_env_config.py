@@ -20,6 +20,7 @@ import pytest
 
 # Note: In a real project, `sys.path` would include the root.
 import sys
+
 project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
@@ -32,16 +33,18 @@ except ImportError:
     set_simulation_seed = None
     configure_environment = None
 
+
 def test_simulation_seed_determinism():
     """Verify that setting the seed produces deterministic random sequences."""
     seed = 12345
     set_simulation_seed(seed)
     val1 = random.random()
-    
+
     set_simulation_seed(seed)
     val2 = random.random()
-    
+
     assert val1 == val2, "Random seed did not produce deterministic output"
+
 
 def test_configure_environment_defaults():
     """Verify that configure_environment returns expected defaults when no .env exists."""
@@ -50,7 +53,7 @@ def test_configure_environment_defaults():
         del os.environ["SIMULATION_SEED"]
     if "LOG_LEVEL" in os.environ:
         del os.environ["LOG_LEVEL"]
-    
+
     if configure_environment:
         config = configure_environment()
         assert config["simulation_seed"] == 42

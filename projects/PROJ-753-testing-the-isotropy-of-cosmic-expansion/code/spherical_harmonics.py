@@ -8,6 +8,7 @@ The real implementation will:
 """
 from pathlib import Path
 
+
 def placeholder() -> None:
     """No‑op placeholder to satisfy imports in later modules."""
     pass

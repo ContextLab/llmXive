@@ -19,8 +19,8 @@ RUFF_CONFIG = {
         "F",  # Pyflakes
         "I",  # isort
         "B",  # flake8-bugbear
-        "C4", # flake8-comprehensions
-        "UP", # pyupgrade
+        "C4",  # flake8-comprehensions
+        "UP",  # pyupgrade
     ],
     "ignore": [
         "E501",  # line too long (handled by black)
@@ -43,29 +43,33 @@ BLACK_CONFIG = {
     "exclude": r"/(\.git|__pycache__|\.venv|data|reports)/",
 }
 
+
 def get_ruff_command():
     """Return the ruff command with project-specific flags."""
     return "ruff check --config .ruff.toml code/ tests/"
+
 
 def get_black_command():
     """Return the black command with project-specific flags."""
     return "black --config pyproject.toml code/ tests/"
 
+
 def get_ruff_format_command():
     """Return the ruff format command for formatting."""
     return "ruff format --config .ruff.toml code/ tests/"
+
 
 def run_lint():
     """Execute ruff linting on the project codebase."""
     import subprocess
     import sys
-    
+
     try:
         result = subprocess.run(
             ["ruff", "check", "code/", "tests/"],
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
         if result.stdout:
             print(result.stdout)
@@ -79,17 +83,15 @@ def run_lint():
         print(f"Error running ruff: {e}")
         return False
 
+
 def run_format():
     """Execute black formatting on the project codebase."""
     import subprocess
     import sys
-    
+
     try:
         result = subprocess.run(
-            ["black", "code/", "tests/"],
-            capture_output=True,
-            text=True,
-            check=False
+            ["black", "code/", "tests/"], capture_output=True, text=True, check=False
         )
         if result.stdout:
             print(result.stdout)
@@ -103,15 +105,16 @@ def run_format():
         print(f"Error running black: {e}")
         return False
 
+
 if __name__ == "__main__":
     print("Running linter...")
     lint_success = run_lint()
     print(f"\nLinting {'passed' if lint_success else 'failed'}")
-    
+
     print("\nRunning formatter...")
     format_success = run_format()
     print(f"\nFormatting {'completed' if format_success else 'failed'}")
-    
+
     if lint_success and format_success:
         print("\n✓ All code quality checks passed!")
         exit(0)

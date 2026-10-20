@@ -44,7 +44,9 @@ def main() -> int:
         d = root / rel
         d.mkdir(parents=True, exist_ok=True)
         keep = d / ".gitkeep"
-        if not keep.exists() and not any(p for p in d.iterdir() if p.name != ".gitkeep"):
+        if not keep.exists() and not any(
+            p for p in d.iterdir() if p.name != ".gitkeep"
+        ):
             keep.touch()
         print(f"directory ready: {rel}")
 

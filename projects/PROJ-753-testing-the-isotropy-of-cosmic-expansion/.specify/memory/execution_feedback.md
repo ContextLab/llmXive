@@ -25,18 +25,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/analysis.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/code/analysis.py", line 56, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/code/analysis.py", line 58, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/code/analysis.py", line 38, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/code/analysis.py", line 39, in main
     raise FileNotFoundError(f"Residuals file not found: {residuals_path}")
 FileNotFoundError: Residuals file not found: /home/runner/work/llmXive/llmXive/projects/data/processed/residuals.csv
 
 - python code/analysis.py --synthetic --inject-dipole 0.05 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/code/analysis.py", line 56, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/code/analysis.py", line 58, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/code/analysis.py", line 38, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/code/analysis.py", line 39, in main
     raise FileNotFoundError(f"Residuals file not found: {residuals_path}")
 FileNotFoundError: Residuals file not found: /home/runner/work/llmXive/llmXive/projects/data/processed/residuals.csv
 

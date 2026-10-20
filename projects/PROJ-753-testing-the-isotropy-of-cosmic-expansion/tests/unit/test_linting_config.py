@@ -10,7 +10,7 @@ import os
 import sys
 
 # Add project root to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from code.linting_config import (
     RUFF_CONFIG,
@@ -19,6 +19,7 @@ from code.linting_config import (
     get_black_command,
     get_ruff_format_command,
 )
+
 
 class TestRuffConfig:
     """Tests for ruff configuration."""
@@ -41,6 +42,7 @@ class TestRuffConfig:
         """Verify ruff excludes data directory."""
         assert "data" in RUFF_CONFIG["exclude"]
 
+
 class TestBlackConfig:
     """Tests for black configuration."""
 
@@ -55,6 +57,7 @@ class TestBlackConfig:
     def test_black_string_normalization(self):
         """Verify string normalization is enabled."""
         assert BLACK_CONFIG["skip_string_normalization"] is False
+
 
 class TestCommandGenerators:
     """Tests for command generation functions."""
@@ -80,14 +83,13 @@ class TestCommandGenerators:
         assert "format" in cmd
         assert "code/" in cmd
 
+
 class TestConfigurationFiles:
     """Tests for configuration file existence."""
 
     def test_ruff_toml_exists(self):
         """Verify .ruff.toml exists in project root."""
-        ruff_path = os.path.join(
-            os.path.dirname(__file__), "..", "..", ".ruff.toml"
-        )
+        ruff_path = os.path.join(os.path.dirname(__file__), "..", "..", ".ruff.toml")
         assert os.path.exists(ruff_path), ".ruff.toml not found"
 
     def test_pyproject_toml_exists(self):

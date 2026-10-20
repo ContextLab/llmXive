@@ -2,11 +2,11 @@ status: none
 intent: Pantheon+ Type Ia Supernova Sample Pantheon+_SH0ES.dat download python package
   dataset
 required_fields:
-- ra
-- dec
-- redshift
-- distance_modulus
-- distance_modulus_error
-cache_key: 499123ff8bf4471f7690942f2da460f52d204d406b0d6efd38ad96741f12ee28
-searched_at: '2026-10-20T17:21:53.765585+00:00'
+- RA
+- DEC
+- z
+- mu
+- muerr
+cache_key: 4256c7a96d88f33bd6a9158f546adb6ff7008f7ac46d76b171ce10c4c129578f
+searched_at: '2026-10-20T17:23:20.064361+00:00'
 retry_count: 1

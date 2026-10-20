@@ -28,12 +28,14 @@ directories are tracked by version control.
 import sys
 from pathlib import Path
 
+
 def _create_dir(path: Path) -> None:
     """Create a directory and a ``.gitkeep`` placeholder."""
     path.mkdir(parents=True, exist_ok=True)
     gitkeep = path / ".gitkeep"
     # Touch the .gitkeep file; it will be empty.
     gitkeep.touch(exist_ok=True)
+
 
 def main() -> int:
     """Entry point for the directory‑creation script.
@@ -68,6 +70,7 @@ def main() -> int:
         # Print the exception to stderr and return a non‑zero exit code.
         print(f"Error while creating directories: {exc}", file=sys.stderr)
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

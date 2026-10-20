@@ -7,8 +7,8 @@ This script fulfills task T004 by:
   2. Computing its SHA‑256 hash.
   3. Writing ``data/metadata.json`` with the fields
      ``dataset_version``, ``source_url`` and ``sha256``.
-The script is deliberately minimal – it raises on any download or I/O
-error, ensuring that failures are loud and not silently ignored.
+The script raises on any download or I/O error, ensuring that failures
+are loud and not silently ignored.
 """
 import argparse
 import hashlib
@@ -22,8 +22,9 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Canonical URL for the Pantheon+ SH0ES data file.  The plus sign is URL‑
-# encoded as %2B.
+# Canonical URL for the Pantheon+ SH0ES data file. The plus sign is URL‑
+# encoded as %2B. The file lives in the PantheonPlusSH0ES/DataRelease
+# repository.
 DEFAULT_URL = (
     "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/"
     "main/data/Pantheon%2B_SH0ES.dat"
@@ -66,8 +67,9 @@ def compute_sha256(file_path: Path) -> str:
     return sha256.hexdigest()
 
 
-def write_metadata(metadata_path: Path, *, dataset_version: str,
-                   source_url: str, sha256: str) -> None:
+def write_metadata(
+    metadata_path: Path, *, dataset_version: str, source_url: str, sha256: str
+) -> None:
     """Write the provenance JSON file required by the spec."""
     logger = get_logger(__name__)
     metadata = {
@@ -125,9 +127,7 @@ def main() -> None:
         logger.error("Failed to write metadata.json: %s", exc)
         raise
 
-    logger.info(
-        "Successfully downloaded Pantheon+ dataset (SHA‑256=%s)", checksum
-    )
+    logger.info("Successfully downloaded Pantheon+ dataset (SHA‑256=%s)", checksum)
 
 
 if __name__ == "__main__":

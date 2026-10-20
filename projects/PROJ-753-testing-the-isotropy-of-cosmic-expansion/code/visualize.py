@@ -5,6 +5,8 @@ Implementations will create PNG files in ``figures/``:
   * dipole_direction.png
   * null_distributions.png
 """
+
+
 def generate_figures() -> None:
     """Stub – actual plotting will be added in later tasks."""
     pass

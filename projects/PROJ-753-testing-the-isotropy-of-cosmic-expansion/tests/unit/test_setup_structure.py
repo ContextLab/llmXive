@@ -14,6 +14,7 @@ from pathlib import Path
 import sys
 import importlib.util
 
+
 @pytest.fixture
 def project_root(tmp_path):
     """Create a temporary directory structure to simulate the project root."""
@@ -27,11 +28,12 @@ def project_root(tmp_path):
         "tests/integration",
         "tests/contract",
         "docs",
-        "reports"
+        "reports",
     ]
     for d in dirs:
         (tmp_path / d).mkdir(parents=True, exist_ok=True)
     return tmp_path
+
 
 def test_required_directories_exist(project_root):
     """Verify all required directories exist."""
@@ -43,13 +45,14 @@ def test_required_directories_exist(project_root):
         "tests/integration",
         "tests/contract",
         "docs",
-        "reports"
+        "reports",
     ]
 
     for dir_name in required_dirs:
         dir_path = project_root / dir_name
         assert dir_path.exists(), f"Directory {dir_name} does not exist"
         assert dir_path.is_dir(), f"{dir_name} is not a directory"
+
 
 def test_gitkeep_files_exist(project_root):
     """Verify .gitkeep files exist in all directories."""
@@ -61,7 +64,7 @@ def test_gitkeep_files_exist(project_root):
         "tests/integration",
         "tests/contract",
         "docs",
-        "reports"
+        "reports",
     ]
 
     for dir_name in required_dirs:
