@@ -1,12 +1,11 @@
 status: none
-intent: download LoCoMo benchmark and OpenGraphBenchmark python package dataset
+intent: LoCoMo multi hop reasoning benchmark download python package dataset
 required_fields:
 - question_id
-- question
+- question_text
 - context
 - answer
-- ground_truth
 - supporting_facts
-cache_key: f0c981790ace4c13b4cc869812001015e51f46ddc84fb502e856ba83f8d5056a
-searched_at: '2026-10-20T16:47:57.435792+00:00'
+cache_key: 9f2815e1be64633070af5b35ba6b46c84c0842c683a01f64f2dc02717a9f2767
+searched_at: '2026-10-20T16:59:00.873968+00:00'
 retry_count: 1

@@ -1,16 +1,16 @@
 T000:
-  reason: The requirements file exists but omits several explicitly required pinned
-    dependencies (`sentence-transformers`, `transformers`, `bitsandbytes`, `timeout-decorator`)
-    and contains three unpinned entries (`llama_cpp`, `torch`, `pyyaml`), violating
-    the "exact versions" pinning requirement. Additionally, the required verification
-    artifact `tests/unit/test_requirements_pin.py` is missing entirely, so there is
-    no evidence of conflict checking.
+  reason: "The current `code/requirements.txt` pins `numpy==1.26.4` (with a comment\
+    \ justifying the 1.x line), but `tests/unit/test_requirements_pin.py::test_numpy_pyarrow_compatibility`\
+    \ asserts `numpy` major version >= 2, so the recorded passing test run (exit 0,\
+    \ 5 passed) cannot correspond to the current file \u2014 the log is stale and\
+    \ re-running the test suite against the present requirements.txt would fail. The\
+    \ implementer must reconcile the numpy pin with the test (either pin numpy>=2-compatible\
+    \ versions as the test demands, or fix the test's compatibility assertion) and\
+    \ provide a fresh passing execution"
   task: 9ada4d93ae70e73c992e34988d71b0b25ae4adffe2d9889851c97d372593a8d7
 T001:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re.yaml`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
+  reason: 'Requested task execution failed; rerun successfully: code/data/download_locomo.py
+    exit=1'
   task: bf2a7f826370f9230169b2265635a37ab4be0875c71dc889d104ad90fd941e60
 T002:
   reason: 'All required artifacts are missing: `code/models/embedding_utils.py`, `code/data/generate_graphs.py`,

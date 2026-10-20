@@ -1,13 +1,15 @@
 T000:
   c: false
-  h: 83a518dc17a2c40812c02f4670db45875857f1b78857ab93c0a9c5bf417dda9f
-  r: The requirements file exists but omits several explicitly required pinned dependencies
-    (`sentence-transformers`, `transformers`, `bitsandbytes`, `timeout-decorator`)
-    and contains three unpinned entries (`llama_cpp`, `torch`, `pyyaml`), violating
-    the "exact versions" pinning requirement. Additionally, the required verification
-    artifact `tests/unit/test_requirements_pin.py` is missing entirely, so there is
-    no evidence of conflict checking.
-  sig: 6ec810f7421d3bca87f1bdbf58612f492fbb6c70a5dfd8619fd025f6e9dcc9ac
+  h: 3e11be072fd29b5b2b63423ad498c8d751da17018a36674f4bc0a68d4712da13
+  r: "The current `code/requirements.txt` pins `numpy==1.26.4` (with a comment justifying\
+    \ the 1.x line), but `tests/unit/test_requirements_pin.py::test_numpy_pyarrow_compatibility`\
+    \ asserts `numpy` major version >= 2, so the recorded passing test run (exit 0,\
+    \ 5 passed) cannot correspond to the current file \u2014 the log is stale and\
+    \ re-running the test suite against the present requirements.txt would fail. The\
+    \ implementer must reconcile the numpy pin with the test (either pin numpy>=2-compatible\
+    \ versions as the test demands, or fix the test's compatibility assertion) and\
+    \ provide a fresh passing execution"
+  sig: 0b41c13e903187461de29ca23028512c13fbd310c63f34ea8d621dff8c76dd52
 T002:
   c: false
   h: f8049169a5a4c827f3e48b51c444d0e50fbe19268d87d71d614342c57064b15a

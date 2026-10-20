@@ -10,7 +10,7 @@
 
 ## Phase 1: Data preparation & graph construction (FR‑001, FR‑007)
 
-- [ ] T001 [P1] [US1] Download the LoCoMo benchmark subset via a strict loader with no synthetic fallback, producing `data/raw/locomo.csv`. <!-- FAILED: unspecified -->
+- [ ] T001 [P1] [US1] Download the LoCoMo benchmark subset via a strict loader with no synthetic fallback, producing `data/raw/locomo.csv`. <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/data/download_locomo.py exit=1 -->
     - Implement `code/data/download_locomo.py` calling `load_locomo_strict()` which uses `datasets.load_dataset(..., split=..., streaming=True)` (streaming to stay within RAM limits); on failure it MUST raise — never fall back to synthetic/mock data.
     - Verify presence of expected columns (`task_id`, `question`, `context`, `ground_truth`); raise `ValueError("Dataset schema mismatch")` if missing.
     - Compute SHA‑256 of `data/raw/locomo.csv` and record it in the project state file `state/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re.yaml` under `artifact_hashes`.
