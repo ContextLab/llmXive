@@ -1,84 +1,62 @@
 # Quickstart: Residue Distribution of Euler's Totient Function Modulo Small Primes
 
 ## Prerequisites
-
-- Python 3.11 or higher.
-- Access to a terminal with `pip` and `venv`.
-- (Optional) `make` for running convenience targets.
+- Python 3.11+  
+- Git (to clone the repository)  
+- `make` (optional, for convenience targets)
 
 ## Installation
 
-1. **Clone and Navigate**:
-   ```bash
-   cd projects/PROJ-771-residue-distribution-of-euler-s-totient-/code
-   ```
-
-2. **Create Virtual Environment**:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-
-3. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Dependencies include: `numpy`, `scipy`, `matplotlib`, `pytest`, `psutil`.*
-
-## Running the Analysis
-
-### Basic Usage
-To run the analysis for a specific prime and range:
-
 ```bash
-python run_analysis.py --prime 3 --n 1000000
+# Clone the repository (adjust path if needed)
+git clone 
+cd projects/PROJ-771-residue-distribution-of-euler-s-totient-/code
+
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+# Install pinned dependencies
+pip install -r requirements.txt
 ```
 
-**Arguments**:
-- `--prime`: The prime modulus ($p$).
-- `--n`: The upper bound $N$ (default: [deferred]).
-- `--seed`: Random seed for reproducibility (default: a fixed integer).
-
-### Running All Primes
-To run the full study for all supported primes with $N=5,000,000$:
+## Running the Full Study
 
 ```bash
+# Run for all supported primes with N = 5,000,000
 python run_analysis.py --primes 3,5,7,11 --n 5000000
 ```
 
-### Output Location
-Results will be saved to:
-- **Raw Data**: `../data/raw/residues_{p}_{N}.json`
-- **Statistics**: `../data/processed/stats_{p}_{N}.json`
-- **Plots**: `../results/plots/`
-- **Reports**: `../results/reports/summary.md`
+### Command‑line Options
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--primes` | Comma‑separated list of primes (must be subset of `3,5,7,11`) | `3,5,7,11` |
+| `--n` | Upper bound $N$ (positive integer) | `1000000` |
+| `--seed` | Random seed for Monte‑Carlo simulations | `42` |
+| `--benchmark` | Emit a benchmark JSON in `results/reports/benchmark.json` | `False` |
 
-## Verification
+## Outputs
+- **Raw residues**: `../data/raw/residues_{p}_{N}.json`  
+- **Statistical results**: `../data/processed/stats_{p}_{N}.json`  
+- **Plots**: `../results/plots/bar_{p}_{N}.png`, `../results/plots/qq_{p}_{N}.png`  
+- **Summary report**: `../results/reports/summary.md` (includes pass/fail flags)  
 
-### Unit Tests
-Run the test suite to verify the sieve and statistical logic:
+## Verification Commands
+
 ```bash
+# Unit tests
 pytest tests/unit/
-```
 
-### Integration Test
-Run the full pipeline on a small sample ($N=1000$) to ensure end-to-end correctness:
-```bash
+# Integration test on a tiny sample (N=1000)
 pytest tests/integration/
-```
 
-### Manual Verification
-You can manually verify $\phi(n)$ values for small $n$:
-```python
-from sieve import compute_totients
-# Verify n=1 to 10
-values = compute_totients(10)
-print(values) # No rewrite possible: The provided passage contains only an expected data sequence and a removal instruction, lacking a research question, method, or references as required by the planning document structure. (index 0 unused)
+# Static type checking
+mypy code/
 ```
 
 ## Troubleshooting
+- **MemoryLimitExceeded**: Reduce `--n` or increase the polling interval via `--mem-poll-interval` (see `code/config.py`).  
+- **Small expected counts**: If any $E_i < 5$, the pipeline automatically switches to the exact multinomial test; a warning will appear in the summary.  
+- **Monte‑Carlo convergence**: Increase `--mc-samples` (default = 10 000) for a more precise p‑value at the cost of runtime.
 
-- **Memory Error**: If the job fails due to memory, reduce `--n`. The default limit is a fixed storage capacity.; for $N=5,000,000$, memory usage should be < 1 GB. If the `limit_reached` flag is set in the output, the process was terminated gracefully by the memory guard.
-- **Slow Execution**: Ensure you are running on a CPU with reasonable clock speed. The algorithm is $O(N)$ but Python has overhead.
-- **Statistical Warnings**: If you see warnings about small $N$ for Block Bootstrap, the system will report the raw deviation magnitude without a p-value. This is expected behavior for small sample sizes where block resampling is not feasible.
-- **Dependence Correction**: The system automatically applies Block Bootstrap to account for the dependence in $\phi(n)$. No manual intervention is required.
+---
