@@ -1,8 +1,8 @@
 T001:
   task: 88f99ee1a044e59cb81303b300b40a2d39922defd6fcaea60a4de0cf5531fbea
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/generate_data.py
-    exit=1'
+  reason: 'Requested task execution failed; rerun successfully: code/run_generate_data.sh
+    exit=-1 (TIMEOUT)'
   task: adce33071953bada9fa036a3fd40945c95c86f98e8aa2102d557d57440d19522
 T003:
   task: 9e224cd9bfb4becbe2267eba7f9a2dd3664a8646b033cc120e7418605a85e524

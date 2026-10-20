@@ -134,7 +134,8 @@ def generate_skills(
     else:  # high
         # pick a single template
         chosen_indices = [random.randint(0, len(base_templates) - 1)]
-        noise_level = 0.02  # very low noise to guarantee high similarity
+        # Use zero noise to guarantee extremely high similarity
+        noise_level = 0.0
 
     skills: List[Dict[str, Any]] = []
     while len(skills) < count:
@@ -143,7 +144,7 @@ def generate_skills(
         base_text = base_templates[idx]
         base_emb = base_embeddings[idx]
 
-        # Add Gaussian noise and renormalise
+        # Add Gaussian noise (may be zero) and renormalise
         noise = np.random.normal(0, noise_level, base_emb.shape)
         new_emb = base_emb + noise
         new_emb /= np.linalg.norm(new_emb) + 1e-8

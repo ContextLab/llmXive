@@ -1,14 +1,12 @@
 T001:
   c: true
-  h: 8ddc50cc61aa80d21656035c9ce2e5ef9d6e2bb8062d79f973cb882d7fa06f8f
-  r: 'All five contract schema files exist at `contracts/` with substantive content
-    (properties, required, typed fields, no stubs), matching the read-only source
-    schemas in `specs/.../contracts/`. The verification test `tests/contract/test_schema_presence.py`
-    exists and implements both required checks: yaml.safe_load with `properties`/`required`
-    assertions for all five schemas, and jsonschema validation of minimal dummy instances
-    (task and skill). The other data artifacts (experiment_log.csv, metrics.json,
-    etc.) belong to later tasks and are not required here.'
-  sig: 41a5eac1f51601e4e5baebc78d1871b63547250390f02df81eb9a69a4449cc70
+  h: 02a9b8f97210c8681080c37b26581b9efa0dd6b26f070a8db236f0afddbf30eb
+  r: "The five contract schema files exist at `contracts/*.schema.yaml` with non\u2011\
+    empty content containing the required top\u2011level `properties` and `required`\
+    \ keys, and the test suite `tests/contract/test_schema_presence.py` successfully\
+    \ loads them and validates minimal dummy instances against the task and skill\
+    \ schemas."
+  sig: 2ea0ffa66ec34a62085e9fe85f91b5f1397a534e1298b5f52d7116d128db557f
 T007:
   c: false
   h: 04229e80dae1ed3ad2b60e98128c20a5ba773858b8d5070cb6cea9e404c89f5c
