@@ -1,16 +1,5 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/raw/ds000208.parquet, data/raw/metadata_ds000208.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
@@ -21,19 +10,19 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/raw/ds000208.parquet, data/raw/metadata_ds000208.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208 (rc=1); python code/preprocess.py  --input data/raw/ds000208.parquet  --output data/processed/analysis_ready_ds000208.csv (rc=1); python code/analyze.py  --data data/processed/analysis_ready_ds000208.csv  --output results/analysis_output.json (rc=1); 1 declared deliverable(s) absent: data/processed/metadata.json
+**Summary**: 6 command(s) failed: python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208 (rc=1); python code/preprocess.py  --input data/raw/ds000208.parquet  --output data/processed/analysis_ready_ds000208.csv (rc=1); python code/analyze.py  --data data/processed/analysis_ready_ds000208.csv  --output results/analysis_output.json (rc=1); 1 declared deliverable(s) absent: data/processed/metadata.json
 
 ## Failing / missing run-book commands
 
 - python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208 -> rc=1
 
-2026-10-20 01:23:27,850 - INFO - Downloading https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet → data/raw/ds000208.parquet
-2026-10-20 01:23:28,041 - INFO - Remote file size: 0.432 GB
-2026-10-20 01:23:32,137 - INFO - Download complete (464086010 bytes).
-2026-10-20 01:23:32,422 - INFO - Metadata written to data/raw/metadata_ds000208.json
-2026-10-20 01:23:32,422 - INFO - Citation written to data/raw/CITATION.md
-2026-10-20 01:23:32,422 - INFO - Adding task column to data/raw/ds000208.parquet
-2026-10-20 01:23:32,422 - ERROR - pyarrow is required to manipulate parquet files. Please install it via requirements.txt.
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/ingest.py", line 21, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-258-the-effect-of-simulated-social-rejection/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/preprocess.py  --input data/raw/ds000208.parquet  --output data/processed/analysis_ready_ds000208.csv -> rc=1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -98,7 +87,9 @@ usage: report.py [-h] --input INPUT --output OUTPUT
 report.py: error: the following arguments are required: --input
 
 - python -m pytest tests/ -> rc=2
-est' (/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/ingest.py)
+pyarrow/lib.pyx:42: in init pyarrow.lib
+    ???
+E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 __________________ ERROR collecting tests/test_performance.py __________________
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/tests/test_performance.py'.
 Hint: make sure your test modules/packages have valid Python names.
@@ -112,7 +103,7 @@ E   ImportError: cannot import name 'MAX_RUNTIME_SECONDS' from 'performance_moni
 ERROR tests/test_ingest_manifest.py
 ERROR tests/test_performance.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.60s ===============================
+============================== 2 errors in 0.50s ===============================
 
 
 

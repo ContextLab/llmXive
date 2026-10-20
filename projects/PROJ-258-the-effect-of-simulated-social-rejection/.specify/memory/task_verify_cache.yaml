@@ -1,12 +1,12 @@
 T001:
   c: true
-  h: a5ea84a234268b446c0bd6dc6b52128fa89beb167d4d04e9ef06b1acd3a702b8
+  h: c8905fcfb0c4047f64936b970a727616965ba6d317400314a15484be5dcee83a
   r: All required directories (code/, code/utils/, data/raw|interim|processed/, results/,
     paper/, tests/) exist with `__init__.py` markers; `requirements.txt` contains
     all seven specified packages with pandas>=2.0; `quickstart.md` exists and documents
     the single command `python -m code.pipeline`; and the execution log confirms `python
     -c "import pandas"` ran successfully (pandas 2.2.2, exit 0).
-  sig: c904435663c677449ec1b96a94baf0fa15a59dd5b5a3e1eca81f320d94e4cfe1
+  sig: c002e3bb00fd4c66ec25363e3fd36a14f487fc63e72feaf7970323b26e9f1949
 T003:
   c: false
   h: b457e03011d939223c283a4ea16596c1f88ad41686f7fb90c22b936cb711b0e6

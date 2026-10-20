@@ -1,20 +1,10 @@
 """
-Ingestion script for Task T002 – Cyberball dataset (ds000208) and
-optional reward‑feedback dataset (ds003392) – Task T003.
+Ingestion script for Task T002 – Cyberball dataset (ds000208).
 
-This script downloads verified OpenNeuro parquet files, verifies that the
-download does not exceed the RAM limit (7 GB), computes a SHA‑256 checksum,
-writes a metadata JSON file, creates a human‑readable citation, and adds a
-``task`` column with the appropriate value to every record.
-
-The script accepts the following CLI arguments:
-  --dataset          Dataset identifier to ingest (e.g., ds000208)
-  --dataset-url / --url  Direct URL to the parquet file to download
-  --output-dir / --out-dir Directory where the raw files should be stored
-  --dataset-id       Identifier used for naming output files
-
-Exit code ``0`` indicates success; any problem results in a logged error
-and ``sys.exit(1)``.
+This script downloads the verified OpenNeuro parquet file, verifies that the
+download does not exceed the RAM limit (7 GB), computes a SHA-256 checksum,
+writes a metadata JSON file, creates a human-readable citation, and adds a
+'task' column with the value 'cyberball' to every record.
 """
 
 import argparse
@@ -24,52 +14,32 @@ import logging
 import sys
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 import pandas as pd
 import requests
-
-# pyarrow is required for parquet support
-try:
-    import pyarrow as pa
-    import pyarrow.parquet as pq
-except ImportError:
-    pa = None
-    pq = None
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 from config import get_path
 
-# ----------------------------------------------------------------------
 # Logging configuration
-# ----------------------------------------------------------------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
-# ----------------------------------------------------------------------
 # Constants
-# ----------------------------------------------------------------------
 CITATION_TEXT = (
     "OpenNeuro. ds000208: Cyberball social exclusion dataset. "
     "https://openneuro.org/datasets/ds000208"
 )
-
-# Verified URL for ds000208
 DS000208_URL = "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"
+MAX_RAM_GB = 7.0
 
-# Default RAM limit in GB
-try:
-    from config import MAX_RAM_GB
-except Exception:
-    MAX_RAM_GB = 7.0
-
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
 def compute_sha256(file_path: Path) -> str:
-    """Compute SHA‑256 checksum of *file_path* in a memory‑efficient way."""
+    """Compute SHA-256 checksum of file_path in a memory-efficient way."""
     sha256 = hashlib.sha256()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -78,9 +48,9 @@ def compute_sha256(file_path: Path) -> str:
 
 def download_file(url: str, dest_path: Path, max_gb: float) -> int:
     """
-    Stream‑download *url* to *dest_path*.
+    Stream-download url to dest_path.
     Returns the number of bytes written. Exits with code 1 if the
-    download would exceed *max_gb*.
+    download would exceed max_gb.
     """
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     logger.info(f"Downloading {url} → {dest_path}")
@@ -91,9 +61,9 @@ def download_file(url: str, dest_path: Path, max_gb: float) -> int:
         size_bytes = int(head.headers.get("Content-Length", "0"))
         if size_bytes:
             size_gb = size_bytes / (1024 ** 3)
-            logger.info(f"Remote file size: {size_gb:.3f} GB")
+            logger.info(f"Remote file size: {size_gb:.3f} GB")
             if size_gb > max_gb:
-                logger.error(f"File size ({size_gb:.2f} GB) exceeds RAM limit of {max_gb} GB.")
+                logger.error(f"File size ({size_gb:.2f} GB) exceeds RAM limit of {max_gb} GB.")
                 sys.exit(1)
     except Exception as exc:
         logger.warning(f"Could not determine remote size: {exc}")
@@ -110,7 +80,7 @@ def download_file(url: str, dest_path: Path, max_gb: float) -> int:
                     total_written += len(chunk)
 
                     if total_written > max_gb * (1024 ** 3):
-                        logger.error(f"Downloaded data exceeded {max_gb} GB limit; aborting.")
+                        logger.error(f"Downloaded data exceeded {max_gb} GB limit; aborting.")
                         sys.exit(1)
     except Exception as exc:
         logger.error(f"Download failed: {exc}")
@@ -121,27 +91,21 @@ def download_file(url: str, dest_path: Path, max_gb: float) -> int:
 
 def add_task_column(parquet_path: Path, task_value: str = "cyberball") -> None:
     """
-    Load the parquet file, add a ``task`` column, and overwrite the file.
+    Load the parquet file, add a 'task' column, and overwrite the file.
     """
     logger.info(f"Adding task column to {parquet_path}")
-
-    if pq is None or pa is None:
-        logger.error("pyarrow is required to manipulate parquet files. Please install it via requirements.txt.")
-        sys.exit(1)
-
     try:
-        # Use pyarrow directly for stability
         table = pq.read_table(parquet_path)
         task_array = pa.array([task_value] * table.num_rows)
         table = table.append_column("task", task_array)
         pq.write_table(table, parquet_path)
-        logger.info("Task column added using pyarrow.")
+        logger.info("Task column added successfully.")
     except Exception as exc:
-        logger.error(f"Failed to add task column using pyarrow: {exc}")
+        logger.error(f"Failed to add task column: {exc}")
         sys.exit(1)
 
 def write_metadata(metadata_path: Path, info: Dict[str, Any]) -> None:
-    """Write *info* as pretty‑printed JSON."""
+    """Write info as pretty-printed JSON."""
     metadata_path.parent.mkdir(parents=True, exist_ok=True)
     with open(metadata_path, "w", encoding="utf-8") as f:
         json.dump(info, f, indent=2, sort_keys=True)
@@ -255,4 +219,5 @@ def main() -> None:
     sys.exit(0)
 
 if __name__ == "__main__":
+    import argparse
     main()
