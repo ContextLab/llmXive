@@ -2,53 +2,50 @@
 Simple logging utilities used throughout the project.
 """
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
+from typing import Optional
 
-_logger = None
+_LOGGER = None
 
 
-def setup_logging(name: str = "pipeline", level: int = logging.INFO, log_file: str = None):
+def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> None:
     """
     Configure the root logger.
 
     Parameters
     ----------
-    name : str
-        Name of the logger.
-    level : int
-        Logging level (e.g., logging.INFO).
+    log_level : str
+        Logging level name (e.g. ``\"INFO\"``).
     log_file : str, optional
-        If provided, logs are also written to this file.
+        If provided, a file handler writing to this path is added.
     """
-    global _logger
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    global _LOGGER
+    logger = logging.getLogger()
+    logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
+    formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
 
-    # Console handler
+    # Console handler (always present)
     ch = logging.StreamHandler()
-    ch.setLevel(level)
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    # File handler (optional)
+    # Optional file handler
     if log_file:
         fh = logging.FileHandler(log_file)
-        fh.setLevel(level)
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 
-    _logger = logger
-    return logger
+    _LOGGER = logger
 
 
-def get_logger(name: str = __name__):
+def get_logger(name: str) -> logging.Logger:
     """
-    Retrieve the configured logger, creating a default one if necessary.
+    Return a named logger; initialise the global logger if necessary.
     """
-    global _logger
-    if _logger is None:
-        # Default configuration if ``setup_logging`` has not been called
+    global _LOGGER
+    if _LOGGER is None:
         setup_logging()
     return logging.getLogger(name)

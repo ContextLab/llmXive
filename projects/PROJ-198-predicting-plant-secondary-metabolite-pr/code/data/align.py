@@ -11,6 +11,7 @@ import pandas as pd
 
 from utils.logging import get_logger
 from code.config import get_data_path
+from utils.artifact import track_path  # <-- new import for artifact hygiene
 
 
 def align_data(
@@ -96,6 +97,9 @@ def save_aligned_matrix(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
     logger.info(f"Aligned matrix saved to {output_path}")
+
+    # Record the artifact for checksum tracking
+    track_path(output_path)
 
 
 def calculate_alignment_success_rate(

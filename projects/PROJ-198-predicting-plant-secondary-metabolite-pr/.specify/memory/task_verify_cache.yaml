@@ -1,11 +1,12 @@
 T001:
   c: true
-  h: ff00d9b1503fb3e11b08b39a72c706ee1e7f0e29bffe2b30bf1375b99cb799a6
-  r: "Checked that the repository contains all required directories (`code/`, `code/data/`,\
-    \ `code/modeling/`, `code/utils/`, `code/cli/`, `data/raw/`, `data/interim/`,\
-    \ `data/processed/`, `tests/`) as confirmed by the collector\u2019s directory\
-    \ listings."
-  sig: 8bce148afa63d9854d539c48c552a3c658e63fc854fd11924feb5141b212ec63
+  h: 26d2b8cacad015bcef79cb7b6f8f75522f2d651458254102ea8152786a410449
+  r: All nine required directories (`code/`, `code/data/`, `code/modeling/`, `code/utils/`,
+    `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) are confirmed
+    to exist under the project root with non-empty listings (including `.gitkeep`
+    markers and substantive contents), which fully satisfies T001's directory-layout
+    requirement.
+  sig: 17fb1a3efcd3a6b872b8ae6b2b6febfe41912630d49dece6c713e2bea7a43698
 T003:
   c: true
   h: 936c3795ceb91afdd591d33e7637cb3cce12007e19f46e4ff766c501eada730c
@@ -14,3 +15,27 @@ T003:
     \ ModelOutput) with appropriate fields and validators. No required artifact is\
     \ missing or stubbed."
   sig: 7d7be216875efdf6426973a2bb36a98310d88d476aa585ebfc7616e861985843
+T004:
+  c: false
+  h: 57919f81cb397524503e0f5b75c1b792154dcec934c4cc26156bf9d7fa2cbfac
+  r: "The required `spec.yaml` is MISSING, so `load_config` silently falls back to\
+    \ defaults (no YAML is ever loaded), and more importantly the logging requirement\
+    \ fails: `code/utils/logging.py` only adds a file handler when `setup_logging`\
+    \ is called with an explicit `log_file`, but `get_logger` calls `setup_logging()`\
+    \ with no file, so no `logs/run.log` is ever created \u2014 and no `logs/run.log`\
+    \ or any execution evidence appears on disk to confirm INFO-level messages were\
+    \ written. There is also no run evidence demonstrating `config.seed` reproducibility\
+    \ across runs. Fix: create `spec.yaml`, make the log"
+  sig: c86f088946badf9b3e428bb72b65d003449d5e552f3d85c417d6d613686ea4a7
+T006:
+  c: false
+  h: fbf19679707d7d169815f1176cd6b72f96184d151f0cddee98a20b80877e1ead
+  r: "`data/raw/` contains only a `.gitkeep` \u2014 no genome FASTA or metabolite\
+    \ TSV files were ever downloaded, and there is no execution evidence (logs, test\
+    \ output) that the script ran against a 5-species list or logged warnings for\
+    \ missing species. Additionally, the MetaboLights URLs (MTBLS1234/3456/5678/7890/9012)\
+    \ are sequential placeholder-looking study IDs that almost certainly do not exist,\
+    \ and the `main()` path fabricates a zero-BGC-count placeholder DataFrame rather\
+    \ than producing real data. The implementer must actually run the download functions\
+    \ on a test species list, verify real retrievabl"
+  sig: 4fd2f28a2026b5b76ad5cacac3839eea54cae12666a9ba12705d85872bdab195

@@ -40,7 +40,7 @@
   *Path:* `code/data/download.py` (`download_genomes()`, `download_metabolites()`)  
   *Verification:* Using a test list of 5 species, the script creates files under `data/raw/` for all successfully fetched genomes and metabolites, and writes warnings for any species that could not be retrieved.  
 
-- [ ] **T007** [ ] **Run antiSMASH 7.0 (Docker), parse JSON, and map BGC types to MIBiG ontology**  
+- [ ] **T007** [ ] **Run antiSMASH 7.0 (Docker), parse JSON, and map BGC types to MIBiG ontology**   <!-- FAILED-IN-EXECUTION: code/data/antismash.py exit=2 -->
   *Path:* `code/data/antismash.py` (`run_antismash_wrapper()`, `parse_antismash_json()`, `map_bgc_to_mibig()`)  
   *Verification:* For a test genome the script produces `bgc_presence.csv` (binary matrix) and `bgc_counts.csv` (count matrix) with a column `metabolite_class`; unmapped BGC types are labelled `'unknown'`.  
 

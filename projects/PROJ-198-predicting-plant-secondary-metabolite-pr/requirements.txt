@@ -1,15 +1,4 @@
-# Core dependencies required for linting and formatting
-black==24.3.0
-ruff==0.4.2
-# Project runtime dependencies (already listed in pyproject.toml)
-scikit-learn
-pandas
-numpy
-biopython
-requests
-pyyaml
-dendropy
-statsmodels
-tqdm
-pydantic
-pydantic-settings
+# Existing dependencies are provided by the platform (numpy, pandas, scikit‑learn, etc.)
+# Additional third‑party packages required for real data download:
+biopython>=1.84
+requests>=2.31.0

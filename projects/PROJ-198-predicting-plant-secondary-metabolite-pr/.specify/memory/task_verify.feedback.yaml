@@ -7,12 +7,34 @@ T002:
 T003:
   task: 70c3a6076013af70ca88953d5eeb0eebfdfb224dc36471144dd9e4a9cca83f32
 T004:
+  reason: "The required `spec.yaml` is MISSING, so `load_config` silently falls back\
+    \ to defaults (no YAML is ever loaded), and more importantly the logging requirement\
+    \ fails: `code/utils/logging.py` only adds a file handler when `setup_logging`\
+    \ is called with an explicit `log_file`, but `get_logger` calls `setup_logging()`\
+    \ with no file, so no `logs/run.log` is ever created \u2014 and no `logs/run.log`\
+    \ or any execution evidence appears on disk to confirm INFO-level messages were\
+    \ written. There is also no run evidence demonstrating `config.seed` reproducibility\
+    \ across runs. Fix: create `spec.yaml`, make the log"
   task: 7366c60ac2e8dccea1eb3ce47cbd663380d5df4b332250e30cc34ccb648af4b7
 T005:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-001-predict-plant-metabolite-pr.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 8a69ba13f84aff487f1b8e83ba5ab322a8f394375ae90fab8ba4494c539be93c
 T006:
+  reason: "`data/raw/` contains only a `.gitkeep` \u2014 no genome FASTA or metabolite\
+    \ TSV files were ever downloaded, and there is no execution evidence (logs, test\
+    \ output) that the script ran against a 5-species list or logged warnings for\
+    \ missing species. Additionally, the MetaboLights URLs (MTBLS1234/3456/5678/7890/9012)\
+    \ are sequential placeholder-looking study IDs that almost certainly do not exist,\
+    \ and the `main()` path fabricates a zero-BGC-count placeholder DataFrame rather\
+    \ than producing real data. The implementer must actually run the download functions\
+    \ on a test species list, verify real retrievabl"
   task: 37a16fc246858c657e17ebfb98ea4e5483601f584c7b74e4bad05ce2763bbda7
 T007:
+  reason: 'Requested task execution failed; rerun successfully: code/data/antismash.py
+    exit=2'
   task: 0df487aefcb17e3873109f49985bdb2b4c782f24feaff09e49de2aca6e5d6a18
 T008:
   task: 9286cedb83404160a4a7cd5ccfdc0e3a2fe10d6ccb317d761cad8437e4f8d545
