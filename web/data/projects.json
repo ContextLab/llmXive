@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 18465,
+    "total_contributions": 18466,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2354,
+      "contribution_count": 2355,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-20T11:19:31.090260+00:00",
+  "generated_at": "2026-10-20T12:07:15.502712+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -29997,6 +29997,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 707.66184,
+          "ended_at": "2026-10-20T11:19:09.141065Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "failed",
+          "started_at": "2026-10-20T11:07:21.479225Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 571.531084,
           "ended_at": "2026-10-19T13:19:39.398531Z",
           "model": "openai.gpt-oss-120b",
@@ -30066,14 +30074,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-18T12:08:30.289701Z"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 31.080469,
-          "ended_at": "2026-10-18T10:05:53.687819+00:00",
-          "model": "zai-org.glm-5.3",
-          "outcome": "committed",
-          "started_at": "2026-10-18T10:05:22.607350+00:00"
         }
       ],
       "paper_status": null,
@@ -35721,6 +35721,17 @@
       },
       "authors": [
         {
+          "contributions": 13,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "ada-lovelace-simulated",
+            "clarifier",
+            "implementer",
+            "tasker"
+          ]
+        },
+        {
           "contributions": 7,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
@@ -35730,17 +35741,6 @@
             "project_initializer",
             "research_question_validator",
             "specifier"
-          ]
-        },
-        {
-          "contributions": 7,
-          "kind": "llm",
-          "name": "openai.gpt-oss-120b",
-          "roles": [
-            "ada-lovelace-simulated",
-            "clarifier",
-            "implementer",
-            "tasker"
           ]
         },
         {
@@ -35783,6 +35783,54 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 53.157836,
+          "ended_at": "2026-10-20T11:19:23.697435Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T11:18:30.539599Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 28.288187,
+          "ended_at": "2026-10-20T11:18:30.535936Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T11:18:02.247749Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 27.308278,
+          "ended_at": "2026-10-20T11:18:02.244108Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T11:17:34.935830Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 117.292707,
+          "ended_at": "2026-10-20T11:17:34.932063Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T11:15:37.639356Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 13.142269,
+          "ended_at": "2026-10-20T11:15:37.635657Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T11:15:24.493388Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 404.096769,
+          "ended_at": "2026-10-20T11:15:24.485285Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T11:08:40.388516Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 384.551092,
           "ended_at": "2026-10-20T10:16:46.470602Z",
           "model": "openai.gpt-oss-120b",
@@ -35812,54 +35860,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-20T09:35:56.522070Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 20.335443,
-          "ended_at": "2026-10-20T09:35:56.518988Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T09:35:36.183545Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 233.656296,
-          "ended_at": "2026-10-20T09:35:34.800744Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T09:31:41.144448Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 273.71917,
-          "ended_at": "2026-10-18T22:21:30.765044Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-18T22:16:57.045874Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 612.298866,
-          "ended_at": "2026-10-18T22:16:36.819649Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-18T22:06:24.520783Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 642.346475,
-          "ended_at": "2026-10-18T21:16:10.982701Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-18T21:05:28.636226Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 1072.810109,
-          "ended_at": "2026-10-18T20:23:55.209284Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-18T20:06:02.399175Z"
         }
       ],
       "paper_status": null,
@@ -110398,6 +110398,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 1415.117836,
+          "ended_at": "2026-10-20T11:31:13.238917Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-20T11:07:38.121081Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 21.055725,
           "ended_at": "2026-10-16T20:39:45.844698Z",
           "model": "openai.gpt-oss-120b",
@@ -110467,14 +110475,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-07T12:02:58.342356Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 515.14621,
-          "ended_at": "2026-10-07T12:02:49.029741Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-07T11:54:13.883531Z"
         }
       ],
       "paper_status": null,
@@ -168578,11 +168578,22 @@
         "paper_tasks": null,
         "plan": "projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/specs/001-llmxive-follow-up-extending-tua-bench-a/plan.md",
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/reviews/research",
         "spec": "projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/specs/001-llmxive-follow-up-extending-tua-bench-a/spec.md",
         "tasks": "projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/specs/001-llmxive-follow-up-extending-tua-bench-a/tasks.md"
       },
       "authors": [
+        {
+          "contributions": 5,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "dan-rockmore-simulated",
+            "implementer",
+            "planner",
+            "tasker"
+          ]
+        },
         {
           "contributions": 4,
           "kind": "llm",
@@ -168595,21 +168606,12 @@
           ]
         },
         {
-          "contributions": 4,
-          "kind": "llm",
-          "name": "openai.gpt-oss-120b",
-          "roles": [
-            "implementer",
-            "planner",
-            "tasker"
-          ]
-        },
-        {
-          "contributions": 1,
+          "contributions": 2,
           "kind": "llm",
           "name": "zai-org.glm-5.3",
           "roles": [
-            "clarifier"
+            "clarifier",
+            "personality"
           ]
         }
       ],
@@ -168632,6 +168634,14 @@
       "id": "PROJ-950-llmxive-follow-up-extending-tua-bench-a",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 39.907716,
+          "ended_at": "2026-10-20T12:06:18.459624+00:00",
+          "model": "zai-org.glm-5.3",
+          "outcome": "committed",
+          "started_at": "2026-10-20T12:05:38.551908+00:00"
+        },
         {
           "agent": "implementer",
           "duration_s": 20.793837,
@@ -168703,21 +168713,24 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-29T09:37:48.486851Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 72.584641,
-          "ended_at": "2026-09-02T21:21:02.515377Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-02T21:19:49.930736Z"
         }
       ],
       "paper_status": null,
       "phase_group": "research_speckit",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "There is a lovely old statistics joke about the researcher who, upon being told the power was insufficient, simply declared more of it. This spec gestures at rigor \u2014 McNemar's, Holm-Bonferroni, an a priori k \u2014 but several of its pillars are not actually established. First, the headline success crite",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/reviews/research/dan-rockmore-simulated__2026-10-20__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/reviews/research/dan-rockmore-simulated__2026-10-20__research.md",
+          "review_path": "projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/reviews/research/dan-rockmore-simulated__2026-10-20__research.md",
+          "reviewed_at": "2026-10-20T12:06:18.432914Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Dan Rockmore (simulated)",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -171351,6 +171364,14 @@
       "id": "PROJ-969-llmxive-follow-up-extending-perception-o",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "planner",
+          "duration_s": 874.694899,
+          "ended_at": "2026-10-20T11:21:52.323562Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-20T11:07:17.628663Z"
+        },
         {
           "agent": "planner",
           "duration_s": 593.557582,
@@ -174725,6 +174746,96 @@
   ],
   "recent_activity": [
     {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Dan Rockmore (simulated)",
+      "duration_s": 39.907716,
+      "ended_at": "2026-10-20T12:06:18.459624+00:00",
+      "excerpt": "There is a lovely old statistics joke about the researcher who, upon being told the power was insufficient, simply declared more of it. This spec gestures at rigor \u2014 McNemar's, Holm-Bonferroni, an a priori k \u2014 but several of its pillars ar\u2026",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "dan-rockmore",
+      "project_id": "PROJ-950-llmxive-follow-up-extending-tua-bench-a",
+      "project_stage": "in_progress",
+      "review_path": "projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/reviews/research/dan-rockmore-simulated__2026-10-20__research.md",
+      "severity": "ok",
+      "started_at": "2026-10-20T12:05:38.551908+00:00"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 1415.117836,
+      "ended_at": "2026-10-20T11:31:13.238917Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-20T11:07:38.121081Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 874.694899,
+      "ended_at": "2026-10-20T11:21:52.323562Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-969-llmxive-follow-up-extending-perception-o",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-20T11:07:17.628663Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 53.157836,
+      "ended_at": "2026-10-20T11:19:23.697435Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-033-predicting-material-properties-from-comp",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T11:18:30.539599Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 707.66184,
+      "ended_at": "2026-10-20T11:19:09.141065Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['google.gemma-4-31B-it', 'zai-org.glm-5.3', 'openai.gpt-oss-120b', 'anthropic",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "failed",
+      "project_id": "PROJ-003-single-cell-trajectories-of-t-cell-exhau",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-20T11:07:21.479225Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 28.288187,
+      "ended_at": "2026-10-20T11:18:30.535936Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-033-predicting-material-properties-from-comp",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T11:18:02.247749Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 27.308278,
+      "ended_at": "2026-10-20T11:18:02.244108Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-033-predicting-material-properties-from-comp",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T11:17:34.935830Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 590.68097,
       "ended_at": "2026-10-20T11:17:41.531815Z",
@@ -174735,6 +174846,42 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-20T11:07:50.850845Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 117.292707,
+      "ended_at": "2026-10-20T11:17:34.932063Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-033-predicting-material-properties-from-comp",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T11:15:37.639356Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 13.142269,
+      "ended_at": "2026-10-20T11:15:37.635657Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-033-predicting-material-properties-from-comp",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T11:15:24.493388Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 404.096769,
+      "ended_at": "2026-10-20T11:15:24.485285Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-033-predicting-material-properties-from-comp",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T11:08:40.388516Z"
     },
     {
       "agent": "implementer",
@@ -180663,126 +180810,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-19T13:09:40.550233Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 49.896967,
-      "ended_at": "2026-10-19T13:21:27.392303Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-324-predicting-molecular-properties-from-ope",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-19T13:20:37.495336Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 87.91078,
-      "ended_at": "2026-10-19T13:20:37.491914Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-324-predicting-molecular-properties-from-ope",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-19T13:19:09.581134Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 645.999449,
-      "ended_at": "2026-10-19T13:20:36.355171Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-009-build-a-mesh-network-that-forms-the-larg",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-19T13:09:50.355722Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 571.531084,
-      "ended_at": "2026-10-19T13:19:39.398531Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-003-single-cell-trajectories-of-t-cell-exhau",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-19T13:10:07.867447Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 586.407572,
-      "ended_at": "2026-10-19T13:19:02.566193Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-417-assessing-the-impact-of-data-heterogenei",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-19T13:09:16.158621Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 0.034115,
-      "ended_at": "2026-10-19T13:19:01.188707Z",
-      "failure_reason": "",
-      "model": "deterministic-no-llm",
-      "outcome": "skipped",
-      "project_id": "PROJ-324-predicting-molecular-properties-from-ope",
-      "project_stage": "clarified",
-      "severity": "soft",
-      "started_at": "2026-10-19T13:19:01.154592Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 597.878187,
-      "ended_at": "2026-10-19T13:18:49.447686Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-418-predicting-the-yield-strength-of-high-en",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-19T13:08:51.569499Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 511.890282,
-      "ended_at": "2026-10-19T13:18:47.567831Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-324-predicting-molecular-properties-from-ope",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-19T13:10:15.677549Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 83.929825,
-      "ended_at": "2026-10-19T12:58:34.752000Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-095-statistical-analysis-of-lottery-number-f",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-19T12:57:10.822175Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 35.750913,
-      "ended_at": "2026-10-19T12:57:10.817824Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-095-statistical-analysis-of-lottery-number-f",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-19T12:56:35.066911Z"
     }
   ],
   "reviewed_preprints": [

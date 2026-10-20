@@ -1,12 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-10-20T10:05:59.454513+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-10-20T12:06:18.459624+00:00'
 last_outcome: committed
 history:
-- slug: david-krakauer
-  started_at: '2026-06-27T23:26:18.198876+00:00'
-  ended_at: '2026-06-27T23:51:36.325137+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: eric-kandel
   started_at: '2026-06-27T23:51:36.325137+00:00'
   ended_at: '2026-06-28T00:37:39.585529+00:00'
@@ -1321,3 +1316,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-218-predicting-molecular-fluorescence-quantu/reviews/research/albert-einstein-simulated__2026-10-20__research.md
+- slug: dan-rockmore
+  started_at: '2026-10-20T10:05:59.454513+00:00'
+  ended_at: '2026-10-20T12:06:18.459624+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/reviews/research/dan-rockmore-simulated__2026-10-20__research.md
