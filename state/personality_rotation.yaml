@@ -1,12 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-10-20T06:07:24.544963+00:00'
+last_used: alan-turing
+last_used_at: '2026-10-20T08:06:48.451833+00:00'
 last_outcome: committed
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-27T22:25:13.073956+00:00'
-  ended_at: '2026-06-27T22:52:10.367544+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: daniel-kahneman
   started_at: '2026-06-27T22:52:10.367544+00:00'
   ended_at: '2026-06-27T23:26:18.198876+00:00'
@@ -1319,3 +1314,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-250-neural-correlates-of-temporal-prediction/reviews/research/ada-lovelace-simulated__2026-10-20__research.md
+- slug: alan-turing
+  started_at: '2026-10-20T06:07:24.544963+00:00'
+  ended_at: '2026-10-20T08:06:48.451833+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-771-residue-distribution-of-euler-s-totient-/reviews/research/alan-turing-simulated__2026-10-20__research.md
