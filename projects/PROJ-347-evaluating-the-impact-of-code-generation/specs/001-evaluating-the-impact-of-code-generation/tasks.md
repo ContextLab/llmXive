@@ -8,7 +8,7 @@ Unchecked boxes indicate work that still needs to be performed; checked boxes (i
 
 ---
 
-- [ ] T001 **Quickstart – environment sanity check** – create a reproducible virtual environment, install the exact pinned dependencies, pull required Docker images, and verify that the environment is functional (e.g., `python --version`, `docker version`).  
+- [ ] T001 **Quickstart – environment sanity check** – create a reproducible virtual environment, install the exact pinned dependencies, pull required Docker images, and verify that the environment is functional (e.g., `python --version`, `docker version`).   <!-- FAILED-IN-EXECUTION: scripts/quickstart_env.sh exit=1 -->
   *Path*: `scripts/quickstart_env.sh` (script to be created)  
   *Verification*:  
   1. `bash scripts/quickstart_env.sh` exits with code 0.  
