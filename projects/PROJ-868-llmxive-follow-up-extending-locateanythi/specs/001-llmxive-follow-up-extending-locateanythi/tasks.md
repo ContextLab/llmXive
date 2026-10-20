@@ -8,7 +8,7 @@ The study follows three research phases. Tasks are expressed as checklist items;
 
 ## Phase 0 – Data Acquisition & Checksum
 
-- [ ] T000 **Download verified datasets (VRSBench, COCO 2017, RefCOCO+ subset) and verify checksums**  
+- [ ] T000 **Download verified datasets (VRSBench, COCO 2017, RefCOCO+ subset) and verify checksums**   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
   - **Path**: `code/data/download.py` → `data/raw/vrsbench.parquet`, `data/raw/coco_val.parquet`, `data/raw/refcoco_plus.parquet`  
   - **Verification**: SHA‑256 hash comparison against published checksums (unit test `tests/unit/test_download.py`); file existence check.  
 

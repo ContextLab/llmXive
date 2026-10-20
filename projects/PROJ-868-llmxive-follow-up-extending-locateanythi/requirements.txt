@@ -1,0 +1,5 @@
+# Existing project requirements (the repository already contains a base file)
+# Add the huggingface ``datasets`` library required for data acquisition.
+datasets>=2.18.0
+# The rest of the dependencies are provided by the platform (numpy, pandas,
+# torch, etc.) and are therefore not listed here.
