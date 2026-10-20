@@ -48,7 +48,7 @@ ERROR tests/unit/test_stats_method.py
 ERROR tests/unit/test_stats_save.py
 ERROR tests/unit/test_stats_t022.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 7 errors in 1.04s ========================
+======================== 13 warnings, 7 errors in 1.09s ========================
 
 
 - python -m pytest tests/integration/ -> rc=2

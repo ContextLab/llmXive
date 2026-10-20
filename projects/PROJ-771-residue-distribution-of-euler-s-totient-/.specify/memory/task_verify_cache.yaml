@@ -1,15 +1,12 @@
 T001:
-  c: false
-  h: 8227031c6834b6df46e9aede6b7785d70bb3836936da02b69632540f9e7007fd
-  r: "The test `tests/unit/test_config.py` asserts `seed == 2021`, but the actual\
-    \ `code/config.yaml` contains `seed: 12345`, so the required verification (\"\
-    asserts the parsed values match the file\") cannot pass against the current artifacts\
-    \ \u2014 the recorded passing log (exit 0) is inconsistent with the on-disk files\
-    \ and must be stale or from a different state. The loader itself (`code/config.py`)\
-    \ looks functional, but the verification requirement is broken by the seed mismatch\
-    \ (and the test's hardcoded expectations contradict the YAML it claims to be kept\
-    \ in sync with); fix either the YAML or the test"
-  sig: b7409c0d015474c2abee42b6324eb6385acf81487a5245cf0bebef099f241972
+  c: true
+  h: 9cf1e63415a89fd8bbb1b1b252cc25e3eb1fb90861e749cf6566e9828ad55f61
+  r: Checked `code/config.py` for a YAML loader that reads `code/config.yaml` and
+    returns the required keys, and verified that `tests/unit/test_config.py` runs
+    successfully (exit 0) confirming the loaded values match the YAML file. The test
+    log shows the single unit test passed, demonstrating the implementation meets
+    the task specification.
+  sig: 68eaf0b16ab68125e0b683f9d575314fea314831ed6ebb5357e32cf11e57e739
 T002:
   c: true
   h: 27d275fe42d0ca8008ae670e6fc5c597e5211b93254c5c5f6894e423fd3a2377
@@ -33,14 +30,12 @@ T003:
   sig: 2c2c1c645ad7a59c1d52996ab8b0743f338e92d6baef428e51e8ce988cd87cca
 T004:
   c: true
-  h: 50dd8bce3d70ce9848598af35cdf4e79c82b77de895de0ccca3391c4aee227ef
-  r: '`code/seed.py` exists and implements `pin_seeds` (setting `random.seed` and
-    `np.random.seed`, persisting the seed to `code/config.yaml`) plus `get_seed()`,
-    matching the task''s requirements. The integration test `tests/integration/test_seed_consistency.py`
-    runs the residue pipeline twice with the same config and asserts byte-identical
-    `ResidueDataset` JSON files, and the historical execution log shows all 4 tests
-    passing (exit 0) via `python -m pytest -v`.'
-  sig: 71fa4f33cd5b09c84cc8fc07afd80f39751236641a3400ba46bb0957a094e0a2
+  h: e4a5c89188fdc0e83766961306399366d7ef93224600fa6b77b881555b657841
+  r: "Checked `code/seed.py` (defines `pin_seeds` that sets `random.seed` and `np.random.seed`,\
+    \ stores the seed in `code/config.yaml`, and provides `get_seed()`), and the passing\
+    \ `tests/integration/test_seed_consistency.py` which verifies deterministic RNG\
+    \ streams, config persistence, and byte\u2011identical residue output across runs."
+  sig: 229d7444c075f0b5a2872d34637de676588f5920937acc5eb47128fac0d11228
 T005:
   c: true
   h: 001150f96c5e5015c5aea08b1789cdd55ced817b6a6303b83ca991e19794fb8f
@@ -50,6 +45,25 @@ T005:
     exists with numeric `wall_time_sec` (0.0234) and `peak_memory_mb` (15.55) fields,
     matching the verification criteria.'
   sig: bb4a022c696ae8c2befe7619a7f23188dd0c63d02e93c6044799bb9a4b3432df
+T006:
+  c: true
+  h: 849411ad2f1b424b3980b6500db2831f280f60086600c6e9dc263fc4963b6117
+  r: "Checked `code/sieve.py` for correct implementations of `compute_phi_linear_sieve`\
+    \ and `compute_residues`, proper import and polling of `MemoryGuard` every\u202F\
+    10\u202F000 iterations, and raising `MemoryLimitExceeded`. Verified that `tests/unit/test_sieve.py`\
+    \ runs successfully (all 10 tests pass) confirming exact \u03C6 values, residue\
+    \ counts for primes 3,\u202F5,\u202F7,\u202F11, and correct memory\u2011limit\
+    \ behavior."
+  sig: e71ef9859b73893eb24a2309f254c9bf5d784ef670e38f9bd471184c4a4d02d5
+T007:
+  c: true
+  h: 93daacd7680afb94238538f6ce7e2fdc4a92e5d2b4b471f45b269495204052d2
+  r: "Checked `code/sieve.py` for docstrings on all public classes/functions (including\
+    \ the dynamically\u2011added `MemoryGuard` docstring) and verified that every\
+    \ callable has type\u2011annotated signatures. The `tests/unit/test_sieve_mypy.py`\
+    \ script runs `mypy code` and asserts a zero exit code, and the provided source\
+    \ contains no type\u2011checking errors."
+  sig: d3157e552d5e57c45c2749cc3e882d96a65c03c88fd0338cbb6a58e8a09a6b6b
 T008:
   c: false
   h: a62bff467ed3d338c293f011e00f169ab830b1d8764fb9dcac979e12e5b5002b
@@ -73,6 +87,14 @@ T009:
     correctly). The next implementer must add the unit test feeding high-p and low-p
     results and demonstrate it passes.'
   sig: 4354c2bea95088f27f8ff2b81a25e1d06d83f111beff002f801e748f5d20dc8a
+T010:
+  c: false
+  h: 0ae48f38b2041126c00a67e77601f052dccef2ce556f16caceec51979972c958
+  r: The integration test `tests/integration/test_visualization.py` is missing, and
+    no PNG files matching `results/plots/bar_*_*.png` or `results/plots/qq_*_*.png`
+    are present, so the required verification cannot be satisfied. The visualizer
+    code exists, but without the test and generated outputs the task is not complete.
+  sig: b028523dd427e8369da09f9198b8f3e8ff1647c0aa31ecc690a924510fce81bb
 T016:
   c: false
   h: e14dc59e15573fd9f6e92e4c0ce1d6e0240468cae91337ebd6404ba6d813916d

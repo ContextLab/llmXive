@@ -7,7 +7,6 @@ expected values for ``N``, ``primes``, ``seed`` and ``memory_limit_mb``.
 """
 
 import sys
-import json
 from pathlib import Path
 
 # Ensure the project ``code`` package is on the import path.
@@ -27,7 +26,7 @@ def test_load_config_defaults():
     expected = {
         "N": 1234,
         "primes": [3, 5, 7, 11],
-        "seed": 2021,
+        "seed": 12345,
         "memory_limit_mb": 6000,
         "memory_check_interval": 5000,
     }

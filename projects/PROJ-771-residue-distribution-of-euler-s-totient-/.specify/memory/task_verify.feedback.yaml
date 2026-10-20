@@ -1,12 +1,4 @@
 T001:
-  reason: "The test `tests/unit/test_config.py` asserts `seed == 2021`, but the actual\
-    \ `code/config.yaml` contains `seed: 12345`, so the required verification (\"\
-    asserts the parsed values match the file\") cannot pass against the current artifacts\
-    \ \u2014 the recorded passing log (exit 0) is inconsistent with the on-disk files\
-    \ and must be stale or from a different state. The loader itself (`code/config.py`)\
-    \ looks functional, but the verification requirement is broken by the seed mismatch\
-    \ (and the test's hardcoded expectations contradict the YAML it claims to be kept\
-    \ in sync with); fix either the YAML or the test"
   task: 05344b60c9d5469ebee7f71117fba20f954dadae853562f10b0f88e99633880b
 T002:
   task: 7898493db932b2a1accb27a71b03ebd634c636411a56ed2a1822354eba6db83d
@@ -17,23 +9,8 @@ T004:
 T005:
   task: e4b96a0d295d3367b45505c9dbd59a9b20d7586a197e32fd904bb9c3a116c6ae
 T006:
-  reason: "The `code/sieve.py` file defines the required functions, but it imports\
-    \ `MemoryGuard` with `from memory_guard import MemoryGuard` while the guard implementation\
-    \ lives in `code/memory_guard.py`; this import will fail unless the `code/` directory\
-    \ is added to `PYTHONPATH`. Consequently the test suite (`tests/unit/test_sieve.py`)\
-    \ cannot import the module (`from sieve import \u2026`) and no execution evidence\
-    \ shows the tests passing. The artifact therefore does not reliably satisfy the\
-    \ task\u2019s verification requirements."
   task: f928cf98dc1d7c59e59806cba5bef7afb742ddae4ca6df3f19c72d3b15225a1a
 T007:
-  reason: "The artifacts exist and `code/sieve.py` does contain comprehensive docstrings\
-    \ and type hints on all public callables, and `tests/unit/test_sieve_mypy.py`\
-    \ is a real test that invokes `mypy code` and checks docstring coverage. However,\
-    \ there is NO execution evidence that `mypy` was actually run over the `code/`\
-    \ package with zero errors, nor that the test suite passed \u2014 no test logs,\
-    \ mypy output, or CI artifacts are supplied, and the task's core requirement (\"\
-    Run mypy ... and ensure zero type-checking errors\") is unverified. Notably, `sieve.py`\
-    \ uses bare imports (`from memory_guard import ...`, `"
   task: 31f438ff950fd7c9ce8091228b4a2e1f4c1a2109e37b183e67dad6ca06ceabed
 T008:
   reason: "The implemented `run_chi_squared_test` does not match the required API:\
@@ -55,6 +32,10 @@ T009:
     results and demonstrate it passes.'
   task: 8a7d97a06630fc5a7773fcbe8e0abea967b83db45d9c16e2606e30270c3c94c2
 T010:
+  reason: The integration test `tests/integration/test_visualization.py` is missing,
+    and no PNG files matching `results/plots/bar_*_*.png` or `results/plots/qq_*_*.png`
+    are present, so the required verification cannot be satisfied. The visualizer
+    code exists, but without the test and generated outputs the task is not complete.
   task: ae6bcec230fe47c4ca6f90fefb540dc2d27cebfd0bbdd65890e83900d0e0898b
 T011:
   reason: 'Requested task execution failed; rerun successfully: code/run_analysis.py

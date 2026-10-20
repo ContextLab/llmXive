@@ -6,7 +6,7 @@
 
 ## Phase 0 – Foundations (setup, reproducibility, and resource guards)
 
-- [ ] T001  **Create configuration loader** – implement `code/config.py` that reads a YAML file `code/config.yaml` (default location) exposing `N`, `primes`, `seed`, and `memory_limit_mb`.  
+- [X] T001  **Create configuration loader** – implement `code/config.py` that reads a YAML file `code/config.yaml` (default location) exposing `N`, `primes`, `seed`, and `memory_limit_mb`.  
   *Verification*: `tests/unit/test_config.py` loads the sample config and asserts the parsed values match the file.
 
 - [X] T002 [FR‑007] **Define custom exception hierarchy** – add `code/exceptions.py` containing `TotientError`, `MemoryLimitExceeded`, and `InvalidPrimeError`, each with a clear error message.  
@@ -25,13 +25,13 @@
 
 ## Phase 1 – Core computation (totient generation and residue aggregation)
 
-- [ ] T006 [FR‑001][FR‑002] **Linear sieve and residue aggregation** – implement `code/sieve.py` with two public functions:  
+- [X] T006 [FR‑001][FR‑002] **Linear sieve and residue aggregation** – implement `code/sieve.py` with two public functions:  
   1. `compute_phi_linear_sieve(N: int) -> List[int]` – returns the list of φ values for `1 … N` using Python’s arbitrary‑precision `int`.  
   2. `compute_residues(phi_vals: List[int], prime: int) -> Dict[int, int]` – returns a frequency map `{residue: count}` for the supplied prime.  
   The module must import and use `MemoryGuard` (poll every 10 000 iterations) and raise `MemoryLimitExceeded` if the limit is hit.  
   *Verification*: `tests/unit/test_sieve.py` checks (a) exact φ values for `n = 1 … 10`, (b) correct residue counts for primes `3, 5, 7, 11`, and (c) proper exception raising when a forced low memory limit is supplied.
 
-- [ ] T007 [FR‑001] **Docstrings and static typing** – add comprehensive docstrings to all public callables in `code/sieve.py` and annotate with type hints. Run `mypy` over the `code/` package and ensure zero type‑checking errors.  
+- [X] T007 [FR‑001] **Docstrings and static typing** – add comprehensive docstrings to all public callables in `code/sieve.py` and annotate with type hints. Run `mypy` over the `code/` package and ensure zero type‑checking errors.  
   *Verification*: `tests/unit/test_sieve_mypy.py` invokes `mypy` and asserts exit code 0; a docstring‑coverage test confirms every public function has a non‑empty docstring.
 
 - [ ] T016 [SC‑001] **φ‑value correctness validation** – write unit tests (e.g., `tests/unit/test_phi_correctness.py`) that compare `compute_phi_linear_sieve` outputs for `n ≤ 100` against known mathematical tables. The CI must fail if any discrepancy is found.  
@@ -62,7 +62,7 @@
 
 ## Phase 3 – Visualization and end‑to‑end orchestration
 
-- [~] T010 [FR‑005] **Visualization suite** – implement `code/visualize.py` that, for a given prime and `N`, reads the corresponding `ResidueDataset` and `StatisticalResult` JSON files and produces:  
+- [ ] T010 [FR‑005] **Visualization suite** – implement `code/visualize.py` that, for a given prime and `N`, reads the corresponding `ResidueDataset` and `StatisticalResult` JSON files and produces:  
   * a high‑resolution bar plot (`results/plots/bar_{prime}_{N}.png`) showing observed frequencies with a horizontal line at the uniform expectation `N/p`;  
   * a QQ‑plot of the χ² residuals (`results/plots/qq_{prime}_{N}.png`).  
   Both plots must overlay the theoretical error‑bound band `± φ·√N` where `φ = 1.618033988749895` (golden ratio) and be saved as PNG at ≥ 300 DPI.  
