@@ -6,19 +6,24 @@ mock NIfTI files that conform to the expected schema. The generated files are
 written to the exact locations required by downstream pipeline steps:
 
 - ``data/processed/subjects.parquet`` – behavioural metadata
-- ``data/raw/mock_nifti/<subject_id>.nii`` – one mock NIfTI per subject
+- ``data/raw/mock_nifti/<subject_id>.nii.gz`` – one mock NIfTI per subject
 """
 
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from typing import Optional
 
 from utils.logging import get_logger
 from data.mock_nifti import create_mock_nifti, create_corrupted_nifti
 
 log = get_logger(__name__)
 
-def generate_synthetic_dataset(n_subjects: int = 150, seed: int = 42) -> pd.DataFrame:
+def generate_synthetic_dataset(
+    n_subjects: int = 100,
+    seed: int = 42,
+    inject_effect: Optional[float] = None,
+) -> pd.DataFrame:
     """
     Generate a balanced synthetic cohort and write artefacts to disk.
 
@@ -27,10 +32,13 @@ def generate_synthetic_dataset(n_subjects: int = 150, seed: int = 42) -> pd.Data
     n_subjects : int
         Desired total number of subjects (will be rounded to an even number
         and split equally between musicians and non‑musicians). The default
-        of 150 satisfies the “≈75 per group” description while keeping the
+        of 100 satisfies the “≈50 per group” description while keeping the
         dataset small enough for quick CI runs.
     seed : int
         Random seed for reproducibility.
+    inject_effect : float, optional
+        Placeholder for future effect‑size injection (e.g. d=0.4). Currently
+        not used; the flag is accepted to satisfy the CLI contract.
 
     Returns
     -------
@@ -44,23 +52,23 @@ def generate_synthetic_dataset(n_subjects: int = 150, seed: int = 42) -> pd.Data
     total = per_group * 2  # enforce exact balance
     subject_ids = [f"SYNTH_{i:04d}" for i in range(total)]
 
-    # Group assignment
+    # Group assignment (balanced)
     groups = (["musician"] * per_group) + (["non_musician"] * per_group)
 
-    # Years of training – musicians get 1‑10 years, non‑musicians get 0
+    # Years of training – musicians get Uniform(1,10), non‑musicians get 0
     years = (
-        np.random.randint(1, 11, size=per_group).astype(float).tolist()
+        np.random.uniform(1.0, 10.0, size=per_group).astype(float).tolist()
         + [0.0] * per_group
     )
 
-    # Inject a small seeded proportion of missing training‑history values
-    n_missing = max(1, int(0.05 * total))  # ~5 %
+    # Inject missing years_of_training (≈5 %)
+    n_missing = max(1, int(0.05 * total))
     missing_idx = np.random.choice(total, n_missing, replace=False)
     for idx in missing_idx:
         years[idx] = np.nan
 
     # Demographic / confound columns
-    ages = np.random.randint(12, 19, size=total).astype(int).tolist()
+    ages = np.random.normal(15.0, 1.0, size=total).round().astype(int).tolist()
     sexes = np.random.choice(["M", "F"], size=total).tolist()
     motion = np.random.normal(0.15, 0.05, size=total).round(3).tolist()
     ses = np.random.normal(0.0, 1.0, size=total).round(3).tolist()
@@ -82,27 +90,27 @@ def generate_synthetic_dataset(n_subjects: int = 150, seed: int = 42) -> pd.Data
     nifti_dir = Path("data/raw/mock_nifti")
     nifti_dir.mkdir(parents=True, exist_ok=True)
 
-    # Determine a small set of corrupted files (~2 %)
-    n_corrupt = max(1, int(0.02 * total))
+    # Determine corrupted files (~3 %)
+    n_corrupt = max(1, int(0.03 * total))
     corrupt_idx = np.random.choice(total, n_corrupt, replace=False)
 
     for i, sid in enumerate(subject_ids):
-        out_path = nifti_dir / f"{sid}.nii"
+        out_path = nifti_dir / f"{sid}.nii.gz"
         if i in corrupt_idx:
             # Create an intentionally corrupted file
             create_corrupted_nifti(str(out_path))
             log.info(f"Created corrupted NIfTI for subject {sid}")
         else:
-            # Create a valid mock NIfTI (small 10×10×10×1 image)
+            # Create a valid mock NIfTI (64×64×64×1 image)
             create_mock_nifti(
                 str(out_path),
-                shape=(10, 10, 10, 1),
+                shape=(64, 64, 64, 1),
                 seed=seed + i,
             )
             log.info(f"Created mock NIfTI for subject {sid}")
 
     # Add path column required by later stages
-    df["rs_fmri_path"] = [str(nifti_dir / f"{sid}.nii") for sid in subject_ids]
+    df["rs_fmri_path"] = [str(nifti_dir / f"{sid}.nii.gz") for sid in subject_ids]
 
     # ------------------------------------------------------------------
     # Write behavioural table as Parquet (the format required by downstream code)

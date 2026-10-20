@@ -1,34 +1,40 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1;
-    code/data/run_synthetic_generator.py exit=1; code/run_quickstart_test.py exit=5'
-  task: a920de1aaa24fd338d1b01930b214de8e4263eb263ce9e97ac175d53daf1f265
+  reason: "Checked `code/run_quickstart_test.py` \u2013 it only checks for file existence\
+    \ and never validates the JSON/CSV files against their `*_schema.yaml` contracts,\
+    \ violating the requirement. It also expects `data/processed/connectivity_matrices.npy`\
+    \ which the synthetic pipeline in `code/main.py` does not create, so the test\
+    \ would fail even on file existence. These missing behaviors must be added to\
+    \ satisfy the task."
+  task: 70bfc20f0378c62826d0ce5a857213b151f2b7bcef46b7fac8fd6504444e8a7b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/run_synthetic_generator.py
     exit=1'
-  task: 65a1caa4e398f9e68bba509121d53f99860a0dca0c084c96a9306d4a004ea1e7
+  task: d27881041742fce5b94c74fb2137638328492bb12a0a8b80b3fc2b7eb3cf10ef
 T003:
-  task: cd82f445c94db43b0a43d51b68fddbb52d7136dd9b1faecf1e84a62c2c58546e
+  task: 65050f093fdad16b5407279d4014146c6ef2812ceee5ab0386b101e5864bde66
 T004:
-  task: 0ffb0927a3c1684bde7b6b2d0f19cab24f51539025ea1f785146ce79b91b0703
+  task: 60461e39a54f75bb2457fad82e2885f380fe2fe0bad356eaba6c479dff83b59c
 T005:
-  task: 8482980a7e854be895411be40e76815be2605b015dc73cb80a50ebc1d7489108
+  task: 2d1a25ee97c094104e389b4a74c888488846d0c78846a88cdd99dc1bb0d09e41
 T006:
-  task: df23b693f1dfcc64339a6de319d9a23140fae5f685770616d12a3484184daf71
+  task: 6ce9df7b3daef6193ea11ec148d8a72c26f528770a95f3e91b002d7a3a60dd48
 T007:
-  task: 960454c098d99995f50e47dce7f4b0f178478f6f2d00d38c77adc294746ec005
-T007a:
-  task: d700c13c46c8ce358eb734d809a71592c653eeb2c393ecd22ce35d92b17013b8
+  task: 41d92fab99967fddac5a0a14661699b46c863e35a048f7f107c1b63d3b140d62
 T008:
-  task: 0cfeb883b10e926921569dc5c8ee0ff900634e28058946d473c132861f0ba328
-T008a:
-  task: 9a58a5013228fe0f2f05a657b3aee4a2b896be6edd482ea12507654e6944636e
-T008b:
-  task: 5fa15e070b5137499c09da0b54c8e543d5664b0deb431c85096dbaf70815b175
+  task: 7830ae08b96eeecf8d433fc1c6fa53d64f458ba599e2c7ec340bc3f5140ec3df
 T009:
-  task: c518a00fc631e582070a61359900b7549e3df646ba3f0bce1287a8086898f256
+  task: 3de80f4f4058ba95aebafa34461f2db0aef5f5513bd61437153dc7de94ed57b6
 T010:
-  task: 9d16d3f49dee5594c5137aade2da105c5951de6c157a373e66f68b8f130f65da
+  task: 12070c746323b771df4952b1b4a6c5db8708bee593303dcd85d79144b672b44e
 T011:
-  task: fdcd794a1efb02f5e59cdbea4d9b53dc9c196a50d6426f0fff80c61452b3741b
+  task: ceda684e78b03cc46c7ea9d885da042dfc9b18e15a38d9b2f3096e92774c37f6
 T012:
-  task: 9a3b4f68094a5af5b2f73c8c692409bd1c9e47b9b52927c74105de098cf59240
+  task: e779512658b6f75b18c983914ce21ce7bceea743fcb8497ff332924cb8b393ff
+T013:
+  task: f0bca2ad107b068e99a52f9f5babb8d7b98fa206cb64fba875009e2d3abcb585
+T014:
+  task: a9e0b9e6b1840973f12974f1cae1c674e3f4429dce4d565682c7804ce14c04bf
+T015:
+  task: 9ec4dd44a159e8aa526e4b067bdddc8563db87f741bba1551622349e4cf2f16f
+T016:
+  task: 81f7c7022e84c31864253eeff5a24c8f035b0f57ed4ff1bf462a35aa257b3e7e
