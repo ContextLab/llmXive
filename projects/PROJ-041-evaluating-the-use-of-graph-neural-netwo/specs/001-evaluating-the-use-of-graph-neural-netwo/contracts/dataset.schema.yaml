@@ -37,7 +37,7 @@ properties:
   label:
     type: integer
     enum: [0, 1]
-    description: "Ground truth label: the first label corresponds to Normal, and the second label corresponds to Anomaly."
+    description: "Ground truth label: 0 = normal, 1 = anomaly."
 required:
   - src_ip
   - dst_ip

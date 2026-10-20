@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-* Python 3.11+ (installed on the runner)
-* `git` (to clone the repository)
-* Internet access (to download the verified CTU‑13 dataset)
+* Python 3.11+ (installed on the runner)  
+* `git` (to clone the repository)  
+* Internet access (to download the verified NetFlow dataset)
 
 ## Setup Steps
 
@@ -24,14 +24,14 @@ pip install -r code/requirements.txt
 ## Data Preparation
 
 ```bash
-# Load the verified CTU NetFlow dataset directly via HuggingFace Datasets
+# Stream the verified NetFlow dataset directly via HuggingFace Datasets
 python - <<'PY'
 from datasets import load_dataset
 
-# Streaming load to avoid full download into memory
-ds = load_dataset("ctu13/ctu13", split="train", streaming=True)
+# Streaming load avoids full download into memory
+ds = load_dataset("keys-i/netFlow", split="train", streaming=True)
 # The dataset object can be iterated downstream; no separate file is persisted here.
-print("CTU‑13 dataset stream ready.")
+print("NetFlow dataset stream ready.")
 PY
 # No separate download script is needed; the pipeline will stream the data as needed.
 ```
@@ -41,8 +41,9 @@ PY
 ```bash
 # Execute the end‑to‑end pipeline:
 python code/main.py \
-  --scenarios all      # processes every scenario present in the dataset
-  --seeds 42 123 456 789 101112  # runs multiple random seeds for robust statistical testing
+  --seeds 42 123 456 789 101112 \
+  --train_ratio 0.7 \
+  --max_nodes 5000
 ```
 
 The command performs:
@@ -82,6 +83,3 @@ All tests must pass before committing results.
 * **CUDA Errors** – The code forces `torch.device('cpu')`. If you see CUDA warnings, reinstall the CPU‑only wheel (`pip uninstall torch && pip install torch==2.3.0+cpu`).  
 
 ---
-
-
-
