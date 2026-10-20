@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-20T07:14:50.442151+00:00",
+  "generated_at": "2026-10-20T07:24:36.409094+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -39646,7 +39646,7 @@
           ]
         },
         {
-          "contributions": 47,
+          "contributions": 54,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -39708,6 +39708,62 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 99.495463,
+          "ended_at": "2026-10-20T07:19:03.555667Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T07:17:24.060204Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 34.635898,
+          "ended_at": "2026-10-20T07:17:24.056573Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T07:16:49.420675Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 67.37401,
+          "ended_at": "2026-10-20T07:16:49.416950Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T07:15:42.042940Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 108.897516,
+          "ended_at": "2026-10-20T07:15:42.038824Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T07:13:53.141308Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 48.824303,
+          "ended_at": "2026-10-20T07:13:53.137373Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T07:13:04.313070Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 35.061693,
+          "ended_at": "2026-10-20T07:13:04.309263Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T07:12:29.247570Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 34.750784,
+          "ended_at": "2026-10-20T07:12:29.199074Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T07:11:54.448290Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 43.268396,
           "ended_at": "2026-10-20T06:15:47.295482Z",
           "model": "openai.gpt-oss-120b",
@@ -39729,62 +39785,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-20T05:09:51.613859Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 22.259527,
-          "ended_at": "2026-10-20T04:44:39.826175Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T04:44:17.566648Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 50.897945,
-          "ended_at": "2026-10-20T04:44:17.563936Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T04:43:26.665991Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 28.472104,
-          "ended_at": "2026-10-20T04:42:38.961296Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T04:42:10.489192Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 19.71345,
-          "ended_at": "2026-10-20T04:42:10.486557Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T04:41:50.773107Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 0.027875,
-          "ended_at": "2026-10-20T04:41:43.757360Z",
-          "model": "deterministic-no-llm",
-          "outcome": "skipped",
-          "started_at": "2026-10-20T04:41:43.729485Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 699.20192,
-          "ended_at": "2026-10-20T04:41:31.404154Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T04:29:52.202234Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 671.605572,
-          "ended_at": "2026-10-20T04:29:40.156283Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T04:18:28.550711Z"
         }
       ],
       "paper_status": null,
@@ -68553,7 +68553,7 @@
           ]
         },
         {
-          "contributions": 24,
+          "contributions": 25,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -68599,6 +68599,14 @@
       "id": "PROJ-198-predicting-plant-secondary-metabolite-pr",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 440.110538,
+          "ended_at": "2026-10-20T07:20:08.235130Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T07:12:48.124592Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 429.720015,
@@ -68670,14 +68678,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-19T01:40:52.976754Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1058.444517,
-          "ended_at": "2026-10-19T01:40:29.065108Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-19T01:22:50.620591Z"
         }
       ],
       "paper_status": null,
@@ -121677,7 +121677,7 @@
           ]
         },
         {
-          "contributions": 33,
+          "contributions": 35,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -121727,6 +121727,22 @@
       "id": "PROJ-505-exploring-the-statistical-relationship-b",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 79.627081,
+          "ended_at": "2026-10-20T07:22:34.344340Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T07:21:14.717259Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 554.054191,
+          "ended_at": "2026-10-20T07:21:14.713453Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T07:12:00.659262Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 263.166682,
@@ -121790,22 +121806,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-19T19:15:32.170543Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 46.81052,
-          "ended_at": "2026-10-19T19:15:32.166985Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-19T19:14:45.356465Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 96.989343,
-          "ended_at": "2026-10-19T19:14:45.352384Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-19T19:13:08.363041Z"
         }
       ],
       "paper_status": null,
@@ -174573,6 +174573,126 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 79.627081,
+      "ended_at": "2026-10-20T07:22:34.344340Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-505-exploring-the-statistical-relationship-b",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T07:21:14.717259Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 554.054191,
+      "ended_at": "2026-10-20T07:21:14.713453Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-505-exploring-the-statistical-relationship-b",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T07:12:00.659262Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 440.110538,
+      "ended_at": "2026-10-20T07:20:08.235130Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-198-predicting-plant-secondary-metabolite-pr",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T07:12:48.124592Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 99.495463,
+      "ended_at": "2026-10-20T07:19:03.555667Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-056-the-impact-of-musical-training-on-functi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T07:17:24.060204Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 34.635898,
+      "ended_at": "2026-10-20T07:17:24.056573Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-056-the-impact-of-musical-training-on-functi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T07:16:49.420675Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 67.37401,
+      "ended_at": "2026-10-20T07:16:49.416950Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-056-the-impact-of-musical-training-on-functi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T07:15:42.042940Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 108.897516,
+      "ended_at": "2026-10-20T07:15:42.038824Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-056-the-impact-of-musical-training-on-functi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T07:13:53.141308Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 48.824303,
+      "ended_at": "2026-10-20T07:13:53.137373Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-056-the-impact-of-musical-training-on-functi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T07:13:04.313070Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 35.061693,
+      "ended_at": "2026-10-20T07:13:04.309263Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-056-the-impact-of-musical-training-on-functi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T07:12:29.247570Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 34.750784,
+      "ended_at": "2026-10-20T07:12:29.199074Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-056-the-impact-of-musical-training-on-functi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T07:11:54.448290Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 927.14818,
       "ended_at": "2026-10-20T06:58:46.087999Z",
@@ -180517,126 +180637,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-19T07:25:10.231517Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 98.353757,
-      "ended_at": "2026-10-19T07:37:19.101656Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-305-statistical-analysis-of-publicly-availab",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-19T07:35:40.747899Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 706.529337,
-      "ended_at": "2026-10-19T07:35:52.944222Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['google.gemma-4-31B-it', 'zai-org.glm-5.3', 'openai.gpt-oss-120b', 'anthropic",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "failed",
-      "project_id": "PROJ-250-neural-correlates-of-temporal-prediction",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-10-19T07:24:06.414885Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 130.615582,
-      "ended_at": "2026-10-19T07:35:40.745829Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-305-statistical-analysis-of-publicly-availab",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-19T07:33:30.130247Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 650.276831,
-      "ended_at": "2026-10-19T07:34:26.908078Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-19T07:23:36.631247Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 50.31378,
-      "ended_at": "2026-10-19T07:32:45.570003Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-414-investigating-the-relationship-between-b",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-19T07:31:55.256223Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 106.087781,
-      "ended_at": "2026-10-19T07:32:13.350032Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-305-statistical-analysis-of-publicly-availab",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-19T07:30:27.262251Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 298.073706,
-      "ended_at": "2026-10-19T07:30:31.743852Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-19T07:25:33.670146Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 398.420197,
-      "ended_at": "2026-10-19T07:30:27.260058Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-305-statistical-analysis-of-publicly-availab",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-19T07:23:48.839861Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 79.481204,
-      "ended_at": "2026-10-19T07:29:35.819759Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-414-investigating-the-relationship-between-b",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-19T07:28:16.338555Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 42.827447,
-      "ended_at": "2026-10-19T07:28:16.334658Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-414-investigating-the-relationship-between-b",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-19T07:27:33.507211Z"
     }
   ],
   "reviewed_preprints": [
