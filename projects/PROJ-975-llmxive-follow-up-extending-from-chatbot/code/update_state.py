@@ -16,7 +16,8 @@ def get_file_sha256(file_path):
 
 def main():
     checksums_path = paths.data("raw", "checksums.json")
-    state_path = paths.path("state", "projects", "PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml")
+    # Re-scoped from state/projects/... to a project-owned path to avoid shadowing platform state
+    state_path = paths.data("raw", "project_state.yaml")
 
     if not checksums_path.exists():
         log.error(f"Checksums file not found at {checksums_path}")
@@ -37,13 +38,11 @@ def main():
         "generated_at": datetime.utcnow().isoformat() + "Z"
     }
 
-    # Ensure directory exists (paths helper creates folder, but just in case)
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-
+    # Write to project-owned directory
     with open(state_path, 'w') as f:
         yaml.dump(state, f, default_flow_style=False)
 
-    log.info(f"State file updated at {state_path}")
+    log.info(f"Project state updated at {state_path}")
 
 if __name__ == "__main__":
     main()

@@ -24,9 +24,9 @@ def check_memory_usage(threshold_gb: float = 2.0) -> bool:
         process = psutil.Process(os.getpid())
         current_rss_gb = process.memory_info().rss / (1024 ** 3)
         
-        # Projection: Model (~420MB) + 100 skills * 768 * 8 + 500 tasks * 768 * 8
+        # Projection: Model (~438MB) + 100 skills * 768 * 8 + 500 tasks * 768 * 8
         # Plus some overhead for the SentenceTransformer object and numpy arrays
-        projected_model_gb = 0.42
+        projected_model_gb = 0.44
         projected_data_gb = (100 * 768 * 8 + 500 * 768 * 8) / (1024 ** 3)
         total_projected = current_rss_gb + projected_model_gb + projected_data_gb
         
@@ -44,16 +44,17 @@ def generate_skills(seed: int, count: int, overlap_level: str, model: SentenceTr
     random.seed(seed)
     np.random.seed(seed)
 
-    # 1. Generate distinct function strings
+    # 1. Generate distinct function strings to get base embeddings
     templates = [
         f"def skill_{i}(a, b): return a + b if {i} % 2 == 0 else a * b" for i in range(count)
     ]
     
-    # 2. Get base embeddings
+    # 2. Get base embeddings (768-dim for all-MPNet-base-v2)
     base_embeddings = model.encode(templates) # (count, 768)
     
     # 3. Control overlap by blending towards a centroid
     centroid = np.mean(base_embeddings, axis=0)
+    centroid /= (np.linalg.norm(centroid) + 1e-8)
     
     if overlap_level == "HIGH":
         # Strong blend towards centroid to ensure > 0.80 similarity
@@ -107,6 +108,7 @@ def generate_tasks(seed: int, skills: List[Dict[str, Any]], count: int) -> List[
         gt_ids = random.sample(skill_ids, num_gt)
         
         # Task embedding is the mean of its ground truth skill embeddings
+        # Find indices based on the skill_id format 'skill_000'
         gt_indices = [int(sid.split('_')[1]) for sid in gt_ids]
         task_emb = np.mean(skill_embs[gt_indices], axis=0)
         task_emb /= (np.linalg.norm(task_emb) + 1e-8)
@@ -145,17 +147,21 @@ def get_sha256(file_path: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--overlap", type=str, default="MEDIUM", choices=["LOW", "MEDIUM", "HIGH"])
+    parser.add_argument("--overlap", type=str, default="MEDIUM")
     parser.add_argument("--seed", type=int, default=12345)
     args = parser.parse_args()
     
+    # Handle case-insensitivity for overlap choice
     overlap_level = args.overlap.upper()
+    if overlap_level not in ["LOW", "MEDIUM", "HIGH"]:
+        parser.error("argument --overlap: invalid choice: %s (choose from 'LOW', 'MEDIUM', 'HIGH')" % args.overlap)
+    
     seed = args.seed
     
     # 1. Memory Guard
     check_memory_usage(threshold_gb=2.0)
     
-    # 2. Load Model
+    # 2. Load Model (all-MPNet-base-v2 produces 768-dim vectors)
     logger.info("Loading sentence-transformers/all-MPNet-base-v2...")
     model = SentenceTransformer('all-MPNet-base-v2')
     

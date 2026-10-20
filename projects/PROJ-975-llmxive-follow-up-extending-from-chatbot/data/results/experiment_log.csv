@@ -1,11 +1,5 @@
-task_id,skill_id,success,latency,tokens,retrieval_precision,retrieval_diversity,pruning_risk_count,library_size,pruning_enabled
-task_0,skill_1,True,0.012,45,0.5,0.8,0,10,True
-task_1,skill_10,True,0.011,38,0.5,0.75,0,10,True
-task_2,skill_3,True,0.010,42,0.5,0.82,0,10,True
-task_3,skill_20,False,0.013,50,0.0,0.0,0,10,True
-task_4,skill_5,True,0.011,40,0.5,0.78,0,10,True
+task_id,skill_id,success,latency,tokens,retrieval_precision,retrieval_diversity,pruning_risk_count,library_size,pruning_enabled,edge_case
 smoke_test_001,skill_abc,true,0.123,42,0.8,0.6,0,50,false,false
-test_schema_001,skill_test,true,0.05,10,0.5,0.5,0,10,true,false
 task_0366,none,false,0,0,0,0,0,50,false,error
 task_0223,none,false,0,0,0,0,0,50,false,error
 task_0408,none,false,0,0,0,0,0,50,false,error

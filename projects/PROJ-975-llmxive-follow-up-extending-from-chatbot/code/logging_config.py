@@ -3,9 +3,11 @@ import csv
 import json
 import logging
 from typing import Optional, Dict, Any, List
-from llmxive_toolkit import get_logger as toolkit_get_logger
+from llmxive_toolkit import get_logger as toolkit_get_logger, paths
 
 # Column names strictly matching contracts/experiment_log.schema.yaml
+# Note: We follow the schema exactly. run_id is not in the schema, so it is omitted 
+# to avoid jsonschema validation failure (additionalProperties: false).
 LOG_COLUMNS = [
     "task_id",
     "skill_id",
@@ -30,13 +32,9 @@ class CSVLogHandler(logging.Handler):
     def __init__(self, filepath: str):
         super().__init__()
         self.filepath = filepath
-        self._header_written = False
         
         # Ensure directory exists
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        
-        # Check if file exists to determine if header is needed
-        self._file_exists = os.path.exists(filepath)
 
     def emit(self, record: logging.LogRecord):
         try:
@@ -58,12 +56,14 @@ class CSVLogHandler(logging.Handler):
                     val = str(val).lower()
                 row.append(val)
 
+            file_exists = os.path.exists(self.filepath)
+            is_empty = file_exists and os.path.getsize(self.filepath) == 0
+
             with open(self.filepath, 'a', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
-                if not self._header_written and not self._file_exists:
+                # Write header if file doesn't exist or is empty
+                if not file_exists or is_empty:
                     writer.writerow(LOG_COLUMNS)
-                    self._header_written = True
-                    self._file_exists = True
                 
                 writer.writerow(row)
                 f.flush()
@@ -87,7 +87,7 @@ def get_logger(name: str = "llmXive_experiment") -> logging.Logger:
     _logger.setLevel(logging.INFO)
 
     # Add the CSV handler
-    log_path = os.path.join("data", "results", "experiment_log.csv")
+    log_path = str(paths.data("results", "experiment_log.csv"))
     csv_handler = CSVLogHandler(log_path)
     _logger.addHandler(csv_handler)
 
@@ -105,7 +105,7 @@ def verify_log_file_exists() -> bool:
     """
     Verifies that the log file exists and is not empty.
     """
-    log_path = os.path.join("data", "results", "experiment_log.csv")
-    if os.path.exists(log_path):
-        return os.path.getsize(log_path) > 0
+    log_path = paths.data("results", "experiment_log.csv")
+    if log_path.exists():
+        return log_path.stat().st_size > 0
     return False

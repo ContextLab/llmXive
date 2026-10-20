@@ -4,23 +4,15 @@
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
-- run-book command: `python code/generate_data.py --seed 42 --overlap high`
-  - script usage: `generate_data.py [-h] [--overlap {LOW,MEDIUM,HIGH}] [--seed SEED]`
-  - argparse error: `generate_data.py: error: argument --overlap: invalid choice: 'high' (choose from 'LOW', 'MEDIUM', 'HIGH')`
 - run-book command: `python code/agent.py  --library-sizes 10 30 50 100  --pruning  --overlap high`
   - script usage: `agent.py [-h] [--library-size LIBRARY_SIZE] [--pruning {on,off}]`
   - argparse error: `agent.py: error: argument --pruning: expected one argument`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --input data/results/metrics.csv; 3 command(s) failed: python code/generate_data.py --seed 42 --overlap high (rc=2); python code/agent.py  --library-sizes 10 30 50 100  --pruning  --overlap high (rc=2); python -m pytest tests/contract/ (rc=1)
+**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --input data/results/metrics.csv; 1 command(s) failed: python code/agent.py  --library-sizes 10 30 50 100  --pruning  --overlap high (rc=2)
 
 ## Failing / missing run-book commands
-
-- python code/generate_data.py --seed 42 --overlap high -> rc=2
-
-usage: generate_data.py [-h] [--overlap {LOW,MEDIUM,HIGH}] [--seed SEED]
-generate_data.py: error: argument --overlap: invalid choice: 'high' (choose from 'LOW', 'MEDIUM', 'HIGH')
 
 - python code/agent.py  --library-sizes 10 30 50 100  --pruning  --overlap high -> rc=2
 
@@ -31,22 +23,6 @@ agent.py: error: argument --pruning: expected one argument
 - python code/analysis.py --input data/results/metrics.csv -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/analysis.py': [Errno 2] No such file or directory
-
-- python -m pytest tests/contract/ -> rc=1
-d"].lower() == 'true',
->               "edge_case": row_dict["edge_case"].lower() == 'true',
-            }
-E           KeyError: 'edge_case'
-
-tests/contract/test_logging_schema.py:58: KeyError
------------------------------ Captured stderr call -----------------------------
-2026-10-20 23:18:23,208 INFO llmXive_experiment: {"task_id": "test_schema_001", "skill_id": "skill_test", "success": true, "latency": 0.05, "tokens": 10, "retrieval_precision": 0.5, "retrieval_diversity": 0.5, "pruning_risk_count": 0, "library_size": 10, "pruning_enabled": true, "edge_case": false}
------------------------------- Captured log call -------------------------------
-INFO     llmXive_experiment:logging_config.py:102 {"task_id": "test_schema_001", "skill_id": "skill_test", "success": true, "latency": 0.05, "tokens": 10, "retrieval_precision": 0.5, "retrieval_diversity": 0.5, "pruning_risk_count": 0, "library_size": 10, "pruning_enabled": true, "edge_case": false}
-=========================== short test summary info ============================
-FAILED tests/contract/test_logging_schema.py::test_logging_csv_schema_compliance
-========================= 1 failed, 21 passed in 5.20s =========================
-
 
 ## Platform-owned paths written inside the project
 

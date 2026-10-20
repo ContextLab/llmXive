@@ -7,6 +7,7 @@ import argparse
 import random
 import uuid
 import psutil
+import numpy as np
 from datetime import datetime
 from typing import List, Dict, Any, Tuple, Optional
 
@@ -64,8 +65,8 @@ def calculate_retrieval_diversity(retrieved_skills: List[Dict[str, Any]], ground
         return 0.0
     
     mean_sim = sum(sims) / len(sims)
-    variance = sum((x - mean_sim)**2 for x in sims) / len(sims)
-    return 1.0 / (1.0 + variance)
+    variance_val = sum((x - mean_sim)**2 for x in sims) / len(sims)
+    return 1.0 / (1.0 + variance_val)
 
 def execute_skill(skill: Dict[str, Any], inputs: Dict[str, Any]) -> Tuple[bool, Any, str]:
     skill_id = skill.get('skill_id', 'unknown')
@@ -120,6 +121,14 @@ def run_task(task: Dict[str, Any], library: SkillLibrary, pruning_enabled: bool 
         precision = calculate_retrieval_precision(retrieved, ground_truth_ids)
         diversity = calculate_retrieval_diversity(retrieved, ground_truth_ids, library.model, description)
 
+        # Map failure_reason to enum: ["timeout", "missing_skill", "false_prune", "logic_error", ""]
+        failure_reason = ""
+        if not success:
+            if edge_case == "missing_skill":
+                failure_reason = "missing_skill"
+            else:
+                failure_reason = "logic_error"
+
         return {
             'task_id': task_id,
             'success': success,
@@ -129,12 +138,22 @@ def run_task(task: Dict[str, Any], library: SkillLibrary, pruning_enabled: bool 
             'retrieval_diversity': diversity,
             'retrieved_skill_ids': retrieved_ids,
             'edge_case': edge_case,
-            'failure_reason': "missing_skill" if edge_case == "missing_skill" else "" if success else "logic_error"
+            'failure_reason': failure_reason
         }
 
     except Exception as e:
         logger.error(f"Task {task_id} failed: {e}")
-        return {'task_id': task_id, 'success': False, 'latency_ms': 0, 'tokens': 0, 'retrieval_precision': 0, 'retrieval_diversity': 0, 'retrieved_skill_ids': [], 'edge_case': 'error', 'failure_reason': 'logic_error'}
+        return {
+            'task_id': task_id, 
+            'success': False, 
+            'latency_ms': 0, 
+            'tokens': 0, 
+            'retrieval_precision': 0, 
+            'retrieval_diversity': 0, 
+            'retrieved_skill_ids': [], 
+            'edge_case': 'error', 
+            'failure_reason': 'logic_error'
+        }
 
 def main():
     parser = argparse.ArgumentParser()
@@ -145,7 +164,6 @@ def main():
     args = parser.parse_args()
 
     pin_seeds()
-    import numpy as np
     
     tasks_path = 'data/raw/tasks.json'
     skills_path = 'data/raw/skills.json'
@@ -182,6 +200,8 @@ def main():
             res = run_task(task, library, pruning_enabled=(args.pruning == "on"))
             
             # CSV Logging (T005)
+            # Columns: task_id, skill_id, success, latency, tokens, retrieval_precision, 
+            # retrieval_diversity, pruning_risk_count, library_size, pruning_enabled, edge_case
             log_entry = {
                 "task_id": res['task_id'],
                 "skill_id": res['retrieved_skill_ids'][0] if res['retrieved_skill_ids'] else "none",
@@ -211,7 +231,7 @@ def main():
                 "timestamp": datetime.utcnow().isoformat()
             }
             jsonl_file.write(json.dumps(exec_entry) + "\n")
-            
+                
     logger.info(f"Completed run {run_id}: processed {len(sampled_tasks)} tasks.")
 
 if __name__ == "__main__":

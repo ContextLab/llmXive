@@ -13,23 +13,21 @@ T003:
 T004:
   task: 5b1558822bd27468ffae105f291df456c916adad7dd6db8f7b4de95c03c39218
 T005:
-  reason: 'The task explicitly requires the CSV header to include `run_id,task_id,library_size,pruning_enabled,success,latency_ms,tokens_used,retrieval_precision,retrieval_diversity,edge_case`,
-    but `code/logging_config.py` defines a different column set (`skill_id, latency,
-    tokens, pruning_risk_count`, no `run_id`, no `latency_ms`/`tokens_used`), so the
-    header does not match the required contract columns. Additionally, the recorded
-    contract test run (`tests/contract/test_logging_schema.py`) FAILED with `KeyError:
-    ''edge_case''` because the pre-existing CSV header lacks the `edge_case` column,
-    so the verifi'
+  reason: "The task explicitly requires the CSV header to include `run_id,task_id,library_size,pruning_enabled,success,latency_ms,tokens_used,retrieval_precision,retrieval_diversity,edge_case`,\
+    \ but `code/logging_config.py` defines `LOG_COLUMNS` as `task_id,skill_id,success,latency,tokens,retrieval_precision,retrieval_diversity,pruning_risk_count,library_size,pruning_enabled,edge_case`\
+    \ \u2014 `run_id`, `latency_ms`, and `tokens_used` are absent, and extra columns\
+    \ (`skill_id`, `pruning_risk_count`) were substituted. The implementer followed\
+    \ the on-disk schema file instead of the task's stated column list, which"
   task: 75ccbbcfdbfe38c550102e462f991906bf9948a8949e50e89a67c51fc5b26360
 T006:
-  reason: "The end-to-end run (`code/agent.py` log) shows every one of the 100 tasks\
-    \ failed with `Task ... failed: name 'np' is not defined` \u2014 `numpy` is imported\
-    \ inside `main()` but used at module level in `run_task`/`retrieve_top_k`, so\
-    \ all JSON-L entries have `success=false`, `retrieved_skill_ids=[]`, `latency_ms=0`,\
-    \ and `edge_case=\"error\"` (which is not even a valid value in the schema's `failure_reason`\
-    \ enum). The verification requirements are unmet: no task actually retrieved skills\
-    \ or executed them, no `missing_skill` spot-check exists, and the integration\
-    \ test failed because the CSV rows have 11"
+  reason: "The end-to-end run failed: every one of the 100 tasks errored with \"shapes\
+    \ (384,) and (768,) not aligned\" (embedding dimension mismatch between the model's\
+    \ 384-dim output and the 768-dim pre-computed skill embeddings), so all JSON-L\
+    \ entries and CSV rows record `success=false`, `retrieved_skill_ids=[]`, `edge_case=\"\
+    error\"` \u2014 no retrieval, execution, or success measurement actually occurred,\
+    \ and the required spot-check for `edge_case=\"missing_skill\"` is impossible\
+    \ since every entry is \"error\". Additionally, the integration test `tests/integration/test_agent_e2e.py`\
+    \ fails (exit 1) due to a malfor"
   task: 3274f3f0c5a1fad743fff1c91fe314f9dff14407307fc2b7e48d22f0bd361f84
 T007:
   task: 0693b879b875aa71df57968ef21f0729979d4790fb93c457277a1d7c8ea33aca

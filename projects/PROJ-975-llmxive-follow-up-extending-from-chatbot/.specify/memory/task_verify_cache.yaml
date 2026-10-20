@@ -1,58 +1,56 @@
 T001:
   c: true
-  h: 81e78edbc08add4e8d139041a69c3a9503e3fad8f6269be7a5b3d4e63689f5bd
-  r: 'All five contract schema files exist at `contracts/` with substantive, well-formed
-    JSON Schema content (properties, required, types, constraints), and the source
-    directory `specs/001-.../contracts/` contains the corresponding five schemas.
-    The verification test `tests/contract/test_schema_presence.py` exists and implements
-    both required checks: yaml.safe_load with top-level key assertions for all five
-    schemas, and jsonschema validation of minimal dummy task and skill instances (which
-    satisfy the schemas'' required fields).'
-  sig: cc88543f61acfcb3ca2588bb17448f6610d7d685c2e5a202ecfa055282a51c11
+  h: 3ab1c823ef9fa72cb6b733cce2ecaa0a04e52b162f7bc1f6e56aafc651789de5
+  r: All five contract schema files exist at `contracts/` with substantive, well-formed
+    JSON Schema content (properties, required, types, constraints), matching the read-only
+    source set in `specs/.../contracts/` (same five filenames). The verification test
+    `tests/contract/test_schema_presence.py` exists, loads each schema via `yaml.safe_load`,
+    asserts the `properties`/`required` keys, and validates minimal dummy task/skill
+    instances with `jsonschema.validate`, exactly as specified.
+  sig: c24f721518a0e75e11993bd642215c4821f1c1dda2543398d6e03c52e285ab45
 T004:
   c: true
-  h: d4bebf48de9a7af1a4d548983cdf1f7a110317421539804cbd5e2d238b07cd74
-  r: The test suite at `tests/contract/test_schemas.py` exists and implements all
-    four required checks (schema validation of real tasks.json and skills.json, 768-dim
-    embedding length, mean pairwise cosine similarity against OVERLAP_LEVEL thresholds
-    from config, and ground-truth skill_id referential integrity), and the execution
-    log shows all 5 tests passing against the actual data files (tasks.json ~10.9MB,
-    skills.json ~2.2MB) with exit code 0. The field name used is `ground_truth_path`,
-    which matches both the schema and the actual data, satisfying the reference-integrity
-    requirement.
-  sig: 1a233e25fe1cd91ab2c2676e52422eedc82d523f6ac1849739ff980021d98e2a
+  h: 08b0255ae054f8e75eb3678cabd755e1730482aa7cbf166d417e3e8b5ac8a881
+  r: 'The test suite at `tests/contract/test_schemas.py` exists and implements all
+    four required checks: schema validation of real `tasks.json` and `skills.json`
+    against the YAML schemas, 768-dim embedding length assertion, mean pairwise cosine
+    similarity with OVERLAP_LEVEL thresholds from `code/config.py`, and ground-truth
+    skill reference integrity. The historical execution log shows `pytest tests/contract/test_schemas.py`
+    ran with exit 0 and all 5 tests passed against the actual data files (both present
+    and non-empty), and the referenced helpers (`mean_pairwise_similarity`, `get_experiment_config`'
+  sig: a702a814d5b43388abcfc913ce3999e11c3e6b5a50a425f057aa9b445dac689a
 T005:
   c: false
-  h: b093102cfb0ef808bbd6b06f03b1e22ba2b101c324576419d98364e2b6a1af65
-  r: 'The task explicitly requires the CSV header to include `run_id,task_id,library_size,pruning_enabled,success,latency_ms,tokens_used,retrieval_precision,retrieval_diversity,edge_case`,
-    but `code/logging_config.py` defines a different column set (`skill_id, latency,
-    tokens, pruning_risk_count`, no `run_id`, no `latency_ms`/`tokens_used`), so the
-    header does not match the required contract columns. Additionally, the recorded
-    contract test run (`tests/contract/test_logging_schema.py`) FAILED with `KeyError:
-    ''edge_case''` because the pre-existing CSV header lacks the `edge_case` column,
-    so the verifi'
-  sig: 8dc2bf7e14786b9a8897081f4107b718a5681cb2d05a041eae10a9ad6ca590b9
+  h: 2b6888b5a233a696c144f8d8fbb8ef439bb611d389cf50c6f4ce4a8a90a2cf77
+  r: "The task explicitly requires the CSV header to include `run_id,task_id,library_size,pruning_enabled,success,latency_ms,tokens_used,retrieval_precision,retrieval_diversity,edge_case`,\
+    \ but `code/logging_config.py` defines `LOG_COLUMNS` as `task_id,skill_id,success,latency,tokens,retrieval_precision,retrieval_diversity,pruning_risk_count,library_size,pruning_enabled,edge_case`\
+    \ \u2014 `run_id`, `latency_ms`, and `tokens_used` are absent, and extra columns\
+    \ (`skill_id`, `pruning_risk_count`) were substituted. The implementer followed\
+    \ the on-disk schema file instead of the task's stated column list, which"
+  sig: f103fbcfca67a5f6c2763cb5df5b9beb7218209ceba00b4de5ef5c7332bf9cbb
 T006:
   c: false
-  h: 4ccab7bb7da567a37d6c8a826da20de23fe5c25d5e7ad26eba6e61f7dca45a12
-  r: "The end-to-end run (`code/agent.py` log) shows every one of the 100 tasks failed\
-    \ with `Task ... failed: name 'np' is not defined` \u2014 `numpy` is imported\
-    \ inside `main()` but used at module level in `run_task`/`retrieve_top_k`, so\
-    \ all JSON-L entries have `success=false`, `retrieved_skill_ids=[]`, `latency_ms=0`,\
-    \ and `edge_case=\"error\"` (which is not even a valid value in the schema's `failure_reason`\
-    \ enum). The verification requirements are unmet: no task actually retrieved skills\
-    \ or executed them, no `missing_skill` spot-check exists, and the integration\
-    \ test failed because the CSV rows have 11 "
-  sig: 1b9f3424d97b077da2de2d023f8e70b01a07303713a7337ae732bb551ace7c02
+  h: c87f5b65b70b73f7ce721429475ef9d3a63277d0837312c877af8471f88efb18
+  r: "The end-to-end run failed: every one of the 100 tasks errored with \"shapes\
+    \ (384,) and (768,) not aligned\" (embedding dimension mismatch between the model's\
+    \ 384-dim output and the 768-dim pre-computed skill embeddings), so all JSON-L\
+    \ entries and CSV rows record `success=false`, `retrieved_skill_ids=[]`, `edge_case=\"\
+    error\"` \u2014 no retrieval, execution, or success measurement actually occurred,\
+    \ and the required spot-check for `edge_case=\"missing_skill\"` is impossible\
+    \ since every entry is \"error\". Additionally, the integration test `tests/integration/test_agent_e2e.py`\
+    \ fails (exit 1) due to a malfor"
+  sig: 03b3b73a476f9a95120976c8fae1d7a47bfc4d9f1b00b3d27befcad63dd05f05
 T007:
-  c: false
-  h: 04229e80dae1ed3ad2b60e98128c20a5ba773858b8d5070cb6cea9e404c89f5c
-  r: "The `code/logging_config.py` file is truncated and does not finish constructing\
-    \ the logger (the `get_logger` function ends with `_logger = l`). The generated\
-    \ CSV file\u2019s header lacks the `\"edge_case\"` column defined in `LOG_COLUMNS`,\
-    \ so the column structure does not match the contract. Additionally, the required\
-    \ `contracts/experiment_log.schema.yaml` (or `schema.yaml`) is missing, preventing\
-    \ any schema\u2011compliance verification."
+  c: true
+  h: c8142496b4c71c16994136e86d992165027c879b5e8927d219c3ca1b3a247360
+  r: '`code/pruning.py` implements `prune_fr04` exactly per FR-004 (prune only if
+    `usage_count == 0` and min cosine similarity to all other skills > 0.70, returning
+    `(pruned_library, false_prune_count)` counting pruned skills in any task''s ground
+    truth), with a real `cosine_similarity` in `code/utils.py`. The deterministic
+    unit tests in `tests/unit/test_pruning.py` cover removal, preservation, used-skill,
+    false-prune-count, and edge cases, and the recorded pytest run shows all 5 tests
+    passing (exit 0).'
+  sig: 341836e2ecde25654187ce26236edef76e56069d07792e1d01e2cc27917b13f6
 T011:
   c: false
   h: 062da73576d9ef9a4e89733292a954725f72b782cf2bf082cc98fe48e30705e1

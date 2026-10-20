@@ -13,10 +13,11 @@ def get_file_sha256(file_path):
 
 def test_state_yaml_hashes():
     """
-    Verifies that the state YAML exists and contains SHA-256 hashes 
+    Verifies that the project state YAML exists and contains SHA-256 hashes 
     that match the actual files on disk.
     """
-    state_path = paths.path("state", "projects", "PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml")
+    # Updated to match the re-scoped project-owned path
+    state_path = paths.data("raw", "project_state.yaml")
     tasks_path = paths.data("raw", "tasks.json")
     skills_path = paths.data("raw", "skills.json")
     checksums_path = paths.data("raw", "checksums.json")
@@ -39,7 +40,7 @@ def test_state_yaml_hashes():
 
 def test_state_yaml_timestamp():
     """Verifies that the generated_at field is a valid ISO timestamp."""
-    state_path = paths.path("state", "projects", "PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml")
+    state_path = paths.data("raw", "project_state.yaml")
     with open(state_path, 'r') as f:
         state = yaml.safe_load(f)
     

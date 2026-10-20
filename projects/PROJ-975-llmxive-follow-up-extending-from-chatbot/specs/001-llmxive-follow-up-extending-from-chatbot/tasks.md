@@ -64,7 +64,7 @@ The list below follows the research phases (setup → full experiment →�
 
 ## Phase 2 – Full experimental sweep, pruning variants, and statistical analysis  
 
-- [ ] T007 [P] [US2] **Create `code/pruning.py` implementing FR‑004**  
+- [X] T007 [P] [US2] **Create `code/pruning.py` implementing FR‑004**  
   *Function*:  
   &nbsp;&nbsp;• `prune_fr04(library)`: Removes a skill **only if** `usage_count == 0` **and** `min_cosine_similarity_to_any_other_skill_in_library > 0.70` (i.e., the skill is redundant). Returns `(pruned_library, false_prune_count)` where `false_prune_count` counts removals of skills that appear in any remaining task’s ground‑truth set.  
   *Verification*:  
