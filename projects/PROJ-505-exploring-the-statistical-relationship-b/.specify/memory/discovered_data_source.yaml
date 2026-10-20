@@ -1,17 +1,19 @@
 status: none
-intent: download OMNI hourly solar wind plasma magnetic field ACE SWICS O/Fe He/H
-  C/O python package dataset
+intent: ACE SWICS WIND composition O/Fe He/H C/O NOAA Dst Kp HelioPy python package
+  dataset
 required_fields:
-- timestamp_utc_hour
+- timestamp
 - o_fe_ratio
 - he_h_ratio
 - c_o_ratio
-- solar_wind_speed
-- proton_density
+- bulk_velocity
+- density
+- imf_bx
+- imf_by
 - imf_bz
 - dst_index
 - kp_index
 - coupling_function
-cache_key: 7521d8eeeb8d658e79d5be6faa2be7cdfca7cb1ce20b7011c9c2e39a1b0c97b6
-searched_at: '2026-10-19T22:15:46.823626+00:00'
+cache_key: e4851b9176814330611cf578d0a8aa8c461e728ab9842b9dfba1f5a072124ed1
+searched_at: '2026-10-20T01:25:08.596339+00:00'
 retry_count: 1

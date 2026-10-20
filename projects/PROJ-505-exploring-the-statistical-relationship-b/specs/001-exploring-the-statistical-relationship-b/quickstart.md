@@ -32,7 +32,7 @@ The script writes `results/requirements_install.log`. A successful run contains 
 Every non‑comment line of `requirements.txt` is pinned as
 `package==major.minor.*` (e.g. `pyspedas==1.6.*`), which guarantees
 reproducible installs. The previous non‑conforming `pyarrow>=15.0.0` line
-has been removed; `fastparquet==2024.*` provides the Parquet I/O fallback
+has been removed; `fastparquet==2024.1.*` provides the Parquet I/O fallback
 when `pyarrow` is unavailable.
 
 ## Data Preparation (REAL data — no synthetic fallback)
@@ -60,9 +60,9 @@ python code/ingestion/download_real.py --start 2000-01-01 --end 2000-12-31
 ```
 
 This is a real subsample of the same archives (sample size and period
-are recorded in `data/raw/checksums.yaml`), never synthetic data. The
-loader **fails loudly** (raises `ConnectionError`/`RuntimeError`) if any
-fetch fails — there is no synthetic fallback anywhere in the pipeline.
+are recorded in `data/raw/checksums.yaml`), never synthetic data.
+The loader **fails loudly** (raises `ConnectionError`/`RuntimeError`) if
+any fetch fails — there is no synthetic fallback anywhere in the pipeline.
 
 ## Run the Full Analysis Pipeline
 
@@ -79,7 +79,7 @@ pipeline in dependency order on the real data:
 4. Baseline & full regressions (`code/analysis/regression.py`)
 5. ΔR² computation and 5‑fold time‑series cross‑validation
 6. Block permutation test (max 10 000 iterations)
-7. Percentile significance, Benjamini–Hochberg FDR, and threshold sensitivity
+7. Percentile significance, Benjamini‑Hochberg FDR, and threshold sensitivity
 8. Final report aggregation → `data/artifacts/final_report.json`
 
 A quick end‑to‑end smoke run on a 1‑year real subset is available via:
@@ -103,7 +103,7 @@ All results are written to `data/artifacts/`:
 | `figures/` | Correlation heatmap, coefficient plots, residual diagnostics |
 
 **Interpretation**: All numbers are real measurements from CDAWeb archives
-for 2000–2020. Findings are observational/associational.
+for 2000‑2020. Findings are observational/associational.
 
 ## Testing
 
@@ -124,21 +124,19 @@ The test suite checks:
 
 ## Verification of Requirements Installation
 
-After installing the dependencies you can run the verification helper:
-
 ```bash
 python -m code.verify_requirements
 ```
 
-It will re‑run `pip install -r requirements.txt` and write
-`results/requirements_install.log`. The presence of the word `success`
-in that log confirms that the pinned requirements install without error.
+This will re‑run `pip install -r requirements.txt` and write `results/requirements_install.log`.
+The presence of the word `success` in that log confirms the pinned
+requirements install without error.
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Remedy |
-|---------|--------------|--------|
-| `ImportError: pyarrow` when saving parquet | `pyarrow` not installed on the runner | The I/O helper automatically falls back to the `fastparquet` engine; ensure `fastparquet==2024.*` is installed (`pip install -r requirements.txt`). |
+|--- |--- |--- |
+| `ImportError: pyarrow` when saving parquet | `pyarrow` not installed on the runner | The I/O helper automatically falls back to the `fastparquet` engine; ensure `fastparquet==2024.1.*` is installed (`pip install -r requirements.txt`). |
 | `ConnectionError` during download | CDAWeb unreachable or dataset ID changed | Fix network access / dataset ID and re‑run `code/ingestion/download_real.py`. The pipeline intentionally does NOT fall back to synthetic data. |
 | MemoryError during regression | Loading more than the compute budget allows | Process the real data in chunks or a fixed‑seed real subsample (documented in the run report); never substitute synthetic data. |
 | "Schema validation failed" | Aligned file missing a required column | Re‑run `python code/ingestion/download_real.py` then `python -m code.main`. |

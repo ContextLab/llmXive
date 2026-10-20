@@ -22,7 +22,7 @@ def main() -> None:
             f.write("failure\n")
         f.write(result.stdout)
         f.write(result.stderr)
-        f.write(f"returncode={result.returncode}\\n")
+        f.write(f"returncode={result.returncode}\n")
     if result.returncode != 0:
         raise RuntimeError(f"pip install failed with code {result.returncode}")
 
