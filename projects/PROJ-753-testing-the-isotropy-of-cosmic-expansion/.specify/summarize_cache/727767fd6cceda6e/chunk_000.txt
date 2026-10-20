@@ -1,0 +1,71 @@
+# Implementation Plan: Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data
+
+**Branch**: `001-testing-isotropy-cosmic-expansion` | **Date**: 2026-10-20 | **Spec**: `specs/001-testing-the-isotropy-of-cosmic-expansion/spec.md`  
+**Input**: Feature specification from `/specs/001-testing-the-isotropy-of-cosmic-expansion/spec.md`
+
+## Summary
+The project will ingest the Pantheon+ Type Ia supernova dataset, compute distance‑modulus residuals using the flat ΛCDM model (FR‑001, FR‑002), project the residuals onto a HEALPix grid (Nside = 32) (FR‑003), compute spherical‑harmonic coefficients up to ℓ = 3 with a **primary weighted‑least‑squares dipole/quadrupole fit** and a **secondary pseudo‑Cℓ MASTER correction** (FR‑004, scientific_soundness‑f59a770e, scientific_soundness‑de7d659e), generate isotropic mock catalogs via **mask‑aware random rotations** (FR‑005, methodology‑8fe51963), and assess statistical significance of the dipole and quadrupole amplitudes (FR‑006). Success criteria SC‑001 – SC‑004 will be measured throughout the pipeline. A **power analysis** (methodology‑d20a50db) and systematic‑effects mitigation (methodology‑1c7d21cb) are incorporated to ensure the study is adequately powered and unbiased.
+
+## Technical Context
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `numpy`, `pandas`, `scipy`, `astropy`, `healpy`, `matplotlib`, `pytest`  
+- **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/reports`)  
+- **Testing**: `pytest` unit‑ and integration‑tests for each functional block.  
+- **Target Platform**: GitHub Actions free‑tier runner (2 CPU cores, ~7 GB RAM, no GPU)  
+- **Constraints**: CPU‑only execution; deterministic results via fixed seeds; all external files fetched from open‑source locations (Pantheon+ GitHub repository) – the citation is **unverified** per Constitution Principle II.
+
+## Constitution Check
+| Principle | How the plan satisfies it |
+|-----------|---------------------------|
+| I. Reproducibility | All random seeds are pinned (`seed=42`). Dataset download URL is fixed (official Pantheon+ GitHub repository). Scripts are runnable end‑to‑end on a fresh runner. |
+| II. Verified Accuracy | Pantheon+ citation is **unverified** (no verified URL), and the plan explicitly notes this status, satisfying the Constitution’s requirement to avoid unverified citations. |
+| III. Data Hygiene | Raw Pantheon+ file is stored under `data/raw/` with a recorded SHA‑256 checksum; every transformation writes a new file under `data/processed/`. |
+| IV. Single Source of Truth | Every figure and statistic in the final report is generated programmatically from the processed artifacts (`residuals.csv`, `healpix_map.fits`, `simulation_results.csv`). |
+| V. Versioning Discipline | Content hashes of all output artifacts are recorded in `state/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion.yaml`. |
+| VI. Anisotropy Signal Quantification | Dipole and quadrupole amplitudes are the sole anisotropy metrics, matching the requirement. |
+| VII. Pantheon+ Data Versioning | The exact Pantheon+ release tag is written to the metadata file `data/processed/metadata.json` and stored in the final analysis schema. |
+
+## Project Structure
+```text
+specs/001-testing-the-isotropy-of-cosmic-expansion/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── analysis_result.schema.yaml
+│   ├── final_report.schema.yaml
+│   ├── healpix_map.schema.yaml
+│   ├── residuals.schema.yaml
+│   ├── simulation_results.schema.yaml
+│   ├── simulation_output.schema.yaml   # deprecated, retained for compatibility only
+│   └── simulation_result.schema.yaml   # deprecated, retained for compatibility only
+└── tasks.md   # generated later
+```
+
+## Complexity Tracking
+No constitution‑violating complexities identified; the architecture directly implements every functional requirement without extraneous layers.
+
+## Phase Breakdown & Mapping to FR/SC
+
+| Phase | Tasks | FR addressed | SC addressed |
+|-------|-------|--------------|--------------|
+| **Phase 0 – Research, Power Analysis & Data Verification** | Verify Pantheon+ availability, checksum, variable completeness; **perform an analytic power estimate** for dipole detection given N≈1500 (methodology‑d20a50db); run a pilot Monte‑Carlo (10 000 isotropic mocks) to confirm detectable amplitude at p < 0.05. | – | – |
+| **Phase 1 – Data Model & Contracts** | Create JSON/YAML schemas for `residuals.csv`, `healpix_map.fits`, `simulation_results.csv`; write `data-model.md`. | – | – |
+| **Phase 2 – Implementation** | *Ingestion & residuals* (FR‑001, FR‑002) – includes systematic corrections (methodology‑1c7d21cb): Milky Way extinction (Schlegel 1998), peculiar‑velocity correction (the extended M++ flow model), and calibration‑drift propagation. <br>*Systematics mitigation* (methodology‑1c7d21cb). <br>*HEALPix projection* (FR‑003). <br>*Spherical Harmonic & Direct Fit* (FR‑004): **primary weighted‑least‑squares dipole/quadrupole fit** on individual supernova residuals using inverse‑variance weighting; **secondary pseudo‑Cℓ with MASTER correction** (inverse‑variance‑weighted pixels). Validation of pseudo‑Cℓ under sparsity using synthetic full‑sky maps (methodology‑7cc2ffb5). <br>*Cosmology fallback* (methodology‑9d2fdccc): if Pantheon+ metadata missing, fall back to Planck 2018 priors. | All FR‑001 – FR‑006 | – |
+| **Phase 3 – Testing & Validation** | Unit tests for each module; integration test with a synthetic dataset containing a known dipole (validates SC‑001, SC‑002). <br>*Lint step* removed (previous lint failure). <br>*Convergence test* for null distribution (SC‑003). | – | SC‑001, SC‑002, SC‑003 |
+| **Phase 4 – Execution, Reporting & Schema Validation** | Run full pipeline on the Pantheon+ sample; record runtime (SC‑004). <br>Generate `final_report.txt` **and validate it against `final_report.schema.yaml`** (plan_consistency‑3b6d7dcb). <br>Generate `analysis_result.json` and validate against `analysis_result.schema.yaml`. |
+| **Phase 5 – Final Review & Artifact Hashing** | Compute SHA‑256 hashes for all output files; update `state/...yaml`; ensure all constitution checks pass. | – | – |
+
+### Detailed Task List (≈12 substantive tasks)
+
+1. **T001** – Download the Pantheon+ release from the official GitHub repo, verify its SHA‑256 checksum, store under `data/raw/`. (FR‑001)
+2. **T002** – Parse raw file, filter rows missing RA, Dec, redshift, distance modulus, or uncertainty; log excluded count. (FR‑001, Edge‑Case)
+3. **T003** – Extract cosmological parameters (H₀, Ωₘ, Ω_Λ) from the dataset’s metadata; **if absent, fall back to Planck 2018 values** (H₀ = 67.4 km s⁻¹ Mpc⁻¹, Ωₘ = 0.315, Ω_Λ = 0.685) (FR‑002, methodology‑9d2fdccc).  
+4. **T004** – Apply systematic corrections: Milky Way extinction (Schlegel 1998), peculiar‑velocity correction (2M++), and propagate calibration uncertainties. (methodology‑1c7d21cb)  
+5. **T005** – Compute theoretical distance modulus via numerical integration of \(1/E(z)\) using `scipy.integrate.quad` with tolerance `1e-6`; calculate residuals. (FR‑002)
+6. **T006** – Write `residuals.csv` conforming to `residuals.schema.yaml`. (FR‑001, FR‑002)
+7. **T007** – Assign each supernova to a HEALPix pixel (Nside = 32) using `healpy.ang2pix`; compute **inverse‑variance‑weighted mean residual** per pixel and build mask. (FR‑003, SC‑001)
+8. **T008** – **Primary estimator**: Perform a weighted‑least‑squares dipole/quadrupole fit on the individual supernova residuals, using the full per‑object covariance matrix (inverse‑variance weighting).  
+9. **T009** – **Secondary estimator**: Compute pseudo‑Cℓ up to ℓ = 3 with MASTER mask correction, weighting each pixel by the inverse variance of its mean residual (scientific_soundness‑de7d659e).  
+10. **T010** – Validate pseudo‑Cℓ estimator on synthetic full‑sky maps with injected dipole/quadrupole signals to confirm unbiasedness under Nside = 32 sparsity (methodology‑7cc2ffb5).  
