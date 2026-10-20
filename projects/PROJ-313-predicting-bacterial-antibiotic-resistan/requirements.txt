@@ -1,1 +1,4 @@
-tqdm>=4.66.0
+# Project dependencies
+# Existing standard dependencies are preinstalled in the environment.
+# Added requirement for tqdm progress bar used in download script.
+tqdm
