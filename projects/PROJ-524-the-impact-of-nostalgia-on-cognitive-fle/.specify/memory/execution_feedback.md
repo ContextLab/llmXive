@@ -23,10 +23,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py -> rc=1
 line (T010c)...
-2026-10-20 06:10:55,552 - llmXive - INFO - Running Age Exclusion (T012a)...
-2026-10-20 06:10:55,866 - llmXive - ERROR - T012a failed: 2026-10-20 06:10:55,810 - T012a_AgeExclusion - INFO - Starting T012a: Age Exclusion
-2026-10-20 06:10:55,810 - T012a_AgeExclusion - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
-2026-10-20 06:10:55,810 - T012a_AgeExclusion - ERROR - Data file missing: Raw dataset not found at data/raw/raw_dataset.csv
+2026-10-20 12:10:49,989 - llmXive - INFO - Running Age Exclusion (T012a)...
+2026-10-20 12:10:50,359 - llmXive - ERROR - T012a failed: 2026-10-20 12:10:50,320 - T012a_AgeExclusion - INFO - Starting T012a: Age Exclusion
+2026-10-20 12:10:50,320 - T012a_AgeExclusion - ERROR - Raw dataset not found at data/raw/raw_dataset.csv
+2026-10-20 12:10:50,320 - T012a_AgeExclusion - ERROR - Data file missing: Raw dataset not found at data/raw/raw_dataset.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/task_t012a_age_exclusion.py", line 155, in <module>
     main()
@@ -63,7 +63,7 @@ ERROR tests/unit/test_task_t026.py
 ERROR tests/unit/test_task_t027.py
 ERROR tests/unit/test_utils.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 21 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 21 errors in 3.47s ==============================
+============================== 21 errors in 3.85s ==============================
 
 
 
