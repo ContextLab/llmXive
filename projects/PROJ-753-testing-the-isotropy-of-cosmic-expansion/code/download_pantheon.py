@@ -22,14 +22,13 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Correct canonical URL for the Pantheon+ SH0ES data file. The plus sign is
-# URL‑encoded as %2B. The file lives in the PantheonPlusSH0ES/DataRelease repository.
+# Correct canonical URL for the Pantheon+ SH0ES data file. 
+# The file is located at the root of the DataRelease repository.
 DEFAULT_URL = (
     "https://raw.githubusercontent.com/PantheonPlusSH0ES/"
-    "DataRelease/main/data/Pantheon%2B_SH0ES.dat"
+    "DataRelease/main/Pantheon%2B_SH0ES.dat"
 )
-# The version string is not explicitly provided by the upstream release;
-# we record a generic identifier that can be updated later if needed.
+# The version string is recorded as v1.0 based on the release.
 DEFAULT_DATASET_VERSION = "v1.0"
 
 
@@ -100,8 +99,8 @@ def main() -> None:
     logger = get_logger(__name__)
 
     # Resolve the target paths using the llmxive_toolkit helpers.
-    # The raw file name must match what ``ingest.py`` expects.
-    raw_path = paths.data("raw", "Pantheon+_SH0ES.dat")
+    # Per tasks.md, the file should be saved as pantheon_plus_SH0ES.dat.
+    raw_path = paths.data("raw", "pantheon_plus_SH0ES.dat")
     metadata_path = paths.data("metadata.json")
 
     try:
@@ -138,5 +137,5 @@ if __name__ == "__main__":
     except Exception as e:
         # Log the exception (the logger may not be initialised yet if the
         # error occurred early).
-        sys.stderr.write(f"Error: {e}\\n")
+        sys.stderr.write(f"Error: {e}\n")
         sys.exit(1)
