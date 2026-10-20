@@ -1,10 +1,20 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/generate_data.py
-    exit=1'
+  reason: Checked `code/generate_data.py`, the generated CSV/BED files, and the test
+    suite. The generator loads the schema but fails to parse it (YAML error), silently
+    skips validation instead of raising on mismatches, and the provided pytest suite
+    fails (missing imports cause seed tests to error and integration test to error).
+    Both the required schema validation and passing tests are not satisfied.
   task: 3bdd9fbbe2f22564e918fa557f1fa0a692391863aa29410cc131acc1db2b998a
 T002:
+  reason: The repository contains the `code/download_encode.py` script and the expected
+    output files, but the script only writes synthetic placeholder data from fake
+    URIs instead of streaming real ENCODE resources, and it does not abort on real
+    HTTP errors. Moreover, the required integration test `tests/integration/test_download.py`
+    is missing, so the verification step cannot be performed.
   task: d418178aef4af9aefbbac03d6ad110ca8d469d0f268fdd6e6d874d428b560b81
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/preprocess.py
+    exit=1'
   task: 8697b9d7bc5cd30ea629a96e2bdb6d454153133f14288c301a775f8521f02caa
 T004:
   task: f5113101ce321b8bd597aed7f2aecef107ed9d30675a2f55e200e956eb67a8c6

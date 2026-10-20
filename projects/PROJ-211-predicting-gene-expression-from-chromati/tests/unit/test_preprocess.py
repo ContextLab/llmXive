@@ -1,129 +1,82 @@
-import pytest
+import os
 import pandas as pd
 import numpy as np
-import os
-import tempfile
-import json
-from preprocess import (
-    DependencyError,
-    load_data,
-    save_data,
-    filter_genes_zero_expression,
-    impute_missing_values,
-    identify_housekeeping_genes,
-    identify_cell_type_specific_genes
+import pytest
+
+from code.preprocess import (
+    load_gene_coords,
+    load_peaks,
+    bin_aggregation,
+    load_all_counts,
+    filter_zero_expression,
+    log_transform,
+    impute_median,
+    merge_features_expression,
+    PROC_DIR,
+    RAW_DIR,
+    CELL_LINES,
 )
 
-@pytest.fixture
-def temp_dir():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
+@pytest.fixture(scope="module")
+def gene_coords():
+    return load_gene_coords()
 
-def create_test_csv(path, data, columns):
-    df = pd.DataFrame(data, columns=columns)
-    df.to_csv(path, index=False)
-    return path
+@pytest.fixture(scope="module")
+def peaks():
+    # Load peaks for the first cell line (GM12878) for testing
+    return load_peaks(CELL_LINES[0])
 
-def test_filter_genes_zero_expression():
-    """Test that genes with zero expression in all samples are filtered out."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, "input.csv")
-        output_path = os.path.join(tmpdir, "output.csv")
-        
-        # Create data: Gene A has expression, Gene B is all zeros
-        data = [
-            {"Gene": "Gene_A", "Sample1": 10, "Sample2": 20},
-            {"Gene": "Gene_B", "Sample1": 0, "Sample2": 0},
-            {"Gene": "Gene_C", "Sample1": 5, "Sample2": 0}
-        ]
-        create_test_csv(input_path, data, ["Gene", "Sample1", "Sample2"])
-        
-        filter_genes_zero_expression(input_path, output_path)
-        
-        result = pd.read_csv(output_path)
-        
-        assert len(result) == 2, "Expected 2 genes (A and C)"
-        assert "Gene_B" not in result["Gene"].values
+def test_bin_aggregation_shape(gene_coords, peaks):
+    binned = bin_aggregation(CELL_LINES[0], gene_coords, peaks)
+    # Should have one row per gene and 200 bin columns + gene_id
+    assert "gene_id" in binned.columns
+    bin_cols = [c for c in binned.columns if c.startswith("bin_")]
+    assert len(bin_cols) == 200
+    assert binned.shape[0] == gene_coords.shape[0]
 
-def test_impute_missing_values():
-    """Test that missing values are imputed with column median."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, "input.csv")
-        output_path = os.path.join(tmpdir, "output.csv")
-        
-        # Create data with NaN
-        data = [
-            {"Gene": "Gene_A", "Sample1": 10.0, "Sample2": np.nan},
-            {"Gene": "Gene_B", "Sample1": 20.0, "Sample2": 30.0},
-            {"Gene": "Gene_C", "Sample1": 30.0, "Sample2": 40.0}
-        ]
-        create_test_csv(input_path, data, ["Gene", "Sample1", "Sample2"])
-        
-        impute_missing_values(input_path, output_path)
-        
-        result = pd.read_csv(output_path)
-        
-        # Median of Sample1 (10, 20, 30) is 20. Median of Sample2 (30, 40) is 35.
-        # Gene_A Sample2 should be 35.0
-        gene_a_row = result[result["Gene"] == "Gene_A"]
-        assert np.isclose(gene_a_row["Sample2"].values[0], 35.0), "Imputation failed"
+def test_load_all_counts():
+    counts = load_all_counts()
+    # Expect 5 cell lines * 2 genes = 10 rows in the synthetic test data
+    assert counts.shape[0] == 10
+    assert set(counts["cell_line"]) == set(CELL_LINES)
 
-def test_identify_housekeeping_genes():
-    """Test housekeeping gene identification based on CV < 0.2."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, "input.csv")
-        output_path = os.path.join(tmpdir, "output.csv")
-        
-        # Gene A: Low variation (Mean=100, Std~10 -> CV=0.1)
-        # Gene B: High variation (Mean=50, Std~40 -> CV=0.8)
-        # Gene C: Moderate variation (Mean=100, Std~30 -> CV=0.3)
-        data = [
-            {"Gene": "Gene_A", "S1": 90, "S2": 100, "S3": 110}, # CV ~ 0.1
-            {"Gene": "Gene_B", "S1": 10, "S2": 50, "S3": 90},   # CV ~ 0.8
-            {"Gene": "Gene_C", "S1": 70, "S2": 100, "S3": 130}  # CV ~ 0.3
-        ]
-        create_test_csv(input_path, data, ["Gene", "S1", "S2", "S3"])
-        
-        identify_housekeeping_genes(input_path, output_path, cv_threshold=0.2)
-        
-        result = pd.read_csv(output_path)
-        
-        assert len(result) == 1, f"Expected 1 housekeeping gene, got {len(result)}"
-        assert result["Gene"].iloc[0] == "Gene_A"
+def test_filter_zero_expression():
+    counts = load_all_counts()
+    filtered = filter_zero_expression(counts)
+    # Gene ENSG000002 has zero count in all cell lines → should be removed
+    assert "ENSG000002" not in filtered["gene_id"].unique()
+    # Gene ENSG000001 should remain
+    assert "ENSG000001" in filtered["gene_id"].unique()
 
-def test_identify_cell_type_specific_genes():
-    """Test cell-type-specific gene identification based on CV > 0.5."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, "input.csv")
-        output_path = os.path.join(tmpdir, "output.csv")
-        
-        # Gene A: Low CV (0.1)
-        # Gene B: High CV (0.8)
-        data = [
-            {"Gene": "Gene_A", "S1": 100, "S2": 100, "S3": 100},
-            {"Gene": "Gene_B", "S1": 10, "S2": 50, "S3": 90}
-        ]
-        create_test_csv(input_path, data, ["Gene", "S1", "S2", "S3"])
-        
-        identify_cell_type_specific_genes(input_path, output_path, cv_threshold=0.5)
-        
-        result = pd.read_csv(output_path)
-        
-        assert len(result) == 1, f"Expected 1 cell-type-specific gene, got {len(result)}"
-        assert result["Gene"].iloc[0] == "Gene_B"
+def test_log_transform():
+    counts = load_all_counts()
+    filtered = filter_zero_expression(counts)
+    logged = log_transform(filtered)
+    assert "log_count" in logged.columns
+    # Verify transformation for a known count (123)
+    val = logged.loc[logged["count"] == 123, "log_count"].iloc[0]
+    assert np.isclose(val, np.log(124))
 
-def test_dependency_error_on_blocked_input():
-    """Test that DependencyError is raised when input is blocked."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, "input.csv")
-        blocked_path = f"{input_path}.blocked"
-        output_path = os.path.join(tmpdir, "output.csv")
-        
-        # Create blocked marker
-        with open(blocked_path, 'w') as f:
-            json.dump({"status": "blocked", "reason": "Test reason"}, f)
-        
-        with pytest.raises(DependencyError) as excinfo:
-            identify_housekeeping_genes(input_path, output_path)
-        
-        assert "blocked" in str(excinfo.value).lower()
+def test_impute_median():
+    # Create a small DataFrame with NaNs
+    df = pd.DataFrame({
+        "gene_id": ["g1", "g2"],
+        "bin_1": [1.0, np.nan],
+        "bin_2": [np.nan, 3.0],
+    })
+    imputed = impute_median(df)
+    # Median of bin_1 is 1.0, bin_2 is 3.0
+    assert imputed.loc[imputed["gene_id"] == "g2", "bin_1"].iloc[0] == 1.0
+    assert imputed.loc[imputed["gene_id"] == "g1", "bin_2"].iloc[0] == 3.0
+
+def test_merge_features_expression(gene_coords, peaks):
+    binned = bin_aggregation(CELL_LINES[0], gene_coords, peaks)
+    counts = load_all_counts()
+    filtered = filter_zero_expression(counts)
+    logged = log_transform(filtered)
+    merged = merge_features_expression(binned, logged, CELL_LINES[0])
+    # Should contain gene_id, 200 bins, and log_expression
+    assert "log_expression" in merged.columns
+    assert merged.shape[0] == binned.shape[0]
+    bin_cols = [c for c in merged.columns if c.startswith("bin_")]
+    assert len(bin_cols) == 200

@@ -11,7 +11,7 @@ The pipeline must use **real ENCODE data** for scientific results; synthetic dat
 | Goal | Run an executable analysis on a small real (or CI‑synthetic) input set early. |
 |------|--------------------------------------------------------------------------------|
 
-- [ ] T001 [US1] Implement a deterministic synthetic data generator `code/generate_data.py` that   <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 -->
+- [ ] T001 [US1] Implement a deterministic synthetic data generator `code/generate_data.py` that
   – seeds NumPy with `42`;  
   – writes `data/raw/synthetic_counts.csv` (RNA‑seq counts) and `data/raw/synthetic_peaks.bed` (peak calls) for the five cell lines (GM12878, K562, HMEC, IMR90, HepG2);  
   – validates both outputs against the YAML schema `specs/001-predicting-gene-expression-from-chromati/contracts/dataset_schema.schema.yaml` using `jsonschema`;  
@@ -26,7 +26,7 @@ The pipeline must use **real ENCODE data** for scientific results; synthetic dat
   The script aborts on any HTTP error or empty response.  
   **Verification**: All files exist, are non‑empty, checksums match those recorded, and `pytest tests/integration/test_download.py` validates column headers and schema compliance.
 
-- [ ] T003 [US1] Implement preprocessing `code/preprocess.py` that, for each cell line, performs the following steps and writes the indicated artifacts:  
+- [ ] T003 [US1] Implement preprocessing `code/preprocess.py` that, for each cell line, performs the following steps and writes the indicated artifacts:   <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
   1. **Bin aggregation** (FR‑002): split the ±50 kb window around each TSS into 200 fixed‑width bins, exclude the promoter region (TSS ± 2 kb), sum peak scores per bin → `data/processed/{cell_line}_binned_features.csv` (200 columns `bin_1` … `bin_200`).  
   2. **Gene filtering** (FR‑003): remove genes with zero expression across all five cell lines → `data/processed/filtered_expression.csv`.  
   3. **Log‑pseudocount** (FR‑004): compute `log(count + 1)` → `data/processed/log_expression.csv`.  

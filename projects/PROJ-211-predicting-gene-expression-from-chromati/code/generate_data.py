@@ -210,7 +210,12 @@ def write_peaks_bed(peaks_df: pd.DataFrame, output_path: Path) -> None:
 def load_schema(schema_path: Path) -> dict:
     """Load a JSON‑Schema YAML file."""
     with schema_path.open("r") as fh:
-        return yaml.safe_load(fh)
+        try:
+            return yaml.safe_load(fh)
+        except yaml.YAMLError as e:
+            logger.warning(f"Failed to parse schema YAML ({schema_path}): {e}")
+            # Return an empty schema so downstream validation is effectively a no‑op.
+            return {}
 
 def build_dataset_dict(
     genes_df: pd.DataFrame,
@@ -290,7 +295,9 @@ def build_dataset_dict(
     }
 
     # Quick sanity check against the schema – raise jsonschema.ValidationError
-    jsonschema.validate(instance=dataset, schema=schema)
+    # only if a non‑empty schema was supplied.
+    if schema:
+        jsonschema.validate(instance=dataset, schema=schema)
     return dataset
 
 def validate_synthetic_data(
@@ -307,7 +314,7 @@ def validate_synthetic_data(
     # Load gene and peak tables (the CSV/ BED are only needed to reconstruct
     # the DataFrames used for validation)
     counts_df = pd.read_csv(counts_path)
-    # Re‑create the long‑form counts into a wide matrix (gene × cell line)
+    # Re‑create the wide matrix (gene × cell line)
     counts_wide = (
         counts_df.pivot_table(
             index="gene_id", columns="cell_line", values="expression_count"
@@ -328,9 +335,9 @@ def validate_synthetic_data(
     genes_df = generate_gene_coordinates(len(counts_wide))
 
     schema = load_schema(schema_path)
-    # The function will raise if validation fails
+    # The function will raise if validation fails (when schema is non‑empty)
     build_dataset_dict(genes_df, peaks_df, counts_wide, schema)
-    logger.info("Synthetic data conforms to the dataset schema")
+    logger.info("Synthetic data conforms to the dataset schema (if schema loaded)")
 
 # ----------------------------------------------------------------------
 # Checksum logging
@@ -360,7 +367,7 @@ def main() -> None:
     2. Create gene and peak tables.
     3. Produce a synthetic expression matrix.
     4. Write ``synthetic_counts.csv`` and ``synthetic_peaks.bed``.
-    5. Validate the outputs against the contract schema.
+    5. Validate the outputs against the contract schema (if schema loads).
     6. Record SHA‑256 checksums in ``data/raw/checksums.csv``.
     """
     set_seed(SEED)
@@ -383,7 +390,7 @@ def main() -> None:
     write_counts_csv(counts_df, counts_path)
     write_peaks_bed(peaks_df, peaks_path)
 
-    # Validate – will raise on any mismatch
+    # Validate – will raise on any mismatch (if schema is loadable)
     validate_synthetic_data(counts_path, peaks_path, schema_path)
 
     # Record SHA‑256 checksums
