@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T03:19:07.490064Z'
-current_stage: clarified
+current_stage: specified
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-389-the-impact-of-simulated-social-compariso
-last_run_id: c268f77f-b404-4159-ab85-57352a311125
+last_run_id: 8778736e-1554-4060-be8b-8f6202207494
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-389-the-impact-of-simulated-social-compariso/specs/001-the-impact-of-simulated-social-compariso
 title: The Impact of Simulated Social Comparison on Self-Evaluation in Online Environments
-updated_at: '2026-10-20T13:19:54.435334Z'
+updated_at: '2026-10-20T13:29:50.951982Z'

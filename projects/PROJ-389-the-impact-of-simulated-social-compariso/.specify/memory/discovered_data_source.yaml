@@ -1,0 +1,12 @@
+status: none
+intent: Pushshift Reddit comments dataset download python package dataset
+required_fields:
+- user_id
+- authenticity_cues_score
+- engagement_proxy_score
+- curated_aesthetics_score
+- sentiment_score
+- self_reference_intensity
+cache_key: 1139628d549d84cb4afcb89494d92f5bec5442a25fe0fa0780ce65da8d9f2e1c
+searched_at: '2026-10-20T13:22:28.927206+00:00'
+retry_count: 1
