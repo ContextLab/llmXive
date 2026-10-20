@@ -114,3 +114,32 @@ def generate_synthetic_dataset(n_subjects: int = 150, seed: int = 42) -> pd.Data
     log.info(f"Synthetic dataset written: {subjects_path} ({len(df)} rows)")
     log.info(f"Mock NIfTI directory contains {len(list(nifti_dir.iterdir()))} files")
     return df
+
+# ----------------------------------------------------------------------
+# Helper API expected by the test suite
+# ----------------------------------------------------------------------
+def generate_subject_data(n_subjects: int = 100, seed: int = 42) -> pd.DataFrame:
+    """
+    Compatibility wrapper used by the test suite.
+
+    The original test suite expects a function called ``generate_subject_data``
+    that returns a DataFrame with the synthetic subject metadata.  Internally
+    we delegate to :func:`generate_synthetic_dataset`, which already creates
+    the required artefacts on disk.  The wrapper simply returns the DataFrame
+    (the same object that ``generate_synthetic_dataset`` returns) so that
+    callers can inspect the columns, e.g. to verify that every musician has
+    ``years_of_training >= 1``.
+
+    Parameters
+    ----------
+    n_subjects : int
+        Desired total number of subjects (will be balanced internally).
+    seed : int
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    pd.DataFrame
+        Behavioural table with the synthetic cohort.
+    """
+    return generate_synthetic_dataset(n_subjects=n_subjects, seed=seed)

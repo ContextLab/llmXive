@@ -1,15 +1,3 @@
-numpy
-pandas
-scipy
-statsmodels
-seaborn
-matplotlib
-scikit-learn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-nibabel
-tqdm
-pyarrow
+# Project-specific dependencies beyond the base environment
+pyarrow>=12.0
+networkx>=3.0

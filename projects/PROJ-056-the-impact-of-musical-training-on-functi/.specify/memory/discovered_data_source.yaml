@@ -1,15 +1,16 @@
 status: none
-intent: ABCD Study and HCP Development resting-state fMRI NDA python package dataset
+intent: ABCD Study resting state fMRI NIH Data Archive python package dataset
 required_fields:
 - subject_id
-- group_label
-- resting_state_fmri_file_or_connectivity_matrix
+- group_label (musician vs non-musician)
+- musical_training_years
 - age
 - sex
-- head_motion_parameter
-- musical_training_years
+- mean_framewise_displacement (motion)
 - site
 - scanner_model
-cache_key: c14570f1d0f38700f74cf235378552bc55e1046d568d27f348ce95891cb45ec9
-searched_at: '2026-10-19T17:12:17.007201+00:00'
+- resting_state_fmri_nifti_path
+- preprocessed_connectivity_matrix (or flattened connectivity features)
+cache_key: 3311982ab295b66d0b536558aec1e6c780463023ad390bfef4bc5e11e09f7d0f
+searched_at: '2026-10-20T04:18:13.165567+00:00'
 retry_count: 1
