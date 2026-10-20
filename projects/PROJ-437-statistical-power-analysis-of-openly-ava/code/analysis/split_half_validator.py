@@ -1,291 +1,289 @@
 """
-Split-half validator for bootstrap power analysis.
+Split‑Half Validator.
 
-This module implements the bootstrap loop:
-1. Load full dataset
-2. For each sample size, run >= 50 random split-half iterations
-3. Subsample subjects into train/test sets per iteration
-4. Fit GLM on training half
-5. Check convergence and magnitude/direction match
-6. Aggregate replication success rates
+Implements the bootstrap split‑half validation loop required by task T017.
+It consumes the GLM fitting utilities from ``analysis.glm_fitter`` and
+ensures strict separation of training and test subjects via the data
+leakage guard.
+
+The script writes two JSON artefacts:
+
+* ``data/derived/replication_results/individual_results.json`` – a list of per‑iteration
+  replication records.
+* ``data/aggregated/split_half_results.json`` – aggregated replication rates per
+  sample‑size / kernel configuration.
+
+The module can also be invoked as a CLI for quick manual runs.
 """
 
-import gc
+import argparse
 import json
 import logging
+import os
 import sys
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd
 
 from utils.seed_manager import set_global_seed, get_seed
 from utils.data_leakage_guard import verify_no_leakage, force_memory_isolation
-from analysis.glm_fitter import fit_glm_batch, ConvergenceLogger
+from analysis.glm_fitter import fit_glm_batch
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
-class SplitHalfValidationError(Exception):
-    """Raised when split-half validation fails."""
-    pass
 
-def load_preprocessed_data(data_path: Union[str, Path]) -> pd.DataFrame:
+def load_config(config_path: str) -> Dict[str, Any]:
+    """Very small YAML/JSON loader (mirrors ``code/main.py``)."""
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+
+    with open(config_path, "r") as f:
+        if config_path.endswith(".json"):
+            return json.load(f)
+        # Very simple YAML parser – only top‑level key: value pairs
+        cfg: Dict[str, Any] = {}
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and ":" in line:
+                key, val = line.split(":", 1)
+                cfg[key.strip()] = val.strip().strip("\"'")
+        return cfg
+
+
+def _prepare_data(data_path: Path) -> pd.DataFrame:
     """
-    Load preprocessed ROI timeseries data.
-    
-    Args:
-        data_path: Path to the data file.
-        
-    Returns:
-        DataFrame with subject data.
+    Load the ROI timeseries CSV produced by the preprocessing step.
+
+    Expected format: at least a ``subject_id`` column and one or more
+    numeric columns representing the extracted signal.  For the purpose
+    of the split‑half validation we treat each row as a subject.
+
+    Raises:
+        FileNotFoundError: If the CSV does not exist.
     """
-    data_path = Path(data_path)
     if not data_path.exists():
-        raise FileNotFoundError(f"Preprocessed data not found: {data_path}")
-    
-    if data_path.suffix == '.csv':
-        return pd.read_csv(data_path)
-    elif data_path.suffix == '.npy':
-        data = np.load(data_path)
-        if data.ndim == 3:
-            n_subjects, n_timepoints, n_rois = data.shape
-            df = pd.DataFrame(
-                data.reshape(n_subjects, -1),
-                columns=[f'feature_{i}' for i in range(n_timepoints * n_rois)]
-            )
-        else:
-            df = pd.DataFrame(data)
-        return df
-    else:
-        raise ValueError(f"Unsupported file format: {data_path.suffix}")
+        raise FileNotFoundError(f"ROI timeseries file not found: {data_path}")
 
-def validate_split_half(train_data: pd.DataFrame, test_data: pd.DataFrame, 
-                        design_matrix: np.ndarray, seed: int) -> Dict[str, Any]:
+    df = pd.read_csv(data_path)
+    if "subject_id" not in df.columns:
+        # If there is no explicit ID column we create one from the index
+        df = df.reset_index().rename(columns={"index": "subject_id"})
+    return df
+
+
+def _bootstrap_iteration(
+    df: pd.DataFrame,
+    sample_size: int,
+    kernel: str,
+    iteration_id: int,
+    alpha: float,
+    magnitude_tolerance: float,
+    seed: int,
+) -> Dict[str, Any]:
     """
-    Perform a single split-half validation iteration.
-    
-    Args:
-        train_data: Training set data.
-        test_data: Test set data.
-        design_matrix: Design matrix for GLM.
-        seed: Random seed for this iteration.
-        
-    Returns:
-        Dictionary with replication success status and metrics.
+    Perform a single bootstrap iteration.
+
+    Returns a dictionary with the fields required by the replication
+    result schema.
     """
-    set_global_seed(seed)
-    
-    # Verify no data leakage
-    try:
-        verify_no_leakage(train_data, test_data)
-    except Exception as e:
-        logger.error(f"Data leakage detected: {e}")
-        return {
-            "replication_success": 0,
-            "reason": "data_leakage",
-            "error": str(e)
-        }
-    
-    # Fit GLM on training data
-    train_result = fit_glm_batch(
-        train_data, design_matrix, len(train_data), seed=seed,
-        iteration_id=seed, paradigm="split_half"
+    # Ensure reproducibility for this iteration
+    set_global_seed(seed + iteration_id)
+
+    # Determine how many subjects we need (two halves)
+    required = sample_size * 2
+    if required > len(df):
+        # Down‑sample to the maximum possible while keeping halves equal
+        actual_n = len(df) // 2 * 2
+        logger.warning(
+            f"Requested {required} subjects but only {len(df)} available; "
+            f"using {actual_n} (sample_size={actual_n // 2})."
+        )
+        sample_size = actual_n // 2
+        required = actual_n
+
+    # Randomly sample without replacement
+    sampled = df.sample(n=required, random_state=get_seed()).reset_index(drop=True)
+    train_df = sampled.iloc[:sample_size].copy()
+    test_df = sampled.iloc[sample_size:].copy()
+
+    # Verify strict separation
+    verify_no_leakage(train_df["subject_id"], test_df["subject_id"])
+
+    # Simple design matrix: intercept only (shape: n_samples x 1)
+    design = np.ones((sample_size, 1))
+    test_design = np.ones((sample_size, 1))
+
+    # Fit GLM on training half
+    train_res = fit_glm_batch(
+        data=train_df,
+        design_matrix=design,
+        sample_size=sample_size,
+        seed=seed + iteration_id,
+        iteration_id=iteration_id,
+        paradigm=f"split_half_{kernel}",
     )
-    
-    if not train_result['converged']:
-        return {
-            "replication_success": 0,
-            "reason": "train_convergence_failure",
-            "train_effect_size": train_result['effect_size']
-        }
-    
-    # Fit GLM on test data
-    test_result = fit_glm_batch(
-        test_data, design_matrix, len(test_data), seed=seed + 1000,
-        iteration_id=seed + 1000, paradigm="split_half"
+
+    # Fit GLM on test half (using same function for consistency)
+    test_res = fit_glm_batch(
+        data=test_df,
+        design_matrix=test_design,
+        sample_size=sample_size,
+        seed=seed + iteration_id + 1000,
+        iteration_id=iteration_id,
+        paradigm=f"split_half_test_{kernel}",
     )
-    
-    if not test_result['converged']:
-        return {
-            "replication_success": 0,
-            "reason": "test_convergence_failure",
-            "train_effect_size": train_result['effect_size'],
-            "test_effect_size": test_result['effect_size']
-        }
-    
-    # Check magnitude match (within 20%)
-    train_d = train_result['effect_size']
-    test_d = test_result['effect_size']
-    
-    if train_d == 0:
-        magnitude_match = (test_d == 0)
+
+    # Determine replication success
+    replication_success = 0
+    error_message = None
+
+    if not train_res.get("converged", False):
+        error_message = "Training GLM did not converge"
+    elif not test_res.get("converged", False):
+        error_message = "Test GLM did not converge"
     else:
-        magnitude_match = abs(test_d - train_d) <= 0.2 * abs(train_d)
-    
-    # Check direction match
-    direction_match = np.sign(train_d) == np.sign(test_d)
-    
-    # Check p-value threshold
-    p_threshold_match = test_result['p_value'] < 0.05
-    
-    replication_success = int(magnitude_match and direction_match and p_threshold_match)
-    
-    return {
-        "replication_success": replication_success,
-        "train_effect_size": train_d,
-        "test_effect_size": test_d,
-        "magnitude_match": magnitude_match,
-        "direction_match": direction_match,
-        "p_threshold_match": p_threshold_match,
-        "train_p_value": train_result['p_value'],
-        "test_p_value": test_result['p_value']
-    }
+        # Direction match
+        direction_match = np.sign(train_res["effect_size"]) == np.sign(test_res["effect_size"])
+        # Magnitude tolerance check
+        diff = abs(test_res["effect_size"] - train_res["effect_size"])
+        tolerance_ok = diff <= (magnitude_tolerance / 100.0) * abs(train_res["effect_size"])
+        # Alpha threshold on test p‑value
+        alpha_ok = test_res["p_value"] < alpha
 
-def run_split_half_validation(data: pd.DataFrame, sample_size: int, 
-                              n_iterations: int = 50, seed: Optional[int] = None,
-                              design_matrix: Optional[np.ndarray] = None) -> List[Dict[str, Any]]:
-    """
-    Run the full split-half validation loop.
-    
-    Args:
-        data: Full dataset.
-        sample_size: Number of subjects per half.
-        n_iterations: Number of bootstrap iterations.
-        seed: Random seed for reproducibility.
-        design_matrix: Optional design matrix.
-        
-    Returns:
-        List of iteration results.
-    """
-    if seed is None:
-        seed = get_seed()
-    
-    if design_matrix is None:
-        # Simple design: intercept only
-        design_matrix = np.ones((len(data), 1))
-    
-    results = []
-    total_success = 0
-    
-    for i in range(n_iterations):
-        iter_seed = seed + i
-        set_global_seed(iter_seed)
-        
-        # Split data into train/test
-        indices = np.random.permutation(len(data))
-        half = len(indices) // 2
-        
-        train_indices = indices[:half]
-        test_indices = indices[half:]
-        
-        train_data = data.iloc[train_indices].reset_index(drop=True)
-        test_data = data.iloc[test_indices].reset_index(drop=True)
-        
-        # Ensure we have enough data
-        if len(train_data) < 2 or len(test_data) < 2:
-            logger.warning(f"Iteration {i}: Insufficient data for split. Skipping.")
-            results.append({
-                "iteration": i,
-                "replication_success": 0,
-                "reason": "insufficient_data"
-            })
-            continue
-        
-        # Run validation
-        result = validate_split_half(train_data, test_data, design_matrix, iter_seed)
-        result['iteration'] = i
-        results.append(result)
-        
-        total_success += result['replication_success']
-        
-        # Force memory isolation between iterations
-        force_memory_isolation(train_data)
-        force_memory_isolation(test_data)
-        gc.collect()
-    
-    replication_rate = total_success / n_iterations if n_iterations > 0 else 0.0
-    
-    logger.info(f"Split-half validation complete. Replication rate: {replication_rate:.3f} ({total_success}/{n_iterations})")
-    
-    return results
+        if direction_match and tolerance_ok and alpha_ok:
+            replication_success = 1
 
-def aggregate_split_half_results(results: List[Dict[str, Any]], sample_size: int, 
-                                 kernel: str = "4s") -> Dict[str, Any]:
-    """
-    Aggregate split-half results into summary statistics.
-    
-    Args:
-        results: List of iteration results.
-        sample_size: Sample size used.
-        kernel: Smoothing kernel used.
-        
-    Returns:
-        Aggregated results dictionary.
-    """
-    successes = [r['replication_success'] for r in results if 'replication_success' in r]
-    total = len(successes)
-    rate = sum(successes) / total if total > 0 else 0.0
-    
     return {
+        "iteration_id": iteration_id,
         "sample_size": sample_size,
         "kernel": kernel,
-        "replication_rate": rate,
-        "iterations": total,
-        "successful_iterations": sum(successes),
-        "failed_iterations": total - sum(successes),
-        "details": results
+        "train_effect_size": float(train_res.get("effect_size", 0.0)),
+        "test_effect_size": float(test_res.get("effect_size", 0.0)),
+        "test_p_value": float(test_res.get("p_value", 1.0)),
+        "replication_success": replication_success,
+        "converged": int(train_res.get("converged", False) and test_res.get("converged", False)),
+        "error_message": error_message,
     }
 
-def save_split_half_results(aggregated_results: List[Dict[str, Any]], 
-                            output_path: str = "data/aggregated/split_half_results.json"):
-    """
-    Save aggregated split-half results to JSON.
-    
-    Args:
-        aggregated_results: List of aggregated result dictionaries.
-        output_path: Output file path.
-    """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(aggregated_results, f, indent=2)
-    
-    logger.info(f"Saved split-half results to {output_path}")
 
-def main():
-    """CLI entry point for split-half validation."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Run split-half validation")
-    parser.add_argument("--data", type=str, required=True, help="Path to preprocessed data")
-    parser.add_argument("--sample-size", type=int, default=10, help="Sample size per half")
-    parser.add_argument("--n-iterations", type=int, default=50, help="Number of iterations")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--kernel", type=str, default="4s", help="Smoothing kernel")
-    parser.add_argument("--output", type=str, default="data/aggregated/split_half_results.json", help="Output file")
-    
-    args = parser.parse_args()
-    
-    # Load data
-    data = load_preprocessed_data(args.data)
-    logger.info(f"Loaded {len(data)} subjects from {args.data}")
-    
-    # Run validation
-    results = run_split_half_validation(
-        data, args.sample_size, args.n_iterations, args.seed
+def run_split_half_validation(config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Core driver used by both the CLI entry point and the unit tests.
+
+    Returns a dictionary containing two keys:
+
+    * ``individual_results`` – list of per‑iteration dictionaries.
+    * ``aggregated_results`` – list of summary dictionaries per
+      ``sample_size`` / ``kernel`` pair.
+    """
+    # Resolve configuration entries
+    simulation_cfg = config.get("simulation", {})
+    sample_sizes = simulation_cfg.get("sample_sizes", [10, 20, 40, 60])
+    kernels = simulation_cfg.get("smoothing_kernels", ["4mm", "8mm"])
+    num_iterations = int(simulation_cfg.get("num_iterations", 50))
+    alpha = float(simulation_cfg.get("alpha_thresholds", [0.05])[0])
+    magnitude_tolerance = float(simulation_cfg.get("magnitude_tolerances", [20.0])[0])
+    seed = int(simulation_cfg.get("random_seed", 42))
+
+    # Load the processed ROI timeseries
+    roi_path = Path("data/derived/processed_roi/roi_timeseries.csv")
+    df = _prepare_data(roi_path)
+
+    # Prepare containers
+    individual_results: List[Dict[str, Any]] = []
+    aggregation: Dict[tuple, Dict[str, Any]] = {}
+
+    # Main bootstrap loops
+    iteration_counter = 0
+    for sample_size in sample_sizes:
+        for kernel in kernels:
+            for _ in range(num_iterations):
+                iteration_counter += 1
+                result = _bootstrap_iteration(
+                    df=df,
+                    sample_size=sample_size,
+                    kernel=kernel,
+                    iteration_id=iteration_counter,
+                    alpha=alpha,
+                    magnitude_tolerance=magnitude_tolerance,
+                    seed=seed,
+                )
+                individual_results.append(result)
+
+                key = (sample_size, kernel)
+                agg = aggregation.setdefault(
+                    key,
+                    {"sample_size": sample_size, "kernel": kernel, "replication_rate": 0, "iterations": 0},
+                )
+                agg["iterations"] += 1
+                agg["replication_rate"] += result["replication_success"]
+
+    # Finalise aggregation (convert sums to rates)
+    aggregated_results = []
+    for (sample_size, kernel), agg in aggregation.items():
+        rate = agg["replication_rate"] / agg["iterations"] if agg["iterations"] > 0 else 0.0
+        aggregated_results.append(
+            {
+                "sample_size": sample_size,
+                "kernel": kernel,
+                "replication_rate": rate,
+                "iterations": agg["iterations"],
+            }
+        )
+
+    # Write artefacts
+    individual_path = Path("data/derived/replication_results/individual_results.json")
+    aggregated_path = Path("data/aggregated/split_half_results.json")
+
+    individual_path.parent.mkdir(parents=True, exist_ok=True)
+    aggregated_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(individual_path, "w", encoding="utf-8") as f:
+        json.dump(individual_results, f, indent=2)
+
+    with open(aggregated_path, "w", encoding="utf-8") as f:
+        json.dump(aggregated_results, f, indent=2)
+
+    logger.info(f"Wrote {len(individual_results)} individual results to {individual_path}")
+    logger.info(f"Wrote aggregated summary to {aggregated_path}")
+
+    return {
+        "individual_results": individual_results,
+        "aggregated_results": aggregated_results,
+    }
+
+
+def main() -> int:
+    """
+    CLI entry point. Returns 0 on success, 1 on failure.
+    """
+    parser = argparse.ArgumentParser(
+        description="Run split‑half validation bootstrap loop."
     )
-    
-    # Aggregate
-    aggregated = aggregate_split_half_results(results, args.sample_size, args.kernel)
-    
-    # Save
-    save_split_half_results([aggregated], args.output)
-    
-    print(f"Split-half validation complete. Replication rate: {aggregated['replication_rate']:.3f}")
-    return aggregated
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="config.yaml",
+        help="Path to the configuration file (YAML or JSON).",
+    )
+    args = parser.parse_args()
+
+    try:
+        cfg = load_config(args.config)
+        run_split_half_validation(cfg)
+        return 0
+    except Exception as exc:
+        logger.error(f"Split‑half validation failed: {exc}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

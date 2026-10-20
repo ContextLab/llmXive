@@ -1,9 +1,16 @@
 status: none
-intent: OpenNeuro ds000030 motor task dataset download python package dataset
+intent: OpenNeuro BIDS fMRI datasets ds000030 ds000206 python package dataset
 required_fields:
 - subject_id
-- bold_time_series
-- event_timings
-cache_key: 0765cbef71814ccc77d2f4302a3108c7672ed6719c5735c7db669343d3274b65
-searched_at: '2026-10-16T20:08:43.457894+00:00'
+- run
+- task
+- nifti_image_path
+- json_metadata_path
+- events_tsv
+- acquisition_parameters
+- repetition_time
+- voxel_dimensions
+- scanner
+cache_key: 22ac58e651aaf7f57358be8457af142e99286e686c37b4b3fe34c645c09795bc
+searched_at: '2026-10-20T13:36:10.069920+00:00'
 retry_count: 1

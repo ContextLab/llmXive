@@ -6,7 +6,7 @@
 ## Verified completed work (preserved)
 
 - [ ] V01 Project scaffolding, `requirements.txt`, seed manager (`code/utils/seed_manager.py`), memory monitor, `SimulationConfig`/`ReplicationResult` models, timer, execution-order validator (prior T001a–T007, T038, T083).
-- [ ] V02 Real-data ingestion with fail‑loudly policy: `code/download/openneuro_fetcher.py` (stream‑first, `verify_real_source()`, no synthetic fallback), `data_validator.py`, `corruption_handler.py`, `streaming_chunker.py`, `data_integrity_hash.py`, `sampling_strategy.py`, `resource_guard.py` (prior T008, T009, T058, T062, T067, T071, T078, T079, T081).
+- [ ] V02 Real-data ingestion with fail‑loudly policy: `code/download/openneuro_fetcher.py` (stream‑first, `verify_real_source()`, no synthetic fallback), `data_validator.py`, `corruption_handler.py`, `streaming_chunker.py`, `data_integrity_hash.py`, `sampling_strategy.py`, `resource_guard.py` (prior T008, T009, T058, T062, T067, T071, T078, T079, T081). <!-- FAILED-IN-EXECUTION: code/download/openneuro_fetcher.py exit=1 -->
 - [ ] V03 Preprocessing: `code/preprocess/roi_extractor.py` and `temporal_smoothing.py` (CPU‑tractable ROI + temporal smoothing; kernels 4 mm / 8 mm spatial), with `pipeline_config_hash.py` and `docs/preprocessing_justification.md` (prior T012, T013, T076, T077a/b, T068a/b).
 - [ ] V04 Noise estimation and known‑truth signal injection: `code/simulation/noise_estimator.py` (`data/derived/noise_parameters.json`), synthetic‑data generation with real‑noise parameters and ground‑truth Cohen's d ∈ {0.0, 0.2, 0.5, 0.8, 1.0} (prior T014, T015).
 - [ ] V05 Data‑leakage guard `code/utils/data_leakage_guard.py` and its unit test (prior T066, T070).

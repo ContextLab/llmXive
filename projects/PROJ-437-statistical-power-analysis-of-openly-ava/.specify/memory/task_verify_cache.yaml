@@ -1,29 +1,10 @@
-T016:
+V01:
   c: false
-  h: af2c37b242bc1f0a209a7f758f02ba05e8cf38200139787c058a7d4807dcd7d1
-  r: "The provided `code/analysis/glm_fitter.py` is truncated (ends mid\u2011statement)\
-    \ and does not contain a complete reusable function that fits a GLM, computes\
-    \ Cohen\u2019s\u202Fd, returns the required `{\"effect_size\":\u2026, \"p_value\"\
-    :\u2026, \"converged\":\u2026}` dict, nor does it actually write any entries to\
-    \ `data/aggregated/convergence_log.json` (the file is missing). The task\u2019\
-    s core functionality and logging are therefore not satisfied."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated `README.md` file was provided or shown, and there is no evidence that
-    CLI usage examples or installation instructions have been added. The required
-    documentation artifact is missing, so the task is not satisfied.
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files (e.g., `utils/bootstrap_aggregator.py` or a modified `power_curve_generator.py`)\
-    \ were presented, so we cannot confirm that the aggregation logic was extracted\
-    \ or that a clean multi\u2011kernel, multi\u2011alpha API was added. The required\
-    \ artifacts are missing."
-T049:
-  c: false
-  h: 196de7dfc559b62426c8003f31c909be2bdef3c0b6f4ecf16ba2fdf6250da59a
-  r: "The provided `code/utils/convergence_monitor.py` is truncated (e.g., the tolerance\
-    \ check line is incomplete) and does not contain logic to write the flagged iterations\
-    \ to `results/paper/convergence_report.md`. Moreover, the required `results/paper/convergence_report.md`\
-    \ file is absent. The task\u2019s output specifications are therefore not satisfied."
+  h: 2b652d05515c22eba31ad8f1a5d0e1d64e1cf0393d790b812f4dbb1881e5922a
+  r: "Checked `requirements.txt` (present, non\u2011empty) and `code/utils/seed_manager.py`\
+    \ (implements a full seed\u2011setting API). The task also required a memory\u2011\
+    monitor module, `SimulationConfig` and `ReplicationResult` model classes, a timer\
+    \ utility, and an execution\u2011order validator, but no corresponding artifacts\
+    \ were found in the provided evidence. These essential components are missing,\
+    \ so the scaffold is incomplete."
+  sig: b7ee0761009349f3ac1e2de8d4e95970ab28c58599b67afda98575b705c523f9

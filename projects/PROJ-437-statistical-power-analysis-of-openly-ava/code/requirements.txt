@@ -1,12 +1,19 @@
-cudnn  # auto-added: imported by run-book but missing from venv
-datasets  # auto-added: imported by run-book but missing from venv
-nibabel  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-psutil  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
-statsmodels  # auto-added: imported by run-book but missing from venv
-tensorflow  # auto-added: imported by run-book but missing from venv
-torch  # auto-added: imported by run-book but missing from venv
-pandas  # auto-added: imported by run-book but missing from venv
-scikit-learn  # auto-added: imported by run-book but missing from venv
-pyyaml  # auto-added: imported by run-book but missing from venv
+# Core dependencies
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+scikit-learn>=1.2.0
+statsmodels>=0.14.0
+nibabel>=5.0.0
+nilearn>=0.10.0
+datasets>=2.14.0
+mne>=1.5.0
+bidslib>=1.0.0
+pybids>=0.16.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+tqdm>=4.65.0
+PyYAML>=6.0
+requests>=2.31.0
+joblib>=1.3.0
+psutil>=5.9.0
