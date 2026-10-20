@@ -35,15 +35,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 14, in <module>
-    from code.analysis.coupling_functions import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/coupling_functions.py", line 49, in <module>
-    V: Union[pd.Series, pd.DataFrame],
-       ^^^^^
-NameError: name 'Union' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 81, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/logging.py", line 76, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 40, in main
+    raise FileNotFoundError(
+FileNotFoundError: Aligned data not found at data/processed/aligned_hourly.parquet. Run the alignment step before executing the main driver.
 
 - python -m pytest tests/ -> rc=2
-OR collecting projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit/test_regression.py _
+505-exploring-the-statistical-relationship-b/code/ingestion/align.py)
+_ ERROR collecting projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit/test_regression.py _
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit/test_regression.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
@@ -53,11 +56,10 @@ tests/unit/test_regression.py:14: in <module>
     from analysis.regression import (
 E   ImportError: cannot import name '_check_multicollinearity' from 'analysis.regression' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/regression.py)
 =========================== short test summary info ============================
-ERROR tests/unit/test_coupling.py - NameError: name 'Union' is not defined
 ERROR tests/unit/test_ingestion.py
 ERROR tests/unit/test_regression.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 1.47s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 2 errors in 1.27s ===============================
 
 
 - python -m code.ingestion.download_real --start 2000-01-01 --end 2020-12-31 -> rc=1
@@ -80,12 +82,14 @@ ConnectionError: Failed to fetch OMNI hourly from CDAWeb via pyspedas: pyspedas 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 14, in <module>
-    from code.analysis.coupling_functions import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/coupling_functions.py", line 49, in <module>
-    V: Union[pd.Series, pd.DataFrame],
-       ^^^^^
-NameError: name 'Union' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 81, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/logging.py", line 76, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 40, in main
+    raise FileNotFoundError(
+FileNotFoundError: Aligned data not found at data/processed/aligned_hourly.parquet. Run the alignment step before executing the main driver.
 
 
 ## Declared deliverables still missing

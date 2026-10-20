@@ -9,35 +9,31 @@ T001:
   sig: 27e7b17d476c498fc322f887de7eb3ed4922287189daa646dbe4eff9576c21a7
 T002:
   c: false
-  h: 82c1962c4411e0326e131bec76b93747c53aace2091e28a5e7f911d85a2593e2
-  r: "The refactored `code/utils/io.py` correctly implements a fallback to `fastparquet`\
-    \ and provides `load_parquet` and `save_parquet`, but there is no evidence that\
-    \ the required test (`pytest tests/unit/test_io.py`) actually runs and passes\
-    \ on a system without `pyarrow`. Execution logs or a test report confirming the\
-    \ fallback works (and that a parquet file is written, read back identically, and\
-    \ its SHA\u2011256 checksum matches) are missing. Provide the test run output\
-    \ or CI log demonstrating the passing test in the specified environment."
-  sig: 57d81a2c5631d304d50014b94b9adb6410d74551b5454f5e57c212a122d397d0
+  h: e3d6c70c40ca513288f2ef21ba37cd84278c0dd6f252e602c84a41c2af9b65ba
+  r: "Checked `code/utils/io.py` and the pytest run log `code/.tasks/T002.tests_unit_test_io.py.log`.\
+    \ The test `test_parquet_io_without_pyarrow` fails because `_get_parquet_engine`\
+    \ cannot import either `pyarrow` or a functional `fastparquet` (the installed\
+    \ fastparquet raises an ImportError), causing `save_parquet` to raise an ImportError\
+    \ instead of writing and reading the file. The required fallback to fastparquet\
+    \ does not work, so the task\u2019s verification condition is not met."
+  sig: a61952c6796de77351fa4f2a9aa55158818bdff8a6e9ed5e03bd771680b8b6e4
 T003:
   c: false
-  h: 9fba56efc4fef226af9c9aa98f7db2075b64d845ebec02de46853841740ea4ac
-  r: The `code/ingestion/download_real.py` script exists and contains the required
-    logic, and the integration tests verify checksum calculation and error handling.
-    However, the required raw data directories (`data/raw/ace_swics/`, `data/raw/wind_sms/`,
-    `data/raw/omni/`) and the `data/raw/checksums.yaml` file are missing, so the script
-    has not actually fetched and stored the real CDF files as mandated. The task is
-    therefore incomplete until the raw CDF files are downloaded and preserved and
-    the checksum manifest is generated.
-  sig: a00fa100b5853d00e693bcc19ebfa7f0d875441686a8ea302fba76cadaef169d
+  h: b632888918ea5a904b792ebb0171d38978c92d341e87bad4a4dc70bd91915498
+  r: "The required raw data directories (`data/raw/ace_swics/`, `data/raw/wind_sms/`,\
+    \ `data/raw/omni/`) and the `data/raw/checksums.yaml` file are missing, so the\
+    \ ingestion script has not produced the mandated artifacts. The tests skip when\
+    \ no cached CDFs are present, so they do not prove successful real\u2011data download.\
+    \ The task needs the script to be executed (or the raw files provided) so that\
+    \ the directories and checksum file exist and contain the expected contents."
+  sig: 021f833755df0ddf5d4bc3f74d31cb9f3f56133d11e43dc14373a28c634442b1
 T004:
   c: false
-  h: 3d2a7f1560468873dbcdff36d755b64c3e5775cbd5035ce19836501aa79b19dd
-  r: The `align.py` implementation cannot pass the provided `tests/unit/test_align.py`
-    because `_load_omni_bulk` looks for OMNI variables named `V`, `N`, `By`, `Bz`,
-    `Dst`, `Kp`, etc., while the synthetic CSV created in the test uses names like
-    `velocity_km_s`, `density_cm3`, `imf_by_nT`, `imf_bz_nT`, `dst_index`, `kp_index`.
-    This mismatch causes `_load_omni_bulk` to raise an `AlignmentError`, so the script
-    never produces `aligned_hourly.parquet` or `alignment_report.json`. The required
-    variable naming (or a mapping layer) must be added for the test (and real data)
-    to succeed.
-  sig: 345fdfb5a086be06480e1d4934d9e3c55c7876c7e301c20d6441be8c92284d44
+  h: e69945d9cffc7497d4313802f561ec4546270bfc9fc61e9220f9daa67f778d33
+  r: "The repository lacks the required output artifacts `data/processed/aligned_hourly.parquet`\
+    \ and `data/artifacts/alignment_report.json`; they are marked MISSING. Consequently\
+    \ the task\u2019s core deliverables are not present despite the implementation\
+    \ and unit test existing. Generating these files at the specified locations (and\
+    \ ensuring they meet the schema and gap\u2011flagging requirements) is needed\
+    \ to complete the task."
+  sig: c17be1aeae12eb37cf4734aa51e233ac59da3824aaee8f2a8c4df7b7c8aa4584

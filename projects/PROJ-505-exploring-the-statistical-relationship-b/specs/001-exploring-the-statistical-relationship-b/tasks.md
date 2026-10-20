@@ -32,7 +32,7 @@
   *File*: `code/ingestion/align.py`.  
   *Verification*: `pytest tests/unit/test_align.py` passes (one row per hour, monotonic timestamps, `max_offset_minutes ≤ 30`, schema validation, core columns non‑null, alignment report lists any >6 h gaps).
 
-- [ ] **T005** [US2] Derive the **Akasofu ε** and **Newell dΦ/dt** coupling functions from bulk parameters (velocity, density, IMF magnitude, Bz) and append them to the aligned dataset.   <!-- FAILED-IN-EXECUTION: code/analysis/coupling_functions.py exit=1 -->
+- [ ] **T005** [US2] Derive the **Akasofu ε** and **Newell dΦ/dt** coupling functions from bulk parameters (velocity, density, IMF magnitude, Bz) and append them to the aligned dataset.   <!-- FAILED-IN-EXECUTION: code/analysis/coupling_functions.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/analysis/coupling_functions.py exit=1 -->
   *Output*: `data/processed/with_coupling.parquet`.  
   *File*: `code/analysis/coupling_functions.py` (function signatures `compute_epsilon(row)` and `compute_newell(row)` must match spec).  
   *Verification*: `pytest tests/unit/test_coupling.py` passes (hand‑crafted row yields ε and Newell values within 1e‑6 relative tolerance); script produces the parquet file without errors.

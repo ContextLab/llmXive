@@ -1,17 +1,19 @@
 status: none
-intent: ACE SWICS WIND composition CDAWeb NOAA Dst Kp hourly dataset python package
-  dataset
+intent: download OMNI2 hourly solar wind composition and geomagnetic indices dataset
+  python
 required_fields:
 - timestamp
-- O_Fe_ratio
-- He_H_ratio
-- C_O_ratio
+- O/Fe
+- He/H
+- C/O
 - solar_wind_speed
 - proton_density
+- IMF_Bx
+- IMF_By
 - IMF_Bz
-- Dst_index
-- Kp_index
-- coupling_function
-cache_key: 6b4c7cb26f88299d9563a92d2b7a9c5c6a3ab91e487c7929a9e85b026b97640f
-searched_at: '2026-10-20T19:18:44.977406+00:00'
+- Dst
+- Kp
+- epsilon_coupling_function
+cache_key: 5e2a5a24dbdb39a6b11e0358b851a3a12be64414342f8a096eb8ab0eba3745d1
+searched_at: '2026-10-20T19:24:51.068702+00:00'
 retry_count: 1

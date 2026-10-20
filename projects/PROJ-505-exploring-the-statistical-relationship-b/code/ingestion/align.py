@@ -123,12 +123,16 @@ def _load_wind_composition(raw_dir: Path) -> pd.DataFrame:
 def _load_omni_bulk(raw_dir: Path) -> pd.DataFrame:
     """
     Load OMNI hourly bulk parameters and geomagnetic indices.
-    Expected variables (any of the following names are accepted):
-      - Velocity: ``V``, ``flow_speed``, ``velocity``
-      - Density: ``N``, ``density``
-      - IMF components: ``By``, ``Bz``, ``Bt`` (total field)
-      - Dst index: ``Dst``
-      - Kp index: ``Kp``
+    Accepts a range of possible variable names for each required field
+    (both the original CDAWeb names and the names used by the unit tests).
+    Returns a DataFrame with standardized column names:
+        - velocity_km_s
+        - density_cm3
+        - imf_by_nT
+        - imf_bz_nT
+        - imf_nT
+        - dst_index
+        - kp_index
     """
     dfs = []
     file_paths = sorted(list(raw_dir.rglob('*.cdf')) + list(raw_dir.rglob('*.csv')))
@@ -144,18 +148,23 @@ def _load_omni_bulk(raw_dir: Path) -> pd.DataFrame:
                         return cdf.varget(name)
                 raise AlignmentError(f"None of {possible_names} found in {cdf_path}")
 
-            velocity = _find_var(['V', 'flow_speed', 'velocity'])
-            density = _find_var(['N', 'density'])
-            by = _find_var(['By'])
-            bz = _find_var(['Bz'])
-            # Some datasets provide total field directly; otherwise compute from components
+            # Velocity
+            velocity = _find_var(['V', 'flow_speed', 'velocity', 'velocity_km_s'])
+            # Density
+            density = _find_var(['N', 'density', 'density_cm3'])
+            # IMF components
+            by = _find_var(['By', 'imf_by_nT'])
+            bz = _find_var(['Bz', 'imf_bz_nT'])
+            # Total IMF magnitude (Bt) – can be provided directly or computed
             try:
-                bt = _find_var(['Bt'])
+                bt = _find_var(['Bt', 'imf_nT'])
             except AlignmentError:
+                # Compute from components if total not present
                 bt = np.sqrt(by.astype(float) ** 2 + bz.astype(float) ** 2)
 
-            dst = _find_var(['Dst'])
-            kp = _find_var(['Kp'])
+            # Geomagnetic indices
+            dst = _find_var(['Dst', 'dst_index'])
+            kp = _find_var(['Kp', 'kp_index'])
 
             df = pd.DataFrame({
                 'timestamp': times,
@@ -254,9 +263,11 @@ def align_data(ace_dir: Path, wind_dir: Path, omni_dir: Path,
     )
 
     # Record the maximum temporal offset actually used (for verification)
-    time_diff = (merged['timestamp'] - omni_df.set_index('timestamp')
-                 .reindex(merged['timestamp'], method='nearest')
-                 .index.to_series()).abs()
+    # Compute the absolute difference between the merged timestamps and the
+    # nearest OMNI timestamps.
+    nearest_omni = omni_df.set_index('timestamp').reindex(
+        merged['timestamp'], method='nearest')
+    time_diff = (merged['timestamp'] - nearest_omni.index.to_series()).abs()
     max_offset_minutes = time_diff.max().total_seconds() / 60.0
 
     # ------------------------------------------------------------------
@@ -297,6 +308,7 @@ def align_data(ace_dir: Path, wind_dir: Path, omni_dir: Path,
         json.dump(report, f, indent=2)
     logger.info(f"Alignment report written to {report_path}")
 
+
 def main() -> None:
     """
     CLI entry point for the alignment script.
@@ -316,10 +328,11 @@ def main() -> None:
     align_data(
         ace_dir=ace_dir,
         wind_dir=wind_dir,
-        omni_dir=omi_dir,
+        omni_dir=omni_dir,
         output_path=output_path,
         report_path=report_path,
     )
+
 
 if __name__ == '__main__':
     main()
