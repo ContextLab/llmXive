@@ -1,3 +1,3 @@
 """
-Configuration subpackage – provides access to core pipeline settings.
+Package marker for the configuration module.
 """

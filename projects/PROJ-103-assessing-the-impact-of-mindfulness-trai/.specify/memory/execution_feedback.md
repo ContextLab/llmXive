@@ -80,7 +80,7 @@ ERROR tests/unit/test_preprocessing.py
 ERROR tests/unit/test_settings.py
 ERROR tests/unit/test_verify_variables.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 0.65s ===============================
+============================== 5 errors in 0.88s ===============================
 
 
 - python -m pytest tests/integration/test_full_pipeline.py -v -> rc=4
