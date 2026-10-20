@@ -17,6 +17,7 @@ The ``run`` sub‑command now creates real output files:
   - ``data/raw/run_001.csv`` – per‑node benchmark results.
   - ``data/raw/validation_status.json`` – simple validation flag.
   - ``data/raw/dropout_events.json`` – placeholder (empty list).
+  - ``data/raw/task_chunks/run_001.jsonl`` – persisted ``TaskChunk`` records.
 
 All paths are created via ``llmxive_toolkit.paths`` which ensures the
 directories exist.  The implementation uses the existing
@@ -39,6 +40,15 @@ from orchestrator.benchmark import (
     BenchmarkConfig,
     run_monte_carlo_integration,
 )
+
+# Import the new TaskChunk persistence helper
+from orchestrator.task_chunk_store import TaskChunkStore
+
+# Runtime tracking utilities
+from orchestrator.runtime_tracker import start as rt_start, stop as rt_stop
+
+# Timeout guard utilities (used by the watchdog)
+from orchestrator.timeout_guard import enforce_pipeline_timeout, PipelineTimeoutError
 
 log = get_logger(__name__)
 
@@ -215,13 +225,28 @@ def _handle_verify(args: argparse.Namespace) -> int:
     log.info("Configuration %s loaded successfully", cfg_path)
     return 0
 
+@enforce_pipeline_timeout(18000)  # default 5 h watchdog (hard CI cap enforced later)
 def _handle_run(args: argparse.Namespace) -> int:
     """Handle the ``run`` sub‑command.
 
     This implementation performs a tiny Monte‑Carlo benchmark on a
-    mock set of nodes, records dummy instrumentation metrics, and
-    writes the artefacts required by later contract‑validation tests.
+    mock set of nodes, records dummy instrumentation metrics, writes the
+    artefacts required by later contract‑validation tests, and persists
+    ``TaskChunk`` records via :class:`orchestrator.task_chunk_store.TaskChunkStore`.
     """
+    # Determine the hard timeout for this run from the config (or fallback)
+    try:
+        from orchestrator.config import load_config
+        cfg_mgr = load_config(args.config)
+        cfg = cfg_mgr.get()
+        max_hours = cfg.get("analysis", {}).get("max_runtime_hours", 5)
+    except Exception:
+        max_hours = 5  # safe default
+    hard_limit_seconds = max_hours * 3600
+
+    # Start runtime tracking
+    rt_start()
+
     nodes_requested = args.nodes
     latency_requested = args.latency
 
@@ -233,21 +258,16 @@ def _handle_run(args: argparse.Namespace) -> int:
         latency_requested,
     )
 
-    # Load configuration (optional)
-    try:
-        from orchestrator.config import load_config
-        cfg_mgr = load_config(args.config)
-        cfg = cfg_mgr.get()
-    except Exception as exc:
-        log.warning("Could not load full config (%s); proceeding with defaults", exc)
-        cfg = {}
-
     # Build mock node list
     all_nodes = _build_mock_nodes(nodes_requested)
     selected_nodes = all_nodes[:nodes_requested]
 
     # Prepare benchmark configuration based on granularity
     bench_cfg = _map_granularity_to_config(args.granularity)
+
+    # Initialise the TaskChunk store
+    chunk_store = TaskChunkStore()
+    run_id = "run_001"
 
     # Run benchmark once per node and collect dummy metrics
     rows = []
@@ -264,7 +284,7 @@ def _handle_run(args: argparse.Namespace) -> int:
         cpu_util = round(random.uniform(10.0, 90.0), 2)
 
         row = {
-            "run_id": "run_001",
+            "run_id": run_id,
             "node_id": node.ip,
             "ip_address": node.ip,
             "granularity": args.granularity,
@@ -278,17 +298,48 @@ def _handle_run(args: argparse.Namespace) -> int:
         }
         rows.append(row)
 
+        # Persist a TaskChunk record for this node
+        chunk_record = {
+            "task_id": row["chunk_id"],
+            "estimated_ops": bench_cfg.iterations,
+            "actual_duration": result.wall_clock_time,
+            "assigned_node_id": node.ip,
+            "status": "completed"
+        }
+        chunk_store.write_chunk(run_id, chunk_record)
+
     # Write artefacts
     _write_dropout_events()
     _write_validation_status(valid=True)
     _write_run_csv(rows, args.granularity, latency_requested)
 
+    # Stop runtime tracking and enforce hard limit
+    try:
+        rt_stop(hard_limit_seconds)
+    except Exception as exc:
+        log.error("Runtime tracking failed: %s", exc)
+        return 1
+
     return 0
 
+@enforce_pipeline_timeout(18000)
 def _handle_sweep(args: argparse.Namespace) -> int:
     """Handle the ``sweep`` sub‑command (placeholder)."""
     log.info("Requested full sweep – config=%s", args.config)
+
+    # Determine max runtime from config (default 5 h)
+    try:
+        from orchestrator.config import load_config
+        cfg_mgr = load_config(args.config)
+        cfg = cfg_mgr.get()
+        max_hours = cfg.get("analysis", {}).get("max_runtime_hours", 5)
+    except Exception:
+        max_hours = 5
+    hard_limit_seconds = max_hours * 3600
+
+    rt_start()
     # Full sweep implementation will be added in later tasks.
+    rt_stop(hard_limit_seconds)
     return 0
 
 # ----------------------------------------------------------------------

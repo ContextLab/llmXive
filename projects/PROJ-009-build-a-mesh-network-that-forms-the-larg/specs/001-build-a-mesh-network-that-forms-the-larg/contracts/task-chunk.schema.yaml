@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: TaskChunk
+type: object
+additionalProperties: false
+required:
+  - task_id
+  - estimated_ops
+  - actual_duration
+  - assigned_node_id
+  - status
+properties:
+  task_id:
+    type: string
+  estimated_ops:
+    type: number
+  actual_duration:
+    type: number
+  assigned_node_id:
+    type: string
+  status:
+    type: string
+    enum:
+      - pending
+      - running
+      - failed
+      - completed
+      - reassigned

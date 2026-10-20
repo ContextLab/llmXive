@@ -1,8 +1,29 @@
 T001:
   task: e884b52214a5b7f5436a0114eb7824303a2913e5fba3d839d30ee0936138a5bc
 T002:
+  reason: 'The task requires that `collect_and_write_metadata` produce real JSON files
+    (`data/raw/physical_node_<ip>.json`) validated against the schema, and that the
+    test suite generate these files. However:
+
+
+    1. **Missing schema file**: `contracts/physical-node.schema.yaml` does not exist
+    at the project root. The `contract_validator.py` looks for schemas under `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/`,
+    but the evidence shows the schema file is at `contracts/physical-node.schema.yaml`
+    (project root). The path resolution in `contract_validator.py` will fail to locate
+    it.
+
+
+    2. **No gen'
   task: 84a1cd9c624be555f7aba06b6ba0e64588518351f80f5e5995a05855f0fc2d2e
 T003:
+  reason: 'The task requires a fully functional scheduler module that passes unit
+    tests and creates valid dropout events. However, the test suite fails catastrophically:
+    8 of 12 tests error during setup because the test fixtures create `PhysicalNode`
+    objects with an incompatible API. The `PhysicalNode` model in `code/orchestrator/models.py`
+    requires `node_id`, `hostname`, `username`, and `hardware_spec` fields (all mandatory),
+    but the test fixtures attempt to construct nodes with only `ip`, `status`, and
+    `ram_mb` parameters. This causes immediate `ValidationError` exceptions before
+    any test logic execute'
   task: 3c604650a8548f24ca90fe9c8d37468d97edf3cbd4f6d0c5b18dec1f62c59c30
 T004:
   task: 412ee364d49d1b521e29aaa0ac9d7b3d220bbf3eb487bfc427956b11dfebe35d
@@ -19,16 +40,38 @@ T009:
 T010:
   task: 7c339fcca49025eba1a80984359c21d32c0cfcf537b04069459d31f06423795e
 T011:
+  reason: 'Requested task execution failed; rerun successfully: code/orchestrator/cli.py
+    exit=1'
   task: 3db1851d7745d123dbda2a02c10e5c5376d7aa66daf1b328e471bc02a9a23e77
 T012:
   task: b5222f0ff94b4268f132b35dc53e8f6b8700f2be43d217402203c9368bf29702
 T013:
   task: 7954e87fd3b4d9b18741b38efa7ca6b8d2d5e66542173836f7906602c2015427
 T014:
+  reason: 'The task requires three categories of artifacts, and the evidence shows
+    critical gaps:
+
+
+    1. **Test file missing**: `code/tests/unit/test_instrumentor.py` does not exist
+    on disk (marked MISSING by the collector), yet the historical execution log shows
+    test runs. The task explicitly requires this artifact to exist and pass `pytest
+    code/tests/unit/test_instrumentor.py` with exit code 0. The execution log shows
+    2 test failures (test_parse_mpstat_output_basic and test_parse_sensors_output_basic),
+    confirming the tests are broken and the file is not properly committed.
+
+
+    2. **Sample log fixtures missin'
   task: 67be875fd782e152af56a288602ef73d5e703608ccbc1d32da689b24e4dc35a9
 T015:
   task: 9597f4d9e2ffcdec91fc93d9ca62fa51556ec7f3603321716a604fd999992803
 T016:
+  reason: "**Evidence checked:**\n\n1. **Schema file exists and is correct**: `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/task-chunk.schema.yaml`\
+    \ is present with all required fields (`task_id`, `estimated_ops`, `actual_duration`,\
+    \ `assigned_node_id`, `status`) and the correct enum values. \u2713\n\n2. **JSONL\
+    \ data file exists with valid records**: `data/raw/task_chunks/run_001.jsonl`\
+    \ contains 4 records, each with all required fields and valid status values (\"\
+    completed\"). Each line validates against the schema. \u2713\n\n3. **TaskChunkStore\
+    \ writer exists but is incomplete**: `code/orchestrator/task_chunk"
   task: a281dee33d7bbb9a9128901e7edbf91dfe1700f3abbca915ff0129efe915a11a
 T017:
   task: 43c92dca2dd07bcb5b24b9aa5c51727299214b7515083a46c1e9319c73aa248d

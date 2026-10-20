@@ -42,7 +42,7 @@ This checklist implements the smallest complete study satisfying FR-001–FR-007
   - `code/tests/contract/test_task_chunk_schema.py`, `data/raw/task_chunks/run_001.jsonl` (from the T004 mock run).
   *Verification* — Every JSONL line validates against the schema; the contract test covers one valid and one invalid record; the scheduler writes chunks through the store in the T004 run.
 
-- [ ] **T011** [US1] Enforce and measure the pipeline runtime budget (FR-007, SC-004) BEFORE the full sweep runs: a watchdog in `code/orchestrator/cli.py` aborts any sweep-and-analyze workflow if runtime exceeds the configured limit (default 5 h, hard CI cap 6 h), and a runtime tracker records total wall-clock time. The watchdog guards the T004 single run and the T005 sweep alike.
+- [ ] **T011** [US1] Enforce and measure the pipeline runtime budget (FR-007, SC-004) BEFORE the full sweep runs: a watchdog in `code/orchestrator/cli.py` aborts any sweep-and-analyze workflow if runtime exceeds the configured limit (default 5 h, hard CI cap 6 h), and a runtime tracker records total wall-clock time. The watchdog guards the T004 single run and the T005 sweep alike. <!-- FAILED-IN-EXECUTION: code/orchestrator/cli.py exit=1 -->
   *Artifacts*
   - Updated `code/orchestrator/cli.py` with timeout guard active for all run sub-commands.
   - `code/runtime/runtime_tracker.py`, `data/runtime/pipeline_runtime.json` (`total_seconds`, `within_limit`), `data/runtime/timeout_enforced.log`.
