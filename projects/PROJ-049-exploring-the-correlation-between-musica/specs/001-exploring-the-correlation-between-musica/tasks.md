@@ -20,7 +20,7 @@
   PY
   ```
 
-- [ ] **T002** **Pin exact dependency versions**  
+- [X] **T002** **Pin exact dependency versions**  
   Create `requirements.txt` containing the exact versions listed in the plan (pandas, numpy, scipy, statsmodels, scikit‑learn, matplotlib, seaborn, datasets, pytest, pyyaml, jsonschema).  
   **Verification**: Run `pip freeze > installed.txt` and ensure `diff -u requirements.txt installed.txt` reports no version mismatches.
 
@@ -36,7 +36,7 @@
 
 ## Phase 1 – Power analysis & research documentation  
 
-- [ ] **T004** **Compute required sample size**   <!-- FAILED-IN-EXECUTION: code/power_analysis.py exit=1 -->
+- [ ] **T004** **Compute required sample size**   <!-- FAILED-IN-EXECUTION: code/power_analysis.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/power_analysis.py exit=1 -->
   Implement `code/power_analysis.py` that calculates the minimum sample size to detect a Pearson r = 0.10 with Bonferroni‑adjusted α = 0.001 (two‑tailed). The script writes the integer to `results/power_analysis.txt`, updates `research.md` with a line `Required sample size: <n>`, and writes the same value into `state/projects/PROJ-049.yaml` under `required_sample_size`.  
   **Verification**:  
   - `results/power_analysis.txt` exists and contains a positive integer.  

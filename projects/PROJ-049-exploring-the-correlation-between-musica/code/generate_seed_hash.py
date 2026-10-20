@@ -1,3 +1,4 @@
+import seed
 """Generate the SHA‑256 hash of seed.py and write it to seed_hash.txt.
 
 This script is executed as part of the task to ensure that `code/seed_hash.txt`

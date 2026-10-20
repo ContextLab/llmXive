@@ -1,6 +1,6 @@
 status: none
-intent: BFI-2 Last.fm linked dataset with FR-002 genre lookup table python package
-  dataset
+intent: download linked BFI-2 personality scores and Last.fm listening histories dataset
+  python package dataset
 required_fields:
 - participant_id
 - bfi2_openness
@@ -8,12 +8,12 @@ required_fields:
 - bfi2_extraversion
 - bfi2_agreeableness
 - bfi2_neuroticism
-- age
-- gender
 - lastfm_user_id
 - track_id
 - artist_name
-- raw_genre_tag
-cache_key: 700c2faae83cae02f5b32b49fc26e67cd1d34b7ed3b24f9927e98545f643436e
-searched_at: '2026-10-20T21:38:40.858988+00:00'
+- genre_raw
+- genre_standardized
+- playcount
+cache_key: 55ec215a69b7e739b538f39ec0768f6ed21fcba6244e3c6c350fe4a5308d6158
+searched_at: '2026-10-20T21:41:09.954268+00:00'
 retry_count: 1

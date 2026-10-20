@@ -11,15 +11,15 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…data (BFI-2) from CSV or generate synthetic if in validation mode.…”
 - code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…IDATION MODE. Generating synthetic data.")         # Generate sy…”
 - code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…thetic data.")         # Generate synthetic data         # Ensure th…”
-- code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…d.         # T008 says: "Generate a deterministic synthetic dataset... matching cont…”
 - code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…a".         # So we need synthetic listening data too.         # Let's ass…”
-- code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…the data is passed or we generate synthetic if no real source is fou…”
-- code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…nable for testing, we'll generate synthetic data if no real data is…”
-- code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…# For now, we'll just generate synthetic data if no real data is…”
+- code/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…True, forces the use of synthetic data generation…”
+- code/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…ETIC mode enabled: Using synthetic data generator.")      # 1. S…”
+- code/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…help="Force the use of synthetic data generation even if real…”
+- code/synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator.  Generates a…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 21 fabricated/simulated-result signal(s) — results are not real measurements: code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…data (BFI-2) from CSV or generate synthetic if in validation mode.…”; code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…IDATION MODE. Generating synthetic data.")         # Generate sy…”; code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…thetic data.")         # Generate synthetic data         # Ensure th…”; 1 command(s) failed: python -m src.cli.run_pipeline  --seed 42  --log-level INFO (rc=1); 1 declared deliverable(s) absent: data/processed/correlation_results.csv
+**Summary**: 13 fabricated/simulated-result signal(s) — results are not real measurements: code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…data (BFI-2) from CSV or generate synthetic if in validation mode.…”; code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…IDATION MODE. Generating synthetic data.")         # Generate sy…”; code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…thetic data.")         # Generate synthetic data         # Ensure th…”; 1 command(s) failed: python -m src.cli.run_pipeline  --seed 42  --log-level INFO (rc=1); 1 declared deliverable(s) absent: data/processed/correlation_results.csv
 
 ## Failing / missing run-book commands
 
@@ -38,6 +38,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/processed/correlation_results.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis.py` — NOT invoked by the run-book
+    - `code/verify_schema.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/correlation_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 

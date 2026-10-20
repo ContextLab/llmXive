@@ -1,18 +1,19 @@
 T001:
   c: false
-  h: d038cca26f49cd978637223c35940e0ea9e85968a9931938e05d618d75586030
-  r: The evidence shows `data/raw/`, `data/processed/`, `results/`, `code/`, and `tests/`
-    directories exist, but the required `logs/` folder is not present at the repository
-    root. Adding the missing `logs/` directory will satisfy the task.
-  sig: 13090f5e69dd2bf2d0265cafd2a240c31d596e48c03e5cf4a4f074a988621b9a
+  h: 9e9bb13c3c82f24b0b8c0bd6013242e060b7ee4affc500c806694c396d511d17
+  r: "The evidence shows the required folders `data/raw`, `data/processed`, `results`,\
+    \ `code`, and `tests` exist, but the `logs/` directory is missing entirely, and\
+    \ all listed directories are under the project sub\u2011folder `projects/PROJ-049\u2011\
+    exploring\u2011the\u2011correlation\u2011between\u2011musica` rather than at the\
+    \ repository root as the task specifies."
+  sig: ab45402e382b145678be974f915b8006885c547ea581f3eae336bbc6289896f2
 T002:
-  c: false
-  h: 96999c9a0c01e9f31988cb5fae4d0cc3265c74a9dffbbd421b08c14987d3d91c
-  r: Checked the `requirements.txt` file (it lists exact versions for all required
-    packages) and the install log showing those versions are installed, but there
-    is no `installed.txt` file nor a `diff -u requirements.txt installed.txt` output
-    proving that the installed environment matches the pinned versions as required.
-  sig: cbe5e3638ef97f5f12679e7d416d8a0584f3eddac906efcb844f1c4774179d11
+  c: true
+  h: da90abbd832b14424033a7cba920641eeef130cccb69dc9a8a597ef900fd219d
+  r: Checked the `requirements.txt` file (contains exact pinned versions for all listed
+    packages) and the pytest log `tests/test_requirements.py` which passed, confirming
+    that the installed environment matches the pinned versions.
+  sig: f966a2b3e3cb440f29c040e8674ba173f5914eab8170c8dfcf35b1a1b28a1fb6
 T003:
   c: false
   h: ceda2cbd3c4d6343d531d6bf91a40688c1129aa201bb20644a004570d52967bf
