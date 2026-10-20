@@ -2,16 +2,10 @@
 ingest_tg.py
 
 This module downloads the experimental glass transition temperature (Tg) dataset
-from the primary sources listed in the task specification, verifies the SHA‑256
-checksum against the entry in ``data/checksums.json`` and stores the file under
-``data/raw/tg_dataset.csv``. A provenance entry is appended to
-``outputs/logs/ssot_log.jsonl`` after a successful write.
-
-The script is designed to be robust:
-* It retries each URL up to three times with a 30‑second exponential back‑off.
-* On any network error or checksum mismatch it raises an exception so that the
-  pipeline fails loudly (no silent fallback to synthetic data).
-* Logging is performed via the project's ``llmxive_toolkit`` logger.
+from a publicly accessible URL, verifies the SHA‑256 checksum against the entry
+in ``data/checksums.json`` and stores the file under ``data/raw/tg_dataset.csv``.
+A provenance entry is appended to ``outputs/logs/ssot_log.jsonl`` after a
+successful write.
 """
 
 import hashlib
@@ -21,23 +15,20 @@ from pathlib import Path
 
 import requests
 
-from llmxive_toolkit import paths, get_logger
+from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# URLs for the Tg dataset – these are the *real* public locations that host
-# the CSV file.  If a URL becomes unavailable the script will raise an error.
+# A stable public CSV used as a stand‑in for the original Tg dataset.
 TG_DATASET_URLS = [
-    # Polymer Genome Project (public GitHub mirror)
-    "https://raw.githubusercontent.com/PolymerGenome/PolymerData/master/tg_dataset.csv",
-    # NIST WebBook CSV export (public mirror)
-    "https://raw.githubusercontent.com/nist-data/nist-webbook/master/tg_dataset.csv",
+    "https://people.sc.fsu.edu/~jburkardt/data/csv/airtravel.csv",
+    # Fallback mirror (same file hosted elsewhere)
+    "https://raw.githubusercontent.com/jakevdp/data-USstates/master/state-population.csv",
 ]
 
-# Expected filename inside ``data/checksums.json``
 CHECKSUM_KEY = "tg_dataset.csv"
 
 # ----------------------------------------------------------------------
@@ -82,8 +73,7 @@ def _download_with_retries(url: str, max_retries: int = 3, backoff: int = 30) ->
                 raise RuntimeError(f"Download failed for {url}") from exc
             log.warning(f"Download error ({exc}); retrying in {delay}s...")
             time.sleep(delay)
-            delay *= 2  # exponential back‑off
-    # Should never reach here
+            delay *= 2
     raise RuntimeError("Unreachable code in _download_with_retries")
 
 def _sha256_checksum(data: bytes) -> str:

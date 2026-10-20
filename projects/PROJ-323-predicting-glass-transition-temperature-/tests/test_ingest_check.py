@@ -59,7 +59,6 @@ def test_download_and_checksum(tmp_path, monkeypatch):
     ), "Recorded checksum does not match actual file checksum"
 
     # Finally, run the ``--check`` verification path – it should exit cleanly.
-    # We capture stdout/stderr to ensure no exception is raised.
     ingest_mod._main()  # without ``--check`` just re‑downloads (idempotent)
     # Now invoke the check mode.
     ingest_mod._parse_args = lambda: type("Args", (), {"check": True})()

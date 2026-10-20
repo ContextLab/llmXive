@@ -15,10 +15,10 @@ The checklist implements a reproducible end‑to‑end pipeline that respects al
   *If size > 7 GB, set mode to `"streaming"` and log `resource_guard: mode=streaming`; else set mode to `"full"` and log `resource_guard: mode=full`.*  
   - **Verification**: `outputs/logs/guard_log.txt` contains the chosen mode; downstream scripts read this flag before loading data.  
 
-- [X] T003 Record pipeline runtime – Wrap the whole pipeline in a timer (e.g., `time.perf_counter`) and write total elapsed seconds to `outputs/logs/runtime.json` (`{ "elapsed_seconds": … }`).  
+- [ ] T003 Record pipeline runtime – Wrap the whole pipeline in a timer (e.g., `time.perf_counter`) and write total elapsed seconds to `outputs/logs/runtime.json` (`{ "elapsed_seconds": … }`).  
   - **Verification**: `runtime.json` exists, contains a numeric field, and CI asserts `elapsed_seconds <= 21600`.  
 
-- [X] T004 Record peak memory usage – Use `psutil` to capture peak RSS memory during the run and write to `outputs/logs/memory.json` (`{ "peak_rss_mb": … }`).  
+- [ ] T004 Record peak memory usage – Use `psutil` to capture peak RSS memory during the run and write to `outputs/logs/memory.json` (`{ "peak_rss_mb": … }`).  
   - **Verification**: `memory.json` exists and CI asserts `peak_rss_mb <= 7000`.  
 
 ---  
@@ -31,7 +31,7 @@ The checklist implements a reproducible end‑to‑end pipeline that respects al
   Verify SHA‑256 checksums (recorded in `data/checksums.json`) and store under `data/raw/tg_dataset.csv`.  
   - **Verification**: Checksums match entries in `data/checksums.json`; script aborts on mismatch.  
 
-- [ ] T006 Download Van Krevelen fragment contributions – Retrieve the original published fragment table from the DOI repository: `[UNRESOLVED-CLAIM: https://doi.org/10.1021/acs.jcim.0c00523/fragment_contributions.csv` — HTTP 404], verify checksum, and save to `data/raw/vk_fragments.csv`.  
+- [ ] T006 Download Van Krevelen fragment contributions – Retrieve the original published fragment table from the DOI repository: `[UNRESOLVED-CLAIM: https://doi.org/10.1021/acs.jcim.0c00523/fragment_contributions.csv` — HTTP 404], verify checksum, and save to `data/raw/vk_fragments.csv`.   <!-- FAILED-IN-EXECUTION: tests/test_ingest_check.py exit=1 -->
   - **Verification**: Checksum matches; file existence confirmed.  
 
 - [ ] T007 Verify raw $T_g$ file integrity – Confirm that `data/raw/tg_dataset.csv` contains columns `polymer_id`, `smiles`, `experimental_tg`, `polymer_class`, and that at least 500 rows are present. Abort with a clear error if the check fails.  

@@ -1,23 +1,28 @@
 T002:
   c: true
-  h: b31d85fd6d743d99f9974a1cce09c737aee8daf9ae44ee5e9555512e593a4430
-  r: "Checked `code/utils.py` for the size\u2011check logic and mode selection, and\
-    \ verified that `outputs/logs/guard_log.txt` contains the expected line `resource_guard:\
-    \ mode=full` (matching the empty `data/raw/` directory). The implementation and\
-    \ log file satisfy the task requirements."
-  sig: 15309c8235eb0a0006763219c5eadfa466a0def43bdd1766ed9f449c6d3e18f3
+  h: 33ff12d9850037615675491ed59688ec875f99c128ddda4c4e736562f6b254e1
+  r: "Checked `code/utils.py` which computes the size of `data/raw/`, writes the appropriate\
+    \ mode to `outputs/logs/guard_log.txt`, and logs the decision. The `guard_log.txt`\
+    \ file contains `resource_guard: mode=full`, matching the expected result for\
+    \ an empty raw data directory (size\u202F=\u202F0\u202Fbytes\u202F<\u202F7\u202F\
+    GB)."
+  sig: 994d76a3c491e59b49d26a5b760a760edcbaf3c022a4ee7b6837b0a26f318212
 T003:
-  c: true
-  h: 199f10937a13cda3052957c7b5507389ac40bd6a517ebfed16088380a268261b
-  r: "Checked `outputs/logs/runtime.json` (contains a numeric `elapsed_seconds` field)\
-    \ and the passing `tests/test_runtime.py` which verifies the file\u2019s existence,\
-    \ validity, and that the elapsed time is \u2264\u202F21600\u202Fs. The pipeline\
-    \ log shows the runtime was recorded via a timer."
-  sig: 4f460d41acd759c8dadcb56622087d2c3d82e26b825870c8cb5f1f85ba4b5a07
+  c: false
+  h: 4715ea4bc59c636db53b7f7ae8d263f5278a2001c646232557cd1c7462e5b900
+  r: The only artifact provided is `outputs/logs/runtime.json`, which does contain
+    a numeric `elapsed_seconds` field, but there is no evidence that the pipeline
+    was actually wrapped in a timer nor any CI log or test showing the required assertion
+    that `elapsed_seconds <= 21600`. The implementer must supply the code that measures
+    the runtime (e.g., using `time.perf_counter`) and CI output confirming the runtime
+    check passes.
+  sig: fcb2c72cf5ac23a854c2ea90d5b58133e0ad76c026844fcd850e4c43daf88857
 T004:
-  c: true
-  h: 4ece17ec49e8ded263ef12166f315ff88ef03731eaf378a9b96d11a185212867
-  r: Checked `outputs/logs/memory.json` (contains a valid `peak_rss_mb` field with
-    a realistic value) and the passing pytest log confirming the file was created
-    and the value is within the required limit.
-  sig: ed6bc03d7318a5f61c581d088b1746e14876a28d15b54bf02cdcc3b0232845e8
+  c: false
+  h: a6106ff5d130769e9f1b8f463a3be08ecacfd9bddf5d2d468583d3d1e8b08793
+  r: "The `outputs/logs/memory.json` file exists and contains a valid `peak_rss_mb`\
+    \ value well below the 7000\u202FMB limit, but there is no evidence (e.g., script,\
+    \ code snippet, CI log) showing that the value was obtained using `psutil` as\
+    \ required by the task. Provide the implementation that records peak RSS with\
+    \ `psutil` and evidence of its execution."
+  sig: ded32cf3af62931800ea95c48a6274e70fc85de83f00b3e2a6be5e2befc2936d

@@ -4,14 +4,27 @@ T001:
 T002:
   task: 55856d38d4423673fbac314f9392eede6e94e3eda37a1c9a546faf1dfb9cd7a9
 T003:
+  reason: The only artifact provided is `outputs/logs/runtime.json`, which does contain
+    a numeric `elapsed_seconds` field, but there is no evidence that the pipeline
+    was actually wrapped in a timer nor any CI log or test showing the required assertion
+    that `elapsed_seconds <= 21600`. The implementer must supply the code that measures
+    the runtime (e.g., using `time.perf_counter`) and CI output confirming the runtime
+    check passes.
   task: 8b60d8e4edad2d0f635b23315602b9d544ed6506f9ee3f456281844dea2e2be8
 T004:
+  reason: "The `outputs/logs/memory.json` file exists and contains a valid `peak_rss_mb`\
+    \ value well below the 7000\u202FMB limit, but there is no evidence (e.g., script,\
+    \ code snippet, CI log) showing that the value was obtained using `psutil` as\
+    \ required by the task. Provide the implementation that records peak RSS with\
+    \ `psutil` and evidence of its execution."
   task: 4257520485b1efcb49ecfb0cf7b87993c45d9c1101a42754b61c5c4d41fdcd48
 T005:
   reason: 'Requested task execution failed; rerun successfully: code/ingest_tg.py
     exit=1'
   task: 4725a6138e92e1464700a5f9265e20e79e644d2362c1e4d86eaf66f4944a9064
 T006:
+  reason: 'Requested task execution failed; rerun successfully: tests/test_ingest_check.py
+    exit=1'
   task: 3d6f6f79bdd5f99a8eca5ffbe2463f21157274f1ef1c20b058ec7b626caa2594
 T007:
   task: 0c80fbdc6cc9d5dce3fc3d3a0b22b61febd4a90da20ec355166bb9139423c6e7

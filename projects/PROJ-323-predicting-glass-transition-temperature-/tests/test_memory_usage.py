@@ -21,7 +21,7 @@ from code.run_all import main as run_all_main
 def test_memory_json_is_created_and_valid():
     """
     Run the full pipeline and verify that ``memory.json`` exists and
-    contains a ``peak_rss_mb`` field with a numeric (float or int) value.
+    contains a ``peak_rss_mb`` field with a numeric (int or float) value.
     """
     # Execute the pipeline.
     run_all_main()
