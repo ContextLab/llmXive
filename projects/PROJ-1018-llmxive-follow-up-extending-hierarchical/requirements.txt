@@ -1,7 +1,5 @@
-# Existing dependencies are sufficient for the data loader.
-# No additional packages are required beyond the base environment.
-# If you need to pin versions for reproducibility, uncomment and adjust:
-# datasets==2.20.0
-# transformers==4.44.0
-# pyyaml==6.0
-# jsonschema==4.20.0
+huggingface_hub>=0.23.0
+# Existing dependencies are already provided by the base environment:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+# torch and transformers are pulled in by the project scripts as needed.

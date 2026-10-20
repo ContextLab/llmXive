@@ -1,15 +1,14 @@
 status: none
-intent: HuggingFace datasets PG-19 arXiv long-context validation HiLS checkpoint python
-  package dataset
+intent: huggingface datasets pg19 arxiv validation set python package dataset
 required_fields:
 - document_id
-- chunk_index
-- chunk_start_token
-- chunk_end_token
+- chunk_id
 - chunk_text
-- retrieval_score_vector
 - retrieval_score_matrix
-- relevance_profile_id
-cache_key: a9cc0965125b1a4c8418cb379282ecbc155de4c0ea44762fb8b30b6cb81e3245
-searched_at: '2026-10-20T06:11:38.497832+00:00'
+- token_start_index
+- token_end_index
+- chunk_length
+- canonical_relevance_profile
+cache_key: a3b62f2d227751b813f77b151f9f338b7ce54eb9f6731d8025619e65d2618082
+searched_at: '2026-10-20T08:12:00.447996+00:00'
 retry_count: 1
