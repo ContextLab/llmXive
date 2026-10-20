@@ -177,9 +177,20 @@ def process_host_molecules(df: pd.DataFrame) -> pd.DataFrame:
         DataFrame with original columns plus descriptor columns and the
         1024 fingerprint columns.
     """
+    # -----------------------------------------------------------------
+    # Handle the case where the input DataFrame has no rows.
+    # We still want to emit a CSV with the appropriate header columns
+    # so downstream scripts see the expected schema.
+    # -----------------------------------------------------------------
     if df.empty:
-        logger.warning("Input DataFrame is empty. Returning empty DataFrame.")
-        return df
+        logger.warning("Input DataFrame is empty. Returning empty DataFrame with descriptor columns.")
+        # Build dummy descriptor and fingerprint column names based on a placeholder molecule.
+        dummy_mol = Chem.MolFromSmiles("C")  # methane
+        dummy_desc = calculate_rdkit_descriptors(dummy_mol)
+        descriptor_cols = list(dummy_desc.keys())
+        fp_cols = [f"ecfp_{i}" for i in range(1024)]
+        empty_cols = list(df.columns) + descriptor_cols + fp_cols
+        return pd.DataFrame(columns=empty_cols)
 
     logger.info(f"Processing {len(df)} host molecules for feature engineering...")
 
@@ -211,7 +222,6 @@ def process_host_molecules(df: pd.DataFrame) -> pd.DataFrame:
     if not descriptor_rows:
         logger.warning("No valid molecules were processed; returning empty DataFrame with descriptor columns.")
         # Build an empty DataFrame that contains the expected descriptor and fingerprint columns
-        # Descriptor columns come from calculate_rdkit_descriptors on a dummy molecule
         dummy_mol = Chem.MolFromSmiles("C")  # methane
         dummy_desc = calculate_rdkit_descriptors(dummy_mol)
         descriptor_cols = list(dummy_desc.keys())

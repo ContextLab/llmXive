@@ -3,15 +3,15 @@ intent: download halide binding constants NIST Chemistry WebBook PubChem dataset
   package dataset
 required_fields:
 - host_smiles
-- host_inchi
-- halide
-- binding_constant_logK
-- binding_constant_deltaG
+- halide_identity
+- binding_constant
+- binding_constant_units
 - solvent
 - source_database
-- source_accession
-- measurement_temperature
-- measurement_units
-cache_key: 3706d6634ecf768147cf1ee679f8d3fa1fe79fdd6963c0e526bd41a0d4fb458a
-searched_at: '2026-10-20T20:28:05.115078+00:00'
+- source_record_id
+- inchi
+- molecular_descriptors
+- fingerprint
+cache_key: 03f0eedb3c5e985e90477f39b38e9bde7bb7de7c9bf7810ca4e0e1a21111e72f
+searched_at: '2026-10-20T20:31:51.959477+00:00'
 retry_count: 1

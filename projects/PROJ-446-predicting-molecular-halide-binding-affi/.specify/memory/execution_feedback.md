@@ -36,17 +36,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/01_data_ingestion.py -> rc=-1
 nChI,XLogP3/JSON
-2026-10-20 20:26:20,136 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 1/5 after 2s.
-2026-10-20 20:26:22,351 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 2/5 after 4s.
-2026-10-20 20:26:26,562 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 3/5 after 8s.
-2026-10-20 20:26:34,667 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 4/5 after 16s.
-2026-10-20 20:26:50,766 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 5/5 after 32s.
+2026-10-20 20:30:12,299 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 1/5 after 2s.
+2026-10-20 20:30:14,509 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 2/5 after 4s.
+2026-10-20 20:30:18,728 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 3/5 after 8s.
+2026-10-20 20:30:26,940 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 4/5 after 16s.
+2026-10-20 20:30:43,037 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 5/5 after 32s.
 
 [TIMEOUT after 120s]
 - python code/03_model_training.py -> rc=1
 
-2026-10-20 20:27:13,107 - __main__ - INFO - Starting model training pipeline...
-2026-10-20 20:27:13,107 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
+2026-10-20 20:31:03,917 - __main__ - INFO - Starting model training pipeline...
+2026-10-20 20:31:03,918 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/03_model_training.py", line 331, in <module>
     main()
@@ -65,7 +65,7 @@ FileNotFoundError: Preprocessed data not found at data/processed/halide_binding_
 
 - python code/04_feature_analysis.py -> rc=1
 
-2026-10-20 20:27:14,125 - __main__ - INFO - Starting Feature Analysis (US3)...
+2026-10-20 20:31:04,911 - __main__ - INFO - Starting Feature Analysis (US3)...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/04_feature_analysis.py", line 236, in <module>
     main()
