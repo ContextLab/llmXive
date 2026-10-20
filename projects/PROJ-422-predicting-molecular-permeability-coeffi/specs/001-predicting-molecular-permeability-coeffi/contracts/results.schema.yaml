@@ -50,11 +50,38 @@ properties:
         type: boolean
       method:
         type: string
-        enum: ["paired_t_test"]
+        enum: ["paired_t_test", "wilcoxon_signed_rank"]
     required:
       - p_value
       - significant
       - method
+  normality_test:
+    type: object
+    properties:
+      method:
+        type: string
+        enum: ["shapiro_wilk"]
+      p_value:
+        type: number
+      normal:
+        type: boolean
+    required:
+      - method
+      - p_value
+      - normal
+  power_analysis:
+    type: object
+    properties:
+      planned_sample_size:
+        type: integer
+      achieved_power:
+        type: number
+      sufficient:
+        type: boolean
+    required:
+      - planned_sample_size
+      - achieved_power
+      - sufficient
   bias_check:
     type: object
     properties:

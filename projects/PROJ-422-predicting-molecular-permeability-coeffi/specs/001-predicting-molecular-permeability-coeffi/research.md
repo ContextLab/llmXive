@@ -1,30 +1,29 @@
 # Research: Predicting Molecular Permeability Coefficients Using Graph Neural Networks
 
 ## 1. Problem Definition
-We aim to assess whether a graph‑based Message Passing Neural Network (MPNN) can outperform a descriptor‑based Random Forest (RF) in predicting molecular permeability‑related properties. Because no open dataset supplies experimental permeability coefficients, the study pivots to a **Feasibility Study** that predicts the calculated `logP` descriptor (derived from SMILES) as a proxy target. The central hypothesis remains: **graph topology captures predictive information beyond standard descriptors**, even when the target itself is a descriptor.
+We evaluate whether a graph‑based Message Passing Neural Network (MPNN) can outperform a descriptor‑based Random Forest (RF) in predicting **experimental permeability coefficients**. **Crucially, the target must be an independent measurement**, not a derived descriptor.
 
 ## 2. Dataset Strategy
 
 ### 2.1 Verified Datasets
-Only the following open datasets (verified URLs) will be used:
+Only the following open datasets (verified URLs) are available:
 
 | Dataset | URL | Format | Variables of interest |
 |---------|-----|--------|-----------------------|
 | **ChEMBL‑derived RDKit descriptors** | `https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet` | Parquet | `smiles`, `mw`, `logp`, `tpsa`, `hba`, `hbd`, `rotatable_bonds` |
 | **Half‑ChEMBL RDKit descriptors** | `https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet` | Parquet | Same as above |
-| **SMILES‑Transformers** | `https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet` | Parquet | `smiles` only (used for supplemental size) |
+| **SMILES‑Transformers** | `https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet` | Parquet | `smiles` only |
 | **SELFormer SMILES** | `https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv` | CSV | `smiles` only |
 | **TPSA / GRAPO** | `https://huggingface.co/datasets/Alan123/hba_hbd_tpsa_grpo/resolve/main/data/train-00000-of-00001.parquet` | Parquet | `smiles`, `tpsa`, `hba`, `hbd` |
 
-*No verified source contains experimental permeability coefficients; therefore the proxy target `logP` is adopted (see Section 2.2).*
+**No verified source contains experimental permeability measurements.** Consequently, FR‑001 (ingestion of permeability datasets) cannot be satisfied with the current open data. The research plan therefore **flags this as a specification limitation** and recommends a scope revision to either (a) locate an open permeability dataset (e.g., a newly released benchmark) or (b) formally amend the specification to allow a surrogate target **only after the specification is updated**. Until such a dataset is identified, the pipeline will stop after preprocessing and will **not** proceed to model training.
 
-### 2.2 Proxy Mode & Target Selection
-- If a dataset includes a column named `logp` (calculated by RDKit), it will be used as the **target**.
-- If `logp` is absent, we will compute it on‑the‑fly via RDKit and store it as `target`.
-- All other columns are treated as **input descriptors** for the RF baseline; the graph representation is derived from the SMILES.
+### 2.2 Target Selection (Current Limitation)
+- **If** a dataset with a true `permeability` column is found, it will be used as the target.
+- **Otherwise**, the pipeline stops after preprocessing with an informative warning, avoiding circular use of any descriptor (e.g., `logP`) as a target.
 
 ### 2.3 Data Volume & Streaming
-- Each Parquet file is ≤ 1 GB; streaming is enabled (`datasets.load_dataset(..., streaming=True)`) to guarantee low memory usage and to allow processing of the full dataset without RAM overflow.
+Each Parquet file is ≤ 1 GB; we enable streaming (`datasets.load_dataset(..., streaming=True)`) to keep memory usage low while processing the full dataset.
 
 ## 3. Methodology
 
@@ -32,34 +31,39 @@ Only the following open datasets (verified URLs) will be used:
 1. **SMILES → Graph** using `rdkit.Chem.MolFromSmiles`. Invalid SMILES are logged and excluded (FR‑010).  
 2. **Node Features**: atomic number, degree, formal charge, hybridization, aromatic flag.  
 3. **Edge Features**: bond type, conjugation flag.  
-4. **Standard Descriptors**: MW, logP, TPSA, HBA, HBD, Rotatable Bonds (RDKit `Descriptors`).  
-5. **Graph‑Derived Statistics** (for RF ablation): mean node degree, graph density, counts of aromatic rings, counts of common functional groups (e.g., carbonyl, amine).  
+4. **Standard Descriptors** (RDKit): MW, TPSA, H‑bond acceptors/donors, rotatable bonds (logP is **excluded** unless it is the target, which it will not be in the current pipeline).  
+5. **Graph‑Derived Statistics** (for RF‑ablation): mean node degree, graph density, aromatic‑ring count, functional‑group counts (e.g., carbonyl, amine).  
 
-All transformations produce a new file under `data/processed/processed_data.parquet` that conforms to `contracts/dataset.schema.yaml`.
+All transformations produce `data/processed/processed_data.parquet` conforming to `contracts/dataset.schema.yaml`.
 
 ### 3.2 Model Architectures
-- **MPNN (GNN)**: 3 message‑passing layers, hidden dimension = 64, ReLU activation, global mean pooling, final linear head → scalar regression. Trained with Adam (`lr=0.001`), batch size = 32, early stopping (patience = 5) on validation loss. CPU‑only (`device="cpu"`).  
-- **Random Forest Baseline**: `sklearn.ensemble.RandomForestRegressor`, `n_estimators=200`, `max_features='sqrt'`, trained on the full descriptor vector.  
-- **Random Forest Ablation**: Same RF hyper‑parameters, trained on the graph‑derived statistics only (no standard descriptors).  
+- **MPNN (GNN)**: 3 message‑passing layers, hidden = 64, global mean pooling, linear regression head. Trained with Adam (`lr=0.001`), batch size = 32, early stopping (patience = 5) on validation loss. CPU‑only (`device="cpu"`).  
+- **Random Forest Baseline**: `sklearn.ensemble.RandomForestRegressor`, `n_estimators=200`, `max_features='sqrt'`. Trained on the full descriptor vector.  
+- **Random Forest Ablation**: Same hyper‑parameters, trained **only** on graph‑derived statistics (no standard descriptors).
 
 ### 3.3 Training & Evaluation
-- **Split**: 80 % train / 20 % test, stratified by `polymer_type` if present; otherwise random with a fixed seed.  
-- **Metrics**: RMSE, MAE, R² (computed on the held‑out test set).  
-- **Statistical Test**: Paired two‑sample t‑test on per‑sample absolute errors (GNN vs. RF baseline). Significance threshold `p < 0.05` (SC‑002).  
-- **Effect Size & Power**: Compute Cohen’s d, 95 % confidence interval for the mean error difference, and a post‑hoc power estimate using the observed effect size and `n_test`. All values stored in `results/metrics.json`.  
+- **Split**: [deferred] train / [deferred] test, stratified by `polymer_type` when present; otherwise random with fixed seed.
+- **A‑priori Power Analysis**: Before training, compute required sample size for a medium effect (Cohen’s d = 0.5) at α = 0.05, 80 % power using `statsmodels`. Record planned size and achieved power; if the dataset is smaller, flag limited power in the results (methodology‑68ef9d7e).  
+- **Metrics**: RMSE, MAE, R² on the held‑out test set.  
+- **Statistical Test**:  
+  1. Perform Shapiro‑Wilk normality test on the paired error differences.  
+  2. If normal (p ≥ 0.05) → paired two‑sample t‑test; else → Wilcoxon signed‑rank test.  
+  3. Record method, p‑value, and significance decision (SC‑002, methodology‑743d42e3).  
+- **Effect Size & Power**: Compute Cohen’s d and post‑hoc power; store in results.  
 
 ### 3.4 Interpretability
-- **SHAP (RF)**: KernelSHAP on the descriptor baseline; mean absolute SHAP values are ranked.  
-- **GNNExplainer**: Run on a random subset of 100 test molecules; subgraph masks are aggregated to produce a global importance ranking of functional groups/substructures.  
-- Visualizations: bar charts for SHAP, heatmaps for GNNExplainer masks, both saved under `results/interpretability/`.
+- **SHAP (RF)**: KernelSHAP on the descriptor baseline (and on the ablation model); mean absolute SHAP values are ranked and plotted.  
+- **GNNExplainer**: Run on 100 random test molecules; aggregate subgraph masks to a global importance ranking of functional groups/substructures; visualized as heatmaps.  
+- Outputs are saved under `results/interpretability/`.
 
 ### 3.5 Risk & Mitigation Summary
 | Risk | Mitigation |
 |------|------------|
-| No permeability target | Proxy `logP` target; explicit disclaimer in final report. |
-| Small dataset → overfitting | Early stopping, dropout (0.1), small hidden size, ablation study. |
-| Invalid SMILES | RDKit parsing guard, log & exclude; retention check ensures ≥ 95 % valid molecules (FR‑011). |
-| High correlation between descriptors & proxy target | Bias check (FR‑013) flags \|r\| > 0.85; report as expected for proxy. |
-| CPU memory overflow | Streaming load, batch processing, max‑batch‑size = 32, fallback to smaller subset if needed. |
+| No true permeability data | Flag spec limitation; halt before training to avoid circular validation. |
+| Small dataset → overfitting | Early stopping, modest hidden size, dropout (0.1), ablation study. |
+| Invalid SMILES | RDKit parsing guard; log & drop; retention check ensures ≥ 95 % valid molecules (FR‑011). |
+| High correlation between descriptors & proxy target | Bias check (FR‑013) flags \|r\| > 0.85; reported transparently. |
+| CPU memory overflow | Streaming load, batch size = 32, fallback to random subset if needed. |
 
 ---
+

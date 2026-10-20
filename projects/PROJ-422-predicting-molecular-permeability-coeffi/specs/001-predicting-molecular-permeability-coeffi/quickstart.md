@@ -21,49 +21,41 @@ pip install -r requirements.txt
 
 ## Step‑by‑Step Execution
 
-1. **Download & Verify Raw Data**
-   ```bash
-   python code/data/download.py
-   ```
-   - Downloads all verified datasets into `data/raw/`.  
-   - Computes SHA256 checksums; aborts on mismatch.
-
-2. **Preprocess**
+1. **Load & Verify Data (streaming)**
    ```bash
    python code/data/preprocess.py
    ```
-   - Parses SMILES, builds graphs, computes RDKit descriptors, performs retention & bias checks.  
-   - Outputs `data/processed/processed_data.parquet`.
+   - Streams the verified datasets directly from Hugging Face, computes SHA‑256 checksums on the fly, parses SMILES, and writes `data/processed/processed_data.parquet`.  
+   - Logs a warning and **exits with a non‑zero code after the file is written** if the valid‑molecule retention rate falls below 95 %; the file is still present for inspection.  
+   - If no `permeability` column is found, the script stops after this step with an informative message (see research plan).
 
-3. **Train / Evaluate**
+2. **Train / Evaluate** *(only runs when a true permeability target is present)*
    ```bash
    # Train all models and evaluate in one command
    python code/analysis/train.py --config config.yaml
    ```
-   - Handles train/validation split, early stopping, and writes `results/metrics.json`.  
-   - If the dataset is larger than available RAM, the script automatically streams.
+   - Handles train/validation split, early stopping, a priori power analysis, and writes `results/metrics.json`.  
+   - If the required target column is missing, the script will terminate gracefully after reporting the limitation.
 
-4. **Interpretability**
+3. **Interpretability**
    ```bash
    python code/analysis/explain.py
    ```
    - Generates SHAP plots for the Random Forest and GNNExplainer visualizations for the GNN.  
    - Outputs are stored in `results/interpretability/`.
 
-5. **Full End‑to‑End Run (optional)**
+4. **Full End‑to‑End Run (optional)**
    ```bash
    ./run_all.sh
    ```
    *`run_all.sh`* simply chains the three commands above and exits with a non‑zero code if any step fails.
 
 ## Expected Outputs
-- `data/processed/processed_data.parquet` – cleaned feature table.  
-- `results/metrics.json` – RMSE, MAE, R² for GNN, RF, RF‑ablation; paired t‑test p‑value; Cohen’s d; bias‑check flag.  
+- `data/processed/processed_data.parquet` – cleaned feature table (or a warning if retention < 95 %).  
+- `results/metrics.json` – RMSE, MAE, R² for GNN, RF, RF‑ablation; paired test result; normality test outcome; power‑analysis summary; bias‑check flag.  
 - `results/interpretability/` – PNG/HTML files for SHAP bar charts and GNNExplainer substructure heatmaps.  
 
 ## Reproducibility Tips
 - Random seeds are fixed (`seed=42`) inside the code base.  
 - All dataset URLs are hard‑coded; rerunning the pipeline will fetch identical data.  
 - The CI runner uses the same `requirements.txt`; no hidden dependencies.
-
----

@@ -27,8 +27,10 @@ properties:
     type: integer
     description: "Number of Rotatable Bonds"
   target:
-    type: number
-    description: "Experimental permeability or proxy target value"
+    type:
+      - number
+      - "null"
+    description: "Experimental permeability coefficient if available; null otherwise"
   polymer_type:
     type:
       - string

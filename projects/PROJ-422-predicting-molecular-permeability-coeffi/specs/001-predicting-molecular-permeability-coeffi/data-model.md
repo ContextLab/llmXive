@@ -1,7 +1,7 @@
-# Data Model: Molecular Permeability Prediction (Proxy)
+# Data Model: Molecular Permeability Prediction
 
 ## 1. Overview
-Defines schemas for raw ingestion, processed intermediate representations, and model output. All files are validated against JSON‑Schema contracts located in `contracts/`.
+Defines JSON‑Schema contracts for raw ingestion, processed intermediate representations, and model output. All files are validated against the schemas located in `contracts/`.
 
 ## 2. Entities
 
@@ -10,8 +10,8 @@ Defines schemas for raw ingestion, processed intermediate representations, and m
 |-------|------|-------------|
 | `smiles` | string | SMILES notation (source). |
 | `polymer_type` | string / null | Optional stratification label. |
-| `permeability` | number / null | Experimental coefficient (absent in open data). |
-| `logp` | number / null | Calculated logP (used as proxy target if `permeability` missing). |
+| `permeability` | number / null | Experimental permeability coefficient (may be missing in open datasets). |
+| `logp` | number / null | Calculated LogP (available in some datasets, **not** used as a target). |
 
 ### 2.2 Processed Molecule Record *(conforms to `contracts/dataset.schema.yaml`)*  
 | Field | Type | Description |
@@ -21,17 +21,17 @@ Defines schemas for raw ingestion, processed intermediate representations, and m
 | `mw` | number | Molecular Weight. |
 | `logp` | number | Calculated LogP. |
 | `tpsa` | number | Topological Polar Surface Area. |
-| `hba` | integer | H‑bond acceptors count. |
-| `hbd` | integer | H‑bond donors count. |
-| `rotatable_bonds` | integer | Number of rotatable bonds. |
-| `target` | number | Proxy target (`logp` or experimental permeability). |
-| `polymer_type` | string / null | Stratification key (if any). |
+| `hba` | integer | Number of Hydrogen Bond Acceptors |
+| `hbd` | integer | Number of Hydrogen Bond Donors |
+| `rotatable_bonds` | integer | Number of Rotatable Bonds |
+| `target` | number / null | Experimental permeability coefficient if available; null otherwise |
+| `polymer_type` | string / null | Stratification key (optional) |
 
 ### 2.3 Model Prediction Record *(conforms to `contracts/results.schema.yaml`)*  
 | Field | Type | Description |
 |-------|------|-------------|
 | `molecule_id` | string | Unique identifier (e.g., row index). |
-| `true_value` | number | Ground‑truth target. |
+| `true_value` | number | Ground‑truth target (permeability). |
 | `predicted_gnn` | number | GNN regression output. |
 | `predicted_rf` | number | RF baseline output. |
 | `predicted_rf_ablation` | number | RF trained on graph stats only. |
@@ -43,17 +43,16 @@ Defines schemas for raw ingestion, processed intermediate representations, and m
 2. **Preprocess** (`code/data/preprocess.py`):  
    - Parse SMILES → graph; compute descriptors.  
    - Set `mol_valid`; drop rows where `mol_valid=False`.  
-   - Apply retention guard (≥ 95 % valid).  
-   - If `target` missing, compute `logp` and assign as proxy.  
+   - Apply **retention guard** (≥ 95 % valid).  
+   - If `target` missing, keep `null`. Rows with `null` target are excluded from modeling later.  
    - Output `data/processed/processed_data.parquet` (validated against `dataset.schema.yaml`).  
-3. **Split** (`code/data/split.py`): produce `train.parquet` and `test.parquet` under `data/processed/`.  
-4. **Model Training** → produce serialized model files under `code/models/`.  
+3. **Split** (`code/data/split.py`): produce `train.parquet` and `test.parquet` under `data/processed/` (only rows with non‑null `target`).  
+4. **Model Training** → serialize models under `code/models/`.  
 5. **Evaluation** → write `results/metrics.json` (validated against `results.schema.yaml`).  
 6. **Interpretability** → write PNG/HTML under `results/interpretability/`.
 
 ## 4. Constraints
 - No NaNs in any numeric column of the processed dataset.  
 - Graph construction must be a faithful RDKit conversion (Constitution VI).  
-- Target column must be either experimental permeability *or* calculated `logp` (proxy).  
+- **Target column must be experimental permeability**; if absent, the pipeline stops before modeling.  
 
----
