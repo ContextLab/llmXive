@@ -1,6 +1,6 @@
 """
 Align QM9 properties with IR spectra on InChIKey.
-Reads the parquet files produced by the download step,
+Reads the parquet files produced by the download step (or downloads them if missing),
 performs an inner join, logs the number of matched and discarded molecules,
 and writes a JSON report to ``data/processed/alignment_report.json``.
 """
@@ -10,11 +10,27 @@ import logging
 from pathlib import Path
 
 import pandas as pd
+from datasets import load_dataset
 
 from llmxive_toolkit import paths, get_logger
 
 # Configure logger
 log = get_logger(__name__)
+
+def _ensure_raw_file(file_path: Path, dataset_name: str, split: str = "full") -> None:
+    """
+    Ensure that a raw parquet file exists.
+    If it does not, download the dataset from HuggingFace and write it to ``file_path``.
+    """
+    if file_path.is_file():
+        return
+
+    log.info(f"{file_path.name} not found – downloading {dataset_name} dataset")
+    ds = load_dataset(dataset_name, split=split)
+    # Ensure parent directory exists
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    ds.to_parquet(str(file_path), engine="pyarrow")
+    log.info(f"Saved {dataset_name} to {file_path}")
 
 def load_parquet(file_path: Path) -> pd.DataFrame:
     """Load a parquet file using pandas."""
@@ -54,6 +70,10 @@ def main() -> None:
     # Resolve raw data locations
     qm9_path = Path("data/raw/qm9.parquet")
     ir_path = Path("data/raw/ir_spectra.parquet")
+
+    # Ensure raw files exist (download if missing)
+    _ensure_raw_file(qm9_path, "lisn519010/QM9")
+    _ensure_raw_file(ir_path, "lamblador/QM9-IR")
 
     log.info(f"Loading QM9 data from {qm9_path}")
     qm9_df = load_parquet(qm9_path)

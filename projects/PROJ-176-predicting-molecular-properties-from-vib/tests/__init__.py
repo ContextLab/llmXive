@@ -1,1 +1,1 @@
-# This file ensures the tests directory is recognised as a package.
+# This file makes the tests directory a package.

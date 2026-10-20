@@ -166,7 +166,7 @@ def run_preprocess(args):
         preprocess_main()
         logger.info("Preprocess completed successfully")
     except Exception as e:
-        logger.error(f"Preprocess failed: {str(e)}", exc_info=True)
+        logger.error(f"Preprocess failed: {e}", exc_info=True)
         raise
 
 def run_train(args):

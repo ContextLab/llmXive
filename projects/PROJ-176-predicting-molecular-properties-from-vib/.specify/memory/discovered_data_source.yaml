@@ -1,49 +1,14 @@
-status: verified
-kind: pypi_package
-ref: qm9pack
-access_python: "from qm9pack import get_data\n\ndf = get_data('qm9')\nrecords = len(df)\n\
-  print(f\"RECORDS={records}\")\nif records:\n    print(\"FIELDS=\" + \",\".join(df.iloc[0].to_dict().keys()))"
-record_count: 130831
-sample_fields:
-- XYZ_file
-- Index
-- SMILES
-- InChi
-- N_atoms
-- Stoichiometry
-- Elements
-- XYZ_Ang
-- Mulliken_pop
-- Harmonic_Freq_cmi
-- RotA_GHz
-- RotB_GHz
-- RotC_GHz
-- Dipole_debye
-- Polarizability_bohr3
-- HOMO_au
-- LUMO_au
-- HOMO_LUMO_gap_au
-- R2_bohr2
-- ZPVE_au
-- InternalEnergy_0K_au
-- InternalEnergy_298K_au
-- Enthalphy_298K_au
-- GibbsFreeEnergy_298K_au
-- Heatcapacity_Cv_cal_mol_K
-- A_xx
-- A_xy
-- A_yy
-- A_xz
-- A_yz
-- A_zz
-field_coverage: 0.571
+status: none
+intent: QM9 dataset and QM9-IR infrared spectra download python package dataset
 required_fields:
 - InChIKey
 - SMILES
 - dipole_moment
 - isotropic_polarizability
 - homo_lumo_gap
-- wavenumber_grid
-- ir_intensity
-intent: download QM9 dataset and QM9-IR infrared spectra python package dataset
-cache_key: 262051a3f9599e53527b12e08c6f9fce54d59a29b324c138521617a793677d0f
+- ir_wavenumbers_fixed_grid
+- ir_intensities_normalized
+- functional (e.g., B3LYP for validation)
+cache_key: 9597352f9e6ea467408efb1e9cd2a66ec2df228ce8430a7f2c1fcfd0bc705a21
+searched_at: '2026-10-20T12:18:41.778276+00:00'
+retry_count: 1

@@ -1,14 +1,13 @@
 T001:
   c: true
-  h: b569d96492840f85b97288ed04df449bc3e7c87f617147d980d4fb7ca92ab195
+  h: 4096cd7a58a967a6d4eb4df4f4748eef2c4b158db9b72b472b168d1c1c50874d
   r: The structure report lists all required directories (`code/`, `code/data/`, `code/models/`,
     `code/evaluation/`, `code/utils/`, `tests/`, `data/raw/`, `data/processed/`, `data/external/`,
-    `results/`, `logs/`, `specs/001-predict-molecular-properties/`), the directory
-    listings confirm `__init__.py` files exist in each code package plus tests and
-    the specs dir, and the execution log shows `python -m compileall code/` (via create_skeleton.py)
-    exited 0. The validation_results.json is unrelated to this skeleton task and does
-    not affect the verdict.
-  sig: 8fda6569e8505ebd04b6c9cdc5424a1ee023973e1830d39cc5cecad614a766a9
+    `results/`, `logs/`, `specs/001-predict-molecular-properties/`), the collector
+    confirms each exists with `__init__.py` markers in `code/` and its subpackages,
+    and the execution log records `code/create_skeleton.py` exiting 0. The `validation_results.json`
+    is unrelated to this skeleton task and does not affect the verdict.
+  sig: e9732da7d131d889dd86c4efe1d07c1f491e313525fbaad0cf5908ea9dd0624f
 T002:
   c: true
   h: 4696d72a9c526011d1d24652a8e830c99ad78ecff46e8680d031f31471550fb6
@@ -16,3 +15,14 @@ T002:
     \ `evaluation_results.schema.yaml`) which exist (via resolved paths), are non\u2011\
     empty, and contain valid YAML that loads without error."
   sig: 5d19c3d3d1afce121b224bfdf80d6fa23ce0120712ecfca5cdeb6a4939c143c2
+T005:
+  c: false
+  h: 3f725e0c976725f24fd17af4eabe24ce51fe32e83215fc559afcd4bb79d88833
+  r: "The required output `data/processed/aligned_dataset.npz` is MISSING, and the\
+    \ recorded test run of `tests/test_preprocess.py` failed (exit 1) with all 3 tests\
+    \ erroring because `data/raw/qm9.parquet` does not exist \u2014 the pipeline never\
+    \ executed past data loading. The script `code/data/preprocess.py` itself looks\
+    \ substantively correct (grid, smoothing, normalization, unit conversion, filtering,\
+    \ NPZ schema), but no evidence shows it ever ran successfully or produced the\
+    \ NPZ with the required shapes/normalization."
+  sig: 2f4e4b495eb95c720584f0b9aac8994719c5a8ecd55d883d64190f85619217de

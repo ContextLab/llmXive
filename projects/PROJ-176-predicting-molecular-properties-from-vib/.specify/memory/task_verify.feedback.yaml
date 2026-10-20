@@ -10,8 +10,17 @@ T004:
     exit=1'
   task: f364919b54bcffd1a2e99da6d0d01337bf55e3dd4d4dfc4ecf28fec34e8743f0
 T005:
+  reason: "The required output `data/processed/aligned_dataset.npz` is MISSING, and\
+    \ the recorded test run of `tests/test_preprocess.py` failed (exit 1) with all\
+    \ 3 tests erroring because `data/raw/qm9.parquet` does not exist \u2014 the pipeline\
+    \ never executed past data loading. The script `code/data/preprocess.py` itself\
+    \ looks substantively correct (grid, smoothing, normalization, unit conversion,\
+    \ filtering, NPZ schema), but no evidence shows it ever ran successfully or produced\
+    \ the NPZ with the required shapes/normalization."
   task: bc5166bc8d169b2d5732d73e1304d6e5112341560ae022e7beaa291da9258ef3
 T006:
+  reason: 'Requested task execution failed; rerun successfully: code/data/bias_audit.py
+    exit=1'
   task: 9c927bd9fb687abf54c934f21eebca1fe0bc9810fd05df2a3857d67e9c2e0c10
 T007:
   task: 7fb6c9d70d882200498c1691a8da4e3661b8c9aca759f2d21ec8280d5259b8d0

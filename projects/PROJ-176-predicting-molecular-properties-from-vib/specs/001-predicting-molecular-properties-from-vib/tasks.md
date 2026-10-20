@@ -15,7 +15,7 @@ The goal is to deliver a fully reproducible CPU‑only pipeline that (1) downloa
   - `specs/001-predict-molecular-properties/contracts/evaluation_results.schema.yaml`  
   *Verification*: `python -c "import yaml, glob; [yaml.safe_load(open(f)) for f in glob.glob('specs/001-predict-molecular-properties/contracts/*.yaml')]"` exits 0 and each file is non‑empty.  
 
-- [ ] T003 [US1] **Download QM9 properties and IR‑spectra, verify integrity, fast‑failure on corruption** – implement `code/data/download.py` to:   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T003 [US1] **Download QM9 properties and IR‑spectra, verify integrity, fast‑failure on corruption** – implement `code/data/download.py` to:   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED: unspecified -->
   1. Load QM9 via `datasets.load_dataset('lisn519010/QM9', split='train', data_dir='data/raw')` → `data/raw/qm9.parquet`.  
   2. Load IR‑spectra via `datasets.load_dataset('lamblador/QM9-IR', split='train', data_dir='data/raw')` → `data/raw/ir_spectra.parquet`.  
   3. Compute SHA‑256 checksums for both files and compare against known values (recorded in `results/checksums.json`).  
@@ -36,7 +36,7 @@ The goal is to deliver a fully reproducible CPU‑only pipeline that (1) downloa
   Saves `data/processed/aligned_dataset.npz` containing arrays `spectra`, `dipole`, `polarizability`, `gap`, `InChIKeys`, and a placeholder `selection_bias_stats`.  
   *Verification*: loading the NPZ yields `spectra.shape == (N,1,3601)`, `np.allclose(spectra.sum(axis=2), 1.0, atol=1e-6)`, no NaNs in target arrays, and the file size < 1 GB.  
 
-- [ ] T006 [US1] **Selection‑bias audit (KS test) and optional weighting** – `code/data/bias_audit.py` runs a two‑sample Kolmogorov–Smirnov test comparing the distribution of each target property in the aligned subset vs. the full QM9 set, stores `statistic` and `p_value` for each property in `data/processed/aligned_dataset.npz` under `selection_bias_stats`. If any p‑value < 0.05, compute inverse‑probability weights and save a weighted training mask `data/processed/weight_mask.npy`.  
+- [ ] T006 [US1] **Selection‑bias audit (KS test) and optional weighting** – `code/data/bias_audit.py` runs a two‑sample Kolmogorov–Smirnov test comparing the distribution of each target property in the aligned subset vs. the full QM9 set, stores `statistic` and `p_value` for each property in `data/processed/aligned_dataset.npz` under `selection_bias_stats`. If any p‑value < 0.05, compute inverse‑probability weights and save a weighted training mask `data/processed/weight_mask.npy`.   <!-- FAILED-IN-EXECUTION: code/data/bias_audit.py exit=1 -->
   *Verification*: `selection_bias_stats` fields are present and match the values printed to console; `weight_mask.npy` exists only when bias is detected.  
 
 ## Phase 2 – Model training, evaluation & independent validation  

@@ -30,65 +30,50 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; 8 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py train --max-samples 30000 (rc=2); 4 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/processed/alignment_report.json; data/raw/ir_spectra.parquet
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; 8 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py train --max-samples 30000 (rc=2); 5 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/processed/alignment_report.json; data/processed/weight_mask.npy
 
 ## Failing / missing run-book commands
 
 - python code/main.py download -> rc=1
-file_instructions
-    absolute_instructions = instruction.to_absolute(name2len)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-176-predicting-molecular-properties-from-vib/lib/python3.11/site-packages/datasets/arrow_reader.py", line 620, in to_absolute
-    return [_rel_to_abs_instr(rel_instr, name2len) for rel_instr in self._relative_instructions]
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-176-predicting-molecular-properties-from-vib/lib/python3.11/site-packages/datasets/arrow_reader.py", line 620, in <listcomp>
-    return [_rel_to_abs_instr(rel_instr, name2len) for rel_instr in self._relative_instructions]
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-176-predicting-molecular-properties-from-vib/lib/python3.11/site-packages/datasets/arrow_reader.py", line 437, in _rel_to_abs_instr
-    raise ValueError(f'Unknown split "{split}". Should be one of {list(name2len)}.')
-ValueError: Unknown split "train". Should be one of ['full'].
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 268, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 252, in main
+    run_download(args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 146, in run_download
+    logger = get_logger()
+             ^^^^^^^^^^^^
+TypeError: get_logger() missing 1 required positional argument: 'name'
 
 - python code/main.py preprocess -> rc=1
-176-predicting-molecular-properties-from-vib/code/data/preprocess.py", line 96, in main
-    qm9_df = load_qm9_data()
-             ^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/preprocess.py", line 19, in load_qm9_data
-    return pd.read_parquet(qm9_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 667, in read_parquet
-    return impl.read(
-           ^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 267, in read
-    path_or_handle, handles, filesystem = _get_path_or_handle(
-                                          ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 140, in _get_path_or_handle
-    handles = get_handle(
-              ^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 882, in get_handle
-    handle = open(handle, ioargs.mode)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/qm9.parquet'
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 268, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 254, in main
+    run_preprocess(args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 161, in run_preprocess
+    logger = get_logger()
+             ^^^^^^^^^^^^
+TypeError: get_logger() missing 1 required positional argument: 'name'
 
 - python code/main.py train --max-samples 30000 -> rc=2
-2026-10-20 12:11:12 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --max-samples 30000
 
 - python code/main.py evaluate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-20 12:11:13 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
 
 - python code/main.py validate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-20 12:11:13 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
 
 - python code/main.py control --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-20 12:11:13 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: argument command: invalid choice: 'control' (choose from 'download', 'preprocess', 'train', 'evaluate', 'validate')
@@ -126,40 +111,25 @@ ERROR: file or directory not found: >
 
 - data/processed/aligned_dataset.npz
 - data/processed/alignment_report.json
+- data/processed/weight_mask.npy
 - data/raw/ir_spectra.parquet
 - data/raw/qm9.parquet
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `qm9pack` to the project's `requirements.txt` and `pip install qm9pack`.
-- **Verified**: this loads **130831** real records with fields: XYZ_file, Index, SMILES, InChi, N_atoms, Stoichiometry, Elements, XYZ_Ang, Mulliken_pop, Harmonic_Freq_cmi, RotA_GHz, RotB_GHz, RotC_GHz, Dipole_debye, Polarizability_bohr3, HOMO_au, LUMO_au, HOMO_LUMO_gap_au, R2_bohr2, ZPVE_au, InternalEnergy_0K_au, InternalEnergy_298K_au, Enthalphy_298K_au, GibbsFreeEnergy_298K_au, Heatcapacity_Cv_cal_mol_K, A_xx, A_xy, A_yy, A_xz, A_yz, A_zz.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-from qm9pack import get_data
-
-df = get_data('qm9')
-records = len(df)
-print(f"RECORDS={records}")
-if records:
-    print("FIELDS=" + ",".join(df.iloc[0].to_dict().keys()))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/aligned_dataset.npz` is declared but was NOT written. Scripts referencing it:
+    - `code/data/bias_audit.py` — NOT invoked by the run-book
     - `code/data/preprocess.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/aligned_dataset.npz` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/alignment_report.json` is declared but was NOT written. Scripts referencing it:
     - `code/data/align.py` — NOT invoked by the run-book
     - `code/data/download.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/alignment_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/weight_mask.npy` is declared but was NOT written. Scripts referencing it:
+    - `code/data/bias_audit.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/weight_mask.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/ir_spectra.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/data/align.py` — NOT invoked by the run-book
     - `code/data/download.py` — NOT invoked by the run-book
@@ -168,6 +138,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/raw/ir_spectra.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/qm9.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/data/align.py` — NOT invoked by the run-book
+    - `code/data/bias_audit.py` — NOT invoked by the run-book
     - `code/data/download.py` — NOT invoked by the run-book
     - `code/data/preprocess.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command

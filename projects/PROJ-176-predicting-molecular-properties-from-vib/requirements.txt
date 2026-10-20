@@ -1,3 +1,11 @@
 pyarrow<17.0.0
 qm9pack
 datasets
+scipy
+numpy
+pandas
+torch==2.2.0+cpu
+scikit-learn
+tensorboard
+ruff
+pytest
