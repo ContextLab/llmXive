@@ -5,7 +5,7 @@ type: "object"
 properties:
   spectra:
     type: "array"
-    description: "Normalized, smoothed IR spectra. Shape: [N, single‑channel, 3601]"
+    description: "Normalized, smoothed IR spectra. Shape: [N, a single‑channel dimension, covering the full spectral range]"
     items:
       type: "array"
       items:
@@ -26,7 +26,7 @@ properties:
       format: "float32"
   gap:
     type: "array"
-    description: "HOMO-LUMO gap target values (eV). Shape: [N]"
+    description: "HOMO‑LUMO gap target values (eV). Shape: [N]"
     items:
       type: "number"
       format: "float32"

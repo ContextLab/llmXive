@@ -1,14 +1,13 @@
 status: none
-intent: download QM9 dataset and QM9-IR infrared spectra aligned InChIKey python package
-  dataset
+intent: download QM9 dataset, QM9-IR spectra, and QM9-IR B3LYP python package
 required_fields:
 - InChIKey
 - molecule_id
-- dipole_moment
-- isotropic_polarizability
-- homo_lumo_gap
 - ir_wavenumbers
 - ir_intensities
-cache_key: fcf3e2907062abafb04de1ab464dc5c92dfc7ea7f92b93f8e8e7c61f986cc4a9
-searched_at: '2026-10-20T13:20:55.505021+00:00'
+- dipole_moment
+- polarizability
+- homo_lumo_gap
+cache_key: 12734bbbc2384e74c2453c8f5d0f2df5a719993a316e1402f2bf301eeae765b9
+searched_at: '2026-10-20T13:25:04.120820+00:00'
 retry_count: 1
