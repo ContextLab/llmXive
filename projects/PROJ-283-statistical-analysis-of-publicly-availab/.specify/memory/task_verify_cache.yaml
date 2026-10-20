@@ -1,11 +1,12 @@
 T001:
-  c: true
-  h: c08e2d83bb31a1c75c9a5216093bd17f937e100a7d57f649e714d26d680d53a0
-  r: "Checked the collector\u2011confirmed directory listings showing that all required\
-    \ folders (`src/`, `tests/`, `data/`, `specs/`, `data/raw/`, `data/processed/`,\
-    \ `data/results/`, `specs/contracts/`, `tests/contract/`, `tests/unit/`, `tests/integration/`)\
-    \ exist, and the setup script log reports successful creation."
-  sig: 9e907b84ff03569ba405890a887abe2ed6b4f14c2481bd3a721435a9e58d0ab8
+  c: false
+  h: a228f950d8bfb6fbc044a54ae7fa9ae6fa6ca36d46611817cd251584a425452a
+  r: The collector shows all required directories are present, but the provided verification
+    test (`tests/unit/test_structure.py`) fails with a `NameError` because `sys` is
+    not imported, so the assertion that the directories exist does not actually pass.
+    The test script must be corrected (e.g., import `sys`) and rerun so that the existence
+    check succeeds.
+  sig: 391df92d5b3bc701197501752630bffc9d1decc3586eae574b272a2a14b983ae
 T002:
   c: true
   h: 8f2cf628a6d91755f2e5e4dc02bc4c4a07a0cd3caf2380a40168aec0bae72386
@@ -14,29 +15,29 @@ T002:
   sig: 9aecca85d05a8ee2e3623e1cc293deb38a29e81ce76ed9e53441244e5a2670d0
 T003:
   c: false
-  h: 06ecd69453547deb7566ef328ec7e572e5f883a9a627bf98a3f56d966c5e418d
-  r: "The `pyproject.toml` file is present and includes proper `ruff` and `black`\
-    \ configuration, but there is no evidence (e.g., command output, logs, or exit\u2011\
-    code records) that `ruff check` and `black --check .` were actually run and exited\
-    \ with code\u202F0. The required verification step is missing."
-  sig: cba23cea9757e5ed122af7a0b36e8ce442c1905e6a90e2943f5d84eff5edb87a
+  h: dad1a0e9605e5bb86b1e1bb0aa01ad418ff2026dc3a471ebd73e614a52af0a5c
+  r: "Checked the `pyproject.toml` (present with ruff and black sections) and the\
+    \ execution log `code/.tasks/T003.tests_unit_test_lint_and_format.py.log`, which\
+    \ shows the `ruff check` and `black --check .` commands both failing (exit code\u202F\
+    1). The required zero\u2011exit\u2011code lint/format checks were not satisfied."
+  sig: 325aa1b64b5273fd0b51161749f10e5c6145d76901711e354347c68c8474f95d
 T004:
-  c: true
-  h: f5022f809895c70922602c750c3436eca18b57cb70d4a132cf77075945093648
-  r: "The `src/config.py` file (1056\u202Fbytes) is present and defines `RANDOM_SEED`,\
-    \ the required directory path constants, `LICHESS_DATASET_URL`, `SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME\
-    \ = 2000`, and `USE_MOVE_5 = False` with the correct types and values. All required\
-    \ constants are correctly set, satisfying the task specification."
-  sig: 89d695b52cd82b3a70e0fc2112ce4ed1fcec81942269438dcd8b73ed380fce4e
+  c: false
+  h: 261e0bb80b2482056a994e16f0dbc8b433343d98a4d01f06814d8aeb5b2a59a6
+  r: "The provided `src/config.py` contains only helper functions (`ensure_directories`,\
+    \ `get_contract_path`) and does not define the required global constants such\
+    \ as seeds, path constants, the Lichess URL, `SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME\
+    \ = 2000`, or `USE_MOVE_5 = False`. These missing definitions mean the task\u2019\
+    s specification is not satisfied."
+  sig: 476f350adbc626de150610171311faa88131184ac2eaf8a82bf8f22249069c87
 T006:
   c: false
-  h: 685327f39216c7a3a302f9ed600c4ee64181a568289e96c52c9413d652c14817
-  r: "The file `specs/contracts/game_record.schema.yaml` exists and contains a non\u2011\
-    empty schema, but there is no evidence that its SHA\u2011256 hash matches the\
-    \ expected CI checksum, nor any test output showing that a pytest schema\u2011\
-    lint passed with a known\u2011good example. These verification steps are required\
-    \ to consider the task complete."
-  sig: 97b9a8a6813d63a03f16e5567985e261e1b88bf9ae5d91ebe081dae6f213e387
+  h: f915f4d5be2a524a30c729086bf7684e23506c104fc1397f62e350bab3fd8f6f
+  r: "The schema file exists only at `specs/001-statistical-analysis-of-publicly-availab/game_record.schema.yaml`,\
+    \ not at the required `specs/contracts/game_record.schema.yaml`, causing the pytest\
+    \ contract test to fail (file missing). The task\u2019s placement and checksum\
+    \ requirements are therefore unmet."
+  sig: 5bea38a7d56b4d77939360caceec0c1b9b6169938731432fea19dd2081c66cde
 T007:
   c: false
   h: d593efdbc71f034b7bf83024bd4c72fb5e1be0c8599a405110fb017b1da05264

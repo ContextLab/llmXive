@@ -70,7 +70,7 @@ E   ImportError: cannot import name 'ValidationResult' from 'src.validation.vali
 ERROR tests/contract/test_validate_contracts.py
 ERROR tests/contract/test_validation.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.26s ===============================
+============================== 2 errors in 0.27s ===============================
 
 
 - python -m pytest tests/unit -v -> rc=2
@@ -91,7 +91,7 @@ ERROR tests/unit/test_save_metrics.py
 ERROR tests/unit/test_sensitivity.py
 ERROR tests/unit/test_sensitivity_edge_cases.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 10 errors in 0.84s ==============================
+============================== 10 errors in 0.87s ==============================
 
 
 - python -m pytest tests/integration -v -> rc=2
@@ -112,7 +112,7 @@ E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 =========================== short test summary info ============================
 ERROR tests/integration/test_pipeline.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.42s ===============================
+=============================== 1 error in 0.43s ===============================
 
 
 

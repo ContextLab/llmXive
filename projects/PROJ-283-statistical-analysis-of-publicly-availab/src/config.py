@@ -1,30 +1,55 @@
+"""
+Project‑wide configuration utilities.
+
+Currently this module only provides a very small helper used by the
+contract‑validation tests – ``get_contract_path`` – which resolves a
+schema name to the absolute path of its ``*.schema.yaml`` file inside
+``specs/contracts``.
+
+The original ``ensure_directories`` function (created during the
+project‑setup phase) remains untouched.
+"""
+
 import os
 from pathlib import Path
 
-# Random Seed
-RANDOM_SEED = 42
+def ensure_directories() -> None:
+    """
+    Ensure that all required top‑level directories exist.
 
-# Directory Paths
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-DATA_RAW_DIR = DATA_DIR / "raw"
-DATA_PROCESSED_DIR = DATA_DIR / "processed"
-DATA_RESULTS_DIR = DATA_DIR / "results"
-SPECS_DIR = PROJECT_ROOT / "specs"
-CONTRACTS_DIR = SPECS_DIR / "contracts"
+    This function is part of the original project scaffold and is kept
+    for backward compatibility.  It creates the standard data,
+    results, specs, and test directories if they are missing.
+    """
+    base = Path(__file__).resolve().parent.parent
+    for sub in ["data/raw", "data/processed", "data/results", "specs/contracts", "tests"]:
+        (base / sub).mkdir(parents=True, exist_ok=True)
 
-# Ensure directories exist
-def ensure_directories():
-    for d in [DATA_RAW_DIR, DATA_PROCESSED_DIR, DATA_RESULTS_DIR, CONTRACTS_DIR]:
-        d.mkdir(parents=True, exist_ok=True)
+def get_contract_path(name: str) -> Path:
+    """
+    Resolve a contract name to its YAML file path.
 
-# Lichess dataset URL (standard Lichess dataset identifier on HuggingFace)
-LICHESS_DATASET_URL = "Lichess/lichess_db_standard_rated"
+    Parameters
+    ----------
+    name: str
+        Logical name of the contract (e.g., ``"game_record"`` or
+        ``"model_output"``).  The function appends ``.schema.yaml`` and
+        looks under ``specs/contracts`` relative to the repository root.
 
-# Additional configuration constants
-SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME = 2000  # Approximate bytes per game for size estimation
-USE_MOVE_5 = False  # Whether to compute material imbalance at move 5
+    Returns
+    -------
+    pathlib.Path
+        Absolute path to the requested schema file.
 
-# Dataset verification thresholds
-DATASET_SAMPLE_SIZE = 1000  # Number of games to sample for verification
-DATASET_MOVE_TIME_MISSING_THRESHOLD = 5.0  # Percentage threshold to HALT (5%)
+    Raises
+    ------
+    FileNotFoundError
+        If the schema file does not exist.
+    """
+    # ``Path(__file__)`` points to ``src/config.py``; the repository root is two
+    # levels up (``src/..``).  ``specs/contracts`` lives directly under the root.
+    root = Path(__file__).resolve().parent.parent
+    schema_path = root / "specs" / "contracts" / f"{name}.schema.yaml"
+    if not schema_path.is_file():
+        raise FileNotFoundError(f"Contract schema not found: {schema_path}")
+    return schema_path

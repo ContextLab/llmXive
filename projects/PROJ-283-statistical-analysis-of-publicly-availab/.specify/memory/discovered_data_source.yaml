@@ -1,17 +1,18 @@
 status: none
-intent: Lichess game database with ratings and move times download python package
-  dataset
+intent: download Lichess PGN games with ratings and move times official-stockfish
+  fishtest_pgns HuggingFace python package dataset
 required_fields:
 - game_id
 - eco_code
+- avg_move_time
+- material_imbalance_move10
 - white_rating
 - black_rating
-- move_times
-- average_move_time
-- material_imbalance_move10
-- elo_expected_probability
-- game_result
+- elo_expected_prob
+- outcome
 - outcome_deviation
-cache_key: ad7c6d6d7329a2157670628309b0dd5f9dd6fdbd9a550fb2a3cac46f9a2fb36b
-searched_at: '2026-10-20T14:23:50.213691+00:00'
+- pgn_moves
+- move_times
+cache_key: 3384d1f5acf48c19c61f8be602f7078077d57d79886d0919503978abc2f6182e
+searched_at: '2026-10-20T14:28:00.644261+00:00'
 retry_count: 1

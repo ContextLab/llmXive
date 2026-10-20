@@ -1,89 +1,61 @@
-name: GameRecord
-description: |
-  Schema for the processed chess game records containing features
-  extracted from PGN files and calculated Elo statistics.
-  Aligns with Plan.md Complexity Tracking override of Spec FR-002.
-version: "1.0.0"
-columns:
-  - name: game_id
-    type: string
-    description: Unique identifier for the game (typically PGN header or hash)
-    nullable: false
-    constraints:
-      min_length: 1
-
-  - name: white_rating
-    type: float64
-    description: ELO rating of the white player
-    nullable: false
-    constraints:
-      min: 100
-      max: 4000
-
-  - name: black_rating
-    type: float64
-    description: ELO rating of the black player
-    nullable: false
-    constraints:
-      min: 100
-      max: 4000
-
-  - name: eco_code
-    type: string
-    description: Encyclopaedia of Chess Openings code (e.g., 'B00')
-    nullable: false
-    constraints:
-      pattern: "^[A-E][0-9]{2}$"
-
-  - name: avg_move_time_white
-    type: float64
-    description: Average time in seconds per move for white player
-    nullable: false
-    constraints:
-      min: 0.0
-
-  - name: avg_move_time_black
-    type: float64
-    description: Average time in seconds per move for black player
-    nullable: false
-    constraints:
-      min: 0.0
-
-  - name: material_imbalance_move5
-    type: float64
-    description: |
-      Material imbalance (White - Black) in standard piece values
-      evaluated at the end of move 5. Positive values favor White.
-      Aligns with Plan.md override of Spec FR-002 (Move 5 vs Move 10).
-    nullable: false
-
-  - name: outcome
-    type: string
-    description: Actual game result ('1-0', '0-1', '1/2-1/2', '*')
-    nullable: false
-    constraints:
-      allowed_values:
-        - "1-0"
-        - "0-1"
-        - "1/2-1/2"
-        - "*"
-
-  - name: elo_expected_prob
-    type: float64
-    description: |
-      Expected probability of white winning based on Elo difference,
-      calculated as P = 1 / (1 + 10^((R_black - R_white) / 400)).
-      Clamped to [0.01, 0.99] for numerical stability.
-    nullable: false
-    constraints:
-      min: 0.01
-      max: 0.99
-
-  - name: outcome_deviation
-    type: float64
-    description: |
-      Difference between actual outcome (mapped to 1.0, 0.0, 0.5)
-      and expected probability. Used for model training targets.
-    nullable: false
-
-primary_key: game_id
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GameRecord"
+description: "Schema for a single chess game record with calculated features."
+type: "object"
+properties:
+  game_id:
+    type: "string"
+    description: "Unique identifier for the game."
+  white_rating:
+    type: "integer"
+    description: "White player's rating."
+  black_rating:
+    type: "integer"
+    description: "Black player's rating."
+  eco_code:
+    type: "string"
+    description: "Original ECO code."
+  eco_family:
+    type: "string"
+    description: "Collapsed opening family."
+  avg_move_time_white:
+    type: "number"
+    description: "Average move time for White in seconds."
+  avg_move_time_black:
+    type: "number"
+    description: "Average move time for Black in seconds."
+  material_imbalance_move10:
+    type: "number"
+    description: "Material difference at move 10 (White - Black)."
+  outcome:
+    type: "number"
+    description: "Actual result (1.0, 0.5, or 0.0)."
+    minimum: 0.0
+    maximum: 1.0
+  time_control:
+    type: "string"
+    description: "Time‑control category (blitz, rapid, classical)."
+  elo_expected_prob:
+    type: "number"
+    description: "Expected win probability for White."
+    minimum: 0.0001
+    maximum: 0.9999
+  outcome_deviation:
+    type: "number"
+    description: "Difference between actual and expected outcome."
+    minimum: -1.0
+    maximum: 1.0
+required:
+  - game_id
+  - eco_code
+  - eco_family
+  - avg_move_time_white
+  - avg_move_time_black
+  - material_imbalance_move10
+  - outcome
+  - time_control
+  - elo_expected_prob
+  - outcome_deviation
+  - white_rating
+  - black_rating
+additionalProperties: false
