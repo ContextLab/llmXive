@@ -2,10 +2,9 @@
 
 Pipeline:
   1. verify_dataset_id() -- FR-012(1) gate runs BEFORE any download; halts on mismatch.
-  2. Fetch ds004510 from the OpenNeuro S3 HTTPS endpoint via curl (fallback wget),
-     processing subjects iteratively (one subject at a time; never loading
-     all subjects at once) to stay within ~7 GB RAM.
-  3. Record SHA-256 checksums of every downloaded file in data/raw/checksums.json.
+  2. Fetch ds004510 from the OpenNeuro HTTP endpoint via curl (fallback wget),
+     download a full zip archive, extract it, and keep only the requested number of subjects.
+  3. Record SHA-256 checksums of every extracted file in data/raw/checksums.json.
   4. verify_conditions() -- FR-012(2)/FR-008 gate after metadata is available.
   5. Validate dataset metadata against contracts/dataset.schema.yaml and write
      data/results/dataset_metadata.json.
@@ -14,15 +13,11 @@ Usage: python code/download.py --subjects 2
 """
 
 import argparse
-import csv
-import hashlib
 import json
 import os
-import re
 import shutil
 import subprocess
 import sys
-import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import requests
@@ -33,7 +28,6 @@ from llmxive_toolkit import paths, get_logger
 from verify_references import (
     CANONICAL_DATASET_ID,
     S3_BASE,
-    collect_events,
     verify_dataset_id,
     verify_conditions,
 )
@@ -49,205 +43,53 @@ SCHEMA_PATH = (
     / "dataset.schema.yaml"
 )
 
-def _strip_ns(tag):
-    """Strip XML namespace from tag."""
-    return tag.split("}")[-1]
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _run_cmd(cmd):
+    """Run a command via subprocess, raising RuntimeError on failure."""
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Command {' '.join(cmd)} failed with rc={result.returncode}: {result.stderr}"
+        )
+    return result.stdout
 
-# ----------------------------------------------------------------------
-# Helper functions (unchanged where still useful)
-# ----------------------------------------------------------------------
-def s3_list(prefix, delimiter=None):
-    """List objects in the public OpenNeuro S3 bucket under `prefix` (paginated)."""
-    keys, prefixes = [], []
-    token = None
-    while True:
-        params = {"list-type": "2", "prefix": prefix, "max-keys": "1000"}
-        if delimiter:
-            params["delimiter"] = delimiter
-        if token:
-            params["continuation-token"] = token
-        try:
-            resp = requests.get(S3_BASE, params=params, timeout=60)
-            resp.raise_for_status()
-        except requests.RequestException as exc:
-            raise RuntimeError(
-                f"Failed to list S3 objects under {prefix}: {exc}"
-            )
-        root = ET.fromstring(resp.text)
-        for child in root:
-            name = _strip_ns(child.tag)
-            if name == "Contents":
-                for sub in child:
-                    if _strip_ns(sub.tag) == "Key":
-                        keys.append(sub.text)
-            elif name == "CommonPrefixes":
-                for sub in child:
-                    if _strip_ns(sub.tag) == "Prefix":
-                        prefixes.append(sub.text)
-            elif name == "Error":
-                raise RuntimeError(f"S3 listing error: {ET.tostring(child)}")
-        truncated = False
-        token = None
-        for child in root:
-            if _strip_ns(child.tag) == "IsTruncated" and child.text == "true":
-                truncated = True
-            if _strip_ns(child.tag) == "NextContinuationToken":
-                token = child.text
-        if not truncated or token is None:
-            break
-    return keys, prefixes
-
-def resolve_dataset_prefix():
-    """Return the S3 key prefix holding current ds004510 files (versioned if applicable)."""
-    base = CANONICAL_DATASET_ID + "/"
-    # Use '/' delimiter to obtain CommonPrefixes (possible version folders)
-    keys, prefixes = s3_list(base, delimiter="/")
-    if keys:
-        # Flat layout (no versioning)
-        return base
-    # Look for versioned prefixes like '1.0.0/'
-    version_prefixes = [
-        p.rstrip("/")
-        for p in prefixes
-        if re.fullmatch(r"\d+(\.\d+)*", p.rstrip("/"))
-    ]
-    if version_prefixes:
-        version_prefixes.sort(key=lambda v: tuple(int(x) for x in v.split(".")))
-        latest = version_prefixes[-1]
-        print(f"Resolved dataset version: {latest} (latest of {version_prefixes})")
-        return base + latest + "/"
-    raise RuntimeError(
-        f"No objects found under s3://{S3_BASE}/{base}; dataset {CANONICAL_DATASET_ID} is not reachable."
-    )
-
-# ----------------------------------------------------------------------
-# Core download logic (enhanced to robustly detect EEG subjects)
-# ----------------------------------------------------------------------
-def fetch_file(url, dest, max_retries=3):
-    """Fetch one file via curl (fallback wget). Fails loudly; no synthetic fallback."""
+def _download_file(url, dest):
+    """Download a file using curl (fallback wget)."""
     dest.parent.mkdir(parents=True, exist_ok=True)
 
-    # Try curl first
-    curl_cmd = [
-        "curl", "-fSL", "--retry", str(max_retries),
-        "--connect-timeout", "60", "--max-time", "300",
-        "-o", str(dest), url,
-    ]
-    proc = subprocess.run(curl_cmd, capture_output=True, text=True)
-    if proc.returncode == 0:
+    curl_cmd = ["curl", "-L", "-fSL", "--retry", "3", "-o", str(dest), url]
+    try:
+        _run_cmd(curl_cmd)
         return
+    except RuntimeError as e:
+        log.warning("curl failed (%s); trying wget...", e)
 
-    log.warning("curl failed (%d) for %s; trying wget...", proc.returncode, url)
+    wget_cmd = ["wget", "-q", "--tries=3", "-O", str(dest), url]
+    _run_cmd(wget_cmd)
 
-    # Fallback to wget
-    wget_cmd = [
-        "wget", "-q", "--tries", str(max_retries),
-        "--timeout", "60", "-O", str(dest), url
-    ]
-    proc2 = subprocess.run(wget_cmd, capture_output=True, text=True)
-    if proc2.returncode != 0:
-        raise RuntimeError(
-            f"FAILED to download {url} (curl rc={proc.returncode}, wget rc={proc2.returncode})."
-        )
+def _record_checksums(root_dir):
+    """Record SHA-256 checksums of all files under root_dir into checksums.json."""
+    import hashlib
 
-def sha256_file(path, chunk_size=1024 * 1024):
-    """Compute SHA-256 hash of a file."""
-    h = hashlib.sha256()
-    with open(path, "rb") as fh:
-        for chunk in iter(lambda: fh.read(chunk_size), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-def _extract_subject_id_from_key(key):
-    """
-    Extract the BIDS subject identifier (e.g., 'sub-01') from an S3 key.
-    Returns None if not found.
-    """
-    m = re.search(r"/(sub-[A-Za-z0-9]+)(/|$)", f"/{key}")
-    if m:
-        return m.group(1)
-    return None
-
-def _is_eeg_file(key):
-    """Return True if the key points to a known EEG data file."""
-    eeg_exts = {".edf", ".set", ".bdf", ".fif", ".eeg", ".json"}
-    low = key.lower()
-    return "/eeg/" in low and any(low.endswith(ext) for ext in eeg_exts)
-
-def _is_events_file(key):
-    """Return True if the key is an events.tsv file."""
-    return key.lower().endswith("events.tsv")
-
-def download_subjects(n_subjects, raw_dir):
-    """
-    Download the dataset via S3, extract the requested number of subjects that contain
-    EEG data (or at least an events.tsv), and return a list of all extracted file paths.
-    """
-    raw_dir = Path(raw_dir)
-    raw_dir.mkdir(parents=True, exist_ok=True)
-
-    prefix = resolve_dataset_prefix()
-    all_keys, _ = s3_list(prefix)
-
-    # Map subject IDs to their relevant file keys
-    subj_to_keys = {}
-    for key in all_keys:
-        if _is_eeg_file(key) or _is_events_file(key):
-            subj = _extract_subject_id_from_key(key)
-            if subj:
-                subj_to_keys.setdefault(subj, []).append(key)
-
-    if not subj_to_keys:
-        raise RuntimeError("No subjects with EEG or events.tsv files found in the dataset.")
-
-    # Sort subjects numerically where possible for reproducibility
-    sorted_subjects = sorted(
-        subj_to_keys.keys(),
-        key=lambda s: int(re.sub(r"\D", "", s) or 0)
-    )
-
-    if n_subjects == 0:
-        selected_subjects = sorted_subjects
-    else:
-        selected_subjects = sorted_subjects[:n_subjects]
-
-    print(f"Dataset has {len(sorted_subjects)} EEG subjects; downloading {len(selected_subjects)}: {selected_subjects}")
-
-    downloaded_files = []
-    for subj in selected_subjects:
-        for key in subj_to_keys[subj]:
-            # Keep all EEG files and the events.tsv for the subject
-            rel_path = Path(*Path(key).parts[1:])  # drop the top-level dataset folder
-            dest_path = raw_dir / rel_path
-            file_url = f"{S3_BASE}/{key}"
-            print(f"Downloading {file_url} -> {dest_path}")
-            fetch_file(file_url, dest_path)
-            downloaded_files.append(dest_path)
-
-    return downloaded_files
-
-def record_checksums(files, raw_dir):
-    """Record SHA-256 checksums of downloaded files."""
-    checksums_path = Path(raw_dir) / "checksums.json"
     checksums = {}
-    if checksums_path.exists():
-        try:
-            checksums = json.loads(checksums_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            checksums = {}
+    for f in sorted(Path(root_dir).rglob("*")):
+        if f.is_file():
+            rel = str(f.relative_to(root_dir))
+            h = hashlib.sha256()
+            with open(f, "rb") as fh:
+                for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+                    h.update(chunk)
+            checksums[rel] = h.hexdigest()
+            log.info("SHA-256 %s  %s", checksums[rel][:16], rel)
 
-    for f in files:
-        rel = str(Path(f).relative_to(raw_dir))
-        checksums[rel] = sha256_file(f)
-        print(f"SHA-256 {checksums[rel][:16]}...  {rel}")
-
-    checksums_path.write_text(
-        json.dumps(checksums, indent=2, sort_keys=True), encoding="utf-8"
-    )
-    print(f"Checksums for {len(files)} files recorded in {checksums_path}")
+    out_path = Path(root_dir) / "checksums.json"
+    out_path.write_text(json.dumps(checksums, indent=2, sort_keys=True), encoding="utf-8")
+    log.info("Checksums written to %s", out_path)
     return checksums
 
-def validate_metadata(raw_dir):
+def _validate_metadata(raw_dir):
     """Validate dataset metadata against contracts/dataset.schema.yaml (FR-014)."""
     labels, stimulus_types, per_file = collect_events(raw_dir)
     if not stimulus_types:
@@ -259,16 +101,17 @@ def validate_metadata(raw_dir):
     schema = yaml.safe_load(SCHEMA_PATH.read_text(encoding="utf-8"))
     rows = []
     for events_path in sorted(Path(raw_dir).rglob("*events.tsv")):
-        subj_m = re.search(r"(sub-[A-Za-z0-9]+)", str(events_path))
-        if not subj_m:
+        subj_match = re.search(r"(sub-[A-Za-z0-9]+)", str(events_path))
+        if not subj_match:
             continue
-        subject_id = subj_m.group(1)
+        subject_id = subj_match.group(1)
 
         with open(events_path, newline="", encoding="utf-8") as fh:
             reader = csv.DictReader(fh, delimiter="\t")
             headers = reader.fieldnames or []
             rows_raw = list(reader)
 
+        # Determine condition and stimulus columns (same logic as in verify_references)
         cond_col = "condition_label" if "condition_label" in headers else None
         if cond_col is None:
             for h in headers:
@@ -306,19 +149,61 @@ def validate_metadata(raw_dir):
 
     out = paths.results("dataset_metadata.json")
     out.write_text(json.dumps(rows, indent=2), encoding="utf-8")
-    print(
-        f"Validated {len(rows)} metadata rows against {SCHEMA_PATH}; written to {out}"
-    )
+    log.info("Validated %d metadata rows against %s; written to %s", len(rows), SCHEMA_PATH, out)
     return rows
+
+# ----------------------------------------------------------------------
+# Core download logic (downloads whole dataset zip, extracts subset)
+# ----------------------------------------------------------------------
+def download_dataset_zip(raw_dir):
+    """Download the full dataset zip from OpenNeuro and extract it."""
+    raw_dir = Path(raw_dir)
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    zip_path = raw_dir / f"{CANONICAL_DATASET_ID}.zip"
+    if not zip_path.is_file():
+        # Construct a download URL. OpenNeuro provides a direct zip download at:
+        # https://openneuro.org/crn/datasets/{dataset_id}/download
+        url = f"https://openneuro.org/crn/datasets/{CANONICAL_DATASET_ID}/download"
+        log.info("Downloading dataset zip from %s to %s", url, zip_path)
+        _download_file(url, zip_path)
+    else:
+        log.info("Zip already present at %s", zip_path)
+
+    # Extract zip (if not already extracted)
+    extract_marker = raw_dir / ".extracted"
+    if not extract_marker.is_file():
+        log.info("Extracting %s", zip_path)
+        shutil.unpack_archive(str(zip_path), str(raw_dir))
+        extract_marker.touch()
+    else:
+        log.info("Dataset already extracted.")
+    return raw_dir
+
+def prune_subjects(raw_dir, n_subjects):
+    """Keep only the first n_subjects (sorted) under raw_dir; delete others."""
+    subject_dirs = sorted([p for p in raw_dir.iterdir() if p.is_dir() and p.name.startswith("sub-")])
+    if n_subjects == 0:
+        log.info("Keeping all %d subjects.", len(subject_dirs))
+        return
+    keep = set(subject_dirs[:n_subjects])
+    log.info("Keeping subjects: %s", [p.name for p in keep])
+    for p in subject_dirs:
+        if p not in keep:
+            log.info("Removing extra subject directory %s", p)
+            shutil.rmtree(p)
 
 def main():
     parser = argparse.ArgumentParser(description="Download OpenNeuro ds004510 (FR-001)")
     parser.add_argument(
-        "--subjects", type=int, default=2,
-        help="Number of subjects to download for this pass (0 = all)",
+        "--subjects",
+        type=int,
+        default=2,
+        help="Number of subjects to keep for this pass (0 = all).",
     )
     parser.add_argument(
-        "--dataset-id", default=CANONICAL_DATASET_ID,
+        "--dataset-id",
+        default=CANONICAL_DATASET_ID,
         help="Dataset ID (verified against the canonical source before download)",
     )
     args = parser.parse_args()
@@ -327,18 +212,22 @@ def main():
     verify_dataset_id(args.dataset_id)
 
     raw_dir = paths.data("raw")
-    files = download_subjects(args.subjects, raw_dir)
-    if not files:
-        raise RuntimeError("No files were downloaded; halting.")
-    record_checksums(files, raw_dir)
+    # Download and extract the full dataset zip
+    download_dataset_zip(raw_dir)
+
+    # Prune to the requested number of subjects
+    prune_subjects(raw_dir, args.subjects)
+
+    # Record checksums for all extracted files
+    _record_checksums(raw_dir)
 
     # FR-012(2) / FR-008: condition gate.
     verify_conditions(raw_dir)
 
     # Validate metadata and write dataset_metadata.json
-    validate_metadata(raw_dir)
+    _validate_metadata(raw_dir)
 
-    print(f"Download stage complete: {len(files)} files under {raw_dir}")
+    log.info("Download stage complete for %d subjects under %s", args.subjects, raw_dir)
 
 if __name__ == "__main__":
     main()

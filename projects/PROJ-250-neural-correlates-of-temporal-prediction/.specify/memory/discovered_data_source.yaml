@@ -1,18 +1,18 @@
 status: none
-intent: download OpenNeuro ds004510 EEG dataset as python package dataset
+intent: download OpenNeuro ds004510 EEG dataset using pybids python package dataset
 required_fields:
-- subject_id
-- session_id
-- run_id
-- event_type
-- stimulus_onset
-- stimulus_type
-- condition
-- epoch_start_time
-- epoch_end_time
+- raw_eeg_signal
 - sampling_rate
 - channel_names
-- eeg_signal_matrix
-cache_key: 21dcdc4dc88a0545ecc605d38becca229f54dc7d4b59b212f2a3dd7ab239e135
-searched_at: '2026-10-18T09:17:12.490248+00:00'
+- channel_types
+- events
+- event_id
+- epoch_time_window
+- epoch_data
+- subject_id
+- session_id
+- task
+- run
+cache_key: c72b8f3024f508b3df2b17d04fc41aa9305169173a9c34e7c6aeba241d706068
+searched_at: '2026-10-20T05:19:20.711604+00:00'
 retry_count: 1

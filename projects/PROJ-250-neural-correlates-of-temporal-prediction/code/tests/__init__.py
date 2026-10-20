@@ -1,1 +1,1 @@
-# This file makes the `code/tests` directory a Python package.
+# This file ensures the tests package is recognized.

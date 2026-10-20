@@ -1,8 +1,10 @@
 mne>=1.7.0
-numpy
 pandas
+numpy
 scipy
 matplotlib
+seaborn
+statsmodels
 jsonschema
 pyyaml
 requests
