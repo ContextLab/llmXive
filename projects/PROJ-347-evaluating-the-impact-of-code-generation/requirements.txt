@@ -1,6 +1,12 @@
-datasets==2.18.0
-pandas==2.1.4
-requests==2.31.0
-transformers==4.36.2
-torch==2.2.0
-sentence-transformers==2.2.2
+# Core dependencies for the research pipeline
+pandas>=2.0
+numpy>=1.26,<2.0
+datasets>=2.19.0
+transformers>=4.41.2
+sentence-transformers>=2.2.2
+tqdm>=4.66.2
+# Pin a pyarrow version compatible with the bundled NumPy (1.26.x)
+pyarrow<15.0.0
+# Additional packages required by later pipeline stages (already in the base env)
+# semgrep, bandit, matplotlib, seaborn, scikit-learn, scipy, statsmodels, radon, pytest
+# Versions are left unpinned to use the environment defaults.

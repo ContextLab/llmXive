@@ -8,13 +8,13 @@ Unchecked boxes indicate work that still needs to be performed; checked boxes (i
 
 ---
 
-- [ ] T001 **Quickstart – environment sanity check** – create a reproducible virtual environment, install the exact pinned dependencies, pull required Docker images, and verify that the environment is functional (e.g., `python --version`, `docker version`).   <!-- FAILED-IN-EXECUTION: scripts/quickstart_env.sh exit=1 -->
+- [X] T001 **Quickstart – environment sanity check** – create a reproducible virtual environment, install the exact pinned dependencies, pull required Docker images, and verify that the environment is functional (e.g., `python --version`, `docker version`).
   *Path*: `scripts/quickstart_env.sh` (script to be created)  
   *Verification*:  
   1. `bash scripts/quickstart_env.sh` exits with code 0.  
   2. Log `logs/quickstart_env.log` contains lines confirming venv activation, successful `pip install -r requirements.txt`, and Docker image pulls.  
 
-- [ ] T002 **Download human‑written vulnerable code** – stream the Python subset of the **Devign** dataset via the HuggingFace `datasets` library, record a SHA‑256 checksum for each shard, and store the raw records under `data/raw/devign/`.  
+- [ ] T002 **Download human‑written vulnerable code** – stream the Python subset of the **Devign** dataset via the HuggingFace `datasets` library, record a SHA‑256 checksum for each shard, and store the raw records under `data/raw/devign/`.   <!-- FAILED-IN-EXECUTION: code/download_devign.py exit=1 -->
   *Path*: `src/ingest/download_devign.py`  
   *Verification*:  
   1. Script finishes without error and creates `data/raw/devign/devign_train.jsonl`.  

@@ -1,13 +1,19 @@
 status: none
-intent: Devign CodeXGLUE OWASP Top 10 vulnerable code python package dataset
+intent: Download Devign vulnerable code dataset and OWASP Top 10 LLM python package
+  dataset
 required_fields:
-- snippet_id
-- function_name
-- code_snippet
-- programming_language
-- owasp_category
-- cve_reference
+- id
+- code
+- language
+- vulnerability_category
+- cwe_id
 - description
-cache_key: 99cb41fe391932eaed79ae843749b9e0b6055075b6f27875375bc3d93b9973e3
-searched_at: '2026-10-17T10:35:40.345779+00:00'
+- source_file
+- function_name
+- start_line
+- end_line
+- label
+- test_cases
+cache_key: 257b064432db47960cb1e090f97b6d9b0af2746483bc479fc3dba81f387b9c38
+searched_at: '2026-10-20T09:21:51.721418+00:00'
 retry_count: 1
