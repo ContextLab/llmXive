@@ -1,4 +1,8 @@
 T001:
+  reason: "The top\u2011level `logs/` directory is absent (only `code/logs/` exists)\
+    \ and the required `results/structure_report.txt` file is missing, so the verification\
+    \ step cannot be performed. Additionally, there is no evidence that `python -m\
+    \ compileall code/` was run successfully."
   task: bdd0cf57caa5b9170e4fd34cb1f2797509b5128411a6090a7f43a09a977f4c33
 T002:
   task: fa65ce1c923f39aa3a9cdfbdb727a348ebc2a7dd93c8576f7e9e1d4ce9f5c891

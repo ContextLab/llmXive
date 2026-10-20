@@ -6,7 +6,7 @@ The goal is to deliver a fully reproducible CPU‑only pipeline that (1) downloa
 
 ## Phase 1 – Project scaffolding, data ingestion & preprocessing  
 
-- [X] T001 [P] **Create project skeleton** – create the canonical directory tree (`code/`, `code/data/`, `code/models/`, `code/evaluation/`, `code/utils/`, `tests/`, `data/raw/`, `data/processed/`, `data/external/`, `results/`, `logs/`, `specs/001-predict-molecular-properties/`) and empty `__init__.py` files.  
+- [ ] T001 [P] **Create project skeleton** – create the canonical directory tree (`code/`, `code/data/`, `code/models/`, `code/evaluation/`, `code/utils/`, `tests/`, `data/raw/`, `data/processed/`, `data/external/`, `results/`, `logs/`, `specs/001-predict-molecular-properties/`) and empty `__init__.py` files.  
   *Verification*: `python -m compileall code/` exits 0 and `find . -type d | sort > results/structure_report.txt`; the report must list all expected directories.  
 
 - [X] T002 [P] **Materialize contract schemas** – copy the three YAML schema files to the spec folder:  
@@ -23,7 +23,7 @@ The goal is to deliver a fully reproducible CPU‑only pipeline that (1) downloa
   *Artifacts*: `data/raw/qm9.parquet`, `data/raw/ir_spectra.parquet`, `results/checksums.json`.  
   *Verification*: `code/data/download.py` exits 0, `results/checksums.json` contains `"status": "ok"`.  
 
-- [ ] T004 [US1] **Align datasets on InChIKey and discard mismatches** – `code/data/align.py` reads the two parquet files, performs an inner join on `InChIKey`, logs the number of matched and discarded molecules, and writes `data/processed/alignment_report.json`.   <!-- FAILED-IN-EXECUTION: code/data/align.py exit=1 -->
+- [ ] T004 [US1] **Align datasets on InChIKey and discard mismatches** – `code/data/align.py` reads the two parquet files, performs an inner join on `InChIKey`, logs the number of matched and discarded molecules, and writes `data/processed/alignment_report.json`.   <!-- FAILED-IN-EXECUTION: code/data/align.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/align.py exit=1 -->
   *Artifacts*: `data/processed/alignment_report.json` (fields: `matched`, `discarded`).  
   *Verification*: `alignment_report.json` exists, `matched >= 129000`, and the script exits 0.  
 

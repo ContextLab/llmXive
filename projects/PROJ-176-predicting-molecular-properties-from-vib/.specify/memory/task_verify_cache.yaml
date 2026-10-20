@@ -1,13 +1,11 @@
 T001:
-  c: true
-  h: 4096cd7a58a967a6d4eb4df4f4748eef2c4b158db9b72b472b168d1c1c50874d
-  r: The structure report lists all required directories (`code/`, `code/data/`, `code/models/`,
-    `code/evaluation/`, `code/utils/`, `tests/`, `data/raw/`, `data/processed/`, `data/external/`,
-    `results/`, `logs/`, `specs/001-predict-molecular-properties/`), the collector
-    confirms each exists with `__init__.py` markers in `code/` and its subpackages,
-    and the execution log records `code/create_skeleton.py` exiting 0. The `validation_results.json`
-    is unrelated to this skeleton task and does not affect the verdict.
-  sig: e9732da7d131d889dd86c4efe1d07c1f491e313525fbaad0cf5908ea9dd0624f
+  c: false
+  h: 5f638397afb8725679e3f1d97de5106af171cf759bf1f566076ea5f9bd661a6e
+  r: "The top\u2011level `logs/` directory is absent (only `code/logs/` exists) and\
+    \ the required `results/structure_report.txt` file is missing, so the verification\
+    \ step cannot be performed. Additionally, there is no evidence that `python -m\
+    \ compileall code/` was run successfully."
+  sig: cc079cb19ac11ce6097a313ce61275f2b3d30d589403f68685fccb20a2d6644d
 T002:
   c: true
   h: 4696d72a9c526011d1d24652a8e830c99ad78ecff46e8680d031f31471550fb6

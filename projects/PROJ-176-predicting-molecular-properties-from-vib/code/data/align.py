@@ -17,7 +17,7 @@ from llmxive_toolkit import paths, get_logger
 # Configure logger
 log = get_logger(__name__)
 
-def _ensure_raw_file(file_path: Path, dataset_name: str, split: str = "full") -> None:
+def _ensure_raw_file(file_path: Path, dataset_name: str, split: str = "train") -> None:
     """
     Ensure that a raw parquet file exists.
     If it does not, download the dataset from HuggingFace and write it to ``file_path``.
@@ -25,12 +25,13 @@ def _ensure_raw_file(file_path: Path, dataset_name: str, split: str = "full") ->
     if file_path.is_file():
         return
 
-    log.info(f"{file_path.name} not found – downloading {dataset_name} dataset")
+    log.info(f"{file_path.name} not found – downloading {dataset_name} dataset (split={split})")
+    # Load the specified split; many datasets expose a 'train' split that contains the full data.
     ds = load_dataset(dataset_name, split=split)
     # Ensure parent directory exists
     file_path.parent.mkdir(parents=True, exist_ok=True)
     ds.to_parquet(str(file_path), engine="pyarrow")
-    log.info(f"Saved {dataset_name} to {file_path}")
+    log.info(f"Saved {dataset_name} (split={split}) to {file_path}")
 
 def load_parquet(file_path: Path) -> pd.DataFrame:
     """Load a parquet file using pandas."""

@@ -10,73 +10,74 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”
 - code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”
-
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py train --max-samples 30000`
-  - script usage: `main.py [-h] {download,preprocess,train,evaluate,validate} ...`
-  - argparse error: `main.py: error: unrecognized arguments: --max-samples 30000`
-- run-book command: `python code/main.py evaluate --checkpoint models/checkpoint_best.pt`
-  - script usage: `main.py [-h] {download,preprocess,train,evaluate,validate} ...`
-  - argparse error: `main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt`
-- run-book command: `python code/main.py validate --checkpoint models/checkpoint_best.pt`
-  - script usage: `main.py [-h] {download,preprocess,train,evaluate,validate} ...`
-  - argparse error: `main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt`
-- run-book command: `python code/main.py control --checkpoint models/checkpoint_best.pt`
-  - script usage: `main.py [-h] {download,preprocess,train,evaluate,validate} ...`
-  - argparse error: `main.py: error: argument command: invalid choice: 'control' (choose from 'download', 'preprocess', 'train', 'evaluate', 'validate')`
+- code/main.py: synthetic/fake INPUT data not authorized by the spec — “….validate`` but with     synthetic data. For the purpose of the…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; 8 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py train --max-samples 30000 (rc=2); 5 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/processed/alignment_report.json; data/processed/weight_mask.npy
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; code/main.py: synthetic/fake INPUT data not authorized by the spec — “….validate`` but with     synthetic data. For the purpose of the…”; 6 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py evaluate --checkpoint models/checkpoint_best.pt (rc=1); 5 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/processed/alignment_report.json; data/processed/weight_mask.npy
 
 ## Failing / missing run-book commands
 
 - python code/main.py download -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 268, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 252, in main
-    run_download(args)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 146, in run_download
-    logger = get_logger()
-             ^^^^^^^^^^^^
-TypeError: get_logger() missing 1 required positional argument: 'name'
+file_instructions
+    absolute_instructions = instruction.to_absolute(name2len)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-176-predicting-molecular-properties-from-vib/lib/python3.11/site-packages/datasets/arrow_reader.py", line 620, in to_absolute
+    return [_rel_to_abs_instr(rel_instr, name2len) for rel_instr in self._relative_instructions]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-176-predicting-molecular-properties-from-vib/lib/python3.11/site-packages/datasets/arrow_reader.py", line 620, in <listcomp>
+    return [_rel_to_abs_instr(rel_instr, name2len) for rel_instr in self._relative_instructions]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-176-predicting-molecular-properties-from-vib/lib/python3.11/site-packages/datasets/arrow_reader.py", line 437, in _rel_to_abs_instr
+    raise ValueError(f'Unknown split "{split}". Should be one of {list(name2len)}.')
+ValueError: Unknown split "train". Should be one of ['full'].
 
 - python code/main.py preprocess -> rc=1
+data/preprocess.py", line 70, in _load_aligned_data
+    qm9_df = load_qm9_data()
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/preprocess.py", line 56, in load_qm9_data
+    return pd.read_parquet(qm9_path, engine="pyarrow")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 667, in read_parquet
+    return impl.read(
+           ^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 267, in read
+    path_or_handle, handles, filesystem = _get_path_or_handle(
+                                          ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 140, in _get_path_or_handle
+    handles = get_handle(
+              ^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/qm9.parquet'
+
+- python code/main.py evaluate --checkpoint models/checkpoint_best.pt -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 268, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 335, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 254, in main
-    run_preprocess(args)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 161, in run_preprocess
-    logger = get_logger()
-             ^^^^^^^^^^^^
-TypeError: get_logger() missing 1 required positional argument: 'name'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 323, in main
+    run_evaluate(args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 261, in run_evaluate
+    from evaluation.evaluate import main as evaluate_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/evaluation/evaluate.py", line 13, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 
-- python code/main.py train --max-samples 30000 -> rc=2
+- python code/main.py validate --checkpoint models/checkpoint_best.pt -> rc=1
 
-usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
-main.py: error: unrecognized arguments: --max-samples 30000
-
-- python code/main.py evaluate --checkpoint models/checkpoint_best.pt -> rc=2
-
-usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
-main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
-
-- python code/main.py validate --checkpoint models/checkpoint_best.pt -> rc=2
-
-usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
-main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
-
-- python code/main.py control --checkpoint models/checkpoint_best.pt -> rc=2
-
-usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
-main.py: error: argument command: invalid choice: 'control' (choose from 'download', 'preprocess', 'train', 'evaluate', 'validate')
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 335, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 325, in main
+    run_validate(args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 279, in run_validate
+    from evaluation.validate import main as validate_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/evaluation/validate.py", line 8, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 
 - python -m pytest tests/ -v > logs/pytest.log 2>&1 -> rc=4
 ============================= test session starts ==============================
