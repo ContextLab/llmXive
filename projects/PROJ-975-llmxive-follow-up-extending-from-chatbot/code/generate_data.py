@@ -1,48 +1,61 @@
-import json
 import os
-import random
-import logging
-import time
-import hashlib
+import json
 import yaml
-from typing import List, Dict, Any, Tuple, Optional
+import random
+import hashlib
+import argparse
+import logging
+from typing import List, Dict, Any
+
 import numpy as np
+from sentence_transformers import SentenceTransformer
 
-# Import from existing project modules as per API surface
 from code.config import get_seeds, get_experiment_config
-from code.utils import pairwise_cosine_similarity_matrix, mean_pairwise_similarity, get_model, get_embedding
 
+# Set up basic logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_RAW_DIR = os.path.join(PROJECT_ROOT, "data", "raw")
-STATE_DIR = os.path.join(PROJECT_ROOT, "state", "projects", "PROJ-975-llmxive-follow-up-extending-from-chatbot")
-TASKS_FILE = os.path.join(DATA_RAW_DIR, "tasks.json")
-SKILLS_FILE = os.path.join(DATA_RAW_DIR, "skills.json")
-STATE_FILE = os.path.join(STATE_DIR, "PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml")
-
-def check_memory_usage(threshold_gb: float = 7.0) -> bool:
-    """Check if current memory usage exceeds threshold (simple approximation)."""
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def check_memory_usage(threshold_gb: float = 2.0) -> bool:
+    """
+    Checks the current process memory usage. If it exceeds ``threshold_gb``,
+    raises a ``MemoryError``. Returns ``True`` if the check passes.
+    """
     try:
         import psutil
         process = psutil.Process(os.getpid())
         mem_gb = process.memory_info().rss / (1024 ** 3)
         if mem_gb > threshold_gb:
-            raise MemoryError(f"Memory usage ({mem_gb:.2f} GB) exceeds threshold ({threshold_gb} GB).")
+            raise MemoryError(
+                f"Memory usage ({mem_gb:.2f} GB) exceeds threshold ({threshold_gb} GB)."
+            )
         return True
     except ImportError:
-        logger.warning("psutil not installed. Skipping memory check.")
+        logger.warning("psutil not available – skipping memory usage check.")
         return True
 
-def generate_skills(seed: int, count: int = 100, overlap_level: str = 'medium') -> List[Dict[str, Any]]:
-    """Generate a set of synthetic Python skills with controlled semantic overlap."""
+def load_model() -> SentenceTransformer:
+    """
+    Loads the CPU‑only embedding model required by the specification:
+    ``sentence-transformers/all-MPNet-base-v2``.
+    """
+    return SentenceTransformer("sentence-transformers/all-MPNet-base-v2")
+
+def generate_skills(seed: int, count: int = 100, overlap_level: str = "medium") -> List[Dict[str, Any]]:
+    """
+    Generates ``count`` synthetic skill objects.  The ``overlap_level``
+    controls the amount of noise added to the base embeddings to achieve
+    the desired semantic density.
+    """
     random.seed(seed)
     np.random.seed(seed)
-    model = get_model()
-    
-    skills = []
+
+    model = load_model()
+
+    # Base function templates – each will be turned into a distinct skill.
     base_templates = [
         "def add(a, b): return a + b",
         "def subtract(a, b): return a - b",
@@ -76,200 +89,269 @@ def generate_skills(seed: int, count: int = 100, overlap_level: str = 'medium') 
         "def unique_elements(lst): return list(set(lst))",
     ]
 
-    # Generate embeddings and manipulate to achieve overlap
-    base_embeds = [get_embedding(model, t) for t in base_templates]
-    base_embeds = np.array(base_embeds)
-    
-    # Normalize
-    norms = np.linalg.norm(base_embeds, axis=1, keepdims=True)
-    base_embeds = base_embeds / (norms + 1e-8)
+    # Pre‑compute embeddings for the base templates (these are 768‑dim vectors)
+    base_embeddings = np.array([model.encode(t, convert_to_numpy=True) for t in base_templates])
+    # Normalise to unit length
+    base_embeddings /= np.linalg.norm(base_embeddings, axis=1, keepdims=True) + 1e-8
 
-    # Create variations to reach 'count' skills
+    # Noise magnitude per overlap level
+    noise_map = {
+        "low": 0.4,
+        "medium": 0.2,
+        "high": 0.05,
+    }
+    noise_level = noise_map.get(overlap_level.lower(), 0.2)
+
+    skills: List[Dict[str, Any]] = []
     while len(skills) < count:
-        # Pick a base
+        # Pick a random base template
         idx = random.randint(0, len(base_templates) - 1)
         base_text = base_templates[idx]
-        base_emb = base_embeds[idx]
-        
-        # Add noise to create variation
-        noise_level = 0.0
-        if overlap_level == 'low':
-            noise_level = 0.4
-        elif overlap_level == 'medium':
-            noise_level = 0.2
-        elif overlap_level == 'high':
-            noise_level = 0.05
-        
+        base_emb = base_embeddings[idx]
+
+        # Add Gaussian noise and renormalise
         noise = np.random.normal(0, noise_level, base_emb.shape)
         new_emb = base_emb + noise
-        new_emb = new_emb / (np.linalg.norm(new_emb) + 1e-8)
-        
-        # Create a slightly modified text
-        var_text = base_text
-        if "def" in base_text:
-            parts = base_text.split("def ")
-            if len(parts) > 1:
-                func_name = parts[1].split("(")[0]
-                var_text = f"def {func_name}_v{len(skills)}{parts[1]}"
-        
-        skills.append({
-            "skill_id": f"skill_{len(skills):03d}",
-            "function_code": var_text,
-            "embedding_vector": new_emb.tolist(),
-            "usage_count": 0
-        })
-    
+        new_emb /= np.linalg.norm(new_emb) + 1e-8
+
+        # Slightly modify the function name to keep code syntactically valid
+        func_name = base_text.split("def ")[1].split("(")[0]
+        variant_name = f"{func_name}_v{len(skills)}"
+        variant_code = base_text.replace(func_name, variant_name, 1)
+
+        skills.append(
+            {
+                "skill_id": f"skill_{len(skills):03d}",
+                "function_code": variant_code,
+                "embedding_vector": new_emb.tolist(),
+                "usage_count": 0,
+                "mean_cosine_similarity": None,  # will be filled later if needed
+            }
+        )
     return skills
 
+def pairwise_cosine_similarity_matrix(embeddings: np.ndarray) -> np.ndarray:
+    """
+    Returns a symmetric matrix of cosine similarities between all rows of
+    ``embeddings``.
+    """
+    normed = embeddings / (np.linalg.norm(embeddings, axis=1, keepdims=True) + 1e-8)
+    return np.dot(normed, normed.T)
+
+def mean_pairwise_similarity(matrix: np.ndarray) -> float:
+    """Computes the mean of the upper‑triangle (excluding diagonal) of ``matrix``."""
+    n = matrix.shape[0]
+    if n <= 1:
+        return 0.0
+    triu = matrix[np.triu_indices(n, k=1)]
+    return float(np.mean(triu))
+
 def calculate_similarity_metrics(skills: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Calculate pairwise cosine similarities and mean."""
-    if len(skills) < 2:
-        return {"mean": 0.0, "matrix": []}
-    
+    """
+    Computes the pairwise cosine‑similarity matrix and associated statistics
+    for a list of skill dictionaries.
+    """
     embeds = np.array([s["embedding_vector"] for s in skills])
     matrix = pairwise_cosine_similarity_matrix(embeds)
     mean_sim = mean_pairwise_similarity(matrix)
-    
-    # Validate thresholds based on overlap level
-    # This is a check, not a generator logic, but we return the metrics
+
+    # Percentage of pairs exceeding various thresholds (used for MEDIUM/HIGH)
+    upper = matrix[np.triu_indices(len(skills), k=1)]
+    pct_over_0_5 = float(np.mean(upper > 0.5))
+    pct_over_0_8 = float(np.mean(upper > 0.8))
+
     return {
-        "mean": float(mean_sim),
+        "mean": mean_sim,
+        "pct_over_0_5": pct_over_0_5,
+        "pct_over_0_8": pct_over_0_8,
         "matrix": matrix.tolist(),
-        "count": len(skills)
     }
 
-def generate_tasks_with_ground_truth(seed: int, skills: List[Dict[str, Any]], count: int = 500) -> List[Dict[str, Any]]:
-    """Generate tasks with ground truth paths using a distinct seed."""
+def meets_overlap_criteria(metrics: Dict[str, Any], level: str) -> bool:
+    """Evaluates whether ``metrics`` satisfy the semantic‑overlap constraints."""
+    level = level.lower()
+    mean = metrics["mean"]
+    if level == "low":
+        return mean < 0.30
+    elif level == "medium":
+        return mean > 0.50 and metrics["pct_over_0_5"] >= 0.30
+    elif level == "high":
+        return mean > 0.80 and metrics["pct_over_0_8"] >= 0.30
+    return False
+
+def generate_tasks_with_ground_truth(
+    seed: int, skills: List[Dict[str, Any]], count: int = 500
+) -> List[Dict[str, Any]]:
+    """
+    Generates ``count`` tasks.  Each task references 1‑3 ground‑truth skill IDs
+    and stores an embedding derived from the concatenated code snippets.
+    """
     random.seed(seed)
     np.random.seed(seed)
-    model = get_model()
-    
-    tasks = []
+    model = load_model()
+
     skill_ids = [s["skill_id"] for s in skills]
-    
+    tasks: List[Dict[str, Any]] = []
+
     for i in range(count):
-        # Ground truth: a small set of skill IDs (1 to 3 skills)
-        num_skills = random.randint(1, 3)
-        ground_truth = random.sample(skill_ids, num_skills)
-        
-        # Create a task description based on the ground truth skills
-        # In a real scenario, this would be more complex logic
-        # Here we synthesize a description that semantically aligns with the skills
-        gt_skills_data = [s for s in skills if s["skill_id"] in ground_truth]
-        code_snippets = [s["function_code"] for s in gt_skills_data]
-        combined_desc = " | ".join(code_snippets)
-        
-        # Generate embedding for the task
-        task_emb = get_embedding(model, combined_desc)
-        
-        tasks.append({
-            "task_id": f"task_{i:04d}",
-            "description": f"Perform operation using: {', '.join(ground_truth)}",
-            "ground_truth_path": ground_truth,
-            "embedding_vector": task_emb.tolist(),
-            "complexity": "medium"
-        })
-        
+        num_gt = random.randint(1, 3)
+        ground_truth = random.sample(skill_ids, num_gt)
+
+        # Build a synthetic description that loosely mirrors the selected skills
+        snippets = [s["function_code"] for s in skills if s["skill_id"] in ground_truth]
+        description_text = " | ".join(snippets)
+
+        task_emb = model.encode(description_text, convert_to_numpy=True)
+
+        tasks.append(
+            {
+                "task_id": f"task_{i:04d}",
+                "description": f"Perform operation using: {', '.join(ground_truth)}",
+                "ground_truth_path": ground_truth,
+                "complexity": random.randint(1, 5),
+                "embedding_vector": task_emb.tolist(),
+                "edge_case": False,
+            }
+        )
     return tasks
 
-def handle_maximal_overlap(skills: List[Dict[str, Any]], threshold: float = 0.95) -> bool:
-    """Check if mean pairwise similarity indicates maximal overlap edge case."""
-    metrics = calculate_similarity_metrics(skills)
-    return metrics["mean"] >= threshold
-
 def generate_checksum(file_path: str) -> str:
-    """Generate SHA-256 checksum for a file."""
-    sha256_hash = hashlib.sha256()
+    """Computes the SHA‑256 checksum of ``file_path``."""
+    sha256 = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        for block in iter(lambda: f.read(4096), b""):
+            sha256.update(block)
+    return sha256.hexdigest()
 
-def save_artifacts(tasks: List[Dict[str, Any]], skills: List[Dict[str, Any]], overlap_level: str, seed_a: int, seed_b: int):
-    """Save tasks and skills to JSON with metadata, and update state file with checksums."""
-    os.makedirs(DATA_RAW_DIR, exist_ok=True)
-    os.makedirs(STATE_DIR, exist_ok=True)
+def save_artifacts(
+    tasks: List[Dict[str, Any]],
+    skills: List[Dict[str, Any]],
+    overlap_level: str,
+    seed_a: int,
+    seed_b: int,
+) -> None:
+    """
+    Persists ``tasks`` and ``skills`` as JSON files under ``data/raw`` and
+    writes a ``checksums.json`` file containing their SHA‑256 digests.
+    """
+    from llmxive_toolkit import paths
 
-    # Prepare data with metadata
-    tasks_data = {
+    # Ensure directories exist
+    tasks_path = paths.data("raw", "tasks.json")
+    skills_path = paths.data("raw", "skills.json")
+    checksums_path = paths.data("raw", "checksums.json")
+
+    # Assemble wrapper structures with metadata (required by downstream tests)
+    tasks_wrapper = {
         "metadata": {
             "count": len(tasks),
             "overlap_level": overlap_level,
-            "seed_a": seed_a,
-            "seed_b": seed_b
+            "seed_b": seed_b,
         },
-        "tasks": tasks
+        "tasks": tasks,
     }
-    
-    skills_data = {
+
+    skills_wrapper = {
         "metadata": {
             "count": len(skills),
             "overlap_level": overlap_level,
-            "seed_a": seed_a
+            "seed_a": seed_a,
         },
-        "skills": skills
+        "skills": skills,
     }
 
-    # Write files
-    with open(TASKS_FILE, "w") as f:
-        json.dump(tasks_data, f, indent=2)
-    
-    with open(SKILLS_FILE, "w") as f:
-        json.dump(skills_data, f, indent=2)
+    # Write JSON files
+    with open(tasks_path, "w", encoding="utf-8") as f:
+        json.dump(tasks_wrapper, f, indent=2, ensure_ascii=False)
 
-    # Generate checksums
-    tasks_checksum = generate_checksum(TASKS_FILE)
-    skills_checksum = generate_checksum(SKILLS_FILE)
+    with open(skills_path, "w", encoding="utf-8") as f:
+        json.dump(skills_wrapper, f, indent=2, ensure_ascii=False)
 
-    # Update state file
-    state_content = {
-        "artifact_hashes": {
-            "tasks.json": tasks_checksum,
-            "skills.json": skills_checksum
-        }
-    }
-    
-    with open(STATE_FILE, "w") as f:
-        yaml.dump(state_content, f, default_flow_style=False)
-    
-    logger.info(f"Saved {len(tasks)} tasks and {len(skills)} skills.")
-    logger.info(f"Checksums: tasks={tasks_checksum[:16]}..., skills={skills_checksum[:16]}...")
-    logger.info(f"State updated at {STATE_FILE}")
+    # Compute checksums
+    tasks_checksum = generate_checksum(str(tasks_path))
+    skills_checksum = generate_checksum(str(skills_path))
 
-def main():
-    """Main entry point for data generation."""
-    logger.info("Starting data generation for T015...")
-    
-    # Check memory
-    check_memory_usage()
+    # Write checksums.json
+    with open(checksums_path, "w", encoding="utf-8") as f:
+        json.dump(
+            {"tasks.json": tasks_checksum, "skills.json": skills_checksum},
+            f,
+            indent=2,
+            ensure_ascii=False,
+        )
 
-    # Get config
+    logger.info(f"Saved {len(tasks)} tasks to {tasks_path}")
+    logger.info(f"Saved {len(skills)} skills to {skills_path}")
+    logger.info(f"Checksums written to {checksums_path}")
+
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Generate synthetic tasks and skills for the llmXive follow‑up experiment."
+    )
+    parser.add_argument(
+        "--overlap",
+        type=str,
+        choices=["LOW", "MEDIUM", "HIGH"],
+        default="MEDIUM",
+        help="Desired semantic overlap level for the skill library.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Optional base seed; if omitted, seeds are taken from the config.",
+    )
+    args = parser.parse_args()
+
+    # ------------------------------------------------------------------
+    # Memory guard
+    # ------------------------------------------------------------------
+    check_memory_usage(threshold_gb=2.0)
+
+    # ------------------------------------------------------------------
+    # Resolve seeds and configuration
+    # ------------------------------------------------------------------
     seeds = get_seeds()
-    seed_a = seeds["SEED_A"]
-    seed_b = seeds["SEED_B"]
+    seed_a = args.seed if args.seed is not None else seeds.get("SEED_A", 12345)
+    seed_b = args.seed if args.seed is not None else seeds.get("SEED_B", 12345)
+
     config = get_experiment_config()
-    overlap_level = config.get("OVERLAP_LEVEL", "medium")
+    overlap_level = args.overlap.upper()
+    logger.info(
+        f"Generating data with overlap={overlap_level}, seed_a={seed_a}, seed_b={seed_b}"
+    )
 
-    logger.info(f"Using Seed A: {seed_a}, Seed B: {seed_b}, Overlap: {overlap_level}")
+    # ------------------------------------------------------------------
+    # Skill generation – repeat until the overlap criteria are satisfied
+    # ------------------------------------------------------------------
+    while True:
+        skills = generate_skills(seed_a, count=100, overlap_level=overlap_level.lower())
+        metrics = calculate_similarity_metrics(skills)
+        logger.info(
+            f"Generated skill set – mean similarity={metrics['mean']:.4f}, "
+            f"%>0.5={metrics['pct_over_0_5']:.2%}, %>0.8={metrics['pct_over_0_8']:.2%}"
+        )
+        if meets_overlap_criteria(metrics, overlap_level):
+            logger.info(f"Overlap criteria for {overlap_level} satisfied.")
+            break
+        else:
+            logger.info(
+                f"Overlap criteria not met for {overlap_level}; regenerating..."
+            )
+            # Increment seed to obtain a different random draw
+            seed_a += 1
 
-    # Generate skills (Seed A)
-    logger.info("Generating skills...")
-    skills = generate_skills(seed_a, count=100, overlap_level=overlap_level)
-    
-    # Validate similarity metrics
-    metrics = calculate_similarity_metrics(skills)
-    logger.info(f"Mean pairwise similarity: {metrics['mean']:.4f}")
-    
-    # Handle edge case check
-    if handle_maximal_overlap(skills):
-        logger.warning("Maximal overlap detected! Setting edge case flag in metadata.")
-        # This flag would be handled by the agent later, but we note it here
-    
-    # Generate tasks (Seed B)
-    logger.info("Generating tasks...")
+    # ------------------------------------------------------------------
+    # Task generation
+    # ------------------------------------------------------------------
     tasks = generate_tasks_with_ground_truth(seed_b, skills, count=500)
 
-    # Save artifacts with checksums and state update
+    # ------------------------------------------------------------------
+    # Persist artifacts and checksums
+    # ------------------------------------------------------------------
     save_artifacts(tasks, skills, overlap_level, seed_a, seed_b)
 
     logger.info("Data generation completed successfully.")

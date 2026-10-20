@@ -1,0 +1,35 @@
+T001:
+  reason: The five contract schema files exist and contain the required `properties`
+    and `required` keys, but the required test suite `tests/contract/test_schema_presence.py`
+    is missing, so the verification step stipulated by the task cannot be performed.
+    Adding the missing test file (and ensuring it runs successfully) is needed to
+    complete the task.
+  task: 88f99ee1a044e59cb81303b300b40a2d39922defd6fcaea60a4de0cf5531fbea
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/generate_data.py
+    exit=1'
+  task: adce33071953bada9fa036a3fd40945c95c86f98e8aa2102d557d57440d19522
+T003:
+  task: 9e224cd9bfb4becbe2267eba7f9a2dd3664a8646b033cc120e7418605a85e524
+T004:
+  task: 5b1558822bd27468ffae105f291df456c916adad7dd6db8f7b4de95c03c39218
+T005:
+  task: 75ccbbcfdbfe38c550102e462f991906bf9948a8949e50e89a67c51fc5b26360
+T006:
+  task: 3274f3f0c5a1fad743fff1c91fe314f9dff14407307fc2b7e48d22f0bd361f84
+T007:
+  task: 0693b879b875aa71df57968ef21f0729979d4790fb93c457277a1d7c8ea33aca
+T008:
+  task: 9a28e1e3dffc2a8559f0a691bfcffe9a26b7304880129cd64f1a14283d93ec4f
+T009:
+  task: f159a029fcbf8d139bcef2f14e8d537fe0ea8e259a9ac95140c2740cff275e37
+T010:
+  task: 55c379a22dd6f20a0eef48f1121a2c8d2918101d55a9d359580c9072523e0931
+T011:
+  task: df4f8ff80ad2270cb498a697bcedc1559a34205debff850d7257bb1d7d7a2231
+T012:
+  task: a9510f8ae87b50f4f3e53beddc9f3add360734bfe1fa3ee3d659be8302a3095c
+T013:
+  task: fb27033794ab3b0568fe1e0bea15bf2c6c2450be263e08cb32b8b6598b5141d0
+T014:
+  task: e2866f97b6fb39537a26927edc402f454d3c413f050b6b3e38b0052b212c59ac
