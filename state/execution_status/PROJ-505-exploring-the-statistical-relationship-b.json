@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-19T22:16:13Z",
+  "updated_at": "2026-10-20T18:21:05Z",
   "project_id": "PROJ-505-exploring-the-statistical-relationship-b",
-  "replan_rounds": 1
+  "replan_rounds": 2
 }

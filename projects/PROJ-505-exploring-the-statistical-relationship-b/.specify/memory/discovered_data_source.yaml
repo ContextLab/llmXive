@@ -1,5 +1,5 @@
 status: none
-intent: CDAWeb ACE SWICS WIND composition NOAA Dst Kp python package dataset
+intent: ACE SWICS WIND composition CDAWeb NOAA Dst Kp OMNI python package dataset
 required_fields:
 - timestamp
 - o_fe_ratio
@@ -12,6 +12,7 @@ required_fields:
 - imf_bz
 - dst_index
 - kp_index
-cache_key: 9f481516b1eb0df077b2e32f5ac0c79db0f6729afd761f76712c4dce42ea895c
-searched_at: '2026-10-20T07:23:57.876298+00:00'
+- coupling_function
+cache_key: 11d6d653e2fc8177bdf3b8b9103de5b93f486aa2d513bd69bb34154125167354
+searched_at: '2026-10-20T18:21:05.063852+00:00'
 retry_count: 1
