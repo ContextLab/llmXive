@@ -1,0 +1,7 @@
+{
+  "task_id": "T016",
+  "fingerprint": "bfdd72f1f6d856ebb42546875578d01e0d35c1806a00a14963aa930cb70e2a6c",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/stats.py': imports nonexistent names from sibling files: `from exceptions import ResearchIncompleteError` (available: BenchmarkFailure, InvalidPrimeError, MemoryLimitExceeded, TotientError). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

@@ -19,49 +19,50 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/run_analysis.py --primes 3,5,7,11 --n 5000000 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/code/run_analysis.py", line 21, in <module>
-    from sieve import (
-ImportError: cannot import name 'MemoryGuard' from 'sieve' (/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/code/sieve.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/code/run_analysis.py", line 29, in <module>
+    from stats import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/code/stats.py", line 9, in <module>
+    from exceptions import ResearchIncompleteError
+ImportError: cannot import name 'ResearchIncompleteError' from 'exceptions' (/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/code/exceptions.py)
 
 - python -m pytest tests/unit/ -> rc=2
-e sure your test modules/packages have valid Python names.
+e/projects/PROJ-771-residue-distribution-of-euler-s-totient-/tests/unit/test_stats_t022.py'.
+Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_validate_benchmark.py:14: in <module>
-    from exceptions import BenchmarkFailure
-E   ImportError: cannot import name 'BenchmarkFailure' from 'exceptions' (/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/tests/unit/../../code/exceptions.py)
+tests/unit/test_stats_t022.py:10: in <module>
+    from stats import (
+code/stats.py:9: in <module>
+    from exceptions import ResearchIncompleteError
+E   ImportError: cannot import name 'ResearchIncompleteError' from 'exceptions' (/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/tests/unit/../../code/exceptions.py)
 =========================== short test summary info ============================
-ERROR tests/unit/test_error_handling.py
 ERROR tests/unit/test_run_analysis.py
-ERROR tests/unit/test_sieve.py
-ERROR tests/unit/test_sieve_error_handling.py
 ERROR tests/unit/test_stats.py
 ERROR tests/unit/test_stats_bootstrap.py
 ERROR tests/unit/test_stats_fallback.py
 ERROR tests/unit/test_stats_method.py
 ERROR tests/unit/test_stats_save.py
 ERROR tests/unit/test_stats_t022.py
-ERROR tests/unit/test_validate_benchmark.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 11 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 11 errors in 0.34s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 7 errors in 0.23s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
-bution-of-euler-s-totient-/tests/integration/test_t020_integration.py _
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/tests/integration/test_t020_integration.py'.
+module '/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/tests/integration/test_t020_integration.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/integration/test_t020_integration.py:10: in <module>
-    from sieve import compute_phi_linear_sieve, compute_residues
-E   ImportError: cannot import name 'compute_phi_linear_sieve' from 'sieve' (/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/code/sieve.py)
+tests/integration/test_t020_integration.py:11: in <module>
+    from stats import run_block_bootstrap_deviation_test, run_full_statistical_analysis, save_statistical_result, StatisticalResult
+code/stats.py:9: in <module>
+    from exceptions import ResearchIncompleteError
+E   ImportError: cannot import name 'ResearchIncompleteError' from 'exceptions' (/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/code/exceptions.py)
 =========================== short test summary info ============================
 ERROR tests/integration/test_quickstart_validation.py
-ERROR tests/integration/test_t013_save_residues.py
 ERROR tests/integration/test_t020_integration.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 0.22s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 2 errors in 0.19s ===============================
 
 

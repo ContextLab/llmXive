@@ -9,7 +9,7 @@
 - [X] T001  **Create configuration loader** – implement `code/config.py` that reads a YAML file `code/config.yaml` (default location) exposing `N`, `primes`, `seed`, and `memory_limit_mb`.  
   *Verification*: `tests/unit/test_config.py` loads the sample config and asserts the parsed values match the file.
 
-- [ ] T002 [FR‑007] **Define custom exception hierarchy** – add `code/exceptions.py` containing `TotientError`, `MemoryLimitExceeded`, and `InvalidPrimeError`, each with a clear error message.  
+- [X] T002 [FR‑007] **Define custom exception hierarchy** – add `code/exceptions.py` containing `TotientError`, `MemoryLimitExceeded`, and `InvalidPrimeError`, each with a clear error message.  
   *Verification*: `tests/unit/test_exceptions.py` imports the module, raises each exception, and checks that the message string matches the specification.
 
 - [ ] T003 [FR‑007] **Implement MemoryGuard** – create `code/memory_guard.py` with class `MemoryGuard` that polls `psutil.Process().memory_info().rss` every **10 000** sieve iterations and raises `MemoryLimitExceeded` when usage exceeds **90 %** of the `memory_limit_mb` from the config.  

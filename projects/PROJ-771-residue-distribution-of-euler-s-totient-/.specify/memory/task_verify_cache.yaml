@@ -9,11 +9,60 @@ T001:
     \ itself, and the loader implementation meets the specification."
   sig: 35918de154e20ee3d38e0d7a16ec1b09c0e963ea52fcd599c93a8d02bf618ca9
 T002:
+  c: true
+  h: 37e6e16c6ed5b0656a051f607dde71a7e5b5abffa97da5a3a804e63690c736ee
+  r: "Checked `code/exceptions.py` for the required three exception classes and their\
+    \ message implementations, and verified that `tests/unit/test_exceptions.py` imports\
+    \ them and all assertions pass (log shows 3 passed tests). The file exists, is\
+    \ non\u2011empty, and meets the specification."
+  sig: 79d3107dc2d32a677a943be36e472872d7988789a4e20584eafd8521dc281604
+T003:
   c: false
-  h: 757c5a281778f078b40dcf89dbc530b931063d205586cefc59b8fe0e2ff959af
-  r: The `code/exceptions.py` file exists and defines the three exception classes
-    with deterministic messages, but the required test file `tests/unit/test_exceptions.py`
-    is missing, so we cannot verify that the messages match the specification or that
-    the module passes the intended unit tests. The missing test artifact must be added
-    (and pass) to satisfy the task.
-  sig: c9a1a3e6fe9887f0a1c06561b8a441fa4bbbd4352d99d58b9a5164d21b5860ae
+  h: ebe9af434800a3f226524db2a2c36c3a0616100bd724197f498d0cdd1827a640
+  r: "Checked `code/memory_guard.py` (exists) and the required test `tests/unit/test_memory_guard.py`\
+    \ (missing). The implementation raises `MemoryLimitExceeded` with the wrong constructor\
+    \ signature and also returns a boolean, deviating from the specification that\
+    \ requires raising the exception when usage exceeds 90\u202F% of the configured\
+    \ `memory_limit_mb`. The missing unit test means the required verification cannot\
+    \ be performed."
+  sig: d5a917ba525b4cab851b48846163b09fb48e45ef6eeeecf47571a6a8be329a2b
+T004:
+  c: false
+  h: 89326a6028722105a7c2872c2d9554655806b2858a95796b12011a01f4b6cd87
+  r: "The repository contains `code/seed.py` which pins `random` and `numpy` seeds\
+    \ and provides `get_seed()`, but it never writes the seed to any configuration\
+    \ object as required, and the integration test `tests/integration/test_seed_consistency.py`\
+    \ that should verify reproducible pipeline output is missing. Consequently the\
+    \ task\u2019s full requirement is not satisfied."
+  sig: 1e6664e9e2ff62dd982abe42d60b9612d969c00f436057bf8281f369150e7945
+T005:
+  c: false
+  h: e0e46b75e53c7835e48e677a3d27d8dbf2ed5722368c4fde508809fa95f998aa
+  r: "The provided `code/benchmark.py` creates the required JSON report with numeric\
+    \ `wall_time_sec` and `peak_memory_mb` fields, and `scripts/run_dummy.py` successfully\
+    \ generates `results/reports/benchmark_dummy.json`. However, the implementation\
+    \ records peak memory directly with `psutil` instead of using the specified `MemoryGuard`\
+    \ utility, violating the task\u2019s explicit requirement to obtain peak memory\
+    \ via `MemoryGuard`. The missing use of `MemoryGuard` must be added for the task\
+    \ to be considered complete."
+  sig: 3d19dbd747ea83a94c96fd44d8790d1b8b96065bc69f5ace1757c72d12482535
+T006:
+  c: false
+  h: 645730921e20154c45d37210623a80cbd5433f30f7cd723a68bf5787c71c2c2f
+  r: "Checked `code/sieve.py` and `tests/unit/test_sieve.py`. The sieve module\u2019\
+    s `compute_phi_linear_sieve` adds an optional `memory_guard` argument and calls\
+    \ `memory_guard.check()` (which raises an exception) instead of returning `False`\
+    \ as the test expects, so the memory\u2011guard test will fail. Moreover, the\
+    \ provided unit tests do not verify residue counts for primes\u202F3,\u202F5,\u202F\
+    7,\u202F11, and the `compute_residues` function is never exercised. Consequently\
+    \ the required behavior is not demonstrated."
+  sig: 92e2697f03a53962fdbb05aa3c24ac8648c40f4ec867d7a8b76088ccc5c7e788
+T007:
+  c: false
+  h: 4b02f5823d40790d2aeca7ee5114ff9789e9729079b1bbccf1bf55856657d27b
+  r: "The `tests/unit/test_sieve_mypy.py` file that should run mypy and check docstring\
+    \ coverage is missing, so there is no evidence that type\u2011checking passed\
+    \ or that every public callable has a non\u2011empty docstring. Additionally,\
+    \ the public `ResidueDataset` dataclass lacks a docstring. These gaps must be\
+    \ fixed for the task to be considered complete."
+  sig: 19eb6a407bc353444fd8931c7c1703d86fc591df806e08a02526628a74a30af6
