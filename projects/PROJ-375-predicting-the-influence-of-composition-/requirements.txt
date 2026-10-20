@@ -1,4 +1,14 @@
-# Project dependencies
-# Existing dependencies (numpy, pandas, scikit-learn, etc.) are provided by the platform.
-# Additional required packages:
-mendeleev>=0.12
+pandas==2.2.*
+numpy==1.26.*
+scikit-learn==1.5.*
+pymatgen==2024.*
+mendeleev==0.12.*
+requests
+joblib
+jsonschema
+PyYAML
+tqdm
+statsmodels==0.14.*
+seaborn
+matplotlib
+shap

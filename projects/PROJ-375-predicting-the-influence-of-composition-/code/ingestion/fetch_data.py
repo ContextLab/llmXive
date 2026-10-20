@@ -199,29 +199,49 @@ def fetch_data() -> Tuple[pd.DataFrame, str]:
     Returns a tuple ``(cleaned_dataframe, source)``.
     """
     mp_key = get_env_var("MP_API_KEY")
-    if not mp_key:
-        raise RuntimeError("Environment variable MP_API_KEY is required.")
 
     # ------------------- MP -------------------
-    mp_entries_raw = _query_materials_project(mp_key)
-    mp_path = paths.data("raw", "mp_data.json")
-    _save_json(mp_entries_raw, mp_path)
+    mp_entries_raw: List[Dict[str, Any]] = []
+    if mp_key:
+        try:
+            mp_entries_raw = _query_materials_project(mp_key)
+        except Exception as e:
+            logger.warning(f"Materials Project query failed: {e}")
+    else:
+        logger.warning("MP_API_KEY not set – skipping Materials Project query.")
+
+    if mp_entries_raw:
+        mp_path = paths.data("raw", "mp_data.json")
+        _save_json(mp_entries_raw, mp_path)
+    else:
+        mp_path = None
 
     # ------------------- AFLOW -------------------
-    aflow_entries_raw = _query_aflow()
-    aflow_path = paths.data("raw", "aflow_data.json")
-    _save_json(aflow_entries_raw, aflow_path)
+    aflow_entries_raw: List[Dict[str, Any]] = []
+    try:
+        aflow_entries_raw = _query_aflow()
+    except Exception as e:
+        logger.warning(f"AFLOWlib query failed: {e}")
+
+    if aflow_entries_raw:
+        aflow_path = paths.data("raw", "aflow_data.json")
+        _save_json(aflow_entries_raw, aflow_path)
+    else:
+        aflow_path = None
 
     # ------------------- Checksums -------------------
     checksums: List[str] = []
-    for p in [mp_path, aflow_path]:
-        checksum = compute_sha256(str(p))
-        checksums.append(f"{p.name}: {checksum}")
-
-    checksums_path = paths.data("checksums.txt")
-    checksums_path.parent.mkdir(parents=True, exist_ok=True)
-    checksums_path.write_text("\n".join(checksums), encoding="utf-8")
-    logger.info(f"Checksums written to {checksums_path}")
+    checksum_map: Dict[str, str] = {}
+    for src, p in [("materials_project", mp_path), ("aflowlib", aflow_path)]:
+        if p is not None and p.exists():
+            cs = compute_sha256(str(p))
+            checksums.append(f"{p.name}: {cs}")
+            checksum_map[src] = cs
+    if checksums:
+        checksums_path = paths.data("checksums.txt")
+        checksums_path.parent.mkdir(parents=True, exist_ok=True)
+        checksums_path.write_text("\n".join(checksums), encoding="utf-8")
+        logger.info(f"Checksums written to {checksums_path}")
 
     # ------------------- Normalise -------------------
     combined: List[Dict[str, Any]] = []
@@ -235,7 +255,9 @@ def fetch_data() -> Tuple[pd.DataFrame, str]:
             combined.append(norm)
 
     if not combined:
-        raise RuntimeError("No metallic‑glass entries with CTE were found after filtering.")
+        raise RuntimeError(
+            "No metallic‑glass entries with CTE were found after filtering."
+        )
 
     df = pd.DataFrame(combined)
 
@@ -258,21 +280,19 @@ def fetch_data() -> Tuple[pd.DataFrame, str]:
     # Drop rows with any missing descriptor (required by schema)
     df = pd.concat([df.reset_index(drop=True), desc_df], axis=1)
     before_drop = len(df)
-    df = df.dropna(subset=[
-        "weighted_mean_atomic_radius",
-        "electronegativity_variance",
-        "vec",
-        "atomic_size_coefficient_of_variation",
-    ])
+    df = df.dropna(
+        subset=[
+            "weighted_mean_atomic_radius",
+            "electronegativity_variance",
+            "vec",
+            "atomic_size_coefficient_of_variation",
+        ]
+    )
     dropped = before_drop - len(df)
     if dropped:
         logger.info(f"Dropped {dropped} rows due to missing descriptor values.")
 
     # ------------------- Checksums per source -------------------
-    checksum_map = {
-        "materials_project": compute_sha256(str(mp_path)),
-        "aflowlib": compute_sha256(str(aflow_path)),
-    }
     df["checksum"] = df["source"].map(checksum_map)
     df = df.drop(columns=["source"])
 
@@ -301,10 +321,10 @@ def fetch_data() -> Tuple[pd.DataFrame, str]:
     logger.info(f"Ingestion stats written to {stats_path}")
 
     # ------------------- Data‑availability report -------------------
-    report = {}
+    report: Dict[str, Dict[str, int]] = {}
     for src in ["materials_project", "aflowlib"]:
         raw = len(mp_entries_raw) if src == "materials_project" else len(aflow_entries_raw)
-        post_filter = df[df["checksum"] == checksum_map[src]].shape[0]
+        post_filter = df[df["checksum"] == checksum_map.get(src, "")].shape[0]
         valid_cte = df[df["cte"].notna()].shape[0]
         report[src] = {
             "raw_hit_count": raw,
