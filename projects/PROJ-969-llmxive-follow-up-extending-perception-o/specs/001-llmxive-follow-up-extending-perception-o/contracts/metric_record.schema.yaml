@@ -45,3 +45,6 @@ properties:
     type: integer
     minimum: 0
     description: "Number of samples flagged with grounding‑uncertainty (FR‑011)."
+  grounding_assessment_method:
+    type: string
+    description: "Method used to assess grounding validity (e.g., 'gpt4_judge')."

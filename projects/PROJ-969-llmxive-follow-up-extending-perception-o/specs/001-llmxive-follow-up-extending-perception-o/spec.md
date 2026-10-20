@@ -9,7 +9,7 @@
 
 ### User Story 1 - Baseline Prejudice Rate Calculation (Priority: P1) (See US-1)
 
-The research team needs to establish the baseline "Prejudice Rate" (PR) and "Holistic-Grounding Rate" (HR) for a selected ensemble of 27 MLLMs using the standard prompting protocol on the MM-OCEAN validation subset. This step is critical to quantify the magnitude of the "Prejudice Gap" before any intervention is applied, ensuring the study has a valid control condition.
+The research team needs to establish the baseline “Prejudice Rate” (PR) and “Holistic‑Grounding Rate” (HR) for a selected ensemble of MLLMs using the standard prompting protocol on the MM‑OCEAN validation subset. This step is critical to quantify the magnitude of the "Prejudice Gap" before any intervention is applied, ensuring the study has a valid control condition.
 
 **Why this priority**: Without a rigorous baseline measurement, the study cannot determine if the intervention has any effect. This is the foundational data point for all subsequent analysis and hypothesis testing.
 

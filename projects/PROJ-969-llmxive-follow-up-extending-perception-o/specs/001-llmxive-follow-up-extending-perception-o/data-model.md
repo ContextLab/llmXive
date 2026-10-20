@@ -20,29 +20,29 @@ required:
 properties:
   video_id:
     type: string
-    description: Unique identifier for the video sample.
+    description: "Unique identifier for the video sample."
   video_url:
     type: string
     format: uri
-    description: Direct URL to the video file (streamable).
+    description: "Direct URL to the video file (streamable)."
   transcript:
     type: string
-    description: Full spoken transcript of the video.
+    description: "Full spoken transcript of the video."
   setting:
     type: string
-    description: Situational tag (e.g., "job interview").
+    description: "Situational tag (e.g., \"job interview\")."
   culture:
     type: string
-    description: Cultural context (e.g., "East Asian").
+    description: "Cultural context (e.g., \"East Asian\")."
   behavior_tags:
     type: array
     items:
       type: string
-    description: List of observed behaviors (e.g., ["smiles", "nods"]).
+    description: "List of observed behaviors (e.g., [\"smiles\", \"nods\"])."
   ambiguous:
     type: boolean
     default: false
-    description: True if contradictory behavior tags exist (FR‑011).
+    description: "True if contradictory behavior tags exist (FR‑011)."
 ```
 
 ### 2. `context_profile.schema.yaml`
@@ -59,7 +59,7 @@ required:
 properties:
   profile_id:
     type: string
-    description: Identifier linking to a video metadata entry.
+    description: "Identifier linking to a video metadata entry."
   setting:
     type: string
   culture:
@@ -68,12 +68,12 @@ properties:
     type: array
     items:
       type: string
-    description: List of social norms relevant to the setting/culture.
+    description: "List of social norms relevant to the setting/culture."
   scripts:
     type: array
     items:
       type: string
-    description: Short situational scripts (e.g., "maintain eye contact").
+    description: "Short situational scripts (e.g., \"maintain eye contact\")."
 ```
 
 ### 3. `model_output.schema.yaml`
@@ -110,10 +110,10 @@ properties:
     maximum: 1.0
   context_cited:
     type: boolean
-    description: True if reasoning references at least one phrase from the injected context (IR metric).
+    description: "True if reasoning references at least one phrase from the injected context (IR metric)."
   valid_json:
     type: boolean
-    description: True if the model output conforms to the expected JSON schema.
+    description: "True if the model output conforms to the expected JSON schema."
 ```
 
 ### 4. `metric_record.schema.yaml` *(contract file)*
@@ -165,6 +165,9 @@ properties:
     type: integer
     minimum: 0
     description: "Number of samples flagged with grounding‑uncertainty (FR‑011)."
+  grounding_assessment_method:
+    type: string
+    description: "Method used to assess grounding validity (e.g., 'gpt4_judge')."
 ```
 
 ## Data Flow Diagram (conceptual)
@@ -190,3 +193,5 @@ raw video metadata ──► video_metadata.schema.yaml
 Each stage reads the previous artifact, validates against its schema, and writes the next artifact to `data/derived/`. Contract tests enforce schema compliance before downstream stages run.
 
 ---
+
+

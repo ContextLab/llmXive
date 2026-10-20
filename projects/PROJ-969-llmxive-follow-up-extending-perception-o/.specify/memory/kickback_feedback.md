@@ -1,0 +1,16 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 8 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'science'. Routing to 'specified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- The paired analysis treats each model as a single observation (n=27). Detecting a moderate effect (Cohen’s d≈0.5) with only 27 paired points is under‑powered; a formal power analysis is missing and the claim of ≈80 % power is unsupported.
+- ‘Correct rating’ and ‘grounding validity’ are defined only by exact phrase overlap with metadata. This simplistic construct may not capture true correctness or grounding, threatening construct validity of the Prejudice Rate (PR) and Holistic‑Grounding Rate (HR).
+- All models are run in 4‑bit quantized mode, but the impact of quantization on each model’s baseline vs. context performance is not controlled or measured, introducing a potential confound between model capacity and the intervention effect.
+- The fallback that drops to the top‑15 models or samples fewer frames changes the composition of the dataset mid‑experiment, creating selection bias that can invalidate the causal claim about context injection.
+- The plan does not specify randomization of condition order across videos/models; without counterbalancing, order effects (e.g., fatigue or caching) could confound the paired comparisons.
+- Phase 8 — Reporting is listed without any explicit FR or SC linkage. All functional requirements (FR‑001 – FR‑011) and success criteria (SC‑001 – SC‑009) are already covered by earlier phases; the plan should either reference an existing FR (e.g., a reporting‑or‑deliverable FR) or add a brief annotation indicating that this phase satisfies the overall reporting obligations implied by the specification.
+- "The MM‑OCEAN validation subset is **not** publicly downloadable (no verified URL). The plan flags FR‑001 as unmet and substitutes the open HuggingFace `mmbench/ocean` dataset for development; final results must be re‑run on the genuine MM‑OCEAN data once an official mirror is available."
+- The primary validation metric (Prejudice Rate, PR) is defined as the proportion of *correct* ratings that lack *valid grounding*, where ‘valid grounding’ is measured by exact‑phrase overlap between the model’s reasoning and the ground‑truth behavioral evidence tags. The ground‑truth evidence tags are derived from the same video metadata that is used to construct the injected context profiles. Consequently, when the Context‑Grounded prompt injects those exact phrases, the metric will automatically count them as ‘valid grounding’, guaranteeing a reduction in PR regardless of any genuine reasoning improvement. This creates a circular/tautological validation: the predictor (injected context) is definitionally part of the outcome measure (grounding validity), so the planned analysis can only ever confirm the hypothesis by construction rather than by empirical evidence.
