@@ -1,10 +1,11 @@
 T001:
-  c: true
-  h: f4cfac11afa26967bb10102383a43e73814ae3751e6ffda83580fa2613c5a69c
-  r: "Checked `code/01_data_ingestion.py` (implements real fetching with backoff,\
-    \ 2\u202Fs delays, parsing, cleaning, unit conversion, duplicate averaging, and\
-    \ writes the four required artifacts) and the generated files `data/raw/fetch_outcome.json`,\
-    \ `raw_scrape.json`, `raw_scrape_cleaned.csv`, `filtered_hosts.csv` (all present\
-    \ with correct columns). The script exits\u202F0 and the unit\u2011conversion\
-    \ and cleaning tests in `code/tests/test_data_ingestion.py` all pass."
-  sig: 78cf0718049e0b799bea7261a104d9a7c2cfef9031378eee0464b5e10d207a5d
+  c: false
+  h: 43353d44e20373bb385271dec68b180ff85efac8572159189d123b6121410997
+  r: "All four required output artifacts (`data/raw/fetch_outcome.json`, `raw_scrape.json`,\
+    \ `raw_scrape_cleaned.csv`, `filtered_hosts.csv`) are MISSING, so there is no\
+    \ evidence the script was ever run or exits 0. Additionally, `fetch_pubchem_records`\
+    \ substitutes XLogP3 values as \"binding constants\" with a hard-coded solvent\
+    \ \"acetonitrile\" \u2014 a fabricated stand-in for real halide-binding measurements,\
+    \ which the task explicitly forbids \u2014 and the tests lack the required zero-records/exit-0\
+    \ path coverage."
+  sig: 1d57fbddbed79af596f17deb469b3032d07262ed78dd3f6cc1cfb7e4fe4e3181

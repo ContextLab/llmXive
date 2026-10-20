@@ -30,23 +30,23 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 11 fabricated/simulated-result signal(s) — results are not real measurements: code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…ed (bool): If True, load simulated data. If False, load real cle…”; code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loading simulated data from {source_file}")…”; code/05_statistical_reporting.py: synthetic/fake INPUT data not authorized by the spec — “…,             "reason": "Simulated Data Mode",             "stat…”; every produced artifact is gitignored (data/raw/descriptors_added.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 run-book script(s) missing (plan/impl path mismatch): python code/06_partial_dependence.py; python code/07_independent_evaluation.py; 5 command(s) failed: python code/01_data_ingestion.py (rc=-1); python code/03_model_training.py (rc=1); python -m jsonschema -i data/processed/model_runs.json contracts/model_output.schema.yaml (rc=1); 6 declared deliverable(s) absent: data/processed/feature_analysis.json; data/processed/feature_interpretation_summary.csv; data/processed/halide_binding_data.csv
+**Summary**: 11 fabricated/simulated-result signal(s) — results are not real measurements: code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…ed (bool): If True, load simulated data. If False, load real cle…”; code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loading simulated data from {source_file}")…”; code/05_statistical_reporting.py: synthetic/fake INPUT data not authorized by the spec — “…,             "reason": "Simulated Data Mode",             "stat…”; every produced artifact is gitignored (data/raw/descriptors_added.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 run-book script(s) missing (plan/impl path mismatch): python code/06_partial_dependence.py; python code/07_independent_evaluation.py; 5 command(s) failed: python code/01_data_ingestion.py (rc=-1); python code/03_model_training.py (rc=1); python -m jsonschema -i data/processed/model_runs.json contracts/model_output.schema.yaml (rc=1); 9 declared deliverable(s) absent: data/processed/feature_analysis.json; data/processed/feature_interpretation_summary.csv; data/processed/halide_binding_data.csv
 
 ## Failing / missing run-book commands
 
 - python code/01_data_ingestion.py -> rc=-1
 nChI,XLogP3/JSON
-2026-10-20 20:30:12,299 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 1/5 after 2s.
-2026-10-20 20:30:14,509 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 2/5 after 4s.
-2026-10-20 20:30:18,728 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 3/5 after 8s.
-2026-10-20 20:30:26,940 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 4/5 after 16s.
-2026-10-20 20:30:43,037 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 5/5 after 32s.
+2026-10-20 21:09:18,327 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 1/5 after 2s.
+2026-10-20 21:09:20,390 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 2/5 after 4s.
+2026-10-20 21:09:24,485 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 3/5 after 8s.
+2026-10-20 21:09:32,544 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 4/5 after 16s.
+2026-10-20 21:09:48,612 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 5/5 after 32s.
 
 [TIMEOUT after 120s]
 - python code/03_model_training.py -> rc=1
 
-2026-10-20 20:31:03,917 - __main__ - INFO - Starting model training pipeline...
-2026-10-20 20:31:03,918 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
+2026-10-20 21:10:11,278 - __main__ - INFO - Starting model training pipeline...
+2026-10-20 21:10:11,278 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/03_model_training.py", line 331, in <module>
     main()
@@ -65,7 +65,7 @@ FileNotFoundError: Preprocessed data not found at data/processed/halide_binding_
 
 - python code/04_feature_analysis.py -> rc=1
 
-2026-10-20 20:31:04,911 - __main__ - INFO - Starting Feature Analysis (US3)...
+2026-10-20 21:10:12,787 - __main__ - INFO - Starting Feature Analysis (US3)...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/04_feature_analysis.py", line 236, in <module>
     main()
@@ -109,6 +109,9 @@ FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXi
 - data/processed/model_runs.json
 - data/processed/physical_plausibility.json
 - data/processed/statistical_summary.json
+- data/raw/filtered_hosts.csv
+- data/raw/raw_scrape.json
+- data/raw/raw_scrape_cleaned.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -150,3 +153,16 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/07_validate_quickstart.py` — NOT invoked by the run-book
     - `code/08_update_state_hashes.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/statistical_summary.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/filtered_hosts.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_ingestion.py` — IS a run-book command
+    - `code/02_feature_engineering.py` — IS a run-book command
+    - `code/07_validate_quickstart.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/filtered_hosts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/raw_scrape.json` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_ingestion.py` — IS a run-book command
+    - `code/07_validate_quickstart.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/raw_scrape.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/raw_scrape_cleaned.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_ingestion.py` — IS a run-book command
+    - `code/07_validate_quickstart.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/raw_scrape_cleaned.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

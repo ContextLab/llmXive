@@ -1,4 +1,11 @@
 T001:
+  reason: "All four required output artifacts (`data/raw/fetch_outcome.json`, `raw_scrape.json`,\
+    \ `raw_scrape_cleaned.csv`, `filtered_hosts.csv`) are MISSING, so there is no\
+    \ evidence the script was ever run or exits 0. Additionally, `fetch_pubchem_records`\
+    \ substitutes XLogP3 values as \"binding constants\" with a hard-coded solvent\
+    \ \"acetonitrile\" \u2014 a fabricated stand-in for real halide-binding measurements,\
+    \ which the task explicitly forbids \u2014 and the tests lack the required zero-records/exit-0\
+    \ path coverage."
   task: 6fc85c67a890179250d7ef70ec3ef06cbeb60406f86019c72fd3769863f09581
 T002:
   task: 5783bf0aa9574d60d08368290da99823d955926db8f650c45db374542b2418ec
