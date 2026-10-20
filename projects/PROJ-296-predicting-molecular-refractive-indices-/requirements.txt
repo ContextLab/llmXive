@@ -1,9 +1,7 @@
 # Project dependencies
-# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil)
-# are already provided by the execution environment.
-#
-# Additional third‑party packages required for this task:
-huggingface_hub>=0.23.0
-# PyTorch and PyTorch Geometric are required later in the pipeline;
-# they are installed separately as per the quickstart instructions.
+# Core scientific stack is already available in the runner environment.
+# Additional packages required for the download step:
+openml
+# Note: RDKit is required for later preprocessing steps (code/data/preprocess.py)
+# but is not part of the default environment.  Install it via conda or a
+# suitable wheel if you wish to run the full pipeline locally.

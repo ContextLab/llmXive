@@ -10,7 +10,7 @@ The script is intended to be run as a stand‑alone command:
 
 It performs the following steps:
 
-1. Download the dataset CSV from Hugging Face Hub using ``hf_hub_download``.
+1. Download the dataset from OpenML (dataset ID 219 – “Molecule Refractive Index”).
 2. Persist the file to ``data/raw/ri_dataset.csv`` (creating the ``raw``
    directory if necessary).
 3. Compute the SHA‑256 checksum of the persisted file.
@@ -32,20 +32,26 @@ from pathlib import Path
 import pandas as pd
 import yaml
 from jsonschema import Draft7Validator, ValidationError
-from huggingface_hub import hf_hub_download
-
 from llmxive_toolkit import paths, get_logger
+
+# ``openml`` is not part of the default environment – it is declared in
+# ``requirements.txt``.  Import lazily so that a clear error is raised if
+# the package cannot be installed.
+try:
+    import openml
+except ImportError as exc:
+    raise ImportError(
+        "The 'openml' package is required to download the dataset. "
+        "Please ensure it is listed in requirements.txt and installed."
+    ) from exc
 
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Updated to a publicly accessible Hugging Face dataset.
-HF_REPO_ID = "chemistry/ri_dataset"
-
-# Name of the CSV file inside the repository.
-HF_DATASET_FILENAME = "ri_dataset.csv"
+# OpenML dataset ID for the refractive‑index dataset.
+OPENML_DATASET_ID = 219  # “Molecule Refractive Index”
 
 # Destination for the raw CSV file.
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
@@ -82,32 +88,54 @@ def write_checksum(checksum: str) -> None:
 
 def download_dataset() -> pd.DataFrame:
     """
-    Download the dataset CSV from Hugging Face Hub and return it as a
+    Download the refractive‑index dataset from OpenML and return it as a
     ``pandas.DataFrame``.
     """
     log.info(
-        f"Downloading '{HF_DATASET_FILENAME}' from repository '{HF_REPO_ID}' via huggingface_hub …"
+        f"Downloading OpenML dataset id={OPENML_DATASET_ID} (Molecule Refractive Index)…"
     )
     try:
-        local_path = hf_hub_download(
-            repo_id=HF_REPO_ID,
-            filename=HF_DATASET_FILENAME,
-            repo_type="dataset",
-            force_download=False,
-        )
+        oml_dataset = openml.datasets.get_dataset(OPENML_DATASET_ID)
     except Exception as exc:
         raise RuntimeError(
-            f"Failed to download dataset file '{HF_DATASET_FILENAME}' from '{HF_REPO_ID}': {exc}"
+            f"Failed to retrieve OpenML dataset {OPENML_DATASET_ID}: {exc}"
         ) from exc
 
-    log.info(f"Dataset downloaded to temporary location {local_path}")
+    # ``get_data`` returns a tuple (dataframe, ...).  We only need the dataframe.
+    df, *_ = oml_dataset.get_data()
+    if not isinstance(df, pd.DataFrame):
+        raise RuntimeError("OpenML did not return a pandas DataFrame.")
 
-    try:
-        df = pd.read_csv(local_path)
-    except Exception as exc:
-        raise RuntimeError(f"Failed to read downloaded CSV into pandas: {exc}") from exc
+    log.info(f"Retrieved {len(df)} records from OpenML.")
 
-    log.info(f"Loaded {len(df)} records from the CSV.")
+    # ------------------------------------------------------------------
+    # Normalise column names to the schema expectations.
+    # ------------------------------------------------------------------
+    # Expected columns: ``smiles`` and ``refractive_index``.
+    # OpenML may use different capitalisation or aliases.
+    column_map = {}
+    for col in df.columns:
+        lowered = col.lower()
+        if "smiles" in lowered:
+            column_map[col] = "smiles"
+        elif "refractive" in lowered or lowered == "ri":
+            column_map[col] = "refractive_index"
+
+    if set(column_map.values()) != {"smiles", "refractive_index"}:
+        missing = {"smiles", "refractive_index"} - set(column_map.values())
+        raise RuntimeError(
+            f"Dataset is missing required columns after renaming: {missing}"
+        )
+
+    df = df.rename(columns=column_map)
+
+    # Ensure the two required columns are present and have appropriate dtypes.
+    if not pd.api.types.is_string_dtype(df["smiles"]):
+        df["smiles"] = df["smiles"].astype(str)
+
+    # Coerce refractive index to float.
+    df["refractive_index"] = pd.to_numeric(df["refractive_index"], errors="raise")
+
     return df
 
 

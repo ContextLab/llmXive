@@ -1,16 +1,5 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
-
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
-
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
-
-- `python code/data/download.py`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 3 run-book script(s) missing (plan/impl path mismatch): python training/train.py --epochs 200 --batch-size 32 --seed 42; python training/evaluate.py --model models/mpnn.pt; python models/attribution.py --model models/mpnn.pt --output results/attributions.csv; 2 command(s) failed: python code/data/download.py (rc=1); python code/data/preprocess.py --filter-mw 500 --split-ratio 0.8,0.1,0.1 (rc=1); 1 declared deliverable(s) absent: data/raw/ri_dataset.csv
@@ -24,23 +13,22 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'rdkit'
 
 - python code/data/download.py -> rc=1
-n:
+=response, url=url, file_elements=files)
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-296-predicting-molecular-refractive-indices-/lib/python3.11/site-packages/openml/_api_calls.py", line 452, in __check_response
+    raise __parse_server_exception(response, url, file_elements=file_elements)
+openml.exceptions.OpenMLServerNoResult: https://www.openml.org/api/v1/xml/data/219 returned code 111: Unknown dataset
+
+The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 199, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 227, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 162, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 190, in main
     df = download_dataset()
          ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 99, in download_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 100, in download_dataset
     raise RuntimeError(
-RuntimeError: Failed to download dataset file 'ri_dataset.csv' from 'chemistry/ri_dataset': 401 Client Error. (Request ID: Root=1-6ad55326-42d010c66a0ca62d3046f445;93a32445-19bd-4ac9-853e-9bd0d407a880)
-
-Repository Not Found for url: https://huggingface.co/datasets/chemistry/ri_dataset/resolve/main/ri_dataset.csv.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
-For more details, see https://huggingface.co/docs/huggingface_hub/authentication
-Invalid username or password.
+RuntimeError: Failed to retrieve OpenML dataset 219: https://www.openml.org/api/v1/xml/data/219 returned code 111: Unknown dataset
 
 - python code/data/preprocess.py --filter-mw 500 --split-ratio 0.8,0.1,0.1 -> rc=1
 
