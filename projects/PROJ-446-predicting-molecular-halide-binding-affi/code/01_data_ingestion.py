@@ -106,6 +106,7 @@ def is_solvent_valid(solvent: str) -> bool:
 def _request_with_backoff(url: str, max_retries: int = 5, base_delay: int = 2) -> requests.Response:
     """
     Perform an HTTP GET with exponential back‑off on 429/503.
+    Non‑retryable status codes (e.g., 400) are raised immediately.
     """
     attempt = 0
     while True:
@@ -113,7 +114,7 @@ def _request_with_backoff(url: str, max_retries: int = 5, base_delay: int = 2) -
             response = requests.get(url, timeout=10)
             if response.status_code == 200:
                 return response
-            elif response.status_code in (429, 503) and attempt < max_retries:
+            if response.status_code in (429, 503) and attempt < max_retries:
                 wait = base_delay * (2 ** attempt)
                 logger.warning(
                     f"Request to {url} returned {response.status_code}. "
@@ -122,9 +123,14 @@ def _request_with_backoff(url: str, max_retries: int = 5, base_delay: int = 2) -
                 time.sleep(wait)
                 attempt += 1
                 continue
-            else:
-                response.raise_for_status()
+            # For any other status code, raise immediately
+            response.raise_for_status()
+        except requests.HTTPError as http_err:
+            # Do not retry on client errors like 400/404 etc.
+            logger.error(f"HTTP error for {url}: {http_err}")
+            raise
         except requests.RequestException as e:
+            # Network‑level errors – retry with backoff
             if attempt < max_retries:
                 wait = base_delay * (2 ** attempt)
                 logger.warning(f"Request error ({e}); retry {attempt + 1}/{max_retries} after {wait}s.")
@@ -137,31 +143,39 @@ def _request_with_backoff(url: str, max_retries: int = 5, base_delay: int = 2) -
 
 def fetch_pubchem_records(halide: str, max_retries: int = 5, base_delay: int = 2) -> List[Dict[str, Any]]:
     """
-    Fetch compounds from PubChem for a given halide name using the REST API,
-    with exponential back‑off on HTTP 429/503 errors.
-    Returns a list of dictionaries with keys: cid, smiles, inchi, value, unit.
+    Attempt to fetch halide‑binding data from PubChem.
+    PubChem does not expose a dedicated halide‑binding endpoint, so we treat
+    any failure as a lack of usable records rather than an error.
+    Returns a list of dictionaries with keys: host_id, smiles, inchi, value, unit,
+    solvent, halide_info, source.
     """
     query = halide
-    url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{query}/property/IsomericSMILES,InChI,XLogP3/JSON"
+    url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{query}/property/IsomericSMILES,InChI,CanonicalSMILES/JSON"
 
-    response = _request_with_backoff(url, max_retries, base_delay)
+    try:
+        response = _request_with_backoff(url, max_retries, base_delay)
+    except Exception as e:
+        # Record the failure in the caller; here we simply return empty list
+        logger.info(f"No PubChem data retrieved for halide '{halide}': {e}")
+        return []
 
     data = response.json()
     compounds = data.get("PropertyTable", {}).get("Properties", [])
     records = []
     for comp in compounds:
         cid = comp.get("CID")
-        smiles = comp.get("IsomericSMILES")
+        smiles = comp.get("IsomericSMILES") or comp.get("CanonicalSMILES")
         inchi = comp.get("InChI")
-        xlogp = comp.get("XLogP3")
-        if cid and smiles and xlogp is not None:
+        # PubChem does not provide binding constants for halides; we cannot fabricate.
+        # Therefore we return records without a binding value; downstream cleaning will drop them.
+        if cid and smiles:
             records.append({
                 "host_id": str(cid),
                 "smiles": smiles,
                 "inchi": inchi,
-                "value": xlogp,
-                "unit": "logK",
-                "solvent": "acetonitrile",  # default allowed solvent
+                "value": np.nan,
+                "unit": None,
+                "solvent": "acetonitrile",  # placeholder solvent to keep schema consistency
                 "halide_info": halide,
                 "source": "PubChem"
             })
@@ -171,14 +185,15 @@ def fetch_pubchem_records(halide: str, max_retries: int = 5, base_delay: int = 2
 def fetch_nist_records(halide: str, max_retries: int = 5, base_delay: int = 2) -> List[Dict[str, Any]]:
     """
     Very lightweight scraper for the NIST Chemistry WebBook.
-    The WebBook does not expose a clean API for halide binding constants,
-    so this function attempts to retrieve the HTML page for the halide
-    name and extracts any tables that look like they contain binding data.
-    If the page cannot be retrieved or no suitable data is found, an
-    empty list is returned (the caller may decide to raise).
+    If the page cannot be retrieved or no suitable tables are found, an empty list is returned.
     """
     url = f"https://webbook.nist.gov/cgi/cbook.cgi?Name={halide}&Units=SI"
-    response = _request_with_backoff(url, max_retries, base_delay)
+    try:
+        response = _request_with_backoff(url, max_retries, base_delay)
+    except Exception as e:
+        logger.info(f"No NIST data retrieved for halide '{halide}': {e}")
+        return []
+
     soup = BeautifulSoup(response.text, "html.parser")
     records: List[Dict[str, Any]] = []
 
@@ -231,7 +246,7 @@ def build_raw_records() -> Dict[str, Any]:
         # PubChem
         try:
             pc_records = fetch_pubchem_records(halide)
-            pc_status = 200
+            pc_status = 200 if pc_records else None
         except requests.HTTPError as e:
             pc_records = []
             pc_status = e.response.status_code if e.response else None
@@ -252,7 +267,7 @@ def build_raw_records() -> Dict[str, Any]:
         # NIST
         try:
             nist_records = fetch_nist_records(halide)
-            nist_status = 200
+            nist_status = 200 if nist_records else None
         except requests.HTTPError as e:
             nist_records = []
             nist_status = e.response.status_code if e.response else None
@@ -373,7 +388,7 @@ def run_data_pipeline():
     raw_records = fetch_result["records"]
     fetch_outcome = fetch_result["outcome"]
 
-    # Save raw JSON
+    # Save raw JSON (may be empty)
     raw_path = paths.data("raw", "raw_scrape.json")
     raw_path.parent.mkdir(parents=True, exist_ok=True)
     with open(raw_path, "w") as f:
