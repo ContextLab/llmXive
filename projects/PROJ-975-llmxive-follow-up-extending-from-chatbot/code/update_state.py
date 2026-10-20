@@ -1,0 +1,49 @@
+import json
+import yaml
+import hashlib
+from datetime import datetime
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)
+
+def get_file_sha256(file_path):
+    """Computes the SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def main():
+    checksums_path = paths.data("raw", "checksums.json")
+    state_path = paths.path("state", "projects", "PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml")
+
+    if not checksums_path.exists():
+        log.error(f"Checksums file not found at {checksums_path}")
+        raise FileNotFoundError(f"Missing {checksums_path}")
+
+    # Read existing checksums for tasks and skills
+    with open(checksums_path, 'r') as f:
+        checksums_data = json.load(f)
+
+    # Calculate the hash of the checksums file itself
+    checksums_sha = get_file_sha256(checksums_path)
+
+    # Construct state mapping
+    state = {
+        "tasks_json_sha256": checksums_data.get("tasks.json"),
+        "skills_json_sha256": checksums_data.get("skills.json"),
+        "checksums_json_sha256": checksums_sha,
+        "generated_at": datetime.utcnow().isoformat() + "Z"
+    }
+
+    # Ensure directory exists (paths helper creates folder, but just in case)
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(state_path, 'w') as f:
+        yaml.dump(state, f, default_flow_style=False)
+
+    log.info(f"State file updated at {state_path}")
+
+if __name__ == "__main__":
+    main()

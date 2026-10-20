@@ -1,6 +1,5 @@
 import os
 import json
-import yaml
 import random
 import hashlib
 import argparse
@@ -8,379 +7,197 @@ import logging
 from typing import List, Dict, Any
 
 import numpy as np
-
+from sentence_transformers import SentenceTransformer
 from llmxive_toolkit import paths
-from config import get_seeds, get_experiment_config
 
-# Set up basic logging
+# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
 def check_memory_usage(threshold_gb: float = 2.0) -> bool:
     """
-    Checks the current process memory usage. If it exceeds ``threshold_gb``,
-    raises a ``MemoryError``. Returns ``True`` if the check passes.
+    Checks projected memory footprint and current usage.
+    If the projected footprint > threshold_gb, raises MemoryError.
     """
     try:
         import psutil
         process = psutil.Process(os.getpid())
-        mem_gb = process.memory_info().rss / (1024 ** 3)
-        if mem_gb > threshold_gb:
-            raise MemoryError(
-                f"Memory usage ({mem_gb:.2f} GB) exceeds threshold ({threshold_gb} GB)."
-            )
+        current_rss_gb = process.memory_info().rss / (1024 ** 3)
+        
+        # Projection: Model (~420MB) + 100 skills * 768 * 8 + 500 tasks * 768 * 8
+        # Plus some overhead for the SentenceTransformer object and numpy arrays
+        projected_model_gb = 0.42
+        projected_data_gb = (100 * 768 * 8 + 500 * 768 * 8) / (1024 ** 3)
+        total_projected = current_rss_gb + projected_model_gb + projected_data_gb
+        
+        if total_projected > threshold_gb:
+            raise MemoryError(f"Memory Limit Exceeded: Projected footprint {total_projected:.2f} GB > {threshold_gb} GB")
         return True
     except ImportError:
-        logger.warning("psutil not available – skipping memory usage check.")
+        logger.warning("psutil not available - skipping memory check")
         return True
 
-class DummyModel:
+def generate_skills(seed: int, count: int, overlap_level: str, model: SentenceTransformer) -> List[Dict[str, Any]]:
     """
-    Minimal stand‑in for the SentenceTransformer model that produces
-    deterministic 768‑dim embeddings using a hash‑based RNG seed.
-    """
-    def __init__(self, dim: int = 768):
-        self.dim = dim
-
-    def encode(self, text: str, convert_to_numpy: bool = True) -> np.ndarray:
-        # Create a deterministic seed from the text hash
-        h = hashlib.sha256(text.encode("utf-8")).hexdigest()
-        seed = int(h[:8], 16) % (2**32)
-        rng = np.random.RandomState(seed)
-        vec = rng.normal(0, 1, self.dim)
-        # Normalise to unit length
-        vec = vec / (np.linalg.norm(vec) + 1e-8)
-        return vec
-
-def load_model() -> DummyModel:
-    """
-    Returns a deterministic dummy embedding model. This avoids the heavy
-    ``sentence_transformers`` dependency while still providing 768‑dim
-    vectors suitable for cosine‑similarity calculations.
-    """
-    return DummyModel()
-
-# ----------------------------------------------------------------------
-# Skill generation
-# ----------------------------------------------------------------------
-def generate_skills(
-    seed: int,
-    count: int = 100,
-    overlap_level: str = "medium",
-    model: Any = None,
-) -> List[Dict[str, Any]]:
-    """
-    Generates ``count`` synthetic skill objects.  The ``overlap_level``
-    controls how many base templates are reused and how much noise is added
-    to achieve the desired semantic density.
+    Generates exactly `count` skill objects with controlled semantic overlap.
     """
     random.seed(seed)
     np.random.seed(seed)
 
-    if model is None:
-        model = load_model()
-
-    # Base function templates – each will be turned into a distinct skill.
-    base_templates = [
-        "def add(a, b): return a + b",
-        "def subtract(a, b): return a - b",
-        "def multiply(a, b): return a * b",
-        "def divide(a, b): return a / b if b != 0 else None",
-        "def power(a, b): return a ** b",
-        "def square_root(a): return a ** 0.5 if a >= 0 else None",
-        "def absolute(a): return abs(a)",
-        "def negate(a): return -a",
-        "def increment(a): return a + 1",
-        "def decrement(a): return a - 1",
-        "def is_positive(a): return a > 0",
-        "def is_negative(a): return a < 0",
-        "def is_zero(a): return a == 0",
-        "def max_of_two(a, b): return a if a > b else b",
-        "def min_of_two(a, b): return a if a < b else b",
-        "def average(a, b): return (a + b) / 2",
-        "def sum_list(lst): return sum(lst)",
-        "def product_list(lst): result = 1; [result := result * x for x in lst]; return result",
-        "def count_positive(lst): return sum(1 for x in lst if x > 0)",
-        "def count_negative(lst): return sum(1 for x in lst if x < 0)",
-        "def filter_positive(lst): return [x for x in lst if x > 0]",
-        "def filter_negative(lst): return [x for x in lst if x < 0]",
-        "def map_double(lst): return [x * 2 for x in lst]",
-        "def map_square(lst): return [x ** 2 for x in lst]",
-        "def reduce_add(lst): result = 0; [result := result + x for x in lst]; return result",
-        "def reduce_mul(lst): result = 1; [result := result * x for x in lst]; return result",
-        "def flatten_list(nested): return [item for sublist in nested for item in sublist]",
-        "def reverse_list(lst): return lst[::-1]",
-        "def sort_list(lst): return sorted(lst)",
-        "def unique_elements(lst): return list(set(lst))",
+    # 1. Generate distinct function strings
+    templates = [
+        f"def skill_{i}(a, b): return a + b if {i} % 2 == 0 else a * b" for i in range(count)
     ]
+    
+    # 2. Get base embeddings
+    base_embeddings = model.encode(templates) # (count, 768)
+    
+    # 3. Control overlap by blending towards a centroid
+    centroid = np.mean(base_embeddings, axis=0)
+    
+    if overlap_level == "HIGH":
+        # Strong blend towards centroid to ensure > 0.80 similarity
+        alpha = 0.92
+    elif overlap_level == "MEDIUM":
+        # Moderate blend to ensure > 0.50 similarity
+        alpha = 0.65
+    else: # LOW
+        # Minimal blend or none
+        alpha = 0.0
+    
+    # V_new = alpha * centroid + (1 - alpha) * V_base
+    adjusted_embeddings = alpha * centroid + (1 - alpha) * base_embeddings
+    
+    # Normalize to unit length for cosine similarity
+    norms = np.linalg.norm(adjusted_embeddings, axis=1, keepdims=True)
+    normalized_embeddings = adjusted_embeddings / (norms + 1e-8)
 
-    # Pre‑compute embeddings for the base templates (these are 768‑dim vectors)
-    base_embeddings = np.array([model.encode(t, convert_to_numpy=True) for t in base_templates])
-    # Normalise to unit length
-    base_embeddings /= np.linalg.norm(base_embeddings, axis=1, keepdims=True) + 1e-8
-
-    # Choose how many distinct base templates to draw from and appropriate noise
-    if overlap_level.lower() == "low":
-        chosen_indices = list(range(len(base_templates)))          # many different bases
-        noise_level = 0.4
-    elif overlap_level.lower() == "medium":
-        # pick 5 distinct templates at random (deterministic via seed)
-        random.seed(seed)  # ensure reproducibility for the choice
-        chosen_indices = random.sample(range(len(base_templates)), 5)
-        noise_level = 0.2
-    else:  # high
-        # pick a single template
-        chosen_indices = [random.randint(0, len(base_templates) - 1)]
-        # Use zero noise to guarantee extremely high similarity
-        noise_level = 0.0
-
-    skills: List[Dict[str, Any]] = []
-    while len(skills) < count:
-        # Pick a random base template from the allowed subset
-        idx = random.choice(chosen_indices)
-        base_text = base_templates[idx]
-        base_emb = base_embeddings[idx]
-
-        # Add Gaussian noise (may be zero) and renormalise
-        noise = np.random.normal(0, noise_level, base_emb.shape)
-        new_emb = base_emb + noise
-        new_emb /= np.linalg.norm(new_emb) + 1e-8
-
-        # Slightly modify the function name to keep code syntactically valid
-        func_name = base_text.split("def ")[1].split("(")[0]
-        variant_name = f"{func_name}_v{len(skills)}"
-        variant_code = base_text.replace(func_name, variant_name, 1)
-
-        skills.append(
-            {
-                "skill_id": f"skill_{len(skills):03d}",
-                "function_code": variant_code,
-                "embedding_vector": new_emb.tolist(),
-                "usage_count": 0,
-                # placeholder; will be filled later
-                "mean_cosine_similarity": 0.0,
-            }
-        )
-
-    # Compute mean cosine similarity for each skill
-    embeds = np.array([s["embedding_vector"] for s in skills])
-    normed = embeds / (np.linalg.norm(embeds, axis=1, keepdims=True) + 1e-8)
-    sim_matrix = np.dot(normed, normed.T)
-
-    for i, skill in enumerate(skills):
-        # Exclude self‑similarity
+    skills = []
+    for i in range(count):
+        skills.append({
+            "skill_id": f"skill_{i:03d}",
+            "function_code": templates[i],
+            "embedding_vector": normalized_embeddings[i].tolist(),
+            "usage_count": 0,
+            "mean_cosine_similarity": 0.0 # Calculated below
+        })
+    
+    # 4. Calculate mean cosine similarity for each skill
+    # Sim matrix is dot product of normalized vectors
+    sim_matrix = np.dot(normalized_embeddings, normalized_embeddings.T)
+    for i in range(count):
         others = np.delete(sim_matrix[i], i)
-        skill["mean_cosine_similarity"] = float(np.mean(others))
-
+        skills[i]["mean_cosine_similarity"] = float(np.mean(others))
+        
     return skills
 
-def pairwise_cosine_similarity_matrix(embeddings: np.ndarray) -> np.ndarray:
+def generate_tasks(seed: int, skills: List[Dict[str, Any]], count: int) -> List[Dict[str, Any]]:
     """
-    Returns a symmetric matrix of cosine similarities between all rows of
-    ``embeddings``.
-    """
-    normed = embeddings / (np.linalg.norm(embeddings, axis=1, keepdims=True) + 1e-8)
-    return np.dot(normed, normed.T)
-
-def mean_pairwise_similarity(matrix: np.ndarray) -> float:
-    """Computes the mean of the upper‑triangle (excluding diagonal) of ``matrix``."""
-    n = matrix.shape[0]
-    if n <= 1:
-        return 0.0
-    triu = matrix[np.triu_indices(n, k=1)]
-    return float(np.mean(triu))
-
-def calculate_similarity_metrics(skills: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Computes the pairwise cosine‑similarity matrix and associated statistics
-    for a list of skill dictionaries.
-    """
-    embeds = np.array([s["embedding_vector"] for s in skills])
-    matrix = pairwise_cosine_similarity_matrix(embeds)
-    mean_sim = mean_pairwise_similarity(matrix)
-
-    # Percentage of pairs exceeding various thresholds (used for MEDIUM/HIGH)
-    upper = matrix[np.triu_indices(len(skills), k=1)]
-    pct_over_0_5 = float(np.mean(upper > 0.5))
-    pct_over_0_8 = float(np.mean(upper > 0.8))
-
-    return {
-        "mean": mean_sim,
-        "pct_over_0_5": pct_over_0_5,
-        "pct_over_0_8": pct_over_0_8,
-        "matrix": matrix.tolist(),
-    }
-
-def meets_overlap_criteria(metrics: Dict[str, Any], level: str) -> bool:
-    """Evaluates whether ``metrics`` satisfy the semantic‑overlap constraints."""
-    level = level.lower()
-    mean = metrics["mean"]
-    if level == "low":
-        return mean < 0.30
-    elif level == "medium":
-        return mean > 0.50 and metrics["pct_over_0_5"] >= 0.30
-    elif level == "high":
-        return mean > 0.80 and metrics["pct_over_0_8"] >= 0.30
-    return False
-
-# ----------------------------------------------------------------------
-# Task generation
-# ----------------------------------------------------------------------
-def generate_tasks_with_ground_truth(
-    seed: int, skills: List[Dict[str, Any]], count: int = 500
-) -> List[Dict[str, Any]]:
-    """
-    Generates ``count`` tasks.  Each task references 1‑3 ground‑truth skill IDs
-    and stores an embedding derived from the concatenated code snippets.
+    Generates exactly `count` task objects conforming to the schema.
     """
     random.seed(seed)
     np.random.seed(seed)
-    model = load_model()
-
+    
     skill_ids = [s["skill_id"] for s in skills]
-    tasks: List[Dict[str, Any]] = []
-
+    skill_embs = np.array([s["embedding_vector"] for s in skills])
+    
+    tasks = []
     for i in range(count):
         num_gt = random.randint(1, 3)
-        ground_truth = random.sample(skill_ids, num_gt)
-
-        # Build a synthetic description that loosely mirrors the selected skills
-        snippets = [s["function_code"] for s in skills if s["skill_id"] in ground_truth]
-        description_text = " | ".join(snippets)
-
-        task_emb = model.encode(description_text, convert_to_numpy=True)
-
-        tasks.append(
-            {
-                "task_id": f"task_{i:04d}",
-                "description": f"Perform operation using: {', '.join(ground_truth)}",
-                "ground_truth_path": ground_truth,
-                "complexity": random.randint(1, 5),
-                "embedding_vector": task_emb.tolist(),
-                "edge_case": False,
-            }
-        )
+        gt_ids = random.sample(skill_ids, num_gt)
+        
+        # Task embedding is the mean of its ground truth skill embeddings
+        gt_indices = [int(sid.split('_')[1]) for sid in gt_ids]
+        task_emb = np.mean(skill_embs[gt_indices], axis=0)
+        task_emb /= (np.linalg.norm(task_emb) + 1e-8)
+        
+        tasks.append({
+            "task_id": f"task_{i:04d}",
+            "description": f"Synthetic task requiring skills: {', '.join(gt_ids)}",
+            "ground_truth_path": gt_ids,
+            "complexity": random.randint(1, 5),
+            "embedding_vector": task_emb.tolist(),
+            "edge_case": False
+        })
     return tasks
 
-def generate_checksum(file_path: str) -> str:
-    """Computes the SHA‑256 checksum of ``file_path``."""
-    sha256 = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for block in iter(lambda: f.read(4096), b""):
-            sha256.update(block)
-    return sha256.hexdigest()
+def calculate_overlap_stats(skills: List[Dict[str, Any]]) -> Dict[str, float]:
+    """Computes mean and distribution of pairwise similarities."""
+    embs = np.array([s["embedding_vector"] for s in skills])
+    sim_matrix = np.dot(embs, embs.T)
+    
+    # Extract upper triangle
+    n = len(skills)
+    upper_tri = sim_matrix[np.triu_indices(n, k=1)]
+    
+    return {
+        "mean": float(np.mean(upper_tri)),
+        "pct_over_0_5": float(np.mean(upper_tri > 0.50)),
+        "pct_over_0_8": float(np.mean(upper_tri > 0.80))
+    }
 
-def save_artifacts(
-    tasks: List[Dict[str, Any]],
-    skills: List[Dict[str, Any]],
-    overlap_level: str,
-    seed_a: int,
-    seed_b: int,
-) -> None:
-    """
-    Persists ``tasks`` and ``skills`` as JSON files under ``data/raw`` and
-    writes a ``checksums.json`` file containing their SHA‑256 digests.
-    """
-    # Paths
+def get_sha256(file_path: str) -> str:
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--overlap", type=str, default="MEDIUM", choices=["LOW", "MEDIUM", "HIGH"])
+    parser.add_argument("--seed", type=int, default=12345)
+    args = parser.parse_args()
+    
+    overlap_level = args.overlap.upper()
+    seed = args.seed
+    
+    # 1. Memory Guard
+    check_memory_usage(threshold_gb=2.0)
+    
+    # 2. Load Model
+    logger.info("Loading sentence-transformers/all-MPNet-base-v2...")
+    model = SentenceTransformer('all-MPNet-base-v2')
+    
+    # 3. Generate Skills
+    logger.info(f"Generating 100 skills with overlap level: {overlap_level}")
+    skills = generate_skills(seed, 100, overlap_level, model)
+    
+    # 4. Validate Overlap
+    stats = calculate_overlap_stats(skills)
+    logger.info(f"Achieved Mean Similarity: {stats['mean']:.4f}")
+    logger.info(f"Pct > 0.50: {stats['pct_over_0_5']:.2%}, Pct > 0.80: {stats['pct_over_0_8']:.2%}")
+    
+    # Enforce thresholds
+    if overlap_level == "LOW" and stats['mean'] >= 0.30:
+        raise RuntimeError(f"LOW overlap failed: Mean {stats['mean']:.4f} >= 0.30")
+    if overlap_level == "MEDIUM" and (stats['mean'] <= 0.50 or stats['pct_over_0_5'] < 0.30):
+        raise RuntimeError(f"MEDIUM overlap failed: Mean {stats['mean']:.4f} <= 0.50 or Pct > 0.50 {stats['pct_over_0_5']:.2%} < 30%")
+    if overlap_level == "HIGH" and (stats['mean'] <= 0.80 or stats['pct_over_0_8'] < 0.30):
+        raise RuntimeError(f"HIGH overlap failed: Mean {stats['mean']:.4f} <= 0.80 or Pct > 0.80 {stats['pct_over_0_8']:.2%} < 30%")
+    
+    # 5. Generate Tasks
+    logger.info("Generating 500 tasks...")
+    tasks = generate_tasks(seed, skills, 500)
+    
+    # 6. Save Artifacts
     tasks_path = paths.data("raw", "tasks.json")
     skills_path = paths.data("raw", "skills.json")
     checksums_path = paths.data("raw", "checksums.json")
-
-    # Write plain lists (no extra wrapper) to match downstream expectations
-    with open(tasks_path, "w", encoding="utf-8") as f:
-        json.dump(tasks, f, indent=2, ensure_ascii=False)
-
-    with open(skills_path, "w", encoding="utf-8") as f:
-        json.dump(skills, f, indent=2, ensure_ascii=False)
-
-    # Compute checksums
-    tasks_checksum = generate_checksum(str(tasks_path))
-    skills_checksum = generate_checksum(str(skills_path))
-
-    # Write checksums.json
-    with open(checksums_path, "w", encoding="utf-8") as f:
-        json.dump(
-            {"tasks.json": tasks_checksum, "skills.json": skills_checksum},
-            f,
-            indent=2,
-            ensure_ascii=False,
-        )
-
-    logger.info(f"Saved {len(tasks)} tasks to {tasks_path}")
-    logger.info(f"Saved {len(skills)} skills to {skills_path}")
-    logger.info(f"Checksums written to {checksums_path}")
-
-# ----------------------------------------------------------------------
-# Main entry point
-# ----------------------------------------------------------------------
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Generate synthetic tasks and skills for the llmXive follow‑up experiment."
-    )
-    parser.add_argument(
-        "--overlap",
-        type=str,
-        choices=["LOW", "MEDIUM", "HIGH", "low", "medium", "high"],
-        default="MEDIUM",
-        help="Desired semantic overlap level for the skill library.",
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=None,
-        help="Optional base seed; if omitted, seeds are taken from the config.",
-    )
-    args = parser.parse_args()
-
-    # ------------------------------------------------------------------
-    # Memory guard
-    # ------------------------------------------------------------------
-    check_memory_usage(threshold_gb=2.0)
-
-    # ------------------------------------------------------------------
-    # Resolve seeds and configuration
-    # ------------------------------------------------------------------
-    seeds = get_seeds()
-    seed_a = args.seed if args.seed is not None else seeds.get("seed_a", 12345)
-    seed_b = args.seed if args.seed is not None else seeds.get("seed_b", 12345)
-
-    overlap_level = args.overlap.upper()
-    logger.info(
-        f"Generating data with overlap={overlap_level}, seed_a={seed_a}, seed_b={seed_b}"
-    )
-
-    # ------------------------------------------------------------------
-    # Load model once (shared between skill and task generation)
-    # ------------------------------------------------------------------
-    model = load_model()
-
-    # ------------------------------------------------------------------
-    # Skill generation – single attempt (criteria are guaranteed by design)
-    # ------------------------------------------------------------------
-    skills = generate_skills(seed_a, count=100, overlap_level=overlap_level.lower(), model=model)
-    metrics = calculate_similarity_metrics(skills)
-    logger.info(
-        f"Generated skill set – mean similarity={metrics['mean']:.4f}, "
-        f"%>0.5={metrics['pct_over_0_5']:.2%}, %>0.8={metrics['pct_over_0_8']:.2%}"
-    )
-    if not meets_overlap_criteria(metrics, overlap_level):
-        logger.error(f"Generated skills do NOT satisfy the {overlap_level} overlap criteria.")
-        raise RuntimeError(f"Overlap criteria not met for level {overlap_level}")
-
-    # ------------------------------------------------------------------
-    # Task generation
-    # ------------------------------------------------------------------
-    tasks = generate_tasks_with_ground_truth(seed_b, skills, count=500)
-
-    # ------------------------------------------------------------------
-    # Persist artifacts and checksums
-    # ------------------------------------------------------------------
-    save_artifacts(tasks, skills, overlap_level, seed_a, seed_b)
-
-    logger.info("Data generation completed successfully.")
+    
+    with open(tasks_path, "w") as f:
+        json.dump(tasks, f, indent=2)
+    with open(skills_path, "w") as f:
+        json.dump(skills, f, indent=2)
+    
+    checksums = {
+        "tasks.json": get_sha256(str(tasks_path)),
+        "skills.json": get_sha256(str(skills_path))
+    }
+    with open(checksums_path, "w") as f:
+        json.dump(checksums, f, indent=2)
+        
+    logger.info(f"Successfully generated artifacts. Tasks: {len(tasks)}, Skills: {len(skills)}")
 
 if __name__ == "__main__":
     main()

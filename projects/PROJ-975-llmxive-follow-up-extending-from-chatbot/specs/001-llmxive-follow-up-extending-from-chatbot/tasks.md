@@ -33,7 +33,7 @@ The list below follows the research phases (setup → full experiment →�
   *Verification*:  
   &nbsp;&nbsp;• `tests/state/test_state_yaml.py` loads the file, verifies the three SHA‑256 fields exist and match the current digests of the corresponding data files.  
 
-- [ ] T004 [P] [US2] **Implement full contract‑validation test suite (`tests/contract/test_schemas.py`)**  
+- [X] T004 [P] [US2] **Implement full contract‑validation test suite (`tests/contract/test_schemas.py`)**  
   *Scope*:  
   &nbsp;&nbsp;• Loads **the actual** `data/raw/tasks.json` and validates every entry against `contracts/task.schema.yaml`.  
   &nbsp;&nbsp;• Loads **the actual** `data/raw/skills.json` and validates every entry against `contracts/skill.schema.yaml`, including the 768‑item embedding length.  

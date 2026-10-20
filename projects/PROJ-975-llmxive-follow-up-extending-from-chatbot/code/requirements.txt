@@ -1,1 +1,10 @@
 sentence-transformers==2.2.2
+huggingface-hub==0.19.4
+pandas
+numpy
+pyyaml
+pytest
+jsonschema
+pwlf
+statsmodels
+psutil

@@ -3,7 +3,7 @@ import csv
 import json
 import logging
 from typing import Optional, Dict, Any, List
-from datetime import datetime
+from llmxive_toolkit import get_logger as toolkit_get_logger
 
 # Column names strictly matching contracts/experiment_log.schema.yaml
 LOG_COLUMNS = [
@@ -21,8 +21,6 @@ LOG_COLUMNS = [
 ]
 
 _logger: Optional[logging.Logger] = None
-_handler: Optional[logging.Handler] = None
-_log_path: Optional[str] = None
 
 class CSVLogHandler(logging.Handler):
     """
@@ -33,7 +31,6 @@ class CSVLogHandler(logging.Handler):
         super().__init__()
         self.filepath = filepath
         self._header_written = False
-        self._lock = None  # Could use threading.Lock if multi-threaded
         
         # Ensure directory exists
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
@@ -44,12 +41,10 @@ class CSVLogHandler(logging.Handler):
     def emit(self, record: logging.LogRecord):
         try:
             # Parse the message as JSON if it is a structured log entry
-            # We expect the log message to be a JSON string matching the schema
             if isinstance(record.msg, str):
                 try:
                     data = json.loads(record.msg)
                 except json.JSONDecodeError:
-                    # Fallback if not JSON, treat as raw string (should not happen per spec)
                     data = {"error": "Invalid log format", "raw": record.msg}
             else:
                 data = record.msg
@@ -58,7 +53,7 @@ class CSVLogHandler(logging.Handler):
             row = []
             for col in LOG_COLUMNS:
                 val = data.get(col, "")
-                # Convert boolean to string 'true'/'false' or keep as is for CSV writer
+                # Convert boolean to string 'true'/'false' for CSV consistency
                 if isinstance(val, bool):
                     val = str(val).lower()
                 row.append(val)
@@ -77,46 +72,40 @@ class CSVLogHandler(logging.Handler):
         except Exception:
             self.handleError(record)
 
-def get_logger() -> logging.Logger:
+def get_logger(name: str = "llmXive_experiment") -> logging.Logger:
     """
-    Returns a singleton logger instance configured to write to data/results/experiment_log.csv.
+    Returns a logger instance configured to write to data/results/experiment_log.csv.
+    Uses llmxive_toolkit.get_logger for consistent formatting.
     """
-    global _logger, _handler, _log_path
+    global _logger
 
     if _logger is not None:
         return _logger
 
-    _log_path = os.path.join("data", "results", "experiment_log.csv")
-    _logger = logging.getLogger("llmXive_experiment")
+    # Use platform helper for base logger
+    _logger = toolkit_get_logger(name)
     _logger.setLevel(logging.INFO)
 
-    # Remove existing handlers to prevent duplicates
-    if _logger.hasHandlers():
-        _logger.handlers.clear()
-
-    _handler = CSVLogHandler(_log_path)
-    _logger.addHandler(_handler)
+    # Add the CSV handler
+    log_path = os.path.join("data", "results", "experiment_log.csv")
+    csv_handler = CSVLogHandler(log_path)
+    _logger.addHandler(csv_handler)
 
     return _logger
 
 def log_experiment_entry(entry: Dict[str, Any]) -> None:
     """
     Logs a single experiment entry to the CSV file.
-    Validates that the entry contains the necessary keys for the schema.
     """
     logger = get_logger()
-    # Ensure the entry has all required keys for the CSV columns
-    # If a key is missing, it will be written as empty string by the handler
+    # Pass as JSON string to be parsed by CSVLogHandler
     logger.info(json.dumps(entry))
 
 def verify_log_file_exists() -> bool:
     """
     Verifies that the log file exists and is not empty.
-    Returns True if the file exists and has content, False otherwise.
     """
-    if _log_path is None:
-        get_logger() # Initialize to set path
-
-    if _log_path and os.path.exists(_log_path):
-        return os.path.getsize(_log_path) > 0
+    log_path = os.path.join("data", "results", "experiment_log.csv")
+    if os.path.exists(log_path):
+        return os.path.getsize(log_path) > 0
     return False
