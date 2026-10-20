@@ -21,13 +21,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m code.verify_requirements -> rc=1
 
-2026-10-20 18:47:07,855 INFO __main__: Verifying pinned requirements from /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt
+2026-10-20 18:48:49,650 INFO __main__: Verifying pinned requirements from /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/verify_requirements.py", line 98, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/verify_requirements.py", line 107, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/verify_requirements.py", line 94, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/verify_requirements.py", line 103, in main
     raise RuntimeError(f"pip install failed with code {result.returncode}")
 RuntimeError: pip install failed with code 1
 
@@ -60,7 +60,7 @@ E   ImportError: cannot import name '_check_multicollinearity' from 'analysis.re
 ERROR tests/unit/test_ingestion.py
 ERROR tests/unit/test_regression.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.09s ===============================
+============================== 2 errors in 1.03s ===============================
 
 
 - python -m code.ingestion.download_real --start 2000-01-01 --end 2020-12-31 -> rc=1

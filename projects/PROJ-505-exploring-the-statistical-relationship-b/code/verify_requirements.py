@@ -1,10 +1,10 @@
 """
 Verify that all pinned requirements can be installed without error.
 Supports the project convention of using a wildcard '*' in the patch version
-(e.g. ``package==1.2.*``). Since ``pip`` does not understand the wildcard,
+(e.g. ``package==X.Y.*``). Since ``pip`` does not understand the wildcard,
 this script rewrites the requirement lines on‑the‑fly to a concrete version
-specifier that ``pip`` can process (``package==1.2``), preserving the original
-file for regex validation.
+specifier that ``pip`` can process (``package>=X.Y,<X.Y+1``), preserving the
+original file for regex validation.
 """
 import subprocess
 import re
@@ -16,21 +16,28 @@ from llmxive_toolkit import paths, get_logger
 log = get_logger(__name__)
 
 
-_WILDCARD_PATTERN = re.compile(r"^(?P<name>[a-zA-Z0-9_-]+)==(?P<major>\d+)\.(?P<minor>\d+)\.\*$")
+_WILDCARD_PATTERN = re.compile(
+    r"^(?P<name>[a-zA-Z0-9_-]+)==(?P<major>\d+)\.(?P<minor>\d+)\.\*$"
+)
 
 
 def _concretize_requirement(line: str) -> str:
     """
-    Convert a line of the form ``pkg==X.Y.*`` into ``pkg==X.Y``.
-    If the line does not match the wildcard pattern it is returned unchanged.
+    Convert a line of the form ``pkg==X.Y.*`` into a pip‑compatible range
+    ``pkg>=X.Y,<X.Y+1``. If the line does not match the wildcard pattern it
+    is returned unchanged.
     """
     match = _WILDCARD_PATTERN.match(line.strip())
     if match:
         name = match.group("name")
-        major = match.group("major")
-        minor = match.group("minor")
-        concrete = f"{name}=={major}.{minor}"
-        log.debug("Concretized requirement: %s -> %s", line.strip(), concrete)
+        major = int(match.group("major"))
+        minor = int(match.group("minor"))
+        # Build a version range that captures any patch version.
+        # Example: 1.6.* -> >=1.6,<1.7
+        concrete = f"{name}>={major}.{minor},<{major}.{minor + 1}"
+        log.debug(
+            "Concretized requirement: %s -> %s", line.strip(), concrete
+        )
         return concrete
     return line.strip()
 
@@ -38,11 +45,11 @@ def _concretize_requirement(line: str) -> str:
 def _prepare_install_file(original_req_path: Path) -> Path:
     """
     Create a temporary requirements file where any ``*`` wildcard is replaced
-    with a concrete ``major.minor`` specifier that pip can understand.
+    with a concrete version range that pip can understand.
     Returns the path to the temporary file.
     """
     with open(original_req_path, "r", encoding="utf-8") as src, \
-         tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8") as tmp:
+            tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8") as tmp:
         for raw_line in src:
             stripped = raw_line.strip()
             # Preserve comments and blank lines verbatim
@@ -88,9 +95,11 @@ def main() -> None:
             f.write("failure\n")
         f.write(result.stdout)
         f.write(result.stderr)
-        f.write(f"returncode={result.returncode}\n")
+        f.write(f"returncode={result.returncode}\\n")
 
     if result.returncode != 0:
+        # Raise an informative error but do not abort the entire pipeline;
+        # the log file records the failure details.
         raise RuntimeError(f"pip install failed with code {result.returncode}")
 
 
