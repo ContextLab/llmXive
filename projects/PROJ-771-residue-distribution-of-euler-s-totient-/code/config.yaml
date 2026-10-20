@@ -1,11 +1,9 @@
-# Sample configuration for the Euler Totient Residue Distribution pipeline
-# All values are intentionally simple for unit‑test verification.
 N: 1234
-primes:
-  - 3
-  - 5
-  - 7
-  - 11
-seed: 2021
-memory_limit_mb: 6000
 memory_check_interval: 5000
+memory_limit_mb: 6000
+primes:
+- 3
+- 5
+- 7
+- 11
+seed: 12345

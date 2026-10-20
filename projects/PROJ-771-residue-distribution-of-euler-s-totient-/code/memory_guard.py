@@ -1,13 +1,15 @@
 """
 MemoryGuard module.
 
-Provides a guard that monitors the current process memory usage and
-indicates whether the usage exceeds a configured limit. The guard
-can be instantiated with either an absolute memory limit (in megabytes)
-or a percentage limit. It is intended to be polled periodically
-(e.g., every 10 000 iterations of a sieve) and will return ``False``
-when the memory usage exceeds the configured threshold, otherwise
-``True``.
+Provides a guard that monitors the current process memory usage
+(``psutil.Process().memory_info().rss``) and raises
+:class:`exceptions.MemoryLimitExceeded` when the usage exceeds
+90 % of the configured ``memory_limit_mb``.
+
+The guard is polled every ``check_interval`` iterations (default
+10 000, matching the sieve specification): ``check(iteration)``
+only inspects memory when ``iteration`` is ``None`` or a multiple
+of ``check_interval``.
 """
 
 import psutil
@@ -24,25 +26,15 @@ class MemoryGuard:
     ----------
     limit_mb : int, optional
         Absolute memory limit in megabytes. If supplied, the guard
-        will compare the resident set size (RSS) against 90 % of this
-        limit.
+        compares the resident set size (RSS) against 90 % of this
+        limit and raises :class:`MemoryLimitExceeded` when the
+        threshold is crossed.
     limit_percent : float, optional
-        Percentage of total system memory that may be used (default 90.0).
-        Ignored if ``limit_mb`` is provided.
+        Percentage of total system memory that may be used
+        (default 90.0).  Used only when ``limit_mb`` is ``None``.
     check_interval : int, optional
-        How often (in iterations) the guard should poll memory usage.
-        The guard only performs a check when the current iteration
-        number is a multiple of this value.  Defaults to 10 000,
-        matching the specification for the sieve implementation.
-
-    Notes
-    -----
-    The ``check`` method returns ``True`` if the current memory usage
-    is *below* the configured threshold and ``False`` otherwise.
-    The original specification suggested raising
-    ``MemoryLimitExceeded``; however, the unit tests in this project
-    expect a boolean return value, so we return a boolean while still
-    providing the exception class for callers that prefer to raise.
+        How often (in iterations) the guard polls memory usage.
+        Defaults to 10 000.
     """
 
     def __init__(
@@ -54,7 +46,6 @@ class MemoryGuard:
         self.limit_mb: Optional[int] = limit_mb
         self.limit_percent: float = limit_percent
         self.check_interval: int = check_interval
-        # ``psutil.Process`` is cheap to instantiate; we keep a reference.
         self._process: psutil.Process = psutil.Process()
 
     def _usage_mb(self) -> float:
@@ -67,44 +58,73 @@ class MemoryGuard:
         vm = psutil.virtual_memory()
         return vm.percent
 
+    def _raise_limit_exceeded(
+        self,
+        limit_mb: Optional[float],
+        usage_mb: Optional[float],
+    ) -> None:
+        """Raise :class:`MemoryLimitExceeded` with a clear message.
+
+        The exception constructor signature varies across
+        revisions of ``code/exceptions.py`` (it may accept a
+        single message string, or ``(limit_mb, usage_mb)``).
+        This helper tries the known signatures in order and
+        always raises a ``MemoryLimitExceeded`` carrying a
+        human-readable description of the breach.
+        """
+        message = (
+            "Memory limit exceeded: usage {:.2f} MB is above "
+            "90% of the configured limit {} MB".format(
+                -1.0 if usage_mb is None else usage_mb,
+                "unknown" if limit_mb is None else limit_mb,
+            )
+        )
+        for args in (
+            (message,),
+            (limit_mb, usage_mb),
+            (limit_mb, usage_mb, message),
+        ):
+            try:
+                raise MemoryLimitExceeded(*args)
+            except TypeError:
+                continue
+        # Last resort: bare construction.
+        raise MemoryLimitExceeded(message)
+
     def check(self, iteration: Optional[int] = None) -> bool:
         """
-        Perform a memory‑usage check.
-
-        The guard inspects memory usage only when ``iteration`` is
-        ``None`` or a multiple of ``self.check_interval``.  If the
-        usage exceeds the configured threshold the method returns
-        ``False``; otherwise it returns ``True``.
+        Perform a memory-usage check.
 
         Parameters
         ----------
         iteration : int, optional
-            The current iteration count of the surrounding algorithm
-            (e.g., the sieve loop index).  If omitted, the check is
+            Current iteration count of the surrounding algorithm
+            (e.g. the sieve loop index).  If omitted, the check is
             performed unconditionally.
 
         Returns
         -------
         bool
-            ``True`` if memory usage is within limits, ``False`` otherwise.
+            ``True`` if memory usage is within limits.
+
+        Raises
+        ------
+        MemoryLimitExceeded
+            If usage exceeds 90 % of ``limit_mb`` (or
+            ``limit_percent`` of system memory when no absolute
+            limit is configured).
         """
         if iteration is not None and iteration % self.check_interval != 0:
             return True  # No check needed this iteration.
 
         if self.limit_mb is not None:
-            # Absolute limit: compare RSS against 90 % of the limit.
             threshold_mb = 0.9 * self.limit_mb
             usage_mb = self._usage_mb()
-            within_limit = usage_mb <= threshold_mb
-            if not within_limit:
-                # Raise with the expected constructor signature.
-                raise MemoryLimitExceeded(self.limit_mb, usage_mb)
+            if usage_mb > threshold_mb:
+                self._raise_limit_exceeded(self.limit_mb, usage_mb)
         else:
-            # Percentage limit: compare system memory usage.
-            within_limit = self._usage_percent() <= self.limit_percent
-            if not within_limit:
-                # For percentage mode we only have the percentage to report.
-                # Use ``None`` for usage_mb to satisfy the constructor.
-                raise MemoryLimitExceeded(None, None)
+            usage_percent = self._usage_percent()
+            if usage_percent > self.limit_percent:
+                self._raise_limit_exceeded(None, None)
 
         return True

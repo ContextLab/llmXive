@@ -1,7 +1,0 @@
-{
-  "task_id": "T002",
-  "fingerprint": "96b9f2bafecb2c639313a3e357f7b41057ebb49326fa4b16529f49311aff9353",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refused 'exceptions.py': `code/exceptions.py` already exists. Edit that file; do not add a second copy or a re-exporting wrapper at the project root."
-}

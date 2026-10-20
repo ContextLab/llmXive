@@ -1,9 +1,9 @@
 """
-Exception hierarchy for the Euler Totient residue‑distribution pipeline.
+Exception hierarchy for the Euler Totient residue-distribution pipeline.
 
-This module defines a set of domain‑specific exceptions used throughout the
-code‑base. All exceptions inherit from :class:`TotientError` and provide a
-clear, human‑readable error message that matches the expectations of the
+This module defines a set of domain-specific exceptions used throughout the
+code-base. All exceptions inherit from :class:`TotientError` and provide a
+clear, human-readable error message that matches the expectations of the
 unit tests (see ``tests/unit/test_exceptions.py``).
 """
 
@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Optional
 
 class TotientError(Exception):
-    """Base class for errors raised by totient‑related computations."""
+    """Base class for errors raised by totient-related computations."""
     def __init__(self, message: str = "An error occurred in totient computation.") -> None:
         super().__init__(message)
 
@@ -30,10 +30,10 @@ class MemoryLimitExceeded(TotientError):
         exceeded.
     """
     def __init__(self, limit_mb: float, usage_mb: float) -> None:
-        # The wording is required by the test suite.
+        # Standard space used for compatibility and test matching.
         msg = (
-            f"Memory limit exceeded: usage {usage_mb:.2f} MiB exceeds "
-            f"limit {limit_mb:.2f} MiB."
+            f"Memory limit exceeded: usage {usage_mb:.2f} MiB exceeds "
+            f"limit {limit_mb:.2f} MiB."
         )
         super().__init__(msg)
         self.limit_mb = limit_mb
@@ -52,7 +52,7 @@ class InvalidPrimeError(TotientError):
 class BenchmarkFailure(Exception):
     """
     Raised when the benchmark context manager cannot write its JSON report
-    or when the benchmark exceeds a user‑supplied time limit.
+    or when the benchmark exceeds a user-supplied time limit.
 
     The test suite constructs this exception with the keyword arguments
     ``elapsed_time`` and ``limit``; therefore the signature must accept

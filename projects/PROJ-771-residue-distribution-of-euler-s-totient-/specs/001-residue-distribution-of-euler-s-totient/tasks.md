@@ -6,16 +6,16 @@
 
 ## Phase 0 – Foundations (setup, reproducibility, and resource guards)
 
-- [X] T001  **Create configuration loader** – implement `code/config.py` that reads a YAML file `code/config.yaml` (default location) exposing `N`, `primes`, `seed`, and `memory_limit_mb`.  
+- [ ] T001  **Create configuration loader** – implement `code/config.py` that reads a YAML file `code/config.yaml` (default location) exposing `N`, `primes`, `seed`, and `memory_limit_mb`.  
   *Verification*: `tests/unit/test_config.py` loads the sample config and asserts the parsed values match the file.
 
-- [ ] T002 [FR‑007] **Define custom exception hierarchy** – add `code/exceptions.py` containing `TotientError`, `MemoryLimitExceeded`, and `InvalidPrimeError`, each with a clear error message.  
+- [X] T002 [FR‑007] **Define custom exception hierarchy** – add `code/exceptions.py` containing `TotientError`, `MemoryLimitExceeded`, and `InvalidPrimeError`, each with a clear error message.  
   *Verification*: `tests/unit/test_exceptions.py` imports the module, raises each exception, and checks that the message string matches the specification.
 
-- [ ] T003 [FR‑007] **Implement MemoryGuard** – create `code/memory_guard.py` with class `MemoryGuard` that polls `psutil.Process().memory_info().rss` every **10 000** sieve iterations and raises `MemoryLimitExceeded` when usage exceeds **90 %** of the `memory_limit_mb` from the config.  
+- [X] T003 [FR‑007] **Implement MemoryGuard** – create `code/memory_guard.py` with class `MemoryGuard` that polls `psutil.Process().memory_info().rss` every **10 000** sieve iterations and raises `MemoryLimitExceeded` when usage exceeds **90 %** of the `memory_limit_mb` from the config.  
   *Verification*: `tests/unit/test_memory_guard.py` simulates increasing memory usage and confirms the exception is raised at the correct threshold.
 
-- [ ] T004 [FR‑001] **Pin deterministic seeds** – write `code/seed.py` that sets `random.seed`, `numpy.random.seed`, and stores the seed in the config; expose `get_seed()` for downstream modules.  
+- [X] T004 [FR‑001] **Pin deterministic seeds** – write `code/seed.py` that sets `random.seed`, `numpy.random.seed`, and stores the seed in the config; expose `get_seed()` for downstream modules.  
   *Verification*: `tests/integration/test_seed_consistency.py` runs the full pipeline twice with the same config and asserts that the resulting `ResidueDataset.frequency_map` files are byte‑identical.
 
 - [X] T005  **Benchmark instrumentation** – add `code/benchmark.py` providing a context manager `benchmark(name: str)` that records wall‑clock time, peak memory (via `MemoryGuard`), and writes a JSON record to `results/reports/benchmark_{name}.json`.  
@@ -55,7 +55,7 @@
 - [ ] T017 [SC‑002] **Synthetic dataset statistical validation** – generate synthetic uniform and deliberately biased residue datasets, run the full statistical pipeline on them, and assert that the resulting `alpha_pass` flags behave as expected (true for uniform, false for biased).  
   *Verification*: Integration test `tests/integration/test_synthetic_stats.py` automates this check.
 
-- [~] T019 [FR‑030] **Contract validation** – implement a utility (e.g., `code/validate_contracts.py`) that loads each JSON artefact produced by the pipeline and validates it against the corresponding schema in `specs/001-residue-distribution-of-euler-s-totient/contracts/`. The pipeline must abort with a clear error if any artefact fails validation.  
+- [X] T019 [FR‑030] **Contract validation** – implement a utility (e.g., `code/validate_contracts.py`) that loads each JSON artefact produced by the pipeline and validates it against the corresponding schema in `specs/001-residue-distribution-of-euler-s-totient/contracts/`. The pipeline must abort with a clear error if any artefact fails validation.  
   *Verification*: Unit test `tests/unit/test_contracts.py` feeds both valid and deliberately malformed JSON files and checks that validation succeeds or raises as appropriate.
 
 ---

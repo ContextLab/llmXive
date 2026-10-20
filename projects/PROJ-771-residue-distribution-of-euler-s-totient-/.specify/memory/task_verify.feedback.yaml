@@ -1,32 +1,18 @@
 T001:
+  reason: "The test `tests/unit/test_config.py` asserts `seed == 2021`, but the actual\
+    \ `code/config.yaml` contains `seed: 12345`, so the required verification (\"\
+    asserts the parsed values match the file\") cannot pass against the current artifacts\
+    \ \u2014 the recorded passing log (exit 0) is inconsistent with the on-disk files\
+    \ and must be stale or from a different state. The loader itself (`code/config.py`)\
+    \ looks functional, but the verification requirement is broken by the seed mismatch\
+    \ (and the test's hardcoded expectations contradict the YAML it claims to be kept\
+    \ in sync with); fix either the YAML or the test"
   task: 05344b60c9d5469ebee7f71117fba20f954dadae853562f10b0f88e99633880b
 T002:
-  reason: "The provided `code/exceptions.py` defines the three required exception\
-    \ classes, but their error\u2011message strings do not contain the phrases the\
-    \ unit test checks (e.g., \u201CMemory limit exceeded\u201D, \u201CInvalid prime\
-    \ modulus 13\u201D), and the test imports `exceptions` from the project root even\
-    \ though only `code/exceptions.py` exists. Consequently the current `tests/unit/test_exceptions.py`\
-    \ would fail with the present code, so the verification does not actually pass.\
-    \ The task needs corrected exception messages (or updated tests) and a proper\
-    \ import path."
   task: 7898493db932b2a1accb27a71b03ebd634c636411a56ed2a1822354eba6db83d
 T003:
-  reason: The provided `code/memory_guard.py` raises a `TypeError` when the memory
-    limit is exceeded (the test `test_memory_guard_raises_when_usage_exceeds_threshold`
-    fails), indicating the `MemoryLimitExceeded` exception is invoked with the wrong
-    arguments. The implementation must be corrected so that `MemoryLimitExceeded(limit_mb,
-    usage_mb)` is called with both required parameters and the exception is properly
-    raised as the task specifies.
   task: dff34484f1d1114492ab8d40786197593ee0ffc1639401119034830117e5d1e6
 T004:
-  reason: "The `code/seed.py` file exists and correctly pins `random` and `numpy`\
-    \ seeds and provides `get_seed()`. However, the required integration test `tests/integration/test_seed_consistency.py`\
-    \ fails because the analysis pipeline cannot be executed: `code/run_analysis.py`\
-    \ raises an `ImportError` (`ResearchIncompleteError` missing from `code/exceptions.py`).\
-    \ Since the pipeline does not run, the test cannot verify that residue files are\
-    \ byte\u2011identical, so the task\u2019s verification condition is not satisfied.\
-    \ Fix the missing exception (or adjust the import) and ensure the pipeline runs\
-    \ successfully so th"
   task: 2fd98537532ad7a6417db9f8575e3c720f174821d66330fda0c50564167a22b5
 T005:
   task: e4b96a0d295d3367b45505c9dbd59a9b20d7586a197e32fd904bb9c3a116c6ae

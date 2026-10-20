@@ -1,32 +1,55 @@
 T001:
-  c: true
-  h: 6d8751b42afaf55611ea429b3d31f8934fc0edb88f9b7d9f8c5b68fa0fa12ba0
-  r: '`code/config.py` implements a real YAML loader exposing `N`, `primes`, `seed`,
-    and `memory_limit_mb` (plus extras), `code/config.yaml` contains the sample values,
-    and `tests/unit/test_config.py` asserts the parsed values match the file; the
-    recorded pytest run shows the test passing (exit 0, 1 passed).'
-  sig: 89407eeb617f1178c9e0521a5c4636a329dbf4f233e414fe5432fdf0f7977cda
-T002:
   c: false
-  h: a2fde5320177d4f50a76f0eacb7f034713c12eba202d75a1d169d1185cde6a60
-  r: "The provided `code/exceptions.py` defines the three required exception classes,\
-    \ but their error\u2011message strings do not contain the phrases the unit test\
-    \ checks (e.g., \u201CMemory limit exceeded\u201D, \u201CInvalid prime modulus\
-    \ 13\u201D), and the test imports `exceptions` from the project root even though\
-    \ only `code/exceptions.py` exists. Consequently the current `tests/unit/test_exceptions.py`\
-    \ would fail with the present code, so the verification does not actually pass.\
-    \ The task needs corrected exception messages (or updated tests) and a proper\
-    \ import path."
-  sig: 8cea9a67e70f1462bef53dc2aa2b16ec594cfbfca0949c127fcdfbcb5bce655a
+  h: 8227031c6834b6df46e9aede6b7785d70bb3836936da02b69632540f9e7007fd
+  r: "The test `tests/unit/test_config.py` asserts `seed == 2021`, but the actual\
+    \ `code/config.yaml` contains `seed: 12345`, so the required verification (\"\
+    asserts the parsed values match the file\") cannot pass against the current artifacts\
+    \ \u2014 the recorded passing log (exit 0) is inconsistent with the on-disk files\
+    \ and must be stale or from a different state. The loader itself (`code/config.py`)\
+    \ looks functional, but the verification requirement is broken by the seed mismatch\
+    \ (and the test's hardcoded expectations contradict the YAML it claims to be kept\
+    \ in sync with); fix either the YAML or the test"
+  sig: b7409c0d015474c2abee42b6324eb6385acf81487a5245cf0bebef099f241972
+T002:
+  c: true
+  h: 27d275fe42d0ca8008ae670e6fc5c597e5211b93254c5c5f6894e423fd3a2377
+  r: '`code/exceptions.py` exists with non-stub implementations of `TotientError`,
+    `MemoryLimitExceeded`, and `InvalidPrimeError` (plus extras), each producing clear
+    messages, and `tests/unit/test_exceptions.py` imports and exercises all three
+    required exceptions with message assertions. The recorded pytest run shows all
+    4 tests passing (exit 0), and the test expectations match the actual message formats
+    in the source.'
+  sig: 7abcaa80d5f298de7d8dfa2a7fe05a962fbabe1bdb5efc1320499e20d3e6a904
+T003:
+  c: true
+  h: e0fc373e4d634654de8ccf976e1cb78d6c5f864fd16ed1f3475644ebecc08d62
+  r: '`code/memory_guard.py` implements `MemoryGuard` polling `psutil.Process().memory_info().rss`
+    with a default 10 000-iteration check interval and raising `MemoryLimitExceeded`
+    above 90% of `limit_mb`, and `tests/unit/test_memory_guard.py` simulates increasing
+    usage and verifies the exception at the correct threshold (95 MB > 90 MB for a
+    100 MB limit) plus interval and boundary behavior. The recorded pytest run shows
+    all 4 tests passing (exit 0), and the exception class exists in `code/exceptions.py`
+    with a compatible constructor.'
+  sig: 2c2c1c645ad7a59c1d52996ab8b0743f338e92d6baef428e51e8ce988cd87cca
+T004:
+  c: true
+  h: 50dd8bce3d70ce9848598af35cdf4e79c82b77de895de0ccca3391c4aee227ef
+  r: '`code/seed.py` exists and implements `pin_seeds` (setting `random.seed` and
+    `np.random.seed`, persisting the seed to `code/config.yaml`) plus `get_seed()`,
+    matching the task''s requirements. The integration test `tests/integration/test_seed_consistency.py`
+    runs the residue pipeline twice with the same config and asserts byte-identical
+    `ResidueDataset` JSON files, and the historical execution log shows all 4 tests
+    passing (exit 0) via `python -m pytest -v`.'
+  sig: 71fa4f33cd5b09c84cc8fc07afd80f39751236641a3400ba46bb0957a094e0a2
 T005:
   c: true
-  h: 4cb0271a55b78a2f11680de109320572c5be22e86b0622c3b6345d88f9e7d8ae
+  h: 001150f96c5e5015c5aea08b1789cdd55ced817b6a6303b83ca991e19794fb8f
   r: '`code/benchmark.py` implements the `benchmark(name)` context manager recording
-    wall time and peak memory via `MemoryGuard`/psutil and writing JSON to `results/reports/benchmark_{name}.json`;
+    wall-clock time and peak memory via `MemoryGuard`/psutil and writing JSON to `results/reports/benchmark_{name}.json`;
     `scripts/run_dummy.py` exercises it; and the actual output `results/reports/benchmark_dummy.json`
-    exists with numeric `wall_time_sec` (0.0234) and `peak_memory_mb` (15.55), matching
-    the verification criteria.'
-  sig: 0a8625e00e52c61b74ed6fe5bc989bc5056ad3e7763a9a67b9949d7ad6b315f3
+    exists with numeric `wall_time_sec` (0.0234) and `peak_memory_mb` (15.55) fields,
+    matching the verification criteria.'
+  sig: bb4a022c696ae8c2befe7619a7f23188dd0c63d02e93c6044799bb9a4b3432df
 T008:
   c: false
   h: a62bff467ed3d338c293f011e00f169ab830b1d8764fb9dcac979e12e5b5002b
@@ -62,3 +85,15 @@ T016:
     \ implements a standard, correct linear sieve, these tests would FAIL in CI against\
     \ a correct implementation \u2014 the reference data contradict the very mathematical"
   sig: 264b80601f776363cc607f399585ea9df741cf3df5eaf67d0c1b1c362a992c26
+T019:
+  c: true
+  h: 3fe64473a658b0c2e41cb41ba34e0582f1884aeefd79187d937e13f854009716
+  r: 'The required artifacts exist and are substantive: `code/validate_contracts.py`
+    loads both contract schemas (`dataset.schema.yaml`, `statistical_result.schema.yaml`,
+    both present in `specs/.../contracts/`), validates each pipeline JSON artefact
+    via `Draft7Validator`, and raises `ResearchIncompleteError` (defined in the confirmed
+    `code/exceptions.py`) with a clear message on missing files or schema violations,
+    aborting the pipeline. The unit test `tests/unit/test_contracts.py` covers both
+    a valid case and a deliberately malformed case (omitted required `test_type`)
+    asserting the error is raised,'
+  sig: 46703820262a4256439894208f42e0a16e6925c26768c4a7fff82da0e4c03faf
