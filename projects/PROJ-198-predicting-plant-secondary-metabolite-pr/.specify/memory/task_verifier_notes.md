@@ -2,4 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T002** — The evidence packet shows `.ruff.toml`, `pyproject.toml` (with a `[tool.black]` section), and `code/config.py` (which does load `.env` via python-dotenv), but two required artifacts are absent: `.flake8` and `.env.example` — the latter is essential to the second verification step (sourcing it to obtain non-empty `NCBI_API_KEY`/`PMDB_API_TOKEN`), and no execution evidence (exit codes for `ruff --quiet .` / `black --check .`, or the env-sourcing test) was provided. The implementer must add `.flake8` and `.env.example` (with non-empty example key values) and demonstrate the verification commands
+- **T002** — Requested task execution failed; rerun successfully: code/check_lint_and_env.py exit=1

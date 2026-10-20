@@ -1,17 +1,14 @@
-# Flake8 configuration for PROJ-198
-# Kept consistent with .ruff.toml / black (line length 88).
 [flake8]
 max-line-length = 88
-extend-ignore =
-    E501,   # line too long (black owns formatting)
-    E203,   # whitespace before ':' (black style)
-    W503    # line break before binary operator (black style)
+extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
-    venv,
-    .venv,
     build,
     dist,
-    *.egg-info
-max-complexity = 25
+    .venv,
+    venv,
+    env,
+    migrations,
+    .mypy_cache,
+    .ruff_cache

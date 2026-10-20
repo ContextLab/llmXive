@@ -1,11 +1,11 @@
 T001:
   c: true
-  h: ba1623eabb9eb47b42d7e4056f343fc4a92aa1a67d6c4812868e32210def6e98
-  r: "Checked the collector\u2011reported directory listings showing that `code/`,\
-    \ `code/data/`, `code/modeling/`, `code/utils/`, `code/cli/`, `data/raw/`, `data/interim/`,\
-    \ `data/processed/`, and `tests/` all exist, and the `code/.tasks/T001.code_create_layout.py.log`\
-    \ confirms the layout creation script ran successfully."
-  sig: e417fc1d19f2c56cbe8122b3e78e9d481bf2731cddf66a806bf1813f1d339bd7
+  h: ff00d9b1503fb3e11b08b39a72c706ee1e7f0e29bffe2b30bf1375b99cb799a6
+  r: "Checked that the repository contains all required directories (`code/`, `code/data/`,\
+    \ `code/modeling/`, `code/utils/`, `code/cli/`, `data/raw/`, `data/interim/`,\
+    \ `data/processed/`, `tests/`) as confirmed by the collector\u2019s directory\
+    \ listings."
+  sig: 8bce148afa63d9854d539c48c552a3c658e63fc854fd11924feb5141b212ec63
 T002:
   c: false
   h: 17f7821ea21369adf0b26e4277d8662670dd943ba6a22b2aacbc0772aa54e050
@@ -20,10 +20,9 @@ T002:
   sig: 40ae244e7d140e69af47042bf18ac501d4214c0ea31038cb9eb52075c6ec4674
 T003:
   c: true
-  h: b0474aa88e99d78ea27463b1877dbba1d9c31310a3f0af9e3073971817c4611f
-  r: 'The artifact `code/models/schemas.py` exists (6384 bytes) and defines all four
-    required Pydantic models (Species, BGCFeature, Metabolite, ModelOutput) with appropriate
-    fields, constraints, and validators. The verification requirement is directly
-    evidenced by the pytest run: 15 tests in `tests/models/test_schemas.py` covering
-    JSON validation of sample objects for each model all passed (exit 0).'
-  sig: e72bf003451b36d547d69a12be3e600010aeb3260f754d70f7f9f02a1bb86101
+  h: 936c3795ceb91afdd591d33e7637cb3cce12007e19f46e4ff766c501eada730c
+  r: "Checked `code/models/schemas.py` (6384\u202Fbytes) \u2013 it exists, is non\u2011\
+    empty, and defines the four required Pydantic models (Species, BGCFeature, Metabolite,\
+    \ ModelOutput) with appropriate fields and validators. No required artifact is\
+    \ missing or stubbed."
+  sig: 7d7be216875efdf6426973a2bb36a98310d88d476aa585ebfc7616e861985843

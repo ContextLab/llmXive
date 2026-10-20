@@ -80,7 +80,7 @@ ERROR tests/unit/test_models.py
 ERROR tests/unit/test_project_structure.py
 ERROR tests/unit/test_report.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 11 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 11 errors in 1.16s ==============================
+============================== 11 errors in 1.63s ==============================
 
 
 
