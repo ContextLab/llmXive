@@ -1,246 +1,162 @@
 # Tasks: Predicting Corrosion Potential from Composition and Environment
 
-**Input**: Design documents from `/specs/001-predict-corrosion-potential/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: Design documents from `/specs/001-predict-corrosion-potential/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
+
+**Tests**: The examples below include test tasks. Tests are OPTIONAL – only include them if explicitly requested in the feature specification.
+
+## Phase 1: Setup and first end‑to‑end analysis
+
+- [ ] T001 Establish the required project directory hierarchy and produce a verification manifest.  
+  **File path**: `code/utils/setup_dirs.py` (creates `code/`, `data/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/`).  
+  **Artifact**: `state/setup_dirs_verified.json` – an array of objects `{"path": "<absolute_path>", "created_at": "<ISO8601_timestamp>"}` for each directory.  
+  **Verification**: Running `python code/utils/setup_dirs.py` must exit with status 0, all directories must exist, and the JSON manifest must be valid.
+
+- [ ] T045 Measure total pipeline execution time and enforce the ≤ 6 h limit (SC‑005).  
+  **File path**: `code/utils/runtime_tracker.py` (wraps the full CLI run).  
+  **Artifact**: `data/logs/pipeline_runtime.json` containing `{"total_seconds": <float>, "within_limit": true/false}`.  
+  **Verification**: After a full pipeline run, the JSON must exist and `within_limit` must be true; otherwise the pipeline exits with a non‑zero status.
+
+- [ ] T046 Compute SHA‑256 checksums for all raw data files and store them in a manifest.  
+  **File path**: `code/utils/checksum.py`.  
+  **Artifact**: `data/logs/checksums_manifest.json` – a list of `{ "file": "<relative_path>", "sha256": "<hex>" }`.  
+  **Verification**: Running the script after ingestion must produce a non‑empty manifest with a checksum entry for each file in `data/raw/`.
+
+- [ ] T047 Record content hashes for all produced artifacts in the project state file (Constitution V).  
+  **File path**: `code/utils/version_hashes.py`.  
+  **Artifact**: `state/projects/PROJ-376-predict-corrosion-potential-from-comp.yaml` – updated `artifact_hashes` map with `{ "<relative_path>": "<sha256>" }`.  
+  **Verification**: After any artifact creation step, the state file contains a matching hash entry.
+
+- [ ] T005 [ ] Implement custom exception classes `DataInsufficientError` and `SchemaMismatchError` in `code/utils/exceptions.py`.  
+  **Verification**: Import the module and assert the classes exist; unit tests in `tests/unit/test_exceptions.py` must pass.
+
+- [ ] T006 Set up reproducible logging infrastructure in `code/utils/logging.py` (FR‑010).  
+  **Verification**: Logs written via `get_logger()` contain timestamps, severity levels, and are saved to `data/logs/pipeline.log`. *(Removed unsafe `[P]` tag; logging is sequential.)*
+
+- [ ] T007 Create base data‑model classes (`AlloyRecord`, `EnvironmentRecord`, `CorrosionMeasurement`) using Pydantic v2 in `code/models/data_models.py`.  
+  **Verification**: `tests/unit/test_data_models.py` validates correct schema enforcement for valid and invalid inputs.
+
+## Phase 2: Contracts and foundational infrastructure
+
+- [ ] T004 Create the JSON‑Schema contract files required for ingestion and processed data.  
+  **File paths**:  
+  `specs/001-predict-corrosion-potential-from-comp/contracts/ingest.schema.yaml`  
+  `specs/001-predict-corrosion-potential-from-comp/contracts/dataset.schema.yaml`  
+  **Content**: Must match the definitions provided in the specification (see the `ingest.schema.yaml` and `dataset.schema.yaml` sections).  
+  **Verification**: `yamllint` runs without errors and a validation script (`code/utils/validate_schemas.py`) reports both schemas as valid.
+
+- [ ] T014a Generate the schema‑validation utility script `code/utils/validate_schemas.py`.  
+  **File path**: `code/utils/validate_schemas.py` (loads the YAML schemas and provides a `validate(data, schema_path)` function).  
+  **Verification**: Importable and usable by downstream validation tasks; unit test `tests/unit/test_validate_schemas.py` must pass.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+- [ ] T014 Implement the schema‑validation step in `code/data/preprocess.py`.  
+  **Checks**: Conformance to `ingest.schema.yaml`, non‑null composition, pH, temperature, corrosion potential; total record count ≥ 500; at least 10 distinct `specific_alloy_designation`.  
+  **Failure mode**: Raise `SchemaMismatchError` with a clear message.  
+  **Artifact**: `data/logs/schema_validation.json` summarising counts and validation status.  
+  **Verification**: Running the script on the raw files must exit 0 only when all criteria are satisfied.
+
+- [ ] T008 Implement the data‑ingestion script `code/data/download_nist.py`.  
+  **Requirements**:  
+  • Download alloy composition and corrosion records from the NIST‑IR‑8200 database (FR‑001, FR‑002).  
+  • Apply exponential backoff retry logic for HTTP 429 responses (up to 3 retries, base 5 s, max 60 s) (FR‑015).  
+  • Merge composition data from the Materials Project API (`[UNRESOLVED-CLAIM: https://materialsproject.org` — ConnectionError: HTTPSConnectionPool(host='materialsproject.org%60', port=443): Max retries exceeded with url: / (Caused by NameResolutionError("HTTPSConnection(host='materialsproject.org%60', port=443): Failed to resolve 'materialsproject.org%60' ([Errno -2] Name or service not known)"))]) when available (FR‑019).  
+  • Abort with `DataInsufficientError` if no programmatic URL is known or the record count is < 500.  
+  **Outputs**: Raw files under `data/raw/nist/` and `data/raw/materials_project/`.  
+  **Verification**: Successful run creates both directories and logs attempts in `data/logs/download.log`.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [ ] T009 Implement the preprocessing pipeline in `code/data/preprocess.py`.  
+  **Steps**:  
+  • Drop rows missing `ph`, `temperature_celsius`, or `corrosion_potential_mV`.  
+  • Flag records with out‑of‑range pH (< 0 or > 14) as outliers; write them to `data/processed/extreme_conditions.csv`.  
+  • Apply centered‑log‑ratio (CLR) transformation to all elemental weight fractions (FR‑020).  
+  • One‑hot encode `electrolyte_type`.  
+  • Output a Parquet file `data/processed/clean_dataset.parquet`.  
+  **Verification**: The Parquet file contains no nulls in required fields and the outlier CSV is non‑empty when applicable.
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T016 Add diagnostic logging for all excluded records (missing pH, extreme pH, schema violations) to `data/logs/pipeline.log`.  
+  **Format**: JSON lines with keys `record_id`, `reason`, `timestamp`.  
+  **Verification**: After running `preprocess.py`, the log file must contain at least one entry for each excluded record.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+## Phase 3: Dataset splitting
 
-## Path Conventions
+- [ ] T015 Implement LOSO (Leave‑One‑Specific‑Alloy‑Out) splitting in `code/data/split.py`.  
+  **Pre‑check**: Verify ≥ 10 distinct alloy designations; otherwise raise `DataInsufficientError`.  
+  **Outputs**: `data/processed/train_set.parquet` and `data/processed/test_set.parquet`.  
+  **Verification**: `data/logs/split_validation.json` reports `"overlap_count": 0`.
 
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T017 Verify split integrity (zero overlap) using the validation log produced by T015.  
+  **Artifact**: `data/logs/split_validation.json`.  
+  **Verification**: The JSON must contain `"overlap_count": 0`.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+## Phase 4: Model training and evaluation
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T020 Implement `code/models/train.py` to train Random Forest and Gradient Boosting regressors on the LOSO training set.  
+  **Requirements**: CPU‑only scikit‑learn, `random_state=42`, respect FR‑005 and FR‑021.  
+  **Artifacts**: `results/models/random_forest.pkl`, `results/models/gradient_boosting.pkl`.
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T021 Implement `code/models/evaluate.py` to calculate R² and RMSE (mV) on the held‑out test set and compute a null‑baseline (mean prediction).  
+  **Artifact**: `results/metrics.json`.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T022 Implement the “learnable” classification logic in `code/models/evaluate.py`.  
+  **Logic**:  
+  1. Perform a permutation test (1 000 permutations, seed 42) on each model’s R²; apply Bonferroni correction across the two models.  
+  2. Declare a model “learnable” only if `R² > 0.0` **and** the corrected p‑value < 0.05 **and** RMSE < the ASTM tolerance from `config/astm_g59_tolerance.yaml`.  
+  3. Write the boolean field `is_learnable` to `results/model_results.json` conforming to `model_output.schema.yaml`.  
+  **Verification**: The JSON file contains `is_learnable: true/false` and all required fields; a unit test in `tests/unit/test_learnability.py` validates the logic.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T048 Enforce primary model R² > 0.6 on the held‑out test set (FR‑021, SC‑008).  
+  **File path**: `code/models/evaluate.py` (post‑metric calculation).  
+  **Artifact**: `results/r2_threshold_check.json` – a JSON file with `{ "model_type": "<best-model>", "r2_score": <float>, "passes_threshold": true/false }`.  
+  **Verification**: The script writes the artifact and aborts with a clear error if `passes_threshold` is false; unit test `tests/unit/test_r2_threshold.py` confirms that a failure triggers a non‑zero exit code and that the JSON reflects the pass/fail status.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T048a Add a validation step that asserts SC‑008 by reading `results/r2_threshold_check.json` and failing the pipeline if the threshold is not met.  
+  **File path**: `code/utils/validate_r2_threshold.py`.  
+  **Artifact**: None (raises exception on failure).  
+  **Verification**: Integrated into the pipeline; CI checks that the script exits with status 0 when the threshold is satisfied.
 
-- [ ] T001 Initialize project directory structure and verification script: Create `code/utils/setup_dirs.py` to generate `code/`, `data/`, `data/raw/`, `data/processed/`, `data/logs/`, `state/`, `contracts/`, `config/`, `code/data/`, `code/models/`, `code/utils/`, `code/tests/`. **Content**: The script MUST create these directories and write `state/setup_dirs_verified.json` containing a list of objects: `{"path": "<absolute_dir_path>", "created_at": "<ISO8601_timestamp>"}`. **Verification**: Run `python code/utils/setup_dirs.py` and verify `state/setup_dirs_verified.json` is valid JSON and all paths exist. **Producer**: `code/utils/setup_dirs.py`.
+- [ ] T023a Create configuration file `config/astm_g59_tolerance.yaml` with `tolerance_mV: 150` (FR‑021, SC‑002).  
+  **Verification**: The file exists and can be parsed with `yaml.safe_load`.
 
----
+- [ ] T049 Validate `results/model_output.json` against `contracts/model_output.schema.yaml`.  
+  **File path**: `code/utils/validate_model_output.py`.  
+  **Artifact**: Validation passes silently; failures raise a `ValidationError`.  
+  **Verification**: CI runs the script and expects exit 0.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T024 Save model artifacts and metrics to `results/model_results.json` conforming to `contracts/model_results.schema.yaml`.  
+  **Verification**: `code/utils/validate_schema.py` validates the file without errors.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+## Phase 5: Interpretability and reporting
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T027 Compute conditional permutation importance for the best‑performing model (`code/models/interpret.py`) (FR‑007).  
+  **Parameters**: 1 000 permutations, Bonferroni/FDR correction (FR‑008).  
+  **Artifacts**: `results/interpretability/feature_importance.png` and `results/interpretability/feature_importance.json`.
 
-- [ ] T004 Create schema contracts: `contracts/ingest.schema.yaml` and `contracts/dataset.schema.yaml`. **Content**: Define fields for `ingest.schema.yaml` based on `AlloyRecord` in `data-model.md` and verify with `yamllint`. **Producer**: `code/utils/validate_schemas.py`. **Verification**: Generate `data/logs/schema_validation.log` containing `schema_file`, `validation_timestamp`, `tool_version`, `status`, and `details` (e.g., "Validated ingest.schema.yaml against yamllint v3.1.0: PASS").
-- [X] T005 [P] Implement custom exceptions in `code/utils/exceptions.py` (DataInsufficientError, SchemaMismatchError)
-- [X] T006 [P] Setup reproducible logging infrastructure in `code/utils/logging.py` (FR-010)
-- [X] T007 Create base data model classes for AlloyRecord, EnvironmentRecord, CorrosionMeasurement. **Implementation**: Use Pydantic v2 for strict schema enforcement. Define `AlloyRecord` with fields: `alloy_id: str`, `composition: dict[str, float]`, `specific_alloy_designation: str`. Define `EnvironmentRecord` with fields: `ph: float`, `temperature: float`, `electrolyte_type: str`. Define `CorrosionMeasurement` with fields: `record_id: str`, `potential_mV: float`. **Verification**: Run `tests/unit/test_data_models.py` which must instantiate classes with valid/invalid data and exit 0 only if validation behaves as expected.
-- [ ] T008 Setup environment configuration management for random seeds and file paths. **Artifact**: Create `config/seeds.yaml` and `config/paths.yaml`. **Content**: `seeds.yaml` MUST contain `random_state: a fixed seed for reproducibility`. `paths.yaml` MUST contain `data_raw: "data/raw"`, `data_processed: "data/processed"`, `logs: "data/logs"`. **Verification**: Run `code/utils/config_loader.py` and verify all keys (seeds, paths) exist and are non-empty.
-- [ ] T009 [P] Update plan.md to mandate LOSO: Edit `specs/001-predict-corrosion-potential/plan.md` to replace all references to "GroupKFold (k=5)" with "Leave-One-Specific-Alloy-Out (LOSO)" in the Summary, Constitution Check, and Complexity Tracking sections. **Rationale**: The Spec (FR-004/FR-012) mandates LOSO; the plan must align with the Spec. **Verification**: Run `grep -i "groupkfold" specs/001-predict-corrosion-potential/plan.md` and ensure it returns no results. **Producer**: Manual edit or script updating plan.md.
-- [ ] T014 [US1] Implement schema validation step in `code/data/preprocess.py` to enforce non-nulls and count records. **Halt Condition**: If <500 records or missing joint distribution, raise `SchemaMismatchError` as mandated by FR-014. **Producer**: `code/data/preprocess.py` must generate `data/logs/diagnostics/count_report.txt`. **Content**: Valid JSON with `record_count`, `valid_count`, `status`. **Verification**: Verify `data/logs/diagnostics/count_report.txt` exists and contains valid JSON with count < 500, AND verify `SchemaMismatchError` is raised and caught in integration tests.
-- [ ] T015 [US1] Implement `code/data/split.py` with **Leave-One-Specific-Alloy-Out (LOSO)** logic to prevent data leakage as per FR-004/FR-012. **Pre-check**: Verify dataset contains ≥10 specific alloy designations; if not, raise `DataInsufficientError`. **Verification**: Verify that the `specific_alloy_designation` column is passed as the `groups` argument to the split logic. Verify that no specific alloy designation appears in both train and test sets. **Output**: Generate train/test indices for folds ensuring no alloy overlap. **Action**: Implement LOSO strictly as per Spec FR-004/FR-012. (FR-004, FR-012)
-- [ ] T016 [US1] Add diagnostic logging for excluded records (missing pH, extreme pH) to `data/logs/pipeline.log`. **Format**: JSON lines with `record_id`, `reason`, `timestamp`. **Verification**: Verify `data/logs/pipeline.log` contains entries for excluded records.
-- [ ] T017 [US1] Verify split integrity: ensure strict LOSO constraint is met (zero overlap of specific_alloy_designation_id between folds). **Deliverable**: Write `data/logs/split_validation.json` containing fold statistics and overlap verification. **Verification**: Verify `data/logs/split_validation.json` exists, is valid JSON, and contains `overlap_count: 0`. (SC-004)
+- [ ] T028 Generate Accumulated Local Effects (ALE) plots for the top element‑environment interaction pairs (e.g., Chromium vs pH) (`code/models/interpret.py`) (FR‑009).  
+  **Outputs**: PNG files under `results/interpretability/ale_*.png`.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T030 Compile a summary report (`results/interpretability/summary.md`) stating whether specific elements consistently reduce corrosion potential across environments (FR‑018).  
+  **Verification**: The markdown file contains the heading “Top 5 features”, references at least one ALE plot, and includes a concluding statement on element consistency.
 
----
+## Phase 6: Reproducible results and paper handoff
 
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+- [ ] T031 Create `quickstart.md` that documents the single CLI command to run the full pipeline (`python code/cli/run_pipeline.py`) and lists the expected final artifacts (`clean_dataset.parquet`, `model_results.json`, interpretability figures).  
+  **Verification**: Executing the command from a fresh checkout reproduces all artifacts and the quick‑start steps complete without error.
 
-**Goal**: Automatically download and preprocess NIST Corrosion Database records into a unified, clean dataset with strict schema validation and leakage prevention.
+- [ ] T038 Add integration test `tests/integration/test_full_pipeline.py` that runs the pipeline via the CLI, asserts the existence and schema‑validity of `results/model_results.json`, and checks that `is_learnable` is a boolean.  
+  **Verification**: The test passes on the CI runner.
 
-**Independent Test**: Execute `code/data/download_nist.py` and `code/data/preprocess.py`; verify output `data/processed/corrosion_dataset.parquet` exists, contains ≥500 records, has no nulls in critical fields, and passes Leave-One-Specific-Alloy-Out (LOSO) validation (≥10 alloy designations).
+## Phase 7: Polish & cross‑cutting concerns
 
-### Implementation for User Story 1
+- [ ] T039a Update `README.md`: Add installation section with specific steps.  
+- [ ] T039b Update `README.md`: Add API reference section for key scripts.  
+- [ ] T039c Update `README.md`: Add contribution guidelines section.  
+- [ ] T039d Update `README.md`: Add development setup instructions.  
 
-- [X] T012 [P] [US1] Implement `code/data/download_nist.py` to fetch from NIST-IR-8200. **Pre-fetch**: Check verified-datasets registry/config for URL. **Halt**: If URL is missing, raise `DataInsufficientError` immediately and halt (Plan Data Acquisition Strategy). **Fetch**: Implement retry logic (exponential backoff, limited retries) and halt on /404 (FR-001, FR-002)
-- [X] T013 [P] [US1] Implement `code/data/preprocess.py` to encode weight fractions, filter missing pH/temp, and exclude outliers (FR-003, FR-013)
+- [ ] T033 Profile `code/data/download_nist.py` to ensure peak memory usage stays below 2 GB; record the measurement in `data/logs/memory_profile.txt`.  
+  **Verification**: The reported peak memory < 2 GB.
 
-### Tests for User Story 1 (SEQUENTIAL - Write After Implementation) ⚠️
+- [ ] T034 Optimize `code/data/preprocess.py` to complete preprocessing of 10 000 rows in under 30 seconds; benchmark result stored in `data/logs/preprocess_benchmark.txt`.  
+  **Verification**: Benchmark file reports elapsed time ≤ 30 s.
 
-> **NOTE**: Write these tests AFTER T012-T017 implementation. Run them to ensure they FAIL before fixing. These are NOT parallel with implementation. They must be written and run to fail after T012-T017 implementation.
-
-- [X] T010 [US1] Write unit test for schema validation logic in `tests/unit/test_data_validation.py`. **Constraint**: Must fail before T012-T017 implementation. **Assertions**: Assert `SchemaMismatchError` is raised when record_count < 500; Assert `SchemaMismatchError` is raised when critical fields are null.
-- [X] T011 [US1] Write integration test for data ingestion pipeline in `tests/integration/test_data_ingestion.py`. **Constraint**: Must fail before T012-T017 implementation. **Assertions**: Assert pipeline halts if NIST URL is missing; Assert output parquet has no nulls in critical fields.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Model Training and Evaluation (Priority: P2)
-
-**Goal**: Train Random Forest and Gradient Boosting regressors on the preprocessed dataset to predict corrosion potential and evaluate performance against null baselines.
-
-**Independent Test**: Run `code/models/train.py` and `code/models/evaluate.py`; verify `data/processed/model_results.json` contains R² and RMSE for both models, and that the best model is classified as "learnable" if R² > 0.0 (p < 0.05).
-
-### Implementation for User Story 2
-
-- [ ] T023a [US2] Create `config/astm_g59_tolerance.yaml` and define tolerance. **Source**: ASTM G59-19 Standard Practice for Conducting Potentiodynamic Polarization Resistance Measurements (public abstract/summary) or the community-default value if text is inaccessible. **Content**: If standard does not define a specific value, USE the community-standard default voltage.. **Do NOT halt**. **Verification**: Verify `config/astm_g59_tolerance.yaml` exists and contains `tolerance_mV: 150`.
-- [X] T020 [P] [US2] Implement `code/models/train.py` to train Random Forest and Gradient Boosting (CPU-only, scikit-learn) with `random_state=42` using LOSO split indices (FR-005).
-- [X] T021 [US2] Implement `code/models/evaluate.py` to calculate R² and RMSE on held-out test sets from LOSO split and aggregate metrics (FR-006). **Verification**: Ensure T023a has completed if tolerance is needed for evaluation.
-- [ ] T023b [US2] Implement RMSE calculation in millivolts (mV) and compare against the tolerance from `config/astm_g59_tolerance.yaml`. **Key**: Read `tolerance_mV`. If missing, use default 150. **Verification**: Report comparison result; do not allow 'N/A' path. **Dependency**: Requires T021 (Evaluate) to be complete. (SC-002)
-- [ ] T022 [US2] Implement null baseline comparison (mean prediction) and "learnable" classification logic (R² > 0.0, p < 0.05 via **one-sample permutation test** on aggregated predictions) (SC-001, SC-007). **Sub-steps**: 1. Generate null distribution via a sufficient number of permutations. 2. Calculate p-value. 3. Apply FDR correction. 4. Write classification result ("learnable" or "null") to `data/processed/model_results.json`. (FR-008)
-- [X] T024 [US2] Save model artifacts and metrics to `data/processed/model_results.json` conforming to `contracts/model_results.schema.yaml`. **Verification**: Run `code/utils/validate_schema.py` against `data/processed/model_results.json` and exit 0.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T018 [P] [US2] Unit test for model training timing (must complete <30 mins) in `tests/unit/test_model_timing.py`
-- [ ] T019 [P] [US2] Integration test for end-to-end training and evaluation in `tests/integration/test_model_training.py`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Interpretability and Feature Importance Analysis (Priority: P3)
-
-**Goal**: Generate permutation importance scores and partial dependence plots to identify key alloying elements and environmental interactions.
-
-**Independent Test**: Run `code/models/interpret.py`; verify output includes top 5 features with p-values < 0.05 (Bonferroni/FDR corrected) and at least one partial dependence plot visualizing non-linear interaction.
-
-### Implementation for User Story 3
-
-- [X] T027 [P] [US3] Implement `code/models/interpret.py` to calculate permutation importance (FR-007)
-- [X] T028 [US3] Implement statistical significance testing for feature importance using **one-sample permutation test** (null hypothesis: importance = 0) with 1,000 permutations, seed=42, applying Bonferroni or FDR correction for multiple comparisons (FR-008, SC-003).
-- [X] T029 [US3] Generate partial dependence plots for top element-environment pairs (e.g., Chromium vs pH) (FR-009)
-- [X] T030 [US3] Compile summary report stating whether specific elements consistently reduce corrosion potential. **Output**: Generate `data/processed/interpretability/summary.md` containing: 1. Top 5 features, 2. PDP plot paths (relative paths, e.g., `plots/pdp_cr_ph.png`), 3. Conclusion on element consistency. **Producer**: `code/models/interpret.py`. **Verification**: Verify `data/processed/interpretability/summary.md` exists and contains the string "Top 5 features" and at least one PDP plot path.
-- [X] T031 [US3] Save all plots and reports to `data/processed/interpretability/`
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T025 [P] [US3] Unit test for permutation significance logic (sufficient permutations for stable estimation, FDR correction) in `tests/unit/test_importance_stats.py`
-- [ ] T026 [P] [US3] Integration test for plot generation in `tests/integration/test_interpretability.py`
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [X] T032a Update README.md: Add installation section with specific steps. **Verification**: Verify "Installation" section exists in README.md.
-- [X] T032b Update README.md: Add API reference section for key scripts. **Verification**: Verify "API Reference" section exists in README.md.
-- [X] T032c Update README.md: Add contribution guidelines section. **Verification**: Verify "Contributing" section exists in README.md.
-- [X] T032d Update README.md: Add development setup instructions. **Verification**: Verify "Development Setup" section exists in README.md.
-- [ ] T033 Profile `code/data/download_nist.py` and reduce memory usage. **Target**: < 2GB. **Tool**: `memory_profiler`. **Command**: `python -m memory_profiler --line-by-line code/data/download_nist.py` using `data/processed/corrosion_dataset.parquet` (first 5k rows). **Verification**: Run memory profiler and confirm reduction.
-- [ ] T034a Create benchmark script: Implement `code/utils/benchmark.py` to load a subset of `data/processed/corrosion_dataset.parquet` and measure load time. **Verification**: Script must accept `--rows` argument and exit 0 on success.
-- [ ] T034 Optimize data loading in `code/data/preprocess.py` to complete in < 30 seconds on 10k rows. **Benchmark**: Use `code/utils/benchmark.py` to load `data/processed/corrosion_dataset.parquet` (first 10k rows). **Verification**: Run benchmark script and confirm time < 30s.
-- [X] T035 [P] Additional unit tests for edge cases (pH > 14, pH < 0) in `tests/unit/`
-- [X] T036 Run `quickstart.md` validation to ensure full pipeline reproducibility
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 completion (requires processed data)
-- **User Story 3 (P3)**: Depends on US2 completion (requires trained model)
-
-### Within Each User Story
-
-- Implementation (Producer) MUST exist before Tests (Consumer) can be written to fail.
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all models for User Story 1 together:
-Task: "Implement download_nist.py with retry logic"
-Task: "Implement preprocess.py for encoding and filtering"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify ≥500 records, no leakage, ≥10 alloys)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data)
- - Developer B: User Story 2 (Modeling) - *Can start only after US1 data is ready*
- - Developer C: User Story 3 (Interpretability) - *Can start only after US2 model is ready*
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: Do not use synthetic data. If NIST-IR-8200 yields <500 records, the pipeline MUST halt.
-- **Critical Constraint**: All models must run on CPU-only GitHub Actions runners (no CUDA, no low-bit quantization).
-- **Critical Constraint**: Split strategy MUST be Leave-One-Specific-Alloy-Out (LOSO) as per Spec FR-004/FR-012. The Plan's GroupKFold strategy is overridden by the Spec; update the Plan to reflect this.
-- **Critical Constraint**: ASTM G tolerance comparison is mandatory; if standard is ambiguous, use the default 150 mV (Spec Assumptions).
-- **Critical Constraint**: Statistical significance testing must use "one-sample permutation test" as per Spec FR-008.
+- [ ] T035 [ ] Additional unit tests for edge cases (pH > 14, pH < 0) in `tests/unit/`.  
+- [ ] T036 Run `quickstart.md` validation to ensure full pipeline reproducibility.
