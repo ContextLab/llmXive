@@ -1,15 +1,13 @@
 T001:
   c: false
-  h: c19df12c638c344ce14810bbdeb9a19156b1649210a2d21e2d108d2f6d538937
-  r: 'The main defect is `code/data/real_ingest.py`: when no real data is configured
-    (missing/unsupported `REAL_DATA_SOURCE` or failed download), it prints a technical
-    error like "Environment variable REAL_DATA_SOURCE is not set." and returns exit
-    code 1, whereas the task explicitly requires a clear "Data source unavailable"
-    message and exit status 0 with no synthetic fallback; consequently `code/main.py
-    --mode real` also exits 1 via `run_real_mode`. The existing `data/real_ingest_status.json`
-    (status "unavailable") shows the status-file mechanism works, but the exit-code
-    and message requirements ar'
-  sig: a89a4b01960cd7ef0581abedcf3faaa13fca267d3776200f2a0fe20489b18695
+  h: 38db6d14e1dcf4a1e76b98b09078dbcce6fa1bd9e537f075d8660f4f80dcd623
+  r: "Checked `code/run_quickstart_test.py`: it runs the synthetic pipeline and checks\
+    \ file existence, but it prints \u201CQuickstart smoke test passed\u201D instead\
+    \ of the required \u201CQuickstart validation passed\u201D and silently skips\
+    \ schema validation when the contract files are absent, so it does not truly assert\
+    \ that each CSV/JSON conforms to a *_schema.yaml*. The test script therefore does\
+    \ not meet the specification."
+  sig: ae09bfce929c3a99f6a9e623e6e8829dc4941ac3166336b7258733bcebf3733b
 T003:
   c: false
   h: 9dffc5731bf5198fd461a7e8802f49d6933fe40e41c5b6d7bff586b9c70b379f

@@ -17,7 +17,7 @@ The following checklist implements the full research pipeline, from a reproducib
     - `code/run_quickstart_test.py` must invoke `code/main.py --mode synthetic …`, verify that all expected output files exist, and assert that each JSON/CSV passes its schema (`*_schema.yaml`).  
   - **Verification**: Running each script individually returns the expected exit code (0 for success, 0 for the stub when no real data). `python code/run_quickstart_test.py` exits 0 and prints “Quickstart validation passed”.  
 
-- [ ] T002 [US-1] Implement a synthetic verification cohort generator that produces a realistic but fully synthetic adolescent rs‑fMRI dataset.   <!-- FAILED-IN-EXECUTION: code/data/run_synthetic_generator.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/run_synthetic_generator.py exit=1 -->
+- [ ] T002 [US-1] Implement a synthetic verification cohort generator that produces a realistic but fully synthetic adolescent rs‑fMRI dataset.   <!-- FAILED-IN-EXECUTION: code/data/run_synthetic_generator.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/run_synthetic_generator.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/run_synthetic_generator.py exit=1 -->
   - **File**: `code/data/synthetic_generator.py` (invoked via `code/data/run_synthetic_generator.py`).  
   - **Behavior**:  
     - Generates `N=100` mock subjects (default) with balanced groups (≤ 75 per group) and the following attributes: `years_of_training` ~ Uniform(1, 10) for musicians, 0 for non‑musicians; `age` ~ N(15, 1); `sex` 50/50; `motion_score` ~ N(0.15, 0.05); `ses_score` ~ N(0, 1).  

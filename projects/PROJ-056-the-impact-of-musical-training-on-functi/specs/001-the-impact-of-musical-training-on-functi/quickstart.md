@@ -26,12 +26,13 @@ This mode runs the full pipeline on generated synthetic data. It validates code 
 memory limits, and output generation without requiring any real neuroimaging files.
 
 ```bash
-python code/main.py --mode synthetic --n-subjects 100 --seed 42
+python code/main.py --mode synthetic --n-subjects <sufficient sample size> --seed 42
 ```
 
 Expected outputs (written under `data/processed/`):
 - `subjects.parquet`
 - `subjects_cleaned.csv`
+- `subjects_cleaned.parquet`
 - `matching_balance_report.csv`
 - `connectivity_matrices.npy`
 - `connectivity_results.csv`

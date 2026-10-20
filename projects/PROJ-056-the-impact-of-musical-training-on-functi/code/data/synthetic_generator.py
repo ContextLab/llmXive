@@ -22,6 +22,7 @@ __all__ = [
     "generate_synthetic_dataset",
     "save_synthetic_data",
     "generate_subject_data",
+    "generate_connectivity_data",
 ]
 
 def generate_synthetic_dataset(
@@ -196,3 +197,43 @@ def generate_subject_data(
     save_synthetic_data(df)
 
     return df
+
+def generate_connectivity_data(
+    subjects_df: pd.DataFrame,
+    n_timepoints: int = 200,
+    n_rois: int = 200,
+    seed: int = 42,
+) -> list:
+    """
+    Generate synthetic time‑series data for each subject.
+
+    Each subject receives a random Gaussian‑noise matrix of shape
+    ``(n_timepoints, n_rois)``.  The random seed is made deterministic per
+    subject (``seed + row_index``) to ensure reproducibility across runs.
+
+    Parameters
+    ----------
+    subjects_df : pd.DataFrame
+        DataFrame containing at least a ``subject_id`` column.
+    n_timepoints : int
+        Number of simulated fMRI time points.
+    n_rois : int
+        Number of ROIs (matching the atlas that will be used downstream).
+    seed : int
+        Base random seed.
+
+    Returns
+    -------
+    list of dict
+        Each dict has the keys ``subject_id`` and ``time_series`` where
+        ``time_series`` is a ``np.ndarray`` of shape ``(n_timepoints, n_rois)``.
+    """
+    results = []
+    for idx, row in subjects_df.iterrows():
+        subject_id = row["subject_id"]
+        subject_seed = seed + idx
+        np.random.seed(subject_seed)
+        ts = np.random.randn(n_timepoints, n_rois).astype(np.float32)
+        results.append({"subject_id": subject_id, "time_series": ts})
+    log.debug(f"Generated connectivity time‑series for {len(results)} subjects")
+    return results

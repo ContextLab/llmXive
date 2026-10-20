@@ -1,12 +1,10 @@
 T001:
-  reason: 'The main defect is `code/data/real_ingest.py`: when no real data is configured
-    (missing/unsupported `REAL_DATA_SOURCE` or failed download), it prints a technical
-    error like "Environment variable REAL_DATA_SOURCE is not set." and returns exit
-    code 1, whereas the task explicitly requires a clear "Data source unavailable"
-    message and exit status 0 with no synthetic fallback; consequently `code/main.py
-    --mode real` also exits 1 via `run_real_mode`. The existing `data/real_ingest_status.json`
-    (status "unavailable") shows the status-file mechanism works, but the exit-code
-    and message requirements ar'
+  reason: "Checked `code/run_quickstart_test.py`: it runs the synthetic pipeline and\
+    \ checks file existence, but it prints \u201CQuickstart smoke test passed\u201D\
+    \ instead of the required \u201CQuickstart validation passed\u201D and silently\
+    \ skips schema validation when the contract files are absent, so it does not truly\
+    \ assert that each CSV/JSON conforms to a *_schema.yaml*. The test script therefore\
+    \ does not meet the specification."
   task: 70bfc20f0378c62826d0ce5a857213b151f2b7bcef46b7fac8fd6504444e8a7b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/run_synthetic_generator.py
