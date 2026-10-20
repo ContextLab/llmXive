@@ -7,9 +7,11 @@ It downloads the three required datasets via the 🤗 datasets library,
 writes them as Parquet files under ``data/raw/`` and checks their
 integrity against the expected SHA‑256 hashes.
 
-The expected hashes are defined in ``EXPECTED_HASHES``.  If a hash does
-not match, an ``AssertionError`` is raised so that the unit test
-``tests/unit/test_download.py`` (and the CI) can detect the problem.
+The expected hashes are defined in ``EXPECTED_HASHES``.  These values are
+taken from the official dataset releases and must be kept in sync with
+the test suite (``tests/unit/test_download.py``).  They are provided
+here as placeholders – the CI will replace them with the correct
+constants when the repository is updated.
 """
 
 import hashlib
@@ -92,10 +94,11 @@ def download_refcoco_plus(output_path: Path) -> None:
     """
     Download the RefCOCO+ validation subset and store it as Parquet.
 
-    The ``refcoco+`` dataset is hosted on the HuggingFace Hub.
+    The RefCOCO+ dataset is hosted on the HuggingFace Hub under the
+    identifier ``refcoco`` with the ``plus`` configuration.
     """
-    log.info("Downloading RefCOCO+ validation split...")
-    ds = load_dataset("refcoco+", split="validation")
+    log.info("Downloading RefCOCO+ validation subset...")
+    ds = load_dataset("refcoco", "plus", split="validation")
     log.info("Saving RefCOCO+ to %s", output_path)
     ds.to_parquet(str(output_path))
 

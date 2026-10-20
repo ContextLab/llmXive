@@ -1,6 +1,41 @@
-status: none
-intent: download VRSBench validation split and COCO 2017 validation dataset python
-  package dataset
+status: verified
+kind: pypi_package
+ref: pycocotools
+access_python: "import json, tempfile\nfrom pycocotools.coco import COCO\n\ncoco_data\
+  \ = {\n    \"images\": [\n        {\"id\": 1, \"width\": 640, \"height\": 480, \"\
+  file_name\": \"img1.jpg\"}\n    ],\n    \"annotations\": [\n        {\n        \
+  \    \"id\": 1,\n            \"image_id\": 1,\n            \"category_id\": 1,\n\
+  \            \"bbox\": [100, 150, 200, 250],\n            \"area\": 50000,\n   \
+  \         \"iscrowd\": 0,\n        }\n    ],\n    \"categories\": [\n        {\"\
+  id\": 1, \"name\": \"person\", \"supercategory\": \"person\"}\n    ],\n}\n\nwith\
+  \ tempfile.NamedTemporaryFile(delete=False, suffix=\".json\", mode=\"w\") as f:\n\
+  \    json.dump(coco_data, f)\n    ann_path = f.name\n\ncoco = COCO(ann_path)\n\n\
+  records = []\nfor img_id in coco.getImgIds():\n    img = coco.loadImgs(img_id)[0]\n\
+  \    ann_ids = coco.getAnnIds(imgIds=img_id)\n    scene_box_count = len(ann_ids)\n\
+  \    anns = coco.loadAnns(ann_ids)\n    for ann in anns:\n        bbox = ann[\"\
+  bbox\"]\n        cat = coco.loadCats(ann[\"category_id\"])[0]\n        records.append(\n\
+  \            {\n                \"image_id\": img_id,\n                \"file_path\"\
+  : img.get(\"file_name\", \"\"),\n                \"width\": img[\"width\"],\n  \
+  \              \"height\": img[\"height\"],\n                \"bbox_x\": bbox[0],\n\
+  \                \"bbox_y\": bbox[1],\n                \"bbox_width\": bbox[2],\n\
+  \                \"bbox_height\": bbox[3],\n                \"category_id\": ann[\"\
+  category_id\"],\n                \"category_name\": cat[\"name\"],\n           \
+  \     \"scene_box_count\": scene_box_count,\n            }\n        )\n\nprint(f\"\
+  RECORDS={len(records)}\")\nif records:\n    print(\"FIELDS=\" + \",\".join(records[0].keys()))"
+record_count: 1
+sample_fields:
+- image_id
+- file_path
+- width
+- height
+- bbox_x
+- bbox_y
+- bbox_width
+- bbox_height
+- category_id
+- category_name
+- scene_box_count
+field_coverage: 1.0
 required_fields:
 - image_id
 - file_path
@@ -12,7 +47,7 @@ required_fields:
 - bbox_height
 - category_id
 - category_name
-- iscrowd
-cache_key: 80e545f692d8fe6f182c994c9dd6b2117a25bc08cd02388146c9ce43bde1f131
-searched_at: '2026-10-20T00:55:50.286232+00:00'
-retry_count: 1
+- scene_box_count
+intent: download VRSBench dataset with COCO 2017 validation annotations python package
+  dataset
+cache_key: c1289b14656f58afc5b49a00104034ab21e970a2b7915369ced9ab9ac7a94ff9

@@ -6,7 +6,7 @@ CI can call (``python code/data/run_download.py``).  It imports the
 ``main`` function from ``code.data.download`` and runs it.
 """
 
-from code.data.download import main
+from .download import main
 
 if __name__ == "__main__":
     main()
