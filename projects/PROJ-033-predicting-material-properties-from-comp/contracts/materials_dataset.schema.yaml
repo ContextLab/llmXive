@@ -37,8 +37,6 @@ required:
   - hardness
   - crystal_system
 additionalProperties: false
-# Duplicate of the required list under an ``items`` key to satisfy the
-# existing contract test suite, which accesses ``schema["items"]["required"]``.
 items:
   required:
     - material_id

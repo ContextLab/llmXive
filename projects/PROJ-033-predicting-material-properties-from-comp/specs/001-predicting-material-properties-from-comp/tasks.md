@@ -6,14 +6,14 @@ The goal is a reproducible, CPU‑only research pipeline that satisfies every fu
 
 ---  
 
-- [ ] **T001** **[P]** **Create contracts, pin dependencies, and seed utility**  
+- [X] **T001** **[P]** **Create contracts, pin dependencies, and seed utility**  
   - Add `contracts/materials_dataset.schema.yaml` and `contracts/model_metrics.schema.yaml` exactly as defined in the active data model.  
   - Add `requirements.txt` with pinned versions: `torch==2.3.0`, `torch-geometric==2.5.3`, `pandas==2.2.2`, `numpy==1.26.4`, `scikit-learn==1.5.0`, `pymatgen==2024.7.0`, `matplotlib==3.9.0`, `psutil==5.9.8`, `pytest==8.3.2`.  
   - Add `src/utils/seeds.py` that sets `torch.manual_seed(42)`, `np.random.seed(42)`, and `random.seed(42)`.  
   - Create `specs/001-predict-material-properties-from-comp/quickstart.md` documenting the entry‑point commands referenced by later tasks.  
   - **Verification**: `pytest tests/contract/` passes; `quickstart.md` lists every command referenced by subsequent tasks.  
 
-- [ ] **T002** **[P]** **Verify presence of a verified open dataset containing all required columns (including hardness)** *(blocked: requires external provision of dataset)*   <!-- FAILED-IN-EXECUTION: code/verify_dataset.py exit=1 --> <!-- FAILED: unspecified -->
+- [ ] **T002** **[P]** **Verify presence of a verified open dataset containing all required columns (including hardness)** *(blocked: requires external provision of dataset)* <!-- FAILED: unspecified -->
   - Check that `data/raw/` contains a CSV file with columns `material_id`, `formula`, `band_gap`, `hardness`, and `crystal_system`.  
   - If the file is present, compute its SHA‑256 checksum, record it in `data/raw/README.md`, and run schema validation (`pytest tests/contract/test_dataset_schema.py`).  
   - If the file is missing, raise a clear error instructing the project maintainer to supply a publicly licensed dataset meeting the column requirements.  
@@ -28,7 +28,7 @@ The goal is a reproducible, CPU‑only research pipeline that satisfies every fu
   - Monitor peak RAM via `psutil` and assert ≤ 6 GB (FR‑001).  
   - **Verification**: `pytest tests/unit/test_loader.py` passes, including outlier‑removal logging and RAM‑limit assertion.  
 
-- [ ] **T004** **[P]** **Build composition‑only graph constructor** (`src/graphs/composition.py`)  
+- [X] **T004** **[P]** **Build composition‑only graph constructor** (`src/graphs/composition.py`)  
   - Parse formulas with `pymatgen.Composition`.  
   - Create node feature matrix **[element_fraction, atomic_number, electronegativity, valence_electrons, atomic_radius]** (5 features; the `element_fraction` feature is now part of the spec after amendment in T012).  
   - Build a fully‑connected clique including self‑loops; compute edge weights as Euclidean distance in the 4‑D periodic‑property space (excluding fraction).  
@@ -42,7 +42,7 @@ The goal is a reproducible, CPU‑only research pipeline that satisfies every fu
   - Export split indices to `data/processed/splits/*.json`.  
   - **Verification**: `pytest tests/unit/test_split.py` validates stratification, disjointness, and reproducibility with the seeded RNG.  
 
-- [ ] **T006** **[P]** **Implement lightweight GNN, Random Forest baseline, and runtime guards**  
+- [ ] **T006** **[P]** **Implement lightweight GNN, Random Forest baseline, and runtime guards**   <!-- FAILED-IN-EXECUTION: src/training/train_gnn.py exit=1; src/training/evaluate.py exit=1 -->
   - **GNN** (`src/models/gnn.py`): ≤ 3 `GCNConv` layers, hidden dimension ≤ 128, ReLU, global mean pooling, two linear heads for band gap and hardness.  
   - **Optimizer**: Adam, lr = 1e‑3, early‑stopping patience = 10, max 200 epochs, batch size ≤ 32, CPU‑only execution.  
   - **RF baseline** (`src/models/rf_baseline.py`): `RandomForestRegressor` trained on composition‑weighted elemental aggregates (including `element_fraction`).  

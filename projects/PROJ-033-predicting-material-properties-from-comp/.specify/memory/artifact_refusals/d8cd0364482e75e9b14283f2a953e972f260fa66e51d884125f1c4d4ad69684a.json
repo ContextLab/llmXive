@@ -1,7 +1,0 @@
-{
-  "task_id": "T006",
-  "fingerprint": "94fb7c63be9b0cc077d8bfb5cbf2932541e95022c6d3a6da75bdd71e39a89023",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'src/interpret/pca_correlation.py': imports nonexistent names from sibling files: `from src.graphs.composition import _KNOWN_ELEMENTS` (available: Composition, Data, Element, Optional, Path, _build_edge_index, _compute_edge_weights, _element_features...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}

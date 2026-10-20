@@ -3,10 +3,10 @@ Chunked dataset loader for materials properties.
 
 This script reads a CSV file in chunks (≤ 5 000 rows), validates each row
 against the dataset contract, removes rows with missing required fields,
-drops duplicate ``material_id`` entries (keeping the first occurrence),
-skips materials whose chemical formula contains unknown elements, filters
-outliers using a 1.5 × IQR rule for ``band_gap`` and ``hardness``, and writes
-the cleaned data to the specified output path.
+drops duplicate ``material_id`` entries (keeping the first occurrence
+globally), skips materials whose chemical formula contains unknown elements,
+filters outliers using a 1.5 × IQR rule for ``band_gap`` and ``hardness``,
+and writes the cleaned data to the specified output path.
 
 It also monitors peak RAM usage via ``psutil`` and asserts that it never
 exceeds 6 GB (FR‑001).
@@ -87,9 +87,6 @@ def is_known_formula(formula: str) -> bool:
     are known. Uses ``pymatgen.Composition`` when available; otherwise falls
     back to a lightweight regex‑based check against a hard‑coded element list.
     """
-    # ``pymatgen`` is an optional heavy dependency. The project does not
-    # require it for the loader unit tests, so we skip it entirely and rely
-    # on the regex‑based validation against ``_KNOWN_ELEMENTS``.
     unknown = _extract_elements(formula) - _KNOWN_ELEMENTS
     if unknown:
         log.warning("Unknown element(s) %s in formula '%s'", unknown, formula)
@@ -147,7 +144,9 @@ def load_and_clean(input_path: Path, output_path: Path) -> None:
         current_ram = psutil.Process().memory_info().rss
         peak_ram = max(peak_ram, current_ram)
 
-        # Drop rows with any missing required field
+        # -------------------------------------------------------------
+        # 1. Drop rows with any missing required field
+        # -------------------------------------------------------------
         before_missing = len(chunk)
         chunk = chunk.dropna(subset=required_columns)
         dropped_missing = before_missing - len(chunk)
@@ -159,21 +158,33 @@ def load_and_clean(input_path: Path, output_path: Path) -> None:
                 dropped_missing,
             )
 
-        # Drop duplicate material_id (keep first occurrence globally)
+        # -------------------------------------------------------------
+        # 2. Drop duplicate material_id entries
+        #    a) Within‑chunk duplicates
+        #    b) Duplicates that appeared in earlier chunks
+        # -------------------------------------------------------------
         before_dup = len(chunk)
+        # a) intra‑chunk duplicates – keep first occurrence
+        chunk = chunk.drop_duplicates(subset="material_id", keep="first")
+        # b) inter‑chunk duplicates
         is_new = ~chunk["material_id"].isin(seen_ids)
         duplicate_mask = ~is_new
         total_dropped_duplicate += duplicate_mask.sum()
         if duplicate_mask.any():
             log.info(
-                "Chunk %d: dropped %d duplicate material_id rows",
+                "Chunk %d: dropped %d duplicate material_id rows (across chunks)",
                 chunk_idx + 1,
                 duplicate_mask.sum(),
             )
         chunk = chunk[is_new]
+        # Update the global set of seen IDs
         seen_ids.update(chunk["material_id"].tolist())
+        dropped_dup = before_dup - len(chunk)
+        # (dropped_dup includes both intra‑ and inter‑chunk drops)
 
-        # Validate schema per row
+        # -------------------------------------------------------------
+        # 3. Validate schema per row
+        # -------------------------------------------------------------
         valid_mask = chunk.apply(
             lambda row: validate_row(row.to_dict(), schema), axis=1
         )
@@ -187,7 +198,9 @@ def load_and_clean(input_path: Path, output_path: Path) -> None:
                 dropped_schema,
             )
 
-        # Skip unknown elements
+        # -------------------------------------------------------------
+        # 4. Skip unknown elements
+        # -------------------------------------------------------------
         known_mask = chunk["formula"].apply(is_known_formula)
         unknown_mask = ~known_mask
         total_dropped_unknown += unknown_mask.sum()
@@ -207,7 +220,9 @@ def load_and_clean(input_path: Path, output_path: Path) -> None:
     else:
         cleaned_df = pd.DataFrame(columns=required_columns)
 
-    # Outlier removal (applied after full concatenation)
+    # -------------------------------------------------------------
+    # 5. Outlier removal (applied after full concatenation)
+    # -------------------------------------------------------------
     mask_bg = iqr_filter(cleaned_df, "band_gap")
     mask_h = iqr_filter(cleaned_df, "hardness")
     outlier_mask = mask_bg & mask_h

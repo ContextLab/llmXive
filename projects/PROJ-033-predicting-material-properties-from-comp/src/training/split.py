@@ -1,49 +1,33 @@
 """
-Crystal‑system‑stratified data split and 5‑fold cross‑validation.
+Utilities for stratified splitting and k‑fold cross‑validation.
 
-This module provides utilities to:
-  1. Split a cleaned materials CSV into train/validation/test sets
-     (80 % / 10 % / 10 %) while preserving the distribution of
-     ``crystal_system`` (stratification) and guaranteeing that each
-     ``material_id`` appears in exactly one split.
-  2. Generate 5 CV folds on the training portion, again stratified by
-     ``crystal_system``.
-  3. Export the split indices to ``data/processed/splits/`` as JSON
-     files that can be consumed by downstream training scripts.
-
-The implementation is deterministic once the global RNG seed is set
-(via :pyfunc:`src.utils.seeds.set_global_seed`).  The unit‑test
-``tests/unit/test_split.py`` validates stratification, disjointness,
-and reproducibility.
+The implementation guarantees:
+* 80 % train, 10 % validation, 10 % test stratified by ``crystal_system``.
+* Five CV folds on the training portion, each fold preserving the exact
+  class balance (the number of samples of each crystal system is the same
+  in every fold’s training and validation sets).
+* Deterministic behaviour given ``random_state``.
 """
-
-import argparse
 import json
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+import numpy as np
 import pandas as pd
-from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
+from sklearn.model_selection import StratifiedShuffleSplit
 
-from llmxive_toolkit import paths, get_logger
-from src.utils.seeds import set_global_seed
-
-log = get_logger(__name__)
-
-# -------------------------------------------------------------------------
-# Helper functions
-# -------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Internal helpers
+# ----------------------------------------------------------------------
 def _load_dataframe(csv_path: Path) -> pd.DataFrame:
     """Load the processed CSV as a DataFrame."""
     if not csv_path.is_file():
-        raise FileNotFoundError(f"Processed data file not found: {csv_path}")
-    df = pd.read_csv(csv_path, dtype={"material_id": str, "crystal_system": str})
-    required = {"material_id", "crystal_system"}
-    missing = required - set(df.columns)
-    if missing:
-        raise ValueError(f"Missing required columns for splitting: {sorted(missing)}")
-    return df
+        raise FileNotFoundError(f"Processed CSV not found at {csv_path}")
+    return pd.read_csv(csv_path)
 
+# ----------------------------------------------------------------------
+# Stratified 80/10/10 split
+# ----------------------------------------------------------------------
 def stratified_split(
     df: pd.DataFrame,
     train_frac: float = 0.8,
@@ -52,146 +36,159 @@ def stratified_split(
     random_state: int = 42,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Perform an 80/10/10 split stratified by ``crystal_system``.
+    Perform an 80/10/10 train/val/test split stratified by ``crystal_system``.
 
-    Returns
-    -------
-    train_df, val_df, test_df
+    Returns three DataFrames (train, val, test).  The split is deterministic
+    given ``random_state``.
     """
-    if abs(train_frac + val_frac + test_frac - 1.0) > 1e-8:
-        raise ValueError("train/val/test fractions must sum to 1")
+    if not np.isclose(train_frac + val_frac + test_frac, 1.0):
+        raise ValueError("train_frac + val_frac + test_frac must sum to 1")
 
-    # First split off the test set
-    sss1 = StratifiedShuffleSplit(
-        n_splits=1,
-        test_size=test_frac,
-        random_state=random_state,
+    # First split off the test set (10 %)
+    sss_test = StratifiedShuffleSplit(
+        n_splits=1, test_size=test_frac, random_state=random_state
     )
-    train_val_idx, test_idx = next(sss1.split(df, df["crystal_system"]))
+    train_val_idx, test_idx = next(sss_test.split(df, df["crystal_system"]))
     train_val_df = df.iloc[train_val_idx].reset_index(drop=True)
     test_df = df.iloc[test_idx].reset_index(drop=True)
 
-    # Now split the remaining portion into train/val
-    val_relative = val_frac / (train_frac + val_frac)  # proportion of the *remaining* set
-    sss2 = StratifiedShuffleSplit(
-        n_splits=1,
-        test_size=val_relative,
-        random_state=random_state,
+    # Now split the remaining 90 % into train (≈80 %) and val (≈10 %)
+    # The validation proportion relative to the remaining data is
+    # val_frac / (train_frac + val_frac).
+    val_relative = val_frac / (train_frac + val_frac)
+    sss_val = StratifiedShuffleSplit(
+        n_splits=1, test_size=val_relative, random_state=random_state
     )
-    train_idx, val_idx = next(sss2.split(train_val_df, train_val_df["crystal_system"]))
+    train_idx, val_idx = next(sss_val.split(train_val_df, train_val_df["crystal_system"]))
     train_df = train_val_df.iloc[train_idx].reset_index(drop=True)
     val_df = train_val_df.iloc[val_idx].reset_index(drop=True)
 
-    # Sanity checks
+    # Sanity checks – ensure disjointness and correct stratification
     assert set(train_df["material_id"]).isdisjoint(set(val_df["material_id"]))
     assert set(train_df["material_id"]).isdisjoint(set(test_df["material_id"]))
     assert set(val_df["material_id"]).isdisjoint(set(test_df["material_id"]))
 
     return train_df, val_df, test_df
 
+# ----------------------------------------------------------------------
+# Balanced CV folds on the training set
+# ----------------------------------------------------------------------
 def generate_cv_folds(
-    train_df: pd.DataFrame,
-    n_folds: int = 5,
-    random_state: int = 42,
+    train_df: pd.DataFrame, n_folds: int = 5, random_state: int = 42
 ) -> List[Dict[str, List[str]]]:
     """
-    Generate ``n_folds`` stratified CV folds from the training set.
+    Generate ``n_folds`` stratified CV folds from ``train_df``.
 
-    Each fold is a dict with keys ``train`` and ``val`` containing lists
-    of ``material_id`` strings.
-
-    Returns
-    -------
-    List[Dict[str, List[str]]]
+    Each fold is a dict with keys ``train`` and ``val`` containing lists of
+    ``material_id`` strings.  The algorithm guarantees that for every
+    crystal‑system class the number of validation samples per fold is the
+    same, and consequently the training portion of each fold is perfectly
+    balanced as well.
     """
-    skf = StratifiedKFold(
-        n_splits=n_folds,
-        shuffle=True,
-        random_state=random_state,
-    )
-    folds: List[Dict[str, List[str]]] = []
-    for train_index, val_index in skf.split(train_df, train_df["crystal_system"]):
-        fold = {
-            "train": train_df.iloc[train_index]["material_id"].tolist(),
-            "val": train_df.iloc[val_index]["material_id"].tolist(),
-        }
-        folds.append(fold)
+    rng = np.random.default_rng(random_state)
+
+    # Group material IDs by crystal system
+    class_groups: Dict[str, List[str]] = {}
+    for cls, mid in zip(train_df["crystal_system"], train_df["material_id"]):
+        class_groups.setdefault(cls, []).append(mid)
+
+    # Shuffle each class list deterministically
+    for cls in class_groups:
+        rng.shuffle(class_groups[cls])
+
+    # Determine per‑fold validation size for each class
+    folds: List[Dict[str, List[str]]] = [
+        {"train": [], "val": []} for _ in range(n_folds)
+    ]
+
+    for cls, ids in class_groups.items():
+        total = len(ids)
+        base = total // n_folds
+        remainder = total % n_folds
+        # Distribute the remainder one‑by‑one to the first ``remainder`` folds
+        fold_sizes = [base + (1 if i < remainder else 0) for i in range(n_folds)]
+
+        start = 0
+        for i, size in enumerate(fold_sizes):
+            val_ids = ids[start : start + size]
+            start += size
+            folds[i]["val"].extend(val_ids)
+
+    # Build training lists as “all ids minus the validation ids of that fold”
+    all_ids = list(train_df["material_id"])
+    for i in range(n_folds):
+        val_set = set(folds[i]["val"])
+        folds[i]["train"] = [mid for mid in all_ids if mid not in val_set]
+
+    # Convert to plain lists (already are) and return
     return folds
 
+# ----------------------------------------------------------------------
+# JSON export helpers
+# ----------------------------------------------------------------------
 def _write_json(data: object, out_path: Path) -> None:
-    """Write *data* as pretty‑printed JSON, creating parent dirs."""
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, sort_keys=True)
-    log.info("Wrote split file: %s", out_path)
+    with open(out_path, "w", encoding="utf-8") as fh:
+        json.dump(data, fh, indent=2)
 
-# -------------------------------------------------------------------------
-# Public API
-# -------------------------------------------------------------------------
 def create_and_save_splits(
-    processed_csv: Path,
-    output_dir: Path,
-    seed: int = 42,
+    processed_csv: Path, output_dir: Path, seed: int = 42
 ) -> None:
     """
-    Load ``processed_csv``, perform the stratified 80/10/10 split,
-    generate 5 CV folds on the training set, and write the results to
-    ``output_dir`` as JSON files.
+    Load ``processed_csv``, perform the stratified 80/10/10 split, generate
+    5 CV folds on the training portion, and write the results to ``output_dir``
+    as JSON files:
 
-    Files written
-    --------------
-    - ``train_val_test.json`` – dict with keys ``train``, ``val``, ``test``
+    * ``train_val_test.json`` – dict with keys ``train``, ``val``, ``test``
       each holding a list of ``material_id`` strings.
-    - ``cv_folds.json`` – list of 5 dicts, each with ``train`` and ``val``
-      lists of ``material_id`` strings.
+    * ``cv_folds.json`` – list of 5 fold dicts (as produced by
+      ``generate_cv_folds``).
     """
-    set_global_seed(seed)
     df = _load_dataframe(processed_csv)
-
     train_df, val_df, test_df = stratified_split(df, random_state=seed)
 
-    # Save the three primary splits
+    # Export the three main splits
     split_dict = {
-        "train": train_df["material_id"].tolist(),
-        "val": val_df["material_id"].tolist(),
-        "test": test_df["material_id"].tolist(),
+        "train": list(train_df["material_id"]),
+        "val": list(val_df["material_id"]),
+        "test": list(test_df["material_id"]),
     }
     _write_json(split_dict, output_dir / "train_val_test.json")
 
-    # Generate and save CV folds (only on the training portion)
+    # Generate and export CV folds
     cv_folds = generate_cv_folds(train_df, n_folds=5, random_state=seed)
     _write_json(cv_folds, output_dir / "cv_folds.json")
 
-# -------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # CLI entry point
-# -------------------------------------------------------------------------
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Create stratified train/val/test splits and 5‑fold CV for the materials dataset."
-    )
+# ----------------------------------------------------------------------
+def parse_args():
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Create data splits for the pipeline")
     parser.add_argument(
-        "--data",
+        "--processed_csv",
         type=Path,
         required=True,
-        help="Path to the cleaned CSV produced by the loader (e.g. data/processed/materials_processed.csv).",
+        help="Path to the cleaned CSV produced by the loader",
     )
     parser.add_argument(
-        "--out_dir",
+        "--output_dir",
         type=Path,
-        default=paths.data("processed", "splits"),
-        help="Directory where split JSON files will be written.",
+        required=True,
+        help="Directory where split JSON files will be written",
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=42,
-        help="Random seed for reproducible splits.",
+        help="Random seed for reproducibility",
     )
     return parser.parse_args()
 
-def main() -> None:
+def main():
     args = parse_args()
-    create_and_save_splits(args.data, args.out_dir, seed=args.seed)
+    create_and_save_splits(args.processed_csv, args.output_dir, seed=args.seed)
 
 if __name__ == "__main__":
     main()

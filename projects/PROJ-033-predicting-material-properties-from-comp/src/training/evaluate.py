@@ -1,12 +1,10 @@
 """
 Evaluation script for the composition‑only GNN and the Random‑Forest baseline.
 
-It loads the cleaned CSV, re‑creates the train/val/test split, trains a
-lightweight GNN (using the same hyper‑parameters as ``train_gnn.py``) and
-a Random‑Forest baseline, then computes R², MAE and RMSE for both targets
-on the held‑out test set.  The results are written to the JSON file
-specified by ``--metrics_out`` and must conform to
-``contracts/model_metrics.schema.yaml``.
+Computes R², MAE, and RMSE for band gap and hardness on the held‑out test
+set, writes the results to a JSON file that conforms to
+``contracts/model_metrics.schema.yaml``, and includes a ``delta_vs_rf``
+comparison block.
 """
 import argparse
 import json
@@ -21,7 +19,7 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from src.utils.seeds import set_global_seed
 from src.graphs.composition import build_composition_graph
 from src.models.gnn import CompositionGNN
-from src.models.rf_baseline import train_rf
+from src.models.rf_baseline import train_rf, _build_feature_matrix
 from src.training.split import stratified_split
 
 log = logging.getLogger(__name__)
@@ -52,10 +50,16 @@ def parse_args() -> argparse.Namespace:
         default=32,
         help="Batch size (≤ 32)",
     )
+    parser.add_argument(
+        "--patience",
+        type=int,
+        default=10,
+        help="Early‑stopping patience for the quick run",
+    )
     return parser.parse_args()
 
 def _prepare_loader(df_subset, batch_size):
-    data_list = []
+    graphs = []
     for _, row in df_subset.iterrows():
         g = build_composition_graph(
             material_id=row["material_id"],
@@ -65,9 +69,8 @@ def _prepare_loader(df_subset, batch_size):
             cache=False,
         )
         if g is not None:
-            data_list.append(g)
-    loader = DataLoader(data_list, batch_size=batch_size, shuffle=False)
-    return loader
+            graphs.append(g)
+    return DataLoader(graphs, batch_size=batch_size, shuffle=False)
 
 def _train_gnn(train_loader, val_loader, device, max_epochs, patience):
     model = CompositionGNN().to(device)
@@ -88,7 +91,7 @@ def _train_gnn(train_loader, val_loader, device, max_epochs, patience):
             loss.backward()
             optimizer.step()
 
-        # validation loss
+        # validation
         model.eval()
         val_losses = []
         with torch.no_grad():
@@ -109,16 +112,13 @@ def _train_gnn(train_loader, val_loader, device, max_epochs, patience):
             if epochs_no_improve >= patience:
                 break
 
-    # restore best model
     model.load_state_dict(best_state)
     return model
 
 def _predict(model, loader, device):
     model.eval()
-    preds_bg = []
-    preds_h = []
-    truths_bg = []
-    truths_h = []
+    preds_bg, preds_h = [], []
+    truths_bg, truths_h = [], []
     with torch.no_grad():
         for batch in loader:
             batch = batch.to(device)
@@ -146,9 +146,9 @@ def main() -> None:
     df = pd.read_csv(data_path)
 
     # Split
-    train_df, val_df, test_df = stratified_split(df)
+    train_df, val_df, test_df = stratified_split(df, random_state=args.seed)
 
-    # Prepare loaders
+    # Loaders
     train_loader = _prepare_loader(train_df, args.batch_size)
     val_loader = _prepare_loader(val_df, args.batch_size)
     test_loader = _prepare_loader(test_df, args.batch_size)
@@ -161,13 +161,13 @@ def main() -> None:
         val_loader,
         device,
         max_epochs=args.max_epochs,
-        patience=10,
+        patience=args.patience,
     )
 
-    # RF baseline (trained on the *full* training set)
+    # Train RF baseline on the full training set
     rf_models = train_rf(train_df)
 
-    # ---------- GNN metrics ----------
+    # ---------- GNN predictions ----------
     gnn_preds_bg, gnn_preds_h, y_bg, y_h = _predict(gnn_model, test_loader, device)
 
     def compute_metrics(y_true, y_pred):
@@ -182,10 +182,7 @@ def main() -> None:
         "hardness": compute_metrics(y_h, gnn_preds_h),
     }
 
-    # ---------- RF metrics ----------
-    # Build feature matrix for the test set (same routine as in the RF module)
-    from src.models.rf_baseline import _build_feature_matrix
-
+    # ---------- RF predictions ----------
     X_test = _build_feature_matrix(test_df)
     rf_preds_bg = rf_models["band_gap"].predict(X_test)
     rf_preds_h = rf_models["hardness"].predict(X_test)

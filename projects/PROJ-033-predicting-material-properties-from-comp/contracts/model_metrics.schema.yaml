@@ -22,7 +22,7 @@ properties:
       r2_mean: {type: number, description: "Mean R2 across 5 CV folds for band gap."}
       r2_std: {type: number, description: "Std of R2 across folds for band gap."}
       mae_mean: {type: number, description: "Mean MAE across folds for band gap."}
-      mae_std: {type: number, description: "Std of MAE across folds for band gap."}
+      mae_std: {type: number, description: "Mean MAE across folds for band gap."}
       rmse_mean: {type: number, description: "Mean RMSE across folds for band gap."}
       rmse_std: {type: number, description: "Std of RMSE across folds for band gap."}
   hardness:
@@ -32,7 +32,7 @@ properties:
       r2_mean: {type: number, description: "Mean R2 across 5 CV folds for hardness."}
       r2_std: {type: number, description: "Std of R2 across folds for hardness."}
       mae_mean: {type: number, description: "Mean MAE across folds for hardness."}
-      mae_std: {type: number, description: "Std of MAE across folds for hardness."}
+      mae_std: {type: number, description: "Mean MAE across folds for hardness."}
       rmse_mean: {type: number, description: "Mean RMSE across folds for hardness."}
       rmse_std: {type: number, description: "Std of RMSE across folds for hardness."}
   rf_baseline:

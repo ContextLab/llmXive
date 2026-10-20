@@ -1,9 +1,8 @@
 """
 Training script for the composition‑only GNN.
 
-The script respects the runtime guards (FR‑009), uses early stopping
-(patience = 10) and runs on CPU only.  It writes a checkpoint after each
-epoch to ``outputs/gnn_checkpoint_epoch{epoch}.pt``.
+Implements the runtime‑guard logic (FR‑009), early stopping, and checkpoint
+saving.  The script is CPU‑only and respects the batch‑size limit.
 """
 import argparse
 import logging
@@ -60,37 +59,37 @@ def main() -> None:
     set_global_seed(args.seed)
 
     # -----------------------------------------------------------------
-    # Load data
+    # Load data and perform the 80/10/10 split
     # -----------------------------------------------------------------
     df = pd.read_csv(args.data)
-    # Perform the 80/10/10 stratified split – we will later use only the
-    # training part for the actual model fitting.
-    train_df, val_df, _ = stratified_split(df)
+    train_df, val_df, _ = stratified_split(df, random_state=args.seed)
 
-    # Build PyG Data objects
-    def df_to_data(df_subset):
-        data_list = []
+    # -----------------------------------------------------------------
+    # Build PyG Data objects for training / validation
+    # -----------------------------------------------------------------
+    def df_to_graphs(df_subset):
+        graphs = []
         for _, row in df_subset.iterrows():
-            graph = build_composition_graph(
+            g = build_composition_graph(
                 material_id=row["material_id"],
                 formula=row["formula"],
                 band_gap=float(row["band_gap"]),
                 hardness=float(row["hardness"]),
                 cache=False,
             )
-            if graph is not None:
-                data_list.append(graph)
-        return data_list
+            if g is not None:
+                graphs.append(g)
+        return graphs
 
-    train_data = df_to_data(train_df)
-    val_data = df_to_data(val_df)
+    train_graphs = df_to_graphs(train_df)
+    val_graphs = df_to_graphs(val_df)
 
-    if not train_data:
+    if not train_graphs:
         log.error("No training graphs were created – aborting.")
         return
 
-    train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
-    val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False)
+    train_loader = DataLoader(train_graphs, batch_size=args.batch_size, shuffle=True)
+    val_loader = DataLoader(val_graphs, batch_size=args.batch_size, shuffle=False)
 
     # -----------------------------------------------------------------
     # Model, optimizer, loss, guard
@@ -141,17 +140,20 @@ def main() -> None:
             avg_val_loss,
         )
 
-        # Early stopping check
+        # Early stopping
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             epochs_no_improve = 0
         else:
             epochs_no_improve += 1
             if epochs_no_improve >= args.patience:
-                log.info("Early stopping triggered (no improvement for %d epochs).", args.patience)
+                log.info(
+                    "Early stopping triggered (no improvement for %d epochs).",
+                    args.patience,
+                )
                 break
 
-        # Save checkpoint for this epoch
+        # Save checkpoint
         ckpt_path = Path("outputs") / f"gnn_checkpoint_epoch{epoch}.pt"
         ckpt_path.parent.mkdir(parents=True, exist_ok=True)
         torch.save(model.state_dict(), ckpt_path)

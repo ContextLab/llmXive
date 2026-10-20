@@ -1,35 +1,34 @@
 T001:
-  reason: The repository contains the required schema files, `requirements.txt`, `seeds.py`,
-    and a detailed `quickstart.md`, but there is no evidence that `pytest tests/contract/`
-    actually runs and passes. Without test execution logs or a passing test report,
-    the verification condition is unmet. Provide the pytest run output (or a CI badge)
-    showing all contract tests succeed.
   task: 5157fbcf4d9066d1d00398cf3b061bce5f328217d646925316e089695aa93097
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/verify_dataset.py
-    exit=1'
+  reason: "The CSV exists with all five required columns and the checksum is recorded\
+    \ in `data/raw/README.md`, but the \"dataset\" is a 2-row placeholder (`mp-1,Fe2O3`\
+    \ and `mp-2,Si` with textbook values) rather than a genuinely supplied, publicly\
+    \ licensed Materials Project subset \u2014 the task itself notes it is blocked\
+    \ pending external provision of a real dataset. Additionally, there is no evidence\
+    \ the required `pytest tests/contract/test_dataset_schema.py` was ever run (the\
+    \ only execution log is for `code/verify_dataset.py`), and the schema file `contracts/materials_dataset.schema.yaml`\
+    \ that the tests depen"
   task: e1a44bbbbfb115a83f06ef86404d909e1fe5956df3f3892903e773066c0ba943
 T003:
   reason: 'Requested task execution failed; rerun successfully: src/data/loader.py
     exit=1'
   task: a1f31cfc33e1a4f0fb5730a6a99a5e2f0645cbaba76af0a96da0212c3260f8c8
 T004:
-  reason: "The `src/graphs/composition.py` file exists and implements most of the\
-    \ required logic, but the unit\u2011test suite cannot be run because the `pymatgen`\
-    \ package is not available, causing an import error. Moreover, the test that checks\
-    \ for an unknown\u2011element warning expects the warning message to contain \u201C\
-    Unknown element\u201D, which the current implementation does not emit (it logs\
-    \ a different message when parsing fails). Consequently the verification tests\
-    \ do not pass."
   task: f801d299e72c09831ef813933880d4c74983ba115b14314ccca14779483a1a38
 T005:
-  reason: "The unit test `test_generate_cv_folds_is_stratified_and_reproducible` fails\
-    \ (folds are not perfectly balanced, 6 vs 7 cubic/hexagonal entries), and the\
-    \ required output directory `data/processed/splits/` with the JSON split files\
-    \ does not exist. The implementation therefore does not meet the stratified\u2011\
-    CV and export requirements."
+  reason: "The required export `data/processed/splits/*.json` is MISSING \u2014 the\
+    \ collector confirms no matching files exist, so the split indices were never\
+    \ actually exported despite `src/training/split.py` implementing the logic. Additionally,\
+    \ there is no evidence `pytest tests/unit/test_split.py` was run or passed, and\
+    \ the test depends on `data/fixtures/tiny_materials.csv` whose existence is not\
+    \ confirmed (the only data on disk is a 2-row CSV, which could not even satisfy\
+    \ the tests' equal-count stratification assertions). The implementer must run\
+    \ `create_and_save_splits` against the processed CSV to prod"
   task: a2d44584a978546a52fc34108caff3ebade3ab660fd806af94dbb8be3a27a999
 T006:
+  reason: 'Requested task execution failed; rerun successfully: src/training/train_gnn.py
+    exit=1; src/training/evaluate.py exit=1'
   task: baf6aa1d2441aef55844c002c3fc68c5a00335dfac9e3c2817c7fbd2fde62012
 T007:
   task: bab871ad065bd5e5d936cde9d47e530a7c066a33a239960c2e0b30cc82902200
