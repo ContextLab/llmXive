@@ -7,8 +7,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest tests/ -v -> rc=2
-rom code.src.extraction.preprocess import (
-E   ImportError: cannot import name 'generate_human_baseline' from 'code.src.extraction.preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/code/src/extraction/preprocess.py)
+on
+cachedir: .pytest_cache
+rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 30 items / 1 error
+
+==================================== ERRORS ====================================
 _________ ERROR collecting tests/unit/test_setup_project_structure.py __________
 import file mismatch:
 imported module 'test_setup_project_structure' has this __file__ attribute:
@@ -17,16 +23,15 @@ which is not the same as the test file we want to collect:
   /home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/tests/unit/test_setup_project_structure.py
 HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
 =========================== short test summary info ============================
-ERROR tests/test_preprocess.py
 ERROR tests/unit/test_setup_project_structure.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.25s ===============================
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.25s ===============================
 
 
 - python -m src.extraction.fetch_prs --test-set 10 -> rc=-1
 
-2026-10-17 00:24:54,648 - __main__ - INFO - Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
-2026-10-17 00:24:54,648 - __main__ - INFO - Fetching PRs for microsoft/vscode...
+2026-10-20 17:21:06,105 - __main__ - INFO - Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
+2026-10-20 17:21:06,106 - __main__ - INFO - Fetching PRs for microsoft/vscode...
 
 [TIMEOUT after 120s]
 - python -m src.cli.main --run all --max-prs 500 --seed 42 -> rc=-1
@@ -35,10 +40,10 @@ ERROR tests/unit/test_setup_project_structure.py
 [TIMEOUT after 120s]
 - python -m src.extraction.fetch_prs --repos microsoft/vscode pytorch/pytorch tensorflow/tensorflow --max-prs 500 -> rc=-1
 
-2026-10-17 00:28:54,839 - __main__ - INFO - Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
-2026-10-17 00:28:54,839 - __main__ - INFO - Fetching PRs for microsoft/vscode...
-2026-10-17 00:29:55,370 - __main__ - WARNING - Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=28&per_page=100.
-2026-10-17 00:29:55,370 - __main__ - WARNING - Rate limit hit. Sleeping for 60 seconds.
+2026-10-20 17:25:06,206 - __main__ - INFO - Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
+2026-10-20 17:25:06,207 - __main__ - INFO - Fetching PRs for microsoft/vscode...
+2026-10-20 17:25:32,737 - __main__ - WARNING - Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=15&per_page=100.
+2026-10-20 17:25:32,738 - __main__ - WARNING - Rate limit hit. Sleeping for 60 seconds.
 
 [TIMEOUT after 120s]
 

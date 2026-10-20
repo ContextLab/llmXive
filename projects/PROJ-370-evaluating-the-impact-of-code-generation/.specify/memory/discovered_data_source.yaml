@@ -1,16 +1,12 @@
 status: none
-intent: GitHub pull request dataset with diffs comments linked issues GHTorrent GitHub
-  Archive python package dataset
+intent: GitHub Pull Request dataset with diffs review comments linked issues GHTorrent
+  python package dataset
 required_fields:
-- pr_id
-- repository
 - pr_number
-- diff
+- repo_full_name
+- diff_text
 - review_comments
 - linked_issue_ids
-- created_at
-- merged_at
-- author
-cache_key: 713402a8240e1cf0554cad36054c0b0c8b5ca1717b16665c8b279eb12d4a8f90
-searched_at: '2026-10-17T00:31:54.683355+00:00'
+cache_key: 1fba86cb27cc517f7cc605428c8390be5f3b87155f0783b73895c593e4d49128
+searched_at: '2026-10-20T17:27:57.137916+00:00'
 retry_count: 1

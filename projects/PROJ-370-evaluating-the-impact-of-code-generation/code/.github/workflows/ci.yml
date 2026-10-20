@@ -1,0 +1,44 @@
+# GitHub Actions CI workflow (Task T003).
+#
+# NOTE: this workflow file is intentionally stored under code/
+# (a project-owned directory) rather than at the repository root,
+# because the repository root .github/ namespace is owned by the
+# hosting platform. To activate it in a standalone checkout of this
+# project, copy it to <checkout>/.github/workflows/ci.yml.
+#
+# The workflow runs `ruff check` and `black --check` from the code/
+# directory, where pyproject.toml configures both tools
+# (line-length 88 with the documented exclude patterns).
+
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: code
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install lint tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff black
+
+      - name: Run ruff
+        run: ruff check .
+
+      - name: Run black check
+        run: black --check .

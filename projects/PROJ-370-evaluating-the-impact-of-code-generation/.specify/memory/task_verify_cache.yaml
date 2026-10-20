@@ -1,28 +1,17 @@
 T001:
   c: false
-  h: 96dc7895414d1e8953c2b24d474d3c3d4516021573bdb20476d5d7ff5842ebc8
-  r: "The evidence shows a `code/` tree with `src/` and `tests/` files, but the required\
-    \ sub\u2011directories `code/tests/unit`, `code/tests/integration`, `code/tests/contract`,\
-    \ `code/data/results`, `code/logs`, and `specs/001-eval-llm-review-quality/contracts`\
-    \ are not present in the listed artifacts. These missing folders mean the directory\
-    \ layout verification task is not satisfied."
-  sig: dc0a2154b74a87f235e37e5a9b6e9245752b50c89b49887e7644931112594663
+  h: 37e4fc784bfc61d3721c5d75d8e265fe98c731eb52872ac8e4135ba3b9a81b62
+  r: "The verify_layout script confirms most required sub\u2011directories, but the\
+    \ expected path `specs/001-eval-llm-review-quality/contracts` is not present;\
+    \ instead the repository contains `specs/001-evaluating-the-impact-of-code-generation/contracts`.\
+    \ The exact required specs directory is missing, so the layout verification is\
+    \ not fully satisfied."
+  sig: 9ca963a854b0f227421bf2887432bb60b2456515b1816b7cc84b9046f8d60713
 T002:
   c: true
-  h: b5a8ea256c440033176e5189dc2bb651c3103a9f15be1ec763462b82a9250b58
-  r: "Checked `code/requirements.txt` which pins all required packages including `detectgpt`,\
-    \ and verified `code/src/config/settings.py` defines the requested hyper\u2011\
-    parameters, path constants, random seeds, and the exact `TARGET_REPOS` list. The\
-    \ provided pytest log confirms the module imports correctly and the settings are\
-    \ accessible."
-  sig: ab69c76a3653a4c68d3094d7a3a2479925b3d8b75316c50e5d29ec80f1043bbe
-T004:
-  c: false
-  h: 1eb8fcdaa8d097d517f7976990f75730c94029d7cd3805c84d4764153867f12b
-  r: "The `runtime_guard` implementation and its tests are present and pass (see the\
-    \ recorded pytest run for `test_runtime_guard.py`). However, there is no execution\
-    \ evidence that `test_logging_utils.py` runs successfully; the required verification\
-    \ step \u201C`pytest -q code/tests/unit/test_logging_utils.py code/tests/unit/test_runtime_guard.py`\
-    \ returns exit 0\u201D is not demonstrated. Provide a pytest run showing both\
-    \ unit tests passing."
-  sig: af7c8c5bc8ddc7a00601294c921d0da7b29719fe9dbfb4e1fe9f24160ef37f01
+  h: cfde12c82675e812007cf25c0fd616a1df15baa301ba4cf2b3305c5b4ab1d8aa
+  r: "Checked `code/requirements.txt` (contains all required pinned packages including\
+    \ `detectgpt`) and `code/src/config/settings.py` (defines `TARGET_REPOS` with\
+    \ the three repos, hyper\u2011parameters, path constants, and random seeds). Both\
+    \ files exist and match the task specifications."
+  sig: 9be311031958507958b9a644e4850742fada90908ddae03dbaef1a8ad3561415
