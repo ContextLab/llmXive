@@ -1,6 +1,6 @@
 status: none
-intent: OMNI hourly solar wind composition O/Fe He/H C/O with Dst Kp from CDAWeb python
-  package dataset
+intent: OMNI2 hourly solar wind composition and NOAA geomagnetic indices python package
+  dataset
 required_fields:
 - timestamp
 - O_Fe_ratio
@@ -8,11 +8,10 @@ required_fields:
 - C_O_ratio
 - solar_wind_speed
 - proton_density
-- IMF_Bx
-- IMF_By
-- IMF_Bz
+- interplanetary_magnetic_field
 - Dst_index
 - Kp_index
-cache_key: 50007bffa7b6c1538f5395e2e285ea8724d003b8c7aab4e6d1968d0e4ace4908
-searched_at: '2026-10-20T21:09:48.857586+00:00'
+- coupling_function
+cache_key: 5698aa31408f8603a88b953513646d533402ff7fd5a4c2c4c0f8e961de6157a0
+searched_at: '2026-10-20T23:12:10.592499+00:00'
 retry_count: 1

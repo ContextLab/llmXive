@@ -56,11 +56,12 @@ def _fetch_cdf_files(datatype: str, source_name: str, trange: List[str]) -> List
         trange[1],
     )
     try:
-        # Lazy import to keep the module importable without pyspedas
+        # Lazy import to keep the module importable without pyspedas being present at import time.
         from pyspedas import cdaweb  # type: ignore
     except Exception as e:
-        raise ImportError(
-            "pyspedas is required for real-data ingestion but is not installed."
+        # Convert import problems into a runtime‑type error expected by the tests.
+        raise RuntimeError(
+            "pyspedas is required for real-data ingestion but could not be imported."
         ) from e
 
     try:

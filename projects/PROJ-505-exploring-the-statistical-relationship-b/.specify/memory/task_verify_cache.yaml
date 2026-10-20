@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: 6de8ac43c631a93773c8a833f529258adb6bfc9bcec4389ea2d8807bc1da5402
-  r: Checked `requirements.txt`, which correctly pins the listed packages to the `major.minor.*`
-    pattern, but there is no provided evidence (e.g., install logs or CI regex check
-    output) that `pip install -r requirements.txt` actually succeeds on a clean runner
-    or that the CI regex validation was performed. These execution confirmations are
-    required to complete the task.
-  sig: 4b84eaef2bab657fa79923918cb8d73d045b2de4290c949ef3c9158f52829804
 T002:
   c: true
   h: 82c1962c4411e0326e131bec76b93747c53aace2091e28a5e7f911d85a2593e2

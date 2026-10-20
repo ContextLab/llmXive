@@ -15,7 +15,7 @@
 - [X] **T002** [P] Refactor `code/utils/io.py` so Parquet I/O does **not** hard‑require `pyarrow`. Implement a safe fallback to `fastparquet` and raise a clear error only if both engines are unavailable. Provide `load_parquet(path)` and `save_parquet(df, path)`.  
   *Verification*: `pytest tests/unit/test_io.py` passes on a runner without `pyarrow`; a parquet file is written, read back identically, and its SHA‑256 checksum matches.
 
-- [ ] **T003** [US1] Conditional real‑data ingestion from NASA CDAWeb via **pyspedas** (requires approved Constitution VI amendment).   <!-- FAILED-IN-EXECUTION: code/ingestion/run_download_real.py exit=1 -->
+- [ ] **T003** [US1] Conditional real‑data ingestion from NASA CDAWeb via **pyspedas** (requires approved Constitution VI amendment).   <!-- FAILED-IN-EXECUTION: code/ingestion/run_download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion/run_download_real.py exit=1 -->
   *If amendment approved*: fetch ACE SWICS ion fluxes (O, Fe, He, H, C charge‑states), WIND SMS/STICS ion fluxes, and OMNI hourly bulk parameters plus Dst/Kp for 2000‑2020. Store raw CDF files unchanged under `data/raw/ace_swics/`, `data/raw/wind_sms/`, `data/raw/omni/`. Generate `data/raw/checksums.yaml`. Script must raise on any download failure (no synthetic fallback).  
   *If amendment not approved*: invoke synthetic fallback task **T015**.  
   *File*: `code/ingestion/download_real.py`.  
