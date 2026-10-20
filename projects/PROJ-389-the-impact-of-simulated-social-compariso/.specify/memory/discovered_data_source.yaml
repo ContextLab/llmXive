@@ -1,12 +1,16 @@
 status: none
-intent: Pushshift Reddit comments dataset download python package dataset
+intent: "download Pushshift Reddit comments dataset HuggingFace streaming endpoint\
+  \ subreddit statistics VIF\u2011Bench python package dataset"
 required_fields:
 - user_id
 - authenticity_cues_score
 - engagement_proxy_score
-- curated_aesthetics_score
 - sentiment_score
 - self_reference_intensity
-cache_key: 1139628d549d84cb4afcb89494d92f5bec5442a25fe0fa0780ce65da8d9f2e1c
-searched_at: '2026-10-20T13:22:28.927206+00:00'
+- total_comments
+- subreddit_popularity
+- timestamp_start
+- timestamp_end
+cache_key: 414826111d962f93e49e008be61b907fdeb80f214f4de07f1eb6e0e6a91a216f
+searched_at: '2026-10-20T13:38:21.934188+00:00'
 retry_count: 1

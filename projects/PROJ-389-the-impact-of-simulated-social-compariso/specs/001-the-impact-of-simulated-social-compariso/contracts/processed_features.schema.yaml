@@ -1,0 +1,43 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Processed Features"
+type: object
+required:
+  - user_id
+  - exposure_level
+  - authenticity_score
+  - engagement_proxy
+  - self_eval_score
+properties:
+  user_id:
+    type: string
+    description: "Anonymized unique user identifier (PII-scrubbed)"
+  exposure_level:
+    type: number
+    description: "Proportion of community comment volume in target subreddits within the 30-day window, derived from subreddit-level metadata (predictor stream, distinct from user's own comments)"
+  authenticity_score:
+    type: number
+    description: "Rule-based vulnerability-marker score (0-1) from exposure content"
+  engagement_proxy:
+    type: number
+    description: "Average comment depth or thread participation count from exposure content"
+  self_eval_score:
+    type: number
+    description: "Sentiment-adjusted first-person pronoun ratio derived solely from the user's own comments (outcome stream)"
+  total_comment_count:
+    type: integer
+    description: "Total comments authored by the user (covariate)"
+  subreddit_popularity_score:
+    type: number
+    description: "Aggregate popularity of subreddits the user posted in (covariate)"
+  month_of_activity:
+    type: integer
+    description: "Month (1-12) of dominant activity period (covariate)"
+  subreddit_participation_count:
+    type: integer
+    description: "Number of target subreddits the user posted in (self‑selection covariate)"
+  demographic_proxy:
+    type: string
+    description: "Derived demographic label (e.g., \"young_female\", \"older_male\", \"unknown\")"
+  notes:
+    type: string
+    description: "Optional log notes (e.g., low-variance skip flag, imputation flag)"

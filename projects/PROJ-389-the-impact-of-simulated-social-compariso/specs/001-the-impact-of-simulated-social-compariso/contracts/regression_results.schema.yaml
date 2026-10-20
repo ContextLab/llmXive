@@ -24,17 +24,17 @@ properties:
       type: number
   p_values:
     type: object
-    description: "Raw p‑values for each predictor"
+    description: "Raw p-values for each predictor"
     additionalProperties:
       type: number
   corrected_p_values:
     type: object
-    description: "Benjamini‑Hochberg FDR‑adjusted p‑values"
+    description: "Benjamini-Hochberg FDR-adjusted p-values"
     additionalProperties:
       type: number
   interaction_term_significant:
     type: boolean
-    description: "True if the interaction term's corrected p‑value < 0.05"
+    description: "True if the interaction term's corrected p-value < 0.05"
   vif_scores:
     type: object
     description: "Variance Inflation Factor for each predictor"
@@ -43,6 +43,9 @@ properties:
   sample_size:
     type: integer
     description: "Number of observations used in this regression"
+  inference_framing:
+    type: string
+    description: "Always \"associational\" for this observational design (SC-002)"
   notes:
     type: string
-    description: "Optional free‑text notes (e.g., low‑variance skip, collinearity warning)"
+    description: "Optional free-text notes (e.g., low-variance skip, collinearity warning, power limitation)"

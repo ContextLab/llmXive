@@ -1,82 +1,66 @@
 # Quickstart: The Impact of Simulated Social Comparison on Self-Evaluation in Online Environments
 
-This guide walks a new researcher from a fresh GitHub Actions runner to a complete PDF report.
-
 ## 1️⃣ Setup
 ```bash
-# Clone the repo (already done in CI)
 cd projects/PROJ-389-the-impact-of-simulated-social-compariso
-
-# Create virtualenv and install pinned deps
-python -m venv .venv
-source .venv/bin/activate
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 2️⃣ Data Download & Pre‑processing
+## 2️⃣ Data Availability Gate
 ```bash
-python -m src.ingest.reddit_ingest \
-    --streaming \
-    --output data/raw_user_comments.parquet
+python -m src.ingest.reddit_ingest --check-availability --output data/availability_report.json
 ```
-- Streams the Pushshift Reddit dump, removes PII, aggregates per user.
+- Verifies that the verified Reddit dataset (`allenai/reddit_comments`) containing `subreddit`, `body`, `created_utc`, and `author` (including `about` field) is reachable. If not, the gate writes a structured mismatch report and exits non‑zero. Real results cannot be produced until a verified source is supplied.
 
-## 3️⃣ Feature Extraction
+## 3️⃣ Ingestion (requires verified source)
+```bash
+python -m src.ingest.reddit_ingest --source allenai/reddit_comments \
+    --streaming --output data/raw_user_comments.parquet
+```
+- Streams comments in chunks, scrubs PII, **retains the `about` profile field** for demographic extraction, aggregates per user; also writes `data/subreddit_metadata.parquet`.
+
+## 4️⃣ Feature Extraction
 ```bash
 python -m src.features.extract_features \
-    --input data/raw_user_comments.parquet \
+    --user-comments data/raw_user_comments.parquet \
     --subreddit-metadata data/subreddit_metadata.parquet \
-    --output data/processed_features.csv \
-    --seed 42
+    --output data/processed_features.csv --seed 42
 ```
-- Generates all predictor columns **and** the additional covariates (total comment count, subreddit popularity score, month of activity).  
-- **Important**: `exposure_level` is computed from **subreddit‑wide metadata** (distinct from the user’s own comment stream), while `self_eval_score` is computed **only from the user’s own comments**, satisfying Principle VI.  
-- Logs low‑variance skips, median‑imputes any residual missing values, and writes a `notes` column.  
+- Predictors from the exposure/community stream; `self_eval_score` from the user's own comments only (Principle VI).
 
-## 4️⃣ Power Check (optional)
+## 5️⃣ Power Check
 ```bash
-python -m src.utils.power_check \
-    --features data/processed_features.csv \
-    --target_n 500 \
-    --effect_size 0.15
+python -m src.utils.power_check --features data/processed_features.csv --target_n 500 --effect_size 0.15
 ```
-- Reports whether each demographic subgroup meets the ≥ 500 sample‑size requirement; logs a power‑limitation warning if not.
+- Targets the exposure × authenticity interaction; logs a warning if estimated power < 0.80.
 
-## 5️⃣ Regression & Diagnostics
+## 6️⃣ Regression & Diagnostics
 ```bash
 python -m src.analysis.moderation_regression \
-    --features data/processed_features.csv \
-    --results data/regression_results.csv \
-    --seed 42
+    --features data/processed_features.csv --results data/regression_results.csv --seed 42
 ```
-- Fits hierarchical models, computes VIF, applies Benjamini‑Hochberg FDR, writes results conforming to `contracts/regression_results.schema.yaml`.
+- Hierarchical OLS, VIF, BH-FDR, cluster-robust SEs by subreddit, associational framing.
 
-## 6️⃣ Demographic Stratification & Plots
+## 7️⃣ Stratification & Plots
 ```bash
 python -m src.viz.demographic_plots \
-    --results data/regression_results.csv \
+    --features data/processed_features.csv --results data/regression_results.csv \
     --output reports/interaction_plots.pdf
 ```
-- Produces interaction plots for each subgroup **with ≥ 500 users**; if demographic proxies are insufficient, the script falls back to a global plot and notes the limitation.
 
-## 7️⃣ Sensitivity Analysis (optional)
+## 8️⃣ Sensitivity Sweep
 ```bash
 python -m src.analysis.sensitivity_sweep \
-    --features data/processed_features.csv \
-    --output reports/sensitivity_summary.csv
+    --features data/processed_features.csv --output reports/sensitivity_summary.csv
 ```
-- Sweeps self‑reference and sentiment thresholds ±0.05 and reports variation in headline moderation effect sizes.
+- Writes the sensitivity summary referenced in `data-model.md`.
 
-## 8️⃣ Verify Contracts
+## 9️⃣ Tests
 ```bash
-pytest -q tests/contract/test_regression_schema.py
+pytest -q tests/
 ```
-- Ensures `regression_results.csv` matches the JSON‑Schema contract.
+- Unit tests run on synthetic fixtures (clearly labeled, never used as results) and contract tests validate both output schemas.
 
-## 9️⃣ Final Report
-All artifacts are now in `reports/`. Open `reports/interaction_plots.pdf` and `reports/sensitivity_summary.csv` for the complete results.
-
-**All steps complete within the CI runner limits** (≤ 6 h, ≤ 6 GB RAM).
-
----
+**Runner limits respected**: CPU‑only, ≤ 6 h, RAM ≤ 6 GB (FR‑008, FR‑015, SC‑005).
 

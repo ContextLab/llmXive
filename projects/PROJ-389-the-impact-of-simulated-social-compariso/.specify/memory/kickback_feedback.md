@@ -1,0 +1,11 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 3 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- The 'exposure content' from which predictors are derived is never operationally defined. Reddit data records only what a user posted, not what they were exposed to; the plan's per-user aggregation (Task 2) yields the user's OWN comments, yet Tasks 5-6 derive authenticity_score/engagement_proxy 'from exposure content'. If exposure content = subreddits the user participates in, the predictor stream is a function of the user's own commenting choices — a self-selection confound the covariate set (Task 8) does not address. Specify the operational definition of a user's exposure set and acknowledge/model self-selection.
+- The spec's sole input is 'public Reddit comment datasets from Pushshift' (US-1, FR-011, Assumption 1), but no verified Reddit/Pushshift dataset exists in this round. The plan correctly refuses to fabricate a source and installs a Data Availability Gate, but the underlying spec requirement is unsatisfiable as written — the spec needs a verified, reachable Reddit dataset (or a revised data-source story) before FR-011/FR-013/SC-001 can be met with real data. Root cause is in the spec, not the plan.
+- Spec's sole input ('public Reddit comment datasets from Pushshift', spec.md Assumption 1 / US-1) has no verified source, so the plan's Data Availability Gate halts all data tasks and no FR-001..FR-018 result can ever be produced as planned. The plan is internally honest about this, but plan and spec are fundamentally incompatible: either the spec must be revised to name a verifiable source, or a verified Reddit dataset must be supplied. As written, the plan cannot satisfy any success criterion (SC-001..SC-007) that depends on real data.
