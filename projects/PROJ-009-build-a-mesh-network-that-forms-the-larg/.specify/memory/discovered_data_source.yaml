@@ -1,19 +1,14 @@
 status: none
-intent: Google cluster data distributed execution logs CPU utilization python package
-  dataset
+intent: M-Lab network performance logs dataset and Phoronix Test Suite results python
+  package dataset
 required_fields:
 - node_id
-- ip_address
-- timestamp
+- task_chunk_id
+- start_time
+- end_time
 - wall_clock_time
 - packet_count
-- cpu_utilization_percent
-- memory_usage_mb
-- task_id
-- task_chunk_id
-- task_status
-- heartbeat_timestamp
-- error_code
-cache_key: c42a313750e659a3e8ce210c93b0340280db5ba8cc3bca5cc7bbf4951c681d9d
-searched_at: '2026-10-20T15:29:25.050300+00:00'
+- cpu_utilization
+cache_key: b50e0728e4e56daae541cfc84453fd0923b5379a806353a794b118ad2c3531c5
+searched_at: '2026-10-20T16:14:11.721417+00:00'
 retry_count: 1

@@ -77,7 +77,8 @@ class TaskChunkStore:
     """Simple writer for TaskChunk JSON‑Lines."""
 
     def __init__(self) -> None:
-        # Base directory for task‑chunk persistence
+        # Base directory for task‑chunk persistence.
+        # Use the mutable ``paths`` helper so tests can redirect the root.
         self.base_dir = paths.data("raw", "task_chunks")
         self.base_dir.mkdir(parents=True, exist_ok=True)
 
@@ -101,9 +102,9 @@ class TaskChunkStore:
         run_id : str
             Identifier for the current run (e.g., ``run_001``).
         chunk_record : dict
-            The ``TaskChunk`` dictionary to persist.  It is **not**
-            validated here; callers should invoke :func:`validate_task_chunk`
-            beforehand if strict checking is required.
+            The ``TaskChunk`` dictionary to persist.  The caller should
+            invoke :func:`validate_task_chunk` beforehand if strict
+            checking is required.
         """
         # Ensure the record is JSON‑serialisable
         line = json.dumps(chunk_record, ensure_ascii=False)

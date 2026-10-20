@@ -1,23 +1,48 @@
-T001:
+T002:
   c: false
-  h: 516f3f7944a4bc325a7b9998ead3a3b62565474d8585db25bee1441c505a0f5b
-  r: 'The validator (`contract_validator.py`) does correctly load all four schema
-    files from disk and raise `ValueError` for unknown names, and `config.py`/`sweep_config.yaml`
-    pin `random_seed: 42`. However, `code/tests/contract/test_contracts.py` does not
-    satisfy its stated requirement: it merely scans `data/` files permissively and
-    contains no valid/invalid sample JSON objects per schema, no assertion that the
-    validator raises `ValueError` for an unknown schema name, and no unit test asserting
-    `config.random_seed` is an integer read by the sweep config loader. Additionally,
-    `quickstart.md` omits u'
-  sig: ba3ca5a73b4202459e41333463c072a39b04a9926a80c6adb9a2012ee9dc174d
+  h: b63e8f4a6d81a5b3d40687b9408e572a8ed679fe94dd44dcd1d1479f51e7f4e9
+  r: "The required artifacts fail on multiple counts: (1) no `data/raw/physical_node_*.json`\
+    \ files exist anywhere, so `collect_and_write_metadata` was never successfully\
+    \ run; (2) the actual test file `code/tests/unit/test_node_manager.py` covers\
+    \ only discovery and the factory \u2014 no tests for tool-presence checks, CPU\
+    \ profiling, radio metrics (bandwidth/SNR), or thermal read-outs, and it never\
+    \ uses `mock_nodes.py` or exercises metadata writing; (3) the only execution record\
+    \ (`test_node_manager_extended.py`, exit 1) shows the metadata tests FAILING with\
+    \ `ValidationError: -50.0 is less than the minimum "
+  sig: 1bb8e4b3c79446de6a736933fb925647dac7257a423587027704a677af6f9c19
+T003:
+  c: false
+  h: c7bb31daaef28781353afcdddab8cf4f5b3092495b2e9dece209580e5713142a
+  r: "`data/raw/dropout_events.json` is MISSING \u2014 the task requires it to be\
+    \ created by a mock run in the test suite, but no test in `test_scheduler.py`\
+    \ writes it (no test calls `dump_events`, and the dropout paths for sleep mode\
+    \ and network saturation are not exercised at all, contrary to the artifact spec).\
+    \ Additionally, requirement (e) \u2014 recording coordination-overhead timestamps\
+    \ (handshake vs. compute) per task \u2014 is not implemented anywhere in `scheduler.py`,\
+    \ and there is no execution evidence that the tests or CLI run actually pass."
+  sig: 5872376fd082e77463559876ac897edd9f90205e4ea483b0a1754ae42ab47209
+T004:
+  c: false
+  h: caeb029f92032cbdb3ae8de37a7a06e1dcc650c20c457036aa20cc86706c7528
+  r: "The required output artifacts `data/raw/run_001.csv`, `data/raw/task_chunks/run_001.jsonl`,\
+    \ and `data/raw/validation_status.json` are all MISSING \u2014 the CLI was never\
+    \ successfully executed, so there is no evidence it exits 0 or produces real measured\
+    \ rows. Additionally, the CLI implements a `run` sub-command, not the required\
+    \ `run-single`, and its \"packet_count\" is just the iteration count (not a real\
+    \ per-node packet measurement), so even the code does not match the task's requirements."
+  sig: cff1b2a2f35ba23e09fd00502f016df26d6b97dc8f42e5fdd7dd1ee1230ae39a
 T014:
-  c: true
-  h: ae17b4547a67029d0c5483001446154ec7b4116851a9ee1ae41db569ec11304c
-  r: "Checked `code/orchestrator/instrumentor.py` for the required wrappers, parsers\
-    \ and loss\u2011rate helper, and verified that `code/tests/unit/test_instrumentor.py`\
-    \ runs via pytest with all six tests passing against the provided sample logs.\
-    \ All specified functionalities are present and behave as required."
-  sig: 985159a72e9a92ca44cf1e1189a83290cbd8d1af14df1acbdbd196a729d8a55d
+  c: false
+  h: af7b35582ea3c2e05ff425eb452e808fee0baf66c6e82bc7293747926f427af3
+  r: "The required fixture logs `data/raw/sample_tcpdump.log`, `data/raw/sample_mpstat.log`,\
+    \ and `data/raw/sample_iwconfig.log` are all MISSING (as are the sensors/ping\
+    \ fixtures the tests reference), so `pytest code/tests/unit/test_instrumentor.py`\
+    \ cannot pass \u2014 every parser test reads one of these files and would raise\
+    \ FileNotFoundError. The implementer must create the real-format sample logs (tcpdump\
+    \ \"123 packets captured\", mpstat, iwconfig with Signal level=-40 dBm / SNR=50,\
+    \ sensors +42.0\xB0C, ping with avg 0.030 ms) and provide evidence of a passing\
+    \ pytest run."
+  sig: 2f32ceefe126c3aa8c1b83946169056f945c783e308fe16e862ccfac5d9699d5
 T015:
   c: false
   h: 18bffd29cce775df218e0688041c6e8a7f474540a47eeb3816b26fc1ffbc2576
@@ -28,3 +53,14 @@ T015:
     so the network calibration as written would fail rather than measure, and the
     historical test log references a file that no longer exists.
   sig: af4d6406855845ae5f4b3ecb7097ca94be0db2441171a660c83dd04e8bc024f9
+T017:
+  c: true
+  h: 34b5cab512c4fd760afd6edb6a0293baf74fa0c9f70c6b3f8b5a06bc0bf355e0
+  r: "Both required artifacts exist and match the task: `execution-run.schema.yaml`\
+    \ adds `cpu_variance` (number, required) and `dropout_rate` (number, 0\u20131\
+    \ via minimum/maximum, required) with `additionalProperties: false`, and the ExecutionRun\
+    \ entity in `data-model.md` mirrors both fields in the mermaid diagram and the\
+    \ table. The contract test directory exists with test files; no execution log\
+    \ of pytest was supplied, but the substantive deliverables are correctly and fully\
+    \ amended."
+  sig: f5ea094e7272af66ea024d28dc9d60ddb74f0135ac03b68aaf5dfeb32f49e26f

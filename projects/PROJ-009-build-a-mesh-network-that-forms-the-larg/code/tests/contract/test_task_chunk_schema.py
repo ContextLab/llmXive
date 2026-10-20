@@ -5,6 +5,7 @@ The test suite validates that a correct record passes validation and
 that an intentionally malformed record raises a ``jsonschema.exceptions.ValidationError``.
 """
 
+import json
 import jsonschema
 import pytest
 
@@ -53,12 +54,11 @@ def test_store_writes_and_validates(tmp_path):
     """
     End‑to‑end test that the ``TaskChunkStore`` writes a valid line to disk.
     """
-    # Patch the data directory to a temporary location
+    # Patch the project's root for this test
     from llmxive_toolkit import paths as toolkit_paths
 
     original_root = toolkit_paths.root
     try:
-        # Redirect the project's root for this test
         toolkit_paths.root = tmp_path
         store = TaskChunkStore()
         store.write_chunk("run_001", VALID_CHUNK)

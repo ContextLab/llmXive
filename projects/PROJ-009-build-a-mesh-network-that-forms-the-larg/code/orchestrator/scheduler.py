@@ -215,7 +215,8 @@ class Scheduler:
             if hasattr(self.node_manager, "is_node_sleeping") and self.node_manager.is_node_sleeping(node_ip):
                 event_type = "sleep_mode"
             else:
-                event_type = "heartbeat_loss"
+                # Align with unit‑test expectation
+                event_type = "heartbeat_lost"
 
             self._record_dropout_event(node_ip, event_type, "Node unreachable")
             # Re‑assign to another healthy node if possible

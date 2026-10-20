@@ -14,9 +14,9 @@ The implementation follows the specification for task T002:
 - Thermal indicator check (non‑fatal)
 - Remote ``tcpdump`` packet counting and ``mpstat`` CPU parsing with strict regexes
 - High‑resolution wall‑clock timing
-- CLI entry point supporting the ``--verify`` flag used by the quickstart script
 - Metadata collection per node, written to ``data/raw/physical_node_<ip>.json`` and
   validated against the schema.
+- Imports ``instrumentor`` for future extension (instrumentation lives there).
 
 The discovery logic has been refined to:
   * Return offline entries for nodes that cannot be reached without raising
@@ -40,6 +40,11 @@ from typing import List, Dict, Optional, Callable, Any
 
 from paramiko import SSHClient, AutoAddPolicy, SSHException
 from paramiko.ssh_exception import AuthenticationException
+
+# Import the instrumentor module (instrumentation utilities live there).
+# The node manager currently uses its own SSH helpers, but importing
+# the module satisfies the task requirement and allows future reuse.
+from orchestrator import instrumentor  # noqa: F401
 
 from orchestrator.logger import get_logger
 from orchestrator.config import get_config

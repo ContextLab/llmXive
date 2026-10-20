@@ -1,74 +1,107 @@
 """
-Contract‑validation test suite.
+Contract‑validation test suite for T001.
 
-Scans the ``data`` directory for JSON and CSV artefacts and validates each
-file against the appropriate JSON‑Schema (when a matching schema can be
-inferred).  CSV files are merely checked for parsability.
+This suite checks three things required by the task:
+  1. The validator can successfully validate a *valid* JSON object against each
+     of the four schemas and raises a ``jsonschema.exceptions.ValidationError``
+     for an *invalid* object.
+  2. Requesting validation for an unknown schema name raises ``ValueError``.
+  3. The global configuration random seed is an integer and matches the seed
+     stored in ``config/sweep_config.yaml``.
 
-The test is deliberately permissive – it only asserts that files which have
-a known schema validate successfully.  Files without a recognised schema
-are ignored, which means the suite will still pass even when the project
-has not yet generated every artefact.
+The tests construct minimal JSON objects dynamically based on the actual
+``required`` field list in each schema, so they remain robust even if the
+schema definitions evolve.
 """
 
-import csv
 import json
-from pathlib import Path
+import pathlib
 
 import pytest
+import yaml
 
+from orchestrator import contract_validator
 from orchestrator.contract_validator import validate_schema, load_schema_from_yaml
+from orchestrator.config import get_config
 
-# Mapping from a filename pattern to the schema file name (located in ``contracts/``)
-SCHEMA_MAP = {
-    "physical_node": "physical-node.schema.yaml",
-    "dropout_events": "dropout-event.schema.yaml",
-    "execution_run": "execution-run.schema.yaml",
-    "regression_model": "regression-model.schema.yaml",
-}
 
-def _discover_data_files() -> list[Path]:
-    """Return a list of JSON and CSV files under the ``data`` folder."""
-    base = Path("data")
-    return [p for p in base.rglob("*") if p.suffix.lower() in {".json", ".csv"}]
+@pytest.mark.parametrize(
+    "schema_file",
+    [
+        "physical-node.schema.yaml",
+        "dropout-event.schema.yaml",
+        "execution-run.schema.yaml",
+        "regression-model.schema.yaml",
+    ],
+)
+def test_valid_and_invalid_objects(schema_file):
+    """
+    Build a minimal valid object using the schema's ``required`` fields,
+    then verify that validation succeeds. Remove one required field and
+    assert that validation fails with a ``jsonschema.ValidationError``.
+    """
+    # Load the schema from the specs directory
+    schema_path = pathlib.Path(__file__).parents[3] / "specs" / "001-build-a-mesh-network-that-forms-the-larg" / "contracts" / schema_file
+    schema = load_schema_from_yaml(schema_path)
 
-@pytest.mark.parametrize("data_path", _discover_data_files())
-def test_data_file_schema_validation(data_path: Path):
-    """Validate JSON files against a known schema; ensure CSV files are readable."""
-    if data_path.suffix.lower() == ".json":
-        # Load JSON content
-        try:
-            content = json.loads(data_path.read_text())
-        except json.JSONDecodeError as exc:
-            pytest.fail(f"Invalid JSON in {data_path}: {exc}")
+    # Helper to generate a dummy value for a given JSON‑Schema type
+    def dummy_for(prop_schema):
+        typ = prop_schema.get("type", "string")
+        if typ == "string":
+            return "example"
+        if typ in ("number", "integer"):
+            return 0
+        if typ == "boolean":
+            return False
+        if typ == "array":
+            return []
+        if typ == "object":
+            return {}
+        return None
 
-        # Determine which schema (if any) applies
-        schema_file = None
-        for pattern, schema_name in SCHEMA_MAP.items():
-            if pattern in data_path.stem:
-                schema_file = schema_name
-                break
+    # Construct a minimal valid instance
+    valid_instance = {}
+    for prop in schema.get("required", []):
+        prop_schema = schema["properties"].get(prop, {})
+        valid_instance[prop] = dummy_for(prop_schema)
 
-        if schema_file is None:
-            # No known schema – the test simply ensures the file is well‑formed JSON.
-            return
+    # Validation must succeed for the valid instance
+    assert validate_schema(valid_instance, schema_file)
 
-        # Load the schema and validate
-        schema_path = Path("contracts") / schema_file
-        if not schema_path.is_file():
-            pytest.fail(f"Schema file {schema_path} not found for {data_path}")
+    # Build an invalid instance by omitting the first required property
+    if schema.get("required"):
+        invalid_instance = valid_instance.copy()
+        invalid_instance.pop(schema["required"][0])
+        with pytest.raises(Exception) as exc:
+            validate_schema(invalid_instance, schema_file)
+        # The specific exception type is jsonschema.ValidationError, but we
+        # avoid importing jsonschema directly to keep the test lightweight.
+        assert "ValidationError" in str(exc.type)
 
-        # ``validate_schema`` expects the *name* of the schema file.
-        # It internally loads the schema from ``contracts/``.
-        assert validate_schema(content, schema_file), f"{data_path} failed schema validation"
 
-    else:
-        # CSV validation – ensure the file can be opened and has at least a header row.
-        try:
-            with data_path.open(newline="") as f:
-                reader = csv.reader(f)
-                rows = list(reader)
-        except Exception as exc:  # pragma: no cover – defensive
-            pytest.fail(f"Failed to read CSV {data_path}: {exc}")
+def test_unknown_schema_raises():
+    """
+    The validator should raise ``ValueError`` when an unknown schema name
+    (or file) is requested.
+    """
+    unknown_name = "nonexistent.schema.yaml"
+    with pytest.raises(ValueError):
+        validate_schema({"any": "data"}, unknown_name)
 
-        assert rows, f"CSV file {data_path} is empty"
+
+def test_random_seed_is_integer_and_matches_sweep_config():
+    """
+    Ensure that the global random seed defined in ``orchestrator.config``
+    is an integer and that the same value appears in the sweep config
+    YAML file.
+    """
+    cfg = get_config()
+    assert isinstance(cfg.random_seed, int), "random_seed must be an integer"
+
+    sweep_path = pathlib.Path(__file__).parents[3] / "config" / "sweep_config.yaml"
+    with sweep_path.open("rt", encoding="utf-8") as f:
+        sweep_cfg = yaml.safe_load(f)
+
+    assert sweep_cfg.get("random_seed") == cfg.random_seed, (
+        "random_seed in sweep_config.yaml must mirror the value from config.py"
+    )
