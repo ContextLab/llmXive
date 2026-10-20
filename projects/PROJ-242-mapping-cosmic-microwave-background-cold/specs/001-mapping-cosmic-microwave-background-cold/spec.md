@@ -49,7 +49,7 @@ The researcher MUST be able to generate a sufficiently large set of ΛCDM Gaussi
 
 **Acceptance Scenarios**:
 
-1. **Given** the observed correlation amplitude, **When** the simulation module generates 1000 ΛCDM realizations using CAMB/CLASS, **Then** the system applies the identical detection‑and‑cross‑correlation pipeline to each realization (keeping the real galaxy mask fixed) and computes a Monte‑Carlo rank‑test p‑value within 60 seconds of simulation completion (FR‑004, US‑3).
+1. **Given** the observed correlation amplitude, **When** the simulation module generates a substantial set of ΛCDM realizations using CAMB/CLASS, **Then** the system applies the identical detection‑and‑cross‑correlation pipeline to each realization (keeping the real galaxy mask fixed) and computes a Monte‑Carlo rank‑test p‑value within 60 seconds of simulation completion (FR‑004, US‑3).
 2. **Given** the baseline threshold of $-2\sigma$, **When** the sensitivity analysis runs, **Then** the system sweeps the threshold over $\{-1.5\sigma, -1.75\sigma, -2.0\sigma, -2.25\sigma, -2.5\sigma, -2.75\sigma, -3.0\sigma\}$ **and** the filter radius over $\{3°,4°,5°,6°,7°\}$, outputting a table showing the variation in p‑values and the number of detected cold spots for each combination (FR‑005).
 
 ### Edge Cases
@@ -63,7 +63,7 @@ The researcher MUST be able to generate a sufficiently large set of ΛCDM Gaussi
 ### Functional Requirements
 
 - **FR-001**: System MUST download Planck 2018 CMB maps (commander/smica) and SDSS/DES galaxy catalogs, converting them to HEALPix nside=64 format, serving US-1 (See US-1).
-- **FR-002**: System MUST identify cold spot candidates by applying a top‑hat filter (radius 5°) and thresholding at $-2\sigma$ from the mean temperature, serving US-2 (See US-2).
+- **FR-002**: System MUST identify cold spot candidates by applying a top‑hat filter (radius of a moderate angular scale) and thresholding at $-2\sigma$ from the mean temperature, serving US-2 (See US-2).
 - **FR-003**: System MUST compute the cross‑correlation function $\xi(\theta)$ between identified cold spots and underdense regions in redshift bins $z \in [0.2, 1.0]$, serving US-2 (See US-2).
 - **FR-004**: System MUST generate 1000 ΛCDM Gaussian random realizations, run the identical detection‑and‑cross‑correlation pipeline on each (using the real galaxy mask), and compute a Monte‑Carlo rank‑test p‑value for the observed correlation amplitude (See US-3).
 - **FR-005**: System MUST execute a sensitivity analysis sweeping the cold‑spot threshold over $-1.5\sigma$ to $-3\sigma$ in 0.25σ steps **and** the filter radius over 3°–7° in 1° steps, reporting the resulting p‑value variations (See US-3).
