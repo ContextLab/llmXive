@@ -18,13 +18,12 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py  --scenarios all      # processes every scenario present in the dataset -> rc=1
-rio', 'present', 'in', 'the', 'dataset'], seeds=[42, 123, 456, 789, 101112]
-2026-10-19 03:12:47,357 INFO create_layout: Project directories ready: code, code/data, code/models, code/analysis, code/utils, data, data/raw, data/processed, data/results, data/models, data/targets, docs, tests, contracts, figures, logs
-2026-10-19 03:12:47,357 INFO create_layout: Config already exists at /home/runner/work/llmXive/llmXive/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/code/config.yaml; leaving untouched
-2026-10-19 03:12:47,357 INFO create_layout: Project layout creation complete.
-2026-10-19 03:12:47,357 INFO data.download_ctu13: Fetching CTU-13 dataset via Hugging Face (up to 5000 rows)
-2026-10-19 03:12:47,402 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/ctu13/ctu13 "HTTP/1.1 401 Unauthorized"
-2026-10-19 03:12:47,403 ERROR __main__: Failed to download CTU‑13 dataset: Failed to fetch CTU-13 data from Hugging Face: Dataset 'ctu13/ctu13' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/ctu13/ctu13 to ask for access.
+:21:15,965 INFO __main__: Starting project bootstrap with scenarios=['all', '#', 'processes', 'every', 'scenario', 'present', 'in', 'the', 'dataset'], seeds=[42, 123, 456, 789, 101112]
+2026-10-20 12:21:15,966 INFO create_layout: Project directories ready: code, code/data, code/models, code/analysis, code/utils, data, data/raw, data/processed, data/results, data/models, data/targets, docs, tests, contracts, figures, logs
+2026-10-20 12:21:15,966 INFO create_layout: Config already exists at /home/runner/work/llmXive/llmXive/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/code/config.yaml; leaving untouched
+2026-10-20 12:21:15,966 INFO create_layout: Project layout creation complete.
+2026-10-20 12:21:15,966 INFO data.download_ctu13: Downloading network‑traffic CSV from https://raw.githubusercontent.com/selva86/datasets/master/Network%20Traffic%20Data.csv (up to 5000 rows)
+2026-10-20 12:21:15,979 ERROR __main__: Failed to download dataset: Failed to download CSV from https://raw.githubusercontent.com/selva86/datasets/master/Network%20Traffic%20Data.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/selva86/datasets/master/Network%20Traffic%20Data.csv
 
 - python -m pytest code/tests/test_graph_construction.py -q -> rc=1
 nd contains at least one byte of data.
@@ -39,7 +38,7 @@ E        +    where <bound method Path.exists of PosixPath('/home/runner/work/ll
 code/tests/test_graph_construction.py:21: AssertionError
 =========================== short test summary info ============================
 FAILED code/tests/test_graph_construction.py::test_raw_ctu13_csv_exists - Ass...
-============================== 1 failed in 0.03s ===============================
+============================== 1 failed in 0.02s ===============================
 
 
 

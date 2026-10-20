@@ -45,11 +45,11 @@ def main():
     # Step 1: create directory layout and config file
     create_layout_main()
 
-    # Step 2: download the CTU‑13 Scenario 1 CSV (via HuggingFace)
+    # Step 2: download the (real) CSV dataset
     try:
         download_ctu13_main()
     except Exception as exc:
-        log.error("Failed to download CTU‑13 dataset: %s", exc)
+        log.error("Failed to download dataset: %s", exc)
         sys.exit(1)
 
     log.info("Bootstrap completed successfully.")

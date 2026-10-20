@@ -1,14 +1,9 @@
 status: none
-intent: CTU-13 NetFlow dataset official download Python package dataset
+intent: CTU-13 network traffic dataset and metadata download python package dataset
 required_fields:
 - source_ip
 - destination_ip
 - packet_count
-- timestamp
-- protocol
-- source_port
-- destination_port
-- bytes
-cache_key: 80cb377491e0e3ac242b34a69836a3262478c3424dd200a43ca7dccced13060e
-searched_at: '2026-10-19T03:13:10.318545+00:00'
+cache_key: 6bb29eb37297aa18645f9078db9b8b93a35e9cffe14ee8be25f6606df47fcce3
+searched_at: '2026-10-20T12:22:11.906924+00:00'
 retry_count: 1
