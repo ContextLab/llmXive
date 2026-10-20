@@ -1,77 +1,92 @@
 # Quickstart: Investigating the Correlation Between Dietary Fiber Intake and Gut Microbiome Composition
 
 ## Prerequisites
-
-- Python 3.11+
+- Python 3.11+
 - Git
-- Sufficient RAM (for streaming)
-- Access to Hugging Face (for dataset download)
+- Internet access (to download Hugging Face datasets)
+- R (≥ 4.2) with packages `Maaslin2`, `ANCOMII`, `DESeq2`, `zCompositions` (installed automatically via `rpy2` when running the pipeline)
 
 ## Installation
+```bash
+# 1. Clone the repository
+git clone <repo-url>
+cd <project-dir>
 
-1. **Clone the repository**:
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3. Install Python dependencies
+pip install -r requirements.txt
+```
+
+## Execution Steps
+1. **Data Ingestion & Harmonization**  
    ```bash
-   git clone <repo-url>
-   cd <project-dir>
+   python -m src.ingestion.unified_loader --cohorts AGP UKBB
    ```
+   *Creates* `data/harmonized_data.csv` (checksum logged). If a cohort lacks the required variables (`fiber_intake_g`, `age`, `bmi`, `sex`, `antibiotic_use`, `batch`), it is skipped and a warning is shown; the pipeline will continue with any remaining cohort.
 
-2. **Create and activate virtual environment**:
+2. **Covariate Cleaning & Imputation**  
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   python -m src.preprocessing.covariate_handler --input data/harmonized_data.csv
    ```
+   *Outputs* `data/cleaned_data.csv`.
 
-3. **Install dependencies**:
+3. **CLR Transformation (for Spearman only)**  
    ```bash
-   pip install -r requirements.txt
+   python -m src.preprocessing.clr_transform --input data/cleaned_data.csv --method bayesian
    ```
-   *Note: This installs `rpy2`, `biom-format`, `datasets`, and `zCompositions` (via R).*
+   *Outputs* `data/analysis_matrix_clr.csv`.
 
-## Running the Pipeline
+4. **Association Analysis**  
+   - **Spearman correlation (CLR matrix)**  
+     ```bash
+     python -m src.analysis.association --matrix data/analysis_matrix_clr.csv \
+         --mode spearman
+     ```
+   - **MaAsLin2 linear model (raw counts)**  
+     ```bash
+     python -m src.analysis.association --matrix data/analysis_matrix_counts.csv \
+         --mode maaslin2 --covariates age,bmi,sex,antibiotic_use,batch
+     ```
+   *Outputs* `results/association_results.tsv`.
 
-### 1. Data Ingestion & Harmonization
-Download and preprocess data from AGP/UKBB (or fallback):
-```bash
-python -m src.ingestion.harmonize --cohort all
-```
-*Output*: `data/harmonized_data.csv`
+5. **Differential Abundance (High vs Low Fiber)**  
+   ```bash
+   python -m src.analysis.differential --matrix data/analysis_matrix_counts.csv \
+       --group-method quartile --methods ANCOM-II DESeq2
+   ```
+   *Outputs* `results/diff_ancom.tsv` and `results/diff_deseq2.tsv`.
 
-### 2. Preprocessing (Imputation & CLR)
-Handle missing data (exclude >20%, impute rest) and apply CLR transformation (Bayesian replacement):
-```bash
-python -m src.preprocessing.clr_transform --input data/harmonized_data.csv --method bayesian
-```
-*Output*: `data/analysis_matrix.csv`, `data/covariate_log.json`
+6. **Power & Sensitivity Analyses**  
+   ```bash
+   python -m src.preprocessing.power_analysis --results results/association_results.tsv
+   python -m src.analysis.association --matrix data/analysis_matrix_clr.csv \
+       --mode spearman --categorical-fiber
+   ```
+   *Outputs* `results/power_report.txt` and sensitivity tables.
 
-### 3. Association Analysis
-Run Spearman ρ (Primary) and Beta (Secondary) for correlation between fiber and taxa:
-```bash
-python -m src.analysis.association --input data/analysis_matrix.csv --covariates age,bmi,sex,antibiotic_use
-```
-*Output*: `results/association_results.tsv`
-
-### 4. Differential Abundance (Primary: Relative Quartiles)
-Run ANCOM-II and DESeq for High (Top 25th percentile) vs. Low (Bottom 25th percentile) fiber groups:
-```bash
-python -m src.analysis.differential --input data/analysis_matrix.csv --method ancom --method deseq2 --group-method quartile
-```
-*Output*: `results/diff_abundance_ancom.tsv`, `results/diff_abundance_deseq2.tsv`
-
-### 5. Differential Abundance (Sensitivity: Absolute Thresholds)
-Run ANCOM-II and DESeq2 for High (>30g/day) vs. Low (<15g/day) fiber groups as a secondary sensitivity analysis:
-```bash
-python -m src.analysis.differential --input data/analysis_matrix.csv --method ancom --method deseq2 --threshold-high 30 --threshold-low 15
-```
-*Output*: `results/diff_abundance_ancom_sensitivity.tsv`, `results/diff_abundance_deseq2_sensitivity.tsv`
-
-### 6. Cross-Cohort Validation & Reporting
-Aggregate results and check replication (requires significance in both):
-```bash
-python -m src.reporting.summary --ancom results/diff_abundance_ancom.tsv --deseq2 results/diff_abundance_deseq2.tsv
-```
-*Output*: `results/final_report.md`, `results/replication_table.csv`
+7. **Cross‑Cohort Validation & Summary Report**  
+   ```bash
+   python -m src.reporting.summary \
+       --assoc results/association_results.tsv \
+       --diff-ancom results/diff_ancom.tsv \
+       --diff-deseq2 results/diff_deseq2.tsv
+   ```
+   *Outputs* `results/final_report.md` and `results/replication_table.csv`.
 
 ## Verification
+```bash
+# Contract validation
+pytest tests/contract/
+```
+All tests must pass; failures indicate schema mismatches.
 
-- **Contract Test**: Run `pytest tests/contract/` to validate output schemas.
-- **Reproducibility**: Re-run the pipeline; checksums in `data/` should match.
+## Reproducibility Checks
+- Re‑run the entire pipeline; checksums in `data/` must match the previous run.
+- Random seeds are fixed in `src.utils.config`; no stochastic variation beyond what is explicitly seeded.
+
+---
+
+

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Association Results Schema"
-description: "Schema for the output of the association analysis (Spearman ρ)."
+description: "Schema for the output of the association analysis (Spearman ρ and MaAsLin2 beta)."
 type: object
 properties:
   taxon_id:
@@ -12,7 +12,7 @@ properties:
   spearman_se:
     type: number
     description: "Standard Error of Spearman ρ. Rounded to 3 decimal places."
-  p_value:
+  raw_p_value:
     type: number
     description: "Raw p-value."
   q_value:
@@ -23,12 +23,12 @@ properties:
     description: "True if q_value < 0.05."
   beta_coefficient:
     type: number
-    description: "Beta coefficient (Linear Regression) on CLR data. (Secondary metric)."
+    description: "Beta coefficient (Linear Regression) from MaAsLin2 on raw counts."
 required:
   - taxon_id
   - spearman_rho
   - spearman_se
-  - p_value
+  - raw_p_value
   - q_value
   - significant
   - beta_coefficient
