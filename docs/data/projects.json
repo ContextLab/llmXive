@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-20T16:08:06.696127+00:00",
+  "generated_at": "2026-10-20T16:19:05.607043+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -31249,7 +31249,7 @@
           ]
         },
         {
-          "contributions": 54,
+          "contributions": 58,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -31308,6 +31308,38 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 34.597712,
+          "ended_at": "2026-10-20T16:13:11.186393Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T16:12:36.588681Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 47.691421,
+          "ended_at": "2026-10-20T16:12:36.585800Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T16:11:48.894379Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 70.214548,
+          "ended_at": "2026-10-20T16:11:48.891645Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T16:10:38.677097Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 68.36516,
+          "ended_at": "2026-10-20T16:10:38.674013Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T16:09:30.308853Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 65.97179,
           "ended_at": "2026-10-20T15:28:53.268094Z",
           "model": "openai.gpt-oss-120b",
@@ -31353,38 +31385,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-20T15:23:23.435770Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 60.493293,
-          "ended_at": "2026-10-20T15:23:23.431880Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T15:22:22.938587Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 90.050871,
-          "ended_at": "2026-10-20T15:22:22.934700Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T15:20:52.883829Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 49.538926,
-          "ended_at": "2026-10-20T15:20:52.880048Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T15:20:03.341122Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 36.250925,
-          "ended_at": "2026-10-20T15:18:04.683253Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T15:17:28.432328Z"
         }
       ],
       "paper_status": null,
@@ -68564,7 +68564,7 @@
           ]
         },
         {
-          "contributions": 39,
+          "contributions": 40,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -68610,6 +68610,14 @@
       "id": "PROJ-198-predicting-plant-secondary-metabolite-pr",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 42.405936,
+          "ended_at": "2026-10-20T16:09:40.314803Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T16:08:57.908867Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 30.872935,
@@ -68681,14 +68689,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-20T13:08:33.621362Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 98.871529,
-          "ended_at": "2026-10-20T08:12:58.656354Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T08:11:19.784825Z"
         }
       ],
       "paper_status": null,
@@ -89326,7 +89326,7 @@
       },
       "authors": [
         {
-          "contributions": 10,
+          "contributions": 11,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -89375,6 +89375,14 @@
       "id": "PROJ-313-predicting-bacterial-antibiotic-resistan",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 43.37951,
+          "ended_at": "2026-10-20T16:09:12.425864Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T16:08:29.046354Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 32.203936,
@@ -89446,14 +89454,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-19T03:07:49.336514Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1852.932934,
-          "ended_at": "2026-10-14T13:49:18.626771Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-14T13:18:25.693837Z"
         }
       ],
       "paper_status": null,
@@ -172327,7 +172327,7 @@
           ]
         },
         {
-          "contributions": 8,
+          "contributions": 9,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -172365,6 +172365,14 @@
       "id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 411.460112,
+          "ended_at": "2026-10-20T16:15:09.911575Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-20T16:08:18.451463Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 709.077897,
@@ -172436,14 +172444,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-20T10:06:58.621823Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 1253.234797,
-          "ended_at": "2026-10-20T08:29:18.641637Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-20T08:08:25.406840Z"
         }
       ],
       "paper_status": null,
@@ -174931,6 +174931,90 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "implementer",
+      "duration_s": 411.460112,
+      "ended_at": "2026-10-20T16:15:09.911575Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T16:08:18.451463Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 34.597712,
+      "ended_at": "2026-10-20T16:13:11.186393Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-009-build-a-mesh-network-that-forms-the-larg",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T16:12:36.588681Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 47.691421,
+      "ended_at": "2026-10-20T16:12:36.585800Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-009-build-a-mesh-network-that-forms-the-larg",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T16:11:48.894379Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 70.214548,
+      "ended_at": "2026-10-20T16:11:48.891645Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-009-build-a-mesh-network-that-forms-the-larg",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T16:10:38.677097Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 68.36516,
+      "ended_at": "2026-10-20T16:10:38.674013Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-009-build-a-mesh-network-that-forms-the-larg",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T16:09:30.308853Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 42.405936,
+      "ended_at": "2026-10-20T16:09:40.314803Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-198-predicting-plant-secondary-metabolite-pr",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T16:08:57.908867Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 43.37951,
+      "ended_at": "2026-10-20T16:09:12.425864Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-313-predicting-bacterial-antibiotic-resistan",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-20T16:08:29.046354Z"
+    },
     {
       "action": "comment",
       "agent": "personality",
@@ -180906,90 +180990,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-19T18:29:58.208226Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 518.03183,
-      "ended_at": "2026-10-19T18:30:52.314301Z",
-      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-559-neuro-symbolic-learning-networks-bridgin",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-10-19T18:22:14.282471Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 155.581252,
-      "ended_at": "2026-10-19T18:29:58.205908Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-058-the-role-of-epigenetic-drift-in-adaptive",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-19T18:27:22.624656Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 111.944774,
-      "ended_at": "2026-10-19T18:27:22.622327Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-058-the-role-of-epigenetic-drift-in-adaptive",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-19T18:25:30.677553Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 73.400587,
-      "ended_at": "2026-10-19T18:25:30.675392Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-058-the-role-of-epigenetic-drift-in-adaptive",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-19T18:24:17.274805Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 78.603969,
-      "ended_at": "2026-10-19T18:24:17.272654Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-058-the-role-of-epigenetic-drift-in-adaptive",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-19T18:22:58.668685Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 41.719831,
-      "ended_at": "2026-10-19T18:22:58.666508Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-058-the-role-of-epigenetic-drift-in-adaptive",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-19T18:22:16.946677Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 40.683495,
-      "ended_at": "2026-10-19T18:22:16.944348Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-058-the-role-of-epigenetic-drift-in-adaptive",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-19T18:21:36.260853Z"
     }
   ],
   "reviewed_preprints": [
