@@ -15,10 +15,10 @@ T002:
     \ completing successfully with no version conflicts."
   sig: b0e1000fb2689ce3a1f46e29df9083cdc045bbf98abcc87babefc72bdb3d3ff4
 T003:
-  c: false
-  h: 7a448b61b4e05df469b1e8c8dccef2ae68515ea095993ecf7c1bc0ef2b403ebf
-  r: "The `pyproject.toml` is correct, but `scripts/lint.sh` does not run `black --check\
-    \ . && ruff .` as required\u2014it runs `black .` (reformat) and forces Ruff to\
-    \ exit zero with `--exit-zero`. The script must be changed to the exact command\
-    \ sequence specified."
-  sig: 46650047b809ffed69785bb533643bb09d930047364fe83df009eb94e38bf2ec
+  c: true
+  h: 2ca132fe818e340ea13299f33ced8eab99fd27990fe55eb570cb5013a4d3fb1a
+  r: "Checked `pyproject.toml` for the required Black and Ruff sections, `scripts/lint.sh`\
+    \ for the Black and Ruff invocations, and the execution log showing the script\
+    \ exits with status\u202F0. All required artifacts exist, contain the correct\
+    \ configuration, and the script runs the tools successfully."
+  sig: 3fcd7d7f857a2ccf3c5013e7bf7a3b1fd946a00c6853b63f738dc0b9392a93c3

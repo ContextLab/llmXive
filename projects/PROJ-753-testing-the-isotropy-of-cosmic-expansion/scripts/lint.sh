@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-# Reformat the codebase with Black (writes changes in‑place)
-black .
-# Run Ruff linting but always exit with status 0 to keep CI happy
-ruff . --exit-zero
+# Run Black in check mode (does not modify files) and then Ruff linting.
+# The script exits with a non‑zero status if either tool reports problems.
+black --check .
+ruff .

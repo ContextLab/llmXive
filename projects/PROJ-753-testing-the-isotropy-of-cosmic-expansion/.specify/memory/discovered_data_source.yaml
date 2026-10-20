@@ -1,12 +1,12 @@
 status: none
-intent: Pantheon+ Type Ia Supernova Sample Pantheon+_SH0ES.dat download python package
+intent: Pantheon+ Type Ia Supernova Sample and SH0ES data download python package
   dataset
 required_fields:
 - RA
-- DEC
+- Dec
 - z
 - mu
 - muerr
-cache_key: 4256c7a96d88f33bd6a9158f546adb6ff7008f7ac46d76b171ce10c4c129578f
-searched_at: '2026-10-20T17:23:20.064361+00:00'
+cache_key: d4a905ec6b402c576b43b8abaee6961e7e40c8dc2edb7672ccaa87ad42158715
+searched_at: '2026-10-20T17:24:28.439277+00:00'
 retry_count: 1

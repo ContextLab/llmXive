@@ -22,12 +22,11 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Canonical URL for the Pantheon+ SH0ES data file. The plus sign is URL‑
-# encoded as %2B. The file lives in the PantheonPlusSH0ES/DataRelease
-# repository.
+# Correct canonical URL for the Pantheon+ SH0ES data file. The plus sign is
+# URL‑encoded as %2B. The file lives in the PantheonPlusSH0ES/DataRelease repository.
 DEFAULT_URL = (
-    "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/"
-    "main/data/Pantheon%2B_SH0ES.dat"
+    "https://raw.githubusercontent.com/PantheonPlusSH0ES/"
+    "DataRelease/main/data/Pantheon%2B_SH0ES.dat"
 )
 # The version string is not explicitly provided by the upstream release;
 # we record a generic identifier that can be updated later if needed.
@@ -101,7 +100,8 @@ def main() -> None:
     logger = get_logger(__name__)
 
     # Resolve the target paths using the llmxive_toolkit helpers.
-    raw_path = paths.data("raw", "pantheon_plus_SH0ES.dat")
+    # The raw file name must match what ``ingest.py`` expects.
+    raw_path = paths.data("raw", "Pantheon+_SH0ES.dat")
     metadata_path = paths.data("metadata.json")
 
     try:

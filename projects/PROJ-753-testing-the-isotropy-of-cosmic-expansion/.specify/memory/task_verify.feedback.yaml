@@ -3,10 +3,6 @@ T001:
 T002:
   task: 2137807558d07e0ea764f55891f38962193b28ba0a771851b28ed222b6c1f8c8
 T003:
-  reason: "The `pyproject.toml` is correct, but `scripts/lint.sh` does not run `black\
-    \ --check . && ruff .` as required\u2014it runs `black .` (reformat) and forces\
-    \ Ruff to exit zero with `--exit-zero`. The script must be changed to the exact\
-    \ command sequence specified."
   task: 4b2281467724dc299b2cc150a4b8e681905eed3c0acff9cbe36273f641bfab37
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/download_pantheon.py
