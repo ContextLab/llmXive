@@ -43,7 +43,13 @@ DATASETS = [
 ]
 
 # Required columns according to contracts/raw_prs.schema.yaml
-SCHEMA_PATH = Path(__file__).parents[2] / "specs" / "001-evaluating-the-impact-of-code-generation" / "contracts" / "raw_prs.schema.yaml"
+SCHEMA_PATH = (
+    paths.root
+    / "specs"
+    / "001-evaluating-the-impact-of-code-generation"
+    / "contracts"
+    / "raw_prs.schema.yaml"
+)
 REQUIRED_FIELDS = []  # will be populated after loading the schema
 
 # Outcome fields that must exist in the primary dataset (FR‑001 scope check)
@@ -52,6 +58,8 @@ PRIMARY_MANDATORY_FIELDS = {"comment_count", "merged_at"}
 # ----------------------------------------------------------------------
 def load_schema_required_fields(schema_path: Path) -> list[str]:
     """Load the JSON‑schema file and return the list of required property names."""
+    if not schema_path.is_file():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
     with open(schema_path, "r", encoding="utf-8") as f:
         schema = yaml.safe_load(f)
     required = schema.get("required", [])
@@ -85,7 +93,9 @@ def download_parquet(repo_id: str, dest_path: Path) -> Path:
     """
     parquet_file = find_parquet_file(repo_id)
     log.info(f"Downloading {parquet_file} from {repo_id}")
-    local_path = hf_hub_download(repo_id=repo_id, filename=parquet_file, repo_type="dataset")
+    local_path = hf_hub_download(
+        repo_id=repo_id, filename=parquet_file, repo_type="dataset"
+    )
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     # Copy to the canonical location inside the project
     dest_path.write_bytes(Path(local_path).read_bytes())
@@ -167,14 +177,20 @@ def main() -> None:
         try:
             df = pd.read_parquet(downloaded_path)
         except Exception as e:
-            raise RuntimeError(f"Failed to read parquet file {downloaded_path}: {e}")
+            raise RuntimeError(
+                f"Failed to read parquet file {downloaded_path}: {e}"
+            ) from e
 
         col_status = validate_columns(df, REQUIRED_FIELDS)
         schema_map[tag] = col_status
 
         # Scope‑mismatch check for primary dataset
         if tag == "primary":
-            missing_mandatory = [fld for fld in PRIMARY_MANDATORY_FIELDS if col_status.get(fld) != "present"]
+            missing_mandatory = [
+                fld
+                for fld in PRIMARY_MANDATORY_FIELDS
+                if col_status.get(fld) != "present"
+            ]
             if missing_mandatory:
                 raise RuntimeError(
                     f"Primary dataset '{repo_id}' is missing mandatory fields required for scope: {missing_mandatory}"
@@ -194,7 +210,9 @@ def main() -> None:
 
 # ----------------------------------------------------------------------
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Download verified PR parquet datasets, checksum them, and validate schema.")
+    parser = argparse.ArgumentParser(
+        description="Download verified PR parquet datasets, checksum them, and validate schema."
+    )
     # No arguments required; parser kept for future extensibility
-    args = parser.parse_args()
+    _ = parser.parse_args()
     main()
