@@ -1,0 +1,6 @@
+{
+  "seed": 42,
+  "steps_completed": 10,
+  "final_loss": 1.521474003791809,
+  "checkpoint": "data/checkpoints/checkpoint_seed_42_step_10.pt"
+}

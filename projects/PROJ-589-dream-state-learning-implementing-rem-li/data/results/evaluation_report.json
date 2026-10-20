@@ -1,11 +1,16 @@
 {
   "timestamp": "data",
   "results_summary": {
-    "total_runs": 3,
+    "total_runs": 8,
     "files_processed": [
       "evaluation_report",
+      "training_summary_seed_1",
+      "training_summary_seed_42",
+      "training_summary_seed_3",
       "temperature_sweep_results",
-      "comparison_report"
+      "training_summary_seed_0",
+      "comparison_report",
+      "training_summary_seed_2"
     ]
   },
   "statistical_analysis": {

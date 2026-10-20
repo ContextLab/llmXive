@@ -197,7 +197,7 @@ class Trainer:
                         metrics = self.train_step_dream(batch, held_out_batch) if is_dream else self.train_step_wake(batch)
 
                 # FIX: use log_event directly, not self.log_event
-                log_event("training_step", {
+                log_event(self.logger, "training_step", {
                     "step": self.scheduler.current_step,
                     "phase": metrics['phase'],
                     "loss": metrics['loss'],

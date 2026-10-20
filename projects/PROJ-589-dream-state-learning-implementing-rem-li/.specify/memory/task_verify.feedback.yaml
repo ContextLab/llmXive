@@ -2,7 +2,8 @@ T001:
   reason: 'Requested task execution failed; rerun successfully: code/train.py exit=1'
   task: c1c042daeb1e86fb984ff3075e3d3961b6603d6a951d3dfafe44e3aac19a881f
 T002a:
-  reason: 'Requested task execution failed; rerun successfully: code/train.py exit=1'
+  reason: 'Requested task execution failed; rerun successfully: code/train.py exit=-1
+    (TIMEOUT)'
   task: a646a90bad7336a59fbc351037e9ab92d2350a493ef9e668aa7d170e92cfffce
 T002b:
   reason: 'Requested task execution failed; rerun successfully: code/train.py exit=1'
