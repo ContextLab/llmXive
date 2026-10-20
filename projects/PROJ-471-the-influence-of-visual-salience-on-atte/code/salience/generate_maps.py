@@ -50,7 +50,7 @@ def _setup_error_logger() -> logging.Logger:
 
 def _load_deepgaze_model() -> torch.nn.Module:
     """
-    Load the DeepGaze II model from the public Hugging‑Face hub.
+    Load the DeepGaze II model from the public Hugging‑Face hub / Torch Hub.
     Must run on CPU.
 
     Returns
@@ -64,8 +64,11 @@ def _load_deepgaze_model() -> torch.nn.Module:
         If the model cannot be loaded.
     """
     try:
+        # Set CPU threads to avoid resource contention on small runners
+        torch.set_num_threads(1)
+        
         # Load model via torch hub
-        # DeepGaze II implementation usually requires timm
+        # DeepGaze II implementation requires timm (added to requirements.txt)
         model = torch.hub.load(
             "deepgaze/deepgaze-ii",
             "deepgaze_ii",
@@ -115,6 +118,7 @@ def _compute_salience_deepgaze(model: torch.nn.Module, img_tensor: torch.Tensor)
         raise RuntimeError(f"Model returned unsupported output type: {type(output)}")
 
     # Squeeze to (H, W)
+    # DeepGaze II usually outputs (1, 1, H, W) or (1, H, W)
     if sal_map.dim() == 4:
         sal_map = sal_map.squeeze(0)  # (1, H, W)
     if sal_map.dim() == 3:
@@ -137,6 +141,7 @@ def main() -> int:
         err_logger = _setup_error_logger()
 
         if not raw_images_dir.exists():
+            # Fail loudly if dataset missing as per T002/T003 spec
             raise RuntimeError(f"DATA_MISSING_002: Stimuli directory not found at {raw_images_dir}")
 
         # 2. Load model (Guaranteed DeepGaze II)
@@ -161,7 +166,7 @@ def main() -> int:
             stimulus_id = img_path.stem
             logger.info(f"[{idx}/{len(image_paths)}] Processing {img_path.name}")
 
-            # Determine resolution early
+            # Determine resolution early for metadata
             img_bgr = cv2.imread(str(img_path))
             if img_bgr is None:
                 height, width = 0, 0

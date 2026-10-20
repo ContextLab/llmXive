@@ -9,7 +9,6 @@ from code.salience.generate_maps import main as generate_maps_main
 
 def load_schema():
     # Path relative to test file: tests/test_salience_generation.py -> contracts/salience.schema.yaml
-    # Note: Using a robust path resolution to find the schema
     project_root = pathlib.Path(__file__).resolve().parents[2]
     schema_path = project_root / "contracts" / "salience.schema.yaml"
     with open(schema_path, "r", encoding="utf-8") as f:

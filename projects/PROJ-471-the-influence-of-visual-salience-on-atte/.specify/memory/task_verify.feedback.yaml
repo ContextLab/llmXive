@@ -1,11 +1,22 @@
 T001:
-  reason: "The repository contains `code/bootstrap.py`, `requirements.txt`, `quickstart.md`,\
-    \ and the unit test, but the required top\u2011level `logs/` directory is not\
-    \ present in the project tree. Without this directory the bootstrap script does\
-    \ not fully satisfy the layout requirement. Adding the missing `logs/` folder\
-    \ (and ensuring the script creates it) will resolve the issue."
+  reason: "The recorded test run `tests/test_bootstrap.py` FAILED (exit 1): the monkeypatched\
+    \ `paths.root` did not take effect \u2014 logs show requirements.txt and quickstart.md\
+    \ written to the real project root instead of `tmp_path`, and the required `logs/`\
+    \ directory was never created under the temp root, so the test's core assertion\
+    \ failed. The task's stated verification (\"unit test asserts file existence and\
+    \ exact content\") is not satisfied; the implementer must fix the path patching\
+    \ (e.g., patch the toolkit's root resolution properly or have bootstrap accept\
+    \ a root argument) so the test passes. Additiona"
   task: 837ede49e78883ebaaea3092dab9ac81465d4bf319b4b68ba9e99daa13f83a13
 T002:
+  reason: "The script `code/ingestion/verify_data.py` exists and looks reasonable,\
+    \ but the core deliverable \u2014 recorded integrity checksums \u2014 is not actually\
+    \ done: `data/raw/checksums.json` contains `{\"files\": []}`, meaning no checksums\
+    \ were computed for any real dataset files. The dataset directory `data/raw/ds003123/`\
+    \ exists but contains only a `stimuli/` sub-directory (no `sub-*` participant/eye-tracking\
+    \ data), and the script was silently modified to no longer enforce `sub-*` presence,\
+    \ contradicting the task's stated requirement to check participant directories\
+    \ and hash eye-tracking files. There is als"
   task: 02685b8ff4f7529742c59f98d98def0273c4a7cb0652d3636c22183b2b7040f9
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/salience/generate_maps.py

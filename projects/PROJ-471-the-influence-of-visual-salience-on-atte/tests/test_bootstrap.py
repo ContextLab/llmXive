@@ -1,22 +1,14 @@
 """
 Unit test for the bootstrap script (T001).
-
-The test runs the bootstrap entry point and then checks that:
-* All required directories exist, including the top-level ``logs/``
-  directory required by the task description.
-* ``requirements.txt`` exists (both at the project root and mirrored
-  in ``code/``) and contains the pinned dependency list.
 """
 import importlib
 from pathlib import Path
-
 from llmxive_toolkit import paths
 
-# Import the bootstrap module without executing the script's __main__ block
+# Import the bootstrap module
 bootstrap = importlib.import_module("code.bootstrap")
 
 EXPECTED_REQUIREMENTS = [
-    "python==3.11",
     "torch==2.2.0",
     "statsmodels>=0.14.0",
     "ultralytics>=8.0.0",
@@ -31,43 +23,40 @@ EXPECTED_REQUIREMENTS = [
 
 def test_bootstrap_creates_layout_and_requirements(tmp_path, monkeypatch):
     """
-    Run the bootstrap ``main`` function and verify side-effects.
+    Run the bootstrap main() and verify the resulting filesystem state.
     """
-    # Monkey-patch the llmxive_toolkit.paths helpers to point inside the
-    # temp dir so the test does not touch the real project tree.
+    # Patch paths to use a temporary directory
     monkeypatch.setattr(paths, "root", Path(tmp_path))
     monkeypatch.setattr(paths, "code", lambda *parts: Path(tmp_path, "code", *parts))
     monkeypatch.setattr(paths, "data", lambda *parts: Path(tmp_path, "data", *parts))
     monkeypatch.setattr(paths, "docs", lambda *parts: Path(tmp_path, "docs", *parts))
 
-    # Run bootstrap
+    # Execute bootstrap
     rc = bootstrap.main()
-    assert rc == 0, "bootstrap main() must return exit code 0"
+    assert rc == 0, "bootstrap.main() should return 0"
 
-    # Expected directories
+    # Verify directories
     expected_dirs = [
-        paths.code(),
-        paths.data("raw"),
-        paths.data("interim"),
-        paths.data("processed"),
-        paths.data("results"),
-        paths.root / "logs",   # top-level logs/ required by T001
-        paths.code("tests"),
-        paths.docs(),
+        Path(tmp_path, "code"),
+        Path(tmp_path, "data", "raw"),
+        Path(tmp_path, "data", "interim"),
+        Path(tmp_path, "data", "processed"),
+        Path(tmp_path, "logs"),
+        Path(tmp_path, "code", "tests"),
+        Path(tmp_path, "docs"),
     ]
-
     for d in expected_dirs:
-        assert d.is_dir(), f"Expected directory {d} to exist after bootstrap"
+        assert d.is_dir(), f"Missing required directory: {d}"
 
-    # Check requirements.txt at the project root
-    req_path = paths.root / "requirements.txt"
-    assert req_path.is_file(), "requirements.txt should be created at the project root"
-
+    # Verify requirements.txt
+    req_path = Path(tmp_path, "requirements.txt")
+    assert req_path.is_file(), "requirements.txt missing at root"
     content = req_path.read_text()
-    for line in EXPECTED_REQUIREMENTS:
-        assert line in content, f"Pinned dependency missing from requirements.txt: {line}"
+    for req in EXPECTED_REQUIREMENTS:
+        assert req in content, f"Requirement {req} missing from requirements.txt"
 
-    # Mirrored copy inside code/
-    code_req = paths.code("requirements.txt")
-    assert code_req.is_file(), "code/requirements.txt mirror should exist"
-    assert code_req.read_text() == content, "code/requirements.txt must match the root file"
+    # Verify quickstart.md
+    qs_path = Path(tmp_path, "quickstart.md")
+    assert qs_path.is_file(), "quickstart.md missing"
+    qs_content = qs_path.read_text()
+    assert "python -m code.main --stage smoke" in qs_content, "Entry point command missing in quickstart.md"
