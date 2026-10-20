@@ -24,19 +24,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_encode.py --cell-lines GM12878,K562,HMEC,IMR90,HepG2 -> rc=1
-redicting-gene-expression-from-chromati/code/download_encode.py", line 360, in <module>
+rom-chromati/code/download_encode.py", line 378, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/download_encode.py", line 314, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/download_encode.py", line 332, in main
     metadata = fetch_encode_metadata(cell_lines, session)
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/download_encode.py", line 119, in fetch_encode_metadata
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/download_encode.py", line 125, in fetch_encode_metadata
     rna_uri = _query_encode_file(
               ^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/download_encode.py", line 99, in _query_encode_file
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/download_encode.py", line 103, in _query_encode_file
     resp.raise_for_status()
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
     raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://www.encodeproject.org/search/?type=File&assay_title=RNA-seq&biosample_ontology.term_name=GM12878&output_type=gene+quantifications&status=released&limit=1&field=href&file_format=tsv
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://www.encodeproject.org/search/?type=File&assay_title=RNA-seq&biosample_ontology.term_name=GM12878&output_type=gene+quantifications&status=released&assembly=hg38&format=json&limit=1&field=href&file_format=tsv
 
 - python code/preprocess.py -> rc=1
 
@@ -51,10 +51,10 @@ Traceback (most recent call last):
 FileNotFoundError: Gene coordinates file not found: data/raw/gene_coords.bed
 
 - python code/train.py -> rc=1
-2026-10-20 21:08:37,511 - INFO - Starting training pipeline for data/processed/imputed_expression.csv
-2026-10-20 21:08:37,511 - INFO - Loading data from data/processed/imputed_expression.csv
-2026-10-20 21:08:37,511 - ERROR - Failed to load data: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
-2026-10-20 21:08:37,511 - ERROR - Training failed: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
+2026-10-20 22:08:08,075 - INFO - Starting training pipeline for data/processed/imputed_expression.csv
+2026-10-20 22:08:08,075 - INFO - Loading data from data/processed/imputed_expression.csv
+2026-10-20 22:08:08,076 - ERROR - Failed to load data: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
+2026-10-20 22:08:08,076 - ERROR - Training failed: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
 
 
 - python code/analyze.py -> rc=2
@@ -75,7 +75,7 @@ E   ImportError: cannot import name 'calculate_coefficient_of_variation' from 'p
 =========================== short test summary info ============================
 ERROR tests/unit/test_preprocess_housekeeping.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 1.11s ===============================
+=============================== 1 error in 0.71s ===============================
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -91,7 +91,7 @@ FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::t
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_required_keys_present
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_value_types
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_delta_r2_calculation
-=================== 15 failed, 1 passed, 7 skipped in 0.28s ====================
+=================== 15 failed, 1 passed, 7 skipped in 0.15s ====================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -109,7 +109,7 @@ E   ImportError: cannot import name 'train_elastic_net_cv' from 'code.train' (/h
 ERROR tests/integration/test_data_pipeline.py
 ERROR tests/integration/test_training_loop.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.06s ===============================
+============================== 2 errors in 0.74s ===============================
 
 
 

@@ -88,18 +88,24 @@ def _query_encode_file(
         "biosample_ontology.term_name": cell_line,
         "output_type": output_type,
         "status": "released",
+        "assembly": "hg38",
+        "format": "json",
         "limit": "1",
         "field": "href",
     }
     if file_format:
         params["file_format"] = file_format
 
-    logger.info(f"Querying ENCODE for {cell_line} {assay} {output_type} (format={file_format})")
+    logger.info(
+        f"Querying ENCODE for {cell_line} {assay} {output_type} (format={file_format})"
+    )
     resp = session.get(ENCODE_SEARCH, params=params, headers={"Accept": "application/json"})
     resp.raise_for_status()
     data = resp.json()
     if not data.get("@graph"):
-        raise RuntimeError(f"No ENCODE file found for {cell_line} ({assay}, {output_type}, format={file_format})")
+        raise RuntimeError(
+            f"No ENCODE file found for {cell_line} ({assay}, {output_type}, format={file_format})"
+        )
     href = data["@graph"][0]["href"]
     full_url = ENCODE_API + href
     logger.info(f"Found ENCODE file: {full_url}")
@@ -123,13 +129,25 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                 output_type="gene quantifications",
                 file_format="tsv"
             )
-            dnase_uri = _query_encode_file(
-                session,
-                cell_line=cl,
-                assay="DNase-seq",
-                output_type="peaks",
-                file_format="narrowPeak"
-            )
+            # Try DNase first; if not found, fall back to ATAC-seq
+            try:
+                dnase_uri = _query_encode_file(
+                    session,
+                    cell_line=cl,
+                    assay="DNase-seq",
+                    output_type="peaks",
+                    file_format="narrowPeak"
+                )
+            except Exception as e_dnase:
+                logger.warning(f"DNase-seq not found for {cl}: {e_dnase}. Trying ATAC-seq.")
+                dnase_uri = _query_encode_file(
+                    session,
+                    cell_line=cl,
+                    assay="ATAC-seq",
+                    output_type="peaks",
+                    file_format="narrowPeak"
+                )
+
             results.append({
                 "cell_line": cl,
                 "rna": {"download_uri": rna_uri},
