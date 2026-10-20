@@ -1,51 +1,62 @@
-T013b:
-  c: true
-  h: be5ab0cf280f827e980f2b24b6b48da6269a4c41022dfc2e2d91d5ddacb99c73
-  r: "The repository contains the required `code/run_noisy_baseline.py` script (non\u2011\
-    empty, implements loading noisy graphs, running the Full strategy, and importing\
-    \ a CSV\u2011saving helper). The task\u2019s only output file is meant to be generated\
-    \ when the script is executed, so its absence does not indicate incompleteness."
-T019b:
+T000:
   c: false
-  h: dd3d040e9558d5d9309d053a53556dab5fb788b1cbd2266312a8bd997f19a1be
-  r: The repository contains the required `code/run_greedy.py` script, but the expected
-    output file `data/processed/greedy_results.csv` is absent, so the runner does
-    not demonstrably log results as specified. The missing CSV must be created (and
-    populated) for the task to be considered complete.
-T024b:
+  h: 83a518dc17a2c40812c02f4670db45875857f1b78857ab93c0a9c5bf417dda9f
+  r: The requirements file exists but omits several explicitly required pinned dependencies
+    (`sentence-transformers`, `transformers`, `bitsandbytes`, `timeout-decorator`)
+    and contains three unpinned entries (`llama_cpp`, `torch`, `pyyaml`), violating
+    the "exact versions" pinning requirement. Additionally, the required verification
+    artifact `tests/unit/test_requirements_pin.py` is missing entirely, so there is
+    no evidence of conflict checking.
+  sig: 6ec810f7421d3bca87f1bdbf58612f492fbb6c70a5dfd8619fd025f6e9dcc9ac
+T002:
   c: false
-  h: a719a5def52ea1cd561e2754f51697a20e69ca5efd15a0c625e38520f76e91cd
-  r: The repository lacks the required `run_ttest_noisy()` function in `code/stats.py`
-    (the file is truncated and contains unfinished code with undefined variables).
-    Additionally, the expected output file `data/processed/stats_noisy.json` is missing.
-    Consequently, the statistical analysis for noisy data is not implemented nor produced.
-T042:
+  h: f8049169a5a4c827f3e48b51c444d0e50fbe19268d87d71d614342c57064b15a
+  r: 'All required artifacts are missing: `code/models/embedding_utils.py`, `code/data/generate_graphs.py`,
+    `code/data/generate_noisy_graphs.py`, `data/intermediate/graphs_raw.json`, `data/intermediate/graph_validation_scores.json`,
+    `data/processed/noisy_graphs.json`, and `contracts/noisy_graphs.schema.yaml` do
+    not exist. The only present files (`tests/unit/test_graph_utils.py` and `code/graph_utils.py`)
+    are for a different task''s graph utilities, and `graph_utils.inject_noise` implements
+    edge *addition*, contradicting this task''s required replacement semantics (the
+    test file even expects dict-based'
+  sig: 4b572a4d95cb225617eb3ce5d4e7b9043c4865f04e37ffd72a723e21ef97af55
+T004:
   c: false
-  h: 075a4075f4a74f58f77684da496eb853e6dacda150e2b9d334085c8e1d312939
-  r: "The repository contains `code/utils/verify_seeds.py`, but the required output\
-    \ `data/processed/graphs/graph_noise_42.json` is missing and there is no evidence\
-    \ (e.g., hash values or a reproducibility report) that the script was executed\
-    \ twice with matching SHA\u2011256 hashes. The task\u2019s core verification step\
-    \ is therefore not satisfied."
-T060a:
+  h: e552226c4302ad15f378a2f0c9a46fa42453fa81d64f1c6d44bc637d1ba4aeef
+  r: The primary deliverable `code/analysis/runner.py` does not exist, and all three
+    required test files (`tests/unit/test_timeout_handler.py`, `tests/integration/test_hard_timeout.py`,
+    `tests/integration/test_pipeline_order.py`) are missing, so no timeout wrapper,
+    data-flow assertions, or schema-conformant logging can be verified. Only the `contracts/execution_log.schema.yaml`
+    contract exists; the implementer's claim is unsupported by any artifact.
+  sig: 5d674960bea96d6bed9c2b9344c01554f94219a9636c54b6fd4c959ecfff8e42
+T006:
   c: false
-  h: 3d2809ca39128a993b198cab0af41338846fd852e08e4e75a02b18beec58ed87
-  r: "The repository contains `code/report/aggregate_results.py`, but the script is\
-    \ truncated and does not show the logic that writes `data/processed/report_data.json`.\
-    \ Moreover, the required output file `data/processed/report_data.json` is absent.\
-    \ The task\u2019s core deliverable \u2013 a generated JSON aggregating all specified\
-    \ results \u2013 is therefore missing."
-T060b:
+  h: f414a4e787155498b8139fd89f264ec59f3bb5b8ed14f5790e7e1ca4a02f0528
+  r: 'All required result CSVs are missing: `data/processed/baseline_results.csv`,
+    `lazy_results.csv`, `lazy_sweep_results.csv`, `greedy_results.csv`, `noisy_baseline_results.csv`,
+    and `noisy_lazy_results.csv` do not exist, and `baseline_results.schema.yaml`
+    is also missing. Only the runner scripts (`run_lazy.py`, `run_greedy.py`) and
+    the lazy/greedy schemas exist, and `run_lazy.py` has no sweep/threshold-logging
+    capability (no `evidence_threshold` column, no 0.6/0.7/0.8 sweep), so the runs
+    were never executed. The next implementer must actually execute the Full/Lazy/Greedy
+    runs (clean and noisy), p'
+  sig: 580455c50365ef2711c345fd8ff09dbdba9f093e404769be2d62419ae27006b5
+T007:
   c: false
-  h: ab254468fe9bef9d56641beea69225cd72729f2b5a302548865596065792e266
-  r: "The required output file `data/processed/limitation_text.md` is missing, and\
-    \ the provided script is truncated before any code that writes the formatted limitations\
-    \ to that path, so the task\u2019s core output requirement is not satisfied."
-T060c:
+  h: 992817e47fa82ff030caf0f8526d0be2b60c455a0c77709fa077747d7ccd32c2
+  r: "The required `code/analysis/stats.py` contains only a timeout-aggregation script\
+    \ \u2014 no Shapiro-Wilk normality check, no paired t-test/Wilcoxon selection,\
+    \ no Bonferroni correction, no `calc_point_biserial()`, no `bin_tasks_by_nodes()`,\
+    \ no `find_inflection_point()`, and no power analysis. The required outputs `data/processed/stats_clean.json`,\
+    \ `data/processed/stats_noisy.json`, `data/processed/stats_final.json`, `code/scripts/generate_stats_report.py`,\
+    \ `tests/unit/test_binning_edge_cases.py`, and `tests/unit/test_bin_merging.py`\
+    \ are all missing, and the existing `test_stats.py` imports a `point_b"
+  sig: e3d8e4b6f21920af999bccb4e2d74437d949b8f0079788228fe6958f6a903819
+T010:
   c: false
-  h: 8652f3b2494d067a0aecd8c42f7d566569952707ce352d6eab2a00fcc7cfa406
-  r: The repository contains `code/report/generate_report.py`, but the required input
-    files `data/processed/report_data.json` and `data/processed/limitation_text.md`
-    are absent, and the script has not produced the expected `docs/research_report.md`.
-    Without these files the script cannot generate the mandated report sections, so
-    the task is not fulfilled.
+  h: 26634ae88d780f03a1d08c5da0f3e717284d5d8d5c72d9a4ad6edacd932b29a8
+  r: 'The collector confirms all required artifacts are missing: `tests/contract/test_schema_validation.py`,
+    `code/scripts/audit_no_fallbacks.py`, `tests/integration/test_streaming_integrity.py`,
+    and even the `code/data/` and `code/models/` directories the audit is supposed
+    to scan do not exist. Only the contracts directory with 11 schema YAMLs is present,
+    so none of the validation, audit, or integrity work was actually done.'
+  sig: eb9ea561e74d473ca8a68c01b15499148e195d1d4babdabc260dc7ff9a5c021f

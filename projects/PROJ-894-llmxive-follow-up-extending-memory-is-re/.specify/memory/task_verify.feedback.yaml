@@ -1,0 +1,82 @@
+T000:
+  reason: The requirements file exists but omits several explicitly required pinned
+    dependencies (`sentence-transformers`, `transformers`, `bitsandbytes`, `timeout-decorator`)
+    and contains three unpinned entries (`llama_cpp`, `torch`, `pyyaml`), violating
+    the "exact versions" pinning requirement. Additionally, the required verification
+    artifact `tests/unit/test_requirements_pin.py` is missing entirely, so there is
+    no evidence of conflict checking.
+  task: 9ada4d93ae70e73c992e34988d71b0b25ae4adffe2d9889851c97d372593a8d7
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: bf2a7f826370f9230169b2265635a37ab4be0875c71dc889d104ad90fd941e60
+T002:
+  reason: 'All required artifacts are missing: `code/models/embedding_utils.py`, `code/data/generate_graphs.py`,
+    `code/data/generate_noisy_graphs.py`, `data/intermediate/graphs_raw.json`, `data/intermediate/graph_validation_scores.json`,
+    `data/processed/noisy_graphs.json`, and `contracts/noisy_graphs.schema.yaml` do
+    not exist. The only present files (`tests/unit/test_graph_utils.py` and `code/graph_utils.py`)
+    are for a different task''s graph utilities, and `graph_utils.inject_noise` implements
+    edge *addition*, contradicting this task''s required replacement semantics (the
+    test file even expects dict-based'
+  task: d0f29541e1faaf32d929ee8ad26bcfe4035e1e2b3eebed04ed3d1bb89a7c3a9e
+T003:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/graph_traversal.py,
+    data/intermediate/graphs_raw.json, tests/unit/test_traversal.py, tests/unit/test_degenerate_graphs.py'
+  task: 5baff09663075575dfdc5f19a9cbb3221812c4e253016d495a4762edbabadd30
+T004:
+  reason: The primary deliverable `code/analysis/runner.py` does not exist, and all
+    three required test files (`tests/unit/test_timeout_handler.py`, `tests/integration/test_hard_timeout.py`,
+    `tests/integration/test_pipeline_order.py`) are missing, so no timeout wrapper,
+    data-flow assertions, or schema-conformant logging can be verified. Only the `contracts/execution_log.schema.yaml`
+    contract exists; the implementer's claim is unsupported by any artifact.
+  task: 9f1761f02b9f52fe92e916769d8d1cb4e2e7773dc7f2373ff81d0bb06776ec79
+T005:
+  reason: 'declared artifact(s) missing/empty/invalid: code/run_baseline.py, data/processed/baseline_results.csv,
+    baseline_results.schema.yaml, tests/unit/test_baseline_schema.py, tests/integration/test_e2e_pipeline.py'
+  task: 4c8d84d0efaef54d385f8173d603e7c43537f413f920ade4b506c022dd6370fc
+T006:
+  reason: 'All required result CSVs are missing: `data/processed/baseline_results.csv`,
+    `lazy_results.csv`, `lazy_sweep_results.csv`, `greedy_results.csv`, `noisy_baseline_results.csv`,
+    and `noisy_lazy_results.csv` do not exist, and `baseline_results.schema.yaml`
+    is also missing. Only the runner scripts (`run_lazy.py`, `run_greedy.py`) and
+    the lazy/greedy schemas exist, and `run_lazy.py` has no sweep/threshold-logging
+    capability (no `evidence_threshold` column, no 0.6/0.7/0.8 sweep), so the runs
+    were never executed. The next implementer must actually execute the Full/Lazy/Greedy
+    runs (clean and noisy), p'
+  task: ce5a60e9a51f6100bd8504dde6ce35bfe926b47dea6122b16bc99904b28498aa
+T007:
+  reason: "The required `code/analysis/stats.py` contains only a timeout-aggregation\
+    \ script \u2014 no Shapiro-Wilk normality check, no paired t-test/Wilcoxon selection,\
+    \ no Bonferroni correction, no `calc_point_biserial()`, no `bin_tasks_by_nodes()`,\
+    \ no `find_inflection_point()`, and no power analysis. The required outputs `data/processed/stats_clean.json`,\
+    \ `data/processed/stats_noisy.json`, `data/processed/stats_final.json`, `code/scripts/generate_stats_report.py`,\
+    \ `tests/unit/test_binning_edge_cases.py`, and `tests/unit/test_bin_merging.py`\
+    \ are all missing, and the existing `test_stats.py` imports a `point_b"
+  task: 6de2cd69ff88bade07ce2eea6df3e6d5003490f2dcb2ac82be4337bdc811e438
+T008:
+  reason: 'declared artifact(s) missing/empty/invalid: code/scripts/analyze_sensitivity.py,
+    data/processed/sensitivity_analysis.json, code/scripts/plot_sensitivity.py, docs/plots/threshold_sensitivity.png,
+    tests/unit/test_sensitivity_verification.py'
+  task: d218acf65da55e879f705a0bd2222299ca51b0319771e58ccaed87317050bb03
+T009:
+  reason: 'declared artifact(s) missing/empty/invalid: code/scripts/generate_edge_case_dataset.py,
+    tests/integration/test_end_to_end_robustness.py, tests/integration/test_edge_case_regression.py'
+  task: af2a15d1fa7b4d1fda6fbac3642b769d15f7e02470740798529f37aeda447a55
+T010:
+  reason: 'The collector confirms all required artifacts are missing: `tests/contract/test_schema_validation.py`,
+    `code/scripts/audit_no_fallbacks.py`, `tests/integration/test_streaming_integrity.py`,
+    and even the `code/data/` and `code/models/` directories the audit is supposed
+    to scan do not exist. Only the contracts directory with 11 schema YAMLs is present,
+    so none of the validation, audit, or integrity work was actually done.'
+  task: 4ad58c565a44e83b4686fa98c22511cd00d4ed4c1ebb2036db7ed995a5d70840
+T011:
+  reason: 'declared artifact(s) missing/empty/invalid: code/scripts/aggregate_results.py,
+    data/processed/report_data.json, tests/unit/test_report_data.py, docs/research_report.md,
+    data/processed/, code/scripts/verify_docs.py'
+  task: db4b857c0b1a88c1eb1aee97c08563932b1c8ea712a53cc0631f44fe79779149
+T012:
+  reason: 'declared artifact(s) missing/empty/invalid: code/scripts/run_pipeline.py,
+    code/scripts/verify_reproducibility.py, docs/research_report.md, tests/integration/test_pipeline_order.py'
+  task: 6117931a949a0ffcd7812688bef0ab80381d8710d92a7eb5c0794e6c7fb7a19c
