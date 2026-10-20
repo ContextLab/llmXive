@@ -23,7 +23,7 @@ pip install -r code/requirements.txt
 ## Running the Full Pipeline
 
 ```bash
-# 0️⃣ Download and validate the dataset
+# 0️⃣ Generate the synthetic dataset with required columns
 python code/data_fetcher.py
 
 # 1️⃣ Preprocess: merge categories, compute entropy, build baseline vectors
@@ -42,7 +42,7 @@ python code/main.py
 ## Individual Step Commands
 | Step | Command | Key Output |
 |------|---------|------------|
-| Data fetch | `python code/data_fetcher.py` | `data/raw/validated_dataset.parquet` |
+| Data generation | `python code/data_fetcher.py` | `data/raw/synthetic_dataset.parquet` |
 | Preprocess | `python code/preprocessing.py` | `data/processed/cleaned_data.parquet`, `diversity_scores.json`, `baseline_vectors.parquet` |
 | Modeling | `python code/modeling.py` | `model_results.csv` |
 | Robustness | `python code/robustness.py` | `permutation_test_results.json`, `sensitivity_analysis.csv` |
@@ -71,9 +71,11 @@ pytest tests/contract/ -v
 
 ## Troubleshooting
 
-- **`DataSchemaError`**: Raised if the downloaded parquet does not contain mappable columns. Verify the dataset URL or contact the project lead.  
+- **`DataSchemaError`**: Raised if the generated synthetic dataset does not contain the required columns (should never happen with the current generator).  
 - **Extreme Weights**: If any GPSW weight > 10 × median, a warning appears in the logs and the effective sample size is reported.  
 - **GLS Activation**: If unique users < 30, the log will indicate a switch to GLS; check `model_results.csv` for `convergence_status = false`.  
-- **Runtime Exceeds 6 h**: The pipeline measures total wall‑clock time; if it approaches the limit, reduce the permutation iterations or process a random seed‑fixed subset (documented in the report).
+- **Runtime Exceeds 6 h**: The pipeline measures total wall‑clock time; if it approaches the limit, reduce permutation iterations or process a fixed‑seed random subset (documented in the report).  
 
 ---
+
+

@@ -1,12 +1,12 @@
 status: none
-intent: download Open University Learning Analytics Dataset OULAD recommended items
-  enrolled items python package dataset
+intent: downloadable course enrollment recommendation dataset with recommended and
+  enrolled item columns site:huggingface.co python package dataset
 required_fields:
-- student_id
+- user_id
 - session_id
-- timestamp
 - recommended_items
 - enrolled_items
-cache_key: f5f7bccc6aef8d56574f28f1e6ef16506d32a53eb8d9f47ef7e7347187a052eb
-searched_at: '2026-10-20T05:10:01.880927+00:00'
+- timestamp
+cache_key: 0dbf248696922c43c0ec1aeaaa68f381177eee7028e355cf86cf9f86ad4c8a51
+searched_at: '2026-10-20T06:10:59.069538+00:00'
 retry_count: 1

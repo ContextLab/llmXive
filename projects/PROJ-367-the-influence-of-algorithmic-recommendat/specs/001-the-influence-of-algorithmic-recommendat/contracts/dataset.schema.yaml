@@ -9,19 +9,20 @@ properties:
   session_id:
     type: string
     description: "Unique identifier for the session."
-  recommended_categories:
+  recommended_items:
     type: array
     items:
       type: string
-    description: "List of category tokens representing algorithmic recommendations (mapped from `input_seq`)."
-  enrolled_categories:
+    description: "List of category tokens representing algorithmic recommendations (raw column)."
+  enrolled_items:
     type: array
     items:
       type: string
-    description: "List of category tokens representing actual enrollments (mapped from `target_seq`)."
+    description: "List of category tokens representing actual enrollments (raw column)."
 required:
   - user_id
   - session_id
-  - recommended_categories
-  - enrolled_categories
+  - recommended_items
+  - enrolled_items
 additionalProperties: false
+
