@@ -12,7 +12,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the synthetic BBH catalog (AM-001 hypo…”; 2 command(s) failed: python -m src.main (rc=1); python -m pytest tests/ (rc=1); 2 declared deliverable(s) absent: data/raw/checksums.json; data/results/data_availability.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the synthetic BBH catalog (AM-001 hypo…”; 2 command(s) failed: python -m src.main (rc=1); python -m pytest tests/ (rc=2); 2 declared deliverable(s) absent: data/raw/checksums.json; data/results/data_availability.json
 
 ## Failing / missing run-book commands
 
@@ -21,26 +21,33 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/src/main.py", line 28, in <module>
-    from .data.record_availability import record_availability
-ModuleNotFoundError: No module named 'src.data.record_availability'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/src/main.py", line 24, in <module>
+    from src.data.download import download_all
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/src/data/download.py", line 25, in <module>
+    import h5py
+ModuleNotFoundError: No module named 'h5py'
 
-- python -m pytest tests/ -> rc=1
-sts/unit/test_preprocess.py::test_preprocess_creates_outputs - Runti...
-FAILED tests/unit/test_project_structure.py::test_manifest_schema - Assertion...
-FAILED tests/unit/test_project_structure.py::test_required_directories_exist
-FAILED tests/unit/test_synthetic_gen.py::test_generate_synthetic_catalog - Va...
-FAILED tests/unit/test_synthetic_gen.py::test_acquire_sim_catalog_writes_file
-FAILED tests/unit/test_t001_manifest.py::test_data_subdirs_present - Assertio...
-FAILED tests/unit/test_t001_manifest.py::test_src_subdirs_present - Assertion...
-FAILED tests/unit/test_t001_manifest.py::test_tests_subdirs_present - Asserti...
-FAILED tests/unit/test_t001_manifest.py::test_output_subdirs_present - Assert...
-FAILED tests/unit/test_t001_manifest.py::test_actual_directories_exist - Asse...
-FAILED tests/unit/test_t001_structure.py::test_directory_structure_created - ...
-ERROR tests/unit/test_download_gwtc.py::test_files_exist - RuntimeError: No H...
-ERROR tests/unit/test_download_gwtc.py::test_files_are_hdf5 - RuntimeError: N...
-ERROR tests/unit/test_download_gwtc.py::test_checksum_matches - RuntimeError:...
-=================== 24 failed, 49 passed, 3 errors in 20.00s ===================
+- python -m pytest tests/ -> rc=2
+/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_download_gwtc.py:13: in <module>
+    import h5py
+E   ModuleNotFoundError: No module named 'h5py'
+________________ ERROR collecting tests/unit/test_preprocess.py ________________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/tests/unit/test_preprocess.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_preprocess.py:7: in <module>
+    import h5py
+E   ModuleNotFoundError: No module named 'h5py'
+=========================== short test summary info ============================
+ERROR tests/unit/test_download.py
+ERROR tests/unit/test_download_gwtc.py
+ERROR tests/unit/test_preprocess.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 3 errors in 0.62s ===============================
 
 
 
@@ -58,10 +65,13 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/data/record_availability.py` — NOT invoked by the run-book
     - `code/src/utils/__init__.py` — NOT invoked by the run-book
     - `src/data/download.py` — NOT invoked by the run-book
+    - `src/data/record_availability.py` — NOT invoked by the run-book
+    - `src/main.py` — IS a run-book command
     - `src/utils/checksum.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/data_availability.json` is declared but was NOT written. Scripts referencing it:
     - `code/src/data/record_availability.py` — NOT invoked by the run-book
+    - `src/data/record_availability.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/data_availability.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
