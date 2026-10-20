@@ -1,18 +1,18 @@
 status: none
-intent: download VRSBench validation split and COCO 2017 bounding boxes python package
-  dataset
+intent: download VRSBench validation split and COCO 2017 validation dataset python
+  package dataset
 required_fields:
 - image_id
-- file_name
-- image_path
-- height
+- file_path
 - width
-- bbox_xmin
-- bbox_ymin
+- height
+- bbox_x
+- bbox_y
 - bbox_width
 - bbox_height
 - category_id
-- scene_density_indicator
-cache_key: ab63f82abe384d72663e7fdc1292f191c90f342b7d5262aa06829e9cb2ff8a8e
-searched_at: '2026-10-20T00:46:56.829769+00:00'
+- category_name
+- iscrowd
+cache_key: 80e545f692d8fe6f182c994c9dd6b2117a25bc08cd02388146c9ce43bde1f131
+searched_at: '2026-10-20T00:55:50.286232+00:00'
 retry_count: 1

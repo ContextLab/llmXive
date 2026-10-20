@@ -36,6 +36,9 @@ EXPECTED_HASHES = {
 # Destination directory for raw data (created automatically by ``paths``)
 RAW_DATA_DIR = paths.data("raw")
 
+# Set up a module‑level logger so that all functions can log.
+log = get_logger(__name__)
+
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
@@ -142,5 +145,4 @@ def main() -> None:
 # ----------------------------------------------------------------------
 if __name__ == "__main__":
     # Use the shared logging configuration from ``llmxive_toolkit``.
-    log = get_logger(__name__)
     main()
