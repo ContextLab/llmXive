@@ -1,11 +1,8 @@
 T001:
   task: 3bdd9fbbe2f22564e918fa557f1fa0a692391863aa29410cc131acc1db2b998a
 T002:
-  reason: The repository contains the `code/download_encode.py` script and the expected
-    output files, but the script only writes synthetic placeholder data from fake
-    URIs instead of streaming real ENCODE resources, and it does not abort on real
-    HTTP errors. Moreover, the required integration test `tests/integration/test_download.py`
-    is missing, so the verification step cannot be performed.
+  reason: 'Requested task execution failed; rerun successfully: code/download_encode.py
+    exit=1'
   task: d418178aef4af9aefbbac03d6ad110ca8d469d0f268fdd6e6d874d428b560b81
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/preprocess.py

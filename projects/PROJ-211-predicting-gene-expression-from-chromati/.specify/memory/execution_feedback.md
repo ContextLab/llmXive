@@ -30,9 +30,24 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 14 fabricated/simulated-result signal(s) — results are not real measurements: code/generate_data.py: self-declared fabricated metric — “…tadata fields are filled with placeholder values.     """     # Metadata – pl…”; code/generate_data.py: self-declared fabricated metric — “…ues.     """     # Metadata – placeholder values sufficient for validation…”; code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for the gene e…”; every produced artifact is gitignored (data/processed/GM12878_binned_features.csv, data/processed/GM12878_imputed_binned_features.csv, data/processed/HMEC_binned_features.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 run-book script(s) missing (plan/impl path mismatch): python code/analyze.py; 5 command(s) failed: python code/preprocess.py (rc=1); python code/train.py (rc=1); python -m pytest tests/unit/ (rc=2); 7 declared deliverable(s) absent: data/processed/cell_type_specific_genes.csv; data/processed/external_validation_r2.csv; data/processed/housekeeping_genes.csv
+**Summary**: 14 fabricated/simulated-result signal(s) — results are not real measurements: code/generate_data.py: self-declared fabricated metric — “…tadata fields are filled with placeholder values.     """     # Metadata – pl…”; code/generate_data.py: self-declared fabricated metric — “…ues.     """     # Metadata – placeholder values sufficient for validation…”; code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for the gene e…”; every produced artifact is gitignored (data/processed/GM12878_binned_features.csv, data/processed/GM12878_imputed_binned_features.csv, data/processed/HMEC_binned_features.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 run-book script(s) missing (plan/impl path mismatch): python code/analyze.py; 6 command(s) failed: python code/download_encode.py --cell-lines GM12878,K562,HMEC,IMR90,HepG2 (rc=1); python code/preprocess.py (rc=1); python code/train.py (rc=1); 7 declared deliverable(s) absent: data/processed/cell_type_specific_genes.csv; data/processed/external_validation_r2.csv; data/processed/housekeeping_genes.csv
 
 ## Failing / missing run-book commands
+
+- python code/download_encode.py --cell-lines GM12878,K562,HMEC,IMR90,HepG2 -> rc=1
+211-predicting-gene-expression-from-chromati/code/download_encode.py", line 359, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/download_encode.py", line 313, in main
+    metadata = fetch_encode_metadata(cell_lines, session)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/download_encode.py", line 118, in fetch_encode_metadata
+    rna_uri = _query_encode_file(
+              ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/download_encode.py", line 98, in _query_encode_file
+    resp.raise_for_status()
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://www.encodeproject.org/search/?type=File&assay_title=RNA-seq&biosample_ontology.term_name=GM12878&output_type=gene+quantifications&status=released&limit=1&field=href&format=tsv
 
 - python code/preprocess.py -> rc=1
 ad, to perform the operation inplace on the original object.
@@ -55,10 +70,10 @@ Traceback (most recent call last):
 NameError: name 'csv' is not defined
 
 - python code/train.py -> rc=1
-2026-10-20 19:15:37,128 - INFO - Starting training pipeline for data/processed/imputed_expression.csv
-2026-10-20 19:15:37,128 - INFO - Loading data from data/processed/imputed_expression.csv
-2026-10-20 19:15:37,128 - ERROR - Failed to load data: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
-2026-10-20 19:15:37,128 - ERROR - Training failed: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
+2026-10-20 19:18:08,888 - INFO - Starting training pipeline for data/processed/imputed_expression.csv
+2026-10-20 19:18:08,888 - INFO - Loading data from data/processed/imputed_expression.csv
+2026-10-20 19:18:08,889 - ERROR - Failed to load data: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
+2026-10-20 19:18:08,889 - ERROR - Training failed: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
 
 
 - python code/analyze.py -> rc=2
@@ -79,7 +94,7 @@ E   ImportError: cannot import name 'calculate_coefficient_of_variation' from 'p
 =========================== short test summary info ============================
 ERROR tests/unit/test_preprocess_housekeeping.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 1.08s ===============================
+=============================== 1 error in 0.98s ===============================
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -95,7 +110,7 @@ FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::t
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_required_keys_present
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_value_types
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_delta_r2_calculation
-=================== 15 failed, 1 passed, 7 skipped in 0.24s ====================
+=================== 15 failed, 1 passed, 7 skipped in 0.23s ====================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -113,7 +128,7 @@ E   ImportError: cannot import name 'train_elastic_net_cv' from 'code.train' (/h
 ERROR tests/integration/test_data_pipeline.py
 ERROR tests/integration/test_training_loop.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.02s ===============================
+============================== 2 errors in 1.01s ===============================
 
 
 
