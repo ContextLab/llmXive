@@ -4,7 +4,7 @@
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [P] [US1] Implement `code/src/ingestion/download_datasets.py` that streams **both** HuggingFace datasets `codeparrot/code-trans-py-js` **and** `bigcode/evaluation` via `datasets.load_dataset(..., streaming=True)`. Write raw rows under `data/raw/` and raise on any fetch failure. Record dataset ID, split, and row count in `data/raw/ingestion_log.json`. <!-- FAILED-IN-EXECUTION: code/src/ingestion/download_datasets.py exit=1 -->
+- [ ] T001 [P] [US1] Implement `code/src/ingestion/download_datasets.py` that streams **both** HuggingFace datasets `codeparrot/code-trans-py-js` **and** `bigcode/evaluation` via `datasets.load_dataset(..., streaming=True)`. Write raw rows under `data/raw/` and raise on any fetch failure. Record dataset ID, split, and row count in `data/raw/ingestion_log.json`. <!-- FAILED-IN-EXECUTION: code/src/ingestion/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/ingestion/download_datasets.py exit=1 -->
   *Verification:* `pytest code/tests/contract/test_dataset_fetch.py` asserts real rows are present and that a forced fetch failure raises.
 
 - [ ] T002 [US1] Implement `code/src/ingestion/preprocess_corpus.py` that iterates the streamed raw data in chunks, filters entries with missing or syntactically invalid Python (`ast.parse`) or JavaScript, logs excluded entries to `data/logs/dataset_preprocess.log`, samples **≥ 200** valid pairs with a fixed seed, and writes `data/processed/corpus.csv` conforming to `dataset.schema.yaml`. Ensure peak memory ≤ 7 GB.

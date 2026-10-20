@@ -21,22 +21,17 @@ Traceback (most recent call last):
 ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python src/ingestion/preprocess_corpus.py -> rc=1
--effectiveness-of-prompt-e/src/ingestion/preprocess_corpus.py", line 20, in <module>
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/src/ingestion/preprocess_corpus.py", line 20, in <module>
     from src.ingestion.download_datasets import ensure_dirs
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/code/src/ingestion/download_datasets.py", line 24, in <module>
-    from datasets import load_dataset, DatasetDict, IterableDataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-230-evaluating-the-effectiveness-of-prompt-e/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-230-evaluating-the-effectiveness-of-prompt-e/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-230-evaluating-the-effectiveness-of-prompt-e/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+    from huggingface_hub import hf_hub_download, RepositoryNotFoundError, HfHubHTTPError
+ImportError: cannot import name 'RepositoryNotFoundError' from 'huggingface_hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-230-evaluating-the-effectiveness-of-prompt-e/lib/python3.11/site-packages/huggingface_hub/__init__.py)
 
 - python src/execution/run_inference.py -> rc=1
-{"timestamp": "2026-10-20T02:24:24.782842Z", "level": "INFO", "logger": "__main__", "message": "Starting inference run."}
-{"timestamp": "2026-10-20T02:24:24.783822Z", "level": "INFO", "logger": "__main__", "message": "Loaded 4 prompt conditions."}
+{"timestamp": "2026-10-20T02:25:51.100908Z", "level": "INFO", "logger": "__main__", "message": "Starting inference run."}
+{"timestamp": "2026-10-20T02:25:51.101067Z", "level": "INFO", "logger": "__main__", "message": "Loaded 4 prompt conditions."}
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/src/execution/run_inference.py", line 212, in <module>
@@ -58,16 +53,16 @@ FileNotFoundError: Corpus file data/processed/corpus.csv does not exist.
 
 - python code/src/evaluation/compute_quality.py -> rc=1
 
-2026-10-20 02:24:24,886 - __main__ - INFO - Starting quality metric computation...
-2026-10-20 02:24:24,886 - __main__ - WARNING - Translations directory not found: data/evaluation/raw_translations
-2026-10-20 02:24:24,886 - __main__ - ERROR - No JavaScript files found to analyze. Aborting.
+2026-10-20 02:25:51,204 - __main__ - INFO - Starting quality metric computation...
+2026-10-20 02:25:51,204 - __main__ - WARNING - Translations directory not found: data/evaluation/raw_translations
+2026-10-20 02:25:51,204 - __main__ - ERROR - No JavaScript files found to analyze. Aborting.
 
 - python code/src/evaluation/statistical_analysis.py -> rc=1
-026-10-20T02:24:25.237560Z", "level": "INFO", "logger": "__main__", "message": "Loading quality metrics from /home/runner/work/llmXive/llmXive/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/data/evaluation/quality_metrics.csv"}
-{"timestamp": "2026-10-20T02:24:25.237633Z", "level": "ERROR", "logger": "__main__", "message": "Quality metrics file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/data/evaluation/quality_metrics.csv"}
-{"timestamp": "2026-10-20T02:24:25.237659Z", "level": "INFO", "logger": "__main__", "message": "Loading correctness results from /home/runner/work/llmXive/llmXive/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/data/evaluation/correctness_results.csv"}
-{"timestamp": "2026-10-20T02:24:25.237683Z", "level": "ERROR", "logger": "__main__", "message": "Correctness results file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/data/evaluation/correctness_results.csv"}
-{"timestamp": "2026-10-20T02:24:25.237706Z", "level": "ERROR", "logger": "__main__", "message": "Statistical analysis failed: No data found for statistical analysis"}
+026-10-20T02:25:51.531703Z", "level": "INFO", "logger": "__main__", "message": "Loading quality metrics from /home/runner/work/llmXive/llmXive/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/data/evaluation/quality_metrics.csv"}
+{"timestamp": "2026-10-20T02:25:51.531746Z", "level": "ERROR", "logger": "__main__", "message": "Quality metrics file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/data/evaluation/quality_metrics.csv"}
+{"timestamp": "2026-10-20T02:25:51.531775Z", "level": "INFO", "logger": "__main__", "message": "Loading correctness results from /home/runner/work/llmXive/llmXive/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/data/evaluation/correctness_results.csv"}
+{"timestamp": "2026-10-20T02:25:51.531806Z", "level": "ERROR", "logger": "__main__", "message": "Correctness results file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/data/evaluation/correctness_results.csv"}
+{"timestamp": "2026-10-20T02:25:51.531836Z", "level": "ERROR", "logger": "__main__", "message": "Statistical analysis failed: No data found for statistical analysis"}
 
 
 

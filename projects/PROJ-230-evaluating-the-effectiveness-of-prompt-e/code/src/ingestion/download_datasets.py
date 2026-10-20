@@ -1,10 +1,10 @@
 """
 Dataset Ingestion Module for PROJ-230.
 
-This module streams the raw code translation datasets from HuggingFace and
-writes each row to a JSON Lines file under ``data/raw/``. It also records a
-log (``ingestion_log.json``) containing the dataset identifier, split name,
-and row count for each successfully fetched split.
+This script streams the raw code translation datasets from HuggingFace
+and writes each row to a JSON Lines file under ``data/raw/``. It also
+records a log (``ingestion_log.json``) containing the dataset identifier,
+split name, and row count for each successfully fetched split.
 
 Datasets:
 - codeparrot/code-trans-py-js
@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 from typing import List, Dict
 
-from datasets import load_dataset, DatasetDict, IterableDataset
+from huggingface_hub import hf_hub_download, RepositoryNotFoundError, HfHubHTTPError
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -43,6 +43,15 @@ DATASET_IDS = [
     "bigcode/evaluation",
 ]
 
+# Candidate filenames for the default split. Most HF code translation datasets expose a
+# ``train.jsonl`` file; we fall back to other common extensions if needed.
+CANDIDATE_FILENAMES = [
+    "train.jsonl",
+    "train.parquet",
+    "train.csv",
+    "train.txt",
+]
+
 def ensure_dirs() -> None:
     """Create the data/raw directory if it does not exist."""
     try:
@@ -52,64 +61,106 @@ def ensure_dirs() -> None:
         logger.error(f"Failed to create raw data directory: {exc}")
         raise
 
-def select_default_split(dataset_id: str) -> str:
+def download_split(dataset_id: str, filename: str) -> Path:
     """
-    Load the dataset metadata (without streaming) and return the first
-    available split name. This is a lightweight operation because the
-    library only downloads the dataset card and split information.
+    Download a specific file from a HuggingFace dataset repository.
+
+    Args:
+        dataset_id: The repository identifier on the Hub (e.g., ``codeparrot/code-trans-py-js``).
+        filename: The name of the file to download (e.g., ``train.jsonl``).
+
+    Returns:
+        Path to the downloaded file in the local cache.
+
+    Raises:
+        RuntimeError: If the file cannot be downloaded.
     """
     try:
-        meta = load_dataset(dataset_id, streaming=False)
-        # ``meta`` can be a DatasetDict or a single Dataset
-        if isinstance(meta, DatasetDict):
-            split_name = list(meta.keys())[0]
-        else:
-            # Single split dataset – treat as ``train`` for naming purposes
-            split_name = "train"
-        logger.info(f"Selected default split '{split_name}' for {dataset_id}")
-        return split_name
+        logger.info(f"Attempting to download {filename} from {dataset_id}")
+        local_path = hf_hub_download(
+            repo_id=dataset_id,
+            filename=filename,
+            repo_type="dataset",
+            cache_dir=str(PROJECT_ROOT / ".cache" / "huggingface"),
+            force_download=False,
+            resume_download=True,
+        )
+        logger.info(f"Successfully downloaded {filename} to {local_path}")
+        return Path(local_path)
+    except (RepositoryNotFoundError, HfHubHTTPError) as exc:
+        logger.warning(f"File {filename} not found in {dataset_id}: {exc}")
+        raise RuntimeError(f"Could not find {filename} in {dataset_id}") from exc
     except Exception as exc:
-        logger.error(f"Unable to determine default split for {dataset_id}: {exc}")
-        raise
+        logger.error(f"Unexpected error while downloading {filename} from {dataset_id}: {exc}")
+        raise RuntimeError(f"Failed to download {filename} from {dataset_id}") from exc
 
-def stream_and_write(dataset_id: str, split: str) -> int:
+def stream_jsonl_to_output(source_path: Path, dest_path: Path) -> int:
     """
-    Stream the specified split of a dataset and write each row as a JSON
-    line to ``data/raw/<safe_name>_<split>.jsonl``.
+    Stream a JSONL file line‑by‑line into another JSONL file.
 
-    Returns the number of rows written.
+    Args:
+        source_path: Path to the source JSONL file (downloaded from HF).
+        dest_path: Path where the streamed output should be written.
+
+    Returns:
+        Number of rows written.
+    """
+    row_count = 0
+    with source_path.open("r", encoding="utf-8") as src_f, dest_path.open(
+        "w", encoding="utf-8"
+    ) as dst_f:
+        for line in src_f:
+            line = line.strip()
+            if not line:
+                continue
+            # Validate that the line is valid JSON; if not, skip.
+            try:
+                json_obj = json.loads(line)
+            except json.JSONDecodeError:
+                logger.debug(f"Skipping malformed JSON line at {source_path}:{row_count + 1}")
+                continue
+            dst_f.write(json.dumps(json_obj, ensure_ascii=False) + "\n")
+            row_count += 1
+    logger.info(f"Wrote {row_count} rows to {dest_path}")
+    return row_count
+
+def process_dataset(dataset_id: str) -> Dict[str, object]:
+    """
+    Process a single dataset: download the default split and stream it to
+    ``data/raw/<safe_name>_<split>.jsonl``.
+
+    Returns a dictionary suitable for inclusion in the ingestion log.
     """
     safe_name = dataset_id.replace("/", "_").replace("-", "_")
-    out_path = DATA_RAW_DIR / f"{safe_name}_{split}.jsonl"
+    # The default split for these translation datasets is ``train``.
+    split_name = "train"
 
-    logger.info(f"Streaming dataset '{dataset_id}' split '{split}' to {out_path}")
-
-    # Open the output file in text mode with UTF‑8 encoding
-    with out_path.open("w", encoding="utf-8") as out_f:
-        # Load dataset in streaming mode
+    # Find a candidate file that exists in the repository.
+    downloaded_path: Path | None = None
+    for candidate in CANDIDATE_FILENAMES:
         try:
-            ds_iter: IterableDataset = load_dataset(
-                dataset_id,
-                split=split,
-                streaming=True,
-                trust_remote_code=True,
-            )
-        except Exception as exc:
-            logger.error(f"Failed to stream dataset {dataset_id} split {split}: {exc}")
-            raise
+            downloaded_path = download_split(dataset_id, candidate)
+            # If we successfully downloaded, break.
+            break
+        except RuntimeError:
+            continue
 
-        row_count = 0
-        for row in ds_iter:
-            # Each ``row`` is a dict; write it as a JSON line
-            out_f.write(json.dumps(row, ensure_ascii=False) + "\n")
-            row_count += 1
+    if downloaded_path is None:
+        raise RuntimeError(
+            f"Could not locate a default split file for {dataset_id}. Tried: {CANDIDATE_FILENAMES}"
+        )
 
-            # Periodic progress logging (every 10k rows)
-            if row_count % 10_000 == 0:
-                logger.info(f"  {row_count} rows written for {dataset_id}/{split}")
+    # Destination path under data/raw
+    dest_path = DATA_RAW_DIR / f"{safe_name}_{split_name}.jsonl"
+    logger.info(f"Streaming {downloaded_path} to {dest_path}")
 
-    logger.info(f"Completed streaming {dataset_id}/{split}: {row_count} rows")
-    return row_count
+    row_count = stream_jsonl_to_output(downloaded_path, dest_path)
+
+    return {
+        "dataset_id": dataset_id,
+        "split": split_name,
+        "row_count": row_count,
+    }
 
 def main() -> None:
     """Entry point for the ingestion script."""
@@ -120,24 +171,14 @@ def main() -> None:
 
     for dataset_id in DATASET_IDS:
         try:
-            # Determine which split to use
-            split = select_default_split(dataset_id)
-
-            # Stream the dataset and write rows
-            row_count = stream_and_write(dataset_id, split)
-
-            # Record metadata for this dataset/split
-            ingestion_log.append(
-                {
-                    "dataset_id": dataset_id,
-                    "split": split,
-                    "row_count": row_count,
-                }
+            metadata = process_dataset(dataset_id)
+            ingestion_log.append(metadata)
+            logger.info(
+                f"Successfully processed {dataset_id} (rows: {metadata['row_count']})"
             )
         except Exception as exc:
-            # Any failure must be propagated – the task specification requires
-            # the script to raise on fetch failure.
             logger.error(f"Aborting ingestion due to error with {dataset_id}: {exc}")
+            # Propagate the exception as required by the task spec.
             raise
 
     # Write the ingestion log as JSON

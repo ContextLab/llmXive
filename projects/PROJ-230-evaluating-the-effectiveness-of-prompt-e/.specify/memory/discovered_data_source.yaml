@@ -1,12 +1,13 @@
 status: none
-intent: CodeTrans Python JavaScript translation pairs HuggingFace dataset BigCode
-  download python package dataset
+intent: CodeTrans Python JavaScript translation dataset HuggingFace download python
+  package dataset
 required_fields:
-- pair_id
+- id
 - python_code
 - javascript_code
-- source
+- source_language
+- target_language
 - split
-cache_key: c7f7c9a10ea527ef64f7174140f297e4941a9c2a547b89dfc0a0912fff9ea476
-searched_at: '2026-10-20T02:25:11.798235+00:00'
+cache_key: 36ea7a7ea39ec4b8bf1d403a87a2a3547a1dfbcbc03b0acedce3a5ca52b63d9d
+searched_at: '2026-10-20T02:26:37.781145+00:00'
 retry_count: 1
