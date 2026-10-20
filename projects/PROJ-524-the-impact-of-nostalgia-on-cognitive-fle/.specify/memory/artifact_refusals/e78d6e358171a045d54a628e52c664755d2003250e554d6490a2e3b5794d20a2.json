@@ -1,7 +1,7 @@
 {
   "task_id": "T001",
-  "fingerprint": "8e86ce7fa689c224fc1785bc981a902464d4226679e250ffd9581d13f04d4f5a",
-  "count": 3,
-  "model": "zai-org.glm-5.3",
+  "fingerprint": "8393f42712c82e6d1139c99b259d791b8cd64a081af0c98a24ab61676400acb4",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
   "reason": "[implementer] refused pipeline control evidence or reviewed requirements: 'specs/001-nostalgia-cognitive-flexibility/spec.md'"
 }
