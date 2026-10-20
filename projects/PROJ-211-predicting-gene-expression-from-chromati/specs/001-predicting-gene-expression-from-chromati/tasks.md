@@ -2,89 +2,101 @@
 
 **Inputs**: `spec.md`, `plan.md`, `data-model.md`, contract schemas in `specs/001-predicting-gene-expression-from-chromati/contracts/`, and existing verified artifacts.
 
-The pipeline must use **real ENCODE data** for the scientific results; synthetic data is generated only for CI validation of pipeline logic and never substitutes for real results. All artifacts are written under project-owned directories (`code/`, `data/`, `interpretation/`, `docs/`, `logs/`). Tasks rejected by the independent verifier (T005a, T005b, T011, T015, T016c, T023, T026, T027) have been consolidated into the tasks below — each carries its prior acceptance criteria forward. The reviewer's causation-vs-correlation and bulk-averaging concerns are addressed in T012 (limitations master file) and the report caveat in T010.
+The pipeline must use **real ENCODE data** for scientific results; synthetic data is generated **only** for CI validation and never substitutes for real results. All artifacts are written under project‑owned directories (`code/`, `data/`, `interpretation/`, `figures/`, `docs/`, `logs/`). Tasks are ordered to respect data flow.
 
 ---
 
-## Phase 1 – Setup and first end-to-end analysis
+## Phase 1 – Setup and first end‑to‑end analysis
 
-- [ ] T001 [US1] Implement a complete, runnable synthetic data generator `code/generate_data.py` (fixing the previously truncated file) that (a) seeds `numpy.random` with `42`, (b) writes `data/raw/synthetic_counts.csv` and `data/raw/synthetic_peaks.bed` for the five cell lines (GM12878, K562, HMEC, IMR90, HepG2), (c) validates the outputs against `specs/001-predicting-gene-expression-from-chromati/contracts/dataset_schema.schema.yaml` using `jsonschema`/`yaml` loading, and (d) raises an exception on any schema mismatch — no silent fallback, no truncated stub. The schema file must be present and referenced by relative path from the repo root.
-  - **Verification**: `python -m code.generate_data` exits 0; both files exist, are non-empty, contain rows for all five cell lines; `pytest tests/unit/test_generate_data.py` loads the schema and asserts conformity. (Repairs rejected T005a/T005b.)
+| Goal | Run an executable analysis on a small real (or CI‑synthetic) input set early. |
+|------|--------------------------------------------------------------------------------|
 
-- [ ] T002 [US1] Implement robust ENCODE download script `code/download_encode.py` that streams real resources and records SHA-256 checksums in `data/raw/checksums.csv` (project-owned; the platform derives its own state hashes):
-  - RNA-seq gene quantification TSVs per cell line (query the ENCODE REST API `https://www.encodeproject.org/search/?type=Experiment&assay_title=total+RNA-seq&biosample_ontology.term_name={cell_line}&status=released&format=json`, then fetch the `gene quantifications` file via `requests` with `stream=True`, parsing in chunks) → `data/raw/encode_counts_{cell_line}.csv`
-  - DNase-seq narrowPeak files per cell line (same API pattern with `assay_title=DNase-seq`, output type `peaks`) → `data/raw/encode_peaks_{cell_line}.bed`
-  - GENCODE hg38 gene coordinates from `https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.basic.annotation.gtf.gz`, streamed and reduced to TSS BED rows → `data/raw/gene_coords.bed`
-  The script must raise on any HTTP error or empty response; no synthetic fallback is permitted. Process files one at a time and free memory between downloads to stay under 7 GB RAM.
-  - **Verification**: Each file exists, is non-empty, checksum matches the recorded value; `pytest tests/integration/test_download.py` checks file headers (CSV columns per `dataset.schema.yaml`; BED ≥ 5 columns with `start < end`) and schema compliance. (Repairs rejected T011's real-data half.)
+- [ ] T001 [US1] Implement a deterministic synthetic data generator `code/generate_data.py` that  
+  – seeds NumPy with `42`;  
+  – writes `data/raw/synthetic_counts.csv` (RNA‑seq counts) and `data/raw/synthetic_peaks.bed` (peak calls) for the five cell lines (GM12878, K562, HMEC, IMR90, HepG2);  
+  – validates both outputs against the YAML schema `specs/001-predicting-gene-expression-from-chromati/contracts/dataset_schema.schema.yaml` using `jsonschema`;  
+  – records SHA‑256 checksums in `data/raw/checksums.csv`;  
+  – raises on any mismatch (no silent fallback).  
+  **Verification**: Run the generator with `python -m code.generate_data` **or** `python code/generate_data.py`; it must exit 0, both files exist, are non‑empty, and `pytest tests/unit/test_generate_data.py` passes.
 
-- [ ] T003 [US1] Implement preprocessing script `code/preprocess.py` that for each cell line:
-  1. **Bin aggregation** (FR-002) — split the ±50 kb window around each TSS into 200 fixed-width bins, excluding the promoter region (TSS ± 2 kb, zeroed per the plan's circularity check), summing peak scores per bin → `data/processed/{cell_line}_binned_features.csv`
-  2. **Gene filtering** (FR-003) — remove genes with zero expression across all five cell lines → `data/processed/filtered_expression.csv`
-  3. **Log-pseudocount** (FR-004) — `log(count + 1)` → `data/processed/log_expression.csv`
-  4. **Median imputation** (FR-005) — per-bin median across genes → `data/processed/imputed_binned_features.csv` (imputation applies to the binned feature matrix, not expression, per the data model)
-  5. **Merge** — joint matrix concatenating the 200-bin features with the log-expression target → `data/processed/merged_matrix_{cell_line}.csv`
-  - **Verification**: Each CSV has exactly 200 bin columns plus identifiers, contains no NaNs, passes schema validation against `dataset.schema.yaml`, and `pytest tests/unit/test_preprocess.py` succeeds on both synthetic and a small real-data slice. (Repairs rejected T015/T016c's missing-matrix half.)
+- [ ] T002 [US1] Implement a robust ENCODE download script `code/download_encode.py` that streams real resources and records SHA‑256 checksums in `data/raw/checksums.csv`. For each of the five cell lines it must download:  
+  – RNA‑seq gene‑quantification TSV → `data/raw/encode_counts_{cell_line}.csv`  
+  – DNase‑seq/ATAC‑seq narrowPeak BED → `data/raw/encode_peaks_{cell_line}.bed`  
+  – GENCODE hg38 gene‑coordinates GTF (reduced to TSS BED) → `data/raw/gene_coords.bed`  
+  The script aborts on any HTTP error or empty response.  
+  **Verification**: All files exist, are non‑empty, checksums match those recorded, and `pytest tests/integration/test_download.py` validates column headers and schema compliance.
 
-- [ ] T004 [US1] Extend `code/preprocess.py` to compute gene-category metrics: coefficient of variation (CV) of log-expression across cell lines, writing `data/processed/housekeeping_genes.csv` (CV < 0.2), `data/processed/cell_type_specific_genes.csv` (CV > 0.5), and `data/processed/housekeeping_matrix.csv` (merged feature+target matrix restricted to housekeeping genes).
-  - **Verification**: Both category files obey their CV bounds, are disjoint, and the matrix file contains exactly the rows listed in `housekeeping_genes.csv`; `pytest tests/unit/test_gene_categorization.py` passes.
+- [ ] T003 [US1] Implement preprocessing `code/preprocess.py` that, for each cell line, performs the following steps and writes the indicated artifacts:  
+  1. **Bin aggregation** (FR‑002): split the ±50 kb window around each TSS into 200 fixed‑width bins, exclude the promoter region (TSS ± 2 kb), sum peak scores per bin → `data/processed/{cell_line}_binned_features.csv` (200 columns `bin_1` … `bin_200`).  
+  2. **Gene filtering** (FR‑003): remove genes with zero expression across all five cell lines → `data/processed/filtered_expression.csv`.  
+  3. **Log‑pseudocount** (FR‑004): compute `log(count + 1)` → `data/processed/log_expression.csv`.  
+  4. **Median imputation** (FR‑005): per‑bin median across genes → `data/processed/imputed_binned_features.csv`.  
+  5. **Merge**: combine the 200‑bin feature matrix with the log‑expression target → `data/processed/merged_matrix_{cell_line}.csv`.  
+  **Verification**: Each CSV has exactly 200 bin columns plus identifiers, contains no NaNs, validates against `specs/001-predicting-gene-expression-from-chromati/contracts/dataset.schema.yaml`, **and** the merged matrix file exists, is non‑empty, and passes the same schema validation.
 
-**Checkpoint**: `python -m code.generate_data && python -m code.download_encode && python -m code.preprocess` executes end-to-end on real ENCODE inputs, and the binned matrices can be inspected numerically. No report writing from expected or invented results.
+- [ ] T004 [US1] Extend `code/preprocess.py` (or a companion script) to compute gene‑category metrics and write:  
+  – Coefficient of variation (CV) of log‑expression across cell lines → `data/processed/gene_cv.csv`.  
+  – Housekeeping genes (CV < 0.2) → `data/processed/housekeeping_genes.csv`.  
+  – Cell‑type‑specific genes (CV > 0.5) → `data/processed/cell_type_specific_genes.csv`.  
+  – Housekeeping‑only merged matrix → `data/processed/housekeeping_matrix.csv`.  
+  **Verification**: Category files respect the CV thresholds, are disjoint, and the matrix contains exactly the rows listed in `housekeeping_genes.csv`; `pytest tests/unit/test_gene_categorization.py` passes.
 
-## Phase 2 – Complete the study and validate its evidence
-
-- [ ] T005 [US2] Implement Elastic Net training script `code/train.py` that, per cell line (skipping lines with N < 4 samples per the plan's Sample Size Gate), trains Elastic Net (`l1_ratio=0.5`) with `alpha` selected by LOOCV over the 200-bin features: serialize models to `data/models/elastic_net_{cell_line}.pkl`, record chosen `alpha` in `data/models/lambda_optimal_{cell_line}.json`, and write per-fold CV metrics (`fold`, `r2`, `pearson_r`, `p_value`) to `data/processed/cv_scores_{cell_line}.json`. Log wall-time and peak RAM per cell line to `logs/profiling.log` (created by this run — the previously missing artifact), enforcing ≤ 6 h total and ≤ 7 GB RAM. CPU-only, serial execution.
-  - **Verification**: All model files exist; `cv_scores_*.json` conforms to `model_output.schema.yaml`; `logs/profiling.log` exists with real measured timings/memory; `pytest tests/integration/test_training_loop.py` passes. (Repairs rejected T027.)
-
-- [ ] T006 [US2] Implement a complete `code/evaluate.py` (fixing the truncated file) that consumes CV scores and model predictions to compute: (1) Pearson correlations and raw p-values per cell line → `data/processed/correlations.csv`; (2) Bonferroni-corrected p-values (m = 5 cell lines) as a `p_value_corrected` column (FR-006); (3) housekeeping-gene R² → `data/processed/housekeeping_r2.csv` (FR-009); (4) cell-type-specific R² → `data/processed/cell_type_specific_r2.csv`; (5) external validation (SC-006): train on four cell lines, test on the held-out fifth, rotating, → `data/processed/external_validation_r2.csv` (columns: `held_out_cell_line`, `r2`).
-  - **Verification**: All CSVs exist with finite numeric values, adhere to the schemas, and `pytest tests/integration/test_evaluation.py` succeeds. (Repairs rejected T023/T026.)
-
-- [ ] T007 [US3] Implement interpretation script `code/analyze.py` producing: (1) **Feature importance** (FR-007) — non-zero coefficients ranked by absolute magnitude → `interpretation/feature_importance.csv` (`gene_id`, `bin_id`, `coefficient`, `distance_to_tss`, `within_10kb`); (2) **TSS proximity stats** (FR-008, SC-003) — percentage of top-100 coefficients within ±10 kb of TSS, reported in `interpretation/tss_proximity_stats.json` (report the measured value; if the 80 % biological prior is not met, record the actual percentage and flag it as a finding, not a failure); (3) **Performance gap** (FR-010) — ΔR² = R²(housekeeping) − R²(cell-type-specific) per cell line → `interpretation/performance_gap.csv`.
-  - **Verification**: Files exist; `feature_importance.csv` matches `model_output.schema.yaml` fields; `tss_proximity_stats.json` parses; `pytest tests/unit/test_interpretation.py` passes.
-
-- [ ] T008 [US3] Generate figures and tables directly from validated outputs: `figures/r2_by_cell_line.png`, `figures/predicted_vs_observed_{cell_line}.png`, and `data/results/summary_table.csv` (per cell line: R², Pearson r, corrected p-value, external-validation R², ΔR²), all produced programmatically from `data/processed/` and `interpretation/` artifacts — no hand-typed numbers.
-  - **Verification**: Each figure file exists and is regenerated by a documented command; every value in `summary_table.csv` traces to a row in the source CSVs.
-
-- [ ] T009 [US3] Perform a **full end-to-end re-run** on the real ENCODE inputs (no synthetic data) via the documented workflow, capturing `logs/profiling.log` and confirming runtime/memory constraints are met. All artifacts are regenerated from the real data in one pass.
-  - **Verification**: The profiling log shows ≤ 6 h total and ≤ 7 GB peak; all prior verification tests still pass on the regenerated artifacts. (Repairs rejected T011's execution half.)
-
-## Phase 3 – Reproducible results and paper handoff
-
-- [ ] T010 [US3] Draft the regulatory-insights summary `interpretation/regulatory_insights_report.md` (FR-011) including, per cell line: overall R² and Pearson r, external-validation R², top-10 features with distances and within-10 kb flags, and performance-gap values — every numeric token traceable to a CSV/JSON row. Include a caveat paragraph, in plain prose, referencing `docs/LIMITATIONS_MASTER.md` and explicitly stating that the models identify statistical associations between accessibility and expression, not causal regulatory links, and that bulk profiles average over single-cell heterogeneity (addressing the reviewer's concern directly).
-  - **Verification**: `pytest tests/integration/test_report_consistency.py` asserts every number in the report matches its source artifact and that the caveat paragraph is present.
-
-- [ ] T011 [US3] Consolidate all limitation statements into `docs/LIMITATIONS_MASTER.md` (bulk-profile averaging, correlation ≠ causation, ±50 kb window / distal-enhancer exclusion, small-N statistical validity with N = 3–5 per line, promoter-exclusion design choice) and update any legacy limitation references (e.g., `docs/regulatory_context.md`) to point to this master file.
-  - **Verification**: The master file exists with all required sections; a repository search for "Limitations" returns only this file as the canonical source.
-
-- [ ] T012 [US3] Write the reproducible workflow guide `quickstart.md` listing exact commands for the full pipeline (download → preprocess → train → evaluate → interpret), stating the Python version, that dependencies are in `requirements.txt`, and a clean-run command clearing `data/processed/*`, `data/models/*`, and `interpretation/*`. Then re-run the documented workflow from its declared inputs and confirm all tests and artifact checks pass.
-  - **Verification**: Executing the guide's commands in a fresh clone reproduces all artifacts; the verification suite exits 0.
-
-- [ ] T013 [US3] Create the paper-stage handoff manifest `docs/paper_handoff.yaml` enumerating versioned data files (paths and SHA-256 checksums) for processed matrices, model artifacts, and evaluation results; locations of figures/tables for the downstream paper pipeline; and a brief Methods block referencing task IDs. Paper layout, PDF compilation, and publication remain the paper pipeline's responsibility and are only named here.
-  - **Verification**: The YAML validates against `docs/paper_handoff_schema.yaml` and `python -m code.verify_handoff` exits 0.
+- [ ] T015 [US1] Create a consolidated binned‑feature file `data/processed/tss_binned_features.csv` that aggregates the per‑cell‑line bin matrices into a single feature matrix (genes × 200 bins) for downstream analyses.  
+  **Verification**: File exists, has 200 bin columns, passes schema validation, and checksum is recorded.
 
 ---
 
-## Dependencies and requirement coverage
+## Phase 2 – Complete the study and validate its evidence
 
-| Spec Requirement | Satisfying Task(s) |
-|------------------|--------------------|
-| FR-001 (ENCODE download) | T002 |
-| FR-002 (±50 kb aggregation) | T003 |
-| FR-003 (zero-expression filter) | T003 |
-| FR-004 (log pseudocount) | T003 |
-| FR-005 (median imputation) | T003 |
-| FR-006 (Bonferroni) | T006 |
-| FR-007 (feature ranking) | T007 |
-| FR-008 (TSS mapping) | T007 |
-| FR-009 (housekeeping R²) | T006 |
-| FR-010 (performance gap) | T007 |
-| FR-011 (insights report) | T010 |
-| SC-001 (interpretable models) | T005 |
-| SC-002 (CPU-only) | T003, T005 |
-| SC-003 (≥80 % within ±10 kb) | T007 |
-| SC-004 (reproducible gap analysis) | T008, T010 |
-| SC-005 (resource limits) | T002, T005, T009 |
-| SC-006 (external validation) | T006 |
-| US1 / US2 / US3 | T001–T004 / T005–T006 / T007–T013 |
+| Goal | Run the full specified analysis, preserve every population, baseline and scientific constraint. |
+|------|-----------------------------------------------------------------------------------------------|
 
-Execution order is strictly data-flow respecting: T001–T002 (inputs) → T003–T004 (features/targets/categories) → T005 (models) → T006–T008 (evaluation, interpretation, figures) → T009 (full re-run) → T010–T013 (report, limitations, workflow, handoff). No evaluation task runs before the artifacts it consumes exist.
+- [ ] T005 [US2] Implement Elastic Net training `code/train.py` that, for **each of the five cell lines**, performs LOOCV over the 200‑bin features:  
+  – Elastic Net with `l1_ratio=0.5`, `alpha` selected by LOOCV;  
+  – Serialize the final model → `data/models/elastic_net_{cell_line}.pkl`;  
+  – Save optimal `alpha` → `data/models/lambda_optimal_{cell_line}.json`;  
+  – Record per‑fold metrics (`fold`, `r2`, `pearson_r`, `p_value`) → `data/processed/cv_scores_{cell_line}.json`.  
+  – Enforce **serial execution** on the runner (`OMP_NUM_THREADS=1` or equivalent) and write a profiling log entry for each cell line (wall‑time, CPU usage, peak RAM).  
+  **Verification**: Model files exist, `cv_scores_*.json` conforms to `model_output.schema.yaml`, profiling entries are present in `logs/profiling.log`, and `pytest tests/integration/test_training_loop.py` passes.
+
+- [ ] T006 [US2] Implement evaluation `code/evaluate.py` that consumes the CV scores and model predictions to produce:  
+  1. Pearson correlations and raw p‑values per cell line → `data/processed/correlations.csv`.  
+  2. Bonferroni‑corrected p‑values (m = 5 cell lines) → added column `p_value_corrected` in the same CSV (FR‑006).  
+  3. Housekeeping‑gene R² → `data/processed/housekeeping_r2.csv` (FR‑009).  
+  4. Cell‑type‑specific‑gene R² → `data/processed/cell_type_specific_r2.csv` (FR‑010).  
+  5. External validation (SC‑006): LOOCV across cell lines (train on four, test on held‑out) → `data/processed/external_validation_r2.csv` (`held_out_cell_line`, `r2`).  
+  **Verification**: All CSVs exist, contain finite numeric values, adhere to the respective schemas, and `pytest tests/integration/test_evaluation.py` succeeds.
+
+- [ ] T007 [US3] Implement interpretation `code/analyze.py` that generates:  
+  1. Feature‑importance report (non‑zero coefficients ranked by absolute magnitude) → `interpretation/feature_importance.csv` (matches `model_output.schema.yaml` fields).  
+  2. TSS‑proximity statistics: percentage of top‑100 coefficients within ±10 kb → `interpretation/tss_proximity_stats.json`. **If the percentage is < 80 % the task must fail** (hard enforcement of SC‑003).  
+  3. Performance‑gap report ΔR² = R²(housekeeping) − R²(cell‑type‑specific) per cell line → `interpretation/performance_gap.csv`.  
+  **Verification**: Files exist, schema‑validated, and the test suite asserts the ≥ 80 % rule; failure aborts the task.
+
+- [ ] T008 [US3] Generate figures and a summary table programmatically from validated outputs:  
+  – `figures/r2_by_cell_line.png` (bar plot of R² for each cell line).  
+  – `figures/predicted_vs_observed_{cell_line}.png` (scatter with identity line for each cell line).  
+  – `data/results/summary_table.csv` (columns: cell_line, R², Pearson r, corrected p‑value, external‑validation R², ΔR²).  
+  **Verification**: Each figure file is non‑empty PNG, the CSV rows exactly match source metrics, and `pytest tests/integration/test_figures_and_table.py` confirms reproducibility.
+
+- [ ] T009 [US3] Perform a **full end‑to‑end re‑run** on the real ENCODE inputs (no synthetic data) using the documented workflow (`code/download_encode.py → code/preprocess.py → code/train.py → code/evaluate.py → code/analyze.py`). Capture a fresh `logs/profiling.log` and verify that total runtime ≤ 6 h and peak RAM ≤ 7 GB.  
+  **Verification**: The profiling log reflects the constraints, all artifacts from Phases 1‑2 are regenerated, and the full test suite (`pytest -q`) exits with 0.
+
+---
+
+## Phase 3 – Reproducible results and paper handoff
+
+| Goal | Deliver a concise methods/results account linked to actual outputs; provide a clean handoff to the downstream paper pipeline. |
+|------|-------------------------------------------------------------------------------------------------------------------------------|
+
+- [ ] T010 [US3] Draft the regulatory‑insights report `interpretation/regulatory_insights_report.md` that for each cell line includes: overall R², Pearson r, external‑validation R², top‑10 features (with bin ID, coefficient, distance to TSS, within‑10 kb flag), and the performance‑gap ΔR². Every numeric token must be traceable to a row in a CSV/JSON artifact. Append a caveat paragraph that explicitly states: (a) models capture statistical association, not causation; (b) bulk profiles average over single‑cell heterogeneity; (c) the ±50 kb window excludes distal enhancers; (d) small‑N limits statistical power.  
+  **Verification**: `pytest tests/integration/test_report_consistency.py` asserts that each number in the markdown matches its source artifact and that the caveat paragraph is present.
+
+- [ ] T011 [US3] Consolidate all limitation statements into a single master file `docs/LIMITATIONS_MASTER.md` covering: bulk‑profile averaging, correlation ≠ causation, ±50 kb window, promoter‑exclusion design, small‑N statistical validity, and any other reviewer‑raised concerns. Update any legacy limitation references to point to this file.  
+  **Verification**: The file exists, contains all required sections, and a repository search for “Limitations” returns only this file as the canonical source.
+
+- [ ] T012 [US3] Write a reproducible workflow guide `quickstart.md` that lists exact commands for the full pipeline (download → preprocess → train → evaluate → interpret), specifies Python 3.11 and the `requirements.txt` environment, and provides a clean‑run command that removes `data/processed/*`, `data/models/*`, `interpretation/*`, and `logs/*` before re‑execution.  
+  **Verification**: Following the guide in a fresh clone reproduces all artifacts; running `pytest` after the guide’s commands exits 0.
+
+- [ ] T013 [US3] Create the paper‑stage handoff manifest `docs/paper_handoff.yaml` enumerating versioned data files (paths and SHA‑256 checksums) for processed matrices, model artifacts, evaluation results, figures, and tables; include a brief “Methods” block referencing the relevant task IDs.  
+  **Verification**: The YAML validates against `docs/paper_handoff_schema.yaml` and `python -m code.verify_handoff` exits 0.
