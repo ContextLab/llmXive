@@ -1,19 +1,18 @@
 status: none
-intent: Synthetic Multi-Agent Workflow dataset pm4py BPI Challenge Open Policy Agent
-  python package dataset
+intent: synthetic multi-agent workflow dataset with policy graph pm4py python package
+  dataset
 required_fields:
 - workflow_id
 - delegation_depth
-- policy_complexity
-- budget_cap
+- policy_constraints_count
+- policy_constraints_details
+- budget_cap_value
 - workflow_metadata
 - full_context_execution_log
 - compressed_context_execution_log
-- ground_truth_state_machine
+- policy_nodes
 - policy_violations
-- deterministic_seed
-- creation_timestamp
-- policy_graph_structure
-cache_key: 47493c1e1ab074230494ade1cd7f5bfd329b86931a12c1146f3f73f35fc4dc48
-searched_at: '2026-10-19T17:17:57.658025+00:00'
+- generation_seed
+cache_key: 5635e47478e1dc19af9980f6538f346366d496b0017d4e1caeb27794e3f5ad7d
+searched_at: '2026-10-20T15:19:21.564612+00:00'
 retry_count: 1
