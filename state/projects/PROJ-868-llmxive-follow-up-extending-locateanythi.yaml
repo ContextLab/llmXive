@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T12:29:04.172146Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-868-llmxive-follow-up-extending-locateanythi
-last_run_id: e2efdbfe-30ad-4f9d-8b84-183536bb88ef
+last_run_id: 012b5d08-820d-49ec-9a47-8e3ba18995ab
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-868-llmxive-follow-up-extending-locateanythi/specs/001-llmxive-follow-up-extending-locateanythi
 title: 'llmXive follow-up: extending "LocateAnything: Fast and High-Quality Vision-Language
   Grounding with P"'
-updated_at: '2026-10-20T00:38:02.189908Z'
+updated_at: '2026-10-20T00:40:03.108302Z'
