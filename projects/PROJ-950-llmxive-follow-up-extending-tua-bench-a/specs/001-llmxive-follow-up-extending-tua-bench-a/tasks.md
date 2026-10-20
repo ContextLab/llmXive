@@ -7,7 +7,7 @@ All tasks are written as unchecked checkboxes; completed tasks will be checked b
 
 ## Phase 0 – Data preparation (addresses FR‑001, FR‑003, FR‑010)
 
-- [ ] T001 [US1] Download the official **TUA‑Bench** dataset via `datasets.load_dataset("tua_bench", streaming=True)`, stream‑select a balanced set of 24 tasks (12 complex, 12 routine), and write the subset to `data/synthetic_tasks.json`.  
+- [ ] T001 [US1] Download the official **TUA‑Bench** dataset via `datasets.load_dataset("tua_bench", streaming=True)`, stream‑select a balanced set of 24 tasks (12 complex, 12 routine), and write the subset to `data/synthetic_tasks.json`.   <!-- FAILED-IN-EXECUTION: code/generate_synthetic_tasks.py exit=1 -->
   *Verification*: `len(json.load(open("data/synthetic_tasks.json"))) == 24` and each entry contains `task_id`, `description`, `validation_script`, `task_type`.  
 
 - [ ] T002 [US2] Construct the **Procedural Memory Bank** (`data/memory_bank.json`) with exactly 50 hand‑curated `MemoryEntry` objects. For each entry compute a MiniLM‑L6‑v2 embedding and store it under the `embedding` key.  

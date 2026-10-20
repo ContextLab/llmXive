@@ -1,0 +1,6 @@
+# Project dependencies
+datasets==2.21.0
+# Existing environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema,
+# psutil, transformers, bitsandbytes, sentence-transformers, tqdm
+# (the latter three are declared in the spec but already present in the base env).
