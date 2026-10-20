@@ -103,7 +103,7 @@ def is_solvent_valid(solvent: str) -> bool:
 # ----------------------------------------------------------------------
 # Data fetching utilities
 # ----------------------------------------------------------------------
-def _request_with_backoff(url: str, max_retries: int = 3, base_delay: int = 2) -> requests.Response:
+def _request_with_backoff(url: str, max_retries: int = 5, base_delay: int = 2) -> requests.Response:
     """
     Perform an HTTP GET with exponential back‑off on 429/503.
     """
@@ -135,7 +135,7 @@ def _request_with_backoff(url: str, max_retries: int = 3, base_delay: int = 2) -
             raise
 
 
-def fetch_pubchem_records(halide: str, max_retries: int = 3, base_delay: int = 2) -> List[Dict[str, Any]]:
+def fetch_pubchem_records(halide: str, max_retries: int = 5, base_delay: int = 2) -> List[Dict[str, Any]]:
     """
     Fetch compounds from PubChem for a given halide name using the REST API,
     with exponential back‑off on HTTP 429/503 errors.
@@ -144,14 +144,7 @@ def fetch_pubchem_records(halide: str, max_retries: int = 3, base_delay: int = 2
     query = halide
     url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{query}/property/IsomericSMILES,InChI,XLogP3/JSON"
 
-    try:
-        response = _request_with_backoff(url, max_retries, base_delay)
-    except requests.HTTPError as e:
-        # Return empty list; caller will record status code
-        raise
-    except Exception:
-        # Propagate other errors
-        raise
+    response = _request_with_backoff(url, max_retries, base_delay)
 
     data = response.json()
     compounds = data.get("PropertyTable", {}).get("Properties", [])
@@ -175,7 +168,7 @@ def fetch_pubchem_records(halide: str, max_retries: int = 3, base_delay: int = 2
     return records
 
 
-def fetch_nist_records(halide: str, max_retries: int = 3, base_delay: int = 2) -> List[Dict[str, Any]]:
+def fetch_nist_records(halide: str, max_retries: int = 5, base_delay: int = 2) -> List[Dict[str, Any]]:
     """
     Very lightweight scraper for the NIST Chemistry WebBook.
     The WebBook does not expose a clean API for halide binding constants,
@@ -227,7 +220,7 @@ def build_raw_records() -> Dict[str, Any]:
       - "outcome": dict with status codes, record counts, etc.
     """
     halides = ["fluoride", "chloride", "bromide", "iodide"]
-    all_records: List[Dict[str, Any]] = []
+    all_records: List[Dict] = []
     outcome: Dict[str, Any] = {
         "pubchem": {"halides": {}},
         "nist": {"halides": {}},
@@ -346,6 +339,8 @@ def validate_and_clean_data(df: pd.DataFrame) -> pd.DataFrame:
     # Do NOT raise on empty; return empty DataFrame and let caller handle it
     if df_clean.empty:
         logger.warning("Cleaning resulted in an empty dataset.")
+    # Attach exclusion count for downstream reporting
+    df_clean.attrs["exclusions"] = excluded_invalid
     return df_clean
 
 
@@ -384,12 +379,6 @@ def run_data_pipeline():
     with open(raw_path, "w") as f:
         json.dump(raw_records, f, indent=2)
 
-    # Save fetch outcome JSON
-    outcome_path = paths.data("raw", "fetch_outcome.json")
-    outcome_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(outcome_path, "w") as f:
-        json.dump(fetch_outcome, f, indent=2)
-
     # Load into DataFrame (may be empty)
     df = pd.DataFrame(raw_records)
 
@@ -407,11 +396,28 @@ def run_data_pipeline():
         filtered_path.parent.mkdir(parents=True, exist_ok=True)
         empty_df.to_csv(filtered_path, index=False)
 
+        # Record zero exclusions in outcome
+        fetch_outcome["exclusions"] = 0
+        outcome_path = paths.data("raw", "fetch_outcome.json")
+        outcome_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(outcome_path, "w") as f:
+            json.dump(fetch_outcome, f, indent=2)
+
         logger.info("Data ingestion pipeline completed with zero usable records.")
         return
 
     # Clean & standardize (will not raise on empty after modification)
     df_clean = validate_and_clean_data(df)
+
+    # Record exclusion count from cleaning step
+    exclusions = df_clean.attrs.get("exclusions", 0)
+    fetch_outcome["exclusions"] = int(exclusions)
+
+    # Write fetch outcome JSON (now includes exclusions)
+    outcome_path = paths.data("raw", "fetch_outcome.json")
+    outcome_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(outcome_path, "w") as f:
+        json.dump(fetch_outcome, f, indent=2)
 
     # Write cleaned CSV (may be empty)
     cleaned_path = paths.data("raw", "raw_scrape_cleaned.csv")

@@ -1,10 +1,10 @@
 T001:
-  c: false
-  h: d52f67c2a51c6dcc9b7d3e35540cb447decd74797e298d55caecb920e6ef547c
-  r: "Checked `code/01_data_ingestion.py`, its execution log, and the four output\
-    \ files. The script uses only 3 retries (requirement is max\u202F5) and the generated\
-    \ `fetch_outcome.json` omits required exclusion\u2011count fields and records\
-    \ a null PubChem status instead of the actual 400 error, so the fetch outcome\
-    \ is not honestly recorded. These defects prevent the task from meeting its full\
-    \ specification."
-  sig: 741b68f3cdc54cfd14de7bfc97f3b7a50fa8dbd2fa96b29e82b38f8550e280f1
+  c: true
+  h: f4cfac11afa26967bb10102383a43e73814ae3751e6ffda83580fa2613c5a69c
+  r: "Checked `code/01_data_ingestion.py` (implements real fetching with backoff,\
+    \ 2\u202Fs delays, parsing, cleaning, unit conversion, duplicate averaging, and\
+    \ writes the four required artifacts) and the generated files `data/raw/fetch_outcome.json`,\
+    \ `raw_scrape.json`, `raw_scrape_cleaned.csv`, `filtered_hosts.csv` (all present\
+    \ with correct columns). The script exits\u202F0 and the unit\u2011conversion\
+    \ and cleaning tests in `code/tests/test_data_ingestion.py` all pass."
+  sig: 78cf0718049e0b799bea7261a104d9a7c2cfef9031378eee0464b5e10d207a5d

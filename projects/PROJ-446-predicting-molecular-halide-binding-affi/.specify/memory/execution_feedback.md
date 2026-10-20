@@ -26,18 +26,27 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/raw/descriptors_added.csv, data/raw/fetch_outcome.json, data/raw/filtered_hosts.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/raw/descriptors_added.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 11 fabricated/simulated-result signal(s) — results are not real measurements: code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…ed (bool): If True, load simulated data. If False, load real cle…”; code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loading simulated data from {source_file}")…”; code/05_statistical_reporting.py: synthetic/fake INPUT data not authorized by the spec — “…,             "reason": "Simulated Data Mode",             "stat…”; every produced artifact is gitignored (data/raw/descriptors_added.csv, data/raw/fetch_outcome.json, data/raw/filtered_hosts.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 run-book script(s) missing (plan/impl path mismatch): python code/06_partial_dependence.py; python code/07_independent_evaluation.py; 4 command(s) failed: python code/03_model_training.py (rc=1); python -m jsonschema -i data/processed/model_runs.json contracts/model_output.schema.yaml (rc=1); python code/04_feature_analysis.py (rc=1); 6 declared deliverable(s) absent: data/processed/feature_analysis.json; data/processed/feature_interpretation_summary.csv; data/processed/halide_binding_data.csv
+**Summary**: 11 fabricated/simulated-result signal(s) — results are not real measurements: code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…ed (bool): If True, load simulated data. If False, load real cle…”; code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loading simulated data from {source_file}")…”; code/05_statistical_reporting.py: synthetic/fake INPUT data not authorized by the spec — “…,             "reason": "Simulated Data Mode",             "stat…”; every produced artifact is gitignored (data/raw/descriptors_added.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 run-book script(s) missing (plan/impl path mismatch): python code/06_partial_dependence.py; python code/07_independent_evaluation.py; 5 command(s) failed: python code/01_data_ingestion.py (rc=-1); python code/03_model_training.py (rc=1); python -m jsonschema -i data/processed/model_runs.json contracts/model_output.schema.yaml (rc=1); 6 declared deliverable(s) absent: data/processed/feature_analysis.json; data/processed/feature_interpretation_summary.csv; data/processed/halide_binding_data.csv
 
 ## Failing / missing run-book commands
 
+- python code/01_data_ingestion.py -> rc=-1
+nChI,XLogP3/JSON
+2026-10-20 20:26:20,136 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 1/5 after 2s.
+2026-10-20 20:26:22,351 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 2/5 after 4s.
+2026-10-20 20:26:26,562 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 3/5 after 8s.
+2026-10-20 20:26:34,667 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 4/5 after 16s.
+2026-10-20 20:26:50,766 WARNING __main__: Request error (400 Client Error: PUGREST.BadRequest for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/chloride/property/IsomericSMILES,InChI,XLogP3/JSON); retry 5/5 after 32s.
+
+[TIMEOUT after 120s]
 - python code/03_model_training.py -> rc=1
 
-2026-10-20 20:18:25,204 - __main__ - INFO - Starting model training pipeline...
-2026-10-20 20:18:25,204 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
+2026-10-20 20:27:13,107 - __main__ - INFO - Starting model training pipeline...
+2026-10-20 20:27:13,107 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/03_model_training.py", line 331, in <module>
     main()
@@ -56,7 +65,7 @@ FileNotFoundError: Preprocessed data not found at data/processed/halide_binding_
 
 - python code/04_feature_analysis.py -> rc=1
 
-2026-10-20 20:18:26,391 - __main__ - INFO - Starting Feature Analysis (US3)...
+2026-10-20 20:27:14,125 - __main__ - INFO - Starting Feature Analysis (US3)...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/04_feature_analysis.py", line 236, in <module>
     main()

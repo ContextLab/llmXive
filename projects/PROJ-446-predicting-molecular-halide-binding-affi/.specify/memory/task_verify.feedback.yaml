@@ -1,10 +1,4 @@
 T001:
-  reason: "Checked `code/01_data_ingestion.py`, its execution log, and the four output\
-    \ files. The script uses only 3 retries (requirement is max\u202F5) and the generated\
-    \ `fetch_outcome.json` omits required exclusion\u2011count fields and records\
-    \ a null PubChem status instead of the actual 400 error, so the fetch outcome\
-    \ is not honestly recorded. These defects prevent the task from meeting its full\
-    \ specification."
   task: 6fc85c67a890179250d7ef70ec3ef06cbeb60406f86019c72fd3769863f09581
 T002:
   task: 5783bf0aa9574d60d08368290da99823d955926db8f650c45db374542b2418ec
