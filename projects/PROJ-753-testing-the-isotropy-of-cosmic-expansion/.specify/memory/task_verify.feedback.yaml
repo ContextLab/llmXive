@@ -1,16 +1,14 @@
 T001:
   task: 01045773e57799c11d6ec32524d4d3035daf7f821ddad4584dff11b6f2f6b727
 T002:
+  reason: The `requirements.txt` exists but contains version ranges (e.g. `astropy>=6.0,<7.0`),
+    not the fully-pinned exact versions the task requires (e.g. `astropy==6.1.0`);
+    it is essentially the example input, not a `pip-compile` output. Additionally,
+    there is no evidence (log, lock output, or CI record) that `pip install -r requirements.txt`
+    was run and succeeded without conflicts.
   task: 2137807558d07e0ea764f55891f38962193b28ba0a771851b28ed222b6c1f8c8
 T003:
-  reason: "The `pyproject.toml` and `scripts/lint.sh` files exist with the correct\
-    \ required content (`[tool.black]` line-length 88, `[tool.ruff]` select E/F/W/C90,\
-    \ and the script runs `black --check .` then `ruff .`). However, the task's explicit\
-    \ verification requirement \u2014 that `bash scripts/lint.sh` exits with status\
-    \ 0 on the current code base \u2014 has no supporting execution evidence (no run\
-    \ log, exit status, or tool output), so there is no proof the lint check actually\
-    \ passes or that black/ruff are even installed. The implementer should run the\
-    \ script and provide its exit status/output as evidence."
+  reason: 'Requested task execution failed; rerun successfully: scripts/lint.sh exit=1'
   task: 4b2281467724dc299b2cc150a4b8e681905eed3c0acff9cbe36273f641bfab37
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/download_pantheon.py

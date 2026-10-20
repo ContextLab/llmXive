@@ -9,15 +9,14 @@ T001:
     which exceeds the directory-tree requirement for this scaffolding task.'
   sig: 0ca064b3d9f798516d6a9c676ce379274212a6effca0d85b682b9f920fc0bc5c
 T002:
-  c: true
-  h: 93c3bc25f9ca9ad85991de00d6fdb5575e5746fbd7f48f47bee83ac1f4a0de00
-  r: The `requirements.txt` exists at the project root with fully-pinned exact versions
-    (`==`) for all seven required packages (astropy 6.0.1, healpy 1.16.2, numpy 1.26.4,
-    scipy 1.11.4, pandas 2.1.4, matplotlib 3.8.2, pytest 7.4.4), all within the specified
-    version ranges, plus two extra pinned dev tools. The task explicitly allowed manual
-    pinning, and the versions are mutually compatible (numpy 1.26.4 satisfies all
-    listed constraints).
-  sig: e1de1086065a6dc95058ceb689f17c183e32b585a622e3a28fef96a3856c4009
+  c: false
+  h: d07229458c88042e18909debebb521696ab11d8643fd74eb24e9ce776bfda6f8
+  r: The `requirements.txt` exists but contains version ranges (e.g. `astropy>=6.0,<7.0`),
+    not the fully-pinned exact versions the task requires (e.g. `astropy==6.1.0`);
+    it is essentially the example input, not a `pip-compile` output. Additionally,
+    there is no evidence (log, lock output, or CI record) that `pip install -r requirements.txt`
+    was run and succeeded without conflicts.
+  sig: fdca474a099e6118b6630b2d731adbedf32323c2970a99d663cd1e95675c75cb
 T003:
   c: false
   h: 1b5a26a320502c66bb77c3371bfdcc0786424c6641a1b641e7792cceedf5a61c
