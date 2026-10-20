@@ -167,7 +167,7 @@ properties:
     description: "Number of samples flagged with grounding‑uncertainty (FR‑011)."
   grounding_assessment_method:
     type: string
-    description: "Method used to assess grounding validity (e.g., 'gpt4_judge')."
+    description: "Method used to assess grounding validity (e.g., 'semantic_similarity', 'gpt4_judge')."
 ```
 
 ## Data Flow Diagram (conceptual)
@@ -193,5 +193,3 @@ raw video metadata ──► video_metadata.schema.yaml
 Each stage reads the previous artifact, validates against its schema, and writes the next artifact to `data/derived/`. Contract tests enforce schema compliance before downstream stages run.
 
 ---
-
-

@@ -71,7 +71,7 @@ The research team must ensure that the full experimental pipeline completes with
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and parse the MM-OCEAN validation subset (~200 video samples) and associated metadata from the specified repository to serve as the primary data source (See US-1).
+- **FR-001**: System MUST download and parse the MM-OCEAN validation subset and associated metadata from the specified repository to serve as the primary data source (See US-1).
 - **FR-002**: System MUST construct and maintain a static, CPU‑accessible JSON knowledge base mapping video metadata (e.g., setting, culture) to curated social norms and situational scripts for retrieval (See US-2).
 - **FR-003**: System MUST execute the baseline prompting protocol on the 27 distinct MLLMs listed in Table 2 of arXiv:2605.22109 to generate trait ratings, reasoning strings, and grounding scores for each sample (See US-1). *Ground‑truth trait ratings are obtained from expert annotations provided with MM‑OCEAN; a rating is considered correct when it matches the expert label exactly.* (See FR-018)
 - **FR-004**: System MUST implement the "Context‑Grounded Chain‑of‑Thought" prompt template that retrieves and injects the relevant social prior before the reasoning step (See US-2).
