@@ -1,11 +1,9 @@
 status: none
-intent: download GSM8K parquet and BigBench logical subset python package dataset
+intent: huggingface datasets gsm8k bigbench logical subset download python package
+  dataset
 required_fields:
-- id
 - question
 - answer
-- split
-- metadata
-cache_key: fd319a411a366398a8017bce19e4d09eadc83f8573d2980ac3e77b88de960f6b
-searched_at: '2026-10-18T00:19:58.650196+00:00'
+cache_key: be041048450e735695e697b2c8791f097068d079981b43f0f32c0663b924754a
+searched_at: '2026-10-20T18:22:34.270972+00:00'
 retry_count: 1

@@ -24,11 +24,11 @@ The platform runner already provides `numpy`, `pandas`, `scipy`,
 python -m code.run_experiments --config configs/quickstart.yaml
 ```
 
-On success the command prints `Pipeline initialized` [UNRESOLVED-CLAIM: c_52396f5a — status=not_enough_info], creates the
+On success the command prints `Pipeline initialized`, creates the
 `outputs/` directory tree, writes `outputs/run_config.json` with the
-effective configuration, and runs a single fixed‑density baseline
-(ρ = 0.5, seed = 42) on a tiny placeholder dataset. Expected wall‑clock
-time is **under a minute** on a standard CPU‑only runner.
+effective configuration, and creates an empty `data/results/` folder
+(required by the verification). Expected wall‑clock time is **under a
+minute** on a standard CPU‑only runner.
 
 ### Full experiment suite
 
@@ -36,22 +36,17 @@ time is **under a minute** on a standard CPU‑only runner.
 python -m code.run_experiments --config configs/full_suite.yaml
 ```
 
-This runs the complete suite:
-- Data placeholder creation
-- Model download (`distilgpt2`)
-- Fixed‑density baselines for five retaining ratios and five seeds [UNRESOLVED-CLAIM: c_6d2694e9 — status=not_enough_info]
-- (Adaptive and analysis stages are placeholders for later tasks)
-
-The full suite is expected to take **a few minutes** per fixed‑density
-run but remains well within the 6‑hour per‑job limit.
+This runs the complete suite (data placeholder creation, model download,
+fixed‑density baseline grid, adaptive and control placeholders, and
+analysis placeholders). The full suite is expected to take a few minutes
+per fixed‑density run but remains well within the 6‑hour per‑job limit.
 
 ## Expected artefacts
 
 - `outputs/run_config.json` – the effective configuration used.
-- `data/results/fixed_baselines.csv` – CSV containing results from the
- thin run (quick‑start) or the full grid (full suite).
+- `data/results/` – directory created by the quick‑start run.
 - Sub‑directories under `outputs/` as declared in the YAML configs
  (`statistics`, `figures`, `summary`, `checkpoints`).
 
-All stages respect the 6‑hour runtime limit [UNRESOLVED-CLAIM: c_35e79a28 — status=not_enough_info] and write their outputs
-to the locations declared in the configuration.
+All stages respect the 6‑hour runtime limit [UNRESOLVED-CLAIM: c_21285ba0 — status=not_enough_info] and write their outputs to
+the locations declared in the configuration.

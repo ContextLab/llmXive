@@ -398,3 +398,81 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-18T11:09:29Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline initialized' on success
+  claim_id: c_000cea5d
+  context: On success the command prints Pipeline initialized, creates the outputs
+    directory tree, writes outputs/run_config.json with the effective configuration,
+    and creates an empty data/results folder (required by the verification).
+  evidence:
+    artifact_sha256: 6d3deb433cebb8a3c27f0686e3bea07845d287ae0420ddbeab30d93a27f54f5d
+    note: no relevant passages
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/fixed_baselines.json
+      sha256: a463d6b78bc20211e88bb7a5198a39401eb75da664a557174d47ed6da610dd81
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: On success the command prints Pipeline initialized
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 6d3deb433cebb8a3c27f0686e3bea07845d287ae0420ddbeab30d93a27f54f5d
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T18:21:37Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline creates outputs directory tree
+  claim_id: c_768416f3
+  context: On success the command prints Pipeline initialized, creates the outputs
+    directory tree, writes outputs/run_config.json with the effective configuration,
+    and creates an empty data/results folder (required by the verification).
+  evidence:
+    artifact_sha256: 6d3deb433cebb8a3c27f0686e3bea07845d287ae0420ddbeab30d93a27f54f5d
+    note: Passages list output directories but do not state that anything creates
+      the outputs directory tree.
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/fixed_baselines.json
+      sha256: a463d6b78bc20211e88bb7a5198a39401eb75da664a557174d47ed6da610dd81
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: creates the outputs directory tree
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 6d3deb433cebb8a3c27f0686e3bea07845d287ae0420ddbeab30d93a27f54f5d
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T18:21:40Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: all stages respect 6-hour runtime limit
+  claim_id: c_21285ba0
+  context: "All stages respect the 6\u2011hour runtime limit and write their outputs\
+    \ to the locations declared in the configuration."
+  evidence:
+    artifact_sha256: 6d3deb433cebb8a3c27f0686e3bea07845d287ae0420ddbeab30d93a27f54f5d
+    note: no relevant passages
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/fixed_baselines.json
+      sha256: a463d6b78bc20211e88bb7a5198a39401eb75da664a557174d47ed6da610dd81
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: "All stages respect the 6\u2011hour runtime limit"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 6d3deb433cebb8a3c27f0686e3bea07845d287ae0420ddbeab30d93a27f54f5d
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T18:21:40Z'
