@@ -35,7 +35,8 @@ projects/PROJ-044-evaluating-the-effectiveness-of-differen/
 │   ├── config.py
 │   ├── data/
 │   │   ├── download.py          # streaming → parquet, checksum
-│   │   └── partition.py         # Dirichlet split, global entropy, minority flag
+│   │   ├── partition.py         # Dirichlet split, global entropy, minority flag
+│   │   └── verify_shakespeare_exclusion.py   # real verification script
 │   ├── models/
 │   │   └── cnn.py               # tiny ConvNet (≈ tens of thousands of parameters)
 │   ├── training/
@@ -110,7 +111,8 @@ python code/data/partition.py \
 # Output files: data/partitions/partition_femnist_{seed}_{alpha}.json
 ```
 - `--seeds` and `--alphas` are space‑separated lists.  
-- Minority clients are flagged as the global bottom segment of label‑entropy (computed once on the full training set) and applied to all partitions.
+- Minority clients are flagged as the **global bottom quartile** of label‑entropy (computed once on the full training set) and applied to all partitions.  
+- SHA‑256 hashes of each JSON file are printed for reproducibility (SC‑001).
 
 ### 4. Run the full experiment sweep
 ```bash
@@ -132,7 +134,7 @@ python code/analysis/stats.py \
 ```
 - Performs Shapiro‑Wilk normality test on paired differences.  
 - Runs paired t‑test if normal, otherwise Wilcoxon signed‑rank test.  
-- Fits the mixed‑effects model with `is_minority:alpha` interaction and random slopes for `epsilon` and `alpha` per `seed`.  
+- Fits the mixed‑effects model with the `is_minority:alpha` interaction and random slopes for `epsilon` and `alpha` per `seed`.  
 - Applies Bonferroni correction across the multiple (α, ε) tests.  
 - Writes `results/final_stats.csv`.
 
@@ -141,14 +143,14 @@ python code/analysis/stats.py \
 python code/analysis/plots.py
 ```
 - Generates `figures/minority_vs_global_overlay.png` (minority vs. global accuracy curves).  
-- Generates `figures/sensitivity_alpha.png` (accuracy vs. ε for each α).
+- Generates `figures/sensitivity_alpha.png` (accuracy & convergence speed vs. ε for each α).
 
 ### 7. Final Summary & Validation Report
 ```bash
 python code/analysis/generate_summary.py
 ```
 - Writes `results/summary.csv`, `results/validation_report.md`, and `results/p_values_by_seed.json`.  
-- The validation report includes:
+- The validation report includes:  
   * FEMNIST checksum verification.  
   * Confirmation that the only occurrence of “Shakespeare” is inside the mandated exclusion message (via `verify_shakespeare_exclusion.py`).  
   * Seed completeness and any flagged runs.
@@ -179,7 +181,7 @@ figures/
 |---------|--------------|-----|
 | **MemoryError** during download | Chunk size too large for streaming | Reduce `--chunk-size` in `download.py` (default 1000). |
 | **`is_time_limited=True`** for many runs | Too many communication rounds for the 6 h budget | Reduce `--max-rounds` via an optional flag in `main.py`. |
-| **ValueError: Shakespeare excluded per plan.md Gap Analysis** | Attempted to load Shakespeare | Use `--dataset femnist` only; the exclusion message satisfies verification T000. |
+| **ValueError: Shakespeare excluded per plan.md Gap Analysis** | Attempted to load Shakespeare | Use `--dataset femnist` only; the exclusion script satisfies verification T000. |
 | **Paired‑test warning: fewer than 10 seeds** | Some seeds repeatedly failed | Check `results/validation_report.md`; adjust seed list or increase retry limit. |
 | **ImportError: Opacus not found** | Dependency mismatch | Ensure `requirements.txt` is installed in the active virtualenv. |
 
@@ -192,6 +194,3 @@ figures/
 **Note on ε representation**: In `results/raw_logs.csv` the non‑DP baseline uses the literal string `"inf"` for the `epsilon` field, which conforms to the `results.schema.yaml` contract.
 
 ---
-
-
-
