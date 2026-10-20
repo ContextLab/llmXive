@@ -62,7 +62,7 @@ The system must perform a statistical analysis comparing the baseline and augmen
 
 ### Functional Requirements
 
-- **FR-001**: System MUST load a set of 24 tasks comprising **12 complex multi-step scientific workflow tasks** and **12 routine single‑command tasks** from the TUA‑Bench dataset (See US-1).
+- **FR-001**: System MUST load a set of 24 tasks comprising **Multiple complex multi-step scientific workflow tasks** and **Multiple routine single‑command tasks** from the TUA‑Bench dataset (See US-1).
 - **FR-002**: System MUST execute the Llama 3.1 8B model on a CPU‑only environment with a hard per‑task timeout of **15 minutes** and a hard per‑batch timeout of **6 hours** (where a batch is the 24 tasks for a single condition and a single random seed) to ensure compute feasibility (See US-1).
 - **FR-003**: System MUST construct a "Procedural Memory Bank" containing exactly 50 human‑verified command sequences for common shell operations (See US-2).
 - **FR-004**: System MUST implement a retrieval mechanism that queries the memory bank based on task description and appends the top‑k relevant sequences to the agent's context window before action generation. If the retrieval returns zero hits, the system proceeds with standard prompting and logs a “retrieval miss” event (See US-2).

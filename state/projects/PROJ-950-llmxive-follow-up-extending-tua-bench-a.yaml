@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T14:52:30.560920Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-950-llmxive-follow-up-extending-tua-bench-a
-last_run_id: 636f27a5-7ade-4da0-b20f-2a6ea2f7231e
+last_run_id: e98a9d73-0056-4a97-8f20-9673cfe0a121
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/specs/001-llmxive-follow-up-extending-tua-bench-a
 title: 'llmXive follow-up: extending "TUA-Bench: A Benchmark for General-Purpose Terminal-Use
   Agents"'
-updated_at: '2026-10-20T10:21:38.673481Z'
+updated_at: '2026-10-20T10:27:49.939973Z'

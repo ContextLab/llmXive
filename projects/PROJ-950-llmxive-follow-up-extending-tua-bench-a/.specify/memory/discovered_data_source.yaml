@@ -1,0 +1,14 @@
+status: none
+intent: tua-bench dataset download python package dataset
+required_fields:
+- task_id
+- task_type
+- description
+- steps
+- expected_commands
+- expected_output
+- evaluation_criteria
+- complexity_label
+cache_key: 3dc57a2002ae59127c496f5d8dc07dfb73f608232433c2b7d8e390409fac846a
+searched_at: '2026-10-20T10:23:25.180257+00:00'
+retry_count: 1
