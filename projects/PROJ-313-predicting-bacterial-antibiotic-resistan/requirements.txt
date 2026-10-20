@@ -1,7 +1,1 @@
-tqdm
-pyarrow
-# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
-# already provided by the execution environment. The additional packages
-# above are required for parquet writing (pyarrow) and progress bars
-# (tqdm).
+tqdm>=4.66.0
