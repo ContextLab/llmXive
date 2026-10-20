@@ -8,7 +8,6 @@ Verification script for T002.
 
 import subprocess
 import sys
-import os
 from pathlib import Path
 
 # Load the example .env file so that os.getenv picks up the variables.
@@ -19,7 +18,7 @@ except ImportError as e:
     sys.exit(1)
 
 # Path to the .env.example at the repository root
-env_path = Path(__file__).resolve().parents[2] / ".env.example"
+env_path = Path(__file__).resolve().parents[1] / ".env.example"
 if not env_path.is_file():
     print(f".env.example not found at expected location: {env_path}", file=sys.stderr)
     sys.exit(1)

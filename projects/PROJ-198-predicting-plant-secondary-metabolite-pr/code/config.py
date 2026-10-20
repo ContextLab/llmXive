@@ -17,7 +17,7 @@ from models.species import Species
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
 # Import the EnvManager singleton for easy env access.
-from .config_env import get_env_manager
+from config_env import get_env_manager
 
 # Load .env file using python-dotenv
 try:
@@ -201,7 +201,7 @@ def get_seed() -> int:
 
 def load_config(config_path: Optional[Path] = None) -> Config:
     """
-    Load configuration from a YAML file (``config.yaml`` or ``spec.yaml``).
+    Load configuration from a YAML file (``config.yaml`` / ``spec.yaml``).
 
     The function is *idempotent*: once a configuration has been loaded,
     subsequent calls return the same ``Config`` instance, regardless of the
@@ -278,7 +278,7 @@ def load_config(config_path: Optional[Path] = None) -> Config:
     # T004: apply the seed and log the configuration load.
     set_global_seed(_config_instance.seed)
     try:
-        from .utils.logging import get_logger
+        from utils.logging import get_logger
 
         get_logger(__name__).info(
             "Configuration loaded (seed=%d, species=%d)",

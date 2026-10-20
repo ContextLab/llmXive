@@ -17,60 +17,51 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loaded mock metabolite data with {len(df)} rows")…”
 - code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…pipeline that loads the mock data, aligns it,     and writ…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/cli/main.py --step download_and_align`
+  - script usage: `main.py [-h] [--config CONFIG] [--force-download]`
+  - argparse error: `main.py: error: unrecognized arguments: --step download_and_align`
+- run-book command: `python code/cli/main.py --step train_and_evaluate`
+  - script usage: `main.py [-h] [--config CONFIG] [--force-download]`
+  - argparse error: `main.py: error: unrecognized arguments: --step train_and_evaluate`
+- run-book command: `python code/cli/main.py --step download_and_align --limit 5`
+  - script usage: `main.py [-h] [--config CONFIG] [--force-download]`
+  - argparse error: `main.py: error: unrecognized arguments: --step download_and_align --limit 5`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 16 fabricated/simulated-result signal(s) — results are not real measurements: code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…tion entry point – loads mock data, aligns, saves, and repo…”; code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…ger(__name__)     # Load mock data files (used when CI_MODE…”; code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…:         logger.error(f"Mock data not found: {e}")…”; 4 command(s) failed: python code/cli/main.py --step download_and_align (rc=1); python code/cli/main.py --step train_and_evaluate (rc=1); python code/cli/main.py --step download_and_align --limit 5 (rc=1); 1 declared deliverable(s) absent: data/processed/aligned_matrix.csv
+**Summary**: 16 fabricated/simulated-result signal(s) — results are not real measurements: code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…tion entry point – loads mock data, aligns, saves, and repo…”; code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…ger(__name__)     # Load mock data files (used when CI_MODE…”; code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…:         logger.error(f"Mock data not found: {e}")…”; 4 command(s) failed: python code/cli/main.py --step download_and_align (rc=2); python code/cli/main.py --step train_and_evaluate (rc=2); python code/cli/main.py --step download_and_align --limit 5 (rc=2); 1 declared deliverable(s) absent: data/processed/aligned_matrix.csv
 
 ## Failing / missing run-book commands
 
-- python code/cli/main.py --step download_and_align -> rc=1
+- python code/cli/main.py --step download_and_align -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 27, in <module>
-    from code.utils.report import generate_report
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/utils/report.py", line 15, in <module>
-    from config import get_config, get_data_path
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 20, in <module>
-    from .config_env import get_env_manager
-ImportError: attempted relative import with no known parent package
+usage: main.py [-h] [--config CONFIG] [--force-download]
+main.py: error: unrecognized arguments: --step download_and_align
 
-- python code/cli/main.py --step train_and_evaluate -> rc=1
+- python code/cli/main.py --step train_and_evaluate -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 27, in <module>
-    from code.utils.report import generate_report
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/utils/report.py", line 15, in <module>
-    from config import get_config, get_data_path
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 20, in <module>
-    from .config_env import get_env_manager
-ImportError: attempted relative import with no known parent package
+usage: main.py [-h] [--config CONFIG] [--force-download]
+main.py: error: unrecognized arguments: --step train_and_evaluate
 
-- python code/cli/main.py --step download_and_align --limit 5 -> rc=1
+- python code/cli/main.py --step download_and_align --limit 5 -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 27, in <module>
-    from code.utils.report import generate_report
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/utils/report.py", line 15, in <module>
-    from config import get_config, get_data_path
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 20, in <module>
-    from .config_env import get_env_manager
-ImportError: attempted relative import with no known parent package
+usage: main.py [-h] [--config CONFIG] [--force-download]
+main.py: error: unrecognized arguments: --step download_and_align --limit 5
 
 - python -m pytest tests/ -> rc=2
-eback:
+k:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_report.py:14: in <module>
-    from utils.report import (
-code/utils/report.py:15: in <module>
-    from config import get_config, get_data_path
-code/config.py:20: in <module>
-    from .config_env import get_env_manager
-E   ImportError: attempted relative import with no known parent package
+tests/unit/test_project_structure.py:9: in <module>
+    from scripts.setup_project_structure import create_directories, create_init_files
+E   ImportError: cannot import name 'create_directories' from 'scripts.setup_project_structure' (/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/scripts/setup_project_structure.py)
 =========================== short test summary info ============================
 ERROR tests/integration/test_align.py - TypeError: setup_logging() got an une...
 ERROR tests/models/test_models.py
-ERROR tests/test_config.py
 ERROR tests/unit/test_cleanup_refactor.py
 ERROR tests/unit/test_data_hygiene.py - NameError: name 'List' is not defined
 ERROR tests/unit/test_download.py
@@ -78,9 +69,8 @@ ERROR tests/unit/test_env_manager.py
 ERROR tests/unit/test_linting_config.py
 ERROR tests/unit/test_models.py
 ERROR tests/unit/test_project_structure.py
-ERROR tests/unit/test_report.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 11 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 11 errors in 1.63s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 9 errors in 1.05s ===============================
 
 
 

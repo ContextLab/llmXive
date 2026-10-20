@@ -1,14 +1,17 @@
 status: none
-intent: NCBI RefSeq plant genomes KNApSAcK metabolite data MIBiG ontology python package
-  dataset
+intent: download plant genome RefSeq KNApSAcK metabolite abundance MetaboLights MIBiG
+  python package dataset
 required_fields:
 - species_name
-- genome_accession
-- assembly_fasta_url
-- annotation_gff_url
+- genome_fasta_url
+- gff_annotation_url
+- bgc_type
+- bgc_presence
+- bgc_count
 - metabolite_inchikey
-- metabolite_name
-- abundance
-cache_key: d3fcc74c9b35dcdc983de4fe9c577976fc614606fc846b289ce27f9ad3227904
-searched_at: '2026-10-20T04:15:30.653180+00:00'
+- raw_abundance
+- log_abundance
+- metabolite_class
+cache_key: 5e880132813131407dff9b44fcfead50441a4fe24b7cccba84e620e4ffb19448
+searched_at: '2026-10-20T07:21:26.579224+00:00'
 retry_count: 1
