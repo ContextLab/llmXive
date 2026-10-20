@@ -4,10 +4,9 @@ Power Analysis Script for Project PROJ-049
 This script computes the required sample size to detect a Pearson correlation
 coefficient of r = 0.10 with a Bonferroni‑adjusted significance level α = 0.001
 (two‑sided) and a target statistical power of 0.80. The resulting sample size
-is written to ``results/power_analysis.txt``. The script then reads the value
-back, updates the ``research.md`` file (injecting the sample size into the
-"Methodological Rationale" section) and records the same value in the project
-state YAML file located at
+is written to ``results/power_analysis.txt``. The script then updates the
+``research.md`` file with a simple line ``Required sample size: <n>`` and records
+the same value in the project state YAML file located at
 ``state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml``.
 """
 
@@ -71,7 +70,6 @@ def calculate_sample_size(
         raise ValueError("Correlation coefficient must be between -1 and 1 (exclusive).")
     effect_size_f2 = r ** 2 / (1 - r ** 2)
 
-    # ``df_num`` = 1 for a single predictor in a simple regression.
     ftest = FTestPower()
     nobs = ftest.solve_power(
         effect_size=effect_size_f2,
@@ -80,7 +78,6 @@ def calculate_sample_size(
         power=power,
         alternative="two-sided",
     )
-    # ``solve_power`` returns a float; we round up to the next whole person.
     return math.ceil(nobs)
 
 def write_power_analysis_file(sample_size: int, path: Path = RESULT_PATH) -> None:
@@ -103,58 +100,25 @@ def read_power_analysis_file(path: Path = RESULT_PATH) -> int:
     except ValueError as exc:
         raise ValueError(f"Unable to parse sample size from {path}") from exc
 
-def _ensure_section_header(lines: list[str], header: str) -> int:
-    """
-    Find the index of a markdown header line (e.g., ``## Methodological Rationale``).
-    If the header does not exist, it is appended at the end of the file.
-    Returns the index *after* the header line where new content should be inserted.
-    """
-    for i, line in enumerate(lines):
-        if line.strip().lower() == header.lower():
-            # Insert after the header line (i + 1)
-            return i + 1
-    # Header not found – create it.
-    lines.append(header)
-    lines.append("")  # blank line after header
-    return len(lines)
-
 def update_research_md(sample_size: int, path: Path = RESEARCH_MD_PATH) -> None:
     """
-    Insert (or replace) a line containing the required sample size inside the
-    ``Methodological Rationale`` section of ``research.md``.
-    If the file does not exist, a minimal markdown skeleton is created.
+    Ensure that ``research.md`` contains a single line
+    ``Required sample size: <sample_size>``. If the file does not exist,
+    it is created with that line. Any existing line that starts with
+    ``Required sample size:`` is replaced.
     """
-    header = "## Methodological Rationale"
-    line_to_insert = f"- Required sample size (based on power analysis): {sample_size}"
+    line_to_write = f"Required sample size: {sample_size}"
     if not path.exists():
-        # Create a minimal file with the required section.
-        content = [header, "", line_to_insert, ""]
-        path.write_text("\n".join(content), encoding="utf-8")
+        path.write_text(line_to_write + "\n", encoding="utf-8")
         return
 
-    # Load existing content.
     lines = path.read_text(encoding="utf-8").splitlines()
-    insert_idx = _ensure_section_header(lines, header)
-
-    # Remove any existing line that starts with the same prefix (to avoid duplicates).
-    prefix = "- Required sample size"
-    # Scan forward from insert_idx until a blank line or next header.
-    end_idx = insert_idx
-    while end_idx < len(lines) and not lines[end_idx].startswith("#"):
-        end_idx += 1
-
-    # Filter out old sample‑size lines.
-    new_section = [
-        line for line in lines[insert_idx:end_idx] if not line.lstrip().startswith(prefix)
-    ]
-    # Insert the new line at the top of the section.
-    new_section.insert(0, line_to_insert)
-
-    # Re‑assemble the file.
-    updated_lines = (
-        lines[:insert_idx] + new_section + lines[end_idx:]
-    )
-    path.write_text("\n".join(updated_lines) + "\n", encoding="utf-8")
+    # Remove any existing line that starts with the required prefix
+    prefix = "Required sample size:"
+    new_lines = [ln for ln in lines if not ln.lstrip().startswith(prefix)]
+    # Append the required line at the end of the file
+    new_lines.append(line_to_write)
+    path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 
 def update_state_file(sample_size: int, path: Path = STATE_YAML_PATH) -> None:
     """
@@ -170,7 +134,6 @@ def update_state_file(sample_size: int, path: Path = STATE_YAML_PATH) -> None:
 
     state["required_sample_size"] = sample_size
 
-    # Ensure the parent directory exists.
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:
         yaml.safe_dump(state, f, sort_keys=False)
@@ -183,8 +146,9 @@ def main() -> None:
     Execute the full power‑analysis workflow:
     1. Compute the required sample size.
     2. Persist it to ``results/power_analysis.txt``.
-    3. Read it back (verifying the write succeeded).
-    4. Update ``research.md`` and the project state YAML file.
+    3. Verify the write/read round‑trip.
+    4. Update ``research.md`` with a plain ``Required sample size: <n>`` line.
+    5. Record the same value in the project state YAML file.
     """
     logger = setup_logging(__name__)
 
@@ -208,7 +172,7 @@ def main() -> None:
 
     # Update auxiliary documentation/artifacts.
     update_research_md(sample_size)
-    logger.info("Updated research.md with required sample size.")
+    logger.info("Updated research.md with required sample size line.")
 
     update_state_file(sample_size)
     logger.info("Recorded required sample size in project state file %s", STATE_YAML_PATH)

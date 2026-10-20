@@ -1,0 +1,49 @@
+T001:
+  reason: The evidence shows `data/raw/`, `data/processed/`, `results/`, `code/`,
+    and `tests/` directories exist, but the required `logs/` folder is not present
+    at the repository root. Adding the missing `logs/` directory will satisfy the
+    task.
+  task: 0d099e146a38d9cc4abaecf3a381e02a3eec4d5bb8ac961a511033a1de8880ba
+T002:
+  reason: Checked the `requirements.txt` file (it lists exact versions for all required
+    packages) and the install log showing those versions are installed, but there
+    is no `installed.txt` file nor a `diff -u requirements.txt installed.txt` output
+    proving that the installed environment matches the pinned versions as required.
+  task: 5af52b77bdd431a131ce6c9233730a56c5058d621fb5434a919bc6d4543f6e5f
+T003:
+  reason: "The provided `code/seed.py` correctly sets deterministic seeds and writes\
+    \ its SHA\u2011256 hash, and `code/seed_hash.txt` matches that hash. However,\
+    \ there is no evidence that all pipeline scripts import `seed.py` as their first\
+    \ line, as required by the task. This usage requirement is unverified, so the\
+    \ task is not fully satisfied."
+  task: 09bc5631c20cf6a6b4ac7506db5d5174d12b8968dbf821ba9a4eecab969d9645
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/power_analysis.py
+    exit=1'
+  task: c517e6b25f1c211fdddf55b6288ff7844f32611b3ea41d15fb36f8cf75f54616
+T005:
+  task: c6f86becf5089033c30058dd30d664b45c1129b9db508dd484b2cabfbfe5a7be
+T006:
+  task: 32a0369f64578d9d3814328938569e202c64a5b7b32eb3b7618aa8ab7644b3ad
+T007a:
+  task: 845a34a99ff848fa3d2b7e2b240c058e767203eadc515b0811451fc779c65b01
+T007b:
+  task: 0c1d6670c734d88b66663e7c53849aaa37f69f22b21c47bbc25d2cbe0a3773c9
+T007c:
+  task: 8b54d1f890adb9de41b98b43ef9833b49cb3a3423a47b6776355c30728db87fd
+T007d:
+  task: dc2811d71fcc9f4ee0bdce98c30b13a24eca8959ce685c670840d586c21a44b3
+T007e:
+  task: 8a1bc9beb8d101b802caa0b40972f51bbfe8e48ceb1beec5a170a9c0ab5d06d1
+T008:
+  task: 2d02d9beb59a8b9ad99858d2fe596b354a158c144aac6233267b94d6b51a64f3
+T009:
+  task: b1c65f81fb9dab5a11a4af6470fbdba48aed660f3d7f63b46780c63e536c2667
+T010:
+  task: 82118c0ad5fad998ee6e5fd8c8dae62314782f443a4d048f0d264e1f8c9dc721
+T011:
+  task: a285222736ccc01a88042fa0b66564c312e479c0137d62e5314cc6644dccef9a
+T012:
+  task: 0e91ac25ac2db234b0b6b4c2333e4c1ef011cff5a5dac38930ea8b8648d66dfc
+T013:
+  task: fae6e42187056c92254b1ee51ed0d211a81ce6243da2b9902ec935c221420d1a

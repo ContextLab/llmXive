@@ -1,23 +1,27 @@
-T000b:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file was presented, and no evidence of its contents (dataset\
-    \ URLs, \u201CReal\u2011First\u201D paragraph, or the sample size from T000a)\
-    \ was provided. The required artifact is missing, so the task is not satisfied."
-T001a:
+  h: d038cca26f49cd978637223c35940e0ea9e85968a9931938e05d618d75586030
+  r: The evidence shows `data/raw/`, `data/processed/`, `results/`, `code/`, and `tests/`
+    directories exist, but the required `logs/` folder is not present at the repository
+    root. Adding the missing `logs/` directory will satisfy the task.
+  sig: 13090f5e69dd2bf2d0265cafd2a240c31d596e48c03e5cf4a4f074a988621b9a
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`data/raw/`, `data/processed/`, `code/`,
-    `tests/`, `results/`, `logs/`) being created or of any assertions checking their
-    existence is provided. The implementer did not supply a script, command output,
-    or filesystem snapshot confirming the directory structure.
-T001b:
+  h: 96999c9a0c01e9f31988cb5fae4d0cc3265c74a9dffbbd421b08c14987d3d91c
+  r: Checked the `requirements.txt` file (it lists exact versions for all required
+    packages) and the install log showing those versions are installed, but there
+    is no `installed.txt` file nor a `diff -u requirements.txt installed.txt` output
+    proving that the installed environment matches the pinned versions as required.
+  sig: cbe5e3638ef97f5f12679e7d416d8a0584f3eddac906efcb844f1c4774179d11
+T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that empty `__init__.py` files actually exist
-    in the `code/` and `tests/` directories; without file listings or contents we
-    cannot verify the required artifacts are present. The implementer must add and
-    show the two empty `__init__.py` files.
+  h: ceda2cbd3c4d6343d531d6bf91a40688c1129aa201bb20644a004570d52967bf
+  r: "The provided `code/seed.py` correctly sets deterministic seeds and writes its\
+    \ SHA\u2011256 hash, and `code/seed_hash.txt` matches that hash. However, there\
+    \ is no evidence that all pipeline scripts import `seed.py` as their first line,\
+    \ as required by the task. This usage requirement is unverified, so the task is\
+    \ not fully satisfied."
+  sig: eecdfbddcdb7db3725c7a05dca18e66a16ee88b0cc2e0fcdfe7ebdc076a9df6d
 T008:
   c: false
   h: af53fd992ccd8583b2bbd5496ed5f793c3dcaf57059b417111cfc77ac461caf6
@@ -26,32 +30,3 @@ T008:
     \ is missing) and the required `contracts/dataset.schema.yaml` is also absent,\
     \ so the column\u2011name compliance cannot be verified. The task\u2019s core\
     \ output (the saved CSV matching the schema) is not present."
-T017:
-  c: false
-  h: 0a35ad2b764485e5a2608e59fd51ed747deddd75c24eaac0c43ed078bd07f36d
-  r: "The required artifact `data/processed/merged_data.csv` does not exist, so schema\
-    \ verification and checksum logging cannot be performed. The implementer must\
-    \ provide the CSV file (non\u2011empty with the correct columns) and the corresponding\
-    \ verification/log output."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md file or excerpt was presented, and there is no evidence that execution
-    instructions or an explanation of the synthetic data were added. The required
-    documentation artifact is missing, so the task is not satisfied.
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files, diff, or documentation showing that the `code/` directory has\
-    \ been cleaned up or refactored were provided. Without any tangible artifacts\
-    \ (e.g., updated scripts, commit logs, or before\u2011after comparisons), we cannot\
-    \ confirm that the required code cleanup task was performed. The implementer must\
-    \ supply the revised codebase (or a clear summary of changes) to satisfy the task."
-T034:
-  c: false
-  h: 398f289e7d1e7112633a9d4c9156c2a186fb28dc451bb930f4c697402c92abf8
-  r: "The repository lacks the required `data/processed/coefficient_deltas.csv` file,\
-    \ and the provided `code/analysis.py` (truncated) shows no implementation that\
-    \ computes regression\u2011coefficient deltas, logs them, applies a >10\u202F\
-    % change threshold, or writes a `validity_status` column. The task\u2019s core\
-    \ functionality is therefore missing."

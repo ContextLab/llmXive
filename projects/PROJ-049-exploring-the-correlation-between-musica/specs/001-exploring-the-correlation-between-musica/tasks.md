@@ -36,7 +36,7 @@
 
 ## Phase 1 – Power analysis & research documentation  
 
-- [ ] **T004** **Compute required sample size**  
+- [ ] **T004** **Compute required sample size**   <!-- FAILED-IN-EXECUTION: code/power_analysis.py exit=1 -->
   Implement `code/power_analysis.py` that calculates the minimum sample size to detect a Pearson r = 0.10 with Bonferroni‑adjusted α = 0.001 (two‑tailed). The script writes the integer to `results/power_analysis.txt`, updates `research.md` with a line `Required sample size: <n>`, and writes the same value into `state/projects/PROJ-049.yaml` under `required_sample_size`.  
   **Verification**:  
   - `results/power_analysis.txt` exists and contains a positive integer.  
