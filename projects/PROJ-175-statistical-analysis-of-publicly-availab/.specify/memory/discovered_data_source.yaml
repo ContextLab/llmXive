@@ -1,14 +1,12 @@
 status: none
-intent: download Recipe1M FlavorDB Counterfactual Recipe Generation dataset python
-  package dataset
+intent: download Recipe1M FlavorDB Counterfactual Recipe Generation python package
+  dataset
 required_fields:
-- ingredient_id_1
-- ingredient_id_2
-- ingredient_name_1
-- ingredient_name_2
+- ingredient_1
+- ingredient_2
 - log_cooccurrence_count
 - cosine_similarity
 - functional_role_label
-cache_key: 944950077a7af542dafc149766ef05096c36dfd87c0a7883adee101fea663bdb
-searched_at: '2026-10-16T01:08:26.190257+00:00'
+cache_key: 8b4853c8b4051bb65e146067d44283accaf193437e4ff6d79894d6f21dac7b5b
+searched_at: '2026-10-20T00:58:04.032483+00:00'
 retry_count: 1

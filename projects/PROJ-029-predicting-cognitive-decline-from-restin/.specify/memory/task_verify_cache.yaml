@@ -1,40 +1,47 @@
 T001a:
   c: false
-  h: 3e6b2c9dd44580ba104f031e4cb9b39ebf7b6eddc90766957331b704f5da5959
-  r: No evidence of a `code/` directory at the repository root is provided; the artifact
-    list is empty, so the required directory has not been demonstrated as created.
+  h: 4be3ae379cd48a138249e0b9c624f12b43a05d1b1ebe070e50bc9553a62bf90a
+  r: "The evidence only shows a `code/` directory inside the project sub\u2011folder\
+    \ `projects/PROJ-029\u2011predicting\u2011cognitive\u2011decline\u2011from\u2011\
+    restin/`; there is no artifact confirming a `code/` directory at the repository\
+    \ root as the task requires. The task remains unfulfilled."
+  sig: f9357e8ac4a87804c651d581359961c0e60d26b2cf704798c42be1deddfc1754
 T001b:
-  c: false
-  h: 94ea52ccf4f098ed0df3f55820fd444a1e2224193f64ffd82d40c2c661ddc767
-  r: "No evidence of a `tests/` directory at the repository root was provided; the\
-    \ artifact list is empty, so the required directory has not been demonstrated\
-    \ as existing. The implementer must add the `tests/` folder (non\u2011empty or\
-    \ at least present) to satisfy the task."
+  c: true
+  h: 07268a7f03240626954f99998065aee36e65a3ff5b04cc341927c096946835f5
+  r: "The `tests/` directory exists at the repository root (7 entries) and contains\
+    \ a passing pytest suite (`tests/test_directory_structure.py`) confirming the\
+    \ directory\u2019s presence and population."
+  sig: 1173a18c69d369c13ba8e4ed960cd15b9b4228e043d12694b4873aaada6507f1
 T001c:
-  c: false
-  h: d6aec8848fa687bd424b05087b7e57c513fa06cc597d97c669f60bf55ed921ea
-  r: No evidence of a `docs/` directory at the repository root is provided; the artifact
-    list is empty, so the required directory has not been demonstrated as existing.
-    The implementer must create the `docs/` folder and show its presence.
+  c: true
+  h: 9879ba2624b50eeafd8f466c71d33268990fe9a0c9760d97abe11de4c75ab1c4
+  r: The `docs/` directory exists (with `index.md` and `quickstart.md`) at the project
+    root, and the execution log confirms it was created successfully.
+  sig: 9b7b503a26fa5c4bfc858dbd85e8ed3d79ba7b6dcb0a1afa7ce0b22e6381f2e4
 T002a:
   c: false
-  h: f1e057f78165af69050b1dfe2429bb3cb315776f983e098acc0c4ea98a4c3742
-  r: No evidence was provided showing that a `data/raw/` directory exists at the repository
-    root; the artifact list is empty, so the required directory cannot be confirmed.
-    The implementer must create the directory (and optionally show its presence, e.g.,
-    via a file listing).
+  h: 1989d0801f6930d6199b6aed8f0971104d5f4a8a6865b7a66d0fc381ba8c0e5e
+  r: "The evidence shows a `data/raw/` directory exists, but it resides inside the\
+    \ project folder `projects/PROJ-029-predicting-cognitive-decline-from-restin/`,\
+    \ not at the repository root as the task requires. A top\u2011level `data/raw/`\
+    \ directory is missing."
+  sig: 85ddb776c81e0cb99e15b69f5badab99bd3c8f2828a209487a4c85a76062b20b
 T002b:
-  c: false
-  h: 791df062c9d5644e732093f8a935edc926c40a2eb96fffb5b0408f9ab630508f
-  r: No evidence of a `data/processed/` directory is provided; the artifact list is
-    empty and the claim cannot be verified. The required directory must be present
-    in the repository root for the task to be considered complete.
+  c: true
+  h: 0f400ca7313106dda58afcc3328775401042c17eafbc0767c6812a25093ef833
+  r: The `data/processed/` directory exists (contains a `.gitkeep` file) at the project
+    root, and the unit test `test_data_processed_dir_exists` passed, confirming its
+    presence.
+  sig: 51b77541c16ae8bdb5284baa362debceca6c2c7d3defa11cf0b69f4dca6710cd
 T002c:
-  c: false
-  h: d8851e54f3e9176a301e7046553a19dcdf1180f3ee982d389673e8075be898db
-  r: No evidence of a `data/artifacts/` directory at the repository root is provided;
-    the artifact list is empty, so the required directory has not been shown to exist.
-    The implementer must create the directory and confirm its presence.
+  c: true
+  h: c3581c96367e96e81d07a17526f5cef58caa923fdcd9fa17ddaf071dd4dcd964
+  r: "The `data/artifacts/` directory is present at the repository root (confirmed\
+    \ by the collector\u2019s directory listing with 9 entries) and its existence\
+    \ is verified by the passing unit test `test_data_artifacts_dir_exists` and the\
+    \ setup script log confirming \u201COK: data/artifacts/ exists\u201D."
+  sig: 23594fe8f9169ec33ef8c4b51775967fe4431e7cde5450bea04c435c10d0399c
 T017a:
   c: false
   h: ba95e905208ed9b5d76e0510f1a447e829b58516cf3217196eb8fe05ae0b51f0

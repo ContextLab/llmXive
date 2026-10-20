@@ -72,17 +72,17 @@ ERROR: PyMC not installed. Please install pymc>=5.0.0 from requirements.txt.
 
 - python code/run_full_pipeline.py -> rc=1
 
-2026-10-16 01:08:01,605 - INFO - INITIALIZED: pipeline_start
-2026-10-16 01:08:01,605 - INFO - Starting data pipeline...
-2026-10-16 01:08:01,605 - INFO - Running: Download Recipe1M dataset
-2026-10-16 01:08:01,605 - INFO - Command: python code/data/download.py --dataset recipe1m --output data/raw/
-2026-10-16 01:08:02,119 - ERROR - Failed: Download Recipe1M dataset
-2026-10-16 01:08:02,119 - ERROR - Error: ERROR:__main__:Failed to download Recipe1M: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+2026-10-20 00:57:39,668 - INFO - INITIALIZED: pipeline_start
+2026-10-20 00:57:39,668 - INFO - Starting data pipeline...
+2026-10-20 00:57:39,668 - INFO - Running: Download Recipe1M dataset
+2026-10-20 00:57:39,668 - INFO - Command: python code/data/download.py --dataset recipe1m --output data/raw/
+2026-10-20 00:57:39,993 - ERROR - Failed: Download Recipe1M dataset
+2026-10-20 00:57:39,993 - ERROR - Error: ERROR:__main__:Failed to download Recipe1M: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 INFO:__main__:Saved manifest for recipe1m: FAILED
 ERROR:__main__:Pipeline halted due to: Recipe1M download failed: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-2026-10-16 01:08:02,119 - INFO - FAILED: download
-2026-10-16 01:08:02,120 - INFO - FAILED: pipeline_end
+2026-10-20 00:57:39,994 - INFO - FAILED: download
+2026-10-20 00:57:39,994 - INFO - FAILED: pipeline_end
 
 
 ## Declared deliverables still missing

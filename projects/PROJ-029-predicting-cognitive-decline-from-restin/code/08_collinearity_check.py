@@ -78,7 +78,7 @@ def _write_report(pairs: List[Tuple[str, str, float]], out_path: Path) -> None:
         json.dump(report, f, indent=2, ensure_ascii=False)
 
 
-@log_operation("collinearity_check")
+@log_operation
 def main() -> None:
     """Entry point for the collinearity check."""
     logger = get_logger("collinearity_check")

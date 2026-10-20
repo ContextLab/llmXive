@@ -1,32 +1,32 @@
+"""Root pytest configuration for the tests/ directory.
+
+Registers the custom markers used by the unit, integration and contract
+test suites so that ``pytest`` does not emit PytestUnknownMarkWarning,
+and exposes a small helper that reports the project root so tests can
+locate ``data/`` and ``code/`` regardless of the working directory.
 """
-Pytest configuration and fixtures for the cognitive decline prediction project.
-"""
-import os
-import sys
-import pytest
+
 from pathlib import Path
 
-# Add the project root to the path so we can import code modules
-# assuming this file is at tests/conftest.py
-project_root = Path(__file__).parent.parent
-code_dir = project_root / "code"
+import pytest
 
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
+def pytest_configure(config):
+    """Register custom pytest markers used across the test suites."""
+    config.addinivalue_line(
+        "markers", "unit: fast, isolated unit tests"
+    )
+    config.addinivalue_line(
+        "markers", "integration: tests that exercise multiple pipeline stages"
+    )
+    config.addinivalue_line(
+        "markers", "contract: tests validating artifacts against schema contracts"
+    )
+
 
 @pytest.fixture(scope="session")
-def test_data_dir():
-    """Path to the test data directory."""
-    return project_root / "tests" / "data"
-
-@pytest.fixture(scope="session")
-def output_dir():
-    """Path to temporary output directory for tests."""
-    output = project_root / "tests" / "output"
-    output.mkdir(exist_ok=True)
-    return output
-
-@pytest.fixture
-def temp_output_dir(tmp_path):
-    """Create a temporary directory for test artifacts."""
-    return tmp_path
+def project_root() -> Path:
+    """Return the repository root (the parent of ``tests/``)."""
+    return PROJECT_ROOT

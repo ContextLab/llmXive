@@ -1,12 +1,11 @@
 T001a:
   c: true
-  h: b79975f8a22a580ef89148fa427df57ebd183207bce2085d86bb70562d7cb2a1
-  r: 'The three required directories (`code/`, `data/`, `tests/`) exist and are non-empty,
-    and `data/setup_log.json` contains exactly the required fields: `"status": "SUCCESS"`,
-    a `paths_verified` array listing the three directories, and an ISO8601-formatted
-    timestamp. The other data files'' issues (failed downloads, zeroed metrics) pertain
-    to later tasks, not this directory-structure task.'
-  sig: 7e5bf90f6b4d13a934e4aa2d4db47bdabde0821479c2d4ec5b09b5115262d0b9
+  h: 31007ab7b21d525ef32622a86bb484e99f3c11eac8829be0f5292061fe162442
+  r: "Checked that `projects/PROJ-175-statistical-analysis-of-publicly-availab/code/`,\
+    \ `data/`, and `tests/` directories exist and that `data/setup_log.json` contains\
+    \ a SUCCESS status with the required `paths_verified` list and an ISO\u20118601\
+    \ timestamp."
+  sig: a33b6a935e471061673f0a5f8ef727867798dddbde713a690326d5c8fc5838d3
 T001b:
   c: true
   h: f0435afed2a59144b1f60e02bde1e644a7c4009d41ca3e2a59c72e6482836f64

@@ -1,11 +1,18 @@
 status: none
-intent: OpenNeuro ds000248 ADNI rs-fMRI BIDS dataset download python package dataset
+intent: OpenNeuro ds000246 ADNI rs-fMRI BIDS download AAL atlas python package dataset
 required_fields:
 - subject_id
-- session
-- mmse
-- moca
-- rs_fmri_filepath
-cache_key: 546edb1f223f03353602678b87c4bfa015ae739f541d77e2246a646410326bde
-searched_at: '2026-10-09T01:20:15.796322+00:00'
+- session_id
+- timepoint
+- MMSE_baseline
+- MMSE_followup
+- MOCA_baseline
+- MOCA_followup
+- age
+- sex
+- adjacency_matrix
+- node_degree
+- global_efficiency
+cache_key: e9919450f9bed4434786c631b3ab25ced3b2469581235201847144e1984b1e04
+searched_at: '2026-10-20T00:55:03.536315+00:00'
 retry_count: 1

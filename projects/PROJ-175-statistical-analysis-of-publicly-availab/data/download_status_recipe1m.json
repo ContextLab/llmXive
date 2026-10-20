@@ -2,5 +2,5 @@
   "dataset": "recipe1m",
   "status": "FAILED",
   "error_code": "Recipe1M download failed: pyarrow requires NumPy 2.0 or newer, found 1.26.4",
-  "timestamp": "2026-10-16 01:08:02.043578"
+  "timestamp": "2026-10-20 00:57:39.935592"
 }

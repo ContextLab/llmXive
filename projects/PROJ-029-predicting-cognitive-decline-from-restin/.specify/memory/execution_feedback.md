@@ -41,10 +41,17 @@ TypeError: 'LogEntry' object is not callable
 - python code/08_collinearity_check.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/08_collinearity_check.py", line 81, in <module>
-    @log_operation("collinearity_check")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: 'LogEntry' object is not callable
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/08_collinearity_check.py", line 101, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/logger.py", line 68, in _wrapper
+    return func(*a, **k)
+           ^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/08_collinearity_check.py", line 87, in main
+    df = _load_metrics(INPUT_CSV)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/08_collinearity_check.py", line 42, in _load_metrics
+    raise FileNotFoundError(f"Graph metrics file not found: {csv_path}")
+FileNotFoundError: Graph metrics file not found: data/processed/graph_metrics.csv
 
 - python -m pytest tests/unit/ -> rc=2
 6: in <module>
@@ -66,25 +73,26 @@ ERROR tests/unit/test_security_scan.py
 ERROR tests/unit/test_train_model.py
 ERROR tests/unit/test_validate_quickstart.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 14 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 14 errors in 2.40s ==============================
+============================== 14 errors in 1.16s ==============================
 
 
 - python -m pytest tests/integration/ -> rc=2
-on/test_ci_memory_profiler.py:20: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    @pytest.mark.integration
-
-tests/integration/test_ci_memory_profiler.py:106
-  /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/tests/integration/test_ci_memory_profiler.py:106: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    @pytest.mark.integration
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+rom-restin/tests/integration/test_model_training.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/tests/integration/test_model_training.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/integration/test_model_training.py:14: in <module>
+    from code import _04_train_model as train_mod
+E   ImportError: cannot import name '_04_train_model' from 'code' (/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/__init__.py)
 =========================== short test summary info ============================
 ERROR tests/integration/test_compute_graph_metrics.py
 ERROR tests/integration/test_filtering.py
 ERROR tests/integration/test_graph_metrics_pipeline.py
 ERROR tests/integration/test_model_training.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 2 warnings, 4 errors in 0.62s =========================
+============================== 4 errors in 0.38s ===============================
 
 
 
