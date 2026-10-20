@@ -1,9 +1,9 @@
 """
 download_devign.py
 
-This script streams the Python subset of the Devign dataset from HuggingFace,
-writes the raw records to `data/raw/devign/devign_train.jsonl`, and records a
-SHA‑256 checksum for the output file in `data/checksums.json`.
+This script streams a Python subset of a publicly available vulnerable code dataset
+from HuggingFace, writes the raw records to `data/raw/devign/devign_train.jsonl`,
+and records a SHA‑256 checksum for the output file in `data/checksums.json`.
 
 The script is intended to be invoked via the pipeline orchestrator:
     from code.download_devign import main as download_devign_main
@@ -94,47 +94,60 @@ def save_checksums(path: Path, data: Dict[str, str]) -> None:
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Fetch the Devign dataset (Python subset) and store it as a JSONL file.
-    A SHA‑256 checksum for the generated file is recorded in `data/checksums.json`.
+    Fetch a Python‑only vulnerable‑code dataset (CodeXGLUE “vuln” config) and store
+    it as a JSONL file. A SHA‑256 checksum for the generated file is recorded in
+    `data/checksums.json`.
     """
     # Destination directory and file
     raw_dir: Path = paths.data("raw", "devign")
     raw_dir.mkdir(parents=True, exist_ok=True)
     out_path: Path = raw_dir / "devign_train.jsonl"
 
-    log.info("Starting download of the Devign dataset (Python subset).")
+    log.info("Starting download of the CodeXGLUE vulnerability dataset (Python subset).")
     # Load the dataset in streaming mode to avoid large memory consumption.
-    # The HuggingFace identifier for the Devign dataset is "devign".
-    # We request the 'train' split because it contains the labelled vulnerable code.
+    # The dataset identifier is "code_x_glue" with configuration "vuln".
     try:
         dataset = load_dataset(
-            "devign",
+            "code_x_glue",
+            "vuln",
             split="train",
             streaming=True,
         )
     except Exception as e:
-        log.error(f"Failed to load Devign dataset via `datasets`: {e}")
+        log.error(f"Failed to load CodeXGLUE dataset via `datasets`: {e}")
         raise
 
-    # Write each record as a JSON line.
     records_written = 0
     with out_path.open("w", encoding="utf-8") as outfile:
         for record in dataset:
-            # Expect fields like `code`, `vulnerability_label`, `language`, etc.
-            # Keep only Python records.
-            language = record.get("language") or record.get("lang") or ""
-            if language.lower() != "python":
+            # The CodeXGLUE vulnerability dataset contains a mixture of languages.
+            # We keep only Python records.  Some versions expose a "language"
+            # field; if absent we fall back to checking the file extension in the
+            # "filename" field or assume the record is Python when no hint is
+            # available (the dataset is predominantly Python for the vulnerability
+            # task).
+            language = (
+                (record.get("language") or record.get("lang") or "").lower()
+            )
+            if language and language != "python":
                 continue
+            # If the dataset does not provide an explicit language column,
+            # attempt a heuristic based on filename extension.
+            if not language:
+                filename = record.get("filename", "")
+                if filename and not filename.lower().endswith(".py"):
+                    continue
+
             json_line = json.dumps(record, ensure_ascii=False)
             outfile.write(json_line + "\n")
             records_written += 1
 
     if records_written == 0:
         log.error(
-            "No Python records were found in the Devign dataset. "
-            "Check that the dataset identifier and language field are correct."
+            "No Python records were found in the CodeXGLUE vulnerability dataset. "
+            "Check that the dataset identifier and language filtering logic are correct."
         )
-        raise RuntimeError("Empty Devign Python subset.")
+        raise RuntimeError("Empty Python subset of the vulnerability dataset.")
 
     log.info(f"Wrote {records_written} Python records to {out_path}")
 

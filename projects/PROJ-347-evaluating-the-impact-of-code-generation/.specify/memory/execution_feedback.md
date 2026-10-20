@@ -18,7 +18,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.run_pipeline  --seed 42  --max-pairs 300  --confidence-thresholds 0.45 0.5 0.55 -> rc=1
-uating-the-impact-of-code-generation/lib/python3.11/site-packages/datasets/load.py", line 2592, in load_dataset
+-impact-of-code-generation/lib/python3.11/site-packages/datasets/load.py", line 2592, in load_dataset
     builder_instance = load_dataset_builder(
                        ^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-347-evaluating-the-impact-of-code-generation/lib/python3.11/site-packages/datasets/load.py", line 2264, in load_dataset_builder
@@ -28,7 +28,7 @@ uating-the-impact-of-code-generation/lib/python3.11/site-packages/datasets/load.
     raise e1 from None
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-347-evaluating-the-impact-of-code-generation/lib/python3.11/site-packages/datasets/load.py", line 1855, in dataset_module_factory
     raise DatasetNotFoundError(
-datasets.exceptions.DatasetNotFoundError: Dataset 'devign' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/devign to ask for access.
+datasets.exceptions.DatasetNotFoundError: Dataset 'code_x_glue' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/code_x_glue to ask for access.
 
 
 ## Declared deliverables still missing

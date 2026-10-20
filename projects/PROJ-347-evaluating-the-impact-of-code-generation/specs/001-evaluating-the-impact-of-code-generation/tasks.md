@@ -20,7 +20,7 @@ Unchecked boxes indicate work that still needs to be performed; checked boxes (i
   1. Script finishes without error and creates `data/raw/devign/devign_train.jsonl`.  
   2. A matching checksum entry appears in `data/checksums.json`.  
 
-- [ ] T003 **Filter, retain, and verify OWASP coverage** – keep only rows that (a) contain non‑empty `code`, (b) have a known `vulnerability_label`, and (c) are labelled as Python. Abort with a clear error if fewer than five distinct OWASP Top 10 categories remain. Write the filtered table to `data/processed/human_samples.csv`.  
+- [ ] T003 **Filter, retain, and verify OWASP coverage** – keep only rows that (a) contain non‑empty `code`, (b) have a known `vulnerability_label`, and (c) are labelled as Python. Abort with a clear error if fewer than five distinct OWASP Top 10 categories remain. Write the filtered table to `data/processed/human_samples.csv`.   <!-- FAILED-IN-EXECUTION: src/ingest/filter_devign.py exit=1 -->
   *Path*: `src/ingest/filter_devign.py`  
   *Verification*:  
   1. `human_samples.csv` contains **≥ 300 rows** (meeting the power‑analysis requirement).  

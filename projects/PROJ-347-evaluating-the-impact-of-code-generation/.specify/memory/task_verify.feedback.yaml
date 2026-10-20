@@ -5,6 +5,8 @@ T002:
     exit=1'
   task: dc809164364712d7175e92123509533036f42129abfa9213ec861184072d12ea
 T003:
+  reason: 'Requested task execution failed; rerun successfully: src/ingest/filter_devign.py
+    exit=1'
   task: a9c831cc5e8ececdae0b7e83dd676ec5f3b414a65e6dc1bbcb9b28ac95b661f7
 T004:
   task: 1f506b18724aa3819eb684e914e8ba12ab9cb998092c5f2b8dd5ca341d6eab85
