@@ -1,22 +1,18 @@
 T001:
+  reason: "The quickstart.md file exists and contains the required `--demo` command,\
+    \ but there is no concrete evidence that running `python -m code.main --demo`\
+    \ succeeds (no execution logs) and the expected demo outputs (e.g., `data/raw/mobius_array.npy`\
+    \ and a heat\u2011map figure) are missing. The provided CSV file alone does not\
+    \ prove the command ran without error."
   task: 4820efbf2df2d5aa93ff5ea41263968211b5294df47382b175867c9a50f8215d
 T002:
-  reason: "The `code/sieve.py` implementation and the generated `data/raw/mobius_array.npy`\
-    \ are present and correctly compute and store \u03BC(n) for\u202F1\u202F\u2264\
-    \u202Fn\u202F\u2264\u202F10\u2077, but the supplied unit test file `tests/unit/test_sieve.py`\
-    \ only checks values for n\u202F=\u202F1,\u202F2,\u202F4 and does not include\
-    \ the required checks for \u03BC(30)=\u20111, \u03BC(3025)=0 nor the assertion\
-    \ that every entry lies in\u202F{\u20111,\u202F0,\u202F1}. Consequently the verification\
-    \ step described in the task specification is not satisfied. Adding the missing\
-    \ test cases (and the full\u2011range value\u2011set check) is needed to complete\
-    \ the task."
   task: 30705cd671dc2b489335d5f7c67ba3df67a17b977455fa2f5f837bd54b0a388d
 T003:
-  reason: "The repository contains `pack_mu` and `unpack_mu` implementations and the\
-    \ packed file `data/raw/mobius_2bit.npy` (~2.5\u202FMB) exists, but `tests/unit/test_sieve.py`\
-    \ only tests the M\xF6bius sieve itself and does **not** include any round\u2011\
-    trip pack/unpack tests, nor does `data/checksums/manifest.sha256` list a SHA\u2011\
-    256 checksum for `mobius_2bit.npy`. The required verification steps are missing."
+  reason: "The packing utilities and the 2\u2011bit file exist and the round\u2011\
+    trip tests pass, but the checksum manifest does not contain a valid SHA\u2011\
+    256 entry for `data/raw/mobius_2bit.npy` (the line is a placeholder \u201C#\u201D\
+    ), causing the checksum test to fail. The manifest must be updated with the correct\
+    \ hash (and ideally include the raw file\u2019s checksum) for the task to be complete."
   task: 0b29ad57796f43a4f15f25206a9a3d6b9ab8cad599eda3884e12b16a8f8e16b6
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/window_index.py
@@ -27,10 +23,20 @@ T005:
 T006:
   task: 3b740d21951c824c3fcc4ab0e207addc3a9ce468cbc1a75323d6b89de3d17889
 T007:
+  reason: "The `code/permutation.py` only implements a block\u2011permutation generator\
+    \ and writes an empty CSV header; it does not keep zero positions fixed, does\
+    \ not shuffle only the non\u2011zero signs, does not compute autocorrelations,\
+    \ p\u2011values, or confidence bounds, and does not use the required per\u2011\
+    window seed (`20231017 + window_id`). Consequently `data/processed/autocorrelation_stats.csv`\
+    \ contains no statistical rows and the optional `data/processed/permutation_null.npy`\
+    \ is missing. The provided unit tests check block\u2011shuffling properties, not\
+    \ the required p\u2011value edge\u2011case handling."
   task: 20fc499f7d6952bccaa228dc6e9d43f9be534b05d91c194cafc708b85207b745
 T008:
   task: b4b9cc1fe199ee687c48cd5c19179b3eca7feb5cd67b8b9e7f1a6e60ba3efa70
 T009:
+  reason: 'Requested task execution failed; rerun successfully: code/cross_validate_autocorrelation.py
+    exit=1'
   task: 0cc12337cc2309373a0f829bc246222ae2396cb29c61fdcab33d2d2a88eaaf31
 T010:
   task: e5dddc7795e8515254a9ff93feaece129160bd073245251936fac52576c00a38

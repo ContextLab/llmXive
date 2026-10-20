@@ -1,9 +1,19 @@
 """
-Benjamini‑Hochberg FDR correction for Möbius autocorrelation p‑values.
+fdr_correction.py
+-----------------
+Implements Benjamini–Hochberg false discovery rate (FDR) correction
+for the autocorrelation statistics produced by the pipeline.
 
-The script reads ``data/processed/autocorr_stats.csv``, adds an
-``adjusted_p_value`` column containing the BH‑adjusted p‑values,
-overwrites the original CSV, and prints a short status line.
+The script reads ``data/processed/autocorrelation_stats.csv``,
+computes BH‑adjusted p‑values from the raw ``p_value`` column,
+adds a new column ``adjusted_p_value`` and overwrites the CSV.
+It works even when the input CSV contains only the header (no data
+rows) – in that case only the header (with the new column) is
+written back.
+
+The implementation follows the specification in the project
+plan: ``statsmodels.stats.multitest.multipletests`` with
+``alpha=0.05`` and the ``fdr_bh`` method.
 """
 
 from __future__ import annotations
@@ -11,13 +21,15 @@ from __future__ import annotations
 import pathlib
 import sys
 
-import numpy as np
 import pandas as pd
+from statsmodels.stats.multitest import multipletests
 
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-INPUT_CSV = pathlib.Path("data/processed/autocorr_stats.csv")
+INPUT_CSV = pathlib.Path("data/processed/autocorrelation_stats.csv")
+ALPHA = 0.05
+
 # ----------------------------------------------------------------------
 
 
@@ -26,80 +38,69 @@ def _ensure_parent_dir(p: pathlib.Path) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
 
 
-def _benjamini_hochberg(pvals: np.ndarray) -> np.ndarray:
+def _read_stats(csv_path: pathlib.Path) -> pd.DataFrame:
+    """Read the statistics CSV, returning a DataFrame (may be empty)."""
+    if not csv_path.is_file():
+        raise FileNotFoundError(f"Stats CSV not found: {csv_path}")
+    # ``dtype`` is left to pandas default – it will infer types.
+    return pd.read_csv(csv_path)
+
+
+def _write_stats(df: pd.DataFrame, csv_path: pathlib.Path) -> None:
+    """Write the DataFrame back to CSV, preserving column order."""
+    _ensure_parent_dir(csv_path)
+    df.to_csv(csv_path, index=False, float_format="%.12g")
+
+
+def _apply_bh_correction(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Perform the Benjamini–Hochberg FDR correction.
+    Apply Benjamini–Hochberg FDR correction to the ``p_value`` column.
 
-    Parameters
-    ----------
-    pvals : np.ndarray
-        1‑D array of original p‑values (assumed to be in the interval [0, 1]).
-
-    Returns
-    -------
-    np.ndarray
-        Adjusted p‑values, same shape as ``pvals``.  Values are capped at
-        1.0 and are monotonic non‑decreasing when traversed in the
-        original order.
+    The function adds a new column ``adjusted_p_value`` to the
+    DataFrame.  If the DataFrame has no rows, a column header is still
+    added.
     """
-    if pvals.ndim != 1:
-        raise ValueError("pvals must be a 1‑D array")
+    if "p_value" not in df.columns:
+        raise KeyError("Input CSV must contain a 'p_value' column.")
 
-    n = len(pvals)
-    if n == 0:
-        return np.array([], dtype=float)
+    # When there are no data rows we simply add an empty column.
+    if df.empty:
+        df["adjusted_p_value"] = pd.Series(dtype="float64")
+        return df
 
-    order = np.argsort(pvals)
-    sorted_p = pvals[order]
+    # Extract raw p‑values as a NumPy array.
+    raw_pvals = df["p_value"].to_numpy()
 
-    # Compute the BH adjusted values: p'_i = p_{(i)} * (n / i)
-    # np.arange(1, n + 1) provides the ranks i
-    adjusted = sorted_p * (n / np.arange(1, n + 1))
+    # ``multipletests`` returns (reject, pvals_corrected, _, _)
+    _, adj_pvals, _, _ = multipletests(
+        raw_pvals,
+        alpha=ALPHA,
+        method="fdr_bh",
+    )
+    # Ensure the adjusted p‑values are capped at 1.0 (the function
+    # already does this, but we enforce it for safety).
+    adj_pvals = adj_pvals.clip(upper=1.0)
 
-    # Ensure monotonicity (step‑up procedure): p'_i = min(p'_{i+1}, p'_i)
-    for i in range(n - 2, -1, -1):
-        if adjusted[i] > adjusted[i + 1]:
-            adjusted[i] = adjusted[i + 1]
-
-    adjusted = np.minimum(adjusted, 1.0)
-
-    # Return to original order.
-    inv_order = np.empty_like(order)
-    inv_order[order] = np.arange(n)
-    return adjusted[inv_order]
+    df["adjusted_p_value"] = adj_pvals
+    return df
 
 
 def main() -> None:
-    """Read the stats CSV, add BH‑adjusted p‑values, and overwrite."""
-    if not INPUT_CSV.is_file():
-        # Fail loudly as required by core constraints
-        raise FileNotFoundError(f"Required CSV not found: {INPUT_CSV}")
+    """
+    Entry point for the pipeline stage.
 
+    Reads the stats CSV, adds BH‑adjusted p‑values, and overwrites the
+    file.  Any exception is printed to ``stderr`` and re‑raised so
+    that the orchestrator can abort the pipeline if necessary.
+    """
     try:
-        df = pd.read_csv(INPUT_CSV)
-    except Exception as exc:
-        raise RuntimeError(f"Failed to read CSV {INPUT_CSV}: {exc}") from exc
-
-    if "p_value" not in df.columns:
-        raise KeyError("Column 'p_value' not found in input CSV.")
-
-    # Extract p-values, handling NaNs by treating them as 1.0 or preserving them.
-    # BH typically operates on valid p-values. We convert to float64.
-    pvals = df["p_value"].to_numpy(dtype=float)
-    
-    # Handle NaNs: BH correction usually ignores them or treats them as 1.
-    # To maintain array shape, we'll compute BH on non-NaNs and map back.
-    mask = ~np.isnan(pvals)
-    adjusted = np.full(pvals.shape, np.nan, dtype=float)
-    
-    if np.any(mask):
-        adjusted[mask] = _benjamini_hochberg(pvals[mask])
-
-    df["adjusted_p_value"] = adjusted
-    _ensure_parent_dir(INPUT_CSV)
-    df.to_csv(INPUT_CSV, index=False)
-
-    print(f"[INFO] Added 'adjusted_p_value' to {INPUT_CSV} (rows={len(df)})")
+        df = _read_stats(INPUT_CSV)
+        df = _apply_bh_correction(df)
+        _write_stats(df, INPUT_CSV)
+        print(f"BH FDR correction applied; updated file written to {INPUT_CSV}")
+    except Exception as exc:  # pragma: no cover – defensive
+        print(f"[ERROR] FDR correction failed: {exc}", file=sys.stderr)
+        raise
 
 
 if __name__ == "__main__":

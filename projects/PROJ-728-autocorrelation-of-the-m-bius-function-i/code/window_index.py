@@ -7,8 +7,9 @@ Möbius autocorrelation pipeline.
 For each interval length L in {1000, 10000, 100000} we create exactly
 100 windows.  Windows are placed on a contiguous tiling with step L,
 starting from a random offset drawn from a fixed seed (20231017).
-The resulting CSV is written to ``data/processed/window_index.csv`` with
-columns:
+The offset is chosen so that the required number of windows always
+fits inside the maximum index N (default 10 000 000).  The resulting
+CSV is written to ``data/processed/window_index.csv`` with columns:
 
     interval_start,interval_length,window_id
 
@@ -17,8 +18,8 @@ Möbius array that contains a dummy zero at position 0), ``interval_length``
 is L, and ``window_id`` runs from 0 to 99 within each L.
 
 The script aborts loudly if the generated windows would overlap or exceed
-the maximum index N (default 10 000 000).  A small unit test is provided
-in ``tests/unit/test_window_index.py`` to verify the line count (300) and
+the maximum index N.  A small unit test is provided in
+``tests/unit/test_window_index.py`` to verify the line count (300) and
 the non‑overlap property.
 """
 
@@ -59,9 +60,9 @@ def _generate_windows_for_length(
     interval length ``L`` using a tiled layout.
 
     The tiling is ``offset + k*L`` for k = 0, 1, … .  ``offset`` is a
-    random integer in ``[0, L-1]`` drawn from ``rng``.  The function
-    returns the first ``windows_per_L`` starts that fit completely inside
-    ``[1, N]`` (the Möbius array is 1‑based, index 0 is unused).
+    deterministic random integer chosen so that the required number of
+    windows fits completely inside ``[1, N]`` (the Möbius array is
+    1‑based, index 0 is unused).
 
     Parameters
     ----------
@@ -82,17 +83,25 @@ def _generate_windows_for_length(
     if L > N:
         raise ValueError(f"Interval length L={L} exceeds N={N}")
 
-    # Random offset in [0, L-1]
-    offset = int(rng.integers(0, L))
-    # First possible start (1‑based)
-    first_start = 1 + offset
-    # Compute the maximum k such that start + L - 1 <= N
-    max_k = (N - L - offset) // L
-    if max_k + 1 < windows_per_L:
+    # The largest possible offset that still allows ``windows_per_L``
+    # windows is ``max_offset = N - windows_per_L * L``.
+    # If this value is negative we cannot fit the required number of
+    # windows for the given ``L``.
+    max_offset = N - windows_per_L * L
+    if max_offset < 0:
         raise RuntimeError(
             f"Not enough room to place {windows_per_L} non‑overlapping windows "
-            f"of length {L} within N={N} (max_k={max_k})."
+            f"of length {L} within N={N}."
         )
+
+    # Choose a deterministic offset in the allowed range.
+    offset = int(rng.integers(0, max_offset + 1))
+
+    # First possible start (1‑based)
+    first_start = 1 + offset
+
+    # Generate the required starts; they are guaranteed to fit because
+    # ``first_start + (windows_per_L-1)*L + L - 1 <= N``.
     starts = [
         first_start + k * L
         for k in range(windows_per_L)

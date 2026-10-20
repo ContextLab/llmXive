@@ -40,7 +40,6 @@ from sensitivity import main as sensitivity_main
 from viz import main as viz_main
 from uniformity_test import main as uniformity_main
 
-
 def _run_step(step_func, step_name: str) -> None:
     """Execute a pipeline step and abort on failure.
 
@@ -57,7 +56,6 @@ def _run_step(step_func, step_name: str) -> None:
         print(f"[ERROR] Step '{step_name}' failed: {exc}", file=sys.stderr)
         raise
 
-
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run the Möbius autocorrelation pipeline."
@@ -68,7 +66,6 @@ def _parse_args() -> argparse.Namespace:
         help="Run a quick demo (reduced data size).",
     )
     return parser.parse_args()
-
 
 def _run_demo() -> None:
     """
@@ -90,7 +87,6 @@ def _run_demo() -> None:
     # ``autocorrelation.main`` entry‑point that writes the CSV).
     _run_step(autocorr_main, "demo: compute autocorrelation")
     print("Demo pipeline completed successfully.")
-
 
 def main() -> None:
     """Run the pipeline in the correct order."""
@@ -125,7 +121,6 @@ def main() -> None:
     _run_step(uniformity_main, "KS uniformity test")
 
     print("Pipeline completed successfully.")
-
 
 if __name__ == "__main__":
     main()

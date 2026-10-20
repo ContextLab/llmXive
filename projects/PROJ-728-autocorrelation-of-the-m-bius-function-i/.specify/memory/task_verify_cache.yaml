@@ -1,29 +1,56 @@
 T001:
-  c: true
-  h: df6620ed96a450e3ae36c2c0b95ae591eed3e0bb6666f0ba662324522dd6d97d
-  r: Checked `quickstart.md` (contains the `--demo` command and required documentation)
-    and the presence of the demo output file `data/results/demo_autocorr.csv`, indicating
-    the demo runs successfully and produces expected results.
-  sig: 6e1c54d4354ce9b0721b920640e813178919a4049099b3a4e2f466f4ad9271a6
-T002:
   c: false
-  h: 7665dcaa62a7e64503b9f2596c84210549e834388fa664834f62eb37ba0cffc4
-  r: "The `code/sieve.py` implementation and the generated `data/raw/mobius_array.npy`\
-    \ are present and correctly compute and store \u03BC(n) for\u202F1\u202F\u2264\
-    \u202Fn\u202F\u2264\u202F10\u2077, but the supplied unit test file `tests/unit/test_sieve.py`\
-    \ only checks values for n\u202F=\u202F1,\u202F2,\u202F4 and does not include\
-    \ the required checks for \u03BC(30)=\u20111, \u03BC(3025)=0 nor the assertion\
-    \ that every entry lies in\u202F{\u20111,\u202F0,\u202F1}. Consequently the verification\
-    \ step described in the task specification is not satisfied. Adding the missing\
-    \ test cases (and the full\u2011range value\u2011set check) is needed to complete\
-    \ the task."
-  sig: b20b568758aec588f59fcf413ab317858c963dd224f7ec53b27beb6637fd8fe9
+  h: eafd67fa10926829870375683b6739839f6a4aac03b69e569c81e3f7c1ccce38
+  r: "The quickstart.md file exists and contains the required `--demo` command, but\
+    \ there is no concrete evidence that running `python -m code.main --demo` succeeds\
+    \ (no execution logs) and the expected demo outputs (e.g., `data/raw/mobius_array.npy`\
+    \ and a heat\u2011map figure) are missing. The provided CSV file alone does not\
+    \ prove the command ran without error."
+  sig: efe5f92496cdca08b1e29e486e333611f2824cc407ba0151ddcb4dbb1b94b005
+T002:
+  c: true
+  h: 92b80ede562dce516b4299b4ecf3405f0083b71b13d5f115d818d8d5219c16ce
+  r: "Checked `code/sieve.py` (implements a linear\u2011time M\xF6bius sieve and writes\
+    \ the int8 array), the generated `data/raw/mobius_array.npy` (contains a (10\u202F\
+    000\u202F001,) int8 array covering 1\u202F\u2264\u202Fn\u202F\u2264\u202F10\u2077\
+    ), and the pytest run (`tests/unit/test_sieve.py`) which passed all checks for\
+    \ known values and the ternary value set."
+  sig: 1a553f333e591c291190eec11e130c00e1cd6b8169361f6de1ff46b2882ef63f
 T003:
   c: false
-  h: 07ec1ed2738dd52d76fae40097521fc2f8d11be86a15a832909d8e2e1187c2ab
-  r: "The repository contains `pack_mu` and `unpack_mu` implementations and the packed\
-    \ file `data/raw/mobius_2bit.npy` (~2.5\u202FMB) exists, but `tests/unit/test_sieve.py`\
-    \ only tests the M\xF6bius sieve itself and does **not** include any round\u2011\
-    trip pack/unpack tests, nor does `data/checksums/manifest.sha256` list a SHA\u2011\
-    256 checksum for `mobius_2bit.npy`. The required verification steps are missing."
-  sig: f778a55e71148af80913f54cccfa6567ce37e409de6ee5841850a1b653acd379
+  h: 1ea94090c3f062e7c1fe62c4d160527af126e32e0c4ada374d51feac9bb44f33
+  r: "The packing utilities and the 2\u2011bit file exist and the round\u2011trip\
+    \ tests pass, but the checksum manifest does not contain a valid SHA\u2011256\
+    \ entry for `data/raw/mobius_2bit.npy` (the line is a placeholder \u201C#\u201D\
+    ), causing the checksum test to fail. The manifest must be updated with the correct\
+    \ hash (and ideally include the raw file\u2019s checksum) for the task to be complete."
+  sig: 8bbd59bb9da3a2683f0adf14ec96293ddc44dd781b4edca1aeb294b5b4cd8572
+T005:
+  c: true
+  h: 059836bdf63fd50854daa19221ddfc6cd733b12bacbb1cc17f909bc9d92c29cf
+  r: "Checked `data/processed/demo_autocorr.csv` (contains a single row with the autocorrelation\
+    \ value `-0.047047047047` to 12 decimal places) and the execution log `code/.tasks/T005.code_autocorrelation.py.log`\
+    \ confirming the script ran without error and verified the value against the hand\u2011\
+    computed reference within the required tolerance."
+  sig: 9c19b9d40f288681ed52ce92d330871aae1540fafcbed36a04e5ec78b386d443
+T006:
+  c: true
+  h: 52626c3dfc4e55bb3f69d105476714b3396b00a517cd1a2855b693da7153e44b
+  r: "The `code/autocorrelation.py` script implements an FFT\u2011based convolution\
+    \ (`_compute_autocorrelation_all_fft`) that returns float64 autocorrelations for\
+    \ all lags\u202F1\u202F\u2026\u202F\u230AL/2\u230B, iterates over every entry\
+    \ of `data/processed/window_index.csv`, and writes the required columns to `data/processed/autocorrelation_raw.csv`,\
+    \ which exists and contains the correct header and data."
+  sig: 4b62ec4e7fc556bac1854983829df54e3612be54aa2efbccf1029265d0d78415
+T007:
+  c: false
+  h: 7d5182e605988ab00aa8fdcf62725375ed9830ea26fd7f04cda582d165e8009c
+  r: "The `code/permutation.py` only implements a block\u2011permutation generator\
+    \ and writes an empty CSV header; it does not keep zero positions fixed, does\
+    \ not shuffle only the non\u2011zero signs, does not compute autocorrelations,\
+    \ p\u2011values, or confidence bounds, and does not use the required per\u2011\
+    window seed (`20231017 + window_id`). Consequently `data/processed/autocorrelation_stats.csv`\
+    \ contains no statistical rows and the optional `data/processed/permutation_null.npy`\
+    \ is missing. The provided unit tests check block\u2011shuffling properties, not\
+    \ the required p\u2011value edge\u2011case handling."
+  sig: 626678b513c6499806ff6f9fc80c83f7379ca45b942ce2bce40b9dca99a71485
