@@ -1,13 +1,15 @@
 status: none
-intent: download NIST Corrosion Database alloy composition environmental metadata
-  corrosion potential python package dataset
+intent: download NIST Corrosion Database NIST-IR-8200 alloy composition environmental
+  metadata corrosion potential python package dataset
 required_fields:
-- alloy_id
+- alloy_designation
 - specific_alloy_designation
 - elemental_weight_fractions
-- environment_ph
+- environment_pH
 - environment_temperature
 - corrosion_potential
-cache_key: a5c799f74cc0e7d2edfca3d0d5f817bc203e649aa86ef60814f05df1d552366f
-searched_at: '2026-10-06T20:37:39.743911+00:00'
+- metal
+- record_id
+cache_key: 3dc27a9c5e014e2124e3b052ebf6ba90ca54a8c193d115057bcddf52b6073ef2
+searched_at: '2026-10-20T19:26:00.341522+00:00'
 retry_count: 1
