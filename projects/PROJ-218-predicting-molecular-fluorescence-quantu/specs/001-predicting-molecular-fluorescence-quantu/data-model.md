@@ -38,11 +38,10 @@ properties:
   metadata:
     type: object
     additionalProperties: true
-    description: "Optional fields such as solvent, temperature, measurement method."
+    description: "Optional fields such as solvent, temperature, measurement method (used as covariates in modeling)."
 ```
 
 *Only this schema is currently present in the `contracts/` directory, matching the plan’s contract references.*
 
----
 
 

@@ -20,20 +20,9 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1234/fluorDB
   verified_at: '2026-10-16T14:37:52.290444Z'
-- artifact_hash: f39066ccf363c39e191d9e4fdc4475c2f2c047f5534df93d47c4298442452cc1
+- artifact_hash: d2c8ac44f5a14dae2cf8c1f57a9961449be74483ec8215d58df122468aa648fe
   artifact_path: projects/PROJ-218-predicting-molecular-fluorescence-quantu/specs/001-predicting-molecular-fluorescence-quantu/plan.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/fluordb/v1`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/fluordb/v1
-  verified_at: '2026-10-16T14:55:58.573539Z'
-- artifact_hash: f39066ccf363c39e191d9e4fdc4475c2f2c047f5534df93d47c4298442452cc1
-  artifact_path: projects/PROJ-218-predicting-molecular-fluorescence-quantu/specs/001-predicting-molecular-fluorescence-quantu/plan.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -41,8 +30,8 @@
   value: https://huggingface.co/datasets/fluordb/v1
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/fluordb/v1
-  verified_at: '2026-10-16T14:55:58.573539Z'
-- artifact_hash: 71d4110fff5c35196bed2c23cc19bb7bb41c914dfeef43ac72649e3e3eda3d92
+  verified_at: '2026-10-20T09:54:39.561266Z'
+- artifact_hash: ff145acbf4f654938fb723efb883f5762ce2b6e8e22b9dd38fd5217a5d47b8a3
   artifact_path: projects/PROJ-218-predicting-molecular-fluorescence-quantu/specs/001-predicting-molecular-fluorescence-quantu/research.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +41,8 @@
   value: https://huggingface.co/datasets/fluordb/v1**
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/fluordb/v1**
-  verified_at: '2026-10-16T14:56:19.754230Z'
-- artifact_hash: 71d4110fff5c35196bed2c23cc19bb7bb41c914dfeef43ac72649e3e3eda3d92
+  verified_at: '2026-10-20T09:54:55.074179Z'
+- artifact_hash: ff145acbf4f654938fb723efb883f5762ce2b6e8e22b9dd38fd5217a5d47b8a3
   artifact_path: projects/PROJ-218-predicting-molecular-fluorescence-quantu/specs/001-predicting-molecular-fluorescence-quantu/research.md
   cite_id: c-002
   cited_authors: []
@@ -62,9 +51,9 @@
   kind: url
   value: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-ecfp4/resolve/main/data/test-00000-of-00001.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67f935a1f3f6e23f504be1de/99977b64f8b851c1a3084b305ea1510f1544169481fd1f9f688b4301845b28d7?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&xip=KUtcNATFjfE&X-Xet-Cas-Uid=public&user_id=public&Expires=1792166179&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmOTM1YTFmM2Y2ZTIzZjUwNGJlMWRlLzk5OTc3YjY0ZjhiODUxYzFhMzA4NGIzMDVlYTE1MTBmMTU0NDE2OTQ4MWZkMWY5ZjY4OGI0MzAxODQ1YjI4ZDdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnhpcD1LVXRjTkFURmpmRSZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMTY2MTc5fX19XX0_&Signature=MEUCIGYvTVZWAwdlssXj1y9L1SBMG3I2FUiVS0Bg9hdeJ9WxAiEAwT0AewvgWT8giwwkyv86JMp8B3qRNkYq-opBwd33yBY_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-16T14:56:19.754230Z'
-- artifact_hash: d3f2032925dee2c83d401ba4b57d7f2ec9a14e029c4b07bafd5fb8dc4ec48bb3
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67f935a1f3f6e23f504be1de/99977b64f8b851c1a3084b305ea1510f1544169481fd1f9f688b4301845b28d7?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&xip=oNMVfMn7ytg&Expires=1792493695&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmOTM1YTFmM2Y2ZTIzZjUwNGJlMWRlLzk5OTc3YjY0ZjhiODUxYzFhMzA4NGIzMDVlYTE1MTBmMTU0NDE2OTQ4MWZkMWY5ZjY4OGI0MzAxODQ1YjI4ZDdcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnhpcD1vTk1WZk1uN3l0ZyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyNDkzNjk1fX19XX0_&Signature=MEYCIQDfq5jAcIIAe9ymk063V-L6M%7EcaZIrvToOs61HD1-JCQwIhAP4xOvsf6%7EN8Y14PvXmr5dygqnBxtz0KjoEKNmpkqvPq&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-20T09:54:55.074179Z'
+- artifact_hash: d940b5854739cd3a4263a67bf8c3e544ac8467b944668a9c5d7464430844276d
   artifact_path: projects/PROJ-218-predicting-molecular-fluorescence-quantu/specs/001-predicting-molecular-fluorescence-quantu/data-model.md
   cite_id: c-001
   cited_authors: []
@@ -74,8 +63,8 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-10-16T14:56:37.407026Z'
-- artifact_hash: 3c69134fbb701445fcd928e7c499b1b8a534b6f83e7acc8f8656b59480e02628
+  verified_at: '2026-10-20T09:55:21.248153Z'
+- artifact_hash: c5a51712608be4a25187ed58bc01679e422b986ae69508a0099da6d3370c1ce9
   artifact_path: projects/PROJ-218-predicting-molecular-fluorescence-quantu/specs/001-predicting-molecular-fluorescence-quantu/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -85,4 +74,4 @@
   value: https://huggingface.co/datasets/fluordb/v1/resolve/main/fluordb.parquet
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/fluordb/v1/resolve/main/fluordb.parquet
-  verified_at: '2026-10-16T14:56:44.871548Z'
+  verified_at: '2026-10-20T09:55:27.375090Z'
