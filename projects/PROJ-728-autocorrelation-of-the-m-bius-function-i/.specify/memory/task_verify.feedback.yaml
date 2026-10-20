@@ -1,40 +1,37 @@
 T001:
-  reason: "The quickstart.md file exists and contains the required `--demo` command,\
-    \ and the demo run logged successful execution, but the expected demo artifact\
-    \ `data/mobius_array.npy` is not present in the provided evidence (its existence\
-    \ is marked as an unresolved claim). The task requires that the command runs without\
-    \ error **and** produces all listed demo files, so the missing M\xF6bius array\
-    \ file makes the implementation incomplete."
   task: 4820efbf2df2d5aa93ff5ea41263968211b5294df47382b175867c9a50f8215d
 T002:
-  reason: "I checked `code/sieve.py` (which implements a linear\u2011time M\xF6bius\
-    \ sieve and writes `data/raw/mobius_array.npy`) and the unit\u2011test file `tests/unit/test_sieve.py`.\
-    \ The raw array file exists and has the correct shape for N\u202F=\u202F10\u2077\
-    , and the sieve code appears correct for the known test values. However, the tests\
-    \ also require the packed file `data/raw/mobius_2bit.npy` and a checksum manifest\
-    \ `data/checksums/manifest.sha256`; neither of these artifacts appears in the\
-    \ collected evidence. Without those files the packing\u2011round\u2011trip and\
-    \ checksum tests will fail, so the task is not fully satisfied. The mis"
   task: 30705cd671dc2b489335d5f7c67ba3df67a17b977455fa2f5f837bd54b0a388d
 T003:
   reason: 'Requested task execution failed; rerun successfully: data/checksums/manifest.sha256
     exit=-1'
   task: 0b29ad57796f43a4f15f25206a9a3d6b9ab8cad599eda3884e12b16a8f8e16b6
 T004:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/window_index.csv'
   task: 18744b444dbae16c030d57e9889926fbe5000c63dd967d806adbb544b5b6c241
 T005:
+  reason: "The required artifact `data/processed/demo_autocorr.csv` is MISSING on\
+    \ disk (the collector confirms it does not exist), and there is no execution evidence\
+    \ that `code/autocorrelation.py` was ever run. The script exists and looks capable\
+    \ of producing the CSV, but the task requires the actual output file with a single\
+    \ row at \u22656 decimal places matching a hand-computed reference within 1e-9\
+    \ \u2014 the hard-coded `REFERENCE_DEMO_AUTOCORR = -0.047047047047` is also unverified\
+    \ against any independent computation or underlying data. The implementer must\
+    \ execute the script (with the M\xF6bius array and window-s"
   task: 5d603a18f34ea2abc8a5586e9342b75ac2ea231b47ad5a9bae30982f7a892529
 T006:
+  reason: "The required output artifact `data/processed/autocorrelation_raw.csv` is\
+    \ MISSING \u2014 the collector confirms it does not exist, so there is no evidence\
+    \ the script was ever run or produced the required rows (`interval_start, interval_length,\
+    \ lag, autocorrelation`). While `code/autocorrelation.py` contains a plausible\
+    \ FFT-based implementation for lags 1\u2026\u230AL/2\u230B, the task requires\
+    \ the computed buffer file, not just the code; the implementer must execute the\
+    \ script (with `data/raw/mobius_array.npy` and `data/processed/window_index.csv`\
+    \ present) and verify the CSV is written with all 300 windows' lags."
   task: 3b740d21951c824c3fcc4ab0e207addc3a9ce468cbc1a75323d6b89de3d17889
 T007:
-  reason: "The recorded test run for `tests/unit/test_permutation.py` exited 1 (both\
-    \ tests errored on the missing `data/raw/mobius_array.npy`), so the required verification\
-    \ \u2014 including the mandated edge-case exercise of the p-value clamping (`p<0.001\u2192\
-    0.001`, `p>0.999\u21920.999`) \u2014 never actually passed; the test file only\
-    \ covers the legacy block-permutation mode and contains no test of the zero-preserving\
-    \ permutation engine, the p-value formula, or the clamping at all. Additionally,\
-    \ `data/processed/autocorrelation_stats.csv` fills `adjusted_p_value` with a constant\
-    \ placeholder 0.5 (not a Benjamini-Hochberg a"
+  reason: 'Requested task execution failed; rerun successfully: code/permutation.py
+    exit=1'
   task: 20fc499f7d6952bccaa228dc6e9d43f9be534b05d91c194cafc708b85207b745
 T008:
   reason: "The evidence does not include an `autocorrelation_stats.csv` file with\

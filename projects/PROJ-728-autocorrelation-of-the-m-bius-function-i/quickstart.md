@@ -23,9 +23,9 @@ python -m code.main --demo
 
 ### Expected Demo Artefacts
 The demo command produces the following files:
-- `data/mobius_array.npy` – A small Möbius sequence ($N=2000$) stored as an `int8` NumPy array. [UNRESOLVED-CLAIM: c_f7ddfa7a — status=not_enough_info]
+- `data/mobius_array.npy` – A small Möbius sequence ($N=2000$) stored as an `int8` NumPy array.
 - `data/window_starts.json` – A JSON file containing one window start index for each interval length.
-- `data/processed/demo_autocorr.csv` – A CSV containing the normalized autocorrelation for the first sampled window ($L=1000, h=1$). [UNRESOLVED-CLAIM: c_f371ec6c — status=not_enough_info]
+- `data/processed/demo_autocorr.csv` – A CSV containing the normalized autocorrelation for the first sampled window ($L=1000, h=1$).
 - `figures/heatmap_demo.png` – A PNG heat-map visualizing the demo result.
 
 You can verify their existence with:

@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-20T05:23:34Z",
+  "updated_at": "2026-10-20T06:21:30Z",
   "project_id": "PROJ-728-autocorrelation-of-the-m-bius-function-i",
-  "replan_rounds": 1
+  "replan_rounds": 2
 }

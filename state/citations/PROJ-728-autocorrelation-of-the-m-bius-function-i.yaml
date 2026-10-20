@@ -45,7 +45,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/autocorr-mobius
   verified_at: '2026-10-17T20:43:03.717465Z'
-- artifact_hash: cbccc56478186b06f1a691b8690d6af7fed1287aad5112ca665be3ba6dd4d597
+- artifact_hash: 2d4ba27fb9b3e5484f19c399f70858b077172b5be4967c81f5f65ea929288a1e
   artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/specs/001-autocorrelation-of-the-m-bius-function-i/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -55,4 +55,4 @@
   value: 10.5281/zenodo.XXXXX
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXX
-  verified_at: '2026-10-20T05:35:37.112901Z'
+  verified_at: '2026-10-20T06:19:09.643244Z'

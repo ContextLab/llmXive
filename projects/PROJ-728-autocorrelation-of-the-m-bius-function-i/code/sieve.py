@@ -70,8 +70,6 @@ def compute_mobius(N: int) -> np.ndarray:
 # ----------------------------------------------------------------------
 # 2‑bit packing utilities
 # ----------------------------------------------------------------------
-_ENCODE_MAP = np.array([0, 1, 2], dtype=np.uint8)  # index: 0→0, 1→1, 2→-1
-
 def _encode_mu(mu: np.ndarray) -> np.ndarray:
     """Encode μ values (‑1, 0, 1) into 2‑bit codes (2, 0, 1)."""
     # ``mu`` is int8; map -1→2, 0→0, 1→1
@@ -146,7 +144,6 @@ def unpack_mu(packed: np.ndarray, original_length: int) -> np.ndarray:
     if packed.dtype != np.uint8:
         raise ValueError("packed must have dtype uint8")
     # Extract the 2‑bit fields
-    # Create an array of shape (n_bytes, 4) with the codes
     codes = np.empty((packed.size, 4), dtype=np.uint8)
     codes[:, 0] = packed & 0b11
     codes[:, 1] = (packed >> 2) & 0b11
@@ -193,7 +190,7 @@ def save_mobius_array(
     print(f"Saved packed Möbius array ({packed.nbytes} bytes) to {packed_path}")
 
     # After saving, update checksum manifest
-    from code.update_mobius_checksum import main as update_checksum
+    from code.checksum import main as update_checksum
     update_checksum()
 
 # ----------------------------------------------------------------------
@@ -229,15 +226,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 def main(argv: list[str] | None = None) -> None:
-    """Entry point for the module.
-
-    The script always generates the arrays; the ``--generate`` flag is kept
-    for backward compatibility.
-    """
+    """Entry point for the module."""
     parser = _build_arg_parser()
     args = parser.parse_args(argv)
 
-    # Always generate; the flag is retained only for compatibility.
     save_mobius_array(
         N=args.max,
         output_path=args.output,
