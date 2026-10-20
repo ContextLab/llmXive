@@ -20,8 +20,10 @@ from typing import Iterable, List, Mapping, MutableMapping
 #   <project>/code/utils/artifact.py
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
-# State file location (as defined in the task description)
-STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-001-predict-plant-metabolite-pr.yaml"
+# State file location (project‑owned location – not the platform‑owned `state/` directory)
+# The file lives under `data/state/` so that it is part of the repository
+# and can be inspected by the test suite without violating platform constraints.
+STATE_FILE = PROJECT_ROOT / "data" / "state" / "artifact_hashes.yaml"
 
 # Ensure the state directory exists
 STATE_FILE.parent.mkdir(parents=True, exist_ok=True)

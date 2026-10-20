@@ -8,20 +8,30 @@ This module provides three public functions required by task **T007**:
    ``pandas.DataFrame`` with BGC count statistics per species.
 
 2. ``parse_antismash_json`` – parses a single antiSMASH JSON file and
-   returns a dictionary mapping BGC types to their counts for that genome.
+   returns a dictionary mapping BGC types to their counts.
 
 3. ``map_bgc_to_mibig`` – maps a raw antiSMASH BGC type string to the
    corresponding MIBiG ontology class.  Unknown types are mapped to the
    literal ``'unknown'``.
 
-The module can also be used as a small CLI utility for quick testing:
-``python code/data/antismash.py --genome <FASTA> --species <NAME>`` will
-produce ``bgc_presence.csv`` and ``bgc_counts.csv`` under
-``data/processed/``.
+The module also supports a **CI mode** (environment variable ``CI_MODE=1``)
+where Docker is unavailable.  In that case a mock JSON file located at
+``data/raw/mock_anti_smash.json`` is used instead of invoking Docker.  This
+allows the test suite to run without requiring a Docker installation while
+still exercising the full parsing and mapping logic on real‑style data.
+
+When executed as a script, the module writes two CSV files under
+``data/processed/``:
+  * ``bgc_presence.csv`` – binary presence/absence matrix, aggregated by
+    MIBiG metabolite class.
+  * ``bgc_counts.csv``   – raw BGC count matrix, aggregated by MIBiG class.
+
+Unmapped BGC types are labelled ``'unknown'``.
 """
 
 import json
 import logging
+import os
 import subprocess
 from pathlib import Path
 from typing import Dict, Iterable, List, Mapping
@@ -45,7 +55,6 @@ _BGC_TYPE_TO_MIBIG: Mapping[str, str] = {
     "saccharide": "saccharide",
     "ribosomally_synthesized_and_post-translationally_modified_peptide": "RiPP",
     "lanthipeptide": "lanthipeptide",
-    "lantipeptide": "lanthipeptide",
     "tRNA-dependent": "tRNA-dependent",
     # Add more mappings as needed.
 }
@@ -77,6 +86,22 @@ def _run_docker_antismash(genome_path: Path, output_dir: Path) -> Path:
         If Docker is not available or the antiSMASH container exits
         with a non‑zero status.
     """
+    # ------------------------------------------------------------------
+    # CI mode – use a mock JSON file instead of Docker.
+    # ------------------------------------------------------------------
+    ci_mode = os.getenv("CI_MODE", "0").lower() in {"1", "true", "yes"}
+    if ci_mode:
+        mock_json = Path("data/raw/mock_anti_smash.json")
+        if not mock_json.is_file():
+            raise FileNotFoundError(
+                "CI_MODE is enabled but mock antiSMASH JSON not found at "
+                f"{mock_json}"
+            )
+        logger.info(
+            f"CI_MODE detected – using mock antiSMASH output {mock_json}"
+        )
+        return mock_json
+
     # Ensure the output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -332,18 +357,40 @@ if __name__ == "__main__":
         logger.error("No BGC data produced; exiting.")
         exit(1)
 
-    # Produce binary presence matrix (1 if count > 0, else 0)
-    presence_df = df.copy()
-    for col in presence_df.columns:
-        if col not in {"species", "total_bgc_count"}:
-            presence_df[col] = (presence_df[col] > 0).astype(int)
+    # ------------------------------------------------------------------
+    # Aggregate by MIBiG class
+    # ------------------------------------------------------------------
+    # Determine mapping from raw BGC columns to MIBiG classes
+    bgc_type_cols = [c for c in df.columns if c not in {"species", "total_bgc_count"}]
+
+    # Build a mapping: raw column -> MIBiG class
+    col_to_class = {col: map_bgc_to_mibig(col) for col in bgc_type_cols}
+
+    # Aggregate counts per class
+    class_counts = {}
+    for col, mibig_class in col_to_class.items():
+        class_counts.setdefault(mibig_class, 0)
+        class_counts[mibig_class] += df[col].sum()
+
+    # Create counts DataFrame (one row per species, aggregated)
+    counts_agg = df[["species"]].copy()
+    for mibig_class in set(col_to_class.values()):
+        # Sum counts of all columns that map to this class
+        cols = [col for col, cls in col_to_class.items() if cls == mibig_class]
+        counts_agg[mibig_class] = df[cols].sum(axis=1)
+
+    # Presence matrix: 1 if count > 0, else 0
+    presence_agg = counts_agg.copy()
+    for col in presence_agg.columns:
+        if col != "species":
+            presence_agg[col] = (presence_agg[col] > 0).astype(int)
 
     # Write CSVs
     presence_path = out_dir / "bgc_presence.csv"
     counts_path = out_dir / "bgc_counts.csv"
 
-    presence_df.to_csv(presence_path, index=False)
-    df.to_csv(counts_path, index=False)
+    presence_agg.to_csv(presence_path, index=False)
+    counts_agg.to_csv(counts_path, index=False)
 
     logger.info(f"BGC presence matrix written to {presence_path}")
     logger.info(f"BGC counts matrix written to {counts_path}")

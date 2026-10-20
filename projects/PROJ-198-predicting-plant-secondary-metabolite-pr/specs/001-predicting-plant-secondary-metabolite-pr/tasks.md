@@ -58,7 +58,7 @@
   *Path:* `code/data/align.py` (adds `calculate_alignment_success_rate()`)  
   *Verification:* `alignment_stats.json` reports the percentage of input species retained and asserts that it is **≥ 80 %**, satisfying SC‑004 with a measurable target.  
 
-- [ ] **T010** [ ] **Load phylogenetic tree and construct covariance matrix for PGLS**  
+- [ ] **T010** [ ] **Load phylogenetic tree and construct covariance matrix for PGLS**   <!-- FAILED-IN-EXECUTION: code/modeling/phylo_compute.py exit=1 -->
   *Path:* `code/modeling/phylo.py` (`load_phylogeny()`, `construct_covariance_matrix()`)  
   *Verification:* The resulting covariance matrix dimensions equal the number of species in `aligned_matrix.csv`.  
 

@@ -2,12 +2,12 @@
 Evaluation utilities for the plant metabolite prediction pipeline.
 This file originally contained many helper functions; for the purpose of
 the T005 implementation we only modify the ``save_metrics`` function to
-integrate artifact‑hygiene tracking.
+integrate artifact‑hygiene tracking and fix missing typing imports.
 """
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple  # Ensure Tuple is imported
 
 from utils.logging import get_logger
 from utils.artifact import track_path  # <-- new import for artifact hygiene

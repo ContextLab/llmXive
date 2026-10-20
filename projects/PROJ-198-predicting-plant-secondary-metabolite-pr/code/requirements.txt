@@ -1,16 +1,6 @@
-# Project dependencies
-scikit-learn
-pandas
-numpy
-biopython
-requests
-pyyaml
-dendropy
-statsmodels
-pymc3
-tqdm
-pydantic
-pydantic-settings
-black
-ruff
-python-dotenv
+# Project requirements
+# Existing dependencies are provided by the platform (numpy, pandas, scipy,
+# matplotlib, scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil).  The only additional third‑party package required for
+# phylogenetic processing is ``dendropy``.
+dendropy>=4.5.2

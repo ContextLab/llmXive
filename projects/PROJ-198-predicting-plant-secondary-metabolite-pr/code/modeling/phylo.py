@@ -48,26 +48,43 @@ def construct_covariance_matrix(tree: Union[str, dendropy.Tree]) -> np.ndarray:
     if isinstance(tree, str):
         tree = load_phylogeny(tree)
 
-    # Calculate cophenetic distance matrix
-    distance_matrix = tree.phylogenetic_distance_matrix()
-    taxa = tree.taxon_namespace
+    # Ensure each taxon has a label; dendropy may use None for unlabeled taxa
+    for idx, taxon in enumerate(tree.taxon_namespace):
+        if taxon.label is None:
+            taxon.label = f"taxon_{idx}"
+
+    # Compute the patristic (pairwise) distance matrix
+    # dendropy provides a ``phylogenetic_distance_matrix`` method that
+    # yields an object supporting ``distance(taxon1, taxon2)``.
+    pdm = tree.phylogenetic_distance_matrix()
+    taxa = list(tree.taxon_namespace)
     n = len(taxa)
 
-    # Initialize covariance matrix
     cov_matrix = np.zeros((n, n))
+
+    # The covariance under a Brownian‑motion model is proportional to the
+    # shared evolutionary history between two taxa, i.e. the distance from
+    # the root to their most recent common ancestor (MRCA).  The distance
+    # matrix returned by dendropy gives the total path length between
+    # taxa; the MRCA shared length can be derived as:
+    #
+    #   cov(i, j) = (d_root_i + d_root_j - d_ij) / 2
+    #
+    # where d_root_i is the distance from the root to taxon i and d_ij
+    # is the patristic distance between i and j.
+    #
+    # For the diagonal (i == j) this reduces to d_root_i.
+
+    # Pre‑compute root‑to‑tip distances
+    root_to_tip = np.array([pdm.distance(tree.seed_node, taxon) for taxon in taxa])
 
     for i, taxon_i in enumerate(taxa):
         for j, taxon_j in enumerate(taxa):
             if i == j:
-                # Variance is the distance from root to tip
-                path_length = distance_matrix.path_length(taxon_i, taxon_j)
-                # In Brownian motion, variance is proportional to time from root
-                # Approximate root distance as max path length
-                max_dist = max([distance_matrix.path_length(t, t) for t in taxa])
-                cov_matrix[i, j] = max_dist
+                cov_matrix[i, j] = root_to_tip[i]
             else:
-                # Covariance is the shared path length from root to MRCA
-                cov_matrix[i, j] = distance_matrix.path_length(taxon_i, taxon_j)
+                dij = pdm.distance(taxon_i, taxon_j)
+                cov_matrix[i, j] = (root_to_tip[i] + root_to_tip[j] - dij) / 2.0
 
     logger.info(f"Constructed {n}x{n} phylogenetic covariance matrix")
     return cov_matrix

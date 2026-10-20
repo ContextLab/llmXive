@@ -7,14 +7,14 @@ T002:
 T003:
   task: 70c3a6076013af70ca88953d5eeb0eebfdfb224dc36471144dd9e4a9cca83f32
 T004:
-  reason: "The required `spec.yaml` is MISSING, so `load_config` silently falls back\
-    \ to defaults (no YAML is ever loaded), and more importantly the logging requirement\
-    \ fails: `code/utils/logging.py` only adds a file handler when `setup_logging`\
-    \ is called with an explicit `log_file`, but `get_logger` calls `setup_logging()`\
-    \ with no file, so no `logs/run.log` is ever created \u2014 and no `logs/run.log`\
-    \ or any execution evidence appears on disk to confirm INFO-level messages were\
-    \ written. There is also no run evidence demonstrating `config.seed` reproducibility\
-    \ across runs. Fix: create `spec.yaml`, make the log"
+  reason: 'The source files exist and look plausible (config.py loads spec.yaml, sets
+    a global seed; utils/logging.py configures file+console handlers defaulting to
+    logs/run.log), but the task''s verification criteria require execution evidence:
+    no `logs/run.log` artifact exists anywhere in the collected evidence, so there
+    is no proof that a run actually creates it with INFO-level messages, nor any demonstrated
+    run showing `config.seed` is reproducible across runs. The implementer should
+    execute `load_config()` (e.g. via a small run or test) from the project root and
+    commit the resulting `logs/run.log` co'
   task: 7366c60ac2e8dccea1eb3ce47cbd663380d5df4b332250e30cc34ccb648af4b7
 T005:
   reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-001-predict-plant-metabolite-pr.yaml`
@@ -23,24 +23,42 @@ T005:
     to write only project-owned outputs.'
   task: 8a69ba13f84aff487f1b8e83ba5ab322a8f394375ae90fab8ba4494c539be93c
 T006:
-  reason: "`data/raw/` contains only a `.gitkeep` \u2014 no genome FASTA or metabolite\
-    \ TSV files were ever downloaded, and there is no execution evidence (logs, test\
-    \ output) that the script ran against a 5-species list or logged warnings for\
-    \ missing species. Additionally, the MetaboLights URLs (MTBLS1234/3456/5678/7890/9012)\
-    \ are sequential placeholder-looking study IDs that almost certainly do not exist,\
-    \ and the `main()` path fabricates a zero-BGC-count placeholder DataFrame rather\
-    \ than producing real data. The implementer must actually run the download functions\
-    \ on a test species list, verify real retrievabl"
+  reason: "The script `code/data/download.py` exists and implements `download_genomes()`/`download_metabolites()`,\
+    \ but the verification requirement \u2014 files under `data/raw/` for successfully\
+    \ fetched genomes and metabolites \u2014 is unmet: `data/raw/` contains only `.gitkeep`\
+    \ and `phylogeny/`, with no species genome FASTA or metabolite TSV files and no\
+    \ execution logs showing a run. Additionally, all five species are mapped to the\
+    \ same MTBLS1 assay URL, which does not retrieve species-matched metabolite tables\
+    \ as the spec requires; the implementer must actually run the download (or provide\
+    \ run evidence) and us"
   task: 37a16fc246858c657e17ebfb98ea4e5483601f584c7b74e4bad05ce2763bbda7
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/data/antismash.py
     exit=2'
   task: 0df487aefcb17e3873109f49985bdb2b4c782f24feaff09e49de2aca6e5d6a18
 T008:
+  reason: "The execution log for `code/data/metabolite_preprocess.py` shows it exited\
+    \ with \"No metabolite TSV files found under .../data/raw\" and \"nothing to process\"\
+    \ \u2014 no `metabolite_harmonized.csv` was ever produced, and no such output\
+    \ artifact appears in the evidence. The task's verification criterion (an output\
+    \ CSV containing only numeric `abundance_log` values \u22480\u201310 with InChIKey\
+    \ identifiers) is therefore unmet; the implementer needs actual raw metabolite\
+    \ TSVs under `data/raw/<species>/metabolites.tsv` (or explicit input paths) and\
+    \ a successful run producing the harmonized CSV."
   task: 9286cedb83404160a4a7cd5ccfdc0e3a2fe10d6ccb317d761cad8437e4f8d545
 T009:
+  reason: "The unit test run for this task failed (exit 1): `test_alignment_success_rate_counts_valid_species`\
+    \ fails because `align_data` computes the success rate only over the inner-joined\
+    \ species (2/2 = 100%) instead of over all input species (2/3 \u2248 0.67), so\
+    \ the alignment statistics are wrong. Additionally, the task's verification criteria\
+    \ are not evidenced: no `aligned_matrix.csv` artifact exists on disk, and missing-modality\
+    \ species are dropped with `logger.info` (\"Dropped species due to missing data\"\
+    ) rather than the required logged warning. The zero-BGC row retention test does\
+    \ pass, but the faili"
   task: 2e7f1ee39db4834378efab789f255d97ab4c11431d414c63e5395d0342959b2b
 T010:
+  reason: 'Requested task execution failed; rerun successfully: code/modeling/phylo_compute.py
+    exit=1'
   task: acb5af8c0cac9339298c588632a12fe2f595bba86f8ecb8d7acd271c5d784a70
 T011:
   task: 2dfca994ef94b84a3795858f276acee4f3c18aa1824ee38251b13d0d529f2451
@@ -61,4 +79,12 @@ T016:
 T017:
   task: a0259e8dcbdd12cb25c879a3e940e9c83fd32c8e333a87168014c9d84a13f314
 T018:
+  reason: "The `calculate_alignment_success_rate()` function and the \u226580% assertion\
+    \ exist in `code/data/align.py`, but the only execution record (the unit test\
+    \ log) FAILED with `RuntimeError: Configuration not loaded` before `alignment_stats.json`\
+    \ could be written, and no actual `alignment_stats.json` artifact with a reported\
+    \ success rate is present in the evidence. The task's verification criterion \u2014\
+    \ that `alignment_stats.json` reports the retained-species percentage and asserts\
+    \ it is \u226580% \u2014 is therefore not demonstrated; the implementer must fix\
+    \ the config-loading failure (e.g., call `load_config()` in"
   task: 27863ba102fe1d82f0e1adebb22eb63d1798c85c03168b8ddc13c4fa2653377d

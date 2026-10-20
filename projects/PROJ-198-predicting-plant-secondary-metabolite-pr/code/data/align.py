@@ -1,12 +1,14 @@
 """
 Data alignment utilities.
 Provides functions to merge BGC feature tables with metabolite abundance tables,
-write the aligned matrix to disk, and compute alignment success statistics.
+write the aligned matrix to disk, compute alignment success statistics,
+and enforce a minimum success rate threshold.
 """
 
 from pathlib import Path
 from typing import List, Optional, Union, Tuple
 
+import json
 import pandas as pd
 
 from utils.logging import get_logger
@@ -83,7 +85,7 @@ def save_aligned_matrix(
     df: pd.DataFrame, output_path: Optional[Union[str, Path]] = None
 ) -> None:
     """
-    Write the aligned matrix to CSV.
+    Write the aligned matrix to CSV and generate alignment statistics.
 
     If *output_path* is ``None`` the matrix is written to
     ``data/processed/aligned_matrix.csv``.
@@ -94,12 +96,47 @@ def save_aligned_matrix(
     else:
         output_path = Path(output_path)
 
+    # Ensure parent directories exist
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write the aligned matrix
     df.to_csv(output_path, index=False)
     logger.info(f"Aligned matrix saved to {output_path}")
 
-    # Record the artifact for checksum tracking
+    # Register the matrix artifact
     track_path(output_path)
+
+    # ------------------------------------------------------------------
+    # Alignment statistics generation
+    # ------------------------------------------------------------------
+    success_rate = calculate_alignment_success_rate(df)
+
+    stats = {
+        "success_rate": success_rate,
+        "total_species": int(df["species"].nunique()),
+        "valid_species": int(
+            df.dropna(
+                subset=[
+                    c for c in df.columns if c != "species"
+                ]
+            )["species"].nunique()
+        ),
+    }
+
+    stats_path = get_data_path(Path("processed") / "alignment_stats.json")
+    stats_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(stats_path, "w", encoding="utf-8") as f:
+        json.dump(stats, f, indent=2, sort_keys=True)
+    logger.info(f"Alignment statistics saved to {stats_path}")
+
+    # Register the statistics artifact
+    track_path(stats_path)
+
+    # Enforce the success‑rate threshold (≥ 80 %)
+    if success_rate < 0.8:
+        raise AssertionError(
+            f"Alignment success rate {success_rate:.2%} is below the required 80 % threshold."
+        )
 
 
 def calculate_alignment_success_rate(

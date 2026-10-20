@@ -1,12 +1,12 @@
 T001:
   c: true
-  h: 26d2b8cacad015bcef79cb7b6f8f75522f2d651458254102ea8152786a410449
+  h: 24dc423e64ecbd1c33937f4cc066cfbebcf5b4b5249fe2cc511b779b1279cf93
   r: All nine required directories (`code/`, `code/data/`, `code/modeling/`, `code/utils/`,
-    `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) are confirmed
-    to exist under the project root with non-empty listings (including `.gitkeep`
-    markers and substantive contents), which fully satisfies T001's directory-layout
-    requirement.
-  sig: 17fb1a3efcd3a6b872b8ae6b2b6febfe41912630d49dece6c713e2bea7a43698
+    `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) exist
+    and are non-empty per the collector's directory listings. The task only asked
+    for directory creation; the placeholder contents of `data/processed/` files are
+    irrelevant to this task's requirements.
+  sig: 1360e9a6779c9e8d3155279fb59f5d089ad76b1ab646075d9ac3d87a9b68e884
 T003:
   c: true
   h: 936c3795ceb91afdd591d33e7637cb3cce12007e19f46e4ff766c501eada730c
@@ -17,25 +17,61 @@ T003:
   sig: 7d7be216875efdf6426973a2bb36a98310d88d476aa585ebfc7616e861985843
 T004:
   c: false
-  h: 57919f81cb397524503e0f5b75c1b792154dcec934c4cc26156bf9d7fa2cbfac
-  r: "The required `spec.yaml` is MISSING, so `load_config` silently falls back to\
-    \ defaults (no YAML is ever loaded), and more importantly the logging requirement\
-    \ fails: `code/utils/logging.py` only adds a file handler when `setup_logging`\
-    \ is called with an explicit `log_file`, but `get_logger` calls `setup_logging()`\
-    \ with no file, so no `logs/run.log` is ever created \u2014 and no `logs/run.log`\
-    \ or any execution evidence appears on disk to confirm INFO-level messages were\
-    \ written. There is also no run evidence demonstrating `config.seed` reproducibility\
-    \ across runs. Fix: create `spec.yaml`, make the log"
-  sig: c86f088946badf9b3e428bb72b65d003449d5e552f3d85c417d6d613686ea4a7
+  h: 0e187f3b166c21fe503b0c7533bea550ae0026efd66bcb536d96d413e77f2245
+  r: 'The source files exist and look plausible (config.py loads spec.yaml, sets a
+    global seed; utils/logging.py configures file+console handlers defaulting to logs/run.log),
+    but the task''s verification criteria require execution evidence: no `logs/run.log`
+    artifact exists anywhere in the collected evidence, so there is no proof that
+    a run actually creates it with INFO-level messages, nor any demonstrated run showing
+    `config.seed` is reproducible across runs. The implementer should execute `load_config()`
+    (e.g. via a small run or test) from the project root and commit the resulting
+    `logs/run.log` co'
+  sig: dc9305c6b2ba5a5cc012398b62b2d7dd33ebe1f743bf9224b532f26534eb7d39
 T006:
   c: false
-  h: fbf19679707d7d169815f1176cd6b72f96184d151f0cddee98a20b80877e1ead
-  r: "`data/raw/` contains only a `.gitkeep` \u2014 no genome FASTA or metabolite\
-    \ TSV files were ever downloaded, and there is no execution evidence (logs, test\
-    \ output) that the script ran against a 5-species list or logged warnings for\
-    \ missing species. Additionally, the MetaboLights URLs (MTBLS1234/3456/5678/7890/9012)\
-    \ are sequential placeholder-looking study IDs that almost certainly do not exist,\
-    \ and the `main()` path fabricates a zero-BGC-count placeholder DataFrame rather\
-    \ than producing real data. The implementer must actually run the download functions\
-    \ on a test species list, verify real retrievabl"
-  sig: 4fd2f28a2026b5b76ad5cacac3839eea54cae12666a9ba12705d85872bdab195
+  h: 802ff0eb57f2515d0b141dfa837e1ed2770d2ec3371a35b062cb9843feee7f20
+  r: "The script `code/data/download.py` exists and implements `download_genomes()`/`download_metabolites()`,\
+    \ but the verification requirement \u2014 files under `data/raw/` for successfully\
+    \ fetched genomes and metabolites \u2014 is unmet: `data/raw/` contains only `.gitkeep`\
+    \ and `phylogeny/`, with no species genome FASTA or metabolite TSV files and no\
+    \ execution logs showing a run. Additionally, all five species are mapped to the\
+    \ same MTBLS1 assay URL, which does not retrieve species-matched metabolite tables\
+    \ as the spec requires; the implementer must actually run the download (or provide\
+    \ run evidence) and us"
+  sig: bac698924aa2a7a12b22911f67164623cc00dc74503470c7370161492f7f9009
+T008:
+  c: false
+  h: f9994b7d069385496990a5775abfb2994c01a4171b29c823b976bb87cdd3ab29
+  r: "The execution log for `code/data/metabolite_preprocess.py` shows it exited with\
+    \ \"No metabolite TSV files found under .../data/raw\" and \"nothing to process\"\
+    \ \u2014 no `metabolite_harmonized.csv` was ever produced, and no such output\
+    \ artifact appears in the evidence. The task's verification criterion (an output\
+    \ CSV containing only numeric `abundance_log` values \u22480\u201310 with InChIKey\
+    \ identifiers) is therefore unmet; the implementer needs actual raw metabolite\
+    \ TSVs under `data/raw/<species>/metabolites.tsv` (or explicit input paths) and\
+    \ a successful run producing the harmonized CSV."
+  sig: e046ae60ea1ac4fd346ae3baed148bd095efd1d5abba787f91a6699f9b71cda1
+T009:
+  c: false
+  h: d180fce00a6dc2fdc8fc85f30ce86d2f7b63175b1ccc6c105d6ddc3fe408e580
+  r: "The unit test run for this task failed (exit 1): `test_alignment_success_rate_counts_valid_species`\
+    \ fails because `align_data` computes the success rate only over the inner-joined\
+    \ species (2/2 = 100%) instead of over all input species (2/3 \u2248 0.67), so\
+    \ the alignment statistics are wrong. Additionally, the task's verification criteria\
+    \ are not evidenced: no `aligned_matrix.csv` artifact exists on disk, and missing-modality\
+    \ species are dropped with `logger.info` (\"Dropped species due to missing data\"\
+    ) rather than the required logged warning. The zero-BGC row retention test does\
+    \ pass, but the faili"
+  sig: d6e91aefece8bc9e0ad3ff62adbd23f78fc4b9612e72b0351286499c7277147a
+T018:
+  c: false
+  h: 9637918d136549eafd270c55e566058b4052227b47362d51009ed9cac6e516c9
+  r: "The `calculate_alignment_success_rate()` function and the \u226580% assertion\
+    \ exist in `code/data/align.py`, but the only execution record (the unit test\
+    \ log) FAILED with `RuntimeError: Configuration not loaded` before `alignment_stats.json`\
+    \ could be written, and no actual `alignment_stats.json` artifact with a reported\
+    \ success rate is present in the evidence. The task's verification criterion \u2014\
+    \ that `alignment_stats.json` reports the retained-species percentage and asserts\
+    \ it is \u226580% \u2014 is therefore not demonstrated; the implementer must fix\
+    \ the config-loading failure (e.g., call `load_config()` in"
+  sig: af239792ac82a39c4697c4e65dd5b908e6062fe009b32d5227ab34b4dad12532

@@ -1,0 +1,28 @@
+# Project specification file used by the configuration loader (T004)
+# Minimal but complete configuration required for the pipeline.
+
+settings:
+  # Global random seed – reproducible across runs
+  seed: 42
+
+  # Core data directories (relative to the project root)
+  data_root: data
+  raw_data_path: data/raw
+  processed_data_path: data/processed
+  figures_path: figures
+  logs_path: logs
+
+  # Pipeline parameters
+  phylogeny_path: null
+  mibig_ontology_path: null
+  max_genome_size_mb: 500
+  antismash_confidence: 0.5
+  min_species_count: 5
+  download_timeout: 300
+
+  # API keys – leave empty for CI mode; real runs can populate via .env
+  ncbi_api_key: null
+  pmdb_api_key: null
+
+# Species list – can be empty for CI mode; real runs fill via .env or user file
+species_list: []

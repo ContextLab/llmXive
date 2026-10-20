@@ -5,6 +5,7 @@ Extended to accept ``--step`` arguments matching the quick‑start guide.
 
 import argparse
 import logging
+import pandas as pd  # Added pandas import for DataFrame handling
 
 # Import pipeline stages
 from code.config import load_config, get_species_list
@@ -68,7 +69,10 @@ def _run_download_and_align(config) -> None:
 
     # Align and persist
     aligned_df, _ = align_data(genome_df, metabolite_df, species_list=None)
-    save_aligned_matrix(aligned_df, config.output_path / "aligned_matrix.csv")
+
+    # Use the default output location defined in ``save_aligned_matrix``.
+    # This avoids reliance on a possibly‑missing ``output_path`` attribute in the config.
+    save_aligned_matrix(aligned_df)
     logger.info("download_and_align step completed")
 
 
@@ -177,7 +181,7 @@ def main() -> None:
 
         # Alignment
         aligned_df, _ = align_data(mapped_df)
-        save_aligned_matrix(aligned_df, config.output_path / "aligned_matrix.csv")
+        save_aligned_matrix(aligned_df)  # Uses default location
 
         # Modelling (same as above)
         _run_train_and_evaluate(config)
