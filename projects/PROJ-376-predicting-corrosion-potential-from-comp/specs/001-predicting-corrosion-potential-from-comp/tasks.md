@@ -1,162 +1,162 @@
 # Tasks: Predicting Corrosion Potential from Composition and Environment
 
-**Input**: Design documents from `/specs/001-predict-corrosion-potential/`  
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
+**Inputs**: `spec.md`, `plan.md`, existing code and data‑model artifacts, and reviewer feedback.  
+All tasks are written as checklist items; checked boxes indicate completed work that already satisfies the verification criteria. Unchecked boxes are pending implementation or re‑work.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL – only include them if explicitly requested in the feature specification.
+---
 
-## Phase 1: Setup and first end‑to‑end analysis
+## Phase 1 – Project setup & core utilities  
 
-- [ ] T001 Establish the required project directory hierarchy and produce a verification manifest.  
-  **File path**: `code/utils/setup_dirs.py` (creates `code/`, `data/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/`).  
-  **Artifact**: `state/setup_dirs_verified.json` – an array of objects `{"path": "<absolute_path>", "created_at": "<ISO8601_timestamp>"}` for each directory.  
-  **Verification**: Running `python code/utils/setup_dirs.py` must exit with status 0, all directories must exist, and the JSON manifest must be valid.
+- [ ] T001 Create the required project directory hierarchy (`code/`, `data/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`) and produce a verification manifest.  
+  **File path**: `code/utils/setup_dirs.py` → generates `state/setup_dirs_verified.json`.  
+  **Verification**: Running `python -m code.utils.setup_dirs` exits with status 0, creates all directories, and writes a JSON array where each entry contains `"path"` (absolute) and `"created_at"` (ISO‑8601 timestamp).  
 
-- [ ] T045 Measure total pipeline execution time and enforce the ≤ 6 h limit (SC‑005).  
-  **File path**: `code/utils/runtime_tracker.py` (wraps the full CLI run).  
-  **Artifact**: `data/logs/pipeline_runtime.json` containing `{"total_seconds": <float>, "within_limit": true/false}`.  
-  **Verification**: After a full pipeline run, the JSON must exist and `within_limit` must be true; otherwise the pipeline exits with a non‑zero status.
+- [ ] T002 Implement custom exception classes `DataInsufficientError` and `SchemaMismatchError`.  
+  **File path**: `code/utils/exceptions.py`.  
+  **Verification**: Importing the module (`from code.utils.exceptions import DataInsufficientError, SchemaMismatchError`) succeeds; unit tests in `tests/unit/test_exceptions.py` assert the classes exist and inherit from `Exception`.  
 
-- [ ] T046 Compute SHA‑256 checksums for all raw data files and store them in a manifest.  
-  **File path**: `code/utils/checksum.py`.  
-  **Artifact**: `data/logs/checksums_manifest.json` – a list of `{ "file": "<relative_path>", "sha256": "<hex>" }`.  
-  **Verification**: Running the script after ingestion must produce a non‑empty manifest with a checksum entry for each file in `data/raw/`.
+- [ ] T003 Set up reproducible logging infrastructure used throughout the pipeline (FR‑010).  
+  **File path**: `code/utils/logging.py` exposing `get_logger(name: str) -> logging.Logger`.  
+  **Verification**: Logs written via `get_logger()` contain timestamp, level, and message, and are saved to `data/logs/pipeline.log`; a unit test (`tests/unit/test_logging.py`) checks file creation and JSON‑line format.  
 
-- [ ] T047 Record content hashes for all produced artifacts in the project state file (Constitution V).  
-  **File path**: `code/utils/version_hashes.py`.  
-  **Artifact**: `state/projects/PROJ-376-predict-corrosion-potential-from-comp.yaml` – updated `artifact_hashes` map with `{ "<relative_path>": "<sha256>" }`.  
-  **Verification**: After any artifact creation step, the state file contains a matching hash entry.
+---
 
-- [ ] T005 [ ] Implement custom exception classes `DataInsufficientError` and `SchemaMismatchError` in `code/utils/exceptions.py`.  
-  **Verification**: Import the module and assert the classes exist; unit tests in `tests/unit/test_exceptions.py` must pass.
+## Phase 2 – Schema contracts  
 
-- [ ] T006 Set up reproducible logging infrastructure in `code/utils/logging.py` (FR‑010).  
-  **Verification**: Logs written via `get_logger()` contain timestamps, severity levels, and are saved to `data/logs/pipeline.log`. *(Removed unsafe `[P]` tag; logging is sequential.)*
-
-- [ ] T007 Create base data‑model classes (`AlloyRecord`, `EnvironmentRecord`, `CorrosionMeasurement`) using Pydantic v2 in `code/models/data_models.py`.  
-  **Verification**: `tests/unit/test_data_models.py` validates correct schema enforcement for valid and invalid inputs.
-
-## Phase 2: Contracts and foundational infrastructure
-
-- [ ] T004 Create the JSON‑Schema contract files required for ingestion and processed data.  
+- [ ] T004 Create the JSON‑Schema contract files required for ingestion and processed data (FR‑001 – FR‑004).  
   **File paths**:  
   `specs/001-predict-corrosion-potential-from-comp/contracts/ingest.schema.yaml`  
   `specs/001-predict-corrosion-potential-from-comp/contracts/dataset.schema.yaml`  
-  **Content**: Must match the definitions provided in the specification (see the `ingest.schema.yaml` and `dataset.schema.yaml` sections).  
-  **Verification**: `yamllint` runs without errors and a validation script (`code/utils/validate_schemas.py`) reports both schemas as valid.
+  **Verification**: Both files exist, contain the definitions shown in the specification, and `yamllint` reports no errors.  
 
-- [ ] T014a Generate the schema‑validation utility script `code/utils/validate_schemas.py`.  
-  **File path**: `code/utils/validate_schemas.py` (loads the YAML schemas and provides a `validate(data, schema_path)` function).  
-  **Verification**: Importable and usable by downstream validation tasks; unit test `tests/unit/test_validate_schemas.py` must pass.
+- [ ] T005 Generate a reusable schema‑validation utility script.  
+  **File path**: `code/utils/validate_schemas.py` providing `validate(data: dict, schema_path: Path) -> None`.  
+  **Verification**: Importable and callable; a unit test (`tests/unit/test_validate_schemas.py`) validates a compliant sample against each schema without raising.  
 
-- [ ] T014 Implement the schema‑validation step in `code/data/preprocess.py`.  
-  **Checks**: Conformance to `ingest.schema.yaml`, non‑null composition, pH, temperature, corrosion potential; total record count ≥ 500; at least 10 distinct `specific_alloy_designation`.  
-  **Failure mode**: Raise `SchemaMismatchError` with a clear message.  
-  **Artifact**: `data/logs/schema_validation.json` summarising counts and validation status.  
-  **Verification**: Running the script on the raw files must exit 0 only when all criteria are satisfied.
+---
 
-- [ ] T008 Implement the data‑ingestion script `code/data/download_nist.py`.  
-  **Requirements**:  
-  • Download alloy composition and corrosion records from the NIST‑IR‑8200 database (FR‑001, FR‑002).  
-  • Apply exponential backoff retry logic for HTTP 429 responses (up to 3 retries, base 5 s, max 60 s) (FR‑015).  
-  • Merge composition data from the Materials Project API (`[UNRESOLVED-CLAIM: https://materialsproject.org` — ConnectionError: HTTPSConnectionPool(host='materialsproject.org%60', port=443): Max retries exceeded with url: / (Caused by NameResolutionError("HTTPSConnection(host='materialsproject.org%60', port=443): Failed to resolve 'materialsproject.org%60' ([Errno -2] Name or service not known)"))]) when available (FR‑019).  
-  • Abort with `DataInsufficientError` if no programmatic URL is known or the record count is < 500.  
-  **Outputs**: Raw files under `data/raw/nist/` and `data/raw/materials_project/`.  
-  **Verification**: Successful run creates both directories and logs attempts in `data/logs/download.log`.
+## Phase 3 – Data ingestion  
 
-- [ ] T009 Implement the preprocessing pipeline in `code/data/preprocess.py`.  
+- [ ] T006 Implement the NIST‑IR‑8200 download script with exponential‑backoff retry logic (FR‑001, FR‑015) and optional Materials Project augmentation (FR‑019). Abort with `DataInsufficientError` if < 500 records after merging.  
+  **File path**: `code/data/download_nist.py`.  
+  **Outputs**: `data/raw/nist/` (raw NIST CSV/JSON) and `data/raw/materials_project/` (composition augment files).  
+  **Verification**: Successful run creates both directories, logs attempts in `data/logs/download.log`, and writes a summary JSON (`data/logs/download_summary.json`) containing `record_count` and `alloy_designation_count`. The script exits with non‑zero status if the count thresholds are not met.  
+
+- [ ] T007 Add a schema‑validation step that checks the raw ingest against `ingest.schema.yaml`, enforces non‑null composition, pH, temperature, corrosion potential, and the minimum‑record constraints (FR‑011, FR‑014, FR‑017).  
+  **File path**: `code/data/validate_raw.py`.  
+  **Artifact**: `data/logs/schema_validation.json` summarising total records, unique alloys, and any violations.  
+  **Verification**: The script exits with status 0 only when all criteria are satisfied; otherwise it raises `SchemaMismatchError` with a clear message.  
+
+---
+
+## Phase 4 – Preprocessing  
+
+- [ ] T008 Implement the preprocessing pipeline (FR‑003, FR‑013, FR‑016, FR‑020).  
+  **File path**: `code/data/preprocess.py`.  
   **Steps**:  
   • Drop rows missing `ph`, `temperature_celsius`, or `corrosion_potential_mV`.  
-  • Flag records with out‑of‑range pH (< 0 or > 14) as outliers; write them to `data/processed/extreme_conditions.csv`.  
-  • Apply centered‑log‑ratio (CLR) transformation to all elemental weight fractions (FR‑020).  
+  • Flag out‑of‑range pH (< 0 or > 14) as outliers and write them to `data/processed/extreme_conditions.csv`.  
+  • Apply centered‑log‑ratio (CLR) transformation to all elemental weight fractions.  
   • One‑hot encode `electrolyte_type`.  
-  • Output a Parquet file `data/processed/clean_dataset.parquet`.  
-  **Verification**: The Parquet file contains no nulls in required fields and the outlier CSV is non‑empty when applicable.
+  **Outputs**: `data/processed/clean_dataset.parquet`.  
+  **Verification**: The Parquet file contains no nulls in required fields; a checksum file `data/logs/preprocess_checksum.json` is created.  
 
-- [ ] T016 Add diagnostic logging for all excluded records (missing pH, extreme pH, schema violations) to `data/logs/pipeline.log`.  
-  **Format**: JSON lines with keys `record_id`, `reason`, `timestamp`.  
-  **Verification**: After running `preprocess.py`, the log file must contain at least one entry for each excluded record.
+- [ ] T009 Add diagnostic logging for every excluded record (missing env, extreme pH, schema violations) to the central pipeline log.  
+  **File path**: `code/utils/logging.py` (enhanced) – logs written as JSON lines to `data/logs/pipeline.log` with keys `record_id`, `reason`, `timestamp`.  
+  **Verification**: After running `preprocess.py`, `pipeline.log` contains at least one entry for each excluded record; a unit test (`tests/unit/test_exclusion_logging.py`) asserts the presence of these entries.  
 
-## Phase 3: Dataset splitting
+---
 
-- [ ] T015 Implement LOSO (Leave‑One‑Specific‑Alloy‑Out) splitting in `code/data/split.py`.  
-  **Pre‑check**: Verify ≥ 10 distinct alloy designations; otherwise raise `DataInsufficientError`.  
+## Phase 5 – Train‑test split  
+
+- [ ] T010 Implement Leave‑One‑Specific‑Alloy‑Out (LOSO) splitting with a pre‑check for ≥ 10 distinct alloy designations (FR‑004, FR‑012, FR‑017).  
+  **File path**: `code/data/split.py`.  
   **Outputs**: `data/processed/train_set.parquet` and `data/processed/test_set.parquet`.  
-  **Verification**: `data/logs/split_validation.json` reports `"overlap_count": 0`.
+  **Verification**: `data/logs/split_validation.json` reports `"overlap_count": 0` and `"unique_alloys_train"` / `"unique_alloys_test"` counts; the script aborts with `DataInsufficientError` if the alloy count threshold is violated.  
 
-- [ ] T017 Verify split integrity (zero overlap) using the validation log produced by T015.  
-  **Artifact**: `data/logs/split_validation.json`.  
-  **Verification**: The JSON must contain `"overlap_count": 0`.
+- [ ] T011 Verify split integrity (zero overlap) as a separate validation step.  
+  **File path**: `code/utils/validate_split.py`.  
+  **Artifact**: `data/logs/split_integrity.json` containing `"overlap_count": 0`.  
+  **Verification**: The script exits with status 0 only when the overlap count is zero; otherwise it raises `ValueError`.  
 
-## Phase 4: Model training and evaluation
+---
 
-- [ ] T020 Implement `code/models/train.py` to train Random Forest and Gradient Boosting regressors on the LOSO training set.  
-  **Requirements**: CPU‑only scikit‑learn, `random_state=42`, respect FR‑005 and FR‑021.  
-  **Artifacts**: `results/models/random_forest.pkl`, `results/models/gradient_boosting.pkl`.
+## Phase 6 – Model training & evaluation  
 
-- [ ] T021 Implement `code/models/evaluate.py` to calculate R² and RMSE (mV) on the held‑out test set and compute a null‑baseline (mean prediction).  
-  **Artifact**: `results/metrics.json`.
+- [ ] T012 Train Random Forest and Gradient Boosting regressors on the LOSO training set (FR‑005, FR‑021).  
+  **File path**: `code/models/train.py`.  
+  **Artifacts**: `results/models/random_forest.pkl`, `results/models/gradient_boosting.pkl`.  
+  **Verification**: Training completes within 30 minutes on the GitHub Actions runner (checked via `data/logs/train_time.json`).  
 
-- [ ] T022 Implement the “learnable” classification logic in `code/models/evaluate.py`.  
-  **Logic**:  
-  1. Perform a permutation test (1 000 permutations, seed 42) on each model’s R²; apply Bonferroni correction across the two models.  
-  2. Declare a model “learnable” only if `R² > 0.0` **and** the corrected p‑value < 0.05 **and** RMSE < the ASTM tolerance from `config/astm_g59_tolerance.yaml`.  
-  3. Write the boolean field `is_learnable` to `results/model_results.json` conforming to `model_output.schema.yaml`.  
-  **Verification**: The JSON file contains `is_learnable: true/false` and all required fields; a unit test in `tests/unit/test_learnability.py` validates the logic.
+- [ ] T013 Evaluate both models on the held‑out test set, compute R², RMSE (mV), and a null‑baseline (mean prediction) (FR‑006).  
+  **File path**: `code/models/evaluate.py`.  
+  **Artifact**: `results/metrics.json` containing `model_type`, `r2_score`, `rmse_mV`, and `baseline_r2`.  
+  **Verification**: The JSON file adheres to `model_output.schema.yaml` (validated by `code/utils/validate_model_output.py`).  
 
-- [ ] T048 Enforce primary model R² > 0.6 on the held‑out test set (FR‑021, SC‑008).  
-  **File path**: `code/models/evaluate.py` (post‑metric calculation).  
-  **Artifact**: `results/r2_threshold_check.json` – a JSON file with `{ "model_type": "<best-model>", "r2_score": <float>, "passes_threshold": true/false }`.  
-  **Verification**: The script writes the artifact and aborts with a clear error if `passes_threshold` is false; unit test `tests/unit/test_r2_threshold.py` confirms that a failure triggers a non‑zero exit code and that the JSON reflects the pass/fail status.
+- [ ] T014 Implement the “learnable” classification logic (FR‑007, FR‑008, SC‑001, SC‑007). Perform a 1 000‑permutation test on each model’s R², apply Bonferroni correction, and require RMSE < ASTM‑G59 tolerance (150 mV). Write the result to `results/model_output.json`.  
+  **File path**: `code/models/evaluate.py` (extended).  
+  **Verification**: `results/model_output.json` contains the boolean `is_learnable` and all required fields; a unit test (`tests/unit/test_learnability.py`) checks the logic on a synthetic but schema‑conforming example.  
 
-- [ ] T048a Add a validation step that asserts SC‑008 by reading `results/r2_threshold_check.json` and failing the pipeline if the threshold is not met.  
-  **File path**: `code/utils/validate_r2_threshold.py`.  
-  **Artifact**: None (raises exception on failure).  
-  **Verification**: Integrated into the pipeline; CI checks that the script exits with status 0 when the threshold is satisfied.
+- [ ] T015 Enforce the primary‑model performance threshold R² > 0.6 (FR‑021, SC‑008). Produce a check file and abort if not met.  
+  **File path**: `code/utils/check_r2_threshold.py`.  
+  **Artifact**: `results/r2_threshold_check.json` with `"passes_threshold": true/false`.  
+  **Verification**: The script raises `RuntimeError` when the threshold fails; CI expects exit 0 only when `passes_threshold` is true.  
 
-- [ ] T023a Create configuration file `config/astm_g59_tolerance.yaml` with `tolerance_mV: 150` (FR‑021, SC‑002).  
-  **Verification**: The file exists and can be parsed with `yaml.safe_load`.
+---
 
-- [ ] T049 Validate `results/model_output.json` against `contracts/model_output.schema.yaml`.  
-  **File path**: `code/utils/validate_model_output.py`.  
-  **Artifact**: Validation passes silently; failures raise a `ValidationError`.  
-  **Verification**: CI runs the script and expects exit 0.
+## Phase 7 – Interpretability  
 
-- [ ] T024 Save model artifacts and metrics to `results/model_results.json` conforming to `contracts/model_results.schema.yaml`.  
-  **Verification**: `code/utils/validate_schema.py` validates the file without errors.
+- [ ] T016 Compute conditional permutation importance for the best‑performing model (FR‑007, FR‑008).  
+  **File path**: `code/models/interpret.py`.  
+  **Artifacts**: `results/interpretability/feature_importance.png` and `results/interpretability/feature_importance.json`.  
+  **Verification**: The JSON file conforms to the `feature_importance` schema in `model_output.schema.yaml`; a unit test (`tests/unit/test_permutation_importance.py`) validates the structure and that at least the top‑5 features have `p_value < 0.05` after correction.  
 
-## Phase 5: Interpretability and reporting
+- [ ] T017 Generate Accumulated Local Effects (ALE) plots for the top three element‑environment interaction pairs (FR‑009).  
+  **File path**: `code/models/interpret.py` (plotting routine).  
+  **Outputs**: PNG files `results/interpretability/ale_<feature1>_vs_<feature2>.png`.  
+  **Verification**: Each PNG is non‑empty and a summary CSV `results/interpretability/ale_summary.csv` lists the plotted pairs.  
 
-- [ ] T027 Compute conditional permutation importance for the best‑performing model (`code/models/interpret.py`) (FR‑007).  
-  **Parameters**: 1 000 permutations, Bonferroni/FDR correction (FR‑008).  
-  **Artifacts**: `results/interpretability/feature_importance.png` and `results/interpretability/feature_importance.json`.
+- [ ] T018 Compile a concise summary report that states whether specific elements consistently reduce corrosion potential across environments (FR‑018).  
+  **File path**: `results/interpretability/summary.md`.  
+  **Verification**: The markdown contains a “Top 5 features” table, references at least one ALE plot, and includes a concluding sentence such as “Chromium consistently lowers corrosion potential across the examined pH range.”  
 
-- [ ] T028 Generate Accumulated Local Effects (ALE) plots for the top element‑environment interaction pairs (e.g., Chromium vs pH) (`code/models/interpret.py`) (FR‑009).  
-  **Outputs**: PNG files under `results/interpretability/ale_*.png`.
+---
 
-- [ ] T030 Compile a summary report (`results/interpretability/summary.md`) stating whether specific elements consistently reduce corrosion potential across environments (FR‑018).  
-  **Verification**: The markdown file contains the heading “Top 5 features”, references at least one ALE plot, and includes a concluding statement on element consistency.
+## Phase 8 – Reproducibility & handoff  
 
-## Phase 6: Reproducible results and paper handoff
+- [ ] T019 Write `quickstart.md` documenting a single CLI command to run the full pipeline and listing the expected final artifacts.  
+  **File path**: `quickstart.md`.  
+  **Verification**: A fresh checkout followed by `python -m code.cli.run_pipeline` reproduces all artifacts listed in the document; the CI runs an integration test that checks for their existence.  
 
-- [ ] T031 Create `quickstart.md` that documents the single CLI command to run the full pipeline (`python code/cli/run_pipeline.py`) and lists the expected final artifacts (`clean_dataset.parquet`, `model_results.json`, interpretability figures).  
-  **Verification**: Executing the command from a fresh checkout reproduces all artifacts and the quick‑start steps complete without error.
+- [ ] T020 Add an integration test that executes the entire pipeline via the CLI, validates `results/model_output.json` against its schema, and asserts that `is_learnable` is a boolean.  
+  **File path**: `tests/integration/test_full_pipeline.py`.  
+  **Verification**: The test passes on the GitHub Actions runner without exceeding the 6‑hour runtime limit.  
 
-- [ ] T038 Add integration test `tests/integration/test_full_pipeline.py` that runs the pipeline via the CLI, asserts the existence and schema‑validity of `results/model_results.json`, and checks that `is_learnable` is a boolean.  
-  **Verification**: The test passes on the CI runner.
+---
 
-## Phase 7: Polish & cross‑cutting concerns
+## Phase 9 – Optional polish (non‑essential for scientific validation)  
 
-- [ ] T039a Update `README.md`: Add installation section with specific steps.  
-- [ ] T039b Update `README.md`: Add API reference section for key scripts.  
-- [ ] T039c Update `README.md`: Add contribution guidelines section.  
-- [ ] T039d Update `README.md`: Add development setup instructions.  
+- [ ] T021 Update `README.md` with installation, API reference, contribution guidelines, and development setup sections.  
+- [ ] T022 Profile `code/data/download_nist.py` to ensure peak memory usage stays below 2 GB; record the measurement in `data/logs/memory_profile.txt`.  
+- [ ] T023 Optimize `code/data/preprocess.py` to process 10 000 rows in ≤ 30 seconds; store the benchmark in `data/logs/preprocess_benchmark.txt`.  
 
-- [ ] T033 Profile `code/data/download_nist.py` to ensure peak memory usage stays below 2 GB; record the measurement in `data/logs/memory_profile.txt`.  
-  **Verification**: The reported peak memory < 2 GB.
+---
 
-- [ ] T034 Optimize `code/data/preprocess.py` to complete preprocessing of 10 000 rows in under 30 seconds; benchmark result stored in `data/logs/preprocess_benchmark.txt`.  
-  **Verification**: Benchmark file reports elapsed time ≤ 30 s.
+### Dependency map (selected)
 
-- [ ] T035 [ ] Additional unit tests for edge cases (pH > 14, pH < 0) in `tests/unit/`.  
-- [ ] T036 Run `quickstart.md` validation to ensure full pipeline reproducibility.
+| Task | Satisfies FR/US | Produces / Consumes |
+|------|-----------------|---------------------|
+| T001 | – | Creates directories used by all later tasks |
+| T004 | FR‑001 – FR‑004 | Provides schemas for T005, T006, T007 |
+| T006 | FR‑001, FR‑002, FR‑015, FR‑019 | Raw files consumed by T007 |
+| T008 | FR‑003, FR‑013, FR‑016, FR‑020 | Clean dataset consumed by T010 |
+| T010 | FR‑004, FR‑012 | Train/Test sets consumed by T012 |
+| T012 | FR‑005, FR‑021 | Model files consumed by T013 |
+| T013 | FR‑006 | Metrics consumed by T014 |
+| T014 | FR‑007, FR‑008, SC‑001 – SC‑007 | `model_output.json` consumed by T015 |
+| T016‑T018 | FR‑007 – FR‑009 | Interpretability artifacts consumed by T018 |
+| T019‑T020 | FR‑010, overall reproducibility | Documentation & CI validation |
+
+--- 
+
+*All pending tasks are unchecked; completed tasks should be marked `[x]` once their verification criteria are satisfied.*
