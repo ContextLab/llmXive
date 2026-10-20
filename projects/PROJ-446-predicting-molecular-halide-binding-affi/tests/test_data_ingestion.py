@@ -2,6 +2,9 @@ import importlib.util
 import pathlib
 import pandas as pd
 import numpy as np
+import requests
+import time
+from unittest import mock
 
 def _load_data_ingestion_module():
     """
@@ -100,3 +103,41 @@ def test_filter_hosts_with_multiple_halides():
     # Only host H1 should be retained
     assert set(filtered["host_id"].unique()) == {"H1"}
     assert len(filtered) == 3  # three halide rows for H1
+
+
+def test_fetch_outcome_records_error_handling(monkeypatch):
+    """
+    Simulate a HTTP 404 response for both PubChem and NIST to verify that
+    the outcome JSON records the real status code and does not treat the
+    situation as a silent success.
+    """
+    import requests
+
+    class MockResponse:
+        def __init__(self, status_code):
+            self.status_code = status_code
+            self.text = ""
+        def json(self):
+            return {}
+        def raise_for_status(self):
+            raise requests.HTTPError(response=self)
+
+    def mock_get(url, timeout=10):
+        # Return a 404 for any URL
+        return MockResponse(404)
+
+    # Patch network calls and sleep to keep the test fast
+    monkeypatch.setattr(requests, "get", mock_get)
+    monkeypatch.setattr(time, "sleep", lambda x: None)
+
+    mod = _load_data_ingestion_module()
+    result = mod.build_raw_records()
+    outcome = result["outcome"]
+
+    # Both sources should have recorded a 404 status and zero records
+    for source in ("pubchem", "nist"):
+        for halide in ("fluoride", "chloride", "bromide", "iodide"):
+            halide_out = outcome[source]["halides"][halide]
+            assert halide_out["status"] == 404
+            assert halide_out["records_fetched"] == 0
+            assert halide_out["retries_exhausted"] is False

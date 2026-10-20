@@ -1,16 +1,25 @@
 T001:
-  reason: "The script ran and exited 0 with all four artifacts present, but two requirements\
-    \ are unmet. First, `fetch_outcome.json` records `\"status\": null` for every\
-    \ source/halide with no error or retry-exhaustion detail \u2014 the code only\
-    \ sets a status on success (`200 if records else None`), so the outcome file cannot\
-    \ distinguish \"source has no matching data\" from \"request refused after retries,\"\
-    \ violating the exit-code contract to record per-source HTTP status / retry exhaustion\
-    \ as real fetch evidence. Second, the required test coverage is incomplete: `code/tests/test_data_ingestion.py`\
-    \ covers unit conv"
+  reason: 'The main script ran (exit 0) and produced all four artifacts with honest
+    zero-record fetch evidence, but the required focused tests fail: the recorded
+    pytest run shows all 6 tests FAILED with `FileNotFoundError` because `code/tests/test_data_ingestion.py`
+    resolves the module via `parents[2]`, which lands on `projects/` instead of the
+    project root. Additionally, the current test file contains no test for the zero-records
+    path exiting 0 (a task requirement), and the historical log references a `test_fetch_outcome_records_error_handling`
+    test that no longer exists in the file. Fix the path resolu'
   task: 6fc85c67a890179250d7ef70ec3ef06cbeb60406f86019c72fd3769863f09581
 T002:
+  reason: "The output CSV exists with headers (empty case is permitted since `filtered_hosts.csv`\
+    \ was empty), but the implementation does not compute the required descriptors:\
+    \ `charge_density` is a heteroatom-count/MolWt proxy rather than the required\
+    \ Gasteiger charge sum (`rdPartialCharges.ComputeGasteigerCharges` is never used),\
+    \ and `cavity_volume` attempts `rdMolDescriptors.CalcSASA` (an area, not a volume)\
+    \ which the execution log shows fails (\"has no attribute 'CalcSASA'\"), so it\
+    \ silently returns 0.0 \u2014 not the required RDKit molecular volume in \xC5\xB3\
+    . Additionally, the unit test is circular: it compares"
   task: 5783bf0aa9574d60d08368290da99823d955926db8f650c45db374542b2418ec
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/01_data_ingestion.py
+    exit=1'
   task: 8e0bcc9b6612e190d6935acce2d91fe718c36a12c2d2483ef6629899b0ecb964
 T004:
   task: 1edd468c6f645abe97682067d36bf20a89a6e4e066ba117d130ae043b5a8a442

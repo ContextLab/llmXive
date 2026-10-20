@@ -1,15 +1,11 @@
-# Core dependencies (already available in the environment)
-numpy
-pandas
-scipy
-matplotlib
 scikit-learn>=1.4.0
-statsmodels
-seaborn
-pytest
-PyYAML
+rdkit
+pandas
+numpy
 requests
 beautifulsoup4
-
-# Additional chemistry-specific dependency required for descriptor generation
-rdkit-pypi
+pyarrow
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
+# already provided by the platform runtime. pyarrow is added to enable
+# reading the SMILES parquet file required for the simulated data fallback.

@@ -1,12 +1,12 @@
-T001:
+T002:
   c: false
-  h: e0ac09749b364c6ec53270fe55c14abf69f965b9f4f64e8f81dc93c91e46b7a9
-  r: "The script ran and exited 0 with all four artifacts present, but two requirements\
-    \ are unmet. First, `fetch_outcome.json` records `\"status\": null` for every\
-    \ source/halide with no error or retry-exhaustion detail \u2014 the code only\
-    \ sets a status on success (`200 if records else None`), so the outcome file cannot\
-    \ distinguish \"source has no matching data\" from \"request refused after retries,\"\
-    \ violating the exit-code contract to record per-source HTTP status / retry exhaustion\
-    \ as real fetch evidence. Second, the required test coverage is incomplete: `code/tests/test_data_ingestion.py`\
-    \ covers unit conv"
-  sig: f0ea25178a8b46bca5c9efb8ec19e41e3772f7bc423cb5c25993721d118862b1
+  h: 9c41dcf44e40eb9fe807d44bc4391e517f967a803fbd33521c405b721cfe60f5
+  r: "The output CSV exists with headers (empty case is permitted since `filtered_hosts.csv`\
+    \ was empty), but the implementation does not compute the required descriptors:\
+    \ `charge_density` is a heteroatom-count/MolWt proxy rather than the required\
+    \ Gasteiger charge sum (`rdPartialCharges.ComputeGasteigerCharges` is never used),\
+    \ and `cavity_volume` attempts `rdMolDescriptors.CalcSASA` (an area, not a volume)\
+    \ which the execution log shows fails (\"has no attribute 'CalcSASA'\"), so it\
+    \ silently returns 0.0 \u2014 not the required RDKit molecular volume in \xC5\xB3\
+    . Additionally, the unit test is circular: it compares"
+  sig: 8c2563781443aa3beb90536efe7f5c7664785c4bf792fdd461563a67348e8d7e
