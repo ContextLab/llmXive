@@ -22,7 +22,7 @@ pip install -r requirements.txt
 
 ## Data Setup
 1. **Obtain the dataset**  
-   The pipeline expects a folder `data/raw/` containing the **OpenNeuro ds003542** dataset, which provides:
+   The pipeline expects a folder `data/raw/` containing the **OpenNeuro ds003542** dataset, which provides:  
    - Resting‑state EEG recordings (e.g., `.fif` files)  
    - `heat_pain_thresholds.csv` with columns `participant_id,heat_pain_threshold[,age,gender]`  
 
@@ -89,7 +89,7 @@ pytest -q
 | `figures/` | PDF/PNG versions of key plots (correlation scatter, importance bar, VIF histogram, ROC curves). |
 
 ## Troubleshooting
-- **MemoryError** – The pipeline streams data via `DataChunk`; ensure you are not forcing full preload.  
+- **MemoryError** – The pipeline streams data via `DataChunk`; ensure you are not forcing a full preload.  
 - **ConvergenceWarning** – The script will automatically increase `max_iter` (Edge Case 2). If convergence still fails, the run aborts with an explicit error.  
 - **Blocked status** – Verify that the OpenNeuro ds003542 dataset containing `heat_pain_threshold` is present in `data/raw/`. No placeholder data should be used.  
 

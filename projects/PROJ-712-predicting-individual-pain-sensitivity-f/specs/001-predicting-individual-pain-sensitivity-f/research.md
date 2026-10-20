@@ -1,9 +1,9 @@
 # Research: Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates
 
 ## Executive Summary
-This study examines whether the temporal dynamics of resting‑state EEG microstates predict individual heat‑pain thresholds. Using the open **OpenNeuro ds003542** dataset (verified parquet URLs), we implement a fully reproducible EEG preprocessing pipeline, extract 30 microstate‑derived features, and train an Elastic Net regression model with nested cross‑validation. Statistical rigor is ensured through a global permutation test, bootstrap confidence intervals, FDR‑corrected feature‑level inference, VIF diagnostics, and a median‑split sensitivity analysis.
+This study tests whether resting‑state EEG microstate dynamics predict individual heat‑pain thresholds. Using the open **OpenNeuro ds003542** dataset (verified parquet URLs), we implement a fully reproducible EEG preprocessing pipeline, extract 30 microstate‑derived features, and train an Elastic Net regression model with nested cross‑validation. Statistical rigor is ensured through a global permutation test, bootstrap confidence intervals, FDR‑corrected feature‑level inference, VIF diagnostics, and a median‑split sensitivity analysis.
 
-**Dataset Availability:** The dataset is programmatically downloadable via the Hugging Face `datasets` library:
+**Dataset Availability:** The dataset can be programmatically downloaded via the Hugging Face `datasets` library:
 
 ```python
 datasets.load_dataset('openneuro/ds003542', data_dir='data/raw')
@@ -51,7 +51,7 @@ If the dataset cannot be fetched or lacks the required `heat_pain_threshold` col
 
 ### Phase 4 – Reporting
 - **Model results** (`model_results.json`) – Pearson r, empirical p‑value, MAE, 95 % CI, runtime.  
-- **Diagnostics** (`diagnostics.csv`) – Coefficients, importance scores, VIF, significance flags.  
+- **Diagnostics** (`diagnostics.csv`) – Coefficients, importance scores, raw & FDR‑adjusted p‑values, VIF, significance flags.  
 - **Sensitivity report** (`sensitivity_report.md`) – AUC/accuracy/Brier across thresholds and regularization sweep.  
 - **Figures** saved under `figures/` (scatter of predictions vs. true, importance bar, VIF histogram, ROC curves).  
 
