@@ -1,12 +1,16 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 8 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T001` (rejected 1x): Requested task execution failed; rerun successfully: code/ingestion/fetch_data.py exit=1; code/modeling/train.py exit=1; code/modeling/evaluate.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan re‑frames the research question from *metallic‑glass* thermal expansion to *crystalline* alloy CTE prediction. This changes the construct being measured (metallic‑glass CTE vs. crystalline CTE) and therefore cannot provide evidence for the original claim that composition influences the thermal expansion of metallic glasses. As a result, the study lacks construct validity for the spec’s primary scientific question.
+- FR‑001 (≥ 95 % retrieval of metallic‑glass entries) is marked “Not applicable”, yet the spec still lists FR‑001 as a mandatory functional requirement. By treating FR‑001 as irrelevant, the plan violates the specification’s requirement hierarchy and leaves the core hypothesis untested.
+- The power analysis assumes an effect size detectable with ≥ 500 samples of crystalline alloys. If the dataset falls below 500 (e.g., after filtering for high‑quality CTE values), the analysis will proceed with a warning, but the statistical power to detect the effect of interest for metallic glasses remains undefined, undermining the ability to draw reliable conclusions.
+- FR-001 requires ≥ 95 % retrieval of metallic‑glass entries (amorphous/metallic‑glass flagged) from the Materials Project and AFLOWlib APIs. The plan marks FR-001 as “Not applicable – data unavailable” and reframes the research to crystalline alloys, which does not satisfy the functional requirement.
+- The plan re‑frames the research question from metallic‑glass alloys to crystalline alloys, yet retains the original functional requirement FR‑001 which explicitly demands retrieval of metallic‑glass entries. Consequently, the cited Materials Project thermal‑expansion dataset (crystalline only) is the wrong dataset for the original question, violating the specification’s requirement for metallic‑glass data.
+- Principle I (Reproducibility) requires that all random operations be seeded. The plan never mentions fixing random seeds for GroupKFold, train_test_split, permutation testing, or any stochastic algorithm, which violates the constitution.
+- The specification (FR‑001) mandates ≥ 95 % retrieval of metallic‑glass entries. The plan declares FR‑001 “Not applicable” and proceeds with crystalline data without formally amending or waiving the functional requirement, creating a contradiction between plan and spec.
+- FR‑003 requires a stratified split by alloy family. The plan implements a GroupKFold split using the full composition string as the grouping key, which does not guarantee stratification by alloy family and therefore does not satisfy the functional requirement.

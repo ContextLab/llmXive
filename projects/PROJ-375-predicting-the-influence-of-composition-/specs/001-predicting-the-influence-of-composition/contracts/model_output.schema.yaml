@@ -21,5 +21,9 @@ properties:
     type: object
     description: "Dictionary of hyperparameter names and values used for training."
     additionalProperties:
-      type: ["string", "number", "boolean", "null"]
+      type:
+        - string
+        - number
+        - boolean
+        - "null"
 additionalProperties: false

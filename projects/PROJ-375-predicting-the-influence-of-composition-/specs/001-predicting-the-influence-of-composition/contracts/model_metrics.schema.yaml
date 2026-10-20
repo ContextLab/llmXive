@@ -24,7 +24,9 @@ properties:
     type: number
     description: "Root Mean Squared Error (K⁻¹) on the test set."
   p_value:
-    type: ["number", "null"]
+    type:
+      - number
+      - "null"
     description: "Two‑sided permutation‑test p‑value; null if R² < 0.3."
   null_result_flag:
     type: boolean

@@ -10,7 +10,6 @@ required:
   - vec
   - atomic_size_coefficient_of_variation
   - source_method
-  - amorphous_flag
   - checksum
 properties:
   material_id:
@@ -29,13 +28,22 @@ properties:
     type: number
     description: "Weighted variance of Pauling electronegativity."
   vec:
-    type: type: number
-    description: "Valence electron concentration (e⁻/un"
-  vec:
     type: number
-    description: "Valence electron concentration (e⁻/atom"
+    description: "Valence electron concentration (e⁻/atom)."
   atomic_size_coefficient_of_variation:
     type: number
-    description: "Weighted    …  
-
-
+    description: "Standard deviation of atomic radii divided by the weighted mean radius (σ/μ)."
+  source_method:
+    type: string
+    enum: ["DFT", "Experimental"]
+    description: "Method used to obtain the CTE value."
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the raw JSON record."
+  vif_score:
+    type: number
+    description: "Variance Inflation Factor for the descriptor (if computed)."
+  thermal_history_flag:
+    type: boolean
+    description: "True if non‑standard thermal‑history metadata is present."
+additionalProperties: false
