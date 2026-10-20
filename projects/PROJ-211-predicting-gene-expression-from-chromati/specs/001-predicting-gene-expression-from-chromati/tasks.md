@@ -11,7 +11,7 @@ The pipeline must use **real ENCODE data** for scientific results; synthetic dat
 | Goal | Run an executable analysis on a small real (or CI‑synthetic) input set early. |
 |------|--------------------------------------------------------------------------------|
 
-- [ ] T001 [US1] Implement a deterministic synthetic data generator `code/generate_data.py` that  
+- [ ] T001 [US1] Implement a deterministic synthetic data generator `code/generate_data.py` that   <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 -->
   – seeds NumPy with `42`;  
   – writes `data/raw/synthetic_counts.csv` (RNA‑seq counts) and `data/raw/synthetic_peaks.bed` (peak calls) for the five cell lines (GM12878, K562, HMEC, IMR90, HepG2);  
   – validates both outputs against the YAML schema `specs/001-predicting-gene-expression-from-chromati/contracts/dataset_schema.schema.yaml` using `jsonschema`;  

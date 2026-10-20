@@ -15,7 +15,7 @@ import pandas as pd
 import sys
 
 # Add code directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 from generate_data import (
     set_seed,
@@ -25,7 +25,7 @@ from generate_data import (
     CELL_LINES,
     NUM_GENES,
     NUM_PEAKS,
-    SEED
+    SEED,
 )
 
 class TestSeedReproducibility:
@@ -92,19 +92,19 @@ class TestPeakCoordinates:
 
     def test_correct_number_of_peaks(self):
         """Verify we generate the expected number of peaks."""
-        peaks_df = generate_peak_coordinates(NUM_PEAKS)
+        peaks_df = generate_peak_coordinates(NUM_PEAKS, generate_gene_coordinates(10))
         assert len(peaks_df) == NUM_PEAKS
 
     def test_required_columns(self):
         """Verify peak DataFrame has required columns."""
-        peaks_df = generate_peak_coordinates(NUM_PEAKS)
+        peaks_df = generate_peak_coordinates(NUM_PEAKS, generate_gene_coordinates(10))
         required_cols = ["chrom", "start", "end", "name", "score", "strand"]
         for col in required_cols:
             assert col in peaks_df.columns, f"Missing column: {col}"
 
     def test_bed_format_constraints(self):
         """Verify BED format constraints (start < end)."""
-        peaks_df = generate_peak_coordinates(100)
+        peaks_df = generate_peak_coordinates(100, generate_gene_coordinates(10))
         for _, row in peaks_df.iterrows():
             assert row["start"] < row["end"], "BED start must be less than end"
             assert row["end"] - row["start"] <= 1000, "Peak width exceeds max (1000)"
@@ -112,7 +112,7 @@ class TestPeakCoordinates:
 
     def test_peak_id_format(self):
         """Verify peak IDs follow expected format."""
-        peaks_df = generate_peak_coordinates(10)
+        peaks_df = generate_peak_coordinates(10, generate_gene_coordinates(10))
         for peak_id in peaks_df["name"]:
             assert peak_id.startswith("PEAK_"), f"Invalid peak_id format: {peak_id}"
 
@@ -122,72 +122,67 @@ class TestCountsMatrix:
     def test_correct_dimensions(self):
         """Verify count matrix has correct dimensions."""
         genes_df = generate_gene_coordinates(NUM_GENES)
-        peaks_df = generate_peak_coordinates(NUM_PEAKS)
-        counts_df = generate_counts_matrix(genes_df, peaks_df, CELL_LINES, NUM_GENES)
+        peaks_df = generate_peak_coordinates(NUM_PEAKS, genes_df)
+        counts_df = generate_counts_matrix(genes_df, peaks_df, CELL_LINES)
 
-        assert len(counts_df) == NUM_GENES, f"Wrong number of rows: {len(counts_df)}"
-        assert len(counts_df.columns) == len(CELL_LINES), "Wrong number of columns"
+        assert counts_df.shape[0] == NUM_GENES, f"Wrong number of rows: {counts_df.shape[0]}"
+        assert counts_df.shape[1] == len(CELL_LINES), "Wrong number of columns"
 
     def test_cell_line_columns(self):
         """Verify columns match expected cell lines."""
         genes_df = generate_gene_coordinates(NUM_GENES)
-        peaks_df = generate_peak_coordinates(NUM_PEAKS)
-        counts_df = generate_counts_matrix(genes_df, peaks_df, CELL_LINES, NUM_GENES)
+        peaks_df = generate_peak_coordinates(NUM_PEAKS, genes_df)
+        counts_df = generate_counts_matrix(genes_df, peaks_df, CELL_LINES)
 
         for cell_line in CELL_LINES:
             assert cell_line in counts_df.columns, f"Missing cell line: {cell_line}"
 
     def test_non_negative_counts(self):
-        """Verify all counts are non-negative."""
+        """Verify all counts are non‑negative."""
         genes_df = generate_gene_coordinates(NUM_GENES)
-        peaks_df = generate_peak_coordinates(NUM_PEAKS)
-        counts_df = generate_counts_matrix(genes_df, peaks_df, CELL_LINES, NUM_GENES)
+        peaks_df = generate_peak_coordinates(NUM_PEAKS, genes_df)
+        counts_df = generate_counts_matrix(genes_df, peaks_df, CELL_LINES)
 
         assert (counts_df >= 0).all().all(), "Found negative counts"
 
     def test_integer_counts(self):
         """Verify counts are integers."""
         genes_df = generate_gene_coordinates(NUM_GENES)
-        peaks_df = generate_peak_coordinates(NUM_PEAKS)
-        counts_df = generate_counts_matrix(genes_df, peaks_df, CELL_LINES, NUM_GENES)
+        peaks_df = generate_peak_coordinates(NUM_PEAKS, genes_df)
+        counts_df = generate_counts_matrix(genes_df, peaks_df, CELL_LINES)
 
-        # Check that all values are integers (or can be cast to int without loss)
+        # All values should be whole numbers
         assert counts_df.applymap(lambda x: float(x).is_integer()).all().all()
 
 class TestIntegration:
-    """Integration tests for the full generation pipeline."""
+    """Integration test for the full generation pipeline."""
 
     @pytest.fixture(autouse=True)
     def setup_teardown(self, tmp_path):
-        """Setup and teardown for integration tests."""
-        self.tmp_path = tmp_path
-        # Save original output dir
-        self.original_output = "data/raw"
-        # Create temp output
-        os.makedirs(self.tmp_path, exist_ok=True)
+        """Redirect output to a temporary directory."""
+        self.original_raw = Path("data/raw")
+        self.temp_raw = tmp_path / "raw"
+        self.temp_raw.mkdir(parents=True, exist_ok=True)
+
+        # Monkey‑patch the paths inside the module
+        import importlib
+        import generate_data
+
+        generate_data.Path = lambda *p: Path(*p)  # ensure Path works normally
+        generate_data.base_dir = self.temp_raw  # used in main()
         yield
-        # Cleanup (optional)
+        # No explicit teardown needed
 
     def test_file_creation(self):
-        """Verify that main() creates the expected output files."""
-        # This is a simplified test - we mock the file paths
-        # In real CI, we'd run the actual script and check files
-        pass  # Actual file creation tested in integration tests
+        """Run the generator and check that files exist and are non‑empty."""
+        import generate_data
 
-    def test_schema_validity(self):
-        """Verify generated data matches expected schema."""
-        # Generate test data
-        genes_df = generate_gene_coordinates(100)
-        peaks_df = generate_peak_coordinates(100)
-        counts_df = generate_counts_matrix(genes_df, peaks_df, CELL_LINES, 100)
+        generate_data.main()
 
-        # Verify counts schema
-        assert "gene_id" in str(counts_df.index.name) or counts_df.index.name is not None
+        counts_file = self.temp_raw / "synthetic_counts.csv"
+        peaks_file = self.temp_raw / "synthetic_peaks.bed"
+        checksum_file = self.temp_raw / "checksums.csv"
 
-        # Verify peaks schema
-        assert "chrom" in peaks_df.columns
-        assert "start" in peaks_df.columns
-        assert "end" in peaks_df.columns
-
-import random
-import numpy as np
+        for f in (counts_file, peaks_file, checksum_file):
+            assert f.exists(), f"{f} was not created"
+            assert f.stat().st_size > 0, f"{f} is empty"
