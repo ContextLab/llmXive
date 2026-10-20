@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "d11554777f315c93b56da0e3f86b0acb509b7f7d4e9f07eaf4ab1d9f0b813c49",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/data/run_synthetic_generator.py': imports nonexistent names from sibling files: `from data.synthetic_generator import generate_connectivity_data` (available: Optional, Path, create_corrupted_nifti, create_mock_nifti, generate_subject_data, generate_synthetic_dataset, get_logger, log...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

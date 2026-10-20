@@ -1,10 +1,11 @@
 T001:
   c: false
-  h: b7a52cc1ca2b898158463fdcd511b9639f682bd3d342b1933eb5a76e0ef614a4
-  r: "Checked `code/run_quickstart_test.py` \u2013 it only checks for file existence\
-    \ and never validates the JSON/CSV files against their `*_schema.yaml` contracts,\
-    \ violating the requirement. It also expects `data/processed/connectivity_matrices.npy`\
-    \ which the synthetic pipeline in `code/main.py` does not create, so the test\
-    \ would fail even on file existence. These missing behaviors must be added to\
-    \ satisfy the task."
-  sig: 22b134aa475eba26290093a556626950dc8bda4a4787ac43bf88a99a92d6e69e
+  h: 0185f0d6c28d3e67f47c1d38eb87ed21b5302ca9d7a94205e8ac94b6a232e39e
+  r: "The `code/data/real_ingest.py` writes its status JSON to `data/real_ingest_status.json`\
+    \ instead of the required `data/logs/real_ingest_status.json`, and the expected\
+    \ schema files (`*_schema.yaml`) are not present, so `code/run_quickstart_test.py`\
+    \ cannot actually validate the outputs against a schema. Additionally, there is\
+    \ no evidence that the quick\u2011start test script runs successfully (the recorded\
+    \ pytest run shows a failure). These issues must be fixed for the task to be considered\
+    \ complete."
+  sig: 5a46b784691c4e02514cde1bbff6d1715da684903f3ce1f6bda8f968025b61b8

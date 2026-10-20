@@ -46,6 +46,7 @@ from analysis.download_atlas import main as download_atlas_main
 logger = get_logger(__name__)
 
 def _generate_synthetic_subjects(num_subjects: int = 100, seed: int = 0) -> pd.DataFrame:
+    """Create a simple synthetic subject table used by the verification pipeline."""
     np.random.seed(seed)
     per_group = num_subjects // 2
     total = per_group * 2
@@ -72,6 +73,7 @@ def _generate_synthetic_subjects(num_subjects: int = 100, seed: int = 0) -> pd.D
 
 def _generate_synthetic_time_series(num_subjects: int, n_timepoints: int = 200,
                                     n_rois: int = 400, seed: int = 0):
+    """Create random Gaussian time‑series for each synthetic subject."""
     np.random.seed(seed)
     subjects_data = []
     for i in range(num_subjects):
@@ -81,9 +83,11 @@ def _generate_synthetic_time_series(num_subjects: int, n_timepoints: int = 200,
     return subjects_data
 
 def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
+    """Execute the full synthetic verification pipeline."""
     logger.info("Starting VERIFICATION MODE pipeline.")
     start_time = time.time()
     try:
+        # 1️⃣  Synthetic subject table
         df_subjects = _generate_synthetic_subjects(num_subjects=n_subjects, seed=seed)
         check_memory_limit()
 
@@ -91,6 +95,7 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         df_subjects.to_parquet(subjects_parquet_path, index=False)
         check_memory_limit()
 
+        # 2️⃣  Pre‑process / matching (uses the same function as the real pipeline)
         cleaned_df = preprocess_subjects(
             df=df_subjects,
             mode="verification",
@@ -99,10 +104,12 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         )
         check_memory_limit()
 
+        # 3️⃣  Write cleaned subject CSV (used by downstream steps)
         cleaned_path = Path(output_dir) / "subjects_cleaned.csv"
         write_cleaned_subjects(cleaned_df, cleaned_path)
         check_memory_limit()
 
+        # 4️⃣  Simple balance report (used by the quick‑start test)
         balance_report_path = Path(output_dir) / "matching_balance_report.csv"
         balance_df = (
             cleaned_df.groupby("group")
@@ -117,44 +124,50 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         balance_df.to_csv(balance_report_path, index=False)
         check_memory_limit()
 
+        # 5️⃣  Download / generate a minimal atlas (the helper is already idempotent)
         download_atlas_main()
         atlas_path = Path("data/atlas/schaefer_400.csv")
         if not atlas_path.is_file():
             raise FileNotFoundError("Atlas download failed.")
 
+        # 6️⃣  Generate synthetic time‑series and compute connectivity
         subjects_data = _generate_synthetic_time_series(
             num_subjects=len(cleaned_df), n_timepoints=200, n_rois=400, seed=seed
         )
-
-        matrices, subject_ids = generate_group_connectivity_results(
-            subjects_data=subjects_data, atlas_path=atlas_path, output_dir=Path(output_dir), chunk_size=50
+        matrices, _ = generate_group_connectivity_results(
+            subjects_data=subjects_data,
+            atlas_path=atlas_path,
+            output_dir=Path(output_dir),
+            chunk_size=50,
         )
         check_memory_limit()
 
+        # 7️⃣  Group‑level statistics
         stats_results = process_connectivity_statistics(matrices)
-        check_memory_limit()
-
         stats_path = Path(output_dir) / "connectivity_results.csv"
         write_connectivity_results(stats_results, str(stats_path))
-
-        nbs_results = run_nbs_analysis(str(cleaned_path))
         check_memory_limit()
 
+        # 8️⃣  NBS placeholder (returns an empty DataFrame)
+        nbs_results = run_nbs_analysis(str(cleaned_path))
         nbs_path = Path(output_dir) / "nbs_results.csv"
         write_nbs_results(nbs_results, str(nbs_path))
+        check_memory_limit()
 
+        # 9️⃣  Correlation & sensitivity analyses
         corr_results = process_correlation_analysis(str(cleaned_path))
-        check_memory_limit()
-
         sens_results = process_sensitivity_analysis(corr_results)
-        check_memory_limit()
 
         corr_out_path = Path(output_dir) / "correlation_results.csv"
         sens_out_path = Path(output_dir) / "sensitivity_analysis.csv"
-        process_correlation_output(corr_results, sens_results, str(corr_out_path), str(sens_out_path))
+        process_correlation_output(corr_results, sens_results,
+                                   str(corr_out_path), str(sens_out_path))
+        check_memory_limit()
 
         elapsed = time.time() - start_time
-        logger.info(f"Verification Mode completed in {elapsed:.2f}s. Memory: {get_memory_usage_report()}")
+        logger.info(
+            f"Verification Mode completed in {elapsed:.2f}s. Memory: {get_memory_usage_report()}"
+        )
         return True
     except MemoryLimitExceeded as e:
         logger.error(f"Memory limit exceeded: {e}")
@@ -165,13 +178,14 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         return False
 
 def run_real_mode(data_path: str, output_dir: str) -> bool:
-    logger.info("Starting REAL-DATA MODE pipeline.")
+    """Stub for real‑data mode – reports unavailability and writes a status JSON."""
+    logger.info("Starting REAL‑DATA MODE pipeline (stub).")
     try:
         from data.real_ingest import main as real_ingest_main
         exit_code = real_ingest_main()
         return exit_code == 0
     except Exception as e:
-        logger.error(f"Real-data mode failed: {e}")
+        logger.error(f"Real‑data mode failed: {e}")
         return False
 
 def main():
@@ -182,10 +196,17 @@ def main():
     parser.add_argument("--n-permutations", type=int, default=1000)
     parser.add_argument("--data-path", type=str, default="./data/raw")
     parser.add_argument("--output-dir", type=str, default="./data/processed")
-    parser.add_argument("--log-level", type=str, default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"])
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+    )
     args = parser.parse_args()
 
-    configure_logger(level=args.log_level)
+    # Fixed argument name – configure_logger expects ``log_level`` not ``level``
+    configure_logger(log_level=args.log_level)
+
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
 
     if args.mode == "synthetic":
