@@ -1,11 +1,12 @@
 T001:
-  c: false
-  h: 397e5ee6a7f7fae5b7eefc8f9639768e0f26adde7ddf4c4c07e0bd75b0b5c8c0
-  r: "The directory tree is present but `data/raw/` and `data/processed/` lack the\
-    \ required placeholder `__init__.py` files, and there is no provided evidence\
-    \ that `python -c \"import pandas\"` was executed successfully. These omissions\
-    \ mean the task\u2019s specifications are not fully satisfied."
-  sig: f623a0071917a7c54218bc84069401f9876e3fe8c06f0967452785160e3c0a5f
+  c: true
+  h: a5ea84a234268b446c0bd6dc6b52128fa89beb167d4d04e9ef06b1acd3a702b8
+  r: All required directories (code/, code/utils/, data/raw|interim|processed/, results/,
+    paper/, tests/) exist with `__init__.py` markers; `requirements.txt` contains
+    all seven specified packages with pandas>=2.0; `quickstart.md` exists and documents
+    the single command `python -m code.pipeline`; and the execution log confirms `python
+    -c "import pandas"` ran successfully (pandas 2.2.2, exit 0).
+  sig: c904435663c677449ec1b96a94baf0fa15a59dd5b5a3e1eca81f320d94e4cfe1
 T003:
   c: false
   h: b457e03011d939223c283a4ea16596c1f88ad41686f7fb90c22b936cb711b0e6

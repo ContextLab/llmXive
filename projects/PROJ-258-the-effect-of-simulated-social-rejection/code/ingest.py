@@ -7,25 +7,11 @@ download does not exceed the RAM limit (7 GB), computes a SHA‑256 checksum,
 writes a metadata JSON file, creates a human‑readable citation, and adds a
 ``task`` column with the appropriate value to every record.
 
-The script accepts the following CLI arguments (both long and short aliases
-are supported for compatibility with the existing quickstart and test suite):
-
-  --dataset-url / --url          URL of the parquet file to download (required)
-  --output-dir  / --out-dir      Directory where the raw files should be stored
-                                 (defaults to the project ``data/raw`` folder)
-  --dataset-id                   Identifier used for naming output files
-                                 (defaults to ``ds000208``)
-
-In addition to the original single‑dataset ingestion, a helper function
-:func:`run_ingestion` is provided for the test suite.  It attempts to
-ingest both the Cyberball dataset (ds000208) and the reward‑feedback
-dataset (ds003392).  If the reward dataset is unavailable, a JSON file
-``data/interim/reward_unavailable.json`` is written with
-``{\"available\": false}`` and processing continues with a Between‑Subjects
-design.
-
-All artefacts are written under the project root using the ``paths``
-helpers from ``llmxive_toolkit`` (via ``config.get_path`` for consistency).
+The script accepts the following CLI arguments:
+  --dataset          Dataset identifier to ingest (e.g., ds000208)
+  --dataset-url / --url  Direct URL to the parquet file to download
+  --output-dir / --out-dir Directory where the raw files should be stored
+  --dataset-id       Identifier used for naming output files
 
 Exit code ``0`` indicates success; any problem results in a logged error
 and ``sys.exit(1)``.
@@ -43,11 +29,11 @@ from typing import Dict, Any, List
 import pandas as pd
 import requests
 
-# pyarrow is optional; we import lazily where needed
+# pyarrow is required for parquet support
 try:
     import pyarrow as pa
     import pyarrow.parquet as pq
-except Exception:
+except ImportError:
     pa = None
     pq = None
 
@@ -65,15 +51,17 @@ logger = logging.getLogger(__name__)
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
-# OpenNeuro citation template – this is a static citation for ds000208.
 CITATION_TEXT = (
     "OpenNeuro. ds000208: Cyberball social exclusion dataset. "
     "https://openneuro.org/datasets/ds000208"
 )
 
-# Default RAM limit in GB (fallback if not defined in config)
+# Verified URL for ds000208
+DS000208_URL = "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"
+
+# Default RAM limit in GB
 try:
-    from config import MAX_RAM_GB  # type: ignore
+    from config import MAX_RAM_GB
 except Exception:
     MAX_RAM_GB = 7.0
 
@@ -91,14 +79,12 @@ def compute_sha256(file_path: Path) -> str:
 def download_file(url: str, dest_path: Path, max_gb: float) -> int:
     """
     Stream‑download *url* to *dest_path*.
-
-    Returns the number of bytes written.  Exits with code 1 if the
+    Returns the number of bytes written. Exits with code 1 if the
     download would exceed *max_gb*.
     """
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     logger.info(f"Downloading {url} → {dest_path}")
 
-    # Perform a HEAD request first to check Content‑Length (if provided)
     try:
         head = requests.head(url, timeout=10, allow_redirects=True)
         head.raise_for_status()
@@ -107,9 +93,7 @@ def download_file(url: str, dest_path: Path, max_gb: float) -> int:
             size_gb = size_bytes / (1024 ** 3)
             logger.info(f"Remote file size: {size_gb:.3f} GB")
             if size_gb > max_gb:
-                logger.error(
-                    f"File size ({size_gb:.2f} GB) exceeds RAM limit of {max_gb} GB."
-                )
+                logger.error(f"File size ({size_gb:.2f} GB) exceeds RAM limit of {max_gb} GB.")
                 sys.exit(1)
     except Exception as exc:
         logger.warning(f"Could not determine remote size: {exc}")
@@ -125,11 +109,8 @@ def download_file(url: str, dest_path: Path, max_gb: float) -> int:
                     f.write(chunk)
                     total_written += len(chunk)
 
-                    # Guard against exceeding the limit during streaming
                     if total_written > max_gb * (1024 ** 3):
-                        logger.error(
-                            f"Downloaded data exceeded {max_gb} GB limit; aborting."
-                        )
+                        logger.error(f"Downloaded data exceeded {max_gb} GB limit; aborting.")
                         sys.exit(1)
     except Exception as exc:
         logger.error(f"Download failed: {exc}")
@@ -141,30 +122,16 @@ def download_file(url: str, dest_path: Path, max_gb: float) -> int:
 def add_task_column(parquet_path: Path, task_value: str = "cyberball") -> None:
     """
     Load the parquet file, add a ``task`` column, and overwrite the file.
-    Supports both pandas and pyarrow back‑ends.
     """
     logger.info(f"Adding task column to {parquet_path}")
 
-    # Try pandas first (most convenient)
-    try:
-        df = pd.read_parquet(parquet_path)
-        df["task"] = task_value
-        df.to_parquet(parquet_path, index=False)
-        logger.info("Task column added using pandas.")
-        return
-    except Exception as pandas_exc:
-        logger.warning(f"Pandas failed to read/write parquet: {pandas_exc}")
-
-    # Fallback to pyarrow
     if pq is None or pa is None:
-        logger.error(
-            "Neither pandas nor pyarrow are available to manipulate parquet files."
-        )
+        logger.error("pyarrow is required to manipulate parquet files. Please install it via requirements.txt.")
         sys.exit(1)
 
     try:
+        # Use pyarrow directly for stability
         table = pq.read_table(parquet_path)
-        # Create a column filled with the task value
         task_array = pa.array([task_value] * table.num_rows)
         table = table.append_column("task", task_array)
         pq.write_table(table, parquet_path)
@@ -187,18 +154,17 @@ def write_citation(citation_path: Path) -> None:
         f.write(CITATION_TEXT + "\n")
     logger.info(f"Citation written to {citation_path}")
 
-# ----------------------------------------------------------------------
-# CLI handling
-# ----------------------------------------------------------------------
 def parse_cli() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Ingest the Cyberball dataset (ds000208) for Task T002."
     )
-    # Support both the original flag names and the quickstart aliases.
+    parser.add_argument(
+        "--dataset",
+        help="Dataset identifier to ingest (e.g., ds000208).",
+    )
     parser.add_argument(
         "--dataset-url",
         "--url",
-        required=True,
         dest="dataset_url",
         help="Direct URL to the parquet file to download.",
     )
@@ -207,19 +173,16 @@ def parse_cli() -> argparse.Namespace:
         "--out-dir",
         default=get_path("raw"),
         dest="output_dir",
-        help="Directory where raw data should be stored (default: project raw folder).",
+        help="Directory where raw data should be stored.",
     )
     parser.add_argument(
         "--dataset-id",
         default="ds000208",
         dest="dataset_id",
-        help="Identifier used for naming output files (default: ds000208).",
+        help="Identifier used for naming output files.",
     )
     return parser.parse_args()
 
-# ----------------------------------------------------------------------
-# Core ingestion for a single dataset
-# ----------------------------------------------------------------------
 def ingest_single_dataset(
     url: str,
     output_dir: Path,
@@ -228,25 +191,12 @@ def ingest_single_dataset(
 ) -> Dict[str, Any]:
     """
     Perform the full ingestion workflow for a single dataset.
-
-    Returns a dictionary with manifest information (url, sha256,
-    size_bytes, file_count, dataset_id).  ``file_count`` is 1 when the
-    parquet file is successfully written, otherwise 0.
     """
     parquet_path = output_dir / f"{dataset_id}.parquet"
 
-    # 1. Download the parquet file (with size guard)
-    try:
-        bytes_written = download_file(url, parquet_path, MAX_RAM_GB)
-    except Exception as exc:
-        logger.error(f"Failed to download {dataset_id}: {exc}")
-        # Propagate the failure to the caller
-        raise
-
-    # 2. Compute SHA‑256 checksum
+    bytes_written = download_file(url, parquet_path, MAX_RAM_GB)
     checksum = compute_sha256(parquet_path)
 
-    # 3. Write metadata JSON
     metadata = {
         "dataset_id": dataset_id,
         "download_url": url,
@@ -257,12 +207,9 @@ def ingest_single_dataset(
     metadata_path = output_dir / f"metadata_{dataset_id}.json"
     write_metadata(metadata_path, metadata)
 
-    # 4. Write citation file (only once; same content for both datasets)
     citation_path = output_dir / "CITATION.md"
-    if not citation_path.is_file():
-        write_citation(citation_path)
+    write_citation(citation_path)
 
-    # 5. Add ``task`` column to the parquet file
     add_task_column(parquet_path, task_value=task_name)
 
     logger.info(f"Ingestion of {dataset_id} completed successfully.")
@@ -274,91 +221,6 @@ def ingest_single_dataset(
         "dataset_id": dataset_id,
     }
 
-# ----------------------------------------------------------------------
-# Public helper for the test suite – ingests both datasets
-# ----------------------------------------------------------------------
-def run_ingestion() -> None:
-    """
-    Ingest the primary Cyberball dataset (ds000208) and attempt to ingest the
-    reward‑feedback dataset (ds003392).  Writes a manifest JSON file
-    ``data/raw/dataset_manifest.json`` containing entries for each dataset.
-    If the reward dataset cannot be downloaded, writes
-    ``data/interim/reward_unavailable.json`` with ``{\"available\": false}``
-    and processing continues with a Between‑Subjects design.
-    Also writes a simple design metadata file
-    ``data/processed/metadata.json`` indicating a Between‑Subjects design.
-    """
-    raw_dir = Path(get_path("raw"))
-    interim_dir = Path(get_path("interim"))
-    processed_dir = Path(get_path("processed"))
-
-    # Ensure directories exist
-    for d in (raw_dir, interim_dir, processed_dir):
-        d.mkdir(parents=True, exist_ok=True)
-
-    manifest: List[Dict[str, Any]] = []
-
-    # ----- ds000208 (always present) -----
-    ds000208_url = (
-        "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"
-    )
-    try:
-        entry = ingest_single_dataset(
-            url=ds000208_url,
-            output_dir=raw_dir,
-            dataset_id="ds000208",
-            task_name="cyberball",
-        )
-        manifest.append(entry)
-    except Exception as exc:
-        logger.error(f"Critical failure ingesting ds000208: {exc}")
-        sys.exit(1)
-
-    # ----- ds003392 (optional) -----
-    ds003392_url = (
-        "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/ds003392.parquet"
-    )
-    reward_entry: Dict[str, Any] = {
-        "url": ds003392_url,
-        "sha256": None,
-        "size_bytes": 0,
-        "file_count": 0,
-        "dataset_id": "ds003392",
-    }
-    try:
-        reward_entry = ingest_single_dataset(
-            url=ds003392_url,
-            output_dir=raw_dir,
-            dataset_id="ds003392",
-            task_name="reward",
-        )
-        manifest.append(reward_entry)
-    except Exception:
-        # Record unavailability
-        reward_unavailable_path = interim_dir / "reward_unavailable.json"
-        with open(reward_unavailable_path, "w", encoding="utf-8") as f:
-            json.dump({"available": False}, f, indent=2)
-        logger.warning(
-            "Reward‑feedback dataset ds003392 unavailable; proceeding with Between‑Subjects design."
-        )
-        manifest.append(reward_entry)  # still add entry with minimal info
-
-    # Write manifest
-    manifest_path = raw_dir / "dataset_manifest.json"
-    with open(manifest_path, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
-    logger.info(f"Dataset manifest written to {manifest_path}")
-
-    # Write processed design metadata (used later by analysis)
-    design_metadata_path = processed_dir / "metadata.json"
-    design_info = {"design_type": "Between-Subjects"}
-    with open(design_metadata_path, "w", encoding="utf-8") as f:
-        json.dump(design_info, f, indent=2)
-    logger.info(f"Design metadata written to {design_metadata_path}")
-
-# ----------------------------------------------------------------------
-# Main workflow (single‑dataset mode, used by quickstart)
-# ----------------------------------------------------------------------
 def main() -> None:
     args = parse_cli()
 
@@ -366,32 +228,28 @@ def main() -> None:
     dataset_id = args.dataset_id
     url = args.dataset_url
 
-    # Destination parquet file
-    parquet_path = output_dir / f"{dataset_id}.parquet"
+    if args.dataset:
+        dataset_id = args.dataset
+        if dataset_id == "ds000208":
+            url = DS000208_URL
+        else:
+            logger.error(f"Unsupported dataset: {dataset_id}")
+            sys.exit(1)
 
-    # 1. Download the parquet file (with size guard)
-    bytes_written = download_file(url, parquet_path, MAX_RAM_GB)
+    if not url:
+        logger.error("Either --dataset or --url must be provided.")
+        sys.exit(1)
 
-    # 2. Compute SHA‑256 checksum
-    checksum = compute_sha256(parquet_path)
-
-    # 3. Write metadata JSON
-    metadata = {
-        "dataset_id": dataset_id,
-        "download_url": url,
-        "download_timestamp": datetime.utcnow().isoformat() + "Z",
-        "size_bytes": bytes_written,
-        "sha256": checksum,
-    }
-    metadata_path = output_dir / f"metadata_{dataset_id}.json"
-    write_metadata(metadata_path, metadata)
-
-    # 4. Write citation file
-    citation_path = output_dir / "CITATION.md"
-    write_citation(citation_path)
-
-    # 5. Add ``task`` column to the parquet file
-    add_task_column(parquet_path, task_value="cyberball")
+    try:
+        ingest_single_dataset(
+            url=url,
+            output_dir=output_dir,
+            dataset_id=dataset_id,
+            task_name="cyberball" if dataset_id == "ds000208" else "other"
+        )
+    except Exception as exc:
+        logger.error(f"Ingestion failed: {exc}")
+        sys.exit(1)
 
     logger.info("Ingestion completed successfully.")
     sys.exit(0)
