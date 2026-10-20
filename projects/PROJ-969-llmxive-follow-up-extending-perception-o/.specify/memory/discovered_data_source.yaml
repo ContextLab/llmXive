@@ -1,13 +1,12 @@
 status: none
-intent: MM-OCEAN validation subset video dataset with metadata download python package
-  dataset
+intent: download MM-OCEAN validation video dataset python package dataset
 required_fields:
-- sample_id
-- video_url
-- ground_truth_trait
-- behavioral_evidence
-- metadata_timestamp
-- additional_annotations
-cache_key: 22b540c30cb29a8cb8f47d533da19415e8fa1a6297f5352da5babb06323074b7
-searched_at: '2026-10-13T15:26:42.131878+00:00'
+- video_id
+- video_file_path_or_url
+- transcript
+- setting
+- culture
+- behavior_tags
+cache_key: 354dd8c866b1b9a369717a804d78f0e7e0a48a5b0448573cf37a1917aed515ff
+searched_at: '2026-10-20T11:08:15.286008+00:00'
 retry_count: 1

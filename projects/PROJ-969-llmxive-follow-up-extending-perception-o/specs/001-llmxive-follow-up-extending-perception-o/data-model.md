@@ -1,7 +1,7 @@
 # Data Model: llmXive follow-up: extending "Perception or Prejudice"
 
 ## Overview
-All pipeline stages read/write structured artifacts that are validated against JSON schemas stored in `contracts/`. The schemas guarantee reproducibility, single source of truth, and enable automated contract testing.
+All pipeline stages read/write structured artifacts validated against JSON schemas stored in `contracts/`. The schemas guarantee reproducibility, single source of truth, and enable automated contract testing.
 
 ## Core Schemas
 
@@ -10,7 +10,13 @@ All pipeline stages read/write structured artifacts that are validated against J
 $schema: "http://json-schema.org/draft-07/schema#"
 title: VideoMetadata
 type: object
-required: [video_id, video_url, transcript, setting, culture, behavior_tags]
+required:
+  - video_id
+  - video_url
+  - transcript
+  - setting
+  - culture
+  - behavior_tags
 properties:
   video_id:
     type: string
@@ -44,7 +50,12 @@ properties:
 $schema: "http://json-schema.org/draft-07/schema#"
 title: ContextProfile
 type: object
-required: [profile_id, setting, culture, norms, scripts]
+required:
+  - profile_id
+  - setting
+  - culture
+  - norms
+  - scripts
 properties:
   profile_id:
     type: string
@@ -70,7 +81,15 @@ properties:
 $schema: "http://json-schema.org/draft-07/schema#"
 title: ModelOutput
 type: object
-required: [model_name, video_id, condition, rating, reasoning, grounding_score, context_cited, valid_json]
+required:
+  - model_name
+  - video_id
+  - condition
+  - rating
+  - reasoning
+  - grounding_score
+  - context_cited
+  - valid_json
 properties:
   model_name:
     type: string
@@ -102,40 +121,50 @@ properties:
 $schema: "http://json-schema.org/draft-07/schema#"
 title: MetricRecord
 type: object
-required: [model_name, condition, prejudice_rate, holistic_grounding_rate, integration_failure_rate, n_valid, n_invalid, n_ambiguous]
+required:
+  - model_name
+  - condition
+  - prejudice_rate
+  - holistic_grounding_rate
+  - integration_failure_rate
+  - n_valid
+  - n_invalid
+  - n_ambiguous
 properties:
   model_name:
     type: string
+    description: "Identifier of the MLLM (matches Table 2 of arXiv:2605.22109)."
   condition:
     type: string
     enum: [baseline, context, noise]
+    description: "Experimental condition under which metrics were computed."
   prejudice_rate:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "PR as defined in the spec."
+    description: "Proportion of correct ratings lacking valid grounding (PR)."
   holistic_grounding_rate:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "HR as defined in the spec."
+    description: "Proportion of correct ratings with valid grounding (HR)."
   integration_failure_rate:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "IR (percentage of outputs that did not cite injected context)."
+    description: "Proportion of outputs that did not cite any injected context phrase (IR)."
   n_valid:
     type: integer
     minimum: 0
-    description: Number of samples included after excluding invalid JSON or timeouts (FR‑010).
+    description: "Number of samples included after excluding invalid JSON or timeouts (FR‑010)."
   n_invalid:
     type: integer
     minimum: 0
-    description: Number of excluded samples (invalid output).
+    description: "Number of excluded samples (invalid output)."
   n_ambiguous:
     type: integer
     minimum: 0
-    description: Number of samples flagged with grounding‑uncertainty (FR‑011).
+    description: "Number of samples flagged with grounding‑uncertainty (FR‑011)."
 ```
 
 ## Data Flow Diagram (conceptual)
