@@ -8,11 +8,11 @@ This research implementation follows a linear pipeline: data acquisition → pre
 
 **Goal**: Establish the pipeline and produce an initial set of predictive metrics on real data.
 
-- [ ] T001 [P] **Initialize Environment and Provenance**  
+- [X] T001 [P] **Initialize Environment and Provenance**  
   Set up the virtual environment, install pinned dependencies from `requirements.txt`, and configure global random seeds (`np.random.seed(42)`, `random.seed(42)`) in `code/utils/io_utils.py`.  
   *Verification*: `pip freeze` matches pinned versions and a test script confirms seed consistency across runs.
 
-- [ ] T002 **Implement Strict Data Loader** → `data/raw/am_raw_data.csv`   <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
+- [ ] T002 **Implement Strict Data Loader** → `data/raw/am_raw_data.csv`   <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
   Implement a loader in `code/data_loader.py` to download the NIST AM‑Bench dataset from Zenodo with retry logic and exponential back‑off. Validate that the dataset contains ≥ 50 samples and required columns (laser power, scan speed, layer thickness, yield strength, ductility). Implement a source‑independence check to ensure target properties are not mathematically derived from predictors. **Compute a SHA‑256 checksum of the downloaded CSV and write it to `data/checksums/am_raw_data.sha256`.**  
   *Verification*: `python -m code.data_loader` produces `data/raw/am_raw_data.csv` and the checksum file; the script fails loudly with a `FileNotFoundError` if the download fails, if samples < 50, or if checksum generation fails.
 

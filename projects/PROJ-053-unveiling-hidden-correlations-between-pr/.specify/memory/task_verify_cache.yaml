@@ -1,13 +1,11 @@
 T001:
-  c: false
-  h: f1c88815209db95706f5067b7e62df5d6c5bdda76643a3cd62d7d8b33c892bad
-  r: 'The `requirements.txt` and `code/utils/io_utils.py` exist and correctly set
-    seeds (42 via config), but the task''s verification requirements are unmet: there
-    is no evidence of a virtual environment setup, no `pip freeze` output matching
-    pinned versions, and no test script confirming seed consistency across runs. The
-    implementer must provide a seed-consistency test script (with execution evidence)
-    and a `pip freeze`/environment record.'
-  sig: f3251c0b7ee359b50fadcbc18f1f4e8ccf1b74a5d9434b4eacfad118ba7b5979
+  c: true
+  h: fa7cee98c38ca3b171606db3d9c5cd728825dca1c3da5ad06f947ac42de65618
+  r: The requirements.txt exists with pinned versions, io_utils.py sets np.random.seed(42)/random.seed(42)
+    via config (seed=42) at import time, and execution logs show setup_env.py exited
+    0 writing an env freeze plus tests/test_seeds.py passing both seed-consistency
+    tests (2 passed, exit 0).
+  sig: 8aa8f65fcee94e29a353e056e449992cd13e508cd5353dea952c5717a756dfce
 T003:
   c: false
   h: a47cc7bd361ce4a220059d536160e345c3c3ecdc6122aaeef3e4d9cab4ac53ec
