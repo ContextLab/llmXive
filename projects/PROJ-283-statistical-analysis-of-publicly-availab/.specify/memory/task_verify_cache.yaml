@@ -1,11 +1,3 @@
-T013#1:
-  c: false
-  h: 0be7d88cf49208871af59f92f358643b7956b89f7de4a7c8da4403fc3206101d
-  r: "The `src/data/parse.py` file does not contain an implementation of `parse_pgn_stream`\
-    \ (it only has imports and a `pass` statement), and the required `src/data/models.py`\
-    \ and schema file are missing entirely, so the function cannot produce the specified\
-    \ `GameRecord` objects or meet any of the contract, schema, or error\u2011handling\
-    \ requirements."
 T015:
   c: false
   h: 101a9c1f20d4225321433b2054c38ee4f95b63d859668b651844f369d5a6e621
@@ -30,25 +22,6 @@ T021:
     \ (only `map_eco_to_family` and `prepare_features_for_modeling` are present),\
     \ and the required external config file `data/config/eco_mapping.json` is absent,\
     \ so the task\u2019s core requirements are not satisfied."
-T027:
-  c: false
-  h: e2093a664a8f7ed39d74efbf42204e579904c50b9b5279f33017981b11229734
-  r: "The repository lacks the required `data/results/model_metrics.json` and the\
-    \ schema file `model_output.schema.yaml`. Moreover, the provided `src/models/fit.py`\
-    \ only contains feature\u2011preparation utilities and does not implement aggregation\
-    \ of coefficients, p\u2011values, AIC, cross\u2011validation scores, calculation\
-    \ of `significant_predictors`, JSON saving, or schema validation as mandated by\
-    \ the task. These core functionalities and artifacts are missing."
-T033:
-  c: false
-  h: 29c0a410c9651f58ae7b673943887ae1039cab9b5244bc7b11b068912ad6286c
-  r: "The repository lacks the required `data/results/diagnostics.json` and `data/results/model_metrics.json`\
-    \ files, and the provided `src/reports/generate_plots.py` does not show an implementation\
-    \ of `generate_diagnostic_report(...)`. Consequently the function\u2019s behavior,\
-    \ JSON schema, and plot\u2011saving requirements cannot be verified. The next\
-    \ implementer must add the missing data files (or generate them) and implement\
-    \ the `generate_diagnostic_report` function to produce the correctly\u2011structured\
-    \ `diagnostics.json`."
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

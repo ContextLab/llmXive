@@ -1,17 +1,16 @@
 status: none
-intent: lichess games dataset Lichess Games Database HuggingFace Lichess Open Database
-  python package dataset
+intent: download Lichess game JSON dataset with ratings and move times python package
+  dataset
 required_fields:
 - game_id
 - eco_code
 - white_rating
 - black_rating
-- move_times
-- avg_move_time
+- average_move_time
 - material_imbalance_move10
-- elo_expected_prob
+- elo_expected_win_prob
 - outcome
 - outcome_deviation
-cache_key: ddbc7619276f21b272064666fcc6932bb3df46f2adde5e7d1264aa29b08d78bd
-searched_at: '2026-10-16T23:20:40.288109+00:00'
+cache_key: abaaf6f1b7132bc90504c5b4e1251a842710efd527673973d4c34d58cfb2f67b
+searched_at: '2026-10-20T14:18:53.177497+00:00'
 retry_count: 1
