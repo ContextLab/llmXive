@@ -5,22 +5,15 @@ This script runs the full analysis in the required order:
   1. Generate the Möbius sequence (sieve)
   2. Sample windows (generate_mobius)
   3. Compute autocorrelations (autocorrelation)
-  4. **Cross‑validation of autocorrelations (int64 exact)**
+  4. Cross-validation of autocorrelations (int64 exact)
   5. Build the null distribution (null_distribution)
-  6. Apply Benjamini‑Hochberg FDR correction (fdr_correction)
-  7. Perform zero‑density sensitivity analysis (sensitivity)
-  8. Produce heat‑map visualisations (viz)
-  9. Run the Kolmogorov‑Smirnov uniformity test (uniformity_test)
+  6. Apply Benjamini-Hochberg FDR correction (fdr_correction)
+  7. Perform zero-density sensitivity analysis (sensitivity)
+  8. Produce heat-map visualisations (viz)
+  9. Run the Kolmogorov-Smirnov uniformity test (uniformity_test)
 
 The script can be invoked as a module:
     python -m code.main [--demo]
-
-The optional ``--demo`` flag runs a lightweight demonstration that
-uses a reduced data size and fewer windows.  For the purposes of
-the integration test we execute only the steps required to produce
-the demo artefacts (Möbius array, window indices, a single demo
-autocorrelation CSV, and a heat‑map figure).  The full pipeline is
-executed when the flag is omitted.
 """
 
 from __future__ import annotations
@@ -34,9 +27,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-# Import the entry‑point functions from the existing modules.
-# Each module provides a ``main`` function that performs its step
-# and writes the expected artefacts to disk.
+# Import the entry-point functions from the existing modules.
 from generate_mobius import main as generate_mobius_main
 from sieve import main as sieve_main
 from autocorrelation import main as autocorr_main
@@ -51,18 +42,10 @@ from uniformity_test import main as uniformity_main
 from llmxive_toolkit import paths
 
 def _run_step(step_func, step_name: str) -> None:
-    """Execute a pipeline step and abort on failure.
-
-    Parameters
-    ----------
-    step_func : callable
-        The ``main`` function of the step to run.
-    step_name : str
-        Human readable name for error messages.
-    """
+    """Execute a pipeline step and abort on failure."""
     try:
         step_func()
-    except Exception as exc:  # pragma: no cover – defensive
+    except Exception as exc:
         print(f"[ERROR] Step '{step_name}' failed: {exc}", file=sys.stderr)
         raise
 
@@ -77,43 +60,29 @@ def _parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
-# ----------------------------------------------------------------------
-# Demo implementation (light‑weight)
-# ----------------------------------------------------------------------
 def _run_demo() -> None:
     """
     Execute a minimal demo pipeline.
-
-    The demo produces:
-      * ``data/raw/mobius_array.npy`` – a small Möbius array (N=2000).
-      * ``data/raw/window_starts.json`` – a tiny set of window start
-        indices (one per interval length).
-      * ``data/processed/demo_autocorr.csv`` – a single
-        autocorrelation value for the first sampled window
-        (L=1000, h=1).
-      * ``outputs/figures/heatmap_demo.png`` – a simple heat‑map
-        visualising the demo autocorrelation.
-
-    All artefacts are written using the project's ``paths`` helpers,
-    guaranteeing that the correct directories are created.
+    Produces:
+      - data/mobius_array.npy
+      - data/window_starts.json
+      - data/processed/demo_autocorr.csv
+      - figures/heatmap_demo.png
     """
-    # ------------------------------------------------------------------
-    # 1. Create a small Möbius array (N = 2000)
-    # ------------------------------------------------------------------
     from sieve import compute_mobius
+    from autocorrelation import compute_autocorrelation
 
+    # 1. Create a small Möbius array (N = 2000)
     N_DEMO = 2000
-    mobius_arr = compute_mobius(N_DEMO)  # returns int8 array length N+1
+    mobius_arr = compute_mobius(N_DEMO)
     mobius_path = paths.data("mobius_array.npy")
     _ensure_parent_dir(mobius_path)
     np.save(mobius_path, mobius_arr)
     print(f"Demo Möbius array saved to {mobius_path}")
 
-    # ------------------------------------------------------------------
     # 2. Write a minimal window index JSON (one window per L)
-    # ------------------------------------------------------------------
     window_starts = {
-        "1000": [1],          # start at index 1 (array includes dummy 0)
+        "1000": [1],
         "10000": [1],
         "100000": [1],
     }
@@ -123,11 +92,7 @@ def _run_demo() -> None:
         json.dump(window_starts, f, indent=2)
     print(f"Demo window starts written to {window_json_path}")
 
-    # ------------------------------------------------------------------
     # 3. Compute a single autocorrelation (L=1000, h=1)
-    # ------------------------------------------------------------------
-    from autocorrelation import compute_autocorrelation
-
     L_DEMO = 1000
     start_demo = 1
     h_demo = 1
@@ -146,10 +111,7 @@ def _run_demo() -> None:
     df_demo.to_csv(demo_csv_path, index=False)
     print(f"Demo autocorrelation written to {demo_csv_path}")
 
-    # ------------------------------------------------------------------
-    # 4. Produce a trivial heat‑map figure
-    # ------------------------------------------------------------------
-    # Create a 2‑D array with a single value (the demo autocorrelation)
+    # 4. Produce a trivial heat-map figure
     heat_data = np.array([[autocorr_val]])
     fig_path = paths.figures("heatmap_demo.png")
     _ensure_parent_dir(fig_path)
@@ -158,13 +120,13 @@ def _run_demo() -> None:
     plt.figure(figsize=(4, 3))
     plt.imshow(heat_data, cmap="RdBu_r", vmin=-1, vmax=1, aspect="auto")
     plt.colorbar(label="Autocorrelation")
-    plt.title("Demo heat‑map (single value)")
+    plt.title("Demo heat-map (single value)")
     plt.xlabel("Lag $h$")
     plt.ylabel("Window index")
     plt.tight_layout()
     plt.savefig(fig_path, dpi=150)
     plt.close()
-    print(f"Demo heat‑map saved to {fig_path}")
+    print(f"Demo heat-map saved to {fig_path}")
 
 def _ensure_parent_dir(p: Path) -> None:
     """Create the parent directory of ``p`` if it does not exist."""
@@ -178,31 +140,14 @@ def main() -> None:
         _run_demo()
         return
 
-    # 1. Sieve – generate μ(n) array.
     _run_step(sieve_main, "sieve")
-
-    # 2. Window sampling.
     _run_step(generate_mobius_main, "window sampling")
-
-    # 3. Autocorrelation for all windows / lags.
     _run_step(autocorr_main, "autocorrelation")
-
-    # 4. **Exact int64 cross‑validation** (Constitution VI).
-    _run_step(cross_validate_main, "cross‑validation")
-
-    # 5. Null‑distribution via block permutations.
+    _run_step(cross_validate_main, "cross-validation")
     _run_step(null_dist_main, "null distribution")
-
-    # 6. Benjamini‑Hochberg FDR correction.
     _run_step(fdr_main, "FDR correction")
-
-    # 7. Zero‑density sensitivity analysis.
     _run_step(sensitivity_main, "sensitivity analysis")
-
-    # 8. Visualisation (heatmaps).
     _run_step(viz_main, "visualisation")
-
-    # 9. Uniformity (KS) test.
     _run_step(uniformity_main, "KS uniformity test")
 
     print("Pipeline completed successfully.")

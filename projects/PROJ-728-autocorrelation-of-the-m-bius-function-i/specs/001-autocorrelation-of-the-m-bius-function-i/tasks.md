@@ -12,7 +12,7 @@ All tasks respect data‑flow dependencies and are written in the canonical chec
   • Path: `quickstart.md`  
   • Verification: `grep '--demo' quickstart.md` succeeds and the command runs without error, producing the expected demo files.  
 
-- [X] T002 [P] [US‑1] **Implement linear‑time Möbius sieve** (`code/sieve.py`) that computes μ(n) for `1 ≤ n ≤ 10⁷` and writes an `int8` array to `data/raw/mobius_array.npy`.  
+- [ ] T002 [P] [US‑1] **Implement linear‑time Möbius sieve** (`code/sieve.py`) that computes μ(n) for `1 ≤ n ≤ 10⁷` and writes an `int8` array to `data/raw/mobius_array.npy`.  
   • Path: `code/sieve.py`, `data/raw/mobius_array.npy`  
   • Verification: unit tests `tests/unit/test_sieve.py` check known values (μ(1)=1, μ(2)=−1, μ(4)=0, μ(30)=−1, μ(3025)=0) and assert that every entry lies in `{−1,0,1}`.  
 
@@ -38,7 +38,7 @@ All tasks respect data‑flow dependencies and are written in the canonical chec
   • Outputs: `data/processed/autocorrelation_stats.csv` (conforms to `contracts/mobius_stats.schema.yaml`) and optional diagnostic `data/processed/permutation_null.npy`.  
   • Verification: schema validation test passes; edge‑case handling (`p < 0.001` → `p = 0.001`, `p > 0.999` → `p = 0.999`) exercised in `tests/unit/test_permutation.py`.  
 
-- [~] T008 [P] [US‑2] **Benjamini–Hochberg FDR correction** – apply `statsmodels.stats.multitest.multipletests` (α = 0.05) to all raw p‑values and add the column `adjusted_p_value` to `autocorrelation_stats.csv`.  
+- [ ] T008 [P] [US‑2] **Benjamini–Hochberg FDR correction** – apply `statsmodels.stats.multitest.multipletests` (α = 0.05) to all raw p‑values and add the column `adjusted_p_value` to `autocorrelation_stats.csv`.  
   • Verification: a downstream unit test confirms the column exists and that at least one row has `adjusted_p_value ≤ 0.05` when appropriate.  
 
 - [ ] T009 [P] **Exact int64 cross‑validation (Constitution VI)** – **exhaustively** recompute `Σ μ(k+i)μ(k+i+h)` via integer arithmetic for **every** `(window, lag)` pair for **all** interval lengths `L = 1000, 10000, 100000`. Assert agreement with the FFT result (relative error < 1e‑9) and record `n_pairs_checked` and `max_relative_error` in `data/processed/pipeline_status.json` under `autocorrelation_crosscheck`.   <!-- FAILED-IN-EXECUTION: code/cross_validate_autocorrelation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/cross_validate_autocorrelation.py exit=1 -->

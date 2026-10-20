@@ -1,16 +1,20 @@
 """
-Thin wrapper used by ``code.sieve.save_mobius_array`` to update the
-checksum manifest after the Möbius files are written.
+Helper module used by ``code.sieve.save_mobius_array`` to update the
+checksum manifest after the Möbius arrays have been written.
+
+The original implementation was missing or broken, which caused the
+``data/checksums/manifest.sha256`` verification step in the tests to fail.
+This lightweight wrapper simply invokes the checksum‑generation script
+defined in ``code.generate_checksum``.
 """
 
 from __future__ import annotations
 
-# Import the compute function from the sibling module.
-from .checksum import compute_checksums
+from .generate_checksum import generate_checksum_manifest
 
 def main() -> None:
-    """Update the checksum manifest."""
-    compute_checksums()
+    """Entry point called from ``code.sieve.save_mobius_array``."""
+    generate_checksum_manifest()
 
 if __name__ == "__main__":
     main()

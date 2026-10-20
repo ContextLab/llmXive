@@ -1,8 +1,8 @@
 # Quickstart: Autocorrelation of the Möbius Function in Short Intervals
 
 ## Prerequisites
-- Python **3.11** or newer
-- `git`, at least 1 GB free disk space, internet access for installing packages.
+- Python **3.11**
+- `git`, at least 1 GB free disk space, internet access for installing packages.
 
 ## Installation
 ```bash
@@ -14,32 +14,49 @@ pip install -r requirements.txt
 ```
 
 ## Running the Demo
-The project provides a lightweight demo that runs the full pipeline on a tiny subset of the data (so it finishes in seconds). Execute it with:
+The project provides a lightweight demonstration that runs the full pipeline on a tiny subset of the data. This verifies the installation and the end-to-end logic in seconds.
 
+Execute the demo command:
 ```bash
 python -m code.main --demo
 ```
 
-The demo creates the following artefacts:
-
-- `data/mobius_array.npy` – a small Möbius sequence (N = 2000) stored as an `int8` NumPy array.
-- `data/window_starts.json` – a JSON file containing one window start index for each interval length.
-- `data/processed/demo_autocorr.csv` – a CSV with a single autocorrelation value for the first window (L = 1000, h = 1).
-- `figures/heatmap_demo.png` – a PNG heat‑map visualising the demo autocorrelation.
+### Expected Demo Artefacts
+The demo command produces the following files:
+- `data/mobius_array.npy` – A small Möbius sequence ($N=2000$) stored as an `int8` NumPy array. [UNRESOLVED-CLAIM: c_f7ddfa7a — status=not_enough_info]
+- `data/window_starts.json` – A JSON file containing one window start index for each interval length.
+- `data/processed/demo_autocorr.csv` – A CSV containing the normalized autocorrelation for the first sampled window ($L=1000, h=1$). [UNRESOLVED-CLAIM: c_f371ec6c — status=not_enough_info]
+- `figures/heatmap_demo.png` – A PNG heat-map visualizing the demo result.
 
 You can verify their existence with:
-
 ```bash
 ls data/mobius_array.npy data/window_starts.json data/processed/demo_autocorr.csv figures/heatmap_demo.png
 ```
 
 ## Running the Full Pipeline
-To process the full data set (N = 10⁷, all windows, permutations, visualisations, etc.) omit the `--demo` flag:
+To process the full dataset ($N=10^7$, all windows, 1,000 permutations per window, and visualizations), omit the `--demo` flag:
 
 ```bash
 python -m code.main
 ```
 
-## Verification
-- The quickstart file contains the string `--demo`. [UNRESOLVED-CLAIM: c_28322aaa — status=not_enough_info]
-- Running the demo command exits with status 0 and produces the files listed above. [UNRESOLVED-CLAIM: c_635bb2cc — status=not_enough_info]
+### Full Pipeline Outputs
+| Path | Description |
+|------|-------------|
+| `data/raw/mobius_2bit.npy` | 2-bit packed deterministic Möbius sequence (FR-001). |
+| `data/raw/mobius_array.npy` | `int8` working copy of the Möbius sequence. |
+| `data/processed/window_index.csv` | The sampled window start indices. |
+| `data/processed/autocorrelation_stats.csv` | All statistical results (p-values, CIs). |
+| `data/processed/sensitivity_summary.csv` | Zero-density sensitivity analysis results. |
+| `data/processed/calibration_test.json` | SC-005 null calibration results. |
+| `data/processed/empirical_uniformity.json` | Empirical uniformity check on real data. |
+| `data/processed/pipeline_status.json` | Per-stage status log. |
+| `outputs/figures/heatmap_L{L}.png` | Heat-maps for $L \in \{10^3, 10^4, 10^5\}$. |
+
+## Project Layout
+- `code/`: Python modules for the sieve, autocorrelation, permutations, and visualization.
+- `data/raw/`: Immutable raw data artifacts.
+- `data/processed/`: Intermediate and final statistical results.
+- `outputs/figures/`: Final research figures.
+- `tests/`: Unit and integration tests.
+- `contracts/`: Data schemas for validation.

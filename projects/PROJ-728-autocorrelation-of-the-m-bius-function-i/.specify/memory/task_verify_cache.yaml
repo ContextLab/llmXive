@@ -1,14 +1,25 @@
+T001:
+  c: false
+  h: 074c4de87e26604a2d7d52b8cd57d11c3ade279f50ccbbf2c33790a9c5f8b470
+  r: "The quickstart.md file exists and contains the required `--demo` command, and\
+    \ the demo run logged successful execution, but the expected demo artifact `data/mobius_array.npy`\
+    \ is not present in the provided evidence (its existence is marked as an unresolved\
+    \ claim). The task requires that the command runs without error **and** produces\
+    \ all listed demo files, so the missing M\xF6bius array file makes the implementation\
+    \ incomplete."
+  sig: 178e16fdb577192d0c948cc2ed86e39255f641d3c63ac31a32f97e09ae9119ee
 T002:
-  c: true
-  h: 81116fb4f5ca09f19f37f49ad17259a1e65b79542f2fabfbb262e63bd9f787b1
-  r: "`code/sieve.py` implements a correct linear-time M\xF6bius sieve (standard prime-list\
-    \ sieve with \u03BC(ip)=0 when p|i, else \u2212\u03BC(i)), and `data/raw/mobius_array.npy`\
-    \ exists as a real int8 NumPy array of shape (10000001,) \u2014 matching N=10\u2077\
-    \ plus the dummy index 0 \u2014 with plausible ternary byte content. `tests/unit/test_sieve.py`\
-    \ covers exactly the required known values (\u03BC(1)=1, \u03BC(2)=\u22121, \u03BC\
-    (4)=0, \u03BC(30)=\u22121, \u03BC(3025)=0) and the {\u22121,0,1} membership assertion,\
-    \ plus dtype/shape checks."
-  sig: be7ff459d1d5a216a522d03e0c80ffd9aa63bb95cb741c034b1abebc28012833
+  c: false
+  h: c4032fbdf691a0a5a27fdfdb92741ee72ac17089e2378fce139061f7293e48ca
+  r: "I checked `code/sieve.py` (which implements a linear\u2011time M\xF6bius sieve\
+    \ and writes `data/raw/mobius_array.npy`) and the unit\u2011test file `tests/unit/test_sieve.py`.\
+    \ The raw array file exists and has the correct shape for N\u202F=\u202F10\u2077\
+    , and the sieve code appears correct for the known test values. However, the tests\
+    \ also require the packed file `data/raw/mobius_2bit.npy` and a checksum manifest\
+    \ `data/checksums/manifest.sha256`; neither of these artifacts appears in the\
+    \ collected evidence. Without those files the packing\u2011round\u2011trip and\
+    \ checksum tests will fail, so the task is not fully satisfied. The mis"
+  sig: 3207a565abd1c62cfd3c643edd506efd0cad760d08953ba1a0c7bf00c3d5c8fb
 T004:
   c: true
   h: 2d8d7c31192e0b706cbef916e3896ae3a6be8ad3a71423810ebee23309f65d79
@@ -58,9 +69,9 @@ T007:
   sig: c5fa2e5c0009a47254ed341369e8ef6c5f4c93f1aaedc9125eac2be4a8f2bb86
 T008:
   c: false
-  h: 9a3a3500b0c47b82bbdba249b7710b016441383a53ba6e1b048a9337f0cdaeae
-  r: "The unit\u2011test log shows that `_apply_bh_correction` raises a ValueError\
-    \ and that after writing the CSV the `adjusted_p_value` column is absent, causing\
-    \ two test failures. Consequently the required column is not added to `autocorrelation_stats.csv`\
-    \ and the BH correction is not correctly applied."
-  sig: 5006d0a7cfcf468cc16f25cc902b37b40ce389578f198dc5200490ceded7012c
+  h: 2c310f11d068d1575995e555ac3b247e9815b042100e94ab7c46b04c06b6fe40
+  r: "The evidence does not include an `autocorrelation_stats.csv` file with an added\
+    \ `adjusted_p_value` column, nor any script or execution log showing `statsmodels.stats.multitest.multipletests`\
+    \ being applied to the raw p\u2011values. Without the CSV and proof of the Benjamini\u2013\
+    Hochberg correction, the task requirement is unmet."
+  sig: 640e049cf3062cf9ad917b637202ac239ba189995fabc04e5a2b1b4c2e4fe6ff

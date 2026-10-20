@@ -495,3 +495,37 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-20T05:07:30Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: "demo produces M\xF6bius sequence of size 2000"
+  claim_id: c_f7ddfa7a
+  context: "The demo command produces the following files: - data/mobius_array.npy\
+    \ \u2013 A small M\xF6bius sequence ($N=2000$) stored as an int8 NumPy array."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "A small M\xF6bius sequence ($N=2000$) stored as an `int8` NumPy array."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:26:19Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: demo produces autocorrelation for L=1000 and h=1
+  claim_id: c_f371ec6c
+  context: "The demo command produces the following files: - data/processed/demo_autocorr.csv\
+    \ \u2013 A CSV containing the normalized autocorrelation for the first sampled\
+    \ window ($L=1000, h=1$)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A CSV containing the normalized autocorrelation for the first sampled
+    window ($L=1000, h=1$).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:26:19Z'

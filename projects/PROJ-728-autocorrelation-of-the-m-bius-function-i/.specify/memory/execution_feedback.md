@@ -18,18 +18,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
- start=44622, L=1000, h=1, autocorrelation=-0.047047047047
-Window index written to data/processed/window_index.csv (300 rows)
-Generated missing window index CSV at data/processed/window_index.csv
+dow_starts.json
+Demo autocorrelation written to data/results/demo_autocorr.csv (legacy) and data/processed/demo_autocorr.csv (task T005): start=44622, L=1000, h=1, autocorrelation=-0.047047047047
 Full autocorrelation matrix written to data/processed/autocorrelation_raw.csv
 
-[ERROR] Step 'cross‑validation' failed: Relative error 2.19e-05 exceeds tolerance for window start=44622, L=1000, lag=2
+[ERROR] Step 'cross-validation' failed: Relative error 2.19e-05 exceeds tolerance for window start=44622, L=1000, lag=2
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/main.py", line 211, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/main.py", line 156, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/main.py", line 191, in main
-    _run_step(cross_validate_main, "cross‑validation")
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/main.py", line 64, in _run_step
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/main.py", line 146, in main
+    _run_step(cross_validate_main, "cross-validation")
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/main.py", line 47, in _run_step
     step_func()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/cross_validate_autocorrelation.py", line 169, in main
     raise RuntimeError(

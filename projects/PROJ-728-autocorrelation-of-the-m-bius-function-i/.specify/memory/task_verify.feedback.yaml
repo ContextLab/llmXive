@@ -1,14 +1,20 @@
 T001:
-  reason: "`quickstart.md` exists and contains `--demo`, Python 3.11, and a pinned\
-    \ `requirements.txt` is present, but the task's verification criterion \u2014\
-    \ that `python -m code.main --demo` runs without error and produces the documented\
-    \ demo files \u2014 is unsupported: the run claims are marked unresolved, and\
-    \ none of the demo artifacts the quickstart promises (`data/mobius_array.npy`,\
-    \ `figures/heatmap_demo.png`) appear in the evidence. Moreover, the existing `demo_autocorr.csv`\
-    \ (window_start=44622, L=1000) contradicts the quickstart's description of the\
-    \ demo (N=2000, first window), so the documented demo beha"
+  reason: "The quickstart.md file exists and contains the required `--demo` command,\
+    \ and the demo run logged successful execution, but the expected demo artifact\
+    \ `data/mobius_array.npy` is not present in the provided evidence (its existence\
+    \ is marked as an unresolved claim). The task requires that the command runs without\
+    \ error **and** produces all listed demo files, so the missing M\xF6bius array\
+    \ file makes the implementation incomplete."
   task: 4820efbf2df2d5aa93ff5ea41263968211b5294df47382b175867c9a50f8215d
 T002:
+  reason: "I checked `code/sieve.py` (which implements a linear\u2011time M\xF6bius\
+    \ sieve and writes `data/raw/mobius_array.npy`) and the unit\u2011test file `tests/unit/test_sieve.py`.\
+    \ The raw array file exists and has the correct shape for N\u202F=\u202F10\u2077\
+    , and the sieve code appears correct for the known test values. However, the tests\
+    \ also require the packed file `data/raw/mobius_2bit.npy` and a checksum manifest\
+    \ `data/checksums/manifest.sha256`; neither of these artifacts appears in the\
+    \ collected evidence. Without those files the packing\u2011round\u2011trip and\
+    \ checksum tests will fail, so the task is not fully satisfied. The mis"
   task: 30705cd671dc2b489335d5f7c67ba3df67a17b977455fa2f5f837bd54b0a388d
 T003:
   reason: 'Requested task execution failed; rerun successfully: data/checksums/manifest.sha256
@@ -31,10 +37,11 @@ T007:
     \ placeholder 0.5 (not a Benjamini-Hochberg a"
   task: 20fc499f7d6952bccaa228dc6e9d43f9be534b05d91c194cafc708b85207b745
 T008:
-  reason: "The unit\u2011test log shows that `_apply_bh_correction` raises a ValueError\
-    \ and that after writing the CSV the `adjusted_p_value` column is absent, causing\
-    \ two test failures. Consequently the required column is not added to `autocorrelation_stats.csv`\
-    \ and the BH correction is not correctly applied."
+  reason: "The evidence does not include an `autocorrelation_stats.csv` file with\
+    \ an added `adjusted_p_value` column, nor any script or execution log showing\
+    \ `statsmodels.stats.multitest.multipletests` being applied to the raw p\u2011\
+    values. Without the CSV and proof of the Benjamini\u2013Hochberg correction, the\
+    \ task requirement is unmet."
   task: b4b9cc1fe199ee687c48cd5c19179b3eca7feb5cd67b8b9e7f1a6e60ba3efa70
 T009:
   reason: 'Requested task execution failed; rerun successfully: code/cross_validate_autocorrelation.py
