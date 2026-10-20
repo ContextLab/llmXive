@@ -17,27 +17,32 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…`mode='verification'`` a synthetic         table is generated.     mode :…”
 - code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…``verification`` uses synthetic data; ``analysis`` expects re…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --mode synthetic --n-subjects <sufficient sample size> --seed 42`
-  - script usage: `main.py [-h] --mode {synthetic,real} [--n-subjects N_SUBJECTS]`
-  - argparse error: `main.py: error: argument --n-subjects: invalid int value: '<sufficient'`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 32 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/run_nbs.py: self-declared fabricated metric — “…index=False)     print(f"NBS placeholder results written to {output_path}")…”; code/main.py: self-declared fabricated metric — “…ry_limit()          # 8️⃣ NBS placeholder results         nbs_results = run_nb…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# Verification mode uses synthetic data         logger.info("Gen…”; 3 command(s) failed: python code/main.py --mode synthetic --n-subjects <sufficient sample size> --seed 42 (rc=2); python code/run_quickstart_test.py (rc=1); python -m pytest tests/ (rc=2); 3 declared deliverable(s) absent: data/processed/matching_balance_report.csv; data/processed/subjects.parquet; data/processed/subjects_cleaned.parquet
+**Summary**: 32 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/run_nbs.py: self-declared fabricated metric — “…index=False)     print(f"NBS placeholder results written to {output_path}")…”; code/main.py: self-declared fabricated metric — “…ry_limit()          # 8️⃣ NBS placeholder results         nbs_results = run_nb…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# Verification mode uses synthetic data         logger.info("Gen…”; 3 command(s) failed: python code/main.py --mode synthetic --n-subjects 100 --seed 42 (rc=1); python code/run_quickstart_test.py (rc=1); python -m pytest tests/ (rc=2); 3 declared deliverable(s) absent: data/processed/matching_balance_report.csv; data/processed/subjects.parquet; data/processed/subjects_cleaned.parquet
 
 ## Failing / missing run-book commands
 
-- python code/main.py --mode synthetic --n-subjects <sufficient sample size> --seed 42 -> rc=2
+- python code/main.py --mode synthetic --n-subjects 100 --seed 42 -> rc=1
+, in run_verification_mode
+    df_subjects.to_parquet(subjects_parquet_path, index=False)
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/util/_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/frame.py", line 3113, in to_parquet
+    return to_parquet(
+           ^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 476, in to_parquet
+    impl = get_engine(engine)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 67, in get_engine
+    raise ImportError(
+ImportError: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
-usage: main.py [-h] --mode {synthetic,real} [--n-subjects N_SUBJECTS]
-               [--seed SEED] [--n-permutations N_PERMUTATIONS]
-               [--data-path DATA_PATH] [--output-dir OUTPUT_DIR]
-               [--log-level {DEBUG,INFO,WARNING,ERROR}]
-main.py: error: argument --n-subjects: invalid int value: '<sufficient'
 
 - python code/run_quickstart_test.py -> rc=1
  in run_verification_mode
@@ -78,7 +83,7 @@ ERROR tests/unit/test_preprocess_validity.py
 ERROR tests/unit/test_stats.py - NameError: name 'Tuple' is not defined
 ERROR tests/unit/test_synthetic_generator.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 1.42s ===============================
+============================== 9 errors in 1.12s ===============================
 
 
 

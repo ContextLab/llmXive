@@ -1,10 +1,12 @@
 T001:
-  reason: "Checked `code/run_quickstart_test.py`: it runs the synthetic pipeline and\
-    \ checks file existence, but it prints \u201CQuickstart smoke test passed\u201D\
-    \ instead of the required \u201CQuickstart validation passed\u201D and silently\
-    \ skips schema validation when the contract files are absent, so it does not truly\
-    \ assert that each CSV/JSON conforms to a *_schema.yaml*. The test script therefore\
-    \ does not meet the specification."
+  reason: "Checked `code/main.py`, `code/data/run_synthetic_generator.py`, `code/data/real_ingest.py`,\
+    \ and `code/run_quickstart_test.py` against the task spec. While the entry\u2011\
+    point scripts parse the required arguments and implement the described logic,\
+    \ the quick\u2011start test script cannot validate schemas because the required\
+    \ `*_schema.yaml` contract files are absent, and the recorded test run (`code/.tasks/T001.code_run_quickstart_test.py.log`)\
+    \ shows the script exiting with a non\u2011zero code. Additionally, the expected\
+    \ status file `data/logs/real_ingest_status.json` is missing from the repository\
+    \ (only a s"
   task: 70bfc20f0378c62826d0ce5a857213b151f2b7bcef46b7fac8fd6504444e8a7b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/run_synthetic_generator.py

@@ -26,7 +26,7 @@ This mode runs the full pipeline on generated synthetic data. It validates code 
 memory limits, and output generation without requiring any real neuroimaging files.
 
 ```bash
-python code/main.py --mode synthetic --n-subjects <sufficient sample size> --seed 42
+python code/main.py --mode synthetic --n-subjects 100 --seed 42
 ```
 
 Expected outputs (written under `data/processed/`):
@@ -56,7 +56,7 @@ conform to the JSON/YAML contracts:
 python code/run_quickstart_test.py
 ```
 
-The script will exit with a success status and print “Quickstart smoke test passed” on success.
+The script will exit with a success status and print “Quickstart validation passed” on success.
 
 ## 4. Verify the Test Suite
 ```bash

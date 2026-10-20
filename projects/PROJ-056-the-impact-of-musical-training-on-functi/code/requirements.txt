@@ -1,9 +1,14 @@
 numpy
 pandas
 scipy
+matplotlib
 scikit-learn
 statsmodels
-matplotlib
 seaborn
 nibabel
 networkx
+tqdm
+pyyaml
+jsonschema
+pyarrow
+# Existing environment already provides: requests, psutil, etc.
