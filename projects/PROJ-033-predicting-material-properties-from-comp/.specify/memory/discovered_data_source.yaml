@@ -1,10 +1,10 @@
 status: none
-intent: Materials Project composition dataset band gap hardness python package dataset
+intent: Materials Project composition band gap hardness data python package dataset
 required_fields:
 - material_id
 - formula
 - band_gap
 - hardness
-cache_key: 80f2b2daa6f81d0aa7cc56507fde3de6de751fea898aaea324c86ffb3f2d5b30
-searched_at: '2026-10-20T14:40:38.394243+00:00'
+cache_key: 8d185f78fa7f11e9e7c509f7964dbd3ab06032dfbbca9a385ec003b4371f4eae
+searched_at: '2026-10-20T14:54:40.348936+00:00'
 retry_count: 1
