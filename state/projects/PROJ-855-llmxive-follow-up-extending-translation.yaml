@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T07:11:07.774089Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-855-llmxive-follow-up-extending-translation
-last_run_id: 1f5635fc-1fbe-429e-9096-fc14acdb42ab
+last_run_id: 3f49309e-8f80-4878-8787-1a6120085d1e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation
 title: 'llmXive follow-up: extending "Translation as a Bridging Action: Transferring
   Manipulation Skills fro"'
-updated_at: '2026-10-20T15:18:21.824769Z'
+updated_at: '2026-10-20T15:46:16.918493Z'
