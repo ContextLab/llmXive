@@ -17,9 +17,14 @@ try:
 except ImportError:
     pass
 
-# Write SHA‑256 hash of this file to seed_hash.txt
+# Write SHA-256 hash of this file to seed_hash.txt
+# This ensures that the hash is updated whenever the seed configuration changes.
 _this_path = Path(__file__)
 _hash_path = _this_path.parent / "seed_hash.txt"
-_content = _this_path.read_bytes()
-_sha256 = hashlib.sha256(_content).hexdigest()
-_hash_path.write_text(_sha256)
+try:
+    _content = _this_path.read_bytes()
+    _sha256 = hashlib.sha256(_content).hexdigest()
+    _hash_path.write_text(_sha256)
+except Exception:
+    # Fail silently on hash write to avoid blocking imports in restricted environments
+    pass
