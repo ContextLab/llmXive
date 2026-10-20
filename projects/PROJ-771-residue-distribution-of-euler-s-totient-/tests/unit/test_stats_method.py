@@ -30,7 +30,9 @@ def test_full_statistical_result_includes_method():
     N = 100
     observed = {r: N // prime for r in range(prime)}
     config = {"seed": 42, "chi2_mc_samples": 200, "bootstrap_samples": 100}
-    result = run_full_statistical_analysis(observed, prime, N, config)
+    result = run_full_statistical_analysis(
+        observed, prime, N, config
+    )
     assert hasattr(result, "method")
     assert result.method in {"chi_squared_monte_carlo", "chi_squared_exact"}
     # Ensure the result can be serialized without error.

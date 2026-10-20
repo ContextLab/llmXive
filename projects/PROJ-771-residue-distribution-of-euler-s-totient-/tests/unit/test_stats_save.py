@@ -84,28 +84,15 @@ def test_run_sieve_analysis_integration(tmp_path):
     with open(input_file, 'w') as f:
         json.dump(input_data, f)
     
-    # Create dummy residue sequence file (for Bootstrap)
-    seq_file = data_raw / "residues_sequence_3_100.json"
-    seq_data = [0] * 33 + [1] * 34 + [2] * 33 # Dummy sequence
-    with open(seq_file, 'w') as f:
-        json.dump(seq_data, f)
-    
     # Run analysis
-    # Note: This will use placeholder logic for stats, but should produce a file.
-    try:
-        results = run_sieve_analysis(N=100, primes=[3], seed=42)
-        assert 3 in results
-        output_file = results[3]
-        assert os.path.exists(output_file)
-        
-        # Verify structure
-        with open(output_file, 'r') as f:
-            data = json.load(f)
-        assert 'chi_squared_statistic' in data
-        assert 'block_bootstrap_p_value' in data
-        assert 'error_term_residual' in data
-    except Exception as e:
-        # If dependencies (like scipy) are missing or logic fails, we catch it.
-        # But for the task to be "completed", the code must be runnable.
-        # We assume scipy is available or the placeholder logic handles it.
-        pytest.fail(f"run_sieve_analysis failed: {e}")
+    results = run_sieve_analysis(N=100, primes=[3], seed=42)
+    assert 3 in results
+    output_file = results[3]
+    assert os.path.exists(output_file)
+    
+    # Verify structure
+    with open(output_file, 'r') as f:
+        data = json.load(f)
+    assert 'chi_squared_statistic' in data
+    assert 'block_bootstrap_p_value' in data
+    assert 'error_term_residual' in data

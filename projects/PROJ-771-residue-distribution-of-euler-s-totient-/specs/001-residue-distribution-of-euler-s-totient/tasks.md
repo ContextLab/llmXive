@@ -18,7 +18,7 @@
 - [X] T004 [FR‑001] **Pin deterministic seeds** – write `code/seed.py` that sets `random.seed`, `numpy.random.seed`, and stores the seed in the config; expose `get_seed()` for downstream modules.  
   *Verification*: `tests/integration/test_seed_consistency.py` runs the full pipeline twice with the same config and asserts that the resulting `ResidueDataset.frequency_map` files are byte‑identical.
 
-- [X] T005  **Benchmark instrumentation** – add `code/benchmark.py` providing a context manager `benchmark(name: str)` that records wall‑clock time, peak memory (via `MemoryGuard`), and writes a JSON record to `results/reports/benchmark_{name}.json`.  
+- [ ] T005  **Benchmark instrumentation** – add `code/benchmark.py` providing a context manager `benchmark(name: str)` that records wall‑clock time, peak memory (via `MemoryGuard`), and writes a JSON record to `results/reports/benchmark_{name}.json`.  
   *Verification*: a tiny script `scripts/run_dummy.py` uses the context manager; after execution `results/reports/benchmark_dummy.json` exists and contains numeric `wall_time_sec` and `peak_memory_mb` fields.
 
 ---
@@ -34,7 +34,7 @@
 - [X] T007 [FR‑001] **Docstrings and static typing** – add comprehensive docstrings to all public callables in `code/sieve.py` and annotate with type hints. Run `mypy` over the `code/` package and ensure zero type‑checking errors.  
   *Verification*: `tests/unit/test_sieve_mypy.py` invokes `mypy` and asserts exit code 0; a docstring‑coverage test confirms every public function has a non‑empty docstring.
 
-- [ ] T016 [SC‑001] **φ‑value correctness validation** – write unit tests (e.g., `tests/unit/test_phi_correctness.py`) that compare `compute_phi_linear_sieve` outputs for `n ≤ 100` against known mathematical tables. The CI must fail if any discrepancy is found.  
+- [X] T016 [SC‑001] **φ‑value correctness validation** – write unit tests (e.g., `tests/unit/test_phi_correctness.py`) that compare `compute_phi_linear_sieve` outputs for `n ≤ 100` against known mathematical tables. The CI must fail if any discrepancy is found.  
   *Verification*: Tests assert exact match for all reference values.
 
 ---
@@ -55,7 +55,7 @@
 - [ ] T017 [SC‑002] **Synthetic dataset statistical validation** – generate synthetic uniform and deliberately biased residue datasets, run the full statistical pipeline on them, and assert that the resulting `alpha_pass` flags behave as expected (true for uniform, false for biased).  
   *Verification*: Integration test `tests/integration/test_synthetic_stats.py` automates this check.
 
-- [X] T019 [FR‑030] **Contract validation** – implement a utility (e.g., `code/validate_contracts.py`) that loads each JSON artefact produced by the pipeline and validates it against the corresponding schema in `specs/001-residue-distribution-of-euler-s-totient/contracts/`. The pipeline must abort with a clear error if any artefact fails validation.  
+- [ ] T019 [FR‑030] **Contract validation** – implement a utility (e.g., `code/validate_contracts.py`) that loads each JSON artefact produced by the pipeline and validates it against the corresponding schema in `specs/001-residue-distribution-of-euler-s-totient/contracts/`. The pipeline must abort with a clear error if any artefact fails validation.  
   *Verification*: Unit test `tests/unit/test_contracts.py` feeds both valid and deliberately malformed JSON files and checks that validation succeeds or raises as appropriate.
 
 ---
