@@ -2,6 +2,7 @@
 Data download module for T003.
 Downloads QM9 and IR spectra using the HuggingFace ``datasets`` library,
 aligns them via InChIKey, computes SHA‑256 checksums, and writes a verification JSON file.
+Handles DFT‑method mismatch by aborting with a clear error (generation via T019 is a later step).
 """
 
 import logging
@@ -13,7 +14,7 @@ from typing import Optional, Tuple, Dict, Any
 
 import pandas as pd
 from datasets import load_dataset
-from scipy import stats  # added for KS‑test
+from scipy import stats  # used for bias‑assessment (kept from original)
 
 # llmxive utilities for path handling
 from llmxive_toolkit import paths
@@ -44,8 +45,8 @@ def download_qm9(output_dir: Optional[Path] = None) -> Path:
     _ensure_dir(output_dir / "placeholder")
 
     logger.info("Downloading QM9 dataset via HuggingFace datasets")
-    # Load the dataset from the HF hub (do NOT pass data_dir – let HF manage the cache)
-    ds = load_dataset('lisn519010/QM9', split='train')
+    # The QM9 hub dataset provides a single split named ``full``.
+    ds = load_dataset('lisn519010/QM9', split='full')
     out_path = output_dir / "qm9.parquet"
     ds.to_parquet(str(out_path), engine="pyarrow")
     logger.info(f"QM9 saved to {out_path}")
@@ -58,7 +59,8 @@ def download_ir_spectra(output_dir: Optional[Path] = None) -> Path:
     _ensure_dir(output_dir / "placeholder")
 
     logger.info("Downloading IR spectra dataset via HuggingFace datasets")
-    ds = load_dataset('lamblador/QM9-IR', split='train')
+    # The IR‑spectra hub dataset also provides a ``full`` split.
+    ds = load_dataset('lamblador/QM9-IR', split='full')
     out_path = output_dir / "ir_spectra.parquet"
     ds.to_parquet(str(out_path), engine="pyarrow")
     logger.info(f"IR spectra saved to {out_path}")
@@ -139,18 +141,34 @@ def main() -> None:
         qm9_df = pd.read_parquet(qm9_path, engine="pyarrow")
         ir_df = pd.read_parquet(ir_path, engine="pyarrow")
 
-        # 3. Align on InChIKey
+        # 3. Verify DFT method compatibility
+        # The IR‑spectra dataset is expected to contain a column named ``dft_method``.
+        # If the column is missing we assume compatibility; otherwise we enforce B3LYP.
+        if "dft_method" in ir_df.columns:
+            unique_methods = ir_df["dft_method"].unique()
+            if len(unique_methods) != 1 or unique_methods[0] != "B3LYP":
+                logger.error(
+                    f"IR spectra were generated with DFT method(s) {unique_methods.tolist()}, "
+                    "which is not B3LYP. Generation via T019 is required but not implemented."
+                )
+                raise RuntimeError(
+                    "Incompatible DFT method in IR spectra. Abort – generate B3LYP spectra via T019."
+                )
+            else:
+                logger.info("IR spectra DFT method verified as B3LYP.")
+
+        # 4. Align on InChIKey
         aligned_df, discarded = align_datasets(qm9_df, ir_df)
         matched = len(aligned_df)
         logger.info(f"Alignment complete: matched={matched}, discarded={discarded}")
 
-        # 4. Verify sufficient matches (acceptance scenario)
+        # 5. Verify sufficient matches (acceptance scenario)
         if matched < 129_000:
             raise RuntimeError(
                 f"Insufficient matches: {matched} < 129,000 required"
             )
 
-        # 5. Selection‑bias KS‑tests for target properties
+        # 6. Selection‑bias KS‑tests for target properties
         target_props = [
             "Dipole_debye",
             "Polarizability_bohr3",
@@ -168,7 +186,7 @@ def main() -> None:
         bias_stats = compute_selection_bias(qm9_df, aligned_df, available)
         logger.info(f"Selection‑bias stats computed for: {available}")
 
-        # 6. Write alignment report (JSON)
+        # 7. Write alignment report (JSON)
         report = {
             "matched": matched,
             "discarded": discarded,
@@ -180,10 +198,10 @@ def main() -> None:
             json.dump(report, f, indent=2)
         logger.info(f"Alignment report saved to {report_path}")
 
-        # 7. Persist the aligned dataset for downstream stages
+        # 8. Persist the aligned dataset for downstream stages
         save_aligned_data(aligned_df)
 
-        # 8. Compute SHA‑256 checksums and write verification file
+        # 9. Compute SHA‑256 checksums and write verification file
         checksums = {
             "qm9.parquet": _sha256_of_file(qm9_path),
             "ir_spectra.parquet": _sha256_of_file(ir_path),

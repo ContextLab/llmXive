@@ -1,48 +1,59 @@
 T001:
-  reason: "The top\u2011level `logs/` directory is absent (only `code/logs/` exists)\
-    \ and the required `results/structure_report.txt` file is missing, so the verification\
-    \ step cannot be performed. Additionally, there is no evidence that `python -m\
-    \ compileall code/` was run successfully."
-  task: bdd0cf57caa5b9170e4fd34cb1f2797509b5128411a6090a7f43a09a977f4c33
+  reason: "The required artifact `logs/compileall.log` is not present in the collected\
+    \ evidence \u2014 the collector confirmed `config/seeds.yaml` (valid, correct\
+    \ seeds) and `results/structure_report.txt` (lists all required directories),\
+    \ but no `logs/` directory or compileall log was resolved, and the historical\
+    \ scaffold run's stdout merely claims it wrote the file. The implementer must\
+    \ actually create `logs/compileall.log` (e.g., by running `python -m compileall\
+    \ code/` with output redirected there) so the required artifact exists on disk."
+  task: a4d8d7f69564b619a07f2397b03cc019f3675fd34fa5663cd283d0aeecad7209
 T002:
-  task: fa65ce1c923f39aa3a9cdfbdb727a348ebc2a7dd93c8576f7e9e1d4ce9f5c891
+  reason: The collector evidence shows only `dataset.schema.yaml` exists in the contracts
+    directory; `model_output.schema.yaml` and `evaluation_results.schema.yaml` are
+    explicitly MISSING, so two of the three required schema artifacts were not materialized.
+    The implementer must copy/create those two YAML schema files into `specs/001-predict-molecular-properties/contracts/`
+    (non-empty, valid YAML) to complete the task.
+  task: 2a3dbb5e3da56a3e67b8cfd5a92d44315b2183f420c6433d71c974a968ed5761
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
-  task: 2741b5b4fb4b50d03bc250fa3fdde1f3dabe67b3c4d016342fe945bc344fde0c
+  reason: 'The required artifacts are missing or empty: `data/raw/qm9.parquet` is
+    0 bytes, `data/raw/ir_spectra.parquet` and `results/checksums.json` do not exist,
+    and the recorded test run failed (exit 1) because `ds.to_parquet(..., engine="pyarrow")`
+    passes an invalid keyword to pyarrow. The script also deviates from the spec (uses
+    `split=''full''` instead of `split=''train''`, no `cache_dir=''data/raw''`, no
+    reference-checksum comparison, and no T019 invocation on DFT mismatch), so the
+    download pipeline has never successfully run.'
+  task: 26b34d71a148913a24a1e7da627926923fd3814961701179f4c7a72ca0c4303a
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/data/align.py
-    exit=1'
-  task: f364919b54bcffd1a2e99da6d0d01337bf55e3dd4d4dfc4ecf28fec34e8743f0
+  task: a21931e4c189f5b078d453a725ba666725e85b2579a9289ea42ca5f4f31e9e1b
 T005:
-  reason: "The required output `data/processed/aligned_dataset.npz` is MISSING, and\
-    \ the recorded test run of `tests/test_preprocess.py` failed (exit 1) with all\
-    \ 3 tests erroring because `data/raw/qm9.parquet` does not exist \u2014 the pipeline\
-    \ never executed past data loading. The script `code/data/preprocess.py` itself\
-    \ looks substantively correct (grid, smoothing, normalization, unit conversion,\
-    \ filtering, NPZ schema), but no evidence shows it ever ran successfully or produced\
-    \ the NPZ with the required shapes/normalization."
-  task: bc5166bc8d169b2d5732d73e1304d6e5112341560ae022e7beaa291da9258ef3
+  task: 953b704176f4359854eb5121e00695b7e6f51aa8fc2e9fd2f98c25dfd56ff8fe
 T006:
-  reason: 'Requested task execution failed; rerun successfully: code/data/bias_audit.py
-    exit=1'
-  task: 9c927bd9fb687abf54c934f21eebca1fe0bc9810fd05df2a3857d67e9c2e0c10
+  task: c9efcec9b1cd74e9257f2a6d5a7a4197391ea40208cff4a498662cbc1c63639a
 T007:
-  task: 7fb6c9d70d882200498c1691a8da4e3661b8c9aca759f2d21ec8280d5259b8d0
+  task: e0d6ae05917da0374744543a46beea0fef14d63aa8029197ae8d5b5d0d4ca9a9
 T008:
-  task: 06f24fcef9bfd29d2c5bdf7ebccf38b6aa7e957f6dc21668f5665aa23064859b
+  task: 2fcb4c2e9dd5e43c05b8d6da7371b89b802321c3aa6bf486be4e441a0752f1c2
 T009:
-  task: 5b6c250cb8755aac99f726dedb1a90a4dd3b570601fe5d407075b6516bf6bd3f
+  task: 968556a7d06091d9631876d5d4429320a95d79b3962a13dcf4e1c0b1783b8ba9
 T010:
-  task: a45f819753d692fbb4f63fb644f531e49af4a5f2e1540427458ceeb0bbbf2946
+  task: c97dbeb5132a3d8f3ed96475ea16a889c99259fba6682c308214fde01ce15df9
 T011:
-  task: 758d1881675c1ad631b5b5ecdfb3d07a4a3b7bea4193af7a57effe17897c39e1
+  task: 514bf9324242b8c0cee3fa11a2218bef55a6eb1f3373c27e6eab447611631171
 T012:
-  task: 7ea24df073b3410f56b80fdf2a7239f098e6d58c7ea866e4ba681a324603f501
+  task: 6ad3e3815a628834caf58901c708d56797f373ce1d845c60ebc96d1e0996dd82
 T013:
-  task: 9c92017c1c5fbcd1f8b3a3227f3f1f1e02b5ef61e75bea1ef0f6f83eaa727ff3
+  task: 9c939dc231d8257e6ce4561aa51364cf50712cff65c957fb2780b82cd48517b8
 T014:
-  task: a8f2f02b03ad02abb398a757a15dc5d1fe2cbb746ba5a3068b1a40c7ed2cb606
+  task: 96c2910044626e67f87afba55903529d23d97a1c064bda070f179513d2ff5513
 T015:
-  task: 77a12fa6239671800d224da9d7b565028ebb13f4ccaa41c256a5548ef0d8c2ad
+  task: 70e8b8ee2f8aa238e7f9037da012082607e80cb35a6bf53a7d08ce0b0f668b5b
 T016:
-  task: a9ea1b878fce62fa426aab4e9ca67a9dfb68807b4382e0d644dd3282c3a99615
+  task: 58416bc669f6fcf13d09e544541d60343811078bfb22260609ca44db2e0c8212
+T017:
+  task: 8d4e1b657328504afbcd7d860d2f13fe9416db256bd8de6e6e9bd5b937fbfa65
+T018:
+  task: ab777e225f0cb0f737df1a47a5cd29747fda13a5cd30a19aef07a919a851bfd2
+T019:
+  reason: 'Requested task execution failed; rerun successfully: code/data/generate_ir.py
+    exit=1'
+  task: 943bfb79b0e3e2b190fa796559807f03b6f029158376d392335514f289f53fd6

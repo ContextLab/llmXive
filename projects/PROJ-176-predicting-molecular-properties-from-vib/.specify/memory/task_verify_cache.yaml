@@ -1,26 +1,31 @@
 T001:
   c: false
-  h: 5f638397afb8725679e3f1d97de5106af171cf759bf1f566076ea5f9bd661a6e
-  r: "The top\u2011level `logs/` directory is absent (only `code/logs/` exists) and\
-    \ the required `results/structure_report.txt` file is missing, so the verification\
-    \ step cannot be performed. Additionally, there is no evidence that `python -m\
-    \ compileall code/` was run successfully."
-  sig: cc079cb19ac11ce6097a313ce61275f2b3d30d589403f68685fccb20a2d6644d
+  h: 499e1fd2fdc4dfe244473f476994ee3a57fc98f225cf394e072fbbaa1e63115f
+  r: "The required artifact `logs/compileall.log` is not present in the collected\
+    \ evidence \u2014 the collector confirmed `config/seeds.yaml` (valid, correct\
+    \ seeds) and `results/structure_report.txt` (lists all required directories),\
+    \ but no `logs/` directory or compileall log was resolved, and the historical\
+    \ scaffold run's stdout merely claims it wrote the file. The implementer must\
+    \ actually create `logs/compileall.log` (e.g., by running `python -m compileall\
+    \ code/` with output redirected there) so the required artifact exists on disk."
+  sig: 901a13f33c2297cc415e6a19633b818a5f86cbda40d09e0323663bc9e1b870c6
 T002:
-  c: true
-  h: 4696d72a9c526011d1d24652a8e830c99ad78ecff46e8680d031f31471550fb6
-  r: "Checked the three contract schema files (`dataset.schema.yaml`, `model_output.schema.yaml`,\
-    \ `evaluation_results.schema.yaml`) which exist (via resolved paths), are non\u2011\
-    empty, and contain valid YAML that loads without error."
-  sig: 5d19c3d3d1afce121b224bfdf80d6fa23ce0120712ecfca5cdeb6a4939c143c2
-T005:
   c: false
-  h: 3f725e0c976725f24fd17af4eabe24ce51fe32e83215fc559afcd4bb79d88833
-  r: "The required output `data/processed/aligned_dataset.npz` is MISSING, and the\
-    \ recorded test run of `tests/test_preprocess.py` failed (exit 1) with all 3 tests\
-    \ erroring because `data/raw/qm9.parquet` does not exist \u2014 the pipeline never\
-    \ executed past data loading. The script `code/data/preprocess.py` itself looks\
-    \ substantively correct (grid, smoothing, normalization, unit conversion, filtering,\
-    \ NPZ schema), but no evidence shows it ever ran successfully or produced the\
-    \ NPZ with the required shapes/normalization."
-  sig: 2f4e4b495eb95c720584f0b9aac8994719c5a8ecd55d883d64190f85619217de
+  h: 7d30455f21a40ec3f98f02e87e5dc34d03aec3aa2d6bbb3e25ab0568e5ad0da5
+  r: The collector evidence shows only `dataset.schema.yaml` exists in the contracts
+    directory; `model_output.schema.yaml` and `evaluation_results.schema.yaml` are
+    explicitly MISSING, so two of the three required schema artifacts were not materialized.
+    The implementer must copy/create those two YAML schema files into `specs/001-predict-molecular-properties/contracts/`
+    (non-empty, valid YAML) to complete the task.
+  sig: f735b50605c1405d47e84d1305a8715d32b8c2279f5408f785a3fd2df1f684d6
+T003:
+  c: false
+  h: d2ecc2acfa2ed13568ef50ce9a6293c4b9d59bce1ac529cbd739cd0791ba4c3c
+  r: 'The required artifacts are missing or empty: `data/raw/qm9.parquet` is 0 bytes,
+    `data/raw/ir_spectra.parquet` and `results/checksums.json` do not exist, and the
+    recorded test run failed (exit 1) because `ds.to_parquet(..., engine="pyarrow")`
+    passes an invalid keyword to pyarrow. The script also deviates from the spec (uses
+    `split=''full''` instead of `split=''train''`, no `cache_dir=''data/raw''`, no
+    reference-checksum comparison, and no T019 invocation on DFT mismatch), so the
+    download pipeline has never successfully run.'
+  sig: 561f12ea48a835c65795705406714dfb6e2194a2e48ded2a6d20c25d569c014c

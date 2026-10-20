@@ -1,11 +1,12 @@
-pyarrow<17.0.0
-qm9pack
-datasets
-torch==2.2.0+cpu
+# Core scientific stack (already available in the base environment)
 numpy
 pandas
 scipy
 scikit-learn
-tensorboard
-ruff
-pytest
+matplotlib
+seaborn
+torch==2.2.0+cpu
+datasets
+# Additional requirement for in‑house IR generation
+pyscf
+# The environment already provides: requests, jsonschema, psutil, etc.

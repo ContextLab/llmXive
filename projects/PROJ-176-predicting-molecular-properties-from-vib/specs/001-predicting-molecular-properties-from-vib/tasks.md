@@ -26,7 +26,7 @@ The goal is a fully reproducible CPU‑only pipeline that (1) downloads verified
   *Artifacts*: `data/raw/qm9.parquet`, `data/raw/ir_spectra.parquet` (when compatible), `results/checksums.json`.  
   *Verification*: Script exits 0 and `jq .status results/checksums.json` returns `"ok"`; on mismatch it triggers T019 and proceeds; on unrecoverable error it exits 1 with an informative message.
 
-- [ ] T019 **Generate IR spectra in‑house using B3LYP via PySCF (Phase 0.5)**  
+- [ ] T019 **Generate IR spectra in‑house using B3LYP via PySCF (Phase 0.5)**   <!-- FAILED-IN-EXECUTION: code/data/generate_ir.py exit=1 -->
   Implement `code/data/generate_ir.py` to:  
   1. Load QM9 geometries from `data/raw/qm9.parquet`.  
   2. For each molecule, compute harmonic vibrational frequencies and IR intensities using the B3LYP functional with PySCF (CPU‑only).  
