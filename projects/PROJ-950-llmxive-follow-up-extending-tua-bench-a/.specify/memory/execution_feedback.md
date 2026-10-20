@@ -14,18 +14,27 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 SyntaxError: invalid syntax
 
 - python code/generate_synthetic_tasks.py  --num_complex 12 --num_routine 12  --output data/synthetic_tasks.json -> rc=1
+ 401 Unauthorized"
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+The above exception was the direct cause of the following exception:
+
+ImportError: datasets library could not be imported
+
+During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/code/generate_synthetic_tasks.py", line 14, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-950-llmxive-follow-up-extending-tua-bench-a/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-950-llmxive-follow-up-extending-tua-bench-a/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-950-llmxive-follow-up-extending-tua-bench-a/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/code/generate_synthetic_tasks.py", line 196, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/code/generate_synthetic_tasks.py", line 187, in main
+    all_tasks = stream_tasks()
+                ^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/code/generate_synthetic_tasks.py", line 120, in stream_tasks
+    return _load_with_hf_hub()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-950-llmxive-follow-up-extending-tua-bench-a/code/generate_synthetic_tasks.py", line 84, in _load_with_hf_hub
+    raise FileNotFoundError(
+FileNotFoundError: Unable to locate a supported train split file in the 'tua_bench' repo.
 
 - python code/run_baseline.py --seed $SEED --output data/baseline_results/seed_${SEED}.json -> rc=2
 

@@ -11,7 +11,6 @@ import json
 from pathlib import Path
 from typing import List, Dict
 
-from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -40,19 +39,89 @@ def parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
-def stream_tasks() -> List[Dict]:
-    """Stream the entire TUA‑Bench dataset and return a list of raw task dicts."""
-    log.info("Streaming the official TUA‑Bench dataset...")
-    # The dataset name is ``tua_bench``; streaming ensures we never load the whole
-    # collection into memory.
+# -------------------------------------------------------------------------
+# Dataset loading helpers
+# -------------------------------------------------------------------------
+
+def _load_with_datasets() -> List[Dict]:
+    """
+    Attempt to load the TUA‑Bench dataset using the ``datasets`` library.
+    This function is isolated so that any ImportError (e.g. missing
+    ``pyarrow``) can be caught and a fallback can be used.
+    """
+    try:
+        from datasets import load_dataset  # type: ignore
+    except Exception as exc:
+        raise ImportError("datasets library could not be imported") from exc
+
+    log.info("Streaming the official TUA‑Bench dataset via ``datasets``...")
     ds = load_dataset("tua_bench", streaming=True)
-    # The dataset contains a single split named ``train`` (the official benchmark).
-    # We iterate over it and collect the raw dictionaries.
-    tasks = []
+    tasks: List[Dict] = []
     for item in ds["train"]:
         tasks.append(dict(item))
     log.info(f"Total tasks streamed: {len(tasks)}")
     return tasks
+
+def _load_with_hf_hub() -> List[Dict]:
+    """
+    Fallback loader that downloads the raw split file from the HuggingFace hub
+    and parses it without requiring ``datasets`` or ``pyarrow``.
+    """
+    from huggingface_hub import hf_hub_download  # type: ignore
+    import pandas as pd  # pandas is part of the base environment
+
+    # The repository typically contains a ``train`` split; try common filenames.
+    possible_filenames = ["train.jsonl", "train.parquet", "train.csv"]
+    file_path = None
+    for fname in possible_filenames:
+        try:
+            file_path = hf_hub_download(repo_id="tua_bench", filename=fname)
+            log.info(f"Downloaded '{fname}' from the hub.")
+            break
+        except Exception:
+            continue
+    if file_path is None:
+        raise FileNotFoundError(
+            "Unable to locate a supported train split file in the 'tua_bench' repo."
+        )
+
+    tasks: List[Dict] = []
+    if file_path.endswith(".jsonl"):
+        with open(file_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    tasks.append(json.loads(line))
+    elif file_path.endswith(".parquet"):
+        df = pd.read_parquet(file_path)
+        tasks = df.to_dict(orient="records")
+    elif file_path.endswith(".csv"):
+        df = pd.read_csv(file_path)
+        tasks = df.to_dict(orient="records")
+    else:
+        raise ValueError(f"Unsupported file extension for fallback: {file_path}")
+
+    log.info(f"Loaded {len(tasks)} tasks via fallback method.")
+    return tasks
+
+def stream_tasks() -> List[Dict]:
+    """
+    Stream the entire TUA‑Bench dataset and return a list of raw task dicts.
+    Tries the primary ``datasets`` method first; if that fails (e.g. due to
+    missing ``pyarrow``), falls back to a lightweight download via
+    ``huggingface_hub``.
+    """
+    try:
+        return _load_with_datasets()
+    except Exception as e:
+        log.warning(
+            f"Primary loader failed ({e}); attempting fallback loader..."
+        )
+        return _load_with_hf_hub()
+
+# -------------------------------------------------------------------------
+# Sub‑selection utilities
+# -------------------------------------------------------------------------
 
 def select_balanced_subset(
     tasks: List[Dict],
@@ -95,6 +164,10 @@ def select_balanced_subset(
             )
     return selected
 
+# -------------------------------------------------------------------------
+# Output helper
+# -------------------------------------------------------------------------
+
 def write_json(data: List[Dict], output_path: str) -> None:
     """Write *data* to *output_path* as pretty‑printed JSON."""
     # Resolve the path via the toolkit helper to guarantee the directory exists.
@@ -104,6 +177,10 @@ def write_json(data: List[Dict], output_path: str) -> None:
     with out_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     log.info("Write complete.")
+
+# -------------------------------------------------------------------------
+# Main entry point
+# -------------------------------------------------------------------------
 
 def main() -> None:
     args = parse_args()
