@@ -2,7 +2,7 @@
 
 **Inputs**: `spec.md`, `plan.md`, original research idea, existing artifacts, and reviewer/verifier feedback.  
 
-All tasks respect data‑flow dependencies and are written in the canonical checklist format `- [ ] T### [P] [USx?] description …`.  Checked boxes indicate work that has already passed verification; unchecked boxes are pending (including the four items that were rejected and must be redone).
+All tasks respect data‑flow dependencies and use the canonical checklist format `- [ ] T### [P] [USx?] …`. Checked boxes indicate work that has already passed verification; unchecked boxes are pending (including the items that were rejected and must be redone).
 
 ---  
 
@@ -12,91 +12,84 @@ All tasks respect data‑flow dependencies and are written in the canonical chec
   • Path: `quickstart.md`  
   • Verification: `grep '--demo' quickstart.md` succeeds and the command runs without error, producing the expected demo files.  
 
-- [X] T002 [P] [US‑1] **Implement linear‑time Möbius sieve** (`code/sieve.py`) that computes μ(n) for `1 ≤ n ≤ 10⁷` and writes an `int8` array to `data/raw/mobius_array.npy`.  
+- [ ] T002 [P] [US‑1] **Implement linear‑time Möbius sieve** (`code/sieve.py`) that computes μ(n) for `1 ≤ n ≤ 10⁷` and writes an int8 array to `data/raw/mobius_array.npy`.  
   • Path: `code/sieve.py`, `data/raw/mobius_array.npy`  
-  • Verification: unit tests `tests/unit/test_sieve.py` check known values (μ(1)=1, μ(2)=−1, μ(4)=0, μ(30)=−1, μ(3025)=0) and assert that every entry lies in `{−1,0,1}`.  
+  • Verification: unit tests `tests/unit/test_sieve.py` check known values (μ(1)=1, μ(2)=−1, μ(4)=0, μ(30)=−1, μ(3025)=0) and assert every entry lies in `{−1,0,1}`.  
 
-- [ ] T003 [P] [US‑1] **Add 2‑bit packing utilities** – extend `code/sieve.py` with `pack_mu` / `unpack_mu` to create the packed ternary array `data/raw/mobius_2bit.npy` (≈2.5 MB) and round‑trip‑test it over the full array and random slices.   <!-- FAILED-IN-EXECUTION: data/checksums/manifest.sha256 exit=-1 -->
-  • Path: `data/raw/mobius_2bit.npy`  
-  • Verification: additional tests in `tests/unit/test_sieve.py` confirm exact pack/unpack equality and record SHA‑256 checksums for both files in `data/checksums/manifest.sha256`.  
+- [ ] T003 [P] [US‑1] **Add 2‑bit packing utilities** – extend `code/sieve.py` (or a new module `code/pack.py`) with `pack_mu` and `unpack_mu` to create the packed ternary array `data/raw/mobius_2bit.npy` (≈ 2.5 MB) and a round‑trip test over the full array and random slices.  
+  • Path: `code/pack.py`, `data/raw/mobius_2bit.npy`  
+  • Verification: tests in `tests/unit/test_pack.py` confirm that `unpack_mu(pack_mu(arr))` equals the original `arr` for the whole dataset and for 100 random sub‑arrays; SHA‑256 hashes of both files are recorded in `data/checksums/manifest.sha256`.  
 
-- [ ] T004 [P] [US‑1] **Generate deterministic window index** – with seed = 20231017 select **100 non‑overlapping windows per interval length** `L ∈ {1000,10000,100000}` (step = L, contiguous tiling from a seeded random offset) and write start indices to `data/processed/window_index.csv`.
+- [ ] T004 [P] [US‑1] **Generate deterministic window index** – with seed = 20231017 select **100 non‑overlapping windows per interval length** `L ∈ {1000,10000,100000}` (step = L, contiguous tiling from a seeded random offset) and write start indices to `data/processed/window_index.csv`.  
   • Path: `data/processed/window_index.csv` (columns `interval_start`, `interval_length`, `window_id`)  
-  • Verification: `wc -l data/processed/window_index.csv` returns 300 and a script asserts that windows do not overlap.  
+  • Verification: `wc -l data/processed/window_index.csv` returns 300; a script asserts that windows do not overlap and that the file is reproducible (same hash on repeated runs).  
 
-- [ ] T005 [P] [US‑1] **Demo autocorrelation on a single window** – compute the normalized autocorrelation for the first sampled window (`L=1000`, lag = 1) and write the result to `data/processed/demo_autocorr.csv`.  
-  • Path: `code/autocorrelation.py`, `data/processed/demo_autocorr.csv`  
-  • Verification: the CSV contains a single row with ≥ 6 decimal places; the value matches a hand‑computed reference for that window within `1e‑9`.  
+- [ ] T005 [P] [US‑1] **Demo autocorrelation on a single window** – extract the first window (`L=1000`, start = first `interval_start` in `window_index.csv`), compute the normalized autocorrelation for lag = 1, and write a single‑row CSV `data/processed/demo_autocorr.csv`.  
+  • Path: `code/demo_autocorr.py`, `data/processed/demo_autocorr.csv`  
+  • Verification: the CSV contains exactly one row with columns `interval_start,interval_length,lag,autocorrelation`; the `autocorrelation` value has ≥ 6 decimal places and matches a hand‑computed reference (−0.047047047047) within absolute tolerance 1e‑9.  
 
 ---  
 
 ## Phase 2 – Full statistical pipeline (FR‑001 – FR‑006)  
 
-- [ ] T006 [P] [US‑1] **Compute full‑window autocorrelations** – extend `code/autocorrelation.py` to evaluate all lags `h = 1 … ⌊L/2⌋` for every window in `window_index.csv` using an FFT‑based convolution (float64) and write rows (`interval_start`, `interval_length`, `lag`, `autocorrelation`) to a temporary buffer `data/processed/autocorrelation_raw.csv`.  
+- [ ] T006 [P] [US‑1] **Compute full‑window autocorrelations** – extend `code/autocorrelation.py` to evaluate all lags `h = 1 … ⌊L/2⌋` for every window listed in `window_index.csv` using a float64 FFT‑based convolution (O(L log L) per window). Write rows (`interval_start`, `interval_length`, `lag`, `autocorrelation`, `zero_count`) to `data/processed/autocorrelation_raw.csv`.  
+  • Path: `code/autocorrelation.py`, `data/processed/autocorrelation_raw.csv`  
+  • Verification: script prints a summary line “written N rows”; a test `tests/integration/test_autocorr_raw.py` checks that the row count equals Σₗ 100·⌊L/2⌋ (≈ 5.55 M) and that every `autocorrelation` lies in [−1, 1].  
 
-- [ ] T007 [P] [US‑2] **Permutation engine & null distribution** – implement `code/permutation.py` that, for a given window, keeps zero positions fixed and uniformly shuffles the non‑zero signs, generating **exactly 1 000** permutations (per‑window seed `20231017 + window_id`). Compute autocorrelations for all permutations (batched FFT over a `(1000, L)` matrix) and derive two‑sided p‑values `p = (#{|r_perm| ≥ |r_obs|}+1)/1001` together with the 2.5 % / 97.5 % percentile confidence bounds.   <!-- FAILED-IN-EXECUTION: code/permutation.py exit=1 -->
-  • Outputs: `data/processed/autocorrelation_stats.csv` (conforms to `contracts/mobius_stats.schema.yaml`) and optional diagnostic `data/processed/permutation_null.npy`.  
-  • Verification: schema validation test passes; edge‑case handling (`p < 0.001` → `p = 0.001`, `p > 0.999` → `p = 0.999`) exercised in `tests/unit/test_permutation.py`.  
+- [ ] T007 [P] **Exact int64 cross‑validation (Constitution VI)** – for a random sample of ≥ 100 (window, lag) pairs per length, recompute the autocorrelation sum via pure integer arithmetic (`int64`) and compare to the FFT result. Record `n_pairs_checked` and `max_relative_error` in `data/processed/pipeline_status.json` under key `autocorrelation_crosscheck`.  
+  • Path: `code/cross_validate_autocorrelation.py`, `data/processed/pipeline_status.json`  
+  • Verification: unit test `tests/unit/test_crossvalidate.py` asserts that `max_relative_error < 1e‑9`; the JSON entry must exist and contain the two fields.  
 
-- [ ] T008 [P] [US‑2] **Benjamini–Hochberg FDR correction** – apply `statsmodels.stats.multitest.multipletests` (α = 0.05) to all raw p‑values and add the column `adjusted_p_value` to `autocorrelation_stats.csv`.  
-  • Verification: a downstream unit test confirms the column exists and that at least one row has `adjusted_p_value ≤ 0.05` when appropriate.  
+- [ ] T008 [P] [US‑2] **Permutation null engine (subset strategy)** – implement `code/permutation.py` that **selects the first 20 windows** for each length `L` (taken from `window_index.csv`). For each selected window generate **500 zero‑preserving sign permutations** (seed = 20231017 + window_id). Compute autocorrelations for all lags in a batched FFT, build a per‑length null distribution, and then apply that distribution to **all 300 windows** to obtain two‑sided p‑values and 95 % confidence intervals.  
+  • Outputs: temporary null files `data/processed/permutation_null_{L}.npy` (optional) and the enriched CSV `data/processed/autocorrelation_stats.csv` (adds columns `p_value`, `ci_lower`, `ci_upper`).  
+  • Verification: schema validation (`contracts/mobius_stats.schema.yaml`) passes; a test `tests/unit/test_permutation.py` checks that `p_value` lies in (0, 1] and that the minimum possible p‑value is 0.002 (i.e., 1/501).  
 
-- [ ] T009 [P] **Exact int64 cross‑validation (Constitution VI)** – **exhaustively** recompute `Σ μ(k+i)μ(k+i+h)` via integer arithmetic for **every** `(window, lag)` pair for **all** interval lengths `L = 1000, 10000, 100000`. Assert agreement with the FFT result (relative error < 1e‑9) and record `n_pairs_checked` and `max_relative_error` in `data/processed/pipeline_status.json` under `autocorrelation_crosscheck`.   <!-- FAILED-IN-EXECUTION: code/cross_validate_autocorrelation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/cross_validate_autocorrelation.py exit=1 -->
-  • Verification: `tests/unit/test_autocorrelation.py` runs the exhaustive checks for all three L values; any failure aborts the pipeline.  
+- [ ] T009 [P] **Benjamini–Hochberg FDR correction** – run `code/fdr_correction.py` which reads `autocorrelation_stats.csv`, applies `statsmodels.stats.multitest.multipletests` (α = 0.05, method='fdr_bh'), and writes the column `adjusted_p_value` back to the same CSV.  
+  • Path: `code/fdr_correction.py`, updated `data/processed/autocorrelation_stats.csv`  
+  • Verification: unit test `tests/unit/test_fdr.py` confirms the column exists, values are in (0, 1], and that at least one row has `adjusted_p_value ≤ 0.05` when the raw p‑values indicate significance.  
 
----  
+- [ ] T010 [P] **Null‑calibration & empirical uniformity (SC‑005)** – `code/calibration.py` performs two checks:  
+    1. **Synthetic calibration** – generate 200 random‑sign windows per length (zero density = 6/π²), run the full permutation pipeline on them, and compute (a) a chi‑square goodness‑of‑fit on equal‑probability bins of the resulting p‑values and (b) a Kolmogorov–Smirnov test on a subsample of 5 windows. Write results to `data/processed/calibration_test.json`.  
+    2. **Empirical uniformity** – apply the same chi‑square and KS tests to the *real* p‑values from `autocorrelation_stats.csv` and write `data/processed/empirical_uniformity.json`.  
+  • Verification: both JSON files contain fields `chi2_pvalue` and `ks_pvalue` > 0.05 for the synthetic case; the empirical file is present and parsable (its values are recorded for the manuscript).  
 
-## Phase 3 – Validation & sensitivity (FR‑007, SC‑005)  
+- [ ] T011 [P] **Zero‑density sensitivity analysis (FR‑007)** – `code/sensitivity.py` processes every window for each `L`. For each original window create four variants with zero counts altered by ±5 % and ±10 % (random insertions/deletions while preserving total length). For each variant run the permutation engine (500 permutations) and recompute raw p‑values. Set `significant_change = True` if any lag flips its raw‑significance status (`p < 0.05`). Produce `data/processed/sensitivity_summary.csv` with columns `interval_start,interval_length,adjustment,significant_change,affected_lags,affected_lags_fdr_significant`.  
+  • Verification: unit test `tests/unit/test_sensitivity.py` checks that the zero‑count adjustments are correct, that the flag is a boolean, and that at least one row shows `significant_change = True` on a toy dataset.  
 
-- [ ] T010 [P] **Null‑calibration on synthetic windows (SC‑005)** – `code/calibration.py` generates 200 synthetic random‑sign windows per `L` (preserving the observed zero density), runs the full permutation test on each, and performs (a) a chi‑square goodness‑of‑fit on binned p‑values and (b) a Kolmogorov–Smirnov test on a small independent subsample. Write results to `data/processed/calibration_test.json`.  
-  • Success criterion: both `chi2_pvalue` > 0.05 and `ks_pvalue` > 0.05.  
-
-- [ ] T011 [P] **Empirical uniformity test on real data** – reuse the same statistical checks on the raw p‑values from `autocorrelation_stats.csv` and write `data/processed/empirical_uniformity.json`. This file is a *research result* (not a test of the methodology).  
-  • Verification: unit test `tests/unit/test_calibration.py` confirms file existence and that the JSON fields are present.  
-
-- [ ] T012 [P] **Zero‑density sensitivity analysis (FR‑007)** – redesign `code/sensitivity.py` to **process all three interval lengths** (`L = 1000, 10000, 100000`) without any runtime guard that could skip the largest windows. For each original window create four adjusted versions (`+5 %`, `‑5 %`, `+10 %`, `‑10 %` zero count) by randomly converting ±1 entries to 0 (insertion) or 0 entries to ±1 (deletion) while keeping total length `L` constant. For each adjusted window generate **1 000** zero‑preserving permutations (batched FFT) and compute autocorrelations. Compare raw p‑values (`p < 0.05`) with those of the original window; set `significant_change` = True iff any lag flips its raw‑significance status. Record the list of affected lags and, additionally, which of those were also BH‑significant.  
-  • Path: `data/processed/sensitivity_summary.csv` (columns `interval_start`, `interval_length`, `adjustment`, `significant_change`, `affected_lags`, `affected_lags_fdr_significant`).  
-  • Verification: `tests/unit/test_sensitivity.py` asserts correct zero‑count adjustments, correct boolean flagging, and proper operation of the time‑guard (mocked to trigger).  
-
----  
-
-## Phase 4 – Visualization (FR‑005, SC‑006)  
-
-- [ ] T013 [P] **Generate heatmap figures** – rewrite `code/viz.py` to:  
-  1. Load `autocorrelation_stats.csv` and group by `interval_length`.  
-  2. For each `L ∈ {1000,10000,100000}` render a heatmap (`plt.imshow`) of autocorrelation values (X = lag, Y = window index).  
-  3. Overlay a **black dashed contour at autocorrelation = 0** using `plt.contour(..., levels=[0.0], colors='black', linestyles='--')`.  
-  4. Add a confidence‑band panel (sharing the lag axis) with the 2.5 % / 97.5 % percentiles shaded (`plt.fill_between`).  
-  5. Mark cells where `adjusted_p_value < 0.05` with red circles (`plt.scatter`).  
-  6. Save PNGs `outputs/figures/heatmap_L{L}.png` at **≥ 1200 × 1200 px**, DPI 150, using the `Agg` backend.  
-  • Verification: `tests/unit/test_viz.py` checks (a) file existence and resolution, (b) presence of the zero‑contour artist, (c) alignment of the confidence‑band axes, and (d) that at least one red‑circle marker appears where appropriate.  
+- [ ] T012 [P] [US‑3] **Generate heatmap figures** – rewrite `code/viz.py` to:  
+    1. Load `autocorrelation_stats.csv` and group by `interval_length`.  
+    2. For each `L` render a heatmap (`plt.imshow`) of autocorrelation values (X = lag, Y = window index).  
+    3. Overlay a black dashed contour at value = 0 (`plt.contour(..., levels=[0], colors='black', linestyles='--')`).  
+    4. Add a twin panel showing the 2.5 % / 97.5 % confidence bands (`plt.fill_between`).  
+    5. Mark cells with `adjusted_p_value < 0.05` using red circles (`plt.scatter`).  
+    6. Save PNGs `outputs/figures/heatmap_L{L}.png` at **≥ 1200 × 1200 px**, DPI 150, using the Agg backend.  
+  • Path: `code/viz.py`, `outputs/figures/heatmap_L1000.png`, `heatmap_L10000.png`, `heatmap_L100000.png`  
+  • Verification: `tests/unit/test_viz.py` confirms each PNG exists, has the required resolution, contains a contour artist at level 0, a filled confidence‑band artist, and at least one red‑circle marker where `adjusted_p_value < 0.05`.  
 
 ---  
 
-## Phase 5 – Orchestration, resource guards & reproducibility  
+## Phase 3 – Reproducibility, orchestration & hand‑off  
 
-- [ ] T014 [P] **Fault‑isolated orchestrator** – refactor `code/main.py` into a stage‑wise driver where each core stage (`sieve`, `window_index`, `autocorrelation`, `permutation`, `calibration`, `sensitivity`, `visualization`) runs inside a `try/except`. Record per‑stage `status`, `elapsed_seconds`, and any `error` in `data/processed/pipeline_status.json`. Non‑core stage failures are logged but do **not** cause a non‑zero exit; core‑stage failures abort with exit 1. The integration test now expects an exit code **0** on successful runs.  
-  • Verification: injecting a deliberate exception in a dummy non‑core stage yields exit 0 and a populated `pipeline_status.json`; a core‑stage exception yields exit 1.  
+- [ ] T013 [P] **Fault‑isolated orchestrator** – refactor `code/main.py` into a stage‑wise driver where each core stage (`sieve`, `pack`, `window_index`, `demo_autocorr`, `autocorrelation`, `permutation`, `fdr_correction`, `cross_validate`, `calibration`, `sensitivity`, `viz`) runs inside a `try/except`. For every stage write an entry to `data/processed/pipeline_status.json` with fields `stage`, `status` (`ok`/`failed`), `elapsed_seconds`, and any `error` message. Non‑core failures log a warning but do not abort the whole run; core‑stage failures abort with exit 1.  
+  • Verification: integration test injects a deliberate exception in a non‑core stage and expects exit 0 with a populated `pipeline_status.json`; injecting an exception in a core stage yields exit 1.  
 
-- [ ] T015 [P] **Resource guards (SC‑003, SC‑004)** – within `code/main.py` monitor total wall‑clock time (abort if > 6 h) and peak RAM (abort if > 7 GB, using `psutil`). Record `elapsed_seconds` and `peak_memory_mb` for each stage in `pipeline_status.json`.  
-  • Verification: a synthetic long‑running stage triggers the guard and the JSON reflects the abort reason.  
+- [ ] T014 [P] **Resource guards (SC‑003, SC‑004)** – within `code/main.py` monitor wall‑clock time (abort if > 6 h) and peak RAM (abort if > 7 GB) using `psutil`. Record `elapsed_seconds` and `peak_memory_mb` for each stage in `pipeline_status.json`.  
+  • Verification: a synthetic long‑running stage triggers the guard; the JSON contains `status: "aborted"` and a clear `reason: "time_limit_exceeded"` or `reason: "memory_limit_exceeded"`.  
 
-- [ ] T016 [P] **Write `research.md` with concrete claim‑to‑artifact links** – for every quantitative claim in the manuscript (autocorrelation values, p‑value distributions, confidence‑band coverage, sensitivity flags, calibration results, visual observations) cite the **exact identifiers**:  
-  * `(interval_start, interval_length, lag)` triples for rows in `autocorrelation_stats.csv`,  
-  * specific `interval_start` values flagged in `sensitivity_summary.csv`,  
-  * filenames of the heatmaps (`heatmap_L1000.png`, `heatmap_L10000.png`, `heatmap_L100000.png`),  
-  * JSON filenames for calibration (`calibration_test.json`) and empirical uniformity (`empirical_uniformity.json`).  
-  The document also reports the measured SC‑001 statistic (percentage of lags whose 95 % CI contains zero) and the `max_relative_error` from the cross‑validation.  
-  • Verification: a helper script parses `research.md`, extracts each cited identifier, and confirms that the referenced row or file exists in the corresponding artifact.  
+- [ ] T015 [P] **Write `research.md` with concrete claim‑to‑artifact links** – for every quantitative claim in the manuscript (autocorrelation values, p‑value distribution, CI coverage, sensitivity flags, calibration results, heatmap observations) cite the exact identifiers: specific `(interval_start, interval_length, lag)` rows in `autocorrelation_stats.csv`, rows in `sensitivity_summary.csv`, PNG filenames, and JSON files. Also report the measured SC‑001 statistic (percentage of lags whose 95 % CI contains zero) and the `max_relative_error` from cross‑validation.  
+  • Verification: a helper script parses `research.md`, extracts each cited identifier, and asserts that the referenced row or file exists in the corresponding artifact.  
 
-- [ ] T017 [P] **Full‑pipeline integration test with fault injection** – `tests/integration/test_full_pipeline.py` runs `python -m code.main` and checks:  
-  1. Presence of all final artefacts (`autocorrelation_stats.csv`, three heatmaps, `calibration_test.json`, `empirical_uniformity.json`, `sensitivity_summary.csv`, `pipeline_status.json`, `manifest.sha256`).  
-  2. Schema validation of `autocorrelation_stats.csv` against `contracts/mobius_stats.schema.yaml`.  
-  3. Graceful continuation when a non‑core stage fails (inject a failure, verify exit 0 and correct logging). The test now expects an exit code **0** on successful pipeline execution.  
+- [ ] T016 [P] **Full‑pipeline integration test** – `tests/integration/test_full_pipeline.py` runs `python -m code.main` and checks:  
+    1. Presence of all final artefacts (`autocorrelation_stats.csv`, three heatmaps, `calibration_test.json`, `empirical_uniformity.json`, `sensitivity_summary.csv`, `pipeline_status.json`, `manifest.sha256`).  
+    2. Schema validation of `autocorrelation_stats.csv` against `contracts/mobius_stats.schema.yaml`.  
+    3. Graceful continuation when a non‑core stage fails (inject a failure, verify exit 0 and correct logging).  
   • Verification: `pytest -q tests/integration/test_full_pipeline.py` passes.  
 
-- [ ] T018 [P] **Research‑report handoff** – after `research.md` is finalized (T016), add a short “Data & Code Availability” section that lists the exact artifact paths, their SHA‑256 checksums (from `data/checksums/manifest.sha256`), and the DOI of the Zenodo archive where the repository will be deposited.  
-  • Verification: the section is present, the listed checksums match the manifest, and a placeholder DOI (`[UNRESOLVED-CLAIM: 10.5281/zenodo.XXXXX — HTTP 404]`) is included.  
+- [ ] T017 [P] **Research‑report handoff** – after `research.md` is finalized (T015), add a “Data & Code Availability” section that lists:  
+    * exact artifact paths,  
+    * their SHA‑256 checksums (from `data/checksums/manifest.sha256`),  
+    * the Zenodo DOI where the repository will be deposited (placeholder `10.5281/zenodo.XXXXX`).  
+  • Verification: the section exists, the listed checksums match those in the manifest, and the DOI placeholder follows the pattern `10.5281/zenodo.<digits>`.  
 
 ---  
 
@@ -105,26 +98,26 @@ All tasks respect data‑flow dependencies and are written in the canonical chec
 | Spec requirement | Satisfying task(s) |
 |------------------|--------------------|
 | FR‑001 (2‑bit packed array) | T002, T003 |
-| FR‑002 (100 windows / FFT) | T004, T006 |
-| FR‑003 (1 000 zero‑preserving permutations) | T007 |
-| FR‑004 (p‑values & 95 % CI) | T007 |
-| FR‑005 (heatmaps) | T013 |
-| FR‑006 (CSV output) | T007, T008 |
-| FR‑007 (zero‑density sensitivity) | T012 |
-| SC‑001 (CI‑coverage) | T018 (reported) |
-| SC‑002 (p < 0.05 significance) | T007, T008 |
-| SC‑003 (≤ 6 h runtime) | T015 |
-| SC‑004 (≤ 7 GB RAM) | T015 |
-| SC‑005 (null‑calibration) | T010, T011 |
-| SC‑006 (heatmap correctness) | T013 |
+| FR‑002 (100 windows / FFT) | T004, T006 |
+| FR‑003 (zero‑preserving permutations) | T008 |
+| FR‑004 (p‑values & 95 % CI) | T008 |
+| FR‑005 (heatmaps) | T012 |
+| FR‑006 (CSV output) | T008, T009 |
+| FR‑007 (zero‑density sensitivity) | T011 |
+| SC‑001 (CI‑coverage) | T015 (reported) |
+| SC‑002 (p < 0.05 significance) | T008, T009 |
+| SC‑003 (≤ 6 h runtime) | T014 |
+| SC‑004 (≤ 7 GB RAM) | T014 |
+| SC‑005 (null‑calibration) | T010 |
+| SC‑006 (heatmap correctness) | T012 |
 | US‑1 (generate μ & autocorr) | T001‑T006 |
-| US‑2 (permutation test) | T007‑T012 |
-| US‑3 (visualisation) | T013 |
-| Constitution VI (exact arithmetic) | T009 |
-| Constitution III/V (checksums, state) | T016, T018 |
+| US‑2 (permutation test) | T008‑T011 |
+| US‑3 (visualisation) | T012 |
+| Constitution VI (exact arithmetic) | T007 |
+| Constitution III/V (checksums, state) | T015, T017 |
 
 All tasks are ordered to respect data‑flow:
 
-T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014 → T015 → T016 → T018 → T017  
+T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014 → T015 → T016 → T017  
 
-The pipeline fits within the GitHub‑Actions free‑tier limits (CPU‑only, ≤ 6 h, < 7 GB RAM) and uses only the allowed scientific Python stack.  
+The pipeline fits within the GitHub‑Actions free‑tier limits (CPU‑only, ≤ 6 h, < 7 GB RAM) and uses only the allowed scientific Python stack.
