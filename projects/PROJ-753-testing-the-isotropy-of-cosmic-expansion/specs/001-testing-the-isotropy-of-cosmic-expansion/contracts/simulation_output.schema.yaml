@@ -14,7 +14,7 @@ properties:
     description: "Quadrupole amplitude for this simulation run."
   seed:
     type: "integer"
-    description: "Random seed used for this iteration (always 42)."
+    description: "Random seed used for this iteration (set to a fixed value for reproducibility)."
 required:
   - run_id
   - dipole_amplitude

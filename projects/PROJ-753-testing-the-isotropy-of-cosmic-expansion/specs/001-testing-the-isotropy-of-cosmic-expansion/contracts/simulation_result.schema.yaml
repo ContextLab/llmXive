@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Simulation Result Schema"
-description: "Schema for a single iteration of the isotropic mock catalog simulation (streaming scalar output)."
+title: "Simulation Result (DEPRECATED)"
+description: "Deprecated schema – the project now uses `simulation_results.schema.yaml`. Retained for backward compatibility only; no tasks reference this schema."
 type: "object"
 properties:
   run_id:
@@ -18,3 +18,4 @@ required:
   - dipole_amplitude
   - quadrupole_amplitude
 additionalProperties: false
+## NOTE: This schema is deprecated and intentionally not used by any pipeline step.

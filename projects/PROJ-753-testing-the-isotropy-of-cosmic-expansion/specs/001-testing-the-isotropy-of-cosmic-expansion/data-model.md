@@ -1,79 +1,61 @@
 # Data Model: Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data
 
 ## Overview
+All artifacts reside under `data/`. Raw, immutable inputs are stored in `data/raw/`; derived products are stored in `data/processed/`; human‑readable reports live in `data/reports/`.
 
-This document defines the data structures and schemas used throughout the project. All data artifacts are stored in the `data/` directory, with raw data in `data/raw` and processed data in `data/processed`.
+## Entity Schemas
 
-## Entity Definitions
+### 1. `residuals.csv`
+| Field | Type | Description |
+|------|------|-------------|
+| `id` | string | Supernova identifier (e.g., SN name). |
+| `ra` | float | Right Ascension (degrees, 0 ≤ ra < 360). |
+| `dec` | float | Declination (degrees, –90 ≤ dec ≤ 90). |
+| `z` | float | Redshift (≥ 0). |
+| `mu_obs` | float | Observed distance modulus. |
+| `mu_err` | float | Uncertainty on the distance modulus (≥ 0). |
+| `mu_th` | float | Theoretical distance modulus from flat ΛCDM. |
+| `residual` | float | μ_obs − μ_th. |
+| `valid` | boolean | True if the row passed all filters. |
 
-### 1. Supernova Record
-Represents a single Type Ia supernova after ingestion and residual calculation.
+Conforms to `contracts/residuals.schema.yaml`.
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `id` | string | Unique identifier for the supernova (e.g., SN name). | Pantheon+ |
-| `ra` | float | Right Ascension in degrees. | Pantheon+ |
-| `dec` | float | Declination in degrees. | Pantheon+ |
-| `z` | float | Redshift. | Pantheon+ |
-| `mu_obs` | float | Observed distance modulus. | Pantheon+ |
-| `mu_err` | float | Uncertainty in distance modulus. | Pantheon+ |
-| `mu_th` | float | Theoretical distance modulus (model-independent spline fit). | Calculated |
-| `residual` | float | $\mu_{obs} - \mu_{th}$. | Calculated |
-| `valid` | bool | Flag indicating if the record passed all filters. | Filter Logic |
+### 2. `healpix_map.fits`
+A FITS binary table with one row per pixel.
 
-### 2. Healpix Pixel
-Represents a spatial bin on the celestial sphere.
+| Column | Type | Description |
+|--------|------|-------------|
+| `pixel_index` | integer | HEALPix pixel index (Nside = 32). |
+| `nside` | integer | HEALPix resolution (constant 32). |
+| `mean_residual` | float | Mean residual of all SNe in the pixel (mag). |
+| `count` | integer | Number of supernovae contributing to the pixel. |
+| `mask_value` | integer | 1 = pixel used in analysis, 0 = masked. |
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `pixel_index` | int | HEALPix pixel index (Nside=16). | HEALPix |
-| `nside` | int | HEALPix resolution parameter (fixed at 16). | Constant |
-| `mean_residual` | float | Mean residual of all SNe in this pixel. | Aggregation |
-| `count` | int | Number of SNe in this pixel. | Aggregation |
-| `mask_value` | int | 1 if pixel is valid, 0 if masked. | Mask Logic |
+Conforms to `contracts/healpix_map.schema.yaml`.
 
-### 3. Harmonic Coefficient
-Represents a term in the spherical harmonic expansion.
+### 3. `simulation_results.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `run_id` | integer | Simulation iteration number (starting at 1). |
+| `dipole_amp` | float | Dipole amplitude (mag) for this mock catalog. |
+| `quadrupole_amp` | float | Quadrupole amplitude (mag) for this mock catalog. |
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `ell` | int | Angular multipole moment ($\ell$). | Calculation |
-| `m` | int | Azimuthal order ($m$). | Calculation |
-| `real` | float | Real part of $a_{\ell m}$. | Calculation |
-| `imag` | float | Imaginary part of $a_{\ell m}$. | Calculation |
-| `amplitude` | float | $|a_{\ell m}|$. | Calculation |
+Conforms to `contracts/simulation_results.schema.yaml`.
 
-### 4. Null Simulation Result
-Represents one iteration of the isotropic mock catalog simulation.
+### 4. `analysis_result.json`
+A JSON object summarising the final scientific outcome (see `contracts/analysis_result.schema.yaml`).
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `run_id` | int | Simulation iteration number (1 to [deferred]). | Loop Counter |
-| `dipole_amp` | float | Extracted dipole amplitude for this run. | Calculation |
-| `quadrupole_amp` | float | Extracted quadrupole amplitude for this run. | Calculation |
+### 5. `final_report.txt`
+Plain‑text human‑readable report containing the same numeric results plus a concise interpretation.
 
-## File Formats
+## Data Flow Diagram
+1. **Download** → `data/raw/pantheon_plus.dat`  
+2. **Ingestion & Residuals** → `data/processed/residuals.csv`  
+3. **HEALPix Projection** → `data/processed/healpix_map.fits`  
+4. **Harmonic Analysis** → in‑memory coefficients (used for amplitudes)  
+5. **Simulations** → `data/processed/simulation_results.csv`  
+6. **Significance & Reporting** → `data/reports/final_report.txt`, `analysis_result.json`  
 
-### `data/processed/residuals.csv`
-Contains the filtered and processed supernova records.
-- **Format**: CSV
-- **Delimiter**: Comma
-- **Header**: `id,ra,dec,z,mu_obs,mu_err,mu_th,residual,valid`
+All steps are deterministic given the fixed random seed and checksum‑verified inputs.
 
-### `data/processed/healpix_map.fits`
-Contains the HEALPix projection of residuals.
-- **Format**: FITS (Flexible Image Transport System)
-- **Columns**: `PIXEL`, `MEAN_RESIDUAL`, `COUNT`, `MASK_VALUE`
-
-### `data/processed/simulation_results.csv`
-Contains the results of the null distribution simulations.
-- **Format**: CSV
-- **Header**: `run_id,dipole_amp,quadrupole_amp`
-
-## Data Flow
-
-1. **Raw Data** (`data/raw/Pantheon+_SH0ES.dat`) → **Ingestion** → **Residuals** (`data/processed/residuals.csv`)
-2. **Residuals** → **HEALPix Projection** → **Map** (`data/processed/healpix_map.fits`)
-3. **Map** → **Spherical Harmonics** → **Coefficients** (Internal/In-memory)
-4. **Residuals** → **Rotation Simulation** → **Null Distribution** (`data/processed/simulation_results.csv`)
-5. **Coefficients** + **Null Distribution** → **Significance Assessment** → **Report** (`data/reports/final_report.txt`)
+---

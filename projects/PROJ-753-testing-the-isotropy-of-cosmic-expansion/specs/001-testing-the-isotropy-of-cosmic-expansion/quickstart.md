@@ -1,79 +1,71 @@
 # Quickstart: Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data
 
 ## Prerequisites
-
-- Python 3.11 or higher
-- `git`
-- ~10 GB of free disk space (for data and dependencies)
+- Python 3.11 or newer
+- Git
+- ~Sufficient free disk space (on the order of several gigabytes) for dataset and intermediate files
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion
-   ```
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+# 3. Install pinned dependencies
+pip install -r requirements.txt
+```
 
 ## Data Setup
 
-1. **Download the Pantheon+ dataset**:
-   - Navigate to the official repository: https://github.com/PantheonPlusSH0ES/DataRelease
-   - Download the `Pantheon+_SH0ES.dat` file (or the latest CSV equivalent).
-   - Place the file in `data/raw/`.
-   - Verify the checksum (if provided) against the `data/` metadata.
-
-2. **Verify data integrity**:
+1. **Obtain Pantheon+**  
+   - Visit the official Pantheon+ repository (https://github.com/PantheonPlusSH0ES/DataRelease).  
+   - Download the file `Pantheon+_SH0ES.dat` (or the latest CSV equivalent).  
+   - Place the file in `data/raw/`.  
+2. **Verify integrity** (the SHA‑256 hash is recorded in `data/raw/manifest.json`):
    ```bash
    python code/ingestion.py --verify-only
    ```
 
-## Running the Analysis
-
-Execute the full pipeline:
+## Run the Full Analysis
 
 ```bash
 python code/analysis.py
 ```
 
-This will:
-1. Ingest and filter the Pantheon+ data.
-2. Calculate residuals.
-3. Project to HEALPix and compute spherical harmonics.
-4. Run a large number of rotation simulations.
-5. Calculate p-values and generate the final report.
+The script performs the following automatically:
+1. Ingests and filters the Pantheon+ data, writes `residuals.csv`.  
+2. Projects residuals onto a HEALPix grid (`healpix_map.fits`).  
+3. Computes dipole and quadrupole amplitudes.  
+4. Generates isotropic mock catalogs via random rotations, monitors convergence, and writes `simulation_results.csv`.  
+5. Calculates p‑values and writes `final_report.txt` and `analysis_result.json`.
 
-## Output
+## Outputs
 
-- **Processed Data**: `data/processed/`
-  - `residuals.csv`: Filtered supernova data with residuals.
-  - `healpix_map.fits`: HEALPix projection.
-  - `simulation_results.csv`: Null distribution data.
-- **Reports**: `data/reports/final_report.txt`
-  - Contains the observed dipole/quadrupole amplitudes, p-values, and significance conclusion.
+- `data/processed/residuals.csv` – cleaned supernova table with residuals.  
+- `data/processed/healpix_map.fits` – HEALPix map of mean residuals.  
+- `data/processed/simulation_results.csv` – dipole/quadrupole amplitudes from each mock catalog.  
+- `data/reports/final_report.txt` – human‑readable summary of the dipole/quadrupole amplitudes, p‑values, and significance flag.  
+- `analysis_result.json` – machine‑readable result validated against `contracts/analysis_result.schema.yaml`.
 
-## Validation
+## Validation (Synthetic Test)
 
-To validate the implementation against a known signal:
+To confirm the pipeline can recover a known signal:
 
 ```bash
-python code/analysis.py --synthetic --inject-dipole 0.05
+python code/analysis.py --synthetic --inject-dipole 0.04
 ```
 
-This will run the analysis on a synthetic dataset with an injected dipole of a representative magnitude and verify that the extracted amplitude matches within statistical error.
+This creates a synthetic supernova sample with an injected dipole of 0.04 mag, runs the full pipeline, and prints the recovered amplitude and p‑value.
 
 ## Troubleshooting
 
-- **Memory Error**: If you encounter memory issues, reduce the simulation count in `code/simulations.py` (e.g., `N=1000`).
-- **Missing Data**: If the script reports missing RA/Dec, check the raw data file for formatting issues.
-- **Runtime Error**: Ensure you are using Python 3.11+ and that all dependencies are installed correctly.
+- **MemoryError** – Reduce the number of simulations by editing `code/simulations.py` (`MAX_SIMULATIONS = 2000`).  
+- **Missing columns** – Ensure the raw Pantheon+ file contains the required columns (`RA`, `DEC`, `z`, `mu`, `muerr`).  
+- **Runtime > 6 h** – The script automatically stops the simulation loop once the convergence criterion (Δmean < 0.001 mag over last 1 000 sims) is met; you can also lower `MAX_SIMULATIONS` manually.
+
+---
