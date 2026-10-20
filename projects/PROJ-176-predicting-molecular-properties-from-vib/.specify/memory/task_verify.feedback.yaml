@@ -1,30 +1,37 @@
-T101:
-  task: 05c3b0366f2eda451f0c12a18c687275358ee6d7823f524f67b661ff5faafba5
-T102:
-  task: 1d9acbf6881f451787ec1b365326fe19f795396f4fd70b40939c22543bcb8552
-T103:
-  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
-    exit=1'
-  task: d2d609e9fac117740275ea3bf39c046efeb9f0e94485b816e381c6cef11cfb04
-T104:
-  task: 002a080c499776adef2038d738cfaba70673227377c518d3c80c1be6bcc37b0e
-T105:
-  task: 1f83dd249071091fbe7fe67bab82a0f3016c3581e77c8fb0eb854d7dd82420d1
-T106:
-  task: d18222b62adc68ef4dd1a435f3cb5af8b7fd8e05e54287365312200af1d4059b
-T107:
-  task: ea8752c8cbc6726d0c8b31c1a18f7ee2f1c5901ab7f3cec3014300be31d9b053
-T108:
-  task: c8d88ef5ece0670a1f40dfcfb05ca6e1498c7e562c72aff104f1db08e39ca1aa
-T109:
-  task: 31f6a2b983f64942f3e87e956fc65143102858bca384fbe48570c49976781a99
-T110:
-  task: df9c3e0dbe5916bf07aa3c83413fa44a9d084a3d94979a5bb9535547b43cc7fd
-T111:
-  task: 1d7ebc8260f7727898c0637a28fb0f4cd79c22a43a9ea2a30c84f75fcfe52fd0
-T112:
-  task: c58feefb05045f91e5e693eb645017f367762d265014bfa81042409abf10d196
-T113:
-  task: 8792a44d08d9ddac1394f2e3ae47a9efc4c208705c38d5b74beace28fabd0dd9
-T114:
-  task: e9a7d55ce43471d391fd9e1f8256584b27c2768a2504b134566fe09299b7a00a
+T001:
+  reason: The directory tree and `__init__.py` files exist, and the structure report
+    lists the required folders, but there is no evidence that `python -m compileall
+    code/` was run successfully, nor any proof that the `__init__.py` files are actually
+    empty as required.
+  task: bdd0cf57caa5b9170e4fd34cb1f2797509b5128411a6090a7f43a09a977f4c33
+T002:
+  task: fa65ce1c923f39aa3a9cdfbdb727a348ebc2a7dd93c8576f7e9e1d4ce9f5c891
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  task: 2741b5b4fb4b50d03bc250fa3fdde1f3dabe67b3c4d016342fe945bc344fde0c
+T004:
+  task: f364919b54bcffd1a2e99da6d0d01337bf55e3dd4d4dfc4ecf28fec34e8743f0
+T005:
+  task: bc5166bc8d169b2d5732d73e1304d6e5112341560ae022e7beaa291da9258ef3
+T006:
+  task: 9c927bd9fb687abf54c934f21eebca1fe0bc9810fd05df2a3857d67e9c2e0c10
+T007:
+  task: 7fb6c9d70d882200498c1691a8da4e3661b8c9aca759f2d21ec8280d5259b8d0
+T008:
+  task: 06f24fcef9bfd29d2c5bdf7ebccf38b6aa7e957f6dc21668f5665aa23064859b
+T009:
+  task: 5b6c250cb8755aac99f726dedb1a90a4dd3b570601fe5d407075b6516bf6bd3f
+T010:
+  task: a45f819753d692fbb4f63fb644f531e49af4a5f2e1540427458ceeb0bbbf2946
+T011:
+  task: 758d1881675c1ad631b5b5ecdfb3d07a4a3b7bea4193af7a57effe17897c39e1
+T012:
+  task: 7ea24df073b3410f56b80fdf2a7239f098e6d58c7ea866e4ba681a324603f501
+T013:
+  task: 9c92017c1c5fbcd1f8b3a3227f3f1f1e02b5ef61e75bea1ef0f6f83eaa727ff3
+T014:
+  task: a8f2f02b03ad02abb398a757a15dc5d1fe2cbb746ba5a3068b1a40c7ed2cb606
+T015:
+  task: 77a12fa6239671800d224da9d7b565028ebb13f4ccaa41c256a5548ef0d8c2ad
+T016:
+  task: a9ea1b878fce62fa426aab4e9ca67a9dfb68807b4382e0d644dd3282c3a99615

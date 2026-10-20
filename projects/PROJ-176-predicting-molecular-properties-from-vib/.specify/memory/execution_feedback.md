@@ -26,12 +26,18 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
+- run-book command: `python code/main.py train --max-samples 30000`
+  - script usage: `main.py [-h] {download,preprocess,train,evaluate,validate} ...`
+  - argparse error: `main.py: error: unrecognized arguments: --max-samples 30000`
 - run-book command: `python code/main.py evaluate --checkpoint models/checkpoint_best.pt`
   - script usage: `main.py [-h] {download,preprocess,train,evaluate,validate} ...`
   - argparse error: `main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt`
 - run-book command: `python code/main.py validate --checkpoint models/checkpoint_best.pt`
   - script usage: `main.py [-h] {download,preprocess,train,evaluate,validate} ...`
   - argparse error: `main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt`
+- run-book command: `python code/main.py control --checkpoint models/checkpoint_best.pt`
+  - script usage: `main.py [-h] {download,preprocess,train,evaluate,validate} ...`
+  - argparse error: `main.py: error: argument command: invalid choice: 'control' (choose from 'download', 'preprocess', 'train', 'evaluate', 'validate')`
 
 ## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
 
@@ -46,12 +52,12 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; every produced artifact is gitignored (data/raw/qm9.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py evaluate --checkpoint models/checkpoint_best.pt (rc=2); 3 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/processed/alignment_report.json; data/raw/ir_spectra.parquet
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; every produced artifact is gitignored (data/raw/qm9.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 8 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py train --max-samples 30000 (rc=2); 3 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/processed/alignment_report.json; data/raw/ir_spectra.parquet
 
 ## Failing / missing run-book commands
 
 - python code/main.py download -> rc=1
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-176-predicting-molecular-properties-from-vib/lib/python3.11/site-packages/datasets/load.py", line 1392, in load_dataset
     builder_instance = load_dataset_builder(
                        ^^^^^^^^^^^^^^^^^^^^^
@@ -62,7 +68,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
     raise e1 from None
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-176-predicting-molecular-properties-from-vib/lib/python3.11/site-packages/datasets/load.py", line 980, in dataset_module_factory
     raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'lamblador/ir_spectra' doesn't exist on the Hub or cannot be accessed.
+datasets.exceptions.DatasetNotFoundError: Dataset 'lamblador/QM9-IR' doesn't exist on the Hub or cannot be accessed.
 
 - python code/main.py preprocess -> rc=1
 -properties-from-vib/code/data/preprocess.py", line 97, in main
@@ -85,17 +91,29 @@ datasets.exceptions.DatasetNotFoundError: Dataset 'lamblador/ir_spectra' doesn't
              ^^^^^^^^^^^^^^^^^^^^^^^^^
 FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/ir_spectra.parquet'
 
+- python code/main.py train --max-samples 30000 -> rc=2
+2026-10-20 09:30:38 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+
+usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
+main.py: error: unrecognized arguments: --max-samples 30000
+
 - python code/main.py evaluate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 23:21:41 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-20 09:30:39 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
 
 - python code/main.py validate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 23:21:42 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-20 09:30:41 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
+
+- python code/main.py control --checkpoint models/checkpoint_best.pt -> rc=2
+2026-10-20 09:30:42 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+
+usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
+main.py: error: argument command: invalid choice: 'control' (choose from 'download', 'preprocess', 'train', 'evaluate', 'validate')
 
 - python -m pytest tests/ -v > logs/pytest.log 2>&1 -> rc=4
 ============================= test session starts ==============================
@@ -103,7 +121,7 @@ platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/wor
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
-plugins: platformdirs-4.13.3, cov-7.1.0, anyio-4.15.1
+plugins: platformdirs-4.13.5, cov-7.1.0, anyio-4.15.1
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================
@@ -117,7 +135,7 @@ platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/wor
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
-plugins: platformdirs-4.13.3, cov-7.1.0, anyio-4.15.1
+plugins: platformdirs-4.13.5, cov-7.1.0, anyio-4.15.1
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================
@@ -141,20 +159,25 @@ Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A 
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
-import qm9pack
+from qm9pack import get_data
 
-# Load the full QM9 dataset (the required positional argument is the dataset name)
-data = qm9pack.get_data('qm9')
+# Load the full QM9 dataset (use the appropriate dataset identifier)
+data = get_data('qm9')
 
-if hasattr(data, "shape"):
-    count = data.shape[0]
+if hasattr(data, "columns"):
+    count = len(data)
     fields = list(data.columns)
-else:
+elif isinstance(data, (list, tuple)):
     count = len(data)
     fields = list(data[0].keys()) if count else []
+else:
+    seq = list(data)
+    count = len(seq)
+    fields = list(seq[0].keys()) if count else []
 
 print(f"RECORDS={count}")
-print("FIELDS=" + ",".join(fields))
+if fields:
+    print(f"FIELDS={','.join(fields)}")
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

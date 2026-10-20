@@ -1,0 +1,82 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Composition-only GNN model metrics"
+type: object
+required:
+  - dataset_checksum
+  - seed
+  - band_gap
+  - hardness
+  - rf_baseline
+  - delta_vs_rf
+properties:
+  dataset_checksum:
+    type: string
+    description: "SHA-256 of the input dataset file (single source of truth)."
+  seed:
+    type: integer
+    description: "Pinned random seed used for training and splits."
+  band_gap:
+    type: object
+    required: [r2_mean, r2_std, mae_mean, mae_std, rmse_mean, rmse_std]
+    properties:
+      r2_mean: {type: number, description: "Mean R2 across 5 CV folds for band gap."}
+      r2_std: {type: number, description: "Std of R2 across folds for band gap."}
+      mae_mean: {type: number, description: "Mean MAE across folds for band gap."}
+      mae_std: {type: number, description: "Std of MAE across folds for band gap."}
+      rmse_mean: {type: number, description: "Mean RMSE across folds for band gap."}
+      rmse_std: {type: number, description: "Std of RMSE across folds for band gap."}
+  hardness:
+    type: object
+    required: [r2_mean, r2_std, mae_mean, mae_std, rmse_mean, rmse_std]
+    properties:
+      r2_mean: {type: number, description: "Mean R2 across 5 CV folds for hardness."}
+      r2_std: {type: number, description: "Std of R2 across folds for hardness."}
+      mae_mean: {type: number, description: "Mean MAE across folds for hardness."}
+      mae_std: {type: number, description: "Std of MAE across folds for hardness."}
+      rmse_mean: {type: number, description: "Mean RMSE across folds for hardness."}
+      rmse_std: {type: number, description: "Std of RMSE across folds for hardness."}
+  rf_baseline:
+    type: object
+    description: "Random Forest baseline metrics with the same per-target structure; the delta vs GNN is a baseline gap, NOT a structure information-loss metric."
+    required: [band_gap, hardness]
+    properties:
+      band_gap:
+        type: object
+        required: [r2_mean, r2_std, mae_mean, mae_std, rmse_mean, rmse_std]
+        properties:
+          r2_mean: {type: number}
+          r2_std: {type: number}
+          mae_mean: {type: number}
+          mae_std: {type: number}
+          rmse_mean: {type: number}
+          rmse_std: {type: number}
+      hardness:
+        type: object
+        required: [r2_mean, r2_std, mae_mean, mae_std, rmse_mean, rmse_std]
+        properties:
+          r2_mean: {type: number}
+          r2_std: {type: number}
+          mae_mean: {type: number}
+          mae_std: {type: number}
+          rmse_mean: {type: number}
+          rmse_std: {type: number}
+  delta_vs_rf:
+    type: object
+    description: "GNN minus RF per target and metric; single-source-of-truth artifact for the baseline gap. Explicitly NOT a structure information-loss metric."
+    required: [band_gap, hardness]
+    properties:
+      band_gap:
+        type: object
+        required: [delta_r2, delta_mae, delta_rmse]
+        properties:
+          delta_r2: {type: number, description: "r2_mean(GNN) - r2_mean(RF) for band gap."}
+          delta_mae: {type: number, description: "mae_mean(GNN) - mae_mean(RF) for band gap."}
+          delta_rmse: {type: number, description: "rmse_mean(GNN) - rmse_mean(RF) for band gap."}
+      hardness:
+        type: object
+        required: [delta_r2, delta_mae, delta_rmse]
+        properties:
+          delta_r2: {type: number, description: "r2_mean(GNN) - r2_mean(RF) for hardness."}
+          delta_mae: {type: number, description: "mae_mean(GNN) - mae_mean(RF) for hardness."}
+          delta_rmse: {type: number, description: "rmse_mean(GNN) - rmse_mean(RF) for hardness."}
+additionalProperties: false

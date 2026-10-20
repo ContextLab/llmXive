@@ -20,7 +20,7 @@ MEMORY_LIMIT_GB = 2.0
 TIME_LIMIT_MIN = 45.0
 
 # primesieve is imported lazily: importing this module (e.g. for the
-# Hardy-Littlewood calculation in T013b-b) must not fail when the
+# Hardy‑Littlewood calculation in T013b-b) must not fail when the
 # primesieve binary is unavailable in the environment.
 _primesieve = None
 
@@ -61,7 +61,7 @@ def check_execution_guard() -> None:
 def compute_hardy_littlewood_expected_count(x: float) -> float:
     """
     Calculates the expected number of twin primes up to x using the
-    Hardy-Littlewood conjecture formula: C_2 * x / (ln x)^2
+    Hardy‑Littlewood conjecture formula: C₂·x/(ln x)²
     """
     if x <= 2:
         return 0.0
@@ -69,24 +69,22 @@ def compute_hardy_littlewood_expected_count(x: float) -> float:
 
 def calculate_hardy_littlewood_expected_count(x: float) -> float:
     """
-    Calculate the Hardy-Littlewood expected count of twin primes up to x.
+    Calculate the Hardy‑Littlewood expected count of twin primes up to x.
 
-    Implements the Hardy-Littlewood twin-prime conjecture estimate:
+    Implements the Hardy‑Littlewood twin‑prime conjecture estimate:
 
-        pi_2(x) ~ C_2 * x / (ln x)^2
+        π₂(x) ~ C₂·x/(ln x)²
 
-    where C_2 is the twin prime constant:
+    where C₂ is the twin prime constant:
 
-        C_2 ~ 0.660161815846869573927812110014
-
-    This is the reusable function mandated by task T013b-a.
+        C₂ ~ 0.660161815846869573927812110014
 
     Args:
         x: Upper bound (a real number > 2).
 
     Returns:
-        The expected count of twin prime pairs (p, p+2) with p <= x.
-        Returns 0.0 for x <= 2 (no twin primes exist below 3).
+        The expected count of twin prime pairs (p, p+2) with p ≤ x.
+        Returns 0.0 for x ≤ 2 (no twin primes exist below 3).
 
     Raises:
         TypeError: if x is not a real number.
@@ -187,17 +185,20 @@ def main():
     check_execution_guard()
 
     # 2. Generate Twin Primes
+    start_gen = time.time()
     try:
         p_list, p_next_list = generate_twin_primes(limit)
     except MemoryError:
         exit_with_error("MemoryError during generation. Limit may be too high for available RAM.")
+    gen_time = time.time() - start_gen
 
-    # 3. Verify Count against Hardy-Littlewood expectation
-    expected_count = calculate_hardy_littlewood_expected_count(limit)
+    # 3. Verify Count against Hardy‑Littlewood expectation
+    # Use the same 2·C₂ factor as compute_expected_count.py
+    expected_count = 2.0 * calculate_hardy_littlewood_expected_count(limit)
     actual_count = len(p_list)
     ratio = actual_count / expected_count if expected_count > 0 else 0
 
-    logging.info(f"Expected count (Hardy-Littlewood): {expected_count:.2f}")
+    logging.info(f"Expected count (Hardy‑Littlewood, 2·C₂): {expected_count:.2f}")
     logging.info(f"Actual count: {actual_count}")
     logging.info(f"Ratio (Actual/Expected): {ratio:.4f}")
 
@@ -208,7 +209,19 @@ def main():
     # 4. Write CSV Output
     write_csv_output(p_list, p_next_list, output_path)
 
-    # 5. Final Memory Check
+    # 5. Record performance metrics
+    performance = {
+        "execution_time_seconds": round(gen_time, 3),
+        "peak_memory_mb": round(get_memory_usage_mb(), 2),
+        "total_pairs": actual_count,
+        "gaps_calculated": max(0, actual_count - 1)
+    }
+    perf_path = Path(config['paths']['results']) / 'performance_gen.json'
+    with open(perf_path, 'w') as f:
+        json.dump(performance, f, indent=2)
+    logging.info(f"Performance metrics written to {perf_path}")
+
+    # 6. Final Memory Check
     final_mem_mb = get_memory_usage_mb()
     logging.info(f"Final memory usage: {final_mem_mb:.2f} MB")
     if final_mem_mb > (MEMORY_LIMIT_GB * 1024):

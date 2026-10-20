@@ -1,11 +1,10 @@
 status: none
-intent: download The Pile dataset from EleutherAI via HuggingFace pip install pile
-  python package dataset
+intent: The Pile dataset EleutherAI HuggingFace python package dataset
 required_fields:
 - text
 - source
 - timestamp
-- author
-cache_key: e74e067dc893fcad679296cf2a2c2b3aa23e17c99f1865e9ba25b1d93109d550
-searched_at: '2026-10-12T01:09:05.778462+00:00'
+- metadata
+cache_key: eb4d8171ff1cc05e607ea7dd654730eeb605283cdb2ee0acae57042df963a079
+searched_at: '2026-10-20T09:40:30.121092+00:00'
 retry_count: 1

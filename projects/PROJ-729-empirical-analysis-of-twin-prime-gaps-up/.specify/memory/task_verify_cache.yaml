@@ -1,20 +1,21 @@
 T001:
-  c: true
-  h: 3507f0f435791dc3e13d27900e2df1368aecb770e2e1987094a47e0a3bd7c995
-  r: Checked the `code/.tasks/T001.code_setup_project.py.log` which reports successful
-    creation of all required directories (`code`, `data/raw`, `data/results`, `data/figures`,
-    `tests/unit`, `tests/integration`, `contracts`, `paper`) and package markers (`code/__init__.py`,
-    `tests/__init__.py` etc.), and verified the project root listing shows those directories
-    and key files (`README.md`, `.gitignore`, `pyproject.toml`, `requirements.txt`).
-    All required structure elements are present.
-  sig: eda6e3bc6bd6edff75d1050967adb076f37de73ea3d052d6ec44d16ba04553e7
+  c: false
+  h: 329eac123416d88e646b9d3f75b11211a7d0612b01af0ddbd6cce9be2ef85f02
+  r: "The project root exists and contains many top\u2011level entries, but there\
+    \ is no evidence that the required internal structure from the implementation\
+    \ plan (e.g., `data/raw/`, `data/results/`, `data/figures/` with the specified\
+    \ files) was actually created. The contents of `plan.md` are not shown, so we\
+    \ cannot confirm the directory layout matches it. Adding the expected sub\u2011\
+    directories and placeholder files (or the real artifacts) would be needed to satisfy\
+    \ the task."
+  sig: a6e59ceab62024d653b320abfd391918a6f36b48f3f32393b9b83a3870c32eee
 T002:
-  c: true
-  h: 20f26ce97d6fb3f9f48c82219fb39cd16337586739c8e311e1ea56d7c8a94e14
-  r: "Checked the `requirements.txt` file (213\u202Fbytes) located at the project\
-    \ root; it contains `primesieve>=10.0`, `numpy`, `pandas`, `scipy`, and `matplotlib`\
-    \ as required, satisfying the initialization task."
-  sig: 03282f16aeb3bdc156271f280569dfa108297a86de0e85e910c9f68e4f388bbd
+  c: false
+  h: 82cd8e120f8776ae84407a25dcf1df72e537e723fb06a1858a08e3492dff0e9d
+  r: Checked the `requirements.txt` file (resolved at `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/requirements.txt`).
+    It only lists `primesieve` and omits the required `numpy`, `pandas`, `scipy`,
+    and `matplotlib` dependencies, so the initialization task is not fully satisfied.
+  sig: 135bb21f505188cd5dabd1efbcf109412f9777cd2bb0298923a6738a818f1080
 T003:
   c: true
   h: f412a90ac8e48c51f765656d98c4338a91bed6c0005a86466bf920437ea8d83d
@@ -24,12 +25,12 @@ T003:
   sig: d8b6c24f1b38c58bb41bd0004ce429d33b2ead23d102db4bdd6c8c9f4e4bfab6
 T004:
   c: true
-  h: bb9fbcb68172f0fd57641e7c4aba0869bdfbd9f10884b5d933986af576fefd35
+  h: 5c72ad5541585c2c28e86113b665816f8e851f61b09e8de550a02499e9793e76
   r: "The evidence shows the three required directories (`data/raw/`, `data/results/`,\
-    \ `data/figures/`) exist in the project root, each containing a placeholder file\
-    \ (`.gitkeep`). This satisfies the task\u2019s requirement to set up the data\
-    \ directory structure."
-  sig: c2e3c4918455f3797ce3464f18cdedc861948fd9145b062a1d6064f6b988cf5e
+    \ `data/figures/`) exist in the project root, each containing a `.gitkeep` placeholder\
+    \ (and `data/results/` also has `expected_count.json`). This satisfies the task\u2019\
+    s requirement to set up the data directory structure."
+  sig: dcf7af038e61720c6c5837616c37fc175a78d0c854816a9f0b3b518cc5c7629c
 T005:
   c: true
   h: 03385d5724748009bf7ff32f698214a17d05c13f71fe3603afca3f3eec05ad9c
@@ -70,20 +71,20 @@ T008:
   sig: 90d4be97cf440e02f680db201a39dd33327055591cf6a5ec640c00b28144cb40
 T010:
   c: true
-  h: db955621f4d5b2e472d86ba39bad9ff51eb208fa2012e104b0f49646ceee22d3
-  r: "The file `tests/unit/test_gap_calc.py` exists and contains the required `test_normalized_gap_formula`\
-    \ which computes `delta / log(p)` for p=3, compares it to the expected value,\
-    \ and asserts the difference is below\u202F1e\u20114. The test matches the specification\u2019\
-    s tolerance and formula requirements."
-  sig: 5e2e544a8459ab1dbb19e5fe8373a62a18129c1cddb9efb289c723cf1945f7af
+  h: ac958f73355c5a05dd0bd59cdd2b27c49eab9e73bcc76bfc540826745a24c0db
+  r: "The file `tests/unit/test_gap_calc.py` exists and contains the `test_normalized_gap_formula`\
+    \ function, which computes `delta / log(p)` for `p=3` and asserts the result matches\
+    \ the expected value within a tolerance of `1e-4`. This directly fulfills the\
+    \ task\u2019s requirement."
+  sig: 379a3d6bd855091ef3a6657ec5e403cb3582e3af4bef1e74b37c9fa58b4f35dc
 T011:
   c: true
-  h: eea4d5ee4e44cf6b5f7d34c30e2af9bf7237e0f4e66f4598915e48a3ae04cf29
-  r: "Checked the presence and content of `tests/integration/test_generation.py`;\
-    \ the file exists, is non\u2011empty, and implements an integration test that\
-    \ verifies the creation of `data/raw/twin_primes.csv` and asserts the row count\
-    \ is within the required \xB15% tolerance, along with column and value checks."
-  sig: 9d3e512681273e44e7c3f38068d193c62fc9dfb9f2ca3eed9f0b502d48a76915
+  h: c1a1a7884ed4e9bdb7764542a2bb16b9c340ef5975b132492156af6b410ae079
+  r: "Checked `tests/integration/test_generation.py`, which exists and contains assertions\
+    \ that the `twin_primes.csv` file is created, has the correct columns, contains\
+    \ no NaNs, and that its row count lies within \xB15\u202F% of the expected Hardy\u2011\
+    Littlewood count. This fulfills the integration\u2011test requirement."
+  sig: b8ad28b450dcd8fb195a0cde02b3ac06987fea75597f34f254e375ca52887ed1
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -91,6 +92,14 @@ T012:
     \ `data/figures/qq_plot.png`, `data/results/local_stats.json`, `data/figures/local_deviation.png`,\
     \ final Markdown report) was presented, so the task\u2019s deliverables cannot\
     \ be confirmed as completed."
+T013b-a:
+  c: true
+  h: df593d787e5f76b5dff62d5f3c88a15b60b707d2f43b9b6f749f42ed23865359
+  r: "The `code/generate_primes.py` file (8464\u202Fbytes) contains a fully implemented\
+    \ `calculate_hardy_littlewood_expected_count(x)` function that uses the constant\u202F\
+    0.660161815846869573927812110014 and computes `C\u2082 * x / (ln(x))**2` as required.\
+    \ The function is present, non\u2011empty, and matches the specification."
+  sig: 3a2833888dd073aa1206478a4c347c86861ce91218e9c55cbe7916768c4940fe
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

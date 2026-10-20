@@ -1,11 +1,10 @@
 status: none
-intent: Materials Project composition property parquet dataset download python package
-  dataset
+intent: Materials Project band gap and hardness dataset download python package dataset
 required_fields:
 - material_id
 - formula
 - band_gap
 - hardness
-cache_key: 3636ae0886ca56a82b458908419e150e95d5e4930bb08e7c1b649b0a512a69cc
-searched_at: '2026-10-14T05:39:26.699691+00:00'
+cache_key: e65194da08409796fef23daf18c36acfbd3645eeb31029f6a1ada4f219bca192
+searched_at: '2026-10-20T09:38:48.050216+00:00'
 retry_count: 1

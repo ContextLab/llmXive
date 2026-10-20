@@ -1,0 +1,9 @@
+T001:
+  c: false
+  h: 49afaeb15e848ee225ed8ccf58723a67709209e9425af096d4e16a2178a87f4a
+  r: The repository contains the required schema files, `requirements.txt`, `seeds.py`,
+    and a detailed `quickstart.md`. However, the `tests/contract/` directory is missing,
+    so there is no evidence that the contract test suite exists or passes as required.
+    The implementer must add the contract tests (and optionally provide a passing
+    test run) to satisfy the verification step.
+  sig: 6bb14635b02a89ad1477af7a3fc04f6add7183fbe9753310a0ee288873f80e73

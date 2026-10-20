@@ -47,9 +47,9 @@ description: "Task list for Twin Prime Gap Analysis implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
-- [X] T002 Initialize Python 3.11 project with `primesieve`, `numpy`, `pandas`, `scipy`, `matplotlib` dependencies in `requirements.txt`
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
+- [ ] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
+- [ ] T002 Initialize Python 3.11 project with `primesieve`, `numpy`, `pandas`, `scipy`, `matplotlib` dependencies in `requirements.txt`
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
 
 ---
 
@@ -84,7 +84,7 @@ description: "Task list for Twin Prime Gap Analysis implementation"
 
 ### Implementation for User Story 1
 
-- [~] T013b-a [US1] [FR-002] [SC-001] **Implement Hardy-Littlewood Calculation Function**.
+- [X] T013b-a [US1] [FR-002] [SC-001] **Implement Hardy-Littlewood Calculation Function**.
  - **Step 1**: Implement `calculate_hardy_littlewood_expected_count(x)` in `code/generate_primes.py` using the formula $ C_2 \frac{x}{(\ln x)^2} $ where $ C_ \approx 0.660161815846869573927812110014 $.
  - **Output**: A reusable function in `code/generate_primes.py`.
 
@@ -95,7 +95,7 @@ description: "Task list for Twin Prime Gap Analysis implementation"
  - **Output**: `data/results/expected_count.json` containing `{"expected_count": <float>}`.
  - **Dependency**: **Must run after T013b-a** (implementation of the function).
 
-- [ ] T012 [US1] [FR-001] [FR-002] [SC-001] **Generate Twin Primes and Verify Count**. <!-- FAILED-IN-EXECUTION: code/generate_primes.py exit=1 -->
+- [ ] T012 [US1] [FR-001] [FR-002] [SC-001] **Generate Twin Primes and Verify Count**. <!-- FAILED-IN-EXECUTION: code/generate_primes.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_primes.py exit=1 -->
  - **Implementation**: Use `primesieve` to find twin primes up to 1,000,000,000.
  - **Verification**:
  1. Read `expected_count` from `data/results/expected_count.json` (produced by T013b-b).

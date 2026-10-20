@@ -1,0 +1,41 @@
+T001:
+  reason: The repository contains the required schema files, `requirements.txt`, `seeds.py`,
+    and a detailed `quickstart.md`. However, the `tests/contract/` directory is missing,
+    so there is no evidence that the contract test suite exists or passes as required.
+    The implementer must add the contract tests (and optionally provide a passing
+    test run) to satisfy the verification step.
+  task: 5157fbcf4d9066d1d00398cf3b061bce5f328217d646925316e089695aa93097
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/verify_dataset.py
+    exit=1'
+  task: e1a44bbbbfb115a83f06ef86404d909e1fe5956df3f3892903e773066c0ba943
+T003:
+  task: a1f31cfc33e1a4f0fb5730a6a99a5e2f0645cbaba76af0a96da0212c3260f8c8
+T004:
+  task: f801d299e72c09831ef813933880d4c74983ba115b14314ccca14779483a1a38
+T005:
+  task: a2d44584a978546a52fc34108caff3ebade3ab660fd806af94dbb8be3a27a999
+T006:
+  task: baf6aa1d2441aef55844c002c3fc68c5a00335dfac9e3c2817c7fbd2fde62012
+T007:
+  task: bab871ad065bd5e5d936cde9d47e530a7c066a33a239960c2e0b30cc82902200
+T008:
+  task: d7032e86df2b566404f0ec8243ccf9865ae3e2b5b5c0fb53310a58d1db2b3ab7
+T009:
+  task: c968cefab3032e720b71be7f7dde6df0dc85e0713e4ac874b15ded6fe610fdb8
+T010:
+  task: f0b5be5fb818a80e85911de36d2df0f497890abe60ec4589368f42697c0bbf70
+T011:
+  task: a8c85b70883208a1ebe56460a00137cce0d65f6ea5d98840e07ed267daf6fdaf
+T012:
+  task: f1577cae77947664d34c703d26a46ffede14c29c9820aaac8104408932f3895d
+T013:
+  task: 213ec05c8055181c7d47b6226374585d1070724469a68ba1cd8b4821279e285d
+T014:
+  task: 781dbaf1363e9200be757937f9586e0cd5d730c57c93c196ffb1eefa351da80b
+T015:
+  task: 41a836cd4b0197adbb722b2a924315a3db7ef3785b63e1088665e4124b7b4afd
+T016:
+  task: f85b3d4e8645fd0730f7206d698abe5858a691dcd8a0040cdaae88fd2f3a1f9e
+T017:
+  task: b29ee2e83bec7f36a8796467338409170f51bf907abf113cb01780f10d1c8dfc

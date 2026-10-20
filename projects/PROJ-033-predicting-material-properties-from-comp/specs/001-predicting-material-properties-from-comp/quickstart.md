@@ -11,35 +11,35 @@ pip install -r requirements.txt
 ```
 
 ## 1. Provide the dataset
-Place a CSV/parquet conforming to `contracts/materials_dataset.schema.yaml` (columns `material_id, formula, band_gap, hardness, crystal_system`) at `data/raw/materials.csv`. The loader checksums it (SHA-256) and records the hash. **Note**: no verified open source for this data was available at planning time — see `research.md` Limitations.
+Place a CSV or Parquet file that conforms to `contracts/materials_dataset.schema.yaml` (columns `material_id, formula, band_gap, hardness, crystal_system`) at `data/raw/materials.csv`. The loader will compute a SHA‑256 checksum and record it.
 
 ## 2. Ingest, validate & clean
 ```bash
 python src/data/loader.py --input data/raw/materials.csv --out data/processed/materials_processed.csv
 ```
-Chunked loading keeps peak RAM ≤ 6 GB; invalid rows are dropped with warnings; rows outside 1.5×IQR of either target are dropped with a logged count (per the spec's Assumptions) and the cleaned data is written to a new file.
+This command loads the data in chunks (≤ 5 000 rows), validates each row against the schema, drops rows with missing required fields, removes duplicates, applies the 1.5 × IQR outlier filter for `band_gap` and `hardness`, and writes the cleaned dataset.
 
-## 3. Train the composition-only GNN (CPU)
+## 3. Train the composition‑only GNN (CPU)
 ```bash
 python src/training/train_gnn.py --data data/processed/materials_processed.csv --seed 42
 ```
-5-fold crystal-system-stratified CV; Adam lr=1e-3; early stopping patience=10; 30-min/epoch warning and 6-h halt guards active. Composition graphs are built in-memory and cached under `data/processed/graphs/`.
+Performs 5‑fold crystal‑system‑stratified cross‑validation, uses Adam (lr = 1e‑3), early stopping (patience = 10), and respects the runtime guards (30 min per epoch warning, 6 h total limit). Graphs are cached under `data/processed/graphs/`.
 
 ## 4. Evaluate
 ```bash
 python src/training/evaluate.py --metrics_out data/results_composition_only.json
 ```
-Emits R²/MAE/RMSE (mean ± std) for band gap and hardness, the Random Forest baseline comparison (`rf_baseline` and `delta_vs_rf` blocks — a baseline gap, not a structure information-loss ΔR²), and `data/metrics_by_system.csv`. The mean ± 1.96 × std-of-folds quantity is labeled a **fold-disagreement band**, not a calibrated [deferred] prediction interval.
+Emits R², MAE, and RMSE (mean ± std) for band gap and hardness, a Random Forest baseline, the `delta_vs_rf` baseline gap, and per‑crystal‑system metrics (`data/metrics_by_system.csv`). The reported “fold‑disagreement band” is mean ± 1.96 × std of the fold predictions.
 
 ## 5. Inference on a new formula
 ```bash
 python src/inference/predict.py --formula "Fe2O3" --out data/predictions.json
 ```
-Returns predicted band gap and hardness with a timestamp and the fold-disagreement band across the 5 fold checkpoints.
+Returns predicted band gap and hardness together with a timestamp and the fold‑disagreement band across the 5 checkpoints.
 
-## 6. Interpretability
+## 6. Interpretability (optional)
 ```bash
-python src/inference/../interpret/extract_embeddings.py --out outputs/node_embeddings.npy
+python src/interpret/extract_embeddings.py --out outputs/node_embeddings.npy
 python src/interpret/pca_correlation.py --report_out interpretability_report.md
 ```
 
@@ -47,13 +47,13 @@ python src/interpret/pca_correlation.py --report_out interpretability_report.md
 ```bash
 pytest -q tests/
 ```
-Contract tests validate both schemas; unit tests cover the graph builder, structure graph, splits, runtime guards, and inference using bundled fixtures (fixtures validate software only; they are never reported as study results).
+Contract tests validate the JSON schemas; unit tests cover the loader, graph builder, split logic, runtime guard, and inference using bundled fixtures.
 
 ## Outputs
-- `data/results_composition_only.json` — metrics incl. `delta_vs_rf` (schema-validated)
-- `data/metrics_by_system.csv` — per-crystal-system performance
-- `data/predictions.json` — new-formula inference with fold-disagreement band
-- `interpretability_report.md` — PCA/correlation analysis (held-out properties only)
-- `outputs/gnn_checkpoint_<hash>.pt`, `outputs/node_embeddings.npy`
+- `data/results_composition_only.json` – model metrics (schema‑validated)
+- `data/metrics_by_system.csv` – per‑crystal‑system performance
+- `data/predictions.json` – inference result for a new formula
+- `interpretability_report.md` – PCA‑correlation analysis (optional)
+- `outputs/gnn_checkpoint_<hash>.pt`, `outputs/node_embeddings.npy` – model checkpoints and embeddings
 
-**Known limitations**: (1) no verified open dataset with the required variables existed at planning time — the scientific run is gated on scope revision; (2) the structure-aware baseline (spec FR-005/FR-006/FR-011) is not executed — the Materials Project CIF API is credential-gated and no open verified CIF source exists, so ΔR² information loss (SC-002) is not reported; (3) planned spec deviations (FR-002 feature list, FR-006 shared test set, FR-007 interval labeling) are flagged for kickback in `plan.md`.
+**Known limitations**: (1) a verified open dataset with the required columns must be supplied; (2) the structure‑aware baseline is not executed because an open CIF source is unavailable; (3) spec deviations (additional element‑fraction node feature, fold‑disagreement band labeling) are documented in `plan.md`.

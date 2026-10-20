@@ -9,13 +9,13 @@ The goal is to deliver a fully reproducible CPU‑only pipeline that (1) downloa
 - [ ] T001 [P] **Create project skeleton** – create the canonical directory tree (`code/`, `code/data/`, `code/models/`, `code/evaluation/`, `code/utils/`, `tests/`, `data/raw/`, `data/processed/`, `data/external/`, `results/`, `logs/`, `specs/001-predict-molecular-properties/`) and empty `__init__.py` files.  
   *Verification*: `python -m compileall code/` exits 0 and `find . -type d | sort > results/structure_report.txt`; the report must list all expected directories.  
 
-- [ ] T002 [P] **Materialize contract schemas** – copy the three YAML schema files to the spec folder:  
+- [X] T002 [P] **Materialize contract schemas** – copy the three YAML schema files to the spec folder:  
   - `specs/001-predict-molecular-properties/contracts/dataset.schema.yaml`  
   - `specs/001-predict-molecular-properties/contracts/model_output.schema.yaml`  
   - `specs/001-predict-molecular-properties/contracts/evaluation_results.schema.yaml`  
   *Verification*: `python -c "import yaml, glob; [yaml.safe_load(open(f)) for f in glob.glob('specs/001-predict-molecular-properties/contracts/*.yaml')]"` exits 0 and each file is non‑empty.  
 
-- [ ] T003 [US1] **Download QM9 properties and IR‑spectra, verify integrity, fast‑failure on corruption** – implement `code/data/download.py` to:  
+- [ ] T003 [US1] **Download QM9 properties and IR‑spectra, verify integrity, fast‑failure on corruption** – implement `code/data/download.py` to:   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   1. Load QM9 via `datasets.load_dataset('lisn519010/QM9', split='train', data_dir='data/raw')` → `data/raw/qm9.parquet`.  
   2. Load IR‑spectra via `datasets.load_dataset('lamblador/QM9-IR', split='train', data_dir='data/raw')` → `data/raw/ir_spectra.parquet`.  
   3. Compute SHA‑256 checksums for both files and compare against known values (recorded in `results/checksums.json`).  

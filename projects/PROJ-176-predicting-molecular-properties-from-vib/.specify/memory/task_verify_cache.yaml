@@ -1,20 +1,15 @@
-T101:
+T001:
+  c: false
+  h: 300ba5a868a9f33bcda6e0521d2d210ffbd133d8f99abbf54242d1097db59e4d
+  r: The directory tree and `__init__.py` files exist, and the structure report lists
+    the required folders, but there is no evidence that `python -m compileall code/`
+    was run successfully, nor any proof that the `__init__.py` files are actually
+    empty as required.
+  sig: 8acb745d61ed7e6aecd9f93ab2f43bc88aac53a6a35567c9d39d9c27474055e8
+T002:
   c: true
-  h: 4ca7dec1879cd7bd0281ed673bb99f9478ebbd784994cf37b0c9bd394bc9ec55
-  r: The structure report lists all required directories (`code/`, `code/data/`, `code/models/`,
-    `code/evaluation/`, `code/utils/`, `tests/`, `data/raw/`, `data/processed/`, `data/external/`,
-    `results/`, `logs/`, `specs/001-predict-molecular-properties/`), and the collector
-    confirms `__init__.py` files exist in `code/`, `code/data/`, `code/models/`, `code/evaluation/`,
-    `code/utils/`, `tests/`, and `specs/001-predict-molecular-properties/`. The `__pycache__`
-    directories present throughout `code/` plus the exit-0 skeleton setup log provide
-    evidence that the code tree compiles successfully.
-  sig: de08c2c259764bbbdc84f4834778b74ca51d999182071d331596635da98efcaa
-T102:
-  c: true
-  h: 4c17127ca31dad69726e1e3b374d203834f48ed2369da35f149bc57545aa32b1
-  r: All three YAML schema files exist at the resolved canonical location (`specs/001-predicting-molecular-properties-from-vib/contracts/`),
-    are non-empty (1667, 1112, and 2490 bytes), and contain valid, substantive JSON-Schema-style
-    YAML covering dataset, model output, and evaluation results as required. The verification
-    command's condition (valid YAML parse, non-empty files) is satisfied by the file
-    contents shown.
-  sig: 44ffbbf4000fe6b69097da8c24231b28a66eb4615c59794a903738bb0c1d5647
+  h: 4696d72a9c526011d1d24652a8e830c99ad78ecff46e8680d031f31471550fb6
+  r: "Checked the three contract schema files (`dataset.schema.yaml`, `model_output.schema.yaml`,\
+    \ `evaluation_results.schema.yaml`) which exist (via resolved paths), are non\u2011\
+    empty, and contain valid YAML that loads without error."
+  sig: 5d19c3d3d1afce121b224bfdf80d6fa23ce0120712ecfca5cdeb6a4939c143c2

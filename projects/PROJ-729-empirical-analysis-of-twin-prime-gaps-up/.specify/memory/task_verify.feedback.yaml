@@ -1,8 +1,19 @@
 T001:
+  reason: "The project root exists and contains many top\u2011level entries, but there\
+    \ is no evidence that the required internal structure from the implementation\
+    \ plan (e.g., `data/raw/`, `data/results/`, `data/figures/` with the specified\
+    \ files) was actually created. The contents of `plan.md` are not shown, so we\
+    \ cannot confirm the directory layout matches it. Adding the expected sub\u2011\
+    directories and placeholder files (or the real artifacts) would be needed to satisfy\
+    \ the task."
   task: 56c3cafd48301be7e14725647e98ac0ad186c8ac63c31ce1c55d6c76c03a8e2a
 T002:
+  reason: Checked the `requirements.txt` file (resolved at `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/requirements.txt`).
+    It only lists `primesieve` and omits the required `numpy`, `pandas`, `scipy`,
+    and `matplotlib` dependencies, so the initialization task is not fully satisfied.
   task: 1a1540e6f9d2efb762fd7cfb81f6cdafdb6a4b07f83521e762a2108d3c691761
 T003:
+  reason: 'declared artifact(s) missing/empty/invalid: .pre-commit-config.yaml'
   task: 6dba72a9b2fcfe4d5e11415665bf2b2dcfe6a0d39ee968d6158f132c51d1edc5
 T004:
   task: 7804e3a6434c92c0906487ac419c99bf1d7f32108c178e061f62bfdddb889e97
