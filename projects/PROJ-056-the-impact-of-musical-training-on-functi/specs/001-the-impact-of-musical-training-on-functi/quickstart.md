@@ -55,7 +55,7 @@ conform to the JSON/YAML contracts:
 python code/run_quickstart_test.py
 ```
 
-The script will exit with status 0 and print “Quickstart smoke test passed” on success.
+The script will exit with a success status and print “Quickstart smoke test passed” on success.
 
 ## 4. Verify the Test Suite
 ```bash

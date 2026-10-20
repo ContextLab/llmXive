@@ -1,13 +1,18 @@
 """
 Graceful stub for real‑data ingestion.
+Writes a status JSON under ``data/logs/real_ingest_status.json`` indicating that
+no verified dataset is configured.
 """
+
 import json
 import sys
 from pathlib import Path
 from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
-STATUS_PATH = paths.data("real_ingest_status.json")
+
+# The required location is ``data/logs/real_ingest_status.json``.
+STATUS_PATH = paths.data("logs", "real_ingest_status.json")
 
 def main() -> int:
     message = "Data source unavailable: no verified dataset configured."
@@ -20,6 +25,7 @@ def main() -> int:
         "timestamp": None,
     }
 
+    STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
     with STATUS_PATH.open("w") as f:
         json.dump(status, f, indent=2)
 

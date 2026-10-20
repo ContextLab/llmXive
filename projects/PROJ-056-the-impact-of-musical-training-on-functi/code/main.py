@@ -3,7 +3,7 @@ Main entry point for the llmXive research pipeline: The Impact of Musical Traini
 
 This script orchestrates the entire workflow, supporting two modes:
 1. Synthetic verification mode (`--mode synthetic`): runs the pipeline on synthetic data.
-2. Real‑data mode (`--mode real`): graceful stub that reports data‑source unavailability.
+2. Real‑data mode (`--mode real`): stub that reports data‑source unavailability.
 """
 
 import argparse
@@ -87,7 +87,7 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
     logger.info("Starting VERIFICATION MODE pipeline.")
     start_time = time.time()
     try:
-        # 1️⃣  Synthetic subject table
+        # 1️⃣ Synthetic subject table
         df_subjects = _generate_synthetic_subjects(num_subjects=n_subjects, seed=seed)
         check_memory_limit()
 
@@ -95,7 +95,7 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         df_subjects.to_parquet(subjects_parquet_path, index=False)
         check_memory_limit()
 
-        # 2️⃣  Pre‑process / matching (uses the same function as the real pipeline)
+        # 2️⃣ Pre‑process / matching
         cleaned_df = preprocess_subjects(
             df=df_subjects,
             mode="verification",
@@ -104,12 +104,12 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         )
         check_memory_limit()
 
-        # 3️⃣  Write cleaned subject CSV (used by downstream steps)
+        # 3️⃣ Write cleaned subject CSV (used by downstream steps)
         cleaned_path = Path(output_dir) / "subjects_cleaned.csv"
         write_cleaned_subjects(cleaned_df, cleaned_path)
         check_memory_limit()
 
-        # 4️⃣  Simple balance report (used by the quick‑start test)
+        # 4️⃣ Balance report
         balance_report_path = Path(output_dir) / "matching_balance_report.csv"
         balance_df = (
             cleaned_df.groupby("group")
@@ -124,13 +124,13 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         balance_df.to_csv(balance_report_path, index=False)
         check_memory_limit()
 
-        # 5️⃣  Download / generate a minimal atlas (the helper is already idempotent)
+        # 5️⃣ Download / generate a minimal atlas
         download_atlas_main()
         atlas_path = Path("data/atlas/schaefer_400.csv")
         if not atlas_path.is_file():
             raise FileNotFoundError("Atlas download failed.")
 
-        # 6️⃣  Generate synthetic time‑series and compute connectivity
+        # 6️⃣ Generate synthetic time‑series and compute connectivity
         subjects_data = _generate_synthetic_time_series(
             num_subjects=len(cleaned_df), n_timepoints=200, n_rois=400, seed=seed
         )
@@ -142,19 +142,19 @@ def run_verification_mode(output_dir: str, n_subjects: int, seed: int) -> bool:
         )
         check_memory_limit()
 
-        # 7️⃣  Group‑level statistics
+        # 7️⃣ Group‑level statistics
         stats_results = process_connectivity_statistics(matrices)
         stats_path = Path(output_dir) / "connectivity_results.csv"
         write_connectivity_results(stats_results, str(stats_path))
         check_memory_limit()
 
-        # 8️⃣  NBS placeholder (returns an empty DataFrame)
+        # 8️⃣ NBS placeholder
         nbs_results = run_nbs_analysis(str(cleaned_path))
         nbs_path = Path(output_dir) / "nbs_results.csv"
         write_nbs_results(nbs_results, str(nbs_path))
         check_memory_limit()
 
-        # 9️⃣  Correlation & sensitivity analyses
+        # 9️⃣ Correlation & sensitivity analyses
         corr_results = process_correlation_analysis(str(cleaned_path))
         sens_results = process_sensitivity_analysis(corr_results)
 
@@ -204,8 +204,10 @@ def main():
     )
     args = parser.parse_args()
 
-    # Fixed argument name – configure_logger expects ``log_level`` not ``level``
-    configure_logger(log_level=args.log_level)
+    # Initialise logging – configure_logger does not accept a ``log_level`` keyword,
+    # so we call it without arguments and then set the logger level explicitly.
+    configure_logger()
+    logger.setLevel(args.log_level)
 
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
 

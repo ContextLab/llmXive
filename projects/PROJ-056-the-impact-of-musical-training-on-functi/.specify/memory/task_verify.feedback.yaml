@@ -1,11 +1,12 @@
 T001:
-  reason: "The `code/data/real_ingest.py` writes its status JSON to `data/real_ingest_status.json`\
-    \ instead of the required `data/logs/real_ingest_status.json`, and the expected\
-    \ schema files (`*_schema.yaml`) are not present, so `code/run_quickstart_test.py`\
-    \ cannot actually validate the outputs against a schema. Additionally, there is\
-    \ no evidence that the quick\u2011start test script runs successfully (the recorded\
-    \ pytest run shows a failure). These issues must be fixed for the task to be considered\
-    \ complete."
+  reason: "Checked `code/main.py`, `code/data/run_synthetic_generator.py`, `code/data/real_ingest.py`,\
+    \ and `code/run_quickstart_test.py` for required CLI parsing, script entry\u2011\
+    point, real\u2011data stub behavior, and quick\u2011start test logic. While the\
+    \ scripts exist and implement the described behavior, the quick\u2011start test\u2019\
+    s schema validation cannot run because the expected contract files (e.g., `subject.schema.yaml`,\
+    \ `statistical_result.schema.yaml`, `network_component.schema.yaml`) are missing\
+    \ from the repository, so the test does not actually assert schema compliance.\
+    \ Add the missing schema files under `spe"
   task: 70bfc20f0378c62826d0ce5a857213b151f2b7bcef46b7fac8fd6504444e8a7b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/run_synthetic_generator.py
