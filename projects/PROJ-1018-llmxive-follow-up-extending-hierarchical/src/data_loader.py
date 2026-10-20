@@ -284,6 +284,11 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    # Map deprecated / renamed dataset identifiers to the current canonical name.
+    if args.dataset in {"deepmind/pg19", "deepmind/pg-19"}:
+        logger.info(f"Mapping deprecated dataset identifier '{args.dataset}' to 'lmsys/pg-19-test'.")
+        args.dataset = "lmsys/pg-19-test"
+
     # Run the loader; we discard the iterator because the quick‑start only
     # cares about the side‑effect of writing the JSON file.
     _ = load_streaming_pg19(

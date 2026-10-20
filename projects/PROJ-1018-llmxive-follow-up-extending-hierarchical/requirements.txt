@@ -1,22 +1,7 @@
-# Core dependencies (already available in the execution environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependency needed for the PG‑19 loader (pyarrow requires NumPy 2.x)
-numpy>=2.0
-# The datasets and transformers packages are already pulled in by other
-# parts of the project; they are listed here for completeness.
-datasets
-transformers
-torch
-# Note: scikit-learn is already in the environment; pinning is unnecessary
+# Existing dependencies are sufficient for the data loader.
+# No additional packages are required beyond the base environment.
+# If you need to pin versions for reproducibility, uncomment and adjust:
+# datasets==2.20.0
+# transformers==4.44.0
+# pyyaml==6.0
+# jsonschema==4.20.0
