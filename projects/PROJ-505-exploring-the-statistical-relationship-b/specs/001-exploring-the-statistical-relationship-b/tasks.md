@@ -8,14 +8,14 @@
 
 **Goal**: Obtain real solar‑wind composition and geomagnetic data, align them to a clean hourly grid, and verify that the pipeline runs on a small real subset before scaling to the full 20‑year interval.
 
-- [X] **T001** [P] Ensure reproducibility by pinning every dependency in `requirements.txt` to the pattern `package==major.minor.*`.
+- [ ] **T001** [P] Ensure reproducibility by pinning every dependency in `requirements.txt` to the pattern `package==major.minor.*`.
   *Updates*: pin `pyarrow` as `pyarrow==15.0.*` (or replace with `fastparquet==2024.*`), add `pyspedas==1.6.*`, `pytplot==2.2.*`, `cdflib==1.3.*`.  
   *Verification*: `pip install -r requirements.txt` succeeds on a clean runner; CI regex check confirms each line matches `^[a-zA-Z0-9_-]+==[0-9]+\.[0-9]+\.\*$`. This task supports Constitution Principle I (Reproducibility) and provides traceability for all downstream scientific tasks.
 
-- [ ] **T002** [P] Refactor `code/utils/io.py` so Parquet I/O does **not** hard‑require `pyarrow`. Implement a safe fallback to `fastparquet` and raise a clear error only if both engines are unavailable. Provide `load_parquet(path)` and `save_parquet(df, path)`.  
+- [X] **T002** [P] Refactor `code/utils/io.py` so Parquet I/O does **not** hard‑require `pyarrow`. Implement a safe fallback to `fastparquet` and raise a clear error only if both engines are unavailable. Provide `load_parquet(path)` and `save_parquet(df, path)`.  
   *Verification*: `pytest tests/unit/test_io.py` passes on a runner without `pyarrow`; a parquet file is written, read back identically, and its SHA‑256 checksum matches.
 
-- [ ] **T003** [US1] Conditional real‑data ingestion from NASA CDAWeb via **pyspedas** (requires approved Constitution VI amendment).  
+- [ ] **T003** [US1] Conditional real‑data ingestion from NASA CDAWeb via **pyspedas** (requires approved Constitution VI amendment).   <!-- FAILED-IN-EXECUTION: code/ingestion/run_download_real.py exit=1 -->
   *If amendment approved*: fetch ACE SWICS ion fluxes (O, Fe, He, H, C charge‑states), WIND SMS/STICS ion fluxes, and OMNI hourly bulk parameters plus Dst/Kp for 2000‑2020. Store raw CDF files unchanged under `data/raw/ace_swics/`, `data/raw/wind_sms/`, `data/raw/omni/`. Generate `data/raw/checksums.yaml`. Script must raise on any download failure (no synthetic fallback).  
   *If amendment not approved*: invoke synthetic fallback task **T015**.  
   *File*: `code/ingestion/download_real.py`.  

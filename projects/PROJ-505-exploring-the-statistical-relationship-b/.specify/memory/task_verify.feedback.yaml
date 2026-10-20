@@ -1,20 +1,15 @@
 T001:
+  reason: Checked `requirements.txt`, which correctly pins the listed packages to
+    the `major.minor.*` pattern, but there is no provided evidence (e.g., install
+    logs or CI regex check output) that `pip install -r requirements.txt` actually
+    succeeds on a clean runner or that the CI regex validation was performed. These
+    execution confirmations are required to complete the task.
   task: 6ee7d4e1464e67f99c454380b33e94670cfd3dd02a83f4826cf2f56f339b3ad0
 T002:
-  reason: "Checked `code/utils/io.py` and the pytest run log `code/.tasks/T002.tests_unit_test_io.py.log`.\
-    \ The test `test_parquet_io_without_pyarrow` fails because `_get_parquet_engine`\
-    \ cannot import either `pyarrow` or a functional `fastparquet` (the installed\
-    \ fastparquet raises an ImportError), causing `save_parquet` to raise an ImportError\
-    \ instead of writing and reading the file. The required fallback to fastparquet\
-    \ does not work, so the task\u2019s verification condition is not met."
   task: 2c9fb502a1669081aa5d234ccb5329147ec3ec37dc3d8ec7e3ec2c43ba973301
 T003:
-  reason: "The required raw data directories (`data/raw/ace_swics/`, `data/raw/wind_sms/`,\
-    \ `data/raw/omni/`) and the `data/raw/checksums.yaml` file are missing, so the\
-    \ ingestion script has not produced the mandated artifacts. The tests skip when\
-    \ no cached CDFs are present, so they do not prove successful real\u2011data download.\
-    \ The task needs the script to be executed (or the raw files provided) so that\
-    \ the directories and checksum file exist and contain the expected contents."
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion/run_download_real.py
+    exit=1'
   task: 26ee0bbfa26153a62c6dfe654a5bb2fc4faf10b4220919d79a5515a808342c8c
 T004:
   reason: "The repository lacks the required output artifacts `data/processed/aligned_hourly.parquet`\

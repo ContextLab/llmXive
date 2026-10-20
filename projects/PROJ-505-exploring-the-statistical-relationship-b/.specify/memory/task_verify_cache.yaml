@@ -1,32 +1,21 @@
 T001:
-  c: true
-  h: b0e8e3a507d9d5e8681862694e1cf6bfdd96b9fdb7942c47ef093a83d0cf2c04
-  r: "Checked the `requirements.txt` file (572\u202Fbytes) showing all dependencies\
-    \ pinned to the `package==major.minor.*` pattern, including the required `fastparquet==2024.2.*`,\
-    \ `pyspedas==1.6.*`, `pytplot==2.2.*`, and `cdflib==1.3.*`. The integration test\
-    \ `tests/integration/test_verify_requirements.py` passed, confirming the regex\
-    \ check and that a clean `pip install -r requirements.txt` succeeds."
-  sig: 27e7b17d476c498fc322f887de7eb3ed4922287189daa646dbe4eff9576c21a7
+  c: false
+  h: 6de8ac43c631a93773c8a833f529258adb6bfc9bcec4389ea2d8807bc1da5402
+  r: Checked `requirements.txt`, which correctly pins the listed packages to the `major.minor.*`
+    pattern, but there is no provided evidence (e.g., install logs or CI regex check
+    output) that `pip install -r requirements.txt` actually succeeds on a clean runner
+    or that the CI regex validation was performed. These execution confirmations are
+    required to complete the task.
+  sig: 4b84eaef2bab657fa79923918cb8d73d045b2de4290c949ef3c9158f52829804
 T002:
-  c: false
-  h: e3d6c70c40ca513288f2ef21ba37cd84278c0dd6f252e602c84a41c2af9b65ba
-  r: "Checked `code/utils/io.py` and the pytest run log `code/.tasks/T002.tests_unit_test_io.py.log`.\
-    \ The test `test_parquet_io_without_pyarrow` fails because `_get_parquet_engine`\
-    \ cannot import either `pyarrow` or a functional `fastparquet` (the installed\
-    \ fastparquet raises an ImportError), causing `save_parquet` to raise an ImportError\
-    \ instead of writing and reading the file. The required fallback to fastparquet\
-    \ does not work, so the task\u2019s verification condition is not met."
-  sig: a61952c6796de77351fa4f2a9aa55158818bdff8a6e9ed5e03bd771680b8b6e4
-T003:
-  c: false
-  h: b632888918ea5a904b792ebb0171d38978c92d341e87bad4a4dc70bd91915498
-  r: "The required raw data directories (`data/raw/ace_swics/`, `data/raw/wind_sms/`,\
-    \ `data/raw/omni/`) and the `data/raw/checksums.yaml` file are missing, so the\
-    \ ingestion script has not produced the mandated artifacts. The tests skip when\
-    \ no cached CDFs are present, so they do not prove successful real\u2011data download.\
-    \ The task needs the script to be executed (or the raw files provided) so that\
-    \ the directories and checksum file exist and contain the expected contents."
-  sig: 021f833755df0ddf5d4bc3f74d31cb9f3f56133d11e43dc14373a28c634442b1
+  c: true
+  h: 82c1962c4411e0326e131bec76b93747c53aace2091e28a5e7f911d85a2593e2
+  r: "Checked `code/utils/io.py` \u2013 it implements `_get_parquet_engine()` that\
+    \ tries `pyarrow` first, falls back to `fastparquet`, and raises a clear `ImportError`\
+    \ if neither is available, and provides the required `save_parquet` and `load_parquet`\
+    \ functions. The accompanying `tests/unit/test_io.py` correctly exercises these\
+    \ functions without importing `pyarrow`."
+  sig: 7ced9b40e44a2678edeb11fbd525765d8cf269689cf1bf168016ace17433493b
 T004:
   c: false
   h: e69945d9cffc7497d4313802f561ec4546270bfc9fc61e9220f9daa67f778d33
