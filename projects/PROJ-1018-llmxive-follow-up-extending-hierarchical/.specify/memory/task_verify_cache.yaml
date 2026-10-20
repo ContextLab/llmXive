@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: fdf5bca1d262161e58147f48752e3569e67718d12c7ca4faf8a253525d8de131
-  r: The `src/config.py` and `src/data_loader.py` files exist and mostly meet the
-    spec, but the required output file `data/interim/filtered_pg19.json` is missing,
-    and there is no evidence that it was written, validated against `contracts/split_definition.schema.yaml`,
-    or that exclusion logging was performed as required. The task therefore remains
-    incomplete.
-  sig: 08669be7861dec558c3188a848a7d88e5812595c1134f8c97d02e1de337b1f12
 T002:
   c: false
   h: 55b5487cfd50ee8e97978113fc6c59822ec264e054fbbce6b8c93b6de90e4cc0

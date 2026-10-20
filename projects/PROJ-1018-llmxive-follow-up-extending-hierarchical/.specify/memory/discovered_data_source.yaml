@@ -1,13 +1,14 @@
 status: none
-intent: download PG-19 validation set and arXiv long-context dataset from Hugging
-  Face as python package dataset
+intent: PG-19 dataset download python package HuggingFace arXiv long-context validation
+  set
 required_fields:
 - document_id
 - chunk_id
 - chunk_text
-- token_start
-- token_end
-- retrieval_score_vector
-cache_key: 86a14575b6c5f7fba599b740b471382b2bf2a8db762f6f54b8fefb16163f82fa
-searched_at: '2026-10-18T07:30:57.993777+00:00'
+- start_token_index
+- end_token_index
+- token_count
+- retrieval_score_matrix
+cache_key: f074db68adb7e9b15388e9537f047e9b365f24e8902d27318bdf9527904c1c2a
+searched_at: '2026-10-20T04:16:55.155865+00:00'
 retry_count: 1

@@ -1,29 +1,43 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
 
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
 
-- run-book command: `python src/data_loader.py  --dataset deepmind/pg19  --split-ratio 0.05  --seed 42  --min-tokens 32000  --pad-short-docs False   # default: skip short docs`
-  - script usage: `data_loader.py [-h] [--dataset DATASET] [--split SPLIT]`
-  - argparse error: `data_loader.py: error: unrecognized arguments: # default: skip short docs`
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python src/data_loader.py  --dataset deepmind/pg19  --split-ratio 0.05  --seed 42  --min-tokens 32000  --pad-short-docs False`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): bash ./run_pipeline.sh; python src/sensitivity.py --k-values 50,100,200 --output data/reports/sweep_report.json; 2 command(s) failed: python src/data_loader.py  --dataset deepmind/pg19  --split-ratio 0.05  --seed 42  --min-tokens 32000  --pad-short-docs False   # default: skip short docs (rc=2); python code/src/clustering.py --input data/interim/relevance_profiles.json --k 100 --output data/processed/static_index_k100.json --seed 42 (rc=1); 2 declared deliverable(s) absent: data/interim/filtered_pg19.json; data/interim/relevance_profiles.json
+**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): bash ./run_pipeline.sh; python src/sensitivity.py --k-values 50,100,200 --output data/reports/sweep_report.json; 2 command(s) failed: python src/data_loader.py  --dataset deepmind/pg19  --split-ratio 0.05  --seed 42  --min-tokens 32000  --pad-short-docs False (rc=1); python code/src/clustering.py --input data/interim/relevance_profiles.json --k 100 --output data/processed/static_index_k100.json --seed 42 (rc=1); 2 declared deliverable(s) absent: data/interim/filtered_pg19.json; data/interim/relevance_profiles.json
 
 ## Failing / missing run-book commands
 
 - bash ./run_pipeline.sh -> rc=-1
 
 shell script must be an existing project-local .sh file
-- python src/data_loader.py  --dataset deepmind/pg19  --split-ratio 0.05  --seed 42  --min-tokens 32000  --pad-short-docs False   # default: skip short docs -> rc=2
+- python src/data_loader.py  --dataset deepmind/pg19  --split-ratio 0.05  --seed 42  --min-tokens 32000  --pad-short-docs False -> rc=1
+ supported, but found {filename}")
+RuntimeError: Dataset scripts are no longer supported, but found pg19.py
 
-usage: data_loader.py [-h] [--dataset DATASET] [--split SPLIT]
-                      [--split-ratio SPLIT_RATIO] [--seed SEED]
-                      [--min-tokens MIN_TOKENS]
-                      [--pad-short-docs PAD_SHORT_DOCS]
-data_loader.py: error: unrecognized arguments: # default: skip short docs
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/src/data_loader.py", line 304, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/src/data_loader.py", line 289, in main
+    _ = load_streaming_pg19(
+        ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/src/data_loader.py", line 171, in load_streaming_pg19
+    raw_iter = load_dataset_stream(dataset_name, split=split)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/src/data_loader.py", line 58, in load_dataset_stream
+    raise RuntimeError(f"Failed to load dataset '{dataset_name}': {exc}") from exc
+RuntimeError: Failed to load dataset 'deepmind/pg19': Dataset scripts are no longer supported, but found pg19.py
 
 - python code/src/clustering.py --input data/interim/relevance_profiles.json --k 100 --output data/processed/static_index_k100.json --seed 42 -> rc=1
 

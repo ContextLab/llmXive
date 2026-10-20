@@ -24,6 +24,7 @@ import hashlib
 import logging
 from typing import Iterator, List, Dict, Any
 
+import yaml  # pyyaml is available in the base environment
 from datasets import load_dataset
 from transformers import AutoTokenizer
 from jsonschema import validate, ValidationError
@@ -299,7 +300,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    # Import yaml lazily to avoid unnecessary dependency cost when the module
-    # is used as a library.
-    import yaml  # pyyaml is part of the base environment
+    # Import yaml lazily already done at top; just run main.
     main()
