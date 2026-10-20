@@ -304,7 +304,7 @@ def main() -> None:
     parser.add_argument(
         "--overlap",
         type=str,
-        choices=["LOW", "MEDIUM", "HIGH"],
+        choices=["LOW", "MEDIUM", "HIGH", "low", "medium", "high"],
         default="MEDIUM",
         help="Desired semantic overlap level for the skill library.",
     )

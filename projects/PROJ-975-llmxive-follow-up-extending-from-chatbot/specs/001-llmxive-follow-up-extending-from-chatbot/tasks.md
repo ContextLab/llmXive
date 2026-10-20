@@ -14,7 +14,7 @@ The list below follows the research phases (setup → full experiment →�
   &nbsp;&nbsp;• `tests/contract/test_schema_presence.py` loads each file with `yaml.safe_load` and asserts the presence of top‑level keys `properties` and `required`.  
   &nbsp;&nbsp;• A minimal dummy instance for each schema validates via `jsonschema.validate`.  
 
-- [ ] T002 [P] [US1] **Implement `code/generate_data.py` to produce the synthetic environment**   <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=-1 (TIMEOUT) -->
+- [ ] T002 [P] [US1] **Implement `code/generate_data.py` to produce the synthetic environment**   <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/run_generate_data.sh exit=-1 (TIMEOUT) -->
   *Behavior*:  
   &nbsp;&nbsp;• Generates **exactly 500** task objects (`data/raw/tasks.json`) conforming to `contracts/task.schema.yaml`.  
   &nbsp;&nbsp;• Generates **exactly 100** skill objects (`data/raw/skills.json`) conforming to `contracts/skill.schema.yaml`. Embeddings are 768‑dim vectors from the CPU‑only model `sentence-transformers/all-MPNet-base-v2`.  

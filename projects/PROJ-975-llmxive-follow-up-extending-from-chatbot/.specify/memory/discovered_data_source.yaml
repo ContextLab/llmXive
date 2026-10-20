@@ -1,13 +1,16 @@
 status: none
-intent: ToolBench API-Bank AgentBench synthetic multi-step tasks python skills python
-  package dataset
+intent: Python package synthetic multi-step task dataset with skill library and embeddings
+  python package dataset
 required_fields:
 - task_id
 - task_description
-- ground_truth_solution_path
+- ground_truth_solution_path (ordered list of skill_ids)
+- task_steps (number of actions)
 - skill_id
-- skill_definition
-- embedding_vector
-cache_key: 5e0748d47e4a6d8f049b695ed02e5f894f17c864893a014201db8012e5f89d39
-searched_at: '2026-10-20T15:54:01.982894+00:00'
+- skill_name
+- skill_embedding_vector
+- skill_overlap_group
+- semantic_density_score
+cache_key: 50ce5b5f5630d874546413ce9d973f7cca3549cb1723fb2fd96970db329b39b8
+searched_at: '2026-10-20T16:18:00.433003+00:00'
 retry_count: 1
