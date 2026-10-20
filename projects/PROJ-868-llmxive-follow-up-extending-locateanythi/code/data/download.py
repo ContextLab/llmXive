@@ -3,9 +3,10 @@ Download verified datasets (VRSBench, COCO 2017, RefCOCO+ subset) and verify
 SHA‑256 checksums.
 
 This script is intended to be run as part of the pipeline's Phase 0.
-It downloads the three required datasets via the 🤗 datasets library,
-writes them as Parquet files under ``data/raw/`` and checks their
-integrity against the expected SHA‑256 hashes.
+It downloads the three required datasets via the 🤗 datasets library
+(or a verified source for COCO), writes them as Parquet files under
+``data/raw/`` and checks their integrity against the expected SHA‑256
+hashes.
 
 The expected hashes are defined in ``EXPECTED_HASHES``.  These values are
 taken from the official dataset releases and must be kept in sync with
@@ -16,10 +17,18 @@ constants when the repository is updated.
 
 import hashlib
 import logging
+import os
+import ssl
+import urllib.request
+import zipfile
 from pathlib import Path
 
+import pandas as pd
 from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
+
+# pycocotools is required for the verified COCO download recipe
+from pycocotools.coco import COCO
 
 # ----------------------------------------------------------------------
 # Configuration
@@ -52,6 +61,7 @@ def sha256_of_file(file_path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
+
 def verify_checksum(file_path: Path, expected_hash: str) -> None:
     """Verify that ``file_path`` matches ``expected_hash``."""
     actual_hash = sha256_of_file(file_path)
@@ -61,6 +71,7 @@ def verify_checksum(file_path: Path, expected_hash: str) -> None:
             f"expected {expected_hash}, got {actual_hash}"
         )
     log.info("Checksum verified for %s", file_path.name)
+
 
 # ----------------------------------------------------------------------
 # Dataset download functions
@@ -91,6 +102,7 @@ def _download_and_save(dataset_name: str,
     log.info("Saving %s to %s", dataset_name, output_path)
     ds.to_parquet(str(output_path))
 
+
 def download_vrsbench(output_path: Path) -> None:
     """
     Download the VRSBench validation split and store it as Parquet.
@@ -101,14 +113,62 @@ def download_vrsbench(output_path: Path) -> None:
     """
     _download_and_save("vrsbench", None, "validation", output_path)
 
+
 def download_coco_val(output_path: Path) -> None:
     """
-    Download the COCO 2017 validation split and store it as Parquet.
+    Download the COCO 2017 validation annotations using the verified
+    pycocotools recipe and store them as a Parquet file.
 
-    The COCO dataset is accessed via ``datasets`` with the config
-    ``2017``.  Only the ``validation`` split is required.
+    The function follows the exact recipe that was verified in the
+    execution logs (see the VERIFIED REAL DATA SOURCE block).  It
+    downloads the official COCO annotations zip, extracts the JSON,
+    loads it with ``pycocotools.Coco`` and writes the annotation table
+    to ``output_path`` as Parquet.
     """
-    _download_and_save("coco", "2017", "validation", output_path)
+    # URLs and temporary paths (mirroring the verified recipe)
+    ZIP_URL = "https://images.cocodataset.org/annotations/annotations_trainval2017.zip"
+    ZIP_PATH = "/tmp/annotations_trainval2017.zip"
+    JSON_NAME = "annotations/instances_val2017.json"
+    JSON_PATH = "/tmp/instances_val2017.json"
+
+    # Download the zip if it does not already exist
+    if not os.path.exists(ZIP_PATH):
+        log.info("Downloading COCO annotations zip...")
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        with urllib.request.urlopen(ZIP_URL, context=ctx) as resp, open(ZIP_PATH, "wb") as out:
+            out.write(resp.read())
+        log.info("COCO zip downloaded to %s", ZIP_PATH)
+    else:
+        log.info("COCO zip already present at %s", ZIP_PATH)
+
+    # Extract the validation JSON if needed
+    if not os.path.exists(JSON_PATH):
+        log.info("Extracting COCO validation JSON...")
+        with zipfile.ZipFile(ZIP_PATH, "r") as zf:
+            with zf.open(JSON_NAME) as src, open(JSON_PATH, "wb") as dst:
+                dst.write(src.read())
+        log.info("Extracted JSON to %s", JSON_PATH)
+    else:
+        log.info("COCO validation JSON already present at %s", JSON_PATH)
+
+    # Load annotations with pycocotools
+    log.info("Loading COCO annotations via pycocotools...")
+    coco = COCO(JSON_PATH)
+
+    # Convert the annotation dicts to a DataFrame
+    records = list(coco.anns.values())
+    if not records:
+        raise RuntimeError("No COCO annotation records loaded")
+    df = pd.DataFrame.from_records(records)
+
+    # Write to Parquet
+    log.info("Saving COCO annotations to Parquet at %s", output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(str(output_path), engine="pyarrow")
+    log.info("COCO validation parquet written.")
+
 
 def download_refcoco_plus(output_path: Path) -> None:
     """
@@ -118,6 +178,7 @@ def download_refcoco_plus(output_path: Path) -> None:
     identifier ``refcoco`` with the ``plus`` configuration.
     """
     _download_and_save("refcoco", "plus", "validation", output_path)
+
 
 # ----------------------------------------------------------------------
 # Main entry point
@@ -159,6 +220,7 @@ def main() -> None:
             )
 
     log.info("All datasets downloaded and (if applicable) verified successfully.")
+
 
 # ----------------------------------------------------------------------
 # Boilerplate
