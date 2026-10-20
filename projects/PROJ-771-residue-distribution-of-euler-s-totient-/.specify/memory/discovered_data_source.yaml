@@ -1,12 +1,8 @@
 status: none
-intent: download OEIS A000010 Euler totient sequence as python package dataset
+intent: download OEIS A000010 Euler totient sequence dataset python package dataset
 required_fields:
 - n
 - phi
-- phi_mod_3
-- phi_mod_5
-- phi_mod_7
-- phi_mod_11
-cache_key: d220ca6030b12773a70f3ef66ffedeed2da1ae35c622d2078375aaa6ce51e95d
-searched_at: '2026-10-20T10:18:42.059767+00:00'
+cache_key: b4992098913edd3fb4e78f04dcbec8a107c8daf4c1d3fb32d9cf1caaf8f1a9fd
+searched_at: '2026-10-20T10:20:24.162176+00:00'
 retry_count: 1
