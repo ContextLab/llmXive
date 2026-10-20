@@ -1,11 +1,12 @@
 status: none
-intent: Open University Learning Analytics dataset course enrollments recommended
-  items python package dataset
+intent: Open University Learning Analytics Dataset recommendation enrollment csv download
+  edX Coursera python package dataset
 required_fields:
 - user_id
 - session_id
 - recommended_items
 - enrolled_items
-cache_key: bfa2066e49b4ce377c5b06ce4e66c2d6e96bf1aa62404db8ba041cecdb57dbff
-searched_at: '2026-10-20T06:32:21.063886+00:00'
+- timestamp
+cache_key: 63f26bc14c495146b09129d8b454ae18be8e82c42bdf41c8e3a424f1a1f5c74c
+searched_at: '2026-10-20T06:39:56.812626+00:00'
 retry_count: 1

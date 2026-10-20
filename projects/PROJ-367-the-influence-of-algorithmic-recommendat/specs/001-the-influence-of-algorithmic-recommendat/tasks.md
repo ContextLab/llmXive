@@ -10,7 +10,7 @@ The following tasks implement the smallest complete, reproducible study that sat
 
 | Goal | Obtain a real dataset that contains the required `recommended_categories` and `enrolled_categories` columns, or, if none exists, create a deterministic synthetic dataset while documenting the limitation. |
 
-- [ ] T001 [US1] **Locate a verified open‑source dataset** containing distinct `recommended_categories` and `enrolled_categories` columns.   <!-- FAILED-IN-EXECUTION: code/data_fetcher.py exit=1 -->
+- [ ] T001 [US1] **Locate a verified open‑source dataset** containing distinct `recommended_categories` and `enrolled_categories` columns.   <!-- FAILED-IN-EXECUTION: code/data_fetcher.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_fetcher.py exit=1 -->
   *Implementation*: Add a script `code/data_fetcher.py` that (a) searches known repositories (OpenML, Zenodo, Kaggle) for datasets whose schema matches `specs/.../contracts/dataset.schema.yaml`; (b) downloads the first matching dataset; (c) validates the schema using `jsonschema`.  
   *Verification*: `pytest tests/unit/test_data_fetcher.py::test_find_real_dataset` passes – it asserts that the downloaded parquet contains the required columns and that the script exits with status 0. If no dataset is found, the script **raises a `DataSchemaError` with the message** `"Required columns [recommended_categories, enrolled_categories] missing. Dataset does not support the specified experimental design."` **but does not abort the pipeline; the orchestrator catches this exception and proceeds to the synthetic fallback (T002).**
 

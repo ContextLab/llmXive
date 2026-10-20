@@ -23,9 +23,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_fetcher.py -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 19, in <module>
+e/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/data_fetcher.py", line 22, in <module>
+    from ingestion import DataAvailabilityError, DataSchemaError
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/ingestion.py", line 6, in <module>
     from datasets import load_dataset
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-367-the-influence-of-algorithmic-recommendat/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
     from .arrow_dataset import Column, Dataset
@@ -74,7 +74,7 @@ ERROR tests/unit/test_merger.py
 ERROR tests/unit/test_sensitivity.py
 ERROR tests/unit/test_validate_real_data.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 7.50s ===============================
+============================== 7 errors in 6.53s ===============================
 
 
 - python -m pytest tests/integration/ -v -> rc=2
@@ -95,7 +95,7 @@ E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 ERROR tests/integration/test_main_verification.py
 ERROR tests/integration/test_pipeline.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.24s ===============================
+============================== 2 errors in 1.22s ===============================
 
 
 - python -m pytest tests/contract/ -v -> rc=4

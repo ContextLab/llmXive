@@ -16,7 +16,6 @@ from typing import List
 
 import pandas as pd
 import requests
-from datasets import load_dataset
 
 # Project-specific utilities
 from llmxive_toolkit import paths, get_logger
@@ -206,21 +205,49 @@ def _validate_schema(df: pd.DataFrame) -> None:
 def fetch_educational_dataset(dataset_id: str) -> pd.DataFrame:
     """
     Fetches an educational dataset.
+
+    Parameters
+    ----------
+    dataset_id : str
+        Identifier of the dataset to fetch. The special value ``"oulad"``
+        triggers the built‑in OULAD download logic. Any other value is
+        interpreted as a HuggingFace dataset identifier.
+
+    Returns
+    -------
+    pd.DataFrame
+        The loaded dataset (already mapped to the required column names for
+        the OULAD case). For HuggingFace datasets the raw DataFrame is
+        returned without additional processing.
     """
+    # ------------------------------------------------------------------
+    # 1. Built‑in OULAD handling (does not require the ``datasets`` library)
+    # ------------------------------------------------------------------
     if dataset_id.lower() == "oulad":
         _download_and_extract_oulad()
         raw_dfs = _load_raw_csvs()
-
         session_df = _map_oulad_to_sessions(raw_dfs)
         _validate_schema(session_df)
 
+        # Write the processed session table to the canonical location
         PROCESSED_PARQUET.parent.mkdir(parents=True, exist_ok=True)
         session_df.to_parquet(PROCESSED_PARQUET, engine="pyarrow")
         log.info("Written processed session table to %s", PROCESSED_PARQUET)
 
         return session_df
 
-    # Fallback: attempt to load from HuggingFace
+    # ------------------------------------------------------------------
+    # 2. Fallback: load from HuggingFace Hub (lazy import)
+    # ------------------------------------------------------------------
+    try:
+        # Lazy import to avoid importing ``datasets`` (and thus ``pyarrow``) unless needed.
+        from datasets import load_dataset  # type: ignore
+    except Exception as exc:
+        # If the import fails (e.g., due to version incompatibilities), surface a clear error.
+        raise DataAvailabilityError(
+            f"Unable to import the 'datasets' library required to load '{dataset_id}'. Original error: {exc}"
+        ) from exc
+
     try:
         ds = load_dataset(dataset_id, split="train")
     except Exception as exc:
@@ -229,6 +256,7 @@ def fetch_educational_dataset(dataset_id: str) -> pd.DataFrame:
         ) from exc
 
     df = ds.to_pandas()
+    # Basic column presence check – raise ValueError to match existing test expectations.
     if not all(col in df.columns for col in REQUIRED_COLUMNS):
         raise ValueError(
             f"Dataset '{dataset_id}' missing required columns {REQUIRED_COLUMNS}"
@@ -239,7 +267,7 @@ def fetch_educational_dataset(dataset_id: str) -> pd.DataFrame:
 
 def main() -> None:
     """
-    CLI entry point used by python -m code.data_fetcher.
+    CLI entry point used by ``python -m code.data_fetcher``.
     """
     try:
         fetch_educational_dataset("oulad")
