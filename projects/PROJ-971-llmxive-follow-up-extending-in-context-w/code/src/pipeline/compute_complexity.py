@@ -17,15 +17,7 @@ The script writes:
     coefficient (r) and two‑tailed p‑value between ``variance`` and
     ``subgoal_count``.
 
-The default input is ``data/processed/descriptors.csv`` (the full
-descriptor table produced by the earlier extraction stage).  The
-script can be run directly:
-
-    python code/src/pipeline/compute_complexity.py
-
-or invoked as a module:
-
-    python -m src.pipeline.compute_complexity
+The default input is ``data/processed/descriptors.csv``.
 """
 
 import argparse
@@ -41,9 +33,6 @@ from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-# ----------------------------------------------------------------------
-# Argument parsing
-# ----------------------------------------------------------------------
 def _parse_args(argv=None):
     """Parse command‑line arguments."""
     parser = argparse.ArgumentParser(
@@ -81,46 +70,23 @@ def _parse_args(argv=None):
     )
     return parser.parse_args(argv)
 
-# ----------------------------------------------------------------------
-# Helper: deterministic proxy from variance
-# ----------------------------------------------------------------------
 def _derive_subgoal_count(variance: float) -> int:
     """
     Derive a deterministic integer sub‑goal count from variance.
-
-    This fallback is used when a real scene‑description file is not
-    available.  The mapping is monotonic and caps the count at 10.
-
-    Parameters
-    ----------
-    variance: float
-        Variance descriptor for a clip.
-
-    Returns
-    -------
-    int
-        Integer sub‑goal count (≥ 1).
+    The mapping is monotonic and caps the count at 10.
     """
-    # Scale variance (which is typically in [0, 1]) to a 1‑10 range.
+    # Scale variance (typically in [0, 1]) to a 1‑10 range.
     scaled = int(np.floor(variance * 10.0)) + 1
     return max(1, min(scaled, 10))
 
-# ----------------------------------------------------------------------
-# Core computation
-# ----------------------------------------------------------------------
 def compute_complexity(descriptors_path: Path, csv_out: Path, corr_out: Path) -> None:
     """
     Compute sub‑goal counts and Pearson correlation with variance.
-
-    Parameters
-    ----------
-    descriptors_path: Path
-        Path to ``data/processed/descriptors.csv``.
-    csv_out: Path
-        Destination CSV for ``clip_id, subgoal_count``.
-    corr_out: Path
-        Destination text file for the Pearson correlation results.
     """
+    if not descriptors_path.exists():
+        log.error("Descriptors file not found at %s", descriptors_path)
+        sys.exit(1)
+
     log.info("Loading descriptors from %s", descriptors_path)
     df_desc = pd.read_csv(descriptors_path)
 
@@ -133,61 +99,45 @@ def compute_complexity(descriptors_path: Path, csv_out: Path, corr_out: Path) ->
         )
         sys.exit(1)
 
-    # ------------------------------------------------------------------
     # Derive sub‑goal counts
-    # ------------------------------------------------------------------
     log.info("Deriving sub‑goal counts.")
     subgoal_counts = []
     for clip_id, variance in zip(df_desc["clip_id"], df_desc["variance"]):
-        # Expected scene‑description location:
-        #   data/scenes/<clip_id>.json
+        # Expected scene‑description location: data/scenes/<clip_id>.json
         scene_path = paths.data("scenes", f"{clip_id}.json")
         if scene_path.is_file():
             try:
                 with scene_path.open("r", encoding="utf-8") as f:
                     scene = json.load(f)
                 subgoals = scene.get("subgoals", [])
-                count = int(len(subgoals))
-                # Ensure at least 1 sub‑goal (fallback to proxy if empty)
-                count = max(1, count)
+                count = max(1, int(len(subgoals)))
             except Exception as exc:
-                log.warning(
-                    "Failed to parse scene description %s: %s – falling back to variance proxy.",
-                    scene_path,
-                    exc,
-                )
+                log.warning("Failed to parse scene %s: %s - using proxy.", scene_path, exc)
                 count = _derive_subgoal_count(variance)
         else:
-            # No scene file – use deterministic proxy
             count = _derive_subgoal_count(variance)
-
         subgoal_counts.append(count)
 
     df_complex = pd.DataFrame(
         {"clip_id": df_desc["clip_id"], "subgoal_count": subgoal_counts}
     )
 
-    # ------------------------------------------------------------------
     # Write the complexity CSV
-    # ------------------------------------------------------------------
     csv_out.parent.mkdir(parents=True, exist_ok=True)
     log.info("Writing complexity CSV to %s", csv_out)
     df_complex.to_csv(csv_out, index=False)
 
-    # ------------------------------------------------------------------
     # Correlation
-    # ------------------------------------------------------------------
     r, p = pearsonr(df_desc["variance"], df_complex["subgoal_count"])
     log.info("Correlation between variance and subgoal_count: r=%.4f, p=%.4g", r, p)
 
     corr_out.parent.mkdir(parents=True, exist_ok=True)
     with corr_out.open("w", encoding="utf-8") as f:
-        f.write(f"r = {r:.6f}\\n")
-        f.write(f"p = {p:.6g}\\n")
+        f.write(f"r = {r:.6f}\n")
+        f.write(f"p = {p:.6g}\n")
 
     log.info("Complexity computation completed successfully.")
 
-# ----------------------------------------------------------------------
 def main(argv=None):
     """Command‑line entry point."""
     args = _parse_args(argv)

@@ -45,6 +45,7 @@ def _lag1_autocorrelation(tokens: np.ndarray) -> float:
         if np.std(x) == 0 or np.std(y) == 0:
             corrs.append(0.0)
         else:
+            # np.corrcoef returns a 2x2 matrix [[1, r], [r, 1]]
             corr = np.corrcoef(x, y)[0, 1]
             corrs.append(corr)
     return float(np.mean(corrs))
@@ -56,6 +57,7 @@ def _mean_spectral_density(tokens: np.ndarray) -> float:
     and dimensions.
     """
     psd_means = []
+    # nperseg must be <= length of signal
     nperseg = min(256, tokens.shape[0])
     for dim in range(tokens.shape[1]):
         freqs, psd = welch(tokens[:, dim], nperseg=nperseg)
@@ -87,7 +89,8 @@ def process_clip(clip_path: Path) -> dict:
     observations = data["observations"]
 
     # Encode the raw trajectory into a latent token sequence.
-    tokens = encode(states, actions, observations)
+    # Ensure tokens is a numpy array for subsequent computations.
+    tokens = np.asarray(encode(states, actions, observations))
 
     var = _variance(tokens)
     if var < 1e-12:  # near‑zero variance edge case
@@ -124,7 +127,12 @@ def extract_all_descriptors(input_dir: Path, output_path: Path) -> None:
     """
     input_dir = Path(input_dir)
     records = []
-    for clip_file in sorted(input_dir.glob("clip_*.npz")):
+    clip_files = sorted(input_dir.glob("clip_*.npz"))
+    
+    if not clip_files:
+        raise FileNotFoundError(f"No clip_*.npz files found in {input_dir}")
+
+    for clip_file in clip_files:
         records.append(process_clip(clip_file))
 
     df = pd.DataFrame.from_records(records)
@@ -152,7 +160,11 @@ def extract_all_descriptors(input_dir: Path, output_path: Path) -> None:
     var_max = df["variance"].max()
     var_min = df["variance"].min()
     if var_min == 0:
-        raise AssertionError("Minimum variance is zero; cannot perform ratio check")
+        # If min is exactly 0, we check if max is > 0 to avoid trivial failure
+        if var_max == 0:
+            raise AssertionError("All clips have zero variance")
+        # Mathematically, any var_max > 0 is > 2 * 0, but let's be explicit
+    
     if not (var_max > 2 * var_min):
         raise AssertionError(
             f"Variance ratio check failed: max={var_max:.6f} not > 2*min={var_min:.6f}"

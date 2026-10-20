@@ -1,10 +1,18 @@
 # Quickstart: Minimal Auto‑ICWM Pipeline
 
 **Feature**: `001-auto-icwm-latent-dynamics`
-**Goal**: Run the minimal end‑to‑end pipeline on a small subset (a limited set of clips) and produce both the full descriptor CSV and the shortcut subset CSV.
+**Goal**: Run the minimal end‑to‑end pipeline on a small subset (50 clips) to produce the foundational descriptor and complexity datasets.
+
+## Project Layout
+- `code/src/pipeline/`: Contains the core research implementation (data generation, feature extraction, modeling).
+- `data/raw/`: Storage for generated interaction clips (`.npz`).
+- `data/processed/`: Structured statistical descriptors and complexity metrics.
+- `results/`: Final validation results and summary reports.
+- `specs/`: Feature specifications and data-model contracts (schemas).
+- `scripts/`: Automation scripts for environment setup and minimal execution.
 
 ## Prerequisites
-All heavy dependencies are listed in `requirements.txt`. To use a local virtual environment:
+All dependencies are listed in `requirements.txt`. To use a local virtual environment:
 
 ```bash
 python -m venv.venv
@@ -13,35 +21,33 @@ pip install -r requirements.txt
 ```
 
 ## Run the Minimal Pipeline
-Two helper scripts are provided in `scripts/`:
+The pipeline is orchestrated by two helper scripts in `scripts/`:
 
-1. `scripts/quickstart.sh` – sets up `PYTHONPATH` and activates the virtualenv if present.
-2. `scripts/run_minimal.sh` – generates a set of reproducible clips, extracts the three descriptors, and writes **both**:
- * `data/processed/descriptors.csv` – the full descriptor table used by downstream stages.
- * `data/descriptors_subset.csv` – a convenient shortcut referenced in the documentation.
+1. `scripts/quickstart.sh`: Configures the environment and `PYTHONPATH`.
+2. `scripts/run_minimal.sh`: Executes the minimal data generation and extraction flow.
 
-Execute with a single command (as used by CI):
+Execute the minimal pipeline with this single command:
 
 ```bash
 bash -c "source scripts/quickstart.sh &&./scripts/run_minimal.sh"
 ```
 
-After completion, verify:
+## Verification
+After completion, verify that the following artifacts were produced:
 
 ```bash
+# Full descriptor table
 ls data/processed/descriptors.csv
-wc -l data/processed/descriptors.csv # should be > 1 (header + 50 rows) [UNRESOLVED-CLAIM: c_22d1bc63 — status=not_enough_info]
-
+# Task complexity table
+ls data/processed/task_complexity.csv
+# Legacy subset shortcut
 ls data/descriptors_subset.csv
-wc -l data/descriptors_subset.csv # should match the same row count [UNRESOLVED-CLAIM: c_f084ff56 — status=not_enough_info]
 ```
 
-## What the Pipeline Does
+## Pipeline Summary
 | Step | Action | Output |
 |------|--------|--------|
-| 1 | Generate a sufficient number of reproducible interaction clips | `data/raw/clip_*.npz` |
-| 2 | Encode each clip with the CPU‑only ICWM encoder and compute variance, lag‑1 autocorrelation, and Welch spectral density. | `data/processed/descriptors.csv` |
-| 3 | Copy the full descriptor CSV to the shortcut location used by legacy documentation. | `data/descriptors_subset.csv` |
-| 4 | Print a summary table to stdout | stdout |
-
-All outputs conform to `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml`.
+| 1 | Generate reproducible interaction clips | `data/raw/clip_*.npz` |
+| 2 | Extract latent descriptors (variance, autocorr, spectral) | `data/processed/descriptors.csv` |
+| 3 | Create legacy shortcut for 50 clips | `data/descriptors_subset.csv` |
+| 4 | Compute task-complexity metric | `data/processed/task_complexity.csv` |

@@ -7,17 +7,17 @@ The goal is a complete, reproducible CPU‑only study satisfying FR‑001–FR�
 
 ## Phase 1 – Setup and first end‑to‑end analysis (verified; preserve)
 
-- [ ] T001 **Document project layout & quickstart** – `quickstart.md` describes the single command running the minimal pipeline on 50 clips.   <!-- FAILED-IN-EXECUTION: scripts/run_minimal.sh exit=1 -->
+- [X] T001 **Document project layout & quickstart** – `quickstart.md` describes the single command running the minimal pipeline on 50 clips.
   *Verification*: the documented command finishes without error and `data/descriptors_subset.csv` (now `data/processed/descriptors.csv`) exists.
 
 - [X] T002 **Generate a small dataset of interaction clips** – `code/src/pipeline/generate_clips.py` creates 50 reproducible clips (`data/raw/clip_*.npz`, arrays `states`, `actions`, `observations`).  
   *Verification*: `ls data/raw/ | wc -l` equals 50; each `.npz` contains the required arrays.
 
-- [ ] T003 **Extract latent statistical descriptors** – `code/src/pipeline/extract_descriptors.py` runs the CPU‑only ICWM encoder, computes variance, lag‑1 autocorrelation, Welch spectral density (near‑zero‑variance edge case: autocorr = 0, spectral = 0), writes `data/processed/descriptors.csv` validating against `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml`, no nulls. <!-- FAILED-IN-EXECUTION: code/src/pipeline/extract_descriptors.py exit=1 -->
+- [X] T003 **Extract latent statistical descriptors** – `code/src/pipeline/extract_descriptors.py` runs the CPU‑only ICWM encoder, computes variance, lag‑1 autocorrelation, Welch spectral density (near‑zero‑variance edge case: autocorr = 0, spectral = 0), writes `data/processed/descriptors.csv` validating against `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml`, no nulls.
   *Additional verification*: selects a known high‑variance clip and a low‑variance clip; asserts `variance_high > 2 * variance_low` to satisfy US‑1 Acceptance Scenario 2.  
   *Verification*: CSV validates against the schema and the variance‑ratio check passes.
 
-- [X] T004 **Run the minimal end‑to‑end pipeline** – `code/src/pipeline/run_end_to_end.py --subset 50` prints a 50‑row summary table with all three descriptor columns.  
+- [ ] T004 **Run the minimal end‑to‑end pipeline** – `code/src/pipeline/run_end_to_end.py --subset 50` prints a 50‑row summary table with all three descriptor columns.  
 
 - [ ] T007 **Compute task‑complexity metric** – `code/src/pipeline/compute_complexity.py` writes `data/processed/task_complexity.csv` (complexity.schema.yaml) and `data/processed/correlation.txt` with Pearson r/p between latent variance and `subgoal_count`. <!-- FAILED-IN-EXECUTION: scripts/run_minimal.sh exit=1 -->
 
@@ -25,7 +25,7 @@ The goal is a complete, reproducible CPU‑only study satisfying FR‑001–FR�
 
 ## Phase 2 – Labeling and regressor training (redo after verifier rejection)
 
-- [ ] T005 **Real grid‑search labeling with schema validation** – `code/src/pipeline/grid_search_labels.py` first maps each clip to its configuration ID (one‑to‑one mapping). For each training configuration and each grid pair τ ∈ {0.5, 1.0, 1.5, 2.0} × k ∈ {16, 32, 64}, it runs **N = 5** episodes of the ICWM‑conditioned policy in `robosuite` (fixed seeds defined in `src/pipeline/config.yaml`). Success rates are computed from environment termination flags. Deterministic tie‑breaking: among equally optimal pairs, select the **lowest τ**, then the **lowest k**. Writes `data/processed/labels.csv` validated against `label.schema.yaml`.
+- [ ] T005 **Real grid‑search labeling with schema validation** – `code/src/pipeline/grid_search_labels.py` first maps each clip to its configuration ID (one‑to‑one mapping). For each training configuration and each grid pair τ ∈ {0.5, 1.0, 1.5, 2.0} × k ∈ {16, 32, 64}, it runs **N = 5** episodes of the ICWM‑conditioned policy in `robosuite` (fixed seeds defined in `src/pipeline/config.yaml`). Success rates are computed from environment termination flags. Deterministic tie‑breaking: among equally optimal pairs, select the **lowest τ**, then the **lowest k**. Writes `data/processed/labels.csv` validated against `label.schema.yaml`. <!-- FAILED-IN-EXECUTION: code/src/pipeline/grid_search_labels.py exit=1 -->
   *Verification*: unit test `tests/test_grid_search_schema.py` validates the CSV; all rows have 0 ≤ success_rate ≤ 1; tie‑breaking rule is enforced.
 
 - [ ] T006 **Train a regressor that beats the temperature‑only baseline (SC‑006)** – `code/src/pipeline/train_regressor.py` standardises features, performs 5‑fold CV over hidden size {16, 32, 64} and L2 ∈ {1e‑4, 1e‑3, 1e‑2}, and trains a 1‑hidden‑layer MLP (≤ 64 units). Targets are **τ only** (temperature). Joint prediction of k is optional but not used for SC‑006. The script computes:   <!-- FAILED-IN-EXECUTION: code/src/pipeline/train_regressor.py exit=1 -->

@@ -1,22 +1,44 @@
+T001:
+  c: true
+  h: 2d0bf5e4ed0fbb8e3c71442a01d2828e5d083845320517b4d75ccec4abd85e6d
+  r: The quickstart.md documents a single command (`bash -c "source scripts/quickstart.sh
+    && ./scripts/run_minimal.sh"`) for the 50-clip minimal pipeline, and the historical
+    execution log shows that command exiting 0 with 50 clips processed. Both `data/processed/descriptors.csv`
+    and the legacy `data/descriptors_subset.csv` exist, non-empty, with the required
+    columns (clip_id, variance, autocorr_lag1, spectral_density) and 50 rows of finite
+    values matching the run log output.
+  sig: ffee87fa61580c0cb7c82c7cc1d23c88112cd309746c829b7ce5d0a0aa912a92
 T002:
   c: true
-  h: 13025accecd27ea712c62960a8b4611e9c65ea7fff65899251667fb1743fd705
-  r: The script `code/src/pipeline/generate_clips.py` exists and generates real CartPole-v1
-    interaction data with fixed seeds (reproducible), saving `states`, `actions`,
-    and `observations` arrays. The `data/raw/` directory contains exactly 50 `clip_*.npz`
-    files, and the binary contents of sampled clips (clip_000, clip_049) confirm all
-    three required arrays (`states.npy`, `actions.npy`, `observations.npy`) are present
-    with non-trivial, varying sizes consistent with real episode trajectories.
-  sig: d1423ff7007247120a5a73285305597a205101456a35767951bc94ae0d7b7763
-T004:
+  h: d3afa59f0b5518f58f107684713eb654af0872bbef8a18e1b3760a35dc5d292b
+  r: The script `code/src/pipeline/generate_clips.py` exists and generates real CartPole
+    trajectories with fixed seeds, saving `states`, `actions`, and `observations`
+    arrays. The `data/raw/` directory contains exactly 50 `clip_*.npz` files, and
+    the inspected npz contents (clip_000, clip_049) confirm all three required arrays
+    are present with non-trivial, varying data.
+  sig: 06465e5588928419b05f239cbe407aba7d159ceb2d5c203e2648aaea1c13f37c
+T003:
   c: true
-  h: ed3ae5e429fd90b3ed90006b7bb1568f4c5be53ccca24584757aab9eebdb1548
-  r: The execution log shows `run_end_to_end` (via scripts/run_minimal.sh, exit 0)
-    generating 50 CartPole clips, extracting descriptors, and printing a 50-row table
-    with exactly the required columns (clip_id, variance, autocorr_lag1, spectral_density)
-    and non-null finite values; the driver script and its dependencies (generate_clips,
-    extract_descriptors, icwm_encoder) all exist with real implementations.
-  sig: 6448c9e0da3ed3c8895fed40d31eeee6d872581ee9d79b25205e110189868f5b
+  h: b3071493bc7a9780c0b16fecd0c5cf20acb3d23b1c7a54c1c7b4b28c276066ef
+  r: "The script exists and implements all required descriptors (variance, lag-1 autocorrelation\
+    \ with zero-variance edge case, Welch spectral density), schema validation, null\
+    \ checks, and the variance-ratio assertion; the CSV exists with 50 non-null rows\
+    \ matching the schema columns, and the execution log shows a successful exit-0\
+    \ run writing that CSV. The variance ratio check is satisfied by the data (max\
+    \ 0.679 > 2\xD7min 0.085)."
+  sig: 2b378fcb08d8bbb7c5f45505d20b05820c457d48d2485e7eda688f270580e139
+T004:
+  c: false
+  h: a7552b03f0f3de84e9922119ddf48a7d274f344d8e91dedeccb16aedea05b48d
+  r: "The task requires actually running `run_end_to_end.py --subset 50` and producing\
+    \ a printed 50-row summary table, but the evidence contains only source files\
+    \ \u2014 no execution output, no generated `data/raw/clip_*.npz` files, no `data/processed/descriptors.csv`\
+    \ or `data/descriptors_subset.csv`, and no run log, so there is no proof the pipeline\
+    \ ever ran or that the table was printed. Additionally, there are two divergent\
+    \ copies of `generate_clips.py` and `extract_descriptors.py` (`code/src/pipeline/`\
+    \ vs `src/pipeline/`), and the `code/src` extract_descriptors version depends\
+    \ on a schema file (`spec"
+  sig: f01d57114f7f8de3b737ddbf602c56fc14b49f42f391644b99bfdff6d3869d77
 T005:
   c: false
   h: 95e9fb38239f9a81cd5a314591aaa33d7eade3dc5a086bc22cc958d6fa8d8282
@@ -36,17 +58,6 @@ T006:
     \ as required. Additionally, the promised verification test `code/tests/test_train_regressor_metrics.py`\
     \ is missing."
   sig: 27642b84baae5d21d156afed562882fd6d233f3ab8449166b1eb8618486d6539
-T007:
-  c: false
-  h: 17d29c3dd21fa159a37917b2f76e6a983775c1d2b4cebd51cc1a15cd9fdc9d33
-  r: "The required output artifacts `data/processed/task_complexity.csv`, `data/processed/correlation.txt`,\
-    \ and `complexity.schema.yaml` do not exist on disk \u2014 only the script was\
-    \ written, with no evidence it was ever run. Additionally, the script's fallback\
-    \ derives `subgoal_count` deterministically from `variance` itself, which would\
-    \ fabricate the correlation rather than compute an independent complexity metric;\
-    \ it must use real scene/subgoal data (or a genuinely independent source), and\
-    \ the outputs must actually be generated."
-  sig: f2c3701ef602d78e087a9196620e211d44fd07db3ddf0e02b9ba51d5c9668421
 T016:
   c: false
   h: 8b7f68f9d95ee7505d849c767998535ecee600a4d2783cac9eec2c81a3df7a57

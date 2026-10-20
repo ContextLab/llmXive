@@ -1,22 +1,22 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: scripts/run_minimal.sh
-    exit=1'
   task: e0a7c78ac8e9e8cad9542ecc62bd22edd9c82d5fbe7c37fb714f2def7e65a425
 T002:
   task: 28d1f8c658e9f4da6991a31c0413b3066f85153a1803d57e9954047d278e9ebe
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/extract_descriptors.py
-    exit=1'
   task: 12f4ec4c4e55658a1f7ebd32133859d968ab71b715117afd737a4162174fd8b2
 T004:
+  reason: "The task requires actually running `run_end_to_end.py --subset 50` and\
+    \ producing a printed 50-row summary table, but the evidence contains only source\
+    \ files \u2014 no execution output, no generated `data/raw/clip_*.npz` files,\
+    \ no `data/processed/descriptors.csv` or `data/descriptors_subset.csv`, and no\
+    \ run log, so there is no proof the pipeline ever ran or that the table was printed.\
+    \ Additionally, there are two divergent copies of `generate_clips.py` and `extract_descriptors.py`\
+    \ (`code/src/pipeline/` vs `src/pipeline/`), and the `code/src` extract_descriptors\
+    \ version depends on a schema file (`spec"
   task: 38c33a84128d4ce7f18a01f55d5a504dcbc14eec7fe112e46e08240347770c59
 T005:
-  reason: "The produced `data/processed/labels.csv` is 1 byte (empty) \u2014 the run\
-    \ log shows it completed in 0.5s with no clips processed, so no labels were actually\
-    \ generated. Additionally, the required `label.schema.yaml` and `src/pipeline/config.yaml`\
-    \ (fixed seeds) do not exist, and the \"policy evaluation\" is a synthetic MSE\
-    \ heuristic on precomputed latents, not N=5 robosuite episodes with success from\
-    \ environment termination flags, nor is there any clip-to-configuration-ID mapping."
+  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/grid_search_labels.py
+    exit=1'
   task: b07512d7440ab7650626c9b52ec7f4e3321f8e80d016932f70630b5fee29abcf
 T006:
   reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/train_regressor.py
