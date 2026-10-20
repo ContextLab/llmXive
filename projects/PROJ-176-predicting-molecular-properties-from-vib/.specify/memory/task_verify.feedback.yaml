@@ -1,8 +1,4 @@
 T001:
-  reason: The directory tree and `__init__.py` files exist, and the structure report
-    lists the required folders, but there is no evidence that `python -m compileall
-    code/` was run successfully, nor any proof that the `__init__.py` files are actually
-    empty as required.
   task: bdd0cf57caa5b9170e4fd34cb1f2797509b5128411a6090a7f43a09a977f4c33
 T002:
   task: fa65ce1c923f39aa3a9cdfbdb727a348ebc2a7dd93c8576f7e9e1d4ce9f5c891

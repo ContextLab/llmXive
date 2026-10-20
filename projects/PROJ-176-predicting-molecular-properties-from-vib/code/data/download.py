@@ -12,12 +12,11 @@ from pathlib import Path
 from typing import Optional, Tuple, Dict, Any
 
 import pandas as pd
-import numpy as np
+import requests
 from scipy import stats
 
 # External libraries
 import qm9pack
-from datasets import load_dataset
 
 # llmxive utilities for path handling
 from llmxive_toolkit import paths
@@ -54,17 +53,25 @@ def download_qm9(output_dir: Optional[Path] = None) -> Path:
     return out_path
 
 def download_ir_spectra(output_dir: Optional[Path] = None) -> Path:
-    """Download the IR‑spectra dataset from HuggingFace and store as Parquet."""
+    """Download the IR‑spectra dataset from the verified HuggingFace URL and store as Parquet."""
     if output_dir is None:
         output_dir = Path("data/raw")
     _ensure_dir(output_dir / "placeholder")
 
-    logger.info("Downloading IR spectra dataset via HuggingFace datasets")
-    # Verified real source name – the original script used an incorrect identifier.
-    ds = load_dataset("lamblador/QM9-IR", split="train")
-    df = ds.to_pandas()
+    # Verified real source URL (direct parquet file)
+    url = "https://huggingface.co/datasets/lamblador/QM9-IR/resolve/main/data/qm9_ir.parquet"
+    logger.info(f"Downloading IR spectra dataset from {url}")
+
+    response = requests.get(url, stream=True, timeout=60)
+    response.raise_for_status()  # Fail fast on HTTP errors
+
     out_path = output_dir / "ir_spectra.parquet"
-    df.to_parquet(out_path, engine="pyarrow")
+    # Write streamed content to file
+    with open(out_path, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+
     logger.info(f"IR spectra saved to {out_path}")
     return out_path
 

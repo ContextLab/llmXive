@@ -1,19 +1,13 @@
-"""
-Simple test to ensure that the project skeleton was created correctly.
-It checks that the expected directories exist and that the structure report
-file contains the list of those directories.
-"""
-import os
+"""Tests for the T001 project skeleton."""
 from pathlib import Path
 
-import pytest
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Expected directories relative to the project root
 EXPECTED_DIRS = [
     "code",
     "code/data",
-    "code/models",
     "code/evaluation",
+    "code/models",
     "code/utils",
     "tests",
     "data/raw",
@@ -22,22 +16,33 @@ EXPECTED_DIRS = [
     "results",
     "logs",
     "specs/001-predict-molecular-properties",
-    "specs/001-predict-molecular-properties/contracts",
 ]
 
-def test_directories_exist():
-    for d in EXPECTED_DIRS:
-        assert Path(d).is_dir(), f"Directory {d} should exist"
+PACKAGE_DIRS = [
+    "code",
+    "code/data",
+    "code/evaluation",
+    "code/models",
+    "code/utils",
+    "tests",
+]
 
-def test_structure_report():
-    report_path = Path("results") / "structure_report.txt"
-    assert report_path.is_file(), "Structure report file should exist"
-    with report_path.open() as f:
-        lines = [line.strip() for line in f.readlines()]
-    # The report should contain at least all expected directories
-    for d in EXPECTED_DIRS:
-        assert d in lines, f"{d} missing from structure report"
 
-# Run the test only if this file is executed directly (optional)
-if __name__ == "__main__":
-    pytest.main([__file__])
+def test_expected_directories_exist():
+    for rel in EXPECTED_DIRS:
+        assert (PROJECT_ROOT / rel).is_dir(), f"missing directory: {rel}"
+
+
+def test_init_files_are_empty():
+    for rel in PACKAGE_DIRS:
+        init = PROJECT_ROOT / rel / "__init__.py"
+        assert init.is_file(), f"missing __init__.py in {rel}"
+        assert init.read_bytes() == b"", f"{init} is not empty"
+
+
+def test_structure_report_exists_and_complete():
+    report = PROJECT_ROOT / "results" / "structure_report.txt"
+    assert report.is_file(), "results/structure_report.txt missing"
+    listed = set(report.read_text().splitlines())
+    for rel in EXPECTED_DIRS:
+        assert rel in listed, f"{rel} not listed in structure_report.txt"

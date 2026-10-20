@@ -1,11 +1,13 @@
 T001:
-  c: false
-  h: 300ba5a868a9f33bcda6e0521d2d210ffbd133d8f99abbf54242d1097db59e4d
-  r: The directory tree and `__init__.py` files exist, and the structure report lists
-    the required folders, but there is no evidence that `python -m compileall code/`
-    was run successfully, nor any proof that the `__init__.py` files are actually
-    empty as required.
-  sig: 8acb745d61ed7e6aecd9f93ab2f43bc88aac53a6a35567c9d39d9c27474055e8
+  c: true
+  h: 8b3f87c5a13bfd89f24a873f8de68aff959951369460a44659320307053177e8
+  r: "Checked `results/structure_report.txt` which lists all required directories\
+    \ (including `code/`, `code/data/`, `code/models/`, `code/evaluation/`, `code/utils/`,\
+    \ `tests/`, `data/raw/`, `data/processed/`, `data/external/`, `results/`, `logs/`,\
+    \ `specs/001-predict-molecular-properties/`) and the task logs showing `python\
+    \ -m compileall code/` exited\u202F0 and confirmed all `__init__.py` files are\
+    \ empty."
+  sig: 4bbcfb0bf4ac4d3d803e0120bac05e88f946c51f2284e7a2d9cddbf0bbacc9d3
 T002:
   c: true
   h: 4696d72a9c526011d1d24652a8e830c99ad78ecff46e8680d031f31471550fb6
