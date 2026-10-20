@@ -91,9 +91,8 @@ def _query_encode_file(
         "limit": "1",
         "field": "href",
     }
-    if file_format:
-        params["format"] = file_format
-    logger.info(f"Querying ENCODE for {cell_line} {assay} {output_type} ({file_format})")
+    # Do NOT request a specific format here; we want JSON metadata.
+    logger.info(f"Querying ENCODE for {cell_line} {assay} {output_type}")
     resp = session.get(ENCODE_SEARCH, params=params, headers={"Accept": "application/json"})
     resp.raise_for_status()
     data = resp.json()

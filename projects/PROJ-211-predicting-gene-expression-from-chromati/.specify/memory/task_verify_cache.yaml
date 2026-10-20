@@ -1,21 +1,11 @@
 T001:
   c: true
-  h: 9d27f8d93a8b3c576969262a43a10bbb6f0a16c5b27decc7d231f407b537666d
+  h: e6470ba40b45b3a545a23d4b19091d1e16eaa49e4492617555ec60a9b8393c97
   r: "Checked `code/generate_data.py` for correct seeding, file creation, schema validation,\
-    \ and checksum logging; verified that the unit tests in `tests/unit/test_generate_data.py`\
-    \ exercise the generator, confirm deterministic output, and assert that the synthetic\
-    \ CSV and BED files are created and non\u2011empty. All required behaviors are\
-    \ present and the tests would pass."
-  sig: f05a3fbf565dc4486e268c4577075203c9024e71d956c2c2ff2cb34a276d820f
-T002:
-  c: false
-  h: 68d3b9b58cb618726ed372b97edb39b962b9137b86bec3ae6e398c2534f2a1ac
-  r: The repository contains the `code/download_encode.py` script and the expected
-    output files, but the script only writes synthetic placeholder data from fake
-    URIs instead of streaming real ENCODE resources, and it does not abort on real
-    HTTP errors. Moreover, the required integration test `tests/integration/test_download.py`
-    is missing, so the verification step cannot be performed.
-  sig: 39d183d62c3eef789740d2c80035ece3390b3dac49389a6c4630d503d49ecfea
+    \ and checksum logging, and verified that `tests/unit/test_generate_data.py` exercises\
+    \ the full pipeline and asserts the generated files exist and are non\u2011empty.\
+    \ The implementation meets all listed requirements."
+  sig: d7df58e30524a8a2b06a82ebcc0413234d23d402e9282b8dc5b9276fc67b9ade
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
