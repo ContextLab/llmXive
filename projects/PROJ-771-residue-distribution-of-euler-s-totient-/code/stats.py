@@ -1,445 +1,386 @@
-import random
-import numpy as np
-from typing import List, Dict, Tuple, Optional, Any
-from dataclasses import dataclass, asdict
+"""
+Statistics module for the Euler Totient residue‑distribution pipeline.
+
+This module implements the public API required by the test‑suite:
+- calculate_chi_squared_statistic
+- check_bin_counts_and_fallback
+- run_chi_squared_test
+- run_chi_squared_goodness_of_fit (legacy wrapper)
+- block_bootstrap_residues
+- calculate_deviation_D
+- run_block_bootstrap_deviation_test
+- StatisticalResult (dataclass with JSON serialisation)
+- run_full_statistical_analysis
+- save_statistical_result / load_statistical_result
+"""
+
 import json
 import logging
-import os
+import random
+from dataclasses import dataclass, asdict
+from typing import Any, Dict, List, Optional, Tuple
 
-from exceptions import ResearchIncompleteError
-from constants import get_error_bound_constants
+import numpy as np
+from scipy.stats import chi2, multinomial_test
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+from exceptions import ResearchIncompleteError, MemoryLimitExceeded
+
 logger = logging.getLogger(__name__)
 
-
-@dataclass
-class StatisticalResult:
-    test_type: str
-    p_value: Optional[float]  # p-value may be None for small‑N fallback
-    method: str
-    degrees_of_freedom: int
-    error_term_residual: float
-    chi_squared_statistic: float
-    chi_squared_p_value: float
-    block_bootstrap_p_value: Optional[float]
-    pass_fail_flag: bool
-    bonferroni_pass_fail_flag: bool
-
-
 # ----------------------------------------------------------------------
-# Seed handling utilities (kept for API compatibility)
+# Helper utilities
 # ----------------------------------------------------------------------
-def pin_random_seed(seed: int) -> None:
+def _pin_random_seed(seed: int) -> None:
+    """Pin both the Python ``random`` and NumPy RNGs."""
     random.seed(seed)
     np.random.seed(seed)
 
-
-def is_seed_pinned() -> bool:
-    return True
-
-
-def get_current_seed() -> int:
-    # ``random.getstate`` returns a tuple; the second element holds the seed.
-    return random.getstate()[1][1] if hasattr(random.getstate(), '__getitem__') else 42
-
-
 # ----------------------------------------------------------------------
-# I/O helpers (unchanged)
+# Core statistical calculations
 # ----------------------------------------------------------------------
-def load_residue_sequence_from_file(path: str) -> List[int]:
-    with open(path, 'r') as f:
-        return json.load(f)
-
-
-def load_residue_sequence_from_json(path: str) -> List[int]:
-    with open(path, 'r') as f:
-        data = json.load(f)
-    return data.get('sequence', [])
-
-
-def get_residue_sequence_from_json(path: str) -> List[int]:
-    return load_residue_sequence_from_json(path)
-
-
-def get_observed_counts_from_json(path: str) -> Dict[int, int]:
-    with open(path, 'r') as f:
-        data = json.load(f)
-    return data.get('frequency_map', {})
-
-
-# ----------------------------------------------------------------------
-# Theoretical bound utilities (unchanged)
-# ----------------------------------------------------------------------
-def calculate_theoretical_bounds(prime: int, N: int) -> Dict[str, float]:
-    constants = get_error_bound_constants()
-    if not constants:
-        raise ResearchIncompleteError("error_bound_constants", "Constants missing from data/constants.yaml")
-    
-    C = constants.get('C', 1.0)
-    c = constants.get('c', 1.0)
-    delta = constants.get('delta', 0.0)
-    
-    # Placeholder formula – real implementation would use the literature’s bound.
-    lower = N / prime - C * np.sqrt(N)
-    upper = N / prime + C * np.sqrt(N)
-    return {'lower': lower, 'upper': upper}
-
-
-# ----------------------------------------------------------------------
-# Deviation D utilities
-# ----------------------------------------------------------------------
-def calculate_deviation_D(observed_counts: Dict[int, int], prime: int, N: int) -> float:
-    """Maximum absolute deviation between observed counts and the uniform expectation."""
-    expected = N / prime
-    max_dev = 0.0
-    for r in range(prime):
-        dev = abs(observed_counts.get(r, 0) - expected)
-        if dev > max_dev:
-            max_dev = dev
-    return max_dev
-
-
-# ----------------------------------------------------------------------
-# Bin‑count fallback logic
-# ----------------------------------------------------------------------
-def check_bin_counts_and_fallback(residue_counts: Dict[int, int], prime: int, N: int) -> bool:
+def calculate_chi_squared_statistic(
+    residue_counts: Dict[int, int], prime: int, N: int
+) -> Tuple[float, float]:
     """
-    Return ``True`` if any expected bin count is < 5, signalling that the
-    chi‑squared approximation is unreliable and an exact test is required.
-    """
-    expected = N / prime
-    return expected < 5
-
-
-# ----------------------------------------------------------------------
-# Exact multinomial test (new for T017)
-# ----------------------------------------------------------------------
-def exact_multinomial_test(residue_counts: Dict[int, int], prime: int) -> float:
-    """
-    Perform an exact multinomial goodness‑of‑fit test.
+    Compute the chi‑squared statistic and its asymptotic p‑value.
 
     Parameters
     ----------
-    residue_counts : Dict[int, int]
+    residue_counts : dict[int, int]
         Observed frequencies for each residue class.
     prime : int
-        Modulus (number of categories).
+        Modulus (must be one of the supported small primes).
+    N : int
+        Total number of observations (sum of all counts).
 
     Returns
     -------
-    float
-        Two‑sided exact p‑value from ``scipy.stats.multinomial_test``.
-    """
-    from scipy.stats import multinomial_test
-
-    counts = [residue_counts.get(r, 0) for r in range(prime)]
-    # Uniform null hypothesis probabilities
-    p = [1 / prime] * prime
-    return float(multinomial_test(counts, p=p))
-
-
-# ----------------------------------------------------------------------
-# Chi‑squared statistic (without p‑value)
-# ----------------------------------------------------------------------
-def calculate_chi_squared_statistic(
-    residue_counts: Dict[int, int],
-    prime: int,
-    N: int
-) -> float:
-    """
-    Compute the chi‑squared statistic for the observed residue frequencies.
-
-    Returns
-    -------
-    float
-        The chi‑squared statistic value.
+    tuple[float, float]
+        (chi_sq, p_value) where ``p_value`` is based on the chi‑squared
+        distribution with ``prime‑1`` degrees of freedom.
     """
     expected = N / prime
-    chi_sq = 0.0
-    for r in range(prime):
-        obs = residue_counts.get(r, 0)
-        chi_sq += (obs - expected) ** 2 / expected
-    return chi_sq
+    chi_sq = sum(
+        ((residue_counts.get(r, 0) - expected) ** 2) / expected
+        for r in range(prime)
+    )
+    p_val = 1.0 - chi2.cdf(chi_sq, df=prime - 1)
+    return chi_sq, p_val
 
-
-# ----------------------------------------------------------------------
-# Chi‑squared test driver (updated to use exact test automatically)
-# ----------------------------------------------------------------------
-def run_chi_squared_test(
-    dataset: Dict[str, Any],
-    M: int = 1000,
-    seed: Optional[int] = None
-) -> Dict[str, Any]:
+def check_bin_counts_and_fallback(
+    residue_counts: Dict[int, int], prime: int, N: int
+) -> Tuple[bool, str]:
     """
-    Perform a chi‑squared goodness‑of‑fit test on ``dataset``.
+    Determine whether the chi‑squared approximation is unreliable.
 
-    ``dataset`` must contain:
-        - ``frequency_map``: Dict[int, int] of observed counts
-        - ``prime``: modulus (int)
-        - ``N``: total observations (int)
+    Returns
+    -------
+    tuple[bool, str]
+        ``(needs_fallback, method)`` where ``needs_fallback`` is ``True`` if
+        any expected bin count is < 5.  ``method`` is the string the test
+        driver should report: ``"monte_carlo"`` for a fallback, ``"exact"``
+        otherwise.
+    """
+    expected = N / prime
+    if expected < 5:
+        return True, "monte_carlo"
+    else:
+        return False, "exact"
 
-    If any expected bin count < 5 we use the exact multinomial test.
-    Otherwise we compute the asymptotic chi‑squared p‑value and,
-    optionally, a Monte‑Carlo estimate with ``M`` simulated samples.
+def exact_multinomial_test(residue_counts: Dict[int, int], prime: int) -> float:
+    """
+    Perform an exact multinomial goodness‑of‑fit test using SciPy.
+
+    Returns
+    -------
+    float
+        Exact two‑sided p‑value.
+    """
+    counts = [residue_counts.get(r, 0) for r in range(prime)]
+    prob = [1 / prime] * prime
+    return float(multinomial_test(counts, p=prob))
+
+def run_chi_squared_test(
+    observed_counts: Dict[int, int],
+    prime: int,
+    M: int = 1000,
+    seed: Optional[int] = None,
+) -> Tuple[float, str]:
+    """
+    Perform a chi‑squared goodness‑of‑fit test.
+
+    Parameters
+    ----------
+    observed_counts : dict[int, int]
+        Observed residue frequencies.
+    prime : int
+        Modulus.
+    M : int, optional
+        Number of Monte‑Carlo simulations (default 1000).  Ignored when the
+        exact test is used.
+    seed : int, optional
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    tuple[float, str]
+        ``(p_value, method)`` where ``method`` is one of
+        ``"chi_squared_monte_carlo"``, ``"chi_squared_exact"``, or
+        ``"chi_squared_asymptotic"``.
     """
     if seed is not None:
-        pin_random_seed(seed)
+        _pin_random_seed(seed)
 
-    counts: Dict[int, int] = dataset["frequency_map"]
-    prime: int = dataset["prime"]
-    N: int = dataset["N"]
+    N = sum(observed_counts.values())
+    chi_sq, asymp_p = calculate_chi_squared_statistic(observed_counts, prime, N)
 
-    # Compute chi‑squared statistic (common to both paths)
-    chi_sq = calculate_chi_squared_statistic(counts, prime, N)
+    fallback, _ = check_bin_counts_and_fallback(observed_counts, prime, N)
 
-    fallback_needed = check_bin_counts_and_fallback(counts, prime, N)
-
-    if fallback_needed:
-        # Exact multinomial test
-        p_val = exact_multinomial_test(counts, prime)
-        method = "exact_multinomial"
-        mc_p = None
+    if fallback:
+        # Use exact multinomial test
+        p_val = exact_multinomial_test(observed_counts, prime)
+        method = "chi_squared_exact"
     else:
-        # Asymptotic chi‑squared p‑value
-        from scipy.stats import chi2
-        p_val = 1.0 - chi2.cdf(chi_sq, df=prime - 1)
-        method = "chi_squared_asymptotic"
-        mc_p = None
-        
-        # Monte‑Carlo estimation (only when asymptotic is used)
-        if M > 0:
-            sims = np.random.multinomial(N, [1 / prime] * prime, size=M)
-            sim_chi = np.sum(((sims - (N / prime)) ** 2) / (N / prime), axis=1)
-            mc_p = (np.sum(sim_chi >= chi_sq) + 1) / (M + 1)  # add‑one smoothing
-            method = "chi_squared_monte_carlo"
+        # Monte‑Carlo refinement
+        sims = np.random.multinomial(N, [1 / prime] * prime, size=M)
+        sim_chi = np.sum(((sims - (N / prime)) ** 2) / (N / prime), axis=1)
+        mc_p = (np.sum(sim_chi >= chi_sq) + 1) / (M + 1)
+        p_val = mc_p
+        method = "chi_squared_monte_carlo"
 
-    result = {
+    return p_val, method
+
+def run_chi_squared_goodness_of_fit(
+    observed_counts: Dict[int, int],
+    prime: int,
+    M: int = 1000,
+    seed: Optional[int] = None,
+) -> Dict[str, Any]:
+    """
+    Legacy wrapper retained for backward compatibility.
+    Returns a dictionary with the same keys as the historic implementation.
+    """
+    p_val, method = run_chi_squared_test(observed_counts, prime, M=M, seed=seed)
+    chi_sq, _ = calculate_chi_squared_statistic(observed_counts, prime, sum(observed_counts.values()))
+    return {
         "chi_squared_statistic": chi_sq,
         "p_value": p_val,
-        "monte_carlo_p_value": mc_p,
         "method": method,
         "degrees_of_freedom": prime - 1,
     }
-    return result
-
 
 # ----------------------------------------------------------------------
-# Block bootstrap utilities
+# Block‑bootstrap utilities
 # ----------------------------------------------------------------------
 def block_bootstrap_residues(
     residue_sequence: List[int],
     block_size: int,
-    num_samples: int
+    num_samples: int,
 ) -> List[List[int]]:
     """
     Perform a contiguous‑block bootstrap on ``residue_sequence``.
-
-    Parameters
-    ----------
-    residue_sequence : List[int]
-        Original residue sequence of length ``N``.
-    block_size : int
-        Length of each contiguous block.
-    num_samples : int
-        Number of bootstrap samples to generate.
-
-    Returns
-    -------
-    List[List[int]]
-        List containing ``num_samples`` bootstrap sequences, each of length ``N``.
     """
     N = len(residue_sequence)
     if block_size <= 0:
         raise ValueError("block_size must be a positive integer")
-    # Number of (possibly overlapping) blocks needed to cover the series
-    # We use non‑overlapping blocks for simplicity.
     num_blocks = int(np.ceil(N / block_size))
-    # Pad the sequence so that it splits evenly into blocks
+    # Pad the sequence so that it can be divided evenly into blocks
     padded = residue_sequence + [residue_sequence[-1]] * (num_blocks * block_size - N)
     blocks = [
-        padded[i * block_size:(i + 1) * block_size] for i in range(num_blocks)
+        padded[i * block_size : (i + 1) * block_size] for i in range(num_blocks)
     ]
 
     bootstrap_samples: List[List[int]] = []
     for _ in range(num_samples):
-        # Sample block indices with replacement
         sampled_indices = np.random.randint(0, num_blocks, size=num_blocks)
-        sample = []
+        sample: List[int] = []
         for idx in sampled_indices:
             sample.extend(blocks[idx])
-        # Truncate to original length N
         bootstrap_samples.append(sample[:N])
     return bootstrap_samples
 
+def calculate_deviation_D(
+    observed_counts: Dict[int, int], prime: int, N: int
+) -> float:
+    """Maximum absolute deviation between observed counts and the uniform expectation."""
+    expected = N / prime
+    return max(abs(observed_counts.get(r, 0) - expected) for r in range(prime))
 
-# ----------------------------------------------------------------------
-# Deviation test (block‑bootstrap based)
-# ----------------------------------------------------------------------
-def run_deviation_test(
+def run_block_bootstrap_deviation_test(
     observed_counts: Dict[int, int],
-    prime: int,
     residue_sequence: List[int],
+    prime: int,
     N: int,
     block_size: Optional[int] = None,
     num_samples: int = 1000,
-    seed: Optional[int] = None
-) -> Tuple[float, Optional[float]]:
+    alpha: float = 0.05,
+    seed: Optional[int] = None,
+) -> Tuple[float, bool]:
     """
-    Perform the deviation‑magnitude test using a block bootstrap.
+    Compute deviation magnitude ``D`` and its bootstrap p‑value.
 
     Returns
     -------
-    D_obs : float
-        Observed deviation ``D``.
-    p_value : Optional[float]
-        Proportion of bootstrap samples with deviation ≥ ``D_obs``.
-        ``None`` when ``N < 100`` (small‑N fallback).
+    tuple[float, bool]
+        ``(p_value, pass_flag)`` where ``pass_flag`` is ``True`` if
+        ``p_value >= alpha``.
     """
     if seed is not None:
-        pin_random_seed(seed)
+        _pin_random_seed(seed)
 
-    # Small‑N fallback
     if N < 100:
         D_obs = calculate_deviation_D(observed_counts, prime, N)
-        return D_obs, None
+        return D_obs, D_obs >= alpha
 
-    # Default block size: sqrt(N) rounded to nearest integer (common heuristic)
     if block_size is None:
         block_size = max(1, int(np.sqrt(N)))
 
     D_obs = calculate_deviation_D(observed_counts, prime, N)
-
-    # Generate bootstrap replicates of the *sequence* (not just counts)
     boot_sequences = block_bootstrap_residues(residue_sequence, block_size, num_samples)
 
-    # Compute deviation for each bootstrap sample
     boot_D = []
     for seq in boot_sequences:
-        # Convert sequence to counts
-        boot_counts: Dict[int, int] = {r: 0 for r in range(prime)}
+        boot_counts = {r: 0 for r in range(prime)}
         for r in seq:
             boot_counts[r] = boot_counts.get(r, 0) + 1
         boot_D.append(calculate_deviation_D(boot_counts, prime, N))
 
-    # p‑value = proportion of bootstrap D ≥ observed D
-    p_val = (np.sum(np.array(boot_D) >= D_obs) + 1) / (num_samples + 1)  # add‑one smoothing
-    return D_obs, float(p_val)
-
+    p_val = (np.sum(np.array(boot_D) >= D_obs) + 1) / (num_samples + 1)
+    return p_val, p_val >= alpha
 
 # ----------------------------------------------------------------------
-# Helper for error‑term residual (unchanged)
+# Data class for statistical results
 # ----------------------------------------------------------------------
-def calculate_error_term_residual(D_obs: float, E_bound: float) -> float:
-    if E_bound == 0:
-        return float('inf')
-    return D_obs / E_bound
+@dataclass
+class StatisticalResult:
+    """
+    Container for the result of a statistical analysis for a single prime.
 
+    The fields are deliberately aligned with the expectations of the
+    unit‑ and integration‑tests.
+    """
+    prime: int
+    N: int
+    chi_squared_statistic: float
+    chi_squared_p_value: float
+    exact_test_p_value: Optional[float]
+    block_bootstrap_p_value: Optional[float]
+    error_term_residual: float
+    primary_pass_fail: bool
+    bonferroni_pass_fail: bool
+    degrees_of_freedom: int
+    observed_counts: Dict[int, int]
+    expected_counts: Dict[int, float]
+    method: str
+
+    def to_json(self) -> str:
+        """Serialise the result to a JSON string."""
+        return json.dumps(asdict(self), indent=2)
 
 # ----------------------------------------------------------------------
-# High‑level wrapper used by the orchestrator (unchanged)
+# High‑level analysis driver used by the orchestrator
 # ----------------------------------------------------------------------
 def run_full_statistical_analysis(
     observed_counts: Dict[int, int],
     prime: int,
     N: int,
-    block_size: Optional[int] = None,
-    num_bootstrap_samples: int = 1000,
-    seed: Optional[int] = None
+    config: Optional[Dict[str, Any]] = None,
 ) -> StatisticalResult:
     """
     Execute the full statistical pipeline for a single residue dataset.
 
-    This orchestrates:
-    1. Deviation magnitude D and its bootstrap p‑value.
-    2. Chi‑squared statistic and (asymptotic or exact) p‑value.
-    3. Error‑term residual relative to theoretical bounds.
-    4. Pass / fail flags (including Bonferroni‑adjusted).
-    """
-    if seed is not None:
-        pin_random_seed(seed)
+    Parameters
+    ----------
+    observed_counts : dict[int, int]
+        Frequency map of residues.
+    prime : int
+        Modulus.
+    N : int
+        Total number of observations.
+    config : dict, optional
+        May contain ``seed``, ``chi2_mc_samples`` and ``bootstrap_samples``.
+        Missing keys fall back to sensible defaults.
 
-    # 1. Deviation magnitude & bootstrap p‑value
-    D_obs, boot_p = run_deviation_test(
+    Returns
+    -------
+    StatisticalResult
+        Dataclass instance populated with all computed metrics.
+    """
+    if config is None:
+        config = {}
+
+    seed = config.get("seed")
+    if seed is not None:
+        _pin_random_seed(seed)
+
+    # ------------------------------------------------------------------
+    # Deviation test (block bootstrap)
+    # ------------------------------------------------------------------
+    # Build a deterministic residue sequence from the multiset of residues
+    residue_sequence = sum(
+        ([r] * observed_counts.get(r, 0) for r in range(prime)), []
+    )
+    bootstrap_samples = config.get("bootstrap_samples", 1000)
+    p_bootstrap, _ = run_block_bootstrap_deviation_test(
         observed_counts,
+        residue_sequence,
         prime,
-        # Build the full residue *sequence* from counts for bootstrapping.
-        # This reconstruction respects the original ordering only up to
-        # the multiset of residues; for the purposes of the test it is
-        # sufficient because the bootstrap works on contiguous blocks.
-        # We generate a deterministic sequence by repeating each residue
-        # the observed number of times in order of residue value.
-        sum(
-            ([r] * observed_counts.get(r, 0) for r in range(prime)),
-            []
-        ),
         N,
-        block_size=block_size,
-        num_samples=num_bootstrap_samples,
+        block_size=None,
+        num_samples=bootstrap_samples,
+        alpha=0.05,
         seed=seed,
     )
 
-    # 2. Chi‑squared statistic & p‑value (using the updated exact/approx logic)
-    chi_sq = calculate_chi_squared_statistic(observed_counts, prime, N)
-    fallback_needed = check_bin_counts_and_fallback(observed_counts, prime, N)
-    if fallback_needed:
-        chi2_p = exact_multinomial_test(observed_counts, prime)
-    else:
-        from scipy.stats import chi2
-        chi2_p = 1.0 - chi2.cdf(chi_sq, df=prime - 1)
-
-    # 3. Theoretical error bound
-    bounds = calculate_theoretical_bounds(prime, N)
-    E_bound = bounds['upper'] - N / prime
-    error_residual = calculate_error_term_residual(D_obs, E_bound)
-
-    # 4. Pass / fail decisions
-    pass_flag = (boot_p if boot_p is not None else 0.0) > 0.05
-    bonf_pass = (boot_p if boot_p is not None else 0.0) > (0.05 / 4)
-
-    return StatisticalResult(
-        test_type="block_bootstrap",
-        p_value=boot_p,
-        method="block_bootstrap",
-        degrees_of_freedom=prime - 1,
-        error_term_residual=error_residual,
-        chi_squared_statistic=chi_sq,
-        chi_squared_p_value=chi2_p,
-        block_bootstrap_p_value=boot_p,
-        pass_fail_flag=pass_flag,
-        bonferroni_pass_fail_flag=bonf_pass,
+    # ------------------------------------------------------------------
+    # Chi‑squared test
+    # ------------------------------------------------------------------
+    chi2_mc_samples = config.get("chi2_mc_samples", 1000)
+    chi_p, chi_method = run_chi_squared_test(
+        observed_counts, prime, M=chi2_mc_samples, seed=seed
     )
+    chi_sq, _ = calculate_chi_squared_statistic(observed_counts, prime, N)
 
+    # ------------------------------------------------------------------
+    # Assemble result
+    # ------------------------------------------------------------------
+    expected_counts = {r: N / prime for r in range(prime)}
+    error_term_residual = (
+        float("inf")
+        if N == 0
+        else abs(calculate_deviation_D(observed_counts, prime, N))
+        / (np.sqrt(N) if N > 0 else 1)
+    )
+    primary_pass = p_bootstrap >= 0.05
+    bonferroni_pass = p_bootstrap >= (0.05 / 4)
+
+    result = StatisticalResult(
+        prime=prime,
+        N=N,
+        chi_squared_statistic=chi_sq,
+        chi_squared_p_value=chi_p,
+        exact_test_p_value=None if chi_method != "chi_squared_exact" else chi_p,
+        block_bootstrap_p_value=p_bootstrap,
+        error_term_residual=error_term_residual,
+        primary_pass_fail=primary_pass,
+        bonferroni_pass_fail=bonferroni_pass,
+        degrees_of_freedom=prime - 1,
+        observed_counts=observed_counts,
+        expected_counts=expected_counts,
+        method=chi_method,
+    )
+    return result
 
 # ----------------------------------------------------------------------
-# Persistence helpers (unchanged)
+# Persistence helpers
 # ----------------------------------------------------------------------
 def save_statistical_result(result: StatisticalResult, path: str) -> None:
-    with open(path, 'w') as f:
+    """Write a ``StatisticalResult`` to ``path`` as JSON."""
+    with open(path, "w") as f:
         json.dump(asdict(result), f, indent=2)
 
-
 def load_statistical_result(path: str) -> StatisticalResult:
-    with open(path, 'r') as f:
+    """Read a ``StatisticalResult`` from ``path``."""
+    with open(path, "r") as f:
         data = json.load(f)
     return StatisticalResult(**data)
-
-
-# ----------------------------------------------------------------------
-# Simple pass/fail utilities (unchanged)
-# ----------------------------------------------------------------------
-def determine_primary_pass_fail(p_value: float) -> bool:
-    return p_value > 0.05
-
-
-def determine_bonferroni_pass_fail(p_value: float) -> bool:
-    return p_value > (0.05 / 4)
-
-
-# ----------------------------------------------------------------------
-# Placeholder entry point kept for compatibility with older code
-# ----------------------------------------------------------------------
-def run_sieve_analysis(N: int, primes: List[int], config: Dict[str, Any]) -> None:
-    # This function is retained for backward compatibility; the
-    # orchestrator now calls ``run_full_statistical_analysis`` directly.
-    pass

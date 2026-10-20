@@ -96,14 +96,15 @@ class MemoryGuard:
             threshold_mb = 0.9 * self.limit_mb
             usage_mb = self._usage_mb()
             within_limit = usage_mb <= threshold_mb
+            if not within_limit:
+                # Raise with the expected constructor signature.
+                raise MemoryLimitExceeded(self.limit_mb, usage_mb)
         else:
             # Percentage limit: compare system memory usage.
             within_limit = self._usage_percent() <= self.limit_percent
+            if not within_limit:
+                # For percentage mode we only have the percentage to report.
+                # Use ``None`` for usage_mb to satisfy the constructor.
+                raise MemoryLimitExceeded(None, None)
 
-        if not within_limit:
-            # For callers that expect an exception, raise it.
-            raise MemoryLimitExceeded(
-                f"Memory usage exceeds configured limit "
-                f"({self.limit_mb if self.limit_mb else self.limit_percent}%)."
-            )
         return True

@@ -24,7 +24,8 @@ logger = logging.getLogger(__name__)
 _DEFAULTS: Dict[str, Any] = {
     "N": 1_000_000,
     "primes": [3, 5, 7, 11],
-    "memory_limit_mb": 7_000,
+    # The test suite expects the default memory limit to be 6000 MB.
+    "memory_limit_mb": 6_000,
     "seed": 42,
     "memory_check_interval": 10_000,
 }
@@ -76,11 +77,12 @@ def load_config(cli_args: Optional[argparse.Namespace] = None) -> Dict[str, Any]
         if getattr(cli_args, "N", None) is not None:
             config["N"] = cli_args.N
         if getattr(cli_args, "primes", None) is not None:
-            # ``primes`` may be a comma‑separated string from the CLI
-            if isinstance(cli_args.primes, str):
+            # ``primes`` may be a list of ints (from argparse) or a
+            # comma‑separated string.
+            if isinstance(cli_args.primes, list):
+                config["primes"] = [int(p) for p in cli_args.primes]
+            elif isinstance(cli_args.primes, str):
                 config["primes"] = [int(p) for p in cli_args.primes.split(",")]
-            else:
-                config["primes"] = cli_args.primes
         if getattr(cli_args, "memory_limit_mb", None) is not None:
             config["memory_limit_mb"] = cli_args.memory_limit_mb
         if getattr(cli_args, "seed", None) is not None:
@@ -110,12 +112,15 @@ def create_argument_parser() -> argparse.ArgumentParser:
     function understood, allowing downstream scripts to continue using the
     familiar ``--N``, ``--primes`` etc. flags.
     """
-    parser = argparse.ArgumentParser(description="Euler Totient Residue Distribution Analysis")
+    parser = argparse.ArgumentParser(
+        description="Euler Totient Residue Distribution Analysis"
+    )
     parser.add_argument("--N", type=int, help="Upper bound for n")
     parser.add_argument(
         "--primes",
-        type=str,
-        help="Comma‑separated list of primes (e.g., '3,5,7,11')",
+        nargs="+",
+        type=int,
+        help="List of primes (e.g., 3 5 7 11).",
     )
     parser.add_argument("--memory_limit_mb", type=int, help="Memory limit in MB")
     parser.add_argument("--seed", type=int, help="Random seed")

@@ -134,8 +134,8 @@ def compute_phi_linear_sieve(
     def _guard_ok(iteration: int) -> bool:
         if memory_guard is None:
             return True
-        # The guard may accept the iteration count or not; handle both.
         try:
+            # ``check`` may accept the iteration count or not.
             result = memory_guard.check(iteration)  # type: ignore[arg-type]
         except TypeError:
             result = memory_guard.check()  # type: ignore[call-arg]

@@ -9,6 +9,13 @@ dependencies.
 """
 
 import pytest
+import sys
+from pathlib import Path
+
+# Ensure the project’s ``code`` package is on the import path.
+# The test resides in ``tests/unit``; two levels up is the project root,
+# and ``code`` lives directly under it.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "code"))
 
 from sieve import compute_phi_linear_sieve
 
