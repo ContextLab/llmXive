@@ -1,143 +1,78 @@
-# Tasks: llmXive follow‑up – extending “From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent”
+# Tasks: llmXive follow-up – extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent"
 
-**Inputs**: `spec.md`, `plan.md`, existing code & data‑model, contracts in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`.
+**Inputs**: `spec.md`, `plan.md`, data-model and contracts in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`, verifier feedback on rejected tasks, and the reviewer's pruning-heuristic objection.
 
-The checklist below follows the canonical `- [ ] T### [P?] [USx?] …` format.  
-Checked boxes `[X]` indicate tasks that have already been verified as complete; unchecked boxes `[ ]` are pending or need revision.  All pending tasks have explicit verification steps so that the next analysis run can confirm they satisfy the specification.
+**Corrections applied in this revision**:
+- Tasks no longer write to `state/...` (platform-owned; the earlier plan asked scripts to write artifact hashes into the state YAML — that produced stale shadows and is removed). Checksums are written to `data/raw/checksums.json` instead.
+- The four verifier-rejected tasks (logger truncation, contract tests that never load real data files, missing schemas, missing data-generation serialization) are folded into consolidated tasks below with explicit "must load the real file" verification.
+- Reviewer concern (freeman-dyson-simulated): FR-004 as specified prunes *dissimilar* unused skills, which inverts the curation intent. The spec remains authoritative, so FR-004 is implemented exactly as written, and a **redundancy-pruning variant** (remove unused skill whose *max* cosine similarity to a retained neighbor ≥ 0.70) is added as a comparison arm so the study empirically tests both directions of the heuristic.
+- Scaffold-only tasks (directories, requirements, config, utils, placeholder docs) are dropped; the platform supplies common packages and `llmxive_toolkit` (`paths`, `get_logger`).
 
----  
+---
 
-## Phase 1 – Project scaffolding (already completed)
+## Phase 1: Contracts, data generation, and first end-to-end run
 
-- [ ] T001 [P] Create project sub‑directories (`data/raw`, `data/results`, `code`, `tests/unit`, `tests/contract`, `state/projects`) and add a top‑level `contracts/` directory.  
-  *Verification*: `tree` shows the expected layout; CI passes a “directory‑exists” sanity test.
+- [ ] T001 [P] [US1] Create root-level contract schemas `contracts/task.schema.yaml`, `contracts/skill.schema.yaml`, `contracts/experiment_log.schema.yaml`, `contracts/execution_log.schema.yaml`, and `contracts/metrics.schema.yaml` exactly matching the read-only schemas in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`.
+  *Verification*: `jsonschema.validate` succeeds on one minimal valid instance per schema; a pytest presence-test imports each file from `contracts/`.
 
-- [ ] T002 [P] Add `requirements.txt` with pinned versions (`scikit‑learn==1.3.0`, `sentence‑transformers==2.2.2`, `pandas==2.0.0`, `numpy==1.24.0`, `pytest==7.3.0`, `pyyaml==6.0`, `statsmodels==0.14.0`, `pwlf==2.1.0`).  
-  *Verification*: `pip install -r requirements.txt` succeeds on the CI runner.
+- [ ] T002 [US1] Implement `code/generate_data.py` producing the real dataset: exactly 500 tasks in `data/raw/tasks.json` (unique `task_id`, `description`, `complexity` 3–5, `ground_truth_skills` 3–5, deterministic `solution_path` independent of any retrieval logic) and exactly 100 skills in `data/raw/skills.json` (unique `skill_id`, executable Python `code`, 768-dim `embedding` from the CPU-only sentence-transformers model, `usage_count=0`, ISO-8601 `last_used`). Enforce the configured overlap level (low: mean pairwise cosine < 0.30; medium: mean > 0.50 and ≥30% of pairs > 0.50; high: mean > 0.80 and ≥30% of pairs > 0.80) by iterative embedding adjustment, with pinned seeds. Include the memory-pressure guard: before embedding, estimate required RAM and raise `MemoryError("Memory Limit Exceeded")` if it would exceed the budget (never crash silently, never substitute synthetic stand-ins). Write SHA-256 checksums of both JSON files to `data/raw/checksums.json` (NOT to `state/`).
+  *Verification*: script runs end-to-end; record counts are exactly 500 and 100; both files validate against `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`; printed overlap statistics satisfy FR-002 for the requested level; checksums match recomputed digests.
 
-- [ ] T003 [P] Write `quickstart.md` with placeholder installation instructions and a “TODO‑run‑pipeline” command.  
-  *Verification*: File renders in the repository view; CI checks that the file exists.
+- [ ] T003 [US1] Implement contract tests `tests/contract/test_schemas.py` that load the REAL generated files (not hard-coded samples): validate every object in `data/raw/tasks.json` against `contracts/task.schema.yaml` and every object in `data/raw/skills.json` against `contracts/skill.schema.yaml`; additionally assert the mean-pairwise-cosine overlap statistics for the active `OVERLAP_LEVEL` per FR-002.
+  *Verification*: `pytest tests/contract/` fails when data files are absent or malformed and passes after T002 runs.
 
-- [ ] T004 [P] Implement `code/config.py` exposing deterministic defaults `SEED_A = 12345`, `SEED_B = 67890`, `OVERLAP_LEVEL = "high"` and loading overrides from environment variables.  
-  *Verification*: `python -c "from code.config import SEED_A, SEED_B, OVERLAP_LEVEL; print(SEED_A, SEED_B, OVERLAP_LEVEL)"` prints the expected values.
+- [ ] T004 [US2] Implement `code/logging_config.py` with a complete `get_logger(name)` returning a CSV logger writing to `data/results/experiment_log.csv`, whose header contains ALL columns required by `contracts/experiment_log.schema.yaml` including `edge_case`, flushing after each record. No truncated function bodies.
+  *Verification*: a small script logs one entry; the CSV header matches the schema exactly; `tests/contract/test_logging_schema.py` validates the written row.
 
-- [ ] T005 [P] Implement `code/utils.py` with (a) a CPU‑only `SentenceTransformer` loader, (b) `cosine_similarity_matrix`, (c) `inverse_variance` helper, and (d) a deterministic random‑seed wrapper.  
-  *Verification*: Unit test `tests/unit/test_utils.py` (already passing) confirms function signatures and output types.
+- [ ] T005 [US2] Implement `code/agent.py`: load `data/raw/tasks.json` and `data/raw/skills.json`; for each task retrieve top-k=5 skills by cosine similarity; execute the retrieved skills in order and compare against `solution_path` to record success/failure; log `latency_ms`, deterministic `tokens_used`, `retrieval_precision` (Jaccard@5 vs ground-truth set), `retrieval_diversity` (inverse variance of top-5 cosine similarities), and `edge_case` tags (`missing_skill`, `maximal_overlap`, `memory_limit`, `null`). Handle the edge cases: maximal overlap (mean pairwise cosine ≥ 0.95) must not crash and reports retrieval precision 0 when no ground-truth skills are retrieved; a task requiring an absent skill must fail gracefully with a logged `missing_skill` reason and no hallucinated solution. Also write per-task execution logs to `data/results/execution_logs/*.jsonl` conforming to `contracts/execution_log.schema.yaml`.
+  *Verification*: `python -m code.agent --library-size 50 --pruning false --task-sample 100` produces 100 schema-compliant CSV rows and JSONL entries; a printed per-run summary matches manual recomputation on a small subset.
 
----  
+## Phase 2: Complete experimental sweep and validation
 
-## Phase 2 – Foundations needed for all user stories  
+- [ ] T006 [US2] Implement `code/pruning.py` exposing `prune_library(library) -> (pruned_library, false_prune_count)` implementing FR-004 exactly: remove a skill if `usage_count == 0` AND `min_cosine_similarity_to_any_other_skill_in_library < 0.70`, triggered after every 10 tasks; `false_prune_count` counts removed skills with similarity > 0.70 to any ground-truth skill of pending tasks. ALSO implement a `redundancy` variant (remove unused skill whose MAX similarity to a retained neighbor ≥ 0.70) to address the reviewer's objection that FR-004 deletes unique rather than redundant skills; both variants are selectable via a flag.
+  *Verification*: `tests/unit/test_pruning.py` builds a synthetic library and asserts, for each variant, exactly the eligible skills are removed and `false_prune_count` matches manual expectation.
 
-- [ ] T006 [ ] Create **canonical contract files** at the repository root (`contracts/task.schema.yaml`, `contracts/skill.schema.yaml`, `contracts/experiment_log.schema.yaml`, `contracts/metrics.schema.yaml`) that exactly match the schemas defined in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`.  
-  *Verification*: `jsonschema.validate` on a minimal valid instance for each schema succeeds; CI runs a “schema‑presence” test that imports the files from `contracts/`.
+- [ ] T007 [US2] Add pruning-enabled mode to the agent: after every 10 tasks invoke the selected pruning variant; `library_size` in logs reflects the post-pruning active count; pruning events and variant are recorded. Run the full factorial sweep — library sizes {10, 30, 50, 100} × pruning {off, FR-004, redundancy-variant} × overlap {low, medium, high} — writing all runs to `data/results/experiment_log.csv` (append-only).
+  *Verification*: the CSV contains all configuration blocks; with pruning on, `library_size` decreases at 10-task intervals; `false_prune_count ≥ 0`; every row validates against `contracts/experiment_log.schema.yaml`.
 
-- [ ] T007 [ ] Implement **full `code/logging_config.py`**:  
-  - Provide `get_logger(name: str) -> logging.Logger` that creates a CSV writer at `data/results/experiment_log.csv`.  
-  - Header must contain **all columns required by `experiment_log.schema.yaml`**, including `"edge_case"`.  
-  - Ensure the logger flushes (`file.flush(); os.fsync(file.fileno())`) after each record.  
-  *Verification*: Run a tiny script that logs one entry; inspect the CSV header – it must match the schema exactly; a contract test (`tests/contract/test_logging_schema.py`) validates the file.
+- [ ] T008 [US3] Implement `code/analysis.py` reading `data/results/experiment_log*.csv`: (1) fit piecewise linear regression with a single breakpoint on task-level binary success vs. library size for the PRIMARY configuration (high overlap, pruning disabled, sizes 10/30/50/100), with 1 000 bootstrap resamples for a confidence interval on x₀; (2) compute VIF for predictors "library size" and "total redundancy" (sum of pairwise cosine similarities in the active library); (3) paired pruning-efficacy test (baseline vs. each pruning variant at the same library size) with p-value; (4) write `data/results/analysis_report.json` (sole source for all tables/figures) containing `breakpoint`, `breakpoint_ci`, `vif`, `pruning_pvalue` per variant, and `performance_recovery_delta`; (5) run the granularity-validation sweep (denser 10-unit library-size grid on a task subset) reported as supplemental, not replacing the primary breakpoint.
+  *Verification*: `python -m code.analysis` succeeds; `breakpoint` ∈ [10, 100]; VIF values reported and interpretable (SC-006 flags VIF < 5.0); p-values ∈ [0, 1]; `tests/contract/test_analysis_output.py` validates the JSON structure.
 
-- [ ] T008 [ ] Add **contract‑validation tests** for the synthetic data files:  
-  - `tests/contract/test_tasks_schema.py` loads `data/raw/tasks.json` and validates each object against `contracts/task.schema.yaml`.  
-  - `tests/contract/test_skills_schema.py` loads `data/raw/skills.json`, validates against `contracts/skill.schema.yaml`, and additionally asserts that the **mean pairwise cosine similarity** falls within the target range for the current `OVERLAP_LEVEL` (low < 0.30, medium > 0.50 with ≥30 % > 0.50, high > 0.80 with ≥30 % > 0.80).  
-  *Verification*: `pytest -m contract` fails before data generation and passes after `generate_data.py` runs with the requested overlap.
+- [ ] T009 [US3] Add the sensitivity sweep to `code/analysis.py`: pruning intervals {5, 10, 15} tasks, recompute the breakpoint each time, record VIFs in `data/results/sensitivity_report.json`; the primary breakpoint in `analysis_report.json` remains the baseline-configuration value per plan.md, with sweep estimates reported as supplemental.
+  *Verification*: `sensitivity_report.json` contains entries with `interval`, `breakpoint`, `vif`; the selection/reporting logic matches the plan's primary-vs-supplemental rule.
 
----  
+- [ ] T010 [US2] Execute the complete pipeline end-to-end on the full 500-task set and all configurations, and run independent correctness/sensitivity/runtime checks: verify aggregate metrics (success rate, mean latency, precision@5, false_prune_count per `contracts/metrics.schema.yaml`) computed from the raw logs, and record actual runtime and peak memory alongside the results.
+  *Verification*: aggregated metrics file validates against `contracts/metrics.schema.yaml`; recomputed aggregates match the analysis inputs; runtime fits the CI budget (SC-005).
 
-## Phase 3 – User Story 1: Synthetic dataset & skill library (Priority P1)  
+- [ ] T011 [P] [US2] Generate the study's tables and figures directly from `data/results/analysis_report.json` and the raw logs: success-rate vs. library-size curve with fitted breakpoint and bootstrap CI, pruning-variant comparison, retrieval precision/diversity trends, and VIF table. Save under `data/results/` and `figures/`.
+  *Verification*: every figure/table is generated by script from the actual result files (no hand-entered values); scripts re-run cleanly.
 
-- [ ] T009 [US1] Implement **`code/generate_data.py`** to:  
-  1. Generate **exactly 500 tasks** (`data/raw/tasks.json`) each with a unique `task_id`, a natural‑language `description`, a `complexity` of 3‑5, a ground‑truth skill list of length 3‑5, and a deterministic `solution_path`.  
-  2. Generate **exactly 100 skills** (`data/raw/skills.json`) with unique `skill_id`, Python `code` stub, a 768‑dimensional `embedding` (computed with the CPU‑only `sentence‑transformers` model), and usage metadata (`usage_count = 0`, `last_used` = current ISO‑8601).  
-  3. Enforce the **semantic overlap** level read from `config.OVERLAP_LEVEL` by iteratively adjusting embeddings until the pairwise cosine‑similarity statistics satisfy FR‑002.  
-  4. Write **SHA‑256 checksums** for both JSON files into `state/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml` under the key `artifact_hashes`.  
-  *Verification*: After execution, scripts check: (a) file existence, (b) exact record counts (500 & 100), (c) JSON schema compliance (via `tests/contract`), (d) overlap statistics printed to stdout, (e) checksum entries match the computed digests.
+## Phase 3: Reproducible results and paper handoff
 
-- [ ] T010 [US1] Extend `generate_data.py` with a **memory‑pressure guard**: before embedding calculation, estimate required RAM; if it exceeds 7 GB, raise `MemoryError("Memory Limit Exceeded")`.  
-  *Verification*: Run the script on a CI runner with a deliberately low memory limit (using `ulimit`); the process aborts with the expected exception and the CI test captures the error message.
+- [ ] T012 [US3] Write the methods/results account in `specs/001-llmxive-follow-up-extending-from-chatbot/research.md` (or a results section linked from it), referencing actual output cells and figure files. Report honestly: the primary breakpoint estimate with CI, pruning efficacy per variant (including whether FR-004's dissimilarity-based rule underperforms the redundancy variant, per the reviewer's concern), VIF diagnostics, negative findings, and the synthetic-environment limitation (causal within simulation, associative beyond).
+  *Verification*: every numeric claim in the account traces to a field in `analysis_report.json` or `sensitivity_report.json`.
 
----  
+- [ ] T013 [P] Update `specs/001-llmxive-follow-up-extending-from-chatbot/quickstart.md` with the exact runnable command sequence (`python -m code.generate_data`, `python -m code.agent ...`, `python -m code.analysis`), environment variables (`OVERLAP_LEVEL`), expected output locations, and pinned seeds. Document the paper-stage handoff: figures/tables derive solely from `data/results/analysis_report.json`; layout, PDF compilation and publication belong to the paper pipeline.
+  *Verification*: on a fresh checkout the documented commands run from scratch and produce all referenced artifacts; `pytest tests/` passes.
 
-## Phase 4 – User Story 2: Agent execution & metric collection (Priority P2)  
+---
 
-- [ ] T011 [US2] Implement **`code/agent.py`** that:  
-  1. Loads `tasks.json` and `skills.json`.  
-  2. For each task, retrieves the top‑k = 5 skills by cosine similarity (using `utils.cosine_similarity_matrix`).  
-  3. Executes the retrieved skills in order, compares the resulting state to the task’s `solution_path`, and records **success / failure**.  
-  4. Logs **latency (ms)**, **token usage** (simulated deterministic count), **retrieval precision** (Jaccard @ 5), **retrieval diversity** (inverse variance), and **edge_case** tags (`"missing_skill"`, `"maximal_overlap"`, `"memory_limit"`).  
-  5. Writes each record via `logging_config.get_logger()` to `data/results/experiment_log.csv`.  
-  *Verification*: Run `python -m code.agent --library-size 50 --pruning false --task-sample 100`; ensure the CSV contains 100 rows, each column conforms to `experiment_log.schema.yaml`, and a summary printed to stdout matches manual calculations.
+## Dependencies and requirement coverage
 
-- [ ] T012 [US2] Add **pruning‑enabled mode**:  
-  - After every 10 tasks, invoke `code/pruning.py` (see next task).  
-  - When pruning is active, log an additional column `false_prune_count` (number of skills removed that had similarity > 0.70 to any ground‑truth skill).  
-  - Ensure the active library size (`library_size` column) reflects the post‑pruning count.  
-  *Verification*: Run the agent with `--pruning true`; after the run, verify that `library_size` values decrease at the expected intervals and that `false_prune_count` is non‑negative.
+| Requirement | Task(s) | Demonstrating command |
+|---|---|---|
+| FR-001 (500 tasks, ground truth) | T002, T003 | `python -m code.generate_data && pytest tests/contract/` |
+| FR-002 (100 skills, overlap levels) | T002, T003 | same; overlap stats printed and asserted |
+| FR-003 (sizes 10/30/50/100, metrics) | T005, T007, T010 | `python -m code.agent ...` full sweep |
+| FR-004 (pruning heuristic) + reviewer variant | T006, T007 | `pytest tests/unit/test_pruning.py` |
+| FR-005 (PLR breakpoint / tipping point) | T008, T009 | `python -m code.analysis` |
+| FR-006 (precision, diversity) | T005, T010 | CSV columns validated by contract tests |
+| FR-007 (VIF) | T008 | `analysis_report.json` `vif` field |
+| Edge cases (maximal overlap, missing skill, memory guard) | T002, T005 | edge-case tags in logs; `MemoryError` test |
+| SC-001–SC-006 | T005, T007–T010 | aggregated metrics + analysis report |
 
-- [ ] T013 [US2] Implement **`code/pruning.py`** containing the heuristic described in FR‑004: a skill is removed if `usage_count == 0` **and** `min_cosine_similarity_to_any_other_skill < 0.70`. The module must expose `prune_library(library: List[Skill]) -> Tuple[List[Skill], int]` returning the pruned library and the `false_prune_count`.  
-  *Verification*: Unit test `tests/unit/test_pruning.py` creates a synthetic library, runs `prune_library`, and asserts that (a) only eligible skills are removed, (b) the returned count matches manual expectation.
+Execution order: T001 → T002 → T003/T004 (parallel) → T005 → T006 → T007 → T008 → T009 → T010 → T011/T012/T013 (T011–T013 partially parallel). No task writes to `state/` or `.github/`; the platform owns project state, artifact hashes, and CI.
 
----  
+## Revision behavior
 
-## Phase 5 – User Story 3: Pruning heuristic & tipping‑point analysis (Priority P3)  
-
-- [ ] T014 [US3] Implement **baseline experiment runner** `code/run_baseline.py` that executes the agent **without pruning** across the four library sizes (10, 30, 50, 100) for **all three overlap levels** (low, medium, high). Results are written to `data/results/experiment_log_baseline.csv`.  
-  *Verification*: After execution, the CSV contains `4 × 3 = 12` configuration blocks; a quick‑summary script prints success‑rate per block; CI checks that the file size > 0 and schema‑compliant.
-
-- [ ] T015 [US3] Implement **analysis pipeline** `code/analysis.py` that:  
-  1. Reads `data/results/experiment_log*.csv`.  
-  2. Computes **piecewise linear regression** (single breakpoint) on **task‑level binary success vs. library size** (using `pwlf` or `statsmodels`).  
-  3. Calculates **Variance Inflation Factor (VIF)** for predictors “library size” and “total redundancy” (sum of pairwise cosine similarities in the active library).  
-  4. Outputs `data/results/tipping_point.json` containing `{ "breakpoint": <float>, "vif": {"library_size": <float>, "total_redundancy": <float>} }`.  
-  5. Performs a **pruning‑efficacy test** (paired comparison of baseline vs. pruning runs) and records a p‑value.  
-  6. Writes a consolidated report `data/results/final_analysis.json` with fields: `breakpoint`, `vif`, `pruning_pvalue`, `performance_recovery_delta`.  
-  *Verification*: Running `python -m code.analysis` succeeds, the JSON files exist, `breakpoint` is a number between 10 and 100, both VIF values are < 5.0, and the p‑value is in `[0,1]`. A contract test (`tests/contract/test_analysis_output.py`) validates the JSON schema.
-
-- [ ] T016 [US3] Add **sensitivity‑sweep** (optional but required for the “lowest‑VIF” selection rule): iterate over pruning thresholds `{5, 10, 15}` tasks before pruning, recompute the breakpoint each time, collect VIFs, and store results in `data/results/sensitivity_report.json`. The final breakpoint reported in `final_analysis.json` must be selected according to the rule in the specification (lowest VIF, median if tie; fallback to primary breakpoint if no valid sweep).  
-  *Verification*: After the sweep, the JSON contains a list of sweep entries with `threshold`, `breakpoint`, `vif`; a sanity‑check script confirms the selection logic matches the spec.
-
----  
-
-## Phase 6 – Documentation & reproducibility  
-
-- [ ] T017 [ ] Update **`quickstart.md`** with the exact end‑to‑end command sequence:  
-  1. `python -m code.generate_data`  
-  2. `python -m code.run_baseline`  
-  3. `python -m code.agent --pruning false` (or true)  
-  4. `python -m code.analysis`  
-  Include expected output locations and a note on the required environment variables (`OVERLAP_LEVEL`).  
-  *Verification*: The commands run successfully on a fresh CI checkout (no prior artifacts) and produce the files referenced in the documentation.
-
-- [ ] T018 [ ] Add **reproducibility report** `reproducibility_report.md` that lists all pinned package versions, random seeds, and the SHA‑256 hashes recorded in the state YAML.  
-  *Verification*: CI step prints the content of the report; a reviewer can manually recompute a hash and confirm it matches the stored value.
-
----  
-
-## Phase 7 – Final verification (no new code, just CI)
-
-- [ ] T019 [ ] Run the full CI pipeline (`pytest`, `python -m code.generate_data`, `python -m code.agent`, `python -m code.analysis`) on the clean repository. All tests must pass, all schema validations must succeed, and the final `final_analysis.json` must contain a breakpoint estimate and VIF < 5.0.  
-  *Verification*: CI status badge shows **green**; the log contains “✅ All verification steps passed”.
-
----  
-
-### Summary of pending (unchecked) tasks  
-
-| ID | Story | Description |
-|----|-------|-------------|
-| T006 | – | Publish root‑level contract schemas |
-| T007 | – | Complete `logging_config.py` with correct CSV header |
-| T008 | US1 | Contract tests for `tasks.json` |
-| T009 | US1 | Contract tests for `skills.json` and overlap check |
-| T010 | US1 | Full `generate_data.py` (data + checksums) |
-| T011 | US1 | Memory‑limit guard in data generation |
-| T012 | US2 | Full agent implementation (retrieval, logging) |
-| T013 | US2 | Pruning‑enabled agent mode |
-| T014 | US2 | `pruning.py` implementation |
-| T015 | US3 | Baseline experiment runner |
-| T016 | US3 | Analysis pipeline (PLR, VIF, report) |
-| T017 | US3 | Sensitivity‑sweep & final breakpoint selection |
-| T018 | – | Update `quickstart.md` |
-| T019 | – | Reproducibility report |
-| T020 | – | Full CI verification run |
-
-All other tasks (directory creation, requirements, config, utils) are already verified and remain checked `[X]`. This task list now satisfies the specification, provides a clear executable end‑to‑end pipeline, and respects the 8‑15 substantive‑task guideline while grouping related work into coherent units.
+Previously verified scaffolding (directories, requirements, config, utils) is subsumed by the platform and existing code and is not re-tasked. The four verifier-rejected items are consolidated into T001–T005 with load-the-real-file verification requirements. FR-004 is preserved verbatim per the specification; the reviewer's objection is answered empirically via the redundancy-variant comparison arm rather than by weakening the specified heuristic.
