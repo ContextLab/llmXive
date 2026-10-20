@@ -1,4 +1,4 @@
-# Core dependencies (already available in the environment)
+# Core dependencies (already provided by the platform)
 numpy
 pandas
 scipy
@@ -12,7 +12,5 @@ requests
 jsonschema
 psutil
 
-# Additional dependencies required for this project
-sentence-transformers
-# Pin a version of huggingface_hub that still provides `cached_download`
-huggingface_hub<0.16.0
+# Additional required packages for data generation
+sentence-transformers==2.2.2

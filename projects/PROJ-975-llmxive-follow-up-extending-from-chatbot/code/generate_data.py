@@ -10,7 +10,7 @@ from typing import List, Dict, Any
 import numpy as np
 
 from llmxive_toolkit import paths
-from code.config import get_seeds, get_experiment_config
+from config import get_seeds, get_experiment_config
 
 # Set up basic logging
 logging.basicConfig(level=logging.INFO)
@@ -47,7 +47,7 @@ def load_model():
     except Exception as e:
         logger.error(
             "Failed to import SentenceTransformer. Ensure a compatible "
-            "version of `sentence-transformers` and `huggingface_hub` is installed."
+            "version of `sentence-transformers` is installed."
         )
         raise e
     return SentenceTransformer("sentence-transformers/all-MPNet-base-v2")
@@ -55,7 +55,12 @@ def load_model():
 # ----------------------------------------------------------------------
 # Skill generation
 # ----------------------------------------------------------------------
-def generate_skills(seed: int, count: int = 100, overlap_level: str = "medium") -> List[Dict[str, Any]]:
+def generate_skills(
+    seed: int,
+    count: int = 100,
+    overlap_level: str = "medium",
+    model: Any = None,
+) -> List[Dict[str, Any]]:
     """
     Generates ``count`` synthetic skill objects.  The ``overlap_level``
     controls how many base templates are reused and how much noise is added
@@ -64,7 +69,8 @@ def generate_skills(seed: int, count: int = 100, overlap_level: str = "medium") 
     random.seed(seed)
     np.random.seed(seed)
 
-    model = load_model()
+    if model is None:
+        model = load_model()
 
     # Base function templates – each will be turned into a distinct skill.
     base_templates = [
@@ -105,18 +111,19 @@ def generate_skills(seed: int, count: int = 100, overlap_level: str = "medium") 
     # Normalise to unit length
     base_embeddings /= np.linalg.norm(base_embeddings, axis=1, keepdims=True) + 1e-8
 
-    # Choose how many distinct base templates to draw from
+    # Choose how many distinct base templates to draw from and appropriate noise
     if overlap_level.lower() == "low":
-        chosen_indices = list(range(len(base_templates)))          # use many different bases
+        chosen_indices = list(range(len(base_templates)))          # many different bases
         noise_level = 0.4
     elif overlap_level.lower() == "medium":
-        # pick 5 distinct templates at random
+        # pick 5 distinct templates at random (deterministic via seed)
+        random.seed(seed)  # ensure reproducibility for the choice
         chosen_indices = random.sample(range(len(base_templates)), 5)
         noise_level = 0.2
     else:  # high
         # pick a single template
         chosen_indices = [random.randint(0, len(base_templates) - 1)]
-        noise_level = 0.05
+        noise_level = 0.02  # very low noise to guarantee high similarity
 
     skills: List[Dict[str, Any]] = []
     while len(skills) < count:
@@ -334,24 +341,22 @@ def main() -> None:
     )
 
     # ------------------------------------------------------------------
-    # Skill generation – repeat until the overlap criteria are satisfied
+    # Load model once (shared between skill and task generation)
     # ------------------------------------------------------------------
-    while True:
-        skills = generate_skills(seed_a, count=100, overlap_level=overlap_level.lower())
-        metrics = calculate_similarity_metrics(skills)
-        logger.info(
-            f"Generated skill set – mean similarity={metrics['mean']:.4f}, "
-            f"%>0.5={metrics['pct_over_0_5']:.2%}, %>0.8={metrics['pct_over_0_8']:.2%}"
-        )
-        if meets_overlap_criteria(metrics, overlap_level):
-            logger.info(f"Overlap criteria for {overlap_level} satisfied.")
-            break
-        else:
-            logger.info(
-                f"Overlap criteria not met for {overlap_level}; regenerating..."
-            )
-            # Increment seed to obtain a different random draw
-            seed_a += 1
+    model = load_model()
+
+    # ------------------------------------------------------------------
+    # Skill generation – single attempt (criteria are guaranteed by design)
+    # ------------------------------------------------------------------
+    skills = generate_skills(seed_a, count=100, overlap_level=overlap_level.lower(), model=model)
+    metrics = calculate_similarity_metrics(skills)
+    logger.info(
+        f"Generated skill set – mean similarity={metrics['mean']:.4f}, "
+        f"%>0.5={metrics['pct_over_0_5']:.2%}, %>0.8={metrics['pct_over_0_8']:.2%}"
+    )
+    if not meets_overlap_criteria(metrics, overlap_level):
+        logger.error(f"Generated skills do NOT satisfy the {overlap_level} overlap criteria.")
+        raise RuntimeError(f"Overlap criteria not met for level {overlap_level}")
 
     # ------------------------------------------------------------------
     # Task generation
