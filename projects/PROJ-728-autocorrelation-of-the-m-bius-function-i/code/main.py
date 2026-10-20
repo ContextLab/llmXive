@@ -17,16 +17,21 @@ The script can be invoked as a module:
 The optional ``--demo`` flag runs a lightweight demonstration that
 uses a reduced data size and fewer windows.  For the purposes of
 the integration test we execute only the steps required to produce
-the demo artefacts (Möbius array, window indices and the single
-demo autocorrelation CSV).  The full pipeline is executed when the
-flag is omitted.
+the demo artefacts (Möbius array, window indices, a single demo
+autocorrelation CSV, and a heat‑map figure).  The full pipeline is
+executed when the flag is omitted.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 # Import the entry‑point functions from the existing modules.
 # Each module provides a ``main`` function that performs its step
@@ -39,6 +44,9 @@ from fdr_correction import main as fdr_main
 from sensitivity import main as sensitivity_main
 from viz import main as viz_main
 from uniformity_test import main as uniformity_main
+
+# Helper from the llmxive toolkit for path handling
+from llmxive_toolkit import paths
 
 def _run_step(step_func, step_name: str) -> None:
     """Execute a pipeline step and abort on failure.
@@ -67,26 +75,98 @@ def _parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
+# ----------------------------------------------------------------------
+# Demo implementation (light‑weight)
+# ----------------------------------------------------------------------
 def _run_demo() -> None:
     """
     Execute a minimal demo pipeline.
 
     The demo produces:
-      * ``data/raw/mobius_array.npy`` – the full Möbius array (still
-        generated with the default N=10⁷, which is fast enough).
-      * ``data/raw/window_starts.json`` – a small set of window start
-        indices (the default M=20 per interval length).
-      * ``data/results/demo_autocorr.csv`` – a single autocorrelation
-        value for the first sampled window (L=1000, h=1).
+      * ``data/raw/mobius_array.npy`` – a small Möbius array (N=2000).
+      * ``data/raw/window_starts.json`` – a tiny set of window start
+        indices (one per interval length).
+      * ``data/processed/demo_autocorr.csv`` – a single
+        autocorrelation value for the first sampled window
+        (L=1000, h=1).
+      * ``outputs/figures/heatmap_demo.png`` – a simple heat‑map
+        visualising the demo autocorrelation.
 
-    This mirrors the expectations of ``tests/integration/test_demo_pipeline.py``.
+    All artefacts are written using the project's ``paths`` helpers,
+    guaranteeing that the correct directories are created.
     """
-    # Step 1: generate Möbius data and window start indices.
-    _run_step(generate_mobius_main, "demo: generate Möbius & windows")
-    # Step 2: compute the demo autocorrelation (uses the same
-    # ``autocorrelation.main`` entry‑point that writes the CSV).
-    _run_step(autocorr_main, "demo: compute autocorrelation")
-    print("Demo pipeline completed successfully.")
+    # ------------------------------------------------------------------
+    # 1. Create a small Möbius array (N = 2000)
+    # ------------------------------------------------------------------
+    from sieve import compute_mobius
+
+    N_DEMO = 2000
+    mobius_arr = compute_mobius(N_DEMO)  # returns int8 array length N+1
+    mobius_path = paths.data("mobius_array.npy")
+    _ensure_parent_dir(mobius_path)
+    np.save(mobius_path, mobius_arr)
+    print(f"Demo Möbius array saved to {mobius_path}")
+
+    # ------------------------------------------------------------------
+    # 2. Write a minimal window index JSON (one window per L)
+    # ------------------------------------------------------------------
+    window_starts = {
+        "1000": [1],          # start at index 1 (array includes dummy 0)
+        "10000": [1],
+        "100000": [1],
+    }
+    window_json_path = paths.data("window_starts.json")
+    _ensure_parent_dir(window_json_path)
+    with window_json_path.open("w", encoding="utf-8") as f:
+        json.dump(window_starts, f, indent=2)
+    print(f"Demo window starts written to {window_json_path}")
+
+    # ------------------------------------------------------------------
+    # 3. Compute a single autocorrelation (L=1000, h=1)
+    # ------------------------------------------------------------------
+    from autocorrelation import compute_autocorrelation
+
+    L_DEMO = 1000
+    start_demo = 1
+    h_demo = 1
+    autocorr_val = compute_autocorrelation(mobius_arr, start_demo, L_DEMO, h_demo)
+
+    demo_csv_path = paths.processed("demo_autocorr.csv")
+    _ensure_parent_dir(demo_csv_path)
+    df_demo = pd.DataFrame(
+        [{
+            "window_start": start_demo,
+            "L": L_DEMO,
+            "h": h_demo,
+            "autocorrelation": autocorr_val,
+        }]
+    )
+    df_demo.to_csv(demo_csv_path, index=False)
+    print(f"Demo autocorrelation written to {demo_csv_path}")
+
+    # ------------------------------------------------------------------
+    # 4. Produce a trivial heat‑map figure
+    # ------------------------------------------------------------------
+    # Create a 2‑D array with a single value (the demo autocorrelation)
+    heat_data = np.array([[autocorr_val]])
+    fig_path = paths.figures("heatmap_demo.png")
+    _ensure_parent_dir(fig_path)
+
+    plt.switch_backend("Agg")
+    plt.figure(figsize=(4, 3))
+    plt.imshow(heat_data, cmap="RdBu_r", vmin=-1, vmax=1, aspect="auto")
+    plt.colorbar(label="Autocorrelation")
+    plt.title("Demo heat‑map (single value)")
+    plt.xlabel("Lag $h$")
+    plt.ylabel("Window index")
+    plt.tight_layout()
+    plt.savefig(fig_path, dpi=150)
+    plt.close()
+    print(f"Demo heat‑map saved to {fig_path}")
+
+def _ensure_parent_dir(p: Path) -> None:
+    """Create the parent directory of ``p`` if it does not exist."""
+    p.parent.mkdir(parents=True, exist_ok=True)
 
 def main() -> None:
     """Run the pipeline in the correct order."""

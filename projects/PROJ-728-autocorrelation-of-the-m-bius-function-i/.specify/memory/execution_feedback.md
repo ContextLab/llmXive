@@ -20,13 +20,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/main.py -> rc=-1
 Saved Möbius array of length 10000000 to data/raw/mobius_array.npy
 Saved packed Möbius array (2500001 bytes) to data/raw/mobius_2bit.npy
+Updated checksum manifest: data/checksums/manifest.sha256
 Saved Möbius array of length 10000000 to data/raw/mobius_array.npy
 Saved packed Möbius array (2500001 bytes) to data/raw/mobius_2bit.npy
+Updated checksum manifest: data/checksums/manifest.sha256
 Möbius array written to: data/raw/mobius_array.npy
 Window start indices written to: data/raw/window_starts.json
 Demo autocorrelation written to data/results/demo_autocorr.csv (legacy) and data/processed/demo_autocorr.csv (task T005): start=44622, L=1000, h=1, autocorrelation=-0.047047047047
-Window index written to data/processed/window_index.csv (300 rows)
-Generated missing window index CSV at data/processed/window_index.csv
 Full autocorrelation matrix written to data/processed/autocorrelation_raw.csv
 
 

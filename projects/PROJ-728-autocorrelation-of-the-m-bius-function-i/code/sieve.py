@@ -6,8 +6,7 @@ This module provides:
   2‑bit‑per‑entry ``uint8`` array (≈2.5 MB for N=10⁷).
 * ``unpack_mu`` – reverse the packing, restoring the original int8
   array.
-* ``save_mobius_array`` – compute and write both the raw ``int8``
-  array and the packed ``uint8`` array to disk.
+* ``save_mobius_array`` – compute the Möbius array and write both raw and packed versions.
 """
 
 from __future__ import annotations
@@ -192,6 +191,10 @@ def save_mobius_array(
     packed = pack_mu(mu)
     np.save(packed_path, packed)
     print(f"Saved packed Möbius array ({packed.nbytes} bytes) to {packed_path}")
+
+    # After saving, update checksum manifest
+    from code.update_mobius_checksum import main as update_checksum
+    update_checksum()
 
 # ----------------------------------------------------------------------
 # CLI

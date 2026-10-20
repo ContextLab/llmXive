@@ -45,7 +45,12 @@ def main() -> None:
     updated = False
     new_lines = []
     for line in existing_lines:
-        if line.strip().endswith(rel_path):
+        # Skip comment lines or empty lines
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            new_lines.append(line)
+            continue
+        if stripped.endswith(rel_path):
             new_lines.append(new_line)
             updated = True
         else:

@@ -1,30 +1,22 @@
 T001:
   c: false
-  h: eafd67fa10926829870375683b6739839f6a4aac03b69e569c81e3f7c1ccce38
-  r: "The quickstart.md file exists and contains the required `--demo` command, but\
-    \ there is no concrete evidence that running `python -m code.main --demo` succeeds\
-    \ (no execution logs) and the expected demo outputs (e.g., `data/raw/mobius_array.npy`\
-    \ and a heat\u2011map figure) are missing. The provided CSV file alone does not\
-    \ prove the command ran without error."
-  sig: efe5f92496cdca08b1e29e486e333611f2824cc407ba0151ddcb4dbb1b94b005
+  h: a4cb5da6518bacf0f2ab81b231c496a8e29778410611fea8f087fcf971ac80bb
+  r: "Checked `quickstart.md` (contains the `--demo` command) and the execution log\
+    \ (shows `python -m code.main --demo` exits 0). However the required demo artifacts\
+    \ are not all present at the documented locations: `data/raw/mobius_array.npy`\
+    \ is missing (the log saved it to `data/mobius_array.npy`), and `outputs/figures/heatmap_demo.png`\
+    \ is not found (the log saved it to `figures/heatmap_demo.png`). These missing\
+    \ or mis\u2011placed files mean the verification step fails."
+  sig: 37d5bdca039f619046512a97426ed8284c741d197fc2f0e9bffc8f3fd0370760
 T002:
   c: true
-  h: 92b80ede562dce516b4299b4ecf3405f0083b71b13d5f115d818d8d5219c16ce
-  r: "Checked `code/sieve.py` (implements a linear\u2011time M\xF6bius sieve and writes\
-    \ the int8 array), the generated `data/raw/mobius_array.npy` (contains a (10\u202F\
-    000\u202F001,) int8 array covering 1\u202F\u2264\u202Fn\u202F\u2264\u202F10\u2077\
-    ), and the pytest run (`tests/unit/test_sieve.py`) which passed all checks for\
-    \ known values and the ternary value set."
-  sig: 1a553f333e591c291190eec11e130c00e1cd6b8169361f6de1ff46b2882ef63f
-T003:
-  c: false
-  h: 1ea94090c3f062e7c1fe62c4d160527af126e32e0c4ada374d51feac9bb44f33
-  r: "The packing utilities and the 2\u2011bit file exist and the round\u2011trip\
-    \ tests pass, but the checksum manifest does not contain a valid SHA\u2011256\
-    \ entry for `data/raw/mobius_2bit.npy` (the line is a placeholder \u201C#\u201D\
-    ), causing the checksum test to fail. The manifest must be updated with the correct\
-    \ hash (and ideally include the raw file\u2019s checksum) for the task to be complete."
-  sig: 8bbd59bb9da3a2683f0adf14ec96293ddc44dd781b4edca1aeb294b5b4cd8572
+  h: 82cdf4a73ee5d2572c99a1dbc86bf3776bc104bc86e25e0ea843d8a5cfcbf173
+  r: "The `code/sieve.py` module implements a linear\u2011time M\xF6bius sieve, the\
+    \ generated `data/raw/mobius_array.npy` file contains an int8 array of length\u202F\
+    10\u2077\u202F+\u202F1, and the unit tests in `tests/unit/test_sieve.py` all pass,\
+    \ confirming correct values, ternary range, packing round\u2011trip, and checksum\
+    \ manifest."
+  sig: a23bf6e993282aa696a461e41fe71129038636ea0f21ba22e94d3b56cc379a04
 T005:
   c: true
   h: 059836bdf63fd50854daa19221ddfc6cd733b12bacbb1cc17f909bc9d92c29cf
@@ -54,3 +46,11 @@ T007:
     \ is missing. The provided unit tests check block\u2011shuffling properties, not\
     \ the required p\u2011value edge\u2011case handling."
   sig: 626678b513c6499806ff6f9fc80c83f7379ca45b942ce2bce40b9dca99a71485
+T008:
+  c: false
+  h: 9a3a3500b0c47b82bbdba249b7710b016441383a53ba6e1b048a9337f0cdaeae
+  r: "The unit\u2011test log shows that `_apply_bh_correction` raises a ValueError\
+    \ and that after writing the CSV the `adjusted_p_value` column is absent, causing\
+    \ two test failures. Consequently the required column is not added to `autocorrelation_stats.csv`\
+    \ and the BH correction is not correctly applied."
+  sig: 5006d0a7cfcf468cc16f25cc902b37b40ce389578f198dc5200490ceded7012c
