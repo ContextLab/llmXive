@@ -7,7 +7,7 @@
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
+### User Story US-1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
 
 The system must successfully ingest public permeability datasets (SMILES strings and experimental coefficients), parse them into molecular graphs using RDKit, and compute standard molecular descriptors to create a unified, stratified training/test split.
 
@@ -23,23 +23,23 @@ The system must successfully ingest public permeability datasets (SMILES strings
 
 ---
 
-### User Story 2 - Comparative Model Training and Evaluation (Priority: P2)
+### User Story US-2 - Comparative Model Training and Evaluation (Priority: P2)
 
-The system must train a CPU-optimized Graph Neural Network (MPNN) and a Random Forest baseline on the prepared data, then evaluate both models using RMSE, MAE, and R² metrics to determine if the GNN provides a statistically significant improvement over a strictly non-topological baseline.
+The system must train a CPU‑optimized Graph Neural Network (MPNN) and a Random Forest baseline on the prepared data, then evaluate both models using RMSE, MAE, and R² metrics to determine if the GNN provides a statistically significant improvement over a strictly non‑topological baseline.
 
-**Why this priority**: This addresses the core research question: whether graph-based representations capture non-linear nuances missed by standard descriptors. It delivers the primary quantitative result.
+**Why this priority**: This addresses the core research question: whether graph‑based representations capture non‑linear nuances missed by standard descriptors. It delivers the primary quantitative result.
 
-**Independent Test**: The training script runs to completion, outputs performance metrics for both models, and performs a paired t-test on prediction errors, returning a p-value indicating statistical significance.
+**Independent Test**: The training script runs to completion, outputs performance metrics for both models, and performs a paired t‑test on prediction errors, returning a p‑value indicating statistical significance.
 
 **Acceptance Scenarios**:
 
 1. **Given** the stratified training set, **When** the GNN model trains for up to 50 epochs with early stopping, **Then** the model converges to a validation loss minimum without exceeding a reasonable CPU time budget or memory footprint.
-2. **Given** the trained models and the held-out test set, **When** predictions are generated, **Then** the system calculates RMSE, MAE, and R² for both the GNN and Random Forest, and stores these metrics in a results log.
-3. **Given** the prediction errors from both models, **When** the statistical analysis runs, **Then** a paired t-test is performed, and the system reports whether the GNN's reduction in error is statistically significant (p < 0.05) compared to the Random Forest baseline trained on graph-derived features only.
+2. **Given** the trained models and the held‑out test set, **When** predictions are generated, **Then** the system calculates RMSE, MAE, and R² for both the GNN and Random Forest, and stores these metrics in a results log.
+3. **Given** the prediction errors from both models, **When** the statistical analysis runs, **Then** a paired t‑test is performed, and the system reports whether the GNN's reduction in error is statistically significant (p < 0.05) compared to the Random Forest baseline trained on standard descriptors only.
 
 ---
 
-### User Story 3 - Feature Attribution and Interpretability Analysis (Priority: P3)
+### User Story US-3 - Feature Attribution and Interpretability Analysis (Priority: P3)
 
 The system must apply GNNExplainer to the GNN and SHAP analysis to the Random Forest to identify and rank the specific topological features or substructures that drive permeability predictions.
 
@@ -50,8 +50,8 @@ The system must apply GNNExplainer to the GNN and SHAP analysis to the Random Fo
 **Acceptance Scenarios**:
 
 1. **Given** the trained Random Forest model, **When** SHAP analysis is executed, **Then** the system outputs a ranked list of standard molecular descriptors by their absolute mean SHAP value.
-2. **Given** the trained GNN model, **When** GNNExplainer is executed, **Then** the system identifies and reports the top most influential node-level substructures (e.g., specific aromatic rings or functional groups) across the test set.
-3. **Given** the results from both models, **When** the comparison report is generated, **Then** the system highlights any specific substructures that the GNN identifies as critical but are absent or low-ranked in the descriptor-based model.
+2. **Given** the trained GNN model, **When** GNNExplainer is executed, **Then** the system identifies and reports the top most influential node‑level substructures (e.g., specific aromatic rings or functional groups) across the test set.
+3. **Given** the results from both models, **When** the comparison report is generated, **Then** the system highlights any specific substructures that the GNN identifies as critical but are absent or low‑ranked in the descriptor‑based model.
 
 ### Edge Cases
 
@@ -66,19 +66,20 @@ The system must apply GNNExplainer to the GNN and SHAP analysis to the Random Fo
 
 ### Functional Requirements
 
-- **FR-001**: System MUST ingest public permeability datasets (SMILES + coefficients) and parse them into molecular graphs using RDKit to support feature extraction (See US-1).
-- **FR-002**: System MUST compute a standard set of molecular descriptors (MW, logP, TPSA, etc.) for every molecule to serve as the baseline input (See US-1).
-- **FR-003**: System MUST split the dataset into [deferred] training and [deferred] testing sets with stratification by polymer type to prevent data leakage (See US-1).
-- **FR-004**: System MUST train a Message Passing Neural Network (MPNN) using PyTorch Geometric on CPU-only hardware with early stopping based on validation loss (See US-2).
-- **FR-005**: System MUST train a Random Forest regressor using the computed standard descriptors as a baseline for comparison (See US-2).
-- **FR-006**: System MUST evaluate both models using RMSE, MAE, and R² metrics on the held-out test set (See US-2).
-- **FR-007**: System MUST perform a paired t-test on prediction errors between the GNN and the Random Forest baseline (trained on graph-derived features only) to assess statistical significance (See US-2).
-- **FR-008**: System MUST apply GNNExplainer to the GNN and SHAP analysis to the Random Forest to identify predictive features (See US-3).
-- **FR-009**: System MUST generate a comparative report highlighting specific topological features identified by the GNN but missed by the descriptor baseline (See US-3).
-- **FR-010**: System MUST handle invalid SMILES strings by logging and excluding them without crashing the pipeline (See Edge Cases).
-- **FR-011**: System MUST ensure that at least 95% of valid molecules are retained after preprocessing; if retention falls below this threshold, the pipeline must halt and report the cause (See US-1).
-- **FR-012**: System MUST perform a descriptor ablation study by training a Random Forest baseline on graph-derived features only (excluding standard descriptors) to isolate the incremental value of topology (See US-2).
-- **FR-013**: System MUST perform a descriptor curation bias check by calculating the correlation between target values and input descriptors; if the absolute correlation exceeds a substantial threshold, the system must flag the results as potentially confounded (See US-1).
+- **FR-001**: System MUST acquire at least one public dataset containing experimental permeability coefficients for polymeric membranes (e.g., from NIST, PolyInfo, or peer‑reviewed literature) (See US-1).
+- **FR-002**: System MUST ingest public permeability datasets (SMILES + coefficients) and parse them into molecular graphs using RDKit to support feature extraction (See US-1).
+- **FR-003**: System MUST compute a standard set of molecular descriptors (MW, logP, TPSA, etc.) for every molecule to serve as the baseline input (See US-1).
+- **FR-004**: System MUST split the dataset into training and testing sets with stratification by polymer type; the split ratios are deferred to implementation but must preserve class distributions within an absolute [deferred] point difference (See US-1).
+- **FR-005**: System MUST train a Random Forest regressor using the computed standard descriptors as the baseline for comparison (See US-2).
+- **FR-006**: System MUST train a Message Passing Neural Network (MPNN) using PyTorch Geometric on CPU‑only hardware with early stopping based on validation loss (See US-2).
+- **FR-007**: System MUST evaluate both models using RMSE, MAE, and R² metrics on the held‑out test set (See US-2).
+- **FR-008**: System MUST perform a paired t‑test on prediction errors between the GNN and the Random Forest baseline (trained on standard descriptors only) to assess statistical significance (p < 0.05) (See US-2).
+- **FR-009**: System MUST apply GNNExplainer to the GNN and SHAP analysis to the Random Forest to identify predictive features (See US-3).
+- **FR-010**: System MUST generate a comparative report highlighting specific topological features identified by the GNN but missed by the descriptor baseline (See US-3).
+- **FR-011**: System MUST handle invalid SMILES strings by logging and excluding them without crashing the pipeline (See Edge Cases).
+- **FR-012**: System MUST ensure that at least 95 % of valid molecules are retained after preprocessing; if retention falls below this threshold, the pipeline must halt and report the cause (See US-1).
+- **FR-013**: System MUST perform a descriptor ablation study by training a Random Forest baseline on graph‑derived features only (excluding standard descriptors) to isolate the incremental value of topology (See US-2).
+- **FR-014**: System MUST perform a descriptor‑c​uration bias check by calculating the absolute Pearson correlation between target permeability values and each standard descriptor; if any correlation exceeds 0.6, the system must flag the results as potentially confounded (See US-1).
 
 ### Key Entities
 
@@ -93,19 +94,19 @@ The system must apply GNNExplainer to the GNN and SHAP analysis to the Random Fo
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The reduction in RMSE of the GNN model compared to the Random Forest baseline (trained on graph-derived features) is measured against the null hypothesis of no difference (See FR-007) (See US-2).
-- **SC-002**: The statistical significance of the performance gap is measured against a conventional significance threshold using a paired t-test. (See FR-007) (See US-2).
-- **SC-003**: The interpretability of the GNN is measured by the ability to rank specific topological substructures by GNNExplainer, compared to the ranked standard descriptors from SHAP (See FR-008) (See US-3).
-- **SC-004**: The computational feasibility is measured by the total training time (must be ≤ 6 hours) and peak memory usage (must be ≤ 7 GB) on a CPU-only runner (See FR-004) (See US-2).
-- **SC-005**: The data integrity is measured by the percentage of valid molecules retained after preprocessing (See FR-011) (See US-1).
+- **SC-001**: The reduction in RMSE of the GNN model compared to the Random Forest baseline (trained on standard descriptors only) is measured against the null hypothesis of no difference (paired t‑test, p < 0.05) (See FR-008) (See US-2).
+- **SC-002**: The statistical significance of the performance gap is measured against a conventional significance threshold using a paired t‑test (p < 0.05) (See FR-008) (See US-2).
+- **SC-003**: Interpretability is quantified by the Spearman rank‑correlation between the GNNExplainer substructure ranking and the SHAP descriptor ranking; the correlation must be ≥ 0.4, or at least 3 of the top‑5 features must overlap between the two rankings (See FR-009) (See US-3).
+- **SC-004**: Computational feasibility is measured by the total training time (must be ≤ 6 hours) and peak memory usage (must be ≤ 7 GB) on a CPU‑only runner (See FR-006) (See US-2).
+- **SC-005**: Data integrity is measured by the percentage of valid molecules retained after preprocessing (must be ≥ 95 %) (See FR-012) (See US-1).
 
 ## Assumptions
 
-- Publicly available datasets (e.g., from NIST or Zenodo) contain sufficient samples (≥ 200 molecules) with both valid SMILES strings and experimental permeability coefficients for polymeric membranes to allow for a stratified A standard train-test split will be employed..
-- For datasets with 50 ≤ N < 200 samples, the system will attempt stratified splitting; if stratification fails due to class imbalance, it will fall back to a random split with a warning logged.
-- The PyTorch Geometric library and RDKit can be installed and run within the free-tier GitHub Actions environment (CPU cores, limited RAM) without requiring GPU acceleration or CUDA.
-- The "standard molecular descriptors" computed by RDKit (MW, logP, TPSA, etc.) are sufficient to represent the baseline model's capability for comparison.
-- The dataset does not require complex imputation for missing values; any missing data can be handled by median imputation or row exclusion without biasing the results significantly.
-- The experimental permeability coefficients in the source datasets are independent measurements, and any potential circularity with structural descriptors will be detected by the bias check (FR-013).
-- The GNN model architecture is sufficiently simple to avoid overfitting on the available dataset size, provided early stopping is used.
+- Publicly available datasets (e.g., from NIST, PolyInfo, or curated literature repositories) contain at least 200 molecules with both valid SMILES strings and experimentally measured permeability coefficients for polymeric membranes, enabling a stratified train‑test split.
+- For datasets with 50 ≤ N < 200 samples, the system will attempt stratified splitting; if class imbalance prevents successful stratification, it will fall back to a random split with a logged warning.
+- The PyTorch Geometric library and RDKit can be installed and run within the free‑tier GitHub Actions environment (CPU cores, limited RAM) without requiring GPU acceleration or CUDA.
+- The set of “standard molecular descriptors” computed by RDKit (MW, logP, TPSA, etc.) is sufficient to represent the baseline model’s capability for comparison.
+- Missing descriptor values are rare; any missing data can be handled by median imputation or row exclusion without introducing significant bias.
+- Experimental permeability coefficients in the source datasets are independent measurements; any circularity with structural descriptors will be detected by the bias check (FR‑014).
+- The GNN architecture is sufficiently simple to avoid over‑fitting on the available dataset size, provided early stopping is used.
 - GNNExplainer provides a scientifically valid approximation of feature importance for the specific MPNN architecture used.
