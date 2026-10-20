@@ -59,7 +59,7 @@ All transformations produce a new file under `data/processed/processed_data.parq
 | No permeability target | Proxy `logP` target; explicit disclaimer in final report. |
 | Small dataset → overfitting | Early stopping, dropout (0.1), small hidden size, ablation study. |
 | Invalid SMILES | RDKit parsing guard, log & exclude; retention check ensures ≥ 95 % valid molecules (FR‑011). |
-| High correlation between descriptors & proxy target | Bias check (FR‑013) flags |r| > 0.85; report as expected for proxy. |
+| High correlation between descriptors & proxy target | Bias check (FR‑013) flags \|r\| > 0.85; report as expected for proxy. |
 | CPU memory overflow | Streaming load, batch processing, max‑batch‑size = 32, fallback to smaller subset if needed. |
 
 ---

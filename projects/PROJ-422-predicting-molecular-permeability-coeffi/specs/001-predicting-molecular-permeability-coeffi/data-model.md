@@ -19,7 +19,7 @@ Defines schemas for raw ingestion, processed intermediate representations, and m
 | `smiles` | string | Original SMILES. |
 | `mol_valid` | boolean | `True` if RDKit parsed successfully. |
 | `mw` | number | Molecular Weight. |
-| `logp` | number | Calculated LogP (descriptor). |
+| `logp` | number | Calculated LogP. |
 | `tpsa` | number | Topological Polar Surface Area. |
 | `hba` | integer | H‑bond acceptors count. |
 | `hbd` | integer | H‑bond donors count. |
