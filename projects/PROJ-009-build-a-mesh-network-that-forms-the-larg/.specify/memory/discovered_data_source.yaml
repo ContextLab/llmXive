@@ -1,19 +1,18 @@
 status: none
-intent: downloadable heterogeneous device execution log dataset CPU utilization packet
-  counts python package dataset
+intent: Physical testbed execution logs dataset wall-clock time packet count CPU utilization
+  OpenML python package dataset
 required_fields:
 - node_id
-- hostname
 - ip_address
-- device_type
-- cpu_utilization_percent
-- wall_clock_time_seconds
-- packet_sent_count
-- packet_received_count
-- timestamp
 - task_id
 - task_chunk_id
-- memory_usage_mb
-cache_key: c4fda1ac90e796c29f1509d073c95fbf51ff1eb7d2c0838b9791262dcbe71ffc
-searched_at: '2026-10-20T09:25:29.342891+00:00'
+- timestamp
+- wall_clock_time
+- packet_count
+- cpu_utilization
+- memory_usage
+- heartbeat_status
+- reassign_timestamp
+cache_key: 741ee75f396224e7abccd0b69bb60ed3203977e69a3ec05bc0e61787123c505f
+searched_at: '2026-10-20T15:19:22.439364+00:00'
 retry_count: 1

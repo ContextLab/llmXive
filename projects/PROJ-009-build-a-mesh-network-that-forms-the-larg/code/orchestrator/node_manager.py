@@ -9,7 +9,7 @@ wall‑clock timing.
 The implementation follows the specification for task T002:
 - SSH‑based ``discover_nodes`` (already present)
 - Remote tool verification/installation for ``tcpdump``, ``mpstat``, ``iperf3``
-- CPU profiling via ``/proc/cpuinfo`` / ``lscpu``
+- CPU profiling via ``/proc/cpuinfo``, ``lscpu``
 - Baseline radio metrics (SNR via ``iw``/``/proc/net/wireless``; bandwidth via ``iperf3``)
 - Thermal indicator check (non‑fatal)
 - Remote ``tcpdump`` packet counting and ``mpstat`` CPU parsing with strict regexes
@@ -19,6 +19,7 @@ The implementation follows the specification for task T002:
   validated against ``contracts/physical-node.schema.yaml``.
 - Exposes a ``PhysicalNode`` dataclass representing the node metadata.
 - Provides helper parsers for sample log files used in unit tests.
+- Provides a ``create_node_manager`` factory used by the test suite.
 """
 
 from __future__ import annotations
@@ -670,3 +671,13 @@ class NodeManager:
                         ip_list.append(ip)
 
         return ip_list
+
+# ----------------------------------------------------------------------
+# Factory function used by the test suite
+# ----------------------------------------------------------------------
+def create_node_manager(config: Optional[Dict[str, Any]] = None) -> NodeManager:
+    """
+    Factory helper returning a ``NodeManager`` instance.
+    If ``config`` is omitted, the manager uses the default timeout of 5 seconds.
+    """
+    return NodeManager(config=config)

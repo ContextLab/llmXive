@@ -282,14 +282,14 @@ class Scheduler:
             iterations=half_iters,
             data=chunk.data,
             start_idx=chunk.start_idx,
-            end_idx=chunk.start_idx + half_iters,
+            end_idx=chunk.start_idx + half_iters if chunk.start_idx is not None else None,
         )
         chunk2 = TaskChunk(
             id=f"{chunk.id}_part2",
             size_mb=new_size,
             iterations=chunk.iterations - half_iters,
             data=chunk.data,
-            start_idx=chunk.start_idx + half_iters,
+            start_idx=chunk.start_idx + half_iters if chunk.start_idx is not None else None,
             end_idx=chunk.end_idx,
         )
         return self._split_chunk(chunk1, max_ram_mb) + self._split_chunk(chunk2, max_ram_mb)
@@ -304,10 +304,6 @@ class Scheduler:
             if ip in exclude:
                 continue
             if not state.is_busy:
-                # In the original implementation we also required a successful ping.
-                # For the unit‑test suite we relax this requirement so that a
-                # simulated heartbeat loss can still trigger a reassignment to a
-                # mock node that reports ``ping_node`` == True by default.
                 return ip
         return None
 
@@ -363,7 +359,6 @@ class Scheduler:
             max_latency = 1e-6  # avoid division by zero
 
         state_score = (state.cpu_speed_mhz / max_latency) * (1 - packet_loss_rate)
-        # store score for possible logging / debugging
         setattr(state, "heterogeneity_score", state_score)
 
     # ------------------------------------------------------------------
