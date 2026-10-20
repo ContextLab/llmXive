@@ -1,15 +1,18 @@
 status: none
-intent: Polymer Gas Permeability Database SMILES permeability coefficients download
-  python package dataset
+intent: NIST Polymer Database PolyInfo membrane permeability coefficients python package
+  dataset
 required_fields:
-- SMILES
-- permeability_coefficient
 - polymer_name
-- polymer_type
-- temperature
-- pressure
-- units
-- reference_doi
-cache_key: fb01b6729fe22a2d608c5b1b9a7397e2146e7f327feabdc268dd7d64225a764f
-searched_at: '2026-10-20T21:10:44.249170+00:00'
+- polymer_id
+- cas_number
+- membrane_thickness_mm
+- temperature_K
+- pressure_atm
+- gas_species
+- permeability_coefficient_Barrer
+- measurement_method
+- literature_reference
+- measurement_year
+cache_key: 8ce0971608ed942ede6dd849615019774c609cf25eff936a86c388b8297aafbe
+searched_at: '2026-10-20T21:30:06.864766+00:00'
 retry_count: 1

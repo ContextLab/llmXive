@@ -25,23 +25,23 @@ pip install -r requirements.txt
    ```bash
    python code/data/preprocess.py
    ```
-   - Streams the verified datasets directly from Hugging Face, computes SHA‑256 checksums on the fly, parses SMILES, and writes `data/processed/processed_data.parquet`.  
-   - Logs a warning and **exits with a non‑zero code after the file is written** if the valid‑molecule retention rate falls below 95 %; the file is still present for inspection.  
+   - Streams the verified datasets from Hugging Face, computes SHA‑256 checksums on the fly, parses SMILES, and writes `data/processed/processed_data.parquet`.  
+   - If the valid‑molecule retention rate falls below 95 %, the script logs a warning and **exits with a non‑zero code after the file is written** (so the file is still present for inspection).  
    - If no `permeability` column is found, the script stops after this step with an informative message (see research plan).
 
-2. **Train / Evaluate** *(only runs when a true permeability target is present)*
+2. **Train & Evaluate** *(only runs when a true permeability target is present)*
    ```bash
-   # Train all models and evaluate in one command
+   # Train all models, perform power analysis, and evaluate
    python code/analysis/train.py --config config.yaml
    ```
-   - Handles train/validation split, early stopping, a priori power analysis, and writes `results/metrics.json`.  
-   - If the required target column is missing, the script will terminate gracefully after reporting the limitation.
+   - Handles train/validation split, early stopping, power analysis, and writes `results/metrics.json`.  
+   - If the required target column is missing, the script terminates gracefully after reporting the limitation.
 
 3. **Interpretability**
    ```bash
    python code/analysis/explain.py
    ```
-   - Generates SHAP plots for the Random Forest and GNNExplainer visualizations for the GNN.  
+   - Generates SHAP plots for the Random Forest (and ablation) and GNNExplainer visualizations for the GNN.  
    - Outputs are stored in `results/interpretability/`.
 
 4. **Full End‑to‑End Run (optional)**
@@ -59,3 +59,5 @@ pip install -r requirements.txt
 - Random seeds are fixed (`seed=42`) inside the code base.  
 - All dataset URLs are hard‑coded; rerunning the pipeline will fetch identical data.  
 - The CI runner uses the same `requirements.txt`; no hidden dependencies.
+
+---

@@ -91,7 +91,7 @@ properties:
         type: boolean
       bias_warning:
         type: boolean
-        description: "True if |r| > 0.85, indicating high correlation (expected for proxy target)."
+        description: "True if |r| > 0.6, indicating high correlation (expected for proxy target)."
     required:
       - correlation_coefficient
       - is_confounded
