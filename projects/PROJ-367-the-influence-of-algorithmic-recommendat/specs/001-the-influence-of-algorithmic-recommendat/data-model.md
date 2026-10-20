@@ -1,63 +1,71 @@
 # Data Model: The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in Online Learning
 
-## Key Entities
+## Core Entities
 
 ### UserSession
-Represents a single observation window for a specific user.
-- **Attributes**:
-  - `user_id`: Unique identifier for the learner.
-  - `session_id`: Unique identifier for the session.
-  - `recommended_categories`: List of category strings (derived from VLE access logs).
-  - `enrolled_categories`: List of category strings the user actually enrolled in.
-  - `recommendation_diversity_score`: Calculated Shannon entropy of `recommended_categories`.
-  - `learner_diversity_score`: Calculated Shannon entropy of `enrolled_categories` (or null).
-
-### Baseline_Interest_Vector
-A vector representing the user's historical topic preferences.
-- **Attributes**:
-  - `user_id`: Link to `UserSession`.
-  - `category_frequencies`: Dictionary mapping category names to counts/frequencies from pre-study history.
-  - `normalized_vector`: Probability distribution over categories.
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `user_id` | string | Unique learner identifier. |
+| `session_id` | string | Unique session identifier (row key). |
+| `recommended_categories` | array[string] | List of category tokens derived from the `input_seq` column (proxy for algorithmic recommendation). |
+| `enrolled_categories` | array[string] | List of category tokens derived from the `target_seq` column (actual enrollment). |
+| `recommendation_diversity_score` | number | null | Shannon entropy (log₂) of `recommended_categories`. |
+| `learner_diversity_score` | number | null | Shannon entropy (log₂) of `enrolled_categories`. |
+| `baseline_vector` | object | Mapping `category → probability` computed from pre‑session history. |
+| `weight` | number | Stabilized GPSW weight (null if GLS fallback). |
 
 ### ModelResult
-Output object from the statistical modeling phase.
-- **Attributes**:
-  - `coefficient`: Estimated effect of `Recommendation_Diversity` on `Learner_Diversity`.
-  - `std_error`: Standard error of the coefficient.
-  - `p_value`: P-value for the coefficient.
-  - `weights`: Array of propensity scores/weights used.
-  - `vif`: Variance Inflation Factor for baseline controls.
-  - `convergence_status`: Boolean indicating model convergence.
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `coefficient` | number | β₁ estimate for Recommendation_Diversity. |
+| `std_error` | number | Standard error of β₁. |
+| `p_value` | number | Two‑sided p‑value for β₁. |
+| `vif` | number | Maximum VIF among baseline covariates. |
+| `convergence_status` | boolean | `true` if weighted regression converged; `false` if GLS used. |
+| `weights_distribution` | object | `{median, max, mean}` of GPSW weights. |
+| `sensitivity_analysis` | array[object] | Each entry: `{threshold, coefficient, p_value}`. |
+| `permutation_test` | object | `{observed_effect, null_distribution_mean, null_distribution_std, p_value_permuted, iterations}`. |
 
-## Data Flow
+## Data Flow Diagram
+1. **Ingestion** (`code/data_fetcher.py`) → `data/raw/validated_dataset.parquet`.  
+2. **Preprocessing** (`code/preprocessing.py`) → `data/processed/cleaned_data.parquet` + `diversity_scores.json` + `baseline_vectors.parquet`.  
+3. **Modeling** (`code/modeling.py`) → `data/processed/model_results.csv`.  
+4. **Robustness** (`code/robustness.py`) → `permutation_test_results.json`, `sensitivity_analysis.csv`.  
+5. **Reporting** (`code/main.py`) → `docs/reports/analysis_report.md`.  
 
-1. **Ingestion**: Raw OULAD data -> `cleaned_data.parquet` (validated schema).
-2. **Preprocessing**: `cleaned_data.parquet` -> `diversity_scores.json` (entropy calculated, categories merged).
-3. **Modeling**: `diversity_scores.json` + `baseline_vectors` -> `model_results.csv`.
-4. **Robustness**: `model_results.csv` -> `sensitivity_analysis.csv`, `permutation_test_results.json`.
-
-## Schema Definitions
+## Schemas
 
 ### Input Schema (Raw Data)
-- `user_id`: String
-- `session_id`: String
-- `recommended_categories`: List[String] (JSON array or comma-separated string)
-- `enrolled_categories`: List[String] (JSON array or comma-separated string)
-- `pre_study_history`: List[String] (optional, for baseline calculation)
+| Field | Type | Required? |
+|-------|------|-----------|
+| `user_id` | string | yes |
+| `session_id` | string | yes |
+| `input_seq` | array[string] | yes (maps to `recommended_categories`) |
+| `target_seq` | array[string] | yes (maps to `enrolled_categories`) |
+| `timestamp` | string (ISO‑8601) | optional (used for pre‑study split) |
 
-### Output Schema (Processed)
-- `user_id`: String
-- `session_id`: String
-- `recommendation_diversity_score`: Float (nullable)
-- `learner_diversity_score`: Float (nullable)
-- `baseline_vector`: Dictionary (String -> Float)
-- `weight`: Float
-- `model_coefficient`: Float
-- `model_p_value`: Float
+### Processed Output Schema
+| Field | Type |
+|-------|------|
+| `user_id` | string |
+| `session_id` | string |
+| `recommendation_diversity_score` | number | null |
+| `learner_diversity_score` | number | null |
+| `baseline_vector` | object (category → float) |
+| `weight` | number | null |
+| `coefficient` | number |
+| `std_error` | number |
+| `p_value` | number |
+| `vif` | number |
+| `convergence_status` | boolean |
+| `weights_distribution` | object |
+| `sensitivity_analysis` | array[object] |
+| `permutation_test` | object |
 
 ## Assumptions & Constraints
+- **Empty Enrollments** → `learner_diversity_score` set to `null`; row excluded from regression.  
+- **Semantic Merging** threshold is configurable; default = 0.05.  
+- **Baseline Imputation**: Uniform distribution when no pre‑study history exists.  
+- **Small Sample**: GLS used when unique users < 30 (FR‑008).  
 
-- **Missing Data**: Rows with empty `enrolled_categories` are excluded from the final regression but logged.
-- **Semantic Merging**: Categories are merged if semantic similarity < threshold (default 0.05).
-- **Baseline Imputation**: Users with no pre-study history receive a uniform baseline vector.
-- **Small Sample**: If N < 30, GLS is used instead of weighted regression.
+---

@@ -1,92 +1,79 @@
 # Quickstart: The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in Online Learning
 
 ## Prerequisites
-
-- Python 3.11+
-- Git
-- Access to a GitHub Actions runner (or local environment for testing)
+- Python 3.11 or newer  
+- Git  
+- Access to a GitHub Actions runner (or a local Unix‑like environment)  
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-367-the-influence-of-algorithmic-recommendat
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-
-## Running the Pipeline
-
-### 1. Data Fetching
-Fetch the OULAD dataset (or a verified subset):
 ```bash
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-367-the-influence-of-algorithmic-recommendat
+
+# Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# Install pinned dependencies
+pip install -r code/requirements.txt
+```
+
+## Running the Full Pipeline
+
+```bash
+# 0️⃣ Download and validate the dataset
 python code/data_fetcher.py
-```
-*Output*: `data/raw/validated_oulad.parquet` (or `.csv`)
 
-### 2. Preprocessing
-Calculate diversity scores, merge categories, and derive baseline vectors:
-```bash
+# 1️⃣ Preprocess: merge categories, compute entropy, build baseline vectors
 python code/preprocessing.py
-```
-*Output*: `data/processed/cleaned_data.parquet`, `data/processed/diversity_scores.json`
 
-### 3. Modeling
-Fit the weighted regression and calculate propensity scores:
-```bash
+# 2️⃣ Modeling: GPSW + weighted regression (or GLS fallback)
 python code/modeling.py
-```
-*Output*: `data/processed/model_results.csv`
 
-### 4. Robustness Analysis
-Run permutation tests and sensitivity analysis:
-```bash
+# 3️⃣ Robustness: permutation test + sensitivity sweep
 python code/robustness.py
-```
-*Output*: `data/processed/sensitivity_analysis.csv`, `data/processed/permutation_test_results.json`
 
-### 5. Full Orchestration
-Run the entire pipeline end-to-end:
-```bash
+# 4️⃣ Orchestrate end‑to‑end (runs all steps and creates the report)
 python code/main.py
 ```
 
+## Individual Step Commands
+| Step | Command | Key Output |
+|------|---------|------------|
+| Data fetch | `python code/data_fetcher.py` | `data/raw/validated_dataset.parquet` |
+| Preprocess | `python code/preprocessing.py` | `data/processed/cleaned_data.parquet`, `diversity_scores.json`, `baseline_vectors.parquet` |
+| Modeling | `python code/modeling.py` | `model_results.csv` |
+| Robustness | `python code/robustness.py` | `permutation_test_results.json`, `sensitivity_analysis.csv` |
+| Full run | `python code/main.py` | `docs/reports/analysis_report.md` |
+
 ## Testing
 
-Run unit tests:
 ```bash
+# Unit tests
 pytest tests/unit/ -v
-```
 
-Run integration tests:
-```bash
+# Integration test (pipeline sanity check)
 pytest tests/integration/ -v
-```
 
-Run contract tests (schema validation):
-```bash
+# Contract (schema) tests
 pytest tests/contract/ -v
 ```
 
-## Expected Outputs
+## Expected Files
 
-- `data/processed/diversity_scores.json`: Contains entropy scores for each session.
-- `data/processed/model_results.csv`: Contains regression coefficients, p-values, and weights.
-- `data/processed/sensitivity_analysis.csv`: Contains results for thresholds {0.01, 0.05, 0.1}.
-- `docs/reports/analysis_report.md`: Final summary of findings (associational only).
+- `data/processed/diversity_scores.json` – entropy scores per session.  
+- `data/processed/model_results.csv` – regression coefficients, weights, VIF, convergence flag.  
+- `data/processed/permutation_test_results.json` – null distribution and p‑value.  
+- `data/processed/sensitivity_analysis.csv` – coefficient & p‑value for each semantic‑threshold.  
+- `docs/reports/analysis_report.md` – final markdown report (associational language only).  
 
 ## Troubleshooting
 
-- **Missing Columns**: If `DataSchemaError` is raised, ensure the input dataset has `recommended_categories` and `enrolled_categories` (or mapped equivalents).
-- **Small Sample**: If N < 30, the pipeline automatically switches to GLS. Check logs for the methodological change.
-- **Extreme Weights**: If weights > 10x median, a warning is logged, and the effective sample size is reported.
+- **`DataSchemaError`**: Raised if the downloaded parquet does not contain mappable columns. Verify the dataset URL or contact the project lead.  
+- **Extreme Weights**: If any GPSW weight > 10 × median, a warning appears in the logs and the effective sample size is reported.  
+- **GLS Activation**: If unique users < 30, the log will indicate a switch to GLS; check `model_results.csv` for `convergence_status = false`.  
+- **Runtime Exceeds 6 h**: The pipeline measures total wall‑clock time; if it approaches the limit, reduce the permutation iterations or process a random seed‑fixed subset (documented in the report).
+
+---

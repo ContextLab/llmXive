@@ -1,33 +1,40 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Results Schema
-description: Schema for the output of the statistical modeling and robustness analysis.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results & Robustness Output Schema"
+description: "Schema for the final analytical outputs produced by the pipeline."
 type: object
 properties:
   coefficient:
     type: number
-    description: Estimated effect of Recommendation_Diversity on Learner_Diversity.
+    description: "Estimated effect of Recommendation_Diversity on Learner_Diversity."
   std_error:
     type: number
-    description: Standard error of the coefficient.
+    description: "Standard error of the coefficient."
   p_value:
     type: number
-    description: P-value for the coefficient.
+    description: "Two‑sided p‑value for the coefficient."
   vif:
     type: number
-    description: Variance Inflation Factor for baseline controls.
+    description: "Maximum Variance Inflation Factor among baseline covariates."
   convergence_status:
     type: boolean
-    description: Whether the model converged successfully.
+    description: "True if weighted regression converged; false if GLS fallback was used."
   weights_distribution:
     type: object
     properties:
       median:
         type: number
+        description: "Median of GPSW weights."
       max:
         type: number
+        description: "Maximum GPSW weight."
       mean:
         type: number
-    description: Distribution statistics of the propensity weights.
+        description: "Mean GPSW weight."
+    required:
+      - median
+      - max
+      - mean
+    description: "Summary statistics of the propensity‑score weights."
   sensitivity_analysis:
     type: array
     items:
@@ -35,33 +42,47 @@ properties:
       properties:
         threshold:
           type: number
-          description: Semantic similarity threshold used (e.g., 0.01, 0.05, 0.1).
+          description: "Semantic similarity threshold used (e.g., 0.01, 0.05, 0.1)."
         coefficient:
           type: number
+          description: "β₁ estimate for this threshold."
         p_value:
           type: number
+          description: "P‑value for this threshold."
       required:
         - threshold
         - coefficient
         - p_value
-    description: Results of the sensitivity analysis sweep.
+    description: "Results of the coefficient stability sweep."
   permutation_test:
     type: object
     properties:
       observed_effect:
         type: number
+        description: "Observed β₁ from the weighted regression."
       null_distribution_mean:
         type: number
+        description: "Mean of the permuted β₁ distribution."
       null_distribution_std:
         type: number
+        description: "Standard deviation of the permuted β₁ distribution."
       p_value_permuted:
         type: number
+        description: "Two‑sided p‑value from the permutation test."
       iterations:
         type: integer
-    description: Results of the residual permutation test.
+        description: "Number of permutation iterations performed."
+    required:
+      - observed_effect
+      - null_distribution_mean
+      - null_distribution_std
+      - p_value_permuted
+      - iterations
+    description: "Outcome of the residual permutation robustness check."
 required:
   - coefficient
   - std_error
   - p_value
+  - vif
   - convergence_status
 additionalProperties: false
