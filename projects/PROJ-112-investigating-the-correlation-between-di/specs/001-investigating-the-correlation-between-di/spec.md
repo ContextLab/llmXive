@@ -109,7 +109,7 @@
 - The compositional nature of microbiome data requires CLR transformation for correlation and regression analyses; a small pseudocount (1e‑6) is acceptable for zero‑inflated taxa.
 - The expected effect size (beta ≈ 0.1) is detectable with the sample sizes determined by the a priori power analysis (FR-012).
 - The analysis can be completed within a reasonable compute budget on a CPU‑only GitHub Actions runner with ≤7 GB RAM and no GPU acceleration.
-- ANCOM‑II and DESeq2 are available as CPU‑tractable implementations (e.g., via R packages or Python wrappers) without requiring large memory or GPU resources.
+- ANCOM‑II and DESeq are available as CPU‑tractable implementations (e.g., via R packages or Python wrappers) without requiring large memory or GPU resources.
 - The Benjamini‑Hochberg FDR correction method is appropriate for controlling false discoveries across the number of taxa tested (typically hundreds to thousands).
 - Covariates (age, sex, BMI, antibiotic use) are available in both datasets and can be harmonized for multivariable adjustment.
 - MaAsLin2 (or equivalent) is available and capable of handling the dataset size and covariate structure after CLR transformation.

@@ -27,13 +27,13 @@ properties:
     description: "True if q_value < 0.05."
   beta_coefficient:
     type: number
-    description: "Beta coefficient (Linear Regression) from MaAsLin2 on raw counts. Rounded to 3 decimal places."
+    description: "Beta coefficient (Linear Regression) from MaAsLin2 on CLR data. Rounded to 3 decimal places."
   cohort:
     type: string
     enum:
       - "AGP"
       - "UKBB"
-      - "Combined"
+      - "User"
     description: "Cohort of origin."
 required:
   - taxon

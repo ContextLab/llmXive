@@ -23,7 +23,7 @@ properties:
     description: "True if q_value < 0.05."
   beta_coefficient:
     type: number
-    description: "Beta coefficient (Linear Regression) from MaAsLin2 on raw counts."
+    description: "Beta coefficient (Linear Regression) from MaAsLin2 on CLR data."
 required:
   - taxon_id
   - spearman_rho

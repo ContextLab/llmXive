@@ -1,14 +1,13 @@
 status: none
-intent: American Gut Project 16S rRNA dataset Hugging Face and UK Biobank microbiome
-  python package dataset
+intent: American Gut Project 16S rRNA dataset Hugging Face UK Biobank microbiome python
+  package dataset
 required_fields:
 - sample_id
-- otu_counts
-- taxonomy
-- fiber_intake
+- taxon
+- abundance
+- exposure
 - age
 - sex
-- BMI
-cache_key: 939ce8f80816720e8dbfe3f7d39f1456a9bffa0fd7c3f139256fd06dbec13df7
-searched_at: '2026-10-20T17:43:41.524853+00:00'
+cache_key: 7f497df43df6b2c3b6678be452297d64432c56612a4da5a561380aa650928918
+searched_at: '2026-10-20T17:56:57.416477+00:00'
 retry_count: 1

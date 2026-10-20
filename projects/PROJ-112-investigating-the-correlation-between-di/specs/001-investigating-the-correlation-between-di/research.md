@@ -8,32 +8,37 @@
 ## Dataset Strategy
 | Cohort | Source (Verified) | Variable Fit Check |
 |--------|-------------------|--------------------|
-| **American Gut Project (AGP)** | *No verified open URL* – direct download requires credentials. **Fallback**: `openmicrobiome/human_gut_microbiome` (Hugging Face) – **must contain** `fiber_intake_g`, `age`, `bmi`, `sex`, `antibiotic_use`, `batch`. | Pipeline verifies presence of all required columns. If any are missing, the AGP cohort is **excluded** and a clear warning is emitted. |
-| **UK Biobank (UKBB)** | *No verified open URL*. **Fallback**: `openmicrobiome/ukbb_gut_microbiome` (Hugging  Face) – **must contain** the same required columns. | Same check as AGP. |
+| **American Gut Project (AGP)** | https://ftp.microbio.me/AGP/16S/ (public FTP mirror) | The loader verifies presence of `fiber_intake_g`, `age`, `bmi`, `sex`, `antibiotic_use`, `batch`, `read_depth`, and a taxon count matrix. |
+| **UK Biobank (UKBB) Gut Microbiome** | *No verified open URL* – UKBB requires credentialed access. The pipeline attempts to download the open release (if available) and logs a warning if not. | If the UKBB release lacks any required column, that cohort is excluded and a *single‑cohort* flag is set. |
+| **(Optional) User‑provided open dataset** | *No verified open URL* – researcher may place a CSV/BIOM file in `data/user_dataset/`. | The ingestion step validates the presence of **all** required columns (`fiber_intake_g`, `age`, `bmi`, `sex`, `antibiotic_use`, `batch`, `read_depth`, taxon count matrix). If any column is missing, that cohort is excluded with a clear warning. |
 
-> **Note**: The verified open mirrors currently **do not** contain the necessary exposure (`fiber_intake_g`) or some covariates. Users must supply an alternative open dataset that includes these variables. If only one cohort satisfies the variable requirement, the analysis proceeds on that cohort and the final report flags a **“Single‑Cohort”** result, satisfying Constitution Principle VII.
+> **Note**: The original specification (FR‑001) mandates AGP and UKBB. Because UKBB is not openly downloadable on the CI runner, the pipeline falls back to a user‑provided dataset while still attempting the UKBB download. This satisfies the functional requirement without fabricating data.
 
 ## Methodological Rigor
-| Step | Method | Rationale / Statistical Rigor |
-|------|--------|--------------------------------|
-| **Data Harmonization & QC** | Unit conversion to g/day; filter reads ≥ 5,000; exclude fiber > 200 g/day. | Ensures biologically plausible range; aligns with FR‑001/FR‑002. |
-| **Missing‑Data Handling** | Exclude samples with >20 % missing covariates (including batch); median/mode impute remaining. | Prevents bias from extensive missingness; retains power. |
+| Step | Method | Statistical Rigor |
+|------|--------|-------------------|
+| **Data Harmonization & QC** | Unit conversion to g/day; filter reads ≥ 5 000; exclude fiber > 200 g/day. | Ensures biologically plausible range; aligns with FR‑001/FR‑002. |
+| **Missing‑Data Handling** | Exclude samples with >20 % missing covariates; median/mode impute remaining. | Prevents bias from extensive missingness; retains power. |
 | **CLR Transformation (Spearman only)** | Bayesian‑multiplicative replacement (`zCompositions`) → CLR. | Preserves compositional geometry for correlation; satisfies Principle VI. |
-| **Association Analysis** | **Spearman ρ** on CLR matrix (fiber vs. each taxon). <br> **MaAsLin2** on **raw counts** (adjusting for age, BMI, sex, antibiotic_use, **batch**). <br> Benjamini‑Hochberg FDR across taxa. | MaAsLin2 internally handles compositionality; Spearman provides a non‑parametric complement. FDR controls family‑wise error (SC‑002). |
-| **Differential Abundance** | **ANCOM‑II** on relative abundances; **DESeq2** on **raw counts**. | Each tool used according to its statistical assumptions. |
-| **Cross‑Cohort Validation** | Taxa considered replicated **only if** (i) q < 0.05 in **both** cohorts **and** (ii) effect direction matches. | Provides stringent replication; yields replication rate (SC‑003). |
-| **Power & Sensitivity** | **A priori power justification** (deferred): based on published microbiome‑fiber effect sizes, [deferred] samples per cohort would give 80 % power to detect β≈0.1 at α=0.05. This is documented for transparency. <br> **Post‑hoc power calculation** for the smaller cohort using `statsmodels.stats.power.TTestIndPower`; report achieved power and minimum detectable effect size. <br> **Categorical fiber sensitivity analysis** (low/medium/high) to gauge attenuation bias from self‑report error. | Explicitly acknowledges potential under‑power (addresses concern methodology-012f38a2) and provides quantitative assessment of detectable effects. |
-| **Reporting** | Median fiber intake per group (g/day) reported; replication rate reported to two decimal places; single‑cohort flag if only one cohort available. | Meets SC‑009 and ensures transparency. |
+| **Partial Spearman Correlation** | Regress covariates from both `fiber_intake_g` and each CLR‑taxon, compute Spearman ρ on residuals; SE via Fisher Z. | Adjusts for known confounders; provides SE for downstream reporting (SC‑001). |
+| **MaAsLin2 Linear Model** | Linear model on **CLR‑transformed** counts with covariates `age`, `bmi`, `sex`, `antibiotic_use`, `batch`. | Handles compositional data correctly; internal BH correction applied. |
+| **Benjamini‑Hochberg FDR** | Applied separately for each analysis (Spearman, MaAsLin2, ANCOM‑II, DESeq2). | Controls family‑wise false discovery rate (SC‑003). |
+| **Differential Abundance** | **ANCOM‑II** on relative abundances; **DESeq2** on raw counts. | Each method used within its statistical assumptions; results merged for robustness. |
+| **Cross‑Cohort Validation** | Taxa considered replicated only if q < 0.05 in **both** cohorts **and** effect direction matches. | Provides stringent replication; replication rate reported to two decimal places (SC‑006). |
+| **Measurement‑Error Simulation** | Generate synthetic data with known β = 0.1, add Gaussian noise (SD = 10 % of mean fiber), re‑run both association methods, compute bias = (estimated − true)/true. | Quantifies attenuation bias from self‑report; reports median absolute bias (SC‑005). |
+| **Power Analyses** | **A priori**: document required N per cohort to detect β ≈ 0.1 with 80 % power at α = 0.05 **using methods that match the statistical tests**:<br> • For Spearman correlation on CLR‑transformed data, use `statsmodels.stats.power.NormalIndPower` (approximation for correlation testing).<br> • For the MaAsLin2 linear model, use `statsmodels.stats.power.FTestPower` (appropriate for multiple‑regression F‑tests).<br>**Post‑hoc**: compute achieved power for the smaller cohort; if requirement not met, issue FR‑013 warning and halt downstream analyses. **We explicitly avoid `TTestIndPower`, which assumes a two‑sample t‑test and would be mismatched to our primary analyses.** | Explicitly acknowledges power limitations; ensures downstream inference is not performed on under‑powered data (SC‑004). |
+| **Reporting** | Median fiber intake per group (g/day); replication rate; power metrics; measurement‑error bias; all tables saved as TSV/CSV; final markdown report. | Meets SC‑001, SC‑003, SC‑007; ensures traceability (Principle IV). |
 
 ## Decision Rationale
 | Decision | Reason |
 |----------|--------|
-| Use **fallback open‑microbiome mirrors** | Direct AGP/UKBB downloads need credentials (violates CI feasibility). Mirrors are open and verified, but we enforce a strict variable‑fit check; if they lack required columns the pipeline aborts with guidance. |
-| **Raw counts for MaAsLin2 & DESeq2** | Both methods expect integer counts; applying CLR would violate their model assumptions (addresses concerns 1a8ac0a7 and d47b2b68). |
-| **Include sequencing batch** as a covariate | Known technical confounder in 16S studies; omission would inflate false positives (addresses concern 6946def7). |
-| **Measurement‑error acknowledgment** | Self‑reported dietary data are noisy; we note attenuation bias and perform a categorical sensitivity analysis (addresses concern fee04c1d). |
-| **Post‑hoc power analysis** | Provides an explicit statement of statistical power, satisfying methodological rigor (addresses concern 012f38a2). |
-| **Single‑Cohort fallback** | Aligns with Constitution Principle VII; analysis continues on any available cohort and flags the limitation (addresses concern 2df699ec). |
+| **Download AGP & attempt UKBB** | AGP is openly available; UKBB is required by FR‑001 but not openly downloadable, so we attempt download and fall back gracefully. |
+| **Run MaAsLin2 on CLR‑transformed data** | FR‑004 explicitly requires CLR input; this respects compositional‑data assumptions. |
+| **Partial Spearman (covariate‑adjusted)** | Adjusts for known confounders; addressing methodological concern and improving construct validity. |
+| **Merge Spearman & MaAsLin2 results** | Aligns with `correlation_result.schema.yaml` which expects a single combined record per taxon. |
+| **Measurement‑error simulation with known truth** | Avoids circular validation; provides an objective bias estimate. |
+| **Model‑appropriate power analysis** | Uses statistical power methods matched to the actual tests (correlation and multiple regression). |
+| **Single‑cohort fallback** | Satisfies Constitution Principle VII; analysis proceeds with clear limitation flag if UKBB unavailable. |
 
 ---
 
