@@ -3,14 +3,14 @@ Unit tests for ``src/data/loader.py``.
 
 The tests use a tiny synthetic CSV fixture that deliberately contains:
 
-* a row with a missing required field,
+* a row with missing required field,
 * a duplicate ``material_id``,
 * an outlier (extreme ``band_gap`` and ``hardness``),
 * a formula with an unknown element,
 * a valid row.
 
 The loader should drop the problematic rows and write only the valid
-rows to the output CSV.
+row to the output CSV.
 """
 import csv
 from pathlib import Path

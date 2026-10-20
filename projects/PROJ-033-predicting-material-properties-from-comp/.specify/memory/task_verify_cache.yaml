@@ -1,9 +1,20 @@
-T001:
+T004:
   c: false
-  h: 8b8ebe6f769af0242975874e350d86d3671bbaba9d5ac4907cfa2e5f8480867d
-  r: "The required contracts, requirements.txt, seeds.py, and quickstart.md are present\
-    \ and correctly populated, but the contract test suite does not fully pass \u2013\
-    \ `tests/contract/test_dataset_schema.py` fails because the schema rejects a valid\
-    \ row (expects an array but receives an object). Consequently the verification\
-    \ step \u201Cpytest tests/contract/ passes\u201D is not satisfied."
-  sig: e254d18449365ad884cea047a9c010907167fb54a830e65401cbbe0122c426f3
+  h: 7076595908b8cf7384ab731aaac5861638a3ab9fde86008ec7e07988ecda466f
+  r: "The `src/graphs/composition.py` file exists and implements most of the required\
+    \ logic, but the unit\u2011test suite cannot be run because the `pymatgen` package\
+    \ is not available, causing an import error. Moreover, the test that checks for\
+    \ an unknown\u2011element warning expects the warning message to contain \u201C\
+    Unknown element\u201D, which the current implementation does not emit (it logs\
+    \ a different message when parsing fails). Consequently the verification tests\
+    \ do not pass."
+  sig: 32a973855b0b664317eba8ce0be561aa7649efbb0b67f50ee67f1af0c3248665
+T005:
+  c: false
+  h: 0c5470993b16db8b83e6662c3c2fd534a35b42be884e387b0b1791a67e8307eb
+  r: "The unit test `test_generate_cv_folds_is_stratified_and_reproducible` fails\
+    \ (folds are not perfectly balanced, 6 vs 7 cubic/hexagonal entries), and the\
+    \ required output directory `data/processed/splits/` with the JSON split files\
+    \ does not exist. The implementation therefore does not meet the stratified\u2011\
+    CV and export requirements."
+  sig: b8c6cd6d1734dc0f3fdbdaed154f5cdf7dac6b8e74edc822a813a8481256cf20
