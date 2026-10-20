@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "edb0bab28545402d444a1a2241c1348db7e32d5320fd3a636fab3b8f4b334ec0",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/contract/test_dataset_schema.py': SyntaxError at line 23: unterminated triple-quoted string literal (detected at line 23). Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 726"
+}
