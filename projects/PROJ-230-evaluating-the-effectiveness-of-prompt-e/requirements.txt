@@ -1,10 +1,6 @@
-# Core dependencies
-datasets>=2.14.0
-pandas>=2.0.0
-numpy>=1.24.0
-requests>=2.31.0
-pyyaml>=6.0
-pytest>=7.4.0
-python-dotenv>=1.0.0
-# Additional dependencies for evaluation
-# Note: Node.js must be installed separately on the system
+# Project dependencies
+datasets>=2.0.0
+# Existing base dependencies (provided by the platform) are not listed here
+# e.g., numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil.  They are already
+# available in the execution environment.
