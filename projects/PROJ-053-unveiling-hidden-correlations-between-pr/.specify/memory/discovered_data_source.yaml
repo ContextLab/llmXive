@@ -1,12 +1,12 @@
 status: none
-intent: Additive manufacturing alloy dataset Zenodo HuggingFace UCI download python
-  package dataset
+intent: download AM alloy dataset Zenodo Hugging Face UCI python package dataset
 required_fields:
 - laser_power
 - scan_speed
 - layer_thickness
 - yield_strength
 - ductility
-cache_key: fd5f3bb9f1d90b64cedad3c0e70011eb520be5e26e4c64f00efb619a9f6013fa
-searched_at: '2026-10-20T00:18:29.822143+00:00'
+- alloy_type
+cache_key: 21df645d27eb982f64956195d1c02c7c26180b69dec328af53a969059014ac1a
+searched_at: '2026-10-20T00:30:01.690722+00:00'
 retry_count: 1

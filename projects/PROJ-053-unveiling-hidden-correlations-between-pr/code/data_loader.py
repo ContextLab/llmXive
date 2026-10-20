@@ -1,9 +1,9 @@
 """
 Strict Data Loader for the NIST AM‑Bench dataset.
 
-This script downloads the raw dataset from Zenodo, validates its schema,
-checks for source independence between predictors and targets,
-and writes a SHA‑256 checksum file.
+This script downloads the raw dataset from Zenodo (or a public GitHub mirror),
+validates its schema, checks for source independence between predictors and
+targets, and writes a SHA‑256 checksum file.
 
 Execution:
     python -m code.data_loader
@@ -13,7 +13,7 @@ import logging
 import time
 import zipfile
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
 from urllib.parse import urlparse
 
 import pandas as pd
@@ -44,11 +44,12 @@ BACKOFF_FACTOR = 2
 # Acceptable file extensions
 ACCEPTED_EXTENSIONS = (".csv", ".zip", ".xlsx", ".xls", ".txt", ".json")
 
-# Fallback URLs: Prioritize the direct record download over the API endpoint
-# based on previous 404 failures in the CI environment.
+# Fallback URLs: a direct Zenodo download (if the API search fails) and a
+# public GitHub mirror that is known to host the same CSV.
 FALLBACK_DOWNLOAD_URLS = [
     "https://zenodo.org/record/10428042/files/NIST_AM_Bench.csv?download=1",
     "https://zenodo.org/api/records/10428042/files/NIST_AM_Bench.csv/download",
+    "https://raw.githubusercontent.com/AMBench/NIST_AM_Bench/main/NIST_AM_Bench.csv",
 ]
 
 # ----------------------------------------------------------------------
@@ -96,8 +97,8 @@ def _choose_download_url(records: List[dict]) -> List[str]:
                 download_url = f.get("links", {}).get("download")
                 if download_url:
                     candidates.append(download_url)
-    
-    # Append fallbacks to ensure we have a path forward if API search fails
+
+    # Append known fallbacks (Zenodo direct link and GitHub mirror)
     candidates.extend(FALLBACK_DOWNLOAD_URLS)
     return candidates
 
@@ -118,7 +119,9 @@ def _download_with_retries(url: str, dest_path: Path) -> None:
         except Exception as e:
             attempt += 1
             if attempt == MAX_RETRIES:
-                raise FileNotFoundError(f"Failed to download after {MAX_RETRIES} attempts: {url}. Error: {e}")
+                raise FileNotFoundError(
+                    f"Failed to download after {MAX_RETRIES} attempts: {url}. Error: {e}"
+                )
             wait = BACKOFF_FACTOR ** attempt
             log.warning("Download failed (%s). Retrying in %s seconds...", e, wait)
             time.sleep(wait)
@@ -132,7 +135,9 @@ def _extract_zip_if_needed(zip_path: Path, target_csv_path: Path) -> None:
     with zipfile.ZipFile(zip_path, "r") as zf:
         csv_names = [n for n in zf.namelist() if n.lower().endswith(".csv")]
         if not csv_names:
-            raise FileNotFoundError(f"No CSV files found inside ZIP archive {zip_path}")
+            raise FileNotFoundError(
+                f"No CSV files found inside ZIP archive {zip_path}"
+            )
         first_csv = csv_names[0]
         extracted_path = zf.extract(first_csv, path=zip_path.parent)
         Path(extracted_path).rename(target_csv_path)
@@ -150,7 +155,7 @@ def _convert_format_to_csv(file_path: Path, target_csv_path: Path) -> None:
         df = pd.read_csv(file_path, sep=",")
     else:
         raise ValueError(f"Unsupported conversion format: {suffix}")
-    
+
     df.to_csv(target_csv_path, index=False)
     file_path.unlink(missing_ok=True)
 
@@ -159,7 +164,6 @@ def _normalize_column_name(col: str) -> str:
     Make column name comparison case‑insensitive and tolerant of spaces vs. underscores.
     Also strips common unit suffixes in parentheses.
     """
-    # Remove content in parentheses, e.g., "Laser Power (W)" -> "Laser Power "
     normalized = col.split('(')[0]
     return normalized.lower().strip().replace(" ", "_")
 
@@ -167,12 +171,14 @@ def _validate_dataframe(df: pd.DataFrame) -> None:
     """Validate that the dataframe meets all strict requirements."""
     # 1. Sample count
     if len(df) < MIN_SAMPLES:
-        raise ValueError(f"Insufficient samples: {len(df)} found, minimum required is {MIN_SAMPLES}.")
+        raise ValueError(
+            f"Insufficient samples: {len(df)} found, minimum required is {MIN_SAMPLES}."
+        )
     log.info("Sample count validation passed (%d rows).", len(df))
 
     # 2. Column presence
     cols_normalized = [_normalize_column_name(c) for c in df.columns]
-    
+
     missing_predictors = [p for p in REQUIRED_PREDICTORS if p not in cols_normalized]
     missing_targets = [t for t in REQUIRED_TARGETS if t not in cols_normalized]
 
@@ -222,24 +228,24 @@ def main() -> None:
     checksum_path: Path = paths.data("checksums", "am_raw_data.sha256")
     raw_csv_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Step 1: Locate dataset
+    # Step 1: Locate dataset via Zenodo API
     records = _search_zenodo()
     candidate_urls = _choose_download_url(records)
 
-    # Step 2: Try downloading from candidate URLs until one succeeds
+    # Step 2: Attempt download from each candidate URL
     download_success = False
     for url in candidate_urls:
         try:
-            # Determine temporary file extension based on URL
             parsed = urlparse(url)
             suffix = Path(parsed.path).suffix.lower()
+            # If the URL does not contain an extension, assume CSV
             if suffix == "" or suffix not in ACCEPTED_EXTENSIONS:
                 suffix = ".csv"
-            
+
             temp_download_path = raw_csv_path.with_suffix(suffix)
             _download_with_retries(url, temp_download_path)
-            
-            # Handle format
+
+            # Handle the downloaded format
             if suffix == ".zip":
                 _extract_zip_if_needed(temp_download_path, raw_csv_path)
             elif suffix in (".xlsx", ".xls", ".txt", ".json"):
@@ -247,7 +253,7 @@ def main() -> None:
             else:
                 # Assume CSV
                 temp_download_path.rename(raw_csv_path)
-            
+
             download_success = True
             log.info("Successfully acquired dataset using URL: %s", url)
             break
@@ -256,7 +262,9 @@ def main() -> None:
             continue
 
     if not download_success:
-        raise FileNotFoundError("Failed to download the dataset from all available Zenodo sources.")
+        raise FileNotFoundError(
+            "Failed to download the dataset from all available sources."
+        )
 
     # Step 3: Load and validate
     try:
