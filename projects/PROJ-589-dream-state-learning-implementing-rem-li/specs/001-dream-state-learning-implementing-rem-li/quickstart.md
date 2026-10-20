@@ -1,70 +1,87 @@
 # Quickstart: Dream-State Learning
 
 ## Prerequisites
-
--   Python 3.11+
--   Git
--   Access to a Linux environment (GitHub Actions runner or local Linux VM)
--   At least 8GB RAM (to allow for 7GB limit headroom)
+- Python 3.11 or newer  
+- Git  
+- A Linux environment (local VM or GitHub Actions runner) with **≥ 8 GB RAM** (allows headroom for the 7 GB limit)  
 
 ## Installation
+```bash
+# 1️⃣ Clone the repository
+git clone <repository-url>
+cd projects/PROJ-589-dream-state-learning-implementing-rem-li
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repository-url>
-    cd projects/PROJ-589-dream-state-learning-implementing-rem-li
-    ```
+# 2️⃣ Create a virtual environment
+python -m venv venv
+source venv/bin/activate
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate
-    ```
+# 3️⃣ Install pinned dependencies
+pip install -r code/requirements.txt
+```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+## Step‑by‑Step Run
 
-## Running the Experiment
-
-### 1. Data Download
-The script will automatically download the GLUE dataset to `data/raw/` on first run.
+### 1. Download GLUE data (once)
 ```bash
 python code/data_loader.py --download
+# Data will appear under data/raw/
 ```
-*Note: Ensure you have sufficient disk space for the subset.*
 
-### 2. Run a Single Seed (Debug Mode)
-Run a single seed with reduced steps to verify the pipeline.
+### 2. Run a **debug** experiment (fast sanity check)
 ```bash
-python code/train.py --seed 42 --steps 10 --mode debug
+python code/train.py \
+  --seed 42 \
+  --total_steps 20 \
+  --warmup_steps 5 \
+  --ratio 4:1 \
+  --mode debug
 ```
-*Expected Output*: Logs showing "Wake Phase", "Dream Phase", entropy checks, and a final checkpoint.
+*Expected*: Logs show wake → dream transitions, entropy checks, and a checkpoint saved to `checkpoints/debug.pt`.
 
-### 3. Run Full Experiment
-Run the full experiment (5 seeds + baseline) with an imbalanced ratio.
+### 3. Run the **pilot** experiment (primary analysis)
 ```bash
-python code/train.py --seeds 0,1,2,3,4 --ratio 4:1 --warmup 20
+python code/train.py \
+  --seeds 0,1,2 \
+  --total_steps 100 \
+  --warmup_steps 20 \
+  --ratio 4:1 \
+  --temp 1.0 \
+  --baseline
 ```
-*Note*: This will run for a moderate duration on a standard CI runner.
+- This launches multiple experimental runs (wake/dream) and multiple baseline runs, each respecting the memory/timeout caps.  
+- Checkpoints are stored under `checkpoints/seed_{N}_{regime}.pt`.
 
-### 4. Evaluate & Statistical Analysis
-After training completes, run the evaluation script to compute accuracy and t-tests.
+### 4. (Optional) Run the **temperature sweep** ablation
 ```bash
-python code/eval.py --results-dir data/results/
+python code/train.py \
+  --seeds 3,4 \
+  --total_steps 100 \
+  --warmup_steps 20 \
+  --ratio 4:1 \
+  --temp_sweep 0.5 1.0 1.5 2.0 \
+  --baseline
 ```
-*Output*: A JSON report in `data/results/statistical_report.json` containing the p-value and effect size.
+- Executes up to **2** additional seeds *only if* remaining compute budget permits.  
+- Results are logged as separate ablation variants.
+
+### 5. Evaluate & compute statistics
+```bash
+python code/eval.py --results_dir data/results/
+```
+*Output*: `data/results/experiment_summary.json` containing the paired t‑test, effect size, power estimate, and any notes about insufficient power (per `statistical_report_schema.yaml`).
 
 ## Troubleshooting
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| **OOM / MemoryError** | Batch size too large or temperature causing long generations. | Reduce `--batch_size` in `code/config.py` or switch to a lower temperature. |
+| **Dream step skipped** | Entropy < 0.5 bits or perplexity > 50. | This is expected for low‑quality generations; the run will continue with a dummy wake step to keep token exposure equal. |
+| **Timeout (>5 h)** | Too many seeds or steps. | Reduce `--total_steps` or run a subset of seeds (as shown above). |
+| **Missing `statistical_report.json`** | Evaluation script failed due to < 5 evaluation samples. | Verify that `data/raw/` contains at least 5 QNLI validation examples per seed; otherwise the report will contain `"note": "insufficient power"` as designed. |
 
--   **OOM Error**: If you see "Memory Error", reduce the batch size in `code/config.py` or switch to DistilBERT.
--   **Dream Phase Skipped**: Check logs for "Low Entropy" or "High Perplexity". This is expected behavior to prevent training on garbage.
--   **Timeout**: If the job exceeds 6 hours, check the `wall_clock_hours` in the log. Reduce the number of seeds or steps.
+## Verification Checklist
+1. Run `debug` mode – confirm `logs/debug.log` contains `"phase": "wake"` and `"phase": "dream"` entries.  
+2. Ensure a checkpoint file (`checkpoints/debug.pt`) loads without error (`torch.load`).  
+3. After pilot run, verify that each JSON result validates against its schema (`pytest -k contract`).  
 
-## Verification
+---
 
-To verify the installation:
-1.  Run the debug mode.
-2.  Check `logs/debug.log` for the sequence: `Wake -> Dream -> Wake -> Dream`.
-3.  Verify `data/checkpoints/debug.pt` exists and is loadable.

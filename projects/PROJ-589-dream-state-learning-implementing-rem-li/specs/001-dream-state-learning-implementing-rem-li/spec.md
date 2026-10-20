@@ -16,7 +16,7 @@
 **Independent Test**: Can be fully tested by running a multi-step training job on a single GLUE subset, verifying that the model alternates between loss calculation on real data and loss calculation on generated pseudo-samples, and outputs a final checkpoint.
 
 **Acceptance Scenarios**:
-1. **Given** a small transformer model (≤100M params) and a GLUE subset, **When** the training loop executes 100 steps with a 4:1 wake-to-dream ratio, **Then** the system must generate pseudo-samples during exactly 20 of those steps and update weights on both real and generated data.
+1. **Given** a small transformer model (≤100M params) and a GLUE subset, **When** the training loop executes multiple steps with a predominately wake-oriented schedule relative to the dream phase., **Then** the system must generate pseudo-samples during a specific subset of those steps and update weights on both real and generated data.
 2. **Given** the same setup, **When** the training completes, **Then** the final model checkpoint must exist and be loadable for downstream evaluation without errors.
 
 ---
@@ -37,7 +37,7 @@
 
 ### User Story 3 - Resource Constraint Verification (Priority: P3)
 
-**Description**: As a project maintainer, I want the training script to automatically verify it fits within the GitHub Actions free-tier limits (2 CPU, 7GB RAM, 6h time) so that the experiment is reproducible without specialized hardware.
+**Description**: As a project maintainer, I want the training script to automatically verify it fits within the GitHub Actions free-tier resource limits (CPU, RAM, and time) so that the experiment is reproducible without specialized hardware.
 
 **Why this priority**: The project's feasibility depends entirely on running in this constrained environment. If the method requires GPU or excessive RAM, the research cannot be executed.
 

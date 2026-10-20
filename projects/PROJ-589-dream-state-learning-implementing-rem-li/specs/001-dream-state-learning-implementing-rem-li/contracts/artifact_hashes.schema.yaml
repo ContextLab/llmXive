@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Artifact Hash Record"
+description: "Mapping from an artifact identifier to its SHA‑256 hash for reproducibility."
+type: "object"
+properties:
+  artifact_id:
+    type: "string"
+    description: "Unique identifier (e.g., 'experiment_result_seed_0')."
+  hash:
+    type: "string"
+    description: "SHA‑256 hexadecimal digest of the artifact content."
+  linked_result:
+    type: "string"
+    description: "Filesystem path to the artifact (relative to project root)."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO‑8601 timestamp of when the hash was recorded."
+required:
+  - "artifact_id"
+  - "hash"
+  - "linked_result"
+  - "timestamp"
+additionalProperties: false

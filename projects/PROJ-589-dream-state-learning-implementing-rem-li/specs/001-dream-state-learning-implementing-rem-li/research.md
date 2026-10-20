@@ -1,71 +1,88 @@
 # Research: Dream-State Learning: Implementing REM-like Consolidation in Language Models
 
 ## Executive Summary
-
-This research investigates whether an oscillatory training schedule mimicking REM sleep (generative replay with denoising reconstruction) enhances few-shot generalization in small language models compared to standard continuous supervised fine-tuning. The "logical depth" of consolidation is defined computationally as the model's ability to reconstruct masked input tokens after a cycle of generative replay, serving as a proxy for synaptic stabilization. The study adheres to strict CPU-only constraints, utilizing a defined wake-to-dream ratio, a 20-step warm-up, and rigorous statistical validation (paired t-tests across 5 seeds) on GLUE/SuperGLUE subsets. **Note**: This is explicitly framed as a **feasibility/pilot study** due to power limitations with n=5.
+We investigate whether an oscillatory **wake/dream** training schedule—mirroring REM‑like consolidation—improves few‑shot generalization of a small transformer (DistilBERT‑base‑uncased) relative to continuous supervised fine‑tuning. Consolidation is operationalized as the model’s ability to reconstruct masked, self‑generated pseudo‑samples (a denoising auto‑encoder objective). The study is a **pilot**: 3 random seeds for the primary analysis (with a fixed temperature = 1.0) and a limited temperature sweep as a secondary ablation, each run both experimental (wake/dream) and baseline (continuous) regimes. All experiments run on a 2‑CPU, ≤7 GB RAM GitHub Actions runner.
 
 ## Theoretical Background & Logical Depth
-
-### Defining "Consolidation" in Digital Systems
-Biological consolidation (as noted by Kandel) involves structural remodeling and protein synthesis to stabilize short-term memories. In a digital system, we cannot simulate protein synthesis. Instead, we define **digital consolidation** as the reduction in the discrepancy between the model's generative distribution and the original data distribution after a "dream" cycle.
-- **Hypothesis**: The dream phase acts as a regularizer, preventing overfitting to the specific order of wake-phase data by forcing the model to reconstruct inputs from noisy, self-generated representations. This regularization is hypothesized to improve generalization to **unseen tasks** (cross-task transfer).
-- **Logical Depth**: Unlike simple data augmentation, the dream phase uses the *current* model state to generate data, then trains the model to recover the *original* ground truth input. This creates a closed loop of "prediction -> reconstruction -> correction," theoretically stabilizing the weights against catastrophic forgetting and improving generalization.
-
-### Addressing Reviewer Concerns
-- **Freeman Dyson**: The dream is not merely data augmentation; it is a *self-corrective* loop. The target is the original ground truth, not the generated sample. This distinguishes it from standard generative pre-training.
-- **John von Neumann**: The "consolidated state" is quantified by the reconstruction loss on masked tokens. If the model can reconstruct the original input from a noisy version of its own generation, it has stabilized the representation.
-- **Eric Kandel**: The "cost" of consolidation is the computational overhead of the dream phase, which is offset by the potential gain in generalization.
+- **Digital Consolidation**: In biology, REM sleep stabilizes synaptic changes via replay. Here, the model **replays its own predictions**, then learns to reconstruct the original inputs, creating a closed loop of “prediction → noisy reconstruction → correction.” This loop adds *logical depth*: the model must internalize a representation that survives self‑generated perturbations, akin to synaptic stabilization.
+- **Hypothesis**: The wake/dream loop yields a lower reconstruction error after each cycle, which correlates with improved downstream few‑shot accuracy on an unseen task.
 
 ## Dataset Strategy
+Verified GLUE datasets are accessed via the HuggingFace `datasets` library (programmatic loading; no direct verified URLs for the specific splits).
 
-The study requires a dataset for the "wake" phase (standard SFT) and a **held-out, cross-task subset** for "few-shot" evaluation.
+| Role | GLUE Subset | Loader | Verified URL |
+|------|-------------|--------|--------------|
+| Wake‑phase training | **MNLI** (train split) | `datasets.load_dataset('glue', 'mnli', split='train', streaming=True)` | *No verified URL; loaded via HuggingFace library* |
+| Few‑shot evaluation | **QNLI** (validation split) | `datasets.load_dataset('glue', 'qnli', split='validation', streaming=True)` | *No verified URL; loaded via HuggingFace library* |
 
-### Verified Datasets
-The following datasets are verified for programmatic access and suitability via the `datasets` library:
+*Streaming* is employed when the full split exceeds RAM; otherwise a deterministic random sample (≤2000 examples) is cached under `data/raw/`. No gated datasets are required.
 
-| Dataset Name | Purpose | Source URL / Loader | Verification Status |
-| :--- | :--- | :--- | :--- |
-| **GLUE (MNLI)** | Wake phase training (SFT) | `datasets.load_dataset('glue', 'mnli')` (train split) | Verified |
-| **GLUE (QNLI)** | Few-shot evaluation | `datasets.load_dataset('glue', 'qnli')` (validation split) | Verified |
+## Methodology
 
-**Strategy**:
-1.  **Primary Source**: Use the GLUE dataset via the `datasets` library to ensure reproducibility.
-2.  **Cross-Task Transfer**: The wake phase trains on **MNLI** (Multi-Genre Natural Language Inference). The few-shot evaluation is performed on **QNLI** (Question-answering NLI), a distinct task within the GLUE suite. This ensures the "generalization" claim is valid and not a result of overfitting to a single task distribution.
-3.  **Streaming**: To handle potential memory constraints, the dataset will be loaded with `streaming=True` where possible, or a fixed random sample of ≤2000 examples will be downloaded to `data/raw/` to ensure it fits within the 7GB RAM limit.
-4.  **No Gated Data**: No access-gated datasets are used. All data is open and directly downloadable.
+### Experimental Design
+| Variable | Values |
+|----------|--------|
+| **Training Regime** | `wake_dream` (4 wake : 1 dream) vs. `baseline` (continuous) |
+| **Warm‑up Steps** | 20 wake‑only steps before first dream |
+| **Dream Temperature** | Fixed **1.0** for primary analysis; optional sweep `[0.5, 1.0, 1.5, 2.0]` as secondary ablation |
+| **Random Seeds** | 0, 1, 2 (primary); 3, 4 optional if resources allow |
+| **Total Gradient Steps** | 100 (fixed across all runs) |
+| **Batch Size** | 4 (CPU‑friendly) |
+| **Memory Cap** | 6.3 GB RSS (hard abort) |
+| **Wall‑clock Cap** | 5 h per full experiment |
 
-## Methodological Rigor
+### Training Loop (high‑level pseudocode)
+```
+for step in range(total_steps):
+    if step < warmup_steps:
+        run_wake_step()
+    elif (step - warmup_steps) % (wake_steps + dream_steps) < wake_steps:
+        run_wake_step()
+    else:
+        pseudo = generate_pseudo_sample(temperature=current_temp)
+        if entropy(pseudo) < 0.5:
+            retry up to 3 times; if still low → skip dream step (log)
+        if perplexity(pseudo) > 50:
+            skip dream step (log)
+        run_dream_step(pseudo)   # masked reconstruction + distillation loss
+        # Record reconstruction error for later correlation analysis
+```
+All loss values are logged; dream‑step skips are recorded in `dream_event.schema.yaml`. When a dream step is skipped, a dummy wake step is inserted to keep **real‑token exposure** identical between regimes.
 
-### Statistical Power & Design
-- **Design**: Paired experimental design. For each of 5 random seeds, two models are trained:
-    1.  **Experimental**: Wake/Dream cycle (4:1 ratio).
-    2.  **Baseline**: Continuous SFT (same total number of gradient steps, filling dream steps with additional wake steps or noise-injected real data).
-- **Power Analysis**: The study targets an effect size of $d=0.8$. With $n=5$ pairs, the power to detect this effect at $\alpha=0.05$ is approximately 0.65. **This is insufficient to reliably claim statistical significance.** Therefore, this study is explicitly framed as a **feasibility/pilot**. The primary outcome is the estimation of the effect size (Cohen's d) and confidence intervals. Statistical significance (p-value) will be reported as exploratory only.
-- **Multiple Comparisons**: If multiple GLUE subsets are tested, a Bonferroni correction will be applied to the $\alpha$ threshold to control the family-wise error rate.
+### Baseline
+Identical total steps and real‑token count; dream steps are replaced by additional wake steps. If the experimental run skips a dream step, the baseline adds a corresponding wake step to preserve token parity.
 
-### Computational Feasibility (CPU-First)
-- **Model**: **DistilBERT-base-uncased** (~66M params). TinyLlama is excluded to ensure architectural consistency across all runs.
-- **Hardware**: 2 CPU cores, 7GB RAM.
-- **Strategy**:
-    - Use `torch.cpu` explicitly.
-    - Batch size set to 4 or 8 to keep peak RSS < 6.3 GB.
-    - Dream phase generation is limited to short sequences (≤32 tokens) to reduce inference time.
-    - If a step exceeds time/memory, the job aborts gracefully (FR-005).
-- **GPU Escape Hatch**: Not applicable for this CPU-tractable design.
+### Evaluation
+- After training, load the final checkpoint, evaluate on **QNLI** (few‑shot: 5 examples per class) and compute **accuracy**.
+- Repeat for each seed and regime.
+- Perform a **paired two‑tailed t‑test** (`scipy.stats.ttest_rel`) across the 3 seed pairs.
+- Compute **Cohen’s d** for effect size.
+- Additionally, compute the **Pearson correlation** between average reconstruction error (logged during training) and final accuracy to validate the consolidation construct.
 
-## Edge Case Handling
+### Statistical Rigor
+- **Multiple Comparisons**: Only one evaluation set is used for the primary hypothesis; no correction needed. The temperature sweep is a secondary analysis and reported separately.
+- **Power**: With `n = 3` seed pairs, power to detect `d = 0.8` is ≈ 0.45. The study is explicitly framed as a **pilot**; we report effect size, confidence interval, and note the limited power rather than asserting definitive significance.
+- **Assumptions**: Observational (no randomization beyond seed); claims limited to *associational* improvements.
 
-1.  **Low Entropy Collapse**: If generated pseudo-samples have average entropy < 0.5 bits/token, the batch is discarded, and re-sampling is triggered (up to 3 times). If it persists, the dream step is skipped.
-2.  **High Perplexity**: If generated samples have perplexity > 50 against a held-out corpus, the dream step is skipped to prevent reinforcing hallucinations.
-3.  **Insufficient Samples**: If the evaluation set has < 5 samples, the t-test is skipped, and the result is flagged as "insufficient power" (Edge Case).
+## Edge‑Case Handling
+1. **Low‑Entropy Collapse** – average token entropy < 0.5 bits ⇒ retry up to 3 times; if still low, discard batch and log `discarded: true`.
+2. **High Perplexity** – perplexity > 50 ⇒ skip dream step, log reason.
+3. **Insufficient Evaluation Samples** – if the few‑shot QNLI subset contains < 5 examples for a seed, the paired t‑test is omitted; the result file will contain `"note": "insufficient power"` per `statistical_report_schema.yaml`.
+4. **Memory/Time Overrun** – `memory_monitor.py` aborts with status `oom_abort`; `train.py` tracks wall‑clock and aborts with `timeout` status if > 5 h. Aborted runs are flagged and automatically re‑run with reduced step count.
 
 ## Decision Rationale
+| Decision | Reason |
+|----------|--------|
+| **DistilBERT‑base‑uncased** | ≤ 100 M params, fits CPU memory budget, matches FR‑001 requirement for a “small” model. |
+| **4:1 Wake/Dream Ratio** | Implements the *theta‑like* oscillation mandated by Constitution Principle VI. |
+| **20‑step Warm‑up** | Prevents early garbage generation (Edge Case). |
+| **Fixed Temperature = 1.0 for Primary Analysis** | Avoids confounding temperature with the core hypothesis (Methodology‑320f1153). |
+| **Temperature Sweep as Secondary** | Satisfies FR‑006 while keeping primary analysis clean. |
+| **3 Seeds (Pilot)** | Keeps total compute within the 5 h wall‑clock budget (Methodology‑d17abfbb). |
+| **Token‑balance Handling** | Guarantees identical real‑token exposure despite dream‑step skips (Methodology‑fc66a14b). |
+| **Abort Handling & Re‑run** | Prevents biased comparisons if one regime aborts early (Methodology‑fe6e93e4). |
+| **Reconstruction Error Correlation** | Provides construct validity for “consolidation” (Methodology‑c0a928d2). |
+| **Pilot framing** | Honest acknowledgement of limited power (Methodology‑83598387). |
 
-| Decision | Rationale |
-| :--- | :--- |
-| **DistilBERT-base-uncased** | Fixed architecture to prevent confounds. CPU-tractable. |
-| **4:1 Wake/Dream Ratio** | Matches the "theta-like cycle" in the constitution (Principle VI) and biological REM approximations. |
-| **20-Step Warm-up** | Prevents early collapse where the model has not learned enough to generate meaningful pseudo-samples. |
-| **Reconstruction + Distillation Loss** | Using the original ground truth as the target (reconstruction) and matching the teacher's distribution (distillation) ensures the model learns to recover from noise and stabilizes representations, simulating "consolidation". |
-| **Cross-Task Evaluation (MNLI -> QNLI)** | Validates true generalization to unseen tasks, not just overfitting to a single task distribution. |
-| **Pilot Study Framing** | Acknowledges power limitations with n=5, focusing on effect size estimation rather than false claims of significance. |
+---
+

@@ -1,33 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-type: object
+title: "Statistical Report"
+description: "Outcome of the paired t‑test comparing wake/dream vs. baseline."
+type: "object"
 properties:
   test_type:
-    type: string
+    type: "string"
     const: "paired_t_test"
-    description: "Type of statistical test"
+    description: "Statistical test identifier."
   alpha:
-    type: number
+    type: "number"
     const: 0.05
-    description: "Significance level"
+    description: "Significance threshold."
   effect_size:
-    type: number
-    description: "Cohen's d"
+    type: "number"
+    description: "Cohen's d for the paired differences."
   p_value:
-    type: number
-    description: "Two-tailed p-value"
+    type: "number"
+    description: "Two‑tailed p‑value."
   significant:
-    type: boolean
-    description: "Whether p < alpha"
+    type: "boolean"
+    description: "True if p < α."
   power_estimate:
-    type: number
-    description: "Estimated statistical power"
+    type: "number"
+    description: "Estimated statistical power for the observed effect size."
   note:
-    type: string
-    description: "Any caveats (e.g., 'insufficient power')"
+    type: "string"
+    description: "Caveats such as 'insufficient power' (pilot framing)."
 required:
-  - test_type
-  - alpha
-  - effect_size
-  - p_value
-  - significant
+  - "test_type"
+  - "alpha"
+  - "effect_size"
+  - "p_value"
+  - "significant"
 additionalProperties: false
