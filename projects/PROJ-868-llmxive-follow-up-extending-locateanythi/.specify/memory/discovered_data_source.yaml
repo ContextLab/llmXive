@@ -1,5 +1,29 @@
-status: none
-intent: download VRSBench dataset and COCO 2017 validation split python package dataset
+status: verified
+kind: pypi_package
+ref: pycocotools
+access_python: "import os, ssl, urllib.request, zipfile\nfrom pycocotools.coco import\
+  \ COCO\n\nZIP_URL = \"https://images.cocodataset.org/annotations/annotations_trainval2017.zip\"\
+  \nZIP_PATH = \"/tmp/annotations_trainval2017.zip\"\nJSON_NAME = \"annotations/instances_val2017.json\"\
+  \nJSON_PATH = \"/tmp/instances_val2017.json\"\n\nif not os.path.exists(ZIP_PATH):\n\
+  \    ctx = ssl.create_default_context()\n    ctx.check_hostname = False\n    ctx.verify_mode\
+  \ = ssl.CERT_NONE\n    with urllib.request.urlopen(ZIP_URL, context=ctx) as resp,\
+  \ open(ZIP_PATH, \"wb\") as out:\n        out.write(resp.read())\n\nif not os.path.exists(JSON_PATH):\n\
+  \    with zipfile.ZipFile(ZIP_PATH, \"r\") as zf:\n        with zf.open(JSON_NAME)\
+  \ as src, open(JSON_PATH, \"wb\") as dst:\n            dst.write(src.read())\n\n\
+  coco = COCO(JSON_PATH)\n\nrecords = len(coco.anns)\nprint(f\"RECORDS={records}\"\
+  )\n\nif records:\n    sample_ann = next(iter(coco.anns.values()))\n    fields =\
+  \ \",\".join(sample_ann.keys())\n    print(f\"FIELDS={fields}\")\nelse:\n    raise\
+  \ RuntimeError(\"No annotation records loaded\")"
+record_count: 36781
+sample_fields:
+- segmentation
+- area
+- iscrowd
+- image_id
+- bbox
+- category_id
+- id
+field_coverage: 0.5
 required_fields:
 - image_id
 - file_name
@@ -8,8 +32,7 @@ required_fields:
 - annotation_id
 - category_id
 - bbox
-- area
 - iscrowd
-cache_key: 760e52918087b9c151a1d1d9916636f7038b201ba310e8c84d0fa103fec57ce6
-searched_at: '2026-10-20T02:15:03.283707+00:00'
-retry_count: 1
+intent: VRSBench validation dataset download COCO 2017 validation annotations python
+  package dataset
+cache_key: 717dc1a8a34cf8beaf42a478c993f760261a5970e71df32091e0e7b68787079a

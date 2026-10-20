@@ -65,6 +65,32 @@ def verify_checksum(file_path: Path, expected_hash: str) -> None:
 # ----------------------------------------------------------------------
 # Dataset download functions
 # ----------------------------------------------------------------------
+def _download_and_save(dataset_name: str,
+                       config_name: str | None,
+                       split: str,
+                       output_path: Path) -> None:
+    """
+    Generic helper to download a dataset split and store it as Parquet.
+
+    The function removes the ``image`` column (which contains binary
+    image data) before saving, because ``Dataset.to_parquet`` cannot
+    serialize raw images.  Only the annotation metadata is required for
+    the downstream analysis.
+    """
+    log.info("Downloading %s %s split...", dataset_name, split)
+    if config_name is None:
+        ds = load_dataset(dataset_name, split=split)
+    else:
+        ds = load_dataset(dataset_name, config_name, split=split)
+
+    # Remove heavy image column if present – we only need annotations.
+    if "image" in ds.column_names:
+        ds = ds.remove_columns("image")
+        log.debug("Removed 'image' column before saving parquet.")
+
+    log.info("Saving %s to %s", dataset_name, output_path)
+    ds.to_parquet(str(output_path))
+
 def download_vrsbench(output_path: Path) -> None:
     """
     Download the VRSBench validation split and store it as Parquet.
@@ -73,10 +99,7 @@ def download_vrsbench(output_path: Path) -> None:
     identifier ``vrsbench``.  The ``validation`` split contains the
     images and annotations required for this study.
     """
-    log.info("Downloading VRSBench validation split...")
-    ds = load_dataset("vrsbench", split="validation")
-    log.info("Saving VRSBench to %s", output_path)
-    ds.to_parquet(str(output_path))
+    _download_and_save("vrsbench", None, "validation", output_path)
 
 def download_coco_val(output_path: Path) -> None:
     """
@@ -85,10 +108,7 @@ def download_coco_val(output_path: Path) -> None:
     The COCO dataset is accessed via ``datasets`` with the config
     ``2017``.  Only the ``validation`` split is required.
     """
-    log.info("Downloading COCO 2017 validation split...")
-    ds = load_dataset("coco", "2017", split="validation")
-    log.info("Saving COCO 2017 validation to %s", output_path)
-    ds.to_parquet(str(output_path))
+    _download_and_save("coco", "2017", "validation", output_path)
 
 def download_refcoco_plus(output_path: Path) -> None:
     """
@@ -97,10 +117,7 @@ def download_refcoco_plus(output_path: Path) -> None:
     The RefCOCO+ dataset is hosted on the HuggingFace Hub under the
     identifier ``refcoco`` with the ``plus`` configuration.
     """
-    log.info("Downloading RefCOCO+ validation subset...")
-    ds = load_dataset("refcoco", "plus", split="validation")
-    log.info("Saving RefCOCO+ to %s", output_path)
-    ds.to_parquet(str(output_path))
+    _download_and_save("refcoco", "plus", "validation", output_path)
 
 # ----------------------------------------------------------------------
 # Main entry point
