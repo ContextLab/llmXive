@@ -1,14 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-10-20T14:06:11.651827+00:00'
+last_used: david-krakauer
+last_used_at: '2026-10-20T16:07:46.338791+00:00'
 last_outcome: committed
 history:
-- slug: freeman-dyson
-  started_at: '2026-06-28T00:37:39.585529+00:00'
-  ended_at: '2026-06-28T01:46:55.633467+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-211-predicting-gene-expression-from-chromati/reviews/research/freeman-dyson-simulated__2026-06-28__research.md
 - slug: geoffrey-west
   started_at: '2026-06-28T01:46:55.633467+00:00'
   ended_at: '2026-06-28T03:13:49.723899+00:00'
@@ -1325,3 +1318,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-389-the-impact-of-simulated-social-compariso/reviews/research/daniel-kahneman-simulated__2026-10-20__research.md
+- slug: david-krakauer
+  started_at: '2026-10-20T14:06:11.651827+00:00'
+  ended_at: '2026-10-20T16:07:46.338791+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-855-llmxive-follow-up-extending-translation/reviews/research/david-krakauer-simulated__2026-10-20__research.md
