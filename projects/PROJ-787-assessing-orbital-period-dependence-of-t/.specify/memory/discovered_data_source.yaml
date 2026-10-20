@@ -1,0 +1,18 @@
+status: none
+intent: Kepler DR25 KOI catalog download csv astroquery python package dataset
+required_fields:
+- kepid
+- koi_name
+- koi_period
+- koi_period_err1
+- koi_period_err2
+- koi_prad
+- koi_prad_err1
+- koi_prad_err2
+- koi_disposition
+- kic_teff
+- kic_radius
+- kic_mass
+cache_key: 4be1aa40796b325b0b2ea06029c7c1f0dfc3296ae7ac0d695c97b18784f0863f
+searched_at: '2026-10-20T21:25:39.808771+00:00'
+retry_count: 1

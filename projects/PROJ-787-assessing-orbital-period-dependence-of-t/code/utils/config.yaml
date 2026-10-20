@@ -1,0 +1,18 @@
+# Default configuration for the exoplanet gap analysis pipeline
+#
+# The file is loaded by ``code.utils.config``.  Users may override any
+# setting by providing a custom YAML file path to ``load_config`` or by
+# setting the environment variable ``PROJ_CONFIG`` to the absolute path of
+# a YAML file.
+#
+# Logging configuration
+logging:
+  level: INFO               # Python logging level name
+  file: logs/app.log        # Relative to the project root; directory will be created
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  datefmt: "%Y-%m-%d %H:%M:%S"
+
+# Example placeholder for future sections (e.g., API keys, thresholds)
+# thresholds:
+#   radius_uncertainty: 0.20
+#   period_uncertainty: 0.01

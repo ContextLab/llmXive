@@ -1,0 +1,115 @@
+T001a:
+  task: 49b736cca5341e7bc0d790c7d804854185afe21b7c8a258e8d7e5327c7752737
+T001b:
+  reason: "Checked the project\u2019s `data/` folder: `data/processed/` directory\
+    \ exists (though empty, which satisfies creation), but `data/raw/` directory is\
+    \ missing entirely, so the required directory structure is not fully initialized."
+  task: 548f758ea426ff7977c7b5e53b966b037424a912c2f8ac7be92a88349b392519
+T002a:
+  task: dbc9c17abe19482dc5de65465842a70bf4dbadb3a24f6f5a3ba8c60096ee8b18
+T002b:
+  reason: "Checked the presence of `code/requirements.txt`, which exists and lists\
+    \ packages, but there is no evidence that a virtual environment was created or\
+    \ that the listed dependencies were actually installed (e.g., no `venv/` directory,\
+    \ installation logs, `pip freeze` output, or scripts invoking the install). The\
+    \ task\u2019s core requirement\u2014installing the dependencies in a virtual environment\u2014\
+    is therefore unmet."
+  task: b683248b0339f03cc5c9d8b0de2079c539119653805cabf55eabd03c2d74ae57
+T003:
+  reason: "The evidence contains no linting or formatting configuration files (e.g.,\u202F\
+    `.flake8`, `pyproject.toml` with Black settings, `setup.cfg`, or related scripts)\
+    \ and no proof that flake8/black have been set up or run. These required artifacts\
+    \ are missing, so the task is not satisfied."
+  task: 8b1c6529ddcdf661b2eb411c0fd735b2f646d5a6be12a762963e97fa54eb5632
+T004:
+  reason: "The repository contains `code/models/planet_record.py` and `code/models/gap_result.py`,\
+    \ but the required contract `contracts/planet_record.schema.yaml` is missing,\
+    \ so the PlanetRecord model cannot be verified against its schema. Moreover, `gap_result.py`\
+    \ defines a `GapResult` class whose fields (e.g., `period_bin_min`, `component_1_mean`,\
+    \ `bic`) do not correspond to the structure defined in `contracts/analysis_output.schema.yaml`\
+    \ (which expects top\u2011level slope metrics and a `bin_results` array with different\
+    \ property names). Consequently, the implemented data models do not match the\
+    \ specified"
+  task: 2b25883e644b4840d2e1965ac81e77a358935f2543fcf2422b96853aac189b6b
+T005:
+  task: 599a87cadfb6c64b67c339b2b010ef799b7cf963e3b339d37819e1432aedb892
+T006:
+  task: 0bd90232cf763911ec728d8ef8c0634e194aaa41fde90b84a007acf8ac95f3d2
+T007:
+  task: b7ad1f8dcc492bdaa0a257429d148b9a6d81e798e850f7925f144c73009a7056
+T008:
+  task: 2407ef7b19a45a150167aa37f5cc8883887dc4fc7fb71ab3df67b3f7b3b6f2ed
+T010:
+  task: c4020e71cc0b76564d3644a9391c0dbf258b5726469eb34d3503988f07702dbc
+T011:
+  task: fe76256a34dbbbfef533f3cafc4e802ef6271d79419e5aa09b407bdbf20becfd
+T012a:
+  reason: 'Requested task execution failed; rerun successfully: code/ingest/download_dr25.py
+    exit=1'
+  task: 38e6724fc7864f169b43f4973ae093ca2a982d6b7c4b6c1243038d73f18e1dc6
+T012b:
+  task: e5033f3ff9feb06d751374738d8f1d718c8938e1544135ba475ebc250549ca4b
+T012c:
+  task: c2b0b36da6651b10ca956c554932f22fd88ba4510e4d450ed01ee92d3570c969
+T012d:
+  task: df71f43a1e0153bd143f5b5417ce5db9a6cc2f50664934d31d52f70b9b387c76
+T013:
+  task: 2e4b5f1ab913555966d1dbb5f33168761f50fe1ce564170d0d9a4190b9517092
+T014:
+  task: 2f40b4a02602bc204deacf8bd3dda61964a5ac1e910a96e14a334712336d67c8
+T015:
+  task: 3e8dcde2e026ca3e7bbb9aa03ba12cdc1dbc41f551793ffd773cf6a2cc575e57
+T016:
+  task: 07d0f6da4d25210662e2a752e7ca4ec938a32ec4214db1dd0633d6a44becc3bb
+T018:
+  task: 16b2c7a1591f5dd7793ef73b0e850bc634608ab8b6a55191e4b2d2a522a67e1c
+T019:
+  task: f46d0e86a5579b3b40dbbe1218b415016edff8e493d2245a3b67eeb6a26e66f2
+T020:
+  task: 84978db36e06bf343f098a7dbd46371dea4741931ad528910b3e97cf594c09ba
+T021:
+  task: 3b599cf7e9508b2fead4328efcd375de4bb771a2f99cf66418e974395c493a94
+T022:
+  task: db4f6ae87cd0c7209b2d901abb1da238e95da4a57a84d0472b9626db7757bc3d
+T023:
+  task: e8d6f798f30a462e2ad782e1b00fdbf2354237bb7131132aef0f82040b70e9b3
+T024:
+  task: 79572fd47d646e65c25145071e0924fb50f7c6428dbe1af3c82d35b5e2b0ff14
+T025:
+  task: 962158aecb31e16611b1ba3146bd0030ea1b411d1c91e50a47a9a7fa69345c4e
+T026:
+  task: 1972f9ddc6451e57f94ebd0efbb27d0899a95c4ae7ae7d4c3d0d424ff7edbdff
+T027:
+  task: 830823ee61d96025205ada168f21def4d8c8e63accf388d24312976eb4d31610
+T028:
+  task: 0d8160ce86425b21d537705f695b58c2f69ba8253ccf291199f97393eab11a03
+T029:
+  task: 83be22744faa291b6050a3408bbdf748b915cc4418d8b5af66ee9178c12a6b1b
+T030:
+  task: 08f647692656cde03011b5635bbb809ff21bac06161cf515d15e82c5de7b45b2
+T031:
+  task: 886e8a8385869d175b4a809fefde0e1207ab857e69e174ea7b3ec6ffba73386d
+T032:
+  task: 6fa314a89b3bd85b9d0731e31e8b553b67a274a73341b0dfcc3d048d8c6c9293
+T033:
+  task: e00dc068b5488aaab18f5be44a500949daf66d1d954e3e74f9c18be6d9ba728d
+T034:
+  task: 0b213be1d5f826339c2985afbb58767a1fc8b5abc7914dbeb097498c96840661
+T035b:
+  task: c2573924619403eab350cf8761c2e7f5625e86d84d5e1f4d16acf2b1c9101b19
+T036:
+  task: 7febe5adb010a10063c5857bcfeb6baba8b9e592519c114e41d84795a38cd70f
+T037:
+  task: d3c2ab5929dfd3aa10b3f0e25d740808158f9147297dcecab77c6d30fe7472e1
+T038:
+  task: 18f94cc182282bf49cac40776eede9206a6cd0fbf3d767b8027455dac2f5c0bd
+T039:
+  task: 35a3c9382a98290ff99b59877a439ec4d0e65ee858ba08d65fd1fa3b6251f42b
+T040:
+  task: de242251fa3615fae73f59db91e7ce7efce7a3898fe6cc3215de5bc7df04b26c
+T041:
+  task: fed0e1ab44cedb0803863f8e1c810456315216b26663201c12ef6ebf24ae9fff
+T042:
+  task: c85c6a7f1207c760ffbcb9f13e1126032a01e6cbc08efc9dc1e28c97aee6da62
+T043:
+  task: 153ed565970f1bdc47755b6ec8cafb2aca901b68c75e97634634a59e7f0d7cda
