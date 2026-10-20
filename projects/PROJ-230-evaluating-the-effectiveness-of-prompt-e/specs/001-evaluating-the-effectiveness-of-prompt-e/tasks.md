@@ -1,117 +1,63 @@
-# Tasks: Evaluating the Effectiveness of Prompt Engineering for LLM‑Based Code Translation  
+# Tasks: Evaluating the Effectiveness of Prompt Engineering for LLM-Based Code Translation
 
-**Inputs**: `spec.md`, `plan.md`, existing repository artifacts, and reviewer feedback (including the list of rejected tasks).  
+**Inputs**: `spec.md`, `plan.md`, data-model contracts, verifier-rejected task list, and reviewer feedback. All previously rejected artifacts are re-opened and consolidated below. Tasks write only project-owned paths (`code/`, `data/`, `paper/`, `specs/`); artifact hashing and project-state updates are owned by the platform and are therefore not tasked.
 
-The list below consolidates all scientific requirements, fixes the previously rejected items, and groups related work into 15 substantive research tasks.  Each task follows the canonical checklist format, cites the exact file(s) it creates or modifies, and includes an indented verification step.
+## Phase 1: Setup and first end-to-end analysis
 
----
+- [ ] T001 [P] [US1] Implement `code/src/ingestion/download_datasets.py` that streams the real HuggingFace dataset `codeparrot/code-trans-py-js` via `datasets.load_dataset(..., streaming=True)` (falling back to the supplemental CodeTrans splits named in the plan if the primary split is empty), writing raw shards/rows under `data/raw/`. The loader MUST fail loudly (raise) on any fetch failure — no synthetic or mock fallback. Record the exact dataset ID, split, and row count in `data/raw/ingestion_log.json`.
+  *Verification:* `pytest code/tests/contract/test_dataset_fetch.py` asserts `data/raw/` contains real rows from the named dataset and that a forced fetch failure raises rather than substituting data.
 
-## Phase 1 – Project scaffolding & utility foundation  
+- [ ] T002 [P] [US1] Implement `code/src/ingestion/preprocess_corpus.py` that iterates the streamed raw data in chunks, filters entries with missing or syntactically invalid Python (`ast.parse`) or JavaScript, logs excluded entries to `data/logs/dataset_preprocess.log` without crashing, samples ≥ 200 valid pairs with a fixed seed, and writes `data/processed/corpus.csv` conforming to `dataset.schema.yaml` (columns: `id`, `python_source`, `source_dataset_id`, `dataset_url`). Peak memory must remain ≤ 7 GB via chunked iteration (never materializing the full dataset).
+  *Verification:* `pytest code/tests/integration/test_preprocess_memory.py` asserts CSV row count ≥ 200, schema conformance, and peak RSS < 7 GB.
 
-- [ ] **T001** [ P ] [ US1 ] Create the required directory layout (`src/`, `tests/`, `data/raw/`, `data/processed/`, `data/prompts/`, `data/evaluation/`, `logs/`) and a `.gitignore` that excludes raw data, processed data, evaluation artefacts, and Python caches.  
-  *Verification:* Run `python -c "import pathlib, sys; assert all(pathlib.Path(p).exists() for p in ['src','tests','data/raw','data/processed','data/prompts','data/evaluation','logs']);"`; confirm `git status` shows no ignored files.
+- [ ] T003 [P] [US2] Create the four prompt template files in `data/prompts/` with complete, non-placeholder text: `zero_shot_basic.txt` (translate-only instruction), `zero_shot_style.txt` (instruction + ES6 style specification, e.g. "use const/let, avoid var, prefer arrow functions"), `few_shot_basic.txt` (instruction + two concrete Python→JS example pairs sampled from the corpus with a fixed seed), `few_shot_style.txt` (style-augmented instruction + the same two examples). This re-opens the rejected prompt-file task with the exact required filenames.
+  *Verification:* `pytest code/tests/contract/test_prompts_exist.py` confirms all four files exist, each ≥ 10 words, and that the few-shot files contain both a Python and a JavaScript example block.
 
-- [ ] **T002** [ P ] [ US2 ] Implement `src/utils/timeout_utils.py` providing `api_timeout(seconds: int)` and `test_timeout(seconds: int)` decorators that raise `TimeoutError` when the wrapped call exceeds the limit.  
-  *Verification:* `pytest tests/unit/test_timeout_utils.py` must pass, confirming both decorators raise on a deliberately slow function.
+- [ ] T004 [P] [US2] Implement `code/src/execution/run_inference.py` plus `code/src/utils/timeout_utils.py` (providing `api_timeout`/`test_timeout` decorators that raise `TimeoutError`), re-opening the rejected T009/T022 artifacts. The inference script must: load `data/processed/corpus.csv` and the four prompt files; for every (snippet, condition) pair call the HuggingFace Inference API with model `codellama/CodeLlama-7b-Instruct-hf`, pinned `seed=42`, `temperature=0.0`; enforce a 30 s per-request timeout; retry rate limits up to 3 times with exponential backoff; detect non-code responses (empty, refusal text, malformed output) and log them as failed translations; write each generated JavaScript file to `data/evaluation/raw_translations/<condition_name>/<snippet_id>.js`; and write `data/evaluation/metadata_log.csv` with columns `snippet_id`, `condition_name`, `prompt_path`, `prompt_text`, `model_version`, `seed`, `timestamp`, `response_status` (success/timeout/rate_limit/failed). Failed fetches of the API MUST raise after retries — no fabricated outputs. This re-opens rejected T022/T023/T024/T025c.
+  *Verification:* `pytest code/tests/unit/test_timeout_utils.py code/tests/unit/test_failed_translation.py code/tests/contract/test_metadata_log.py code/tests/contract/test_output_hierarchy.py` — timeout decorators raise on slow functions; a mock refusal response produces a failed-translation log entry; metadata CSV columns and row count match attempts; every condition directory contains one `.js` file per snippet ID after a small `N=2` run.
 
-- [ ] **T003** [ P ] [ US3 ] Add `src/utils/update_state.py` that (a) computes SHA‑256 hashes of all files under `data/` and `src/`, (b) writes a mapping `artifact_hashes:` into `state/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e.yaml`, and (c) updates an `updated_at` timestamp.  
-  *Verification:* After any artifact change, re‑run the script and check that the YAML file contains the new hash and a recent ISO‑8601 timestamp.
+- [ ] T005 [US1] Run a thin end-to-end analysis on a small real sample (N=5 snippets × 4 conditions): execute T001→T004 on real data and confirm real generated JavaScript files, a populated `metadata_log.csv`, and a runnable entry point `code/src/main.py --sample 5` documented in `specs/001-evaluating-the-effectiveness-of-prompt-e/quickstart.md`.
+  *Verification:* The documented command executes and `data/evaluation/raw_translations/` contains ≥ 20 real `.js` files with non-empty content.
 
----
+## Phase 2: Complete the study and validate its evidence
 
-## Phase 2 – Dataset acquisition & preprocessing  
+- [ ] T006 [US3] Implement `code/src/evaluation/extract_io_pairs.py` that executes each original Python snippet on a deterministic set of ~10 synthetic inputs (boundary: empty list/string, single element; typical: ints 1–100, strings 1–50 chars, lists 1–10 elements; mixed types) in a sandboxed subprocess with a timeout, records `input_json`/`expected_output_json` pairs, and writes `data/evaluation/io_pairs.csv` (columns: `snippet_id`, `input_json`, `expected_output_json`, `extraction_status`). Snippets yielding < 5 pairs are excluded and logged; the extracted pairs are ground truth by definition (original Python assumed correct — limitation stated in the output). Also run the chi-square exclusion-independence test (exclusion vs. condition) and append its result to `data/evaluation/io_pairs.csv` companion report `data/evaluation/exclusion_check.json`.
+  *Verification:* `pytest code/tests/contract/test_io_extraction.py` validates the CSV schema and asserts ≥ 180 snippets retained; `exclusion_check.json` contains a real χ² statistic and p-value.
 
-- [ ] **T004** [ P ] [ US1 ] Implement `src/ingestion/download_datasets.py` to stream‑download the HuggingFace datasets `codeparrot/code-trans-py-js` and `bigcode/evaluation` via the `datasets` library, storing raw files under `data/raw/`.  
-  *Verification:* Contract test `tests/contract/test_dataset_fetch.py` asserts both dataset directories exist and contain at least one shard file.
+- [ ] T007 [US3] Implement `code/src/evaluation/run_js_validation.py` that, for every generated JavaScript file, executes it in Node.js against the corresponding I/O pairs with a 10 s per-test timeout (via `timeout_utils`), compares outputs to `expected_output_json`, records binary pass/fail (plus timeout/skipped statuses), and writes `data/evaluation/validation_results.csv` conforming to `translation_result.schema.yaml` (columns including `snippet_id`, `condition_name`, `test_pass_status`, `execution_time`). Environment-incompatible test cases are logged as `skipped`, not counted as pass or fail.
+  *Verification:* `pytest code/tests/contract/test_translation_result_schema.py code/tests/contract/test_test_translation.py` (re-opening the rejected missing contract test) validate schema conformance; an integration test runs a known-good snippet and expects a `pass` row; a deliberately looping JS file yields `timeout`.
 
-- [ ] **T005** [ P ] [ US1 ] Implement `src/ingestion/preprocess_corpus.py` that (a) iterates the streamed raw datasets, (b) filters out entries with missing or syntactically invalid Python or JavaScript, (c) logs excluded IDs to `logs/dataset_preprocess.log`, (d) samples **≥ 200** valid pairs while keeping peak RAM ≤ 7 GB, and (e) writes `data/processed/corpus.csv` conforming to `dataset.schema.yaml`.  
-  *Verification:* Integration test `tests/integration/test_preprocess_memory.py` measures peak memory (≤ 7 GB) and asserts the CSV row count ≥ 200.
+- [ ] T008 [US3] Implement `code/src/evaluation/compute_quality.py` (re-opening the rejected missing artifact) that runs the ESLint complexity rule on each generated `.js` file via a pinned Node.js dependency set (`package.json` + `package-lock.json` at project root), extracts cyclomatic complexity and lines of code, and writes `data/evaluation/quality_metrics.csv` (columns: `snippet_id`, `condition_name`, `complexity_score`, `lines_of_code`).
+  *Verification:* `pytest code/tests/unit/test_compute_quality.py code/tests/contract/test_quality_metrics_schema.py` assert numeric `complexity_score ≥ 1`, `lines_of_code > 0`, and CSV schema conformance on a sample file.
 
-- [ ] **T006** [ P ] [ US1 ] Run `src/utils/checksum_artifacts.py` to generate SHA‑256 hashes for every file in `data/raw/` and write them to `state/checksums/` (one `.sha256` file per raw artefact).  
-  *Verification:* All files under `data/raw/` have a corresponding `.sha256` file; the script exits with status 0.
+- [ ] T009 [US3] Run the complete experimental domain: all ≥ 200 snippets × 4 conditions through inference (T004), I/O extraction (T006), JS validation (T007), and quality metrics (T008), producing the full `metadata_log.csv`, `io_pairs.csv`, `validation_results.csv`, and `quality_metrics.csv`. Measure and record total wall-clock time in `data/logs/runtime.log`; if the elapsed time at the plan's mid-run checkpoint extrapolates beyond the 6 h budget, reduce to the plan's fallback sample size (N=50) and record the decision in the metadata log. If the API is unavailable after retries, the run MUST fail loudly (no Ollama substitution unless the plan's N=10 equivalence check is executed and recorded).
+  *Verification:* All four CSVs contain rows for the full executed sample; `data/logs/runtime.log` reports ≤ 21600 s; metadata log records any fallback decision with its trigger time.
 
----
+## Phase 3: Statistical analysis, reproducibility, and paper handoff
 
-## Phase 3 – Prompt engineering artefacts  
+- [ ] T010 [US3] Implement `code/src/evaluation/statistical_analysis.py` (re-opening the rejected missing artifact) that: (1) fits the snippet-difficulty logistic-regression confounder check and stratifies if significant; (2) fits a binomial GLMM (or, if convergence fails on CPU, a documented McNemar/chi-square per-pair alternative against the `zero_shot_basic` baseline) for correctness with snippet as a random/repeated measure; (3) runs repeated-measures ANOVA for complexity and lines of code; (4) applies Bonferroni correction to all pairwise comparisons; (5) computes effect sizes (Cohen's h / eta-squared) and post-hoc observed power, emitting `power_limitation` rows for comparisons with power < 0.80; and (6) writes `data/evaluation/statistical_summary.csv` conforming to `statistical_summary.schema.yaml` (columns: `metric`, `comparison`, `p_value`, `confidence_interval_lower`, `confidence_interval_upper`, `effect_size`, `observed_power`, `correction_method`).
+  *Verification:* `pytest code/tests/unit/test_statistical_analysis.py` checks required columns, float p-values, `correction_method` ∈ {bonferroni, none}, and that every pairwise comparison against the baseline is present.
 
-- [ ] **T007** [ P ] [ US2 ] Create the four prompt template files in `data/prompts/` with complete, non‑placeholder text:  
-  - `zero_shot_basic.txt` – simple translate‑only instruction.  
-  - `zero_shot_style.txt` – instruction plus ES6 style spec.  
-  - `few_shot_basic.txt` – zero‑shot instruction plus two concrete Python‑JS examples.  
-  - `few_shot_style.txt` – style‑augmented instruction plus the same two examples.  
-  *Verification:* Each file exists, contains ≥ 10 words, and `tests/contract/test_prompts_exist.py` confirms the word count.
+- [ ] T011 [P] Generate the summary tables and figures directly from the validated CSVs: `data/results/summary_table.csv` (pass rates, mean complexity, mean LOC per condition with 95% CIs) and `figures/correctness_by_condition.png`, `figures/quality_by_condition.png` via matplotlib, each derived programmatically from `validation_results.csv` and `quality_metrics.csv` — no hand-typed numbers.
+  *Verification:* A check script re-derives the table values from the CSVs and matches `summary_table.csv`; figure files exist and are non-empty.
 
-- [ ] **T008** [ P ] [ US2 ] Implement deterministic inference in `src/execution/run_inference.py`:  
-  - Load `data/processed/corpus.csv` and the four prompt files.  
-  - For every `(snippet, condition)` pair, build the full prompt, call the HuggingFace Inference API (`model = "codellama/CodeLlama-7b-Instruct-hf"`), **pin** `seed=42`, `temperature=0.0`, and **log** `prompt_text`, `model_version`, `seed`, and ISO‑8601 `timestamp` to `logs/inference.log`.  
-  *Verification:* Re‑run the script on a tiny sample (`N=2`) and assert that `logs/inference.log` contains identical entries on two separate executions (checked by `tests/unit/test_determinism.py`).
+- [ ] T012 Write `paper/methods_and_results.md` linking every reported number to its source cell in `metadata_log.csv`, `io_pairs.csv`, `validation_results.csv`, `quality_metrics.csv`, and `statistical_summary.csv`. Report observed effect sizes, confidence intervals, power-limitation notes, the exclusion-independence result, the ground-truth-by-definition limitation, the deterministic seed and model version, and any negative findings honestly. Address the reviewer's structural point by adding a short error-taxonomy subsection classifying failed translations (syntax error vs. runtime error vs. wrong output vs. refusal) computed from the validation logs, without expanding the study scope.
+  *Verification:* Manual/automated review confirms every numeric claim traces to an existing CSV cell and no placeholder numbers remain.
 
-- [ ] **T009** [ P ] [ US2 ] Store each generated JavaScript file under `data/evaluation/raw_translations/<condition_name>/<snippet_id>.js` (e.g., `data/evaluation/raw_translations/zero_shot_basic/001.js`).  
-  *Verification:* After a successful inference run, `tests/contract/test_output_hierarchy.py` confirms that every condition folder contains a `.js` file for each snippet ID.
+- [ ] T013 Re-run the documented workflow end-to-end from its declared inputs (`code/src/main.py` per `quickstart.md`), confirm all pytest unit/contract/integration suites pass, confirm runtime ≤ 6 h and memory ≤ 7 GB, and document the paper-stage handoff (layout, PDF compilation, and publication belong to the subsequent paper pipeline) in `paper/methods_and_results.md`.
+  *Verification:* Full `pytest code/tests/` passes; `data/logs/runtime.log` ≤ 21600 s; quickstart command reproduces the result artifacts from inputs.
 
-- [ ] **T010** [ P ] [ US2 ] Extend the inference pipeline to detect non‑code responses (empty string, “I cannot do that”, malformed JSON). When detected, write a line to `logs/failed_translations.log` with `snippet_id`, `condition_name`, and the raw response; still record the attempt in the metadata log.  
-  *Verification:* Inject a mock response that triggers the filter and assert that the log file contains the corresponding entry (`tests/unit/test_failed_translation.py`).
+## Dependencies and requirement coverage
 
-- [ ] **T011** [ P ] [ US2 ] Generate a version‑controlled metadata CSV `data/evaluation/metadata_log.csv` containing columns: `snippet_id`, `condition_name`, `prompt_path`, `model_version`, `seed`, `timestamp`, `response_status` (success/timeout/failed). Commit the CSV to Git.  
-  *Verification:* Schema validation test `tests/contract/test_metadata_log.py` checks column presence and that row count matches the number of inference attempts.
+| Requirement | Tasks | Order |
+|---|---|---|
+| FR-001 (dataset ≥ 200 pairs, ≤ 7 GB) | T001, T002 | first |
+| FR-002 (four conditions, CodeLlama, deterministic) | T003, T004, T005, T009 | after T002 |
+| FR-003 (empirical I/O validation in Node.js) | T006, T007, T009 | after T004 |
+| FR-004 (ESLint complexity + LOC) | T008, T009 | after T004 |
+| FR-005 (GLMM/ANOVA, Bonferroni, power) | T010 | after T009 |
+| FR-006 (prompt/model/seed/output logging) | T004 (metadata_log.csv) | with T004 |
+| Schema contracts | T002, T004, T006–T008, T010 | inline |
+| Paper handoff | T011–T013 | last |
 
----
-
-## Phase 4 – Functional correctness & quality measurement  
-
-- [ ] **T012** [ P ] [ US3 ] Implement `src/evaluation/extract_io_pairs.py` that executes each Python snippet on a deterministic set of synthetic inputs (five‑element boundary, typical, and mixed cases), records successful `input_json` / `expected_output_json` pairs, and writes `data/evaluation/io_pairs.csv`. Snippets that fail to produce ≥ 5 pairs are excluded and logged.  
-  *Verification:* Run the script on the processed corpus and assert that `io_pairs.csv` contains at least 180 rows (allowing for a small exclusion rate); confirm that `logs/io_extraction.log` records the exclusion count.
-
-- [ ] **T013** [ P ] [ US3 ] Implement `src/evaluation/run_js_tests.py` which, for every generated JavaScript file, runs the corresponding I/O pairs using a Node.js runner with a **10 s** per‑test timeout (via `src/utils/timeout_utils.py`). Produce `data/evaluation/validation_results.csv` with columns matching `translation_result.schema.yaml` (`test_pass_status` = pass/fail/timeout/skipped).  
-  *Verification:* Contract test `tests/contract/test_validation_results_schema.py` validates the CSV against the schema; an integration test runs the runner on a known‑good snippet and expects a `pass` row.
-
-- [ ] **T014** [ P ] [ US4 ] Implement `src/evaluation/compute_quality.py` that invokes the ESLint complexity plugin on each `.js` file, extracts `cyclomatic complexity` and `lines of code`, and writes `data/evaluation/quality_metrics.csv`.  
-  *Verification:* Unit test `tests/unit/test_compute_quality.py` runs the script on a sample file and asserts numeric `complexity_score` ≥ 1 and `lines_of_code` > 0.
-
----
-
-## Phase 5 – Statistical analysis & reporting  
-
-- [ ] **T015** [ P ] [ US5 ] Implement `src/evaluation/statistical_analysis.py` to:  
-  1. Perform a chi‑square test of correctness rates across the four prompt conditions (baseline = `zero_shot_basic`).  
-  2. Conduct Repeated‑Measures ANOVA on `complexity_score` and `lines_of_code`.  
-  3. Apply Bonferroni correction for all pairwise comparisons.  
-  4. Optionally fit a logistic regression on snippet‑difficulty (as defined in the plan) and stratify if significant.  
-  5. Write the aggregated results to `data/evaluation/statistical_summary.csv` conforming to `statistical_summary.schema.yaml`.  
-  *Verification:* Unit test `tests/unit/test_statistical_analysis.py` checks that the CSV contains the required columns, that all `p_value` entries are floats, and that the `correction_method` column equals `"bonferroni"` for every row.
-
-- [ ] **T016** [ P ] [ US5 ] Create a concise methods‑results markdown handoff `paper/methods_and_results.md` that (a) references the exact artefacts (`metadata_log.csv`, `validation_results.csv`, `quality_metrics.csv`, `statistical_summary.csv`), (b) lists observed effect sizes, confidence intervals, and any power‑limitation notes, and (c) notes the deterministic seed and model version.  
-  *Verification:* Manual review confirms that every figure/table reference points to an existing CSV file and that the document contains no placeholder numbers.
-
----
-
-## Phase 6 – Reproducibility & state finalisation  
-
-- [ ] **T017** [ P ] [ US6 ] Run the full end‑to‑end pipeline from `src/ingestion/download_datasets.py` through `src/evaluation/statistical_analysis.py` on the CI runner, measuring total wall‑clock time and writing `logs/runtime.log` (seconds). The script must abort if runtime > 21600 s (6 h).  
-  *Verification:* CI job succeeds and `logs/runtime.log` reports a value ≤ 21600.
-
-- [ ] **T018** [ P ] [ US6 ] Invoke `src/utils/update_state.py` (from **T003**) after the pipeline completes to record a final project state hash and timestamp.  
-  *Verification:* The `state/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e.yaml` file’s `artifact_hashes` reflect the latest SHA‑256 values and `updated_at` matches the current time.
-
-- [ ] **T019** [ P ] [ US6 ] Add contract tests for the newly created evaluation scripts:  
-  - `tests/contract/test_io_extraction.py` (schema of `io_pairs.csv`)  
-  - `tests/contract/test_translation_result_schema.py` (schema of `validation_results.csv`)  
-  - `tests/contract/test_quality_metrics_schema.py` (schema of `quality_metrics.csv`)  
-  *Verification:* All contract tests pass in CI, guaranteeing that each CSV conforms to its respective schema.
-
----
-
-### Dependency mapping (summary)
-
-| Spec requirement | Satisfying task(s) |
-|------------------|--------------------|
-| FR‑001 | T004, T005, T006 |
-| FR‑002 | T007, T008, T009, T010, T011 |
-| FR‑003 | T012, T013 |
-| FR‑004 | T014 |
-| FR‑005 | T015 |
-| FR‑006 | T008, T011 |
-| Data‑model contracts | T012‑T015 (schemas) |
-| Reviewer‑rejected items | T002, T007‑T011, T014‑T016, T018‑T019 |
-
-All tasks are unchecked (pending implementation) and ordered to respect data flow: ingestion → preprocessing → checksum → prompts → deterministic inference → storage → logging → I/O extraction → JS validation → quality measurement → statistical analysis → reproducibility handoff.
+Data flow is strictly respected: corpus (T002) → inference outputs (T004) → I/O pairs (T006) → validation (T007) → quality (T008) → statistics (T010) → reporting (T011–T013). All previously verifier-rejected artifacts (timeout utils, prompt files, deterministic inference logging, output hierarchy, failed-translation logging, metadata log, test-translation contract test, compute_quality, statistical_analysis, statistical_summary.csv) are re-opened inside T003, T004, T007, T008, and T010 with their exact required paths. Platform-owned state hashing (`state/...`, `update_state.py`) from the prior task list is intentionally not tasked: the runtime derives artifact hashes at verification time, and a project script writing `state/` leaves a stale shadow the verifier rejects.
