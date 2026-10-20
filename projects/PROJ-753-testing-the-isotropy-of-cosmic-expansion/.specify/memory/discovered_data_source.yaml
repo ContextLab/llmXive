@@ -1,13 +1,12 @@
 status: none
-intent: Pantheon+ Type Ia Supernova dataset download link official release v1.0 python
-  package dataset
+intent: Pantheon+ Type Ia Supernova Sample download python package with RA Dec redshift
 required_fields:
-- SN_name
-- ra
-- dec
-- z
-- mu
-- mu_err
-cache_key: 2b7f3a188f214e6a17fd1988d25bba0e209d845dbdea265078a69ad541846bd4
-searched_at: '2026-10-20T17:27:05.454045+00:00'
+- SN name
+- RA
+- Dec
+- redshift
+- distance_modulus
+- distance_modulus_error
+cache_key: 88f9a0e008167e6e5ddd40a93ad5514fded5f5e84b1cea5da8bdf2f7fed5b0a9
+searched_at: '2026-10-20T18:12:25.204906+00:00'
 retry_count: 1

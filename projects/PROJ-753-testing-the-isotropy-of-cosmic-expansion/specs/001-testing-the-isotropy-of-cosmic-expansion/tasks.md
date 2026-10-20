@@ -33,12 +33,12 @@ The tasks below implement the complete end‑to‑end analysis required by the s
   - Commit the file at `requirements.txt`.  
   - **Verification**: `pip install -r requirements.txt` succeeds without version conflicts.
 
-- [X] T003 [P] Configure code quality tools (Ruff + Black)
+- [ ] T003 [P] Configure code quality tools (Ruff + Black)
   - Add `pyproject.toml` with sections `[tool.black]` (line‑length = 88) and `[tool.ruff]` (select = ["E", "F", "W", "C90"]).  
   - Add a CI helper script `scripts/lint.sh` that runs `black --check . && ruff .`.  
   - **Verification**: `bash scripts/lint.sh` exits with status 0 on the current code base.
 
-- [ ] T004 [US1] Download the Pantheon+ “full” sample, verify checksum, and record provenance   <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 -->
+- [ ] T004 [US1] Download the Pantheon+ “full” sample, verify checksum, and record provenance   <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_pantheon.py exit=1 -->
   - URL: `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/PantheonPlusDataRelease/PantheonPlusDataRelease/main/data/Pantheon%2B_SH0ES.dat` — HTTP 404] (the canonical release).  
   - Save to `data/raw/pantheon_plus_SH0ES.dat`.  
   - Compute SHA‑256, write `data/metadata.json` with fields `dataset_version`, `source_url`, `sha256`.  

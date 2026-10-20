@@ -1,24 +1,32 @@
 T001:
   c: true
-  h: 3e0940bc24fa3c766d45839c9dab5397586a9f91bea637c2be4eb381f57d7b75
-  r: Checked the repository tree showing all required directories (data/raw, data/processed,
-    code, tests/unit, tests/integration, tests/contract, docs, reports, figures, scripts)
-    and the passing unit test `test_directory_structure.py` confirming their existence
-    and presence of the required code modules.
-  sig: eaf4b20c5a00afda359e7b35a6139bff0dc41147c81c720c688c9a963452dc3b
+  h: d367aa46fa1583eba05ab61528ad5c861313ecbbcd8e211fc6b58f24ed7033fe
+  r: 'All required directories exist and are non-empty (each contains at least a `.gitkeep`):
+    `data/raw/`, `data/processed/`, `code/`, `tests/unit/`, `tests/integration/`,
+    `tests/contract/`, `docs/`, `reports/`, `figures/`, and `scripts/`. The `code/`
+    directory additionally contains all seven named source modules (`ingest.py`, `utils.py`,
+    `spherical_harmonics.py`, `simulations.py`, `analysis.py`, `visualize.py`, `models.py`),
+    which exceeds the directory-tree requirement for this scaffolding task.'
+  sig: 0ca064b3d9f798516d6a9c676ce379274212a6effca0d85b682b9f920fc0bc5c
 T002:
   c: true
-  h: 9a345777d0b307a3adf785423e47fb98529d4db2d740c14eb44c426db17c69d7
-  r: "Checked the `requirements.txt` at the project root \u2013 it contains exact\
-    \ `==` version pins for all listed packages \u2013 and the recorded `install_requirements.sh`\
-    \ run plus the pytest integration test both show `pip install -r requirements.txt`\
-    \ completing successfully with no version conflicts."
-  sig: b0e1000fb2689ce3a1f46e29df9083cdc045bbf98abcc87babefc72bdb3d3ff4
+  h: 93c3bc25f9ca9ad85991de00d6fdb5575e5746fbd7f48f47bee83ac1f4a0de00
+  r: The `requirements.txt` exists at the project root with fully-pinned exact versions
+    (`==`) for all seven required packages (astropy 6.0.1, healpy 1.16.2, numpy 1.26.4,
+    scipy 1.11.4, pandas 2.1.4, matplotlib 3.8.2, pytest 7.4.4), all within the specified
+    version ranges, plus two extra pinned dev tools. The task explicitly allowed manual
+    pinning, and the versions are mutually compatible (numpy 1.26.4 satisfies all
+    listed constraints).
+  sig: e1de1086065a6dc95058ceb689f17c183e32b585a622e3a28fef96a3856c4009
 T003:
-  c: true
-  h: 2ca132fe818e340ea13299f33ced8eab99fd27990fe55eb570cb5013a4d3fb1a
-  r: "Checked `pyproject.toml` for the required Black and Ruff sections, `scripts/lint.sh`\
-    \ for the Black and Ruff invocations, and the execution log showing the script\
-    \ exits with status\u202F0. All required artifacts exist, contain the correct\
-    \ configuration, and the script runs the tools successfully."
-  sig: 3fcd7d7f857a2ccf3c5013e7bf7a3b1fd946a00c6853b63f738dc0b9392a93c3
+  c: false
+  h: 1b5a26a320502c66bb77c3371bfdcc0786424c6641a1b641e7792cceedf5a61c
+  r: "The `pyproject.toml` and `scripts/lint.sh` files exist with the correct required\
+    \ content (`[tool.black]` line-length 88, `[tool.ruff]` select E/F/W/C90, and\
+    \ the script runs `black --check .` then `ruff .`). However, the task's explicit\
+    \ verification requirement \u2014 that `bash scripts/lint.sh` exits with status\
+    \ 0 on the current code base \u2014 has no supporting execution evidence (no run\
+    \ log, exit status, or tool output), so there is no proof the lint check actually\
+    \ passes or that black/ruff are even installed. The implementer should run the\
+    \ script and provide its exit status/output as evidence."
+  sig: 4f1b1683ac216c6eb220817bf9f2b4909fe5951582f7e184a902a7a11185d661
