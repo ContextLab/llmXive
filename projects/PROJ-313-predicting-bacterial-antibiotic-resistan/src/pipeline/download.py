@@ -3,7 +3,7 @@ Download a small, real subset of *E. coli* and *S. aureus* isolates with
 associated assembly FASTA files from NCBI. The script writes:
   - a parquet file with minimal metadata (`data/raw/ncbi_parquet/isolates.parquet`)
   - the raw FASTA files (`data/raw/assemblies/<isolate_id>.fasta`)
-  - a sample‑size summary CSV (`results/sample_sizes.csv`)
+  - a sample‑size summary CSV (`data/processed/sample_sizes.csv`)
 It also logs SHA‑256 checksums for the parquet file and each FASTA.
 This implementation uses a hard‑coded list of known high‑quality reference
 assemblies to guarantee that the script succeeds in a CI environment where
@@ -111,7 +111,10 @@ def main() -> None:
     # Output locations (the `paths` helpers create parent directories)
     parquet_path = paths.data("raw", "ncbi_parquet", "isolates.parquet")
     fasta_dir = paths.data("raw", "assemblies")
-    sample_sizes_path = paths.results("sample_sizes.csv")
+    # NOTE: The specification requires the sample‑size CSV to be under
+    # `data/processed/`. Previously it was written to `results/`, which broke
+    # downstream tasks. This has been corrected.
+    sample_sizes_path = paths.data("processed", "sample_sizes.csv")
 
     parquet_path.parent.mkdir(parents=True, exist_ok=True)
     fasta_dir.mkdir(parents=True, exist_ok=True)

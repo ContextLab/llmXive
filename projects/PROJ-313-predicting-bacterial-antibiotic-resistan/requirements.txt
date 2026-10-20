@@ -1,15 +1,7 @@
-# Project dependencies
-#
-# Core scientific libraries (versions are compatible with the platform's
-# base environment).  The only addition required for this task is an
-# upgraded NumPy version because the `datasets` library (which pulls in
-# `pyarrow`) now requires NumPy 2.x.
-#
-# The environment already provides the following packages, but they are
-# listed here for completeness and to pin them if the CI environment
-# installs from this file:
-numpy>=2.0
-pandas
-requests
 tqdm
-datasets
+pyarrow
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
+# already provided by the execution environment. The additional packages
+# above are required for parquet writing (pyarrow) and progress bars
+# (tqdm).

@@ -1,10 +1,6 @@
 T001:
-  reason: "Checked `data/raw/ncbi_parquet/isolates.parquet` (present) and `src/pipeline/download.py`\
-    \ execution log (exits 0, but both FASTA downloads failed, leaving `data/raw/assemblies/`\
-    \ empty) and the sample\u2011size CSVs (the script writes `results/sample_sizes.csv`,\
-    \ while the task requires a correctly\u2011formatted `data/processed/sample_sizes.csv`).\
-    \ The required FASTA files are missing and the sample\u2011size table is not in\
-    \ the specified location/format."
+  reason: 'Requested task execution failed; rerun successfully: src/pipeline/download.py
+    exit=1'
   task: 763496f65e5a68309c7c6f33ee5957f03c94b21b21f0ca5e70d71840069c592c
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/pipeline/extract_baseline.py
