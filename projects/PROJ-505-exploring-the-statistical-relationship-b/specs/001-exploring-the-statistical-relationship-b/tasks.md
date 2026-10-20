@@ -8,7 +8,7 @@
 
 **Goal**: Obtain real solar‑wind composition and geomagnetic data, align them to a clean hourly grid, and verify that the pipeline runs on a small real subset before scaling to the full 20‑year interval.
 
-- [ ] **T001** [P] Ensure reproducibility by pinning every dependency in `requirements.txt` to the pattern `package==major.minor.*`.  
+- [ ] **T001** [P] Ensure reproducibility by pinning every dependency in `requirements.txt` to the pattern `package==major.minor.*`.   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
   *Updates*: pin `pyarrow` as `pyarrow==15.0.*` (or replace with `fastparquet==2024.*`), add `pyspedas==1.6.*`, `pytplot==2.2.*`, `cdflib==1.3.*`.  
   *Verification*: `pip install -r requirements.txt` succeeds on a clean runner; CI regex check confirms each line matches `^[a-zA-Z0-9_-]+==[0-9]+\.[0-9]+\.\*$`. This task supports Constitution Principle I (Reproducibility) and provides traceability for all downstream scientific tasks.
 

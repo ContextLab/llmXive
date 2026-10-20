@@ -14,7 +14,7 @@ pyyaml==6.0.*
 requests==2.32.*
 tqdm==4.66.*
 # Parquet I/O fallback – fastparquet is used when pyarrow is absent.
-fastparquet==2024.1.*
+fastparquet==2024.2.*
 # Real‑data ingestion packages (CDAWeb access).
 pyspedas==1.6.*
 pytplot==2.2.*

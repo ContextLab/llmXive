@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T21:22:09.289014Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-505-exploring-the-statistical-relationship-b
-last_run_id: 654f4eb4-d599-4966-af6d-e36e9553508d
+last_run_id: 9641235e-29f8-4d4d-ac21-d531af141d08
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-505-exploring-the-statistical-relationship-b/specs/001-exploring-the-statistical-relationship-b
 title: Exploring the Statistical Relationship Between Solar Wind Composition and Geomagnetic
   Indices
-updated_at: '2026-10-20T18:46:31.154413Z'
+updated_at: '2026-10-20T18:48:20.856291Z'
