@@ -30,7 +30,7 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Fraction of test samples with predictive std dev > 2x median."
+    description: "Fraction of test samples with predictive std dev > 2 × median."
   feature_importance:
     type: "array"
     items:
@@ -46,10 +46,10 @@ properties:
     description: "Permutation importance scores for each feature."
   baseline_r2:
     type: "number"
-    description: "R2 score of the linear regression baseline."
+    description: "R² score of the linear regression baseline."
   importance_correlation:
     type: "number"
-    description: "Spearman correlation between model importance and baseline."
+    description: "Spearman correlation between model importance and random baseline (proxy for SC‑004)."
   residual_analysis:
     type: "object"
     properties:

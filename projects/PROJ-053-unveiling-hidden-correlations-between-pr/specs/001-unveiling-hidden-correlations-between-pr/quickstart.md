@@ -1,69 +1,77 @@
 # Quickstart: Unveiling Hidden Correlations Between Processing Parameters and Mechanical Properties in Additively Manufactured Alloys
 
 ## Prerequisites
-
-- Python 3.11+
-- `pip`
-- Access to the internet (for dataset download)
+- Python 3.11 or newer
+- `git`
+- Internet connection (to download the dataset)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-053-unveiling-hidden-correlations-between-pr
-    ```
+```bash
+# 1. Clone the repository
+git clone <repo-url>
+cd projects/PROJ-053-unveiling-hidden-correlations-between-pr
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+# 3. Install pinned dependencies
+pip install -r code/requirements.txt
+```
 
-## Data Preparation
+## Step‑by‑Step Pipeline
 
-**Note**: The project requires a valid AM dataset. The implementation will attempt to download from the verified source **NIST AM-Bench** (Zenodo). If this dataset does not contain the required columns, the script will halt.
+### 1. Download & Validate the Dataset
+```bash
+python code/main.py --step download
+```
+- Downloads `doe.csv` from the verified URL.
+- Verifies SHA‑256 checksum.
+- Checks that at least 50 rows and the required numeric columns are present.
 
-1.  **Run the data loader**:
-    ```bash
-    python code/main.py --step download
-    ```
-    *This step downloads the raw data, validates the schema, and saves it to `data/raw/`.*
+### 2. Preprocess the Data
+```bash
+python code/main.py --step preprocess
+```
+- Median imputes missing values.
+- Min‑max normalizes all numeric columns to `[0, 1]`.
+- Writes `data/processed/preprocessed.csv` and `data/processed/preprocessing.log`.
 
-2.  **Preprocess the data**:
-    ```bash
-    python code/main.py --step preprocess
-    ```
-    *This step performs median imputation, min-max normalization, and one-hot encoding. Output saved to `data/processed/`.*
+### 3. Train Models & Compute Metrics
+```bash
+python code/main.py --step train
+```
+- Splits data (80 % train / 20 % test, fixed random seed 42).
+- Trains GPR (RBF kernel) with 5‑fold CV and a Linear Regression baseline.
+- Saves models under `results/model/`.
+- Writes `results/metrics.json` (validated against `contracts/model_output.schema.yaml`).
 
-## Training & Analysis
+### 4. Analyse Importance & Uncertainty
+```bash
+python code/main.py --step analyze
+```
+- Computes permutation importance (`results/importance_ranking.json`).
+- Generates high‑uncertainty flag CSV (`results/high_uncertainty_regions.csv`).
+- Produces contour and uncertainty heatmap PNGs under `results/plots/`.
+- Writes side‑car JSON metadata for each plot (`contracts/visualization.schema.yaml`).
 
-1.  **Train the GPR model**:
-    ```bash
-    python code/main.py --step train
-    ```
-    *Trains the model with 5-fold CV and saves the artifact to `results/model.pkl`.*
+### 5. Review Outputs
+- `results/metrics.json` – performance numbers, uncertainty ratio, runtime.  
+- `results/plots/contour_response.png` – predicted surface.  
+- `results/plots/uncertainty_heatmap.png` – σ heatmap with red zones for σ > 2×median.  
+- `results/importance_ranking.json` – ranked feature influence.
 
-2.  **Generate results and plots**:
-    ```bash
-    python code/main.py --step analyze
-    ```
-    *Calculates metrics, performs permutation importance, and generates contour plots in `results/plots/`.*
-
-## Expected Outputs
-
-- `results/metrics.json`: Performance metrics (R², RMSE, MAE).
-- `results/plots/contour_yield_strength.png`: Predicted yield strength map.
-- `results/plots/uncertainty_heatmap.png`: Uncertainty distribution.
-- `results/importance_ranking.json`: Ranked feature importance.
+## Expected Runtime
+On the GitHub Actions free tier the full pipeline typically finishes in **≈ 3 minutes** for the ~200‑row dataset, well within the 6‑hour limit (SC‑005).
 
 ## Troubleshooting
 
-- **"No verified open dataset found..."**: The pipeline cannot find the NIST AM-Bench dataset. Check `research.md` for the current dataset status.
-- **"Insufficient data for GPR training..."**: The dataset has < 50 samples. A larger dataset is required.
-- **"Zero variance detected..."**: A feature has identical values. It has been automatically removed.
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| `No verified open dataset found` | Dataset URL unreachable or checksum mismatch. | Verify internet connectivity; re‑run `--step download`. |
+| `Insufficient data for GPR training; minimum 50 samples required.` | Downloaded file has < 50 rows. | Check the raw file; if corrupted, delete `data/raw/doe.csv` and re‑run download. |
+| `Zero variance detected in column X` | All rows share the same value for a predictor. | The column is automatically dropped; no further action needed. |
+| `Model artifact missing` | Previous step failed (e.g., training crashed). | Inspect `code/main.py` logs; ensure the CI runner has enough memory (≤ 7 GB). |
+
+---

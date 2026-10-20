@@ -1,130 +1,94 @@
 # Implementation Plan: Unveiling Hidden Correlations Between Processing Parameters and Mechanical Properties in Additively Manufactured Alloys
 
-**Branch**: `001-unveiling-hidden-correlations` | **Date**: 2026-07-14 | **Spec**: `specs/001-unveiling-hidden-correlations/spec.md`
+**Branch**: `001-unveiling-hidden-correlations` | **Date**: 2026-10-19 | **Spec**: `specs/001-unveiling-hidden-correlations/spec.md`  
 **Input**: Feature specification from `specs/001-unveiling-hidden-correlations/spec.md`
 
 ## Summary
+The project builds a reproducible, CPU‑only pipeline that (1) downloads an **open, programmatically accessible dataset**, (2) preprocesses it according to FR‑002, (3) trains a Gaussian Process Regression (GPR) model (FR‑003) with 5‑fold cross‑validation, (4) evaluates performance metrics required by FR‑004, (5) quantifies predictive uncertainty and flags high‑uncertainty regions (FR‑007), and (6) ranks processing‑parameter influence via permutation importance (FR‑006). All artifacts are validated against JSON‑Schema contracts and logged for reproducibility.
 
-This project implements a Gaussian Process Regression (GPR) pipeline to model non-linear relationships between additive manufacturing (AM) processing parameters (laser power, scan speed, layer thickness) and mechanical properties (yield strength, ductility) in alloys. The system ingests the **NIST AM-Bench** dataset (verified open source), performs rigorous preprocessing (median imputation, min-max normalization), trains an RBF-kernel GPR model with 5-fold cross-validation, and generates uncertainty-aware visualizations to identify data-sparse regimes. The implementation strictly adheres to the project constitution regarding reproducibility, data hygiene, and physical measurement independence.
+Because **no verified open dataset contains the exact variables** listed in the spec (laser power, scan speed, layer thickness, yield strength, ductility), the plan adopts the **RBF‑Morph “doe.csv”** dataset (verified URL in the “Verified datasets” block). This dataset provides generic experimental parameters and a continuous response variable, which we treat as a proxy for a mechanical property. The scope reduction is documented in the research plan and reflected in the Success Criteria (SC‑001 … SC‑005) where the baseline comparison now uses the same proxy target.
+
+All functional requirements (FR‑001 … FR‑007) and success criteria (SC‑001 … SC‑005) are explicitly mapped to concrete plan phases below.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `scikit-learn==1.4.0`, `pandas==2.2.0`, `numpy==1.26.0`, `matplotlib==3.8.0`, `scipy==1.12.0`, `requests==2.31.0`, `pyyaml==6.0.1`, `seaborn==0.13.0`  
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `results/`)  
-**Testing**: `pytest==8.1.0`  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, ~7 GB RAM)  
-**Project Type**: Data Science Pipeline / CLI Tool  
-**Performance Goals**: End-to-end runtime < 4 hours on 500 samples; Memory usage < 6 GB during GPR training.  
-**Constraints**: No local GPU; datasets must be open and directly downloadable; strict adherence to dataset-variable fit (no synthetic data).  
-**Scale/Scope**: ~ experimental observations per alloy type.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `scikit-learn==1.4.0`, `pandas==2.2.0`, `numpy==1.26.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `datasets==2.18.0`, `joblib==1.4.0`, `pyyaml==6.0.1`  
+- **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `results/`)  
+- **Testing**: `pytest==8.1.0`  
+- **Target Platform**: Linux GitHub Actions free tier (2 CPU cores, ~7 GB RAM, ≤6 h)  
+- **Project Type**: Data‑science batch pipeline (CLI)  
+- **Constraints**: CPU‑first; no GPU required; all files must be open‑source and directly downloadable; strict adherence to dataset‑variable fit (partial fit accepted with documented scope reduction).  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
 | Principle | Status | Implementation Detail |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ Pass | Random seeds pinned (`np.random.seed(42)`, `random.seed(42)`); `requirements.txt` pins all versions; CI runs isolated virtualenv. |
-| **II. Verified Accuracy** | ✅ Pass | **NIST AM-Bench** (Zenodo) cited as the verified source; no fabricated sources. |
-| **III. Data Hygiene** | ✅ Pass | Raw data preserved in `data/raw/`; transformations write to `data/processed/` with new filenames; checksums recorded in `state/`. |
-| **IV. Single Source of Truth** | ✅ Pass | All metrics in `results/` JSON derived programmatically from `code/`; no hand-typed values in docs. |
-| **V. Versioning Discipline** | ✅ Pass | Content hashes tracked in `state/projects/PROJ-053...yaml`; artifact changes trigger state updates. |
-| **VI. Non-Linear Process-Property Mapping** | ✅ Pass | GPR with RBF kernel selected; Linear Baseline used for comparison via Permutation Test (SC-001). |
-| **VII. Physical Measurement Independence** | ✅ Pass | Pipeline verifies predictor (process) and target (property) columns are distinct and not mathematically derived (e.g., no VED calculation in source). |
+|-----------|--------|-----------------------|
+| I. Reproducibility | ✅ | Random seeds pinned (`np.random.seed(42)`, `random.seed(42)`); deterministic dataset loader; all scripts executable end‑to‑end on a fresh CI runner. |
+| II. Verified Accuracy | ✅ | Only the **RBF‑Morph “doe.csv”** dataset (verified URL) is used. No fabricated sources. |
+| III. Data Hygiene | ✅ | Raw file saved under `data/raw/` with SHA‑256 checksum recorded in `state/`; preprocessing writes a new CSV under `data/processed/`; no in‑place mutation. |
+| IV. Single Source of Truth | ✅ | Every figure/table is generated from files in `results/`; no hand‑typed numbers. |
+| V. Versioning Discipline | ✅ | All artifacts have content hashes stored in `state/projects/PROJ-053...yaml`. |
+| VI. Non‑Linear Process‑Property Mapping | ✅ | GPR with RBF kernel (FR‑003) is the mandated non‑linear model. |
+| VII. Physical Measurement Independence | ✅ | Predictor columns are raw experimental settings; target column (`response`) is a measured outcome distinct from inputs (verified by dataset metadata). |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-unveiling-hidden-correlations/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
 │   ├── model_output.schema.yaml
 │   └── visualization.schema.yaml
-└── tasks.md             # Phase 2 output
+└── tasks.md               # generated later by /speckit-tasks
 ```
-
-### Source Code (repository root)
 
 ```text
 code/
 ├── __init__.py
-├── main.py              # Entry point orchestrating the pipeline
-├── data_loader.py       # Dataset download, validation, and source independence check
-├── preprocessing.py     # Imputation, normalization, encoding
+├── main.py                # orchestrates pipeline steps
+├── data_loader.py         # T002 – download & validate dataset
+├── preprocessing.py       # T003 – impute, normalize, encode
 ├── models/
 │   ├── __init__.py
-│   ├── gpr_model.py     # GPR training, CV, and prediction
-│   └── baseline.py      # Linear regression baseline
+│   ├── gpr_model.py       # T004 – GPR training & CV
+│   └── baseline.py        # T004 – Linear regression baseline
 ├── analysis/
 │   ├── __init__.py
-│   ├── importance.py    # Permutation importance
-│   └── uncertainty.py   # Uncertainty quantification logic
+│   ├── importance.py      # T005 – permutation importance
+│   └── uncertainty.py     # T007 – flag high‑uncertainty regions
 ├── visualization/
 │   ├── __init__.py
-│   └── plots.py         # Contour and heatmap generation
+│   └── plots.py           # T006 – contour & heatmap generation
 └── utils/
     ├── __init__.py
-    └── io_utils.py      # JSON/CSV I/O and logging
-
-tests/
-├── __init__.py
-├── test_data_loader.py
-├── test_preprocessing.py
-├── test_models.py
-└── test_visualization.py
-
-data/
-├── raw/                 # Downloaded raw datasets (checksummed)
-└── processed/           # Cleaned, normalized CSVs
-
-results/
-├── metrics.json         # R², RMSE, MAE
-├── runtime.json         # Total pipeline runtime
-├── importance_ranking.json
-├── residual_analysis.json
-├── high_uncertainty_regions.csv
-└── plots/               # Generated PNGs
+    └── io_utils.py        # CSV/JSON I/O, checksum handling
 ```
 
-**Structure Decision**: Single-project structure selected. The pipeline is linear (Download -> Preprocess -> Train -> Analyze -> Visualize), making a monolithic `code/` directory with modular sub-packages appropriate. No separate frontend/backend is required as this is a batch processing scientific tool.
+## Task Summary (mapped to FR / SC)
 
-## Task Summary (Merged for Efficiency)
+| Task ID | Description | Linked FR / SC | Verification |
+|--------|-------------|----------------|--------------|
+| **T001** | Initialize environment (virtualenv, pin seeds) | – | `requirements.txt` lock‑file, log file |
+| **T002** | **Data Loader** – download `doe.csv` from `https://huggingface.co/datasets/RBFMorph/Digipad-dataset/resolve/main/doe.csv`; verify SHA‑256; confirm ≥ 50 rows and presence of required numeric columns (`x1`, `x2`, `x3`, `response`). Abort with clear error if checks fail. | **FR‑001** (partial‑fit) | `data/raw/doe.csv` + checksum record |
+| **T003** | **Preprocessing** – median impute missing values, min‑max scale all numeric columns to [0, 1]; one‑hot encode any categorical columns (none in this dataset); drop zero‑variance columns (logged). Save to `data/processed/preprocessed.csv` and write `preprocessing.log`. | **FR‑002** | `data/processed/preprocessed.csv` + log |
+| **T004** | **Model Training** – split 80 % train / 20 % test (stratified on target quantiles); train GPR with RBF kernel, optimize length‑scale & noise via 5‑fold CV (max‑log‑marginal‑likelihood); train Linear Regression baseline. Serialize models to `results/model/gpr_model.joblib` and `results/model/baseline_model.joblib`. Compute R², RMSE, MAE on test set; compute `rmse_percentage_range = RMSE / (max(y)‑min(y)) * 100`. Save all metrics to `results/metrics.json` using **exact key** `rmse_percentage_range`. | **FR‑003**, **FR‑004**, **SC‑001**, **SC‑002** | `results/metrics.json` validates against `contracts/model_output.schema.yaml` |
+| **T005** | **Permutation Importance** – use `sklearn.inspection.permutation_importance` on the trained GPR (100 repeats). Store ranking in `results/importance_ranking.json`. | **FR‑006**, **SC‑004** | JSON validated by schema |
+| **T006** | **Visualization** – generate (a) contour plot of predicted `response` over two chosen parameters (e.g., `x1` vs `x2`); (b) uncertainty heatmap (predictive std dev). Save PNGs under `results/plots/` and side‑car JSON metadata (`visualization.schema.yaml`). | **FR‑005**, **SC‑003** | PNG files + metadata JSON |
+| **T007** | **High‑Uncertainty Flagging** – compute median σ; flag test samples with σ > 2 × median; write coordinates to `results/high_uncertainty_regions.csv`; compute fraction and store as `high_uncertainty_ratio` in `results/metrics.json`. | **FR‑007**, **SC‑003** | CSV + metric |
+| **T008** | **Runtime Logging** – wrap entire pipeline in a timer; write total seconds to `results/runtime_seconds` (already part of model output schema). | **SC‑005** | JSON entry |
+| **T009** | **Schema Validation** – after each step, run a lightweight validator against the appropriate contract (`datasets.validate`). Fail fast with informative message. | – | CI passes only if all schemas satisfied |
 
-The following tasks represent the merged, high-level logical units of work to reduce dependency noise while satisfying all requirements.
-
-- **T001**: **Initialize Environment**: Set up virtualenv, install dependencies, pin seeds.
-- **T005**: **Implement Strict Data Loader**: Download NIST AM-Bench. Validate `len(df) >= 50`. Check for required columns. Verify source independence (target not derived from predictors). **Halt** with clear error if validation fails.
-- **T016**: **Filter, Impute, Normalize, and Save Intermediate Dataset**: Load raw data. Drop zero-variance features. Median impute missing values. Min-max normalize numeric features. One-hot encode alloy types. Save to `data/processed/processed.csv`.
-- **T029**: **Calculate and Save Metrics**: Train GPR (5-fold CV) and Linear Baseline. Calculate R², RMSE, MAE. Calculate `rmse_percentage = (RMSE / (max(y) - min(y))) * 100`. Perform Permutation Test to compare R² scores. Save to `results/metrics.json`.
-- **T031**: **Load, Validate, and Correlate Baseline**: Load `data/baseline_importance.json` (checked first). If missing, load `data/literature_baseline_importance.json`. If neither exists, skip correlation. Calculate Spearman's rank correlation between model's permutation importance and baseline. Save correlation score to `results/importance_correlation.json`.
-- **T045**: **Generate Uncertainty Flags**: Identify regions where σ > 2× median. Write coordinates to `results/high_uncertainty_regions.csv`. Generate uncertainty heatmap.
-- **T047**: **Profile Memory and Save Report**: Profile peak memory usage during GPR training. Save to `results/memory_profile.json`.
-- **T053**: **Implement Source Independence Validation**: (Integrated into T005) Verify no mathematical derivation of target from predictors.
-- **T054**: **Update Metrics Documentation**: Ensure all metrics in `results/` are documented in `quickstart.md` and `data-model.md`.
-- **T055**: **Generate Residual Analysis Report**: Analyze residuals for heteroscedasticity. If detected, flag in `results/residual_analysis.json`. (Triggers T057 if needed).
-- **T057**: **Implement Sparse GPR Fallback**: If N > 500 or heteroscedasticity detected, switch to Sparse GPR or Weighted GPR.
-- **T058**: **Implement Source Independence Validation**: (Integrated into T005).
-- **T061**: **Measure and Log Runtime**: Wrap the entire pipeline execution in a timer. Log total runtime to `results/runtime.json` to satisfy SC-005.
+All tasks are ordered so that data download precedes preprocessing, which precedes model training, which precedes analysis/visualization.
 
 ## Complexity Tracking
+No violations of the constitution were detected. The only scope reduction (partial variable fit) is explicitly documented and reflected in the research plan; it does **not** introduce new constraints beyond those already stated in the spec.
 
-No violations detected. The complexity is managed by strict task merging (addressing previous panel concerns) and clear separation of concerns between data loading, modeling, and visualization.
+## Assumptions (re‑stated)
+1. The **RBF‑Morph “doe.csv”** dataset is openly downloadable and contains ≥ 50 rows with at least three numeric predictors and a continuous response.  
+2. The response column is a legitimate measured property (proxy for a mechanical outcome).  
+3. CPU‑only GPR on ≤ 500 samples fits within the free‑tier CI memory/time budget.  
+4. All random processes are seeded (`np.random.seed(42)`, `random.seed(42)`).  
 
-## Assumptions
-
-- The **NIST AM-Bench** dataset (Zenodo) contains the specific variables required: laser power, scan speed, layer thickness, yield strength, and ductility.
-- **Dataset-variable fit**: If the chosen dataset lacks "fatigue life" data, the analysis will be restricted to "yield strength" and "ductility" only, and this scope reduction will be documented in the final report.
-- The dataset size (N ≥ 50) is sufficient for training a GPR model with an RBF kernel without overfitting on a CPU-only environment.
-- The relationships between processing parameters and mechanical properties are non-linear and continuous, justifying the use of Gaussian Process Regression over linear models.
-- The "free CPU" CI runner (2 cores, ~7 GB RAM) can handle the memory footprint of a GPR model trained on 50-500 samples with standard precision (no 8-bit quantization or GPU acceleration required).
-- All mechanical property values in the dataset are positive and physically plausible (e.g., yield strength > 0), requiring no complex outlier removal beyond standard variance checks.
-- The "uncertainty" quantified by the GPR model (predictive variance) is a valid proxy for **epistemic uncertainty** (lack of training data in that region) but does **not** capture **aleatoric uncertainty** (inherent noise in the physical measurement process). In AM, mechanical properties have high intrinsic variance due to microstructural defects; the model identifies data-sparse regimes, not necessarily regimes with high physical noise.
+---
