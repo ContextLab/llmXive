@@ -1,12 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-10-20T16:07:46.338791+00:00'
+last_used: eric-kandel
+last_used_at: '2026-10-20T18:06:05.592324+00:00'
 last_outcome: committed
 history:
-- slug: geoffrey-west
-  started_at: '2026-06-28T01:46:55.633467+00:00'
-  ended_at: '2026-06-28T03:13:49.723899+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: john-von-neumann
   started_at: '2026-06-28T03:13:49.723899+00:00'
   ended_at: '2026-06-28T05:11:01.954014+00:00'
@@ -1325,3 +1320,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-855-llmxive-follow-up-extending-translation/reviews/research/david-krakauer-simulated__2026-10-20__research.md
+- slug: eric-kandel
+  started_at: '2026-10-20T16:07:46.338791+00:00'
+  ended_at: '2026-10-20T18:06:05.592324+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-112-investigating-the-correlation-between-di/reviews/research/eric-kandel-simulated__2026-10-20__research.md
