@@ -39,8 +39,8 @@ The data model defines all entities that flow from raw acquisition to final resu
 | Attribute | Type | Description | Constraints |
 |-----------|------|-------------|-------------|
 | `run_id` | string | UUID for the model run. | Primary key. |
-| `pearson_r` | number | Correlation between predictions & true thresholds (–1 ≤ ≤ 1). | Non‑null. |
-| `p_value` | number | Empirical p‑value from global permutation test (0 ≤ ≤ 1). | Non‑null. |
+| `pearson_r` | number | Correlation (–1 ≤ ≤ 1). | Non‑null. |
+| `p_value` | number | Empirical p‑value from permutation test (0 ≤ ≤ 1). | Non‑null. |
 | `mae` | number | Mean Absolute Error (≥ 0). | Non‑null. |
 | `ci_lower` | number | Lower bound of 95 % bootstrap CI for r. | Non‑null. |
 | `ci_upper` | number | Upper bound of 95 % bootstrap CI for r (≥ ci_lower). | Non‑null. |
@@ -72,5 +72,3 @@ The data model defines all entities that flow from raw acquisition to final resu
 - Participants with `valid_eeg_minutes < 4.0` are excluded before feature extraction.  
 - `heat_pain_threshold` must lie within 35 °C – 55 °C.  
 - All output files must conform to the JSON/YAML schemas in `contracts/`.  
-
----

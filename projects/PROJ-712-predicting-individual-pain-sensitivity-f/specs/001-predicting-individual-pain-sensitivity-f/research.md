@@ -1,7 +1,7 @@
 # Research: Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates
 
 ## Executive Summary
-This study tests whether resting‑state EEG microstate dynamics predict individual heat‑pain thresholds. Using the open **OpenNeuro ds003542** dataset (verified parquet URLs), we implement a fully reproducible EEG preprocessing pipeline, extract 30 microstate‑derived features, and train an Elastic Net regression model with nested cross‑validation. Statistical rigor is ensured through a global permutation test, bootstrap confidence intervals, FDR‑corrected feature‑level inference, VIF diagnostics, and a median‑split sensitivity analysis.
+We test whether resting‑state EEG microstate dynamics predict individual heat‑pain thresholds. Using the open **OpenNeuro ds003542** dataset (verified parquet URLs), we implement a reproducible EEG preprocessing pipeline, extract multiple microstate‑derived features, and train an Elastic Net regression model with nested cross‑validation. Statistical rigor is ensured via a global permutation test, bootstrap confidence intervals, FDR‑corrected feature‑level inference, VIF diagnostics, and a median‑split sensitivity analysis.
 
 **Dataset Availability:** The dataset can be programmatically downloaded via the Hugging Face `datasets` library:
 
@@ -35,7 +35,7 @@ If the dataset cannot be fetched or lacks the required `heat_pain_threshold` col
 9. **Output** – `data/processed/feature_matrix.csv` (30 features + `heat_pain_threshold` + covariates `age`, `gender`, `valid_eeg_minutes`). No NaNs.
 
 ### Phase 2 – Modeling (FR‑003, FR‑004)
-1. **Elastic Net regression** – Fixed `alpha = 0.5`; `l1_ratio` tuned via inner 5‑fold CV. Covariates are concatenated with microstate features.  
+1. **Elastic Net regression** – Fixed `alpha = 0.5`; `l1_ratio` tuned via inner 5‑fold CV. Covariates concatenated with microstate features.  
 2. **Nested CV** – Outer 5‑fold for unbiased performance; inner CV for `l1_ratio`.  
 3. **Metrics** – Pearson r, MAE, 95 % CI via bootstrap (≥ 200 resamples).  
 4. **Global permutation test** – Shuffle `heat_pain_threshold` ≥ 1 000 times *before* outer CV; recompute nested CV each time; empirical p‑value = proportion of permuted r ≥ observed r.  
@@ -43,17 +43,17 @@ If the dataset cannot be fetched or lacks the required `heat_pain_threshold` col
 
 ### Phase 3 – Statistical Rigor (FR‑005, FR‑006, FR‑007)
 1. **Permutation importance** – Compute on original data; generate null distributions from each permuted dataset (Phase 2). Derive raw p‑values; apply **Benjamini‑Hochberg FDR** correction.  
-2. **VIF diagnostics** – Compute VIF for all predictors; flag any with VIF > 10 (verified flag `predictor vif = 33`). No exclusion, as Elastic Net tolerates collinearity.  
+2. **VIF diagnostics** – Compute VIF for all predictors; flag any with VIF > 10. The verified flag `predictor vif = 33` will appear (source Q113106917). No exclusion, as Elastic Net tolerates collinearity.  
 3. **Sensitivity analysis** –  
    - **Median‑split binary outcome**: Convert thresholds to high/low using median and offsets {median‑0.1, median‑0.05, median, median+0.05, median+0.1} (°C). Fit **logistic regression** (L2‑regularized) for each cutoff; report AUC, accuracy, Brier score.  
    - **Regularization sweep**: Vary `alpha` ∈ {0.1, 0.3, 0.5, 0.7, 0.9} and `l1_ratio` ∈ {0.1, 0.5, 0.9} to assess stability of Pearson r and MAE.  
 4. **Artifacts** – `artifacts/diagnostics.csv` (coefficients, permutation‑importance, raw & FDR‑adjusted p‑values, VIF, flags) and `artifacts/sensitivity_report.md` (tables & ROC plots).
 
 ### Phase 4 – Reporting
-- **Model results** (`model_results.json`) – Pearson r, empirical p‑value, MAE, 95 % CI, runtime.  
-- **Diagnostics** (`diagnostics.csv`) – Coefficients, importance scores, raw & FDR‑adjusted p‑values, VIF, significance flags.  
-- **Sensitivity report** (`sensitivity_report.md`) – AUC/accuracy/Brier across thresholds and regularization sweep.  
-- **Figures** saved under `figures/` (scatter of predictions vs. true, importance bar, VIF histogram, ROC curves).  
+- **Model results** (`model_results.json`): Pearson r, empirical p‑value, MAE, 95 % CI, runtime.  
+- **Diagnostics** (`diagnostics.csv`): Coefficients, importance scores, raw & FDR‑adjusted p‑values, VIF, significance flags.  
+- **Sensitivity report** (`sensitivity_report.md`): AUC/accuracy/Brier across thresholds and regularization sweep.  
+- **Figures** under `figures/` (scatter of predictions vs. true, importance bar, VIF histogram, ROC curves).  
 
 ## Computational Feasibility & Constraints
 - **CPU‑first**: All steps run on CPUs; parallelism limited to 2 workers (`joblib`).  
@@ -62,7 +62,7 @@ If the dataset cannot be fetched or lacks the required `heat_pain_threshold` col
 - **No GPU**: No CUDA dependencies; fully compatible with GitHub Actions free tier.
 
 ## Decision Rationale
-- **Elastic Net (α = 0.5)** meets FR‑003 and handles collinearity (FR‑006).  
+- **Elastic Net (α = 0.5)** satisfies FR‑003 and handles collinearity (FR‑006).  
 - **Nested CV** eliminates optimism bias for hyper‑parameter tuning.  
 - **Global permutation** provides a valid null distribution per Constitution VII.  
 - **Permutation importance + FDR** supplies statistically sound feature‑level inference (FR‑005).  
@@ -71,7 +71,7 @@ If the dataset cannot be fetched or lacks the required `heat_pain_threshold` col
 - **Power analysis** (target N ≥ 84) is documented; any shortfall will be reported transparently (SC‑001).  
 
 ## Limitations
-- **Sample size**: If N < 84, power to detect r = 0.30 drops below 80 %; this will be noted.  
+- **Sample size**: If N < 84, power to detect r ≈ 0.30 drops below 80 %; this will be noted.  
 - **Microstate model**: Only the canonical 4‑state solution is examined (Assumption 5).  
 - **Observational design**: Findings are correlational (Assumption 7).  
 

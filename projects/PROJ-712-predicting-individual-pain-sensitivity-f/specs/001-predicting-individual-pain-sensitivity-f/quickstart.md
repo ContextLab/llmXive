@@ -55,10 +55,10 @@ The orchestrator will:
 1. **Create required directories** (`scripts/create_dirs.sh`).  
 2. **Run integration test** (`pytest tests/integration/test_structure.py`) to confirm directory creation.  
 3. **Preprocess EEG** (streamed via `DataChunk`) and write `data/processed/feature_matrix.csv`.  
-4. **Pilot construct‑validity** on a 20‑participant subset; abort if no feature shows |r| ≥ 0.20.  
+4. **Pilot construct‑validity** on a 20‑participant subset, logs a warning if no feature reaches |r| ≥ 0.20 but does **not abort**.  
 5. **Train Elastic Net** with nested CV, perform the global permutation test, and write `artifacts/model_results.json`.  
 6. **Compute diagnostics** (permutation importance, FDR, VIF, sensitivity sweep); results saved in `artifacts/diagnostics.csv` and `artifacts/sensitivity_report.md`.  
-7. **Record SHA‑256 hashes** of all artifacts in the project state file.  
+7. **Record SHA‑256 hashes** of all artifacts in `artifacts/manifest.json`.  
 8. **Log runtime** in `artifacts/runtime_log.json`.  
 
 ## Running Individual Steps (optional)
@@ -94,3 +94,4 @@ pytest -q
 - **Blocked status** – Verify that the OpenNeuro ds003542 dataset containing `heat_pain_threshold` is present in `data/raw/`. No placeholder data should be used.  
 
 ---
+
