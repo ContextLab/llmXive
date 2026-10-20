@@ -1,18 +1,9 @@
 status: none
-intent: download OpenNeuro ds004510 EEG dataset using pybids python package dataset
-required_fields:
-- raw_eeg_signal
-- sampling_rate
-- channel_names
-- channel_types
-- events
-- event_id
-- epoch_time_window
-- epoch_data
-- subject_id
-- session_id
-- task
-- run
-cache_key: c72b8f3024f508b3df2b17d04fc41aa9305169173a9c34e7c6aeba241d706068
-searched_at: '2026-10-20T05:19:20.711604+00:00'
+intent: '### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
+  **Description**: As a researcher, I need to download a publicly available EEG dataset
+  (OpenNeuro ds004510, which contains both simple oddball and complex auditory scene
+  conditions), apply standard preprocessing (bandpass fil'
+required_fields: []
+cache_key: 6396b0edc4776bff7a85ec45e5d9cc3151e173320e650b509223303c99827b8e
+searched_at: '2026-10-20T05:25:39.311017+00:00'
 retry_count: 1
