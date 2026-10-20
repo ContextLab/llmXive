@@ -1,16 +1,16 @@
 status: none
-intent: OpenNeuro BIDS fMRI datasets ds000030 ds000206 python package dataset
+intent: OpenNeuro BIDS datasets ds000030 ds000206 pip install python package dataset
 required_fields:
 - subject_id
+- session_id
 - run
 - task
-- nifti_image_path
-- json_metadata_path
-- events_tsv
+- modality
+- nifti_file_path
+- json_sidecar_path
+- events_tsv_path
 - acquisition_parameters
-- repetition_time
-- voxel_dimensions
-- scanner
-cache_key: 22ac58e651aaf7f57358be8457af142e99286e686c37b4b3fe34c645c09795bc
-searched_at: '2026-10-20T13:36:10.069920+00:00'
+- participant_id
+cache_key: 3a7be44f86fa79d4b73ebab05ab5f90611653d6a9d0333e7cb21a98f4b2674be
+searched_at: '2026-10-20T13:39:53.519534+00:00'
 retry_count: 1

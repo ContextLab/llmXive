@@ -12,4 +12,4 @@ requests
 jsonschema
 psutil
 tqdm
-# The OpenNeuro fetcher uses the public HTTP endpoint; no extra package needed.
+# No additional third‑party packages required for the scaffold.

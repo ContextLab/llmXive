@@ -1,14 +1,12 @@
 """
 Data Validator
----------------
-Performs a lightweight sanity‑check on the BIDS directory produced by
-``openneuro_fetcher``.  The validator walks the directory tree and
-confirms that at least one NIfTI file (``*.nii`` or ``*.nii.gz``)
-exists for each subject.  If the check fails, a ``FileNotFoundError`` is
-raised – this implements the “fail loudly” policy required by the
-specification.
+--------------
+Minimal validator for downloaded OpenNeuro datasets. It implements a
+**fail‑loudly** policy: any problem raises an exception; no synthetic
+fallback or silent skipping is performed.
 """
 
+import json
 import logging
 import sys
 from pathlib import Path
@@ -23,26 +21,48 @@ if not logger.handlers:
     logger.addHandler(handler)
 
 
-def _find_subject_dirs(bids_root: Path) -> List[Path]:
-    """Return a list of subject directories (``sub-XX``) under ``bids_root``."""
-    return [p for p in bids_root.rglob("*") if p.is_dir() and p.name.startswith("sub-")]
-
-
-def validate_bids_structure(bids_root: Path) -> None:
+def validate_bids_structure(dataset_root: Path) -> None:
     """
-    Validate that each subject directory contains at least one functional
-    NIfTI file.  Raises ``FileNotFoundError`` if the check fails.
-    """
-    if not bids_root.is_dir():
-        raise FileNotFoundError(f"BIDS root directory does not exist: {bids_root}")
+    Validate that ``dataset_root`` contains at least the minimal BIDS
+    directories (e.g., ``sub-XX`` folders and a ``dataset_description.json``).
 
-    subject_dirs = _find_subject_dirs(bids_root)
+    Parameters
+    ----------
+    dataset_root : Path
+        Path to the extracted dataset directory.
+
+    Raises
+    ------
+    FileNotFoundError
+        If required BIDS components are missing.
+    """
+    if not dataset_root.is_dir():
+        raise FileNotFoundError(f"Dataset root directory does not exist: {dataset_root}")
+
+    # Very lightweight check: at least one subject folder and dataset_description.json
+    subject_dirs = [p for p in dataset_root.iterdir() if p.is_dir() and p.name.startswith("sub-")]
+    desc_file = dataset_root / "dataset_description.json"
+
     if not subject_dirs:
-        raise FileNotFoundError(f"No subject directories found under {bids_root}")
+        raise FileNotFoundError(f"No subject directories (sub-*) found in {dataset_root}")
 
-    for sub_dir in subject_dirs:
-        nifti_files = list(sub_dir.rglob("*.nii")) + list(sub_dir.rglob("*.nii.gz"))
-        if not nifti_files:
-            raise FileNotFoundError(f"No NIfTI files found for subject {sub_dir.name}")
+    if not desc_file.is_file():
+        raise FileNotFoundError(f"Missing required BIDS file: {desc_file}")
 
-    logger.info(f"Validated BIDS structure under {bids_root}: {len(subject_dirs)} subjects found.")
+    logger.info(f"BIDS structure validated for dataset at {dataset_root} (subjects: {len(subject_dirs)})")
+
+def write_manifest(downloaded_paths: List[Path], manifest_path: Path) -> None:
+    """
+    Helper to write a simple JSON manifest of downloaded datasets.
+
+    Parameters
+    ----------
+    downloaded_paths : List[Path]
+        List of dataset root directories.
+    manifest_path : Path
+        Destination JSON file.
+    """
+    manifest = {"downloaded_datasets": [str(p) for p in downloaded_paths]}
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    logger.info(f"Download manifest written to {manifest_path}")

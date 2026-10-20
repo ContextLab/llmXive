@@ -1,99 +1,95 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python -m pytest tests/unit/ -v`
-  - argparse error: `__main__.py: error: unrecognized arguments: --cov=code --cov-report=term-missing --cov-report=html`
-- run-book command: `python -m pytest tests/integration/test_end_to_end_pipeline.py -v`
-  - argparse error: `__main__.py: error: unrecognized arguments: --cov=code --cov-report=term-missing --cov-report=html`
-- run-book command: `python -m pytest tests/contract/ -v`
-  - argparse error: `__main__.py: error: unrecognized arguments: --cov=code --cov-report=term-missing --cov-report=html`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 8 command(s) failed: python code/main.py --action download --config config.yaml (rc=1); python code/main.py --action estimate_noise --config config.yaml (rc=1); python code/main.py --action inject_signals --config config.yaml (rc=1); 5 declared deliverable(s) absent: data/aggregated/convergence_log.json; data/aggregated/split_half_results.json; data/derived/noise_parameters.json
+**Summary**: 8 command(s) failed: python code/main.py --action download --config config.yaml (rc=1); python code/main.py --action estimate_noise --config config.yaml (rc=1); python code/main.py --action inject_signals --config config.yaml (rc=1); 4 declared deliverable(s) absent: data/aggregated/convergence_log.json; data/aggregated/split_half_results.json; data/derived/processed_roi/roi_timeseries.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --action download --config config.yaml -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 14, in <module>
-    from download.openneuro_fetcher import main as fetch_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/__init__.py", line 7, in <module>
-    from .openneuro_fetcher import fetch_paradigm_data
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/openneuro_fetcher.py", line 46, in <module>
-    from utils.resource_guard import enforce_memory_limit
-ModuleNotFoundError: No module named 'utils.resource_guard'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 15, in <module>
+    from download.data_validator import main as validate_main
+ImportError: cannot import name 'main' from 'download.data_validator' (/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/data_validator.py)
 
 - python code/main.py --action estimate_noise --config config.yaml -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 14, in <module>
-    from download.openneuro_fetcher import main as fetch_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/__init__.py", line 7, in <module>
-    from .openneuro_fetcher import fetch_paradigm_data
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/openneuro_fetcher.py", line 46, in <module>
-    from utils.resource_guard import enforce_memory_limit
-ModuleNotFoundError: No module named 'utils.resource_guard'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 15, in <module>
+    from download.data_validator import main as validate_main
+ImportError: cannot import name 'main' from 'download.data_validator' (/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/data_validator.py)
 
 - python code/main.py --action inject_signals --config config.yaml -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 14, in <module>
-    from download.openneuro_fetcher import main as fetch_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/__init__.py", line 7, in <module>
-    from .openneuro_fetcher import fetch_paradigm_data
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/openneuro_fetcher.py", line 46, in <module>
-    from utils.resource_guard import enforce_memory_limit
-ModuleNotFoundError: No module named 'utils.resource_guard'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 15, in <module>
+    from download.data_validator import main as validate_main
+ImportError: cannot import name 'main' from 'download.data_validator' (/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/data_validator.py)
 
 - python code/main.py --action analyze --config config.yaml -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 14, in <module>
-    from download.openneuro_fetcher import main as fetch_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/__init__.py", line 7, in <module>
-    from .openneuro_fetcher import fetch_paradigm_data
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/openneuro_fetcher.py", line 46, in <module>
-    from utils.resource_guard import enforce_memory_limit
-ModuleNotFoundError: No module named 'utils.resource_guard'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 15, in <module>
+    from download.data_validator import main as validate_main
+ImportError: cannot import name 'main' from 'download.data_validator' (/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/data_validator.py)
 
 - python code/main.py --action report --config config.yaml -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 14, in <module>
-    from download.openneuro_fetcher import main as fetch_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/__init__.py", line 7, in <module>
-    from .openneuro_fetcher import fetch_paradigm_data
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/openneuro_fetcher.py", line 46, in <module>
-    from utils.resource_guard import enforce_memory_limit
-ModuleNotFoundError: No module named 'utils.resource_guard'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 15, in <module>
+    from download.data_validator import main as validate_main
+ImportError: cannot import name 'main' from 'download.data_validator' (/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/data_validator.py)
 
-- python -m pytest tests/unit/ -v -> rc=4
+- python -m pytest tests/unit/ -v -> rc=2
+: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:690: in _load_unlocked
+    ???
+/home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
+    exec(co, module.__dict__)
+tests/unit/test_timer.py:11: in <module>
+    from utils.timer import (
+E   ImportError: cannot import name '_run_start_time' from 'utils.timer' (/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/utils/timer.py)
+=========================== short test summary info ============================
+ERROR tests/unit/test_alpha_sweep_analyzer.py
+ERROR tests/unit/test_create_results_dirs.py - NameError: name 'Optional' is not defined
+ERROR tests/unit/test_main_orchestration.py
+ERROR tests/unit/test_memory_monitor.py
+ERROR tests/unit/test_power_curve_generator.py
+ERROR tests/unit/test_split_half_validator.py
+ERROR tests/unit/test_timer.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 7 errors in 2.56s ===============================
 
-ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]
-__main__.py: error: unrecognized arguments: --cov=code --cov-report=term-missing --cov-report=html
-  inifile: /home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/pyproject.toml
-  rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava
+
+- python -m pytest tests/integration/test_end_to_end_pipeline.py -v -> rc=1
+mXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/download/data_validator.py)\n').returncode
+FAILED tests/integration/test_end_to_end_pipeline.py::TestEndToEndPipeline::test_pipeline_logs_convergence - AssertionError: Convergence log file not found. This indicates T016 (GLM fitting) or T016b (logging) may not be implemented.
+assert False
+ +  where False = <bound method Path.exists of PosixPath('data/aggregated/convergence_log.json')>()
+ +    where <bound method Path.exists of PosixPath('data/aggregated/convergence_log.json')> = PosixPath('data/aggregated/convergence_log.json').exists
+FAILED tests/integration/test_end_to_end_pipeline.py::TestEndToEndPipeline::test_pipeline_creates_traceability_config - AssertionError: Pipeline configuration log not found. This indicates T013c (traceability logger) may not be implemented.
+assert False
+ +  where False = <bound method Path.exists of PosixPath('results/paper/pipeline_config.json')>()
+ +    where <bound method Path.exists of PosixPath('results/paper/pipeline_config.json')> = PosixPath('results/paper/pipeline_config.json').exists
+============================== 3 failed in 0.97s ===============================
 
 
-- python -m pytest tests/integration/test_end_to_end_pipeline.py -v -> rc=4
-
-ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]
-__main__.py: error: unrecognized arguments: --cov=code --cov-report=term-missing --cov-report=html
-  inifile: /home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/pyproject.toml
-  rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava
-
-
-- python -m pytest tests/contract/ -v -> rc=4
-
-ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]
-__main__.py: error: unrecognized arguments: --cov=code --cov-report=term-missing --cov-report=html
-  inifile: /home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/pyproject.toml
-  rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava
+- python -m pytest tests/contract/ -v -> rc=1
+ >= 1'))
+ +    where ValueError('num_iterations must be >= 1') = <ExceptionInfo ValueError('num_iterations must be >= 1') tblen=3>.value
+FAILED tests/contract/test_simulation_config_schema.py::TestSimulationConfigSchema::test_invalid_num_iterations_negative - AssertionError: assert 'num_iterations must be greater than 0' in 'num_iterations must be >= 1'
+ +  where 'num_iterations must be >= 1' = str(ValueError('num_iterations must be >= 1'))
+ +    where ValueError('num_iterations must be >= 1') = <ExceptionInfo ValueError('num_iterations must be >= 1') tblen=3>.value
+FAILED tests/contract/test_simulation_config_schema.py::TestSimulationConfigSchema::test_apply_seed_with_value - AttributeError: 'SimulationConfig' object has no attribute 'apply_seed'
+FAILED tests/contract/test_simulation_config_schema.py::TestSimulationConfigSchema::test_apply_seed_without_value - AttributeError: 'SimulationConfig' object has no attribute 'apply_seed'
+FAILED tests/contract/test_simulation_config_schema.py::TestSimulationConfigSchema::test_frozen_dataclass - Failed: DID NOT RAISE <class 'dataclasses.FrozenInstanceError'>
+========================= 10 failed, 3 passed in 0.73s =========================
 
 
 
@@ -101,7 +97,6 @@ __main__.py: error: unrecognized arguments: --cov=code --cov-report=term-missing
 
 - data/aggregated/convergence_log.json
 - data/aggregated/split_half_results.json
-- data/derived/noise_parameters.json
 - data/derived/processed_roi/roi_timeseries.csv
 - data/derived/replication_results/individual_results.json
 
@@ -114,23 +109,16 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/glm_fitter.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
     - `code/utils/convergence_monitor.py` — NOT invoked by the run-book
-    - `code/utils/execution_order_validator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/aggregated/convergence_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/aggregated/split_half_results.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/split_half_validator.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
-    - `code/utils/execution_order_validator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/aggregated/split_half_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/derived/noise_parameters.json` is declared but was NOT written. Scripts referencing it:
-    - `code/simulation/noise_estimator.py` — NOT invoked by the run-book
-    - `code/utils/execution_order_validator.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/derived/noise_parameters.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/derived/processed_roi/roi_timeseries.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/split_half_validator.py` — NOT invoked by the run-book
     - `code/preprocess/roi_extractor.py` — NOT invoked by the run-book
     - `code/preprocess/temporal_smoothing.py` — NOT invoked by the run-book
     - `code/simulation/noise_estimator.py` — NOT invoked by the run-book
-    - `code/utils/execution_order_validator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/derived/processed_roi/roi_timeseries.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/derived/replication_results/individual_results.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/split_half_validator.py` — NOT invoked by the run-book

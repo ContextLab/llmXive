@@ -1,23 +1,38 @@
 """
 Corruption Handler
 ------------------
-A tiny helper that can be used by downstream modules to detect
-corrupted files based on a pre‑computed SHA‑256 hash.  The module
-does **not** attempt to repair files – it raises an exception when a
-mismatch is detected, adhering to the “fail loudly” policy.
+Provides a simple SHA‑256 integrity check for files downloaded from
+OpenNeuro. The function raises on mismatch – adhering to the *fail‑loudly*
+policy.
 """
 
 import hashlib
+import logging
+import sys
 from pathlib import Path
-from typing import Dict
 
-class CorruptionError(RuntimeError):
-    """Raised when a file's hash does not match the expected value."""
-    pass
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 
 def compute_sha256(file_path: Path) -> str:
-    """Compute the SHA‑256 hash of ``file_path``."""
+    """
+    Compute the SHA‑256 hash of ``file_path`` in a streaming fashion.
+
+    Parameters
+    ----------
+    file_path : Path
+
+    Returns
+    -------
+    str
+        Hexadecimal SHA‑256 digest.
+    """
     h = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -27,9 +42,18 @@ def compute_sha256(file_path: Path) -> str:
 
 def verify_file_integrity(file_path: Path, expected_hash: str) -> None:
     """
-    Verify that ``file_path`` matches ``expected_hash``.  Raises
-    ``CorruptionError`` on mismatch.
+    Verify that ``file_path`` matches ``expected_hash``. Raises
+    ``ValueError`` on mismatch.
+
+    Parameters
+    ----------
+    file_path : Path
+    expected_hash : str
     """
-    actual = compute_sha256(file_path)
-    if actual.lower() != expected_hash.lower():
-        raise CorruptionError(f"Hash mismatch for {file_path}: expected {expected_hash}, got {actual}")
+    actual_hash = compute_sha256(file_path)
+    if actual_hash.lower() != expected_hash.lower():
+        raise ValueError(
+            f"Integrity check failed for {file_path}. "
+            f"Expected {expected_hash}, got {actual_hash}."
+        )
+    logger.info(f"Integrity verified for {file_path}")
