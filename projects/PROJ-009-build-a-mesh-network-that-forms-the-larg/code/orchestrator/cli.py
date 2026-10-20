@@ -188,6 +188,7 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["fine", "medium", "coarse"],
         help="Granularity setting for the benchmark"
     )
+    # Primary flag names
     run_parser.add_argument(
         "--nodes",
         type=int,
@@ -199,6 +200,19 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         required=True,
         help="Injected network latency in milliseconds"
+    )
+    # Back‑compatible aliases (used by older run‑book commands)
+    run_parser.add_argument(
+        "--node-count",
+        type=int,
+        dest="nodes",
+        help=argparse.SUPPRESS
+    )
+    run_parser.add_argument(
+        "--injected-latency",
+        type=int,
+        dest="latency",
+        help=argparse.SUPPRESS
     )
 
     # calibrate sub‑command (now performs real calibration)

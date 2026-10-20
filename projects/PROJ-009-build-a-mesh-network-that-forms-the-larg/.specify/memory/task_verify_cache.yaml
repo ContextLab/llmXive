@@ -1,15 +1,15 @@
 T001:
   c: false
-  h: 0ffa52f668b81641ad8f060df77d341484e38c6a82c45cd8e003793c3431c7f0
-  r: "Checked `quickstart.md`, `code/orchestrator/config.py`, `code/orchestrator/contract_validator.py`,\
-    \ and the contract test suite (`code/tests/contract/test_contracts.py`), all of\
-    \ which exist and pass. However, there is no execution evidence that the CLI\u2019\
-    s `run` sub\u2011command (the \u201Ctiny end\u2011to\u2011end run\u201D) completes\
-    \ with exit code\u202F0 as required by the task\u2019s repair clause. A test or\
-    \ log showing `python -m code.orchestrator.cli run \u2026` succeeding is missing.\
-    \ Adding such a verification (e.g., a pytest that invokes the run command and\
-    \ asserts a zero exit status) is needed to satisfy the task."
-  sig: ffcc0c4674481efc2f0c69a78fdc08055ef7a68a7b3d6681421c30b3d2664356
+  h: 63b3a934d703d39f59ae103e1f1aabd4d5b25932153a08d471e7cb5b73637815
+  r: "The `code/tests/contract/` suite does not pass: `test_cli_run` fails because\
+    \ the `run` sub\u2011command still requires the `--nodes` and `--latency` flags\
+    \ even when the alias flags `--node-count` and `--injected-latency` are used,\
+    \ violating the tiny end\u2011to\u2011end run requirement. Additionally, `code/orchestrator/config.py`\u2019\
+    s `get_config()` expects a `config.yaml` at the project root, but no such file\
+    \ is present, causing the `test_random_seed_is_integer_and_matches_sweep_config`\
+    \ test to error. Adding a proper `config.yaml` (with matching `random_seed`) and\
+    \ adjusting the CLI argument definitions so the "
+  sig: b4832e75b2bfcf7574d37a9457dd7ac6df4ffb0355452f8e5ca3047171612962
 T002:
   c: false
   h: b63e8f4a6d81a5b3d40687b9408e572a8ed679fe94dd44dcd1d1479f51e7f4e9
@@ -66,13 +66,12 @@ T015:
     historical test log references a file that no longer exists.
   sig: af4d6406855845ae5f4b3ecb7097ca94be0db2441171a660c83dd04e8bc024f9
 T017:
-  c: true
-  h: 34b5cab512c4fd760afd6edb6a0293baf74fa0c9f70c6b3f8b5a06bc0bf355e0
-  r: "Both required artifacts exist and match the task: `execution-run.schema.yaml`\
-    \ adds `cpu_variance` (number, required) and `dropout_rate` (number, 0\u20131\
-    \ via minimum/maximum, required) with `additionalProperties: false`, and the ExecutionRun\
-    \ entity in `data-model.md` mirrors both fields in the mermaid diagram and the\
-    \ table. The contract test directory exists with test files; no execution log\
-    \ of pytest was supplied, but the substantive deliverables are correctly and fully\
-    \ amended."
-  sig: f5ea094e7272af66ea024d28dc9d60ddb74f0135ac03b68aaf5dfeb32f49e26f
+  c: false
+  h: 4fbb8280545e10353d80491e994401dc98b98e117b54f55aa02b15564b718a5a
+  r: "The schema and data\u2011model files correctly contain the `cpu_variance` and\
+    \ `dropout_rate` fields, but there is no evidence that the required verification\
+    \ succeeded: no pytest run output is provided, and the artifact showing SC\u2011\
+    006\u2019s updated variable\u2011presence list is absent. The next implementer\
+    \ must supply test execution logs (showing all contract tests passing) and the\
+    \ updated SC\u2011006 documentation."
+  sig: 150e1b9b2bee9e5278f39781bc6b107560cfd5cf2bb0889f1250a8cc3fccdbdf

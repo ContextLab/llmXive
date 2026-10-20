@@ -1,16 +1,17 @@
 status: none
-intent: Google cluster trace task resource logs python package dataset
+intent: download DistributedExecutionLog dataset with CPU utilization packet counts
+  timestamps python package
 required_fields:
 - node_id
-- task_id
-- job_id
+- ip_address
 - timestamp
 - wall_clock_time
-- cpu_utilization
-- memory_usage
-- packet_sent
-- packet_received
-- network_latency
-cache_key: 5e587e15dad0ec06d4b9b40869246de860d62e66a72db477ee0ed0127178a383
-searched_at: '2026-10-20T17:21:59.720229+00:00'
+- packet_count
+- cpu_utilization_percent
+- memory_usage_mb
+- task_id
+- task_status
+- heartbeat_timestamp
+cache_key: 75922944f24c1d72eeea7f7e6b6003122cbbd6931569f794dccf39a6d317b179
+searched_at: '2026-10-20T21:20:08.356938+00:00'
 retry_count: 1

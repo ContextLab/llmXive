@@ -1,12 +1,12 @@
 T001:
-  reason: "Checked `quickstart.md`, `code/orchestrator/config.py`, `code/orchestrator/contract_validator.py`,\
-    \ and the contract test suite (`code/tests/contract/test_contracts.py`), all of\
-    \ which exist and pass. However, there is no execution evidence that the CLI\u2019\
-    s `run` sub\u2011command (the \u201Ctiny end\u2011to\u2011end run\u201D) completes\
-    \ with exit code\u202F0 as required by the task\u2019s repair clause. A test or\
-    \ log showing `python -m code.orchestrator.cli run \u2026` succeeding is missing.\
-    \ Adding such a verification (e.g., a pytest that invokes the run command and\
-    \ asserts a zero exit status) is needed to satisfy the task."
+  reason: "The `code/tests/contract/` suite does not pass: `test_cli_run` fails because\
+    \ the `run` sub\u2011command still requires the `--nodes` and `--latency` flags\
+    \ even when the alias flags `--node-count` and `--injected-latency` are used,\
+    \ violating the tiny end\u2011to\u2011end run requirement. Additionally, `code/orchestrator/config.py`\u2019\
+    s `get_config()` expects a `config.yaml` at the project root, but no such file\
+    \ is present, causing the `test_random_seed_is_integer_and_matches_sweep_config`\
+    \ test to error. Adding a proper `config.yaml` (with matching `random_seed`) and\
+    \ adjusting the CLI argument definitions so the"
   task: e884b52214a5b7f5436a0114eb7824303a2913e5fba3d839d30ee0936138a5bc
 T002:
   reason: "The required artifacts fail on multiple counts: (1) no `data/raw/physical_node_*.json`\
@@ -89,6 +89,12 @@ T016:
     and demonstrate scheduler'
   task: a281dee33d7bbb9a9128901e7edbf91dfe1700f3abbca915ff0129efe915a11a
 T017:
+  reason: "The schema and data\u2011model files correctly contain the `cpu_variance`\
+    \ and `dropout_rate` fields, but there is no evidence that the required verification\
+    \ succeeded: no pytest run output is provided, and the artifact showing SC\u2011\
+    006\u2019s updated variable\u2011presence list is absent. The next implementer\
+    \ must supply test execution logs (showing all contract tests passing) and the\
+    \ updated SC\u2011006 documentation."
   task: 43c92dca2dd07bcb5b24b9aa5c51727299214b7515083a46c1e9319c73aa248d
 T018:
   task: e80c4ccaf9899141d237b490ddf4a5362fd708eaf5c9725b82e854201f0dd006

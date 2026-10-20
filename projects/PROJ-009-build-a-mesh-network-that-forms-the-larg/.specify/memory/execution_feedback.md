@@ -12,7 +12,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 command(s) failed: python code/orchestrator/node_manager.py --verify (rc=1); python code/orchestrator/cli.py calibrate --config config.yaml (rc=1); python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 (rc=2); 5 declared deliverable(s) absent: data/raw/cpu_calibration.json; data/raw/dropout_events.json; data/raw/network_calibration.json
+**Summary**: 7 command(s) failed: python code/orchestrator/node_manager.py --verify (rc=1); python code/orchestrator/cli.py calibrate --config config.yaml (rc=1); python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 (rc=2); 3 declared deliverable(s) absent: data/raw/cpu_calibration.json; data/raw/network_calibration.json; data/runtime/pipeline_runtime.json
 
 ## Failing / missing run-book commands
 
@@ -25,8 +25,8 @@ ModuleNotFoundError: No module named 'paramiko'
 
 - python code/orchestrator/cli.py calibrate --config config.yaml -> rc=1
 
-2026-10-20 17:21:35,662 INFO orchestrator.calibration: Starting calibration procedures
-2026-10-20 17:21:35,663 ERROR __main__: Calibration routine failed: [Errno 2] No such file or directory: 'iperf3'
+2026-10-20 21:19:12,533 INFO orchestrator.calibration: Starting calibration procedures
+2026-10-20 21:19:12,533 ERROR __main__: Calibration routine failed: [Errno 2] No such file or directory: 'iperf3'
 
 - python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 -> rc=2
 
@@ -68,7 +68,7 @@ ERROR tests/unit/test_scheduler_straggler.py
 ERROR tests/unit/test_sweep_runner.py
 ERROR tests/unit/test_timeout_guard.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 13 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 13 errors in 1.21s ==============================
+============================== 13 errors in 0.92s ==============================
 
 
 - python -m pytest tests/contract/ -v -> rc=2
@@ -91,7 +91,7 @@ E   ImportError: cannot import name 'ExecutionRun' from 'orchestrator.models' (/
 =========================== short test summary info ============================
 ERROR tests/contract/test_execution_run_schema.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.15s ===============================
+=============================== 1 error in 0.12s ===============================
 
 
 - python -m pytest tests/integration/ -v --mock-testbed -> rc=4
@@ -106,9 +106,7 @@ __main__.py: error: unrecognized arguments: --mock-testbed
 ## Declared deliverables still missing
 
 - data/raw/cpu_calibration.json
-- data/raw/dropout_events.json
 - data/raw/network_calibration.json
-- data/raw/validation_status.json
 - data/runtime/pipeline_runtime.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -118,21 +116,9 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/raw/cpu_calibration.json` is declared but was NOT written. Scripts referencing it:
     - `code/orchestrator/calibration.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/cpu_calibration.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/dropout_events.json` is declared but was NOT written. Scripts referencing it:
-    - `code/orchestrator/cli.py` — IS a run-book command
-    - `code/orchestrator/heartbeat_monitoring.py` — NOT invoked by the run-book
-    - `code/orchestrator/scheduler.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/dropout_events.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/network_calibration.json` is declared but was NOT written. Scripts referencing it:
     - `code/orchestrator/calibration.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/network_calibration.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/validation_status.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/instrumentation_validator.py` — NOT invoked by the run-book
-    - `code/analysis/radio_metrics_validator.py` — NOT invoked by the run-book
-    - `code/orchestrator/cli.py` — IS a run-book command
-    - `code/orchestrator/network_saturation_handler.py` — NOT invoked by the run-book
-    - `code/orchestrator/scheduler_execution.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/validation_status.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/runtime/pipeline_runtime.json` is declared but was NOT written. Scripts referencing it:
     - `code/orchestrator/runtime_tracker.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/runtime/pipeline_runtime.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

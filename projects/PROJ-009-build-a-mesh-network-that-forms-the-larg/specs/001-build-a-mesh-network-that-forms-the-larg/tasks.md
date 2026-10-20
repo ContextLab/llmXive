@@ -65,7 +65,7 @@ This checklist implements the smallest complete study satisfying FR-001–FR-007
 
 ## Phase 2 – Complete the study and validate its evidence
 
-- [X] **T017** [US2] Amend the ExecutionRun contract so FR-005's required covariates are representable: add `cpu_variance` (number, required — variance of per-node CPU throughput/benchmark scores within the run) and `dropout_rate` (number, 0–1, required — fraction of dispatched chunks that failed and were re-assigned) to `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/execution-run.schema.yaml`, and mirror the two fields in the ExecutionRun entity table of `specs/001-build-a-mesh-network-that-forms-the-larg/data-model.md`. This unblocks T006 aggregation and T008 regression without contract violations.
+- [ ] **T017** [US2] Amend the ExecutionRun contract so FR-005's required covariates are representable: add `cpu_variance` (number, required — variance of per-node CPU throughput/benchmark scores within the run) and `dropout_rate` (number, 0–1, required — fraction of dispatched chunks that failed and were re-assigned) to `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/execution-run.schema.yaml`, and mirror the two fields in the ExecutionRun entity table of `specs/001-build-a-mesh-network-that-forms-the-larg/data-model.md`. This unblocks T006 aggregation and T008 regression without contract violations.
   *Artifacts*
   - Updated `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/execution-run.schema.yaml`
   - Updated `specs/001-build-a-mesh-network-that-forms-the-larg/data-model.md` (ExecutionRun rows only)
