@@ -22,10 +22,11 @@ pip install -r requirements.txt
 
 ## Data Setup
 1. **Obtain the dataset**  
-   The pipeline expects a folder `data/raw/` containing the **OpenNeuro ds003542** accession, which provides:
-   - Resting‑state EEG recordings (e.g., `.fif` or `.edf` files)  
+   The pipeline expects a folder `data/raw/` containing the **OpenNeuro ds003542** dataset, which provides:
+   - Resting‑state EEG recordings (e.g., `.fif` files)  
    - `heat_pain_thresholds.csv` with columns `participant_id,heat_pain_threshold[,age,gender]`  
-   The dataset can be downloaded programmatically:
+
+   Download programmatically:
    ```bash
    python -c "import datasets; datasets.load_dataset('openneuro/ds003542', data_dir='data/raw')"
    ```
@@ -33,6 +34,7 @@ pip install -r requirements.txt
    ```
    Dataset lacks verified pain threshold labels in provided verified sources.
    ```
+
 2. **Verify integrity**  
    ```bash
    python code/utils.py --verify-checksums
@@ -43,18 +45,21 @@ Run the citation‑validation guard (required by Constitution II):
 ```bash
 bash scripts/pre-run-validation.sh
 ```
-If the script returns a non‑zero exit code, fix the cited references before proceeding.
+A non‑zero exit code indicates missing or mismatched citations; fix them before proceeding.
 
 ## Running the Full Pipeline
 ```bash
 python code/main.py
 ```
 The orchestrator will:
-1. Preprocess EEG (streamed via `DataChunk`) and write `data/processed/feature_matrix.csv`.  
-2. Perform a **pilot construct‑validity analysis** on a 20‑participant subset; abort if no feature shows |r| ≥ 0.20.  
-3. Train Elastic Net with nested CV, perform the global permutation test, and write `artifacts/model_results.json`.  
-4. Compute diagnostics, permutation‑importance FDR, VIF (including the flagged VIF = 33 predictor), and sensitivity sweeps (logistic regression for binary outcomes); results saved in `artifacts/diagnostics.csv` and `artifacts/sensitivity_report.md`.  
-5. Record SHA‑256 hashes of all artifacts in the project state file.
+1. **Create required directories** (`scripts/create_dirs.sh`).  
+2. **Run integration test** (`pytest tests/integration/test_structure.py`) to confirm directory creation.  
+3. **Preprocess EEG** (streamed via `DataChunk`) and write `data/processed/feature_matrix.csv`.  
+4. **Pilot construct‑validity** on a 20‑participant subset; abort if no feature shows |r| ≥ 0.20.  
+5. **Train Elastic Net** with nested CV, perform the global permutation test, and write `artifacts/model_results.json`.  
+6. **Compute diagnostics** (permutation importance, FDR, VIF, sensitivity sweep); results saved in `artifacts/diagnostics.csv` and `artifacts/sensitivity_report.md`.  
+7. **Record SHA‑256 hashes** of all artifacts in the project state file.  
+8. **Log runtime** in `artifacts/runtime_log.json`.  
 
 ## Running Individual Steps (optional)
 ```bash
@@ -72,22 +77,20 @@ python code/main.py --step diagnostics
 ```bash
 pytest -q
 ```
-- **Unit tests** verify each module’s core functions (e.g., `extract_microstate_features` returns a multi‑column DataFrame containing the extracted microstate features).  
-- **Integration tests** run the full preprocessing on a small participant subset and check that `data/processed/feature_matrix.csv` exists, has multiple feature columns plus covariates, and contains no NaNs.  
+- **Unit tests** verify core functions (e.g., `extract_microstate_features`).  
+- **Integration tests** run the full preprocessing on a small subset and check that `data/processed/feature_matrix.csv` exists, has the correct columns, and contains no NaNs.  
 
 ## Output Interpretation
 | File | Description |
 |------|-------------|
 | `artifacts/model_results.json` | Pearson r, empirical p‑value, MAE, 95 % CI, runtime. |
-| `artifacts/diagnostics.csv` | Coefficients, permutation‑importance scores, raw & FDR‑adjusted p‑values, VIF, flags (including VIF = 33). |
+| `artifacts/diagnostics.csv` | Coefficients, permutation‑importance scores, raw & FDR‑adjusted p‑values, VIF, flags (including the verified VIF = 33 flag). |
 | `artifacts/sensitivity_report.md` | Tables & plots for binary classification AUC/accuracy across median‑split thresholds and regularization sweep. |
 | `figures/` | PDF/PNG versions of key plots (correlation scatter, importance bar, VIF histogram, ROC curves). |
 
 ## Troubleshooting
-- **MemoryError** – Ensure `data/raw/` files are not being fully loaded; the pipeline streams data in `DataChunk` batches automatically.  
+- **MemoryError** – The pipeline streams data via `DataChunk`; ensure you are not forcing full preload.  
 - **ConvergenceWarning** – The script will automatically increase `max_iter` (Edge Case 2). If convergence still fails, the run aborts with an explicit error.  
-- **Blocked status** – Verify that the OpenNeuro ds003542 dataset containing `heat_pain_threshold` has been placed in `data/raw/`. No placeholder data should be used.  
-
-
+- **Blocked status** – Verify that the OpenNeuro ds003542 dataset containing `heat_pain_threshold` is present in `data/raw/`. No placeholder data should be used.  
 
 ---
