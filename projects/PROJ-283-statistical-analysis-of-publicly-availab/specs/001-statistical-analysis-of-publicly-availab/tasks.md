@@ -1,262 +1,98 @@
----
-description: "Task list template for feature implementation"
----
-
 # Tasks: Statistical Analysis of Publicly Available Chess Game Data for Elo Rating Prediction
 
-**Input**: Design documents from `/specs/001-statistical-chess-elo-analysis/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure: `src/`, `tests/`, `data/`, `specs/`, `data/raw/`, `data/processed/`, `data/results/`, `specs/contracts/`, `tests/contract/`, `tests/unit/`, `tests/integration/`. Create `__init__.py` in all `src/` and `tests/` subdirectories.
-- [X] T002 Initialize Python project by creating `requirements.txt` at repository root containing: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `chess`, `matplotlib`, `seaborn`, `requests`, `datasets`, `pytest`.
-- [X] T003 [P] Configure linting (ruff) and formatting tools in `pyproject.toml` or `.ruff.toml`/`.black.toml`.
-- [X] T004 [P] Setup `src/config.py` with random seeds (e.g., `RANDOM_SEED=42`), file paths constants, Lichess dataset URL constants, and the heuristic constant `SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME = 2000`. **Requirement**: Define `USE_MOVE_5 = False` as the default configuration flag. If `USE_MOVE_5` is True, Move 5 is used for *comparative* analysis only, but Move 10 remains the primary feature.
+**Inputs**: `spec.md`, `plan.md`, existing research artifacts, and contracts under `specs/contracts/`.  
+All paths are relative to the repository root.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Project Setup (already completed)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
-**Note**: T006 and T007 define the schema contracts. T005a implements the validation logic. T008a-d define the subset selection and verification. T008d-1/2/3 handle the download logic. T008d-0 defines the exception class.
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. **Checkpoint**: Foundation ready for data fetching only; User Story implementation (parsing/modeling) begins in Phase 3.
-
-- [X] T006 [P] Define and write `specs/contracts/game_record.schema.yaml` with columns: `game_id`, `white_rating`, `black_rating`, `eco_code`, `avg_move_time_white`, `avg_move_time_black`, `material_imbalance_move10`, `material_imbalance_move5`, `outcome`, `elo_expected_prob`, `outcome_deviation`. **Requirement**: Ensure the file content matches the definition exactly. **Verification**: File exists and is valid YAML.
-- [X] T007 [P] Define and write `specs/contracts/model_output.schema.yaml` with columns: `model_type`, `coefficients`, `p_values`, `r_squared`, `aic`, `cross_validation_scores`. (Note: Aligns with Spec FR-005). **Requirement**: Ensure this file is syntactically valid YAML and can be loaded by `validate_contracts.py`. **Verification**: File exists and is valid YAML.
-- [ ] T005a [US0] Implement the validation logic in `src/validation/validate_contracts.py` to load YAML schemas from `specs/contracts/` and validate in-memory pandas DataFrames against them. **Requirement**: **Dependency**: Requires T006 and T007 to exist before this script is written or executed. **Note**: Removed [P] tag to reflect strict dependency on T006/T007.
-- [X] T008a [P] Implement initial dataset ID selection logic in `src/data/select_subset.py`. Use the heuristic defined in T004 (`estimated_size = len(selected_ids) * SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME`) to select a conservative initial list of game IDs from the **full Lichess index** (accessed via the verified mirror). Use a fixed seed (from `config.py`) to ensure reproducibility. Output a list of selected game IDs to `data/raw/selected_ids.txt` for downstream tasks.
-- [X] T008b [P] Implement `src/data/precheck.py` with size validation and reduction logic. **Requirement**: Read `data/raw/selected_ids.txt`. **Algorithm**: If the estimated size exceeds a predefined memory threshold, truncate the list to `N = floor(MEMORY_LIMIT / SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME)` games., preserving the fixed-seed order. **Verification**: Pipeline proceeds only if the final list size is <= N. **Dependency**: Depends on T008a. **Note**: Removed [P] tag to reflect serial dependency chain.
-- [X] T008c [P] Implement `src/data/verify_mirror.py` to define the core logic for checking the verified mirror URL for the presence of move-time metadata. **Requirement**: This task defines the *algorithm* and *validation rules* for metadata verification (sampling, thresholds). **Requirement**: This task does NOT execute the check; it prepares the logic for T008d-2. **Verification**: Logic is testable via unit tests. **Dependency**: None (Foundational). **Note**: Removed [P] tag to reflect serial dependency chain.
-- [X] T008d-0 [P] Define the `DataFetchError` exception class in `src/data/download.py`. **Requirement**: Class MUST inherit from `RuntimeError`. **Requirement**: Class MUST have an attribute `reason: str`. **Requirement**: This task MUST precede T008d-1. **Deliverable**: Save class `DataFetchError` to `src/data/download.py`.
-- [ ] T008d-1 [US0] Implement `src/data/download.py` function `retry_fetch_with_backoff(url: str, max_retries: int = 5, base_delay: float = 1.0) -> Generator[str, None, None]` with an exponential backoff retry strategy (`base_delay=1`, `max_retries=5`, `delay = base_delay * 2^attempt`) for network errors. **Requirement**: Implement a HALT mechanism: if the download fails after the maximum number of retries, the script MUST raise a `DataFetchError` (subclass of `RuntimeError` with attribute `reason: str`) with a clear error message and **exit code 1**. **CRITICAL**: NO synthetic data or partial fallback is permitted. The pipeline MUST HALT immediately on failure. **Requirement**: **Explicitly log** the number of retry attempts, the specific error codes encountered, and the final failure reason to stdout/stderr to ensure verifiable graceful exit behavior. **Requirement**: **Specific Exception Handling**: Catch `requests.exceptions.Timeout`, `requests.exceptions.HTTPError`, and `ConnectionError`. **Requirement**: **Rate Limiting**: Check for HTTP 429 status; if detected, raise `DataFetchError` with message: "Rate limit exceeded. Check for rate-limiting or API unavailability."; otherwise raise `DataFetchError` with message: "Download failed after retries: [reason]. Check for rate-limiting or API unavailability.". **Requirement**: **Verification**: Run unit test `test_retry_logic` and verify log output contains retry count. **Requirement**: **Traceability**: This task implements [FR-001] (Data Ingestion) and [SC-005] (Computational Feasibility) edge case handling. **Requirement**: **Deliverable**: Save function `retry_fetch_with_backoff` to `src/data/download.py`. **Requirement**: **Dependency**: This task depends on T008d-0. **Note**: Removed [P] tag to reflect dependency on T008d-0.
-- [X] T008d-2 [US0] Implement `src/data/verify_mirror.py` function `verify_mirror_metadata(url: str) -> bool` to check the verified mirror URL for the presence of move-time metadata, sampling a representative subset of game headers. **Requirement**: This task **calls the logic defined in T008c** to perform the actual check. **Requirement**: Sample size is the **first 100 games** from the stream. **Requirement**: If the verified mirror URL is unreachable or move-time metadata is missing for >5% of the sample, raise `DataFetchError` immediately with message: "Verified mirror verification failed: URL unreachable or metadata missing >5%. Pipeline HALT." and **exit code 1**. **Requirement**: This task must run before T008d-3. **Requirement**: **Traceability**: This task implements [FR-001] and [SC-005] edge case handling. **Requirement**: **Dependency**: Depends on T008c (logic definition). **Deliverable**: Save function `verify_mirror_metadata` to `src/data/verify_mirror.py`. **Note**: Removed [P] tag to reflect serial dependency on T008c.
-- [X] T008d-3 [P] Implement `src/data/download.py` function `download_lichess_stream(ids: list, url: str) -> Generator[str, None, None]` to fetch Lichess data for the specific IDs listed in `data/raw/selected_ids.txt`. **Constraint**: Data must be processed in chunks and never loaded entirely into memory. **Requirement**: Integrate `retry_fetch_with_backoff` (T008d-1) and `verify_mirror_metadata` (T008d-2). **Requirement**: Assume T008d-2 has passed (mirror verified); if not, the process halts before this task runs. **Requirement**: Process in chunks; never load entirely into memory. **Requirement**: **Verification**: Run unit test `test_download_stream` and verify chunked processing. **Requirement**: **HALT on Failure**: If the stream fails, the pipeline MUST exit with code 1. **Requirement**: **Traceability**: This task implements [FR-001] and [SC-005] edge case handling. **Requirement**: **Dependency**: This task depends on T008d-1 and T008d-2. **Deliverable**: Save function `download_lichess_stream` to `src/data/download.py`.
-
-**Checkpoint**: Foundation ready for data fetching - user story implementation (parsing/modeling) begins in Phase 3
+- [ ] T000 **Dataset Verification** – Verify that the downloaded raw dataset contains the required columns `white_rating`, `black_rating`, `eco_code`, `move_times`, and `outcome`. Abort the pipeline with a clear error message if any column is missing. Write a verification report `data/results/dataset_verification.json` containing a boolean `all_columns_present` and a list of missing columns (if any). **Verification**: The script exits with non‑zero status on failure; the JSON file exists and reports `all_columns_present: true` for a compliant dataset.  
+- [ ] T001 **Create project structure** – Create directories `src/`, `tests/`, `data/`, `specs/`, `data/raw/`, `data/processed/`, `data/results/`, `specs/contracts/`, `tests/contract/`, `tests/unit/`, `tests/integration/`. **Verification**: Assert each directory exists on disk after execution.  
+- [ ] T002 **Initialize Python project** – Write `requirements.txt` containing `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `python-chess`, `matplotlib`, `seaborn`, `requests`, `datasets`, `pytest`. **Verification**: Check that `requirements.txt` exists and contains all listed packages.  
+- [ ] T003 **Configure linting and formatting** – Add `pyproject.toml` with `ruff` and `black` configuration. **Verification**: Run `ruff check` and `black --check .`; both must exit with code 0.  
+- [ ] T004 **Add global config** – Create `src/config.py` defining seeds, path constants, Lichess URL, `SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME = 2000`, and `USE_MOVE_5 = False`. **Verification**: Import the module and assert that the constants are defined and have the expected types/values.
 
 ---
 
-## Phase 3: User Story 1 - Data Ingestion and Feature Extraction (Priority: P1) 🎯 MVP
+## Phase 1 – Foundational Infrastructure (blocking prerequisites)
 
-**Goal**: Download a subset of Lichess PGN games, parse them to extract features (ECO, move times, material imbalance at move 10 per Spec FR-002, move 5 per Plan for comparison), calculate Elo expected probabilities, and produce a clean `GameRecord` dataset.
-
-**Independent Test**: The system can be tested by running the ingestion pipeline on a small sample of games and verifying that the output collection of GameRecord entities contains the expected columns (ECO code, avg_move_time, material_imbalance_move10, material_imbalance_move5, elo_expected_prob, outcome_deviation) with no null values in critical fields.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T010 [P] [US1] Contract test for `GameRecord` schema validation in `tests/contract/test_game_record.py`.
-- [X] T011 [P] [US1] Unit test for PGN parsing logic handling malformed move lists in `tests/unit/test_parsers.py`.
-- [X] T012 [P] [US1] **Write-Only TDD Task**: Unit test for Elo probability calculation and deviation math in `tests/unit/test_calculations.py`. **Implementation Detail**: Implement function `test_elo_capping_edge_cases` which asserts that `calculate_elo_probability` clamps results to `[0.01, 0.99]` for extreme rating differences (e.g., >1000) and that `calculate_outcome_deviation` handles the capped values correctly without NaN. **Note**: This task must be written *before* T016a/T016b implementation. This is a logical TDD dependency, not a data-flow dependency.
-
-### Implementation for User Story 1
-
-- [X] T013-Models [P] [US1] Implement `src/data/models.py` containing the `GameRecord` TypedDict. **Requirement**: Define `GameRecord` with fields: `game_id: str`, `white_rating: float`, `black_rating: float`, `eco_code: str`, `avg_move_time_white: float`, `avg_move_time_black: float`, `material_imbalance_move10: float`, `material_imbalance_move5: float`, `outcome: float`, `elo_expected_prob: float`, `outcome_deviation: float`. **Requirement**: Ensure `eco_code` is defined as `str` (non-nullable). **Requirement**: This task MUST be completed before T013. **Requirement**: **Dependency**: Depends on T004 (config) only. **Note**: Confirmed [P] tag is valid as this task is independent of data download (T008d-3) and only depends on config. **Deliverable**: Save `GameRecord` TypedDict to `src/data/models.py`.
-- [ ] T013 [US1] Implement function `parse_pgn_stream(iterator)` in `src/data/parse.py` to accept an iterator/generator of PGN games (from T008d-3). **Constraint**: The parser must yield `GameRecord` objects one by one or in small batches, allowing `process.py` to aggregate statistics online without storing the full dataset. **Requirement**: **Input Contract**: Accept a generator yielding **raw PGN string blocks** encoded in UTF-8, with games separated by newlines. **Requirement**: **Data Contract**: `avg_move_time` MUST be a float; handle missing `eco_code` by **skipping the game and logging the error** (per Spec US-1 Edge Cases). Do NOT fill with 'Unknown'. **Requirement**: `eco_code` MUST be defined as `str` (non-nullable) in the `GameRecord` TypedDict. **Requirement**: **Schema Conformance**: Yields objects MUST strictly conform to the schema defined in `specs/contracts/game_record.schema.yaml`. **Requirement**: **Malformed Handling**: If a game has a malformed move list, log the error with the game ID, skip the game, and continue processing. Do not crash. **Requirement**: **GameRecord Definition**: Instantiate `GameRecord` as a `TypedDict` with fields `game_id: str`, `white_rating: float`, `black_rating: float`, `eco_code: str`, `avg_move_time_white: float`, `avg_move_time_black: float`, `material_imbalance_move10: float`, `material_imbalance_move5: float`, `outcome: float`, `elo_expected_prob: float`, `outcome_deviation: float`. Import from `src/data/models.py`. **Requirement**: **Primary Feature**: `material_imbalance_move10` is the PRIMARY feature for modeling as per Spec FR-002. **Requirement**: **Dependency**: This task depends on T008d-3 and T013-Models. **CRITICAL**: T013 cannot be executed until T008d-3 is complete. **Deliverable**: Save function `parse_pgn_stream` to `src/data/parse.py`. **Note**: Removed [P] tag to reflect dependency on T013-Models.
-- [X] T014 [US1] Implement function `calculate_material_imbalance_move10(board, move_count=10)` in `src/data/parse.py` to calculate `material_imbalance_move10` (board state at **move 10**, per Spec FR-002). **Requirement**: Ensure this extracts material balance specifically after 10 full moves (20 plies). **Requirement**: This task implements Spec FR-002's mandatory requirement for `material_imbalance_move10`. **Requirement**: **Dependency**: This task depends on T013. **Note**: Confirmed [P] tag is valid as this is independent of T014b.
-- [X] T014b [US1] Implement function `calculate_material_imbalance_move5(board, move_count=5)` in `src/data/parse.py` to calculate `material_imbalance_move5` (board state at **move 5**) as a **COMPARATIVE** feature only. **Requirement**: This task implements the Plan's "Complexity Tracking" requirement to use Move 5 for comparative analysis only. **Requirement**: The function must extract material balance after 5 full moves (10 plies). **Requirement**: This feature is secondary to Move 10. **Requirement**: **SPEC OVERRIDE**: Explicitly state in code comments that Move 10 is the primary feature per Spec FR-002, and Move 5 is used only for comparative analysis if `USE_MOVE_5` is True. **Requirement**: **Dependency**: This task depends on T013 and T004 (for config). **Requirement**: **Note**: Confirmed [P] tag is valid as this is independent of T014. **CRITICAL**: T014b cannot be executed until T013 is complete.
-- [X] T016a [US1] Implement function `calculate_elo_expected_prob(white_rating, black_rating)` in `src/data/process.py` to compute the expected win probability using the standard Elo logistic formula: `P = 1 / (1 + 10^((R2-R1)/400))`. **Requirement**: Cap the result to `[0.01, 0.99]` to prevent numerical instability. **Requirement**: Round the result to a high degree of precision.. **Requirement**: **Dependency**: This task depends on T013 and T012. **Note**: Removed [P] tag to reflect dependency on T012 and T013.
-- [X] T016b [US1] Implement function `calculate_outcome_deviation(actual_result, expected_prob)` in `src/data/process.py` to compute the outcome deviation as `(actual_result - expected_prob)`. **Requirement**: Ensure this uses the capped expected probability from T016a. **Requirement**: **Dependency**: This task depends on T016a. **Requirement**: **Dependency**: T012.
-- [X] T015 [US1] Implement class `OnlineAccumulator` and function `process_stream` in `src/data/process.py` to accumulate `outcome_deviation` and feature statistics in an online manner (e.g., using `numpy` accumulators or `pandas` with `chunked` reading) rather than building a massive DataFrame. **Constraint**: Ensure the final `games.parquet` is written in a single pass or via `to_parquet` with `partition` logic to avoid OOM. **Requirement**: **Data Flow**: The `OnlineAccumulator` MUST invoke `calculate_outcome_deviation` (T016b) for each record during stream processing. **Requirement**: **Metrics Tracking**: `OnlineAccumulator` MUST track and expose `total_games` and `parsed_games` counts upon completion of the stream. **Requirement**: **Early Exit Check**: REMOVED: Do NOT halt the pipeline based on running inclusion rate. Process the full stream to ensure accurate final measurement. **Requirement**: **Explicit Output**: This task MUST explicitly write the processed data to `data/processed/games.parquet` (see T015-Write). **Requirement**: **Count Exposure**: This task MUST write `total_games` and `parsed_games` counts to `data/results/inclusion_counts.json` for T017 to consume. **Requirement**: **Edge Case Handling**: If a game lacks move-time metadata, exclude it from the analysis and log the exclusion. **Requirement**: **Deliverable**: Save class `OnlineAccumulator` to `src/data/process.py`. **Requirement**: **Output File**: Save `data/results/inclusion_counts.json`. **Requirement**: **Dependency**: This task depends on T013, T014, T014b, T016a, T016b. **CRITICAL**: T015 cannot be executed until T013 is complete. **Note**: Removed [P] tag to reflect serial dependency on T013/T014.
-- [X] T015-Write [US1] Implement function `save_games_parquet(...)` in `src/data/process.py` to write the final processed dataset. **Requirement**: This task MUST consume the accumulated data from T015 and write it to `data/processed/games.parquet`. **Requirement**: Ensure the file is saved in Parquet format. **Requirement**: **Dependency**: Depends on T015.
-- [X] T017 [US1] Implement function `save_inclusion_metrics(...)` in `src/data/process.py` to calculate the inclusion rate and **unconditionally save** `data/results/inclusion_metrics.json`. **Schema**: The JSON file MUST contain keys: `total_games` (int), `parsed_games` (int), `inclusion_rate` (float). **Logic**: `inclusion_rate` MUST be calculated as `parsed_games / total_games`. **Requirement**: **CRITICAL**: Do NOT raise a ValueError or halt the pipeline if `inclusion_rate` < 0.95. Treat this as a measurement outcome to be reported in the final analysis, per SC-001. **Requirement**: **Execution Order**: This task MUST run after T013, T014, T015 (specifically, after the stream is fully consumed). **Requirement**: **Data Quality Gate**: This task enforces SC-001 as a measurement; a low inclusion rate is reported but does not halt the pipeline. **Requirement**: **Count Consumption**: This task MUST read `data/results/inclusion_counts.json` (from T015) to obtain `total_games` and `parsed_games`. **Requirement**: **Dependency**: This task depends on T015 (which exposes counts) and T013, T014.
-- [X] T018-Pre [US1] Implement RAM profiling check in `src/data/process.py` or a dedicated script. **Requirement**: Run `memory_profiler` on the data ingestion pipeline to verify peak RAM usage is <= 7 GB. **Requirement**: If exceeded, log failure and exit with code 1. **Requirement**: **Dependency**: This task must complete before T018. **Note**: Moved from Phase N to Phase 3 to ensure SC-005 is checked before orchestration completes.
-- [ ] T018 [US1] Implement `src/main.py` orchestration: Create the main entry point script `src/main.py` with a `main()` function that accepts `--sample` flag, initializes logging, and wires the data ingestion flow. **Requirement**: Explicitly wire T015 (OnlineAccumulator) output to T005a (validate_contracts.py) and then to the `save_parquet` step in a single atomic flow. **Requirement**: Ensure the pipeline exits with code 0 on success and code 1 on any validation or data quality failure. **Requirement**: **Dependency**: Depends on T004, T013, T014, T014b, T015, T017, T005a, **T018-Pre**. **CRITICAL**: T018 cannot be executed until T008d-3 is complete. **Requirement**: **RAM Check**: This task relies on T018-Pre to have verified RAM constraints. **Note**: Removed dependency on T038 (Phase N) to fix execution order contradiction.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+| Task | Description |
+|------|-------------|
+- [ ] T006 **Write `game_record.schema.yaml`** – Copy the exact schema from the specification into `specs/contracts/game_record.schema.yaml`. **Verification**: Compute SHA‑256 checksum of the file and compare against the expected checksum stored in CI; run a pytest schema‑lint test that loads the YAML and validates a known‑good example.  
+- [ ] T007 **Write `model_output.schema.yaml`** – Copy the exact schema from the specification into `specs/contracts/model_output.schema.yaml`. **Verification**: Same checksum and pytest schema‑lint test as T006.  
+- [ ] T005a **Implement schema‑validation logic** in `src/validation/validate_contracts.py` that loads the YAML schemas from `specs/contracts/` and validates pandas DataFrames against them. **Verification**: Unit test that validates a correct DataFrame passes and a deliberately malformed DataFrame raises a `ValidationError`.  
+- [ ] T008a **Implement `select_subset.py`** – Choose a reproducible list of game IDs using the seed from `config.py` and write them to `data/raw/selected_ids.txt`. **Verification**: After execution, assert that `selected_ids.txt` exists and contains the expected number of lines (e.g., 100 for a sample run).  
+- [ ] T008b **Implement `precheck.py`** – Estimate total download size from the ID list and truncate the list if it would exceed the memory budget, writing the final list back to `data/raw/selected_ids.txt`. **Verification**: Assert that the estimated size (bytes) is ≤ 7 GB; the final `selected_ids.txt` length reflects any truncation.  
+- [ ] T008c **Implement `verify_mirror.py`** – Check that a verified mirror provides move‑time metadata. **Verification**: Unit test that samples the first 100 games; if >5 % lack move‑time metadata, the function raises `DataFetchError`.  
+- [ ] T008d-0 **Add `DataFetchError` exception** – Subclass of `RuntimeError` with a `reason: str` attribute in `src/data/download.py`. **Verification**: Import and raise the exception in a test; ensure the `reason` attribute is accessible.  
+- [ ] T008d-1 **Implement `retry_fetch_with_backoff`** – Exponential back‑off retry logic with logging; raises `DataFetchError` after max retries. **Verification**: Mock a failing request and assert that the function retries exactly `max_retries` times with increasing delays.  
+- [ ] T008d-2 **Implement `verify_mirror_metadata`** – Sample first 100 games, check move‑time metadata, raise `DataFetchError` if >5 % missing. **Verification**: Two pytest scenarios – one where metadata is sufficient (returns `True`), another where it fails (raises).  
+- [ ] T008d-3 **Implement `download_lichess_stream`** – Stream PGN data in chunks, integrate back‑off and mirror verification, never load full dataset into memory. **Verification**: Integration test that streams a small real subset (e.g., 10 games) and confirms the generator yields PGN strings without exhausting RAM.  
+- **T009 **Verify rating and move‑time metadata presence** – After streaming download, scan the retrieved PGN records to ensure every game contains both `white_rating`/`black_rating` and per‑move time information. If any game lacks either, abort the pipeline with a clear error. Write a verification report `data/results/metadata_verification.json` containing `all_games_have_required_metadata: bool` and a `missing_counts` dictionary (e.g., `{"rating_missing": 3, "move_time_missing": 5}`). **Verification**: The task exits non‑zero when `all_games_have_required_metadata` is false; otherwise the JSON report exists with `true`.  
+- **Checkpoint** – All foundation tasks must be complete before any user‑story work begins.
 
 ---
 
-## Phase 4: User Story 2 - Regression Modeling and Significance Testing (Priority: P2)
+## Phase 2 – User Story 1: Data Ingestion & Feature Extraction (Priority P1)
 
-**Goal**: Fit Beta Regression, Gaussian GLM, and Ridge regression models (per Spec FR‑005 and Plan's comparative baseline), apply Benjamini‑Hochberg FDR correction, perform sensitivity analysis, and collapse ECO codes to reduce multicollinearity.
+- [ ] T013 **Define `GameRecord` TypedDict** in `src/data/models.py` with all fields required by `game_record.schema.yaml` (including `eco_family`). **Verification**: Import the TypedDict and run a static‑type check; unit test in `tests/unit/test_models.py` creates an instance and passes `isinstance`‑style validation.  
+- [ ] T014 **Implement `parse_pgn_stream`** in `src/data/parse.py` – Read a generator of raw PGN strings, skip malformed games (log ID), compute `avg_move_time_white`, `avg_move_time_black`, `material_imbalance_move10` (and optionally `material_imbalance_move5` when `USE_MOVE_5`), map ECO codes to families, calculate capped `elo_expected_prob`, and yield `GameRecord` objects. **Verification**: Run on a 100‑game sample; assert no required field is `None` and that malformed games are logged but do not abort.  
+- [ ] T015 **Implement `OnlineAccumulator` and `process_stream`** in `src/data/process.py` – Consume iterator from `parse_pgn_stream`, update online statistics, write full dataset to `data/processed/games.parquet`, and write `data/results/inclusion_counts.json` with `total_games`, `parsed_games`, and `inclusion_rate`. **Verification**: After processing a sample, both files exist; inclusion_rate ≥ 0.95 for the sample.  
+- [ ] T017 **Implement `save_inclusion_metrics`** in `src/data/process.py` – Read `inclusion_counts.json`, add a timestamp, and write `data/results/inclusion_metrics.json` with keys `total_games`, `parsed_games`, `inclusion_rate`, `timestamp`. **Verification**: JSON file exists and contains all four keys with correct types.  
+- [ ] T018 **Implement `src/main.py` orchestration** – Parse `--sample` flag, load configuration, run full pipeline (`select_subset → precheck → download → **metadata verification (T009)** → parse → process → save_inclusion_metrics`), validate contracts via `validate_contracts.py`, and exit with code 0 on success (printing “Pipeline completed successfully”) or code 1 on any error. **Verification**: Execute `python src/main.py --sample`; exit code 0, success message printed, and all artifacts from T015‑T017 are present.
 
-**Independent Test**: The system can be tested by running the modeling script on the generated dataset and verifying that the output includes coefficient tables with corrected p‑values, R² scores, and AIC values for Beta, Gaussian GLM, and Ridge models.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T019 [P] [US2] Unit test for FDR correction logic (Benjamini‑Hochberg) in `tests/unit/test_calculations.py`.
-- [X] T020 [P] [US2] Unit test for ECO code collapsing logic (mapping specific codes to families) in `tests/unit/test_parsers.py`.
-
-### Implementation for User Story 2
-
-- [X] T021-1 [P] [US2] Implement function `scan_eco_codes(...)` in `src/models/fit.py` to scan the dataset for unique ECO codes and map them to families by grouping by the first character. **Requirement**: **Dynamic Scanning**: First, scan the dataset to identify all unique ECO codes present. Second, map each code to a family by grouping by the first character to ensure ALL codes are collapsed. **Requirement**: **Explicit Mapping**: Use the following standard mapping: 'A' -> 'King\'s Pawn', 'B' -> 'Sicilian', 'C' -> 'French', 'D' -> 'Queen\'s Gambit', 'E' -> 'Indian Defense'. Any code not matching these first-char groups maps to 'Unknown'. **Requirement**: **External Config**: If a config file exists, use it as a fallback, but the primary logic must be dynamic scanning and first-character grouping. **Requirement**: **Primary Feature**: Use `material_imbalance_move10` (from T014) as the default feature for modeling, unless `USE_MOVE_5` is True (comparative only). **Requirement**: **Dependency**: This task MUST run after T017, before T021-2. **Verification**: File exists, is valid JSON (if generated), and contains the mapping used for the models. **Deliverable**: Save mapping to `data/processed/eco_mapping.json`.
-- [X] T021-2 [US2] Implement function `integrate_eco_mapping(...)` in `src/models/fit.py` to integrate the ECO mapping from T021-1 into the feature preparation pipeline. **Requirement**: **Input**: The dataset and the ECO mapping from T021-1. **Requirement**: **Output**: The dataset with collapsed ECO features. **Requirement**: **Dependency**: This task depends on T021-1. **Note**: Removed [P] tag to reflect serial dependency.
-- [X] T022a-Transform [US2] Implement function `apply_normalization_and_fit(...)` in `src/models/fit.py` to normalize `outcome_deviation` and fit **Beta Regression**. **Constraint**: Beta Regression is mandatory per Spec FR‑005. **Requirement**: **Input**: A `pandas.Series` of `float64` values representing `outcome_deviation` in range [-1, 1]. **Requirement**: **Normalization**: Apply standard normalization `y_norm = (y + 1) / 2` to map the deviation to [0, 1]. **Requirement**: **Beta Implementation**: Explicitly import `statsmodels.genmod.generalized_linear_model` and use `family=sm.families.Beta()`. **Requirement**: **Inverse Scaling**: **CRITICAL**: After fitting the model, the coefficients MUST be transformed back to the original scale by multiplying by 2 (the inverse of the normalization step) to ensure the reported metrics satisfy FR-004 (outcome deviation definition) and SC-002 (significance measurement). The final report must map coefficients back to the original scale to preserve the semantic meaning of the target variable. **Requirement**: **Verification**: Verify the Beta model was successfully fitted and saved to a temporary artifact before proceeding to T023/T029. **Requirement**: **Dependency**: This task depends on T021-2. **Requirement**: **Note**: Confirmed [P] tag is valid as this is independent of T022b. **Deliverable**: Save Beta model artifact. **Note**: Removed [P] tag to reflect serial dependency on T021-2.
-- [ ] T022b [US2] Implement `src/models/fit.py` to fit **Ridge Regression**. **Requirement**: **Ridge Implementation**: Fit a Ridge Regression model using `sklearn.linear_model.Ridge`. **Requirement**: Ensure the model handles the outcome deviation distribution correctly. **Requirement**: **Note**: This task explicitly implements Ridge Regression as the second mandatory model per Spec FR-005. Gaussian GLM is NOT implemented as a primary model here to align with FR-005. **Requirement**: **Verification**: Verify the Ridge model was successfully fitted and saved to a temporary artifact before proceeding to T023/T029. **Requirement**: **Dependency**: This task depends on T021-2. **Requirement**: **Note**: Confirmed [P] tag is valid as this is independent of T022a-Transform. **Deliverable**: Save Ridge model artifact. **Note**: Removed [P] tag to reflect dependency on T021-2.
-- [ ] T022c [US2] Implement `src/models/fit.py` to document the rejection of Gaussian GLM as a primary model. **Requirement**: Create a JSON file `data/results/model_selection_log.json` explicitly stating that Gaussian GLM was considered but rejected as a primary model in favor of Beta Regression to satisfy Spec FR-005. **Requirement**: This task resolves the conflict between the Plan's "Complexity Tracking" table and Spec FR-005. **Requirement**: **Dependency**: This task depends on T022a-Transform and T022b.
-- [X] T023 [US2] Implement `src/models/metrics.py` to calculate p‑values (Wald Z-tests) and F‑statistics for all predictors for **all three models** (Beta, Ridge). **Requirement**: **Dependency**: Depends on T022a-Transform and T022b. **Requirement**: **Note**: Confirmed [P] tag is invalid as this depends on both model fits.
-- [X] T024 [US2] Implement `src/models/metrics.py` to apply Benjamini‑Hochberg FDR correction to p‑values (FR‑009). **Requirement**: **Input**: A pandas Series of p-values. **Requirement**: **Output**: A pandas DataFrame containing columns `original_p_value` and `corrected_p_value`. **Requirement**: Input must be a pandas Series of p-values; Output must be a pandas DataFrame containing original p-values and corrected p-values. **Requirement**: **Dependency**: Depends on T023.
-- [ ] T025 [US2] Implement function `run_sensitivity_analysis(...)` in `src/reports/sensitivity.py` to perform threshold sweep analysis over a **specific set of values** (SC-004). **Deliverable**: Save results to `data/results/sensitivity_analysis.json`. **Logic**: **Sweep Range**: Explicitly sweep thresholds over a set of small positive values as per Spec SC-004. **Requirement**: **Config Flexibility**: Allow the threshold set to be configured via `config.py` if needed in the future, defaulting to {0.005, 0.01, 0.05}. **Requirement**: **Delta Calculation**: Explicitly calculate and save the variation in the number of significant predictors for each step. **Requirement**: **Jaccard Index**: Calculate the pairwise Jaccard index for all pairs in the specified set to satisfy the compliance criterion. **Requirement**: **Set Definition**: The set `S_threshold` for Jaccard calculation is defined as the set of predictors with corrected p-value < threshold. **Requirement**: **Missing Value Handling**: Exclude predictors with NaN p-values from `S_threshold` before calculating Jaccard index. **Requirement**: **Edge Case Handling**: **CRITICAL**: If the set `S_threshold` is empty for a given threshold (i.e., no significant predictors), the Jaccard index for that pair MUST be defined as 0.0 to prevent division-by-zero errors. **Requirement**: **Reporting**: Explicitly report the variation in the number of significant predictors in the final output. **Requirement**: **Validation Gate**: **ENFORCED**: Calculate the Jaccard index. If the Jaccard index < 0.8, set `robustness_status` to 'failed' in the output JSON. Do NOT raise a ValueError to halt the pipeline, but DO record the failure status for T025-Report. **Requirement**: **Spec Reference**: The threshold set {0.005, 0.01, 0.05} is fixed by Spec SC-004 and is not dynamic. **Requirement**: **Dependency**: Depends on T024. **Note**: Removed [P] tag to reflect dependency on T024. **Note**: Modified to remove hard halt on Jaccard index < 0.8, replacing with status flag.
-- [X] T025-Report [US2] Implement function `report_jaccard_index(...)` in `src/reports/sensitivity.py` to explicitly calculate and save the Jaccard index as a measurement outcome. **Requirement**: Read the sensitivity analysis results from T025. **Requirement**: Calculate the Jaccard index for the set {0.005, 0.01, 0.05}. **Requirement**: Save the Jaccard index and `robustness_status` to `data/results/jaccard_index.json`. **Requirement**: **Dependency**: Depends on T025.
-- [X] T029 [US2] Implement function `validate_models(...)` in `src/models/validate.py` to perform k-fold cross-validation (k=5) on **Beta and Ridge models**. **Requirement**: Use a fixed random seed from config.py for the fold splitting. **Requirement**: Save cross-validation scores to a temporary artifact accessible by T027. **Requirement**: **Dependency**: This task depends on T022a-Transform and T022b.
-- [X] T030-Calc [US2] Implement function `calculate_cv_metrics(...)` in `src/models/validate.py` to calculate R² and MSE variance across folds; specifically calculate standard deviation of R². **Validation Logic**: Calculate `std_dev_r` as a measurement metric. **Requirement**: Do NOT raise a ValueError or halt the pipeline if `std_dev_r >= 0.05`. **Requirement**: Return a dictionary containing `cv_summary` and `validation_status` (where status is 'measured' not 'passed/failed'). **Requirement**: **Dependency**: Depends on T029.
-- [X] T030-Report [US2] Implement function `report_cv_metrics(...)` in `src/models/validate.py` to report the R² standard deviation as a measurement outcome per SC-003. **Requirement**: Read the `cv_summary` from T030-Calc. **Requirement**: Save the metrics to `data/results/cv_metrics.json`. **Requirement**: **Dependency**: Depends on T030-Calc.
-- [X] T027-Aggregate [US2] Implement `src/models/fit.py` to aggregate model artifacts (coefficients, p‑values, R², AIC, cross_validation_scores) for Beta and Ridge models into a temporary structure. **Requirement**: This task acts as the consolidation step: it takes the temporary artifacts generated by T022a-Transform, T022b, T029, and T024, and prepares them for validation. **Requirement**: Explicitly calculate and save a list `significant_predictors` containing the names of predictors with corrected p-value < 0.01. **Requirement**: **Execution Order**: This task MUST run AFTER T029 (Cross-Validation) and T024 (FDR) to ensure `cross_validation_scores` and `corrected_p_values` are available. **Requirement**: **Artifact Aggregation**: This task MUST aggregate coefficients and AIC from T022a-Transform and T022b, and corrected p-values from T024, and CV scores from T029. **Requirement**: **Dependency**: Depends on T022a-Transform, T022b, T023, T024, T029, T030-Calc. **Deliverable**: Save aggregated metrics to `data/results/model_metrics_temp.json`.
-- [X] T027-Validate [US2] Implement `src/models/fit.py` to save the aggregated model artifacts to `data/results/model_metrics.json` and validate against `model_output.schema.yaml` (T007). **Requirement**: This task MUST take the aggregated data from T027-Aggregate, validate it against the schema, and save the final schema-compliant JSON. **Requirement**: **Verification**: File exists, is valid JSON, and matches the schema in T007 (non‑empty arrays for cross‑validation scores). **Requirement**: **Dependency**: Depends on T027-Aggregate.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint** – End‑to‑end ingestion pipeline must run on a small real subset and produce all required output files.
 
 ---
 
-## Phase 5: User Story 3 - Cross-Validation and Diagnostic Reporting (Priority: P3)
+## Phase 3 – User Story 2: Regression Modeling & Significance Testing (Priority P2)
 
-**Goal**: Generate diagnostic plots (residuals, predicted vs. actual), and produce a final validation report using the models validated in Phase 4.
-
-**Independent Test**: The system can be tested by executing the validation script and verifying that the output includes a report of MSE across multiple folds (from T030) and saves PNG diagnostic plots.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T028 [P] [US3] Integration test for end‑to‑end pipeline (download -> parse -> model -> validate) on a small sample in `tests/integration/test_pipeline.py`.
-
-### Implementation for User Story 3
-
-- [X] T031 [US3] Implement `src/reports/generate_plots.py` to create residual plots, feature importance rankings, and predicted vs. actual scatterplots for all models. **Requirement**: **Filename Convention**: Save all plots to `data/results/` using a deterministic naming convention: `residuals_{model_type}_{content_hash}.png`, where `content_hash` is the MD5 hash of the model's coefficient array. This ensures reproducibility across runs. **Requirement**: **Deliverable**: Save all plots to `data/results/`. **Requirement**: **Dependency**: This task depends on T022a-Transform, T022b, T029, T030-Calc (to access model objects and CV metrics). **Requirement**: **Dependency**: Depends on T022a-Transform, T022b, T029, T030-Calc.
-- [X] T033-Generate [US3] Implement function `generate_diagnostic_report(...)` in `src/reports/generate_plots.py` to prepare the final `DiagnosticReport` summary. **Requirement**: Verify the existence of data/results/model_metrics.json (from T027-Validate). **Requirement**: Consume validation_status and cv_metrics returned by T030-Report. **Requirement**: Include significant_predictors from T027-Validate in the report. **Requirement**: **Schema**: The JSON content MUST contain keys: `residual_plot_path` (str), `cv_summary` (dict with keys `mean_r2` (float), `std_r2` (float), `mean_mse` (float)), `significant_predictors` (list of strings). **Requirement**: **Input Schema**: This function MUST accept `model_metrics` (from T027-Validate) and `cv_metrics` (from T030-Report) as input arguments. **Requirement**: **Path Stability**: The `residual_plot_path` MUST use the deterministic filename convention defined in T031 (e.g., `data/results/residuals_Beta_{hash}.png`). **Requirement**: **Deliverable**: Prepare the final report dictionary. **Requirement**: **Dependency**: Depends on T027-Validate, T030-Report, T031. **Deliverable**: Save report dictionary to `data/results/diagnostics_temp.json`.
-- [X] T033-Write [US3] Implement function `save_diagnostics(...)` in `src/reports/generate_plots.py` to write the final `diagnostics.json` file to disk. **Requirement**: This task MUST consume the report dictionary from T033-Generate and save it to `data/results/diagnostics.json`. **Requirement**: **Verification**: Verify `diagnostics.json` contains keys: `residual_plot_path`, `cv_summary`, `significant_predictors`. **Requirement**: **Dependency**: Depends on T033-Generate.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T021 **ECO‑family mapping & feature‑matrix integration** – Scan ECO codes, write mapping to `data/processed/eco_mapping.json`, and incorporate the collapsed `eco_family` into the feature matrix. **Verification**: Assert that the JSON mapping file exists and that the feature matrix contains the `eco_family` column with no missing values.  
+- [ ] T022a **Fit Beta Regression** – Transform outcome to `(y+1)/2`, fit using `statsmodels`, and save model artifact to `data/models/beta_glm.pkl`. **Verification**: Check that the pickle file exists and that a post‑fit summary can be loaded without error.  
+- [ ] T022b **Fit Ridge Regression** – Fit using scikit‑learn on the same feature matrix; save to `data/models/ridge.pkl`. **Verification**: Assert pickle existence and that coefficients can be extracted.  
+- [ ] T022c **Document model selection** – Write `data/results/model_selection_log.json` explaining why Gaussian GLM was not used (referencing FR‑005). **Verification**: File exists and contains a non‑empty `reason` field.  
+- [ ] T023 **Compute Wald Z‑tests (Beta) and t‑tests (Ridge)** – Store raw p‑values in `data/results/raw_pvalues.json`. **Verification**: JSON exists and each p‑value is in `[0,1]`.  
+- [ ] T024 **Apply Benjamini‑Hochberg FDR correction** – Store corrected values in `data/results/fdr_pvalues.json`. **Verification**: Assert that corrected p‑values are ≤ 1 and that the correction algorithm was applied (e.g., monotonicity).  
+- [ ] T025 **Perform sensitivity analysis** – Sweep thresholds `{0.005, 0.01, 0.05}`; save results to `data/results/sensitivity_analysis.json`. **Verification**: JSON contains entries for all three thresholds.  
+- [ ] T025‑Report **Compute Jaccard index & robustness flag** – Calculate Jaccard across thresholds, write `data/results/jaccard_index.json` with the index and a `robustness_status` flag. **Verification**: Assert that the Jaccard index ≥ 0.8; if not, raise an error to fail the task.  
+- [ ] T029 **Run 5‑fold cross‑validation** for both models; write CV R² scores to `data/results/cv_scores.json`. **Verification**: JSON contains exactly 5 scores per model and the standard deviation of the scores is computed.  
+- [ ] T030‑Calc **Compute CV metrics** – Write mean and standard deviation of CV R² to `data/results/cv_metrics.json`. **Verification**: Assert that `std_r2` < 0.05; failure raises an error.  
+- [ ] T027‑Aggregate **Gather model metrics** – Combine coefficients, FDR‑corrected p‑values, AIC, and CV scores into `data/results/model_metrics_temp.json`. **Verification**: Validate against `model_output.schema.yaml` using the schema‑validation module; output passes.  
+- [ ] T027‑Validate **Validate aggregated structure** – Write final `data/results/model_metrics.json`. **Verification**: Same schema validation as above; file exists and conforms.
 
 ---
 
-## Phase N: Polish & Cross‑Cutting Concerns
+## Phase 4 – User Story 3: Cross‑Validation & Diagnostic Reporting (Priority P3)
 
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T034-Create [P] Create `README.md` from scratch. **Requirement**: Include installation steps, a **Mermaid diagram** for the data flow, and usage instructions. **Requirement**: The Mermaid diagram must visualize the flow from Download -> Parse -> Process -> Model -> Validate -> Report. **Requirement**: This task creates the file if it does not exist.
-- [X] T035-Create [P] Create `quickstart.md` from scratch. **Requirement**: Include a short sample run guide including the exact command `python src/main.py --sample` and the expected output string `Pipeline completed successfully`. **Requirement**: This task creates the file if it does not exist.
-- [ ] T036 [P] Run `ruff check --select T20` to ensure no print statements remain in the codebase.
-- [X] T038 [P] Profile RAM usage with `memory_profiler` for final reporting. **Requirement**: Run command: `python -m memory_profiler --line-by-line --output-format=text --output-file=data/results/memory_profile.txt src/main.py --sample`. **Requirement**: Save peak RAM usage to `data/results/memory_profile.txt`. **Requirement**: **Dependency**: This task is now a dependency of T018 (orchestration) to enforce SC-005. **Requirement**: **Execution Order**: T038 must complete before T018 can be considered successful. **Note**: Moved RAM check logic to T018-Pre in Phase 3; T038 remains here for final report generation.
-- [X] T040 [P] Run quickstart.md validation. **Requirement**: Execute command: `python src/main.py --sample`. **Requirement**: Verify exit code 0 and output contains `Pipeline completed successfully`.
+- [ ] T031 **Generate diagnostic plots** – Create residual, predicted‑vs‑actual, and feature‑importance PNGs for each model, saved as `data/results/residuals_{model_type}_{hash}.png`, `data/results/predicted_vs_actual_{model_type}_{hash}.png`, `data/results/feature_importance_{model_type}_{hash}.png`. **Verification**: After generation, each PNG file exists and its file size > 0 bytes.  
+- [ ] T033‑Generate **Build DiagnosticReport dictionary** – Include plot paths, CV summary from `cv_metrics.json`, and list `significant_predictors` from `model_metrics.json`. **Verification**: Validate the dictionary against a `diagnostic_report.schema.yaml` (to be added) using the validation module.  
+- [ ] T033‑Write **Persist DiagnosticReport** to `data/results/diagnostics.json`. **Verification**: File exists and passes schema validation.
 
 ---
 
-## Dependencies & Execution Order
+## Phase 5 – Polish & Cross‑Cutting Concerns
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T036 **Run ruff linting** – Execute `ruff check --select T20` on the codebase, capture output to `data/results/ruff_check.txt`. **Verification**: Assert that `ruff_check.txt` is empty (no warnings).  
+- [ ] T038 **Profile RAM usage & runtime** – Run `memory_profiler` while executing `src/main.py --sample`; write line‑by‑line report to `data/results/memory_profile.txt`. Parse the report to assert peak memory ≤ 7 GB. Additionally, measure total wall‑clock time and write `data/results/runtime_summary.txt` containing `total_seconds` and `peak_memory_gb`. **Verification**: Both files exist; `peak_memory_gb` ≤ 7 and `total_seconds` ≤ 21600 (6 h).  
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 6 – Documentation Hand‑off
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
+- [ ] T035 **Create `quickstart.md`** – Provide a short usage example (`python src/main.py --sample`) and the expected success message. **Verification**: Run the command from the documentation in an automated test and assert the success message appears.  
+- [ ] T034 **Create `README.md`** – Include installation steps, a Mermaid diagram of the data‑flow (Download → Parse → Process → Model → Validate → Report), and brief usage instructions. **Verification**: Use `mermaid-cli` to render the diagram; the command must exit with code 0, confirming the diagram is syntactically correct.
 
 ---
 
-## Implementation Strategy
+### Dependency Summary
 
-### MVP First (User Story 1 Only)
+- Foundational tasks (Phase 0–1) must all be **checked** before any Phase 2 task runs.  
+- Phase 2 tasks depend on `T008d-3` (download) **and** the new verification task `T009`.  
+- Phase 3 tasks depend on the processed dataset (`data/processed/games.parquet`) produced by Phase 2.  
+- Phase 4 tasks depend on the model artifacts and CV results from Phase 3.  
+- Polish tasks (`T036`, `T038`) run after the full pipeline is functional and are required for the final verification verdict.  
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+--- 
 
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+*All unchecked tasks above are pending implementation. Once each task’s verification passes, the checkbox should be marked `[X]`. The pipeline is designed to run entirely on the free‑tier GitHub Actions CPU runner; no GPU resources are required.*  
