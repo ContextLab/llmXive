@@ -1,15 +1,17 @@
 status: none
-intent: ACE SWICS WIND composition O/Fe He/H C/O hourly dataset CDAWeb NOAA Dst Kp
-  python package dataset
+intent: ACE SWICS WIND composition CDAWeb NOAA Dst Kp hourly dataset python package
+  dataset
 required_fields:
-- timestamp (hourly)
-- O/Fe ion flux ratio
-- He/H ion flux ratio
-- C/O ion flux ratio
-- solar wind bulk velocity
-- solar wind proton density
-- "interplanetary magnetic field (IMF) components or magnitude\",\"Dst index\",\"\
-  Kp index\",\"solar wind\u2013magnetosphere coupling function (e.g., epsilon)"
-cache_key: 5d7cc1d6cb16aeb72a3ea6be6fd6fb9993e2232e9293ad72185ea8af84a13b3d
-searched_at: '2026-10-20T18:49:49.203054+00:00'
+- timestamp
+- O_Fe_ratio
+- He_H_ratio
+- C_O_ratio
+- solar_wind_speed
+- proton_density
+- IMF_Bz
+- Dst_index
+- Kp_index
+- coupling_function
+cache_key: 6b4c7cb26f88299d9563a92d2b7a9c5c6a3ab91e487c7929a9e85b026b97640f
+searched_at: '2026-10-20T19:18:44.977406+00:00'
 retry_count: 1

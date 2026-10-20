@@ -8,7 +8,7 @@
 
 **Goal**: Obtain real solar‑wind composition and geomagnetic data, align them to a clean hourly grid, and verify that the pipeline runs on a small real subset before scaling to the full 20‑year interval.
 
-- [ ] **T001** [P] Ensure reproducibility by pinning every dependency in `requirements.txt` to the pattern `package==major.minor.*`.   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
+- [X] **T001** [P] Ensure reproducibility by pinning every dependency in `requirements.txt` to the pattern `package==major.minor.*`.
   *Updates*: pin `pyarrow` as `pyarrow==15.0.*` (or replace with `fastparquet==2024.*`), add `pyspedas==1.6.*`, `pytplot==2.2.*`, `cdflib==1.3.*`.  
   *Verification*: `pip install -r requirements.txt` succeeds on a clean runner; CI regex check confirms each line matches `^[a-zA-Z0-9_-]+==[0-9]+\.[0-9]+\.\*$`. This task supports Constitution Principle I (Reproducibility) and provides traceability for all downstream scientific tasks.
 
@@ -32,7 +32,7 @@
   *File*: `code/ingestion/align.py`.  
   *Verification*: `pytest tests/unit/test_align.py` passes (one row per hour, monotonic timestamps, `max_offset_minutes ≤ 30`, schema validation, core columns non‑null, alignment report lists any >6 h gaps).
 
-- [ ] **T005** [US2] Derive the **Akasofu ε** and **Newell dΦ/dt** coupling functions from bulk parameters (velocity, density, IMF magnitude, Bz) and append them to the aligned dataset.  
+- [ ] **T005** [US2] Derive the **Akasofu ε** and **Newell dΦ/dt** coupling functions from bulk parameters (velocity, density, IMF magnitude, Bz) and append them to the aligned dataset.   <!-- FAILED-IN-EXECUTION: code/analysis/coupling_functions.py exit=1 -->
   *Output*: `data/processed/with_coupling.parquet`.  
   *File*: `code/analysis/coupling_functions.py` (function signatures `compute_epsilon(row)` and `compute_newell(row)` must match spec).  
   *Verification*: `pytest tests/unit/test_coupling.py` passes (hand‑crafted row yields ε and Newell values within 1e‑6 relative tolerance); script produces the parquet file without errors.

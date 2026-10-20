@@ -1,0 +1,43 @@
+T001:
+  c: true
+  h: b0e8e3a507d9d5e8681862694e1cf6bfdd96b9fdb7942c47ef093a83d0cf2c04
+  r: "Checked the `requirements.txt` file (572\u202Fbytes) showing all dependencies\
+    \ pinned to the `package==major.minor.*` pattern, including the required `fastparquet==2024.2.*`,\
+    \ `pyspedas==1.6.*`, `pytplot==2.2.*`, and `cdflib==1.3.*`. The integration test\
+    \ `tests/integration/test_verify_requirements.py` passed, confirming the regex\
+    \ check and that a clean `pip install -r requirements.txt` succeeds."
+  sig: 27e7b17d476c498fc322f887de7eb3ed4922287189daa646dbe4eff9576c21a7
+T002:
+  c: false
+  h: 82c1962c4411e0326e131bec76b93747c53aace2091e28a5e7f911d85a2593e2
+  r: "The refactored `code/utils/io.py` correctly implements a fallback to `fastparquet`\
+    \ and provides `load_parquet` and `save_parquet`, but there is no evidence that\
+    \ the required test (`pytest tests/unit/test_io.py`) actually runs and passes\
+    \ on a system without `pyarrow`. Execution logs or a test report confirming the\
+    \ fallback works (and that a parquet file is written, read back identically, and\
+    \ its SHA\u2011256 checksum matches) are missing. Provide the test run output\
+    \ or CI log demonstrating the passing test in the specified environment."
+  sig: 57d81a2c5631d304d50014b94b9adb6410d74551b5454f5e57c212a122d397d0
+T003:
+  c: false
+  h: 9fba56efc4fef226af9c9aa98f7db2075b64d845ebec02de46853841740ea4ac
+  r: The `code/ingestion/download_real.py` script exists and contains the required
+    logic, and the integration tests verify checksum calculation and error handling.
+    However, the required raw data directories (`data/raw/ace_swics/`, `data/raw/wind_sms/`,
+    `data/raw/omni/`) and the `data/raw/checksums.yaml` file are missing, so the script
+    has not actually fetched and stored the real CDF files as mandated. The task is
+    therefore incomplete until the raw CDF files are downloaded and preserved and
+    the checksum manifest is generated.
+  sig: a00fa100b5853d00e693bcc19ebfa7f0d875441686a8ea302fba76cadaef169d
+T004:
+  c: false
+  h: 3d2a7f1560468873dbcdff36d755b64c3e5775cbd5035ce19836501aa79b19dd
+  r: The `align.py` implementation cannot pass the provided `tests/unit/test_align.py`
+    because `_load_omni_bulk` looks for OMNI variables named `V`, `N`, `By`, `Bz`,
+    `Dst`, `Kp`, etc., while the synthetic CSV created in the test uses names like
+    `velocity_km_s`, `density_cm3`, `imf_by_nT`, `imf_bz_nT`, `dst_index`, `kp_index`.
+    This mismatch causes `_load_omni_bulk` to raise an `AlignmentError`, so the script
+    never produces `aligned_hourly.parquet` or `alignment_report.json`. The required
+    variable naming (or a mapping layer) must be added for the test (and real data)
+    to succeed.
+  sig: 345fdfb5a086be06480e1d4934d9e3c55c7876c7e301c20d6441be8c92284d44

@@ -6,23 +6,34 @@ a pandas DataFrame with the expected column names or the individual
 Series required for the calculation. This design satisfies both the
 original pipeline (which uses columns V, Bt, By, Bz) and the unit tests
 (which use alternative names v_sw, B_s, B_t, theta).
+
+In addition to the library API, this module can be executed as a
+script to read the hourly‑aligned dataset, compute the coupling
+function columns, and write the enriched dataset to disk.
 """
+
+import argparse
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from typing import Optional, Union
 
-from code.utils.logging import AnalysisError, get_logger, log_duration
+from llmxive_toolkit import paths, get_logger
+
+from code.utils.logging import AnalysisError, get_logger as get_analysis_logger, log_duration
+from code.utils.io import load_parquet, save_parquet
 
 logger = get_logger(__name__)
 
-
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
 def _extract_series(
     df: pd.DataFrame,
     name_variants: list[str],
 ) -> pd.Series:
     """
-    Helper to retrieve a Series from a DataFrame given a list of possible column names.
+    Retrieve a Series from a DataFrame given a list of possible column names.
     Raises ``KeyError`` if none of the variants are present.
     """
     for name in name_variants:
@@ -31,6 +42,9 @@ def _extract_series(
     raise KeyError(f"None of the expected columns {name_variants} found in DataFrame.")
 
 
+# ----------------------------------------------------------------------
+# Core coupling‑function implementations (vectorised)
+# ----------------------------------------------------------------------
 def compute_akasofu_epsilon(
     V: Union[pd.Series, pd.DataFrame],
     Bt: Optional[pd.Series] = None,
@@ -43,6 +57,7 @@ def compute_akasofu_epsilon(
 
     The classic formula is:
         ε = V * B^2 * l0^2 * sin⁴(θ/2)
+
     where B = sqrt(By² + Bz²) and l0 = 7 RE.
 
     The function is tolerant to the calling convention:
@@ -56,9 +71,7 @@ def compute_akasofu_epsilon(
     * If ``theta`` is omitted, it is approximated from By and Bz
       (or set to zero when those are unavailable).
     """
-    # ------------------------------------------------------------------
     # Resolve input series
-    # ------------------------------------------------------------------
     if isinstance(V, pd.DataFrame):
         df = V
         V_series = _extract_series(df, ["v_sw", "V"])
@@ -92,7 +105,6 @@ def compute_akasofu_epsilon(
             raise ValueError(
                 "When passing Series directly, Bt, By, and Bz must be provided."
             )
-        # Use Bt as proxy for B when By/Bz are not supplied (mirrors original code)
         B_series = np.sqrt(By ** 2 + Bz ** 2)
         theta_series = (
             theta
@@ -100,9 +112,7 @@ def compute_akasofu_epsilon(
             else np.arctan2(By, Bz).abs()
         )
 
-    # ------------------------------------------------------------------
     # Compute epsilon
-    # ------------------------------------------------------------------
     l0 = 7.0  # Earth radii, dimensionless scaling factor
     sin_term = np.sin(theta_series / 2.0) ** 4
     epsilon = V_series * (B_series ** 2) * (l0 ** 2) * sin_term
@@ -248,6 +258,138 @@ def get_coupling_function_columns() -> list:
     return ["epsilon", "newell"]
 
 
+# ----------------------------------------------------------------------
+# Row‑wise convenience wrappers (required by the task specification)
+# ----------------------------------------------------------------------
+def compute_epsilon(row: pd.Series) -> float:
+    """
+    Row‑wise wrapper for the Akasofu epsilon calculation.
+
+    Accepts a Series representing a single observation and returns the
+    scalar ε value. Column names are resolved using the same variant logic
+    as the vectorised implementation.
+    """
+    # Resolve the necessary series from the row (treated as a 1‑row DataFrame)
+    V = _extract_series(pd.DataFrame([row]), ["v_sw", "V"]).iloc[0]
+    # Prefer direct B column if present
+    try:
+        B = _extract_series(pd.DataFrame([row]), ["B_s"]).iloc[0]
+    except KeyError:
+        By = _extract_series(pd.DataFrame([row]), ["By"]).iloc[0]
+        Bz = _extract_series(pd.DataFrame([row]), ["Bz"]).iloc[0]
+        B = np.sqrt(By ** 2 + Bz ** 2)
+
+    # Theta handling
+    try:
+        theta = _extract_series(pd.DataFrame([row]), ["theta"]).iloc[0]
+    except KeyError:
+        # Approximate clockwise angle from By/Bz if available
+        try:
+            By = _extract_series(pd.DataFrame([row]), ["By"]).iloc[0]
+            Bz = _extract_series(pd.DataFrame([row]), ["Bz"]).iloc[0]
+            theta = np.arctan2(By, Bz).abs()
+        except KeyError:
+            theta = 0.0
+
+    l0 = 7.0
+    sin_term = np.sin(theta / 2.0) ** 4
+    epsilon = V * (B ** 2) * (l0 ** 2) * sin_term
+    return float(epsilon)
+
+
+def compute_newell(row: pd.Series) -> float:
+    """
+    Row‑wise wrapper for the Newell dΦ/dt coupling function.
+
+    Accepts a Series representing a single observation and returns the
+    scalar dΦ/dt value. Column names are resolved using the same variant
+    logic as the vectorised implementation.
+    """
+    V = _extract_series(pd.DataFrame([row]), ["v_sw", "V"]).iloc[0]
+    try:
+        Bt = _extract_series(pd.DataFrame([row]), ["B_t", "Bt"]).iloc[0]
+    except KeyError:
+        # Fall back to total field magnitude if Bt is missing
+        try:
+            By = _extract_series(pd.DataFrame([row]), ["By"]).iloc[0]
+            Bz = _extract_series(pd.DataFrame([row]), ["Bz"]).iloc[0]
+            Bt = np.sqrt(By ** 2 + Bz ** 2)
+        except KeyError:
+            Bt = 0.0
+
+    # Theta handling
+    try:
+        theta = _extract_series(pd.DataFrame([row]), ["theta"]).iloc[0]
+    except KeyError:
+        # Approximate if possible
+        try:
+            Bz = _extract_series(pd.DataFrame([row]), ["Bz"]).iloc[0]
+            theta = np.arctan2(Bt, Bz).abs()
+        except KeyError:
+            theta = 0.0
+
+    sin_term = np.sin(theta / 2.0) ** (8.0 / 3.0)
+    newell = (V ** (4.0 / 3.0)) * (Bt ** (2.0 / 3.0)) * sin_term
+    return float(newell)
+
+
+# ----------------------------------------------------------------------
+# CLI / script entry point
+# ----------------------------------------------------------------------
+def _process_and_write(
+    input_path: Path,
+    output_path: Path,
+) -> None:
+    """
+    Load the aligned hourly dataset, compute all coupling functions,
+    and write the enriched DataFrame to ``output_path`` as Parquet.
+    """
+    logger.info(f"Loading aligned data from {input_path}")
+    df = load_parquet(input_path)
+
+    logger.info("Computing coupling function columns")
+    df_with_coupling = compute_all_coupling_functions(df)
+
+    logger.info(f"Saving dataset with coupling functions to {output_path}")
+    save_parquet(df_with_coupling, output_path)
+    logger.info("Coupling‑function enrichment completed successfully.")
+
+
 def main() -> None:
-    """Entry point for debugging coupling function calculations."""
-    logger.info("Coupling function module loaded.")
+    """
+    Command‑line interface.
+
+    By default the script operates on the standard project layout:
+    - Input: ``data/processed/aligned_hourly.parquet``
+    - Output: ``data/processed/with_coupling.parquet``
+
+    Optional arguments allow overriding these paths.
+    """
+    parser = argparse.ArgumentParser(
+        description="Add Akasofu ε and Newell coupling function columns to the aligned dataset."
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        default=str(paths.processed("aligned_hourly.parquet")),
+        help="Path to the aligned hourly Parquet file.",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=str(paths.processed("with_coupling.parquet")),
+        help="Path where the enriched Parquet file will be written.",
+    )
+
+    args = parser.parse_args()
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+
+    if not input_path.is_file():
+        raise FileNotFoundError(f"Aligned data not found at {input_path}")
+
+    _process_and_write(input_path, output_path)
+
+
+if __name__ == "__main__":
+    main()

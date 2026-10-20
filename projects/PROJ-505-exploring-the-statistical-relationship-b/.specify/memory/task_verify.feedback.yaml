@@ -1,14 +1,36 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/verify_requirements.py
-    exit=1'
   task: 6ee7d4e1464e67f99c454380b33e94670cfd3dd02a83f4826cf2f56f339b3ad0
 T002:
+  reason: "The refactored `code/utils/io.py` correctly implements a fallback to `fastparquet`\
+    \ and provides `load_parquet` and `save_parquet`, but there is no evidence that\
+    \ the required test (`pytest tests/unit/test_io.py`) actually runs and passes\
+    \ on a system without `pyarrow`. Execution logs or a test report confirming the\
+    \ fallback works (and that a parquet file is written, read back identically, and\
+    \ its SHA\u2011256 checksum matches) are missing. Provide the test run output\
+    \ or CI log demonstrating the passing test in the specified environment."
   task: 2c9fb502a1669081aa5d234ccb5329147ec3ec37dc3d8ec7e3ec2c43ba973301
 T003:
+  reason: The `code/ingestion/download_real.py` script exists and contains the required
+    logic, and the integration tests verify checksum calculation and error handling.
+    However, the required raw data directories (`data/raw/ace_swics/`, `data/raw/wind_sms/`,
+    `data/raw/omni/`) and the `data/raw/checksums.yaml` file are missing, so the script
+    has not actually fetched and stored the real CDF files as mandated. The task is
+    therefore incomplete until the raw CDF files are downloaded and preserved and
+    the checksum manifest is generated.
   task: 26ee0bbfa26153a62c6dfe654a5bb2fc4faf10b4220919d79a5515a808342c8c
 T004:
+  reason: The `align.py` implementation cannot pass the provided `tests/unit/test_align.py`
+    because `_load_omni_bulk` looks for OMNI variables named `V`, `N`, `By`, `Bz`,
+    `Dst`, `Kp`, etc., while the synthetic CSV created in the test uses names like
+    `velocity_km_s`, `density_cm3`, `imf_by_nT`, `imf_bz_nT`, `dst_index`, `kp_index`.
+    This mismatch causes `_load_omni_bulk` to raise an `AlignmentError`, so the script
+    never produces `aligned_hourly.parquet` or `alignment_report.json`. The required
+    variable naming (or a mapping layer) must be added for the test (and real data)
+    to succeed.
   task: c18edab362c9641e9579a30ce3c8fb282973c11d5b0b79788cdf388f9d0f43e9
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/coupling_functions.py
+    exit=1'
   task: 3e3be54c3fbc242561aacf8e939376dfe2873e500437b5a95435ecd40ff2fcc3
 T006:
   task: 5e9a9d9a49f117593bf72bfc32b317e4234e5f05707ac76a57dbf60716ac4b59

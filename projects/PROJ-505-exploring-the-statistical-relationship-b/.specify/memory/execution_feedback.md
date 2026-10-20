@@ -13,41 +13,37 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a deterministic synthetic solar‑wind / geomagnetic…”
 - code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…er(         description="Generate deterministic synthetic solar‑wind and geomagnet…”
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python -m code.ingestion.download_real --start 2000-01-01 --end 2020-12-31`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.     run_ingestion(confi…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for ACE and NO…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a deterministic synthetic solar‑wind / geomagnetic…”; 5 command(s) failed: python -m code.verify_requirements (rc=1); python -m code.main (rc=1); python -m pytest tests/ (rc=2); 5 declared deliverable(s) absent: data/artifacts/alignment_report.json; data/artifacts/cv_metrics.json; data/artifacts/delta_r2.json
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion/download_ace.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.     run_ingestion(confi…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for ACE and NO…”; code/ingestion/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a deterministic synthetic solar‑wind / geomagnetic…”; 4 command(s) failed: python -m code.main (rc=1); python -m pytest tests/ (rc=2); python -m code.ingestion.download_real --start 2000-01-01 --end 2020-12-31 (rc=1); 5 declared deliverable(s) absent: data/artifacts/alignment_report.json; data/artifacts/cv_metrics.json; data/artifacts/delta_r2.json
 
 ## Failing / missing run-book commands
-
-- python -m code.verify_requirements -> rc=1
-
-2026-10-20 18:48:49,650 INFO __main__: Verifying pinned requirements from /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/verify_requirements.py", line 107, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/verify_requirements.py", line 103, in main
-    raise RuntimeError(f"pip install failed with code {result.returncode}")
-RuntimeError: pip install failed with code 1
 
 - python -m code.main -> rc=1
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 81, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/logging.py", line 76, in wrapper
-    result = func(*args, **kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 40, in main
-    raise FileNotFoundError(
-FileNotFoundError: Aligned data not found at data/processed/aligned_hourly.parquet. Run the alignment step before executing the main driver.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 14, in <module>
+    from code.analysis.coupling_functions import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/coupling_functions.py", line 49, in <module>
+    V: Union[pd.Series, pd.DataFrame],
+       ^^^^^
+NameError: name 'Union' is not defined
 
 - python -m pytest tests/ -> rc=2
-505-exploring-the-statistical-relationship-b/code/ingestion/align.py)
-_ ERROR collecting projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit/test_regression.py _
+OR collecting projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit/test_regression.py _
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit/test_regression.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
@@ -57,17 +53,15 @@ tests/unit/test_regression.py:14: in <module>
     from analysis.regression import (
 E   ImportError: cannot import name '_check_multicollinearity' from 'analysis.regression' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/regression.py)
 =========================== short test summary info ============================
+ERROR tests/unit/test_coupling.py - NameError: name 'Union' is not defined
 ERROR tests/unit/test_ingestion.py
 ERROR tests/unit/test_regression.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.03s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 3 errors in 1.47s ===============================
 
 
 - python -m code.ingestion.download_real --start 2000-01-01 --end 2020-12-31 -> rc=1
- of the following exception:
-
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
+ "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 208, in <module>
     main()
@@ -77,23 +71,21 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 139, in download_and_preserve
     omni_files = _fetch_cdf_files("omni_h0", "OMNI hourly", trange)
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 62, in _fetch_cdf_files
-    raise ImportError(
-ImportError: pyspedas is required for real-data ingestion but is not installed.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_real.py", line 70, in _fetch_cdf_files
+    raise ConnectionError(
+ConnectionError: Failed to fetch OMNI hourly from CDAWeb via pyspedas: pyspedas stub: real data download not implemented in this test environment.
 
 - python -m code.main --quick  # uses only the initial segment of rows. -> rc=1
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 81, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/logging.py", line 76, in wrapper
-    result = func(*args, **kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 40, in main
-    raise FileNotFoundError(
-FileNotFoundError: Aligned data not found at data/processed/aligned_hourly.parquet. Run the alignment step before executing the main driver.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 14, in <module>
+    from code.analysis.coupling_functions import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/coupling_functions.py", line 49, in <module>
+    V: Union[pd.Series, pd.DataFrame],
+       ^^^^^
+NameError: name 'Union' is not defined
 
 
 ## Declared deliverables still missing
@@ -120,11 +112,13 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/regression.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/artifacts/delta_r2.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/aligned_hourly.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/coupling_functions.py` — NOT invoked by the run-book
     - `code/analysis/regression.py` — NOT invoked by the run-book
     - `code/ingestion/align.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/aligned_hourly.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/with_coupling.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/coupling_functions.py` — NOT invoked by the run-book
     - `code/analysis/cross_validation.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/with_coupling.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

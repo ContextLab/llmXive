@@ -316,7 +316,7 @@ def main() -> None:
     align_data(
         ace_dir=ace_dir,
         wind_dir=wind_dir,
-        omni_dir=omni_dir,
+        omni_dir=omi_dir,
         output_path=output_path,
         report_path=report_path,
     )
