@@ -34,14 +34,6 @@ T004:
     \ across two runs. All required artifacts exist, are non\u2011empty, and behave\
     \ as specified."
   sig: 8d02c43ab60c655b7d11634e625a85f9d96f8318d604052ca3d11f9a7071ac9e
-T005:
-  c: false
-  h: b0de7456633a5cf4ac728851e1408adbe58866fa8b1ec6e08bb6a11a7b94d8f7
-  r: The required output file `results/reports/benchmark_dummy.json` is missing; without
-    this JSON report containing numeric `wall_time_sec` and `peak_memory_mb` fields,
-    the benchmark instrumentation task is not fully satisfied. The context manager
-    code exists, but the verification artifact was not produced.
-  sig: 353543263bb2d78ebef00e6bb18c037a7f89f59c29569142bb0fa976dd212035
 T006:
   c: true
   h: 1f0255bf92ed542d6d42904546e2218d07c4a5c4cf3521863c6ff49a94b560f3
@@ -55,25 +47,24 @@ T006:
   sig: 67f231647a0190dd41783186ade7659e8b77fbc2b35f4788d7c2097e0488beb2
 T007:
   c: true
-  h: 2ffdc705fc1736c5726882313b6b41ea212df6bc1344d5e6db46c1582b014a7f
-  r: "The `code/sieve.py` file defines all public functions and classes with full\
-    \ type annotations and non\u2011empty docstrings (including the re\u2011exported\
-    \ `MemoryGuard` and exception classes). The accompanying `tests/unit/test_sieve_mypy.py`\
-    \ runs `mypy code` and checks docstring coverage, and both checks succeed against\
-    \ the provided source."
-  sig: 7ddbe6846b6c5a4df916e6df4ca3fa225f34e85ee7330fc9c309615a46c8a136
+  h: ef4926554387597b419f950e3bc1c0b1318bae6da92ac9ef32bbe61737202a4d
+  r: "Checked `code/sieve.py` for docstrings on all public functions and classes (including\
+    \ re\u2011exported `MemoryGuard` and exception classes) and verified they are\
+    \ present, and inspected the type annotations on every public callable. Ran the\
+    \ provided `tests/unit/test_sieve_mypy.py` which executes `mypy code` and confirms\
+    \ a zero exit code, indicating no type\u2011checking errors."
+  sig: 69bbaf8734c342e7798236ab98112815b7e0d518c7733ebbb00de8d3c920912e
 T008:
   c: false
-  h: a62bff467ed3d338c293f011e00f169ab830b1d8764fb9dcac979e12e5b5002b
-  r: "The implemented `run_chi_squared_test` does not match the required API: it takes\
-    \ `(observed_counts, prime, M=1000, seed=None)` and returns a `(p_value, method)`\
-    \ tuple, not `(dataset: ResidueDataset, M=10_000, seed=0) -> dict` with the required\
-    \ fields (`test_type`, `test_statistic`, `p_value`, `degrees_of_freedom`, `method`,\
-    \ `expected_counts`, `observed_counts`, `uniformity_hypothesis`, `metadata`);\
-    \ there is no `method=\"monte_carlo\"` option, and the asymptotic path is never\
-    \ used (it always Monte-Carlos when expected \u2265 5). The test file `tests/unit/test_stats.py`\
-    \ imports `run_deviation_test`, wh"
-  sig: b86fdf0494efd4da77f2ee7606d0df06a2ef62826dbd7ca5acb7fcef0103eef5
+  h: b5573c91fc26366ee430bc29977170caac8ed3b650b7d6b4453f39032045fc7d
+  r: "The `code/stats.py` file does not provide the required `calculate_chi_squared_statistic(dataset:\
+    \ ResidueDataset) -> float` (it expects separate counts, prime, N and returns\
+    \ a tuple) and its `run_chi_squared_test` signature and logic differ from the\
+    \ specification (default `M` is 1000, Monte\u2011Carlo is always used instead\
+    \ of optional, and method strings do not match the required schema). Consequently\
+    \ the three required sub\u2011tests (uniform, biased, and small\u2011N exact case)\
+    \ are not exercised, so the task is not fully satisfied."
+  sig: 0581af997c18c7f6692c7919c990616fd747601b250fbaff2f806e54f0748bf3
 T009:
   c: false
   h: 0a97626768179cac6518a5ecd4b78191d1172f190fe992d22439d2707678c312
@@ -95,12 +86,12 @@ T010:
   sig: b028523dd427e8369da09f9198b8f3e8ff1647c0aa31ecc690a924510fce81bb
 T016:
   c: true
-  h: 2104d37d49c41fd9c27123e91cdd66f27a74c5d5d1582c271812ec88482c0497
+  h: a81fb03d5e4ea971dce2d300878e657fc16faa2e348dc67509366ba715b9e8c7
   r: "Checked the presence and content of `tests/unit/test_phi_correctness.py`, which\
-    \ defines exact reference \u03C6 values for n\u202F\u2264\u202F100 and asserts\
-    \ equality against `compute_phi_linear_sieve`. The execution log shows the pytest\
-    \ run collected 100 tests and all passed, confirming the CI will fail on any mismatch."
-  sig: 998ed74f7dcb8a3718086808d23e9c198047f929a5afef879f906003e93b7372
+    \ implements parametrized unit tests that compare `compute_phi_linear_sieve` results\
+    \ for all\u202Fn\u202F\u2264\u202F100 against a hard\u2011coded reference table,\
+    \ causing a test (and thus CI) failure on any mismatch."
+  sig: a6273dc710617de4bf949fc522c3cc40f5c9b16f09258953f309123933272306
 T019:
   c: false
   h: 67a7c26dc718c131714dd0c5af3960ae9c3f7890932a90a1cafffe032f1a3591
