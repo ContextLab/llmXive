@@ -13,13 +13,13 @@ The goal is a reproducible, CPU‑only research pipeline that satisfies every fu
   - Create `specs/001-predict-material-properties-from-comp/quickstart.md` documenting the entry‑point commands referenced by later tasks.  
   - **Verification**: `pytest tests/contract/` passes; `quickstart.md` lists every command referenced by subsequent tasks.  
 
-- [ ] **T002** **[P]** **Verify presence of a verified open dataset containing all required columns (including hardness)** *(blocked: requires external provision of dataset)*   <!-- FAILED-IN-EXECUTION: code/verify_dataset.py exit=1 -->
+- [ ] **T002** **[P]** **Verify presence of a verified open dataset containing all required columns (including hardness)** *(blocked: requires external provision of dataset)*   <!-- FAILED-IN-EXECUTION: code/verify_dataset.py exit=1 --> <!-- FAILED: unspecified -->
   - Check that `data/raw/` contains a CSV file with columns `material_id`, `formula`, `band_gap`, `hardness`, and `crystal_system`.  
   - If the file is present, compute its SHA‑256 checksum, record it in `data/raw/README.md`, and run schema validation (`pytest tests/contract/test_dataset_schema.py`).  
   - If the file is missing, raise a clear error instructing the project maintainer to supply a publicly licensed dataset meeting the column requirements.  
   - **Verification**: task succeeds when the dataset exists and passes validation; otherwise it fails with an informative message.  
 
-- [ ] **T003** **[P]** **Implement robust chunked dataset loader** (`src/data/loader.py`)  
+- [ ] **T003** **[P]** **Implement robust chunked dataset loader** (`src/data/loader.py`)   <!-- FAILED-IN-EXECUTION: src/data/loader.py exit=1 -->
   - Load the CSV in chunks of ≤ 5 000 rows using `pandas.read_csv(..., chunksize=5000)`.  
   - For each chunk: validate rows against `contracts/materials_dataset.schema.yaml`; drop rows with missing required fields, duplicate `material_id` (keep first), and rows outside the 1.5 × IQR rule for **band_gap** or **hardness** (log drop count).  
   - Skip materials containing elements absent from the periodic‑table lookup, logging a warning; retain zero‑band‑gap metals.  

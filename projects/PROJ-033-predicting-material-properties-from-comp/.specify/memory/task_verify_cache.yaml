@@ -1,9 +1,9 @@
 T001:
   c: false
-  h: 49afaeb15e848ee225ed8ccf58723a67709209e9425af096d4e16a2178a87f4a
-  r: The repository contains the required schema files, `requirements.txt`, `seeds.py`,
-    and a detailed `quickstart.md`. However, the `tests/contract/` directory is missing,
-    so there is no evidence that the contract test suite exists or passes as required.
-    The implementer must add the contract tests (and optionally provide a passing
-    test run) to satisfy the verification step.
-  sig: 6bb14635b02a89ad1477af7a3fc04f6add7183fbe9753310a0ee288873f80e73
+  h: 8b8ebe6f769af0242975874e350d86d3671bbaba9d5ac4907cfa2e5f8480867d
+  r: "The required contracts, requirements.txt, seeds.py, and quickstart.md are present\
+    \ and correctly populated, but the contract test suite does not fully pass \u2013\
+    \ `tests/contract/test_dataset_schema.py` fails because the schema rejects a valid\
+    \ row (expects an array but receives an object). Consequently the verification\
+    \ step \u201Cpytest tests/contract/ passes\u201D is not satisfied."
+  sig: e254d18449365ad884cea047a9c010907167fb54a830e65401cbbe0122c426f3

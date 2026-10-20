@@ -1,15 +1,17 @@
 T001:
-  reason: The repository contains the required schema files, `requirements.txt`, `seeds.py`,
-    and a detailed `quickstart.md`. However, the `tests/contract/` directory is missing,
-    so there is no evidence that the contract test suite exists or passes as required.
-    The implementer must add the contract tests (and optionally provide a passing
-    test run) to satisfy the verification step.
+  reason: "The required contracts, requirements.txt, seeds.py, and quickstart.md are\
+    \ present and correctly populated, but the contract test suite does not fully\
+    \ pass \u2013 `tests/contract/test_dataset_schema.py` fails because the schema\
+    \ rejects a valid row (expects an array but receives an object). Consequently\
+    \ the verification step \u201Cpytest tests/contract/ passes\u201D is not satisfied."
   task: 5157fbcf4d9066d1d00398cf3b061bce5f328217d646925316e089695aa93097
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/verify_dataset.py
     exit=1'
   task: e1a44bbbbfb115a83f06ef86404d909e1fe5956df3f3892903e773066c0ba943
 T003:
+  reason: 'Requested task execution failed; rerun successfully: src/data/loader.py
+    exit=1'
   task: a1f31cfc33e1a4f0fb5730a6a99a5e2f0645cbaba76af0a96da0212c3260f8c8
 T004:
   task: f801d299e72c09831ef813933880d4c74983ba115b14314ccca14779483a1a38
