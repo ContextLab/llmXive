@@ -109,7 +109,7 @@ E   ImportError: cannot import name '_check_multicollinearity' from 'analysis.re
 ERROR tests/unit/test_ingestion.py
 ERROR tests/unit/test_regression.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.46s ===============================
+============================== 2 errors in 1.61s ===============================
 
 
 - python -m code.verify_requirements -> rc=1
