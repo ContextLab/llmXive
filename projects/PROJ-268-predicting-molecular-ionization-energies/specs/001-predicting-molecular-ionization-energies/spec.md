@@ -29,13 +29,13 @@ The researcher needs to train a Message-Passing Neural Network (MPNN) on the pre
 
 **Why this priority**: This is the core experimental engine. It tests the hypothesis that 2D graphs are sufficient, provides a rigorous feature‑importance assessment, and resolves earlier concerns about inference‑time perturbations versus retraining.
 
-**Independent Test**: Can be tested by running the training script on a standard multi‑core, Adequate RAM CPU runner and verifying that the model converges within the 6‑hour limit, that the ablation study **re‑trains** the model with the feature removed, and that attribution maps are produced for each ablation configuration.
+**Independent Test**: Can be tested by running the training script on a standard multi‑core, Adequate RAM CPU runner and verifying that the model converges within the 6‑hour limit per job, that the ablation study **re‑trains** the model with the feature removed, and that attribution maps are produced for each ablation configuration.
 
 **Acceptance Scenarios**:
 
 1. **Given** a configured MPNN model and the training set, **When** training starts, **Then** the process completes within 6 hours on a 2‑core, 7 GB RAM runner without GPU acceleration.
-2. **Given** the trained model and the ablation protocol, **When** the ablation study runs with bond features zeroed out, **Then** the system **re‑trains** the model for each configuration, performing **5 independent stochastic runs** per configuration and recording the MAE distribution for each run.
-3. **Given** the MAE distributions from the clean model and each retrained ablated model (5 runs each), **When** the statistical analysis runs, **Then** the system performs a **paired** t‑test on per‑molecule absolute errors across the shared test set, reports the p‑value **and** Cohen’s d effect size, and provides a post‑hoc power estimate; significance is declared at $p < 0.05$.
+2. **Given** the trained model and the ablation protocol, **When** the ablation study runs with bond features zeroed out, **Then** the system **re‑trains** the model for each configuration, performing **3 independent stochastic runs** per configuration and recording the MAE distribution for each run.
+3. **Given** the MAE distributions from the clean model and each retrained ablated model (3 runs each), **When** the statistical analysis runs, **Then** the system performs a **paired** t‑test on per‑molecule absolute errors across the shared test set, reports the p‑value **and** Cohen’s d effect size, and provides a post‑hoc power estimate; significance is declared at $p < 0.05$.
 4. **Given** an ablation configuration, **When** attribution is requested, **Then** the system computes an **Integrated Gradients** attribution map for the trained model and stores it as an `AttributionMap` linked to the corresponding run (See FR‑011). The method is explicitly defined in `contracts/model_output.schema.yaml`.
 5. **Given** the model architecture, **When** training on a batch of 64 molecules, **Then** the CPU memory usage (Peak RSS) remains ≤ 7 GB, and the architecture choice (e.g., GCN, GAT) is documented in the model definition file (See FR‑021).
 
@@ -63,7 +63,7 @@ The researcher needs to evaluate the model's performance against a fingerprint-b
 
 - What happens when a molecule in the dataset has an undefined or missing `homo` value? (System must exclude it and log the count; if >5 % of data is excluded, flag a “Data Quality Warning”.)
 - How does the system handle a molecule with a non‑standard valence that RDKit cannot parse? (System must exclude it and log the error.)
-- What happens if the 6‑hour pipeline time limit is reached before completing all 5 ablation runs? (System must save the best checkpoint from completed runs, report the timeout status, and flag the statistical power as potentially compromised.)
+- What happens if the 6‑hour pipeline time limit is reached before completing all 3 ablation runs? (System must save the best checkpoint from completed runs, report the timeout status, and flag the statistical power as potentially compromised.)
 - How does the system handle a test molecule with a scaffold completely unseen in the training set (out‑of‑distribution)? (System must evaluate it but flag the potential for higher error in the final report.) *(now backed by FR‑019/SC‑019)*
 - What happens if the calculated $R^2$ between $-\epsilon_{HOMO}$ and literature IE is below 0.9 **or** the MAE exceeds 0.4 eV? (System must halt training and report a “Construct Validity Failure” with the specific metrics.)
 
@@ -75,10 +75,10 @@ The researcher needs to evaluate the model's performance against a fingerprint-b
 - **FR-002**: System MUST convert SMILES strings into 2D molecular graph objects using RDKit, extracting atom types, bond types, and functional group fingerprints, ensuring the dataset size is at least 10,000 molecules for the training set (See US-1).  
 - **FR-003**: System MUST implement a Message-Passing Neural Network (MPNN) that operates exclusively on CPU, with a configurable batch size **default ≤ 64** (range 1–64) suitable for the experimental setup; the specific architecture (e.g., GCN, GAT) MUST be documented in the model definition file (See US-2).  
 - **FR-004**: System MUST perform scaffold-based splitting using Bemis-Murcko scaffolds with an 80/10/10 train/validation/test partition to ensure the test set contains chemical scaffolds not present in the training set (See US-1).  
-- **FR-005**: System MUST perform ablation studies by **retraining** the model with specific structural features (e.g., bond features) zeroed out during the training process, repeating the process for **5 stochastic runs** per configuration to generate a distribution of MAE values (See US-2).  
+- **FR-005**: System MUST perform ablation studies by **retraining** the model with specific structural features (e.g., bond features) zeroed out during the training process, repeating the process for **3 stochastic runs** per configuration to generate a distribution of MAE values (See US-2).  
 - **FR-006**: System MUST compute Mean Absolute Error (MAE) and Root Mean Squared Error (RMSE) on the test set and compare them against a fingerprint-based linear regression model (using ECFP fingerprints, radius 2) (See US-3).  
-- **FR-007**: System MUST perform a **paired** t‑test on per‑molecule absolute errors between the clean model and each retrained ablated model (5 runs each), report the p‑value **and** Cohen’s d effect size, and provide a post‑hoc power estimate; significance is declared at $p < 0.05$ (See US-2).  
-- **FR-008**: System MUST enforce a hard timeout for the total training and evaluation pipeline, saving checkpoints if the limit is reached (See US-2).  
+- **FR-007**: System MUST perform a **paired** t‑test on per‑molecule absolute errors between the clean model and each retrained ablated model (3 runs each), report the p‑value **and** Cohen’s d effect size, and provide a post‑hoc power estimate; significance is declared at $p < 0.05$ (See US-2).  
+- **FR-008**: System MUST enforce a hard timeout **for each pipeline job** (e.g., data ingestion, main model training, each ablation‑configuration training, evaluation), saving checkpoints if the per‑job limit of 6 hours is reached (See US-2).  
 - **FR-009**: System MUST analyze the correlation between the absolute prediction error and molecular size (molecular weight) and flexibility (number of rotatable bonds) and report the Pearson correlation coefficient (See US-3).  
 - **FR-010**: System MUST perform a sensitivity analysis on the “success” threshold (absolute error < threshold) by sweeping the threshold over the set {0.4, 0.45, 0.5, 0.55, 0.6} and reporting the variation in success rates (See US-3).  
 - **FR-011**: System MUST document the attribution method **Integrated Gradients** in the model definition file and generate an `AttributionMap` for each ablation configuration (See US-2). The method is formally specified in `contracts/model_output.schema.yaml`.  
@@ -87,14 +87,15 @@ The researcher needs to evaluate the model's performance against a fingerprint-b
 - **FR-014**: System MUST report the $R^2$ correlation **and** MAE (≤ 0.4 eV) between $-\epsilon_{HOMO}$ and literature IE values as a primary metric of construct validity (See US-1).  
 - **FR-015**: System MUST report the Pearson correlation between the GNN residuals and the baseline residuals; independence is indicated by |ρ| ≤ 0.2 (See SC-010).  
 - **FR-016**: System MUST calculate and report the absolute difference between the Test Set MAE and the Training Set MAE to quantify the generalization gap (See US-3).  
-- **FR-017**: System MUST ensure the ablation study includes at least **5 stochastic runs** per configuration to enable valid statistical testing (See US-2).  
-- **FR-018**: System MUST perform an a priori power analysis (α = 0.05, desired power ≥ 0.8) to confirm that the training set size (minimum 10,000 molecules) provides sufficient power to detect an MAE difference of a modest magnitude. between models. The analysis result must be recorded before training begins.  
+- **FR-017**: System MUST ensure the ablation study includes at least **3 stochastic runs** per configuration to enable valid statistical testing (See US-2).  
+- **FR-018**: System MUST perform an a priori power analysis (α = 0.05, desired power ≥ 0.8) to confirm that the training set size (minimum 10,000 molecules) provides sufficient power to detect an MAE difference of a modest magnitude. between models. The analysis result must be recorded before training begins. (See US-2)  
 - **FR-019**: System MUST flag any test‑set molecule whose Bemis‑Murcko scaffold was unseen in the training set, record the count, and note the potential for higher prediction error in the final report (See Edge Cases).  
 - **FR-020**: System MUST verify the QM9 dataset URL and column schema against the primary source (original QM9 publication) prior to any data processing, and abort with a clear error if the source cannot be validated.  
 - **FR-021**: System MUST record the final GNN architecture choice (e.g., GCN vs. GAT, number of layers, hidden dimensions) in the model definition file and ensure this file is the single source of truth referenced by all contracts.  
 - **FR-022**: System MUST compare feature‑importance results from the ablation study to established chemical intuition (e.g., known importance of hetero‑atoms or conjugated bonds) and report any discrepancies as a qualitative validation.  
 - **FR-023**: System MUST compute the Pearson correlation between GNN residuals and DFTB residuals; a low correlation (|ρ| ≤ 0.2) supports the hypothesis that 2D topology captures most predictive signal without 3D geometry.  
-- **FR-024**: System MUST ensure that any fallback to using $-\epsilon_{HOMO}$ as a proxy is only enacted after the construct‑validity checks in FR‑001 succeed; otherwise the study is halted as out‑of‑scope.
+- **FR-024**: System MUST ensure that any fallback to using $-\epsilon_{HOMO}$ as a proxy is only enacted after the construct‑validity checks in FR‑001 succeed; otherwise the study is halted as out‑of‑scope.  
+- **FR-025**: System MUST orchestrate the overall workflow as separate CI jobs (e.g., data ingestion, main model training, each ablation‑configuration training, evaluation), each respecting the 6‑hour per‑job timeout, thereby allowing the total wall‑clock time to exceed 6 hours while remaining within the resource limits of a free‑tier GitHub Actions runner (See US-2).
 
 ### Key Entities
 
@@ -112,16 +113,16 @@ The researcher needs to evaluate the model's performance against a fingerprint-b
 
 - **SC-001**: The Mean Absolute Error (MAE) of the GNN model is measured against the fingerprint-based linear regression baseline to determine if 2D topology provides superior signal (See FR-006, US-3).  
 - **SC-002**: The predictive contribution of specific structural features is measured by the relative increase in MAE and the p‑value (plus Cohen’s d) from the paired t‑test when those features are zeroed out and the model is retrained (See FR-005, FR-007, US-2).  
-- **SC-003**: The computational feasibility is measured by the total runtime of the training and evaluation pipeline against a **6‑hour limit** on a **Multi‑core CPU runner with adequate RAM** (See FR-008, US-2).  
+- **SC-003**: The computational feasibility is measured by the **per‑job** runtime of each pipeline component against a **6‑hour limit** on a **Multi‑core CPU runner with adequate RAM** (See FR-008, US-2).  
 - **SC-004**: The generalization capability is measured by the observed gap between the Test Set MAE and the Training Set MAE; the system MUST report the observed gap value (See FR-016, US-3).  
 - **SC-005**: The memory efficiency is measured by the peak RAM usage (Peak RSS) during the largest batch processing step against a **7 GB limit** (See FR-013, US-2).  
 - **SC-006**: The construct validity of the target variable is measured by the $R^2$ correlation **and** MAE (≤ 0.4 eV) between $-\epsilon_{HOMO}$ and experimental ionization energies from the NIST WebBook (See FR-014, US-1).  
 - **SC-007**: The error distribution analysis is measured by the Pearson correlation coefficient between absolute error and molecular size/flexibility (See FR-009, US-3).  
 - **SC-008**: The robustness of the “success” conclusion is measured by the percentage of test molecules with absolute error **< threshold** (thresholds {0.4, 0.45, 0.5, 0.55, 0.6}) across the sweep (See FR-010, US-3).  
-- **SC-009**: The statistical power of the ablation study is measured by the **5 stochastic runs** per configuration and the resulting p‑value and effect‑size distribution (See FR-017, US-2).  
+- **SC-009**: The statistical power of the ablation study is measured by the **3 stochastic runs** per configuration and the resulting p‑value and effect‑size distribution (See FR-017, US-2).  
 - **SC-010**: The error‑overlap analysis is measured by the Pearson correlation between the GNN's residuals and the baseline's residuals; low correlation (|ρ| ≤ 0.2) indicates limited overlap (See FR-015, US-3).  
 - **SC-011**: The OOD flagging is measured by the count of test molecules whose scaffolds were unseen in training and the accompanying warning in the final report (See FR-019).  
-- **SC-012**: The a priori power analysis (FR-018) must confirm ≥ 0.8 power before training; the recorded analysis outcome is part of the final audit (See FR-018).  
+- **SC-012**: The a priori power analysis (FR-018) must confirm ≥ 0.8 power before training; the recorded analysis outcome is part of the final audit (See FR-018). (See US-2)
 
 ## Assumptions
 
@@ -130,7 +131,7 @@ The researcher needs to evaluate the model's performance against a fingerprint-b
 - The 2D graph representation (atom/bond types) is sufficient to capture the majority of the predictive signal for ionization energy in small, rigid molecules, as hypothesized.  
 - The PyTorch Geometric library and RDKit are available and compatible with the free‑tier GitHub Actions runner environment (CPU‑only).  
 - The scaffold‑based split successfully separates chemical space such that the test set represents a true out‑of‑distribution challenge for the model.  
-- The 6‑hour time limit is sufficient for training a small MPNN on a subset of QM9 (minimum 10,000 molecules) on a **2‑core CPU with 7 GB RAM**, even with multiple stochastic ablation runs.  
+- The 6‑hour time limit is sufficient for training a small MPNN on a subset of QM9 (minimum 10,000 molecules) on a **2‑core CPU with 7 GB RAM**, even with multiple stochastic ablation runs reduced to 3 per configuration.  
 - No GPU acceleration is available or required; the model must converge using standard single‑precision floating‑point representation on CPU.  
 - The fingerprint‑based linear regression baseline (ECFP4, radius 2) provides a valid 2D‑only comparison point for the GNN.  
 - The findings of this study are associational, not causal, due to the observational nature of the QM9 dataset (no random assignment of molecular structures).  
