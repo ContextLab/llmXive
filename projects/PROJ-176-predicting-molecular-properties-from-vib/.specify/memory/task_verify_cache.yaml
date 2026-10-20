@@ -1,12 +1,14 @@
 T001:
-  c: false
-  h: f33660b0bea87733994b447c131049651b00ae87095f614498ccf1882b070970
-  r: The required `data/processed/` directory is missing, and the verification artifact
-    `results/structure_report.txt` was never generated, so there is no evidence that
-    `python -m compileall code/` exited 0 or that the full directory tree was confirmed.
-    The implementer must create `data/processed/` and run the verification commands
-    to produce the structure report listing all expected directories.
-  sig: 4591281d10da55d60f59886b52972ca85c7527cfc8237ca925ed537ad58b5827
+  c: true
+  h: b569d96492840f85b97288ed04df449bc3e7c87f617147d980d4fb7ca92ab195
+  r: The structure report lists all required directories (`code/`, `code/data/`, `code/models/`,
+    `code/evaluation/`, `code/utils/`, `tests/`, `data/raw/`, `data/processed/`, `data/external/`,
+    `results/`, `logs/`, `specs/001-predict-molecular-properties/`), the directory
+    listings confirm `__init__.py` files exist in each code package plus tests and
+    the specs dir, and the execution log shows `python -m compileall code/` (via create_skeleton.py)
+    exited 0. The validation_results.json is unrelated to this skeleton task and does
+    not affect the verdict.
+  sig: 8fda6569e8505ebd04b6c9cdc5424a1ee023973e1830d39cc5cecad614a766a9
 T002:
   c: true
   h: 4696d72a9c526011d1d24652a8e830c99ad78ecff46e8680d031f31471550fb6

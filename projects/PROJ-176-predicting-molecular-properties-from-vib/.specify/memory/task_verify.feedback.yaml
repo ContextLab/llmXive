@@ -1,9 +1,4 @@
 T001:
-  reason: The required `data/processed/` directory is missing, and the verification
-    artifact `results/structure_report.txt` was never generated, so there is no evidence
-    that `python -m compileall code/` exited 0 or that the full directory tree was
-    confirmed. The implementer must create `data/processed/` and run the verification
-    commands to produce the structure report listing all expected directories.
   task: bdd0cf57caa5b9170e4fd34cb1f2797509b5128411a6090a7f43a09a977f4c33
 T002:
   task: fa65ce1c923f39aa3a9cdfbdb727a348ebc2a7dd93c8576f7e9e1d4ce9f5c891
@@ -11,6 +6,8 @@ T003:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 2741b5b4fb4b50d03bc250fa3fdde1f3dabe67b3c4d016342fe945bc344fde0c
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/data/align.py
+    exit=1'
   task: f364919b54bcffd1a2e99da6d0d01337bf55e3dd4d4dfc4ecf28fec34e8743f0
 T005:
   task: bc5166bc8d169b2d5732d73e1304d6e5112341560ae022e7beaa291da9258ef3

@@ -1,7 +1,7 @@
-# Core dependencies for the project
-torch==2.2.0+cpu
-datasets
+pyarrow<17.0.0
 qm9pack
+datasets
+torch==2.2.0+cpu
 numpy
 pandas
 scipy

@@ -1,6 +1,6 @@
 """
 Data download module for T003.
-Downloads QM9 and IR spectra using the HuggingFace `datasets` library,
+Downloads QM9 and IR spectra using the HuggingFace ``datasets`` library,
 aligns them via InChIKey, computes SHA‑256 checksums, and writes a verification JSON file.
 """
 
@@ -13,6 +13,7 @@ from typing import Optional, Tuple, Dict, Any
 
 import pandas as pd
 from datasets import load_dataset
+from scipy import stats  # added for KS‑test
 
 # llmxive utilities for path handling
 from llmxive_toolkit import paths
@@ -36,7 +37,7 @@ def _sha256_of_file(file_path: Path, chunk_size: int = 8192) -> str:
 # Download helpers
 # ----------------------------------------------------------------------
 def download_qm9(output_dir: Optional[Path] = None) -> Path:
-    """Download the QM9 dataset via HuggingFace `datasets` and store as Parquet."""
+    """Download the QM9 dataset via HuggingFace ``datasets`` and store as Parquet."""
     if output_dir is None:
         output_dir = Path("data/raw")
     # Ensure the directory exists (the placeholder file trick is kept from original code)
@@ -51,7 +52,7 @@ def download_qm9(output_dir: Optional[Path] = None) -> Path:
     return out_path
 
 def download_ir_spectra(output_dir: Optional[Path] = None) -> Path:
-    """Download the IR‑spectra dataset via HuggingFace `datasets` and store as Parquet."""
+    """Download the IR‑spectra dataset via HuggingFace ``datasets`` and store as Parquet."""
     if output_dir is None:
         output_dir = Path("data/raw")
     _ensure_dir(output_dir / "placeholder")
@@ -155,9 +156,10 @@ def main() -> None:
             "Polarizability_bohr3",
             "HOMO_LUMO_gap_au",
         ]
+        # Use whatever column names are present
         available = [p for p in target_props if p in qm9_df.columns]
         if not available:
-            # Fallback to common short names used by the dataset
+            # Fallback to short names used by some QM9 variants
             fallback = {"mu": "Dipole_debye", "alpha": "Polarizability_bohr3", "gap": "HOMO_LUMO_gap_au"}
             for short, long_name in fallback.items():
                 if short in qm9_df.columns:

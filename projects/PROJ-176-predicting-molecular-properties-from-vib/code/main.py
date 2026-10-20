@@ -11,6 +11,7 @@ from pathlib import Path
 # Import from local modules
 from utils.logging_utils import setup_logging, get_logger
 from utils.timeout_wrapper import enforce_timeout, TimeoutError
+# ``seed_utils`` now lazily imports torch, so it can be imported even when torch is absent.
 from utils.seed_utils import set_seed
 
 # Configure paths
