@@ -33,9 +33,12 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
+# The Pantheon+ file lives in the ``data`` subdirectory of the repository.
+# Using the ``data/`` prefix avoids the 404 that occurs when the file is
+# requested from the repository root.
 DEFAULT_URL = (
     "https://raw.githubusercontent.com/PantheonPlusSH0ES/"
-    "DataRelease/main/Pantheon%2B_SH0ES.dat"
+    "DataRelease/main/data/Pantheon%2B_SH0ES.dat"
 )
 DEFAULT_DATASET_VERSION = "v1.0"
 REQUIRED_COLUMNS = {"ID", "RA", "DEC", "ZHD", "MU", "MUERR"}
@@ -46,7 +49,6 @@ Z_ALPHA = 1.645
 Z_POWER = 0.842
 
 logger = get_logger(__name__)
-
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -74,7 +76,9 @@ def compute_sha256(file_path: Path) -> str:
     return sha.hexdigest()
 
 
-def write_metadata(metadata_path: Path, *, dataset_version: str, source_url: str, sha256: str) -> None:
+def write_metadata(
+    metadata_path: Path, *, dataset_version: str, source_url: str, sha256: str
+) -> None:
     """Write provenance JSON file."""
     data = {
         "dataset_version": dataset_version,
@@ -95,7 +99,9 @@ def verify_columns(df: pd.DataFrame) -> None:
     logger.info("All required columns are present.")
 
 
-def theoretical_distance_modulus(z: float, h0: float = 73.0, omega_m: float = 0.33) -> float:
+def theoretical_distance_modulus(
+    z: float, h0: float = 73.0, omega_m: float = 0.33
+) -> float:
     """Compute distance modulus μ for a flat ΛCDM universe."""
     # Speed of light in km/s
     c = 299792.458
@@ -127,7 +133,9 @@ def rotate_vectors(vectors: np.ndarray, rot: Rotation) -> np.ndarray:
     return rot.apply(vectors)
 
 
-def estimate_dipole_amplitude(residuals: np.ndarray, cov_inv: np.ndarray, unit_vecs: np.ndarray) -> float:
+def estimate_dipole_amplitude(
+    residuals: np.ndarray, cov_inv: np.ndarray, unit_vecs: np.ndarray
+) -> float:
     """
     Simple inverse‑variance weighted dipole estimator.
 
@@ -145,7 +153,9 @@ def estimate_dipole_amplitude(residuals: np.ndarray, cov_inv: np.ndarray, unit_v
 # Main workflow
 # ----------------------------------------------------------------------
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Power analysis & data verification")
+    parser = argparse.ArgumentParser(
+        description="Power analysis & data verification"
+    )
     parser.add_argument(
         "--url",
         default=DEFAULT_URL,
@@ -176,7 +186,6 @@ def main() -> None:
         logger.error("Failed to download dataset: %s", exc)
         raise
 
-    # Verify HTTP 200 was already enforced by requests.raise_for_status()
     # Compute checksum
     checksum = compute_sha256(raw_path)
 
@@ -191,9 +200,10 @@ def main() -> None:
     # ------------------------------------------------------------------
     # 2. Load data and verify required columns
     # ------------------------------------------------------------------
-    # The Pantheon+ file is whitespace‑delimited; pandas can infer the delimiter.
     try:
-        df = pd.read_csv(raw_path, delim_whitespace=True, comment="#", dtype=str)
+        df = pd.read_csv(
+            raw_path, delim_whitespace=True, comment="#", dtype=str
+        )
     except Exception as exc:
         logger.error("Failed to read Pantheon+ file: %s", exc)
         raise
@@ -211,7 +221,9 @@ def main() -> None:
     before = len(df)
     df = df.dropna(subset=numeric_cols)
     after = len(df)
-    logger.info("Filtered %d rows with missing data (kept %d).", before - after, after)
+    logger.info(
+        "Filtered %d rows with missing data (kept %d).", before - after, after
+    )
 
     # ------------------------------------------------------------------
     # 3. Analytic power estimate
@@ -234,7 +246,9 @@ def main() -> None:
     # Pre‑compute theoretical distance modulus and residuals for the real data
     h0_default, omega_m_default = 73.0, 0.33
     df["MU_TH"] = df["ZHD"].apply(
-        lambda z: theoretical_distance_modulus(z, h0=h0_default, omega_m=omega_m_default)
+        lambda z: theoretical_distance_modulus(
+            z, h0=h0_default, omega_m=omega_m_default
+        )
     )
     df["RESID"] = df["MU"] - df["MU_TH"]
 
@@ -256,7 +270,9 @@ def main() -> None:
         rotated_vecs = rotate_vectors(original_vecs, rot)
 
         # Inject dipole of amplitude = analytic_min_amp
-        injected_residuals = df["RESID"].values + analytic_min_amp * (rotated_vecs @ dipole_dir)
+        injected_residuals = df["RESID"].values + analytic_min_amp * (
+            rotated_vecs @ dipole_dir
+        )
 
         # Estimate dipole amplitude from the mock
         est_amp = estimate_dipole_amplitude(
