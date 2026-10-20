@@ -1,32 +1,23 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/generate_data.py --seed 42 --overlap high`
+  - script usage: `generate_data.py [-h] [--overlap {LOW,MEDIUM,HIGH}] [--seed SEED]`
+  - argparse error: `generate_data.py: error: argument --overlap: invalid choice: 'high' (choose from 'LOW', 'MEDIUM', 'HIGH')`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --input data/results/metrics.csv; 3 command(s) failed: python code/generate_data.py --seed 42 --overlap high (rc=1); python code/agent.py  --library-sizes 10 30 50 100  --pruning  --overlap high (rc=1); python -m pytest tests/contract/ (rc=1); 2 declared deliverable(s) absent: data/raw/skills.json; data/raw/tasks.json
+**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --input data/results/metrics.csv; 2 command(s) failed: python code/generate_data.py --seed 42 --overlap high (rc=2); python -m pytest tests/contract/ (rc=1); 2 declared deliverable(s) absent: data/raw/skills.json; data/raw/tasks.json
 
 ## Failing / missing run-book commands
 
-- python code/generate_data.py --seed 42 --overlap high -> rc=1
-b/python3.11/site-packages/sentence_transformers/__init__.py", line 3, in <module>
-    from .datasets import SentencesDataset, ParallelSentencesDataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/datasets/__init__.py", line 3, in <module>
-    from .ParallelSentencesDataset import ParallelSentencesDataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/datasets/ParallelSentencesDataset.py", line 4, in <module>
-    from .. import SentenceTransformer
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/SentenceTransformer.py", line 12, in <module>
-    from huggingface_hub import HfApi, HfFolder, Repository, hf_hub_url, cached_download
-ImportError: cannot import name 'cached_download' from 'huggingface_hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/huggingface_hub/__init__.py)
+- python code/generate_data.py --seed 42 --overlap high -> rc=2
 
-- python code/agent.py  --library-sizes 10 30 50 100  --pruning  --overlap high -> rc=1
-b/python3.11/site-packages/sentence_transformers/__init__.py", line 3, in <module>
-    from .datasets import SentencesDataset, ParallelSentencesDataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/datasets/__init__.py", line 3, in <module>
-    from .ParallelSentencesDataset import ParallelSentencesDataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/datasets/ParallelSentencesDataset.py", line 4, in <module>
-    from .. import SentenceTransformer
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/SentenceTransformer.py", line 12, in <module>
-    from huggingface_hub import HfApi, HfFolder, Repository, hf_hub_url, cached_download
-ImportError: cannot import name 'cached_download' from 'huggingface_hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/huggingface_hub/__init__.py)
+usage: generate_data.py [-h] [--overlap {LOW,MEDIUM,HIGH}] [--seed SEED]
+generate_data.py: error: argument --overlap: invalid choice: 'high' (choose from 'LOW', 'MEDIUM', 'HIGH')
 
 - python code/analysis.py --input data/results/metrics.csv -> rc=2
 
@@ -52,7 +43,7 @@ FAILED tests/contract/test_skill_schema.py::test_missing_required_field - Fai...
 FAILED tests/contract/test_skill_schema.py::test_wrong_type_field - Failed: S...
 FAILED tests/contract/test_skill_schema.py::test_negative_usage_count - Faile...
 FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
-=================== 6 failed, 18 passed, 3 skipped in 0.20s ====================
+=================== 6 failed, 28 passed, 3 skipped in 0.22s ====================
 
 
 

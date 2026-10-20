@@ -8,13 +8,13 @@ The list below follows the research phases (setup → full experiment →�
 
 ## Phase 1 – Contracts, synthetic data, and first end‑to‑end run  
 
-- [ ] T001 [P] [US1] **Create root‑level contract schema files**  
+- [X] T001 [P] [US1] **Create root‑level contract schema files**  
   *Paths*: `contracts/task.schema.yaml`, `contracts/skill.schema.yaml`, `contracts/experiment_log.schema.yaml`, `contracts/execution_log.schema.yaml`, `contracts/metrics.schema.yaml` – each copied verbatim from the read‑only schemas in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`.  
   *Verification*:  
   &nbsp;&nbsp;• `tests/contract/test_schema_presence.py` loads each file with `yaml.safe_load` and asserts the presence of top‑level keys `properties` and `required`.  
   &nbsp;&nbsp;• A minimal dummy instance for each schema validates via `jsonschema.validate`.  
 
-- [ ] T002 [P] [US1] **Implement `code/generate_data.py` to produce the synthetic environment**   <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 -->
+- [ ] T002 [P] [US1] **Implement `code/generate_data.py` to produce the synthetic environment**   <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=-1 (TIMEOUT) -->
   *Behavior*:  
   &nbsp;&nbsp;• Generates **exactly 500** task objects (`data/raw/tasks.json`) conforming to `contracts/task.schema.yaml`.  
   &nbsp;&nbsp;• Generates **exactly 100** skill objects (`data/raw/skills.json`) conforming to `contracts/skill.schema.yaml`. Embeddings are 768‑dim vectors from the CPU‑only model `sentence-transformers/all-MPNet-base-v2`.  

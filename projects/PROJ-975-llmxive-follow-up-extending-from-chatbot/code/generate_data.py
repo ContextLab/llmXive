@@ -8,8 +8,8 @@ import logging
 from typing import List, Dict, Any
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
 
+from llmxive_toolkit import paths
 from code.config import get_seeds, get_experiment_config
 
 # Set up basic logging
@@ -37,11 +37,19 @@ def check_memory_usage(threshold_gb: float = 2.0) -> bool:
         logger.warning("psutil not available – skipping memory usage check.")
         return True
 
-def load_model() -> SentenceTransformer:
+def load_model():
     """
-    Loads the CPU‑only embedding model required by the specification:
+    Lazily loads the CPU‑only embedding model required by the specification:
     ``sentence-transformers/all-MPNet-base-v2``.
     """
+    try:
+        from sentence_transformers import SentenceTransformer
+    except Exception as e:
+        logger.error(
+            "Failed to import SentenceTransformer. Ensure a compatible "
+            "version of `sentence-transformers` and `huggingface_hub` is installed."
+        )
+        raise e
     return SentenceTransformer("sentence-transformers/all-MPNet-base-v2")
 
 def generate_skills(seed: int, count: int = 100, overlap_level: str = "medium") -> List[Dict[str, Any]]:
@@ -125,7 +133,8 @@ def generate_skills(seed: int, count: int = 100, overlap_level: str = "medium") 
                 "function_code": variant_code,
                 "embedding_vector": new_emb.tolist(),
                 "usage_count": 0,
-                "mean_cosine_similarity": None,  # will be filled later if needed
+                # Compute mean cosine similarity later; placeholder 0.0 for now
+                "mean_cosine_similarity": 0.0,
             }
         )
     return skills
@@ -234,38 +243,17 @@ def save_artifacts(
     Persists ``tasks`` and ``skills`` as JSON files under ``data/raw`` and
     writes a ``checksums.json`` file containing their SHA‑256 digests.
     """
-    from llmxive_toolkit import paths
-
-    # Ensure directories exist
+    # Paths
     tasks_path = paths.data("raw", "tasks.json")
     skills_path = paths.data("raw", "skills.json")
     checksums_path = paths.data("raw", "checksums.json")
 
-    # Assemble wrapper structures with metadata (required by downstream tests)
-    tasks_wrapper = {
-        "metadata": {
-            "count": len(tasks),
-            "overlap_level": overlap_level,
-            "seed_b": seed_b,
-        },
-        "tasks": tasks,
-    }
-
-    skills_wrapper = {
-        "metadata": {
-            "count": len(skills),
-            "overlap_level": overlap_level,
-            "seed_a": seed_a,
-        },
-        "skills": skills,
-    }
-
-    # Write JSON files
+    # Write plain lists (no extra wrapper) to match downstream expectations
     with open(tasks_path, "w", encoding="utf-8") as f:
-        json.dump(tasks_wrapper, f, indent=2, ensure_ascii=False)
+        json.dump(tasks, f, indent=2, ensure_ascii=False)
 
     with open(skills_path, "w", encoding="utf-8") as f:
-        json.dump(skills_wrapper, f, indent=2, ensure_ascii=False)
+        json.dump(skills, f, indent=2, ensure_ascii=False)
 
     # Compute checksums
     tasks_checksum = generate_checksum(str(tasks_path))
@@ -315,10 +303,9 @@ def main() -> None:
     # Resolve seeds and configuration
     # ------------------------------------------------------------------
     seeds = get_seeds()
-    seed_a = args.seed if args.seed is not None else seeds.get("SEED_A", 12345)
-    seed_b = args.seed if args.seed is not None else seeds.get("SEED_B", 12345)
+    seed_a = args.seed if args.seed is not None else seeds.get("seed_a", 12345)
+    seed_b = args.seed if args.seed is not None else seeds.get("seed_b", 12345)
 
-    config = get_experiment_config()
     overlap_level = args.overlap.upper()
     logger.info(
         f"Generating data with overlap={overlap_level}, seed_a={seed_a}, seed_b={seed_b}"

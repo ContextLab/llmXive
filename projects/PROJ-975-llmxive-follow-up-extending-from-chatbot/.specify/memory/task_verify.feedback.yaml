@@ -1,9 +1,4 @@
 T001:
-  reason: The five contract schema files exist and contain the required `properties`
-    and `required` keys, but the required test suite `tests/contract/test_schema_presence.py`
-    is missing, so the verification step stipulated by the task cannot be performed.
-    Adding the missing test file (and ensuring it runs successfully) is needed to
-    complete the task.
   task: 88f99ee1a044e59cb81303b300b40a2d39922defd6fcaea60a4de0cf5531fbea
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/generate_data.py
