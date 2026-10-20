@@ -1,9 +1,4 @@
 T001:
-  reason: "The required `code/config.py` exists and correctly loads the YAML values,\
-    \ but the accompanying verification test `tests/unit/test_config.py` is missing,\
-    \ so the claim that the loader \u201Cpasses the unit test\u201D cannot be confirmed.\
-    \ Adding the missing test file (or equivalent evidence of its successful execution)\
-    \ is needed to complete the task."
   task: 05344b60c9d5469ebee7f71117fba20f954dadae853562f10b0f88e99633880b
 T002:
   reason: "The provided `code/exceptions.py` defines the three required exception\
@@ -45,16 +40,33 @@ T006:
     \ task\u2019s verification requirements."
   task: f928cf98dc1d7c59e59806cba5bef7afb742ddae4ca6df3f19c72d3b15225a1a
 T007:
-  reason: "The `code/sieve.py` file has full docstrings and type hints, and the docstring\u2011\
-    coverage test passes, but the `test_mypy_passes` test fails because `mypy` reports\
-    \ numerous type\u2011checking errors in other modules of the `code/` package (e.g.,\
-    \ missing return annotations, untyped functions, missing stubs for `psutil`).\
-    \ The task requires the entire `code/` package to type\u2011check with zero errors,\
-    \ which is not satisfied."
+  reason: "The artifacts exist and `code/sieve.py` does contain comprehensive docstrings\
+    \ and type hints on all public callables, and `tests/unit/test_sieve_mypy.py`\
+    \ is a real test that invokes `mypy code` and checks docstring coverage. However,\
+    \ there is NO execution evidence that `mypy` was actually run over the `code/`\
+    \ package with zero errors, nor that the test suite passed \u2014 no test logs,\
+    \ mypy output, or CI artifacts are supplied, and the task's core requirement (\"\
+    Run mypy ... and ensure zero type-checking errors\") is unverified. Notably, `sieve.py`\
+    \ uses bare imports (`from memory_guard import ...`, `"
   task: 31f438ff950fd7c9ce8091228b4a2e1f4c1a2109e37b183e67dad6ca06ceabed
 T008:
+  reason: "The implemented `run_chi_squared_test` does not match the required API:\
+    \ it takes `(observed_counts, prime, M=1000, seed=None)` and returns a `(p_value,\
+    \ method)` tuple, not `(dataset: ResidueDataset, M=10_000, seed=0) -> dict` with\
+    \ the required fields (`test_type`, `test_statistic`, `p_value`, `degrees_of_freedom`,\
+    \ `method`, `expected_counts`, `observed_counts`, `uniformity_hypothesis`, `metadata`);\
+    \ there is no `method=\"monte_carlo\"` option, and the asymptotic path is never\
+    \ used (it always Monte-Carlos when expected \u2265 5). The test file `tests/unit/test_stats.py`\
+    \ imports `run_deviation_test`, wh"
   task: 8ec341a5413163acafaaaa908dae02e01bcaabd9d0d2fd746f43c40db3206732
 T009:
+  reason: '`code/flags.py` exists and its logic (alpha_pass p>0.05, bonferroni_pass
+    p>0.05/4, overall_pass conjunction, output to `results/reports/flag_{prime}_{N}.json`)
+    matches the spec, but the required verification artifact `tests/unit/test_flags.py`
+    is MISSING, and no `results/reports/flag_*.json` output or any execution evidence
+    exists to confirm the module actually runs (e.g., that `paths.results` resolves
+    correctly). The next implementer must add the unit test feeding high-p and low-p
+    results and demonstrate it passes.'
   task: 8a7d97a06630fc5a7773fcbe8e0abea967b83db45d9c16e2606e30270c3c94c2
 T010:
   task: ae6bcec230fe47c4ca6f90fefb540dc2d27cebfd0bbdd65890e83900d0e0898b
@@ -69,6 +81,14 @@ T013:
 T014:
   task: df6cd8d5aed09e611d5d643f98d45e4ffc535662ba2f33a11f1111b102f4e9f4
 T016:
+  reason: "The test file exists and structurally matches the task (parametrized exact-match\
+    \ assertions for n \u2264 100 against `compute_phi_linear_sieve`), but the hard-coded\
+    \ `REFERENCE_PHI` table is mathematically incorrect: e.g., it lists \u03C6(62)=32\
+    \ (correct: 30), \u03C6(64)=30 (correct: 32), \u03C6(68)=36 (correct: 32), \u03C6\
+    (70)=32 (correct: 24), \u03C6(75)=48 (correct: 40), \u03C6(80)=42 (correct: 32),\
+    \ \u03C6(81)=56 (correct: 54), \u03C6(91)=80 (correct: 72). Since `code/sieve.py`\
+    \ implements a standard, correct linear sieve, these tests would FAIL in CI against\
+    \ a correct implementation \u2014 the reference data contradict the very mathematical"
   task: 7bfb68808712c096fd623fd4f661b7418b93dad857be2222823ebc75c3169d8c
 T017:
   reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_synthetic_stats.py'

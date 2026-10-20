@@ -1,12 +1,11 @@
 T001:
-  c: false
-  h: 05066796562b300c36e59ba52b69faf8830c037a34f7efa1dd8ed5ce1121779d
-  r: "The required `code/config.py` exists and correctly loads the YAML values, but\
-    \ the accompanying verification test `tests/unit/test_config.py` is missing, so\
-    \ the claim that the loader \u201Cpasses the unit test\u201D cannot be confirmed.\
-    \ Adding the missing test file (or equivalent evidence of its successful execution)\
-    \ is needed to complete the task."
-  sig: 8566b6c1d0cbbb71ffac9892818d21311b291895ab4f03774d2ac3463f12625d
+  c: true
+  h: 6d8751b42afaf55611ea429b3d31f8934fc0edb88f9b7d9f8c5b68fa0fa12ba0
+  r: '`code/config.py` implements a real YAML loader exposing `N`, `primes`, `seed`,
+    and `memory_limit_mb` (plus extras), `code/config.yaml` contains the sample values,
+    and `tests/unit/test_config.py` asserts the parsed values match the file; the
+    recorded pytest run shows the test passing (exit 0, 1 passed).'
+  sig: 89407eeb617f1178c9e0521a5c4636a329dbf4f233e414fe5432fdf0f7977cda
 T002:
   c: false
   h: a2fde5320177d4f50a76f0eacb7f034713c12eba202d75a1d169d1185cde6a60
@@ -21,19 +20,45 @@ T002:
   sig: 8cea9a67e70f1462bef53dc2aa2b16ec594cfbfca0949c127fcdfbcb5bce655a
 T005:
   c: true
-  h: ee7e9f4548d5207e1749f56013e1d88333d112c6cab26af6d5e7fcef07cc0a4a
-  r: Checked `code/benchmark.py` for the required context manager implementation,
-    `scripts/run_dummy.py` for usage of the manager, and the generated `results/reports/benchmark_dummy.json`
-    which contains numeric `wall_time_sec` and `peak_memory_mb` fields as evidence
-    of successful execution.
-  sig: 229277ea9bd50444dbd4b039520f27014dda447e92dedce85ba39fcc5bb13778
-T007:
+  h: 4cb0271a55b78a2f11680de109320572c5be22e86b0622c3b6345d88f9e7d8ae
+  r: '`code/benchmark.py` implements the `benchmark(name)` context manager recording
+    wall time and peak memory via `MemoryGuard`/psutil and writing JSON to `results/reports/benchmark_{name}.json`;
+    `scripts/run_dummy.py` exercises it; and the actual output `results/reports/benchmark_dummy.json`
+    exists with numeric `wall_time_sec` (0.0234) and `peak_memory_mb` (15.55), matching
+    the verification criteria.'
+  sig: 0a8625e00e52c61b74ed6fe5bc989bc5056ad3e7763a9a67b9949d7ad6b315f3
+T008:
   c: false
-  h: a913d96819df398c79a5ca4722ca5aab98e1c637bca888ba714e8c01ec9692e1
-  r: "The `code/sieve.py` file has full docstrings and type hints, and the docstring\u2011\
-    coverage test passes, but the `test_mypy_passes` test fails because `mypy` reports\
-    \ numerous type\u2011checking errors in other modules of the `code/` package (e.g.,\
-    \ missing return annotations, untyped functions, missing stubs for `psutil`).\
-    \ The task requires the entire `code/` package to type\u2011check with zero errors,\
-    \ which is not satisfied."
-  sig: d5caa49f3f0ae13f6ef98f004c06e687eb41137b1158a3fc3564fb983d818f4b
+  h: a62bff467ed3d338c293f011e00f169ab830b1d8764fb9dcac979e12e5b5002b
+  r: "The implemented `run_chi_squared_test` does not match the required API: it takes\
+    \ `(observed_counts, prime, M=1000, seed=None)` and returns a `(p_value, method)`\
+    \ tuple, not `(dataset: ResidueDataset, M=10_000, seed=0) -> dict` with the required\
+    \ fields (`test_type`, `test_statistic`, `p_value`, `degrees_of_freedom`, `method`,\
+    \ `expected_counts`, `observed_counts`, `uniformity_hypothesis`, `metadata`);\
+    \ there is no `method=\"monte_carlo\"` option, and the asymptotic path is never\
+    \ used (it always Monte-Carlos when expected \u2265 5). The test file `tests/unit/test_stats.py`\
+    \ imports `run_deviation_test`, wh"
+  sig: b86fdf0494efd4da77f2ee7606d0df06a2ef62826dbd7ca5acb7fcef0103eef5
+T009:
+  c: false
+  h: 0a97626768179cac6518a5ecd4b78191d1172f190fe992d22439d2707678c312
+  r: '`code/flags.py` exists and its logic (alpha_pass p>0.05, bonferroni_pass p>0.05/4,
+    overall_pass conjunction, output to `results/reports/flag_{prime}_{N}.json`) matches
+    the spec, but the required verification artifact `tests/unit/test_flags.py` is
+    MISSING, and no `results/reports/flag_*.json` output or any execution evidence
+    exists to confirm the module actually runs (e.g., that `paths.results` resolves
+    correctly). The next implementer must add the unit test feeding high-p and low-p
+    results and demonstrate it passes.'
+  sig: 4354c2bea95088f27f8ff2b81a25e1d06d83f111beff002f801e748f5d20dc8a
+T016:
+  c: false
+  h: e14dc59e15573fd9f6e92e4c0ce1d6e0240468cae91337ebd6404ba6d813916d
+  r: "The test file exists and structurally matches the task (parametrized exact-match\
+    \ assertions for n \u2264 100 against `compute_phi_linear_sieve`), but the hard-coded\
+    \ `REFERENCE_PHI` table is mathematically incorrect: e.g., it lists \u03C6(62)=32\
+    \ (correct: 30), \u03C6(64)=30 (correct: 32), \u03C6(68)=36 (correct: 32), \u03C6\
+    (70)=32 (correct: 24), \u03C6(75)=48 (correct: 40), \u03C6(80)=42 (correct: 32),\
+    \ \u03C6(81)=56 (correct: 54), \u03C6(91)=80 (correct: 72). Since `code/sieve.py`\
+    \ implements a standard, correct linear sieve, these tests would FAIL in CI against\
+    \ a correct implementation \u2014 the reference data contradict the very mathematical"
+  sig: 264b80601f776363cc607f399585ea9df741cf3df5eaf67d0c1b1c362a992c26

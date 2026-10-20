@@ -48,7 +48,7 @@ ERROR tests/unit/test_stats_method.py
 ERROR tests/unit/test_stats_save.py
 ERROR tests/unit/test_stats_t022.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 7 errors in 1.72s ========================
+======================== 13 warnings, 7 errors in 1.77s ========================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -67,6 +67,6 @@ E   ImportError: cannot import name 'multinomial_test' from 'scipy.stats' (/home
 ERROR tests/integration/test_quickstart_validation.py
 ERROR tests/integration/test_t020_integration.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.37s ===============================
+============================== 2 errors in 0.69s ===============================
 
 
