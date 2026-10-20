@@ -6,14 +6,14 @@ The goal is a reproducible, CPU‑only research pipeline that satisfies every fu
 
 ---  
 
-- [X] **T001** **[P]** **Create contracts, pin dependencies, and seed utility**  
+- [ ] **T001** **[P]** **Create contracts, pin dependencies, and seed utility**  
   - Add `contracts/materials_dataset.schema.yaml` and `contracts/model_metrics.schema.yaml` exactly as defined in the active data model.  
   - Add `requirements.txt` with pinned versions: `torch==2.3.0`, `torch-geometric==2.5.3`, `pandas==2.2.2`, `numpy==1.26.4`, `scikit-learn==1.5.0`, `pymatgen==2024.7.0`, `matplotlib==3.9.0`, `psutil==5.9.8`, `pytest==8.3.2`.  
   - Add `src/utils/seeds.py` that sets `torch.manual_seed(42)`, `np.random.seed(42)`, and `random.seed(42)`.  
   - Create `specs/001-predict-material-properties-from-comp/quickstart.md` documenting the entry‑point commands referenced by later tasks.  
   - **Verification**: `pytest tests/contract/` passes; `quickstart.md` lists every command referenced by subsequent tasks.  
 
-- [ ] **T002** **[P]** **Verify presence of a verified open dataset containing all required columns (including hardness)** *(blocked: requires external provision of dataset)* <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] **T002** **[P]** **Verify presence of a verified open dataset containing all required columns (including hardness)** *(blocked: requires external provision of dataset)* <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
   - Check that `data/raw/` contains a CSV file with columns `material_id`, `formula`, `band_gap`, `hardness`, and `crystal_system`.  
   - If the file is present, compute its SHA‑256 checksum, record it in `data/raw/README.md`, and run schema validation (`pytest tests/contract/test_dataset_schema.py`).  
   - If the file is missing, raise a clear error instructing the project maintainer to supply a publicly licensed dataset meeting the column requirements.  
@@ -42,7 +42,7 @@ The goal is a reproducible, CPU‑only research pipeline that satisfies every fu
   - Export split indices to `data/processed/splits/*.json`.  
   - **Verification**: `pytest tests/unit/test_split.py` validates stratification, disjointness, and reproducibility with the seeded RNG.  
 
-- [ ] **T006** **[P]** **Implement lightweight GNN, Random Forest baseline, and runtime guards**   <!-- FAILED-IN-EXECUTION: src/training/train_gnn.py exit=1; src/training/evaluate.py exit=1 -->
+- [ ] **T006** **[P]** **Implement lightweight GNN, Random Forest baseline, and runtime guards**   <!-- FAILED-IN-EXECUTION: src/training/train_gnn.py exit=1; src/training/evaluate.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/training/train_gnn.py exit=1; src/training/evaluate.py exit=1; src/interpret/pca_correlation.py exit=1 -->
   - **GNN** (`src/models/gnn.py`): ≤ 3 `GCNConv` layers, hidden dimension ≤ 128, ReLU, global mean pooling, two linear heads for band gap and hardness.  
   - **Optimizer**: Adam, lr = 1e‑3, early‑stopping patience = 10, max 200 epochs, batch size ≤ 32, CPU‑only execution.  
   - **RF baseline** (`src/models/rf_baseline.py`): `RandomForestRegressor` trained on composition‑weighted elemental aggregates (including `element_fraction`).  

@@ -1,22 +1,22 @@
 T001:
+  reason: "The required contracts, requirements.txt, seeds utility, and quickstart.md\
+    \ are present and correctly populated, but there is no evidence that `pytest tests/contract/`\
+    \ was executed and passed as the task demands. Without test\u2011run output confirming\
+    \ the contract tests succeed, the verification step is incomplete."
   task: 5157fbcf4d9066d1d00398cf3b061bce5f328217d646925316e089695aa93097
 T002:
-  reason: "The CSV at `data/raw/materials.csv` contains only two rows (`mp-1` Fe2O3,\
-    \ `mp-2` Si) \u2014 a hand-written placeholder, not a verified, publicly licensed\
-    \ open dataset (e.g., a Materials Project subset) as the task requires; the checksum\
-    \ in README.md matches this placeholder, so it only certifies fabricated data.\
-    \ Additionally, there is no evidence that `pytest tests/contract/test_dataset_schema.py`\
-    \ was actually run \u2014 the execution log shows only `code/verify_dataset.py`,\
-    \ not the required pytest invocation."
+  reason: Checked `data/raw/materials.csv` (columns present, checksum recorded in
+    README) and the schema test file, but there is no evidence that `pytest tests/contract/test_dataset_schema.py`
+    was actually executed and passed; only a custom script log is provided. The required
+    pytest validation step is missing.
   task: e1a44bbbbfb115a83f06ef86404d909e1fe5956df3f3892903e773066c0ba943
 T003:
-  reason: "The pytest run for `tests/unit/test_loader.py` failed 4 of 9 tests (exit\
-    \ 1): the zero-band-gap metal m09 (Si, band_gap=0.0, hardness=0.0) is dropped\
-    \ by the 1.5\xD7IQR filter, violating the explicit requirement to retain zero-band-gap\
-    \ metals, and the outlier-removal logging test also fails (the loader dropped\
-    \ 2 rows where the test expects 1). The loader must exclude zero-band-gap metals\
-    \ from the IQR outlier rule (or otherwise retain them) and fix the outlier drop-count\
-    \ behavior so all unit tests pass."
+  reason: "The `src/data/loader.py` implementation fails several required unit\u2011\
+    test checks: the zero\u2011band\u2011gap metal (`m09`) is dropped, the outlier\u2011\
+    removal log reports \u201Cdropped 2\u201D rows instead of the expected \u201C\
+    dropped 1\u201D, and the summary shows only 8 rows kept rather than the 9 valid\
+    \ rows. Consequently the loader does not meet the specification for outlier handling\
+    \ and logging."
   task: a1f31cfc33e1a4f0fb5730a6a99a5e2f0645cbaba76af0a96da0212c3260f8c8
 T004:
   task: f801d299e72c09831ef813933880d4c74983ba115b14314ccca14779483a1a38

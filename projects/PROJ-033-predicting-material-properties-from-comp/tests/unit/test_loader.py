@@ -7,12 +7,12 @@ The fixture deliberately contains:
 * a duplicate ``material_id``,
 * a genuine 1.5 x IQR outlier (extreme ``band_gap`` and ``hardness``),
 * a formula with an unknown element,
-* several valid rows (including a zero-band-gap metal, which must be
+* several valid rows (including a zero‑band‑gap metal, which must be
   RETAINED).
 
 The loader must drop the problematic rows, keep the valid ones, log the
 outlier drop count, warn on unknown elements, and stay within the 6 GB
-RAM limit (FR-001).
+RAM limit (FR‑001).
 """
 import csv
 import json
@@ -38,7 +38,7 @@ VALID_ROWS = [
     ("m06", "NiO", 2.5, 7.0, "cubic"),
     ("m07", "SnO2", 3.5, 6.5, "tetragonal"),
     ("m08", "CuO", 1.2, 5.5, "cubic"),
-    # zero-band-gap metal – must be retained
+    # zero‑band‑gap metal – must be retained
     ("m09", "Si", 0.0, 0.0, "cubic"),
 ]
 
@@ -74,7 +74,7 @@ def test_loader_filters_rows(tmp_path: Path, tiny_fixture: Path) -> None:
     df = pd.read_csv(out_path)
     kept_ids = set(df["material_id"])
 
-    # All valid rows (incl. the zero-band-gap metal m09) are kept
+    # All valid rows (incl. the zero‑band‑gap metal m09) are kept
     for row in VALID_ROWS:
         assert row[0] in kept_ids, f"{row[0]} should have been kept"
     # Problem rows are dropped

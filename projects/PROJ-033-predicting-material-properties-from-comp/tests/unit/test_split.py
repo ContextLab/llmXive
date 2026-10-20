@@ -7,7 +7,7 @@ import pytest
 
 from src.training.split import stratified_split, generate_cv_folds, create_and_save_splits
 
-# Load the tiny software-validation fixture (never reported as study results)
+# Load the tiny software‑validation fixture (never reported as study results)
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "tiny_materials.csv"
 df = pd.read_csv(FIXTURE_PATH)
 
@@ -36,7 +36,7 @@ def test_stratified_split_reproducible():
     assert list(s1["material_id"]) == list(s2["material_id"])
 
 def test_stratified_split_tiny_dataset_does_not_crash():
-    """Regression test: singleton crystal-system classes previously raised
+    """Regression test: singleton crystal‑system classes previously raised
     ValueError from StratifiedShuffleSplit (root cause of the failed run)."""
     tiny = pd.DataFrame(
         {
@@ -50,7 +50,7 @@ def test_stratified_split_tiny_dataset_does_not_crash():
     train, val, test = stratified_split(tiny, random_state=42)
     all_ids = set(train["material_id"]) | set(val["material_id"]) | set(test["material_id"])
     assert all_ids == {"mp-1", "mp-2"}
-    # The train split must remain non-empty so downstream training works.
+    # The train split must remain non‑empty so downstream training works.
     assert len(train) >= 1
 
 def test_generate_cv_folds_is_stratified_and_reproducible():

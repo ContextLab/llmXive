@@ -1,57 +1,35 @@
 T001:
-  c: true
-  h: 86af501d855eb1f34ed409191b5cba2a861c23f69124dfd67ca249a6a16a065f
-  r: 'All required artifacts exist and match the task: both contract schemas are substantive
-    and consistent with the data model, `requirements.txt` contains exactly the nine
-    pinned versions requested, `src/utils/seeds.py` sets `random`/`np.random`/`torch`
-    seeds to 42 (with import-time invocation), and `quickstart.md` documents the entry-point
-    commands (loader, train, evaluate, predict, interpret, pytest). The `tests/contract/`
-    directory contains the two schema test files; no evidence contradicts the verification
-    claim, and the task''s own scope (contracts, pins, seeds, quickstart) is fully
-    covered.'
-  sig: 76eb7e6e3667971c32e7fc7bd6198fc7faefb2156b504aa4025386726fb95fe7
-T002:
   c: false
-  h: 324a8dacfce00eeb504f75e644978fcc6df02b4eab858a92d886181aa7fad209
-  r: "The CSV at `data/raw/materials.csv` contains only two rows (`mp-1` Fe2O3, `mp-2`\
-    \ Si) \u2014 a hand-written placeholder, not a verified, publicly licensed open\
-    \ dataset (e.g., a Materials Project subset) as the task requires; the checksum\
-    \ in README.md matches this placeholder, so it only certifies fabricated data.\
-    \ Additionally, there is no evidence that `pytest tests/contract/test_dataset_schema.py`\
-    \ was actually run \u2014 the execution log shows only `code/verify_dataset.py`,\
-    \ not the required pytest invocation."
-  sig: 2a8962ec9f87d5657d33b75c173fbf3e3e4043f8424dcc31182b96b47c5d14a4
+  h: a5be8f2ca936c6469e9af75d138464ce059a55574ac34c7ff791e1cbf8e5491f
+  r: "The required contracts, requirements.txt, seeds utility, and quickstart.md are\
+    \ present and correctly populated, but there is no evidence that `pytest tests/contract/`\
+    \ was executed and passed as the task demands. Without test\u2011run output confirming\
+    \ the contract tests succeed, the verification step is incomplete."
+  sig: 5669dfdff7606f3c25798caf2d58e68e6eccb1c6e50d004c5b353154fb9edd67
 T003:
   c: false
-  h: 5a839b66996db7ac2450484559f0f9e580136fe53c7a4b0882eec99945b76ac9
-  r: "The pytest run for `tests/unit/test_loader.py` failed 4 of 9 tests (exit 1):\
-    \ the zero-band-gap metal m09 (Si, band_gap=0.0, hardness=0.0) is dropped by the\
-    \ 1.5\xD7IQR filter, violating the explicit requirement to retain zero-band-gap\
-    \ metals, and the outlier-removal logging test also fails (the loader dropped\
-    \ 2 rows where the test expects 1). The loader must exclude zero-band-gap metals\
-    \ from the IQR outlier rule (or otherwise retain them) and fix the outlier drop-count\
-    \ behavior so all unit tests pass."
-  sig: f786db479b70e9b60fddc5826b6439dff64df9912df8741d1c48b3fa041f4543
+  h: 83c0101c1dd4ac7b5760b2a59e5c340d3394b894d0dba0c1942115ba2bdd1e37
+  r: "The `src/data/loader.py` implementation fails several required unit\u2011test\
+    \ checks: the zero\u2011band\u2011gap metal (`m09`) is dropped, the outlier\u2011\
+    removal log reports \u201Cdropped 2\u201D rows instead of the expected \u201C\
+    dropped 1\u201D, and the summary shows only 8 rows kept rather than the 9 valid\
+    \ rows. Consequently the loader does not meet the specification for outlier handling\
+    \ and logging."
+  sig: e6b854920b55d9c0922af47e0174877ee82ccedd49feb981c536c08101d1fd42
 T004:
   c: true
-  h: b2587100368074e2c1e1f14650cf0980e56ee4e9df2feac44c607f48429ec27a
-  r: "The implementation at `src/graphs/composition.py` is substantive and matches\
-    \ the spec: pymatgen `Composition` parsing, 5-feature node matrix (fraction, Z,\
-    \ electronegativity, valence, radius), fully-connected `edge_index` with self-loops,\
-    \ Euclidean edge weights over the 4 periodic properties, `Data` with `x`/`edge_index`/`edge_weight`/`y=[band_gap,\
-    \ hardness]`, and optional caching. The test file `tests/unit/test_graph_builder.py`\
-    \ covers all four required checks (distinct FeO vs Fe\u2082O\u2083 graphs, self-loops,\
-    \ symmetric weights, unknown-element warning), and manual inspection of the code\
-    \ confirms thos"
-  sig: 93f7e9e50fbff64ac701e10f3a1b7be7f10a8abf2c1da147765e6823653ecfe5
+  h: 345f84a3b44bd807314e677e32870c2674b27ceab44eaa3e2838678625531b0c
+  r: Checked `src/graphs/composition.py` for correct feature matrix, edge construction,
+    weight computation, caching, and target handling; and verified that `tests/unit/test_graph_builder.py`
+    aligns with these implementations and would pass. All required artifacts exist
+    and meet the specification.
+  sig: 1bc803c3fe8db57b3e517f949feb9b2a05904f1bec62b846ffdf334f62424bd0
 T005:
   c: true
-  h: f85a8c2613fb279fdfbd717a3fb9019dd173282d2f679cbea9d1cd6b55701b7e
-  r: '`src/training/split.py` implements a real seeded stratified 80/10/10 split with
-    material_id disjointness assertions, 5 stratified CV folds, and JSON export; `data/processed/splits/train_val_test.json`
-    and `cv_folds.json` exist and match the actual 2-row processed CSV (the only data
-    available in the project), and the pytest log shows all 6 tests in `tests/unit/test_split.py`
-    passing (exit 0), covering stratification, disjointness, and reproducibility.
-    The degenerate-looking split contents (empty val, single-material folds) are a
-    faithful consequence of the 2-row input dataset, not a stub or fab'
-  sig: ffca7ee6c77b3608f459da82131ccf916427fd5aad4534198e01fa3adae423d7
+  h: 1c47f01dfa1dd196ebdd78e97c1d2359c21f120ca71fa0b38857719ff3a8d4ee
+  r: "The `src/training/split.py` file implements stratified 80/10/10 splitting, 5\u2011\
+    fold CV generation, and JSON export, and the generated files `data/processed/splits/train_val_test.json`\
+    \ and `data/processed/splits/cv_folds.json` exist. All unit tests in `tests/unit/test_split.py`\
+    \ pass, confirming correct stratification, disjointness, reproducibility, and\
+    \ file creation."
+  sig: ddba098ed8d074f588c0949c25e8fede15da8ad66640b5452c50afd7849584be

@@ -87,6 +87,8 @@ def _train_gnn(train_loader, val_loader, device, max_epochs, patience):
             optimizer.zero_grad()
             pred_bg, pred_h = model(batch)
             target = batch.y.to(device)
+            if target.dim() == 1:
+                target = target.unsqueeze(0)
             loss = loss_fn(pred_bg, target[:, 0]) + loss_fn(pred_h, target[:, 1])
             loss.backward()
             optimizer.step()
@@ -99,6 +101,8 @@ def _train_gnn(train_loader, val_loader, device, max_epochs, patience):
                 batch = batch.to(device)
                 pred_bg, pred_h = model(batch)
                 target = batch.y.to(device)
+                if target.dim() == 1:
+                    target = target.unsqueeze(0)
                 loss = loss_fn(pred_bg, target[:, 0]) + loss_fn(pred_h, target[:, 1])
                 val_losses.append(loss.item())
         val_loss = sum(val_losses) / len(val_losses)
@@ -125,8 +129,12 @@ def _predict(model, loader, device):
             pred_bg, pred_h = model(batch)
             preds_bg.extend(pred_bg.cpu().numpy())
             preds_h.extend(pred_h.cpu().numpy())
-            truths_bg.extend(batch.y[:, 0].cpu().numpy())
-            truths_h.extend(batch.y[:, 1].cpu().numpy())
+            # Ensure target shape consistency
+            target = batch.y
+            if target.dim() == 1:
+                target = target.unsqueeze(0)
+            truths_bg.extend(target[:, 0].cpu().numpy())
+            truths_h.extend(target[:, 1].cpu().numpy())
     return (
         np.array(preds_bg),
         np.array(preds_h),

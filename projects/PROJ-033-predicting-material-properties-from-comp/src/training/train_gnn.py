@@ -113,7 +113,10 @@ def main() -> None:
             batch = batch.to(device)
             optimizer.zero_grad()
             pred_bg, pred_h = model(batch)
-            target = batch.y.to(device)  # shape [batch, 2]
+            target = batch.y.to(device)
+            # Ensure target is 2‑D (batch, 2)
+            if target.dim() == 1:
+                target = target.unsqueeze(0)
             loss = loss_fn(pred_bg, target[:, 0]) + loss_fn(pred_h, target[:, 1])
             loss.backward()
             optimizer.step()
@@ -129,6 +132,8 @@ def main() -> None:
                 batch = batch.to(device)
                 pred_bg, pred_h = model(batch)
                 target = batch.y.to(device)
+                if target.dim() == 1:
+                    target = target.unsqueeze(0)
                 loss = loss_fn(pred_bg, target[:, 0]) + loss_fn(pred_h, target[:, 1])
                 val_losses.append(loss.item())
         avg_val_loss = sum(val_losses) / len(val_losses)
