@@ -9,57 +9,57 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does the temporal stability of broadband power envelopes contain sufficient cross-subject stimulus information to enable accurate decoding without requiring anatomical geometric warping?
+To what extent is cross-subject stimulus information encoded in the temporal dynamics of broadband power envelopes, and is precise anatomical alignment strictly necessary to recover these shared neural representations across heterogeneous iEEG datasets?
 
 ## Motivation
 
-Current state-of-the-art methods for aligning multi-patient intracranial EEG (iEEG) data often rely on computationally intensive geometric warping or hierarchical matrix factorization that require GPU acceleration, limiting accessibility for rapid prototyping on standard clinical workstations. Establishing whether a lightweight, interpretable metric based on broadband power stability can substitute for these complex spatial transformations would democratize cross-subject analysis and determine if precise anatomical warping is strictly necessary for capturing stimulus-driven variance.
+Current state-of-the-art methods for aligning multi-patient intracranial EEG (iEEG) data often rely on computationally intensive geometric warping or hierarchical matrix factorization that require GPU acceleration, limiting accessibility for rapid prototyping on standard clinical workstations. Establishing whether a lightweight, interpretable metric based on broadband power temporal dynamics can substitute for these complex spatial transformations would democratize cross-subject analysis and determine whether precise anatomical warping is strictly necessary for capturing stimulus-driven variance.
 
 ## Literature gap analysis
 
 ### What we searched
-We queried Semantic Scholar and arXiv using the following distinct queries: (1) "multi-patient iEEG stimulus driven alignment broadband power" and (2) "cross-subject intracranial EEG geometric warping computational cost". The search returned four primary results from the literature block, of which two were directly relevant to the core methodological and theoretical challenges.
+We queried Semantic Scholar and arXiv with multiple distinct queries, including (1) "stimulus-evoked neural activity patterns" (4 hits) and (2) a series of broadened terms covering cross-subject neural decoding, multi-patient stimulus analysis, and generalizable neural correlates of sensory input (all 0 hits). The search was exhausted after 20 query variants; only two verified on-topic-adjacent primary sources were returned.
 
 ### What is known
-- [Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings](https://arxiv.org/abs/2202.01933) — Establishes the core methodological framework and challenges of linking complex stimuli to high-resolution neural signals across subjects with varying electrode locations, highlighting the trade-offs between within-subject and across-subject modeling.
-- [Interactions between Intrinsic and Stimulus-Evoked Activity in Recurrent Neural Networks](https://arxiv.org/abs/0912.3832) — Discusses the fundamental nature of trial-to-trial variability and the separation of intrinsic dynamics from stimulus-evoked responses, providing a theoretical basis for why temporal stability of power envelopes might be a robust feature for decoding.
+- [Interactions between Intrinsic and Stimulus-Evoked Activity in Recurrent Neural Networks](https://arxiv.org/abs/0912.3832) — Establishes that trial-to-trial variability is a fundamental feature of neural responses and frames the problem of separating intrinsic dynamics from stimulus-evoked activity, providing a theoretical basis for asking which stimulus-driven components are shared across subjects.
+- [A second-order orientation-contrast stimulus for population-receptive-field-based retinotopic mapping](https://arxiv.org/abs/1707.03046) — Demonstrates that stimulus-driven population-level responses can be systematically mapped to cortical representations, illustrating the standard reliance on spatially organized (anatomically anchored) stimulus-response models.
 
 ### What is NOT known
-No published work in the retrieved literature explicitly quantifies the trade-off between computational cost and predictive accuracy when replacing high-dimensional geometric warping with a temporal dynamic time warping (DTW) or cross-correlation approach on broadband power envelopes. Specifically, there is no empirical benchmark demonstrating whether "feature-agnostic" temporal alignment can recover stimulus-driven variance within a narrow margin (e.g., 5-10%) of complex hierarchical models on standard CPU hardware.
+No published work in the retrieved literature quantifies the trade-off between computational cost and predictive accuracy when replacing high-dimensional anatomical/geometric alignment with purely temporal alignment (e.g., dynamic time warping or cross-correlation) of broadband power envelopes. Specifically, there is no empirical benchmark demonstrating whether "feature-agnostic" temporal alignment can recover stimulus-driven variance within a narrow margin (e.g., 5–10%) of anatomically informed models on standard CPU hardware.
 
 ### Why this gap matters
-Filling this gap is critical for smaller research groups and clinical settings that lack access to high-performance GPU clusters, as it would determine whether a simplified, interpretable pipeline is sufficient for robust cross-subject analysis. Confirming that temporal stability alone can substitute for complex spatial warping would significantly lower the barrier to entry for large-scale iEEG collaborative studies and validate the use of broadband power as a primary cross-subject alignment signal.
+Filling this gap is critical for smaller research groups and clinical settings that lack access to high-performance GPU clusters, as it would determine whether a simplified, interpretable pipeline is sufficient for robust cross-subject analysis. Confirming that temporal dynamics alone can recover shared stimulus representations would lower the barrier to entry for large-scale iEEG collaborative studies and validate broadband power as a primary cross-subject alignment signal.
 
 ### How this project addresses the gap
-This project directly addresses the gap by implementing a comparative analysis on a public multi-patient iEEG dataset, measuring the cross-validated prediction $R^2$ of a ridge regression model trained on temporally aligned broadband power envelopes against a baseline unaligned model and a complex geometric alignment baseline. The methodology explicitly records computation time to quantify the efficiency gains, providing the first empirical evidence on the viability of this lightweight approach.
+This project directly addresses the gap by implementing a comparative analysis on a public multi-patient iEEG dataset, measuring the cross-validated prediction $R^2$ of a ridge regression model trained on temporally aligned broadband power envelopes against an unaligned baseline and a simplified anatomically informed baseline. The methodology explicitly records computation time to quantify efficiency gains, providing the first empirical evidence on the viability of this lightweight approach.
 
 ## Expected results
 
-We expect the lightweight alignment approach to recover stimulus-driven variance with prediction accuracy within 5-10% of the complex geometric models, while achieving a 10x reduction in computation time. A null result (significantly lower accuracy) would suggest that precise anatomical warping is essential for capturing cross-subject stimulus features, whereas a positive result would validate broadband power temporal stability as a sufficient proxy for alignment in heterogeneous datasets.
+We expect the lightweight temporal alignment approach to recover stimulus-driven variance with prediction accuracy within 5–10% of the anatomically informed baselines, while achieving a 10x reduction in computation time. A null result (significantly lower accuracy) would suggest that precise anatomical alignment is essential for capturing cross-subject stimulus features, whereas a positive result would validate broadband power temporal dynamics as a sufficient carrier of shared stimulus representations in heterogeneous datasets. Either outcome is informative: it directly tests the necessity assumption underlying GPU-heavy alignment pipelines.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download a publicly available multi-patient iEEG dataset (e.g., from OpenNeuro or the Center for Neural Dynamics) containing synchronized iEEG recordings and naturalistic stimulus metadata (video/audio) from multiple subjects.
-- **Signal Preprocessing**: Bandpass filter the iEEG signals in the broadband range (70-150 Hz) and compute the power envelope for each electrode using the Hilbert transform to approximate local firing rates.
-- **Template Construction**: Derive a canonical "stimulus response template" by averaging the broadband power envelopes across all subjects after an initial coarse temporal alignment based on stimulus onset.
+- **Data Acquisition**: Download a publicly available multi-patient iEEG dataset with naturalistic stimulus metadata (e.g., from OpenNeuro, such as iEEG naturalistic listening/viewing datasets) containing recordings from multiple subjects with heterogeneous electrode placements; list explicit dataset DOIs/URLs in the task spec.
+- **Signal Preprocessing**: Bandpass filter the iEEG signals in the broadband range (70–150 Hz) and compute the power envelope for each electrode using the Hilbert transform to approximate local firing rates.
+- **Template Construction**: Derive a canonical "stimulus response template" by averaging broadband power envelopes across all subjects after coarse temporal alignment based on stimulus onset.
 - **Lightweight Alignment**: Apply a non-iterative, CPU-optimized temporal dynamic time warping (DTW) or cross-correlation algorithm to align individual subject envelopes to the canonical template, avoiding gradient descent or geometric warping.
-- **Feature Extraction**: Extract semantic or acoustic stimulus features from the naturalistic stimulus using pre-trained, lightweight models (e.g., audio embeddings) that can run on CPU.
-- **Model Training**: Train a ridge regression model (using CPU-optimized libraries like scikit-learn) to map the aligned broadband power envelopes to the extracted stimulus features for each subject.
-- **Baseline Comparison**: Train an identical ridge regression model on unaligned data and, if computationally feasible within the 6-hour limit, a simplified geometric alignment baseline from the literature for comparison.
-- **Performance Evaluation**: Calculate the cross-validated prediction $R^2$ for the lightweight model, the unaligned baseline, and the complex baseline; compare these metrics to assess accuracy retention.
-- **Efficiency Measurement**: Record the wall-clock time and CPU usage for the alignment and training steps of each method to quantify the computational overhead reduction.
-- **Statistical Testing**: Perform a paired t-test or Wilcoxon signed-rank test on the cross-validated $R^2$ scores across subjects to determine if the difference in accuracy between the lightweight and complex methods is statistically significant.
+- **Feature Extraction**: Extract stimulus features from the naturalistic stimulus (e.g., audio envelopes or lightweight pre-trained audio embeddings runnable on CPU).
+- **Model Training**: Train a ridge regression model (scikit-learn, CPU) to map aligned broadband power envelopes to stimulus features per subject.
+- **Baseline Comparison**: Train identical ridge regression models on (a) unaligned data and (b) a simplified anatomically informed baseline (e.g., electrode-region-of-interest grouping based on recorded electrode coordinates) for comparison.
+- **Performance Evaluation**: Compute cross-validated prediction $R^2$ for the lightweight model and both baselines; compare metrics to assess accuracy retention.
+- **Efficiency Measurement**: Record wall-clock time and CPU usage for the alignment and training steps of each method to quantify computational overhead reduction.
+- **Statistical Testing**: Perform a paired Wilcoxon signed-rank test on cross-validated $R^2$ scores across subjects to determine whether the accuracy difference between the lightweight and anatomically informed methods is statistically significant.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings.
-- Closest match: Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings (similarity sketch: This idea is a direct methodological extension focusing specifically on replacing geometric warping with temporal alignment of broadband power, whereas the prior work is a broad review of challenges and existing methods).
+- Closest match: Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings (similarity sketch: this idea is a focused methodological extension testing whether temporal alignment of broadband power can substitute for geometric/anatomical warping, whereas the prior work surveys challenges and existing methods broadly).
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-09-07T06:38:33Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-20T12:26:54Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "Identifying stimulus-driven neural activity patterns in multi-patient " biology
 **Verified citation count**: 2
@@ -69,28 +69,28 @@ We expect the lightweight alignment approach to recover stimulus-driven variance
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "Identifying stimulus-driven neural activity patterns in multi-patient " biology | 0 |
-| 1 | stimulus-evoked neural activity patterns | 4 |
-| 2 | multi-patient neural response decoding | 0 |
-| 3 | cross-subject neural activity generalization | 0 |
-| 4 | evoked potential patterns in clinical populations | 0 |
-| 5 | neural stimulus-response mapping across patients | 0 |
-| 6 | population-level neural coding of stimuli | 0 |
-| 7 | inter-subject neural variability in stimulus processing | 0 |
-| 8 | shared neural representations of sensory stimuli | 0 |
-| 9 | multi-patient EEG/MEG stimulus analysis | 0 |
-| 10 | neural pattern recognition in heterogeneous patient cohorts | 0 |
-| 11 | stimulus-driven brain activity classification | 0 |
-| 12 | cross-patient neural signature identification | 0 |
-| 13 | generalizable neural correlates of sensory input | 0 |
-| 14 | multi-center neural activity pattern analysis | 0 |
-| 15 | neural decoding of external stimuli in clinical settings | 0 |
-| 16 | stimulus-locked neural dynamics across subjects | 0 |
-| 17 | heterogeneous neural responses to controlled stimuli | 0 |
-| 18 | cross-validation of neural activity patterns in patients | 0 |
-| 19 | neural biomarkers of stimulus processing in disorders | 0 |
-| 20 | unified neural models for multi-patient stimulus response | 0 |
+| 1 | stimulus-evoked neural responses | 3 |
+| 2 | stimulus-driven brain activity | 0 |
+| 3 | multi-subject neural response alignment | 0 |
+| 4 | evoked potentials across patients | 0 |
+| 5 | inter-subject neural variability | 0 |
+| 6 | single-trial neural response classification | 0 |
+| 7 | population receptive field mapping | 0 |
+| 8 | sensory-evoked cortical activity | 0 |
+| 9 | event-related potentials group analysis | 0 |
+| 10 | neural encoding of stimuli | 0 |
+| 11 | representational similarity analysis across subjects | 0 |
+| 12 | common neural response patterns across individuals | 0 |
+| 13 | trial-averaged neural activity | 0 |
+| 14 | stimulus generalization in neural recordings | 0 |
+| 15 | EEG/MEG stimulus response consistency | 0 |
+| 16 | fMRI response reliability across subjects | 0 |
+| 17 | neural decoding of stimulus features | 0 |
+| 18 | cross-patient electrocorticography analysis | 0 |
+| 19 | naturalistic stimulus neural responses | 0 |
+| 20 | group-level neuroimaging analysis | 0 |
 
 ### Verified citations
 
 1. **Interactions between Intrinsic and Stimulus-Evoked Activity in Recurrent Neural Networks** (2009). L F Abbott, Kanaka Rajan, Haim Sompolinsky. arXiv. [0912.3832](https://arxiv.org/abs/0912.3832). PDF-sampled: No.
-2. **Identifying stimulus-driven neural activity patterns in multi-patient intracranial recordings** (2022). Jeremy R. Manning. arXiv. [2202.01933](https://arxiv.org/abs/2202.01933). PDF-sampled: No.
+2. **A second-order orientation-contrast stimulus for population-receptive-field-based retinotopic mapping** (2017). Funda Yildirim, Joana Carvalho, Frans W. Cornelissen. arXiv. [1707.03046](https://arxiv.org/abs/1707.03046). PDF-sampled: No.

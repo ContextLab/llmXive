@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1506.06714",
+  "judged_at": "2026-10-20T12:26:42Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"identifying stimulus-driven neural activity patterns in multi-patient \" biology",
+  "rationale": "The paper is about neural conversational response generation for Twitter dialogues — an NLP system with no connection to stimulus-driven neural activity patterns, multi-patient neuroscience, or any biological mechanism in the user's question. It is off-domain entirely.",
+  "relevant": false
+}
