@@ -1,56 +1,50 @@
 # Quickstart: The Influence of Visual Salience on Attentional Bias in Moral Judgements
 
 ## Prerequisites
-- **Python** 3.11+ (Ubuntu 22.04 recommended)
-- **Git**  
-- **GitHub Actions runner** (CPU‑only, ≤7 GB RAM) – the CI environment used for reproducibility.
-- **Data**: The OpenNeuro *Moral Foundations Eye‑Tracking* dataset (ds003123) must be **manually placed** in `data/raw/ds003123/`. 
-  - **Why manual placement?** The dataset is not in the verified‑datasets list, and the pipeline does not attempt automated download (per the verified-datasets rule).
-  - **How?** Download ds003123 from OpenNeuro, extract it, and place the directory under `data/raw/ds003123/`.
+- Python 3.11+; pip.
+- **Data (manual)**: download OpenNeuro ds003123 (Moral Foundations Eye-Tracking) yourself and place the extracted directory at `data/raw/ds003123/`. It must contain `stimuli/` and at least one `sub-*` participant directory. There is no verified automated download source; the pipeline will not fetch or substitute data.
 
 ## Installation
 ```bash
 git clone <repo-url>
 cd projects/PROJ-471-the-influence-of-visual-salience-on-atte
-pip install -r code/requirements.txt
+python code/bootstrap.py --root .
+pip install -r requirements.txt
 ```
 
-## Verify Data Presence
+## Verify data presence
 ```bash
 python -m code.ingestion.verify_data
-# Expected output:
-#   "✅ Dataset ds003123 found. Checksum recorded."
-# If missing:
-#   "❌ ERROR: DATA_MISSING_001 – please place the extracted OpenNeuro dataset under data/raw/ds003123/."
+# OK:    "✅ Dataset structure valid; N files checksummed to data/raw/checksums.json"
+# FAIL:  "❌ DATA_MISSING_001 – expected data/raw/ds003123/stimuli/ and sub-* directories"
 ```
+The script exits non-zero on missing structure or on an empty checksum result.
 
-## Run the Full Pipeline
+## Run the full pipeline
 ```bash
 python -m code.main --stage full
 ```
-The orchestrator executes the steps defined in `plan.md` in the required order:
-1. **Dataset verification** (checks presence; no download).  
-2. **Salience map generation** (GBVS on CPU with error handling; DeepGaze II GPU fallback only if CUDA available AND needed).  
-3. **ROI mask creation** (YOLOv8 + Detectron2).  
-4. **Eye‑tracking metric extraction** (including fixation latency).  
-5. **Alignment & low‑level + semantic feature augmentation**.  
-6. **Collinearity reduction** (PCA orthogonalization if VIF > 5).  
-7. **Statistical modeling** (mixed‑effects, FDR, sensitivity, power check).  
-8. **Contract validation** (schema checks, disclaimer enforcement).  
+Order: verify data → salience maps (OpenCV spectral residual, CPU) → ROI masks (YOLOv8) → fixation extraction → alignment + covariates → VIF/PCA → mixed models A/B + FDR + power → contract validation.
 
-## Expected Outputs
-- `data/processed/aligned_data.csv` – merged table containing salience scores, fixation metrics, low‑level covariates (luminance, contrast, edge_density), and semantic covariates (moral_valence, scene_complexity); includes `fixation_latency_ms` and `excluded` columns.  
-- `data/processed/results.json` – statistical summary adhering to `output.schema.yaml`, including post-orthogonalization VIF if collinearity reduction was applied.  
-- `data/interim/salience_metadata.json` – metadata for all generated salience maps, adhering to `salience.schema.yaml`.  
-- `logs/pipeline.log` – detailed runtime log, including resource usage (SC‑002), any excluded trials (SC‑005), and collinearity diagnostics.  
-- `logs/diagnostics.log` – detailed VIF report (pre/post-orthogonalization), power analysis summary, and edge-case handling notes.
+## Expected outputs
+- `data/raw/checksums.json` — SHA-256 of every raw file (non-empty).
+- `data/interim/salience_maps/<stimulus_id>.npy` + `salience_metadata.json` (schema-conformant).
+- `data/interim/masks/`, `mask_metadata.csv`, `fixations.csv`.
+- `data/processed/aligned_data.csv` (validates against `dataset.schema.yaml`).
+- `data/processed/results.json` (validates against `output.schema.yaml`; includes FDR-corrected p-values, sensitivity, VIF report, `power_status`, and the `"correlational only"` disclaimer).
+- `logs/pipeline.log`, `logs/diagnostics.log`, `logs/resource.log`.
+
+## Run tests
+```bash
+pytest tests/ -q
+```
+Unit tests cover bootstrap (with `--root tmp_path`), data verification (synthetic fixture trees), salience generation, ROI segmentation (including graceful degradation when ultralytics is absent), fixation parsing, and contract validation.
 
 ## Troubleshooting
-| Symptom | Likely Cause | Fix |
+| Symptom | Cause | Fix |
 |---|---|---|
-| `DATA_MISSING_001` | OpenNeuro dataset not placed | Download ds003123 from OpenNeuro, extract, and place under `data/raw/ds003123/`. |
-| `CUDA error` | Accidental GPU usage on CPU runner | Ensure `code/config.py` sets `device = "cpu"`; re‑run. |
-| MemoryError during salience generation | Batch size too large | Reduce `BATCH_SIZE` in `code/config.py` (e.g., from 8 to 4). |
-| `POWER_INSUFFICIENT` | Simulated power < 0.8 | Collect more participants or accept that inference is not valid. |
-| Missing columns in `aligned_data.csv` | Alignment step omitted covariates | Verify `code/analysis/align_data.py` produces `moral_valence`, `scene_complexity`, and other required columns; run `code/utils/independence_validator.py` for diagnostics. |
-| High VIF values in results | Collinearity among visual features | Check `logs/diagnostics.log` for VIF summary; PCA orthogonalization should have been applied. If not, verify `code/analysis/orthogonalize.py` ran successfully. |
+| `DATA_MISSING_001` | ds003123 not placed / incomplete structure | Place full extracted dataset (stimuli + sub-* dirs) under `data/raw/ds003123/` |
+| Checksum file empty | verification ran against empty dir | ensure raw files exist; re-run `verify_data.py` |
+| Masks all `undetected` | YOLOv8 weights unavailable offline | allow network for first run (weights cache), or accept flagged-ROI degradation |
+| High VIF | collinear low-level features | PCA orthogonalization applies automatically when VIF > 5; see `logs/diagnostics.log` |
+| `power_status: "invalid"` | simulated power < 0.8 | result reported as invalid for inference per SC-003; limitation documented |

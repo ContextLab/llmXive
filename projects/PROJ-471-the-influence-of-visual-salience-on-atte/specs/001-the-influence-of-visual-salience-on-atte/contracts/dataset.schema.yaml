@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Aligned Dataset Schema"
-description: "Schema for the merged salience and eye-tracking data"
+title: "Aligned Dataset Row Schema"
+description: "Schema for one row of the merged salience and eye-tracking data (aligned_data.csv)"
 type: "object"
 properties:
   trial_id:
@@ -21,54 +21,45 @@ properties:
     description: "Region of Interest type"
   dwell_time_ms:
     type: "number"
-    description: "Dwell time (ms)"
+    description: "Dwell time in milliseconds"
   first_fixation_prob:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "Probability of first fixation"
+    description: "Probability of first fixation landing in the ROI"
   fixation_latency_ms:
     type: "number"
-    description: "Fixation latency (ms)"
+    description: "Latency of first fixation in milliseconds"
   salience_score:
     type: "number"
-    description: "Mean salience within ROI"
+    description: "Mean computational salience within the ROI"
   luminance:
     type: "number"
-    description: "Average luminance (diagnostic)"
+    description: "Mean luminance of the stimulus image (covariate)"
   contrast:
     type: "number"
-    description: "Average contrast (diagnostic)"
+    description: "RMS contrast of the stimulus image (covariate)"
   edge_density:
     type: "number"
-    description: "Edge density (diagnostic)"
-  moral_valence:
-    description: "Moral valence score or binary moral/neutral classification"
-    oneOf:
-      - type: "number"
-      - type: "string"
-        enum:
-          - "moral"
-          - "neutral"
+    description: "Edge density of the stimulus image (covariate)"
   scene_complexity:
     type: "integer"
     minimum: 0
-    description: "Number of detected objects in scene"
+    description: "Number of detected objects in the scene (covariate)"
   excluded:
     type: "boolean"
-    description: "Whether the trial was excluded from analysis"
+    description: "True if the trial was excluded from analysis"
 required:
-  - trial_id
-  - participant_id
-  - stimulus_id
-  - roi_type
-  - dwell_time_ms
-  - first_fixation_prob
-  - fixation_latency_ms
-  - salience_score
-  - luminance
-  - contrast
-  - edge_density
-  - moral_valence
-  - scene_complexity
-  - excluded
+  - "trial_id"
+  - "participant_id"
+  - "stimulus_id"
+  - "roi_type"
+  - "dwell_time_ms"
+  - "first_fixation_prob"
+  - "fixation_latency_ms"
+  - "salience_score"
+  - "luminance"
+  - "contrast"
+  - "edge_density"
+  - "scene_complexity"
+  - "excluded"
