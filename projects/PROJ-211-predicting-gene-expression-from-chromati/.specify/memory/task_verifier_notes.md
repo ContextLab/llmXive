@@ -2,6 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — Checked `code/generate_data.py`, the generated CSV/BED files, and the test suite. The generator loads the schema but fails to parse it (YAML error), silently skips validation instead of raising on mismatches, and the provided pytest suite fails (missing imports cause seed tests to error and integration test to error). Both the required schema validation and passing tests are not satisfied.
 - **T002** — The repository contains the `code/download_encode.py` script and the expected output files, but the script only writes synthetic placeholder data from fake URIs instead of streaming real ENCODE resources, and it does not abort on real HTTP errors. Moreover, the required integration test `tests/integration/test_download.py` is missing, so the verification step cannot be performed.
 - **T003** — Requested task execution failed; rerun successfully: code/preprocess.py exit=1

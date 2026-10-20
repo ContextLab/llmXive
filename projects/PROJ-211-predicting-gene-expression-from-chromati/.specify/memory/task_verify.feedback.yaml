@@ -1,9 +1,4 @@
 T001:
-  reason: Checked `code/generate_data.py`, the generated CSV/BED files, and the test
-    suite. The generator loads the schema but fails to parse it (YAML error), silently
-    skips validation instead of raising on mismatches, and the provided pytest suite
-    fails (missing imports cause seed tests to error and integration test to error).
-    Both the required schema validation and passing tests are not satisfied.
   task: 3bdd9fbbe2f22564e918fa557f1fa0a692391863aa29410cc131acc1db2b998a
 T002:
   reason: The repository contains the `code/download_encode.py` script and the expected

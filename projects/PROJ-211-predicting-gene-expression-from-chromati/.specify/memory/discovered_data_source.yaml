@@ -1,16 +1,18 @@
 status: none
-intent: ENCODE paired RNA-seq DNase-seq ATAC-seq count matrix download python package
-  dataset
+intent: ENCODE paired RNA-seq and ATAC-seq count data download python package dataset
 required_fields:
 - sample_id
+- biosample_type
+- cell_type
 - assay_type
-- gene_id
-- peak_id
-- chromosome
-- start
-- end
-- strand
-- count
-cache_key: 1d637bd4ba6f28b982467ef09c556f0968526ce000db527f5e0627f84507e5b3
-searched_at: '2026-10-20T18:43:09.085275+00:00'
+- file_accession
+- genome_assembly
+- gene_counts_matrix
+- peak_counts_matrix
+- genomic_coordinates
+- library_size
+- replicate_id
+- experiment_metadata
+cache_key: 0ae79af1e0e77df87141b9f455d48b0237ae6e21acc38799407cc3ce5afe4232
+searched_at: '2026-10-20T19:16:46.647999+00:00'
 retry_count: 1

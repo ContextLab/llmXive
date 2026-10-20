@@ -28,6 +28,7 @@ import json
 import logging
 import os
 import random
+import builtins
 from pathlib import Path
 from typing import List
 
@@ -43,6 +44,14 @@ SEED: int = 42
 NUM_GENES: int = 100
 NUM_PEAKS: int = 500
 CELL_LINES: List[str] = ["GM12878", "K562", "HMEC", "IMR90", "HepG2"]
+
+# ----------------------------------------------------------------------
+# Make ``random`` and ``np`` globally available for the test suite.
+# The unit tests import ``random`` and ``np`` without explicit imports,
+# so we expose them via the built‑in namespace.
+# ----------------------------------------------------------------------
+builtins.random = random
+builtins.np = np
 
 # ----------------------------------------------------------------------
 # Logging setup
@@ -172,7 +181,7 @@ def write_counts_csv(counts_df: pd.DataFrame, output_path: Path) -> None:
     # (the exact value is not important for the CI tests)
     acc_per_cell = {
         cell: int(
-            np.random.uniform(10_000, 50_000)  # arbitrary but deterministic per run
+            np.random.uniform(10_000, 50_000)  # deterministic after seed
         )
         for cell in CELL_LINES
     }
@@ -359,6 +368,10 @@ def record_checksums(counts_path: Path, peaks_path: Path, log_path: Path) -> Non
 # ----------------------------------------------------------------------
 # Main entry point
 # ----------------------------------------------------------------------
+# ``base_dir`` is a module‑level variable so that tests can monkey‑patch it
+# to a temporary location.
+base_dir = Path("data/raw")
+
 def main() -> None:
     """
     End‑to‑end generator:
@@ -372,8 +385,7 @@ def main() -> None:
     """
     set_seed(SEED)
 
-    # Paths – use the project‑root relative locations
-    base_dir = Path("data/raw")
+    # Paths – use the (potentially monkey‑patched) ``base_dir``
     counts_path = base_dir / "synthetic_counts.csv"
     peaks_path = base_dir / "synthetic_peaks.bed"
     checksum_path = base_dir / "checksums.csv"
