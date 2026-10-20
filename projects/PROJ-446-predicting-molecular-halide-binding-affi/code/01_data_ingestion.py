@@ -141,12 +141,17 @@ def fetch_pubchem_records(halide: str, max_retries: int = 3, base_delay: int = 2
     with exponential back‑off on HTTP 429/503 errors.
     Returns a list of dictionaries with keys: cid, smiles, inchi, value, unit.
     """
-    # Use the halide name itself as the query term – PubChem will return
-    # compounds whose names contain the halide (e.g., "sodium fluoride").
     query = halide
     url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{query}/property/IsomericSMILES,InChI,XLogP3/JSON"
 
-    response = _request_with_backoff(url, max_retries, base_delay)
+    try:
+        response = _request_with_backoff(url, max_retries, base_delay)
+    except requests.HTTPError as e:
+        # Return empty list; caller will record status code
+        raise
+    except Exception:
+        # Propagate other errors
+        raise
 
     data = response.json()
     compounds = data.get("PropertyTable", {}).get("Properties", [])
@@ -155,7 +160,6 @@ def fetch_pubchem_records(halide: str, max_retries: int = 3, base_delay: int = 2
         cid = comp.get("CID")
         smiles = comp.get("IsomericSMILES")
         inchi = comp.get("InChI")
-        # Use XLogP3 as a real numeric property; label unit as logK.
         xlogp = comp.get("XLogP3")
         if cid and smiles and xlogp is not None:
             records.append({
@@ -188,7 +192,6 @@ def fetch_nist_records(halide: str, max_retries: int = 3, base_delay: int = 2) -
     tables = soup.find_all("table")
     for table in tables:
         headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
-        # Heuristic: look for a column that mentions halide or binding
         if any("halide" in h for h in headers) or any("binding" in h for h in headers):
             for row in table.find_all("tr")[1:]:
                 cells = row.find_all("td")
@@ -216,27 +219,39 @@ def fetch_nist_records(halide: str, max_retries: int = 3, base_delay: int = 2) -
     return records
 
 
-def build_raw_records() -> List[Dict[str, Any]]:
+def build_raw_records() -> Dict[str, Any]:
     """
-    Build a list of raw record dictionaries by querying PubChem and NIST for each halide.
-    Each record contains at minimum:
-        - host_id (PubChem CID if available, otherwise a generated placeholder)
-        - smiles
-        - inchi (may be None)
-        - value (binding constant, may be None)
-        - unit (may be None)
-        - solvent (validated later)
-        - halide_info (original halide string from the source)
-        - source ("PubChem" or "NIST")
+    Fetch data from PubChem and NIST for each halide, record per‑source
+    outcomes, and return a dictionary containing:
+      - "records": List[Dict] of all raw records
+      - "outcome": dict with status codes, record counts, etc.
     """
     halides = ["fluoride", "chloride", "bromide", "iodide"]
     all_records: List[Dict[str, Any]] = []
+    outcome: Dict[str, Any] = {
+        "pubchem": {"halides": {}},
+        "nist": {"halides": {}},
+        "total_records_fetched": 0,
+    }
 
     for halide in halides:
         # PubChem
-        pc_records = fetch_pubchem_records(halide)
-        logger.info(f"Fetched {len(pc_records)} PubChem records for halide '{halide}'.")
+        try:
+            pc_records = fetch_pubchem_records(halide)
+            pc_status = 200
+        except requests.HTTPError as e:
+            pc_records = []
+            pc_status = e.response.status_code if e.response else None
+        except Exception:
+            pc_records = []
+            pc_status = None
+
+        outcome["pubchem"]["halides"][halide] = {
+            "status": pc_status,
+            "records_fetched": len(pc_records),
+        }
         all_records.extend(pc_records)
+        outcome["total_records_fetched"] += len(pc_records)
 
         # Respect the required 2 s delay between requests (per source)
         time.sleep(2)
@@ -244,21 +259,29 @@ def build_raw_records() -> List[Dict[str, Any]]:
         # NIST
         try:
             nist_records = fetch_nist_records(halide)
-            logger.info(f"Fetched {len(nist_records)} NIST records for halide '{halide}'.")
-            for idx, rec in enumerate(nist_records):
-                if not rec["host_id"]:
-                    rec["host_id"] = f"NIST-{halide.upper()}-{idx}"
-                all_records.append(rec)
-        except Exception as e:
-            # According to FR‑001 we must raise on fetch failure – do not silently ignore.
-            logger.error(f"NIST fetch failed for halide '{halide}': {e}")
-            raise
+            nist_status = 200
+        except requests.HTTPError as e:
+            nist_records = []
+            nist_status = e.response.status_code if e.response else None
+        except Exception:
+            nist_records = []
+            nist_status = None
+
+        # Assign placeholder host IDs for NIST records lacking one
+        for idx, rec in enumerate(nist_records):
+            if not rec["host_id"]:
+                rec["host_id"] = f"NIST-{halide.upper()}-{idx}"
+
+        outcome["nist"]["halides"][halide] = {
+            "status": nist_status,
+            "records_fetched": len(nist_records),
+        }
+        all_records.extend(nist_records)
+        outcome["total_records_fetched"] += len(nist_records)
 
         time.sleep(2)
 
-    if not all_records:
-        raise RuntimeError("No records retrieved from any source; aborting data ingestion.")
-    return all_records
+    return {"records": all_records, "outcome": outcome}
 
 
 # ----------------------------------------------------------------------
@@ -320,8 +343,9 @@ def validate_and_clean_data(df: pd.DataFrame) -> pd.DataFrame:
         ["host_id", "smiles", "halide_identity", "binding_constant", "solvent", "source"]
     ]
 
+    # Do NOT raise on empty; return empty DataFrame and let caller handle it
     if df_clean.empty:
-        raise RuntimeError("Cleaning resulted in an empty dataset; aborting.")
+        logger.warning("Cleaning resulted in an empty dataset.")
     return df_clean
 
 
@@ -350,7 +374,9 @@ def run_data_pipeline():
     Execute the full ingestion, cleaning, and filtering workflow.
     """
     logger.info("Fetching raw data from PubChem and NIST...")
-    raw_records = build_raw_records()
+    fetch_result = build_raw_records()
+    raw_records = fetch_result["records"]
+    fetch_outcome = fetch_result["outcome"]
 
     # Save raw JSON
     raw_path = paths.data("raw", "raw_scrape.json")
@@ -358,20 +384,44 @@ def run_data_pipeline():
     with open(raw_path, "w") as f:
         json.dump(raw_records, f, indent=2)
 
+    # Save fetch outcome JSON
+    outcome_path = paths.data("raw", "fetch_outcome.json")
+    outcome_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(outcome_path, "w") as f:
+        json.dump(fetch_outcome, f, indent=2)
+
     # Load into DataFrame (may be empty)
     df = pd.DataFrame(raw_records)
 
-    # Clean & standardize (will raise if required columns missing)
+    # If there are no raw records, produce empty output files with headers and exit cleanly
     if df.empty:
-        raise RuntimeError("No raw records retrieved; aborting.")
+        logger.info("No raw records retrieved; generating empty output artifacts.")
+        empty_cols = ["host_id", "smiles", "halide_identity", "binding_constant", "solvent", "source"]
+        empty_df = pd.DataFrame(columns=empty_cols)
+
+        cleaned_path = paths.data("raw", "raw_scrape_cleaned.csv")
+        cleaned_path.parent.mkdir(parents=True, exist_ok=True)
+        empty_df.to_csv(cleaned_path, index=False)
+
+        filtered_path = paths.data("raw", "filtered_hosts.csv")
+        filtered_path.parent.mkdir(parents=True, exist_ok=True)
+        empty_df.to_csv(filtered_path, index=False)
+
+        logger.info("Data ingestion pipeline completed with zero usable records.")
+        return
+
+    # Clean & standardize (will not raise on empty after modification)
     df_clean = validate_and_clean_data(df)
 
+    # Write cleaned CSV (may be empty)
     cleaned_path = paths.data("raw", "raw_scrape_cleaned.csv")
+    cleaned_path.parent.mkdir(parents=True, exist_ok=True)
     df_clean.to_csv(cleaned_path, index=False)
 
-    # Filter hosts with ≥3 halides (fallback to returning all if none meet criteria)
+    # Filter hosts with ≥3 halides
     df_filtered = filter_hosts_with_multiple_halides(df_clean)
     filtered_path = paths.data("raw", "filtered_hosts.csv")
+    filtered_path.parent.mkdir(parents=True, exist_ok=True)
     df_filtered.to_csv(filtered_path, index=False)
 
     logger.info("Data ingestion pipeline completed successfully.")

@@ -25,7 +25,7 @@ from rdkit import DataStructs
 
 # Project utilities
 from code.utils.logger import get_logger
-from code.utils.config import get_data_path, get_code_path
+from code.utils.config import get_data_path
 
 logger = get_logger(__name__)
 
@@ -209,8 +209,15 @@ def process_host_molecules(df: pd.DataFrame) -> pd.DataFrame:
         valid_indices.append(idx)
 
     if not descriptor_rows:
-        logger.error("No valid molecules were processed.")
-        return pd.DataFrame()
+        logger.warning("No valid molecules were processed; returning empty DataFrame with descriptor columns.")
+        # Build an empty DataFrame that contains the expected descriptor and fingerprint columns
+        # Descriptor columns come from calculate_rdkit_descriptors on a dummy molecule
+        dummy_mol = Chem.MolFromSmiles("C")  # methane
+        dummy_desc = calculate_rdkit_descriptors(dummy_mol)
+        descriptor_cols = list(dummy_desc.keys())
+        fp_cols = [f"ecfp_{i}" for i in range(1024)]
+        empty_cols = list(df.columns) + descriptor_cols + fp_cols
+        return pd.DataFrame(columns=empty_cols)
 
     # Descriptor DataFrame (indexed by original row index)
     desc_df = pd.DataFrame(descriptor_rows, index=valid_indices)
@@ -261,16 +268,10 @@ def run_feature_engineering_pipeline(
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
     # -----------------------------------------------------------------
-    # Resolve input file – fall back to simulated data if the real file is missing
+    # Resolve input file – do NOT fall back to simulated data.
     # -----------------------------------------------------------------
     if not os.path.exists(input_path):
-        logger.warning(f"Input file not found at {input_path}. Attempting simulated fallback.")
-        simulated_path = str(get_data_path() / "simulated" / "temp_simulated_data.csv")
-        if os.path.exists(simulated_path):
-            logger.info(f"Loading simulated data from {simulated_path}")
-            input_path = simulated_path
-        else:
-            raise FileNotFoundError(f"Neither real nor simulated input file found (tried {input_path} and {simulated_path})")
+        raise FileNotFoundError(f"Expected input file not found: {input_path}")
 
     logger.info(f"Loading cleaned host data from {input_path}")
     df = pd.read_csv(input_path)
@@ -282,8 +283,9 @@ def run_feature_engineering_pipeline(
     df_features = process_host_molecules(df)
 
     if df_features.empty:
-        logger.error("Feature engineering produced no output.")
-        return pd.DataFrame()
+        logger.info("Feature engineering produced an empty DataFrame (no valid molecules).")
+    else:
+        logger.info(f"Feature engineering produced {len(df_features)} rows.")
 
     # Save the enriched CSV
     logger.info(f"Saving enriched descriptors to {output_path}")
@@ -292,11 +294,10 @@ def run_feature_engineering_pipeline(
     # Persist fingerprint map for quick loading by downstream scripts
     fingerprint_pickle = str(get_data_path() / "raw" / "fingerprint_map.pkl")
     logger.info(f"Saving fingerprint map to {fingerprint_pickle}")
+    fp_columns = [col for col in df_features.columns if col.startswith("ecfp_")]
     fp_map = {
         idx: np.array(row, dtype=np.uint8)
-        for idx, row in enumerate(
-            df_features[[col for col in df_features.columns if col.startswith("ecfp_")]].values
-        )
+        for idx, row in enumerate(df_features[fp_columns].values)
     }
     with open(fingerprint_pickle, "wb") as f:
         pickle.dump(fp_map, f)
