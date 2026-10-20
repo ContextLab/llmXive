@@ -1,0 +1,14 @@
+status: none
+intent: dense scene bounding box dataset COCO Visual Genome Open Images RefCOCO python
+  package
+required_fields:
+- image_id
+- file_name
+- width
+- height
+- bbox
+- category_id
+- category_name
+cache_key: 36e3b6c3e67cd311a84764191c974d4a884c805bd3d30ed9976805fd49309e6e
+searched_at: '2026-10-20T00:32:22.505922+00:00'
+retry_count: 1
