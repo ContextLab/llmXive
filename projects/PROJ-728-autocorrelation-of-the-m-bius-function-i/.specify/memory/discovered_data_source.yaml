@@ -1,9 +1,9 @@
 status: none
-intent: "download OEIS A008683 M\xF6bius function values up to 10 million python package\
-  \ dataset"
+intent: "download M\xF6bius function sequence OEIS A008683 dataset via sympy python\
+  \ package"
 required_fields:
 - n
 - mu
-cache_key: 3a36195925cbdb0b964ef6d2f9cafa8b3859823b648dc18a41e649e3d36bf057
-searched_at: '2026-10-17T20:28:23.666500+00:00'
+cache_key: b67f50de2013016aae6fa7e73d113b26ca3155ad14984ec16c53cd9dd50f9ca3
+searched_at: '2026-10-20T04:20:40.526590+00:00'
 retry_count: 1

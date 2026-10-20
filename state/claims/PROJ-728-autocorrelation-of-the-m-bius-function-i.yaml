@@ -260,3 +260,36 @@
   source_type: external
   status: verified
   updated_at: '2026-10-09T12:43:31Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: "demo verifies end-to-end workflow without full 10\u2077-element computation"
+  claim_id: c_bd96198c
+  context: "This command will: ... The demo verifies that the end\u2011to\u2011end\
+    \ workflow is functional without requiring the full 10\u2077\u2011element computation."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The demo verifies that the end\u2011to\u2011end workflow is functional\
+    \ without requiring the full 10\u2077\u2011element computation."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T04:16:30Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: "M\xF6bius array unique values are -1, 0, and 1"
+  claim_id: c_3c1dd1f9
+  context: "After a successful run you can check the generated M\xF6bius array; the\
+    \ expected output is Unique values: [-1  0  1]."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Expected output: Unique values: [-1  0  1]'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T04:16:30Z'

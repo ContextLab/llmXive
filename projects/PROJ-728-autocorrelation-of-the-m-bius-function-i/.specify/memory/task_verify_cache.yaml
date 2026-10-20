@@ -1,130 +1,29 @@
-T000:
-  c: true
-  h: 79fccf6701c4d5fa6c567a1802be2b6d9127f51ffd20550f785336de9005f21a
-  r: "`code/checksum.py` exists and genuinely computes SHA-256 digests (chunked hashlib\
-    \ over `data/raw` files) and writes `data/checksums/manifest.sha256`. The manifest's\
-    \ entry for `data/raw/mobius_array.npy` (c0121f2d\u202640ad) exactly matches the\
-    \ collector's independently computed sha256 of the actual 10,000,029-byte file,\
-    \ and the second entry covers the other generated raw file `window_starts.json`,\
-    \ satisfying the task."
 T001:
   c: true
-  h: d850a853a8a44a6ddb93608fa413dd58f0c3e527be29ae8d1c5083989e4d3c06
-  r: '`quickstart.md` exists (3501 bytes) and documents the project layout, Python
-    3.11+ requirement, pinned dependencies via `requirements.txt` (which exists with
-    exact version pins), and the runnable command `python -m code.main --demo`. The
-    unresolved-claim annotations are verification markers, not missing content, and
-    the task only required the documentation itself.'
+  h: df6620ed96a450e3ae36c2c0b95ae591eed3e0bb6666f0ba662324522dd6d97d
+  r: Checked `quickstart.md` (contains the `--demo` command and required documentation)
+    and the presence of the demo output file `data/results/demo_autocorr.csv`, indicating
+    the demo runs successfully and produces expected results.
+  sig: 6e1c54d4354ce9b0721b920640e813178919a4049099b3a4e2f466f4ad9271a6
 T002:
-  c: true
-  h: f8e318be298cea6cfa16a56a0f6eb5cc451d9a826705bdb4fa91a55e832e41bf
-  r: "`code/sieve.py` exists (3693 bytes) and implements a correct linear-time M\xF6\
-    bius sieve: it allocates an `int8` NumPy array of length N+1, sets \u03BC(1)=1,\
-    \ \u03BC(p)=\u22121 for primes, and uses the standard linear-sieve recurrence\
-    \ (\u03BC(i\xB7p)=0 when p|i, else \u2212\u03BC(i)), with a default N=10,000,000\
-    \ and a `--generate` CLI that saves the array as `.npy`. The algorithm is genuinely\
-    \ implemented (no stubs or placeholders) and matches the task's requirements."
+  c: false
+  h: 7665dcaa62a7e64503b9f2596c84210549e834388fa664834f62eb37ba0cffc4
+  r: "The `code/sieve.py` implementation and the generated `data/raw/mobius_array.npy`\
+    \ are present and correctly compute and store \u03BC(n) for\u202F1\u202F\u2264\
+    \u202Fn\u202F\u2264\u202F10\u2077, but the supplied unit test file `tests/unit/test_sieve.py`\
+    \ only checks values for n\u202F=\u202F1,\u202F2,\u202F4 and does not include\
+    \ the required checks for \u03BC(30)=\u20111, \u03BC(3025)=0 nor the assertion\
+    \ that every entry lies in\u202F{\u20111,\u202F0,\u202F1}. Consequently the verification\
+    \ step described in the task specification is not satisfied. Adding the missing\
+    \ test cases (and the full\u2011range value\u2011set check) is needed to complete\
+    \ the task."
+  sig: b20b568758aec588f59fcf413ab317858c963dd224f7ec53b27beb6637fd8fe9
 T003:
-  c: true
-  h: c93828b18db9e45c2487b515320e5e4015010c21edb804851580095e4e290e87
-  r: "The file `tests/unit/test_sieve.py` exists (1582 bytes) and contains real pytest\
-    \ unit tests parametrized over exactly the required known values \u03BC(1)=1,\
-    \ \u03BC(2)=\u22121, \u03BC(4)=0, plus reasonable shape/dtype/index-0 checks,\
-    \ importing `compute_mobius` from `code/sieve` \u2014 matching the task's stated\
-    \ requirement with no stubs or placeholders."
-T004:
-  c: true
-  h: b4b8379262d5e9113b18ce3d6346b61fe2659ee73df99d65470b86fb10dee5a8
-  r: "The script `code/generate_mobius.py` exists and genuinely implements the requirements:\
-    \ it calls the sieve via `save_mobius_array(N, ...)` with N=10^7, saves to `data/raw/mobius_array.npy`\
-    \ (confirmed on disk as a real 10,000,001-element int8 NumPy array, consistent\
-    \ with execution), and selects M=20 stratified random window starts per L \u2208\
-    \ {10\xB3, 10\u2074, 10\u2075} using `np.random.default_rng(42)`, persisting them\
-    \ to `data/raw/window_starts.json`. The only minor caveat is that the window_starts.json\
-    \ file itself was not among the collected artifacts, but the script's logic is\
-    \ correct and the presence of th"
-T005:
-  c: true
-  h: 5d7cb6dc4a83e8b7d3a35233e399c75d84279b98e964b477cb6a4294ef2c5d23
-  r: "The required artifacts exist and are substantive: `code/autocorrelation.py`\
-    \ implements the normalized autocorrelation `(1/(L-h))\xB7\u03A3 \u03BC(k+i)\u03BC\
-    (k+i+h)` with both vectorized and loop implementations, and `data/results/demo_autocorr.csv`\
-    \ contains the L=1000, h=1 result (-0.047047047047 = -47/999, consistent with\
-    \ the L-h=999 normalization) for window start 44622. The script includes the required\
-    \ sanity checks (fast-vs-loop agreement and a hard-coded hand-computed reference\
-    \ that matches the CSV value exactly), and the CSV content matches the code's\
-    \ output format and value. One caveat: the \"hand-compute"
-T006:
-  c: true
-  h: 44d61f39db30043d4b962d92e6b2e94d50d00e45546196c3d0a230fed907b29d
-  r: "The `tests/integration/test_demo_pipeline.py` file contains a full integration\
-    \ test that runs the demo pipeline, checks that `data/results/demo_autocorr.csv`\
-    \ exists, reads the CSV, and asserts the `autocorrelation` field matches a regex\
-    \ requiring at least six decimal places. The provided `data/results/demo_autocorr.csv`\
-    \ contains the value `-0.047047047047`, which satisfies the six\u2011decimal\u2011\
-    place requirement."
-T007:
-  c: true
-  h: a1fcb668586171c5d693f201cf0418726546f1c050ed9bd07fa7702977991576
-  r: "The `code/autocorrelation.py` script now includes `_compute_autocorrelation_all_fft`\
-    \ which computes normalized autocorrelations for every lag\u202F`h = 1 \u2026\
-    \ \u230AL/2\u230B` and the main loop writes each result to `data/processed/autocorr_raw.csv`\
-    \ with the required columns. The CSV file exists, is non\u2011empty, and contains\
-    \ rows like `interval_start,interval_length,lag,autocorrelation`."
-T008:
-  c: true
-  h: 71361062d8c34f609649b19a4b282bc71898ee78d349d8f241bca35429a1ee2c
-  r: The `code/permutation.py` file exists and defines `generate_permutations` with
-    default `block_size=100` and `n_permutations=1000`, returning a NumPy array of
-    shape `(1000, L)` that shuffles whole blocks, thereby preserving the original
-    multiset (including zero density).
-T009:
-  c: true
-  h: 1aa75b8bc10267a7733ecf2d8966e98c766997679e62164f3f29906d26780ad3
-  r: "The file `tests/unit/test_permutation.py` exists, is non\u2011empty, and contains\
-    \ two pytest unit tests that (1) verify each generated permutation preserves the\
-    \ counts of \u20131,\u202F0,\u202F+1 and (2) verify permutations are only block\u2011\
-    shuffles with internal block order unchanged, exactly as the task required."
-T010:
-  c: true
-  h: 7198060678a2ca73f453b9d51a333fcb162c85bf37928dd018dc935ebb492da6
-  r: "Checked that `code/null_distribution.py` runs (log shows successful execution)\
-    \ and produces `data/processed/autocorr_stats.csv` containing the required columns\
-    \ (`interval_start, interval_length, lag, autocorrelation, p_value, ci_lower,\
-    \ ci_upper, zero_count`) with values derived from 1\u202F000 permutations, two\u2011\
-    sided p\u2011values and 95\u202F% confidence intervals. The script\u2019s configuration\
-    \ matches the specification."
-T011:
-  c: true
-  h: 77d2765a446a1d8174052f0db18a2a105988aa358261fa607dca530b924356a3
-  r: "The repository contains a non\u2011empty `code/fdr_correction.py` that reads\
-    \ `data/processed/autocorr_stats.csv`, verifies a `p_value` column, applies a\
-    \ correct Benjamini\u2013Hochberg adjustment to all p\u2011values, adds an `adjusted_p_value`\
-    \ column, and overwrites the CSV. The execution log shows the script ran successfully\
-    \ and updated a CSV with 1,110,000 rows."
-T014:
   c: false
-  h: 3944525e9c1ef5c3754c392f76fea30e0960fa12d4475ed8cd2e5fcfbac53ca5
-  r: "The only artifact provided is `code/viz.py`; the required PNG files `outputs/figures/heatmap_L{L}.png`\
-    \ are missing, and the script\u2019s zero\u2011line (`plt.axhline(y=-0.5)`) does\
-    \ not correctly draw a horizontal line at autocorrelation\u202F=\u202F0, nor does\
-    \ the confidence\u2011band overlay align with the heat\u2011map axes. The task\u2019\
-    s visual output is therefore not satisfied."
-T015:
-  c: true
-  h: f6548540be4feeb27a90f293ec031a825c8d1eb90b821d9eeaa16e1ff24d9e13
-  r: "The `data/processed/uniformity_test.json` file exists, is non\u2011empty, and\
-    \ contains the required `\"ks_statistic\"` and `\"p_value\"` fields produced by\
-    \ `code/uniformity_test.py`, which loads the null\u2011hypothesis p\u2011values,\
-    \ runs a one\u2011sample KS test against the uniform distribution, and writes\
-    \ the results."
-T016:
-  c: false
-  h: f9c5a36deecf05bce1e53763b9d6c391647fd39df91ac5d5876a293c27aef26c
-  r: "The `research.md` file is present and contains methods, results, and a discussion\
-    \ of the theoretical variance, but it does not list the exact row numbers (or\
-    \ figure indices) that support each claim, nor does it enumerate the specific\
-    \ interval start indices flagged by `sensitivity_flag`. The claim\u2011to\u2011\
-    artifact links are given only as conditions (e.g., \u201Crows where `adjusted_p_value\
-    \ \u2265 0.05`\u201D) rather than concrete row identifiers, which fails the task\u2019\
-    s requirement for precise linking."
+  h: 07ec1ed2738dd52d76fae40097521fc2f8d11be86a15a832909d8e2e1187c2ab
+  r: "The repository contains `pack_mu` and `unpack_mu` implementations and the packed\
+    \ file `data/raw/mobius_2bit.npy` (~2.5\u202FMB) exists, but `tests/unit/test_sieve.py`\
+    \ only tests the M\xF6bius sieve itself and does **not** include any round\u2011\
+    trip pack/unpack tests, nor does `data/checksums/manifest.sha256` list a SHA\u2011\
+    256 checksum for `mobius_2bit.npy`. The required verification steps are missing."
+  sig: f778a55e71148af80913f54cccfa6567ce37e409de6ee5841850a1b653acd379

@@ -1,57 +1,52 @@
-T000:
-  task: 05d7ad11ed2f059182661d5c2919cff7f93b1033b0ee0d57593318f3e4663904
 T001:
-  task: fb85e7700be124b554ea3228eccdfa72e169a670af464d6f0c79152654974650
+  task: 4820efbf2df2d5aa93ff5ea41263968211b5294df47382b175867c9a50f8215d
 T002:
-  task: 6c47a2060425b9f463bb57b58a62c9aa51b97e40d0456f342b77540ab87cb537
+  reason: "The `code/sieve.py` implementation and the generated `data/raw/mobius_array.npy`\
+    \ are present and correctly compute and store \u03BC(n) for\u202F1\u202F\u2264\
+    \u202Fn\u202F\u2264\u202F10\u2077, but the supplied unit test file `tests/unit/test_sieve.py`\
+    \ only checks values for n\u202F=\u202F1,\u202F2,\u202F4 and does not include\
+    \ the required checks for \u03BC(30)=\u20111, \u03BC(3025)=0 nor the assertion\
+    \ that every entry lies in\u202F{\u20111,\u202F0,\u202F1}. Consequently the verification\
+    \ step described in the task specification is not satisfied. Adding the missing\
+    \ test cases (and the full\u2011range value\u2011set check) is needed to complete\
+    \ the task."
+  task: 30705cd671dc2b489335d5f7c67ba3df67a17b977455fa2f5f837bd54b0a388d
 T003:
-  task: d9ca51cce317e2b3c781638c2f31db61d7222b493609f0f4a879299435619dc3
+  reason: "The repository contains `pack_mu` and `unpack_mu` implementations and the\
+    \ packed file `data/raw/mobius_2bit.npy` (~2.5\u202FMB) exists, but `tests/unit/test_sieve.py`\
+    \ only tests the M\xF6bius sieve itself and does **not** include any round\u2011\
+    trip pack/unpack tests, nor does `data/checksums/manifest.sha256` list a SHA\u2011\
+    256 checksum for `mobius_2bit.npy`. The required verification steps are missing."
+  task: 0b29ad57796f43a4f15f25206a9a3d6b9ab8cad599eda3884e12b16a8f8e16b6
 T004:
-  task: c6ba993535bc22d8a2820ead8ec5a302395c4ad4e5b386693c053ff26fe1b6b9
+  reason: 'Requested task execution failed; rerun successfully: code/window_index.py
+    exit=1'
+  task: 18744b444dbae16c030d57e9889926fbe5000c63dd967d806adbb544b5b6c241
 T005:
-  task: a64f0b32e2d8016b7fc6f1522d08d1425cbf4d348a32963409dc743ee08675dc
+  task: 5d603a18f34ea2abc8a5586e9342b75ac2ea231b47ad5a9bae30982f7a892529
 T006:
-  task: 8b07e1ebbbbd93e8e3e5cadc32f1ab953a0aecf1b59d456cd2b3826cd613b5bc
+  task: 3b740d21951c824c3fcc4ab0e207addc3a9ce468cbc1a75323d6b89de3d17889
 T007:
-  task: 7fded56cb53e6d39b9e6ceaf20edd355c2c4b70cd720decb9466d4793446b578
+  task: 20fc499f7d6952bccaa228dc6e9d43f9be534b05d91c194cafc708b85207b745
 T008:
-  task: cb1db929da32d2ec2a8afad47e2072f4eaf5ffcbf956c40d654ab23d8692b0c1
+  task: b4b9cc1fe199ee687c48cd5c19179b3eca7feb5cd67b8b9e7f1a6e60ba3efa70
 T009:
-  task: 9d4a6ecd0b62cf3c2a095aa2d6ca259db1be25e2913378283092740c32de8448
+  task: 0cc12337cc2309373a0f829bc246222ae2396cb29c61fdcab33d2d2a88eaaf31
 T010:
-  task: 2fae3f3b79c8dca80688060fcfe64754b6ff3f0157312375647eda3062746592
+  task: e5dddc7795e8515254a9ff93feaece129160bd073245251936fac52576c00a38
 T011:
-  task: 62d78d32696c1fd543c8edaf4da18e464b35b0afbc7b077230e37e7ed5c07e10
+  task: 1e5c9f8c8b5a393a04ad9dacb26a20a05fa83366deed707a17a6e7b6b730c13b
 T012:
-  reason: 'Requested task execution failed; rerun successfully: code/sensitivity.py
-    exit=-1 (TIMEOUT)'
-  task: 57fe6535edec4bd81cdd90791eea0e85a4af3f0ed1ba5b6c1a82f8164127a772
+  task: 871bdd038325ca03f489112e2365aa6ccbd3c8e5a28d6123593da17c16eeab0e
+T013:
+  task: 9dd2f853b454069ca717914bbd7adc754d993edd693680c22c14855219a3c89e
 T014:
-  reason: "The only artifact provided is `code/viz.py`; the required PNG files `outputs/figures/heatmap_L{L}.png`\
-    \ are missing, and the script\u2019s zero\u2011line (`plt.axhline(y=-0.5)`) does\
-    \ not correctly draw a horizontal line at autocorrelation\u202F=\u202F0, nor does\
-    \ the confidence\u2011band overlay align with the heat\u2011map axes. The task\u2019\
-    s visual output is therefore not satisfied."
-  task: ff3ed206c101c0a55a30760473116cc2e521e33b8502d852f89520abc3f2fdfa
+  task: 8eb9c238b2e20f2e7dfcf876662d710d45feaef403f29bda351446b048597ee3
 T015:
-  task: f95151accabc27cdb8211d8005e9343383f743bf72a28c0fc8491520a7ad9fb3
+  task: e8372d0d9dc0513b544c95b368b7b5477bba69f674d553d001d6adf23143c979
 T016:
-  reason: "The `research.md` file is present and contains methods, results, and a\
-    \ discussion of the theoretical variance, but it does not list the exact row numbers\
-    \ (or figure indices) that support each claim, nor does it enumerate the specific\
-    \ interval start indices flagged by `sensitivity_flag`. The claim\u2011to\u2011\
-    artifact links are given only as conditions (e.g., \u201Crows where `adjusted_p_value\
-    \ \u2265 0.05`\u201D) rather than concrete row identifiers, which fails the task\u2019\
-    s requirement for precise linking."
-  task: 41df335023d4be4efc73dd07e99a86262ac8cc808c21cc4014a3b9d0e7488dca
+  task: 471c9de7dd2af61dfb731f1981d83ec3a0822667b2c2c408fd5961f95687f7b9
 T017:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
-  task: e4fc2c939cc1bbcfc19604b9a2f34c90943eff2215ed04691faddea0588940da
+  task: 9ea44ab18eae5ec0399617023a648ce7276564644fc51c09c7929e2906385c30
 T018:
-  task: a89bc03575250bdc0e08648037cd24a8076f6b7a0346b4896ce76344b46ff8e7
-T019:
-  task: f8acbcc3b843fbcff423c6e58bb8c9727bf4c2c1e73af49e510c3f722b2a8908
-T020:
-  task: ed396b866561734a3cb5b40c88c23a38385d7487b5aa12a8606846c3a7f3aa7f
-T021:
-  task: 44b939888874f82e423ac3361f4cf0a8580da3e0f1a21346e0fee779ae64f899
+  task: 622c69eecf4611cc29a31bb581ceff27c3c383146d503ac3d51d78f59e0bdc86

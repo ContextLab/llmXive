@@ -8,7 +8,7 @@ All tasks respect data‑flow dependencies and are written in the canonical chec
 
 ## Phase 1 – Setup & first end‑to‑end demo  
 
-- [ ] T001 [P] [US‑1] **Create `quickstart.md`** – document project layout, Python 3.11 version, pinned `requirements.txt`, and the demo command `python -m code.main --demo`.  
+- [X] T001 [P] [US‑1] **Create `quickstart.md`** – document project layout, Python 3.11 version, pinned `requirements.txt`, and the demo command `python -m code.main --demo`.  
   • Path: `quickstart.md`  
   • Verification: `grep '--demo' quickstart.md` succeeds and the command runs without error, producing the expected demo files.  
 
@@ -20,7 +20,7 @@ All tasks respect data‑flow dependencies and are written in the canonical chec
   • Path: `data/raw/mobius_2bit.npy`  
   • Verification: additional tests in `tests/unit/test_sieve.py` confirm exact pack/unpack equality and record SHA‑256 checksums for both files in `data/checksums/manifest.sha256`.  
 
-- [ ] T004 [P] [US‑1] **Generate deterministic window index** – with seed = 20231017 select **100 non‑overlapping windows per interval length** `L ∈ {1000,10000,100000}` (step = L, contiguous tiling from a seeded random offset) and write start indices to `data/processed/window_index.csv`.  
+- [ ] T004 [P] [US‑1] **Generate deterministic window index** – with seed = 20231017 select **100 non‑overlapping windows per interval length** `L ∈ {1000,10000,100000}` (step = L, contiguous tiling from a seeded random offset) and write start indices to `data/processed/window_index.csv`.   <!-- FAILED-IN-EXECUTION: code/window_index.py exit=1 -->
   • Path: `data/processed/window_index.csv` (columns `interval_start`, `interval_length`, `window_id`)  
   • Verification: `wc -l data/processed/window_index.csv` returns 300 and a script asserts that windows do not overlap.  
 

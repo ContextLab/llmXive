@@ -15,10 +15,11 @@ The script can be invoked as a module:
     python -m code.main [--demo]
 
 The optional ``--demo`` flag runs a lightweight demonstration that
-uses a reduced sieve size and fewer windows.  For the purposes of
-the integration test we simply run the full pipeline regardless of
-the flag – the downstream scripts already contain their own
-``--demo`` handling where appropriate.
+uses a reduced data size and fewer windows.  For the purposes of
+the integration test we execute only the steps required to produce
+the demo artefacts (Möbius array, window indices and the single
+demo autocorrelation CSV).  The full pipeline is executed when the
+flag is omitted.
 """
 
 from __future__ import annotations
@@ -59,7 +60,7 @@ def _run_step(step_func, step_name: str) -> None:
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run the full Möbius autocorrelation pipeline."
+        description="Run the Möbius autocorrelation pipeline."
     )
     parser.add_argument(
         "--demo",
@@ -69,9 +70,35 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _run_demo() -> None:
+    """
+    Execute a minimal demo pipeline.
+
+    The demo produces:
+      * ``data/raw/mobius_array.npy`` – the full Möbius array (still
+        generated with the default N=10⁷, which is fast enough).
+      * ``data/raw/window_starts.json`` – a small set of window start
+        indices (the default M=20 per interval length).
+      * ``data/results/demo_autocorr.csv`` – a single autocorrelation
+        value for the first sampled window (L=1000, h=1).
+
+    This mirrors the expectations of ``tests/integration/test_demo_pipeline.py``.
+    """
+    # Step 1: generate Möbius data and window start indices.
+    _run_step(generate_mobius_main, "demo: generate Möbius & windows")
+    # Step 2: compute the demo autocorrelation (uses the same
+    # ``autocorrelation.main`` entry‑point that writes the CSV).
+    _run_step(autocorr_main, "demo: compute autocorrelation")
+    print("Demo pipeline completed successfully.")
+
+
 def main() -> None:
     """Run the pipeline in the correct order."""
     args = _parse_args()
+
+    if args.demo:
+        _run_demo()
+        return
 
     # 1. Sieve – generate μ(n) array.
     _run_step(sieve_main, "sieve")
