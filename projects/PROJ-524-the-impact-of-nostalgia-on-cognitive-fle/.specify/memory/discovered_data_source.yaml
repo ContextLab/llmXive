@@ -1,14 +1,14 @@
 status: none
-intent: Wisconsin Card Sorting Test elderly dataset with MMSE and stimulus label download
-  python package dataset
+intent: Wisconsin Card Sorting Test age stimulus label MMSE download pip python package
+  dataset
 required_fields:
 - participant_id
 - age
-- mmse_score
-- wcst_total_correct
-- wcst_perseverative_errors
 - stimulus_label
-- test_date
-cache_key: 0f79be0580ef4352c41096c48a97fb29ed0f5e5ed6f6b01e802d63aeb1e248a1
-searched_at: '2026-10-20T03:09:45.830395+00:00'
+- MMSE_score
+- WCST_score
+- condition
+- trial_number
+cache_key: 9df57b17db0f588a0e715c3e30f36d25b925d0a729a303875f79a2ba4402e9ee
+searched_at: '2026-10-20T06:11:53.428145+00:00'
 retry_count: 1
