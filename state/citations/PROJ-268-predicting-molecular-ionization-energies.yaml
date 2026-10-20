@@ -1,4 +1,4 @@
-- artifact_hash: 6a85ed35ab22dd87503c31dc36f5240879469c26a08fbaba13b6fd9b1303b6b9
+- artifact_hash: a2273e67370c732aa2995f2bd1bf3f5e804cb7d9dd87742318dab506f7d512cb
   artifact_path: projects/PROJ-268-predicting-molecular-ionization-energies/specs/001-predicting-molecular-ionization-energies/spec.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://huggingface.co/datasets/deepchem/qm9`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/deepchem/qm9
-  verified_at: '2026-10-03T01:13:37.233267Z'
+  verified_at: '2026-10-20T06:18:20.063468Z'
