@@ -1,11 +1,11 @@
 status: none
-intent: download ICWM interaction clips dataset and pretrained ICWM encoder python
-  package dataset
+intent: download ICWM interaction clip dataset with pretrained encoder python package
+  dataset
 required_fields:
 - clip_id
-- variance
-- autocorr_lag1
-- spectral_density
-cache_key: b548604fd02015927412ca57d47d3503e709c08a47cff593633900429cb27622
-searched_at: '2026-10-20T00:25:11.270932+00:00'
+- state_sequence
+- action_sequence
+- observation_sequence
+cache_key: e7b9bd671fc087810aa88e4642f2288aebf592934f3edf0aeab0deb3f1d94efb
+searched_at: '2026-10-20T00:28:30.710435+00:00'
 retry_count: 1

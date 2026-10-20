@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T20:12:35.151363Z'
-current_stage: clarified
+current_stage: specified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-971-llmxive-follow-up-extending-in-context-w
-last_run_id: 2ad57b1e-f7bf-4167-bda1-245e0e5611c7
+last_run_id: 74b18dd2-3f5d-4c3a-a481-53a5fe4de2c7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-971-llmxive-follow-up-extending-in-context-w/specs/001-llmxive-follow-up-extending-in-context-w
 title: 'llmXive follow-up: extending "In-Context World Modeling for Robotic Control"'
-updated_at: '2026-10-20T00:26:50.047921Z'
+updated_at: '2026-10-20T00:45:00.536537Z'

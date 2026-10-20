@@ -1,19 +1,25 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: ICWM Hyperparameter Label
+title: "ICWM Hyperparameter Label"
 type: object
+required:
+  - clip_id
+  - tau
+  - k
+  - success_rate
 properties:
   clip_id:
     type: string
-    description: The identifier of the interaction clip.
+    description: "The identifier of the interaction clip."
+    pattern: "^clip_\\d+$"
   tau:
     type: number
-    description: The optimal sampling temperature.
+    description: "The optimal sampling temperature."
   k:
     type: integer
-    description: The optimal context window length.
+    description: "The optimal context window length."
   success_rate:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: The fractional success rate over N episodes.
-required: [clip_id, tau, k, success_rate]
+    description: "The fractional success rate over N episodes."
+additionalProperties: false

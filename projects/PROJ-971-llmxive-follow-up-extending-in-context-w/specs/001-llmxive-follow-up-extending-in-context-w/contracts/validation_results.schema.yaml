@@ -5,25 +5,31 @@ required:
   - clip_id
   - predicted_tau
   - predicted_k
-  - auto_success
-  - baseline_success
+  - auto_success_rate
+  - baseline_success_rate
   - success_diff
 properties:
   clip_id:
     type: string
     description: "Identifier of the test interaction clip."
+    pattern: "^clip_\\d+$"
   predicted_tau:
     type: number
     description: "Temperature predicted by the regressor."
   predicted_k:
     type: integer
     description: "Context window length predicted by the regressor."
-  auto_success:
-    type: boolean
-    description: "Whether the Auto‑ICWM run succeeded on this clip."
-  baseline_success:
-    type: boolean
-    description: "Whether the fixed‑baseline run succeeded on this clip."
+  auto_success_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Fraction of successful episodes (out of a predefined set of episodes) using the predicted hyperparameters."
+  baseline_success_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Fraction of successful episodes (out of a fixed sample size) using the fixed baseline hyperparameters."
   success_diff:
     type: integer
-    description: "1 if auto succeeded and baseline failed, -1 if opposite, 0 if tie."
+    description: "1 if auto succeeded and baseline failed, -1 if opposite, 0 if tie (based on majority outcome)."
+additionalProperties: false
