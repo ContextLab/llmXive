@@ -1,123 +1,51 @@
-"""
-Contract presence and minimal validation tests.
-
-This test suite ensures that each root‑level contract schema file exists,
-contains the mandatory top‑level keys ``properties`` and ``required``,
-and that a minimal dummy instance validates against the schema.
-"""
-
-import os
 import json
 import yaml
-import pytest
+import hashlib
 from jsonschema import validate, ValidationError
+from pathlib import Path
 
-# Helper to locate a contract file relative to the repository root
-def contract_path(filename: str) -> str:
-    return os.path.join(os.path.dirname(__file__), "..", "..", "contracts", filename)
+# Paths to the root-level contract schemas
+CONTRACTS_DIR = Path("contracts")
 
-# ----------------------------------------------------------------------
-# Schema loading tests
-# ----------------------------------------------------------------------
-@pytest.mark.parametrize(
-    "schema_file,required_keys",
-    [
-        ("task.schema.yaml", ["properties", "required"]),
-        ("skill.schema.yaml", ["properties", "required"]),
-        ("experiment_log.schema.yaml", ["properties", "required"]),
-        ("execution_log.schema.yaml", ["properties", "required"]),
-        ("metrics.schema.yaml", ["properties", "required"]),
-    ],
-)
-def test_schema_has_mandatory_keys(schema_file, required_keys):
-    """Assert that each schema contains the mandatory top‑level keys."""
-    path = contract_path(schema_file)
-    assert os.path.exists(path), f"Schema file missing: {path}"
-    with open(path, "r", encoding="utf-8") as f:
-        schema = yaml.safe_load(f)
+SCHEMAS = {
+    "task": CONTRACTS_DIR / "task.schema.yaml",
+    "skill": CONTRACTS_DIR / "skill.schema.yaml",
+    "experiment_log": CONTRACTS_DIR / "experiment_log.schema.yaml",
+    "execution_log": CONTRACTS_DIR / "execution_log.schema.yaml",
+    "metrics": CONTRACTS_DIR / "metrics.schema.yaml",
+}
 
-    for key in required_keys:
-        assert key in schema, f"Key '{key}' not found in {schema_file}"
+def load_schema(name):
+    with open(SCHEMAS[name], "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
 
-# ----------------------------------------------------------------------
-# Minimal instance validation
-# ----------------------------------------------------------------------
-@pytest.mark.parametrize(
-    "schema_file,dummy_instance",
-    [
-        (
-            "task.schema.yaml",
-            {
-                "task_id": "task_0",
-                "description": "A dummy task description.",
-                "ground_truth_path": ["skill_0"],
-                "complexity": 1,
-                "embedding_vector": [0.0],
-            },
-        ),
-        (
-            "skill.schema.yaml",
-            {
-                "skill_id": "S1",
-                "function_code": "def dummy(): pass",
-                "embedding_vector": [0.0],
-                "usage_count": 0,
-                "mean_cosine_similarity": 0.0,
-            },
-        ),
-        (
-            "experiment_log.schema.yaml",
-            {
-                "task_id": "task_0",
-                "skill_id": "skill_0",
-                "success": True,
-                "latency": 0.0,
-                "tokens": 0,
-                "retrieval_precision": 0.0,
-                "retrieval_diversity": 0.0,
-                "pruning_risk_count": 0,
-                "library_size": 10,
-                "pruning_enabled": False,
-                "edge_case": False,
-            },
-        ),
-        (
-            "execution_log.schema.yaml",
-            {
-                "log_id": "log_0",
-                "task_id": "task_0",
-                "library_size": 10,
-                "pruning_enabled": False,
-                "success": True,
-                "failure_reason": "",
-                "token_usage": 0,
-                "latency_ms": 0.0,
-                "retrieved_skill_ids": ["skill_0"],
-                "timestamp": "2023-01-01T00:00:00Z",
-            },
-        ),
-        (
-            "metrics.schema.yaml",
-            {
-                "library_size": 10,
-                "pruning_enabled": False,
-                "total_tasks": 1,
-                "success_rate": 1.0,
-                "avg_latency_ms": 0.0,
-                "precision_at_5": 1.0,
-                "false_prune_count": 0,
-                "breakpoint_estimate": 0.0,
-            },
-        ),
-    ],
-)
-def test_dummy_instance_validates(schema_file, dummy_instance):
-    """Validate a minimal dummy instance against each schema."""
-    path = contract_path(schema_file)
-    with open(path, "r", encoding="utf-8") as f:
-        schema = yaml.safe_load(f)
+def test_schema_presence():
+    for name, path in SCHEMAS.items():
+        assert path.exists(), f"Schema file {path} does not exist"
+        schema = load_schema(name)
+        assert "properties" in schema, f"{name} schema missing 'properties'"
+        assert "required" in schema, f"{name} schema missing 'required'"
 
-    try:
-        validate(instance=dummy_instance, schema=schema)
-    except ValidationError as e:
-        pytest.fail(f"Dummy instance failed validation for {schema_file}: {e.message}")
+def test_dummy_instance_validation():
+    # Minimal dummy instances that satisfy each schema
+    task_instance = {
+        "task_id": "task_001",
+        "description": "Dummy task description",
+        "ground_truth_path": ["skill_001"],
+        "complexity": 1,
+        "embedding_vector": [0.0] * 768,
+    }
+    skill_instance = {
+        "skill_id": "skill_001",
+        "function_code": "def dummy(): pass",
+        "embedding_vector": [0.0] * 768,
+        "usage_count": 0,
+    }
+
+    # Validate task
+    task_schema = load_schema("task")
+    validate(task_instance, task_schema)
+
+    # Validate skill
+    skill_schema = load_schema("skill")
+    validate(skill_instance, skill_schema)

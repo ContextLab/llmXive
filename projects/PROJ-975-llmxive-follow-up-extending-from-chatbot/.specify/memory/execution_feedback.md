@@ -7,15 +7,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/generate_data.py --seed 42 --overlap high -> rc=1
-b/python3.11/site-packages/sentence_transformers/__init__.py", line 3, in <module>
-    from .datasets import SentencesDataset, ParallelSentencesDataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/datasets/__init__.py", line 3, in <module>
-    from .ParallelSentencesDataset import ParallelSentencesDataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/datasets/ParallelSentencesDataset.py", line 4, in <module>
-    from .. import SentenceTransformer
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/SentenceTransformer.py", line 12, in <module>
-    from huggingface_hub import HfApi, HfFolder, Repository, hf_hub_url, cached_download
-ImportError: cannot import name 'cached_download' from 'huggingface_hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/huggingface_hub/__init__.py)
+
+INFO:__main__:Generating data with overlap=HIGH, seed_a=42, seed_b=42
+INFO:__main__:Generated skill set – mean similarity=0.7638, %>0.5=100.00%, %>0.8=0.08%
+ERROR:__main__:Generated skills do NOT satisfy the HIGH overlap criteria.
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 385, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 370, in main
+    raise RuntimeError(f"Overlap criteria not met for level {overlap_level}")
+RuntimeError: Overlap criteria not met for level HIGH
 
 - python code/agent.py  --library-sizes 10 30 50 100  --pruning  --overlap high -> rc=1
 b/python3.11/site-packages/sentence_transformers/__init__.py", line 3, in <module>

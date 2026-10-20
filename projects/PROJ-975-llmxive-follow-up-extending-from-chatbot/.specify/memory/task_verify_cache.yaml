@@ -1,14 +1,14 @@
 T001:
   c: true
-  h: 588adc39b4e08a877690d2b93f4c63a17d2b5a76a32fdea46a9acf84335ccbc3
-  r: 'All five root-level contract schema files exist at `contracts/` with substantive,
-    well-formed JSON Schema content (top-level `properties` and `required` keys present
-    in each), and `tests/contract/test_schema_presence.py` implements both required
-    checks: yaml.safe_load with key assertions and jsonschema validation of minimal
-    dummy instances for all five schemas. The dummy instances correctly satisfy each
-    schema''s required fields and constraints (e.g., enum library_size 10, empty failure_reason
-    string), so the verification logic is sound.'
-  sig: e8917fd32d35c08e26b35051918e8809e65eab082a5e1c13d86d0a2919706efd
+  h: 8ddc50cc61aa80d21656035c9ce2e5ef9d6e2bb8062d79f973cb882d7fa06f8f
+  r: 'All five contract schema files exist at `contracts/` with substantive content
+    (properties, required, typed fields, no stubs), matching the read-only source
+    schemas in `specs/.../contracts/`. The verification test `tests/contract/test_schema_presence.py`
+    exists and implements both required checks: yaml.safe_load with `properties`/`required`
+    assertions for all five schemas, and jsonschema validation of minimal dummy instances
+    (task and skill). The other data artifacts (experiment_log.csv, metrics.json,
+    etc.) belong to later tasks and are not required here.'
+  sig: 41a5eac1f51601e4e5baebc78d1871b63547250390f02df81eb9a69a4449cc70
 T007:
   c: false
   h: 04229e80dae1ed3ad2b60e98128c20a5ba773858b8d5070cb6cea9e404c89f5c

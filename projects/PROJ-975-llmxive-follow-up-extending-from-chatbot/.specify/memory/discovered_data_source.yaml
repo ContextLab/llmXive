@@ -1,17 +1,14 @@
 status: none
-intent: synthetic multi-step task and skill library python package dataset
+intent: Synthetic Multi-step Task and Skill Library download python package dataset
 required_fields:
 - task_id
 - task_description
-- ground_truth_skill_sequence
-- number_of_steps
-- task_metadata
+- ground_truth_solution_path
 - skill_id
 - skill_name
-- skill_description
-- embedding_vector
-- semantic_overlap_category
-- semantic_density
-cache_key: 3ee864525528828cd9f184a306121b3607e3b137add2163e6fcb561ba6e58ecc
-searched_at: '2026-10-20T17:13:17.635588+00:00'
+- skill_embedding_vector
+- overlap_level
+- semantic_density_score
+cache_key: e05fef85c85bb1d97f58ee3d94693a70c08c10987f5c375ca8bb88693d882d24
+searched_at: '2026-10-20T18:11:08.941035+00:00'
 retry_count: 1
