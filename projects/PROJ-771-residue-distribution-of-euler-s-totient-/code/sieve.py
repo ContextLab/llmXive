@@ -5,7 +5,7 @@ Public API
 ----------
 - MemoryGuard: re‑exported from ``code.memory_guard`` for backward compatibility.
 - ResidueDataset: dataclass representing the JSON schema for residue counts.
-- pin_random_seed: pins the standard library ``random`` seed (legacy helper).
+- pin_random_seed: pins the global ``random`` seed (legacy helper).
 - log_error: logs an error message, optionally annotating the iteration ``n``.
 - compute_phi_linear_sieve: linear sieve implementation returning a list ``phi`` where
   ``phi[i] == φ(i)`` for ``0 ≤ i ≤ N``.
@@ -26,10 +26,30 @@ from typing import Any, Dict, List, Optional
 from memory_guard import MemoryGuard  # noqa: F401
 
 # ----------------------------------------------------------------------
+# Exceptions
+# ----------------------------------------------------------------------
+from exceptions import InvalidPrimeError, MemoryLimitExceeded
+
+# ----------------------------------------------------------------------
 # Data model
 # ----------------------------------------------------------------------
 @dataclass
 class ResidueDataset:
+    """
+    Container for residue count data produced by the sieve.
+
+    Attributes
+    ----------
+    prime_modulus : int
+        The prime modulus ``p`` (e.g., 3, 5, 7, 11).
+    total_count : int
+        Total number of integers processed (the ``N`` bound).
+    frequency_map : Dict[int, int]
+        Mapping from each residue ``0 … p‑1`` to its observed count.
+    computation_seed : int
+        The random seed used for any stochastic steps (currently a placeholder;
+        the real seed is stored elsewhere in the pipeline).
+    """
     prime_modulus: int
     total_count: int
     frequency_map: Dict[int, int]
@@ -66,7 +86,10 @@ def log_error(message: str, n: Optional[int] = None) -> None:
 # ----------------------------------------------------------------------
 # Linear sieve for Euler's totient function
 # ----------------------------------------------------------------------
-def compute_phi_linear_sieve(N: int, memory_guard: Optional[MemoryGuard] = None) -> List[int]:
+def compute_phi_linear_sieve(
+    N: int,
+    memory_guard: Optional[MemoryGuard] = None
+) -> List[int]:
     """
     Compute Euler's totient function φ(n) for all ``1 ≤ n ≤ N`` using the
     linear sieve algorithm.
@@ -81,8 +104,8 @@ def compute_phi_linear_sieve(N: int, memory_guard: Optional[MemoryGuard] = None)
     N : int
         Upper bound of the range (inclusive).
     memory_guard : MemoryGuard, optional
-        Guard that is polled every ``memory_guard.check_interval`` iterations.
-        If the guard reports that memory usage exceeds the configured limit,
+        Guard that is polled every 10 000 iterations.  If the guard
+        reports that memory usage exceeds the configured limit,
         a :class:`MemoryLimitExceeded` exception is raised.
 
     Returns
@@ -95,26 +118,37 @@ def compute_phi_linear_sieve(N: int, memory_guard: Optional[MemoryGuard] = None)
     ------
     MemoryLimitExceeded
         If the memory guard signals that the limit has been crossed.
-    TotientError
-        If an unexpected error occurs during the computation.
+    ValueError
+        If ``N`` is less than 1.
     """
     if N < 1:
         raise ValueError("N must be a positive integer")
 
-    phi = [0] * (N + 1)
+    # Initialise phi array
+    phi: List[int] = [0] * (N + 1)
     phi[0] = 0
     phi[1] = 1
     primes: List[int] = []
 
-    # Helper to check memory usage if a guard is supplied
-    def _check_memory(i: int) -> None:
-        if memory_guard is not None and i % memory_guard.check_interval == 0:
-            if not memory_guard.check():
-                # Guard will raise its own exception; we just propagate
-                raise memory_guard.exception  # type: ignore
+    # Helper to query the memory guard safely
+    def _guard_ok(iteration: int) -> bool:
+        if memory_guard is None:
+            return True
+        # The guard may accept the iteration count or not; handle both.
+        try:
+            result = memory_guard.check(iteration)  # type: ignore[arg-type]
+        except TypeError:
+            result = memory_guard.check()  # type: ignore[call-arg]
+        return bool(result)
 
+    # Linear sieve loop
     for i in range(2, N + 1):
-        _check_memory(i)
+        # Poll memory usage every 10 000 iterations as required.
+        if i % 10_000 == 0:
+            if not _guard_ok(i):
+                raise MemoryLimitExceeded(
+                    f"Memory usage exceeded the configured limit at i={i}"
+                )
         if phi[i] == 0:  # i is prime
             phi[i] = i - 1
             primes.append(i)
@@ -148,8 +182,6 @@ def compute_residues(phi_vals: List[int], prime: int) -> Dict[int, int]:
         Mapping ``residue → count`` for all residues in ``0 … prime‑1``.
     """
     if prime not in (3, 5, 7, 11):
-        from exceptions import InvalidPrimeError
-
         raise InvalidPrimeError(prime)
 
     freq: Dict[int, int] = {r: 0 for r in range(prime)}
@@ -237,9 +269,8 @@ def run_sieve_analysis(
     -------
     Dict[int, Dict[str, Any]]
         Mapping ``prime → {status: 'success'|'failed'}``.  If the
-        underlying ``compute_phi_linear_sieve`` returns ``(None, error)``
-        (as some tests mock), the function records a failure and does not
-        write any file.
+        underlying ``compute_phi_linear_sieve`` returns an exception,
+        the function records a failure and does not write any file.
     """
     results: Dict[int, Dict[str, Any]] = {}
     for prime in primes:

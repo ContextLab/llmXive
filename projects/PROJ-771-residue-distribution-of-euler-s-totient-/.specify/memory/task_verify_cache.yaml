@@ -18,51 +18,51 @@ T002:
   sig: 79d3107dc2d32a677a943be36e472872d7988789a4e20584eafd8521dc281604
 T003:
   c: false
-  h: ebe9af434800a3f226524db2a2c36c3a0616100bd724197f498d0cdd1827a640
-  r: "Checked `code/memory_guard.py` (exists) and the required test `tests/unit/test_memory_guard.py`\
-    \ (missing). The implementation raises `MemoryLimitExceeded` with the wrong constructor\
-    \ signature and also returns a boolean, deviating from the specification that\
-    \ requires raising the exception when usage exceeds 90\u202F% of the configured\
-    \ `memory_limit_mb`. The missing unit test means the required verification cannot\
-    \ be performed."
-  sig: d5a917ba525b4cab851b48846163b09fb48e45ef6eeeecf47571a6a8be329a2b
+  h: b604ea4eddf8a8d80c32d9d1d82d79e84070eed8a3b6f3999449cfb3e40a5bfc
+  r: "The `MemoryGuard` class raises a `TypeError` because it calls `MemoryLimitExceeded`\
+    \ with the wrong constructor signature (the exception expects `limit_mb` and `usage_mb`).\
+    \ This causes the unit test `test_memory_guard_raises_when_usage_exceeds_threshold`\
+    \ to fail, so the required behavior of raising `MemoryLimitExceeded` at the 90\u202F\
+    % threshold is not satisfied. The implementation must be corrected to instantiate\
+    \ `MemoryLimitExceeded` with the proper arguments (or adjust the exception definition)\
+    \ and ensure the test passes."
+  sig: 1631ce3a8fe0819aa399d0dfebd3a5dd05f9b48b3f6b890e184b44f84a1e0c34
 T004:
   c: false
-  h: 89326a6028722105a7c2872c2d9554655806b2858a95796b12011a01f4b6cd87
-  r: "The repository contains `code/seed.py` which pins `random` and `numpy` seeds\
-    \ and provides `get_seed()`, but it never writes the seed to any configuration\
-    \ object as required, and the integration test `tests/integration/test_seed_consistency.py`\
-    \ that should verify reproducible pipeline output is missing. Consequently the\
-    \ task\u2019s full requirement is not satisfied."
-  sig: 1e6664e9e2ff62dd982abe42d60b9612d969c00f436057bf8281f369150e7945
+  h: c8f29158e26e13c7b87d655954a2dca97d5f742720e550d984b7287de3e52049
+  r: "The repository contains a full `code/seed.py` that pins `random` and `numpy`\
+    \ seeds, persists the seed to `code/config.yaml`, and provides `get_seed()`. However,\
+    \ the required integration test `tests/integration/test_seed_consistency.py` is\
+    \ missing, so the claim that the full pipeline produces byte\u2011identical `ResidueDataset.frequency_map`\
+    \ files cannot be verified. Adding the missing integration test (and ensuring\
+    \ it passes) is needed to complete the task."
+  sig: de37a0477eb7c00839094076f92ee2fe306dd9603bee6dadd61834549fa29039
 T005:
-  c: false
-  h: e0e46b75e53c7835e48e677a3d27d8dbf2ed5722368c4fde508809fa95f998aa
-  r: "The provided `code/benchmark.py` creates the required JSON report with numeric\
-    \ `wall_time_sec` and `peak_memory_mb` fields, and `scripts/run_dummy.py` successfully\
-    \ generates `results/reports/benchmark_dummy.json`. However, the implementation\
-    \ records peak memory directly with `psutil` instead of using the specified `MemoryGuard`\
-    \ utility, violating the task\u2019s explicit requirement to obtain peak memory\
-    \ via `MemoryGuard`. The missing use of `MemoryGuard` must be added for the task\
-    \ to be considered complete."
-  sig: 3d19dbd747ea83a94c96fd44d8790d1b8b96065bc69f5ace1757c72d12482535
+  c: true
+  h: bff336bcb72b13c3fc166c3af7e43a492af1a2b8c3bae33084226b0fbd42243b
+  r: Checked `code/benchmark.py` implements the required `benchmark` context manager
+    using `MemoryGuard` and writes JSON; `scripts/run_dummy.py` runs it successfully;
+    `results/reports/benchmark_dummy.json` exists with numeric `wall_time_sec` and
+    `peak_memory_mb` fields.
+  sig: bf5c306a0018f124b9ab200a21765df75006c4bc3f7113b8820e259effe771d4
 T006:
   c: false
-  h: 645730921e20154c45d37210623a80cbd5433f30f7cd723a68bf5787c71c2c2f
-  r: "Checked `code/sieve.py` and `tests/unit/test_sieve.py`. The sieve module\u2019\
-    s `compute_phi_linear_sieve` adds an optional `memory_guard` argument and calls\
-    \ `memory_guard.check()` (which raises an exception) instead of returning `False`\
-    \ as the test expects, so the memory\u2011guard test will fail. Moreover, the\
-    \ provided unit tests do not verify residue counts for primes\u202F3,\u202F5,\u202F\
-    7,\u202F11, and the `compute_residues` function is never exercised. Consequently\
-    \ the required behavior is not demonstrated."
-  sig: 92e2697f03a53962fdbb05aa3c24ac8648c40f4ec867d7a8b76088ccc5c7e788
+  h: 960d2b5482448e0b3f830cff87c3e60741dde9c6097241a7b7f0b31e5924aeca
+  r: "The provided `code/sieve.py` defines the required functions and uses `MemoryGuard`,\
+    \ but the accompanying `tests/unit/test_sieve.py` only checks a few \u03C6 values\
+    \ up to\u202F6 and incorrectly tests `MemoryGuard` (it expects a Boolean return\
+    \ that the implementation never provides). It does **not** verify residue counts\
+    \ for primes\u202F3,\u202F5,\u202F7,\u202F11 nor that `compute_phi_linear_sieve`\
+    \ raises `MemoryLimitExceeded` when a low memory limit is enforced. Consequently\
+    \ the task\u2019s verification criteria are not met."
+  sig: 8e4f7a606ccfc3cd8adf63c326dfa1dbf2013c4b0adf2d18d7491bbc4426e49d
 T007:
   c: false
-  h: 4b02f5823d40790d2aeca7ee5114ff9789e9729079b1bbccf1bf55856657d27b
-  r: "The `tests/unit/test_sieve_mypy.py` file that should run mypy and check docstring\
-    \ coverage is missing, so there is no evidence that type\u2011checking passed\
-    \ or that every public callable has a non\u2011empty docstring. Additionally,\
-    \ the public `ResidueDataset` dataclass lacks a docstring. These gaps must be\
-    \ fixed for the task to be considered complete."
-  sig: 19eb6a407bc353444fd8931c7c1703d86fc591df806e08a02526628a74a30af6
+  h: a913d96819df398c79a5ca4722ca5aab98e1c637bca888ba714e8c01ec9692e1
+  r: "The `code/sieve.py` file has full docstrings and type hints, and the docstring\u2011\
+    coverage test passes, but the `test_mypy_passes` test fails because `mypy` reports\
+    \ numerous type\u2011checking errors in other modules of the `code/` package (e.g.,\
+    \ missing return annotations, untyped functions, missing stubs for `psutil`).\
+    \ The task requires the entire `code/` package to type\u2011check with zero errors,\
+    \ which is not satisfied."
+  sig: d5caa49f3f0ae13f6ef98f004c06e687eb41137b1158a3fc3564fb983d818f4b

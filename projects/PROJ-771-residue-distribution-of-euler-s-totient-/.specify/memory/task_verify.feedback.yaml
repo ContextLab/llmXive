@@ -3,44 +3,40 @@ T001:
 T002:
   task: 7898493db932b2a1accb27a71b03ebd634c636411a56ed2a1822354eba6db83d
 T003:
-  reason: "Checked `code/memory_guard.py` (exists) and the required test `tests/unit/test_memory_guard.py`\
-    \ (missing). The implementation raises `MemoryLimitExceeded` with the wrong constructor\
-    \ signature and also returns a boolean, deviating from the specification that\
-    \ requires raising the exception when usage exceeds 90\u202F% of the configured\
-    \ `memory_limit_mb`. The missing unit test means the required verification cannot\
-    \ be performed."
+  reason: "The `MemoryGuard` class raises a `TypeError` because it calls `MemoryLimitExceeded`\
+    \ with the wrong constructor signature (the exception expects `limit_mb` and `usage_mb`).\
+    \ This causes the unit test `test_memory_guard_raises_when_usage_exceeds_threshold`\
+    \ to fail, so the required behavior of raising `MemoryLimitExceeded` at the 90\u202F\
+    % threshold is not satisfied. The implementation must be corrected to instantiate\
+    \ `MemoryLimitExceeded` with the proper arguments (or adjust the exception definition)\
+    \ and ensure the test passes."
   task: dff34484f1d1114492ab8d40786197593ee0ffc1639401119034830117e5d1e6
 T004:
-  reason: "The repository contains `code/seed.py` which pins `random` and `numpy`\
-    \ seeds and provides `get_seed()`, but it never writes the seed to any configuration\
-    \ object as required, and the integration test `tests/integration/test_seed_consistency.py`\
-    \ that should verify reproducible pipeline output is missing. Consequently the\
-    \ task\u2019s full requirement is not satisfied."
+  reason: "The repository contains a full `code/seed.py` that pins `random` and `numpy`\
+    \ seeds, persists the seed to `code/config.yaml`, and provides `get_seed()`. However,\
+    \ the required integration test `tests/integration/test_seed_consistency.py` is\
+    \ missing, so the claim that the full pipeline produces byte\u2011identical `ResidueDataset.frequency_map`\
+    \ files cannot be verified. Adding the missing integration test (and ensuring\
+    \ it passes) is needed to complete the task."
   task: 2fd98537532ad7a6417db9f8575e3c720f174821d66330fda0c50564167a22b5
 T005:
-  reason: "The provided `code/benchmark.py` creates the required JSON report with\
-    \ numeric `wall_time_sec` and `peak_memory_mb` fields, and `scripts/run_dummy.py`\
-    \ successfully generates `results/reports/benchmark_dummy.json`. However, the\
-    \ implementation records peak memory directly with `psutil` instead of using the\
-    \ specified `MemoryGuard` utility, violating the task\u2019s explicit requirement\
-    \ to obtain peak memory via `MemoryGuard`. The missing use of `MemoryGuard` must\
-    \ be added for the task to be considered complete."
   task: e4b96a0d295d3367b45505c9dbd59a9b20d7586a197e32fd904bb9c3a116c6ae
 T006:
-  reason: "Checked `code/sieve.py` and `tests/unit/test_sieve.py`. The sieve module\u2019\
-    s `compute_phi_linear_sieve` adds an optional `memory_guard` argument and calls\
-    \ `memory_guard.check()` (which raises an exception) instead of returning `False`\
-    \ as the test expects, so the memory\u2011guard test will fail. Moreover, the\
-    \ provided unit tests do not verify residue counts for primes\u202F3,\u202F5,\u202F\
-    7,\u202F11, and the `compute_residues` function is never exercised. Consequently\
-    \ the required behavior is not demonstrated."
+  reason: "The provided `code/sieve.py` defines the required functions and uses `MemoryGuard`,\
+    \ but the accompanying `tests/unit/test_sieve.py` only checks a few \u03C6 values\
+    \ up to\u202F6 and incorrectly tests `MemoryGuard` (it expects a Boolean return\
+    \ that the implementation never provides). It does **not** verify residue counts\
+    \ for primes\u202F3,\u202F5,\u202F7,\u202F11 nor that `compute_phi_linear_sieve`\
+    \ raises `MemoryLimitExceeded` when a low memory limit is enforced. Consequently\
+    \ the task\u2019s verification criteria are not met."
   task: f928cf98dc1d7c59e59806cba5bef7afb742ddae4ca6df3f19c72d3b15225a1a
 T007:
-  reason: "The `tests/unit/test_sieve_mypy.py` file that should run mypy and check\
-    \ docstring coverage is missing, so there is no evidence that type\u2011checking\
-    \ passed or that every public callable has a non\u2011empty docstring. Additionally,\
-    \ the public `ResidueDataset` dataclass lacks a docstring. These gaps must be\
-    \ fixed for the task to be considered complete."
+  reason: "The `code/sieve.py` file has full docstrings and type hints, and the docstring\u2011\
+    coverage test passes, but the `test_mypy_passes` test fails because `mypy` reports\
+    \ numerous type\u2011checking errors in other modules of the `code/` package (e.g.,\
+    \ missing return annotations, untyped functions, missing stubs for `psutil`).\
+    \ The task requires the entire `code/` package to type\u2011check with zero errors,\
+    \ which is not satisfied."
   task: 31f438ff950fd7c9ce8091228b4a2e1f4c1a2109e37b183e67dad6ca06ceabed
 T008:
   task: 8ec341a5413163acafaaaa908dae02e01bcaabd9d0d2fd746f43c40db3206732

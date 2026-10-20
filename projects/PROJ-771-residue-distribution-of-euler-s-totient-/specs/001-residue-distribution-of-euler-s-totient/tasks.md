@@ -18,7 +18,7 @@
 - [ ] T004 [FR‑001] **Pin deterministic seeds** – write `code/seed.py` that sets `random.seed`, `numpy.random.seed`, and stores the seed in the config; expose `get_seed()` for downstream modules.  
   *Verification*: `tests/integration/test_seed_consistency.py` runs the full pipeline twice with the same config and asserts that the resulting `ResidueDataset.frequency_map` files are byte‑identical.
 
-- [ ] T005  **Benchmark instrumentation** – add `code/benchmark.py` providing a context manager `benchmark(name: str)` that records wall‑clock time, peak memory (via `MemoryGuard`), and writes a JSON record to `results/reports/benchmark_{name}.json`.  
+- [X] T005  **Benchmark instrumentation** – add `code/benchmark.py` providing a context manager `benchmark(name: str)` that records wall‑clock time, peak memory (via `MemoryGuard`), and writes a JSON record to `results/reports/benchmark_{name}.json`.  
   *Verification*: a tiny script `scripts/run_dummy.py` uses the context manager; after execution `results/reports/benchmark_dummy.json` exists and contains numeric `wall_time_sec` and `peak_memory_mb` fields.
 
 ---
