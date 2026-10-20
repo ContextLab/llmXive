@@ -15,33 +15,33 @@ properties:
       - "Between-Subjects"
   f_value:
     type: "number"
-    description: "F‑statistic value."
+    description: "F-statistic value."
   p_raw:
     type: "number"
-    description: "Raw p‑value."
+    description: "Raw p-value."
     minimum: 0
     maximum: 1
   p_fdr:
     type: "number"
-    description: "Benjamini‑Hochberg FDR corrected p‑value (must be ≥ p_raw)."
+    description: "Benjamini-Hochberg FDR corrected p-value (must be >= p_raw)."
     minimum: 0
     maximum: 1
   effect_size:
     type: "number"
-    description: "Effect size (eta‑squared)."
+    description: "Effect size (eta-squared)."
   alpha_sensitivity:
     type: "object"
     description: "Sensitivity analysis results for different alpha levels."
     properties:
       "0.01":
         type: "boolean"
-        description: "Significant at alpha = 0.01?"
+        description: "Significant at alpha = 0.01?"
       "0.05":
         type: "boolean"
-        description: "Significant at alpha = 0.05?"
+        description: "Significant at alpha = 0.05?"
       "0.1":
         type: "boolean"
-        description: "Significant at alpha = 0.1?"
+        description: "Significant at alpha = 0.1?"
     required:
       - "0.01"
       - "0.05"

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Ingested Dataset Schema"
-description: "Schema for raw data ingestion validation. Ensures required columns exist for Cyberball analysis and validates single‑cohort structure."
+description: "Schema for raw data ingestion validation. Ensure required columns exist for Cyberball analysis and validates single‑cohort structure."
 type: "object"
 properties:
   required_columns:
@@ -25,44 +25,19 @@ properties:
         type: "number"
   constraints:
     type: "object"
-    description: "Value constraints for numeric columns."
+    description: "Value constraints for numeric columns "
     properties:
       reaction_time:
         type: "object"
         properties:
           min:
             type: "number"
-            description: "Minimum valid reaction time (ms)."
+            description: "Minimum valid reaction time (ms )."
           max:
             type: "number"
-            description: "Maximum valid reaction time (ms)."
+            description: "Minimum ? ? "
       mood_rating:
-        type: "object"
-        properties:
-          min:
-            type: "number"
-            description: "Minimum mood rating."
-          max:
-            type: "number"
-            description: "Maximum mood rating."
-  single_cohort_validation:
-    type: "object"
-    description: "Checks that the same participants are present in both conditions."
-    properties:
-      is_single_cohort:
-        type: "boolean"
-        description: "True if every participant has both rejection and control rows."
-      conditions_present:
-        type: "array"
-        description: "List of conditions found in the dataset."
-        items:
-          type: "string"
-    required:
-      - is_single_cohort
-      - conditions_present
-required:
-  - required_columns
-  - data_types
-  - constraints
-  - single_cohort_validation
-additionalProperties: false
+        type: "concern  "
+        description: "..." 
+  **  **  
+...

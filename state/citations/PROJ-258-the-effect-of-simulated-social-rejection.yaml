@@ -42,7 +42,51 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.18112/openneuro.ds000208.v1.0.0
   verified_at: '2026-08-10T04:47:33.058127Z'
-- artifact_hash: f83a23ab1aa731320e3f4eb8ee6b25041185113320a4633f2f849fee37b26998
+- artifact_hash: 5089b70da31b1ffd5a7d082e63209612a862c74733340c2c3258aadfda9b7ee8
+  artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00016.parquet
+  kind: url
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&X-Xet-Cas-Uid=public&xip=bQRx5rt6ei8&Expires=1792464500&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnhpcD1iUVJ4NXJ0NmVpOCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyNDY0NTAwfX19XX0_&Signature=MEUCIQCBC25uuHkVPkrqiK4QpHPKXblNldOj3oiq1FjUBzgHpAIgbD3ahGkMoka-X37eJk6%7EfR6TGbxV0C0kvgab1ZizBCc_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-20T01:48:20.167064Z'
+- artifact_hash: 5089b70da31b1ffd5a7d082e63209612a862c74733340c2c3258aadfda9b7ee8
+  artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/PROJ-258-the-effect-of-simulated-social-rejection.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/PROJ-258-the-effect-of-simulated-social-rejection
+  verified_at: '2026-10-20T01:48:20.167064Z'
+- artifact_hash: 5089b70da31b1ffd5a7d082e63209612a862c74733340c2c3258aadfda9b7ee8
+  artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/plan.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00016.parquet
+  kind: url
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&user_id=public&xip=bQRx5rt6ei8&X-Xet-Cas-Uid=public&Expires=1792464507&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJnhpcD1iUVJ4NXJ0NmVpOCZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyNDY0NTA3fX19XX0_&Signature=MEUCIQCW2a-S96papUQLDXdEWddlnGFxV2ApJ-RLjEcsy6PVZgIgPX52u365zht0okR1ULIAOrWwPhen8dXmxBLkd9LxJEY_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-20T01:48:20.167064Z'
+- artifact_hash: 5089b70da31b1ffd5a7d082e63209612a862c74733340c2c3258aadfda9b7ee8
+  artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/plan.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-20T01:48:20.167064Z'
+- artifact_hash: 47eaa017a4bef083a874121037b8cf54951066849b7f14e3a34e8dbdce6b5c23
   artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/research.md
   cite_id: c-001
   cited_authors: []
@@ -51,9 +95,9 @@
   kind: url
   value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?xip=CWXwaB21k7c&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&user_id=public&Expires=1791806882&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD94aXA9Q1dYd2FCMjFrN2MmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxODA2ODgyfX19XX0_&Signature=MEUCIEIwYjkJ9OUkRDbbo5Lps6-bdecVFgfG6bMSsjzaWeOUAiEA6o3BkI8ZfNFwZ6IeCpOrWNPnNfmvEkCKwCyIZorsAAA_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-12T11:08:02.863767Z'
-- artifact_hash: 5a859197e181fd0e6ec235ed9deca6ef47392e65c35ddc127885078d2142b97a
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?xip=bQRx5rt6ei8&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1792464530&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD94aXA9YlFSeDVydDZlaTgmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyNDY0NTMwfX19XX0_&Signature=MEYCIQCKezdED%7E3UJytagwRSsY0RGIB09ETj2oJGsnjxdlcetwIhAKd-7K9RFEg8mBM1MiKllR6TRhpPkYITG9taUEzcI9Ua&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-20T01:48:50.354660Z'
+- artifact_hash: 18f771e6235e5c9609fc04aac1da29cd0c0087f9a25636304497e0cad5b9a871
   artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -63,8 +107,8 @@
   value: https://github.com/your-org/PROJ-258-the-effect-of-simulated-social-rejection.git
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/PROJ-258-the-effect-of-simulated-social-rejection
-  verified_at: '2026-10-12T11:08:37.531749Z'
-- artifact_hash: 5a859197e181fd0e6ec235ed9deca6ef47392e65c35ddc127885078d2142b97a
+  verified_at: '2026-10-20T01:49:16.326346Z'
+- artifact_hash: 18f771e6235e5c9609fc04aac1da29cd0c0087f9a25636304497e0cad5b9a871
   artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/quickstart.md
   cite_id: c-002
   cited_authors: []
@@ -73,5 +117,5 @@
   kind: url
   value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?user_id=public&xip=CWXwaB21k7c&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1791806917&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD91c2VyX2lkPXB1YmxpYyZ4aXA9Q1dYd2FCMjFrN2MmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxODA2OTE3fX19XX0_&Signature=MEUCIHCHXqp4d6XTDJPCnIcZR44sshfxgmVoXhqw3BZcPbTEAiEA5pqHBrHrXYcKBzG7xw1STmedibH49s0OpmAXTmHrNcY_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-12T11:08:37.531749Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&xip=bQRx5rt6ei8&X-Xet-Cas-Uid=public&user_id=public&Expires=1792464556&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTIyJTNCJnhpcD1iUVJ4NXJ0NmVpOCZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyNDY0NTU2fX19XX0_&Signature=MEUCIHzu37ihk9i6z9ijl57JXzRrHW%7EjBvjLG-DwVJ5%7EAvzcAiEAv4NL5iaJlS0OBY-PAd6PjQ2oHlrtshq0p3DyyMsptzY_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-20T01:49:16.326346Z'

@@ -9,10 +9,11 @@ properties:
     enum:
       - "Within-Subjects"
       - "Between-Subjects"
+      - "Repeated-Measures"
       - "Unavailable"
   main_test:
     type: "object"
-    description: "Primary ANOVA (or paired t) results."
+    description: "Primary ANOVA (or fallback) results."
     properties:
       f_statistic:
         type: "number"
@@ -41,16 +42,16 @@ properties:
       - effect_size
   sensitivity_analysis:
     type: "array"
-    description: "Results for α sweep {0.01, 0.05, 0.1}"
+    description: "Results for alpha sweep {0.01, 0.05, 0.1}"
     items:
       type: "object"
       properties:
         alpha:
           type: "number"
           enum:
+            - 0.01
             - 0.05
             - 0.1
-            - 0.01
         power_at_alpha:
           type: "number"
           minimum: 0
@@ -68,7 +69,7 @@ properties:
         description: "True if the word 'associational' appears in the Limitations section."
       modulation_claim_valid:
         type: "boolean"
-        description: "False when design is Within‑Subjects but cannot test modulation"
+        description: "False when design is Within-Subjects but cannot test modulation."
     required:
       - contains_associational
       - modulation_claim_valid
