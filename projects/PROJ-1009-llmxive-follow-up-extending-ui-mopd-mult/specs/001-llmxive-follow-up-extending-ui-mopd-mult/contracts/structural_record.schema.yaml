@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StructuralRecord"
+type: "object"
+required:
+  - record_id
+  - widget_depth
+  - branching_factor
+  - graph_connectivity
+  - platform_id
+  - task_success
+properties:
+  record_id:
+    type: "string"
+    description: "UUID for the record."
+  widget_depth:
+    type: "integer"
+    minimum: 1
+    description: "Maximum depth of the widget tree."
+  branching_factor:
+    type: "number"
+    minimum: 0
+    description: "Average number of children per internal node."
+  graph_connectivity:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Connectivity ratio of the navigation graph (0‑1)."
+  platform_id:
+    type: "string"
+    description: "Platform identifier (e.g., android, ios, web)."
+  task_success:
+    type: "integer"
+    minimum: 0
+    maximum: 1
+    description: "Binary task success metric (0 = failure, 1 = success)."
+  structural_ambiguity:
+    type: "boolean"
+    description: "Flag when identical topology maps to divergent outcomes."
+additionalProperties: false

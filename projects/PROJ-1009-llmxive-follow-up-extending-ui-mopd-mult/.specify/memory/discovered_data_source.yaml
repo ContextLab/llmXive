@@ -1,0 +1,12 @@
+status: none
+intent: download Uni-GUI structural metadata dataset for UI analysis python package
+  dataset
+required_fields:
+- widget_tree_depth
+- branching_factor
+- navigation_graph_connectivity
+- platform
+- task_success_outcome
+cache_key: b9eddee84cfc416abedb873d708e8dbfab1c52079df43354ce36cdc0df8edc57
+searched_at: '2026-10-20T23:24:57.214059+00:00'
+retry_count: 1
