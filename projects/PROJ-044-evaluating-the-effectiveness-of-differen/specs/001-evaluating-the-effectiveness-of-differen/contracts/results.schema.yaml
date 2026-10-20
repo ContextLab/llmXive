@@ -40,10 +40,10 @@ properties:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "Average accuracy of minority clients."
+    description: "Mean accuracy of minority clients."
   delta:
     type: "number"
-    description: "Privacy parameter δ (fixed to 1e‑5)."
+    description: "Privacy parameter δ = 1e‑5."
   actual_epsilon:
     type: "number"
     description: "Cumulative ε from Moments Accountant."
@@ -53,9 +53,12 @@ properties:
   is_time_limited:
     type: "boolean"
     description: "True if early‑stop triggered by time budget."
-  degradation:
-    type: "number"
-    description: "Accuracy_NonDP - Accuracy_DP (computed post‑hoc)."
+  utility_collapse:
+    type: "boolean"
+    description: "True if global_accuracy < 1/62 (random‑guess threshold)."
+  rounds_to_80:
+    type: "integer"
+    description: "First round where global_accuracy ≥ 0.80."
 required:
   - run_id
   - dataset
@@ -70,5 +73,6 @@ required:
   - actual_epsilon
   - is_dp
   - is_time_limited
-  - degradation
+  - utility_collapse
+  - rounds_to_80
 additionalProperties: false

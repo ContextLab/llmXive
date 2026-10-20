@@ -1,10 +1,9 @@
 status: none
-intent: FEMNIST image classification dataset download pip install python package dataset
+intent: official FEMNIST dataset parquet download python package dataset
 required_fields:
 - image
 - label
 - client_id
-- train_test_split
-cache_key: dd4f2420d753d0c095847ebb9c0637f88b9e8298aae4abcb28068d56f05643b3
-searched_at: '2026-10-14T13:20:33.714021+00:00'
+cache_key: 8e54b384214c0c49d841a0ac3a4cc6f1e1be8f6fd60ba14030f6bb0f720d4927
+searched_at: '2026-10-20T22:09:50.646028+00:00'
 retry_count: 1

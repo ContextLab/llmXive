@@ -7,10 +7,10 @@ All artifacts conform to JSON‑Schema contracts in `contracts/`. Artifact hashe
 | Field | Type | Description |
 |-------|------|-------------|
 | `image` | `array<int>` (length = 784) | Flattened grayscale pixel values (0‑255). |
-| `label` | `int` (0 – 61) | Class index (digits, lowercase, uppercase). |
+| `label` | `int` (minimum – maximum) | Class label (representing digits and letters). |
 | `client_id` | `string` | Original LEAF client identifier (kept for provenance only). |
 
-*Location*: `data/raw/femnist.parquet` (produced by **T011**).
+*Location*: `data/raw/femnist_train.parquet` and `data/raw/femnist_test.parquet` (produced by **T001**).
 
 ### 2. Client Partition Metadata (Derived)
 | Field | Type | Description |
@@ -20,62 +20,66 @@ All artifacts conform to JSON‑Schema contracts in `contracts/`. Artifact hashe
 | `samples` | `list<int>` | Row indices in the raw parquet belonging to the client. |
 | `label_dist` | `dict<string,int>` | Per‑label counts for the client. |
 | `entropy` | `float` | Empirical label‑entropy (bits). |
-| `is_minority` | `bool` | `True` if client falls in the bottom 30 % of entropy **within its partition**. |
+| `is_minority` | `bool` | `True` if client falls in the **global bottom [deferred]** of entropy (computed once on the full training set). |
 | `samples_per_class` | `dict<string,int>` | Auxiliary covariate for collinearity checks. |
 
-*Location*: `data/partitions/partition_femnist_{seed}_{alpha}.json` (**T012**).
+*Location*: `data/partitions/partition_femnist_{seed}_{alpha}.json` (**T002**).
 
 ### 3. Training Log (Per‑Round CSV)
 | Field | Type | Description |
 |-------|------|-------------|
-| `run_id` | `string` | `{alpha}_{epsilon}_{seed}_{DP|NODP}` (e.g., `0.1_1.0_42_DP`). |
-| `dataset` | `string` | `"FEMNIST"`. |
-| `alpha` | `float` | Dirichlet concentration. |
-| `epsilon` | `string|number` | Target ε or `"inf"` for baseline. |
-| `seed` | `int` | Random seed. |
-| `round` | `int` | Communication round number. |
-| `global_accuracy` | `float` (0‑1) | Test accuracy over the full test set. |
-| `majority_accuracy` | `float` (0‑1) | Mean accuracy of majority clients. |
-| `minority_accuracy` | `float` (0‑1) | Mean accuracy of minority clients. |
-| `delta` | `float` | Fixed privacy δ = 1e‑5. |
-| `actual_epsilon` | `float` | Cumulative ε from Moments Accountant. |
-| `is_dp` | `bool` | `True` for DP runs, `False` for baseline. |
-| `is_time_limited` | `bool` | `True` if early‑stop was triggered. |
-| `degradation` | `float` | `accuracy_nonDP - accuracy_DP` (computed post‑hoc). |
+| `run_id` | `string` | Unique identifier for the run (e.g., '0.1_1.0_42_DP'). |
+| `dataset` | `string` | `"FEMNIST"` |
+| `alpha` | `number` | Dirichlet concentration parameter. |
+| `epsilon` | `anyOf` (number or `"inf"`) | Target ε or the string `"inf"` for non‑DP baseline. |
+| `seed` | `integer` | Random seed. |
+| `round` | `integer` | Communication round number. |
+| `global_accuracy` | `number` (0‑1) | Test accuracy over the full test set. |
+| `majority_accuracy` | `number` (0‑1) | Mean accuracy of majority clients. |
+| `minority_accuracy` | `number` (0‑1) | Mean accuracy of minority clients. |
+| `delta` | `number` | Privacy parameter δ = 1e‑5. |
+| `actual_epsilon` | `number` | Cumulative ε from Moments Accountant. |
+| `is_dp` | `boolean` | True for DP runs, False for baseline. |
+| `is_time_limited` | `boolean` | True if early‑stop triggered by time budget. |
+| `utility_collapse` | `boolean` | True if `global_accuracy < 1/62` (random‑guess threshold). |
+| `rounds_to_80` | `integer` | First round where `global_accuracy ≥ 0.80`. |
 
-*Aggregated by*: **T018c** → `results/raw_logs.csv`. This file is the **Single Source of Truth** for all downstream analysis.
+*Aggregated by*: **T006** → `results/raw_logs.csv`. This file is the **Single Source of Truth** for all downstream analysis.
 
 ### 4. Filtered Datasets
-- **Utility‑Collapse Filter** (`T035`): removes rows where `global_accuracy < 1/62 ≈ 0.01613`. Output: `results/filtered_data.csv`.  
-- **Time‑Limit Filter** (`T025`): removes rows with `is_time_limited=True`. Output: `results/filtered_time.csv`.
+- **Utility‑Collapse Flag** (`utility_collapse` column) is retained; no rows are removed.  
+- **Time‑Limit Flag** (`is_time_limited`) is retained; no rows are removed.  
 
 ### 5. Final Statistics & Summary
 | Field | Type | Description |
 |-------|------|-------------|
 | `alpha` | `float` | Dirichlet concentration. |
-| `epsilon` | `string|number` | Privacy budget (`"inf"` or numeric). |
-| `test_name` | `string` | `"paired_t_test"` or `"lmm_minor_vs_major"` etc. |
-| `statistic` | `float` | t‑value or LMM coefficient. |
-| `p_value` | `float` | Raw p‑value (Bonferroni‑adjusted). |
-| `significant` | `bool` | `p_value < 0.05` after correction. |
-| `effect_size` | `float` | Cohen’s d (t‑tests) or standardized LMM coefficient. |
+| `epsilon` | `anyOf` (number or `"inf"`) | Privacy budget (`"inf"` or numeric). |
+| `test_name` | `string` | `"paired_t_test"` / `"wilcoxon_test"` / `"lmm_minor_vs_major"` etc. |
+| `statistic` | `float` | t‑value, rank‑biserial, or LMM coefficient. |
+| `p_value` | `float` | Raw p‑value (Bonferroni‑adjusted reported separately). |
+| `significant` | `boolean` | `p_value < 0.05` after correction. |
+| `effect_size` | `float` | Cohen’s d (t‑tests) or rank‑biserial (Wilcoxon) or standardized LMM coefficient. |
+| `interaction_term` | `string` | Name of any interaction term reported (e.g., `"is_minority:alpha"`). |
 
-*Location*: `results/final_stats.csv` (**T024a**, **T024b**).
+*Location*: `results/final_stats.csv` (**T008**, **T008b**).
 
 ### 6. Summary & Validation Artifacts
 - `results/summary.csv` – per (α, ε) mean accuracies, degradation, and `rounds_to_80`.  
-- `results/validation_report.md` – checksum verification, seed completeness, and any excluded runs.  
+- `results/validation_report.md` – checksum verification, seed completeness, and confirmation of Shakespeare‑exclusion verification (via `verify_shakespeare_exclusion.py`).  
 - `results/p_values_by_seed.json` – mapping seed → raw p‑values for auditability.
 
-### Data Flow Diagram (conceptual)
-1. **Download** → `data/raw/femnist.parquet` (**T011**)  
-2. **Partition** → `data/partitions/...json` (**T012**)  
-3. **Training** (DP & non‑DP) → `results/raw_logs.csv` (**T018c**)  
-4. **Filtering** → `results/filtered_data.csv`, `results/filtered_time.csv` (**T035**, **T025**)  
-5. **Statistical Tests** → `results/final_stats.csv` (**T024a**, **T024b**)  
-6. **Plotting** → `figures/*.png` (**T026**)  
-7. **Aggregation** → `results/summary.csv`, `validation_report.md`, `p_values_by_seed.json` (**T028**)
+## Data Flow Diagram (conceptual)
+1. **Download** → `data/raw/femnist_*.parquet` (**T001**)  
+2. **Global Entropy & Partition** → `data/partitions/...json` (**T002**)  
+3. **Training** (DP & non‑DP) → `results/raw_logs.csv` (**T006**)  
+4. **Analysis** → `results/final_stats.csv` (**T008**, **T008b**)  
+5. **Plotting** → `figures/*.png` (**T009b**)  
+6. **Aggregation** → `results/summary.csv`, `validation_report.md`, `p_values_by_seed.json` (**T009c**)  
 
 All files are version‑controlled; any modification updates the hash map in `state/projects/PROJ-044‑...yaml`.
 
 ---
+
+
+

@@ -1,12 +1,26 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 18 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T002` (rejected 1x): Requested task execution failed; rerun successfully: code/data/download.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan allocates only **5 seeds per (α, ε) configuration** (see research.md “Power & Sample‑Size” paragraph). With n=5, the detectable effect size for a paired t‑test at α=0.05 is ≈ Cohen’s d = 1.1, which is far larger than the modest utility degradations typically observed for DP‑FL. This sample size is insufficient to reliably detect the hypothesized interaction between heterogeneity (α) and privacy budget (ε).
+- Minority clients are defined as the **bottom 30 % of label‑entropy *within each partition*** (see plan.md “Minority Definition” under FR‑006). Because entropy distributions shift with α, the set of clients labeled “minority” changes across α values, conflating the heterogeneity factor with the client group definition and threatening construct validity of the minority‑vs‑majority comparison.
+- Utility‑collapse runs (global_accuracy < 1/62) are filtered out before statistical testing. Since low‑ε DP configurations are most prone to collapse, this exclusion systematically removes the worst‑performing DP runs, biasing the analysis toward under‑estimating DP‑induced utility loss.
+- Runs that hit the **time‑limit** early‑stop are also excluded (Task T007 and T009a). DP training often requires more communication rounds; removing time‑limited runs can mask differential convergence slow‑downs, again biasing results against detecting a DP effect.
+- Paired t‑tests assume normality of the difference distribution, yet with only 5 paired observations this assumption is hard to verify. A non‑parametric alternative (e.g., Wilcoxon signed‑rank) or increasing the number of seeds would provide more robust inference.
+- The mixed‑effects model includes only a random intercept for `seed`. Given the factorial design (α, ε, minority flag), random slopes for ε or α (or a crossed random effect) may be needed to avoid omitted‑variable bias, especially with the limited data per configuration.
+- SC‑I (Convergence speed measurement) appears in the Requirement Mapping table but has no corresponding functional requirement or success criterion in the specification (spec.md).
+- SC‑II (Privacy‑utility curves) appears in the Requirement Mapping table but is not defined in the specification.
+- SC‑III (Minority‑client degradation) appears in the Requirement Mapping table but has no matching requirement in spec.md.
+- SC‑IV (Statistical significance (p < 0.05)) appears in the Requirement Mapping table but is not present in the specification.
+- SC‑V (Utility‑collapse filtering) appears in the Requirement Mapping table but is not defined in the specification.
+- SC‑VI (Result summary tables) appears in the Requirement Mapping table but has no corresponding requirement or success criterion in spec.md.
+- The plan states that the full sweep (5 seeds × 3 α × 5 ε = 75 configurations, each up to 50 communication rounds) will complete within the 6‑hour CPU budget of a GitHub Actions free‑tier runner. Even with the optimistic 30 s per round estimate, the worst‑case wall‑clock time exceeds 30 h, and Opacus DP overhead on CPU further increases runtime. This makes the compute budget claim infeasible under the free‑tier constraints.
+- Task V001 runs a grep on `spec.md` to verify Shakespeare exclusion (T000). This self‑referential test cannot reliably succeed because grep cannot distinguish “supported” vs “excluded” references, making the verification non‑real‑call and violating constitutional Principle V (non‑real‑call testing).
+- The `results/raw_logs.csv` schema in `data-model.md` includes a `degradation` column, yet Task T006’s description only mentions recording per‑round metrics and does not state that `degradation` is populated at this stage. This creates a mismatch between the data model and the plan.
+- The Constitution Check table marks all principles as ✅, but the presence of the non‑real‑call test (V001) means Principle V is actually violated. The table therefore misrepresents compliance.
+- The utility‑collapse filter (Task T007) removes any run with `global_accuracy < 1/62`. This exclusion is data‑dependent and systematically discards low‑utility DP runs, especially at small ε and low α. By dropping those failures before the paired t‑test, the analysis introduces selection bias that can artificially inflate DP performance and invalidate the statistical inference.
+- The mixed‑effects analysis (Task T008b) fits `degradation ~ is_minority + (1|seed)` but the research question explicitly asks whether *lower α amplifies* the utility loss for minority clients (i.e., an α × is_minority interaction). Without an interaction term (or a separate model per α), the planned analysis cannot test the claimed “critical α ≤ 0.1” effect, making the statistical test mis‑aligned with the hypothesis.
