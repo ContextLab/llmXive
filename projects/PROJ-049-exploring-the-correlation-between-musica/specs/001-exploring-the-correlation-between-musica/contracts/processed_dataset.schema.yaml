@@ -12,8 +12,7 @@ required:
   - gender_onehot
   - country_onehot
   - total_minutes
-  - genre_proportions
-  - genre_ilr
+# The following fields are required only if listening data were successfully linked.
 properties:
   user_id:
     type: string
@@ -42,15 +41,16 @@ properties:
   total_minutes:
     type: number
     minimum: 0
+    description: "Placeholder (NaN) if listening data unavailable; otherwise sum of minutes."
   genre_proportions:
     type: object
-    description: "Proportion of total listening minutes per standardized genre."
+    description: "Proportion of total listening minutes per standardized genre (if available)."
     additionalProperties:
       type: number
       minimum: 0
       maximum: 1
   genre_ilr:
     type: object
-    description: "ILR‑transformed compositional vector derived from `genre_proportions`."
+    description: "ILR‑transformed compositional vector derived from `genre_proportions` (if available)."
     additionalProperties:
       type: number

@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Raw BFI‑2 and Last.fm Linked Dataset"
+title: "Raw BFI‑2 Dataset"
 type: object
 required:
   - user_id
@@ -12,14 +12,14 @@ required:
   - age
   - gender
   - country
-  - listening_history
+# `listening_history` is optional; its absence indicates the linked dataset is unavailable.
 properties:
   user_id:
     type: string
     description: "Hashed participant identifier."
   lastfm_username:
     type: string
-    description: "Username on Last.fm used for linking."
+    description: "Username on Last.fm used for linking (present in raw BFI file)."
   openness_score:
     type: number
     minimum: 0
@@ -54,3 +54,4 @@ properties:
     additionalProperties:
       type: number
       minimum: 0
+    # May be omitted when the required linked dataset cannot be obtained.
