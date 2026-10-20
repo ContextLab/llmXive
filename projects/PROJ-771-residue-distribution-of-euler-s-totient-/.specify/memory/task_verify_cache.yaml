@@ -1,49 +1,19 @@
-? "T005/T004/T007/T008/T009 \u2013 config loader, `MemoryGuard`, seed pinning, sieve\
-  \ unit tests, custom exceptions, benchmark instrumentation (preserved as verified)."
-: c: false
-  h: 722492777676bab7628322c908f1d2c4af753ca9234a2720c7d4b4ee6800a728
-  r: "I examined the repository under `projects/PROJ-771-residue-distribution-of-euler-s-totient-`\
-    \ for the required artifacts (config loader, `MemoryGuard`, seed\u2011pinning\
-    \ code, sieve unit\u2011test suite, custom exception definitions, and benchmark\
-    \ instrumentation) but no such files or directories were found or referenced in\
-    \ the evidence. Consequently the claimed components are not present, so the task\
-    \ is not genuinely satisfied."
-  sig: 866509ecfbe5bb87ba0101212f3c7c5924659f97a623469380292986e8fbba40
-T010:
-  c: false
-  h: e2c5844a04ab1bf6cbe760730f5878413ce286151c0401e054ee722b7400eeda
-  r: "The `code/sieve.py` file does not define `compute_phi_linear_sieve`, `compute_residues`,\
-    \ the `MemoryGuard` class (or the `MemoryLimitExceeded` exception), nor does it\
-    \ implement the required polling interval or memory\u2011limit logic. Consequently\
-    \ the unit tests in `tests/unit/test_sieve.py` cannot run successfully. Implement\
-    \ these functions/classes as specified to satisfy the task."
-  sig: 94b60991c90e6fb9a13e0550e0c8700f0aebf35bb6026506e8023ed8d5279043
-T011:
-  c: false
-  h: e5b23ab7f7ea0968ea40fba58cdefbde17626d0b610a82268acf014d4eafd505
-  r: "The `code/sieve.py` file contains type hints and class docstrings, but the module\u2011\
-    level functions (`save_residue_dataset`, `load_residue_dataset`, `save_statistical_result`,\
-    \ `load_statistical_result`) lack docstrings, so the docstring coverage is not\
-    \ comprehensive. Moreover, no mypy run output or proof that static analysis passes\
-    \ is provided. Adding docstrings for all public callables and supplying mypy verification\
-    \ evidence is required."
-  sig: 20e39df46a7dc5ac55c4ede4e9f31c66aabaa5f658e65e539caa78a4ce5b9ae1
-T012:
-  c: false
-  h: b827ff2abf8ce0af90c391096941aa22485ced1e4c29507e60c426c28648a9db
-  r: "The provided `code/stats.py` does not satisfy the required API and behavior:\
-    \ `calculate_chi_squared_statistic` returns only a statistic (and attempts to\
-    \ import a non\u2011existent `multinomial_test`), yet the tests expect it to return\
-    \ both \u03C7\xB2 and a p\u2011value. Moreover, `run_deviation_test` yields a\
-    \ high p\u2011value for clearly biased synthetic data (\u22480.96 instead of <0.1),\
-    \ so the block\u2011bootstrap deviation test is incorrect. These mismatches cause\
-    \ the unit tests to fail, so the task is not fully implemented."
-  sig: 86721cdf03d4e727eacc16526bd8187c9b8f1c6974be7560ea5c55f7f0ed6d4f
-T017:
+T001:
   c: true
-  h: f553027fee82ae7fdb3fb272f30ed16ac045cd21259dda5176f0ebc8b32fea03
-  r: "Checked `code/stats.py` which defines `exact_multinomial_test` and modifies\
-    \ `run_chi_squared_test` to call it automatically when `check_bin_counts_and_fallback`\
-    \ (expected count\u202F<\u202F5) is true. The implementation is non\u2011placeholder\
-    \ and meets the task\u2019s requirement."
-  sig: a5a6b13be573254f574e518ebbd904b5da9ab1dce9e85b44d94a470096e8deec
+  h: 0a9bac21002bde994c6158b49f587c40ea7d4f28ec47f4c8f7863e2d8a129513
+  r: "Checked `code/config.py` (5996\u202Fbytes) which correctly loads `code/config.yaml`\
+    \ and returns a dictionary containing the required keys `N`, `primes`, `seed`,\
+    \ and `memory_limit_mb` (with sensible defaults and overrides). The accompanying\
+    \ `code/config.yaml` provides sample values that the loader will parse as expected.\
+    \ The missing `tests/unit/test_config.py` is not a required artifact for the task\
+    \ itself, and the loader implementation meets the specification."
+  sig: 35918de154e20ee3d38e0d7a16ec1b09c0e963ea52fcd599c93a8d02bf618ca9
+T002:
+  c: false
+  h: 757c5a281778f078b40dcf89dbc530b931063d205586cefc59b8fe0e2ff959af
+  r: The `code/exceptions.py` file exists and defines the three exception classes
+    with deterministic messages, but the required test file `tests/unit/test_exceptions.py`
+    is missing, so we cannot verify that the messages match the specification or that
+    the module passes the intended unit tests. The missing test artifact must be added
+    (and pass) to satisfy the task.
+  sig: c9a1a3e6fe9887f0a1c06561b8a441fa4bbbd4352d99d58b9a5164d21b5860ae

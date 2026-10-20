@@ -6,7 +6,7 @@
 
 ## Phase 0 – Foundations (setup, reproducibility, and resource guards)
 
-- [ ] T001  **Create configuration loader** – implement `code/config.py` that reads a YAML file `code/config.yaml` (default location) exposing `N`, `primes`, `seed`, and `memory_limit_mb`.  
+- [X] T001  **Create configuration loader** – implement `code/config.py` that reads a YAML file `code/config.yaml` (default location) exposing `N`, `primes`, `seed`, and `memory_limit_mb`.  
   *Verification*: `tests/unit/test_config.py` loads the sample config and asserts the parsed values match the file.
 
 - [ ] T002 [FR‑007] **Define custom exception hierarchy** – add `code/exceptions.py` containing `TotientError`, `MemoryLimitExceeded`, and `InvalidPrimeError`, each with a clear error message.  

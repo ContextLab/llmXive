@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-24T03:21:44.788101Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: mathematics
 human_escalation_reason: null
 id: PROJ-771-residue-distribution-of-euler-s-totient-
-last_run_id: fc338d25-833e-4007-8f6e-c69b756b7c91
+last_run_id: 64ac6303-2375-4891-a705-a17da5a798ff
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient
 title: Residue Distribution of Euler's Totient Function Modulo Small Primes
-updated_at: '2026-10-20T07:28:50.913838Z'
+updated_at: '2026-10-20T07:31:49.544218Z'
