@@ -1,78 +1,55 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Artifact Schema
-description: |
-  Schema for the final model artifact and evaluation metrics.
-  Aligns with data-model.md for state/model_artifact.json.
+# JSON Schema for ModelArtifact (Trained Model Metadata)
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ModelArtifact
 type: object
-required:
-  - model_type
-  - metrics
-  - diagnostics
-  - artifacts
 properties:
+  model_id:
+    type: string
+    description: Unique identifier for the model artifact
   model_type:
     type: string
-    description: Type of model used (e.g., "XGBoost", "Ridge", "PCA+Ridge").
-  metrics:
+    enum: ["XGBRegressor", "XGBClassifier", "Ridge"]
+    description: Type of model used
+  hyperparameters:
     type: object
-    description: Performance metrics.
-    properties:
-      r2:
-        type: number
-      mse:
-        type: number
-      mae:
-        type: number
-      auc:
-        type: number
-      accuracy:
-        type: number
-      power:
-        type: number
-        description: Achieved power from post-hoc analysis.
-      mdes:
-        type: number
-        description: Minimum Detectable Effect Size.
-    required:
-      - r2
-  diagnostics:
+    description: Dictionary of model hyper‑parameters
+  performance_metrics:
     type: object
-    description: Diagnostic checks for circularity and bias.
-    properties:
-      vif_max:
-        type: number
-        description: Maximum Variance Inflation Factor.
-      vif_comment:
-        type: string
-        description: Comment on collinearity status.
-      circularity_r2:
-        type: number
-        description: R² from linear circularity check.
-      circularity_status:
-        type: string
-        enum: ["PASS", "FAIL"]
-      permutation_p_value:
-        type: number
-        description: P-value from permutation test.
-      bias_ks_statistic:
-        type: number
-        description: K-S statistic for selection bias.
-      bias_status:
-        type: string
-        enum: ["PASS", "FAIL"]
-    required:
-      - vif_max
-      - circularity_status
-  artifacts:
+    description: Metrics such as R², AUC, accuracy, etc.
+  feature_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        importance:
+          type: number
+      required:
+        - feature_name
+        - importance
+    description: Ranked list of feature importances
+  vif_scores:
     type: object
-    description: Paths to saved artifacts.
-    properties:
-      model_path:
-        type: string
-      report_path:
-        type: string
-      power_analysis_path:
-        type: string
-    required:
-      - model_path
-additionalProperties: true
+    description: Mapping from feature name to VIF score
+  power_analysis:
+    type: object
+    description: Contains MDES, achieved power, alpha, etc.
+  circularity_check:
+    type: object
+    description: Results of permutation test (e.g., real_score, shuffled_score, passed)
+  checksum:
+    type: string
+    pattern: "^[a-fA-F0-9]{64}$"
+    description: SHA‑256 checksum of the serialized model artifact
+required:
+  - model_id
+  - model_type
+  - hyperparameters
+  - performance_metrics
+  - feature_importance
+  - vif_scores
+  - power_analysis
+  - circularity_check
+  - checksum
+additionalProperties: false

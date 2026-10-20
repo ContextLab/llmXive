@@ -1,0 +1,4 @@
+
+# Linting / formatting caches (T003)
+.ruff_cache/
+.mypy_cache/

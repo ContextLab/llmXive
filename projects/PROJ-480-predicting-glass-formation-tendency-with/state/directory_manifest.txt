@@ -1,0 +1,20 @@
+T001 Project Directory Structure Manifest
+=========================================
+
+Required directory | exists | file_count
+-----------------------------------------
+src/data | True | 1
+src/models | True | 1
+src/reports | True | 1
+src/cli | True | 1
+src/lib | True | 1
+tests/contract | True | 7
+tests/unit | True | 6
+tests/integration | True | 1
+data/raw | True | 1
+data/processed | True | 1
+state | True | 1
+reports | True | 1
+-----------------------------------------
+Total required directories: 12
+All required directories exist: True

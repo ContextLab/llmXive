@@ -1,37 +1,33 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Descriptor Set Schema
-description: |
-  Schema for the computed atomic descriptors.
-  Used to validate intermediate outputs from src/data/descriptors.py.
+# JSON Schema for DescriptorSet (Computed Features)
+$schema: "http://json-schema.org/draft-07/schema#"
+title: DescriptorSet
 type: object
-required:
-  - descriptor_name
-  - formula
-  - unit
-  - description
-  - computed_values
 properties:
-  descriptor_name:
+  record_id:
     type: string
-    description: Name of the descriptor (e.g., "Atomic Size Mismatch").
-  formula:
-    type: string
-    description: Mathematical formula used for calculation.
-  unit:
-    type: string
-    description: Unit of measurement (e.g., "percent", "kJ/mol").
-  description:
-    type: string
-    description: Physical meaning of the descriptor.
-  computed_values:
-    type: array
-    description: Array of computed values for the dataset.
-    items:
-      type: number
-    minItems: 1
-  exclusion_reasons:
-    type: array
-    description: List of reasons why certain rows were excluded.
-    items:
-      type: string
+    description: Foreign key linking to a CompositionRecord
+  delta_atomic_size:
+    type: number
+    minimum: 0
+    description: Atomic size mismatch (standard deviation)
+  delta_enthalpy:
+    type: number
+    description: Mixing enthalpy (kJ/mol)
+  delta_electronegativity:
+    type: number
+    minimum: 0
+    description: Weighted variance of electronegativity
+  mean_atomic_weight:
+    type: number
+    description: Weighted average atomic weight
+  mean_electronegativity:
+    type: number
+    description: Weighted average electronegativity
+required:
+  - record_id
+  - delta_atomic_size
+  - delta_enthalpy
+  - delta_electronegativity
+  - mean_atomic_weight
+  - mean_electronegativity
 additionalProperties: false

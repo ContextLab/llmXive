@@ -36,10 +36,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `src/lib/constants.py` with fixed random seed (42), file paths (`data/`, `state/`, `src/`), and EXPLICIT validation thresholds: `MIN_SAMPLES=30`, `TARGET_SAMPLES=500`, `CIRCULARITY_THRESHOLD=0.99`, `VIF_RIDGE_THRESHOLD=10`, `VIF_PCA_THRESHOLD=30`.
-- [X] T004b [P] Implement `src/lib/exceptions.py` with base error classes (`DataValidationError`, `CircularDataError`) and `src/lib/utils.py` with SHA-256 checksum calculation and logging helpers.
+- [ ] T004 Create `src/lib/constants.py` with fixed random seed (42), file paths (`data/`, `state/`, `src/`), and EXPLICIT validation thresholds: `MIN_SAMPLES=30`, `TARGET_SAMPLES=500`, `CIRCULARITY_THRESHOLD=0.99`, `VIF_RIDGE_THRESHOLD=10`, `VIF_PCA_THRESHOLD=30`.
+- [ ] T004b [P] Implement `src/lib/exceptions.py` with base error classes (`DataValidationError`, `CircularDataError`) and `src/lib/utils.py` with SHA-256 checksum calculation and logging helpers.
 - [ ] T005 [P] Create `tests/contract/` directory and schema files (`dataset.schema.yaml`, `descriptor_set.schema.yaml`, `model_artifact.schema.yaml`) aligning with data-model.md
-- [X] T006 Configure environment variable management: Create `.env.example` with keys and implement `src/lib/config.py` to load from `os.environ`.
+- [ ] T006 Configure environment variable management: Create `.env.example` with keys and implement `src/lib/config.py` to load from `os.environ`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -54,7 +54,7 @@
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T007 [P] [US1] Unit test for `src/data/descriptors.py` descriptor calculation logic in `tests/unit/test_descriptors.py`
-- [X] T008 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
+- [ ] T008 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
 
 ### Implementation for User Story 1
 

@@ -8,14 +8,33 @@ T001:
     \ `data/processed`, `state/`, and `reports/`. The implementer must supply a manifest,\
     \ screenshot, or script output proving that these directories exist and are non\u2011\
     empty."
+T002:
+  c: true
+  h: aaa45e286cdb4980a266d5c25133f0a3d39b1ad747c69d966b4a9823ed70aa1f
+  r: "The `pyproject.toml` file (projects/PROJ-480-predicting-glass-formation-tendency-with/pyproject.toml)\
+    \ exists, is non\u2011empty, and its `dependencies` list includes all eight required\
+    \ packages (`xgboost`, `pymatgen`, `scikit-learn`, `pandas`, `numpy`, `statsmodels`,\
+    \ `pyyaml`, `pytest`). The file also specifies Python\u202F3.11 compatibility,\
+    \ fulfilling the initialization task."
+  sig: d33c8dd6827110146ad1f991d34e58a079f7db2e6ff81f4ae3a810c33092f924
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`
-    with ruff/black settings, or a `pre-commit` config) were found in the provided
-    artifact list, nor any documentation showing that flake8/ruff and black have been
-    set up for the project. Without these concrete files, the task of configuring
-    the tools is not satisfied.
+  h: f5db8efd3bce124aa961c26156d708dd21e0b99e0237cee1ab8ce21548e1f573
+  r: "The only concrete evidence is a log showing `setup_linting.py` ran without error\
+    \ and printed messages about updating `pyproject.toml` and `.gitignore`, but the\
+    \ actual contents of those files are not provided, and the unit\u2011test suite\
+    \ that should verify the Ruff/Black (and flake8) configuration failed due to import\
+    \ errors before any linting checks could run. Consequently there is no verifiable\
+    \ artifact confirming that the required linting and formatting tools are correctly\
+    \ configured."
+  sig: 5f8085bae25e24c01e6afab7619ddcc3900d26428a962722aefc6014530bed57
+T005:
+  c: false
+  h: 48aa7c84afa6ba08aad8820f0dda170631701cb2a7ae997a7d819b7a0c3390ad
+  r: "The `tests/contract/` directory exists, but the required schema files `dataset.schema.yaml`,\
+    \ `descriptor_set.schema.yaml`, and `model_artifact.schema.yaml` are reported\
+    \ as MISSING, so the task\u2019s core deliverable is not present."
+  sig: 57ba9f122237ec7442795fa7a523580c5445bfd867d10cb02f1a3413938fddf8
 T007:
   c: false
   h: f823ba159e747427bae7249e4314d77a2b6c551b63012bb8f467bab2491a1e77
@@ -24,3 +43,22 @@ T007:
     \ invalid. Moreover, the required module `src/data/descriptors.py` is missing,\
     \ so the unit test cannot be executed against the intended code. The task\u2019\
     s unit\u2011test artifact is therefore incomplete."
+T008:
+  c: false
+  h: fcab5ce275cebdefbf8f127d5bddf875239e5f41dbeda7f004c333cf699eed8f
+  r: "The test file `tests/contract/test_dataset_schema.py` is present and implements\
+    \ the required schema\u2011validation checks, but it depends on a schema file\
+    \ `tests/contract/dataset.schema.yaml` (loaded via `load_schema(\"dataset\")`).\
+    \ No such schema artifact is provided, so the test cannot run successfully. Add\
+    \ the missing `dataset.schema.yaml` (or otherwise supply the expected JSON Schema)\
+    \ to satisfy the contract test requirement."
+  sig: 3445cbbb19005a1c5e9bd2cefc4621b02e9e76a7c0f8276e22edb9127e320574
+T009:
+  c: true
+  h: fdcd13351b87c5e4610fc4d90b279ece1b3765aefc5b5f5a3fecc60f73f288eb
+  r: "Checked `src/data/download.py` (9338\u202Fbytes) \u2013 it downloads the CSV\
+    \ from Zenodo record\u202F5778205, validates the response, writes the file, and\
+    \ raises `DataValidationError` (exiting with a non\u2011zero status) on any network,\
+    \ missing\u2011file, or empty\u2011file failure, with no fallback to synthetic\
+    \ or manual data."
+  sig: c44c35a4d3359703af1f663b4050afff8a0986edd6414c10840701b5538f160b

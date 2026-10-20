@@ -1,0 +1,108 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 21469045b4a95f74066a08ae7831b74595a504b18b5c56e0d2e271bff983ef47
+T002:
+  task: fe6c8c04bccfccb037ab2417f223a09e65860c46208208d995a30c4681a5c093
+T003:
+  reason: "The only concrete evidence is a log showing `setup_linting.py` ran without\
+    \ error and printed messages about updating `pyproject.toml` and `.gitignore`,\
+    \ but the actual contents of those files are not provided, and the unit\u2011\
+    test suite that should verify the Ruff/Black (and flake8) configuration failed\
+    \ due to import errors before any linting checks could run. Consequently there\
+    \ is no verifiable artifact confirming that the required linting and formatting\
+    \ tools are correctly configured."
+  task: 24b3bd8b2a894a115cb7646782ef857cbeb3bc67aef46bcda2f231b298250bcd
+T004:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 132d3b5bf375858edec53f15cbe790dd4ffdaab359069644ffb0d5194f9b0747
+T004b:
+  reason: 'declared artifact(s) missing/empty/invalid: src/lib/exceptions.py, src/lib/utils.py'
+  task: 0657076fbc323423002a4763742c9908349d38853f0db6e0b6c35892463ff0f4
+T005:
+  reason: "The `tests/contract/` directory exists, but the required schema files `dataset.schema.yaml`,\
+    \ `descriptor_set.schema.yaml`, and `model_artifact.schema.yaml` are reported\
+    \ as MISSING, so the task\u2019s core deliverable is not present."
+  task: eca1c6b0915bbbd204a45642f6ea08edc4544d9f5f360d0487bacd58d3fc72de
+T006:
+  reason: 'declared artifact(s) missing/empty/invalid: src/lib/config.py'
+  task: 3be213727c030b24445eab34e278821316829a4b22c9861d5cf10f5504cc5f26
+T007:
+  task: 730f4cc6bac9e0d5ab1af21e01a93bd18686dfd0e509e2135a60bf52afcd42f6
+T008:
+  reason: "The test file `tests/contract/test_dataset_schema.py` is present and implements\
+    \ the required schema\u2011validation checks, but it depends on a schema file\
+    \ `tests/contract/dataset.schema.yaml` (loaded via `load_schema(\"dataset\")`).\
+    \ No such schema artifact is provided, so the test cannot run successfully. Add\
+    \ the missing `dataset.schema.yaml` (or otherwise supply the expected JSON Schema)\
+    \ to satisfy the contract test requirement."
+  task: 3cac32be23b6f2b39bd8c0ffa4af501c590cb51c10e8cdc043ce6766017747d5
+T009:
+  task: 2bef55064f39e5d1a6413e647e4cb971edb8faf17c357cc57da58855f9ed7a77
+T010:
+  task: 354ef21ab4d924f06e0f78cdf8168ca531f67cc16be18ebcc9b7c9a787a7a9e3
+T011:
+  task: fc7f3267723f07e9a9a653e1c07c4badfeb5b30497a378099bd780de36812d65
+T012:
+  task: d9c0257781f671d48ee5c195b0ec00c4c8fa34e95afad4bcb4f441ba8b0bc606
+T013:
+  task: 586d0e36abd95f92e614005f19ac5e8894ac6a177f73d0a5a8c6bcf0ea81e2c2
+T014:
+  task: a5487b06d253486be9eff9fff79b16dbc2781a0908d650297ad7c186da8980d1
+T015:
+  task: 09039d7d50675c441f10e0a36ea2336b341f91583f899cf3bcc2334736563d55
+T016:
+  task: c11263fe1ddd16475f2240a711e9f6764cf3d7866f4fe6c3b3e8474c00c10bee
+T017:
+  task: ede0db2165936390c6fcc7c4b6683ade34d142d09e4114210e6c3db67268b579
+T018:
+  task: 6d09856b4d59b105bd7ed095c79bfef03d2c7054a1dbb22aa22d7062183b22e9
+T019:
+  task: 21d96ad3cd775aeee5291d3ceb8278386a89a504839dc9c959110b37ed0cffe3
+T020:
+  task: 3131833cba2b1742e0cce1f3a97cb3702526c02247de9af5282955dfa2e2a01d
+T021:
+  task: c80c6eafea28b555b208769e90fb7038d457789d267a95d6f5497b4f0c63bb7c
+T022:
+  task: 0f0ec32ccd9f56c539137680d2329b1be2e366f94934cdf978ef05d2756449c7
+T023:
+  task: 20aac536e9d1d8618b9228ba6241385bbdfad787eec60f326605ae93e186925e
+T024:
+  task: 279947496951985a756ef0a54042e49cdba3e433dc6a1ae27a82d0ee65b71994
+T025:
+  task: 7d3ecc553c0ca8579a0bfd2378bb92273cebee3ad2cbf999d4808561bdbae118
+T026:
+  task: 59e772be90bf0ee0d31e0f59ba071cf56bba125307e25a75c3ffc312220ae447
+T027:
+  task: 114856e02e12c6933832c1388c298b2b26914ca6da7a9a4a7ba92d0d631e0039
+T028:
+  task: f29242d86e07ec5fdfce53387aae27e26da381672520ae573cc58601d34ba508
+T029:
+  task: e87aac9a0ed52969c4c824689c60ba2c1c6dce665c57f6d5852c2e15ce674d2f
+T030:
+  task: fe2c474a6fcf15f6a1afae060658990db9dee3ff678895fbda0759745c664f03
+T031:
+  task: 76a5d0850c991f61e63250209bb55515fa863613e87dfbce6061d31881a72385
+T032:
+  task: a6f110abbd647da1f1003fe8b4f7d94b56144938bc3dcadc0ee254d2e9baad5c
+T033:
+  task: dd4a9289b8de9903aa4061d618320447b5b44a1c7ae2193587338c938604a069
+T034:
+  task: fb457be78a922f45a3ebf0da68aef3ef51cf50463507021660f7225bde6a967d
+T035:
+  task: 23cc857efe5d7bd694568a1e52a469b6fc4efdd02d4e4d212c53170bae9e9f70
+T036:
+  task: b70db97a2b95ebbcd95b75b92815538e0c3692365793876e78819eb86d7d6029
+T037:
+  task: 03ad78354b042729e8ced30563bb2177525b00e18fcfb9407d7a0c80353d6e0f
+T038:
+  task: 56cc8fbaec6d3b18f6756253e3163e0adad8f4aa7c1bb68cd557821a8f74ad6d
+T039:
+  task: a803e2c553d922b7f3c1e6ded101d0c4b98007981a433fb701500ac732b5e1c4
+T040:
+  task: 722d3a9874b2ff18e236ad6e83832825dd866fd68263f17d00072b5583b2bb24
