@@ -1,12 +1,12 @@
 T001:
   c: true
-  h: 24dc423e64ecbd1c33937f4cc066cfbebcf5b4b5249fe2cc511b779b1279cf93
+  h: 8a0550a8e40bd3373295c264fafc1aa226aaeb1c3f5e72cfefdac287a390bc7c
   r: All nine required directories (`code/`, `code/data/`, `code/modeling/`, `code/utils/`,
-    `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) exist
-    and are non-empty per the collector's directory listings. The task only asked
-    for directory creation; the placeholder contents of `data/processed/` files are
-    irrelevant to this task's requirements.
-  sig: 1360e9a6779c9e8d3155279fb59f5d089ad76b1ab646075d9ac3d87a9b68e884
+    `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) are confirmed
+    to exist at the project root with non-empty listings (including `.gitkeep` markers
+    and substantive files), matching the task's sole requirement of creating the core
+    directory layout.
+  sig: e03d718167557e4297a9b5ae6851da1a0f58805a685705cec538c5bde5145116
 T003:
   c: true
   h: 936c3795ceb91afdd591d33e7637cb3cce12007e19f46e4ff766c501eada730c
