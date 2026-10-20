@@ -59,7 +59,7 @@ ERROR tests/unit/test_stats.py
 ERROR tests/unit/test_training_robustness.py
 ERROR tests/validation/test_baseline.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 28 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 28 errors in 2.38s ==============================
+============================== 28 errors in 1.92s ==============================
 
 
 
