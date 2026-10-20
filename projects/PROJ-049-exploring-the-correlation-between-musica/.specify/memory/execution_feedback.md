@@ -15,7 +15,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…True, forces the use of synthetic data generation…”
 - code/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…ETIC mode enabled: Using synthetic data generator.")      # 1. S…”
 - code/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…help="Force the use of synthetic data generation even if real…”
-- code/synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator.  Generates a…”
+- code/synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…import seed """ Synthetic Data Generator.  Generates a…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 

@@ -1,19 +1,19 @@
 status: none
-intent: download linked BFI-2 personality scores and Last.fm listening histories dataset
-  python package dataset
+intent: BFI-2 personality scores linked with Last.fm listening histories downloadable
+  dataset python package dataset
 required_fields:
-- participant_id
+- user_id
 - bfi2_openness
 - bfi2_conscientiousness
 - bfi2_extraversion
 - bfi2_agreeableness
 - bfi2_neuroticism
-- lastfm_user_id
+- age
+- gender
+- lastfm_username
 - track_id
-- artist_name
-- genre_raw
-- genre_standardized
-- playcount
-cache_key: 55ec215a69b7e739b538f39ec0768f6ed21fcba6244e3c6c350fe4a5308d6158
-searched_at: '2026-10-20T21:41:09.954268+00:00'
+- listening_timestamp
+- raw_genre_tag
+cache_key: 3078a87a8afe8d869626f74f6671fa2fa3d2d16182cb73f166eb23bd3e2a42bb
+searched_at: '2026-10-20T21:43:06.478751+00:00'
 retry_count: 1

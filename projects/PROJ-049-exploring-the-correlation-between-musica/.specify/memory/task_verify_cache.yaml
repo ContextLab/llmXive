@@ -1,12 +1,11 @@
 T001:
-  c: false
-  h: 9e9bb13c3c82f24b0b8c0bd6013242e060b7ee4affc500c806694c396d511d17
-  r: "The evidence shows the required folders `data/raw`, `data/processed`, `results`,\
-    \ `code`, and `tests` exist, but the `logs/` directory is missing entirely, and\
-    \ all listed directories are under the project sub\u2011folder `projects/PROJ-049\u2011\
-    exploring\u2011the\u2011correlation\u2011between\u2011musica` rather than at the\
-    \ repository root as the task specifies."
-  sig: ab45402e382b145678be974f915b8006885c547ea581f3eae336bbc6289896f2
+  c: true
+  h: 8bec3de9e11ec0d477ee2cfaa6b14bf9765e1f943b956cf003442d768f8c40d2
+  r: All six required directories (`data/raw/`, `data/processed/`, `results/`, `logs/`,
+    `code/`, `tests/`) exist at the project root per the collector evidence, and the
+    historical execution log shows `code/create_dirs.py` ran with exit code 0. The
+    task only required directory creation, which is satisfied.
+  sig: 3f16e69df317c57ef916607f8bba0a32a646ecd05f8a67bab74e39d0e1ff3176
 T002:
   c: true
   h: da90abbd832b14424033a7cba920641eeef130cccb69dc9a8a597ef900fd219d
@@ -14,15 +13,6 @@ T002:
     packages) and the pytest log `tests/test_requirements.py` which passed, confirming
     that the installed environment matches the pinned versions.
   sig: f966a2b3e3cb440f29c040e8674ba173f5914eab8170c8dfcf35b1a1b28a1fb6
-T003:
-  c: false
-  h: ceda2cbd3c4d6343d531d6bf91a40688c1129aa201bb20644a004570d52967bf
-  r: "The provided `code/seed.py` correctly sets deterministic seeds and writes its\
-    \ SHA\u2011256 hash, and `code/seed_hash.txt` matches that hash. However, there\
-    \ is no evidence that all pipeline scripts import `seed.py` as their first line,\
-    \ as required by the task. This usage requirement is unverified, so the task is\
-    \ not fully satisfied."
-  sig: eecdfbddcdb7db3725c7a05dca18e66a16ee88b0cc2e0fcdfe7ebdc076a9df6d
 T008:
   c: false
   h: af53fd992ccd8583b2bbd5496ed5f793c3dcaf57059b417111cfc77ac461caf6

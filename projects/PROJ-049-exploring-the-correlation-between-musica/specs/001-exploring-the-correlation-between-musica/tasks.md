@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project scaffolding & reproducibility  
 
-- [ ] **T001** [US‑1] **Create project directory layout**  
+- [X] **T001** [US‑1] **Create project directory layout**  
   *Create the following folders at the repository root:* `data/raw/`, `data/processed/`, `results/`, `logs/`, `code/`, `tests/`.  
   **Verification**:  
   ```bash
