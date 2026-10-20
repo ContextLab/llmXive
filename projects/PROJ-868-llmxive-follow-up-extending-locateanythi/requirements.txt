@@ -11,3 +11,4 @@ datasets
 tqdm
 # ``pyarrow`` version compatible with the pre‑installed NumPy 1.26.x
 pyarrow==10.0.1
+pycocotools
