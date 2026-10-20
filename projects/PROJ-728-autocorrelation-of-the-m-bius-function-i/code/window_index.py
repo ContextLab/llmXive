@@ -39,7 +39,10 @@ DEFAULT_N: int = 10_000_000          # Upper bound for the Möbius sieve
 DEFAULT_L_VALUES: List[int] = [1000, 10_000, 100_000]
 DEFAULT_WINDOWS_PER_L: int = 100
 DEFAULT_SEED: int = 20231017
-DEFAULT_OUTPUT: Path = Path("data/processed/window_index.csv")
+# Use the project's path helper to guarantee the correct directory.
+from llmxive_toolkit import paths
+
+DEFAULT_OUTPUT: Path = paths.processed("window_index.csv")
 
 # ----------------------------------------------------------------------
 

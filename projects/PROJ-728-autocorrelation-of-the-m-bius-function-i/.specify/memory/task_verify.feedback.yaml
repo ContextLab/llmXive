@@ -1,10 +1,12 @@
 T001:
-  reason: "Checked `quickstart.md` (contains the `--demo` command) and the execution\
-    \ log (shows `python -m code.main --demo` exits 0). However the required demo\
-    \ artifacts are not all present at the documented locations: `data/raw/mobius_array.npy`\
-    \ is missing (the log saved it to `data/mobius_array.npy`), and `outputs/figures/heatmap_demo.png`\
-    \ is not found (the log saved it to `figures/heatmap_demo.png`). These missing\
-    \ or mis\u2011placed files mean the verification step fails."
+  reason: "`quickstart.md` exists and contains `--demo`, Python 3.11, and a pinned\
+    \ `requirements.txt` is present, but the task's verification criterion \u2014\
+    \ that `python -m code.main --demo` runs without error and produces the documented\
+    \ demo files \u2014 is unsupported: the run claims are marked unresolved, and\
+    \ none of the demo artifacts the quickstart promises (`data/mobius_array.npy`,\
+    \ `figures/heatmap_demo.png`) appear in the evidence. Moreover, the existing `demo_autocorr.csv`\
+    \ (window_start=44622, L=1000) contradicts the quickstart's description of the\
+    \ demo (N=2000, first window), so the documented demo beha"
   task: 4820efbf2df2d5aa93ff5ea41263968211b5294df47382b175867c9a50f8215d
 T002:
   task: 30705cd671dc2b489335d5f7c67ba3df67a17b977455fa2f5f837bd54b0a388d
@@ -13,22 +15,20 @@ T003:
     exit=-1'
   task: 0b29ad57796f43a4f15f25206a9a3d6b9ab8cad599eda3884e12b16a8f8e16b6
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/window_index.py
-    exit=1'
   task: 18744b444dbae16c030d57e9889926fbe5000c63dd967d806adbb544b5b6c241
 T005:
   task: 5d603a18f34ea2abc8a5586e9342b75ac2ea231b47ad5a9bae30982f7a892529
 T006:
   task: 3b740d21951c824c3fcc4ab0e207addc3a9ce468cbc1a75323d6b89de3d17889
 T007:
-  reason: "The `code/permutation.py` only implements a block\u2011permutation generator\
-    \ and writes an empty CSV header; it does not keep zero positions fixed, does\
-    \ not shuffle only the non\u2011zero signs, does not compute autocorrelations,\
-    \ p\u2011values, or confidence bounds, and does not use the required per\u2011\
-    window seed (`20231017 + window_id`). Consequently `data/processed/autocorrelation_stats.csv`\
-    \ contains no statistical rows and the optional `data/processed/permutation_null.npy`\
-    \ is missing. The provided unit tests check block\u2011shuffling properties, not\
-    \ the required p\u2011value edge\u2011case handling."
+  reason: "The recorded test run for `tests/unit/test_permutation.py` exited 1 (both\
+    \ tests errored on the missing `data/raw/mobius_array.npy`), so the required verification\
+    \ \u2014 including the mandated edge-case exercise of the p-value clamping (`p<0.001\u2192\
+    0.001`, `p>0.999\u21920.999`) \u2014 never actually passed; the test file only\
+    \ covers the legacy block-permutation mode and contains no test of the zero-preserving\
+    \ permutation engine, the p-value formula, or the clamping at all. Additionally,\
+    \ `data/processed/autocorrelation_stats.csv` fills `adjusted_p_value` with a constant\
+    \ placeholder 0.5 (not a Benjamini-Hochberg a"
   task: 20fc499f7d6952bccaa228dc6e9d43f9be534b05d91c194cafc708b85207b745
 T008:
   reason: "The unit\u2011test log shows that `_apply_bh_correction` raises a ValueError\

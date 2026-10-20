@@ -375,3 +375,123 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-20T04:34:52Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: "demo creates M\xF6bius sequence of length 2000 stored as int8 array"
+  claim_id: c_80f0d0cb
+  context: "The demo creates the following artefacts: data/mobius_array.npy \u2013\
+    \ a small M\xF6bius sequence (N\u202F=\u202F2000) stored as an int8 NumPy array."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The demo creates a small M\xF6bius sequence (N\u202F=\u202F2000) stored\
+    \ as an int8 NumPy array in data/mobius_array.npy."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:29Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: demo creates JSON file with one window start index per interval length
+  claim_id: c_9d8ae6fb
+  context: "The demo creates the following artefacts: data/window_starts.json \u2013\
+    \ a JSON file containing one window start index for each interval length."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The demo creates a JSON file data/window_starts.json containing one window
+    start index for each interval length.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:29Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: demo autocorrelation CSV contains value for window length 1000 and lag
+    1
+  claim_id: c_4cad5215
+  context: "The demo creates the following artefacts: data/processed/demo_autocorr.csv\
+    \ \u2013 a CSV with a single autocorrelation value for the first window (L\u202F\
+    =\u202F1000, h\u202F=\u202F1)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The demo creates a CSV file data/processed/demo_autocorr.csv with a single\
+    \ autocorrelation value for the first window (L\u202F=\u202F1000, h\u202F=\u202F\
+    1)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:29Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: demo creates heatmap PNG of autocorrelation
+  claim_id: c_f5d446a1
+  context: "The demo creates the following artefacts: figures/heatmap_demo.png \u2013\
+    \ a PNG heat\u2011map visualising the demo autocorrelation."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The demo creates a PNG heat\u2011map visualising the demo autocorrelation\
+    \ at figures/heatmap_demo.png."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:30Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: demo command exits with status 0 and produces expected files
+  claim_id: c_635bb2cc
+  context: "Running the demo command exits with status\u202F0 and produces the files\
+    \ listed above."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Running the demo command exits with status\u202F0 and produces the files\
+    \ listed above."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:30Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: quickstart file contains '--demo' string
+  claim_id: c_28322aaa
+  context: The quickstart file contains the string `--demo`.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The quickstart file contains the string `--demo`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:30Z'
+- artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  attempts: 1
+  canonical: full data set size is ten million elements
+  claim_id: c_b2fe369b
+  context: "To process the full data set (N\u202F=\u202F10\u2077, all windows, permutations,\
+    \ visualisations, etc.) omit the `--demo` flag."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The full data set processed by the pipeline contains N\u202F=\u202F10\u2077\
+    \ elements."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T05:07:30Z'

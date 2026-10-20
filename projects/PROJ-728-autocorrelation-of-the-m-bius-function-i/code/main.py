@@ -5,11 +5,12 @@ This script runs the full analysis in the required order:
   1. Generate the Möbius sequence (sieve)
   2. Sample windows (generate_mobius)
   3. Compute autocorrelations (autocorrelation)
-  4. Build the null distribution (null_distribution)
-  5. Apply Benjamini‑Hochberg FDR correction (fdr_correction)
-  6. Perform zero‑density sensitivity analysis (sensitivity)
-  7. Produce heat‑map visualisations (viz)
-  8. Run the Kolmogorov‑Smirnov uniformity test (uniformity_test)
+  4. **Cross‑validation of autocorrelations (int64 exact)**
+  5. Build the null distribution (null_distribution)
+  6. Apply Benjamini‑Hochberg FDR correction (fdr_correction)
+  7. Perform zero‑density sensitivity analysis (sensitivity)
+  8. Produce heat‑map visualisations (viz)
+  9. Run the Kolmogorov‑Smirnov uniformity test (uniformity_test)
 
 The script can be invoked as a module:
     python -m code.main [--demo]
@@ -39,6 +40,7 @@ import pandas as pd
 from generate_mobius import main as generate_mobius_main
 from sieve import main as sieve_main
 from autocorrelation import main as autocorr_main
+from cross_validate_autocorrelation import main as cross_validate_main
 from null_distribution import main as null_dist_main
 from fdr_correction import main as fdr_main
 from sensitivity import main as sensitivity_main
@@ -185,19 +187,22 @@ def main() -> None:
     # 3. Autocorrelation for all windows / lags.
     _run_step(autocorr_main, "autocorrelation")
 
-    # 4. Null‑distribution via block permutations.
+    # 4. **Exact int64 cross‑validation** (Constitution VI).
+    _run_step(cross_validate_main, "cross‑validation")
+
+    # 5. Null‑distribution via block permutations.
     _run_step(null_dist_main, "null distribution")
 
-    # 5. Benjamini‑Hochberg FDR correction.
+    # 6. Benjamini‑Hochberg FDR correction.
     _run_step(fdr_main, "FDR correction")
 
-    # 6. Zero‑density sensitivity analysis.
+    # 7. Zero‑density sensitivity analysis.
     _run_step(sensitivity_main, "sensitivity analysis")
 
-    # 7. Visualisation (heatmaps).
+    # 8. Visualisation (heatmaps).
     _run_step(viz_main, "visualisation")
 
-    # 8. Uniformity (KS) test.
+    # 9. Uniformity (KS) test.
     _run_step(uniformity_main, "KS uniformity test")
 
     print("Pipeline completed successfully.")

@@ -1,51 +1,61 @@
-T001:
-  c: false
-  h: a4cb5da6518bacf0f2ab81b231c496a8e29778410611fea8f087fcf971ac80bb
-  r: "Checked `quickstart.md` (contains the `--demo` command) and the execution log\
-    \ (shows `python -m code.main --demo` exits 0). However the required demo artifacts\
-    \ are not all present at the documented locations: `data/raw/mobius_array.npy`\
-    \ is missing (the log saved it to `data/mobius_array.npy`), and `outputs/figures/heatmap_demo.png`\
-    \ is not found (the log saved it to `figures/heatmap_demo.png`). These missing\
-    \ or mis\u2011placed files mean the verification step fails."
-  sig: 37d5bdca039f619046512a97426ed8284c741d197fc2f0e9bffc8f3fd0370760
 T002:
   c: true
-  h: 82cdf4a73ee5d2572c99a1dbc86bf3776bc104bc86e25e0ea843d8a5cfcbf173
-  r: "The `code/sieve.py` module implements a linear\u2011time M\xF6bius sieve, the\
-    \ generated `data/raw/mobius_array.npy` file contains an int8 array of length\u202F\
-    10\u2077\u202F+\u202F1, and the unit tests in `tests/unit/test_sieve.py` all pass,\
-    \ confirming correct values, ternary range, packing round\u2011trip, and checksum\
-    \ manifest."
-  sig: a23bf6e993282aa696a461e41fe71129038636ea0f21ba22e94d3b56cc379a04
+  h: 81116fb4f5ca09f19f37f49ad17259a1e65b79542f2fabfbb262e63bd9f787b1
+  r: "`code/sieve.py` implements a correct linear-time M\xF6bius sieve (standard prime-list\
+    \ sieve with \u03BC(ip)=0 when p|i, else \u2212\u03BC(i)), and `data/raw/mobius_array.npy`\
+    \ exists as a real int8 NumPy array of shape (10000001,) \u2014 matching N=10\u2077\
+    \ plus the dummy index 0 \u2014 with plausible ternary byte content. `tests/unit/test_sieve.py`\
+    \ covers exactly the required known values (\u03BC(1)=1, \u03BC(2)=\u22121, \u03BC\
+    (4)=0, \u03BC(30)=\u22121, \u03BC(3025)=0) and the {\u22121,0,1} membership assertion,\
+    \ plus dtype/shape checks."
+  sig: be7ff459d1d5a216a522d03e0c80ffd9aa63bb95cb741c034b1abebc28012833
+T004:
+  c: true
+  h: 2d8d7c31192e0b706cbef916e3896ae3a6be8ad3a71423810ebee23309f65d79
+  r: "The artifact `data/processed/window_index.csv` exists (5397 bytes) with the\
+    \ required columns and exactly 100 contiguous, non-overlapping windows (step =\
+    \ L) for each L \u2208 {1000, 10000, 100000} \u2014 300 data rows total, matching\
+    \ the execution log's \"300 rows\" and exit code 0. The minor discrepancies (log\
+    \ shows a `processed/` path vs. the canonical `data/processed/` location, and\
+    \ `wc -l` would count 301 including the header) do not affect the substantive\
+    \ requirement of a deterministic, seeded, non-overlapping window index."
+  sig: b09f2708d3c610c2bceb40f56b5ddcee306be9ecebe095ae2f3539b49ae18416
 T005:
   c: true
-  h: 059836bdf63fd50854daa19221ddfc6cd733b12bacbb1cc17f909bc9d92c29cf
-  r: "Checked `data/processed/demo_autocorr.csv` (contains a single row with the autocorrelation\
-    \ value `-0.047047047047` to 12 decimal places) and the execution log `code/.tasks/T005.code_autocorrelation.py.log`\
-    \ confirming the script ran without error and verified the value against the hand\u2011\
-    computed reference within the required tolerance."
-  sig: 9c19b9d40f288681ed52ce92d330871aae1540fafcbed36a04e5ec78b386d443
+  h: 9c4ad3507cc74266b62dc5a5779d47ebaaa4b5ac4f3a1a4314359edec772f4de
+  r: 'The artifact `data/processed/demo_autocorr.csv` exists with a single data row
+    (window_start=44622, L=1000, h=1) and the autocorrelation reported to 12 decimal
+    places, satisfying the format requirement. The value -0.047047047047 equals exactly
+    -47/999, consistent with the required formula (integer dot-product sum over L-h=999
+    terms), and `code/autocorrelation.py` implements that formula correctly with both
+    vectorized and loop-based cross-checks. One caveat: the "hand-computed reference"
+    is hard-coded in the same script (circular), but the value''s exact rational structure
+    and the correct impleme'
+  sig: eaa7858414a0d94b1992564502354957ab5f5d8cef8dd609465ca125ce0fab53
 T006:
   c: true
-  h: 52626c3dfc4e55bb3f69d105476714b3396b00a517cd1a2855b693da7153e44b
-  r: "The `code/autocorrelation.py` script implements an FFT\u2011based convolution\
-    \ (`_compute_autocorrelation_all_fft`) that returns float64 autocorrelations for\
-    \ all lags\u202F1\u202F\u2026\u202F\u230AL/2\u230B, iterates over every entry\
-    \ of `data/processed/window_index.csv`, and writes the required columns to `data/processed/autocorrelation_raw.csv`,\
-    \ which exists and contains the correct header and data."
-  sig: 4b62ec4e7fc556bac1854983829df54e3612be54aa2efbccf1029265d0d78415
+  h: bb5054e3a12f73c638534d417bdc059c404f4daf35efd90a4ca9b30834a13133
+  r: "`code/autocorrelation.py` implements the required FFT-based (rfft/irfft, float64\
+    \ normalization by L\u2212h) all-lags computation for h = 1\u2026\u230AL/2\u230B\
+    \ over every window in `window_index.csv`, and `data/processed/autocorrelation_raw.csv`\
+    \ exists (205 MB) with exactly the required columns (`interval_start, interval_length,\
+    \ lag, autocorrelation`). The file size is consistent with the expected ~5.55M\
+    \ rows (100 windows \xD7 (500+5000+50000) lags), and the sampled values are plausible\
+    \ normalized autocorrelations (small values in [\u22121,1], 12-decimal precision),\
+    \ not placeholders."
+  sig: f8281020f3efe0394a474b09c04c8a6a9fd2de82d439181e42dd376c4ffc0531
 T007:
   c: false
-  h: 7d5182e605988ab00aa8fdcf62725375ed9830ea26fd7f04cda582d165e8009c
-  r: "The `code/permutation.py` only implements a block\u2011permutation generator\
-    \ and writes an empty CSV header; it does not keep zero positions fixed, does\
-    \ not shuffle only the non\u2011zero signs, does not compute autocorrelations,\
-    \ p\u2011values, or confidence bounds, and does not use the required per\u2011\
-    window seed (`20231017 + window_id`). Consequently `data/processed/autocorrelation_stats.csv`\
-    \ contains no statistical rows and the optional `data/processed/permutation_null.npy`\
-    \ is missing. The provided unit tests check block\u2011shuffling properties, not\
-    \ the required p\u2011value edge\u2011case handling."
-  sig: 626678b513c6499806ff6f9fc80c83f7379ca45b942ce2bce40b9dca99a71485
+  h: 5a918e2f1ceaf4d5aa78769370b6358a89810ba9a71ac5f0c4c98f0c0fbccc6f
+  r: "The recorded test run for `tests/unit/test_permutation.py` exited 1 (both tests\
+    \ errored on the missing `data/raw/mobius_array.npy`), so the required verification\
+    \ \u2014 including the mandated edge-case exercise of the p-value clamping (`p<0.001\u2192\
+    0.001`, `p>0.999\u21920.999`) \u2014 never actually passed; the test file only\
+    \ covers the legacy block-permutation mode and contains no test of the zero-preserving\
+    \ permutation engine, the p-value formula, or the clamping at all. Additionally,\
+    \ `data/processed/autocorrelation_stats.csv` fills `adjusted_p_value` with a constant\
+    \ placeholder 0.5 (not a Benjamini-Hochberg a"
+  sig: c5fa2e5c0009a47254ed341369e8ef6c5f4c93f1aaedc9125eac2be4a8f2bb86
 T008:
   c: false
   h: 9a3a3500b0c47b82bbdba249b7710b016441383a53ba6e1b048a9337f0cdaeae
