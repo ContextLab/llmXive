@@ -188,7 +188,7 @@ def run_train(args):
             try:
                 enforce_timeout(train_with_timeout, args.timeout)()
             except TimeoutError as e:
-                logger.error(f"Training timed out: {str(e)}")
+                logger.error(f"Training timed out: {e}")
                 raise
         else:
             from models.trainer import main as train_main
@@ -196,7 +196,7 @@ def run_train(args):
 
         logger.info("Train completed successfully")
     except Exception as e:
-        logger.error(f"Train failed: {str(e)}", exc_info=True)
+        logger.error(f"Train failed: {e}", exc_info=True)
         raise
 
 def run_evaluate(args):
@@ -211,7 +211,7 @@ def run_evaluate(args):
         evaluate_main()
         logger.info("Evaluate completed successfully")
     except Exception as e:
-        logger.error(f"Evaluate failed: {str(e)}", exc_info=True)
+        logger.error(f"Evaluate failed: {e}", exc_info=True)
         raise
 
 def run_validate(args):
@@ -226,7 +226,7 @@ def run_validate(args):
         validate_main()
         logger.info("Validate completed successfully")
     except Exception as e:
-        logger.error(f"Validate failed: {str(e)}", exc_info=True)
+        logger.error(f"Validate failed: {e}", exc_info=True)
         raise
 
 def main():

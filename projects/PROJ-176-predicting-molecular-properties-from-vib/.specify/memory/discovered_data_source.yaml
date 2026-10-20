@@ -1,13 +1,12 @@
 status: none
-intent: QM9 IR spectra dataset download python package QM9-IR python package dataset
+intent: download QM9 dataset and QM9-IR infrared spectra python package dataset
 required_fields:
-- InChIKey
-- SMILES
+- inchi_key
 - dipole_moment
-- isotropic_polarizability
+- polarizability
 - homo_lumo_gap
 - ir_wavenumbers
 - ir_intensities
-cache_key: 984332b2946c03970bc1f5b42e27c1de8c547214df05dba6b54781956c0ce9a9
-searched_at: '2026-10-20T10:16:30.907469+00:00'
+cache_key: 17b7031c1af715291be91054e0d34d92389e7db0dee3f92c816e8ba9ac14e8b5
+searched_at: '2026-10-20T10:18:35.242864+00:00'
 retry_count: 1

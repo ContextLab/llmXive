@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-16T23:22:42Z",
+  "updated_at": "2026-10-20T10:18:35Z",
   "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
   "replan_rounds": 1
 }

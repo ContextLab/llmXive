@@ -11,17 +11,6 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”
 - code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/raw/qm9.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
@@ -41,24 +30,22 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; every produced artifact is gitignored (data/raw/qm9.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 8 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py train --max-samples 30000 (rc=2); 3 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/processed/alignment_report.json; data/raw/ir_spectra.parquet
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; 8 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py train --max-samples 30000 (rc=2); 3 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/processed/alignment_report.json; data/raw/ir_spectra.parquet
 
 ## Failing / missing run-book commands
 
 - python code/main.py download -> rc=1
-ta/raw/qm9.parquet
-2026-10-20 10:15:55,339 - data.download - INFO - Downloading IR spectra dataset from https://huggingface.co/datasets/lamblador/QM9-IR/resolve/main/data/qm9_ir.parquet
-2026-10-20 10:15:55,448 - data.download - ERROR - Data ingestion failed: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/lamblador/QM9-IR/resolve/main/data/qm9_ir.parquet
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/download.py", line 146, in main
-    ir_path = download_ir_spectra()
-              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/download.py", line 66, in download_ir_spectra
-    response.raise_for_status()  # Fail fast on HTTP errors
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
-    raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/lamblador/QM9-IR/resolve/main/data/qm9_ir.parquet
+ve-venvs/PROJ-176-predicting-molecular-properties-from-vib/lib/python3.11/site-packages/datasets/load.py", line 1025, in dataset_module_factory
+    raise e1 from None
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-176-predicting-molecular-properties-from-vib/lib/python3.11/site-packages/datasets/load.py", line 1004, in dataset_module_factory
+    ).get_module()
+      ^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-176-predicting-molecular-properties-from-vib/lib/python3.11/site-packages/datasets/load.py", line 631, in get_module
+    patterns = get_data_patterns(base_path, download_config=self.download_config)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-176-predicting-molecular-properties-from-vib/lib/python3.11/site-packages/datasets/data_files.py", line 475, in get_data_patterns
+    raise EmptyDatasetError(f"The directory at {base_path} doesn't contain any data files") from None
+datasets.data_files.EmptyDatasetError: The directory at hf://datasets/lisn519010/QM9@f06bf4c130eb0ce23e1860f2ed5e00b25ac0916c/data/raw doesn't contain any data files
 
 - python code/main.py preprocess -> rc=1
 -properties-from-vib/code/data/preprocess.py", line 97, in main
@@ -82,25 +69,25 @@ requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://h
 FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/ir_spectra.parquet'
 
 - python code/main.py train --max-samples 30000 -> rc=2
-2026-10-20 10:15:59 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-20 10:18:08 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --max-samples 30000
 
 - python code/main.py evaluate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-20 10:16:00 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-20 10:18:09 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
 
 - python code/main.py validate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-20 10:16:02 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-20 10:18:11 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
 
 - python code/main.py control --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-20 10:16:03 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-20 10:18:12 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: argument command: invalid choice: 'control' (choose from 'download', 'preprocess', 'train', 'evaluate', 'validate')

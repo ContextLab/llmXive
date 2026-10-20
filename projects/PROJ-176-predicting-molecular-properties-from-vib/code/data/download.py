@@ -1,7 +1,7 @@
 """
 Data download module for T003.
-Downloads QM9 and IR spectra, aligns them via InChIKey, computes SHA‑256 checksums,
-and writes a verification JSON file.
+Downloads QM9 and IR spectra using the HuggingFace `datasets` library,
+aligns them via InChIKey, computes SHA‑256 checksums, and writes a verification JSON file.
 """
 
 import logging
@@ -14,9 +14,7 @@ from typing import Optional, Tuple, Dict, Any
 import pandas as pd
 import requests
 from scipy import stats
-
-# External libraries
-import qm9pack
+from datasets import load_dataset
 
 # llmxive utilities for path handling
 from llmxive_toolkit import paths
@@ -40,38 +38,29 @@ def _sha256_of_file(file_path: Path, chunk_size: int = 8192) -> str:
 # Download helpers
 # ----------------------------------------------------------------------
 def download_qm9(output_dir: Optional[Path] = None) -> Path:
-    """Download the QM9 dataset using ``qm9pack`` and store as Parquet."""
+    """Download the QM9 dataset via HuggingFace `datasets` and store as Parquet."""
     if output_dir is None:
         output_dir = Path("data/raw")
     _ensure_dir(output_dir / "placeholder")  # ensure the directory exists
 
-    logger.info("Downloading QM9 dataset via qm9pack")
-    df = qm9pack.get_data("qm9")
+    logger.info("Downloading QM9 dataset via HuggingFace datasets")
+    # The dataset identifier is taken from the specification
+    ds = load_dataset('lisn519010/QM9', split='train', data_dir=str(output_dir))
     out_path = output_dir / "qm9.parquet"
-    df.to_parquet(out_path, engine="pyarrow")
+    ds.to_parquet(str(out_path), engine="pyarrow")
     logger.info(f"QM9 saved to {out_path}")
     return out_path
 
 def download_ir_spectra(output_dir: Optional[Path] = None) -> Path:
-    """Download the IR‑spectra dataset from the verified HuggingFace URL and store as Parquet."""
+    """Download the IR‑spectra dataset via HuggingFace `datasets` and store as Parquet."""
     if output_dir is None:
         output_dir = Path("data/raw")
     _ensure_dir(output_dir / "placeholder")
 
-    # Verified real source URL (direct parquet file)
-    url = "https://huggingface.co/datasets/lamblador/QM9-IR/resolve/main/data/qm9_ir.parquet"
-    logger.info(f"Downloading IR spectra dataset from {url}")
-
-    response = requests.get(url, stream=True, timeout=60)
-    response.raise_for_status()  # Fail fast on HTTP errors
-
+    logger.info("Downloading IR spectra dataset via HuggingFace datasets")
+    ds = load_dataset('lamblador/QM9-IR', split='train', data_dir=str(output_dir))
     out_path = output_dir / "ir_spectra.parquet"
-    # Write streamed content to file
-    with open(out_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                f.write(chunk)
-
+    ds.to_parquet(str(out_path), engine="pyarrow")
     logger.info(f"IR spectra saved to {out_path}")
     return out_path
 
@@ -169,7 +158,7 @@ def main() -> None:
         ]
         available = [p for p in target_props if p in qm9_df.columns]
         if not available:
-            # Fallback to common short names used by qm9pack
+            # Fallback to common short names used by the dataset
             fallback = {"mu": "Dipole_debye", "alpha": "Polarizability_bohr3", "gap": "HOMO_LUMO_gap_au"}
             for short, long_name in fallback.items():
                 if short in qm9_df.columns:
