@@ -25,9 +25,9 @@ import logging
 from typing import Iterator, List, Dict, Any
 
 import yaml  # pyyaml is available in the base environment
-from datasets import load_dataset
 from transformers import AutoTokenizer
 from jsonschema import validate, ValidationError
+from huggingface_hub import hf_hub_download, HfFileSystem, RepositoryNotFoundError
 
 from llmxive_toolkit import paths, get_logger
 from src.config import Config
@@ -45,17 +45,66 @@ def compute_checksum(ids: List[str]) -> str:
     return hashlib.sha256(concatenated).hexdigest()
 
 
-def load_dataset_stream(dataset_name: str, split: str = "train") -> Iterator[Dict[str, Any]]:
+def list_repo_json_files(repo_id: str) -> List[str]:
     """
-    Load a streaming dataset. Any exception (including the pyarrow
-    ImportError that can surface when the environment has an older NumPy)
-    is wrapped in a RuntimeError as required by the specification.
+    Return a list of JSON‑like files (``.json`` or ``.jsonl``) in the
+    repository. These files typically contain the raw PG‑19 documents.
     """
     try:
-        ds = load_dataset(dataset_name, split=split, streaming=True)
-        return iter(ds)
-    except Exception as exc:
-        raise RuntimeError(f"Failed to load dataset '{dataset_name}': {exc}") from exc
+        fs = HfFileSystem()
+        all_files = fs.ls(repo_id, detail=False)
+    except RepositoryNotFoundError as exc:
+        raise RuntimeError(f"Repository '{repo_id}' not found on the HuggingFace Hub.") from exc
+    json_files = [f for f in all_files if f.endswith(".json") or f.endswith(".jsonl")]
+    if not json_files:
+        raise RuntimeError(f"No JSON files found in repository '{repo_id}'.")
+    return json_files
+
+
+def stream_documents_from_hub(repo_id: str) -> Iterator[Dict[str, Any]]:
+    """
+    Stream documents from the HuggingFace Hub without loading the entire
+    dataset into memory.
+
+    Each yielded dict contains at least ``document_id`` and ``text``.
+    """
+    json_files = list_repo_json_files(repo_id)
+
+    # Prefer a single consolidated file if it exists; otherwise iterate over all.
+    # We simply process files in the order returned by the hub.
+    for file_path in json_files:
+        local_path = hf_hub_download(repo_id=repo_id, filename=file_path, repo_type="dataset")
+        logger.info(f"Downloading {file_path} -> {local_path}")
+
+        # Detect JSONLines vs. plain JSON list.
+        # If the file starts with '[' we treat it as a list; otherwise line‑by‑line.
+        with open(local_path, "r", encoding="utf-8") as f:
+            first_char = f.read(1)
+            f.seek(0)
+            if first_char == "[":
+                # Load entire list (acceptable for small test files)
+                docs = json.load(f)
+                for doc in docs:
+                    yield {
+                        "document_id": doc.get("id") or doc.get("document_id") or "unknown",
+                        "text": doc.get("text", ""),
+                    }
+            else:
+                # Assume JSONLines
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        doc = json.loads(line)
+                    except json.JSONDecodeError:
+                        # Skip malformed lines but log a warning.
+                        logger.warning(f"Skipping malformed JSON line in {file_path}")
+                        continue
+                    yield {
+                        "document_id": doc.get("id") or doc.get("document_id") or "unknown",
+                        "text": doc.get("text", ""),
+                    }
 
 
 def count_tokens(text: str, tokenizer) -> int:
@@ -72,14 +121,13 @@ def enrich_with_counts(
 ) -> Iterator[Dict[str, Any]]:
     """
     Yield documents enriched with a ``token_count`` field.
-    Expected keys in each raw document: ``id`` (or ``document_id``) and ``text``.
+    Expected keys in each raw document: ``document_id`` and ``text``.
     """
     for doc in raw_iter:
-        doc_id = doc.get("id") or doc.get("document_id") or "unknown"
         text = doc.get("text", "") or ""
         token_cnt = count_tokens(text, tokenizer)
         yield {
-            "document_id": doc_id,
+            "document_id": doc["document_id"],
             "text": text,
             "token_count": token_cnt,
         }
@@ -101,7 +149,6 @@ def filter_documents(
             yield doc
         else:
             if pad_short:
-                # Pad deterministically using the tokenizer's pad token (or a space)
                 pad_token = tokenizer.pad_token if tokenizer and tokenizer.pad_token else " "
                 needed = min_tokens - doc["token_count"]
                 doc["text"] = doc["text"] + (pad_token * needed)
@@ -167,8 +214,10 @@ def load_streaming_pg19(
         logger.warning(f"Tokenizer load failed ({exc}); using character estimate.")
         tokenizer = None
 
-    # Stream raw dataset
-    raw_iter = load_dataset_stream(dataset_name, split=split)
+    # ------------------------------------------------------------------
+    # Stream raw dataset using HuggingFace Hub (avoids pyarrow)
+    # ------------------------------------------------------------------
+    raw_iter = stream_documents_from_hub(dataset_name)
 
     # Enrich with token counts
     enriched_iter = enrich_with_counts(raw_iter, tokenizer)
@@ -219,7 +268,9 @@ def load_streaming_pg19(
     try:
         validate(instance=split_definition, schema=schema)
     except ValidationError as ve:
-        raise RuntimeError(f"Generated split definition does not conform to schema: {ve}") from ve
+        raise RuntimeError(
+            f"Generated split definition does not conform to schema: {ve}"
+        ) from ve
 
     # Return iterator over filtered documents for downstream pipelines
     return iter(filtered_docs)
@@ -286,7 +337,9 @@ def main() -> None:
 
     # Map deprecated / renamed dataset identifiers to the current canonical name.
     if args.dataset in {"deepmind/pg19", "deepmind/pg-19"}:
-        logger.info(f"Mapping deprecated dataset identifier '{args.dataset}' to 'lmsys/pg-19-test'.")
+        logger.info(
+            f"Mapping deprecated dataset identifier '{args.dataset}' to 'lmsys/pg-19-test'."
+        )
         args.dataset = "lmsys/pg-19-test"
 
     # Run the loader; we discard the iterator because the quick‑start only
@@ -305,5 +358,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    # Import yaml lazily already done at top; just run main.
     main()

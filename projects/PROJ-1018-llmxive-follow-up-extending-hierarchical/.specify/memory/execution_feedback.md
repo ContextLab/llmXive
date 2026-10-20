@@ -12,16 +12,9 @@ shell script must be an existing project-local .sh file
 - python src/data_loader.py  --dataset deepmind/pg19  --split-ratio 0.05  --seed 42  --min-tokens 32000  --pad-short-docs False -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/src/data_loader.py", line 28, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1018-llmxive-follow-up-extending-hierarchical/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1018-llmxive-follow-up-extending-hierarchical/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1018-llmxive-follow-up-extending-hierarchical/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/src/data_loader.py", line 30, in <module>
+    from huggingface_hub import hf_hub_download, HfFileSystem, RepositoryNotFoundError
+ImportError: cannot import name 'RepositoryNotFoundError' from 'huggingface_hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1018-llmxive-follow-up-extending-hierarchical/lib/python3.11/site-packages/huggingface_hub/__init__.py)
 
 - python code/src/clustering.py --input data/interim/relevance_profiles.json --k 100 --output data/processed/static_index_k100.json --seed 42 -> rc=1
 
