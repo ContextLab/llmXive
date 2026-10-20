@@ -15,22 +15,22 @@ The pipeline operates on a single canonical table of processed alloy entries (me
 | `electronegativity_variance` | number | Weighted variance of Pauling electronegativity. |
 | `vec` | number | Valence electron concentration (e⁻/atom). |
 | `atomic_size_coefficient_of_variation` | number | Standard deviation of atomic radii divided by the weighted mean radius (σ/μ). |
-| `source_method` | string | `"DFT"` or `"Experimental"` as reported by the Materials Project. |
+| `source_method` | string | `"DFT"` or `"Experimental"` as reported by the source. |
 | `checksum` | string | SHA‑256 checksum of the raw JSON record. |
-| `vif_score` | number | optional | VIF computed for each descriptor (if calculated). |
-| `thermal_history_flag` | boolean | optional | True if non‑standard thermal‑history metadata is present (rare for metallic glasses). |
+| `vif_score` | number | optional | VIF computed for each descriptor (if computed). |
+| `thermal_history_flag` | boolean | optional | True if non‑standard thermal‑history metadata is present. |
 | `alloy_family` | string | Sorted, comma‑separated list of constituent element symbols (e.g., `"Al,Cu,Zr"`); used for GroupKFold stratification. |
 
 ### ModelPerformance
 | Field | Type | Description |
 |-------|------|-------------|
 | `model_type` | string | `"linear_regression"`, `"random_forest"` or `"baseline_linear"`. |
-| `r2_test` | number | R² on the held‑out test set. |
+| `r2_test` | number | Coefficient of determination on the held‑out test set. |
 | `mae_test` | number | Mean Absolute Error (K⁻¹) on the test set. |
 | `rmse_test` | number | Root Mean Squared Error (K⁻¹) on the test set. |
-| `p_value` | number | nullable | Permutation‑test p‑value; `null` if R² < 0.3 (null result). |
-| `null_result_flag` | boolean | `True` if observed R² is below the significance threshold (R² < 0.3). |
-| `runtime_seconds` | number | Wall‑clock time for training + evaluation. |
+| `p_value` | number | nullable | Permutation‑test p‑value; `null` if observed R² < 0.3. |
+| `null_result_flag` | boolean | `True` if the observed R² is below the significance threshold (R² < 0.3). |
+| `runtime_seconds` | number | Wall‑clock time spent during training and evaluation. |
 | `memory_peak_mb` | number | Peak RAM usage (MB). |
 
 ### FeatureImportance
@@ -51,5 +51,3 @@ The pipeline operates on a single canonical table of processed alloy entries (me
 - All files are version‑controlled; the `checksum` column guarantees reproducibility (Constitution Principle III).
 
 ---
-
-

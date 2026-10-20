@@ -25,13 +25,13 @@ ruff check .   # optional lint
 | Step | Command | Description |
 |------|---------|-------------|
 | 0 | `pip install -r requirements.txt` | Install pinned dependencies. |
-| 1 | `python -m code.ingestion.fetch_data` | Pull raw Materials Project data (CTE + composition), filter for metallic‑glass entries, compute SHA‑256 checksums, and write `data/raw/*.json`. |
-| 2 | `python -m code.features.compute_descriptors` | Generate the four compositional descriptors, compute VIF, apply PCA‑Ridge fallback if needed, and write `data/processed/clean_alloy_data.parquet`. |
-| 3 | `python -m code.modeling.split_data` | Perform GroupKFold by alloy family (fallback to random split if a family lacks ≥ 5 samples); outputs `data/processed/train.parquet` and `data/processed/test.parquet`. |
+| 1 | `python -m code.ingestion.fetch_data` | Load the user‑provided CSV, augment with MP/AFLOW entries, filter for metallic‑glass, compute coverage & power analysis, and write `data/processed/clean_alloy_data.parquet`. |
+| 2 | `python -m code.features.compute_descriptors` | Generate the four compositional descriptors, compute VIF, apply PCA‑Ridge fallback if needed, and write the cleaned parquet file. |
+| 3 | `python -m code.modeling.split_data` | Perform GroupKFold stratified split (fallback to random 80/20); outputs `train.parquet` and `test.parquet`. |
 | 4 | `python -m code.modeling.train` | Run 5‑fold CV, hyper‑parameter grid search for Linear Regression & Random Forest, fit final models, and save `models/*.pkl`. |
 | 5 | `python -m code.modeling.baseline` | Train the baseline weighted‑average elemental CTE model; save metrics to `results/baseline_metrics.json`. |
-| 6 | `python -m code.modeling.evaluate` | Evaluate test‑set performance; write `results/model_performance.json`. |
-| 7 | `python -m code.modeling.permutation_test` | Execute 1 000‑iteration permutation test; output `results/permutation_null_distribution.npy` and p‑value. |
+| 6 | `python -m code.modeling.evaluate` | Evaluate test‑set performance for all models; write `results/model_performance.json`. |
+| 7 | `python -m code.modeling.permutation_test` | Execute ≥ 1 000‑iteration permutation test; output `results/permutation_null_distribution.npy` and p‑value. |
 | 8 | `python -m code.modeling.feature_importance` | Produce `results/feature_importance.csv` and `results/correlation_diagnostics.json`. |
 | 9 | `python -m code.utils.log_resources` | Log runtime & peak memory; generate `results/computational_efficiency.json`. |
 | 10 | `python -m code.tests.validate_contracts` | Run unit tests that validate example rows against the JSON‑Schema contracts. |
@@ -65,11 +65,9 @@ PY
 If any step exceeds the allocated resources, the pipeline aborts and `results/computational_efficiency.json` will contain `"pass": false`.
 
 ## Early‑Termination Notice
-If Phase 0 determines that **≥ 95 %** of metallic‑glass entries cannot be retrieved or that fewer than **500** usable samples are available, the pipeline will **stop after ingestion** and output `results/ingestion_coverage.json` together with a clear “Specification Amendment Required” flag. No modeling or downstream analysis will be performed in that case.
+If Phase 0 determines that **≥ 95 %** of metallic‑glass entries cannot be retrieved **or** that fewer than **500** usable samples are available, the pipeline will **stop after ingestion** and output `results/ingestion_coverage.json` together with a clear “Specification Amendment Required” flag. No modeling or downstream analysis will be performed in that case.
 
 ## Seed Fixing for Reproducibility
 All scripts set `np.random.seed(42)` and `random.seed(42)` at import time, ensuring deterministic behavior across runs (Constitution Principle I).
 
 ---
-
-

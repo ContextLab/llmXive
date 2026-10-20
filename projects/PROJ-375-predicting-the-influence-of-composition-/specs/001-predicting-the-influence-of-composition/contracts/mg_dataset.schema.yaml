@@ -46,4 +46,7 @@ properties:
   thermal_history_flag:
     type: boolean
     description: "True if non‑standard thermal‑history metadata is present."
+  alloy_family:
+    type: string
+    description: "Sorted, comma‑separated list of constituent element symbols; used for GroupKFold."
 additionalProperties: false
