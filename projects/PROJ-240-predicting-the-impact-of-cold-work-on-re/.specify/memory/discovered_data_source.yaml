@@ -1,6 +1,6 @@
 status: none
-intent: Aluminum alloy recrystallization kinetics dataset NIST HuggingFace python
-  package dataset
+intent: download synthetic alloy recrystallization dataset with Mg Si Cu Mn from NIST
+  HuggingFace python package dataset
 required_fields:
 - cold_work_percent
 - mg_wt_percent
@@ -9,8 +9,7 @@ required_fields:
 - mn_wt_percent
 - annealing_temperature_K
 - time_to_peak_softening
-- interaction_feature_pinning
-- interaction_feature_solute_drag
-cache_key: 1f6fa4b4298db5b590dc65739dad294806c402ba2cbb2a3a3b907705df824007
-searched_at: '2026-09-28T16:53:53.502565+00:00'
+- interaction_feature
+cache_key: 6ab2a47ac9c22a89ffd503397ab55e93d5b6b0d73e0e87f80a9ba227aadf05ac
+searched_at: '2026-10-20T18:32:17.491829+00:00'
 retry_count: 1
