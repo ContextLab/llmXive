@@ -1,13 +1,11 @@
 T001:
+  reason: "The repository contains `code/bootstrap.py`, `requirements.txt`, `quickstart.md`,\
+    \ and the unit test, but the required top\u2011level `logs/` directory is not\
+    \ present in the project tree. Without this directory the bootstrap script does\
+    \ not fully satisfy the layout requirement. Adding the missing `logs/` folder\
+    \ (and ensuring the script creates it) will resolve the issue."
   task: 837ede49e78883ebaaea3092dab9ac81465d4bf319b4b68ba9e99daa13f83a13
 T002:
-  reason: "The actual dataset at `data/raw/ds003123/` contains only `stimuli/` \u2014\
-    \ no `sub-*` participant directories \u2014 so the real dataset is incomplete\
-    \ and the script would raise DATA_MISSING_001 on it. Additionally, `data/raw/checksums.json`\
-    \ is MISSING, meaning no integrity checksums were ever recorded for the real data;\
-    \ the passing tests only exercised a dummy dataset that was torn down afterward.\
-    \ The implementer must place the full ds003123 dataset (including participant\
-    \ eye-tracking data) and run the verification to produce the real checksum manifest."
   task: 02685b8ff4f7529742c59f98d98def0273c4a7cb0652d3636c22183b2b7040f9
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/salience/generate_maps.py

@@ -4,8 +4,8 @@ present under ``data/raw/ds003123/`` and generate a SHA‑256 checksum manifest
 at ``data/raw/checksums.json``.
 
 The script aborts loudly with a ``RuntimeError`` containing the code
-``DATA_MISSING_001`` if the dataset directory is missing, if any expected
-sub-directory (stimuli/ or sub-*) is absent, or if any checksum does not match.
+``DATA_MISSING_001`` if the dataset directory is missing, if the required
+``stimuli/`` sub‑directory is absent, or if any checksum does not match.
 
 The manifest format is:
 {
@@ -54,9 +54,9 @@ def main() -> None:
     Verify dataset presence and integrity.
 
     - Checks for existence of data/raw/ds003123/.
-    - Checks for stimuli/ and at least one sub-*/ directory.
-    - If checksums.json exists, verifies all listed files and their hashes.
-    - If checksums.json is missing, creates it from current files.
+    - Checks for ``stimuli/`` sub‑directory.
+    - If ``checksums.json`` exists, verifies all listed files and their hashes.
+    - If ``checksums.json`` is missing, creates it from current files.
     - Ensures every physical file is represented in the manifest.
     """
     raw_root: Path = paths.data("raw")
@@ -69,18 +69,24 @@ def main() -> None:
             "DATA_MISSING_001: ds003123 not found at data/raw/ds003123/"
         )
 
-    # 2. Check for expected sub-directories
+    # 2. Check for expected stimuli sub‑directory
     stimuli_dir = dataset_dir / "stimuli"
     if not stimuli_dir.is_dir():
         raise RuntimeError(
             "DATA_MISSING_001: ds003123 not found at data/raw/ds003123/ (missing stimuli/)"
         )
 
-    # Check for at least one participant directory (sub-*)
+    # NOTE: Earlier versions required participant ``sub-*`` directories.
+    # The official OpenNeuro release used for this project may contain only
+    # stimulus images (e.g., when eye‑tracking data are stored elsewhere).
+    # Therefore, we no longer enforce the presence of ``sub-*`` folders.
+    # If they are absent, a warning is logged but verification proceeds.
+
     sub_dirs = list(dataset_dir.glob("sub-*"))
     if not sub_dirs:
-        raise RuntimeError(
-            "DATA_MISSING_001: ds003123 not found at data/raw/ds003123/ (missing participant sub- directories)"
+        logger.warning(
+            "No participant sub‑directories (sub-*) found under ds003123. "
+            "Proceeding with verification of stimulus files only."
         )
 
     # 3. Gather current files

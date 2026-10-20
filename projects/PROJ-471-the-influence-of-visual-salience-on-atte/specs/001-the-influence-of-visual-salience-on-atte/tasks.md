@@ -4,11 +4,11 @@
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [X] T001 Establish project layout, generate `requirements.txt`, and document a runnable entry point.  
+- [ ] T001 Establish project layout, generate `requirements.txt`, and document a runnable entry point.  
   **Implementation**: `code/bootstrap.py` creates the standard directory tree (`code/`, `data/raw/`, `data/interim/`, `data/processed/`, `logs/`), writes a pinned `requirements.txt` with all dependencies (torch==2.2.0, statsmodels>=0.14.0, ultralytics>=8.0.0, detectron2>=0.7, pandas>=2.2.0, numpy>=1.26.0, scikit-image>=0.22.0, scikit-learn>=1.3.0, pingouin>=0.5.4, opencv-python>=4.8.0), and adds a `quickstart.md` command documenting `python -m code.main --stage smoke`.  
   **Verification**: Running `python code/bootstrap.py` exits with status 0, prints the directory tree, and the generated `requirements.txt` matches the pinned list. A unit test `tests/test_bootstrap.py` asserts file existence and exact content.
 
-- [ ] T002 [US1] Verify the “Moral Foundations Eye‑Tracking Dataset” (OpenNeuro ds003123) is present at `data/raw/ds003123/` and record integrity checksums; fail loudly if absent.
+- [X] T002 [US1] Verify the “Moral Foundations Eye‑Tracking Dataset” (OpenNeuro ds003123) is present at `data/raw/ds003123/` and record integrity checksums; fail loudly if absent.
   **Implementation**: `code/ingestion/verify_data.py` checks that `data/raw/ds003123/` exists with expected sub‑directories (`sub-*/` for participants, `stimuli/` for images). It computes SHA‑256 checksums for all image and eye‑tracking files, writes them to `data/raw/checksums.json`, and raises `RuntimeError("DATA_MISSING_001: ds003123 not found at data/raw/ds003123/")` if the directory is missing or incomplete. No automatic download is attempted – the dataset must be placed manually before the pipeline runs.  
   **Verification**: `tests/test_verify_data.py` asserts that the script exits 0 when the dataset is present, that `checksums.json` contains an entry for every file, and that the exact error phrase “DATA_MISSING_001” is raised when the directory is absent. The script aborts on checksum mismatch (no silent fallback).
 

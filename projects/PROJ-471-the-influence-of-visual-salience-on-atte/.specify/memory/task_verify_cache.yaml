@@ -1,26 +1,19 @@
 T001:
-  c: true
-  h: 312940e5a694b2a27d98b27966d8fc12cb4709b7dd1fab97a9012d595cdcb0dc
-  r: "The required artifacts exist and match the task: `code/bootstrap.py` creates\
-    \ the directory tree (code/, data/raw|interim|processed, logs/ \u2014 all confirmed\
-    \ present on disk), `requirements.txt` at the project root contains all ten pinned\
-    \ dependencies exactly as specified, `quickstart.md` documents the `python -m\
-    \ code.main --stage smoke` entry point, and `tests/test_bootstrap.py` asserts\
-    \ directory existence and requirements content. One minor inconsistency (bootstrap's\
-    \ embedded `_REQUIREMENTS` includes `python==3.11`/`datasets`/`huggingface_hub`\
-    \ and omits `timm`, differing slightly from the on-dis"
-  sig: 4dace7f390db946c6751adfcd204179fa382ed81bb386cdb1a96b70dc74368bb
-T002:
   c: false
-  h: b36b999daacf247aad02bfd54ca1807d7c9d660f7034d199a0218f463576f066
-  r: "The actual dataset at `data/raw/ds003123/` contains only `stimuli/` \u2014 no\
-    \ `sub-*` participant directories \u2014 so the real dataset is incomplete and\
-    \ the script would raise DATA_MISSING_001 on it. Additionally, `data/raw/checksums.json`\
-    \ is MISSING, meaning no integrity checksums were ever recorded for the real data;\
-    \ the passing tests only exercised a dummy dataset that was torn down afterward.\
-    \ The implementer must place the full ds003123 dataset (including participant\
-    \ eye-tracking data) and run the verification to produce the real checksum manifest."
-  sig: cd171297db828d1b08f9d14fc48740ee16c1b1d40ce04170b5b9f85c0a5fdce0
+  h: fa7d8056ff94924999e43854e6ecfdb3d228ce6218d0fae04f70efada1d33d27
+  r: "The repository contains `code/bootstrap.py`, `requirements.txt`, `quickstart.md`,\
+    \ and the unit test, but the required top\u2011level `logs/` directory is not\
+    \ present in the project tree. Without this directory the bootstrap script does\
+    \ not fully satisfy the layout requirement. Adding the missing `logs/` folder\
+    \ (and ensuring the script creates it) will resolve the issue."
+  sig: 465bfa7a33f64e193779b982b13e30f42c4a7a64e40bcbf8b09f2c50aefc2b62
+T002:
+  c: true
+  h: 0fbf67fe131e0b6abd4e1f9b5b6f0d294fdac2dfd693e82bbe9c6968fc2c70c6
+  r: Checked `code/ingestion/verify_data.py` for correct existence, checksum generation,
+    and error handling, and confirmed all four tests in `tests/test_verify_data.py`
+    pass, demonstrating the script meets the verification and checksum requirements.
+  sig: 915ba17ccb1a7ab29b368061375d8f46faca0deb3e74016e5078106d54192bb8
 T004:
   c: false
   h: cdf4ecfc415938618b991bfc4c3e60e7565afb878087425c34a55251a8d38cf2

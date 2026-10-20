@@ -44,11 +44,12 @@ def test_verify_success():
         result = run_verify()
         assert result.returncode == 0
         assert "Dataset verification succeeded" in result.stdout
-        
+
         checksum_path = raw_root / "checksums.json"
         assert checksum_path.is_file()
         with checksum_path.open() as f:
             manifest = json.load(f)
+        # Expect two files: the image and the gaze csv
         assert len(manifest["files"]) == 2
     finally:
         teardown_dummy_dataset(raw_root)
@@ -57,7 +58,7 @@ def test_verify_missing_dir():
     """Test that missing dataset directory raises DATA_MISSING_001."""
     raw_root = paths.data("raw")
     teardown_dummy_dataset(raw_root)
-    
+
     result = run_verify()
     assert result.returncode != 0
     assert "DATA_MISSING_001" in result.stderr
@@ -69,7 +70,7 @@ def test_verify_incomplete_structure():
     ds_dir = raw_root / "ds003123"
     ds_dir.mkdir(parents=True, exist_ok=True)
     # Missing stimuli/ and sub-*/
-    
+
     try:
         result = run_verify()
         assert result.returncode != 0
@@ -81,13 +82,13 @@ def test_verify_checksum_mismatch():
     """Test that altered files trigger a checksum mismatch error."""
     raw_root = paths.data("raw")
     setup_dummy_dataset(raw_root)
-    
+
     # First run to create manifest
     run_verify()
-    
+
     # Alter a file
     (raw_root / "ds003123" / "stimuli" / "img1.png").write_bytes(b"altered-data")
-    
+
     try:
         result = run_verify()
         assert result.returncode != 0
