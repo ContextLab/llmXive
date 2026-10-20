@@ -45,7 +45,7 @@
 
 **Why this priority**: This transforms the "black box" model into a scientific tool, addressing the need to "identify key alloying elements" and "visualize non-linear interactions" as stated in the expected results.
 
-**Independent Test**: Can be fully tested by generating the importance report and plots; the test verifies that the top 3 features are listed and that partial dependence curves are generated for at least one element-environment pair.
+**Independent Test**: Can be fully tested by generating the importance report and plots; the test verifies that the top 3 features are listed and that partial dependence curves are generated for at least one element‑environment pair.
 
 **Acceptance Scenarios**:
 
@@ -78,6 +78,13 @@
 - **FR-012**: System MUST implement a clustering or specific-alloy-level splitting strategy (Leave-One-Specific-Alloy-Out) to ensure true generalization to new compositions, rather than relying on base metal families. (See US-1)
 - **FR-013**: System MUST exclude records with missing critical environmental variables (pH, temperature) from the primary regression analysis rather than imputing them. (See US-1)
 - **FR-014**: System MUST halt the pipeline and report a `SchemaMismatchError` if the NIST Corrosion Database (NIST-IR-8200) does not contain the required joint distribution (Composition + Environment + Corrosion) or if the record count is < 500. (See US-1)
+- **FR-015**: System MUST implement an exponential backoff retry mechanism for HTTP 429 responses from the NIST Corrosion Database API, with up to 3 retries, a base delay of 5 seconds, a maximum delay of 60 seconds, and log each attempt. (See US-1)
+- **FR-016**: System MUST flag records with out‑of‑range pH values (< 0.0 or > 14.0) as outliers, exclude them from the primary regression analysis, and include them in a separate “extreme condition” diagnostic report. (See US-1)
+- **FR-017**: System MUST halt the pipeline and raise a `DataInsufficientError` when fewer than 10 distinct Specific Alloy Designations remain after preprocessing, providing a clear error message suggesting data augmentation or an alternative source. (See US-1)
+- **FR-018**: System MUST generate a summary report after interpretability analysis that states whether specific elements consistently reduce corrosion potential across environments, based on permutation importance results. (See US-3)
+- **FR-019**: System MUST retrieve alloy composition data from the Materials Project API (https://materialsproject.org) for the target metals (Fe, Al, Ni, Ti) and merge it with NIST corrosion records when such data is available, to augment composition information. (See US-1)
+- **FR-020**: System MUST apply a compositional data transformation (e.g., centered log‑ratio) or drop one element to address the unit‑sum constraint of elemental weight fractions before model training, ensuring feature independence for statistical tests. (See US-2)
+- **FR-021**: System MUST achieve an R² score greater than 0.6 on the held‑out test set for the primary model to be considered successful, in addition to the learnability criterion (R² > 0.0 with p < 0.05). (See US-2)
 
 ### Key Entities
 
@@ -92,7 +99,7 @@
 
 > Planning docs state *what* will be measured and the *source/reference* it is
 > measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
+> percentages) to the implementation/research phase.
 
 - **SC-001**: Model predictive power (R² score) is measured against the baseline of a null model (mean prediction) to confirm a learnable relationship. (See US-2)
 - **SC-002**: Prediction error (RMSE) is measured in millivolts (mV) against a tolerance defined in ASTM G59 standard practice to determine practical utility. (See US-2)
@@ -101,14 +108,18 @@
 - **SC-005**: Compute feasibility is measured by ensuring the total execution time on a GitHub Actions `ubuntu-latest` runner is ≤ 6 hours. (See US-2)
 - **SC-006**: Data validity is measured by the count of records passing schema validation (non-null composition, pH, temperature, corrosion); the target is ≥ 500 records. (See US-1)
 - **SC-007**: Learnable pattern classification is measured by the R² score and p-value; the target is R² > 0.0 with p < 0.05. (See US-2)
+- **SC-008**: Model success is measured by achieving R² > 0.6 on the held‑out test set for the primary model. (See US-2)
+- **SC-009**: Interpretability summary is measured by the generation of a report that explicitly states whether specific elements consistently reduce corrosion potential across environments. (See US-3)
 
 ## Assumptions
 
 - **Data Availability**: It is assumed that the NIST Corrosion Database (NIST-IR-8200) contains sufficient overlapping records (composition + environment + corrosion potential) to create a dataset of at least 500 unique samples. If the intersection is < 500 samples, the project MUST halt and report the count; no scope reduction or synthetic data fallback is permitted.
 - **Dataset-Variable Fit**: It is assumed that the NIST Corrosion Database (NIST-IR-8200) contains explicit numerical pH and temperature values for corrosion records. If a record only contains qualitative descriptions (e.g., "acidic"), the system MUST exclude that record from the primary regression analysis and flag it for the "extreme condition" diagnostic report.
+- **Composition Source**: When available, alloy composition data will be supplemented from the Materials Project API to ensure comprehensive elemental coverage; if unavailable, NIST‑provided composition is used exclusively. This dual‑source approach satisfies the original idea’s requirement to aggregate composition and corrosion data from public repositories.
 - **Inference Framing**: Since the data is observational (no random assignment of environment), all findings regarding "effects" will be framed as associational correlations, not causal claims.
 - **Compute Constraints**: The analysis assumes that Random Forest and Gradient Boosting models on the expected dataset size (≤ 10,000 rows) will run within the limited CPU and RAM constraints of the GitHub Actions free tier without requiring GPU acceleration.
-- **Threshold Justification**: The target R² > 0.0 and RMSE ≤ 150 mV are based on typical variability in corrosion potential measurements reported in standard materials science literature (ASTM G59); these are treated as community-standard defaults for reporting.
-- **Measurement Validity**: It is assumed that the corrosion potential values in the NIST Corrosion Database (NIST-IR-8200) are derived from standardized electrochemical testing methods (e.g., ASTM G5) and are directly comparable across records.
-- **Multiplicity Correction**: When testing multiple feature importances, a Bonferroni correction or False Discovery Rate (FDR) control will be applied to the p-values to account for multiple comparisons.
+- **Threshold Justification**: The target R² > 0.6 and RMSE ≤ 150 mV are based on typical variability in corrosion potential measurements reported in standard materials science literature (ASTM G59); these are treated as community‑standard defaults for reporting.
+- **Measurement Validity**: It is assumed that the corrosion potential values in the NIST Corrosion Database (NIST) are derived from standardized electrochemical testing methods (e.g., ASTM G5) and are directly comparable across records.
+- **Multiplicity Correction**: When testing multiple feature importances, a Bonferroni correction or False Discovery Rate (FDR) control will be applied to the p‑values to account for multiple comparisons.
+- **Compositional Data Handling**: Elemental weight fractions sum to unity; therefore a compositional transformation (e.g., centered log‑ratio) will be applied before modeling to satisfy feature‑independence assumptions required for permutation importance and partial dependence analysis.
 - **Simulation Mode**: The use of synthetic data or simulation mode for the primary research question is explicitly FORBIDDEN. The pipeline MUST halt if real data is insufficient.
