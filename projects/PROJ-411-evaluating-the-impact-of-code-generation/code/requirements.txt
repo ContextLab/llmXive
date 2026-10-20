@@ -1,0 +1,9 @@
+pandas==2.2.*
+numpy==1.26.*
+scipy==1.13.*
+statsmodels==0.14.*
+scikit-learn==1.5.*
+huggingface_hub==0.23.*
+pyyaml==6.0.*
+matplotlib==3.8.*
+psutil==5.9.*
