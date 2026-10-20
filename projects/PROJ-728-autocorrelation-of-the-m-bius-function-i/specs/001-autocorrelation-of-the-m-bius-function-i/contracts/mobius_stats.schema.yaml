@@ -1,57 +1,57 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Autocorrelation Statistics Schema"
-description: "Schema for rows of autocorrelation_stats.csv. p_value is a two-sided p-value from a 1,000-permutation zero-preserving sign-shuffle test (minimum resolution 1/1001)."
+title: "Möbius Autocorrelation Statistics"
+description: "Schema for the final CSV containing autocorrelation values, permutation‑based p‑values, confidence intervals, and sensitivity flags."
 type: object
 properties:
   interval_start:
     type: integer
-    description: "Starting index k of the window in the Mobius sequence."
     minimum: 1
+    description: "Start index k of the window."
   interval_length:
     type: integer
-    description: "Length L of the window."
     enum: [1000, 10000, 100000]
+    description: "Length L of the window."
   lag:
     type: integer
-    description: "Lag h (1 <= h <= L/2)."
     minimum: 1
+    description: "Lag h (1 ≤ h ≤ floor(L/2))."
   autocorrelation:
     type: number
-    description: "Observed normalized autocorrelation; NaN only for all-zero windows."
-    minimum: -1.0
-    maximum: 1.0
+    minimum: -1
+    maximum: 1
+    description: "Normalized autocorrelation value."
   p_value:
     type: number
-    description: "Two-sided permutation p-value with +1 correction."
-    exclusiveMinimum: 0.0
-    maximum: 1.0
+    exclusiveMinimum: 0
+    maximum: 1
+    description: "Two‑sided permutation p‑value (1/501 lattice)."
   adjusted_p_value:
     type: number
-    description: "Benjamini-Hochberg FDR-adjusted p-value."
-    exclusiveMinimum: 0.0
-    maximum: 1.0
+    exclusiveMinimum: 0
+    maximum: 1
+    description: "Benjamini–Hochberg FDR‑adjusted p‑value."
   ci_lower:
     type: number
-    description: "2.5th percentile of the permutation null distribution."
-    minimum: -1.0
-    maximum: 1.0
+    minimum: -1
+    maximum: 1
+    description: "2.5th percentile of the null distribution."
   ci_upper:
     type: number
-    description: "97.5th percentile of the permutation null distribution."
-    minimum: -1.0
-    maximum: 1.0
+    minimum: -1
+    maximum: 1
+    description: "97.5th percentile of the null distribution."
   zero_count:
     type: integer
-    description: "Number of zeros in the window."
     minimum: 0
+    description: "Number of zero entries in the window."
   sensitivity_flag:
     type: string
-    description: "Outcome of the zero-density sensitivity analysis."
     enum: ["stable", "sensitive", "not_applicable"]
+    description: "Outcome of the zero‑density sensitivity analysis."
   theoretical_variance:
     type: number
-    description: "Theoretical variance sigma^2/L with sigma^2 = (6/pi^2)(1 - 6/pi^2)."
-    minimum: 0.0
+    minimum: 0
+    description: "Theoretical variance σ²/L under the random‑sign heuristic."
 required:
   - interval_start
   - interval_length
@@ -64,4 +64,3 @@ required:
   - zero_count
   - sensitivity_flag
   - theoretical_variance
-additionalProperties: false
