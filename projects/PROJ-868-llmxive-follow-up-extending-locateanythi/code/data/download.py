@@ -28,8 +28,7 @@ from pycocotools.coco import COCO
 # Configuration
 # ----------------------------------------------------------------------
 # Expected SHA-256 hashes for the three parquet files.
-# These are placeholders that are typically updated by the CI after 
-# the first successful run of the pipeline to ensure reproducibility.
+# These are updated by the CI after the first successful run of the pipeline.
 EXPECTED_HASHES = {
     "vrsbench.parquet": "PLACEHOLDER_HASH_VRSBENCH",
     "coco_val.parquet": "PLACEHOLDER_HASH_COCO_VAL",
@@ -166,8 +165,10 @@ def main() -> None:
         if expected and not expected.startswith("PLACEHOLDER"):
             verify_checksum(target_path, expected)
         else:
+            actual = sha256_of_file(target_path)
             log.warning(
-                "No checksum defined for %s – skipping verification.", target_path.name
+                "No checksum defined for %s. Calculated hash: %s", 
+                target_path.name, actual
             )
 
     log.info("All datasets downloaded and (if applicable) verified successfully.")
