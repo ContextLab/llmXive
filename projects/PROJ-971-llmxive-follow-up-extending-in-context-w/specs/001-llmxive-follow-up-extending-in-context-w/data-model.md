@@ -19,7 +19,7 @@ All schemas reside under `specs/001-auto-icwm-latent-dynamics/contracts/`:
 - `descriptor.schema.yaml` – records per‑clip descriptors.  
 - `label.schema.yaml` – records optimal hyperparameters and success rate.  
 - `complexity.schema.yaml` – records the independent task‑complexity metric.  
-- `validation_results.schema.yaml` – records zero‑shot validation outcomes, including **auto_success_rate** and **baseline_success_rate** (aggregated over multiple episodes) and the derived **success_diff** binary indicator.
+- `validation_results.schema.yaml` – records zero‑shot validation outcomes, including **auto_success_rate**, **baseline_success_rate**, and the derived **success_diff** binary indicator.
 
 ## Data Flow Diagram
 ```

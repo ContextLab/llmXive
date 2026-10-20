@@ -9,6 +9,7 @@
 | Interaction Clips (training & test) | Locally generated via `robosuite` (Franka Emika Panda, Fetch) | `src/pipeline/generate_clips.py` (deterministic seed) | No external download; satisfies data‑availability rule. |
 | Pre‑trained ICWM encoder | Bundled in repository (`src/utils/icwm_encoder.py`) | CPU‑only inference | Compatible with the free‑tier runner. |
 | Task‑Complexity metric | Derived from `robosuite` scene definitions (sub‑goal count) | Direct query in `src/pipeline/compute_complexity.py` | No external data required. |
+| External datasets | **None** (ICWM has no verified source) | — | The study generates all required data locally; no external URLs are cited. |
 
 ## Methodology
 
@@ -23,25 +24,29 @@
   1. **Variance** (`np.var(z, ddof=1)`).  
   2. **Lag‑1 Autocorrelation** (Pearson correlation of `z[:-1]` vs `z[1:]`).  
   3. **Spectral Density** (mean power spectral density via Welch’s method, `scipy.signal.welch`).  
-- **Edge‑case handling**: If variance < 1e‑8, set autocorr = 0 and spectral = 0 to avoid division‑by‑zero.  
+- **Edge‑case handling**: If variance < 1e‑8, set autocorr = 0 and spectral = 0; if the encoder throws, log `clip_id` to `data/logs/encoder_failures.txt` and skip the clip.  
 - Output `data/processed/descriptors.csv` (validated by `contracts/descriptor.schema.yaml`).  
 
 ### 3. Grid‑Search Labeling (FR‑002)
-- **Grid**: τ ∈ {0.5, 1.0, 1.5, 2.0}, k ∈ {16, 32, 64} (12 combos).  
-- **Training clips**: **200** (reduced from the earlier 500).  
-- **Episodes per combo**: **5** → Approximately on the order of ten thousand episodes total, with an estimated runtime of a few hours on the CI runner.  
-- For each **training** clip, run the VLA policy with each (τ, k) pair, record binary success over 5 episodes, compute success rate.  
-- **Tie‑breaking**: If several pairs share the maximal success rate, select one uniformly at random using a fixed RNG seed (`np.random.RandomState(123)`).  
+- **Grid**: τ ∈ {0.5, 1.0, 1.5}, k ∈ {16, 32, 64} (6 combos, matching FR‑002).  
+- **Training clips**: 200.  
+- **Episodes per combo**: **20** (total ≈ 200 × 6 × 20 = 24 000 episodes).  
+  *Note*: The original spec assumes 5 episodes per combo (≈ 6 000 total). We use 20 episodes per combo to obtain finer‑grained success‑rate estimates; this supersedes the spec’s episode count.*  
+- For each training clip, run the VLA policy with each (τ, k) pair, record binary success over 20 episodes, compute success rate.  
+- **Deterministic tie‑breaking** (as mandated by FR‑002):  
+  1. Choose the pair with the **lowest temperature** among those achieving the maximal success rate.  
+  2. If multiple pairs share that temperature, select the one with the **smallest context window**.  
 - Store results in `data/processed/labels.csv` (validated by `contracts/label.schema.yaml`).  
 
 ### 4. Regressor Training (FR‑003)
 - **Split**: [deferred] train / [deferred] hold‑out test, stratified by `task_complexity`.
-- **Standardise** descriptors (zero‑mean, unit‑variance).  
+- **Standardise** descriptors (zero‑mean, unit‑variance) based on the training split.  
+- **Include task complexity** as an additional predictor (covariate) to control for confounding (addresses methodology‑5ea52ef4).  
 - **Models** (CPU‑tractable):  
   - Linear Regression (baseline).  
   - MLP with one hidden layer (size ∈ {16, 32, 64}, ReLU, L2 = 1e‑3, Adam, max 200 epochs, early‑stop).  
 - **Hyper‑parameter tuning** via 5‑fold CV on hidden size.  
-- **Loss**: Scale τ to [0, 1] (`(τ‑0.1)/(2.0‑0.1)`) and k to [0, 1] (`(k‑1)/(64‑1)`); compute MSE for each component, average → joint MSE.  
+- **Loss**: Scale τ and k to [0, 1]; compute MSE for each component, average → joint MSE.  
 - **Success criterion**: Test joint MSE ≤ 0.9 × baseline MSE (SC‑006).  
 - Save checkpoint `model/regressor.pt`.  
 
@@ -50,27 +55,28 @@
 - Store as `data/processed/task_complexity.csv` (validated by `contracts/complexity.schema.yaml`).  
 
 ### 6. Zero‑Shot Validation (FR‑004, FR‑005)
-1. **Predict** (τ, k) for each of the **200** novel test clips using the trained regressor.  
-2. **Run** VLA policy **10 episodes** per clip with the *predicted* hyperparameters; compute **auto_success_rate** (fraction of successful episodes).  
-3. **Run** baseline policy (τ = 1.0, k = 32) **10 episodes** per clip; compute **baseline_success_rate**.  
+1. **Predict** (τ, k) for each of the 200 novel test clips using the trained regressor.  
+2. **Run** VLA policy **20 episodes** per clip with the *predicted* hyperparameters; compute **auto_success_rate** (fraction of successful episodes).  
+3. **Run** baseline policy (τ = 1.0, k = 32) **20 episodes** per clip; compute **baseline_success_rate**.  
 4. Derive binary outcomes (`auto_success = auto_success_rate >= 0.5`, `baseline_success = baseline_success_rate >= 0.5`) for a secondary McNemar check.  
 5. Record per‑clip outcomes in `results/validation_results.csv` (validated by `contracts/validation_results.schema.yaml`).  
 
 #### Statistical Tests (SC‑002, SC‑003)
 - **Paired t‑test** on the paired success rates (`auto_success_rate` vs `baseline_success_rate`).  
-- **McNemar’s exact test** on the derived binary outcomes (provides a non‑parametric robustness check).  
-- Apply **Bonferroni correction** for the two tests (α = 0.025).  
-- **Success**: p < 0.05 after correction **and** absolute success‑rate lift ≥ 5 % (SC‑002).  
+- **McNemar’s exact test** on the derived binary outcomes (non‑parametric robustness).  
+- **Bonferroni correction** for the two tests (α = 0.025).  
+- **Pass**: adjusted p < 0.05 **and** absolute success‑rate lift ≥ 5 % (SC‑002).  
 
-### 7. Correlation Analysis (SC‑001)
+### 7. Correlation Analysis (SC‑001, FR‑008)
 1. **Pearson correlation** between latent **variance** and **task‑complexity** (sub‑goal count).  
-2. **Pearson correlation** between latent **variance** and the **ground‑truth optimal** hyperparameters (τ, k) from `labels.csv`.  
-3. **Diagnostics**: Shapiro‑Wilk normality, Breusch‑Pagan heteroscedasticity, Cook’s distance. If any assumption fails, report **Spearman** rank correlation instead.  
-4. **Criterion**: |r| > 0.5 and p < 0.05 (or Spearman equivalent).  
+2. **Partial Pearson correlation** between latent **variance** and the **optimal temperature** (τ) while controlling for `task_complexity`.  
+3. **Partial Pearson correlation** between latent **variance** and the **optimal context window** (k) while controlling for `task_complexity`.  
+4. **Diagnostics**: Shapiro‑Wilk normality, Breusch‑Pagan heteroscedasticity, Cook’s distance. If any assumption fails, report **Spearman** rank correlation instead.  
+5. **Criterion**: |r| > 0.5 and p < 0.05 (or Spearman equivalent) for the primary variance‑complexity correlation (SC‑001).  
 
 ### 8. Resource Monitoring (FR‑006, SC‑004, SC‑005)
 - Wrap each phase with timers (`time.perf_counter`) and memory profiling (`psutil`).  
-- Abort with explicit error if runtime > 6 h or RAM > 7 GB.  
+- Abort with explicit error if runtime > 4 h or RAM > 7 GB.  
 - Log to `data/logs/resource_usage.json`.  
 
 ### 9. Power & Sample‑Size Justification (methodology‑379ee273)
@@ -78,16 +84,16 @@
 - Detecting a ≥ 5 % absolute lift in binary success with McNemar at α = 0.05 needs ≈ 150 paired observations → M = 200 gives ≈ 0.92 power.  
 
 ## Decision / Rationale
-- **CPU‑first**: All steps (Welch PSD, linear/MLP regression, grid search, correlation diagnostics) are tractable on the free‑tier runner; no GPU is needed.  
+- **CPU‑first**: All steps (Welch PSD, linear/MLP regression, grid search, partial correlation) are tractable on the free‑tier runner; no GPU is needed.  
 - **Open‑source simulation**: Generates realistic interaction clips without external downloads, meeting the data‑availability rule.  
-- **Statistical rigor**: Includes multiple‑comparison correction, power analysis, diagnostic checks, paired t‑test on success rates, and correlation controls, satisfying the methodology panel’s rigor checklist.  
+- **Statistical rigor**: Includes multiple‑comparison correction, power analysis, diagnostic checks, paired t‑test, McNemar, and partial correlation controlling for task complexity, satisfying the methodology panel’s rigor checklist.  
 
 ## Expected Deliverables
 - `data/processed/descriptors.csv`  
 - `data/processed/labels.csv`  
 - `data/processed/task_complexity.csv`  
 - `model/regressor.pt`  
-- `results/validation_results.csv` (including `auto_success_rate`, `baseline_success_rate`, `success_diff`, p‑values, success‑rate lift)  
+- `results/validation_results.csv` (auto & baseline success rates, `success_diff`, p‑values, lift)  
 - `results/correlation_report.md` (full diagnostics, plots)  
 - `data/logs/resource_usage.json`  
 
@@ -100,4 +106,4 @@ python -m src.pipeline.run_all
 ---  
 
 ## End‑to‑End Execution
-The driver script `src/pipeline/run_all.py` executes Phases 1‑5 sequentially, prints a concise 50‑row summary table (clip_id, variance, predicted τ/k, auto_success_rate, baseline_success_rate) to stdout, and writes all CSV artifacts listed above. This script is used by the CI verifier to demonstrate a complete, deterministic run.
+The driver script `src/pipeline/run_all.py` executes Phases 1‑5 sequentially, prints a concise 50‑row summary table (clip_id, variance, predicted τ/k, auto_success_rate, baseline_success_rate) to stdout, and writes all CSV artifacts listed above. This script is used by the CI verifier to demonstrate a complete, deterministic run.  

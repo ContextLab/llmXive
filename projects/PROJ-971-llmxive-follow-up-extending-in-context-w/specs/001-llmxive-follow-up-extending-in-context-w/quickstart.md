@@ -15,7 +15,7 @@ pip install -r requirements.txt
 ## Scripts
 - `scripts/quickstart.sh` – activates the virtual environment (if present) and adds `src/` to `PYTHONPATH`.  
 - `scripts/run_minimal.sh` – orchestrates the minimal pipeline:
-  1. Generates **50** deterministic clips (`src/pipeline/generate_clips.py` with `--num 50`).  
+  1. Generates **50** deterministic clips (`src/pipeline/generate_clips.py --num 50`).  
   2. Extracts the three descriptors for each clip (`src/pipeline/extract_descriptors.py`).  
   3. Writes `data/descriptors_subset.csv`.  
 
