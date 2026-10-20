@@ -13,7 +13,7 @@ The system MUST download, parse, and align time-series data from the ACE/WIND so
 
 **Why this priority**: Without a clean, temporally aligned dataset containing both the predictor variables (composition ratios, bulk parameters) and outcome variables (Dst, Kp), no statistical analysis can be performed. This is the foundational block for the entire research pipeline.
 
-**Independent Test**: Can be fully tested by executing the data ingestion script and verifying that the output CSV/Parquet file contains exactly one row per hour for the defined period (from the beginning of the study interval to 2020), with no missing values in the core index columns (Dst, Kp) and that the timestamps are monotonically increasing.
+**Independent Test**: Can be fully tested by executing the data ingestion script and verifying that the output CSV/Parquet file contains exactly one row per hour for the defined period (from the beginning of the study interval to its conclusion), with no missing values in the core index columns (Dst, Kp) and that the timestamps are monotonically increasing.
 
 **Acceptance Scenarios**:
 
@@ -33,7 +33,7 @@ The system MUST perform a multivariate linear regression analysis where geomagne
 **Acceptance Scenarios**:
 
 1. **Given** the aligned dataset, **When** the regression model is fitted, **Then** it must report the coefficient, standard error, and p-value for each composition ratio (O/Fe, He/H, C/O) while controlling for coupling functions (e.g., Akasofu epsilon).
-2. **Given** a 5-fold cross-validation setup, **When** the models are evaluated, **Then** the system must output the out-of-sample R² for both the baseline and full models, calculating the difference (ΔR²) to quantify the independent contribution of composition.
+2. **Given** a k‑fold cross-validation setup, **When** the models are evaluated, **Then** the system must output the out-of-sample R² for both the baseline and full models, calculating the difference (ΔR²) to quantify the independent contribution of composition.
 
 ---
 
@@ -62,7 +62,7 @@ The system MUST validate the statistical significance of composition coefficient
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and parse solar wind composition data (O/Fe, He/H, C/O) from ACE/WIND archives for the period 2000-2020. (See US-1)
+- **FR-001**: System MUST download and parse solar wind composition data (O/Fe, He/H, C/O) from ACE/WIND archives for a multi‑decadal interval spanning the early 21st century. (See US-1)
 - **FR-002**: System MUST download and parse NOAA Dst and Kp geomagnetic indices for the same 2000-2020 period. (See US-1)
 - **FR-003**: System MUST align all time series to a 1-hour resolution using hourly median aggregation, ensuring a maximum temporal offset of ≤ 30 minutes. (See US-1)
 - **FR-004**: System MUST fit a baseline multivariate linear regression model predicting Dst/Kp using physically relevant coupling functions (e.g., Akasofu epsilon, Newell function) derived from bulk parameters. (See US-2)

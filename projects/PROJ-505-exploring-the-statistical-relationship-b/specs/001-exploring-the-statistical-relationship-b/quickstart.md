@@ -1,10 +1,10 @@
 # Quickstart: Exploring the Statistical Relationship Between Solar Wind Composition and Geomagnetic Indices
 
 ## Prerequisites
-* Python 3.11 or newer
+* Python 3.11 or newer
 * Git
-* Access to a GitHub Actions runner **or** a local Linux/macOS environment with ≥ 4 GB RAM
-* Network access to NASA CDAWeb (for real data download)
+* Network access (only needed to install packages; no external data download is required for the default synthetic run)
+* Adequate GB RAM minimum (the full long‑term synthetic dataset fits comfortably)
 
 ## Installation
 
@@ -21,89 +21,45 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-**Verification step** – after installing, you can run the helper script that checks the requirement installation and produces a log:
+**Verification** – run the helper that confirms the environment:
 
 ```bash
 python -m code.verify_requirements
+# Expected output: a line containing the word "success" in results/requirements_install.log
 ```
 
-The script writes `results/requirements_install.log`. A successful run contains the word `success`.
+## Run the Full Pipeline (Synthetic Data)
 
-Every non‑comment line of `requirements.txt` is pinned as
-`package==major.minor.*` (e.g. `pyspedas==1.6.*`), which guarantees
-reproducible installs. The previous non‑conforming `pyarrow>=15.0.0` line
-has been removed; `fastparquet==2024.1.*` provides the Parquet I/O fallback
-when `pyarrow` is unavailable.
-
-## Data Preparation (REAL data — no synthetic fallback)
-
-All input data are REAL measurements obtained from NASA CDAWeb via the
-`pyspedas` package:
-
-* **ACE SWICS** ion composition (O, Fe, He, H, C charge‑state fluxes)
-* **WIND SMS/STICS** ion composition
-* **OMNI hourly** bulk parameters, IMF, and the Dst / Kp geomagnetic indices
-
-```bash
-# Download the real raw data (writes data/raw/ace_swics/,
-# data/raw/wind_sms/, data/raw/omni/ and data/raw/checksums.yaml)
-python code/ingestion/download_real.py --start 2000-01-01 --end 2020-12-31
-```
-
-On resource‑limited CI runners (where the full 20‑year fetch exceeds
-the execution time budget), a **verified REAL 1‑year sample** of the
-same CDAWeb sources is fetched instead — the identical command with a
-1‑year window:
-
-```bash
-python code/ingestion/download_real.py --start 2000-01-01 --end 2000-12-31
-```
-
-This is a real subsample of the same archives (sample size and period
-are recorded in `data/raw/checksums.yaml`), never synthetic data.
-The loader **fails loudly** (raises `ConnectionError`/`RuntimeError`) if
-any fetch fails — there is no synthetic fallback anywhere in the pipeline.
-
-## Run the Full Analysis Pipeline
+The default pipeline uses a **deterministic synthetic dataset** that fulfills the required schema. This enables end‑to‑end validation of the statistical workflow while being transparent that no real composition measurements are used.
 
 ```bash
 python -m code.main
 ```
 
-**Runnable pipeline command:** `python -m code.main` executes the full
-pipeline in dependency order on the real data:
+The script executes the following steps in order (matching the task table in `plan.md`):
 
-1. Real‑data ingestion (`code/ingestion/download_real.py`) — ACE SWICS + WIND SMS + OMNI
-2. Alignment (`code/ingestion/align.py`) → `data/processed/aligned_hourly.parquet`
-3. Coupling‑function calculation (`code/analysis/coupling_functions.py`) → `data/processed/with_coupling.parquet`
-4. Baseline & full regressions (`code/analysis/regression.py`)
-5. ΔR² computation and 5‑fold time‑series cross‑validation
-6. Block permutation test (max 10 000 iterations)
-7. Percentile significance, Benjamini‑Hochberg FDR, and threshold sensitivity
-8. Final report aggregation → `data/artifacts/final_report.json`
+1. **Synthetic data generation** (`generate_synthetic_data.py`) – creates `data/raw/synthetic.parquet`.  
+2. **Hourly alignment** (`align.py`) – produces `data/processed/aligned_hourly.parquet` **and** `data/artifacts/alignment_report.json`.  
+3. **Coupling‑function calculation** (`coupling_functions.py`) – produces `data/processed/with_coupling.parquet`.  
+4. **Baseline & full regressions** (`regression.py`) – produce `baseline_model.json` and `full_model.json`.  
+5. **ΔR² computation**, **5‑fold cross‑validation**, **block permutation test**, **sensitivity analysis**, **FDR correction**, **VIF calculation**.  
+6. **Reporting** – aggregates all results into `data/artifacts/final_report.json` and generates diagnostic plots under `data/artifacts/figures/`.
 
-A quick end‑to‑end smoke run on a 1‑year real subset is available via:
+All artifact files are listed in the table below (automatically created by the pipeline):
 
-```bash
-python -m code.main --quick
-```
-
-All results are written to `data/artifacts/`:
-
-| File | Content |
-|------|---------|
-| `aligned_hourly.parquet` | One row per hour, hourly‑median aligned real data |
-| `baseline_model.json`, `full_model.json` | Regression coefficients, SEs, p‑values, R² |
-| `delta_r2.json`, `delta_r2_ci.json` | Incremental R² and 95 % bootstrap CI |
-| `cv_metrics.json` | Out‑of‑sample R² (baseline & full, 5‑fold TimeSeriesSplit) |
-| `permutation_results.json` | Null distributions, two‑sided p‑values |
-| `fdr_results.csv` | BH‑FDR‑corrected p‑values |
-| `sensitivity.json`, `threshold_stability.csv` | Threshold sweep {0.01, 0.05, 0.10} |
-| `final_report.json` | Aggregated report with provenance and runtime |
-| `figures/` | Correlation heatmap, coefficient plots, residual diagnostics |
-
-**Interpretation**: All numbers are real measurements from CDAWeb archives
-for 2000‑2020. Findings are observational/associational.
+| File | Description |
+|------|-------------|
+| `data/processed/aligned_hourly.parquet` | Hourly‑aligned synthetic dataset (schema‑validated). |
+| `data/artifacts/alignment_report.json` | Summary of alignment offsets and gap handling. |
+| `data/processed/with_coupling.parquet` | Dataset with ε and Newell coupling function columns. |
+| `baseline_model.json` | Coefficients, p‑values, R² for the baseline model. |
+| `full_model.json` | Same for the full model (includes composition ratios). |
+| `delta_r2.json` | Incremental R² and bootstrap confidence interval. |
+| `cv_metrics.json` | Mean out‑of‑sample R² for baseline & full models (5‑fold TimeSeriesSplit). |
+| `permutation_results.json` | Null distributions, p‑values for each composition coefficient. |
+| `sensitivity.json` | Results of the α‑sweep {0.01, 0.05, 0.10} with BH‑FDR correction. |
+| `final_report.json` | Consolidated JSON report with provenance and all metrics. |
+| `figures/` | PNG/PDF plots (correlation heatmap, coefficient bar chart, residual diagnostics). |
 
 ## Testing
 
@@ -113,30 +69,40 @@ pytest tests/
 
 The test suite checks:
 
-* I/O helpers (`code/utils/io.py`) work with and without `pyarrow` (fastparquet fallback).
-* Real‑data download fails loudly on fetch errors (no synthetic fallback).
-* Raw CDF files exist for ACE SWICS / WIND SMS / OMNI, checksums match,
-  and parsed CDF variables include the composition species and Dst/Kp
-  (skipped automatically when the raw cache is empty on an offline runner).
-* Schema compliance of the aligned parquet file against `contracts/dataset.schema.yaml`.
-* Correctness of coupling‑function formulas (hand‑computed ε and Newell values).
-* End‑to‑end pipeline produces all expected artifact files.
+* I/O helpers work with and without `pyarrow`.  
+* Synthetic generation produces a file that validates against `contracts/dataset.schema.yaml`.  
+* Alignment respects the ≤ 30 min offset rule and correctly flags rows with composition gaps > 6 h (they become `null`).  
+* Coupling‑function formulas match the definitions in the research document.  
+* Regression scripts write files with the exact names required by the plan.  
+* End‑to‑end pipeline creates all expected artifacts.
 
-## Verification of Requirements Installation
+## Optional Real‑Data Path (Not Currently Available)
+
+If an open source providing ACE SWICS or WIND composition ratios becomes available, replace step 1 with:
 
 ```bash
-python -m code.verify_requirements
+python -m code.ingestion.download_real --start 2000-01-01 --end 2020-12-31
 ```
 
-This will re‑run `pip install -r requirements.txt` and write `results/requirements_install.log`.
-The presence of the word `success` in that log confirms the pinned
-requirements install without error.
+The downstream scripts (`align.py`, `coupling_functions.py`, etc.) will operate unchanged on the downloaded data.
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Remedy |
-|--- |--- |--- |
-| `ImportError: pyarrow` when saving parquet | `pyarrow` not installed on the runner | The I/O helper automatically falls back to the `fastparquet` engine; ensure `fastparquet==2024.1.*` is installed (`pip install -r requirements.txt`). |
-| `ConnectionError` during download | CDAWeb unreachable or dataset ID changed | Fix network access / dataset ID and re‑run `code/ingestion/download_real.py`. The pipeline intentionally does NOT fall back to synthetic data. |
-| MemoryError during regression | Loading more than the compute budget allows | Process the real data in chunks or a fixed‑seed real subsample (documented in the run report); never substitute synthetic data. |
-| "Schema validation failed" | Aligned file missing a required column | Re‑run `python code/ingestion/download_real.py` then `python -m code.main`. |
+|---|---|---|
+| `ImportError: pyarrow` when reading parquet | `pyarrow` not installed | The I/O helper automatically falls back to `fastparquet`; ensure `fastparquet` is installed (it is pinned in `requirements.txt`). |
+| MemoryError during regression | Attempting to load a much larger dataset than the synthetic one | Verify you are using the synthetic dataset (default). If you switched to a real dataset, consider sampling or streaming. |
+| Schema validation failed | Missing required column or wrong type | Run `python -m code.utils.io validate data/processed/aligned_hourly.parquet` to see detailed errors; the schema is `contracts/dataset.schema.yaml`. |
+| “No open composition source found” printed by `download_real.py` | Expected – there is currently no verified open composition dataset. | Continue with the synthetic pipeline; no further action needed. |
+
+## Re‑run Quickly on a Subset (for debugging)
+
+```bash
+python -m code.main --quick  # uses only the initial segment of rows.
+```
+
+All downstream steps respect the subset automatically.
+
+---
+
+

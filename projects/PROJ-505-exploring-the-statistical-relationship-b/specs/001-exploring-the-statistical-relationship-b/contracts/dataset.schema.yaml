@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SolarWindGeomagneticDataset"
-description: "Schema for the aligned hourly solar wind and geomagnetic dataset (real or synthetic)."
+description: "Schema for the aligned hourly solar wind and geomagnetic dataset (synthetic or real)."
 type: "object"
 properties:
   timestamp:
@@ -20,37 +20,40 @@ properties:
     type: "number"
     description: "IMF Bz component in nT."
   o_fe_ratio:
-    type: "number"
-    description: "Oxygen to Iron ion flux ratio."
+    type:
+      - "number"
+      - "null"
+    description: "Oxygen to Iron ion flux ratio (null if missing)."
   he_h_ratio:
-    type: "number"
-    description: "Helium to Hydrogen ion flux ratio."
+    type:
+      - "number"
+      - "null"
+    description: "Helium to Hydrogen ion flux ratio (null if missing)."
   c_o_ratio:
-    type: "number"
-    description: "Carbon to Oxygen ion flux ratio."
-  epsilon:
-    type: "number"
-    description: "Akasofu epsilon coupling function parameter."
+    type:
+      - "number"
+      - "null"
+    description: "Carbon to Oxygen ion flux ratio (null if missing)."
   newell_flux:
     type: "number"
     description: "Newell coupling function parameter."
+  epsilon:
+    type: "number"
+    description: "Akasofu epsilon coupling function parameter."
   dst_index:
     type: "number"
-    description: "Dst geomagnetic index in nT."
+    description: "Dst geomagnetic index (nT)."
   kp_index:
     type: "number"
-    description: "Kp geomagnetic index (0-9 scale)."
+    description: "Kp geomagnetic index (‑9 scale)."
 required:
   - timestamp
   - velocity_km_s
   - density_cm3
   - imf_nT
   - imf_bz_nT
-  - o_fe_ratio
-  - he_h_ratio
-  - c_o_ratio
-  - epsilon
   - newell_flux
+  - epsilon
   - dst_index
   - kp_index
 additionalProperties: false

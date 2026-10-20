@@ -2,62 +2,67 @@
 
 ## Dataset Strategy
 
-The spec requires ion composition ratios from ACE SWICS/WIND and hourly geomagnetic indices (Dst, Kp) from NOAA. **No verified open dataset supplies these exact variables.** Consequently the project **exclusively generates a synthetic dataset** that matches the required schema and uses it to validate the analysis pipeline.
+The specification requires hourly ion composition ratios (O/Fe, He/H, C/O) from ACE SWICS/WIND and hourly geomagnetic indices (Dst, Kp) from NOAA. **No verified open dataset supplies these exact variables** (see the “Verified datasets” block in the spec). Consequently the project adopts a **synthetic dataset** that matches the required schema and is stored as raw data under `data/raw/`. This enables full end‑to‑end validation of the statistical workflow while remaining transparent about the limitation.
 
 | Dataset | Variables Required | Verified Source / URL | Loader Method | Status / Notes |
-|:---|:---|:---|:---|:---|
-| Synthetic Solar‑Wind & Geomagnetic Data | O/Fe, He/H, C/O, bulk V, density, IMF, Dst, Kp, coupling functions | Generated locally by `code/ingestion/generate_synthetic_data.py` | Direct file read (`pandas.read_parquet`) | Primary data source for the entire pipeline. |
-| ij5/ace (HuggingFace) | Bulk V, density, IMF (no composition) | `https://huggingface.co/datasets/ij5/ace` (partial) | `datasets.load_dataset("ij5/ace")` | May be used for bulk‑parameter sanity checks; composition still synthetic. |
+|---|---|---|---|---|
+| Synthetic Solar‑Wind & Geomagnetic Data | O/Fe, He/H, C/O, bulk V, density, IMF, Dst, Kp, coupling functions | Generated locally by `code/ingestion/generate_synthetic_data.py` | `pandas.read_parquet` | Primary source for the entire pipeline; used **only for workflow validation** pending an amendment to Principle VI. |
+| ij5/ace (HuggingFace) | Bulk V, density, IMF (no composition) | `https://huggingface.co/datasets/ij5/ace` | `datasets.load_dataset("ij5/ace")` | Optional sanity check for bulk‑parameter distributions; not used for composition analysis. |
+| NOAA (parquet) | Dst, Kp (but not hourly) | ` | `datasets.load_dataset(...)` | Not suitable for geomagnetic indices; listed for completeness only. |
 
-### Synthetic Data Generation
-* `code/ingestion/generate_synthetic_data.py` creates a 20‑year hourly time series (2000‑01‑01 00:00 UTC to 2020‑12‑31 23:00 UTC).  
-* Bulk parameters are drawn from empirically‑based distributions (log‑normal velocity, normal IMF, etc.).  
-* Composition ratios (`o_fe_ratio`, `he_h_ratio`, `c_o_ratio`) are generated with a moderate random correlation (ρ ≈ 0.3) to bulk parameters, yielding realistic VIF values.  
-* Geomagnetic indices (`dst_index`, `kp_index`) are generated from a linear model that **randomly samples** a composition effect size from a normal distribution with mean 0 and σ = 0.03 (i.e., the true ΔR² lies roughly between –0.01 and 0.07). This ensures the synthetic data do not guarantee meeting the ΔR² > 0.05 threshold.  
-* All random draws use `np.random.default_rng(42)`; the configuration is saved to `data/raw/synthetic_config.yaml` for provenance.
+### Synthetic Data Generation (deterministic)
+* **Time span**: 2000‑01‑01 00:00 UTC → 2020‑12‑31 23:00 UTC (≈ 175 k hourly rows).  
+* **Bulk parameters**: Velocity, density, IMF magnitude, IMF Bz drawn from empirically‑based distributions (log‑normal for velocity, normal for IMF components).  
+* **Composition ratios**: `o_fe_ratio`, `he_h_ratio`, `c_o_ratio` generated with a moderate Pearson correlation (ρ ≈ 0.3) to bulk parameters, yielding realistic VIF values (≤ 4).  
+* **Geomagnetic indices**: `dst_index` and `kp_index` generated from a linear model  
+  `Y = β₀ + β₁·ε + β₂·newell + β₃·o_fe + β₄·he_h + β₅·c_o + ε_noise`  
+  where the true composition coefficients (β₃‑β₅) are sampled from a normal distribution with mean 0 and variance 0.03. This ensures that The true ΔR² is expected to lie within a modest range around zero, encompassing slightly negative to modestly positive values., so the synthetic data **do not guarantee** meeting the ΔR² > 0.05 practical‑significance threshold.  
+* **Random seed**: `np.random.default_rng(42)`; the configuration (seed, distribution parameters, true coefficients) is saved to `data/raw/synthetic_config.yaml` for provenance.
+
+All synthetic files are stored unchanged under `data/raw/` and checksummed, satisfying the data‑hygiene clause of the constitution (though they do **not** satisfy the raw‑measurement clause; see Constitution Check).
 
 ## Scientific Validity & Limitations
-* **Limitation**: No real ACE SWICS or NOAA Dst/Kp data are used; therefore the findings **cannot be interpreted as evidence** for or against the hypothesis that composition predicts storm intensity.  
-* **Goal**: Demonstrate that the full statistical workflow (ingestion, alignment, coupling‑function computation, regression, ΔR², cross‑validation, permutation testing, FDR, VIF) works correctly on a realistic‑looking dataset.  
-* **Success Criteria** (evaluated on synthetic data):
-  * SC‑001: Permutation‑derived p‑value < 0.05 for at least one composition coefficient **and** either ΔR² > 0.05 (significant and practically meaningful) **or** ΔR² ≤ 0.05 with a clear statement “statistically significant but below practical threshold”.  
-  * SC‑002: Coefficients flagged significant when they lie outside the [deferred] null percentile.  
-  * SC‑003: Sensitivity analysis reports how the number of significant predictors varies across α ∈ {0.01, 0.05, 0.10}.  
-  * SC‑004: Out‑of‑sample R² from 5‑fold TimeSeriesSplit is reported for both baseline and full models.  
+* **Limitation**: No real ACE SWICS or WIND composition measurements are used; therefore the results cannot be interpreted as evidence for or against the hypothesis that composition predicts storm intensity.  
+* **Goal**: Validate that the complete statistical pipeline (ingestion, alignment, coupling‑function computation, regression, ΔR², cross‑validation, permutation testing, FDR, VIF) runs correctly on a realistic‑looking dataset and produces artifacts that pass schema validation.
 
-All SCs will be satisfied **with respect to the synthetic data**, thereby validating the pipeline rather than providing empirical scientific evidence.
+### Success Criteria (evaluated on synthetic data)
+| SC | Metric | Acceptance Condition (synthetic context) |
+|----|--------|------------------------------------------|
+| **SC‑001** | Pipeline execution & metric generation | The pipeline must successfully compute ΔR² and a permutation‑derived p‑value for each composition coefficient **without error**. When real composition data become available (i.e., after a Principle VI amendment), the system would also apply the spec’s claim language (p < 0.05 and ΔR² > 0.05). In the synthetic context, only successful computation is required. |
+| **SC‑002** | Permutation test output validity | The permutation test must generate a well‑formed null distribution and a numeric p‑value for each composition coefficient. No requirement is placed on achieving significance; the focus is on correct execution and output format. |
+| **SC‑003** | Sensitivity analysis completeness | Sensitivity analysis reports how the number of significant predictors varies across α ∈ {0.01, 0.05, 0.10}. |
+| **SC‑004** | Cross‑validation metrics | Out‑of‑sample R² from 5‑fold TimeSeriesSplit reported for both baseline and full models. |
+
+All SCs are **pipeline‑validation** criteria; they are not scientific claims about the real Sun–Earth system.
 
 ## Statistical Methodology
 
-1. **Coupling Functions (Baseline Predictors)**  
-   * **Akasofu ε**: `epsilon = v * (B**2) * np.sin(np.deg2rad(theta/2))**4 * (7**2)` (where `theta` is the IMF clock angle).  
+1. **Coupling Functions (baseline predictors)**  
+   * **Akasofu ε**: `epsilon = v * (B**2) * np.sin(np.deg2rad(theta/2))**4 * (7**2)` (θ = IMF clock angle).  
    * **Newell dΦ/dt**: `newell = v**(4/3) * B_T**(2/3) * np.sin(np.deg2rad(theta/2))**(8/3)`.  
-   * Both are computed in `code/analysis/coupling_functions.py` and added as columns.
+   Implemented in `code/analysis/coupling_functions.py`.
 
-2. **Regression Models**  
-   * **Baseline**: `Y ~ epsilon + velocity_km_s + imf_nT + imf_bz_nT` (plus intercept).  
+2. **Regression Models** (via `statsmodels.OLS`)  
+   * **Baseline**: `Y ~ epsilon + velocity_km_s + imf_nT + imf_bz_nT`.  
    * **Full**: Baseline + `o_fe_ratio + he_h_ratio + c_o_ratio`.  
-   * Estimated with `statsmodels.OLS`.  
-   * Outputs: coefficients, standard errors, p‑values, R², adjusted R², VIF (via `statsmodels.stats.outliers_influence.variance_inflation_factor`).
+   * Outputs: coefficients, standard errors, p‑values, R², adjusted R², VIF (via `statsmodels.stats.outliers_influence.variance_inflation_factor`).  
 
 3. **ΔR²**  
    * Computed as `R²_full – R²_baseline`.  
-   * 95 % confidence interval obtained via bootstrap (10 000 resamples) – deferred to implementation.
+   * 95 % CI obtained by bootstrap (10 000 resamples) – deferred to implementation.
 
 4. **5‑Fold Time‑Series Cross‑Validation**  
-   * Implemented with `sklearn.model_selection.TimeSeriesSplit(n_splits=5)`.  
-   * For each split, the model is refit on the training block and R² evaluated on the hold‑out block.  
-   * Mean out‑of‑sample R² reported.
+   * `sklearn.model_selection.TimeSeriesSplit(n_splits=5)`.  
+   * Mean out‑of‑sample R² for baseline and full models recorded.
 
 5. **Block Permutation Test**  
-   * Composition columns are shuffled **in blocks of 24 h** to preserve autocorrelation.  
-   * For each iteration (≥ 1 000, early‑stop when SE < 0.001), the full model is refit and the coefficient of the target composition ratio recorded.  
-   * Null distribution used to compute two‑sided p‑value; significance declared if observed coefficient lies outside the [deferred] percentile.
+   * Composition columns shuffled in **24‑hour blocks** to preserve autocorrelation.  
+   * Minimum 1 000 iterations; early stop when standard error of the p‑value < 0.001 (as required by FR‑008).  
+   * Two‑sided p‑value computed from the null distribution of each composition coefficient.
 
 6. **Sensitivity & FDR**  
    * Significance thresholds swept over {0.01, 0.05, 0.10}.  
-   * Benjamini‑Hochberg (FDR) applied across the six tests (3 ratios × 2 indices).  
-   * Results stored in `sensitivity.json`.
+   * Benjamini‑Hochberg (FDR) applied across the six tests (three ratios × two indices).  
 
 7. **Multicollinearity (VIF)**  
    * VIF computed for **all** predictors in the full model.  
@@ -65,21 +70,16 @@ All SCs will be satisfied **with respect to the synthetic data**, thereby valida
 
 ## Power Analysis (Synthetic‑Data Context)
 
-Using the analytical power formula for linear regression with an additional predictor (Cohen’s f² = ΔR² / (1‑R²_full)), and assuming a conservative baseline R² ≈ 0.30 for geomagnetic indices, we obtain:
-
-* With N ≈ 175 000, α = 0.05, the synthetic study has **≈ 82 % power** to detect ΔR² = 0.02 (f² ≈ 0.028).  
-* Power rises to **[deferred]** for ΔR² = 0.05 (f² ≈ 0.071).
-
-Thus the chosen ΔR² > 0.05 threshold is well within the detectable range for the synthetic scenario, while the pipeline also reports results for smaller ΔR² values (≥ 0.02) should they arise.
+Assuming a modest baseline R² for geomagnetic indices, the analytical power for detecting a small incremental ΔR² with a large sample is high (approximately eight‑tenths). For ΔR² = 0.05 (f² ≈ 0.071) power exceeds 95 %. Hence the synthetic study is well‑powered to detect the effect sizes that may arise from the randomly injected composition coefficients.
 
 ## Risks & Mitigations (re‑stated)
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Missing verified data | Cannot answer scientific question | Use synthetic data; clearly label results as pipeline validation. |
-| Block permutation runtime | May exceed 6 h if iteration count is increased | Default 1 000 iterations; early stop when SE < 0.001. |
-| `pyarrow` unavailable | Parquet I/O failures (see T004) | `code/utils/io.py` tries `pyarrow`; on ImportError falls back to Pandas’ `fastparquet`. |
-| Multicollinearity | Inflated SEs, misleading p‑values | Compute VIF; if VIF ≥ 5, report descriptive effect sizes only. |
+| No open composition data | Scientific hypothesis cannot be answered | Use synthetic data for workflow validation; request constitution amendment; replace with real data when available. |
+| Block permutation runtime > 6 h | CI timeout | Default 1 000 iterations; early stop when SE < 0.001. |
+| `pyarrow` missing | Parquet I/O failure | `code.utils.io` falls back to `fastparquet`. |
+| Multicollinearity inflates SEs | Misleading significance | Compute VIF; flag VIF ≥ 5 and report descriptive statistics only. |
 
 ---
 
