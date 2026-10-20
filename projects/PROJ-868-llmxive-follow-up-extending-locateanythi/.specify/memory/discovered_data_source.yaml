@@ -1,16 +1,13 @@
 status: none
-intent: download VRSBench validation dataset and MS COCO 2017 annotations python package
+intent: VRSBench validation dataset COCO 2017 bounding box python package dataset
 required_fields:
 - image_id
-- file_name
-- width
-- height
+- image_path
 - bbox
 - category_id
 - category_name
-- iscrowd
-- scene_id
-- dense_scene_flag
-cache_key: ab547cfe2522752fa01c2c51b19fb8c1c1108276404c07af00fe110d932361ba
-searched_at: '2026-10-20T05:15:17.546389+00:00'
+- image_width
+- image_height
+cache_key: e0314328c7bfba96829868dbe771bb3612898f77b6dda71bf72ae8163deeae99
+searched_at: '2026-10-20T08:13:54.840476+00:00'
 retry_count: 1

@@ -1,14 +1,3 @@
-# Repository‑wide requirements
-# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil)
-# are already provided in the base environment.
-
-# Additional dependencies required for this project
-torch==2.3.0
-torchvision
-transformers
 datasets
-tqdm
-# ``pyarrow`` version compatible with the pre‑installed NumPy 1.26.x
-pyarrow==10.0.1
 pycocotools
+pyarrow
