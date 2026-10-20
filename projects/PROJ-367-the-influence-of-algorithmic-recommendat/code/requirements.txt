@@ -1,5 +1,8 @@
-numpy>=2.0.0
 pandas
 pyarrow
 requests
 datasets
+sentence-transformers
+scikit-learn
+statsmodels
+tqdm

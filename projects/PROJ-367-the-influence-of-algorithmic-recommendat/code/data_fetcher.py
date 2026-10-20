@@ -27,11 +27,14 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
-# Primary URL (HTML page)
+# Primary URL (HTML page) – kept for reference
 OULAD_PRIMARY_URL = "https://analyse.kmi.open.ac.uk/open_dataset"
 
 # Verified mirror ZIP as specified in tasks.md
 OULAD_MIRROR_ZIP = "https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/9b3hc-8t26.zip"
+
+# Secondary public mirror (UCI Machine Learning Repository)
+OULAD_SECONDARY_ZIP = "https://archive.ics.uci.edu/ml/machine-learning-databases/00320/oulad.zip"
 
 RAW_OULAD_DIR = paths.data("raw", "oulad")
 PROCESSED_PARQUET = paths.data("processed", "cleaned_data.parquet")
@@ -48,35 +51,44 @@ HEADERS = {
 
 def _download_and_extract_oulad() -> None:
     """
-    Downloads the OULAD ZIP from the verified mirror and extracts the four
-    CSV files into ``data/raw/oulad/``. The function raises on any HTTP or
-    extraction error – no synthetic fallback is performed.
+    Downloads the OULAD ZIP from a verified mirror (or a secondary public mirror)
+    and extracts the four CSV files into ``data/raw/oulad/``. The function raises
+    on any HTTP or extraction error – no synthetic fallback is performed.
     """
-    log.info("Attempting to download OULAD dataset from mirror URL: %s", OULAD_MIRROR_ZIP)
+    log.info("Attempting to download OULAD dataset from primary mirror.")
     try:
-        # Use headers to avoid 403 Forbidden
         response = requests.get(OULAD_MIRROR_ZIP, headers=HEADERS, stream=True, timeout=120)
         response.raise_for_status()
-    except Exception as exc:
-        raise DataAvailabilityError(
-            f"Failed to download OULAD from mirror URL: {exc}"
-        ) from exc
+        zip_content = response.content
+        log.info("Successfully downloaded OULAD from primary mirror.")
+    except Exception as primary_exc:
+        log.warning(
+            "Primary mirror download failed (%s). Trying secondary public mirror.",
+            primary_exc,
+        )
+        try:
+            response = requests.get(OULAD_SECONDARY_ZIP, headers=HEADERS, stream=True, timeout=120)
+            response.raise_for_status()
+            zip_content = response.content
+            log.info("Successfully downloaded OULAD from secondary mirror.")
+        except Exception as secondary_exc:
+            raise DataAvailabilityError(
+                f"Failed to download OULAD from both mirrors: primary error: {primary_exc}; secondary error: {secondary_exc}"
+            ) from secondary_exc
 
     # Ensure the target directory exists
     RAW_OULAD_DIR.mkdir(parents=True, exist_ok=True)
 
     # Load the zip file into memory and extract
-    with zipfile.ZipFile(io.BytesIO(response.content)) as zf:
+    with zipfile.ZipFile(io.BytesIO(zip_content)) as zf:
         expected_files = {
             "studentInfo.csv",
             "studentVle.csv",
             "vle.csv",
             "studentRegistration.csv",
         }
-        # The mirror might have different internal paths or naming; 
-        # we check if the expected files are present anywhere in the zip.
         actual_files = zf.namelist()
-        
+
         # Map expected names to actual paths in the zip (handling possible subfolders)
         file_map = {}
         for exp in expected_files:
@@ -208,6 +220,7 @@ def fetch_educational_dataset(dataset_id: str) -> pd.DataFrame:
 
         return session_df
 
+    # Fallback: attempt to load from HuggingFace
     try:
         ds = load_dataset(dataset_id, split="train")
     except Exception as exc:
