@@ -1,18 +1,19 @@
 status: none
-intent: Physical testbed execution logs dataset wall-clock time packet count CPU utilization
-  OpenML python package dataset
+intent: Google cluster data distributed execution logs CPU utilization python package
+  dataset
 required_fields:
 - node_id
 - ip_address
-- task_id
-- task_chunk_id
 - timestamp
 - wall_clock_time
 - packet_count
-- cpu_utilization
-- memory_usage
-- heartbeat_status
-- reassign_timestamp
-cache_key: 741ee75f396224e7abccd0b69bb60ed3203977e69a3ec05bc0e61787123c505f
-searched_at: '2026-10-20T15:19:22.439364+00:00'
+- cpu_utilization_percent
+- memory_usage_mb
+- task_id
+- task_chunk_id
+- task_status
+- heartbeat_timestamp
+- error_code
+cache_key: c42a313750e659a3e8ce210c93b0340280db5ba8cc3bca5cc7bbf4951c681d9d
+searched_at: '2026-10-20T15:29:25.050300+00:00'
 retry_count: 1

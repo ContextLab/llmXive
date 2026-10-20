@@ -1,4 +1,4 @@
-# Data Model: Mesh Network Supercomputer Using Pooled Idle Computing Resources
+# Data Model: Mesh Network Supercomputer Using Pooled Idle Resources
 
 ## 1. Entity‑Relationship Overview
 Four core entities capture the full lifecycle from raw instrumentation to statistical output.
@@ -37,6 +37,8 @@ erDiagram
         float baseline_snr_db
         float runtime_bandwidth_Mbps
         float runtime_snr_db
+        number cpu_variance "Variance of per‑node CPU throughput/benchmark scores within the run"
+        number dropout_rate "Fraction of dispatched chunks that failed and were re‑assigned (0–1)"
         number cpu_temperature_avg "Optional average CPU temperature (°C) across nodes; recorded when supported"
         number os_noise "Optional measure of OS‑level noise (e.g., stddev of 1‑min load average); recorded when supported"
         number wifi_interference "Optional measure of Wi‑Fi interference (RSSI variance) captured during run"
@@ -86,32 +88,13 @@ erDiagram
 | `baseline_snr_db` | float | Avg. baseline SNR (pre‑run) across nodes | Aggregated |
 | `runtime_bandwidth_Mbps` | float | Avg. runtime bandwidth during the run | Derived |
 | `runtime_snr_db` | float | Avg. runtime SNR during the run | Derived |
+| `cpu_variance` | number | Variance of per‑node CPU throughput/benchmark scores within the run | Aggregated from node metrics |
+| `dropout_rate` | number | Fraction of dispatched chunks that failed and were re‑assigned (0–1) | Computed from TaskChunk store |
 | `cpu_temperature_avg` | number | Optional average CPU temperature (°C) across nodes; recorded when supported | Sensor reading (`sensors`) |
 | `os_noise` | number | Optional measure of OS‑level noise (e.g., stddev of 1‑min load average); recorded when supported | System load (`uptime`) |
 | `wifi_interference` | number | Optional measure of Wi‑Fi interference (RSSI variance) captured during run | `iwconfig` variance output |
+```
 
-### RegressionModel
-| Attribute | Type | Description | Source |
-|-----------|------|-------------|--------|
-| `coefficients` | object | Model coefficients (key: variable name, value: coefficient) | `statsmodels` |
-| `p_values` | object | P‑values for each coefficient | `statsmodels` |
-| `r_squared` | float | Coefficient of determination | `statsmodels` |
-| `residuals` | array | List of residual errors | `statsmodels` |
-| `theoretical_bound_deviation` | float | Ratio of empirical throughput to theoretical bound | Validation script |
+## 3. Entity Relationships
 
-## 3. Data Flow
-1. **Baseline Capture** → `node_manager` records `baseline_*` fields.  
-2. **Orchestration** → `scheduler` creates `TaskChunk`s, assigns to nodes, logs heartbeat & dropout events (`dropout_events.json`).  
-3. **Instrumentation** → `instrumentor` streams `tcpdump` and `mpstat` outputs, writes per‑run CSVs to `data/raw/` and per‑node metadata JSONs (`physical_node_<ip>.json`).  
-4. **Aggregation** → `analysis/regression.py` reads raw CSVs and node JSONs, computes per‑run metrics → `ExecutionRun` rows stored in `data/processed/execution_runs.csv`.  
-5. **Statistical Modeling** → same script fits OLS, optional polynomial/GAM, writes `data/processed/regression_model.json`.  
-6. **Theoretical Validation** → `analysis/theoretical_bound.py` reads the model output, writes `data/processed/theoretical_bound_validation.json`.  
-
-## 4. Data Hygiene & Checksums
-- Raw files under `data/raw/` receive SHA‑256 checksums recorded in `state/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg.yaml`.  
-- Derived files under `data/processed/` are new and never overwrite raw data.  
-- All JSON/YAML artefacts are validated against schemas in `contracts/` before commit.
-
----
-
-
+The diagram above captures the relationships: each `ExecutionRun` aggregates many `TaskChunk`s, each `TaskChunk` runs on a `PhysicalNode`, and the regression model is derived from the set of `ExecutionRun`s.

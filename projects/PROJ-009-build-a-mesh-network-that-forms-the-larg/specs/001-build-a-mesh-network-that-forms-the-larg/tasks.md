@@ -42,7 +42,7 @@ This checklist implements the smallest complete study satisfying FR-001–FR-007
   - `code/tests/contract/test_task_chunk_schema.py`, `data/raw/task_chunks/run_001.jsonl` (from the T004 mock run).
   *Verification* — Every JSONL line validates against the schema; the contract test covers one valid and one invalid record; the scheduler writes chunks through the store in the T004 run.
 
-- [ ] **T011** [US1] Enforce and measure the pipeline runtime budget (FR-007, SC-004) BEFORE the full sweep runs: a watchdog in `code/orchestrator/cli.py` aborts any sweep-and-analyze workflow if runtime exceeds the configured limit (default 5 h, hard CI cap 6 h), and a runtime tracker records total wall-clock time. The watchdog guards the T004 single run and the T005 sweep alike. <!-- FAILED-IN-EXECUTION: code/orchestrator/cli.py exit=1 -->
+- [ ] **T011** [US1] Enforce and measure the pipeline runtime budget (FR-007, SC-004) BEFORE the full sweep runs: a watchdog in `code/orchestrator/cli.py` aborts any sweep-and-analyze workflow if runtime exceeds the configured limit (default 5 h, hard CI cap 6 h), and a runtime tracker records total wall-clock time. The watchdog guards the T004 single run and the T005 sweep alike.
   *Artifacts*
   - Updated `code/orchestrator/cli.py` with timeout guard active for all run sub-commands.
   - `code/runtime/runtime_tracker.py`, `data/runtime/pipeline_runtime.json` (`total_seconds`, `within_limit`), `data/runtime/timeout_enforced.log`.
@@ -55,7 +55,7 @@ This checklist implements the smallest complete study satisfying FR-001–FR-007
   - `code/tests/unit/test_calibration.py`.
   *Verification* — Both JSON artifacts exist with real measured conversion factors from executed calibration runs; the sweep runner (T005) refuses to start if calibration artifacts are absent (fails loudly, no defaults fabricated).
 
-- [ ] **T004** [US1] Wire the end-to-end CLI (`code/orchestrator/cli.py`, sub-command `run-single`) to (a) discover nodes, (b) run a single Monte-Carlo integration benchmark on a small subset (e.g., 4 mock nodes on the CI runner; physical nodes when available), (c) collect per-node metrics via the instrumentor, (d) persist TaskChunks via the T016 store, and (e) write `data/raw/run_001.csv` with columns `node_id`, `wall_clock_time`, `cpu_utilization_pct`, `packet_count` plus the `TaskChunk` fields. The CLI must enforce the hard timeout (FR-007) via the T011 watchdog. **Repair of prior rejection**: `cli.py` must exit 0 on this run; the previous failure traced to the stub-schema `ValueError` fixed in T001.
+- [~] **T004** [US1] Wire the end-to-end CLI (`code/orchestrator/cli.py`, sub-command `run-single`) to (a) discover nodes, (b) run a single Monte-Carlo integration benchmark on a small subset (e.g., 4 mock nodes on the CI runner; physical nodes when available), (c) collect per-node metrics via the instrumentor, (d) persist TaskChunks via the T016 store, and (e) write `data/raw/run_001.csv` with columns `node_id`, `wall_clock_time`, `cpu_utilization_pct`, `packet_count` plus the `TaskChunk` fields. The CLI must enforce the hard timeout (FR-007) via the T011 watchdog. **Repair of prior rejection**: `cli.py` must exit 0 on this run; the previous failure traced to the stub-schema `ValueError` fixed in T001.
   *Artifacts*
   - `code/orchestrator/cli.py` (sub-command `run-single`).
   - `data/raw/run_001.csv` — real measured rows from the executed benchmark (mock nodes are real processes on the runner, not fabricated numbers).
@@ -65,7 +65,7 @@ This checklist implements the smallest complete study satisfying FR-001–FR-007
 
 ## Phase 2 – Complete the study and validate its evidence
 
-- [ ] **T017** [US2] Amend the ExecutionRun contract so FR-005's required covariates are representable: add `cpu_variance` (number, required — variance of per-node CPU throughput/benchmark scores within the run) and `dropout_rate` (number, 0–1, required — fraction of dispatched chunks that failed and were re-assigned) to `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/execution-run.schema.yaml`, and mirror the two fields in the ExecutionRun entity table of `specs/001-build-a-mesh-network-that-forms-the-larg/data-model.md`. This unblocks T006 aggregation and T008 regression without contract violations.
+- [~] **T017** [US2] Amend the ExecutionRun contract so FR-005's required covariates are representable: add `cpu_variance` (number, required — variance of per-node CPU throughput/benchmark scores within the run) and `dropout_rate` (number, 0–1, required — fraction of dispatched chunks that failed and were re-assigned) to `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/execution-run.schema.yaml`, and mirror the two fields in the ExecutionRun entity table of `specs/001-build-a-mesh-network-that-forms-the-larg/data-model.md`. This unblocks T006 aggregation and T008 regression without contract violations.
   *Artifacts*
   - Updated `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/execution-run.schema.yaml`
   - Updated `specs/001-build-a-mesh-network-that-forms-the-larg/data-model.md` (ExecutionRun rows only)

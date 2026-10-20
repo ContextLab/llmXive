@@ -37,10 +37,32 @@ properties:
   runtime_snr_db:
     type: number
     description: "Average runtime SNR during the run"
+  cpu_variance:
+    type: number
+    description: "Variance of per‑node CPU throughput/benchmark scores within the run"
+  dropout_rate:
+    type: number
+    description: "Fraction of dispatched chunks that failed and were re‑assigned (0–1)"
+    minimum: 0
+    maximum: 1
   cpu_temperature_avg:
     type: number
     description: "Optional average CPU temperature (°C) across nodes; present when supported"
   os_noise:
     type: number
     description: "Optional measure of OS‑level noise (e.g., stddev of 1‑min load average); present when supported"
+required:
+  - node_count
+  - granularity_setting
+  - injected_latency
+  - total_throughput
+  - normalized_efficiency
+  - coordination_overhead_ratio
+  - straggler_count
+  - baseline_bandwidth_Mbps
+  - baseline_snr_db
+  - runtime_bandwidth_Mbps
+  - runtime_snr_db
+  - cpu_variance
+  - dropout_rate
 additionalProperties: false

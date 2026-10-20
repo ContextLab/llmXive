@@ -43,7 +43,7 @@ def apply_impairments(
     packet_loss_pct:
         Desired packet‑loss percentage (0‑100).  ``0`` means no loss.
     iface:
-        Network interface on which to apply the netem rule.  Defaults to
+        Network interface on which to apply the netem rule. Defaults to
         ``eth0`` which is common on many Linux testbeds.
 
     Raises
@@ -58,7 +58,7 @@ def apply_impairments(
             "The required 'tc' command is not available on this system."
         )
 
-    # Build the netem argument string
+    # Build the netem argument list
     netem_args = []
     if latency_ms > 0:
         netem_args.append(f"delay {latency_ms}ms")
@@ -68,8 +68,6 @@ def apply_impairments(
         # Nothing to apply – caller should have avoided this case.
         return
 
-    netem_rule = " ".join(netem_args)
-
     # In a real environment we would SSH to each node and run the command.
     # For CI we simply execute locally to prove the command is syntactically
     # valid.  The caller is responsible for ensuring appropriate privileges.
@@ -78,5 +76,5 @@ def apply_impairments(
         subprocess.run(cmd, check=True, capture_output=True, text=True)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(
-            f"Failed to apply netem rule '{netem_rule}' on interface {iface}: {e.stderr}"
+            f"Failed to apply netem rule '{' '.join(netem_args)}' on interface {iface}: {e.stderr}"
         ) from e

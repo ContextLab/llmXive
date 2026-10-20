@@ -67,6 +67,8 @@ class NodeState:
     packet_loss_rate: float = 0.0
     # CPU speed in MHz – used for heterogeneity scoring
     cpu_speed_mhz: float = 0.0
+    # placeholder for future heterogeneity score
+    heterogeneity_score: float = 0.0
 
 
 @dataclass
@@ -76,6 +78,7 @@ class TaskAssignment:
     chunk: "TaskChunk"
     node: "PhysicalNode"
     start_time: datetime = field(default_factory=datetime.utcnow)
+    end_time: Optional[datetime] = None
     status: "TaskStatus" = None
     wall_clock_time: Optional[float] = None
 
@@ -139,6 +142,9 @@ class Scheduler:
         self.task_history: List[float] = []   # completed durations
         self.median_time: float = 0.0
         self.straggler_multiplier: float = 2.0
+
+        # collect dropout / event records for later persistence
+        self._event_log: List[Dict[str, Any]] = []
 
     # ------------------------------------------------------------------
     # Public API used by the tests
@@ -205,6 +211,13 @@ class Scheduler:
             alive = False
 
         if not alive:
+            # Determine if this is a sleep‑mode dropout (optional detection)
+            if hasattr(self.node_manager, "is_node_sleeping") and self.node_manager.is_node_sleeping(node_ip):
+                event_type = "sleep_mode"
+            else:
+                event_type = "heartbeat_loss"
+
+            self._record_dropout_event(node_ip, event_type, "Node unreachable")
             # Re‑assign to another healthy node if possible
             new_node_ip = self._find_alternate_node(exclude=[node_ip])
             if new_node_ip:
@@ -222,7 +235,7 @@ class Scheduler:
                     f"Heartbeat lost for {node_ip}; task {task_id} "
                     f"re‑assigned to {new_node_ip}"
                 )
-                return {"status": "reassigned", "reason": "heartbeat_lost"}
+                return {"status": "reassigned", "reason": event_type}
             else:
                 logger.error(f"No healthy nodes to re‑assign task {task_id}")
                 return {"status": "failed", "reason": "no_nodes"}
@@ -244,7 +257,23 @@ class Scheduler:
             assignment.wall_clock_time = duration
             assignment.status = TaskStatus.COMPLETED
             self.task_history.append(duration)
-            self._recalculate_median()
+
+            # Straggler detection (2× median)
+            median_before = self._calculate_median_time()
+            if median_before > 0 and duration > self.straggler_multiplier * median_before:
+                self._record_dropout_event(node_ip, "straggler", f"Duration {duration:.2f}s > 2× median {median_before:.2f}s")
+                logger.warning(
+                    f"Straggler detected on {node_ip}: {duration:.2f}s (median {median_before:.2f}s)"
+                )
+                # In a real system we might re‑assign; here we just log.
+
+            # Network saturation detection (packet‑loss based)
+            try:
+                self.check_network_saturation(node_ip)
+            except NetworkSaturationException as exc:
+                self._record_dropout_event(node_ip, "network_saturation", str(exc))
+                logger.error(f"Network saturation on {node_ip}: {exc}")
+
             # Clean node state
             node_state = self.node_states[node_ip]
             node_state.is_busy = False
@@ -399,6 +428,29 @@ class Scheduler:
             "wall_clock_time": result.wall_clock_time,
             "ops_per_sec": result.ops_per_sec,
         }
+
+    # ------------------------------------------------------------------
+    # Event logging helpers
+    # ------------------------------------------------------------------
+    def _record_dropout_event(self, node_ip: str, event_type: str, reason: str) -> None:
+        """
+        Append a dropout / penalty event to the internal log.
+        The schema for ``dropout-event`` expects an array of objects; each
+        object minimally contains ``node_ip``, ``event_type`` and ``reason``.
+        """
+        event = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "node_ip": node_ip,
+            "event_type": event_type,
+            "reason": reason,
+        }
+        self._event_log.append(event)
+
+    def dump_events(self, path: Path) -> None:
+        """Write the collected events to ``path`` as JSON."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("w", encoding="utf-8") as f:
+            json.dump(self._event_log, f, indent=2)
 
 # ----------------------------------------------------------------------
 # Minimal mock node manager (used when the real ``node_manager`` cannot be
@@ -559,14 +611,10 @@ def main(argv: Optional[List[str]] = None) -> int:
         scheduler.monitor_task(task_id)
 
     # ------------------------------------------------------------------
-    # Compute dropout events.  In this mock implementation all nodes are
-    # alive, so the list is empty.
+    # Persist any recorded dropout / penalty events.
     # ------------------------------------------------------------------
-    dropout_events: List[Dict[str, Any]] = []  # empty list conforms to schema
     dropout_path = paths.data("raw", "dropout_events.json")
-    dropout_path.parent.mkdir(parents=True, exist_ok=True)
-    with dropout_path.open("w", encoding="utf-8") as f:
-        json.dump(dropout_events, f, indent=2)
+    scheduler.dump_events(dropout_path)
 
     logger.info(f"Dropout events written to {dropout_path}")
 

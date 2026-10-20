@@ -1,13 +1,15 @@
 """
 Contract validator utilities.
 
-The original implementation already provided ``load_schema_from_yaml`` and
-``validate_schema``.  For the new ``task-chunk`` contract we need to
-ensure that ``validate_schema`` can locate the schema by name.  The
-function now interprets a name like ``"task-chunk"`` as the corresponding
-``task-chunk.schema.yaml`` file under the contracts directory.
-"""
+This module loads JSON‑Schema definitions from the project's
+``specs/001-build-a-mesh-network-that-forms-the-larg/contracts`` directory
+and validates arbitrary data against them.
 
+It now accepts either a short schema name (e.g. ``"physical-node"``) or the
+full filename (e.g. ``"physical-node.schema.yaml"``) – the latter is what the
+contract‑test suite passes.  When an unknown schema name is requested a
+``ValueError`` is raised, satisfying the unit‑test expectation.
+"""
 import yaml
 from pathlib import Path
 from typing import Any, Dict
@@ -23,6 +25,9 @@ def _get_schema_path(schema_name: str) -> Path:
     Resolve a schema name (e.g. ``"physical-node"``) to its YAML file path.
     """
     base_dir = Path(__file__).parents[2] / "specs" / "001-build-a-mesh-network-that-forms-the-larg" / "contracts"
+    # Allow callers to pass the full filename; strip the extension if present
+    if schema_name.endswith(".schema.yaml"):
+        schema_name = schema_name.replace(".schema.yaml", "")
     filename = f"{schema_name}.schema.yaml"
     return base_dir / filename
 
@@ -38,7 +43,8 @@ def _load_schema(schema_name: str) -> Dict[str, Any]:
 
     path = _get_schema_path(schema_name)
     if not path.is_file():
-        raise FileNotFoundError(f"Schema file not found for {schema_name}: {path}")
+        # The test suite expects a ``ValueError`` for unknown schemas.
+        raise ValueError(f"Schema file not found for {schema_name}: {path}")
 
     schema = load_schema_from_yaml(path)
     _SCHEMA_CACHE[schema_name] = schema
@@ -48,10 +54,15 @@ def validate_schema(data: Dict[str, Any], schema_name: str) -> bool:
     """
     Validate ``data`` against the JSON‑Schema identified by ``schema_name``.
 
-    Returns ``True`` if validation succeeds; otherwise raises a
-    ``jsonschema.exceptions.ValidationError``.
+    ``schema_name`` may be a short name (``"physical-node"``) or the full
+    filename (``"physical-node.schema.yaml"``).  Returns ``True`` if validation
+    succeeds; otherwise raises a ``jsonschema.exceptions.ValidationError``.
     """
     import jsonschema
+
+    # Normalise the name so that both forms work.
+    if schema_name.endswith(".schema.yaml"):
+        schema_name = schema_name.replace(".schema.yaml", "")
 
     schema = _load_schema(schema_name)
     jsonschema.validate(instance=data, schema=schema)

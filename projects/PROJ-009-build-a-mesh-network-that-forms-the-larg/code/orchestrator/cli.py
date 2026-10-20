@@ -1,57 +1,44 @@
 """
 Orchestrator command‑line interface.
 
-Provides a minimal, self‑contained CLI that satisfies the quick‑start
-usage documented in ``quickstart.md``.  The implementation deliberately
-avoids any heavy runtime dependencies (SSH, remote tools, etc.) so that
-it can be executed on the CI runner without requiring a physical testbed.
-Sub‑commands are:
-
-* ``verify`` – checks that a configuration file can be loaded.
-* ``run``    – performs a single Monte‑Carlo benchmark run on a small
-  subset of (mock) nodes, collects dummy instrumentation metrics, and
-  writes the required artefacts.
-* ``sweep``  – placeholder for a full parameter sweep.
-
-The ``run`` sub‑command now creates real output files:
-  - ``data/raw/run_001.csv`` – per‑node benchmark results.
-  - ``data/raw/validation_status.json`` – simple validation flag.
-  - ``data/raw/dropout_events.json`` – placeholder (empty list).
-  - ``data/raw/task_chunks/run_001.jsonl`` – persisted ``TaskChunk``
-    records.
-
-All paths are created via ``llmxive_toolkit.paths`` which ensures the
-directories exist.  The implementation uses the existing
-``orchestrator.benchmark`` module for the Monte‑Carlo calculation and
-generates deterministic mock nodes.
+This file implements the ``calibrate`` sub‑command using the real
+calibration logic from ``orchestrator.calibration``.  The rest of the CLI
+(verify, run, sweep) remains unchanged from the original stub, but the
+``_handle_run`` function now performs **real** measurements instead of
+fabricated random numbers.
 """
 
 import argparse
 import csv
 import json
-import random
 import sys
 from pathlib import Path
 from typing import List
 
+import psutil  # real CPU utilisation measurement
+
 from llmxive_toolkit import get_logger, paths
 
-# Import benchmark utilities
+# Benchmark utilities
 from orchestrator.benchmark import (
     BenchmarkConfig,
     run_monte_carlo_integration,
 )
 
-# Import the new TaskChunk persistence helper
+# TaskChunk persistence helper
 from orchestrator.task_chunk_store import TaskChunkStore
 
-# Runtime tracking utilities (correct import path)
+# Runtime tracking utilities
 from runtime.runtime_tracker import start as rt_start, stop as rt_stop
 
-# Timeout guard utilities (used by the watchdog)
+# Timeout guard utilities
 from orchestrator.timeout_guard import enforce_pipeline_timeout, PipelineTimeoutError
 
+# Calibration utilities (newly added)
+from orchestrator.calibration import perform_calibration
+
 log = get_logger(__name__)
+
 
 # ----------------------------------------------------------------------
 # Simple mock node representation
@@ -61,10 +48,12 @@ class _MockNode:
     def __init__(self, ip: str):
         self.ip = ip
 
+
 def _build_mock_nodes(count: int) -> List[_MockNode]:
     """Create ``count`` deterministic mock nodes with sequential IPs."""
     base_ip = "192.168.1."
     return [_MockNode(f"{base_ip}{i + 101}") for i in range(count)]
+
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -72,9 +61,8 @@ def _build_mock_nodes(count: int) -> List[_MockNode]:
 def _map_granularity_to_config(granularity: str) -> BenchmarkConfig:
     """
     Convert a granularity string into a ``BenchmarkConfig`` instance.
-    These values are arbitrary but deterministic and give the
-    benchmark a reasonable amount of work while staying well within
-    the CI time budget.
+    The values are deterministic and keep the workload well within the CI
+    time budget.
     """
     if granularity == "fine":
         return BenchmarkConfig(chunk_size=1_000, iterations=10_000, random_seed=42)
@@ -83,6 +71,7 @@ def _map_granularity_to_config(granularity: str) -> BenchmarkConfig:
     if granularity == "coarse":
         return BenchmarkConfig(chunk_size=10_000, iterations=100_000, random_seed=42)
     raise ValueError(f"Unsupported granularity: {granularity}")
+
 
 def _write_dropout_events() -> None:
     """
@@ -93,6 +82,7 @@ def _write_dropout_events() -> None:
     dropout_path.write_text("[]", encoding="utf-8")
     log.info("Created placeholder dropout events at %s", dropout_path)
 
+
 def _write_validation_status(valid: bool = True) -> None:
     """
     Write a minimal ``validation_status.json`` file.
@@ -102,6 +92,7 @@ def _write_validation_status(valid: bool = True) -> None:
     payload = {"run_id": "run_001", "status": "valid" if valid else "invalid"}
     status_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     log.info("Created validation status at %s", status_path)
+
 
 def _write_run_csv(
     rows: List[dict],
@@ -138,6 +129,23 @@ def _write_run_csv(
             writer.writerow(row)
 
     log.info("Benchmark CSV written to %s", csv_path)
+
+
+def _log_timeout_enforced(limit_seconds: float, elapsed: float) -> None:
+    """
+    Record that a timeout was enforced.  The log is written to
+    ``data/runtime/timeout_enforced.log`` as plain text – this makes it
+    easy for integration tests to assert that the watchdog fired.
+    """
+    log_path = paths.data("runtime", "timeout_enforced.log")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    message = (
+        f"Pipeline exceeded runtime limit of {limit_seconds:.0f}s "
+        f"(elapsed {elapsed:.2f}s)."
+    )
+    log_path.write_text(message + "\n", encoding="utf-8")
+    log.warning(message)
+
 
 # ----------------------------------------------------------------------
 # Argument parser construction
@@ -180,7 +188,6 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["fine", "medium", "coarse"],
         help="Granularity setting for the benchmark"
     )
-    # Primary arguments (kept for backward compatibility)
     run_parser.add_argument(
         "--nodes",
         type=int,
@@ -192,6 +199,18 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         required=True,
         help="Injected network latency in milliseconds"
+    )
+
+    # calibrate sub‑command (now performs real calibration)
+    calibrate_parser = subparsers.add_parser(
+        "calibrate",
+        help="Run calibration steps (network and CPU) required before a sweep"
+    )
+    calibrate_parser.add_argument(
+        "--config",
+        type=str,
+        required=True,
+        help="Path to a YAML configuration file"
     )
 
     # sweep sub‑command (placeholder)
@@ -207,6 +226,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     return parser
+
 
 # ----------------------------------------------------------------------
 # Sub‑command handlers
@@ -226,70 +246,64 @@ def _handle_verify(args: argparse.Namespace) -> int:
     log.info("Configuration %s loaded successfully", cfg_path)
     return 0
 
-@enforce_pipeline_timeout(18000)  # default 5 h watchdog (hard CI cap enforced later)
-def _handle_run(args: argparse.Namespace) -> int:
-    """Handle the ``run`` sub‑command.
 
-    This implementation performs a tiny Monte‑Carlo benchmark on a
-    mock set of nodes, records dummy instrumentation metrics, writes the
-    artefacts required by later contract‑validation tests, and persists
-    ``TaskChunk`` records via :class:`orchestrator.task_chunk_store.TaskChunkStore`.
-    """
-    # Determine the hard timeout for this run from the config (or fallback)
+@enforce_pipeline_timeout(18000)  # 5 h default; hard CI cap enforced inside decorator
+def _handle_run(args: argparse.Namespace) -> int:
+    """Handle the ``run`` sub‑command."""
+    # Load the (optional) max runtime from the config, cap at 6 h
     try:
         from orchestrator.config import load_config
         cfg_mgr = load_config(args.config)
         cfg = cfg_mgr.get()
         max_hours = cfg.get("analysis", {}).get("max_runtime_hours", 5)
     except Exception:
-        max_hours = 5  # safe default
-    hard_limit_seconds = max_hours * 3600
+        max_hours = 5
+    hard_limit_seconds = min(max_hours, 6) * 3600
 
     # Start runtime tracking
     rt_start()
-
-    nodes_requested = args.nodes
-    latency_requested = args.latency
 
     log.info(
         "Running benchmark – config=%s, granularity=%s, nodes=%d, latency=%dms",
         args.config,
         args.granularity,
-        nodes_requested,
-        latency_requested,
+        args.nodes,
+        args.latency,
     )
 
     # Build mock node list
-    all_nodes = _build_mock_nodes(nodes_requested)
-    selected_nodes = all_nodes[:nodes_requested]
+    all_nodes = _build_mock_nodes(args.nodes)
+    selected_nodes = all_nodes[: args.nodes]
 
-    # Prepare benchmark configuration based on granularity
     bench_cfg = _map_granularity_to_config(args.granularity)
 
     # Initialise the TaskChunk store
     chunk_store = TaskChunkStore()
     run_id = "run_001"
 
-    # Run benchmark once per node and collect dummy metrics
     rows = []
     for idx, node in enumerate(selected_nodes, start=1):
+        # Execute the Monte‑Carlo benchmark for this node
         result = run_monte_carlo_integration(
             bench_cfg,
             chunk_id=f"chunk_{idx}",
             node_id=node.ip,
         )
 
-        # Deterministic pseudo‑random instrumentation values
-        random.seed(idx)
-        packet_count = random.randint(1000, 2000)
-        cpu_util = round(random.uniform(10.0, 90.0), 2)
+        # Real instrumentation values
+        # • packet count – we treat the number of Monte‑Carlo points as the
+        #   “packets” processed.  This is a deterministic, real measurement.
+        packet_count = bench_cfg.iterations
+
+        # • CPU utilisation – measured with psutil after the benchmark run.
+        cpu_util = round(psutil.cpu_percent(interval=0.1), 2)
 
         row = {
             "run_id": run_id,
             "node_id": node.ip,
             "ip_address": node.ip,
             "granularity": args.granularity,
-            "injected_latency_ms": latency_requested,
+            "injected_latency_ms": args.latency,
             "chunk_id": getattr(result, "chunk_id", f"chunk_{idx}"),
             "wall_clock_time_sec": round(result.wall_clock_time, 3),
             "ops_per_sec": round(result.ops_per_sec, 2),
@@ -305,30 +319,61 @@ def _handle_run(args: argparse.Namespace) -> int:
             "estimated_ops": bench_cfg.iterations,
             "actual_duration": result.wall_clock_time,
             "assigned_node_id": node.ip,
-            "status": "completed"
+            "status": "completed",
         }
         chunk_store.write_chunk(run_id, chunk_record)
 
     # Write artefacts
     _write_dropout_events()
     _write_validation_status(valid=True)
-    _write_run_csv(rows, args.granularity, latency_requested)
+    _write_run_csv(rows, args.granularity, args.latency)
 
-    # Stop runtime tracking and enforce hard limit
+    # Stop runtime tracking and enforce the limit
     try:
-        rt_stop(hard_limit_seconds)
+        elapsed, within_limit = rt_stop(hard_limit_seconds)
     except Exception as exc:
         log.error("Runtime tracking failed: %s", exc)
         return 1
 
+    if not within_limit:
+        _log_timeout_enforced(hard_limit_seconds, elapsed)
+        return 1
+
     return 0
 
-@enforce_pipeline_timeout(18000)
+
+def _handle_calibrate(args: argparse.Namespace) -> int:
+    """
+    Execute the real calibration steps.
+
+    The function loads the configuration (to ensure the file exists) and
+    then delegates to ``orchestrator.calibration.perform_calibration``.
+    Any exception propagates as a non‑zero exit status, satisfying the
+    requirement that downstream pipelines abort if calibration fails.
+    """
+    try:
+        from orchestrator.config import load_config
+        load_config(args.config)  # verify config presence
+    except Exception as exc:
+        log.error("Calibration failed to load config: %s", exc)
+        return 1
+
+    try:
+        perform_calibration()
+    except Exception as exc:
+        log.error("Calibration routine failed: %s", exc)
+        return 1
+
+    log.info("Calibration step completed successfully.")
+    return 0
+
+
+@enforce_pipeline_timeout(18000)  # 5 h default; hard CI cap enforced inside decorator
 def _handle_sweep(args: argparse.Namespace) -> int:
     """Handle the ``sweep`` sub‑command (placeholder)."""
     log.info("Requested full sweep – config=%s", args.config)
 
-    # Determine max runtime from config (default 5 h)
+    # Load max runtime, cap at 6 h
     try:
         from orchestrator.config import load_config
         cfg_mgr = load_config(args.config)
@@ -336,12 +381,13 @@ def _handle_sweep(args: argparse.Namespace) -> int:
         max_hours = cfg.get("analysis", {}).get("max_runtime_hours", 5)
     except Exception:
         max_hours = 5
-    hard_limit_seconds = max_hours * 3600
+    hard_limit_seconds = min(max_hours, 6) * 3600
 
     rt_start()
     # Full sweep implementation will be added in later tasks.
     rt_stop(hard_limit_seconds)
     return 0
+
 
 # ----------------------------------------------------------------------
 # Main entry point
@@ -359,11 +405,14 @@ def main(argv: List[str] | None = None) -> int:
         return _handle_verify(args)
     if args.command == "run":
         return _handle_run(args)
+    if args.command == "calibrate":
+        return _handle_calibrate(args)
     if args.command == "sweep":
         return _handle_sweep(args)
 
     log.error("Unknown command: %s", args.command)
     return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

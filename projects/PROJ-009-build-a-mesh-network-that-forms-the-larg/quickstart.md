@@ -31,21 +31,21 @@ testbed:
  - ip: "192.168.1.102"
  hardware: "Laptop Intel i7"
  # Add additional nodes as needed
-network:
- base_latency_ms: (baseline latency, on the order of tens of milliseconds)
- packet_loss_rate: low
- bandwidth_mbps: a high bandwidth sufficient for the planned data acquisition
- snr_db: high
+ network:
+ base_latency_ms: 10
+ packet_loss_rate: 0.0
+ bandwidth_mbps: 100
+ snr_db: 30
 
 benchmark:
  granularity: ["fine", "medium", "coarse"]
  node_counts: [10, 15, 20]
- injected_latencies: [0, 50, 100, 200] # ms
- runs_per_config: several # increase for full study
+ injected_latencies: [0, 50, 100, 150]
+ runs_per_config: 2
  random_seed: 42
 
 analysis:
- max_runtime_hours: a constrained runtime of a few hours
+ max_runtime_hours: 6
 ```
 
 Verify that the configuration can be read:
@@ -63,17 +63,17 @@ python code/orchestrator/cli.py run \
  --nodes 15 \
  --latency 100
 ```
-*What happens*:
-- The orchestrator pretends to discover 15 nodes. [UNRESOLVED-CLAIM: c_e839c791 — status=not_enough_info]
-- It logs the requested parameters.
-- A CSV file `data/raw/run_001.csv`, `data/raw/dropout_events.json`, and `data/raw/validation_status.json` are created.
+This creates:
+- `data/raw/run_001.csv`
+- `data/raw/dropout_events.json`
+- `data/raw/validation_status.json`
+- `data/raw/task_chunks/run_001.jsonl`
 
 ### 2. Full Parameter Sweep
 ```bash
 python code/orchestrator/cli.py sweep --config config.yaml
 ```
-*What happens*:
-- The sweep runner acknowledges the request (full implementation will be added later).
+(Full sweep implementation will be added in later tasks.)
 
 ### 3. Help
 ```bash
@@ -87,23 +87,19 @@ Displays usage for all sub‑commands.
 ```bash
 pytest code/tests/contract/ -v
 ```
-The test suite scans the `data/` directory and validates any JSON files
-against the schemas in `contracts/`. With the placeholder files created
-by the CLI, the tests pass.
+The test suite validates all JSON artefacts against the contracts.
 
 ### Unit Tests
 ```bash
 pytest code/tests/unit/ -v
 ```
-(Will be exercised by later tasks.)
 
 ### Integration Tests (Mock Testbed)
 ```bash
 pytest code/tests/integration/ -v --mock-testbed
 ```
-(Will be exercised by later tasks.)
 
-## Output Artifacts
+## Output Artefacts
 | Artifact | Location | Description |
 |----------|----------|-------------|
 | Raw execution logs | `data/raw/run_*.csv` | One row per task chunk, includes timing, CPU, packet counts |

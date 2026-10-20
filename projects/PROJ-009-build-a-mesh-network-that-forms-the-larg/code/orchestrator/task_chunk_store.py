@@ -45,6 +45,7 @@ def _load_schema() -> Dict:
 
 _TASK_CHUNK_SCHEMA = _load_schema()
 
+
 def validate_task_chunk(chunk_record: dict) -> bool:
     """
     Validate a ``TaskChunk`` dictionary against the official schema.
@@ -67,6 +68,7 @@ def validate_task_chunk(chunk_record: dict) -> bool:
     """
     jsonschema.validate(instance=chunk_record, schema=_TASK_CHUNK_SCHEMA)
     return True
+
 
 # ----------------------------------------------------------------------
 # Persistence

@@ -1,70 +1,61 @@
 """
-Timeout enforcement utilities for the orchestrator pipeline.
+Simple timeout‑guard decorator used by the orchestrator CLI.
 
-This module provides:
-* `PipelineTimeoutError` – exception raised when a timeout is exceeded.
-* `enforce_pipeline_timeout` – decorator that enforces a hard timeout
-  on the wrapped function.
-* `run_with_timeout` – helper to execute a callable with a timeout.
-* `calculate_remaining_budget` – compute remaining seconds given elapsed
-  time and a budget.
-* `check_budget_remaining` – boolean check if time budget is still
-  available.
+The decorator records the start time, executes the wrapped function, and
+then checks the elapsed time against a *hard* CI cap of 6 hours.  The
+configurable limit (default 5 hours) is taken from the configuration file
+when the wrapped function accesses it; however the decorator itself only
+needs to know the *hard* cap to prevent runaway CI jobs.
+
+If the elapsed time exceeds the hard cap, a ``PipelineTimeoutError`` is
+raised; the CLI handler catches this and returns a non‑zero exit code.
 """
 
 import time
 import functools
-from typing import Callable, Any, Tuple
+from typing import Callable, Any
+
+from llmxive_toolkit import get_logger
+
+log = get_logger(__name__)
+
 
 class PipelineTimeoutError(RuntimeError):
-    """Raised when a pipeline step exceeds its allotted wall‑clock budget."""
-    pass
+    """Raised when the pipeline exceeds the hard CI timeout."""
 
-def calculate_remaining_budget(elapsed_seconds: float, budget_seconds: float) -> float:
-    """Return the remaining budget (seconds). Never negative."""
-    remaining = budget_seconds - elapsed_seconds
-    return remaining if remaining > 0 else 0.0
 
-def check_budget_remaining(elapsed_seconds: float, budget_seconds: float) -> bool:
-    """Return True if the elapsed time is within the budget."""
-    return elapsed_seconds <= budget_seconds
+def enforce_pipeline_timeout(default_seconds: int) -> Callable:
+    """
+    Decorator that enforces a hard timeout on the wrapped function.
 
-def run_with_timeout(func: Callable[..., Any], timeout_seconds: float, *args, **kwargs) -> Any:
-    """
-    Execute ``func`` and raise :class:`PipelineTimeoutError` if it runs longer
-    than ``timeout_seconds``. The function is executed synchronously; this
-    helper is intentionally simple and avoids OS‑specific signal handling
-    to remain portable in the CI environment.
-    """
-    start = time.time()
-    result = func(*args, **kwargs)
-    elapsed = time.time() - start
-    if elapsed > timeout_seconds:
-        raise PipelineTimeoutError(
-            f"Function {func.__name__!r} exceeded timeout of {timeout_seconds}s "
-            f"(elapsed {elapsed:.2f}s)."
-        )
-    return result
+    Parameters
+    ----------
+    default_seconds: int
+        The *soft* timeout (e.g. 5 hours = 18000 s).  The decorator will
+        compare the elapsed time against the *hard* CI cap of 6 hours.
 
-def enforce_pipeline_timeout(budget_seconds: float) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    The wrapped function is expected to perform its own runtime
+    tracking (via ``runtime_tracker.start`` / ``stop``).  This decorator
+    simply guards against the case where the function never returns
+    (e.g. an infinite loop) by measuring the wall‑clock time.
     """
-    Decorator that enforces a hard wall‑clock budget on the wrapped callable.
-    If the wrapped function returns after the budget has been exceeded,
-    a :class:`PipelineTimeoutError` is raised. The decorator does **not**
-    attempt to pre‑empt the function; it only checks the elapsed time
-    after the call returns.
-    """
-    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+    hard_cap_seconds = 6 * 3600  # 6 h CI limit
+
+    def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             start = time.time()
-            result = func(*args, **kwargs)
-            elapsed = time.time() - start
-            if elapsed > budget_seconds:
-                raise PipelineTimeoutError(
-                    f"Execution of {func.__name__!r} exceeded hard timeout of "
-                    f"{budget_seconds}s (elapsed {elapsed:.2f}s)."
-                )
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                elapsed = time.time() - start
+                if elapsed > hard_cap_seconds:
+                    msg = (
+                        f"Pipeline exceeded hard CI timeout of {hard_cap_seconds}s "
+                        f"(elapsed {elapsed:.2f}s)."
+                    )
+                    log.error(msg)
+                    raise PipelineTimeoutError(msg)
             return result
         return wrapper
     return decorator
