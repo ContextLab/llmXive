@@ -69,7 +69,7 @@ The following checklist implements the full research pipeline, from a reproducib
     - If memory cannot be reduced, aborts with “Memory limit exceeded – pipeline stopped”.  
   - **Verification**: `pytest code/tests/test_memory_monitor.py` runs a synthetic 8 GB matrix workload and confirms that sub‑sampling is triggered and final peak RAM ≤ 7 GB.  
 
-- [ ] T006 [US-2] Run the full synthetic pipeline and validate that every artifact is produced and schema‑compliant.  
+- [ ] T006 [US-2] Run the full synthetic pipeline and validate that every artifact is produced and schema‑compliant.   <!-- FAILED-IN-EXECUTION: code/run_quickstart_test.py exit=5 -->
   - **Command**: `python code/main.py --mode synthetic --n-subjects 100 --seed 42`.  
   - **Post‑run**: Execute `python code/run_quickstart_test.py`.  
   - **Verification**: The quickstart test must exit 0, and a summary log `data/logs/quickstart_success.txt` is written.  

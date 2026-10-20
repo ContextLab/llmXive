@@ -1,4 +1,9 @@
-nibabel>=5.0.0
-# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil)
-# are provided by the platform and need not be listed explicitly.
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+nibabel
+networkx

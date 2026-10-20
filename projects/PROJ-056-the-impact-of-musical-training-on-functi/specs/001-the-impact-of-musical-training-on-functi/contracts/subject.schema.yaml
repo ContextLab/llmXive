@@ -1,38 +1,4 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Subject Schema"
-type: "object"
-properties:
-  subject_id:
-    type: "string"
-    description: "Unique identifier for the subject"
-  group:
-    type: "string"
-    enum:
-      - "musician"
-      - "non_musician"
-    description: "Group assignment (musician if and only if years_of_training >= 1)"
-  years_of_training:
-    type: "number"
-    minimum: 0.0
-    description: "Years of musical training; must be >= 1 for group 'musician'"
-  age:
-    type: "number"
-    description: "Age of the subject in years"
-  sex:
-    type: "string"
-    enum:
-      - "M"
-      - "F"
-    description: "Sex of the subject"
-  motion_score:
-    type: "number"
-    description: "Head motion metric (e.g., FD)"
-  ses_score:
-    type: "number"
-    description: "Socioeconomic status proxy score"
-  rs_fmri_path:
-    type: "string"
-    description: "Filesystem path to the final NIfTI file"
+type: object
 required:
   - subject_id
   - group
@@ -41,5 +7,20 @@ required:
   - sex
   - motion_score
   - ses_score
-  - rs_fmri_path
-additionalProperties: false
+properties:
+  subject_id:
+    type: string
+  group:
+    type: string
+    enum: [musician, non_musician]
+  years_of_training:
+    type: number
+  age:
+    type: number
+  sex:
+    type: string
+    enum: [M, F]
+  motion_score:
+    type: number
+  ses_score:
+    type: number

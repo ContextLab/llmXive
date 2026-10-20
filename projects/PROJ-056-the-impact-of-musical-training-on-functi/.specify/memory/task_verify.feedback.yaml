@@ -1,24 +1,48 @@
 T001:
-  reason: "Checked `code/main.py`, `code/data/run_synthetic_generator.py`, `code/data/real_ingest.py`,\
-    \ and `code/run_quickstart_test.py` for required CLI parsing, script entry\u2011\
-    point, real\u2011data stub behavior, and quick\u2011start test logic. While the\
-    \ scripts exist and implement the described behavior, the quick\u2011start test\u2019\
-    s schema validation cannot run because the expected contract files (e.g., `subject.schema.yaml`,\
-    \ `statistical_result.schema.yaml`, `network_component.schema.yaml`) are missing\
-    \ from the repository, so the test does not actually assert schema compliance.\
-    \ Add the missing schema files under `spe"
+  reason: 'The main defect is `code/data/real_ingest.py`: when no real data is configured
+    (missing/unsupported `REAL_DATA_SOURCE` or failed download), it prints a technical
+    error like "Environment variable REAL_DATA_SOURCE is not set." and returns exit
+    code 1, whereas the task explicitly requires a clear "Data source unavailable"
+    message and exit status 0 with no synthetic fallback; consequently `code/main.py
+    --mode real` also exits 1 via `run_real_mode`. The existing `data/real_ingest_status.json`
+    (status "unavailable") shows the status-file mechanism works, but the exit-code
+    and message requirements ar'
   task: 70bfc20f0378c62826d0ce5a857213b151f2b7bcef46b7fac8fd6504444e8a7b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/run_synthetic_generator.py
     exit=1'
   task: d27881041742fce5b94c74fb2137638328492bb12a0a8b80b3fc2b7eb3cf10ef
 T003:
+  reason: "The required output artifacts (`data/processed/subjects_cleaned.parquet`,\
+    \ `data/logs/exclusion_report.txt`, `data/processed/matching_balance_report.csv`)\
+    \ and the verification test `code/tests/test_preprocess.py` are all MISSING, and\
+    \ the only historical execution record shows the preprocessing test FAILING (exit\
+    \ 1, TypeError in `preprocess_subjects`). The script also has logic defects: it\
+    \ applies the \u22651-year cutoff before dropping missing `years_of_training`\
+    \ (so missing-data exclusions are never counted), and the NIfTI validity check\
+    \ requires files in `data/raw/mock_nifti` that don't exist, whi"
   task: 65050f093fdad16b5407279d4014146c6ef2812ceee5ab0386b101e5864bde66
 T004:
+  reason: 'The three source modules exist, but the required outputs do not: `data/processed/connectivity/`
+    and `data/processed/network_metrics/` are missing (no per-subject JSON files),
+    the schema files (`connectivity.schema.yaml`, `network_metric.schema.yaml`) are
+    missing, and `code/tests/test_connectivity.py` is missing. The only execution
+    record (`code/.tasks/T004.tests_unit_test_connectivity.py.log`) shows the test
+    run failed with exit code 2 (`ModuleNotFoundError: No module named ''data.models''`),
+    so there is no evidence the pipeline or verification ever succeeded.'
   task: 60461e39a54f75bb2457fad82e2885f380fe2fe0bad356eaba6c479dff83b59c
 T005:
+  reason: "The required verification test `code/tests/test_memory_monitor.py` does\
+    \ not exist, so there is no evidence that the synthetic 8 GB workload triggers\
+    \ sub-sampling or that peak RAM stays \u2264 7 GB; the log `data/logs/memory_subsampling.log`\
+    \ is also missing, confirming no sub-sampling has ever been exercised. Additionally,\
+    \ the module's `get_peak_memory_mb` uses `resource.getrusage` rather than psutil,\
+    \ and no streaming-mode fallback (e.g., `datasets.load_dataset(..., streaming=True)`)\
+    \ is implemented \u2014 only DataFrame row sub-sampling."
   task: 2d1a25ee97c094104e389b4a74c888488846d0c78846a88cdd99dc1bb0d09e41
 T006:
+  reason: 'Requested task execution failed; rerun successfully: code/run_quickstart_test.py
+    exit=5'
   task: 6ce9df7b3daef6193ea11ec148d8a72c26f528770a95f3e91b002d7a3a60dd48
 T007:
   task: 41d92fab99967fddac5a0a14661699b46c863e35a048f7f107c1b63d3b140d62
@@ -35,6 +59,14 @@ T012:
 T013:
   task: f0bca2ad107b068e99a52f9f5babb8d7b98fa206cb64fba875009e2d3abcb585
 T014:
+  reason: "The script exists but contradicts the task's core requirements: it only\
+    \ accepts `REAL_DATA_SOURCE=OPENNEURO` (rejecting the required `ABCD`/`HCP` values),\
+    \ uses a direct OpenNeuro HTTP download instead of the required official `abcd-data`/`hcp`\
+    \ SDKs, downloads only a participants.tsv (no fMRI NIfTI files), and does not\
+    \ parse a \"Music Training\" questionnaire. Additionally, none of the required\
+    \ outputs exist on disk \u2014 `data/processed/subjects.parquet`, `data/logs/real_ingest.log`,\
+    \ `subject.schema.yaml`, and `code/tests/test_real_ingest.py` are all MISSING,\
+    \ so there is no evidence the script was e"
   task: a9e0b9e6b1840973f12974f1cae1c674e3f4429dce4d565682c7804ce14c04bf
 T015:
   task: 9ec4dd44a159e8aa526e4b067bdddc8563db87f741bba1551622349e4cf2f16f

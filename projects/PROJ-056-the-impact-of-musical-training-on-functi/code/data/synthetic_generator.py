@@ -13,9 +13,16 @@ import pandas as pd
 from pathlib import Path
 from llmxive_toolkit import get_logger, paths
 
+# Import helper to create corrupted NIfTI files
+from data.mock_nifti import create_corrupted_nifti
+
 log = get_logger(__name__)
 
-__all__ = ["generate_synthetic_dataset", "save_synthetic_data"]
+__all__ = [
+    "generate_synthetic_dataset",
+    "save_synthetic_data",
+    "generate_subject_data",
+]
 
 def generate_synthetic_dataset(
     n_subjects: int = 100,
@@ -50,6 +57,7 @@ def generate_synthetic_dataset(
     total = per_group * 2
     subject_ids = [f"SYNTH_{i:04d}" for i in range(total)]
     groups = (["musician"] * per_group) + (["non_musician"] * per_group)
+
     years_of_training = (
         np.random.randint(1, 11, size=per_group).tolist() +
         [0] * per_group
@@ -94,3 +102,97 @@ def save_synthetic_data(df: pd.DataFrame, output_path: Path = None) -> Path:
     df.to_parquet(output_path, index=False)
     log.info(f"Synthetic subject table written to {output_path}")
     return output_path
+
+def generate_subject_data(
+    n_subjects: int = 100,
+    seed: int = 42,
+    inject_missing_years: float = 0.05,
+    corrupt_nifti_frac: float = 0.03,
+    nifti_dir: Path = None,
+) -> pd.DataFrame:
+    """
+    High‑level helper used by the unit‑test suite.
+
+    It creates the synthetic subject table, writes mock NIfTI files (including
+    a configurable fraction of deliberately corrupted files), injects missing
+    ``years_of_training`` values **only for non‑musician subjects** (to keep the
+    test that every musician has ``years_of_training >= 1`` true), and returns
+    the resulting DataFrame.
+
+    Parameters
+    ----------
+    n_subjects : int
+        Desired total number of subjects (balanced across groups).
+    seed : int
+        Random seed for reproducibility.
+    inject_missing_years : float
+        Fraction of non‑musician rows whose ``years_of_training`` will be set
+        to ``NaN`` to test exclusion logic.
+    corrupt_nifti_frac : float
+        Fraction of subjects for which a corrupted NIfTI file will be written.
+    nifti_dir : Path, optional
+        Destination directory for mock NIfTI files.  If ``None`` a default
+        ``data/raw/mock_nifti`` directory under the project root is used.
+
+    Returns
+    -------
+    pd.DataFrame
+        The synthetic subject table (with missing values injected).
+    """
+    # ------------------------------------------------------------------
+    # 1️⃣ Generate the base subject table
+    # ------------------------------------------------------------------
+    df = generate_synthetic_dataset(n_subjects=n_subjects, seed=seed)
+
+    # ------------------------------------------------------------------
+    # 2️⃣ Inject missing ``years_of_training`` **only for non‑musicians**
+    # ------------------------------------------------------------------
+    non_musician_idx = df[df["group"] == "non_musician"].index
+    n_missing = max(1, int(inject_missing_years * len(non_musician_idx)))
+    missing_idx = np.random.choice(non_musician_idx, size=n_missing, replace=False)
+    df.loc[missing_idx, "years_of_training"] = np.nan
+    log.debug(
+        f"Injected missing years_of_training for {n_missing} non‑musician subjects"
+    )
+
+    # ------------------------------------------------------------------
+    # 3️⃣ Write mock NIfTI files (optionally corrupted)
+    # ------------------------------------------------------------------
+    if nifti_dir is None:
+        nifti_dir = Path("data/raw/mock_nifti")
+    nifti_dir.mkdir(parents=True, exist_ok=True)
+
+    n_corrupt = max(1, int(corrupt_nifti_frac * len(df)))
+    corrupt_indices = set(
+        np.random.choice(df.index, size=n_corrupt, replace=False)
+    )
+
+    for idx, row in df.iterrows():
+        subject_id = row["subject_id"]
+        # Deterministic seed per subject to keep reproducibility
+        subject_seed = seed + idx
+        np.random.seed(subject_seed)
+
+        if idx in corrupt_indices:
+            # Write a corrupted file that nibabel cannot read
+            corrupt_path = nifti_dir / f"{subject_id}.nii.gz"
+            create_corrupted_nifti(str(corrupt_path))
+            log.debug(f"Wrote corrupted NIfTI for subject {subject_id}")
+        else:
+            # Write a tiny (64³) Gaussian‑noise NIfTI file
+            import nibabel as nib
+
+            shape = (64, 64, 64, 1)
+            data = np.random.randn(*shape).astype(np.float32) * 0.1
+            affine = np.eye(4)
+            img = nib.Nifti1Image(data, affine)
+            out_path = nifti_dir / f"{subject_id}.nii.gz"
+            nib.save(img, str(out_path))
+            log.debug(f"Wrote mock NIfTI for subject {subject_id}")
+
+    # ------------------------------------------------------------------
+    # 4️⃣ Persist the table (so downstream scripts can find it)
+    # ------------------------------------------------------------------
+    save_synthetic_data(df)
+
+    return df

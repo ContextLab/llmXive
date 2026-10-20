@@ -3,7 +3,7 @@ Main entry point for the llmXive research pipeline: The Impact of Musical Traini
 
 This script orchestrates the entire workflow, supporting two modes:
 1. Synthetic verification mode (`--mode synthetic`): runs the pipeline on synthetic data.
-2. Real‑data mode (`--mode real`): stub that reports data‑source unavailability.
+2. Real‑data mode (`--mode real`): stub that reports unavailability and writes a status JSON.
 """
 
 import argparse
@@ -33,7 +33,7 @@ from utils.memory_monitor import (
 )
 from data.preprocess import preprocess_subjects
 from data.output_cleaned_subjects import write_cleaned_subjects
-from analysis.connectivity import generate_group_connectivity_results
+from analysis.connectivity import generate_group_connectivity_results, main as connectivity_main
 from analysis.stats import process_connectivity_statistics
 from analysis.output_connectivity_results import write_connectivity_results
 from analysis.run_nbs import run_nbs_analysis

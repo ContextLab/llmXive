@@ -1,15 +1,18 @@
 status: none
-intent: ABCD Study HCP Adolescents resting state fMRI musician non-musician python
+intent: ABCD Study NIH Data Archive HCP-D ConnectomeDB adolescent resting fMRI python
   package dataset
 required_fields:
 - subject_id
+- group_label
+- musical_training_years
 - age
 - sex
-- musical_training_years
-- group_label
-- resting_state_fmri_path
-- motion_mean_fd
-- confounders
-cache_key: f8229abe5639863ab8718cd3a65de320bcea0432dddf63b3202d97252b0c9112
-searched_at: '2026-10-20T06:16:38.002089+00:00'
+- site
+- scanner_model
+- mean_framewise_displacement
+- resting_state_fmri_file_path
+- phenotypic_metadata_file
+- quality_control_flag
+cache_key: a23df93c300fd5fe38e195dd84aa9493aa4acadf9f8bd8821af17e0c5265a65f
+searched_at: '2026-10-20T07:19:52.351120+00:00'
 retry_count: 1
