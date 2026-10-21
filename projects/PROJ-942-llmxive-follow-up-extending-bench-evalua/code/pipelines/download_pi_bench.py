@@ -1,10 +1,11 @@
 import argparse
 import hashlib
 import logging
+import shutil
 from pathlib import Path
 from typing import List, Tuple
 
-import requests
+from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
 # Initialize logger
@@ -18,21 +19,6 @@ PUBLIC_JSON_URLS = [
     # This file is small, publicly accessible, and can be loaded with `datasets.load_dataset("json", ...)`.
     "https://raw.githubusercontent.com/huggingface/datasets/main/datasets/json/example.json",
 ]
-
-def _download_file(url: str, target_dir: Path) -> Path:
-    """
-    Download a single file from ``url`` into ``target_dir``.
-    Returns the local Path of the downloaded file.
-    """
-    local_path = target_dir / Path(url).name
-    log.debug(f"Downloading {url} → {local_path}")
-    response = requests.get(url, stream=True, timeout=30)
-    response.raise_for_status()
-    with local_path.open("wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                f.write(chunk)
-    return local_path
 
 def _sha256_checksum(file_path: Path) -> str:
     """
@@ -54,6 +40,22 @@ def _write_checksums(files: List[Tuple[Path, str]], out_path: Path) -> None:
             f.write(f"{checksum}  {rel_path}\n")
     log.info(f"Checksum manifest written to {out_path}")
 
+def _download_and_save(url: str, target_dir: Path) -> Path:
+    """
+    Download a JSON file via ``datasets.load_dataset`` (which handles caching)
+    and copy it into ``target_dir``. Returns the Path of the copied file.
+    """
+    log.debug(f"Downloading {url} via datasets.load_dataset")
+    # ``load_dataset`` with the "json" builder will download the file to the cache.
+    ds = load_dataset("json", data_files={"train": url}, split="train")
+    cache_path = Path(ds.cache_files["train"]["filename"])
+    if not cache_path.is_file():
+        raise FileNotFoundError(f"Cached file not found for {url}")
+    dest_path = target_dir / Path(url).name
+    shutil.copy(cache_path, dest_path)
+    log.debug(f"Copied cached file {cache_path} → {dest_path}")
+    return dest_path
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Download a small public JSON dataset to act as a placeholder for π‑Bench."
@@ -73,7 +75,7 @@ def main() -> None:
 
     for url in PUBLIC_JSON_URLS:
         try:
-            local_path = _download_file(url, raw_dir)
+            local_path = _download_and_save(url, raw_dir)
             rel_path = local_path.relative_to(raw_dir)
             checksum = _sha256_checksum(local_path)
             checksums.append((rel_path, checksum))
@@ -81,7 +83,7 @@ def main() -> None:
             log.error(f"Failed to download or process {url}: {exc}")
             raise
 
-    # Write a simple manifest file listing the downloaded files
+    # Write a simple manifest file listing the downloaded URLs
     manifest_path = raw_dir / "download_manifest.txt"
     with manifest_path.open("w", encoding="utf-8") as mf:
         for url in PUBLIC_JSON_URLS:
