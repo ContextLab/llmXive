@@ -54,10 +54,7 @@ ERROR during ingestion: "Column 'material_class' required for proxy calculation 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.mediation.bootstrap_mediation' (ModuleNotFoundError: No module named 'src.mediation')
 
 - python -m pytest -q -> rc=1
- schema = yaml.safe_load(f)
-        validator = Draft7Validator(schema)
-    
-        errors = []
+    errors = []
         for idx, record in df.iterrows():
             clean_record = {
                 k: (None if pd.isna(v) else v) for k, v in record.to_dict().items()
@@ -78,9 +75,10 @@ E           Row 9: None is not of type 'number'
 
 code/ingest/ingest.py:133: ValidationError
 =========================== short test summary info ============================
+FAILED code/tests/test_env_check.py::test_env_check_exits_successfully - Asse...
 FAILED code/tests/test_env_check.py::test_checksums_match_files - AssertionEr...
 FAILED tests/test_ingest.py::test_run_ingest_creates_unified_csv - jsonschema...
-2 failed, 2 passed in 0.54s
+3 failed, 1 passed in 1.39s
 
 
 
@@ -104,6 +102,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/ingest/ingest.py` — NOT invoked by the run-book
     - `code/src/env_check.py` — NOT invoked by the run-book
     - `code/tests/test_env_check.py` — NOT invoked by the run-book
+    - `src/env_check.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/proxy_agreement.csv` is declared but was NOT written. Scripts referencing it:
     - `code/src/proxy_agreement.py` — NOT invoked by the run-book

@@ -8,7 +8,7 @@ The checklist implements the technical schema requirements of FR‑001 – F
 
 ## Phase 1 – Environment, data ingestion, and early end‑to‑end run  
 
-- [ ] T001 **[P] [US1] Establish runnable environment, global config, and pin dependencies**  
+- [ ] T001 **[P] [US1] Establish runnable environment, global config, and pin dependencies**   <!-- FAILED-IN-EXECUTION: src/env_check.py exit=1 -->
   *Files*: `quickstart.md`, `code/src/env_check.py`, `code/src/config.py`, `requirements.txt`, `data/raw/checksums.json`  
   *Actions*  
   – Implement `code/src/env_check.py` that imports the full scientific stack (`pandas`, `numpy`, `scikit‑learn`, `torch` CPU‑only, `statsmodels`, `pyyaml`, `pytest`, `jsonschema`) and exits with code 0 only if all imports succeed.  

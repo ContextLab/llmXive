@@ -458,3 +458,20 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-10T20:08:49Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: synthetic data confirms pipeline runs without error
+  claim_id: c_a393910b
+  context: The synthetic data is not used for external scientific conclusions; it
+    only confirms that the pipeline runs without error.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The synthetic data is not used for external scientific conclusions; it
+    only confirms that the pipeline runs without error.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-21T17:14:17Z'

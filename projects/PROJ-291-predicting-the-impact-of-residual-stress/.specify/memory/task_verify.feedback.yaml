@@ -1,10 +1,5 @@
 T001:
-  reason: "Checked `quickstart.md`, `code/src/env_check.py`, `code/src/config.py`,\
-    \ `requirements.txt`, `data/raw/checksums.json` and the presence of `code/tests/test_env_check.py`.\
-    \ The quickstart uses bash scripts instead of the required single\u2011command\
-    \ example, the `requirements.txt` pins `torch==2.3.0` without the `+cpu` suffix,\
-    \ and the verification test file `code/tests/test_env_check.py` is missing, so\
-    \ the required pytest check cannot be run."
+  reason: 'Requested task execution failed; rerun successfully: src/env_check.py exit=1'
   task: 11b64e595b9902112d47d040262ee694f36fc67772697d6d825828737066d1fc
 T002:
   reason: The required implementation file `code/src/ingest.py`, the JSON fixture

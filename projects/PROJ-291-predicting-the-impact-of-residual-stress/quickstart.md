@@ -41,4 +41,4 @@ The pipeline will:
 pytest -q
 ```
 
-All steps are designed to complete within the GitHub Actions free‑tier limits (≤ 6 h runtime, < 7 GB RAM). The synthetic data used is for pipeline validation only and carries no external scientific claim.
+All steps are designed to complete within the GitHub Actions free‑tier limits (≤ 6 h runtime, < 7 GB RAM). The synthetic data is **not** used for external scientific conclusions; it only confirms that the pipeline runs without error.
