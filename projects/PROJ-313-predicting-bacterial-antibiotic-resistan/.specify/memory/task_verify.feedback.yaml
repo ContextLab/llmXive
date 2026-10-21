@@ -1,6 +1,11 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: src/pipeline/download.py
-    exit=1'
+  reason: "The `data/raw/assemblies/` directory is empty \u2013 no FASTA files were\
+    \ successfully downloaded, and the script did not retrieve any AST phenotype data\
+    \ (only minimal metadata). Consequently the task\u2019s core requirement of providing\
+    \ raw FASTA assemblies (and associated AST phenotypes) is not satisfied. The implementer\
+    \ must fix the download URLs (or use valid accession numbers) so that the expected\
+    \ FASTA files are written, and include the AST phenotype information in the parquet\
+    \ output."
   task: 763496f65e5a68309c7c6f33ee5957f03c94b21b21f0ca5e70d71840069c592c
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/pipeline/extract_baseline.py

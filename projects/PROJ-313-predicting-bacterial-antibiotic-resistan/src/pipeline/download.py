@@ -27,8 +27,6 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Known reference assemblies that are guaranteed to exist on NCBI FTP.
 # Each tuple: (species, isolate_id, assembly_accession)
-# The isolate_id is an arbitrary stable identifier for our downstream
-# processing; we reuse the accession (without version) for readability.
 TARGET_ISOLATES = [
     ("Escherichia coli", "ecoli_k12", "GCF_000005845.2"),
     ("Staphylococcus aureus", "saureus_nctc8325", "GCF_000013425.1"),
@@ -43,29 +41,30 @@ NCBI_FTP_BASE = "https://ftp.ncbi.nlm.nih.gov/genomes/all"
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper functions (unchanged from the original implementation)
+# Helper functions
 # ----------------------------------------------------------------------
 def accession_to_ftp_path(accession: str) -> str:
     """
     Convert an NCBI assembly accession (e.g. GCF_000005845.2) to the
     FTP directory path used by NCBI.
-
-    Returns the relative path *without* the trailing slash.
     """
-    base = accession.split(".")[0]
-    if "_" not in base:
+    # The directory structure is based on the accession without the version,
+    # but the final directory itself usually includes the version.
+    base_no_version = accession.split(".")[0]
+    if "_" not in base_no_version:
         raise ValueError(f"Unexpected accession format: {accession}")
-    prefix, num = base.split("_")
+    
+    prefix, num = base_no_version.split("_")
     num = num.zfill(9)
     parts = [num[i : i + 3] for i in range(0, 9, 3)]
-    return f"{prefix}/{parts[0]}/{parts[1]}/{parts[2]}/{base}"
+    
+    # Return path including the full accession as the final directory
+    return f"{prefix}/{parts[0]}/{parts[1]}/{parts[2]}/{accession}"
 
 def download_fasta(accession: str, dest_path: Path) -> bool:
     """
     Download the genomic FASTA (gzipped) for a given assembly accession,
     decompress it, and write as ``.fasta`` to ``dest_path``.
-
-    Returns True on success, False on failure (the caller logs a warning).
     """
     ftp_dir = accession_to_ftp_path(accession)
     filename = f"{accession}_genomic.fna.gz"
@@ -108,12 +107,9 @@ def main() -> None:
     2. Download the corresponding assembly FASTA files.
     3. Generate a sample‑size CSV summarising isolates per species.
     """
-    # Output locations (the `paths` helpers create parent directories)
+    # Output locations
     parquet_path = paths.data("raw", "ncbi_parquet", "isolates.parquet")
     fasta_dir = paths.data("raw", "assemblies")
-    # NOTE: The specification requires the sample‑size CSV to be under
-    # `data/processed/`. Previously it was written to `results/`, which broke
-    # downstream tasks. This has been corrected.
     sample_sizes_path = paths.data("processed", "sample_sizes.csv")
 
     parquet_path.parent.mkdir(parents=True, exist_ok=True)
@@ -134,9 +130,9 @@ def main() -> None:
         )
     df_meta = pd.DataFrame(rows)
 
-    # Write parquet
+    # Write parquet (requires pyarrow)
     log.info(f"Writing metadata parquet to {parquet_path}")
-    df_meta.to_parquet(parquet_path, index=False)
+    df_meta.to_parquet(parquet_path, index=False, engine="pyarrow")
 
     # Record checksum of parquet file
     parquet_checksum = sha256_checksum(parquet_path)
@@ -180,7 +176,11 @@ def main() -> None:
         log.warning(f"{len(warnings)} warnings recorded in {warnings_path}")
 
     log.info("Download step completed successfully.")
-    sys.exit(0)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+        sys.exit(0)
+    except Exception as e:
+        log.exception(f"Pipeline failed during download: {e}")
+        sys.exit(1)
