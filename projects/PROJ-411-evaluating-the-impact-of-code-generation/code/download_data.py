@@ -70,6 +70,15 @@ def load_schema_required_fields(schema_path: Path) -> List[str]:
     return required
 
 # ----------------------------------------------------------------------
+def _normalize_name(name: str) -> str:
+    """
+    Normalise a column or field name for fuzzy matching:
+    - lower‑case
+    - remove underscores
+    """
+    return name.lower().replace("_", "")
+
+# ----------------------------------------------------------------------
 def find_parquet_file(repo_id: str) -> str:
     """
     Return the first file ending with '.parquet' in the given repository.
@@ -116,14 +125,18 @@ def compute_sha256(file_path: Path) -> str:
 def validate_columns(df: pd.DataFrame, required: List[str]) -> Dict[str, str]:
     """
     For each required field return a status string:
-    - 'present' if column exists (case‑insensitive match)
+    - 'present' if column exists (case‑insensitive match, tolerant of
+      underscore differences)
     - 'missing' otherwise
     """
-    # Build a case‑insensitive lookup of existing columns
-    existing_lower = {col.lower(): col for col in df.columns}
+    # Build a case‑insensitive lookup of existing columns, normalised
+    existing_norm = {
+        _normalize_name(col): col for col in df.columns
+    }
     status: Dict[str, str] = {}
     for field in required:
-        if field.lower() in existing_lower:
+        norm_field = _normalize_name(field)
+        if norm_field in existing_norm:
             status[field] = "present"
         else:
             status[field] = "missing"
