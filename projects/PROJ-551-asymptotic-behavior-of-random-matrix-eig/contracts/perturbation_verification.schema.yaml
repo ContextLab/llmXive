@@ -1,0 +1,40 @@
+# Schema for ``perturbation_verification.json`` – verification of the deterministic perturbation.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: PerturbationVerification
+type: object
+required:
+  - theta_requested
+  - theta_actual
+  - rank_requested
+  - rank_actual
+  - pattern_type
+  - support_density
+  - spectral_norm
+  - sparsity_actual
+  - verification_pass
+properties:
+  theta_requested:
+    type: number
+  theta_actual:
+    type: number
+  rank_requested:
+    type: integer
+  rank_actual:
+    type: integer
+  pattern_type:
+    type: string
+    enum: ["diagonal", "block-sparse", "random-sparse"]
+  support_density:
+    type: number
+    minimum: 0
+    maximum: 1
+  spectral_norm:
+    type: number
+  sparsity_actual:
+    type: number
+    minimum: 0
+    maximum: 1
+  verification_pass:
+    type: boolean
+  notes:
+    type: ["string", "null"]

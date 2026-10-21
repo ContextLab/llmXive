@@ -1,45 +1,30 @@
 T001:
-  reason: "The three schema files do exist under `contracts/` and the pytest run exited\
-    \ 0, but the run's log shows the two artifact-validation tests SKIPPED (\"No JSON\
-    \ artifacts found\") \u2014 and worse, the test as written would not actually\
-    \ validate the artifacts that now exist in `data/processed/`: `single_run_results.json`\
-    \ has key `eigenvalue_results` (not `eigenvalues`), so it falls into the catch-all\
-    \ \"other JSON structures\" branch that only asserts non-empty, and `convergence_data.json`\
-    \ likewise never gets validated against any schema. The task requires that every\
-    \ file produced in `data/processed/` be va"
-  task: 41c074c53775c934ca2c2654a1dd7298465541c896c78b71ec05fe2a164a2d97
+  task: 97b0c43237307b37aa23060589816ffe3efaa2377d2d081969011e0ada982d2c
 T002:
-  task: 3452e915417763de69f8ba41c70acbad37b8141d929eb69b38a9c8d2d1809cf7
+  task: 3bc18bf71777263b156df5c173bfdf4409c7b1d0dc4dec15c49de3fdf2a4d06c
 T003:
-  reason: "The execution log does confirm a fresh run (`python -m code.main --mode\
-    \ single ...`) with exit 0 and top eigenvalue 2.901642355091, matching the claimed\
-    \ value. However, the task also claims \"JSON validated; logs and checksum created,\"\
-    \ and no evidence on disk shows a results JSON file, a checksum of the raw matrix,\
-    \ or any validation output \u2014 the run's stdout is empty and only a stderr\
-    \ log line exists. The implementer must produce and show the actual JSON results\
-    \ artifact and the matrix checksum to satisfy the reproducibility/validation requirements."
-  task: 1b986fda368ef26d2f8fb67c3372c16ccc715366535a698061c1b1ad247eb23f
+  task: 95ef4d09d66c12968d27d5c49ea4edcafcc67852156b0f05ca02703b07f650a9
 T004:
-  task: dfc2823c51c22c8c8409b814af0fa05517874d142de6d7131c5ccdd45b84d2a5
+  task: 7b77848349fc920a64f97f18bf6ab5f1e1dc8443ef27196f2ea203a497efc016
 T005:
-  task: ba70ecbb633019d7efafc7dc1f9ee5baec66cd0d534b6bdfaf4446177b42d12e
+  task: 3483f80ecbb50a86ab00a9b1c1ee7738b3bb74a455ecb1321ff8f47da9303caf
 T006:
-  reason: 'Requested task execution failed; rerun successfully: code/analysis/threshold_fit.py
-    exit=1'
-  task: fdfc19fdf7b6ed489f24381d3265c93ae63300fffb26d9fa6ffa9b0cadb0f4a5
+  task: 06457600a4a64b9b6422951fbb67a9fba694724d83c93da9c59933ce6799fdd2
 T007:
-  reason: 'Requested task execution failed; rerun successfully: code/analysis/aggregate_thresholds.py
-    exit=1'
-  task: c79d1f7c1b5e29101ea6ccb47cf495c2924282e144de6d3e1d21b72cab87afdc
+  task: be85046cd2dc2ad424c932b700b971f8af94023bf17a41efef42ff87175f58bf
 T008:
-  task: dbf755539653d16289c40de6213a77726a3e53378db5f93f709ef81c8070e1f5
+  task: 9a1ad350ab26d43fef6697eeaceb55c6bf1a30b0b19e92cfe6d78da16f8687ad
 T009:
-  task: c3dab50d5376b1b12417bd9dee3eb4421e2cf65b0afd6b273267c41f846e4c8b
+  task: 0956e350a9eae73628d4aedd5e2828324095f35d217633f0533435b2c58403b9
 T010:
-  task: 74a90effc8ee6be5634e3e1411082372fa69ffe2d83e3eb5df010eff94fbac6b
+  task: 6d4846172840814b84f5e7fc91d1d4681aef58792bb77538db83e107f20b70a9
 T011:
-  task: 7a905bd29ee9db53d204dcad4ca09217ffdf0eac93b60956b1d70922f6dd858d
+  task: 932d82b378d63f3ab12aada6b0cee6c69b6828ee36eed8e4aee67bd13bbd4e5c
 T012:
-  task: 2a6cdd2eee49fc93aee0de073b7651b712bed981623e70d259efb985003db878
+  task: c34fe9aa397f1ddfe15609c2ae7f2d850ea1ab7ed364a09dfc90240e453dd064
 T013:
-  task: 3b3e223925064efc3de67a84827159afca455cd86bd1fb360741e98fec4f6dba
+  task: d80b7c28fbd112009c3955b1e92ac2094776af8188ddf28081d55c1dd23c060f
+T014:
+  task: ecc97b8a348e0d3ff71862e59ee42e6f8996ce6eafba15224107e6f206b4f396
+T015:
+  task: 5c77882af530a5ceda9526a54ae3337cb96486860e413f408d6802ccc38a6a50

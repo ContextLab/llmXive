@@ -1,0 +1,38 @@
+# Schema for ``threshold_fit.json`` – result of the logistic‑fit of outlier probability.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ThresholdFit
+type: object
+required:
+  - theta_c_estimate
+  - theta_c_confidence
+  - a
+  - b
+  - fit_status
+properties:
+  theta_c_estimate:
+    type: ["number", "null"]
+    description: "Maximum‑likelihood estimate of the critical perturbation norm."
+  theta_c_confidence:
+    type: ["object", "null"]
+    description: "95 % confidence interval for ``theta_c_estimate``."
+    required:
+      - lower
+      - upper
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+  a:
+    type: ["number", "null"]
+    description: "Steepness parameter of the logistic curve."
+  b:
+    type: ["number", "null"]
+    description: "Intercept term (a × theta_c) used in the alternative logistic form."
+  fit_status:
+    type: string
+    enum: ["success", "failed"]
+    description: "Whether the non‑linear fit converged."
+  fit_message:
+    type: ["string", "null"]
+    description: "Optional diagnostic message when ``fit_status`` is ``failed``."
