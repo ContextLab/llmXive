@@ -1,16 +1,15 @@
 status: none
-intent: OSF baseline cognitive emotional metrics SART Ospan PSS-10 PANAS python package
-  dataset
+intent: download baseline SART Ospan PSS-10 PANAS dataset python package dataset
 required_fields:
 - participant_id
 - assessment_timestamp
 - sart_commission_errors
-- sart_omission_errors
-- sart_reaction_time_mean
+- sart_mean_reaction_time
 - ospan_total_score
 - pss10_total_score
-- panas_positive_score
-- panas_negative_score
-cache_key: 570c9f84746c66496cbf37805fa2494f347cb9d3c834e2da7e8ef8a0fdbb2d60
-searched_at: '2026-10-18T10:23:33.937092+00:00'
+- panas_positive_affect_score
+- panas_negative_affect_score
+- missing_data_flag
+cache_key: 35e851c09f1b51b59b1fdc820ee38ac0ee83020ff8f3cea7cd1c4966aeb26751
+searched_at: '2026-10-21T23:27:50.337785+00:00'
 retry_count: 1

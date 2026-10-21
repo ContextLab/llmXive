@@ -29,21 +29,21 @@ Defines the entities that store participant identifiers, cognitive/affective mea
 | `id` | string | Unique log ID | Primary key |
 | `participant_id` | string | FK → Participant | Required |
 | `date` | string | ISO‑8601 date (YYYY‑MM‑DD) | Required |
-| `social_media_minutes` | integer | Self‑reported minutes | 0 ≤ ≤ 1440 |
+| `social_media_minutes` | integer | Self‑reported minutes of social media use | 0 ≤ ≤ 1440 |
 | `news_consumption` | boolean | `true` if news was consumed | Required |
 | `notifications_off` | boolean | `true` if notifications were off | Required |
 | `is_compliant` | boolean | Derived: `social_media_minutes` ≤ 30 && !`news_consumption` && `notifications_off` | Derived |
 | `notes` | string | Optional free‑text | Optional |
 
 ## Data Flow
-1. **Ingestion** – Raw JSON/CSV files land in `data/raw/`.  
+1. **Ingestion** – Raw JSON/CSV files deposited by participants land in `data/raw/`.  
 2. **Validation** – `code/validation/` checks ranges, schema conformity, and generates `data/checksums.sha256`.  
 3. **Processing** – Scoring functions produce `data/processed/measurement_records.csv` and `data/processed/compliance_summary.csv`.  
-4. **Analysis** – `code/analysis/` consumes processed CSVs, outputs `results/statistical_summary.json` and `results/smoke_results.json`.  
+4. **Analysis** – `code/analysis/` consumes processed CSVs, outputs `results/statistical_summary.json`.  
 5. **Visualization** – `code/viz/` reads the JSON summary to create plots in `results/plots/`.
 
 ## File Formats
 - **Raw**: JSON lines or CSV (one file per participant).  
 - **Processed**: Long‑format CSV (one row per measurement).  
 - **Compliance**: CSV (one row per participant per day).  
-- **Checksums**: SHA‑256 digests, one line per file (`<hash>  <relative_path>`).  
+- **Checksums**: SHA‑256 digests, one line per file (`<hash>  <relative_path>`).
