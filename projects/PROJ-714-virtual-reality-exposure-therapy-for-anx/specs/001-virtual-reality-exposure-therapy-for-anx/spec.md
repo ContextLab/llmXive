@@ -7,7 +7,7 @@
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Literature Search and Study Screening (Priority: P1)
+### User Story 1 - Literature Search and Study Screening (Priority: P1) (US-1)
 
 The research team MUST be able to query academic databases for RCTs comparing VR exposure therapy to in-person exposure or control conditions, then programmatically filter results against inclusion criteria to produce a candidate study list.
 
@@ -23,7 +23,7 @@ The research team MUST be able to query academic databases for RCTs comparing VR
 
 ---
 
-### User Story 2 - Effect-Size Computation and Data Extraction (Priority: P2)
+### User Story 2 - Effect-Size Computation and Data Extraction (Priority: P2) (US-2)
 
 The system MUST extract pre/post means, standard deviations, and sample sizes for BOTH the intervention group AND the control group from each included study, then compute the comparative Hedges g effect size with 95% confidence intervals using validated statistical libraries.
 
@@ -39,7 +39,7 @@ The system MUST extract pre/post means, standard deviations, and sample sizes fo
 
 ---
 
-### User Story 3 - Meta-Analysis Synthesis and Reporting (Priority: P3)
+### User Story 3 - Meta-Analysis Synthesis and Reporting (Priority: P3) (US-3)
 
 The system MUST execute a random-effects meta-analysis, generate forest plots, assess publication bias (Egger's test, funnel plots), and produce a PDF report with PRISMA flow diagram and all diagnostic figures.
 
@@ -62,13 +62,19 @@ The system MUST execute a random-effects meta-analysis, generate forest plots, a
 - How does system handle missing moderator data (e.g., anxiety subtype not specified)? → Moderator analysis excludes those studies for that specific moderator; report documents N per moderator level.
 - How does system handle non-convergence of the primary estimator? → The system MUST fall back to the secondary estimator (DerSimonian-Laird) and log the switch; if both fail, the pipeline halts with "MODEL_CONVERGENCE_FAILURE".
 
+### User Story Index
+
+- **US-1** – Literature Search and Study Screening
+- **US-2** – Effect-Size Computation and Data Extraction
+- **US-3** – Meta-Analysis Synthesis and Reporting
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST execute search queries against PubMed Central, PsyArXiv, and OpenAlex using the terms "virtual reality" AND "exposure therapy" AND "randomized controlled trial" AND ("in-person" OR "face-to-face" OR "live exposure") and export results to a CSV containing all available metadata fields (specifically: title, abstract, DOI, publication year, sample size, outcome measures, comparator type). The system MUST prioritize and explicitly tag studies where the comparator arm is an **in-person exposure therapy** condition. If API access fails, the system MUST accept manual CSV exports with the same schema (See US-1)
 
-- **FR-002**: System MUST filter search results against inclusion criteria: RCT design, adult participants (age≥18), anxiety disorder diagnosis, validated anxiety outcome (STAI, BAI, GAD-7, HAM-A, or equivalent scale with established normative data for anxiety in adults), and reporting of pre/post means/SDs/Ns for BOTH intervention AND control groups. The system MUST reject any study lacking these statistics AND MUST reject any study lacking a valid, resolvable DOI. The system MUST NOT synthesize placeholder or simulated data (See US-1)
+- **FR-002**: System MUST filter search results against inclusion criteria: RCT design, adult participants (age≥18), anxiety disorder diagnosis, validated anxiety outcome (STAI, BAI, GAD-7, HAM-A, or equivalent scale with established normative data for anxiety in adults), and reporting of pre/post means/SDs/Ns for BOTH intervention AND control groups. The system MUST reject any study lacking these statistics AND MUST reject any study lacking a valid, resolvable DOI. The system MUST NOT synthesize placeholder or simulated data (See US-1). *Justification: Requiring a DOI ensures traceability and reproducibility of the evidence base, aligning with PRISMA 2020 guidelines (doi:10.1186/s13643-020-01399-9).*
 
 - **FR-003**: System MUST compute comparative Hedges g effect size for each study using the `metafor` R package. The system MUST prioritize post-test scores. If change scores are used, the correlation coefficient (r) between pre and post measures MUST be extracted. 
   **Imputation Logic**: If 'r' is missing, the system MUST execute a two-pass algorithm: 
@@ -95,13 +101,16 @@ The system MUST execute a random-effects meta-analysis, generate forest plots, a
   (6) If N < 20 and PET-PEESE is run, the report MUST include a warning that PET-PEESE may have high Type I error rates in small samples (See US-3)
 
 - **FR-006**: System MUST perform leave-one-out sensitivity analysis by iteratively removing each study and recomputing the pooled effect size to identify influential outliers IF the number of included studies N ≥ 10. A study is flagged as an 'influential outlier' if its Cook's distance > 4/N OR if the leave-one-out 95% CI for the pooled effect no longer overlaps with the full-model 95% CI. The system MUST generate a Baujat plot for visualization (See US-3)
+
 - **FR-007**: System MUST generate a PRISMA-compliant flow diagram documenting the number of records identified, screened, excluded (with reasons), and included in the final synthesis (See US-1)
-- **FR-008**: System MUST enforce a strict "Real Data Only" policy: All output values (pooled effect sizes, heterogeneity metrics, p-values) in the FINAL REPORT MUST be derived exclusively from empirical data extracted from the included studies. The system MUST NOT generate, simulate, hardcode, or draw placeholder results from random distributions at any stage of the final report generation. Any development-time placeholder values MUST be programmatically stripped from the final production artifacts before report generation. The Reference Benchmark Dataset is strictly for pre-flight validation of the software environment; it MUST NOT be used as a source of data for the final meta-analysis results. Additionally, IF N > 0, the system MUST perform a "round-trip integrity check" where it re-calculates Hedges g from the logged raw means/SDs/Ns and verifies it matches the stored effect size within 1e-6 relative error. If a mismatch is detected, the system MUST halt with "DATA_INTEGRITY_ERROR". If N = 0, the integrity check is skipped and the pipeline proceeds to report generation. This check verifies storage consistency, not source data authenticity (See US-2)
+
+- **FR-008**: System MUST enforce a strict "Real Data Only" policy: All output values (pooled effect sizes, heterogeneity metrics, p-values) in the FINAL REPORT MUST be derived exclusively from empirical data extracted from the included studies. The system MUST NOT generate, simulate, or hardcode placeholder results at any stage of the final report generation. Any development-time placeholder values MUST be programmatically stripped from the final production artifacts before report generation. The Reference Benchmark Dataset is strictly for pre-flight validation of the software environment; it MUST NOT be used as a source of data for the final meta-analysis results. Additionally, IF N > 0, the system MUST perform a "round-trip integrity check" where it re-calculates Hedges g from the logged raw means/SDs/Ns and verifies it matches the stored effect size within 1e-6 relative error. If a mismatch is detected, the system MUST halt with "DATA_INTEGRITY_ERROR". If N = 0, the integrity check is skipped and the pipeline proceeds to report generation. This check verifies storage consistency, not source data authenticity (See US-2)
+
 - **FR-009**: System MUST perform Moderator Analysis IF the I² heterogeneity statistic exceeds 50%. The analysis MUST automatically test pre-defined moderators: **anxiety subtype**, **hardware type**, **intervention dose** (defined as total exposure time or session count), and **therapist guidance** (presence or absence of therapist-led components). A subgroup difference is considered significant if the Q-test p-value < 0.01 (Bonferroni-corrected for multiple tests). The report MUST include forest plots for each significant subgroup and a table of subgroup effect sizes (See US-3)
 
 ### Reference Benchmark Dataset
 
-The following embedded dataset serves as the ground truth for the pre-flight benchmark (FR-004). It contains 10 synthetic studies with known parameters.
+The following embedded dataset serves as the ground truth for the pre-flight benchmark (FR-004). It contains multiple synthetic studies with known parameters.
 
 | study_id | mean_t | sd_t | n_t | mean_c | sd_c | n_c | true_g | true_se |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -130,7 +139,7 @@ The following embedded dataset serves as the ground truth for the pre-flight ben
 
 > Planning docs state *what* will be measured and the *source/reference* it is
 > measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
+> percentages) to the implementation/research phase.
 
 - **SC-001**: Number of studies included in final synthesis is measured against the PRISMA flow diagram's "included" node count (See US-1)
 - **SC-002**: Pooled Hedges g estimate is measured against the Reference Benchmark Dataset (embedded in spec.md) with an expected negative effect size. The Docker environment MUST pass this benchmark (deviation ≤ 1e-6) before processing real data (See US-3)
@@ -152,3 +161,5 @@ The following embedded dataset serves as the ground truth for the pre-flight ben
 - The Docker container used for R execution will be based on the official `rocker/meta` image to ensure all required dependencies are pre-installed and validated.
 - The research design is observational (synthesis of existing RCTs); therefore, all conclusions regarding the efficacy of VRET versus in-person therapy will be framed as associational evidence of comparative effectiveness, not causal claims of superiority, unless the underlying RCTs explicitly employed randomization to the specific hardware configuration being tested.
 - The Reference Benchmark Dataset is strictly for software validation; final research results MUST be derived from real, empirical data and never simulated or hardcoded.
+
+
