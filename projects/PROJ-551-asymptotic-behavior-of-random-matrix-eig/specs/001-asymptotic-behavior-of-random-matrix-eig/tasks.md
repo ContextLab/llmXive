@@ -49,7 +49,7 @@
 
 ## Phase 1 – Core execution and verification
 
-- [ ] T002 [US1] **Single‑run mode routed through artifact writer and perturbation verification** <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T002 [US1] **Single‑run mode routed through artifact writer and perturbation verification** <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Update `python -m code.main --mode single --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal` so that each run:*
   1. *Generates Wigner matrix and sparse perturbation Pₙ, then verifies* **‖Pₙ‖₂** *matches the requested θ within 1e‑6 and that the sparsity pattern matches the declared type and support density. Record results in `data/processed/perturbation_verification.json` (validated by `perturbation_verification.schema.yaml`).*
   2. *Writes `data/processed/single_run_results.json` (SimulationRun + `eigenvalue_results` array) via `write_artifact`.*

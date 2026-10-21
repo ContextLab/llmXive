@@ -1,8 +1,8 @@
 """
 Contract‑validation test suite for the project.
 
-One test is provided for **each** artifact that the pipeline is expected to
-produce.  The tests load the real file from ``data/processed`` (or the
+One test is provided for **each** artifact that the pipeline is expected
+to produce.  The tests load the real file from ``data/processed`` (or the
 appropriate location for Parquet/CSV) and validate it against the matching
 schema in ``contracts/``.  Missing files raise an ``AssertionError`` – no
 ``skip`` branches are used, satisfying the “FAIL on missing” requirement.
@@ -15,10 +15,11 @@ import jsonschema
 import pandas as pd
 import pytest
 
-# Root of the repository (the directory that contains ``data`` and ``contracts``)
-REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
+# -----------------------------------------------------------------
+# Helper to locate the repository root (two levels up from this file)
+# -----------------------------------------------------------------
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 
-# Helper -----------------------------------------------------------------
 def _load_schema(name: str) -> dict:
     schema_path = REPO_ROOT / "contracts" / f"{name}.schema.yaml"
     assert schema_path.is_file(), f"Schema file missing: {schema_path}"
@@ -32,7 +33,7 @@ def _validate_json(path: pathlib.Path, schema_name: str) -> None:
     schema = _load_schema(schema_name)
     jsonschema.validate(instance=data, schema=schema)
 
-# ----------------------------------------------------------------------
+# -----------------------------------------------------------------
 # 1. single_run_results.json
 def test_single_run_results():
     path = REPO_ROOT / "data" / "processed" / "single_run_results.json"
@@ -48,7 +49,6 @@ def test_sweep_runs_parquet():
     path = REPO_ROOT / "data" / "processed" / "sweep_runs.parquet"
     assert path.is_file(), f"Artifact missing: {path}"
     df = pd.read_parquet(path)
-    # Minimal column check – the full pipeline will add more columns.
     required = {"N", "theta", "run_id", "outlier_flag"}
     missing = required - set(df.columns)
     assert not missing, f"Missing columns in sweep_runs.parquet: {missing}"

@@ -22,19 +22,18 @@ that the CLI remains compatible with the original run‑book.
 """
 
 import argparse
-import json
-import sys
-import os
-import hashlib
 import datetime
+import json
+import os
+import pathlib
+import sys
+import hashlib
+
 import numpy as np
 import psutil
-from pathlib import Path
-import yaml
 
-# Project‑wide helpers
 from llmxive_toolkit import paths, get_logger
-from utils.artifacts import write_artifact
+from code.utils.artifacts import write_artifact
 from analysis.eigen_solver import compute_top_eigenvalues
 
 log = get_logger(__name__)
@@ -42,7 +41,7 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Helper functions (checksum handling – same logic as utils.artifacts)
 # ----------------------------------------------------------------------
-def _compute_sha256(file_path: Path) -> str:
+def _compute_sha256(file_path: pathlib.Path) -> str:
     """Return the hex SHA‑256 digest of the file at ``file_path``."""
     h = hashlib.sha256()
     with file_path.open("rb") as f:
@@ -51,7 +50,7 @@ def _compute_sha256(file_path: Path) -> str:
     return h.hexdigest()
 
 
-def _update_checksums(artifact_path: Path, checksum: str) -> None:
+def _update_checksums(artifact_path: pathlib.Path, checksum: str) -> None:
     """
     Append (or replace) an entry ``artifact_path -> checksum`` in
     ``data/checksums.yaml``.
@@ -103,7 +102,6 @@ def _generate_random_sparse_perturbation(N: int, theta: float, k: int) -> np.nda
     """
     P = np.zeros((N, N))
     rng = np.random.default_rng()
-    # Choose ``k`` distinct positions uniformly at random
     total = N * N
     indices = rng.choice(total, size=k, replace=False)
     rows, cols = np.unravel_index(indices, (N, N))
@@ -153,11 +151,11 @@ def outlier_flag(eigval: float, N: int) -> bool:
 
 
 # ----------------------------------------------------------------------
-# Artifact builders – they respect the JSON schema by constructing a dict
+# Artifact helpers – they respect the JSON schema by constructing a dict
 # that contains **all required fields** (the helper inspects the schema).
 # ----------------------------------------------------------------------
 def _load_schema(schema_name: str) -> dict:
-    schema_path = Path(__file__).parents[1] / "contracts" / f"{schema_name}.schema.yaml"
+    schema_path = pathlib.Path(__file__).parents[1] / "contracts" / f"{schema_name}.schema.yaml"
     if not schema_path.is_file():
         raise FileNotFoundError(f"Schema not found: {schema_path}")
     with schema_path.open("r", encoding="utf-8") as f:
@@ -182,7 +180,6 @@ def _populate_required(schema: dict, known: dict) -> dict:
 
         prop_schema = properties.get(key, {})
         typ = prop_schema.get("type")
-        # Normalise ``type`` (it may be a list)
         if isinstance(typ, list):
             typ = typ[0]
 
@@ -245,7 +242,6 @@ def run_single_mode(args: argparse.Namespace) -> None:
         "norm_match": norm_diff <= 1e-6,
     }
     verification_data = _populate_required(verification_schema, verification_known)
-    # Merge any extra (non‑required) keys we have computed
     verification_data.update(verification_known)
     verification_path = paths.processed("perturbation_verification.json")
     write_artifact(verification_path, verification_data, "perturbation_verification")
@@ -255,7 +251,6 @@ def run_single_mode(args: argparse.Namespace) -> None:
     # ------------------------------------------------------------------
     perturbed = wigner + P
     top_vals = compute_top_eigenvalues(perturbed, k=10, which="LM")
-    # Ensure descending order
     top_vals = np.sort(top_vals)[::-1]
 
     eigen_results = []
@@ -273,7 +268,6 @@ def run_single_mode(args: argparse.Namespace) -> None:
     # ------------------------------------------------------------------
     run_id = f"single_run_N{N}_s{seed}_t{theta}"
     timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
-    # Peak memory usage (RSS) in GB
     peak_mem_gb = psutil.Process(os.getpid()).memory_info().rss / (1024 ** 3)
 
     simulation_run = {
@@ -293,7 +287,6 @@ def run_single_mode(args: argparse.Namespace) -> None:
         "eigenvalue_results": eigen_results,
     }
 
-    # Validate against its schema (the helper will add any missing required fields)
     single_schema = _load_schema("single_run_results")
     single_required = _populate_required(single_schema, {})
     single_run_data = {**single_required, **single_run_data}
@@ -317,9 +310,6 @@ def run_single_mode(args: argparse.Namespace) -> None:
     converge_path = paths.processed("convergence_report.json")
     write_artifact(converge_path, convergence_data, "convergence_report")
 
-    # ------------------------------------------------------------------
-    # 6. Final stdout echo (JSON artifacts already echo inside write_artifact)
-    # ------------------------------------------------------------------
     log.info("Single‑run workflow completed successfully.")
 
 
@@ -329,24 +319,17 @@ def run_single_mode(args: argparse.Namespace) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Project main entry point")
     parser.add_argument("--mode", required=True, choices=["single", "sweep", "sensitivity", "finite-size", "aggregate", "fit"])
-    # Arguments that are relevant for the *single* mode; they are optional for the other modes
     parser.add_argument("--N", type=int, default=1000, help="Matrix dimension")
     parser.add_argument("--seed", type=int, default=0, help="Random seed")
     parser.add_argument("--theta", type=float, default=1.0, help="Perturbation norm")
     parser.add_argument("--k", type=int, default=1, help="Perturbation rank")
     parser.add_argument("--pattern", type=str, default="diagonal", help="Perturbation pattern")
-    # ``parse_known_args`` allows extra arguments (e.g. those used by other
-    # modes) without raising an error, keeping the CLI compatible with the
-    # original quick‑start commands.
     args, _ = parser.parse_known_args()
 
     if args.mode == "single":
         run_single_mode(args)
         return 0
     else:
-        # For the purposes of task T002 we only need the *single* mode.
-        # Other modes are left as placeholders – they simply report that
-        # they are not implemented yet.
         log.warning(f"Mode '{args.mode}' is not implemented in this version of the script.")
         return 0
 

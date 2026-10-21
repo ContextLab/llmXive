@@ -1,35 +1,27 @@
-# Schema for threshold_fit.json artifacts
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ThresholdFit
+description: Result of fitting a logistic (sigmoid) model to outlier probability vs. θ.
 type: object
-properties:
-  theta_c_estimate:
-    type: number
-    description: Estimated critical perturbation norm θ_c.
-  theta_c_confidence:
-    type: object
-    description: Confidence interval for θ_c.
-    properties:
-      lower:
-        type: number
-      upper:
-        type: number
-    required:
-      - lower
-      - upper
-  a:
-    type: number
-    description: Logistic slope parameter.
-  b:
-    type: number
-    description: Logistic intercept (b = a * theta_c_estimate).
-  fit_status:
-    type: string
-    description: Fit outcome.
-    enum:
-      - success
-      - failed
 required:
+  - fit_status
   - theta_c_estimate
   - theta_c_confidence
   - a
   - b
-  - fit_status
+properties:
+  fit_status:
+    type: string
+    enum: ["success", "failed"]
+    description: Overall status of the fitting procedure.
+  theta_c_estimate:
+    type: [number, "null"]
+    description: Estimated critical threshold θ_c (MLE). Null if fit failed.
+  theta_c_confidence:
+    type: [number, "null"]
+    description: Half‑width of the 95 % confidence interval for θ_c. Null if fit failed.
+  a:
+    type: [number, "null"]
+    description: Logistic steepness parameter.
+  b:
+    type: [number, "null"]
+    description: Intercept term (b = a * θ_c) for the equivalent form 1/(1+exp[-(aθ+b)]).

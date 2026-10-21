@@ -1,28 +1,30 @@
-# Schema for perturbation_verification.json artifacts
+$schema: "http://json-schema.org/draft-07/schema#"
+title: PerturbationVerification
+description: Verification of the constructed perturbation matrix against the requested specifications.
 type: object
-properties:
-  theta_requested:
-    type: number
-    description: Perturbation norm θ requested in the configuration.
-  theta_actual:
-    type: number
-    description: Spectral norm of the constructed perturbation matrix.
-  rank:
-    type: integer
-    description: Rank k of the perturbation.
-  pattern:
-    type: string
-    description: Pattern type (e.g., diagonal, block-sparse, random-sparse).
-  support_density:
-    type: number
-    description: Fraction of non‑zero entries in the perturbation matrix.
-  verification_passed:
-    type: boolean
-    description: Whether the perturbation meets the requested specifications within tolerance.
 required:
-  - theta_requested
-  - theta_actual
-  - rank
+  - requested_theta
+  - actual_norm
+  - norm_difference
   - pattern
   - support_density
-  - verification_passed
+  - norm_match
+properties:
+  requested_theta:
+    type: number
+    description: The θ value requested by the user.
+  actual_norm:
+    type: number
+    description: Spectral (2‑norm) of the perturbation matrix actually constructed.
+  norm_difference:
+    type: number
+    description: Absolute difference between actual_norm and requested_theta.
+  pattern:
+    type: string
+    description: Perturbation pattern identifier (e.g., "diagonal", "block-sparse", "random-sparse").
+  support_density:
+    type: number
+    description: Fraction of non‑zero entries in the perturbation matrix (non‑zeros / N²).
+  norm_match:
+    type: boolean
+    description: Whether the actual norm matches the requested θ within tolerance 1e‑6.

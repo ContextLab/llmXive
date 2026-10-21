@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ConvergenceReport
+description: Report on ARPACK convergence and related metadata for a single run.
+type: object
+required:
+  - arpack_status
+  - tolerance
+  - maxiter
+  - bulk_edge_check
+  - matrix_checksum
+  - schema_validation
+properties:
+  arpack_status:
+    type: string
+    enum: ["converged", "failed"]
+  tolerance:
+    type: number
+  maxiter:
+    type: integer
+  bulk_edge_check:
+    type: boolean
+  matrix_checksum:
+    type: string
+  schema_validation:
+    type: string
+    enum: ["pass", "fail"]
