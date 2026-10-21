@@ -1,12 +1,12 @@
 T012:
-  c: true
-  h: 98762be4d00de9acb48e4e29d19bebb45963eff5d6021cfe3cf384e9c4a9178d
-  r: 'The required artifact `src/utils/verify_requirements.py` exists (3791 bytes)
-    and fully implements the specification: it checks `requirements.txt` existence
-    and non-emptiness at the repo root, optionally verifies its SHA-256 against `data/artifact_hashes.yaml`,
-    writes timestamped results to `data/requirements_check.log`, returns a boolean
-    from `check_requirements()`, and exits non-zero on failure. The `requirements.txt`
-    itself exists and is non-empty (430 bytes). The missing `data/requirements_check.log`
-    is a runtime output the script produces when executed, not a deliverable of this
-    implementa'
-  sig: 66024c0d779f708dd9dceac3baa2c47702dddbaef837708d7b4fdb707dabbcd1
+  c: false
+  h: f0e0a8e112ade972384f68f706bb13730174572e16d7b753a90ec936efc95bee
+  r: "The script `src/utils/verify_requirements.py` exists and its content correctly\
+    \ implements existence, non-empty, and optional SHA-256 checks with a boolean\
+    \ return and exit code. However, the required log artifact `data/requirements_check.log`\
+    \ is MISSING, meaning there is no evidence the script was ever executed \u2014\
+    \ the task explicitly requires it to log to that file, and the implementer's completion\
+    \ claim has no run evidence backing it. The implementer should run the script\
+    \ (e.g., `python -m src.utils.verify_requirements`) to produce the log and confirm\
+    \ it passes against the existing non-empty `r"
+  sig: cc492d6020c5301b9c4efe4c989650098c1d0369374428b7ec326a16b2ba53c6
