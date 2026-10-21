@@ -1,0 +1,29 @@
+T001:
+  reason: "The loader, JSON data, and passing pytest log are genuine and satisfy the\
+    \ schema/fail-loudly requirements, but the checksum file `data/raw/nist_refs.json.sha256`\
+    \ records `5d5e9c2c...` while the collector-computed SHA256 of the actual `nist_refs.json`\
+    \ is `c4adf14483cd33b298ab52f355528663a4ba39b3efc1b00c2e6fb7629eea9c29` \u2014\
+    \ the recorded checksum is fabricated/incorrect. Fix by regenerating the `.sha256`\
+    \ file (e.g. `sha256sum data/raw/nist_refs.json > data/raw/nist_refs.json.sha256`)\
+    \ so it matches the real file."
+  task: bde86b48453d19a950c24cfba986ea1c58842a14cee3ef64b0a8c6dcb488263b
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/tests/test_simulation.py
+    exit=2'
+  task: 467d8c9101d0d71579bba0a45f941d5f7a40ab7061374d2a5a3536ce8db473c2
+T003:
+  task: 06cc0867da512a022b8b82b33505eb93799d0fa83700b8c58ba0a18195419228
+T004:
+  task: b614c9c5f429caa99cd224e88f293c9709e989a9adeb465ba59c1c46f17ec905
+T005:
+  task: 7367456c3450a736c5970d3743aa4c1e7f2ebc32b50b70090dddcf144e7c1261
+T007:
+  task: f4a8ffce8da578b1caef833b6169a017bd0ff8d263361e5cb8e457cf32c8114b
+T008:
+  task: cf1dc52e2c6cda77fbad53f03a9330bcfb07a89b4c60c46fa12f1303b729c6df
+T009:
+  task: 8a2598e90ffb5717c8735db4b43e50c03d649ed908df16823a5183e7917cc4b2
+T010:
+  task: 5677cd95dd53c9ac69abb0c1e6f1ab14ee2580bab55cdc7850911990cf62fd18
+T011:
+  task: fb592d4b42f7357c1fb5ec8e74acbf66bd8fd56e6f2205fba43e6f7dc80c9ccf

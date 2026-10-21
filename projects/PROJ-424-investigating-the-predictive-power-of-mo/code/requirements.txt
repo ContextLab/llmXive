@@ -1,6 +1,17 @@
-jsonschema  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
-seaborn  # auto-added: imported by run-book but missing from venv
-pyyaml  # auto-added: imported by run-book but missing from venv
+# Core scientific stack (already available in the platform)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional dependencies required for the MD simulation task
+openmm==8.1.1
+mdtraj==1.9.9
