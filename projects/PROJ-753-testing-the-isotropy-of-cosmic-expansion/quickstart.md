@@ -1,10 +1,9 @@
 # Quickstart: Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data
 
 ## Prerequisites
-
 - Python 3.11 or higher
 - `git`
-- ~10 GB of free disk space (for data and dependencies)
+- ~10 GB of free disk space (for data and intermediate files)
 
 ## Installation
 
@@ -34,7 +33,12 @@
  - Place the file in `data/raw/`.
  - Verify the checksum (if provided) against the `data/` metadata.
 
-2. **Verify data integrity**:
+2. **Run the power‑analysis step (downloads and verifies the data)**:
+ ```bash
+ python code/power_analysis.py
+ ```
+
+3. **Verify data integrity**:
  ```bash
  python code/ingestion.py --verify-only
  ```
@@ -52,7 +56,7 @@ This will:
 2. Calculate residuals.
 3. Project to HEALPix and compute spherical harmonics.
 4. Run a large number of rotation simulations.
-5. Calculate p-values and generate the final report.
+5. Calculate p‑values and generate the final report.
 
 ## Output
 
@@ -61,7 +65,7 @@ This will:
  - `healpix_map.fits`: HEALPix projection.
  - `simulation_results.csv`: Null distribution data.
 - **Reports**: `data/reports/final_report.txt`
- - Contains the observed dipole/quadrupole amplitudes, p-values, and significance conclusion.
+ - Contains the observed dipole/quadrupole amplitudes, p‑values, and significance conclusion (validated against `final_report.schema.yaml`).
 
 ## Validation
 

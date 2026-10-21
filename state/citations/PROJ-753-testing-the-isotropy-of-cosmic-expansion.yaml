@@ -1,14 +1,3 @@
-- artifact_hash: 1b647668cd881aefd619ebd65b9e459bf7785fd54108b1c4d2ad162fae826830
-  artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: "GitHub - PantheonPlusSH0ES/DataRelease \xB7 GitHub"
-  kind: url
-  value: https://github.com/PantheonPlusSH0ES/DataRelease
-  verification_status: pending
-  verified_against_url: https://github.com/PantheonPlusSH0ES/DataRelease
-  verified_at: '2026-10-20T17:22:30.262442Z'
 - artifact_hash: 79f2b94ae7357b4237681a2e8c00f40209bd52011280f2e6985313cb79a72365
   artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/plan.md
   cite_id: c-001
@@ -77,7 +66,18 @@
   verification_status: pending
   verified_against_url: https://github.com/PantheonPlusSH0ES/DataRelease
   verified_at: '2026-10-20T22:29:46.419909Z'
-- artifact_hash: 076fd86bec885f0492b588c9ee3e150ca8b8ee747655d182a337ffa490535a36
+- artifact_hash: 183dfcaee71a26eda9eedf953e8bc7be3ff9424d20844e5a6ae37ca85d774372
+  artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - PantheonPlusSH0ES/DataRelease \xB7 GitHub"
+  kind: url
+  value: https://github.com/PantheonPlusSH0ES/DataRelease
+  verification_status: pending
+  verified_against_url: https://github.com/PantheonPlusSH0ES/DataRelease
+  verified_at: '2026-10-21T01:21:31.479514Z'
+- artifact_hash: e968d9c43482bb8b6bc570cdb4143f788c5ad701076bd8cc0d908db3cf3092f5
   artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -87,4 +87,4 @@
   value: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon+_SH0ES.dat`
   verification_status: mismatch
   verified_against_url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon+_SH0ES.dat
-  verified_at: '2026-10-21T00:21:17.322261Z'
+  verified_at: '2026-10-21T01:21:33.838190Z'

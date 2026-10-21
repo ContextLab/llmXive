@@ -3,7 +3,7 @@
 This script performs the following steps:
 1. Downloads the Pantheon+ data file from the official GitHub repository.
 2. Verifies that the download succeeded (HTTP 200) and that the required
-   columns are present.
+   columns are present, handling common column name variations.
 3. Computes the SHA‑256 checksum of the downloaded file and writes a
    provenance record to ``data/raw/metadata.json``.
 4. Calculates an analytic estimate of the minimum dipole amplitude that can
@@ -40,6 +40,7 @@ DEFAULT_URL = (
     "DataRelease/main/Pantheon%2B_SH0ES.dat"
 )
 DEFAULT_DATASET_VERSION = "v1.0"
+# Accept both underscore‑less and underscore‑separated column names.
 REQUIRED_COLUMNS = {"ID", "RA", "DEC", "ZHD", "MU", "MUERR"}
 NUM_PILOT_MOCKS = 500
 # Z‑score for two‑sided 5 % significance
@@ -91,11 +92,18 @@ def write_metadata(
 
 
 def verify_columns(df: pd.DataFrame) -> None:
-    """Raise if any required column is missing."""
-    missing = REQUIRED_COLUMNS - set(df.columns.str.upper())
+    """
+    Raise if any required column is missing.
+
+    The Pantheon+ release sometimes uses underscores (e.g. ``MU_ERR``);
+    we normalise column names by stripping underscores before checking.
+    """
+    # Normalise column names: upper‑case and remove underscores.
+    norm_cols = {col.upper().replace("_", "") for col in df.columns}
+    missing = REQUIRED_COLUMNS - norm_cols
     if missing:
         raise ValueError(f"Missing required columns in dataset: {missing}")
-    logger.info("All required columns are present.")
+    logger.info("All required columns are present (after normalisation).")
 
 
 def theoretical_distance_modulus(
@@ -206,8 +214,8 @@ def main() -> None:
         logger.error("Failed to read Pantheon+ file: %s", exc)
         raise
 
-    # Normalise column names to upper case for robust checking
-    df.columns = [col.upper() for col in df.columns]
+    # Normalise column names (upper‑case, strip underscores) for robust checking
+    df.columns = [col.upper().replace("_", "") for col in df.columns]
     verify_columns(df)
 
     # Cast numeric columns
