@@ -23,7 +23,7 @@
 
 ---
 
-### User Story 2 – Attention‑Based Yield Prediction Model Training (Priority: P2) (See FR‑003, FR‑004, FR‑019)
+### User Story 2 – Attention‑Based Yield Prediction Model Training (Priority: P2) (See FR‑003, FR‑004, FR‑015)
 
 **User Journey**: The researcher launches the training job on the preprocessed dataset. A PyTorch model applies positional encoding along the spectral axis and a 4‑head self‑attention layer over the concatenated IR + NMR spectra. The attention output is fused with the ECFP4 fingerprint vector via a fully‑connected layer to predict reaction yield (0–[deferred]). Training uses Adam (lr = 1e‑3), batch size = 32, and runs for a maximum of 15 epochs with early stopping (patience = 3) on validation RMSE. The script forces CPU‑only execution (`torch.set_num_threads(2)`) and records all random seeds and deterministic‑algorithm flags.
 
@@ -38,7 +38,7 @@
 
 ---
 
-### User Story 3 – Model Evaluation, Statistical Significance, and Interpretability (Priority: P3) (See FR‑005‑FR‑013, FR‑016‑FR‑018)
+### User Story 3 – Model Evaluation, Statistical Significance, and Interpretability (Priority: P3) (See FR‑005‑FR‑013)
 
 **User Journey**: The researcher evaluates the trained attention model against three baselines on the held‑out test set: (1) Fingerprint‑only (ECFP4), (2) Spectra‑only (concatenated IR + ¹H‑NMR), and (3) Condition‑only (solvent, catalyst, temperature). The script computes RMSE, MAE, and R² for each model, performs two Wilcoxon signed‑rank tests (spectra‑only vs. fingerprint‑only; attention model vs. each baseline) with a Bonferroni‑corrected α = 0.0167, and runs a permutation test (100 label shuffles, retraining each time) to confirm that performance collapses to near‑random (mean R² < 0.05). Attention weights are visualized as heatmaps along the spectral axis; the top‑weighted spectral regions are cross‑checked against an independent functional‑group reference table (±100 cm⁻¹ for IR, ±0.2 ppm for NMR). A sensitivity analysis varies the attention‑weight percentile threshold over {90th, 95th, 99th}.
 
@@ -94,7 +94,7 @@
 - **SC-003**: The attention‑weight heatmaps identify spectral regions; the sensitivity analysis shows ≥ 80 % overlap of identified regions across the 90th/95th/99th percentile thresholds.
 - **SC-004**: The permutation test yields a mean R² < 0.05, demonstrating that the model learns genuine signal rather than noise.
 - **SC-005**: Execution time on the CI runner is ≤ 6 hours (FR‑015) and CPU usage respects the free‑tier limits.
-- **SC-006**: `validation_status.json` reports a matched‑reaction count ≥ 300 and API‑failure rate < 80 %; `leakage_report.json` shows zero scaffold and template overlap (or maximal disjointness if perfect split is infeasible, with overlap counts reported).
+- **SC-006**: `leakage_report.json` must show **zero** scaffold overlap and **zero** reaction‑template ID overlap (≤ 0 % overlap). Any non‑zero overlap causes failure.
 - **SC-007**: Re‑running the training with the same seed and deterministic flags reproduces identical `model.pth` and `training_log.csv` (FR‑012).
 - **SC-008**: The `peak_alignment_report.json` confirms that each top‑attended peak aligns with a known functional‑group frequency within the specified tolerance.
 
@@ -108,3 +108,4 @@
 - **Statistical Thresholds**: The Bonferroni‑corrected α = 0.0167 and the permutation‑test R² < 0.05 thresholds are standard for controlling family‑wise error and confirming null performance, respectively.
 - **Functional‑Group Reference**: An independent literature‑compiled reference table of IR band positions and ¹H‑NMR chemical shifts is used for peak‑alignment validation; the table is not derived from the training data.
 - **No Simulated or Placeholder Data**: All spectra and yields used are real experimental measurements; no simulated or randomly generated values are permitted at any stage.
+
