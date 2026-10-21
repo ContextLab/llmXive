@@ -80,7 +80,10 @@ def _download_parquet() -> Path:
     try:
         from huggingface_hub import hf_hub_download
     except ImportError as e:
-        log.error("huggingface_hub is not installed. Install it via requirements.txt.")
+        log.error(
+            "The 'huggingface_hub' package is required but not installed. "
+            "Add it to requirements.txt."
+        )
         raise RuntimeError("Missing required package 'huggingface_hub'") from e
 
     last_exc = None
@@ -105,7 +108,7 @@ def _download_parquet() -> Path:
             log.error("Download attempt %d failed: %s", attempt, e)
             if attempt < MAX_RETRIES:
                 backoff = RETRY_BACKOFF * (2 ** (attempt - 1))
-                log.info("Retrying after %ss...", backoff)
+                log.info("Retrying after %s seconds...", backoff)
                 time.sleep(backoff)
     raise RuntimeError(
         f"Failed to download {FILENAME} from {REPO_ID} after "

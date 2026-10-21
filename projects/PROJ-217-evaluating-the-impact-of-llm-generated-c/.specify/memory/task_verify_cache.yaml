@@ -1,8 +1,12 @@
 T012:
-  c: true
-  h: bcc4db8ef5d63766131130277ca6a99b242c14fd1f22bdfd8a6980548d71fae7
-  r: "Checked `src/utils/verify_requirements.py` \u2013 it implements existence, non\u2011\
-    empty check, optional SHA\u2011256 verification, writes to `data/requirements_check.log`,\
-    \ and returns a boolean/exit code. The presence of an empty `requirements.txt`\
-    \ is acceptable because the script correctly flags this condition."
-  sig: 28d322f66daded4b6298abc99b6efff87703a928b480f561dae771fcce129526
+  c: false
+  h: ca55922106a2f7cd8ccb062f19a7edeb576deba3320629bfdb1e5ceb0d6470de
+  r: "The script `src/utils/verify_requirements.py` exists and its content plausibly\
+    \ implements the required checks (existence, non-emptiness, optional SHA\u2011\
+    256 against `data/artifact_hashes.yaml`, boolean return, exit code). However,\
+    \ `data/requirements_check.log` is MISSING, meaning there is no evidence the script\
+    \ was ever executed \u2014 the task explicitly requires logging to that file and\
+    \ emitting the boolean flag, and none of that behavior has been demonstrated (e.g.,\
+    \ no run output, no log entry showing PASS/FAILURE). The implementer should run\
+    \ `python -m src.utils.verify_requirements` (or equivalent"
+  sig: eb2fad4d2705767e07e814d079cde5e3ce6075421136a5f01d19e69b7a9b9181
