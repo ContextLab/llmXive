@@ -50,7 +50,18 @@ def _download_csv(url: str, dest_path: Path) -> pd.DataFrame:
     return df
 
 def _row_checksum(row: pd.Series) -> str:
-    row_json = json.dumps(row.to_dict(), sort_keys=True, allow_nan=False)
+    """
+    Return a deterministic SHA‑256 checksum for a dataframe row.
+
+    NaN / NA values are normalised to ``None`` before JSON encoding so that
+    ``json.dumps`` does not raise ``ValueError: Out of range float values``.
+    """
+    # Convert the Series to a plain dict and replace any NaN/NA with None.
+    row_dict = row.to_dict()
+    clean_dict = {
+        k: (None if pd.isna(v) else v) for k, v in row_dict.items()
+    }
+    row_json = json.dumps(clean_dict, sort_keys=True, allow_nan=False)
     return hashlib.sha256(row_json.encode("utf-8")).hexdigest()
 
 def _add_checksum(df: pd.DataFrame) -> pd.DataFrame:
@@ -82,12 +93,18 @@ def _apply_proxy(df: pd.DataFrame) -> pd.DataFrame:
         if col not in df.columns:
             raise KeyError(f"Column '{col}' required for proxy calculation is missing.")
 
+    # Initialise columns
     df["is_proxy"] = False
     df["residual_stress_proxy"] = pd.NA
 
     mask_missing = df["residual_stress_measured"].isna()
+
+    # For rows where measured stress is present, copy it to the proxy column.
+    if not mask_missing.all():
+        df.loc[~mask_missing, "residual_stress_proxy"] = df.loc[~mask_missing, "residual_stress_measured"]
+
+    # Compute proxy only for rows that lack a measured value.
     if mask_missing.any():
-        # Use the coefficients defined in ``code.src.config`` for consistency.
         from code.src.config import PROXY_COEFFICIENTS, PROXY_EPSILON
         k_series = df.loc[mask_missing, "material_class"].map(PROXY_COEFFICIENTS)
         proxy_raw = k_series * df.loc[mask_missing, "heat_input"] * df.loc[mask_missing, "cooling_rate"]
@@ -113,7 +130,7 @@ def _validate_schema(df: pd.DataFrame, schema_path: Path) -> None:
 
     if errors:
         error_msg = "\n".join(errors)
-        raise ValidationError(f"Schema validation failed:\n{error_msg}")
+        raise ValidationError(f"Schema validation failed:\\n{error_msg}")
 
 # ----------------------------------------------------------------------
 # Core ingestion routine
@@ -230,7 +247,9 @@ def _build_arg_parser() -> argparse.ArgumentParser:
 
 def main(argv: Optional[List[str]] = None) -> None:
     parser = _build_arg_parser()
-    args = parser.parse_args(argv)
+    # Use parse_known_args to tolerate stray comment tokens that may appear
+    # when the command is executed via the run‑book without a real shell.
+    args, _ = parser.parse_known_args(argv)
 
     try:
         run_ingest(

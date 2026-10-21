@@ -1,7 +1,0 @@
-{
-  "task_id": "T001",
-  "fingerprint": "a38c943ada29712846328f8fe6b97b5815c6fd3ff7099dbbdbb6466fc7ea526b",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'src/env_check.py': imports nonexistent names from sibling files: `from code.src.env_check import main` (available: FILES, Path, RAW_DIR, _ensure_raw_file, _file_checksum, checksums, checksums_path, hashlib...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}

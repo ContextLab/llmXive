@@ -1,0 +1,18 @@
+T001:
+  c: false
+  h: ac6a5d65ebcfbcc17f26889f3494fd10a7575e5484903ebd021cbb2696fd3345
+  r: "Checked `quickstart.md`, `code/src/env_check.py`, `code/src/config.py`, `requirements.txt`,\
+    \ `data/raw/checksums.json` and the presence of `code/tests/test_env_check.py`.\
+    \ The quickstart uses bash scripts instead of the required single\u2011command\
+    \ example, the `requirements.txt` pins `torch==2.3.0` without the `+cpu` suffix,\
+    \ and the verification test file `code/tests/test_env_check.py` is missing, so\
+    \ the required pytest check cannot be run."
+  sig: df5672ec2f39f3a015ec0179b4174af69a353371c1dc6134fb71b0129b5715ea
+T002:
+  c: false
+  h: 70a78648a48b6abc942d5a8052ac7c90ccc0c109d9e27a9580d60706a4b1e59e
+  r: The required implementation file `code/src/ingest.py`, the JSON fixture `code/tests/fixtures/openml_style_nested.json`,
+    the test suite `code/tests/test_ingest.py`, and the generated outputs `data/processed/missing_flags.json`
+    and `data/processed/unified_fatigue.csv` are all reported as missing, so the ingestion
+    pipeline cannot be verified or executed.
+  sig: 910a57e9018861e5ad07fc9274f402187fc0723363785825a6b9cbb59e11de09

@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-# 1. Verify the environment
-bash scripts/env_check.sh
+# 1) Verify environment and write checksums
+python -m code.src.env_check
 
-# 2. Ingest & preprocess (the ingest script now falls back to the bundled
-#    raw CSVs when no external URLs are supplied)
-python -m src.ingest.ingest --output data/processed/unified_fatigue.csv
-
-# Additional pipeline stages (feature construction, training, etc.) are
-# invoked by later tasks.  They are intentionally omitted here because
-# they are not part of T001.
+# 2) Run the full end‑to‑end analysis (ingestion + proxy agreement + summary)
+python -m code.src.run_e2e

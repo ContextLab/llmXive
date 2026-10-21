@@ -29,7 +29,7 @@ The checklist implements the technical schema requirements of FR‑001 – F
   – Write `data/processed/unified_fatigue.csv` and validate it against `contracts/dataset_schema.yaml` using the pinned `jsonschema`; abort on validation failure.  
   *Verification*: `pytest code/tests/test_ingest.py` runs on a slice of the bundled CSV and on the nested‑JSON fixture, asserting presence of the checksum column, MPa‑standardised stress, correct proxy values & flags, and successful schema validation.
 
-- [ ] T003 **[P] [US1] Compute proxy‑measured agreement (FR‑014) and instrument runtime**  
+- [ ] T003 **[P] [US1] Compute proxy‑measured agreement (FR‑014) and instrument runtime**   <!-- FAILED-IN-EXECUTION: code/src/run_e2e.py exit=1 -->
   *Files*: `code/src/proxy_agreement.py`, `code/src/run_e2e.py`, `code/src/timing.py`, `data/results/proxy_agreement.csv`, `data/results/e2e_summary.json`, `data/results/runtime_summary.csv`  
   *Actions*  
   – For rows where both `residual_stress_measured` and `residual_stress_proxy` are present, compute Pearson r and R²; write results (including a column `caveat="descriptive – proxy is deterministic function of predictors"`) to `proxy_agreement.csv`.  

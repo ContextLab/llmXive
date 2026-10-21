@@ -1,8 +1,20 @@
 T001:
+  reason: "Checked `quickstart.md`, `code/src/env_check.py`, `code/src/config.py`,\
+    \ `requirements.txt`, `data/raw/checksums.json` and the presence of `code/tests/test_env_check.py`.\
+    \ The quickstart uses bash scripts instead of the required single\u2011command\
+    \ example, the `requirements.txt` pins `torch==2.3.0` without the `+cpu` suffix,\
+    \ and the verification test file `code/tests/test_env_check.py` is missing, so\
+    \ the required pytest check cannot be run."
   task: 11b64e595b9902112d47d040262ee694f36fc67772697d6d825828737066d1fc
 T002:
+  reason: The required implementation file `code/src/ingest.py`, the JSON fixture
+    `code/tests/fixtures/openml_style_nested.json`, the test suite `code/tests/test_ingest.py`,
+    and the generated outputs `data/processed/missing_flags.json` and `data/processed/unified_fatigue.csv`
+    are all reported as missing, so the ingestion pipeline cannot be verified or executed.
   task: ca29fe431b8e5951839f8f3eb0b79e7fb03ba310f23c5181b182e7bc23bfe7d1
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/src/run_e2e.py
+    exit=1'
   task: 9105aa08cd92ce1b9b5b4b9b7281a43ffd9ff7112a405829c17f88f35ac8b47e
 T004:
   task: 8426a75103943edd98b95ef1c4113a2857245e5de1a319f34a7b43fbd0ee6022
