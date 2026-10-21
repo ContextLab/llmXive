@@ -11,18 +11,21 @@ properties:
     description: "Bit depth used for this signal (null for float64 baseline)."
   inference_method:
     type: "string"
-    enum: ["MCMC", "Fisher", "Hybrid"]
-    description: "Method used for parameter estimation (plan uses MCMC uniformly across all SNR ranges)."
+    enum: ["MCMC"]
+    description: "Method used for parameter estimation (uniform MCMC across all SNR ranges)."
   mean_params:
     type: "object"
     properties:
       chirp_mass:
         type: "number"
+        description: "Posterior mean chirp mass (solar masses)."
       spin:
         type: "number"
+        description: "Posterior mean dimensionless spin (combined)."
       distance:
         type: "number"
-    required: ["chirp_mass", "distance"]
+        description: "Posterior mean luminosity distance (Mpc)."
+    required: ["chirp_mass", "spin", "distance"]
   mse:
     type: "object"
     properties:
@@ -35,17 +38,17 @@ properties:
       distance:
         type: "number"
         description: "Mean Squared Error for luminosity distance."
-    required: ["chirp_mass", "distance"]
+    required: ["chirp_mass", "spin", "distance"]
   convergence_status:
     type: "string"
     enum: ["success", "failed", "non-detection"]
     description: "Status of the inference run."
   snr:
     type: "number"
-    description: "SNR of the injected signal."
+    description: "Injected Signal‑to‑Noise Ratio."
   delta:
     type: "object"
-    description: "Per-parameter quantization-induced bias (Δ_k = E_quant,k − E_inst,k)."
+    description: "Per‑parameter quantization‑induced bias (Δₖ = E_quant,ₖ − E_inst,ₖ)."
     properties:
       chirp_mass:
         type: "number"
@@ -53,4 +56,5 @@ properties:
         type: "number"
       distance:
         type: "number"
-required: ["waveform_id", "bit_depth", "mean_params", "mse", "convergence_status", "snr", "delta"]
+    required: ["chirp_mass", "spin", "distance"]
+required: ["waveform_id", "bit_depth", "inference_method", "mean_params", "mse", "convergence_status", "snr", "delta"]

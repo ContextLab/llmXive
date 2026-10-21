@@ -1,7 +1,7 @@
 # Data Model: Quantizing GW Signals
 
 ## 1. Overview
-Defines the canonical data structures stored as HDF5 (large arrays) and JSON (metadata, results). All schemas are validated against the contracts in `contracts/`.
+Defines canonical data structures stored as HDF5 (large arrays) and JSON (metadata, results). All files are validated against the JSON‑Schema contracts in `contracts/`.
 
 ## 2. Entity Definitions
 
@@ -9,33 +9,27 @@ Defines the canonical data structures stored as HDF5 (large arrays) and JSON (me
 | Field | Type | Description |
 |-------|------|-------------|
 | `waveform_id` | string (UUID) | Unique identifier |
-| `params` | object | `mass_1`, `mass_2`, `spin_1z`, `spin_2z`, `luminosity_distance` (see schema) |
+| `params` | object | `mass_1`, `mass_2`, `spin_1z`, `spin_2z`, `luminosity_distance` |
 | `snr` | number | Injected SNR |
 | `sampling_rate` | number | Hz |
-| `duration` | number | seconds |
-| `data_float64` | float64 array | Strain time series (baseline, float64 precision) |
+| `duration` | number | Seconds |
+| `data_float64` | float64 array | Strain time series (baseline) |
+| `bit_depth` | integer | 0 for baseline (float64) |
+| `fsr` | number | Fixed full‑scale range used for quantization |
+| `step_size` | number | Quantization step size (derived from FSR and bit depth) |
+| `data_quantized` | int16/int32 array (optional) | Quantized strain (present only for bit depths > 0) |
 
-### 2.2 QuantizedSignal
+### 2.2 ParameterEstimationResult
 | Field | Type | Description |
 |-------|------|-------------|
-| `waveform_id` | string | Links to SimulatedWaveform |
-| `bit_depth` | integer | 1, 8, 10, 12, 14, 16 |
-| `quantization_levels` | integer | \(2^{\text{bit\_depth}}\) |
-| `data_quantized` | int16/int32 array | Discretized strain |
-| `step_size` | number | Amplitude resolution (FSR / \(2^{N-1}\)) |
-| `fsr` | number | Fixed full‑scale range used |
-
-### 2.3 ParameterEstimationResult
-| Field | Type | Description |
-|-------|------|-------------|
-| `waveform_id` | string | Source waveform |
-| `bit_depth` | integer | Quantization depth (or null for float64 baseline) |
+| `waveform_id` | string | Links to the source waveform |
+| `bit_depth` | integer | null for float64 baseline |
 | `inference_method` | string | `"MCMC"` (uniform across all SNR ranges) |
 | `mean_params` | object | Posterior means for `chirp_mass`, `spin`, `distance` |
-| `mse` | object | MSE per parameter vs truth (computed separately for each) |
-| `convergence_status` | string | `"success"`, `"failed"`, `"non-detection"` |
-| `snr` | number | Injected SNR (copied from SimulatedWaveform) |
-| `delta` | object | Per-parameter Δ_k = E_quant,k − E_inst,k (computed using float64 baseline for same waveform) |
+| `mse` | object | Per‑parameter MSE vs. truth (`chirp_mass`, `spin`, `distance`) |
+| `convergence_status` | string | `"success"`, `"failed"`, or `"non-detection"` |
+| `snr` | number | Injected SNR |
+| `delta` | object | Per‑parameter Δₖ = E_quant,ₖ − E_inst,ₖ (null for baseline) |
 
 ## 3. Storage Schema
 
@@ -44,7 +38,7 @@ Defines the canonical data structures stored as HDF5 (large arrays) and JSON (me
 /
 ├── waveforms/
 │   └── {waveform_id}/
-│       ├── params            (dataset, JSON‑encoded)
+│       ├── params            (JSON‑encoded attribute)
 │       ├── data_float64      (dataset)
 │       └── metadata          (attributes: snr, sampling_rate, duration)
 └── quantized/
@@ -54,16 +48,15 @@ Defines the canonical data structures stored as HDF5 (large arrays) and JSON (me
 ```
 
 ### 3.2 JSON (`data/results/inference_results.json`)
-Array of `ParameterEstimationResult` objects (conforms to `contracts/result.schema.yaml`). Each result includes:
-- Inference results for the quantized signal
-- Inference results for the float64 baseline (same waveform, bit_depth=null)
-- Per-parameter MSE for both quantized and baseline
-- Per-parameter Δ_k computed as E_quant,k − E_inst,k (using the baseline result for the same waveform)
+Array of objects conforming to `contracts/result.schema.yaml`. Each entry contains:
+- Baseline result (`bit_depth: null`) and quantized result (`bit_depth = N`).
+- Per‑parameter MSE and Δₖ.
+- Convergence status and SNR.
 
 ## 4. Data Flow
-1. **Generation** (`data_generation.py`) → writes SimulatedWaveform (float64) & QuantizedSignal to HDF5 for all 6 bit depths.  
-2. **Checksumming** (`utils.compute_checksums`) → records SHA‑256 in `state/projects/PROJ-329-quantifying-the-impact-of-data-quantizat.yaml`.  
-3. **Inference** (`inference_engine.py`) → reads quantized datasets and float64 baseline, runs MCMC on both, writes JSON results with per-parameter MSE and Δ_k.  
-4. **Analysis** (`analysis.py`) → reads JSON, aggregates Δ_k within SNR bins using median, fits curves, identifies crossover SNR, outputs plots & summary CSV with confidence intervals from multiple runs.
+1. **Generation** (`src/data_generation.py`) → writes float64 baseline and all quantized groups to HDF5.  
+2. **Checksumming** (`src/utils.compute_checksums`) → records SHA‑256 hashes in `state/projects/PROJ-329-quantizing-the-impact-of-data-quantizat.yaml`.  
+3. **Inference** (`src/inference_engine.py`) → reads each dataset, runs Bilby MCMC, writes JSON results with MSE and Δₖ.  
+4. **Analysis** (`src/analysis.py`) → aggregates Δₖ within SNR bins, fits curves, identifies crossover SNR, outputs plots and a CSV summary with 95 % CI from the 10‑run reproducibility study.
 
 ---
