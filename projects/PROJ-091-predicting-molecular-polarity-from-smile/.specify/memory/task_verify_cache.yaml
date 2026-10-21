@@ -1,59 +1,18 @@
-T018:
+T102:
   c: false
-  h: 5fb418a0faefbdbb3000ed578d3bf506d841f24bca833f032c86c51b80dffcb4
-  r: The required `data/processed/descriptors.parquet` file is missing, so the validation
-    cannot even load a matrix. Moreover, `code/data/validate.py` does not derive `expected_input_columns`
-    from `descriptor_names` as specified; it only compares against an optional argument,
-    not the dynamic `2 + len(descriptor_names)` logic required by the task. The implementation
-    therefore does not satisfy the validation requirement.
-T022:
-  c: true
-  h: 98a34bda4254f177e3218d9b94ceb57fe0e301e530783d0aeedaf0ddf726ae80
-  r: "The repository contains a non\u2011empty `code/data/split_data.py` that reads\
-    \ a Parquet file, performs a standard random train/test split (no stratification),\
-    \ and writes the resulting splits to disk, fulfilling the specified functionality.\
-    \ No placeholder code or missing implementation remains."
-T031a:
+  h: 99f0bd4befb1ba3dca0fa1ed9a2c65cf360135b79184f8e2621db3250ad27003
+  r: The required files `tests/contract/validators.py`, `test_dataset_schema.py` and
+    `test_model_output.py` exist, but `pytest tests/contract/ -q` fails because `validators.py`
+    uses a deprecated `@root_validator` without `skip_on_failure=True`, causing a
+    `PydanticUserError` during import. The contract tests therefore do not pass. Fix
+    the validator definitions (e.g., replace `@root_validator` with `@model_validator`
+    or add the needed flag) so that the tests run successfully.
+  sig: 473797a02bb3ffc340be44311e00fff64887503cd2306a902161517346147801
+T103:
   c: false
-  h: dbe31c0e2f4106e2bc1204bfb3ee76b1d2647a22596415c2533cff178e7880ae
-  r: "The repository contains a `compute_vif` implementation and a `save_vif_scores`\
-    \ helper, but there is no code that actually invokes these functions to generate\
-    \ the VIF scores, and the required output file `data/processed/vif_scores.csv`\
-    \ is missing. The task\u2019s output artifact is therefore not present."
-T031c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `cluster_map.csv` file was found in `data/processed/`, and no content or code
-    showing its creation from T031b output was provided. The required artifact is
-    missing, so the task is not satisfied.
-T031d:
-  c: true
-  h: 043637f650cd73191ed53efea68a4caa25f4d1cb073045e74d5954c697e1fd04
-  r: "The evidence shows `code/data/feature_selection.py` is absent and `code/data/feature_clustering.py`\
-    \ exists (11333\u202Fbytes) and contains a `compute_vif` function implementing\
-    \ VIF calculation, satisfying the migration requirement. No other files are shown\
-    \ to contain VIF logic."
-T033b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission contains only the task description and specification excerpt;
-    there are no generated SHAP artifacts, code, data files, or any output demonstrating
-    that resampled SHAP artifacts for T034a were produced. Consequently, the required
-    deliverable is missing.
-T042b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CI workflow files, scripts, or configuration changes adding a `safety check`\
-    \ command for dependency vulnerability scanning are present. The only provided\
-    \ material concerns a molecular\u2011polarity feature pipeline, which does not\
-    \ address the required CI safety\u2011check implementation. The task lacks the\
-    \ necessary artifact (e.g., updated `.github/workflows/*.yml` or a new CI script)\
-    \ to satisfy the claim."
-T049:
-  c: false
-  h: 5e4b4fe8685db3e242709f7f7a9fd4b55c2e8c66afa20e9d6ee78c2389c39da3
-  r: The `code/main.py` shown does not contain any logic that reads `state/manifest.json`
-    and compares stored hashes to the actual checksums of `data/processed/cluster_map.csv`
-    and `data/processed/descriptors.parquet`. Moreover, both required data files are
-    absent from the repository. Consequently the checksum validation step cannot be
-    performed, and the task is not satisfied.
+  h: 7f24f0e0dbcb13ff9a082c6d184cb3bdf75f001b763062a6f6ee34502e047648
+  r: The `validate.py` script does not import `List`/`Tuple` used in type hints, so
+    it will raise a `NameError` before any validation runs, and the required `data/processed/descriptors.parquet`
+    file is missing, preventing the script from being exercised as specified. Both
+    issues must be fixed for the task to be satisfied.
+  sig: a5cf2adeba8b9a64c400cc4e6e812107698369f5063e1584733a549a94b810b5

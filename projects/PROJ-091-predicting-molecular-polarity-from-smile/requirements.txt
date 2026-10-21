@@ -1,11 +1,12 @@
-rkit
-lightgbm
-pandas
+# Core dependencies (already available in the runner)
 numpy
+pandas
+scipy
+matplotlib
 scikit-learn
+lightgbm
 shap
-pyyaml
-pytest
-safety
-requests
+rdkit
 datasets
+psutil
+# The project already pins versions for reproducibility; add any missing ones here.

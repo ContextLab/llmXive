@@ -1,50 +1,41 @@
 status: verified
-kind: pypi_package
-ref: qm9pack
-access_python: 'import qm9pack
+kind: data_url
+ref: https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm9.csv
+access_python: 'import pandas as pd
 
+  url = ''https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm9.csv''
 
-  df = qm9pack.get_data(''qm9'')
+  df = pd.read_csv(url)
 
   print(f"RECORDS={len(df)}")
 
-  print(f"FIELDS={'',''.join(df.columns)}")'
-record_count: 130831
+  print(''FIELDS='' + '',''.join(df.columns.tolist()))'
+record_count: 1228
 sample_fields:
-- XYZ_file
-- Index
-- SMILES
-- InChi
-- N_atoms
-- Stoichiometry
-- Elements
-- XYZ_Ang
-- Mulliken_pop
-- Harmonic_Freq_cmi
-- RotA_GHz
-- RotB_GHz
-- RotC_GHz
-- Dipole_debye
-- Polarizability_bohr3
-- HOMO_au
-- LUMO_au
-- HOMO_LUMO_gap_au
-- R2_bohr2
-- ZPVE_au
-- InternalEnergy_0K_au
-- InternalEnergy_298K_au
-- Enthalphy_298K_au
-- GibbsFreeEnergy_298K_au
-- Heatcapacity_Cv_cal_mol_K
-- A_xx
-- A_xy
-- A_yy
-- A_xz
-- A_yz
-- A_zz
+- mol_id
+- smiles
+- A
+- B
+- C
+- mu
+- alpha
+- homo
+- lumo
+- gap
+- r2
+- zpve
+- u0
+- u298
+- h298
+- g298
+- cv
+- u0_atom
+- u298_atom
+- h298_atom
+- g298_atom
 field_coverage: 0.5
 required_fields:
 - smiles
 - molecule_id
-intent: QM9 molecular dataset download open-source python package dataset
-cache_key: 15f2db81a927e1c6c996951f2a8b8064f62e2488bbc845e16f7be2ae9f8310db
+intent: download QM9 SMILES dataset Python package MoleculeNet open
+cache_key: d31377f4e3fe7997f2b2705515c2a0eedb6cc942d6f8881fcb02d70fe8fdf69b

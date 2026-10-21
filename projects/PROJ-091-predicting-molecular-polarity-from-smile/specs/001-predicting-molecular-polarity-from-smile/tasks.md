@@ -11,7 +11,7 @@
 - [ ] T102 **[US1]** **[FR-006]** Materialize contract validators under `tests/contract/`. Create `tests/contract/validators.py` with Pydantic models for the descriptor matrix and model output, and add `test_dataset_schema.py` & `test_model_output.py` that validate the real artifacts produced later.  
   - **Verification**: `pytest tests/contract/ -q` passes against the real files.
 
-- [ ] T101 **[US1]** **[FR-001, FR-006, FR-008, FR-009]** Download the QM9 dataset using the `qm9pack` library (which internally resolves the canonical HuggingFace URL) and generate a 2‑D descriptor matrix (`data/processed/descriptors.parquet`).  
+- [ ] T101 **[US1]** **[FR-001, FR-006, FR-008, FR-009]** Download the QM9 dataset using the `qm9pack` library (which internally resolves the canonical HuggingFace URL) and generate a 2‑D descriptor matrix (`data/processed/descriptors.parquet`).   <!-- FAILED-IN-EXECUTION: code/data/generate_descriptors.py exit=1 -->
   - Stream the parquet in batches to keep peak RAM ≤ 6 GB.  
   - Exclude any TPSA‑related descriptors and all SMARTS‑based functional‑group counts.  
   - Log peak memory and total runtime; assert that preprocessing completes within **15 minutes**.  
