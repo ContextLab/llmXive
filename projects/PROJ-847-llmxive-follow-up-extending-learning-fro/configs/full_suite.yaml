@@ -1,6 +1,4 @@
 # Full‑suite configuration for the density‑supervision study.
-# This config triggers the complete experiment pipeline.
-
 seed: 42
 
 output_dirs:
@@ -18,7 +16,7 @@ stages:
 
 training:
   rhos: [0.1, 0.3, 0.5, 0.7, 0.9]
-  seeds: [42, 43, 44, 45, 46]   # five seeds as per the revised plan
+  seeds: [42, 43, 44, 45, 46]
   max_epochs: 5
   batch_size: 16
   adaptive: false

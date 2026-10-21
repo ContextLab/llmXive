@@ -2,18 +2,16 @@
 
 This script supports two primary modes of operation:
 
-1. **Legacy config‑driven mode** (used by the quick‑start guide):
+1. **Config‑driven mode**:
    ``python -m code.run_experiments --config <yaml>``
    - Loads the YAML configuration.
-   - Creates the ``outputs/`` directory tree defined in the config.
-   - Creates a ``data/results/`` directory (required by the verification).
-   - Writes the effective configuration to ``outputs/run_config.json``.
+   - Creates the ``outputs/`` directory tree and ``data/results/``.
+   - Executes the pipeline stages (data, model, trainer) in order.
    - Prints ``Pipeline initialized`` on success.
 
-2. **Explicit CLI mode** for fixed‑density, adaptive, or control‑shuffle runs:
+2. **Explicit CLI mode**:
    ``python -m code.run_experiments --mode fixed|adaptive|control_shuffle ...``
-   (Placeholder implementations are provided for these modes; they are not
-   required for the T001 verification.)
+   - Triggers specific experimental runs directly.
 
 The script returns exit code ``0`` on success and ``1`` on error.
 """
@@ -28,6 +26,9 @@ from typing import Any, Dict
 import yaml  # PyYAML is expected to be available in the environment
 
 from llmxive_toolkit import get_logger, paths
+from code.data import download_all
+from code.model import load_diffusion_model
+from code.trainer import run_fixed_baselines
 
 log = get_logger(__name__)
 
@@ -41,7 +42,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument(
         "--config",
         type=Path,
-        help="Path to a YAML configuration file (legacy mode).",
+        help="Path to a YAML configuration file.",
     )
     parser.add_argument(
         "--mode",
@@ -64,7 +65,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        help="Path to write the result file (CSV for fixed, JSON for adaptive/control).",
+        help="Path to write the result file.",
     )
     parser.add_argument(
         "--dry-run",
@@ -89,11 +90,8 @@ def _load_yaml_config(path: Path) -> Dict[str, Any]:
         raise
 
 def _initialize_outputs(cfg: Dict[str, Any]) -> Path:
-    """Create the ``outputs/`` directory tree defined in the config.
-
-    Returns the path to the top‑level ``outputs`` directory.
-    """
-    output_root = Path("outputs")
+    """Create the ``outputs/`` directory tree defined in the config."""
+    output_root = paths.path("outputs")
     output_root.mkdir(parents=True, exist_ok=True)
 
     for sub in cfg.get("output_dirs", []):
@@ -110,61 +108,31 @@ def _write_run_config(cfg: Dict[str, Any], output_root: Path) -> None:
     log.info("Wrote effective run configuration to %s", run_cfg_path)
 
 # ----------------------------------------------------------------------
-# Minimal placeholder implementations for explicit modes
+# Mode implementations
 # ----------------------------------------------------------------------
 def _run_fixed_mode(args: argparse.Namespace) -> None:
-    """Placeholder for fixed‑density baseline runs (CLI mode)."""
+    """Execute fixed‑density baseline runs."""
     if not args.rhos or not args.seeds or not args.output:
-        log.error(
-            "Fixed mode requires --rhos, --seeds and --output arguments."
-        )
+        log.error("Fixed mode requires --rhos, --seeds and --output arguments.")
         sys.exit(1)
 
-    # Write a tiny CSV with a single dummy row per (rho, seed).
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    with args.output.open("w", encoding="utf-8") as csvfile:
-        header = "rho,seed,example_metric\n"
-        csvfile.write(header)
-        for rho in args.rhos:
-            for seed in args.seeds:
-                csvfile.write(f"{rho},{seed},0.0\n")
-    print(f"Fixed‑density placeholder results written to {args.output}")
+    log.info("Running fixed-density baselines...")
+    run_fixed_baselines(
+        rhos=args.rhos,
+        seeds=args.seeds,
+        output_csv=args.output
+    )
+    print(f"Fixed-density results written to {args.output}")
 
 def _run_adaptive_mode(args: argparse.Namespace) -> None:
-    """Placeholder for adaptive scheduler runs (CLI mode)."""
-    if not args.seeds or not args.output:
-        log.error(
-            "Adaptive mode requires --seeds and --output arguments."
-        )
-        sys.exit(1)
-
-    result = {
-        "mode": "adaptive",
-        "seeds": args.seeds,
-        "message": "Placeholder adaptive run – full implementation pending."
-    }
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    with args.output.open("w", encoding="utf-8") as f:
-        json.dump(result, f, indent=2)
-    print(f"Adaptive placeholder written to {args.output}")
+    """Placeholder for adaptive scheduler runs (T006)."""
+    log.warning("Adaptive mode is not yet implemented (T006).")
+    sys.exit(1)
 
 def _run_control_shuffle_mode(args: argparse.Namespace) -> None:
-    """Placeholder for shuffled‑entropy control runs (CLI mode)."""
-    if not args.seeds or not args.output:
-        log.error(
-            "Control‑shuffle mode requires --seeds and --output arguments."
-        )
-        sys.exit(1)
-
-    result = {
-        "mode": "control_shuffle",
-        "seeds": args.seeds,
-        "message": "Placeholder output – full implementation pending."
-    }
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    with args.output.open("w", encoding="utf-8") as f:
-        json.dump(result, f, indent=2)
-    print(f"Control‑shuffle placeholder written to {args.output}")
+    """Placeholder for shuffled-entropy control runs (T007)."""
+    log.warning("Control-shuffle mode is not yet implemented (T007).")
+    sys.exit(1)
 
 # ----------------------------------------------------------------------
 # Main entry point
@@ -177,7 +145,7 @@ def main(argv=None) -> int:
         return 0
 
     # ------------------------------------------------------------------
-    # Legacy config‑driven path (required for T001 verification)
+    # Config‑driven path
     # ------------------------------------------------------------------
     if args.config:
         config_path = Path(args.config)
@@ -190,20 +158,39 @@ def main(argv=None) -> int:
         except Exception:
             return 1
 
-        # Initialise output directories and write the effective config.
+        # Initialize directories
         output_root = _initialize_outputs(cfg)
         _write_run_config(cfg, output_root)
+        paths.data("results").mkdir(parents=True, exist_ok=True)
 
-        # Ensure the ``data/results`` directory exists (required by the verification).
-        (Path("data") / "results").mkdir(parents=True, exist_ok=True)
+        # Execute requested stages
+        for stage in cfg.get("stages", []):
+            log.info("Executing stage: %s", stage)
+            if stage == "data":
+                download_all()
+            elif stage == "model":
+                load_diffusion_model(cfg.get("model", {}).get("model_id", "distilgpt2"))
+            elif stage == "fixed_baselines":
+                t_cfg = cfg.get("training", {})
+                run_fixed_baselines(
+                    rhos=t_cfg.get("rhos", [0.5]),
+                    seeds=t_cfg.get("seeds", [42]),
+                    max_epochs=t_cfg.get("max_epochs", 10),
+                    batch_size=t_cfg.get("batch_size", 16),
+                    timeout_seconds=t_cfg.get("timeout_seconds", 21600)
+                )
+            elif stage == "adaptive_runs":
+                log.warning("Stage 'adaptive_runs' is pending implementation (T006).")
+            elif stage == "analysis":
+                log.warning("Stage 'analysis' is pending implementation (T008).")
+            else:
+                log.warning("Unknown stage: %s", stage)
 
-        # For the purpose of T001 we do not execute the full pipeline;
-        # we simply indicate successful initialisation.
         print("Pipeline initialized")
         return 0
 
     # ------------------------------------------------------------------
-    # Explicit mode‑driven path (used by later tasks)
+    # Explicit mode‑driven path
     # ------------------------------------------------------------------
     if args.mode == "fixed":
         _run_fixed_mode(args)
@@ -212,9 +199,7 @@ def main(argv=None) -> int:
     elif args.mode == "control_shuffle":
         _run_control_shuffle_mode(args)
     else:
-        log.error(
-            "No mode specified. Use --mode fixed|adaptive|control_shuffle or --config."
-        )
+        log.error("No mode specified. Use --mode fixed|adaptive|control_shuffle or --config.")
         return 1
 
     return 0
