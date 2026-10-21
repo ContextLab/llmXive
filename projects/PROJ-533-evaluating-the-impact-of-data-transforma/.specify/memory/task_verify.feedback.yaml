@@ -2,6 +2,8 @@ T001:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 57d442c5c44672efca2431fabcb5f68c67c4cdf29fa852c9e423b2a2549bf62d
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download_datasets.py
+    exit=-1 (TIMEOUT); code/data/checksum_datasets.py exit=-1 (TIMEOUT)'
   task: 19ffbc04417610100c0beae57099d6d8df627fd5a179e5fe00a3664f4f2003c2
 T003:
   task: 790c86bdfbe90d11e9bb5e006c4660e59923b3b713f100d00f6c247314046715

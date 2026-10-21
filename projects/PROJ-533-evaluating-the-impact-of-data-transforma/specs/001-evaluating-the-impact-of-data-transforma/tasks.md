@@ -6,7 +6,7 @@ This checklist implements the complete end-to-end study satisfying FR-001–FR-0
 
 ---
 
-- [X] **T001** [P] Implement checkpointing utilities and pipeline entry point <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED: unspecified -->
+- [ ] **T001** [P] Implement checkpointing utilities and pipeline entry point <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED: unspecified -->
   *Files*: `code/utils/checkpointing.py`, `code/main.py`, `specs/001-evaluating-the-impact-of-data-transforma/quickstart.md`, `contracts/*.schema.yaml`
   *Description*:
   - `checkpointing.py` provides `save_state(run_id: str, state: dict) -> None`, `load_state(run_id: str) -> dict | None`, and `delete_checkpoint(run_id: str) -> None` using `portalocker` for file locking and atomic writes.
@@ -17,7 +17,7 @@ This checklist implements the complete end-to-end study satisfying FR-001–FR-0
   - `python -c "from code.utils.checkpointing import save_state, load_state, delete_checkpoint"` runs without ImportError.
   - `python -m code.main --stage download --dry-run` prints a stage summary and exits 0.
 
-- [ ] **T002** [US1] Download ≥ 50 public datasets (OpenML + UCI), record verified URLs and SHA-256 checksums
+- [ ] **T002** [US1] Download ≥ 50 public datasets (OpenML + UCI), record verified URLs and SHA-256 checksums <!-- FAILED-IN-EXECUTION: code/data/download_datasets.py exit=-1 (TIMEOUT); code/data/checksum_datasets.py exit=-1 (TIMEOUT) -->
   *Files*: `code/data/download_datasets.py`, `code/data/checksum_datasets.py`, `data/openml_ids.txt`, `data/uci_dataset_urls.txt`, `data/datasets.csv`, `data/checksums.csv`
   *Description*:
   - `openml_ids.txt` lists ≥ 60 verified OpenML IDs; `uci_dataset_urls.txt` lists ≥ 10 canonical UCI CSV/ARFF URLs.

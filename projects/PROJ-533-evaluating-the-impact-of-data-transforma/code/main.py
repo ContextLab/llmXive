@@ -2,7 +2,12 @@ import argparse
 import sys
 import logging
 from typing import Optional
+
 from code.utils.checkpointing import load_state
+
+# Import stage entry points
+from code.data.download_datasets import main as download_main
+from code.data.checksum_datasets import main as checksum_main
 
 def setup_logging():
     logging.basicConfig(
@@ -15,7 +20,6 @@ def setup_logging():
 def run_stage(stage: str, resume: bool, run_id: str, logger: logging.Logger):
     """
     Orchestrates the execution of a specific pipeline stage.
-    Actual implementations of these stages are provided in subsequent tasks.
     """
     state = None
     if resume:
@@ -26,33 +30,37 @@ def run_stage(stage: str, resume: bool, run_id: str, logger: logging.Logger):
         else:
             logger.warning("No checkpoint found for run_id. Starting from scratch.")
 
-    # Stage-specific logic placeholders
     if stage == "download":
         logger.info("Executing stage: download")
-        # Implementation in T002
+        download_main()
+        # After downloading, compute checksums so that the required artifacts exist
+        checksum_main()
     elif stage == "filter":
         logger.info("Executing stage: filter")
-        # Implementation in T003
+        # Placeholder – actual implementation resides in later tasks
     elif stage == "simulate":
         logger.info("Executing stage: simulate")
-        # Implementation in T007
+        # Placeholder – actual implementation resides in later tasks
     elif stage == "aggregate":
         logger.info("Executing stage: aggregate")
-        # Implementation in T008/T009
+        # Placeholder – actual implementation resides in later tasks
     elif stage == "all":
-        logger.info("Executing full pipeline: download -> filter -> simulate -> aggregate")
-        # Sequence call
+        logger.info("Executing full pipeline: download -> checksum")
+        # Sequentially run the stages that are currently implemented.
+        download_main()
+        checksum_main()
+        logger.info("All implemented stages completed successfully.")
     else:
         raise ValueError(f"Unknown stage: {stage}")
 
 def main():
     parser = argparse.ArgumentParser(description="llmXive Data Transformation Pipeline")
-    parser.add_argument("--stage", choices=["download", "filter", "simulate", "aggregate", "all"], 
+    parser.add_argument("--stage", choices=["download", "filter", "simulate", "aggregate", "all"],
                         required=True, help="Pipeline stage to execute")
     parser.add_argument("--resume", action="store_true", help="Resume from the last checkpoint")
     parser.add_argument("--dry-run", action="store_true", help="Print intended operations and exit")
     parser.add_argument("--run-id", type=str, default="default_run", help="Unique identifier for the run")
-    
+
     args = parser.parse_args()
     logger = setup_logging()
 
@@ -64,7 +72,7 @@ def main():
             "filter": "Impute missing values and filter datasets based on normality (Shapiro-Wilk) and sample size (N >= 30).",
             "simulate": "Generate simulated datasets with known effect sizes (Cohen's d) for power analysis.",
             "aggregate": "Aggregate Type I error and power results, compute bootstrap CIs, and perform Friedman tests.",
-            "all": "Execute all stages in sequence: download -> filter -> simulate -> aggregate."
+            "all": "Execute all stages in sequence: download -> checksum -> (future stages)."
         }
         
         print(f"\n--- Dry Run Summary ---")
