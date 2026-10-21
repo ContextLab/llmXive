@@ -1,10 +1,8 @@
 status: none
-intent: download refractive_index dataset from Hugging Face via datasets python package
-  dataset
+intent: download refractive_index dataset from Hugging Face as python package dataset
 required_fields:
 - smiles
 - refractive_index
-- molecular_weight
-cache_key: 4c00cf6e8f563c9231a49a1be0108166e62330685cf2f16dcff27195db6cf9bf
-searched_at: '2026-10-21T08:12:00.372006+00:00'
+cache_key: 1b656febfda988f34261cc0cbc9bd06bfefcef6ee47e1398900d81d365d1eed2
+searched_at: '2026-10-21T08:16:53.407102+00:00'
 retry_count: 1

@@ -6,48 +6,54 @@
 Represents a molecular graph for the MPNN.
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
+|-------|------|-------------|
 | `smiles` | string | Canonical SMILES string. |
-| `molecular_weight` | float | Calculated MW in g/mol (must be > 0 and < 500). |
-| `refractive_index` | float | Experimental RI (normalized to 20 °C, > 1.0). |
+| `molecular_weight` | float | Molecular weight in g/mol (must be > 0 and < 500). |
+| `refractive_index` | float | Experimental RI (normalized to 20°C, > 1.0). |
 | `nodes` | list[dict] | List of node features: `atomic_num`, `degree`, `hybridization`, `is_aromatic`. |
 | `edges` | list[dict] | List of edge features: `bond_type`, `is_conjugated`, `stereo`. |
 | `scaffold_id` | string | Murcko scaffold fingerprint (used for split). |
-| `global_features` | dict | **Optional** global scalar features, e.g., normalized `molecular_weight`. |
+| `global_features` | dict | Optional global scalars (e.g., normalized `molecular_weight`). |
 
 ### 2. PredictionResult
 Output of the inference pipeline.
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
+|-------|------|-------------|
 | `smiles` | string | Input molecule SMILES. |
 | `true_ri` | float | Experimental refractive index. |
-| `pred_ri_gnn` | float | MPNN predicted refractive index. |
-| `pred_ri_baseline` | float | Atomic contribution baseline prediction. |
+| `pred_ri_gnn` | float | MPNN predicted RI. |
+| `pred_ri_baseline` | float | Atomic‑contribution baseline prediction. |
 | `error_gnn` | float | `abs(pred_ri_gnn - true_ri)`. |
 | `error_baseline` | float | `abs(pred_ri_baseline - true_ri)`. |
 
 ### 3. FeatureAttribution
-Output of the Integrated Gradients analysis.
+Output of Integrated Gradients analysis. **Now aligned with `output.schema.yaml`.**
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
+|-------|------|-------------|
 | `smiles` | string | Input molecule. |
-| `node_attributions` | list[float] | Attribution score per atom. |
-| `edge_attributions` | list[float] | Attribution score per bond. |
-| `top_features` | list[dict] | Top 5 attributed substructures (atom index, bond type). |
+| `top_features` | list[object] | Array of attribution entries, each with: |
+|  - `feature_type` | string (enum: `"ATOM"`, `"BOND"`) | Type of feature. |
+|  - `feature_index` | integer | Index of the atom or bond within the graph. |
+|  - `score` | number | Normalized attribution score (higher = more important). |
 
 ## Data Flow
-
-1. **Raw Data** (`data/raw/*.parquet`) → **Preprocessor** (`code/data/preprocess.py`) → **Processed Splits** (`data/processed/train.csv`, `val.csv`, `test.csv`).  
-2. **Processed Splits** → **MPNN Trainer** (`code/training/train.py`) → **Model Weights** (`models/mpnn.pt`).  
-3. **Model Weights** + **Test Set** → **Evaluator** (`code/training/evaluate.py`) → **Results CSV** + **Plots**.  
-4. **Model Weights** + **Test Set** → **Attribution Engine** (`code/models/attribution.py`) → **Attribution CSV**.
+1. **Raw CSV** → `download.py` → `data/processed/raw.csv`.  
+2. **Preprocess** → `preprocess.py` → `data/processed/filtered.csv`.  
+3. **Scaffold Split** → `split.py` → `train_{i}_{j}.csv`, `val_{i}_{j}.csv`, `test_{i}_{j}.csv` (i = 1..5, j = 1..5).  
+4. **Baseline** → `baseline.py` → `baseline_predictions_{i}_{j}.csv`.  
+5. **MPNN Training** → `train.py` → `models/mpnn_{i}_{j}.pt`.  
+6. **Evaluation** → `evaluate.py` → `metrics_summary.csv`, `parity_{i}_{j}.png`, `importance_{i}_{j}.png`.  
+7. **Attribution** → `attribution.py` → `attributions_{i}_{j}.csv` (conforms to this entity).
 
 ## Schema Constraints (mirrored in contracts)
-
-- **SMILES**: Must be valid RDKit‑parseable string.  
-- **Molecular Weight**: > 0, < 500.  
+- **SMILES**: Must be RDKit‑parseable.  
+- **Molecular Weight**: 0 < value < 500.  
 - **Refractive Index**: > 1.0.  
-- **Scaffold ID**: Unique per scaffold group.  
-- **Global Features**: If present, must be numeric and normalized (e.g., z‑score).
+- **Node/Edge Features**: Types and enumerations as defined in `contracts/dataset.schema.yaml`.  
+- **Global Features**: Numeric, normalized (z‑score).  
+
+---
+
+

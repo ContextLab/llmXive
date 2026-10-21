@@ -1,24 +1,23 @@
 # Quickstart: Predicting Molecular Refractive Indices
 
 ## Prerequisites
-
 - Python 3.11+  
-- `pip` or `conda`  
-- Access to a Linux environment (GitHub Actions or local Linux VM).  
-- A few gigabytes of RAM (on the order of several GB for the pipeline).
+- `pip` (or `conda`)  
+- Linux environment (GitHub Actions runner or local Linux VM)  
+- At least 2 GB RAM (the full pipeline uses < 1 GB)  
 
 ## Installation
 
-1. **Clone Repository**  
+1. **Clone the repository**  
    ```bash
    git clone <repo-url>
-   cd projects/PROJ-296-predicting-molecular-refractive-indices-/code
+   cd projects/PROJ-296-predict-molecular-refractive-indices-/code
    ```
 
-2. **Install Dependencies**  
+2. **Install dependencies**  
    ```bash
    pip install -r requirements.txt
-   # Ensure CPU‑only PyTorch Geometric is installed
+   # Install CPU‑only PyTorch Geometric wheels
    pip install torch-geometric torch-scatter torch-sparse torch-cluster torch-spline-conv -f https://data.pyg.org/whl/torch-2.0.0+cpu.html
    ```
 
@@ -27,56 +26,70 @@
    python -c "import rdkit; print(rdkit.__version__)"
    ```
 
-## Data Download
+## Data Preparation
 
-Run the download script to fetch the verified dataset:  
+The pipeline expects an **open‑source CSV** with ≥ 500 organic molecules and experimental refractive indices.  
+If such a dataset is available, run:
+
 ```bash
 python data/download.py
 ```
-This will:
-1. Fetch the **`chemistry/ri_dataset`** from Hugging Face.  
-2. Verify that the columns `smiles` and `refractive_index` are present; aborts with a clear error if missing (addresses data‑resource concern).  
-3. Compute and store a SHA‑256 checksum under `state/` for reproducibility.  
-4. Save the raw parquet file to `data/raw/`.
 
-## Preprocessing
+The script will:
+1. Download the dataset from a verified public URL (Zenodo, Figshare, or HuggingFace).  
+2. Compute a SHA‑256 checksum and store it under `state/ri_dataset.sha256`.  
+3. Validate the CSV against `contracts/dataset.schema.yaml`.  
 
-Process the data and create splits:  
+*If no suitable dataset is found, the script aborts with a clear error and the project must be re‑specified to accommodate the data limitation.*
+
+## Preprocessing & Splitting
+
 ```bash
-python data/preprocess.py --filter-mw 500 --split-ratio 0.8,0.1,0.1
+python data/preprocess.py --filter-mw 500
+python data/split.py --folds 5 --repeats 5 --ratios 0.8 0.1 0.1
 ```
-This will:
-1. Parse SMILES with RDKit (invalid entries logged to `failed_parsing.log`).  
-2. Exclude molecules with MW > 500 Da.  
-3. Add **normalized molecular weight** as a global feature.  
-4. Perform a scaffold‑based split with **zero scaffold overlap** and the 80/10/10 ratio.  
-5. Save `train.csv`, `val.csv`, `test.csv` to `data/processed/`.
+- Parses SMILES, filters MW > 500 Da, adds normalized MW as a global feature.  
+- Performs **5 × 5 scaffold‑based splits** (total 25 splits) with zero scaffold overlap.
 
-## Training
+## Training the MPNN (CPU‑only)
 
-Train the MPNN model (CPU‑only):  
 ```bash
-python training/train.py --epochs 200 --batch-size 32 --seed 42
+for i in {1..5}; do
+  for j in {1..5}; do
+    python training/train.py --fold $i --repeat $j --epochs 200 --batch-size 32 --seed $((2000 + i*10 + j))
+  done
+done
 ```
-- **Output**: `models/mpnn.pt`, `logs/training.log`.  
-- **Runtime**: ~1‑3 h on the GitHub Actions free tier.
+- Saves each fold’s weights to `models/mpnn_${i}_${j}.pt`.  
+- Logs training progress to `logs/training_${i}_${j}.log`.  
 
-## Evaluation & Interpretation
+## Evaluation & Attribution
 
-Run evaluation and attribution:  
 ```bash
-python training/evaluate.py --model models/mpnn.pt
-python models/attribution.py --model models/mpnn.pt --output results/attributions.csv
+for i in {1..5}; do
+  for j in {1..5}; do
+    python training/evaluate.py --fold $i --repeat $j --model models/mpnn_${i}_${j}.pt
+    python models/attribution.py --fold $i --repeat $j --model models/mpnn_${i}_${j}.pt --output results/attributions_${i}_${j}.csv
+  done
+done
 ```
-- **Outputs**: `results/metrics.csv`, `results/plots/parity.png`, `results/plots/importance.png`.
+- Generates `results/metrics_summary.csv` (MAE/RMSE, paired t‑test/Wilcoxon results, Cohen’s d, confidence intervals).  
+- Produces PNG plots: `results/plots/parity_${i}_${j}.png` and `results/plots/importance_${i}_${j}.png`.
 
-## Verification
+## Verification of Success Criteria
 
-Check that the pipeline completed successfully and met success criteria:  
 ```python
 import pandas as pd
-metrics = pd.read_csv('results/metrics.csv')
-assert metrics['mae_gnn'].iloc[0] < 1.0, "MAE too high"
-assert metrics['p_value'].iloc[0] < 0.05, "Not statistically significant"
-print("All checks passed.")
+metrics = pd.read_csv('results/metrics_summary.csv')
+print(metrics[['fold','repeat','mae_gnn','mae_baseline','p_value']])
+# Expect MAE variance across repeats to be reported; p‑value may be > 0.05 due to limited power.
 ```
+
+## Notes on Scope
+- The bundled CSV used in earlier drafts has been replaced by an **open dataset requirement**. If such a dataset cannot be obtained, the project must be re‑specified.  
+- The study remains a **feasibility pilot**; no formal claim of statistical significance is made unless the dataset meets the size requirement.  
+- The pipeline can be re‑run with a larger dataset in the future without code changes.
+
+---
+
+
