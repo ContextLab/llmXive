@@ -8,8 +8,7 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-# Fix import path so script can be run from project root
-# Path(__file__).resolve().parent is code/ingest, .parent.parent is code/
+# Ensure the project root is on the import path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from utils.config import get_path, ensure_dir, PATHS
@@ -144,6 +143,9 @@ def main() -> None:
     non‑zero status code if any file fails verification.
     """
     raw_dir: Path = PATHS["raw"]
+    # Ensure the raw directory exists before trying to list its contents
+    ensure_dir(raw_dir)
+
     checksum_path: Path = raw_dir / "checksums.json"
 
     if not checksum_path.exists():

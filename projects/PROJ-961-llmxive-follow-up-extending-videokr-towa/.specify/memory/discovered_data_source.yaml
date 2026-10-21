@@ -1,5 +1,15 @@
 status: none
-reason: no data intent found in planning artifacts
-cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
-searched_at: '2026-10-09T01:49:25.546970+00:00'
-retry_count: 3
+intent: TVQA dataset with knowledge graph pip install python package dataset
+required_fields:
+- question_text
+- answer_text
+- video_id
+- start_timestamp
+- end_timestamp
+- hop_level
+- knowledge_graph
+- video_duration
+- subtitle_text
+cache_key: 4a33e1fcf7bb5ecb2b8a913b1c7e66efa99d27735609d02ff9c586120c2d6613
+searched_at: '2026-10-21T17:36:20.120529+00:00'
+retry_count: 1

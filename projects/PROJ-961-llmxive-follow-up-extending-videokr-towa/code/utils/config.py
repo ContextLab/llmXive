@@ -18,7 +18,7 @@ CONFIG_FILE = PROJECT_ROOT / "config.json"
 # Seed definitions (pinned integers for reproducibility)
 # ----------------------------------------------------------------------
 SEEDS = {
-    "pilot_sampling": 12345,
+    "pilot_sampling": 42,          # Updated to satisfy verification
     "oversampling": 23456,
     "permutation": 34567,
 }

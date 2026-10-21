@@ -1,13 +1,13 @@
 """
-Unit tests for the ``link_dataframe`` function in ``code.utils.entity_linker``.
+Unit tests for the deterministic entity linker (code.utils.entity_linker).
 """
 import pandas as pd
 import pytest
-import numpy as np
-from utils.entity_linker import link_dataframe
+
+from utils.entity_linker import link_dataframe, EntityLinker, create_entity_linker
 
 def test_preexisting_node_id_column():
-    """If a ``node_id`` column exists the function should copy it and set confidence=1.0."""
+    """If a ``node_id`` column exists it should be copied with confidence=1.0."""
     df = pd.DataFrame(
         {
             "question": ["What is X?", "What is Y?"],
@@ -22,8 +22,9 @@ def test_preexisting_node_id_column():
     assert out["entity_node_id"].tolist() == ["nodeA", "nodeB"]
     assert (out["confidence"] == 1.0).all()
 
+
 def test_preexisting_entity_id_column():
-    """If an ``entity_id`` column exists the function should copy it and set confidence=1.0."""
+    """If an ``entity_id`` column exists it should be copied with confidence=1.0."""
     df = pd.DataFrame(
         {
             "question": ["What is X?", "What is Y?"],
@@ -36,58 +37,45 @@ def test_preexisting_entity_id_column():
     assert out["entity_node_id"].tolist() == ["nodeC", "nodeD"]
     assert (out["confidence"] == 1.0).all()
 
-def test_fuzzy_matching_threshold_behavior(monkeypatch):
-    """When no ID columns exist, fuzzy matching should respect the confidence threshold."""
-    # Force SentenceTransformer to None to ensure fuzzy path is taken
-    monkeypatch.setattr("utils.entity_linker.SentenceTransformer", None)
-    
+
+def test_exact_match():
+    """Exact (case‑insensitive, punctuation‑insensitive) matches should succeed."""
     graph = {"Apple": set(), "Banana": set()}
-    df = pd.DataFrame(
-        {
-            "question": [
-                "I love apples",      # substring match -> confidence 0.8
-                "I love oranges",    # no match -> confidence 0.0
-            ]
-        }
-    )
-    # Threshold 0.5: Apple should be accepted, Orange should be None
-    out = link_dataframe(df, graph, threshold=0.5)
+    df = pd.DataFrame({"question": ["Apple", "apple!", "Banana"]})
+    out = link_dataframe(df, graph)
 
     assert out.loc[0, "entity_node_id"] == "Apple"
-    assert out.loc[0, "confidence"] >= 0.5
+    assert out.loc[0, "confidence"] == 1.0
+    assert out.loc[1, "entity_node_id"] == "Apple"
+    assert out.loc[1, "confidence"] == 1.0
+    assert out.loc[2, "entity_node_id"] == "Banana"
+    assert out.loc[2, "confidence"] == 1.0
 
-    assert out.loc[1, "entity_node_id"] is None
-    assert out.loc[1, "confidence"] < 0.5
 
-def test_embedding_path_when_available(monkeypatch):
-    """If ``sentence_transformers`` is available, the embedding path should be used."""
-    # Create a mock model that returns deterministic vectors
-    class MockSentenceTransformer:
-        def __init__(self, model_name):
-            self.model_name = model_name
-        def encode(self, texts):
-            # Map each string to a unique simple vector based on length
-            return np.array([[float(len(t))] * 384 for t in texts])
+def test_levenshtein_fallback():
+    """Levenshtein distance ≤ 2 should be accepted with lower confidence."""
+    graph = {"Apple": set(), "Banana": set()}
+    df = pd.DataFrame({"question": ["Aple", "Bannna", "Oranges"]})
+    out = link_dataframe(df, graph)
 
-    # Patch SentenceTransformer at the module level
-    monkeypatch.setattr("utils.entity_linker.SentenceTransformer", MockSentenceTransformer)
+    # 'Aple' (distance 1) matches 'Apple' with confidence 0.5
+    assert out.loc[0, "entity_node_id"] == "Apple"
+    assert out.loc[0, "confidence"] == 0.5
 
-    graph = {"Short": set(), "VeryLongNodeName": set()}
-    df = pd.DataFrame(
-        {
-            "question": [
-                "Short",          # Exact length match with "Short" (5)
-                "UnrelatedText",  # Different length (13)
-            ]
-        }
-    )
-    # Low threshold to allow match
-    out = link_dataframe(df, graph, threshold=0.1)
+    # 'Bannna' (distance 2) matches 'Banana' with confidence 0.5
+    assert out.loc[1, "entity_node_id"] == "Banana"
+    assert out.loc[1, "confidence"] == 0.5
 
-    # "Short" should match "Short" (perfect cosine similarity since vectors are identical)
-    assert out.loc[0, "entity_node_id"] == "Short"
-    assert out.loc[0, "confidence"] == pytest.approx(1.0)
+    # No suitable match for 'Oranges'
+    assert out.loc[2, "entity_node_id"] is None
+    assert out.loc[2, "confidence"] == 0.0
 
-    # Verify that the embedding path was exercised (columns exist)
-    assert "entity_node_id" in out.columns
-    assert "confidence" in out.columns
+
+def test_no_match():
+    """When no exact or fuzzy match is possible, result should be None/0.0."""
+    graph = {"Apple": set()}
+    df = pd.DataFrame({"question": ["Orange"]})
+    out = link_dataframe(df, graph)
+
+    assert out.loc[0, "entity_node_id"] is None
+    assert out.loc[0, "confidence"] == 0.0

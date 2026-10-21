@@ -1,10 +1,16 @@
 T101:
   c: true
-  h: a8f786096facb32aeadcdfa98bf6d2ff3399efb5dc7cb87dbd4fdb891ca4b264
-  r: "Checked `code/utils/config.py` \u2013 defines `SEEDS` with the three pinned\
-    \ integers, `PATHS` with raw/processed directories, and `SENSITIVITY_THRESHOLDS\
-    \ = [2, 3, 4]`.  \nChecked `code/ingest/checksum.py` \u2013 `generate_checksum_file`\
-    \ and `verify_all_raw_data` use a JSON list of `{path, sha256}` entries, and `main()`\
-    \ runs verification and exits non\u2011zero on any mismatch (log shows successful\
-    \ run)."
-  sig: 1a9ea41f6af4adcad716eb576f229701e52b7cfd57bc8cbabbe1817b51a6d83c
+  h: 2205f007cf922bdbf04355e0a8c46c42e1556a1ee046e060fd9f4709b76395b9
+  r: "Checked `code/utils/config.py` \u2013 it defines `SEEDS['pilot_sampling'] =\
+    \ 42`, satisfying the import\u2011assert test. Ran `code/ingest/checksum.py` (log\
+    \ shows exit\u202F0) which created `data/raw/checksums.json` and verified the\
+    \ file, meeting the second verification step."
+  sig: 8c8f77eb4d28ab0153746d8f40d42ab9095c032fe8fb1344065b69fd2787f244
+T102:
+  c: true
+  h: e3d8e8522e8db3495e47faa8ddec40487c9b1139ccd281160c3eff5558bc48e4
+  r: "Checked `code/utils/entity_linker.py` for correct normalization, exact\u2011\
+    match and Levenshtein\u202F\u2264\u202F2 logic, and confirmed it never uses embeddings.\
+    \ Verified that `tests/unit/test_entity_linker.py` exists and that its pytest\
+    \ run logged all five tests passing, confirming the required behavior of `link_dataframe`."
+  sig: d9547eae2570c783387b0393a5887f0070c5c93001da89bb840d8ada28e2cb3b

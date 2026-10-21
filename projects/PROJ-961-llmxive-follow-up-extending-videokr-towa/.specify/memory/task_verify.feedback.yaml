@@ -1,39 +1,36 @@
 T101:
-  task: 124f0ea77e72c354939beda0a391bd830931598c680d04f7228b82b3f161e287
+  task: 83422d07c2e11ff2b25844fd2df02d0d2ad28058468f1a617c8c718e8a2aeef9
 T102:
-  reason: "The unit\u2011test suite shows that the embedding\u2011based branch of\
-    \ `link_dataframe` does not behave as required: `test_embedding_path_when_available`\
-    \ fails, returning the wrong `entity_node_id`. Consequently the function does\
-    \ not correctly implement the configurable embedding\u2011similarity path, and\
-    \ the task\u2019s verification condition (all pytest tests passing) is not met."
-  task: eb46c77b92d8ade98ad3221f5e603ccd37518053ac27ddb12012ba43927408e3
+  task: de4ebf1982888f3d3aa762b661a5d3e8b4e069d2627f853fdfa466ab330d7807
 T103:
   reason: 'Requested task execution failed; rerun successfully: code/ingest/download_data.py
     exit=1'
-  task: a7c2f12c81956582d191f4e751109d6b341a88d7e9148ed57689ed496f7f60be
+  task: 1bae120f6d8bc664291d2e835261cd38e19a699c53f56bec4133bc2de7c39a64
 T104:
-  task: 0c03fa2afdbb8f1cfd1fed764597ec24fccf4a075a7dc6534a99c9395618197c
-T104b:
-  task: 03e65610da245f4f81ddfb946f1659aaebf2e0ea74dfed19c4ccecd147ff519a
+  task: 5eaaca31d3008bdaef4de97a539ebfb13b6274b04d74fd0b14262462db624876
 T105:
-  task: 34f076795dd12b3ebbaefe40d7ac6d6eab85cf57c43e23e37e097ff00b89fcd9
+  task: b9052c3557b8f3720ac5bc499989cc91310592c1267907e948843a47f7ea3dc7
 T106:
-  task: 27ab86d90aa35c87f4044a4e3362a438787c27d9d8b53637d89424db504b55d9
+  task: f8567b5c33405147ed06de47856c496f3a1799e112cee2a555f1ec388abc0045
 T107:
-  task: 3065546d49067ecdc1ade2652ddd6ed24149cb5d19c63a62efca4ef1998fd07b
+  task: 4c13d1a79975b392ee3cda0c9292213cac89c28f7be069022770041567131ace
 T108:
-  task: 85c61ee0b3328707fe3468cda4fd25566319a282bde84a8500046fc129342950
+  task: 904fe4227c7a90822093e17634011f553d44be0caafa7f8e07fb87ab1cffeca8
 T109:
-  task: b6d71917b1754324805026460e4ebfe336f2f86c34a5bcf6894493ee42be5d7c
+  task: 1fba16bb8408efaa4ba3ed805e88ebabbf2b1b4cac88b712cfabd2aebdc48688
 T110:
-  task: 5958b119f9fe5207a56c865f545bb11472e2ca22cbcbdc9e0fa8fc767ce17457
+  task: 875eca6fb9a168009f740496c81a61d8e4e6593da0c6a44da334363aa25bad51
 T111:
-  task: bca6233ca821de842871e5a92b3a30a65aa1bd2b411d527cf761cd114af6ffc4
+  task: 28386ba99487843feb250e6d473c59ba375aad00da2d320fdf08c55005f4b8e6
 T112:
-  task: 9df396a2a9dad313aca5c003566dcb9d6ec2e296e602d719516e9545e0e27660
+  task: 619823a7c69c2eace561ef1505480d775a0dbe0caae3c69509e11df1bb00c48c
 T113:
-  task: 5624063d510eb7e1e3f37b1227bcef8829848da394049a5543d53e7a483df0e9
+  task: 2e3332c2fa9ded280b0bc2329dbf43bf909f33f0eb211dc714f23d73a9b257e0
 T114:
-  task: 26cc3988583d0e53e855019d9bd9745a0930ecc536f2a9092334fbf51b1e7d55
+  task: ed408f0a01b9c45dfba3f8b5cbf01cf930af9c0416795615bc7073427a5e9070
 T115:
-  task: 394f61d06f8238f2c729557a01aaaa818502fadeec2fdd2afa07bb3f7efbbb78
+  task: f374c29f586015829f4dc0e451181332ebf83e84d65942bb9051358418222c5c
+T116:
+  task: e221f8ac6f2aa09462b3cf11e37a6135e26022b31a1d6adc76eed14b2ed21100
+T117:
+  task: e458ac298d746d1e3201ab61fa3cdff197592c9505bdeb7babdba279d8313291

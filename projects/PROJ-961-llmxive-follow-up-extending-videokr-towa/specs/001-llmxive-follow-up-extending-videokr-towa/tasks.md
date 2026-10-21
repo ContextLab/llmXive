@@ -7,11 +7,11 @@ The list below follows the canonical checklist format. Checked boxes (`[X]`) ind
 
 **Goal**: Establish a reproducible pipeline on a small real input and produce the first set of processed artifacts.
 
-- [ ] T101 [P] Establish project configuration, constants, and directory paths.  
+- [X] T101 [P] Establish project configuration, constants, and directory paths.  
   - **Files**: `code/utils/config.py`, `code/ingest/checksum.py`  
   - **Verification**: `python -c "import code.utils.config as cfg; assert cfg.SEEDS['pilot_sampling'] == 42"` passes; `python code/ingest/checksum.py` runs without error and creates `data/raw/checksums.json`.
 
-- [ ] T102 [P] [US1] Implement deterministic entity‑linking **without any embedding fallback**.  
+- [X] T102 [P] [US1] Implement deterministic entity‑linking **without any embedding fallback**.  
   - **File**: `code/utils/entity_linker.py`  
   - **Behaviour**:  
     1. Normalise strings (lower‑case, strip punctuation).  
@@ -21,7 +21,7 @@ The list below follows the canonical checklist format. Checked boxes (`[X]`) ind
   - **Tests**: `tests/unit/test_entity_linker.py` covering exact‑match, Levenshtein fallback, and failure cases. All pytest tests must pass.  
   - **Output**: The function `link_dataframe(df, graph_nodes)` is importable from `code.utils.entity_linker`.
 
-- [ ] T103 [S] [US1] Implement robust data‑download script for the open‑access TVQA dataset (substitute for the proprietary VideoKR‑SFT).  
+- [ ] T103 [S] [US1] Implement robust data‑download script for the open‑access TVQA dataset (substitute for the proprietary VideoKR‑SFT).   <!-- FAILED-IN-EXECUTION: code/ingest/download_data.py exit=1 -->
   - **File**: `code/ingest/download_data.py`  
   - **Behaviour**:  
     1. Use `datasets.load_dataset("tvqa", split="train", streaming=True)` to fetch the QA split and `datasets.load_dataset("tvqa", split="train", streaming=False)` for the accompanying metadata.  
