@@ -18,7 +18,7 @@ import pytest
 
 
 def _compute_sha256(path: Path) -> str:
-    """Return the SHA‑256 checksum of *path*."""
+    """Return the SHA‑256 checksum of the file at *path*."""
     h = hashlib.sha256()
     with path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):

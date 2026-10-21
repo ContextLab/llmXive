@@ -4,8 +4,6 @@ src/env_check.py
 Environment‑check script that verifies the scientific Python stack can be
 imported and that the two bundled raw data files are present.  It writes
 SHA‑256 checksums for those files to ``data/raw/checksums.json``.
-The script is deliberately tolerant of the optional ``torch`` package – its
-absence does **not** cause a non‑zero exit code.
 """
 import hashlib
 import json
@@ -19,6 +17,7 @@ try:
     import pandas   # noqa: F401
     import numpy    # noqa: F401
     import sklearn  # noqa: F401
+    import torch     # noqa: F401
     import statsmodels  # noqa: F401
     import yaml     # noqa: F401
     import pytest   # noqa: F401
@@ -28,18 +27,7 @@ except Exception as exc:  # pragma: no cover
     sys.exit(1)
 
 # ----------------------------------------------------------------------
-# 2. Optional import – missing ``torch`` is acceptable.
-# ----------------------------------------------------------------------
-try:
-    import torch  # noqa: F401
-except Exception:  # pragma: no cover
-    print(
-        "Optional dependency 'torch' not available; continuing without it.",
-        file=sys.stderr,
-    )
-
-# ----------------------------------------------------------------------
-# 3. Paths for the bundled raw inputs.
+# 2. Paths for the bundled raw inputs.
 # ----------------------------------------------------------------------
 RAW_DIR = Path("data/raw")
 FILES = {
@@ -48,7 +36,7 @@ FILES = {
 }
 
 # ----------------------------------------------------------------------
-# 4. Helper to compute a file's SHA‑256 checksum.
+# 3. Helper to compute a file's SHA‑256 checksum.
 # ----------------------------------------------------------------------
 def _file_checksum(path: Path) -> str:
     """Return the SHA‑256 checksum of the file at *path*."""
@@ -59,7 +47,7 @@ def _file_checksum(path: Path) -> str:
     return h.hexdigest()
 
 # ----------------------------------------------------------------------
-# 5. Deterministic placeholder generator (used only when the file is
+# 4. Deterministic placeholder generator (used only when the file is
 #    missing).  The schema matches the one defined in
 #    ``contracts/dataset_schema.yaml``.
 # ----------------------------------------------------------------------
@@ -105,7 +93,7 @@ for p in FILES.values():
     _ensure_raw_file(p)
 
 # ----------------------------------------------------------------------
-# 6. Compute checksums and write them to ``data/raw/checksums.json``.
+# 5. Compute checksums and write them to ``data/raw/checksums.json``.
 # ----------------------------------------------------------------------
 checksums = {name: _file_checksum(p) for name, p in FILES.items()}
 
@@ -115,7 +103,7 @@ with checksums_path.open("w", encoding="utf-8") as f:
     json.dump(checksums, f, indent=2, sort_keys=True)
 
 # ----------------------------------------------------------------------
-# 7. Success message and exit.
+# 6. Success message and exit.
 # ----------------------------------------------------------------------
 print("Environment check passed. Checksums written to:", checksums_path)
 sys.exit(0)
