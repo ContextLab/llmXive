@@ -1,23 +1,15 @@
 import argparse
 import hashlib
+import json
 import logging
-import requests
 from pathlib import Path
 from typing import List, Tuple
 
+from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
 # Initialize logger
 log = get_logger(__name__)
-
-# List of public JSON files to download as a stand‑in for the π‑Bench dataset.
-# These files are fetched from openly accessible URLs and are genuine JSON data.
-# The list can be extended with additional files if needed.
-PUBLIC_JSON_URLS = [
-    # Example JSON file from the Hugging Face datasets repository.
-    # This file is small, publicly accessible, and can be loaded with a simple JSON parser.
-    "https://raw.githubusercontent.com/huggingface/datasets/main/datasets/json/example.json",
-]
 
 def _sha256_checksum(file_path: Path) -> str:
     """
@@ -39,61 +31,71 @@ def _write_checksums(files: List[Tuple[Path, str]], out_path: Path) -> None:
             f.write(f"{checksum}  {rel_path}\n")
     log.info(f"Checksum manifest written to {out_path}")
 
-def _download_and_save(url: str, target_dir: Path) -> Path:
+def _download_pi_bench(raw_dir: Path) -> List[Tuple[Path, str]]:
     """
-    Download a JSON file via ``requests`` and save it into ``target_dir``.
-    Returns the Path of the saved file.
+    Download the official ``pi_bench`` dataset via ``datasets``,
+    write each example as a JSON file into ``raw_dir`` and return a list
+    of (relative_path, checksum) tuples for the written files.
     """
-    log.debug(f"Downloading {url} via requests")
-    response = requests.get(url, stream=True, timeout=30)
-    response.raise_for_status()
-    dest_path = target_dir / Path(url).name
-    with dest_path.open("wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                f.write(chunk)
-    log.debug(f"Saved downloaded file to {dest_path}")
-    return dest_path
+    log.info("Loading the 'pi_bench' dataset via huggingface datasets")
+    # The dataset is small (≈100 tasks) so we can load it fully in memory.
+    # ``load_dataset`` returns a DatasetDict; we take the default split.
+    ds = load_dataset("pi_bench")
+    if isinstance(ds, dict):
+        # Prefer the 'train' split if present, otherwise take the first.
+        split_name = "train" if "train" in ds else next(iter(ds))
+        ds = ds[split_name]
+
+    checksums: List[Tuple[Path, str]] = []
+
+    for idx, example in enumerate(ds):
+        # Ensure the example is JSON‑serialisable.
+        json_path = raw_dir / f"{idx}.json"
+        with json_path.open("w", encoding="utf-8") as jf:
+            json.dump(example, jf, ensure_ascii=False, indent=2)
+
+        rel_path = json_path.relative_to(raw_dir)
+        checksum = _sha256_checksum(json_path)
+        checksums.append((rel_path, checksum))
+
+        if (idx + 1) % 20 == 0:
+            log.debug(f"Written {idx + 1} JSON files")
+
+    log.info(f"Finished writing {len(checksums)} JSON files to {raw_dir}")
+    return checksums
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download a small public JSON dataset to act as a placeholder for π‑Bench."
+        description="Download the official π‑Bench dataset and verify checksums."
     )
     parser.add_argument(
         "--data-dir",
         type=str,
         default=str(paths.data("raw")),
-        help="Directory to store raw dataset files (used for downstream pipelines)",
+        help="Directory to store raw dataset files (used for downstream pipelines).",
     )
     args = parser.parse_args()
     raw_dir = Path(args.data_dir)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    log.info("Starting download of public JSON files.")
-    checksums: List[Tuple[Path, str]] = []
+    # Download dataset and compute checksums
+    try:
+        checksums = _download_pi_bench(raw_dir)
+    except Exception as exc:
+        log.error(f"Failed to download or process the π‑Bench dataset: {exc}")
+        raise
 
-    for url in PUBLIC_JSON_URLS:
-        try:
-            local_path = _download_and_save(url, raw_dir)
-            rel_path = local_path.relative_to(raw_dir)
-            checksum = _sha256_checksum(local_path)
-            checksums.append((rel_path, checksum))
-        except Exception as exc:
-            log.error(f"Failed to download or process {url}: {exc}")
-            raise
-
-    # Write a simple manifest file listing the downloaded URLs
+    # Write a simple manifest listing the dataset source
     manifest_path = raw_dir / "download_manifest.txt"
     with manifest_path.open("w", encoding="utf-8") as mf:
-        for url in PUBLIC_JSON_URLS:
-            mf.write(f"{url}\n")
+        mf.write("pi_bench dataset downloaded via huggingface datasets library\n")
     log.info(f"Download manifest written to {manifest_path}")
 
-    # Write checksum file
+    # Write checksum manifest
     checksum_path = raw_dir / "checksums.txt"
     _write_checksums(checksums, checksum_path)
 
-    log.info("Placeholder dataset download completed successfully.")
+    log.info("π‑Bench download and verification completed successfully.")
 
 if __name__ == "__main__":
     main()

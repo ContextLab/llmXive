@@ -1,11 +1,9 @@
-# Core dependencies (already provided by the platform)
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil are pre‑installed.
-
-# Additional dependencies required for this project
-datasets>=2.14
+# Project requirements
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
+# provided by the execution environment.
+datasets>=2.14.0
 networkx>=3.2
-torch>=2.2  # CPU‑only inference for later pipeline stages
+torch>=2.2
 statsmodels>=0.14
-# No version pinning beyond the minimum required; exact versions will be resolved
-# during CI installation.
+# The above additional packages are needed for the downstream pipeline.
