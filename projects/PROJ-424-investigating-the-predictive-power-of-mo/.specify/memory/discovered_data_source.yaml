@@ -1,14 +1,16 @@
 status: none
-intent: experimental solvent self diffusion coefficients NIST ThermoML chemicals python
-  package dataset
+intent: download experimental solvent self diffusion coefficients from NIST ThermoData
+  Engine and IUPAC database python package dataset
 required_fields:
 - solvent_name
+- chemical_formula
 - temperature_K
-- pressure_Pa
-- diffusion_coefficient_m2_per_s
+- pressure_atm
+- diffusion_coefficient_cm2_per_s
 - measurement_method
-- reference_citation
 - uncertainty
-cache_key: fd7982e9f983212fedf960383204f528f45390dafbe6645cd72c439eb5489e96
-searched_at: '2026-10-21T12:13:01.576039+00:00'
+- reference_doi
+- source_database
+cache_key: d525768768cddb8d241f36a95f5383c7905e95668729b2088c98bf315254d294
+searched_at: '2026-10-21T12:17:37.190315+00:00'
 retry_count: 1

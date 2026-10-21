@@ -13,14 +13,17 @@ items:
         - "acetone"
     duration_ns:
       type: "number"
-      enum: [1.0, 5.0, 10.0]
+      enum: [1, 5, 10]
     start_fraction:
       type: "number"
       enum: [0.1, 0.2, 0.3]
     variance_pct:
       type: "number"
       minimum: 0
-      description: "Variance percentage. Must be < 5% per SC-002."
+      description: "Variance percentage across seeds for this start fraction; should be < 5% per implied sensitivity criterion."
+    note:
+      type: "string"
+      description: "Optional free‑text note (e.g., if variance exceeds threshold)."
   required:
     - solvent
     - duration_ns

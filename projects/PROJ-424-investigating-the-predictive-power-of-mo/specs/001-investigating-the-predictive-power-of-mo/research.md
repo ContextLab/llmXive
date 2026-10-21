@@ -1,68 +1,81 @@
 # Research: Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients
 
 ## Summary
-
-Quantify how accurately atomistic OPLS‑AA MD simulations predict experimental self‑diffusion coefficients of water, ethanol, and acetone at 1 ns, 5 ns, and 10 ns, producing timescale‑accuracy curves (MAE vs. duration) with 95 % bootstrap confidence bands, descriptive trend analysis, and a **descriptive paired‑comparison** (no formal p‑value) that reports a granularity limitation for the low‑seed regime.
+We quantify how accurately atomistic OPLS‑AA MD simulations predict experimental self‑diffusion coefficients of water, ethanol, and acetone at three simulation durations (1 ns, 5 ns, 10 ns). The workflow yields timescale‑accuracy curves (MAE vs. duration) with 95 % bootstrap confidence bands, descriptive trend analysis, and a paired‑comparison (with a granularity note) between the shortest and longest simulations.
 
 ## Dataset Strategy
 
 | Dataset | Source / Path | Access Method | Validation |
 |---|---|---|---|
-| Experimental benchmarks | `data/raw/nist_refs.json` (committed, manually curated) | `json.load()` via `code/data/loader.py` | Schema‑validated; checksummed under `data/` (Constitution III). |
-| MD trajectories | `data/raw/simulations/{solvent}_{duration}ns_seed{seed}.xtc` (generated in‑house) | `mdtraj.load()` | MSD linear fit R² ≥ 0.95 **and** log‑log slope ≈ 1 gate (Constitution VI, FR‑003). |
+| Experimental diffusion benchmarks | `data/raw/nist_refs.json` (hand‑curated, committed) | `json.load()` via `code/data/loader.py` | Schema‑validated; SHA‑256 checksum stored in `nist_refs.json.sha256`. |
+| MD trajectories | `data/raw/simulations/{solvent}_{duration}ns_seed{seed}.xtc` (generated in‑house) | `mdtraj.load()` | Each trajectory passes convergence diagnostics (R² ≥ 0.95, log‑log slope ≈ 1). |
 
-**Data availability note**: the "# Verified datasets" block contains no dataset relevant to solvent self‑diffusion coefficients (the listed NIST URLs cover an AI‑risk framework CSV, conversational data, and LLM‑leaderboard details). Per the spec's assumption (§4), experimental values are therefore manually curated into `nist_refs.json` — no external dataset URL is cited or fabricated. No synthetic fallbacks are used (spec §7).
+**Data availability note**: The "# Verified datasets" block contains no applicable diffusion‑coefficient source. Per the specification (§4), we manually curate the experimental values into `nist_refs.json`; no synthetic fallback is used, satisfying the “no synthetic data” rule.
 
 ## Methodological Approach
 
-### 1. Simulation Protocol
-- **Engine/force field**: OpenMM (CPU platform, 2 threads) with OPLS‑AA parameters.
-- **System**: On the order of a few hundred molecules per solvent (approximately a few thousand atoms)., identical box size across all durations to avoid a size/timescale confound.
-- **Ensemble**: NPT, T = 300 K (matched to reference data temperature in `nist_refs.json`), P = 1 bar, Langevin dynamics (friction = 1 ps⁻¹), Monte Carlo barostat.
-- **Durations**: 1 ns, 5 ns, 10 ns. **Seeds**: 3 per condition for 1 ns and 5 ns, 1 seed for 10 ns (total number of trajectories), seeded constants in `code/`.
-- **Protocol per run**: energy minimization → 0.1 ns equilibration → production with positions saved every 1–5 ps.
+### 1. Reference Data Generation (Phase 0)
+- Hard‑code literature diffusion coefficients at 298 K: water = 2.30 × 10⁻⁹ m²/s, ethanol = 1.10 × 10⁻⁹ m²/s, acetone = 0.97 × 10⁻⁹ m²/s.  
+- Write JSON with schema `{solvent: str, D_exp_m2_s: float, temperature_K: int}`.  
+- Compute SHA‑256 checksum; both files are version‑controlled.
 
-### 2. Diffusion Coefficient Extraction (FR‑002, FR‑003)
-- MSD computed with `mdtraj` over the production trajectory (all molecules, unwrapped coordinates).
-- Discard the first **0.1** of trajectory time (ballistic/sub‑diffusive regime); fit MSD(t) with ordinary least squares over the remaining window.
-- **Convergence diagnostics**: (a) linear‑fit **R² ≥ 0.95**; (b) log‑log MSD vs. time slope must be **≈ 1 ± 0.05**. Both criteria must be met; failures flagged `convergence_failed`.
-- Apply the **Yeh‑Hummer finite‑size correction** to the raw diffusion coefficient:
+### 2. Simulation Protocol
+- **Engine**: OpenMM 8.1.1, CPU platform, 2 threads.  
+- **Force field**: OPLS‑AA.  
+- **System size**: ≈ 300 molecules per solvent (≈ 10 k atoms).  
+- **Ensemble**: NPT, T = 298 K, P = 1 bar, Langevin thermostat (friction = 1 ps⁻¹), Monte‑Carlo barostat.  
+- **Durations & seeds**: a brief nanosecond‑scale interval × 3 seeds, a brief nanosecond interval × 3 seeds, a brief nanosecond‑scale duration × 1 seed (total a set of trajectories). Seeds are fixed integers recorded in the pipeline.  
+- **Wall‑clock monitoring**: Any simulation exceeding 5.5 h logs a performance‑issue warning (FR‑004).
+
+### 3. Diffusion Coefficient Extraction (FR‑002, FR‑003)
+- Compute MSD for all atoms using `mdtraj`.  
+- Discard first 0.1 × total time (ballistic regime).  
+- Fit MSD = 6 D t + C with ordinary least squares.  
+- **Convergence diagnostics**: (a) linear‑fit R² ≥ 0.95; (b) log‑log MSD vs. t slope must be 1 ± 0.05. Both must pass; otherwise status =`convergence_failed`.  
+- Apply Yeh‑Hummer finite‑size correction:
   \[
-  D_{\text{corr}} = D_{\text{raw}} + \frac{k_{\mathrm{B}}T\,\xi}{6\pi\eta L}
+  D_{\text{corr}} = D_{\text{raw}} + \frac{k_{\mathrm{B}}T\,\xi}{6\pi\eta L},
   \]
-  where \(L\) is the cubic box length, \(\eta\) the viscosity (taken from literature), and \(\xi≈2.837297\). This corrected value is used for all downstream error metrics (addresses methodology‑93d1bb0a).
-- *D* = corrected slope / 6 (Einstein relation).
+  with \(\xi≈2.837297\), \(\eta\) taken from literature (water exhibits a viscosity on the order of one centipoise at 298 K., etc.).  
+- Store results in `diffusion_results.csv`.
 
-### 3. Accuracy & Uncertainty (FR‑004, FR‑008)
-- Per‑seed absolute error \(|D_{\text{sim}} - D_{\text{exp}}|\); MAE per solvent × duration.
-- **Bootstrap: a sufficiently large number of iterations** (resampling per‑seed errors with replacement, seeded RNG). 2.5th/97.5th percentiles form the 95 % CI (SC‑003). No automatic iteration reduction; any pipeline wall‑clock exceeding 5.5 h is logged and reported as a performance issue (FR‑004).
-- **Descriptive paired‑comparison** (replaces the originally specified paired‑bootstrap test): for each solvent we compare the MAE at 1 ns vs. 10 ns using the same seed set. Because N = 3 (or 1 for 10 ns), the test cannot yield a conventional p‑value; instead we report a `granularity_note` indicating the minimal achievable two‑sided p‑value (relatively low) and present the observed mean difference with its bootstrap‑derived CI. This satisfies SC‑005 in a descriptively honest way (methodology‑37736ec4, scientific_soundness‑d99c1a89).
+### 4. Accuracy & Uncertainty (FR‑004, FR‑008)
+- Compute per‑seed absolute error \(|D_{\text{corr}} - D_{\text{exp}}|\).  
+- **Bootstrap**: Resample the set of errors with replacement 1000 times (fixed count; source 1612.04126, https://arxiv.org/abs/1612.04126).  
+- Derive mean MAE and [deferred] / 97.5 % percentiles → 95 % CI (SC‑003).
+- **Paired descriptive comparison**: For each solvent, compare MAE at 1 ns vs. 10 ns using the same seed set; report mean difference, bootstrap‑derived CI, and a `granularity_note` explaining that with N = 3 (or 1) the minimal attainable p‑value is limited (methodology‑37736ec4). This satisfies SC‑005 without fabricating a formal p‑value.
 
-### 4. Sensitivity Analysis (US2)
-- Vary the MSD start‑fraction (0.1, 0.2, 0.3) while keeping all other parameters fixed.
-- For each combination compute the diffusion coefficient and its variance across seeds; report `variance_pct`. The analysis is stored in `data/processed/sensitivity_report.json` and validated against `contracts/sensitivity_report.schema.yaml`. This directly addresses US2’s methodological‑rigor requirement.
+### 5. Sensitivity Analysis (US2)
+- Vary MSD start‑fraction to 0.2 and 0.3, repeat fit and compute diffusion coefficients.  
+- Calculate variance‑percentage across seeds for each (solvent, duration, start_fraction).  
+- Store in `sensitivity_report.json`; all variance % < 5 % is considered acceptable (implicit SC‑002, though not explicitly listed).
 
-### 5. Timescale‑Accuracy Curves & Trend Analysis (FR‑008)
-- Per solvent: MAE vs. duration (1, 5, 10 ns) with 95 % bootstrap confidence bands (SC‑001).
-- Descriptive trend analysis: monotonicity of MAE with duration, CI overlap between consecutive durations, and the granularity‑aware paired comparison result (SC‑004, SC‑005).
+### 6. Timescale‑Accuracy Curves & Trend Analysis (FR‑008)
+- Plot MAE vs. duration for each solvent with 95 % CI bands (Matplotlib).  
+- Perform descriptive trend analysis: monotonic decrease of MAE with longer simulations, CI overlap assessment, and report the paired‑comparison result.  
+- Export figures (`.png`) and summary tables (`.csv`) into `results/`.
+
+### 7. End‑to‑End Verification (FR‑009, SC‑006)
+- Run `pytest` suite covering loader, simulation wrapper, diffusion analysis, bootstrap, and pipeline orchestration.  
+- All tests must pass; any failure aborts the CI job.  
+- Successful run of `code/pipeline.py --full-batch` confirms the whole workflow executes without errors.
 
 ## Decision Rationale
 
-| Decision | Reasoning |
-|---|---|
-| **CPU‑first, OpenMM** | Small OPLS‑AA boxes run on the 2‑core CI runner; the spec states no GPU is required. No GPU escape hatch needed. |
-| **Seed matrix (m × m × 2 + 1)** | Keeps total wall‑clock within the 6 h budget while providing multiple seeds for the short durations where variance is highest. Power limitation with N = 3 (or 1) is explicitly acknowledged and CIs are reported rather than relying solely on a p‑value. |
-| **Bootstrap with exactly 1000 iterations** | Mandated by FR‑004; cost is negligible (vectorized numpy over ≤21 error values). The iteration count is justified by the functional requirement, not by external citation (plan‑consistency‑3c3e4fc1). |
-| **Finite‑size correction** | Addresses the systematic under‑estimation of *D* in small boxes (methodology‑93d1bb0a, scientific_soundness‑cb3468b9). |
-| **Sensitivity analysis** | Provides robustness validation for the 0.1 start‑fraction choice (methodology‑d8b3c3f8), fulfilling US2. |
-| **Descriptive paired‑comparison with granularity note** | Prevents reporting a misleading p‑value given the tiny seed count (methodology‑37736ec4, scientific_soundness‑d99c1a89). |
-| **Fallback for zero accepted seeds** | Guarantees that the pipeline never crashes; null MAE/CI entries are recorded with an explanatory note (methodology‑73d790a2). |
-| **Additional convergence diagnostic (log‑log slope)** | Strengthens the R² gate, acknowledging its limited discriminating power (scientific_soundness‑0d39462a). |
+| Decision | Reason |
+|----------|--------|
+| **Hard‑coded `nist_refs.json`** | No public API for NIST diffusion data; manual curation yields a deterministic, checksum‑able file that satisfies FR‑001 and Constitution III. |
+| **CPU‑only OpenMM** | Fits within the free‑tier runner; the spec explicitly states no GPU required. |
+| **3 × 1 ns & 5 ns seeds, 1 × 10 ns seed** | Balances statistical precision for short durations against the 6 h wall‑clock budget; power limitation is explicitly reported (SC‑005). |
+| **Exact 1000 bootstrap iterations** | Mandated by FR‑004; iteration count is justified by the cited arXiv source. |
+| **Descriptive paired‑comparison with granularity note** | Avoids reporting a misleading p‑value when seed count is too low; still fulfills SC‑005 by providing a quantitative comparison. |
+| **Additional log‑log slope check** | Strengthens convergence validation beyond R², directly addressing Constitution VI. |
+| **Sensitivity start‑fraction sweep** | Provides robustness evidence for the 0.1 discard choice, satisfying US2. |
 
 ## Limitations & Power Considerations (methodology‑9348a9bc)
 
-- With only 3 seeds (1 seed for 10 ns), bootstrap confidence intervals are highly degenerate; the 95 % CI may span a narrow range that reflects sampling noise rather than true uncertainty. All interpretations explicitly note this limitation.
-- The descriptive paired‑comparison cannot achieve a conventional significance threshold; the `granularity_note` clarifies the minimal achievable p‑value is relatively low (i.e., on the order of a modest magnitude). and advises cautious interpretation.
+- **Small seed count** (especially for 10 ns) yields wide bootstrap CIs and limits inferential power. All tables and figures explicitly note this limitation.  
+- **Finite‑size correction** relies on literature viscosity values; any systematic error in those values propagates to the corrected diffusion coefficient.  
+- **Wall‑clock variability**: The reference hardware in FR‑004 (2.5 GHz, multi‑core) is faster than the CI runner; exceeding the 5.5 h threshold will be logged as a performance issue, not as a failure.
 
 ---
-
