@@ -30,5 +30,9 @@
   "pair_id": {
     "coverage_percent": 100.0,
     "low_coverage": false
+  },
+  "source": {
+    "coverage_percent": 50.0,
+    "low_coverage": true
   }
 }

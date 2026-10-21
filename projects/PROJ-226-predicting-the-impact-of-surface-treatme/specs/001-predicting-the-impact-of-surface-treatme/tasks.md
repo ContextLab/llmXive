@@ -28,7 +28,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 2 – Ingestion & Pre‑processing  
 
-- [ ] T004 [P?] [US1] Parse raw files, convert all numeric fields to SI, canonicalise `treatment_type`, one‑hot encode categorical fields (`treatment_type`, `pair_id`), median‑impute missing numeric values *per substrate class*, and flag low‑coverage columns.  
+- [ ] T004 [P?] [US1] Parse raw files, convert all numeric fields to SI, canonicalise `treatment_type`, one‑hot encode categorical fields (`treatment_type`, `pair_id`), median‑impute missing numeric values *per substrate class*, and flag low‑coverage columns.   <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
   - **Implementation**: `code/preprocess.py` writes the cleaned dataset `data/cleaned/cleaned.csv`.  
   - **Verification**:  
     - `cleaned.csv` contains exactly the columns defined in the `TreatmentRecord` schema with **no missing values** in required fields.  

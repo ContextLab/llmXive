@@ -3,7 +3,7 @@ preprocess.py
 ----------------
 Implements Task T004: parses raw CSV files, converts numeric fields to SI units,
 canonicalises treatment types, one‑hot encodes categorical columns (including
-``pair_id``), median‑imputes missing numeric values per substrate class,
+``pair_id``), median‑impute missing numeric values per substrate class,
 records imputation details, computes field‑coverage statistics, flags low‑coverage
 columns, and writes the cleaned dataset.
 
@@ -261,7 +261,7 @@ def main() -> None:
     if df.isna().any().any():
         missing_summary = df.isna().sum()
         raise RuntimeError(
-            f"Missing values remain after imputation:\n{missing_summary}"
+            f"Missing values remain after imputation:\\n{missing_summary}"
         )
     else:
         logger.info("All missing values successfully imputed.")

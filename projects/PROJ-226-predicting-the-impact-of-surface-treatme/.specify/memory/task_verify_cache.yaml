@@ -1,59 +1,27 @@
+T001:
+  c: false
+  h: 03a3e0c262deac4497a3d57f345ec057ffa69e138055029ca09c9fb20251751c
+  r: The `verify_data_source.py` script only queries Zenodo (and does so incorrectly,
+    yielding errors) and never attempts to download or check the NIST or Materials
+    Project datasets. It also deliberately writes an empty `availability_report.json`
+    and does not cause a CI failure when required columns are missing, contrary to
+    the task specification that CI must fail if any dataset lacks a required variable.
+    Consequently the required verification of **each** dataset is not performed.
+  sig: a24cd1cd4f8291706715218acb80fffd8305ef4d8a661111cac654ca3cb3befb
 T002:
   c: false
-  h: 3d4dfa6d41c5d891e6750cdeaf0c88f9c2d44533eb59a91ca5f86906af269840
-  r: "The script `code/download_data.py` exists and looks functional, but the required\
-    \ deliverable \u2014 actual downloaded raw datasets under `data/raw/<source>.csv`\
-    \ \u2014 does not exist: no CSV files match `data/raw/*.csv`. The `data/raw/checksums.txt`\
-    \ references `example_dataset.csv` whose checksum matches `data/source/example.csv`\
-    \ (a 3-row synthetic-looking file), while the availability report `data/source/availability_report.json`\
-    \ contains `\"datasets\": []`, meaning the script as-is would exit with status\
-    \ 1 and no verified real dataset from T001 was ever downloaded. The checksums.txt\
-    \ appears fabricated/l"
-  sig: e47ea49c36e099bba4991dbc684dfe00149f6dc729b6d722c5417ee076bd6e0d
+  h: 93340092f45c94f6477518319d6632433923a18dedc5c9b57b2a88fc005773a1
+  r: "The required raw files `data/raw/nist.csv`, `data/raw/zenodo.csv`, and `data/raw/materials_project.csv`\
+    \ are missing, and `data/raw/checksums.txt` only lists a checksum for `example.csv`\
+    \ rather than the three expected source CSVs. Consequently the task\u2019s core\
+    \ requirement is not satisfied."
+  sig: 46a46819dcbe2954555c24337744b684c356670ea113383b62f7364314c63c4c
 T003:
   c: false
-  h: b107ed1cd03d19e10e20107601ee99d67c67309f55692661f2b6c9730aad177f
-  r: "The required output artifacts `data/raw/<source>_units.json` do not exist \u2014\
-    \ the collector found no files matching `data/raw/*_units.json`, and the execution\
-    \ log confirms the script found 0 CSV files in `data/raw/` and exited without\
-    \ producing anything. The raw data actually resides at `data/source/example.csv`,\
-    \ so the script's `data/raw/` glob never sees it; the implementer must either\
-    \ point the script at the actual raw CSV location (or copy/place raw CSVs into\
-    \ `data/raw/`) and re-run so real per-source units JSON files are generated."
-  sig: df3065231a8ffc71e2e60fe87af59c45590b17440baa2ef83e2923d3accf8418
-T004:
-  c: true
-  h: aa5ea703f179e9aa39e7f9c70cd38d2b9c5fab20f97342682b497e5531326474
-  r: 'I checked `code/preprocess.py` (implements SI conversion, canonicalisation,
-    one-hot encoding, per-substrate-class median imputation, coverage flagging) and
-    the three output artifacts: `cleaned.csv` contains all TreatmentRecord schema
-    columns plus one-hot `treatment_type_*` and `pair_id_*` columns with no missing
-    values, `imputation_log.json` records per-column per-class medians (empty because
-    the raw fixture had no missing values), and `field_coverage.json` reports coverage
-    percentages with `low_coverage` flags per the <80% rule. The outputs are consistent
-    with the code''s logic and the small r'
-  sig: 9f73b465821740bdfb2918ea56740fc8c3d4cf74c58f0d4e5fde3b03247b82f7
-T007:
-  c: false
-  h: 3c1f5b1fb2e342c190d5c533b9304186acac943be59d82939794532f3e2062f3
-  r: "The execution log shows the script found only 3 rows of cleaned data, an empty\
-    \ validation split, and zero model files, so it wrote a \"default null result\"\
-    \ \u2014 `best_model.json` contains `null` for cv_r2_mean/std, validation_r2/rmse,\
-    \ empty hyperparameters, and `null_result: false` despite no CV R\xB2 being computed\
-    \ at all. No k-fold CV R\xB2 was ever calculated for any model, and the passing\
-    \ test only checks field presence, not real values. The implementer must actually\
-    \ train/discover models, compute cross-validated R\xB2 with the same folds, and\
-    \ populate the JSON with real metrics (setting `null_result: "
-  sig: 401d445101265cb31dce5c51eff11a28ca2ef248e401f1cf024e2086d39825bf
-T008:
-  c: false
-  h: 2ea51e12f1662c19b0450acfd235c320386adec98cef0e75433df54470ca7243
-  r: "The three artifact JSONs exist (naming `randomforest_artifact.json` vs `rf_artifact.json`\
-    \ is acceptable per \"e.g.\"), but the required schema `contracts/model_artifact.schema.yaml`\
-    \ is MISSING, so validation cannot be verified. More substantively, `models/best_model.json`\
-    \ names RandomForest (test_r2 = 0.0) as best when LinearRegression's own artifact\
-    \ reports test_r2 = 0.988 \u2014 the best model's test metrics were not correctly\
-    \ copied. Additionally, the split summary shows 0 train/validation records (all\
-    \ pair groups excluded) and the test set is only 3 rows, so the reported test\
-    \ metrics (with null v"
-  sig: 48c0ebac65aa7f362d3a08c507bbf8b1f08754dfe793b6e0b95372d6c213329e
+  h: 963ebd2fb00df7ecca9ccd38cb28c764172888e9b5d6e32437bd59d18a75c276
+  r: "The execution log shows the script ran successfully and created `data/raw/adhesion_raw_units.json`,\
+    \ but the task requires a file named `data/raw/adhesion_units.json`. That exact\
+    \ JSON file is missing, so the required artifact is not present. The implementer\
+    \ must generate the correctly\u2011named `adhesion_units.json` (or rename the\
+    \ existing file) to satisfy the task."
+  sig: a81708541783d97d45f323d99a30811dad08a7bda309bc5e2fa1af0fe8c45de2

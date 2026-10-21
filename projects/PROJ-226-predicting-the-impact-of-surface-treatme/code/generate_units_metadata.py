@@ -1,16 +1,21 @@
 """
 generate_units_metadata.py
 
-Reads each raw CSV file under ``data/raw/`` and creates a JSON file
-``data/raw/<source>_units.json`` that maps each column name to its
-declared SI unit.
+Reads each raw CSV file under ``data/raw/`` (or falls back to ``data/source/`` if
+``data/raw/`` is empty) and creates a JSON file ``data/raw/<source>_units.json``
+that maps each column name to its declared SI unit.
 
 The script validates that:
   * All required columns are present (ignoring surrounding whitespace).
   * All numeric columns contain only numeric data (no stray strings).
-If any of these checks fail a ``UnitMismatchError`` is raised, aborting
-the pipeline **unless at least one valid source is found**. In that case
-invalid sources are skipped and a warning is logged.
+  * Unit declarations are consistent across all sources.
+
+If any of these checks fail a ``UnitMismatchError`` is raised, aborting the
+pipeline unless at least one valid source is found. In that case invalid
+sources are skipped and a warning is logged.
+
+The generated JSON files are used by downstream preprocessing steps to
+convert values to SI units.
 """
 
 import json
@@ -53,7 +58,7 @@ UNITS_MAP: Dict[str, str] = {
 # ----------------------------------------------------------------------
 class UnitMismatchError(Exception):
     """Raised when a column is missing or contains non‑numeric data where a
-    numeric unit is expected."""
+    numeric unit is expected, or when unit declarations differ across sources."""
     pass
 
 # ----------------------------------------------------------------------
@@ -68,10 +73,37 @@ def _setup_logger() -> logging.Logger:
 LOG = _setup_logger()
 
 def _list_raw_csv_files() -> List[Path]:
-    """Return a list of all CSV files in the ``data/raw`` directory."""
+    """
+    Return a list of CSV files to process.
+
+    The primary location is ``data/raw``.  If that directory contains no
+    CSV files, we fall back to ``data/source`` and copy any found CSVs
+    into ``data/raw`` so that downstream steps see a consistent layout.
+    """
     raw_dir = paths.data("raw")
+    source_dir = paths.data("source")
     csv_files = list(raw_dir.glob("*.csv"))
-    LOG.info("Found %d raw CSV file(s) in %s", len(csv_files), raw_dir)
+
+    if csv_files:
+        LOG.info("Found %d raw CSV file(s) in %s", len(csv_files), raw_dir)
+        return csv_files
+
+    # Fallback: copy from source to raw
+    source_csvs = list(source_dir.glob("*.csv"))
+    if not source_csvs:
+        LOG.warning("No CSV files found in either %s or %s.", raw_dir, source_dir)
+        return []
+
+    LOG.info("No raw CSVs found; copying %d file(s) from %s to %s",
+             len(source_csvs), source_dir, raw_dir)
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    for src_path in source_csvs:
+        dest_path = raw_dir / src_path.name
+        dest_path.write_bytes(src_path.read_bytes())
+        LOG.info("Copied %s -> %s", src_path, dest_path)
+
+    csv_files = list(raw_dir.glob("*.csv"))
+    LOG.info("After copy, %d raw CSV file(s) are available.", len(csv_files))
     return csv_files
 
 def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -91,16 +123,12 @@ def _validate_columns(df: pd.DataFrame, source_name: str) -> None:
 
 def _validate_numeric_columns(df: pd.DataFrame, source_name: str) -> None:
     """Check that columns expected to be numeric contain only numeric data."""
-    # Treat any unit that is not 'category' as numeric (including '%')
     numeric_cols = [
         col for col, unit in UNITS_MAP.items() if unit != "category"
     ]
     for col in numeric_cols:
         if col not in df.columns:
             continue
-        # ``pd.to_numeric`` will coerce non‑numeric values to NaN when
-        # ``errors='coerce'`` is used. We then check if any NaNs were produced.
-        # We only care about values that were NOT NaN in the original data.
         original_nans = df[col].isna()
         coerced = pd.to_numeric(df[col], errors="coerce")
         new_nans = coerced.isna()
@@ -131,14 +159,20 @@ def main() -> None:
     If a source is missing required columns or contains non‑numeric data,
     the source is skipped *unless* no other valid sources exist, in which
     case a ``UnitMismatchError`` is raised to abort the pipeline.
+
+    After processing all valid sources, the function checks that the unit
+    declarations are identical across sources.  Any discrepancy raises
+    ``UnitMismatchError``.
     """
     csv_files = _list_raw_csv_files()
     if not csv_files:
-        LOG.warning("No raw CSV files found – nothing to process.")
+        LOG.warning("No CSV files to process – exiting.")
         return
 
     processed_any = False
     first_error: Optional[UnitMismatchError] = None
+    # Keep a mapping source_name -> units dict for cross‑source consistency check
+    all_units: Dict[str, Dict[str, str]] = {}
 
     for csv_path in csv_files:
         source_name = csv_path.stem  # filename without extension
@@ -173,10 +207,11 @@ def main() -> None:
             col: UNITS_MAP.get(col, "unknown") for col in df.columns
         }
 
-        # Destination JSON path
+        # Destination JSON path (must live alongside the CSV in data/raw/)
         json_path = csv_path.with_name(f"{source_name}_units.json")
         _write_units_json(units_metadata, json_path)
 
+        all_units[source_name] = units_metadata
         processed_any = True
 
     if not processed_any:
@@ -184,6 +219,22 @@ def main() -> None:
         raise first_error or UnitMismatchError(
             "No valid CSV files with required columns were found."
         )
+
+    # ------------------------------------------------------------------
+    # Cross‑source unit consistency check
+    # ------------------------------------------------------------------
+    reference_source = next(iter(all_units))
+    reference_units = all_units[reference_source]
+
+    for src, units in all_units.items():
+        for col, unit in reference_units.items():
+            other_unit = units.get(col)
+            if other_unit != unit:
+                raise UnitMismatchError(
+                    f"Unit mismatch for column '{col}': source '{reference_source}' "
+                    f"uses '{unit}' but source '{src}' uses '{other_unit}'."
+                )
+    LOG.info("All sources share consistent unit metadata.")
 
     LOG.info("Unit‑metadata generation completed successfully.")
 

@@ -1,83 +1,51 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/verify_data_source.py
-    exit=1'
-  task: 2dc382125d8cf31690702877306193ffecc1d42b6ea510731970df69e9556e14
+  reason: The `verify_data_source.py` script only queries Zenodo (and does so incorrectly,
+    yielding errors) and never attempts to download or check the NIST or Materials
+    Project datasets. It also deliberately writes an empty `availability_report.json`
+    and does not cause a CI failure when required columns are missing, contrary to
+    the task specification that CI must fail if any dataset lacks a required variable.
+    Consequently the required verification of **each** dataset is not performed.
+  task: 2f7d2fc60b6b7c8744556df90f267dd1b18297710b373e7377b08ce659fa1149
 T002:
-  reason: "The script `code/download_data.py` exists and looks functional, but the\
-    \ required deliverable \u2014 actual downloaded raw datasets under `data/raw/<source>.csv`\
-    \ \u2014 does not exist: no CSV files match `data/raw/*.csv`. The `data/raw/checksums.txt`\
-    \ references `example_dataset.csv` whose checksum matches `data/source/example.csv`\
-    \ (a 3-row synthetic-looking file), while the availability report `data/source/availability_report.json`\
-    \ contains `\"datasets\": []`, meaning the script as-is would exit with status\
-    \ 1 and no verified real dataset from T001 was ever downloaded. The checksums.txt\
-    \ appears fabricated/l"
-  task: cd437c73880ffbdad3de5ce0afa7748a935ce318a1501c9747bbefb2ee5b7e39
+  reason: "The required raw files `data/raw/nist.csv`, `data/raw/zenodo.csv`, and\
+    \ `data/raw/materials_project.csv` are missing, and `data/raw/checksums.txt` only\
+    \ lists a checksum for `example.csv` rather than the three expected source CSVs.\
+    \ Consequently the task\u2019s core requirement is not satisfied."
+  task: 367cbef7a3a713d130a4536d5929ac900653366a08b8c39616ce945d47471653
 T003:
-  reason: "The required output artifacts `data/raw/<source>_units.json` do not exist\
-    \ \u2014 the collector found no files matching `data/raw/*_units.json`, and the\
-    \ execution log confirms the script found 0 CSV files in `data/raw/` and exited\
-    \ without producing anything. The raw data actually resides at `data/source/example.csv`,\
-    \ so the script's `data/raw/` glob never sees it; the implementer must either\
-    \ point the script at the actual raw CSV location (or copy/place raw CSVs into\
-    \ `data/raw/`) and re-run so real per-source units JSON files are generated."
-  task: bcaec96891cf7f5ddf0145cfeebcc2f9db65bb3a4c8c68dda13f43b04f514186
+  reason: "The execution log shows the script ran successfully and created `data/raw/adhesion_raw_units.json`,\
+    \ but the task requires a file named `data/raw/adhesion_units.json`. That exact\
+    \ JSON file is missing, so the required artifact is not present. The implementer\
+    \ must generate the correctly\u2011named `adhesion_units.json` (or rename the\
+    \ existing file) to satisfy the task."
+  task: 8567ef56ccfc198d7ed4688f717f2d71c1e000c35cd11fd0e3f26d1d66334e04
 T004:
-  task: 4997593b89c900c42cedf2967380dd04f8de6e8ff3e4d5988a87fe406f7c2e2b
+  reason: 'Requested task execution failed; rerun successfully: code/preprocess.py
+    exit=1'
+  task: 7822412fe3d7ff7b8b0ed4335fe57059f5a051a4e9495f25a8dc47482f768d4a
 T005:
-  reason: "The split outputs are 2/0/1 records (66.67%/0%/33.33%), which violates\
-    \ the required 70/15/15 proportion within 1% tolerance \u2014 `val.csv` is empty\
-    \ (header only), and `split_summary.json` itself records `\"validation\": 0`.\
-    \ Additionally, the script's fallback bypassed FR-011: the log shows all 3 groups\
-    \ were excluded for having <5 records, but the code then reverted to the full\
-    \ dataset, so the exclusion rule was not actually applied. The implementer needs\
-    \ a cleaned dataset with enough records per pair (or must handle the tiny fixture\
-    \ without silently skipping the sparsity filter) so that non-empty,"
-  task: 092f4f062b78e9fc22037047a2437b5378a443b771f91291073dd4a1af12ebc5
+  task: 72d252d5d37a4dd83c2d097a08602eda8480bfa4a88b0d158ad3ac1c91dc84b8
 T006:
-  reason: "The script ran (exit 0, 17 combos \u2264 50) and models plus `grid_search_results.json`\
-    \ exist, but the required 95% bootstrapped CIs are `[NaN, NaN]` for every one\
-    \ of the 17 entries \u2014 the validation set contained only 1 record (fallback\
-    \ 80/20 split of a 3-row dataset), so R\xB2 is degenerate (0.0 for all models)\
-    \ and the bootstrap CI was never actually computed. The task requires recorded\
-    \ validation R\xB2, RMSE, and a real bootstrapped CI; the deliverable needs a\
-    \ validation set with \u22652 (realistically many more) records so meaningful\
-    \ metrics and CIs can be produced."
-  task: f3406879d3b4539cbe12dff265296ea9f5f61f20ec7ba477fd2916ee79d4502e
+  task: aa635df82a81fa4963b98ffb061711f5394fb713b00fd344a5bf97450d03caa3
 T007:
-  reason: "The execution log shows the script found only 3 rows of cleaned data, an\
-    \ empty validation split, and zero model files, so it wrote a \"default null result\"\
-    \ \u2014 `best_model.json` contains `null` for cv_r2_mean/std, validation_r2/rmse,\
-    \ empty hyperparameters, and `null_result: false` despite no CV R\xB2 being computed\
-    \ at all. No k-fold CV R\xB2 was ever calculated for any model, and the passing\
-    \ test only checks field presence, not real values. The implementer must actually\
-    \ train/discover models, compute cross-validated R\xB2 with the same folds, and\
-    \ populate the JSON with real metrics (setting `null_result:"
-  task: d552ecffe2e0e38de5781e3b80665a4c5d9f707789af04177b0bb071bdda5797
+  task: 2a82a76a947e0bd42adcb6ea1eaee6b45b80912e26180b249c7ddf93c45a816d
 T008:
-  reason: "The three artifact JSONs exist (naming `randomforest_artifact.json` vs\
-    \ `rf_artifact.json` is acceptable per \"e.g.\"), but the required schema `contracts/model_artifact.schema.yaml`\
-    \ is MISSING, so validation cannot be verified. More substantively, `models/best_model.json`\
-    \ names RandomForest (test_r2 = 0.0) as best when LinearRegression's own artifact\
-    \ reports test_r2 = 0.988 \u2014 the best model's test metrics were not correctly\
-    \ copied. Additionally, the split summary shows 0 train/validation records (all\
-    \ pair groups excluded) and the test set is only 3 rows, so the reported test\
-    \ metrics (with null v"
-  task: e775531e951af4913261f33fb6d753dd89694b85567e6ca1861ff78ecccfed47
+  task: 40cff5fba1df5dc53dc6003e0c100fd84d1d2e7eb49ee92adf415bd7885fd248
 T009:
-  task: bf7bf2e1ec5ddf030a2bcc1ab636c3787e4cebb8adc2a9d59c482af72d3cb0ea
+  task: 301c0f35d75a5b031892309be8e68c81b3e0642aac915dbb6c15e23e624b042b
 T010:
-  task: c0cbbc6dd10326074435e4f40055b63839808a22c33d7476c7e2debe7e103128
+  task: b67ef0edc37367093aaae241bdc351e22127b355d124286bddfe7453c6133db4
 T011:
-  task: 12feaf47cfffe0febdb4ac566fe9bd9a13de9f8314abea1bf759f4442cc2cc70
+  task: 37fe9e32f4172b6a688605ee69e19aff73ed05613c1857d4346bb138dbbec522
 T012:
-  task: 5c8aeb381908109a782744f04c62d0b744767ecfa3a8e49d59ab944772d1a268
+  task: d8c770ba51c43eafddab54ba6a060b91ff0dcc4f71020c4fd7925305f49a3229
 T013:
-  task: 283165c6f34f05a1c0cf8606d9d4cd6c7cb7a25322ca74eed527986672bcdc7a
+  task: 4cc915e841cf5e200d005f14c1f73752be580a377834d4b5a725bc595e72c2d9
 T014:
-  task: 7e9a90a94d1f5831568a21a02d20c002f7e689f608ece74b75c89a7ccf40a897
+  task: f2d8a6b7535ae05986cfe539488302cd9102d1f85c6bbf6f1f625d49d368c7a5
 T015:
-  task: ab9562e3ea2b74abda3d2399b84b7b3546997c8f520d9ad154153447a31fc537
+  task: f46f68dffa470e8c1e5bfd21b6fea93d79c0fd38bfcc3d4c1950f69fbeafa068
 T016:
-  task: bd837c1967dfb9019d266a772e6064299cb8c2b3e9dcac247e1b7eeb0d283143
+  task: 77f5f78883a035b03233c015c46bdecbee4e7c72f58b471125d4f6da0f72c20d
 T017:
-  task: e3126eee0f4ee70e6f106b99020e395cfc96551c754b7a27989049524a6f1791
+  task: d7d622d0fb126bf7acb39dde002475e216e5d8097f2e8c92265660966369c239

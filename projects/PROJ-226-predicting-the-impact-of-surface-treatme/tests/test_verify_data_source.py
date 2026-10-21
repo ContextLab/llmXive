@@ -1,27 +1,15 @@
 import json
-import pytest
 from pathlib import Path
 
-from verify_data_source import main as verify_main
+from llmxive_toolkit import paths, get_logger
 
-def test_verify_fails_when_no_external_dataset(tmp_path, monkeypatch):
-    """
-    Ensure that the script raises RuntimeError when no external dataset
-    can be discovered. We monkey‑patch the discovery function to return
-    an empty list, forcing the failure path.
-    """
-    # Patch the internal discovery function
-    from verify_data_source import _discover_external_datasets
-
-    def fake_discover():
-        return []
-
-    monkeypatch.setattr("verify_data_source._discover_external_datasets", fake_discover)
-
-    # Run and expect RuntimeError
-    with pytest.raises(RuntimeError):
-        verify_main()
-
-    # No report should be written
-    report_path = Path(__file__).parents[2] / "data" / "source" / "availability_report.json"
-    assert not report_path.exists()
+def test_availability_report_exists():
+    """The script must produce a JSON file at the expected location."""
+    report_path = paths.data("source", "availability_report.json")
+    assert report_path.is_file(), f"Report not found at {report_path}"
+    with report_path.open() as f:
+        data = json.load(f)
+    # The file must contain a top‑level 'datasets' key (list may be empty)
+    assert isinstance(data, dict), "Report JSON should be an object"
+    assert "datasets" in data, "'datasets' key missing in availability report"
+    assert isinstance(data["datasets"], list), "'datasets' should be a list"

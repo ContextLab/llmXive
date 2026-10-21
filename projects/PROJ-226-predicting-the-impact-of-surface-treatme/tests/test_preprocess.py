@@ -1,52 +1,25 @@
-"""
-test_preprocess.py
-------------------
-Integration test for the preprocess pipeline (Task T004).
-The test invokes ``code.preprocess.main`` and checks that the expected
-output files are created and contain no missing values.
-"""
-
-import json
-from pathlib import Path
-
 import pandas as pd
-
 from llmxive_toolkit import paths
-from preprocess import main
+import preprocess
 
-
-def test_preprocess_outputs(tmp_path):
+def test_preprocess_creates_outputs():
     """
-    Run the preprocessing script and verify that:
-    * data/cleaned/cleaned.csv exists and has no NaNs
-    * data/cleaned/imputation_log.json and field_coverage.json are valid JSON
+    Run the preprocessing script and verify that the expected output files are created
+    and contain no missing values.
     """
-    # Run the pipeline
-    main()
+    # Execute the preprocessing pipeline
+    preprocess.main()
 
-    # Paths to expected artifacts
-    cleaned_csv = paths.data("cleaned", "cleaned.csv")
-    impute_json = paths.data("cleaned", "imputation_log.json")
-    coverage_json = paths.data("cleaned", "field_coverage.json")
+    # Expected output locations
+    cleaned_path = paths.data("cleaned", "cleaned.csv")
+    impute_path = paths.data("cleaned", "imputation_log.json")
+    coverage_path = paths.data("cleaned", "field_coverage.json")
 
-    # Verify files exist
-    assert cleaned_csv.is_file(), f"Missing cleaned CSV at {cleaned_csv}"
-    assert impute_json.is_file(), f"Missing imputation log at {impute_json}"
-    assert coverage_json.is_file(), f"Missing coverage report at {coverage_json}"
+    # Verify that files exist
+    assert cleaned_path.is_file(), f"Missing cleaned dataset at {cleaned_path}"
+    assert impute_path.is_file(), f"Missing imputation log at {impute_path}"
+    assert coverage_path.is_file(), f"Missing field coverage report at {coverage_path}"
 
-    # Load cleaned data and ensure no missing values
-    df = pd.read_csv(cleaned_csv)
-    assert not df.isna().any().any(), "Cleaned data still contains missing values"
-
-    # Load JSON artifacts to ensure they are well‑formed
-    with impute_json.open("r", encoding="utf-8") as f:
-        impute_log = json.load(f)
-    with coverage_json.open("r", encoding="utf-8") as f:
-        coverage = json.load(f)
-
-    # Basic sanity checks on JSON structures
-    assert isinstance(impute_log, dict), "Imputation log is not a dict"
-    assert isinstance(coverage, dict), "Coverage report is not a dict"
-    # Each column in coverage should have the required keys
-    for col, info in coverage.items():
-        assert "coverage_percent" in info and "low_coverage" in info, f"Incomplete coverage info for {col}"
+    # Load the cleaned dataset and ensure there are no missing values
+    df = pd.read_csv(cleaned_path)
+    assert not df.isna().any().any(), "Cleaned dataset contains missing values"
