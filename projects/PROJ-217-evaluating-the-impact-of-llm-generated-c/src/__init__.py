@@ -1,1 +1,1 @@
-# src package initializer
+"""Source package for the llm-comments readability study."""

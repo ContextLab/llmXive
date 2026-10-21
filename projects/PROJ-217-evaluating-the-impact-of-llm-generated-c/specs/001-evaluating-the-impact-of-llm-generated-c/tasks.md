@@ -6,7 +6,7 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
 
 ---
 
-- [ ] T001 [US1] **Download & validate CodeSearchNet Python snippets (including validation pass)** <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+- [ ] T001 [US1] **Download & validate CodeSearchNet Python snippets (including validation pass)** <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   *Implement* `src/data/download.py` that:
   - Downloads the verified CodeSearchNet Python parquet files via `hf_hub_download(repo_id="code_search_net", repo_type="dataset", filename="python/train-00000-of-00001.parquet")` with a 3‑attempt retry loop that **RAISES** on final failure (no synthetic fallback).
   - Parses using pandas/pyarrow with column‑tolerant mapping: accepts either `code`/`docstring` or `func_name`/`func_code_string`/`func_documentation_string`. If neither set matches, abort with an explicit error listing actual columns.

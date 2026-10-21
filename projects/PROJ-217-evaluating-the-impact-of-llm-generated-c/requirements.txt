@@ -1,19 +1,4 @@
-# Project dependencies
-# Core libraries (already in the base environment) are omitted.
-huggingface_hub==0.23.2
-tqdm==4.66.5
-pyarrow==16.1.0
-# The following are required for downstream tasks but are already available in the runner:
-# pandas, numpy, scipy, matplotlib, scikit-learn, statsmodels, nltk, rouge_score, sentence-transformers, tiktoken, textstat
-# They are listed here for completeness and reproducibility.
-pandas==2.2.2
-nltk==3.8.1
-rouge_score==0.1.2
-sentence-transformers==2.7.0
-tiktoken==0.7.0
-textstat==0.7.3
-statsmodels==0.14.2
-scikit-learn==1.5.0
-matplotlib==3.9.0
-scipy==1.13.1
-# Pin versions to ensure reproducibility.
+huggingface-hub>=0.23.2
+pandas>=2.2.0
+pyarrow>=16.0.0
+PyYAML>=6.0

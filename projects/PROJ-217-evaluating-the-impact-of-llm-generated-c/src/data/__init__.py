@@ -1,1 +1,1 @@
-# data subpackage initializer
+"""Data acquisition and processing modules."""

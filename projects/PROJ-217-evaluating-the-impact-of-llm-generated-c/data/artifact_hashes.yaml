@@ -1,5 +1,1 @@
-# SHA-256 checksums of the source parquet files under data/.
-# This manifest starts empty (bootstrap); the download script records the
-# observed checksum of each fetched parquet file on first run and verifies
-# every subsequent run against the recorded values.
-{}
+python/train-00000-of-00001.parquet: ad9e3a4ab10c2c1d8926d2b26ca2bfcc3aadda1477ba29a933391f93806b9fed

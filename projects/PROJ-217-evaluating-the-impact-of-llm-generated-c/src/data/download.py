@@ -4,27 +4,29 @@ src.data.download
 Downloads a deterministic sample of the CodeSearchNet Python dataset
 (via the verified parquet file on Hugging Face), validates records,
 writes raw and validated JSONL files, logs the process, and records
-SHA‑256 checksums of the source artifact.
+SHA-256 checksums of the source artifact.
 
 Run via:
     python -m src.data.download
 
-The script exits with a non‑zero status if the download fails after
+The script exits with a non-zero status if the download fails after
 three attempts, if the checksum verification fails, or if fewer than
 150 valid snippets are obtained.
 """
 
 import hashlib
 import json
+import os
 import random
+import re
 import sys
+import time
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
 
 import pandas as pd
 import yaml
-from huggingface_hub import hf_hub_download, HfHubError
-from tqdm import tqdm
+from huggingface_hub import hf_hub_download
 
 from llmxive_toolkit import paths, get_logger
 
@@ -33,22 +35,13 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-REPO_ID = "codeparrot/code-search-net"
+REPO_ID = "code_search_net"
 REPO_TYPE = "dataset"
 FILENAME = "python/train-00000-of-00001.parquet"
 MAX_RETRIES = 3
-RETRY_BACKOFF = 60  # seconds
+RETRY_BACKOFF = 30  # seconds (base)
 
-PROJECT_SEED = int(
-    Path.cwd()
-    .joinpath("project_seed.txt")
-    .read_text()
-    .strip()
-    if Path.cwd().joinpath("project_seed.txt").exists()
-    else "42"
-)
-random.seed(PROJECT_SEED)
-
+PROJECT_SEED = int(os.environ.get("PROJECT_SEED", "42"))
 N_SNIPPETS = 500
 MIN_VALID_SNIPPETS = 150
 
@@ -62,13 +55,12 @@ LOG_OUTPUT = paths.data("dataset_preparation.log")
 # Helper functions
 # ----------------------------------------------------------------------
 def _sha256(file_path: Path) -> str:
-    """Compute SHA‑256 checksum of *file_path*."""
+    """Compute SHA-256 checksum of *file_path*."""
     h = hashlib.sha256()
-    with file_path.open("rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest()
-
 
 def _load_hash_manifest() -> Dict[str, str]:
     """Load (or bootstrap) the artifact hash manifest."""
@@ -77,40 +69,38 @@ def _load_hash_manifest() -> Dict[str, str]:
             return yaml.safe_load(f) or {}
     return {}
 
-
 def _save_hash_manifest(manifest: Dict[str, str]) -> None:
     """Persist the artifact hash manifest."""
     with HASHES_OUTPUT.open("w", encoding="utf-8") as f:
         yaml.safe_dump(manifest, f, default_flow_style=False, sort_keys=True)
 
-
 def _download_parquet() -> Path:
     """Download the parquet file with a retry loop; raise on final failure."""
+    last_exc = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             log.info(
-                f"Attempt {attempt}/{MAX_RETRIES}: downloading {FILENAME} from {REPO_ID}"
+                "Attempt %d/%d: downloading %s from %s",
+                attempt, MAX_RETRIES, FILENAME, REPO_ID,
             )
             parquet_path = hf_hub_download(
                 repo_id=REPO_ID,
                 repo_type=REPO_TYPE,
                 filename=FILENAME,
             )
-            log.info(f"Downloaded parquet to {parquet_path}")
+            log.info("Downloaded parquet to %s", parquet_path)
             return Path(parquet_path)
-        except HfHubError as e:
-            log.error(f"Download attempt {attempt} failed: {e}")
-            if attempt == MAX_RETRIES:
-                raise RuntimeError(
-                    f"Failed to download {FILENAME} after {MAX_RETRIES} attempts"
-                ) from e
-            else:
-                import time
-
+        except Exception as e:  # noqa: BLE001 - retry any transient failure
+            last_exc = e
+            log.error("Download attempt %d failed: %s", attempt, e)
+            if attempt < MAX_RETRIES:
                 backoff = RETRY_BACKOFF * (2 ** (attempt - 1))
-                log.info(f"Retrying after {backoff}s...")
+                log.info("Retrying after %ss...", backoff)
                 time.sleep(backoff)
-
+    raise RuntimeError(
+        f"Failed to download {FILENAME} from {REPO_ID} after "
+        f"{MAX_RETRIES} attempts: {last_exc}"
+    ) from last_exc
 
 def _map_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -123,7 +113,7 @@ def _map_columns(df: pd.DataFrame) -> pd.DataFrame:
     cols = set(df.columns)
     if {"code", "docstring"}.issubset(cols):
         return df[["code", "docstring"]].copy()
-    elif {"func_code_string", "func_documentation_string"}.issubset(cols):
+    if {"func_code_string", "func_documentation_string"}.issubset(cols):
         mapped = df.rename(
             columns={
                 "func_code_string": "code",
@@ -131,35 +121,37 @@ def _map_columns(df: pd.DataFrame) -> pd.DataFrame:
             }
         )
         return mapped[["code", "docstring"]].copy()
-    else:
-        raise RuntimeError(
-            f"Unexpected column set {sorted(cols)} – expected either "
-            "`code`/`docstring` or `func_code_string`/`func_documentation_string`."
-        )
+    raise RuntimeError(
+        f"Unexpected column set {sorted(cols)} - expected either "
+        "`code`/`docstring` or "
+        "`func_code_string`/`func_documentation_string`."
+    )
 
-
-def _is_valid_docstring(doc: str) -> bool:
+def _is_valid_docstring(doc) -> bool:
     """
     Validation rules for a docstring:
-    - Non‑empty after stripping.
-    - Does not consist solely of a boilerplate like ``TODO`` (case‑insensitive).
+    - Non-empty after stripping.
+    - Does not consist solely of a boilerplate like ``TODO`` (case-insensitive).
     - Does not look like a bare type signature (heuristic: contains only
       a type name and optional brackets/commas).
     """
-    stripped = doc.strip()
+    if not isinstance(doc, str):
+        return False
+    stripped = doc.strip().strip('"').strip("'").strip()
     if not stripped:
         return False
     lowered = stripped.lower()
-    if lowered == "todo" or lowered == '"""todo"""':
+    if lowered in {"todo", "todo:", "fixme", "fixme:", "none", "pass", "n/a"}:
         return False
     # Heuristic for a bare type signature: e.g. ``int`` or ``List[int]``
-    import re
-
     if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*(\[[^\]]+\])?", stripped):
-        # If it looks like a single identifier (or generic), treat as invalid
+        return False
+    # Bare signature with commas, e.g. ``int, str`` or ``Dict[str, int]``
+    if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*(\[[^\]]+\])?"
+                    r"(\s*,\s*[A-Za-z_][A-Za-z0-9_]*(\[[^\]]+\])?)*",
+                    stripped):
         return False
     return True
-
 
 def _write_jsonl(records: List[Dict], out_path: Path) -> None:
     """Write a list of dicts as JSON Lines."""
@@ -167,7 +159,6 @@ def _write_jsonl(records: List[Dict], out_path: Path) -> None:
         for rec in records:
             json.dump(rec, f, ensure_ascii=False)
             f.write("\n")
-
 
 # ----------------------------------------------------------------------
 # Main workflow
@@ -182,18 +173,18 @@ def main() -> None:
     if key in manifest:
         if manifest[key] != checksum:
             log.error(
-                f"Checksum mismatch for {key}: expected {manifest[key]}, got {checksum}"
+                "Checksum mismatch for %s: expected %s, got %s",
+                key, manifest[key], checksum,
             )
             raise RuntimeError("Checksum verification failed")
-        else:
-            log.info(f"Checksum verified for {key}")
+        log.info("Checksum verified for %s", key)
     else:
-        log.info(f"Recording new checksum for {key}")
+        log.info("Recording new checksum for %s", key)
         manifest[key] = checksum
         _save_hash_manifest(manifest)
 
     # 2. Load parquet with tolerant column mapping
-    log.info(f"Loading parquet file {parquet_path}")
+    log.info("Loading parquet file %s", parquet_path)
     df_raw = pd.read_parquet(parquet_path, engine="pyarrow")
     df_mapped = _map_columns(df_raw)
 
@@ -201,20 +192,25 @@ def main() -> None:
     total_available = len(df_mapped)
     if total_available == 0:
         raise RuntimeError("Parquet file contains no records after column mapping")
-    indices = list(range(total_available))
-    random.shuffle(indices)
-    selected_indices = indices[: min(N_SNIPPETS, total_available)]
+    rng = random.Random(PROJECT_SEED)
+    selected_indices = sorted(
+        rng.sample(range(total_available), min(N_SNIPPETS, total_available))
+    )
     df_selected = df_mapped.iloc[selected_indices].reset_index(drop=True)
 
     # 4. Validation & partitioning
-    raw_records = []
-    valid_records = []
-    excluded_records = []
+    raw_records: List[Dict] = []
+    valid_records: List[Dict] = []
+    excluded_records: List[Dict] = []
 
     for idx, row in df_selected.iterrows():
         code = row["code"]
         doc = row["docstring"]
-        snippet_id = f"snippet_{idx:06d}"
+        if not isinstance(code, str):
+            code = "" if code is None else str(code)
+        if not isinstance(doc, str):
+            doc = "" if doc is None or (isinstance(doc, float) and pd.isna(doc)) else str(doc)
+        snippet_id = f"snippet_{int(idx):06d}"
 
         raw_records.append(
             {"snippet_id": snippet_id, "code": code, "human_comment": doc}
@@ -249,28 +245,40 @@ def main() -> None:
     # 5. Write outputs
     _write_jsonl(raw_records, RAW_OUTPUT)
     _write_jsonl(valid_records, VALIDATED_OUTPUT)
-    _write_jsonl(excluded_records, EXCLUDED_OUTPUT)
+    with EXCLUDED_OUTPUT.open("w", encoding="utf-8") as f:
+        json.dump(excluded_records, f, ensure_ascii=False, indent=2)
 
     # 6. Log summary
     total = len(raw_records)
     valid = len(valid_records)
     excluded = len(excluded_records)
+    processed_ratio = (valid / total) if total else 0.0
+    sc006_compliant = (
+        valid >= MIN_VALID_SNIPPETS and processed_ratio >= 0.90
+    ) or valid >= MIN_VALID_SNIPPETS
 
     log_msg = (
-        f"Dataset preparation completed. Total records processed: {total}\\n"
-        f"Valid snippets: {valid}\\n"
-        f"Excluded records: {excluded}\\n"
-        f"Checksum recorded for {FILENAME}: {checksum}\\n"
+        "Dataset preparation completed.\n"
+        f"PROJECT_SEED: {PROJECT_SEED}\n"
+        f"Source: {REPO_ID}/{FILENAME}\n"
+        f"SHA-256 checksum: {checksum}\n"
+        f"Total records processed: {total}\n"
+        f"Valid snippets: {valid}\n"
+        f"Excluded records: {excluded}\n"
+        f"Valid/total ratio: {processed_ratio:.3f}\n"
+        f"SC-006 compliance (>= {MIN_VALID_SNIPPETS} valid snippets, "
+        f"target {N_SNIPPETS}): {'PASS' if sc006_compliant else 'FAIL'}\n"
     )
-    log.info(log_msg)
+    log.info(log_msg.replace("\n", " | "))
 
     with LOG_OUTPUT.open("w", encoding="utf-8") as log_f:
         log_f.write(log_msg)
 
-    # 7. Sanity check per SC‑006 (minimum valid snippets)
+    # 7. Sanity check per SC-006 (minimum valid snippets)
     if valid < MIN_VALID_SNIPPETS:
         log.error(
-            f"Only {valid} valid snippets were extracted (minimum required is {MIN_VALID_SNIPPETS})."
+            "Only %d valid snippets were extracted (minimum required is %d).",
+            valid, MIN_VALID_SNIPPETS,
         )
         raise RuntimeError("Insufficient valid snippets")
 
@@ -280,6 +288,6 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e:
+    except Exception:
         log.exception("Fatal error during dataset preparation")
         sys.exit(1)
