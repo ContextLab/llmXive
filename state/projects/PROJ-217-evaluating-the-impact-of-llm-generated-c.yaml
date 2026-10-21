@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T19:28:39.524089Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-217-evaluating-the-impact-of-llm-generated-c
-last_run_id: b4688677-bb66-4a2c-ad9e-9e639145dd15
+last_run_id: 5855c359-107a-4de7-bc76-886a64e3245a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-217-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c
 title: Evaluating the Impact of LLM-Generated Code Comments on Code Readability
-updated_at: '2026-10-21T10:24:54.921504Z'
+updated_at: '2026-10-21T10:27:09.364207Z'
