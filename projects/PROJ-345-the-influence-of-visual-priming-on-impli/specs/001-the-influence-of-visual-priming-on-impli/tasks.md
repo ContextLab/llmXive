@@ -11,13 +11,13 @@ description: "Task list for feature implementation – The Influence of Visual P
 
 Goal: Initialise the project, install dependencies, and verify that the logging subsystem creates a real log file.
 
-- [ ] **T001** [P] Create the core data directories (`data/raw`, `data/processed`, `data/primes`, `data/targets`).  
+- [X] **T001** [P] Create the core data directories (`data/raw`, `data/processed`, `data/primes`, `data/targets`).  
   - **Verification**: `ls data/raw data/processed data/primes data/targets` lists each directory.
 
 - [ ] **T002** [P] Create the code, tests, and state directories (`code/`, `tests/`, `state/`).  
   - **Verification**: `ls code tests state` lists the expected sub‑folders.
 
-- [ ] **T003** [P] Write `requirements.txt` with the pinned package list from the plan and create a virtual environment that installs those requirements.  
+- [ ] **T003** [P] Write `requirements.txt` with the pinned package list from the plan and create a virtual environment that installs those requirements.   <!-- FAILED-IN-EXECUTION: code/setup_env.py exit=1 -->
   - **Verification**: `cat requirements.txt` contains the exact list; `pip list` shows the pinned versions; `python -c "import pandas"` runs without error.
 
 - [ ] **T004** [P] Configure linting (ruff), formatting (black), and pre‑commit hooks.  
