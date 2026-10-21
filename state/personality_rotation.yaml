@@ -1,12 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-10-21T18:11:16.121983+00:00'
+last_used: albert-einstein
+last_used_at: '2026-10-21T20:05:30.692043+00:00'
 last_outcome: committed
 history:
-- slug: david-krakauer
-  started_at: '2026-06-28T15:32:58.242572+00:00'
-  ended_at: '2026-06-28T16:00:08.056476+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: eric-kandel
   started_at: '2026-06-28T16:00:08.056476+00:00'
   ended_at: '2026-06-28T16:31:16.836782+00:00'
@@ -1334,3 +1329,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/reviews/research/alan-turing-simulated__2026-10-21__research.md
+- slug: albert-einstein
+  started_at: '2026-10-21T18:11:16.121983+00:00'
+  ended_at: '2026-10-21T20:05:30.692043+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-187-evaluating-the-statistical-properties-of/reviews/research/albert-einstein-simulated__2026-10-21__research.md
