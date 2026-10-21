@@ -1,47 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "EvaluationMetrics"
-description: "Schema for model evaluation metrics."
+description: "Schema for model evaluation metrics and statistical test results."
 type: "object"
 properties:
   model_name:
     type: "string"
-    description: "Name of the model (e.g., 'attention', 'baseline_fingerprint')."
+    description: "Identifier of the evaluated model (e.g., 'attention', 'fingerprint_baseline')."
   rmse:
     type: "number"
-    description: "Root Mean Squared Error."
+    minimum: 0
+    description: "Root Mean Squared Error on the test set."
   mae:
     type: "number"
-    description: "Mean Absolute Error."
+    minimum: 0
+    description: "Mean Absolute Error on the test set."
   r_squared:
     type: "number"
-    description: "R-squared value."
-  p_value:
-    type: "number"
-    description: "P-value from paired t-test (if applicable)."
-  bonferroni_adjusted_p:
-    type: "number"
-    description: "Bonferroni-adjusted p-value."
+    description: "Coefficient of determination (R²)."
   wilcoxon_p_value:
     type: "number"
-    description: "P-value from Wilcoxon signed-rank test."
+    description: "P‑value from the Wilcoxon signed‑rank test."
+  bonferroni_adjusted_p:
+    type: "number"
+    description: "P‑value after Bonferroni correction (α = 0.0167)."
   permutation_r_squared:
     type: "number"
-    description: "R-squared from permutation test (should be < 0.05)."
+    description: "Mean R² from the 100‑shuffle permutation null test (should be < 0.05)."
   attention_peak_correlation:
     type: "number"
     description: "Pearson correlation between attention weights and yield residuals."
-  top_peaks_nist_match:
+  top_peaks_nist_match_percent:
     type: "number"
-    description: "Percentage of top 5 attention peaks matching NIST functional groups (within ±50 cm⁻¹) or simulation injection points."
+    minimum: 0
+    maximum: 100
+    description: "Percentage of top‑5 attention peaks matching NIST functional‑group frequencies within tolerance."
   vif_score:
     type: "number"
-    description: "Variance Inflation Factor between spectral and fingerprint inputs."
-  partial_correlation_coef:
-    type: "number"
-    description: "Partial correlation between spectra and yield, controlling for fingerprints."
+    description: "Variance Inflation Factor for predictor collinearity (≤ 5 acceptable)."
 required:
   - model_name
   - rmse
   - mae
   - r_squared
+  - wilcoxon_p_value
+  - bonferroni_adjusted_p
+  - permutation_r_squared
 additionalProperties: false

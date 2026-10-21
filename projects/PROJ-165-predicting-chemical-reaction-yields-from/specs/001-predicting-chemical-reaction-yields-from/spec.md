@@ -18,7 +18,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** the USPTO‑50k SMILES list, **When** the ingestion script runs, **Then** it retains only reactions with complete IR and ¹H‑NMR spectra for every reactant and product, logs the counts, and halts with `DATA_INSUFFICIENT` if the final dataset size is < 300 or failure rate > 80 %.
-2. **Given** the raw spectra, **When** the preprocessing step runs, **Then** all IR spectra are resampled to 400–4000 cm⁻¹ at 1 cm⁻¹ intervals and all NMR spectra to 0–10 ppm at 0.01 ppm intervals, with each spectrum normalized to unit variance.
+2. **Given** the raw spectra, **When** the preprocessing step runs, **Then** All IR spectra are resampled to span the conventional mid‑infrared window, from its low‑frequency limit to 4000 cm⁻¹, at 1 cm⁻¹ intervals. and all NMR spectra to 0–10 ppm at 0.01 ppm intervals, with each spectrum normalized to unit variance.
 3. **Given** the split indices, **When** the scaffold‑overlap check runs, **Then** the training, validation, and test sets contain disjoint Bemis‑Murcko scaffolds and zero overlapping reaction‑template IDs (reported in `leakage_report.json`).
 
 ---

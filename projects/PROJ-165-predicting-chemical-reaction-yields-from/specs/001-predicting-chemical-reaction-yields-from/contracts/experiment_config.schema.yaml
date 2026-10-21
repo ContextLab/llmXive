@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ExperimentConfig"
-description: "Schema for the experiment configuration file."
+description: "Configuration schema for the entire experiment pipeline."
 type: "object"
 properties:
   model:
@@ -8,10 +8,10 @@ properties:
     properties:
       num_heads:
         type: "integer"
-        description: "Number of attention heads."
+        description: "Number of self‑attention heads."
       hidden_dim:
         type: "integer"
-        description: "Hidden dimension size."
+        description: "Hidden dimension size of the transformer encoder."
       num_layers:
         type: "integer"
         description: "Number of transformer layers."
@@ -24,13 +24,16 @@ properties:
     properties:
       learning_rate:
         type: "number"
-        format: float
+        description: "Adam learning rate."
       batch_size:
         type: "integer"
+        description: "Mini‑batch size."
       max_epochs:
         type: "integer"
+        description: "Maximum number of training epochs."
       early_stopping_patience:
         type: "integer"
+        description: "Patience for early stopping on validation RMSE."
     required:
       - learning_rate
       - batch_size
@@ -41,13 +44,13 @@ properties:
     properties:
       train_split:
         type: "number"
-        description: "Fraction for training (e.g., 0.7)."
+        description: "Fraction of data allocated to training (e.g., 0.7)."
       val_split:
         type: "number"
-        description: "Fraction for validation (e.g., 0.15)."
+        description: "Fraction allocated to validation (e.g., 0.15)."
       test_split:
         type: "number"
-        description: "Fraction for testing (e.g., 0.15)."
+        description: "Fraction allocated to testing (e.g., 0.15)."
       seed:
         type: "integer"
         description: "Random seed for reproducibility."

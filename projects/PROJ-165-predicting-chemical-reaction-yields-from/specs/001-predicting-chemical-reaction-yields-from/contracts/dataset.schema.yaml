@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ReactionSample"
-description: "Schema for a single reaction sample in the processed dataset. Includes simulated data."
+description: "Schema for a single reaction sample in the processed dataset."
 type: "object"
 properties:
   id:
@@ -18,33 +18,33 @@ properties:
     type: "array"
     items:
       type: "number"
-    minItems: 200
-    maxItems: 200
-    description: "Resampled IR spectrum (400-4000 cm-1)."
+    minItems: a sufficiently large number of items
+    maxItems: 1000
+    description: "Resampled IR spectrum (400-4000 cm-1, 1 cm-1 step)."
   nmr_spectrum:
     type: "array"
     items:
       type: "number"
-    minItems: 200
-    maxItems: 200
-    description: "Resampled NMR spectrum (0-10 ppm)."
-  raman_spectrum:
+    minItems: a sufficiently large number of items
+    maxItems: 1000
+    description: "Resampled ¹H‑NMR spectrum (0-10 ppm, 0.01 ppm step)."
+  fingerprint:
     type: "array"
     items:
-      type: "number"
-    minItems: 200
-    maxItems: 200
-    description: "Resampled Raman spectrum (400-4000 cm-1)."
+      type: "integer"
+    minItems: a sufficiently large value to meet the study’s requirements.
+    maxItems: 1024
+    description: "ECFP4 fingerprint vector."
   rfp:
     type: "array"
     items:
       type: "integer"
     minItems: 1024
     maxItems: 1024
-    description: "ECFP4 fingerprint vector."
+    description: "Alias for fingerprint (ECFP4) to support legacy code."
   reaction_template_id:
     type: "string"
-    description: "Hash of the reaction center substructure."
+    description: "Hash of the reaction‑template identifier."
   solvent_id:
     type: "integer"
     description: "Encoded solvent category."
@@ -54,24 +54,15 @@ properties:
   temperature_k:
     type: "number"
     description: "Reaction temperature in Kelvin."
-  source:
-    type: "string"
-    enum:
-      - "DFT_Simulated"
-      - "Unknown"
-    description: "Origin of the data."
-  is_simulated:
-    type: "boolean"
-    description: "Flag indicating if data is from DFT simulation."
 required:
   - id
   - reaction_smiles
   - yield_percent
   - ir_spectrum
   - nmr_spectrum
-  - raman_spectrum
-  - rfp
+  - fingerprint
   - reaction_template_id
-  - source
-  - is_simulated
+  - solvent_id
+  - catalyst_id
+  - temperature_k
 additionalProperties: false
