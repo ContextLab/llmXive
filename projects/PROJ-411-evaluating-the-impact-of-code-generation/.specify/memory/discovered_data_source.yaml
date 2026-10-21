@@ -1,19 +1,19 @@
 status: none
-intent: download PRs-v2-sample GitHub pull request provenance dataset python package
+intent: download GHTorrent pull request dataset with provenance labels python package
   dataset
 required_fields:
 - repository_name
 - pull_request_id
 - creation_timestamp
 - merge_timestamp
-- author_username
 - comment_count
 - additions
 - deletions
-- total_lines_changed
-- review_timestamp_list
-- commit_message
+- review_timestamps
+- provenance_label
 - file_header_attribution
-cache_key: f33866c57fd04338f32a01787981a856ed7c7c70beec2dfc73a940cd321ed338
-searched_at: '2026-10-21T05:09:47.629499+00:00'
+- diff_pattern_match
+- commit_message
+cache_key: 56d408f5cb8e3753629deaf1195714367aaa50341e4c5167f31a8ecc1a5bcc81
+searched_at: '2026-10-21T08:09:59.580018+00:00'
 retry_count: 1

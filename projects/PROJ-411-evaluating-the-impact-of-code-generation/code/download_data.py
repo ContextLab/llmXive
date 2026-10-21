@@ -79,9 +79,9 @@ def _normalize_name(name: str) -> str:
     return name.lower().replace("_", "")
 
 # ----------------------------------------------------------------------
-def find_parquet_file(repo_id: str) -> str:
+def list_parquet_files(repo_id: str) -> List[str]:
     """
-    Return the first file ending with '.parquet' in the given repository.
+    Return a list of all parquet files in the given repository.
     Raises if none is found.
     """
     log.info(f"Listing files for repo {repo_id}")
@@ -89,27 +89,40 @@ def find_parquet_file(repo_id: str) -> str:
     parquet_files = [f for f in files if f.lower().endswith(".parquet")]
     if not parquet_files:
         raise RuntimeError(f"No parquet file found in repository {repo_id}")
-    # Prefer a file named 'data.parquet' if present
-    for candidate in parquet_files:
-        if os.path.basename(candidate) == "data.parquet":
-            return candidate
-    # Fallback to the first parquet file
-    return parquet_files[0]
+    # Prefer a file named 'data.parquet' if present, but still return all.
+    return parquet_files
 
 # ----------------------------------------------------------------------
-def download_parquet(repo_id: str, dest_path: Path) -> Path:
+def download_and_combine_parquet(repo_id: str, dest_path: Path) -> Path:
     """
-    Download the parquet file from ``repo_id`` into ``dest_path``.
-    Returns the path to the downloaded file.
+    Download all parquet files from ``repo_id``, concatenate them into a single
+    DataFrame, and write the combined parquet to ``dest_path``.
+    Returns the path to the combined parquet file.
     """
-    parquet_file = find_parquet_file(repo_id)
-    log.info(f"Downloading {parquet_file} from {repo_id}")
-    local_path = hf_hub_download(
-        repo_id=repo_id, filename=parquet_file, repo_type="dataset"
-    )
+    parquet_files = list_parquet_files(repo_id)
+
+    data_frames: List[pd.DataFrame] = []
+    for parquet_file in parquet_files:
+        log.info(f"Downloading {parquet_file} from {repo_id}")
+        local_path = hf_hub_download(
+            repo_id=repo_id, filename=parquet_file, repo_type="dataset"
+        )
+        # Read the parquet; let pandas infer engine (pyarrow is installed)
+        df = pd.read_parquet(local_path, engine="pyarrow")
+        data_frames.append(df)
+
+    if not data_frames:
+        raise RuntimeError(f"Failed to load any parquet data from {repo_id}")
+
+    # Concatenate all shards (ignore index to avoid duplicate indices)
+    combined_df = pd.concat(data_frames, ignore_index=True)
+
+    # Ensure destination directory exists
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-    # Copy to the canonical location inside the project
-    dest_path.write_bytes(Path(local_path).read_bytes())
+    # Write combined DataFrame to parquet (use pyarrow engine)
+    combined_df.to_parquet(dest_path, engine="pyarrow", index=False)
+    log.info(f"Combined parquet written to {dest_path}")
+
     return dest_path
 
 # ----------------------------------------------------------------------
@@ -184,20 +197,20 @@ def main() -> None:
         dest_filename = repo_id.replace("/", "__") + ".parquet"
         dest_path = raw_dir / dest_filename
 
-        # Download
-        downloaded_path = download_parquet(repo_id, dest_path)
+        # Download and combine all parquet shards
+        combined_path = download_and_combine_parquet(repo_id, dest_path)
 
         # Compute checksum
-        checksum = compute_sha256(downloaded_path)
-        checksum_dict[downloaded_path] = checksum
-        log.info(f"Checksum for {downloaded_path.name}: {checksum}")
+        checksum = compute_sha256(combined_path)
+        checksum_dict[combined_path] = checksum
+        log.info(f"Checksum for {combined_path.name}: {checksum}")
 
         # Load and validate columns
         try:
-            df = pd.read_parquet(downloaded_path, engine="pyarrow")
+            df = pd.read_parquet(combined_path, engine="pyarrow")
         except Exception as e:
             raise RuntimeError(
-                f"Failed to read parquet file {downloaded_path}: {e}"
+                f"Failed to read combined parquet file {combined_path}: {e}"
             ) from e
 
         col_status = validate_columns(df, REQUIRED_FIELDS)
