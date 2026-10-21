@@ -91,6 +91,34 @@ def write_metadata(
     logger.info("Wrote metadata to %s", metadata_path)
 
 
+def normalise_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Normalise column names: upper‑case and strip underscores.
+    Also map common alternate names to the canonical set.
+    """
+    # First normalise to upper case without underscores
+    df.columns = [col.upper().replace("_", "") for col in df.columns]
+
+    # Alias mapping: key = alternate name, value = canonical name
+    alias_map = {
+        "SN": "ID",
+        "NAME": "ID",
+        "ZCMB": "ZHD",
+        "REDSHIFT": "ZHD",
+        "MUERR": "MUERR",
+        "MUERR": "MUERR",
+        "MUERROR": "MUERR",
+    }
+
+    # Apply aliases where needed
+    cols = list(df.columns)
+    for i, col in enumerate(cols):
+        if col in alias_map:
+            cols[i] = alias_map[col]
+    df.columns = cols
+    return df
+
+
 def verify_columns(df: pd.DataFrame) -> None:
     """
     Raise if any required column is missing.
@@ -98,7 +126,7 @@ def verify_columns(df: pd.DataFrame) -> None:
     The Pantheon+ release sometimes uses underscores (e.g. ``MU_ERR``);
     we normalise column names by stripping underscores before checking.
     """
-    norm_cols = {col.upper().replace("_", "") for col in df.columns}
+    norm_cols = set(df.columns)
     missing = REQUIRED_COLUMNS - norm_cols
     if missing:
         raise ValueError(f"Missing required columns in dataset: {missing}")
@@ -213,8 +241,8 @@ def main() -> None:
         logger.error("Failed to read Pantheon+ file: %s", exc)
         raise
 
-    # Normalise column names (upper‑case, strip underscores) for robust checking
-    df.columns = [col.upper().replace("_", "") for col in df.columns]
+    # Normalise column names (upper‑case, strip underscores) and map aliases
+    df = normalise_columns(df)
     verify_columns(df)
 
     # Cast numeric columns
