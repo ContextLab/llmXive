@@ -23,7 +23,6 @@ The log file `logs/lint.txt` is used as evidence for **SC‑001**.
 
 ### 0. Layout & Directory Setup
 ```bash
-# Ensure result directories exist
 mkdir -p data/results/fork_points data/results/validation data/results/report
 ```
 
@@ -99,13 +98,10 @@ If the CI environment detects a free Kaggle GPU, the permutation step in `forkpo
 
 | Symptom | Likely Cause | Fix |
 |---|---|---|
-| `download_data.py` exits with error | GEO accession metadata endpoint temporarily unavailable | Rerun later; the script retries up to 5 times and logs failures. |
+| `download_data.py` exits with error | GEO metadata endpoint temporarily unavailable | Rerun later; the script retries up to 5 times and logs failures. |
 | QC filter removes zero cells | Mitochondrial gene list missing a gene format | The script now uses a curated list covering Ensembl IDs **and** `MT-` prefixes; ensure the raw `genes.tsv` file is present. |
 | scVelo fails or hangs | Missing spliced/unspliced layers or convergence issues | Check `logs/velocity.log`; the script retries with higher regularization; if still failing, the dataset will be flagged `alignment_status: "failed"` and excluded from cross‑dataset validation. |
-| No enrichment results | `therapy_response` column was mistakenly used; now the external signature is used exclusively. | Rerun the enrichment step; it will produce results consistent with the cited literature. |
+| No enrichment results | Previously used an unverified PMID signature; now using the verified gene‑set from the `GSE (json)` resource. | Rerun the enrichment step; it will produce results consistent with the verified source. |
 | Report missing disclaimer | Custom modification of `report.py` | The provided script automatically inserts the FR‑009 disclaimer; ensure you are using the unmodified version. |
 
 ---
-
-
-

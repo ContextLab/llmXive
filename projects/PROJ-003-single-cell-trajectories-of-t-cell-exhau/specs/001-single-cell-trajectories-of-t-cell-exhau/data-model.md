@@ -1,7 +1,7 @@
 # Data Model: Single-Cell Trajectories of T-Cell Exhaustion
 
 ## Overview
-Canonical entities and artifacts stored under `data/`, each validated against a JSON‑Schema contract (see `contracts/dataset.schema.yaml`). All transformations produce new immutable files; raw inputs remain unchanged (Constitution III).
+Canonical entities and artifacts stored under `data/`, each validated against a JSON‑Schema contract (see `contracts/*.schema.yaml`). All transformations produce new immutable files; raw inputs remain unchanged (Constitution III).
 
 ## Entities
 
@@ -26,9 +26,6 @@ Canonical entities and artifacts stored under `data/`, each validated against a 
 9. **Report** → `data/results/report/final_report.html` (+ figures).  
 10. **Manifest** → `data/manifest.yaml` (lists every artifact above with its SHA‑256 hash and records the global random seed).  
 
-All artifacts are schema‑validated in CI; `data/results/` is part of the committed skeleton (satisfies T001). The manifest file satisfies Principle IV by providing a unique reference for every downstream figure and statistic.
+All artifacts are schema‑validated in CI; `data/results/` is part of the committed skeleton (satisfies T001). The manifest satisfies Principle IV by providing a unique reference for every downstream figure and statistic.
 
 ---
-
-
-
