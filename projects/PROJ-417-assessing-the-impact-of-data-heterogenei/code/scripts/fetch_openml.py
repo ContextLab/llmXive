@@ -16,17 +16,18 @@ and writes a clean CSV to ``data/raw/cochrane_base.csv``.
 Failure behaviour
 -----------------
 Any download, parsing, or validation error raises ``FileNotFoundError``.
-The CLI exits with a non‑zero status, as required by task T001.
+The CLI exits with a non‑zero status, as required by task T001.
 No synthetic fallback is provided.
 """
 import csv
 import sys
-from io import BytesIO, StringIO
+from io import StringIO
 from pathlib import Path
 from typing import List, Dict
 
 import pandas as pd
 import requests
+import numpy as np
 
 from llmxive_toolkit import paths
 
@@ -48,13 +49,6 @@ MIN_ROWS = 5
 def _download_dataset() -> pd.DataFrame:
     """Download the dataset from OpenML and return it as a DataFrame.
 
-    The OpenML file for ID 4210 is known to contain occasional malformed
-    rows (extra delimiters).  We therefore read the content with pandas
-    using ``on_bad_lines='skip'`` which drops any rows that do not conform
-    to the inferred delimiter.  This keeps the script deterministic while
-    still raising an error if the resulting DataFrame is empty or missing
-    required columns.
-
     Raises:
         FileNotFoundError: If the download fails or the content cannot be
                            parsed as a CSV/TSV table.
@@ -68,12 +62,10 @@ def _download_dataset() -> pd.DataFrame:
             f"{OPENML_DATASET_ID} from {SOURCE_URL}: {exc}"
         ) from exc
 
-    # Decode bytes to string for pandas; we keep original bytes for fallback
-    # detection of delimiter if needed.
     content = response.content.decode("utf-8", errors="replace")
 
-    # First try to let pandas infer the separator.
     try:
+        # Try to infer separator (handles CSV/TSV)
         df = pd.read_csv(
             StringIO(content),
             sep=None,
@@ -82,20 +74,10 @@ def _download_dataset() -> pd.DataFrame:
             on_bad_lines="skip",
         )
     except Exception as exc:
-        # If inference fails, fall back to a strict comma‑separated read.
-        try:
-            df = pd.read_csv(
-                StringIO(content),
-                sep=",",
-                engine="python",
-                comment="#",
-                on_bad_lines="skip",
-            )
-        except Exception as exc2:
-            raise FileNotFoundError(
-                f"REAL_DATA_FETCH_FAILED: unable to parse the downloaded "
-                f"OpenML dataset {OPENML_DATASET_ID}: {exc2}"
-            ) from exc2
+        raise FileNotFoundError(
+            f"REAL_DATA_FETCH_FAILED: unable to parse the downloaded "
+            f"OpenML dataset {OPENML_DATASET_ID}: {exc}"
+        ) from exc
 
     if df.empty:
         raise FileNotFoundError(
@@ -103,65 +85,52 @@ def _download_dataset() -> pd.DataFrame:
         )
 
     # Normalise column names to lower case and strip whitespace.
-    df = df.rename(columns=lambda x: x.strip().lower())
+    df = df.rename(columns=lambda x: str(x).strip().lower())
     return df
 
 
 def _validate_and_normalise(df: pd.DataFrame) -> pd.DataFrame:
     """Ensure the DataFrame contains the required columns and rename them.
 
-    The source may use different naming conventions (e.g., ``yi``/``sei``).
-    This function maps any recognised aliases to the canonical names.
-
     Raises:
         FileNotFoundError: If required columns are missing or insufficient rows.
     """
-    # Possible aliases for the required fields.
+    # Broadened alias map to cover common meta-analysis naming conventions
     alias_map = {
-        "effect_size": ["effect_size", "yi", "effect", "log_or"],
-        "standard_error": ["standard_error", "sei", "se"],
-        "study_id": ["study_id", "id", "trial", "study"],
+        "effect_size": ["effect_size", "yi", "effect", "log_or", "estimate", "mean", "beta"],
+        "standard_error": ["standard_error", "sei", "se", "stderr", "std_err", "std_error"],
+        "study_id": ["study_id", "id", "trial", "study", "name", "index"],
     }
 
-    # Build a mapping from existing column to the canonical name.
     col_mapping: Dict[str, str] = {}
     for canonical, aliases in alias_map.items():
+        found = False
         for col in df.columns:
             if col in aliases:
                 col_mapping[col] = canonical
+                found = True
                 break
-        else:
-            # No matching column found for this canonical name.
+        if not found:
             raise FileNotFoundError(
                 f"REAL_DATA_FETCH_FAILED: required column '{canonical}' "
-                f"(or any of its aliases {aliases}) not found in dataset."
+                f"(or any of its aliases {aliases}) not found in dataset. "
+                f"Found columns: {list(df.columns)}"
             )
 
-    # Apply the mapping.
+    # Apply the mapping
     df = df.rename(columns=col_mapping)
 
-    # Keep only the canonical columns (extra columns are ignored).
-    df = df[list(REQUIRED_COLUMNS.intersection(df.columns))]
+    # Keep only the canonical columns
+    df = df[list(REQUIRED_COLUMNS)]
 
-    if len(df) < MIN_ROWS:
-        raise FileNotFoundError(
-            f"REAL_DATA_FETCH_FAILED: downloaded data contains fewer than "
-            f"{MIN_ROWS} usable rows (got {len(df)})."
-        )
-
-    # Verify numeric types for effect size and SE.
+    # Ensure numeric types and handle non-finite values
     for col in ("effect_size", "standard_error"):
-        if not pd.api.types.is_numeric_dtype(df[col]):
-            raise FileNotFoundError(
-                f"REAL_DATA_FETCH_FAILED: column '{col}' must be numeric."
-            )
+        df[col] = pd.to_numeric(df[col], errors='coerce')
 
-    # Remove rows with non‑finite values.
+    # Drop rows with NaNs in essential columns
     df = df.dropna(subset=["effect_size", "standard_error"])
-    df = df[
-        df["effect_size"].apply(pd.api.types.is_number)
-        & df["standard_error"].apply(pd.api.types.is_number)
-    ]
+
+    # Filter for positive standard errors to avoid division by zero in downstream estimators
     df = df[df["standard_error"] > 0]
 
     if len(df) < MIN_ROWS:
@@ -185,26 +154,18 @@ def fetch_base_dataset() -> Path:
     raw_df = _download_dataset()
     df = _validate_and_normalise(raw_df)
 
-    # Ensure a study identifier column exists; if not, create one.
+    # Ensure a study identifier column exists and is clean
     if "study_id" not in df.columns or df["study_id"].isnull().all():
         df = df.reset_index().rename(columns={"index": "study_id"})
         df["study_id"] = df["study_id"].apply(lambda x: f"study_{int(x)+1}")
+    else:
+        df["study_id"] = df["study_id"].astype(str)
 
     # Write the cleaned CSV with the exact column order expected downstream.
-    with open(OUTPUT_PATH, "w", newline="") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=["study_id", "effect_size", "standard_error"],
-        )
-        writer.writeheader()
-        for _, row in df.iterrows():
-            writer.writerow(
-                {
-                    "study_id": row["study_id"],
-                    "effect_size": row["effect_size"],
-                    "standard_error": row["standard_error"],
-                }
-            )
+    # Use index=False to avoid adding an extra column.
+    df[["study_id", "effect_size", "standard_error"]].to_csv(
+        OUTPUT_PATH, index=False, quoting=csv.QUOTE_MINIMAL
+    )
 
     print(f"Wrote {len(df)} studies (effect size + SE) -> {OUTPUT_PATH}")
     print(f"Source citation: {SOURCE_CITATION}")
@@ -222,6 +183,10 @@ def main() -> int:
         return 0
     except FileNotFoundError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
+        print("=" * 60)
+        return 1
+    except Exception as exc:
+        print(f"UNEXPECTED ERROR: {exc}", file=sys.stderr)
         print("=" * 60)
         return 1
 

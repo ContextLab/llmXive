@@ -1,11 +1,12 @@
 status: none
-intent: "download Cochrane meta\u2011analysis study\u2011level effect size dataset\
-  \ python package dataset"
+intent: download Cochrane meta-analysis study level effect size dataset python package
 required_fields:
 - study_id
 - effect_size
 - standard_error
 - sample_size
-cache_key: d137db692cecc6071a96b26d2659b3147167d877e9c1ee3f31c0784ef5f5c44d
-searched_at: '2026-10-20T11:18:51.184683+00:00'
+- outcome
+- study_variance
+cache_key: 09cefbd33fceb0b4398af52bc5045614bb7b4a33b9b3bab747d23e213dc61b43
+searched_at: '2026-10-21T09:11:28.817591+00:00'
 retry_count: 1
