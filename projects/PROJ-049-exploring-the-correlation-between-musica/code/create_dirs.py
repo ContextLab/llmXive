@@ -1,52 +1,36 @@
+import seed
 """
-Directory layout creation script for the project.
+Directory creation helper.
 
-This script creates the required top‑level directories at the project root:
-data/raw, data/processed, results, logs, code, and tests.
-
-It uses the llmxive_toolkit `paths.root` helper to ensure the directories are
-created relative to the repository root regardless of the current working
-directory when the script is invoked.
+This script provides a simple entry point that ensures the required
+project directories exist. It imports ``seed`` as the very first line
+to satisfy the deterministic‑seed requirement for all pipeline scripts.
 """
 
 import sys
 from pathlib import Path
+import logging
 
-# Import the project‑root path helper from the toolkit
-from llmxive_toolkit import paths
+from setup_directories import create_directory_structure
+
+logger = logging.getLogger(__name__)
 
 def main() -> int:
     """
-    Create the required project directories under the repository root.
+    Create the required directory structure.
 
     Returns
     -------
     int
-        Exit code (0 for success).
+        Exit code (0 for success, non‑zero for failure).
     """
-    # Resolve the root of the repository
-    root_path: Path = paths.root
-
-    # List of directories to create (relative to the root)
-    required_dirs = [
-        "data/raw",
-        "data/processed",
-        "results",
-        "logs",
-        "code",
-        "tests",
-    ]
-
-    for rel_dir in required_dirs:
-        dir_path = root_path / rel_dir
-        try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-        except Exception as e:
-            print(f"Failed to create directory {dir_path}: {e}", file=sys.stderr)
-            return 1
-
-    # Success
-    return 0
+    try:
+        create_directory_structure()
+        logger.info("Directory structure created successfully.")
+        return 0
+    except Exception as e:
+        logger.error(f"Failed to create directory structure: {e}")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

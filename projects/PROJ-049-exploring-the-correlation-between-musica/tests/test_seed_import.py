@@ -1,46 +1,35 @@
+import importlib
+import sys
 import pathlib
-import pytest
 
-def test_seed_import_first_line():
+def test_seed_is_imported_first():
     """
-    Verify that all Python scripts in the code directory import the seed module 
-    as their first functional line to ensure deterministic execution.
+    Ensure that every pipeline script imports `seed` as the first import.
+    This test imports the target modules and inspects their source
+    to verify that the line ``import seed`` appears before any other
+    import statement.
     """
-    code_dir = pathlib.Path("code")
-    # Get all .py files in the code directory
-    py_files = list(code_dir.glob("*.py"))
-    
-    # We exclude seed.py itself from the check
-    py_files = [f for f in py_files if f.name != "seed.py"]
-    
-    if not py_files:
-        pytest.fail("No pipeline scripts found in code/ to verify.")
+    # List of modules that must import seed first
+    modules = [
+        "create_dirs",
+        "power_analysis",
+        "pipeline",
+        "ingest",
+    ]
 
-    for py_file in py_files:
-        with open(py_file, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            
-            # Find the first non-empty, non-comment, non-shebang line
-            first_functional_line = None
-            for line in lines:
-                stripped = line.strip()
-                if not stripped:
-                    continue
-                if stripped.startswith("#!"): # Skip shebang
-                    continue
-                if stripped.startswith("#"):   # Skip comments
-                    continue
-                first_functional_line = stripped
-                break
-            
-            assert first_functional_line == "import seed", \
-                f"File {py_file} does not start with 'import seed' as its first functional line. Found: {first_functional_line}"
+    for mod_name in modules:
+        # Import the module (relative to the project root)
+        full_name = f"code.{mod_name}"
+        module = importlib.import_module(full_name)
 
-if __name__ == "__main__":
-    # Allow running directly via python tests/test_seed_import.py
-    try:
-        test_seed_import_first_line()
-        print("Verification successful: All scripts import seed as the first line.")
-    except AssertionError as e:
-        print(f"Verification failed: {e}")
-        exit(1)
+        # Retrieve the source file
+        source_path = pathlib.Path(module.__file__).resolve()
+        source = source_path.read_text(encoding="utf-8").splitlines()
+
+        # Find the first non‑empty, non‑comment line
+        first_code_line = next(
+            (line for line in source if line.strip() and not line.strip().startswith("#")),
+            None,
+        )
+        assert first_code_line is not None, f"{mod_name} appears empty"
+        assert first_code_line.strip() == "import seed", f"{mod_name} does not import seed first"

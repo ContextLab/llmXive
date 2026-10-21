@@ -1,7 +1,7 @@
 {
   "task_id": "T004",
   "fingerprint": "0d58557ff8b371958caae14fb3563fc2c6b6328120deb6f839f600570bfbb8d7",
-  "count": 1,
-  "model": "google.gemma-4-31B-it",
+  "count": 2,
+  "model": "openai.gpt-oss-120b",
   "reason": "[implementer] refusing to write 'code/power_analysis.py': imports nonexistent names from sibling files: `from utils import setup_logging` (available: seed). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
 }

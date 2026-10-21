@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project scaffolding & reproducibility  
 
-- [X] **T001** [US‑1] **Create project directory layout**  
+- [ ] **T001** [US‑1] **Create project directory layout**  
   *Create the following folders at the repository root:* `data/raw/`, `data/processed/`, `results/`, `logs/`, `code/`, `tests/`.  
   **Verification**:  
   ```bash
@@ -20,11 +20,11 @@
   PY
   ```
 
-- [X] **T002** **Pin exact dependency versions**  
+- [ ] **T002** **Pin exact dependency versions**  
   Create `requirements.txt` containing the exact versions listed in the plan (pandas, numpy, scipy, statsmodels, scikit‑learn, matplotlib, seaborn, datasets, pytest, pyyaml, jsonschema).  
   **Verification**: Run `pip freeze > installed.txt` and ensure `diff -u requirements.txt installed.txt` reports no version mismatches.
 
-- [ ] **T003** **Set deterministic random seeds**  
+- [X] **T003** **Set deterministic random seeds**  
   Add `code/seed.py` that sets fixed seeds for `random`, `numpy.random`, and (if used) `torch`. All pipeline scripts must import this module as the first line. The script also writes its SHA‑256 hash to `code/seed_hash.txt`.  
   **Verification**:  
   ```bash

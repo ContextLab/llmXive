@@ -1,28 +1,29 @@
 T001:
-  c: true
-  h: faff056cc40d684a889051f912e69e6e2eaf4d6d34811b42bc210a3fab41a5e7
-  r: All six required directories (`data/raw/`, `data/processed/`, `results/`, `logs/`,
-    `code/`, `tests/`) exist at the project root per the collector's evidence, and
-    the historical execution log shows `code/create_dirs.py` ran with exit code 0.
-    The task only required directory creation, which is fully satisfied.
-  sig: eaf7f280b338004e63dfca92144f1dad0adc57d71d640cd883f3d91a42f58cf9
-T002:
-  c: true
-  h: da90abbd832b14424033a7cba920641eeef130cccb69dc9a8a597ef900fd219d
-  r: Checked the `requirements.txt` file (contains exact pinned versions for all listed
-    packages) and the pytest log `tests/test_requirements.py` which passed, confirming
-    that the installed environment matches the pinned versions.
-  sig: f966a2b3e3cb440f29c040e8674ba173f5914eab8170c8dfcf35b1a1b28a1fb6
-T003:
   c: false
-  h: ca55035c9bd09bf52241f569d7a2a215ebdf5d0a62d23c550ac2c58053f36a50
-  r: 'The stored hash does not match the file: `code/seed.py`''s actual SHA-256 is
-    `a9186b31...` but `code/seed_hash.txt` contains `a937a4aa...`, so the task''s
-    own verification (`diff -u current_hash.txt code/seed_hash.txt`) fails. Additionally,
-    the recorded test run (`tests/test_seed_import.py`, exit 1) shows `code/create_dirs.py`
-    does not import `seed` as its first functional line, violating the requirement
-    that all pipeline scripts import the module first.'
-  sig: 269b5f3e10c2ed903ed40ae0a4f1832564298e8147933b088eac35e608dddd12
+  h: 92fbc8a495687bf025b3992671267047625f2e88c00fc81cc5c3d38ecfd03e49
+  r: The evidence shows that `data/raw/`, `data/processed/`, and `logs/` directories
+    are missing (they are reported as MISSING), so the required project layout is
+    not fully created.
+  sig: 4d6c3a56405122c83d6219fea1fcb66feda0341502b4c2d6d73e6bdf34fc93f9
+T002:
+  c: false
+  h: 0f9abb7426660b525d786eee3d71d2d9868a624655b191241d653d401f07742b
+  r: "The `requirements.txt` file exists and correctly pins exact versions for all\
+    \ listed packages, but there is no evidence that the required verification step\
+    \ was performed\u2014no `installed.txt` file, no `pip freeze` command output,\
+    \ and no `diff -u` results showing that the installed environment matches the\
+    \ pinned versions. The implementer must provide the execution evidence of the\
+    \ verification command."
+  sig: 41e623980657325d664da40c4d1dc753e490542c6a25ad9a70d0e17badeda284
+T003:
+  c: true
+  h: fd1af32cca1889039b2b6dbca07bf9d1857180d4b1b7e735ea6f862d0b85d996
+  r: "The `code/seed.py` file exists, sets deterministic seeds for `random`, `numpy`,\
+    \ and optionally `torch`, and writes its SHA\u2011256 hash to `code/seed_hash.txt`,\
+    \ which contains the matching hash. The accompanying pytest log shows all seed\u2011\
+    related tests (hash match, fixed constant, deterministic import, and first\u2011\
+    line import) passed."
+  sig: f6bcf850e418ce0785fc8a6c966f82e16bd387a05c8e825d193fe7bca18c36d0
 T008:
   c: false
   h: af53fd992ccd8583b2bbd5496ed5f793c3dcaf57059b417111cfc77ac461caf6
