@@ -8,7 +8,7 @@ properties:
     description: "Unique identifier for the training run."
   variant:
     type: string
-    enum: ["opd","standard_rl","low_rank_rl","random_projection","random_walk_prior","opd_initialized_rl"]
+    enum: ["opd","standard_rl","low_rank_rl","random_low_rank_rl"]
     description: "Variant type."
   seed:
     type: integer
@@ -35,7 +35,7 @@ properties:
           type: number
           minimum: -1.0
           maximum: 1.0
-          description: "Cosine similarity with OPD subspace (for low_rank_rl)."
+          description: "Cosine similarity with OPD subspace (for low_rank_rl) or random subspace (for random_low_rank_rl); diagnostic only."
         memory_usage_mb:
           type: number
         timestamp:
@@ -48,10 +48,10 @@ properties:
         - timestamp
   convergence_step:
     type: integer
-    description: "Step at which 80 % accuracy was first reached."
+    description: "Step at which [deferred] accuracy was first reached."
   final_alignment_score:
     type: number
-    description: "Final cosine similarity with the Standard PPO cumulative direction (for low_rank_rl)."
+    description: "Final cosine similarity with the Standard PPO cumulative direction (for low_rank_rl and random_low_rank_rl)."
 required:
   - run_id
   - variant

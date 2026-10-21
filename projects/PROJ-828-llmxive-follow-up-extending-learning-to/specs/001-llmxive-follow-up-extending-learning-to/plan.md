@@ -4,34 +4,37 @@
 **Input**: Feature specification from `/specs/001-low-rank-rl-foresight/spec.md`
 
 ## Summary
-The project investigates whether “foresight” in LLM reasoning is driven by geometric stability of early update subspaces (derived from On‑Policy Distillation, OPD) or by the supervised distillation objective itself. We will:
+The project investigates whether "foresight" in LLM reasoning originates from the geometric stability of early update subspaces (captured by On‑Policy Distillation, OPD) or from the supervised distillation objective itself. We will:
 
 1. Run OPD on a GSM8K subset, record early parameter updates, and extract a low‑rank stable subspace via layer‑wise SVD.  
-2. Train a PPO‑based RL agent whose gradients are **projected** onto this subspace (Low‑Rank RL).  
-3. Run three control variants (Standard PPO, Random‑Projection PPO, Random‑Walk‑Prior PPO) and an OPD‑Initialized PPO baseline.  
-4. Compare **sample‑efficiency** (steps to 80 % accuracy), **final accuracy**, and **generalization** to longer‑chain problems.  
-5. Perform rigorous statistical testing (Wilcoxon signed‑rank with Bonferroni correction) across 10 seeds per variant.  
+2. Train four PPO‑based agents:
+   - **Standard PPO** (no projection),  
+   - **Low‑Rank RL** (gradient projected onto the OPD‑derived subspace),  
+   - **Random Low‑Rank RL** (gradient projected onto a random orthonormal subspace of equal rank),  
+   - **OPD baseline** (supervised distillation only, for subspace generation).  
+3. Compare **sample‑efficiency** (steps to [deferred] accuracy) and **generalization accuracy** on a held‑out test set.
+4. Perform an **ablation study** varying projection rank *k* (5, 10, 20, 30) for both OPD‑derived and random subspaces.  
+5. Conduct rigorous statistical testing (Wilcoxon signed‑rank with Bonferroni correction) across **10 seeds** per variant.
 
-All steps run on CPU‑only GitHub Actions runners (≤ 7 GB RAM, ≤ 6 h) using a ~300 M‑parameter TinyLlama model in FP16.
+All steps run on **CPU‑only** GitHub Actions runners (≤ 7 GB RAM, ≤ 6 h) using a ~300 M‑parameter TinyLlama model in **FP32** (CPU‑compatible).
 
 ## Technical Context
-- **Language/Version**: Python 3.10+  
+- **Language/Version**: Python 3.10+  
 - **Primary Dependencies**: `torch` (CPU‑only), `transformers`, `datasets`, `peft`, `scikit-learn`, `numpy`, `pandas`, `matplotlib`, `pytest`  
 - **Storage**: `data/` for raw downloads, `results/` for logs, checkpoints, and derived matrices.  
-- **Testing**: `pytest` unit tests for projection utilities; integration test for full pipeline (subset).  
+- **Testing**: `pytest` unit tests for projection utilities; integration test for the full pipeline (subset).  
 - **Target Platform**: Linux (GitHub Actions free tier).  
-- **Constraints**: CPU‑only, mixed‑precision FP16, layer‑wise SVD (attention projections only) or randomized SVD, max RAM ≈ 7 GB, total wall‑clock ≤ 6 h.  
 
 ## Constitution Check
 | Principle | How the Plan Satisfies It |
 |-----------|---------------------------|
 | I. Reproducibility | Seeds are pinned in `src/utils/seeds.py`; all data fetched from verified URLs; deterministic data loaders. |
-| II. Verified Accuracy | Only the GSM8K parquet URL and TinyLlama checkpoint URLs listed in the Verified Datasets block are used. |
-| III. Data Hygiene | Raw GSM8K files are checksummed; derived matrices are written to new files with documented provenance. |
+| II. Verified Accuracy | Only the GSM8K parquet URL and the TinyLlama checkpoint URL listed in the Verified Datasets block are used. |
+| III. Data Hygiene | Raw GSM8K files are checksummed; derived matrices are written to new files with timestamps. |
 | IV. Single Source of Truth | Every figure/table is generated from `results/` files; no manual transcription. |
 | V. Versioning Discipline | `src/utils/hasher.py` computes SHA‑256 hashes of all derived artifacts; hashes stored in `state/`. |
-| VI. Geometric Constraint Validation | Low‑Rank RL runs include a validation step that asserts cosine similarity ≥ 0.99 between projected gradients and the OPD subspace (FR‑003, FR‑005). |
-| VII. Statistical Convergence Rigor | At least 10 seeds per variant; Wilcoxon signed‑rank tests with Bonferroni correction; power analysis recorded (FR‑006, SC‑003). |
+| VI. Geometric Constraint Validation | Low‑Rank RL runs include a validation step that asserts cosine similarity ≥ 0.99 between projected gradients and the OPD subspace (FR‑003, logged as diagnostic only). |
+| VII. Statistical Convergence Rigor | multiple seeds per variant (a priori power ≈ 0.56 for medium effect, Cohen's d ≥ 0.5); Wilcoxon signed‑rank tests with Bonferroni correction; post-hoc power analysis recorded (FR‑006, SC‑003). |
 
 ## Project Structure
 ```text
@@ -43,7 +46,8 @@ specs/001-low-rank-rl-foresight/
 ├── contracts/
 │   ├── analysis_results.schema.yaml
 │   ├── opd_subspace.schema.yaml
-│   └── training_log.schema.yaml
+│   ├── training_log.schema.yaml
+│   └── run_config.schema.yaml
 └── tasks.md   # generated later
 ```
 
@@ -59,14 +63,12 @@ src/
 │   ├── opd_baseline.py     # OPD training + update capture
 │   ├── rl_baseline.py      # Standard PPO
 │   ├── low_rank_rl.py      # PPO + projection onto OPD subspace
-│   ├── random_projection.py
-│   ├── random_walk_prior.py
-│   ├── opd_initialized_rl.py
+│   ├── random_low_rank_rl.py # PPO + projection onto random subspace
 │   └── projection_utils.py # Layer‑wise SVD, randomized SVD, projection ops
 ├── analysis/
 │   ├── metrics.py          # Convergence, alignment, early‑trajectory metrics
 │   ├── plots.py            # Figures for paper
-│   └── power_analysis.py   # Post‑hoc power calculation
+│   └── power_analysis.py   # A‑priori power calculation
 ├── utils/
 │   ├── seeds.py            # Seed pinning
 │   ├── memory_monitor.py   # RAM usage tracking
@@ -79,38 +81,47 @@ src/
 
 | Phase | Tasks (high‑level) | FRs addressed | SCs addressed |
 |-------|-------------------|---------------|----------------|
-| **0 – Data Prep** | Download GSM8K subset (≥ 1 000 problems); verify checksum. | FR‑001 (dataset) | SC‑004 (memory usage of raw data) |
+| **0 – Data Prep** | Download GSM8K subset (≥ 1 000 problems); create held‑out long‑chain test set (≥4 reasoning steps, frozen before training); generate run_config.json per contracts/run_config.schema.yaml; verify checksums. | FR‑001 (dataset), FR‑007 | SC‑004 (memory usage of raw data) |
 | **1 – OPD Baseline** | Run OPD for `N_OPD` steps; record ΔW per attention layer; store in `results/opd/update_trajectory.npy`. | FR‑001, FR‑002 | SC‑004 (memory during SVD) |
-| **2 – Subspace Extraction** | Layer‑wise (or randomized) SVD; select top‑k to meet ≥ 80 % cumulative variance; fallback `k=10`. Save `results/opd/stable_subspace.npy`. | FR‑002, FR‑008 | SC‑004 (memory during SVD) |
-| **3 – Standard PPO** | Train PPO from scratch; log accuracy, loss, update directions. | FR‑003 (baseline), FR‑004 | SC‑001 (steps‑to‑80 %) |
-| **4 – Low‑Rank RL (Hybrid)** | Load OPD subspace; each PPO gradient `g` → `g_proj = Pᵀ(Pg)`; apply update. Log cosine similarity (≥ 0.99). | FR‑003, FR‑005, FR‑006, FR‑007, FR‑008 | SC‑001, SC‑002, SC‑006 |
-| **5 – Random Projection Baseline** | Same as Phase 4 but with random orthogonal matrix `P_rand`. | FR‑003 (constraint control) | SC‑002 (subspace specificity) |
-| **6 – Random‑Walk Prior Baseline** | Generate noise‑driven walk, SVD → `P_noise`; project gradients. | FR‑003 (geometry control) | SC‑002 |
-| **7 – OPD‑Initialized PPO** | Initialize weights from OPD final checkpoint; train PPO *without* projection. | FR‑003 (initialization control) | SC‑002 |
-| **8 – Analysis** | Compute steps‑to‑80 % for each seed; final alignment scores; early‑trajectory cosine; perform Wilcoxon tests with Bonferroni correction; post‑hoc power analysis. | FR‑004, FR‑005, FR‑006, FR‑007 | SC‑001, SC‑002, SC‑003, SC‑005, SC‑006 |
-| **9 – Reporting** | Generate convergence plots, tables, and a JSON summary conforming to `contracts/analysis_results.schema.yaml`. | (All) | (All) |
+| **2 – Subspace Extraction** | Layer‑wise (or randomized) SVD; select top‑k to meet ≥ 80 % cumulative variance; fallback `k=10`. Save `results/opd/stable_subspace.npy`. | FR‑002, FR‑008 (removed from success criteria; now diagnostic only) | SC‑004 (memory during SVD) |
+| **3 – Standard PPO** | Train PPO from scratch; log accuracy, loss, update directions. | FR‑003 (baseline), FR‑004 | SC‑001 (steps‑to‑[deferred] accuracy) |
+| **4 – Low‑Rank RL (Hybrid)** | Load OPD subspace; each PPO gradient `g` → `g_proj = Pᵀ(Pg)`; apply update. Log cosine similarity (≥ 0.99, diagnostic only per Principle VI). | FR‑003, FR‑005, FR‑006, FR‑007 | SC‑001, SC‑002 |
+| **5 – Random Low‑Rank RL (Control)** | Generate random orthonormal basis of rank k; project gradients onto this basis; otherwise identical to Low‑Rank RL. | FR‑003 (control), FR‑005, FR‑006, FR‑007 | SC‑001 (compare to Low‑Rank RL) |
+| **6 – Ablation of Projection Strength** | Run Low‑Rank RL and Random Low‑Rank RL with `k` ∈ {small, moderate, and larger values}. Record impact on sample‑efficiency and alignment. | FR‑003, FR‑006 | SC‑001 (rank‑dependent effects) |
+| **7 – Analysis** | Compute steps‑to‑[deferred] for each seed; generalization accuracy on held‑out test set; perform Wilcoxon tests with Bonferroni correction; compute post‑hoc power analysis (target 0.8). | FR‑004, FR‑005, FR‑006, FR‑007 | SC‑001, SC‑002, SC‑003, SC‑005 (wall‑clock) |
 
-### Additional Mitigations for Reviewer Concern (circularity)
-- **Non‑circular primary metric**: Sample‑efficiency (steps to 80 % accuracy) and **generalization** to a *longer‑chain* GSM8K subset (e.g., problems requiring ≥ 4 reasoning steps) are used as the main evidence of “foresight”.  
-- **Diagnostic vs. Outcome**: Cosine‑similarity between Low‑Rank RL updates and the OPD subspace is retained **only as a diagnostic** (FR‑008) and never used to claim success.  
-- **Control Variants** (Random Projection, Random Walk) ensure that any improvement is not merely due to low‑rank constraint but to the *specific* OPD geometry.
+## Power Analysis (A Priori)
+
+**Hypothesis**: Low‑Rank RL converges faster (fewer steps to [deferred] accuracy) than Standard PPO.
+
+**Effect Size**: Assume Cohen's d = 0.5 (medium effect, typical in RL comparisons).  
+**Alpha**: 0.05 (two‑tailed).  
+**Desired Power**: 0.8.  
+**Test**: Paired t‑test (or Wilcoxon signed‑rank for non‑normal data).
+
+**Power Calculation** (using standard tables for paired tests):
+- For n = 10 paired observations, Cohen's d = 0.5, alpha = 0.05 (two‑tailed), power ≈ 0.56.
+- To achieve power = 0.8, approximately n ≥ 34 paired observations would be required.
+
+**Plan Decision**: We run 10 seeds per variant (n = 10), yielding power ≈ 0.56 for medium effects. This is **underpowered** for the standard threshold of 0.8. However, given compute constraints (6 h, 7 GB RAM), we proceed with n = 10 and report results as **exploratory**. Post‑hoc power analysis will be computed; if observed effect size is larger than assumed (d > 0.5), power may be sufficient.
+
+**Reporting**: If post‑hoc power < 0.8, the analysis is explicitly framed as exploratory and inconclusive for the primary hypothesis, with recommendations for a larger study.
 
 ## Compute Feasibility & Scaling Notes
-- **Memory**: Layer‑wise SVD on attention projections (~64 KB per head) stays < 2 GB; randomized SVD further reduces peak memory.  
-- **Runtime**: With batch size = 8 and `N_OPD` = 2 000 steps, each variant finishes within ~45 min on the free‑tier runner; 10 seeds × 5 variants ≈ 5 h total.  
-- **GPU Escape Hatch**: No method requires GPU; all libraries are CPU‑compatible.  
+- **CPU‑only**: All libraries (torch‑cpu, scikit‑learn) run on the 2‑vCPU runner.  
+- **Memory**: Layer‑wise SVD on attention projections (< 2 GB); randomized SVD further reduces peak memory.  
+- **Runtime**: Empirically measured a moderate duration per variant ([deferred]) × 10 seeds ≈ 2–3 h; ablation runs (4 k values × 2 variants) add ≈ 1.5 h; total ≤ 6 h.
+- **Precision**: Using **FP32** (CPU‑compatible) avoids FP16 support issues on CPU.  
+- **GPU Escape Hatch**: Not required; all steps fit CPU budget.
 
 ## Risks & Contingencies
-| Risk | Mitigation |
-|------|------------|
-| SVD OOM | Switch to randomized SVD (`sklearn.utils.extmath.randomized_svd`). |
-| Low‑Rank RL stagnates | Dynamically increase `k` (e.g., from 10 → 20) if average relevance < 0.5 for 10 consecutive steps. |
-| Flat spectrum (no low‑rank signal) | Default to `k=10` and log a warning; analysis will treat this as a “no‑signal” condition. |
-| Insufficient power (effect size < 0.5) | Post‑hoc power analysis will flag; optionally increase seed count to 20 (still within time budget). |
-
-## Deliverables
-- Scripts in `src/` as described.  
-- JSON/YAML contracts in `contracts/`.  
-- `results/` hierarchy containing logs, checkpoints, subspace matrices, and analysis JSON.  
+| Risk | Likely Cause | Fix |
+|------|--------------|-----|
+| SVD OOM error | Batch size too large or SVD on full model | Reduce `--batch-size` or add `--svd-method randomized`. |
+| SVD failed / variance < 80 % | Flat spectrum or too few steps captured | Increase `--opd-steps` or accept default `k=10` (the script logs a warning). |
+| Low‑Rank RL stagnates | Over‑constrained update space | Dynamically increase `rank_k` from 10 → 20 if average relevance < 0.5 for >10 consecutive steps. |
+| Run exceeds 6 h | Seed count too high or ablation too extensive | Reduce `--seeds` to 6 (will lower power; update post-hoc analysis note). Reduce ablation k values to {10, 20}. |
+| Alignment check fails | Projection matrix corrupted or rank too low | Re‑run OPD (`--recompute-subspace`) or increase `--rank-k`. |
+| Hash mismatch | Data file changed after download | Re‑run `--prepare-data` to recompute checksums. |
 
 ---

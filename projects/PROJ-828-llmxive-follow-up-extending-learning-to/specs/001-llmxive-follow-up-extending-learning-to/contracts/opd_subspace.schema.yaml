@@ -20,7 +20,7 @@ properties:
     description: "Explained variance ratio for each singular vector."
   cumulative_variance:
     type: number
-    description: "Cumulative explained variance (target ≥ 0.80)."
+    description: "Cumulative explained variance (target ≥ 0.80)."
   subspace_matrix_path:
     type: string
     description: "Relative path to the NumPy `.npy` file containing the subspace matrix."

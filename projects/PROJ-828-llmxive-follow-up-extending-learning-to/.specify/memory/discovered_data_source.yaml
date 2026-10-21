@@ -1,12 +1,9 @@
 status: none
-intent: download GSM8K dataset as pip installable python package dataset
+intent: download GSM8K math word problem dataset via pip install python package dataset
 required_fields:
+- id
 - question
 - answer
-- solution
-- id
-- source
-- category
-cache_key: d4c9e3667f39c5f90104e64d908f7cb45497bb5ff0767e3b873bf6c49083c0d3
-searched_at: '2026-10-21T03:10:35.811586+00:00'
+cache_key: d99816f983cf544ee201d23d8cd505edf13ee6403d464d5cbdb8d10f580da48f
+searched_at: '2026-10-21T05:11:30.700320+00:00'
 retry_count: 1

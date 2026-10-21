@@ -13,7 +13,7 @@ properties:
       properties:
         variant_name:
           type: string
-          enum: ["opd","standard_rl","low_rank_rl","random_projection","random_walk_prior","opd_initialized_rl"]
+          enum: ["opd","standard_rl","low_rank_rl","random_low_rank_rl"]
         seeds:
           type: array
           items:
@@ -23,22 +23,25 @@ properties:
           type: array
           items:
             type: integer
-          description: "Steps required to reach 80 % accuracy for each seed."
+          description: "Steps required to reach [deferred] accuracy for each seed."
         mean_steps:
           type: number
         std_steps:
           type: number
-        final_alignment_scores:
+        final_accuracy_long:
           type: array
           items:
             type: number
-        early_alignment_scores:
-          type: array
-          items:
-            type: number
-        relevance_score_mean:
+          description: "Generalization accuracy on held-out long-chain test set for each seed."
+        mean_final_accuracy:
           type: number
-          description: "Mean relevance score (diagnostic only)."
+        std_final_accuracy:
+          type: number
+        projection_constraint_scores:
+          type: array
+          items:
+            type: number
+          description: "Mean cosine similarity with subspace per seed (diagnostic only)."
       required:
         - variant_name
         - seeds
@@ -64,8 +67,34 @@ properties:
       - test_type
       - p_value
       - significant
+  power_analysis:
+    type: object
+    description: "A priori and post-hoc power analysis results."
+    properties:
+      effect_size_assumed:
+        type: number
+        description: "A priori assumed Cohen's d."
+      sample_size:
+        type: integer
+        description: "Number of seeds per variant."
+      power_a_priori:
+        type: number
+        description: "A priori power (target 0.8)."
+      effect_size_observed:
+        type: number
+        description: "Observed Cohen's d from results."
+      power_post_hoc:
+        type: number
+        description: "Post-hoc power based on observed effect."
+    required:
+      - effect_size_assumed
+      - sample_size
+      - power_a_priori
+      - effect_size_observed
+      - power_post_hoc
 required:
   - experiment_id
   - variants
   - statistical_tests
+  - power_analysis
 additionalProperties: false
