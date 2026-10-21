@@ -1,0 +1,12 @@
+T002:
+  c: true
+  h: 9771b5c01b30ff1586ab143913bdeaf292895419430b30f42071ad445394c726
+  r: "The implementer's `code/data/preprocess.py` implements all five requirements\
+    \ (RDKit parsing with a dedicated `failed_parsing` logger, MW \u2265 500 Da filter,\
+    \ temperature normalization with flagging when the column is absent, node/edge\
+    \ feature generation, and z-scored `molecular_weight_z`), and the historical execution\
+    \ record shows it ran successfully (exit 0, `--filter-mw 500`, 224 rows kept /\
+    \ 4 excluded). The output `data/processed/filtered.csv` (293 KB) contains real\
+    \ parsed molecules with the correct columns (`smiles`, `molecular_weight`, `refractive_index`,\
+    \ JSON `node_features`/`edge_features` "
+  sig: ec8987b8f3c5c39db94cae25cb7478d0e9505666dad9a20710b640beeb78b598
