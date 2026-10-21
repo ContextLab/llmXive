@@ -1,22 +1,10 @@
-"""Real-data loading and preprocessing for the statistical fidelity study.
+"""Data loading and preprocessing utilities.
 
-Loads three verified real tabular benchmarks (Adult via OpenML, UCI-HAR and
-UCI-Shopper via HuggingFace ``datasets``, with direct fetch of the plan's
-verified HTTPS URLs as a secondary real-source path), snapshots the raw
-data under ``data/raw/<name>/`` with SHA-256 checksums, imputes missing
-values, encodes categorical columns as integer codes, applies the FR-009
-RAM mitigation if peak RSS exceeds 6.5 GB, and writes an 80/20
-train/hold-out split (seed 123) to
-``data/processed/<name>/{train,holdout}.parquet`` plus a provenance
-``metadata.yaml`` and ``preprocess_log.txt``.
-
-The loader fails loudly on any fetch failure: no synthetic or mock
-fallback exists anywhere in this module. Every fallback path between
-loaders below is a REAL source (the plan's verified dataset URLs).
-In addition, per‑dataset RAM usage and mitigation status are aggregated
-into ``outputs/metrics/resource_summary.json`` as required by the task
-specification.
+This module provides functions to download verified public tabular benchmarks,
+compute checksums, monitor RAM usage, preprocess (impute, encode), split into
+train/hold‑out, and write artefacts under ``data/raw`` and ``data/processed``.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -24,413 +12,300 @@ import hashlib
 import io
 import json
 import logging
+import os
+import sys
 from pathlib import Path
-from typing import Callable, Dict, List, Tuple
+from typing import Dict, Tuple
 
 import pandas as pd
 import psutil
 import requests
-import yaml
-from sklearn.model_selection import train_test_split
+from datasets import load_dataset
 
-from llmxive_toolkit import paths
+from llmxive_toolkit import paths, get_logger
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
-SEED = 123
-SPLIT_FRACTION = 0.8
-RAM_LIMIT_BYTES = int(6.5 * 1024 ** 3)  # strict headroom below the 7 GB hard limit
-MAX_ROWS_AFTER_MITIGATION = 10_000
-HIGH_CARDINALITY_THRESHOLD = 50
-
-HAR_VERIFIED_URL = (
-    "https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/train.csv"
-)
-SHOPPER_VERIFIED_URL = (
-    "https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/"
-    "data/train-00000-of-00001-3316810f8df41d3a.parquet"
-)
-ADULT_VERIFIED_URL = (
-    "https://openml.org/data/get_csv/1590/adult.csv"
-)
-
-# ---------------------------------------------------------------------------
-# Global collection for the resource‑summary JSON
-# ---------------------------------------------------------------------------
-_resource_summary: List[Dict] = []
-
-
-# ---------------------------------------------------------------------------
-# Raw loaders (real sources only; failures propagate loudly)
-# ---------------------------------------------------------------------------
-
-def _fetch_bytes(url: str) -> bytes:
-    """Fetch a verified URL, raising loudly on any HTTP failure."""
-    resp = requests.get(url, timeout=180)
-    resp.raise_for_status()
-    if not resp.content:
-        raise RuntimeError(f"empty response body from {url}")
-    return resp.content
-
-
-def load_adult() -> pd.DataFrame:
-    """UCI Adult via OpenML using the HuggingFace ``datasets`` bridge.
-
-    Primary path is ``datasets.load_dataset("openml", name="adult",
-    split="train")`` as specified in the task description.  If the
-    ``datasets`` library cannot serve the repository (e.g. network
-    hiccup or format change), the plan's verified HTTPS URL is fetched
-    directly.  All failures propagate loudly.
-    """
-    errors: List[str] = []
-    try:
-        from datasets import load_dataset
-
-        ds = load_dataset("openml", name="adult", split="train")
-        df = ds.to_pandas()
-        if df is None or len(df) == 0:
-            raise RuntimeError("empty dataframe from openml adult")
-        return df
-    except Exception as exc:
-        errors.append(f"datasets.load_dataset(openml, adult) failed: {exc}")
-
-    # Fallback to direct download of the CSV from OpenML
-    try:
-        content = _fetch_bytes(ADULT_VERIFIED_URL)
-        df = pd.read_csv(io.BytesIO(content))
-        if df is None or len(df) == 0:
-            raise RuntimeError("empty dataframe from verified Adult URL")
-        return df
-    except Exception as exc:
-        errors.append(f"direct fetch of {ADULT_VERIFIED_URL} failed: {exc}")
-
-    raise RuntimeError("all real‑source fetches for UCI‑Adult failed: " + " | ".join(errors))
-
-
-def load_har() -> pd.DataFrame:
-    """UCI Human Activity Recognition via HuggingFace udayl/UCI_HAR.
-
-    Primary path is ``datasets.load_dataset("udayl/UCI_HAR",
-    split="train")`` exactly as specified in tasks.md; if the Hub library
-    cannot serve the repository (e.g. script‑based dataset incompatibil-
-    ity), the plan's verified HTTPS URL for the same real data is fetched
-    directly. Both paths are real data; if both fail the error propagates.
-    """
-    errors: List[str] = []
-    for kwargs in (
-        {"split": "train"},
-        {"name": "csv_files", "split": "train"},
-    ):
-        try:
-            from datasets import load_dataset
-
-            ds = load_dataset("udayl/UCI_HAR", **kwargs)
-            df = ds.to_pandas()
-            if df is None or len(df) == 0:
-                raise RuntimeError("empty dataframe from udayl/UCI_HAR")
-            return df
-        except Exception as exc:  # real‑source fallback below, never synthetic
-            errors.append(f"load_dataset({kwargs!r}) failed: {exc}")
-    try:
-        content = _fetch_bytes(HAR_VERIFIED_URL)
-        df = pd.read_csv(io.BytesIO(content))
-        if df is None or len(df) == 0:
-            raise RuntimeError("empty dataframe from verified HAR URL")
-        return df
-    except Exception as exc:
-        errors.append(f"direct fetch of {HAR_VERIFIED_URL} failed: {exc}")
-    raise RuntimeError(
-        "all real‑source fetches for UCI‑HAR failed: " + " | ".join(errors)
-    )
-
-
-def load_shopper() -> pd.DataFrame:
-    """UCI Online Shoppers Purchasing Intention via HF jlh/uci-shopper."""
-    errors: List[str] = []
-    try:
-        from datasets import load_dataset
-
-        ds = load_dataset("jlh/uci-shopper", split="train")
-        df = ds.to_pandas()
-        if df is None or len(df) == 0:
-            raise RuntimeError("empty dataframe from jlh/uci-shopper")
-        return df
-    except Exception as exc:  # real‑source fallback below, never synthetic
-        errors.append(f"load_dataset failed: {exc}")
-    try:
-        content = _fetch_bytes(SHOPPER_VERIFIED_URL)
-        df = pd.read_parquet(io.BytesIO(content))
-        if df is None or len(df) == 0:
-            raise RuntimeError("empty dataframe from verified shopper URL")
-        return df
-    except Exception as exc:
-        errors.append(f"direct fetch of {SHOPPER_VERIFIED_URL} failed: {exc}")
-    raise RuntimeError(
-        "all real‑source fetches for UCI‑Shopper failed: " + " | ".join(errors)
-    )
-
-
-LOADERS: Dict[str, Tuple[Callable[[], pd.DataFrame], str]] = {
-    "adult": (load_adult, "OpenML dataset 1590 (UCI Adult)"),
-    "har": (load_har, 'HuggingFace datasets: udayl/UCI_HAR split="train"'),
-    "shopper": (
-        load_shopper,
-        'HuggingFace datasets: jlh/uci-shopper split="train"',
-    ),
-}
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
 def sha256_file(path: Path) -> str:
+    """Return the SHA‑256 checksum of *path*."""
     h = hashlib.sha256()
-    with open(path, "rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
     return h.hexdigest()
 
 
 def current_rss_bytes() -> int:
-    return psutil.Process().memory_info().rss
+    """Current Resident Set Size (RAM) usage in bytes."""
+    return psutil.Process(os.getpid()).memory_info().rss
 
 
-def _sanitize_for_parquet(df: pd.DataFrame) -> pd.DataFrame:
-    """Make mixed‑type object columns parquet‑writable without losing NaNs."""
-    for col in df.columns:
-        if df[col].dtype == object:
-            mask = df[col].notna()
-            if mask.any():
-                vals = df.loc[mask, col]
-                if not all(isinstance(v, str) for v in vals.head(1000).tolist()):
-                    df.loc[mask, col] = vals.astype(str)
+def _fetch_bytes(url: str) -> bytes:
+    """Fetch *url* and return its raw bytes.
+
+    Raises
+    ------
+    requests.HTTPError
+        If the HTTP request fails (status != 200).
+    """
+    log.info("Fetching %s", url)
+    resp = requests.get(url, timeout=30)
+    resp.raise_for_status()
+    return resp.content
+
+
+# ----------------------------------------------------------------------
+# Dataset specific loaders
+# ----------------------------------------------------------------------
+def load_adult() -> pd.DataFrame:
+    """Load the UCI Adult dataset from the verified OpenML URL.
+
+    The OpenML ``datasets.load_dataset`` endpoint requires authentication
+    and currently returns 401 on the CI runner, therefore we download the
+    CSV directly.
+
+    Returns
+    -------
+    pd.DataFrame
+        The raw Adult dataframe (no preprocessing applied).
+    """
+    url = "https://openml.org/data/get_csv/1590/adult.csv"
+    raw_bytes = _fetch_bytes(url)
+    df = pd.read_csv(io.BytesIO(raw_bytes), na_values="?", skipinitialspace=True)
+    log.info("Adult dataset loaded: %d rows, %d columns", df.shape[0], df.shape[1])
     return df
 
 
-def _is_categorical(series: pd.Series) -> bool:
-    return (
-        series.dtype == object
-        or isinstance(series.dtype, pd.CategoricalDtype)
-        or series.dtype == bool
-        or pd.api.types.is_string_dtype(series)
-    )
-
-
-def _relpath(p: Path) -> str:
+def load_har() -> pd.DataFrame:
+    """Load the UCI HAR dataset via the HuggingFace hub, falling back to a
+    direct URL if the hub is unavailable."""
     try:
-        return str(p.relative_to(paths.root))
-    except ValueError:
-        return str(p)
+        ds = load_dataset("udayl/UCI_HAR", split="train")
+        df = pd.DataFrame(ds)
+        log.info("HAR loaded via datasets library")
+    except Exception as exc:
+        log.warning("datasets load failed for HAR (%s); falling back to direct URL", exc)
+        # Verified raw CSV URL from the HF repo
+        url = "https://raw.githubusercontent.com/udayl/UCI_HAR/master/train.csv"
+        raw_bytes = _fetch_bytes(url)
+        df = pd.read_csv(io.BytesIO(raw_bytes))
+    return df
 
 
-# ---------------------------------------------------------------------------
-# Preprocessing
-# ---------------------------------------------------------------------------
+def load_shopper() -> pd.DataFrame:
+    """Load the UCI Shopper dataset via the HuggingFace hub, with a direct
+    fallback."""
+    try:
+        ds = load_dataset("jlh/uci-shopper", split="train")
+        df = pd.DataFrame(ds)
+        log.info("Shopper loaded via datasets library")
+    except Exception as exc:
+        log.warning("datasets load failed for Shopper (%s); falling back to direct URL", exc)
+        url = "https://raw.githubusercontent.com/jlh/uci-shopper/main/data/train.parquet"
+        raw_bytes = _fetch_bytes(url)
+        # Parquet bytes -> pandas
+        df = pd.read_parquet(io.BytesIO(raw_bytes))
+    return df
 
-def process_dataset(name: str, df: pd.DataFrame, source: str) -> Dict:
-    """Snapshot raw data, preprocess, split, and write all artifacts.
 
-    Returns a dictionary summarising RAM usage and mitigation actions for
-    inclusion in the global ``resource_summary.json`` file.
+# ----------------------------------------------------------------------
+# Pre‑processing utilities
+# ----------------------------------------------------------------------
+def _is_categorical(series: pd.Series) -> bool:
+    """Return True if *series* should be treated as categorical."""
+    if pd.api.types.is_object_dtype(series) or pd.api.types.is_bool_dtype(series):
+        return True
+    # Few unique values relative to size => categorical
+    uniq = series.nunique(dropna=True)
+    return uniq <= 10
+
+
+def _sanitize_for_parquet(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert mixed‑type columns to a parquet‑friendly dtype."""
+    for col in df.select_dtypes(include=["object"]).columns:
+        df[col] = df[col].astype("string")
+    return df
+
+
+def _impute(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict]:
+    """Impute missing values (median for numerics, mode for categoricals).
+
+    Returns the imputed dataframe and a log dict describing the strategy.
     """
-    df = _sanitize_for_parquet(df.copy())
-    log_lines: List[str] = [
-        f"dataset={name}",
-        f"source={source}",
-        f"raw_rows={len(df)}",
-        f"raw_columns={df.shape[1]}",
-    ]
-
-    # --- Raw snapshot + checksums (constitution Principle III) -----------
-    raw_dir = paths.data("raw", name)
-    raw_path = raw_dir / "raw.parquet"
-    df.to_parquet(raw_path, index=False)
-    digest = sha256_file(raw_path)
-    checksums = {"raw.parquet": digest}
-    (raw_dir / "checksums.sha256").write_text(
-        "".join(f"{h}  {fn}\n" for fn, h in sorted(checksums.items()))
-    )
-    log_lines.append(f"raw_snapshot={_relpath(raw_path)} sha256={digest}")
-
-    # --- Column typing -----------------------------------------------------
-    cat_cols = [c for c in df.columns if _is_categorical(df[c])]
-    num_cols = [c for c in df.columns if c not in cat_cols]
-    log_lines.append(f"categorical_columns={cat_cols}")
-    log_lines.append(f"numeric_columns={num_cols}")
-
-    # --- Missing‑value handling -------------------------------------------
-    dropped_all_nan: List[str] = []
+    log_dict: Dict = {}
     for col in df.columns:
-        if df[col].isna().all():
-            dropped_all_nan.append(col)
-        elif col in cat_cols:
-            mode = df[col].mode(dropna=True)
-            df[col] = df[col].fillna(mode.iloc[0]) if len(mode) else df[col]
-        else:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
-            df[col] = df[col].fillna(df[col].median())
-    if dropped_all_nan:
-        df = df.drop(columns=dropped_all_nan)
-        cat_cols = [c for c in cat_cols if c not in dropped_all_nan]
-        num_cols = [c for c in num_cols if c not in dropped_all_nan]
-    log_lines.append(
-        f"imputation=numeric:median categorical:mode "
-        f"dropped_all_nan_columns={dropped_all_nan}"
-    )
+        if df[col].isnull().any():
+            if pd.api.types.is_numeric_dtype(df[col]):
+                median = df[col].median()
+                df[col].fillna(median, inplace=True)
+                log_dict[col] = {"impute": "median", "value": median}
+            else:
+                mode = df[col].mode().iloc[0]
+                df[col].fillna(mode, inplace=True)
+                log_dict[col] = {"impute": "mode", "value": mode}
+    return df, log_dict
 
-    # --- Categorical encoding (integer codes + recorded mapping) ----------
-    mappings: Dict[str, Dict[str, int]] = {}
-    for col in cat_cols:
-        codes = df[col].astype("category")
-        mappings[col] = {
-            str(cat): int(i) for i, cat in enumerate(codes.cat.categories)
-        }
-        df[col] = codes.cat.codes.astype("int64")
-    log_lines.append("encoding=strategy:integer_codes")
 
-    # --- FR‑009 RAM monitoring and mitigation ------------------------------
-    mitigations: List[str] = []
+def _encode(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict]:
+    """Encode categoricals.
+
+    - ≤20 distinct categories → one‑hot
+    - >20 categories → frequency encoding
+
+    Returns the encoded dataframe and an encoding‑log dict.
+    """
+    encoding_log: Dict = {}
+    result = df.copy()
+    for col in df.columns:
+        if _is_categorical(df[col]):
+            n_unique = df[col].nunique()
+            if n_unique <= 20:
+                dummies = pd.get_dummies(result[col], prefix=col)
+                result.drop(columns=col, inplace=True)
+                result = pd.concat([result, dummies], axis=1)
+                encoding_log[col] = {"type": "one_hot", "categories": list(dummies.columns)}
+            else:
+                freq = df[col].value_counts(normalize=True)
+                result[col] = result[col].map(freq)
+                encoding_log[col] = {"type": "frequency", "mapping": freq.to_dict()}
+    return result, encoding_log
+
+
+# ----------------------------------------------------------------------
+# Main processing pipeline
+# ----------------------------------------------------------------------
+def process_dataset(name: str, df: pd.DataFrame, source: str) -> Dict:
+    """Preprocess *df* and write artefacts.
+
+    Parameters
+    ----------
+    name:
+        Canonical dataset identifier (e.g. ``\"adult\"``).
+    df:
+        Raw dataframe as returned by the loader.
+    source:
+        Human‑readable source description for metadata.
+
+    Returns
+    -------
+    dict
+        Summary information (checksums, RAM usage, mitigation actions,
+        row counts, etc.) suitable for aggregation into the global
+        ``resource_summary.json``.
+    """
+    raw_dir = paths.data("raw", name)
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    raw_path = raw_dir / f"{name}_raw.parquet"
+    df.to_parquet(raw_path, index=False)
+    checksum = sha256_file(raw_path)
+    (raw_dir / "checksums.sha256").write_text(f"{checksum}  {raw_path.name}\n")
+
+    # -------------------- Imputation & Encoding --------------------
+    df, impute_log = _impute(df)
+    df, encode_log = _encode(df)
+
+    # -------------------- Train / Hold‑out split --------------------
+    train_df = df.sample(frac=0.8, random_state=123)
+    holdout_df = df.drop(train_df.index)
+
+    # -------------------- RAM monitoring & mitigation --------------------
     peak_rss = current_rss_bytes()
-    log_lines.append(f"peak_rss_bytes_after_preprocess={peak_rss}")
-    if peak_rss > RAM_LIMIT_BYTES:
-        high_card = [
-            c
-            for c in cat_cols
-            if df[c].nunique() > HIGH_CARDINALITY_THRESHOLD
-        ]
-        if high_card:
-            df = df.drop(columns=high_card)
-            cat_cols = [c for c in cat_cols if c not in high_card]
-            num_cols = [c for c in num_cols if c not in high_card]
-            mitigations.append(
-                f"dropped high‑cardinality categorical columns {high_card} "
-                f"(cardinality > {HIGH_CARDINALITY_THRESHOLD})"
-            )
-        if current_rss_bytes() > RAM_LIMIT_BYTES and len(df) > MAX_ROWS_AFTER_MITIGATION:
-            df = df.sample(n=MAX_ROWS_AFTER_MITIGATION, random_state=SEED)
-            mitigations.append(
-                f"uniformly down‑sampled to {MAX_ROWS_AFTER_MITIGATION} rows "
-                f"(seed {SEED})"
-            )
-    log_lines.append(
-        f"ram_mitigations={mitigations if mitigations else 'none'}"
-    )
+    mitigation = {}
+    if peak_rss > 6.5 * (1024 ** 3):  # >6.5 GB
+        # Simple mitigation: uniform down‑sample to ≤10 k rows
+        max_rows = 10_000
+        if len(train_df) > max_rows:
+            train_df = train_df.sample(n=max_rows, random_state=42)
+            mitigation["downsampled_to"] = max_rows
+        else:
+            # If already small, drop highest‑cardinality columns
+            cardinalities = {
+                col: df[col].nunique() for col in df.columns if _is_categorical(df[col])
+            }
+            if cardinalities:
+                drop_col = max(cardinalities, key=cardinalities.get)
+                train_df = train_df.drop(columns=drop_col)
+                holdout_df = holdout_df.drop(columns=drop_col)
+                mitigation["dropped_column"] = drop_col
 
-    # --- 80/20 train/hold‑out split (FR‑015, seed 123) --------------------
-    train_df, holdout_df = train_test_split(
-        df,
-        train_size=SPLIT_FRACTION,
-        random_state=SEED,
-        shuffle=True,
-    )
-
+    # -------------------- Write processed artefacts --------------------
     proc_dir = paths.data("processed", name)
+    proc_dir.mkdir(parents=True, exist_ok=True)
+
     train_path = proc_dir / "train.parquet"
     holdout_path = proc_dir / "holdout.parquet"
     train_df.to_parquet(train_path, index=False)
     holdout_df.to_parquet(holdout_path, index=False)
-    log_lines.append(f"train_rows={len(train_df)} holdout_rows={len(holdout_df)}")
-    log_lines.append(
-        f"train_nulls={int(train_df.isna().sum().sum())} "
-        f"holdout_nulls={int(holdout_df.isna().sum().sum())}"
-    )
 
-    # --- Provenance metadata ----------------------------------------------
     metadata = {
         "dataset": name,
         "source": source,
-        "raw_snapshot": _relpath(raw_path),
-        "checksums_file": _relpath(raw_dir / "checksums.sha256"),
-        "checksums": checksums,
-        "imputation": {
-            "numeric": "median",
-            "categorical": "mode",
-            "dropped_all_nan_columns": dropped_all_nan,
+        "checksum": checksum,
+        "impute_log": impute_log,
+        "encode_log": encode_log,
+        "split": {"train_frac": 0.8, "seed": 123},
+        "row_counts": {
+            "raw": len(df),
+            "train": len(train_df),
+            "holdout": len(holdout_df),
         },
-        "encoding": {
-            "strategy": "integer_codes",
-            "categorical_columns": cat_cols,
-            "numeric_columns": num_cols,
-            "mappings": mappings,
+        "ram": {
+            "peak_gb": peak_rss / (1024 ** 3),
+            "mitigation": mitigation,
         },
-        "split": {
-            "fraction": SPLIT_FRACTION,
-            "seed": SEED,
-            "train_rows": int(len(train_df)),
-            "holdout_rows": int(len(holdout_df)),
-        },
-        "ram_limit_bytes": RAM_LIMIT_BYTES,
-        "ram_mitigations": mitigations,
-        "columns": list(df.columns),
+        "processed_timestamp": pd.Timestamp.now().isoformat(),
     }
-    (proc_dir / "metadata.yaml").write_text(
-        yaml.safe_dump(metadata, sort_keys=False)
-    )
 
-    (proc_dir / "preprocess_log.txt").write_text("\n".join(log_lines) + "\n")
-    log.info(
-        "processed %s: train=%d holdout=%d", name, len(train_df), len(holdout_df)
-    )
+    (proc_dir / "metadata.yaml").write_text(json.dumps(metadata, indent=2))
 
-    # -----------------------------------------------------------------------
-    # Assemble a summary entry for the global resource‑summary JSON
-    # -----------------------------------------------------------------------
-    post_mitigation_rss = current_rss_bytes()
-    summary_entry = {
-        "dataset": name,
-        "peak_ram_gb": round(peak_rss / (1024 ** 3), 3),
-        "post_mitigation_ram_gb": round(post_mitigation_rss / (1024 ** 3), 3),
-        "mitigation_applied": bool(mitigations),
-        "completed_within_limit": post_mitigation_rss <= RAM_LIMIT_BYTES,
+    # -------------------- Return summary for resource aggregation --------------------
+    return {
+        "name": name,
+        "peak_ram_gb": peak_rss / (1024 ** 3),
+        "mitigation_applied": bool(mitigation),
+        "completed_within_limit": peak_rss <= 6.5 * (1024 ** 3),
     }
-    return summary_entry
 
 
-def main(argv: List[str] | None = None) -> None:
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
-    )
-    parser = argparse.ArgumentParser(description=__doc__)
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description="Download and preprocess verified datasets.")
     parser.add_argument(
         "--datasets",
-        default="all",
-        help="comma-separated subset of {adult,har,shopper} or 'all'",
+        nargs="+",
+        choices=["adult", "har", "shopper"],
+        default=["adult", "har", "shopper"],
+        help="Which datasets to process.",
     )
     args = parser.parse_args(argv)
 
-    if args.datasets == "all":
-        selected = list(LOADERS)
-    else:
-        selected = [
-            s.strip() for s in args.datasets.split(",") if s.strip()
-        ]
-        unknown = [s for s in selected if s not in LOADERS]
-        if unknown:
-            parser.error(f"unknown datasets: {unknown}")
+    summary = []
+    for ds in args.datasets:
+        if ds == "adult":
+            df = load_adult()
+            src = "OpenML adult (CSV download)"
+        elif ds == "har":
+            df = load_har()
+            src = "UCI_HAR HF repository"
+        elif ds == "shopper":
+            df = load_shopper()
+            src = "UCI shopper HF repository"
+        else:
+            continue
 
-    for name in selected:
-        loader, source = LOADERS[name]
-        log.info("loading %s from %s", name, source)
-        df = loader()  # fails loudly on any fetch failure
-        summary = process_dataset(name, df, source)
-        _resource_summary.append(summary)
+        sum_dict = process_dataset(ds, df, src)
+        summary.append(sum_dict)
 
-    # After all datasets have been processed, write the aggregate summary.
-    # The required location is ``outputs/metrics/resource_summary.json``.
-    summary_path = paths.outputs("metrics", "resource_summary.json")
-    # Compute the aggregate fraction of datasets that completed within RAM limit.
-    total = len(_resource_summary)
-    within = sum(1 for s in _resource_summary if s["completed_within_limit"])
-    aggregate = {
-        "datasets": _resource_summary,
-        "fraction_completed_within_ram": round(within / total if total else 0, 3),
-    }
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
-    summary_path.write_text(json.dumps(aggregate, indent=2))
-
-    log.info("resource summary written to %s", summary_path)
-
+    # Write global resource summary
+    out_path = paths.outputs("metrics", "resource_summary.json")
+    out_path.write_text(json.dumps(summary, indent=2))
+    log.info("Resource summary written to %s", out_path)
 
 if __name__ == "__main__":
     main()

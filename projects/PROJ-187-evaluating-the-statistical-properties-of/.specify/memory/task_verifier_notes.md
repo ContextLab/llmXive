@@ -4,3 +4,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 
 - **T001** — the task writes platform-owned path(s) inside the project: `state/` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
 - **T002** — Requested task execution failed; rerun successfully: src/data/loader.py exit=1
+- **T003** — Requested task execution failed; rerun successfully: src/cli/run_fidelity.py exit=2

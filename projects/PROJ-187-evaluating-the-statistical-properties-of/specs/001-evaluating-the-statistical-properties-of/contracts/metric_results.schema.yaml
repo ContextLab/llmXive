@@ -1,6 +1,5 @@
-# Minimal permissive JSON Schema for metric_results.json
-# The real metric_results file is large and its exact structure varies
-# across runs.  To allow the contract test to validate without enforcing
-# a rigid schema, we accept any JSON object.
+# Minimal JSON‑Schema for metric_results files.
+# The real study will replace this with a richer definition.
+# For the current tests we only need the file to be a valid JSON object.
 type: object
 additionalProperties: true

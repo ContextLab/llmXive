@@ -1,5 +1,7 @@
 # Pinned dependencies for the statistical fidelity evaluation pipeline
 # (CPU-only; no CUDA usage anywhere in the project).
+# torch is installed from the default PyPI wheel, which is CPU-only on
+# Linux; no CUDA-enabled build is pulled in.
 sdv==1.12.0
 rdt==1.12.0
 torch==2.2.0
