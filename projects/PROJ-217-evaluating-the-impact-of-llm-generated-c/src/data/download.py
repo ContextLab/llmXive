@@ -25,7 +25,8 @@ from typing import Dict, List
 
 import pandas as pd
 import yaml
-from huggingface_hub import hf_hub_download
+# NOTE: huggingface_hub is imported lazily inside _download_parquet to avoid
+# import errors during test collection when the package is not installed.
 
 from llmxive_toolkit import paths, get_logger
 
@@ -75,6 +76,13 @@ def _save_hash_manifest(manifest: Dict[str, str]) -> None:
 
 def _download_parquet() -> Path:
     """Download the parquet file with a retry loop; raise on final failure."""
+    # Lazy import to avoid hard dependency during test collection.
+    try:
+        from huggingface_hub import hf_hub_download
+    except ImportError as e:
+        log.error("huggingface_hub is not installed. Install it via requirements.txt.")
+        raise RuntimeError("Missing required package 'huggingface_hub'") from e
+
     last_exc = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:

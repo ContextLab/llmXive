@@ -17,7 +17,7 @@ Tasks are ordered to respect data flow and to produce an early end‑to‑end re
   *Verification*:  
   – Pipeline aborts if the requirements file is missing or empty, ensuring compliance with Constitution Principle I.  
 
-- [ ] **T001** [US-1] **Download & validate CodeSearchNet Python snippets (including log generation)**   <!-- FAILED-IN-EXECUTION: scripts/run_tests.sh exit=1 -->
+- [ ] **T001** [US-1] **Download & validate CodeSearchNet Python snippets (including log generation)**   <!-- FAILED-IN-EXECUTION: scripts/run_tests.sh exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   *Implement* `src/data/download.py` that:  
   - Downloads the verified CodeSearchNet Python parquet files via `hf_hub_download` with a 3‑attempt retry loop that **raises** on final failure.  
   - Parses columns tolerant to naming (`code`/`docstring` or `func_code_string`/`func_documentation_string`). Abort with a clear error if neither schema is present.  

@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-21T15:10:39Z",
+  "updated_at": "2026-10-21T16:14:44Z",
   "project_id": "PROJ-217-evaluating-the-impact-of-llm-generated-c",
   "replan_rounds": 2
 }
