@@ -65,7 +65,7 @@ These objectives map directly to the user stories below.
   2. Computes Moran’s I and logs a bias warning,
   3. Uses spatially clustered standard errors for OLS coefficients,
   4. Labels results as descriptive‑only. *(See US‑02)*
-- **FR-006**: System MUST implement 5‑fold spatial cross‑validation to prevent data leakage. *(See US‑02)*
+- **FR-006**: System MUST implement k‑fold spatial cross‑validation to prevent data leakage. *(See US‑02)*
 - **FR-007**: System MUST calculate RMSE, MAE, and R² for all fitted models. *(See US‑02)*
 - **FR-008**: System MUST apply **permutation‑based False Discovery Rate (FDR)** correction to all p‑values (α = 0.05). *(See US‑02)*
 - **FR-009**: System MUST perform a GWR bandwidth sweep to assess model stability **when GWR is fitted**; in OLS_DEGRADED mode the sweep is performed on OLS coefficient stability instead (see FR‑005). *(See US‑03)*

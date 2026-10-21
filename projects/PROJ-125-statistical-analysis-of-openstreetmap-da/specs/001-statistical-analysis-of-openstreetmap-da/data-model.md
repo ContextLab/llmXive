@@ -1,7 +1,7 @@
 # Data Model: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
 ## Overview
-Defines the immutable schemas for raw, processed, and result artifacts. All files live under `data/` with strict versioning and checksums.
+Defines immutable schemas for raw, processed, and result artifacts. All files live under `data/` with strict versioning and checksums.
 
 ## Core Entities
 
@@ -20,6 +20,17 @@ Defines the immutable schemas for raw, processed, and result artifacts. All file
 | `crs` | `string` | EPSG code after reprojection |
 | `variable_name` | `string` | e.g., `building_density` |
 | `source` | `string` | `"OSM"` |
+| `description` | `string` | Brief note on how the raster was derived (aggregation method). |
+
+### EnvironmentalCovariate
+| Field | Type | Description |
+|-------|------|-------------|
+| `path` | `string` | Relative path to GeoTIFF |
+| `resolution` | `number` | 30.0 m |
+| `crs` | `string` | EPSG after reprojection |
+| `variable_name` | `string` | One of `albedo`, `elevation`, `water_proximity`, `humidity` |
+| `source` | `string` | `"NASA"` or other open provider |
+| `description` | `string` | Aggregation method used (e.g., bilinear for continuous). |
 
 ### TemperatureRaster
 | Field | Type | Description |
@@ -37,25 +48,26 @@ Defines the immutable schemas for raw, processed, and result artifacts. All file
 | `city_name` | `string` | City identifier |
 | `rmse` | `number` | Root Mean Squared Error |
 | `mae` | `number` | Mean Absolute Error |
-| `r2` | `number` | R² |
+| `r2` | `number` | R‑squared value |
 | `p_values` | `object` | `{variable: p}` |
 | `correction_method` | `string` | `"permutation‑FDR"` |
 | `memory_status` | `string` | `"OK"` or `"DEGRADED"` |
-| `metrics` | `object` | Additional metrics (AIC, etc.) |
+| `metrics` | `object` | Additional metrics (AIC, CV‑RMSE, etc.) |
 
 ## File Formats
 
 | Category | Format | Location |
 |----------|--------|----------|
 | Raw OSM vectors | Parquet / GeoJSON | `data/raw/osm/` |
-| Raw Landsat LST | GeoTIFF (Cloud‑screened) | `data/raw/lst/` |
+| Raw Landsat LST | GeoTIFF (cloud‑screened) | `data/raw/lst/` |
+| Raw Environmental covariates | GeoTIFF | `data/raw/env/` |
 | Processed rasters | GeoTIFF (30 m) | `data/processed/rasters/` |
 | Aligned dataset (pixel‑wise table) | Parquet or CSV | `data/processed/aligned/` |
 | Model metrics | CSV (`metrics.csv`) | `data/results/` |
 | Plots | PNG/SVG | `data/results/plots/` |
 | Reports | Markdown & HTML | `data/results/reports/` |
 
-## Data Flow Diagram (logical)
+## Data Flow (Logical)
 
 1. **Ingest** → `raw/` (checksum recorded).  
 2. **Transform** → `processed/` (rasterize, reproject, log).  
@@ -66,4 +78,4 @@ Defines the immutable schemas for raw, processed, and result artifacts. All file
 
 All steps are deterministic given fixed random seeds.
 
----
+--- 

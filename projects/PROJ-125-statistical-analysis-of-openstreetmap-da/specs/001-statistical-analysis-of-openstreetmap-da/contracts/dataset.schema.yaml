@@ -29,6 +29,18 @@ properties:
   lst:
     type: number
     description: "Land Surface Temperature (K)."
+  albedo:
+    type: number
+    description: "Surface albedo (unitless)."
+  elevation:
+    type: number
+    description: "Elevation above sea level (meters)."
+  water_proximity:
+    type: number
+    description: "Distance to nearest water body (meters)."
+  humidity:
+    type: number
+    description: "Atmospheric humidity (%)."
   city_name:
     type: string
     description: "Name of the city."
