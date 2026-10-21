@@ -11,7 +11,7 @@
   • Verify checksum matches the value recorded in `state/ri_dataset.sha256`.  
   • Load the CSV with `pandas` and run schema validation against `contracts/dataset.schema.yaml` – the script must exit with status 0 only if no validation errors are found.
 
-- [ ] **T002** [US1] **Preprocess raw records** – implement `code/data/preprocess.py` to:  
+- [ ] **T002** [US1] **Preprocess raw records** – implement `code/data/preprocess.py` to:   <!-- FAILED-IN-EXECUTION: code/data/preprocess.py exit=1 -->
   1. Parse each SMILES with RDKit, logging unparsable entries to `logs/failed_parsing.log`.  
   2. Compute molecular weight and drop rows with ≥ 500 Da.  
   3. Apply temperature normalisation (Edlén equation) when a temperature column is present; otherwise flag the row for exclusion.  

@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-21T08:12:00Z",
+  "updated_at": "2026-10-21T10:16:58Z",
   "project_id": "PROJ-296-predicting-molecular-refractive-indices-",
   "replan_rounds": 1
 }

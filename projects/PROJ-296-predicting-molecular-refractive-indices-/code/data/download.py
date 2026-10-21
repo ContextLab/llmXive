@@ -6,16 +6,12 @@ of each row against the essential parts of the dataset schema
 
 Data source
 -----------
-The previous Hugging Face repository (``chemistry/ri_dataset``) no longer
-exists (401 on every attempt), so this script now obtains REAL experimental
-refractive-index data from Wikidata's public SPARQL endpoint
-(https://query.wikidata.org/sparql).  Wikidata aggregates experimental
-refractive-index values (property "refractive index") together with canonical
-SMILES strings (property "canonical SMILES") for organic compounds.  Every
-value written to ``data/raw/ri_dataset.csv`` is a real, experimentally
-reported number from that open database -- nothing is synthesised.
+The script queries Wikidata's public SPARQL endpoint for experimental
+refractive‑index values together with canonical SMILES strings.
+All records are real, experimentally reported data – no synthetic or
+placeholder values are generated.
 
-The script is intended to be run as a stand-alone command:
+The script is intended to be run as a stand‑alone command:
 
     python code/data/download.py
 
@@ -25,16 +21,16 @@ It performs the following steps:
    index and a canonical SMILES.
 2. Persist the records to ``data/raw/ri_dataset.csv`` (creating the
    ``raw`` directory if necessary).
-3. Compute the SHA-256 checksum of the persisted file.
-4. Compare the checksum with the expected value stored in
-   ``state/ri_dataset.sha256``.  If the file does not exist, the
-   computed checksum is written there for future runs.
+3. Compute the SHA‑256 checksum of the persisted file.
+4. Store the checksum under ``data/checksums/ri_dataset.sha256`` for
+   future runs.  (The ``state`` directory is managed by the platform
+   and must not be written by project code.)
 5. Load the CSV with ``pandas`` and perform a minimal validation of the
    required columns (``smiles`` and ``refractive_index``).  The validation
    aborts with a clear error message if any check fails.
 
 If the real data source cannot be reached, the script raises and exits
-non-zero -- it NEVER falls back to synthetic or placeholder data.
+non‑zero – it NEVER falls back to synthetic data.
 """
 
 import hashlib
@@ -60,15 +56,16 @@ REQUEST_TIMEOUT = 120  # seconds
 # Destination for the raw CSV file.
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
 
-# Path that stores the reference SHA-256 checksum.
-CHECKSUM_PATH = Path(paths.root) / "state" / "ri_dataset.sha256"
+# Path that stores the reference SHA‑256 checksum (project‑owned, not
+# platform‑owned ``state``).
+CHECKSUM_PATH = paths.data("checksums", "ri_dataset.sha256")
 
-# Path to the JSON-Schema that defines the expected column layout.
+# Path to the JSON‑Schema that defines the expected column layout.
 SCHEMA_PATH = Path(paths.root) / "contracts" / "dataset.schema.yaml"
 
 
 def compute_sha256(file_path: Path) -> str:
-    """Return the hex SHA-256 checksum of *file_path*."""
+    """Return the hex SHA‑256 checksum of *file_path*."""
     hash_sha256 = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -77,14 +74,14 @@ def compute_sha256(file_path: Path) -> str:
 
 
 def load_expected_checksum() -> str | None:
-    """Read the expected checksum from ``state/ri_dataset.sha256``."""
+    """Read the expected checksum from the checksum file."""
     if CHECKSUM_PATH.is_file():
         return CHECKSUM_PATH.read_text(encoding="utf-8").strip()
     return None
 
 
 def write_checksum(checksum: str) -> None:
-    """Write *checksum* to ``state/ri_dataset.sha256``."""
+    """Write *checksum* to the checksum file."""
     CHECKSUM_PATH.parent.mkdir(parents=True, exist_ok=True)
     CHECKSUM_PATH.write_text(checksum + "\n", encoding="utf-8")
     log.info(f"Wrote checksum to {CHECKSUM_PATH}")
@@ -108,7 +105,7 @@ def _sparql(query: str) -> dict:
 def _resolve_refractive_index_property() -> str:
     """
     Resolve the Wikidata property ID for "refractive index" by label so the
-    script does not depend on a hard-coded (possibly wrong) property number.
+    script does not depend on a hard‑coded (possibly wrong) property number.
     """
     query = """
     SELECT ?p WHERE {
@@ -123,13 +120,13 @@ def _resolve_refractive_index_property() -> str:
             "Could not resolve the Wikidata property for 'refractive index'."
         )
     prop = bindings[0]["p"]["value"].rsplit("/", 1)[-1]
-    log.info(f"Resolved refractive-index property: {prop}")
+    log.info(f"Resolved refractive‑index property: {prop}")
     return prop
 
 
 def download_dataset() -> pd.DataFrame:
     """
-    Download the refractive-index dataset from Wikidata SPARQL
+    Download the refractive‑index dataset from Wikidata SPARQL
     and return it as a ``pandas.DataFrame``.
     """
     log.info("Querying Wikidata SPARQL for experimental refractive indices...")
@@ -137,7 +134,7 @@ def download_dataset() -> pd.DataFrame:
     prop = _resolve_refractive_index_property()
 
     # Select every item that has BOTH an experimental refractive index and
-    # a canonical SMILES string.  This is real, curated open data.
+    # a canonical SMILES string.
     query = f"""
     SELECT ?smiles ?ri WHERE {{
       ?item wdt:{prop} ?ri ;
@@ -148,9 +145,8 @@ def download_dataset() -> pd.DataFrame:
     bindings = data.get("results", {}).get("bindings", [])
     if not bindings:
         raise RuntimeError(
-              "Wikidata returned no records with both a refractive index and "
-              "a canonical SMILES.  Cannot proceed without real data."
-      )
+            "Wikidata returned no records with both a refractive index and a canonical SMILES."
+        )
 
     records = []
     for b in bindings:
@@ -171,19 +167,17 @@ def download_dataset() -> pd.DataFrame:
     df = pd.DataFrame(records)
 
     # Keep only physically meaningful refractive indices (>= 1.0) and
-    # de-duplicate identical SMILES/RI pairs.  These are still real values;
-    # we only drop malformed or duplicated records.
+    # de‑duplicate identical SMILES/RI pairs.
     df = df.dropna(subset=["smiles", "refractive_index"])
     df = df[df["refractive_index"] >= 1.0]
-    df = df.drop_duplicates(subset=["smiles", "refractive_index"]).reset_index(
-        drop=True
-    )
+    df = df.drop_duplicates(subset=["smiles", "refractive_index"]).reset_index(drop=True)
+
     if df.empty:
         raise RuntimeError(
             "All Wikidata records were invalid after cleaning; no real data remains."
         )
 
-    log.info(f"Retrieved {len(df)} real refractive-index records from Wikidata.")
+    log.info(f"Retrieved {len(df)} real refractive‑index records from Wikidata.")
     return df
 
 
@@ -220,7 +214,7 @@ def _minimal_schema_validation(df: pd.DataFrame) -> None:
 
 def validate_rows(df: pd.DataFrame) -> None:
     """
-    Validate each row of *df* against the essential parts of the JSON-Schema.
+    Validate each row of *df* against the essential parts of the JSON‑Schema.
     This function delegates to the lightweight validator defined above.
     """
     log.info(f"Loading schema from {SCHEMA_PATH}")
@@ -231,7 +225,7 @@ def validate_rows(df: pd.DataFrame) -> None:
         except yaml.YAMLError as exc:
             log.warning(
                 "Full schema file could not be parsed (%s); relying on the "
-                "built-in minimal validation.", exc,
+                "built‑in minimal validation.", exc,
             )
     else:
         log.warning(f"Schema file {SCHEMA_PATH} not found; skipping full schema load.")
@@ -254,7 +248,7 @@ def main() -> None:
     # 3. Verify checksum of the persisted file
     # ------------------------------------------------------------------
     actual_checksum = compute_sha256(RAW_CSV_PATH)
-    log.info(f"Computed SHA-256: {actual_checksum}")
+    log.info(f"Computed SHA‑256: {actual_checksum}")
 
     expected_checksum = load_expected_checksum()
     if expected_checksum:
@@ -265,7 +259,7 @@ def main() -> None:
             )
         write_checksum(actual_checksum)
     else:
-        # First run - store the checksum for future runs.
+        # First run – store the checksum for future runs.
         write_checksum(actual_checksum)
         log.info("No reference checksum existed; stored the newly computed value.")
 

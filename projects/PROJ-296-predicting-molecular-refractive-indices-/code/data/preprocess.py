@@ -15,7 +15,7 @@ real Wikidata experimental values), then:
    values, per the spec's uncertainty-handling assumption.
 4. Generates node features (atomic_num, degree, hybridization,
    is_aromatic) and edge features (bond_type, is_conjugated, stereo).
-5. Adds a z-score-normalised global ``molecular_weight`` feature.
+5. Adds a z-score‑normalised global ``molecular_weight`` feature.
 
 Physically implausible refractive indices (outside (1.0, 3.0]) and rows
 that fail ``contracts/dataset.schema.yaml`` validation are excluded and
@@ -49,7 +49,14 @@ PROCESSED_DIR = paths.data("processed")
 LOG_PATH = paths.root / "logs" / "preprocess_summary.log"
 FAILED_PARSE_LOG = paths.root / "logs" / "failed_parsing.log"
 
-SCHEMA_PATH = Path(paths.root) / "contracts" / "dataset.schema.yaml"
+# Updated schema path to reflect actual location within the repository
+SCHEMA_PATH = (
+    paths.root
+    / "specs"
+    / "001-predicting-molecular-refractive-indices"
+    / "contracts"
+    / "dataset.schema.yaml"
+)
 
 # Physically plausible range for refractive indices of condensed matter.
 RI_MIN = 1.0
@@ -59,10 +66,16 @@ RI_MAX = 3.0
 # Helper functions
 # ----------------------------------------------------------------------
 def load_schema():
+    """
+    Load the JSON‑Schema used to validate processed records.
+    """
     with SCHEMA_PATH.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 def validate_row(record: dict, validator: Draft7Validator):
+    """
+    Validate a single processed record against the schema.
+    """
     try:
         validator.validate(record)
     except ValidationError as exc:
@@ -82,6 +95,9 @@ def temperature_normalize(row: pd.Series) -> float:
     return n
 
 def compute_node_features(mol: Chem.Mol) -> list:
+    """
+    Generate a list of dictionaries describing atom‑level features.
+    """
     feats = []
     for atom in mol.GetAtoms():
         hybrid = atom.GetHybridization()
@@ -101,6 +117,9 @@ def compute_node_features(mol: Chem.Mol) -> list:
     return feats
 
 def compute_edge_features(mol: Chem.Mol) -> list:
+    """
+    Generate a list of dictionaries describing bond‑level features.
+    """
     feats = []
     for bond in mol.GetBonds():
         bond_type = {
@@ -248,6 +267,7 @@ def main() -> None:
             excluded_schema += 1
             continue
 
+        # Store JSON strings for CSV compatibility
         record["node_features"] = json.dumps(node_feats)
         record["edge_features"] = json.dumps(edge_feats)
         processed_rows.append(record)
