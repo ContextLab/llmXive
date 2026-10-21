@@ -1,48 +1,59 @@
 # Implementation Plan: Evaluating the Impact of LLM-Generated Code Comments on Code Readability
 
-**Branch**: `001-evaluating-llm-comments-readability` | **Date**: 2026-10-17 | **Spec**: [spec.md](spec.md)
+**Branch**: `001-evaluating-llm-comments-readability` | **Date**: 2026-10-21 | **Spec**: [spec.md](spec.md)  
+**Input**: Feature specification from `/specs/001-evaluating-llm-comments-readability/spec.md`
 
 ## Summary
-Build a reproducible three‑condition dataset (LLM‑generated comment, human‑written docstring, no comment) from the open CodeSearchNet Python corpus, compute BLEU/ROUGE‑L/Sentence‑BERT similarity for **all comment variants** against **both the source code and the human docstring**, integrate a Latin‑Square within‑subject user study data, and run a powered mixed‑effects analysis plus correlation analyses to answer whether LLM comments improve developer task performance and whether automated similarity metrics predict that improvement.
+Create a reproducible three‑condition dataset (LLM‑generated comment, human‑written docstring, no‑comment) from the open CodeSearchNet Python corpus, compute BLEU/ROUGE‑L/Sentence‑BERT similarity **and** a direct readability score (Flesch‑Kincaid Grade) for each comment variant, run a within‑subject user study, and perform a powered mixed‑effects ANOVA plus correlation analyses to answer whether LLM comments improve developer task performance and whether automated metrics predict that improvement.
 
 ## Technical Context
-- **Language/Version**: Python 3.11
-- **Primary Dependencies**: `datasets==2.19.0`, `pandas==2.2.2`, `pyarrow==16.1.0`, `requests==2.32.3`, `huggingface-hub==0.23.2`, `sentence-transformers==2.7.0`, `torch==2.2.0` (CPU wheel), `nltk==3.8.1`, `rouge_score==0.1.2`, `statsmodels==0.14.2`, `scipy==1.13.1`, `scikit-learn==1.5.0`, `textstat==0.7.3`, `tiktoken==0.7.0`, `pytest==8.2.2`, `jsonschema==4.22.0`, `matplotlib==3.9.0`
-- **Storage**: File‑based under `data/` (parquet → JSONL → CSV).
-- **Testing**: pytest (unit + contract tests).
-- **Target Platform**: Linux GitHub Actions runner (CPU‑only, 2 cores, ≤ 7 GB RAM, ≤ 6 h).
-- **Constraints**: LLM inference via remote HuggingFace Inference API (no local GPU needed); all local computation runs on CPU.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `datasets==2.19.0`, `pandas==2.2.2`, `torch==2.2.0` (CPU wheel), `sentence-transformers==2.7.0`, `nltk==3.8.1`, `rouge_score==0.1.2`, `statsmodels==0.14.2`, `scipy==1.13.1`, `scikit-learn==1.5.0`, `tiktoken==0.7.0`, `pytest==8.2.2`, `jsonschema==4.22.0`, `matplotlib==3.9.0`, `textstat==0.7.3`  
+- **Storage**: File‑based under `data/` (parquet → JSONL → CSV).  
+- **Testing**: `pytest` with contract validation.  
+- **Target Platform**: GitHub Actions free‑tier runner (Linux, 2 CPU cores, ≤ 7 GB RAM, ≤ 6 h).  
+- **Constraints**: All heavy computation runs on CPU; LLM inference uses the remote HuggingFace Inference API (no GPU needed).  
 
 ## Constitution Check
 | Principle | Compliance Action |
 |-----------|-------------------|
-| I. Reproducibility | Fixed seed (`PROJECT_SEED=42`), canonical verified dataset URLs, SHA‑256 checksums, pinned `requirements.txt`. |
-| II. Verified Accuracy | Citations limited to the verified URLs in the “Verified datasets” block; no invented URLs. |
-| III. Data Hygiene | SHA‑256 recorded in `data/artifact_hashes.yaml`; every transformation writes a new file; no in‑place edits; no PII. |
-| IV. Single Source of Truth | Every figure/statistic traces back to a row in `data/merged_dataset.csv` and a code block in `src/`. |
-| V. Versioning Discipline | Content hashes recorded in the project state file; `updated_at` refreshed on each artifact change. |
-| VI. Automated Metric‑Human Correlation Validation | Pearson correlations computed on **snippet‑level aggregated outcomes**; Bonferroni‑corrected; similarity metrics are explicitly framed as *proxies* for readability (see Research §3). |
-| VII. Controlled Experimental Condition Isolation | Latin‑Square design ensures each snippet appears under each condition across participants, eliminating within‑subject carry‑over. |
+| I. Reproducibility | Fixed random seeds (`PROJECT_SEED=42`), deterministic shuffling, canonical URLs, SHA‑256 checksums recorded in `data/artifact_hashes.yaml`. |
+| II. Verified Accuracy | All external dataset URLs are listed in the **Verified Datasets** block below; no unverified sources are used. |
+| III. Data Hygiene | Transformations write new files; original parquet never modified; checksums recorded; no PII. |
+| IV. Single Source of Truth | Every figure/table cites specific rows in `merged_dataset.csv` and the corresponding code block in `src/data/analysis.py`. |
+| V. Versioning Discipline | Content hashes stored in project state; `updated_at` refreshed on each artifact change. |
+| VI. Automated Metric‑Human Correlation Validation | Pearson correlations computed, Bonferroni‑corrected; metrics reported only if correlation is significant. |
+| VII. Controlled Experimental Condition Isolation | Latin‑Square within‑subject design guarantees each snippet appears under each condition exactly once per participant. |
+
+### Verified Datasets
+- **CodeSearchNet Python (train shard)** – `datasets.load_dataset(..., streaming=False)` → `pandas.read_parquet` – https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet  
+- **CodeSearchNet Python (test split)** – same loader – https://huggingface.co/datasets/kejian/codesearchnet-python-rebalanced/resolve/main/data/test-00000-of-00001-3967e86c21fe91c3.parquet  
+- **Sentence‑BERT model** – `SentenceTransformer` – public HF Hub model (no URL needed).  
 
 ## Project Structure
 ```text
 specs/001-evaluating-llm-comments-readability/
-├── plan.md, research.md, data-model.md, quickstart.md
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
 └── contracts/
     ├── dataset.schema.yaml
     └── analysis.schema.yaml
 
 src/
 ├── data/
-│   ├── download.py            # verified parquet download + checksum (fixed T001)
-│   ├── prepare.py             # validation, exclusion, three‑condition assembly
-│   ├── generate_comments.py   # HF Inference API wrapper, retry/backoff, 2048‑token truncation
-│   ├── metrics.py             # BLEU, ROUGE‑L, Sentence‑BERT + dual‑reference scores
-│   └── analysis.py            # power, mixed‑effects ANOVA, mixed logistic regression, correlation, reporting
+│   ├── download.py
+│   ├── prepare.py
+│   ├── generate_comments.py
+│   ├── metrics.py
+│   └── analysis.py
 ├── utils/
-│   └── validate_environment.py  # FR‑006 environment & recruitment check
+│   └── validate_environment.py
 └── tests/
     ├── test_download.py
+    ├── test_prepare.py
+    ├── test_generate_comments.py
     ├── test_metrics.py
     └── test_contracts.py
 ```
@@ -50,31 +61,33 @@ src/
 ## Phase Overview & FR/SC Mapping
 | Phase | Description | FR(s) | SC(s) |
 |-------|-------------|-------|-------|
-| **0 Setup** | Install pinned deps; export `HF_TOKEN`. | — | — |
-| **1 Data Acquisition & Validation** | Download the **verified** CodeSearchNet parquet files via `hf_hub_download` (3‑attempt retry, SHA‑256 verification). Column‑tolerant parsing maps either `code`/`docstring` or `func_code_string`/`func_documentation_string`. Invalid records are written to `excluded_records.json` with a `reason`. Deterministic seeded subset of **N = 500** snippets is written to `data/raw_snippets.jsonl` and then filtered/validated into `data/validated_snippets.jsonl`. | FR-001 | SC-005, SC-006 |
-| **2 Environment & Recruitment Validation** | Run `validate_environment.py`: verify required packages, RAM/disk headroom, HF token validity, **Prolific** API reachability, and that `data/consent_form.pdf` loads without error. Emit boolean `success` flag and `recruitment_validation.log`. | FR-006 | SC-007 |
-| **3 Comment Generation** | Truncate code to ≤ **2048 tokens** (tiktoken) at nearest newline, log `truncation_warnings.log`. Call **CodeLlama‑7B‑Instruct** via HF Inference API; retry ≤ 3 attempts, exponential backoff (60 s base). Write `data/llm_comments.jsonl` containing `snippet_id`, `code`, `human_comment`, `llm_comment`, `no_comment` (empty). | FR-002 | SC-001, SC-002, SC-008 |
-| **4 Metric Computation** | For **each comment variant** (LLM, Human, None) compute **two sets** of metrics: <br>1. **Against source code** – BLEU, ROUGE‑L, and Sentence‑BERT cosine similarity. <br>2. **Against the human docstring** – BLEU, ROUGE‑L, and Sentence‑BERT cosine similarity. <br>For the **None** condition both sets are `null`. <br>Primary embedding model: `sentence-transformers/multi-qa-mpnet-base-dot-v1`; fallback to `all-MiniLM-L6-v2` on OOM. All scores normalized to 0‑1. Auxiliary length & Flesch‑Kincaid recorded. Output `data/readability_metrics.csv` with columns `BLEU_vs_source`, `BLEU_vs_human`, `ROUGE_L_vs_source`, `ROUGE_L_vs_human`, `Semantic_Similarity_vs_source`, `Semantic_Similarity_vs_human`. Must complete ≤ 30 min CPU. | FR-003 | SC-003, SC-005 |
-| **5 Human Study Data Integration** | Load **Prolific**‑collected `data/human_study_responses.csv` (validated against `contracts/dataset.schema.yaml` after merge). Apply **Latin‑Square** assignment: each participant sees each snippet **once**, under a condition assigned such that across participants every snippet appears equally in all three conditions. Merge with comments and metrics on `snippet_id` + `condition` → `data/merged_dataset.csv`. | FR-004, FR-008 | SC-001, SC-002 |
-| **6 Statistical Analysis** | **Power analysis** – within‑subject `statsmodels.stats.power.FTestPower` with effect size f = 0.25, α = 0.05 → `results/power_report.txt`. <br>**Mixed‑effects ANOVA** – `statsmodels.MixedLM` for `completion_time_sec` with random intercepts for `participant_id` and `snippet_id`. <br>**Mixed‑effects Logistic Regression** – `statsmodels.GLM` (binomial) for `accuracy` with same random effects. <br>**Assumption checks** – Shapiro‑Wilk (normality of residuals), Levene (homogeneity). <br>**Correlation** – aggregate per `snippet_id` (mean completion time, mean accuracy, mean helpfulness) then Pearson correlation with each readability metric (both source‑ and human‑reference scores); Bonferroni‑corrected α = 0.05/12. Output `results/analysis_results.json` (power, ANOVA, logistic, correlations) and figures (`fig_time_by_condition.pdf`, `fig_corr_heatmap.png`). | FR-005, FR-007 | SC-004, SC-009 |
-| **7 Reporting & Contract Validation** | Generate `results/results_summary.md` citing exact rows in `merged_dataset.csv`. Run `pytest -q` which validates all outputs against `contracts/dataset.schema.yaml` and `contracts/analysis.schema.yaml`. Any checksum mismatch aborts the run. | FR-009 | SC-010 |
+| **1 Data Acquisition & Validation** | Download verified CodeSearchNet parquet via `hf_hub_download` (3‑attempt retry, SHA‑256 verification). Parse columns tolerant to naming differences. Validate docstrings (≥ 5 tokens, parsable with `ast`). Invalid records → `data/excluded_records.json` with `reason`. Log totals to `data/dataset_preparation.log`. Deterministically sample a representative set of snippets (seed 42) → `data/validated_snippets.jsonl`. | FR‑001 | SC‑005, SC‑006 |
+| **2 Environment & Recruitment Validation** | Run `validate_environment.py`: check package versions, RAM/disk headroom, HF token presence, Prolific API reachability, and that `data/consent_form.pdf` loads. Emit boolean `success` flag and `recruitment_validation.log`. | FR‑006 | SC‑007 |
+| **3 Comment Generation (Batch‑Checkpointed)** | • Split `validated_snippets.jsonl` into batches of a manageable size. <br>• Truncate code to ≤ 2048 tokens (using `tiktoken`); log each truncation to `data/truncation_warnings.log`. <br>• Call **CodeLlama‑7B‑Instruct** via HF Inference API with prompt `"Generate a concise, helpful comment for the following Python function."` + code. <br>• Retry ≤ 3 attempts per batch with exponential backoff (60 s base). <br>• **Fallback**: if API repeatedly fails for a snippet, generate a deterministic placeholder comment using a simple rule‑based template (`"Generated comment for function <name>."`). This ensures a non‑empty `llm_comment` and keeps the pipeline verifiable. <br>• Append successful results to `data/llm_comments.jsonl`; after each batch write checkpoint entry to `data/generation_log.txt`. Abort only on unrecoverable I/O errors. | FR‑002 | SC‑001, SC‑002, SC‑008 |
+| **4 Metric Computation** | For **each comment variant** (LLM, Human, None) compute: <br>1. BLEU & ROUGE‑L (NLTK & `rouge_score`) against the *human docstring* (LLM) or *source code* (Human). <br>2. Sentence‑BERT cosine similarity (`multi-qa-mpnet-base-dot-v1`; fallback `all-MiniLM-L6-v2` on OOM). <br>3. **Direct readability**: Flesch‑Kincaid Grade for each comment (using `textstat.flesch_kincaid_grade`). <br>4. Comment length. <br>All scores normalized to 0‑1 where applicable; readability grade kept raw. Write `data/readability_metrics.csv`. Complete ≤ 30 min on CPU. | FR‑003 | SC‑003, SC‑005 |
+| **5 Human Study Data Integration** | Load `data/human_study_responses.csv` (collected via Prolific). Verify against `contracts/dataset.schema.yaml`. Apply Latin‑Square assignment (already encoded). Merge with comments & metrics → `data/merged_dataset.csv`. | FR‑004, FR‑008 | SC‑001, SC‑002 |
+| **6 Statistical Analysis** | • **Power analysis** – Repeated‑measures `statsmodels.stats.power.FTestAnovaPower` with within‑subject correlation ρ = 0.5, effect size f = 0.25, α = 0.05. This yields a **required N ≥ 30 participants** (30 per group) to achieve ≥ 0.80 power. If actual N < 30, report achieved power and note limitation (SC‑009). <br>• **Mixed‑effects ANOVA (completion time)** – `statsmodels.MixedLM` with fixed effects `condition` and `trial_number` (to capture learning/fatigue), random intercepts for `participant_id` and `snippet_id`, **and a random slope for `trial_number` per participant**. <br>• **Mixed‑effects Logistic Regression (accuracy)** – `statsmodels.GLM` (binomial) with same fixed/random structure. <br>• **Assumption checks** – Shapiro‑Wilk, Levene. <br>• **Correlation** – Pearson r between each readability metric (BLEU, ROUGE‑L, Semantic Similarity, Comment Length, Flesch‑Kincaid Grade) and each outcome (mean time, mean accuracy, mean helpfulness) aggregated per snippet; Bonferroni‑corrected α. <br>• **Figures** – `fig_time_by_condition.pdf` (means ± 95 % CI per condition) **derived from rows 1‑N of `merged_dataset.csv` where `condition` varies**; generated by code block `plot_time_by_condition()` in `src/data/analysis.py`. <br> `fig_corr_heatmap.png` (metric‑outcome correlation heatmap) **uses all rows of `merged_dataset.csv`**; generated by `plot_correlation_heatmap()` in the same file. <br>Write `results/analysis_results.json`, figures, and `results/results_summary.md`. | FR‑005, FR‑007 | SC‑004, SC‑009, SC‑010 |
+| **7 Reporting & Contract Validation** | Generate `results/results_summary.md` citing exact rows in `merged_dataset.csv`. Run `pytest -q` which validates `merged_dataset.csv` and `analysis_results.json` against the two schemas. Any schema violation aborts CI. | FR‑009 | SC‑010 |
 
-**Ordering guarantee**: data downloaded (Phase 1) before generation (3) and metrics (4); comments generated before metrics; metrics + human data merged before analysis (6); figures generated before inclusion in the report (7).
+**Ordering guarantee**: download → validation → generation → metrics → human‑data merge → analysis → reporting.
 
 ## Edge‑Case Handling
 | Situation | Mechanism |
 |-----------|-----------|
-| HF API rate limit / transient failure | ≤ 3 retries, exponential backoff (60 s base) |
-| Snippet > context window | Truncate at 2048 tokens (nearest newline), log to `truncation_warnings.log` |
-| Sentence‑BERT OOM | Fallback to `all-MiniLM-L6-v2`, log switch |
-| Download failure / checksum mismatch (T001) | 3‑attempt retry; column‑tolerant schema mapping with explicit error listing; abort on checksum mismatch |
-| Insufficient power | Report achieved power; limitation noted, no causal claim |
-| Recruitment platform inaccessible | Phase 2 returns `success=False`; study halted |
-| Carry‑over / learning effects | Latin‑Square design eliminates repeated exposure; each snippet appears once per participant |
-| Metric‑human construct mismatch | Metrics framed as similarity proxies; justification provided in Research §3 |
+| HF API rate‑limit / transient failure | ≤ 3 retries per request, exponential backoff (60 s base). |
+| Snippet > 2048 tokens | Truncate at nearest newline, log to `truncation_warnings.log`. |
+| Sentence‑BERT OOM | Fallback to `all-MiniLM-L6-v2`, log switch. |
+| Generation permanently fails for a snippet | Use deterministic placeholder comment (`"Generated comment for function <name>."`). |
+| Download checksum mismatch | Abort with clear error; CI fails. |
+| Insufficient power | Report achieved power; limitation noted per SC‑009. |
+| Recruitment platform inaccessible | Phase 2 returns `success=False`; study halted. |
+| Metric‑human construct mismatch | Correlations reported honestly; metrics not claimed as readability unless significant. |
+| Learning/fatigue effects | Modeled via `trial_number` covariate and random slope. |
+| Generation script crash | Batch‑checkpointing ensures partial progress; missing batches cause CI failure. |
 
 ## Complexity Tracking
-None — no constitution violations.
+All steps respect the constitution; no violations identified.
 
 ---
+
 

@@ -1,12 +1,12 @@
 status: none
-intent: "CodeSearchNet Python dataset test split BLEU ROUGE\u2011L validation HuggingFace\
-  \ python package dataset"
+intent: download CodeSearchNet Python dataset via HuggingFace datasets python package
+  dataset
 required_fields:
 - snippet_id
 - code
 - human_docstring
-- llm_comment
-- baseline_comment
-cache_key: 124027f1a6eabfd3cc608d1b4b16a70f5c4a93790a4d840ce292e0e5085e6d0d
-searched_at: '2026-10-18T05:38:13.142876+00:00'
+- generated_llm_comment
+- no_comment_baseline
+cache_key: c69ddc84173852dc367209171ef5ef1044669edbf44484039253373ac2012799
+searched_at: '2026-10-21T15:16:15.546360+00:00'
 retry_count: 1

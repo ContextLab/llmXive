@@ -39,10 +39,10 @@ properties:
     properties:
       F:
         type: number
-        description: "F‑statistic for completion time ANOVA."
+        description: "F-statistic for completion time ANOVA."
       p_value:
         type: number
-        description: "Two‑tailed p‑value."
+        description: "Two-tailed p-value."
       df_between:
         type: integer
         description: "Degrees of freedom between groups."
@@ -63,10 +63,10 @@ properties:
     properties:
       F:
         type: number
-        description: "F‑statistic for accuracy ANOVA (after arcsine‑sqrt transform)."
+        description: "F-statistic for accuracy ANOVA (after arcsine‑sqrt transform)."
       p_value:
         type: number
-        description: "Two‑tailed p‑value."
+        description: "Two-tailed p-value."
       df_between:
         type: integer
         description: "Degrees of freedom between groups."
@@ -90,7 +90,7 @@ properties:
       properties:
         metric:
           type: string
-          enum: ["BLEU", "ROUGE_L", "Semantic_Similarity", "Comment_Length"]
+          enum: ["BLEU", "ROUGE_L", "Semantic_Similarity", "Comment_Length", "Flesch_Kincaid_Grade"]
         outcome:
           type: string
           enum: ["completion_time_sec", "accuracy", "subjective_helpfulness"]
@@ -99,7 +99,8 @@ properties:
           description: "Pearson correlation coefficient."
         p_value_raw:
           type: number
-          description: "Unadjusted p‑value."
+          description: "Unadjusted p-value."
         p_value_corrected:
           type: number
-          description: "Bonferroni‑corrected p‑value (alpha divided by number of tests)."
+          description: "Bonferroni-corrected p-value (alpha divided by number of tests)."
+
