@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Input**: User description: "Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis"
 
-## User Scenarios & Testing *(mandatory)*
+## User Stories & Testing *(mandatory)*
 
 ### User Story 1 - Literature Search and Study Screening (Priority: P1) (US-1)
 
@@ -66,33 +66,35 @@ The system MUST execute a random‑effects meta‑analysis, generate forest plot
 
 ### Functional Requirements
 
-- **FR-001**: System MUST execute search queries against PubMed Central, PsyArXiv, and OpenAlex using the terms “virtual reality” AND “exposure therapy” AND “randomized controlled trial” AND (“in‑person” OR “face‑to‑face” OR “live exposure”) and export results to a CSV containing the metadata fields: title, abstract, DOI, publication year, sample size, outcome measures, comparator type. Studies where the comparator arm is an **in‑person exposure therapy** condition MUST be explicitly tagged. If API access fails, the system MUST accept manual CSV exports with the same schema.  
+- **FR-001**: System MUST execute search queries against PubMed Central, PsyArXiv, and OpenAlex using the terms “virtual reality” AND “exposure therapy” AND “randomized controlled trial” AND (“in‑person” OR “face‑to‑face” OR “live exposure”) and export results to a CSV containing the metadata fields: title, abstract, DOI, publication year, sample size, outcome measures, comparator type. Studies where the comparator arm is an **in‑person exposure therapy** condition MUST be explicitly tagged. If API access fails, the system MUST accept manual CSV exports with the same schema. (See US-1)  
 
-- **FR-002**: System MUST filter search results against inclusion criteria: (a) RCT design, (b) adult participants (age ≥ 18), (c) diagnosed anxiety disorder, (d) validated anxiety outcome (STAI, BAI, GAD‑7, HAM‑A, or equivalent with established normative data), and (e) reporting of pre/post means, SDs, and Ns for BOTH intervention AND control groups. Studies lacking any of these elements OR lacking a resolvable DOI MUST be rejected. No synthetic or imputed data may be introduced at this stage.  
+- **FR-002**: System MUST filter search results against inclusion criteria: (a) RCT design, (b) adult participants (age ≥ 18), (c) diagnosed anxiety disorder, (d) validated anxiety outcome (STAI, BAI, GAD‑7, HAM‑A, or equivalent with established normative data), and (e) reporting of pre/post means, SDs, and Ns for BOTH intervention AND control groups. Studies lacking any of these elements OR lacking a resolvable DOI MUST be rejected. No synthetic or imputed data may be introduced at this stage, **except for the correlation coefficient *r* required for effect‑size calculation as described in FR-003**. (See US-1)  
 
 - **FR-003**: System MUST compute comparative Hedges g for each study using the `metafor` R package. The primary effect‑size metric is the post‑test standardized mean difference; if a study reports change scores, the correlation coefficient *r* between pre‑ and post‑measures MUST be extracted.  
   - **Imputation Logic**: If *r* is missing, the system MUST (1) compute effect sizes for studies where *r* is reported, (2) calculate the median *r* from those studies, (3) use the median (or a fallback of *r* = 0.5 if none are reported) for the remaining studies.  
   - **Sensitivity Analysis**: The pipeline MUST repeat the computation with *r* ± 0.1 and report the range of pooled effect sizes.  
-  - All computed values MUST satisfy the mathematical definition of Hedges g (Hedges & Olkin, 1985) within a relative error of 1e‑6.  
+  - All computed values MUST satisfy the mathematical definition of Hedges g (Hedges & Olkin, 1985) within a relative error of 1e‑6. (See US-2)  
 
-- **FR-004**: System MUST execute a three‑level random‑effects meta‑analysis using `metafor` (R ≥ 4.2, `metafor` ≥ 3.0) inside a validated Docker container.  
+- **FR-004**: System MUST execute a random‑effects meta‑analysis (two‑level) using `metafor` (R ≥ 4.2, `metafor` ≥ 3.0) inside a validated Docker container.  
   - **Primary Estimator**: Restricted Maximum Likelihood (REML).  
   - **Fallback Estimator**: DerSimonian‑Laird (DL) via `metafor`; no custom implementations in any language are permitted.  
   - **Environment Validation**: Before processing real data, the pipeline MUST run a benchmark against the embedded Reference Benchmark Dataset (see below) and verify that pooled Hedges g = –0.425 and I² = 55 % within 1e‑6 tolerance. Failure halts the run with “ENVIRONMENT_MISMATCH”.  
-  - **Estimator Sensitivity**: If N < 20, the system MUST also compute pooled estimates using Paule‑Mandell and DL, report the variance across estimators, and include this in the supplementary material.  
+  - **Estimator Sensitivity**: If N < 20, the system MUST also compute pooled estimates using Paule‑Mandell and DL, report the variance across estimators, and include this in the supplementary material. (See US-3)  
 
 - **FR-005**: System MUST assess publication bias with Egger’s linear regression test (p < 0.10) when N ≥ 10.  
   - If N < 10, the system flags the test as underpowered and performs only visual funnel‑plot inspection.  
   - For N < 20, Egger’s and PET‑PEESE results must be labeled “Low Power – Exploratory” and not treated as definitive.  
-  - When asymmetry is detected (p < 0.10), the system MUST (a) run PET‑PEESE, (b) run trim‑and‑fill (Duval & Tweedie L0) and report the adjusted effect size, and (c) flag any conflict between tests as “BIAS_SENSITIVITY_CONFLICT”.  
+  - When asymmetry is detected (p < 0.10), the system MUST (a) run PET‑PEESE, (b) run trim‑and‑fill (Duval & Tweedie L0) and report the adjusted effect size, and (c) flag any conflict between tests as “BIAS_SENSITIVITY_CONFLICT”. (See US-3)  
 
-- **FR-006**: System MUST perform leave‑one‑out sensitivity analysis (N ≥ 10) and flag a study as an “influential outlier” if Cook’s distance > 4/N **or** if the leave‑one‑out 95 % CI no longer overlaps the full‑model 95 % CI. A Baujat plot PNG must be generated.  
+- **FR-006**: System MUST perform leave‑one‑out sensitivity analysis (N ≥ 10) and flag a study as an “influential outlier” if Cook’s distance > 4/N **or** if the leave‑one‑out 95 % CI no longer overlaps the full‑model 95 % CI. A Baujat plot PNG must be generated. (See US-3)  
 
-- **FR-007**: System MUST generate a PRISMA‑compliant flow diagram documenting numbers of records identified, screened, excluded (with reasons), and included.  
+- **FR-007**: System MUST generate a PRISMA‑compliant flow diagram documenting numbers of records identified, screened, excluded (with reasons), and included. (See US-1)  
 
-- **FR-008**: System MUST enforce a strict “Real Data Only” policy: all values in the FINAL REPORT (pooled effect sizes, heterogeneity metrics, p‑values) MUST be derived exclusively from empirical data extracted from the included studies. The Reference Benchmark Dataset is **solely** for software‑environment validation and **must not** be used as a source of research results. Any development‑time placeholder values must be programmatically removed before report generation. Additionally, IF N > 0, the pipeline MUST perform a round‑trip integrity check: recompute Hedges g from the logged raw means/SDs/Ns and verify it matches the stored effect size within 1e‑6 relative error; any mismatch halts the run with “DATA_INTEGRITY_ERROR”.  
+- **FR-008**: System MUST enforce a strict “Real Data Only” policy: all values in the FINAL REPORT (pooled effect sizes, heterogeneity metrics, p‑values) MUST be derived exclusively from empirical data extracted from the included studies. The Reference Benchmark Dataset is **solely** for software‑environment validation and **must not** be used as a source of research results. Any development‑time placeholder values must be programmatically removed before report generation. Additionally, IF N > 0, the pipeline MUST perform a round‑trip integrity check: recompute Hedges g from the logged raw means/SDs/Ns and verify it matches the stored effect size within 1e‑6 relative error; any mismatch halts the run with “DATA_INTEGRITY_ERROR”. (See US-3)  
 
-- **FR-009**: System MUST perform moderator analysis when I² > 50 %. Pre‑defined moderators are: anxiety subtype, hardware type (HMD vs. desktop), intervention dose (total exposure time or session count), and therapist guidance (fully guided / blended / self‑guided). A moderator is deemed significant if the Q‑test p‑value < 0.01 after Bonferroni correction for the four tests. Significant moderators trigger subgroup forest‑plot PNGs and a summary table of subgroup effect sizes.  
+- **FR-009**: System MUST perform moderator analysis for the pre‑specified moderators (anxiety subtype, hardware type, intervention dose, therapist guidance) **regardless of the observed I² value**. If I² ≤ 50 %, the moderator analysis is labeled exploratory. A moderator is deemed significant if the Q‑test p‑value < 0.01 after Bonferroni correction for the four tests. Significant moderators trigger subgroup forest‑plot PNGs and a summary table of subgroup effect sizes. (See US-3)  
+
+- **FR-010**: System MUST extract and record moderator variables (anxiety subtype, hardware type, intervention dose, therapist guidance) from each included study and store them in the Study entity for downstream analysis. (See US-2)  
 
 ### Reference Benchmark Dataset
 
@@ -125,12 +127,12 @@ The embedded dataset below is used **only** for pre‑flight software validation
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, percentages) to the implementation/research phase.
 
-- **SC-001**: Number of studies included in the final synthesis is measured against the “included” node count of the PRISMA flow diagram (see US‑1).  
-- **SC-002**: The Docker environment must pass the Reference Benchmark Dataset validation (pooled Hedges g = –0.425, I² = 55 %) with deviation ≤ 1e‑6 before any real‑data processing (see FR‑004).  
-- **SC-003**: Publication‑bias detection (Egger’s p‑value) is measured against the `metafor` reference implementation on the Benchmark Dataset within standard numerical tolerance (see FR‑005).  
-- **SC-004**: Every included effect size in the final output must have a corresponding DOI recorded in the source‑metadata log (see FR‑002).  
-- **SC-005**: Round‑trip integrity: for each included study, re‑calculated Hedges g from raw means/SDs/Ns must match the stored effect size within 1e‑6 relative error; any violation triggers a “DATA_INTEGRITY_ERROR” halt (see FR‑008).  
-- **SC-006**: When I² > 50 %, at least one moderator must be tested; significant moderators (Bonferroni‑corrected Q‑test p < 0.01) must be reported with subgroup forest plots and a summary table (see FR‑009).  
+- **SC-001**: Number of studies included in the final synthesis is measured against the “included” node count of the PRISMA flow diagram (see US‑1). (See US-1)  
+- **SC-002**: The Docker environment must pass the Reference Benchmark Dataset validation (pooled Hedges g = –0.425, I² = 55 %) with deviation ≤ 1e‑6 before any real‑data processing (see FR‑004). (See US-3)  
+- **SC-003**: Publication‑bias detection (Egger’s p‑value) is measured against the `metafor` reference implementation on the Benchmark Dataset within standard numerical tolerance (see FR‑005). (See US-3)  
+- **SC-004**: Every included effect size in the final output must have a corresponding DOI recorded in the source‑metadata log (see FR‑002). (See US-1)  
+- **SC-005**: Round‑trip integrity: for each included study, re‑calculated Hedges g from raw means/SDs/Ns must match the stored effect size within 1e‑6 relative error; any violation triggers a “DATA_INTEGRITY_ERROR” halt (see FR‑008). (See US-2)  
+- **SC-006**: Moderator analysis (see FR‑009) will be performed for the pre‑specified moderators. If I² ≤ 50 %, results are labeled exploratory. Significant moderators (Bonferroni‑corrected Q‑test p < 0.01) must be reported with subgroup forest plots and a summary table (see FR‑009). (See US-3)  
 
 ## Assumptions
 
@@ -147,3 +149,4 @@ The embedded dataset below is used **only** for pre‑flight software validation
 - **Benchmark Role Clarification**: The Reference Benchmark Dataset is used exclusively for pre‑flight software validation (environment sanity check). It does **not** contribute to the scientific findings reported in the final manuscript.  
 
 ---
+
