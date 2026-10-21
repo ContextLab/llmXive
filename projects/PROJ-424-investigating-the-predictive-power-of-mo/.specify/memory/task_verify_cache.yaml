@@ -1,12 +1,12 @@
-T001:
+T003:
   c: false
-  h: 1e775651699ace3cc31cf530c9cc6bf7776220c4c80eff71d8649e37f2e97f34
-  r: "The required `data/raw/nist_refs.json.sha256` is explicitly MISSING \u2014 the\
-    \ loader only writes it lazily as a side effect of `load_refs()`, but the task\
-    \ requires the checksum to be computed and committed, and `test_checksum_matches`\
-    \ would fail on it. There is also no execution evidence that `pytest code/tests/test_loader.py`\
-    \ passes or that the `python -c \"from code.data.loader import load_refs; ...\"\
-    ` verification succeeded, and the loader's `from config import NIST_REFS_PATH`\
-    \ (rather than a package-relative import) makes it likely the import fails when\
-    \ run as `code.data.loader` from the project "
-  sig: c6c54a56439e7fe4568a3a5524a6c47463e494b2dd9bb65dde143898e67ca853
+  h: 84d37bf010b93fe41caff69e380b33685d16fe245374a0730288bda1a08e5b6a
+  r: "The tests monkey-patch `analysis.msd.load_trajectory_timeseries` (the thin wrapper\
+    \ module), but `code/analysis/diffusion.py` calls the loader via `from . import\
+    \ msd` (i.e. `code.analysis.msd`), so the patch never takes effect \u2014 `analyze_diffusion(\"\
+    dummy_path\")` would hit the real loader, raise FileNotFoundError, and return\
+    \ `status=\"convergence_failed\"`, making `test_linear_msd_success` (which asserts\
+    \ `\"converged\"` and a recovered D) fail. Additionally, there is no execution\
+    \ evidence (pytest output/log) that `pytest code/tests/test_diffusion.py` passes,\
+    \ as the task's Verify step requires. Fix t"
+  sig: b50cf545af978f8b8d8deedbe9808d47c95db68925de1f48ccf3276434b6ce64

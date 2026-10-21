@@ -1,26 +1,25 @@
 T001:
-  reason: "The required `data/raw/nist_refs.json.sha256` is explicitly MISSING \u2014\
-    \ the loader only writes it lazily as a side effect of `load_refs()`, but the\
-    \ task requires the checksum to be computed and committed, and `test_checksum_matches`\
-    \ would fail on it. There is also no execution evidence that `pytest code/tests/test_loader.py`\
-    \ passes or that the `python -c \"from code.data.loader import load_refs; ...\"\
-    ` verification succeeded, and the loader's `from config import NIST_REFS_PATH`\
-    \ (rather than a package-relative import) makes it likely the import fails when\
-    \ run as `code.data.loader` from the project"
+  reason: "The core deliverable `data/raw/nist_refs.json` is MISSING (collector-confirmed),\
+    \ as is its `nist_refs.json.sha256` checksum file \u2014 so the curated reference\
+    \ data for water, ethanol, and acetone does not exist, and the loader/tests cannot\
+    \ pass (test_load_valid and test_checksum_matches would fail, and `load_refs()`\
+    \ would raise FileNotFoundError). The loader and test files themselves are well-formed,\
+    \ but without the actual data file and checksum the task's primary requirement\
+    \ is unmet."
   task: bde86b48453d19a950c24cfba986ea1c58842a14cee3ef64b0a8c6dcb488263b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/tests/test_simulation.py
     exit=2'
   task: 467d8c9101d0d71579bba0a45f941d5f7a40ab7061374d2a5a3536ce8db473c2
 T003:
-  reason: "The implementation files exist and look substantively correct (0.1 discard,\
-    \ R\xB2 \u2265 0.95 gate, D = slope/6, d_scaled = d_calc, convergence_failed status,\
-    \ synthetic-fixture tests), but the verification requirement fails: the recorded\
-    \ execution log `code/.tasks/T003.code_tests_test_diffusion.py.log` shows `pytest\
-    \ code/tests/test_diffusion.py` exited with code 2 due to `ModuleNotFoundError:\
-    \ No module named 'mdtraj'` \u2014 the test module failed to even collect, so\
-    \ no tests ran or passed. The implementer must make mdtraj available in the environment\
-    \ (or guard the import so unit tests using monkey-patched"
+  reason: "The tests monkey-patch `analysis.msd.load_trajectory_timeseries` (the thin\
+    \ wrapper module), but `code/analysis/diffusion.py` calls the loader via `from\
+    \ . import msd` (i.e. `code.analysis.msd`), so the patch never takes effect \u2014\
+    \ `analyze_diffusion(\"dummy_path\")` would hit the real loader, raise FileNotFoundError,\
+    \ and return `status=\"convergence_failed\"`, making `test_linear_msd_success`\
+    \ (which asserts `\"converged\"` and a recovered D) fail. Additionally, there\
+    \ is no execution evidence (pytest output/log) that `pytest code/tests/test_diffusion.py`\
+    \ passes, as the task's Verify step requires. Fix t"
   task: 06cc0867da512a022b8b82b33505eb93799d0fa83700b8c58ba0a18195419228
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/pipeline.py exit=2'
