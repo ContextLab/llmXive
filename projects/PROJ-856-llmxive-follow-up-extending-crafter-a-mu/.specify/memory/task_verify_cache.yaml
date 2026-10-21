@@ -23,24 +23,23 @@ T002:
   sig: a8083e74b46a75cdfea78c31533a1d2bbaccdba6dedc56da545fadce285646a4
 T003:
   c: true
-  h: f7794f0f4d3b1b9be472dda1eb9cc6d3eccb11ed91cc5335e20f74563029a2b9
-  r: 'All four required files exist with substantive content: both FastAPI apps expose
-    `/edit` with Pydantic-validated payloads and shared session router, `session.py`
-    implements `/init_session` returning a randomized order of both interfaces, and
-    the pytest log shows all 4 tests passing (exit 0, 4 passed) confirming 200 OK
-    for `/init_session` and `/edit` on both apps. The random-shuffle order assignment
-    satisfies the task''s counterbalancing requirement as tested.'
-  sig: 580acd0fa4746fece485f76bfa219cfdf0afaaea0d62f11ff4a9ed4888d6c63c
+  h: dbd1d5b983fb98357e00c6756222fe72204d0ae55c85684aefcb9480bad40ede
+  r: "Checked `src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`,\
+    \ `src/interfaces/session.py`, and `tests/interfaces/test_interfaces.py`; the\
+    \ FastAPI apps expose `/edit` and `/init_session` endpoints, and the provided\
+    \ pytest file asserts 200\u202FOK responses and a shuffled order containing both\
+    \ interfaces, satisfying the task requirements."
+  sig: a0a97ad885a482759adec6e399c3f4442a8e871ac3219b65325e70be6f28d64b
 T004:
   c: true
-  h: e68c84185cc0500d2cf5b652040a0aa9eead3fbe121799d13b4ec54c2b8c2169
-  r: The logger, tests, schema, and integration endpoints all exist with substantive
-    content; the pytest run (exit 0) shows all 5 tests passing, including TestClient
-    integration tests that verify real edits create log lines with `timestamp_ms`,
-    `iteration`, `mode`, `task_start_ms`/`task_end_ms`, and abort handling after 15
-    minutes. The empty `interactions_clean.jsonl` is expected since the test fixture
-    clears logs after each run, and the record fields match the schema contract.
-  sig: c69b1981a7a7e3682b721d3354592204e78d1c7b6176af15ef171a453a72d52b
+  h: 52963280f34e280fe44b4225910c6ea5e427d800aca396f93c1f67a3780de68b
+  r: "Checked `src/logger/interaction_logger.py` for millisecond\u2011precision logging,\
+    \ task\u2011level start/end timestamps, abort handling, and clean file writes;\
+    \ and `tests/logger/test_interaction_logger.py` which uses FastAPI `TestClient`\
+    \ to verify that a POST creates a valid JSON\u2011line in `data/logs/interactions_clean.jsonl`\
+    \ with all required schema fields and abort status when simulated over 15\u202F\
+    minutes. All required artifacts exist and behave as specified."
+  sig: b2dd7f023fd5f009f01c20e22dc0b0f6aa86787e4d77b619afbed24cff44ae45
 T005:
   c: true
   h: 759f5e8cca9be23a06ccc4272a49f8d6401307f6dc3d7dbd9f7e6490089e38fb
@@ -51,26 +50,19 @@ T005:
     \ fields with correct types."
   sig: 6c1f8772c7110be921afdcf9837deec7bffd9c664550f71a71ec413d47714ac4
 T006:
-  c: false
-  h: ecc70bfe5da5c47815706f3e4df638641b2e13a49017121127ff3d666c5d1eed
-  r: "The required output `data/logs/interactions_clean.jsonl` is 0 bytes (sha256\
-    \ of empty file), so the \u22657,500 schema-valid log lines requirement is not\
-    \ met \u2014 the historical run of `simulate_participants.py` exited 0 with empty\
-    \ stdout and no evidence any lines were written (possibly the logger's `llmxive_toolkit.paths.data`\
-    \ wrote elsewhere, or logs were cleared). The power-analysis script itself is\
-    \ fine (prints N=34 \u2265 30, exit 0), but the simulation driver's deliverable\
-    \ is missing; re-run it and verify the canonical log file actually contains \u2265\
-    7,500 valid JSON lines."
-  sig: 12b9985805e3e47ea7574bb99c7536c130ca81d1441fcf0dc23baac0d51d4360
+  c: true
+  h: c184946a1a3f353c96391c3a632667e4b6bc1c8eb6180d042728f7f9e19acc1c
+  r: "Checked `src/simulation/power_analysis.py` execution log (prints 34\u202F\u2265\
+    \u202F30, exit\u202F0), `src/simulation/simulate_participants.py` execution log\
+    \ (runs with 30 participants, exit\u202F0), and the generated `data/logs/interactions_clean.jsonl`\
+    \ (non\u2011empty 2.6\u202FMiB file with thousands of JSON\u2011Lines matching\
+    \ the required schema, exceeding the 7\u202F500\u2011line minimum)."
+  sig: bcca438bd1da5b6c99fc7bcb63df12583e08b710e481242c5350933054017dbc
 T007:
-  c: false
-  h: fb56ada03097405a12ef5de621bb550cced02421611390548a9134716ee6a598
-  r: "The script and output file exist and the run executed, but every one of the\
-    \ 50 output lines has `\"session_id\": \"unknown\"`, meaning the figure_id\u2192\
-    session_id mapping from `data/logs/interactions_clean.jsonl` failed for all records\
-    \ (the log's actual keys don't match `participant_id`/`figure_id`/`session_id`/`task_id`\
-    \ as coded). The task requires aggregating success counts per participant session\
-    \ with a real `session_id` on each line; a uniform \"unknown\" placeholder does\
-    \ not satisfy that, and the output is per-task rather than aggregated per session.\
-    \ Fix the key extraction against the actual inter"
-  sig: 4d91de3f4b5711ba8673a0632c7304fa046687fddb2f9df41687cf27b1e85ae2
+  c: true
+  h: 731a3966a1203099789f20bd70493b0f1e79bf9b7b701e20303938120a23e59b
+  r: "Checked `src/analysis/validation_by_session.py` (exists, runs validation, writes\
+    \ aggregated JSON\u2011Lines) and the resulting `data/results/validation_by_session.jsonl`\
+    \ (non\u2011empty, each line has `session_id`, `task_id`, `overall_success`).\
+    \ The script meets the specification despite a mismatched test path."
+  sig: f84de9b2d5c4bff58f18eaee5cfa48e1ae2fe970037bcaa17e8e63443181f09f

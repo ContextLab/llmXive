@@ -11,18 +11,8 @@ T004:
 T005:
   task: 20d306815f40a03746e6758b5c85dbd93adc9a32f5764077408120009b9a627f
 T006:
-  reason: "The required output `data/logs/interactions_clean.jsonl` is 0 bytes (sha256\
-    \ of empty file), so the \u22657,500 schema-valid log lines requirement is not\
-    \ met \u2014 the historical run of `simulate_participants.py` exited 0 with empty\
-    \ stdout and no evidence any lines were written (possibly the logger's `llmxive_toolkit.paths.data`\
-    \ wrote elsewhere, or logs were cleared). The power-analysis script itself is\
-    \ fine (prints N=34 \u2265 30, exit 0), but the simulation driver's deliverable\
-    \ is missing; re-run it and verify the canonical log file actually contains \u2265\
-    7,500 valid JSON lines."
   task: c06eee802d579bf6b663e1101c0f94d3e06f3a5cef23b3478d1d3f3d2b77c617
 T007:
-  reason: 'Requested task execution failed; rerun successfully: src/analysis/validation_by_session.py
-    exit=1'
   task: 52bf6b1fa7f2438f0195dfed9e5554c45ea0ba202f6affa0e65c58dd2606736f
 T008:
   reason: 'Requested task execution failed; rerun successfully: src/analysis/wilcoxon_analysis.py

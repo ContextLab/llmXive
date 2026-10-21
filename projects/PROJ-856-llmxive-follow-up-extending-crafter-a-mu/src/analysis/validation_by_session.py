@@ -2,31 +2,17 @@
 validation_by_session.py
 -------------------------
 
-Aggregate per-task validation results into a per-session view.
+Aggregate per‑task validation results into a per‑session view.
 
-The script first (re)runs the validation pipeline
-(``src.validation.run_validation``) over the interaction logs and the
-ground-truth vectors, producing ``semantic_validation.jsonl``.  It then
-reads the clean interaction log to learn WHICH participant session
-edited WHICH task, and emits one output line per (session, task) pair:
+This script (re)runs the validation step to ensure that the
+``semantic_validation.jsonl`` file exists, then reads the interaction
+log to map each (session, task) pair to the corresponding validation
+record.  It emits one line per (session, task) with the validation
+outcome and a per‑session summary.
 
-    - session_id      (str): participant/session identifier from the log
-    - task_id         (str): task/figure identifier from validation
-    - interface       (str): "structured" or "chat" (when recoverable)
-    - vector_match    (bool)
-    - semantic_pass   (bool)
-    - overall_success (bool): vector_match OR semantic_pass
-
-Identifiers are normalised (e.g. ``figure_12`` and ``12`` and
-``ground_truth_12`` all map to task ``12``) so that the mapping works
-regardless of the naming convention used by the logger or the curator.
-
-A per-session success-count summary is additionally written to
-``data/results/session_success_summary.jsonl``.
-
-If no (session, task) mapping can be recovered from the interaction
-log, the script FAILS LOUDLY (exit code 1) instead of emitting
-placeholder ``"unknown"`` session ids.
+If any required mapping cannot be recovered the script aborts with a
+non‑zero exit status – it never emits placeholder ``"unknown"``
+identifiers.
 """
 
 import argparse
@@ -42,13 +28,21 @@ from llmxive_toolkit import get_logger
 
 log = get_logger(__name__)
 
-# Key candidates used when reading interaction-log records.  The logger
-# has used different key spellings across revisions, so we try them all.
-SESSION_KEYS = ("participant_id", "session_id", "participant", "user_id", "subject_id")
+# Keys that may appear in the interaction log for session and task.
+SESSION_KEYS = (
+    "participant_id",
+    "session_id",
+    "participant",
+    "user_id",
+    "subject_id",
+)
 TASK_KEYS = ("figure_id", "task_id", "figure", "task")
 
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
 def _load_jsonl(path: Path) -> List[Dict]:
-    """Load a JSON-Lines file into a list of dictionaries."""
+    """Load a JSON‑Lines file into a list of dictionaries."""
     records: List[Dict] = []
     if not path.is_file():
         return records
@@ -60,17 +54,16 @@ def _load_jsonl(path: Path) -> List[Dict]:
             try:
                 records.append(json.loads(line))
             except json.JSONDecodeError:
-                continue
+                log.warning("Skipping malformed JSON line in %s", path)
     return records
 
 def _normalize_task_id(raw) -> Optional[str]:
     """
     Normalise a task/figure identifier to a canonical string.
 
-    Handles conventions such as ``"12"``, ``"figure_12"``,
-    ``"task_12"``, ``"ground_truth_12"``, ``"fig12"`` by extracting the
-    trailing integer when present; otherwise returns the stripped
-    string.
+    Returns the trailing integer if the identifier ends with digits,
+    otherwise returns the stripped string. ``None`` is returned for
+    empty or missing values.
     """
     if raw is None:
         return None
@@ -82,19 +75,19 @@ def _normalize_task_id(raw) -> Optional[str]:
         return m.group(1)
     return s
 
-def _extract(entry: Dict, keys: Tuple[str, ...]):
-    """Return the first non-empty value among ``keys`` in ``entry``."""
+def _extract(entry: Dict, keys: Tuple[str, ...]) -> Optional:
+    """Return the first non‑empty value among ``keys`` in ``entry``."""
     for k in keys:
-        if k in entry and entry[k] is not None and str(entry[k]).strip() != "":
+        if k in entry and entry[k] is not None and str(entry[k]).strip():
             return entry[k]
     return None
 
 def _extract_pair(entry: Dict) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     """
-    Extract (session_id, task_id, interface) from one interaction record.
-
-    Falls back to inspecting a JSON-encoded ``payload`` string, since
-    some logger revisions store the request payload as a string.
+    Extract (session_id, task_id, interface) from a single interaction
+    record.  The logger may store the request payload as a JSON‑encoded
+    string; we fall back to parsing that payload when the top‑level
+    keys are missing.
     """
     session = _extract(entry, SESSION_KEYS)
     task = _extract(entry, TASK_KEYS)
@@ -119,52 +112,73 @@ def _extract_pair(entry: Dict) -> Tuple[Optional[str], Optional[str], Optional[s
                 session = _extract(payload, SESSION_KEYS)
             if task is None:
                 task = _extract(payload, TASK_KEYS)
+            if interface is None:
+                interface = payload.get("interface") or payload.get("mode")
     return session, task, interface
 
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Aggregate per-task validation results by participant session."
+        description="Aggregate per‑task validation results by participant session."
     )
     parser.add_argument(
-        "--log-dir", type=str, default="data/logs",
-        help="Directory containing the interaction logs (default: data/logs).",
+        "--log-dir",
+        type=str,
+        default="data/logs",
+        help="Directory containing the interaction log (default: data/logs).",
     )
     parser.add_argument(
-        "--validation-dir", type=str, default="data/validation",
-        help="Directory containing semantic validation JSON-Lines.",
+        "--validation-dir",
+        type=str,
+        default="data/validation",
+        help="Directory containing semantic validation JSON‑Lines (default: data/validation).",
     )
     parser.add_argument(
-        "--ground-truth-dir", type=str, default="data/ground_truth",
-        help="Directory containing ground-truth JSON files.",
+        "--ground-truth-dir",
+        type=str,
+        default="data/ground_truth",
+        help="Directory containing ground‑truth JSON files (default: data/ground_truth).",
     )
     parser.add_argument(
-        "--output-path", type=str,
+        "--output-path",
+        type=str,
         default="data/results/validation_by_session.jsonl",
-        help="Path to write the aggregated per-session validation file.",
+        help="Path to write the aggregated per‑session validation file.",
     )
     parser.add_argument(
-        "--summary-path", type=str,
+        "--summary-path",
+        type=str,
         default="data/results/session_success_summary.jsonl",
-        help="Path to write the per-session success-count summary.",
+        help="Path to write the per‑session success‑count summary.",
     )
     return parser
 
 def _run_validation(log_dir: Path, ground_truth_dir: Path, validation_dir: Path) -> None:
-    """Execute ``src.validation.run_validation`` as a subprocess."""
+    """
+    Execute ``src.validation.run_validation`` as a subprocess.
+
+    The validation script writes ``semantic_validation.jsonl`` into the
+    provided ``validation_dir``.  If the subprocess fails we abort
+    immediately because downstream aggregation would be meaningless.
+    """
     cmd = [
-        sys.executable, "-m", "src.validation.run_validation",
-        "--log-dir", str(log_dir),
-        "--ground-truth-dir", str(ground_truth_dir),
-        "--output-dir", str(validation_dir),
+        sys.executable,
+        "-m",
+        "src.validation.run_validation",
+        "--log-dir",
+        str(log_dir),
+        "--ground-truth-dir",
+        str(ground_truth_dir),
+        "--output-dir",
+        str(validation_dir),
     ]
     log.info("Running validation step: %s", " ".join(cmd))
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
-        log.error("run_validation failed")
+        log.error("Validation step failed (exit %d)", result.returncode)
         log.error("STDOUT: %s", result.stdout)
         log.error("STDERR: %s", result.stderr)
-    else:
-        log.info("Validation step completed successfully.")
+        sys.exit(1)
+    log.info("Validation step completed successfully.")
 
 def main() -> int:
     parser = _build_arg_parser()
@@ -176,10 +190,10 @@ def main() -> int:
     output_path = Path(args.output_path)
     summary_path = Path(args.summary_path)
 
-    # 1. (Re)run the validation step so semantic_validation.jsonl exists.
+    # 1. Ensure the validation file exists (run validation if needed)
     _run_validation(log_dir, ground_truth_dir, validation_dir)
 
-    # 2. Load interaction logs and build task -> [(session, interface)].
+    # 2. Load interaction log and build a mapping from task → (session, interface)
     interaction_log_path = log_dir / "interactions_clean.jsonl"
     if not interaction_log_path.is_file():
         log.error("Interaction log not found: %s", interaction_log_path)
@@ -206,14 +220,10 @@ def main() -> int:
                 (str(session), str(interface) if interface else "unknown")
             )
     if unmapped:
-        log.warning(
-            "%d interaction records could not be mapped to (session, task)",
-            unmapped,
-        )
+        log.warning("%d interaction records could not be mapped to (session, task)", unmapped)
     if not task_to_sessions:
         log.error(
-            "Could not recover any (session, task) pairs from %s — "
-              "refusing to emit placeholder session ids",
+            "Could not recover any (session, task) pairs from %s – aborting",
             interaction_log_path,
         )
         return 1
@@ -228,13 +238,12 @@ def main() -> int:
         log.error("Semantic validation file is empty: %s", validation_path)
         return 1
 
-    # 4. Emit one line per (session, task) with the task-level result.
+    # 4. Write aggregated per‑session records.
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    session_stats: Dict[str, Dict[str, int]] = defaultdict(
-        lambda: {"tasks_attempted": 0, "successes": 0}
-    )
-    count = 0
+    session_stats: Dict[str, Dict[str, int]] = defaultdict(lambda: {"tasks_attempted": 0, "successes": 0})
+    written = 0
     unmapped_tasks = 0
+
     with output_path.open("w", encoding="utf-8") as out_f:
         for record in validations:
             raw_task = record.get("task_id") or record.get("figure_id")
@@ -248,13 +257,14 @@ def main() -> int:
 
             pairs = task_to_sessions.get(task_norm, [])
             if not pairs:
-                # Try the raw identifier as a secondary key.
+                # As a last resort try the raw identifier directly.
                 pairs = task_to_sessions.get(str(raw_task), [])
             if not pairs:
                 unmapped_tasks += 1
                 log.warning(
-                    "No session found in the interaction log for task %s "
-                      "(raw id %r) — skipping", task_norm, raw_task,
+                    "No session found for task %s (raw id %r) – skipping",
+                    task_norm,
+                    raw_task,
                 )
                 continue
 
@@ -271,33 +281,35 @@ def main() -> int:
                 session_stats[session_id]["tasks_attempted"] += 1
                 if overall_success:
                     session_stats[session_id]["successes"] += 1
-                count += 1
+                written += 1
 
-    if count == 0:
-        log.error(
-            "No validation record could be mapped to a session — "
-              "output would contain only placeholders; aborting"
-        )
+    if written == 0:
+        log.error("No (session, task) records were written – aborting")
         return 1
     if unmapped_tasks:
         log.warning("%d validation tasks had no matching session", unmapped_tasks)
 
-    log.info("Aggregated %d (session, task) records written to %s", count, output_path)
+    log.info("Aggregated %d (session, task) records written to %s", written, output_path)
 
-    # 5. Per-session success-count summary.
+    # 5. Write per‑session success‑count summary.
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     with summary_path.open("w", encoding="utf-8") as sum_f:
         for session_id in sorted(session_stats):
             stats = session_stats[session_id]
             attempted = stats["tasks_attempted"]
             successes = stats["successes"]
-            sum_f.write(json.dumps({
-                "session_id": session_id,
-                "tasks_attempted": attempted,
-                "successes": successes,
-                "success_rate": round(successes / attempted, 4) if attempted else 0.0,
-            }) + "\n")
-    log.info("Per-session summary written to %s", summary_path)
+            sum_f.write(
+                json.dumps(
+                    {
+                        "session_id": session_id,
+                        "tasks_attempted": attempted,
+                        "successes": successes,
+                        "success_rate": round(successes / attempted, 4) if attempted else 0.0,
+                    }
+                )
+                + "\n"
+            )
+    log.info("Per‑session summary written to %s", summary_path)
     return 0
 
 if __name__ == "__main__":

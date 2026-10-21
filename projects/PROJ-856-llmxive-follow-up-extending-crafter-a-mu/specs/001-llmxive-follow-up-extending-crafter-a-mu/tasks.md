@@ -27,11 +27,11 @@
   - **Files**: `src/validation/vector_match.py`, `src/validation/semantic_similarity.py`, `src/validation/run_validation.py`, `tests/validation/test_validation.py`.  
   - **Verification**: Unit tests cover (a) exact match → both true, (b) semantic‑only match → `overall_success: true`, (c) full failure → false. Records conform to `specs/001-llmxive-cognitive-load/contracts/semantic_validation.schema.yaml`.
 
-- [ ] T006 [P] [US3] Implement a‑priori power analysis and synthetic participant driver that produces schema‑conformant logs at full scale.  
+- [X] T006 [P] [US3] Implement a‑priori power analysis and synthetic participant driver that produces schema‑conformant logs at full scale.  
   - **Files**: `src/simulation/power_analysis.py`, `src/simulation/simulate_participants.py`.  
   - **Verification**: `python -m src.simulation.power_analysis` prints required N (≥30) and exits 0; after `simulate_participants.py`, `data/logs/interactions_clean.jsonl` contains ≥ 7 500 lines, all validating against the interaction‑log schema.
 
-- [ ] T007 [P] [US2] **Generate per‑session aggregated validation results** (no `session_id` required in `SemanticValidation`). The script reads the per‑edit logs, applies `run_validation.py` to each task, and aggregates success counts per participant session, outputting `data/results/validation_by_session.jsonl`.   <!-- FAILED-IN-EXECUTION: src/analysis/validation_by_session.py exit=1 -->
+- [X] T007 [P] [US2] **Generate per‑session aggregated validation results** (no `session_id` required in `SemanticValidation`). The script reads the per‑edit logs, applies `run_validation.py` to each task, and aggregates success counts per participant session, outputting `data/results/validation_by_session.jsonl`.
   - **File**: `src/analysis/validation_by_session.py`.  
   - **Verification**: Each line includes `session_id`, `task_id`, `overall_success` and passes a lightweight schema defined locally for the aggregated view.
 
