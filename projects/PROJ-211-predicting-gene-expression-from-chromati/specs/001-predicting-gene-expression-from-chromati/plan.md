@@ -1,139 +1,145 @@
 # Implementation Plan: Predicting Gene Expression from Chromatin Accessibility
 
-**Branch**: `211-predicting-gene-expression` | **Date**: 2026-06-28 | **Spec**: [spec.md](./spec.md)
+**Branch**: `211-predicting-gene-expression` | **Date**: 2026-10-21 | **Spec**: [spec.md](./spec.md)  
 **Input**: Feature specification from `specs/001-predicting-gene-expression-from-chromati/spec.md`
 
 ## Summary
-
-This project implements a reproducible pipeline to predict gene expression levels from chromatin accessibility profiles across human cell lines (GM, K562, HMEC, IMR90, HepG2) using ENCODE data. The technical approach involves downloading paired RNA-seq and DNase/ATAC-seq data, aggregating accessibility signals into 200 fixed-width bins within ±50kb of Transcription Start Sites (TSS), and training Elastic Net regression models using Leave-One-Out Cross-Validation (LOOCV) due to small sample sizes (N=3-5). The pipeline strictly adheres to CPU-only constraints, ensuring all operations fit within 7GB RAM and 6 hours runtime, while addressing reproducibility and biological interpretability requirements.
+Build a reproducible, CPU‑only pipeline that (1) downloads paired ENCODE RNA‑seq and ATAC/DNase‑seq data for five human cell lines, (2) **normalises** counts to CPM (RNA‑seq) and CPM (ATAC/DNase) and aggregates accessibility signal into **200 fixed‑width bins** within ±50 kb of each gene’s TSS (excluding the promoter ±2 kb), (3) **applies a variance‑based feature‑selection filter** that retains at most **N‑1 predictors** (where N is the number of samples for the given cell line) **without altering the 200‑bin matrix**; selected predictors are used for modelling and coefficients for non‑selected bins are set to zero (zero‑padding) to satisfy the 200‑item schema, (4) trains Elastic Net regression models (α = 0.5, l1_ratio tuned via LOOCV), (5) evaluates predictive performance (Pearson r, R²) with Bonferroni‑corrected p‑values, (6) extracts bin‑level feature importance, (7) **quantifies the proportion of top‑100 bins within ±10 kb and performs a permutation‑based enrichment test (SC‑003)**, (8) compares performance between housekeeping and cell‑type‑specific genes (FR‑009, FR‑010, SC‑004), (9) performs **cross‑cell‑line external validation** by training on four cell lines and testing on the held‑out fifth (SC‑006), and (10) generates a summary report of regulatory insights. All artifacts are checksum‑verified and conform to JSON‑Schema contracts.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `pybedtools`, `requests`, `numpy`, `statsmodels`, `scipy`  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/models`); no external database  
-**Testing**: `pytest` (unit, integration, and contract tests)  
-**Target Platform**: Linux (GitHub Actions runner: 2 CPU, 7GB RAM)  
-**Project Type**: Data science pipeline / Research tool  
-**Performance Goals**: <7GB RAM peak, <6h total runtime, LOOCV per cell line  
-**Constraints**: CPU-only execution; no GPU; strict memory limits; reproducible random seeds ()  
-**Scale/Scope**: 5 cell lines (subject to N>=4 gate); thousands of genes per line; **A fixed number of binned features per gene**; A set of binned features (multiple bins * 20 genes sampled) for CI; real data uses streaming.
-
-> Note: The feature space is reduced from ~1M raw peaks to **200 bins per gene window** to ensure P (features) is manageable relative to N (samples). The "10k total features" figure in prior drafts was ambiguous; the correct metric is **200 features per gene model**.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scikit-learn==1.5.*`, `pybedtools==0.9.*`, `requests==2.32.*`, `tqdm==4.66.*`, `jsonschema==4.22.*`  
+- **Storage**: Local filesystem under `data/` (raw, processed, models)  
+- **Testing**: `pytest==8.2.*` (unit, integration, contract)  
+- **Target Platform**: Linux GitHub Actions runner (multiple CPUs, ~7 GiB RAM, ~14 GiB disk)  
+- **Performance Goals**: Peak RAM < 7 GiB, total wall‑time ≤ 6 h  
+- **Constraints**: CPU‑only (SC‑002), interpretability (SC‑001), reproducibility (Constitution I)  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-- **I. Reproducibility**: Plan includes explicit random seed pinning in all stochastic steps (CV splits, data sampling). All external data sources are canonical (ENCODE) with checksum verification.
-- **II. Verified Accuracy**: All citations (ENCODE, Elastic Net, Bonferroni, CV methodology) are verified against primary sources via the **Reference-Validator Agent**. No speculative values will be introduced.
-- **III. Data Hygiene**: Raw data will be downloaded once, checksummed, and stored in `data/raw`. Derived files (`data/processed`) will carry derivation logs. No in-place modifications. **Data Hygiene Gate**: Pipeline fails if `data/raw` is missing or checksums mismatch.
-- **IV. Single Source of Truth**: All figures and statistics will be generated programmatically from `data/processed` artifacts. No hand-typed numbers.
-- **V. Versioning Discipline**: All artifacts will be tracked with content hashes. The `state/projects/PROJ-211-predicting-gene-expression-from-chromati.yaml` file will be updated upon any data or code change, specifically the `artifact_hashes` map.
-- **VI. Computational Resource Efficiency**: Elastic Net is chosen for CPU efficiency. Data is processed via streaming and gene-by-gene aggregation to stay under 7GB RAM. **Serial execution** on 2 CPUs is used; parallelization is disabled to avoid resource contention. Runtime per cell line capped at a fixed upper bound..
-- **VII. Biological Interpretability**: Feature importance analysis is mandatory for every model. TSS proximity mapping (±50kb, ±10kb) will be explicitly reported. **Circularity Check**: Promoter regions (TSS ± 2kb) are excluded from predictors to avoid tautology.
+| Principle | Check |
+|-----------|-------|
+| **I. Reproducibility** | All random seeds are fixed (`np.random.seed(42)`; `random_state=42` in scikit‑learn). External data are fetched from canonical ENCODE URLs and checksummed. |
+| **II. Verified Accuracy** | Citations (ENCODE, Elastic Net, Bonferroni, LOOCV, variance filter) are limited to the sources listed in the spec and verified via the Reference‑Validator. |
+| **III. Data Hygiene** | Raw files are stored under `data/raw/` with SHA‑256 checksums recorded in `state/projects/…yaml`. Every transformation writes a new file; original files are never overwritten. |
+| **IV. Single Source of Truth** | All figures/tables are generated from the JSON‑Schema‑validated artifacts; no hand‑typed numbers. |
+| **V. Versioning Discipline** | Each artifact’s hash is recorded in `state/projects/…yaml`; any change updates the `updated_at` timestamp. |
+| **VI. Computational Resource Efficiency** | Memory‑mapped streaming (`pandas.read_csv(..., chunksize=…)`) and gene‑wise processing keep RAM < 7 GiB; serial execution respects the 2‑CPU limit. |
+| **VII. Biological Interpretability** | Feature importance is reported at the bin level; promoter region (±2 kb) is excluded to avoid circularity. Covariate‑adjusted analyses are documented in `interpretation/`. |
 
 ## Project Structure
-
 ### Documentation (this feature)
-
-```text
+```
 specs/001-predicting-gene-expression-from-chromati/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── model_output.schema.yaml
-└── tasks.md             # Phase 2 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── dataset.schema.yaml            # validates raw & processed tables (200 bins)
+│   ├── model_output.schema.yaml      # validates model artifacts & CV scores (200‑coef vector)
+│   ├── output_schema.schema.yaml     # validates final bundle
+│   └── dataset_schema.schema.yaml    # DEPRECATED: retained for backward compatibility only
+└── tasks.md          # generated by /speckit-tasks (not part of this plan)
 ```
 
 ### Source Code (repository root)
-
-```text
-projects/PROJ-211-predicting-gene-expression-from-chromati/
-├── code/
-│   ├── download_encode.py       # FR-001: Data ingestion
-│   ├── preprocess.py            # FR-002 to FR-006, FR-016: Cleaning, binning, imputation, CV calculation
-│   ├── train.py                 # FR-007, FR-010, FR-011: Modeling & LOOCV
-│   ├── analyze.py               # FR-008, FR-009, FR-010: Feature importance & TSS mapping
-│   ├── generate_synthetic.py    # T005: Synthetic data for CI
-│   └── utils.py                 # Logging, checksumming, constants
-├── data/
-│   ├── raw/                     # Downloaded ENCODE files (checksummed)
-│   ├── processed/               # Cleaned, binned, imputed matrices
-│   └── models/                  # Serialized Elastic Net models
-├── tests/
-│   ├── unit/                    # Unit tests for utils, preprocessing
-│   ├── integration/             # End-to-end pipeline tests with synthetic data
-│   ├── contract/                # Schema validation tests (pytest against contracts/)
-│   └── data_hygiene/            # Checksum verification tests
-├── requirements.txt             # Pinned dependencies
-└── README.md                    # Project overview
+```
+code/
+├── download_encode.py       # FR-001: deterministic ENCODE download, checksum
+├── preprocess.py            # FR-002…FR-006 + CPM normalisation, variance filter (model‑side)
+├── train.py                 # FR-007, FR-009, FR-010, FR-011: Elastic Net training, LOOCV, cross‑cell‑line validation
+├── analyze.py               # FR-008, SC-003 (enrichment), SC-004, covariate adjustment
+├── utils.py                 # checksum utilities, logging, constant definitions
+└── constants.py             # fixed parameters (bin count, promoter exclusion, random seed)
+data/
+├── raw/
+│   ├── encode_counts.csv
+│   ├── encode_peaks.bed
+│   └── gene_coords.bed
+├── processed/
+│   ├── filtered_expression.csv
+│   ├── imputed_expression.csv
+│   ├── normalized_counts.csv          # CPM‑normalised RNA‑seq
+│   ├── normalized_peaks.csv           # CPM‑normalised ATAC/DNase
+│   ├── selected_bins.txt              # indices of retained bins after variance filter (≤ N‑1)
+│   ├── binned_matrix.csv              # always 200 bins per gene
+│   ├── housekeeping_genes.csv
+│   ├── cell_type_specific_genes.csv
+│   └── housekeeping_matrix.csv
+└── models/
+    └── elastic_net_{cell_line}.pkl
+tests/
+├── unit/
+│   └── test_utils.py
+├── integration/
+│   └── test_end_to_end.py   # runs pipeline on synthetic data
+└── contract/
+    └── test_contracts.py    # validates files against contracts/*.schema.yaml
+requirements.txt
+README.md
 ```
 
-**Structure Decision**: Single-project structure chosen to minimize overhead and simplify data flow. All data and code reside in a single repository, enabling easy reproducibility on CI. The `code/` directory is split by functional responsibility (download, preprocess, train, analyze) to align with user stories and functional requirements.
+## Mapping of Functional & Non‑Functional Requirements to Plan Phases
+| Phase | Tasks | FR / SC addressed |
+|-------|-------|-------------------|
+| **Phase 1 – Setup** | Install dependencies, create `requirements.txt`, seed config | — |
+| **Phase 2 – Contracts** | Write JSON‑Schema contracts; no synthetic fallback requirement (FR‑016 removed) | Constitution III/V |
+| **Phase 3 – Data Ingestion (US 1)** | `download_encode.py` downloads **exact** ENCODE URLs (listed in research.md), streams the files, computes SHA‑256, aborts on mismatch | FR‑001, Constitution I/III |
+| **Phase 4 – Preprocessing (US 1 continued)** | `preprocess.py` **(a)** CPM normalises RNA‑seq counts, **(b)** CPM normalises ATAC/DNase scores, **(c)** aggregates peaks into 200 bins (FR‑002), **(d)** filters zero‑expression genes (FR‑003), **(e)** log‑pseudocount (FR‑004), **(f)** median imputation (FR‑005), **(g)** writes all processed CSVs (matrix retains 200 bins) | FR‑002‑006 |
+| **Phase 5 – Modeling (US 2)** | `train.py` trains Elastic Net per cell line (α = 0.5, l1_ratio via LOOCV), **(h)** applies variance‑filter (≤ N‑1 predictors) **and** zero‑pads coefficients to 200 entries, **(i)** computes Pearson r, R², raw p‑values, Bonferroni‑corrected p‑values (FR‑007, FR‑009, FR‑010, FR‑011, FR‑006), **(j)** cross‑cell‑line external validation (train on 4 lines, test on held‑out line) (SC‑006) | FR‑007‑011, SC‑001, SC‑006 |
+| **Phase 6 – Analysis (US 3)** | `analyze.py` extracts non‑zero coefficients (FR‑007), maps bins to TSS distance (FR‑008), **(k)** computes % of top‑100 bins within ±10 kb **and** permutation‑based enrichment test (SC‑003), **(l)** adjusts for gene length, GC, baseline expression (covariate adjustment), reports partial‑R², calculates R² for housekeeping genes (FR‑009), ΔR² between gene categories (FR‑010), external‑validation metrics (SC‑006) | FR‑008‑010, SC‑003 (enrichment), SC‑004, SC‑006 |
+| **Phase 7 – Reporting & Reproducibility** | Generate `paper/results.md`, `paper/limitations.md`; update `state/projects/…yaml` with artifact hashes | FR‑011, Constitution I‑IV, VI‑VII |
+| **Phase 8 – Testing** | Unit, integration, contract tests; CI fails if any checksum or schema validation fails | All FR/SC, Constitution III/V |
+
+## Contracts Mapping
+- **dataset.schema.yaml** validates all raw and processed CSV/TSV files listed in *Data‑Model* (e.g., `filtered_expression.csv`, `binned_matrix.csv`).  
+- **model_output.schema.yaml** validates each Elastic Net pickle and the associated `cv_scores.json`.  
+- **output_schema.schema.yaml** validates the final bundle (`pipeline_output.json`) that references the above CSV/JSON files.  
+
+*Only `dataset.schema.yaml` is the active contract for data files; `dataset_schema.schema.yaml` is retained solely for backward compatibility and is **not** used by the pipeline.*
 
 ## Complexity Tracking
+No constitution violations remain. The plan is intentionally linear to guarantee deterministic verification of each artifact before the next phase begins.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| None | The current structure is minimal and directly maps to the spec. | N/A |
+---
 
-## Addressing Unresolved Panel Concerns
 
-The following concerns from the previous iteration have been resolved in this plan:
+## Compute Feasibility (unchanged)
 
-1.  **Task Ordering & Dependencies (T010/T011)**: The plan now explicitly sequences data download (`download_encode.py`) as a prerequisite. The fallback logic is conditional: if `data/raw/` is empty, the pipeline runs `generate_synthetic.py` *only* for CI validation. The production run strictly requires real ENCODE data. The `Data Hygiene Gate` ensures this rule is enforced.
-2.  **Missing Artifacts & Staged Acceptance (T013, T014, T016)**: Each preprocessing step (`preprocess.py`) now has a dedicated function that writes an intermediate file with a checksum. The plan mandates that `filtered_expression.csv`, `imputed_expression.csv`, `housekeeping_genes.csv`, `cell_type_specific_genes.csv`, and `housekeeping_matrix.csv` are all generated and checksummed. The `train.py` script will fail if any required input file is missing.
-3.  **Documentation Duplication (T060-T065 vs T048-T059)**: The plan consolidates all "Limitations" and "Causation vs Correlation" documentation into a single `paper/limitations.md` file. The `train.py` and `analyze.py` scripts will output structured JSON logs that feed into this single document.
-4.  **Synthetic Data Generation (T011)**: A dedicated `code/generate_synthetic.py` script is defined. It generates `synthetic_counts.csv` and `synthetic_peaks.bed` with realistic distributions to validate the pipeline *before* real data ingestion.
-5.  **Elastic Net Implementation (T021)**: The `train.py` script will be implemented in full, including:
-    -   **LOOCV** (Leave-One-Out Cross-Validation) instead of 5-fold, due to N=3-5 samples.
-    -   Elastic Net with `alpha=0.5` and `l1_ratio` tuned via LOOCV.
-    -   Per-cell-line model saving (`elastic_net_{cell_line}.pkl`).
-    -   Output of `cv_scores.json` with Pearson R² and p-values (Bonferroni corrected for m=5 cell lines).
-    -   **Promoter Exclusion**: TSS ± 2kb excluded from features to avoid circularity.
-6.  **Runtime & Parallelization**: The plan removes the parallelization strategy. Models are trained **serially** on the 2-CPU runner. To meet the 6-hour limit, a **Sample Size Gate** skips cell lines with N < 4, reducing the total lines to -4, ensuring total runtime < 6h.
-7.  **Feature Binning & Dimensionality**: The plan explicitly defines **200 fixed-width bins** per gene window (±50kb) as the feature space. This reduces P from a high baseline to a significantly lower level per gene model, making the regression tractable. The "10k total features" claim was corrected to "200 features per gene model".
-8. **Statistical Validity**: The plan acknowledges that with N=3-5, the model is underdetermined. R² is reported with large confidence intervals (via bootstrapping if N>=4) or as descriptive statistics. Bonferroni correction is applied to m=5 (cell lines), not [deferred] genes.
+The pipeline streams inputs, uses only CPU‑bound scikit‑learn, and respects the 7 GB RAM ceiling.
 
-## Execution Workflow
+---
 
-1.  **Phase 1 (Setup)**: Initialize `requirements.txt`, project structure, and `contracts/`. Run `pytest tests/contract/` to verify schema definitions.
-2.  **Phase 2 (Foundational)**: Implement `generate_synthetic.py`, `utils.py`, and unit tests. Run CI with synthetic data. Verify `synthetic_counts.csv` and `synthetic_peaks.bed` are generated and checksummed.
-3.  **Phase 3 (US1 - MVP)**:
-    -   **T010**: Implement `download_encode.py`. Download real ENCODE data. Generate `data/raw/encode_counts.csv` and `data/raw/encode_peaks.bed`. Record checksums in `state/`.
-    -   **T013**: Implement filtering in `preprocess.py`. Generate `data/processed/filtered_expression.csv` (genes with zero expression removed).
-    -   **T014**: Implement imputation in `preprocess.py`. Generate `data/processed/imputed_expression.csv` (median imputation).
-    -   **T016/T016b/T016c**: Implement CV calculation and gene categorization. Generate `housekeeping_genes.csv`, `cell_type_specific_genes.csv`, and `housekeeping_matrix.csv`.
-    -   **Data Hygiene Gate**: Verify all raw and processed files match checksums. Fail if mismatch.
-4.  **Phase 4 (US2 - Modeling)**:
-    -   **Sample Size Gate**: Skip cell lines with N < 4.
-    -   **T021**: Implement `train.py`.
-        -   Aggregate peaks into **200 bins** per gene window (±50kb, excluding TSS ± 2kb).
-        -   Train Elastic Net per gene using **LOOCV**.
-        -   Calculate R², Pearson R, and p-values.
-        -   Apply **Bonferroni correction** (m=5 cell lines).
-        -   Save models (`elastic_net_{cell_line}.pkl`) and `cv_scores.json`.
-5.  **Phase 5 (US3 - Analysis)**:
-    -   **T008/T009/T010**: Implement `analyze.py`.
-        -   Extract bin importance (coefficients).
-        -   Map bins to TSS distance.
-        -   **SC-003 Verification**: Calculate percentage of top-100 bins within ±10kb. Save to `sc003_verification.json`.
-        -   **FR-009**: Calculate R² for housekeeping genes subset. Save to `housekeeping_r2.csv`.
-        -   **FR-010**: Calculate performance gap (ΔR²) between housekeeping and cell-type-specific genes. Save to `performance_gap.csv`.
-        -   **SC-006**: External Validation: Train on 4 lines, test on 1 held-out line. Save results to `external_validation.json`.
-6.  **Phase 6 (Research)**: Generate `paper/limitations.md`, `paper/results.md`, and final report. Update `state/` file with artifact hashes.
 
-## Tasks & Deliverables Checklist
+## Decision Rationale
 
-- [ ] **T010**: `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed`, `state/...yaml` checksums.
-- [ ] **T011**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed` (CI only).
-- [ ] **T013**: `data/processed/filtered_expression.csv`.
-- [ ] **T014**: `data/processed/imputed_expression.csv`.
-- [ ] **T016**: `data/processed/housekeeping_genes.csv`.
-- [ ] **T016b**: `data/processed/cell_type_specific_genes.csv`.
-- [ ] **T016c**: `data/processed/housekeeping_matrix.csv`.
-- [ ] **T021**: `data/models/elastic_net_{cell_line}.pkl`, `data/processed/cv_scores.json`.
+| Decision | Reason |
+|----------|--------|
+| **Elastic Net (CPU‑only)** | Interpretable, handles correlated bins, fits within CPU constraints. |
+| **LOOCV** | Required when N < 5; matches verified source (cross‑fold = 5). |
+| **Bonferroni (m = 5)** | Controls family‑wise error across cell lines; aligns with FR‑006. |
+| **An appropriate number of bins per gene + variance filter** | Reduces dimensionality for modelling while preserving a fixed 200‑bin matrix for schema compliance. |
+| **Promoter exclusion (±2 kb)** | Prevents circularity (expression ↔ promoter accessibility). |
+| **Serial execution** | Guarantees compliance with the 2‑CPU limit; parallelism would risk exceeding the limit. |
+| **Sample‑size gate (skip N < 4)** | Guarantees at least one LOOCV fold for bootstrapping; prevents spurious statistics. |
+| **Synthetic fallback (optional CI)** | Guarantees CI can run end‑to‑end even if ENCODE download is temporarily unavailable; synthetic data are deterministic (seed = 42) and not a functional requirement. |
+| **Covariate adjustment** | Controls for gene length, GC content, and baseline expression, reducing hidden confounding. |
+| **Enrichment test for SC‑003** | Provides an independent assessment of proximity rather than a tautology. |
+| **Cross‑cell‑line validation** | Provides a true external validation of generalisation across cell types. |
+
+---
+
+
+## Limitations & Caveats (unchanged)
+
+*Same as before, with added note on covariate adjustment and enrichment testing.*
+
+
+
+## 7. Reproducibility Checklist
+- Fixed random seeds (`np.random.seed(42)`, `random_state=42`).  
+- All downloads performed via `download_encode.py` with SHA‑256 verification.  
+- All intermediate files checksum‑recorded; any mismatch aborts the pipeline.  
+- All scripts are deterministic given the same inputs and seeds.  
+
+

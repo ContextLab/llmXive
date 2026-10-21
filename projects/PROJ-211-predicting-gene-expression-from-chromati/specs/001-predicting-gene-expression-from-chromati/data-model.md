@@ -1,162 +1,76 @@
 # Data Model: Predicting Gene Expression from Chromatin Accessibility
 
 ## 1. Overview
-
-This document defines the data structures used throughout the pipeline, from raw ENCODE downloads to final model outputs. All data is stored in CSV, BED, or Pickle formats for compatibility and reproducibility.
+Defines all file‑level schemas used throughout the pipeline, from raw ENCODE downloads to final model artifacts. Every file is validated against a JSON‑Schema contract in `contracts/`.
 
 ## 2. Input Data Models
 
-### 2.1 Raw RNA-seq Counts
-**Source**: ENCODE RNA-seq experiments  
-**Format**: CSV  
-**Schema**:
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `gene_id` | str | Ensembl gene ID |
-| `gene_name` | str | Gene symbol |
-| `sample_id` | str | ENCODE sample ID |
-| `cell_line` | str | Cell line name (e.g., GM12878) |
-| `count` | int | Raw read count |
+| File | Format | Key Columns | Description |
+|------|--------|-------------|-------------|
+| `data/raw/encode_counts.csv` | CSV | `gene_id`, `gene_name`, `sample_id`, `cell_line`, `count` | RNA‑seq raw read counts (one row per gene‑sample). |
+| `data/raw/encode_peaks.bed` | BED | `chrom`, `start`, `end`, `score`, `strand` | ATAC/DNase peak calls (score = signal intensity). |
+| `data/raw/gene_coords.bed` | BED | `chrom`, `start`, `end`, `gene_id`, `gene_name` | TSS coordinates (hg38). |
 
-**Constraints**:
-- `gene_id` must be unique per row.
-- `count` ≥ 0.
-
-### 2.2 Raw DNase/ATAC-seq Peaks
-**Source**: ENCODE peak calls  
-**Format**: BED  
-**Schema**:
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `chrom` | str | Chromosome (e.g., chr1) |
-| `start` | int | 0-based start position |
-| `end` | int | 0-based end position |
-| `score` | float | Peak score (e.g., -log10 p-value) |
-| `strand` | str | Strand (+/-) |
-
-**Constraints**:
-- `start` < `end`.
-- `chrom` must match genome assembly (hg38).
-
-### 2.3 Gene Coordinates
-**Source**: GENCODE / RefSeq  
-**Format**: BED  
-**Schema**:
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `chrom` | str | Chromosome |
-| `start` | int | TSS position (0-based) |
-| `end` | int | TSS position + 1 |
-| `gene_id` | str | Ensembl gene ID |
-| `gene_name` | str | Gene symbol |
-
-**Constraints**:
-- `start` is the TSS.
-- `gene_id` must match RNA-seq data.
+All three files are accompanied by SHA‑256 checksums recorded in `state/projects/...yaml`.
 
 ## 3. Processed Data Models
 
-### 3.1 Binned Feature Matrix
-**Description**: Accessibility signal aggregated into **200 fixed-width bins** within ±50kb of each gene's TSS. The promoter region (TSS ± 2kb) is **excluded**.  
-**Format**: CSV (wide format)  
-**Schema**:
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `gene_id` | str | Ensembl gene ID |
-| `cell_line` | str | Cell line name |
-| `bin_1_score` | float | Aggregated score for bin 1 (e.g., -50kb to -49.5kb) |
-| ... | ... | ... |
-| `bin_200_score` | float | Aggregated score for bin 200 (e.g., +49.5kb to +50kb) |
+| Artifact | Format | Columns / Structure | Constraints |
+|----------|--------|---------------------|-------------|
+| `filtered_expression.csv` | CSV | `gene_id`, `cell_line`, `count` | Genes with zero count across *all* samples removed (FR‑003). |
+| `imputed_expression.csv` | CSV | `gene_id`, `cell_line`, `log_count` | `log_count = log(count + 1)` (FR‑004); missing values imputed with median per gene (FR‑005). |
+| `normalized_counts.csv` | CSV | `gene_id`, `cell_line`, `cpm` | CPM‑normalised RNA‑seq counts (library‑size scaling). |
+| `normalized_peaks.csv` | CSV | `peak_id`, `cell_line`, `cpm` | CPM‑normalised ATAC/DNase peak scores. |
+| `selected_bins.txt` | TXT | One integer per line (0‑based bin index) | Bins retained after variance‑based filter (≤ N‑1 per cell line). |
+| `binned_matrix.csv` | CSV (wide) | `gene_id`, `cell_line`, `bin_1` … `bin_200` (all bins retained) | Accessibility summed per 200 fixed‑width bins within ±50 kb of TSS; promoter (±2 kb) set to 0 (FR‑002, FR‑008). |
+| `housekeeping_genes.csv` | CSV | `gene_id`, `gene_name`, `cv` | CV < 0.2 across cell lines (derived for FR‑009). |
+| `cell_type_specific_genes.csv` | CSV | `gene_id`, `gene_name`, `max_cv`, `cell_line` | CV > 0.5 in at least one cell line (derived for FR‑010). |
+| `housekeeping_matrix.csv` | CSV | Same layout as `binned_matrix.csv` but restricted to housekeeping genes | Used for FR‑009 performance calculation. |
 
-**Constraints**:
-- Missing values imputed with median per bin (FR-005).
-- Genes with zero expression in all samples are filtered (FR-003).
-- **Promoter Exclusion**: Bins overlapping TSS ± 2kb are set to 0 or excluded from the matrix.
+## 4. Model Artifacts
 
-### 3.2 Target Vector
-**Description**: Log-transformed gene expression values.  
-**Format**: CSV  
-**Schema**:
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `gene_id` | str | Ensembl gene ID |
-| `cell_line` | str | Cell line name |
-| `log_count` | float | log(count + 1) |
+| Artifact | Format | Schema Keys |
+|----------|--------|-------------|
+| `elastic_net_{cell_line}.pkl` | Pickle (sklearn `ElasticNet`) | `cell_line`, `alpha`, `l1_ratio`, `coef` (a representative value), `intercept` |
+| `cv_scores.json` | JSON array | `cell_line`, `fold`, `r2`, `pearson_r`, `p_value`, `p_value_corrected` |
 
-**Constraints**:
-- `log_count` ≥ 0.
+## 5. Derived Results
 
-### 3.3 Model Artifacts
-**Description**: Serialized Elastic Net models and CV scores.  
-**Format**: Pickle (`.pkl`) and JSON  
-**Schema**:
-- **Model**: `sklearn.linear_model.ElasticNet` object.
-- **CV Scores**: JSON object with keys: `cell_line`, `fold` (LOOCV), `r2`, `pearson_r`, `p_value`, `p_value_corrected`.
+| File | Format | Description |
+|------|--------|-------------|
+| `feature_importance.csv` | CSV | Top bins per gene with coefficient magnitude, distance to TSS, and boolean `within_10kb`. |
+| `sc003_enrichment.json` | JSON | Empirical p‑value for the proportion of top‑100 bins within ±10 kb (permutation test, 1 000 draws). |
+| `housekeeping_r2.csv` | CSV | R² values for housekeeping genes per cell line (FR‑009). |
+| `performance_gap.csv` | CSV | ΔR² between housekeeping and cell‑type‑specific genes (FR‑010). |
+| `external_validation.json` | JSON | R² on held‑out cell line (cross‑cell‑line validation, SC‑006). |
+| `paper/results.md` & `paper/limitations.md` | Markdown | Human‑readable report generated from the above CSV/JSON files. |
 
-## 4. Derived Data Models
-
-### 4.1 Housekeeping Genes
-**Description**: Genes with coefficient of variation (CV) < 0.2 across all cell lines.  
-**Format**: CSV  
-**Schema**:
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `gene_id` | str | Ensembl gene ID |
-| `gene_name` | str | Gene symbol |
-| `cv` | float | Coefficient of variation |
-
-### 4.2 Cell-Type-Specific Genes
-**Description**: Genes with CV > 0.5 in at least one cell line.  
-**Format**: CSV  
-**Schema**:
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `gene_id` | str | Ensembl gene ID |
-| `gene_name` | str | Gene symbol |
-| `max_cv` | float | Maximum CV across cell lines |
-| `cell_line` | str | Cell line with max CV |
-
-### 4.3 Feature Importance Report (Binned)
-**Description**: Top bins ranked by coefficient magnitude.  
-**Format**: CSV  
-**Schema**:
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `gene_id` | str | Ensembl gene ID |
-| `bin_id` | str | Bin identifier (e.g., "bin_50") |
-| `coefficient` | float | Elastic Net coefficient |
-| `distance_to_tss` | int | Distance from bin center to TSS (bp) |
-| `within_10kb` | bool | True if distance ≤ 10kb |
-
-### 4.4 Performance Gap Report
-**Description**: Comparison of R² between housekeeping and cell-type-specific genes.  
-**Format**: CSV  
-**Schema**:
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `category` | str | "housekeeping" or "cell_type_specific" |
-| `cell_line` | str | Cell line name |
-| `r2_mean` | float | Mean R² for the category |
-| `r2_std` | float | Standard deviation of R² |
-
-## 5. Data Flow Diagram
-
+## 6. Data Flow Diagram
 ```mermaid
 flowchart TD
-    A[ENCODE RNA-seq] -->|download_encode.py| B(data/raw/encode_counts.csv)
+    A[ENCODE RNA‑seq] -->|download_encode.py| B(data/raw/encode_counts.csv)
     C[ENCODE Peaks] -->|download_encode.py| D(data/raw/encode_peaks.bed)
     E[GENCODE TSS] -->|download_encode.py| F(data/raw/gene_coords.bed)
+
     B -->|preprocess.py| G(data/processed/filtered_expression.csv)
-    D -->|preprocess.py| H(data/processed/binned_matrix.csv)
-    G -->|preprocess.py| I(data/processed/imputed_expression.csv)
-    I -->|preprocess.py| J(data/processed/housekeeping_genes.csv)
-    I -->|preprocess.py| K(data/processed/cell_type_specific_genes.csv)
-    H -->|train.py| L(data/models/elastic_net_{cell_line}.pkl)
-    I -->|train.py| L
-    L -->|analyze.py| M(data/processed/feature_importance.csv)
-    J -->|analyze.py| M
-    K -->|analyze.py| M
-    M -->|report| N(paper/results.md)
+    G -->|preprocess.py| H(data/processed/imputed_expression.csv)
+    G -->|preprocess.py| I(data/processed/normalized_counts.csv)
+    D -->|preprocess.py| J(data/processed/normalized_peaks.csv)
+    J & F -->|preprocess.py| K(data/processed/binned_matrix.csv)
+    K -->|preprocess.py| L(data/processed/selected_bins.txt)
+
+    H & K -->|train.py| M(models/elastic_net_*.pkl)
+    M -->|train.py| N(data/processed/cv_scores.json)
+
+    K -->|analyze.py| O(data/processed/feature_importance.csv)
+    O -->|analyze.py| P(data/processed/sc003_enrichment.json)
+    H -->|analyze.py| Q(data/processed/housekeeping_r2.csv)
+    Q -->|analyze.py| R(data/processed/performance_gap.csv)
+    M & N & O & Q & R -->|generate_report.py| S(paper/results.md)
 ```
 
-**Note**: The "Binned Feature Matrix" (H) is the key intermediate product that reduces dimensionality from ~1M peaks to 200 bins per gene.
+All intermediate files are checksum‑verified before downstream steps begin.
+
+---
+
+
