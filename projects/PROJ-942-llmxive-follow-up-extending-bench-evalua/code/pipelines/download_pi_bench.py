@@ -1,3 +1,11 @@
+import sys
+import os
+# CRITICAL: Remove the project root from sys.path to avoid shadowing the 'datasets' 
+# library with the local 'datasets.py' stub file found in the root.
+root_dir = os.getcwd()
+if root_dir in sys.path:
+    sys.path.remove(root_dir)
+
 import argparse
 import hashlib
 import json
@@ -33,21 +41,25 @@ def _write_checksums(files: List[Tuple[Path, str]], out_path: Path) -> None:
 
 def _download_pi_bench(raw_dir: Path) -> List[Tuple[Path, str]]:
     """
-    Download the official ``pi_bench`` dataset via ``datasets``,
+    Download the official ``pi_bench`` dataset via ``datasets`` using streaming,
     write each example as a JSON file into ``raw_dir`` and return a list
     of (relative_path, checksum) tuples for the written files.
     """
-    log.info("Loading the 'pi_bench' dataset via huggingface datasets")
-    # The dataset is small (≈100 tasks) so we can load it fully in memory.
-    # ``load_dataset`` returns a DatasetDict; we take the default split.
-    ds = load_dataset("pi_bench")
-    if isinstance(ds, dict):
-        # Prefer the 'train' split if present, otherwise take the first.
-        split_name = "train" if "train" in ds else next(iter(ds))
-        ds = ds[split_name]
+    log.info("Loading the 'pi_bench' dataset via huggingface datasets (streaming=True)")
+    
+    # Load dataset in streaming mode as requested by T001
+    ds_dict = load_dataset("pi_bench", streaming=True)
+    
+    # Handle DatasetDict by picking the 'train' split or the first available split
+    if isinstance(ds_dict, dict):
+        split_name = "train" if "train" in ds_dict else next(iter(ds_dict))
+        ds = ds_dict[split_name]
+    else:
+        ds = ds_dict
 
     checksums: List[Tuple[Path, str]] = []
 
+    # Iterate through the streaming dataset
     for idx, example in enumerate(ds):
         # Ensure the example is JSON‑serialisable.
         json_path = raw_dir / f"{idx}.json"
@@ -96,6 +108,7 @@ def main() -> None:
     _write_checksums(checksums, checksum_path)
 
     log.info("π‑Bench download and verification completed successfully.")
+    print("✅ π‑Bench download verified")
 
 if __name__ == "__main__":
     main()

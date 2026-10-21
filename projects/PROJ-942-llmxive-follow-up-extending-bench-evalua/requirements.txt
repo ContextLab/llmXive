@@ -1,9 +1,9 @@
-# Project requirements
-# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
-# provided by the execution environment.
-datasets>=2.14.0
+datasets>=2.14
 networkx>=3.2
+scikit-learn>=1.4
 torch>=2.2
+pandas>=2.2
+numpy>=1.26
+matplotlib>=3.8
+pyyaml>=6.0
 statsmodels>=0.14
-# The above additional packages are needed for the downstream pipeline.

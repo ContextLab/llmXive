@@ -1,12 +1,20 @@
 import hashlib
+import sys
+import os
 from pathlib import Path
 import pytest
+
+# Avoid shadowing the 'datasets' library with the local 'datasets.py' stub
+root_dir = os.getcwd()
+if root_dir in sys.path:
+    sys.path.remove(root_dir)
+    
 from datasets import load_dataset
 from llmxive_toolkit import paths
 
 def test_pi_bench_downloaded():
     """
-    Verify that the placeholder dataset has been downloaded into ``data/raw``.
+    Verify that the π-Bench dataset has been downloaded into ``data/raw``.
     The test checks:
     1. The raw directory exists.
     2. At least one file is present.
