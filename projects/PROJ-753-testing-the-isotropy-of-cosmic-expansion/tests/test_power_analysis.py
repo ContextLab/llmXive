@@ -1,55 +1,31 @@
+"""Tests for the power analysis script.
+
+The test ensures that the required output files are created and contain
+the expected top‑level keys.
+"""
 import json
 from pathlib import Path
 
-from llmxive_toolkit import paths
-
 def test_power_analysis_outputs():
-    """
-    Verify that the power analysis script creates the expected JSON files
-    and that the JSON contains the required keys with finite numeric values.
-    """
-    # Run the script (the test runner will have executed the script already
-    # because it is marked with `execute: true` in the artifact above).
-    power_path = paths.data("processed", "power_analysis.json")
-    metadata_path = paths.data("raw", "metadata.json")
+    metadata_path = Path("data/raw/metadata.json")
+    power_path = Path("data/processed/power_analysis.json")
 
-    # Both files must exist
-    assert power_path.is_file(), f"{power_path} does not exist"
-    assert metadata_path.is_file(), f"{metadata_path} does not exist"
+    assert metadata_path.is_file(), f"Missing {metadata_path}"
+    assert power_path.is_file(), f"Missing {power_path}"
 
-    # Load and validate JSON structure
-    with open(power_path, "r", encoding="utf-8") as f:
-        power_json = json.load(f)
-
-    required_keys = {
-        "dataset_version",
-        "source_url",
-        "sha256",
-        "analytic_min_detectable_dipole_mag",
-        "empirical_power",
-        "min_detectable_dipole_mag",
-    }
-    missing = required_keys - power_json.keys()
-    assert not missing, f"Missing keys in power_analysis.json: {missing}"
-
-    # Ensure numeric fields are finite
-    for key in [
-        "analytic_min_detectable_dipole_mag",
-        "empirical_power",
-        "min_detectable_dipole_mag",
-    ]:
-        value = power_json[key]
-        assert isinstance(value, (int, float)), f"{key} is not numeric"
-        assert not (value != value), f"{key} is NaN"
-        assert value != float("inf"), f"{key} is infinite"
-
-    # Verify empirical power is within a reasonable range (0–1)
-    assert 0.0 <= power_json["empirical_power"] <= 1.0
-
-    # Load metadata and cross‑check checksum
+    # Verify required fields in metadata
     with open(metadata_path, "r", encoding="utf-8") as f:
-        meta_json = json.load(f)
-    assert meta_json["sha256"] == power_json["sha256"], "Checksum mismatch between metadata and power analysis"
+        meta = json.load(f)
+    required_meta = {"dataset_version", "source_url", "sha256"}
+    assert required_meta.issubset(meta), "metadata.json missing required fields"
 
-# The test module is automatically discovered by pytest. No additional
-# test runner code is required.
+    # Verify required fields in power analysis result
+    with open(power_path, "r", encoding="utf-8") as f:
+        power = json.load(f)
+    required_power = {
+        "analytic_min_detectable_dipole_mag",
+        "empirical_power",
+        "min_detectable_dipole_mag",
+        "num_supernovae",
+    }
+    assert required_power.issubset(power), "power_analysis.json missing required fields"

@@ -34,10 +34,10 @@ from llmxive_toolkit import paths, get_logger
 # Configuration
 # ----------------------------------------------------------------------
 # Correct canonical URL for the Pantheon+ SH0ES data file.
-# The file is located at the root of the DataRelease repository.
+# The plus sign is safe in the path component of a raw GitHub URL.
 DEFAULT_URL = (
     "https://raw.githubusercontent.com/PantheonPlusSH0ES/"
-    "DataRelease/main/Pantheon%2B_SH0ES.dat"
+    "DataRelease/main/Pantheon+_SH0ES.dat"
 )
 DEFAULT_DATASET_VERSION = "v1.0"
 # Accept both underscore‑less and underscore‑separated column names.
@@ -235,6 +235,8 @@ def main() -> None:
     # 3. Analytic power estimate
     # ------------------------------------------------------------------
     N = len(df)
+    if N == 0:
+        raise RuntimeError("No valid supernova entries after filtering.")
     sigma_mu = df["MUERR"].median()  # typical per‑SN uncertainty
     # Uncertainty on the dipole amplitude scales roughly as sigma_mu / sqrt(N)
     sigma_amp = sigma_mu / math.sqrt(N)
