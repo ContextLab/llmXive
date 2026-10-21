@@ -28731,7 +28731,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-21T06:06:49.106800+00:00",
+  "generated_at": "2026-10-21T06:15:01.010757+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -80204,6 +80204,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "planner",
+          "duration_s": 1221.301474,
+          "ended_at": "2026-10-21T06:04:18.107537Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-21T05:43:56.806063Z"
+        },
+        {
           "agent": "clarifier",
           "duration_s": 156.59021,
           "ended_at": "2026-10-21T05:43:47.592033Z",
@@ -80274,14 +80282,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-19T02:18:24.077870Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 427.531695,
-          "ended_at": "2026-10-19T02:18:24.074529Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-19T02:11:16.542834Z"
         }
       ],
       "paper_status": null,
@@ -152353,6 +152353,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "clarifier",
+          "duration_s": 1174.949502,
+          "ended_at": "2026-10-21T06:06:46.681838Z",
+          "model": "anthropic.claude-haiku-4-5-20251001",
+          "outcome": "failed",
+          "started_at": "2026-10-21T05:47:11.732336Z"
+        },
+        {
           "agent": "planner",
           "duration_s": 2338.564425,
           "ended_at": "2026-10-21T05:46:52.137268Z",
@@ -152423,14 +152431,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-18T21:09:18.948142Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 732.350907,
-          "ended_at": "2026-09-09T09:45:20.495091Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-09T09:33:08.144184Z"
         }
       ],
       "paper_status": null,
@@ -179030,6 +179030,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "clarifier",
+      "duration_s": 1174.949502,
+      "ended_at": "2026-10-21T06:06:46.681838Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
+      "model": "anthropic.claude-haiku-4-5-20251001",
+      "outcome": "failed",
+      "project_id": "PROJ-828-llmxive-follow-up-extending-learning-to",
+      "project_stage": "specified",
+      "severity": "hard",
+      "started_at": "2026-10-21T05:47:11.732336Z"
+    },
+    {
       "agent": "personality",
       "display_name": "Marie Curie (simulated)",
       "duration_s": 46.949653,
@@ -179043,6 +179055,18 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-10-21T06:05:25.573163+00:00"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 1221.301474,
+      "ended_at": "2026-10-21T06:04:18.107537Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-257-investigating-the-statistical-properties",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-21T05:43:56.806063Z"
     },
     {
       "agent": "clarifier",
@@ -185067,30 +185091,6 @@
       "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-20T07:44:46.067459Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 27.86192,
-      "ended_at": "2026-10-20T07:44:46.065588Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-771-residue-distribution-of-euler-s-totient-",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-20T07:44:18.203668Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 19.407075,
-      "ended_at": "2026-10-20T07:44:18.201778Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-771-residue-distribution-of-euler-s-totient-",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-20T07:43:58.794703Z"
     }
   ],
   "reviewed_preprints": [
