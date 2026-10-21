@@ -25,21 +25,22 @@ Run the full analysis on a fresh GitHub Actions runner (or any Linux environment
        --entropy-r 0.15 \
        --entropy-m 2 \
        --scales 1 2 3 4 5 \
-       --n-permutations 5000 \
+       --n-permutations 1000 \
        --seed 42
    ```
    The script will:
-   - Download HCP time series and DSRT scores.
-   - Perform QC (motion, missing DSRT) → `clean_subjects.parquet` & `subject_qc.csv`.
-   - Compute multiscale entropy → `entropy_matrix.parquet`.
-   - Fit parcel‑wise OLS models, run permutations, compute VIF and power → CSV/NIfTI outputs.
-   - Generate the final PDF report `reports/link_entropy_risk.pdf`.
-   - Log all steps under `logs/`.
+   - Download HCP time series **including** DSRT scores.
+   - Perform QC (motion, missing DSRT) → `clean_subjects.parquet` & `subject_qc.csv` (both contain a `checksum` column).
+   - Compute multiscale entropy → `entropy_matrix.json` (with per‑row `checksum`) and optional per‑scale parquet files.
+   - Fit parcel‑wise **ordinary least squares (OLS)** models, run permutations (parallel, 1 000 shuffles), compute VIF and apply mitigation, run OLS diagnostics with robust fallback, and perform an a priori power analysis.
+   - Generate the final PDF report `reports/link_entropy_risk.pdf` and NIfTI map `significant_parcels.nii.gz`.
+   - Log all steps under `logs/` (including permutation timeout logs).
 
 3. **Inspect the results**
-   - **Statistical table**: `results/model_coefficients.csv`  
+   - **Statistical table**: `results/model_coefficients.csv` (includes `checksum`).  
    - **Significant parcels map**: `results/significant_parcels.nii.gz`  
    - **Power summary**: `results/power_analysis.csv`  
+   - **Sensitivity table**: `data/derived/sensitivity_records.parquet` (also summarised in the PDF).  
    - **Full report**: `reports/link_entropy_risk.pdf`
 
 4. **Run unit tests (optional)**
@@ -58,10 +59,12 @@ Run the full analysis on a fresh GitHub Actions runner (or any Linux environment
 |-------|--------------|----------|
 | Download & QC | ≤ 30 min | ≤ 2 GB |
 | Entropy (full 200) | ≤ 90 min | ≤ 4 GB |
-| Modeling & Permutations | ≤ 180 min | ≤ 5 GB |
+| Modeling & 1 000 permutations (parallel) | ≤ 150 min | ≤ 5 GB |
 | Reporting & Sensitivity | ≤ 30 min | ≤ 2 GB |
 | **Total** | **≈ 4 h** | **≤ 5 GB** |
 
 All steps respect the CPU‑only constraint (GC‑001) and stay within the free‑tier GitHub Actions limits.
 
 ---
+
+
