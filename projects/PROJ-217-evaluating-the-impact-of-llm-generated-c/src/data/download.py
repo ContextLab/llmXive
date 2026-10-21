@@ -35,9 +35,12 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-REPO_ID = "code_search_net"
+# Verified CodeSearchNet Python dataset location (raw split)
+REPO_ID = "kejian/codesearchnet-python-raw"
 REPO_TYPE = "dataset"
-FILENAME = "python/train-00000-of-00001.parquet"
+# The exact parquet file name as stored in the repository.
+FILENAME = "data/train-00000-of-00002-022fcdc5658ecd68.parquet"
+
 MAX_RETRIES = 3
 RETRY_BACKOFF = 30  # seconds (base)
 
@@ -76,7 +79,6 @@ def _save_hash_manifest(manifest: Dict[str, str]) -> None:
 
 def _download_parquet() -> Path:
     """Download the parquet file with a retry loop; raise on final failure."""
-    # Lazy import to avoid hard dependency during test collection.
     try:
         from huggingface_hub import hf_hub_download
     except ImportError as e:

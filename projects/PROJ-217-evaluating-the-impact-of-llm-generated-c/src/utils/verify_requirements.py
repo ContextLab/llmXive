@@ -17,6 +17,7 @@ import hashlib
 import sys
 from datetime import datetime
 from pathlib import Path
+
 import yaml
 
 from llmxive_toolkit import paths, get_logger
@@ -40,6 +41,16 @@ def _load_hash_manifest() -> dict:
     with manifest_path.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
 
+def _append_log(log_path: Path, message: str) -> None:
+    """Append a timestamped message to the log file."""
+    timestamp = datetime.utcnow().isoformat()
+    line = f"[{timestamp}] {message}"
+    # Ensure the parent directory exists (paths.data already creates it, but be safe)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open("a", encoding="utf-8") as f:
+        f.write(line + "\n")
+    log.info(message)
+
 def check_requirements() -> bool:
     """
     Perform the verification steps.
@@ -53,26 +64,22 @@ def check_requirements() -> bool:
     req_path = repo_root / "requirements.txt"
     log_path = paths.data("requirements_check.log")
 
-    # Ensure the log file exists (it will be overwritten each run)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    def _write_log(message: str) -> None:
-        timestamp = datetime.utcnow().isoformat()
-        line = f"[{timestamp}] {message}"
-        log_path.write_text(line + "\n", encoding="utf-8")
-        log.info(message)
+    # Start with a fresh log file for this run
+    if log_path.is_file():
+        log_path.unlink()
+    _append_log(log_path, "START: requirements verification")
 
     # 1. Existence
     if not req_path.is_file():
-        _write_log("FAILURE: requirements.txt not found at repository root.")
+        _append_log(log_path, "FAILURE: requirements.txt not found at repository root.")
         return False
 
     # 2. Non‑empty
     if req_path.stat().st_size == 0:
-        _write_log("FAILURE: requirements.txt is empty.")
+        _append_log(log_path, "FAILURE: requirements.txt is empty.")
         return False
 
-    _write_log("PASS: requirements.txt exists and is non‑empty.")
+    _append_log(log_path, "PASS: requirements.txt exists and is non‑empty.")
 
     # 3. Optional SHA‑256 verification
     manifest = _load_hash_manifest()
@@ -80,20 +87,22 @@ def check_requirements() -> bool:
     if expected_hash:
         actual_hash = _sha256(req_path)
         if actual_hash.lower() != expected_hash.lower():
-            _write_log(
+            _append_log(
+                log_path,
                 f"FAILURE: SHA‑256 mismatch for requirements.txt. "
                 f"expected={expected_hash}, actual={actual_hash}"
             )
             return False
-        _write_log("PASS: SHA‑256 hash of requirements.txt matches manifest.")
+        _append_log(log_path, "PASS: SHA‑256 hash of requirements.txt matches manifest.")
     else:
-        _write_log(
+        _append_log(
+            log_path,
             "NOTE: No SHA‑256 entry for requirements.txt in data/artifact_hashes.yaml; "
             "hash verification skipped."
         )
 
     # All checks passed
-    _write_log("SUCCESS: requirements.txt verification completed.")
+    _append_log(log_path, "SUCCESS: requirements.txt verification completed.")
     return True
 
 def main() -> None:

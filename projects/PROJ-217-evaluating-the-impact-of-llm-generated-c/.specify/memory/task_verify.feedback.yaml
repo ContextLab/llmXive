@@ -25,12 +25,4 @@ T010:
 T011:
   task: bf62a84aaeb758a29f9f8a442ab35a205565e5e78541ae947cbe3b795eb48edb
 T012:
-  reason: "The script `src/utils/verify_requirements.py` exists and its content plausibly\
-    \ implements the required checks (existence, non-emptiness, optional SHA\u2011\
-    256 against `data/artifact_hashes.yaml`, boolean return, exit code). However,\
-    \ `data/requirements_check.log` is MISSING, meaning there is no evidence the script\
-    \ was ever executed \u2014 the task explicitly requires logging to that file and\
-    \ emitting the boolean flag, and none of that behavior has been demonstrated (e.g.,\
-    \ no run output, no log entry showing PASS/FAILURE). The implementer should run\
-    \ `python -m src.utils.verify_requirements` (or equivalent"
   task: 5d858d0e420a0dfd91cdbbd4f973a96350704bac1e03ec7930f76625bd18a556
