@@ -17,7 +17,7 @@ from __future__ import annotations
 import logging
 import time
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Union
 
 # Correct import: Simulation lives in openmm.app
 from openmm import app
@@ -93,7 +93,7 @@ def _add_reporters(
 
 
 def run_simulation(
-    solvent: Solvent,
+    solvent: Union[Solvent, str],
     config: SimulationConfig,
     duration_ns: float,
     seed: int = 0,
@@ -103,8 +103,10 @@ def run_simulation(
 
     Parameters
     ----------
-    solvent : Solvent
-        Solvent enum (currently only ``Solvent.WATER`` is supported).
+    solvent : Union[Solvent, str]
+        Solvent enum or its string name (e.g. ``\"water\"``).  The
+        function accepts a string for convenience in downstream
+        pipelines that pass CLI arguments directly.
     config : SimulationConfig
         Global simulation configuration.
     duration_ns : float
@@ -118,6 +120,13 @@ def run_simulation(
         Mapping with keys ``trajectory`` and ``log`` pointing to the
         absolute paths of the generated files.
     """
+    # Allow callers to supply a plain string (e.g. from argparse)
+    if isinstance(solvent, str):
+        try:
+            solvent = Solvent(solvent)
+        except ValueError as exc:
+            raise ValueError(f"Unsupported solvent name: {solvent}") from exc
+
     logger.info(
         f"Running {solvent.value} simulation: {duration_ns} ns (seed={seed})"
     )

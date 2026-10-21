@@ -8,11 +8,11 @@
     "python code/main.py --solvent water --timescale 1.0 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/main.py\", line 21, in <module>\n    from config import Solvent, SimulationConfig, AnalysisConfig\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/config.py\", line 40, in <module>\n    @dataclass(frozen=True)\n     ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/dataclasses.py\", line 1222, in wrap\n    r",
     "python code/main.py --sensitivity --solvent ethanol --timescale 10.0 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/main.py\", line 21, in <module>\n    from config import Solvent, SimulationConfig, AnalysisConfig\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/config.py\", line 40, in <module>\n    @dataclass(frozen=True)\n     ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/dataclasses.py\", line 12"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-18T18:23:18Z"
+  "updated_at": "2026-10-21T09:18:03Z"
 }

@@ -12,6 +12,11 @@ The core function ``analyze_diffusion`` follows the specification:
 * Require ``R² ≥ config.r2_threshold`` (≥ 0.95 per the spec).
 * Compute ``D = slope / 6`` and set ``d_scaled_m2_s = d_calc_m2_s``.
 * If the R² gate fails, mark the row with ``status = "convergence_failed"``.
+*
+* The implementation deliberately accesses the MSD utilities via the
+* ``msd`` module object (instead of importing the functions directly) so
+* that unit‑tests can monkey‑patch ``msd.load_trajectory_timeseries`` and
+* inject synthetic data without needing a real trajectory file.
 """
 
 import logging
@@ -19,12 +24,9 @@ from typing import Dict, Any
 
 import numpy as np
 
-from .msd import (
-    load_trajectory_timeseries,
-    perform_linear_regression,
-    validate_linearity,
-    calculate_diffusion_coefficient,
-)
+# Import the whole module so that tests can monkey‑patch its attributes.
+from . import msd as msd
+
 from config import AnalysisConfig, DEFAULT_ANALYSIS_CONFIG
 
 logger = logging.getLogger(__name__)
@@ -63,6 +65,7 @@ def analyze_diffusion(
 
     Returns a dictionary with the keys required by downstream contracts:
 
+    * ``msd_slope`` – slope of the MSD vs. time fit (m² ns⁻¹).
     * ``d_calc_m2_s`` – raw diffusion coefficient from the linear fit.
     * ``d_scaled_m2_s`` – identical to ``d_calc_m2_s`` (no CG scaling).
     * ``r_squared`` – regression R².
@@ -70,22 +73,23 @@ def analyze_diffusion(
     * ``message`` – human‑readable description of the outcome.
     """
     try:
-        # Load raw MSD data.
-        times, msds = load_trajectory_timeseries(trajectory_path)
+        # Load raw MSD data using the msd module (allows monkey‑patching).
+        times, msds = msd.load_trajectory_timeseries(trajectory_path)
 
         # Discard the ballistic regime.
         times_fit, msds_fit = _discard_initial_fraction(times, msds, fraction=0.1)
 
         # Linear regression.
-        slope, intercept, r_squared = perform_linear_regression(times_fit, msds_fit)
+        slope, intercept, r_squared = msd.perform_linear_regression(times_fit, msds_fit)
 
         # Validate R².
-        is_valid = validate_linearity(r_squared, config.r2_threshold)
+        is_valid = msd.validate_linearity(r_squared, config.r2_threshold)
 
         # Diffusion coefficient (m²/s).
-        d_calc = calculate_diffusion_coefficient(slope)
+        d_calc = msd.calculate_diffusion_coefficient(slope)
 
         result = {
+            "msd_slope": slope,
             "d_calc_m2_s": d_calc,
             "d_scaled_m2_s": d_calc,  # No scaling per spec.
             "r_squared": r_squared,
@@ -102,6 +106,7 @@ def analyze_diffusion(
     except Exception as e:
         logger.error(f"Diffusion analysis error for {trajectory_path}: {e}")
         return {
+            "msd_slope": 0.0,
             "d_calc_m2_s": 0.0,
             "d_scaled_m2_s": 0.0,
             "r_squared": 0.0,

@@ -42,6 +42,7 @@ from code.config import (
     DEFAULT_ANALYSIS_CONFIG,
     SimulationConfig,
     AnalysisConfig,
+    Solvent,
 )
 
 log = get_logger(__name__)
@@ -150,9 +151,15 @@ def run_pipeline(
     refs = load_refs()
     nist_ref = _load_reference(refs, solvent)
 
-    # 2. Run the MD simulation
+    # 2. Convert solvent string to enum expected by the simulation module
+    try:
+        solvent_enum = Solvent(solvent)
+    except ValueError as e:
+        raise ValueError(f"Invalid solvent '{solvent}'. Must be one of: water, ethanol, acetone.") from e
+
+    # 3. Run the MD simulation
     sim_outputs = run_simulation(
-        solvent=solvent,
+        solvent=solvent_enum,
         config=sim_cfg,
         duration_ns=duration_ns,
         seed=seed,
@@ -160,7 +167,7 @@ def run_pipeline(
     traj_path = sim_outputs["trajectory"]
     log_path = sim_outputs["log"]
 
-    # 3. Analyse the trajectory
+    # 4. Analyse the trajectory
     analysis = analyze_diffusion(
         trajectory_path=traj_path,
         config=ana_cfg,
@@ -173,10 +180,10 @@ def run_pipeline(
     d_scaled = analysis.get("d_scaled_m2_s")
     status = analysis.get("status")
 
-    # 4. Compute MAE (use the scaled coefficient for comparison)
+    # 5. Compute MAE (use the scaled coefficient for comparison)
     mae = abs(d_scaled - nist_ref)
 
-    # 5. Assemble CSV row matching the contract
+    # 6. Assemble CSV row matching the contract
     result_row = {
         "experiment_id": str(uuid.uuid4()),
         "solvent": solvent,
@@ -192,11 +199,11 @@ def run_pipeline(
         "log_path": Path(log_path).relative_to(paths.root).as_posix(),
     }
 
-    # 6. Write to CSV
+    # 7. Write to CSV
     csv_path = paths.data("processed", "diffusion_results.csv")
     _write_result_csv(result_row, csv_path)
 
-    # 7. Validate CSV against the JSON schema
+    # 8. Validate CSV against the JSON schema
     schema_path = paths.code("..", "contracts", "diffusion_results.schema.yaml")
     _validate_csv(csv_path, schema_path)
 

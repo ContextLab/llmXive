@@ -1,17 +1,22 @@
 T001:
+  reason: "The required `data/raw/nist_refs.json` file (and its `nist_refs.json.sha256`\
+    \ checksum) are missing, so the loader cannot load three validated entries and\
+    \ the unit tests that expect the file to exist will fail. Without the curated\
+    \ JSON and its checksum, the task\u2019s core deliverable is not satisfied."
   task: bde86b48453d19a950c24cfba986ea1c58842a14cee3ef64b0a8c6dcb488263b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/tests/test_simulation.py
     exit=2'
   task: 467d8c9101d0d71579bba0a45f941d5f7a40ab7061374d2a5a3536ce8db473c2
 T003:
-  reason: "The provided `code/tests/test_diffusion.py` does not pass: the linear\u2011\
-    case test fails because the monkey\u2011patch replaces `analysis.msd.load_trajectory_timeseries`,\
-    \ while `diffusion.py` imports `msd` via a relative import (`from .msd import\
-    \ \u2026`), leaving the original loader unchanged and causing a \u201CTrajectory\
-    \ not found\u201D error. Consequently the required `pytest code/tests/test_diffusion.py`\
-    \ does not succeed. The import structure must be aligned (or the test adjusted)\
-    \ so the synthetic data are used, and then all tests must pass."
+  reason: "The `code/tests/test_diffusion.py` imports `analysis.diffusion` and `analysis.msd`,\
+    \ but the project only contains `code/analysis/...` without an `analysis` package,\
+    \ so the tests cannot be imported. Moreover, the linear\u2011case test computes\
+    \ the expected diffusion coefficient in m\xB2\u202Fs\u207B\xB9 yet the implementation\u2019\
+    s `calculate_diffusion_coefficient` returns a value in m\xB2\u202Fns\u207B\xB9\
+    \ (missing the 1\u202Fns\u202F=\u202F1e\u20119\u202Fs conversion), causing the\
+    \ asserted `np.isclose(..., D_true)` check to fail. Consequently the required\
+    \ pytest suite does not pass."
   task: 06cc0867da512a022b8b82b33505eb93799d0fa83700b8c58ba0a18195419228
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/pipeline.py exit=2'
