@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pandas as pd
 import yaml
+import pyarrow  # ensure parquet engine is available
 from huggingface_hub import hf_hub_download, list_repo_files
 
 from llmxive_toolkit import paths, get_logger

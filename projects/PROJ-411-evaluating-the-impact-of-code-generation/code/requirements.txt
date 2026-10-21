@@ -7,3 +7,4 @@ huggingface_hub==0.23.*
 pyyaml==6.0.*
 matplotlib==3.8.*
 psutil==5.9.*
+pyarrow==15.0.*
