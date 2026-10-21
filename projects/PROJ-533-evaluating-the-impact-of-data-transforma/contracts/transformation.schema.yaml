@@ -1,0 +1,6 @@
+type: string
+enum:
+  - baseline
+  - box_cox
+  - yeo_johnson
+  - rank_normal

@@ -1,0 +1,22 @@
+type: object
+properties:
+  dataset_id:
+    type: string
+  transformation:
+    $ref: "transformation.schema.yaml"
+  test_type:
+    type: string
+    enum: [t-test, ANOVA]
+  metric:
+    type: string
+    enum: [type_i_error, power]
+  value:
+    type: number
+  ci_lower:
+    type: number
+  ci_upper:
+    type: number
+  validation_status:
+    type: string
+    enum: [pass, fail]
+required: [dataset_id, transformation, test_type, metric, value]

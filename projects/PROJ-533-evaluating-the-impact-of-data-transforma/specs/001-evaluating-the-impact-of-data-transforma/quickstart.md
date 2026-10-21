@@ -17,12 +17,12 @@ python -m venv venv
 source venv/bin/activate   # Windows: venv\Scripts\activate
 
 # 3. Install pinned dependencies
-pip install -r code/requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Running the Full Pipeline
 ```bash
-python code/main.py --config code/config.yaml
+python -m code.main --stage all
 ```
 What happens:
 1. **Downloads** verified datasets, computes SHA‑256 checksums.  
@@ -32,7 +32,7 @@ What happens:
 5. **Generates** simulated datasets with known effect sizes for power analysis.  
 6. **Applies** Box‑Cox, Yeo‑Johnson, and rank‑based inverse‑normal transformations.  
 7. **Runs** t‑tests/ANOVAs on both real (for Type I) and simulated (for power) data.  
-8. **Aggregates** results, computes bootstrap confidence intervals (target half‑width ± 0.02).  
+8. **Aggregates** results, computes bootstrap confidence intervals (target half‑width ±0.02).  
 9. **Assesses transformation effects** with a **Friedman test** and Bonferroni‑corrected pairwise post‑hoc comparisons.  
 10. **Produces** summary tables (`results/aggregated_results.csv`) and figures (`results/figures/`).  
 
@@ -46,9 +46,9 @@ What happens:
 | Visualization | `python code/analysis/visualization.py` |
 
 ## Checkpointing & Resumption
-If the run is interrupted (e.g., CI timeout), a checkpoint is written to `results/checkpoint.json`. To resume:
+If the run is interrupted (e.g., CI timeout), a checkpoint is written to `results/checkpoints/`. To resume:
 ```bash
-python code/main.py --resume
+python -m code.main --stage all --resume --run-id your_run_id
 ```
 
 ## Verifying Outputs
@@ -61,7 +61,6 @@ head -n 20 results/aggregated_results.csv
 
 # Figures
 display results/figures/error_rates.png
-display results/figures/power_curves.png
 ```
 
 ## Troubleshooting
@@ -69,7 +68,4 @@ display results/figures/power_curves.png
 - **Transformation errors** – Check `data/imputation_log.csv` for log‑shift interventions.  
 - **Memory errors** – The pipeline streams large files; ensure the runner has at least 4 GB RAM.  
 - **Friedman test non‑convergence** – Review `results/friedman_summary.txt`; a fallback pairwise Wilcoxon signed‑rank test will be used automatically.  
-- **Missing group label** – Exclude and record in `data/exclusions.csv`.  
-
----
-
+- **Missing group label** – Exclude and record in `data/exclusions.csv`.

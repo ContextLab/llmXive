@@ -8,7 +8,6 @@ import os
 import json
 import hashlib
 import shutil
-import tempfile
 import platform
 import portalocker
 from pathlib import Path
@@ -36,37 +35,29 @@ def compute_file_hash(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def save_state(run_id: str, step: str, data: Dict[str, Any]) -> None:
+def save_state(run_id: str, state: Dict[str, Any]) -> None:
     """
     Persist pipeline state to a checkpoint file.
     
     Args:
         run_id: Unique identifier for the run
-        step: Current step name/number
-        data: Dictionary containing state data. Expected keys include:
-             - current_dataset_id (str)
-             - last_seed (int)
-             - error_counts (dict)
+        state: Dictionary containing state data.
     
     Raises:
         IOError: If file locking or write fails
-        ValueError: If data structure is invalid
+        ValueError: If state structure is invalid
     """
-    # Validate required fields
-    if not isinstance(data, dict):
-        raise ValueError("data must be a dictionary")
+    if not isinstance(state, dict):
+        raise ValueError("state must be a dictionary")
     
     checkpoint_path = get_checkpoint_path(run_id)
     temp_path = checkpoint_path.with_suffix('.tmp')
     
-    state = {
+    # Wrap the user state with some metadata
+    full_state = {
         "run_id": run_id,
-        "step": step,
-        "current_dataset_id": data.get("current_dataset_id", ""),
-        "last_seed": data.get("last_seed", 0),
-        "error_counts": data.get("error_counts", {}),
         "platform": platform.system(),
-        "timestamp": None  # Will be set by caller if needed
+        "state": state
     }
     
     try:
@@ -75,7 +66,7 @@ def save_state(run_id: str, step: str, data: Dict[str, Any]) -> None:
             # Acquire exclusive lock
             portalocker.lock(f, portalocker.LOCK_EX)
             try:
-                json.dump(state, f, indent=2)
+                json.dump(full_state, f, indent=2)
                 f.flush()
                 os.fsync(f.fileno())
             finally:
@@ -114,10 +105,10 @@ def load_state(run_id: str) -> Optional[Dict[str, Any]]:
             # Acquire shared lock for reading
             portalocker.lock(f, portalocker.LOCK_SH)
             try:
-                state = json.load(f)
+                full_state = json.load(f)
             finally:
                 portalocker.unlock(f)
-        return state
+        return full_state.get("state")
         
     except json.JSONDecodeError as e:
         raise json.JSONDecodeError(
@@ -126,15 +117,12 @@ def load_state(run_id: str) -> Optional[Dict[str, Any]]:
     except Exception as e:
         raise IOError(f"Failed to load checkpoint for run {run_id}: {e}") from e
 
-def delete_checkpoint(run_id: str) -> bool:
+def delete_checkpoint(run_id: str) -> None:
     """
     Delete a checkpoint file.
     
     Args:
         run_id: Unique identifier for the run
-    
-    Returns:
-        True if checkpoint was deleted, False if it didn't exist
     
     Raises:
         IOError: If deletion fails
@@ -142,32 +130,22 @@ def delete_checkpoint(run_id: str) -> bool:
     checkpoint_path = get_checkpoint_path(run_id)
     
     if not checkpoint_path.exists():
-        return False
+        return
     
     try:
         checkpoint_path.unlink()
-        return True
     except Exception as e:
         raise IOError(f"Failed to delete checkpoint for run {run_id}: {e}") from e
 
 def has_checkpoint(run_id: str) -> bool:
     """
     Check if a checkpoint exists for the given run ID.
-    
-    Args:
-        run_id: Unique identifier for the run
-    
-    Returns:
-        True if checkpoint exists, False otherwise
     """
     return get_checkpoint_path(run_id).exists()
 
 def list_checkpoints() -> list:
     """
     List all available checkpoint run IDs.
-    
-    Returns:
-        List of run IDs that have checkpoints
     """
     ensure_checkpoint_dir()
     checkpoints = []
