@@ -1,44 +1,36 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: ThresholdFit
-description: >
-  Sigmoid-fit estimates of the BBP critical threshold theta_c per
-  (N, k, pattern_type) configuration. Non-convergent fits carry
-  fit_status "failed" with null numeric fields.
-type: array
-minItems: 1
-items:
-  type: object
-  required:
-    - N
-    - k
-    - pattern_type
-    - theta_c_estimate
-    - theta_c_confidence
-    - a
-    - b
-    - fit_status
-  additionalProperties: false
-  properties:
-    N:
-      type: integer
-      minimum: 1
-    k:
-      type: integer
-      minimum: 0
-    pattern_type:
-      type: string
-      enum: ["diagonal", "block-sparse", "random-sparse"]
-    theta_c_estimate:
-      type: [number, "null"]
-    theta_c_confidence:
-      type: [number, "null"]
-      description: 95% CI half-width from 5-fold seed bootstrap.
-    a:
-      type: [number, "null"]
-      description: Logistic slope.
-    b:
-      type: [number, "null"]
-      description: Intercept b = a * theta_c_estimate.
-    fit_status:
-      type: string
-      enum: ["converged", "failed"]
+type: object
+required:
+  - theta_c_estimate
+  - theta_c_confidence
+  - a
+  - b
+  - fit_status
+properties:
+  theta_c_estimate:
+    type: number
+    description: Estimated critical threshold θ_c from the logistic fit.
+    nullable: true
+  theta_c_confidence:
+    type: object
+    description: 95 % confidence interval for θ_c.
+    nullable: true
+    required:
+      - lower
+      - upper
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+  a:
+    type: number
+    description: Slope parameter of the logistic model.
+    nullable: true
+  b:
+    type: number
+    description: Intercept parameter (b = a * theta_c_estimate) of the logistic model.
+    nullable: true
+  fit_status:
+    type: string
+    enum: [success, failed]
+    description: Indicates whether the fit converged successfully.

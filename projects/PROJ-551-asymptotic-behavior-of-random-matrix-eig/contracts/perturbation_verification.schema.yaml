@@ -1,56 +1,27 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: PerturbationVerification
-description: >
-  Constitution VII verification record: the constructed perturbation
-  matrix P_n must match the requested spectral norm theta within 1e-6
-  and the declared sparsity pattern and support density.
 type: object
 required:
-  - N
-  - seed
-  - theta
-  - k
-  - pattern_type
-  - requested_support_density
-  - measured_spectral_norm
-  - norm_error
-  - norm_tolerance
-  - measured_support_density
-  - sparsity_match
+  - requested_theta
+  - actual_norm
+  - norm_difference
+  - pattern
+  - support_density
   - norm_match
-  - verified
-additionalProperties: false
 properties:
-  N:
-    type: integer
-    minimum: 1
-  seed:
-    type: integer
-  theta:
+  requested_theta:
     type: number
-    description: Requested perturbation spectral norm.
-  k:
-    type: integer
-    minimum: 0
-  pattern_type:
+    description: The θ value requested by the user.
+  actual_norm:
+    type: number
+    description: Spectral norm (2‑norm) of the generated perturbation matrix.
+  norm_difference:
+    type: number
+    description: Absolute difference between actual_norm and requested_theta.
+  pattern:
     type: string
-    enum: ["diagonal", "block-sparse", "random-sparse"]
-  requested_support_density:
-    type: [number, "null"]
-  measured_spectral_norm:
+    description: Perturbation pattern identifier (e.g., diagonal, block-sparse, random-sparse).
+  support_density:
     type: number
-  norm_error:
-    type: number
-    description: abs(measured_spectral_norm - theta).
-  norm_tolerance:
-    type: number
-    const: 1.0e-6
-  measured_support_density:
-    type: number
-  sparsity_match:
-    type: boolean
+    description: Fraction of non‑zero entries in the perturbation matrix (non‑zero count / N²).
   norm_match:
     type: boolean
-  verified:
-    type: boolean
-    description: True iff norm_match and sparsity_match both hold.
+    description: True if norm_difference ≤ 1e‑6, otherwise False.

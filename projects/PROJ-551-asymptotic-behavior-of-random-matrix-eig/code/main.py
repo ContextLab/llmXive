@@ -28,6 +28,7 @@ import os
 import pathlib
 import sys
 import hashlib
+import yaml
 
 import numpy as np
 import psutil

@@ -32,7 +32,7 @@
 
 ## Phase 0 – Artifact‑writing discipline (REPAIR)
 
-- [X] T001 [US1] **Add canonical artifact writer and comprehensive contract tests**
+- [ ] T001 [US1] **Add canonical artifact writer and comprehensive contract tests**
   *Create `code/utils/artifacts.py` with `write_artifact(path, data, schema_name)` that validates `data` against the contract in `specs/…/contracts/` before writing, writes JSON, appends SHA‑256 to `data/checksums.yaml`, and prints path + checksum. Add new contracts `threshold_fit.schema.yaml` (ThresholdFit) and `perturbation_verification.schema.yaml` (Verification of θ and sparsity).*
   *Rewrite `code/tests/contract/test_schemas.py` to include ONE test per artifact file:*
   - `single_run_results.json` (SimulationRun + EigenvalueResult array)
@@ -49,7 +49,7 @@
 
 ## Phase 1 – Core execution and verification
 
-- [ ] T002 [US1] **Single‑run mode routed through artifact writer and perturbation verification** <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T002 [US1] **Single‑run mode routed through artifact writer and perturbation verification** <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Update `python -m code.main --mode single --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal` so that each run:*
   1. *Generates Wigner matrix and sparse perturbation Pₙ, then verifies* **‖Pₙ‖₂** *matches the requested θ within 1e‑6 and that the sparsity pattern matches the declared type and support density. Record results in `data/processed/perturbation_verification.json` (validated by `perturbation_verification.schema.yaml`).*
   2. *Writes `data/processed/single_run_results.json` (SimulationRun + `eigenvalue_results` array) via `write_artifact`.*

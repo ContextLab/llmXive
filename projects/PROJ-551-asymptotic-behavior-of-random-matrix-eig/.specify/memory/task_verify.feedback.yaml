@@ -1,9 +1,10 @@
 T001:
-  reason: The repository contains the required `code/utils/artifacts.py` implementation,
-    but the two new contract files (`threshold_fit.schema.yaml` and `perturbation_verification.schema.yaml`)
-    are missing, and the rewritten test suite `code/tests/contract/test_schemas.py`
-    does not exist, causing all contract tests to fail. These missing artifacts prevent
-    the task from being fully satisfied.
+  reason: The `code/utils/artifacts.py` implementation is present and matches the
+    specification, and the rewritten `code/tests/contract/test_schemas.py` includes
+    the required tests. However, the two new contract schema files `threshold_fit.schema.yaml`
+    and `perturbation_verification.schema.yaml` are missing, so the writer cannot
+    validate those artifacts and the contract tests will fail. These schema files
+    must be added to satisfy the task.
   task: 97b0c43237307b37aa23060589816ffe3efaa2377d2d081969011e0ada982d2c
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'

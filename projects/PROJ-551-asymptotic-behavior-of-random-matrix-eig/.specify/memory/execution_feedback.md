@@ -30,21 +30,26 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m code.main --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal --seed 42 -> rc=1
-
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 338, in <module>
+", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 339, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 330, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 331, in main
     run_single_mode(args)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 221, in run_single_mode
-    _update_checksums(raw_path, matrix_checksum)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 61, in _update_checksums
-    manifest = yaml.safe_load(f) or {}
-               ^^^^
-NameError: name 'yaml' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 248, in run_single_mode
+    write_artifact(verification_path, verification_data, "perturbation_verification")
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/utils/artifacts.py", line 95, in write_artifact
+    jsonschema.validate(instance=data, schema=schema)
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/jsonschema/validators.py", line 1332, in validate
+    raise error
+jsonschema.exceptions.ValidationError: True is not of type 'boolean'
+
+Failed validating 'type' in schema['properties']['norm_match']:
+    {'description': 'True if norm_difference ≤ 1e‑6, otherwise False.',
+     'type': 'boolean'}
+
+On instance['norm_match']:
+    True
 
 - python -m pytest tests/contract/test_schemas.py -v   # all tests PASSED, none SKIPPED -> rc=4
 ============================= test session starts ==============================
@@ -107,16 +112,20 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/figures/outlier_probability_vs_theta.png` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/convergence_report.json` is declared but was NOT written. Scripts referencing it:
     - `code/main.py` — IS a run-book command
+    - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/convergence_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/perturbation_verification.json` is declared but was NOT written. Scripts referencing it:
     - `code/main.py` — IS a run-book command
+    - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/perturbation_verification.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/sensitivity_metadata.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/sensitivity_metadata_recorder.py` — NOT invoked by the run-book
+    - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sensitivity_metadata.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/sensitivity_variation.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/generate_sensitivity_report.py` — NOT invoked by the run-book
     - `code/analysis/sensitivity_variation.py` — NOT invoked by the run-book
+    - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sensitivity_variation.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/single_run_results.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/fix_single_run_json.py` — NOT invoked by the run-book
@@ -124,6 +133,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/task019b_traceability.py` — NOT invoked by the run-book
     - `code/analysis/verify_reproducibility.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
+    - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
     - `code/utils/results_logger.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/single_run_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
