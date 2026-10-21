@@ -1,3 +1,34 @@
+T000:
+  c: true
+  h: bea047088145d3ec2a1d2a97e9b2361d580ab97b2b4861c3eeb48c72aaef6aaa
+  r: '`code/requirements.txt` exists (223 bytes) and lists exact pinned versions for
+    all ten required packages (openneuro provided as `openneuro-py==0.1.0`, plus numpy,
+    pandas, scipy, nibabel, nilearn, matplotlib, seaborn, tqdm, jsonschema), with
+    a few extra pinned dependencies that don''t conflict with the requirement. The
+    verification clause (fresh-venv pip install) is an environment check, not an artifact,
+    and the file''s content matches the task''s stated deliverable.'
+  sig: 4805e0e2ef3fc27fedaf6e84b7aeef3c3988d88142e967dc5b1f4ab199c0d799
+T001:
+  c: false
+  h: 51ba09f444aee0101deb5232a305af3c1cfe1484d552cce3cacf905978148d6c
+  r: The required artifacts `code/data_loader.py`, `data/raw/checksums.json`, `data/processed/dataset_manifest.json`,
+    and `code/tests/test_data_loader.py` are all MISSING, and `data/raw/` is empty.
+    The quickstart.md references a `code/src/main.py` pipeline that doesn't match
+    the task's required `code/data_loader.py` deliverable, and the QC/metadata JSON
+    files are empty lists, so no download, checksum, or marker-verification work was
+    actually performed.
+  sig: a8f3983403feb106d8196c431f3b93400e1f2010497bfa037009e2bbd737dffb
+T002:
+  c: false
+  h: a3178a057905a4f7ad231b710e31e95d01e15649eac9488e37bbc9496f48b223
+  r: 'The required artifact `code/qc.py` does not exist (implementation lives at `code/src/qc.py`
+    instead), the output `data/processed/subjects_metadata.json` is an empty `[]`
+    with no subjects processed, and the recorded test run of `code/tests/test_qc.py`
+    failed with exit 2 (`ModuleNotFoundError: No module named ''src.qc''`), so no
+    tests actually passed. The implementer must place/alias the QC module so the tests
+    import successfully, run them to green, and execute the QC pipeline to produce
+    a non-empty, schema-conformant `subjects_metadata.json`.'
+  sig: 47d5be8f842f95283b76523ba1be5d668ad3dd876aa7ebb45a1d7c27d04e1ebc
 T009:
   c: false
   h: fd49331fa793711f9d840bcd2befaef4d3af24dc76c435d634c014653a6fc753

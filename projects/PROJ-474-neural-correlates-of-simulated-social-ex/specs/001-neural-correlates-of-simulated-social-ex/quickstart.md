@@ -1,7 +1,7 @@
 # Quickstart: Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics
 
 ## Prerequisites
-- Python 3.11 or newer
+- Python 3.11 or newer
 - Git
 - Internet access from the CI runner (to fetch verified datasets)
 
@@ -17,39 +17,58 @@ python -m venv venv
 source venv/bin/activate   # Windows: venv\Scripts\activate
 
 # Install Python dependencies
-pip install -r requirements.txt
+pip install -r code/requirements.txt
 ```
 
-## Data Setup
+## Data Setup & Full Analysis Pipeline
+
+The complete analysis runs in three orchestrated steps:
 
 ```bash
-# Download the **verified** Cyberball dataset
-python code/data_loader.py --dataset ds000030 --output data/raw
+# Step 1: Download data and run QC
+python code/src/main.py --step download_qc
+
+# Step 2: Extract ROI time-series and compute connectivity
+python code/src/main.py --step extract_connectivity
+
+# Step 3: Run statistical tests and generate visualizations
+python code/src/main.py --step stats_viz
 ```
 
-- The dataset URL (https://openneuro.org/datasets/<dataset‑identifier>) is listed in the project's verified‑datasets block.  
-- If the dataset is not present in the verified list, the command will terminate with `ERR_DATA_UNVERIFIED` and the pipeline will stop. No synthetic data are generated.
-
-## Running the Full Analysis
+Or run the full pipeline at once with a specific random seed:
 
 ```bash
-python code/main.py --seed 42
+# Full pipeline with reproducible seed
+python code/src/main.py --step download_qc && \
+python code/src/main.py --step extract_connectivity && \
+python code/src/main.py --step stats_viz --seed 42
 ```
 
-The pipeline performs:
+## Pipeline Output
 
-1. Data download & integrity check.  
-2. Motion QC (mean FD ≤ 0.2 mm).  
-3. ROI time‑series extraction for **three** DMN regions (PCC, mPFC, bilateral Angular Gyrus).  
-4. Static & sliding‑window connectivity computation (mean **absolute** correlation).  
-5. Paired permutation test (10 000 permutations).  
-6. Generation of all required figures and a summary report (`results/report.md`).
+The pipeline generates:
+
+1. **Data files** (under `data/`):
+   - `data/raw/checksums.json` – SHA256 checksums for all downloaded NIfTI files
+   - `data/processed/subject_qc_list.json` – Full QC results for all subjects
+   - `data/processed/subjects_metadata.json` – Retained subjects after motion QC
+   - `data/processed/raw_timeseries_*.parquet` – ROI time-series per subject/condition
+
+2. **Results** (under `data/results/`):
+   - `strength_per_subject.parquet` – Static connectivity metrics
+   - `dynamic_summary.parquet` – Dynamic connectivity summary statistics
+   - `statistical_result.json` – Permutation test results (primary signed metric)
+   - `statistical_result_absolute.json` – Secondary absolute metric results
+   - `figures/` – All visualizations (histograms, heatmaps, plots)
+
+3. **Report**:
+   - `data/results/report.md` – Auto-generated methods and results narrative
 
 ## Validation & Testing
 
 ```bash
-# Unit tests
-pytest tests/
+# Run unit and integration tests
+pytest code/tests/ -v
 
 # Schema validation example
 python - <<'PY'
@@ -65,10 +84,10 @@ PY
 
 | Symptom | Likely Cause | Action |
 |---------|--------------|--------|
-| `ERR_DATA_UNVERIFIED` | No verified Cyberball dataset in the block. | Add a verified URL for `ds000030` or request a substitute verified dataset. |
-| `101897696` (Insufficient subjects) | Fewer than 10 subjects passed QC. | Review `data/processed/qc_log.csv` and consider a less stringent motion threshold (exploratory only). |
-| `MemoryError` | Attempting to load whole NIfTI into RAM. | Ensure streaming mode (`--stream`) is enabled (default). |
-| Missing figures | Pipeline halted early due to QC failure. | Check logs in `data/processed/qc_log.csv` for exclusion reasons. |
+| `Unknown step: --step` | Circular import in main.py | Update main.py (should be fixed in latest version) |
+| `101897696` (Insufficient subjects) | Fewer than 10 subjects passed QC | Review `data/processed/subject_qc_list.json` and consider a less stringent motion threshold (exploratory only). |
+| `MemoryError` | Attempting to load whole NIfTI into RAM | Ensure streaming mode is enabled (default). |
+| Missing `subject_qc_list.json` | QC pipeline did not complete | Check logs and ensure `--step download_qc` completed successfully. |
+| Missing `checksums.json` | Data loader did not complete | Verify NIfTI files exist in `data/raw/` and re-run `--step download_qc`. |
 
 ---
-

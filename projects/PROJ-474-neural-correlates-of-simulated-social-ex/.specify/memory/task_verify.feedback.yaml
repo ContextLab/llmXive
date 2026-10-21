@@ -1,0 +1,42 @@
+T000:
+  task: 169ebc517d8e602e7794919291283565e0dc76d3499c50e71c6d92ea834487b5
+T001:
+  reason: The required artifacts `code/data_loader.py`, `data/raw/checksums.json`,
+    `data/processed/dataset_manifest.json`, and `code/tests/test_data_loader.py` are
+    all MISSING, and `data/raw/` is empty. The quickstart.md references a `code/src/main.py`
+    pipeline that doesn't match the task's required `code/data_loader.py` deliverable,
+    and the QC/metadata JSON files are empty lists, so no download, checksum, or marker-verification
+    work was actually performed.
+  task: fb5e3bf542f05a2916745a68bdf199da8857fee0074398f506ad058ad5f297ad
+T001b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/checksums.json'
+  task: fba38a90f7148a7acaf8d4b5e2df63dba48f802459174740e958f9a5fe05d026
+T002:
+  reason: 'The required artifact `code/qc.py` does not exist (implementation lives
+    at `code/src/qc.py` instead), the output `data/processed/subjects_metadata.json`
+    is an empty `[]` with no subjects processed, and the recorded test run of `code/tests/test_qc.py`
+    failed with exit 2 (`ModuleNotFoundError: No module named ''src.qc''`), so no
+    tests actually passed. The implementer must place/alias the QC module so the tests
+    import successfully, run them to green, and execute the QC pipeline to produce
+    a non-empty, schema-conformant `subjects_metadata.json`.'
+  task: 5c228487fa94c834e047851784bd1195a8a66a39d1b2a9944636a2ab9ca4f299
+T003:
+  task: 2d79eefacf719679a7e41621db51a77148912b4570df4f9f3fe26951de245fc5
+T004:
+  task: e645b5b7426519486155d1a5869061ca6b732243f0ba594ae6891ed175fe5d7d
+T005:
+  task: 440edcaa2ec69ccddd7a4b3a693d307d4dbe5ee819a52235d83fdbb49ca64484
+T006:
+  task: 4598b82657016a61d785104b2ce948095703149f19d104284406fc6dc9dcc9f0
+T007:
+  task: a6416724f8b850e8990404b2c5005dc8ad366d993f088b61c9fda485fe220a36
+T008:
+  task: 02ab57b0cf6e5f3a44ffb377aa7dd864dfe4522a6877ac64327b0bf2989799b1
+T009:
+  task: 4c800082a495dd70a8ea33b8105820cc46db9cababf33f480d1c70401cc45a33
+T010:
+  task: e36606b265ea6ead4ebe9f191448c82b25c51fd03ff8c4e860cc161d385afbbd
+T011:
+  task: 5a6085c8d890c1e7d490a756bfd4396bacba44b61f5975486b39f2ad217aab81
+T012:
+  task: 1caf5cfdc647b1b2548c21901cf1db99468926a04bf0b5f388f5b5080f2183a0

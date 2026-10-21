@@ -5,11 +5,11 @@ All paths are relative to the project directory. All computation is CPU‑only (
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T000 [P?] [US?] Create a version‑pinned Python dependency list `code/requirements.txt` (or `pyproject.toml`) listing exact package versions for `openneuro`, `nibabel`, `numpy`, `pandas`, `scipy`, `nilearn`, `matplotlib`, `seaborn`, `tqdm`, `jsonschema`.  
+- [X] T000 [P?] [US?] Create a version‑pinned Python dependency list `code/requirements.txt` (or `pyproject.toml`) listing exact package versions for `openneuro`, `nibabel`, `numpy`, `pandas`, `scipy`, `nilearn`, `matplotlib`, `seaborn`, `tqdm`, `jsonschema`.  
   *File*: `code/requirements.txt`  
   *Verification*: `pip install -r code/requirements.txt` succeeds in a fresh venv; `pip freeze` matches the file exactly.
 
-- [ ] T001 [US1] Implement the dataset acquisition module `code/data_loader.py` with **paradigm‑first verification**:  
+- [ ] T001 [US1] Implement the dataset acquisition module `code/data_loader.py` with **paradigm‑first verification**:   <!-- FAILED: unspecified -->
   • Query the OpenNeuro API (via the `openneuro` package) for the dataset descriptor and a sample subject’s `events.tsv` from `ds000030` **before** downloading imaging data; verify both “Inclusion” and “Exclusion” trial types exist. If markers are absent, abort with error code `101897695` (FR‑010).  
   • Stream subject files one‑by‑one (peak disk ≤ 14 GB, RAM ≤ 7 GB) into `data/raw/`.  
   • Implement exponential backoff (1 s → 2 s → 4 s, 3 attempts) per FR‑013; on final failure raise `DataUnavailableError` (`ERR_DATA_UNAVAILABLE`).  

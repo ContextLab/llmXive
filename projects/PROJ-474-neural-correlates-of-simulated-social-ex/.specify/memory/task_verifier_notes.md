@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — The required artifacts `code/data_loader.py`, `data/raw/checksums.json`, `data/processed/dataset_manifest.json`, and `code/tests/test_data_loader.py` are all MISSING, and `data/raw/` is empty. The quickstart.md references a `code/src/main.py` pipeline that doesn't match the task's required `code/data_loader.py` deliverable, and the QC/metadata JSON files are empty lists, so no download, checksum, or marker-verification work was actually performed.
+- **T001b** — declared artifact(s) missing/empty/invalid: data/raw/checksums.json
+- **T002** — The required artifact `code/qc.py` does not exist (implementation lives at `code/src/qc.py` instead), the output `data/processed/subjects_metadata.json` is an empty `[]` with no subjects processed, and the recorded test run of `code/tests/test_qc.py` failed with exit 2 (`ModuleNotFoundError: No module named 'src.qc'`), so no tests actually passed. The implementer must place/alias the QC module so the tests import successfully, run them to green, and execute the QC pipeline to produce a non-empty, schema-conformant `subjects_metadata.json`.

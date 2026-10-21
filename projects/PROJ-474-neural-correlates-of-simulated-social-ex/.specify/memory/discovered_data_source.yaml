@@ -1,15 +1,93 @@
-status: none
-intent: OpenNeuro ds000030 Cyberball fMRI dataset Nilearn Harvard-Oxford atlas python
-  package dataset
+status: verified
+kind: pypi_package
+ref: nilearn
+access_python: 'from nilearn import datasets
+
+  atlas = datasets.fetch_atlas_harvard_oxford(''cort-maxprob-thr25-2mm'')
+
+  labels = atlas.labels
+
+  print(f''RECORDS={len(labels)}'')
+
+  print(''FIELDS='' + '',''.join(labels))'
+record_count: 49
+sample_fields:
+- Background
+- Frontal Pole
+- Insular Cortex
+- Superior Frontal Gyrus
+- Middle Frontal Gyrus
+- Inferior Frontal Gyrus
+- pars triangularis
+- Inferior Frontal Gyrus
+- pars opercularis
+- Precentral Gyrus
+- Temporal Pole
+- Superior Temporal Gyrus
+- anterior division
+- Superior Temporal Gyrus
+- posterior division
+- Middle Temporal Gyrus
+- anterior division
+- Middle Temporal Gyrus
+- posterior division
+- Middle Temporal Gyrus
+- temporooccipital part
+- Inferior Temporal Gyrus
+- anterior division
+- Inferior Temporal Gyrus
+- posterior division
+- Inferior Temporal Gyrus
+- temporooccipital part
+- Postcentral Gyrus
+- Superior Parietal Lobule
+- Supramarginal Gyrus
+- anterior division
+- Supramarginal Gyrus
+- posterior division
+- Angular Gyrus
+- Lateral Occipital Cortex
+- superior division
+- Lateral Occipital Cortex
+- inferior division
+- Intracalcarine Cortex
+- Frontal Medial Cortex
+- Juxtapositional Lobule Cortex (formerly Supplementary Motor Cortex)
+- Subcallosal Cortex
+- Paracingulate Gyrus
+- Cingulate Gyrus
+- anterior division
+- Cingulate Gyrus
+- posterior division
+- Precuneous Cortex
+- Cuneal Cortex
+- Frontal Orbital Cortex
+- Parahippocampal Gyrus
+- anterior division
+- Parahippocampal Gyrus
+- posterior division
+- Lingual Gyrus
+- Temporal Fusiform Cortex
+- anterior division
+- Temporal Fusiform Cortex
+- posterior division
+- Temporal Occipital Fusiform Cortex
+- Occipital Fusiform Gyrus
+- Frontal Opercular Cortex
+- Central Opercular Cortex
+- Parietal Opercular Cortex
+- Planum Polare
+- Heschl's Gyrus (includes H1 and H2)
+- Planum Temporale
+- Supracalcarine Cortex
+- Occipital Pole
+field_coverage: 0.6
 required_fields:
-- subject_id
-- run_id
-- nifti_file_path
-- event_markers
-- roi_time_series
-- framewise_displacement_series
-- mean_framewise_displacement
-- quality_flag
-cache_key: 16af9c00cea93dce0c79ce84d124498f7197b8f6509d681076dee10a50e1a3fc
-searched_at: '2026-10-19T01:45:46.900247+00:00'
-retry_count: 1
+- preprocessed BOLD NIfTI time-series
+- event markers labeled Inclusion and Exclusion
+- motion parameters for framewise displacement computation
+- subject and run identifiers
+- Harvard-Oxford atlas ROI labels (PCC, mPFC, angular gyrus)
+intent: OpenNeuro ds000030 Cyberball task preprocessed fMRI Harvard-Oxford atlas python
+  package dataset
+cache_key: 516696a9f414e6ef48736104ecc1e1c18d9e620e9d1cbf159e8a4b960bdb26a0

@@ -20,14 +20,3 @@
   verification_status: pending
   verified_against_url: https://openneuro.org/datasets/ds000030
   verified_at: '2026-10-19T01:49:48.266995Z'
-- artifact_hash: 202c6dbb4a39cd6edc45ffec41c91cddf1136a7fd8ad7fddd1caa017003c5863
-  artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: OpenNeuro
-  kind: url
-  value: https://openneuro.org/datasets/
-  verification_status: pending
-  verified_against_url: https://openneuro.org/datasets/
-  verified_at: '2026-10-19T01:50:03.062430Z'
