@@ -11,11 +11,11 @@
 
 ## Phase 1 – Setup, data curation, and first end‑to‑end run
 
-- [ ] T002 [P] [US1] Implement real‑data curation with loud failure and a clearly‑labeled deterministic verification surrogate.  
+- [X] T002 [P] [US1] Implement real‑data curation with loud failure and a clearly‑labeled deterministic verification surrogate.  
   - **File**: `src/curators/curate_failed_figures.py`.  
   - **Verification**: With network unreachable, `python -m src.curators.curate_failed_figures --num 50` exits non‑zero with “verified source unavailable”. With `--verify-only`, `data/figures/` contains exactly 50 PNGs, `data/ground_truth/` 50 JSON vectors, and `data/checksums.txt` is written.
 
-- [X] T003 [P] [US1] Provide the two FastAPI interfaces and counterbalanced session initialization, verified in‑process.  
+- [ ] T003 [P] [US1] Provide the two FastAPI interfaces and counterbalanced session initialization, verified in‑process.  
   - **Files**: `src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`, `src/interfaces/session.py`, `tests/interfaces/test_interfaces.py`.  
   - **Verification**: `pytest -q tests/interfaces/test_interfaces.py` passes, confirming 200 OK for `/init_session` (counterbalanced order) and `/edit` for both modes.
 
@@ -27,7 +27,7 @@
   - **Files**: `src/validation/vector_match.py`, `src/validation/semantic_similarity.py`, `src/validation/run_validation.py`, `tests/validation/test_validation.py`.  
   - **Verification**: Unit tests cover (a) exact match → both true, (b) semantic‑only match → `overall_success: true`, (c) full failure → false. Records conform to `specs/001-llmxive-cognitive-load/contracts/semantic_validation.schema.yaml`.
 
-- [X] T006 [P] [US3] Implement a‑priori power analysis and synthetic participant driver that produces schema‑conformant logs at full scale.  
+- [ ] T006 [P] [US3] Implement a‑priori power analysis and synthetic participant driver that produces schema‑conformant logs at full scale.  
   - **Files**: `src/simulation/power_analysis.py`, `src/simulation/simulate_participants.py`.  
   - **Verification**: `python -m src.simulation.power_analysis` prints required N (≥30) and exits 0; after `simulate_participants.py`, `data/logs/interactions_clean.jsonl` contains ≥ 7 500 lines, all validating against the interaction‑log schema.
 
@@ -39,7 +39,7 @@
   - **File**: `src/analysis/wilcoxon_analysis.py`.  
   - **Verification**: Uses the aggregated per‑session validation file from T007; outputs `AnalysisResult` JSONL with median fields and passes its own schema test.
 
-- [ ] T018 [P] [US3] Mean‑based Wilcoxon analysis (required by SC‑001).  
+- [ ] T018 [P] [US3] Mean‑based Wilcoxon analysis (required by SC‑001).   <!-- FAILED-IN-EXECUTION: code/src/analysis/mean_wilcoxon_analysis.py exit=2 -->
   - **File**: `src/analysis/mean_wilcoxon_analysis.py`.  
   - **Verification**: Computes mean differences, performs Wilcoxon on means, outputs a separate JSONL (`mean_wilcoxon_results.jsonl`) with fields `mean_structured`, `mean_chat`, `wilcoxon_stat`, `p_value`, `effect_size_r`.
 

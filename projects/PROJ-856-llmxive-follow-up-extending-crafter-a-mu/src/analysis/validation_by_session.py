@@ -3,17 +3,15 @@ validation_by_session.py
 -------------------------
 
 This script aggregates per‑task validation results into a per‑session view.
-It reads the interaction logs to map each figure (task) to the participant
-(session) that edited it, then reads the semantic validation records and
-computes an ``overall_success`` flag (true when either the vector match or
-the semantic similarity check succeeded, as defined in T005).
-
-The aggregated records are written as JSON‑Lines to
-``data/results/validation_by_session.jsonl`` with the fields:
+It first runs the full validation pipeline (``src.validation.run_validation``)
+on the interaction logs and ground‑truth vectors, then maps each figure/task
+to the participant session that edited it, and finally writes a JSON‑Lines
+file with the fields:
 
     - session_id (str): identifier of the participant/session
     - task_id    (str): identifier of the figure/task (matches ``figure_id``)
-    - overall_success (bool): true if either success condition holds
+    - overall_success (bool): true if either the vector match or the semantic
+      similarity check succeeded for that task.
 
 The script can be invoked directly via the quick‑start or as part of the
 full pipeline:
@@ -21,6 +19,7 @@ full pipeline:
     python -m src.analysis.validation_by_session \
         --log-dir data/logs/ \
         --validation-dir data/validation/ \
+        --ground-truth-dir data/ground_truth/ \
         --output-path data/results/validation_by_session.jsonl
 
 All paths are created automatically if they do not exist.
@@ -28,9 +27,18 @@ All paths are created automatically if they do not exist.
 
 import argparse
 import json
+import subprocess
+import sys
 from pathlib import Path
 from typing import Dict, List
 
+from llmxive_toolkit import get_logger
+
+log = get_logger(__name__)
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def _load_jsonl(path: Path) -> List[Dict]:
     """Load a JSON‑Lines file into a list of dictionaries."""
     records = []
@@ -58,6 +66,12 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help="Directory containing semantic validation JSON‑Lines (default: data/validation).",
     )
     parser.add_argument(
+        "--ground-truth-dir",
+        type=str,
+        default="data/ground_truth",
+        help="Directory containing ground‑truth JSON files (default: data/ground_truth).",
+    )
+    parser.add_argument(
         "--output-path",
         type=str,
         default="data/results/validation_by_session.jsonl",
@@ -65,55 +79,86 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     return parser
 
+def _run_validation(log_dir: Path, ground_truth_dir: Path, validation_dir: Path) -> None:
+    """
+    Execute the ``src.validation.run_validation`` module as a subprocess.
+    This generates ``semantic_validation.jsonl`` inside ``validation_dir``.
+    """
+    cmd = [
+        sys.executable,
+        "-m",
+        "src.validation.run_validation",
+        "--log-dir",
+        str(log_dir),
+        "--ground-truth-dir",
+        str(ground_truth_dir),
+        "--output-dir",
+        str(validation_dir),
+    ]
+    log.info(f"Running validation step: {' '.join(cmd)}")
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        log.error("run_validation failed")
+        log.error(f"STDOUT: {result.stdout}")
+        log.error(f"STDERR: {result.stderr}")
+        sys.exit(1)
+
 def main() -> int:
     parser = _build_arg_parser()
     args = parser.parse_args()
 
     log_dir = Path(args.log_dir)
     validation_dir = Path(args.validation_dir)
+    ground_truth_dir = Path(args.ground_truth_dir)
     output_path = Path(args.output_path)
 
     # ------------------------------------------------------------------
-    # 1. Load interaction logs and build a mapping from figure_id → session_id
+    # 1. Run the validation step to ensure ``semantic_validation.jsonl`` exists.
+    # ------------------------------------------------------------------
+    _run_validation(log_dir, ground_truth_dir, validation_dir)
+
+    # ------------------------------------------------------------------
+    # 2. Load interaction logs and build a mapping from figure_id → session_id
     # ------------------------------------------------------------------
     interaction_log_path = log_dir / "interactions_clean.jsonl"
     if not interaction_log_path.is_file():
-        raise FileNotFoundError(f"Interaction log not found: {interaction_log_path}")
+        log.error(f"Interaction log not found: {interaction_log_path}")
+        return 1
 
     interactions = _load_jsonl(interaction_log_path)
     figure_to_session: Dict[str, str] = {}
     for entry in interactions:
-        # Accept either ``figure_id`` or ``task_id`` as the identifier.
+        # The logger records ``figure_id`` (task identifier) and ``participant_id``.
         figure_id = entry.get("figure_id") or entry.get("task_id")
         participant_id = entry.get("participant_id") or entry.get("session_id")
         if figure_id is None or participant_id is None:
             continue  # skip malformed entries
-        # Keep the first observed mapping (all entries for a figure belong to the same session)
+        # Keep the first observed mapping – all entries for a figure belong to the same session.
         figure_to_session.setdefault(str(figure_id), str(participant_id))
 
     # ------------------------------------------------------------------
-    # 2. Load semantic validation records
+    # 3. Load semantic validation records (produced by run_validation)
     # ------------------------------------------------------------------
     validation_path = validation_dir / "semantic_validation.jsonl"
     if not validation_path.is_file():
-        raise FileNotFoundError(f"Semantic validation file not found: {validation_path}")
+        log.error(f"Semantic validation file not found: {validation_path}")
+        return 1
 
     validations = _load_jsonl(validation_path)
 
     # ------------------------------------------------------------------
-    # 3. Produce aggregated output (one line per task, enriched with session_id)
+    # 4. Produce aggregated output (one line per task, enriched with session_id)
     # ------------------------------------------------------------------
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as out_f:
         for record in validations:
-            # The validation record may use ``figure_id`` or ``task_id``.
+            # Validation records may use ``figure_id`` or ``task_id``.
             figure_id = str(record.get("figure_id") or record.get("task_id"))
-            if figure_id is None:
+            if not figure_id:
                 continue  # skip malformed validation records
 
             vector_match = bool(record.get("vector_match", False))
             semantic_pass = bool(record.get("semantic_pass", False))
-
             overall_success = vector_match or semantic_pass
 
             session_id = figure_to_session.get(figure_id, "unknown")
@@ -125,7 +170,8 @@ def main() -> int:
             }
             out_f.write(json.dumps(aggregated) + "\n")
 
+    log.info(f"Aggregated validation written to {output_path}")
     return 0
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())

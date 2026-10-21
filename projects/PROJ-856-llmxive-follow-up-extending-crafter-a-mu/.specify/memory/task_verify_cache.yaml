@@ -8,25 +8,37 @@ T000:
     \ All required artifacts exist and meet the specifications."
   sig: ecb3c2efcac69a62bf179c0e50ee579cdb0da71ada8d5951628e0249380d7128
 T002:
-  c: false
-  h: 235eabc09b5baf5f2f595c2a696661181c694a3991f54440a9095a2d80878b29
-  r: "Checked `src/curators/curate_failed_figures.py` (exists and implements the required\
-    \ flags) and the generated `data/figures/`, `data/ground_truth/` (each contain\
-    \ exactly 50 files) and `data/checksums.txt`. However, there is no execution evidence\
-    \ that running the script with network unreachable (`python -m src.curators.curate_failed_figures\
-    \ --num 50`) actually exits non\u2011zero and prints \u201Cverified source unavailable\u201D\
-    . A log or captured stderr showing this failure is required."
-  sig: 8e9bb15bc9783154ad3b87e70cf821db9b0d9505539c07eed32fd5ceca5cf9f3
-T003:
   c: true
-  h: 91e0d08f96369cff5710ee30ab6a2699de18c16b67d699e5b8d489a271866e5b
-  r: "The three source files (`src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`,\
-    \ `src/interfaces/session.py`) exist and implement FastAPI apps exposing `/init_session`\
-    \ (via the shared router) and `/edit` endpoints, with the session logic randomizing\
-    \ the interface order. The test suite `tests/interfaces/test_interfaces.py` is\
-    \ present and, when run with `pytest`, would pass all four tests confirming 200\u202F\
-    OK responses and correct payload structure."
-  sig: f0a80e0067a0e456e61905f29b77b42e4d64180c3bc07bc981218d280f9a461e
+  h: 18faf067091eb1fad2754543f354ba0feef771ffe0c1e548e12d5af90cc8f0ca
+  r: "Checked `src/curators/curate_failed_figures.py` (implements network check, loud\
+    \ failure, and `--verify-only` synthetic mode), the presence of `data/figures/`\
+    \ (50 PNGs), `data/ground_truth/` (50 JSONs) and `data/checksums.txt`, and the\
+    \ passing pytest log confirming the non\u2011zero exit on network\u2011unavailable\
+    \ and correct file creation in verify\u2011only mode."
+  sig: a4afed3276468b93e0d26b1442d3f1b701da56e4908f938b08e06edde7037303
+T003:
+  c: false
+  h: ad94b78d1f6cbba2ca31851ed650b823c56dbe193c652ca873b91b94101c3acc
+  r: "The provided `structured_harness.py` and `chat_interface.py` define only a `/edit`\
+    \ endpoint, but the tests expect an `/init_session` endpoint on both FastAPI app\
+    \ instances, which is missing because `session.py` only creates an `APIRouter`\
+    \ that is never attached to any app. Additionally, the `/edit` endpoint\u2019\
+    s Pydantic model requires fields (`participant_id`, `figure_id`, `interface`,\
+    \ `payload`, `iteration`) that the tests do not supply, so the test POSTs would\
+    \ fail validation. Consequently the integration tests cannot pass and the counterbalanced\
+    \ session initialization is not exposed as requir"
+  sig: 70c05ed67159ef28cabfdf8eb8b7233ab1a4e6d84ee7f7381e69b9cfb076eee3
+T004:
+  c: false
+  h: 2785ae9e76ad6521ba7e2ed237eade6c3b7f3a587941ba9a87f8dd52b0aeaf8e
+  r: "Checked `src/logger/interaction_logger.py`, its unit test `tests/logger/test_interaction_logger.py`,\
+    \ and the integration test run (`tests/logger/test_interaction_logger_integration.py`).\
+    \ While the logger module writes the required fields, the integration tests that\
+    \ simulate a real edit via TestClient all fail (422 responses and no log lines),\
+    \ and the existing `data/logs/interactions_clean.jsonl` does not match the schema.\
+    \ The task\u2019s requirement for a real edit creating a schema\u2011valid line\
+    \ with start/end timestamps and abort handling is therefore not satisfied."
+  sig: 6214c76c362f4b87d8e093d6b1b1e0ad6fc7f4ce057db8dafc8a2a1a70cbe44d
 T005:
   c: true
   h: 759f5e8cca9be23a06ccc4272a49f8d6401307f6dc3d7dbd9f7e6490089e38fb
@@ -37,21 +49,12 @@ T005:
     \ fields with correct types."
   sig: 6c1f8772c7110be921afdcf9837deec7bffd9c664550f71a71ec413d47714ac4
 T006:
-  c: true
-  h: ba17eb6f73217b496872fba4d1bde77a5a0cd05481eea1e1ae0ef9924cf9ffba
-  r: "Checked `src/simulation/power_analysis.py` execution log showing it printed\
-    \ a required N\u202F=\u202F34 (\u226530) and exited with status\u202F0, and `src/simulation/simulate_participants.py`\
-    \ execution log confirming it ran without error and generated `data/logs/interactions_clean.jsonl`.\
-    \ The log file is >2\u202FMB, containing well\u2011formed JSON\u2011Lines with\
-    \ all required schema fields and clearly exceeds the 7\u202F500\u2011line minimum."
-  sig: 24e2a774b583d73d10c541f9ca93fca08707a540df9c05e78901ed9ec57606b6
-T007:
   c: false
-  h: 3fcc631add02a7185570a492bea1bf56730ff3a264843376bb95ba0a439fdbef
-  r: "The `validation_by_session.py` script never calls `run_validation.py` as required,\
-    \ and the generated `validation_by_session.jsonl` contains only placeholder `\"\
-    unknown\"` session IDs, indicating that the per\u2011edit logs are not being used\
-    \ to map tasks to real participant sessions. The task\u2019s core requirement\
-    \ of applying `run_validation.py` per task and producing real session\u2011aware\
-    \ aggregates is not satisfied."
-  sig: b07b2ac172331be037986999d5be9eb4bb8f48d6a67846cbf7a579ef8c0d3144
+  h: c8a863118348fa813db7725ac3f3b2ebcfb2182039947010a855b995dfdbdd4c
+  r: "The `src/simulation/power_analysis.py` runs correctly and prints a required\
+    \ N\u202F=\u202F34 (\u226530). However, `data/logs/interactions_clean.jsonl` only\
+    \ contains 8 lines and lacks the required schema fields (e.g., `log_id`, `session_id`,\
+    \ `task_id`, `mode`, etc.), far short of the \u2265\u202F7\u202F500 schema\u2011\
+    conformant log entries the task demands. The synthetic driver therefore does not\
+    \ meet the logging requirement."
+  sig: 677f070bf1b62fb9e9a878a4d6257c39243d7226dbc21427c413f597a8dd9471

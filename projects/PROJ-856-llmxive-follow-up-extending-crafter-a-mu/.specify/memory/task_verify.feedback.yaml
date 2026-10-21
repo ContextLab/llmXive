@@ -3,36 +3,42 @@ T000:
 T001:
   task: a67de131a5fe4c8832269c1f23669775deba5330e24fdd2d4b2e7750cbc37424
 T002:
-  reason: "Checked `src/curators/curate_failed_figures.py` (exists and implements\
-    \ the required flags) and the generated `data/figures/`, `data/ground_truth/`\
-    \ (each contain exactly 50 files) and `data/checksums.txt`. However, there is\
-    \ no execution evidence that running the script with network unreachable (`python\
-    \ -m src.curators.curate_failed_figures --num 50`) actually exits non\u2011zero\
-    \ and prints \u201Cverified source unavailable\u201D. A log or captured stderr\
-    \ showing this failure is required."
   task: 2e58516fa9258c2dc7cb1635b56537b1c26c70e6906960ac89d1d57433eb59d8
 T003:
+  reason: "The provided `structured_harness.py` and `chat_interface.py` define only\
+    \ a `/edit` endpoint, but the tests expect an `/init_session` endpoint on both\
+    \ FastAPI app instances, which is missing because `session.py` only creates an\
+    \ `APIRouter` that is never attached to any app. Additionally, the `/edit` endpoint\u2019\
+    s Pydantic model requires fields (`participant_id`, `figure_id`, `interface`,\
+    \ `payload`, `iteration`) that the tests do not supply, so the test POSTs would\
+    \ fail validation. Consequently the integration tests cannot pass and the counterbalanced\
+    \ session initialization is not exposed as requir"
   task: 99a536c55f5323dfb946d52edcab9671a048ced34551ae7ae305c519791c0f6c
 T004:
-  reason: "Checked `src/logger/interaction_logger.py` and its unit test `tests/logger/test_interaction_logger.py`,\
-    \ which correctly write JSON\u2011Lines with the required fields. However, the\
-    \ integration test that uses a real `TestClient` to perform an edit (the verification\
-    \ step required by the task) fails: the POST requests return 422, no log lines\
-    \ are created, and the abort handling is never exercised. The logger is not wired\
-    \ into the edit endpoint, so a real edit does not produce a clean log entry as\
-    \ specified."
+  reason: "Checked `src/logger/interaction_logger.py`, its unit test `tests/logger/test_interaction_logger.py`,\
+    \ and the integration test run (`tests/logger/test_interaction_logger_integration.py`).\
+    \ While the logger module writes the required fields, the integration tests that\
+    \ simulate a real edit via TestClient all fail (422 responses and no log lines),\
+    \ and the existing `data/logs/interactions_clean.jsonl` does not match the schema.\
+    \ The task\u2019s requirement for a real edit creating a schema\u2011valid line\
+    \ with start/end timestamps and abort handling is therefore not satisfied."
   task: abd319250ab4cefa38fa46a0ef742a9ba7ce2261a2d280afe602a38480051f80
 T005:
   task: 20d306815f40a03746e6758b5c85dbd93adc9a32f5764077408120009b9a627f
 T006:
+  reason: "The `src/simulation/power_analysis.py` runs correctly and prints a required\
+    \ N\u202F=\u202F34 (\u226530). However, `data/logs/interactions_clean.jsonl` only\
+    \ contains 8 lines and lacks the required schema fields (e.g., `log_id`, `session_id`,\
+    \ `task_id`, `mode`, etc.), far short of the \u2265\u202F7\u202F500 schema\u2011\
+    conformant log entries the task demands. The synthetic driver therefore does not\
+    \ meet the logging requirement."
   task: c06eee802d579bf6b663e1101c0f94d3e06f3a5cef23b3478d1d3f3d2b77c617
 T007:
-  reason: "The `validation_by_session.py` script never calls `run_validation.py` as\
-    \ required, and the generated `validation_by_session.jsonl` contains only placeholder\
-    \ `\"unknown\"` session IDs, indicating that the per\u2011edit logs are not being\
-    \ used to map tasks to real participant sessions. The task\u2019s core requirement\
-    \ of applying `run_validation.py` per task and producing real session\u2011aware\
-    \ aggregates is not satisfied."
+  reason: "Checked `src/analysis/validation_by_session.py` and its generated `data/results/validation_by_session.jsonl`.\
+    \ The script aborts on unexpected CLI arguments (causing the test to fail) and\
+    \ the output file contains only `\"session_id\": \"unknown\"` for every task,\
+    \ so real session identifiers are never populated. The required per\u2011session\
+    \ aggregation with valid `session_id` values is therefore not achieved."
   task: 52bf6b1fa7f2438f0195dfed9e5554c45ea0ba202f6affa0e65c58dd2606736f
 T008:
   reason: 'Requested task execution failed; rerun successfully: src/analysis/wilcoxon_analysis.py
@@ -55,4 +61,6 @@ T015:
 T016:
   task: 46a61e0f8bfc6c8bb13b626755f714fe7a7cff713f45b78742f871e763125625
 T018:
+  reason: 'Requested task execution failed; rerun successfully: code/src/analysis/mean_wilcoxon_analysis.py
+    exit=2'
   task: 71abcf62a9503228bca528e1602f68a054d830ecff496b49cfc5bb47075ed235

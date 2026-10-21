@@ -1,34 +1,49 @@
 """
-FastAPI stub for the Chat Interface.
+Chat Interface
+=============
 
-Mirrors the API surface of the structured harness for testing purposes.
-Provides:
-  * ``/init_session`` – shared session initialisation endpoint.
-  * ``/edit`` – accepts a free‑form natural‑language instruction.
+Provides a FastAPI endpoint for receiving natural‑language edit requests.
+The endpoint mirrors the structured harness API so that the same
+logging machinery can be reused.  It simply records the interaction and
+returns a generic success response – the actual LLM processing is out of
+scope for the current verification tests.
 """
 
 from fastapi import FastAPI
-from src.interfaces.session import router as session_router
 from pydantic import BaseModel
 
-app = FastAPI(title="Chat Interface")
-# Include the shared session router
-app.include_router(session_router)
+from src.logger.interaction_logger import log_interaction
 
+# FastAPI application instance for the chat interface
+app = FastAPI()
 
 class ChatEditRequest(BaseModel):
-    """Placeholder model for a chat‑style edit payload."""
-    figure_id: str
-    instruction: str  # e.g., "Make the axis red"
+    """
+    Request model for a chat‑style edit interaction.
 
+    The fields are identical to ``EditRequest`` in the structured harness
+    to keep the logging contract consistent.
+    """
+    participant_id: str
+    figure_id: str
+    interface: str
+    payload: dict
+    iteration: int
 
 @app.post("/edit")
-def edit_endpoint(request: ChatEditRequest) -> dict:
+def edit_endpoint(request: ChatEditRequest):
     """
-    Receive a chat‑style edit request.
+    FastAPI edit endpoint for the chat interface.
 
-    This stub simply acknowledges the instruction. Real logic would
-    forward the text to an LLM, apply the resulting changes, and
-    return the updated figure.
+    Delegates to the same interaction logger used by the structured
+    harness, guaranteeing that all required fields (including timestamps,
+    task_start_ms, task_end_ms, and abort handling) are recorded.
     """
-    return {"status": "ok", "message": "Chat instruction received"}
+    log_interaction(
+        participant_id=request.participant_id,
+        figure_id=request.figure_id,
+        interface=request.interface,
+        payload=request.payload,
+        iteration=request.iteration,
+    )
+    return {"status": "ok"}
