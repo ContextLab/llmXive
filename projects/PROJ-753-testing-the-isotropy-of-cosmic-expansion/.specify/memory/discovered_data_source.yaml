@@ -1,11 +1,11 @@
 status: none
-intent: Pantheon+ supernova full sample download python package dataset
+intent: Pantheon+ Type Ia Supernova full sample download Python package dataset
 required_fields:
 - ra
 - dec
 - redshift
 - distance_modulus
-- distance_modulus_error
-cache_key: d156f72a987a8d068e016efb8d471e866fcc8332be673c187da77d7b2c41f4ec
-searched_at: '2026-10-21T02:19:11.555452+00:00'
+- distance_modulus_uncertainty
+cache_key: 784fa925b53c244fc851b387c648e378b52ff7eb0e9cb59a717218576ce467dc
+searched_at: '2026-10-21T04:11:43.696077+00:00'
 retry_count: 1

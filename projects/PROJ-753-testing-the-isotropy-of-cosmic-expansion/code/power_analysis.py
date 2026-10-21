@@ -10,10 +10,10 @@ This script performs the following steps:
    be detected with ≥ 80 % power at a significance level of p < 0.05.
 5. Runs a pilot Monte‑Carlo study (≥ 500 mock catalogs) that injects a dipole
    of exactly the analytic threshold amplitude, rotates the sky positions
-   using the shared rotation utilities (fallback to ``scipy`` if unavailable),
-   and estimates the dipole amplitude with a simple inverse‑variance‑weighted
-   estimator. The fraction of mocks in which the injected dipole is recovered
-   is recorded as the empirical power.
+   using the shared rotation utilities, and estimates the dipole amplitude
+   with a simple inverse‑variance‑weighted estimator. The fraction of mocks
+   in which the injected dipole is recovered is recorded as the empirical
+   power.
 6. Writes the results to ``data/processed/power_analysis.json``.
 """
 
@@ -34,10 +34,10 @@ from llmxive_toolkit import paths, get_logger
 # Configuration
 # ----------------------------------------------------------------------
 # Correct canonical URL for the Pantheon+ SH0ES data file.
-# The plus sign is safe in the path component of a raw GitHub URL.
+# The plus sign must be URL‑encoded (%2B) for GitHub raw URLs.
 DEFAULT_URL = (
     "https://raw.githubusercontent.com/PantheonPlusSH0ES/"
-    "DataRelease/main/Pantheon+_SH0ES.dat"
+    "DataRelease/main/Pantheon%2B_SH0ES.dat"
 )
 DEFAULT_DATASET_VERSION = "v1.0"
 # Accept both underscore‑less and underscore‑separated column names.
@@ -98,7 +98,6 @@ def verify_columns(df: pd.DataFrame) -> None:
     The Pantheon+ release sometimes uses underscores (e.g. ``MU_ERR``);
     we normalise column names by stripping underscores before checking.
     """
-    # Normalise column names: upper‑case and remove underscores.
     norm_cols = {col.upper().replace("_", "") for col in df.columns}
     missing = REQUIRED_COLUMNS - norm_cols
     if missing:
@@ -251,12 +250,10 @@ def main() -> None:
     # ------------------------------------------------------------------
     # 4. Pilot Monte‑Carlo power study
     # ------------------------------------------------------------------
-    # Pre‑compute theoretical distance modulus and residuals for the real data
+    # Theoretical distance modulus and residuals for the real data
     h0_default, omega_m_default = 73.0, 0.33
     df["MU_TH"] = df["ZHD"].apply(
-        lambda z: theoretical_distance_modulus(
-            z, h0=h0_default, omega_m=omega_m_default
-        )
+        lambda z: theoretical_distance_modulus(z, h0=h0_default, omega_m=omega_m_default)
     )
     df["RESID"] = df["MU"] - df["MU_TH"]
 
@@ -270,7 +267,8 @@ def main() -> None:
     dipole_dir = np.array([1.0, 0.0, 0.0])
 
     detections = 0
-    rng = np.random.default_rng(42)  # deterministic seed for reproducibility
+    # Use numpy RandomState for compatibility with scipy Rotation.random
+    rng = np.random.RandomState(42)
 
     for i in range(args.mocks):
         # Random rotation
@@ -297,7 +295,7 @@ def main() -> None:
 
     empirical_power = detections / args.mocks
     logger.info(
-        "Pilot study: empirical detection power = %.3f ( %d / %d detections )",
+        "Pilot study: empirical detection power = %.3f (%d / %d detections)",
         empirical_power,
         detections,
         args.mocks,
