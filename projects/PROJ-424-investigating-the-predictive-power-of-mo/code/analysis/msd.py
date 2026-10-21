@@ -118,12 +118,16 @@ def calculate_diffusion_coefficient(slope: float, scaling_factor: float = 1.0) -
     ``MSD = 6 D t``.  When ``t`` is expressed in nanoseconds,
     the slope has units of m² ns⁻¹, so
 
-        D = slope / 6
+        D (m²/ns) = slope / 6
 
-    The optional ``scaling_factor`` is kept for compatibility with
-    downstream code (e.g. finite‑size corrections) but defaults to 1.0.
+    To obtain D in the conventional SI unit m² s⁻¹ we multiply by 1e9
+    (since 1 ns = 1e‑9 s).  The optional ``scaling_factor`` is kept for
+    compatibility with downstream code (e.g. finite‑size corrections) but
+    defaults to 1.0.
     """
-    return (slope / 6.0) * scaling_factor
+    # Convert from m²/ns to m²/s
+    d_m2_per_s = (slope / 6.0) * 1e9
+    return d_m2_per_s * scaling_factor
 
 # ----------------------------------------------------------------------
 # Simple sanity‑check entry point (not used by the test suite)

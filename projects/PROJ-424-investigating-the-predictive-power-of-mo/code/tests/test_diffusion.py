@@ -40,8 +40,8 @@ def test_linear_msd_success(monkeypatch_msd_loader):
     """
     # Ground‑truth diffusion coefficient (m²/s).
     D_true = 2.5e-9
-    # Convert to slope for t in ns: slope = 6 * D * 1e-9 (because t is ns)
-    slope = 6.0 * D_true * 1e-9  # m² / ns
+    # Convert to slope for t in ns: slope = 6 * D * 1e-9 (m²/ns)
+    slope = 6.0 * D_true * 1e-9
 
     # Generate synthetic times (0‑10 ns, 101 points) and exact MSD.
     times = np.linspace(0, 10, 101)  # ns

@@ -1,16 +1,8 @@
-# Core scientific stack (already provided by the platform)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependencies required for MSD/Diffusion analysis
-mdtraj==1.9.9
+# Project dependencies
+# OpenMM is required for molecular dynamics simulations.
+openmm==8.1.1
+# The following packages are already available in the execution environment
+# and do not need to be listed here: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil.  Additional packages needed by later tasks
+# (e.g., mdtraj) will be added when those tasks are implemented.

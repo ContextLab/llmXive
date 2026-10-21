@@ -14,18 +14,20 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/diffusion.py: synthetic/fake INPUT data not authorized by the spec — “…imeseries`` and * inject synthetic data without needing a real t…”; code/reporting/plots.py: synthetic/fake INPUT data not authorized by the spec — “…tting function."""     # Mock data     results = […”; code/simulation/runner.py: synthetic/fake INPUT data not authorized by the spec — “…# Write some dummy coordinate data to make it look real…”; 2 command(s) failed: python code/pipeline.py --solvent water --duration 1 --seed 0 (rc=1); python code/main.py --full-batch (rc=1); 2 declared deliverable(s) absent: data/processed/diffusion_results.csv; data/raw/nist_refs.json
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/diffusion.py: synthetic/fake INPUT data not authorized by the spec — “…imeseries`` and * inject synthetic data without needing a real t…”; code/reporting/plots.py: synthetic/fake INPUT data not authorized by the spec — “…tting function."""     # Mock data     results = […”; code/simulation/runner.py: synthetic/fake INPUT data not authorized by the spec — “…# Write some dummy coordinate data to make it look real…”; 2 command(s) failed: python code/pipeline.py --solvent water --duration 1 --seed 0 (rc=1); python code/main.py --full-batch (rc=1); 1 declared deliverable(s) absent: data/processed/diffusion_results.csv
 
 ## Failing / missing run-book commands
 
 - python code/pipeline.py --solvent water --duration 1 --seed 0 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/pipeline.py", line 38, in <module>
-    from code.simulations.run_simulation import run_simulation
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/simulations/run_simulation.py", line 23, in <module>
-    from openmm import app
-ModuleNotFoundError: No module named 'openmm'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/pipeline.py", line 41, in <module>
+    from code.analysis.diffusion import analyze_diffusion
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/analysis/diffusion.py", line 28, in <module>
+    from . import msd as msd
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/analysis/msd.py", line 18, in <module>
+    import mdtraj as md
+ModuleNotFoundError: No module named 'mdtraj'
 
 - python code/main.py --full-batch -> rc=1
 
@@ -38,7 +40,6 @@ ImportError: cannot import name 'SIMULATION_CONFIG' from 'config' (/home/runner/
 ## Declared deliverables still missing
 
 - data/processed/diffusion_results.csv
-- data/raw/nist_refs.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -52,13 +53,3 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/utils/schema_generator.py` — NOT invoked by the run-book
     - `code/utils/schema_validator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/diffusion_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/nist_refs.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/bootstrap.py` — NOT invoked by the run-book
-    - `code/config.py` — NOT invoked by the run-book
-    - `code/data/loader.py` — NOT invoked by the run-book
-    - `code/data/raw/generate_nist_refs.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
-    - `code/reporting/plots.py` — NOT invoked by the run-book
-    - `code/reporting/tables.py` — NOT invoked by the run-book
-    - `code/tests/test_loader.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/nist_refs.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

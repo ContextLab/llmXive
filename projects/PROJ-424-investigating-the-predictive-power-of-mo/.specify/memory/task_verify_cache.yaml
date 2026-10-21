@@ -1,20 +1,12 @@
 T001:
   c: false
-  h: fbeaa2067505caa0c8b3f5351d33d0de2b3192ef38771755d8e2a024bfb98b07
-  r: "The required `data/raw/nist_refs.json` file (and its `nist_refs.json.sha256`\
-    \ checksum) are missing, so the loader cannot load three validated entries and\
-    \ the unit tests that expect the file to exist will fail. Without the curated\
-    \ JSON and its checksum, the task\u2019s core deliverable is not satisfied."
-  sig: 57786154eaf76f155066a9cc73e74aef0d9f4785027122168183ea55d4636f1f
-T003:
-  c: false
-  h: eb6b17b86b44443e334643347e65a5e77768c6d007e96dd7e96aa38c3a374498
-  r: "The `code/tests/test_diffusion.py` imports `analysis.diffusion` and `analysis.msd`,\
-    \ but the project only contains `code/analysis/...` without an `analysis` package,\
-    \ so the tests cannot be imported. Moreover, the linear\u2011case test computes\
-    \ the expected diffusion coefficient in m\xB2\u202Fs\u207B\xB9 yet the implementation\u2019\
-    s `calculate_diffusion_coefficient` returns a value in m\xB2\u202Fns\u207B\xB9\
-    \ (missing the 1\u202Fns\u202F=\u202F1e\u20119\u202Fs conversion), causing the\
-    \ asserted `np.isclose(..., D_true)` check to fail. Consequently the required\
-    \ pytest suite does not pass."
-  sig: faafd14d31452d0ac2410a3fa912cbfe8389168b3194536b97342b7a1d200e5a
+  h: 1e775651699ace3cc31cf530c9cc6bf7776220c4c80eff71d8649e37f2e97f34
+  r: "The required `data/raw/nist_refs.json.sha256` is explicitly MISSING \u2014 the\
+    \ loader only writes it lazily as a side effect of `load_refs()`, but the task\
+    \ requires the checksum to be computed and committed, and `test_checksum_matches`\
+    \ would fail on it. There is also no execution evidence that `pytest code/tests/test_loader.py`\
+    \ passes or that the `python -c \"from code.data.loader import load_refs; ...\"\
+    ` verification succeeded, and the loader's `from config import NIST_REFS_PATH`\
+    \ (rather than a package-relative import) makes it likely the import fails when\
+    \ run as `code.data.loader` from the project "
+  sig: c6c54a56439e7fe4568a3a5524a6c47463e494b2dd9bb65dde143898e67ca853

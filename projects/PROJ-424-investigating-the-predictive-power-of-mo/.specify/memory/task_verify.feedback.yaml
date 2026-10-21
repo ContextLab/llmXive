@@ -1,22 +1,26 @@
 T001:
-  reason: "The required `data/raw/nist_refs.json` file (and its `nist_refs.json.sha256`\
-    \ checksum) are missing, so the loader cannot load three validated entries and\
-    \ the unit tests that expect the file to exist will fail. Without the curated\
-    \ JSON and its checksum, the task\u2019s core deliverable is not satisfied."
+  reason: "The required `data/raw/nist_refs.json.sha256` is explicitly MISSING \u2014\
+    \ the loader only writes it lazily as a side effect of `load_refs()`, but the\
+    \ task requires the checksum to be computed and committed, and `test_checksum_matches`\
+    \ would fail on it. There is also no execution evidence that `pytest code/tests/test_loader.py`\
+    \ passes or that the `python -c \"from code.data.loader import load_refs; ...\"\
+    ` verification succeeded, and the loader's `from config import NIST_REFS_PATH`\
+    \ (rather than a package-relative import) makes it likely the import fails when\
+    \ run as `code.data.loader` from the project"
   task: bde86b48453d19a950c24cfba986ea1c58842a14cee3ef64b0a8c6dcb488263b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/tests/test_simulation.py
     exit=2'
   task: 467d8c9101d0d71579bba0a45f941d5f7a40ab7061374d2a5a3536ce8db473c2
 T003:
-  reason: "The `code/tests/test_diffusion.py` imports `analysis.diffusion` and `analysis.msd`,\
-    \ but the project only contains `code/analysis/...` without an `analysis` package,\
-    \ so the tests cannot be imported. Moreover, the linear\u2011case test computes\
-    \ the expected diffusion coefficient in m\xB2\u202Fs\u207B\xB9 yet the implementation\u2019\
-    s `calculate_diffusion_coefficient` returns a value in m\xB2\u202Fns\u207B\xB9\
-    \ (missing the 1\u202Fns\u202F=\u202F1e\u20119\u202Fs conversion), causing the\
-    \ asserted `np.isclose(..., D_true)` check to fail. Consequently the required\
-    \ pytest suite does not pass."
+  reason: "The implementation files exist and look substantively correct (0.1 discard,\
+    \ R\xB2 \u2265 0.95 gate, D = slope/6, d_scaled = d_calc, convergence_failed status,\
+    \ synthetic-fixture tests), but the verification requirement fails: the recorded\
+    \ execution log `code/.tasks/T003.code_tests_test_diffusion.py.log` shows `pytest\
+    \ code/tests/test_diffusion.py` exited with code 2 due to `ModuleNotFoundError:\
+    \ No module named 'mdtraj'` \u2014 the test module failed to even collect, so\
+    \ no tests ran or passed. The implementer must make mdtraj available in the environment\
+    \ (or guard the import so unit tests using monkey-patched"
   task: 06cc0867da512a022b8b82b33505eb93799d0fa83700b8c58ba0a18195419228
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/pipeline.py exit=2'

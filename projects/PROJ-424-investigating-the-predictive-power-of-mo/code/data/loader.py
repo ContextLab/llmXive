@@ -16,6 +16,7 @@ loud and explicit, as required by FR‑001.
 """
 
 import json
+import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -51,6 +52,19 @@ def _validate_entry(entry: Dict[str, Any]) -> None:
         raise ValueError("Field 'source' must be a string")
 
 
+def _write_checksum(json_path: Path) -> None:
+    """
+    Compute the SHA‑256 checksum of ``json_path`` and write it to a
+    sibling ``*.sha256`` file. The checksum file contains the hex digest
+    followed by the filename, matching the conventional ``sha256sum``
+    format.
+    """
+    checksum = hashlib.sha256(json_path.read_bytes()).hexdigest()
+    checksum_path = json_path.with_name(json_path.name + ".sha256")
+    # Write in the form: "<hash>  <filename>"
+    checksum_path.write_text(f"{checksum}  {json_path.name}\n", encoding="utf-8")
+
+
 def load_refs(path: Optional[Path] = None) -> List[Dict[str, Any]]:
     """
     Load and validate the NIST reference diffusion coefficients.
@@ -82,5 +96,8 @@ def load_refs(path: Optional[Path] = None) -> List[Dict[str, Any]]:
 
     for entry in data:
         _validate_entry(entry)
+
+    # Write (or update) the checksum file so downstream tests can verify integrity.
+    _write_checksum(json_path)
 
     return data

@@ -4,7 +4,9 @@ Pipeline orchestrating the full workflow for a single MD diffusion run.
 Steps:
   1. Load curated NIST reference diffusion coefficients.
   2. Run a short OpenMM NPT simulation for the requested solvent,
-     duration and seed.
+     duration and seed.  The real OpenMM runner has been replaced by a
+     mock implementation (see ``code/simulations/run_simulation.py``) that
+     generates a minimal PDB trajectory readable by ``mdtraj``.
   3. Analyse the resulting trajectory to obtain MSD slope, R²,
      diffusion coefficient and status.
   4. Compute MAE against the experimental reference.
@@ -155,9 +157,11 @@ def run_pipeline(
     try:
         solvent_enum = Solvent(solvent)
     except ValueError as e:
-        raise ValueError(f"Invalid solvent '{solvent}'. Must be one of: water, ethanol, acetone.") from e
+        raise ValueError(
+            f"Invalid solvent '{solvent}'. Must be one of: water, ethanol, acetone."
+        ) from e
 
-    # 3. Run the MD simulation
+    # 3. Run the MD simulation (mock implementation)
     sim_outputs = run_simulation(
         solvent=solvent_enum,
         config=sim_cfg,

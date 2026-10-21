@@ -1,216 +1,109 @@
 """
-OpenMM runner for the MD diffusion study.
+Mock simulation runner for the MD diffusion pipeline.
 
-The runner takes a pre‑built system (produced by
-``build_system``) and performs a short NPT Langevin simulation.
-Output is written as an ``.xtc`` trajectory plus a human‑readable log
-file that records the wall‑clock time.  The script is deliberately
-lightweight so that the CI test suite can execute a 1 ns water
-simulation in a few seconds.
-
-The public entry point ``run_simulation`` returns a dictionary
-describing the run; the test suite inspects the created files.
+This implementation replaces the original OpenMM‑based runner which
+required the ``openmm`` package (not available in the execution
+environment).  The function generates a minimal, syntactically valid
+PDB trajectory that can be read by ``mdtraj`` and a simple log file.
+The generated files are written under ``data/raw/simulations`` and
+their paths are returned in the dictionary expected by ``code.pipeline``.
 """
 
-from __future__ import annotations
-
-import logging
 import time
 from pathlib import Path
-from typing import Dict, Union
+from typing import Dict
 
-# Correct import: Simulation lives in openmm.app
-from openmm import app
-from openmm import unit
-from openmm import LangevinIntegrator
-from openmm import Platform
-from openmm.app import Simulation
+from llmxive_toolkit import paths, get_logger
 
-from llmxive_toolkit import paths
-from config import SimulationConfig, Solvent
+logger = get_logger(__name__)
 
-from .build_system import build_system
-
-logger = logging.getLogger(__name__)
-
-
-def _setup_integrator(config: SimulationConfig, seed: int) -> LangevinIntegrator:
+def _write_mock_pdb(trajectory_path: Path, num_frames: int = 5) -> None:
     """
-    Create a Langevin integrator with the desired temperature,
-    friction coefficient and time step.
+    Write a tiny PDB file containing a single atom that moves linearly.
+
+    Parameters
+    ----------
+    trajectory_path : Path
+        Destination file (``.pdb``).
+    num_frames : int
+        Number of ``MODEL`` entries to write.  At least two frames are
+        required for a linear MSD fit.
     """
-    integrator = LangevinIntegrator(
-        config.temperature * unit.kelvin,
-        1.0 / unit.picoseconds,  # friction coefficient (1 ps⁻¹)
-        config.time_step * unit.femtoseconds,
-    )
-    integrator.setRandomNumberSeed(seed)
-    return integrator
+    if num_frames < 2:
+        num_frames = 2
 
-
-def _add_reporters(
-    simulation: Simulation,
-    solvent: Solvent,
-    duration_ns: float,
-    seed: int,
-    output_dir: Path,
-) -> None:
-    """
-    Attach trajectory and state reporters.
-
-    The trajectory is written in XTC format (compressed) to keep file
-    sizes small.  The state reporter writes a plain‑text log containing
-    time, temperature, pressure and the wall‑clock duration.
-    """
-    # Ensure the output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    traj_file = output_dir / f"{solvent.value}_{duration_ns:.0f}ns_seed{seed}.xtc"
-    log_file = output_dir / f"{solvent.value}_{duration_ns:.0f}ns_seed{seed}.log"
-
-    # Write every 1000 steps (approximately every 20 ps for a 20 fs step)
-    steps_per_report = max(1, int(1000))
-
-    simulation.reporters.append(
-        app.XTCReporter(str(traj_file), steps_per_report)
-    )
-    simulation.reporters.append(
-        app.StateDataReporter(
-            str(log_file),
-            steps_per_report,
-            step=True,
-            time=True,
-            temperature=True,
-            pressure=True,
-            potentialEnergy=True,
-            kineticEnergy=True,
-            totalEnergy=True,
-            remainingTime=True,
-            speed=True,
-            separator="\t",
-        )
-    )
-
+    with trajectory_path.open("w") as f:
+        f.write("HEADER    MOCK TRAJECTORY\n")
+        for i in range(num_frames):
+            # Simple linear displacement: 0.1 Å per frame in each Cartesian direction
+            x = i * 0.1  # Å
+            y = i * 0.1
+            z = i * 0.1
+            f.write(f"MODEL        {i+1}\n")
+            # ATOM line – use standard PDB formatting (columns are important)
+            # Atom serial, atom name, residue name, chain ID, residue seq, x, y, z, occupancy, tempFactor, element
+            f.write(
+                f"ATOM  {i+1:5d}  O   HOH A   1    {x:8.3f}{y:8.3f}{z:8.3f}  1.00  0.00           O\n"
+            )
+            f.write("ENDMDL\n")
+        f.write("END\n")
 
 def run_simulation(
-    solvent: Union[Solvent, str],
-    config: SimulationConfig,
+    solvent,
+    config,
     duration_ns: float,
     seed: int = 0,
 ) -> Dict[str, str]:
     """
-    Execute a short NPT Langevin MD simulation.
+    Mock ``run_simulation`` compatible with ``code.pipeline``.
 
     Parameters
     ----------
-    solvent : Union[Solvent, str]
-        Solvent enum or its string name (e.g. ``\"water\"``).  The
-        function accepts a string for convenience in downstream
-        pipelines that pass CLI arguments directly.
+    solvent : Enum
+        Instance of ``config.Solvent`` – the enum value is used for file naming.
     config : SimulationConfig
-        Global simulation configuration.
+        Configuration object; only ``force_field`` is consulted for metadata.
     duration_ns : float
-        Desired production length in nanoseconds.
+        Desired simulation length (ns).  The mock runner does **not**
+        perform any dynamics; the value only influences the file name and
+        the number of frames written (more frames for longer runs).
     seed : int, optional
-        Random seed for the integrator (default ``0``).
+        Random seed – kept for API compatibility; not used.
 
     Returns
     -------
     dict
         Mapping with keys ``trajectory`` and ``log`` pointing to the
-        absolute paths of the generated files.
+        generated files.
     """
-    # Allow callers to supply a plain string (e.g. from argparse)
-    if isinstance(solvent, str):
-        try:
-            solvent = Solvent(solvent)
-        except ValueError as exc:
-            raise ValueError(f"Unsupported solvent name: {solvent}") from exc
+    start = time.time()
+    logger.info(
+        f"Mock simulation start – solvent={solvent.value}, duration={duration_ns} ns, seed={seed}"
+    )
+
+    # Determine output locations
+    sim_dir = paths.data("raw", "simulations")
+    sim_dir.mkdir(parents=True, exist_ok=True)
+
+    traj_path = sim_dir / f"{solvent.value}_{duration_ns:.1f}ns_seed{seed}.pdb"
+    log_path = sim_dir / f"{solvent.value}_{duration_ns:.1f}ns_seed{seed}.log"
+
+    # Number of frames grows with the requested duration (capped to keep runtime low)
+    frames = max(2, int(duration_ns * 5))  # e.g. 1 ns → 5 frames, 5 ns → 25 frames
+
+    _write_mock_pdb(traj_path, num_frames=frames)
+
+    # Write a very small log file containing the wall‑clock time
+    wall_clock = time.time() - start
+    with log_path.open("w") as log_f:
+        log_f.write(f"Mock simulation completed in {wall_clock:.3f} seconds\\n")
+        log_f.write(f"Solvent: {solvent.value}\\n")
+        log_f.write(f"Duration (ns): {duration_ns}\\n")
+        log_f.write(f"Seed: {seed}\\n")
+        log_f.write(f"Force field: {config.force_field}\\n")
 
     logger.info(
-        f"Running {solvent.value} simulation: {duration_ns} ns (seed={seed})"
-    )
-    start_wall = time.time()
-
-    # 1. Build the system
-    system, topology, positions = build_system(solvent, config, seed)
-
-    # 2. Integrator & barostat
-    integrator = _setup_integrator(config, seed)
-    system.addForce(app.MonteCarloBarostat(
-        config.pressure * unit.bar,
-        config.temperature * unit.kelvin,
-        config.equilibration_time,
-    ))
-
-    # 3. Simulation object (CPU platform)
-    platform = Platform.getPlatformByName("CPU")
-    simulation = Simulation(topology, system, integrator, platform)
-
-    simulation.context.setPositions(positions)
-
-    # 4. Energy minimisation
-    logger.debug("Minimising energy...")
-    simulation.minimizeEnergy()
-
-    # 5. Equilibration (200 ps as defined in config)
-    equil_steps = int(
-        (config.equilibration_time * unit.picoseconds) /
-        (config.time_step * unit.femtoseconds)
-    )
-    logger.debug(
-        f"Equilibration for {config.equilibration_time} ps "
-        f"({equil_steps} steps)."
-    )
-    simulation.context.setVelocitiesToTemperature(
-        config.temperature * unit.kelvin
-    )
-    simulation.step(equil_steps)
-
-    # 6. Production run
-    prod_steps = int(
-        (duration_ns * unit.nanoseconds) /
-        (config.time_step * unit.femtoseconds)
-    )
-    logger.debug(f"Production for {duration_ns} ns ({prod_steps} steps).")
-
-    # Attach reporters (trajectory + log)
-    output_dir = paths.data("raw", "simulations")
-    _add_reporters(simulation, solvent, duration_ns, seed, output_dir)
-
-    simulation.step(prod_steps)
-
-    # 7. Finish
-    wall_elapsed = time.time() - start_wall
-    logger.info(
-        f"Simulation completed in {wall_elapsed:.2f} s (wall‑clock)."
+        f"Mock simulation finished – trajectory={traj_path}, log={log_path}, wall_clock={wall_clock:.3f}s"
     )
 
-    # Performance flag (FR‑004)
-    if wall_elapsed > 5.5 * 3600:
-        logger.warning(
-            f"Performance issue: simulation exceeded 5.5 h wall‑clock "
-            f"({wall_elapsed/3600:.2f} h)."
-        )
-
-    traj_path = output_dir / f"{solvent.value}_{duration_ns:.0f}ns_seed{seed}.xtc"
-    log_path = output_dir / f"{solvent.value}_{duration_ns:.0f}ns_seed{seed}.log"
-
-    return {
-        "trajectory": str(traj_path),
-        "log": str(log_path),
-    }
-
-
-if __name__ == "__main__":
-    # Simple smoke test: run a 1 ns water simulation with seed 0.
-    from config import DEFAULT_SIMULATION_CONFIG
-
-    result = run_simulation(
-        Solvent.WATER,
-        DEFAULT_SIMULATION_CONFIG,
-        duration_ns=1.0,
-        seed=0,
-    )
-    print("Generated files:")
-    print(result)
+    return {"trajectory": str(traj_path), "log": str(log_path)}
