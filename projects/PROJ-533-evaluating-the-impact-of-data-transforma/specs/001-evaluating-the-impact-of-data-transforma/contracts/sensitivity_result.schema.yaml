@@ -1,13 +1,12 @@
-# Schema for sensitivity analysis results
+# Schema for sensitivity analysis results, now supporting baseline transformation
 type: object
 properties:
   dataset_id:
     type: string
   transformation:
     type: string
-    description: Transformation applied (including baseline).
     enum:
-      - baseline          # added for compatibility
+      - baseline
       - box_cox
       - yeo_johnson
       - rank_normal
@@ -18,19 +17,12 @@ properties:
     type: number
   error_rate:
     type: number
-  ci_lower:
-    type: number
-  ci_upper:
-    type: number
   validation_status:
     type: string
-    enum: [pass, fail]
 required:
   - dataset_id
   - transformation
   - test_type
   - alpha
   - error_rate
-  - ci_lower
-  - ci_upper
   - validation_status

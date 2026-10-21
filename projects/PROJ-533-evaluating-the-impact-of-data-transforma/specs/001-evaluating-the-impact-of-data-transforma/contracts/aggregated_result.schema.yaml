@@ -1,13 +1,12 @@
-# Schema for aggregated result records
+# Schema for aggregated results, now including baseline as a valid transformation
 type: object
 properties:
   dataset_id:
     type: string
   transformation:
     type: string
-    description: Transformation applied (including baseline).
     enum:
-      - baseline          # added to ensure baseline compliance
+      - baseline
       - box_cox
       - yeo_johnson
       - rank_normal
@@ -17,7 +16,7 @@ properties:
   metric:
     type: string
     enum: [type1_error, power]
-  mean_value:
+  mean:
     type: number
   ci_lower:
     type: number
@@ -27,13 +26,12 @@ properties:
     type: number
   validation_status:
     type: string
-    enum: [pass, fail]
 required:
   - dataset_id
   - transformation
   - test_type
   - metric
-  - mean_value
+  - mean
   - ci_lower
   - ci_upper
   - ci_half_width

@@ -1,11 +1,10 @@
-# Schema for transformation enumeration
+# Schema for transformation identifiers
 type: object
 properties:
   transformation:
     type: string
-    description: Name of the data transformation applied.
     enum:
-      - baseline          # untransformed data (added for compatibility)
+      - baseline
       - box_cox
       - yeo_johnson
       - rank_normal

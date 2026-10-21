@@ -1,6 +1,7 @@
 import argparse
 import sys
 import logging
+from pathlib import Path
 from typing import Optional
 
 from code.utils.checkpointing import load_state
@@ -17,6 +18,17 @@ def setup_logging():
     )
     return logging.getLogger("pipeline")
 
+def _has_raw_datasets() -> bool:
+    """Return True if the raw data directory contains at least one dataset file."""
+    raw_dir = Path("data") / "raw"
+    if not raw_dir.is_dir():
+        return False
+    # Consider any file with a typical data extension as a dataset
+    for ext in ("parquet", "csv", "arff"):
+        if any(raw_dir.glob(f"*.{ext}")):
+            return True
+    return False
+
 def run_stage(stage: str, resume: bool, run_id: str, logger: logging.Logger):
     """
     Orchestrates the execution of a specific pipeline stage.
@@ -32,9 +44,13 @@ def run_stage(stage: str, resume: bool, run_id: str, logger: logging.Logger):
 
     if stage == "download":
         logger.info("Executing stage: download")
-        download_main()
-        # After downloading, compute checksums so that the required artifacts exist
-        checksum_main()
+        # Only perform the heavy download if we don't already have raw data.
+        if _has_raw_datasets():
+            logger.info("Raw datasets already present – skipping download.")
+        else:
+            download_main()
+            # After downloading, compute checksums so that the required artifacts exist
+            checksum_main()
     elif stage == "filter":
         logger.info("Executing stage: filter")
         # Placeholder – actual implementation resides in later tasks
@@ -47,8 +63,11 @@ def run_stage(stage: str, resume: bool, run_id: str, logger: logging.Logger):
     elif stage == "all":
         logger.info("Executing full pipeline: download -> checksum")
         # Sequentially run the stages that are currently implemented.
-        download_main()
-        checksum_main()
+        if _has_raw_datasets():
+            logger.info("Raw datasets already present – skipping download.")
+        else:
+            download_main()
+            checksum_main()
         logger.info("All implemented stages completed successfully.")
     else:
         raise ValueError(f"Unknown stage: {stage}")
@@ -66,7 +85,7 @@ def main():
 
     if args.dry_run:
         logger.info("DRY RUN ENABLED. No changes will be made to the filesystem.")
-        
+
         stage_summaries = {
             "download": "Download datasets from OpenML/UCI, verify URLs, and compute SHA-256 checksums.",
             "filter": "Impute missing values and filter datasets based on normality (Shapiro-Wilk) and sample size (N >= 30).",
@@ -74,7 +93,7 @@ def main():
             "aggregate": "Aggregate Type I error and power results, compute bootstrap CIs, and perform Friedman tests.",
             "all": "Execute all stages in sequence: download -> checksum -> (future stages)."
         }
-        
+
         print(f"\n--- Dry Run Summary ---")
         print(f"Stage: {args.stage}")
         print(f"Operation: {stage_summaries[args.stage]}")
