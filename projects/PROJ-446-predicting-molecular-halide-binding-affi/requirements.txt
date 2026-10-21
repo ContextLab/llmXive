@@ -1,11 +1,12 @@
-scikit-learn>=1.4.0
-rdkit
+# Existing dependencies (standard library packages are pre‑installed)
 pandas
 numpy
 requests
 beautifulsoup4
+rdkit
+scikit-learn>=1.4.0
+matplotlib
+seaborn
 pyarrow
-# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
-# already provided by the platform runtime. pyarrow is added to enable
-# reading the SMILES parquet file required for the simulated data fallback.
+# Added for reliable HuggingFace dataset download
+huggingface_hub

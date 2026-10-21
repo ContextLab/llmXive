@@ -1,20 +1,10 @@
 T001:
   c: true
-  h: 6cee43884b8bd8b9f1c1b1201bbdb233c9cb6160ef561fa4f4af619c53f4bb28
-  r: "Checked `code/01_data_ingestion.py` for real HTTP fetching, back\u2011off, parsing,\
-    \ cleaning, and duplicate handling; verified that `data/raw/fetch_outcome.json`,\
-    \ `raw_scrape.json`, `raw_scrape_cleaned.csv`, and `filtered_hosts.csv` exist,\
-    \ have the correct columns, and contain only headers (zero\u2011record case) as\
-    \ required; confirmed the script runs without error and exits\u202F0, and that\
-    \ the unit\u2011conversion and cleaning logic are covered by the supplied tests."
-  sig: 2a31680874cadad27f67666aa2e57768c1fc07fc63b00760c83881af432fa5c0
-T002:
-  c: false
-  h: 723b4237db5d36613e91dc1570d7db580ff7cb89364d01b843f146e9014ed0b4
-  r: "The unit test `code/tests/test_feature_engineering.py` fails to import `02_feature_engineering.py`\
-    \ (FileNotFoundError), so the required test that validates descriptor values never\
-    \ runs. Consequently the task\u2019s verification step\u2014checking correct descriptor\
-    \ computation for known SMILES\u2014is not satisfied. The test path logic must\
-    \ be corrected and the test must pass, confirming that the generated `descriptors_added.csv`\
-    \ contains the proper rows and descriptor values."
-  sig: 856978119a6a87af3ba40e9525206e1d1ab9817a79a4c40eb10615b4d6076bcd
+  h: 308760d97ee8c606f9b1f52a1068fce8f8fad333507aa0ddbf7441819beb861b
+  r: "Checked `code/01_data_ingestion.py` and the four output artifacts (`fetch_outcome.json`,\
+    \ `raw_scrape.json`, `raw_scrape_cleaned.csv`, `filtered_hosts.csv`). The script\
+    \ performs real HTTP requests with back\u2011off and delays, parses HTML/JSON,\
+    \ applies the required filtering, unit conversion, duplicate averaging, logs exclusions,\
+    \ writes honest outcome JSON, produces CSVs with the required columns (empty when\
+    \ no records), and exits with code\u202F0 \u2013 all verified by the passing tests."
+  sig: e8163154ef2316a276ad8de17ffe85b30de09040ad76a3a43622b8f9f1e3b825

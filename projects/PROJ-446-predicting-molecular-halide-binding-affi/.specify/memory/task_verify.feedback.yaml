@@ -1,13 +1,13 @@
 T001:
   task: 6fc85c67a890179250d7ef70ec3ef06cbeb60406f86019c72fd3769863f09581
 T002:
-  reason: "The unit test `code/tests/test_feature_engineering.py` fails to import\
-    \ `02_feature_engineering.py` (FileNotFoundError), so the required test that validates\
-    \ descriptor values never runs. Consequently the task\u2019s verification step\u2014\
-    checking correct descriptor computation for known SMILES\u2014is not satisfied.\
-    \ The test path logic must be corrected and the test must pass, confirming that\
-    \ the generated `descriptors_added.csv` contains the proper rows and descriptor\
-    \ values."
+  reason: "The `code/02_feature_engineering.py` script and the output CSV `data/raw/descriptors_added.csv`\
+    \ exist and contain the required descriptor and fingerprint columns, but the accompanying\
+    \ unit test `code/tests/test_feature_engineering.py` fails to import the module\
+    \ (FileNotFoundError) and therefore does not verify the descriptor values as required.\
+    \ The broken test means the task\u2019s verification step is not satisfied. Fix\
+    \ the test\u2019s import path (or adjust the project layout) so the test can run\
+    \ and confirm the computed descriptors."
   task: 5783bf0aa9574d60d08368290da99823d955926db8f650c45db374542b2418ec
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/01_data_ingestion.py

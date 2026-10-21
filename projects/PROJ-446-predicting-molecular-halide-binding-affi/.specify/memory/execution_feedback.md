@@ -26,18 +26,18 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/raw/descriptors_added.csv, data/raw/fetch_outcome.json, data/raw/filtered_hosts.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/processed/power_status.json, data/processed/statistical_summary.json, data/raw/descriptors_added.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 16 fabricated/simulated-result signal(s) — results are not real measurements: code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…Generate the primary simulated dataset (single halide) and an i…”; code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…ide prediction mode with simulated data."         )         stat…”; code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…)         # Generate simulated datasets         primary_df, inde…”; every produced artifact is gitignored (data/raw/descriptors_added.csv, data/raw/fetch_outcome.json, data/raw/filtered_hosts.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 run-book script(s) missing (plan/impl path mismatch): python code/06_partial_dependence.py; python code/07_independent_evaluation.py; 4 command(s) failed: python code/03_model_training.py (rc=1); python -m jsonschema -i data/processed/model_runs.json contracts/model_output.schema.yaml (rc=1); python code/04_feature_analysis.py (rc=1); 6 declared deliverable(s) absent: data/processed/feature_analysis.json; data/processed/feature_interpretation_summary.csv; data/processed/halide_binding_data.csv
+**Summary**: 18 fabricated/simulated-result signal(s) — results are not real measurements: code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…Generate the primary simulated dataset (single halide) and an i…”; code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…ide prediction mode with simulated data."         )         stat…”; code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…)         # Generate simulated datasets         primary_df, inde…”; every produced artifact is gitignored (data/processed/power_status.json, data/processed/statistical_summary.json, data/raw/descriptors_added.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 run-book script(s) missing (plan/impl path mismatch): python code/06_partial_dependence.py; python code/07_independent_evaluation.py; 3 command(s) failed: python code/03_model_training.py (rc=1); python -m jsonschema -i data/processed/model_runs.json contracts/model_output.schema.yaml (rc=1); python code/04_feature_analysis.py (rc=1); 5 declared deliverable(s) absent: data/processed/feature_analysis.json; data/processed/feature_interpretation_summary.csv; data/processed/halide_binding_data.csv
 
 ## Failing / missing run-book commands
 
 - python code/03_model_training.py -> rc=1
 
-2026-10-21 01:32:06,455 - __main__ - INFO - Starting model training pipeline...
-2026-10-21 01:32:06,455 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
+2026-10-21 01:35:53,546 - __main__ - INFO - Starting model training pipeline...
+2026-10-21 01:35:53,546 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/03_model_training.py", line 331, in <module>
     main()
@@ -56,7 +56,7 @@ FileNotFoundError: Preprocessed data not found at data/processed/halide_binding_
 
 - python code/04_feature_analysis.py -> rc=1
 
-2026-10-21 01:32:07,569 - __main__ - INFO - Starting Feature Analysis (US3)...
+2026-10-21 01:35:54,340 - __main__ - INFO - Starting Feature Analysis (US3)...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/04_feature_analysis.py", line 236, in <module>
     main()
@@ -72,21 +72,6 @@ TypeError: get_data_path() takes 0 positional arguments but 1 was given
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-446-predicting-molecular-halide-binding-affi/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/06_partial_dependence.py': [Errno 2] No such file or directory
 
-- python code/05_statistical_reporting.py -> rc=1
-llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/05_statistical_reporting.py", line 80, in save_power_status
-    with open(output_path, 'w') as f:
-         ^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/data/processed/power_status.json'
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/05_statistical_reporting.py", line 203, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/05_statistical_reporting.py", line 188, in main
-    save_power_status(power_status)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/05_statistical_reporting.py", line 80, in save_power_status
-    with open(output_path, 'w') as f:
-         ^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/data/processed/power_status.json'
-
 - python code/07_independent_evaluation.py -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-446-predicting-molecular-halide-binding-affi/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/07_independent_evaluation.py': [Errno 2] No such file or directory
@@ -99,7 +84,6 @@ FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXi
 - data/processed/halide_binding_data.csv
 - data/processed/model_runs.json
 - data/processed/physical_plausibility.json
-- data/processed/statistical_summary.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -136,9 +120,3 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/05_feature_summary.py` — NOT invoked by the run-book
     - `code/06_save_feature_outputs.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/physical_plausibility.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/statistical_summary.json` is declared but was NOT written. Scripts referencing it:
-    - `code/05_statistical_reporting.py` — IS a run-book command
-    - `code/06_generate_final_report.py` — NOT invoked by the run-book
-    - `code/07_validate_quickstart.py` — NOT invoked by the run-book
-    - `code/08_update_state_hashes.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/statistical_summary.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

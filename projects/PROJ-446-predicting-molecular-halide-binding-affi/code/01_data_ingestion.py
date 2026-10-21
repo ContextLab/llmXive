@@ -12,6 +12,9 @@ from bs4 import BeautifulSoup
 from rdkit import Chem
 from rdkit.Chem import rdPartialCharges, rdMolDescriptors
 
+# New import for reliable HuggingFace dataset download
+from huggingface_hub import hf_hub_download
+
 from llmxive_toolkit import paths, get_logger
 from code.utils.config import get_solvent_list
 
@@ -213,7 +216,7 @@ def fetch_nist_records(halide: str, max_retries: int = 5, base_delay: int = 2) -
         response = _request_with_backoff(url, max_retries, base_delay)
         status = response.status_code
         soup = BeautifulSoup(response.text, "html.parser")
-        records: List[Dict[str, Any]] = []
+        records: List[Dict] = []
 
         tables = soup.find_all("table")
         for table in tables:
@@ -407,10 +410,29 @@ def _load_smiles_parquet(url: str) -> pd.DataFrame:
     The function raises loudly if the download fails or the expected column is missing.
     """
     logger.info(f"Downloading SMILES parquet from {url}")
+
+    # The URL follows the HuggingFace `resolve` pattern:
+    #   https://huggingface.co/datasets/<repo>/resolve/<branch>/<file>
+    # We extract the repository identifier and the filename to use hf_hub_download.
     try:
-        df = pd.read_parquet(url, engine="auto")
+        # Strip the leading https://huggingface.co/
+        path_part = url.replace("https://huggingface.co/", "")
+        # Expected format: datasets/<repo>/resolve/<branch>/<file>
+        parts = path_part.split("/")
+        if len(parts) < 5 or parts[0] != "datasets":
+            raise ValueError("Unexpected HuggingFace URL format.")
+        repo_id = "/".join(parts[1:3])  # e.g., "seyonec/SMILES"
+        filename = parts[-1]           # e.g., "data.parquet"
+        # Download the file locally
+        local_path = hf_hub_download(repo_id=repo_id, filename=filename, repo_type="dataset")
     except Exception as e:
-        logger.error(f"Failed to read parquet from {url}: {e}")
+        logger.error(f"Failed to download parquet via huggingface_hub: {e}")
+        raise
+
+    try:
+        df = pd.read_parquet(local_path, engine="auto")
+    except Exception as e:
+        logger.error(f"Failed to read parquet from {local_path}: {e}")
         raise
 
     # Expect a column named 'smiles' (case‑insensitive)
@@ -495,9 +517,9 @@ def _generate_simulated_dataset(
         df["halide_identity"] = most_abundant_halide
         df["solvent"] = VALID_SOLVENTS[0]  # use the first valid solvent
         df["source"] = "Simulated"
-        # Assign deterministic host IDs
+        # Deterministic host IDs
         df["host_id"] = ["SIM-" + str(i + 1) for i in range(len(df))]
-        # Align column names with dataset schema
+        # Align column order with dataset schema
         df = df[
             [
                 "host_id",
@@ -733,6 +755,7 @@ def finalize_dataset():
     # Write state.json (regardless of mode)
     _write_json(state_path, state)
     logger.info(f"State file written to {state_path}")
+
 
 # ----------------------------------------------------------------------
 # CLI entry point
