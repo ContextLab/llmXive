@@ -1,4 +1,8 @@
-# Project‑specific dependencies (beyond the default environment)
-datasets>=2.16.1
-pyyaml>=6.0
-jsonschema>=4.0.0
+# Dependencies beyond the platform base environment
+# (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels, seaborn,
+#  pytest, PyYAML, requests, jsonschema are pre-installed).
+rdkit>=2023.9.1
+torch
+torch-geometric
+torchmetrics
+tqdm

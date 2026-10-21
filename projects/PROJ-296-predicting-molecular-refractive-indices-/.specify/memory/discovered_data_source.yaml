@@ -1,12 +1,11 @@
 status: none
-intent: Open Refractive Index dataset download Zenodo SMILES refractive index python
-  package dataset
+intent: Open refractive index dataset Zenodo download SMILES experimental refractive
+  index python package dataset
 required_fields:
 - smiles
 - refractive_index
 - temperature
 - molecular_weight
-- compound_id
-cache_key: b6a8bb16460274b988a861ec8e7c952cf16af8b502a02efae1ce002499a9e7f0
-searched_at: '2026-10-21T08:38:17.892867+00:00'
+cache_key: ea5c9d1ba2a5bb7f955577a57354b975802d046e240c2b9833bd499ace3e8e95
+searched_at: '2026-10-21T08:47:15.010636+00:00'
 retry_count: 1

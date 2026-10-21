@@ -1,21 +1,32 @@
 """
-Preprocess the raw refractive‑index dataset.
+Preprocess the raw refractive-index dataset.
 
-This script reads ``data/raw/ri_dataset.csv`` (produced by ``data/download.py``),
-parses SMILES strings with RDKit, filters out molecules with molecular weight
-≥ 500 Da, applies temperature normalisation when a ``temperature`` column is
-present, generates node and edge feature dictionaries, adds a
-z‑score‑normalised global ``molecular_weight`` feature, and writes the
-processed data to ``data/processed/filtered.csv``.
+Reads ``data/raw/ri_dataset.csv`` (produced by ``data/download.py`` from
+real Wikidata experimental values), then:
+
+1. Parses each SMILES with RDKit; unparsable entries are logged to
+   ``logs/failed_parsing.log`` and excluded.
+2. Computes the molecular weight and drops rows with MW >= 500 Da
+   (configurable via ``--filter-mw``).
+3. Applies temperature normalisation (linear Edlen-style correction,
+   dn/dT = -0.0001 K^-1) when a ``temperature`` column is present.
+   When no temperature metadata exists, rows are flagged (logged) as
+   measured at an unrecorded temperature and treated as 20 C reference
+   values, per the spec's uncertainty-handling assumption.
+4. Generates node features (atomic_num, degree, hybridization,
+   is_aromatic) and edge features (bond_type, is_conjugated, stereo).
+5. Adds a z-score-normalised global ``molecular_weight`` feature.
+
+Physically implausible refractive indices (outside (1.0, 3.0]) and rows
+that fail ``contracts/dataset.schema.yaml`` validation are excluded and
+counted.  Output: ``data/processed/filtered.csv``.  A summary (total,
+filtered, excluded rows) is written to ``logs/preprocess_summary.log``.
 
 Usage:
-    python data/preprocess.py
-
-The script logs total rows, filtered rows, and excluded rows to
-``logs/preprocess_summary.log`` and validates every output row against
-``contracts/dataset.schema.yaml``.
+    python code/data/preprocess.py --filter-mw 500
 """
 
+import argparse
 import json
 import logging
 from pathlib import Path
@@ -24,7 +35,7 @@ import pandas as pd
 import yaml
 from jsonschema import Draft7Validator, ValidationError
 from rdkit import Chem
-from rdkit.Chem import rdMolDescriptors, Descriptors
+from rdkit.Chem import Descriptors
 
 from llmxive_toolkit import paths, get_logger
 
@@ -36,8 +47,13 @@ log = get_logger(__name__)
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
 PROCESSED_DIR = paths.data("processed")
 LOG_PATH = paths.root / "logs" / "preprocess_summary.log"
+FAILED_PARSE_LOG = paths.root / "logs" / "failed_parsing.log"
 
 SCHEMA_PATH = Path(paths.root) / "contracts" / "dataset.schema.yaml"
+
+# Physically plausible range for refractive indices of condensed matter.
+RI_MIN = 1.0
+RI_MAX = 3.0
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -54,18 +70,18 @@ def validate_row(record: dict, validator: Draft7Validator):
 
 def temperature_normalize(row: pd.Series) -> float:
     """
-    Apply a simple linear temperature correction (Edlén equation) to
+    Apply a simple linear temperature correction (Edlen equation) to
     refractive index values when a ``temperature`` column is present.
-    The coefficient is set to -0.0001 RI / K (typical for organic liquids).
+    The coefficient is set to -0.0001 RI / K (typical for organic liquids).
     """
     n = row["refractive_index"]
-    if "temperature" in row and pd.notnull(row["temperature"]):
+    if "temperature" in row.index and pd.notnull(row.get("temperature")):
         coeff = -0.0001  # dn/dT approx.
         n20 = n + coeff * (row["temperature"] - 20.0)
         return n20
     return n
 
-def compute_node_features(mol: Chem.Mol) -> list[dict]:
+def compute_node_features(mol: Chem.Mol) -> list:
     feats = []
     for atom in mol.GetAtoms():
         hybrid = atom.GetHybridization()
@@ -76,15 +92,15 @@ def compute_node_features(mol: Chem.Mol) -> list[dict]:
         }.get(hybrid, "UNSPECIFIED")
         feats.append(
             {
-                "atomic_num": atom.GetAtomicNum(),
-                "degree": atom.GetDegree(),
+                "atomic_num": int(atom.GetAtomicNum()),
+                "degree": int(atom.GetDegree()),
                 "hybridization": hybrid_str,
-                "is_aromatic": atom.GetIsAromatic(),
+                "is_aromatic": bool(atom.GetIsAromatic()),
             }
         )
     return feats
 
-def compute_edge_features(mol: Chem.Mol) -> list[dict]:
+def compute_edge_features(mol: Chem.Mol) -> list:
     feats = []
     for bond in mol.GetBonds():
         bond_type = {
@@ -102,7 +118,7 @@ def compute_edge_features(mol: Chem.Mol) -> list[dict]:
         feats.append(
             {
                 "bond_type": bond_type,
-                "is_conjugated": bond.GetIsConjugated(),
+                "is_conjugated": bool(bond.GetIsConjugated()),
                 "stereo": stereo,
             }
         )
@@ -112,39 +128,107 @@ def compute_edge_features(mol: Chem.Mol) -> list[dict]:
 # Main preprocessing routine
 # ----------------------------------------------------------------------
 def main() -> None:
-    # Ensure log file exists
+    parser = argparse.ArgumentParser(description="Preprocess raw RI dataset")
+    parser.add_argument(
+        "--filter-mw",
+        type=float,
+        default=500.0,
+        help="Drop molecules with molecular weight >= this value (Da)",
+    )
+    parser.add_argument("--input", type=Path, default=RAW_CSV_PATH)
+    parser.add_argument(
+        "--output", type=Path, default=PROCESSED_DIR / "filtered.csv"
+    )
+    args = parser.parse_args()
+
+    # --- logging setup -------------------------------------------------
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    logging.basicConfig(filename=LOG_PATH, level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
+    FAILED_PARSE_LOG.parent.mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        filename=LOG_PATH,
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s: %(message)s",
+        force=True,
+    )
     logger = logging.getLogger(__name__)
 
-    logger.info(f"Reading raw CSV from {RAW_CSV_PATH}")
-    df_raw = pd.read_csv(RAW_CSV_PATH)
+    # Separate logger for parse failures.
+    fail_logger = logging.getLogger("failed_parsing")
+    fail_logger.setLevel(logging.INFO)
+    fail_logger.propagate = False
+    if not fail_logger.handlers:
+        fh = logging.FileHandler(FAILED_PARSE_LOG, mode="w")
+        fh.setFormatter(
+            logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
+        )
+        fail_logger.addHandler(fh)
+
+    # --- load raw data -------------------------------------------------
+    if not args.input.is_file():
+        raise FileNotFoundError(
+            f"Raw dataset not found at {args.input}. Run "
+            "code/data/download.py first."
+        )
+    logger.info(f"Reading raw CSV from {args.input}")
+    df_raw = pd.read_csv(args.input)
+
+    required_cols = {"smiles", "refractive_index"}
+    missing = required_cols - set(df_raw.columns)
+    if missing:
+        raise ValueError(f"Raw dataset is missing required columns: {missing}")
 
     total_records = len(df_raw)
     logger.info(f"Total records in raw dataset: {total_records}")
 
-    # Apply temperature normalisation if needed
+    # --- temperature normalisation ------------------------------------
     if "temperature" in df_raw.columns:
         df_raw["refractive_index"] = df_raw.apply(temperature_normalize, axis=1)
-        logger.info("Applied temperature normalisation using Edlén equation.")
+        logger.info("Applied temperature normalisation using Edlen equation.")
+    else:
+        logger.info(
+            "No 'temperature' column present: all rows FLAGGED as measured "
+            "at an unrecorded temperature; values are treated as 20 C "
+            "reference values with an uncertainty of +/-0.0001 K^-1 x dT."
+        )
+
+    # --- row-by-row processing ----------------------------------------
+    schema = load_schema()
+    validator = Draft7Validator(schema)
 
     processed_rows = []
-    excluded_count = 0
+    excluded_parse = 0
+    excluded_mw = 0
+    excluded_ri = 0
+    excluded_schema = 0
 
     for idx, row in df_raw.iterrows():
         smiles = row["smiles"]
+        if not isinstance(smiles, str) or not smiles.strip():
+            fail_logger.error(f"Row {idx}: empty or non-string SMILES")
+            excluded_parse += 1
+            continue
         try:
             mol = Chem.MolFromSmiles(smiles)
             if mol is None:
                 raise ValueError("RDKit returned None")
         except Exception as exc:
-            logger.error(f"SMILES parsing failed for index {idx}: {exc}")
-            excluded_count += 1
+            fail_logger.error(f"Row {idx}: SMILES parsing failed for '{smiles}': {exc}")
+            excluded_parse += 1
             continue
 
         mw = Descriptors.ExactMolWt(mol)
-        if mw >= 500.0:
-            excluded_count += 1
+        if mw >= args.filter_mw:
+            logger.info(f"Row {idx}: excluded, MW {mw:.2f} >= {args.filter_mw} Da")
+            excluded_mw += 1
+            continue
+
+        ri = float(row["refractive_index"])
+        if not (RI_MIN < ri <= RI_MAX):
+            logger.info(
+                f"Row {idx}: excluded, refractive index {ri} outside "
+                f"plausible range ({RI_MIN}, {RI_MAX}]"
+            )
+            excluded_ri += 1
             continue
 
         node_feats = compute_node_features(mol)
@@ -152,34 +236,52 @@ def main() -> None:
 
         record = {
             "smiles": smiles,
-            "molecular_weight": mw,
-            "refractive_index": float(row["refractive_index"]),
-            "node_features": json.dumps(node_feats),
-            "edge_features": json.dumps(edge_feats),
+            "molecular_weight": float(mw),
+            "refractive_index": ri,
+            "node_features": node_feats,
+            "edge_features": edge_feats,
         }
+        try:
+            validate_row(record, validator)
+        except ValueError as exc:
+            logger.info(f"Row {idx}: excluded, {exc}")
+            excluded_schema += 1
+            continue
+
+        record["node_features"] = json.dumps(node_feats)
+        record["edge_features"] = json.dumps(edge_feats)
         processed_rows.append(record)
 
-    filtered_records = len(processed_rows)
-    logger.info(f"Records after filtering (MW < 500 Da): {filtered_records}")
-    logger.info(f"Excluded records (parse errors or MW filter): {excluded_count}")
+    if not processed_rows:
+        raise RuntimeError(
+            "No rows survived preprocessing; refusing to write an empty "
+            "output file."
+        )
 
     df_processed = pd.DataFrame(processed_rows)
 
-    # Add z‑score normalised molecular weight feature
+    # --- z-score normalised molecular weight ---------------------------
     mw_mean = df_processed["molecular_weight"].mean()
     mw_std = df_processed["molecular_weight"].std(ddof=0)
-    if mw_std == 0:
-        # Avoid division by zero – all values identical (unlikely)
+    if mw_std == 0 or pd.isnull(mw_std):
         df_processed["molecular_weight_z"] = 0.0
     else:
-        df_processed["molecular_weight_z"] = (df_processed["molecular_weight"] - mw_mean) / mw_std
+        df_processed["molecular_weight_z"] = (
+            df_processed["molecular_weight"] - mw_mean
+        ) / mw_std
 
-    # ------------------------------------------------------------------
-    # Validate against schema
-    # ------------------------------------------------------------------
-    schema = load_schema()
-    validator = Draft7Validator(schema)
+    filtered_records = len(df_processed)
+    excluded_count = (
+        excluded_parse + excluded_mw + excluded_ri + excluded_schema
+    )
+    logger.info(f"Records after filtering (MW < {args.filter_mw} Da): {filtered_records}")
+    logger.info(f"Excluded records (total): {excluded_count}")
+    logger.info(f"  - SMILES parse failures: {excluded_parse}")
+    logger.info(f"  - molecular weight >= {args.filter_mw} Da: {excluded_mw}")
+    logger.info(f"  - implausible refractive index: {excluded_ri}")
+    logger.info(f"  - schema validation failures: {excluded_schema}")
 
+    # --- final schema validation of the written rows -------------------
     for idx, row in df_processed.iterrows():
         record = {
             "smiles": row["smiles"],
@@ -190,16 +292,19 @@ def main() -> None:
         }
         validate_row(record, validator)
 
-    # ------------------------------------------------------------------
-    # Write CSV
-    # ------------------------------------------------------------------
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = PROCESSED_DIR / "filtered.csv"
-    df_processed.to_csv(output_path, index=False)
-    logger.info(f"Wrote filtered dataset to {output_path}")
+    # --- write output ---------------------------------------------------
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    df_processed.to_csv(args.output, index=False)
+    logger.info(f"Wrote filtered dataset to {args.output}")
 
-    # Also log a short summary to console
-    log.info(f"Preprocessing completed: {filtered_records} rows kept, {excluded_count} rows excluded.")
+    log.info(
+        f"Preprocessing completed: {filtered_records} rows kept, "
+        f"{excluded_count} rows excluded."
+    )
+    print(
+        f"Preprocessing completed: {filtered_records} rows kept, "
+        f"{excluded_count} rows excluded. Output: {args.output}"
+    )
 
 if __name__ == "__main__":
     main()
