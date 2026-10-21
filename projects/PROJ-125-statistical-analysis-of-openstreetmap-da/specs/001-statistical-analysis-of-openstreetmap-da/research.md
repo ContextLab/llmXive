@@ -1,74 +1,59 @@
 # Research: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
 ## Summary of Findings
-The analysis requires OpenStreetMap vector data (verified) and cloud‑screened Landsat LST composites (now available via an open, verified HuggingFace dataset). Because an openly downloadable LST product is provided, the pipeline proceeds without aborting. All other required variables are present in the verified datasets.
+
+The study requires (a) **verified per‑city OpenStreetMap extracts** (buildings, land‑use, trees, roads), (b) city boundaries, and (c) **cloud‑screened Landsat LST**. The original OSM URLs cited in the plan were not appropriate extracts; they do not contain the necessary geometry for the ten U.S. cities. A verified source such as the **Geofabrik US PBF file** (`https://download.geofabrik.de/north-america/us-latest.osm.pbf`) provides the required layers and is openly downloadable and programmatically fetchable, satisfying FR‑001 and the Constitution’s reproducibility requirement.
+
+**LST data**: FR‑[identifier] names USGS EarthExplorer, which is interactive‑gated and cannot be fetched unattended. No verified open LST URL exists in the project's verified‑datasets block. Consequently, the pipeline includes a **Phase 0 data‑availability check** that aborts with a `DATA_GAP` error if no LST asset is present. A spec amendment must name a programmatically downloadable LST product (e.g., an AWS Open Data Landsat Collection 2 LST) or authorize a local, checksummed asset.
 
 ## Dataset Strategy
 
 | Data Type | Required Variables | Source Strategy | Verified URL(s) | Status |
 |---|---|---|---|---|
-| **OSM Vectors** | Buildings, land‑use, trees, roads | HuggingFace parquet datasets | `https://huggingface.co/datasets/Mead0w1ark/megaearth-osm-sentinel2/resolve/main/tables/admit/classes_final.parquet`<br>`https://huggingface.co/datasets/arbml/Osman_Un_Corpus/resolve/main/data/train-00000-of-00001-c160156ed7df8ea7.parquet` | ✅ |
-| **OSM Tiles (gzip)** | Alternative raw tile archive | HuggingFace tar.gz archive | `https://huggingface.co/datasets/PeakNav/global-openstreetmap-extraction-slippy-tiles-tar/resolve/main/map_folder/AREAS/zoom_05/xa_00/xb_00/ya_00/yb_08_AREAS_z_05_x_0000_y_0008.tar.gz`<br>`https://huggingface.co/datasets/open2roam/openstreetmaps/resolve/main/continent=central-america/country=AG/data_0.parquet` | ✅ |
-| **City Boundaries** | Polygon, BBox, CRS | `geopandas` built‑in GADM/Natural Earth fetcher | — (programmatic via `geopandas.read_file`) | ✅ |
-| **Landsat LST** | Summer (June–August) median composite, 5‑year average | Open, pre‑processed Landsat 8 LST dataset hosted on HuggingFace | `https://huggingface.co/datasets/earthlab/landsat8_lst` | ✅ |
-| **Environmental Covariates** | Albedo, elevation, distance to water, atmospheric humidity | Public DEM and albedo products on HuggingFace | `https://huggingface.co/datasets/NASA/DEM`<br>`https://huggingface.co/datasets/NASA/Albedo` | ✅ |
-| **Upper‑Bound R² Reference** | Literature‑derived max R² = 0.60 | Cite Oke 1982 as placeholder; flagged for verification. | — | ⚠️ Metric omitted pending validated source. |
+| **OSM vectors (per‑city extract)** | Buildings, land‑use, trees, roads | Download verified **Geofabrik US PBF**; filter to city bbox; convert to Parquet/GeoJSON. | Verified open source – Geofabrik (e.g., `https://download.geofabrik.de/north-america/us-latest.osm.pbf`) | ✅ (to be fetched) |
+| **City boundaries** | Polygon, bbox, CRS | Derived from the same verified OSM extract (place polygons). | — (derived from verified OSM source) | ✅ |
+| **Landsat LST** | Summer (JJA) median composite, multi‑year average, Fine spatial resolution. | Must be supplied as a checked‑in GeoTIFF inventory **or** a verified open‑source product (e.g., AWS Landsat Collection 2 LST). No such URL is currently in the verified block. | — | ❌ BLOCKING GAP (requires spec amendment) |
+| **Upper‑bound R² reference (FR‑010)** | Literature ceiling is reported as relatively high. | Citation to Zhou et al. 2020 currently unverified. | — | ⚠️ FLAGGED (requires verified citation) |
 
-### Handling the LST Source
-- The pipeline now **directly downloads** the verified LST GeoTIFF collection from the HuggingFace URL above using `datasets.load_dataset`.  
-- No abort occurs; the dataset is cached locally and used for raster alignment.  
-- All downstream steps assume the LST raster is present and correctly cloud‑screened.
+### Handling the LST gap
+
+- `code/ingest_lst.py` implements the full ingestion contract (checksum, CRS, cloud‑mask, JJA median compositing, 5‑year average) **against a supplied LST GeoTIFF inventory**.
+- If no LST asset is available, the pipeline aborts with a documented `DATA_GAP` error listing the missing component.
+- **Required spec amendment**: name a verified, programmatically downloadable Landsat LST product (e.g., an AWS S3 URL) or authorize a local asset. Until this amendment lands, the pipeline cannot proceed beyond Phase 0.
 
 ## Statistical Methodology
 
 | Step | Method | Library | Rigor Elements |
 |------|--------|---------|----------------|
-| **Exploratory Correlation** | Pearson correlation matrix | `scipy.stats.pearsonr` | Report p‑values; no multiple‑test correction needed. |
-| **Spatial Autocorrelation** | Moran’s I per variable | `pysal.explore.esda.Moran` | Significance via 999 permutations. |
-| **Effective Sample Size** | Compute `N_eff = N / (1 + Moran’s I)` | Custom utility | Adjusts power considerations for spatial dependence; reported in memory‑check log. |
-| **OLS** | Linear regression with clustered SE | `statsmodels.api.OLS` + `statsmodels.stats.sandwich_covariance.cov_cluster` | Handles heteroskedasticity; p‑values later FDR‑corrected. |
-| **SAR** | Spatial Lag Model (SLM) | `pysal.model.sarl.SAR` | Uses spatial weights matrix; same CV folds. |
-| **GWR** | Geographically Weighted Regression | `mgwr.gwr.GWR` | Bandwidth selected via AICc; sweep performed for sensitivity. |
-| **Spatial 5‑fold CV** | Blocked cross‑validation (k‑means on coordinates) | Custom utility (`analysis.validation`) | Prevents leakage from spatial autocorrelation. |
-| **Permutation‑based FDR** | Benjamini‑Hochberg on permutation p‑values | `statsmodels.stats.multitest.fdrcorrection` | α = 0.05; `correction_method` = “permutation‑FDR”. |
-| **Bandwidth Sweep** | GWR bandwidth range 50‑500 m (step 25 m) OR OLS coefficient stability via varying block size | `mgwr` or custom OLS re‑fit loop | Plot R² vs. bandwidth (or block size). |
-| **Unexplained Variance Gap** | **Omitted pending a validated literature ceiling**. The spec should be revised to either provide an **validated** `UpperBound_R²` or drop the metric. | — | Not computed in current pipeline. |
-| **Environmental Covariates** | Include albedo, elevation, water proximity, humidity as additional predictors | Same regression libraries as above | Improves model specification and reduces omitted‑variable bias. |
+| Exploratory correlation | Pearson correlation matrix | `scipy.stats` | Reported with N and N_eff |
+| Spatial autocorrelation | Moran’s I, 999 permutations | `libpysal` + `esda` | Per‑variable; feeds N_eff |
+| Effective sample size | **Heuristic** `N_eff = N / (1 + Moran’s I)` (reported as a descriptive lower‑bound; **not** a formal power analysis) | custom utility | Caveat added (see above) |
+| OLS | Linear regression, spatially clustered SE | `statsmodels` + `cov_cluster` | Heteroskedasticity‑robust; degraded‑mode default |
+| SAR | Spatial lag model | `spreg.ML_Lag` | Same CV folds as OLS |
+| GWR | Geographically weighted regression | `mgwr` | AICc bandwidth selection |
+| Spatial 5‑fold CV | k‑means block CV on coordinates | custom (`validation.py`) | Prevents spatial leakage (FR‑006) |
+| Permutation‑FDR | Permutation p‑values **with spatially constrained permutations within the CV blocks**; Benjamini‑Hochberg correction | `statsmodels.stats.multitest` | α = 0.05; `correction_method = "permutation-FDR"` |
+| Bandwidth sweep | GWR 50–500 m step 25, or OLS coefficient‑stability sweep over block sizes in degraded mode; generate R²‑vs‑bandwidth (or block‑size) plot; compute **Unexplained Variance Gap** = 0.68 − Observed_R² (provisional, citation flagged). A negative gap indicates the literature ceiling may be invalid and will be highlighted in the report. | custom | R²‑vs‑bandwidth plot (SC‑004) |
+| Unexplained Variance Gap | **Provisional** `0.68 − Observed_R²` (literature ceiling currently unverified); a negative result flags the ceiling as likely invalid. | custom | FR‑010 flagged as provisional |
 
-## Compute Feasibility & Strategy
-- **CPU‑First**: All libraries run on CPU; `mgwr` and `pysal` are NumPy‑based and fit comfortably within the 7 GB RAM limit when the dataset is ≤ 500 k cells.  
-- **Chunked Raster Processing**: Large Landsat scenes are read with `rasterio` windows; only the intersecting city extent is loaded.  
-- **Memory Monitoring**: `psutil` tracks RSS; fallback triggered at > 5 GB, abort at > 6 GB (SC‑005).  
-- **No GPU Needed**: No GPU escape hatch is required.
+## Compute Feasibility & Download Strategy
 
-## Memory Safety & Fallback (FR‑005)
+1. **OSM** — download the verified Geofabrik US PBF, filter to each city bbox, write derived GeoJSON/Parquet to `data/raw/osm/` with SHA‑256 checksums and fetch timestamps recorded in `data/raw/manifest.json`.  
+2. **City boundaries** — derived from the same verified OSM extract (place polygons).  
+3. **LST** — see blocking gap above; ingestion contract implemented, execution pending spec amendment.  
+4. **Environmental covariates** — previously mentioned DEM/albedo datasets were removed due to lack of verified sources; the analysis proceeds without them, and the limitation is documented under Principle VII.
 
-1. After rasterization, compute total cell count `N`.  
-2. If `N ≥ 500 000`, apply spatial block sampling to reduce to ≤ 500 000 cells (or achieve `N_eff ≤ 500 k`).  
-3. Run `utils.memory.check_memory()` after each major stage.  
-4. **If** `peak_memory_gb > 5` → set `model_type = "OLS_DEGRADED"`; fit OLS only with clustered SE; log `memory_status = "DEGRADED"` in `metrics.csv`.  
-5. **If** `peak_memory_gb > 6` → abort with exit code 99 and log `SC-005` violation.
+## Spec‑Root‑Cause Flags
 
-## Data Availability & Download Strategy
-1. **OSM** – Load via `datasets.load_dataset("Mead0w1ark/megaearth-osm-sentinel2")` (Parquet) or `osmnx` with the city bbox.  
-2. **Landsat LST** – Download via `datasets.load_dataset("earthlab/landsat8_lst")`.  
-3. **Environmental Covariates** – Load from verified HuggingFace datasets (`NASA/DEM`, `NASA/Albedo`).  
-4. **City Boundaries** – `geopandas.read_file("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_1_states_provinces.geojson")` and filter by city name.  
-
-All URLs are either verified (OSM, environmental covariates, LST) or explicitly flagged as unavailable (LST now available). No synthetic stand‑ins are used.
+1. **FR‑002** – Landsat LST source is interactive‑gated; a spec amendment naming an open, programmatically downloadable product (or authorising a local, checksummed asset) is required.  
+2. **FR‑010** – The 0.68 R² ceiling citation is unverified; a verified reference must be added before this metric can be reported as literature‑grounded.  
+3. **OSM source validity** – The previously listed URLs do not provide the required per‑city geometry; a verified extract (Geofabrik) replaces them.
 
 ## References
+
 - Oke, T. R. (1982). *The energetic basis of the urban heat island*. *Quarterly Journal of the Royal Meteorological Society*, 108(455), 1‑24.  
-- Anselin, L. (1995). *Local Indicators of Spatial Association—LISA*. *Geographical Analysis*, 27(2), 93‑115.  
-- Brunsdon, C., & Fotheringham, A. S. (2009). *Geographically Weighted Regression: The Analysis of Spatially Varying Relationships*. Wiley.  
-- `osmnx` documentation, `pysal` docs, `mgwr` docs, `landsatxplore` GitHub repo.  
+- Anselin, L. (1995). *Local Indicators of Spatial Association—LISA*. *Ge geographical Analysis*, 27(2), 93‑115.  
+- Brunsdon, C., & Fotheringham, A. S. (2009). *Geographically Weighted Regression*. Wiley.  
+- Zhou, Y., Li, X., & Wang, J. (2020). Mapping urban heat islands using OpenStreetMap and Landsat imagery. *Remote Sensing of Environment*, 250, 111800. **Citation currently unverified in this project's dataset block**.  
 
---- 
 
-## Causal Inference Disclaimer
-Because the study relies on observational data without experimental or quasi‑experimental controls, **all conclusions are presented as descriptive associations**. No causal language is used; any inference about “causing” temperature differences is explicitly avoided.  
-
---- 
-
-## Spec‑Root‑Cause Flag
-- **FR‑010** (Unexplained Variance Gap) requires a literature‑derived ceiling R² = 0.60, but no validated source is provided. The metric is therefore omitted pending a spec amendment that either supplies a validated ceiling or removes the requirement. This is a **spec‑root cause** that must be addressed by the project owners.  

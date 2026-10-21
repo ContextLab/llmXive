@@ -1,16 +1,13 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelResultSchema"
-description: "Schema for the output of the spatial modeling pipeline."
+description: "Schema for per‑model JSON outputs of the spatial modeling pipeline."
 type: object
 properties:
   model_type:
     type: string
-    enum:
-      - "OLS"
-      - "GWR"
-      - "SAR"
+    enum: ["OLS", "SAR", "GWR", "OLS_DEGRADED"]
     description: "Type of spatial model fitted."
-  city_id:
+  city_name:
     type: string
     description: "City identifier."
   coefficients:
@@ -22,30 +19,31 @@ properties:
     type: object
     additionalProperties:
       type: number
-    description: "Map of feature names to standard errors."
+    description: "Map of feature names to standard errors (spatially clustered for OLS)."
   p_values:
     type: object
     additionalProperties:
       type: number
       minimum: 0.0
       maximum: 1.0
-    description: "Map of feature names to p-values."
+    description: "Map of feature names to FDR‑corrected p‑values."
   metrics:
     type: object
     properties:
       rmse:
         type: number
         minimum: 0.0
-      r2:
+      mae:
         type: number
         minimum: 0.0
-        maximum: 1.0
+      r2:
+        type: number
       aic:
         type: number
     required:
       - rmse
+      - mae
       - r2
-      - aic
     description: "In‑sample performance metrics."
   cv_metrics:
     type: object
@@ -53,37 +51,55 @@ properties:
       cv_rmse:
         type: number
         minimum: 0.0
-      cv_r2:
+      cv_mae:
         type: number
         minimum: 0.0
-        maximum: 1.0
+      cv_r2:
+        type: number
     required:
       - cv_rmse
+      - cv_mae
       - cv_r2
-    description: "Out‑of‑sample performance via spatial cross‑validation."
+    description: "Out‑of‑sample performance via spatial 5‑fold block cross‑validation."
+  morans_i:
+    type: number
+    description: "Moran's I of model residuals (always reported)."
   gwr_bandwidth:
     type: number
-    description: "Optimal bandwidth for GWR (only present if model_type is 'GWR')."
+    description: "Optimal bandwidth for GWR (present only if model_type is GWR)."
   sensitivity_analysis:
     type: object
     properties:
-      bandwidth_range:
+      sweep_parameter:
+        type: string
+        description: "Either 'bandwidth_m' (GWR) or 'block_size' (OLS_DEGRADED)."
+      sweep_values:
         type: array
         items:
           type: number
-        description: "Range of bandwidths tested."
-      optimal_bandwidth:
+        description: "Values tested in the sweep."
+      r2_values:
+        type: array
+        items:
+          type: number
+        description: "R‑squared at each sweep value."
+      optimal_value:
         type: number
-        description: "Bandwidth selected via AICc minimization."
+        description: "Selected band or reference block size."
+      plot_path:
+        type: string
+        description: "Relative path to the saved sensitivity plot (SC‑004)."
     required:
-      - bandwidth_range
-      - optimal_bandwidth
-    description: "Results of the GWR bandwidth sensitivity analysis."
-required:
-  - model_type
-  - city_id
-  - coefficients
-  - p_values
-  - metrics
-  - cv_metrics
+      - sweep_parameter
+      - sweep_values
+      - r2_values
+      - plot_path
+    description: "Sensitivity sweep results (FR‑009)." 
+  memory_status:
+    type: string
+    enum: ["OK", "DEGRADED"]
+    description: "Memory govern govern ..."
+  notes:
+    type: string
+    description: " "
 additionalProperties: false

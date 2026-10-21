@@ -1,71 +1,69 @@
 # Quickstart: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
 ## Prerequisites
-- Python 3.11 or newer  
-- Git  
-- (Optional) NASA EarthData or Google Earth Engine credentials for Landsat download (not required for the open HuggingFace LST dataset)
+
+- Python 3.11 or newer
+- Git
+- Internet access to the verified OpenStreetMap extract source (e.g., Geofabrik)  
+- An LST GeoTIFF inventory satisfying the FR‑002 contract **once the spec amendment is in place**.
+
+> **LST note (temporary deviation)**: FR‑002’s USGS EarthExplorer route cannot be run unattended on the CI runner, and no verified open LST URL currently exists in the project's verified‑datasets block. **Until a spec amendment authorises a programmatically downloadable LST product or a local checksummed asset, users must manually place the required GeoTIFFs under `data/raw/lst/` and register them in `data/raw/manifest.json` with SHA‑256 checksums.** This manual step is a **temporary deviation** from Constitution Principle I; the steady‑state workflow will automatically fetch LST from the approved source once the amendment is approved.
 
 ## Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-125-statistical-analysis-of-openstreetmap-da
-   ```
-
-2. **Create a virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+```bash
+git clone <repo-url>
+cd projects/PROJ-125-statistical-analysis-of-openstreetmap-da
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r code/requirements.txt
+```
 
 ## Configuration
 
-Edit `code/config.py` (or set environment variables) to match your environment:
+`code/config.py`:
 
 ```python
-MAX_MEMORY_GB = 6          # memory cap
-MAX_SAMPLES   = 500_000    # max cells after sampling
 RANDOM_SEED   = 42
+MAX_MEMORY_GB = 6          # hard abort (exit code 99)
+DEGRADE_GB    = 5          # OLS_DEGRADED fallback
+MAX_SAMPLES   = 500_000    # max cells after spatial block sampling
+MAX_BLOCKS    = 250        # tuned so peak RSS stays below 6 GB
 CITY_LIST = [
     "New York", "Los Angeles", "Chicago", "Houston", "Phoenix",
-    "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose"
+    "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose",
 ]
 ```
 
-If you wish to use the original Landsat download route (requires credentials), set the appropriate environment variables; otherwise the pipeline will default to the **open LST dataset** hosted on HuggingFace.
-
 ## Running the Pipeline
 
-### 1. Download data (if not already cached)
 ```bash
+# 1. Download OSM data (checksums recorded)
 python code/main.py --task download --city "New York"
-```
-*The command fetches OSM vectors from the verified HuggingFace parquet URLs and downloads the **open** Landsat LST composite from `https://huggingface.co/datasets/earthlab/landsat8_lst`. Checksums are recorded under `data/`.*
 
-### 2. Execute the full analysis
-```bash
+# 2. Run the full analysis
 python code/main.py --task run --city "New York"
-```
-*Progress, memory usage, and any fallback mode (`OLS_DEGRADED`) are logged to stdout and `data/results/metrics.csv`.*
 
-### 3. Inspect results
-- **Metrics**: `data/results/metrics.csv`  
-- **Plots**: `data/results/plots/` (including the bandwidth‑sweep or OLS‑stability plot)  
-- **Report**: `data/results/reports/report_New_York.md`
+# 3. Quality assurance (lint + tests)
+python code/main.py --task lint
+python code/main.py --task test
+```
+
+## Inspecting Results
+
+- **Metrics**: `data/results/metrics.csv` (includes `correction_method = "permutation-FDR"`, `memory_status`, `memory_peak_gb`)  
+- **Model outputs**: `data/results/models/*.json` (validated against `contracts/model_output.schema.yaml`)  
+- **Plots**: `data/results/plots/` (bandwidth sweep / OLS stability)  
+- **QA artifacts**: `data/results/qa/lint_report.txt`, `data/results/qa/test_report.txt`  
+- **Report**: `data/results/reports/report_<city>.md`
+
+## Quickstart Validation
+
+The quickstart is validated by running the `download`, `run`, `lint`, and `test` commands end‑to‑end on a fresh environment. The resulting logs are saved under `data/results/qa/quickstart_validation.txt`.
 
 ## Troubleshooting
 
-- **Memory error**: If the log shows `model_type: OLS_DEGRADED`, the pipeline ran in degraded mode due to RAM > 5 GB. Results are still valid but limited to OLS.  
-- **LST download failure**: With the open HuggingFace source this should not occur. If it does, verify internet connectivity and that the URL is reachable.  
-- **Lint failures**: Linting is outside the scope of the current functional requirements; ensure code follows standard style but no automated lint check is required.  
+- **`DATA_GAP` error**: no LST rasters registered — see the LST note above.  
+- **`model_type: OLS_DEGRADED`**: Peak RAM usage exceeded a substantial threshold; OLS‑only results with clustered SE, Moran’s I, and a bias warning were produced.  
+- **Exit code 99**: peak RAM exceeded 6 GB (SC‑005) — reduce `MAX_BLOCKS` or city extent.  
 
---- 
-
-## Scope Note
-The quickstart documentation is provided for user guidance; automated validation of the quickstart script is not a required functional requirement in the specification.

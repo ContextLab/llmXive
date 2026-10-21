@@ -1,15 +1,19 @@
 status: none
-intent: download OpenStreetMap parquet GADM Natural Earth NASA EarthData Landsat LST
+intent: OpenStreetMap parquet dataset GADM boundaries Landsat 8 surface temperature
   python package dataset
 required_fields:
+- building_id
+- building_geometry
+- building_height
+- landuse_class
+- landuse_geometry
+- tree_id
+- tree_species
+- tree_geometry
+- road_id
+- road_type
+- road_geometry
 - city_boundary_polygon
-- city_boundary_bbox
-- crs
-- building_density
-- land_use
-- tree_canopy
-- road_density
-- summer_lst_composite
-cache_key: 54472272be12b086dcb48fb49aa2c108748f803b94c905d8f87835702f42c94f
-searched_at: '2026-10-21T11:12:02.394661+00:00'
+cache_key: 03e7c9e95f517444cc4459bb4c0da439684172783fe9623042485fd8ee0c83e8
+searched_at: '2026-10-21T11:39:54.053448+00:00'
 retry_count: 1
