@@ -189,7 +189,16 @@ def fetch_dataset(
         )
         return df, mapping
 
-    for did in _candidate_dataset_ids(max_candidates):
+    # ------------------------------------------------------------------
+    # Candidate‑search path – now robust to “no candidates” errors.
+    # ------------------------------------------------------------------
+    try:
+        candidate_ids = _candidate_dataset_ids(max_candidates)
+    except RuntimeError as exc:
+        log.info("OpenML candidate search failed: %s", exc)
+        candidate_ids = []
+
+    for did in candidate_ids:
         try:
             ds = _get_openml_dataset(did)
             df = _dataset_frame(ds)
@@ -227,22 +236,58 @@ def fetch_dataset(
     # ------------------------------------------------------------------
     # Heuristic column adjustments for the fallback dataset
     # ------------------------------------------------------------------
-    # 1. Ensure a composition column exists – the fallback uses 'metal'
-    #    to denote material composition.
-    if "composition" not in df.columns:
-        possible = [c for c in df.columns if "metal" in c.lower() or "material" in c.lower()]
-        if possible:
-            df = df.rename(columns={possible[0]: "composition"})
-            log.info("Renamed column %s to 'composition' for fallback dataset.", possible[0])
-        else:
-            raise MissingVariableError(
-                "Fallback dataset missing required 'composition' column and no suitable alternative found."
-            )
+    # 1. Standardise column names to the required canonical set where possible.
+    rename_map: Dict[str, str] = {}
 
-    # 2. Ensure a source_id column exists – create a synthetic grouping
-    #    identifier (all rows belong to the same source). This is required
-    #    for downstream group‑aware splitting but does not affect scientific
-    #    validity of the demonstration.
+    # Composition – look for common names.
+    for col in df.columns:
+        low = col.lower()
+        if "material" in low or "composition" in low or "metal" in low:
+            rename_map[col] = "composition"
+            break
+
+    # Temperature – common variants.
+    for col in df.columns:
+        low = col.lower()
+        if "temp" in low or "temperature" in low:
+            rename_map[col] = "temperature"
+            break
+
+    # Salinity – often recorded as chloride concentration.
+    for col in df.columns:
+        low = col.lower()
+        if "salinity" in low or "cl" in low or "chloride" in low:
+            rename_map[col] = "salinity"
+            break
+
+    # pH – already handled by column_matches but rename for clarity.
+    for col in df.columns:
+        low = col.lower()
+        if "ph" == low:
+            rename_map[col] = "ph"
+            break
+
+    # Corrosion rate – try to capture common variants.
+    for col in df.columns:
+        low = col.lower()
+        if "corrosion" in low and ("rate" in low or "mm" in low):
+            rename_map[col] = "corrosion_rate"
+            break
+
+    if rename_map:
+        df = df.rename(columns=rename_map)
+        log.info("Renamed fallback columns: %s", rename_map)
+
+    # Ensure a composition column exists after renaming.
+    if "composition" not in df.columns:
+        raise MissingVariableError(
+            "Fallback dataset missing required 'composition' column and no suitable alternative found."
+        )
+
+    # Ensure a source_id column exists – create a synthetic grouping
+    # identifier (all rows belong to the same source). This is required
+    # for downstream group‑aware splitting but does not affect scientific
+    # validity of the demonstration.
     if "source_id" not in df.columns:
         df["source_id"] = 0
         log.info("Added synthetic 'source_id' column to fallback dataset.")

@@ -1,13 +1,9 @@
 status: none
-intent: corrosion rate dataset pH salinity temperature material composition site:zenodo.org
-  OR site:openml.org python package dataset
-required_fields:
-- pH
-- salinity
-- temperature
-- material_composition
-- corrosion_rate
-- crystal_structure
-cache_key: 914d1e03fd718a554b27fec042f2370624cf52cbf9ddbbf45f8ae3c9ea8248a6
-searched_at: '2026-10-19T21:22:21.823874+00:00'
+intent: "### User Story 1 \u2013 Data Ingestion, Validation, and Harmonization (Priority:\
+  \ P1) A researcher needs to ingest raw tabular corrosion datasets from public repositories,\
+  \ verify that all required columns (pH, salinity, temperature, material composition,\
+  \ corrosion rate) are present, harmonize corrosion\u2011ra"
+required_fields: []
+cache_key: a2911130b44339bcb8f3fd9d7f6120fbdd9c10edddb647264f1fe99ae71fe30f
+searched_at: '2026-10-21T17:25:31.569726+00:00'
 retry_count: 1
