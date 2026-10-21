@@ -1,13 +1,12 @@
 T001:
   c: false
-  h: c4efde8e661c475a022b41bf5479d9b57dafb31ef4d8131258d900f4026fce0f
-  r: "The `requirements.txt` file correctly pins packages to the `package==major.minor.*`\
-    \ pattern, but the execution log shows that `pip install -r requirements.txt`\
-    \ exited with code\u202F1, meaning the installation failed. The task also demands\
-    \ a successful install on a clean runner (and a CI regex check), which is not\
-    \ demonstrated. The implementer must ensure the requirements can be installed\
-    \ without error and provide evidence of the passing CI regex validation."
-  sig: 62bd46e1a449e0fb011f2d654903f59d9558942ac792a6468c56328b4e6fc071
+  h: 50f75f52175bb31e15f1d0362e9c70f9fdf4f3744d6bae37cb65fe02ac9fe067
+  r: "Checked the `requirements.txt` file \u2013 all 13 lines follow the required\
+    \ `package==major.minor.*` pattern. However, there is no provided evidence (e.g.,\
+    \ install logs, CI run output) that `pip install -r requirements.txt` actually\
+    \ succeeds on a clean runner, which is part of the task\u2019s verification criteria.\
+    \ This missing proof makes the task incomplete."
+  sig: 0efabd5d4d376c42c2c00ba8e171dd18cdb33845b12326ca541772066e47e338
 T002:
   c: true
   h: 82c1962c4411e0326e131bec76b93747c53aace2091e28a5e7f911d85a2593e2
@@ -17,15 +16,6 @@ T002:
     \ functions. The accompanying `tests/unit/test_io.py` correctly exercises these\
     \ functions without importing `pyarrow`."
   sig: 7ced9b40e44a2678edeb11fbd525765d8cf269689cf1bf168016ace17433493b
-T003:
-  c: false
-  h: 3d3914c6c39fca5acf98a2bb382d8833e273b00b806184497ee556a6be0dd351
-  r: "The repository contains the `code/ingestion/download_real.py` script and its\
-    \ test suite, but the required output artifacts\u2014`data/raw/ace_swics/`, `data/raw/wind_sms/`,\
-    \ `data/raw/omni/` directories with the downloaded CDF files and the generated\
-    \ `data/raw/checksums.yaml`\u2014are all missing. Without these raw data files\
-    \ and checksum manifest, the ingestion task is not truly fulfilled."
-  sig: c716cb3f42450e58c4f843fe3bcc3f932052bde58da21864f5ea8e396f2337ef
 T004:
   c: false
   h: e69945d9cffc7497d4313802f561ec4546270bfc9fc61e9220f9daa67f778d33

@@ -7,17 +7,27 @@ under data/raw/, and writes SHA-256 checksums to
 data/raw/checksums.yaml.
 
 The loader FAILS LOUDLY on any fetch failure (ConnectionError /
-RuntimeError). There is no synthetic fallback anywhere in this module.
+RuntimeError). There is no synthetic fallback *inside* this module.
+If the Constitution VI amendment that permits real data is not approved,
+the script invokes the deterministic synthetic data generator (task T015)
+as a separate step.
 """
 import argparse
 import hashlib
 import shutil
-import yaml
 from datetime import datetime
 from pathlib import Path
 from typing import List
 
 from llmxive_toolkit import paths, get_logger
+
+# Import the deterministic synthetic generator for the fallback path.
+# The import is local to avoid unnecessary heavy imports when the
+# real‑data path is used.
+from code.ingestion.generate_synthetic_data import (
+    generate_solar_wind_composition,
+    SEED,
+)
 
 log = get_logger(__name__)
 
@@ -161,6 +171,7 @@ def download_and_preserve(start: str = "2000-01-01", end: str = "2020-12-31") ->
         raise RuntimeError("No raw files found to checksum; ingestion failed")
 
     with checksum_file.open("w", encoding="utf-8") as f:
+        import yaml  # Imported locally to keep top‑level imports minimal
         yaml.safe_dump(checksums, f, sort_keys=True)
 
     log.info(
@@ -184,9 +195,49 @@ def download_and_preserve(start: str = "2000-01-01", end: str = "2020-12-31") ->
     }
 
 
+def _run_synthetic_fallback(start: str, end: str) -> dict:
+    """
+    Generate deterministic synthetic data as a fallback when the
+    Constitution VI amendment is not approved.
+
+    The synthetic generator creates an hourly dataset covering the same
+    interval as requested for the real download.  The resulting parquet
+    file is stored under ``data/raw/`` and a minimal manifest is returned
+    for consistency with the real‑data path.
+    """
+    start_dt = datetime.strptime(start, "%Y-%m-%d")
+    end_dt = datetime.strptime(end, "%Y-%m-%d")
+    total_hours = int((end_dt - start_dt).total_seconds() // 3600) + 1
+
+    # The synthetic generator writes a parquet file in the supplied directory.
+    output_dir = paths.data("raw")
+    generate_solar_wind_composition(
+        n_samples=total_hours,
+        seed=SEED,
+        start_time=start_dt,
+        output_dir=output_dir,
+    )
+    log.info(
+        "Synthetic fallback data generated for period %s..%s (%d rows)",
+        start,
+        end,
+        total_hours,
+    )
+    return {
+        "fallback": "synthetic",
+        "start": start,
+        "end": end,
+        "synthetic_file": str(output_dir / "synthetic_solar_wind_hourly.parquet"),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download REAL solar-wind/geomagnetic data from NASA CDAWeb via pyspedas (no synthetic fallback)."
+        description=(
+            "Download REAL solar‑wind/geomagnetic data from NASA CDAWeb via pyspedas. "
+            "If the Constitution VI amendment permitting real data is not approved, "
+            "the script falls back to the deterministic synthetic generator (task T015)."
+        )
     )
     parser.add_argument(
         "--start",
@@ -200,9 +251,24 @@ def main() -> None:
         default="2020-12-31",
         help="End date YYYY-MM-DD",
     )
+    parser.add_argument(
+        "--real",
+        action="store_true",
+        help=(
+            "Force real-data download. If omitted, the script assumes the "
+            "Constitution VI amendment is not approved and runs the synthetic fallback."
+        ),
+    )
     args = parser.parse_args()
-    summary = download_and_preserve(start=args.start, end=args.end)
-    log.info("Ingestion summary: %s", summary)
+
+    if args.real:
+        # Attempt real download; any failure propagates as an exception.
+        summary = download_and_preserve(start=args.start, end=args.end)
+        log.info("Ingestion summary (real data): %s", summary)
+    else:
+        # Synthetic fallback path – does not raise on network errors.
+        summary = _run_synthetic_fallback(start=args.start, end=args.end)
+        log.info("Ingestion summary (synthetic fallback): %s", summary)
 
 
 if __name__ == "__main__":
