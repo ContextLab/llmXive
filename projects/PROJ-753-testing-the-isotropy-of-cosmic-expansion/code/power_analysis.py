@@ -33,12 +33,11 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# The Pantheon+ file lives in the ``data`` subdirectory of the repository.
-# Using the ``data/`` prefix avoids the 404 that occurs when the file is
-# requested from the repository root.
+# Correct canonical URL for the Pantheon+ SH0ES data file.
+# The file is located at the root of the DataRelease repository.
 DEFAULT_URL = (
     "https://raw.githubusercontent.com/PantheonPlusSH0ES/"
-    "DataRelease/main/data/Pantheon%2B_SH0ES.dat"
+    "DataRelease/main/Pantheon%2B_SH0ES.dat"
 )
 DEFAULT_DATASET_VERSION = "v1.0"
 REQUIRED_COLUMNS = {"ID", "RA", "DEC", "ZHD", "MU", "MUERR"}
@@ -103,7 +102,6 @@ def theoretical_distance_modulus(
     z: float, h0: float = 73.0, omega_m: float = 0.33
 ) -> float:
     """Compute distance modulus μ for a flat ΛCDM universe."""
-    # Speed of light in km/s
     c = 299792.458
 
     def e_func(z_val):
