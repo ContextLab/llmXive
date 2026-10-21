@@ -13,11 +13,20 @@ import logging
 from pathlib import Path
 from typing import List, Tuple
 
-from datasets import load_dataset
+try:
+    from datasets import load_dataset
+except ImportError:
+    # This might happen if the environment isn't set up yet, but requirements.txt should handle it
+    raise ImportError("The 'datasets' library is required. Please ensure it is installed via pip.")
+
 from llmxive_toolkit import paths, get_logger
 
 # Initialize logger
 log = get_logger(__name__)
+
+# Reference checksums would be placed here if provided by the dataset release.
+# Since we are streaming from HF, we generate the manifest for verification.
+REFERENCE_CHECKSUMS = {}
 
 def _sha256_checksum(file_path: Path) -> str:
     """
@@ -47,9 +56,13 @@ def _download_pi_bench(raw_dir: Path) -> List[Tuple[Path, str]]:
     """
     log.info("Loading the 'pi_bench' dataset via huggingface datasets (streaming=True)")
     
-    # Load dataset in streaming mode as requested by T001
-    ds_dict = load_dataset("pi_bench", streaming=True)
-    
+    # Load dataset in streaming mode
+    try:
+        ds_dict = load_dataset("pi_bench", streaming=True)
+    except Exception as e:
+        log.error(f"Failed to load 'pi_bench' from HF Hub: {e}")
+        raise
+
     # Handle DatasetDict by picking the 'train' split or the first available split
     if isinstance(ds_dict, dict):
         split_name = "train" if "train" in ds_dict else next(iter(ds_dict))
@@ -68,6 +81,13 @@ def _download_pi_bench(raw_dir: Path) -> List[Tuple[Path, str]]:
 
         rel_path = json_path.relative_to(raw_dir)
         checksum = _sha256_checksum(json_path)
+        
+        # Comparison against reference list if available
+        if rel_path.name in REFERENCE_CHECKSUMS:
+            if checksum != REFERENCE_CHECKSUMS[rel_path.name]:
+                log.error(f"Checksum mismatch for {rel_path.name}!")
+                raise ValueError(f"Dataset corruption detected for {rel_path.name}")
+
         checksums.append((rel_path, checksum))
 
         if (idx + 1) % 20 == 0:
@@ -84,7 +104,7 @@ def main() -> None:
         "--data-dir",
         type=str,
         default=str(paths.data("raw")),
-        help="Directory to store raw dataset files (used for downstream pipelines).",
+        help="Directory to store raw dataset files.",
     )
     args = parser.parse_args()
     raw_dir = Path(args.data_dir)
