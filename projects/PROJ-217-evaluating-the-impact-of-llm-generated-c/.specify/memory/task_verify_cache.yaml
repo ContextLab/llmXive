@@ -1,12 +1,10 @@
 T001:
-  c: true
-  h: b64cc845578d5ab60221d12bf411886359c058784fcd960330eabd00e92ce5c3
-  r: "The script implements all requirements (retry loop that raises, tolerant column\
-    \ mapping with explicit error, seeded N=500 sampling, docstring validation, all\
-    \ five output files), and the execution log shows exit 0 with a real download\
-    \ from `code_search_net`. The artifacts are consistent: 500 raw records, 498 valid\
-    \ (\u2265150, 99.6% processed), 2 excluded with reasons, checksum `ad9e3a4a...`\
-    \ matching both `artifact_hashes.yaml` and the log. The only unverified item is\
-    \ `src/tests/test_download.py` (not inspected due to evidence limit), but the\
-    \ core task deliverables and execution evidence are all pres"
-  sig: 15f6893b7db8c7363f53c545753c3d7daf2d3818aa8620a6c7a1c3b9ce494707
+  c: false
+  h: 21ea74d0c92f9ff6aa5dffd04e25d9747739460517ebdbe526a6f95f4a3c8d08
+  r: "The script, JSONL outputs, excluded records, checksum manifest, and tests all\
+    \ exist and look correct, but the required log file `data/dataset_preparation.log`\
+    \ is MISSING \u2014 the verification criteria explicitly require it to exist and\
+    \ report total/valid/excluded counts and SC-006 compliance. The implementer should\
+    \ re-run the script (or otherwise produce the log) so the summary log is written\
+    \ to `data/dataset_preparation.log`."
+  sig: 02f812788e9c027bcfc5bdfdb403d0c701e50e921e3c6211ebc2e6f25595e942

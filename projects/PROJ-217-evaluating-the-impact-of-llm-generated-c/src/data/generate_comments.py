@@ -95,7 +95,8 @@ def _generate_llm_comment(code: str) -> str:
             f"HuggingFace token not found in environment variable {HF_TOKEN_ENV}"
         )
 
-    client = InferenceClient(token=token)
+    # Initialise the client with the model ID so we don't need to pass it on each call.
+    client = InferenceClient(model=MODEL_ID, token=token)
 
     # Simple prompt asking for a concise comment
     prompt = (
@@ -110,14 +111,13 @@ def _generate_llm_comment(code: str) -> str:
         try:
             generated = client.text_generation(
                 prompt,
-                model=MODEL_ID,
                 temperature=0.0,
                 top_p=1.0,
                 max_new_tokens=256,
                 do_sample=False,
-                seed=42,
             )
-            comment = generated.strip()
+            # The client may return a dict when `details=True` is used; in our case it returns a string.
+            comment = generated.strip() if isinstance(generated, str) else str(generated).strip()
             return comment
         except (InferenceError, Exception) as e:
             if attempt == RETRY_LIMIT:

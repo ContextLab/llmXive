@@ -6,7 +6,7 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
 
 ---
 
-- [X] T001 [US1] **Download & validate CodeSearchNet Python snippets (including validation pass)**
+- [ ] T001 [US1] **Download & validate CodeSearchNet Python snippets (including validation pass)**
   *Implement* `src/data/download.py` that:
   - Downloads the verified CodeSearchNet Python parquet files via `hf_hub_download(repo_id="code_search_net", repo_type="dataset", filename="python/train-00000-of-00001.parquet")` with a 3‑attempt retry loop that **RAISES** on final failure (no synthetic fallback).
   - Parses using pandas/pyarrow with column‑tolerant mapping: accepts either `code`/`docstring` or `func_name`/`func_code_string`/`func_documentation_string`. If neither set matches, abort with an explicit error listing actual columns.
@@ -22,7 +22,7 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
   – `data/dataset_preparation.log` exists and reports the counts.
   – Pytest `src/tests/test_download.py` asserts correct column‑mapping for both possible schemas.
 
-- [ ] T002 [US1] **Generate deterministic LLM comments via HuggingFace Inference API** <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 -->
+- [ ] T002 [US1] **Generate deterministic LLM comments via HuggingFace Inference API** <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 -->
   *Implement* `src/data/generate_comments.py` that:
   - Reads `data/validated_snippets.jsonl`.
   - Truncates each code snippet to ≤ 2048 tokens using `tiktoken` at the nearest newline; logs each truncation to `data/truncation_warnings.log`.
