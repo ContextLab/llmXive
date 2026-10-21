@@ -11,34 +11,39 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/generate_data.py: self-declared fabricated metric — “…tadata fields are filled with placeholder values.     """     # Metadata – pl…”
 - code/generate_data.py: self-declared fabricated metric — “…ues.     """     # Metadata – placeholder values sufficient for validation…”
 - code/preprocess.py: self-declared fabricated metric — “…errows():             # Use a dummy score of 0 for the BED score column…”
-- code/download_encode.py: synthetic/fake INPUT data not authorized by the spec — “…List[Path]:     """     Generate synthetic raw files using the exis…”
-- code/download_encode.py: synthetic/fake INPUT data not authorized by the spec — “…tected – falling back to synthetic data generation.")…”
-- code/download_encode.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Synthetic data generation completed (fa…”
 - code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for the gene e…”
 - code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…is no silent fallback to synthetic data.  The script can be exec…”
-
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/processed/GM12878_binned_features.csv, data/processed/GM12878_imputed_binned_features.csv, data/processed/HMEC_binned_features.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…cessibility matrix – for synthetic data we reuse the same consta…”
+- code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…schema)     logger.info("Synthetic data conforms to the dataset…”
+- code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…_path)      logger.info("Synthetic data generation completed suc…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 19 fabricated/simulated-result signal(s) — results are not real measurements: code/generate_data.py: self-declared fabricated metric — “…tadata fields are filled with placeholder values.     """     # Metadata – pl…”; code/generate_data.py: self-declared fabricated metric — “…ues.     """     # Metadata – placeholder values sufficient for validation…”; code/preprocess.py: self-declared fabricated metric — “…errows():             # Use a dummy score of 0 for the BED score column…”; every produced artifact is gitignored (data/processed/GM12878_binned_features.csv, data/processed/GM12878_imputed_binned_features.csv, data/processed/HMEC_binned_features.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 run-book script(s) missing (plan/impl path mismatch): python code/analyze.py; 4 command(s) failed: python code/train.py (rc=1); python -m pytest tests/unit/ (rc=1); python -m pytest tests/contract/ (rc=1); 6 declared deliverable(s) absent: data/processed/cell_type_specific_genes.csv; data/processed/external_validation_r2.csv; data/processed/housekeeping_genes.csv
+**Summary**: 16 fabricated/simulated-result signal(s) — results are not real measurements: code/generate_data.py: self-declared fabricated metric — “…tadata fields are filled with placeholder values.     """     # Metadata – pl…”; code/generate_data.py: self-declared fabricated metric — “…ues.     """     # Metadata – placeholder values sufficient for validation…”; code/preprocess.py: self-declared fabricated metric — “…errows():             # Use a dummy score of 0 for the BED score column…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/analyze.py; 6 command(s) failed: python code/download_encode.py --cell-lines GM12878,K562,HMEC,IMR90,HepG2 (rc=1); python code/preprocess.py (rc=1); python code/train.py (rc=1); 11 declared deliverable(s) absent: data/processed/cell_type_specific_genes.csv; data/processed/external_validation_r2.csv; data/processed/filtered_expression.csv
 
 ## Failing / missing run-book commands
 
+- python code/download_encode.py --cell-lines GM12878,K562,HMEC,IMR90,HepG2 -> rc=1
+File&biosample_ontology.term_name=GM12878&assembly=hg38&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv"}, {"field": "assembly", "term": "hg38", "remove": "/search/?type=File&biosample_ontology.term_name=GM12878&status=released&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv"}, {"field": "output_type", "term": "gene quantifications", "remove": "/search/?type=File&biosample_ontology.term_name=GM12878&status=released&assembly=hg38&format=json&limit=1&field=href&file_format=tsv"}, {"field": "file_format", "term": "tsv", "remove": "/search/?type=File&biosample_ontology.term_name=GM12878&status=released&assembly=hg38&format=json&limit=1&field=href&output_type=gene+quantifications"}, {"field": "type", "term": "File", "remove": "/search/?biosample_ontology.term_name=GM12878&status=released&assembly=hg38&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv"}],"notification":"No results found","sort":{"date_created": {"order": "desc", "unmapped_type": "keyword"}, "label": {"order": "desc", "unmapped_type": "keyword"}, "uuid": {"order": "desc", "unmapped_type": "keyword"}},"title":"Search","total":0}
+
+
+- python code/preprocess.py -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/preprocess.py", line 455, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/preprocess.py", line 400, in main
+    gene_coords = load_gene_coords()
+                  ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/preprocess.py", line 112, in load_gene_coords
+    raise FileNotFoundError(f"Gene coordinates file not found: {path}")
+FileNotFoundError: Gene coordinates file not found: data/raw/gene_coords.bed
+
 - python code/train.py -> rc=1
-2026-10-21 09:18:54,395 - INFO - Starting training pipeline for data/processed/imputed_expression.csv
-2026-10-21 09:18:54,395 - INFO - Loading data from data/processed/imputed_expression.csv
-2026-10-21 09:18:54,395 - ERROR - Failed to load data: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
-2026-10-21 09:18:54,395 - ERROR - Training failed: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
+2026-10-21 20:09:23,463 - INFO - Starting training pipeline for data/processed/imputed_expression.csv
+2026-10-21 20:09:23,464 - INFO - Loading data from data/processed/imputed_expression.csv
+2026-10-21 20:09:23,464 - ERROR - Failed to load data: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
+2026-10-21 20:09:23,464 - ERROR - Training failed: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
 
 
 - python code/analyze.py -> rc=2
@@ -46,8 +51,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-211-predicting-gene-expression-from-chromati/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/analyze.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/unit/ -> rc=1
-sts/unit/test_t011_generation.py::TestT011Generation::test_generate_data_creates_files
-FAILED tests/unit/test_t011_generation.py::TestT011Generation::test_counts_matrix_dimensions
+matrix_dimensions
 FAILED tests/unit/test_t011_generation.py::TestT011Generation::test_peaks_matrix_dimensions
 FAILED tests/unit/test_t011_generation.py::TestT011Generation::test_bed_file_format
 FAILED tests/unit/test_t011_generation.py::TestT011Generation::test_reproducibility_with_seed
@@ -56,26 +60,28 @@ FAILED tests/unit/test_t011_generation.py::TestT011Generation::test_data_types_i
 FAILED tests/unit/test_train.py::TestTrainElasticNet::test_run_cross_validation
 FAILED tests/unit/test_train.py::TestTrainElasticNet::test_train_elastic_net
 FAILED tests/unit/test_utils.py::TestLoadConfig::test_load_empty_yaml - asser...
+ERROR tests/unit/test_preprocess.py::test_bin_aggregation_shape - FileNotFoun...
+ERROR tests/unit/test_preprocess.py::test_merge_features_expression - FileNot...
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_success_on_first_attempt
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_retry_on_failure
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_failure_after_max_attempts
-============= 24 failed, 36 passed, 3 warnings, 3 errors in 6.84s ==============
+============= 25 failed, 33 passed, 3 warnings, 5 errors in 2.46s ==============
 
 
 - python -m pytest tests/contract/ -> rc=1
-schema.py::TestTssProximityStatsSchema::test_required_keys_present
+nt
+FAILED tests/contract/test_interpretation_schema.py::TestFeatureImportanceSchema::test_column_types
+FAILED tests/contract/test_interpretation_schema.py::TestPeakAnnotationsSchema::test_file_exists
+FAILED tests/contract/test_interpretation_schema.py::TestPeakAnnotationsSchema::test_required_columns_present
+FAILED tests/contract/test_interpretation_schema.py::TestPeakAnnotationsSchema::test_column_types
+FAILED tests/contract/test_interpretation_schema.py::TestTssProximityStatsSchema::test_file_exists
+FAILED tests/contract/test_interpretation_schema.py::TestTssProximityStatsSchema::test_required_keys_present
 FAILED tests/contract/test_interpretation_schema.py::TestTssProximityStatsSchema::test_value_types
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_file_exists
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_required_keys_present
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_value_types
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_delta_r2_calculation
-ERROR tests/contract/test_data_schema.py::TestSyntheticCountsSchema::test_required_columns_present
-ERROR tests/contract/test_data_schema.py::TestSyntheticCountsSchema::test_data_types
-ERROR tests/contract/test_data_schema.py::TestSyntheticCountsSchema::test_value_constraints
-ERROR tests/contract/test_data_schema.py::TestSyntheticPeaksSchema::test_required_columns_present
-ERROR tests/contract/test_data_schema.py::TestSyntheticPeaksSchema::test_data_types
-ERROR tests/contract/test_data_schema.py::TestSyntheticPeaksSchema::test_value_constraints
-============== 13 failed, 3 passed, 1 skipped, 6 errors in 0.15s ===============
+=================== 15 failed, 1 passed, 7 skipped in 0.28s ====================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -93,7 +99,7 @@ E   ImportError: cannot import name 'train_elastic_net_cv' from 'code.train' (/h
 ERROR tests/integration/test_data_pipeline.py
 ERROR tests/integration/test_training_loop.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.73s ===============================
+============================== 2 errors in 1.10s ===============================
 
 
 
@@ -101,10 +107,15 @@ ERROR tests/integration/test_training_loop.py
 
 - data/processed/cell_type_specific_genes.csv
 - data/processed/external_validation_r2.csv
+- data/processed/filtered_expression.csv
 - data/processed/housekeeping_genes.csv
 - data/processed/housekeeping_matrix.csv
 - data/processed/housekeeping_r2.csv
+- data/processed/imputed_binned_features.csv
+- data/processed/log_expression.csv
 - data/processed/tss_binned_features.csv
+- data/raw/checksums.csv
+- data/raw/synthetic_counts.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -116,6 +127,10 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/external_validation_r2.csv` is declared but was NOT written. Scripts referencing it:
     - `code/evaluate.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/external_validation_r2.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/filtered_expression.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/preprocess.py` — IS a run-book command
+    - `code/run_t016c.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/filtered_expression.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/housekeeping_genes.csv` is declared but was NOT written. Scripts referencing it:
     - `code/interpret.py` — NOT invoked by the run-book
     - `code/preprocess.py` — IS a run-book command
@@ -129,12 +144,24 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/housekeeping_r2.csv` is declared but was NOT written. Scripts referencing it:
     - `code/interpret.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/housekeeping_r2.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/imputed_binned_features.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/preprocess.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/imputed_binned_features.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/log_expression.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/preprocess.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/log_expression.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/tss_binned_features.csv` is declared but was NOT written. Scripts referencing it:
     - `code/evaluate.py` — NOT invoked by the run-book
     - `code/run_t016c.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/tss_binned_features.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-## Platform-owned paths written inside the project
-
-A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
-
-Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.
+- `data/raw/checksums.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/download_encode.py` — IS a run-book command
+    - `code/generate_data.py` — NOT invoked by the run-book
+    - `code/preprocess.py` — IS a run-book command
+    - `code/run_t011.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/checksums.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/synthetic_counts.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/generate_data.py` — NOT invoked by the run-book
+    - `code/preprocess.py` — IS a run-book command
+    - `code/run_t011.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/synthetic_counts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

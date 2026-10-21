@@ -11,7 +11,7 @@ The pipeline must use **real ENCODE data** for scientific results; synthetic dat
 | Goal | Run an executable analysis on a small real (or CI‑synthetic) input set early. |
 |------|--------------------------------------------------------------------------------|
 
-- [X] T001 [US1] Implement a deterministic synthetic data generator `code/generate_data.py` that
+- [ ] T001 [US1] Implement a deterministic synthetic data generator `code/generate_data.py` that
   – seeds NumPy with `42`;  
   – writes `data/raw/synthetic_counts.csv` (RNA‑seq counts) and `data/raw/synthetic_peaks.bed` (peak calls) for the five cell lines (GM12878, K562, HMEC, IMR90, HepG2);  
   – validates both outputs against the YAML schema `specs/001-predicting-gene-expression-from-chromati/contracts/dataset_schema.schema.yaml` using `jsonschema`;  
@@ -19,7 +19,7 @@ The pipeline must use **real ENCODE data** for scientific results; synthetic dat
   – raises on any mismatch (no silent fallback).  
   **Verification**: Run the generator with `python -m code.generate_data` **or** `python code/generate_data.py`; it must exit 0, both files exist, are non‑empty, and `pytest tests/unit/test_generate_data.py` passes.
 
-- [ ] T002 [US1] Implement a robust ENCODE download script `code/download_encode.py` that streams real resources and records SHA‑256 checksums in `data/raw/checksums.csv`. For each of the five cell lines it must download: <!-- FAILED: unspecified -->
+- [ ] T002 [US1] Implement a robust ENCODE download script `code/download_encode.py` that streams real resources and records SHA‑256 checksums in `data/raw/checksums.csv`. For each of the five cell lines it must download: <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 -->
   – RNA‑seq gene‑quantification TSV → `data/raw/encode_counts_{cell_line}.csv`  
   – DNase‑seq/ATAC‑seq narrowPeak BED → `data/raw/encode_peaks_{cell_line}.bed`  
   – GENCODE hg38 gene‑coordinates GTF (reduced to TSS BED) → `data/raw/gene_coords.bed`  

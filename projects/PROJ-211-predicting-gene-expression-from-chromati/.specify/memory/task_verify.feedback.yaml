@@ -1,14 +1,16 @@
 T001:
+  reason: 'The required outputs `data/raw/synthetic_counts.csv`, `synthetic_peaks.bed`,
+    and `checksums.csv` do not exist on disk, so the verification criterion (run the
+    generator, files exist non-empty) cannot be confirmed and there is no execution
+    evidence. Additionally, the code violates the "no silent fallback" requirement:
+    `load_schema` returns `{}` on a YAML parse error and `build_dataset_dict` skips
+    validation entirely when the schema is empty, and the module injects `random`/`np`
+    into `builtins` to paper over the test file''s missing imports (the test''s `test_file_creation`
+    also uses `Path` without'
   task: 3bdd9fbbe2f22564e918fa557f1fa0a692391863aa29410cc131acc1db2b998a
 T002:
-  reason: "The repository contains `code/download_encode.py` and a `data/raw/checksums.csv`,\
-    \ but the required output files `data/raw/encode_counts_{cell_line}.csv` and `data/raw/encode_peaks_{cell_line}.bed`\
-    \ for the five cell lines are absent. The script falls back to generating synthetic\
-    \ files (`synthetic_counts.csv`, `synthetic_peaks.bed`) when ENCODE queries fail\
-    \ (CI_MODE=1), and the checksums CSV records only those synthetic files. Additionally,\
-    \ the integration test `tests/integration/test_download.py` is missing, so no\
-    \ verification of column headers or schema compliance is possible. The task\u2019\
-    s core"
+  reason: 'Requested task execution failed; rerun successfully: code/download_encode.py
+    exit=1'
   task: d418178aef4af9aefbbac03d6ad110ca8d469d0f268fdd6e6d874d428b560b81
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/preprocess.py

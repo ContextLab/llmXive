@@ -1,24 +1,15 @@
 T001:
-  c: true
-  h: cc35781dccdbed3ae2abfce56450253ee0964c79eaa068e3c80116a92dbf852f
-  r: "Checked `code/generate_data.py` for deterministic seeding, file creation, schema\
-    \ validation, and checksum logging; verified that `data/raw/synthetic_counts.csv`,\
-    \ `data/raw/synthetic_peaks.bed`, and `data/raw/checksums.csv` exist and are non\u2011\
-    empty; and confirmed that `tests/unit/test_generate_data.py` passes with the provided\
-    \ implementation."
-  sig: d871204060dd90a4ffbcd7c20d0d99656a7a5488bc42f8b3713a2e28ffee7d03
-T002:
   c: false
-  h: 30d25337159ea6a6aa088604a5a2284cdfd5abb88c529ce27027e8314b11dee3
-  r: "The repository contains `code/download_encode.py` and a `data/raw/checksums.csv`,\
-    \ but the required output files `data/raw/encode_counts_{cell_line}.csv` and `data/raw/encode_peaks_{cell_line}.bed`\
-    \ for the five cell lines are absent. The script falls back to generating synthetic\
-    \ files (`synthetic_counts.csv`, `synthetic_peaks.bed`) when ENCODE queries fail\
-    \ (CI_MODE=1), and the checksums CSV records only those synthetic files. Additionally,\
-    \ the integration test `tests/integration/test_download.py` is missing, so no\
-    \ verification of column headers or schema compliance is possible. The task\u2019\
-    s core "
-  sig: e1297bae8debb66b60919f503825a151a496305b9bb592bf557efdf30970ea0e
+  h: e6470ba40b45b3a545a23d4b19091d1e16eaa49e4492617555ec60a9b8393c97
+  r: 'The required outputs `data/raw/synthetic_counts.csv`, `synthetic_peaks.bed`,
+    and `checksums.csv` do not exist on disk, so the verification criterion (run the
+    generator, files exist non-empty) cannot be confirmed and there is no execution
+    evidence. Additionally, the code violates the "no silent fallback" requirement:
+    `load_schema` returns `{}` on a YAML parse error and `build_dataset_dict` skips
+    validation entirely when the schema is empty, and the module injects `random`/`np`
+    into `builtins` to paper over the test file''s missing imports (the test''s `test_file_creation`
+    also uses `Path` without'
+  sig: ee30d6f6f763d2d49eee47bb01a448a8a1e269e957c80737acf755afb0659cbd
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

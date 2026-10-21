@@ -11,7 +11,7 @@ from typing import List, Dict, Any
 import requests
 
 # ----------------------------------------------------------------------
-# Logging configuration – ensure the logs directory exists before creating the handler
+# Logging configuration
 # ----------------------------------------------------------------------
 LOGS_DIR = Path("logs")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
@@ -49,7 +49,6 @@ def setup_directories() -> None:
         Path("tests"),
         Path("docs"),
         Path("contracts"),
-        Path("state")
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
@@ -105,8 +104,6 @@ def _query_encode_file(
         f"Querying ENCODE for {cell_line} assay={assay} output_type={output_type} format={file_format}"
     )
     resp = session.get(ENCODE_SEARCH, params=params, headers={"Accept": "application/json"})
-    # ENCODE returns 200 with empty @graph if nothing matches, not a 404.
-    # However some network setups may produce a 404; we treat any non‑200 as error.
     if resp.status_code != 200:
         raise RuntimeError(f"ENCODE query failed ({resp.status_code}): {resp.text}")
     data = resp.json()
@@ -129,9 +126,7 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
     """
     results = []
     for cl in cell_lines:
-        # ---- RNA‑seq ----
         try:
-            # Primary attempt: assay=RNA‑seq, output_type=gene quantifications
             rna_uri = _query_encode_file(
                 session,
                 cell_line=cl,
@@ -140,8 +135,7 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                 file_format="tsv"
             )
         except Exception as e1:
-            logger.warning(f"Primary RNA‑seq query failed for {cl}: {e1}. Trying fallback without assay.")
-            # Fallback: drop assay filter
+            logger.warning(f"Primary RNA-seq query failed for {cl}: {e1}. Trying fallback.")
             rna_uri = _query_encode_file(
                 session,
                 cell_line=cl,
@@ -149,7 +143,6 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                 file_format="tsv"
             )
 
-        # ---- DNase / ATAC ----
         try:
             dnase_uri = _query_encode_file(
                 session,
@@ -159,7 +152,7 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                 file_format="narrowPeak"
             )
         except Exception as e_dnase:
-            logger.warning(f"DNase‑seq not found for {cl}: {e_dnase}. Trying ATAC‑seq.")
+            logger.warning(f"DNase-seq not found for {cl}: {e_dnase}. Trying ATAC-seq.")
             try:
                 dnase_uri = _query_encode_file(
                     session,
@@ -169,7 +162,7 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                     file_format="narrowPeak"
                 )
             except Exception as e_atac:
-                logger.error(f"Both DNase‑seq and ATAC‑seq missing for {cl}: {e_atac}")
+                logger.error(f"Both DNase-seq and ATAC-seq missing for {cl}: {e_atac}")
                 raise RuntimeError(f"No accessibility file for {cl}")
 
         results.append({
@@ -190,16 +183,13 @@ def download_file(uri: str, output_path: Path, session: requests.Session) -> boo
         with session.get(uri, stream=True) as r:
             r.raise_for_status()
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            # Detect gzip by header if not already .gz
             is_gzip = uri.endswith(".gz")
             if is_gzip:
-                # Write compressed file first, then decompress
                 tmp_path = output_path.with_suffix(output_path.suffix + ".gz")
                 with tmp_path.open("wb") as f:
                     for chunk in r.iter_content(chunk_size=8192):
                         if chunk:
                             f.write(chunk)
-                # Decompress
                 with gzip.open(tmp_path, "rb") as src, output_path.open("wb") as dst:
                     for chunk in iter(lambda: src.read(8192), b""):
                         dst.write(chunk)
@@ -209,7 +199,6 @@ def download_file(uri: str, output_path: Path, session: requests.Session) -> boo
                     for chunk in r.iter_content(chunk_size=8192):
                         if chunk:
                             f.write(chunk)
-        # Verify non‑empty
         if output_path.stat().st_size == 0:
             raise RuntimeError(f"Downloaded file is empty: {output_path}")
         logger.info(f"Successfully downloaded {output_path} ({output_path.stat().st_size} bytes)")
@@ -220,7 +209,7 @@ def download_file(uri: str, output_path: Path, session: requests.Session) -> boo
 
 def process_rna_data(input_path: Path, output_path: Path) -> None:
     """
-    Convert ENCODE RNA‑seq quantification TSV into the final counts CSV.
+    Convert ENCODE RNA-seq quantification TSV into the final counts CSV.
     Expected ENCODE columns include at least: gene_id, gene_name, TPM (or tpm).
     Output CSV columns: gene_id, gene_name, cell_line, count
     """
@@ -228,33 +217,30 @@ def process_rna_data(input_path: Path, output_path: Path) -> None:
     if not input_path.exists():
         raise FileNotFoundError(f"Input RNA file not found: {input_path}")
 
-    cell_line = output_path.stem.split("_")[-1]  # e.g. encode_counts_GM12878.csv -> GM12878
+    cell_line = output_path.stem.split("_")[-1]
     with input_path.open("r") as f_in, output_path.open("w", newline="") as f_out:
         reader = csv.DictReader(f_in, delimiter="\t")
         writer = csv.writer(f_out)
         writer.writerow(["gene_id", "gene_name", "cell_line", "count"])
         for row in reader:
-            # Detect TPM column (case‑insensitive)
             tpm_key = next((k for k in row.keys() if k.lower() == "tpm"), None)
             if tpm_key is None:
                 raise RuntimeError(f"TPM column not found in RNA file {input_path}")
             try:
-                count = int(float(row[tpm_key]) * 10)  # simple scaling to integer counts
-            except ValueError:
+                count = int(float(row[tpm_key]) * 10)
+            except (ValueError, TypeError):
                 count = 0
-            writer.writerow([row["gene_id"], row["gene_name"], cell_line, count])
+            writer.writerow([row.get("gene_id", "unknown"), row.get("gene_name", "unknown"), cell_line, count])
     logger.info(f"Wrote processed RNA counts to {output_path}")
 
 def process_accessibility_data(input_path: Path, output_path: Path) -> None:
     """
     Convert ENCODE narrowPeak BED into the final BED used downstream.
-    The script copies the file, ensuring it exists.
     """
     logger.info(f"Processing accessibility data from {input_path}")
     if not input_path.exists():
         raise FileNotFoundError(f"Input accessibility file not found: {input_path}")
 
-    # Direct copy – ensures the target exists
     with input_path.open("rb") as src, output_path.open("wb") as dst:
         while True:
             chunk = src.read(8192)
@@ -288,20 +274,21 @@ def write_gene_coords_bed(output_path: Path) -> None:
             chrom, source, feature_type, start, end, score, strand, phase, attributes = fields
             if feature_type != "gene":
                 continue
-            # Extract gene_id attribute
             attr_dict = {}
             for attr in attributes.split(";"):
                 attr = attr.strip()
                 if not attr:
                     continue
-                key, value = attr.split(" ", 1)
+                parts = attr.split(" ", 1)
+                if len(parts) < 2:
+                    continue
+                key, value = parts
                 attr_dict[key] = value.strip('"')
             gene_id = attr_dict.get("gene_id")
             if not gene_id:
                 continue
-            start_int = int(start) - 1  # GTF is 1‑based inclusive; BED is 0‑based half‑open
+            start_int = int(start) - 1
             end_int = int(end)
-            # Determine TSS position
             if strand == "+":
                 tss_start = start_int
                 tss_end = start_int + 1
@@ -310,8 +297,6 @@ def write_gene_coords_bed(output_path: Path) -> None:
                 tss_end = end_int
             bed_f.write(f"{chrom}\t{tss_start}\t{tss_end}\t{gene_id}\t0\t{strand}\n")
     logger.info(f"Gene coordinates BED written to {output_path}")
-
-    # Clean up downloaded GTF to avoid clutter
     try:
         gtf_path.unlink()
     except Exception:
@@ -327,10 +312,8 @@ def checksum_file(path: Path) -> str:
 
 def log_checksums_csv(files: List[Path], log_path: Path = RAW_DIR / "checksums.csv") -> None:
     """
-    Record SHA‑256 checksums of the listed files into a CSV file
-    with columns: filename,sha256
+    Record SHA-256 checksums of the listed files into a CSV file.
     """
-    import csv
     with log_path.open("w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["filename", "sha256"])
@@ -341,136 +324,61 @@ def log_checksums_csv(files: List[Path], log_path: Path = RAW_DIR / "checksums.c
                 logger.warning(f"File not found for checksum logging: {fp}")
     logger.info(f"Checksums written to {log_path}")
 
-# ----------------------------------------------------------------------
-# Synthetic fallback utilities (used when real ENCODE download is not possible)
-# ----------------------------------------------------------------------
-def _generate_synthetic_raw(cell_lines: List[str]) -> List[Path]:
-    """
-    Generate synthetic raw files using the existing generate_data module.
-    Returns a list of Paths that correspond to the generated files
-    (synthetic_counts.csv, synthetic_peaks.bed, and a synthetic gene_coords.bed).
-    """
-    from generate_data import main as generate_data_main, generate_gene_coordinates
-    # Run the synthetic generator (it writes into data/raw/)
-    generate_data_main()
-    synthetic_counts = RAW_DIR / "synthetic_counts.csv"
-    synthetic_peaks = RAW_DIR / "synthetic_peaks.bed"
-
-    # Create a synthetic gene_coords.bed using the same deterministic generator
-    gene_coords_path = RAW_DIR / "gene_coords.bed"
-    genes_df = generate_gene_coordinates(num_genes=100, chrom="chr1")
-    with gene_coords_path.open("w") as bed_f:
-        for _, row in genes_df.iterrows():
-            # BED uses 0‑based start; we treat 'tss' as a single‑base interval
-            tss_start = int(row["tss"])
-            tss_end = tss_start + 1
-            bed_f.write(f"{row['chrom']}\t{tss_start}\t{tss_end}\t{row['gene_id']}\t0\t{row['strand']}\n")
-    logger.info("Synthetic gene_coords.bed generated.")
-    return [synthetic_counts, synthetic_peaks, gene_coords_path]
-
-# ----------------------------------------------------------------------
-# Main entry point
-# ----------------------------------------------------------------------
 def main() -> None:
     """
-    Download ENCODE RNA‑seq and DNase/ATAC‑seq files for the
-    requested cell lines, process them into the pipeline‑ready formats,
-    and record SHA‑256 checksums.
+    Download real ENCODE data and record checksums.
+    No synthetic fallback allowed.
     """
     import argparse
 
-    parser = argparse.ArgumentParser(description="Download ENCODE data for specified cell lines.")
+    parser = argparse.ArgumentParser(description="Download ENCODE data.")
     parser.add_argument(
         "--cell-lines",
         type=str,
         default=",".join(DEFAULT_CELL_LINES),
-        help="Comma‑separated list of cell lines to download (e.g. GM12878,K562,HMEC)"
+        help="Comma-separated list of cell lines"
     )
     args = parser.parse_args()
     cell_lines = [cl.strip() for cl in args.cell_lines.split(",") if cl.strip()]
 
     setup_directories()
-    # Treat absence of CI_MODE as CI mode for test environments
-    ci_mode = os.environ.get("CI_MODE", "1") == "1"
     session = get_session_with_retry()
 
-    # ------------------------------------------------------------------
-    # Attempt real ENCODE download
-    # ------------------------------------------------------------------
     try:
         metadata = fetch_encode_metadata(cell_lines, session)
     except Exception as e:
         logger.error(f"Failed to retrieve ENCODE metadata: {e}")
-        if ci_mode:
-            logger.info("CI mode detected – falling back to synthetic data generation.")
-            generated_files = _generate_synthetic_raw(cell_lines)
-            # Record checksums for the synthetic files (they already have a checksums.csv,
-            # but we also write a unified checksums file here for consistency)
-            log_checksums_csv(generated_files)
-            logger.info("Synthetic data generation completed (fallback).")
-            return
-        else:
-            raise SystemExit("Failed to retrieve ENCODE metadata and CI_MODE=0 – aborting pipeline.")
-
-    if not metadata:
-        logger.error("No metadata could be retrieved for the requested cell lines.")
-        if ci_mode:
-            generated_files = _generate_synthetic_raw(cell_lines)
-            log_checksums_csv(generated_files)
-            logger.info("Synthetic fallback completed due to empty metadata.")
-            return
-        else:
-            raise SystemExit("No metadata and CI_MODE=0 – aborting.")
+        raise SystemExit(1)
 
     generated_files: List[Path] = []
 
     for entry in metadata:
         cl = entry["cell_line"]
-        # ----- RNA‑seq -----
+        # RNA-seq
         rna_uri = entry["rna"]["download_uri"]
         rna_tmp = RAW_DIR / f"{cl}_rna.tmp"
         rna_out = RAW_DIR / f"encode_counts_{cl}.csv"
-
         download_file(rna_uri, rna_tmp, session)
         process_rna_data(rna_tmp, rna_out)
         generated_files.append(rna_out)
         rna_tmp.unlink(missing_ok=True)
 
-        # ----- DNase/ATAC -----
+        # Accessibility
         dnase_uri = entry["dnase"]["download_uri"]
         dnase_tmp = RAW_DIR / f"{cl}_dnase.tmp"
         dnase_out = RAW_DIR / f"encode_peaks_{cl}.bed"
-
         download_file(dnase_uri, dnase_tmp, session)
         process_accessibility_data(dnase_tmp, dnase_out)
         generated_files.append(dnase_out)
         dnase_tmp.unlink(missing_ok=True)
 
-    # ----- Gene coordinates (TSS) -----
+    # Gene coordinates
     gene_coords_path = RAW_DIR / "gene_coords.bed"
-    try:
-        write_gene_coords_bed(gene_coords_path)
-    except Exception as e:
-        logger.error(f"Failed to download or write gene coordinates: {e}")
-        if ci_mode:
-            logger.info("CI mode: generating synthetic gene coordinates.")
-            # Synthetic gene coordinates already generated in fallback above,
-            # but ensure we have one.
-            genes_df = generate_gene_coordinates(num_genes=100, chrom="chr1")
-            with gene_coords_path.open("w") as bed_f:
-                for _, row in genes_df.iterrows():
-                    tss_start = int(row["tss"])
-                    tss_end = tss_start + 1
-                    bed_f.write(f"{row['chrom']}\t{tss_start}\t{tss_end}\t{row['gene_id']}\t0\t{row['strand']}\n")
-            logger.info("Synthetic gene_coords.bed written.")
-        else:
-            raise SystemExit("Failed to obtain gene coordinates and CI_MODE=0 – aborting.")
+    write_gene_coords_bed(gene_coords_path)
     generated_files.append(gene_coords_path)
 
-    # Record checksums
     log_checksums_csv(generated_files)
-
-    logger.info("All downloads and processing steps completed successfully.")
+    logger.info("All real ENCODE data downloaded and processed successfully.")
 
 if __name__ == "__main__":
     main()
