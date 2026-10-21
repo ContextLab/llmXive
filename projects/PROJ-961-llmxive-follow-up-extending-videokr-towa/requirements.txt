@@ -1,3 +1,5 @@
-# Project‑specific dependencies (beyond the platform‑provided packages)
-datasets
-huggingface_hub
+# Existing dependencies (numpy, pandas, etc.) are provided by the platform.
+# Additional third‑party packages required by the project:
+huggingface_hub>=0.20.0
+datasets>=2.0.0
+# The version bounds are liberal; any compatible release works.

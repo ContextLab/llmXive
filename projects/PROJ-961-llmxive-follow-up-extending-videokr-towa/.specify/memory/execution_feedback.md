@@ -25,13 +25,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py -> rc=1
 
-2026-10-21 17:35:52,554 - INFO - Pipeline started
-2026-10-21 17:35:52,554 - INFO - Running T013: Annotate graph...
-2026-10-21 17:35:53,489 - ERROR - Data files not found. Run download_data.py first.
+2026-10-21 17:37:22,352 - INFO - Pipeline started
+2026-10-21 17:37:22,352 - INFO - Running T013: Annotate graph...
+2026-10-21 17:37:23,292 - ERROR - Data files not found. Run download_data.py first.
 
 - python code/ingest/annotate_graph.py -> rc=1
 
-2026-10-21 17:35:53,919 - ERROR - Data files not found. Run download_data.py first.
+2026-10-21 17:37:23,725 - ERROR - Data files not found. Run download_data.py first.
 
 - python code/analysis/power_analysis.py -> rc=2
 
@@ -42,7 +42,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-961-llmxive-follow-up-extending-videokr-towa/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/code/analysis/model_lrt.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/unit/ -> rc=2
-andling.py _
+r-towa/tests/unit/test_t021_small_bin_handling.py _
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/tests/unit/test_t021_small_bin_handling.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
@@ -52,12 +52,11 @@ tests/unit/test_t021_small_bin_handling.py:3: in <module>
     from code.analysis.detect_threshold import detect_threshold, MIN_BIN_SIZE
 E   ImportError: cannot import name 'MIN_BIN_SIZE' from 'code.analysis.detect_threshold' (/home/runner/work/llmXive/llmXive/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/code/analysis/detect_threshold.py)
 =========================== short test summary info ============================
-ERROR tests/unit/test_download_data.py
 ERROR tests/unit/test_sensitivity.py
 ERROR tests/unit/test_setup_directories.py
 ERROR tests/unit/test_t021_small_bin_handling.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 0.83s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 3 errors in 0.64s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -77,7 +76,7 @@ tlib/_fontconfig_pattern.py:92
 ERROR tests/integration/test_pipeline.py
 ERROR tests/integration/test_t021_small_bins.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 2 errors in 1.15s ========================
+======================== 13 warnings, 2 errors in 0.80s ========================
 
 
 
