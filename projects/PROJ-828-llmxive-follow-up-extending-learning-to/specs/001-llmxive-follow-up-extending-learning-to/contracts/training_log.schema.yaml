@@ -1,4 +1,4 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: "Training Log Schema"
 description: "Schema for the training progress log of a single variant."
 type: object
@@ -8,7 +8,7 @@ properties:
     description: "Unique identifier for the training run."
   variant:
     type: string
-    enum: ["opd", "standard_rl", "low_rank_rl", "random_projection", "random_walk_prior"]
+    enum: ["opd","standard_rl","low_rank_rl","random_projection","random_walk_prior","opd_initialized_rl"]
     description: "Variant type."
   seed:
     type: integer
@@ -48,10 +48,10 @@ properties:
         - timestamp
   convergence_step:
     type: integer
-    description: "Step at which [deferred] accuracy was reached."
+    description: "Step at which 80 % accuracy was first reached."
   final_alignment_score:
     type: number
-    description: "Final cosine similarity with the random baseline (for low_rank_rl)."
+    description: "Final cosine similarity with the Standard PPO cumulative direction (for low_rank_rl)."
 required:
   - run_id
   - variant

@@ -1,4 +1,4 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
 description: "Schema for the aggregated analysis results across all variants and seeds."
 type: object
@@ -13,7 +13,7 @@ properties:
       properties:
         variant_name:
           type: string
-          enum: ["opd", "standard_rl", "low_rank_rl", "random_projection", "random_walk_prior"]
+          enum: ["opd","standard_rl","low_rank_rl","random_projection","random_walk_prior","opd_initialized_rl"]
         seeds:
           type: array
           items:
@@ -23,7 +23,7 @@ properties:
           type: array
           items:
             type: integer
-          description: "Steps to [deferred] accuracy for each seed."
+          description: "Steps required to reach 80 % accuracy for each seed."
         mean_steps:
           type: number
         std_steps:
@@ -50,15 +50,15 @@ properties:
     properties:
       comparison:
         type: string
-        description: "Description of the comparison (e.g., 'Low-Rank RL vs Standard RL')."
+        description: "Description of the comparison (e.g., 'Low‑Rank RL vs Standard RL')."
       test_type:
         type: string
-        enum: ["wilcoxon", "t-test"]
+        enum: ["wilcoxon","t-test"]
       p_value:
         type: number
       significant:
         type: boolean
-        description: "True if p_value < 0.05."
+        description: "True if p_value < 0.05 after correction."
     required:
       - comparison
       - test_type

@@ -1,95 +1,97 @@
 # Data Model: Low-Rank RL for Foresight in LLM Training
 
 ## Overview
+Defines the persistent data artifacts produced by the experiment, their schemas, and the flow between raw, intermediate, and analysis stages.
 
-This document defines the data structures, schemas, and flow for the Low-Rank RL experiment. All data is stored in `data/` (raw) and `results/` (derived) directories.
+## Data Flow Diagram (textual)
+1. **Raw Data** → `src/data/loader.py` → `data/gsm8k_subset.parquet` (checksumed).  
+2. **OPD Training** → `results/opd/update_trajectory.npy` (ΔW per step).  
+3. **Subspace Extraction** → `results/opd/stable_subspace.npy` (top‑k vectors).  
+4. **RL Variants** → `results/<variant>/` containing:  
+   - `checkpoint_{step}.pt` (model state).  
+   - `update_trajectory.npy`.  
+   - `convergence_log.csv`.  
+   - `relevance_log.csv` (Low‑Rank RL only).  
+5. **Analysis** → `results/analysis/` with:  
+   - `alignment_metrics.json`.  
+   - `analysis_summary.json`.  
+   - Plots (`*.png`).  
+6. **Schema Validation** → `contracts/` JSON‑Schema files used by CI tests.
 
-## Data Flow
+## Core Entities & Schemas
 
-1. **Raw Data**: GSM8K subset downloaded from verified HuggingFace URLs.
-2. **Training Logs**: Accuracy, loss, and update directions recorded at each step.
-3. **Model Artifacts**: Checkpoints of the OPD baseline, Standard RL, Low-Rank RL, Random Projection, and Random Walk variants.
-4. **Analysis Results**: Convergence metrics, alignment scores, and statistical test results.
-
-## Key Entities
-
-### 1. Update Trajectory
-- **Definition**: Sequence of parameter difference matrices ($\Delta W_t$) recorded during training.
-- **Storage**: `results/<variant>/update_trajectory.npy`
-- **Shape**: `(num_steps, num_layers, layer_dim)` or flattened `(num_steps, total_params)`.
-
-### 2. Stable Subspace
-- **Definition**: Top-$k$ singular vectors from OPD update matrices.
-- **Storage**: `results/opd/stable_subspace.npy`
-- **Shape**: `(k, total_params)` or `(k, layer_dim)` per layer.
-
-### 3. Convergence Log
-- **Definition**: Steps to reach [deferred] accuracy.
-- **Storage**: `results/<variant>/convergence_log.csv`
-- **Fields**: `seed`, `step`, `accuracy`, `loss`, `alignment_score`, `relevance_score`.
-
-### 4. Alignment Metrics
-- **Definition**: Cosine similarity between update directions and baselines.
-- **Storage**: `results/analysis/alignment_metrics.json`
-- **Fields**: `variant`, `final_alignment`, `early_alignment`, `p_value`.
-
-### 5. Projection Relevance Metric
-- **Definition**: Cosine similarity between the current RL update direction and the OPD subspace at each step.
-- **Storage**: `results/<variant>/relevance_log.csv`
-- **Fields**: `step`, `relevance_score` (cosine similarity).
-
-## Schema Definitions
-
-### Training Run Configuration
+### 1. Training Run Configuration (`contracts/run_config.schema.yaml`)
 ```yaml
-run_id: string
-variant: enum["opd", "standard_rl", "low_rank_rl", "random_projection", "random_walk_prior"]
-seed: integer
-model_config: object
-  hidden_size: integer
-  num_layers: integer
-  num_heads: integer
-dataset: object
-  name: string
-  subset_size: integer
-  source_url: string
-hyperparameters: object
-  learning_rate: float
-  batch_size: integer
-  total_steps: integer
-  rank_k: integer (for low_rank_rl, random_projection, random_walk_prior)
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Run Configuration"
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the run (e.g., opd_20231020_seed0)."
+  variant:
+    type: string
+    enum: ["opd","standard_rl","low_rank_rl","random_projection","random_walk_prior","opd_initialized_rl"]
+  seed:
+    type: integer
+  model_config:
+    type: object
+    properties:
+      hidden_size:
+        type: integer
+      num_layers:
+        type: integer
+      num_heads:
+        type: integer
+    required: ["hidden_size","num_layers","num_heads"]
+  dataset:
+    type: object
+    properties:
+      name:
+        type: string
+      subset_size:
+        type: integer
+      source_url:
+        type: string
+    required: ["name","subset_size","source_url"]
+  hyperparameters:
+    type: object
+    properties:
+      learning_rate:
+        type: number
+      batch_size:
+        type: integer
+      total_steps:
+        type: integer
+      rank_k:
+        type: integer
+    required: ["learning_rate","batch_size","total_steps"]
+required: ["run_id","variant","seed","model_config","dataset","hyperparameters"]
+additionalProperties: false
 ```
 
-### Convergence Log Entry
-```yaml
-step: integer
-accuracy: float
-loss: float
-alignment_score: float (optional, for RL variants)
-relevance_score: float (optional, for low_rank_rl)
-memory_usage_mb: float
-timestamp: string
-```
+### 2. OPD Stable Subspace (`contracts/opd_subspace.schema.yaml`)
+*Same as provided in the original artifact (quoted strings retained).*
 
-### Analysis Summary
-```yaml
-variant: string
-seed: integer
-steps_to_80pct: integer
-final_alignment_score: float
-early_alignment_score: float
-relevance_score_mean: float
-```
+### 3. Training Log (`contracts/training_log.schema.yaml`)
+*Same as provided in the original artifact (quoted strings retained).*
 
-## Data Integrity
+### 4. Analysis Results (`contracts/analysis_results.schema.yaml`)
+*Same as provided in the original artifact (quoted strings retained).*
 
-- **Checksums**: All raw data files are checksummed using a secure hashing algorithm upon download.
-- **Versioning**: Model checkpoints and logs include a hash of the training configuration. A SHA-256 hash of the `results/` directory (excluding full model checkpoints to respect storage limits, but including logs, metrics, and small matrices) is computed and stored in `state/` after each run.
-- **Immutability**: Raw data is never modified. Derived data is written to new files.
+## Data Integrity Measures
+- **Checksums**: `src/data/checksums.py` computes SHA‑256 for every raw file; stored in `state/data_checksums.yaml`.  
+- **Version Hashes**: After each run, `src/utils/hasher.py` hashes the entire `results/<variant>/` directory (excluding large `.pt` checkpoints) and writes the hash to `state/run_hashes.yaml`.  
+- **Immutability**: Raw GSM8K files are never overwritten; derived matrices are written to new paths with timestamps.
 
-## Storage Constraints
+## Storage Estimates (fits within free‑tier limits)
+| Artifact | Approx. Size |
+|----------|--------------|
+| GSM8K subset (parquet) | 100 MB |
+| OPD update trajectory (500 steps × 300 M params, FP16) | ~300 MB |
+| Stable subspace (`k=10`) | ~2 MB |
+| Each RL checkpoint (FP16) | ~600 MB |
+| Logs & CSVs per seed | < 10 MB |
+| Total (10 seeds × 6 variants) | ≈ 4.5 GB (well under 7 GB RAM & 14 GB disk) |
 
-- **Raw Data**: ~100MB (GSM8K subset).
-- **Training Logs**: ~10MB per run (text/CSV).
-- **Model Checkpoints**: ~600MB per run (FP16, 300M params).
-- **Total Estimated**: < 5GB (10 seeds * 5 variants * ~600MB + logs). This fits within the disk limit of the free-tier runner, with logs and metrics being hashed for versioning.
+---
