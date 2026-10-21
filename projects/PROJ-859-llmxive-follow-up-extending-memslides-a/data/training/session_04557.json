@@ -1,0 +1,96 @@
+{
+  "trace_id": "training_42_04557",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 7,
+  "tool_sequence": [
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_text",
+    "format_text",
+    "format_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 66.7806,
+        "y": 11.2692,
+        "width": 95.4696,
+        "height": 31.9395,
+        "data_points": 18.623
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 69.5005,
+        "y": 80.3487,
+        "width": 76.7612,
+        "height": 86.7657,
+        "data_points": 3.1865
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 54.5128,
+        "y": 0.6445,
+        "width": 70.2756,
+        "height": 28.0495,
+        "data_points": 84.0005
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 51.0688,
+        "y": 38.9989,
+        "length": 38.907
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 90.9294,
+        "x": 2.0803,
+        "y": 74.0556
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 47.3907,
+        "x": 5.1503,
+        "y": 26.7817
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 86.6768,
+        "x": 53.5059,
+        "y": 11.2714
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.004242,
+    "tool_repetition_freq": 0.571429,
+    "arg_semantic_variance": 939.289911
+  },
+  "final_state": {
+    "dominant_tool": "insert_chart",
+    "slide_element_count": 3,
+    "layout_hash": "42-4557-insert_chart"
+  }
+}

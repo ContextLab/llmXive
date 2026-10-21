@@ -1,9 +1,60 @@
 T000:
-  c: false
-  h: 4df927a25141f42c407ad829f8fa4c2b47274de9ae12033e49efd681576efe99
-  r: "The required file `data/processed/validation_proxy.json` is missing, so no KS\
-    \ test results or documented limitation are present. Without this JSON artifact\
-    \ the task\u2019s output and schema requirements are not satisfied."
+  c: true
+  h: 156cd2db9fb56ed52fb1e0246d4661d85bc2403ffd276fb5f0fb71246c51c1e6
+  r: 'The artifact `data/processed/validation_proxy.json` exists, is non-empty, and
+    contains the required schema fields (`ks_statistic`, `p_value`, `is_valid_shift`)
+    plus the constraint-mandated `reason: "no_proxy_available"` documentation of the
+    limitation. The execution log confirms the script ran (exit 0) and produced this
+    exact output, and the no-proxy case is explicitly permitted by the task''s constraint.'
+  sig: 90e5bc5e18bc7203c49533b4d6640506b6e2fd4d98b2e71c46c72db12b790d25
+T001:
+  c: true
+  h: 6092ba68015a8f7b36ccbfb81dc97e306f5bc3fceadf4e4f01a2123b1cde6eb7
+  r: The `data/training/` directory contains 5000 session files (collector-confirmed
+    count and directory hash), each with valid tool sequences, per-step arguments,
+    structural metrics, and a final slide state, matching the seed=42, min_length=5/max_length=20
+    parameters. The `trace_integrity.log` (3MB) logs exact tool sequences and arg
+    variances per trace, and its entries match the session JSON contents (e.g., training_42_00001,
+    00010, 00035), with a historical execution record showing the generation script
+    exited 0.
+  sig: fbbaf15fdca954c1216b988ce87bfedcabd381796c95afc9827e6d75394e534f
+T002:
+  c: true
+  h: 9b2613b0b12e8baeeaee7143836b6e4cd134bfe3b7419e51b9f8f052bc2ac4a8
+  r: 'The directory `data/held_out/` contains 5000 session JSON files (5001 entries
+    including .gitkeep), and the execution log confirms `generate_held_out.py` ran
+    successfully writing 5000 sessions with seed=43 and variance_multiplier=1.5. Sampled
+    files show valid tool sequences, per-call arguments, structural metrics, and final
+    states, with `seed: 43` and `variance_multiplier: 1.5` recorded in each, and entropy/repetition
+    varying across sessions as required.'
+  sig: 801a201555b705836a8b5dbd45ac6cea4e9dcd7f4f38754485e6d80291aaead4
+T003:
+  c: true
+  h: 7187a62eaaca4ef4fb392735347a253624cec76468c59ff61e9b6862af0e8256
+  r: The required artifact `data/raw/logs/trace_integrity.log` exists (3,078,917 bytes)
+    and contains per-session structural metadata (trace_id, seed, split, tool sequence,
+    arg_variance, entropy, repetition, length) for training sessions. The validation
+    script `code/analysis/validate_trace_integrity.py` executed with exit code 0 and
+    reported "5000 training + 5000 held-out sessions all present in integrity log,"
+    confirming the log covers all sessions and the pipeline did not fail.
+  sig: 38a4102d2896c25055917794550fcf744a4b4cca97acb775ab71d6a0e705de82
+T004a:
+  c: true
+  h: cde1de3f0c1fb1ef474449891a5804317ad4bb32e6cb54819993a1133ee9b6b5
+  r: "The file `contracts/trace.schema.yaml` exists (1323 bytes) and contains a well-formed\
+    \ JSON Schema (draft-07) defining multi-turn tool-execution traces with required\
+    \ `exact_tool_sequence` and `tool_calls` fields, plus optional session metadata,\
+    \ argument variance, and final slide state \u2014 matching the task's requirement\
+    \ for a trace contract supporting the schema described in the spec."
+  sig: ca010a49cf6f73e75dd1f55c6321d46ff6f916c79e6ab575b426224fd29fed50
+T004b:
+  c: true
+  h: ea201adf32d87755956cdb3b294c68a4845071b64ac9ca7dd90025ec9b0005d7
+  r: The file `contracts/metrics.schema.yaml` exists (500 bytes) and is a valid JSON-Schema-style
+    YAML defining the required structural metrics (session_id, sequence_entropy, tool_repetition_frequency,
+    argument_semantic_variance) with sensible types and constraints, matching the
+    task's requirement for a metrics schema contract.
+  sig: 8f93d105f96ae806629c4be24ff2cd3fd18807704cb0fdcd458cc9ac5c46faec
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

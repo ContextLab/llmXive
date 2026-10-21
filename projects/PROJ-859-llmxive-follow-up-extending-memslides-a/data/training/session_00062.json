@@ -1,0 +1,113 @@
+{
+  "trace_id": "training_42_00062",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "resize_element",
+    "apply_theme",
+    "format_text",
+    "delete_element",
+    "format_text",
+    "format_text",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 34.1808,
+        "height": 88.7931
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 16.0904,
+        "saturation": 7.5002
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 94.1834,
+        "x": 97.8042,
+        "y": 33.7951
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 98.5276
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 89.3226,
+        "x": 70.4505,
+        "y": 43.1323
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 65.3635,
+        "x": 60.7318,
+        "y": 43.42
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 5.3556,
+        "saturation": 33.1095
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 97.4398,
+        "saturation": 40.928
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 55.4112,
+        "saturation": 92.5574
+      }
+    },
+    {
+      "step": 9,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 54.0125,
+        "x": 66.0598,
+        "y": 29.7401
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.19355,
+    "tool_repetition_freq": 0.6,
+    "arg_semantic_variance": 864.464402
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 4,
+    "layout_hash": "42-62-apply_theme"
+  }
+}

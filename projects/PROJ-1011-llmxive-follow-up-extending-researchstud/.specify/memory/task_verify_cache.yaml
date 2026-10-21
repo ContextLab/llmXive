@@ -1,32 +1,42 @@
 T001:
-  c: false
-  h: d96b10b9734151d232a23a08bb1bd41d1b7caa87b0202809d743b2c7d7ec96d8
-  r: The `tests/test_scaffold_directories.py` test failed, reporting a missing required
-    directory (`.../projects/PROJ-1011-.../projects/PROJ-1011-...`). Although `code/`,
-    `data/`, and `tests/` exist, the expected project scaffold (including the nested
-    `projects` folder) is not fully created, so the layout requirement is not met.
-  sig: a391aa80c3c50431fcc9f782fe57ef966612aac6d56aef76187380f9f7a039a3
+  c: true
+  h: 11ea7072e66140afcb276233e95f29ed2f32db695636d4ead4acdcd006245d7e
+  r: The project root `projects/PROJ-1011-llmxive-follow-up-extending-researchstud/`
+    exists with non-empty `code/`, `data/`, and `tests/` directories (each containing
+    multiple real files, not just `.gitkeep` markers). The verification test `tests/test_scaffold_directories.py::test_scaffold_directories`
+    passed (exit 0, 1 passed), and `code/scaffold.py` ran successfully verifying 16
+    directories, directly matching the task's stated verification criterion.
+  sig: d563c096f7be5d6cadd0cb6ba9e55a8d897e0128daa114d0784d62622e9afee3
 T002:
-  c: false
-  h: 4ffbe0165563680850179b2943a80167e519f19c7ee38f10ec033b1092c9e612
-  r: "Checked `requirements.txt` (exists) and `run_pipeline.sh` (exists, executable,\
-    \ ran successfully). The `requirements.txt` lists version ranges with `>=` instead\
-    \ of exact pinned versions for Python\u202F3.11, violating the \u201Cpinned dependencies\u201D\
-    \ requirement. The file must be updated to use exact version pins (e.g., `numpy==1.24.0`)."
-  sig: 33fd4a279e774308d3a2a370f6056c5629cdc1b1e75b9228ae303f5b6267a3af
+  c: true
+  h: 51eeb91e552045f4316cbb64a3d93e7e3c3987fc454e5813aa020f458b6edab8
+  r: 'Both artifacts exist with substantive content: `requirements.txt` contains fully
+    pinned Python 3.11 dependencies (all `==` pins, no ranges), and `run_pipeline.sh`
+    is a real orchestration script with argument parsing, health-check, and stage
+    invocations. The test log shows `test_requirements_present` and `test_run_pipeline_executable`
+    both passed, and the dry-run execution log confirms the script runs successfully
+    with exit 0.'
+  sig: 942a5a68f8b4736e81bf0299d2f5e2b9b3feb085f900b0da6536b6ab79159795
 T003:
   c: true
-  h: 5ad36abc98f6dfed0af66725f45e3fe0e6bc7a7e408a8e32b519a150446fc84d
-  r: "Checked the `quickstart.md` file (3555\u202Fbytes) at `specs/001-llmxive-follow-up-extending-researchstud/quickstart.md`;\
-    \ it contains the required line `./run_pipeline.sh --stage all` as specified."
-  sig: 125756e68a5017e534946b16c5172e7aaf1720d9f9651085abdc8aac026227b4
+  h: cfc34f448d9c9ffccca415c99662d58c441030e19f951c9f0ea2748817697fe8
+  r: The `quickstart.md` file exists (3555 bytes, collector-confirmed at the canonical
+    spec path) and contains the exact required command `./run_pipeline.sh --stage
+    all` near the top, plus substantive, non-placeholder quickstart content (prerequisites,
+    installation, pipeline steps, verification, troubleshooting) consistent with the
+    project spec.
+  sig: 077ed329313a3adbfa67dc58eb6a889b73d8a5144e37d302d9dbe653a83be44c
 T004:
   c: false
-  h: 832213657baeb52901ee3bb151f7a41b6429fde23dbcbc4b6e0b4792614780e1
-  r: "The three required data directories are present, but the `data/CHECKSUMS` manifest\
-    \ file is missing, causing the provided test `test_data_dirs_and_checksum` to\
-    \ fail. The task must add a non\u2011empty `CHECKSUMS` file in the `data/` directory."
-  sig: fc29264273ca7ee11571f4457277e57c11f6f1219e9a99980a244eb29f9779ee
+  h: d6839615be7280e5f42405a375ec581014c65a7d9f1fc304adaf3dc4a5c096bd
+  r: "The three data directories exist (each with a `.gitkeep`), but the required\
+    \ `data/CHECKSUMS` manifest is not confirmed present in the collected evidence,\
+    \ and the task's own verification test `test_data_dirs_and_checksum` FAILED (exit\
+    \ 1) with `FileExistsError: .../data/CHECKSUMS` \u2014 the toolkit's `paths.data()`\
+    \ helper tries to mkdir a parent that collides with the existing CHECKSUMS file.\
+    \ The implementer must fix the path handling (or ensure CHECKSUMS exists and the\
+    \ test passes) and provide evidence of a passing verification run."
+  sig: 56c930c18f3ecc67d227856c66f14131dffe2ff467ed00d26c3945f38be7d4ff
 T005:
   c: true
   h: ed9846a7e24e79dd7d5041645dad8a862e67d8f32c6fdbef5aa899e330844fc7
@@ -35,14 +45,16 @@ T005:
     \ fulfilling the seed\u2011pinning requirement verified by the test."
   sig: 5df60079e8c4bf153456efca6896a3912b6bd88216f4ac212826fbb466875026
 T007:
-  c: false
-  h: f8e4600a61a8f0aaf6b954aabcf3cee311b181392094670cd4a611f69693ff73
-  r: "The repository only contains `code/models/abstract.py`; the required `pattern_card.py`,\
-    \ `proposal.py`, and `rating.py` data\u2011model modules are absent, and the JSON\u2011\
-    Schema files under `contracts/` that the tests load are also missing, causing\
-    \ all `test_model_classes` cases to fail. These missing files must be added and\
-    \ conform to the test\u2019s schema\u2011validation expectations."
-  sig: 2a126a8d217cf043a306e8362e6d7a47826ac5870bbf9351f5a88bd131912568
+  c: true
+  h: 200b02ea7286307b878533ce78ad5fdfd5610e7078663657cb8de4380bd3f309
+  r: "The verification test `tests/unit/test_model_classes.py` was executed by the\
+    \ platform (exit 0, 6 passed) and imports each required class (Abstract, PatternCard,\
+    \ Proposal, Rating), validating schema conformance via jsonschema plus group/rating\
+    \ constraints \u2014 exactly the task's stated verification. The one file shown\
+    \ in full (`code/models/abstract.py`) is a real, non-stub data model with serialization,\
+    \ hashing, and round-trip logic consistent with the spec's required metadata fields\
+    \ (title, abstract_text, venue, acceptance_status)."
+  sig: bfff87d376a50e4910857b3707f55b21f31df7af656675de0f840296160b6f7b
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

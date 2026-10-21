@@ -1,0 +1,130 @@
+{
+  "trace_id": "held_out_43_00082",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 12,
+  "tool_sequence": [
+    "apply_theme",
+    "insert_text",
+    "insert_text",
+    "update_layout",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "delete_element",
+    "apply_theme",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 70.6726,
+        "saturation": 14.2126
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 3.7224,
+        "y": 15.8469,
+        "length": 34.9391
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 62.9371,
+        "y": 68.6002,
+        "length": 96.3641
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 16.7855,
+        "padding": 14.1568
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 2.471,
+        "saturation": 33.0865
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 56.4432,
+        "saturation": 12.0331
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 83.0714,
+        "saturation": 85.7941
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 99.7112,
+        "saturation": 65.1627
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 45.5294,
+        "saturation": 30.8944
+      }
+    },
+    {
+      "step": 9,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 66.5318
+      }
+    },
+    {
+      "step": 10,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 19.505,
+        "saturation": 16.4648
+      }
+    },
+    {
+      "step": 11,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 29.3644,
+        "padding": 55.5295
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.118743,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 866.608923
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 9,
+    "layout_hash": "43-82-apply_theme"
+  },
+  "variance_multiplier": 1.5
+}

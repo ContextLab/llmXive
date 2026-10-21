@@ -1,0 +1,76 @@
+{
+  "trace_id": "training_42_03081",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 5,
+  "tool_sequence": [
+    "insert_chart",
+    "insert_text",
+    "insert_chart",
+    "insert_text",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 97.2862,
+        "y": 61.8353,
+        "width": 22.2256,
+        "height": 91.3854,
+        "data_points": 47.129
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 69.7897,
+        "y": 14.7485,
+        "length": 76.8511
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 65.5633,
+        "y": 49.51,
+        "width": 47.825,
+        "height": 84.997,
+        "data_points": 17.8604
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 18.5484,
+        "y": 98.5037,
+        "length": 64.2274
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 51.44,
+        "y": 98.9876,
+        "width": 52.9703,
+        "height": 43.401,
+        "data_points": 28.2558
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.673012,
+    "tool_repetition_freq": 0.6,
+    "arg_semantic_variance": 718.108011
+  },
+  "final_state": {
+    "dominant_tool": "insert_chart",
+    "slide_element_count": 2,
+    "layout_hash": "42-3081-insert_chart"
+  }
+}

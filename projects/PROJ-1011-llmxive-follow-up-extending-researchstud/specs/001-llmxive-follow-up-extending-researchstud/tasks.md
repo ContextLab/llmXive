@@ -7,10 +7,10 @@
 
 ## Phase 1 – Project scaffolding
 
-- [ ] **T001** Create project layout (`projects/PROJ‑1011‑llmxive‑follow‑up‑extending‑researchstud/`, `code/`, `data/`, `tests/`).  
+- [X] **T001** Create project layout (`projects/PROJ‑1011‑llmxive‑follow‑up‑extending‑researchstud/`, `code/`, `data/`, `tests/`).  
   *Verification*: `test_scaffold_directories` asserts existence of all top‑level folders.
 
-- [ ] **T002** Add `requirements.txt` (pinned Python 3.11 dependencies) and `run_pipeline.sh`.  
+- [X] **T002** Add `requirements.txt` (pinned Python 3.11 dependencies) and `run_pipeline.sh`.  
   *Verification*: `test_requirements_present` checks file existence and that `run_pipeline.sh` is executable.
 
 - [X] **T003** Add `quickstart.md` with the command `./run_pipeline.sh --stage all`.  
@@ -25,7 +25,7 @@
 - [ ] **T006** Add state‑management helper (`code/utils/update_state.py`) for artifact hash tracking.  
   *Verification*: `test_state_update` runs the helper on a dummy file and asserts the hash is recorded in `state/...`.
 
-- [ ] **T007** Define data‑model classes (`code/models/abstract.py`, `pattern_card.py`, `proposal.py`, `rating.py`).  
+- [X] **T007** Define data‑model classes (`code/models/abstract.py`, `pattern_card.py`, `proposal.py`, `rating.py`).  
   *Verification*: `test_model_classes` imports each class and validates schema‑conformance via `jsonschema`.
 
 - [ ] **T008** Create error‑handling wrapper that **fails loudly** on data‑fetch errors and logs a model‑fallback switch.   <!-- FAILED-IN-EXECUTION: code/error_handling_wrapper.py exit=1 -->

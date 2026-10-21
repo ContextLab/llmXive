@@ -1,0 +1,130 @@
+{
+  "trace_id": "training_42_02137",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "insert_image",
+    "delete_element",
+    "delete_element",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "resize_element",
+    "insert_text",
+    "insert_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 16.8689,
+        "y": 79.3693,
+        "width": 35.027,
+        "height": 22.2099
+      }
+    },
+    {
+      "step": 1,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 50.9197
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 42.2425
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 72.7179,
+        "y": 63.7424,
+        "width": 55.0608,
+        "height": 91.2456
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 10.5816,
+        "y": 48.3788,
+        "width": 5.4663,
+        "height": 11.5625
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 39.9197,
+        "y": 45.9039,
+        "width": 79.7191,
+        "height": 65.6445
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 35.407,
+        "y": 89.2419,
+        "width": 19.4541,
+        "height": 26.0449
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 78.4294,
+        "height": 32.6131
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 21.2536,
+        "y": 89.0835,
+        "length": 95.5934
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 20.125,
+        "y": 21.6687,
+        "length": 96.587
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 9.0018,
+        "y": 61.5937,
+        "length": 11.5622
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.240684,
+    "tool_repetition_freq": 0.636364,
+    "arg_semantic_variance": 828.341067
+  },
+  "final_state": {
+    "dominant_tool": "insert_image",
+    "slide_element_count": 12,
+    "layout_hash": "42-2137-insert_image"
+  }
+}

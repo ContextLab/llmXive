@@ -1,0 +1,125 @@
+{
+  "trace_id": "training_42_02330",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "update_layout",
+    "resize_element",
+    "delete_element",
+    "resize_element",
+    "resize_element",
+    "insert_image",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 99.959,
+        "x": 34.1158,
+        "y": 0.5741
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 22.8511,
+        "x": 55.4642,
+        "y": 69.2202
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 8.0785,
+        "x": 52.4157,
+        "y": 30.2067
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 47.0585,
+        "x": 61.7574,
+        "y": 8.6338
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 54.0647,
+        "padding": 25.0886
+      }
+    },
+    {
+      "step": 5,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 55.9089,
+        "height": 51.2127
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 45.6039
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 52.4191,
+        "height": 8.84
+      }
+    },
+    {
+      "step": 8,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 55.3425,
+        "height": 6.9083
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 49.9891,
+        "y": 20.928,
+        "width": 75.4452,
+        "height": 93.9954
+      }
+    },
+    {
+      "step": 10,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 95.481,
+        "x": 9.3316,
+        "y": 32.6945
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.366711,
+    "tool_repetition_freq": 0.545455,
+    "arg_semantic_variance": 748.481257
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 10,
+    "layout_hash": "42-2330-format_text"
+  }
+}

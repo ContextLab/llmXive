@@ -1,0 +1,71 @@
+{
+  "trace_id": "training_42_02246",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 5,
+  "tool_sequence": [
+    "apply_theme",
+    "format_text",
+    "insert_text",
+    "format_text",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 79.1345,
+        "saturation": 88.0278
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 65.9573,
+        "x": 26.06,
+        "y": 68.6868
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 25.3935,
+        "y": 46.5078,
+        "length": 98.737
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 57.6336,
+        "x": 76.3678,
+        "y": 9.1112
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 36.5847,
+        "y": 28.1927,
+        "width": 44.9226,
+        "height": 37.9645,
+        "data_points": 34.2381
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.332179,
+    "tool_repetition_freq": 0.2,
+    "arg_semantic_variance": 620.644412
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 8,
+    "layout_hash": "42-2246-format_text"
+  }
+}

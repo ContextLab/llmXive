@@ -1,0 +1,212 @@
+{
+  "trace_id": "held_out_43_02806",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "insert_chart",
+    "format_text",
+    "delete_element",
+    "insert_chart",
+    "insert_chart",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "insert_chart",
+    "format_text",
+    "format_text",
+    "format_text",
+    "insert_chart",
+    "apply_theme",
+    "delete_element",
+    "format_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 46.1326,
+        "y": 14.9708,
+        "width": 39.6676,
+        "height": 42.8376
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 48.8858,
+        "x": 27.8217,
+        "y": 19.7831
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 72.4861
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 73.7348,
+        "y": 23.1433,
+        "width": 18.055,
+        "height": 41.3078
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 67.694,
+        "y": 34.8757,
+        "width": 19.5721,
+        "height": 23.8927
+      }
+    },
+    {
+      "step": 5,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 43.8227
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 35.9058
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 17.2053
+      }
+    },
+    {
+      "step": 8,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 42.417,
+        "height": 4.979
+      }
+    },
+    {
+      "step": 9,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 92.4396,
+        "height": 31.3128
+      }
+    },
+    {
+      "step": 10,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 82.0051,
+        "height": 3.254
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 93.6868,
+        "y": 53.3368,
+        "width": 76.8974,
+        "height": 55.0282
+      }
+    },
+    {
+      "step": 12,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 71.8157,
+        "x": 62.7382,
+        "y": 7.9865
+      }
+    },
+    {
+      "step": 13,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 33.1149,
+        "x": 94.2926,
+        "y": 30.6337
+      }
+    },
+    {
+      "step": 14,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 3.6247,
+        "x": 46.2327,
+        "y": 3.2277
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 49.2617,
+        "y": 82.5358,
+        "width": 18.2103,
+        "height": 46.0641
+      }
+    },
+    {
+      "step": 16,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 16.6826,
+        "saturation": 95.9189
+      }
+    },
+    {
+      "step": 17,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 60.3537
+      }
+    },
+    {
+      "step": 18,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 35.6297,
+        "x": 22.423,
+        "y": 80.6365
+      }
+    },
+    {
+      "step": 19,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 62.4507,
+        "x": 34.5886,
+        "y": 96.4955
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.488694,
+    "tool_repetition_freq": 0.75,
+    "arg_semantic_variance": 731.573274
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 5,
+    "layout_hash": "43-2806-format_text"
+  },
+  "variance_multiplier": 1.5
+}

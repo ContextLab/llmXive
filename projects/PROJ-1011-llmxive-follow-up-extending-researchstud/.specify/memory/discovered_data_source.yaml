@@ -1,10 +1,11 @@
 status: none
-intent: Scientific article abstract corpus OpenReview OpenAlex python package dataset
+intent: Nature Climate Change Health Affairs arXiv abstracts acceptance status dataset
+  python package dataset
 required_fields:
 - title
 - abstract
 - venue
 - acceptance_status
-cache_key: 8269bc7e2d6dcf1e9ebb8dcac914fc675ba037cce832275a84f8f7987ac48c9d
-searched_at: '2026-10-19T09:45:31.898126+00:00'
+cache_key: d2f8d686a8606dbde7afa2d7165404b1e290f33dc598c0b93704db17074bea83
+searched_at: '2026-10-21T18:38:23.549769+00:00'
 retry_count: 1

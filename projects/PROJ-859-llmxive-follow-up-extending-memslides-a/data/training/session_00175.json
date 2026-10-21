@@ -1,0 +1,115 @@
+{
+  "trace_id": "training_42_00175",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_chart",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 95.2818,
+        "y": 23.157,
+        "width": 21.5647,
+        "height": 68.146
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 14.0863,
+        "y": 71.8555,
+        "width": 99.3417,
+        "height": 50.162
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 99.2279,
+        "y": 60.8739,
+        "width": 52.3287,
+        "height": 76.8636
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 44.748,
+        "y": 13.1198,
+        "width": 29.0842,
+        "height": 62.3471,
+        "data_points": 94.0141
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 4.0013,
+        "y": 71.2762,
+        "length": 68.2873
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 23.9111,
+        "y": 99.7009,
+        "length": 60.6877
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 95.8016,
+        "y": 56.6901,
+        "length": 99.4405
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 9.7406,
+        "y": 1.4942,
+        "length": 76.6317
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 30.9542,
+        "x": 86.7534,
+        "y": 79.7383
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.21489,
+    "tool_repetition_freq": 0.555556,
+    "arg_semantic_variance": 984.703734
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 4,
+    "layout_hash": "42-175-insert_text"
+  }
+}

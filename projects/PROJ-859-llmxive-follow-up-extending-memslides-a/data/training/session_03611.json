@@ -1,0 +1,105 @@
+{
+  "trace_id": "training_42_03611",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "delete_element",
+    "update_layout",
+    "insert_image",
+    "format_text",
+    "format_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 18.2512,
+        "height": 17.1774
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 21.993,
+        "height": 23.7456
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 82.8589,
+        "height": 30.0905
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 5.1258
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 91.3928,
+        "padding": 13.5332
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 67.4298,
+        "y": 53.5978,
+        "width": 92.0493,
+        "height": 42.1478
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 62.9556,
+        "x": 78.8269,
+        "y": 46.9378
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 75.0714,
+        "x": 97.9124,
+        "y": 26.6818
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 73.3674,
+        "x": 39.4511,
+        "y": 38.8736
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.464816,
+    "tool_repetition_freq": 0.444444,
+    "arg_semantic_variance": 795.261072
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 5,
+    "layout_hash": "42-3611-resize_element"
+  }
+}

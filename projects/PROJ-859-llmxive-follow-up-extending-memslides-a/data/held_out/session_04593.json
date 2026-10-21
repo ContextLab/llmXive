@@ -1,0 +1,203 @@
+{
+  "trace_id": "held_out_43_04593",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "delete_element",
+    "apply_theme",
+    "insert_text",
+    "resize_element",
+    "update_layout",
+    "insert_text",
+    "delete_element",
+    "apply_theme",
+    "format_text",
+    "insert_text",
+    "insert_text",
+    "apply_theme",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "format_text",
+    "insert_image",
+    "format_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 13.7199
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 52.7563,
+        "saturation": 92.2884
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 50.5607,
+        "y": 88.7028,
+        "length": 50.7207
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 55.8022,
+        "height": 37.4472
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 58.0821,
+        "padding": 23.063
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 10.7299,
+        "y": 92.1633,
+        "length": 1.2912
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 68.9665
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 85.3637,
+        "saturation": 18.5592
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 28.109,
+        "x": 45.316,
+        "y": 20.5941
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 71.7315,
+        "y": 0.3572,
+        "length": 61.3069
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 9.0461,
+        "y": 93.7106,
+        "length": 6.5268
+      }
+    },
+    {
+      "step": 11,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 63.8284,
+        "saturation": 49.4026
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 4.4045,
+        "y": 22.0394,
+        "length": 21.8705
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 33.9349,
+        "y": 54.9398,
+        "length": 1.6435
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 4.5354,
+        "y": 4.1473,
+        "length": 26.6452
+      }
+    },
+    {
+      "step": 15,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 82.0613,
+        "x": 93.8905,
+        "y": 6.4402
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 64.1414,
+        "y": 59.7315,
+        "width": 39.4755,
+        "height": 83.5056
+      }
+    },
+    {
+      "step": 17,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 52.9466,
+        "x": 47.267,
+        "y": 5.7196
+      }
+    },
+    {
+      "step": 18,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 52.7828,
+        "x": 97.7539,
+        "y": 12.2027
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.689245,
+    "tool_repetition_freq": 0.631579,
+    "arg_semantic_variance": 915.363624
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 5,
+    "layout_hash": "43-4593-insert_text"
+  },
+  "variance_multiplier": 1.5
+}

@@ -1,0 +1,209 @@
+{
+  "trace_id": "training_42_03667",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "insert_text",
+    "insert_text",
+    "delete_element",
+    "insert_chart",
+    "insert_chart",
+    "delete_element",
+    "delete_element",
+    "insert_image",
+    "insert_image",
+    "insert_text",
+    "format_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 91.5639,
+        "y": 72.3658,
+        "width": 32.3865,
+        "height": 51.0166
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 81.3339,
+        "y": 29.3074,
+        "width": 64.4787,
+        "height": 34.1494
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 9.3189,
+        "y": 78.6208,
+        "width": 69.9048,
+        "height": 5.5186
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 43.3704,
+        "padding": 90.2386
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 78.866,
+        "padding": 56.4065
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 78.6193,
+        "padding": 0.8508
+      }
+    },
+    {
+      "step": 6,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 57.0366,
+        "padding": 65.2993
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 22.9719,
+        "y": 52.5791,
+        "length": 18.9373
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 22.6578,
+        "y": 78.4305,
+        "length": 81.6664
+      }
+    },
+    {
+      "step": 9,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 32.1863
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 60.2882,
+        "y": 67.3267,
+        "width": 73.2005,
+        "height": 64.6605,
+        "data_points": 65.2723
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 22.5994,
+        "y": 98.0789,
+        "width": 69.4779,
+        "height": 47.5624,
+        "data_points": 35.51
+      }
+    },
+    {
+      "step": 12,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 76.926
+      }
+    },
+    {
+      "step": 13,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 83.2215
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 89.1263,
+        "y": 83.4211,
+        "width": 93.0419,
+        "height": 67.7918
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 97.5685,
+        "y": 90.9555,
+        "width": 54.353,
+        "height": 96.2656
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 93.7945,
+        "y": 88.304,
+        "length": 47.5459
+      }
+    },
+    {
+      "step": 17,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 28.3742,
+        "x": 49.5546,
+        "y": 6.74
+      }
+    },
+    {
+      "step": 18,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 2.9305,
+        "x": 1.7841,
+        "y": 35.6439
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.736195,
+    "tool_repetition_freq": 0.684211,
+    "arg_semantic_variance": 811.235639
+  },
+  "final_state": {
+    "dominant_tool": "insert_image",
+    "slide_element_count": 6,
+    "layout_hash": "42-3667-insert_image"
+  }
+}

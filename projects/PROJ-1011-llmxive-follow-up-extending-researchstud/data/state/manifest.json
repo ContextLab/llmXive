@@ -1,0 +1,17 @@
+{
+  "artifacts": {
+    "/tmp/pytest-of-runner/pytest-0/test_state_update0/dummy_artifact.txt": {
+      "dependencies": [],
+      "description": "dummy artifact for verification",
+      "metadata": {
+        "checksum": "487e66e8c430dc3b65ecfc97af448d9b3b1190483c54766fe757b3adebaf1b94",
+        "modified_at": "2026-10-21T18:33:48.522034",
+        "path": "/tmp/pytest-of-runner/pytest-0/test_state_update0/dummy_artifact.txt",
+        "size_bytes": 24
+      },
+      "task_id": "T006",
+      "updated_at": "2026-10-21T18:33:48.522212"
+    }
+  },
+  "last_updated": "2026-10-21T18:33:48.522212"
+}

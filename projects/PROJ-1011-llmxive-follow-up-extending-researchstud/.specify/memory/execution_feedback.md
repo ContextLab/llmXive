@@ -12,7 +12,6 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/01_data_acquisition.py: synthetic/fake INPUT data not authorized by the spec — “…# Simulated record structure (in real imple…”
 - code/04_evaluation_loader.py: synthetic/fake INPUT data not authorized by the spec — “…NING: This file contains MOCK data for testing ONLY. Do not…”
 - code/error_handling_wrapper.py: synthetic/fake INPUT data not authorized by the spec — “…raise DataFetchError("Simulated data‑fetch failure for testin…”
-- code/models/pattern_card.py: synthetic/fake INPUT data not authorized by the spec — “…., 'Transfer Learning', 'Synthetic Data'     key_components: Lis…”
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
@@ -27,7 +26,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/04_evaluation_recruitment.py: self-declared fabricated metric — “…e rows (commented out or with placeholder values)         # to guide the user…”; code/01_data_acquisition.py: synthetic/fake INPUT data not authorized by the spec — “…# Simulated record structure (in real imple…”; code/04_evaluation_loader.py: synthetic/fake INPUT data not authorized by the spec — “…NING: This file contains MOCK data for testing ONLY. Do not…”; 9 command(s) failed: python code/01_data_acquisition.py (rc=1); python code/01_data_acquisition.py --dry-run (rc=1); python code/02_pattern_mapping.py (rc=1); 2 declared deliverable(s) absent: data/results/power_analysis_config.json; data/results/ratings_filled.csv
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/04_evaluation_recruitment.py: self-declared fabricated metric — “…e rows (commented out or with placeholder values)         # to guide the user…”; code/01_data_acquisition.py: synthetic/fake INPUT data not authorized by the spec — “…# Simulated record structure (in real imple…”; code/04_evaluation_loader.py: synthetic/fake INPUT data not authorized by the spec — “…NING: This file contains MOCK data for testing ONLY. Do not…”; 9 command(s) failed: python code/01_data_acquisition.py (rc=1); python code/01_data_acquisition.py --dry-run (rc=1); python code/02_pattern_mapping.py (rc=1); 2 declared deliverable(s) absent: data/results/power_analysis_config.json; data/results/ratings_filled.csv
 
 ## Failing / missing run-book commands
 
@@ -102,25 +101,23 @@ usage: 04_evaluation_loader.py [-h] [--generate-mock] [--seed SEED]
 CRITICAL - Analysis failed: Ratings file not found: data/results/ratings_real.csv or data/results/ratings_filled.csv
 
 - python -m pytest tests/ -v -> rc=2
-dule>
-    spec.loader.exec_module(data_acquisition)
-<frozen importlib._bootstrap_external>:936: in exec_module
-    ???
-<frozen importlib._bootstrap_external>:1073: in get_code
-    ???
-<frozen importlib._bootstrap_external>:1130: in get_data
-    ???
-E   FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/tests/code/01_data_acquisition.py'
+xec(co, module.__dict__)
+tests/unit/test_update_state.py:24: in <module>
+    from utils.update_state import (
+E   ImportError: cannot import name 'ensure_state_dir' from 'utils.update_state' (/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/utils/update_state.py)
 =========================== short test summary info ============================
 ERROR tests/unit/test_config_seed_pinning.py
+ERROR tests/unit/test_data_dirs_and_checksum.py
 ERROR tests/unit/test_evaluation_workflow.py
 ERROR tests/unit/test_logging_infrastructure.py
 ERROR tests/unit/test_logging_integration.py
+ERROR tests/unit/test_model_classes.py
 ERROR tests/unit/test_pairing_validation.py
 ERROR tests/unit/test_pattern_mapping_validation.py
 ERROR tests/unit/test_preprocessing_validation.py - FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/tests/code/01_data_acquisition.py'
-!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 2.24s ===============================
+ERROR tests/unit/test_update_state.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 10 errors in 2.41s ==============================
 
 
 - python code/05_statistical_analysis.py --dry-run -> rc=1

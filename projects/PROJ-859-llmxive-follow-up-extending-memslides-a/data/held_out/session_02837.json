@@ -1,0 +1,215 @@
+{
+  "trace_id": "held_out_43_02837",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "insert_chart",
+    "insert_chart",
+    "insert_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "apply_theme",
+    "apply_theme",
+    "format_text",
+    "format_text",
+    "format_text",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "delete_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 53.2169,
+        "x": 15.9763,
+        "y": 86.1775
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 90.6063,
+        "x": 13.6503,
+        "y": 14.6399
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 8.9639,
+        "x": 50.0948,
+        "y": 82.7125
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 2.367,
+        "x": 75.2949,
+        "y": 36.8362
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 91.9736,
+        "y": 97.4552,
+        "width": 42.1221,
+        "height": 26.4311
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 30.3342,
+        "y": 8.6664,
+        "width": 92.0562,
+        "height": 87.8632
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 17.1659,
+        "y": 20.9959,
+        "length": 98.8579
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 85.6549,
+        "x": 35.3056,
+        "y": 15.5083
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 40.5594,
+        "x": 6.2426,
+        "y": 47.9307
+      }
+    },
+    {
+      "step": 9,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 28.2331,
+        "x": 65.7051,
+        "y": 1.1855
+      }
+    },
+    {
+      "step": 10,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 90.6024,
+        "saturation": 77.7875
+      }
+    },
+    {
+      "step": 11,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 80.0573,
+        "saturation": 71.7663
+      }
+    },
+    {
+      "step": 12,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 82.5209,
+        "x": 97.2894,
+        "y": 63.8789
+      }
+    },
+    {
+      "step": 13,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 68.2395,
+        "x": 84.7544,
+        "y": 75.8357
+      }
+    },
+    {
+      "step": 14,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 73.2609,
+        "x": 44.0941,
+        "y": 47.491
+      }
+    },
+    {
+      "step": 15,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 3.8403,
+        "padding": 85.1896
+      }
+    },
+    {
+      "step": 16,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 60.4567,
+        "padding": 69.792
+      }
+    },
+    {
+      "step": 17,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 30.0366,
+        "padding": 33.5023
+      }
+    },
+    {
+      "step": 18,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 28.5558,
+        "padding": 70.703
+      }
+    },
+    {
+      "step": 19,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 48.9335
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.428551,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 918.365456
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 4,
+    "layout_hash": "43-2837-format_text"
+  },
+  "variance_multiplier": 1.5
+}

@@ -1,0 +1,211 @@
+{
+  "trace_id": "held_out_43_03111",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "insert_text",
+    "format_text",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "insert_image",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 46.0004,
+        "y": 6.1784,
+        "length": 79.8956
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 3.2629,
+        "x": 4.2357,
+        "y": 75.3746
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 42.1521,
+        "saturation": 17.0875
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 60.4951,
+        "saturation": 81.2501
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 38.0089,
+        "saturation": 25.4043
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 52.4829,
+        "saturation": 81.4818
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 24.184,
+        "saturation": 98.4002
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 25.0133,
+        "saturation": 61.6073
+      }
+    },
+    {
+      "step": 8,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 35.3109,
+        "height": 61.6233
+      }
+    },
+    {
+      "step": 9,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 98.061,
+        "height": 77.9212
+      }
+    },
+    {
+      "step": 10,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 61.509,
+        "height": 11.3839
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 3.5623,
+        "y": 70.7237,
+        "width": 90.8896,
+        "height": 24.5628
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 49.5701,
+        "y": 80.3119,
+        "width": 43.3036,
+        "height": 83.8935
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 30.8795,
+        "y": 58.9846,
+        "width": 57.1402,
+        "height": 87.0575
+      }
+    },
+    {
+      "step": 14,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 82.0379,
+        "padding": 27.5986
+      }
+    },
+    {
+      "step": 15,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 32.5987,
+        "padding": 46.7017
+      }
+    },
+    {
+      "step": 16,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 60.3691,
+        "padding": 21.5877
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 45.6157,
+        "y": 94.5545,
+        "width": 82.083,
+        "height": 30.4408
+      }
+    },
+    {
+      "step": 18,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 95.6864,
+        "height": 20.1852
+      }
+    },
+    {
+      "step": 19,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 82.4402,
+        "height": 38.7204
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.726261,
+    "tool_repetition_freq": 0.65,
+    "arg_semantic_variance": 790.757502
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 8,
+    "layout_hash": "43-3111-apply_theme"
+  },
+  "variance_multiplier": 1.5
+}

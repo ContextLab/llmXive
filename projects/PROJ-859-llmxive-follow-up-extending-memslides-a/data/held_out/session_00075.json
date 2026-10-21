@@ -1,0 +1,110 @@
+{
+  "trace_id": "held_out_43_00075",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "apply_theme",
+    "apply_theme",
+    "insert_text",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "update_layout",
+    "format_text",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 67.0192,
+        "saturation": 58.1248
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 87.0037,
+        "saturation": 98.3597
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 59.3797,
+        "y": 53.0632,
+        "length": 84.0988
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 17.1585,
+        "y": 59.6953,
+        "width": 19.6497,
+        "height": 71.4197
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 20.4519,
+        "y": 52.6691,
+        "width": 99.725,
+        "height": 69.3867
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 11.6769,
+        "y": 18.9688,
+        "width": 99.2322,
+        "height": 90.3896
+      }
+    },
+    {
+      "step": 6,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 60.7508,
+        "padding": 36.0235
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 65.8044,
+        "x": 8.9657,
+        "y": 63.6515
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 58.7267,
+        "padding": 57.8096
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.522955,
+    "tool_repetition_freq": 0.444444,
+    "arg_semantic_variance": 741.64298
+  },
+  "final_state": {
+    "dominant_tool": "insert_image",
+    "slide_element_count": 7,
+    "layout_hash": "43-75-insert_image"
+  },
+  "variance_multiplier": 1.5
+}

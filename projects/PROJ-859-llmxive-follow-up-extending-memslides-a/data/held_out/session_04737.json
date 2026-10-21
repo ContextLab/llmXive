@@ -1,0 +1,212 @@
+{
+  "trace_id": "held_out_43_04737",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "update_layout",
+    "delete_element",
+    "format_text",
+    "format_text",
+    "format_text",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "format_text",
+    "format_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 46.7057,
+        "y": 45.9909,
+        "length": 44.0969
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 46.8343,
+        "y": 14.5522,
+        "length": 71.4023
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 65.1865,
+        "y": 75.7763,
+        "length": 6.1954
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 77.7788,
+        "padding": 84.3769
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 70.7467
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 6.5823,
+        "x": 20.5776,
+        "y": 87.5307
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 58.6386,
+        "x": 92.0434,
+        "y": 53.7102
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 0.9542,
+        "x": 20.1638,
+        "y": 27.0577
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 27.3235,
+        "padding": 39.3577
+      }
+    },
+    {
+      "step": 9,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 98.8301,
+        "padding": 0.42
+      }
+    },
+    {
+      "step": 10,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 19.2422,
+        "padding": 74.2617
+      }
+    },
+    {
+      "step": 11,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 26.8886,
+        "padding": 21.8307
+      }
+    },
+    {
+      "step": 12,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 10.89,
+        "x": 70.6015,
+        "y": 25.1625
+      }
+    },
+    {
+      "step": 13,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 78.526,
+        "x": 16.8832,
+        "y": 79.7076
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 48.5374,
+        "y": 36.3791,
+        "length": 53.7775
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 36.3011,
+        "y": 94.5133,
+        "length": 33.0899
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 41.603,
+        "y": 85.4715,
+        "length": 43.9746
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 18.6444,
+        "y": 57.6007,
+        "length": 57.1039
+      }
+    },
+    {
+      "step": 18,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 86.6839,
+        "height": 85.052
+      }
+    },
+    {
+      "step": 19,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 28.7128,
+        "height": 83.7424
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.44063,
+    "tool_repetition_freq": 0.75,
+    "arg_semantic_variance": 779.300193
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 5,
+    "layout_hash": "43-4737-insert_text"
+  },
+  "variance_multiplier": 1.5
+}

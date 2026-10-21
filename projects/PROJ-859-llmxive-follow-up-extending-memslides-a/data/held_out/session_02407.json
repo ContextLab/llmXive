@@ -1,0 +1,123 @@
+{
+  "trace_id": "held_out_43_02407",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 12.8204,
+        "y": 84.9493,
+        "width": 45.1502,
+        "height": 57.9974
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 29.7735,
+        "y": 72.2899,
+        "width": 99.3527,
+        "height": 65.4185
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 88.1651,
+        "y": 10.2587,
+        "width": 66.892,
+        "height": 52.4611
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 84.4049,
+        "y": 81.0746,
+        "width": 66.4159,
+        "height": 96.008
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 68.5526,
+        "y": 56.5946,
+        "width": 82.5561,
+        "height": 87.7067
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 16.9783,
+        "y": 94.1931,
+        "width": 44.7114,
+        "height": 70.4334
+      }
+    },
+    {
+      "step": 6,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 11.8015,
+        "padding": 49.825
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 7.4191,
+        "padding": 35.9875
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 10.8591,
+        "padding": 43.4582
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 99.1556,
+        "saturation": 83.8266
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.897946,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 834.04747
+  },
+  "final_state": {
+    "dominant_tool": "insert_image",
+    "slide_element_count": 2,
+    "layout_hash": "43-2407-insert_image"
+  },
+  "variance_multiplier": 1.5
+}

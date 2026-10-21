@@ -1,0 +1,112 @@
+{
+  "trace_id": "training_42_00031",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "insert_chart",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 43.7673,
+        "x": 41.0859,
+        "y": 67.6363
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 23.753,
+        "x": 44.4199,
+        "y": 28.4928
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 74.8537,
+        "x": 44.8928,
+        "y": 53.4011
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 30.9468,
+        "x": 80.8624,
+        "y": 46.9016
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 83.5113,
+        "y": 36.7841,
+        "width": 94.713,
+        "height": 98.444,
+        "data_points": 46.168
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 28.1772,
+        "y": 38.1872,
+        "length": 52.746
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 96.6268,
+        "y": 81.6891,
+        "length": 80.1259
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 13.8399,
+        "y": 25.0003,
+        "length": 64.1179
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 87.4117,
+        "y": 55.4541,
+        "length": 10.259
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.964963,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 640.277937
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 9,
+    "layout_hash": "42-31-format_text"
+  }
+}

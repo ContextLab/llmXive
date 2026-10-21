@@ -1,0 +1,208 @@
+{
+  "trace_id": "held_out_43_04241",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "delete_element",
+    "insert_image",
+    "insert_image",
+    "insert_chart",
+    "insert_image",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "insert_chart",
+    "insert_chart",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 11.6847,
+        "x": 67.5307,
+        "y": 56.7558
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 17.0032,
+        "x": 3.8268,
+        "y": 48.1089
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 50.9248,
+        "x": 1.2179,
+        "y": 65.8169
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 27.3785,
+        "x": 94.6957,
+        "y": 88.7111
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 68.0841,
+        "x": 80.5278,
+        "y": 33.7193
+      }
+    },
+    {
+      "step": 5,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 32.1102
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 11.5792,
+        "y": 88.2947,
+        "width": 64.9815,
+        "height": 31.1982
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 31.0768,
+        "y": 34.323,
+        "width": 45.2524,
+        "height": 26.6367
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 40.5102,
+        "y": 49.4627,
+        "width": 65.0401,
+        "height": 78.9909
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 2.076,
+        "y": 63.7081,
+        "width": 30.0222,
+        "height": 39.572
+      }
+    },
+    {
+      "step": 10,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 45.4352,
+        "height": 0.8013
+      }
+    },
+    {
+      "step": 11,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 42.5644,
+        "height": 4.755
+      }
+    },
+    {
+      "step": 12,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 66.4199,
+        "height": 79.2545
+      }
+    },
+    {
+      "step": 13,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 68.1758,
+        "height": 79.5677
+      }
+    },
+    {
+      "step": 14,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 25.9275,
+        "height": 39.2534
+      }
+    },
+    {
+      "step": 15,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 39.0502,
+        "height": 95.6207
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 32.9026,
+        "y": 85.2194,
+        "width": 21.9526,
+        "height": 25.5485
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 54.5898,
+        "y": 90.812,
+        "width": 6.5034,
+        "height": 14.9475
+      }
+    },
+    {
+      "step": 18,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 96.5676,
+        "height": 39.3755
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.457058,
+    "tool_repetition_freq": 0.736842,
+    "arg_semantic_variance": 767.590965
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 4,
+    "layout_hash": "43-4241-resize_element"
+  },
+  "variance_multiplier": 1.5
+}

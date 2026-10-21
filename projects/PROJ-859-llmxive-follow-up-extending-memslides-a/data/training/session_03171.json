@@ -1,0 +1,107 @@
+{
+  "trace_id": "training_42_03171",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "format_text",
+    "resize_element",
+    "apply_theme",
+    "apply_theme",
+    "format_text",
+    "format_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 7.4142,
+        "x": 39.6483,
+        "y": 84.3089
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 11.5431,
+        "x": 18.5678,
+        "y": 70.9721
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 21.8701,
+        "x": 24.4985,
+        "y": 77.6462
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 31.2359,
+        "height": 89.4779
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 43.0458,
+        "saturation": 64.9957
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 51.0439,
+        "saturation": 88.2384
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 48.4009,
+        "x": 41.2782,
+        "y": 75.8017
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 26.2328,
+        "x": 95.0357,
+        "y": 53.0162
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 29.4329,
+        "x": 88.9558,
+        "y": 35.6106
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.848686,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 722.409482
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 9,
+    "layout_hash": "42-3171-format_text"
+  }
+}

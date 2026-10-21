@@ -1,0 +1,214 @@
+{
+  "trace_id": "held_out_43_00305",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "update_layout",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "update_layout",
+    "insert_text",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 52.3194,
+        "padding": 37.7206
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 76.1094,
+        "x": 14.772,
+        "y": 83.2645
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 21.1632,
+        "x": 84.8315,
+        "y": 97.0227
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 5.2127,
+        "x": 45.087,
+        "y": 0.798
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 57.5753,
+        "x": 47.9568,
+        "y": 56.8256
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 86.085,
+        "x": 18.2483,
+        "y": 0.6064
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 37.1821,
+        "x": 99.266,
+        "y": 13.1252
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 13.9188,
+        "x": 37.9112,
+        "y": 42.1848
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 30.0362,
+        "x": 7.4417,
+        "y": 46.4445
+      }
+    },
+    {
+      "step": 9,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 47.112,
+        "x": 14.9157,
+        "y": 31.3767
+      }
+    },
+    {
+      "step": 10,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 70.3978,
+        "x": 7.1084,
+        "y": 81.275
+      }
+    },
+    {
+      "step": 11,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 23.6632,
+        "x": 44.8681,
+        "y": 18.2477
+      }
+    },
+    {
+      "step": 12,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 54.1602,
+        "x": 69.2221,
+        "y": 23.6706
+      }
+    },
+    {
+      "step": 13,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 82.0256,
+        "padding": 80.6734
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 51.1248,
+        "y": 29.3229,
+        "length": 11.0637
+      }
+    },
+    {
+      "step": 15,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 2.6248,
+        "saturation": 83.1598
+      }
+    },
+    {
+      "step": 16,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 89.4608,
+        "saturation": 65.9531
+      }
+    },
+    {
+      "step": 17,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 58.9313,
+        "saturation": 9.3551
+      }
+    },
+    {
+      "step": 18,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 14.0631,
+        "saturation": 57.23
+      }
+    },
+    {
+      "step": 19,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 51.3944,
+        "saturation": 70.4401
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.033114,
+    "tool_repetition_freq": 0.8,
+    "arg_semantic_variance": 811.169993
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 3,
+    "layout_hash": "43-305-format_text"
+  },
+  "variance_multiplier": 1.5
+}

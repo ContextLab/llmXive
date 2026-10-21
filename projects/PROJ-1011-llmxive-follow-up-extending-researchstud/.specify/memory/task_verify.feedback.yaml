@@ -1,23 +1,17 @@
 T001:
-  reason: The `tests/test_scaffold_directories.py` test failed, reporting a missing
-    required directory (`.../projects/PROJ-1011-.../projects/PROJ-1011-...`). Although
-    `code/`, `data/`, and `tests/` exist, the expected project scaffold (including
-    the nested `projects` folder) is not fully created, so the layout requirement
-    is not met.
   task: 7d15377fc20fcac1afdc69839d491611fd0b299eb7bab59f7c4411e3b85a1410
 T002:
-  reason: "Checked `requirements.txt` (exists) and `run_pipeline.sh` (exists, executable,\
-    \ ran successfully). The `requirements.txt` lists version ranges with `>=` instead\
-    \ of exact pinned versions for Python\u202F3.11, violating the \u201Cpinned dependencies\u201D\
-    \ requirement. The file must be updated to use exact version pins (e.g., `numpy==1.24.0`)."
   task: db12d6470571002767838275bed2a22a95939023be9d89e6718905aa73ebe63f
 T003:
   task: cb1f9fd7a5b073e7c15b02e7e722339e68068fe65f7ae9dc0e9ab96b98b2eae1
 T004:
-  reason: "The three required data directories are present, but the `data/CHECKSUMS`\
-    \ manifest file is missing, causing the provided test `test_data_dirs_and_checksum`\
-    \ to fail. The task must add a non\u2011empty `CHECKSUMS` file in the `data/`\
-    \ directory."
+  reason: "The three data directories exist (each with a `.gitkeep`), but the required\
+    \ `data/CHECKSUMS` manifest is not confirmed present in the collected evidence,\
+    \ and the task's own verification test `test_data_dirs_and_checksum` FAILED (exit\
+    \ 1) with `FileExistsError: .../data/CHECKSUMS` \u2014 the toolkit's `paths.data()`\
+    \ helper tries to mkdir a parent that collides with the existing CHECKSUMS file.\
+    \ The implementer must fix the path handling (or ensure CHECKSUMS exists and the\
+    \ test passes) and provide evidence of a passing verification run."
   task: d7a2f84ef64e8cad0748f7b2bfa72b76ecd86ae4cfc5e4ad8bb7de9c5bcddd86
 T005:
   task: a7ce6886be4423549dbb379d93a1ab0b054d8e4eee4f50d7b4b03a0f74ba14e6
@@ -28,11 +22,6 @@ T006:
     write only project-owned outputs.'
   task: 68c044fc5a33d80e3a6cb3709a8cacceb55a9ed6d824eca176f772d5288120e4
 T007:
-  reason: "The repository only contains `code/models/abstract.py`; the required `pattern_card.py`,\
-    \ `proposal.py`, and `rating.py` data\u2011model modules are absent, and the JSON\u2011\
-    Schema files under `contracts/` that the tests load are also missing, causing\
-    \ all `test_model_classes` cases to fail. These missing files must be added and\
-    \ conform to the test\u2019s schema\u2011validation expectations."
   task: a655ae0e0279109dfe5562cf710544b96b5ecdce370b5b5dc8e839c255b32f19
 T007b:
   task: 82ea7da84133d5408f89328db95b8dbf9b156013b93edf80edbb66ee2693c99f

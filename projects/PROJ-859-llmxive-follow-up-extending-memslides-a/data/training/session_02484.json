@@ -1,0 +1,208 @@
+{
+  "trace_id": "training_42_02484",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "apply_theme",
+    "insert_chart",
+    "delete_element",
+    "format_text",
+    "format_text",
+    "format_text",
+    "insert_text",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "insert_chart",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 96.1656,
+        "height": 75.9433
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 81.8277,
+        "height": 64.4429
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 40.3671,
+        "height": 43.7117
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 12.5591,
+        "saturation": 95.7457
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 1.6183,
+        "y": 73.6168,
+        "width": 89.8795,
+        "height": 29.1135,
+        "data_points": 0.1322
+      }
+    },
+    {
+      "step": 5,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 48.5458
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 11.8887,
+        "x": 34.3699,
+        "y": 62.9225
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 36.4279,
+        "x": 78.218,
+        "y": 92.5269
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 84.4314,
+        "x": 61.9125,
+        "y": 76.8002
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 41.2052,
+        "y": 96.5916,
+        "length": 23.111
+      }
+    },
+    {
+      "step": 10,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 8.0017,
+        "padding": 63.7639
+      }
+    },
+    {
+      "step": 11,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 1.1728,
+        "padding": 78.2172
+      }
+    },
+    {
+      "step": 12,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 76.3787,
+        "padding": 74.9334
+      }
+    },
+    {
+      "step": 13,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 66.711,
+        "padding": 10.5939
+      }
+    },
+    {
+      "step": 14,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 81.2532
+      }
+    },
+    {
+      "step": 15,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 50.4941
+      }
+    },
+    {
+      "step": 16,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 17.6222
+      }
+    },
+    {
+      "step": 17,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 99.1474
+      }
+    },
+    {
+      "step": 18,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 40.0354,
+        "y": 19.1731,
+        "width": 72.6997,
+        "height": 29.3502,
+        "data_points": 77.5304
+      }
+    },
+    {
+      "step": 19,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 43.5013,
+        "y": 47.8062,
+        "width": 69.0662,
+        "height": 6.5929,
+        "data_points": 51.5244
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.821738,
+    "tool_repetition_freq": 0.65,
+    "arg_semantic_variance": 877.092074
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 21,
+    "layout_hash": "42-2484-delete_element"
+  }
+}

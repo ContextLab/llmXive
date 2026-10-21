@@ -1,0 +1,209 @@
+{
+  "trace_id": "training_42_02684",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "insert_image",
+    "insert_image",
+    "format_text",
+    "format_text",
+    "apply_theme",
+    "insert_text",
+    "format_text",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "format_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 21.0633,
+        "y": 7.8973,
+        "width": 46.3553,
+        "height": 19.8343
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 2.537,
+        "y": 11.0172,
+        "width": 60.2346,
+        "height": 78.5119
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 62.4277,
+        "x": 58.6143,
+        "y": 65.3454
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 84.0524,
+        "x": 95.8205,
+        "y": 54.3117
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 3.722,
+        "saturation": 97.6733
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 46.5643,
+        "y": 21.6022,
+        "length": 56.4331
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 51.2815,
+        "x": 97.25,
+        "y": 46.0931
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 20.9016,
+        "padding": 84.0886
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 47.7457,
+        "padding": 38.5659
+      }
+    },
+    {
+      "step": 9,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 98.5063,
+        "padding": 32.7345
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 14.963,
+        "y": 86.6759,
+        "width": 25.1084,
+        "height": 61.3491
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 16.6345,
+        "y": 77.5742,
+        "width": 57.2097,
+        "height": 4.9249
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 58.5097,
+        "y": 98.5381,
+        "width": 82.0713,
+        "height": 34.2058
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 41.1633,
+        "y": 44.5282,
+        "width": 96.0987,
+        "height": 20.7349
+      }
+    },
+    {
+      "step": 14,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 14.6975,
+        "padding": 70.8433
+      }
+    },
+    {
+      "step": 15,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 58.392,
+        "padding": 16.916
+      }
+    },
+    {
+      "step": 16,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 38.1158,
+        "padding": 78.874
+      }
+    },
+    {
+      "step": 17,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 27.8631,
+        "x": 90.6767,
+        "y": 59.6897
+      }
+    },
+    {
+      "step": 18,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 73.7123,
+        "x": 76.4386,
+        "y": 11.9688
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.389265,
+    "tool_repetition_freq": 0.736842,
+    "arg_semantic_variance": 840.737057
+  },
+  "final_state": {
+    "dominant_tool": "insert_image",
+    "slide_element_count": 5,
+    "layout_hash": "42-2684-insert_image"
+  }
+}

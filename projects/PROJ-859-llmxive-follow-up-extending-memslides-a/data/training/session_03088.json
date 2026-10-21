@@ -1,0 +1,101 @@
+{
+  "trace_id": "training_42_03088",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 8,
+  "tool_sequence": [
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 62.7022,
+        "height": 49.9276
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 82.7186,
+        "height": 88.319
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 78.4388,
+        "height": 16.4903
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 42.5881,
+        "y": 36.3769,
+        "width": 16.5232,
+        "height": 64.3905,
+        "data_points": 92.7848
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 90.7769,
+        "y": 37.855,
+        "width": 28.0291,
+        "height": 79.7087,
+        "data_points": 19.3814
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 6.127,
+        "y": 49.6721,
+        "width": 88.9868,
+        "height": 92.4802,
+        "data_points": 32.5948
+      }
+    },
+    {
+      "step": 6,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 79.2129,
+        "height": 99.889
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 30.8598,
+        "height": 38.4437
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.661563,
+    "tool_repetition_freq": 0.75,
+    "arg_semantic_variance": 822.959335
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 6,
+    "layout_hash": "42-3088-resize_element"
+  }
+}

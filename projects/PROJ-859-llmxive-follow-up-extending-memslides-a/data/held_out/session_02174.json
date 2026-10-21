@@ -1,0 +1,151 @@
+{
+  "trace_id": "held_out_43_02174",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 13,
+  "tool_sequence": [
+    "insert_chart",
+    "insert_chart",
+    "format_text",
+    "insert_chart",
+    "insert_chart",
+    "format_text",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "format_text",
+    "format_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 6.9647,
+        "y": 34.1757,
+        "width": 34.0059,
+        "height": 75.7536
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 17.7308,
+        "y": 1.0692,
+        "width": 66.5275,
+        "height": 30.6324
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 37.0847,
+        "x": 84.7774,
+        "y": 92.2796
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 53.0084,
+        "y": 60.8187,
+        "width": 2.0918,
+        "height": 36.8596
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 84.6899,
+        "y": 73.7819,
+        "width": 78.9837,
+        "height": 31.6755
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 37.132,
+        "x": 73.6248,
+        "y": 20.0632
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 41.6851,
+        "saturation": 82.3431
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 77.0438,
+        "saturation": 27.3708
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 20.553,
+        "saturation": 31.4324
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 45.5631,
+        "saturation": 0.0047
+      }
+    },
+    {
+      "step": 10,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 83.5167,
+        "x": 34.1132,
+        "y": 60.2465
+      }
+    },
+    {
+      "step": 11,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 24.4717,
+        "x": 74.91,
+        "y": 78.0947
+      }
+    },
+    {
+      "step": 12,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 34.5688,
+        "x": 88.2006,
+        "y": 8.1576
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.092831,
+    "tool_repetition_freq": 0.769231,
+    "arg_semantic_variance": 775.1474
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 6,
+    "layout_hash": "43-2174-format_text"
+  },
+  "variance_multiplier": 1.5
+}

@@ -1,0 +1,107 @@
+{
+  "trace_id": "training_42_00994",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "update_layout",
+    "format_text",
+    "resize_element",
+    "format_text",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 88.6118,
+        "x": 18.8819,
+        "y": 50.0649
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 18.6098,
+        "x": 6.7738,
+        "y": 25.7553
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 80.3667,
+        "x": 53.9025,
+        "y": 26.265
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 77.9661,
+        "x": 74.9531,
+        "y": 50.8924
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 2.5076,
+        "padding": 49.8052
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 58.4664,
+        "x": 46.1343,
+        "y": 64.3758
+      }
+    },
+    {
+      "step": 6,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 36.3035,
+        "height": 26.9225
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 19.3076,
+        "x": 69.3922,
+        "y": 16.3584
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 27.4512,
+        "padding": 67.685
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.848686,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 604.337936
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 9,
+    "layout_hash": "42-994-format_text"
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "trace_id": "held_out_43_03862",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 12,
+  "tool_sequence": [
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "update_layout",
+    "format_text",
+    "format_text",
+    "format_text",
+    "insert_chart",
+    "insert_chart",
+    "update_layout",
+    "update_layout",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 15.8216,
+        "saturation": 86.8234
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 32.991,
+        "saturation": 90.8711
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 53.3592,
+        "saturation": 33.9727
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 88.9458,
+        "padding": 25.2992
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 85.909,
+        "x": 53.5947,
+        "y": 30.31
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 13.923,
+        "x": 47.9143,
+        "y": 65.6455
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 57.902,
+        "x": 79.8595,
+        "y": 99.1797
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 13.3927,
+        "y": 1.6528,
+        "width": 44.1738,
+        "height": 24.7155
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 79.0083,
+        "y": 45.3448,
+        "width": 98.9412,
+        "height": 55.2216
+      }
+    },
+    {
+      "step": 9,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 17.7371,
+        "padding": 38.8151
+      }
+    },
+    {
+      "step": 10,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 99.3,
+        "padding": 0.9613
+      }
+    },
+    {
+      "step": 11,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 33.9025,
+        "padding": 5.1367
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.357978,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 947.552213
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 3,
+    "layout_hash": "43-3862-update_layout"
+  },
+  "variance_multiplier": 1.5
+}

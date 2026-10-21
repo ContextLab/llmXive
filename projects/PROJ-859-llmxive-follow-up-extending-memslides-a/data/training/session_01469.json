@@ -1,0 +1,208 @@
+{
+  "trace_id": "training_42_01469",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "insert_chart",
+    "insert_text",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_text",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 53.386,
+        "height": 21.0778
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 62.1683,
+        "height": 91.8806
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 79.9964,
+        "height": 28.9659
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 45.4495,
+        "height": 66.5819
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 9.8455,
+        "y": 13.1397,
+        "width": 95.624,
+        "height": 85.7494,
+        "data_points": 2.032
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 98.7235,
+        "y": 62.7672,
+        "length": 36.1732
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 87.8285,
+        "y": 0.5431,
+        "width": 56.9352,
+        "height": 47.8649,
+        "data_points": 10.4281
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 30.2246,
+        "y": 0.3794,
+        "width": 62.8389,
+        "height": 54.262,
+        "data_points": 44.5166
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 40.0454,
+        "y": 88.5171,
+        "width": 25.8378,
+        "height": 31.848,
+        "data_points": 84.4797
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 95.1176,
+        "y": 80.0226,
+        "length": 80.9583
+      }
+    },
+    {
+      "step": 10,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 15.4621,
+        "height": 99.843
+      }
+    },
+    {
+      "step": 11,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 82.0236,
+        "height": 20.2335
+      }
+    },
+    {
+      "step": 12,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 92.7472,
+        "height": 2.6083
+      }
+    },
+    {
+      "step": 13,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 95.8565,
+        "height": 46.9728
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 84.3791,
+        "y": 18.1286,
+        "length": 0.549
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 93.2179,
+        "y": 49.0898,
+        "length": 4.5252
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 91.7271,
+        "y": 68.3946,
+        "length": 25.0675
+      }
+    },
+    {
+      "step": 17,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 13.1132,
+        "height": 40.2799
+      }
+    },
+    {
+      "step": 18,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 96.4379,
+        "height": 69.2462
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.017164,
+    "tool_repetition_freq": 0.842105,
+    "arg_semantic_variance": 1065.267945
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 6,
+    "layout_hash": "42-1469-resize_element"
+  }
+}

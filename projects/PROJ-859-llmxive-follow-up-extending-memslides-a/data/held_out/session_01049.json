@@ -1,0 +1,81 @@
+{
+  "trace_id": "held_out_43_01049",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 6,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "insert_chart",
+    "resize_element",
+    "apply_theme",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 1.7594,
+        "x": 98.2958,
+        "y": 69.0428
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 71.6091,
+        "x": 8.6874,
+        "y": 23.995
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 34.7283,
+        "y": 78.6568,
+        "width": 26.4099,
+        "height": 93.1495
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 52.542,
+        "height": 82.8346
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 44.7093,
+        "saturation": 56.5292
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 5.8706,
+        "y": 35.1578,
+        "width": 52.4786,
+        "height": 45.5056
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.329661,
+    "tool_repetition_freq": 0.333333,
+    "arg_semantic_variance": 815.343182
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 3,
+    "layout_hash": "43-1049-format_text"
+  },
+  "variance_multiplier": 1.5
+}

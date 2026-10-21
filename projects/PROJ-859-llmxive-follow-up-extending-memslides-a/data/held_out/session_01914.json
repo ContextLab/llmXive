@@ -1,0 +1,211 @@
+{
+  "trace_id": "held_out_43_01914",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "insert_chart",
+    "update_layout",
+    "apply_theme",
+    "insert_chart",
+    "resize_element",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "insert_chart",
+    "apply_theme",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 91.6165,
+        "y": 24.2905,
+        "width": 48.5917,
+        "height": 56.8386
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 5.8297,
+        "padding": 90.719
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 76.3856,
+        "saturation": 88.9115
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 89.1012,
+        "y": 60.7081,
+        "width": 7.8643,
+        "height": 0.4845
+      }
+    },
+    {
+      "step": 4,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 33.0694,
+        "height": 51.9425
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 30.084,
+        "x": 80.9401,
+        "y": 85.6414
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 9.8651,
+        "x": 47.3904,
+        "y": 27.9767
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 51.6134,
+        "x": 30.6588,
+        "y": 52.4632
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 5.5474,
+        "x": 68.5506,
+        "y": 24.3374
+      }
+    },
+    {
+      "step": 9,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 84.7227,
+        "x": 44.5895,
+        "y": 85.9519
+      }
+    },
+    {
+      "step": 10,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 9.2747,
+        "x": 20.0588,
+        "y": 17.8441
+      }
+    },
+    {
+      "step": 11,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 38.6643,
+        "x": 49.5258,
+        "y": 96.6765
+      }
+    },
+    {
+      "step": 12,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 70.0801,
+        "x": 98.8761,
+        "y": 51.9489
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 72.1098,
+        "y": 4.5487,
+        "width": 35.0377,
+        "height": 89.6404
+      }
+    },
+    {
+      "step": 14,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 38.0604,
+        "saturation": 26.959
+      }
+    },
+    {
+      "step": 15,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 26.9555
+      }
+    },
+    {
+      "step": 16,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 6.8648
+      }
+    },
+    {
+      "step": 17,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 74.9641
+      }
+    },
+    {
+      "step": 18,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 99.6946
+      }
+    },
+    {
+      "step": 19,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 98.8252,
+        "saturation": 31.4147
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.557113,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 939.263235
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 5,
+    "layout_hash": "43-1914-format_text"
+  },
+  "variance_multiplier": 1.5
+}

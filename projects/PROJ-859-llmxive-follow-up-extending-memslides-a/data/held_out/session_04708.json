@@ -1,0 +1,108 @@
+{
+  "trace_id": "held_out_43_04708",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "insert_chart",
+    "format_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "update_layout",
+    "update_layout",
+    "apply_theme",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 23.9101,
+        "y": 52.86,
+        "width": 52.6321,
+        "height": 76.1476
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 54.8768,
+        "x": 98.1663,
+        "y": 5.0421
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 46.4351,
+        "y": 50.612,
+        "length": 31.1455
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 22.6494,
+        "y": 72.7283,
+        "length": 97.9214
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 94.6531,
+        "y": 37.7507,
+        "length": 91.8821
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 17.3244,
+        "padding": 62.3021
+      }
+    },
+    {
+      "step": 6,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 65.0534,
+        "padding": 67.5674
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 3.8605,
+        "saturation": 25.2823
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 72.8115,
+        "padding": 62.8745
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.464816,
+    "tool_repetition_freq": 0.444444,
+    "arg_semantic_variance": 768.362872
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 6,
+    "layout_hash": "43-4708-insert_text"
+  },
+  "variance_multiplier": 1.5
+}

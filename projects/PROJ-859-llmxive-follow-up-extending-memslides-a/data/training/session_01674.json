@@ -1,0 +1,124 @@
+{
+  "trace_id": "training_42_01674",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "insert_chart",
+    "apply_theme",
+    "update_layout",
+    "insert_text",
+    "apply_theme",
+    "update_layout",
+    "format_text",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 34.366,
+        "y": 98.1043,
+        "width": 34.6,
+        "height": 12.0088,
+        "data_points": 48.4557
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 90.9615,
+        "saturation": 2.6564
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 99.7196,
+        "padding": 88.1292
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 81.0276,
+        "y": 55.877,
+        "length": 9.8658
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 50.2507,
+        "saturation": 64.1163
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 82.6868,
+        "padding": 76.0186
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 15.5631,
+        "x": 3.9093,
+        "y": 52.5921
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 87.5817,
+        "padding": 53.2994
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 85.4025,
+        "padding": 98.2878
+      }
+    },
+    {
+      "step": 9,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 3.5735,
+        "padding": 64.7197
+      }
+    },
+    {
+      "step": 10,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 96.436,
+        "padding": 56.7723
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.294545,
+    "tool_repetition_freq": 0.545455,
+    "arg_semantic_variance": 1040.801199
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 15,
+    "layout_hash": "42-1674-update_layout"
+  }
+}

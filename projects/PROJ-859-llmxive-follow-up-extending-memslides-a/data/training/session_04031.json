@@ -1,0 +1,214 @@
+{
+  "trace_id": "training_42_04031",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "delete_element",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "resize_element",
+    "format_text",
+    "format_text",
+    "format_text",
+    "update_layout",
+    "format_text",
+    "insert_chart",
+    "insert_text",
+    "insert_text",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 4.5921,
+        "y": 71.6566,
+        "width": 87.0369,
+        "height": 16.8702
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 34.5583,
+        "y": 97.8864,
+        "width": 49.8061,
+        "height": 49.0994
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 87.3947,
+        "y": 19.5481,
+        "width": 30.8804,
+        "height": 84.2679
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 64.4611
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 54.595,
+        "padding": 93.428
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 96.8476,
+        "padding": 42.2204
+      }
+    },
+    {
+      "step": 6,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 9.8609,
+        "padding": 56.551
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 55.0925,
+        "height": 87.142
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 15.7504,
+        "x": 12.7909,
+        "y": 84.872
+      }
+    },
+    {
+      "step": 9,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 40.7422,
+        "x": 50.6113,
+        "y": 96.3498
+      }
+    },
+    {
+      "step": 10,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 19.0814,
+        "x": 64.3302,
+        "y": 33.8664
+      }
+    },
+    {
+      "step": 11,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 85.4904,
+        "padding": 60.7269
+      }
+    },
+    {
+      "step": 12,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 20.7964,
+        "x": 93.3865,
+        "y": 52.6097
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 61.9666,
+        "y": 85.6312,
+        "width": 32.5,
+        "height": 43.6119,
+        "data_points": 24.3384
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 5.1914,
+        "y": 45.9293,
+        "length": 60.3558
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 74.2815,
+        "y": 25.9082,
+        "length": 74.7448
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 33.6573,
+        "y": 19.3887,
+        "width": 92.1707,
+        "height": 6.3982,
+        "data_points": 25.7493
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 97.1557,
+        "y": 43.7971,
+        "width": 95.8007,
+        "height": 74.6552,
+        "data_points": 55.6038
+      }
+    },
+    {
+      "step": 18,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 47.6063,
+        "y": 0.1957,
+        "width": 48.1321,
+        "height": 61.7275,
+        "data_points": 58.5583
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.822457,
+    "tool_repetition_freq": 0.631579,
+    "arg_semantic_variance": 809.898206
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 7,
+    "layout_hash": "42-4031-update_layout"
+  }
+}

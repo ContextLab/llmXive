@@ -1,76 +1,47 @@
-"""
-Unit test for the state‑management helper (code/utils/update_state.py).
+"""Verification for T006: state-management helper records artifact hashes."""
 
-The test creates a temporary file, registers it with the state helper,
-and verifies that the manifest contains a matching entry with the correct
-checksum.
-"""
-
-import hashlib
+import json
+import sys
 from pathlib import Path
 
-import yaml
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
-from code.utils.update_state import (
-    update_state_for_artifact,
+from utils.update_state import (  # noqa: E402
+    MANIFEST_PATH,
     get_artifact_state,
-    ensure_state_dir,
-    STATE_DIR,
+    update_state_for_artifact,
+    verify_artifact_integrity,
 )
-from code.utils.data_manifest import calculate_file_checksum
 
 
 def test_state_update(tmp_path):
-    """
-    Verify that calling ``update_state_for_artifact`` records the file
-    checksum in ``state/manifest.yaml``.
-    """
-    # Ensure a clean state directory
-    if STATE_DIR.exists():
-        # Remove any existing manifest to avoid interference
-        manifest_path = STATE_DIR / "manifest.yaml"
-        if manifest_path.exists():
-            manifest_path.unlink()
-    else:
-        ensure_state_dir()
+    dummy = tmp_path / "dummy_artifact.txt"
+    dummy.write_text("hello artifact tracking\n")
 
-    # Create a dummy artifact file
-    dummy_file = tmp_path / "dummy.txt"
-    dummy_content = b"Hello, state management helper!"
-    dummy_file.write_bytes(dummy_content)
-
-    # Compute the expected checksum using the same utility function
-    expected_checksum = calculate_file_checksum(dummy_file)
-
-    # Register the artifact
     entry = update_state_for_artifact(
-        file_path=str(dummy_file),
-        task_id="T006",
-        description="Test dummy artifact",
-        dependencies=[],
+        dummy, "T006", "dummy artifact for verification"
     )
 
-    # Load the manifest directly to inspect it
-    manifest_path = STATE_DIR / "manifest.yaml"
-    assert manifest_path.is_file(), "Manifest file was not created"
+    # Manifest lives under the project-owned data/state/ path.
+    assert MANIFEST_PATH.exists()
+    assert MANIFEST_PATH.is_relative_to(PROJECT_ROOT / "data")
 
-    with open(manifest_path, "r", encoding="utf-8") as f:
-        manifest_data = yaml.safe_load(f)
+    manifest = json.loads(MANIFEST_PATH.read_text())
+    # The recorded key is the absolute path (outside project tree in tmp).
+    assert dummy.resolve().as_posix() in manifest["artifacts"] or any(
+        v["metadata"]["checksum"] == entry["metadata"]["checksum"]
+        for v in manifest["artifacts"].values()
+    )
 
-    # The key in the manifest should be the relative path from the project root
-    rel_path = str(dummy_file.relative_to(Path.cwd()))
-    assert rel_path in manifest_data["artifacts"], "Artifact entry missing in manifest"
+    # Hash is recorded and matches the file content.
+    state = get_artifact_state(dummy)
+    assert state is not None
+    assert state["task_id"] == "T006"
+    assert state["metadata"]["checksum"] == entry["metadata"]["checksum"]
+    assert len(state["metadata"]["checksum"]) == 64
+    assert verify_artifact_integrity(dummy)
 
-    artifact_entry = manifest_data["artifacts"][rel_path]
-
-    # Verify the stored checksum matches the expected one
-    assert (
-        artifact_entry["metadata"]["checksum"] == expected_checksum
-    ), "Checksum recorded in manifest does not match actual file checksum"
-
-    # Verify that ``get_artifact_state`` returns the same entry
-    state_entry = get_artifact_state(str(dummy_file))
-    assert state_entry is not None, "get_artifact_state returned None"
-    assert (
-        state_entry["metadata"]["checksum"] == expected_checksum
-    ), "get_artifact_state returned mismatched checksum"
+    # Integrity fails after modification.
+    dummy.write_text("tampered\n")
+    assert not verify_artifact_integrity(dummy)

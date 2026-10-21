@@ -1,0 +1,134 @@
+{
+  "trace_id": "held_out_43_01444",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 12,
+  "tool_sequence": [
+    "format_text",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "insert_chart",
+    "insert_text",
+    "apply_theme",
+    "apply_theme",
+    "insert_image",
+    "insert_image",
+    "resize_element",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 74.9466,
+        "x": 82.6715,
+        "y": 31.0762
+      }
+    },
+    {
+      "step": 1,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 45.4016
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 67.9433
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 29.1217
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 79.8914,
+        "y": 37.6316,
+        "width": 17.0428,
+        "height": 14.0948
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 10.187,
+        "y": 95.2527,
+        "length": 50.8327
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 92.4717,
+        "saturation": 24.1243
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 97.5075,
+        "saturation": 18.2851
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 34.9766,
+        "y": 50.3959,
+        "width": 36.1042,
+        "height": 96.582
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 47.916,
+        "y": 5.2055,
+        "width": 92.8885,
+        "height": 55.3984
+      }
+    },
+    {
+      "step": 10,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 29.3121,
+        "height": 53.4747
+      }
+    },
+    {
+      "step": 11,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 78.4038,
+        "padding": 2.8303
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.979205,
+    "tool_repetition_freq": 0.333333,
+    "arg_semantic_variance": 881.326242
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 9,
+    "layout_hash": "43-1444-delete_element"
+  },
+  "variance_multiplier": 1.5
+}

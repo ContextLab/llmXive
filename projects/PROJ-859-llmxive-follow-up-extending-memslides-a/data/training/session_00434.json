@@ -1,0 +1,125 @@
+{
+  "trace_id": "training_42_00434",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "resize_element",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "format_text",
+    "format_text",
+    "insert_image",
+    "insert_image"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 91.1043,
+        "height": 71.8605
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 56.7157,
+        "padding": 8.8431
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 40.9998,
+        "padding": 98.9574
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 2.5575,
+        "padding": 68.1928
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 55.0704,
+        "padding": 21.8451
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 22.0674,
+        "padding": 11.0938
+      }
+    },
+    {
+      "step": 6,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 10.4879,
+        "padding": 38.9629
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 16.9808,
+        "x": 78.5267,
+        "y": 57.1219
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 11.3589,
+        "x": 77.6071,
+        "y": 24.6899
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 60.1632,
+        "y": 73.1382,
+        "width": 3.3887,
+        "height": 75.4351
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 19.4687,
+        "y": 23.1624,
+        "width": 97.2063,
+        "height": 21.5444
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.168518,
+    "tool_repetition_freq": 0.636364,
+    "arg_semantic_variance": 922.496926
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 12,
+    "layout_hash": "42-434-update_layout"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "trace_id": "training_42_02705",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 5,
+  "tool_sequence": [
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 12.6188,
+        "y": 51.5984,
+        "length": 98.0412
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 7.0639,
+        "y": 86.851,
+        "length": 41.1145
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 83.8151,
+        "y": 15.2262,
+        "length": 77.3146
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 92.5181,
+        "y": 76.0619,
+        "length": 56.781
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 25.7262,
+        "y": 22.8796,
+        "length": 59.2452
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": -0.0,
+    "tool_repetition_freq": 0.8,
+    "arg_semantic_variance": 920.985621
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 1,
+    "layout_hash": "42-2705-insert_text"
+  }
+}

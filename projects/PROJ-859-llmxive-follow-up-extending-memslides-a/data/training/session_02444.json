@@ -1,0 +1,109 @@
+{
+  "trace_id": "training_42_02444",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "apply_theme",
+    "format_text",
+    "insert_chart",
+    "insert_chart",
+    "delete_element",
+    "format_text",
+    "format_text",
+    "delete_element",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 75.9399,
+        "saturation": 42.9986
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 48.9228,
+        "x": 46.7081,
+        "y": 73.807
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 50.6086,
+        "y": 36.2501,
+        "width": 59.12,
+        "height": 81.5907,
+        "data_points": 96.0356
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 44.4536,
+        "y": 2.0541,
+        "width": 93.3541,
+        "height": 26.8923,
+        "data_points": 34.6914
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 41.0763
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 50.7065,
+        "x": 7.5765,
+        "y": 62.6012
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 89.6433,
+        "x": 23.0892,
+        "y": 26.9507
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 43.6621
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 10.2976,
+        "y": 2.9099,
+        "length": 27.8087
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.522955,
+    "tool_repetition_freq": 0.444444,
+    "arg_semantic_variance": 710.521144
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 10,
+    "layout_hash": "42-2444-format_text"
+  }
+}

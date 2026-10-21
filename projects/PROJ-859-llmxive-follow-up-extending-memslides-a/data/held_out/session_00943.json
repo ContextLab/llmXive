@@ -1,0 +1,166 @@
+{
+  "trace_id": "held_out_43_00943",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 15,
+  "tool_sequence": [
+    "resize_element",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_chart",
+    "insert_chart",
+    "insert_text",
+    "format_text",
+    "format_text",
+    "resize_element",
+    "update_layout",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 41.719,
+        "height": 34.9447
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 58.8705,
+        "y": 26.8478,
+        "length": 64.7683
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 59.3513,
+        "y": 62.85,
+        "length": 58.0713
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 7.7136,
+        "y": 44.6928,
+        "length": 78.5769
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 74.3895,
+        "y": 42.7203,
+        "width": 88.4158,
+        "height": 18.0232
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 74.5056,
+        "y": 70.32,
+        "width": 25.2842,
+        "height": 75.1717
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 44.7327,
+        "y": 34.661,
+        "length": 78.4993
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 12.3439,
+        "x": 70.2576,
+        "y": 24.6981
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 42.6029,
+        "x": 0.4104,
+        "y": 90.405
+      }
+    },
+    {
+      "step": 9,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 88.2769,
+        "height": 30.2474
+      }
+    },
+    {
+      "step": 10,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 6.9508,
+        "padding": 64.97
+      }
+    },
+    {
+      "step": 11,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 86.7508,
+        "height": 45.3719
+      }
+    },
+    {
+      "step": 12,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 31.45,
+        "height": 43.6505
+      }
+    },
+    {
+      "step": 13,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 90.6539,
+        "height": 55.6063
+      }
+    },
+    {
+      "step": 14,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 31.2159,
+        "height": 1.981
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.436829,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 679.940244
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 5,
+    "layout_hash": "43-943-resize_element"
+  },
+  "variance_multiplier": 1.5
+}

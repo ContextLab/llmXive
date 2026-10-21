@@ -1,0 +1,113 @@
+{
+  "trace_id": "training_42_03289",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 31.1256,
+        "height": 79.5084
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 45.1186,
+        "height": 47.7601
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 90.409,
+        "height": 16.1271
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 77.6102,
+        "height": 32.911
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 2.7654,
+        "y": 48.1833,
+        "width": 74.4925,
+        "height": 88.2717,
+        "data_points": 50.4774
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 57.1395,
+        "y": 94.0571,
+        "width": 61.5494,
+        "height": 13.264,
+        "data_points": 25.9342
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 56.1164,
+        "y": 19.8521,
+        "width": 94.8445,
+        "height": 64.9396,
+        "data_points": 31.2845
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 40.6957,
+        "y": 54.599,
+        "width": 87.1892,
+        "height": 79.4886,
+        "data_points": 1.8261
+      }
+    },
+    {
+      "step": 8,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 5.9924,
+        "height": 65.8474
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.686962,
+    "tool_repetition_freq": 0.777778,
+    "arg_semantic_variance": 793.058372
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 4,
+    "layout_hash": "42-3289-resize_element"
+  }
+}

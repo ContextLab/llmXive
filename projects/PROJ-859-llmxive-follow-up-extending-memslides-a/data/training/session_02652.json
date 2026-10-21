@@ -1,0 +1,134 @@
+{
+  "trace_id": "training_42_02652",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 12,
+  "tool_sequence": [
+    "update_layout",
+    "apply_theme",
+    "insert_chart",
+    "format_text",
+    "apply_theme",
+    "insert_text",
+    "delete_element",
+    "delete_element",
+    "insert_text",
+    "insert_chart",
+    "apply_theme",
+    "delete_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 15.9744,
+        "padding": 11.7953
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 32.1113,
+        "saturation": 95.2427
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 15.3347,
+        "y": 57.4168,
+        "width": 65.6644,
+        "height": 3.5604,
+        "data_points": 52.0425
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 5.8486,
+        "x": 16.1721,
+        "y": 79.6993
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 44.8857,
+        "saturation": 60.524
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 26.7997,
+        "y": 85.0871,
+        "length": 56.7118
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 10.4095
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 70.7581
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 25.759,
+        "y": 27.2009,
+        "length": 76.3179
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 74.5521,
+        "y": 8.9579,
+        "width": 26.3754,
+        "height": 59.0505,
+        "data_points": 86.2466
+      }
+    },
+    {
+      "step": 10,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 37.2769,
+        "saturation": 67.6108
+      }
+    },
+    {
+      "step": 11,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 56.1831
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.704551,
+    "tool_repetition_freq": 0.5,
+    "arg_semantic_variance": 746.31646
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 12,
+    "layout_hash": "42-2652-apply_theme"
+  }
+}

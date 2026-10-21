@@ -1,0 +1,107 @@
+{
+  "trace_id": "training_42_03130",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "update_layout",
+    "insert_text",
+    "delete_element",
+    "insert_chart",
+    "delete_element",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 89.0706,
+        "padding": 5.994
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 41.2989,
+        "y": 12.7445,
+        "length": 29.3767
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 60.4119
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 67.5268,
+        "y": 52.0,
+        "width": 63.2264,
+        "height": 62.4692,
+        "data_points": 52.6074
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 96.9207
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 24.0883,
+        "x": 23.4042,
+        "y": 40.279
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 31.8672,
+        "x": 61.3633,
+        "y": 19.115
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 48.4736,
+        "x": 76.6052,
+        "y": 98.7495
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 20.7253,
+        "x": 5.4215,
+        "y": 17.5494
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.427061,
+    "tool_repetition_freq": 0.444444,
+    "arg_semantic_variance": 740.559966
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 15,
+    "layout_hash": "42-3130-format_text"
+  }
+}

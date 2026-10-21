@@ -1,0 +1,208 @@
+{
+  "trace_id": "training_42_01427",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "apply_theme",
+    "resize_element",
+    "update_layout",
+    "insert_image",
+    "insert_image",
+    "format_text",
+    "update_layout",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 26.7307,
+        "saturation": 71.3402
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 69.3251,
+        "height": 96.765
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 27.9151,
+        "padding": 67.2577
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 61.5042,
+        "y": 80.3325,
+        "width": 42.8547,
+        "height": 73.2805
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 70.53,
+        "y": 47.4649,
+        "width": 88.4072,
+        "height": 75.6027
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 85.5109,
+        "x": 25.9062,
+        "y": 31.8967
+      }
+    },
+    {
+      "step": 6,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 21.9062,
+        "padding": 8.3012
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 63.6017,
+        "y": 95.3239,
+        "length": 49.3376
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 90.4992,
+        "y": 98.309,
+        "length": 9.8282
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 82.7495,
+        "y": 85.459,
+        "length": 76.9564
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 45.7788,
+        "y": 51.4444,
+        "length": 65.5067
+      }
+    },
+    {
+      "step": 11,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 81.999
+      }
+    },
+    {
+      "step": 12,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 72.6202
+      }
+    },
+    {
+      "step": 13,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 53.9942
+      }
+    },
+    {
+      "step": 14,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 45.3933
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 95.1958,
+        "y": 76.7132,
+        "width": 34.0259,
+        "height": 4.7523,
+        "data_points": 62.599
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 7.8748,
+        "y": 17.112,
+        "width": 20.8865,
+        "height": 87.0465,
+        "data_points": 51.311
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 74.7194,
+        "y": 23.0602,
+        "width": 42.125,
+        "height": 31.8413,
+        "data_points": 61.7693
+      }
+    },
+    {
+      "step": 18,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 49.0375,
+        "y": 54.9945,
+        "width": 21.0413,
+        "height": 14.7059,
+        "data_points": 21.5391
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.922959,
+    "tool_repetition_freq": 0.578947,
+    "arg_semantic_variance": 726.574046
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 16,
+    "layout_hash": "42-1427-insert_text"
+  }
+}

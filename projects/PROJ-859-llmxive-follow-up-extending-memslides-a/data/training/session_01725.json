@@ -1,0 +1,139 @@
+{
+  "trace_id": "training_42_01725",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 12,
+  "tool_sequence": [
+    "resize_element",
+    "resize_element",
+    "format_text",
+    "insert_text",
+    "insert_text",
+    "apply_theme",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 69.5629,
+        "height": 28.1452
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 1.2404,
+        "height": 51.5175
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 49.5043,
+        "x": 61.5711,
+        "y": 6.6627
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 1.345,
+        "y": 94.7788,
+        "length": 73.2946
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 68.7303,
+        "y": 69.3985,
+        "length": 5.7747
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 40.4151,
+        "saturation": 23.8833
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 1.6173,
+        "x": 3.0972,
+        "y": 30.535
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 36.5127,
+        "x": 83.0602,
+        "y": 91.86
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 40.944,
+        "x": 27.8211,
+        "y": 93.4015
+      }
+    },
+    {
+      "step": 9,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 40.3386,
+        "x": 60.4256,
+        "y": 40.8207
+      }
+    },
+    {
+      "step": 10,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 54.7563,
+        "x": 89.7542,
+        "y": 24.8968
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 70.2628,
+        "y": 52.649,
+        "width": 0.9197,
+        "height": 43.296,
+        "data_points": 61.6538
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.357978,
+    "tool_repetition_freq": 0.583333,
+    "arg_semantic_variance": 824.691791
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 5,
+    "layout_hash": "42-1725-format_text"
+  }
+}

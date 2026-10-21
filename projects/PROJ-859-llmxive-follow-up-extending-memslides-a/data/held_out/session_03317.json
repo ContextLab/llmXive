@@ -1,0 +1,217 @@
+{
+  "trace_id": "held_out_43_03317",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "update_layout",
+    "format_text",
+    "format_text",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "delete_element",
+    "delete_element",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 59.6713
+      }
+    },
+    {
+      "step": 1,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 92.0143
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 54.3534
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 19.8465
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 58.6907,
+        "padding": 95.0974
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 55.5373,
+        "x": 31.4158,
+        "y": 80.2317
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 10.4652,
+        "x": 12.2007,
+        "y": 21.3995
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 1.1863,
+        "y": 49.8845,
+        "width": 27.416,
+        "height": 0.0549
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 84.9906,
+        "y": 1.5534,
+        "width": 39.0198,
+        "height": 90.1162
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 8.2828,
+        "y": 0.8965,
+        "width": 54.812,
+        "height": 84.0866
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 51.4281,
+        "y": 53.5366,
+        "width": 59.9026,
+        "height": 17.2278
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 15.0336,
+        "y": 68.3766,
+        "width": 51.0273,
+        "height": 38.0882
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 73.5852,
+        "y": 17.5096,
+        "width": 65.3805,
+        "height": 45.2124
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 33.0291,
+        "y": 83.9856,
+        "width": 5.5129,
+        "height": 40.3285
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 73.0268,
+        "y": 7.6036,
+        "width": 78.5624,
+        "height": 12.5986
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 70.6291,
+        "y": 26.6628,
+        "width": 1.6278,
+        "height": 40.2413
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 82.3532,
+        "y": 25.3161,
+        "width": 70.4262,
+        "height": 63.7425
+      }
+    },
+    {
+      "step": 17,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 6.4779
+      }
+    },
+    {
+      "step": 18,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 90.6394
+      }
+    },
+    {
+      "step": 19,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 57.8718,
+        "saturation": 51.2818
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.237597,
+    "tool_repetition_freq": 0.75,
+    "arg_semantic_variance": 832.685768
+  },
+  "final_state": {
+    "dominant_tool": "insert_image",
+    "slide_element_count": 6,
+    "layout_hash": "43-3317-insert_image"
+  },
+  "variance_multiplier": 1.5
+}

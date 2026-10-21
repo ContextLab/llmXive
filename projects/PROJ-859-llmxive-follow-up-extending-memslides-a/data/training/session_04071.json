@@ -1,0 +1,213 @@
+{
+  "trace_id": "training_42_04071",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "delete_element",
+    "format_text",
+    "format_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "format_text",
+    "resize_element",
+    "format_text",
+    "delete_element",
+    "apply_theme",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 4.9217,
+        "y": 38.146,
+        "length": 14.1838
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 88.4696,
+        "y": 0.9141,
+        "length": 0.4072
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 34.0898,
+        "y": 67.0732,
+        "length": 59.7882
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 33.6132,
+        "y": 19.9055,
+        "length": 26.5511
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 39.7665
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 15.082,
+        "x": 5.2506,
+        "y": 68.8653
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 58.5365,
+        "x": 37.6156,
+        "y": 92.9426
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 6.4849,
+        "y": 19.4342,
+        "length": 36.9991
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 34.9644,
+        "y": 92.3293,
+        "length": 82.5067
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 64.4803,
+        "y": 15.7702,
+        "length": 26.5973
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 11.5674,
+        "y": 56.8504,
+        "length": 17.1455
+      }
+    },
+    {
+      "step": 11,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 63.0619,
+        "x": 50.061,
+        "y": 15.9235
+      }
+    },
+    {
+      "step": 12,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 10.6352,
+        "x": 78.3758,
+        "y": 0.6172
+      }
+    },
+    {
+      "step": 13,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 74.5711,
+        "x": 1.6686,
+        "y": 90.5538
+      }
+    },
+    {
+      "step": 14,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 64.2463,
+        "x": 16.1082,
+        "y": 17.8463
+      }
+    },
+    {
+      "step": 15,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 62.2529,
+        "height": 31.1655
+      }
+    },
+    {
+      "step": 16,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 22.4661,
+        "x": 89.1967,
+        "y": 79.0876
+      }
+    },
+    {
+      "step": 17,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 44.7989
+      }
+    },
+    {
+      "step": 18,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 60.6746,
+        "saturation": 69.8758
+      }
+    },
+    {
+      "step": 19,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 73.8859,
+        "saturation": 5.423
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.344258,
+    "tool_repetition_freq": 0.75,
+    "arg_semantic_variance": 838.333783
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 15,
+    "layout_hash": "42-4071-insert_text"
+  }
+}

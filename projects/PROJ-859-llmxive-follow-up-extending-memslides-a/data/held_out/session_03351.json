@@ -1,0 +1,94 @@
+{
+  "trace_id": "held_out_43_03351",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 7,
+  "tool_sequence": [
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "update_layout",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 62.4257,
+        "y": 0.1233,
+        "width": 4.6741,
+        "height": 97.9663
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 58.3123,
+        "y": 91.6249,
+        "width": 23.3943,
+        "height": 71.9044
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 76.7455,
+        "y": 19.4842,
+        "width": 46.1391,
+        "height": 46.489
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 97.128,
+        "y": 55.0439,
+        "width": 45.8964,
+        "height": 1.653
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 50.4421,
+        "y": 74.5368,
+        "width": 16.43,
+        "height": 25.5023
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 42.6707,
+        "padding": 36.6332
+      }
+    },
+    {
+      "step": 6,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 92.9954,
+        "height": 12.125
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.796312,
+    "tool_repetition_freq": 0.571429,
+    "arg_semantic_variance": 916.804032
+  },
+  "final_state": {
+    "dominant_tool": "insert_chart",
+    "slide_element_count": 8,
+    "layout_hash": "43-3351-insert_chart"
+  },
+  "variance_multiplier": 1.5
+}

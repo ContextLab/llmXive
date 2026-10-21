@@ -1,0 +1,102 @@
+{
+  "trace_id": "training_42_00351",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 8,
+  "tool_sequence": [
+    "insert_chart",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "insert_chart",
+    "format_text",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 86.2954,
+        "y": 48.4731,
+        "width": 69.3586,
+        "height": 79.7938,
+        "data_points": 93.2532
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 59.8264,
+        "saturation": 35.2522
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 58.7757,
+        "saturation": 61.9426
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 25.1819,
+        "saturation": 35.496
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 59.8178,
+        "saturation": 73.5219
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 89.74,
+        "y": 10.9392,
+        "width": 10.2024,
+        "height": 17.5503,
+        "data_points": 90.5316
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 94.5346,
+        "x": 74.8438,
+        "y": 24.9773
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 55.7556,
+        "y": 18.1788,
+        "width": 2.1464,
+        "height": 85.7155,
+        "data_points": 14.9654
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.974315,
+    "tool_repetition_freq": 0.625,
+    "arg_semantic_variance": 872.469596
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 3,
+    "layout_hash": "42-351-apply_theme"
+  }
+}

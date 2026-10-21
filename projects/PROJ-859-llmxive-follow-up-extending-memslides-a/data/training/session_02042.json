@@ -1,0 +1,106 @@
+{
+  "trace_id": "training_42_02042",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 8,
+  "tool_sequence": [
+    "insert_text",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 27.3873,
+        "y": 59.9856,
+        "length": 99.8531
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 58.2852,
+        "y": 44.3409,
+        "width": 55.2749,
+        "height": 32.3033,
+        "data_points": 71.1706
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 75.7201,
+        "y": 10.5926,
+        "width": 35.1471,
+        "height": 38.1954,
+        "data_points": 13.0855
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 35.0033,
+        "y": 22.9805,
+        "width": 69.9975,
+        "height": 21.5886,
+        "data_points": 94.1431
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 8.3485,
+        "y": 58.0078,
+        "length": 8.0919
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 28.9716,
+        "y": 96.3332,
+        "length": 26.5739
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 48.1202,
+        "y": 81.8418,
+        "length": 39.3616
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 51.4348,
+        "y": 60.175,
+        "length": 14.1595
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.661563,
+    "tool_repetition_freq": 0.75,
+    "arg_semantic_variance": 693.938667
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 2,
+    "layout_hash": "42-2042-insert_text"
+  }
+}

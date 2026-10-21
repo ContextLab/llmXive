@@ -1,0 +1,128 @@
+{
+  "trace_id": "training_42_04667",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "apply_theme",
+    "delete_element",
+    "delete_element",
+    "delete_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 53.7333,
+        "height": 21.7906
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 94.7017,
+        "height": 17.993
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 71.1778,
+        "height": 25.9923
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 22.2007,
+        "y": 11.078,
+        "width": 70.3221,
+        "height": 94.7963,
+        "data_points": 23.1007
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 56.6088,
+        "y": 13.9613,
+        "width": 99.2934,
+        "height": 85.8241,
+        "data_points": 20.9379
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 36.8458,
+        "y": 47.2782,
+        "width": 27.8981,
+        "height": 8.5157,
+        "data_points": 19.353
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 31.1767,
+        "y": 66.9153,
+        "width": 27.9828,
+        "height": 57.6553,
+        "data_points": 11.7681
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 85.2183,
+        "saturation": 18.0272
+      }
+    },
+    {
+      "step": 8,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 25.5385
+      }
+    },
+    {
+      "step": 9,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 37.2296
+      }
+    },
+    {
+      "step": 10,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 17.2583
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.294545,
+    "tool_repetition_freq": 0.636364,
+    "arg_semantic_variance": 783.159951
+  },
+  "final_state": {
+    "dominant_tool": "insert_chart",
+    "slide_element_count": 4,
+    "layout_hash": "42-4667-insert_chart"
+  }
+}
