@@ -9,13 +9,27 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/processed/missing_flags.json, data/processed/unified_fatigue.csv, data/raw/checksums.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/raw/checksums.json, data/raw/pipeline_verification.csv, data/raw/synthetic_fatigue.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success`
+  - script usage: `ingest.py [-h] [--output OUTPUT] [--raw RAW [RAW ...]]`
+  - argparse error: `ingest.py: error: unrecognized arguments: # downloads, checksums, merges, proxy calc; exits 0 on success`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/processed/missing_flags.json, data/processed/unified_fatigue.csv, data/raw/checksums.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 8 command(s) failed: python -m src.preprocess.preprocess   # unit conversion, imputation, contract validation (rc=1); python -m src.models.train --feature-set A   # process‑only (rc=1); python -m src.models.train --feature-set B   # process + measured stress (balanced subset) (rc=1); 3 declared deliverable(s) absent: data/results/model_performance.csv; data/results/proxy_agreement.csv; data/results/runtime_summary.csv
+**Summary**: every produced artifact is gitignored (data/raw/checksums.json, data/raw/pipeline_verification.csv, data/raw/synthetic_fatigue.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 9 command(s) failed: python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success (rc=2); python -m src.preprocess.preprocess   # unit conversion, imputation, contract validation (rc=1); python -m src.models.train --feature-set A   # process‑only (rc=1); 4 declared deliverable(s) absent: data/processed/unified_fatigue.csv; data/results/model_performance.csv; data/results/proxy_agreement.csv
 
 ## Failing / missing run-book commands
+
+- python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success -> rc=2
+
+usage: ingest.py [-h] [--output OUTPUT] [--raw RAW [RAW ...]]
+                 [--limit-rows LIMIT_ROWS]
+ingest.py: error: unrecognized arguments: # downloads, checksums, merges, proxy calc; exits 0 on success
 
 - python -m src.preprocess.preprocess   # unit conversion, imputation, contract validation -> rc=1
 
@@ -46,23 +60,27 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.mediation.bootstrap_mediation' (ModuleNotFoundError: No module named 'src.mediation')
 
 - python -m pytest -q -> rc=1
-sed/scaler_C.pkl
-INFO     code.src.build_features:build_features.py:94 Feature set C written to /home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/processed/feature_set_C.csv
-INFO     code.src.build_features:build_features.py:168 All feature sets built successfully.
-=============================== warnings summary ===============================
+mmary ===============================
 projects/PROJ-291-predicting-the-impact-of-residual-stress/tests/test_ingest.py::test_run_ingest_creates_unified_csv
-  /home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/ingest/ingest.py:217: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
-    unified = unified.fillna(0)
+  /home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/ingest/ingest.py:103: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.
+  The behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.
+  
+  For example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.
+  
+  
+    df[col].fillna(median_val, inplace=True)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/test_features.py::test_feature_sets_build_correctly - assert 8 == 4
-1 failed, 4 passed, 1 warning in 1.60s
+FAILED tests/test_ingest.py::test_run_ingest_creates_unified_csv - ValueError...
+2 failed, 3 passed, 1 warning in 1.86s
 
 
 
 ## Declared deliverables still missing
 
+- data/processed/unified_fatigue.csv
 - data/results/model_performance.csv
 - data/results/proxy_agreement.csv
 - data/results/runtime_summary.csv
@@ -71,6 +89,12 @@ FAILED tests/test_features.py::test_feature_sets_build_correctly - assert 8 == 4
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/processed/unified_fatigue.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/ingest/ingest.py` — NOT invoked by the run-book
+    - `code/src/build_features.py` — NOT invoked by the run-book
+    - `code/src/proxy_agreement.py` — NOT invoked by the run-book
+    - `code/src/run_e2e.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/unified_fatigue.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/model_performance.csv` is declared but was NOT written. Scripts referencing it:
     - `code/src/train.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/model_performance.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

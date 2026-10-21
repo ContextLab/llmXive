@@ -1,13 +1,3 @@
-T002:
-  c: false
-  h: 891c86f6ec585accf7a26a676b52a0c768e244102f53e5a00e7a0e2c9dfa5182
-  r: "The provided `code/ingest/ingest.py` never reads or flattens the nested\u2011\
-    JSON fixture (`openml_style_nested.json`) and the required test suite `code/tests/test_ingest.py`\
-    \ is missing, so the ingestion behavior cannot be verified. Moreover, the script\
-    \ loads *all* CSVs found in `data/raw` rather than restricting itself to the two\
-    \ bundled files, which deviates from the specification. These gaps mean the task\u2019\
-    s core requirements are not met."
-  sig: 51440e80bdc1b9e8aad8b1e918b4b2ef2ef034deda19d893d834a747e4980d30
 T004:
   c: false
   h: e9f164feeb45c14c6e08c788b1988cd6d98cd8739994d7340a21e3b39ba59984

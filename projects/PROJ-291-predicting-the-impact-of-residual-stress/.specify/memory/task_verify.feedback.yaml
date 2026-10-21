@@ -2,12 +2,13 @@ T001:
   reason: 'Requested task execution failed; rerun successfully: src/env_check.py exit=1'
   task: 11b64e595b9902112d47d040262ee694f36fc67772697d6d825828737066d1fc
 T002:
-  reason: "The provided `code/ingest/ingest.py` never reads or flattens the nested\u2011\
-    JSON fixture (`openml_style_nested.json`) and the required test suite `code/tests/test_ingest.py`\
-    \ is missing, so the ingestion behavior cannot be verified. Moreover, the script\
-    \ loads *all* CSVs found in `data/raw` rather than restricting itself to the two\
-    \ bundled files, which deviates from the specification. These gaps mean the task\u2019\
-    s core requirements are not met."
+  reason: "The required verification test `code/tests/test_ingest.py` is MISSING,\
+    \ and neither output artifact exists (`data/processed/unified_fatigue.csv` and\
+    \ `data/processed/missing_flags.json` are both absent), so there is no evidence\
+    \ the pipeline was ever run or that schema validation passed. Additionally, the\
+    \ psi\u2192MPa conversion uses a heuristic (values >1000 treated as psi) rather\
+    \ than a unit column, and the truncated `code/ingest/ingest.py` shows no evidence\
+    \ of the negative-proxy clamp adjustment count logging required by the task."
   task: ca29fe431b8e5951839f8f3eb0b79e7fb03ba310f23c5181b182e7bc23bfe7d1
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/src/run_e2e.py

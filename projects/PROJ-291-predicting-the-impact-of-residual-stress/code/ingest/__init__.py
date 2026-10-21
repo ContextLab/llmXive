@@ -1,1 +1,0 @@
-"""Ingestion subpackage for the residual‑stress fatigue project."""
