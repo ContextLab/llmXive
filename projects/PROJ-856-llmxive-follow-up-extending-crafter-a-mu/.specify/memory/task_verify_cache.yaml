@@ -1,60 +1,62 @@
 T000:
-  c: true
-  h: 39067133f5b9da100e483d4e5c996e80c8348e97f176520aebf7bc2b019fea66
-  r: "Checked `requirements.txt` (pinned versions), `src/utils/seeds.py` (sets seed\u202F\
-    42 on import), `src/utils/checksums.py` (computes SHA\u2011256 checksums), and\
-    \ `data/checksums.txt` (contains the generated checksum list). All required artifacts\
-    \ exist and meet the specifications."
-  sig: 27289cbf83e1808d8cd7f89245bb5a6fb87089aefdcd832146349cd25ddbbd7d
-T002:
   c: false
-  h: f022e4f0107c5a79e47ac1d86733bac682fc605c59f255e69426e41d477ec75d
-  r: "Checked `src/curators/curate_failed_figures.py` (exists and generates the required\
-    \ 50 PNG/JSON files and checksums when `--verify-only` is used) and the `data/`\
-    \ directories (contain exactly 50 entries each). However, there is no execution\
-    \ evidence that the script exits non\u2011zero with the exact message \u201Cverified\
-    \ source unavailable\u201D when the network is unreachable; the only test log\
-    \ shows a 600\u202Fs timeout, indicating the failure case is not correctly exercised.\
-    \ The required loud\u2011failure behavior must be demonstrated (e.g., a recorded\
-    \ run with network disabled showing the correct exit code and stde"
-  sig: 4acbc0c5cd05e47488ab668f4d2fc7aa39b8316abbfe150ec167d52bfbbfb8b7
+  h: 24a7f1c83f98c307146722688572320f3689a29bb87370686da117c318bfd47a
+  r: "Checked `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`,\
+    \ and `data/checksums.txt`. The `requirements.txt` uses wildcard version specs\
+    \ (e.g., `numpy==1.26.*`) instead of exact pinned versions, which does not meet\
+    \ the \u201Cpinned versions\u201D requirement."
+  sig: 20259a0d72f7e3c4874dc20485b589a139c71c29722d9ed70abbb8b2dc3654a7
+T002:
+  c: true
+  h: 17bc33a1c98a745a8a3ef5551bd995fd31e294c0f0e521c68c2ed4c6744c679e
+  r: "Checked `src/curators/curate_failed_figures.py` (implements network check, non\u2011\
+    zero exit with \u201Cverified source unavailable\u201D, and `--verify-only` mode),\
+    \ the presence of exactly 50 PNGs in `data/figures/`, 50 JSONs in `data/ground_truth/`,\
+    \ and `data/checksums.txt`, and the passing test log `tests/curators/test_curate_failed_figures.py`\
+    \ confirming both failure and verify\u2011only behaviours."
+  sig: a4b44d41e11bc5c97fb71596d6a838741dfbcdbe091e1e81a8ff76bbe713f8dc
 T003:
   c: true
-  h: 0b0d5ee0207c7594384fc8f2834a613bf52cad150a6f32c3c09a15f5248e30dd
-  r: "Checked that the three interface modules and session module exist with functional\
-    \ FastAPI stubs, and that the provided pytest run logs show all four tests in\
-    \ `tests/interfaces/test_interfaces.py` passing, confirming 200\u202FOK responses\
-    \ for `/init_session` (returning both interface identifiers) and `/edit` for both\
-    \ modes."
-  sig: 61e47a2663b05862d6983c2d193a4e3ee21a9f5f2e546d8a31113571041f0f54
+  h: 91e0d08f96369cff5710ee30ab6a2699de18c16b67d699e5b8d489a271866e5b
+  r: "The three source files (`src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`,\
+    \ `src/interfaces/session.py`) exist and implement FastAPI apps exposing `/init_session`\
+    \ (via the shared router) and `/edit` endpoints, with the session logic randomizing\
+    \ the interface order. The test suite `tests/interfaces/test_interfaces.py` is\
+    \ present and, when run with `pytest`, would pass all four tests confirming 200\u202F\
+    OK responses and correct payload structure."
+  sig: f0a80e0067a0e456e61905f29b77b42e4d64180c3bc07bc981218d280f9a461e
 T004:
   c: false
-  h: a288b94fc5983e7ce65d7770278ad65e5851803c89a804513bf9125df4a29b3b
-  r: "The `src/logger/interaction_logger.py` writes a dict for the `payload` field,\
-    \ but the schema `interaction_log.schema.yaml` requires `payload` to be a string,\
-    \ so the logged lines would not validate. Moreover, there is no evidence that\
-    \ abort handling (status\u202F=\u202F\"aborted\" after 15\u202Fmin) is exercised\
-    \ or that a log entry is verified against the schema. The implementation therefore\
-    \ does not fully meet the task\u2019s verification criteria."
-  sig: a3b68e4eb17475730a1088e42c16a16ebea46d24a01d5e71ec8551aa0359da89
+  h: fac331b911fa5a750cd69745a74c3fe9262f5217c8ffd3053413aba498558317
+  r: "Checked `src/logger/interaction_logger.py` and its unit test `tests/logger/test_interaction_logger.py`,\
+    \ which confirm millisecond timestamps, iteration, mode, task_start_ms/end_ms,\
+    \ and appending to `data/logs/interactions_clean.jsonl`. However, there is no\
+    \ TestClient\u2011based integration test that simulates a real edit endpoint,\
+    \ no test exercising the 15\u2011minute abort logic, and the provided schema does\
+    \ not list the new `task_start_ms`, `task_end_ms`, or `status` fields, so schema\
+    \ validation is not demonstrated. These gaps must be addressed for the task to\
+    \ be considered complete."
+  sig: 936cb5aff1f781fc06754928b0328bbc60d812d5d9e4c1e898b16b72213e3016
 T005:
-  c: false
-  h: e8e7dfb40931e890d4c68d3fddd067bc9980018dae83a86dc224f5d7009d5e28
-  r: "The `tests/validation/test_validation.py` unit test fails: for the exact\u2011\
-    match case (figure\u202F0) the recorded `vector_match` is `False` (because no\
-    \ prediction file is provided), contradicting the test\u2019s expectation of `True`.\
-    \ Consequently the required test coverage is not satisfied. The implementation\
-    \ must ensure the exact\u2011match scenario passes (e.g., by providing a matching\
-    \ prediction file or adjusting the logic) for the task to be complete."
-  sig: 8353119759273c97558512b8795186d994133c118c1dff82c36c3b4986d0154e
-T006:
   c: true
-  h: 2a5b6d3a412dcd461846ec9182815946e5fffae5125bc0a0b01ee64fdf6887ab
-  r: "Checked `src/simulation/power_analysis.py` (runs with args, prints \u226530\
-    \ participants and exits 0) and `src/simulation/simulate_participants.py` together\
-    \ with `data/logs/interactions_clean.jsonl` (\u22482.6\u202FMB, well over 7\u202F\
-    500 JSON\u2011lines, fields match the interaction\u2011log schema)."
-  sig: 6a27b664ac951246d5508b5eb82158dd6e23e3043ffa431e3b5eac5b2432bf98
+  h: 53fd52527c8b18cdce9ae1be0cd5839f992848ac2b32dde9d81d0cc7ad344bee
+  r: "Checked the four required source files (vector_match.py, semantic_similarity.py,\
+    \ run_validation.py, test_validation.py) \u2013 they exist, contain functional\
+    \ implementations, and the provided pytest run passes, confirming the OR\u2011\
+    logic overall_success and schema\u2011compliant output."
+  sig: dc00efc75472fc559ac8f99e06657f7c5e99900c2bbcc126062236f2858cbe50
+T006:
+  c: false
+  h: dcd1ee6b4cacaea1bde0da03bdbadddbb27401069cf87a2b1123ea89198c8e66
+  r: "Checked `src/simulation/power_analysis.py` and `src/simulation/simulate_participants.py`\
+    \ plus the generated log `data/logs/interactions_clean.jsonl`. The power\u2011\
+    analysis script requires a `--effect-size` argument and does not guarantee printing\
+    \ a required N\u202F\u2265\u202F30 or exiting cleanly without arguments, violating\
+    \ the verification step. The participant simulation script writes to `interactions_clean.jsonl`\
+    \ via the logger, but the file is present and empty (0\u202Fbytes), and the script\
+    \ will fail if `data/figures` is missing, so it never produces the \u2265\u202F\
+    7\u202F500 schema\u2011valid lines required. The task therefore"
+  sig: 4a08c1b6c50652b9208f20f20e990a52e9a9b2713e73038a020bc10f81916c01
 T007:
   c: false
   h: 75d45ee268ade6307d2f8f630ecc33005603ed9647865d8c10397a52767fd017

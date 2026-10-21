@@ -27,7 +27,7 @@ def test_log_interaction_writes_valid_jsonl():
     participant = "test-participant"
     figure = "fig-001"
     interface = "structured"
-    payload = {"action": "set_color", "target": "axis", "value": "red"}
+    payload_dict = {"action": "set_color", "target": "axis", "value": "red"}
     iteration = 1
 
     # Write the first record.
@@ -35,7 +35,7 @@ def test_log_interaction_writes_valid_jsonl():
         participant_id=participant,
         figure_id=figure,
         interface=interface,
-        payload=payload,
+        payload=payload_dict,
         iteration=iteration,
     )
 
@@ -61,7 +61,9 @@ def test_log_interaction_writes_valid_jsonl():
         assert rec["task_id"] == figure
         assert rec["mode"] == interface
         assert isinstance(rec["iteration"], int) and rec["iteration"] >= 1
-        assert isinstance(rec["payload"], dict)
+        # Payload is stored as a JSON‑encoded string; ensure it can be decoded back.
+        payload_loaded = json.loads(rec["payload"])
+        assert isinstance(payload_loaded, dict)
         # Verify presence of new fields introduced by T004
         assert "log_id" in rec
         assert "task_start_ms" in rec
@@ -73,4 +75,4 @@ def test_log_interaction_writes_valid_jsonl():
     assert records[1]["iteration"] == 2
 
     # Payload of the first record should match the input payload.
-    assert records[0]["payload"] == payload
+    assert json.loads(records[0]["payload"]) == payload_dict

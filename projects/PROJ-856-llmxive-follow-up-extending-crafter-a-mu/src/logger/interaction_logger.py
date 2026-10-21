@@ -12,7 +12,7 @@ The log schema (defined in ``contracts/interaction_log.schema.yaml``) includes:
 - ``timestamp_ms``: integer epoch time in milliseconds when the edit submitted
 - ``iteration``: integer count of the edit attempt (starting at 1)
 - ``mode``: interface mode used for this edit (``structured`` or ``chat``)
-- ``payload``: the raw edit command (typed code) or natural‑language utterance
+- ``payload``: **string** representation of the raw edit command (typed code) or natural‑language utterance
 - ``response_image_path``: filesystem path to the figure generated after this edit
 - ``task_start_ms``: timestamp of the first interaction for this task
 - ``task_end_ms``: timestamp of the most recent interaction for this task
@@ -84,6 +84,8 @@ def log_interaction(
     The function records per‑task start/end timestamps, generates a unique
     ``log_id``, and writes the record as a JSON line.  If the elapsed time
     for the task exceeds 15 minutes, a ``status: "aborted"`` field is added.
+    The ``payload`` field is stored as a JSON‑encoded **string** to satisfy
+    the contract schema.
     """
     now_ms = _timestamp_ms()
 
@@ -107,7 +109,8 @@ def log_interaction(
         "timestamp_ms": now_ms,
         "iteration": iteration,
         "mode": interface,
-        "payload": payload,
+        # Store payload as a compact JSON string per schema requirement
+        "payload": json.dumps(payload, separators=(",", ":")),
         # Placeholder path – in a real system this would point to the edited figure.
         "response_image_path": f"data/figures/{figure_id}_edit_{iteration}.png",
         "task_start_ms": task_start,

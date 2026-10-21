@@ -83,10 +83,10 @@ def main() -> int:
     interactions = _load_jsonl(interaction_log_path)
     figure_to_session: Dict[str, str] = {}
     for entry in interactions:
-        # Expected fields: participant_id, figure_id
-        participant_id = entry.get("participant_id")
-        figure_id = entry.get("figure_id")
-        if participant_id is None or figure_id is None:
+        # Accept either ``figure_id`` or ``task_id`` as the identifier.
+        figure_id = entry.get("figure_id") or entry.get("task_id")
+        participant_id = entry.get("participant_id") or entry.get("session_id")
+        if figure_id is None or participant_id is None:
             continue  # skip malformed entries
         # Keep the first observed mapping (all entries for a figure belong to the same session)
         figure_to_session.setdefault(str(figure_id), str(participant_id))
@@ -101,12 +101,16 @@ def main() -> int:
     validations = _load_jsonl(validation_path)
 
     # ------------------------------------------------------------------
-    # 3. Produce aggregated output
+    # 3. Produce aggregated output (one line per task, enriched with session_id)
     # ------------------------------------------------------------------
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as out_f:
         for record in validations:
-            figure_id = str(record.get("figure_id"))
+            # The validation record may use ``figure_id`` or ``task_id``.
+            figure_id = str(record.get("figure_id") or record.get("task_id"))
+            if figure_id is None:
+                continue  # skip malformed validation records
+
             vector_match = bool(record.get("vector_match", False))
             semantic_pass = bool(record.get("semantic_pass", False))
 

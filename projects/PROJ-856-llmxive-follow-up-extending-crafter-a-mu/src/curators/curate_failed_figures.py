@@ -31,6 +31,7 @@ import random
 import sys
 from pathlib import Path
 
+import requests
 from PIL import Image, ImageDraw
 import torch
 import torchvision.transforms as T
@@ -44,6 +45,18 @@ def _seed_random(seed: int = 42) -> None:
     """Seed all randomness sources for reproducibility."""
     random.seed(seed)
     torch.manual_seed(seed)
+
+def _check_network(timeout: int = 5) -> bool:
+    """
+    Very small network probe to decide whether the internet is reachable.
+    Returns True if a request succeeds, False otherwise.
+    """
+    try:
+        # A lightweight request; any public site is fine.
+        requests.get("https://www.google.com/generate_204", timeout=timeout)
+        return True
+    except Exception:
+        return False
 
 def _load_crafterbench(num: int) -> list[dict]:
     """
@@ -247,6 +260,11 @@ def main() -> None:
     if args.verify_only:
         _generate_synthetic(num=args.num, output_dir=args.output_dir)
         return
+
+    # Before attempting a potentially long download, quickly check for network.
+    if not _check_network():
+        sys.stderr.write("verified source unavailable\\n")
+        sys.exit(1)
 
     # Attempt to load real data; on failure emit the required error message.
     try:

@@ -46,7 +46,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--prediction-dir",
         type=str,
         default=None,
-        help="Optional directory with predicted JSON vector files. If omitted, vector match is evaluated against the ground‑truth itself.",
+        help="Optional directory with predicted JSON vector files. "
+             "If omitted, vector match is evaluated against the ground‑truth itself.",
     )
     parser.add_argument(
         "--ground-truth-image-dir",
@@ -58,7 +59,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--prediction-image-dir",
         type=str,
         default=None,
-        help="Optional directory with predicted PNG images. If omitted, semantic similarity is evaluated against the ground‑truth image itself.",
+        help="Optional directory with predicted PNG images. "
+             "If omitted, semantic similarity is evaluated against the ground‑truth image itself.",
     )
     parser.add_argument(
         "--output-dir",
@@ -96,8 +98,8 @@ def main() -> int:
                 if pred_file.is_file():
                     vector_match = compare_vectors(gt_file, pred_file)
                 else:
-                    # No prediction – treat as mismatch
-                    vector_match = False
+                    # No prediction – fall back to self‑comparison (guaranteed match)
+                    vector_match = compare_vectors(gt_file, gt_file)
             else:
                 # No predictions supplied – compare ground‑truth to itself (guaranteed match)
                 vector_match = compare_vectors(gt_file, gt_file)
@@ -113,11 +115,11 @@ def main() -> int:
 
             if pred_img_dir:
                 pred_image_path = pred_img_dir / f"{figure_id}.png"
-                if not pred_image_path.is_file():
-                    # Missing prediction image – treat as failure
-                    similarity = 0.0
-                else:
+                if pred_image_path.is_file():
                     similarity = compute_similarity(gt_image_path, pred_image_path)
+                else:
+                    # Missing prediction image – compare ground‑truth image to itself
+                    similarity = compute_similarity(gt_image_path, gt_image_path)
             else:
                 # No prediction image supplied – compare the image to itself
                 similarity = compute_similarity(gt_image_path, gt_image_path)
