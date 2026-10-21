@@ -9,7 +9,7 @@
 
 ### User Story US-1 - Generate and Quantize Simulated Gravitational Waveforms (Priority: P1)
 
-As a researcher, I need to generate binary black hole merger waveforms and inject them into realistic LIGO O3 noise, then apply controlled quantization at specific bit depths (1, 8, 10, 12, 14, and 16 bits), so that I can create a dataset representing the physical conditions where quantization noise competes with instrumental noise.
+As a researcher, I need to generate binary black hole merger waveforms and inject them into realistic LIGO O3 noise, then apply controlled quantization at specific bit depths (a minimal bit depth and 8, 10, 12, 14, and 16 bits), so that I can create a dataset representing the physical conditions where quantization noise competes with instrumental noise.
 
 **Why this priority**: This is the foundational data generation step. Without simulated waveforms with known ground‑truth parameters and controlled quantization artifacts, no parameter estimation or error analysis can occur. It directly enables the core measurement of reconstruction error.
 

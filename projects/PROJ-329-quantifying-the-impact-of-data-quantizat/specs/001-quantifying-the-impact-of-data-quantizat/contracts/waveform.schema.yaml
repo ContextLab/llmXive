@@ -20,33 +20,19 @@ properties:
         description: "Primary spin component ([-0.9, 0.9])."
       spin_2z:
         type: "number"
-        description: "Secondary spin component ([-0.9, 0.9])."
-      luminosity_distance:
-        type: "number"
-        description: "Luminosity distance in Mpc (100‑1000)."
-    required: ["mass_1", "mass_2", "luminosity_distance"]
+        description: "Secondary spin component ([-0.5, 0.5])."
+    required: ["mass_1", "mass_2", "spin_1z", "spin_2z"]
   snr:
     type: "number"
     description: "Injected Signal‑to‑Noise Ratio."
   sampling_rate:
     type: "number"
-    description: "Sampling rate in Hz"
-    minimum: 0
+    description: "Sampling rate in Hz."
   duration:
     type: "number"
-    description: "Signal duration in seconds"
-    minimum: 0
-  bit_depth:
-    type: "integer"
-    description: "Bit depth of quantization (0 for float64 baseline, otherwise 1‑16)."
-  fsr:
-    type: "number"
-    description: "Fixed full‑scale range used for quantization."
-  step_size:
-    type: "number"
-    description: "Amplitude resolution of the quantizer."
+    description: "Signal duration in seconds."
   data_type:
     type: "string"
     enum: ["float64", "quantized"]
-    description: "Indicates whether the waveform is baseline or quantized."
-required: ["waveform_id", "params", "snr", "sampling_rate", "duration", "bit_depth", "fsr", "step_size", "data_type"]
+    description: "Indicates whether this entry is a baseline (float64) or a quantized signal."
+required: ["waveform_id", "params", "snr", "sampling_rate", "duration", "data_type"]

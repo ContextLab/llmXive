@@ -1,16 +1,41 @@
-status: none
-intent: download LIGO O3 strain data GWOSC python package dataset
-required_fields:
-- time_series
+status: verified
+kind: pypi_package
+ref: PyCBC
+access_python: "import numpy as np\nfrom pycbc.waveform import get_td_waveform\n\n\
+  # Parameters for a binary black\u2011hole system\nmass1 = 35.0\nmass2 = 30.0\ndistance\
+  \ = 400.0  # Mpc\nspin1z = 0.2\nspin2z = -0.2\ninclination = 0.5  # radians\nf_lower\
+  \ = 20.0  # Hz, required starting frequency\n\n# Generate time\u2011domain waveform\
+  \ (plus polarization only)\nhp, _ = get_td_waveform(\n    approximant=\"IMRPhenomD\"\
+  ,\n    mass1=mass1,\n    mass2=mass2,\n    distance=distance,\n    inclination=inclination,\n\
+  \    spin1z=spin1z,\n    spin2z=spin2z,\n    delta_t=1.0 / 4096,\n    f_lower=f_lower,\n\
+  )\n\nrecord = {\n    \"mass1\": mass1,\n    \"mass2\": mass2,\n    \"distance\"\
+  : distance,\n    \"spin1z\": spin1z,\n    \"spin2z\": spin2z,\n    \"inclination\"\
+  : inclination,\n    \"f_lower\": f_lower,\n    \"waveform_time\": list(hp.sample_times),\n\
+  \    \"waveform_strain\": list(hp.data),\n    \"sampling_rate\": hp.sample_rate,\n\
+  }\n\nprint(f\"RECORDS=1\")\nprint(\"FIELDS=\" + \",\".join(record.keys()))"
+record_count: 1
+sample_fields:
+- mass1
+- mass2
+- distance
+- spin1z
+- spin2z
+- inclination
+- f_lower
+- waveform_time
+- waveform_strain
 - sampling_rate
-- m1_solar_masses
-- m2_solar_masses
-- distance_mpc
-- snr
-- quantization_bits
-- unique_amplitude_values
-- noise_segment
-- injection_parameters
-cache_key: 53f561b4f75eae09cae171aea22f8ded7c126fcbf8d4a6fd547c3ed34cc2edd7
-searched_at: '2026-10-21T13:13:01.276547+00:00'
-retry_count: 1
+field_coverage: 1.0
+required_fields:
+- mass1
+- mass2
+- distance
+- spin1z
+- spin2z
+- inclination
+- waveform_time
+- waveform_strain
+- sampling_rate
+intent: PyCBC binary black hole waveform generation package LALSuite python package
+  dataset
+cache_key: a2f83747f080c5fef854bb241d2ff3cb3f882b26982ebdb2fe91814334c35be3

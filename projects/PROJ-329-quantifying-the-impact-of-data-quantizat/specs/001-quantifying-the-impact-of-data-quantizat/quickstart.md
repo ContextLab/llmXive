@@ -22,12 +22,12 @@ python src/data_generation.py --download-noise
 
 ## 3. Pilot Generation (All examined bit depths, N = 2 400)
 ```bash
-# Split the full workload into four CI jobs (each handles a large number of signals)
-for JOB in 0 1 2 3; do
+# Split the full workload into eight CI jobs (each handles a subset of signals)
+for JOB in 0 1 2 3 4 5 6 7; do
   python src/data_generation.py \
     --generate \
     --count 2400 \
-    --bit-depths 1,8,10,12,14,16 \
+    --bit-depths 4,8,10,12,14,16 \
     --snr-bins 8-14,14-20,20-30,30-50 \
     --seed 42 \
     --job-index $JOB \
@@ -38,8 +38,8 @@ done
 
 ## 4. Run Inference (MCMC, CPU‑only)
 ```bash
-# Run the same four‑job split for inference
-for JOB in 0 1 2 3; do
+# Run the same eight‑job split for inference
+for JOB in 0 1 2 3 4 5 6 7; do
   python src/inference_engine.py \
     --input data/processed/waveforms_job${JOB}.h5 \
     --method mcmc \
@@ -63,7 +63,7 @@ python src/analysis.py \
 ```bash
 python scripts/compute_resource_estimate.py
 ```
-*Benchmarks the **full pipeline** (generation + quantization + inference + analysis) and writes `reports/resource_estimate.md`, confirming RAM ≤ 5 GB, CPU time ≤ 5.5 h per CI job, and disk usage ≤ 14 GB.*
+*Benchmarks the **full pipeline** (generation + quantization + inference + analysis) and writes `reports/resource_estimate.md`, confirming RAM ≤ 4.5 GB, CPU time ≤ 5 h per CI job, and disk usage ≤ 14 GB.*
 
 ## 7. Run the Full Reproducibility Suite (SC‑005)
 ```bash
@@ -74,9 +74,12 @@ for SEED in {1..10}; do
 done
 python src/analysis.py --aggregate reports/thresholds_run*.csv --output reports/crossover_thresholds_final.csv
 ```
-*Produces `reports/crossover_thresholds_final.csv` with the median crossover SNR per bit depth and a 95 % confidence interval across multiple runs (fulfills SC‑005).*
+*Produces `reports/crossover_thresholds_final.csv` with the median crossover SNR per bit depth and a confidence interval across the ten independent runs. (fulfills SC‑005).*
 
 ## 8. Troubleshooting
 - **MemoryError**: Reduce `--count` or increase HDF5 chunk size.  
 - **ConvergenceFailed**: Inspect the `convergence_status` field in the JSON; low‑SNR signals (< 8) are recorded as `"non-detection"` per the spec.  
 - **Missing Noise File**: The downloader aborts with a clear error; re‑run `--download-noise` to fetch the file again.
+
+---
+

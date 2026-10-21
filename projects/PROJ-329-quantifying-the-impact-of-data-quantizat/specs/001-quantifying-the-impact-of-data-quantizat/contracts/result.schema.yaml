@@ -48,7 +48,7 @@ properties:
     description: "Injected Signal‑to‑Noise Ratio."
   delta:
     type: "object"
-    description: "Per‑parameter quantization‑induced bias (Δₖ = E_quant,ₖ − E_inst,ₖ)."
+    description: "Per‑parameter quantization‑induced bias (Δₖ = E_quant,ₖ − E_inst,ₖ)."
     properties:
       chirp_mass:
         type: "number"

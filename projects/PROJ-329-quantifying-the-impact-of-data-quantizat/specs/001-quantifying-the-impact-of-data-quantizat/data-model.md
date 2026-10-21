@@ -17,7 +17,7 @@ Defines canonical data structures stored as HDF5 (large arrays) and JSON (metada
 | `bit_depth` | integer | 0 for baseline (float64) or 1‑16 for quantized signals |
 | `fsr` | number | Fixed full‑scale range used for quantization |
 | `step_size` | number | Quantization step size (derived from FSR and bit depth) |
-| `data_type` | string | `"float64"` for baseline, `"quantized"` for quantized signals (populated by the generation code) |
+| `data_type` | string | `"float64"` for baseline, `"quantized"` for quantized signals |
 | `data_quantized` | int16/int32 array (optional) | Quantized strain (present only for bit depths > 0) |
 
 ### 2.2 ParameterEstimationResult
@@ -56,3 +56,5 @@ Array of objects conforming to `contracts/result.schema.yaml`. Each entry contai
 - Convergence status and SNR.
 
 All transformations produce new files; original raw PSD and generated waveforms remain unchanged, satisfying the Data Hygiene principle.
+
+---
