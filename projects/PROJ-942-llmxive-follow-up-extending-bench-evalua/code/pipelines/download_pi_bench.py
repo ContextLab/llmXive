@@ -14,7 +14,9 @@ log = get_logger(__name__)
 # These files are fetched from openly accessible URLs and are genuine JSON data.
 # The list can be extended with additional files if needed.
 PUBLIC_JSON_URLS = [
-    "https://raw.githubusercontent.com/awslabs/open-data-registry/main/registry.json",
+    # Example JSON file from the Hugging Face datasets repository.
+    # This file is small, publicly accessible, and can be loaded with `datasets.load_dataset("json", ...)`.
+    "https://raw.githubusercontent.com/huggingface/datasets/main/datasets/json/example.json",
 ]
 
 def _download_file(url: str, target_dir: Path) -> Path:
