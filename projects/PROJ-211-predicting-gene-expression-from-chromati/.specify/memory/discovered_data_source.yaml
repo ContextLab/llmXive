@@ -1,19 +1,14 @@
 status: none
-intent: ENCODE paired RNA-seq and DNase-seq count matrices download python package
-  dataset
+intent: ENCODE ENCODE DCC GEO paired RNA-seq ATAC-seq count matrices download python
+  package dataset
 required_fields:
 - sample_id
 - cell_type
-- biosample_type
 - assay_type
-- replicate_id
-- library_id
-- gene_id
-- gene_symbol
-- genomic_region_chrom
-- genomic_region_start
-- genomic_region_end
+- feature_id
 - count
-cache_key: c3893352e6168cde5a4fe70975b1487bd44c9e3c20d34b9f3b25bdcde8815a63
-searched_at: '2026-10-21T00:13:32.307889+00:00'
+- genome_assembly
+- replicate
+cache_key: ab8068668240d50425a5807e1a8ab7f7e7cb486dc6ebd4dad0c56ee706bc247c
+searched_at: '2026-10-21T03:19:49.526689+00:00'
 retry_count: 1

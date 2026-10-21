@@ -10,66 +10,67 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/generate_data.py: self-declared fabricated metric — “…tadata fields are filled with placeholder values.     """     # Metadata – pl…”
 - code/generate_data.py: self-declared fabricated metric — “…ues.     """     # Metadata – placeholder values sufficient for validation…”
+- code/preprocess.py: self-declared fabricated metric — “…errows():             # Use a dummy score of 0 for the BED score column…”
 - code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for the gene e…”
 - code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…is no silent fallback to synthetic data.  The script can be exec…”
 - code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…cessibility matrix – for synthetic data we reuse the same consta…”
 - code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…schema)     logger.info("Synthetic data conforms to the dataset…”
 - code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…_path)      logger.info("Synthetic data generation completed suc…”
-- code/run_t011.py: synthetic/fake INPUT data not authorized by the spec — “…"""Write log indicating synthetic data was skipped because real…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 14 fabricated/simulated-result signal(s) — results are not real measurements: code/generate_data.py: self-declared fabricated metric — “…tadata fields are filled with placeholder values.     """     # Metadata – pl…”; code/generate_data.py: self-declared fabricated metric — “…ues.     """     # Metadata – placeholder values sufficient for validation…”; code/generate_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generator for the gene e…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/analyze.py; 6 command(s) failed: python code/download_encode.py --cell-lines GM12878,K562,HMEC,IMR90,HepG2 (rc=1); python code/preprocess.py (rc=1); python code/train.py (rc=1); 11 declared deliverable(s) absent: data/processed/cell_type_specific_genes.csv; data/processed/external_validation_r2.csv; data/processed/filtered_expression.csv
+**Summary**: 16 fabricated/simulated-result signal(s) — results are not real measurements: code/generate_data.py: self-declared fabricated metric — “…tadata fields are filled with placeholder values.     """     # Metadata – pl…”; code/generate_data.py: self-declared fabricated metric — “…ues.     """     # Metadata – placeholder values sufficient for validation…”; code/preprocess.py: self-declared fabricated metric — “…errows():             # Use a dummy score of 0 for the BED score column…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/analyze.py; 6 command(s) failed: python code/download_encode.py --cell-lines GM12878,K562,HMEC,IMR90,HepG2 (rc=1); python code/preprocess.py (rc=1); python code/train.py (rc=1); 11 declared deliverable(s) absent: data/processed/cell_type_specific_genes.csv; data/processed/external_validation_r2.csv; data/processed/filtered_expression.csv
 
 ## Failing / missing run-book commands
 
 - python code/download_encode.py --cell-lines GM12878,K562,HMEC,IMR90,HepG2 -> rc=1
-2026-10-21 00:12:37,268 - __main__ - INFO - Directories ensured: ['data/raw', 'data/processed', 'data/models', 'logs', 'tests', 'docs', 'contracts', 'state']
-2026-10-21 00:12:37,268 - __main__ - INFO - Querying ENCODE for GM12878 assay=RNA-seq output_type=gene quantifications format=tsv
-2026-10-21 00:12:37,646 - __main__ - WARNING - Primary RNA‑seq query failed for GM12878: 404 Client Error: Not Found for url: https://www.encodeproject.org/search/?type=File&biosample_ontology.term_name=GM12878&status=released&assembly=hg38&format=json&limit=1&field=href&assay_title=RNA-seq&output_type=gene+quantifications&file_format=tsv. Trying fallback without assay.
-2026-10-21 00:12:37,646 - __main__ - INFO - Querying ENCODE for GM12878 assay=None output_type=gene quantifications format=tsv
-2026-10-21 00:12:37,912 - __main__ - ERROR - Failed to retrieve ENCODE metadata: 404 Client Error: Not Found for url: https://www.encodeproject.org/search/?type=File&biosample_ontology.term_name=GM12878&status=released&assembly=hg38&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv
+2026-10-21 03:19:04,446 - __main__ - INFO - Directories ensured: ['data/raw', 'data/processed', 'data/models', 'logs', 'tests', 'docs', 'contracts', 'state']
+2026-10-21 03:19:04,446 - __main__ - INFO - Querying ENCODE for GM12878 assay=RNA-seq output_type=gene quantifications format=tsv
+2026-10-21 03:19:04,889 - __main__ - WARNING - Primary RNA‑seq query failed for GM12878: 404 Client Error: Not Found for url: https://www.encodeproject.org/search/?type=File&biosample_ontology.term_name=GM12878&status=released&assembly=hg38&format=json&limit=1&field=href&assay_title=RNA-seq&output_type=gene+quantifications&file_format=tsv. Trying fallback without assay.
+2026-10-21 03:19:04,889 - __main__ - INFO - Querying ENCODE for GM12878 assay=None output_type=gene quantifications format=tsv
+2026-10-21 03:19:05,051 - __main__ - ERROR - Failed to retrieve ENCODE metadata: 404 Client Error: Not Found for url: https://www.encodeproject.org/search/?type=File&biosample_ontology.term_name=GM12878&status=released&assembly=hg38&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv
 
 Failed to retrieve ENCODE metadata and CI_MODE=0 – aborting pipeline.
 
 - python code/preprocess.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/preprocess.py", line 339, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/preprocess.py", line 455, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/preprocess.py", line 284, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/preprocess.py", line 400, in main
     gene_coords = load_gene_coords()
                   ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/preprocess.py", line 83, in load_gene_coords
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/preprocess.py", line 112, in load_gene_coords
     raise FileNotFoundError(f"Gene coordinates file not found: {path}")
 FileNotFoundError: Gene coordinates file not found: data/raw/gene_coords.bed
 
 - python code/train.py -> rc=1
-2026-10-21 00:12:39,253 - INFO - Starting training pipeline for data/processed/imputed_expression.csv
-2026-10-21 00:12:39,253 - INFO - Loading data from data/processed/imputed_expression.csv
-2026-10-21 00:12:39,253 - ERROR - Failed to load data: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
-2026-10-21 00:12:39,254 - ERROR - Training failed: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
+2026-10-21 03:19:06,414 - INFO - Starting training pipeline for data/processed/imputed_expression.csv
+2026-10-21 03:19:06,414 - INFO - Loading data from data/processed/imputed_expression.csv
+2026-10-21 03:19:06,415 - ERROR - Failed to load data: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
+2026-10-21 03:19:06,415 - ERROR - Training failed: [Errno 2] No such file or directory: 'data/processed/imputed_expression.csv'
 
 
 - python code/analyze.py -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-211-predicting-gene-expression-from-chromati/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/code/analyze.py': [Errno 2] No such file or directory
 
-- python -m pytest tests/unit/ -> rc=2
-======== ERRORS ====================================
-_ ERROR collecting projects/PROJ-211-predicting-gene-expression-from-chromati/tests/unit/test_preprocess_housekeeping.py _
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/tests/unit/test_preprocess_housekeeping.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_preprocess_housekeeping.py:13: in <module>
-    from preprocess import (
-E   ImportError: cannot import name 'calculate_coefficient_of_variation' from 'preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-211-predicting-gene-expression-from-chromati/tests/unit/../../code/preprocess.py)
-=========================== short test summary info ============================
-ERROR tests/unit/test_preprocess_housekeeping.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 1.19s ===============================
+- python -m pytest tests/unit/ -> rc=1
+matrix_dimensions
+FAILED tests/unit/test_t011_generation.py::TestT011Generation::test_peaks_matrix_dimensions
+FAILED tests/unit/test_t011_generation.py::TestT011Generation::test_bed_file_format
+FAILED tests/unit/test_t011_generation.py::TestT011Generation::test_reproducibility_with_seed
+FAILED tests/unit/test_t011_generation.py::TestT011Generation::test_different_seed_produces_different_data
+FAILED tests/unit/test_t011_generation.py::TestT011Generation::test_data_types_in_counts
+FAILED tests/unit/test_train.py::TestTrainElasticNet::test_run_cross_validation
+FAILED tests/unit/test_train.py::TestTrainElasticNet::test_train_elastic_net
+FAILED tests/unit/test_utils.py::TestLoadConfig::test_load_empty_yaml - asser...
+ERROR tests/unit/test_preprocess.py::test_bin_aggregation_shape - FileNotFoun...
+ERROR tests/unit/test_preprocess.py::test_merge_features_expression - FileNot...
+ERROR tests/unit/test_utils.py::TestRetryRequest::test_success_on_first_attempt
+ERROR tests/unit/test_utils.py::TestRetryRequest::test_retry_on_failure
+ERROR tests/unit/test_utils.py::TestRetryRequest::test_failure_after_max_attempts
+============= 25 failed, 33 passed, 3 warnings, 5 errors in 2.05s ==============
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -85,7 +86,7 @@ FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::t
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_required_keys_present
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_value_types
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_delta_r2_calculation
-=================== 15 failed, 1 passed, 7 skipped in 0.28s ====================
+=================== 15 failed, 1 passed, 7 skipped in 0.23s ====================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -103,7 +104,7 @@ E   ImportError: cannot import name 'train_elastic_net_cv' from 'code.train' (/h
 ERROR tests/integration/test_data_pipeline.py
 ERROR tests/integration/test_training_loop.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.08s ===============================
+============================== 2 errors in 0.98s ===============================
 
 
 
@@ -137,6 +138,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/processed/filtered_expression.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/housekeeping_genes.csv` is declared but was NOT written. Scripts referencing it:
     - `code/interpret.py` — NOT invoked by the run-book
+    - `code/preprocess.py` — IS a run-book command
     - `code/run_t016.py` — NOT invoked by the run-book
     - `code/run_t016c.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/housekeeping_genes.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
@@ -165,6 +167,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/raw/checksums.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/synthetic_counts.csv` is declared but was NOT written. Scripts referencing it:
     - `code/generate_data.py` — NOT invoked by the run-book
+    - `code/preprocess.py` — IS a run-book command
     - `code/run_t011.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/synthetic_counts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project

@@ -19,14 +19,14 @@ The pipeline must use **real ENCODE data** for scientific results; synthetic dat
   – raises on any mismatch (no silent fallback).  
   **Verification**: Run the generator with `python -m code.generate_data` **or** `python code/generate_data.py`; it must exit 0, both files exist, are non‑empty, and `pytest tests/unit/test_generate_data.py` passes.
 
-- [ ] T002 [US1] Implement a robust ENCODE download script `code/download_encode.py` that streams real resources and records SHA‑256 checksums in `data/raw/checksums.csv`. For each of the five cell lines it must download:   <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 -->
+- [ ] T002 [US1] Implement a robust ENCODE download script `code/download_encode.py` that streams real resources and records SHA‑256 checksums in `data/raw/checksums.csv`. For each of the five cell lines it must download:   <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 --> <!-- FAILED: unspecified -->
   – RNA‑seq gene‑quantification TSV → `data/raw/encode_counts_{cell_line}.csv`  
   – DNase‑seq/ATAC‑seq narrowPeak BED → `data/raw/encode_peaks_{cell_line}.bed`  
   – GENCODE hg38 gene‑coordinates GTF (reduced to TSS BED) → `data/raw/gene_coords.bed`  
   The script aborts on any HTTP error or empty response.  
   **Verification**: All files exist, are non‑empty, checksums match those recorded, and `pytest tests/integration/test_download.py` validates column headers and schema compliance.
 
-- [ ] T003 [US1] Implement preprocessing `code/preprocess.py` that, for each cell line, performs the following steps and writes the indicated artifacts:   <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
+- [ ] T003 [US1] Implement preprocessing `code/preprocess.py` that, for each cell line, performs the following steps and writes the indicated artifacts:   <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
   1. **Bin aggregation** (FR‑002): split the ±50 kb window around each TSS into 200 fixed‑width bins, exclude the promoter region (TSS ± 2 kb), sum peak scores per bin → `data/processed/{cell_line}_binned_features.csv` (200 columns `bin_1` … `bin_200`).  
   2. **Gene filtering** (FR‑003): remove genes with zero expression across all five cell lines → `data/processed/filtered_expression.csv`.  
   3. **Log‑pseudocount** (FR‑004): compute `log(count + 1)` → `data/processed/log_expression.csv`.  
