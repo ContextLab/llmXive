@@ -50,6 +50,9 @@ SHOPPER_VERIFIED_URL = (
     "https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/"
     "data/train-00000-of-00001-3316810f8df41d3a.parquet"
 )
+ADULT_VERIFIED_URL = (
+    "https://openml.org/data/get_csv/1590/adult.csv"
+)
 
 # ---------------------------------------------------------------------------
 # Global collection for the resource‑summary JSON
@@ -71,16 +74,37 @@ def _fetch_bytes(url: str) -> bytes:
 
 
 def load_adult() -> pd.DataFrame:
-    """UCI Adult via OpenML dataset id 1590 (verified source)."""
-    import openml
+    """UCI Adult via OpenML using the HuggingFace ``datasets`` bridge.
 
-    dataset = openml.datasets.get_dataset(1590, download_data=True)
-    df, _, _, _ = dataset.get_data(
-        dataset_format="dataframe", target=dataset.default_target_attribute
-    )
-    if df is None or len(df) == 0:
-        raise RuntimeError("OpenML dataset 1590 (Adult) returned no data")
-    return df
+    Primary path is ``datasets.load_dataset("openml", name="adult",
+    split="train")`` as specified in the task description.  If the
+    ``datasets`` library cannot serve the repository (e.g. network
+    hiccup or format change), the plan's verified HTTPS URL is fetched
+    directly.  All failures propagate loudly.
+    """
+    errors: List[str] = []
+    try:
+        from datasets import load_dataset
+
+        ds = load_dataset("openml", name="adult", split="train")
+        df = ds.to_pandas()
+        if df is None or len(df) == 0:
+            raise RuntimeError("empty dataframe from openml adult")
+        return df
+    except Exception as exc:
+        errors.append(f"datasets.load_dataset(openml, adult) failed: {exc}")
+
+    # Fallback to direct download of the CSV from OpenML
+    try:
+        content = _fetch_bytes(ADULT_VERIFIED_URL)
+        df = pd.read_csv(io.BytesIO(content))
+        if df is None or len(df) == 0:
+            raise RuntimeError("empty dataframe from verified Adult URL")
+        return df
+    except Exception as exc:
+        errors.append(f"direct fetch of {ADULT_VERIFIED_URL} failed: {exc}")
+
+    raise RuntimeError("all real‑source fetches for UCI‑Adult failed: " + " | ".join(errors))
 
 
 def load_har() -> pd.DataFrame:

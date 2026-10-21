@@ -5,14 +5,8 @@ T001:
     write only project-owned outputs.'
   task: c7492a9576c85fc760e7cba1f364d4de1ac8719184bc3a3deac8b6272eca1390
 T002:
-  reason: "The loader source and test file exist, but none of the required output\
-    \ artifacts do: `data/raw/<name>/checksums.sha256`, `data/processed/<name>/{train,holdout}.parquet`,\
-    \ `metadata.yaml`, `preprocess_log.txt`, and `outputs/metrics/resource_summary.json`\
-    \ are all MISSING, so there is no evidence the loader was ever executed or that\
-    \ `pytest tests/unit/test_loader.py` passes (it would fail immediately on missing\
-    \ files). Additionally, the implementation deviates from the spec: it uses integer-code\
-    \ encoding instead of the required one-hot (\u226420 categories) / frequency encoding\
-    \ (>20 categories), and th"
+  reason: 'Requested task execution failed; rerun successfully: src/data/loader.py
+    exit=1'
   task: d3fbb927599e1c5cc8ba785e56c439d65310098ba4b92c6c253e444384576ef0
 T003:
   task: f932fa404340ee5f5b7cafe07b8c219ff3f17169c0ca7fef1b62a7a495b9df13

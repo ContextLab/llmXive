@@ -1,18 +1,22 @@
 # Pinned dependencies for the statistical fidelity evaluation pipeline
+# (CPU-only; no CUDA usage anywhere in the project).
 sdv==1.12.0
-torch==2.2.0  # CPU‑only wheel
-pandas
-numpy
-scipy
-scikit-learn
-statsmodels
-datasets
-matplotlib
-seaborn
-pyarrow
-psutil
-jinja2
-pytest
-jsonschema
-pdfminer.six
-rdt==1.12.0  # required for sdv; ensures IDGenerator is available
+rdt==1.12.0
+torch==2.2.0
+pandas==2.2.3
+numpy==1.26.4
+scipy==1.13.1
+scikit-learn==1.5.2
+statsmodels==0.14.4
+datasets==3.0.1
+openml==0.14.2
+matplotlib==3.9.2
+seaborn==0.13.2
+pyarrow==17.0.0
+psutil==6.0.0
+jinja2==3.1.4
+pytest==8.3.3
+jsonschema==4.23.0
+pdfminer.six==20231228
+PyYAML==6.0.2
+requests==2.32.3

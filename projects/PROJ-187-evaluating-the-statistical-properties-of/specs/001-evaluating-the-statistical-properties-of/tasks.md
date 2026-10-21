@@ -13,7 +13,7 @@ The goal is a fully automated CPU‑only pipeline that (1) loads the verified pu
 - [ ] T001 [P] Write a pinned `requirements.txt` at the project root containing exact versions for all dependencies (`sdv==1.12.0`, CPU‑only `torch`, `pandas`, `numpy`, `scipy`, `scikit-learn`, `statsmodels`, `datasets`, `matplotlib`, `seaborn`, `pyarrow`, `psutil`, `jinja2`, `pytest`, `jsonschema`, `pdfminer.six`).
   *Verification*: `pip install -r requirements.txt` succeeds in a clean environment and `pip check` reports no conflicts. **The task writes only `requirements.txt` at the project root; it must NOT create, write, or read any `state/` or `.github/` paths — the platform owns those.** No other files are produced by this task.
 
-- [ ] T002 [US1] Implement real‑data loading and preprocessing in `src/data/loader.py`.
+- [ ] T002 [US1] Implement real‑data loading and preprocessing in `src/data/loader.py`. <!-- FAILED-IN-EXECUTION: src/data/loader.py exit=1 -->
   *Actions & outputs*
   - Load the three verified datasets: **UCI‑Adult** (`datasets.load_dataset("openml", name="adult", split="train")`), **UCI‑HAR** (`datasets.load_dataset("udayl/UCI_HAR", split="test")`) and **UCI‑Shopper** (`datasets.load_dataset("jlh/uci-shopper", split="train")`). The loader must raise on any fetch failure — no synthetic/mock fallback is permitted.
   - Store raw files under `data/raw/<name>/` and record SHA‑256 checksums in `data/raw/<name>/checksums.sha256`.
