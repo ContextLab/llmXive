@@ -3,7 +3,7 @@ src/simulation/power_analysis.py
 --------------------------------
 
 Command‑line entry point that computes the a‑priori number of participants
-required for the within‑subjects cognitive‑load study.  It delegates the
+required for the within‑subjects cognitive‑load study. It delegates the
 actual calculation to the shared utility in ``src.utils.power_analysis`` so
 that the same implementation is used throughout the project.
 

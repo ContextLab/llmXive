@@ -12,10 +12,14 @@ scope for the current verification tests.
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+from src.interfaces.session import router as session_router
 from src.logger.interaction_logger import log_interaction
 
 # FastAPI application instance for the chat interface
 app = FastAPI()
+
+# Include session initialization router to expose /init_session
+app.include_router(session_router)
 
 class ChatEditRequest(BaseModel):
     """

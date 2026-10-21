@@ -1,78 +1,104 @@
 """
 Unit tests for ``src.logger.interaction_logger``.
 
-The test truncates the global log file, writes a couple of records using
-``log_interaction`` and then verifies that the JSON‑Lines file contains the
-expected entries with correct fields and types.
+These tests verify that the logger correctly records millisecond-precision
+timestamps, maintains per-task timing state, and handles the 15-minute
+abort threshold.
 """
 
 import json
+import time
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
-
+import src.logger.interaction_logger as logger
 from src.logger.interaction_logger import LOG_PATH, log_interaction
 
 @pytest.fixture(autouse=True)
-def clean_log():
-    """Ensure a fresh log file for each test run."""
+def clean_environment():
+    """Ensure a fresh log file and clear in-memory state for each test."""
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    # Truncate the file if it exists, otherwise create an empty one.
     LOG_PATH.write_text("", encoding="utf-8")
+    logger._task_state.clear()
     yield
-    # Clean up after the test – leave an empty file for subsequent runs.
-    LOG_PATH.write_text("", encoding="utf-8")
+    # Clean up after the test
+    if LOG_PATH.exists():
+        LOG_PATH.write_text("", encoding="utf-8")
 
-def test_log_interaction_writes_valid_jsonl():
-    participant = "test-participant"
-    figure = "fig-001"
+def test_log_interaction_basic():
+    """Verify that a single interaction is recorded with all required schema fields."""
+    participant = "user_123"
+    figure = "fig_001"
     interface = "structured"
-    payload_dict = {"action": "set_color", "target": "axis", "value": "red"}
+    payload = {"edit": "set_color(axis, red)"}
     iteration = 1
 
-    # Write the first record.
-    log_interaction(
-        participant_id=participant,
-        figure_id=figure,
-        interface=interface,
-        payload=payload_dict,
-        iteration=iteration,
-    )
+    log_interaction(participant, figure, interface, payload, iteration)
 
-    # Write a second record with a different iteration.
-    log_interaction(
-        participant_id=participant,
-        figure_id=figure,
-        interface=interface,
-        payload={"action": "move", "dx": 10, "dy": -5},
-        iteration=2,
-    )
-
-    # Read back the file and parse each line as JSON.
+    assert LOG_PATH.exists()
     lines = LOG_PATH.read_text(encoding="utf-8").strip().splitlines()
-    assert len(lines) == 2, "Two interaction records should have been written."
+    assert len(lines) == 1
+    
+    rec = json.loads(lines[0])
+    assert rec["session_id"] == participant
+    assert rec["task_id"] == figure
+    assert rec["mode"] == interface
+    assert rec["iteration"] == iteration
+    assert rec["payload"] == json.dumps(payload, separators=(",", ":"))
+    assert "log_id" in rec
+    assert "timestamp_ms" in rec
+    assert "task_start_ms" in rec
+    assert "task_end_ms" in rec
+    assert "response_image_path" in rec
 
-    records = [json.loads(line) for line in lines]
+def test_log_interaction_timing_consistency():
+    """Verify that task_start_ms remains constant while task_end_ms updates."""
+    participant = "user_123"
+    figure = "fig_001"
+    interface = "chat"
+    
+    # First interaction
+    log_interaction(participant, figure, interface, {"msg": "hi"}, 1)
+    
+    # Simulate small delay
+    time.sleep(0.01)
+    
+    # Second interaction
+    log_interaction(participant, figure, interface, {"msg": "do it"}, 2)
+    
+    lines = LOG_PATH.read_text(encoding="utf-8").strip().splitlines()
+    rec1 = json.loads(lines[0])
+    rec2 = json.loads(lines[1])
+    
+    assert rec1["task_start_ms"] == rec2["task_start_ms"], "Start time must be consistent for the task"
+    assert rec2["task_end_ms"] > rec1["task_end_ms"], "End time must increase"
+    assert rec2["timestamp_ms"] == rec2["task_end_ms"], "Current timestamp must match task_end_ms"
 
-    # Basic schema checks for both records.
-    for rec in records:
-        assert isinstance(rec["timestamp_ms"], int), "timestamp_ms must be an integer"
-        assert rec["session_id"] == participant
-        assert rec["task_id"] == figure
-        assert rec["mode"] == interface
-        assert isinstance(rec["iteration"], int) and rec["iteration"] >= 1
-        # Payload is stored as a JSON‑encoded string; ensure it can be decoded back.
-        payload_loaded = json.loads(rec["payload"])
-        assert isinstance(payload_loaded, dict)
-        # Verify presence of new fields introduced by T004
-        assert "log_id" in rec
-        assert "task_start_ms" in rec
-        assert "task_end_ms" in rec
-        assert "response_image_path" in rec
-
-    # Verify that iteration numbers increment correctly.
-    assert records[0]["iteration"] == 1
-    assert records[1]["iteration"] == 2
-
-    # Payload of the first record should match the input payload.
-    assert json.loads(records[0]["payload"]) == payload_dict
+def test_log_interaction_abort_status():
+    """Verify that interactions exceeding 15 minutes are marked as aborted."""
+    participant = "user_123"
+    figure = "fig_001"
+    interface = "structured"
+    
+    # Mock time to simulate a long duration
+    start_time = 1000000000000 # some arbitrary epoch ms
+    end_time = start_time + (16 * 60 * 1000) # 16 minutes later
+    
+    with patch("src.logger.interaction_logger._timestamp_ms") as mock_time:
+        # First interaction at start_time
+        mock_time.return_value = start_time
+        log_interaction(participant, figure, interface, {"edit": "1"}, 1)
+        
+        # Second interaction at end_time
+        mock_time.return_value = end_time
+        log_interaction(participant, figure, interface, {"edit": "2"}, 2)
+    
+    lines = LOG_PATH.read_text(encoding="utf-8").strip().splitlines()
+    rec1 = json.loads(lines[0])
+    rec2 = json.loads(lines[1])
+    
+    assert "status" not in rec1, "First interaction should not be aborted"
+    assert rec2["status"] == "aborted", "Interaction after 15 mins must be marked as aborted"
+    assert rec2["task_start_ms"] == start_time
+    assert rec2["task_end_ms"] == end_time

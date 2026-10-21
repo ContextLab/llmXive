@@ -42,9 +42,16 @@ def test_init_session_chat():
 def test_structured_edit_endpoint():
     """
     The structured harness /edit endpoint should acknowledge the request.
+    Must provide all required fields for the logger.
     """
     client = TestClient(structured_app)
-    payload = {"figure_id": "figure_0", "edit_commands": []}
+    payload = {
+        "participant_id": "test_user_1",
+        "figure_id": "figure_0",
+        "interface": "structured",
+        "payload": {"edit_commands": []},
+        "iteration": 1
+    }
     response = client.post("/edit", json=payload)
     assert response.status_code == 200, "Expected 200 OK from structured /edit"
     data = response.json()
@@ -54,9 +61,16 @@ def test_structured_edit_endpoint():
 def test_chat_edit_endpoint():
     """
     The chat interface /edit endpoint should acknowledge the request.
+    Must provide all required fields for the logger.
     """
     client = TestClient(chat_app)
-    payload = {"figure_id": "figure_0", "instruction": "make axis red"}
+    payload = {
+        "participant_id": "test_user_1",
+        "figure_id": "figure_0",
+        "interface": "chat",
+        "payload": {"instruction": "make axis red"},
+        "iteration": 1
+    }
     response = client.post("/edit", json=payload)
     assert response.status_code == 200, "Expected 200 OK from chat /edit"
     data = response.json()

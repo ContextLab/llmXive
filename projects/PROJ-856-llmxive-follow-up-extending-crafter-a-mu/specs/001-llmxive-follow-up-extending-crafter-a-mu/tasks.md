@@ -15,7 +15,7 @@
   - **File**: `src/curators/curate_failed_figures.py`.  
   - **Verification**: With network unreachable, `python -m src.curators.curate_failed_figures --num 50` exits non‑zero with “verified source unavailable”. With `--verify-only`, `data/figures/` contains exactly 50 PNGs, `data/ground_truth/` 50 JSON vectors, and `data/checksums.txt` is written.
 
-- [ ] T003 [P] [US1] Provide the two FastAPI interfaces and counterbalanced session initialization, verified in‑process.  
+- [X] T003 [P] [US1] Provide the two FastAPI interfaces and counterbalanced session initialization, verified in‑process.  
   - **Files**: `src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`, `src/interfaces/session.py`, `tests/interfaces/test_interfaces.py`.  
   - **Verification**: `pytest -q tests/interfaces/test_interfaces.py` passes, confirming 200 OK for `/init_session` (counterbalanced order) and `/edit` for both modes.
 
@@ -27,7 +27,7 @@
   - **Files**: `src/validation/vector_match.py`, `src/validation/semantic_similarity.py`, `src/validation/run_validation.py`, `tests/validation/test_validation.py`.  
   - **Verification**: Unit tests cover (a) exact match → both true, (b) semantic‑only match → `overall_success: true`, (c) full failure → false. Records conform to `specs/001-llmxive-cognitive-load/contracts/semantic_validation.schema.yaml`.
 
-- [ ] T006 [P] [US3] Implement a‑priori power analysis and synthetic participant driver that produces schema‑conformant logs at full scale.  
+- [X] T006 [P] [US3] Implement a‑priori power analysis and synthetic participant driver that produces schema‑conformant logs at full scale.  
   - **Files**: `src/simulation/power_analysis.py`, `src/simulation/simulate_participants.py`.  
   - **Verification**: `python -m src.simulation.power_analysis` prints required N (≥30) and exits 0; after `simulate_participants.py`, `data/logs/interactions_clean.jsonl` contains ≥ 7 500 lines, all validating against the interaction‑log schema.
 

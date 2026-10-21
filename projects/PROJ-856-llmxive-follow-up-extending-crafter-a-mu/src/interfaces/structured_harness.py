@@ -16,10 +16,14 @@ log entry.
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+from src.interfaces.session import router as session_router
 from src.logger.interaction_logger import log_interaction
 
 # FastAPI application instance
 app = FastAPI()
+
+# Include session initialization router to expose /init_session
+app.include_router(session_router)
 
 class EditRequest(BaseModel):
     """
@@ -28,8 +32,7 @@ class EditRequest(BaseModel):
     Fields match the JSON payload used in the integration tests:
     - ``participant_id``: unique identifier for the participant/session.
     - ``figure_id``: identifier of the figure/task being edited.
-    - ``interface``: either ``structured`` or ``chat`` (the endpoint does not
-      enforce the enum – validation is performed by the logger schema).
+    - ``interface``: either ``structured`` or ``chat``.
     - ``payload``: the raw edit command (typed code) as a dict.
     - ``iteration``: 1‑based edit attempt counter.
     """
