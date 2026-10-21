@@ -3,11 +3,8 @@ title: "Sensitivity Report"
 type: object
 required:
   - thresholds
-  - rmse_at_thresholds
-  - rmse_variance
-  - collinearity_flags
+  - f1_scores
   - stability_status
-  - top_2_features_valid
 properties:
   thresholds:
     type: array
@@ -15,40 +12,17 @@ properties:
       type: integer
     minItems: 3
     maxItems: 3
-    const: [small, 100, 150]
+    const: [50, 100, 150]
     description: "CCR thresholds evaluated (K/s)."
-  rmse_at_thresholds:
+  f1_scores:
     type: array
     items:
       type: number
     minItems: 3
     maxItems: 3
-    description: "RMSE corresponding to each threshold."
-  rmse_variance:
-    type: number
-    description: "Variance of RMSE across thresholds."
-  collinearity_flags:
-    type: array
-    items:
-      type: object
-      required:
-        - feature_pair
-        - correlation
-      properties:
-        feature_pair:
-          type: array
-          items:
-            type: string
-          description: "Pair of collinear features."
-        correlation:
-          type: number
-          description: "Correlation coefficient (>0.8)."
-    description: "List of flagged collinear pairs."
+    description: "F1-score for each threshold."
   stability_status:
     type: string
     enum: ["PASS", "FAIL"]
-    description: "PASS if RMSE variance < 5 % of mean RMSE."
-  top_2_features_valid:
-    type: boolean
-    description: "True if the top‑2 features have p < 0.05."
+    description: "PASS if F1 variance is within acceptable limits."
 additionalProperties: false

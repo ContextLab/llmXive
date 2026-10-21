@@ -5,7 +5,7 @@ required:
   - composition
   - critical_cooling_rate
   - mixing_enthalpy
-  - atomic_size_mismatch
+  - atomic_size_difference
   - electronegativity_variance
 properties:
   composition:
@@ -18,7 +18,7 @@ properties:
   mixing_enthalpy:
     type: number
     description: "Mixing enthalpy (eV/atom) computed from OQMD elemental formation energies"
-  atomic_size_mismatch:
+  atomic_size_difference:
     type: number
     description: "Root‑mean‑square deviation of atomic radii (Å) across the three elements"
   electronegativity_variance:

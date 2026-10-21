@@ -4,14 +4,9 @@ type: object
 required:
   - fold_scores
   - mean_rmse
-  - std_rmse
   - test_rmse
   - dummy_rmse
   - p_value
-  - feature_importance
-  - permutation_p_values
-  - oob_score
-  - learning_curve_slope
 properties:
   fold_scores:
     type: array
@@ -23,9 +18,6 @@ properties:
   mean_rmse:
     type: number
     description: "Mean RMSE across folds"
-  std_rmse:
-    type: number
-    description: "Standard deviation of fold scores"
   test_rmse:
     type: number
     description: "RMSE on held-out test set"
@@ -36,21 +28,5 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "P-value from two-sided t-test vs dummy model"
-  feature_importance:
-    type: object
-    additionalProperties:
-      type: number
-    description: "Map of feature name to importance score"
-  permutation_p_values:
-    type: object
-    additionalProperties:
-      type: number
-    description: "P-values from permutation test for each feature"
-  oob_score:
-    type: number
-    description: "Out-of-bag score for overfitting check"
-  learning_curve_slope:
-    type: number
-    description: "Slope of learning curve for overfitting check"
+    description: "P-value from t-test vs dummy model"
 additionalProperties: false

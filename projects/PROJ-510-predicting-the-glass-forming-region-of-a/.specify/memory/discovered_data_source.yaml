@@ -1,13 +1,12 @@
 status: none
-intent: download experimental ternary alloy dataset OQMD elemental properties python
-  package
+intent: Open Glass Formability ternary alloy dataset HuggingFace OQMD elemental properties
+  python package dataset
 required_fields:
 - composition
-- element_symbols
-- element_fractions
-- target_property_value
-- measurement_units
-- dataset_source_id
-cache_key: 3e70e7bf5363060691cfdfcf2626bb96f9c9aa6300259cea48db42664b043ced
-searched_at: '2026-10-08T07:47:02.479708+00:00'
+- CCR
+- atomic_radius
+- electronegativity
+- formation_enthalpy
+cache_key: b0c37a8643fe3682c8d9257f7e2692a640aa9f02b01b7e63e45d6351139823d0
+searched_at: '2026-10-21T18:34:53.085038+00:00'
 retry_count: 1

@@ -1,0 +1,20 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Feature Importance"
+type: object
+required:
+  - feature_name
+  - importance_mean
+  - p_value
+properties:
+  feature_name:
+    type: string
+    description: "Name of the thermodynamic descriptor."
+  importance_mean:
+    type: number
+    description: "Mean permutation importance score."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Empirical p-value from permutation test."
+additionalProperties: false

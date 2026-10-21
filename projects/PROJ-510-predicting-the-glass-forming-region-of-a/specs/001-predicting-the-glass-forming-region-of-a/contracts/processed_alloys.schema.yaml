@@ -12,7 +12,7 @@ properties:
     const: "data/processed/processed_alloys.csv"
   sha256:
     type: string
-    description: "SHA‑256 checksum of the CSV file."
+    description: "SHA-256 checksum of the CSV file."
   columns:
     type: array
     items:
@@ -21,11 +21,11 @@ properties:
       - composition
       - critical_cooling_rate
       - mixing_enthalpy
-      - atomic_size_mismatch
+      - atomic_size_difference
       - electronegativity_variance
       - source_label
   row_count:
     type: integer
     minimum: 500
-    description: "Number of rows after filtering; must be ≥ 500 to satisfy FR‑001."
+    description: "Number of rows after filtering; must be >= 500 to satisfy FR-001."
 additionalProperties: false
