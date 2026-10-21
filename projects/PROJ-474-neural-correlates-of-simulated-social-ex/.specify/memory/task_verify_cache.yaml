@@ -10,25 +10,39 @@ T000:
   sig: 4805e0e2ef3fc27fedaf6e84b7aeef3c3988d88142e967dc5b1f4ab199c0d799
 T001:
   c: false
-  h: 51ba09f444aee0101deb5232a305af3c1cfe1484d552cce3cacf905978148d6c
-  r: The required artifacts `code/data_loader.py`, `data/raw/checksums.json`, `data/processed/dataset_manifest.json`,
-    and `code/tests/test_data_loader.py` are all MISSING, and `data/raw/` is empty.
-    The quickstart.md references a `code/src/main.py` pipeline that doesn't match
-    the task's required `code/data_loader.py` deliverable, and the QC/metadata JSON
-    files are empty lists, so no download, checksum, or marker-verification work was
-    actually performed.
-  sig: a8f3983403feb106d8196c431f3b93400e1f2010497bfa037009e2bbd737dffb
+  h: ba2cae33d1e3d82da0d4a745e67a5f49c7d4f072facaf05029cae699c4172ce5
+  r: "Checked `code/data_loader.py`, `data/raw/checksums.json`, `data/processed/dataset_manifest.json`,\
+    \ the unit tests, and the execution log. The loader implements backoff and marker\u2011\
+    checking logic, and the tests pass, but it never streams the subject fMRI files\
+    \ (it only downloads the Harvard\u2011Oxford atlas) and the generated `dataset_manifest.json`\
+    \ does not follow the required `contracts/dataset_schema.schema.yaml` (it lacks\
+    \ the subject/run/condition/time_series fields). Moreover, when the OpenNeuro\
+    \ API call fails (404) the script proceeds in \u201Crecord\u201D mode instead\
+    \ of aborting with error\u202F101897695 as"
+  sig: 6f5a5ce64e98061aa6d7ca23225e944a990df3457c2c0d34a177d9096a438b8f
+T001b:
+  c: false
+  h: e34c9ac9b2a9d3f9b346a92233febf4eb102f9aa9b6ff278075ce6bd8c7d07fc
+  r: "Checked `data/raw/checksums.json` and its generation log \u2013 it contains\
+    \ a single SHA\u2011256 entry that matches the recomputed checksum for `harvard_oxford_cort_maxprob_thr25_2mm.nii.gz`.\
+    \ However, the task requires a checksum entry for **every** downloaded NIfTI file;\
+    \ there is no evidence that other NIfTI files (e.g., the fMRI runs from ds000030)\
+    \ were included or that the JSON covers all of them. Add entries for all downloaded\
+    \ NIfTI files (or provide proof that only this file was downloaded) and verify\
+    \ each checksum."
+  sig: c78b22d042da9ba96dbd0c7bbdb772e0c8a487febe643cc874ee66e399cc4ad9
 T002:
   c: false
-  h: a3178a057905a4f7ad231b710e31e95d01e15649eac9488e37bbc9496f48b223
-  r: 'The required artifact `code/qc.py` does not exist (implementation lives at `code/src/qc.py`
-    instead), the output `data/processed/subjects_metadata.json` is an empty `[]`
-    with no subjects processed, and the recorded test run of `code/tests/test_qc.py`
-    failed with exit 2 (`ModuleNotFoundError: No module named ''src.qc''`), so no
-    tests actually passed. The implementer must place/alias the QC module so the tests
-    import successfully, run them to green, and execute the QC pipeline to produce
-    a non-empty, schema-conformant `subjects_metadata.json`.'
-  sig: 47d5be8f842f95283b76523ba1be5d668ad3dd876aa7ebb45a1d7c27d04e1ebc
+  h: 906455389935e68d2c9f1c849da31617df0853cdb6a04412b3092c0e99742559
+  r: "The QC module cannot be imported (test collection fails) because `code/qc.py`\
+    \ tries to import `src.exceptions`, but the `src` package only re\u2011exports\
+    \ the `code/src` directory and does not contain an `exceptions` submodule, causing\
+    \ a `ModuleNotFoundError`. Moreover, the generated `data/processed/subjects_metadata.json`\
+    \ is just an empty list (`[]`), which does not satisfy the required schema (missing\
+    \ required fields and contains extra keys like `condition_valid` with lower\u2011\
+    cased condition names). The implementation therefore does not produce the correct\
+    \ output nor pass the provided tests."
+  sig: efc64e8f2acee0093f5c28f97a8f8b99ea65effaf4f2738b5bff973f4cb18352
 T009:
   c: false
   h: fd49331fa793711f9d840bcd2befaef4d3af24dc76c435d634c014653a6fc753

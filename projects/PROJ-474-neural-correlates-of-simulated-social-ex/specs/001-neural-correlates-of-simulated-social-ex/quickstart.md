@@ -20,7 +20,35 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r code/requirements.txt
 ```
 
-## Data Setup & Full Analysis Pipeline
+## Data Acquisition (T001)
+
+Download the verified real data (Harvard-Oxford cortical atlas, fetched
+via `nilearn`) with paradigm-first verification against the OpenNeuro
+API for `ds000030`:
+
+```bash
+python code/data_loader.py --output data/raw
+```
+
+This command:
+1. Queries the OpenNeuro API for the dataset descriptor and a sample
+   subject's `events.tsv` **before** downloading imaging data and
+   verifies that both "Inclusion" and "Exclusion" trial types exist
+   (FR-010; aborts with error code `101897695` in `--paradigm-mode
+   strict` when markers are missing — the default `record` mode logs
+   and records the outcome in the manifest, since the dataset premise
+   is pending a spec amendment).
+2. Streams the Harvard-Oxford atlas NIfTI into `data/raw/` with
+   integrity verification (opens with `nibabel`, size > 0).
+3. Computes SHA-256 checksums for every downloaded NIfTI and writes
+   `data/raw/checksums.json`.
+4. Writes `data/processed/dataset_manifest.json`.
+
+Network fetches retry with exponential backoff (1 s -> 2 s -> 4 s,
+3 attempts, FR-013); on final failure the loader raises
+`DataUnavailableError` (`ERR_DATA_UNAVAILABLE`).
+
+## Full Analysis Pipeline
 
 The complete analysis runs in three orchestrated steps:
 
@@ -32,15 +60,6 @@ python code/src/main.py --step download_qc
 python code/src/main.py --step extract_connectivity
 
 # Step 3: Run statistical tests and generate visualizations
-python code/src/main.py --step stats_viz
-```
-
-Or run the full pipeline at once with a specific random seed:
-
-```bash
-# Full pipeline with reproducible seed
-python code/src/main.py --step download_qc && \
-python code/src/main.py --step extract_connectivity && \
 python code/src/main.py --step stats_viz --seed 42
 ```
 
@@ -49,45 +68,34 @@ python code/src/main.py --step stats_viz --seed 42
 The pipeline generates:
 
 1. **Data files** (under `data/`):
-   - `data/raw/checksums.json` – SHA256 checksums for all downloaded NIfTI files
-   - `data/processed/subject_qc_list.json` – Full QC results for all subjects
-   - `data/processed/subjects_metadata.json` – Retained subjects after motion QC
-   - `data/processed/raw_timeseries_*.parquet` – ROI time-series per subject/condition
+- `data/raw/checksums.json` – SHA256 checksums for all downloaded NIfTI files
+- `data/processed/dataset_manifest.json` – Dataset manifest with paradigm verification status
+- `data/processed/subject_qc_list.json` – Full QC results for all subjects
+- `data/processed/subjects_metadata.json` – Retained subjects after motion QC
+- `data/processed/raw_timeseries_*.parquet` – ROI time-series per subject/condition
 
 2. **Results** (under `data/results/`):
-   - `strength_per_subject.parquet` – Static connectivity metrics
-   - `dynamic_summary.parquet` – Dynamic connectivity summary statistics
-   - `statistical_result.json` – Permutation test results (primary signed metric)
-   - `statistical_result_absolute.json` – Secondary absolute metric results
-   - `figures/` – All visualizations (histograms, heatmaps, plots)
+- `strength_per_subject.parquet` – Static connectivity metrics
+- `dynamic_summary.parquet` – Dynamic connectivity summary statistics
+- `statistical_result.json` – Permutation test results (primary signed metric)
+- `statistical_result_absolute.json` – Secondary absolute metric results
+- `figures/` – All visualizations (histograms, heatmaps, plots)
 
 3. **Report**:
-   - `data/results/report.md` – Auto-generated methods and results narrative
+- `data/results/report.md` – Auto-generated methods and results narrative
 
 ## Validation & Testing
 
 ```bash
-# Run unit and integration tests
-pytest code/tests/ -v
-
-# Schema validation example
-python - <<'PY'
-import json, yaml, jsonschema, pathlib
-schema = yaml.safe_load(open('contracts/connectivity.schema.yaml'))
-data   = json.load(open('data/processed/connectivity_sample.json'))
-jsonschema.validate(instance=data, schema=schema)
-print("Connectivity file validates.")
-PY
+# Run unit tests for the data loader
+python -m pytest code/tests/test_data_loader.py -v
 ```
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Action |
 |---------|--------------|--------|
-| `Unknown step: --step` | Circular import in main.py | Update main.py (should be fixed in latest version) |
-| `101897696` (Insufficient subjects) | Fewer than 10 subjects passed QC | Review `data/processed/subject_qc_list.json` and consider a less stringent motion threshold (exploratory only). |
-| `MemoryError` | Attempting to load whole NIfTI into RAM | Ensure streaming mode is enabled (default). |
-| Missing `subject_qc_list.json` | QC pipeline did not complete | Check logs and ensure `--step download_qc` completed successfully. |
-| Missing `checksums.json` | Data loader did not complete | Verify NIfTI files exist in `data/raw/` and re-run `--step download_qc`. |
-
----
+| `101897695` (Missing event markers) | Dataset lacks Inclusion/Exclusion markers | Run with `--paradigm-mode record` to record the outcome, or point `--dataset` at a verified Cyberball dataset |
+| `101897696` (Insufficient subjects) | Fewer than 10 subjects passed QC | Review `data/processed/subject_qc_list.json` |
+| `ERR_DATA_UNAVAILABLE` | Network fetch failed after 3 backoff attempts | Check internet access and re-run `python code/data_loader.py --output data/raw` |
+| Missing `checksums.json` | Data loader did not complete | Re-run `python code/data_loader.py --output data/raw` |

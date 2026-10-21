@@ -25,7 +25,7 @@ class TestFramewiseDisplacement:
     """Test FD calculation from motion parameters."""
 
     def test_calculate_fd_with_precomputed_column(self):
-        """Test that pre-computed framewise_displacement column is used when available."""
+        """Test that pre‑computed framewise_displacement column is used when available."""
         df = pd.DataFrame({
             'framewise_displacement': [0.1, 0.15, 0.12, 0.08, 0.2],
             'other_col': [1, 2, 3, 4, 5]

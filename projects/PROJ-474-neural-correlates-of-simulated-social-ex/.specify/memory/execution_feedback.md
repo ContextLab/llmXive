@@ -22,25 +22,17 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 - data/processed/subject_qc_list.json: results file is EMPTY ([]) — the analysis produced no values
 - data/processed/subjects_metadata.json: results file is EMPTY ([]) — the analysis produced no values
-- every produced artifact is gitignored (data/processed/subject_qc_list.json, data/processed/subjects_metadata.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/src/main.py --step download_qc &&  python code/src/main.py --step extract_connectivity &&  python code/src/main.py --step stats_viz --seed 42`
-  - script usage: `main.py [-h] [--step STEP_FLAG] [--seed SEED] [step_pos]`
-  - argparse error: `main.py: error: unrecognized arguments: python code/src/main.py && python code/src/main.py`
+- every produced artifact is gitignored (data/processed/dataset_manifest.json, data/processed/subject_qc_list.json, data/processed/subjects_metadata.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/src/extraction.py: function `extract_roi_timeseries` returns a bare RNG draw (line 42) — a reported value computed from no real input; code/src/preprocessing.py: function `perform_nuisance_regression` returns a bare RNG draw (line 45) — a reported value computed from no real input; 2 hollow-result signal(s) — the analysis ran but computed nothing: data/processed/subject_qc_list.json: results file is EMPTY ([]) — the analysis produced no values; data/processed/subjects_metadata.json: results file is EMPTY ([]) — the analysis produced no values; every produced artifact is gitignored (data/processed/subject_qc_list.json, data/processed/subjects_metadata.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/src/main.py --step download_qc (rc=1); python code/src/main.py --step download_qc &&  python code/src/main.py --step extract_connectivity &&  python code/src/main.py --step stats_viz --seed 42 (rc=2); python -m pytest code/tests/ -v (rc=2); 1 declared deliverable(s) absent: data/results/sensitivity_curve.csv
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/src/extraction.py: function `extract_roi_timeseries` returns a bare RNG draw (line 42) — a reported value computed from no real input; code/src/preprocessing.py: function `perform_nuisance_regression` returns a bare RNG draw (line 45) — a reported value computed from no real input; 2 hollow-result signal(s) — the analysis ran but computed nothing: data/processed/subject_qc_list.json: results file is EMPTY ([]) — the analysis produced no values; data/processed/subjects_metadata.json: results file is EMPTY ([]) — the analysis produced no values; every produced artifact is gitignored (data/processed/dataset_manifest.json, data/processed/subject_qc_list.json, data/processed/subjects_metadata.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 command(s) failed: python code/src/main.py --step download_qc (rc=1); 1 declared deliverable(s) absent: data/results/sensitivity_curve.csv
 
 ## Failing / missing run-book commands
 
 - python code/src/main.py --step download_qc -> rc=1
 nt subjects (N=0) for valid permutation test.
-2026-10-21 04:39:32,635 - __main__ - ERROR - Pipeline step failed
+2026-10-21 04:53:15,279 - __main__ - ERROR - Pipeline step failed
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-474-neural-correlates-of-simulated-social-ex/code/src/main.py", line 125, in main
     run_download_qc_step()
@@ -54,61 +46,10 @@ Traceback (most recent call last):
     raise InsufficientSubjectsError(retained_count)
 src.exceptions.InsufficientSubjectsError: Insufficient subjects (N=0) for valid permutation test.
 
-- python code/src/main.py --step download_qc &&  python code/src/main.py --step extract_connectivity &&  python code/src/main.py --step stats_viz --seed 42 -> rc=2
-
-usage: main.py [-h] [--step STEP_FLAG] [--seed SEED] [step_pos]
-main.py: error: unrecognized arguments: python code/src/main.py && python code/src/main.py
-
-- python -m pytest code/tests/ -v -> rc=2
-    importlib.import_module(module_name)
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-<frozen importlib._bootstrap>:1204: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1176: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
-    ???
-<frozen importlib._bootstrap>:690: in _load_unlocked
-    ???
-/home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
-    exec(co, module.__dict__)
-code/tests/unit/test_utils.py:4: in <module>
-    from src.utils import log_exception
-E   ModuleNotFoundError: No module named 'src.utils'
-=========================== short test summary info ============================
-ERROR code/tests/test_qc.py
-ERROR code/tests/unit/test_data_loader.py
-ERROR code/tests/unit/test_integrity.py
-ERROR code/tests/unit/test_preprocessing.py
-ERROR code/tests/unit/test_stats.py
-ERROR code/tests/unit/test_utils.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 0.70s ===============================
-
-
 
 ## Declared deliverables still missing
 
 - data/results/sensitivity_curve.csv
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `nilearn` to the project's `requirements.txt` and `pip install nilearn`.
-- **Verified**: this loads **49** real records with fields: Background, Frontal Pole, Insular Cortex, Superior Frontal Gyrus, Middle Frontal Gyrus, Inferior Frontal Gyrus, pars triangularis, Inferior Frontal Gyrus, pars opercularis, Precentral Gyrus, Temporal Pole, Superior Temporal Gyrus, anterior division, Superior Temporal Gyrus, posterior division, Middle Temporal Gyrus, anterior division, Middle Temporal Gyrus, posterior division, Middle Temporal Gyrus, temporooccipital part, Inferior Temporal Gyrus, anterior division, Inferior Temporal Gyrus, posterior division, Inferior Temporal Gyrus, temporooccipital part, Postcentral Gyrus, Superior Parietal Lobule, Supramarginal Gyrus, anterior division, Supramarginal Gyrus, posterior division, Angular Gyrus, Lateral Occipital Cortex, superior division, Lateral Occipital Cortex, inferior division, Intracalcarine Cortex, Frontal Medial Cortex, Juxtapositional Lobule Cortex (formerly Supplementary Motor Cortex), Subcallosal Cortex, Paracingulate Gyrus, Cingulate Gyrus, anterior division, Cingulate Gyrus, posterior division, Precuneous Cortex, Cuneal Cortex, Frontal Orbital Cortex, Parahippocampal Gyrus, anterior division, Parahippocampal Gyrus, posterior division, Lingual Gyrus, Temporal Fusiform Cortex, anterior division, Temporal Fusiform Cortex, posterior division, Temporal Occipital Fusiform Cortex, Occipital Fusiform Gyrus, Frontal Opercular Cortex, Central Opercular Cortex, Parietal Opercular Cortex, Planum Polare, Heschl's Gyrus (includes H1 and H2), Planum Temporale, Supracalcarine Cortex, Occipital Pole.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-from nilearn import datasets
-atlas = datasets.fetch_atlas_harvard_oxford('cort-maxprob-thr25-2mm')
-labels = atlas.labels
-print(f'RECORDS={len(labels)}')
-print('FIELDS=' + ','.join(labels))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
