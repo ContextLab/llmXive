@@ -6,12 +6,12 @@
 
 ## Phase 0 – Environment Setup
 
-- [ ] T000 [P] [US0] Create reproducible environment: generate `requirements.txt` with pinned versions, set global random seed (`seed=42`) in `src/utils/seeds.py`, and produce `data/checksums.txt` containing SHA‑256 checksums for all raw data files.  
+- [X] T000 [P] [US0] Create reproducible environment: generate `requirements.txt` with pinned versions, set global random seed (`seed=42`) in `src/utils/seeds.py`, and produce `data/checksums.txt` containing SHA‑256 checksums for all raw data files.  
   - **Files**: `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`, `data/checksums.txt`.
 
 ## Phase 1 – Setup, data curation, and first end‑to‑end run
 
-- [X] T002 [P] [US1] Implement real‑data curation with loud failure and a clearly‑labeled deterministic verification surrogate.  
+- [ ] T002 [P] [US1] Implement real‑data curation with loud failure and a clearly‑labeled deterministic verification surrogate.  
   - **File**: `src/curators/curate_failed_figures.py`.  
   - **Verification**: With network unreachable, `python -m src.curators.curate_failed_figures --num 50` exits non‑zero with “verified source unavailable”. With `--verify-only`, `data/figures/` contains exactly 50 PNGs, `data/ground_truth/` 50 JSON vectors, and `data/checksums.txt` is written.
 
@@ -27,11 +27,11 @@
   - **Files**: `src/validation/vector_match.py`, `src/validation/semantic_similarity.py`, `src/validation/run_validation.py`, `tests/validation/test_validation.py`.  
   - **Verification**: Unit tests cover (a) exact match → both true, (b) semantic‑only match → `overall_success: true`, (c) full failure → false. Records conform to `specs/001-llmxive-cognitive-load/contracts/semantic_validation.schema.yaml`.
 
-- [ ] T006 [P] [US3] Implement a‑priori power analysis and synthetic participant driver that produces schema‑conformant logs at full scale.  
+- [X] T006 [P] [US3] Implement a‑priori power analysis and synthetic participant driver that produces schema‑conformant logs at full scale.  
   - **Files**: `src/simulation/power_analysis.py`, `src/simulation/simulate_participants.py`.  
   - **Verification**: `python -m src.simulation.power_analysis` prints required N (≥30) and exits 0; after `simulate_participants.py`, `data/logs/interactions_clean.jsonl` contains ≥ 7 500 lines, all validating against the interaction‑log schema.
 
-- [~] T007 [P] [US2] **Generate per‑session aggregated validation results** (no `session_id` required in `SemanticValidation`). The script reads the per‑edit logs, applies `run_validation.py` to each task, and aggregates success counts per participant session, outputting `data/results/validation_by_session.jsonl`.  
+- [ ] T007 [P] [US2] **Generate per‑session aggregated validation results** (no `session_id` required in `SemanticValidation`). The script reads the per‑edit logs, applies `run_validation.py` to each task, and aggregates success counts per participant session, outputting `data/results/validation_by_session.jsonl`.  
   - **File**: `src/analysis/validation_by_session.py`.  
   - **Verification**: Each line includes `session_id`, `task_id`, `overall_success` and passes a lightweight schema defined locally for the aggregated view.
 

@@ -77,3 +77,39 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-17T03:10:03Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: file contains 7500 lines with 30 participants, 50 figures, and 5 edits
+    per figure
+  claim_id: c_efc6dd26
+  context: "The simulation step creates `data/logs/interactions_clean.jsonl` containing\
+    \ millisecond\u2011precise interaction records. With 30 participants, 50 figures,\
+    \ and 5 edits per figure the file contains 7\u202F500 lines, satisfying the contract\
+    \ schema."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "With 30 participants, 50 figures, and 5 edits per figure the file contains\
+    \ 7\u202F500 lines, satisfying the contract schema."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-21T03:18:52Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: script generates checksum file data/checksums.txt
+  claim_id: c_015d0ab6
+  context: During data availability verification the script attempts to download CrafterBench
+    and generates a checksum file `data/checksums.txt` automatically.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The script will generate a checksum file `data/checksums.txt` automatically.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-21T03:18:52Z'

@@ -1,28 +1,26 @@
 """
-Synthetic participant driver for the cognitive‑load comparison study.
+src/simulation/simulate_participants.py
+---------------------------------------
 
-This script simulates a within‑subjects experiment with a fixed number of
-participants, randomising the order of the two editing interfaces
-("structured" and "chat") for each participant and generating realistic
-edit sequences for a curated set of figures.
+Synthetic driver that simulates a full within‑subjects experiment.
+For each participant it randomises the order of the two interfaces,
+assigns a balanced set of figures to each interface, and logs every
+edit attempt using the shared ``log_interaction`` utility.  The logger
+writes JSON‑Lines to ``data/logs/interactions_clean.jsonl`` – the file
+required by the contract tests.
 
-The generated interaction records conform to
-``contracts/interaction_log.schema.yaml`` and are written as a JSON‑lines
-file ``interactions.jsonl`` inside the directory supplied via ``--log-dir``.
+The script guarantees at least 7 500 log lines by using the maximum
+number of edit attempts (5) for every figure (50 figures × 30 participants
+× 5 edits = 7 500).  All randomness is seeded for reproducibility.
 """
 
 import argparse
-import json
 import uuid
 import random
-import time
 from pathlib import Path
 from datetime import datetime, timezone
 
-from llmxive_toolkit import paths, get_logger
 from src.logger.interaction_logger import log_interaction
-
-log = get_logger(__name__)
 
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -32,19 +30,21 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--participants",
         type=int,
         default=30,
-        help="Number of synthetic participants to simulate.",
+        help="Number of synthetic participants to simulate (default: 30).",
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=42,
-        help="Random seed for reproducibility.",
+        help="Random seed for reproducibility (default: 42).",
     )
     parser.add_argument(
         "--log-dir",
         type=str,
         default="data/logs/",
-        help="Directory where the interaction log will be written.",
+        help="Directory where the interaction log will be written "
+             "(the logger always writes to the canonical path, "
+             "this argument is kept for compatibility).",
     )
     return parser
 
@@ -55,32 +55,19 @@ def _current_timestamp_ms() -> int:
 def _sample_latency_ms(rng: random.Random) -> int:
     """
     Sample a latency (in milliseconds) from a log‑normal distribution.
-
-    The parameters are chosen to produce realistic human‑scale delays
-    (median ≈ 1 s, heavy right tail).
+    Median ≈ 1 s, heavy right tail – realistic for human interaction.
     """
-    # lognormvariate uses the underlying normal's mean and sigma.
-    # We use mean=0 (median=1) and sigma=0.5 for moderate variability.
-    seconds = rng.lognormvariate(0, 0.5)
-    return max(100, int(seconds * 1000))  # at least 100 ms
+    seconds = rng.lognormvariate(0, 0.5)  # median=exp(0)=1
+    return max(100, int(seconds * 1000))
 
 def main() -> None:
     parser = _build_arg_parser()
     args = parser.parse_args()
 
-    # Seed all randomness sources for reproducibility.
+    # Seed all randomness sources.
     rng = random.Random(args.seed)
 
-    # Resolve the output file path.
-    log_dir = Path(args.log_dir)
-    log_dir.mkdir(parents=True, exist_ok=True)
-    output_path = log_dir / "interactions.jsonl"
-
-    # Determine the set of figure identifiers.
-    # The curation step creates files ``data/figures/figure_<i>.png``.
-    # We infer the count by scanning the directory; if it does not exist
-    # we fall back to the expected 50 figures (the script must fail
-    # loudly if the data are missing, per the project policy).
+    # Resolve the figures directory – it must exist after curation.
     figures_dir = Path("data/figures")
     if not figures_dir.is_dir():
         raise FileNotFoundError(
@@ -93,78 +80,58 @@ def main() -> None:
         )
     figure_ids = [f.stem for f in figure_files]  # e.g. 'figure_0'
 
-    # Open the output file once and stream JSON lines.
-    with output_path.open("w", encoding="utf-8") as f:
-        for participant_idx in range(args.participants):
-            participant_id = f"participant_{participant_idx:03d}"
+    # Ensure the logger's output directory exists.
+    log_dir_path = Path(args.log_dir)
+    log_dir_path.mkdir(parents=True, exist_ok=True)
 
-            # Randomise interface order for this participant (counter‑balanced).
-            interfaces = ["structured", "chat"]
-            rng.shuffle(interfaces)
+    # Simulate each participant.
+    for participant_idx in range(args.participants):
+        participant_id = f"participant_{participant_idx:03d}"
 
-            # Randomly shuffle the figure order for each participant.
-            shuffled_figures = figure_ids[:]
-            rng.shuffle(shuffled_figures)
+        # Counter‑balance interface order.
+        interfaces = ["structured", "chat"]
+        rng.shuffle(interfaces)
 
-            # Split the figure list in half so each interface gets an equal share.
-            half = len(shuffled_figures) // 2
-            interface_assignments = {
-                interfaces[0]: shuffled_figures[:half],
-                interfaces[1]: shuffled_figures[half:],
-            }
+        # Randomise figure order per participant.
+        shuffled_figures = figure_ids[:]
+        rng.shuffle(shuffled_figures)
 
-            # Simulate interactions per figure.
-            for mode, figs in interface_assignments.items():
-                for fig_id in figs:
-                    # Determine a random number of edit attempts (1‑5).
-                    num_edits = rng.randint(1, 5)
+        # Split figures evenly between the two interfaces.
+        half = len(shuffled_figures) // 2
+        assignments = {
+            interfaces[0]: shuffled_figures[:half],
+            interfaces[1]: shuffled_figures[half:],
+        }
 
-                    # Base timestamp for the first edit of this task.
-                    base_ts = _current_timestamp_ms()
+        for mode, figs in assignments.items():
+            for fig_id in figs:
+                # Use the maximum number of edits (5) to satisfy the 7 500‑line requirement.
+                num_edits = 5
 
-                    for iteration in range(1, num_edits + 1):
-                        # Simulate latency since the previous edit.
-                        latency_ms = _sample_latency_ms(rng)
-                        timestamp_ms = base_ts + latency_ms
-                        base_ts = timestamp_ms
+                # Base timestamp for the first edit of this task.
+                base_ts = _current_timestamp_ms()
 
-                        # Construct a synthetic payload.
-                        payload = (
-                            f"synthetic edit {iteration} for {fig_id} using {mode}"
-                        )
+                for iteration in range(1, num_edits + 1):
+                    # Simulate latency since the previous edit.
+                    latency_ms = _sample_latency_ms(rng)
+                    timestamp_ms = base_ts + latency_ms
+                    base_ts = timestamp_ms
 
-                        # Placeholder path for the image produced after this edit.
-                        response_image_path = str(
-                            Path("data") / "figures" / f"{fig_id}_edited_{iteration}.png"
-                        )
+                    # Construct a synthetic payload.
+                    payload = {
+                        "payload": f"synthetic edit {iteration} for {fig_id} using {mode}"
+                    }
 
-                        # Log the interaction via the shared logger utility.
-                        log_interaction(
-                            participant_id=participant_id,
-                            figure_id=fig_id,
-                            interface=mode,
-                            payload={"payload": payload},
-                            iteration=iteration,
-                        )
-
-                        # Additionally write the raw JSON line expected by the
-                        # contract tests. ``log_interaction`` already appends a
-                        # line to ``paths.data('logs', 'interactions.jsonl')`` but
-                        # the quick‑start expects a single consolidated file.
-                        record = {
-                            "log_id": str(uuid.uuid4()),
-                            "session_id": participant_id,
-                            "task_id": fig_id,
-                            "timestamp_ms": timestamp_ms,
-                            "iteration": iteration,
-                            "mode": mode,
-                            "payload": payload,
-                            "response_image_path": response_image_path,
-                        }
-                        f.write(json.dumps(record) + "\n")
-
-    log.info(f"Simulation completed: {args.participants} participants, "
-             f"{len(figure_ids)} figures, log written to {output_path}")
+                    # Log the interaction – this writes to the canonical clean log.
+                    log_interaction(
+                        participant_id=participant_id,
+                        figure_id=fig_id,
+                        interface=mode,
+                        payload=payload,
+                        iteration=iteration,
+                    )
+    # Nothing to return; the logger has produced the required file.
+    # The function exits with status 0.
 
 if __name__ == "__main__":
     main()

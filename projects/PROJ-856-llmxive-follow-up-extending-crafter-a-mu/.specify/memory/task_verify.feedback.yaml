@@ -1,44 +1,38 @@
 T000:
-  reason: "Checked `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`,\
-    \ and `data/checksums.txt`. The `requirements.txt` uses wildcard version specs\
-    \ (e.g., `numpy==1.26.*`) instead of exact pinned versions, which does not meet\
-    \ the \u201Cpinned versions\u201D requirement."
   task: 2639fac37d36ae301f9fa656597ed56ceac0632c0fd09b197e786718825b2286
 T001:
   task: a67de131a5fe4c8832269c1f23669775deba5330e24fdd2d4b2e7750cbc37424
 T002:
+  reason: "Checked `src/curators/curate_failed_figures.py` (exists and implements\
+    \ the required flags) and the generated `data/figures/`, `data/ground_truth/`\
+    \ (each contain exactly 50 files) and `data/checksums.txt`. However, there is\
+    \ no execution evidence that running the script with network unreachable (`python\
+    \ -m src.curators.curate_failed_figures --num 50`) actually exits non\u2011zero\
+    \ and prints \u201Cverified source unavailable\u201D. A log or captured stderr\
+    \ showing this failure is required."
   task: 2e58516fa9258c2dc7cb1635b56537b1c26c70e6906960ac89d1d57433eb59d8
 T003:
   task: 99a536c55f5323dfb946d52edcab9671a048ced34551ae7ae305c519791c0f6c
 T004:
   reason: "Checked `src/logger/interaction_logger.py` and its unit test `tests/logger/test_interaction_logger.py`,\
-    \ which confirm millisecond timestamps, iteration, mode, task_start_ms/end_ms,\
-    \ and appending to `data/logs/interactions_clean.jsonl`. However, there is no\
-    \ TestClient\u2011based integration test that simulates a real edit endpoint,\
-    \ no test exercising the 15\u2011minute abort logic, and the provided schema does\
-    \ not list the new `task_start_ms`, `task_end_ms`, or `status` fields, so schema\
-    \ validation is not demonstrated. These gaps must be addressed for the task to\
-    \ be considered complete."
+    \ which correctly write JSON\u2011Lines with the required fields. However, the\
+    \ integration test that uses a real `TestClient` to perform an edit (the verification\
+    \ step required by the task) fails: the POST requests return 422, no log lines\
+    \ are created, and the abort handling is never exercised. The logger is not wired\
+    \ into the edit endpoint, so a real edit does not produce a clean log entry as\
+    \ specified."
   task: abd319250ab4cefa38fa46a0ef742a9ba7ce2261a2d280afe602a38480051f80
 T005:
   task: 20d306815f40a03746e6758b5c85dbd93adc9a32f5764077408120009b9a627f
 T006:
-  reason: "Checked `src/simulation/power_analysis.py` and `src/simulation/simulate_participants.py`\
-    \ plus the generated log `data/logs/interactions_clean.jsonl`. The power\u2011\
-    analysis script requires a `--effect-size` argument and does not guarantee printing\
-    \ a required N\u202F\u2265\u202F30 or exiting cleanly without arguments, violating\
-    \ the verification step. The participant simulation script writes to `interactions_clean.jsonl`\
-    \ via the logger, but the file is present and empty (0\u202Fbytes), and the script\
-    \ will fail if `data/figures` is missing, so it never produces the \u2265\u202F\
-    7\u202F500 schema\u2011valid lines required. The task therefore"
   task: c06eee802d579bf6b663e1101c0f94d3e06f3a5cef23b3478d1d3f3d2b77c617
 T007:
-  reason: "The script `src/analysis/validation_by_session.py` exists and produces\
-    \ a JSON\u2011Lines file with the required fields, but it never calls `run_validation.py`\
-    \ and it outputs one line per task rather than aggregating success **counts**\
-    \ per session. Moreover, the `session_id` values are all `\"unknown\"` because\
-    \ the interaction log mapping is not exercised in the provided data. The task\
-    \ therefore is not fully satisfied."
+  reason: "The `validation_by_session.py` script never calls `run_validation.py` as\
+    \ required, and the generated `validation_by_session.jsonl` contains only placeholder\
+    \ `\"unknown\"` session IDs, indicating that the per\u2011edit logs are not being\
+    \ used to map tasks to real participant sessions. The task\u2019s core requirement\
+    \ of applying `run_validation.py` per task and producing real session\u2011aware\
+    \ aggregates is not satisfied."
   task: 52bf6b1fa7f2438f0195dfed9e5554c45ea0ba202f6affa0e65c58dd2606736f
 T008:
   reason: 'Requested task execution failed; rerun successfully: src/analysis/wilcoxon_analysis.py

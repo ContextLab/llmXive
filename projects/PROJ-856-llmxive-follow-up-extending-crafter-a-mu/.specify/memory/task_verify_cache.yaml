@@ -1,20 +1,22 @@
 T000:
-  c: false
-  h: 24a7f1c83f98c307146722688572320f3689a29bb87370686da117c318bfd47a
-  r: "Checked `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`,\
-    \ and `data/checksums.txt`. The `requirements.txt` uses wildcard version specs\
-    \ (e.g., `numpy==1.26.*`) instead of exact pinned versions, which does not meet\
-    \ the \u201Cpinned versions\u201D requirement."
-  sig: 20259a0d72f7e3c4874dc20485b589a139c71c29722d9ed70abbb8b2dc3654a7
-T002:
   c: true
-  h: 17bc33a1c98a745a8a3ef5551bd995fd31e294c0f0e521c68c2ed4c6744c679e
-  r: "Checked `src/curators/curate_failed_figures.py` (implements network check, non\u2011\
-    zero exit with \u201Cverified source unavailable\u201D, and `--verify-only` mode),\
-    \ the presence of exactly 50 PNGs in `data/figures/`, 50 JSONs in `data/ground_truth/`,\
-    \ and `data/checksums.txt`, and the passing test log `tests/curators/test_curate_failed_figures.py`\
-    \ confirming both failure and verify\u2011only behaviours."
-  sig: a4b44d41e11bc5c97fb71596d6a838741dfbcdbe091e1e81a8ff76bbe713f8dc
+  h: ccb30900c2b228683396f83256b107375c02252eba71f10ebac8a99d80cd9c50
+  r: "Checked the pinned `requirements.txt`, the deterministic `src/utils/seeds.py`\
+    \ (seed\u202F=\u202F42 and applied at import), the generated `data/checksums.txt`\
+    \ (contains SHA\u2011256 lines for all data files) and the `src/utils/checksums.py`\
+    \ script (produces the manifest, confirmed by passing tests and execution log).\
+    \ All required artifacts exist and meet the specifications."
+  sig: ecb3c2efcac69a62bf179c0e50ee579cdb0da71ada8d5951628e0249380d7128
+T002:
+  c: false
+  h: 235eabc09b5baf5f2f595c2a696661181c694a3991f54440a9095a2d80878b29
+  r: "Checked `src/curators/curate_failed_figures.py` (exists and implements the required\
+    \ flags) and the generated `data/figures/`, `data/ground_truth/` (each contain\
+    \ exactly 50 files) and `data/checksums.txt`. However, there is no execution evidence\
+    \ that running the script with network unreachable (`python -m src.curators.curate_failed_figures\
+    \ --num 50`) actually exits non\u2011zero and prints \u201Cverified source unavailable\u201D\
+    . A log or captured stderr showing this failure is required."
+  sig: 8e9bb15bc9783154ad3b87e70cf821db9b0d9505539c07eed32fd5ceca5cf9f3
 T003:
   c: true
   h: 91e0d08f96369cff5710ee30ab6a2699de18c16b67d699e5b8d489a271866e5b
@@ -25,45 +27,31 @@ T003:
     \ present and, when run with `pytest`, would pass all four tests confirming 200\u202F\
     OK responses and correct payload structure."
   sig: f0a80e0067a0e456e61905f29b77b42e4d64180c3bc07bc981218d280f9a461e
-T004:
-  c: false
-  h: fac331b911fa5a750cd69745a74c3fe9262f5217c8ffd3053413aba498558317
-  r: "Checked `src/logger/interaction_logger.py` and its unit test `tests/logger/test_interaction_logger.py`,\
-    \ which confirm millisecond timestamps, iteration, mode, task_start_ms/end_ms,\
-    \ and appending to `data/logs/interactions_clean.jsonl`. However, there is no\
-    \ TestClient\u2011based integration test that simulates a real edit endpoint,\
-    \ no test exercising the 15\u2011minute abort logic, and the provided schema does\
-    \ not list the new `task_start_ms`, `task_end_ms`, or `status` fields, so schema\
-    \ validation is not demonstrated. These gaps must be addressed for the task to\
-    \ be considered complete."
-  sig: 936cb5aff1f781fc06754928b0328bbc60d812d5d9e4c1e898b16b72213e3016
 T005:
   c: true
-  h: 53fd52527c8b18cdce9ae1be0cd5839f992848ac2b32dde9d81d0cc7ad344bee
+  h: 759f5e8cca9be23a06ccc4272a49f8d6401307f6dc3d7dbd9f7e6490089e38fb
   r: "Checked the four required source files (vector_match.py, semantic_similarity.py,\
-    \ run_validation.py, test_validation.py) \u2013 they exist, contain functional\
-    \ implementations, and the provided pytest run passes, confirming the OR\u2011\
-    logic overall_success and schema\u2011compliant output."
-  sig: dc00efc75472fc559ac8f99e06657f7c5e99900c2bbcc126062236f2858cbe50
+    \ run_validation.py, test_validation.py) \u2013 they exist, contain full implementations,\
+    \ and the unit test exercises the combined validation script, confirming overall_success\
+    \ follows the OR logic and that the output records include all schema\u2011required\
+    \ fields with correct types."
+  sig: 6c1f8772c7110be921afdcf9837deec7bffd9c664550f71a71ec413d47714ac4
 T006:
-  c: false
-  h: dcd1ee6b4cacaea1bde0da03bdbadddbb27401069cf87a2b1123ea89198c8e66
-  r: "Checked `src/simulation/power_analysis.py` and `src/simulation/simulate_participants.py`\
-    \ plus the generated log `data/logs/interactions_clean.jsonl`. The power\u2011\
-    analysis script requires a `--effect-size` argument and does not guarantee printing\
-    \ a required N\u202F\u2265\u202F30 or exiting cleanly without arguments, violating\
-    \ the verification step. The participant simulation script writes to `interactions_clean.jsonl`\
-    \ via the logger, but the file is present and empty (0\u202Fbytes), and the script\
-    \ will fail if `data/figures` is missing, so it never produces the \u2265\u202F\
-    7\u202F500 schema\u2011valid lines required. The task therefore"
-  sig: 4a08c1b6c50652b9208f20f20e990a52e9a9b2713e73038a020bc10f81916c01
+  c: true
+  h: ba17eb6f73217b496872fba4d1bde77a5a0cd05481eea1e1ae0ef9924cf9ffba
+  r: "Checked `src/simulation/power_analysis.py` execution log showing it printed\
+    \ a required N\u202F=\u202F34 (\u226530) and exited with status\u202F0, and `src/simulation/simulate_participants.py`\
+    \ execution log confirming it ran without error and generated `data/logs/interactions_clean.jsonl`.\
+    \ The log file is >2\u202FMB, containing well\u2011formed JSON\u2011Lines with\
+    \ all required schema fields and clearly exceeds the 7\u202F500\u2011line minimum."
+  sig: 24e2a774b583d73d10c541f9ca93fca08707a540df9c05e78901ed9ec57606b6
 T007:
   c: false
-  h: 75d45ee268ade6307d2f8f630ecc33005603ed9647865d8c10397a52767fd017
-  r: "The script `src/analysis/validation_by_session.py` exists and produces a JSON\u2011\
-    Lines file with the required fields, but it never calls `run_validation.py` and\
-    \ it outputs one line per task rather than aggregating success **counts** per\
-    \ session. Moreover, the `session_id` values are all `\"unknown\"` because the\
-    \ interaction log mapping is not exercised in the provided data. The task therefore\
-    \ is not fully satisfied."
-  sig: 0e497a981918078eec0e8fed758efc08bdcde0b1b4c611c0f4bbe631c473dd3a
+  h: 3fcc631add02a7185570a492bea1bf56730ff3a264843376bb95ba0a439fdbef
+  r: "The `validation_by_session.py` script never calls `run_validation.py` as required,\
+    \ and the generated `validation_by_session.jsonl` contains only placeholder `\"\
+    unknown\"` session IDs, indicating that the per\u2011edit logs are not being used\
+    \ to map tasks to real participant sessions. The task\u2019s core requirement\
+    \ of applying `run_validation.py` per task and producing real session\u2011aware\
+    \ aggregates is not satisfied."
+  sig: b07b2ac172331be037986999d5be9eb4bb8f48d6a67846cbf7a579ef8c0d3144

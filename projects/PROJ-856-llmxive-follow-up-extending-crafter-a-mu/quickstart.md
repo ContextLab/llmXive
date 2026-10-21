@@ -29,7 +29,7 @@ uvicorn src.interfaces.chat_interface:app --port 8002 &
 
 ## 4. Run a priori power analysis (optional but recommended)
 ```bash
-python -m src.utils.power_analysis --effect-size 0.5 --alpha 0.05 --test wilcoxon
+python -m src.simulation.power_analysis --effect-size 0.5 --alpha 0.05 --test wilcoxon
 ```
 - The script prints the minimum required participants; abort if your planned N is lower.
 
@@ -40,7 +40,8 @@ python -m src.simulation.simulate_participants \
  --seed 42 \
  --log-dir data/logs/
 ```
-- This creates `data/logs/interactions.jsonl` files containing millisecond‑precise interaction records and shuffles both interface and task order per session.
+- This creates `data/logs/interactions_clean.jsonl` containing millisecond‑precise interaction records.
+- With 30 participants, 50 figures, and 5 edits per figure the file contains 7 500 lines, satisfying the contract schema. [UNRESOLVED-CLAIM: c_efc6dd26 — status=not_enough_info]
 
 ## 6. Retention check
 ```bash
@@ -69,7 +70,7 @@ cat outputs/report.md
 The report includes:
 - Median time‑to‑success & iteration counts per interface
 - Wilcoxon signed‑rank statistic, Bonferroni‑adjusted p‑value, effect size
-- **Independent** success‑rate breakdowns (vector‑match success, semantic‑similarity success)
+- Independent success‑rate breakdowns (vector‑match success, semantic‑similarity success)
 - Notes on any aborted or corrupted tasks.
 
 ## 9. Run contract tests (CI gate)

@@ -10,6 +10,8 @@ required:
   - mode
   - payload
   - response_image_path
+  - task_start_ms
+  - task_end_ms
 properties:
   log_id:
     type: "string"
@@ -37,3 +39,13 @@ properties:
   response_image_path:
     type: "string"
     description: "Filesystem path to the figure generated after this edit."
+  task_start_ms:
+    type: "integer"
+    description: "Timestamp of the first interaction for this task (ms since epoch)."
+  task_end_ms:
+    type: "integer"
+    description: "Timestamp of the most recent interaction for this task (ms since epoch)."
+  status:
+    type: "string"
+    enum: ["aborted"]
+    description: "If present, indicates the task exceeded the 15‑minute timeout."
