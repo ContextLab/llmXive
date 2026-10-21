@@ -1,16 +1,16 @@
 status: none
-intent: download PRs-v2-sample GitHub pull request metadata GHTorrent python package
-  dataset
+intent: download GitHub pull request metadata dataset PRs-v2-sample GHTorrent python
+  package dataset
 required_fields:
-- pr_id
-- repository_name
-- creation_timestamp
-- merge_timestamp
+- pull_request_id
+- repository_full_name
+- pr_created_at
+- pr_merged_at
 - comment_count
-- lines_added
-- lines_deleted
+- additions
+- deletions
 - review_timestamps
 - provenance_label
-cache_key: 99316a706628634154696d5c8363b40cb9eebd78a50a1c130bdb04503fac098f
-searched_at: '2026-10-21T00:19:10.522053+00:00'
+cache_key: bfb193d35dbec77ef582ea074436def9cde050d2aa230440c42f06f50cc42199
+searched_at: '2026-10-21T02:11:13.254323+00:00'
 retry_count: 1

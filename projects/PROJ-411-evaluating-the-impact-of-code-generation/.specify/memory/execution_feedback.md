@@ -19,16 +19,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/download_data.py -> rc=1
 
-2026-10-21 00:18:15,270 INFO __main__: Required fields from schema: ['pr_id', 'repo_name', 'created_at', 'merged_at', 'additions', 'deletions', 'comment_count', 'commit_message']
-2026-10-21 00:18:15,270 INFO __main__: Listing files for repo loubnabnl/prs-v2-sample
-2026-10-21 00:18:15,309 INFO __main__: Downloading data/train-00000-of-00001-a3494cf8c0712e34.parquet from loubnabnl/prs-v2-sample
-2026-10-21 00:18:15,403 INFO __main__: Checksum for loubnabnl__prs-v2-sample.parquet: ce4cf0c99ef4f069e5a93d56aa53ebb443d609ef1bd9c12bf10c292819800dc8
+2026-10-21 02:10:45,699 INFO __main__: Required fields from schema: ['pr_id', 'repo_name', 'created_at', 'merged_at', 'additions', 'deletions', 'comment_count', 'commit_message']
+2026-10-21 02:10:45,699 INFO __main__: Listing files for repo loubnabnl/prs-v2-sample
+2026-10-21 02:10:45,813 INFO __main__: Downloading data/train-00000-of-00001-a3494cf8c0712e34.parquet from loubnabnl/prs-v2-sample
+2026-10-21 02:10:47,155 INFO __main__: Checksum for loubnabnl__prs-v2-sample.parquet: ce4cf0c99ef4f069e5a93d56aa53ebb443d609ef1bd9c12bf10c292819800dc8
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-411-evaluating-the-impact-of-code-generation/code/download_data.py", line 219, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-411-evaluating-the-impact-of-code-generation/code/download_data.py", line 196, in main
     raise RuntimeError(
-RuntimeError: Primary dataset 'loubnabnl/prs-v2-sample' is missing mandatory fields required for scope: ['merged_at', 'comment_count']
+RuntimeError: Primary dataset 'loubnabnl/prs-v2-sample' is missing mandatory fields required for scope: ['comment_count', 'merged_at']
 
 - python code/classify_provenance.py  --input data/raw/prs-v2-sample.parquet  --output data/processed/classified_prs.csv -> rc=2
 
