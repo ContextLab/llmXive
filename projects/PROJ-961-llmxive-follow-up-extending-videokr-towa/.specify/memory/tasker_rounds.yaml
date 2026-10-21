@@ -1,4 +1,4 @@
-analysis_sha256: ac8f6952020b482df971cdb6c14816688ac3d03c050f5296059acf54d3855952
+analysis_sha256: 21be6bdf1fdb6a0353303c6744889e869e1689cef64f0c89e48c73fb30ef9638
 converged: true
 path: engine
-rounds_used: 3
+rounds_used: 2
