@@ -1,19 +1,23 @@
 T101:
   c: true
-  h: 41a9af4912831d8dbbf31c0b7fb614e9936b56773a5ae1e8be13f7d72a4d5669
-  r: Checked `code/utils/config.py` for the required `SEEDS['pilot_sampling'] == 42`
-    and verified the presence and content of `code/ingest/checksum.py`. Running the
-    script creates (or updates) `data/raw/checksums.json`, which is present with the
-    expected entry.
-  sig: 6684a1132f6dabcbf05da67fde772cc8e95e26ff21f594990468fd5864e958e6
+  h: 54f3cd1bb385e83fcc17a9f7585f744e470bb5d8ca10aeb815613c11e2237ec4
+  r: 'Both required files exist with substantive content: `code/utils/config.py` defines
+    `SEEDS[''pilot_sampling''] = 42` (satisfying the import assertion), project paths,
+    and constants, and `code/ingest/checksum.py` is a real SHA-256 checksum utility
+    whose `main()` creates and verifies `data/raw/checksums.json`, which exists on
+    disk with a valid entry. The verification commands are consistent with the code''s
+    structure (package `__init__.py` files and import wrappers are present), and no
+    placeholders or stubs were found.'
+  sig: d7dfe29f03b0d45d88210e5436b80fba696a4e3341fcd2b6dabc45472d102f56
 T102:
-  c: false
-  h: 10185bc345a4a022cbf76784ec134bbeae0742fc2958aa078d2b13aa7fec862b
-  r: "The `entity_linker.py` file exists and implements the required deterministic\
-    \ linking logic, but it (and the test suite) import `utils.config` and `utils.entity_linker`\
-    \ instead of the correct package path `code.utils.*`. This import mismatch means\
-    \ the module cannot be imported and the pytest tests will fail, so the task\u2019\
-    s requirement of a passing test suite is not met. The import statements need to\
-    \ be corrected to use the `code.utils` package (or a top\u2011level `utils` package\
-    \ must be provided)."
-  sig: 8894d9c22e4c07d0cd75ae5b04ef7887691bb9ce7ea91db0d6afbb03c702e3e4
+  c: true
+  h: 94b2873997f467b7b8ee121e6bc4475a25fd168b6503e7e82d811ca58fa10a4e
+  r: "The implementation in `code/utils/entity_linker.py` matches the spec: normalization\
+    \ (lowercase, punctuation stripped), exact match against graph node names, Levenshtein\
+    \ \u2264 2 as the only fuzzy fallback, returns `entity_node_id` plus a confidence\
+    \ flag, and contains no embedding-model calls. `tests/unit/test_entity_linker.py`\
+    \ covers exact-match, Levenshtein fallback, pre-existing-ID, and failure cases,\
+    \ and `link_dataframe` is importable from `code.utils.entity_linker` (with a `utils.entity_linker`\
+    \ re-export wrapper for pytest). The test expectations are consistent with the\
+    \ actual Levenshtein logic"
+  sig: e7e837a19d6de44803e17464a33a75cc6887dcf4d222235ce3d603d77af74764

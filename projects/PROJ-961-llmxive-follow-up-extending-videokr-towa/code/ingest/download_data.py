@@ -7,17 +7,10 @@ This script performs the following steps:
   3. Download the bundled knowledge‑graph JSON from the verified repo
      ``llmxive/videoqa-kg``.
   4. Compute SHA‑256 checksums for every downloaded file and write them to
-     ``raw_data/checksums.json``.
+     ``data/raw/checksums.json``.
 
 Any failure aborts loudly with ``DataUnavailableError`` – no synthetic fallback
-is performed.  The module exposes the public helper functions expected by the
-unit tests:
-  * ``download_tvqa_train(output_dir)`` – returns a ``Path`` to the written CSV.
-  * ``download_tvqa_metadata(output_dir)`` – returns a ``Path`` to the metadata CSV.
-  * ``download_knowledge_graph(output_dir)`` – returns a ``Path`` to the JSON file.
-  * ``verify_checksums(output_dir)`` – returns ``(success, checksum_dict)``.
-  * ``compute_sha256`` – re‑exported from ``code.ingest.checksum`` for test
-    convenience.
+is performed.
 """
 import csv
 import json
@@ -26,16 +19,13 @@ import sys
 from pathlib import Path
 from typing import Dict, Tuple
 
-# Lazy import of ``datasets`` to avoid importing heavy dependencies at import time.
-def load_dataset(*args, **kwargs):
-    """Thin wrapper that imports ``datasets.load_dataset`` on first use."""
-    from datasets import load_dataset as real_load_dataset
-    return real_load_dataset(*args, **kwargs)
-
-from huggingface_hub import hf_hub_download  # pip‑install huggingface_hub
+# External dependencies
+from datasets import load_dataset as hf_load_dataset
+from huggingface_hub import hf_hub_download
 
 # Toolkit helpers for standardized project paths
-from utils.config import get_project_root, get_path, ensure_dir
+from llmxive_toolkit import paths
+from utils.config import ensure_dir
 
 # Local checksum helper (re‑exported for the tests)
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -61,13 +51,14 @@ def _write_csv_from_iterable(iterable, output_path: Path) -> None:
     with output_path.open("w", newline="", encoding="utf-8") as csvfile:
         writer = None
         for record in iterable:
-            # Ensure the record is a plain dict (datasets may return DatasetDict)
+            # Ensure the record is a plain dict (datasets may return Dataset objects)
             if not isinstance(record, dict):
                 record = dict(record)
             if writer is None:
                 fieldnames = list(record.keys())
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
+            # Convert non‑primitive values to strings to keep CSV well‑formed
             safe_record = {
                 k: (v if isinstance(v, (str, int, float, bool)) else str(v))
                 for k, v in record.items()
@@ -78,44 +69,30 @@ def _write_csv_from_iterable(iterable, output_path: Path) -> None:
 def download_tvqa_train(output_dir: Path) -> Path:
     """
     Download the TVQA training split (streaming) and write it as a CSV.
+    Returns the path to the created CSV file.
     """
     logger.info("Downloading TVQA training split (streaming)...")
     try:
-        tvqa_stream = load_dataset("tvqa", split="train", streaming=True)
+        tvqa_stream = hf_load_dataset("tvqa", split="train", streaming=True)
     except Exception as exc:
-        raise DataUnavailableError(
-            "Failed to download TVQA training split."
-        ) from exc
+        raise DataUnavailableError("Failed to download TVQA training split.") from exc
 
     csv_path = output_dir / "tvqa_train.csv"
     logger.info(f"Writing TVQA training data to CSV at {csv_path}")
     _write_csv_from_iterable(tvqa_stream, csv_path)
-
-    # Also write a Parquet copy for downstream code that may expect it.
-    parquet_path = output_dir / "tvqa_train.parquet"
-    try:
-        # If the streaming object supports ``to_parquet`` use it.
-        tvqa_stream.to_parquet(str(parquet_path))
-    except AttributeError:
-        import pandas as pd
-        rows = list(tvqa_stream)
-        df = pd.DataFrame(rows)
-        df.to_parquet(parquet_path, index=False)
-
     return csv_path
 
 
 def download_tvqa_metadata(output_dir: Path) -> Path:
     """
     Download the TVQA metadata split (non‑streaming) and write it as a CSV.
+    Returns the path to the created metadata CSV file.
     """
     logger.info("Downloading TVQA metadata split (non‑streaming)...")
     try:
-        metadata = load_dataset("tvqa", split="metadata", streaming=False)
+        metadata = hf_load_dataset("tvqa", split="metadata", streaming=False)
     except Exception as exc:
-        raise DataUnavailableError(
-            "Failed to download TVQA metadata split."
-        ) from exc
+        raise DataUnavailableError("Failed to download TVQA metadata split.") from exc
 
     metadata_dir = output_dir / "metadata"
     metadata_dir.mkdir(parents=True, exist_ok=True)
@@ -128,6 +105,7 @@ def download_tvqa_metadata(output_dir: Path) -> Path:
 def download_knowledge_graph(output_dir: Path) -> Path:
     """
     Download the TVQA knowledge‑graph JSON from the verified repo.
+    Returns the path to the saved JSON file.
     """
     repo_id = "llmxive/videoqa-kg"
     filename = "knowledge_graph.json"
@@ -148,27 +126,7 @@ def download_knowledge_graph(output_dir: Path) -> Path:
         logger.info(f"Knowledge graph saved to {target_path}")
         return target_path
     except Exception as hf_exc:
-        logger.warning(
-            f"hf_hub_download failed ({hf_exc}); attempting fallback via ``datasets``."
-        )
-        try:
-            kg_dataset = load_dataset(
-                "llmxive/videoqa-kg", split="train", streaming=False
-            )
-        except Exception as exc:
-            raise DataUnavailableError(
-                "Failed to download knowledge graph."
-            ) from exc
-
-        kg_path = output_dir / filename
-        with kg_path.open("w", encoding="utf-8") as f:
-            if hasattr(kg_dataset, "__iter__"):
-                data = list(kg_dataset)
-                json.dump(data, f, indent=2)
-            else:
-                json.dump(kg_dataset, f, indent=2)
-        logger.info(f"Knowledge graph saved to {kg_path}")
-        return kg_path
+        raise DataUnavailableError("Failed to download knowledge graph.") from hf_exc
 
 
 def verify_checksums(output_dir: Path) -> Tuple[bool, Dict[str, str]]:
@@ -205,9 +163,8 @@ def main() -> None:
     Orchestrates the download of TVQA data and the knowledge graph,
     then records SHA‑256 checksums for reproducibility.
     """
-    # The orchestrator expects raw data under ``raw_data`` at the project root.
-    project_root = get_project_root()
-    raw_dir = get_path(project_root, "raw_data")
+    # The raw data folder is ``data/raw`` according to the project specification.
+    raw_dir = paths.data("raw")
     ensure_dir(raw_dir)
 
     # 1. TVQA training data

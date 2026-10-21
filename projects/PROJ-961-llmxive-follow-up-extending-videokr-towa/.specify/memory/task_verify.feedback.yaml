@@ -1,13 +1,6 @@
 T101:
   task: 83422d07c2e11ff2b25844fd2df02d0d2ad28058468f1a617c8c718e8a2aeef9
 T102:
-  reason: "The `entity_linker.py` file exists and implements the required deterministic\
-    \ linking logic, but it (and the test suite) import `utils.config` and `utils.entity_linker`\
-    \ instead of the correct package path `code.utils.*`. This import mismatch means\
-    \ the module cannot be imported and the pytest tests will fail, so the task\u2019\
-    s requirement of a passing test suite is not met. The import statements need to\
-    \ be corrected to use the `code.utils` package (or a top\u2011level `utils` package\
-    \ must be provided)."
   task: de4ebf1982888f3d3aa762b661a5d3e8b4e069d2627f853fdfa466ab330d7807
 T103:
   reason: 'Requested task execution failed; rerun successfully: code/ingest/download_data.py
