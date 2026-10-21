@@ -1,19 +1,18 @@
 status: none
-intent: ClinicalTrials.gov OSF clinical trial project metadata collector python package
-  dataset
+intent: ClinicalTrials.gov OSF PubMed API aggregator python package dataset
 required_fields:
-- nct_id
-- trial_title
-- overall_status
-- start_date
-- completion_date
-- sponsor
-- condition
-- intervention
-- outcome_measures
-- osf_id
-- osf_title
-- osf_description
-cache_key: 873fb2fdd6901ddaf2615148ff585f896d8866bf8a996c9f3017a754e1f76de7
-searched_at: '2026-10-21T06:12:56.896185+00:00'
+- clinical_trial_id
+- clinical_trial_title
+- clinical_trial_status
+- clinical_trial_start_date
+- clinical_trial_completion_date
+- clinical_trial_sponsor
+- clinical_trial_location
+- osf_project_id
+- osf_project_title
+- osf_project_authors
+- osf_project_created_date
+- pubmed_id
+cache_key: b30039122f220184d3d22c61056e8fab68318a33c86cc015eaa159516f35f9c0
+searched_at: '2026-10-21T06:31:53.407890+00:00'
 retry_count: 1

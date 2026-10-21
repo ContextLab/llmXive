@@ -9,25 +9,36 @@
   verification_status: unreachable
   verified_against_url: https://www.libero
   verified_at: '2026-04-29T04:15:21.023558Z'
-- artifact_hash: 2efc8559bcae03315e0fb3c88ab79ab1353190662267de4b303af13c99de26f0
+- artifact_hash: 1fdbd549e1b2b31d42038e277738d059670e2b266bd3d6c94a76390d38038f25
   artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/research.md
   cite_id: c-001
   cited_authors: []
-  cited_title: https://clinicaltrials.gov/
+  cited_title: null
   fetched_title: ClinicalTrials.gov
   kind: url
   value: https://clinicaltrials.gov/
   verification_status: pending
   verified_against_url: https://clinicaltrials.gov/
-  verified_at: '2026-10-13T22:28:27.096274Z'
-- artifact_hash: 2efc8559bcae03315e0fb3c88ab79ab1353190662267de4b303af13c99de26f0
+  verified_at: '2026-10-21T06:43:31.290412Z'
+- artifact_hash: 1fdbd549e1b2b31d42038e277738d059670e2b266bd3d6c94a76390d38038f25
   artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/research.md
   cite_id: c-002
   cited_authors: []
-  cited_title: https://osf.io/
+  cited_title: null
   fetched_title: OSF
   kind: url
   value: https://osf.io/
   verification_status: pending
   verified_against_url: https://osf.io/
-  verified_at: '2026-10-13T22:28:27.096274Z'
+  verified_at: '2026-10-21T06:43:31.290412Z'
+- artifact_hash: 1fdbd549e1b2b31d42038e277738d059670e2b266bd3d6c94a76390d38038f25
+  artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: PMC Home
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/pmc/
+  verification_status: pending
+  verified_against_url: https://pmc.ncbi.nlm.nih.gov/
+  verified_at: '2026-10-21T06:43:31.290412Z'

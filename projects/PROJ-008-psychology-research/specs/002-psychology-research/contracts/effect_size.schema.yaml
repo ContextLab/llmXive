@@ -37,4 +37,9 @@ properties:
   domain_tag:
     type: "string"
     enum: ["communication", "peer_interaction", "emotional_regulation", "adaptive_behavior"]
+  baseline_used:
+    type: "boolean"
+  rob_rating:
+    type: "string"
+    enum: ["low", "some concerns", "high"]
 additionalProperties: false

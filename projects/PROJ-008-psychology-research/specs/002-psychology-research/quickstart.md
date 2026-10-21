@@ -25,7 +25,8 @@ pip install -r code/requirements.txt
 python code/data/collector.py \
     --output data/raw/registry_snapshot_$(date +%Y%m%d).json
 
-# Step 2: Supplement with PubMed article data for outcome statistics
+# Step 2: Supplement with **open‑access** PubMed Central articles for outcome statistics;
+# if no open‑access full text is available, the pipeline falls back to abstract extraction.
 python code/data/pubmed_fetcher.py \
     --registry data/raw/registry_snapshot_*.json \
     --output data/raw/pubmed_articles.json
@@ -37,12 +38,13 @@ python code/data/cleaner.py \
     --output data/processed/cleaned_studies.csv \
     --log data/raw/excluded_studies.log
 
-# Step 4: Compute effect sizes (uses change scores when available)
+# Step 4: Compute effect sizes (uses change scores when available; otherwise
+# performs a sensitivity analysis over r = 0.3, 0.5, 0.7)
 python code/analysis/effect_sizes.py \
     --input data/processed/cleaned_studies.csv \
     --output data/processed/effect_sizes.csv
 
-# Step 5: Meta‑analysis & subgroup models (REML + Hartung‑Knapp)
+# Step 5: Meta‑analysis & subgroup models (REML + Hartung‑Knapp; always random‑effects)
 python code/analysis/meta_analysis.py \
     --input data/processed/effect_sizes.csv \
     --output data/results/meta_analysis.json \
@@ -57,21 +59,20 @@ pytest tests/
 |------|-------------|
 | `data/processed/cleaned_studies.csv` | Standardized study table (validated against `contracts/cleaned_study.schema.yaml`). |
 | `data/processed/effect_sizes.csv` | Hedges’ g per study (validated against `contracts/effect_size.schema.yaml`). |
-| `data/results/meta_analysis.json` | Pooled effect, heterogeneity, subgroup results. |
+| `data/results/meta_analysis.json` | Pooled effect, heterogeneity, subgroup results, and power report. |
 | `data/results/plots/forest.png` | Forest plot with study CIs and pooled diamond. |
 | `data/results/plots/funnel.png` | Funnel plot (only if N ≥ 10). |
 | `data/*.sha256` | SHA‑256 checksums for reproducibility (Principle III). |
 | `data/metadata/registry_log.json` | Registry query strings, timestamps, DOI validation status, and checksums. |
-| `data/metadata/pubmed_log.json` | PubMed query logs and extracted outcome statistics. |
-| `data/metadata/rob_log.json` | Risk‑of‑bias ratings per study. |
+| `data/metadata/pubmed_log.json` | PubMed Central query logs and extracted outcome statistics. |
+| `data/metadata/rob_log.json` | Risk‑of‑bias (`rob_rating`) ratings per study. |
 
 ## Troubleshooting
 - **API Rate Limits**: The collector implements exponential backoff; if it still fails, simply re‑run the command – it will resume from the last successful page.  
-- **Missing Outcome Statistics**: Check `data/raw/excluded_studies.log` for reasons; the PubMed step often fills gaps.  
-- **Abstract‑Only Tags**: Records flagged `abstract_only=True` are excluded from subgroup analyses; manually verify if needed.  
+- **Missing Outcome Statistics**: Check `data/raw/excluded_studies.log` for reasons; the PubMed Central step often fills gaps; if not, abstract fallback will be used.  
+- **Abstract‑Only Tags**: Records flagged `abstract_only=True` are **included** in primary analyses; a dedicated sensitivity analysis will compare results with and without these records.  
 - **No Included Studies**: Review `data/raw/excluded_studies.log` for exclusion reasons (e.g., non‑RCT, no outcome, ambiguous delivery).  
 - **N < 10**: The pipeline automatically skips funnel plot/Egger’s test and produces a descriptive synthesis note in `meta_analysis.json`.  
 
 ---
-
 
