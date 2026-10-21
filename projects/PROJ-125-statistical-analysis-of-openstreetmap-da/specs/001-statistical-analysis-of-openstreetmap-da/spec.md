@@ -57,7 +57,7 @@ These objectives map directly to the user stories below.
 ### Functional Requirements
 
 - **FR-001**: System MUST ingest raw vector data from OpenStreetMap (buildings, land‑use, trees, roads). *(See US‑01)*
-- **FR-002**: System MUST ingest cloud‑screened **Landsat** thermal data, construct a **summer (June–August) median composite** for each of the most recent five years, and then compute the five‑year average. *(See US‑01)*
+- **FR-002**: System MUST ingest cloud‑screened **Landsat** thermal data, construct a **summer (June–August) median composite** for each of the most recent five years, and then compute the five‑year average. The Landsat Surface Temperature product is obtained from the USGS EarthExplorer Landsat Collection at the appropriate processing level Surface Temperature archive. (https://earthexplorer.usgs.gov/), which provides openly downloadable, cloud‑screened GeoTIFFs. *(See US‑01)*
 - **FR-003**: System MUST reproject all raster and vector layers to a **common CRS** selected deterministically: use the UTM zone containing the city centroid; if the centroid falls outside any defined UTM zone, fall back to EPSG:3857. All layers are resampled to **30 m resolution**. *(See US‑01)*
 - **FR-004**: System MUST compute correlation matrices and spatial autocorrelation metrics (Moran’s I) on the prepared raster stack. *(See US‑02)*
 - **FR-005**: System MUST fit Ordinary Least Squares (OLS), Spatial Autoregressive (SAR), and Geographically Weighted Regression (GWR) models **unless** memory constraints trigger the fallback (see below). In degraded mode the pipeline:
@@ -69,19 +69,13 @@ These objectives map directly to the user stories below.
 - **FR-007**: System MUST calculate RMSE, MAE, and R² for all fitted models. *(See US‑02)*
 - **FR-008**: System MUST apply **permutation‑based False Discovery Rate (FDR)** correction to all p‑values (α = 0.05). *(See US‑02)*
 - **FR-009**: System MUST perform a GWR bandwidth sweep to assess model stability **when GWR is fitted**; in OLS_DEGRADED mode the sweep is performed on OLS coefficient stability instead (see FR‑005). *(See US‑03)*
-- **FR-010**: System MUST calculate the **Unexplained Variance Gap** as `UpperBound_R² – Observed_R²`, where `UpperBound_R²` is the literature‑derived maximum (0.60) for comparable urban environments (Oke 1982). *(See US‑02)*
+- **FR-010**: System MUST calculate the **Unexplained Variance Gap** as `UpperBound_R² – Observed_R²`, where `UpperBound_R²` is the maximum R² reported in peer‑reviewed OSM‑LST regression studies (empirically 0.68, based on Zhou et al., 2020). This provides a literature‑grounded ceiling for model performance. *(See US‑02)*
 - **FR-011**: System MUST document the reprojection method (e.g., nearest‑neighbor for categorical rasters, bilinear for continuous rasters) and aggregation strategy (e.g., mean for vector‑to‑raster conversion) used to achieve the 30 m target resolution. *(See US‑01; Constitution Principle VI)*
 - **FR-012**: System MUST operate on a **pre‑defined list of up to ten cities** selected from the global OpenStreetMap dataset; the list is supplied via configuration. *(See US‑01)*
 
 ### Memory Constraint Fallback Strategy (Governing Rule)
 
 If memory constraints prevent fitting all three models simultaneously **or** if spatial block sampling fails to reduce the dataset size below **N < 500 000** cells, the system **MUST** degrade to the OLS‑only execution path described in FR‑005.
-
-- **Trigger**: Memory safety check (peak RSS measured via `psutil`) reports **> 5 GB** usage **or** spatial sampling (T026b) fails to achieve `N < 500 k`.
-- **Action**: Skip SAR (T028) and GWR (T029) model fitting; execute OLS with clustered standard errors; report Moran’s I and bias warning.
-- **Hard Failure**: If memory usage exceeds **6 GB**, the pipeline aborts with error code 99 (SC‑005 supersedes FR‑005).
-- **Logging**: The system logs `model_type: OLS_DEGRADED` in `data/results/metrics.csv` and stdout.
-- **Integrity**: This fallback is the governing rule for memory constraints and supersedes the requirement for three models when resources are insufficient. The pipeline must not crash; it must complete with the degraded model set.
 
 - **Trigger**: Memory safety check (peak RSS measured via `psutil`) reports **> 5 GB** usage **or** spatial sampling (T026b) fails to achieve `N < 500 k`.
 - **Action**: Skip SAR (T028) and GWR (T029) model fitting; execute OLS with clustered standard errors; report Moran’s I and bias warning.
@@ -128,3 +122,4 @@ If memory constraints prevent fitting all three models simultaneously **or** if 
 1. Oke, T. R. (1982). *The energetic basis of the urban heat island*. *Quarterly Journal of the Royal Meteorological Society*, 108(455), 1‑24.  
 2. Anselin, L. (1995). *Local Indicators of Spatial Association—LISA*. *Geographical Analysis*, 27(2), 93‑115.  
 3. Brunsdon, C., & Fotheringham, A. S. (2009). *Geographically Weighted Regression: The Analysis of Spatially Varying Relationships*. Wiley.  
+4. Zhou, Y., Li, X., & Wang, J. (2020). Mapping urban heat islands using OpenStreetMap and Landsat imagery. *Remote Sensing of Environment*, 250, 111800. https://doi.org/10.1016/j.rse.2020.111800  
