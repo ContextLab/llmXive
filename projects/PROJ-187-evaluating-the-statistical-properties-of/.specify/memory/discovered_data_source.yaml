@@ -1,13 +1,11 @@
 status: none
-intent: UCI Adult Credit Card Fraud Covertype datasets python package dataset
+intent: OpenML UCI Machine Learning Repository Adult Credit Card Fraud Covertype Higgs
+  HAR Shopper python package dataset
 required_fields:
-- 'Adult: age, workclass, education, marital_status, occupation, relationship, race,
-  sex, capital_gain, capital_loss, hours_per_week, native_country, income'
-- 'Credit Card Fraud: V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14,
-  V15, V16, V17, V18, V19, V20, V21, V22, V23, V24, V25, V26, V27, V28, Amount, Class'
-- 'Covertype: Elevation, Aspect, Slope, Horizontal_Distance_To_Hydrology, Vertical_Distance_To_Hydrology,
-  Horizontal_Distance_To_Roadways, Hillshade_9am, Hillshade_Noon, Hillshade_3pm, Wilderness_Area,
-  Soil_Type, Cover_Type'
-cache_key: 125b0bb2ed6533e687a1a6320f6c560191e0865d85fdf74e5152c12b8fab389f
-searched_at: '2026-10-21T21:30:44.087270+00:00'
+- numeric features
+- categorical features
+- target label
+- missing value indicators
+cache_key: fd2df1a67c4257bce72239cb58dce7c9ee19cd8f17b8d6e58016fdad311c46ab
+searched_at: '2026-10-21T22:20:19.369025+00:00'
 retry_count: 1

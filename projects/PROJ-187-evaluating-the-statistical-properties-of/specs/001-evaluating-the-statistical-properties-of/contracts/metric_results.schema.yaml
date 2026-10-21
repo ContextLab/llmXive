@@ -1,5 +1,7 @@
-# Minimal JSON‑Schema for metric_results files.
-# The real study will replace this with a richer definition.
-# For the current tests we only need the file to be a valid JSON object.
+$schema: "http://json-schema.org/draft-07/schema#"
+description: >
+  Minimal schema for metric_results.json. The concrete pipeline will
+  populate this file with detailed metric objects; for now any JSON
+  object is accepted.
 type: object
 additionalProperties: true

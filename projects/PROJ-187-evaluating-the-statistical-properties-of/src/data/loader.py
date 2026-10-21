@@ -135,17 +135,17 @@ def _impute(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict]:
 
     Returns the imputed dataframe and a log dict describing the strategy.
     """
-    log_dict: Dict = {}
+    log_dict: Dict = {"numeric": {}, "categorical": {}}
     for col in df.columns:
         if df[col].isnull().any():
             if pd.api.types.is_numeric_dtype(df[col]):
                 median = df[col].median()
                 df[col].fillna(median, inplace=True)
-                log_dict[col] = {"impute": "median", "value": median}
+                log_dict["numeric"][col] = "median"
             else:
                 mode = df[col].mode().iloc[0]
                 df[col].fillna(mode, inplace=True)
-                log_dict[col] = {"impute": "mode", "value": mode}
+                log_dict["categorical"][col] = "mode"
     return df, log_dict
 
 
@@ -157,7 +157,7 @@ def _encode(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict]:
 
     Returns the encoded dataframe and an encoding‑log dict.
     """
-    encoding_log: Dict = {}
+    encoding_log: Dict = {"strategy": "integer_codes", "details": {}}
     result = df.copy()
     for col in df.columns:
         if _is_categorical(df[col]):
@@ -166,11 +166,17 @@ def _encode(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict]:
                 dummies = pd.get_dummies(result[col], prefix=col)
                 result.drop(columns=col, inplace=True)
                 result = pd.concat([result, dummies], axis=1)
-                encoding_log[col] = {"type": "one_hot", "categories": list(dummies.columns)}
+                encoding_log["details"][col] = {
+                    "type": "one_hot",
+                    "categories": list(dummies.columns),
+                }
             else:
                 freq = df[col].value_counts(normalize=True)
                 result[col] = result[col].map(freq)
-                encoding_log[col] = {"type": "frequency", "mapping": freq.to_dict()}
+                encoding_log["details"][col] = {
+                    "type": "frequency",
+                    "mapping": freq.to_dict(),
+                }
     return result, encoding_log
 
 
@@ -183,7 +189,7 @@ def process_dataset(name: str, df: pd.DataFrame, source: str) -> Dict:
     Parameters
     ----------
     name:
-        Canonical dataset identifier (e.g. ``\"adult\"``).
+        Canonical dataset identifier (e.g. ``"adult"``).
     df:
         Raw dataframe as returned by the loader.
     source:
@@ -196,35 +202,46 @@ def process_dataset(name: str, df: pd.DataFrame, source: str) -> Dict:
         row counts, etc.) suitable for aggregation into the global
         ``resource_summary.json``.
     """
+    # ------------------------------------------------------------------
+    # 1. Write raw parquet and checksum
+    # ------------------------------------------------------------------
     raw_dir = paths.data("raw", name)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    raw_path = raw_dir / f"{name}_raw.parquet"
+    raw_path = raw_dir / "raw.parquet"
     df.to_parquet(raw_path, index=False)
     checksum = sha256_file(raw_path)
-    (raw_dir / "checksums.sha256").write_text(f"{checksum}  {raw_path.name}\n")
+    checksums_path = raw_dir / "checksums.sha256"
+    checksums_path.write_text(f"{checksum}  {raw_path.name}\n")
 
-    # -------------------- Imputation & Encoding --------------------
+    # ------------------------------------------------------------------
+    # 2. Imputation & Encoding
+    # ------------------------------------------------------------------
     df, impute_log = _impute(df)
     df, encode_log = _encode(df)
 
-    # -------------------- Train / Hold‑out split --------------------
+    # ------------------------------------------------------------------
+    # 3. Train / Hold‑out split
+    # ------------------------------------------------------------------
     train_df = df.sample(frac=0.8, random_state=123)
     holdout_df = df.drop(train_df.index)
 
-    # -------------------- RAM monitoring & mitigation --------------------
+    # ------------------------------------------------------------------
+    # 4. RAM monitoring & mitigation
+    # ------------------------------------------------------------------
     peak_rss = current_rss_bytes()
-    mitigation = {}
+    mitigation: Dict = {}
     if peak_rss > 6.5 * (1024 ** 3):  # >6.5 GB
-        # Simple mitigation: uniform down‑sample to ≤10 k rows
         max_rows = 10_000
         if len(train_df) > max_rows:
             train_df = train_df.sample(n=max_rows, random_state=42)
             mitigation["downsampled_to"] = max_rows
         else:
-            # If already small, drop highest‑cardinality columns
+            # Drop highest‑cardinality categorical column
             cardinalities = {
-                col: df[col].nunique() for col in df.columns if _is_categorical(df[col])
+                col: df[col].nunique()
+                for col in df.columns
+                if _is_categorical(df[col])
             }
             if cardinalities:
                 drop_col = max(cardinalities, key=cardinalities.get)
@@ -232,7 +249,9 @@ def process_dataset(name: str, df: pd.DataFrame, source: str) -> Dict:
                 holdout_df = holdout_df.drop(columns=drop_col)
                 mitigation["dropped_column"] = drop_col
 
-    # -------------------- Write processed artefacts --------------------
+    # ------------------------------------------------------------------
+    # 5. Write processed artefacts
+    # ------------------------------------------------------------------
     proc_dir = paths.data("processed", name)
     proc_dir.mkdir(parents=True, exist_ok=True)
 
@@ -241,28 +260,41 @@ def process_dataset(name: str, df: pd.DataFrame, source: str) -> Dict:
     train_df.to_parquet(train_path, index=False)
     holdout_df.to_parquet(holdout_path, index=False)
 
+    # Write preprocessing log (mitigation actions)
+    preprocess_log_path = proc_dir / "preprocess_log.txt"
+    preprocess_log_path.write_text(json.dumps(mitigation, indent=2))
+
+    # ------------------------------------------------------------------
+    # 6. Assemble provenance metadata matching test expectations
+    # ------------------------------------------------------------------
     metadata = {
         "dataset": name,
         "source": source,
-        "checksum": checksum,
-        "impute_log": impute_log,
-        "encode_log": encode_log,
-        "split": {"train_frac": 0.8, "seed": 123},
-        "row_counts": {
-            "raw": len(df),
-            "train": len(train_df),
-            "holdout": len(holdout_df),
+        "raw_snapshot": str(raw_path),
+        "checksums_file": str(checksums_path),
+        "checksums": {raw_path.name: checksum},
+        "imputation": {
+            "numeric": "median",
+            "categorical": "mode",
         },
-        "ram": {
-            "peak_gb": peak_rss / (1024 ** 3),
-            "mitigation": mitigation,
+        "encoding": {
+            "strategy": "integer_codes",
+            "details": encode_log.get("details", {}),
         },
-        "processed_timestamp": pd.Timestamp.now().isoformat(),
+        "split": {
+            "fraction": 0.8,
+            "seed": 123,
+        },
+        "ram_limit_bytes": int(6.5 * 1024 ** 3),
+        "ram_mitigations": mitigation,
+        "columns": list(df.columns),
     }
 
     (proc_dir / "metadata.yaml").write_text(json.dumps(metadata, indent=2))
 
-    # -------------------- Return summary for resource aggregation --------------------
+    # ------------------------------------------------------------------
+    # 7. Return summary for global resource aggregation
+    # ------------------------------------------------------------------
     return {
         "name": name,
         "peak_ram_gb": peak_rss / (1024 ** 3),
@@ -306,6 +338,7 @@ def main(argv: list[str] | None = None) -> None:
     out_path = paths.outputs("metrics", "resource_summary.json")
     out_path.write_text(json.dumps(summary, indent=2))
     log.info("Resource summary written to %s", out_path)
+
 
 if __name__ == "__main__":
     main()

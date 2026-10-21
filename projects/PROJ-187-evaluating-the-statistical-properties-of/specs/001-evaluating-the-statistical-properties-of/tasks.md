@@ -23,7 +23,7 @@ The goal is a fully automated CPU‑only pipeline that (1) loads the verified pu
   - Summarize per‑dataset RAM usage and mitigation status in `outputs/metrics/resource_summary.json` (fields: `peak_ram_gb`, `mitigation_applied`, `completed_within_limit`, aggregate `fraction_completed_within_ram` for SC‑001).
   *Verification*: `pytest tests/unit/test_loader.py` checks (i) no nulls in the training matrix, (ii) correct 80/20 split, (iii) checksum metadata presence, (iv) RAM‑mitigation logging when triggered, (v) structure of `resource_summary.json`, and (vi) that a failed fetch raises rather than falling back.
 
-- [ ] T003 [US1] Implement the generator wrapper and synthesis logic in `src/models/trainer.py` and `src/models/synthesize.py` (REDO — previously rejected for import shadowing). <!-- FAILED-IN-EXECUTION: src/cli/run_fidelity.py exit=2 -->
+- [ ] T003 [US1] Implement the generator wrapper and synthesis logic in `src/models/trainer.py` and `src/models/synthesize.py` (REDO — previously rejected for import shadowing). <!-- FAILED-IN-EXECUTION: src/cli/run_fidelity.py exit=2 --> <!-- FAILED-IN-EXECUTION: src/cli/run_fidelity.py exit=2 -->
   *Corrections*
   - Remove the local `rdt` module that shadows the official `sdv`/`rdt` packages; import directly from `sdv`. Add a regression test asserting `sdv.__file__` and `rdt.__file__` resolve to site‑packages locations, and that no project‑local module named `rdt` or `sdv` exists on the import path.
   - Provide class `GeneratorTrainer` accepting a model name (`CTGAN`, `DPGAN`, `CopulaGAN`), privacy budget (ε = 1.0 for DPGAN, logged), `max_epochs=30`, and early stopping on validation‑loss improvement < 0.001 for three consecutive epochs (FR‑013).
