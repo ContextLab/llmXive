@@ -1,12 +1,17 @@
 status: none
-intent: WCST MMSE older adults HuggingFace MMSense python package dataset
+intent: Wisconsin Card Sorting Test MMSE dataset OpenNeuro HuggingFace MMSense MMS-e
+  python package dataset
 required_fields:
 - participant_id
 - age
 - mmse_score
-- wcst_categories_completed
+- wcst_total_correct
 - wcst_perseverative_errors
 - stimulus_label
-cache_key: 77491df4528c52d92c50d7c3f844d1d6dfedb7d46b8b788bc813b4915a44c92d
-searched_at: '2026-10-21T00:13:54.668400+00:00'
+- trial_number
+- response_time
+- gender
+- education_years
+cache_key: f0ff25a4d02872cd072c0bbd946c14b360eb35e42eb6b4f7d5e862d02c36bd52
+searched_at: '2026-10-21T00:16:38.183470+00:00'
 retry_count: 1

@@ -25,7 +25,7 @@ properties:
     description: "Bonferroni-corrected p-value"
   effect_size:
     type: number
-    description: "Hedges' g effect size (bias-corrected, non-pooled variance convention consistent with Welch's test)"
+    description: "Cohen's d effect size (bias‑corrected, consistent with Welch's test)"
   effect_size_ci_lower:
     type: number
     description: "Lower bound of the 95% confidence interval for effect size"
@@ -38,10 +38,10 @@ properties:
       - "significant"
       - "non-significant"
       - "sensitive"
-    description: "Significance status at corrected alpha = 0.025; 'sensitive' if corrected p in [0.020, 0.030]"
+    description: "Significance status at corrected alpha = 0.025; 'sensitive' if raw p in [0.04, 0.06]"
   mdes:
     type: number
-    description: "Minimum Detectable Effect Size (post-hoc power limitation)"
+    description: "Minimum Detectable Effect Size (post‑hoc power limitation"
   adjustment_status:
     type: string
     enum:
@@ -55,7 +55,7 @@ properties:
       - "verified"
       - "unverified"
       - "simulation"
-    description: "Dataset validity flag; all runs of this project produce 'simulation'"
+    description: "Dataset validity flag; all runs of this project "
   sensitivity_analysis:
     type: array
     items:
@@ -66,7 +66,7 @@ properties:
       properties:
         threshold:
           type: number
-          description: "Significance threshold examined (e.g., 0.01, 0.025, 0.05)"
+          description: "Significance threshold examined "
         significance_status:
           type: string
           enum:

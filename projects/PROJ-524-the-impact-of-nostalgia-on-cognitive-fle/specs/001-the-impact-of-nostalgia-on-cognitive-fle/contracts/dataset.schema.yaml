@@ -21,7 +21,7 @@ properties:
     enum:
       - "nostalgia"
       - "control"
-    description: "Experimental condition assignment"
+    description: "Experimental condition assignment (synthetic for demonstration)"
   perseverative_errors:
     type: number
     description: "Number of perseverative errors on the WCST"

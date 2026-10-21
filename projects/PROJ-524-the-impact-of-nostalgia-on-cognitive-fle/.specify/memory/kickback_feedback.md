@@ -1,12 +1,16 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 8 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'science'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T001` (rejected 1x): Artifact proposal refused 3 consecutive times: [implementer] refused pipeline control evidence or reviewed requirements: 'specs/001-nostalgia-cognitive-flexibility/spec.md'
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan relies on a deterministic synthetic data generator to ‘answer’ the primary research question (whether nostalgia improves WCST performance). Simulated data cannot provide empirical evidence about a causal effect in real participants; it only demonstrates that the analysis pipeline runs. Consequently, the proposed methodology cannot satisfy the spec’s claim of determining a real-world effect.
+- Spec FR‑004 requires calculation of **Cohen's d** with 95 % confidence intervals, but the plan implements **Hedges’ g** (see plan.md table row for FR‑004: “Effect size (Hedges’ g) with 95 % CI”). This does not satisfy the specified effect‑size metric.
+- Spec FR‑005 defines the borderline sensitivity range as p‑values in **[0.04, 0.06]**, yet the plan flags borderline results when the Bonferroni‑corrected p‑value lies in **[0.020, 0.030]** (see plan.md row for FR‑005). The threshold does not match the specification.
+- "No open dataset provides both WCST metrics and a nostalgia/control label. Therefore the plan implements a deterministic synthetic data generator that produces a fully compliant dataset..." This synthetic dataset does not constitute a real, appropriate data source for the research question, which requires empirical WCST performance under nostalgia vs. control conditions. Using simulated data cannot answer the primary hypothesis and violates FR‑001–FR‑006 which assume ingestion of real public data. A real dataset (or a revised question that can be answered with synthetic data) is required.
+- The data model defines a separate `WCSTMetric` entity (with `metric_id` and a foreign key to `Participant`). The implementation plan only describes a single `raw_dataset.csv` that aggregates participant and metric fields and never mentions generating a distinct `WCSTMetric` table or a `metric_id`. This omission creates a mismatch between the plan and the data‑model, potentially breaking validation rules that expect the `WCSTMetric` entity to exist.
+- The plan attempts to answer the empirical hypothesis (nostalgia improves WCST performance) using a deterministic synthetic data generator. Because the outcomes are fabricated rather than observed, the validation target (effect of nostalgia) is not independent of the predictors; the analysis can only confirm that the pipeline runs, not that the effect exists in reality. This makes the study non‑empirical and the validation circular.
+- Specification FR‑004 requires calculation of Cohen's d with 95 % confidence intervals, but the implementation uses Hedges' g. This deviates from the mandated effect‑size metric and may affect comparability with prior literature.
+- FR‑005 specifies that results are flagged as sensitive when p‑values fall within the range 0.04–0.06. The plan instead uses a narrower range of 0.020–0.030, which does not align with the functional requirement and could misclassify sensitivity.
