@@ -25,7 +25,7 @@
 
 ### User Story 2 - Execute Lightweight Agent via Intent Graph (Priority: P2)
 
-**Journey**: The researcher runs the lightweight, CPU‑tractable agent (e.g., a 1B‑parameter model or rule‑based engine) on the full dataset, providing *only* the constructed Intent Graph and the current prompt as context, and the system records the agent's proactive action selections for every turn.
+**Journey**: The researcher runs the lightweight, CPU‑tractable agent (e.g., a modest‑size parameter model or rule‑based engine) on the full dataset, providing *only* the constructed Intent Graph and the current prompt as context, and the system records the agent's proactive action selections for every turn.
 
 **Why this priority**: This tests the core hypothesis. If the agent cannot operate using *only* the graph, the experiment fails immediately. This step isolates the "structured memory" variable from the "raw history" variable.
 
