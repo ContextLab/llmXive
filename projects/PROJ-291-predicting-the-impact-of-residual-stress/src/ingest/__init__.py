@@ -1,1 +1,1 @@
-# Package marker for src.ingest
+"""Package wrapper for ingestion utilities."""

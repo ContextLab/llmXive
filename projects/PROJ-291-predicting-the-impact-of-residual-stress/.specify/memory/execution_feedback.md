@@ -9,13 +9,21 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/raw/checksums.json, data/raw/pipeline_verification.csv, data/raw/synthetic_fatigue.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/raw/nist.csv, data/raw/openml.csv, data/raw/uci.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/raw/checksums.json, data/raw/pipeline_verification.csv, data/raw/synthetic_fatigue.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 8 command(s) failed: python -m src.preprocess.preprocess   # unit conversion, imputation, contract validation (rc=1); python -m src.models.train --feature-set A   # process‑only (rc=1); python -m src.models.train --feature-set B   # process + measured stress (balanced subset) (rc=1); 3 declared deliverable(s) absent: data/processed/unified_fatigue.csv; data/results/proxy_agreement.csv; data/results/runtime_summary.csv
+**Summary**: every produced artifact is gitignored (data/raw/nist.csv, data/raw/openml.csv, data/raw/uci.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 10 command(s) failed: bash scripts/env_check.sh (rc=1); python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success (rc=1); python -m src.preprocess.preprocess   # unit conversion, imputation, contract validation (rc=1); 4 declared deliverable(s) absent: data/processed/unified_fatigue.csv; data/raw/checksums.json; data/results/proxy_agreement.csv
 
 ## Failing / missing run-book commands
+
+- bash scripts/env_check.sh -> rc=1
+
+IMPORT FAILURE: No module named 'torch'
+
+- python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success -> rc=1
+
+ERROR during ingestion: "Column 'material_class' required for proxy calculation is missing."
 
 - python -m src.preprocess.preprocess   # unit conversion, imputation, contract validation -> rc=1
 
@@ -46,9 +54,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.mediation.bootstrap_mediation' (ModuleNotFoundError: No module named 'src.mediation')
 
 - python -m pytest -q -> rc=1
-path: Path) -> None:
-        with schema_path.open("r", encoding="utf-8") as f:
-            schema = yaml.safe_load(f)
+ schema = yaml.safe_load(f)
         validator = Draft7Validator(schema)
     
         errors = []
@@ -72,14 +78,16 @@ E           Row 9: None is not of type 'number'
 
 code/ingest/ingest.py:133: ValidationError
 =========================== short test summary info ============================
+FAILED code/tests/test_env_check.py::test_checksums_match_files - AssertionEr...
 FAILED tests/test_ingest.py::test_run_ingest_creates_unified_csv - jsonschema...
-1 failed in 0.51s
+2 failed, 2 passed in 0.54s
 
 
 
 ## Declared deliverables still missing
 
 - data/processed/unified_fatigue.csv
+- data/raw/checksums.json
 - data/results/proxy_agreement.csv
 - data/results/runtime_summary.csv
 
@@ -92,6 +100,11 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/proxy_agreement.py` — NOT invoked by the run-book
     - `code/src/run_e2e.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/unified_fatigue.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/checksums.json` is declared but was NOT written. Scripts referencing it:
+    - `code/ingest/ingest.py` — NOT invoked by the run-book
+    - `code/src/env_check.py` — NOT invoked by the run-book
+    - `code/tests/test_env_check.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/proxy_agreement.csv` is declared but was NOT written. Scripts referencing it:
     - `code/src/proxy_agreement.py` — NOT invoked by the run-book
     - `code/src/run_e2e.py` — NOT invoked by the run-book
