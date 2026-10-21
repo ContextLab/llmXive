@@ -54,9 +54,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T002 Initialize Python project with dependencies (`pandas`, `statsmodels`, `scikit-learn`, `pyyaml`, `requests`, `numpy`) in `code/requirements.txt`
-- [X] T003b [P] Create `pyproject.toml` in `code/` with `[tool.black]` section, `line-length = 88`, and `target-version = ['py3']` (Supports **Code Quality Standards**)
-- [ ] T004 [P] Create configuration module `code/config.py` defining paths, random seeds (`SEED = 42`), constants (including `MISSINGNESS_THRESHOLD`, `BOOTSTRAP_ITERATIONS = 1000`, `CHUNK_SIZE = 100000`), and the specific OSF DOI string for the dataset
-- [X] T005a [P] Create schema definition `daily_aggregates.schema.yaml` in `specs/001-physical-activity-levels-and-mood-variab/contracts/` with the following structure:
+- [ ] T003b [P] Create `pyproject.toml` in `code/` with `[tool.black]` section, `line-length = 88`, and `target-version = ['py3']` (Supports **Code Quality Standards**)
+- [X] T004 [P] Create configuration module `code/config.py` defining paths, random seeds (`SEED = 42`), constants (including `MISSINGNESS_THRESHOLD`, `BOOTSTRAP_ITERATIONS = 1000`, `CHUNK_SIZE = 100000`), and the specific OSF DOI string for the dataset
+- [~] T005a [P] Create schema definition `daily_aggregates.schema.yaml` in `specs/001-physical-activity-levels-and-mood-variab/contracts/` with the following structure:
  - `participant_id`: string, required
  - `date`: date, required
  - `total_steps`: integer, required, min=0
@@ -66,7 +66,7 @@
  - `sleep_duration`: float, nullable
  - `baseline_affect`: float, nullable
  - `day_of_week`: integer, required (0=Monday)
-- [X] T005b [P] Create schema definition `model_results.schema.yaml` in `specs/001-physical-activity-levels-and-mood-variab/contracts/` with the following structure:
+- [~] T005b [P] Create schema definition `model_results.schema.yaml` in `specs/001-physical-activity-levels-and-mood-variab/contracts/` with the following structure:
  - `model_type`: string, required (e.g., "LMM_mood_variability")
  - `fixed_effects`: object, required (keys: predictor name, values: {estimate, std_err, p_value, ci_lower, ci_upper})
  - `random_effects`: object, required (keys: variance components)
@@ -75,7 +75,7 @@
  - `convergence_diagnosis`: object, required (keys: status, reason, fallback_model_type)
  - `validation`: object, required (keys: lopo_average_rmse, lopo_sign_consistency_pct)
  - `sensitivity`: object, required (keys: weekdays_only_sign_consistent, weekdays_only_pvalue, weekdays_only_pvalue_consistent, active_minutes_sign_consistent, single_rating_bootstrap_consistency, single_rating_bootstrap_pass)
-- [ ] T005c [P] Create schema definition `preprocess_stats.schema.yaml` in `specs/001-physical-activity-levels-and-mood-variab/contracts/` with the following structure:
+- [~] T005c [P] Create schema definition `preprocess_stats.schema.yaml` in `specs/001-physical-activity-levels-and-mood-variab/contracts/` with the following structure:
 ```yaml
 type: object
 properties:
@@ -95,8 +95,8 @@ required:
 additionalProperties: false
 ```
  **Action**: Validate the generated JSON against this schema before writing to ensure FR-002 compliance.
-- [X] T006 [P] Create base test utilities in `tests/conftest.py` for schema validation and fixture data
-- [ ] T007 [P] [US1] **Implement Robust Dataset Download and State Update**: Create `code/ingest.py` to download StudentLife dataset from OSF DOI specified in `code/config.py`. **Critical Integrity Steps**:
+- [~] T006 [P] Create base test utilities in `tests/conftest.py` for schema validation and fixture data
+- [ ] T007 [P] [US1] **Implement Robust Dataset Download and State Update**: Create `code/ingest.py` to download StudentLife dataset from OSF DOI specified in `code/config.py`. **Critical Integrity Steps**: <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
  1. Download the zip file to a temporary location.
  2. Compute a cryptographic SHA‑256 checksum of the downloaded file.
  3. Convert the downloaded zip to `data/raw/bronze.parquet`.
@@ -168,7 +168,7 @@ additionalProperties: false
 - [ ] T022 [US2] [Depends: T020a, T020b] Implement `code/analysis.py` function `extract_model_coefficients()` to extract fixed‑effect coefficients, standard errors, p‑values, and 95 % CIs for `total_steps` and covariates (sleep, day-of-week, baseline_affect) from both models.
 - [ ] T023 [US2] [Depends: T020a, T020b] Implement `code/analysis.py` function `run_model_diagnostics()` to perform model diagnostics (Shapiro‑Wilk, Breusch‑Pagan) and generate residual plots (specifically "residuals vs. fitted"). **Action**: **Write the statistical test results (p-values)** to `data/processed/diagnostics_temp.json` under the key `diagnostic_tests` with structure `{"shapiro_wilk_p_value": float, "breusch_pagan_p_value": float}`. **Return**: A dictionary containing these values for T041 to merge. **Constraint**: Ensure these values are persisted in the final artifact for SC-004 compliance.
 - [ ] T024a [US2] [P] Implement `code/analysis.py` to ensure all results are explicitly labeled as "associational" in internal data structures.
-- [X] T025 [US2] [Depends: T020a, T020b, T022] **Compute the base model results** dictionary. **Action**: Combine coefficients from T022 and model fit statistics. **Return**: A dictionary containing `fixed_effects`, `random_effects`, `model_fit`, `associational_label`, and `diagnostic_tests` (loaded from T023's temp file). **Do NOT write to disk yet**; this data will be merged by T041. This task replaces the previous "partial write" pattern by ensuring the base model is computed and returned as a complete object for merging.
+- [~] T025 [US2] [Depends: T020a, T020b, T022] **Compute the base model results** dictionary. **Action**: Combine coefficients from T022 and model fit statistics. **Return**: A dictionary containing `fixed_effects`, `random_effects`, `model_fit`, `associational_label`, and `diagnostic_tests` (loaded from T023's temp file). **Do NOT write to disk yet**; this data will be merged by T041. This task replaces the previous "partial write" pattern by ensuring the base model is computed and returned as a complete object for merging.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (base models ready, but full results pending US3)
 
@@ -231,10 +231,10 @@ additionalProperties: false
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T034a-1 [P] Update `README.md` with specific section: Installation (include pip install command `pip install -r code/requirements.txt`)
+- [~] T034a-1 [P] Update `README.md` with specific section: Installation (include pip install command `pip install -r code/requirements.txt`)
 - [ ] T034a-2 [P] Update `README.md` with specific section: Usage (include CLI example `python code/main.py --input data/processed/daily_aggregates.csv`). **Verification**: Run the command `python code/main.py --input data/processed/daily_aggregates.csv` and assert exit code == 0. **Dependency**: T040.
 - [ ] T034b [P] Update `specs/001-physical-activity-levels-and-mood-variab/` (aligned with plan.md Project Structure) with specific content: API documentation for `analysis.py` and Data Dictionary for `daily_aggregates.csv`. **Note**: If a root‑level `docs/` directory exists from previous revisions, remove or deprecate it to prevent path conflicts.
-- [X] T036 [P] Run full pipeline integration test in `tests/integration/test_full_pipeline.py` to verify end‑to‑end execution within 6 hours
+- [~] T036 [P] Run full pipeline integration test in `tests/integration/test_full_pipeline.py` to verify end‑to‑end execution within 6 hours
 - [ ] T038 [P] Create a shell script `scripts/validate_quickstart.sh` with the following exact content:
 ```bash
 #!/usr/bin/env bash

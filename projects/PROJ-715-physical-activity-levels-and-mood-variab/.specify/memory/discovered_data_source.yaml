@@ -1,15 +1,12 @@
 status: none
-intent: StudentLife dataset download OSF DOI HuggingFace mirror python package dataset
+intent: StudentLife dataset OSF DOI mirror HuggingFace download python package dataset
 required_fields:
 - participant_id
+- date
 - timestamp
-- step_count
+- steps
 - ema_timestamp
 - mood_rating
-- date
-- step_total
-- mean_mood
-- mood_variability
-cache_key: 9254b1b53388a447ea113c9ed362a006d41984b1d4114da1b7e914d05a2a48d3
-searched_at: '2026-09-22T03:52:35.290064+00:00'
+cache_key: c24f2078f6b491bd983033bd75d5ac8d2cfba62596606bf026b5b3f7a871a69e
+searched_at: '2026-10-21T00:49:20.847365+00:00'
 retry_count: 1
