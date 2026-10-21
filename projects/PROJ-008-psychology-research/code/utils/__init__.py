@@ -1,3 +1,3 @@
 """
-Utilities module for psychology research pipeline.
+utils package initialization.
 """

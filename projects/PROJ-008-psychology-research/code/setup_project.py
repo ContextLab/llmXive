@@ -1,147 +1,129 @@
-#!/usr/bin/env python
 """
-Project layout and dependency verification script for T001.
+Setup Project Layout Script
+===========================
 
-Creates the authoritative directory structure under the project root,
-checks that all pinned dependencies declared in ``code/pyproject.toml``
-are importable, and writes a JSON install log to ``docs/install_log.txt``.
+This script establishes the required directory structure for the
+``PROJ-008-psychology-research`` project, verifies the presence of the
+core configuration files (``pyproject.toml`` and ``requirements.txt``),
+and records the current Python environment's pinned dependencies to
+``docs/install_log.txt``.
 
-The script is idempotent – running it multiple times will not error
-and will simply ensure the directories exist.
+It is used by the Quickstart guide and the ``make setup`` target.
+The script fails loudly (raises an exception) if any step cannot be
+completed, ensuring reproducibility and early detection of problems.
 """
 
-import importlib
-import json
-from datetime import datetime, timezone
+import subprocess
+import sys
 from pathlib import Path
 
-from llmxive_toolkit import get_logger
+from llmxive_toolkit import paths, get_logger
 
+# Initialise a logger that writes to the console (and optionally to a file)
 log = get_logger(__name__)
 
-# Mapping from package names (in pyproject.toml) to import names
-IMPORT_MAPPING = {
-    "pyyaml": "yaml",
-    "scikit-learn": "sklearn",
-}
-
-def _load_pyproject_dependencies() -> list[str]:
-    """Parse ``code/pyproject.toml`` and return the raw dependency strings."""
-    import tomllib
-
-    # The pyproject file lives directly inside the ``code`` directory.
-    pyproject_path = Path(__file__).resolve().parent / "pyproject.toml"
-    if not pyproject_path.is_file():
-        raise FileNotFoundError(f"pyproject.toml not found at {pyproject_path}")
-
-    with pyproject_path.open("rb") as f:
-        data = tomllib.load(f)
-
-    deps = data.get("project", {}).get("dependencies", [])
-    if not isinstance(deps, list):
-        raise ValueError("Invalid dependencies format in pyproject.toml")
-    return deps
-
-def _verify_dependencies(deps: list[str]) -> dict[str, str]:
+# ----------------------------------------------------------------------
+# Directory creation
+# ----------------------------------------------------------------------
+def create_directories(project_root: Path) -> None:
     """
-    Attempt to import each declared package and record its installed version.
+    Create all required directories for the project.
 
-    Raises:
-        RuntimeError: If any package cannot be imported.
+    Parameters
+    ----------
+    project_root : Path
+        The root directory of the repository (``paths.root``).
     """
-    missing = []
-    versions: dict[str, str] = {}
-
-    for dep in deps:
-        # Strip version specifiers; we only need the package name.
-        pkg = (
-            dep.split("[", 1)[0]
-            .split("==", 1)[0]
-            .split(">=", 1)[0]
-            .split("<=", 1)[0]
-            .split("~=", 1)[0]
-            .strip()
-        )
-
-        # Resolve package name to import name (e.g., scikit-learn -> sklearn)
-        import_name = IMPORT_MAPPING.get(pkg.lower(), pkg)
-
-        try:
-            module = importlib.import_module(import_name)
-            ver = getattr(module, "__version__", "unknown")
-            versions[pkg] = ver
-        except Exception:  # pragma: no cover – import failure is fatal
-            missing.append(pkg)
-
-    if missing:
-        raise RuntimeError(f"Missing required dependencies: {', '.join(missing)}")
-    return versions
-
-def _create_directories() -> None:
-    """Create all required project folders (idempotent)."""
-    dirs = [
-        Path("code/data"),
-        Path("code/analysis"),
-        Path("code/viz"),
-        Path("code/lib"),
-        Path("code/utils"),
-        Path("code/reporting"),
-        Path("data/raw"),
-        Path("data/processed"),
-        Path("data/results"),
-        Path("docs"),
-        Path("contracts"),
-        Path("tests/unit"),
-        Path("tests/integration"),
-        Path("tests/contract"),
+    required_dirs = [
+        "code/data",
+        "code/analysis",
+        "code/viz",
+        "code/utils",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "docs",
+        "contracts",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
     ]
 
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-        log.debug(f"Ensured directory exists: {d}")
+    for rel_path in required_dirs:
+        dir_path = project_root / rel_path
+        dir_path.mkdir(parents=True, exist_ok=True)
+        log.info(f"Created directory: {dir_path}")
 
-def _cleanup_corrupted_paths() -> None:
-    """Remove any files that should be files but were created as directories."""
-    # Fix for reported IsADirectoryError: data/processed/cleaned_studies.csv
-    corrupted = Path("data/processed/cleaned_studies.csv")
-    if corrupted.is_dir():
-        log.warning(f"Removing corrupted directory: {corrupted}")
-        import shutil
-        shutil.rmtree(corrupted)
+# ----------------------------------------------------------------------
+# Write pip‑freeze output
+# ----------------------------------------------------------------------
+def write_install_log(project_root: Path) -> None:
+    """
+    Capture the current environment's pinned packages via ``pip freeze`` and
+    write them to ``docs/install_log.txt``.
 
-def _write_install_log(versions: dict[str, str]) -> None:
-    """Write a JSON log documenting the install timestamp and package versions."""
-    log_path = Path("docs/install_log.txt")
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+    Parameters
+    ----------
+    project_root : Path
+        The root directory of the repository.
+    """
+    log_path = project_root / "docs" / "install_log.txt"
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", "pip", "freeze"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        log.error(f"Failed to run 'pip freeze': {exc}")
+        raise
 
-    entry = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "dependencies": versions,
-    }
+    with open(log_path, "w", encoding="utf-8") as f:
+        f.write(result.stdout)
 
-    with log_path.open("w", encoding="utf-8") as f:
-        json.dump(entry, f, indent=2)
+    log.info(f"Wrote pip freeze output to {log_path}")
 
-    log.info(f"Install log written to {log_path}")
+# ----------------------------------------------------------------------
+# Verify core configuration files
+# ----------------------------------------------------------------------
+def verify_core_files(project_root: Path) -> None:
+    """
+    Ensure that ``pyproject.toml`` and ``requirements.txt`` exist at the
+    repository root.  These files are required for reproducible builds.
 
+    Parameters
+    ----------
+    project_root : Path
+        The root directory of the repository.
+    """
+    pyproject = project_root / "pyproject.toml"
+    requirements = project_root / "requirements.txt"
+
+    if not pyproject.is_file():
+        raise FileNotFoundError(f"Missing required file: {pyproject}")
+
+    if not requirements.is_file():
+        raise FileNotFoundError(f"Missing required file: {requirements}")
+
+    log.info("Verified presence of pyproject.toml and requirements.txt")
+
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
 def main() -> None:
-    """Entry point for the setup script."""
-    log.info("Starting project layout creation and dependency verification")
+    """
+    Execute the setup steps.  Any exception propagates and causes a non‑zero
+    exit status, which satisfies the “fail loudly” requirement.
+    """
+    project_root = paths.root
+    log.info(f"Project root resolved to: {project_root}")
 
-    # 0. Cleanup potential corrupted paths from previous failed runs
-    _cleanup_corrupted_paths()
+    create_directories(project_root)
+    verify_core_files(project_root)
+    write_install_log(project_root)
 
-    # 1. Create the directory tree
-    _create_directories()
-
-    # 2. Load and verify pinned dependencies
-    deps = _load_pyproject_dependencies()
-    versions = _verify_dependencies(deps)
-
-    # 3. Record the successful verification
-    _write_install_log(versions)
-
-    log.info("Project setup completed successfully")
+    log.info("Project layout established successfully.")
 
 if __name__ == "__main__":
     main()

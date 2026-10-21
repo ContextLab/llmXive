@@ -1,28 +1,47 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/setup_project.py
-    exit=1'
-  task: f84e5a7f7565df937455ce82d3fea9960f7317d752d2d5ab5b59504f63ac3862
+  reason: "The required artifact `docs/quickstart.md` is explicitly MISSING, so the\
+    \ task's core deliverable \u2014 documenting the runnable command `python run_pipeline.py\
+    \ --thin` \u2014 does not exist, and there is no evidence that command was ever\
+    \ executed. Additionally, `requirements.txt` does not match the pinned dependencies\
+    \ in `pyproject.toml` (e.g. pandas 2.2.2 vs 2.0.0, bayesmeta 2.0.0 vs 0.1.0),\
+    \ and no `Makefile`/`make setup` target or `run_pipeline.py` is evidenced, so\
+    \ the stated verification steps cannot be confirmed."
+  task: a102551ee65d19b26522dd8e32b28339d9a1e841a2da289ae42eef37e5933261
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/thin_slice.py
     exit=1'
-  task: 375fe4328a39faeb8b278223ef00f49cbee8b431d999cbc1d49c0833d8485b81
+  task: 4755edb8f5798383959f76fcfbae80b4267642609aa932d69ba0334cb63ec376
 T003:
-  task: e560477db05c5595e59d81a5dfa42c25758e1ceeb573efc788c0b9e9d921b846
+  reason: 'The execution log shows `python -m pytest tests/contract/test_schemas.py`
+    failed with 2 of 4 tests failing (exit 1): the dummy-instance generator ignores
+    `enum` and `minimum` constraints, producing ''example'' for the registry enum
+    and 0 for `n_treatment` (minimum 1). The verification criterion explicitly requires
+    all tests to pass; the test helper `_dummy_value` must be fixed to respect enum/minimum/maximum
+    constraints (or use realistic valid fixtures).'
+  task: 247069abac92fe64d98da61b317f7082480af2284950eb24263f749d7e147f03
 T004:
-  task: 287275abf4a553a88902d16a06e29c17f2adbfcd9cbfe5f41a367c061bb05425
+  task: 8948a36328dfd078070d2a77848909d3e9ff515665f20378a843c6eaa580469e
 T005:
-  task: 198d85af4d2e89e6653564209c30bd68c3e858ebfbb3156c1a9e0bf35300788e
+  task: ee8e7f28468603cf737f45af5aa95a59f2d350376b36efba492059235d26529a
 T006:
-  task: e6a4f744a86b50a86a16c28e7b087ac511c7ba39d70a727db7cfbc8013040cb5
+  task: 762fb41d1fee83f4a0a61358dc8c726f8447f6096c8c77b1724b07cea78a086a
 T007:
-  task: 728f2de9aae983ea3fbd6e5acf10cd67ad6d257199a0fcb848ebb273bb955621
+  task: 180640aeda6d95c7144f80a1a5a187ad30b53c3aad28759fa92ef532133a95a5
 T008:
-  task: 067600d1a0763b1cfd505f6262eb96d9894630a29e77d4b1503eca7535919506
+  task: 2eb2781be02e34d4c80e3f3977f6d9194b8572d3a12e0dcfbc639e4d3c2f3fe1
 T009:
-  task: 3ea10e033823d3b332870c0506a28224131950342d8b27e5518e5ab7318db7cb
+  task: ae6004706259579b439d059050dadc7b3729072d2439efde93390174b58303fe
 T010:
-  task: 877327a85515b1850c5831c8eb552bb0e4eb9d0f889e8fb8437d06e2f99034a4
+  task: cae21697bf23e48e0841fa4a47b33a629210f0e66917ea18fff068af7af30af7
 T011:
-  task: c73a525379d5fb8734bd7b1e365f1d89526188bb7935b2154779e6704dde3ab7
+  task: b0720321ba96617ee10622e4045e112353a18f1261abab8ad159eac67f2adf9d
 T012:
-  task: 49d842c2f91e50e6cdfcc3690a9ca0d84c28f433b98c9e3fc1f242eec398d6a5
+  task: 8ee31726c8e36658487a822ffa30be6fddf78972d9d4471c2d35dda2ffe65d82
+T013:
+  task: 6c0e8cbf5473411742d188f42f5c0561d406f1327055d1dd55bafcbfc8f3f57b
+T014:
+  task: 2731223f6bf1ffea1e31befe7bb1d87f0dc4b44f902f2c4e3ad5738752850aa4
+T015:
+  task: 2d2a1a814d1055824a3671e8cb1d18a2bb73a5b54f5a3adca325b9034615877a
+T016:
+  task: 50c4f59aca31d6b5a4b77c0308171fd915dc597260a773779ed00f7cee24138a

@@ -4,23 +4,22 @@ Thin-slice pipeline (Task T002).
 Fetches ONE real record from the ClinicalTrials.gov API v2 that (a) matches
 a mindfulness search and (b) has submitted results containing
 group‑level summary statistics (means, SDs, N) for an intervention arm and
-a control arm. It then "cleans" that record (arm selection, outcome
-extraction) and calculates Hedges' g with small‑sample correction
-(FR‑004, FR‑013), mirroring the formula in `code/analysis/effect_sizes.py`.
-
-Output: `data/results/thin_slice_result.json` with keys `study_id` and
-`hedges_g` (plus full provenance: group statistics, retrieval timestamp,
-and the exact API URL used).
+a control arm. It then "cleans" that record, writes the raw JSON result to
+`data/results/thin_slice_result.json` and a cleaned CSV row that satisfies
+`contracts/cleaned_study.schema.yaml` to
+`data/processed/thin_slice_cleaned.csv`.
 
 The script fails loudly if the real API cannot be reached or if no real
 record with usable summary statistics is found. It never fabricates data.
 """
 import json
 import math
+import re
 import time
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
+import pandas as pd
 import requests
 from llmxive_toolkit import paths
 
@@ -156,6 +155,40 @@ def _group_stat(outcome_measure: dict, group_id: str) -> tuple:
                     sd = None
     return mean, sd
 
+# ----------------------------------------------------------------------
+# Extraction helpers for the CSV row
+# ----------------------------------------------------------------------
+def _extract_age_range(protocol_section: dict) -> Optional[Dict[str, int]]:
+    """Parse eligibility criteria for an age range (6‑12)."""
+    eligibility = protocol_section.get("eligibilityModule", {})
+    criteria = eligibility.get("criteria", {})
+    text = criteria.get("eligibilityCriteria", "")
+    # Look for patterns like "6 to 12 years" or "6‑12 years"
+    match = re.search(r'(\\d+)\\s*[-to]+\\s*(\\d+)\\s*years?', text, re.IGNORECASE)
+    if match:
+        return {"min": int(match.group(1)), "max": int(match.group(2))}
+    # Single age
+    match = re.search(r'(\\d+)\\s*years?', text, re.IGNORECASE)
+    if match:
+        age = int(match.group(1))
+        return {"min": age, "max": age}
+    return None
+
+def _extract_outcomes(protocol_section: dict) -> List[str]:
+    """Collect outcome measure titles."""
+    outcomes_module = protocol_section.get("outcomesModule", {})
+    primary = outcomes_module.get("primaryOutcomes", [])
+    secondary = outcomes_module.get("secondaryOutcomes", [])
+    names = []
+    for om in primary + secondary:
+        name = om.get("measure")
+        if name:
+            names.append(name)
+    return names or ["unspecified"]
+
+# ----------------------------------------------------------------------
+# Core effect‑size extraction
+# ----------------------------------------------------------------------
 def extract_effect_size(study: dict) -> Optional[dict]:
     """Clean one registry record and compute Hedges' g from its REAL results."""
     protocol = study.get("protocolSection", {})
@@ -215,7 +248,20 @@ def extract_effect_size(study: dict) -> Optional[dict]:
         except ValueError:
             continue
 
+        # ------------------------------------------------------------------
+        # Build the CSV‑compatible metadata payload
+        # ------------------------------------------------------------------
+        age_range = _extract_age_range(protocol)
+        outcomes = _extract_outcomes(protocol)
+
+        # If we cannot determine a valid age range within 6‑12, skip this study.
+        if not age_range:
+            continue
+        if not (6 <= age_range["min"] <= 12 and 6 <= age_range["max"] <= 12):
+            continue
+
         return {
+            # ----- Effect‑size fields (used for the JSON result) -----
             "study_id": nct_id,
             "hedges_g": round(g_val, 6),
             "se": round(se, 6),
@@ -235,7 +281,19 @@ def extract_effect_size(study: dict) -> Optional[dict]:
             "study_title": identification.get("briefTitle"),
             "source": "ClinicalTrials.gov",
             "retrieval_timestamp": datetime.now(timezone.utc).isoformat(),
+            # ----- CSV‑row fields (must satisfy cleaned_study.schema.yaml) -----
+            "age_range": age_range,
+            "outcomes": outcomes,
+            "intervention_components": ["none"],  # No component extraction in thin slice
+            "delivery_format": "not-reported",
+            "social_skill_domain": "other",
+            "follow_up": None,
+            "abstract_text": None,
+            "domain_notes": None,
+            "blinded_assessment_flag": False,
+            "rater_type": "unknown",
         }
+
     return None
 
 def find_study_with_results() -> dict:
@@ -290,13 +348,55 @@ def find_study_with_results() -> dict:
 # ----------------------------------------------------------------------
 def main() -> None:
     result = find_study_with_results()
-    out_path = paths.data("results", "thin_slice_result.json")
-    # Ensure the directory exists (paths.data does this)
-    with open(out_path, "w", encoding="utf-8") as fh:
-        json.dump(result, fh, indent=2)
-    print(f"Wrote {out_path}")
-    print(f"study_id: {result['study_id']}")
-    print(f"hedges_g: {result['hedges_g']}")
+
+    # ------- Write JSON result (thin‑slice result) -------
+    json_path = paths.data("results", "thin_slice_result.json")
+    with open(json_path, "w", encoding="utf-8") as fh:
+        json.dump(
+            {
+                "study_id": result["study_id"],
+                "hedges_g": result["hedges_g"],
+                "se": result["se"],
+                "ci_lower": result["ci_lower"],
+                "ci_upper": result["ci_upper"],
+                "retrieval_timestamp": result["retrieval_timestamp"],
+                "source": result["source"],
+            },
+            fh,
+            indent=2,
+        )
+    print(f"Wrote thin‑slice JSON to {json_path}")
+
+    # ------- Write cleaned CSV row -------
+    csv_path = paths.data("processed", "thin_slice_cleaned.csv")
+    # Build a DataFrame with the columns required by the schema.
+    df = pd.DataFrame(
+        [
+            {
+                "id": result["study_id"],
+                "title": result["study_title"],
+                "registry": result["source"],
+                "age_range": json.dumps(result["age_range"]),   # stored as JSON string
+                "diagnosis": "ASD",
+                "outcomes": json.dumps(result["outcomes"]),    # JSON array string
+                "intervention_components": json.dumps(result["intervention_components"]),
+                "delivery_format": result["delivery_format"],
+                "social_skill_domain": result["social_skill_domain"],
+                # Optional fields (allowed to be null)
+                "follow_up": result["follow_up"],
+                "abstract_text": result["abstract_text"],
+                "domain_notes": result["domain_notes"],
+                "blinded_assessment_flag": result["blinded_assessment_flag"],
+                "rater_type": result["rater_type"],
+            }
+        ]
+    )
+    df.to_csv(csv_path, index=False)
+    print(f"Wrote thin‑slice cleaned CSV to {csv_path}")
+
+    # Summary output
+    print(f"Study ID: {result['study_id']}")
+    print(f"Hedges' g: {result['hedges_g']}")
 
 if __name__ == "__main__":
     main()

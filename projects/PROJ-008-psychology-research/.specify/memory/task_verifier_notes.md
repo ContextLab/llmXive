@@ -2,5 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — Requested task execution failed; rerun successfully: code/setup_project.py exit=1
+- **T001** — The required artifact `docs/quickstart.md` is explicitly MISSING, so the task's core deliverable — documenting the runnable command `python run_pipeline.py --thin` — does not exist, and there is no evidence that command was ever executed. Additionally, `requirements.txt` does not match the pinned dependencies in `pyproject.toml` (e.g. pandas 2.2.2 vs 2.0.0, bayesmeta 2.0.0 vs 0.1.0), and no `Makefile`/`make setup` target or `run_pipeline.py` is evidenced, so the stated verification steps cannot be confirmed.
+- **T003** — The execution log shows `python -m pytest tests/contract/test_schemas.py` failed with 2 of 4 tests failing (exit 1): the dummy-instance generator ignores `enum` and `minimum` constraints, producing 'example' for the registry enum and 0 for `n_treatment` (minimum 1). The verification criterion explicitly requires all tests to pass; the test helper `_dummy_value` must be fixed to respect enum/minimum/maximum constraints (or use realistic valid fixtures).
 - **T002** — Requested task execution failed; rerun successfully: code/data/thin_slice.py exit=1

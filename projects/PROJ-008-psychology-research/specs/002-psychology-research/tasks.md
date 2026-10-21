@@ -19,7 +19,7 @@ The following checklist implements the full reproducible meta‑analysis pipelin
     - `python -m pytest tests/contract/test_schemas.py` reports all tests passed.  
     - The utility can be imported as `from utils.validation import validate_cleaned_study, validate_effect_size`.
 
-- [ ] T002 [US1] Implement a thin‑slice collector `code/data/thin_slice.py` that fetches **one** eligible RCT from ClinicalTrials.gov **and** queries PubMed via its API for matching metadata, validates its DOI via Crossref, and writes the raw JSON to `data/raw/thin_slice_raw.json`.  
+- [ ] T002 [US1] Implement a thin‑slice collector `code/data/thin_slice.py` that fetches **one** eligible RCT from ClinicalTrials.gov **and** queries PubMed via its API for matching metadata, validates its DOI via Crossref, and writes the raw JSON to `data/raw/thin_slice_raw.json`.   <!-- FAILED-IN-EXECUTION: code/data/thin_slice.py exit=1 -->
   - **File(s)**: `code/data/thin_slice.py`, `data/raw/thin_slice_raw.json`, `data/processed/thin_slice_cleaned.csv`.  
   - **Verification**:  
     - The script exits with status 0 and produces both JSON and CSV files.  
