@@ -60,21 +60,22 @@ The researcher MUST be able to extract feature importance scores ranking alloyin
 - What happens when the Materials Project or NIST repository returns zero aluminum alloy entries with Poisson's ratio? The pipeline MUST halt with a clear error message and not proceed to modeling.
 - How does the system handle entries where the sum of major element atomic fractions is <0.95 (indicating significant missing trace elements)? The system MUST exclude the entry with a log warning rather than normalizing proportionally, to avoid systematic bias.
 - What happens when cross-validation MAE exceeds 0.05 (indicating poor model fit)? The system MUST flag this as a methodological concern and record it in the results documentation without suppressing the finding.
-- How does the system handle collinearity between alloying elements (e.g., Cu and Mg often co-occur in specific alloy series)? The system MUST compute variance inflation factors (VIF) on the raw composition (for diagnostic purposes) and report if any predictor has VIF >5, noting that the model uses ILR-transformed features to mitigate this.
+- How does the system handle collinearity between alloying elements (e.g., Cu and Mg often co‑occur in specific alloy series)? The system MUST compute variance inflation factors (VIF) on the raw composition (for diagnostic purposes) and report if any predictor has VIF >5, noting that the model uses ILR‑transformed features to mitigate this.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download raw compositional and property data from Materials Project and NIST Materials Data Repository for aluminum alloys (See US-1)
+- **FR-001**: System MUST download raw compositional and property data from Materials Project and NIST Materials Data Repository for aluminum alloys (See US-1). **If the NIST source is unavailable, the system shall proceed using only Materials Project data and record this limitation in the provenance log.**
 - **FR-002**: System MUST filter the dataset to monolithic aluminum alloys with non-missing Poisson's ratio, Young's modulus, and elemental composition for Cu, Mg, Si, Zn, and Mn, where the sum of these 5 fractions plus the calculated Al balance equals 1.0 (See US-1)
 - **FR-003**: System MUST normalize all elastic constants to GPa and express composition as atomic fractions summing to 1.0; if the sum of major elements is <0.95, the entry MUST be excluded (See US-1)
-- **FR-004**: System MUST apply Isometric Log-Ratio (ILR) transformation to the atomic fractions of Cu, Mg, Si, Zn, and Mn before training a Random Forest regressor, and perform 5-fold cross-validation (See US-2)
+- **FR-004**: System MUST apply Isometric Log-Ratio (ILR) transformation to the atomic fractions of Cu, Mg, Si, Zn, and Mn before training a Random Forest regressor, and perform 5-fold cross-validation (See US-2). **If the filtered dataset contains fewer than 50 alloy entries, the system MUST instead perform Leave-One-Out cross-validation (LOOCV) or bootstrap resampling with 1 000 iterations to estimate predictive error.**
 - **FR-005**: System MUST implement an 80/20 train/test split logic and compute and log test-set mean absolute error on the held-out test set (See US-2)
-- **FR-006**: System MUST extract feature importance scores from the ILR-transformed model, back-transform to the compositional space, and rank elements by contribution to variance (See US-3)
+- **FR-006**: System MUST extract feature importance scores from the ILR‑transformed model, back‑transform to the compositional space, and rank elements by contribution to variance (See US-3). **Back‑transformation is performed by multiplying the ILR‑feature importance vector **I** (length 4) by the transpose of the ILR basis inverse matrix **B⁻¹** (size 5×4) to obtain element‑level contributions **E = |B⁻¹·I|**. Absolute values are summed across coordinates to yield a non‑negative importance for each of the five elements, which are then ranked in descending order. (See Appendix A for the explicit basis matrix.) To ensure the importance reflects variance explained, the system also computes permutation importance on the original compositional features after inverse‑transforming predictions and reports both scores.**
 - **FR-007**: System MUST compute variance inflation factors (VIF) for raw predictors as a diagnostic and flag any with VIF >5 (See US-3)
 - **FR-008**: System MUST frame all predictive findings as associational (not causal) in the output documentation (See US-3)
-- **FR-009**: System MUST verify that Poisson's ratio values in the dataset are independent measurements (e.g., from ultrasonic shear wave velocity) and not derived solely from Young's modulus (See US-2)
+- **FR-009**: System MUST verify that Poisson's ratio values in the dataset are independent measurements (e.g., from ultrasonic shear wave velocity) and not derived solely from Young's modulus (See US-2). **Verification is performed by inspecting the metadata field `poisson_source` for each entry; accepted values are `ultrasonic`, `direct_measurement`, or `laser_ultrasonics`. Entries where `poisson_source` is `derived_from_moduli` or is missing are excluded and logged as provenance failures. The system records the count of excluded entries and proceeds only with the verified subset.**
+- **FR-010**: System MUST convert stoichiometric formulas (e.g., `Al2Cu`) to atomic fractions by counting total atoms in the formula, dividing each element’s atom count by the total, and assigning the remainder to Al as the balance element. This conversion is applied to all raw composition fields before any ILR transformation (See US-1).
 
 ### Key Entities
 
@@ -92,20 +93,41 @@ The researcher MUST be able to extract feature importance scores ranking alloyin
 
 - **SC-001**: Dataset completeness is measured against the Materials Project and NIST repository query results (See US-1)
 - **SC-002**: Model predictive accuracy (MAE) is measured against the held-out test set (See US-2)
-- **SC-003**: Feature importance ranking is measured against the trained Random Forest model's internal gain-based importance scores (derived from ILR features) (See US-3)
+- **SC-003**: Feature importance ranking is measured against the trained Random Forest model's internal gain‑based importance scores (derived from ILR features) (See US-3)
 - **SC-004**: Collinearity risk is measured against variance inflation factor (VIF) computed for each raw predictor (See US-3)
 - **SC-005**: Methodological framing is measured against the presence of explicit associational (not causal) language in all result statements (See US-3)
 - **SC-006**: Data independence is measured against the verification that Poisson's ratio is not derived solely from Young's modulus (See US-2)
 
 ## Assumptions
 
-- The Materials Project and NIST Materials Data Repository APIs are publicly accessible without authentication for the aluminum alloy subset required for this analysis.
-- The filtered dataset will contain ≥50 alloy entries with complete composition and Poisson's ratio data, enabling 5-fold cross-validation with ≥10 samples per fold.
-- The Random Forest model will run on CPU-only infrastructure (2 cores, 7 GB RAM) within 6 hours for the expected dataset size (<1000 entries).
-- No GPU or CUDA acceleration is available or required for the scikit-learn Random Forest implementation on this dataset scale.
+- The Materials Project and NIST Materials Data Repository APIs are publicly accessible without authentication for the aluminum alloy subset required for this analysis. **If the NIST API does not return usable records, the analysis will rely solely on Materials Project data.**
+- The filtered dataset will contain ≥50 alloy entries with complete composition and Poisson's ratio data, enabling 5-fold cross-validation with ≥10 samples per fold. **If fewer than 50 entries remain, the contingency CV strategy described in FR‑004 will be used.**
+- The Random Forest model will run on CPU‑only infrastructure (2 cores, 7 GB RAM) within 6 hours for the expected dataset size (<1000 entries).
+- No GPU or CUDA acceleration is available or required for the scikit‑learn Random Forest implementation on this dataset scale.
 - The dataset contains all required variables (Poisson's ratio, Young's modulus, Cu, Mg, Si, Zn, Mn concentrations); any missing variables will be flagged as an error during data extraction.
 - The observational nature of the dataset means all findings will be framed as associational; no randomization or identification strategy is available for causal claims.
-- Multiple-comparison correction is not required for the primary analysis since the research question focuses on a single outcome (Poisson's ratio) rather than multiple hypothesis tests.
+- Multiple‑comparison correction is not required for the primary analysis since the research question focuses on a single outcome (Poisson's ratio) rather than multiple hypothesis tests.
 - The design expectation for model performance is a low MAE target; if the model exceeds this, the result will be documented as a limitation rather than suppressing the finding.
-- The 5-element feature set (Cu, Mg, Si, Zn, Mn) captures the major alloying elements for standard aluminum series; trace elements are excluded as their concentrations are typically <1 wt%, and entries with missing mass >5% are excluded.
+- The 5‑element feature set (Cu, Mg, Si, Zn, Mn) captures the major alloying elements for standard aluminum series; trace elements are excluded as their concentrations are typically <1 wt %, and entries with missing mass >5 % are excluded.
 - Poisson's ratio values in the source databases are primarily derived from independent ultrasonic measurements rather than calculated from Young's modulus alone.
+
+## Constitution
+
+The project adheres to the governing constitution which mandates that any methodological discrepancy greater than an absolute 0.05 must be flagged, and that all statistical thresholds (e.g., α = 0.05) are applied consistently across analyses.
+
+## Appendix A – ILR Basis Matrix
+
+For a compositional vector **x** = (Cu, Mg, Si, Zn, Mn) with the implicit Al balance, the ILR transformation uses an orthonormal basis **B** of size 5 × 4. The inverse basis matrix **B⁻¹** (size 5 × 4) required for back‑transformation of feature importances is:
+
+\[
+B^{-1} = 
+\begin{bmatrix}
+\frac{4}{5} & \frac{3}{5} & \frac{2}{5} & \frac{1}{5} \\
+-\frac{1}{5} & \frac{3}{5} & \frac{2}{5} & \frac{1}{5} \\
+-\frac{1}{5} & -\frac{2}{5} & \frac{2}{5} & \frac{1}{5} \\
+-\frac{1}{5} & -\frac{2}{5} & -\frac{3}{5} & \frac{1}{5} \\
+-\frac{1}{5} & -\frac{2}{5} & -\frac{3}{5} & -\frac{4}{5}
+\end{bmatrix}
+\]
+
+Each column corresponds to an ILR coordinate; multiplying the ILR‑feature‑importance vector **I** (length 4) by **B⁻¹** yields element‑level contributions **E** = |**B⁻¹**·**I**|. The absolute values are summed across the four coordinates to obtain a non‑negative importance score for each of the five elements (Cu, Mg, Si, Zn, Mn). This matrix follows the sequential binary partition described by Egozcue et al. and is the standard construction for five-part compositions.
