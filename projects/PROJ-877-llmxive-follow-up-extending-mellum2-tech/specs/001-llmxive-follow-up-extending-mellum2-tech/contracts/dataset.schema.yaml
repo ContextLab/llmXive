@@ -29,7 +29,7 @@ properties:
     description: "Number of tokens."
   ngram_probability:
     type: number
-    description: "KenLM probability of the token sequence."
+    description: "KenLM estimate (FR‑010)."
   per_token_loss:
     type: number
     description: "Per‑token cross‑entropy loss."

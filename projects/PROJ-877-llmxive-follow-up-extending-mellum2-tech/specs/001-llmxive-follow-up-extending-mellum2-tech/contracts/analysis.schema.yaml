@@ -95,6 +95,7 @@ properties:
       - sample_size_used
       - power
       - limitation_noted
+      - description
 required:
   - correlation_results
   - threshold_results

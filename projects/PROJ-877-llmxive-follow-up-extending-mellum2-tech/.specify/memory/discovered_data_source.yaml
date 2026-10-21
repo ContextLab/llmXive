@@ -1,11 +1,10 @@
 status: none
-intent: download bigcode the stack dataset python java huggingface python package
-  dataset
+intent: HuggingFace code repository dataset Python Java CodeXGLUE python package dataset
 required_fields:
-- repository_id
+- repo_id
 - file_path
-- language
 - code
-cache_key: b9b3f8f6ddb8183df52f3949fbc103f76367400cea420e05f44620324c376377
-searched_at: '2026-10-15T18:27:57.174951+00:00'
+- language
+cache_key: acb4d1be8cf5615b5c3e48774ed83c53358232c1d7db78e2b15f42e10aad36d4
+searched_at: '2026-10-21T16:09:40.894567+00:00'
 retry_count: 1

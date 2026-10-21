@@ -23,7 +23,7 @@ properties:
     enum:
       - piecewise
       - linear
-    description: "Preferred model based on AIC/BIC."
+    description: "Preferred model based on AIC/BIC comparison."
   aic_difference:
     type: number
     description: "ΔAIC (piecewise ‑ linear)."

@@ -1,12 +1,20 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 12 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T002` (rejected 1x): The Parquet file and checksums.txt exist and the log shows a real streaming run from `codeparrot/github-code` writing 2000 rows, but there is no evidence of the required per-language breakdown: the log never reports counts per language (Python vs. Java), the visible Parquet content shows only repo names with no confirmed `language` column values, and the value of N (from Phase-0 power analysis) is never stated or verified. The task's core verification — "contains exactly N rows per language" — is unproven; the implementer should log/verify per-language row counts (e.g., a groupby on `language`
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan uses per‑token loss normalized by KenLM n‑gram probability as the sole proxy for ‘prediction difficulty’/‘reasoning depth’. This construct validity is not justified beyond a brief statement; without strong evidence (e.g., systematic validation against human‑rated complexity) the metric may not capture the intended construct, jeopardizing the core research question.
+- Human‑benchmark validation (CodeXGLUE) is optional and may be skipped if the dataset is unavailable, yet the plan still treats the loss‑complexity relationship as a valid proxy. Relying on an optional benchmark leaves the primary claim unverified in many runs, weakening construct validity.
+- The power analysis is mentioned but not detailed (no effect‑size assumptions, alpha level, or detectable correlation magnitude). With N≈500 per language, the study may be under‑powered to detect modest correlations, especially after multiple‑comparison correction, risking false‑negative conclusions.
+- Threshold significance is decided solely by ΔAIC > 2, which is an arbitrary heuristic and does not provide a formal statistical test for breakpoint existence. This may lead to over‑interpreting noise as a structural threshold.
+- While token count and n‑gram probability are controlled, other plausible confounds (e.g., comment density, file length, repository popularity, language‑specific tokenization quirks) are not modeled or adjusted for, potentially biasing the loss metric and inflating spurious correlations.
+- Static analysis tools (CodeQL, tree‑sitter) may produce missing or biased metrics for languages or code styles not fully supported, yet the plan does not include a validation step to ensure metric reliability across the sampled repositories.
+- The Functional Requirement FR-007 (cluster‑robust permutation test) is listed in the specification, but the plan’s FR‑SC mapping table references it as “FR‑07” (missing the leading zero). This identifier does not match the spec’s FR‑007, leaving FR‑007 effectively unaddressed.
+- The primary dataset `codeparrot/github-code` is listed as **Not in verified list**. Constitution Principle II (Verified Accuracy) requires every external citation to be verified; using an unverified dataset violates this requirement.
+- The fallback LLM model `TinyLlama‑1.1B` is referenced without a verified citation (e.g., a HuggingFace URL). All external model references must be verified per Constitution Principle II.
+- The contract `contracts/analysis.schema.yaml` is defined but never exercised by any phase in the plan. No artifact is generated that validates against this schema, leaving the contract unused.
+- Principle II (Verified Accuracy) is violated: the plan cites the `codeparrot/github-code` and `CodeXGLUE` datasets, which are not listed in a verified datasets block, yet the Constitution Check claims all citations are verified. This introduces unverified external URLs, breaching the constitution.
+- Normalization step computes `normalized_loss = per_token_loss / ngram_probability`. Dividing a cross‑entropy loss (in nats or bits) by a raw probability mixes incompatible units and lacks a theoretical justification. Standard practice to control for token‑frequency bias is to work in log‑probability space (e.g., subtract the n‑gram log‑probability from the model log‑probability) or to regress loss on n‑gram probability and use residuals. The current division may introduce spurious scaling and could artificially inflate or deflate correlations with complexity metrics, jeopardizing the validity of the subsequent correlation and threshold analyses.

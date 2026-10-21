@@ -29,6 +29,8 @@ properties:
       - total_chunks_success
       - languages_analyzed
       - primary_correlation
+      - threshold_detected
+      - cross_language_consistent
   validation:
     type: object
     properties:
@@ -54,6 +56,8 @@ properties:
         type: number
     required:
       - cpu_only
+      - execution_time_hours
+      - memory_peak_gb
 required:
   - summary
   - validation

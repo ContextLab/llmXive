@@ -35,7 +35,7 @@ properties:
   token_count:
     type: integer
     minimum: 1
-    description: "Number of tokens (confounder control)."
+    description: "Number of tokens (confound control)."
   ngram_probability:
     type: number
     description: "KenLM probability of the token sequence."
@@ -44,11 +44,11 @@ properties:
     description: "Average per‑token cross‑entropy loss."
   entropy:
     type: number
-    description: "Average prediction entropy."
+    description: "Prediction entropy."
   inference_time_ms:
     type: integer
     minimum: 0
-    description: "Inference latency in milliseconds."
+    description: "Inference latency (ms)."
   status:
     type: string
     enum:
@@ -57,6 +57,20 @@ properties:
       - parse_error
       - oom
     description: "Processing outcome."
+  comment_density:
+    type: number
+    minimum: 0.0
+    description: "Ratio of comment tokens to total tokens (optional confound)."
+  file_length:
+    type: integer
+    minimum: 0
+    description: "Number of lines in the source file (optional confound)."
+  repo_popularity:
+    type: number
+    description: "Normalized star/fork count for the repository (optional confound)."
+  normalized_loss:
+    type: number
+    description: "Residual from regression controlling for n‑gram probability and other confounds; serves as the normalized difficulty metric."
 required:
   - id
   - repo_name
