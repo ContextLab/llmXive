@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-21T14:17:40Z",
-  "project_id": "PROJ-533-evaluating-the-impact-of-data-transforma"
+  "updated_at": "2026-10-21T20:43:24Z",
+  "project_id": "PROJ-533-evaluating-the-impact-of-data-transforma",
+  "replan_rounds": 1
 }
