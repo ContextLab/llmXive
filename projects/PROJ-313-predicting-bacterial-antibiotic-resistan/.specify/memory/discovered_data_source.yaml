@@ -1,15 +1,14 @@
 status: none
-intent: download NCBI Pathogen Detection E coli S aureus genome and AST dataset python
+intent: NCBI Pathogen Detection dataset E coli S aureus AST phenotypes CARD python
   package dataset
 required_fields:
 - isolate_id
 - species
-- assembly_accession
-- genome_sequence_path
-- antibiotic
-- phenotypic_result
-- arg_gene_symbol
-- arg_presence_binary
-cache_key: 76906dd41b9919af4df574783dbf89ae47257141250bd1ecb2c753cde867c750
-searched_at: '2026-10-14T13:24:51.441842+00:00'
+- genome_assembly_fasta_url
+- ast_antibiotic_resistance_columns (e.g., ampicillin_resistant, ciprofloxacin_resistant)
+- card_arg_gene_name
+- card_arg_presence_binary
+- refseq_accession
+cache_key: 3e3c2800345a3f9489d877ce072bc7611cf05b34aa94f706cfb1c85d979c8ae4
+searched_at: '2026-10-21T07:30:25.647236+00:00'
 retry_count: 1

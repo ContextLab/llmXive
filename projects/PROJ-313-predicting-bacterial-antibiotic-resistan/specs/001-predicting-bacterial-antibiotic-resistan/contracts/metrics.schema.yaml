@@ -22,7 +22,7 @@ properties:
   model_type:
     type: string
     enum: ["xgboost_baseline", "xgboost_integrated"]
-    description: "Indicates whether only ARGs or full feature set were used."
+    description: "Indicates whether only ARGs or the full feature set were used."
   cv_folds:
     type: integer
     minimum: 5
@@ -125,10 +125,10 @@ properties:
     properties:
       required_n:
         type: integer
-        description: "Sample size needed for [deferred] power at effect size 0.1."
+        description: "Sample size needed for the deferred power target (effect size 0.1)."
       observed_n:
         type: integer
-        description: "Actual number of isolates used."
+        description: "Actual number of isolates used after filtering."
       effect_size:
         type: number
         description: "Cohen's d assumed for the analysis (0.1)."
@@ -136,7 +136,7 @@ properties:
         type: number
         minimum: 0.0
         maximum: 1.0
-        description: "Achieved power given observed sample size."
+        description: "Achieved statistical power given observed sample size."
       sufficient:
         type: boolean
         description: "True if power ≥ 0.8, else False."
