@@ -34,7 +34,6 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 import torch
 import torchvision.transforms as T
-from torchvision.datasets import CIFAR10
 
 __all__ = ["curate_failed_figures", "main"]
 
@@ -65,6 +64,9 @@ def _load_crafterbench(num: int) -> list[dict]:
         - ``image``: Pillow Image object.
         - ``ground_truth_vector``: dict with a deterministic ``vector``.
     """
+    # Import lazily so that tests can monkey‑patch the class.
+    from torchvision.datasets import CIFAR10
+
     # Use a project‑local cache directory to avoid cluttering the home dir.
     cache_dir = Path("data") / "raw_cifar10"
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -249,7 +251,7 @@ def main() -> None:
     # Attempt to load real data; on failure emit the required error message.
     try:
         _ = _load_crafterbench(num=args.num)
-    except Exception as e:
+    except Exception:
         # Propagate a clear, user‑visible error as required by the verification spec.
         sys.stderr.write("verified source unavailable\\n")
         sys.exit(1)

@@ -57,11 +57,16 @@ def test_log_interaction_writes_valid_jsonl():
     # Basic schema checks for both records.
     for rec in records:
         assert isinstance(rec["timestamp_ms"], int), "timestamp_ms must be an integer"
-        assert rec["participant_id"] == participant
-        assert rec["figure_id"] == figure
-        assert rec["interface"] == interface
+        assert rec["session_id"] == participant
+        assert rec["task_id"] == figure
+        assert rec["mode"] == interface
         assert isinstance(rec["iteration"], int) and rec["iteration"] >= 1
         assert isinstance(rec["payload"], dict)
+        # Verify presence of new fields introduced by T004
+        assert "log_id" in rec
+        assert "task_start_ms" in rec
+        assert "task_end_ms" in rec
+        assert "response_image_path" in rec
 
     # Verify that iteration numbers increment correctly.
     assert records[0]["iteration"] == 1

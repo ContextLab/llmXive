@@ -1,50 +1,50 @@
-{"figure_id": "0", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "1", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999998807907104}
-{"figure_id": "10", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
-{"figure_id": "11", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
-{"figure_id": "12", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "13", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999998807907104}
-{"figure_id": "14", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999999403953552}
-{"figure_id": "15", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "16", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "17", "vector_match": true, "semantic_pass": true, "similarity_score": 1.000000238418579}
-{"figure_id": "18", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "19", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "2", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999999403953552}
-{"figure_id": "20", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
-{"figure_id": "21", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "22", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
-{"figure_id": "23", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
-{"figure_id": "24", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "25", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999998807907104}
-{"figure_id": "26", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999999403953552}
-{"figure_id": "27", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "28", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "29", "vector_match": true, "semantic_pass": true, "similarity_score": 1.000000238418579}
-{"figure_id": "3", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "30", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "31", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "32", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
-{"figure_id": "33", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "34", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
-{"figure_id": "35", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
-{"figure_id": "36", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "37", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999998807907104}
-{"figure_id": "38", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999999403953552}
-{"figure_id": "39", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "4", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "40", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "41", "vector_match": true, "semantic_pass": true, "similarity_score": 1.000000238418579}
-{"figure_id": "42", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "43", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "44", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
-{"figure_id": "45", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "46", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
-{"figure_id": "47", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
-{"figure_id": "48", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "49", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999998807907104}
-{"figure_id": "5", "vector_match": true, "semantic_pass": true, "similarity_score": 1.000000238418579}
-{"figure_id": "6", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "7", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "8", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
-{"figure_id": "9", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
+{"validation_id": "4f0497db-236b-473c-9a77-63d859924fdd", "task_id": "0", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "e70908e5-a756-455d-aca7-5ba6f43fe243", "task_id": "1", "vector_match": true, "semantic_score": 0.9999998807907104, "semantic_pass": true, "overall_success": true}
+{"validation_id": "dfa70dd9-b55f-44f0-b931-47beb4c48ede", "task_id": "10", "vector_match": true, "semantic_score": 1.0000001192092896, "semantic_pass": true, "overall_success": true}
+{"validation_id": "7a2764dd-95a9-4b60-9ba5-7bd955e207ed", "task_id": "11", "vector_match": true, "semantic_score": 1.0000001192092896, "semantic_pass": true, "overall_success": true}
+{"validation_id": "d51a732f-50a8-484e-97c6-239e70a1be33", "task_id": "12", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "38b5ccb8-fb29-4180-89bd-3e03129fbb8e", "task_id": "13", "vector_match": true, "semantic_score": 0.9999998807907104, "semantic_pass": true, "overall_success": true}
+{"validation_id": "43ed8264-3439-4342-88d8-c91ee6ac668f", "task_id": "14", "vector_match": true, "semantic_score": 0.9999999403953552, "semantic_pass": true, "overall_success": true}
+{"validation_id": "71a236eb-2fd5-452d-8d5a-b9429693f0f1", "task_id": "15", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "21e516f6-8c24-4c81-9bce-a93f06ab1b52", "task_id": "16", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "e410be2b-d7f4-4e0c-b2e0-d5629541b204", "task_id": "17", "vector_match": true, "semantic_score": 1.000000238418579, "semantic_pass": true, "overall_success": true}
+{"validation_id": "76a852cf-fc59-4b0d-bab8-a84465feb0e3", "task_id": "18", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "64baa1eb-685c-43fa-b78a-309daf366f27", "task_id": "19", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "8235f498-89c6-4aa8-bc71-3dca90e0f4f5", "task_id": "2", "vector_match": true, "semantic_score": 0.9999999403953552, "semantic_pass": true, "overall_success": true}
+{"validation_id": "23bdb936-3681-44e6-a4ee-652e1caa2f35", "task_id": "20", "vector_match": true, "semantic_score": 1.0000001192092896, "semantic_pass": true, "overall_success": true}
+{"validation_id": "b57775e1-cfa2-42b8-b601-44aaf9c6ba09", "task_id": "21", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "15a23b7f-dc38-451b-b130-19ba76cf74bf", "task_id": "22", "vector_match": true, "semantic_score": 1.0000001192092896, "semantic_pass": true, "overall_success": true}
+{"validation_id": "e7d47d87-170c-4e0d-9a1f-15b30b96df83", "task_id": "23", "vector_match": true, "semantic_score": 1.0000001192092896, "semantic_pass": true, "overall_success": true}
+{"validation_id": "8535f600-9361-417f-aee8-355fb06efee9", "task_id": "24", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "013b4f1b-2697-4aa8-9286-e36f6b53f82a", "task_id": "25", "vector_match": true, "semantic_score": 0.9999998807907104, "semantic_pass": true, "overall_success": true}
+{"validation_id": "f7b90e0d-c953-4ae9-89cd-2c7db8461923", "task_id": "26", "vector_match": true, "semantic_score": 0.9999999403953552, "semantic_pass": true, "overall_success": true}
+{"validation_id": "d1ae9a09-9971-40af-ab42-3df11f7e1d5c", "task_id": "27", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "717ad6dd-98ba-46bd-a757-daf9c217f6e2", "task_id": "28", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "179f9cf8-4101-41cf-94fe-0cacd93d80e9", "task_id": "29", "vector_match": true, "semantic_score": 1.000000238418579, "semantic_pass": true, "overall_success": true}
+{"validation_id": "490a4282-bc44-447a-bf8b-fb588984801f", "task_id": "3", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "f7de8e3b-01f5-4aed-be26-55aaec921612", "task_id": "30", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "941c35fb-4282-4ff7-80ff-171efb9138f0", "task_id": "31", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "fecc66b7-52ec-4ae9-a0b0-95fd4209b028", "task_id": "32", "vector_match": true, "semantic_score": 1.0000001192092896, "semantic_pass": true, "overall_success": true}
+{"validation_id": "ff3f58cc-7122-4407-8126-71c5b32be4f7", "task_id": "33", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "8ff6e976-b78b-4315-b077-1e1be10d6114", "task_id": "34", "vector_match": true, "semantic_score": 1.0000001192092896, "semantic_pass": true, "overall_success": true}
+{"validation_id": "a493ccc2-cb85-4cd2-842d-3ba980954d96", "task_id": "35", "vector_match": true, "semantic_score": 1.0000001192092896, "semantic_pass": true, "overall_success": true}
+{"validation_id": "eb04078c-b568-4500-8ce5-31e13b0028f3", "task_id": "36", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "ce18c22e-68cb-475b-8782-d4571cd67c8d", "task_id": "37", "vector_match": true, "semantic_score": 0.9999998807907104, "semantic_pass": true, "overall_success": true}
+{"validation_id": "5dcb3e6a-5c0c-4870-8740-3e81570b717c", "task_id": "38", "vector_match": true, "semantic_score": 0.9999999403953552, "semantic_pass": true, "overall_success": true}
+{"validation_id": "c70c52ae-7421-4acf-ad02-2dd1f657595a", "task_id": "39", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "ab52724d-e051-4208-98ec-8694dfd59879", "task_id": "4", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "e68a609b-66c2-4d08-9ee0-a2b5163565c7", "task_id": "40", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "5ff24e32-7120-4d62-99bb-29ba096d3098", "task_id": "41", "vector_match": true, "semantic_score": 1.000000238418579, "semantic_pass": true, "overall_success": true}
+{"validation_id": "2a8a5164-90a3-4bae-9cc2-aa6ea19da680", "task_id": "42", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "99aa3e07-1223-4687-a86c-2a01d6a7fc2c", "task_id": "43", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "f534c784-7826-4916-b13c-df61379d82e8", "task_id": "44", "vector_match": true, "semantic_score": 1.0000001192092896, "semantic_pass": true, "overall_success": true}
+{"validation_id": "aebc564c-1960-45c2-b1d8-77edefac5607", "task_id": "45", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "68390281-d01e-4f03-98e0-0ea722a8b974", "task_id": "46", "vector_match": true, "semantic_score": 1.0000001192092896, "semantic_pass": true, "overall_success": true}
+{"validation_id": "b395a32b-6927-4da3-b113-48c6f2d70eac", "task_id": "47", "vector_match": true, "semantic_score": 1.0000001192092896, "semantic_pass": true, "overall_success": true}
+{"validation_id": "276e72d2-f1fa-4984-a32d-1a94df8cc806", "task_id": "48", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "3232a934-a114-4ea8-97df-c8a92ee87482", "task_id": "49", "vector_match": true, "semantic_score": 0.9999998807907104, "semantic_pass": true, "overall_success": true}
+{"validation_id": "f3b2f4a5-213e-48a4-907b-1b6396b6b1e2", "task_id": "5", "vector_match": true, "semantic_score": 1.000000238418579, "semantic_pass": true, "overall_success": true}
+{"validation_id": "6fb7e09e-7ec5-4e68-b85e-adfc9c2603c8", "task_id": "6", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "fb1bd668-d7a9-45dd-91b0-0e52e3ec29c3", "task_id": "7", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}
+{"validation_id": "85ff5dc4-fd90-4e42-a7f7-d7781ccecd01", "task_id": "8", "vector_match": true, "semantic_score": 1.0000001192092896, "semantic_pass": true, "overall_success": true}
+{"validation_id": "fb7c512b-5713-446f-9449-3db81caf53ba", "task_id": "9", "vector_match": true, "semantic_score": 1.0, "semantic_pass": true, "overall_success": true}

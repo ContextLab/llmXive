@@ -3,26 +3,47 @@ T000:
 T001:
   task: a67de131a5fe4c8832269c1f23669775deba5330e24fdd2d4b2e7750cbc37424
 T002:
-  reason: "Checked `src/curators/curate_failed_figures.py` (exists and implements\
-    \ the required flags) and the generated `data/figures/`, `data/ground_truth/`,\
-    \ and `data/checksums.txt` (each contain 50 entries). However, there is no concrete\
-    \ execution evidence that, when the network is unavailable, running `python -m\
-    \ src.curators.curate_failed_figures --num 50` exits with a non\u2011zero status\
-    \ and prints the exact message \u201Cverified source unavailable\u201D. The only\
-    \ test log shows a timeout, not the required error behavior. Provide a reproducible\
-    \ run (e.g., with network disabled or mocked) that captures the exit c"
+  reason: "Checked `src/curators/curate_failed_figures.py` (exists and generates the\
+    \ required 50 PNG/JSON files and checksums when `--verify-only` is used) and the\
+    \ `data/` directories (contain exactly 50 entries each). However, there is no\
+    \ execution evidence that the script exits non\u2011zero with the exact message\
+    \ \u201Cverified source unavailable\u201D when the network is unreachable; the\
+    \ only test log shows a 600\u202Fs timeout, indicating the failure case is not\
+    \ correctly exercised. The required loud\u2011failure behavior must be demonstrated\
+    \ (e.g., a recorded run with network disabled showing the correct exit code and\
+    \ stde"
   task: 2e58516fa9258c2dc7cb1635b56537b1c26c70e6906960ac89d1d57433eb59d8
 T003:
   task: 99a536c55f5323dfb946d52edcab9671a048ced34551ae7ae305c519791c0f6c
 T004:
+  reason: "The `src/logger/interaction_logger.py` writes a dict for the `payload`\
+    \ field, but the schema `interaction_log.schema.yaml` requires `payload` to be\
+    \ a string, so the logged lines would not validate. Moreover, there is no evidence\
+    \ that abort handling (status\u202F=\u202F\"aborted\" after 15\u202Fmin) is exercised\
+    \ or that a log entry is verified against the schema. The implementation therefore\
+    \ does not fully meet the task\u2019s verification criteria."
   task: abd319250ab4cefa38fa46a0ef742a9ba7ce2261a2d280afe602a38480051f80
 T005:
+  reason: "The `tests/validation/test_validation.py` unit test fails: for the exact\u2011\
+    match case (figure\u202F0) the recorded `vector_match` is `False` (because no\
+    \ prediction file is provided), contradicting the test\u2019s expectation of `True`.\
+    \ Consequently the required test coverage is not satisfied. The implementation\
+    \ must ensure the exact\u2011match scenario passes (e.g., by providing a matching\
+    \ prediction file or adjusting the logic) for the task to be complete."
   task: 20d306815f40a03746e6758b5c85dbd93adc9a32f5764077408120009b9a627f
 T006:
   task: c06eee802d579bf6b663e1101c0f94d3e06f3a5cef23b3478d1d3f3d2b77c617
 T007:
+  reason: "The script `src/analysis/validation_by_session.py` exists and produces\
+    \ a JSON\u2011Lines file with the required fields, but it never calls `run_validation.py`\
+    \ and it outputs one line per task rather than aggregating success **counts**\
+    \ per session. Moreover, the `session_id` values are all `\"unknown\"` because\
+    \ the interaction log mapping is not exercised in the provided data. The task\
+    \ therefore is not fully satisfied."
   task: 52bf6b1fa7f2438f0195dfed9e5554c45ea0ba202f6affa0e65c58dd2606736f
 T008:
+  reason: 'Requested task execution failed; rerun successfully: src/analysis/wilcoxon_analysis.py
+    exit=2'
   task: bcefad7f416adb06be0b87e241b3b23e14ac515ba1cb9de6adbc390ba4357fb8
 T009:
   task: 48f59439d60e621db064793dfd0df8604e3767aa72baa64a03b191f33451609e

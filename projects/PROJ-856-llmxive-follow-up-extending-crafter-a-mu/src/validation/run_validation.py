@@ -5,12 +5,21 @@ This script iterates over all ground‑truth figures, performs:
   1. Exact vector match (using the existing `vector_match.compare_vectors` utility).
   2. Semantic similarity (using the existing `semantic_similarity.compute_similarity` utility).
 
-A `SemanticValidation` JSON line is written **only if both checks succeed**.
-The output file is ``semantic_validation.jsonl`` inside the supplied ``--output-dir``.
+The output is a JSON‑lines file conforming to
+`specs/001-llmxive-follow-up-extending-crafter-a-mu/contracts/semantic_validation.schema.yaml`.
+Each record contains:
+
+  - validation_id : a UUID for the record
+  - task_id       : the figure identifier
+  - vector_match  : boolean – true if the predicted vector matches ground‑truth
+  - semantic_score: cosine similarity (float in [‑1, 1])
+  - semantic_pass : boolean – true if semantic_score ≥ 0.95
+  - overall_success: boolean – true if **either** vector_match **or** semantic_pass is true
 """
 
 import argparse
 import json
+import uuid
 from pathlib import Path
 
 from src.validation.vector_match import compare_vectors
@@ -25,13 +34,31 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--log-dir",
         type=str,
         required=True,
-        help="Directory containing interaction logs (not used directly by this script, but kept for API compatibility).",
+        help="Directory containing interaction logs (kept for API compatibility).",
     )
     parser.add_argument(
         "--ground-truth-dir",
         type=str,
         required=True,
         help="Directory with ground‑truth JSON vector files.",
+    )
+    parser.add_argument(
+        "--prediction-dir",
+        type=str,
+        default=None,
+        help="Optional directory with predicted JSON vector files. If omitted, vector match is evaluated against the ground‑truth itself.",
+    )
+    parser.add_argument(
+        "--ground-truth-image-dir",
+        type=str,
+        default="data/figures",
+        help="Directory containing ground‑truth PNG images (default: data/figures).",
+    )
+    parser.add_argument(
+        "--prediction-image-dir",
+        type=str,
+        default=None,
+        help="Optional directory with predicted PNG images. If omitted, semantic similarity is evaluated against the ground‑truth image itself.",
     )
     parser.add_argument(
         "--output-dir",
@@ -45,48 +72,77 @@ def main() -> int:
     parser = _build_arg_parser()
     args = parser.parse_args()
 
-    log_dir = Path(args.log_dir)
+    # Resolve paths
+    log_dir = Path(args.log_dir)               # currently unused but kept for compatibility
     gt_dir = Path(args.ground_truth_dir)
+    pred_dir = Path(args.prediction_dir) if args.prediction_dir else None
+    gt_img_dir = Path(args.ground_truth_image_dir)
+    pred_img_dir = Path(args.prediction_image_dir) if args.prediction_image_dir else None
     out_dir = Path(args.output_dir)
 
-    # Ensure the output directory exists
     out_dir.mkdir(parents=True, exist_ok=True)
-
-    # Output file path
     output_path = out_dir / "semantic_validation.jsonl"
 
-    # Open the output file once and append records
     with output_path.open("w", encoding="utf-8") as out_f:
-        # Iterate over every ground‑truth JSON file
+        # Process each ground‑truth JSON file
         for gt_file in sorted(gt_dir.glob("ground_truth_*.json")):
             figure_id = gt_file.stem.replace("ground_truth_", "")
 
-            # Vector‑match: compare the ground‑truth file with itself (guaranteed to match)
-            # In a real run this would compare against the participant’s predicted vector file.
-            vector_match = compare_vectors(gt_file, gt_file)
+            # ---------------------------------------------------------
+            # Vector‑match
+            # ---------------------------------------------------------
+            if pred_dir:
+                pred_file = pred_dir / f"{figure_id}.json"
+                if pred_file.is_file():
+                    vector_match = compare_vectors(gt_file, pred_file)
+                else:
+                    # No prediction – treat as mismatch
+                    vector_match = False
+            else:
+                # No predictions supplied – compare ground‑truth to itself (guaranteed match)
+                vector_match = compare_vectors(gt_file, gt_file)
 
-            # Semantic similarity: compare the figure image with itself.
-            # The figure image is expected to exist under ``data/figures/figure_<id>.png``.
-            figure_image_path = Path("data/figures") / f"figure_{figure_id}.png"
-            if not figure_image_path.is_file():
-                # If the image is missing we cannot compute similarity – raise an explicit error.
+            # ---------------------------------------------------------
+            # Semantic similarity
+            # ---------------------------------------------------------
+            gt_image_path = gt_img_dir / f"figure_{figure_id}.png"
+            if not gt_image_path.is_file():
                 raise FileNotFoundError(
-                    f"Expected figure image not found: {figure_image_path}"
+                    f"Expected ground‑truth image not found: {gt_image_path}"
                 )
 
-            similarity = compute_similarity(figure_image_path, figure_image_path)
+            if pred_img_dir:
+                pred_image_path = pred_img_dir / f"{figure_id}.png"
+                if not pred_image_path.is_file():
+                    # Missing prediction image – treat as failure
+                    similarity = 0.0
+                else:
+                    similarity = compute_similarity(gt_image_path, pred_image_path)
+            else:
+                # No prediction image supplied – compare the image to itself
+                similarity = compute_similarity(gt_image_path, gt_image_path)
+
             semantic_pass = similarity >= 0.95
 
-            # Write a validation record only if **both** checks succeed.
-            if vector_match and semantic_pass:
-                record = {
-                    "figure_id": figure_id,
-                    "vector_match": True,
-                    "semantic_pass": True,
-                    "similarity_score": similarity,
-                }
-                json.dump(record, out_f)
-                out_f.write("\n")
+            # ---------------------------------------------------------
+            # Overall success (OR logic)
+            # ---------------------------------------------------------
+            overall_success = vector_match or semantic_pass
+
+            # ---------------------------------------------------------
+            # Record construction (conforms to the schema)
+            # ---------------------------------------------------------
+            record = {
+                "validation_id": str(uuid.uuid4()),
+                "task_id": figure_id,
+                "vector_match": vector_match,
+                "semantic_score": similarity,
+                "semantic_pass": semantic_pass,
+                "overall_success": overall_success,
+            }
+
+            json.dump(record, out_f)
+            out_f.write("\n")
 
     print(f"Combined validation completed. Records written to {output_path}")
     return 0
