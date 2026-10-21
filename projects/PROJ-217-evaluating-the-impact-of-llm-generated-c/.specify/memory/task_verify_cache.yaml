@@ -1,9 +1,8 @@
 T012:
   c: true
-  h: 43532a4fcc111bf223bce9c7c07ca466c83de3fcb7f0490bc0fefa23e20c0fdf
-  r: "Checked `src/utils/verify_requirements.py` (implements existence, non\u2011\
-    empty check, optional SHA\u2011256 verification, returns a boolean and writes\
-    \ to `data/requirements_check.log`), confirmed `requirements.txt` is present and\
-    \ non\u2011empty, and verified `data/requirements_check.log` records a successful\
-    \ run."
-  sig: 5ba185ce2328ce87b14c49b42ef2586923d97b95014ae072cfe06c8822552d01
+  h: b6dcbf0a66c19fffcfd8aafcc0547617068ea1fb3fcabb55026424343fecf44b
+  r: "Checked `src/utils/verify_requirements.py` \u2013 it implements existence, non\u2011\
+    empty check, optional SHA\u2011256 verification, writes to `data/requirements_check.log`,\
+    \ returns a boolean and exits with appropriate status; `requirements.txt` is present\
+    \ and non\u2011empty, and the optional hash entry is correctly handled as missing."
+  sig: bcbddd88d3e068291810b38dd60f410982d2b1689f41187e4dfb9cb75e660b9d

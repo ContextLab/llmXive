@@ -1,4 +1,4 @@
 # Project dependencies
-# Added pyarrow compatible with NumPy 1.26 to enable parquet reading
-pyarrow==14.0.2
-huggingface_hub
+# Existing dependencies are assumed to be already listed; added requirements for this task:
+huggingface_hub>=0.22.0
+pyarrow>=15.0.0
