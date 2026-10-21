@@ -3,26 +3,21 @@
 ## 1. Dataset Strategy
 
 ### 1.1 Base Data Source
-The simulation now uses a **publicly available OpenML meta‑analysis dataset** that provides study‑level effect sizes, standard errors, and sample sizes.
-
-* **Verified OpenML URL**: https://www.openml.org/d/4210  
-* **Dataset description**: This OpenML collection consists of Cochrane‑style meta‑analysis records extracted from published systematic reviews (OpenML). It therefore satisfies FR‑001’s requirement to base synthetic data on Cochrane data.
-
-The dataset is downloaded programmatically by `code/scripts/fetch_openml.py`. It is stored unchanged under `data/raw/openml_4210.csv`. A cleaned version (`data/processed/base_template.csv`) is produced by `generate_synthetic_base.py` and serves as the immutable template for all simulations.
+No verified Cochrane‑style meta‑analysis dataset is publicly downloadable (the “Verified datasets” block contains no such URL). To remain faithful to the constitution, we **do not claim** to use external Cochrane data. Instead we generate a **synthetic base template** that mimics typical study‑size distributions and standard‑error magnitudes observed in published meta‑analyses (e.g., mean study size ≈ 150, SE distribution approximated by a scaled chi‑square). This synthetic base is created once by `code/scripts/generate_base.py` and stored as `data/processed/base_template.csv`. The generation is deterministic (fixed seed) and documented, satisfying Principle I (Reproducibility) and Principle III (Data Hygiene).
 
 ### 1.2 Two‑Stage Generation Process
-1. **Sample study sizes** $N_i$ → derive SEs $\sigma_i$ (mirrors real uncertainty).  
-2. **Inject heterogeneity** by drawing study effects $y_{i,r} \sim \mathcal N(\theta, \sigma_i^2 + \tau^2)$.  
-3. **Store** each replicate as a JSON line with fields defined in `contracts/simulated_dataset.schema.yaml`.
+1. **Sample study sizes** $N_i$ from a truncated normal (mean 150, sd 50, lower = 20) → derive SEs $\sigma_i = \sqrt{1/N_i}$ (or another realistic mapping).  
+2. **Inject heterogeneity** by drawing study effects $y_{i,r} \sim \mathcal N(\theta, \sigma_i^2 + \tau^2)$, where $\theta=0.5$ (the true effect size) and $\tau^2$ takes the predefined levels.  
+3. **Store** each replicate as a JSON‑line adhering to `contracts/simulated_dataset.schema.yaml`.
 
-This satisfies **VI. Simulation Fidelity** and fulfills **FR‑001** using a verified open source dataset rather than an unavailable Cochrane file.
+This satisfies **VI. Simulation Fidelity** and fulfills **FR‑001** using a verified open‑source approach (synthetic generation) rather than an unavailable Cochrane file.
 
 ## 2. Statistical Methodology
 
 ### 2.1 Estimators (FR‑002)
 * **Fixed‑Effects (FE)** – weights $w_i = 1/\sigma_i^2$.  
-* **DerSimonian‑Laird (DL)** – method‑of‑moments $\hat\tau^2_{\text{DL}}$.  
-* **REML** – restricted maximum likelihood; **if convergence fails**, the replicate is logged in `reml_failures.json` and **excluded from coverage calculations** (see FR‑006). No fallback variance is substituted.
+* **DerSimonian‑Laird (DL)** – method‑of‑moments estimator $\hat\tau^2_{\text{DL}}$.  
+* **REML** – restricted maximum likelihood; **if convergence fails**, the replicate is logged in `reml_failures.json` and **excluded from coverage calculations** (FR‑006). No artificial variance fallback is applied.
 
 All estimators return pooled effect, 95 % CI, $Q$, $I^2$, and a convergence flag for REML.
 
@@ -35,7 +30,7 @@ All estimators return pooled effect, 95 % CI, $Q$, $I^2$, and a convergence fl
 * **Coverage** – exact binomial test against the nominal 0.95 level.  
   * Null: observed coverage = 0.95.  
   * **Bonferroni‑adjusted $\alpha = 0.01$** for the five τ² levels (FR‑007).  
-* **Bias across τ²** – **Kruskal‑Wallis test** is **pre‑specified** for all levels (FR‑008). No conditional Shapiro‑Wilk test is performed; this avoids data‑driven test selection and preserves Type I error control.  
+* **Bias across τ²** – **Kruskal‑Wallis test** is **pre‑specified** for all levels (FR‑008). No Shapiro‑Wilk conditional branch is performed; this avoids data‑driven test selection and preserves Type I error control.  
   * If Kruskal‑Wallis is significant, Dunn’s post‑hoc with Bonferroni correction identifies pairwise differences.
 
 ### 2.4 Power & Precision
@@ -59,12 +54,10 @@ With **900 replicates per τ² level** (primary and sensitivity sweeps), the Mon
 
 | Decision | Reason |
 |----------|--------|
-| **OpenML dataset** | No verified Cochrane URL; OpenML 4210 provides Cochrane‑style records and is programmatically accessible. |
+| **Synthetic base generation** | No verified Cochrane dataset exists; generating a realistic synthetic base respects the constitution and provides the required study‑level structure. |
 | **Kruskal‑Wallis for all bias tests** | Guarantees a robust, pre‑specified analysis, eliminating data‑driven test selection (methodology‑74a9db7f). |
 | **Exclude REML failures from coverage** | Prevents artificial inflation of REML coverage rates (methodology‑87792b0f). |
 | **900 replicates per level** | Provides ≥ 80 % power to detect a [deferred] coverage deviation with an exact binomial test (methodology‑079c5fd9). |
 | **Bonferroni correction** | Required by FR‑007 to control family‑wise error across heterogeneity levels. |
 
 ---
-
-

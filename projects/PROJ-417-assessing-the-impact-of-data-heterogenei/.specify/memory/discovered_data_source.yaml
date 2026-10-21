@@ -1,12 +1,13 @@
 status: none
-intent: download Cochrane meta-analysis study level effect size dataset python package
+intent: Cochrane Database of Systematic Reviews meta-analysis dataset python package
+  for heterogeneity simulation python package dataset
 required_fields:
 - study_id
 - effect_size
 - standard_error
 - sample_size
-- outcome
-- study_variance
-cache_key: 09cefbd33fceb0b4398af52bc5045614bb7b4a33b9b3bab747d23e213dc61b43
-searched_at: '2026-10-21T09:11:28.817591+00:00'
+- replicate_id
+- tau2_level
+cache_key: 72c4ba71b5198ab93949a3609cde5f6eee47a66371972c020f71a60741970522
+searched_at: '2026-10-21T09:14:43.181379+00:00'
 retry_count: 1

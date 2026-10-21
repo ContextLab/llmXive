@@ -31,7 +31,7 @@ The pipeline stores three core artifact types, each validated against a JSON/YAM
 | `coverage_flag` | boolean | True if `true_effect` lies within `[ci_lower, ci_upper]`. |
 | `convergence_warning` | boolean | True only for REML when convergence failed (fallback used). |
 
-*All `EstimationResult` records are stored **exclusively** in the JSON‑lines file `data/results/simulation_raw.json` alongside their originating `SimulatedDataset`. No separate CSV file is used, satisfying Principle IV (Single Source of Truth).*
+*All `EstimationResult` records are stored **exclusively** in the JSON‑lines file `data/results/simulation_raw.jsonl` alongside their originating `SimulatedDataset`. No separate CSV file is used, satisfying Principle IV (Single Source of Truth).*
 
 ### 2.3 AggregatedMetric
 | Field | Type | Description |
@@ -49,16 +49,14 @@ The pipeline stores three core artifact types, each validated against a JSON/YAM
 | `report_framing` | string | Must be `"associational"` per SC‑005. |
 
 ## 3. File Formats
-* **SimulatedDataset & EstimationResult** – stored together as JSON‑lines (`.jsonl`) in `simulation_raw.json`. Each line conforms to its respective schema.  
+* **SimulatedDataset & EstimationResult** – stored together as JSON‑lines (`.jsonl`) in `simulation_raw.jsonl`. Each line conforms to its respective schema.  
 * **AggregatedMetric** – CSV (`aggregated_metrics.csv`) with column names matching the table above.  
 * **Plots** – PNG files (`coverage_vs_tau2.png`, `mean_bias_vs_tau2.png`).  
 * **Report** – Markdown (`report.md`).  
 
 ## 4. Validation Strategy
-* **Schema enforcement** – `jsonschema` validates each JSON line on write; `pandas` validates CSV columns against `aggregated_metric.schema.yaml`.  
+* **Schema enforcement** – `jsonschema` validates each JSON line on write; `pandas` validates CSV columns against `contracts/aggregated_metric.schema.yaml`.  
 * **Checksums** – SHA‑256 hashes of every file recorded in `state/project_state.yaml`.  
 * **Unit tests** – Verify that generated objects satisfy schemas (`tests/unit/test_generator.py`, `test_estimators.py`).  
 
 ---
-
-
