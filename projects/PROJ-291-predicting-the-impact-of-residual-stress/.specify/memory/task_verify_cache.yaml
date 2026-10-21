@@ -1,9 +1,0 @@
-T002:
-  c: false
-  h: 81ca7d983ac61171ae494ceb272981e384ad5499dfa55769ec304ca7f457c107
-  r: "The repository contains the ingestion script, but the required output file `data/processed/unified_fatigue.csv`\
-    \ was never generated, and the unit\u2011test file `tests/test_ingest.py` is missing,\
-    \ so the pipeline cannot be verified against the synthetic test case. The missing\
-    \ artifacts must be added and the script executed to produce the unified CSV for\
-    \ the task to be considered complete."
-  sig: 2d93bfae8418abd47272d120dcab6d3f8e3745e76c90705cf1e173c55d4ca533

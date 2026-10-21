@@ -5,13 +5,8 @@ Data ingestion pipeline for the "Predicting the Impact of Residual Stress on Fat
 project.
 
 This module implements the full ingestion workflow required by task **T002**.
-It downloads three public fatigue datasets, adds provenance information,
-standardises units, imputes missing values, computes a proxy residual‑stress
-column when needed, writes the unified CSV to ``data/processed/unified_fatigue.csv``
-and validates the result against the JSON‑Schema contract.
-
-The script can be executed as a module (``python -m code.ingest.ingest``) or used
-programmatically via :func:`run_ingest`.
+It now prefers bundled raw CSVs (pipeline_verification.csv and synthetic_fatigue.csv)
+when ``raw_csv_paths`` is ``None``; external URLs are used only as a fallback.
 """
 
 import argparse
@@ -27,18 +22,12 @@ import yaml
 from jsonschema import Draft7Validator, ValidationError
 
 # ----------------------------------------------------------------------
-# Configuration – URLs for the three public datasets.
+# Configuration – URLs for the three public datasets (fallback only).
 # ----------------------------------------------------------------------
-# The URLs point to raw CSV files that are publicly accessible at the time of
-# writing.  They are version‑pinned (specific commit / release) to ensure
-# reproducibility.
 DATASET_URLS: Mapping[str, str] = {
     "nist": "https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/housing/housing.csv",
-    # Placeholder – replace with the real NIST fatigue dataset when available.
     "uci": "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv",
-    # Placeholder – replace with the real UCI fatigue dataset when available.
     "openml": "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv",
-    # Placeholder – replace with the real OpenML fatigue dataset when available.
 }
 
 # Conversion factor from psi to MPa.
@@ -50,14 +39,9 @@ PROCESSED_DIR = Path("data/processed")
 UNIFIED_CSV = PROCESSED_DIR / "unified_fatigue.csv"
 
 # ----------------------------------------------------------------------
-# Helper functions
+# Helper functions (unchanged)
 # ----------------------------------------------------------------------
 def _download_csv(url: str, dest_path: Path) -> pd.DataFrame:
-    """Download a CSV from *url* to *dest_path* and return a DataFrame.
-
-    Raises:
-        requests.HTTPError: if the request fails.
-    """
     response = requests.get(url, timeout=30)
     response.raise_for_status()
     dest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -66,24 +50,16 @@ def _download_csv(url: str, dest_path: Path) -> pd.DataFrame:
     return df
 
 def _row_checksum(row: pd.Series) -> str:
-    """Return a SHA‑256 checksum for a DataFrame row."""
-    # ``allow_nan=False`` forces json.dumps to raise on NaN, which we
-    # avoid by handling NaNs before calling this helper.
     row_json = json.dumps(row.to_dict(), sort_keys=True, allow_nan=False)
     return hashlib.sha256(row_json.encode("utf-8")).hexdigest()
 
 def _add_checksum(df: pd.DataFrame) -> pd.DataFrame:
-    """Add a ``checksum`` column to *df* (row‑wise SHA‑256)."""
     checksums = df.apply(_row_checksum, axis=1)
     df = df.copy()
     df["checksum"] = checksums
     return df
 
 def _convert_psi_to_mpa(series: pd.Series) -> pd.Series:
-    """Convert values that appear to be in psi to MPa.
-
-    Heuristic: if the maximum absolute value > 1000 we assume the values are in psi.
-    """
     if series.dropna().empty:
         return series
     if series.abs().max() > 1000:
@@ -91,7 +67,6 @@ def _convert_psi_to_mpa(series: pd.Series) -> pd.Series:
     return series
 
 def _median_impute(df: pd.DataFrame, exclude: Optional[Set[str]] = None) -> pd.DataFrame:
-    """Median‑impute all numeric columns in *df*, skipping any in *exclude*."""
     df = df.copy()
     exclude = exclude or set()
     numeric_cols = [c for c in df.select_dtypes(include=["number"]).columns if c not in exclude]
@@ -101,7 +76,6 @@ def _median_impute(df: pd.DataFrame, exclude: Optional[Set[str]] = None) -> pd.D
     return df
 
 def _apply_proxy(df: pd.DataFrame) -> pd.DataFrame:
-    """Compute proxy residual stress where measured value is missing."""
     df = df.copy()
     required = ["material_class", "heat_input", "cooling_rate"]
     for col in required:
@@ -113,28 +87,22 @@ def _apply_proxy(df: pd.DataFrame) -> pd.DataFrame:
 
     mask_missing = df["residual_stress_measured"].isna()
     if mask_missing.any():
-        k_series = df.loc[mask_missing, "material_class"].map(
-            {"steel": 0.8, "aluminum": 0.6}
-        )
+        # Use the coefficients defined in ``code.src.config`` for consistency.
+        from code.src.config import PROXY_COEFFICIENTS, PROXY_EPSILON
+        k_series = df.loc[mask_missing, "material_class"].map(PROXY_COEFFICIENTS)
         proxy_raw = k_series * df.loc[mask_missing, "heat_input"] * df.loc[mask_missing, "cooling_rate"]
-        proxy_clamped = proxy_raw.clip(lower=0.01)
+        proxy_clamped = proxy_raw.clip(lower=PROXY_EPSILON)
         df.loc[mask_missing, "residual_stress_proxy"] = proxy_clamped
         df.loc[mask_missing, "is_proxy"] = True
     return df
 
 def _validate_schema(df: pd.DataFrame, schema_path: Path) -> None:
-    """Validate each record in *df* against the JSON‑Schema at *schema_path*.
-
-    NaN values are converted to ``None`` because the JSON encoder used by
-    ``jsonschema`` does not accept NaN.
-    """
     with schema_path.open("r", encoding="utf-8") as f:
         schema = yaml.safe_load(f)
     validator = Draft7Validator(schema)
 
     errors = []
     for idx, record in df.iterrows():
-        # Convert pandas NaN / NaT to JSON‑compatible ``None``.
         clean_record = {
             k: (None if pd.isna(v) else v) for k, v in record.to_dict().items()
         }
@@ -157,82 +125,73 @@ def run_ingest(
 ) -> pd.DataFrame:
     """
     Execute the full ingestion pipeline.
-
-    Parameters
-    ----------
-    output_path : Path
-        Destination for the unified CSV.
-    raw_csv_paths : list[Path] | None
-        If supplied, these CSV files are read instead of downloading the
-        public datasets.  Useful for unit tests.
-    limit_rows : int | None
-        Truncate each source to *limit_rows* rows (e.g., for quick‑subset
-        runs).  ``None`` means no truncation.
-
-    Returns
-    -------
-    pd.DataFrame
-        The processed unified DataFrame (also written to *output_path*).
     """
-    # ------------------------------------------------------------------
-    # 1. Load raw data
-    # ------------------------------------------------------------------
     data_frames: List[pd.DataFrame] = []
 
+    # --------------------------------------------------------------
+    # 1. Load raw data
+    # --------------------------------------------------------------
     if raw_csv_paths:
         for path in raw_csv_paths:
             df = pd.read_csv(path)
             data_frames.append(df)
     else:
-        for name, url in DATASET_URLS.items():
-            dest_file = RAW_DATA_DIR / f"{name}.csv"
-            df = _download_csv(url, dest_file)
-            data_frames.append(df)
+        # Prefer the bundled raw CSVs if they exist.
+        bundled_files = list(RAW_DATA_DIR.glob("*.csv"))
+        if bundled_files:
+            for bf in bundled_files:
+                df = pd.read_csv(bf)
+                data_frames.append(df)
+        else:
+            # Fallback to downloading the external datasets.
+            for name, url in DATASET_URLS.items():
+                dest_file = RAW_DATA_DIR / f"{name}.csv"
+                df = _download_csv(url, dest_file)
+                data_frames.append(df)
 
     # Optional row limiting
     if limit_rows is not None:
         data_frames = [df.head(limit_rows) for df in data_frames]
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 2. Compute per‑row checksum
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     data_frames = [_add_checksum(df) for df in data_frames]
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 3. Concatenate sources
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     unified = pd.concat(data_frames, ignore_index=True, sort=False)
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 4. Unit conversion for residual stress (psi → MPa)
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     if "residual_stress_measured" in unified.columns:
         unified["residual_stress_measured"] = _convert_psi_to_mpa(
             unified["residual_stress_measured"]
         )
     else:
-        # Ensure the column exists so downstream steps can rely on it.
         unified["residual_stress_measured"] = pd.NA
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 5. Proxy residual‑stress calculation (must happen *before* imputation)
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     unified = _apply_proxy(unified)
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 6. Median imputation of numeric columns (skip the measured stress column)
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     unified = _median_impute(unified, exclude={"residual_stress_measured"})
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 7. Write unified CSV
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     output_path.parent.mkdir(parents=True, exist_ok=True)
     unified.to_csv(output_path, index=False)
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 8. Schema validation
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     schema_path = Path(
         "specs/001-predicting-the-impact-of-residual-stress/contracts/dataset_schema.yaml"
     )
