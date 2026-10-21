@@ -54,3 +54,20 @@ def test_malformed_schema():
         assert "Missing required keys" in str(excinfo.value)
     finally:
         os.unlink(tmp_path)
+
+
+def test_checksum_matches():
+    """The committed .sha256 file must match the actual nist_refs.json."""
+    import hashlib
+
+    refs_path = Path(NIST_REFS_PATH)
+    checksum_path = refs_path.parent / "nist_refs.json.sha256"
+    assert refs_path.exists(), f"missing curated file {refs_path}"
+    assert checksum_path.exists(), f"missing checksum file {checksum_path}"
+
+    actual = hashlib.sha256(refs_path.read_bytes()).hexdigest()
+    recorded = checksum_path.read_text().split()[0].strip()
+    assert actual == recorded, (
+        f"checksum mismatch: file hashes to {actual} but "
+        f"{checksum_path} records {recorded}"
+    )

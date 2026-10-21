@@ -1,133 +1,149 @@
+"""
+MSD analysis utilities.
+
+This module provides functions to load a molecular dynamics trajectory,
+compute the mean‑squared‑displacement (MSD) time series using MDTraj,
+perform a linear regression on the MSD curve, and calculate a diffusion
+coefficient from the regression slope.
+
+All functions raise explicit exceptions on failure – there is no synthetic
+fallback or fabricated data generation.
+"""
+
 import logging
 from pathlib import Path
-from typing import Dict, Tuple, Optional, List, Any
-from dataclasses import dataclass
-import json
+from typing import Tuple
+
 import numpy as np
+import mdtraj as md
 
 logger = logging.getLogger(__name__)
 
-@dataclass
-class MSDResult:
-    diffusion_coefficient: float
-    r_squared: float
-    valid: bool
-    message: str
-
 def load_trajectory_timeseries(trajectory_path: str) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Load trajectory and compute MSD.
-    MOCK IMPLEMENTATION: Reads the dummy file created by runner.py.
+    Load a trajectory file and compute the MSD time series.
+
+    Parameters
+    ----------
+    trajectory_path : str
+        Path to a trajectory file readable by MDTraj (e.g. .xtc, .dcd,
+        .pdb, etc.). The file must exist; otherwise a FileNotFoundError is
+        raised.
+
+    Returns
+    -------
+    times_ns : np.ndarray
+        1‑D array of times in nanoseconds.
+    msd_m2 : np.ndarray
+        1‑D array of mean‑squared‑displacement values in square meters.
+
+    Notes
+    -----
+    * MDTraj returns distances in nanometres.  The MSD is therefore in
+      nm² and is converted to m² (1 nm = 1e‑9 m, so 1 nm² = 1e‑18 m²).
+    * If the trajectory does not contain time information, a uniform
+      spacing of 1 ps per frame (0.001 ns) is assumed.
     """
-    path = Path(trajectory_path)
-    if not path.exists():
+    traj_path = Path(trajectory_path)
+    if not traj_path.is_file():
         raise FileNotFoundError(f"Trajectory not found: {trajectory_path}")
 
-    # Parse the mock file to generate synthetic but deterministic MSD data
-    # In real code, this would use MDAnalysis or GROMACS tools
-    times = []
-    msds = []
-    
-    with open(path, 'r') as f:
-        lines = f.readlines()
-    
-    # Skip header lines
-    data_started = False
-    for line in lines:
-        if line.startswith("MOCK"):
-            continue
-        if line.strip() == "":
-            continue
-        parts = line.split()
-        if len(parts) >= 4:
-            try:
-                t = float(parts[0]) # Using index as time proxy
-                # MSD ~ 6 * D * t. D ~ 2e-9.
-                # Scale t to ns, MSD to m2
-                t_ns = t * 0.01 # arbitrary scaling for mock
-                msd_val = 6 * 2.3e-9 * t_ns # Water D
-                times.append(t_ns)
-                msds.append(msd_val)
-            except ValueError:
-                continue
+    # Load the trajectory; MDTraj will infer the format from the suffix.
+    try:
+        traj = md.load(str(traj_path))
+    except Exception as e:
+        logger.error(f"Failed to load trajectory {trajectory_path}: {e}")
+        raise
 
-    return np.array(times), np.array(msds)
+    if traj.n_frames == 0:
+        raise ValueError("Trajectory contains no frames.")
+
+    # Compute time axis (ns).  MDTraj stores time in picoseconds if available.
+    if hasattr(traj, "time") and traj.time is not None and len(traj.time) == traj.n_frames:
+        # MDTraj time is in picoseconds.
+        times_ns = traj.time / 1000.0
+    else:
+        # Assume constant 1 ps per frame.
+        times_ns = np.arange(traj.n_frames) * 0.001  # ns
+
+    # Compute MSD (nm^2) using MDTraj's built‑in routine.
+    try:
+        msd_nm2 = md.compute_mean_squared_displacement(traj)
+    except Exception as e:
+        logger.error(f"MDTraj MSD computation failed: {e}")
+        raise
+
+    # Convert to m^2.
+    msd_m2 = msd_nm2 * 1e-18
+    return times_ns, msd_m2
 
 def perform_linear_regression(times: np.ndarray, msds: np.ndarray) -> Tuple[float, float, float]:
-    """Perform linear regression MSD = slope * t + intercept."""
+    """
+    Perform a simple linear regression ``MSD = slope * t + intercept``.
+
+    Returns
+    -------
+    slope : float
+        Slope of the fitted line (units: m² ns⁻¹).
+    intercept : float
+        Intercept of the fitted line (units: m²).
+    r_squared : float
+        Coefficient of determination.
+    """
     if len(times) < 2:
-        return 0.0, 0.0, 0.0
-    
-    # Fit line
+        raise ValueError("At least two data points are required for regression.")
+
     coeffs = np.polyfit(times, msds, 1)
-    slope = coeffs[0]
-    intercept = coeffs[1]
-    
-    # Calculate R-squared
+    slope, intercept = coeffs[0], coeffs[1]
+
+    # Predicted values and R²
     y_pred = slope * times + intercept
     ss_res = np.sum((msds - y_pred) ** 2)
     ss_tot = np.sum((msds - np.mean(msds)) ** 2)
-    r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
-    
+    r_squared = 1.0 - ss_res / ss_tot if ss_tot != 0 else 0.0
+
     return slope, intercept, r_squared
 
 def validate_linearity(r_squared: float, threshold: float) -> bool:
-    """Check if R-squared meets the threshold."""
+    """
+    Return ``True`` if the regression R² meets the required threshold.
+    """
     return r_squared >= threshold
 
 def calculate_diffusion_coefficient(slope: float, scaling_factor: float = 1.0) -> float:
-    """Calculate D from slope (MSD = 6Dt in 3D)."""
-    # D = slope / 6
+    """
+    Convert the regression slope to a diffusion coefficient.
+
+    The Einstein relation for three‑dimensional diffusion is
+    ``MSD = 6 D t``.  When ``t`` is expressed in nanoseconds,
+    the slope has units of m² ns⁻¹, so
+
+        D = slope / 6
+
+    The optional ``scaling_factor`` is kept for compatibility with
+    downstream code (e.g. finite‑size corrections) but defaults to 1.0.
+    """
     return (slope / 6.0) * scaling_factor
 
-def analyze_msd(solvent: Any, trajectory_path: str, config: Any) -> MSDResult:
-    """Main analysis function."""
-    try:
-        times, msds = load_trajectory_timeseries(trajectory_path)
-        if len(times) == 0:
-            return MSDResult(0.0, 0.0, False, "No data points in trajectory")
+# ----------------------------------------------------------------------
+# Simple sanity‑check entry point (not used by the test suite)
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Demonstrate the MSD pipeline on a user‑provided trajectory.
+    """
+    import argparse
 
-        slope, intercept, r_squared = perform_linear_regression(times, msds)
-        
-        # Get scaling factor
-        scaling = config.scaling_factors.get(solvent.value, 1.0)
-        D = calculate_diffusion_coefficient(slope, scaling)
-        
-        valid = validate_linearity(r_squared, config.r_squared_threshold)
-        
-        msg = f"R²={r_squared:.4f}, D={D:.2e}"
-        if not valid:
-            msg += f" (Invalid: R² < {config.r_squared_threshold})"
-        
-        return MSDResult(D, r_squared, valid, msg)
-    except Exception as e:
-        logger.error(f"MSD analysis failed: {e}")
-        return MSDResult(0.0, 0.0, False, str(e))
+    parser = argparse.ArgumentParser(description="Compute MSD from a trajectory.")
+    parser.add_argument("trajectory", help="Path to the trajectory file.")
+    args = parser.parse_args()
 
-def batch_analyze_msd(results: List[Dict], config: Any) -> List[MSDResult]:
-    """Analyze multiple results."""
-    return [analyze_msd(r["solvent"], r["output_path"], config) for r in results]
+    times, msd = load_trajectory_timeseries(args.trajectory)
+    slope, intercept, r2 = perform_linear_regression(times, msd)
+    D = calculate_diffusion_coefficient(slope)
 
-def save_analysis_results(results: List[Dict], solvent: Any, timescale: float):
-    """Save results to JSON."""
-    output_dir = Path("data/processed")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    fname = f"{solvent.value}_{timescale}ns_analysis.json"
-    with open(output_dir / fname, 'w') as f:
-        json.dump(results, f, indent=2)
-
-def main():
-    """Test MSD analysis."""
-    # Create mock trajectory
-    Path("data/processed").mkdir(parents=True, exist_ok=True)
-    with open("data/processed/water_1ns.trr", 'w') as f:
-        f.write("MOCK TRAJECTORY: water\n1\n0.1 0.1 0.1\n")
-        for i in range(100):
-            f.write(f"{i} {i*0.1} {i*0.2} {i*0.3}\n")
-    
-    from config import ANALYSIS_CONFIG, Solvent
-    res = analyze_msd(Solvent.WATER, "data/processed/water_1ns.trr", ANALYSIS_CONFIG)
-    print(f"Result: {res}")
+    print(f"Linear fit: slope={slope:.3e} m²/ns, intercept={intercept:.3e} m², R²={r2:.4f}")
+    print(f"Diffusion coefficient D = {D:.3e} m²/s")
 
 if __name__ == "__main__":
     main()

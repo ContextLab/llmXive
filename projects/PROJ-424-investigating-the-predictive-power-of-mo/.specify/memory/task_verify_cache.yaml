@@ -1,11 +1,20 @@
 T001:
+  c: true
+  h: 82696ebe4ab066be8731a0c2d0a431d9a47d64b0d540b566b9c395d5311cae63
+  r: "Checked the curated `data/raw/nist_refs.json` entries, the `code/data/loader.py`\
+    \ implementation and its error handling, the SHA\u2011256 checksum file, and the\
+    \ pytest suite `code/tests/test_loader.py` (which all passed per the logged test\
+    \ run). The loader correctly validates the schema, raises the required exceptions,\
+    \ and the checksum matches the recorded value."
+  sig: c8beca8dde67f6af6d697cc013dc14d78ddddd22ef2bc3a9cdc3d70eb9c77174
+T003:
   c: false
-  h: af3850a32be9a4f75de0488884a4758687686df574b8b72828dcf7840141ecd8
-  r: "The loader, JSON data, and passing pytest log are genuine and satisfy the schema/fail-loudly\
-    \ requirements, but the checksum file `data/raw/nist_refs.json.sha256` records\
-    \ `5d5e9c2c...` while the collector-computed SHA256 of the actual `nist_refs.json`\
-    \ is `c4adf14483cd33b298ab52f355528663a4ba39b3efc1b00c2e6fb7629eea9c29` \u2014\
-    \ the recorded checksum is fabricated/incorrect. Fix by regenerating the `.sha256`\
-    \ file (e.g. `sha256sum data/raw/nist_refs.json > data/raw/nist_refs.json.sha256`)\
-    \ so it matches the real file."
-  sig: 7b44d9e95b6e98720d6d6ca396940edf4b8c1adb89e667f129af720a910c61ed
+  h: 5de1760ef54751aa0b30b76a73d1e0038e145915bf1250e50a2fbbd030eceab0
+  r: "The provided `code/tests/test_diffusion.py` does not pass: the linear\u2011\
+    case test fails because the monkey\u2011patch replaces `analysis.msd.load_trajectory_timeseries`,\
+    \ while `diffusion.py` imports `msd` via a relative import (`from .msd import\
+    \ \u2026`), leaving the original loader unchanged and causing a \u201CTrajectory\
+    \ not found\u201D error. Consequently the required `pytest code/tests/test_diffusion.py`\
+    \ does not succeed. The import structure must be aligned (or the test adjusted)\
+    \ so the synthetic data are used, and then all tests must pass."
+  sig: 0b613deb28ac6dd9f02788a06b8f160c45440c8ae20109bd619f1307842c9ff9

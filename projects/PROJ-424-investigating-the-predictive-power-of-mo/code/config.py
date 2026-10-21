@@ -50,6 +50,8 @@ class SimulationConfig:
     timeout: float = 3600.0  # seconds (1 hour)
     # Timescales to simulate (in ns)
     timescales: Tuple[float, ...] = field(default_factory=lambda: (1.0, 5.0, 10.0))
+    # Size of the cubic simulation box (nm). Used by the system builder.
+    box_size: float = 5.0  # nm
 
 @dataclass(frozen=True)
 class AnalysisConfig:

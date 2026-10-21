@@ -19,11 +19,12 @@ import time
 from pathlib import Path
 from typing import Dict
 
+# Correct import: Simulation lives in openmm.app
 from openmm import app
 from openmm import unit
 from openmm import LangevinIntegrator
 from openmm import Platform
-from openmm import Simulation
+from openmm.app import Simulation
 
 from llmxive_toolkit import paths
 from config import SimulationConfig, Solvent
@@ -31,6 +32,7 @@ from config import SimulationConfig, Solvent
 from .build_system import build_system
 
 logger = logging.getLogger(__name__)
+
 
 def _setup_integrator(config: SimulationConfig, seed: int) -> LangevinIntegrator:
     """
@@ -44,6 +46,7 @@ def _setup_integrator(config: SimulationConfig, seed: int) -> LangevinIntegrator
     )
     integrator.setRandomNumberSeed(seed)
     return integrator
+
 
 def _add_reporters(
     simulation: Simulation,
@@ -87,6 +90,7 @@ def _add_reporters(
             separator="\t",
         )
     )
+
 
 def run_simulation(
     solvent: Solvent,
@@ -145,8 +149,10 @@ def run_simulation(
         (config.equilibration_time * unit.picoseconds) /
         (config.time_step * unit.femtoseconds)
     )
-    logger.debug(f"Equilibration for {config.equilibration_time} ps "
-                 f"({equil_steps} steps).")
+    logger.debug(
+        f"Equilibration for {config.equilibration_time} ps "
+        f"({equil_steps} steps)."
+    )
     simulation.context.setVelocitiesToTemperature(
         config.temperature * unit.kelvin
     )
@@ -185,6 +191,7 @@ def run_simulation(
         "trajectory": str(traj_path),
         "log": str(log_path),
     }
+
 
 if __name__ == "__main__":
     # Simple smoke test: run a 1 ns water simulation with seed 0.

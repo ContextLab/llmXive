@@ -1,4 +1,4 @@
-# Core scientific stack (already available in the platform)
+# Core scientific stack (already provided by the platform)
 numpy
 pandas
 scipy
@@ -12,6 +12,5 @@ requests
 jsonschema
 psutil
 
-# Additional dependencies required for the MD simulation task
-openmm==8.1.1
+# Additional dependencies required for MSD/Diffusion analysis
 mdtraj==1.9.9
