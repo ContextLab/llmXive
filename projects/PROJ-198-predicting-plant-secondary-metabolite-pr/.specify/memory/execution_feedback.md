@@ -68,7 +68,7 @@ ERROR tests/unit/test_linting_config.py
 ERROR tests/unit/test_models.py
 ERROR tests/unit/test_project_structure.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 1.50s ===============================
+============================== 9 errors in 1.41s ===============================
 
 
 

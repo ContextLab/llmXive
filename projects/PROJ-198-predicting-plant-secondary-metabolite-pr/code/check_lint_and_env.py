@@ -11,6 +11,11 @@ import sys
 import os
 from pathlib import Path
 
+# Ensure project root is in sys.path for imports to work regardless of execution method
+root = Path(__file__).resolve().parents[1]
+if str(root) not in sys.path:
+    sys.path.insert(0, str(root))
+
 # Load the example .env file so that os.getenv picks up the variables.
 try:
     from dotenv import load_dotenv
@@ -19,7 +24,6 @@ except ImportError:
     sys.exit(1)
 
 # Path to the .env.example at the repository root
-root = Path(__file__).resolve().parents[1]
 env_path = root / ".env.example"
 if not env_path.is_file():
     print(f".env.example not found at expected location: {env_path}", file=sys.stderr)

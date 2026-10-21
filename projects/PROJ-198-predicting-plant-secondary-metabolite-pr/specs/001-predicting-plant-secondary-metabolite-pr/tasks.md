@@ -10,7 +10,7 @@
   *Path(s):* `code/`, `code/data/`, `code/modeling/`, `code/utils/`, `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`  
   *Verification:* Run `tree` (or equivalent) at the repository root and confirm all listed directories exist.
 
-- [ ] **T002** [ ] **Project linting, formatting, and environment‑variable management**   <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 -->
+- [ ] **T002** [ ] **Project linting, formatting, and environment‑variable management**   <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 -->
   *Path(s):* `.ruff.toml`, `.flake8`, `pyproject.toml` (Black section), `.env.example`, `code/config.py` (loads variables via `python‑dotenv`)  
   *Verification:*  
   1. `ruff --quiet .` and `black --check .` exit with code 0.  
