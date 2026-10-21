@@ -1,10 +1,8 @@
 status: none
-intent: Open Refractive Index dataset Zenodo download NIST Chemistry WebBook reference
-  python package dataset
+intent: Open Refractive Index dataset download Zenodo CSV file python package dataset
 required_fields:
-- smiles
+- SMILES
 - refractive_index
-- temperature_celsius
-cache_key: 24df49b85d44aa92e9178581f2ada8cb857236cf385603e0231ced7fef9f7b85
-searched_at: '2026-10-21T17:13:26.925835+00:00'
+cache_key: 5c2dc74f0375acb80d6402cbe7e8887ffa796930bdc4cd22fa28d01bb47c4b30
+searched_at: '2026-10-21T17:19:29.847881+00:00'
 retry_count: 1

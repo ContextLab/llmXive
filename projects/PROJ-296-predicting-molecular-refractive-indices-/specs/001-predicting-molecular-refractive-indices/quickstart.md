@@ -73,7 +73,7 @@ for i in {1..5}; do
   done
 done
 ```
-- Generates `results/metrics_summary.csv` (MAE/RMSE, paired t‑test/Wilcoxon results, Cohen’s d, confidence intervals).  
+- Generates `results/metrics_summary.csv` (MAE/RMSE, paired test/Wilcoxon results, Cohen’s d, confidence intervals).  
 - Produces PNG plots: `results/plots/parity_${i}_${j}.png` and `results/plots/importance_${i}_${j}.png`.
 
 ## Verification of Success Criteria
@@ -86,10 +86,8 @@ print(metrics[['fold','repeat','mae_gnn','mae_baseline','p_value']])
 ```
 
 ## Notes on Scope
-- The bundled CSV used in earlier drafts has been replaced by an **open dataset requirement**. If such a dataset cannot be obtained, the project must be re‑specified.  
+- The bundled CSV used in earlier drafts has been replaced by an **open dataset requirement**. If such a dataset cannot be obtained, the pipeline aborts and the specification must be revised.  
 - The study remains a **feasibility pilot**; no formal claim of statistical significance is made unless the dataset meets the size requirement.  
 - The pipeline can be re‑run with a larger dataset in the future without code changes.
 
 ---
-
-

@@ -7,13 +7,13 @@ Represents a molecular graph for the MPNN.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `smiles` | string | Canonical SMILES string. |
+| `smiles` | string | Canonical SMILES string of the molecule. |
 | `molecular_weight` | float | Molecular weight in g/mol (must be > 0 and < 500). |
-| `refractive_index` | float | Experimental RI (normalized to 20°C, > 1.0). |
-| `nodes` | list[dict] | List of node features: `atomic_num`, `degree`, `hybridization`, `is_aromatic`. |
-| `edges` | list[dict] | List of edge features: `bond_type`, `is_conjugated`, `stereo`. |
+| `refractive_index` | float | Experimental RI (normalized to 20 °C, > 1.0). |
+| `nodes` | list[object] | List of node feature objects (`atomic_num`, `degree`, `hybridization`, `is_aromatic`). |
+| `edges` | list[object] | List of edge feature objects (`bond_type`, `is_conjugated`, `stereo`). |
 | `scaffold_id` | string | Murcko scaffold fingerprint (used for split). |
-| `global_features` | dict | Optional global scalars (e.g., normalized `molecular_weight`). |
+| `global_features` | object | Optional global scalars (e.g., normalized `molecular_weight`). |
 
 ### 2. PredictionResult
 Output of the inference pipeline.
@@ -28,7 +28,7 @@ Output of the inference pipeline.
 | `error_baseline` | float | `abs(pred_ri_baseline - true_ri)`. |
 
 ### 3. FeatureAttribution
-Output of Integrated Gradients analysis. **Now aligned with `output.schema.yaml`.**
+Output of Integrated Gradients analysis (conforms to `output.schema.yaml`).
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -39,13 +39,13 @@ Output of Integrated Gradients analysis. **Now aligned with `output.schema.yaml`
 |  - `score` | number | Normalized attribution score (higher = more important). |
 
 ## Data Flow
-1. **Raw CSV** → `download.py` → `data/processed/raw.csv`.  
+1. **Raw CSV** → `download.py` → `data/raw/raw.csv`.  
 2. **Preprocess** → `preprocess.py` → `data/processed/filtered.csv`.  
-3. **Scaffold Split** → `split.py` → `train_{i}_{j}.csv`, `val_{i}_{j}.csv`, `test_{i}_{j}.csv` (i = 1..5, j = 1..5).  
-4. **Baseline** → `baseline.py` → `baseline_predictions_{i}_{j}.csv`.  
+3. **Scaffold Split** → `split.py` → `data/splits/train_{i}_{j}.csv`, `val_{i}_{j}.csv`, `test_{i}_{j}.csv`.  
+4. **Baseline** → `baseline.py` → `results/baseline_predictions_{i}_{j}.csv`.  
 5. **MPNN Training** → `train.py` → `models/mpnn_{i}_{j}.pt`.  
-6. **Evaluation** → `evaluate.py` → `metrics_summary.csv`, `parity_{i}_{j}.png`, `importance_{i}_{j}.png`.  
-7. **Attribution** → `attribution.py` → `attributions_{i}_{j}.csv` (conforms to this entity).
+6. **Evaluation** → `evaluate.py` → `results/metrics_summary.csv`, `parity_{i}_{j}.png`, `importance_{i}_{j}.png`.  
+7. **Attribution** → `attribution.py` → `results/attributions_{i}_{j}.csv` (conforms to `FeatureAttribution`).
 
 ## Schema Constraints (mirrored in contracts)
 - **SMILES**: Must be RDKit‑parseable.  
@@ -55,5 +55,3 @@ Output of Integrated Gradients analysis. **Now aligned with `output.schema.yaml`
 - **Global Features**: Numeric, normalized (z‑score).  
 
 ---
-
-
