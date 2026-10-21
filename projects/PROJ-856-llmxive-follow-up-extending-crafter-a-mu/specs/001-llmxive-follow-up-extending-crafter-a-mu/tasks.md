@@ -35,7 +35,7 @@
   - **File**: `src/analysis/validation_by_session.py`.  
   - **Verification**: Each line includes `session_id`, `task_id`, `overall_success` and passes a lightweight schema defined locally for the aggregated view.
 
-- [ ] T008 [P] [US3] Paired Wilcoxon signed‑rank analysis (re‑verified after validation format change).   <!-- FAILED-IN-EXECUTION: src/analysis/wilcoxon_analysis.py exit=2 -->
+- [ ] T008 [P] [US3] Paired Wilcoxon signed‑rank analysis (re‑verified after validation format change).   <!-- FAILED-IN-EXECUTION: src/analysis/wilcoxon_analysis.py exit=2 --> <!-- FAILED-IN-EXECUTION: src/analysis/wilcoxon_analysis.py exit=1 -->
   - **File**: `src/analysis/wilcoxon_analysis.py`.  
   - **Verification**: Uses the aggregated per‑session validation file from T007; outputs `AnalysisResult` JSONL with median fields and passes its own schema test.
 

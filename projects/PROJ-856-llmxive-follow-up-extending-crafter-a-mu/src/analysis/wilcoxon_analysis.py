@@ -2,12 +2,12 @@
 wilcoxon_analysis.py
 --------------------
 Performs a paired Wilcoxon signed‑rank analysis on the cognitive‑load
-study data.  The script now derives the required metrics directly from
+study data. The script derives the required metrics directly from
 the interaction log (``data/logs/interactions_clean.jsonl``), avoiding
-fragile dependencies on the validation file format.  It computes per‑
+fragile dependencies on the validation file format. It computes per‑
 participant, per‑interface aggregates for *time_to_success_ms* and
 *iteration_count*, then conducts a two‑sided Wilcoxon signed‑rank test
-for each metric.  Results are written as JSON‑Lines to the directory
+for each metric. Results are written as JSON‑Lines to the directory
 supplied via ``--output-dir`` and must conform to the
 ``analysis_result.schema.yaml`` contract.
 """
@@ -26,11 +26,18 @@ from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
 def _build_arg_parser() -> argparse.ArgumentParser:
+    """
+    Build the CLI argument parser.
+
+    The original quick‑start command passed a ``--validation-dir`` argument
+    that is no longer needed because the analysis now reads directly from
+    the interaction log.  For backward compatibility we accept the flag
+    but ignore its value.
+    """
     parser = argparse.ArgumentParser(
         description=(
             "Paired Wilcoxon signed‑rank analysis for time‑to‑success and "
@@ -43,8 +50,14 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         required=True,
         help="Directory where analysis result JSON lines will be written.",
     )
+    # Compatibility shim – ignored by the analysis logic.
+    parser.add_argument(
+        "--validation-dir",
+        type=str,
+        default=None,
+        help=argparse.SUPPRESS,
+    )
     return parser
-
 
 def _load_interaction_log() -> pd.DataFrame:
     """
@@ -54,10 +67,10 @@ def _load_interaction_log() -> pd.DataFrame:
     expected to contain at least the following columns:
         - participant_id (str)
         - figure_id (str or int)   # identifier of the task/figure
-        - interface (str)          # \"structured\" or \"chat\"
+        - interface (str)          # "structured" or "chat"
         - timestamp_ms (int)
         - iteration (int)
-        - status (optional, e.g., \"aborted\")
+        - status (optional, e.g., "aborted")
 
     From these we derive:
         * time_to_success_ms = max(timestamp) - min(timestamp) per trial
@@ -111,7 +124,6 @@ def _load_interaction_log() -> pd.DataFrame:
     agg = agg.rename(columns={"figure_id": "task_id"})
     return agg
 
-
 def _filter_successful_trials(df: pd.DataFrame) -> pd.DataFrame:
     """
     In the original pipeline a trial is considered successful when both
@@ -120,7 +132,6 @@ def _filter_successful_trials(df: pd.DataFrame) -> pd.DataFrame:
     remaining (non‑aborted) trials as successful.
     """
     return df
-
 
 def _aggregate_per_participant(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -137,7 +148,6 @@ def _aggregate_per_participant(df: pd.DataFrame) -> pd.DataFrame:
     )
     return agg
 
-
 def _pivot_wide(df: pd.DataFrame) -> pd.DataFrame:
     """
     Convert the long DataFrame (participant, interface) into a wide format
@@ -149,7 +159,6 @@ def _pivot_wide(df: pd.DataFrame) -> pd.DataFrame:
     wide = wide.dropna()  # keep participants with data for both interfaces
     return wide
 
-
 def _wilcoxon_test(diff_series: pd.Series) -> Dict:
     """
     Perform a two‑sided Wilcoxon signed‑rank test on the provided series of
@@ -157,7 +166,6 @@ def _wilcoxon_test(diff_series: pd.Series) -> Dict:
     """
     stat, p = wilcoxon(diff_series, zero_method="pratt", alternative="two-sided")
     return {"statistic": float(stat), "p_value": float(p), "n": int(diff_series.shape[0])}
-
 
 def _effect_size_r(statistic: float, n: int) -> float:
     """
@@ -172,7 +180,6 @@ def _effect_size_r(statistic: float, n: int) -> float:
     r = z / np.sqrt(n)
     return float(r)
 
-
 def _bootstrap_ci(diff_series: pd.Series, n_boot: int = 10_000, seed: int = 42) -> (float, float):
     """
     Compute a bootstrap 95 % confidence interval for the mean difference.
@@ -186,7 +193,6 @@ def _bootstrap_ci(diff_series: pd.Series, n_boot: int = 10_000, seed: int = 42) 
     lower = np.percentile(boot_means, 2.5)
     upper = np.percentile(boot_means, 97.5)
     return float(lower), float(upper)
-
 
 def _analyze_metric(df_wide: pd.DataFrame, metric: str) -> Dict:
     """
@@ -230,11 +236,11 @@ def _analyze_metric(df_wide: pd.DataFrame, metric: str) -> Dict:
     }
     return result
 
-
 def main() -> int:
     parser = _build_arg_parser()
     args = parser.parse_args()
 
+    # ``--validation-dir`` is accepted for compatibility but not used.
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -273,7 +279,6 @@ def main() -> int:
 
     log.info(f"Wilcoxon analysis completed. Results written to {output_file}")
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

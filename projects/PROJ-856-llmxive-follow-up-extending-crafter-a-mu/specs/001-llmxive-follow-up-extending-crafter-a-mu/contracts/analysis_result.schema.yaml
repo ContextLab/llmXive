@@ -1,50 +1,48 @@
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "AnalysisResult",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "metric",
-    "mean_difference",
-    "median_difference",
-    "wilcoxon_statistic",
-    "p_value_corrected",
-    "effect_size_r",
-    "ci_95_lower",
-    "ci_95_upper",
-    "n_participants"
-  ],
-  "properties": {
-    "metric": {
-      "type": "string",
-      "enum": ["time_to_success_ms", "iteration_count"]
-    },
-    "mean_difference": {
-      "type": "number"
-    },
-    "median_difference": {
-      "type": "number"
-    },
-    "wilcoxon_statistic": {
-      "type": "number"
-    },
-    "p_value_corrected": {
-      "type": "number",
-      "minimum": 0.0,
-      "maximum": 1.0
-    },
-    "effect_size_r": {
-      "type": "number"
-    },
-    "ci_95_lower": {
-      "type": "number"
-    },
-    "ci_95_upper": {
-      "type": "number"
-    },
-    "n_participants": {
-      "type": "integer",
-      "minimum": 1
-    }
-  }
-}
+$schema: "http://json-schema.org/draft-07/schema#"
+title: AnalysisResult
+description: Schema for the JSON‑Lines records produced by the Wilcoxon analysis script.
+type: object
+required:
+  - metric
+  - mean_difference
+  - median_difference
+  - wilcoxon_statistic
+  - p_value_corrected
+  - effect_size_r
+  - ci_95_lower
+  - ci_95_upper
+  - n_participants
+properties:
+  metric:
+    type: string
+    enum:
+      - time_to_success_ms
+      - iteration_count
+    description: The metric that was analysed.
+  mean_difference:
+    type: number
+    description: Mean of the paired differences (structured – chat).
+  median_difference:
+    type: number
+    description: Median of the paired differences (structured – chat).
+  wilcoxon_statistic:
+    type: number
+    description: Wilcoxon signed‑rank test statistic.
+  p_value_corrected:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Bonferroni‑adjusted two‑sided p‑value.
+  effect_size_r:
+    type: number
+    description: Rank‑siserial correlation effect size.
+  ci_95_lower:
+    type: number
+    description: Lower bound of the 95 % bootstrap confidence interval for the mean difference.
+  ci_95_upper:
+    type: number
+    description: Upper bound of the 95 % bootstrap confidence interval for the mean difference.
+  n_participants:
+    type: integer
+    minimum: 1
+    description: Number of participants (pairs) used in the test.
