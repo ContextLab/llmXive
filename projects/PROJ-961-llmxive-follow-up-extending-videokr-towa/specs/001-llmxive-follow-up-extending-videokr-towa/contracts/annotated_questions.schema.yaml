@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Annotated Questions Schema"
-description: "Schema for the annotated dataset containing structural chain length, binning, and correctness labels."
+description: "Schema for the annotated dataset containing structural chain length, binning, covariates, and correctness labels."
 type: "object"
 properties:
   question_id:
@@ -12,6 +12,9 @@ properties:
   answer_text:
     type: "string"
     description: "Ground truth answer text."
+  correctness:
+    type: "boolean"
+    description: "Binary label indicating whether the model answer is correct."
   predicted_correctness:
     type: "number"
     description: "Model prediction of correctness (0.0 or 1.0)."
@@ -19,26 +22,45 @@ properties:
     type: "integer"
     minimum: -1
     description: "Shortest path hops between query and answer entities; -1 indicates unresolvable."
-  status:
-    type: "string"
-    enum:
-      - "annotated"
-      - "disconnected"
-      - "mapping_failure"
-    description: "Status of the graph traversal or entity linking."
   chain_bin:
     type: "string"
     enum:
       - "1"
       - "2"
       - "3+"
-    description: "Binned hop count derived from `chain_length`"
+    description: "Binned hop count derived from `chain_length`."
+  question_difficulty:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Difficulty score (0–1) from the dataset."
+  video_length_seconds:
+    type: "number"
+    minimum: 0
+    description: "Video duration in seconds."
+  answer_type:
+    type: "string"
+    enum:
+      - "multiple_choice"
+      - "open_ended"
+    description: "Format of the answer."
+  status:
+    type: "string"
+    enum:
+      - "valid"
+      - "disconnected"
+      - "mapping_failure"
+    description: "Status of the graph traversal or entity linking."
 additionalProperties: false
 required:
   - question_id
   - question_text
   - answer_text
+  - correctness
   - predicted_correctness
   - chain_length
-  - status
   - chain_bin
+  - question_difficulty
+  - video_length_seconds
+  - answer_type
+  - status

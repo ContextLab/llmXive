@@ -3,7 +3,7 @@
 ## Prerequisites
 - Python 3.10 or newer
 - Git
-- Access to the **VideoKR‑SFT** dataset and its knowledge graph (no public URL is verified; you must provide the files manually **or** let the pipeline download the open substitute).
+- Access to the **VideoKR‑SFT** dataset and its knowledge graph (must be supplied manually; no public URL is verified).
 
 ## Installation
 
@@ -22,24 +22,20 @@ pip install -r requirements.txt
 
 ## Data Setup
 
-1. **Place the raw data** *(if you have the proprietary files)*  
-   - Copy the QA file (e.g., `videokr_sft.jsonl`) and the knowledge‑graph file (`knowledge_graph.json`) into `data/raw/`.  
-   - Filenames must match those expected by `code/ingest/download_data.py`.  
+1. **Manual placement of proprietary files**  
+   Place the following files in `data/raw/` (exact filenames required):
+   - `videokr_sft.jsonl` – the QA records (must contain `question_id`, `question_text`, `answer_text`, `correctness`, `difficulty_score`, answer format, etc.).  
+   - `knowledge_graph.json` – the static knowledge graph used for hop counting.
 
-2. **Automatic open‑source fallback**  
-   If the proprietary files are absent, the pipeline will automatically download the open‑source `video_qa_sample` dataset from HuggingFace:
+   The pipeline will abort with error `E_DATA_MISSING` if either file is absent.
 
-   ```bash
-   python -c "from datasets import load_dataset; load_dataset('video_qa_sample')"
-   ```
+2. **Optional checksum verification** (recommended)
 
-   The download will be cached under `~/.cache/huggingface/datasets/` and used as a surrogate for the analysis.
-
-3. **Optional checksum verification**  
    ```bash
    python code/ingest/checksum.py
    ```
-   This will compute SHA‑256 hashes and compare them to any stored values in the project state file.
+
+   This computes SHA‑256 hashes of the raw files and records them in the project state file for reproducibility (Constitution III).
 
 ## Running the Full Pipeline
 
@@ -47,15 +43,15 @@ pip install -r requirements.txt
 python code/main.py
 ```
 
-The orchestrator performs the following steps in order:
+The orchestrator performs the following ordered steps:
 
-1. **Data‑availability gate** – aborts if required raw files are missing **and** the open substitute cannot be fetched (addresses T103).  
+1. **Data‑availability gate** – aborts if required raw files are missing.  
 2. **Annotation** – deterministic entity linking & hop counting (`annotated_videokr.csv`).  
 3. **Power analysis** – determines the minimum per‑bin sample size (`power_analysis.json`).  
-4. **Two‑stage sampling** – ensures each hop‑bin meets the required `n`.  
+4. **Sampling** – ensures each hop‑bin meets the required `n`.  
 5. **Stratified accuracy** – generates `accuracy_binned.png` and CSV summary.  
 6. **Threshold detection** – permutation change‑point test + LRT (`threshold_results.json`).  
-7. **Sensitivity analysis** – runs three binning schemes and covariate‑adjusted models (`sensitivity_analysis.json`).  
+7. **Sensitivity analysis** – three binning schemes & covariate‑adjusted models (`sensitivity_analysis.json`).  
 8. **Predictive modeling** – baseline and extended logistic regressions, LRT (`model_lrt_results.json`).  
 9. **Runtime & memory logging** – writes `runtime_log.json` and `memory_log.json`.  
 
@@ -94,18 +90,16 @@ pytest tests/unit/
 pytest tests/integration/
 ```
 
-All tests must pass; otherwise the pipeline is considered invalid (addresses T102 and T103).
+All tests must pass; otherwise the pipeline is considered invalid (addresses Constitution I & T102/T103).
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Remedy |
 |---------|--------------|--------|
-| `E_DATA_MISSING` error from `download_data.py` | Required raw files not present and open substitute failed to download | Ensure internet access; the script will attempt to fetch `video_qa_sample` from HuggingFace. |
+| `E_DATA_MISSING` from `download_data.py` | Required raw files not present | Place `videokr_sft.jsonl` and `knowledge_graph.json` in `data/raw/`. |
 | Unit test failure in `test_entity_linker` | Incorrect fuzzy‑matching parameters | Adjust `MAX_LEVENSHTEIN_DISTANCE` in `code/utils/entity_linker.py` (default = 2). |
 | Out‑of‑memory (`MemoryError`) | Dataset larger than RAM budget | Reduce `SAMPLE_SIZE` in `code/utils/config.py` or enable streaming mode (`STREAMING=True`). |
 | Permutation test exceeds CI time | Too many permutations | Decrease `NUM_PERMUTATIONS` (default = 500) in `code/analysis/detect_threshold.py`. |
-| Runtime exceeds 7200 s flag | Unexpected bottleneck | Check `runtime_log.json` for the offending stage and consider reducing sample size or permutations. |
+| Runtime exceeds 7200 s flag | Unexpected bottleneck | Inspect `runtime_log.json` for the offending stage; consider reducing sample size or permutations. |
 
 ---
-
-
