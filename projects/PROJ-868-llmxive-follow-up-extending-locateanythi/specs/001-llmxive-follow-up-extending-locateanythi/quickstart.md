@@ -1,11 +1,11 @@
 # Quickstart: Running the Attention‑Sparsity Study
 
-This guide assumes you have a fresh GitHub Actions runner or a local environment with the same resource limits (2 CPU cores, ≤ 7 GB RAM).
+This guide assumes a fresh GitHub Actions runner or a local environment with the same resource limits (2 CPU cores, ≤ 7 GB RAM).
 
 ## 1. Clone the repository and navigate to the feature directory
 ```bash
-git clone 
-cd llmxive-project/specs/001-llmxive-follow-up
+git clone <REPO_URL>
+cd specs/001-llmxive-follow-up
 ```
 
 ## 2. Install the exact dependencies
@@ -37,11 +37,11 @@ python -m src.cli.run_experiment \
 ```
 - `--datasets` selects the verified datasets (VRSBench & COCO validation).  
 - `--sparsity-grid` defines the windows to evaluate; add `1` to include the optional run.  
-- `--run-one-patch` toggles FR‑009.  
+- `--run-one-patch` toggles FR‑009 (optional 1‑patch run).  
 - All intermediate artifacts are written under `data/` with content‑hash filenames.
 
 ## 5. (Optional) Perform the ±8‑patch sensitivity sweep
-If a tipping point is detected, the script automatically runs the sweep. To force it:
+If a tipping point is detected, the script automatically runs the sweep. To force it manually:
 ```bash
 python -m src.cli.run_experiment \
     --sparsity-grid global 64 32 16 \
@@ -67,4 +67,3 @@ rm -rf data/raw/* data/processed/* data/results/* data/analysis/*
 **Note**: The entire run completes in ≤ 6 hours on the free‑tier GitHub Actions CPU runner (empirically ~4 h for the full grid). Adjust `--batch-size` if you encounter memory pressure.
 
 ---
-

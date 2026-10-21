@@ -1,19 +1,21 @@
-# Data Model: llmXive follow-up – attention sparsity study
+# Data Model: llmXive follow‑up – attention sparsity study
 
 ## Overview
-The pipeline produces a hierarchy of artifacts. Below we define the schema for the **final inference results** that downstream contracts validate. Additional intermediate files follow the same column conventions but are not contract‑validated.
+The pipeline generates a hierarchy of artifacts. The **primary contract‑validated artifact** is the inference‑results table, defined by the JSON Schema below. Intermediate files follow the same column conventions but are not contract‑validated.
 
 ## Primary Result Schema (`inference_results.schema.yaml`)
 | Field | Type | Description | Constraints |
 |-------|------|-------------|-------------|
-| `image_id` | string | Unique identifier of the source image (as provided by the original dataset). | Must match an entry in the raw dataset. |
-| `sparsity_window` | integer | Size of the attention window in patches. Use `0` to denote *global* attention. | Allowed values: `0`, `64`, `32`, `16`, `1`. |
-| `scene_density` | string | `"dense"` if the image belongs to the dense‑scene subset, otherwise `"non_dense"`. | Must be either `"dense"` or `"non_dense"`. |
+| `image_id` | string | Unique identifier of the source image (as in the raw dataset). | Must match an entry in the raw dataset. |
+| `sparsity_window` | integer | Attention window size in patches; `0` denotes *global* attention. | Allowed values: `0`, `64`, `32`, `16`, `1`. |
+| `scene_density` | string | `"dense"` if the image belongs to the dense‑scene subset, otherwise `"non_dense"`. | Enum: `"dense"`, `"non_dense"`. |
 | `excluded` | boolean | `true` if the image was flagged as ambiguous and excluded from mIoU calculations (FR‑007). | – |
-| `mIoU` | float | Mean Intersection‑over‑Union between predicted boxes and ground‑truth (computed per image). | `0.0 ≤ mIoU ≤ 1.0`. If `excluded` is `true`, set to `null`. |
-| `latency_ms` | float | Inference latency for this image (milliseconds). | Positive. |
-| `global_context_activation_proportion` | float | Proportion of Grad‑CAM (or attention‑rollout) activation mass on tokens labelled “global‑context”. Only populated for images used in attribution analysis; otherwise `null`. | `0.0 ≤ value ≤ 1.0`. |
-| `prediction_path` | string | Relative path to the saved prediction JSON (optional, for debugging). | Must point to an existing file under `data/predictions/`. |
+| `mIoU` | number | null | Mean Intersection‑over‑Union for this image (null if `excluded`). | `0.0 ≤ value ≤ 1.0`. |
+| `latency_ms` | number | Inference latency for this image (milliseconds). | `> 0`. |
+| `global_context_activation_proportion` | number | null | Proportion of Grad‑CAM (or attention‑rollout) activation on tokens labelled “global‑context”. Populated only for images used in attribution analysis. | `0.0 ≤ value ≤ 1.0`. |
+| `prediction_path` | string | Relative path to the JSON file containing the model’s raw predictions. | Must match pattern `^data/predictions/.*\.json$`. |
+
+*All fields are required; `null` is allowed for `mIoU` and `global_context_activation_proportion` when appropriate.*
 
 ### Example Row (YAML‑compatible JSON representation)
 ```yaml
@@ -27,13 +29,16 @@ The pipeline produces a hierarchy of artifacts. Below we define the schema for t
   prediction_path: "data/predictions/COCO_00012345_32.json"
 ```
 
-## Derived Summary Tables
-- `degradation_curve.csv` – columns: `sparsity_window`, `density`, `mean_mIoU`, `ci_lower`, `ci_upper`.  
-- `anova_results.json` – keys: `f_value`, `p_value`, `method` (`"ANOVA"` or `"Friedman"`).  
-- `correlation.csv` – columns: `density`, `pearson_r`, `pearson_p`, `spearman_r`, `spearman_p`.  
-- `tipping_point.json` – keys: `window_size`, `mIoU`, `status` (`"found"` or `"none"`).  
-- `attribution_summary.json` – keys: `global_context_activation_diff`, `failure_mean`, `success_mean`.
+## Derived Summary Tables (not contract‑validated but used for reporting)
 
-All CSV/JSON files are stored under `data/analysis/` and are version‑hashed.
+| File | Description |
+|------|-------------|
+| `degradation_curve.csv` | Columns: `sparsity_window`, `scene_density`, `mean_mIoU`, `ci_lower`, `ci_upper`. |
+| `anova_results.json` | Keys: `method` (`"ANOVA"` or `"Friedman"`), `f_value`, `p_value`. |
+| `correlation.csv` | Columns: `scene_density`, `pearson_r`, `pearson_p`, `spearman_r`, `spearman_p`. |
+| `tipping_point.json` | Keys: `status` (`"found"` or `"none"`), `window_size` (if found), `mIoU`. |
+| `attribution_summary.json` | Keys: `failure_mean`, `success_mean`, `global_context_activation_diff`. |
+
+All CSV/JSON files are stored under `data/analysis/` and are content‑hashed for versioning.
 
 ---
