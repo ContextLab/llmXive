@@ -1,11 +1,13 @@
 status: none
-intent: synthetic matrices deterministic perturbations generation python package dataset
+intent: synthetic perturbation matrix generator research python package dataset
 required_fields:
-- matrix_id
-- matrix
-- dimensions
-- perturbation_pattern
-- reference_constant
-cache_key: d2c3d98933dc00edfe2d573a4342ce32098e00a990f1c8e26bd275762aae247c
-searched_at: '2026-10-21T06:25:40.377172+00:00'
+- Role
+- Source
+- Access Method
+- Notes
+- Synthetic matrices
+- Perturbation patterns
+- Reference values
+cache_key: ee0c09e62022666ae3fe0a43fada83783a90e7d482e8195e730e419ac43ab1f7
+searched_at: '2026-10-21T06:28:54.558061+00:00'
 retry_count: 1

@@ -99,3 +99,8 @@ def test_finite_size_results_csv():
     required = {"N", "k", "theta", "pattern_type", "empirical_bulk_edge", "outlier_probability"}
     missing = required - set(df.columns)
     assert not missing, f"Missing columns in finite_size_results.csv: {missing}"
+
+# 11. perturbation_verification.json (new contract)
+def test_perturbation_verification():
+    path = REPO_ROOT / "data" / "processed" / "perturbation_verification.json"
+    _validate_json(path, "perturbation_verification")

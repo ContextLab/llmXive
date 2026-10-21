@@ -1,0 +1,8 @@
+T001:
+  c: false
+  h: b7aa35e880010118fec1197a1c2432712bf4182018b49815ee8702c09c54b92a
+  r: The required contract schema files `threshold_fit.schema.yaml` and `perturbation_verification.schema.yaml`
+    are missing, and the test suite `code/tests/contract/test_schemas.py` does not
+    exist, causing all contract tests to fail. These artifacts must be added for the
+    task to be considered complete.
+  sig: 115f088d66521b8b21a32eaa5620b260d07f7f67a562068e63b4d02b306307d5

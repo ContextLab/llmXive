@@ -1,6 +1,11 @@
 T001:
+  reason: The required contract schema files `threshold_fit.schema.yaml` and `perturbation_verification.schema.yaml`
+    are missing, and the test suite `code/tests/contract/test_schemas.py` does not
+    exist, causing all contract tests to fail. These artifacts must be added for the
+    task to be considered complete.
   task: 97b0c43237307b37aa23060589816ffe3efaa2377d2d081969011e0ada982d2c
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 3bc18bf71777263b156df5c173bfdf4409c7b1d0dc4dec15c49de3fdf2a4d06c
 T003:
   task: 95ef4d09d66c12968d27d5c49ea4edcafcc67852156b0f05ca02703b07f650a9
