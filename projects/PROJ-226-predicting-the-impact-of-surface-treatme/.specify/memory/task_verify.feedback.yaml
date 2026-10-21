@@ -1,10 +1,6 @@
 T001:
-  reason: The `verify_data_source.py` script only queries Zenodo (and does so incorrectly,
-    yielding errors) and never attempts to download or check the NIST or Materials
-    Project datasets. It also deliberately writes an empty `availability_report.json`
-    and does not cause a CI failure when required columns are missing, contrary to
-    the task specification that CI must fail if any dataset lacks a required variable.
-    Consequently the required verification of **each** dataset is not performed.
+  reason: 'Requested task execution failed; rerun successfully: code/verify_data_source.py
+    exit=1'
   task: 2f7d2fc60b6b7c8744556df90f267dd1b18297710b373e7377b08ce659fa1149
 T002:
   reason: "The required raw files `data/raw/nist.csv`, `data/raw/zenodo.csv`, and\
