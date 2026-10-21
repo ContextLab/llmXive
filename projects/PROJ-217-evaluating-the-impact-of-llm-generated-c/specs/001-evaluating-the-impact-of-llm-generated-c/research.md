@@ -17,10 +17,11 @@ All sources are open, directly downloadable, and verified.
 
 ### 1. Data Preparation
 1. **Download** the verified parquet with `hf_hub_download` (3‑attempt retry, SHA‑256 verification).  
-2. **Parse** columns tolerant to either `code`/`docstring` or `func_code_string`/`func_documentation_string`.  
-3. **Validate** each record: docstring length ≥ 5 tokens, code parses with `ast`. Invalid records → `data/excluded_records.json` with a `reason`.  
-4. **Log** total, valid, excluded counts to `data/dataset_preparation.log`.  
-5. **Deterministically sample** 500 snippets (seed 42) → `data/validated_snippets.jsonl`.  
+2. **Convert** the parquet directly to `data/raw_snippets.jsonl` preserving all original fields.  
+3. **Parse** columns tolerant to either `code`/`docstring` or `func_code_string`/`func_documentation_string`.  
+4. **Validate** each record: docstring length ≥ 5 tokens, code parses with `ast`. Invalid records → `data/excluded_records.json` with a `reason`.  
+5. **Log** total, valid, excluded counts to `data/dataset_preparation.log`.  
+6. **Deterministically sample** 500 snippets (seed 42) → `data/validated_snippets.jsonl`.  
 
 ### 2. LLM Comment Generation
 - **Model**: CodeLlama‑7B‑Instruct via HuggingFace Inference API.  
@@ -57,7 +58,7 @@ Metrics are treated as *similarity proxies* and, for readability, the Flesch‑K
 | Analysis | Method | Software | Multiple‑Comparison |
 |----------|--------|----------|---------------------|
 | Power analysis | Repeated‑measures `statsmodels.stats.power.FTestAnovaPower` (effect size f = 0.25, α = 0.05, within‑subject ρ = 0.5) | statsmodels | N/A |
-| Completion time | Mixed‑effects ANOVA (`statsmodels.MixedLM`) with fixed effects `condition` + `trial_number`; random intercepts for `participant_id` + `snippet_id` **and random slope for `trial_number` per participant** | statsmodels | α = 0.05 |
+| Completion time | **One‑way ANOVA** on participant‑averaged times (as required by FR‑005) **and** mixed‑effects ANOVA (`statsmodels.MixedLM`) with fixed effects `condition` + `trial_number`, random intercepts for `participant_id` + `snippet_id` and random slope for `trial_number` per participant | statsmodels | α = 0.05 |
 | Accuracy | Mixed‑effects logistic regression (`statsmodels.GLM`, binomial) with same fixed/random structure | statsmodels | α = 0.05 |
 | Correlations | Pearson r on **snippet‑level aggregated** outcomes vs each readability metric; Bonferroni‑corrected α / 12 | scipy | Bonferroni |
 | Assumption checks | Shapiro‑Wilk (normality), Levene (homogeneity) | scipy | — |

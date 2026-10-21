@@ -103,4 +103,3 @@ properties:
         p_value_corrected:
           type: number
           description: "Bonferroni-corrected p-value (alpha divided by number of tests)."
-

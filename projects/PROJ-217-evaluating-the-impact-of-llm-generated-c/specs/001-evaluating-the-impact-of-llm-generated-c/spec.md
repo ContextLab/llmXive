@@ -57,7 +57,7 @@ The system MUST conduct a new controlled user study to measure task completion t
 
 ### Edge Cases
 
-- **What happens when the HuggingFace API rate limit is hit?** The system MUST implement a retry mechanism with exactly 3 attempts and exponential backoff, pausing for 60 seconds before proceeding, ensuring the job does not fail due to transient network issues.
+- **What happens when the HuggingFace API rate limit is hit?** The system MUST implement a retry mechanism with a limited number of attempts. and exponential backoff, pausing for 60 seconds before proceeding, ensuring the job does not fail due to transient network issues.
 - **How does the system handle code snippets that are too large for the CodeLlama‑7B (7B parameter model) context window?** The system MUST truncate the code snippet to a maximum of **2048 tokens**, log a warning, and continue processing, while noting the limitation in the final report.
 - **What if the Sentence‑BERT model fails to load due to memory constraints?** The system MUST fallback to a smaller, CPU‑optimized embedding model (e.g., `all-MiniLM-L6-v2`) and log the switch, ensuring the metric calculation proceeds within the 7 GB RAM memory limit.
 

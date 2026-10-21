@@ -69,4 +69,3 @@ properties:
     minimum: 1
     maximum: 5
     description: "Likert rating of how helpful the comment was (1‑5)."
-
