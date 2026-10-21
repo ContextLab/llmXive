@@ -1,7 +1,2 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-description: >
-  Minimal schema for metric_results.json. The concrete pipeline will
-  populate this file with detailed metric objects; for now any JSON
-  object is accepted.
 type: object
 additionalProperties: true

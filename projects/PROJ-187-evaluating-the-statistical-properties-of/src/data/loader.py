@@ -61,21 +61,72 @@ def _fetch_bytes(url: str) -> bytes:
 # Dataset specific loaders
 # ----------------------------------------------------------------------
 def load_adult() -> pd.DataFrame:
-    """Load the UCI Adult dataset from the verified OpenML URL.
+    """Load the UCI Adult dataset from a reliable public mirror.
 
-    The OpenML ``datasets.load_dataset`` endpoint requires authentication
-    and currently returns 401 on the CI runner, therefore we download the
-    CSV directly.
+    The original OpenML endpoint is unreliable in the CI environment.
+    Instead we download the canonical CSV files from the UCI repository,
+    concatenate the training and test splits, and apply the standard
+    preprocessing (missing value marker ``?`` and stripping of trailing
+    periods in the target column).
 
     Returns
     -------
     pd.DataFrame
         The raw Adult dataframe (no preprocessing applied).
     """
-    url = "https://openml.org/data/get_csv/1590/adult.csv"
-    raw_bytes = _fetch_bytes(url)
-    df = pd.read_csv(io.BytesIO(raw_bytes), na_values="?", skipinitialspace=True)
-    log.info("Adult dataset loaded: %d rows, %d columns", df.shape[0], df.shape[1])
+    # URLs for the original UCI Adult data files
+    urls = [
+        "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data",
+        "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test",
+    ]
+
+    # Column names as defined in the UCI repository documentation
+    columns = [
+        "age",
+        "workclass",
+        "fnlwgt",
+        "education",
+        "education-num",
+        "marital-status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "capital-gain",
+        "capital-loss",
+        "hours-per-week",
+        "native-country",
+        "income",
+    ]
+
+    dfs = []
+    for url in urls:
+        raw_bytes = _fetch_bytes(url)
+        # The test file contains an initial header line starting with "|"
+        # and a trailing period in the income column; ``comment='|'`` skips
+        # that header line, and we later strip periods.
+        df = pd.read_csv(
+            io.BytesIO(raw_bytes),
+            header=None,
+            names=columns,
+            na_values="?",
+            skipinitialspace=True,
+            comment="|",
+        )
+        dfs.append(df)
+
+    # Concatenate train and test portions
+    df = pd.concat(dfs, ignore_index=True)
+
+    # Clean the target column: remove trailing periods and surrounding spaces
+    if "income" in df.columns:
+        df["income"] = df["income"].astype(str).str.strip().str.rstrip(".")
+
+    log.info(
+        "Adult dataset loaded from UCI mirror: %d rows, %d columns",
+        df.shape[0],
+        df.shape[1],
+    )
     return df
 
 
