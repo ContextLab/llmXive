@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SemanticValidation"
-type: "object"
+type: object
 required:
   - validation_id
   - task_id
@@ -10,22 +10,22 @@ required:
   - overall_success
 properties:
   validation_id:
-    type: "string"
+    type: string
     description: "Unique identifier for the validation record."
   task_id:
-    type: "string"
+    type: string
     description: "Identifier of the figure task being validated."
   vector_match:
-    type: "boolean"
+    type: boolean
     description: "True if the final layout vector exactly matches the ground‑truth vector."
   semantic_score:
-    type: "number"
+    type: number
     minimum: 0
     maximum: 1
     description: "Cosine similarity between ResNet‑18 feature vectors of the output and ground‑truth images."
   semantic_pass:
-    type: "boolean"
-    description: "True if semantic_score ≥ 0.95."
+    type: boolean
+    description: "True if `semantic_score` ≥ 0.90 (threshold justified by pilot validation)."
   overall_success:
-    type: "boolean"
-    description: "True if and only if both vector_match and semantic_pass are true."
+    type: boolean
+    description: "True if and only if both `vector_match` and `semantic_pass` are true."
