@@ -1,33 +1,34 @@
 T001:
-  reason: "The script, JSONL outputs, excluded records, checksum manifest, and tests\
-    \ all exist and look genuine (500 raw records, 498 valid, 2 excluded with reasons,\
-    \ SHA-256 recorded). However, the required log file `data/dataset_preparation.log`\
-    \ is MISSING \u2014 the script writes it only at the end of `main()`, so its absence\
-    \ also suggests the run may not have completed successfully (exit 0 unverified).\
-    \ The implementer must run the script to completion so the log with total/valid/excluded\
-    \ counts and SC-006 compliance is actually produced."
-  task: cef9af76f4734162ede02ac2f19199633eec344148505a91c87208cccadfc3c8
+  reason: "The `src/data/download.py` script correctly handles downloading, retry\
+    \ logic, column mapping, deterministic sampling, checksum logging, and output\
+    \ files, and the log shows \u2265150 valid snippets. However, the docstring validation\
+    \ function `_is_valid_docstring` does **not** enforce the required \u201C\u2265\
+    \u202F5 tokens\u201D rule, so the validation step is incomplete. Additionally,\
+    \ there is no provided evidence that the pytest `src/tests/test_download.py` was\
+    \ executed and passed. The implementation must be updated to count tokens (e.g.,\
+    \ `len(doc.split()) >= 5`) and the test suite results need to be shown."
+  task: dfd092dced5dd17cce7446259da8d88daf1eb7a5f92c58a86374976191f4f44b
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/data/generate_comments.py
-    exit=1'
-  task: fccea85e82593b467909530e99d80b71473587508d61fca4f016b564fe48ade1
+  task: 898c91782f7142a27c0b18ba8cb40427b5964678c2f083229ea4512c0c653217
 T003:
-  task: fb1c70258c7e370f75481aef1d214a8c991d3b231241cbb982378188277958d8
-T003a:
-  task: b4d55537c4e9f37436db5d294b04c8be78a8dee4499517183153c1a0b2e73f2b
+  task: 7beddb7fe20ca93f96927b15d39348525f2efc54b5d38e18406f7c0239066c27
 T004:
-  task: c81d0af4f3eb393206721416ad1a5fb7a8fab7c8318a1e73eb8171f7cec25105
+  reason: 'Requested task execution failed; rerun successfully: src/utils/validate_environment.py
+    exit=1'
+  task: 456f4347f0e7c3148ad70dbe8120b75492520dbbb60dacc8e07376a4a9415cae
 T005:
-  task: 57a9b8d19de987faaea873369de8746f9102ceb3620412a82642ddc4f8fa07cc
+  task: 36efe21e1140f1970014fa90f00095d2b1825537c641936279824e22cdf61c69
 T006:
-  task: e371dc567761b1db2bca654588ed561ee09cb05aa0f02255ab9bd19611e87c58
+  task: bf61025f3f0bd620f89248aacd99f36e4cd731533363ba754d71c601339aeed2
 T007:
-  task: e0ee20a9afaae56ef8f09bda188bd6e203d23c5768d45c7b58c32948a6cd6db2
+  task: 7da1065c53594c7b7447766b13a126c449f7c64bf920cb3e40276b133ede78de
 T008:
-  task: 7943ae68fd44e9696ddb3455c23942e1f118df14b6c8a3f1ba8ff571afd63493
+  task: ad21a45852f9abe8f0bbb7566ef9b5edb227c64382e11662d58bbd55c4e5bdb1
 T009:
-  task: 7dae2c839a2edb036ad9d2f7741bd09388383264e0ca80a0d02ce11461be7895
+  task: 03f5a5d25440bf7b6afececedac81ce6598ee638cbfaa74611214a62183ebb0c
 T010:
-  task: 0bc9a38153981db9e02f7c1e40857b69e9ea2b2b95194a5a6a2e998617f9d936
+  task: 999777776dd7d2be59d0847cd0196c09674351a8bb600097d0b6e25214fda813
+T011:
+  task: bf62a84aaeb758a29f9f8a442ab35a205565e5e78541ae947cbe3b795eb48edb
 T012:
-  task: bb63956a14e6368671144464971960a30b6e477464352aa3ecd88970947124b8
+  task: 5d858d0e420a0dfd91cdbbd4f973a96350704bac1e03ec7930f76625bd18a556

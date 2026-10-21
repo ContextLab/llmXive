@@ -1,11 +1,21 @@
 T001:
   c: false
-  h: 63de1bf174e250ed1d215bf3d9f0cda5d2d58d2597b6cf7eef62995f5d7c1868
-  r: "The script, JSONL outputs, excluded records, checksum manifest, and tests all\
-    \ exist and look genuine (500 raw records, 498 valid, 2 excluded with reasons,\
-    \ SHA-256 recorded). However, the required log file `data/dataset_preparation.log`\
-    \ is MISSING \u2014 the script writes it only at the end of `main()`, so its absence\
-    \ also suggests the run may not have completed successfully (exit 0 unverified).\
-    \ The implementer must run the script to completion so the log with total/valid/excluded\
-    \ counts and SC-006 compliance is actually produced."
-  sig: 4481946df4b83bbc9632031d649b71675a399c7569d2522ccfbfe36264f8baa7
+  h: 1a2b252b9c88bae5bc74daee5f922bc6abb08efbc7a982bb89f858a2544e8fb4
+  r: "The `src/data/download.py` script correctly handles downloading, retry logic,\
+    \ column mapping, deterministic sampling, checksum logging, and output files,\
+    \ and the log shows \u2265150 valid snippets. However, the docstring validation\
+    \ function `_is_valid_docstring` does **not** enforce the required \u201C\u2265\
+    \u202F5 tokens\u201D rule, so the validation step is incomplete. Additionally,\
+    \ there is no provided evidence that the pytest `src/tests/test_download.py` was\
+    \ executed and passed. The implementation must be updated to count tokens (e.g.,\
+    \ `len(doc.split()) >= 5`) and the test suite results need to be shown."
+  sig: 2191be7806f648710ba9f96c6fd053fa7058c5f85a5adf3964ce3c847e92990e
+T012:
+  c: true
+  h: 79c459346c983540b827156b7606d6e54b1ee1d92c50bd3c0f5266f5b22af620
+  r: "Checked `src/utils/verify_requirements.py` \u2013 it implements existence, non\u2011\
+    empty, optional SHA\u2011256 checks, returns a boolean, writes to `data/requirements_check.log`,\
+    \ and respects the manifest. The required `requirements.txt` is present and non\u2011\
+    empty, and the script runs successfully (exit code\u202F0) as shown in the execution\
+    \ log."
+  sig: 672280c2a095ae100f01264b71a215b02992c4875e213fb56b37f06082aba8a9

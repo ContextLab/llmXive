@@ -9,7 +9,7 @@ Tasks are ordered to respect data flow and to produce an early end‑to‑end re
 
 ### Phase 1: Setup and first end‑to‑end analysis  
 
-- [ ] **T012** **Verify pinned requirements file for reproducibility**  
+- [X] **T012** **Verify pinned requirements file for reproducibility**  
   *Implement* `src/utils/verify_requirements.py` that:  
   - Checks that `requirements.txt` exists at the repository root and is non‑empty.  
   - Optionally verifies that its SHA‑256 hash matches the entry in `data/artifact_hashes.yaml`.  
@@ -33,7 +33,7 @@ Tasks are ordered to respect data flow and to produce an early end‑to‑end re
   – `data/validated_snippets.jsonl` contains ≥ 150 valid snippets.  
   – Pytest `src/tests/test_download.py` asserts correct column mapping and log creation.  
 
-- [ ] **T004** [US-3] **Validate environment and recruitment tools**  
+- [ ] **T004** [US-3] **Validate environment and recruitment tools**   <!-- FAILED-IN-EXECUTION: src/utils/validate_environment.py exit=1 -->
   *Implement* `src/utils/validate_environment.py` that:  
   - Checks that all required packages import successfully.  
   - Verifies available RAM and disk headroom (≤ 7 GB usage) using `psutil`.  
