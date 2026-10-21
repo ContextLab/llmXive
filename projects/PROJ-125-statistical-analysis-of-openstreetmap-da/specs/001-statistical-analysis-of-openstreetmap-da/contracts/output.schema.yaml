@@ -33,7 +33,7 @@ properties:
     description: "Peak memory usage in GB during execution."
   memory_status:
     type: string
-    description: "Indicates if the memory limit was exceeded"
+    description: "Indicates if the memory limit was exceeded."
     enum: ["OK", "DEGRADED"]
 required:
   - model_type

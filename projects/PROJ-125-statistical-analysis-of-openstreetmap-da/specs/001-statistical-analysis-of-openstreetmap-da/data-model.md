@@ -1,68 +1,69 @@
 # Data Model: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
 ## Overview
-
-This document defines the data structures, schemas, and relationships used in the project. All data is stored in the `data/` directory with strict versioning and checksumming.
+Defines the immutable schemas for raw, processed, and result artifacts. All files live under `data/` with strict versioning and checksums.
 
 ## Core Entities
 
 ### CityBoundary
-Represents the administrative boundary of the study area.
-- **Attributes**:
-  - `name`: str (City name)
-  - `bbox`: Tuple[float, float, float, float] (MinX, MinY, MaxX, MaxY)
-  - `crs`: str (EPSG code, e.g., "EPSG:4326")
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | `string` | City name (e.g., "New York") |
+| `bbox` | `array[float]` (length 4) | `[minx, miny, maxx, maxy]` in EPSG:4326 |
+| `crs` | `string` | EPSG code of source CRS |
 
 ### RasterCovariate
-Represents a rasterized urban feature (e.g., building density, tree cover).
-- **Attributes**:
-  - `path`: str (Relative path to GeoTIFF)
-  - `resolution`: float (30.0)
-  - `crs`: str (EPSG:3857 or Local UTM)
-  - `variable_name`: str (e.g., "building_density")
-  - `source`: str (e.g., "OSM")
+| Field | Type | Description |
+|-------|------|-------------|
+| `path` | `string` | Relative path to GeoTIFF |
+| `resolution` | `number` | Target resolution (30.0 m) |
+| `crs` | `string` | EPSG code after reprojection |
+| `variable_name` | `string` | e.g., `building_density` |
+| `source` | `string` | `"OSM"` |
 
 ### TemperatureRaster
-Represents the Land Surface Temperature (LST) data.
-- **Attributes**:
-  - `path`: str (Relative path to GeoTIFF)
-  - `resolution`: float (30.0)
-  - `crs`: str (EPSG:3857 or Local UTM)
-  - `time_range`: str (e.g., "2020-2025")
-  - `source`: str (e.g., "MODIS")
+| Field | Type | Description |
+|-------|------|-------------|
+| `path` | `string` | Relative path to GeoTIFF |
+| `resolution` | `number` | 30.0 m |
+| `crs` | `string` | EPSG code after reprojection |
+| `time_range` | `string` | `"2020-2025"` (summer median) |
+| `source` | `string` | `"Landsat"` |
 
 ### ModelResult
-Stores the output of a regression model.
-- **Attributes**:
-  - `model_type`: str ("OLS", "SAR", "GWR")
-  - `rmse`: float
-  - `mae`: float
-  - `r2`: float
-  - `p_values`: Dict[str, float] (Variable -> p-value)
-  - `correction_method`: str (e.g., "FDR_BH")
-  - `memory_status`: str ("OK", "DEGRADED")
-  - `city_name`: str
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_type` | `string` | `"OLS"`, `"SAR"` or `"GWR"` |
+| `city_name` | `string` | City identifier |
+| `rmse` | `number` | Root Mean Squared Error |
+| `mae` | `number` | Mean Absolute Error |
+| `r2` | `number` | R² |
+| `p_values` | `object` | `{variable: p}` |
+| `correction_method` | `string` | `"permutation‑FDR"` |
+| `memory_status` | `string` | `"OK"` or `"DEGRADED"` |
+| `metrics` | `object` | Additional metrics (AIC, etc.) |
 
 ## File Formats
 
-### Raw Data
-- **OSM**: GeoJSON or GeoParquet (downloaded via `osmnx`).
-- **Satellite**: HDF or GeoTIFF (downloaded via `earthengine-api` or `modis`).
+| Category | Format | Location |
+|----------|--------|----------|
+| Raw OSM vectors | Parquet / GeoJSON | `data/raw/osm/` |
+| Raw Landsat LST | GeoTIFF (Cloud‑screened) | `data/raw/lst/` |
+| Processed rasters | GeoTIFF (30 m) | `data/processed/rasters/` |
+| Aligned dataset (pixel‑wise table) | Parquet or CSV | `data/processed/aligned/` |
+| Model metrics | CSV (`metrics.csv`) | `data/results/` |
+| Plots | PNG/SVG | `data/results/plots/` |
+| Reports | Markdown & HTML | `data/results/reports/` |
 
-### Processed Data
-- **Rasterized Features**: GeoTIFF (30m, EPSG:3857).
-- **Aligned Dataset**: CSV or GeoParquet (30m points with all variables).
+## Data Flow Diagram (logical)
 
-### Results
-- **Metrics**: CSV (`data/results/metrics.csv`).
-- **Plots**: PNG/SVG (in `data/results/plots/`).
-- **Reports**: Markdown/HTML (in `data/results/reports/`).
+1. **Ingest** → `raw/` (checksum recorded).  
+2. **Transform** → `processed/` (rasterize, reproject, log).  
+3. **Sample / Memory Check** → possibly sub‑sample `processed/aligned/`.  
+4. **Model** → `results/ModelResult` objects written to CSV/JSON.  
+5. **Validate & Visualise** → plots stored in `results/plots/`.  
+6. **Report** → markdown compiled in `results/reports/`.
 
-## Data Flow
+All steps are deterministic given fixed random seeds.
 
-1. **Ingest**: Download raw OSM and Satellite data to `data/raw/`.
-2. **Preprocess**: Rasterize OSM features and align with LST to 30m resolution.
-3. **Sample**: If N > 500k, apply spatial sampling to reduce size.
-4. **Model**: Fit OLS, SAR, GWR (or pipeline halts if memory constraints are exceeded).
-5. **Validate**: Spatial cross-validation and FDR correction.
-6. **Export**: Save metrics and plots to `data/results/`.
+---

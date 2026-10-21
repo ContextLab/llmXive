@@ -1,16 +1,16 @@
 status: none
-intent: OpenStreetMap buildings landuse trees roads NASA EarthData MODIS Landsat NaturalEarth
-  GADM python package dataset
+intent: OpenStreetMap building landuse tree road extraction and Landsat LST download
+  python package dataset
 required_fields:
-- city_id
 - city_name
 - city_boundary_polygon
-- building_density_raster
-- land_use_class_raster
-- tree_canopy_density_raster
-- road_density_raster
-- summer_lst_composite_raster
-- crs_epsg_code
-cache_key: 47abec03e8f0d942e3e79831f7d6ef43afefa9325bf24afe09e70874f07e192e
-searched_at: '2026-10-15T08:39:15.077274+00:00'
+- building_density_grid
+- land_use_category_grid
+- tree_canopy_fraction_grid
+- road_density_grid
+- summer_lst_composite_grid
+- lst_units
+- coordinate_reference_system
+cache_key: e6a8af74b67587d1a4b72aba5b96ed49ab86ea764f495d4d202a0dcb8bc38f72
+searched_at: '2026-10-21T10:13:22.907780+00:00'
 retry_count: 1
