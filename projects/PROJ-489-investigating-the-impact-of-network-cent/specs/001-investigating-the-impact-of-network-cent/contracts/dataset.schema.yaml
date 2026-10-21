@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SubjectMetricsSchema"
-description: "Schema for the aggregated subject-level metrics CSV (one row per subject per sleep stage)."
+description: "Schema for the aggregated subject‑level metrics CSV (one row per subject per sleep stage)."
 type: object
 properties:
   subject_id:
@@ -16,28 +16,55 @@ properties:
       - "REM"
   mean_pli:
     type: number
-    description: "Mean Phase Lag Index across all epochs of this stage."
+    description: "Mean Phase‑Locking Value across all epochs of this stage."
     minimum: 0
     maximum: 1
   n_epochs:
     type: integer
-    description: "Number of epochs included in the mean PLI calculation."
+    description: "Number of epochs contributed to the mean PLV calculation."
     minimum: 1
-  centrality_degree_mean:
+  theta_mean_degree:
     type: number
-    description: "Mean degree centrality across all nodes in the waking network."
-  centrality_betweenness_mean:
+    description: "Average degree centrality in theta band (0 ≤ ≤ 1)."
+    minimum: 0
+    maximum: 1
+  theta_mean_eigenvector:
     type: number
-    description: "Mean betweenness centrality across all nodes in the waking network."
-  centrality_eigenvector_mean:
+    description: "Average eigenvector centrality in theta band (0 ≤ ≤ 1)."
+    minimum: 0
+    maximum: 1
+  alpha_mean_degree:
     type: number
-    description: "Mean eigenvector centrality across the **EEG‑only** network."
+    description: "Average degree centrality in alpha band (0 ≤ ≤ 1)."
+    minimum: 0
+    maximum: 1
+  alpha_mean_eigenvector:
+    type: number
+    description: "Average eigenvector centrality in alpha band (0 ≤ ≤ 1)."
+    minimum: 0
+    maximum: 1
+  theta_icc:
+    type: number
+    description: "Split‑half ICC for theta‑band coherence (0 ≤ ≤ 1)."
+    minimum: 0
+    maximum: 1
+  alpha_icc:
+    type: number
+    description: "Split‑half ICC for alpha‑band coherence (0 ≤ ≤ 1)."
+    minimum: 0
+    maximum: 1
+  theta_icc_flag:
+    type: boolean
+    description: "True if theta ICC < 0.6 (unstable)."
+  alpha_icc_flag:
+    type: boolean
+    description: "True if alpha ICC < 0.6 (unstable)."
   waking_night_id:
     type: string
     description: "Identifier for the waking recording night (extracted from EDF header)."
   sleep_night_id:
     type: string
-    description: "Identifier of the sleep recording night."
+    description: "Identifier for the sleep recording night (extracted from EDF header)."
   temporal_proximity:
     type: boolean
     description: "True if waking and sleep nights are the same."
@@ -53,28 +80,21 @@ properties:
     minimum: 0
   waking_duration_min:
     type: number
-    description: "Duration of the **≥ 2 min** waking segment."
+    description: "Duration of ≥ 2 min waking segment (minimum 0)."
     minimum: 0
-  centrality_icc:
-    type: number
-    description: "Split‑half Intraclass Correlation Coefficient for centrality stability within the waking segment."
-  centrality_icc_flag:
-    type: boolean
-    description: "True if ICC < 0.6 (unstable)."
-  centrality_wake_sleep_icc:
-    type: number
-    description: "Cross‑state ICC between waking centrality and N2‑stage centrality."
-  centrality_wake_sleep_icc_flag:
-    type: boolean
-    description: "True if cross‑state ICC < 0.6 (unstable across states)."
 required:
   - subject_id
   - stage_label
   - mean_pli
   - n_epochs
-  - centrality_degree_mean
-  - centrality_betweenness_mean
-  - centrality_eigenvector_mean
+  - theta_mean_degree
+  - theta_mean_eigenvector
+  - alpha_mean_degree
+  - alpha_mean_eigenvector
+  - theta_icc
+  - alpha_icc
+  - theta_icc_flag
+  - alpha_icc_flag
   - waking_night_id
   - sleep_night_id
   - temporal_proximity
