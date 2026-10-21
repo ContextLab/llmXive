@@ -1,0 +1,14 @@
+[
+  {
+    "snippet_id": "snippet_000068",
+    "code": "def add_spatial_unit_condition(self, droppable_id, container_id, spatial_unit, match=True):\n        \"\"\"stub\"\"\"\n        if not isinstance(spatial_unit, abc_mapping_primitives.SpatialUnit):\n            raise InvalidArgument('spatial_unit is not a SpatialUnit')\n\n        self.my_osid_object_form._my_map['spatialUnitConditions'].append(\n            {'droppableId': droppable_id, 'containerId': container_id, 'spatialUnit': spatial_unit.get_spatial_unit_map(), 'match': match})\n        self.my_osid_object_form._my_map['spatialUnitConditions'].sort()",
+    "human_comment": "stub",
+    "reason": "invalid_docstring"
+  },
+  {
+    "snippet_id": "snippet_000318",
+    "code": "def template(filename, **locals):\n    ''' Returns '''\n    path = 'templates/{}'.format(filename)\n    with open(path) as source:\n        code = compile(source.read(), path, 'exec')\n        global_vars = {'t': t,\n                       'f': f,\n                       'e': e,\n                       'escape': html.escape,\n                       'ctime': time.ctime}\n        exec(code, global_vars, locals)\n        return locals['page']",
+    "human_comment": "Returns",
+    "reason": "invalid_docstring"
+  }
+]

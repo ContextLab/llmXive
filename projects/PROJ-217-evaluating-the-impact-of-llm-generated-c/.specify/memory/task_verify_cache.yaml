@@ -1,0 +1,12 @@
+T001:
+  c: true
+  h: b64cc845578d5ab60221d12bf411886359c058784fcd960330eabd00e92ce5c3
+  r: "The script implements all requirements (retry loop that raises, tolerant column\
+    \ mapping with explicit error, seeded N=500 sampling, docstring validation, all\
+    \ five output files), and the execution log shows exit 0 with a real download\
+    \ from `code_search_net`. The artifacts are consistent: 500 raw records, 498 valid\
+    \ (\u2265150, 99.6% processed), 2 excluded with reasons, checksum `ad9e3a4a...`\
+    \ matching both `artifact_hashes.yaml` and the log. The only unverified item is\
+    \ `src/tests/test_download.py` (not inspected due to evidence limit), but the\
+    \ core task deliverables and execution evidence are all pres"
+  sig: 15f6893b7db8c7363f53c545753c3d7daf2d3818aa8620a6c7a1c3b9ce494707
