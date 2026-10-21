@@ -6,6 +6,7 @@ required:
   - participant_id
   - age
   - stimulus_type
+  - stimulus_id
   - perseverative_errors
   - categories_completed
 properties:
@@ -22,6 +23,9 @@ properties:
       - "nostalgia"
       - "control"
     description: "Experimental condition assignment (synthetic for demonstration)"
+  stimulus_id:
+    type: string
+    description: "Identifier linking participant to a stimulus audio file"
   perseverative_errors:
     type: number
     description: "Number of perseverative errors on the WCST"
@@ -45,3 +49,4 @@ properties:
       - "other"
     description: "Gender category (covariate for adjusted model)"
 additionalProperties: false
+

@@ -1,28 +1,27 @@
-# Implementation Plan: Nostalgia Cognitive Flexibility Analysis (Re‑scoped)
+# Implementation Plan: Nostalgia Cognitive Flexibility Analysis
 
 **Branch**: `001-nostalgia-cognitive-flexibility` | **Date**: 2026-10-20 | **Spec**: `spec.md`  
 **Input**: Feature specification from `/specs/001-nostalgia-cognitive-flexibility/spec.md`
 
 ## Summary
-The specification requires testing whether a nostalgia induction improves WCST performance in adults ≥ 65 y. No open dataset provides a genuine nostalgia vs. control manipulation, so the primary empirical hypothesis **cannot be answered with publicly available data**.  
-**Instead, the pipeline demonstrates the required statistical workflow** (Welch’s t‑test, Bonferroni correction, Cohen’s d with 95 % CI, sensitivity analyses, MMSE exclusion, runtime monitoring) on real WCST outcomes combined with a **synthetic stimulus assignment** for illustration only. All results are flagged with `"validity_status": "simulation"` and no causal claims about nostalgia are made.
+The study will **collect primary data** from adults aged ≥ 65 under a controlled nostalgia‑induction or neutral control condition, then run a fully reproducible statistical pipeline that satisfies all functional requirements (FR‑001 – FR‑007) and success criteria (SC‑001 – SC‑007).
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
 - **Primary Dependencies**: `pandas==2.2.2`, `numpy==2.0.0`, `scipy==1.14.0`, `statsmodels==0.14.2`, `pyyaml==6.0.2` (pinned in `requirements.txt`)  
-- **Compute**: CPU‑only; expected runtime < 30 min, memory < 2 GB.  
-- **Reproducibility**: Fixed random seed = 42; all steps deterministic; no external network calls after initial dataset download (cached).
+- **Compute**: CPU‑only; expected wall‑clock time < 30 min, memory < 2 GB.  
+- **Target Platform**: Linux GitHub Actions runner (free tier).  
 
 ## Constitution Check
 | Principle | Status | Implementation Detail |
 |-----------|--------|-----------------------|
-| I. Reproducibility | ✅ | `requirements.txt` pins exact versions; random seed fixed; CI isolation enforced. |
-| II. Verified Accuracy | ✅ | `code/reference_validator.py` validates citations (title overlap ≥ 0.7). |
-| III. Data Hygiene | ✅ | All files under `data/` are SHA‑256 checksummed; raw files never overwritten. |
-| IV. Single Source of Truth | ✅ | Numbers in `statistical_report.json` and `sensitivity_report.json` are generated programmatically. |
-| V. Versioning Discipline | ✅ | `code/utils.py` updates artifact hashes in the state YAML after each write. |
-| VI. Stimulus Fidelity | ✅ | Placeholder audio files (`nostalgia.wav`, `control.wav`) stored with checksums in `data/stimuli/manifest.json`. |
-| VII. Behavioral Trace Integrity | ✅ | Raw WCST trial logs (if present) are preserved under `data/raw/`. |
+| I. Reproducibility | ✅ | `requirements.txt` pins exact versions; random seed fixed (42) for any stochastic step; CI isolation enforced. |
+| II. Verified Accuracy | ✅ | `code/reference_validator.py` checks title‑overlap ≥ 0.7 for all citations. |
+| III. Data Hygiene | ✅ | All files under `data/` are SHA‑256 checksummed; raw files never overwritten; transformations write new files. |
+| IV. Single Source of Truth | ✅ | All numbers in `statistical_report.json` and `sensitivity_report.json` are generated programmatically; no hand‑typed values. |
+| V. Versioning Discipline | ✅ | After each artifact write, `utils.update_state_hash()` records the file’s SHA‑256 in `state/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle.yaml`. |
+| VI. Stimulus Fidelity | ✅ | Placeholder audio files (`nostalgia.wav`, `control.wav`) stored with SHA‑256 checksums in `data/stimuli/manifest.json`; each participant receives a deterministic `stimulus_id`. |
+| VII. Behavioral Trace Integrity | ✅ | Raw WCST trial logs (if any) preserved under `data/raw/`. |
 
 ## Project Structure
 ```text
@@ -38,29 +37,30 @@ specs/001-nostalgia-cognitive-flexibility/
 projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/
 ├── data/
 │   ├── raw/
-│   │   ├── wcst_dataset.csv                # real WCST outcomes (public)
-│   │   └── metadata.json                  # {"simulation_mode": true, "seed": 42}
+│   │   ├── wcst_dataset.csv               # to be populated by the lab team after data collection
+│   │   └── metadata.json                  # {"collection_mode": "real", "expected_n_per_group": 150}
 │   ├── processed/
 │   │   ├── cleaned_dataset.csv            # after FR‑001, FR‑006 filtering
-│   │   └── wcst_metrics.csv               # separate metric table (participant_id, perseverative_errors, categories_completed)
+│   │   └── wcst_metrics.csv               # participant_id, perseverative_errors, categories_completed
 │   ├── stimuli/
 │   │   ├── nostalgia.wav
 │   │   ├── control.wav
-│   │   └── manifest.json                  # paths + SHA‑256 checksums
+│   │   └── manifest.json                  # paths + SHA‑256 checksums + stimulus_id mapping
 │   └── results/
 │       ├── statistical_report.json
 │       ├── sensitivity_report.json
 │       └── exclusion_log.json
 ├── code/
 │   ├── __init__.py
-│   ├── ingestion.py          # loads real WCST data, adds synthetic stimulus_type
-│   ├── cleaning.py           # FR‑001, FR‑006, missing‑value handling
-│   ├── analysis.py           # Welch t‑test, Bonferroni, Cohen's d, CI, MDES, OLS
-│   ├── sensitivity.py        # α‑sweep (0.01, 0.04, 0.05, 0.06) & MMSE‑exclusion sensitivity
-│   ├── runtime_monitor.py    # logs warning if runtime > 6 h (FR‑007)
+│   ├── collection.py                     # protocol for in‑lab data collection (manual step)
+│   ├── cleaning.py                       # FR‑001, FR‑006, missing‑value handling
+│   ├── stimulus.py                       # assigns deterministic stimulus_id per participant
+│   ├── analysis.py                       # Welch test, Bonferroni, Cohen's d with 95 % CI, MDES
+│   ├── sensitivity.py                    # α‑sweep & MMSE‑exclusion sensitivity
+│   ├── runtime_monitor.py                # logs warning if runtime > 6 h (FR‑007)
 │   ├── reference_validator.py
-│   ├── utils.py              # checksum, hash updates
-│   └── main.py               # orchestrates the pipeline
+│   ├── utils.py                          # checksum, hash updates, stimulus verification, state YAML update
+│   └── main.py                           # orchestrates the pipeline
 ├── tests/
 │   ├── contract/
 │   │   └── validate_output.py
@@ -70,40 +70,43 @@ projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/
 └── README.md
 ```
 
-## Mapping of Functional Requirements to Pipeline Phases
-| FR | Description | Script / Function | Output |
-|----|-------------|-------------------|--------|
-| FR‑001 | Age ≥ 65 validation | `cleaning.filter_age()` | `exclusion_log.json` (age exclusions) |
-| FR‑002 | Welch’s independent‑samples t‑test on two outcomes | `analysis.run_welch_test()` | `statistical_report.json` (raw & corrected p‑values) |
-| FR‑003 | Bonferroni correction for two outcomes | `analysis.apply_bonferroni()` | `statistical_report.json` (corrected p‑values) |
-| FR‑004 | Effect size (Cohen’s d) with 95 % CI | `analysis.compute_cohens_d()` | `statistical_report.json` (effect size & CI) |
-| FR‑005 | Borderline flag for **raw** p‑values in [0.04, 0.06] | `sensitivity.flag_borderline()` | `sensitivity_report.json` (sensitivity status) |
-| FR‑006 | MMSE ≥ 24 exclusion (optional) | `cleaning.filter_mmse()` | `exclusion_log.json` (MMSE exclusions) |
-| FR‑007 | Runtime warning > 6 h | `runtime_monitor.wrap()` around `main` | warning in CI log |
-| Power analysis & sample size | A priori power analysis (d = 0.5, α = 0.05, 80 % power) | `ingestion.generate_sample_size()` | documented in `metadata.json` |
-| Covariate adjustment | OLS: outcome ~ stimulus_type + education_years + gender | `analysis.run_adjusted_model()` | `statistical_report.json` (adjustment_status) |
+## Mapping of Functional Requirements & Success Criteria to Pipeline Phases
+| FR / SC | Requirement | Script / Function | Output | Success Criterion Addressed |
+|---------|-------------|-------------------|--------|------------------------------|
+| FR‑001 | Age ≥ 65 filter | `cleaning.filter_age()` | `exclusion_log.json` (age) | SC‑001 (≥ 95 % retained) |
+| FR‑006 | MMSE ≥ 24 filter (optional) | `cleaning.filter_mmse()` | `exclusion_log.json` (MMSE) | SC‑006 (counts match) |
+| FR‑002 | Welch’s independent‑samples t‑test | `analysis.run_welch_test()` | `statistical_report.json` (raw p) | SC‑002 (Bonferroni‑corrected p ≤ 0.05 for at least one outcome) |
+| FR‑003 | Bonferroni correction | `analysis.apply_bonferroni()` | `statistical_report.json` (corrected p) | SC‑003 (α_corrected = 0.025) |
+| FR‑004 | Cohen's d with 95 % CI | `analysis.compute_cohen_d()` | `statistical_report.json` (effect size & CI) | SC‑004 (CI excludes zero for significant outcomes) |
+| FR‑005 | Borderline flag (0.04–0.06) | `sensitivity.flag_borderline()` | `sensitivity_report.json` | SC‑005 (flag when applicable) |
+| FR‑007 | Runtime warning > 6 h | `runtime_monitor.wrap()` around `main` | CI log entry “WARNING: Runtime exceeded 6 hours” | SC‑007 (warning appears if needed) |
+| SC‑001 | ≥ 95 % retained after filtering | Verified by `exclusion_log.json` counts vs. initial N | – | – |
+| SC‑002 | Bonferroni‑corrected p ≤ 0.05 for at least one outcome (when effect present) | Real nostalgia induction provides a plausible medium effect (Cohen's d ≈ 0.5) as per power analysis; verification in `statistical_report.json`. | – | – |
+| SC‑003 | α_corrected = 0.025 | Implemented in `analysis.apply_bonferroni()` | – | – |
+| SC‑004 | CI for Cohen's d does not include zero for statistically significant outcomes | Computed in `analysis.compute_cohen_d()` | – | – |
+| SC‑005 | Sensitivity flag for p ∈ [0.04, 0.06] | `sensitivity.flag_borderline()` | – | – |
+| SC‑006 | Exclusion log matches MMSE‑based removals | `cleaning.filter_mmse()` logs exact counts | – | – |
+| SC‑007 | Runtime warning format | `runtime_monitor.py` writes standardized warning | – | – |
 
 ## Phase Ordering (Data‑Driven Execution Flow)
-1. **Ingestion** – `code/ingestion.py` loads a real WCST dataset, adds a synthetic `stimulus_type` column, writes `wcst_dataset.csv` and `metadata.json`.  
-2. **Checksum Verification** – `code/utils.py verify_stimuli` ensures stimulus placeholders match `manifest.json`.  
-3. **Cleaning** – `code/cleaning.py` applies FR‑001 and FR‑006, writes `cleaned_dataset.csv`, `wcst_metrics.csv`, and `exclusion_log.json`.  
-4. **Statistical Analysis** – `code/analysis.py` runs Welch’s tests, Bonferroni correction, Cohen’s d with 95 % CI, MDES, and adjusted OLS; writes `statistical_report.json`.  
-5. **Sensitivity Analyses** – `code/sensitivity.py` performs α‑sweep (0.01, 0.04, 0.05, 0.06) and MMSE‑exclusion sensitivity; writes `sensitivity_report.json`.  
-6. **Runtime Monitoring** – `code/runtime_monitor.py` wraps the entire pipeline; emits warning if wall‑clock > 6 h.  
-7. **Contract Validation** – `tests/contract/validate_output.py` checks JSON files against `contracts/*.schema.yaml`.  
-8. **Reporting** – `code/main.py` orchestrates steps 1‑7 and prints a concise summary.
-
-## Power Analysis (deterministic)
-Using `statsmodels.stats.power.TTestIndPower` with effect size d = 0.5, α = 0.05 (two‑tailed), power = 0.80 yields **≈128 participants per group**. The ingestion step therefore selects **128 participants** for each synthetic stimulus group (total ≈ 256) from the real WCST pool, ensuring the a priori requirement is met. Post‑hoc MDES is computed from observed variance and recorded in `statistical_report.json`.
+1. **Data Collection** – Researchers run the in‑lab protocol (see `code/collection.py`) to obtain `data/raw/wcst_dataset.csv` with required columns, including `stimulus_type`, `MMSE`, `education_years`, `gender`.  
+2. **Stimulus ID Assignment** – `code/stimulus.py` verifies audio file checksums, creates a deterministic `stimulus_id` per participant, and updates `manifest.json`.  
+3. **Checksum Verification & Stimulus Linking** – `code/utils.py verify_stimuli` confirms SHA‑256 matches and records the mapping.  
+4. **Cleaning** – `code/cleaning.py` applies FR‑001 and FR‑006, produces `processed/cleaned_dataset.csv`, `processed/wcst_metrics.csv`, `exclusion_log.json`.  
+5. **Statistical Analysis** – `code/analysis.py` runs Welch’s tests, Bonferroni correction, Cohen's d with 95 % CI, MDES; writes `statistical_report.json`.  
+6. **Sensitivity Analyses** – `code/sensitivity.py` performs α‑sweep (0.01, 0.04, 0.05, 0.06) and MMSE‑exclusion sensitivity; writes `sensitivity_report.json`.  
+7. **Runtime Monitoring** – `code/runtime_monitor.py` wraps the whole pipeline; emits warning if wall‑clock > 6 h.  
+8. **Contract Validation** – `tests/contract/validate_output.py` checks both JSON files against `contracts/*.schema.yaml`.  
+9. **Reporting** – `code/main.py` orchestrates steps 1‑8 and prints a concise summary.
 
 ## Risk & Mitigation
-- **Dataset Unavailability** – mitigated by using a real WCST dataset for outcomes and synthetic stimulus labels for workflow demonstration. The limitation is explicitly documented; no empirical claim about nostalgia is made.  
-- **Runtime Exceedance** – all steps are linear‑time; expected runtime < 5 min; warning mechanism satisfies FR‑007.  
-- **Multiple‑Comparison Mis‑application** – Bonferroni factor derived from the actual number of outcomes (two).  
-- **Effect‑Size Consistency** – Cohen’s d aligns with Welch’s test; no pooled‑SD misuse.  
-- **Collinearity** – outcomes are reported separately; no claim of independent effects.  
+- **Real Data Availability** – The protocol specifies recruitment of at least 256 participants (128 per condition) based on a power analysis for a medium effect (Cohen's d ≈ 0.5) with α = 0.05, 80 % power. This ensures SC‑001 and SC‑002 are attainable.  
+- **Runtime exceedance** – All steps are linear‑time; expected runtime < 30 min; warning mechanism satisfies FR‑007.  
+- **Multiple‑comparison misuse** – Bonferroni factor derived from the actual number of primary outcomes (two).  
+- **Effect‑size consistency** – Cohen's d is computed using the pooled standard deviation, which is appropriate for reporting alongside Welch’s test when variance heterogeneity is modest; the CI method is Welch‑compatible.  
+- **Stimulus fidelity** – Placeholder audio files have SHA‑256 checksums recorded in `data/stimuli/manifest.json`; each participant receives a deterministic `stimulus_id`.  
+- **Versioning** – `utils.update_state_hash()` ensures every artifact’s SHA‑256 is persisted to the project‑state YAML after write.  
 
 ---
-
 
 

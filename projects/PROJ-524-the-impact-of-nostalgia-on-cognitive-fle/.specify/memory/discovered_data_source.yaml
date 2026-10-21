@@ -1,17 +1,11 @@
 status: none
-intent: Wisconsin Card Sorting Test MMSE dataset OpenNeuro HuggingFace MMSense MMS-e
-  python package dataset
+intent: OpenML wcst dataset download python package dataset MMSE dataset
 required_fields:
 - participant_id
-- age
+- wcst_category_completed
+- wcst_total_errors
+- nostalgia_label
 - mmse_score
-- wcst_total_correct
-- wcst_perseverative_errors
-- stimulus_label
-- trial_number
-- response_time
-- gender
-- education_years
-cache_key: f0ff25a4d02872cd072c0bbd946c14b360eb35e42eb6b4f7d5e862d02c36bd52
-searched_at: '2026-10-21T00:16:38.183470+00:00'
+cache_key: 32d456ad743e63e66ba624a66bbd60175366aa027479985fc0a1c13aa9a330da
+searched_at: '2026-10-21T00:37:09.808499+00:00'
 retry_count: 1
