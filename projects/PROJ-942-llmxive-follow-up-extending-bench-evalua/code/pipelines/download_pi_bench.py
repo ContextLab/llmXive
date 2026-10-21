@@ -1,11 +1,10 @@
 import argparse
 import hashlib
 import logging
-import shutil
+import requests
 from pathlib import Path
 from typing import List, Tuple
 
-from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
 # Initialize logger
@@ -16,7 +15,7 @@ log = get_logger(__name__)
 # The list can be extended with additional files if needed.
 PUBLIC_JSON_URLS = [
     # Example JSON file from the Hugging Face datasets repository.
-    # This file is small, publicly accessible, and can be loaded with `datasets.load_dataset("json", ...)`.
+    # This file is small, publicly accessible, and can be loaded with a simple JSON parser.
     "https://raw.githubusercontent.com/huggingface/datasets/main/datasets/json/example.json",
 ]
 
@@ -42,18 +41,18 @@ def _write_checksums(files: List[Tuple[Path, str]], out_path: Path) -> None:
 
 def _download_and_save(url: str, target_dir: Path) -> Path:
     """
-    Download a JSON file via ``datasets.load_dataset`` (which handles caching)
-    and copy it into ``target_dir``. Returns the Path of the copied file.
+    Download a JSON file via ``requests`` and save it into ``target_dir``.
+    Returns the Path of the saved file.
     """
-    log.debug(f"Downloading {url} via datasets.load_dataset")
-    # ``load_dataset`` with the "json" builder will download the file to the cache.
-    ds = load_dataset("json", data_files={"train": url}, split="train")
-    cache_path = Path(ds.cache_files["train"]["filename"])
-    if not cache_path.is_file():
-        raise FileNotFoundError(f"Cached file not found for {url}")
+    log.debug(f"Downloading {url} via requests")
+    response = requests.get(url, stream=True, timeout=30)
+    response.raise_for_status()
     dest_path = target_dir / Path(url).name
-    shutil.copy(cache_path, dest_path)
-    log.debug(f"Copied cached file {cache_path} → {dest_path}")
+    with dest_path.open("wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    log.debug(f"Saved downloaded file to {dest_path}")
     return dest_path
 
 def main() -> None:

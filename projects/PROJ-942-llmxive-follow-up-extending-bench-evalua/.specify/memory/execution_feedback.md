@@ -10,24 +10,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 Traceback (most recent call last):
   File "<string>", line 1, in <module>
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/datasets.py", line 42, in load_dataset
+    raise NotImplementedError(
+NotImplementedError: This stub only implements JSON loading; received name='pi_bench'
 
 - python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv -> rc=1
 
-2026-10-21 02:17:57,325 ERROR __main__: Raw directory not found: data/raw
+2026-10-21 03:10:19,082 ERROR __main__: No JSON files found in data/raw
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 103, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 67, in main
-    raise FileNotFoundError(f"Raw directory {raw_dir} does not exist.")
-FileNotFoundError: Raw directory data/raw does not exist.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 72, in main
+    raise FileNotFoundError(f"No JSON files found in {raw_dir}")
+FileNotFoundError: No JSON files found in data/raw
 
 - python src/utils/compute_median_graph_token_budget.py --out data/derived/token_budget.txt -> rc=2
 
