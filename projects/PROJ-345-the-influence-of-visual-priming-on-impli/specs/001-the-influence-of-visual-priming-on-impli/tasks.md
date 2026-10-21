@@ -7,176 +7,140 @@ description: "Task list for feature implementation – The Influence of Visual P
 **Input**: Design documents from `/specs/001-the-influence-of-visual-priming-on-impli/`  
 **Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
 
-## Phase 1 – Setup (Shared Infrastructure)
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Goal**: Project initialization and basic structure.
+Goal: Initialise the project, install dependencies, and verify that the logging subsystem creates a real log file.
 
-- [ ] T001a [P] Create `data/raw` directory per `plan.md`.  
-  - **Verification**: `ls data/raw` lists the directory.
+- [ ] **T001** [P] Create the core data directories (`data/raw`, `data/processed`, `data/primes`, `data/targets`).  
+  - **Verification**: `ls data/raw data/processed data/primes data/targets` lists each directory.
 
-- [ ] T001b [P] Create `data/processed` directory per `plan.md`.  
-  - **Verification**: `ls data/processed` lists the directory.
+- [ ] **T002** [P] Create the code, tests, and state directories (`code/`, `tests/`, `state/`).  
+  - **Verification**: `ls code tests state` lists the expected sub‑folders.
 
-- [ ] T001c [P] Create `data/primes` directory per `plan.md`.  
-  - **Verification**: `ls data/primes` lists the directory.
+- [ ] **T003** [P] Write `requirements.txt` with the pinned package list from the plan and create a virtual environment that installs those requirements.  
+  - **Verification**: `cat requirements.txt` contains the exact list; `pip list` shows the pinned versions; `python -c "import pandas"` runs without error.
 
-- [ ] T001d [P] Create `data/targets` directory per `plan.md`.  
-  - **Verification**: `ls data/targets` lists the directory.
-
-- [ ] T002a [P] Create `code/`, `tests/`, `state/` directories per `plan.md`.  
-  - **Verification**: `ls code tests state` each lists expected sub‑folders.
-
-- [ ] T003a [P] Create `requirements.txt` with pinned versions (see `plan.md`).  
-  - **Verification**: `cat requirements.txt` contains the exact package list.
-
-- [ ] T003b [P] Create a Python virtual environment and install dependencies from `requirements.txt`.  
-  - **Verification**: `pip list` shows the pinned versions; `python -c "import pandas"` runs without error.
-
-- [ ] T004 [P] Configure linting (ruff), formatting (black), and pre‑commit hooks.  
+- [ ] **T004** [P] Configure linting (ruff), formatting (black), and pre‑commit hooks.  
   - **Verification**: `pre‑commit run --all-files` completes with zero failures.
 
-- [ ] T005 [P] Setup `code/config.py` with paths for all data folders, random seed, and `PRIMARY_DATASET_URL`.  
+- [ ] **T005** [P] Populate `code/config.py` with paths for all data folders, a random seed, and `PRIMARY_DATASET_URL` (read from `data/verified_sources.json`).  
   - **Verification**: `python -c "from code.config import Config; assert Config.PRIMARY_DATASET_URL"` succeeds.
 
-- [ ] T006 [P] Implement `code/data/integrity.py` for Principle VI (Distinct Stimulus Set Validation).  
-  - **Verification**: Running the function on `data/primes` and `data/targets` returns `{"is_separated": true}` for the test dataset.
+- [ ] **T006** [P] Implement logging in `code/main.py` using the required format `'%(asctime)s - %(name)s - %(levelname)s - %(message)s'`, level INFO, with handlers for `stdout` and `code/logs/pipeline.log`. Execute the script once with a dry‑run flag to generate an initial log entry.  
+  - **Verification**: After `python -m code.main --dry-run`, `code/logs/pipeline.log` exists and contains at least one line matching the log‑format regex.
 
-- [ ] T007 [P] Initialise project state and versioning (`scripts/init_state.py`).  
-  - **Verification**: `state/projects/PROJ-345/state.yaml` exists and contains `project_id` and an empty `artifact_hashes` map.
+- [ ] **T041** [P] Verify that the logging run from T006 created `code/logs/pipeline.log` and that the file contains the expected header line.  
+  - **Verification**: `test -f code/logs/pipeline.log && grep -E "^[0-9]{4}-[0-9]{2}-[0-9]{2} .+ - INFO -" code/logs/pipeline.log` succeeds.
 
-- [ ] T008 [P] Create base data classes (`Trial`, `Participant`, `Stimulus`) in `code/data/models.py`.  
-  - **Verification**: Instantiating each class works without error.
+- [ ] **T007** [P] Initialise project state by creating `state/artifact_hashes.json` (empty JSON object) and a minimal `state/project_state.yaml`.  
+  - **Verification**: Both files exist and are valid JSON/YAML.
 
-- [ ] T009 [P] **Configure logging in `code/main.py` to output to `code/logs/pipeline.log`.**  
-  - **Requirement**: Use format `'%(asctime)s - %(name)s - %(levelname)s - %(message)s'`, level `INFO`, handlers for `stdout` and the log file.  
-  - **Verification**: Execute `python -m code.main --dry-run` and then assert that `code/logs/pipeline.log` exists and contains at least one line matching the log format.
+- [ ] **T008** [P] Define base data models (`Trial`, `Participant`, `Stimulus`) in `code/data/models.py`.  
+  - **Verification**: Importing each class and instantiating with dummy data raises no exception.
 
-- [ ] T010 [P] Integrate PII‑scanning hooks in `code/main.py` using `presidio-analyzer`.  
-  - **Verification**: Running `python -m code.main --scan-pii` creates `reports/pii_scan.json` with schema‑compliant content.
+- [ ] **T009** [P] Verify that the ingestion URL in `data/verified_sources.json` is present and matches the URL used in `code/config.py`. Abort with a clear error if the URL is missing or mismatched.  
+  - **Verification**: Running `python -c "from code.verified_sources import get_primary_url; from code.config import Config; assert get_primary_url() == Config.PRIMARY_DATASET_URL"` succeeds; a mismatched URL raises `ValueError`.
 
-- [ ] T040 [P] Implement streaming helpers for datasets > 7 GB in `code/data/streaming.py`.  
-  - **Verification**: Running the helper on a synthetic 8 GB CSV completes without exceeding 2 GB RAM (checked via `psutil`).
+## Phase 2 – Data ingestion, preprocessing & linkage  
 
-- [ ] T048 [P] Verify ingestion URL against `data/verified_sources.json`.  
-  - **Verification**: Supplying a non‑verified URL raises `ValueError` before any download attempt.
+Goal: Download the IAT dataset, validate its schema, extract stimulus metadata, and produce a fully linked trial file.
 
-- [ ] T018b [P] Define static analysis parameters in `config/analysis_params.json` (e.g., `"LINKAGE_THRESHOLD": 95.0`).  
-  - **Verification**: The file is readable and the key/value pair matches the spec.
+- [ ] **T010** [P] Load the verified sources (`data/verified_sources.json`) and expose the primary URL via `code/verified_sources.py`.  
+  - **Verification**: Importing the module returns the exact URL string.
 
-## Phase 2 – Foundational (Blocking Prerequisites)
+- [ ] **T011** [P] Download the dataset from `Config.PRIMARY_DATASET_URL` into `data/raw/iat.parquet`; compute its SHA‑256 checksum and record the hash in `state/artifact_hashes.json`.  
+  - **Verification**: `data/raw/iat.parquet` exists; `state/artifact_hashes.json` contains an entry with key `"data/raw/iat.parquet"` and a 64‑character hex string.
 
-**Goal**: Core infrastructure that must be complete before any user story can start.
+- [ ] **T012** [P] Perform core‑column validation on the downloaded file (must contain `response_time`, `participant_id`, `stimulus_id`). If any are missing, write `state/linkage_status.json` with `"status": "HALT"` and abort further processing.  
+  - **Verification**: When a required column is absent, the JSON file exists, matches `contracts/linkage_status.schema.yaml`, and the pipeline stops.
 
-- [ ] T011 [P] Load verified sources (`data/verified_sources.json`) and expose the primary URL via `code/verified_sources.py`.  
-  - **Verification**: Importing the module returns the correct URL string.
+- [ ] **T013** [P] Extract stimulus metadata (image paths or word tokens) and write `data/processed/metadata_mapping.csv` with columns `trial_id,stimulus_id,type,file_path_or_word,prime_or_target`.  
+  - **Verification**: The CSV file contains the expected header row and at least one record per trial.
 
-- [ ] T012 [P] Implement `code/ingest.py` to download the dataset from `Config.PRIMARY_DATASET_URL` into `data/raw/iat.parquet`.  
-  - **Verification**: After run, file exists, SHA‑256 recorded in `state/artifact_hashes.json`.
+- [ ] **T014** [P] Detect missing image files, count them, and write `data/processed/missing_images.json` with fields `missing_image_trials` and `missing_image_percentage`.  
+  - **Verification**: The JSON file validates against a simple schema and the counts reflect the actual filesystem state.
 
-- [ ] T013 [P] Core‑column validation on the downloaded dataset (response_time, participant_id, stimulus_id).  
-  - **Verification**: If any column missing, script writes `state/linkage_status.json` with `"status": "HALT"` and aborts.
+- [ ] **T015** [P] Apply halt/warn logic for missing images: if > 10 % of trials lack an image, write `state/linkage_status.json` with `"status": "HALT"` and an explanatory message; if ≤ 10 % missing, write `"status": "WARN"` and continue.  
+  - **Verification**: The status field reflects the computed percentage and the appropriate message is logged.
 
-- [ ] T014 [P] Extract stimulus metadata and write `data/processed/metadata_mapping.csv`.  
-  - **Verification**: CSV contains columns `trial_id, stimulus_id, image_path`.
+- [ ] **T016** [P] Compute the overall linkage metric (linked trials / total trials) and write `data/processed/ingest_metrics.json` (must conform to `contracts/ingest_metrics.schema.yaml`).  
+  - **Verification**: The JSON file is non‑empty, all required fields are present, and `linkage_percentage` ≥ `config.LINKAGE_THRESHOLD` when status is `PASS`.
 
-- [ ] T015a [P] Detect missing image files and output counts to `data/processed/missing_images.json`.  
-  - **Verification**: Unit test confirms correct counts on a deliberately incomplete dataset.
+- [ ] **T017** [P] Merge the raw trial data with `metadata_mapping.csv` to create `data/processed/linked_trials.csv`. The file must contain the columns required by `contracts/dataset.schema.yaml` (prime_valence and stimulus_ambiguity may be null at this stage).  
+  - **Verification**: The CSV exists, contains ≥ 90 % of the raw trials, and passes schema validation via `pytest -m contract`.
 
-- [ ] T015b [P] Apply halt/warn logic for missing images (>10 % → halt, ≤10 % → warn).  
-  - **Verification**: Function raises `RuntimeError` when threshold exceeded; logs a warning otherwise.
+- [ ] **T018** [P] Derive prime‑valence scores for each stimulus using the CPU‑only emotion classifier; write `data/processed/valence_scores.csv` with values in the range [-1, 1].  
+  - **Verification**: All rows have a numeric `prime_valence` within the allowed interval; the file validates against a simple schema.
 
-- [ ] T015c [P] Emit exact error string `"Data Gap: No linkage data available"` and halt if synthetic linkage fails (see T018c).  
-  - **Verification**: Log contains the exact string and pipeline stops.
+- [ ] **T019** [P] Derive stimulus‑ambiguity scores (WordNet sense‑count for words or texture variance for images) and write `data/processed/ambiguity_scores.csv` with values in [0, 1].  
+  - **Verification**: All rows contain a numeric `stimulus_ambiguity` within the allowed interval; schema validation passes.
 
-## Phase 3 – User Story 1: Data Ingestion & Stimulus Metadata Extraction (Priority P1)
+- [ ] **T020** [P] Merge `valence_scores.csv` and `ambiguity_scores.csv` with `metadata_mapping.csv` (and with `linked_trials.csv`) to produce an enriched `data/processed/linked_trials.csv` that now includes non‑null `prime_valence` and `stimulus_ambiguity` columns.  
+  - **Verification**: The updated CSV has no missing values in the two derived columns and validates against `contracts/dataset.schema.yaml`.
 
-**Goal**: Produce a clean, linked trial file ready for modelling.
+- [ ] **T039** [P] Validate that the derived columns `prime_valence` and `stimulus_ambiguity` are present and contain no nulls in the enriched `linked_trials.csv`. Abort with `"status": "HALT"` in `state/linkage_status.json` if any nulls are found.  
+  - **Verification**: The task reads the enriched CSV, checks both columns for nulls, writes a pass/fail status, and logs the result.
 
-- [ ] T016 [US1] Compute linkage metric and write `data/processed/ingest_metrics.json`.  
-  - **Verification**: JSON validates against `contracts/ingest_metrics.schema.yaml` and `linkage_percentage` ≥ `config/LINKAGE_THRESHOLD` when status is `PASS`.
+## Phase 3 – Statistical modelling, diagnostics & validation  
 
-- [ ] T017 [US1] **Generate `data/processed/linked_trials.csv`** by merging raw trial data with resolved stimulus metadata.  
-  - **Requirement**: Include columns `trial_id, participant_id, response_time, stimulus_id, prime_valence, stimulus_ambiguity, linkage_status, demographics_status`.  
-  - **Verification**: File exists, contains ≥ 90 % of raw trials, conforms to `contracts/dataset.schema.yaml`, and passes schema validation via `pytest -m contract`.
+Goal: Check multicollinearity, validate derived scores, ensure sufficient power, run confound diagnostics, and fit the final LME model.
 
-- [ ] T018c [US1] Attempt rule‑based synthetic linkage derivation for trials missing metadata.  
-  - **Verification**: Updated `metadata_mapping.csv` contains at least one newly derived link; logs detail the derivation process.
+- [ ] **T021** [P] Compute Variance Inflation Factors for all fixed‑effect predictors using the design matrix from `linked_trials.csv` and write `state/vif_flag.json`. If any VIF > 5.0, set `"flagged": true` and `"claim_suppressed": true`.  
+  - **Verification**: The JSON file contains the VIF values, the boolean flags, and matches `state/vif_flag.json` schema.
 
-- [ ] T018a [US1] **Calculate and record the final linkage metric** (`linked_metadata_percentage`) in `data/processed/ingest_metrics.json`.  
-  - **Verification**: The JSON file is non‑empty, matches schema, and the percentage value is correctly computed from the final `metadata_mapping.csv`.
+- [ ] **T022** [P] Validate the derived `prime_valence` and `stimulus_ambiguity` scores against external benchmarks (NRC VAD for words, FER‑2013 for images). Store Pearson r, 95 % CI, and a pass/fail flag in `state/score_validation.json`.  
+  - **Verification**: The file conforms to `state/score_validation.json` schema and `validation_passed` is true only when both correlations ≥ 0.6.
 
-- [ ] T019 [US1] Write `state/linkage_status.json` with final status (`PASS`, `WARN`, or `HALT`) based on the metric and image‑missing logic.  
-  - **Verification**: The JSON matches `contracts/linkage_status.schema.yaml`.
+- [ ] **T023** [P] Perform an a‑priori power analysis (target effect size f = 0.15, α = 0.05, power = 0.80) and write `state/power_check.json`. Halt the pipeline with `"status": "HALT"` in `state/linkage_status.json` if `observed_n` < `required_n`.  
+  - **Verification**: The JSON contains `required_n`, `observed_n`, and a boolean `power_achieved`; the halt logic works as described.
 
-## Phase 4 – User Story 2: Statistical Modeling & Interaction Testing (Priority P2)
+- [ ] **T024** [P] Run confound diagnostics (trial‑order autocorrelation, stimulus repetition rate, ICC). Write `state/confound_check.json`; if any severe confound is detected, set `"confound_severe": true` and halt.  
+  - **Verification**: The JSON matches its schema and the halt condition triggers when appropriate.
 
-**Goal**: Fit the LME model, perform diagnostics, and apply corrections.
+- [ ] **T025** [P] Fit a linear mixed‑effects model with fixed effects `prime_valence`, `stimulus_ambiguity`, and their interaction; random intercept **and** random slope for `prime_valence` per `participant_id`. Use robust SEs and retry up to three optimizers (`lbfgs`, `bfgs`, `powell`). Record attempts and outcomes in `state/model_convergence_metrics.json`. On success, write `state/model_results.json` conforming to `contracts/model_results.schema.yaml`.  
+  - **Verification**: `model_convergence_metrics.json` contains `total_attempts`, `successful_runs`, `failed_runs`, and the optimizer list; `model_results.json` includes all required fields.
 
-- [ ] T020 [US2] Derive prime‑valence scores (`data/processed/valence_scores.csv`) using the CPU‑only emotion classifier.  
-  - **Verification**: All rows have a numeric `prime_valence` in the range [-1, 1].
+- [ ] **T026** [P] Apply Benjamini‑Hochberg FDR correction to all raw p‑values and store the corrected values (`p_fdr`) alongside `p_raw` in `state/model_results.json`.  
+  - **Verification**: Each fixed‑effect entry now has both `p_raw` and `p_fdr` fields.
 
-- [ ] T021 [US2] Derive stimulus‑ambiguity scores (`data/processed/ambiguity_scores.csv`) via WordNet sense‑count (words) or texture variance (images).  
-  - **Verification**: Scores lie in [0, 1] and file validates against a simple schema.
+- [ ] **T027** [P] Append the associational framing `caution_note` and the limitation `limitation_note` (as required by FR‑003) to `state/model_results.json`.  
+  - **Verification**: The two note fields contain the exact strings stipulated in the specification.
 
-- [ ] T022 [US2] Merge valence and ambiguity scores with `metadata_mapping.csv` → `data/processed/stimulus_metadata.csv`.  
-  - **Verification**: No `null` values in `prime_valence` or `stimulus_ambiguity`; schema‑validated.
+- [ ] **T028** [P] Compute bootstrap effect‑size estimates (Cohen’s d and partial η²) with ≥ 1 000 resamples; add the estimates and 95 % CIs to `state/model_results.json` under `effect_sizes`.  
+  - **Verification**: Both effect‑size objects contain `estimate`, `ci_lower`, and `ci_upper` and are numeric.
 
-- [ ] T023 [US2] Compute VIF for all fixed‑effect predictors using the design matrix from `linked_trials.csv` and `stimulus_metadata.csv`. Write `state/vif_flag.json`.  
-  - **Verification**: JSON contains `flagged: true` if any VIF > 5.0 and `claim_suppressed: true` accordingly.
+## Phase 4 – Reporting & visualization  
 
-- [ ] T024 [US2] Perform a power‑analysis checkpoint (`state/power_check.json`).  
-  - **Verification**: `power_achieved` is `true` only when observed N ≥ required N (effect size f = 0.15, α = 0.05, power = 0.80).
+Goal: Produce all required figures, tables, sensitivity analysis, and a final PDF report that reflects either a successful analysis or a data‑gap narrative.
 
-- [ ] T025 [US2] Run confound diagnostics (`state/confound_check.json`).  
-  - **Verification**: `confound_severe` is `false`; otherwise pipeline halts with explanatory message.
+- [ ] **T029** [P] Generate an interaction plot (`reports/interaction_plot.png`) that visualises response‑time differences across prime‑valence conditions.  
+  - **Verification**: The PNG file exists and its dimensions are ≥ 600 × 400 px.
 
-- [ ] T026 [US2] Fit the linear mixed‑effects model (`statsmodels.MixedLM`) with random intercept **and** random slope for `prime_valence` per `participant_id`.  
-  - **Requirement**: Use robust SEs, retry up to three optimizers (`lbfgs`, `bfgs`, `powell`).  
-  - **Verification**: `state/model_convergence_metrics.json` records attempts; at least one successful fit writes `state/model_results.json` conforming to `contracts/model_results.schema.yaml`.
+- [ ] **T030** [P] Render a coefficient table as an image (`reports/coefficient_table.png`) containing fixed‑effect estimates, SEs, raw and FDR‑corrected p‑values.  
+  - **Verification**: The PNG file exists and the text is readable (checked via OCR‑free sanity test).
 
-- [ ] T027 [US2] Apply Benjamini‑Hochberg FDR correction to all raw p‑values and store corrected values in `state/model_results.json`.  
-  - **Verification**: Each fixed effect now has both `p_raw` and `p_fdr`.
+- [ ] **T031** [P] Perform an α‑sweep sensitivity analysis (α = 0.01, 0.05, 0.10) on the FDR‑corrected results and write `reports/sensitivity_analysis.csv`.  
+  - **Verification**: The CSV contains columns `alpha_level, significant_tests, total_tests, conclusion` and three rows.
 
-- [ ] T028 [US2] Append associational framing notes (`caution_note`, `limitation_note`) to `state/model_results.json`.  
-  - **Verification**: Strings exactly match the specification in FR‑003.
+- [ ] **T032** [P] Assemble all artifacts into `reports/final_report.pdf`. The PDF must contain (a) the interaction plot, (b) the coefficient table image, (c) the sensitivity‑analysis summary, (d) the exact `caution_note` and `limitation_note`, (e) a VIF‑suppression statement when applicable, and (f) an ambiguity‑status paragraph. If `state/linkage_status.json` is `HALT`, the PDF instead contains a data‑gap narrative explaining the reason for halting.  
+  - **Verification**: The PDF exists; a text search finds the strings “Interaction Plot”, “Coefficient Table”, “Sensitivity Analysis”, and the two note texts. Schema validation of accompanying JSON metadata passes.
 
-- [ ] T029 [US2] Compute bootstrap effect‑size estimates (Cohen’s d, partial η²) with ≥ 1 000 resamples; store in `state/model_results.json`.  
-  - **Verification**: Confidence intervals are present and non‑null.
+## Phase 5 – Cross‑cutting checks, documentation & end‑to‑end run  
 
-## Phase 5 – User Story 3: Reporting & Visualization Generation (Priority P3)
-
-**Goal**: Produce a publication‑ready PDF containing all required figures, tables, and sensitivity analyses.
-
-- [ ] T030 [US3] Generate interaction plot (`reports/interaction_plot.png`).  
-  - **Verification**: PNG file exists and visualises response‑time differences across prime valence conditions.
-
-- [ ] T031 [US3] Render coefficient table as an image (`reports/coefficient_table.png`).  
-  - **Verification**: PNG file exists and includes coefficients, SEs, raw and FDR‑corrected p‑values.
-
-- [ ] T032 [US3] Perform α‑sweep sensitivity analysis (`reports/sensitivity_analysis.csv`).  
-  - **Verification**: CSV contains rows for α = 0.01 … 0.10 and includes `significant_tests` counts.
-
-- [ ] T033 [US3] Assemble all artifacts into `reports/final_report.pdf`.  
-  - **Requirement**: PDF must contain (a) interaction plot, (b) coefficient table, (c) sensitivity analysis summary, (d) caution and limitation notes, (e) VIF‑suppression wording when applicable, (f) ambiguity‑status text.  
-  - **Verification**: File exists, PDF text search finds the strings `"Interaction Plot"`, `"Coefficient Table"`, `"Sensitivity Analysis"`, as well as the exact `caution_note` and `limitation_note`. Schema validation of accompanying JSON metadata passes.
-
-- [ ] T034 [US3] Run contract verification (`pytest -m contract`) to ensure all JSON/YAML artifacts conform to their schemas.  
+- [ ] **T033** [P] Run contract verification (`pytest -m contract`) to ensure every JSON/YAML artifact conforms to its schema.  
   - **Verification**: Test suite exits with 0 failures.
 
-## Phase 6 – Cross‑Cutting & Polish
+- [ ] **T034** [P] Update `quickstart.md` with clear installation steps, the command to run the full pipeline on a small subset, and expected artefact locations.  
+  - **Verification**: The document contains a runnable example that, when executed on a fresh clone, reproduces the end‑to‑end analysis on ≤ 100 trials.
 
-- [ ] T035 [P] Update `quickstart.md` with installation, data‑setup, and full‑pipeline commands.  
-  - **Verification**: The document contains a runnable example that, when followed, reproduces the end‑to‑end analysis on a small subset.
+- [ ] **T035** [P] Execute the full pipeline end‑to‑end on a real subset (≈ 100 trials) and confirm that `reports/final_report.pdf` is produced and passes the checks in T032.  
+  - **Verification**: The pipeline completes within the CI time limit, the PDF exists, and all content checks succeed.
 
-- [ ] T036 [P] **Run the full pipeline end‑to‑end** on a real subset (N ≈ 100) and confirm that `reports/final_report.pdf` is produced and passes the verification steps in T033.  
-  - **Verification**: Execution completes within the CI time limit, the PDF exists, and all content checks succeed.
+- [ ] **T036** [P] Perform a PII scan on all processed outputs using `presidio-analyzer`; write `reports/pii_scan.json` and verify that the `"leaks"` list is empty.  
+  - **Verification**: The JSON file matches `contracts/pii_scan.schema.yaml` (if defined) and contains `"leaks": []`.
 
-- [ ] T037 [P] Add additional unit tests for edge cases (high collinearity, missing images ≤10 %).  
-  - **Verification**: New tests in `tests/unit/` pass.
+- [ ] **T037** [P] Add unit tests for edge‑case scenarios identified in the specification (high collinearity, ≤ 10 % missing images, model‑convergence failures). Place them under `tests/unit/`.  
+  - **Verification**: `pytest tests/unit/` runs with 0 failures.
 
-- [ ] T038 [P] Security hardening – re‑run PII scan on all processed outputs and confirm `reports/pii_scan.json` reports `{"leaks": []}`.  
-  - **Verification**: No PII leakage detected.
-
---- 
-
-*All tasks marked with `[X]` have been completed and verified. Unchecked tasks (`[ ]`) are pending and include explicit verification steps to ensure compliance with the specification, data‑hygiene principles, and the scientific requirements of the study.*
+- [ ] **T038** [P] Document the streaming helper (`code/data/streaming.py`) that can process datasets > 7 GB in a memory‑efficient way; include a sanity‑check script that creates a synthetic 7.5 GB Parquet file, streams it, and logs memory usage.  
+  - **Verification**: The helper runs without exceeding 2 GB RAM (checked via `psutil`), and the log confirms successful streaming.

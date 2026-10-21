@@ -9,17 +9,6 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-09-21T04:28:42.793615Z'
-- artifact_hash: fc7a83997db136f3880739f454ae3ab5b30e05b690ec85c4b9dde5dc37ec6f17
-  artifact_path: projects/PROJ-345-the-influence-of-visual-priming-on-impli/specs/001-the-influence-of-visual-priming-on-impli/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-09-21T04:31:20.872092Z'
 - artifact_hash: 5522907f9e41a593adefe46fe3eb13da4ca13fce6df0022db6b23b0b501fc7a5
   artifact_path: projects/PROJ-345-the-influence-of-visual-priming-on-impli/specs/001-the-influence-of-visual-priming-on-impli/plan.md
   cite_id: c-001
