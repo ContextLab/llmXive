@@ -1,6 +1,6 @@
 # Quickstart: Linking Resting‑State fMRI Entropy to Real‑World Decision Risk‑Taking
 
-This guide runs the full analysis on a fresh GitHub Actions runner (or any Linux environment with Python 3.11).
+Run the full analysis on a fresh GitHub Actions runner (or any Linux environment with Python 3.11).
 
 ## Prerequisites
 1. **Python 3.11** (or use the provided virtual environment).  
