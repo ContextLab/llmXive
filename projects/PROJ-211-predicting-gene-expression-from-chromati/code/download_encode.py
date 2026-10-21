@@ -74,9 +74,10 @@ def get_session_with_retry(max_retries: int = 3, backoff_factor: float = 2.0) ->
 def _query_encode_file(
     session: requests.Session,
     cell_line: str,
-    assay: str,
-    output_type: str,
-    file_format: str = None
+    assay: str = None,
+    output_type: str = None,
+    file_format: str = None,
+    extra_params: Dict[str, str] = None
 ) -> str:
     """
     Query ENCODE for a single file matching the criteria.
@@ -84,27 +85,31 @@ def _query_encode_file(
     """
     params = {
         "type": "File",
-        "assay_title": assay,
         "biosample_ontology.term_name": cell_line,
-        "output_type": output_type,
         "status": "released",
         "assembly": "hg38",
         "format": "json",
         "limit": "1",
         "field": "href",
     }
+    if assay:
+        params["assay_title"] = assay
+    if output_type:
+        params["output_type"] = output_type
     if file_format:
         params["file_format"] = file_format
+    if extra_params:
+        params.update(extra_params)
 
     logger.info(
-        f"Querying ENCODE for {cell_line} {assay} {output_type} (format={file_format})"
+        f"Querying ENCODE for {cell_line} assay={assay} output_type={output_type} format={file_format}"
     )
     resp = session.get(ENCODE_SEARCH, params=params, headers={"Accept": "application/json"})
     resp.raise_for_status()
     data = resp.json()
     if not data.get("@graph"):
         raise RuntimeError(
-            f"No ENCODE file found for {cell_line} ({assay}, {output_type}, format={file_format})"
+            f"No ENCODE file found for {cell_line} (assay={assay}, output_type={output_type}, format={file_format})"
         )
     href = data["@graph"][0]["href"]
     full_url = ENCODE_API + href
@@ -113,7 +118,7 @@ def _query_encode_file(
 
 def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> List[Dict[str, Any]]:
     """
-    Fetch real ENCODE metadata for each requested cell line.
+    Fetch ENCODE metadata for each requested cell line.
     Returns a list of dicts with keys:
     - cell_line
     - rna: {"download_uri": ...}
@@ -121,7 +126,9 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
     """
     results = []
     for cl in cell_lines:
+        # ---- RNA‑seq ----
         try:
+            # Primary attempt: assay=RNA‑seq, output_type=gene quantifications
             rna_uri = _query_encode_file(
                 session,
                 cell_line=cl,
@@ -129,17 +136,28 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                 output_type="gene quantifications",
                 file_format="tsv"
             )
-            # Try DNase first; if not found, fall back to ATAC-seq
+        except Exception as e1:
+            logger.warning(f"Primary RNA‑seq query failed for {cl}: {e1}. Trying fallback without assay.")
+            # Fallback: drop assay filter
+            rna_uri = _query_encode_file(
+                session,
+                cell_line=cl,
+                output_type="gene quantifications",
+                file_format="tsv"
+            )
+
+        # ---- DNase / ATAC ----
+        try:
+            dnase_uri = _query_encode_file(
+                session,
+                cell_line=cl,
+                assay="DNase-seq",
+                output_type="peaks",
+                file_format="narrowPeak"
+            )
+        except Exception as e_dnase:
+            logger.warning(f"DNase‑seq not found for {cl}: {e_dnase}. Trying ATAC‑seq.")
             try:
-                dnase_uri = _query_encode_file(
-                    session,
-                    cell_line=cl,
-                    assay="DNase-seq",
-                    output_type="peaks",
-                    file_format="narrowPeak"
-                )
-            except Exception as e_dnase:
-                logger.warning(f"DNase-seq not found for {cl}: {e_dnase}. Trying ATAC-seq.")
                 dnase_uri = _query_encode_file(
                     session,
                     cell_line=cl,
@@ -147,31 +165,47 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                     output_type="peaks",
                     file_format="narrowPeak"
                 )
+            except Exception as e_atac:
+                logger.error(f"Both DNase‑seq and ATAC‑seq missing for {cl}: {e_atac}")
+                raise RuntimeError(f"No accessibility file for {cl}")
 
-            results.append({
-                "cell_line": cl,
-                "rna": {"download_uri": rna_uri},
-                "dnase": {"download_uri": dnase_uri}
-            })
-        except Exception as e:
-            logger.error(f"Failed to retrieve metadata for {cl}: {e}")
-            raise
+        results.append({
+            "cell_line": cl,
+            "rna": {"download_uri": rna_uri},
+            "dnase": {"download_uri": dnase_uri}
+        })
     return results
 
 def download_file(uri: str, output_path: Path, session: requests.Session) -> bool:
     """
     Download a file from a URI to a local path using streaming.
     Returns True on success; raises on HTTP error or empty file.
+    Handles optional gzip compression.
     """
     logger.info(f"Downloading {uri} to {output_path}")
     try:
         with session.get(uri, stream=True) as r:
             r.raise_for_status()
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            with output_path.open("wb") as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
+            # Detect gzip by header if not already .gz
+            is_gzip = uri.endswith(".gz")
+            if is_gzip:
+                # Write compressed file first, then decompress
+                tmp_path = output_path.with_suffix(output_path.suffix + ".gz")
+                with tmp_path.open("wb") as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+                # Decompress
+                with gzip.open(tmp_path, "rb") as src, output_path.open("wb") as dst:
+                    for chunk in iter(lambda: src.read(8192), b""):
+                        dst.write(chunk)
+                tmp_path.unlink(missing_ok=True)
+            else:
+                with output_path.open("wb") as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
         # Verify non‑empty
         if output_path.stat().st_size == 0:
             raise RuntimeError(f"Downloaded file is empty: {output_path}")
@@ -329,16 +363,26 @@ def main() -> None:
     ci_mode = os.environ.get("CI_MODE", "0") == "1"
     session = get_session_with_retry()
 
-    metadata = fetch_encode_metadata(cell_lines, session)
-    if not metadata:
-        logger.error("No metadata could be retrieved for the requested cell lines.")
+    try:
+        metadata = fetch_encode_metadata(cell_lines, session)
+    except Exception as e:
+        logger.error(f"Failed to retrieve ENCODE metadata: {e}")
         if ci_mode:
             with (RAW_DIR / ".download_failed.log").open("w") as f:
-                json.dump({"status": "failed", "reason": "No metadata in CI mode"}, f)
+                json.dump({"status": "failed", "reason": str(e)}, f)
             logger.info("CI mode: recorded failure and exiting.")
             sys.exit(0)
         else:
             raise SystemExit("Failed to retrieve ENCODE metadata and CI_MODE=0 – aborting pipeline.")
+
+    if not metadata:
+        logger.error("No metadata could be retrieved for the requested cell lines.")
+        if ci_mode:
+            with (RAW_DIR / ".download_failed.log").open("w") as f:
+                json.dump({"status": "failed", "reason": "empty metadata"}, f)
+            sys.exit(0)
+        else:
+            raise SystemExit("No metadata and CI_MODE=0 – aborting.")
 
     generated_files: List[Path] = []
 
