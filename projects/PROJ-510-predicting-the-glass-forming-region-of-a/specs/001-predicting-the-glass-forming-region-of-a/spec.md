@@ -70,16 +70,16 @@ The system MUST perform permutation importance analysis to rank thermodynamic pa
 - **FR-005**: System MUST conduct collinearity sensitivity analysis as described in US-3, flagging predictor pairs with |r| > 0.8 and re‑training after removing the lower‑variance predictor. **(See US-3)**
 - **FR-006**: System MUST explicitly frame all predictive findings as ASSOCIATIONAL if the dataset is observational, avoiding causal claims unless randomization is specified (See US-2). **(See US-2)**
 - **FR-007**: System MUST acknowledge the limitation of using only three thermodynamic descriptors and MUST document, in the final report, that additional known predictors (e.g., electronic structure, processing history) are omitted and may introduce bias (See US-1). **(See US-1)**
-- **FR-008**: System MUST mitigate composition‑distribution bias by ensuring that no single element family (e.g., alkali, alkaline‑earth, transition, lanthanide, actinide) accounts for more than **[deferred]** of the training set. The pipeline shall apply stratified sampling based on element families to achieve a representation within **±5 %** of the overall element‑family distribution in the source data. **(See US-2)**
 - **FR-010**: System MUST perform final validation of all generated artifacts against their respective schema contracts and record the results in validation logs (See SC-006). **(See US-3)**
-- **FR-011**: Artifact `processed_alloys.csv` MUST conform to the schema defined in `contracts/processed_alloys.schema.yaml`; validation is performed by `validate_schemas.py` (See SC-006). **(See US-1)**
-- **FR-012**: Artifact `features.csv` MUST conform to the schema defined in `contracts/features.schema.yaml`; validation is performed by `validate_schemas.py` (See SC-006). **(See US-1)**
-- **FR-013**: Artifact `cv_metrics.json` MUST conform to the schema defined in `contracts/model_metrics.schema.yaml`; validation is performed by `validate_schemas.py` (See SC-006). **(See US-2)**
-- **FR-014**: Artifact `feature_importance.csv` MUST conform to the schema defined in `contracts/feature_importance.schema.yaml`; validation is performed by `validate_schemas.py` (See SC-006). **(See US-3)**
-- **FR-015**: Artifact `sensitivity_report.json` MUST conform to the schema defined in `contracts/sensitivity.schema.yaml`; validation is performed by `validate_schemas.py` (See SC-006). **(See US-3)**
+- **FR-011**: Artifact `processed_alloys.csv` MUST conform to the schema defined in `contracts/processed_alloys.schema.yaml`; validation is performed by `validate_schemas.py`. This ensures structural integrity of the processed alloy records. **(See SC-006)**
+- **FR-012**: Artifact `features.csv` MUST conform to the schema defined in `contracts/features.schema.yaml`; validation is performed by `validate_schemas.py`. This guarantees that each feature vector includes all required thermodynamic descriptors. **(See SC-006)**
+- **FR-013**: Artifact `cv_metrics.json` MUST conform to the schema defined in `contracts/model_metrics.schema.yaml`; validation is performed by `validate_schemas.py`. **(See SC-006)**
+- **FR-014**: Artifact `feature_importance.csv` MUST conform to the schema defined in `contracts/feature_importance.schema.yaml`; validation is performed by `validate_schemas.py`. This provides a validated ranking of predictor contributions for downstream analysis. **(See SC-006)**
+- **FR-015**: Artifact `sensitivity_report.json` MUST conform to the schema defined in `contracts/sensitivity.schema.yaml`; validation is performed by `validate_schemas.py`. **(See SC-006)**
 - **FR-016**: System MUST use only experimentally measured `critical_cooling_rate` values; synthetic surrogate CCR data is prohibited (See US-1). **(See US-1)**
-- **FR-017**: System MUST perform an a priori power analysis to confirm **≥ 90 %** statistical power to detect a reduction of at least **0.05 K/s** in RMSE, using significance level **α = 0.05** and assuming a typical CCR range of **10–500 K/s** (Effect size is expected to be very small.). The analysis must be documented; if the required sample size exceeds the available dataset, the pipeline aborts with a clear error message. (See US-2) **(See US-2)**
-- **FR-018**: When reporting both continuous RMSE and binary F1‑score across multiple classification thresholds, the system MUST apply a **Bonferroni correction** to control the family‑wise error rate at **α = 0.05**, and must report the corrected p‑values. (See US-3) **(See US-3)**
+- **FR-017**: *Removed to align with original research scope (see concern scope-11757ff9).*
+- **FR-018**: *Removed due to statistical inappropriateness and scope expansion (see concerns scope-8af3a565 and scientific_soundness-11e5201a).*
+- **FR-008**: *Removed as stratified sampling constraints were not part of the original idea (see concern scope-9f857527).*
 
 ### Key Entities
 
