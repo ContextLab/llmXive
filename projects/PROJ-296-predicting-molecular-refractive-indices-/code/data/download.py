@@ -10,7 +10,7 @@ The script is intended to be run as a stand‑alone command:
 
 It performs the following steps:
 
-1. Download the dataset from OpenML (dataset ID 219 – “Molecule Refractive Index”).
+1. Download the dataset from Hugging Face (dataset: "chemistry/ri_dataset").
 2. Persist the file to ``data/raw/ri_dataset.csv`` (creating the ``raw``
    directory if necessary).
 3. Compute the SHA‑256 checksum of the persisted file.
@@ -34,14 +34,12 @@ import yaml
 from jsonschema import Draft7Validator, ValidationError
 from llmxive_toolkit import paths, get_logger
 
-# ``openml`` is not part of the default environment – it is declared in
-# ``requirements.txt``.  Import lazily so that a clear error is raised if
-# the package cannot be installed.
+# Hugging Face datasets is required to download the data
 try:
-    import openml
+    import datasets
 except ImportError as exc:
     raise ImportError(
-        "The 'openml' package is required to download the dataset. "
+        "The 'datasets' package is required to download the dataset. "
         "Please ensure it is listed in requirements.txt and installed."
     ) from exc
 
@@ -50,8 +48,8 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# OpenML dataset ID for the refractive‑index dataset.
-OPENML_DATASET_ID = 219  # “Molecule Refractive Index”
+# Hugging Face dataset name for the refractive‑index dataset.
+HF_DATASET_NAME = "chemistry/ri_dataset"
 
 # Destination for the raw CSV file.
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
@@ -88,31 +86,28 @@ def write_checksum(checksum: str) -> None:
 
 def download_dataset() -> pd.DataFrame:
     """
-    Download the refractive‑index dataset from OpenML and return it as a
+    Download the refractive‑index dataset from Hugging Face and return it as a
     ``pandas.DataFrame``.
     """
-    log.info(
-        f"Downloading OpenML dataset id={OPENML_DATASET_ID} (Molecule Refractive Index)…"
-    )
+    log.info(f"Downloading Hugging Face dataset {HF_DATASET_NAME}...")
     try:
-        oml_dataset = openml.datasets.get_dataset(OPENML_DATASET_ID)
+        # Load the training split
+        ds = datasets.load_dataset(HF_DATASET_NAME, split="train")
+        df = ds.to_pandas()
     except Exception as exc:
         raise RuntimeError(
-            f"Failed to retrieve OpenML dataset {OPENML_DATASET_ID}: {exc}"
+            f"Failed to retrieve Hugging Face dataset {HF_DATASET_NAME}: {exc}"
         ) from exc
 
-    # ``get_data`` returns a tuple (dataframe, ...).  We only need the dataframe.
-    df, *_ = oml_dataset.get_data()
-    if not isinstance(df, pd.DataFrame):
-        raise RuntimeError("OpenML did not return a pandas DataFrame.")
+    if df is None or df.empty:
+        raise RuntimeError("Hugging Face returned an empty dataset.")
 
-    log.info(f"Retrieved {len(df)} records from OpenML.")
+    log.info(f"Retrieved {len(df)} records from Hugging Face.")
 
     # ------------------------------------------------------------------
     # Normalise column names to the schema expectations.
     # ------------------------------------------------------------------
     # Expected columns: ``smiles`` and ``refractive_index``.
-    # OpenML may use different capitalisation or aliases.
     column_map = {}
     for col in df.columns:
         lowered = col.lower()
@@ -177,8 +172,11 @@ def validate_rows(df: pd.DataFrame) -> None:
     """
     log.info(f"Loading schema from {SCHEMA_PATH}")
     # Load the full schema for documentation; we only enforce the minimal checks.
-    with SCHEMA_PATH.open("r", encoding="utf-8") as f:
-        _ = yaml.safe_load(f)  # noqa: F841 – intentionally ignored
+    if SCHEMA_PATH.is_file():
+        with SCHEMA_PATH.open("r", encoding="utf-8") as f:
+            _ = yaml.safe_load(f)  # noqa: F841
+    else:
+        log.warning(f"Schema file {SCHEMA_PATH} not found; skipping full schema load.")
 
     _minimal_schema_validation(df)
 

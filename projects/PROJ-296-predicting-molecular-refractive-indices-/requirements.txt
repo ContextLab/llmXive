@@ -1,7 +1,7 @@
-# Project dependencies
-# Core scientific stack is already available in the runner environment.
-# Additional packages required for the download step:
-openml
-# Note: RDKit is required for later preprocessing steps (code/data/preprocess.py)
-# but is not part of the default environment.  Install it via conda or a
-# suitable wheel if you wish to run the full pipeline locally.
+datasets
+rdkit
+torch-geometric
+torch-scatter
+torch-sparse
+torch-cluster
+torch-spline-conv
