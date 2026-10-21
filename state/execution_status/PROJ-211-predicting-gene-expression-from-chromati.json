@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-21T20:11:14Z",
+  "updated_at": "2026-10-21T22:13:56Z",
   "project_id": "PROJ-211-predicting-gene-expression-from-chromati",
   "replan_rounds": 1
 }

@@ -1,5 +1,2 @@
-# Existing dependencies are already satisfied by the environment.
-# The download script uses only the standard library and `requests`,
-# which is available in the base environment. No additional packages
-# are required. If a future change introduces new third‑party
-# requirements, they should be added here with explicit version pins.
+# Existing dependencies are provided by the platform.
+# Additional dependencies for this task (none needed beyond standard library and requests, which is pre‑installed).

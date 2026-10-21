@@ -334,6 +334,23 @@ def log_checksums_csv(files: List[Path], log_path: Path) -> None:
                 logger.warning(f"File not found for checksum logging: {fp}")
     logger.info(f"Checksums written to {log_path}")
 
+def parse_cell_lines(arg_value: List[str]) -> List[str]:
+    """
+    Flexible parser for the --cell-lines argument.
+    Accepts:
+    - a single comma‑separated string: "GM12878,K562,HMEC"
+    - multiple arguments possibly ending with commas: ["GM12878,", "K562,", "HMEC"]
+    - a mixture of the above.
+    Returns a clean list of cell line identifiers.
+    """
+    # Flatten the list into a single string, then split on commas
+    combined = " ".join(arg_value)
+    # Replace commas with spaces, then split
+    parts = combined.replace(",", " ").split()
+    # Strip any stray commas or whitespace
+    cleaned = [p.strip().strip(",") for p in parts if p.strip()]
+    return cleaned
+
 def main() -> None:
     """
     Download real ENCODE data and record checksums.
@@ -344,9 +361,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Download ENCODE data.")
     parser.add_argument(
         "--cell-lines",
-        type=str,
-        default=",".join(DEFAULT_CELL_LINES),
-        help="Comma-separated list of cell lines"
+        nargs="+",
+        default=DEFAULT_CELL_LINES,
+        help="Cell line identifiers (space or comma separated)."
     )
     parser.add_argument(
         "--output-dir",
@@ -355,7 +372,8 @@ def main() -> None:
         help="Directory to store raw downloaded files"
     )
     args = parser.parse_args()
-    cell_lines = [cl.strip() for cl in args.cell_lines.split(",") if cl.strip()]
+    # Parse cell lines flexibly
+    cell_lines = parse_cell_lines(args.cell_lines)
 
     # Resolve output directory and make it globally visible for other helpers
     global RAW_DIR

@@ -21,9 +21,6 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
-- run-book command: `python code/download_encode.py  --cell-lines GM128*, K562, HMEC, IMR90, HepG2  --output-dir data/raw`
-  - script usage: `download_encode.py [-h] [--cell-lines CELL_LINES]`
-  - argparse error: `download_encode.py: error: unrecognized arguments: K562, HMEC, IMR90, HepG2`
 - run-book command: `python code/preprocess.py  --counts data/raw/encode_counts.csv  --peaks  data/raw/encode_peaks.bed  --tss    data/raw/gene_coords.bed  --output-dir data/processed`
   - script usage: `preprocess.py [-h]`
   - argparse error: `preprocess.py: error: unrecognized arguments: --counts data/raw/encode_counts.csv --peaks data/raw/encode_peaks.bed --tss data/raw/gene_coords.bed --output-dir data/processed`
@@ -36,15 +33,13 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 16 fabricated/simulated-result signal(s) — results are not real measurements: code/generate_data.py: self-declared fabricated metric — “…tadata fields are filled with placeholder values.     """     # Metadata – pl…”; code/generate_data.py: self-declared fabricated metric — “…ues.     """     # Metadata – placeholder values sufficient for validation…”; code/preprocess.py: self-declared fabricated metric — “…errows():             # Use a dummy score of 0 for the BED score column…”; 2 run-book script(s) missing (plan/impl path mismatch): python code/generate_synthetic.py --seed 42 --output-dir data/raw; python code/analyze.py  --features data/processed/binned_matrix.csv  --targets  data/processed/imputed_expression.csv  --models   data/models  --output-dir data/processed; 7 command(s) failed: python code/download_encode.py  --cell-lines GM128*, K562, HMEC, IMR90, HepG2  --output-dir data/raw (rc=2); python code/preprocess.py  --counts data/raw/encode_counts.csv  --peaks  data/raw/encode_peaks.bed  --tss    data/raw/gene_coords.bed  --output-dir data/processed (rc=2); python code/train.py  --features data/processed/binned_matrix.csv  --targets  data/processed/imputed_expression.csv  --output-dir data/models (rc=2); 9 declared deliverable(s) absent: data/processed/cell_type_specific_genes.csv; data/processed/external_validation_r2.csv; data/processed/filtered_expression.csv
+**Summary**: 16 fabricated/simulated-result signal(s) — results are not real measurements: code/generate_data.py: self-declared fabricated metric — “…tadata fields are filled with placeholder values.     """     # Metadata – pl…”; code/generate_data.py: self-declared fabricated metric — “…ues.     """     # Metadata – placeholder values sufficient for validation…”; code/preprocess.py: self-declared fabricated metric — “…errows():             # Use a dummy score of 0 for the BED score column…”; 2 run-book script(s) missing (plan/impl path mismatch): python code/generate_synthetic.py --seed 42 --output-dir data/raw; python code/analyze.py  --features data/processed/binned_matrix.csv  --targets  data/processed/imputed_expression.csv  --models   data/models  --output-dir data/processed; 7 command(s) failed: python code/download_encode.py  --cell-lines GM128*, K562, HMEC, IMR90, HepG2  --output-dir data/raw (rc=1); python code/preprocess.py  --counts data/raw/encode_counts.csv  --peaks  data/raw/encode_peaks.bed  --tss    data/raw/gene_coords.bed  --output-dir data/processed (rc=2); python code/train.py  --features data/processed/binned_matrix.csv  --targets  data/processed/imputed_expression.csv  --output-dir data/models (rc=2); 9 declared deliverable(s) absent: data/processed/cell_type_specific_genes.csv; data/processed/external_validation_r2.csv; data/processed/filtered_expression.csv
 
 ## Failing / missing run-book commands
 
-- python code/download_encode.py  --cell-lines GM128*, K562, HMEC, IMR90, HepG2  --output-dir data/raw -> rc=2
+- python code/download_encode.py  --cell-lines GM128*, K562, HMEC, IMR90, HepG2  --output-dir data/raw -> rc=1
+ontology.term_name=GM128%2A&assembly=GRCh38&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv"}, {"field": "assembly", "term": "GRCh38", "remove": "/search/?type=File&biosample_ontology.term_name=GM128%2A&status=released&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv"}, {"field": "output_type", "term": "gene quantifications", "remove": "/search/?type=File&biosample_ontology.term_name=GM128%2A&status=released&assembly=GRCh38&format=json&limit=1&field=href&file_format=tsv"}, {"field": "file_format", "term": "tsv", "remove": "/search/?type=File&biosample_ontology.term_name=GM128%2A&status=released&assembly=GRCh38&format=json&limit=1&field=href&output_type=gene+quantifications"}, {"field": "type", "term": "File", "remove": "/search/?biosample_ontology.term_name=GM128%2A&status=released&assembly=GRCh38&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv"}],"notification":"No results found","sort":{"date_created": {"order": "desc", "unmapped_type": "keyword"}, "label": {"order": "desc", "unmapped_type": "keyword"}, "uuid": {"order": "desc", "unmapped_type": "keyword"}},"title":"Search","total":0}
 
-usage: download_encode.py [-h] [--cell-lines CELL_LINES]
-                          [--output-dir OUTPUT_DIR]
-download_encode.py: error: unrecognized arguments: K562, HMEC, IMR90, HepG2
 
 - python code/generate_synthetic.py --seed 42 --output-dir data/raw -> rc=2
 
@@ -84,7 +79,7 @@ ERROR tests/unit/test_preprocess.py::test_merge_features_expression - FileNot...
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_success_on_first_attempt
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_retry_on_failure
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_failure_after_max_attempts
-============= 25 failed, 33 passed, 3 warnings, 5 errors in 2.33s ==============
+============= 25 failed, 33 passed, 3 warnings, 5 errors in 2.55s ==============
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -100,7 +95,7 @@ FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::t
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_required_keys_present
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_value_types
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_delta_r2_calculation
-=================== 15 failed, 1 passed, 7 skipped in 0.26s ====================
+=================== 15 failed, 1 passed, 7 skipped in 0.29s ====================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -118,7 +113,7 @@ E   ImportError: cannot import name 'train_elastic_net_cv' from 'code.train' (/h
 ERROR tests/integration/test_data_pipeline.py
 ERROR tests/integration/test_training_loop.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.11s ===============================
+============================== 2 errors in 1.13s ===============================
 
 
 
