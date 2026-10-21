@@ -19,8 +19,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/split.py --folds 5 --repeats 5 --ratios 0.8 0.1 0.1 -> rc=1
 
-2026-10-21 13:23:18,766 INFO __main__: Loaded processed dataset with 190 records.
-2026-10-21 13:23:18,767 INFO __main__: Computing Murcko scaffolds for all molecules...
+2026-10-21 14:19:55,006 INFO __main__: Loaded processed dataset with 190 records.
+2026-10-21 14:19:55,006 INFO __main__: Computing Murcko scaffolds for all molecules...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/split.py", line 362, in <module>
     _run_split_generation(

@@ -19,7 +19,8 @@ It performs the following steps:
    index and a canonical SMILES.
 2. Persist the records to ``data/raw/ri_dataset.csv``.
 3. Compute the SHA‑256 checksum of the persisted file.
-4. Store the checksum under ``data/raw/ri_dataset.sha256``.
+4. Store the checksum under ``state/ri_dataset.sha256`` (as required by the
+   task specification).
 5. Load the CSV with ``pandas`` and perform validation of the
    required columns (``smiles`` and ``refractive_index``) against the
    constraints defined in the schema.
@@ -52,8 +53,8 @@ REQUEST_TIMEOUT = 120  # seconds
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
 
 # Path that stores the reference SHA‑256 checksum.
-# We use data/raw/ instead of state/ to avoid shadowing platform-owned directories.
-CHECKSUM_PATH = paths.data("raw", "ri_dataset.sha256")
+# The specification requires this file to live under ``state/``.
+CHECKSUM_PATH = paths.root / "state" / "ri_dataset.sha256"
 
 # Path to the JSON‑Schema that defines the expected column layout.
 SCHEMA_PATH = paths.root / "contracts" / "dataset.schema.yaml"
@@ -206,7 +207,7 @@ def validate_rows(df: pd.DataFrame) -> None:
         schema = yaml.safe_load(f)
 
     validator = Draft7Validator(schema)
-    
+
     # We only validate the fields that exist in the raw CSV.
     # The full schema requires processed features (node/edge), which are added in T002.
     for idx, row in df.iterrows():
@@ -214,13 +215,10 @@ def validate_rows(df: pd.DataFrame) -> None:
             "smiles": row["smiles"],
             "refractive_index": row["refractive_index"]
         }
-        # We check for errors in the fields provided.
-        # Since jsonschema.validate checks 'required' fields, we must 
-        # manually verify the constraints of the fields we have.
+        # Basic field‑level checks (type / minimum) – jsonschema will raise ValidationError.
         for field, value in record.items():
             field_schema = schema.get("properties", {}).get(field, {})
             if "type" in field_schema:
-                # Basic type validation
                 if field_schema["type"] == "string" and not isinstance(value, str):
                     raise ValueError(f"Row {idx}: {field} must be string")
                 if field_schema["type"] == "number" and not isinstance(value, (int, float)):
