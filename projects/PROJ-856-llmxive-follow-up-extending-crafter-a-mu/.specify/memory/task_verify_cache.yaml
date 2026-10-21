@@ -23,25 +23,24 @@ T002:
   sig: a8083e74b46a75cdfea78c31533a1d2bbaccdba6dedc56da545fadce285646a4
 T003:
   c: true
-  h: 59bb7e461563407f3af3a5d61cd9bb6eb347b8f7dbb18a86bd211102e1c9b1fc
+  h: f7794f0f4d3b1b9be472dda1eb9cc6d3eccb11ed91cc5335e20f74563029a2b9
   r: 'All four required files exist with substantive content: both FastAPI apps expose
-    `/edit` with Pydantic-validated payloads and shared logging, `session.py` provides
-    `/init_session` returning a shuffled two-interface order, and the test file covers
-    both endpoints on both apps. The historical execution log shows `pytest` ran with
-    exit 0 and all 4 tests passed, matching the task''s verification requirement.'
-  sig: 2ccb90a39abe3a4ad2ede5b0ac3fefa8bcd433b6bbf3e4fa5d03630e5a687e7e
+    `/edit` with Pydantic-validated payloads and shared session router, `session.py`
+    implements `/init_session` returning a randomized order of both interfaces, and
+    the pytest log shows all 4 tests passing (exit 0, 4 passed) confirming 200 OK
+    for `/init_session` and `/edit` on both apps. The random-shuffle order assignment
+    satisfies the task''s counterbalancing requirement as tested.'
+  sig: 580acd0fa4746fece485f76bfa219cfdf0afaaea0d62f11ff4a9ed4888d6c63c
 T004:
-  c: false
-  h: 00aebd0365ea2217e55ea81d89d9959ce54f801e18219ada44928e8a2ad8a824
-  r: "The logger module and unit tests exist and pass, but the required verification\
-    \ is not satisfied: `data/logs/interactions_clean.jsonl` contains only fabricated\
-    \ data \u2014 every payload reads `\"synthetic edit N for figure_X using chat\"\
-    ` with identical timestamps per task \u2014 rather than lines produced by a real\
-    \ edit through a `TestClient`, and no TestClient-based integration test or execution\
-    \ evidence exists anywhere in the artifacts. Additionally, the \"clean\" log file\
-    \ is polluted with ~2.6 MB of this synthetic data instead of being a fresh, clean\
-    \ log, and the logger is not wired into any edit endpoin"
-  sig: 73a1a9959a30b84dd9ed1f8fb144941e9f6a710859b7a9ed4b0e32f354351e16
+  c: true
+  h: e68c84185cc0500d2cf5b652040a0aa9eead3fbe121799d13b4ec54c2b8c2169
+  r: The logger, tests, schema, and integration endpoints all exist with substantive
+    content; the pytest run (exit 0) shows all 5 tests passing, including TestClient
+    integration tests that verify real edits create log lines with `timestamp_ms`,
+    `iteration`, `mode`, `task_start_ms`/`task_end_ms`, and abort handling after 15
+    minutes. The empty `interactions_clean.jsonl` is expected since the test fixture
+    clears logs after each run, and the record fields match the schema contract.
+  sig: c69b1981a7a7e3682b721d3354592204e78d1c7b6176af15ef171a453a72d52b
 T005:
   c: true
   h: 759f5e8cca9be23a06ccc4272a49f8d6401307f6dc3d7dbd9f7e6490089e38fb
@@ -52,17 +51,17 @@ T005:
     \ fields with correct types."
   sig: 6c1f8772c7110be921afdcf9837deec7bffd9c664550f71a71ec413d47714ac4
 T006:
-  c: true
-  h: 5fbdb385a0c7d85ab8839c3cc352dca0ea43bcff68f8f8dc04477b8eda3e8525
-  r: "Both scripts exist and executed successfully (exit 0): `power_analysis.py` printed\
-    \ \"Required participants (per group): 34\" (\u226530), and `simulate_participants.py`\
-    \ ran with 30 participants/seed 42. The log file `data/logs/interactions_clean.jsonl`\
-    \ is 2,650,500 bytes; at ~353 bytes per line (matching the shown sample records)\
-    \ this is ~7,500 lines, and the sampled records contain all schema fields (log_id,\
-    \ session_id, task_id, timestamp_ms, iteration, mode, payload as JSON string,\
-    \ response_image_path, task_start_ms, task_end_ms) with valid values. The synthetic\
-    \ data is intentional per the task (\"sy"
-  sig: 6eefd87d9b1c1c2ad11e5ffd00b385acd7fe588d3fcd6c9d9e505aa1e4e6cd26
+  c: false
+  h: ecc70bfe5da5c47815706f3e4df638641b2e13a49017121127ff3d666c5d1eed
+  r: "The required output `data/logs/interactions_clean.jsonl` is 0 bytes (sha256\
+    \ of empty file), so the \u22657,500 schema-valid log lines requirement is not\
+    \ met \u2014 the historical run of `simulate_participants.py` exited 0 with empty\
+    \ stdout and no evidence any lines were written (possibly the logger's `llmxive_toolkit.paths.data`\
+    \ wrote elsewhere, or logs were cleared). The power-analysis script itself is\
+    \ fine (prints N=34 \u2265 30, exit 0), but the simulation driver's deliverable\
+    \ is missing; re-run it and verify the canonical log file actually contains \u2265\
+    7,500 valid JSON lines."
+  sig: 12b9985805e3e47ea7574bb99c7536c130ca81d1441fcf0dc23baac0d51d4360
 T007:
   c: false
   h: fb56ada03097405a12ef5de621bb550cced02421611390548a9134716ee6a598

@@ -58,6 +58,14 @@ def _timestamp_ms() -> int:
 # ----------------------------------------------------------------------
 # Public API
 # ----------------------------------------------------------------------
+def clear_logs() -> None:
+    """
+    Clear the interaction log file to ensure a fresh start.
+    This is used during verification to ensure no synthetic pollution.
+    """
+    with _lock, LOG_PATH.open("w", encoding="utf-8") as f:
+        f.truncate(0)
+
 def log_interaction(
     participant_id: str,
     figure_id: str,

@@ -1,9 +1,9 @@
 """
-Unit tests for ``src.logger.interaction_logger``.
+Unit and Integration tests for ``src.logger.interaction_logger``.
 
 These tests verify that the logger correctly records millisecond-precision
-timestamps, maintains per-task timing state, and handles the 15-minute
-abort threshold.
+timestamps, maintains per-task timing state, handles the 15-minute
+abort threshold, and integrates correctly with the FastAPI endpoints.
 """
 
 import json
@@ -12,19 +12,22 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from fastapi.testclient import TestClient
+
 import src.logger.interaction_logger as logger
-from src.logger.interaction_logger import LOG_PATH, log_interaction
+from src.logger.interaction_logger import LOG_PATH, log_interaction, clear_logs
+from src.interfaces.structured_harness import app as structured_app
+from src.interfaces.chat_interface import app as chat_app
 
 @pytest.fixture(autouse=True)
 def clean_environment():
     """Ensure a fresh log file and clear in-memory state for each test."""
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    LOG_PATH.write_text("", encoding="utf-8")
+    clear_logs()
     logger._task_state.clear()
     yield
-    # Clean up after the test
     if LOG_PATH.exists():
-        LOG_PATH.write_text("", encoding="utf-8")
+        clear_logs()
 
 def test_log_interaction_basic():
     """Verify that a single interaction is recorded with all required schema fields."""
@@ -102,3 +105,66 @@ def test_log_interaction_abort_status():
     assert rec2["status"] == "aborted", "Interaction after 15 mins must be marked as aborted"
     assert rec2["task_start_ms"] == start_time
     assert rec2["task_end_ms"] == end_time
+
+def test_structured_harness_integration():
+    """Verify that a real edit via TestClient creates a valid log entry."""
+    clear_logs()
+    client = TestClient(structured_app)
+    
+    participant = "test_user_struct"
+    figure = "fig_struct_1"
+    payload = {"edit": "set_color(axis, blue)"}
+    
+    # The endpoint expects the request body to match EditRequest
+    response = client.post("/edit", json={
+        "participant_id": participant,
+        "figure_id": figure,
+        "interface": "structured",
+        "payload": payload,
+        "iteration": 1
+    })
+    
+    assert response.status_code == 200
+    
+    # Verify the log file
+    assert LOG_PATH.exists()
+    lines = LOG_PATH.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 1
+    
+    rec = json.loads(lines[0])
+    assert rec["session_id"] == participant
+    assert rec["task_id"] == figure
+    assert rec["mode"] == "structured"
+    assert rec["payload"] == json.dumps(payload, separators=(",", ":"))
+    assert "task_start_ms" in rec
+    assert "task_end_ms" in rec
+
+def test_chat_interface_integration():
+    """Verify that a real edit via TestClient for chat interface creates a valid log entry."""
+    clear_logs()
+    client = TestClient(chat_app)
+    
+    participant = "test_user_chat"
+    figure = "fig_chat_1"
+    payload = {"message": "Make the axis blue"}
+    
+    response = client.post("/edit", json={
+        "participant_id": participant,
+        "figure_id": figure,
+        "interface": "chat",
+        "payload": payload,
+        "iteration": 1
+    })
+    
+    assert response.status_code == 200
+    
+    # Verify the log file
+    assert LOG_PATH.exists()
+    lines = LOG_PATH.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 1
+    
+    rec = json.loads(lines[0])
+    assert rec["session_id"] == participant
+    assert rec["task_id"] == figure
+    assert rec["mode"] == "chat"
+    assert rec["payload"] == json.dumps(payload, separators=(",", ":"))
