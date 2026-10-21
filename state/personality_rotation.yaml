@@ -1,14 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-10-21T00:07:15.817017+00:00'
+last_used: john-von-neumann
+last_used_at: '2026-10-21T02:08:23.801431+00:00'
 last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-06-28T06:55:02.059145+00:00'
-  ended_at: '2026-06-28T08:13:47.481317+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-675-comparing-born-model-predictions-with-ex/reviews/research/marie-curie-simulated__2026-06-28__research.md
 - slug: richard-feynman
   started_at: '2026-06-28T08:13:47.481317+00:00'
   ended_at: '2026-06-28T09:38:34.721261+00:00'
@@ -1327,3 +1320,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-1009-llmxive-follow-up-extending-ui-mopd-mult/reviews/research/geoffrey-west-simulated__2026-10-21__research.md
+- slug: john-von-neumann
+  started_at: '2026-10-21T00:07:15.817017+00:00'
+  ended_at: '2026-10-21T02:08:23.801431+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/reviews/research/john-von-neumann-simulated__2026-10-21__research.md
