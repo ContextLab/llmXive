@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Simulation Catalog Schema"
-description: "Schema for synthetic binary‑black‑hole population catalog rows derived from IllustrisTNG/EAGLE releases."
+description: "Schema for synthetic binary‑black‑hole population catalog rows derived from a power‑law spin hypothesis."
 type: "object"
 properties:
   event_id:
@@ -28,10 +28,10 @@ properties:
     type: "string"
     description: "Source of the synthetic event."
     enum:
-      - "derived_from_IllustrisTNG_EAGLE"
+      - "derived_from_power_law_spin"
   generation_method:
     type: "string"
-    description: "Description of the generation hypothesis (e.g., \"Rodriguez2022_mapping\")."
+    description: "Description of the generation hypothesis (e.g., \"power_law_spin_distribution\")."
   data_status:
     type: "string"
     description: "Provenance flag for synthetic data."

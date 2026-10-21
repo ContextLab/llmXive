@@ -8,7 +8,7 @@ properties:
     description: "Unique identifier for the figure."
   parameter_name:
     type: "string"
-    description: "Parameter visualized ('mass_ratio' or 'effective_spin')."
+    description: "Parameter visualized ('mass_ratio' or 'effective_spin' or 'joint')."
   format:
     type: "string"
     description: "File format."

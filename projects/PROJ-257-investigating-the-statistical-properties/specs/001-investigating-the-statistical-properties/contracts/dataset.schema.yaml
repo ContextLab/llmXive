@@ -33,7 +33,7 @@ properties:
       - "synthetic"
   data_status:
     type: "string"
-    description: "Whether the row derives from real observational data or a synthetic stand‑in."
+    description: "Provenance flag."
     enum:
       - "real"
       - "synthetic"
