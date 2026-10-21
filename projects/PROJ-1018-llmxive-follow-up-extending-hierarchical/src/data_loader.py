@@ -27,7 +27,10 @@ from typing import Iterator, List, Dict, Any
 import yaml  # pyyaml is available in the base environment
 from transformers import AutoTokenizer
 from jsonschema import validate, ValidationError
-from huggingface_hub import hf_hub_download, HfFileSystem, RepositoryNotFoundError
+
+# HuggingFace Hub utilities (avoids the heavy `datasets` dependency that
+# pulls in `pyarrow`, which is unavailable in the execution environment).
+from huggingface_hub import hf_hub_download, HfFileSystem
 
 from llmxive_toolkit import paths, get_logger
 from src.config import Config
@@ -53,8 +56,10 @@ def list_repo_json_files(repo_id: str) -> List[str]:
     try:
         fs = HfFileSystem()
         all_files = fs.ls(repo_id, detail=False)
-    except RepositoryNotFoundError as exc:
-        raise RuntimeError(f"Repository '{repo_id}' not found on the HuggingFace Hub.") from exc
+    except Exception as exc:
+        # The specific RepositoryNotFoundError class may not be available
+        # in all versions of ``huggingface_hub``; we raise a generic RuntimeError.
+        raise RuntimeError(f"Failed to list files for repository '{repo_id}': {exc}") from exc
     json_files = [f for f in all_files if f.endswith(".json") or f.endswith(".jsonl")]
     if not json_files:
         raise RuntimeError(f"No JSON files found in repository '{repo_id}'.")
@@ -70,14 +75,12 @@ def stream_documents_from_hub(repo_id: str) -> Iterator[Dict[str, Any]]:
     """
     json_files = list_repo_json_files(repo_id)
 
-    # Prefer a single consolidated file if it exists; otherwise iterate over all.
-    # We simply process files in the order returned by the hub.
+    # Process files in the order returned by the hub.
     for file_path in json_files:
         local_path = hf_hub_download(repo_id=repo_id, filename=file_path, repo_type="dataset")
         logger.info(f"Downloading {file_path} -> {local_path}")
 
         # Detect JSONLines vs. plain JSON list.
-        # If the file starts with '[' we treat it as a list; otherwise line‑by‑line.
         with open(local_path, "r", encoding="utf-8") as f:
             first_char = f.read(1)
             f.seek(0)
@@ -98,7 +101,6 @@ def stream_documents_from_hub(repo_id: str) -> Iterator[Dict[str, Any]]:
                     try:
                         doc = json.loads(line)
                     except json.JSONDecodeError:
-                        # Skip malformed lines but log a warning.
                         logger.warning(f"Skipping malformed JSON line in {file_path}")
                         continue
                     yield {
@@ -353,7 +355,6 @@ def main() -> None:
         pad_short_docs=args.pad_short_docs,
     )
 
-    # For interactive use we also print a short summary.
     logger.info("PG‑19 streaming loader completed successfully.")
 
 
