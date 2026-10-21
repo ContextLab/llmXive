@@ -1,8 +1,12 @@
 status: none
-intent: download refractive_index dataset from Hugging Face as python package dataset
+intent: Open Refractive Index dataset download Zenodo SMILES refractive index python
+  package dataset
 required_fields:
 - smiles
 - refractive_index
-cache_key: 1b656febfda988f34261cc0cbc9bd06bfefcef6ee47e1398900d81d365d1eed2
-searched_at: '2026-10-21T08:16:53.407102+00:00'
+- temperature
+- molecular_weight
+- compound_id
+cache_key: b6a8bb16460274b988a861ec8e7c952cf16af8b502a02efae1ce002499a9e7f0
+searched_at: '2026-10-21T08:38:17.892867+00:00'
 retry_count: 1

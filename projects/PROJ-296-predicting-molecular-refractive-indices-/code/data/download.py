@@ -10,12 +10,12 @@ The script is intended to be run as a stand‑alone command:
 
 It performs the following steps:
 
-1. Download the dataset from Hugging Face (dataset: "chemistry/ri_dataset").
+1. Download the dataset from a verified public URL (Hugging Face hub).
 2. Persist the file to ``data/raw/ri_dataset.csv`` (creating the ``raw``
    directory if necessary).
 3. Compute the SHA‑256 checksum of the persisted file.
 4. Compare the checksum with the expected value stored in
-   ``state/download_checksum.txt``.  If the file does not exist, the
+   ``state/ri_dataset.sha256``.  If the file does not exist, the
    computed checksum is written there for future runs.
 5. Load the CSV with ``pandas`` and perform a minimal validation of the
    required columns (``smiles`` and ``refractive_index``).  The validation
@@ -34,12 +34,12 @@ import yaml
 from jsonschema import Draft7Validator, ValidationError
 from llmxive_toolkit import paths, get_logger
 
-# Hugging Face datasets is required to download the data
+# The huggingface_hub library is part of the default environment.
 try:
-    import datasets
+    from huggingface_hub import hf_hub_download
 except ImportError as exc:
     raise ImportError(
-        "The 'datasets' package is required to download the dataset. "
+        "The 'huggingface_hub' package is required to download the dataset. "
         "Please ensure it is listed in requirements.txt and installed."
     ) from exc
 
@@ -48,14 +48,16 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Hugging Face dataset name for the refractive‑index dataset.
-HF_DATASET_NAME = "chemistry/ri_dataset"
+# Hugging Face repo name for the refractive‑index dataset.
+HF_REPO_ID = "chemistry/ri_dataset"
+# Expected filename inside the repo.
+HF_FILENAME = "ri_dataset.csv"
 
 # Destination for the raw CSV file.
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
 
 # Path that stores the reference SHA‑256 checksum.
-CHECKSUM_PATH = Path(paths.root) / "state" / "download_checksum.txt"
+CHECKSUM_PATH = Path(paths.root) / "state" / "ri_dataset.sha256"
 
 # Path to the JSON‑Schema that defines the expected column layout.
 SCHEMA_PATH = Path(paths.root) / "contracts" / "dataset.schema.yaml"
@@ -71,14 +73,14 @@ def compute_sha256(file_path: Path) -> str:
 
 
 def load_expected_checksum() -> str | None:
-    """Read the expected checksum from ``state/download_checksum.txt``."""
+    """Read the expected checksum from ``state/ri_dataset.sha256``."""
     if CHECKSUM_PATH.is_file():
         return CHECKSUM_PATH.read_text(encoding="utf-8").strip()
     return None
 
 
 def write_checksum(checksum: str) -> None:
-    """Write *checksum* to ``state/download_checksum.txt``."""
+    """Write *checksum* to ``state/ri_dataset.sha256``."""
     CHECKSUM_PATH.parent.mkdir(parents=True, exist_ok=True)
     CHECKSUM_PATH.write_text(checksum + "\n", encoding="utf-8")
     log.info(f"Wrote checksum to {CHECKSUM_PATH}")
@@ -86,51 +88,28 @@ def write_checksum(checksum: str) -> None:
 
 def download_dataset() -> pd.DataFrame:
     """
-    Download the refractive‑index dataset from Hugging Face and return it as a
-    ``pandas.DataFrame``.
+    Download the refractive‑index dataset from the Hugging Face hub
+    and return it as a ``pandas.DataFrame``.
     """
-    log.info(f"Downloading Hugging Face dataset {HF_DATASET_NAME}...")
+    log.info(f"Downloading {HF_REPO_ID}/{HF_FILENAME} from Hugging Face hub...")
     try:
-        # Load the training split
-        ds = datasets.load_dataset(HF_DATASET_NAME, split="train")
-        df = ds.to_pandas()
+        # This will download the file to a temporary location and return the path.
+        local_path = hf_hub_download(repo_id=HF_REPO_ID, filename=HF_FILENAME, repo_type="dataset")
     except Exception as exc:
         raise RuntimeError(
-            f"Failed to retrieve Hugging Face dataset {HF_DATASET_NAME}: {exc}"
+            f"Failed to download {HF_REPO_ID}/{HF_FILENAME} via huggingface_hub: {exc}"
         ) from exc
 
-    if df is None or df.empty:
-        raise RuntimeError("Hugging Face returned an empty dataset.")
+    # Load into pandas.
+    try:
+        df = pd.read_csv(local_path)
+    except Exception as exc:
+        raise RuntimeError(f"Failed to read downloaded CSV at {local_path}: {exc}") from exc
 
-    log.info(f"Retrieved {len(df)} records from Hugging Face.")
+    if df.empty:
+        raise RuntimeError("Downloaded dataset is empty.")
 
-    # ------------------------------------------------------------------
-    # Normalise column names to the schema expectations.
-    # ------------------------------------------------------------------
-    # Expected columns: ``smiles`` and ``refractive_index``.
-    column_map = {}
-    for col in df.columns:
-        lowered = col.lower()
-        if "smiles" in lowered:
-            column_map[col] = "smiles"
-        elif "refractive" in lowered or lowered == "ri":
-            column_map[col] = "refractive_index"
-
-    if set(column_map.values()) != {"smiles", "refractive_index"}:
-        missing = {"smiles", "refractive_index"} - set(column_map.values())
-        raise RuntimeError(
-            f"Dataset is missing required columns after renaming: {missing}"
-        )
-
-    df = df.rename(columns=column_map)
-
-    # Ensure the two required columns are present and have appropriate dtypes.
-    if not pd.api.types.is_string_dtype(df["smiles"]):
-        df["smiles"] = df["smiles"].astype(str)
-
-    # Coerce refractive index to float.
-    df["refractive_index"] = pd.to_numeric(df["refractive_index"], errors="raise")
-
+    log.info(f"Retrieved {len(df)} records from the hub.")
     return df
 
 
@@ -171,7 +150,6 @@ def validate_rows(df: pd.DataFrame) -> None:
     This function delegates to the lightweight validator defined above.
     """
     log.info(f"Loading schema from {SCHEMA_PATH}")
-    # Load the full schema for documentation; we only enforce the minimal checks.
     if SCHEMA_PATH.is_file():
         with SCHEMA_PATH.open("r", encoding="utf-8") as f:
             _ = yaml.safe_load(f)  # noqa: F841
@@ -207,7 +185,7 @@ def main() -> None:
         else:
             log.info("Checksum matches the recorded value.")
     else:
-        # First run – store the checksum for future reproducibility.
+        # First run – store the checksum for future runs.
         write_checksum(actual_checksum)
         log.info("No reference checksum existed; stored the newly computed value.")
 
