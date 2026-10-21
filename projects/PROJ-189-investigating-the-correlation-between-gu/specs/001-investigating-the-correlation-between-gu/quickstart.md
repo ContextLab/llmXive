@@ -4,7 +4,7 @@
 - Python 3.11+  
 - Git  
 - ≤ 7 GB free RAM  
-- **Data Access**: The AGP and HRS parquet files are publicly available via HuggingFace (no authentication required).  
+- Internet access (for automated dataset download).  
 
 ## Setup
 
@@ -21,58 +21,74 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r code/requirements.txt
 ```
 
-## Data Download (automated)
+## Step‑by‑Step Execution
 
-The first script fetches the raw files, verifies their SHA‑256 checksums, and records the hashes in the project state file.
-
+### 1. Download raw data & verify provenance
 ```bash
-python code/01_data_ingestion.py
+python code/01_download_and_provenance.py
+python code/validate_provenance.py
 ```
+- Downloads `agp.parquet`, `hrs.parquet`, `bmi.csv` into `data/raw/`.  
+- Computes SHA‑256 checksums and compares them to the values in `data/provenance/expected_checksums.json`.  
+- On success you will see `PROVENANCE CHECK PASSED` and an `observed_checksums.json` file.
 
-- **AGP** → `data/raw/agp.parquet`  
-- **HRS** → `data/raw/hrs.parquet`  
-- **BMI supplement** → `data/raw/bmi.csv`  
-
-If any checksum mismatches, the script aborts with a clear error.
-
-## Run the Full Analysis
-
+### 2. Merge, age filter, rarefaction, CLR, BMI imputation, VIF
 ```bash
-# 4. Preprocess, merge, and create the analysis dataset
-python code/02_preprocessing.py
-
-# 5. Correlation analysis (Spearman + BH FDR)
-python code/03_correlation_analysis.py
-
-# 6. Predictive modeling with permutation testing
-python code/04_predictive_modeling.py
-
-# 7. Sensitivity analysis over rarefaction depths
-python code/05_sensitivity_analysis.py
+python code/02_merge_preprocess.py
 ```
+- Produces `data/processed/merged_age60.parquet` and `data/processed/clr_normalized.parquet`.  
+- Writes `data/processed/dataset.json` (validated against `contracts/dataset.schema.yaml`).
 
-Each script writes its output to `data/processed/` or `data/results/`. The final markdown summary can be inspected with:
-
+### 3. Correlation analysis (Spearman + BH FDR)
 ```bash
-cat data/results/summary.md
+python code/03_correlation.py
 ```
+- Outputs `data/results/correlations.json` (validated against `contracts/correlation.schema.yaml`).
 
-## Verification
-
+### 4. Predictive modeling & permutation null
 ```bash
-# Run contract tests – will fail if any output does not match the schema
+python code/04_modeling.py
+```
+- Generates `data/results/model.json` (validated against `contracts/model.schema.yaml`).  
+- Includes SHAP rankings and VIF flags.
+
+### 5. Sensitivity analysis over rarefaction depth
+```bash
+python code/05_sensitivity.py
+```
+- Writes `data/results/sensitivity.json` and assembles `data/results/unified_results.json` (validated against `contracts/results.schema.yaml`).  
+- Produces `data/results/summary.md` with key tables and figures.
+
+### 6. Verify all outputs
+```bash
 pytest tests/contract/
 ```
-
-All tests should pass (`0 passed, 0 failed`). The CI runner enforces this step automatically.
+- All tests should pass (`0 passed, 0 failed`).  
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Remedy |
 |---------|--------------|--------|
-| **Fatal Coverage Gap** (`overlap < 500`) | Datasets do not share enough IDs. | The pipeline aborts with a clear message. Obtain a linked microbiome‑cognition dataset and update `spec.md`. |
-| **MemoryError** | Dataset larger than RAM budget. | Reduce taxa (`MAX_TAXA=200`) in `02_preprocessing.py` or lower permutation count (`PERMUTATIONS=500`) in `04_predictive_modeling.py`. |
-| **Merge yields < 500 rows** | Low overlap after age filter. | Verify column names; the pipeline will stop as required by FR‑001. |
-| **pytest failures** | Output does not conform to `results.schema.yaml`. | Re‑run the offending script; check logs for schema‑validation errors. |
+| **PROVENANCE CHECK FAILED** | Checksum mismatch (file corrupted or version changed) | Update `data/provenance/expected_checksums.json` if the source file has legitimately changed, then re‑run the download step. |
+| **Fatal Coverage Gap** (`overlap < 500`) | AGP and HRS IDs do not overlap enough after age filter. | Verify that the correct URLs are used; if the public datasets truly lack sufficient overlap, the analysis cannot proceed (spec‑mandated). |
+| **MemoryError** | Dataset larger than RAM budget. | The pipeline will automatically down‑sample taxa to the top‑200 and/or reduce permutations; see logs for the adjustment. |
+| **pytest failures** | Output file does not conform to its JSON schema. | Re‑run the offending script; check the log for schema‑validation error details. |
+| **Model R² not significant** | Observed R² ≤ 95th percentile of permutation null. | The result is still reported; interpret as “no predictive advantage over chance”. |
+
+## Re‑run All Steps (clean slate)
+
+```bash
+# Remove all generated data
+rm -rf data/processed/* data/results/* data/provenance/observed_checksums.json
+
+# Then repeat the pipeline from step 1
+python code/01_download_and_provenance.py
+python code/validate_provenance.py
+python code/02_merge_preprocess.py
+python code/03_correlation.py
+python code/04_modeling.py
+python code/05_sensitivity.py
+pytest tests/contract/
+```
 
 ---

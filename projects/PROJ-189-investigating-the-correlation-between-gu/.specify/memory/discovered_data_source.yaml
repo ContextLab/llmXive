@@ -1,17 +1,17 @@
 status: none
-intent: American Gut 16S rRNA dataset python package and HRS cognitive data python
-  package dataset
+intent: download American Gut Project 16S dbGaP and Health and Retirement Study cognitive
+  ICPSR python package
 required_fields:
 - participant_id
 - age
 - sex
 - bmi
 - cognitive_score
-- genus_1
-- genus_2
-- genus_3
-- genus_4
-- genus_5
-cache_key: aa0e89eb7d9c1bcaf20d620066585f75891ac35248b5110d4df3aa11195a4d38
-searched_at: '2026-10-21T07:16:37.658591+00:00'
+- genus_Bacteroides
+- genus_Lactobacillus
+- genus_Ruminococcus
+- genus_Bifidobacterium
+- genus_Faecalibacterium
+cache_key: 52432767b6e0f7f447b7c34bea0b23f185fb62e3f42f5580ab22ec214d20c577
+searched_at: '2026-10-21T08:11:02.087185+00:00'
 retry_count: 1
