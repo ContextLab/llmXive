@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.05738",
+  "judged_at": "2026-10-21T19:10:31Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "The paper is a review of virtual reality exposure therapy (VRET) for phobias, which is directly within the domain of VR exposure therapy for anxiety disorders (phobias being anxiety disorders). It satisfies criterion (a)/(e) as canonical prior work on VRET for anxiety-related conditions that a meta-analysis on VRET for anxiety would cite.",
+  "relevant": true
+}

@@ -5,9 +5,7 @@ submitter: openai.gpt-oss-120b
 
 # Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis
 
-# Field
-
-psychology
+**Field**: psychology
 
 ## Research question
 
@@ -15,82 +13,90 @@ Does virtual-reality exposure therapy (VRET) produce reductions in anxiety-sympt
 
 ## Motivation
 
-Anxiety disorders are highly prevalent, yet access to evidence-based exposure therapy is constrained by therapist availability, patient mobility, and logistical costs. While VRET offers a scalable alternative, existing syntheses often focus on self-guided protocols or specific subtypes rather than providing a comprehensive quantitative comparison against gold-standard in-person delivery. A rigorous meta-analysis is required to determine if VRET is non-inferior to traditional methods, which would directly inform clinical guidelines and healthcare resource allocation.
+Anxiety disorders are highly prevalent, yet access to evidence-based exposure therapy is constrained by therapist availability, patient mobility, and logistical costs. VRET offers a potentially scalable alternative, but existing syntheses often conflate delivery modalities or focus on single subtypes, leaving clinicians without a quantitative head-to-head comparison against gold-standard in-person delivery. A rigorous meta-analysis of head-to-head and controlled RCTs would directly inform clinical guidelines and healthcare resource allocation.
 
 ## Literature gap analysis
 
 ### What we searched
-We queried Semantic Scholar, arXiv, and OpenAlex using the following search strings: (1) "virtual reality exposure therapy anxiety meta-analysis randomized controlled trial", (2) "immersive VR vs in-person exposure therapy anxiety outcomes", and (3) "systematic review VR anxiety disorders efficacy". The search targeted studies published through 2024 to identify primary data sources for quantitative synthesis.
+
+We attempted literature searches via the librarian tool using the original term and twenty progressively broadened variants ("VR exposure therapy for anxiety disorders", "virtual reality anxiety treatment", "immersive therapy for anxiety", "simulation-based exposure therapy", "virtual reality desensitization", etc.) across Semantic Scholar, arXiv, and OpenAlex. The broad search trail returned zero verified citations; a subsequent targeted pass returned four verified records, of which three are on-topic for VR-based exposure therapy and one (a computational model of fear extinction) is only tangentially related and is omitted.
 
 ### What is known
-- [Self-Guided Virtual Reality Therapy for Anxiety: A Systematic Review (2025)](https://arxiv.org/abs/2501.17375) — Establishes that while VR technology is effective, the majority of existing literature focuses on therapist-guided protocols, with a notable scarcity of quantitative syntheses specifically comparing VR efficacy against traditional in-person exposure in head-to-head trials.
+
+- [A Review on Serious Games for Phobia (2022)](https://arxiv.org/abs/2201.05738) — Reviews game-based and VR exposure interventions for phobia, establishing that digital exposure formats are an active treatment research area while noting that traditional one-session exposure has practical limitations.
+- [A virtual airplane for fear of flying therapy (2025)](https://arxiv.org/abs/2510.15875) — Demonstrates a concrete VR exposure application for fear of flying, motivated by the cost and logistical burden of in-vivo exposure, and reports on its therapeutic use.
+- [Size Does Matter: An Experimental Study of Anxiety in Virtual Reality (2022)](https://arxiv.org/abs/2210.06697) — Provides experimental evidence that VR scene design parameters measurably modulate induced anxiety, supporting the plausibility of dose/intensity moderators in VR exposure.
 
 ### What is NOT known
-There is currently no comprehensive, up-to-date meta-analysis that directly quantifies the comparative effect size of VRET versus traditional in-person exposure therapy across all major anxiety disorders (specific phobia, social anxiety, GAD, panic disorder) using only randomized controlled trials. Existing reviews often conflate self-guided and therapist-guided modalities or lack sufficient power to detect moderator effects related to hardware type or session frequency.
+
+No comprehensive, up-to-date meta-analysis directly quantifies the comparative effect size of VRET versus traditional in-person exposure therapy across the major anxiety disorders using only randomized controlled trials, nor tests whether anxiety subtype, session dose, immersion level, or therapist-guidance level moderate outcomes. Existing reviews conflate self-guided and therapist-guided modalities and typically lack power for moderator analysis.
 
 ### Why this gap matters
-Clinicians and policymakers need definitive evidence on whether VRET can replace or augment traditional therapy without compromising efficacy. Without a clear quantitative answer, the adoption of VRET remains tentative, potentially leaving patients without access to a scalable, cost-effective treatment option.
+
+Clinicians and policymakers need definitive evidence on whether VRET can replace or augment traditional therapy without compromising efficacy. Without a quantitative answer, adoption of VRET remains tentative, potentially denying patients a scalable, cost-effective treatment option.
 
 ### How this project addresses the gap
-This project will systematically extract raw statistical data (means, SDs, N) from all eligible RCTs comparing VRET to active or control conditions. We will compute standardized mean differences (Hedges' g) and conduct random-effects meta-regression to explicitly model the gap between VR and traditional delivery, while testing whether anxiety subtype or intervention dose moderates the outcome.
+
+The project will systematically identify eligible RCTs, extract the raw summary statistics (means, SDs, N) reported in their published tables, and compute standardized mean differences with three-level random-effects meta-regression. The moderator analyses (subtype, dose, immersion, guidance) directly produce the previously-missing quantitative evidence on when and for whom VRET is equivalent to in-person exposure.
 
 ## Expected results
 
-We anticipate a pooled effect size (Hedges' g) indicating that VRET is non-inferior to traditional in-person exposure, with potential superiority over non-exposure controls. We expect to observe significant heterogeneity (I² > 50%) driven by anxiety subtype, with larger effects observed in specific phobias compared to generalized anxiety. A statistically significant moderator effect for "session dose" would suggest that VRET requires fewer sessions to achieve equivalent outcomes compared to traditional therapy.
+We anticipate a pooled effect size (Hedges' g) indicating that VRET is non-inferior to traditional in-person exposure, with superiority over non-exposure controls. We expect substantial heterogeneity (I² > 50%) driven partly by anxiety subtype, with larger effects in specific phobias than in generalized anxiety. A significant moderator effect for session dose would suggest VRET achieves equivalent outcomes with fewer sessions. A null or opposite result (VRET inferior to in-person exposure) would be equally informative, arguing against substitutive use of VRET in clinical guidelines.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Retrieve full-text PDFs of eligible RCTs from open-access repositories (PubMed Central, arXiv, DOAJ) and clinical trial registries (ClinicalTrials.gov) using `wget` or `curl` scripts; no new data collection or simulation will be performed.
-- **Screening Protocol**: Implement a two-stage screening process (title/abstract, then full-text) following PRISMA guidelines; include only studies with explicit randomization, adult participants with diagnosed anxiety disorders, and validated outcome measures (e.g., STAI, BAI, PSWQ).
-- **Data Extraction**: Manually extract pre- and post-intervention means, standard deviations, and sample sizes for both experimental (VR) and control (in-person or waitlist) arms from the full-text PDFs; record metadata including anxiety subtype, VR hardware type, session count, and therapist involvement level.
-- **Effect Size Calculation**: Compute Hedges' g for each study using the `metafor` R package, applying small-sample corrections; calculate variances and covariances for studies with multiple outcome measures to avoid double-counting.
-- **Meta-Analysis Model**: Fit a three-level random-effects model to account for within-study correlation (multiple arms/outcomes) and between-study heterogeneity; report the pooled effect size, 95% confidence interval, and heterogeneity statistics (I², τ²).
-- **Moderator Analysis**: Perform meta-regression to test the influence of anxiety subtype, VR immersion level (head-mounted vs. desktop), session count, and therapist guidance on effect sizes.
-- **Publication Bias Assessment**: Generate funnel plots and conduct Egger's regression test and Begg's rank correlation test to detect asymmetry; apply the trim-and-fill method to estimate the impact of potential missing studies.
-- **Sensitivity Analysis**: Conduct leave-one-out analyses to identify influential studies and assess the robustness of the pooled estimate; perform subgroup analyses excluding studies with high risk of bias (assessed via Cochrane RoB 2 tool).
-- **Reporting**: Generate a final report including a PRISMA flow diagram, forest plots, moderator plots, and bias assessment figures; archive all R scripts, extracted data CSVs, and the final dataset in a public GitHub repository with a DOI via Zenodo for reproducibility.
-- **Validation**: All effect sizes and statistical tests are computed exclusively from the raw summary statistics (means, SDs, N) extracted from the identified primary RCTs. The project will **not** simulate data or use any placeholder values at any stage of the analysis.  All numerical results will be derived directly from the extracted data. Any missing data will be handled using established meta-analytic techniques (e.g., imputation via random-effects modeling) rather than arbitrary assignment.
+- **Data acquisition (all real, no simulation)**: Query PubMed Central E-utilities and OpenAlex APIs via `curl`/`requests` to retrieve open-access full texts of RCTs of VR exposure therapy for anxiety disorders (specific phobia, social anxiety, GAD, panic disorder). Only studies whose full texts or published summary tables are openly retrievable are included; no paywalled material is used and no data are generated, simulated, or imputed from synthetic distributions.
+- **Screening**: Two-stage PRISMA screening (title/abstract, then full text). Inclusion: explicit randomization, adult participants with a diagnosed anxiety disorder, validated anxiety outcome measure (e.g., STAI, BAI, LSAS, PSWQ), and a comparison arm (in-person exposure, alternative active treatment, or waitlist/control).
+- **Data extraction (real reported values only)**: Extract pre/post means, SDs, and N per arm directly from the published tables/text of each included study, using a structured CSV schema with per-study provenance (DOI/URL, table/section locator) so every number is traceable to its source. Studies that do not report extractable summary statistics are excluded and listed in the PRISMA flow diagram — no values are estimated, imputed, or fabricated for them.
+- **Effect size computation**: Compute Hedges' g per comparison using the `metafor` R package with small-sample corrections; handle multi-outcome studies via robust variance estimation rather than dropping or duplicating data.
+- **Meta-analytic model**: Fit a three-level random-effects model (effect sizes nested within studies) with `metafor::rma.mv`; report pooled g, 95% CI, and heterogeneity (I², τ²).
+- **Moderator analyses**: Meta-regression testing anxiety subtype, immersion level (HMD vs. desktop), session count, and therapist-guidance level as moderators of the effect size.
+- **Risk of bias and sensitivity**: Assess risk of bias with the Cochrane RoB 2 tool; run leave-one-out influence analyses and subgroup analyses excluding high-risk studies.
+- **Publication bias**: Funnel plots, Egger's regression test, and trim-and-fill, with the caveat that these are diagnostics of the assembled evidence base.
+- **Validation independence**: The outcome data (post-treatment anxiety scores reported by each RCT) are measured by the primary studies' own instruments and are fully independent of the moderators (delivery format, dose, guidance) extracted from study metadata; no quantity is validated against a quantity derived from itself.
+- **Reporting and reproducibility**: All analyses run in R on a GitHub Actions runner (2 CPU, 7 GB RAM — meta-analytic computation on ≤100 effect sizes is well within this envelope, minutes not hours). Archive extraction CSVs, R scripts, PRISMA flow diagram, forest plots, and moderator plots in the repository, with per-cell source citations in the extraction sheet.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: *(none identified in the provided corpus)*.
-- Closest match: *(no close duplicate found)*.
-- Verdict: **NOT a duplicate**.
+- Reviewed existing ideas: *(none provided in the corpus)*.
+- Closest match: none found.
+- Verdict: **NOT a duplicate**
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-09-14T11:10:46Z
-**Outcome**: failed
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-21T19:11:25Z
+**Outcome**: exhausted
 **Original term**: Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology
-**Verified citation count**: 0
+**Verified citation count**: 4
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | Virtual Reality Exposure Therapy for Anxiety: A Meta-Analysis psychology | 0 |
-| 1 | VR exposure therapy for anxiety disorders | 0 |
-| 2 | virtual reality anxiety treatment | 0 |
-| 3 | immersive therapy for anxiety | 0 |
-| 4 | anxiety treatment using virtual reality | 0 |
-| 5 | virtual environment therapy for anxiety | 0 |
-| 6 | exposure therapy with VR | 0 |
-| 7 | computer-assisted therapy for anxiety | 0 |
-| 8 | simulation-based exposure therapy | 0 |
-| 9 | virtual reality desensitization | 0 |
-| 10 | anxiety disorders and virtual reality | 0 |
-| 11 | treatment of phobias with virtual reality | 0 |
-| 12 | VR in mental health | 0 |
-| 13 | digital exposure therapy | 0 |
-| 14 | presence and anxiety reduction | 0 |
-| 15 | virtual reality for PTSD and anxiety | 0 |
-| 16 | effectiveness of VR therapy | 0 |
-| 17 | clinical virtual reality for anxiety | 0 |
-| 18 | augmented reality exposure therapy | 0 |
-| 19 | gamified virtual reality therapy | 0 |
-| 20 | virtual reality and the amygdala | 0 |
+| 1 | virtual reality exposure therapy effectiveness | 5 |
+| 2 | VR-based exposure treatment anxiety disorders | 0 |
+| 3 | immersive virtual reality anxiety intervention | 0 |
+| 4 | virtual environments systematic review anxiety treatment | 0 |
+| 5 | VRET phobia treatment outcomes | 0 |
+| 6 | computer-generated exposure therapy | 0 |
+| 7 | virtual reality therapy meta-analysis | 0 |
+| 8 | simulated exposure therapy fear reduction | 0 |
+| 9 | virtual reality cognitive behavioral therapy | 0 |
+| 10 | immersive technology psychological treatment | 0 |
+| 11 | VR exposure therapy PTSD social anxiety specific phobia | 0 |
+| 12 | presence and anxiety reduction virtual reality | 0 |
+| 13 | technology-assisted psychotherapy outcomes | 0 |
+| 14 | in virtuo exposure therapy | 0 |
+| 15 | augmented reality exposure therapy anxiety | 0 |
+| 16 | digital mental health interventions anxiety | 0 |
+| 17 | virtual reality rehabilitation psychiatric treatment | 0 |
+| 18 | anxiety disorder treatment technology randomized controlled trials | 0 |
 
 ### Verified citations
 
-(none)
+1. **A Review on Serious Games for Phobia** (2022). Sha Li, Peichen Yang, Rongyang Li, Fadi Farha, Jianguo Ding, et al.. arXiv. [2201.05738](https://arxiv.org/abs/2201.05738). PDF-sampled: No.
+2. **Size Does Matter: An Experimental Study of Anxiety in Virtual Reality** (2022). Junyi Shen, Itaru Kitahara, Shinichi Koyama, Qiaoge Li. arXiv. [2210.06697](https://arxiv.org/abs/2210.06697). PDF-sampled: No.
+3. **A virtual airplane for fear of flying therapy** (2025). Larry F Hodges, Barbara O Rothbaum, Benjamin Watson, G Drew Kessler, Dan Opdyke. arXiv. [2510.15875](https://arxiv.org/abs/2510.15875). PDF-sampled: No.
+4. **ConFER: A Neurally Constrained Computational Model of Context-Dependent Fear Extinction Recall and Relapse** (2024). Shreya K. Rajagopal, Thad A. Polk. arXiv. [2411.08140](https://arxiv.org/abs/2411.08140). PDF-sampled: No.
