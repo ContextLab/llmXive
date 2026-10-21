@@ -1,40 +1,42 @@
 # Implementation Plan: Mesh Network Supercomputer Using Pooled Idle Computing Resources
 
-**Branch**: `001-mesh-supercomputer` | **Date**: 2026-10-19 | **Spec**: `specs/001-mesh-supercomputer/spec.md`  
+**Branch**: `001-mesh-supercomputer` | **Date**: 2026-10-21 | **Spec**: `specs/001-mesh-supercomputer/spec.md`  
 **Input**: Feature specification from `specs/001-mesh-supercomputer/spec.md`
 
 ## Summary
-The project will deliver a fully reproducible research pipeline that:
+The project delivers a fully reproducible research pipeline that:
 
 1. **Orchestrates** a dynamic scheduler across a heterogeneous Wi‑Fi mesh of consumer devices (FR‑001, FR‑002).  
-2. **Instruments** each node to collect wall‑clock time, packet counts (`tcpdump`), and CPU utilization (`mpstat`) (FR‑002).  
+2. **Instruments** each node to collect wall‑clock time, network packet counts (`tcpdump`), and CPU utilization (`mpstat`) (FR‑002).  
 3. **Executes** a configurable parameter sweep over task granularity, node count, and injected network latency (FR‑003, FR‑004).  
-4. **Aggregates** raw logs into a validated dataset (`ExecutionRun` records) (FR‑003, SC‑006).  
-5. **Fits** a baseline OLS regression and optional non‑linear extensions (polynomial terms, GAM) with interaction terms, runs ANOVA, applies FDR correction, and checks VIF (FR‑005, SC‑001, SC‑005, scientific_soundness-d680c9c6).  
-6. **Validates** empirical throughput against the Ong & Motani (2007) wireless capacity bound using normalized efficiency and scaling‑law exponent comparison (FR‑006, SC‑002, methodology-c89743de, scientific_soundness-3c601152).  
-7. **Enforces** a hard timeout to keep total runtime ≤ 6 h on the free‑tier CI runner (FR‑007, SC‑004).
+4. **Generates** deterministic mock data (synthetic logs, JSON metadata) for CI verification, while supporting a manual *real‑hardware* run for final scientific results.  
+5. **Aggregates** raw logs into `ExecutionRun` records, validates them against JSON‑Schema contracts, and stores them under `data/processed/`.  
+6. **Fits** OLS regression, optional polynomial/GAM extensions, runs ANOVA, applies Benjamini‑Hochberg FDR correction, checks VIF for collinearity, and uses a mixed‑effects model with node as a random effect (FR‑005, SC‑001, SC‑005).  
+7. **Validates** empirical throughput against the Ong & Motani (2007) wireless capacity bound (FR‑006, SC‑002).  
+8. **Enforces** a hard timeout for the entire pipeline (FR‑007, SC‑004).  
+9. **Performs** a Variable‑Fit Verification step to ensure every required predictor and outcome is present before regression (SC‑006).
 
-All steps are deterministic, produce real files, and are validated against JSON‑Schema contracts.
+All artifacts are deterministically generated, schema‑validated, and can be re‑run on a fresh GitHub Actions free‑tier runner (2 CPU cores, ~7 GB RAM, ≤ 6 h).
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `paramiko`, `pandas`, `numpy`, `statsmodels`, `scipy`, `pyyaml`, `jsonschema`, `pytest`, `pygam` (optional for GAM), `sysbench` (calibration), `iperf3` (network calibration)  
-- **Storage**: CSV/JSON under `data/` (raw logs → processed aggregates → model output)  
-- **Testing**: `pytest` with unit, integration (mock‑testbed), and contract validation suites  
-- **Target Platform**: Linux GitHub Actions runner (2 CPU cores, ≈ 7 GB RAM, ≤ 6 h) – **CPU‑first**; no GPU required  
-- **Constraints**: Must complete full sweep (≤ 150 runs) within the CI time limit; all external data generated locally (no external dataset download).
+- **Primary Dependencies**: `paramiko`, `pandas`, `numpy`, `statsmodels`, `scipy`, `pyyaml`, `jsonschema`, `pytest`, `pygam` (optional), `sysbench`, `iperf3`, `tc`, `mpstat`, `tcpdump`, `sensors`, `iwconfig`  
+- **Storage**: CSV/JSON under `data/` (raw → processed)  
+- **Testing**: `pytest` (unit, integration, contract)  
+- **Target Platform**: Linux GitHub Actions runner (CPU‑first; no GPU required)  
+- **Constraints**: Entire pipeline ≤ 6 h on free‑tier CI; all external data generated locally.  
 
 ## Constitution Check
 | Principle | Compliance | Note |
 |-----------|------------|------|
-| I. Reproducibility | ✅ | Fixed random seeds; end‑to‑end scripts runnable on fresh runner. |
-| II. Verified Accuracy | ✅ | Citation of Ong & Motani (2007) will be validated by the Reference‑Validator. |
-| III. Data Hygiene | ✅ | Raw files immutable; derived files get new names; SHA‑256 checksums recorded in project state. |
-| IV. Single Source of Truth | ✅ | Every figure/table traces to a row in `data/processed/execution_runs.csv` and a line in `code/analysis/regression.py`. |
-| V. Versioning Discipline | ✅ | Content hashes tracked; `updated_at` timestamps updated on artifact changes. |
-| VI. Simulation Fidelity and Validation | ✅ | A lightweight SimPy model is calibrated against a small‑scale pilot (golden dataset).. |
-| VII. Heterogeneity‑Aware Scheduling | ✅ | Scheduler records CPU variance, latency variance, and dropout events; regression includes interaction terms. |
-| VIII. Physical Node Metadata Capture | ✅ | `physical_node_<ip>.json` files are generated and validated against `contracts/physical-node.schema.yaml`. |
+| I. Reproducibility | ✅ | Fixed seeds; end‑to‑end scripts runnable on fresh runner. |
+| II. Verified Accuracy | ✅ | All citations (Ong & Motani 2007) will be validated by the Reference‑Validator. |
+| III. Data Hygiene | ✅ | Raw files immutable; derived files get new names; SHA‑256 checksums recorded. |
+| IV. Single Source of Truth | ✅ | Every figure/table traces to a row in `data/processed/execution_runs.csv` and a line in `code/analysis/*.py`. |
+| V. Versioning Discipline | ✅ | Content hashes tracked; `updated_at` timestamps updated on changes. |
+| VI. Simulation Fidelity and Validation | ✅ | Mock testbed runs (synthetic but statistically realistic) are validated against a small real pilot (of modest size) before final analysis. |
+| VII. Heterogeneity‑Aware Scheduling | ✅ | Scheduler records CPU variance, latency variance, and dropout events; regression includes interaction terms (associational). |
+| VIII. Physical Node Metadata Capture | ✅ | `physical_node_<ip>.json` files generated and validated against `contracts/physical-node.schema.yaml`. |
 
 All principles are satisfied; no violations remain.
 
@@ -46,26 +48,43 @@ code/
 │   ├── scheduler.py          # Granularity logic, fault handling, timeout
 │   ├── node_manager.py       # SSH discovery, heartbeat, metric collection
 │   ├── instrumentor.py       # tcpdump/mpstat wrappers, parsing utilities
-│   └── cli.py                # Argparse entry‑point (sub‑commands: run, sweep, calibrate, validate)
+│   ├── calibration.py        # Network & CPU calibration utilities
+│   └── cli.py                # Argparse entry‑point (sub‑commands: run, sweep, calibrate, mock)
 ├── analysis/
 │   ├── __init__.py
-│   ├── regression.py         # OLS, polynomial, GAM, ANOVA, VIF, FDR correction
-│   └── theoretical_bound.py  # Ong & Motani capacity calculation + scaling‑law compare
+│   ├── regression.py         # OLS, polynomial, GAM, mixed‑effects, ANOVA, VIF, FDR
+│   └── theoretical_bound.py  # Ong & Motani capacity calculation + scaling‑law comparison
 ├── simulation/
-│   ├── __init__.py
-│   └── des_model.py          # SimPy calibration routine
+│   └── des_model.py          # Simple SimPy model for pilot validation
 ├── data/
-│   ├── raw/                  # Raw CSV logs + `physical_node_*.json` + `dropout_events.json` + `task_chunks/*.jsonl`
-│   └── processed/            # Aggregated CSV, model JSON, validation reports
+│   ├── raw/
+│   │   ├── run_*.csv
+│   │   ├── physical_node_*.json
+│   │   ├── dropout_events.json
+│   │   ├── task_chunks/
+│   │   │   └── *.jsonl
+│   │   ├── network_calibration.json
+│   │   └── cpu_calibration.json
+│   └── processed/
+│       ├── execution_runs.csv
+│       ├── regression_model.json
+│       └── theoretical_bound_validation.json
 ├── tests/
 │   ├── unit/
 │   │   ├── test_node_manager.py
 │   │   ├── test_scheduler.py
-│   │   └── test_instrumentor.py
+│   │   ├── test_instrumentor.py
+│   │   └── test_calibration.py
 │   ├── integration/
-│   │   └── test_full_workflow.py   # Runs pipeline on a synthetic mock‑testbed
+│   │   └── test_full_workflow.py   # Runs mock pipeline end‑to‑end
 │   └── contract/
 │       └── test_contracts.py       # JSON‑Schema validation
+├── contracts/
+│   ├── dropout-event.schema.yaml
+│   ├── execution-run.schema.yaml
+│   ├── physical-node.schema.yaml
+│   ├── regression-model.schema.yaml
+│   └── task-chunk.schema.yaml
 └── requirements.txt
 ```
 **Structure Decision**: A single‑module repository under `code/` keeps the CI footprint minimal and matches the “research‑CLI” assumption (no UI).
@@ -76,101 +95,139 @@ code/
 | FR‑001 | `orchestrator/scheduler.py` & `node_manager.py` (SSH discovery, heartbeat) | — |
 | FR‑002 | `instrumentor.py` (tcpdump, mpstat) → raw CSVs | — |
 | FR‑003 | `cli.py sweep` (grid over granularity, node counts, latency) | SC‑003 (sweet‑spot detection) |
-| FR‑004 | `scheduler.py` computes coordination time vs. compute time per run | SC‑003 |
-| FR‑005 | `analysis/regression.py` (OLS, polynomial, optional GAM, ANOVA, VIF, FDR) | SC‑001, SC‑005 |
-| FR‑006 | `analysis/theoretical_bound.py` (capacity bound, scaling‑law exponent) | SC‑002 |
-| FR‑007 | `cli.py` enforces `--max-runtime-hours` flag; CI aborts if exceeded | SC‑004 |
-
-All SC‑001…SC‑006 are explicitly satisfied by the analysis scripts and generated artefacts.
+| FR‑004 | `scheduler.py` computes coordination vs. compute time per run | SC‑003 |
+| FR‑005 | `analysis/regression.py` (OLS, polynomial, optional GAM, ANOVA, VIF, FDR, mixed‑effects) | SC‑001, SC‑005 |
+| FR‑006 | `analysis/theoretical_bound.py` (capacity bound, scaling‑law comparison) | SC‑002 |
+| FR‑007 | `cli.py` enforces `--max-runtime-hours`; `runtime_tracker.py` logs total runtime and aborts if exceeded | SC‑004 |
+| FR‑008 (new) | Variable‑Fit Verification script (`verification.py`) that checks required columns before regression | SC‑006 |
+| SC‑001 | Regression model output includes R², p‑values (generated in `regression_model.json`) | — |
+| SC‑002 | Theoretical bound deviation stored in `theoretical_bound_validation.json` | — |
+| SC‑003 | Coordination overhead ratio computed per run; sweet‑spot identified in analysis script | — |
+| SC‑004 | Timeout enforcement tested in integration suite (`test_watchdog_overrun.py`) | — |
+| SC‑005 | ANOVA p‑value < 0.05 flagged; FDR applied to all coefficients | — |
+| SC‑006 | Full variable‑fit check performed in `verification.py`; runs missing critical variables are logged WARN and excluded from regression | — |
 
 ## Execution Strategy & CI Constraints
-1. **Mock‑Testbed Generation** (`tests/integration/test_full_workflow.py`): creates 15 virtual nodes with realistic synthetic metric streams; ensures the entire pipeline can run on the CI runner without physical hardware.  
-2. **Physical Run (manual)**: researchers invoke `cli.py run` on a real mesh; the same code path is used, only the data source changes.  
-3. **Calibration Procedures** (new):
-   - **Network Calibration**: run `iperf3` between a pair of nodes to establish a baseline packet‑count‑to‑throughput conversion; results stored in `data/raw/network_calibration.json`.
-   - **CPU Utilization Calibration**: run `sysbench cpu --threads=1 run` to map `mpstat` %util to known CPU load; stored in `data/raw/cpu_calibration.json`.
-   - Calibration scripts are invoked automatically before any sweep via `cli.py calibrate`.  
-4. **Data Aggregation** (`analysis/regression.py`): reads all `data/raw/*.csv` and node JSONs, computes per‑run metrics → `ExecutionRun` rows stored in `data/processed/execution_runs.csv`.  
-5. **TaskChunk Persistence** (new):
-   - Each dispatched chunk is serialized to `data/raw/task_chunks/<run_id>.jsonl` (JSON‑Lines) conforming to `contracts/task-chunk.schema.yaml` (future schema).  
-   - After each run, `cli.py` validates these files against the schema (placeholder until schema is added).  
-6. **Contract Generation & Validation** (new):
-   - **PhysicalNode Metadata**: `instrumentor.write_node_metadata()` writes `physical_node_<ip>.json` files validated against `contracts/physical-node.schema.yaml`.  
-   - **Dropout Events**: Scheduler logs events to `dropout_events.json` validated against `contracts/dropout-event.schema.yaml`.  
-   - **ExecutionRun Records**: `data/processed/execution_runs.csv` validated against `contracts/execution-run.schema.yaml`.  
-   - Contract tests run via `pytest tests/contract/`.  
-7. **Statistical Modeling** (`analysis/regression.py`):
-   - Fits a baseline OLS with interaction terms.
-   - Optionally fits polynomial (quadratic) terms for `granularity` and `injected_latency`.
-   - If `pygam` is installed, fits a GAM with spline bases for continuous predictors.
-   - Model selection via AIC/BIC; the best model is saved as `regression_model.json`.  
-   - Applies Benjamini‑Hochberg FDR to all p‑values and computes VIF; collinear predictors (VIF > 5) are reported.  
-8. **Theoretical Bound Validation** (`analysis/theoretical_bound.py`):
-   - Computes **Normalized Efficiency** = `throughput` / `theoretical_capacity`, where `theoretical_capacity` follows the Ong & Motani (2007) Shannon‑based formula using measured baseline bandwidth and SNR per node.  
-   - Fits a power‑law `throughput = a * node_count^b` (log‑log OLS) and compares exponent `b` to the theoretical scaling exponent derived from the same bound.  
-   - Calculates **Deviation Ratio** = `b_empirical / b_theoretical`.  
-   - Flags runs where Normalized Efficiency > 1 as potential measurement errors and reports any statistically significant deviation of `b` from theory (p < 0.05).  
-9. **Contract Validation** (`tests/contract/test_contracts.py`): validates every JSON/CSV artefact against schemas in `contracts/`. CI fails if any schema mismatch occurs.  
-10. **Timeout Enforcement**: `cli.py` calculates expected total runtime; if it exceeds the `max_runtime_hours` (default 5 h), the run aborts with a clear error code, satisfying SC‑004.
+The pipeline is split into **CI‑verified mock stages** and an **optional manual physical stage**.
 
-Estimated wall‑clock time on the free‑tier runner: mock sweep ≈ a few hours, full physical sweep ≤ 5 h, analysis ≤ 30 min → total ≤ 6 h.
+### Phase 0 – Environment & Configuration (Deterministic)
+1. **Create `config.yaml`** (sample provided in `quickstart.md`).  
+2. **Run `pytest -q`** to confirm all unit, integration, and contract tests pass on the CI runner.  
+3. **Generate synthetic fixture logs** (`tests/fixtures/sample_tcpdump.log`, `sample_mpstat.log`, `sample_iwconfig.log`, `sample_sensors.log`, `sample_ping.log`) matching real‑tool output formats. These are used by `test_instrumentor.py`.  
+4. **Validate contracts** with `pytest tests/contract/` – ensures schemas are syntactically correct and files exist.
 
-## Power & Sample‑Size Justification (new)
-- Desired statistical power: conventional threshold for adequate power, α = 0.05, medium effect size f² = 0.15 (G*Power convention).  
-- Number of predictors (including interaction and polynomial terms) is on the order of several.  
-- Required sample size N (computed via `statsmodels.stats.power.FTestPower`) is ≈ 82 runs to achieve [deferred] power for detecting interaction effects.
-- Planned design: 3 granularity × 3 node counts × 4 latency levels × 2 replicates = **72** runs; we double the replicates for robustness, yielding **144** runs, and add a few extra runs for dropout recovery → **150** runs total.  
-- This exceeds the required N, guaranteeing ≥ 80 % power for detecting interaction effects.
+### Phase 1 – Calibration (CPU‑first)
+- `python -m code.orchestrator.calibration --config config.yaml`  
+  - **Network calibration**: runs `iperf3` between two local mock endpoints, writes `data/raw/network_calibration.json`. Linear regression between packet count and known throughput is stored; a lack‑of‑linearity warning is emitted.  
+  - **CPU calibration**: runs `sysbench cpu --threads=1 run`, writes `data/raw/cpu_calibration.json`. Linear fit between `mpstat` % and known CPU load is stored.  
+- Unit test `test_calibration.py` confirms both files contain numeric conversion factors and that linearity R² ≥ 0.9; otherwise the pipeline aborts.
 
-## Measurement Validity & Additional Covariates (new)
-- **Network Calibration**: Run `iperf3` between a pair of nodes to map `tcpdump` packet counts to known throughput; repeat three times and average.  
-- **CPU Utilization Calibration**: Run `sysbench cpu --threads=1 run` to produce known CPU loads; compare `mpstat` %util to benchmarked load; derive a linear conversion factor.  
-- **Thermal Throttling**: Record per‑node CPU temperature via `sensors`; store average as `cpu_temperature_avg` in `ExecutionRun`.  
-- **OS‑Level Noise**: Compute standard deviation of 1‑minute load average over the run; store as `os_noise`.  
-- **Wi‑Fi Interference**: Record RSSI variance from `iwconfig`; store as optional `wifi_interference` (float) in `ExecutionRun`.  
-- All nodes synchronized via NTP to ensure comparable timestamps.
+### Phase 2 – Mock Testbed Execution (Core CI‑verified workflow)
+- **Command**: `python -m code.orchestrator.cli mock --config config.yaml`  
+  - Generates a synthetic mesh of *N* virtual nodes (default 15) with realistic heterogeneity distributions (CPU speed, latency, packet loss).  
+  - Dispatches `TaskChunk`s, records `dropout_events.json` (including heartbeat loss, OOM, sleep, network saturation).  
+  - Writes per‑node metadata `physical_node_<id>.json`.  
+  - Emits raw CSV `data/raw/run_<id>.csv` and `task_chunks/<run_id>.jsonl`.  
+  - **Variable‑Fit Verification**: after each run, `verification.py` checks that all required columns (`throughput`, `cpu_variance`, `latency_variance`, `injected_latency`, `node_count`) are present; missing critical columns cause a WARN and the run is excluded from downstream regression.  
+  - All files are validated against the five contracts immediately after creation.  
+  - The mock run also produces `data/runtime/pipeline_runtime.json` and `data/runtime/timeout_enforced.log` via `runtime_tracker.py`.
 
-## Causal Framing
-- **Injected latency** is an experimental factor (causal).  
-- **Heterogeneity metrics** (CPU variance, latency variance) are observational covariates; regression coefficients are interpreted associationally.
+### Phase 3 – Full Parameter Sweep (research‑scale, CI‑verified)
+```bash
+python -m code.orchestrator.cli sweep --config config.yaml
+```
+- Executes every combination of granularity, node count, and injected latency (default 4 replicates each).  
+- After each run, the same calibration factors are applied, and aggregated metrics are stored under `data/processed/`.  
+- **Power & Sample‑Size Justification** (see below) ensures ≥ 80 % power after accounting for clustering.
 
-## Predictor Collinearity
-- Compute Variance Inflation Factor (VIF) for continuous predictors.  
-- If any VIF > 5, report collinearity and refrain from claiming independent effects for those variables.
+### Phase 4 – Physical Testbed (Manual, not part of CI)
+- Researchers run the same CLI with `run` sub‑command on their real mesh.  
+- Because the CI runner cannot reach the physical devices, this stage is **optional for CI**; the pipeline code path is identical, guaranteeing reproducibility.  
+- The same analysis scripts (Phase 5) are applied to the real logs, producing the final scientific results.
 
-## Theoretical Bound Validation
-- Compute **Normalized Efficiency** = `throughput` / `theoretical_capacity`, where `theoretical_capacity` follows the Ong & Motani (2007) Shannon‑based formula using measured baseline bandwidth and SNR per node.  
-- Fit a power‑law `throughput = a * node_count^b` (log‑log OLS) and compare exponent `b` to the theoretical scaling exponent derived from the same bound.  
-- Calculate **Deviation Ratio** = `b_empirical / b_theoretical`.  
-- Flag runs where Normalized Efficiency > 1 as potential measurement errors and report any statistically significant deviation of `b` from theory (p < 0.05).  
+### Phase 5 – Analysis (runs on either real or mock data)
+```bash
+# Aggregate and fit regression
+python -m code.analysis.regression \
+  --input data/raw/ \
+  --output data/processed/
+
+# Theoretical bound validation
+python -m code.analysis.theoretical_bound \
+  --input data/processed/execution_runs.csv \
+  --output data/processed/
+```
+*Outputs*:  
+- `data/processed/execution_runs.csv` (one row per configuration).  
+- `data/processed/regression_model.json` (coefficients, p‑values, R², VIF, FDR‑adjusted p‑values, mixed‑effects variance components).  
+- `data/processed/theoretical_bound_validation.json` (normalized efficiency, scaling‑law exponent comparison, deviation flags).  
+
+### Phase 6 – Variable‑Fit Verification (new)
+- `python -m code.analysis.verification --input data/raw/ --output data/processed/validation_status.json`  
+- Confirms that every predictor required by the regression (CPU variance, latency variance, injected latency, node count, granularity) and the outcome (throughput) are present.  
+- If a run lacks a *critical* variable (throughput, latency, or CPU variance), it is logged as WARN and excluded from the regression dataset. Optional covariates may be missing without causing exclusion.
+
+### Phase 7 – Testing
+```bash
+# Unit tests
+pytest tests/unit/ -v
+
+# Contract (schema) tests
+pytest tests/contract/ -v
+
+# Integration test (mock pipeline end‑to‑end)
+pytest tests/integration/ -v --mock-testbed
+```
+All tests must exit with status 0; CI will fail otherwise.
+
+## Power & Sample‑Size Justification (updated)
+- Desired **≥ 80 % power**, α = 0.05, medium effect size f² = 0.15 (G*Power convention).  
+- Required **N ≈ 82** independent runs for detecting interaction effects.  
+- **Clustering adjustment**: runs share nodes, inducing intra‑class correlation (ICC ≈ 0.05). Design effect ≈ 1 + (m − 1)·ICC, where *m* ≈ 4 (average runs per node). Design effect ≈ 1.15, so effective N = total / 1.15.  
+- **Planned design**: 3 granularity × 3 node counts × 4 latency levels × 4 replicates = 144 runs.  
+- **Extra dropout‑recovery runs**: 36 runs (one extra per configuration) → **total 180 runs**. Effective N ≈ 180 / 1.15 ≈ 156 > 82, satisfying the power requirement even after accounting for clustering.  
+- The mixed‑effects model (node as random effect) further protects against residual intra‑node correlation.
+
+## Measurement Validity (new)
+- **Network calibration**: `iperf3` between a pair of nodes maps `tcpdump` packet counts to known throughput; linear regression is performed and R² ≥ 0.9 is required.  
+- **CPU calibration**: `sysbench cpu --threads=1 run` provides known CPU loads; linear regression between `mpstat` % and load is performed; R² ≥ 0.9 required.  
+- **Throughput derivation**: Primary outcome is computed from *task‑completion timestamps* (wall‑clock time per chunk) rather than raw packet counts alone. Packet‑count data are used only as a secondary consistency check against the calibrated conversion factor.  
+- **Validation checks**: Both calibrations are rerun on each CI execution; failures abort the pipeline with a clear error message.
+
+## Statistical Analysis Plan (updated)
+1. **Baseline OLS** (`statsmodels.api.OLS`) with predictors: `node_count`, `granularity` (categorical), `injected_latency`, `cpu_variance`, `latency_variance`, and interaction terms `granularity:cpu_variance`, `granularity:latency_variance`.  
+2. **Mixed‑effects extension** (`statsmodels.regression.mixed_linear_model.MixedLM`) adding a random intercept for `node_id` to account for within‑node correlation.  
+3. **Non‑Linear Extensions** (selected by AIC/BIC):  
+   - **Polynomial**: quadratic terms for `granularity` (encoded numerically) and `injected_latency`.  
+   - **GAM**: if `pygam` is installed, spline bases for continuous predictors.  
+4. **Model Selection**: lowest AIC/BIC retains the final model.  
+5. **ANOVA** (`statsmodels.stats.anova.anova_lm`) on the selected model to test overall granularity effect.  
+6. **Multiple‑Comparison Correction**: Benjamini‑Hochberg FDR applied to all coefficient p‑values (`statsmodels.stats.multitest.multipletests`).  
+7. **Collinearity Check**: VIF computed for all continuous predictors; any VIF > 5 reported and the corresponding coefficient is not claimed as an independent effect.  
+8. **Associational Framing**: Heterogeneity metrics are treated as observational covariates; injected latency is the only experimental factor. All effect statements are explicitly labeled as *associational*.
 
 ## Decision Rationale
 | Decision | Rationale |
 |----------|-----------|
-| Use **real testbed** (not pure simulation) | Spec mandates “real execution logs” to falsify linear scaling. |
-| Choose **Monte Carlo integration** as benchmark | Embarrassingly parallel, isolates coordination overhead, matches scope. |
-| Use **OLS + polynomial/GAM** (not only linear) | Directly satisfies FR‑005 which explicitly calls for “multiple linear regression and ANOVA” *and* addresses the non‑linear hypothesis. |
-| Apply **Benjamini‑Hochberg** correction | Controls false discovery rate across many coefficients without excessive conservatism. |
-| Include **VIF** check | Prevents over‑interpretation of collinear predictors, aligning with Principle VII. |
-| Generate **dropout_events.json** | Provides required covariate for regression and resolves T002. |
-| Add **comprehensive calibration** (network & CPU) | Guarantees construct validity of packet counts and CPU utilization. |
-| Add **additional covariates** (temperature, OS noise, Wi‑Fi interference) | Addresses potential confounders highlighted in the methodology review. |
-| Expand **theoretical bound validation** to scaling‑law exponent comparison | Provides a meaningful test of the scaling hypothesis beyond a trivial sanity check. |
-| Keep **pipeline within 6 h** | Meets SC‑004 (CI time limit) and respects free‑tier constraints. |
+| Split pipeline into **mock CI‑verified** and **manual physical** stages | Resolves the structural contradiction highlighted by reviewers: CI can verify deterministic artefacts while the real testbed provides the scientific data. |
+| Use **Monte Carlo integration** as benchmark | Embarrassingly parallel, isolates coordination overhead, matches scope. |
+| Include **calibration** (network & CPU) | Guarantees construct validity of packet‑count and CPU‑util metrics (required by SC‑006). |
+| Apply **Benjamini‑Hochberg** FDR correction | Controls false discoveries across many coefficients without excessive conservatism. |
+| Add **VIF** check | Prevents over‑interpretation of collinear predictors (Principle VII). |
+| Generate **dropout_events.json** and **task_chunks/*.jsonl** | Satisfies T003, T001, and provides the dropout covariate required by regression. |
+| Provide **sample fixture logs** (tcpdump, mpstat, iwconfig, sensors, ping) | Satisfies T014 and enables unit tests without real hardware. |
+| Implement **runtime_tracker** producing JSON and log files | Satisfies T011 (timeout enforcement evidence). |
+| Create **network & CPU calibration JSON** files | Satisfies T015 and supplies conversion factors for analysis. |
+| Ensure **config.yaml** exists and is version‑controlled | Satisfies T001 (test suite expects it). |
+| Adjust contract tests to use `TaskChunkStore.base_dir` instead of `ProjectPaths.root` | Fixes T016 failure. |
+| Produce **run_001.csv**, **task_chunks/run_001.jsonl**, **validation_status.json** via mock run | Satisfies T004. |
+| Add **Variable‑Fit Verification** phase | Directly addresses SC‑006 and ensures dataset‑variable fit. |
+| Reconcile power‑analysis totals to **180 runs** and account for clustering | Guarantees the claimed ≥ 80 % power under realistic correlation structure. |
+| Clarify **associational** interpretation of heterogeneity effects | Removes unsupported causal claims per methodology‑8ff4adb8. |
+| Add explicit **measurement‑validity** steps | Addresses methodology‑a05aa0de concerns about construct validity. |
 
-## Data Flow
-1. **Baseline Capture** → `node_manager` records `baseline_*` fields.  
-2. **Orchestration** → `scheduler` creates `TaskChunk`s, assigns to nodes, logs heartbeat & dropout events (`dropout_events.json`).  
-3. **Instrumentation** → `instrumentor` streams `tcpdump` and `mpstat` outputs, writes per‑run CSVs to `data/raw/` and per‑node metadata JSONs (`physical_node_<ip>.json`).  
-4. **Aggregation** → `analysis/regression.py` reads raw CSVs and node JSONs, computes per‑run metrics → `ExecutionRun` rows stored in `data/processed/execution_runs.csv`.  
-5. **Statistical Modeling** → same script fits OLS, optional polynomial/GAM, writes `data/processed/regression_model.json`.  
-6. **Theoretical Validation** → `analysis/theoretical_bound.py` reads the model output, writes `data/processed/theoretical_bound_validation.json`.  
-
-## Data Hygiene & Checksums
-- Raw files under `data/raw/` receive SHA‑256 checksums recorded in `state/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg.yaml`.  
-- Derived files under `data/processed/` are new and never overwrite raw data.  
-- All JSON/YAML artefacts are validated against schemas in `contracts/` before commit.
+## Complexity Tracking
+No additional complexity beyond what is required by the spec; all new steps are deterministic, unit‑tested, and scoped to the free‑tier CI limits.
 
 ---
-
 

@@ -1,17 +1,18 @@
 status: none
-intent: EdgeBench Raspberry Pi performance execution log dataset network packet CPU
-  utilization python package dataset
+intent: Physical Testbed Execution Log dataset M-Lab CAIDA OpenML python package dataset
 required_fields:
 - node_id
-- timestamp
+- node_ip
+- node_type
 - task_id
 - task_chunk_id
-- wall_clock_time_seconds
-- packet_count
+- timestamp
+- wall_clock_time
+- packet_count_sent
+- packet_count_received
 - cpu_utilization_percent
 - memory_usage_mb
-- heartbeat_timestamp
-- status
-cache_key: 546a43ff7092318c7dab2706305c22f4a98de33cb68be734dbd08eca48e25ba5
-searched_at: '2026-10-21T07:28:43.819283+00:00'
+- heartbeat_status
+cache_key: 87209fe179ab29a279a6485032b7eb78029d28de43ebb322147e0621bd0dd03c
+searched_at: '2026-10-21T07:31:46.817280+00:00'
 retry_count: 1

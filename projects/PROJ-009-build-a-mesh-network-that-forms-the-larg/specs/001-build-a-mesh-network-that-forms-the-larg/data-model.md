@@ -61,7 +61,7 @@ erDiagram
 | `hardware_spec` | string | CPU model and RAM | `lscpu` / `free` |
 | `baseline_bandwidth_Mbps` | float | Pre‑load bandwidth (iperf) | Local measurement |
 | `baseline_snr_db` | float | Pre‑load SNR (iwconfig) | Local measurement |
-| `current_latency` | float | Measured network latency in milliseconds | `ping` |
+| `current_latency` | float | Measured network latency (ms) | `ping` |
 | `packet_loss_rate` | float | Fraction of lost packets (0‑1) | `tcpdump` analysis |
 | `cpu_utilization` | float | Avg. CPU % during run | `mpstat` |
 
@@ -93,8 +93,21 @@ erDiagram
 | `cpu_temperature_avg` | number | Optional average CPU temperature (°C) across nodes; recorded when supported | Sensor reading (`sensors`) |
 | `os_noise` | number | Optional measure of OS‑level noise (e.g., stddev of 1‑min load average); recorded when supported | System load (`uptime`) |
 | `wifi_interference` | number | Optional measure of Wi‑Fi interference (RSSI variance) captured during run | `iwconfig` variance output |
-```
+
+### RegressionModel
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `coefficients` | dict | Model coefficients (key: variable name, value: coefficient) |
+| `p_values` | dict | P‑values for each coefficient |
+| `r_squared` | float | Coefficient of determination |
+| `residuals` | list[number] | List of residual errors |
+| `theoretical_bound_deviation` | float | Ratio of empirical throughput to theoretical bound |
 
 ## 3. Entity Relationships
+- Each **ExecutionRun** aggregates many **TaskChunk** records.  
+- Each **TaskChunk** executes on a **PhysicalNode**.  
+- The **RegressionModel** is derived from the full set of **ExecutionRun** rows.  
 
-The diagram above captures the relationships: each `ExecutionRun` aggregates many `TaskChunk`s, each `TaskChunk` runs on a `PhysicalNode`, and the regression model is derived from the set of `ExecutionRun`s.
+All relationships are enforced via foreign‑key‑like identifiers (`task_id`, `assigned_node_id`) and validated by the JSON‑Schema contracts in `contracts/`.
+
+---
