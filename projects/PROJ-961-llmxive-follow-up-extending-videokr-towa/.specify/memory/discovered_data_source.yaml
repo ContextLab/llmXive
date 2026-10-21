@@ -1,15 +1,15 @@
 status: none
-intent: "Download TVQA and substitute VideoKR\u2011SFT as Python package dataset"
+intent: TVQA dataset HuggingFace knowledge graph video lengths python package dataset
 required_fields:
+- question
+- answer
 - video_id
-- question_text
-- answer_text
-- hop_type
 - timestamp_start
 - timestamp_end
-- knowledge_graph
+- hop_type
+- knowledge_graph_entities
+- knowledge_graph_relations
 - video_length_seconds
-- split
-cache_key: a8e25798f54a1fb66fbb2c77d36e44e64c92f4017b239a3b3d46ff7add2cb147
-searched_at: '2026-10-21T19:12:20.597805+00:00'
+cache_key: cf585a0c447bf7863332d2cfe90fe06bb1550b0a006529545f468c4542085895
+searched_at: '2026-10-21T21:07:34.762509+00:00'
 retry_count: 1

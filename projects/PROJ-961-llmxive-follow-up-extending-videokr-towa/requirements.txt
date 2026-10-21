@@ -1,7 +1,5 @@
-# Project dependencies
-datasets>=2.0.0
 huggingface_hub>=0.23.0
-# The following packages are pre‑installed in the execution environment:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-# No additional version pins are required beyond the defaults above.
+datasets>=2.0.0
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil)
+# are provided by the platform and need not be listed here.
