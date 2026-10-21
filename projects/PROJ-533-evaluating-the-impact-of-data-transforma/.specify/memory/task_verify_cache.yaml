@@ -1,3 +1,13 @@
+T001:
+  c: true
+  h: 9aab80a0cb5c697f4735ea88282819bc0fae7be601ce948e30d6d21d4551945a
+  r: "The checkpointing utilities (`code/utils/checkpointing.py`) provide the required\
+    \ functions with portalocker locking and atomic writes, and the entry point (`code/main.py`)\
+    \ correctly parses `--stage`, `--resume`, and `--dry-run`, printing a stage summary\
+    \ and exiting\u202F0 (as shown in the dry\u2011run log). The contract schemas\
+    \ (`contracts/*.schema.yaml`) all include the `\"baseline\"` enum value, and `quickstart.md`\
+    \ documents the `python -m code.main --stage all` command."
+  sig: 32d2826e34c3b29926b52cfdedba4a6e89c212c59bf3ca190022418fbb9f2b3e
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

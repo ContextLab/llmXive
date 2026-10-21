@@ -19,16 +19,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m code.main --stage all -> rc=1
-2026-10-21 14:08:36,788 - pipeline - INFO - Executing full pipeline: download -> checksum
-2026-10-21 14:08:36,788 - download - INFO - Downloading OpenML dataset 61 from https://www.openml.org/d/61
-2026-10-21 14:08:36,789 - download - ERROR - Failed to download OpenML dataset 61: The 'data_id' parameter of fetch_openml must be an int in the range [1, inf) or None. Got '61' instead.
+2026-10-21 20:16:38,582 - pipeline - INFO - Executing full pipeline: download -> checksum
+2026-10-21 20:16:38,582 - download - INFO - Downloading OpenML dataset 61 from https://www.openml.org/d/61
+2026-10-21 20:16:38,582 - download - ERROR - Failed to download OpenML dataset 61: The 'data_id' parameter of fetch_openml must be an int in the range [1, inf) or None. Got '61' instead.
 
 
 - python -m code.main --stage all --resume --run-id your_run_id -> rc=1
-2026-10-21 14:08:37,373 - pipeline - INFO - Attempting to resume from checkpoint: your_run_id
-2026-10-21 14:08:37,373 - pipeline - WARNING - No checkpoint found for run_id. Starting from scratch.
-2026-10-21 14:08:37,373 - pipeline - INFO - Executing full pipeline: download -> checksum
-2026-10-21 14:08:37,374 - download - INFO - Downloading OpenML dataset 61 from https://www.openml.org/d/61
-2026-10-21 14:08:37,374 - download - ERROR - Failed to download OpenML dataset 61: The 'data_id' parameter of fetch_openml must be an int in the range [1, inf) or None. Got '61' instead.
+2026-10-21 20:16:39,361 - pipeline - INFO - Attempting to resume from checkpoint: your_run_id
+2026-10-21 20:16:39,361 - pipeline - WARNING - No checkpoint found for run_id. Starting from scratch.
+2026-10-21 20:16:39,361 - pipeline - INFO - Executing full pipeline: download -> checksum
+2026-10-21 20:16:39,361 - download - INFO - Downloading OpenML dataset 61 from https://www.openml.org/d/61
+2026-10-21 20:16:39,362 - download - ERROR - Failed to download OpenML dataset 61: The 'data_id' parameter of fetch_openml must be an int in the range [1, inf) or None. Got '61' instead.
 
 

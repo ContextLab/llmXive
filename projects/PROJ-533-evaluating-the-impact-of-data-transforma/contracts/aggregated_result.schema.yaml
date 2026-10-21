@@ -1,22 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: AggregatedResult
 type: object
 properties:
   dataset_id:
     type: string
   transformation:
-    $ref: "transformation.schema.yaml"
+    type: string
+    enum:
+      - baseline
+      - box_cox
+      - yeo_johnson
+      - rank_inverse_normal
   test_type:
     type: string
-    enum: [t-test, ANOVA]
+    enum: [t_test, anova]
   metric:
     type: string
-    enum: [type_i_error, power]
-  value:
+    enum: [type1_error, power]
+  mean:
     type: number
   ci_lower:
     type: number
   ci_upper:
     type: number
+  ci_half_width:
+    type: number
   validation_status:
     type: string
     enum: [pass, fail]
-required: [dataset_id, transformation, test_type, metric, value]
+required:
+  - dataset_id
+  - transformation
+  - test_type
+  - metric
+  - mean
+  - ci_lower
+  - ci_upper
+  - ci_half_width
+  - validation_status
+additionalProperties: false

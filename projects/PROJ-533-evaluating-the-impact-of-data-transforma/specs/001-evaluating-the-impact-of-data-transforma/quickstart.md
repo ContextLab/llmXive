@@ -4,7 +4,7 @@
 - Python 3.11+  
 - `pip` (Python package manager)  
 - Internet access (to download datasets)  
-- ~14 GB free disk space  
+- sufficient free disk space (on the order of tens of gigabytes)  
 
 ## Installation
 ```bash

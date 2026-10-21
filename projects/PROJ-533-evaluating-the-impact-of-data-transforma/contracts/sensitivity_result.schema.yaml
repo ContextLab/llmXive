@@ -1,12 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: SensitivityResult
 type: object
 properties:
+  dataset_id:
+    type: string
   transformation:
-    $ref: "transformation.schema.yaml"
+    type: string
+    enum:
+      - baseline
+      - box_cox
+      - yeo_johnson
+      - rank_inverse_normal
   test_type:
     type: string
-    enum: [t-test, ANOVA]
+    enum: [t_test, anova]
   alpha:
     type: number
   error_rate:
     type: number
-required: [transformation, test_type, alpha, error_rate]
+  ci_lower:
+    type: number
+  ci_upper:
+    type: number
+  ci_half_width:
+    type: number
+  validation_status:
+    type: string
+    enum: [pass, fail]
+required:
+  - dataset_id
+  - transformation
+  - test_type
+  - alpha
+  - error_rate
+  - ci_lower
+  - ci_upper
+  - ci_half_width
+  - validation_status
+additionalProperties: false

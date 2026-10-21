@@ -1,3 +1,4 @@
-# Core dependencies are pre‑installed in the execution environment.
-# The checkpointing utilities rely on *portalocker* for safe file locking.
-portalocker
+# Project dependencies
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are provided by the runner.
+# Additional third‑party packages required by this task:
+portalocker>=2.0

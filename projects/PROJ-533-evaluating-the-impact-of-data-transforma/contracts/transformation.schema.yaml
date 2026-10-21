@@ -1,6 +1,14 @@
-type: string
-enum:
-  - baseline
-  - box_cox
-  - yeo_johnson
-  - rank_normal
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Transformation
+type: object
+properties:
+  transformation:
+    type: string
+    enum:
+      - baseline
+      - box_cox
+      - yeo_johnson
+      - rank_inverse_normal
+required:
+  - transformation
+additionalProperties: false
