@@ -31,30 +31,42 @@ properties:
     description: "Mean betweenness centrality across all nodes in the waking network."
   centrality_eigenvector_mean:
     type: number
-    description: "Mean eigenvector centrality across all nodes in the waking network."
+    description: "Mean eigenvector centrality across the **EEG‑only** network."
   waking_night_id:
     type: string
     description: "Identifier for the waking recording night (extracted from EDF header)."
   sleep_night_id:
     type: string
-    description: "Identifier for the sleep recording night."
+    description: "Identifier of the sleep recording night."
   temporal_proximity:
     type: boolean
-    description: "True if waking and sleep recordings are from the same night; indicates potential temporal confounding."
+    description: "True if waking and sleep nights are the same."
   age:
     type: ["integer", "null"]
-    description: "Age of the subject in years (optional; may be null if not available)."
+    description: "Age in years (optional)."
   gender:
     type: ["string", "null"]
-    description: "Gender of the subject (M or F; optional; may be null if not available)."
+    description: "Gender (M or F, optional)."
   total_sleep_time_min:
     type: number
-    description: "Total sleep time in minutes (derived from durations of all sleep stages)."
+    description: "Total sleep time in minutes."
     minimum: 0
   waking_duration_min:
     type: number
-    description: "Duration of the waking segment in minutes (used for filtering: must be ≥ 2 min)."
+    description: "Duration of the **≥ 2 min** waking segment."
     minimum: 0
+  centrality_icc:
+    type: number
+    description: "Split‑half Intraclass Correlation Coefficient for centrality stability within the waking segment."
+  centrality_icc_flag:
+    type: boolean
+    description: "True if ICC < 0.6 (unstable)."
+  centrality_wake_sleep_icc:
+    type: number
+    description: "Cross‑state ICC between waking centrality and N2‑stage centrality."
+  centrality_wake_sleep_icc_flag:
+    type: boolean
+    description: "True if cross‑state ICC < 0.6 (unstable across states)."
 required:
   - subject_id
   - stage_label

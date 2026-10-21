@@ -1,14 +1,14 @@
 status: none
-intent: Sleep-EDF dataset PhysioNet download Python package dataset
+intent: Sleep-EDF EEG sleep stages dataset download PhysioNet Hugging Face python
+  package dataset
 required_fields:
 - subject_id
-- epoch_index
+- recording_id
 - eeg_signal
 - sampling_rate
-- channel_names
-- epoch_start_time
-- epoch_end_time
+- timestamp
 - sleep_stage_label
-cache_key: eb994524f97529b3541034a8880affcf2ef5116af5adc0fed64cb0935af92ce2
-searched_at: '2026-10-16T02:02:22.060181+00:00'
+- epoch_index
+cache_key: 411133d5bdc1ea8aa4120ed4405dd3c1785744c2efe51e0a23ce882a5370e931
+searched_at: '2026-10-21T20:10:06.056111+00:00'
 retry_count: 1
