@@ -68,7 +68,7 @@ The system must generate a continuous plot of accuracy vs. hop count to visualiz
 - Output Data: `data/processed/accuracy_vs_hop_raw.csv`. (See US2)
 
 ### FR-006: Runtime Measurement
-The system must log the total end‑to‑end runtime of the pipeline and compare it against the CI runtime limit of **7200 seconds (2 hours)**. Runtime monitoring is essential for reproducible research pipelines and to respect CI sandbox constraints.  
+The system must log the total end‑to‑end runtime of the pipeline and compare it against the CI runtime limit (i.e., the predefined maximum allowable duration). Runtime monitoring is essential for reproducible research pipelines and to respect CI sandbox constraints.  
 - Output: `data/processed/runtime_log.json` containing fields `total_seconds` and `limit_exceeded` (boolean). (See US4)
 
 ### FR-007: [REMOVED] Generalized Additive Models (GAM)
@@ -76,11 +76,11 @@ The system must log the total end‑to‑end runtime of the pipeline and compare
 **Reason**: The Plan’s “Complexity Tracking” table explicitly rejects GAMs for this task due to statistical invalidity on discrete ordinal variables (hop counts). The permutation test and LRT are the approved methodologies for non‑linearity detection. (Retained for traceability; not active.)
 
 ### FR-008: Sensitivity Analysis of Threshold Definition
-The system must repeat the threshold detection (both permutation test and LRT) under three alternative binning schemes (e.g., `[1,2,3+]`, `[1,2,3,4+]`, `[1,2,3,4,5+]`) and report the stability of the selected knot.  
+The system must repeat the threshold detection (both permutation test and LRT) under three alternative binning schemes (e.g., `[initial,2,3+]`, `[initial,2,3,4+]`, `[initial,2,3,4,5+]`) and report the stability of the selected knot.  
 - Output: `data/processed/sensitivity_analysis.json` with per‑scheme knots and significance flags. (See US3)
 
 ### FR-009: Memory Usage Logging
-The system must record peak memory consumption during execution and compare it against the CI memory limit of **7 GB**. Memory monitoring is required to guarantee that the pipeline can run within the limited resources of CI environments, ensuring reproducibility.  
+The system must record peak memory consumption during execution and compare it against the CI memory limit. Memory monitoring is required to guarantee that the pipeline can run within the limited resources of CI environments, ensuring reproducibility.  
 - Output: `data/processed/memory_log.json` containing fields `peak_gb` and `limit_exceeded` (boolean). (See US5)
 
 ### FR-010: Predictive Model & Likelihood‑Ratio Evaluation

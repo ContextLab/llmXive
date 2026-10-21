@@ -5,7 +5,7 @@ The analysis revolves around three core entities:
 
 | Entity | Description |
 |--------|-------------|
-| **QuestionRecord** | One QA pair from VideoKR‑SFT, enriched with `chain_length`, `chain_bin`, covariates, and binary correctness. |
+| **QuestionRecord** | One QA pair from the dataset, enriched with `chain_length`, `chain_bin`, covariates, and binary correctness. |
 | **KnowledgeGraph** | Static directed graph of entities/relations; read‑only for hop counting. |
 | **ThresholdResult** | Outcome of the permutation change‑point test, LRT, and sensitivity sweep. |
 
@@ -18,11 +18,11 @@ The analysis revolves around three core entities:
 | `question_text` | string | Natural‑language question. |
 | `answer_text` | string | Ground‑truth answer. |
 | `correctness` | boolean | Binary label indicating whether the model answer is correct. |
-| `predicted_correctness` | number | Model‑prediction confidence (0.0 or 1.0) added later by FR‑010. |
+| `predicted_correctness` | number | Model prediction of correctness (probability, 0.0–1.0) written after the predictive‑model step (FR‑013). |
 | `chain_length` | integer | Shortest‑path hop count (≥ 1) or `-1` if unresolvable. |
 | `chain_bin` | string | `'1'`, `'2'`, or `'3+'` derived from `chain_length`. |
 | `question_difficulty` | number | Float in [0, 1] from `difficulty_score`. |
-| `video_length_seconds` | number | Video duration in seconds (from `metadata/video_lengths.csv`). |
+| `video_length_seconds` | number | Video duration in seconds. |
 | `answer_type` | string | `"multiple_choice"` or `"open_ended"` derived from answer format. |
 | `status` | string | `"valid"`, `"disconnected"`, or `"mapping_failure"` (FR‑001). |
 
@@ -30,16 +30,18 @@ The analysis revolves around three core entities:
 | Column | Type | Description |
 |--------|------|-------------|
 | `question_id` | string | Links to `annotated_videokr.csv`. |
-| `chain_bin` | string | `'1'`, `'2'`, or `'3+'`. |
+| `hop_bin` | string | `'1'`, `'2'`, or `'3+'`. |
 
 ### `data/processed/threshold_results.json`
 ```json
 {
   "primary_threshold": 3,
   "results": [
+    { "knot": 1, "p_value": [deferred], "effect_size": [deferred], "cliff_magnitude": [deferred], "is_significant": [deferred] },
     { "knot": 2, "p_value": [deferred], "effect_size": [deferred], "cliff_magnitude": [deferred], "is_significant": [deferred] },
     { "knot": 3, "p_value": [deferred], "effect_size": [deferred], "cliff_magnitude": [deferred], "is_significant": [deferred] },
-    { "knot": 4, "p_value": [deferred], "effect_size": [deferred], "cliff_magnitude": [deferred], "is_significant": [deferred] }
+    { "knot": 4, "p_value": [deferred], "effect_size": [deferred], "cliff_magnitude": [deferred], "is_significant": [deferred] },
+    { "knot": 5, "p_value": [deferred], "effect_size": [deferred], "cliff_magnitude": [deferred], "is_significant": [deferred] }
   ],
   "robustness_status": "PASS",
   "bias_flag": false,
@@ -74,12 +76,12 @@ The analysis revolves around three core entities:
 ### `data/processed/power_analysis.json`
 ```json
 {
-  "effect_size_h": 0.1,
+  "effect_size_h": 0.12,
   "alpha": 0.05,
-  "adjusted_alpha": 0.0167,
+  "adjusted_alpha": 0.01,
   "power": 0.8,
   "min_samples_per_bin": 50,
-  "computed_n": 48,
+  "computed_n": 45,
   "rounded_n": 50
 }
 ```
@@ -87,7 +89,7 @@ The analysis revolves around three core entities:
 ### Supporting Logs
 - `runtime_log.json` – total wall‑clock seconds, `limit_exceeded` flag (SC‑004).  
 - `memory_log.json` – peak RAM in GB, `limit_exceeded` flag (SC‑005).  
-- `annotation_coverage.json` – counts of total, annotated, and unresolvable records (SC‑001).  
+- `annotation_coverage.json` – counts of total, annotated, and unresolvable records (SC‑001).
 
 ## 3. Additional Output Artifacts
 - `data/processed/accuracy_binned.png` – bar chart of per‑bin accuracy.  
@@ -102,7 +104,7 @@ The analysis revolves around three core entities:
 4. **Stratified Accuracy** (`stratify_accuracy.py`) → `accuracy_binned.*`.  
 5. **Threshold Detection** (`detect_threshold.py`) → `threshold_results.json`.  
 6. **Sensitivity & Covariate Sweep** (`sensitivity.py`) → `sensitivity_analysis.json`.  
-7. **Predictive Modeling** (`model_lrt.py`) → `model_lrt_results.json`.  
+7. **Predictive Modeling** (`model_lrt.py`) → `model_lrt_results.json` **and** inject `predicted_correctness` into `annotated_videokr.csv`.  
 8. **Runtime & Memory Logging** (`main.py`, `memory_tracker.py`) → `runtime_log.json`, `memory_log.json`.  
 
 ## 5. Validation Rules
@@ -112,3 +114,5 @@ The analysis revolves around three core entities:
 - **Immutability**: Files under `data/raw/` are never overwritten; derived files have new filenames.  
 
 ---
+
+

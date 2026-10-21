@@ -17,7 +17,7 @@ properties:
     description: "Binary label indicating whether the model answer is correct."
   predicted_correctness:
     type: "number"
-    description: "Model prediction of correctness (0.0 or 1.0)."
+    description: "Model prediction of correctness (probability, 0.0–1.0)."
   chain_length:
     type: "integer"
     minimum: -1
@@ -43,15 +43,7 @@ properties:
     enum:
       - "multiple_choice"
       - "open_ended"
-    description: "Format of the answer."
-  status:
-    type: "string"
-    enum:
-      - "valid"
-      - "disconnected"
-      - "mapping_failure"
-    description: "Status of the graph traversal or entity linking."
-additionalProperties: false
+    description: "Answer format (multiple_choice or open_ended)."
 required:
   - question_id
   - question_text
@@ -63,4 +55,4 @@ required:
   - question_difficulty
   - video_length_seconds
   - answer_type
-  - status
+additionalProperties: false
