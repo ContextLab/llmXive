@@ -1,47 +1,60 @@
-"""
-create_layout.py
-
-This script establishes the canonical project directory layout required by
-task T001.  It creates the top‑level data folders and ensures that every
-package directory under ``code/`` contains an ``__init__.py`` file so that
-imports work correctly.
-
-The script is safe to run multiple times – existing directories and files
-are left untouched.
-"""
-
-import sys
+import os
 from pathlib import Path
 
-def ensure_dir(path: Path) -> None:
-    """Create a directory (including parents) if it does not exist."""
-    path.mkdir(parents=True, exist_ok=True)
+def main():
+    """
+    Create the canonical project layout for the mindfulness-DMN analysis.
+    Ensures all required directories and package __init__.py files exist.
+    """
+    # Define all required directories
+    # We include both top-level 'code/' and 'code/src/' to maintain 
+    # compatibility with various import styles found in the project.
+    directories = [
+        "code/config",
+        "code/utils",
+        "code/src/config",
+        "code/src/utils",
+        "code/src/analysis",
+        "code/src/datasets",
+        "code/src/preprocessing",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "data/metadata",
+        "docs",
+        "tests/unit",
+        "tests/contract",
+        "tests/integration",
+        "figures",
+        "results",
+    ]
 
-def ensure_init(path: Path) -> None:
-    """Create an ``__init__.py`` file in ``path`` if missing."""
-    init_file = path / "__init__.py"
-    if not init_file.exists():
-        init_file.write_text(
-            "# -*- coding: utf-8 -*-\\n"
-            "\"\"\"Package marker for {}.\"\"\"\\n".format(path.name)
-        )
+    print("Creating project directory structure...")
+    for dir_path in directories:
+        p = Path(dir_path)
+        p.mkdir(parents=True, exist_ok=True)
+        print(f"Created/Verified: {dir_path}")
 
-def main() -> int:
-    # Top‑level data directories
-    data_root = Path("data")
-    for sub in ["raw", "processed", "results", "metadata", "figures"]:
-        ensure_dir(data_root / sub)
+    # Define where __init__.py files should be to make them Python packages
+    packages = [
+        "code/config",
+        "code/utils",
+        "code/src",
+        "code/src/config",
+        "code/src/utils",
+        "code/src/analysis",
+        "code/src/datasets",
+        "code/src/preprocessing",
+    ]
 
-    # Ensure package __init__ files
-    for pkg in [Path("code/config"), Path("code/utils")]:
-        ensure_dir(pkg)          # in case the folder itself is missing
-        ensure_init(pkg)
+    for pkg_path in packages:
+        init_file = Path(pkg_path) / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+            print(f"Created: {init_file}")
 
-    # Ensure ``code`` is a package (helps some import styles)
-    ensure_init(Path("code"))
-
-    print("Project layout created/verified successfully.")
+    print("Project layout initialized successfully.")
     return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    exit(main())

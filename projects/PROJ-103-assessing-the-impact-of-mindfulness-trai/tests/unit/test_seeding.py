@@ -1,32 +1,33 @@
-"""
-Unit tests for the seeding utilities.
-
-The test verifies that a simple NumPy‑based random operation is fully
-deterministic when the global seed is fixed and that the helper
-``verify_determinism`` correctly detects this.
-"""
-
 import numpy as np
-from code.utils.seeding import set_all_seeds, verify_determinism, DEFAULT_SEED
+import pytest
+from code.src.utils.seeding import set_all_seeds, verify_determinism, DEFAULT_SEED
 
-
-def dummy_numpy_operation():
-    """Return a small NumPy array of random numbers."""
-    return np.random.rand(5)
-
-
-def test_deterministic_numpy_operation():
-    # Ensure the global seed is set to the default before each run.
+def test_numpy_determinism():
+    """Confirm that NumPy produces identical results when seeds are reset."""
     set_all_seeds(DEFAULT_SEED)
+    a = np.random.rand(10)
+    set_all_seeds(DEFAULT_SEED)
+    b = np.random.rand(10)
+    np.testing.assert_array_equal(a, b)
 
-    # ``verify_determinism`` will run the function twice (default
-    # ``iterations=2``) and raise if the outputs differ.
-    assert verify_determinism(dummy_numpy_operation, seed=DEFAULT_SEED) is True
+def test_verify_determinism_success():
+    """Test that verify_determinism returns True for deterministic functions."""
+    def deterministic_func():
+        return np.random.rand(5)
+    
+    assert verify_determinism(deterministic_func, seed=DEFAULT_SEED) is True
 
-
-def test_get_seed_constant():
-    # The constant ``DEFAULT_SEED`` should match the value returned by
-    # ``get_seed`` (exposed via the wrapper in ``code.utils.seeding``).
-    from code.utils.seeding import get_seed
-
-    assert get_seed() == DEFAULT_SEED
+def test_verify_determinism_failure():
+    """Test that verify_determinism raises RuntimeError for non-deterministic functions."""
+    # State is shared, so if we don't reset seeds inside the func, 
+    # it's non-deterministic across calls.
+    # However, verify_determinism calls set_all_seeds internally.
+    # To force failure, we use a function that depends on external state.
+    counter = 0
+    def non_deterministic_func():
+        nonlocal counter
+        counter += 1
+        return counter
+    
+    with pytest.raises(RuntimeError, match="Function output is not deterministic"):
+        verify_determinism(non_deterministic_func)

@@ -7,7 +7,7 @@
 
 ## Phase 1 – Project scaffolding & configuration  
 
-- [ ] **T001** [USx?] Create the canonical project layout and core configuration files.  
+- [X] **T001** [USx?] Create the canonical project layout and core configuration files.  
   *Paths*: `code/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`, `code/config/settings.py`, `code/utils/seeding.py`.  
   *Verification*:  
   – Directory tree exists and contains an `__init__.py` in each package.  
