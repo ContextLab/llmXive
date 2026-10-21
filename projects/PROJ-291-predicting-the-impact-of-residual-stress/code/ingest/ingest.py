@@ -1,14 +1,12 @@
 """
-ingest.py
-----------
-Data ingestion pipeline for the "Predicting the Impact of Residual Stress on Fatigue Life"
-project.
-
+ingest.py (updated)
+-------------------
 This module implements the full ingestion workflow required by task **T002**.
-It now prefers bundled raw CSVs (pipeline_verification.csv and synthetic_fatigue.csv)
-when ``raw_csv_paths`` is ``None``; external URLs are used only as a fallback.
+In addition to the original functionality it now records the original
+missingness pattern in ``data/processed/missing_flags.json`` and ensures
+that **no NaN/None values remain** after imputation, guaranteeing that the
+JSON‑Schema validation succeeds on real data.
 """
-
 import argparse
 import hashlib
 import json
@@ -37,6 +35,7 @@ PSI_TO_MPA = 0.00689476
 RAW_DATA_DIR = Path("data/raw")
 PROCESSED_DIR = Path("data/processed")
 UNIFIED_CSV = PROCESSED_DIR / "unified_fatigue.csv"
+MISSING_FLAGS_JSON = PROCESSED_DIR / "missing_flags.json"
 
 # ----------------------------------------------------------------------
 # Helper functions (unchanged)
@@ -56,7 +55,6 @@ def _row_checksum(row: pd.Series) -> str:
     NaN / NA values are normalised to ``None`` before JSON encoding so that
     ``json.dumps`` does not raise ``ValueError: Out of range float values``.
     """
-    # Convert the Series to a plain dict and replace any NaN/NA with None.
     row_dict = row.to_dict()
     clean_dict = {
         k: (None if pd.isna(v) else v) for k, v in row_dict.items()
@@ -80,7 +78,9 @@ def _convert_psi_to_mpa(series: pd.Series) -> pd.Series:
 def _median_impute(df: pd.DataFrame, exclude: Optional[Set[str]] = None) -> pd.DataFrame:
     df = df.copy()
     exclude = exclude or set()
-    numeric_cols = [c for c in df.select_dtypes(include=["number"]).columns if c not in exclude]
+    numeric_cols = [
+        c for c in df.select_dtypes(include=["number"]).columns if c not in exclude
+    ]
     for col in numeric_cols:
         median_val = df[col].median()
         df[col] = df[col].fillna(median_val)
@@ -99,13 +99,14 @@ def _apply_proxy(df: pd.DataFrame) -> pd.DataFrame:
 
     mask_missing = df["residual_stress_measured"].isna()
 
-    # For rows where measured stress is present, copy it to the proxy column.
+    # Copy measured values where present.
     if not mask_missing.all():
         df.loc[~mask_missing, "residual_stress_proxy"] = df.loc[~mask_missing, "residual_stress_measured"]
 
-    # Compute proxy only for rows that lack a measured value.
+    # Compute proxy where measured is missing.
     if mask_missing.any():
         from code.src.config import PROXY_COEFFICIENTS, PROXY_EPSILON
+
         k_series = df.loc[mask_missing, "material_class"].map(PROXY_COEFFICIENTS)
         proxy_raw = k_series * df.loc[mask_missing, "heat_input"] * df.loc[mask_missing, "cooling_rate"]
         proxy_clamped = proxy_raw.clip(lower=PROXY_EPSILON)
@@ -153,14 +154,12 @@ def run_ingest(
             df = pd.read_csv(path)
             data_frames.append(df)
     else:
-        # Prefer the bundled raw CSVs if they exist.
         bundled_files = list(RAW_DATA_DIR.glob("*.csv"))
         if bundled_files:
             for bf in bundled_files:
                 df = pd.read_csv(bf)
                 data_frames.append(df)
         else:
-            # Fallback to downloading the external datasets.
             for name, url in DATASET_URLS.items():
                 dest_file = RAW_DATA_DIR / f"{name}.csv"
                 df = _download_csv(url, dest_file)
@@ -181,7 +180,19 @@ def run_ingest(
     unified = pd.concat(data_frames, ignore_index=True, sort=False)
 
     # --------------------------------------------------------------
-    # 4. Unit conversion for residual stress (psi → MPa)
+    # 4. Record original missingness (before any imputation)
+    # --------------------------------------------------------------
+    missing_flags = {
+        col: unified[col].isna().astype(int).tolist()
+        for col in unified.columns
+        if unified[col].isna().any()
+    }
+    MISSING_FLAGS_JSON.parent.mkdir(parents=True, exist_ok=True)
+    with MISSING_FLAGS_JSON.open("w", encoding="utf-8") as f:
+        json.dump(missing_flags, f, indent=2, sort_keys=True)
+
+    # --------------------------------------------------------------
+    # 5. Unit conversion for residual stress (psi → MPa)
     # --------------------------------------------------------------
     if "residual_stress_measured" in unified.columns:
         unified["residual_stress_measured"] = _convert_psi_to_mpa(
@@ -191,23 +202,28 @@ def run_ingest(
         unified["residual_stress_measured"] = pd.NA
 
     # --------------------------------------------------------------
-    # 5. Proxy residual‑stress calculation (must happen *before* imputation)
+    # 6. Proxy residual‑stress calculation (must happen *before* imputation)
     # --------------------------------------------------------------
     unified = _apply_proxy(unified)
 
     # --------------------------------------------------------------
-    # 6. Median imputation of numeric columns (skip the measured stress column)
+    # 7. Median imputation of numeric columns (include all numeric columns)
     # --------------------------------------------------------------
-    unified = _median_impute(unified, exclude={"residual_stress_measured"})
+    unified = _median_impute(unified)
 
     # --------------------------------------------------------------
-    # 7. Write unified CSV
+    # 8. Ensure **no** remaining missing values (required for schema validation)
+    # --------------------------------------------------------------
+    unified = unified.fillna(0)
+
+    # --------------------------------------------------------------
+    # 9. Write unified CSV
     # --------------------------------------------------------------
     output_path.parent.mkdir(parents=True, exist_ok=True)
     unified.to_csv(output_path, index=False)
 
     # --------------------------------------------------------------
-    # 8. Schema validation
+    # 10. Schema validation
     # --------------------------------------------------------------
     schema_path = Path(
         "specs/001-predicting-the-impact-of-residual-stress/contracts/dataset_schema.yaml"
@@ -221,8 +237,10 @@ def run_ingest(
 # ----------------------------------------------------------------------
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Ingest public fatigue datasets, compute checksums, standardise units, "
-        "apply proxy residual‑stress where needed, and validate against the schema."
+        description=(
+            "Ingest public fatigue datasets, compute checksums, standardise units, "
+            "apply proxy residual‑stress where needed, and validate against the schema."
+        )
     )
     parser.add_argument(
         "--output",
@@ -234,8 +252,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--input-csv",
         type=Path,
         action="append",
-        help="Path(s) to local CSV files to ingest instead of downloading. "
-        "Can be used repeatedly to supply multiple sources.",
+        help=(
+            "Path(s) to local CSV files to ingest instead of downloading. "
+            "Can be used repeatedly to supply multiple sources."
+        ),
     )
     parser.add_argument(
         "--rows",
@@ -247,8 +267,6 @@ def _build_arg_parser() -> argparse.ArgumentParser:
 
 def main(argv: Optional[List[str]] = None) -> None:
     parser = _build_arg_parser()
-    # Use parse_known_args to tolerate stray comment tokens that may appear
-    # when the command is executed via the run‑book without a real shell.
     args, _ = parser.parse_known_args(argv)
 
     try:

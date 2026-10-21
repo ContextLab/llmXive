@@ -1,0 +1,15 @@
+{
+  "sample_id": "nested_01",
+  "material_class": "steel",
+  "heat_input": 7.5,
+  "cooling_rate": 1.2,
+  "other_process_params": {
+    "param_a": 3,
+    "param_b": 5
+  },
+  "elastic_modulus": 200.0,
+  "yield_strength": 250.0,
+  "residual_stress_measured": null,
+  "fatigue_life_cycles": 12000,
+  "source": "openml_nested_fixture"
+}

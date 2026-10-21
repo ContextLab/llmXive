@@ -2,18 +2,29 @@ T001:
   reason: 'Requested task execution failed; rerun successfully: src/env_check.py exit=1'
   task: 11b64e595b9902112d47d040262ee694f36fc67772697d6d825828737066d1fc
 T002:
-  reason: The required implementation file `code/src/ingest.py`, the JSON fixture
-    `code/tests/fixtures/openml_style_nested.json`, the test suite `code/tests/test_ingest.py`,
-    and the generated outputs `data/processed/missing_flags.json` and `data/processed/unified_fatigue.csv`
-    are all reported as missing, so the ingestion pipeline cannot be verified or executed.
+  reason: "The provided `code/ingest/ingest.py` never reads or flattens the nested\u2011\
+    JSON fixture (`openml_style_nested.json`) and the required test suite `code/tests/test_ingest.py`\
+    \ is missing, so the ingestion behavior cannot be verified. Moreover, the script\
+    \ loads *all* CSVs found in `data/raw` rather than restricting itself to the two\
+    \ bundled files, which deviates from the specification. These gaps mean the task\u2019\
+    s core requirements are not met."
   task: ca29fe431b8e5951839f8f3eb0b79e7fb03ba310f23c5181b182e7bc23bfe7d1
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/src/run_e2e.py
     exit=1'
   task: 9105aa08cd92ce1b9b5b4b9b7281a43ffd9ff7112a405829c17f88f35ac8b47e
 T004:
+  reason: "The `build_features.py` script builds Feature Set\u202FA on the full dataset\
+    \ while Feature Set\u202FB_balanced is filtered to rows where `is_proxy=False`,\
+    \ causing a length mismatch (8 vs\u202F4) as shown by the failing `test_features.py`\
+    \ run. Consequently the required condition that A and balanced\u202FB share identical\
+    \ row indices is not met, and the verification test is missing. The task needs\
+    \ correction of the feature\u2011set construction logic (and the test file) to\
+    \ satisfy the specifications."
   task: 8426a75103943edd98b95ef1c4113a2857245e5de1a319f34a7b43fbd0ee6022
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/src/train.py
+    exit=1'
   task: be706d4856ea7362052f7d10e19b355dd1bab63ca30bda2fa0706143a3a00473
 T006:
   task: 8ecdfd5a6766af5554f72e5c89677a27cb90a564f4f7d93d209e14e444ea60c7

@@ -1,18 +1,21 @@
-T001:
-  c: false
-  h: ac6a5d65ebcfbcc17f26889f3494fd10a7575e5484903ebd021cbb2696fd3345
-  r: "Checked `quickstart.md`, `code/src/env_check.py`, `code/src/config.py`, `requirements.txt`,\
-    \ `data/raw/checksums.json` and the presence of `code/tests/test_env_check.py`.\
-    \ The quickstart uses bash scripts instead of the required single\u2011command\
-    \ example, the `requirements.txt` pins `torch==2.3.0` without the `+cpu` suffix,\
-    \ and the verification test file `code/tests/test_env_check.py` is missing, so\
-    \ the required pytest check cannot be run."
-  sig: df5672ec2f39f3a015ec0179b4174af69a353371c1dc6134fb71b0129b5715ea
 T002:
   c: false
-  h: 70a78648a48b6abc942d5a8052ac7c90ccc0c109d9e27a9580d60706a4b1e59e
-  r: The required implementation file `code/src/ingest.py`, the JSON fixture `code/tests/fixtures/openml_style_nested.json`,
-    the test suite `code/tests/test_ingest.py`, and the generated outputs `data/processed/missing_flags.json`
-    and `data/processed/unified_fatigue.csv` are all reported as missing, so the ingestion
-    pipeline cannot be verified or executed.
-  sig: 910a57e9018861e5ad07fc9274f402187fc0723363785825a6b9cbb59e11de09
+  h: 891c86f6ec585accf7a26a676b52a0c768e244102f53e5a00e7a0e2c9dfa5182
+  r: "The provided `code/ingest/ingest.py` never reads or flattens the nested\u2011\
+    JSON fixture (`openml_style_nested.json`) and the required test suite `code/tests/test_ingest.py`\
+    \ is missing, so the ingestion behavior cannot be verified. Moreover, the script\
+    \ loads *all* CSVs found in `data/raw` rather than restricting itself to the two\
+    \ bundled files, which deviates from the specification. These gaps mean the task\u2019\
+    s core requirements are not met."
+  sig: 51440e80bdc1b9e8aad8b1e918b4b2ef2ef034deda19d893d834a747e4980d30
+T004:
+  c: false
+  h: e9f164feeb45c14c6e08c788b1988cd6d98cd8739994d7340a21e3b39ba59984
+  r: "The `build_features.py` script builds Feature Set\u202FA on the full dataset\
+    \ while Feature Set\u202FB_balanced is filtered to rows where `is_proxy=False`,\
+    \ causing a length mismatch (8 vs\u202F4) as shown by the failing `test_features.py`\
+    \ run. Consequently the required condition that A and balanced\u202FB share identical\
+    \ row indices is not met, and the verification test is missing. The task needs\
+    \ correction of the feature\u2011set construction logic (and the test file) to\
+    \ satisfy the specifications."
+  sig: d3e2c5346d6e6332b6fd70d6d76617c3c5125773456961f6f328504d836b3772

@@ -52,7 +52,7 @@ The checklist implements the technical schema requirements of FR‑001 – F
   – Standardise all numeric features (zero mean, unit variance) and persist the scalers for later use.  
   *Verification*: `pytest code/tests/test_features.py` confirms (i) A and balanced B share identical row indices, (ii) B contains no proxy rows, (iii) B‑full and C span the full dataset and correctly use proxy where measured is missing.
 
-- [ ] T005 **[P] [US2] Train RF, GBM, and shallow NN with 5‑fold CV, hyper‑parameter search, and timing**  
+- [ ] T005 **[P] [US2] Train RF, GBM, and shallow NN with 5‑fold CV, hyper‑parameter search, and timing**   <!-- FAILED-IN-EXECUTION: code/src/train.py exit=1 -->
   *File*: `code/src/train.py`  
   *Actions*  
   – Define a fixed grid of **10** hyper‑parameter combinations per algorithm (as described in the plan).  
