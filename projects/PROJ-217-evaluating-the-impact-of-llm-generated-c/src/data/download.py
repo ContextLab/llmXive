@@ -23,7 +23,7 @@ from typing import List, Dict
 
 import pandas as pd
 import yaml
-from huggingface_hub import hf_hub_download, HfHubDownloadError
+from huggingface_hub import hf_hub_download, HfHubError
 from tqdm import tqdm
 
 from llmxive_toolkit import paths, get_logger
@@ -39,9 +39,14 @@ FILENAME = "python/train-00000-of-00001.parquet"
 MAX_RETRIES = 3
 RETRY_BACKOFF = 60  # seconds
 
-PROJECT_SEED = int(Path.cwd().joinpath("project_seed.txt").read_text().strip()
-                   if Path.cwd().joinpath("project_seed.txt").exists()
-                   else "42")
+PROJECT_SEED = int(
+    Path.cwd()
+    .joinpath("project_seed.txt")
+    .read_text()
+    .strip()
+    if Path.cwd().joinpath("project_seed.txt").exists()
+    else "42"
+)
 random.seed(PROJECT_SEED)
 
 N_SNIPPETS = 500
@@ -93,7 +98,7 @@ def _download_parquet() -> Path:
             )
             log.info(f"Downloaded parquet to {parquet_path}")
             return Path(parquet_path)
-        except HfHubDownloadError as e:
+        except HfHubError as e:
             log.error(f"Download attempt {attempt} failed: {e}")
             if attempt == MAX_RETRIES:
                 raise RuntimeError(
@@ -105,6 +110,7 @@ def _download_parquet() -> Path:
                 backoff = RETRY_BACKOFF * (2 ** (attempt - 1))
                 log.info(f"Retrying after {backoff}s...")
                 time.sleep(backoff)
+
 
 def _map_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -131,6 +137,7 @@ def _map_columns(df: pd.DataFrame) -> pd.DataFrame:
             "`code`/`docstring` or `func_code_string`/`func_documentation_string`."
         )
 
+
 def _is_valid_docstring(doc: str) -> bool:
     """
     Validation rules for a docstring:
@@ -153,12 +160,14 @@ def _is_valid_docstring(doc: str) -> bool:
         return False
     return True
 
+
 def _write_jsonl(records: List[Dict], out_path: Path) -> None:
     """Write a list of dicts as JSON Lines."""
     with out_path.open("w", encoding="utf-8") as f:
         for rec in records:
             json.dump(rec, f, ensure_ascii=False)
             f.write("\n")
+
 
 # ----------------------------------------------------------------------
 # Main workflow
@@ -266,6 +275,7 @@ def main() -> None:
         raise RuntimeError("Insufficient valid snippets")
 
     log.info("All checks passed. Exiting with status 0.")
+
 
 if __name__ == "__main__":
     try:
