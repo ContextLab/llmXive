@@ -1,83 +1,36 @@
+T000:
+  task: 2639fac37d36ae301f9fa656597ed56ceac0632c0fd09b197e786718825b2286
 T001:
-  reason: 'Requested task execution failed; rerun successfully: src/run_pipeline.py
-    exit=-1 (TIMEOUT)'
-  task: efed8fc0e0715b46abc391f9e3251c0229cf0a247e440937386e5036faa32094
+  task: a67de131a5fe4c8832269c1f23669775deba5330e24fdd2d4b2e7750cbc37424
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/curators/curate_failed_figures.py
-    exit=-1 (TIMEOUT)'
-  task: 01186f3ad9cc47147625c5ad87db58292c6ae0412bebf5fa588dfb22f1f38279
+  task: 2e58516fa9258c2dc7cb1635b56537b1c26c70e6906960ac89d1d57433eb59d8
 T003:
-  reason: "The three required files (`structured_harness.py`, `chat_interface.py`,\
-    \ `session.py`) exist and contain FastAPI stubs, but there is no evidence that\
-    \ a FastAPI server was started and that the `/init_session` and `/edit` endpoints\
-    \ actually return the expected JSON and 200\u202FOK responses. The provided curl\
-    \ command fails with a connection error, and no execution logs or test results\
-    \ are supplied to demonstrate the randomised, counterbalanced order behavior.\
-    \ Running the server and showing successful curl responses is needed to satisfy\
-    \ the task."
-  task: 79c864f462c572423781e6627a4017440fd036bb6ae57fade7c739871685d96e
+  task: 99a536c55f5323dfb946d52edcab9671a048ced34551ae7ae305c519791c0f6c
 T004:
-  reason: "The logger module `src/logger/interaction_logger.py` exists and looks functional,\
-    \ but the verification requirement was not met: the curl POST to `/edit` failed\
-    \ with connection refused, and the existing `data/logs/interactions.jsonl` entries\
-    \ are explicitly synthetic (\"synthetic edit N for figure_X\") with a schema (`session_id`,\
-    \ `task_id`, `mode`, `payload` as string) that does not match what this logger\
-    \ writes (`participant_id`, `figure_id`, `interface`, `payload` as dict) \u2014\
-    \ so no line in the log was demonstrably produced by this logger. The implementer\
-    \ must demonstrate a real logged edit (e.g."
-  task: fddeaa3a88b56842e6328224106c34b41bcb63041f7d6f9e6903da3e85245736
+  task: abd319250ab4cefa38fa46a0ef742a9ba7ce2261a2d280afe602a38480051f80
 T005:
-  reason: "The `vector_match.py` utility writes a `SemanticValidation` record with\
-    \ `semantic_pass` hard\u2011coded to `False`, and `semantic_similarity.py` writes\
-    \ a record with `vector_match` hard\u2011coded to `False`. Consequently no single\
-    \ record can ever have both fields `true` as required for a trial to be counted\
-    \ successful, and the unit tests do not verify the combined\u2011field behavior.\
-    \ The utilities need to produce a record where both booleans reflect the actual\
-    \ outcomes of the two checks."
-  task: 82861595e1961c72f7939d7b0a69b4f5048efe3a17a56358998e35fadb4f0400
+  task: 20d306815f40a03746e6758b5c85dbd93adc9a32f5764077408120009b9a627f
 T006:
-  reason: 'declared artifact(s) missing/empty/invalid: src/simulation/power_analysis.py'
-  task: d1ad2d964cae396617392ad712705d39093426fd9fe737668cbecac94fe369a5
+  task: c06eee802d579bf6b663e1101c0f94d3e06f3a5cef23b3478d1d3f3d2b77c617
 T007:
-  reason: "The `src/simulation/simulate_participants.py` script exists and generates\
-    \ logs, and `data/logs/interactions.jsonl` is present, but the file contains far\
-    \ fewer than the required\u202F\u2248\u202F7\u202F500 JSON\u2011lines (\u2248\u202F\
-    6\u202F500 based on its 1.3\u202FMiB size) and also includes entries written by\
-    \ `src/logger/interaction_logger.py` that do not match the `contracts/interaction_log.schema.yaml`\
-    \ fields. Consequently the log does not satisfy the \u201Ceach line conforms to\
-    \ the schema\u201D and minimum\u2011line\u2011count requirements."
-  task: b4dfc075ce189d30ef266135117f4628f13d034a921f452706cc33c9906ad1fb
+  task: 52bf6b1fa7f2438f0195dfed9e5554c45ea0ba202f6affa0e65c58dd2606736f
 T008:
-  reason: "The provided `src/validation/run_combined_validation.py` is only a thin\
-    \ wrapper that re\u2011exports `run_validation.main`; the real logic lives in\
-    \ `run_validation.py`. That script merely compares each ground\u2011truth file\
-    \ and image to itself, always succeeds, never processes actual trial predictions,\
-    \ and does not log trials that fail either check. Consequently it does not truly\
-    \ \u201Cinvoke both `vector_match` and `semantic_similarity` on each completed\
-    \ trial\u201D nor record unsuccessful trials as required. The implementation must\
-    \ be revised to validate real trial outputs, write a `SemanticValidation` line\
-    \ on"
-  task: ea90355470f5eda313018c9a9d2165ee4ecd6ac4f8c5ddc7050eeee64241bf01
+  task: bcefad7f416adb06be0b87e241b3b23e14ac515ba1cb9de6adbc390ba4357fb8
 T009:
-  reason: "The `src/analysis/retention_check.py` script exists and implements a threshold\
-    \ check, but the unit test fails because the script requires a `--log-dir` argument\
-    \ and aborts with an argparse error before performing the retention logic. Consequently\
-    \ the test never reaches the non\u2011zero exit and \u201CRetention threshold\
-    \ not met\u201D message, so the verification step is not satisfied. The script\
-    \ needs a default log\u2011directory (or the test must supply the argument) and\
-    \ must ensure the expected warning message is produced under the test conditions."
-  task: 4170a1406eb980a62080b0b204eff606c495c05cbf0381c38bb11d652a0cc295
+  task: 48f59439d60e621db064793dfd0df8604e3767aa72baa64a03b191f33451609e
 T010:
-  task: e6f202b764be5fd827839604f70b3e0995260b12b9839ac45188582478f0fbda
+  task: cf5dfb997e92a8203b5480747a4277d5f4d97f391c8ba16bcd7171543e6f29fe
 T011:
-  reason: 'Requested task execution failed; rerun successfully: src/report/generate_report.py
-    exit=1'
-  task: 813c3a89333627d2ecfa2dad05f71a701e07cd11a888fd146290ad6de32b6aa0
+  task: 3fea7a51f5af2118ee3ca99c3b2b9af9a0396013ad980403e2a6528965bdf80f
 T012:
-  task: 5bb83ce859a6ddf5f2ec4f6e64e3c5a79a8c1dbc14dd81aa56de479598e0269f
+  task: f5a462d54725f3bb9971a50d258f5f3e697dbd5306deaee636f59139a5b14330
 T013:
-  task: f9a5d5170fddfbd04b6755490815edff7afbf93d9b4e64c9d2030a903402fa69
+  task: e41a69a5bf36de51a32458e9a49acf012a0e8b91e183c60a6653a5d2218c7706
 T014:
-  task: 29cc724df0d437fc38a22566dd46c7e0fe2e6d296699ba5ef2e34bb529911f12
+  task: a5f702dd6906c41c88402ee5849ccdf80a40e4a9d7de2b69eba60986daaf25ab
 T015:
-  task: e67a6e5fe290fa7cf0dc2fa4445a1e6cd7a30c21b9ceb8d35d1dc6ca47ac557d
+  task: 36909e02d2befd7c58f89ef934c42c185126a9079f0977e0cf21cb7650c7f323
+T016:
+  task: 46a61e0f8bfc6c8bb13b626755f714fe7a7cff713f45b78742f871e763125625
+T018:
+  task: 71abcf62a9503228bca528e1602f68a054d830ecff496b49cfc5bb47075ed235
