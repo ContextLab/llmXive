@@ -86,7 +86,7 @@ def _query_encode_file(
         "type": "File",
         "biosample_ontology.term_name": cell_line,
         "status": "released",
-        "assembly": "hg38",
+        "assembly": "GRCh38",  # Updated to the canonical assembly name used by ENCODE
         "format": "json",
         "limit": "1",
         "field": "href",
@@ -126,6 +126,7 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
     """
     results = []
     for cl in cell_lines:
+        # RNA‑seq gene quantifications (TSV)
         try:
             rna_uri = _query_encode_file(
                 session,
@@ -135,7 +136,7 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                 file_format="tsv"
             )
         except Exception as e1:
-            logger.warning(f"Primary RNA-seq query failed for {cl}: {e1}. Trying fallback.")
+            logger.warning(f"Primary RNA‑seq query failed for {cl}: {e1}. Trying fallback without assay.")
             rna_uri = _query_encode_file(
                 session,
                 cell_line=cl,
@@ -143,6 +144,7 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                 file_format="tsv"
             )
 
+        # Accessibility: prefer DNase‑seq, fallback to ATAC‑seq
         try:
             dnase_uri = _query_encode_file(
                 session,
@@ -152,7 +154,7 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                 file_format="narrowPeak"
             )
         except Exception as e_dnase:
-            logger.warning(f"DNase-seq not found for {cl}: {e_dnase}. Trying ATAC-seq.")
+            logger.warning(f"DNase‑seq not found for {cl}: {e_dnase}. Trying ATAC‑seq.")
             try:
                 dnase_uri = _query_encode_file(
                     session,
@@ -162,7 +164,7 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                     file_format="narrowPeak"
                 )
             except Exception as e_atac:
-                logger.error(f"Both DNase-seq and ATAC-seq missing for {cl}: {e_atac}")
+                logger.error(f"Both DNase‑seq and ATAC‑seq missing for {cl}: {e_atac}")
                 raise RuntimeError(f"No accessibility file for {cl}")
 
         results.append({
@@ -209,7 +211,7 @@ def download_file(uri: str, output_path: Path, session: requests.Session) -> boo
 
 def process_rna_data(input_path: Path, output_path: Path) -> None:
     """
-    Convert ENCODE RNA-seq quantification TSV into the final counts CSV.
+    Convert ENCODE RNA‑seq quantification TSV into the final counts CSV.
     Expected ENCODE columns include at least: gene_id, gene_name, TPM (or tpm).
     Output CSV columns: gene_id, gene_name, cell_line, count
     """
@@ -223,19 +225,25 @@ def process_rna_data(input_path: Path, output_path: Path) -> None:
         writer = csv.writer(f_out)
         writer.writerow(["gene_id", "gene_name", "cell_line", "count"])
         for row in reader:
+            # Look for a TPM column (case‑insensitive)
             tpm_key = next((k for k in row.keys() if k.lower() == "tpm"), None)
             if tpm_key is None:
                 raise RuntimeError(f"TPM column not found in RNA file {input_path}")
             try:
+                # Scale TPM to an integer count approximation (simple heuristic)
                 count = int(float(row[tpm_key]) * 10)
             except (ValueError, TypeError):
                 count = 0
-            writer.writerow([row.get("gene_id", "unknown"), row.get("gene_name", "unknown"), cell_line, count])
+            writer.writerow([row.get("gene_id", "unknown"),
+                             row.get("gene_name", "unknown"),
+                             cell_line,
+                             count])
     logger.info(f"Wrote processed RNA counts to {output_path}")
 
 def process_accessibility_data(input_path: Path, output_path: Path) -> None:
     """
     Convert ENCODE narrowPeak BED into the final BED used downstream.
+    The ENCODE narrowPeak format already has 6 columns; we simply copy it.
     """
     logger.info(f"Processing accessibility data from {input_path}")
     if not input_path.exists():
@@ -354,7 +362,7 @@ def main() -> None:
 
     for entry in metadata:
         cl = entry["cell_line"]
-        # RNA-seq
+        # RNA‑seq
         rna_uri = entry["rna"]["download_uri"]
         rna_tmp = RAW_DIR / f"{cl}_rna.tmp"
         rna_out = RAW_DIR / f"encode_counts_{cl}.csv"

@@ -1,40 +1,28 @@
-T001:
-  reason: 'The required outputs `data/raw/synthetic_counts.csv`, `synthetic_peaks.bed`,
-    and `checksums.csv` do not exist on disk, so the verification criterion (run the
-    generator, files exist non-empty) cannot be confirmed and there is no execution
-    evidence. Additionally, the code violates the "no silent fallback" requirement:
-    `load_schema` returns `{}` on a YAML parse error and `build_dataset_dict` skips
-    validation entirely when the schema is empty, and the module injects `random`/`np`
-    into `builtins` to paper over the test file''s missing imports (the test''s `test_file_creation`
-    also uses `Path` without'
-  task: 3bdd9fbbe2f22564e918fa557f1fa0a692391863aa29410cc131acc1db2b998a
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/download_encode.py
     exit=1'
-  task: d418178aef4af9aefbbac03d6ad110ca8d469d0f268fdd6e6d874d428b560b81
+  task: 9d6fc357a1a108826d157927ef1346c5fb859ab8747b5a8f8248a12fbb2d5c41
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/preprocess.py
-    exit=1'
-  task: 8697b9d7bc5cd30ea629a96e2bdb6d454153133f14288c301a775f8521f02caa
+  task: dc1f89c239ecfcb984d861451daf1a38a800663c23b244b6ef3c1968f2d82300
 T004:
-  task: f5113101ce321b8bd597aed7f2aecef107ed9d30675a2f55e200e956eb67a8c6
+  task: 74d26715d190cc4a49d97bf04e8ced317974d19011de523ff1900656af5bb333
 T005:
-  task: 1fe67a3c518524eaf5b313576c641b4d5dfb80fc1c0b83e2f7bb29f875fa9871
+  task: eec4c7f3f38ab32d0bd9a674e3f1ecad3976ce693ae3587a6257651eb9a669ab
 T006:
-  task: 5dc8c69441c5416c46edbd69c26ca01540efc0cd2aea641e29f5800db9458720
+  task: 0b7af833c3d8a0772a742183bbc95fc5c3ee4058d46b9affd6fa0e420849f85b
 T007:
-  task: d6a52a7b898784b6464c56713a6164ac700246aee502b8958e41adc8ac610065
+  task: 468626f2111e64efa7ce83254ed132fbf19803315d25d1af13603f825445b1d5
 T008:
-  task: 6f4dbee926a7016586143d1758d2e71b457f986ec3987dfdd5f8caf609131167
+  task: 46bf950468c426869344bd26d5a19ed31b0212323a05931ff3542bfd764bef9f
 T009:
-  task: 72e1f6e6efa64c91e9a8da7a1e16fe8eca4a84e2f8faa68d3e91639240ece868
+  task: f0d0bbe85037b34ebff5ac3df7033c8fb3d7c8b54746c47cae720d3635d39819
 T010:
-  task: 7a4e6b23892eb3a39a9137bb3a051bf9efdc5f3ff034184af6083b23f6a7c123
+  task: 1a7832ffd330436b5a4ea155cfbb5a79e9577216dcea07eefa829b5c75df6478
 T011:
-  task: ac2504bdb90ae0e131be195dc2aca222bdef6d35248e867ddc0d1b2d71e43d3f
+  task: 7ea417f0defd06682e75e570e2f0cd299403d1aaca2bee6d61dabc050fc2f95c
 T012:
-  task: 9c48d3b8956d528b705b52ba0c93dacffc09ff758565d77a3d1585fc526b3cd8
+  task: 7fb6de60bcd280c9746def0666f5c628bc674f0c39ed4bb980cad4e7a2285401
 T013:
-  task: ff1194724f7d23f21375eb2df33cb3b067a412ea9ffbeb3233b1df235027880a
-T015:
-  task: 1c906110307f434e42d7c1c0a00ebf3e206418e962c133348d24511ac7c6a0df
+  task: ee73927b184737c91b2da3a5744c7e4a64301fa3ba0c074257e32e8ca90d388d
+T014:
+  task: cd31e79400c938c45e549a30433c8bec56685397268e408a5ab25d83c7e12bb1
