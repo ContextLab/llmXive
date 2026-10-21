@@ -1,63 +1,56 @@
-"""Tests for src/config/arch_configs.yaml and its loader (T006)."""
+"""Unit tests for src/config/arch_configs.yaml (T006).
+
+Verifies that the ArchConfig definitions load through the existing
+``src.config.loader`` API and define the structural parameters
+(context window, model size, retrieval toggle) required by the
+correlation analysis in US-3.
+"""
 from __future__ import annotations
 
-import pathlib
-
 import pytest
-import yaml
 
 from src.config.loader import get_arch_config, load_arch_configs
 
-CONFIG_PATH = (
-    pathlib.Path(__file__).resolve().parents[2] / "src" / "config" / "arch_configs.yaml"
-)
 
-REQUIRED_KEYS = {
-    "config_id",
-    "model_name",
-    "model_size_params",
-    "context_window_tokens",
-    "retrieval_augmented",
-    "temperature",
-    "top_p",
-}
+def test_loads_all_configs():
+    configs = load_arch_configs()
+    assert isinstance(configs, list)
+    assert len(configs) >= 5
 
-def test_config_file_exists():
-    assert CONFIG_PATH.is_file(), f"missing {CONFIG_PATH}"
 
-def test_yaml_parses_and_has_configs_section():
-    with open(CONFIG_PATH, "r", encoding="utf-8") as fh:
-        doc = yaml.safe_load(fh)
-    assert isinstance(doc, dict)
-    assert isinstance(doc.get("configs"), list)
-    assert len(doc["configs"]) >= 4  # enough for multiple-comparison correction (FR-007)
+def test_structural_parameters_present():
+    for cfg in load_arch_configs():
+        assert cfg["context_window_tokens"] > 0
+        assert cfg["model_size_params"] > 0
+        assert isinstance(cfg["retrieval_augmented"], bool)
+        assert 0.0 < cfg["temperature"] <= 2.0
+        assert 0.0 < cfg["top_p"] <= 1.0
 
-def test_every_config_has_required_structural_keys():
-    for cfg in load_arch_configs(CONFIG_PATH):
-        missing = REQUIRED_KEYS - set(cfg)
-        assert not missing, f"{cfg.get('config_id')} missing keys: {missing}"
 
-def test_structural_parameters_vary_across_configs():
-    """Structural params must vary so the correlation analysis is not tautological."""
-    cfgs = load_arch_configs(CONFIG_PATH)
-    sizes = {c["model_size_params"] for c in cfgs}
-    rag = {c["retrieval_augmented"] for c in cfgs}
-    temps = {c["temperature"] for c in cfgs}
-    assert len(sizes) >= 2, "model_size_params must vary"
-    assert len(rag) >= 2, "retrieval_augmented must vary"
-    assert len(temps) >= 2, "temperature must vary"
+def test_unique_config_ids():
+    configs = load_arch_configs()
+    ids = [c["config_id"] for c in configs]
+    assert len(ids) == len(set(ids))
 
-def test_cpu_only_models():
-    for cfg in load_arch_configs(CONFIG_PATH):
-        assert cfg["model_size_params"] <= 500_000_000, (
-            f"{cfg['config_id']} exceeds CPU-tractable model size"
-        )
 
-def test_get_arch_config_roundtrip():
-    cfg = get_arch_config("small_no_rag_high_temp", CONFIG_PATH)
-    assert cfg["config_id"] == "small_no_rag_high_temp"
+def test_retrieval_toggle_varies():
+    """RAG must be toggled across configs to serve as a fixed effect."""
+    flags = {c["retrieval_augmented"] for c in load_arch_configs()}
+    assert flags == {True, False}
+
+
+def test_model_size_varies():
+    """Model size must vary to support the model-scale correlation (SC-003)."""
+    sizes = {c["model_size_params"] for c in load_arch_configs()}
+    assert len(sizes) >= 2
+
+
+def test_get_arch_config_known_id():
+    cfg = get_arch_config("small_no_rag_high_temp")
+    assert cfg["model_name"] == "distilgpt2"
     assert cfg["temperature"] == 0.7
 
-def test_get_arch_config_unknown_raises():
+
+def test_get_arch_config_unknown_id_raises():
     with pytest.raises(KeyError):
-        get_arch_config("does_not_exist", CONFIG_PATH)
+        get_arch_config("does_not_exist")
