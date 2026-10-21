@@ -32,10 +32,11 @@ properties:
     description: "Family‑wise error corrected p‑value (max‑t permutation, Freedman‑Lane method)."
   significant:
     type: boolean
-    description: "True if `p_fwe` < 0.05."
+    description: "True if `p_fwe` < 0.05."
   vif:
     type: number
     description: "Variance Inflation Factor for the covariates (age, sex, mean_fd)."
   checksum:
     type: string
     description: "SHA‑256 checksum of the row for reproducibility."
+additionalProperties: false

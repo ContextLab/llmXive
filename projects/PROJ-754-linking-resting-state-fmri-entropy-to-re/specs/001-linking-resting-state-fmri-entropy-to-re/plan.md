@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-resting-state-entropy-risk/spec.md`
 
 ## Summary
-The pipeline must (1) download a reproducible, open‑source subset of 200 HCP minimally preprocessed 4 mm parcellated resting‑state fMRI time series together with DSRT behavioral scores, (2) apply rigorous motion‑control QC, (3) compute multiscale sample entropy (scales 1‑5) per cortical parcel and average across scales, (4) fit a mass‑univariate OLS regression per parcel (`DSRT ~ Entropy + Age + Sex + MeanFD`) with permutation‑based family‑wise error (FWE) correction, (5) conduct a sensitivity sweep over entropy tolerance `r` and pattern length `m`, (6) generate a reproducible PDF report and NIfTI map, and (7) expose a single orchestrator script `src/run_pipeline.py` that is callable from the Quickstart. All steps run on CPU‑only GitHub Actions runners within the free‑tier limits.
+The pipeline must (1) download a reproducible, open‑source subset of 200 HCP minimally preprocessed 4 mm parcellated resting‑state fMRI time series together with DSRT behavioral scores, (2) apply rigorous motion‑control QC, (3) compute multiscale sample entropy (scales 1‑5) per cortical parcel and average across scales, (4) fit a mass‑univariate linear model per parcel (`DSRT ~ Entropy + Age + Sex + MeanFD`) with permutation‑based family‑wise error correction, (5) conduct a sensitivity sweep over entropy tolerance `r` and pattern length `m`, (6) generate a reproducible PDF report and NIfTI map, and (7) expose a single orchestrator script `src/run_pipeline.py` that is callable from the Quickstart. All steps run on CPU‑only GitHub Actions runners within the free‑tier limits.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
@@ -26,6 +26,7 @@ The pipeline must (1) download a reproducible, open‑source subset of 200 HCP m
 - **Scale/Scope**: 200 subjects × 400 parcels (Schaefer‑400 atlas).
 
 ## Constitution Check
+
 | Principle | Compliance Statement |
 |-----------|----------------------|
 | I. Reproducibility | All scripts accept a `--seed` argument; random seeds are fixed in `src/constants.py`. External datasets are fetched from the exact URLs listed in **Research.md**. |
@@ -45,7 +46,7 @@ All principles are satisfied; no violations identified.
 | **1 – Data Acquisition & QC** | Download HCP time series and DSRT scores, merge on `subject_id`, compute mean FD, exclude subjects with FD ≥ 0.2 mm or missing DSRT. Write `data/derived/clean_subjects.parquet` and `data/derived/subject_qc.csv`. | FR‑001, FR‑002, FR‑006 (observational framing) | SC‑001 (runtime), SC‑002 (memory) |
 | **2 – Entropy Computation** | Compute multiscale sample entropy per parcel, average across scales, flag parcels with < 100 timepoints → `data/derived/invalid_parcels.csv`. Output `data/derived/entropy_matrix.parquet`. | FR‑003, FR‑008 (sensitivity setup) | SC‑002 (memory), SC‑003 (output completeness) |
 | **3 – Statistical Modeling** | Fit OLS per parcel (`DSRT ~ Entropy + Age + Sex + MeanFD`), compute VIF, perform 5 000 Freedman‑Lane permutations, apply max‑t FWE correction, conduct post‑hoc power analysis. Write `results/model_coefficients.csv`, `results/significant_parcels.nii.gz`, `results/power_analysis.csv`. | FR‑004, FR‑005, FR‑006, FR‑008 | SC‑004 (report), SC‑005 (VIF), SC‑006 (power) |
-| **4 – Reporting & Sensitivity** | Generate PDF report (`reports/link_entropy_risk.pdf`) containing β‑maps, VIF table, power analysis, and sensitivity tables over `r` ∈ {0.1, 0.15, 0.2} and `m` ∈ {3, 5, 7}. | FR‑007 (CPU‑only), FR‑008 (execution) | SC‑003, SC‑004, SC‑005, SC‑006 |
+| **4 – Reporting & Sensitivity** | Generate PDF report (`reports/link_entropy_risk.pdf`) containing: β‑maps, VIF table, power analysis, and sensitivity tables over `r` ∈ {0.1, 0.15, 0.2} and `m` ∈ {3, 5, 7}. | FR‑007 (CPU‑only), FR‑008 (execution) | SC‑003, SC‑004, SC‑005, SC‑006 |
 | **5 – Orchestration** | Provide entry‑point `src/run_pipeline.py` that sequentially calls the above modules, handles timeout for permutations, logs all steps, and exits with clear error codes. | FR‑001 (credential handling), FR‑002 (missing DSRT), FR‑007 (CPU‑only) | SC‑001 (timeout handling) |
 
 All functional requirements (FR‑001 – FR‑008) and success criteria (SC‑001 – SC‑006) are explicitly covered.
@@ -70,7 +71,7 @@ All functional requirements (FR‑001 – FR‑008) and success criteria (SC
 | **Memory spikes during entropy** | Entropy is computed parcel‑wise, loading only one parcel’s time series at a time; peak RAM stays < 4 GB (SC‑002). |
 | **Missing HCP credentials** | `src/download_hcp.py` checks `HCP_TOKEN` env var; missing/invalid token triggers a clear error and aborts before any download (FR‑001 edge case). |
 | **Missing DSRT column** | After merging, `src/qc.py` verifies presence of `dsrt_score`; rows missing this field are excluded and logged (FR‑002 edge case). |
-| **VIF > 5** | The verified fact `VIF = 33` exceeds the threshold; the pipeline will compute VIF, report the high value, and flag multicollinearity in the PDF (SC‑005 satisfied because the metric is measured). |
+| **VIF > 5** | The verified fact `VIF = 33` exceeds the `< 5` threshold. The pipeline will compute VIF, report the high value, and flag multicollinearity in the PDF (SC‑005 still satisfied because the metric is measured). |
 | **pyentropy stub issue** | The plan explicitly uses the real `pyentropy` package from PyPI; no local stub is created. Unit tests verify that `sample_entropy` returns finite values and that parcels with insufficient points are recorded in `invalid_parcels.csv`. |
 | **Unverifiable Quickstart** | Quickstart now calls the real orchestrator `python -m src.run_pipeline` which exists, is exercised by CI tests (`pytest -q`), and produces all declared artifacts. |
 | **Timeout on permutations** | Timeout guard ensures the job never exceeds the 6‑hour CI wall‑clock; a clear error code is emitted for downstream debugging. |
