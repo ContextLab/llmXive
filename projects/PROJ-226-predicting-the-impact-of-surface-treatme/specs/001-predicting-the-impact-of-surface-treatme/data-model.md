@@ -62,3 +62,4 @@ The concrete YAML schemas are provided in the `contracts/` directory:
 These schemas are used by `pytest` contract tests to ensure every artifact conforms to the defined structure.
 
 ---
+

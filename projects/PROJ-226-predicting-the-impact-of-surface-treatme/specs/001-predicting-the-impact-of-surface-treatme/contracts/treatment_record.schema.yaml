@@ -32,10 +32,10 @@ properties:
     description: "Substrate roughness in nanometers."
   adhesion_strength_mj_m2:
     type: number
-    description: "Adhesion strength in mJ / m² (target variable)."
+    description: "Measured adhesion strength in mJ / m² (target variable)."
   pair_id:
     type: string
-    description: "Identifier for the polymer‑substrate pair."
+    description: "Identifier for the polymer‑substrate pair (e.g., 'PE‑Glass')."
   source:
     type: string
     description: "Originating dataset identifier (e.g., 'NIST')."
