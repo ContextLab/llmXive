@@ -7,14 +7,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m code.main --stage all -> rc=-1
-2026-10-21 06:26:31,100 - pipeline - INFO - Executing full pipeline: download -> checksum
+2026-10-21 07:33:17,244 - pipeline - INFO - Executing full pipeline: download -> checksum
 
 
 [TIMEOUT after 120s]
 - python -m code.main --stage all --resume --run-id your_run_id -> rc=-1
-2026-10-21 06:28:31,159 - pipeline - INFO - Attempting to resume from checkpoint: your_run_id
-2026-10-21 06:28:31,159 - pipeline - WARNING - No checkpoint found for run_id. Starting from scratch.
-2026-10-21 06:28:31,159 - pipeline - INFO - Executing full pipeline: download -> checksum
+2026-10-21 07:35:17,370 - pipeline - INFO - Attempting to resume from checkpoint: your_run_id
+2026-10-21 07:35:17,371 - pipeline - WARNING - No checkpoint found for run_id. Starting from scratch.
+2026-10-21 07:35:17,371 - pipeline - INFO - Executing full pipeline: download -> checksum
 
 
 [TIMEOUT after 120s]

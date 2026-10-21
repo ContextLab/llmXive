@@ -10,7 +10,7 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Add project root to path for imports
+# Ensure project root is on sys.path for internal imports
 project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 

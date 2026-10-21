@@ -6,10 +6,13 @@ import logging
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Any
+
+import pandas as pd
 import requests
 from urllib.parse import urlparse
+from sklearn.datasets import fetch_openml
 
-# Import from utils to avoid circular imports and ensure consistent logging
+# Project utilities
 from code.utils.logging_config import setup_pipeline_logger
 from code.utils.schema_definitions import get_datasets_headers, get_checksums_headers
 
@@ -20,6 +23,9 @@ VERIFIED_SOURCES = [OPENML_DOMAIN, UCI_DOMAIN]
 
 logger = setup_pipeline_logger("download_datasets")
 
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
 def is_valid_url(url: str) -> bool:
     """Check if a URL is syntactically valid."""
     if not url or not isinstance(url, str):
@@ -57,120 +63,23 @@ def compute_sha256(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_file(url: str, dest_path: str) -> bool:
-    """Download a file from URL to dest_path."""
+def download_file(url: str, dest_path: Path) -> bool:
+    """Download a file from URL to dest_path (streamed)."""
     try:
         response = requests.get(url, stream=True, timeout=60)
         response.raise_for_status()
         with open(dest_path, "wb") as f:
             for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
+                if chunk:
+                    f.write(chunk)
         return True
     except Exception as e:
         logger.error(f"Failed to download {url}: {e}")
         return False
 
-def get_dataset_info_from_openml(dataset_id: int) -> Optional[Dict[str, Any]]:
-    """Fetch dataset metadata from OpenML API."""
-    api_url = f"https://www.openml.org/api/v1/json/data/{dataset_id}"
-    try:
-        response = requests.get(api_url, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        if "data" in data and "oml:data" in data["data"]:
-            info = data["data"]["oml:data"]
-            return {
-                "dataset_id": str(dataset_id),
-                "name": info.get("name"),
-                "url": info.get("url"),
-                "source": OPENML_DOMAIN,
-                "format": "arff"
-            }
-    except Exception as e:
-        logger.error(f"Error fetching OpenML dataset {dataset_id}: {e}")
-        return None
-    return None
-
-def fetch_openml_datasets(min_rows: int = 30, limit: int = 100) -> List[Dict[str, Any]]:
-    """
-    Fetch a list of datasets from OpenML that meet basic criteria.
-    Returns a list of dataset metadata dictionaries.
-    """
-    search_url = "https://www.openml.org/api/v1/json/data/list/"
-    params = {
-        "limit": limit,
-        "status": "active",
-    }
-    datasets: List[Dict[str, Any]] = []
-    try:
-        response = requests.get(search_url, params=params, timeout=60)
-        response.raise_for_status()
-        data = response.json()
-        if "data" in data and "oml:data" in data["data"]:
-            for item in data["data"]["oml:data"]:
-                did = item.get("did")
-                url = item.get("url")
-                if did and url and is_source_verified(url):
-                    datasets.append({
-                        "dataset_id": str(did),
-                        "name": item.get("name", f"dataset_{did}"),
-                        "url": url,
-                        "source": OPENML_DOMAIN,
-                        "format": "arff"
-                    })
-    except Exception as e:
-        logger.error(f"Failed to fetch OpenML dataset list: {e}")
-        raise ConnectionError(f"Dataset fetch failed: {e}")
-
-    if len(datasets) < 50:
-        logger.warning(f"Only fetched {len(datasets)} datasets; attempting to fetch more.")
-        # Simple pagination loop (up to a reasonable bound)
-        offset = limit
-        while len(datasets) < 50 and offset < 2000:
-            params["offset"] = offset
-            try:
-                resp = requests.get(search_url, params=params, timeout=60)
-                resp.raise_for_status()
-                more = resp.json()
-                if "data" in more and "oml:data" in more["data"]:
-                    for item in more["data"]["oml:data"]:
-                        did = item.get("did")
-                        url = item.get("url")
-                        if did and url and is_source_verified(url):
-                            if not any(d["dataset_id"] == str(did) for d in datasets):
-                                datasets.append({
-                                    "dataset_id": str(did),
-                                    "name": item.get("name", f"dataset_{did}"),
-                                    "url": url,
-                                    "source": OPENML_DOMAIN,
-                                    "format": "arff"
-                                })
-                offset += limit
-            except Exception:
-                break
-    if len(datasets) < 50:
-        raise ConnectionError("Failed to retrieve at least 50 public datasets from OpenML.")
-    return datasets[:100]  # Return up to 100 candidates
-
-def process_uci_dataset(dataset_info: Dict[str, Any], raw_dir: Path) -> Optional[Path]:
-    """Download a UCI dataset (currently expects a direct URL to a file)."""
-    url = dataset_info["url"]
-    filename = f"uci_{dataset_info['dataset_id']}.arff"
-    dest = raw_dir / filename
-    if download_file(url, str(dest)):
-        return dest
-    return None
-
-def process_openml_dataset(dataset_info: Dict[str, Any], raw_dir: Path) -> Optional[Path]:
-    """Download an OpenML dataset using its standard download endpoint."""
-    did = dataset_info["dataset_id"]
-    url = f"https://www.openml.org/data/download/{did}"
-    filename = f"openml_{did}.arff"
-    dest = raw_dir / filename
-    if download_file(url, str(dest)):
-        return dest
-    return None
-
+# ----------------------------------------------------------------------
+# Metadata file handling
+# ----------------------------------------------------------------------
 def initialize_metadata_files(data_dir: Path):
     """Create empty CSV artifacts with proper headers if they do not exist."""
     datasets_csv = data_dir / "datasets.csv"
@@ -191,14 +100,14 @@ def append_to_datasets_csv(data_dir: Path, dataset_info: Dict[str, Any], checksu
     csv_path = data_dir / "datasets.csv"
     row = {
         "dataset_id": dataset_info["dataset_id"],
-        "source_url": dataset_info["url"],
-        "sample_size": "",          # To be filled later in filtering stage
-        "num_variables": "",        # To be filled later
-        "continuous_variables": "",# To be filled later
+        "source_url": dataset_info["source_url"],
+        "sample_size": dataset_info.get("sample_size", ""),
+        "num_variables": dataset_info.get("num_variables", ""),
+        "continuous_variables": dataset_info.get("continuous_variables", ""),
         "checksum": checksum,
         "skewness": "",
         "kurtosis": "",
-        "included": ""              # Will be set after filtering
+        "included": ""  # will be filled after filtering stage
     }
     with open(csv_path, "a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=get_datasets_headers())
@@ -215,48 +124,170 @@ def append_to_checksums_csv(data_dir: Path, dataset_id: str, checksum: str):
         writer = csv.DictWriter(f, fieldnames=get_checksums_headers())
         writer.writerow(row)
 
+# ----------------------------------------------------------------------
+# Download helpers for each source type
+# ----------------------------------------------------------------------
+def download_openml_dataset(dataset_id: str, raw_dir: Path) -> Optional[Path]:
+    """
+    Download an OpenML dataset using sklearn's fetch_openml.
+    The data is saved as a parquet file named ``openml_<id>.parquet``.
+    """
+    try:
+        logger.info(f"Fetching OpenML dataset {dataset_id}")
+        # fetch_openml returns a Bunch; we request as_frame for convenience
+        bunch = fetch_openml(data_id=int(dataset_id), as_frame=True, version=1)
+        df = bunch.frame
+        # Ensure we have a DataFrame (some OpenML returns only data)
+        if not isinstance(df, pd.DataFrame):
+            logger.error(f"OpenML dataset {dataset_id} did not return a DataFrame")
+            return None
+        out_path = raw_dir / f"openml_{dataset_id}.parquet"
+        df.to_parquet(out_path, index=False)
+        return out_path
+    except Exception as e:
+        logger.error(f"Error fetching OpenML dataset {dataset_id}: {e}")
+        return None
+
+def download_uci_dataset(url: str, raw_dir: Path, dataset_id: str) -> Optional[Path]:
+    """
+    Download a UCI dataset given its URL.
+    The file is saved in its original format (CSV or ARFF) and then,
+    if it can be read by pandas, also stored as a parquet copy for downstream use.
+    """
+    try:
+        logger.info(f"Downloading UCI dataset {dataset_id} from {url}")
+        dest = raw_dir / f"uci_{dataset_id}{Path(url).suffix}"
+        if not download_file(url, dest):
+            return None
+
+        # Try to read with pandas; many UCI files are CSV-like.
+        try:
+            df = pd.read_csv(dest, header=None, na_values='?')
+            parquet_path = raw_dir / f"uci_{dataset_id}.parquet"
+            df.to_parquet(parquet_path, index=False)
+            return parquet_path
+        except Exception:
+            # If pandas cannot parse, keep the original file as raw.
+            logger.warning(f"Could not parse UCI file {dest} into DataFrame; kept raw.")
+            return dest
+    except Exception as e:
+        logger.error(f"Failed to process UCI dataset {dataset_id}: {e}")
+        return None
+
+# ----------------------------------------------------------------------
+# Main orchestration
+# ----------------------------------------------------------------------
 def main():
-    """Entry point for downloading and registering datasets."""
+    """
+    Download ≥50 public datasets from OpenML (using IDs from openml_ids.txt)
+    and UCI (using URLs from uci_dataset_urls.txt). For each successful download:
+    - Store as parquet in ``data/raw/`` (or keep original if parsing fails)
+    - Compute SHA‑256 checksum
+    - Append a provisional row to ``data/datasets.csv``
+    - Append checksum row to ``data/checksums.csv``
+    The script aborts with exit code 1 if fewer than 50 datasets are verified.
+    """
     base_dir = Path.cwd()
     data_dir = base_dir / "data"
     raw_dir = data_dir / "raw"
-
     raw_dir.mkdir(parents=True, exist_ok=True)
+
+    # Ensure CSV placeholders exist
     initialize_metadata_files(data_dir)
 
-    logger.info("Starting OpenML dataset discovery.")
-    try:
-        candidate_datasets = fetch_openml_datasets()
-    except ConnectionError as e:
-        logger.critical(str(e))
+    # ------------------------------------------------------------------
+    # 1. Load OpenML IDs
+    # ------------------------------------------------------------------
+    openml_ids_path = data_dir / "openml_ids.txt"
+    if not openml_ids_path.is_file():
+        logger.critical(f"Missing OpenML IDs file at {openml_ids_path}")
         sys.exit(1)
 
-    processed = 0
-    verified = 0
-    for ds in candidate_datasets:
-        if not is_source_verified(ds["url"]):
-            logger.warning(f"Skipping unverified source for dataset {ds['dataset_id']}")
+    with open(openml_ids_path, "r", encoding="utf-8") as f:
+        openml_ids = [line.strip() for line in f if line.strip().isdigit()]
+
+    # ------------------------------------------------------------------
+    # 2. Load UCI URLs
+    # ------------------------------------------------------------------
+    uci_urls_path = data_dir / "uci_dataset_urls.txt"
+    if not uci_urls_path.is_file():
+        logger.critical(f"Missing UCI URLs file at {uci_urls_path}")
+        sys.exit(1)
+
+    with open(uci_urls_path, "r", encoding="utf-8") as f:
+        uci_urls = [line.strip() for line in f if line.strip()]
+
+    verified_count = 0
+    processed_count = 0
+
+    # ------------------------------------------------------------------
+    # 3. Process OpenML datasets
+    # ------------------------------------------------------------------
+    for dataset_id in openml_ids:
+        # Build a synthetic source URL for verification purposes
+        source_url = f"https://{OPENML_DOMAIN}/data/download/{dataset_id}"
+        if not is_source_verified(source_url):
+            logger.warning(f"Skipping unverified OpenML source {source_url}")
             continue
 
-        logger.info(f"Downloading dataset {ds['dataset_id']} ({ds['name']})")
-        dest_path = None
-        if ds["source"] == OPENML_DOMAIN:
-            dest_path = process_openml_dataset(ds, raw_dir)
-        elif ds["source"] == UCI_DOMAIN:
-            dest_path = process_uci_dataset(ds, raw_dir)
-
+        dest_path = download_openml_dataset(dataset_id, raw_dir)
         if dest_path and dest_path.exists():
             checksum = compute_sha256(str(dest_path))
-            append_to_datasets_csv(data_dir, ds, checksum)
-            append_to_checksums_csv(data_dir, ds["dataset_id"], checksum)
-            verified += 1
-            processed += 1
+            dataset_info = {
+                "dataset_id": dataset_id,
+                "source_url": source_url,
+                "sample_size": "",  # to be filled later in filtering
+                "num_variables": "",  # to be filled later
+                "continuous_variables": ""  # to be filled later
+            }
+            append_to_datasets_csv(data_dir, dataset_info, checksum)
+            append_to_checksums_csv(data_dir, dataset_id, checksum)
+            verified_count += 1
+            processed_count += 1
+            logger.info(f"OpenML dataset {dataset_id} processed.")
         else:
-            logger.error(f"Failed to retrieve dataset {ds['dataset_id']}")
+            logger.error(f"Failed to download OpenML dataset {dataset_id}")
 
-    logger.info(f"Download phase completed: {processed} processed, {verified} verified.")
-    if verified < 50:
-        logger.error(f"Only {verified} datasets verified; need at least 50.")
+        # Respect a modest pause to avoid hammering the OpenML server
+        time.sleep(0.2)
+
+    # ------------------------------------------------------------------
+    # 4. Process UCI datasets
+    # ------------------------------------------------------------------
+    for idx, url in enumerate(uci_urls, start=1):
+        if not is_valid_url(url):
+            logger.warning(f"Invalid UCI URL skipped: {url}")
+            continue
+        if not is_source_verified(url):
+            logger.warning(f"Unverified UCI source skipped: {url}")
+            continue
+
+        # Use the index as a simple ID for UCI entries
+        dataset_id = f"uci_{idx}"
+        dest_path = download_uci_dataset(url, raw_dir, dataset_id)
+        if dest_path and dest_path.exists():
+            checksum = compute_sha256(str(dest_path))
+            dataset_info = {
+                "dataset_id": dataset_id,
+                "source_url": url,
+                "sample_size": "",
+                "num_variables": "",
+                "continuous_variables": ""
+            }
+            append_to_datasets_csv(data_dir, dataset_info, checksum)
+            append_to_checksums_csv(data_dir, dataset_id, checksum)
+            verified_count += 1
+            processed_count += 1
+            logger.info(f"UCI dataset {dataset_id} processed.")
+        else:
+            logger.error(f"Failed to download UCI dataset from {url}")
+
+        # Small pause to be polite to the UCI server
+        time.sleep(0.2)
+
+    logger.info(f"Download phase completed: {processed_count} processed, {verified_count} verified.")
+    if verified_count < 50:
+        logger.error(f"Only {verified_count} datasets verified; need at least 50.")
         sys.exit(1)
 
 if __name__ == "__main__":
