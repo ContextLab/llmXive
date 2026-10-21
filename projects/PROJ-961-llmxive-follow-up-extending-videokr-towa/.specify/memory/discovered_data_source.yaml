@@ -1,15 +1,17 @@
 status: none
-intent: TVQA dataset HuggingFace knowledge graph video lengths python package dataset
+intent: Download TVQA dataset with Knowledge Graph and video lengths from HuggingFace
+  python package dataset
 required_fields:
 - question
 - answer
 - video_id
-- timestamp_start
-- timestamp_end
-- hop_type
-- knowledge_graph_entities
-- knowledge_graph_relations
-- video_length_seconds
-cache_key: cf585a0c447bf7863332d2cfe90fe06bb1550b0a006529545f468c4542085895
-searched_at: '2026-10-21T21:07:34.762509+00:00'
+- timestamp
+- subtitle
+- video_features
+- knowledge_graph
+- video_length
+- hop
+- split
+cache_key: 8edc90ba1bc4c035350ccef8c6a5709bdd1cb3eb7da05d9106dff2733a864cfc
+searched_at: '2026-10-21T22:16:11.540688+00:00'
 retry_count: 1

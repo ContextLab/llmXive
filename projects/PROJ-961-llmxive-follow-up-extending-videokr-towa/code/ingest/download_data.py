@@ -2,24 +2,19 @@
 Robust data‑download script for the open‑access TVQA dataset.
 
 This script performs the following steps:
-  1. Download the TVQA training split and write it as a CSV file
-     ``tvqa_train.csv`` under ``data/raw``.
-  2. Download the TVQA metadata split and write it as a CSV file
-     ``metadata/video_lengths.csv`` under ``data/raw``.
-  3. Download the bundled knowledge‑graph JSON from the verified repo
-     ``llmxive/videoqa-kg`` and write it as ``knowledge_graph.json``.
-  4. Compute SHA‑256 checksums for every downloaded file and write them
-     to ``checksums.json`` in the same directory.
+  1. Download the TVQA training split and write it as ``tvqa_train.csv`` under ``data/raw``.
+  2. Derive a ``metadata/video_lengths.csv`` file from the training split (video IDs + length seconds).
+  3. Download the bundled knowledge‑graph JSON from the verified repo ``llmxive/videoqa-kg`` and write it as ``knowledge_graph.json``.
+  4. Compute SHA‑256 checksums for every downloaded file and write them to ``checksums.json`` in the same directory.
 
-Any failure aborts loudly with ``DataUnavailableError`` – no synthetic
-fallback is performed.
+Any failure aborts loudly with ``DataUnavailableError`` – no synthetic fallback is performed.
 """
 import csv
 import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, Tuple, Any, List
+from typing import Any, Dict, Tuple
 
 # Toolkit helpers for standardized project paths
 from llmxive_toolkit import paths
@@ -103,23 +98,50 @@ def _download_tvqa_train(output_dir: Path) -> Path:
 
 
 # ----------------------------------------------------------------------
-# 2. TVQA metadata – CSV
+# 2. TVQA metadata – CSV (derived from the training split)
 # ----------------------------------------------------------------------
 def _download_tvqa_metadata(output_dir: Path) -> Path:
     """
-    Download the TVQA metadata split and write it as
-    ``metadata/video_lengths.csv``.
+    Derive a ``video_lengths.csv`` file from the TVQA training split.
+    The CSV contains two columns: ``video_id`` and ``length_seconds``.
     """
-    logger.info("Downloading TVQA metadata split...")
+    logger.info("Deriving TVQA metadata (video lengths)...")
     metadata_dir = output_dir / "metadata"
     metadata_dir.mkdir(parents=True, exist_ok=True)
     csv_path = metadata_dir / "video_lengths.csv"
 
-    # The TVQA repo provides a ``metadata`` split; if it is missing the
-    # call will raise, which we turn into a ``DataUnavailableError``.
-    metadata = _load_dataset("tvqa", split="metadata", streaming=False)
+    # Load the same training split – it contains the required fields.
+    dataset = _load_dataset("tvqa", split="train", streaming=False)
 
-    _write_csv(metadata, csv_path)
+    video_lengths: Dict[str, float] = {}
+    for rec in dataset:
+        # TVQA records contain a ``video_id`` field and a ``duration`` field.
+        # Some versions expose ``video_length_seconds`` – we handle both.
+        video_id = rec.get("video_id") or rec.get("video")
+        length = rec.get("duration") or rec.get(
+            "video_length_seconds"
+        ) or rec.get("video_length")
+        if video_id is None or length is None:
+            # If the required fields are missing, we cannot construct the metadata.
+            raise DataUnavailableError(
+                "Unable to extract video_id and length from TVQA records."
+            )
+        # Keep the first observed length for each video (they are constant per video).
+        if video_id not in video_lengths:
+            try:
+                video_lengths[video_id] = float(length)
+            except Exception as exc:
+                raise DataUnavailableError(
+                    f"Invalid length value for video {video_id}: {length}"
+                ) from exc
+
+    # Write CSV
+    with csv_path.open("w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=["video_id", "length_seconds"])
+        writer.writeheader()
+        for vid, sec in sorted(video_lengths.items()):
+            writer.writerow({"video_id": vid, "length_seconds": sec})
+
     logger.info(f"TVQA metadata CSV written to {csv_path}")
     return csv_path
 
@@ -209,7 +231,7 @@ def main() -> None:
     try:
         _download_tvqa_metadata(raw_dir)
     except DataUnavailableError as exc:
-        logger.error(f"Failed to download TVQA metadata: {exc}")
+        logger.error(f"Failed to derive TVQA metadata: {exc}")
         sys.exit(1)
 
     try:

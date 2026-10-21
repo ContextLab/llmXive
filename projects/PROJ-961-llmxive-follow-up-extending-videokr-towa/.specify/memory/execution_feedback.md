@@ -36,13 +36,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py -> rc=1
 
-2026-10-21 21:06:45,005 - INFO - Pipeline started
-2026-10-21 21:06:45,005 - INFO - Running T013: Annotate graph...
-2026-10-21 21:06:45,558 - ERROR - Data files not found. Run download_data.py first.
+2026-10-21 22:15:22,264 - INFO - Pipeline started
+2026-10-21 22:15:22,264 - INFO - Running T013: Annotate graph...
+2026-10-21 22:15:22,927 - ERROR - Data files not found. Run download_data.py first.
 
 - python code/ingest/annotate_graph.py -> rc=1
 
-2026-10-21 21:06:45,829 - ERROR - Data files not found. Run download_data.py first.
+2026-10-21 22:15:23,299 - ERROR - Data files not found. Run download_data.py first.
 
 - python code/analysis/power_analysis.py -> rc=2
 
@@ -67,7 +67,7 @@ ERROR tests/unit/test_sensitivity.py
 ERROR tests/unit/test_setup_directories.py
 ERROR tests/unit/test_t021_small_bin_handling.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 0.41s ===============================
+============================== 3 errors in 0.50s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -87,7 +87,7 @@ tlib/_fontconfig_pattern.py:92
 ERROR tests/integration/test_pipeline.py
 ERROR tests/integration/test_t021_small_bins.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 2 errors in 0.65s ========================
+======================== 13 warnings, 2 errors in 0.74s ========================
 
 
 
