@@ -59,7 +59,7 @@ byte‑identical final artifacts under `data/results/`.
 
 ```bash
 # Data download (Phase 1)
-python code/download_data.py --datasets GSE136103,GSE127465,GSE111075,GSE138852
+python code/download_data.py --datasets GSE136103,GSE127465,GSE111075,GSE138852 [UNRESOLVED-CLAIM: c_21f5f414 — status=not_enough_info]
 
 # Preprocessing / QC & normalisation (Phase 2)
 python code/preprocess.py --input data/raw/ --output data/processed/
@@ -83,9 +83,9 @@ python code/velocity.py --input data/processed/ --output data/processed/
 
 ## Configuration (seed pinning)
 
-All scripts read the random seed from `code/config.yaml` (default
-`seed: 42`) to guarantee reproducibility. Do not modify this file unless
-you need a different seed for a controlled experiment.
+All scripts read the random seed from `code/config.yaml` (default `seed: 42`)
+to guarantee reproducibility. Do not modify this file unless you need a
+different seed for a controlled experiment.
 
 ## Troubleshooting
 
@@ -94,4 +94,5 @@ you need a different seed for a controlled experiment.
 | `ruff`/`black` not found | Linting tools not installed | `bash code/setup_lint.sh` installs them automatically |
 | download_data.py exits with error | GEO endpoint temporarily unavailable | Rerun later; the script retries and logs failures to `logs/download.log` |
 | scVelo fails or hangs | Missing spliced/unspliced layers | Check `logs/velocity.log`; the dataset is flagged and excluded from cross‑dataset validation |
-| Report missing disclaimer | Modified `report.py` | Use the unmodified version; the FR‑009 disclaimer is inserted automatically |
+| No enrichment results | `therapy_response` column was mistakenly used; now the external signature is used exclusively. | Rerun the enrichment step; it will produce results consistent with the cited literature. |
+| Report missing disclaimer | Custom modification of `report.py` | The provided script automatically inserts the FR‑009 disclaimer; ensure you are using the unmodified version. |

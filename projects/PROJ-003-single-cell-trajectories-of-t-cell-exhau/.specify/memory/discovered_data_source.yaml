@@ -1,15 +1,14 @@
 status: none
-intent: download GEO GSE136103 GSE111075 GSE138852 scRNA-seq count matrices python
-  package
+intent: download GEO scRNAseq count matrices GSE136103 GSE111075 GSE138852 python
+  package dataset
 required_fields:
-- gene_id
-- gene_name
 - cell_barcode
-- raw_counts
-- mitochondrial_percent
-- normalized_counts
-- velocity_vectors
-- pseudotime
-cache_key: 12dd495b10854e102f63c376729ab18e592b829a7d2826172fc52d6f96a3e95c
-searched_at: '2026-10-19T13:23:30.373636+00:00'
+- gene_symbol
+- raw_count
+- mitochondrial_gene_flag
+- percent_mitochondrial_per_cell
+- sample_accession
+- cell_quality_metrics
+cache_key: 86cf6c0ad6edaab03706b0d2e31e2cd074eef20b2c4b1ad678f47e4a125e1bfa
+searched_at: '2026-10-21T10:17:26.913784+00:00'
 retry_count: 1

@@ -1,513 +1,1344 @@
-== ruff check . ==
-F401 [*] `os` imported but unused
- --> code/install_sra_toolkit.py:1:8
-  |
-1 | import os
-  |        ^^
-2 | import subprocess
-3 | import sys
-  |
-help: Remove unused import: `os`
-  |
-  - import os
-1 | import subprocess
-  |
-
-F401 [*] `os` imported but unused
-  --> code/preprocess.py:12:8
+UP035 `typing.Dict` is deprecated, use `dict` instead
+  --> code/download_data.py:42:1
    |
-10 | import argparse
-11 | import logging
-12 | import os
-   |        ^^
-13 | import subprocess
-14 | import sys
-   |
-help: Remove unused import: `os`
-   |
-11 | import logging
-   - import os
-12 | import subprocess
+40 | import time
+41 | from pathlib import Path
+42 | from typing import Any, Dict, List, Optional, Tuple
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+43 |
+44 | import requests
    |
 
-F841 Local variable `result` is assigned to but never used
-  --> code/preprocess.py:90:9
+UP035 `typing.List` is deprecated, use `list` instead
+  --> code/download_data.py:42:1
    |
-89 |     try:
-90 |         result = subprocess.run(
-   |         ^^^^^^
-91 |             cmd,
-92 |             check=True,
+40 | import time
+41 | from pathlib import Path
+42 | from typing import Any, Dict, List, Optional, Tuple
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+43 |
+44 | import requests
    |
-help: Remove assignment to unused variable `result`
+
+UP035 `typing.Tuple` is deprecated, use `tuple` instead
+  --> code/download_data.py:42:1
    |
-89 |     try:
-   -         result = subprocess.run(
-90 +         subprocess.run(
-91 |             cmd,
+40 | import time
+41 | from pathlib import Path
+42 | from typing import Any, Dict, List, Optional, Tuple
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+43 |
+44 | import requests
+   |
+
+RUF100 [*] Unused `noqa` directive (non-enabled: `N816`)
+  --> code/download_data.py:53:22
+   |
+51 |     import GEOparse  # type: ignore
+52 | except ImportError as e:
+53 |     GEOparse = None  # noqa: N816
+   |                      ^^^^^^^^^^^^
+54 |     _GEOPARSE_IMPORT_ERROR = e
+   |
+help: Remove unused `noqa` directive
+   |
+52 | except ImportError as e:
+   -     GEOparse = None  # noqa: N816
+53 +     GEOparse = None
+54 |     _GEOPARSE_IMPORT_ERROR = e
+   |
+
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+   --> code/download_data.py:119:45
+    |
+119 | def update_state(dataset_id: str, metadata: Dict[str, Any]) -> None:
+    |                                             ^^^^
+120 |     """Write *metadata* for *dataset_id* into ``data/state.yaml``."""
+121 |     project_root = Path(__file__).resolve().parent.parent
+    |
+help: Replace with `dict`
+    |
+118 |
+    - def update_state(dataset_id: str, metadata: Dict[str, Any]) -> None:
+119 + def update_state(dataset_id: str, metadata: dict[str, Any]) -> None:
+120 |     """Write *metadata* for *dataset_id* into ``data/state.yaml``."""
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:153:38
+    |
+153 | def _list_ftp_directory(url: str) -> List[str]:
+    |                                      ^^^^
+154 |     """Return a list of filenames present in the given FTP/HTTP directory."""
+155 |     try:
+    |
+help: Replace with `list`
+    |
+152 |
+    - def _list_ftp_directory(url: str) -> List[str]:
+153 + def _list_ftp_directory(url: str) -> list[str]:
+154 |     """Return a list of filenames present in the given FTP/HTTP directory."""
+    |
+
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+   --> code/download_data.py:173:41
+    |
+173 | def _fetch_geo_metadata(gse_id: str) -> Dict[str, Any]:
+    |                                         ^^^^
+174 |     """Query the NCBI GEO accession metadata endpoint for *gse_id*.
+    |
+help: Replace with `dict`
+    |
+172 |
+    - def _fetch_geo_metadata(gse_id: str) -> Dict[str, Any]:
+173 + def _fetch_geo_metadata(gse_id: str) -> dict[str, Any]:
+174 |     """Query the NCBI GEO accession metadata endpoint for *gse_id*.
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> code/download_data.py:181:15
+    |
+179 |     """
+180 |     url = GEO_METADATA_URL.format(acc=gse_id)
+181 |     last_exc: Optional[Exception] = None
+    |               ^^^^^^^^^^^^^^^^^^^
+182 |     for attempt in range(1, MAX_RETRIES + 1):
+183 |         try:
+    |
+help: Convert to `X | None`
+    |
+180 |     url = GEO_METADATA_URL.format(acc=gse_id)
+    -     last_exc: Optional[Exception] = None
+181 +     last_exc: Exception | None = None
+182 |     for attempt in range(1, MAX_RETRIES + 1):
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:187:20
+    |
+185 |             r.raise_for_status()
+186 |             text = r.text
+187 |             suppl: List[str] = []
+    |                    ^^^^
+188 |             title = ""
+189 |             for line in text.splitlines():
+    |
+help: Replace with `list`
+    |
+186 |             text = r.text
+    -             suppl: List[str] = []
+187 +             suppl: list[str] = []
+188 |             title = ""
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> code/download_data.py:218:31
+    |
+218 | def _remote_size(url: str) -> Optional[int]:
+    |                               ^^^^^^^^^^^^^
+219 |     """Return the remote Content‑Length of *url* (None if unknown)."""
+220 |     try:
+    |
+help: Convert to `X | None`
+    |
+217 |
+    - def _remote_size(url: str) -> Optional[int]:
+218 + def _remote_size(url: str) -> int | None:
+219 |     """Return the remote Content‑Length of *url* (None if unknown)."""
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:255:31
+    |
+255 | def _select_matrix_urls(urls: List[str]) -> List[str]:
+    |                               ^^^^
+256 |     """Order supplementary URLs by count‑matrix likelihood, smallest first."""
+257 |     scored: List[Tuple[int, Optional[int], int, str]] = []
+    |
+help: Replace with `list`
+    |
+254 |
+    - def _select_matrix_urls(urls: List[str]) -> List[str]:
+255 + def _select_matrix_urls(urls: list[str]) -> List[str]:
+256 |     """Order supplementary URLs by count‑matrix likelihood, smallest first."""
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:255:45
+    |
+255 | def _select_matrix_urls(urls: List[str]) -> List[str]:
+    |                                             ^^^^
+256 |     """Order supplementary URLs by count‑matrix likelihood, smallest first."""
+257 |     scored: List[Tuple[int, Optional[int], int, str]] = []
+    |
+help: Replace with `list`
+    |
+254 |
+    - def _select_matrix_urls(urls: List[str]) -> List[str]:
+255 + def _select_matrix_urls(urls: List[str]) -> list[str]:
+256 |     """Order supplementary URLs by count‑matrix likelihood, smallest first."""
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:257:13
+    |
+255 | def _select_matrix_urls(urls: List[str]) -> List[str]:
+256 |     """Order supplementary URLs by count‑matrix likelihood, smallest first."""
+257 |     scored: List[Tuple[int, Optional[int], int, str]] = []
+    |             ^^^^
+258 |     for idx, url in enumerate(urls):
+259 |         score = _candidate_score(url)
+    |
+help: Replace with `list`
+    |
+256 |     """Order supplementary URLs by count‑matrix likelihood, smallest first."""
+    -     scored: List[Tuple[int, Optional[int], int, str]] = []
+257 +     scored: list[Tuple[int, Optional[int], int, str]] = []
+258 |     for idx, url in enumerate(urls):
+    |
+
+UP006 [*] Use `tuple` instead of `Tuple` for type annotation
+   --> code/download_data.py:257:18
+    |
+255 | def _select_matrix_urls(urls: List[str]) -> List[str]:
+256 |     """Order supplementary URLs by count‑matrix likelihood, smallest first."""
+257 |     scored: List[Tuple[int, Optional[int], int, str]] = []
+    |                  ^^^^^
+258 |     for idx, url in enumerate(urls):
+259 |         score = _candidate_score(url)
+    |
+help: Replace with `tuple`
+    |
+256 |     """Order supplementary URLs by count‑matrix likelihood, smallest first."""
+    -     scored: List[Tuple[int, Optional[int], int, str]] = []
+257 +     scored: List[tuple[int, Optional[int], int, str]] = []
+258 |     for idx, url in enumerate(urls):
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> code/download_data.py:257:29
+    |
+255 | def _select_matrix_urls(urls: List[str]) -> List[str]:
+256 |     """Order supplementary URLs by count‑matrix likelihood, smallest first."""
+257 |     scored: List[Tuple[int, Optional[int], int, str]] = []
+    |                             ^^^^^^^^^^^^^
+258 |     for idx, url in enumerate(urls):
+259 |         score = _candidate_score(url)
+    |
+help: Convert to `X | None`
+    |
+256 |     """Order supplementary URLs by count‑matrix likelihood, smallest first."""
+    -     scored: List[Tuple[int, Optional[int], int, str]] = []
+257 +     scored: List[Tuple[int, int | None, int, str]] = []
+258 |     for idx, url in enumerate(urls):
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> code/download_data.py:273:15
+    |
+271 |     logger.info("Downloading %s -> %s", url, dest_path)
+272 |     dest_path.parent.mkdir(parents=True, exist_ok=True)
+273 |     last_exc: Optional[Exception] = None
+    |               ^^^^^^^^^^^^^^^^^^^
+274 |     for attempt in range(1, MAX_RETRIES + 1):
+275 |         try:
+    |
+help: Convert to `X | None`
+    |
+272 |     dest_path.parent.mkdir(parents=True, exist_ok=True)
+    -     last_exc: Optional[Exception] = None
+273 +     last_exc: Exception | None = None
+274 |     for attempt in range(1, MAX_RETRIES + 1):
+    |
+
+UP006 [*] Use `tuple` instead of `Tuple` for type annotation
+   --> code/download_data.py:315:44
+    |
+315 | def _extract_genes_and_dims(path: Path) -> Tuple[List[str], int, int]:
+    |                                            ^^^^^
+316 |     """Extract gene identifiers and matrix dimensions from a real matrix.
+    |
+help: Replace with `tuple`
+    |
+314 |
+    - def _extract_genes_and_dims(path: Path) -> Tuple[List[str], int, int]:
+315 + def _extract_genes_and_dims(path: Path) -> tuple[List[str], int, int]:
+316 |     """Extract gene identifiers and matrix dimensions from a real matrix.
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:315:50
+    |
+315 | def _extract_genes_and_dims(path: Path) -> Tuple[List[str], int, int]:
+    |                                                  ^^^^
+316 |     """Extract gene identifiers and matrix dimensions from a real matrix.
+    |
+help: Replace with `list`
+    |
+314 |
+    - def _extract_genes_and_dims(path: Path) -> Tuple[List[str], int, int]:
+315 + def _extract_genes_and_dims(path: Path) -> Tuple[list[str], int, int]:
+316 |     """Extract gene identifiers and matrix dimensions from a real matrix.
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:351:16
+    |
+349 |                 genes_as_rows = False
+350 |
+351 |         genes: List[str] = []
+    |                ^^^^
+352 |         if genes_as_rows:
+353 |             # rows = genes, columns = cells
+    |
+help: Replace with `list`
+    |
+350 |
+    -         genes: List[str] = []
+351 +         genes: list[str] = []
+352 |         if genes_as_rows:
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:382:41
+    |
+382 | def compute_marker_fraction(gene_names: List[str]) -> Tuple[float, List[str], List[str]]:
+    |                                         ^^^^
+383 |     """Compute the fraction of the required marker list present (FR‑010).
+    |
+help: Replace with `list`
+    |
+381 |
+    - def compute_marker_fraction(gene_names: List[str]) -> Tuple[float, List[str], List[str]]:
+382 + def compute_marker_fraction(gene_names: list[str]) -> Tuple[float, List[str], List[str]]:
+383 |     """Compute the fraction of the required marker list present (FR‑010).
+    |
+
+UP006 [*] Use `tuple` instead of `Tuple` for type annotation
+   --> code/download_data.py:382:55
+    |
+382 | def compute_marker_fraction(gene_names: List[str]) -> Tuple[float, List[str], List[str]]:
+    |                                                       ^^^^^
+383 |     """Compute the fraction of the required marker list present (FR‑010).
+    |
+help: Replace with `tuple`
+    |
+381 |
+    - def compute_marker_fraction(gene_names: List[str]) -> Tuple[float, List[str], List[str]]:
+382 + def compute_marker_fraction(gene_names: List[str]) -> tuple[float, List[str], List[str]]:
+383 |     """Compute the fraction of the required marker list present (FR‑010).
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:382:68
+    |
+382 | def compute_marker_fraction(gene_names: List[str]) -> Tuple[float, List[str], List[str]]:
+    |                                                                    ^^^^
+383 |     """Compute the fraction of the required marker list present (FR‑010).
+    |
+help: Replace with `list`
+    |
+381 |
+    - def compute_marker_fraction(gene_names: List[str]) -> Tuple[float, List[str], List[str]]:
+382 + def compute_marker_fraction(gene_names: List[str]) -> Tuple[float, list[str], List[str]]:
+383 |     """Compute the fraction of the required marker list present (FR‑010).
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:382:79
+    |
+382 | def compute_marker_fraction(gene_names: List[str]) -> Tuple[float, List[str], List[str]]:
+    |                                                                               ^^^^
+383 |     """Compute the fraction of the required marker list present (FR‑010).
+    |
+help: Replace with `list`
+    |
+381 |
+    - def compute_marker_fraction(gene_names: List[str]) -> Tuple[float, List[str], List[str]]:
+382 + def compute_marker_fraction(gene_names: List[str]) -> Tuple[float, List[str], list[str]]:
+383 |     """Compute the fraction of the required marker list present (FR‑010).
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> code/download_data.py:397:41
+    |
+395 | # Manifest handling
+396 | # ---------------------------------------------------------------------------
+397 | def _load_schema(project_root: Path) -> Optional[Dict[str, Any]]:
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+398 |     for cand in _SCHEMA_CANDIDATES:
+399 |         p = cand if cand.is_absolute() else project_root / cand
+    |
+help: Convert to `X | None`
+    |
+396 | # ---------------------------------------------------------------------------
+    - def _load_schema(project_root: Path) -> Optional[Dict[str, Any]]:
+397 + def _load_schema(project_root: Path) -> Dict[str, Any] | None:
+398 |     for cand in _SCHEMA_CANDIDATES:
+    |
+
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+   --> code/download_data.py:397:50
+    |
+395 | # Manifest handling
+396 | # ---------------------------------------------------------------------------
+397 | def _load_schema(project_root: Path) -> Optional[Dict[str, Any]]:
+    |                                                  ^^^^
+398 |     for cand in _SCHEMA_CANDIDATES:
+399 |         p = cand if cand.is_absolute() else project_root / cand
+    |
+help: Replace with `dict`
+    |
+396 | # ---------------------------------------------------------------------------
+    - def _load_schema(project_root: Path) -> Optional[Dict[str, Any]]:
+397 + def _load_schema(project_root: Path) -> Optional[dict[str, Any]]:
+398 |     for cand in _SCHEMA_CANDIDATES:
+    |
+
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+   --> code/download_data.py:406:28
+    |
+406 | def _validate_entry(entry: Dict[str, Any], schema: Optional[Dict[str, Any]]) -> None:
+    |                            ^^^^
+407 |     """Validate a Dataset entry against contracts/dataset.schema.yaml."""
+408 |     if schema is None:
+    |
+help: Replace with `dict`
+    |
+405 |
+    - def _validate_entry(entry: Dict[str, Any], schema: Optional[Dict[str, Any]]) -> None:
+406 + def _validate_entry(entry: dict[str, Any], schema: Optional[Dict[str, Any]]) -> None:
+407 |     """Validate a Dataset entry against contracts/dataset.schema.yaml."""
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> code/download_data.py:406:52
+    |
+406 | def _validate_entry(entry: Dict[str, Any], schema: Optional[Dict[str, Any]]) -> None:
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+407 |     """Validate a Dataset entry against contracts/dataset.schema.yaml."""
+408 |     if schema is None:
+    |
+help: Convert to `X | None`
+    |
+405 |
+    - def _validate_entry(entry: Dict[str, Any], schema: Optional[Dict[str, Any]]) -> None:
+406 + def _validate_entry(entry: Dict[str, Any], schema: Dict[str, Any] | None) -> None:
+407 |     """Validate a Dataset entry against contracts/dataset.schema.yaml."""
+    |
+
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+   --> code/download_data.py:406:61
+    |
+406 | def _validate_entry(entry: Dict[str, Any], schema: Optional[Dict[str, Any]]) -> None:
+    |                                                             ^^^^
+407 |     """Validate a Dataset entry against contracts/dataset.schema.yaml."""
+408 |     if schema is None:
+    |
+help: Replace with `dict`
+    |
+405 |
+    - def _validate_entry(entry: Dict[str, Any], schema: Optional[Dict[str, Any]]) -> None:
+406 + def _validate_entry(entry: Dict[str, Any], schema: Optional[dict[str, Any]]) -> None:
+407 |     """Validate a Dataset entry against contracts/dataset.schema.yaml."""
+    |
+
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+   --> code/download_data.py:416:66
+    |
+416 | def _update_manifest(project_root: Path, dataset_id: str, entry: Dict[str, Any]) -> None:
+    |                                                                  ^^^^
+417 |     """Write a schema‑valid Dataset entry into ``data/manifest.yaml``."""
+418 |     manifest_path = project_root / "data" / "manifest.yaml"
+    |
+help: Replace with `dict`
+    |
+415 |
+    - def _update_manifest(project_root: Path, dataset_id: str, entry: Dict[str, Any]) -> None:
+416 + def _update_manifest(project_root: Path, dataset_id: str, entry: dict[str, Any]) -> None:
+417 |     """Write a schema‑valid Dataset entry into ``data/manifest.yaml``."""
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> code/download_data.py:458:13
+    |
+456 |     raw_root: Path,
+457 |     project_root: Path,
+458 |     schema: Optional[Dict[str, Any]],
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^
+459 |     start_time: float,
+460 | ) -> Dict[str, Any]:
+    |
+help: Convert to `X | None`
+    |
+457 |     project_root: Path,
+    -     schema: Optional[Dict[str, Any]],
+458 +     schema: Dict[str, Any] | None,
+459 |     start_time: float,
+    |
+
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+   --> code/download_data.py:458:22
+    |
+456 |     raw_root: Path,
+457 |     project_root: Path,
+458 |     schema: Optional[Dict[str, Any]],
+    |                      ^^^^
+459 |     start_time: float,
+460 | ) -> Dict[str, Any]:
+    |
+help: Replace with `dict`
+    |
+457 |     project_root: Path,
+    -     schema: Optional[Dict[str, Any]],
+458 +     schema: Optional[dict[str, Any]],
+459 |     start_time: float,
+    |
+
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+   --> code/download_data.py:460:6
+    |
+458 |     schema: Optional[Dict[str, Any]],
+459 |     start_time: float,
+460 | ) -> Dict[str, Any]:
+    |      ^^^^
+461 |     """Download and validate a single GEO dataset; return the manifest entry."""
+462 |     logger.info("Processing %s ...", gse)
+    |
+help: Replace with `dict`
+    |
+459 |     start_time: float,
+    - ) -> Dict[str, Any]:
+460 + ) -> dict[str, Any]:
+461 |     """Download and validate a single GEO dataset; return the manifest entry."""
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:470:11
+    |
+468 |     # 1. Discover supplementary file URLs.
+469 |     # ------------------------------------------------------------------
+470 |     urls: List[str] = []
+    |           ^^^^
+471 |     try:
+472 |         meta = _fetch_geo_metadata(gse)
+    |
+help: Replace with `list`
+    |
+469 |     # ------------------------------------------------------------------
+    -     urls: List[str] = []
+470 +     urls: list[str] = []
+471 |     try:
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:515:18
+    |
+513 |     # 2. If we have URLs, rank and download them.
+514 |     # ------------------------------------------------------------------
+515 |     local_files: List[Path] = []
+    |                  ^^^^
+516 |     downloaded_bytes = 0
+517 |     primary_file: Optional[Path] = None
+    |
+help: Replace with `list`
+    |
+514 |     # ------------------------------------------------------------------
+    -     local_files: List[Path] = []
+515 +     local_files: list[Path] = []
+516 |     downloaded_bytes = 0
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> code/download_data.py:517:19
+    |
+515 |     local_files: List[Path] = []
+516 |     downloaded_bytes = 0
+517 |     primary_file: Optional[Path] = None
+    |                   ^^^^^^^^^^^^^^
+518 |
+519 |     if urls:
+    |
+help: Convert to `X | None`
+    |
+516 |     downloaded_bytes = 0
+    -     primary_file: Optional[Path] = None
+517 +     primary_file: Path | None = None
+518 |
+    |
+
+UP045 [*] Use `X | None` for type annotations
+   --> code/download_data.py:572:12
+    |
+570 |     # 4. Identify a parsable count matrix with a reasonable number of genes.
+571 |     # ------------------------------------------------------------------
+572 |     genes: Optional[List[str]] = None
+    |            ^^^^^^^^^^^^^^^^^^^
+573 |     n_cells = n_genes = 0
+574 |     for cand in local_files:
+    |
+help: Convert to `X | None`
+    |
+571 |     # ------------------------------------------------------------------
+    -     genes: Optional[List[str]] = None
+572 +     genes: List[str] | None = None
+573 |     n_cells = n_genes = 0
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:572:21
+    |
+570 |     # 4. Identify a parsable count matrix with a reasonable number of genes.
+571 |     # ------------------------------------------------------------------
+572 |     genes: Optional[List[str]] = None
+    |                     ^^^^
+573 |     n_cells = n_genes = 0
+574 |     for cand in local_files:
+    |
+help: Replace with `list`
+    |
+571 |     # ------------------------------------------------------------------
+    -     genes: Optional[List[str]] = None
+572 +     genes: Optional[list[str]] = None
+573 |     n_cells = n_genes = 0
+    |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+   --> code/download_data.py:687:15
+    |
+685 |     start_time = time.monotonic()
+686 |
+687 |     failures: List[str] = []
+    |               ^^^^
+688 |     for gse in gse_ids:
+689 |         try:
+    |
+help: Replace with `list`
+    |
+686 |
+    -     failures: List[str] = []
+687 +     failures: list[str] = []
+688 |     for gse in gse_ids:
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> code/install_sra_toolkit.py:7:1
+   |
+ 5 |   """
+ 6 |
+ 7 | / import subprocess
+ 8 | | from pathlib import Path
+ 9 | | import logging
+   | |______________^
+10 |
+11 |   logger = logging.getLogger(__name__)
+   |
+help: Organize imports
+   |
+6  |
+7  + import logging
+8  | import subprocess
+9  | from pathlib import Path
+   - import logging
+10 |
+   |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+  --> code/install_sra_toolkit.py:30:14
+   |
+28 |     """
+29 |     logger.debug("Running command: %s", " ".join(command))
+30 |     result = subprocess.run(command, capture_output=True, text=True)
+   |              ^^^^^^^^^^^^^^
+31 |     if check and result.returncode != 0:
+32 |         logger.error("Command failed (code %s): %s", result.returncode, result.stderr)
+   |
+help: Add explicit `check=False`
+   |
+29 |     logger.debug("Running command: %s", " ".join(command))
+   -     result = subprocess.run(command, capture_output=True, text=True)
+30 +     result = subprocess.run(command, check=False, capture_output=True, text=True)
+31 |     if check and result.returncode != 0:
+   |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+BLE001 Do not catch blind exception: `Exception`
+  --> code/install_sra_toolkit.py:55:12
+   |
+53 |         # Very simple validation – the file must be non‑empty.
+54 |         return settings_path.stat().st_size > 0
+55 |     except Exception as e:
+   |            ^^^^^^^^^
+56 |         logger.error("Failed to create NCBI settings file: %s", e)
+57 |         return False
+   |
+
+BLE001 Do not catch blind exception: `Exception`
+  --> code/install_sra_toolkit.py:93:12
+   |
+91 |         )
+92 |         return result.returncode == 0
+93 |     except Exception as e:
+   |            ^^^^^^^^^
+94 |         logger.error("Failed to install SRA Toolkit: %s", e)
+95 |         return False
+   |
+
+BLE001 Do not catch blind exception: `Exception`
+  --> code/preprocess.py:87:12
+   |
+85 |         adata.write_h5ad(str(output_path))
+86 |         return True
+87 |     except Exception as e:
+   |            ^^^^^^^^^
+88 |         logger.error(f"Python preprocessing failed: {e}")
+89 |         return False
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> code/run_setup.py:7:1
+   |
+ 5 |   """
+ 6 |
+ 7 | / from install_sra_toolkit import main as install_sra
+ 8 | | from init_project import main as init_proj
+   | |__________________________________________^
+ 9 |
+10 |   def main() -> None:
+   |
+help: Organize imports
+   |
+6  |
+7  + from init_project import main as init_proj
+8  | from install_sra_toolkit import main as install_sra
+   - from init_project import main as init_proj
+9  |
+10 +
+11 | def main() -> None:
+   |
+
+UP035 `typing.Dict` is deprecated, use `dict` instead
+  --> code/setup_config.py:10:1
+   |
+ 8 | import random
+ 9 | from pathlib import Path
+10 | from typing import Any, Dict, Optional
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |
+12 | import yaml
+   |
+
+UP045 [*] Use `X | None` for type annotations
+  --> code/setup_config.py:15:30
+   |
+15 | def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+   |                              ^^^^^^^^^^^^^
+16 |     """Load configuration from a YAML file.
+   |
+help: Convert to `X | None`
+   |
+14 |
+   - def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+15 + def load_config(config_path: str | None = None) -> Dict[str, Any]:
+16 |     """Load configuration from a YAML file.
+   |
+
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+  --> code/setup_config.py:15:55
+   |
+15 | def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+   |                                                       ^^^^
+16 |     """Load configuration from a YAML file.
+   |
+help: Replace with `dict`
+   |
+14 |
+   - def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+15 + def load_config(config_path: Optional[str] = None) -> dict[str, Any]:
+16 |     """Load configuration from a YAML file.
+   |
+
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+  --> code/setup_config.py:42:29
+   |
+42 | def validate_config(config: Dict[str, Any]) -> None:
+   |                             ^^^^
+43 |     """Validate that required sections exist in the configuration.
+   |
+help: Replace with `dict`
+   |
+41 |
+   - def validate_config(config: Dict[str, Any]) -> None:
+42 + def validate_config(config: dict[str, Any]) -> None:
+43 |     """Validate that required sections exist in the configuration.
+   |
+
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+  --> code/setup_config.py:56:30
+   |
+56 | def set_random_seeds(config: Dict[str, Any]) -> None:
+   |                              ^^^^
+57 |     """Set random seeds for reproducibility across libraries.
+   |
+help: Replace with `dict`
+   |
+55 |
+   - def set_random_seeds(config: Dict[str, Any]) -> None:
+56 + def set_random_seeds(config: dict[str, Any]) -> None:
+57 |     """Set random seeds for reproducibility across libraries.
+   |
+
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+  --> code/setup_config.py:84:32
+   |
+84 | def ensure_paths_exist(config: Dict[str, Any]) -> None:
+   |                                ^^^^
+85 |     """Create any directories declared in the ``paths`` section of the config."""
+86 |     paths = config.get("paths", {})
+   |
+help: Replace with `dict`
+   |
+83 |
+   - def ensure_paths_exist(config: Dict[str, Any]) -> None:
+84 + def ensure_paths_exist(config: dict[str, Any]) -> None:
+85 |     """Create any directories declared in the ``paths`` section of the config."""
+   |
+
+PERF102 When using only the values of a dict use the `values()` method
+  --> code/setup_config.py:87:27
+   |
+85 |     """Create any directories declared in the ``paths`` section of the config."""
+86 |     paths = config.get("paths", {})
+87 |     for name, rel_path in paths.items():
+   |                           ^^^^^^^^^^^
+88 |         path_obj = Path(rel_path)
+89 |         path_obj.mkdir(parents=True, exist_ok=True)
+   |
+help: Replace `.items()` with `.values()`
+   |
+86 |     paths = config.get("paths", {})
+   -     for name, rel_path in paths.items():
+87 +     for rel_path in paths.values():
+88 |         path_obj = Path(rel_path)
    |
 note: This is an unsafe fix and may change runtime behavior
 
-F401 [*] `pathlib.Path` imported but unused
- --> code/run_setup.py:2:21
-  |
-1 | import sys
-2 | from pathlib import Path
-  |                     ^^^^
-help: Remove unused import: `pathlib.Path`
-  |
-1 | import sys
-  - from pathlib import Path
-2 |
-  |
-
-F401 [*] `os` imported but unused
-  --> code/setup_config.py:11:8
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+  --> code/setup_config.py:92:31
    |
- 9 | """
-10 |
-11 | import os
-   |        ^^
-12 | import random
-13 | import sys
+92 | def get_dataset_paths(config: Dict[str, Any], dataset_id: str) -> Dict[str, Path]:
+   |                               ^^^^
+93 |     """Return a dictionary with common dataset file locations.
    |
-help: Remove unused import: `os`
+help: Replace with `dict`
    |
-10 |
-   - import os
-11 | import random
+91 |
+   - def get_dataset_paths(config: Dict[str, Any], dataset_id: str) -> Dict[str, Path]:
+92 + def get_dataset_paths(config: dict[str, Any], dataset_id: str) -> Dict[str, Path]:
+93 |     """Return a dictionary with common dataset file locations.
    |
 
-F401 [*] `sys` imported but unused
-  --> code/setup_config.py:13:8
+UP006 [*] Use `dict` instead of `Dict` for type annotation
+  --> code/setup_config.py:92:67
    |
-11 | import os
-12 | import random
-13 | import sys
-   |        ^^^
-14 | from pathlib import Path
-15 | from typing import Any, Dict, Optional
+92 | def get_dataset_paths(config: Dict[str, Any], dataset_id: str) -> Dict[str, Path]:
+   |                                                                   ^^^^
+93 |     """Return a dictionary with common dataset file locations.
    |
-help: Remove unused import: `sys`
+help: Replace with `dict`
    |
-12 | import random
-   - import sys
-13 | from pathlib import Path
+91 |
+   - def get_dataset_paths(config: Dict[str, Any], dataset_id: str) -> Dict[str, Path]:
+92 + def get_dataset_paths(config: Dict[str, Any], dataset_id: str) -> dict[str, Path]:
+93 |     """Return a dictionary with common dataset file locations.
    |
 
-F401 [*] `os` imported but unused
- --> code/setup_directories.py:8:8
-  |
-6 | """
-7 |
-8 | import os
-  |        ^^
-9 | from pathlib import Path
-  |
-help: Remove unused import: `os`
-  |
-7 |
-  - import os
-8 | from pathlib import Path
-  |
-
-F401 [*] `pandas` imported but unused
- --> tests/conftest.py:7:18
-  |
-5 | import pytest
-6 | import numpy as np
-7 | import pandas as pd
-  |                  ^^
-8 | from pathlib import Path
-  |
-help: Remove unused import: `pandas`
-  |
-6 | import numpy as np
-  - import pandas as pd
-7 | from pathlib import Path
-  |
-
-F841 Local variable `result` is assigned to but never used
-  --> tests/integration/test_trajectory_reconstruction.py:32:9
+BLE001 Do not catch blind exception: `Exception`
+  --> code/velocity.py:92:12
    |
-30 |     # Run the velocity script
-31 |     try:
-32 |         result = subprocess.run(
-   |         ^^^^^^
-33 |             [
-34 |                 sys.executable,
-   |
-help: Remove assignment to unused variable `result`
-   |
-31 |     try:
-   -         result = subprocess.run(
-32 +         subprocess.run(
-33 |             [
-   |
-note: This is an unsafe fix and may change runtime behavior
-
-F401 `scanpy` imported but unused; consider using `importlib.util.find_spec` to test for availability
-  --> tests/integration/test_trajectory_reconstruction.py:54:26
-   |
-52 |     # Verify required fields
-53 |     try:
-54 |         import scanpy as sc
-   |                          ^^
-55 |         import anndata as ad
-   |
-help: Remove unused import: `scanpy`
-
-F401 [*] `sys` imported but unused
-  --> tests/test_linting_config.py:8:8
-   |
- 6 | import subprocess
- 7 | import os
- 8 | import sys
-   |        ^^^
- 9 | import tempfile
-10 | import shutil
-   |
-help: Remove unused import: `sys`
-  |
-7 | import os
-  - import sys
-8 | import tempfile
-  |
-
-F401 [*] `tempfile` imported but unused
-  --> tests/test_linting_config.py:9:8
-   |
- 7 | import os
- 8 | import sys
- 9 | import tempfile
-   |        ^^^^^^^^
-10 | import shutil
-   |
-help: Remove unused import: `tempfile`
-  |
-8 | import sys
-  - import tempfile
-9 | import shutil
-  |
-
-F401 [*] `shutil` imported but unused
-  --> tests/test_linting_config.py:10:8
-   |
- 8 | import sys
- 9 | import tempfile
-10 | import shutil
-   |        ^^^^^^
-11 |
-12 | import pytest
-   |
-help: Remove unused import: `shutil`
-   |
-9  | import tempfile
-   - import shutil
-10 |
+90 |     try:
+91 |         adata = scv.read(str(input_path))
+92 |     except Exception as exc:
+   |            ^^^^^^^^^
+93 |         logger.error(f"Failed to read AnnData: {exc}")
+94 |         sys.exit(1)
    |
 
-F401 [*] `pytest` imported but unused
-  --> tests/test_linting_config.py:12:8
+BLE001 Do not catch blind exception: `Exception`
+   --> code/velocity.py:148:12
+    |
+146 |         adata.write(str(final_output))
+147 |         logger.info(f"Velocity analysis completed. Output written to {final_output}")
+148 |     except Exception as exc:
+    |            ^^^^^^^^^
+149 |         logger.error(f"Failed to write output file: {exc}")
+150 |         sys.exit(1)
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/conftest.py:5:1
+  |
+3 |   """
+4 |
+5 | / import pytest
+6 | | import numpy as np
+7 | | import pandas as pd
+8 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
    |
-10 | import shutil
-11 |
-12 | import pytest
-   |        ^^^^^^
-13 |
-14 | PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-   |
-help: Remove unused import: `pytest`
-   |
-11 |
+4  |
    - import pytest
+5  + from pathlib import Path
+6  +
+7  | import numpy as np
+8  | import pandas as pd
+   - from pathlib import Path
+9  + import pytest
+10 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/integration/test_trajectory_reconstruction.py:6:1
+  |
+4 |   """
+5 |
+6 | / import pytest
+7 | | import subprocess
+8 | | import sys
+9 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+   |
+5  |
+   - import pytest
+6  | import subprocess
+7  | import sys
+8  | from pathlib import Path
+9  |
+10 + import pytest
+11 +
 12 |
    |
 
-F401 [*] `tempfile` imported but unused
-  --> tests/test_setup_directories.py:9:8
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/integration/test_trajectory_reconstruction.py:54:9
    |
- 8 | import os
- 9 | import tempfile
-   |        ^^^^^^^^
-10 | from pathlib import Path
-11 | import pytest
+52 |       # Verify required fields
+53 |       try:
+54 | /         import scanpy as sc
+55 | |         import anndata as ad
+   | |____________________________^
+56 |
+57 |           adata = ad.read_h5ad(str(output_file))
    |
-help: Remove unused import: `tempfile`
-  |
-8 | import os
-  - import tempfile
-9 | from pathlib import Path
-  |
-
-F401 [*] `pytest` imported but unused
-  --> tests/test_setup_directories.py:11:8
+help: Organize imports
    |
- 9 | import tempfile
-10 | from pathlib import Path
-11 | import pytest
-   |        ^^^^^^
-12 | import sys
-   |
-help: Remove unused import: `pytest`
-   |
-10 | from pathlib import Path
-   - import pytest
-11 | import sys
+53 |     try:
+54 +         import anndata as ad
+55 |         import scanpy as sc
+   -         import anndata as ad
+56 |
    |
 
-E402 Module level import not at top of file
-  --> tests/test_setup_directories.py:18:1
+BLE001 Do not catch blind exception: `Exception`
+  --> tests/integration/test_trajectory_reconstruction.py:81:12
    |
-16 | sys.path.insert(0, str(code_dir))
-17 |
-18 | from setup_directories import setup_directories
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-help: Move module level imports to top of file
-
-F401 [*] `setup_directories.setup_directories` imported but unused
-  --> tests/test_setup_directories.py:18:31
-   |
-16 | sys.path.insert(0, str(code_dir))
-17 |
-18 | from setup_directories import setup_directories
-   |                               ^^^^^^^^^^^^^^^^^
-help: Remove unused import: `setup_directories.setup_directories`
-   |
-17 |
-   - from setup_directories import setup_directories
-18 |
+79 |     except ImportError:
+80 |         pytest.fail("Required libraries (scanpy, anndata) not installed for verification.")
+81 |     except Exception as e:
+   |            ^^^^^^^^^
+82 |         pytest.fail(f"Failed to verify output fields: {e}")
    |
 
-F401 [*] `unittest.mock.Mock` imported but unused
- --> tests/unit/test_download_data.py:2:45
-  |
-1 | import unittest
-2 | from unittest.mock import patch, MagicMock, Mock
-  |                                             ^^^^
-3 | import subprocess
-4 | import os
-  |
-help: Remove unused import: `unittest.mock.Mock`
-  |
-1 | import unittest
-  - from unittest.mock import patch, MagicMock, Mock
-2 + from unittest.mock import patch, MagicMock
-3 | import subprocess
-  |
-
-F401 [*] `os` imported but unused
- --> tests/unit/test_download_data.py:4:8
-  |
-2 | from unittest.mock import patch, MagicMock, Mock
-3 | import subprocess
-4 | import os
-  |        ^^
-5 | import sys
-6 | from pathlib import Path
-  |
-help: Remove unused import: `os`
-  |
-3 | import subprocess
-  - import os
-4 | import sys
-  |
-
-F401 [*] `json` imported but unused
-  --> tests/unit/test_download_data.py:8:8
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/test_linting_config.py:6:1
    |
- 6 | from pathlib import Path
- 7 | import tempfile
- 8 | import json
-   |        ^^^^
+ 4 |   """
+ 5 |
+ 6 | / import subprocess
+ 7 | | import os
+ 8 | | import sys
+ 9 | | import tempfile
+10 | | import shutil
+11 | |
+12 | | import pytest
+   | |_____________^
+13 |
+14 |   PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+   |
+help: Organize imports
+   |
+5  |
+6  + import os
+7  + import shutil
+8  | import subprocess
+   - import os
+9  | import sys
+10 | import tempfile
+   - import shutil
+11 |
+   |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+  --> tests/test_linting_config.py:20:18
+   |
+18 |     """Helper to run a shell command and return success status."""
+19 |     try:
+20 |         result = subprocess.run(
+   |                  ^^^^^^^^^^^^^^
+21 |             cmd,
+22 |             shell=True,
+   |
+help: Add explicit `check=False`
+   |
+21 |             cmd,
+   -             shell=True,
+22 +             check=False, shell=True,
+23 |             cwd=cwd or PROJECT_ROOT,
+   |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+RUF059 Unpacked variable `success` is never used
+  --> tests/test_linting_config.py:75:9
+   |
+73 |         # We run ruff with --exit-zero to ensure we don't fail due to linting errors
+74 |         # in existing code, but we want to ensure the tool runs successfully.
+75 |         success, stdout, stderr = run_command("ruff check code/ --exit-zero")
+   |         ^^^^^^^
+76 |         # If the config is broken, ruff usually exits with code 2 or prints an error.
+77 |         # We allow linting errors (code 1) as long as the tool runs (code 0 or 1).
+   |
+help: Prefix it with an underscore or any other dummy variable pattern
+   |
+74 |         # in existing code, but we want to ensure the tool runs successfully.
+   -         success, stdout, stderr = run_command("ruff check code/ --exit-zero")
+75 +         _success, stdout, stderr = run_command("ruff check code/ --exit-zero")
+76 |         # If the config is broken, ruff usually exits with code 2 or prints an error.
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+RUF059 Unpacked variable `stdout` is never used
+  --> tests/test_linting_config.py:75:18
+   |
+73 |         # We run ruff with --exit-zero to ensure we don't fail due to linting errors
+74 |         # in existing code, but we want to ensure the tool runs successfully.
+75 |         success, stdout, stderr = run_command("ruff check code/ --exit-zero")
+   |                  ^^^^^^
+76 |         # If the config is broken, ruff usually exits with code 2 or prints an error.
+77 |         # We allow linting errors (code 1) as long as the tool runs (code 0 or 1).
+   |
+help: Prefix it with an underscore or any other dummy variable pattern
+   |
+74 |         # in existing code, but we want to ensure the tool runs successfully.
+   -         success, stdout, stderr = run_command("ruff check code/ --exit-zero")
+75 +         success, _stdout, stderr = run_command("ruff check code/ --exit-zero")
+76 |         # If the config is broken, ruff usually exits with code 2 or prints an error.
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+RUF059 Unpacked variable `success` is never used
+  --> tests/test_linting_config.py:88:9
+   |
+86 |         """
+87 |         # We use --check to see if formatting is needed, but we don't fix it here.
+88 |         success, stdout, stderr = run_command("black --check code/ tests/ || true")
+   |         ^^^^^^^
+89 |         # Black returns 1 if files need formatting, 0 if they are fine.
+90 |         # We just want to ensure it doesn't crash due to config errors.
+   |
+help: Prefix it with an underscore or any other dummy variable pattern
+   |
+87 |         # We use --check to see if formatting is needed, but we don't fix it here.
+   -         success, stdout, stderr = run_command("black --check code/ tests/ || true")
+88 +         _success, stdout, stderr = run_command("black --check code/ tests/ || true")
+89 |         # Black returns 1 if files need formatting, 0 if they are fine.
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+RUF059 Unpacked variable `stdout` is never used
+  --> tests/test_linting_config.py:88:18
+   |
+86 |         """
+87 |         # We use --check to see if formatting is needed, but we don't fix it here.
+88 |         success, stdout, stderr = run_command("black --check code/ tests/ || true")
+   |                  ^^^^^^
+89 |         # Black returns 1 if files need formatting, 0 if they are fine.
+90 |         # We just want to ensure it doesn't crash due to config errors.
+   |
+help: Prefix it with an underscore or any other dummy variable pattern
+   |
+87 |         # We use --check to see if formatting is needed, but we don't fix it here.
+   -         success, stdout, stderr = run_command("black --check code/ tests/ || true")
+88 +         success, _stdout, stderr = run_command("black --check code/ tests/ || true")
+89 |         # Black returns 1 if files need formatting, 0 if they are fine.
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/test_setup_directories.py:8:1
+   |
+ 6 |   """
+ 7 |
+ 8 | / import os
+ 9 | | import tempfile
+10 | | from pathlib import Path
+11 | | import pytest
+12 | | import sys
+   | |__________^
+13 |
+14 |   # Add the code directory to the path for imports
+   |
+help: Organize imports
+   |
+8  | import os
+9  + import sys
+10 | import tempfile
+11 | from pathlib import Path
+12 +
+13 | import pytest
+   - import sys
+14 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/test_download_data.py:1:1
+   |
+ 1 | / import unittest
+ 2 | | from unittest.mock import patch, MagicMock, Mock
+ 3 | | import subprocess
+ 4 | | import os
+ 5 | | import sys
+ 6 | | from pathlib import Path
+ 7 | | import tempfile
+ 8 | | import json
+   | |___________^
  9 |
-10 | # Add the code directory to the path for imports
+10 |   # Add the code directory to the path for imports
    |
-help: Remove unused import: `json`
+help: Organize imports
   |
-7 | import tempfile
+  - import unittest
+  - from unittest.mock import patch, MagicMock, Mock
+  - import subprocess
+1 + import json
+2 | import os
+3 + import subprocess
+4 | import sys
+  - from pathlib import Path
+5 | import tempfile
   - import json
-8 |
+6 + import unittest
+7 + from pathlib import Path
+8 + from unittest.mock import MagicMock, Mock, patch
+9 |
   |
 
-E402 Module level import not at top of file
+I001 [*] Import block is un-sorted or un-formatted
   --> tests/unit/test_download_data.py:14:1
    |
 12 | sys.path.insert(0, str(code_dir))
 13 |
 14 | from download_data import check_sra_toolkit, get_sra_ids_for_gse, download_sra, TARGET_GSE_IDS
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-help: Move module level imports to top of file
-
-F401 [*] `json` imported but unused
- --> tests/unit/test_fork_point_schema.py:6:8
-  |
-4 | """
-5 |
-6 | import json
-  |        ^^^^
-7 | import os
-8 | import yaml
-  |
-help: Remove unused import: `json`
-  |
-5 |
-  - import json
-6 | import os
-  |
-
-F401 [*] `os` imported but unused
- --> tests/unit/test_fork_point_schema.py:7:8
-  |
-6 | import json
-7 | import os
-  |        ^^
-8 | import yaml
-9 | import pytest
-  |
-help: Remove unused import: `os`
-  |
-6 | import json
-  - import os
-7 | import yaml
-  |
-
-F401 [*] `os` imported but unused
- --> tests/unit/test_install_sra_toolkit.py:1:8
-  |
-1 | import os
-  |        ^^
-2 | import subprocess
-3 | import tempfile
-  |
-help: Remove unused import: `os`
-  |
-  - import os
-1 | import subprocess
-  |
-
-F401 [*] `tempfile` imported but unused
- --> tests/unit/test_install_sra_toolkit.py:3:8
-  |
-1 | import os
-2 | import subprocess
-3 | import tempfile
-  |        ^^^^^^^^
-4 | from pathlib import Path
-5 | from unittest.mock import patch, MagicMock
-  |
-help: Remove unused import: `tempfile`
-  |
-2 | import subprocess
-  - import tempfile
-3 | from pathlib import Path
-  |
-
-F401 [*] `pytest` imported but unused
- --> tests/unit/test_preprocess.py:5:8
-  |
-3 | """
-4 |
-5 | import pytest
-  |        ^^^^^^
-6 | import numpy as np
-7 | import pandas as pd
-  |
-help: Remove unused import: `pytest`
-  |
-4 |
-  - import pytest
-5 | import numpy as np
-  |
-
-F401 [*] `preprocess.python_preprocess` imported but unused
-  --> tests/unit/test_preprocess.py:11:24
+help: Organize imports
    |
- 9 | from pathlib import Path
-10 | import tempfile
-11 | from preprocess import python_preprocess
-   |                        ^^^^^^^^^^^^^^^^^
-help: Remove unused import: `preprocess.python_preprocess`
+13 |
+   - from download_data import check_sra_toolkit, get_sra_ids_for_gse, download_sra, TARGET_GSE_IDS
+14 + from download_data import (
+15 +     TARGET_GSE_IDS,
+16 +     check_sra_toolkit,
+17 +     download_sra,
+18 +     get_sra_ids_for_gse,
+19 + )
+20 |
    |
-10 | import tempfile
-   - from preprocess import python_preprocess
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/test_fork_point_schema.py:6:1
+   |
+ 4 |   """
+ 5 |
+ 6 | / import json
+ 7 | | import os
+ 8 | | import yaml
+ 9 | | import pytest
+10 | | from pathlib import Path
+   | |________________________^
 11 |
+12 |   # Import jsonschema for validation
+   |
+help: Organize imports
+   |
+7  | import os
+   - import yaml
+   - import pytest
+8  | from pathlib import Path
+9  |
+10 + import pytest
+11 + import yaml
+12 +
+13 | # Import jsonschema for validation
    |
 
-F401 [*] `tempfile` imported but unused
-  --> tests/unit/test_preprocess_wrapper.py:12:8
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/test_install_sra_toolkit.py:1:1
    |
-11 | import os
-12 | import tempfile
-   |        ^^^^^^^^
-13 | from pathlib import Path
-14 | from unittest.mock import patch, MagicMock
+ 1 | / import os
+ 2 | | import subprocess
+ 3 | | import tempfile
+ 4 | | from pathlib import Path
+ 5 | | from unittest.mock import patch, MagicMock
+ 6 | |
+ 7 | | import pytest
+ 8 | |
+ 9 | | # Import the module under test
+10 | | from install_sra_toolkit import (
+11 | |     run_command,
+12 | |     ensure_ncbi_settings,
+13 | |     verify_sra_toolkit,
+14 | |     install_sra_toolkit,
+15 | |     main,
+16 | | )
+   | |_^
+help: Organize imports
    |
-help: Remove unused import: `tempfile`
+4  | from pathlib import Path
+   - from unittest.mock import patch, MagicMock
+5  + from unittest.mock import MagicMock, patch
+6  |
+--------------------------------------------------------------------------------
+10 | from install_sra_toolkit import (
+   -     run_command,
+11 |     ensure_ncbi_settings,
+   -     verify_sra_toolkit,
+12 |     install_sra_toolkit,
+13 |     main,
+14 +     run_command,
+15 +     verify_sra_toolkit,
+16 | )
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/test_preprocess.py:5:1
+   |
+ 3 |   """
+ 4 |
+ 5 | / import pytest
+ 6 | | import numpy as np
+ 7 | | import pandas as pd
+ 8 | | import scanpy as sc
+ 9 | | from pathlib import Path
+10 | | import tempfile
+11 | | from preprocess import python_preprocess
+   | |________________________________________^
+help: Organize imports
+   |
+4  |
+   - import pytest
+5  + import tempfile
+6  + from pathlib import Path
+7  +
+8  | import numpy as np
+9  | import pandas as pd
+10 + import pytest
+11 | import scanpy as sc
+   - from pathlib import Path
+   - import tempfile
+12 | from preprocess import python_preprocess
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/test_preprocess_wrapper.py:11:1
+   |
+ 9 |   """
+10 |
+11 | / import os
+12 | | import tempfile
+13 | | from pathlib import Path
+14 | | from unittest.mock import patch, MagicMock
+15 | | import pytest
+16 | |
+17 | | # Import the module under test
+18 | | # We need to import the functions directly to test them in isolation
+19 | | import sys
+   | |__________^
+20 |
+21 |   sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "code"))
+   |
+help: Organize imports
    |
 11 | import os
    - import tempfile
-12 | from pathlib import Path
-   |
-
-F401 [*] `pytest` imported but unused
-  --> tests/unit/test_preprocess_wrapper.py:15:8
-   |
-13 | from pathlib import Path
-14 | from unittest.mock import patch, MagicMock
-15 | import pytest
-   |        ^^^^^^
-16 |
-17 | # Import the module under test
-   |
-help: Remove unused import: `pytest`
-   |
-14 | from unittest.mock import patch, MagicMock
+   - from pathlib import Path
+   - from unittest.mock import patch, MagicMock
    - import pytest
-15 |
+12 |
+13 | # Import the module under test
+14 | # We need to import the functions directly to test them in isolation
+15 | import sys
+16 + import tempfile
+17 + from pathlib import Path
+18 + from unittest.mock import MagicMock, patch
+19 +
+20 + import pytest
+21 |
    |
 
-F401 [*] `os` imported but unused
-  --> tests/unit/test_sra_toolkit_install.py:10:8
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/test_preprocess_wrapper.py:23:1
    |
- 8 | """
- 9 |
-10 | import os
-   |        ^^
-11 | import subprocess
-12 | import sys
+21 | sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "code"))
+22 |
+23 | from preprocess import check_r_environment, verify_outputs, run_r_preprocessing
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: Organize imports
    |
-help: Remove unused import: `os`
-   |
-9  |
-   - import os
-10 | import subprocess
+22 |
+   - from preprocess import check_r_environment, verify_outputs, run_r_preprocessing
+23 + from preprocess import check_r_environment, run_r_preprocessing, verify_outputs
+24 |
    |
 
-F821 Undefined name `pytest`
-  --> tests/unit/test_sra_toolkit_install.py:42:18
-   |
-40 |                 1, ["test"], stderr="error message"
-41 |             )
-42 |             with pytest.raises(SystemExit):
-   |                  ^^^^^^
-43 |                 run_command(["fake_command"], "Test failure")
-   |
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/unit/test_sra_toolkit_install.py:1:1
+  |
+1 | / import pytest
+2 | | from code.install_sra_toolkit import verify_sra_toolkit, ensure_ncbi_settings
+  | |_____________________________________________________________________________^
+3 |
+4 |   def test_verify_sra_toolkit():
+  |
+help: Organize imports
+  |
+1 + from code.install_sra_toolkit import ensure_ncbi_settings, verify_sra_toolkit
+2 +
+3 | import pytest
+  - from code.install_sra_toolkit import verify_sra_toolkit, ensure_ncbi_settings
+4 |
+5 +
+6 | def test_verify_sra_toolkit():
+  |
 
-F821 Undefined name `pytest`
-   --> tests/unit/test_sra_toolkit_install.py:116:14
-    |
-115 |         # This should raise SystemExit
-116 |         with pytest.raises(SystemExit):
-    |              ^^^^^^
-117 |             verify_sra_toolkit()
-    |
+Found 74 errors.
+[*] 57 fixable with `--fix` (5 unsafe fixes available with `--fix --unsafe-fixes`).
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/code/run_setup.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/code/install_sra_toolkit.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/code/setup_directories.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/code/setup_config.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/tests/__init__.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/code/preprocess.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/tests/integration/test_trajectory_reconstruction.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/code/velocity.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/tests/test_linting_config.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/tests/test_setup_directories.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/tests/unit/test_download.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/tests/unit/test_download_data.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/tests/unit/test_preprocess.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/tests/unit/test_sra_toolkit_install.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/tests/unit/test_preprocess_wrapper.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/tests/unit/test_install_sra_toolkit.py
+would reformat /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/code/download_data.py
 
-Found 33 errors.
-[*] 26 fixable with `--fix` (2 unsafe fixes available with `--fix --unsafe-fixes`).
-ruff exit code: 0 (forced)
-
-== black --check . ==
-All done! ✨ 🍰 ✨
-23 files would be left unchanged.
-black exit code: 0 (forced)
+Oh no! 💥 💔 💥
+17 files would be reformatted, 7 files would be left unchanged.

@@ -814,23 +814,6 @@
   updated_at: '2026-10-10T12:12:50Z'
 - artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
   attempts: 1
-  canonical: pipeline reproduces byte-identical final artifacts
-  claim_id: c_f89b1b45
-  context: 'code.run_all reads the global random seed from code/config.yaml (seed:
-    42), logs each stage to logs/<stage>.log, and reproduces byte-identical final
-    artifacts under data/results/.'
-  evidence:
-    note: no current signed text artifacts backing this result
-  kind: result
-  raw_text: the pipeline reproduces byte-identical final artifacts under data/results/.
-  resolved_value: null
-  resolver: resolve_result
-  source_hash: null
-  source_type: result
-  status: not_enough_info
-  updated_at: '2026-10-18T14:08:06Z'
-- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
-  attempts: 1
   canonical: lint evidence passes ruff and black checks
   claim_id: c_79fbe6e7
   context: "This creates the required directory layout \u2014 including data/results/\
@@ -1016,3 +999,35 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-19T01:23:00Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 2
+  canonical: pipeline reproduces byte-identical final artifacts
+  claim_id: c_f89b1b45
+  context: 'code.run_all reads the global random seed from code/config.yaml (seed:
+    42), logs each stage to logs/<stage>.log, and reproduces byte-identical final
+    artifacts under data/results/.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the pipeline reproduces byte-identical final artifacts under data/results/.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-21T10:13:40Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/quickstart.md
+  attempts: 1
+  canonical: datasets GSE136103, GSE127465, GSE111075, and GSE138852 are used
+  claim_id: c_21f5f414
+  context: Data download (Phase 1) python code/download_data.py --datasets GSE136103,GSE127465,GSE111075,GSE138852
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: python code/download_data.py --datasets GSE136103,GSE127465,GSE111075,GSE138852
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-21T10:14:09Z'
