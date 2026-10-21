@@ -36,8 +36,8 @@ python code/validate_provenance.py
 ```bash
 python code/02_merge_preprocess.py
 ```
-- Produces `data/processed/merged_age60.parquet` and `data/processed/clr_normalized.parquet`.  
-- Writes `data/processed/dataset.json` (validated against `contracts/dataset.schema.yaml`).
+- Produces `data/processed/merged_age60.parquet` and `data/processed/dataset.json` (validated against `contracts/dataset.schema.yaml`).  
+- Writes `clr_normalized.parquet` and `imputed.parquet`.
 
 ### 3. Correlation analysis (Spearman + BH FDR)
 ```bash
@@ -63,7 +63,7 @@ python code/05_sensitivity.py
 ```bash
 pytest tests/contract/
 ```
-- All tests should pass (`0 passed, 0 failed`).  
+- All tests should pass (i.e., no failures).  
 
 ## Troubleshooting
 

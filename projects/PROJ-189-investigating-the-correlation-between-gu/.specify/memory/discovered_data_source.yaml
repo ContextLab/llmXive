@@ -1,17 +1,18 @@
 status: none
-intent: download American Gut Project 16S dbGaP and Health and Retirement Study cognitive
-  ICPSR python package
+intent: download American Gut Project 16S taxonomy and Health and Retirement Study
+  cognitive data python package dataset
 required_fields:
 - participant_id
 - age
 - sex
-- bmi
+- BMI
+- education
 - cognitive_score
+- genus_Akkermansia
 - genus_Bacteroides
 - genus_Lactobacillus
-- genus_Ruminococcus
-- genus_Bifidobacterium
 - genus_Faecalibacterium
-cache_key: 52432767b6e0f7f447b7c34bea0b23f185fb62e3f42f5580ab22ec214d20c577
-searched_at: '2026-10-21T08:11:02.087185+00:00'
+- genus_Bifidobacterium
+cache_key: 42dcc7b3e7a907e1dcb1dd9e90d2ac82d0e0142e5f93c8f3c719c2c98934f557
+searched_at: '2026-10-21T09:13:08.008330+00:00'
 retry_count: 1

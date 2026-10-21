@@ -20,7 +20,7 @@ properties:
         description: "Number of rows after merge and age filter"
       age_filter:
         type: integer
-        description: "Minimum age applied (60)"
+        description: "Minimum age applied (e.g., a typical adult threshold)"
     required:
       - source_agp
       - source_hrs

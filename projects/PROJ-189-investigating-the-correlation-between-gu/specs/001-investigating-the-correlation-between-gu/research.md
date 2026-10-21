@@ -41,7 +41,7 @@ Both parquet files are < 3 GB. They are streamed (`datasets.load_dataset(...
 3. Write observed checksums to `data/provenance/observed_checksums.json`.  
 4. Exit with status 0 only if **all** match; otherwise abort with a descriptive error.  
 
-This deterministic step guarantees that every downstream analysis uses the exact same input data, satisfying reproducibility (Constitution I) and data hygiene (III).
+Deterministic provenance guarantees reproducibility (Constitution I) and data hygiene (III).
 
 ### 3.2 Merge & Age Filtering (Task T002)
 - Inner join on `participant_id`.  
@@ -67,7 +67,7 @@ All transformations are deterministic (fixed random seed `42`).
 
 ### 3.5 Predictive Modeling (Task T005) & Permutation Null (Task T006)
 - **Model**: `RandomForestRegressor` (scikit‑learn, CPU‑only).  
-- **Split**: 80 % train / 20 % hold‑out, stratified by `age_group`.  
+- **Split**: [deferred] train / [deferred] hold‑out, stratified by `age_group`.
 - **Nested CV**: outer 5‑fold CV for performance, inner 3‑fold grid search over `n_estimators ∈ {100,200}` and `max_depth ∈ {10,20,None}`; `random_state=42`.  
 - **Metrics**: R² and RMSE on the hold‑out set.  
 - **Permutation test**: shuffle `cognitive_score` 1000 times, refit using the same nested CV pipeline, collect R² distribution.  
@@ -100,7 +100,7 @@ All transformations are deterministic (fixed random seed `42`).
 
 ## 4. Statistical Rigor
 - **Multiple comparisons**: BH FDR for correlations; Holm‑Bonferroni for permutation p‑values.  
-- **Power**: If the merged dataset contains < 100 participants, a warning is emitted (SC‑004). No power calculation is required by the spec.  
+- **Power**: If the merged dataset contains < 100 participants, a warning is emitted (SC‑004). No formal power calculation is mandated.  
 - **Causality**: All statements are explicitly labeled “associational”.  
 - **Measurement validity**: Cognitive scores are taken directly from HRS documentation; AGP 16S protocol is standard (assumption VI).  
 - **Collinearity**: VIF computed; any VIF > 5 flagged and reported (FR‑006).  
