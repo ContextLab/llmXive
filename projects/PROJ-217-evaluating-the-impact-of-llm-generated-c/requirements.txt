@@ -1,4 +1,3 @@
 # Project dependencies
-# Added for CodeSearchNet dataset handling
-pyarrow>=12.0.0
+# Added huggingface_hub for CodeSearchNet dataset download
 huggingface_hub>=0.23.0
