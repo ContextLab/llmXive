@@ -4,7 +4,7 @@
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] **T001** [US1] **Download curated refractive‑index dataset** – implement `code/data/download.py` that fetches the open‑access RI dataset using `wget` from the specified canonical URL.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1; code/data/preprocess.py exit=1 -->
+- [ ] **T001** [US1] **Download curated refractive‑index dataset** – implement `code/data/download.py` that fetches the open‑access RI dataset using `wget` from the specified canonical URL.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1; code/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
   *File*: `code/data/download.py`  
   *Verification*:  
   • The script writes `data/raw/ri_dataset.csv` and a SHA‑256 checksum file `state/ri_dataset.sha256`.  

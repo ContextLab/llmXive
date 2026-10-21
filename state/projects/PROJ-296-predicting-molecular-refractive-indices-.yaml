@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T07:47:40.272135Z'
-current_stage: in_progress
+current_stage: clarified
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-296-predicting-molecular-refractive-indices-
-last_run_id: ecb807cd-265a-416b-abd8-e611c91ddb76
+last_run_id: d513d9f2-ba08-4803-89de-55474e91ffc5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-296-predicting-molecular-refractive-indices-/specs/001-predicting-molecular-refractive-indices
 title: Predicting Molecular Refractive Indices from Graph-Based Molecular Representations
-updated_at: '2026-10-21T08:38:17.914196Z'
+updated_at: '2026-10-21T17:13:26.956085Z'

@@ -13,14 +13,28 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/processed/filtered.csv, data/raw/ri_dataset.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 run-book script(s) missing (plan/impl path mismatch): python training/train.py --fold $i --repeat $j --epochs 200 --batch-size 32 --seed $((2000 + i*10 + j)); python training/evaluate.py --fold $i --repeat $j --model models/mpnn_${i}_${j}.pt; python models/attribution.py --fold $i --repeat $j --model models/mpnn_${i}_${j}.pt --output results/attributions_${i}_${j}.csv; 1 command(s) failed: python code/data/split.py --folds 5 --repeats 5 --ratios 0.8 0.1 0.1 (rc=1)
+**Summary**: every produced artifact is gitignored (data/processed/filtered.csv, data/raw/ri_dataset.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 run-book script(s) missing (plan/impl path mismatch): python training/train.py --fold $i --repeat $j --epochs 200 --batch-size 32 --seed $((2000 + i*10 + j)); python training/evaluate.py --fold $i --repeat $j --model models/mpnn_${i}_${j}.pt; python models/attribution.py --fold $i --repeat $j --model models/mpnn_${i}_${j}.pt --output results/attributions_${i}_${j}.csv; 2 command(s) failed: python code/data/download.py (rc=1); python code/data/split.py --folds 5 --repeats 5 --ratios 0.8 0.1 0.1 (rc=1)
 
 ## Failing / missing run-book commands
 
+- python code/data/download.py -> rc=1
+e/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/data/raw/ri_dataset.csv
+2026-10-21 17:12:31,668 INFO __main__: Computed SHA‑256: ec6cba39c867358d6c7e38ca1940f66d597749135a09933c0b6ae686a3a19968
+2026-10-21 17:12:31,668 INFO __main__: Wrote checksum to /home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/data/raw/ri_dataset.sha256
+2026-10-21 17:12:31,668 INFO __main__: Loading schema from /home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/contracts/dataset.schema.yaml
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 281, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 273, in main
+    validate_rows(df)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/download.py", line 245, in validate_rows
+    raise ValueError(f"Row {idx}: {field} does not match pattern")
+ValueError: Row 0: smiles does not match pattern
+
 - python code/data/split.py --folds 5 --repeats 5 --ratios 0.8 0.1 0.1 -> rc=1
 
-2026-10-21 14:19:55,006 INFO __main__: Loaded processed dataset with 190 records.
-2026-10-21 14:19:55,006 INFO __main__: Computing Murcko scaffolds for all molecules...
+2026-10-21 17:12:33,188 INFO __main__: Loaded processed dataset with 190 records.
+2026-10-21 17:12:33,188 INFO __main__: Computing Murcko scaffolds for all molecules...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/split.py", line 362, in <module>
     _run_split_generation(

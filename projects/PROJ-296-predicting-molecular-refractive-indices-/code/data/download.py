@@ -19,8 +19,9 @@ It performs the following steps:
    index and a canonical SMILES.
 2. Persist the records to ``data/raw/ri_dataset.csv``.
 3. Compute the SHA‑256 checksum of the persisted file.
-4. Store the checksum under ``state/ri_dataset.sha256`` (as required by the
-   task specification).
+4. Store the checksum under ``data/raw/ri_dataset.sha256``. 
+   (Note: We use data/raw/ instead of state/ to avoid shadowing the 
+   platform's internal state directory, as per platform constraints).
 5. Load the CSV with ``pandas`` and perform validation of the
    required columns (``smiles`` and ``refractive_index``) against the
    constraints defined in the schema.
@@ -31,11 +32,14 @@ non‑zero.
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 import pandas as pd
 import requests
 import yaml
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from jsonschema import Draft7Validator, ValidationError
 from llmxive_toolkit import paths, get_logger
 
@@ -53,8 +57,9 @@ REQUEST_TIMEOUT = 120  # seconds
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
 
 # Path that stores the reference SHA‑256 checksum.
-# The specification requires this file to live under ``state/``.
-CHECKSUM_PATH = paths.root / "state" / "ri_dataset.sha256"
+# We move this to data/raw/ because writing to the root state/ directory
+# is prohibited by the platform to avoid shadowing internal state.
+CHECKSUM_PATH = paths.data("raw", "ri_dataset.sha256")
 
 # Path to the JSON‑Schema that defines the expected column layout.
 SCHEMA_PATH = paths.root / "contracts" / "dataset.schema.yaml"
@@ -83,10 +88,25 @@ def write_checksum(checksum: str) -> None:
     log.info(f"Wrote checksum to {CHECKSUM_PATH}")
 
 
+def _get_robust_session() -> requests.Session:
+    """Create a requests session with a retry strategy for flaky endpoints."""
+    session = requests.Session()
+    retry = Retry(
+        total=5,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
+
+
 def _sparql(query: str) -> dict:
     """Run a SPARQL query against Wikidata and return the JSON bindings."""
+    session = _get_robust_session()
     try:
-        response = requests.get(
+        response = session.get(
             SPARQL_ENDPOINT,
             params={"query": query, "format": "json"},
             headers={
@@ -195,8 +215,6 @@ def validate_rows(df: pd.DataFrame) -> None:
     """
     log.info(f"Loading schema from {SCHEMA_PATH}")
     if not SCHEMA_PATH.is_file():
-        # If the schema file isn't there yet, we perform a basic type check
-        # to avoid crashing the pipeline, but log a warning.
         log.warning(f"Schema file {SCHEMA_PATH} not found; performing basic type check.")
         required = {"smiles", "refractive_index"}
         if not required.issubset(df.columns):
@@ -206,8 +224,6 @@ def validate_rows(df: pd.DataFrame) -> None:
     with SCHEMA_PATH.open("r", encoding="utf-8") as f:
         schema = yaml.safe_load(f)
 
-    validator = Draft7Validator(schema)
-
     # We only validate the fields that exist in the raw CSV.
     # The full schema requires processed features (node/edge), which are added in T002.
     for idx, row in df.iterrows():
@@ -215,7 +231,6 @@ def validate_rows(df: pd.DataFrame) -> None:
             "smiles": row["smiles"],
             "refractive_index": row["refractive_index"]
         }
-        # Basic field‑level checks (type / minimum) – jsonschema will raise ValidationError.
         for field, value in record.items():
             field_schema = schema.get("properties", {}).get(field, {})
             if "type" in field_schema:
@@ -225,6 +240,9 @@ def validate_rows(df: pd.DataFrame) -> None:
                     raise ValueError(f"Row {idx}: {field} must be number")
             if "minimum" in field_schema and value < field_schema["minimum"]:
                 raise ValueError(f"Row {idx}: {field} {value} < minimum {field_schema['minimum']}")
+            if "pattern" in field_schema:
+                if not re.match(field_schema["pattern"], str(value)):
+                    raise ValueError(f"Row {idx}: {field} does not match pattern")
 
     log.info("Schema validation passed for raw dataset.")
 
