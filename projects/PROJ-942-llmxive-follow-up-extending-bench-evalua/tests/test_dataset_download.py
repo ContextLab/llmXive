@@ -49,7 +49,6 @@ def test_pi_bench_downloaded():
                 pytest.fail(f"Malformed line in checksum manifest: {line}")
 
     # Verification: assert successful load via datasets using local JSON files
-    # This avoids relying on the Hub's dataset loader which may be misconfigured
     try:
         # Search for any JSON files in the raw directory
         json_files = list(raw_dir.rglob("*.json"))
