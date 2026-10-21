@@ -9,7 +9,7 @@
 
 ### US-1 - Data Ingestion and Thermodynamic Feature Engineering (Priority: P1)
 
-The system MUST successfully download a curated experimental dataset containing ternary alloy entries with reported glass‑forming labels **and** critical cooling rates, filter for entries with valid labels OR critical cooling rates, and compute thermodynamic descriptors (mixing enthalpy, atomic size mismatch) for every valid entry using elemental properties sourced **strictly** from the Open Quantum Materials Database (OQMD). The primary target variable is `critical_cooling_rate` (continuous).
+The system MUST successfully download a curated experimental dataset containing ternary alloy entries with reported glass‑forming labels **and** critical cooling rates, filter for entries with valid labels OR critical cooling rates, and compute thermodynamic descriptors (mixing enthalpy, atomic size mismatch, **electronegativity variance**) for every valid entry using elemental properties sourced **strictly** from the Open Quantum Materials Database (OQMD). The primary target variable is `critical_cooling_rate` (continuous).
 
 **Why this priority**: Without a clean, feature‑rich dataset with a valid target variable, no modeling or analysis can occur. This is the foundational data pipeline required for the entire research question.
 
@@ -17,10 +17,11 @@ The system MUST successfully download a curated experimental dataset containing 
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid experimental data source endpoint and a list of ternary alloy compositions, **When** the ingestion script runs, **Then** the output file contains at least 500 rows with no missing values in the `critical_cooling_rate` or `mixing_enthalpy` columns.
+1. **Given** a valid experimental data source endpoint and a list of ternary alloy compositions, **When** the ingestion script runs, **Then** the output file contains at least 500 rows with no missing values in the `critical_cooling_rate`, `mixing_enthalpy`, `atomic_size_mismatch`, **or** `electronegativity_variance` columns.
 2. **Given** an alloy entry with missing elemental data for a specific element, **When** the feature engineering step processes it, **Then** the row is flagged or excluded, and a log entry is created with the specific reason for exclusion.
 3. **Given** the raw elemental properties from OQMD, **When** the thermodynamic formulas are applied, **Then** the computed `atomic_size_mismatch` matches the expected values from the Periodic Table definitions within a tolerance of ±0.01.
-4. **Given** the dataset, **When** the target variable is checked, **Then** the `critical_cooling_rate` column must have non‑zero variance and at least 500 valid entries; otherwise, the pipeline fails with a data availability error.
+4. **Given** the raw elemental properties from OQMD, **When** the electronegativity variance is calculated, **Then** the result matches the reference calculation within a tolerance of ±0.005.
+5. **Given** the dataset, **When** the target variable is checked, **Then** the `critical_cooling_rate` column must have non‑zero variance and at least 500 valid entries; otherwise, the pipeline fails with a data availability error.
 
 ---
 
@@ -48,26 +49,26 @@ The system MUST train a Random Forest regressor on the engineered features using
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download a curated experimental dataset containing ternary alloy entries with reported `critical_cooling_rate` (target N ≥ 1000, minimum N ≥ 500) and MUST retrieve elemental thermodynamic properties for each constituent element from OQMD to compute mixing enthalpy and atomic size mismatch (See US-1). This satisfies Constitution Principle VI requiring descriptors to be derived strictly from OQMD. **(See US-1)**
-- **FR-002**: System MUST compute thermodynamic descriptors (mixing enthalpy, atomic size mismatch) for every valid entry using standard elemental properties from OQMD (See US-1). **(See US-1)**
+- **FR-001**: System MUST download a curated experimental dataset containing ternary alloy entries with reported `critical_cooling_rate` (target N ≥ 1000, minimum N ≥ 500) and MUST retrieve elemental thermodynamic properties for each constituent element from OQMD to compute mixing enthalpy, atomic size mismatch, **and electronegativity variance** (See US-1). This satisfies Constitution Principle VI requiring descriptors to be derived strictly from OQMD. **(See US-1)**
+- **FR-002**: System MUST compute thermodynamic descriptors (mixing enthalpy, atomic size mismatch, **electronegativity variance**) for every valid entry using standard elemental properties from OQMD (See US-1). **(See US-1)**
 - **FR-003**: System MUST train a Random Forest regressor on the computed features using a standard train‑test split and perform 5‑fold cross‑validation to estimate generalization performance (See US-2). **(See US-2)**
 - **FR-004**: System MUST perform permutation importance analysis to rank the contribution of each thermodynamic parameter to the model's predictive power (See US-2). **(See US-2)**
 - **FR-006**: System MUST explicitly frame all predictive findings as ASSOCIATIONAL if the dataset is observational, avoiding causal claims unless randomization is specified (See US-2). **(See US-2)**
-- **FR-007**: System MUST acknowledge the limitation of using only two thermodynamic descriptors and MUST document, in the final report, that additional known predictors (e.g., electronic structure, processing history) are omitted and may introduce bias (See US-1). **(See US-1)**
+- **FR-007**: System MUST acknowledge the limitation of using only three thermodynamic descriptors and MUST document, in the final report, that additional known predictors (e.g., electronic structure, processing history) are omitted and may introduce bias (See US-1). **(See US-1)**
 - **FR-008**: System MUST perform stratified sampling based on the `glass_forming_label` when creating train‑test splits to preserve class distribution. **(See US-2)**
 - **FR-009**: System MUST log all data processing steps, including download status, filtering actions, and feature calculations, to `data/logs/processing.log`. **(See US-1)**
-- **FR-010**: System MUST use a fixed random seed (`random_state=42`) for all stochastic operations (data splitting, model training, permutation importance) to guarantee reproducibility. **(See US-2, US-3)**
+- **FR-010**: System MUST use a fixed random seed (`random_state=42`) for all stochastic operations (data splitting, model training, permutation importance) to guarantee reproducibility. **(See US-2)**
 - **FR-011**: Artifact `processed_alloys.csv` MUST conform to the schema defined in `contracts/processed_alloys.schema.yaml`; validation is performed by `validate_schemas.py`. **(See US-1)**
 - **FR-012**: Artifact `features.csv` MUST conform to the schema defined in `contracts/features.schema.yaml`; validation is performed by `validate_schemas.py`. **(See US-1)**
 - **FR-014**: Artifact `feature_importance.csv` MUST conform to the schema defined in `contracts/feature_importance.schema.yaml`; validation is performed by `validate_schemas.py`. **(See US-2)**
 - **FR-016**: System MUST use only experimentally measured `critical_cooling_rate` values; synthetic surrogate CCR data is prohibited (See US-1). **(See US-1)**
-- **FR-017**: System MUST ensure that all generated artifacts (`processed_alloys.csv`, `features.csv`, `cv_metrics.json`, `feature_importance.csv`) pass schema validation via `validate_schemas.py`; validation logs must show zero errors. **(See SC-006)**
+- **FR-017**: System MUST ensure that all generated artifacts (`features.csv`, `processed_alloys.csv`, `cv_metrics.json`, `feature_importance.csv`, `random_forest_model.pkl`) pass schema validation via `validate_schemas.py`; validation logs must show zero errors. **(See US-2)**
 - **FR-018**: System MUST record a SHA‑256 hash of `processed_alloys.csv` in `data/logs/ingestion_hash.txt` after each successful ingestion to support reproducibility checks. **(See US-1)**
 - **FR-019**: Artifact `cv_metrics.json` MUST conform to the schema defined in `contracts/model_metrics.schema.yaml`; validation is performed by `validate_schemas.py`. **(See US-2)**
 
 ### Key Entities
 
-- **AlloyRecord**: Represents a single ternary alloy entry. Attributes include composition (Aₓ Bᵧ C_z), critical_cooling_rate, mixing_enthalpy, atomic_size_mismatch, and source_label.
+- **AlloyRecord**: Represents a single ternary alloy entry. Attributes include composition (Aₓ Bᵧ C_z), critical_cooling_rate, mixing_enthalpy, atomic_size_mismatch, electronegativity_variance, and source_label.
 - **ModelMetrics**: Represents the output of the training and validation process. Attributes include fold_scores, mean_rmse, test_rmse, and feature_importance_ranking.
 
 ## Success Criteria
@@ -77,14 +78,15 @@ The system MUST train a Random Forest regressor on the engineered features using
 - **SC-001**: The dataset construction pipeline MUST produce a final training set with at least 500 valid entries (after filtering) to ensure statistical stability. A rule‑of‑thumb from Cohen (1992) indicates that N ≥ 500 provides adequate power for detecting moderate effect sizes in regression contexts. Measured against the initial data query count (See FR-001, US-1).
 - **SC-002**: The Random Forest model MUST achieve a cross‑validation RMSE that is statistically distinguishable from a null model (dummy regressor predicting the mean target) using a paired permutation test on per‑fold RMSE differences (10 000 permutations, p < 0.05). Measured against the baseline null performance (See FR-003, US-2).
 - **SC-004**: The permutation importance analysis MUST identify at least one thermodynamic parameter (e.g., mixing enthalpy) as a top‑2 contributor with a p‑value < 0.05 from the permutation test (n = 1000), measured against the shuffled baseline (See FR-004, US-2).
-- **SC-006**: All artifacts (`features.csv`, `processed_alloys.csv`, `random_forest_model.pkl`, `cv_metrics.json`, `feature_importance.csv`) MUST pass schema validation via `validate_schemas.py`; validation logs must be present and show zero errors (See FR-017, FR-011‑FR-014, FR-019).
+- **SC-006**: All artifacts (`features.csv`, `processed_alloys.csv`, `random_forest_model.pkl`, `cv_metrics.json`, `feature_importance.csv`) MUST pass schema validation via `validate_schemas.py`; validation logs must be present and show zero errors. **(See US-1)**
+- **SC-...** *(additional criteria unchanged)*
 
 ## Assumptions
 
 - The curated experimental dataset is accessible and contains the `critical_cooling_rate` field for a sufficient number of ternary alloys (≥ 500) to support machine‑learning training.
 - The Open Quantum Materials Database provides accurate elemental thermodynamic properties for all constituent elements. Verified dataset URLs are listed in the **Verified Datasets** block below.
 - The Random Forest algorithm, as implemented in scikit‑learn, is computationally feasible on a CPU‑only environment with standard RAM for a dataset of moderate size and a standard number of features.
-- The thermodynamic formulas for mixing enthalpy and atomic size mismatch are well‑defined and can be calculated using standard elemental properties available in a local periodic table database.
+- The thermodynamic formulas for mixing enthalpy, atomic size mismatch, and electronegativity variance are well‑defined and can be calculated using standard elemental properties available in a local periodic table database.
 - The relationship between thermodynamic parameters and glass‑forming ability is non‑linear, justifying the use of a Random Forest model over a linear regression model.
 - No GPU or CUDA acceleration is available or required for the training and inference steps of this specific model size and dataset.
 - The primary target variable is the continuous `critical_cooling_rate`. Binarization (if performed) is based on a physically‑grounded threshold (e.g., 100 K/s).
