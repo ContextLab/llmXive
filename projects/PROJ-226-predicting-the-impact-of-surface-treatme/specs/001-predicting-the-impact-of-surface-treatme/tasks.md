@@ -8,7 +8,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 0 – Feasibility & Data‑source Verification  
 
-- [ ] T001 [P?] [US1] Verify that **each** required open dataset (NIST, Zenodo, Materials Project) contains **all** required variables (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`, `adhesion_strength_mj_m2`, `treatment_type`, `pair_id`).   <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 -->
+- [ ] T001 [P?] [US1] Verify that **each** required open dataset (NIST, Zenodo, Materials Project) contains **all** required variables (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`, `adhesion_strength_mj_m2`, `treatment_type`, `pair_id`).   <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 --> <!-- FAILED: unspecified -->
   - **Implementation**: `code/verify_data_source.py` loads the three datasets via their public URLs (wget/curl), inspects column sets, and writes a JSON report `data/source/availability_report.json`.  
   - **Verification**: CI fails if any dataset is missing one or more required columns; otherwise the task passes.
 
@@ -16,7 +16,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 1 – Data Acquisition & Integrity  
 
-- [ ] T002 [P?] [US1] Download the three verified raw datasets and store each as a canonical CSV (`data/raw/nist.csv`, `data/raw/zenodo.csv`, `data/raw/materials_project.csv`). Then merge them into a unified file `data/raw/adhesion_raw.csv`.  
+- [ ] T002 [P?] [US1] Download the three verified raw datasets and store each as a canonical CSV (`data/raw/nist.csv`, `data/raw/zenodo.csv`, `data/raw/materials_project.csv`). Then merge them into a unified file `data/raw/adhesion_raw.csv`.   <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
   - **Implementation**: `code/download_data.py` reads `availability_report.json`, streams each source, writes individual CSVs, concatenates them (adding a `source` column), and creates a SHA‑256 checksum file `data/raw/checksums.txt`.  
   - **Verification**: All three source CSVs and the merged `adhesion_raw.csv` must exist, be non‑empty, and their checksums must match entries in `checksums.txt`.  
 

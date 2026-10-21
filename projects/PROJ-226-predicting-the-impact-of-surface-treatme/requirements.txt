@@ -1,6 +1,1 @@
-# Project dependencies
-# (standard libraries already provided by the runner are omitted)
 datasets>=2.18
-# Existing dependencies are already present in the base environment:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil

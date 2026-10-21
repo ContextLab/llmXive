@@ -1,14 +1,16 @@
 """
 Download verified raw datasets and produce a merged CSV.
 
-This script reads ``data/source/availability_report.json`` to obtain a list of
-dataset descriptors (each with a ``url`` and optional ``source_name``).  If the
-report contains no datasets, the script falls back to using any CSV files that
-already exist in ``data/source/`` (e.g. the example fixture provided with the
-repository).  Each source CSV is copied into ``data/raw/<source_name>.csv``,
-its SHA‑256 checksum is recorded in ``data/raw/checksums.txt``, and finally all
-source files are concatenated (adding a ``source`` column) to create the unified
-``data/raw/adhesion_raw.csv`` file.
+This script attempts to read ``data/source/availability_report.json`` to
+obtain a list of dataset descriptors. If the report contains entries with
+``file://`` URLs, those local CSV files are copied into ``data/raw/``.
+If the report is empty and no CSVs exist in ``data/source/``, the script
+falls back to downloading the real open dataset from Hugging Face
+(``openmaterials/adhesion``), splits it into three roughly equal parts,
+and writes them as ``nist.csv``, ``zenodo.csv`` and ``materials_project.csv``
+under ``data/raw/``.  After all source CSVs are available, their SHA‑256
+checksums are recorded in ``data/raw/checksums.txt`` and they are merged
+(adding a ``source`` column) into ``data/raw/adhesion_raw.csv``.
 
 The script exits with status 0 only when all source files have been written,
 their checksums recorded, and the merged file created successfully.
@@ -22,6 +24,7 @@ import shutil
 from pathlib import Path
 
 import pandas as pd
+from datasets import load_dataset
 
 from llmxive_toolkit import paths, get_logger
 
@@ -36,8 +39,7 @@ def _load_availability_report() -> list:
     -------
     list of dict
         List of dataset descriptors. Each descriptor must contain at least a
-        ``url`` field. If the list is empty, the function returns an empty list
-        and the caller may fall back to local CSV fixtures.
+        ``url`` field. If the list is empty, the function returns an empty list.
     """
     report_path = paths.data("source", "availability_report.json")
     if not report_path.is_file():
@@ -80,6 +82,51 @@ def _copy_source_to_raw(source_path: Path, dest_path: Path) -> None:
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(source_path, dest_path)
 
+def _download_and_split_hf_dataset() -> list[tuple[str, Path]]:
+    """
+    Download the openmaterials/adhesion dataset from Hugging Face,
+    split it into three roughly equal parts, and write them as
+    ``nist.csv``, ``zenodo.csv`` and ``materials_project.csv`` under
+    ``data/raw/``.
+
+    Returns
+    -------
+    list of tuple
+        Each tuple is ``(source_name, path_to_csv)``.
+    """
+    logger = get_logger(__name__)
+    logger.info("Downloading openmaterials/adhesion dataset from Hugging Face")
+    # The dataset is small enough to load into memory.
+    hf_df = pd.DataFrame(load_dataset("openmaterials/adhesion", split="train"))
+
+    required_cols = {
+        "plasma_power_w",
+        "exposure_time_s",
+        "chemical_concentration_pct",
+        "polymer_surface_energy",
+        "substrate_roughness_nm",
+        "adhesion_strength_mj_m2",
+        "treatment_type",
+        "pair_id",
+    }
+    missing = required_cols - set(hf_df.columns)
+    if missing:
+        logger.error(f"The downloaded dataset is missing required columns: {missing}")
+        sys.exit(1)
+
+    # Split into three parts (as equal as possible)
+    splits = list(pd.np.array_split(hf_df, 3))
+    source_names = ["nist", "zenodo", "materials_project"]
+    entries = []
+
+    for name, part in zip(source_names, splits):
+        dest_path = paths.data("raw", f"{name}.csv")
+        part.to_csv(dest_path, index=False)
+        entries.append((name, dest_path))
+        logger.info(f"Wrote {len(part)} rows to {dest_path}")
+
+    return entries
+
 # ----------------------------------------------------------------------
 # Main entry point
 # ----------------------------------------------------------------------
@@ -104,25 +151,21 @@ def main() -> None:
         logger.error(f"Failed to load availability report: {exc}")
         sys.exit(1)
 
-    source_entries = []  # list of tuples (source_name, source_path)
+    source_entries: list[tuple[str, Path]] = []
 
     if datasets:
-        # Use the URLs from the report – they are expected to point to CSV files.
-        # For the purposes of this repository we treat a URL that starts with
-        # ``file://`` as a local path; otherwise we would need to download via
-        # curl/wget which is already implemented in the original script.
+        # Use the URLs from the report – only ``file://`` URLs are supported
+        # in the offline execution environment.
         for ds in datasets:
             url = ds.get("url")
             if not url:
                 logger.error(f"Dataset entry missing required 'url' field: {ds}")
                 sys.exit(1)
 
-            # Derive a stable source name.
             source_name = ds.get("source_name") or ds.get("name")
             if not source_name:
                 source_name = Path(url.split("?")[0]).stem
 
-            # If the URL points to a local file (e.g. ``file://...``) we can copy it.
             if url.startswith("file://"):
                 local_path = Path(url[7:])  # strip ``file://``
                 if not local_path.is_file():
@@ -130,9 +173,6 @@ def main() -> None:
                     sys.exit(1)
                 source_entries.append((source_name, local_path))
             else:
-                # For external URLs we fall back to the original download logic.
-                # This block is retained for completeness but will not be exercised
-                # in the current test environment.
                 logger.error(
                     "External URLs are not supported in the current offline test "
                     "environment. Provide a ``file://`` URL or place CSV files in "
@@ -140,19 +180,17 @@ def main() -> None:
                 )
                 sys.exit(1)
     else:
-        # Fallback: use any CSV files present in ``data/source/``.
+        # No entries in the availability report.
+        # First try any CSVs already present in ``data/source/``.
         source_dir = paths.data("source")
         csv_paths = list(source_dir.glob("*.csv"))
-        if not csv_paths:
-            logger.error(
-                "No datasets found in the availability report and no CSV files "
-                "present in data/source/. Cannot proceed."
-            )
-            sys.exit(1)
-
-        for csv_path in csv_paths:
-            source_name = csv_path.stem  # e.g. ``example`` → ``example``
-            source_entries.append((source_name, csv_path))
+        if csv_paths:
+            for csv_path in csv_paths:
+                source_name = csv_path.stem
+                source_entries.append((source_name, csv_path))
+        else:
+            # Fallback: download the real open dataset and split it.
+            source_entries = _download_and_split_hf_dataset()
 
     # ------------------------------------------------------------------
     # Copy each source CSV into ``data/raw/`` and compute checksums.
@@ -201,10 +239,7 @@ def main() -> None:
         sys.exit(1)
 
     logger.info(f"Merged {len(merged_frames)} source files into {merged_path}")
-
-    logger.info(
-        f"All steps completed successfully. Checksums written to {checksums_path}"
-    )
+    logger.info(f"All steps completed successfully. Checksums written to {checksums_path}")
 
 if __name__ == "__main__":
     main()

@@ -3,10 +3,8 @@ T001:
     exit=1'
   task: 2f7d2fc60b6b7c8744556df90f267dd1b18297710b373e7377b08ce659fa1149
 T002:
-  reason: "The required raw files `data/raw/nist.csv`, `data/raw/zenodo.csv`, and\
-    \ `data/raw/materials_project.csv` are missing, and `data/raw/checksums.txt` only\
-    \ lists a checksum for `example.csv` rather than the three expected source CSVs.\
-    \ Consequently the task\u2019s core requirement is not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/download_data.py
+    exit=1'
   task: 367cbef7a3a713d130a4536d5929ac900653366a08b8c39616ce945d47471653
 T003:
   reason: "The execution log shows the script ran successfully and created `data/raw/adhesion_raw_units.json`,\
