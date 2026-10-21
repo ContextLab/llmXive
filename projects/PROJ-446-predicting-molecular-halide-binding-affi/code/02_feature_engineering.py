@@ -20,7 +20,7 @@ from typing import List, Dict, Any, Optional
 import numpy as np
 import pandas as pd
 from rdkit import Chem
-from rdkit.Chem import AllChem, Descriptors, rdMolDescriptors
+from rdkit.Chem import AllChem, Descriptors, rdMolDescriptors, rdPartialCharges
 from rdkit import DataStructs
 
 # Project utilities
@@ -60,46 +60,48 @@ def parse_smiles_to_mol(smiles: str) -> Optional[Chem.Mol]:
 
 def calculate_charge_density(mol: Chem.Mol) -> float:
     """
-    Approximate charge density as (heteroatom count) / (molecular weight).
+    Compute the sum of Gasteiger partial charges for a molecule.
+
+    This implementation follows FR‑002 which requires the Gasteiger charge sum
+    as the `charge_density` descriptor.
 
     Args:
         mol: RDKit Mol object.
 
     Returns:
-        Float representing the charge density proxy.
+        Float representing the sum of Gasteiger charges.
     """
     if mol is None:
         return 0.0
     try:
-        heteroatom_count = sum(
-            1 for atom in mol.GetAtoms() if atom.GetAtomicNum() not in (1, 6)
-        )
-        mol_weight = Descriptors.MolWt(mol)
-        if mol_weight <= 0:
-            return 0.0
-        return float(heteroatom_count / mol_weight)
+        # Compute Gasteiger charges in‑place
+        rdPartialCharges.ComputeGasteigerCharges(mol)
+        total = sum(float(atom.GetProp("_GasteigerCharge")) for atom in mol.GetAtoms())
+        return float(total)
     except Exception as e:
-        logger.warning(f"Could not calculate charge density: {e}")
+        logger.warning(f"Could not calculate Gasteiger charge sum: {e}")
         return 0.0
 
 
 def calculate_cavity_volume(mol: Chem.Mol) -> float:
     """
-    Approximate cavity volume using solvent‑accessible surface area (SASA).
+    Compute the molecular volume (Å³) using RDKit's volume descriptor.
+
+    This satisfies FR‑002 which calls for RDKit molecular volume.
 
     Args:
         mol: RDKit Mol object.
 
     Returns:
-        Float representing the cavity volume proxy (SASA in Å²).
+        Float representing the molecular volume in Å³.
     """
     if mol is None:
         return 0.0
     try:
-        sasa = rdMolDescriptors.CalcSASA(mol)
-        return float(sasa)
+        volume = rdMolDescriptors.CalcMolVolume(mol)
+        return float(volume)
     except Exception as e:
-        logger.warning(f"Could not calculate cavity volume (SASA): {e}")
+        logger.warning(f"Could not calculate molecular volume: {e}")
         return 0.0
 
 

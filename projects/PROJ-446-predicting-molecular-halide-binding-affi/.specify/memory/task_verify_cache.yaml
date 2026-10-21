@@ -1,12 +1,20 @@
+T001:
+  c: true
+  h: 6cee43884b8bd8b9f1c1b1201bbdb233c9cb6160ef561fa4f4af619c53f4bb28
+  r: "Checked `code/01_data_ingestion.py` for real HTTP fetching, back\u2011off, parsing,\
+    \ cleaning, and duplicate handling; verified that `data/raw/fetch_outcome.json`,\
+    \ `raw_scrape.json`, `raw_scrape_cleaned.csv`, and `filtered_hosts.csv` exist,\
+    \ have the correct columns, and contain only headers (zero\u2011record case) as\
+    \ required; confirmed the script runs without error and exits\u202F0, and that\
+    \ the unit\u2011conversion and cleaning logic are covered by the supplied tests."
+  sig: 2a31680874cadad27f67666aa2e57768c1fc07fc63b00760c83881af432fa5c0
 T002:
   c: false
-  h: 9c41dcf44e40eb9fe807d44bc4391e517f967a803fbd33521c405b721cfe60f5
-  r: "The output CSV exists with headers (empty case is permitted since `filtered_hosts.csv`\
-    \ was empty), but the implementation does not compute the required descriptors:\
-    \ `charge_density` is a heteroatom-count/MolWt proxy rather than the required\
-    \ Gasteiger charge sum (`rdPartialCharges.ComputeGasteigerCharges` is never used),\
-    \ and `cavity_volume` attempts `rdMolDescriptors.CalcSASA` (an area, not a volume)\
-    \ which the execution log shows fails (\"has no attribute 'CalcSASA'\"), so it\
-    \ silently returns 0.0 \u2014 not the required RDKit molecular volume in \xC5\xB3\
-    . Additionally, the unit test is circular: it compares"
-  sig: 8c2563781443aa3beb90536efe7f5c7664785c4bf792fdd461563a67348e8d7e
+  h: 723b4237db5d36613e91dc1570d7db580ff7cb89364d01b843f146e9014ed0b4
+  r: "The unit test `code/tests/test_feature_engineering.py` fails to import `02_feature_engineering.py`\
+    \ (FileNotFoundError), so the required test that validates descriptor values never\
+    \ runs. Consequently the task\u2019s verification step\u2014checking correct descriptor\
+    \ computation for known SMILES\u2014is not satisfied. The test path logic must\
+    \ be corrected and the test must pass, confirming that the generated `descriptors_added.csv`\
+    \ contains the proper rows and descriptor values."
+  sig: 856978119a6a87af3ba40e9525206e1d1ab9817a79a4c40eb10615b4d6076bcd

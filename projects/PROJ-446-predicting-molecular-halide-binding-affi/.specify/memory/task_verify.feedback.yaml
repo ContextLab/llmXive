@@ -1,21 +1,13 @@
 T001:
-  reason: 'The main script ran (exit 0) and produced all four artifacts with honest
-    zero-record fetch evidence, but the required focused tests fail: the recorded
-    pytest run shows all 6 tests FAILED with `FileNotFoundError` because `code/tests/test_data_ingestion.py`
-    resolves the module via `parents[2]`, which lands on `projects/` instead of the
-    project root. Additionally, the current test file contains no test for the zero-records
-    path exiting 0 (a task requirement), and the historical log references a `test_fetch_outcome_records_error_handling`
-    test that no longer exists in the file. Fix the path resolu'
   task: 6fc85c67a890179250d7ef70ec3ef06cbeb60406f86019c72fd3769863f09581
 T002:
-  reason: "The output CSV exists with headers (empty case is permitted since `filtered_hosts.csv`\
-    \ was empty), but the implementation does not compute the required descriptors:\
-    \ `charge_density` is a heteroatom-count/MolWt proxy rather than the required\
-    \ Gasteiger charge sum (`rdPartialCharges.ComputeGasteigerCharges` is never used),\
-    \ and `cavity_volume` attempts `rdMolDescriptors.CalcSASA` (an area, not a volume)\
-    \ which the execution log shows fails (\"has no attribute 'CalcSASA'\"), so it\
-    \ silently returns 0.0 \u2014 not the required RDKit molecular volume in \xC5\xB3\
-    . Additionally, the unit test is circular: it compares"
+  reason: "The unit test `code/tests/test_feature_engineering.py` fails to import\
+    \ `02_feature_engineering.py` (FileNotFoundError), so the required test that validates\
+    \ descriptor values never runs. Consequently the task\u2019s verification step\u2014\
+    checking correct descriptor computation for known SMILES\u2014is not satisfied.\
+    \ The test path logic must be corrected and the test must pass, confirming that\
+    \ the generated `descriptors_added.csv` contains the proper rows and descriptor\
+    \ values."
   task: 5783bf0aa9574d60d08368290da99823d955926db8f650c45db374542b2418ec
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/01_data_ingestion.py
