@@ -42,3 +42,36 @@
   verification_status: mismatch
   verified_against_url: https://figshare.com/ndownloader/files/9876543
   verified_at: '2026-10-04T16:11:22.027074Z'
+- artifact_hash: 9d0108e08295dcaa4e8c78243031c0d8550f625b2d0183372e3b6e12d58b8216
+  artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://oqmd.org/static/oqmd_2023_09_01_elements.json`
+  verification_status: unreachable
+  verified_against_url: https://oqmd.org/static/oqmd_2023_09_01_elements.json
+  verified_at: '2026-10-21T18:27:55.530584Z'
+- artifact_hash: 9d0108e08295dcaa4e8c78243031c0d8550f625b2d0183372e3b6e12d58b8216
+  artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://zenodo.org/record/1234567/files/experimental_alloy_ccr.csv`
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/1234567/files/experimental_alloy_ccr.csv
+  verified_at: '2026-10-21T18:27:55.530584Z'
+- artifact_hash: 9d0108e08295dcaa4e8c78243031c0d8550f625b2d0183372e3b6e12d58b8216
+  artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/spec.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.1234567
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
+  verified_at: '2026-10-21T18:27:55.530584Z'
