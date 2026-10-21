@@ -4,102 +4,117 @@
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] **T001** [US1] Download the curated refractive‑index dataset as a **CSV** via `wget` from the verified URL, verify its SHA‑256 checksum, and store it under `data/raw/ri_dataset.csv`.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
+- [ ] **T001** [US1] **Download curated refractive‑index dataset** – implement `code/data/download.py` that fetches the open‑access RI dataset using `wget` from the specified canonical URL.  
   *File*: `code/data/download.py`  
   *Verification*:  
-  • Checksum matches the published value (recorded in `state/download_checksum.txt`).  
-  • Load the CSV with pandas and validate each row against `contracts/dataset.schema.yaml` (no schema errors).  
+  • The script writes `data/raw/ri_dataset.csv` and a SHA‑256 checksum file `state/ri_dataset.sha256`.  
+  • Verify checksum matches the value recorded in `state/ri_dataset.sha256`.  
+  • Load the CSV with `pandas` and run schema validation against `contracts/dataset.schema.yaml` – the script must exit with status 0 only if no validation errors are found.
 
-- [ ] **T002** [US1] Preprocess raw records: parse SMILES with RDKit, filter molecules with molecular weight ≥ 500 Da, apply temperature normalization (Edlén equation when temperature is present), and generate node/edge features plus a global MW feature. Output processed splits `data/processed/train.csv`, `val.csv`, `test.csv`.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1; code/data/preprocess.py exit=1 -->
+- [ ] **T002** [US1] **Preprocess raw records** – implement `code/data/preprocess.py` to:  
+  1. Parse each SMILES with RDKit, logging unparsable entries to `logs/failed_parsing.log`.  
+  2. Compute molecular weight and drop rows with ≥ 500 Da.  
+  3. Apply temperature normalisation (Edlén equation) when a temperature column is present; otherwise flag the row for exclusion.  
+  4. Generate node features (`atomic_num`, `degree`, `hybridization`, `is_aromatic`) and edge features (`bond_type`, `is_conjugated`, `stereo`).  
+  5. Add a z‑score‑normalised global `molecular_weight` feature.  
   *File*: `code/data/preprocess.py`  
   *Verification*:  
-  • Log file `logs/preprocess.log` reports counts of total, filtered, and excluded molecules.  
-  • All rows in the three CSVs validate against `contracts/dataset.schema.yaml`.  
+  • Output `data/processed/filtered.csv`.  
+  • `logs/preprocess_summary.log` records total rows, filtered rows, and excluded rows.  
+  • All rows in `filtered.csv` must pass `contracts/dataset.schema.yaml` validation.
 
-- [ ] **T003** [US3] Implement a scaffold‑based split (80 % train / 10 % val / 10 % test) with **zero scaffold overlap** and write the split files to `data/processed/`.  
+- [ ] **T003** [US3] **Scaffold‑based split with zero overlap** – implement `code/data/split.py` to compute Murcko scaffolds, generate **5 random scaffold splits** (seed 100‑104) each repeated **5 times** (inner seed 200‑204), strictly enforcing an **80/10/10 train/val/test ratio**. For each split write `data/splits/train_{i}_{j}.csv`, `val_{i}_{j}.csv`, `test_{i}_{j}.csv` (i = 1..5, j = 1..5).  
   *File*: `code/data/split.py`  
   *Verification*:  
-  • Script prints the number of unique scaffolds per split.  
-  • A post‑split check asserts `set(train_scaffolds) ∩ set(test_scaffolds) == ∅` (fails the run if overlap exists).  
-
-- [ ] **T004** [US1] Implement the traditional atomic‑contribution baseline (Molar Refractivity → Lorentz‑Lorenz conversion) and produce baseline predictions for the test set.  
-  *File*: `code/models/baseline.py`  
-  *Verification*:  
-  • Output CSV `results/baseline_predictions.csv` contains columns `smiles`, `true_ri`, `pred_ri_baseline`, `error_baseline`.  
-  • Compute MAE and RMSE; both are recorded in `results/baseline_metrics.json`.  
+  • After each split the script prints the number of unique scaffolds per split and the actual split ratios.  
+  • An assertion aborts the run if `set(train_scaffolds) ∩ set(test_scaffolds) != ∅` or if ratios deviate from 80/10/10 by more than 1%.  
+  • All split files validate against `contracts/dataset.schema.yaml`.
 
 ## Phase 2 – Complete the study and validate its evidence  
 
-- [ ] **T005** [US1] Build the 3‑layer Message Passing Neural Network (hidden dimension 64) with **CPU‑only execution** and **pinned random seeds** (e.g., seed=42) logged at start.  
+- [ ] **T004** [US1] **Atomic‑contribution baseline** – implement `code/models/baseline.py` that computes molar refractivity from atomic fragment constants (public tables) and converts to RI via the Lorentz‑Lorenz relation. Run baseline on every test split and write `results/baseline_predictions_{i}_{j}.csv`.  
+  *File*: `code/models/baseline.py`  
+  *Verification*:  
+  • Each CSV contains columns `smiles`, `true_ri`, `pred_ri_baseline`, `error_baseline`.  
+  • Compute MAE and RMSE per split and store in `results/baseline_metrics_{i}_{j}.json`.
+
+- [ ] **T005** [US1] **CPU‑only 3‑layer MPNN architecture** – implement `code/models/mpnn.py` using PyTorch Geometric with three message‑passing layers, hidden dimension 64, mean aggregation, and a two‑layer read‑out MLP (64 → 32 → 1). Enforce `device = torch.device("cpu")`.  
   *File*: `code/models/mpnn.py`  
   *Verification*:  
-  • `torch.cuda.is_available()` is asserted to be **False**; the script prints the device used.  
-  • Random seeds for `torch`, `numpy`, and `random` are set and logged.  
-  • A unit test (`tests/test_mpnn.py`) runs a single forward pass on a dummy batch and checks output shape `(batch, 1)`.  
+  • Unit test `tests/test_mpnn.py` runs a forward pass on a dummy batch and checks output shape `(batch, 1)`.  
+  • The script prints the device being used and asserts `torch.cuda.is_available() is False`.
 
-- [ ] **T006** [US1] Train the MPNN on the processed training split with early stopping (patience = 10), **fixed random seeds**, and explicit CPU‑only enforcement (assert `torch.cuda.is_available() == False` throughout). Log peak RAM, wall‑clock time, and the used seed. Save model weights to `models/mpnn.pt` and test‑set predictions to `results/predictions_gnn.csv`.  
+- [ ] **T006** [US1] **Train MPNN with early stopping** – implement `code/training/train.py` that:  
+  1. Loads a training split, validates schema, and trains for up to 200 epochs with Adam (lr = 1e‑3).  
+  2. Uses early stopping (patience = 10) on validation loss.  
+  3. Logs peak RAM, wall‑clock time, and random seed used.  
+  4. Saves model weights to `models/mpnn_{i}_{j}.pt` and test‑set predictions to `results/predictions_gnn_{i}_{j}.csv`.  
   *File*: `code/training/train.py`  
   *Verification*:  
-  • Run finishes within **6 h** on the GitHub Actions free tier and never exceeds **7 GB** RAM (recorded in `logs/train_resource_usage.log`).  
-  • `results/predictions_gnn.csv` contains `smiles`, `true_ri`, `pred_ri_gnn`, `error_gnn`.  
-  • The script asserts `torch.cuda.is_available() == False` for the whole training loop.  
+  • Each run finishes ≤ 6 h on the GitHub Actions free tier and never exceeds 7 GB RAM (recorded in `logs/train_{i}_{j}_resource.log`).  
+  • Prediction CSV contains `smiles`, `true_ri`, `pred_ri_gnn`, `error_gnn`.  
+  • The script asserts `torch.cuda.is_available() is False` throughout.
 
-- [ ] **T007** [US1] Evaluate both GNN and baseline on the test set, compute MAE & RMSE, perform a normality check (Shapiro‑Wilk) on paired error differences, and run a paired t‑test or Wilcoxon signed‑rank test as appropriate. Store all metrics in `results/metrics.csv`.  
+- [ ] **T007** [US1] **Evaluation & statistical testing** – implement `code/training/evaluate.py` to:  
+  1. Load GNN and baseline predictions for a given split.  
+  2. Compute MAE, RMSE for both.  
+  3. Perform Shapiro‑Wilk normality test on the paired error differences; if normal, run a paired t‑test, otherwise run Wilcoxon signed‑rank test.  
+  4. Record p‑value, Cohen’s d, 95 % CI, and the test used.  
   *File*: `code/training/evaluate.py`  
   *Verification*:  
-  • `results/metrics.csv` conforms to `contracts/output.schema.yaml`.  
-  • The script prints the test used, the p‑value, Cohen’s d, and a 95 % confidence interval.  
+  • Output `results/metrics_{i}_{j}.csv` conforms to `contracts/output.schema.yaml`.  
+  • Console prints the statistical summary; the script exits with non‑zero status if p ≥ 0.05 **and** the effect size is negligible (Cohen’s d < 0.2), signalling a failed significance requirement.
 
-- [ ] **T008** [US2] Apply Integrated Gradients to the trained MPNN for every molecule in the test set, using a zero‑vector baseline and 50 integration steps. Export per‑molecule attributions to `results/attributions.csv`.  
+- [ ] **T008** [US2] **Integrated Gradients attribution** – implement `code/models/attribution.py` that computes IG for every molecule in the test set using a zero‑vector baseline and 50 integration steps. Export per‑molecule attributions to `results/attributions_{i}_{j}.csv` matching `output.schema.yaml`.  
   *File*: `code/models/attribution.py`  
   *Verification*:  
-  • Each row includes `smiles`, `node_attributions`, `edge_attributions`, and a `top_features` list (top 10).  
-  • For a held‑out validation subset enriched in conjugated π‑systems, at least **80 %** of the top‑10 attributed nodes belong to conjugated substructures (asserted in `logs/attribution_validation.log`).  
+  • Each row contains `smiles`, `true_ri`, `pred_ri_gnn`, `error_gnn`, and a `top_features` list of the 10 highest‑scoring node/bond entries (fields `feature_type`, `feature_index`, `score`).  
+  • **External Validation**: For a validation subset, a post‑hoc check in `logs/attribution_validation_{i}_{j}.log` asserts that ≥ 80 % of top‑10 nodes belong to conjugated substructures AND that top-scoring features correlate with known high-RI fragments (e.g. halogens, aromatic rings) from established literature; the script fails if these conditions are not met.
 
-- [ ] **T009** [US2] Generate visualisations: (a) parity plot (predicted vs. actual RI) and (b) feature‑importance bar chart (average attribution per feature type). Save as PNGs `figures/parity.png` and `figures/importance.png`, each **< 5 MB**.  
+- [ ] **T009** [US2] **Generate visualisations** – implement `code/visualization/plot.py` to create:  
+  1. Parity plot (predicted vs. actual RI) → `figures/parity_{i}_{j}.png`.  
+  2. Feature‑importance bar chart (average attribution per feature type) → `figures/importance_{i}_{j}.png`.  
   *File*: `code/visualization/plot.py`  
   *Verification*:  
-  • File size checks (`os.path.getsize`) confirm the < 5 MB constraint.  
-  • Plots are reproducible from the CSVs in `results/`.  
+  • Each PNG size ≤ 5 MB (checked via `os.path.getsize`).  
+  • Plots are reproducible from the corresponding CSVs; the script logs the source files used.
 
-- [ ] **T010** [US3] Conduct multi‑seed robustness experiments (seeds = 42, 123, 999). For each seed, retrain the MPNN and record test‑set MAE. Summarise variance in `results/seed_variance.csv`.  
+- [ ] **T010** [US3] **Multi‑seed robustness** – implement `code/training/robustness.py` that repeats the entire training‑evaluation pipeline for seeds {42, 123, 999} on a single scaffold split (e.g., split 1‑1). Record test‑set MAE for each seed in `results/seed_variance_1_1.csv`.  
   *File*: `code/training/robustness.py`  
   *Verification*:  
-  • Variance of MAE across the three seeds is ≤ 0.01; if higher, the script flags a warning and the variance value is reported.  
+  • Compute variance of MAE across the three seeds; if variance > 0.01, the script writes a warning to `logs/seed_variance_warning.log`.  
+  • The CSV contains columns `seed`, `mae`.
 
-- [ ] **T011** [US3] Perform a lightweight hyper‑parameter sensitivity sweep on L2 weight‑decay (values = 0, 1e‑4, 1e‑3). Record MAE for each setting in `results/sensitivity_sweep.csv` and plot MAE vs. decay in `figures/sensitivity.png`.  
+- [ ] **T011** [US3] **L2 weight‑decay sensitivity sweep** – implement `code/training/sensitivity.py` to train the MPNN on a fixed split (1‑1) with L2 values {0, 1e‑4, 1e‑3}. Store MAE per setting in `results/sensitivity_sweep_1_1.csv` and plot `figures/sensitivity_1_1.png`.  
   *File*: `code/training/sensitivity.py`  
   *Verification*:  
-  • Plot file size < 5 MB; CSV conforms to a simple schema (`decay, mae`).  
+  • CSV schema: `decay, mae`.  
+  • Plot file size ≤ 5 MB.
 
-- [ ] **T015** [US1] **Contract Validation** – After each major pipeline stage (download, preprocessing, baseline, GNN training, evaluation, attribution), run a schema validation step against the appropriate contract (`dataset.schema.yaml` or `output.schema.yaml`). Abort on any validation failure.  
+- [ ] **T012** **Contract validation pipeline** – implement `code/validation/validate_contracts.py` that is invoked after every major stage (download, preprocess, split, baseline, training, evaluation, attribution). It validates the newly created files against the appropriate JSON‑Schema, **computes SHA‑256 content hashes for every produced artifact**, and records them in `state/artifact_hashes.json`. It aborts on failure, logging details to `logs/validation_{stage}.log`.  
   *File*: `code/validation/validate_contracts.py`  
   *Verification*:  
-  • Validation script exits with status 0 only if all files pass; logs detailed errors otherwise.  
+  • Returns exit code 0 only when all files pass and hashes are recorded; CI fails otherwise.
 
-- [ ] **T016** [US3] **Entity Usage Traceability** – Verify that each pipeline component consumes and produces the defined entities (`MoleculeGraph`, `PredictionResult`, `FeatureAttribution`) as specified in `data-model.md`. Generate a traceability report `logs/entity_traceability.log`.  
+- [ ] **T013** **Entity traceability report** – implement `code/validation/trace_entities.py` that reads the pipeline configuration, tracks the input and output entity types (`MoleculeGraph`, `PredictionResult`, `FeatureAttribution`) for each script, and writes a human‑readable report `logs/entity_traceability.log`.  
   *File*: `code/validation/trace_entities.py`  
   *Verification*:  
-  • Report lists each stage’s input and output entity types; CI fails if any mismatch is detected.  
+  • CI step fails if any stage consumes or produces an entity not defined in `data-model.md`.
 
-- [ ] **T017** [US2] **External Attribution Validation** – Compare attribution scores for a curated benchmark set of molecules against independent physical measurements (e.g., literature polarizability contributions). Compute correlation (Pearson r) and report significance; require r ≥ 0.6 or flag as limitation.  
-  *File*: `code/models/external_attribution_check.py`  
+- [ ] **T014** **Quick‑start documentation** – write `docs/quickstart.md` that lists the exact commands (with environment variables, seeds, and required package versions) to run the full pipeline from raw download to final figures on a fresh runner.  
   *Verification*:  
-  • Generates `results/attribution_external_validation.csv` with correlation metrics and a pass/fail flag.  
+  • Executing the documented commands on a clean GitHub Actions runner reproduces all files listed in `results/` and `figures/`.  
+  • **Deterministic Check**: CSV and JSON artifacts must have identical SHA‑256 checksums; PNG and PT files must pass schema/size checks.
 
-## Phase 3 – Reproducible results and paper handoff  
-
-- [ ] **T012** Write a **quick‑start** guide (`docs/quickstart.md`) that lists the exact commands to reproduce the full pipeline from raw download to final figures, including required environment variables and seed settings.  
+- [ ] **T015** **Methods & results hand‑off** – draft `paper/hand_off.md` linking each functional requirement FR‑001 – FR‑007 to the concrete artifact that evidences it (e.g., `results/metrics_1_1.csv` for FR‑006). Include statistical test outcomes (p‑values, effect sizes), variance numbers, and a concise discussion of limitations (e.g., dataset size, power).  
   *Verification*:  
-  • Running the documented commands on a fresh runner reproduces all files listed in `results/` and `figures/` with identical checksums.  
+  • All referenced artifacts exist and pass schema validation; the document contains no broken links.
 
-- [ ] **T013** Draft a **methods & results hand‑off** (`paper/hand_off.md`) that links each scientific requirement (FR‑001 – FR‑007) to the concrete artifact that evidences it, cites the statistical test outcomes, and notes any limitations (e.g., power analysis shortfall).  
+- [ ] **T016** **End‑to‑end integration test** – add `code/tests/integration_test.py` that programmatically runs the whole pipeline (download → preprocess → split → baseline → train → evaluate → attribution → plots) for a single small split (e.g., split 1‑1) and asserts the existence and schema compliance of every final artifact.  
+  *File*: `code/tests/integration_test.py`  
   *Verification*:  
-  • The hand‑off references every CSV/PNG produced above and includes the p‑value, effect size, and variance numbers.  
-
-- [ ] **T014** Add integration tests (`code/tests/integration_test.py`) that automatically verify the end‑to‑end data flow: download → preprocess → split → baseline → GNN training → evaluation → attribution → plots. The test asserts the existence and schema compliance of all final artifacts.  
-  *Verification*:  
-  • CI runs the integration test; success means the full pipeline can be executed without manual intervention.  
+  • CI executes this test; success means the pipeline can be reproduced without manual intervention.  
+  • **Success Criteria Assertion**: The script must measure and assert that total wall-clock time is ≤ 6h (SC-004) and peak RAM usage is ≤ 7GB (SC-005).
 
 ---  
 
@@ -114,7 +129,13 @@
 | **FR‑005** (Integrated Gradients) | T008 |
 | **FR‑006** (MAE/RMSE & paired test) | T007 |
 | **FR‑007** (Parity & importance plots) | T009 |
-| **User Story 1** (CPU feasibility, baseline comparison) | T001‑T007 |
-| **User Story 2** (feature attribution) | T008‑T009, T017 |
+| **User Story 1** (CPU feasibility, baseline comparison) | T001‑T007, T016 |
+| **User Story 2** (feature attribution) | T008‑T009 |
 | **User Story 3** (robustness & sensitivity) | T010‑T011 |
-| **Additional compliance** | T015 (contract validation), T016 (entity traceability) |
+| **Additional compliance** | T012 (contract validation), T013 (entity traceability) |
+| **Paper hand‑off** | T014‑T015 |
+| **Reproducibility** | T016 |
+
+---  
+
+*All tasks are expressed as unchecked check‑boxes; they will be marked complete only after the corresponding script runs successfully and the verification steps pass.*
