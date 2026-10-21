@@ -1,2 +1,6 @@
-# Explicit ruff configuration for IDE integration if pyproject.toml is not detected
-extend = "pyproject.toml"
+# Ruff configuration
+# See https://beta.ruff.rs/docs/configuration/ for details
+select = ["E", "F", "W", "C90"]
+ignore = []
+line-length = 88
+target-version = "py311"

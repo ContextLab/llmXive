@@ -1,29 +1,43 @@
 T001a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `src/` and `tests/` directories being present at
-    the repository root is provided; the only material shown is a feature specification,
-    not the filesystem structure. The implementer must add the two directories (with
-    at least placeholder files) to satisfy the task.
+  h: b4978dbe1c378df8c1cb46fbd24d6dae2662959fcbe809b21f93476dc5951087
+  r: "The evidence shows `src/` and `tests/` directories, but they reside inside `projects/PROJ-519-the-influence-of-metaphorical-framing-on/`\
+    \ rather than at the repository\u2019s top\u2011level root as the task requires.\
+    \ Consequently the required directories are not created at the correct location."
+  sig: 8fde493440f5e3699918ab55bc5eb5155938f35a6f14f622cfbd21314194ee07
 T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/` folder with the required subdirectories (`raw`, `processed`,
-    `derived`) is provided; the claim lacks any artifact or file listing confirming
-    the directory structure exists.
+  c: true
+  h: f083ba60086ca08bd2f775ddf780d4bdbb26918413ff9c3318164a19f77281e7
+  r: Checked the `data/` directory (contains `raw/`, `processed/`, `derived/` each
+    with a `.gitkeep` file) and the execution log `code/.tasks/T001b.code_scripts_setup_data_dirs.py.log`
+    confirming the directories were created successfully.
+  sig: 9525c4e3033f946c5904b6fb2e4a484c3570b14b81acbd01f54603769da8868e
 T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `config/` directory being present was provided; the implementer
-    did not supply any artifact showing that the required directory exists. The task
-    remains undone until the `config/` folder is created and visible in the project.
+  c: true
+  h: 181ad61674d8ff8213ab628485080660e8f0803c449a4ff9f88b4f87c2d20896
+  r: The evidence shows a `config/` directory present at the project root containing
+    multiple files (.gitkeep, README.md, __init__.py, analysis_config.yaml, environment.example,
+    logging_config.yaml, simulation_config.yaml), confirming the required directory
+    was created.
+  sig: 9c858b73bc8e3501dbe0ff32017f05d29aa5a62831c651c55a3a204bbdd8156b
+T002:
+  c: true
+  h: 010b3d4d95b53f5a6f71d638782a03661f14fc8ebcfce7909a6d56defb30e8ce
+  r: "The `requirements.txt` file located at `projects/PROJ-519-the-influence-of-metaphorical-framing-on/requirements.txt`\
+    \ exists, is non\u2011empty, and contains exactly the pinned package versions\
+    \ specified in the task (pandas==2.1.0, numpy==1.24.3, scipy==1.11.4, statsmodels==0.14.0,\
+    \ scikit-learn==1.3.2, vaderSentiment==3.3.2, seaborn==0.13.0, matplotlib==3.8.0,\
+    \ pytest==7.4.2, requests==2.31.0, python-dotenv==1.0.0). This satisfies the initialization\
+    \ requirement."
+  sig: 9ea65bce394a61c114ae03898f74d1dcaa413bc882e3b4a6b8dfb7f6a7a3fb58
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.flake8`, or `black` settings) are present, nor any evidence that ruff/flake8
-    and black have been set up for the project. The provided artifacts relate only
-    to the research feature, not to the required linting/formatting setup.
+  h: 8848095a6e7fda9bba129904ddac25fff9e31e2bb63728821857a9808cc74290
+  r: "The evidence contains only the project root path and no linting or formatting\
+    \ configuration files (e.g.,\u202Fruff, flake8, black settings, pre\u2011commit\
+    \ hooks). Without these artifacts, the requirement to configure linting and formatting\
+    \ tools is not satisfied."
+  sig: 38917af48cc816628829643ea1651f7653e063161e20f32b299e57c5b5e2ec2e
 T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -31,6 +45,14 @@ T005:
     \ directories or accompanying `.gitkeep` files is present; the implementer\u2019\
     s claim is not substantiated by any provided artifacts. The task remains undone\
     \ until the directory structure with placeholder files is created in the repository."
+T006:
+  c: true
+  h: 2478a5360ff9810f700717857a56ea3d446106473180a8c88d4527f77b222c2f
+  r: "Checked `config/simulation_config.yaml` (2070\u202Fbytes) and confirmed it defines\
+    \ pinned random seeds, a synthetic data block with `corpus_size: 1000`, and an\
+    \ `execution_limits` section containing `MAX_RUNTIME_SECONDS` and `SAMPLE_SIZE_FALLBACK`.\
+    \ All required elements are present and non\u2011empty."
+  sig: 2df8ba42ad7008e94f9aadc28490ad0dbc6e63e6e51c254ed445444d478c648d
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

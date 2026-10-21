@@ -1,4 +1,2 @@
-# This directory contains configuration files for the project.
-# Do not commit sensitive data (API keys, passwords) here.
-# Use .env for secrets and simulation_config.yaml for parameters.
-.
+Placeholder to ensure the config/ directory is tracked in version control.
+See config/README.md for the directory's purpose and contents.

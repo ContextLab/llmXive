@@ -1,0 +1,5 @@
+# Flake8 configuration
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503
+select = C,E,F,W,B,B950

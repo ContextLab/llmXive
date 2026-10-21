@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create `src/` and `tests/` directories at repository root
-- [ ] T001b [P] Create `data/` directory structure (`raw`, `processed`, `derived`)
-- [ ] T001c [P] Create `config/` directory
+- [X] T001b [P] Create `data/` directory structure (`raw`, `processed`, `derived`)
+- [X] T001c [P] Create `config/` directory
 - [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` containing pinned versions: pandas==2.1.0, numpy==1.24.3, scipy==1.11.4, statsmodels==0.14.0, scikit-learn==1.3.2, vaderSentiment==3.3.2, seaborn==0.13.0, matplotlib==3.8.0, pytest==7.4.2, requests==2.31.0, python-dotenv==1.0.0
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
@@ -60,10 +60,10 @@
 - [ ] T004 Create data schema contracts in `specs/001-metaphor-framing-attitudes/contracts/` (experimental-data.schema.yaml, discourse-data.schema.yaml, statistical-result.schema.yaml)
 - [ ] T005 [P] Setup data directory structure (`data/raw`, `data/processed`, `data/derived`) with `.gitkeep`
 - [X] T006 Create `config/simulation_config.yaml` for pinned random seeds, synthetic data parameters (experimental only), and sampling thresholds (including `corpus_size` default=1000, `MAX_RUNTIME_SECONDS`, `SAMPLE_SIZE_FALLBACK`)
-- [X] T007 Implement base logging and error handling in `src/__init__.py` and `src/utils/logger.py`
+- [~] T007 Implement base logging and error handling in `src/__init__.py` and `src/utils/logger.py`
 - [ ] T008 Setup environment configuration management (dotenv) for API keys (if needed) and paths
-- [X] T015 [P] [US1] Create `src/data_models.py` defining `Participant` and `Vignette` entities (US1 Data Model)
-- [X] T024 [P] [US2] Create `src/data_models.py` (append) defining `DiscoursePost` entity (US2 Data Model)
+- [~] T015 [P] [US1] Create `src/data_models.py` defining `Participant` and `Vignette` entities (US1 Data Model)
+- [~] T024 [P] [US2] Create `src/data_models.py` (append) defining `DiscoursePost` entity (US2 Data Model)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,17 +79,17 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. These are Test Implementation tasks.
 
-- [X] T009 [P] [US1] [Test Implementation] Implement contract test for vignette text integrity (no framing leakage) in `tests/test_vignette_engine.py`
-- [X] T010 [P] [US1] [Test Implementation] Implement integration test for full experimental flow (assignment -> exposure -> scoring) in `tests/test_experimental_flow.py`
+- [~] T009 [P] [US1] [Test Implementation] Implement contract test for vignette text integrity (no framing leakage) in `tests/test_vignette_engine.py`
+- [~] T010 [P] [US1] [Test Implementation] Implement integration test for full experimental flow (assignment -> exposure -> scoring) in `tests/test_experimental_flow.py`
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Create `src/vignette_engine.py` with FR-001: Generate three distinct vignette texts (Battle, Journey, Medical) with constant clinical details and varying metaphors
-- [X] T012 [US1] Implement `src/data_ingestion.py` (Experimental Module) for loading vignette templates from `data/raw/vignettes/`
-- [X] T013 [US1] Create `src/experiment_runner.py` to assign participants to conditions (Battle, Journey, Medical). **Input**: `data/raw/simulated_participants.csv` (if simulating) or `data/raw/survey_responses.json` (if real). **Output**: `data/processed/experimental_assignments.csv`
+- [~] T011 [US1] Create `src/vignette_engine.py` with FR-001: Generate three distinct vignette texts (Battle, Journey, Medical) with constant clinical details and varying metaphors
+- [~] T012 [US1] Implement `src/data_ingestion.py` (Experimental Module) for loading vignette templates from `data/raw/vignettes/`
+- [~] T013 [US1] Create `src/experiment_runner.py` to assign participants to conditions (Battle, Journey, Medical). **Input**: `data/raw/simulated_participants.csv` (if simulating) or `data/raw/survey_responses.json` (if real). **Output**: `data/processed/experimental_assignments.csv`
 - [ ] T013b [US1] Implement `src/survey_interface.py` (or `src/data_collection.py`): Create the mechanism to administer the CAMI scale and help-seeking Likert scale to human participants immediately after vignette exposure (FR-002). This may involve integrating with Qualtrics/Prolific APIs or creating a local web interface. **Input**: `data/processed/experimental_assignments.csv`. **Output**: `data/raw/survey_responses.json`.
 - [ ] T014 [US1] Implement `src/cami_scoring.py` to administer CAMI scale and help-seeking Likert scale immediately after exposure (FR-002). **Input**: `data/raw/survey_responses.json` (raw survey data). **Output**: `data/processed/cami_scores.csv`
-- [X] T014a [US1] Implement `src/data_ingestion.py` (Real Participant Loader): Create logic to load real participant data from `data/raw/survey_responses.json` (schema: participant_id, condition, raw_responses). This task ensures the system can handle actual survey data as required by FR-002 and US-1.
+- [~] T014a [US1] Implement `src/data_ingestion.py` (Real Participant Loader): Create logic to load real participant data from `data/raw/survey_responses.json` (schema: participant_id, condition, raw_responses). This task ensures the system can handle actual survey data as required by FR-002 and US-1.
 - [ ] T016 [US1] Implement data export logic to write raw experimental results to `data/processed/experimental_results.csv` with SHA-256 checksums saved to `data/processed/experimental_results.csv.sha256`
 - [ ] T017 [US1] Add logic to flag attention check failures and identical responses for exclusion (Edge Case)
 - [ ] T017a [US1] Implement `src/data_validation.py` to validate real participant data integrity before analysis (Edge Case).
