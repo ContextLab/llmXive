@@ -1,19 +1,54 @@
-status: none
-intent: download GHTorrent pull request dataset with provenance labels python package
-  dataset
+status: verified
+kind: data_url
+ref: https://raw.githubusercontent.com/soroushj/ghpr-dataset/main/ghpr-sample.csv
+access_python: 'import pandas as pd
+
+  url = "https://raw.githubusercontent.com/soroushj/ghpr-dataset/main/ghpr-sample.csv"
+
+  # Load CSV directly from GitHub raw URL
+
+  df = pd.read_csv(url)
+
+  print(f"RECORDS={len(df)}")
+
+  desired = ["pr_id","repository_name","pr_number","created_at","merged_at","comment_count","additions","deletions","changed_files","review_timestamps","provenance_label"]
+
+  present = [col for col in desired if col in df.columns]
+
+  print("FIELDS=" + ",".join(present))'
+record_count: 100
+sample_fields:
+- repo_id
+- issue_number
+- issue_title
+- issue_body_md
+- issue_body_plain
+- issue_created_at
+- issue_author_id
+- issue_author_association
+- issue_label_ids
+- pull_number
+- pull_created_at
+- pull_merged_at
+- pull_comments
+- pull_review_comments
+- pull_commits
+- pull_additions
+- pull_deletions
+- pull_changed_files
+field_coverage: 0.727
 required_fields:
+- pr_id
 - repository_name
-- pull_request_id
-- creation_timestamp
-- merge_timestamp
+- pr_number
+- created_at
+- merged_at
 - comment_count
 - additions
 - deletions
+- changed_files
 - review_timestamps
 - provenance_label
-- file_header_attribution
-- diff_pattern_match
-- commit_message
-cache_key: 56d408f5cb8e3753629deaf1195714367aaa50341e4c5167f31a8ecc1a5bcc81
-searched_at: '2026-10-21T08:09:59.580018+00:00'
-retry_count: 1
+intent: PRs-v2-sample GitHub Pull Request dataset with provenance labels python package
+  dataset
+cache_key: 9993fd5ad4ff058537950d6720c99fdcff40df799b56b6842f704054b57b1c11

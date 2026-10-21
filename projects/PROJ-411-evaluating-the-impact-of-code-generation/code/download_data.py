@@ -13,13 +13,11 @@ from the primary dataset (loubnabnl/prs‑v2‑sample).
 """
 import argparse
 import hashlib
-import os
 from pathlib import Path
 from typing import Dict, List
 
 import pandas as pd
 import yaml
-import pyarrow  # ensure parquet engine is available
 from huggingface_hub import hf_hub_download, list_repo_files
 
 from llmxive_toolkit import paths, get_logger
@@ -52,7 +50,7 @@ SCHEMA_PATH = (
     / "contracts"
     / "raw_prs.schema.yaml"
 )
-REQUIRED_FIELDS: List[str] = []  # will be populated after loading the schema
+REQUIRED_FIELDS: List[str] = []  # populated at runtime
 
 # Outcome fields that must exist in the primary dataset (FR‑001 scope check)
 PRIMARY_MANDATORY_FIELDS = {"comment_count", "merged_at"}
@@ -89,7 +87,6 @@ def list_parquet_files(repo_id: str) -> List[str]:
     parquet_files = [f for f in files if f.lower().endswith(".parquet")]
     if not parquet_files:
         raise RuntimeError(f"No parquet file found in repository {repo_id}")
-    # Prefer a file named 'data.parquet' if present, but still return all.
     return parquet_files
 
 # ----------------------------------------------------------------------
@@ -107,19 +104,16 @@ def download_and_combine_parquet(repo_id: str, dest_path: Path) -> Path:
         local_path = hf_hub_download(
             repo_id=repo_id, filename=parquet_file, repo_type="dataset"
         )
-        # Read the parquet; let pandas infer engine (pyarrow is installed)
         df = pd.read_parquet(local_path, engine="pyarrow")
         data_frames.append(df)
 
     if not data_frames:
         raise RuntimeError(f"Failed to load any parquet data from {repo_id}")
 
-    # Concatenate all shards (ignore index to avoid duplicate indices)
     combined_df = pd.concat(data_frames, ignore_index=True)
 
     # Ensure destination directory exists
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-    # Write combined DataFrame to parquet (use pyarrow engine)
     combined_df.to_parquet(dest_path, engine="pyarrow", index=False)
     log.info(f"Combined parquet written to {dest_path}")
 
@@ -142,10 +136,7 @@ def validate_columns(df: pd.DataFrame, required: List[str]) -> Dict[str, str]:
       underscore differences)
     - 'missing' otherwise
     """
-    # Build a case‑insensitive lookup of existing columns, normalised
-    existing_norm = {
-        _normalize_name(col): col for col in df.columns
-    }
+    existing_norm = {_normalize_name(col): col for col in df.columns}
     status: Dict[str, str] = {}
     for field in required:
         norm_field = _normalize_name(field)
@@ -193,8 +184,8 @@ def main() -> None:
     for ds in DATASETS:
         repo_id = ds["repo_id"]
         tag = ds["tag"]
-        # Destination filename: replace '/' with '__' to avoid subfolders
-        dest_filename = repo_id.replace("/", "__") + ".parquet"
+        # Destination filename: use only the dataset name (no owner)
+        dest_filename = repo_id.split("/")[-1] + ".parquet"
         dest_path = raw_dir / dest_filename
 
         # Download and combine all parquet shards
