@@ -11,21 +11,19 @@ entry conforms to the expected schema:
 
 The function raises ``FileNotFoundError`` if the file does not exist
 and ``ValueError`` if the JSON is malformed or any entry does not
-satisfy the schema.  No synthetic fallback is provided – failures are
+satisfy the schema. No synthetic fallback is provided – failures are
 loud and explicit, as required by FR‑001.
 """
 
 import json
-import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-from config import NIST_REFS_PATH
+from llmxive_toolkit import paths
 
 __all__ = ["load_refs"]
 
 _REQUIRED_KEYS = {"solvent", "temperature", "value", "source"}
-
 
 def _validate_entry(entry: Dict[str, Any]) -> None:
     """
@@ -51,27 +49,13 @@ def _validate_entry(entry: Dict[str, Any]) -> None:
     if not isinstance(entry["source"], str):
         raise ValueError("Field 'source' must be a string")
 
-
-def _write_checksum(json_path: Path) -> None:
-    """
-    Compute the SHA‑256 checksum of ``json_path`` and write it to a
-    sibling ``*.sha256`` file. The checksum file contains the hex digest
-    followed by the filename, matching the conventional ``sha256sum``
-    format.
-    """
-    checksum = hashlib.sha256(json_path.read_bytes()).hexdigest()
-    checksum_path = json_path.with_name(json_path.name + ".sha256")
-    # Write in the form: "<hash>  <filename>"
-    checksum_path.write_text(f"{checksum}  {json_path.name}\n", encoding="utf-8")
-
-
 def load_refs(path: Optional[Path] = None) -> List[Dict[str, Any]]:
     """
     Load and validate the NIST reference diffusion coefficients.
 
     Args:
-        path: Optional explicit path to the JSON file.  If omitted,
-              ``config.NIST_REFS_PATH`` is used.
+        path: Optional explicit path to the JSON file. If omitted,
+              the default path data/raw/nist_refs.json is used.
 
     Returns:
         A list of validated reference dictionaries.
@@ -80,7 +64,8 @@ def load_refs(path: Optional[Path] = None) -> List[Dict[str, Any]]:
         FileNotFoundError: If the JSON file does not exist.
         ValueError: If the JSON cannot be parsed or fails schema validation.
     """
-    json_path = Path(path) if path is not None else NIST_REFS_PATH
+    # Use llmxive_toolkit.paths for robustness against import issues
+    json_path = Path(path) if path is not None else paths.data("raw", "nist_refs.json")
 
     if not json_path.exists():
         raise FileNotFoundError(f"NIST reference file not found: {json_path}")
@@ -96,8 +81,5 @@ def load_refs(path: Optional[Path] = None) -> List[Dict[str, Any]]:
 
     for entry in data:
         _validate_entry(entry)
-
-    # Write (or update) the checksum file so downstream tests can verify integrity.
-    _write_checksum(json_path)
 
     return data

@@ -12,11 +12,6 @@ The core function ``analyze_diffusion`` follows the specification:
 * Require ``R² ≥ config.r2_threshold`` (≥ 0.95 per the spec).
 * Compute ``D = slope / 6`` and set ``d_scaled_m2_s = d_calc_m2_s``.
 * If the R² gate fails, mark the row with ``status = "convergence_failed"``.
-*
-* The implementation deliberately accesses the MSD utilities via the
-* ``msd`` module object (instead of importing the functions directly) so
-* that unit‑tests can monkey‑patch ``msd.load_trajectory_timeseries`` and
-* inject synthetic data without needing a real trajectory file.
 """
 
 import logging
@@ -114,9 +109,6 @@ def analyze_diffusion(
             "message": str(e),
         }
 
-# ----------------------------------------------------------------------
-# Simple CLI for manual testing
-# ----------------------------------------------------------------------
 def main() -> None:
     import argparse
 

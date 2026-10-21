@@ -1,52 +1,23 @@
 """
-Mock simulation runner for the MD diffusion pipeline.
+Real OpenMM simulation runner for the MD diffusion pipeline.
 
-This implementation replaces the original OpenMM‑based runner which
-required the ``openmm`` package (not available in the execution
-environment).  The function generates a minimal, syntactically valid
-PDB trajectory that can be read by ``mdtraj`` and a simple log file.
-The generated files are written under ``data/raw/simulations`` and
-their paths are returned in the dictionary expected by ``code.pipeline``.
+This module executes a full NPT simulation: minimization, equilibration,
+and production. Trajectories are written as .xtc files using mdtraj.
 """
 
 import time
+import logging
 from pathlib import Path
 from typing import Dict
 
+import mdtraj as md
+from openmm import app, unit, Platform
+from openmm import LangevinMiddleIntegrator, MonteCarloBarostat
+
 from llmxive_toolkit import paths, get_logger
+from .build_system import build_system
 
 logger = get_logger(__name__)
-
-def _write_mock_pdb(trajectory_path: Path, num_frames: int = 5) -> None:
-    """
-    Write a tiny PDB file containing a single atom that moves linearly.
-
-    Parameters
-    ----------
-    trajectory_path : Path
-        Destination file (``.pdb``).
-    num_frames : int
-        Number of ``MODEL`` entries to write.  At least two frames are
-        required for a linear MSD fit.
-    """
-    if num_frames < 2:
-        num_frames = 2
-
-    with trajectory_path.open("w") as f:
-        f.write("HEADER    MOCK TRAJECTORY\n")
-        for i in range(num_frames):
-            # Simple linear displacement: 0.1 Å per frame in each Cartesian direction
-            x = i * 0.1  # Å
-            y = i * 0.1
-            z = i * 0.1
-            f.write(f"MODEL        {i+1}\n")
-            # ATOM line – use standard PDB formatting (columns are important)
-            # Atom serial, atom name, residue name, chain ID, residue seq, x, y, z, occupancy, tempFactor, element
-            f.write(
-                f"ATOM  {i+1:5d}  O   HOH A   1    {x:8.3f}{y:8.3f}{z:8.3f}  1.00  0.00           O\n"
-            )
-            f.write("ENDMDL\n")
-        f.write("END\n")
 
 def run_simulation(
     solvent,
@@ -55,55 +26,79 @@ def run_simulation(
     seed: int = 0,
 ) -> Dict[str, str]:
     """
-    Mock ``run_simulation`` compatible with ``code.pipeline``.
-
-    Parameters
-    ----------
-    solvent : Enum
-        Instance of ``config.Solvent`` – the enum value is used for file naming.
-    config : SimulationConfig
-        Configuration object; only ``force_field`` is consulted for metadata.
-    duration_ns : float
-        Desired simulation length (ns).  The mock runner does **not**
-        perform any dynamics; the value only influences the file name and
-        the number of frames written (more frames for longer runs).
-    seed : int, optional
-        Random seed – kept for API compatibility; not used.
-
-    Returns
-    -------
-    dict
-        Mapping with keys ``trajectory`` and ``log`` pointing to the
-        generated files.
+    Run a seeded NPT Langevin simulation using OpenMM on the CPU.
     """
-    start = time.time()
-    logger.info(
-        f"Mock simulation start – solvent={solvent.value}, duration={duration_ns} ns, seed={seed}"
-    )
+    start_wall = time.time()
+    logger.info(f"Real simulation start: {solvent.value}, {duration_ns}ns, seed={seed}")
 
-    # Determine output locations
+    # 1. Build System
+    system, topology, positions = build_system(solvent, config, seed)
+
+    # 2. Setup Simulation
+    # Pinned temperature and pressure
+    temp = 298.15 * unit.kelvin
+    pressure = 1.0 * unit.bar
+    timestep = 2.0 * unit.femtoseconds
+    
+    integrator = LangevinMiddleIntegrator(temp, 1.0 / unit.picosecond, timestep)
+    integrator.setRandomSeed(seed)
+    
+    # Add Barostat for NPT
+    system.addForce(MonteCarloBarostat(pressure, temp))
+
+    # Force CPU platform
+    platform = Platform.getPlatformByName('CPU')
+    simulation = app.Simulation(topology, system, integrator, platform)
+    simulation.context.setPositions(positions)
+
+    # Output paths
     sim_dir = paths.data("raw", "simulations")
     sim_dir.mkdir(parents=True, exist_ok=True)
-
-    traj_path = sim_dir / f"{solvent.value}_{duration_ns:.1f}ns_seed{seed}.pdb"
+    traj_xtc = sim_dir / f"{solvent.value}_{duration_ns:.1f}ns_seed{seed}.xtc"
     log_path = sim_dir / f"{solvent.value}_{duration_ns:.1f}ns_seed{seed}.log"
+    tmp_dcd = sim_dir / f"tmp_{seed}.dcd"
+    tmp_pdb = sim_dir / f"tmp_{seed}.pdb"
 
-    # Number of frames grows with the requested duration (capped to keep runtime low)
-    frames = max(2, int(duration_ns * 5))  # e.g. 1 ns → 5 frames, 5 ns → 25 frames
+    # 3. Minimization
+    logger.info("Minimizing energy...")
+    simulation.minimizeEnergy()
 
-    _write_mock_pdb(traj_path, num_frames=frames)
+    # 4. Equilibration (short NPT)
+    logger.info("Equilibrating...")
+    simulation.step(500)
 
-    # Write a very small log file containing the wall‑clock time
-    wall_clock = time.time() - start
+    # 5. Production
+    logger.info(f"Running production for {duration_ns} ns...")
+    # Save initial structure for mdtraj
+    with open(tmp_pdb, "w") as f:
+        app.PDBFile.writeFile(simulation.topology, simulation.context.getState(getPositions=True).getPositions(), f)
+
+    # OpenMM native DCD reporter
+    simulation.reporters.append(app.DCDReporter(str(tmp_dcd), 1000))
+    
+    steps = int((duration_ns * unit.nanoseconds) / timestep)
+    simulation.step(steps)
+
+    # 6. Convert DCD to XTC using mdtraj
+    logger.info("Converting trajectory to XTC...")
+    traj = md.load(str(tmp_dcd), top=str(tmp_pdb))
+    traj.save_xtc(str(traj_xtc))
+
+    # Cleanup temporary files
+    tmp_dcd.unlink(missing_ok=True)
+    tmp_pdb.unlink(missing_ok=True)
+
+    # Wall-clock logging
+    end_wall = time.time()
+    wall_clock = end_wall - start_wall
+    
     with log_path.open("w") as log_f:
-        log_f.write(f"Mock simulation completed in {wall_clock:.3f} seconds\\n")
-        log_f.write(f"Solvent: {solvent.value}\\n")
-        log_f.write(f"Duration (ns): {duration_ns}\\n")
-        log_f.write(f"Seed: {seed}\\n")
-        log_f.write(f"Force field: {config.force_field}\\n")
+        log_f.write(f"Wall-clock time: {wall_clock:.3f} seconds\n")
+        log_f.write(f"Solvent: {solvent.value}\n")
+        log_f.write(f"Duration: {duration_ns} ns\n")
+        log_f.write(f"Seed: {seed}\n")
+        if wall_clock > 5.5 * 3600:
+            log_f.write("PERFORMANCE ISSUE: Run exceeded 5.5 hours\n")
 
-    logger.info(
-        f"Mock simulation finished – trajectory={traj_path}, log={log_path}, wall_clock={wall_clock:.3f}s"
-    )
-
-    return {"trajectory": str(traj_path), "log": str(log_path)}
+    logger.info(f"Simulation finished. Wall-clock: {wall_clock:.3f}s")
+    return {"trajectory": str(traj_xtc), "log": str(log_path)}

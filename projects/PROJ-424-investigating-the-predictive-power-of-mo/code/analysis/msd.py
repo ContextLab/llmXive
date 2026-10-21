@@ -129,9 +129,6 @@ def calculate_diffusion_coefficient(slope: float, scaling_factor: float = 1.0) -
     d_m2_per_s = (slope / 6.0) * 1e9
     return d_m2_per_s * scaling_factor
 
-# ----------------------------------------------------------------------
-# Simple sanity‑check entry point (not used by the test suite)
-# ----------------------------------------------------------------------
 def main() -> None:
     """
     Demonstrate the MSD pipeline on a user‑provided trajectory.
