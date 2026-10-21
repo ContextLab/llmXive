@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "BCC Alloy Dataset Schema"
-description: "Schema for the filtered BCC alloy dataset used in the yield strength prediction pipeline."
+description: "Schema for the filtered BCC alloy dataset used in the yield‑strength prediction pipeline."
 type: "object"
 properties:
   system_id:
@@ -9,7 +9,7 @@ properties:
     minLength: 1
   elemental_composition:
     type: "object"
-    description: "Map of element symbol to atomic fraction."
+    description: "Map of element symbol to atomic fraction (sums to 1.0)."
     additionalProperties:
       type: "number"
       minimum: 0
@@ -20,19 +20,22 @@ properties:
     minimum: 0
   yield_definition:
     type: "string"
- description: "Definition of yield strength (e.g., '[deferred] offset')."
+ description: "Textual definition of how yield strength was measured (e.g., \"[deferred] offset\")."
   crystal_structure:
     type: "string"
-    description: "Crystal phase."
+    description: "Crystal phase; must be BCC."
     enum:
       - "BCC"
   source_reference:
     type: "string"
-    description: "DOI or URL of the source."
+    description: "DOI or URL of the source record."
   processing_status:
     type: "string"
+    description: "Pipeline status flag."
     enum:
       - "filtered"
+      - "aggregated"
+      - "engineered"
 required:
   - system_id
   - elemental_composition

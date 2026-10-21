@@ -23,18 +23,6 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
   verified_at: '2026-10-04T22:16:02.652464Z'
-- artifact_hash: cff79a2438d80fbf2be3f3b8c0d21828716c910c7079291a2c04f2d16e9573d4
-  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Expanded dataset of mechanical properties and observed phases of
-    multi-principal element alloys
-  kind: doi
-  value: 10.1038/s41597-020-00768-9
-  verification_status: pending
-  verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
-  verified_at: '2026-10-08T14:34:47.750853Z'
 - artifact_hash: e45fde94d46ff39bd43ed61fc8c297c2e830eddc68e31c9a6fce519d8adf1f2b
   artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/spec.md
   cite_id: c-001
@@ -59,3 +47,60 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
   verified_at: '2026-10-21T21:17:02.777684Z'
+- artifact_hash: 02c5c47e5879dce253e3fba5f84316aba61b22b322f8c64067ff1a26ab5e8789
+  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Expanded dataset of mechanical properties and observed phases of
+    multi-principal element alloys
+  kind: doi
+  value: 10.1038/s41597-020-00768-9
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
+  verified_at: '2026-10-21T21:36:06.509342Z'
+- artifact_hash: dbb1811d7f828f0a5ee645d6f16bcbaf3fbd525fb015f77a947830c43f64f345
+  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/bccnf/MeLiDC-shuffled-completo/resolve/main/data/test-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/62feb077b0c4d449a4537d91/73e26dd65bcee293c72a6953bdbcc0c706b17dc6eebc9e2ec36aa9f19714efe5?xip=3URGp63Eq8w&user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1792622179&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJmZWIwNzdiMGM0ZDQ0OWE0NTM3ZDkxLzczZTI2ZGQ2NWJjZWUyOTNjNzJhNjk1M2JkYmNjMGM3MDZiMTdkYzZlZWJjOWUyZWMzNmFhOWYxOTcxNGVmZTVcXD94aXA9M1VSR3A2M0VxOHcmdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyNjIyMTc5fX19XX0_&Signature=MEUCIQCr34twJ23HIxfW1%7E5gt3uiv2d9ytPUxN-sqOT0oi22PAIgB9dWczO2l1s1fcZ4Ik8I9E4wkR1neaxtEtpUDCiSuD0_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-21T21:36:19.009800Z'
+- artifact_hash: dbb1811d7f828f0a5ee645d6f16bcbaf3fbd525fb015f77a947830c43f64f345
+  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: attachments.tar.gz
+  kind: url
+  value: https://huggingface.co/datasets/slnader/fcc-comments/resolve/main/attachments.tar.gz
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/638795183143f470630e1c21/c23bac26d9130ddc5c7d2080e9e5a7c55d497d21239d337f1c48dc8984f70cfe?response-content-type=application%2Fgzip&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27attachments.tar.gz%3B+filename%3D%22attachments.tar.gz%22%3B&user_id=public&xip=3URGp63Eq8w&Expires=1792622181&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM4Nzk1MTgzMTQzZjQ3MDYzMGUxYzIxL2MyM2JhYzI2ZDkxMzBkZGM1YzdkMjA4MGU5ZTVhN2M1NWQ0OTdkMjEyMzlkMzM3ZjFjNDhkYzg5ODRmNzBjZmVcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZnemlwJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdhdHRhY2htZW50cy50YXIuZ3olM0IrZmlsZW5hbWUlM0QlMjJhdHRhY2htZW50cy50YXIuZ3olMjIlM0ImdXNlcl9pZD1wdWJsaWMmeGlwPTNVUkdwNjNFcTh3IiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI2MjIxODF9fX1dfQ__&Signature=MEUCIFrcXbp26HY7kRxBaBW%7EXEWfJMNbXf4ixrOI0XNkHrIKAiEAyiNhgvaRZvsI47IdUUZlUbKPIAhuQKXg-h2%7EDpeXZuY_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-21T21:36:19.009800Z'
+- artifact_hash: dbb1811d7f828f0a5ee645d6f16bcbaf3fbd525fb015f77a947830c43f64f345
+  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Lexica.art.parquet
+  kind: url
+  value: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6436646268a053f73e754b9d/dcd6a82c536eb8b0a53abc91b06b231a0afafd5c6580f4ecf776ea4e32584202?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Lexica.art.parquet%3B+filename%3D%22Lexica.art.parquet%22%3B&xip=3URGp63Eq8w&Expires=1792622211&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQzNjY0NjI2OGEwNTNmNzNlNzU0YjlkL2RjZDZhODJjNTM2ZWI4YjBhNTNhYmM5MWIwNmIyMzFhMGFmYWZkNWM2NTgwZjRlY2Y3NzZlYTRlMzI1ODQyMDJcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3TGV4aWNhLmFydC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyTGV4aWNhLmFydC5wYXJxdWV0JTIyJTNCJnhpcD0zVVJHcDYzRXE4dyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyNjIyMjExfX19XX0_&Signature=MEQCIE9TWD4F%7EqesLWxBrj7ptfesC3qHhDu4SRMoSYTOPIqKAiAulRfiCKEhI5-0AlPdWLgMEJ1qgv-ZtyWUF5APbPkw0Q__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-21T21:36:19.009800Z'
+- artifact_hash: dbb1811d7f828f0a5ee645d6f16bcbaf3fbd525fb015f77a947830c43f64f345
+  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: Expanded dataset of mechanical properties and observed phases of
+    multi-principal element alloys
+  kind: doi
+  value: 10.1038/s41597-020-00768-9
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
+  verified_at: '2026-10-21T21:36:19.009800Z'

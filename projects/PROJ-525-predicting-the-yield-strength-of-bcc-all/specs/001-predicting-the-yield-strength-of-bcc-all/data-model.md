@@ -3,89 +3,85 @@
 ## Entity Definitions
 
 ### AlloyRecord
-Represents a single alloy entry from the source dataset.
-- `system_id`: `str` (Unique identifier from source)
-- `elemental_composition`: `dict[str, float]` (Element symbol -> Atomic fraction)
-- `yield_strength`: `float` (MPa)
-- `crystal_structure`: `str` (e.g., "BCC", "FCC")
-- `source_reference`: `str` (DOI or URL of source)
-- `yield_definition`: `str` (e.g., "[deferred] offset", "[deferred] offset") - Added to track construct validity.
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `system_id` | `str` | Unique identifier from the source dataset |
+| `elemental_composition` | `dict[str, float]` | Element symbol → atomic fraction (must sum to 1.0) |
+| `yield_strength` | `float` | Yield strength in MPa (positive) |
+| `crystal_structure` | `str` | Must be `"BCC"` for inclusion |
+| `source_reference` | `str` | DOI or URL of original record |
+| `yield_definition` | `str` | Textual description of the yield‑strength measurement method (e.g., `"[deferred] offset"`); required for construct validity |
 
 ### CompositionalDescriptor
-Derived features calculated from `AlloyRecord`.
-- `delta_radius`: `float` (Atomic radius mismatch, %)
-- `vec`: `float` (Valence Electron Concentration)
-- `mixing_entropy`: `float` (J/mol/K)
-- `mixing_enthalpy`: `float` (kJ/mol)
-- `electronegativity_diff`: `float` (Pauling scale)
-- `ilr_transformed_features`: `list[float]` (ILR coordinates)
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `system_id` | `str` | FK to `AlloyRecord` |
+| `delta_radius` | `float` | Atomic radius mismatch (%) |
+| `vec` | `float` | Valence Electron Concentration |
+| `mixing_entropy` | `float` | ΔS<sub>mix</sub> (J mol⁻¹ K⁻¹) |
+| `mixing_enthalpy` | `float` | ΔH<sub>mix</sub> (kJ mol⁻¹) |
+| `electronegativity_diff` | `float` | Difference in Pauling electronegativity |
+| `ilr_transformed_features` | `list[float]` | ILR coordinates of the composition simplex |
 
 ### CombinedFeatureSet
-The concatenated set of ILR and Scalar descriptors used for feature selection.
-- `system_id`: `str`
-- `scalar_features`: `dict[str, float]`
-- `ilr_features`: `list[float]`
-- `combined_vector`: `list[float]` (Concatenated scalar + ilr)
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `system_id` | `str` | FK |
+| `scalar_features` | `dict[str, float]` | Keys: `delta_radius`, `vec`, `mixing_entropy`, `mixing_enthalpy`, `electronegativity_diff` |
+| `ilr_features` | `list[float]` | ILR vector |
+| `combined_vector` | `list[float]` | Concatenation of `scalar_features` values (ordered) + `ilr_features` |
 
 ### ModelPerformance
-Evaluation results for a trained model.
-- `model_type`: `str` (e.g., "RandomForest", "Ridge")
-- `r_squared`: `float` (Mean R² across folds)
-- `mae`: `float` (Mean Absolute Error)
-- `rmse`: `float` (Root Mean Squared Error)
-- `confidence_interval`: `tuple[float, float]` (95% CI for R²)
-- `feature_importance`: `dict[str, float]` (Ranked importance)
-
-### FeatureStability
-Metrics for feature importance stability (SC-003).
-- `rank_std_dev`: `float` (Standard deviation of feature importance ranks across bootstrap resamples)
-- `spearman_correlation`: `float` (Median Spearman correlation of ranks)
-
-### PracticalUtility
-Metrics for practical utility (SC-002).
-- `mae_vs_threshold`: `bool` (True if MAE <= 50 MPa)
-- `mae_value`: `float` (MAE in MPa)
-
-### ThermodynamicParams
-Binary interaction parameters for mixing enthalpy.
-- `element_pair`: `tuple[str, str]` (e.g., ("Fe", "Cr"))
-- `omega_ij`: `float` (kJ/mol)
-
-## Data Flow
-
-1. **Raw Data**: `data/raw/mpea.csv` (or parquet)
-2. **Filtered Data**: `data/processed/bcc_filtered.csv` (BCC only, non-null yield, verified yield definition)
-3. **Feature Data**: `data/processed/features_engineered.csv` (Descriptors + ILR)
-4. **Model Artifacts**: `data/processed/models/` (pickle files)
-5. **Results**: `reports/results.json`
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `model_type` | `str` | `"RandomForest"`, `"GradientBoosting"` or `"Ridge"` |
+| `r_squared` | `float` | Mean R² across CV repeats |
+| `mae` | `float` | Mean Absolute Error (MPa) |
+| `rmse` | `float` | Root Mean Squared Error (MPa) |
+| `confidence_interval` | `tuple[float, float]` | 95 % CI for R² (percentile bootstrap) |
+| `feature_importance` | `dict[str, float]` | Permutation importance scores for top‑5 features |
+| `feature_stability` | `dict` | `rank_std_dev` and `spearman_correlation` (SC‑006) |
+| `practical_utility` | `dict` | `mae_vs_threshold` (bool) and `mae_value` (SC‑002) |
 
 ## Calculations
 
-### Atomic Radius Mismatch (δ)
-$$ \delta = \sqrt{\sum_{i} c_i \left( 1 - \frac{r_i}{\bar{r}} \right)^2} \times 100 $$
-Where $c_i$ is atomic fraction, $r_i$ is atomic radius, $\bar{r} = \sum c_i r_i$.
+All scalar descriptors use elemental properties from the `periodictable` library (static reference). Mixing enthalpy uses binary interaction parameters Ω<sub>ij</sub> stored in `data/raw/nist_janaf_params.json` (FR‑003).
 
-### Valence Electron Concentration (VEC)
-$$ VEC = \sum_{i} c_i \cdot VEC_i $$
+- **Atomic Radius Mismatch (δ)**  
+  $$\delta = \sqrt{\sum_i c_i\Bigl(1-\frac{r_i}{\bar r}\Bigr)^2}\times 100$$  
+  where $c_i$ = atomic fraction, $r_i$ = atomic radius, $\bar r = \sum_i c_i r_i$.
 
-### Mixing Entropy (ΔS_mix)
-$$ \Delta S_{mix} = -R \sum_{i} c_i \ln(c_i) $$
+- **Valence Electron Concentration (VEC)**  
+  $$\text{VEC} = \sum_i c_i \, \text{VEC}_i$$  
 
-### Mixing Enthalpy (ΔH_mix)
-$$ \Delta H_{mix} = \sum_{i \neq j} \Omega_{ij} c_i c_j $$
-Where $\Omega_{ij}$ are binary interaction parameters from `data/raw/nist_janaf_params.json`.
+- **Mixing Entropy (ΔS<sub>mix</sub>)**  
+  $$\Delta S_{mix}= -R \sum_i c_i \ln c_i$$  
+  $R = 8.314\ \text{J mol}^{-1}\text{K}^{-1}$.
 
-### ILR Transformation
-Isometric Log-Ratio transformation applied to the composition vector $x$ to handle closure.
-$$ ilr(x) = V^T \ln(x) $$
-Where $V$ is an orthonormal basis matrix for the simplex.
+- **Mixing Enthalpy (ΔH<sub>mix</sub>)**  
+  $$\Delta H_{mix}= \sum_{i\neq j} \Omega_{ij}\,c_i\,c_j$$  
+  Ω<sub>ij</sub> sourced from `nist_janaf_params.json`.
 
-## Constraints
+- **Electronegativity Difference**  
+  $$\Delta \chi = \sqrt{\sum_i c_i (\chi_i - \bar\chi)^2}$$  
+  where $\chi_i$ is Pauling electronegativity, $\bar\chi = \sum_i c_i \chi_i$.
 
-- **Composition Sum**: All composition rows MUST sum to 1.0 (within tolerance 1e-6).
-- **BCC Filter**: Only rows with `crystal_structure == "BCC"` are included.
-- **Yield Validity**: `yield_strength` MUST be a positive float AND `yield_definition` MUST be verified (e.g., "[deferred] offset").
-- **Feature Selection**: L1/RFE MUST be performed on `CombinedFeatureSet` (ILR + Scalars).
-- **Complementarity**: L1/RFE MUST NOT remove all ILR or all Scalar features (enforced by ComplementarityFailureContract).
-- **Validation**: 5-fold CV MUST be repeated 10 times.
-- **Bootstrap**: 100 resamples MUST be used for CI.
+- **ILR Transformation**  
+  For composition vector $\mathbf{x}$ (length $k$), compute  
+  $$\mathbf{z}=V^\top \ln(\mathbf{x})$$  
+  where $V$ is an orthonormal basis for the $(k-1)$‑simplex (implemented via `skbio.stats.composition.ilr`).
+
+All calculations are vectorised for speed; any domain error (e.g., `log(0)`) triggers the fallback defined in FR‑008 (value = 0.0, log alloy ID).
+
+## Data Flow Summary
+1. **Raw** → `data/raw/mpea.csv` (immutable)  
+2. **Filtered** → `data/processed/bcc_filtered.csv` (FR‑001, FR‑002)  
+3. **Aggregated** → `data/processed/bcc_aggregated.csv` (FR‑007)  
+4. **Engineered** → `data/processed/features_engineered.csv` (FR‑003, FR‑003.1) – produces a `CombinedFeatureSet` per alloy.  
+5. **Model Artifacts** → `data/processed/models/*.pkl` (FR‑005)  
+6. **Results** → `reports/results.json` (FR‑006)
+
+All intermediate files are version‑hashed and logged.
+
+---
+

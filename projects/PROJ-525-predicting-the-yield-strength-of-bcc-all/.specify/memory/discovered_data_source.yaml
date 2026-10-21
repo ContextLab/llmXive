@@ -1,9 +1,14 @@
 status: none
-intent: MPEA alloy dataset Hugging Face python package dataset
+intent: MPEA multi principal element alloys dataset yield strength BCC composition
+  python package dataset
 required_fields:
-- composition
+- alloy_id
+- element_list
+- atomic_fraction
 - crystal_structure
 - yield_strength
-cache_key: f946203f6fce9721eac3c1f4a28eff1a638e9f4c070a8c31a00c1b2acea3d10a
-searched_at: '2026-10-08T14:55:36.318303+00:00'
+- measurement_temperature
+- source_doi
+cache_key: 7f80b4bfde60d6e588279c82b23f6a7f66cf15c2370d2806786c790f168573ee
+searched_at: '2026-10-21T21:24:13.477203+00:00'
 retry_count: 1

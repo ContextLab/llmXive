@@ -1,76 +1,75 @@
 # Research: Predicting Yield Strength of BCC Alloys
 
 ## Overview
-
-This research investigates the relationship between elemental composition and yield strength in BCC alloys using machine learning. The study leverages public datasets to engineer compositional descriptors and train regression models, adhering to strict data hygiene and reproducibility standards.
+The study quantifies how compositional descriptors and ILR‑transformed composition vectors predict the yield strength of body‑centered cubic (BCC) alloys. It follows a strict reproducibility regime, uses only publicly accessible data, and applies rigorous statistical validation.
 
 ## Dataset Strategy
 
-### Verified Datasets
+| Dataset | Verified URL | Status | Notes |
+|---------|--------------|--------|-------|
+| **MPEA Database** | DOI: 10.1038/s41597-020-00768-9 (canonical source identifier required by FR‑001; resolved programmatically at runtime) | **Canonical source; runtime availability check** | Required by FR‑001. The pipeline resolves the DOI to a direct download link at runtime and validates required columns after download. If the file cannot be programmatically downloaded (paywall, credentials), the script halts with `DATA_UNAVAILABLE`. No alternative dataset provides the necessary composition + yield‑strength + BCC label; no substitute is fabricated. |
+| **BCC (parquet) – HuggingFace** | <https://huggingface.co/datasets/bccnf/MeLiDC-shuffled-completo/resolve/main/data/test-00000-of-00001.parquet> | *Unsuitable* | Contains text data, not alloy compositions or yield strength. Not used. |
+| **FCC (gzip) – HuggingFace** | <https://huggingface.co/datasets/slnader/fcc-comments/resolve/main/attachments.tar.gz> | *Unsuitable* | Not BCC, no yield strength. Not used. |
+| **HCP (parquet) – HuggingFace** | <https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet> | *Unsuitable* | Wrong crystal system. Not used. |
 
-The following datasets are the **only** sources permitted for this project. URLs are cited exclusively from the verified list provided in the prompt.
+**Decision/Rationale**  
+The MPEA database (DOI 10.1038/s41597-020-00768-9) is the only source satisfying the variable requirements (elemental composition, yield strength, crystal structure). It is cited by its canonical DOI — the identifier mandated by the spec — and treated as a *runtime* data-availability check rather than a pre-verified direct URL. If unavailable, the project halts gracefully, preserving scientific integrity. Compute feasibility is CPU-first: all methods (scikit-learn regressors, classical statistics) run faithfully on the 2-core CI runner; no GPU escape hatch is needed.
 
-| Dataset Name | Verified URL | Status | Notes |
-| :--- | :--- | :--- | :--- |
-| **MPEA Database** | *NO verified source found* | **Critical Gap** | The spec requires the MPEA database (DOI: 10.1038/s41597-020-00768-9). No direct, open, programmatic download URL was verified. The implementation MUST attempt to fetch via DOI resolver or standard academic repository (e.g., Figshare/Scientific Data) and fail gracefully if not open. |
+### Dataset‑Variable Fit
+Required columns:
+- `elemental_composition` (atomic % per element)  
+- `yield_strength` (MPa)  
+- `crystal_structure` (must equal `"BCC"`)
 
-**Decision/Rationale**:
-The primary source is the MPEA database. Since no verified direct URL exists, the `download.py` script will:
-1. Attempt to resolve the DOI `10.1038/s41597-020-00768-9` using the `crossref` API or direct HTTP GET to the publisher's landing page to locate the data file.
-2. **Yield Definition Verification**: Upon download, the script MUST inspect the raw data to confirm the specific definition of "Yield Strength" (e.g., [deferred] offset, strain rate). If the definition is missing, ambiguous, or non-standard, the pipeline MUST halt with a clear error message "YIELD_DEFINITION_INVALID: Source data lacks standard yield strength definition". This ensures construct validity.
-3. If the data is behind a paywall or requires registration (a fatal feasibility flaw per the plan guidelines), the system MUST halt and report "DATA_UNAVAILABLE: MPEA requires access credentials".
-4. **No Fallback**: No fallback to HuggingFace datasets is permitted. The fallback datasets listed in previous iterations (e.g., 'bccnf/MeLiDC', 'Francesco/bccd') were either NLP datasets or unverified community uploads with no guarantee of containing the required 'Yield Strength' and 'BCC' columns. Using them would violate construct validity. If MPEA is inaccessible, the research question cannot be answered with public data, and the pipeline halts.
-
-**Dataset-Variable Fit**:
-- **Required Variables**: Elemental composition (atomic %), Yield Strength (MPa), Crystal Structure (BCC).
-- **MPEA**: Confirmed to contain these variables in the literature. The MPEA database specifically reports yield strength, but the *specific offset method* must be verified from the raw data to ensure construct validity.
-- **Risk**: If no open dataset contains both composition and yield strength for BCC alloys, the research question cannot be answered with public data. This will be flagged as a "Data Scarcity" failure.
+The MPEA database is documented in the literature to contain these fields; the pipeline validates their presence after download. If a required variable is absent from the downloaded data, the pipeline halts with `DATA_UNAVAILABLE` rather than proceeding on a mismatched dataset.
 
 ## Statistical Rigor
 
-### Multiple Comparison Correction
-- **Method**: Bonferroni correction applies to the family of pairwise model comparisons (RF vs GB, RF vs Ridge, GB vs Ridge) on the primary R² metric. Hyperparameter tuning is limited to a single best configuration per model type to avoid overfitting the validation set in small N scenarios. This approach prioritizes Family-Wise Error control over Type II error, which is acceptable for this exploratory study with limited N.
+| Aspect | Method | Specification |
+|--------|--------|---------------|
+| **Cross‑validation** | Repeated 5‑Fold CV | `n_folds=5`, `n_repeats=10`, `random_state=42` (FR‑005) |
+| **Bootstrap CI** | Percentile method, 1000 resamples of hold‑out predictions (FR‑006) |
+| **Multiple‑Comparison Correction** | Bonferroni correction applied to the three pairwise model‑R² comparisons (RF vs GB, RF vs Ridge, GB vs Ridge) |
+| **Power & Sample‑size** | Minimum N = 80 enforced by FR‑004; if N < 80, pipeline halts with `DATA_SCARCITY`. Honest a priori power analysis on the independent sample size (see plan.md "Statistical Power & Sample-Size Justification"): with N = 80 and ~10–30 predictors, power ≈ 0.80 only for large effects (Cohen's f² ≈ 0.35); power for medium effects (f² ≈ 0.15) is limited (~0.35–0.50). This limitation is explicitly reported in the results. |
+| **Causal Claim Scope** | Observational study; all statements limited to *associational* relationships. Feature importance is reported for predictive insight only (SC‑001). |
+| **Measurement Validity** | Yield strength values are taken directly from the source; the pipeline checks that a `yield_definition` field exists and contains a non‑empty string. If missing, it halts with `YIELD_DEFINITION_INVALID`. |
+| **Collinearity Mitigation** | ILR transformation addresses compositional closure; L1/RFE feature selection removes redundant scalar/ILR features (FR‑003.1). Correlation matrix is logged for reference. |
+| **Confounding Variables** | Testing temperature, strain‑rate, and processing history materially affect yield strength. If the source dataset includes these columns, the pipeline (a) filters to entries measured under standard conditions and logs exclusions, and (b) records the fraction of entries carrying testing-condition metadata in `reports/results.json`. Missing metadata is logged (`CONFOUNDING_METADATA_MISSING`) and reported as a construct-validity limitation of the target variable; it does not cause a halt. |
 
-### Sample Size & Power
-- **Justification**: The spec mandates a minimum of 80 samples (FR-004). This is a hard stop. If N < 80, the pipeline halts. This threshold is derived from the spec's requirement for stratified splitting and statistical validity.
-- **Limitation**: The plan acknowledges that 80 samples is a small dataset for complex ML. The use of **Repeated 5-Fold CV** (n_repeats=10) is specifically chosen to stabilize the *mean* performance estimate and provide a bootstrap distribution for confidence intervals. However, the plan explicitly states that statistical power is limited and results are exploratory. Repeating the k-fold CV 10 times reduces the variance of the *mean* estimate, but does not reduce the variance of the *estimator* itself due to data sparsity. No false claims about variance reduction factors are made.
+## Descriptor Construct Validity (independent literature)
 
-### Causal Inference
-- **Assumption**: This is an **observational** study. The plan explicitly states that results are **associational**. No causal claims (e.g., "Element X causes higher strength") will be made.
-- **Feature Importance**: Reported feature importance is strictly for predictive ranking and MUST NOT be interpreted as causal effect in observational data.
+The scalar descriptors are physically motivated heuristics validated in independent peer-reviewed HEA literature, distinct from the MPEA yield-strength source:
 
-### Measurement Validity
-- **Instruments**: Yield strength values are taken directly from the source dataset. The plan does NOT assume a standard offset but explicitly verifies the definition from the raw data. If the definition is not standard (e.g., [deferred] offset), the pipeline halts.
-- **Descriptors**: Atomic radius, electronegativity, and valence are sourced from standard periodic table references (e.g., `periodictable` library) to ensure consistency and reproducibility.
-- **Thermodynamic Parameters**: Binary interaction parameters (Ω_ij) are sourced from a local `data/raw/nist_janaf_params.json` file included in the repository, as no verified public URL exists. This local file is versioned and checksummed to ensure reproducibility.
+- **δ (atomic radius mismatch)** — lattice distortion / solid-solution strengthening in BCC refractory HEAs (Senkov et al., refractory HEA strengthening studies; Zhang et al., Adv. Eng. Mater. 10 (2008) δ-based solid-solution formation rules).
+- **VEC** — electronic-structure/phase-stability correlation (Guo et al., VEC-based FCC/BCC phase prediction).
+- **ΔS_mix, ΔH_mix** — configurational disorder and thermodynamic interaction (Zhang et al. 2008; George et al., Nat. Rev. Mater. HEA reviews).
+- **Δχ (electronegativity difference)** — chemical/charge-transfer mismatch (Zhang et al. 2008 Δχ rule).
 
-### Predictor Collinearity
-- **Issue**: Compositional data sums to 1.0 (closure), causing inherent multicollinearity.
-- **Mitigation**: The plan mandates **ILR transformation** (FR-003.1) to map compositions to Euclidean space, addressing closure. Additionally, **L1/RFE feature selection** (FR-003.2) will be used to remove redundant features.
-- **Reporting**: If scalar descriptors (e.g., mixing enthalpy) are highly correlated with ILR features, the plan will report the correlation matrix. If L1/RFE removes all ILR or all Scalar features, the pipeline **MUST HALT** (see ComplementarityFailureContract) to enforce FR-003.1's 'complement' requirement. Retraining with a single set is not permitted as it would violate the spec and obscure physical interpretability.
+These are associational predictors, not validated causal mechanisms; the study frames all findings accordingly.
 
 ## Compute Feasibility
 
-- **CPU-First Strategy**: All models (Random Forest, Gradient Boosting, Ridge) are available in `scikit-learn` and run efficiently on CPU.
-- **Scaling**: The dataset is expected to be < 10k rows. Feature engineering (O(N*P)) and training (O(N*P*depth)) will fit within 7 GB RAM and 6 hours.
-- **No GPU Required**: No deep learning (transformers) is planned. The "GPU escape hatch" is not needed for this specific methodology.
+- **CPU‑First**: All models (`RandomForestRegressor`, `GradientBoostingRegressor`, `Ridge`) are from `scikit-learn` and run efficiently on 2 CPU cores. Expected runtime < 4 h for ≤ 10 k rows.
+- **Memory**: Feature matrix size ≤ 10 k × (~30) ≈ 3 MB; well within the 7 GB RAM limit.
+- **No GPU**: No deep‑learning components; GPU escape hatch is unnecessary.
 
 ## Data Availability Plan
 
-1. **Primary**: Attempt to download MPEA via DOI resolver.
-2. **Verify**: Inspect raw data for yield strength definition. Halt if invalid.
-3. **Halt**: If MPEA is inaccessible or yield definition is invalid, halt with "DATA_UNAVAILABLE" or "YIELD_DEFINITION_INVALID". No fallback datasets are used.
-4. **Stream**: If the dataset is large (unlikely for this scope), use `datasets.load_dataset(..., streaming=True)` to avoid loading all into RAM.
-5. **Sample**: If the full dataset exceeds compute limits, a fixed-seed random sample will be taken, with power limitations noted.
-6. **No Synthesis**: No synthetic data will be generated. If data is missing, the pipeline halts.
+1. **Resolve DOI**: `download.py` uses `requests` to resolve the DOI `10.1038/s41597-020-00768-9` to a direct download link. If a link is found, the file is streamed to `data/raw/mpea.csv`.  
+2. **Checksum**: SHA‑256 of the downloaded file is stored in `state/projects/PROJ-525...yaml`.  
+3. **Verification**: After download, the script checks that required columns exist and that `crystal_structure` entries are present.  
+4. **Scarcity Check**: If < 80 BCC rows remain after filtering, the pipeline aborts with the mandated message.  
+5. **Streaming (fallback)**: If the raw file exceeds 7 GB, the loader will stream it row-by-row (though the MPEA size is far smaller).  
+6. **No Synthetic Data**: In any failure scenario (unavailable DOI, missing columns, insufficient rows) the pipeline halts; it never fabricates or substitutes another dataset.
 
 ## Contingency Plan
 
-**Scenario**: MPEA database is inaccessible (paywall, broken DOI, missing data).
-**Action**:
-1. The `download.py` script will attempt to resolve the DOI.
-2. If the data file cannot be retrieved, the script will log "DATA_UNAVAILABLE: MPEA requires access credentials" and exit with code 1.
-3. **No Fallback**: The project will not proceed with alternative datasets (e.g., HuggingFace NLP datasets) as they lack the required physical definitions (Yield Strength, BCC phase).
-4. **Report**: A final report will be generated stating that the research question could not be answered due to data inaccessibility.
+| Failure Mode | Detection | Action |
+|--------------|-----------|--------|
+| DOI resolution returns non‑200 or redirects to a paywall | HTTP status ≠ 200 or missing `Content-Disposition` header | Log `DATA_UNAVAILABLE: MPEA requires access credentials`; exit code 1. |
+| Yield‑definition field absent or non‑standard | After parsing, `yield_definition` column missing or empty | Log `YIELD_DEFINITION_INVALID: Source data lacks standard yield strength definition`; exit code 1. |
+| Post‑filter count < 80 | Count computed after Phase 1 | Log `DATA_SCARCITY: Insufficient BCC alloys (N < 80)`; exit code 1. |
+| Feature selection removes all ILR or all scalar descriptors | After L1/RFE step | Log `COMPLEMENTARITY_FAILURE: Feature selection removed all ILR or all Scalar features`; exit code 1. |
+| Confounding metadata missing when required | Detection of non‑standard testing conditions | Log `CONFOUNDING_METADATA_MISSING`; continue with available data and report the limitation in `reports/results.json` (no halt). |
 
-This contingency ensures the project halts gracefully rather than failing silently or using invalid data, maintaining scientific integrity.
+All failure messages are written to `stderr` as required by the spec.
