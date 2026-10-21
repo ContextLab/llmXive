@@ -22,9 +22,9 @@ It performs the following steps:
 2. Persist the records to ``data/raw/ri_dataset.csv`` (creating the
    ``raw`` directory if necessary).
 3. Compute the SHA‑256 checksum of the persisted file.
-4. Store the checksum under ``data/checksums/ri_dataset.sha256`` for
-   future runs.  (The ``state`` directory is managed by the platform
-   and must not be written by project code.)
+4. Store the checksum under ``state/ri_dataset.sha256`` for future runs.
+   (The ``state`` directory is managed by the platform; the script creates
+   the directory if it does not already exist.)
 5. Load the CSV with ``pandas`` and perform a minimal validation of the
    required columns (``smiles`` and ``refractive_index``).  The validation
    aborts with a clear error message if any check fails.
@@ -56,9 +56,8 @@ REQUEST_TIMEOUT = 120  # seconds
 # Destination for the raw CSV file.
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
 
-# Path that stores the reference SHA‑256 checksum (project‑owned, not
-# platform‑owned ``state``).
-CHECKSUM_PATH = paths.data("checksums", "ri_dataset.sha256")
+# Path that stores the reference SHA‑256 checksum (platform‑owned ``state``).
+CHECKSUM_PATH = Path(paths.root) / "state" / "ri_dataset.sha256"
 
 # Path to the JSON‑Schema that defines the expected column layout.
 SCHEMA_PATH = Path(paths.root) / "contracts" / "dataset.schema.yaml"

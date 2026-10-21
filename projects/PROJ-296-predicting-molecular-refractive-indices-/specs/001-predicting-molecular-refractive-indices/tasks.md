@@ -23,7 +23,7 @@
   • `logs/preprocess_summary.log` records total rows, filtered rows, and excluded rows.  
   • All rows in `filtered.csv` must pass `contracts/dataset.schema.yaml` validation.
 
-- [ ] **T003** [US3] **Scaffold‑based split with zero overlap** – implement `code/data/split.py` to compute Murcko scaffolds, generate **5 random scaffold splits** (seed 100‑104) each repeated **5 times** (inner seed 200‑204), strictly enforcing an **80/10/10 train/val/test ratio**. For each split write `data/splits/train_{i}_{j}.csv`, `val_{i}_{j}.csv`, `test_{i}_{j}.csv` (i = 1..5, j = 1..5).   <!-- FAILED-IN-EXECUTION: code/data/split.py exit=1 -->
+- [ ] **T003** [US3] **Scaffold‑based split with zero overlap** – implement `code/data/split.py` to compute Murcko scaffolds, generate **5 random scaffold splits** (seed 100‑104) each repeated **5 times** (inner seed 200‑204), strictly enforcing an **80/10/10 train/val/test ratio**. For each split write `data/splits/train_{i}_{j}.csv`, `val_{i}_{j}.csv`, `test_{i}_{j}.csv` (i = 1..5, j = 1..5).   <!-- FAILED-IN-EXECUTION: code/data/split.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/split.py exit=1 -->
   *File*: `code/data/split.py`  
   *Verification*:  
   • After each split the script prints the number of unique scaffolds per split and the actual split ratios.  

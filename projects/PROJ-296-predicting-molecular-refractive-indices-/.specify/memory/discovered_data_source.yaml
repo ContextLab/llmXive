@@ -1,10 +1,12 @@
 status: none
-intent: download Open Refractive Index dataset Zenodo CSV SMILES refractive index
-  python package dataset
+intent: Open refractive index dataset download Zenodo Figshare HuggingFace python
+  package dataset
 required_fields:
 - smiles
 - refractive_index
 - temperature
-cache_key: 421092466b84b262c14b2c54db404febeedb67607ca4110aead2f38e5f935c17
-searched_at: '2026-10-21T11:11:56.316715+00:00'
+- molecular_weight
+- compound_id
+cache_key: 48c78a6a815bbf60a4e7a44515d0d8ff023c7b6fa8223a17e69cae254bac56aa
+searched_at: '2026-10-21T11:14:23.588101+00:00'
 retry_count: 1
