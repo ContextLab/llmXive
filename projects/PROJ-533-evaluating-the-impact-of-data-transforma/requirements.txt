@@ -1,4 +1,4 @@
-# Existing dependencies are pre‑installed (numpy, pandas, scipy, scikit-learn, matplotlib, seaborn, statsmodels, pytest, PyYAML, requests, jsonschema, psutil)
-# Additional dependencies required for the updated download script:
-pyarrow>=12.0.0
-# scikit-learn is already present for fetch_openml
+# Project dependencies
+# Existing dependencies (if any) are listed below.
+# Add portalocker for checkpointing file locking.
+portalocker>=2.0
