@@ -1,4 +1,5 @@
-# Existing dependencies are provided by the platform (numpy, pandas, scikit‑learn, etc.)
-# Additional third‑party packages required for real data download:
-biopython>=1.84
-requests>=2.31.0
+pydantic
+pydantic-settings
+python-dotenv
+ruff
+black

@@ -26,70 +26,49 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/cli/main.py --step download_and_align -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 11, in <module>
-    from code.config import load_config, get_species_list
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 16, in <module>
-    from models.species import Species
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/models/species.py", line 9, in <module>
-    from .schemas import Species
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/models/schemas.py", line 20, in <module>
-    from pydantic import BaseModel, Field, field_validator
-ModuleNotFoundError: No module named 'pydantic'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 14, in <module>
+    from code.data.download import download_genomes, download_metabolites
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/download.py", line 14, in <module>
+    from Bio import Entrez
+ModuleNotFoundError: No module named 'Bio'
 
 - python code/cli/main.py --step train_and_evaluate -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 11, in <module>
-    from code.config import load_config, get_species_list
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 16, in <module>
-    from models.species import Species
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/models/species.py", line 9, in <module>
-    from .schemas import Species
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/models/schemas.py", line 20, in <module>
-    from pydantic import BaseModel, Field, field_validator
-ModuleNotFoundError: No module named 'pydantic'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 14, in <module>
+    from code.data.download import download_genomes, download_metabolites
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/download.py", line 14, in <module>
+    from Bio import Entrez
+ModuleNotFoundError: No module named 'Bio'
 
 - python code/cli/main.py --step download_and_align --limit 5 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 11, in <module>
-    from code.config import load_config, get_species_list
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/config.py", line 16, in <module>
-    from models.species import Species
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/models/species.py", line 9, in <module>
-    from .schemas import Species
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/models/schemas.py", line 20, in <module>
-    from pydantic import BaseModel, Field, field_validator
-ModuleNotFoundError: No module named 'pydantic'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 14, in <module>
+    from code.data.download import download_genomes, download_metabolites
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/download.py", line 14, in <module>
+    from Bio import Entrez
+ModuleNotFoundError: No module named 'Bio'
 
 - python -m pytest tests/ -> rc=2
-om .schemas import Species
-code/models/schemas.py:20: in <module>
-    from pydantic import BaseModel, Field, field_validator
-E   ModuleNotFoundError: No module named 'pydantic'
+k:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_project_structure.py:9: in <module>
+    from scripts.setup_project_structure import create_directories, create_init_files
+E   ImportError: cannot import name 'create_directories' from 'scripts.setup_project_structure' (/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/scripts/setup_project_structure.py)
 =========================== short test summary info ============================
-ERROR tests/integration/test_align.py
-ERROR tests/integration/test_quickstart_validation.py
+ERROR tests/integration/test_quickstart_validation.py - TypeError: setup_logg...
 ERROR tests/models/test_models.py
-ERROR tests/models/test_schemas.py
-ERROR tests/test_config.py
-ERROR tests/unit/test_align.py
-ERROR tests/unit/test_alignment_success.py
 ERROR tests/unit/test_cleanup_refactor.py
-ERROR tests/unit/test_config_env.py
 ERROR tests/unit/test_data_hygiene.py - NameError: name 'List' is not defined
 ERROR tests/unit/test_download.py
-ERROR tests/unit/test_edge_cases.py
 ERROR tests/unit/test_env_manager.py
 ERROR tests/unit/test_linting_config.py
-ERROR tests/unit/test_modeling.py
 ERROR tests/unit/test_models.py
-ERROR tests/unit/test_pca_optimization.py
 ERROR tests/unit/test_project_structure.py
-ERROR tests/unit/test_report.py
-ERROR tests/unit/test_train.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 20 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 20 errors in 1.14s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 9 errors in 1.50s ===============================
 
 
 
