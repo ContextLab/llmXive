@@ -17,32 +17,21 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/analysis/resource_constraint_audit.py: synthetic/fake INPUT data not authorized by the spec — “…d earlier if it tried to generate synthetic data.         logger.inf…”
 - code/analysis/resource_constraint_audit.py: synthetic/fake INPUT data not authorized by the spec — “…# 4. Check Synthetic Data Fallback         synthet…”
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/raw/checksums.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 9 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/compliance_check_removed.py: synthetic/fake INPUT data not authorized by the spec — “…Checking {t013_path} for synthetic data fallbacks...")     if t0…”; code/analysis/compliance_check_removed.py: synthetic/fake INPUT data not authorized by the spec — “…tions.append(f"Potential synthetic data usage found: {line.strip…”; code/analysis/resource_constraint_audit.py: synthetic/fake INPUT data not authorized by the spec — “…at {log_path}. Skipping synthetic data check via this path.")…”; every produced artifact is gitignored (data/raw/checksums.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 run-book script(s) missing (plan/impl path mismatch): python code/analysis/power_analysis.py; python code/analysis/model_lrt.py; 4 command(s) failed: python code/main.py (rc=1); python code/ingest/annotate_graph.py (rc=1); python -m pytest tests/unit/ (rc=2); 9 declared deliverable(s) absent: data/processed/accuracy_binned.png; data/processed/accuracy_vs_hop_raw.csv; data/processed/accuracy_vs_hop_raw.png
+**Summary**: 9 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/compliance_check_removed.py: synthetic/fake INPUT data not authorized by the spec — “…Checking {t013_path} for synthetic data fallbacks...")     if t0…”; code/analysis/compliance_check_removed.py: synthetic/fake INPUT data not authorized by the spec — “…tions.append(f"Potential synthetic data usage found: {line.strip…”; code/analysis/resource_constraint_audit.py: synthetic/fake INPUT data not authorized by the spec — “…at {log_path}. Skipping synthetic data check via this path.")…”; 2 run-book script(s) missing (plan/impl path mismatch): python code/analysis/power_analysis.py; python code/analysis/model_lrt.py; 4 command(s) failed: python code/main.py (rc=1); python code/ingest/annotate_graph.py (rc=1); python -m pytest tests/unit/ (rc=2); 9 declared deliverable(s) absent: data/processed/accuracy_binned.png; data/processed/accuracy_vs_hop_raw.csv; data/processed/accuracy_vs_hop_raw.png
 
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
 
-2026-10-21 19:07:32,216 - INFO - Pipeline started
-2026-10-21 19:07:32,216 - INFO - Running T013: Annotate graph...
-2026-10-21 19:07:33,186 - ERROR - Data files not found. Run download_data.py first.
+2026-10-21 19:10:38,381 - INFO - Pipeline started
+2026-10-21 19:10:38,381 - INFO - Running T013: Annotate graph...
+2026-10-21 19:10:39,354 - ERROR - Data files not found. Run download_data.py first.
 
 - python code/ingest/annotate_graph.py -> rc=1
 
-2026-10-21 19:07:33,630 - ERROR - Data files not found. Run download_data.py first.
+2026-10-21 19:10:39,811 - ERROR - Data files not found. Run download_data.py first.
 
 - python code/analysis/power_analysis.py -> rc=2
 
@@ -53,7 +42,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-961-llmxive-follow-up-extending-videokr-towa/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/code/analysis/model_lrt.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/unit/ -> rc=2
-andling.py _
+r-towa/tests/unit/test_t021_small_bin_handling.py _
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/tests/unit/test_t021_small_bin_handling.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
@@ -63,12 +52,11 @@ tests/unit/test_t021_small_bin_handling.py:3: in <module>
     from code.analysis.detect_threshold import detect_threshold, MIN_BIN_SIZE
 E   ImportError: cannot import name 'MIN_BIN_SIZE' from 'code.analysis.detect_threshold' (/home/runner/work/llmXive/llmXive/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/code/analysis/detect_threshold.py)
 =========================== short test summary info ============================
-ERROR tests/unit/test_download_data.py
 ERROR tests/unit/test_sensitivity.py
 ERROR tests/unit/test_setup_directories.py
 ERROR tests/unit/test_t021_small_bin_handling.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 0.88s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 3 errors in 0.60s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -88,7 +76,7 @@ tlib/_fontconfig_pattern.py:92
 ERROR tests/integration/test_pipeline.py
 ERROR tests/integration/test_t021_small_bins.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 2 errors in 1.18s ========================
+======================== 13 warnings, 2 errors in 0.85s ========================
 
 
 
