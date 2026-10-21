@@ -1,14 +1,13 @@
-# Pinned dependencies for the Resting-State fMRI Global Signal analysis pipeline.
-# Install with: pip install -r requirements.txt
 pandas==2.2.2
 numpy==1.26.4
 scikit-learn==1.5.0
 nibabel==5.2.1
 requests==2.32.3
-pyyaml==6.0.1
+pyyaml==6.0.2
 statsmodels==0.14.2
-scipy==1.13.1
-matplotlib==3.8.4
-datasets==2.19.2
-jsonschema==4.22.0
-pytest==8.2.2
+scipy==1.14.1
+matplotlib==3.9.2
+seaborn==0.13.2
+# NOTE: ``datasets`` (HuggingFace) and ``pyarrow`` are intentionally omitted
+# because they require a newer NumPy version than the CI environment provides.
+# The ingestion script now fails loudly if those libraries are needed.

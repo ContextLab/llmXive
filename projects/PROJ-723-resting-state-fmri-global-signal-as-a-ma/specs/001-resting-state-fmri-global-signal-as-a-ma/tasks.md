@@ -18,16 +18,16 @@ The checklist below follows the platform’s research‑phase template (end‑to
 - [X] T001c Create `data/processed/` directory at repository root.  
   *Verification*: Directory exists.
 
-- [X] T001d Create `data/results/` directory at repository root.  
+- [ ] T001d Create `data/results/` directory at repository root.  
   *Verification*: Directory exists.
 
 - [X] T001e Create `tests/` directory at repository root.  
   *Verification*: Directory exists.
 
-- [X] T002 Initialize `requirements.txt` with pinned versions of `pandas`, `numpy`, `scikit-learn`, `nibabel`, `requests`, `pyyaml`, `statsmodels`, `scipy`.  
+- [ ] T002 Initialize `requirements.txt` with pinned versions of `pandas`, `numpy`, `scikit-learn`, `nibabel`, `requests`, `pyyaml`, `statsmodels`, `scipy`.  
   *Verification*: `pip install -r requirements.txt` succeeds on a clean environment.
 
-- [ ] T003 [P] Add a `quickstart.md` that documents the single command `python code/main.py` and the expected top‑level outputs (`data/processed/cleaned_data.csv`, `data/results/final_report.json`).  
+- [ ] T003 [P] Add a `quickstart.md` that documents the single command `python code/main.py` and the expected top‑level outputs (`data/processed/cleaned_data.csv`, `data/results/final_report.json`).   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Verification*: Running the command as described produces the files.
 
 - [ ] T004 Implement `code/config.py` defining project‑wide paths (`data/raw/`, `data/processed/`, `data/results/`), random seeds, and default hyper‑parameters (alpha grid, CV folds).  

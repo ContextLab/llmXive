@@ -1,0 +1,88 @@
+- artifact_path: projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/quickstart.md
+  attempts: 1
+  canonical: cleaned_data.csv contains all required predictors and MWQ score after
+    pipeline execution
+  claim_id: c_fca80780
+  context: "The documentation lists the expected top\u2011level outputs after running\
+    \ the pipeline, beginning with the cleaned_data.csv file."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "After successful execution, the following files will be present: `data/processed/cleaned_data.csv`\
+    \ \u2013 the cleaned subject\u2011level dataset containing all required predictors\
+    \ and the MWQ score."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-21T21:22:30Z'
+- artifact_path: projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/quickstart.md
+  attempts: 1
+  canonical: "final_report.json contains model performance, null-distribution p-values,\
+    \ robustness metrics, and success\u2011criterion status"
+  claim_id: c_87ff18e7
+  context: "The documentation lists the expected top\u2011level outputs after running\
+    \ the pipeline, describing the contents of final_report.json."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "`data/results/final_report.json` \u2013 the aggregated report with model\
+    \ performance, null\u2011distribution p\u2011values, robustness metrics, and success\u2011\
+    criterion status."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-21T21:22:30Z'
+- artifact_path: projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/quickstart.md
+  attempts: 1
+  canonical: pipeline logs detailed messages to data/logs/pipeline.log
+  claim_id: c_a974dcad
+  context: The troubleshooting section notes where detailed log messages are written.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All steps log detailed messages to `data/logs/pipeline.log`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-21T21:22:30Z'
+- artifact_path: projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/quickstart.md
+  attempts: 1
+  canonical: ingestion step raises error when HCP data missing and directs to download
+    script
+  claim_id: c_8084e318
+  context: The troubleshooting guide describes the behavior when required raw data
+    are absent.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If the HCP data has not been downloaded, the ingestion step will raise
+    a clear error pointing you to the download script.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-21T21:22:30Z'
+- artifact_path: projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/quickstart.md
+  attempts: 1
+  canonical: pipeline automatically creates missing data directories
+  claim_id: c_6cfa4cb6
+  context: The troubleshooting guide advises that the pipeline will create missing
+    folders if they do not exist.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Ensure the `data/` directories are writable; the pipeline will create
+    any missing folders automatically.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-21T21:22:30Z'

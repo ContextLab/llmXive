@@ -29,57 +29,43 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/ingestion.py -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/ingestion.py", line 9, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/datasets/__init__.py", line 18, in <module>
-    from .arrow_dataset import Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+2026-10-21 21:22:31,205 INFO __main__: Starting ingestion pipeline...
+2026-10-21 21:22:31,205 ERROR __main__: Ingestion failed: Raw merged CSV not found. Please run the HCP download step (T009) to create 'data/raw/raw_merged.csv' before ingestion.
 
 - python code/modeling.py --data data/processed/cleaned_data.csv -> rc=1
-2026-10-16 00:49:38,432 - __main__ - INFO - Loading data from data/processed/cleaned_data.csv
-2026-10-16 00:49:38,432 - __main__ - ERROR - Cleaned data file not found: data/processed/cleaned_data.csv
 
+2026-10-21 21:22:31,947 INFO __main__: Loading cleaned data from data/processed/cleaned_data.csv
+2026-10-21 21:22:31,947 ERROR __main__: Cleaned data file not found: data/processed/cleaned_data.csv
 
 - python code/main.py -> rc=1
-peline.py", line 8, in <module>
-    from ingestion import generate_cleaned_data, load_hcp_fmri_data, load_mwq_data, validate_schema, join_fmri_mwq_data, apply_motion_exclusion, check_zero_variance_subjects
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/ingestion.py", line 9, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/datasets/__init__.py", line 18, in <module>
-    from .arrow_dataset import Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+2026-10-21 21:22:33,258 INFO main: === Starting Resting‑State fMRI Global Signal Pipeline ===
+2026-10-21 21:22:33,258 INFO main: Project directories verified/created.
+2026-10-21 21:22:33,258 INFO main: Step 1/6: Data ingestion
+2026-10-21 21:22:33,259 INFO run_ingestion_pipeline: Starting ingestion pipeline execution for T016.
+2026-10-21 21:22:33,259 INFO run_ingestion_pipeline: Simulating data flow from T009-T015...
+2026-10-21 21:22:33,260 INFO run_ingestion_pipeline: Motion exclusion: 0 subjects excluded.
+2026-10-21 21:22:33,260 INFO run_ingestion_pipeline: Zero-variance exclusion: 0 subjects excluded.
+2026-10-21 21:22:33,260 INFO run_ingestion_pipeline: Executing T016: Generating cleaned_data.csv...
+2026-10-21 21:22:33,260 ERROR main: ❌ Ingestion failed: generate_cleaned_data() takes 0 positional arguments but 2 were given
 
 - python -m pytest tests/ -v -> rc=2
-lmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
-  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+lobal-signal-as-a-ma/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89
+  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45
-  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+../../.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/matplotlib/_mathtext.py:45
+  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
     ParserElement.enablePackrat()
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 ERROR tests/test_ingestion.py
-ERROR tests/test_ingestion_fail_loudly.py
-ERROR tests/test_ingestion_motion_exclusion.py
-ERROR tests/test_motion_exclusion.py
-ERROR tests/test_t016_cleaned_data.py
+ERROR tests/test_integration.py
+ERROR tests/test_utils.py
 ERROR tests/test_verify_success_criteria.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 6 errors in 2.05s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 14 warnings, 4 errors in 1.07s ========================
 
 
 
@@ -95,12 +81,12 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/cleaned_data.csv` is declared but was NOT written. Scripts referencing it:
     - `code/diagnostics.py` — NOT invoked by the run-book
     - `code/ingestion.py` — IS a run-book command
+    - `code/main.py` — IS a run-book command
     - `code/modeling.py` — IS a run-book command
     - `code/robustness.py` — IS a run-book command
     - `code/run_cleaned_data_generation.py` — NOT invoked by the run-book
     - `code/run_ingestion_pipeline.py` — NOT invoked by the run-book
     - `code/run_integration_test.py` — NOT invoked by the run-book
-    - `code/run_motion_exclusion.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/cleaned_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/residuals.csv` is declared but was NOT written. Scripts referencing it:
     - `code/diagnostics.py` — NOT invoked by the run-book

@@ -1,6 +1,6 @@
 status: none
 intent: Human Connectome Project 1200 resting state fMRI download Mind Wandering Questionnaire
-  dataset python package dataset
+  scores dataset python package dataset
 required_fields:
 - Subject_ID
 - Global_Signal_SD
@@ -9,6 +9,6 @@ required_fields:
 - Sex
 - FD
 - DVARS
-cache_key: c1478462f7ee50af176f427c37e1270389abdfbe164b1aca1f6906c92392d93d
-searched_at: '2026-10-16T00:50:42.567251+00:00'
+cache_key: 02bf9bfae6901114a82e0adaeabad44e7b0978acfba8c0d5f93dbd2ff416fbaa
+searched_at: '2026-10-21T21:23:17.173631+00:00'
 retry_count: 1

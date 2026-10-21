@@ -5,12 +5,21 @@ T001b:
 T001c:
   task: da7221050fd80e78a58adb1b41c07cc3c675b4cd671670f839cc7642c54a0b70
 T001d:
+  reason: "The evidence shows a `data/results/` directory with files, but it exists\
+    \ inside the project subdirectory (`projects/PROJ-723\u2011.../data/results/`),\
+    \ not at the repository\u2019s top\u2011level as the task requires. A top\u2011\
+    level `data/results/` directory is missing."
   task: 22e52a062cb2b23a91b89cb69252aadd32b3f9700626d2dcd9e250d28730a176
 T001e:
   task: 60b3263b0ed8d7fe399c41f0ed63a2cbbb9cf634ae350096d8ac0858b0596c56
 T002:
+  reason: The provided `requirements.txt` exists and contains the required pinned
+    packages (plus extra ones), but there is no evidence (e.g., install logs or command
+    output) showing that `pip install -r requirements.txt` actually succeeded in a
+    clean environment. The verification step is missing.
   task: d7d252684c1ed248c2e0d4c657966999d3b5d6d4d10573e5a85b973777da960d
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 979dbc8f87a6866e50fc705251cdd180620ca5517d860aef9d552fff4eb9db9f
 T004:
   task: a2a28c9b0779cad4d0c68aeaf1b411b66976b7464de3bf56f042e38f45dc57eb

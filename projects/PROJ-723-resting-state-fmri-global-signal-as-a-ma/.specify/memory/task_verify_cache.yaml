@@ -1,52 +1,46 @@
 T001a:
   c: true
-  h: 521d1fd8a5ca5673fd21c3af69aa78880b54d5c72b87639bae12abccf215aaef
-  r: The task T001a only requires creating the `code/` directory at the repository
-    root, and the collector confirms `code/` exists at the project root with 33 non-empty
-    entries (Python modules, config, requirements, etc.). The requirement is fully
-    satisfied; the quality of downstream analysis artifacts is not part of this task's
-    scope.
-  sig: fb3b3cdd5da97d1563eef24fece264f7c62d3000eff771529d4fa44f96bada07
+  h: 4353bdad810983e587c3b6fcc7c4a73c58573b01fd145c4e6e67e54889f29c8a
+  r: "The evidence shows a `code/` directory at the repository root (33 entries, confirmed\
+    \ by the collector) containing Python modules such as `ingestion.py`, `modeling.py`,\
+    \ and others, satisfying the task\u2019s requirement."
+  sig: ebfea16cf148bca7adf4978dd7a412b29d13574b6d2c8ce85b386db0dd5d7812
 T001b:
   c: true
-  h: ff61613d52758cac7dec0d860a1e0f3b0de2a294f4f0916236158cd721e6fb1f
-  r: The collector confirms `data/raw/` exists at the project root (containing a `.gitkeep`
-    marker), and the execution log shows the setup script ran successfully (exit 0)
-    confirming the directory exists. This fully satisfies the task's single requirement
-    of directory creation.
-  sig: c48ad61b4c2687ba88fbc446d350b7c16c29106085556d7ef42f662cbfb1748d
+  h: 697f7237ec7cc693ceb86832107362cf2c865c5b20099f42a1b4ae8a1849e66e
+  r: Checked the `data/raw/` directory (resolved path shows it exists with a `.gitkeep`
+    file). The required directory is present, satisfying the task.
+  sig: dd234c2be6032b95f96fcb4999bf8f117e249e8ad219ac5e002daa4f187c190c
 T001c:
   c: true
-  h: 9cc871737b1e86eed7cfc51a56f7254a135f6c1765ee68a3b73a226e7b0e756e
-  r: "The collector confirms `data/processed/` exists at the project root (containing\
-    \ a `.gitkeep` marker), and the execution log shows `code/setup_processed_dir.py`\
-    \ ran successfully (exit 0) creating/verifying that exact directory. The task's\
-    \ only requirement \u2014 directory existence \u2014 is met."
-  sig: 8129843211c4f8f7031b79b68731fb73260d9d361f7900566f574c279c317429
+  h: 421c72c8e7607ee1660655b44e744b1caad9d7babd345796455bd8ede27dd835
+  r: The collector confirms that the `data/processed/` directory exists at the repository
+    root (contains a `.gitkeep` file). This satisfies the sole requirement of task
+    T001c.
+  sig: d4a75daf70c14e525cac89c488e297afdd49ec2f467cc62563e4df682b157c1a
 T001d:
-  c: true
-  h: a88b8f19ada9c406ceab1fa9da4d58f6ef656a4e8bae5bb1cddd047258bfe97b
-  r: The task only required creating `data/results/` at the repository root, and the
-    collector confirms the directory exists (12 entries including `.gitkeep` and multiple
-    result files), with a logged setup script run exiting 0 confirming its creation.
-    The directory is non-empty and matches the stated requirement.
-  sig: b17535366e38881b6abcd7de36ea0c628f09ef876167da402d75bce393f11a58
+  c: false
+  h: 2c12e00fab474571f6459d8733af1dd6c16345be98354937b7a681813c117f55
+  r: "The evidence shows a `data/results/` directory with files, but it exists inside\
+    \ the project subdirectory (`projects/PROJ-723\u2011.../data/results/`), not at\
+    \ the repository\u2019s top\u2011level as the task requires. A top\u2011level\
+    \ `data/results/` directory is missing."
+  sig: 96dc62d3eb3037b6bedd2b0a3970b9f1290f48d8ac48e6f5a0e93cb15da4caf5
 T001e:
   c: true
-  h: e3d0816e77f183097dbd464d8bab697453d690f02bd506e875e50dbe7594942a
-  r: The `tests/` directory exists at the project root with 31 non-empty entries (conftest.py
-    and numerous test modules), and the historical execution log shows `tests/test_project_structure.py::test_tests_directory_exists`
-    passing (exit 0), directly confirming the task's verification criterion.
-  sig: 6a26c3059d994e2e6fe1e09fab825a3aa0389ad854fdf6d73c773da1f5375874
+  h: 61a2d3fc79a19974aaedff403a4a098d980b81d3ed31dc5c2d244cc111571216
+  r: "The `tests/` directory is present at the repository root (31 entries, confirmed\
+    \ by its SHA\u2011256 hash) and contains numerous test files, satisfying the task\u2019\
+    s sole requirement."
+  sig: ebb183cef37e809eba108ad477234fe53876d6491ef356edf85851ff302509da
 T002:
-  c: true
-  h: 1e83639279ae94d208a6708f73439060ddda03d7c8d74bf37ad33030335cc821
-  r: 'The `requirements.txt` exists at the project root (325 bytes) and contains pinned
-    versions (`==`) for all eight required packages: pandas, numpy, scikit-learn,
-    nibabel, requests, pyyaml, statsmodels, and scipy, plus a few reasonable extras.
-    All pins are valid, mutually compatible release versions, so a clean `pip install
-    -r requirements.txt` would succeed.'
-  sig: aa05c8e6b21f7ed23890d44a7a4637b97489398855b22457adf065fab23904c7
+  c: false
+  h: 6b4c5d4e953183e3ace3d5437cfac735eeb1f4055086d6591f126d9b3f38798b
+  r: The provided `requirements.txt` exists and contains the required pinned packages
+    (plus extra ones), but there is no evidence (e.g., install logs or command output)
+    showing that `pip install -r requirements.txt` actually succeeded in a clean environment.
+    The verification step is missing.
+  sig: 291613a791407f18876b1976be46aea3d6e6f12a8d321af275ff01592e0be14f
 T024:
   c: false
   h: 90ccf1afb57b5f1e9974ced57178ce53909dccfeb94c9681654d5b6ed98811be
