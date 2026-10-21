@@ -1,73 +1,70 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/main.py --step fetch_and_preprocess`
+  - script usage: `main.py [-h] [--config CONFIG]`
+  - argparse error: `main.py: error: unrecognized arguments: --step fetch_and_preprocess`
+- run-book command: `python code/main.py --step feature_selection`
+  - script usage: `main.py [-h] [--config CONFIG]`
+  - argparse error: `main.py: error: unrecognized arguments: --step feature_selection`
+- run-book command: `python code/main.py --step train`
+  - script usage: `main.py [-h] [--config CONFIG]`
+  - argparse error: `main.py: error: unrecognized arguments: --step train`
+- run-book command: `python code/main.py --step analyze`
+  - script usage: `main.py [-h] [--config CONFIG]`
+  - argparse error: `main.py: error: unrecognized arguments: --step analyze`
+- run-book command: `python code/main.py --step verify`
+  - script usage: `main.py [-h] [--config CONFIG]`
+  - argparse error: `main.py: error: unrecognized arguments: --step verify`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 command(s) failed: python code/main.py --step fetch_and_preprocess (rc=1); python code/main.py --step feature_selection (rc=1); python code/main.py --step train (rc=1); 2 declared deliverable(s) absent: data/processed/cluster_map.csv; data/processed/descriptors.parquet
+**Summary**: 6 command(s) failed: python code/main.py --step fetch_and_preprocess (rc=2); python code/main.py --step feature_selection (rc=2); python code/main.py --step train (rc=2); 2 declared deliverable(s) absent: data/processed/cluster_map.csv; data/processed/descriptors.parquet
 
 ## Failing / missing run-book commands
 
-- python code/main.py --step fetch_and_preprocess -> rc=1
+- python code/main.py --step fetch_and_preprocess -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 17, in <module>
-    from data.validate import validate_processed_descriptors, main as validate_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/data/validate.py", line 24, in <module>
-    def _load_descriptor_names_json(json_path: Path) -> List[str]:
-                                                        ^^^^
-NameError: name 'List' is not defined. Did you mean: 'list'?
+usage: main.py [-h] [--config CONFIG]
+main.py: error: unrecognized arguments: --step fetch_and_preprocess
 
-- python code/main.py --step feature_selection -> rc=1
+- python code/main.py --step feature_selection -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 17, in <module>
-    from data.validate import validate_processed_descriptors, main as validate_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/data/validate.py", line 24, in <module>
-    def _load_descriptor_names_json(json_path: Path) -> List[str]:
-                                                        ^^^^
-NameError: name 'List' is not defined. Did you mean: 'list'?
+usage: main.py [-h] [--config CONFIG]
+main.py: error: unrecognized arguments: --step feature_selection
 
-- python code/main.py --step train -> rc=1
+- python code/main.py --step train -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 17, in <module>
-    from data.validate import validate_processed_descriptors, main as validate_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/data/validate.py", line 24, in <module>
-    def _load_descriptor_names_json(json_path: Path) -> List[str]:
-                                                        ^^^^
-NameError: name 'List' is not defined. Did you mean: 'list'?
+usage: main.py [-h] [--config CONFIG]
+main.py: error: unrecognized arguments: --step train
 
-- python code/main.py --step analyze -> rc=1
+- python code/main.py --step analyze -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 17, in <module>
-    from data.validate import validate_processed_descriptors, main as validate_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/data/validate.py", line 24, in <module>
-    def _load_descriptor_names_json(json_path: Path) -> List[str]:
-                                                        ^^^^
-NameError: name 'List' is not defined. Did you mean: 'list'?
+usage: main.py [-h] [--config CONFIG]
+main.py: error: unrecognized arguments: --step analyze
 
-- python code/main.py --step verify -> rc=1
+- python code/main.py --step verify -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 17, in <module>
-    from data.validate import validate_processed_descriptors, main as validate_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/data/validate.py", line 24, in <module>
-    def _load_descriptor_names_json(json_path: Path) -> List[str]:
-                                                        ^^^^
-NameError: name 'List' is not defined. Did you mean: 'list'?
+usage: main.py [-h] [--config CONFIG]
+main.py: error: unrecognized arguments: --step verify
 
 - python -m pytest tests/ -v -> rc=2
-predicting-molecular-polarity-from-smile/lib/python3.11/site-packages/pydantic/deprecated/class_validators.py:235
-  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-091-predicting-molecular-polarity-from-smile/lib/python3.11/site-packages/pydantic/deprecated/class_validators.py:235: PydanticDeprecatedSince20: Pydantic V1 style `@root_validator` validators are deprecated. You should migrate to Pydantic V2 style `@model_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
-    return root_validator()(*__args)  # type: ignore
+validators.py:26
+  /home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/tests/contract/validators.py:26: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
+    class DescriptorMatrix(BaseModel):
+
+tests/contract/validators.py:51
+  /home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/tests/contract/validators.py:51: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
+    class ModelOutput(BaseModel):
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-ERROR tests/contract/test_dataset_schema.py - pydantic.errors.PydanticUserErr...
-ERROR tests/contract/test_model_output.py - pydantic.errors.PydanticUserError...
 ERROR tests/integration/test_full_pipeline.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 4 warnings, 3 errors in 1.20s =========================
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+========================= 2 warnings, 1 error in 0.83s =========================
 
 
 
@@ -80,16 +77,31 @@ ERROR tests/integration/test_full_pipeline.py
 
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
-- **Download / stream** this exact data URL directly (do NOT `pip install` it — it is a data file, not a package): `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm9.csv`
-- **Verified**: streaming a sample yielded **1228** real records with fields: mol_id, smiles, A, B, C, mu, alpha, homo, lumo, gap, r2, zpve, u0, u298, h298, g298, cv, u0_atom, u298_atom, h298_atom, g298_atom.
+- **Install**: add `qm9pack` to the project's `requirements.txt` and `pip install qm9pack`.
+- **Verified**: this loads **130831** real records with fields: XYZ_file, Index, SMILES, InChi, N_atoms, Stoichiometry, Elements, XYZ_Ang, Mulliken_pop, Harmonic_Freq_cmi, RotA_GHz, RotB_GHz, RotC_GHz, Dipole_debye, Polarizability_bohr3, HOMO_au, LUMO_au, HOMO_LUMO_gap_au, R2_bohr2, ZPVE_au, InternalEnergy_0K_au, InternalEnergy_298K_au, Enthalphy_298K_au, GibbsFreeEnergy_298K_au, Heatcapacity_Cv_cal_mol_K, A_xx, A_xy, A_yy, A_xz, A_yz, A_zz.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
-import pandas as pd
-url = 'https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm9.csv'
-df = pd.read_csv(url)
-print(f"RECORDS={len(df)}")
-print('FIELDS=' + ','.join(df.columns.tolist()))
+from qm9pack import get_data
+
+# Load the full QM9 dataset (the typical dataset identifier)
+data = get_data('qm9')
+
+if hasattr(data, "shape"):  # likely a pandas DataFrame or similar array-like
+    count = len(data)
+    fields = list(data.columns)
+elif isinstance(data, (list, tuple)):
+    count = len(data)
+    fields = list(data[0].keys()) if count else []
+elif isinstance(data, dict):
+    count = len(data)
+    first = next(iter(data.values()))
+    fields = list(first.keys()) if isinstance(first, dict) else []
+else:
+    raise TypeError(f"Unsupported data type returned by get_data: {type(data)}")
+
+print(f"RECORDS={count}")
+print("FIELDS=" + ",".join(fields))
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

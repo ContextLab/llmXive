@@ -1,18 +1,22 @@
 T102:
   c: false
-  h: 99f0bd4befb1ba3dca0fa1ed9a2c65cf360135b79184f8e2621db3250ad27003
-  r: The required files `tests/contract/validators.py`, `test_dataset_schema.py` and
-    `test_model_output.py` exist, but `pytest tests/contract/ -q` fails because `validators.py`
-    uses a deprecated `@root_validator` without `skip_on_failure=True`, causing a
-    `PydanticUserError` during import. The contract tests therefore do not pass. Fix
-    the validator definitions (e.g., replace `@root_validator` with `@model_validator`
-    or add the needed flag) so that the tests run successfully.
-  sig: 473797a02bb3ffc340be44311e00fff64887503cd2306a902161517346147801
+  h: ffb30e5a9f1d84a08203408b31cd9fcc9afc9f4a4d6443e1e2cb4caff83f19a7
+  r: "The current `validators.py` was fixed to use Pydantic v2 `@model_validator`\
+    \ (the historical logs show the old `@root_validator` failing), but there is no\
+    \ execution evidence that `pytest tests/contract/ -q` passes after the fix \u2014\
+    \ the only recorded runs both exited with code 2 (collection errors). Moreover,\
+    \ the validators appear mismatched with the real artifacts: `DescriptorMatrix`\
+    \ requires `smiles`, `target`, `stereochemistry_flag`, `flexible_flag` and validates\
+    \ `desc_*` columns, while the actual descriptor matrix (per `data/processed/descriptor_names.json`)\
+    \ uses names like `AUTOCORR2D_1`, `Ch"
+  sig: 05e296f9e08a102422351dfe9a27f4a411d700492a648e5d2482a5b7891fe317
 T103:
   c: false
-  h: 7f24f0e0dbcb13ff9a082c6d184cb3bdf75f001b763062a6f6ee34502e047648
-  r: The `validate.py` script does not import `List`/`Tuple` used in type hints, so
-    it will raise a `NameError` before any validation runs, and the required `data/processed/descriptors.parquet`
-    file is missing, preventing the script from being exercised as specified. Both
-    issues must be fixed for the task to be satisfied.
-  sig: a5cf2adeba8b9a64c400cc4e6e812107698369f5063e1584733a549a94b810b5
+  h: a60df96834e4dea12cd12462ccf141c96dc1e40390ba6720632dde155cbde29a
+  r: "`code/data/validate.py` is missing `import json`, so `_load_descriptor_names_json`\
+    \ would raise `NameError` at runtime \u2014 the script cannot actually load `descriptor_names.json`\
+    \ and the required exit-0/exit-1 behavior is unverified. Additionally, `data/processed/descriptors.parquet`\
+    \ does not exist, so the specified verification command (`python code/data/validate.py\
+    \ data/processed/descriptors.parquet`) cannot succeed, and no execution evidence\
+    \ (exit codes for the valid and corrupted-column cases) was provided."
+  sig: 40f12a7c9dda0a6570862b7697de1a03d9c6fe6cfb365e83368e7a0556e6eafb

@@ -3,18 +3,22 @@ T101:
     exit=1'
   task: 3b593bd71d1df073057ebd891c18944b9fe8aa2511847319a44f55534df59a8c
 T102:
-  reason: The required files `tests/contract/validators.py`, `test_dataset_schema.py`
-    and `test_model_output.py` exist, but `pytest tests/contract/ -q` fails because
-    `validators.py` uses a deprecated `@root_validator` without `skip_on_failure=True`,
-    causing a `PydanticUserError` during import. The contract tests therefore do not
-    pass. Fix the validator definitions (e.g., replace `@root_validator` with `@model_validator`
-    or add the needed flag) so that the tests run successfully.
+  reason: "The current `validators.py` was fixed to use Pydantic v2 `@model_validator`\
+    \ (the historical logs show the old `@root_validator` failing), but there is no\
+    \ execution evidence that `pytest tests/contract/ -q` passes after the fix \u2014\
+    \ the only recorded runs both exited with code 2 (collection errors). Moreover,\
+    \ the validators appear mismatched with the real artifacts: `DescriptorMatrix`\
+    \ requires `smiles`, `target`, `stereochemistry_flag`, `flexible_flag` and validates\
+    \ `desc_*` columns, while the actual descriptor matrix (per `data/processed/descriptor_names.json`)\
+    \ uses names like `AUTOCORR2D_1`, `Ch"
   task: 77d59dafe252262fef0e68c7a20391a78d2df7644fa4c7e75becaf7ddcf8aa1f
 T103:
-  reason: The `validate.py` script does not import `List`/`Tuple` used in type hints,
-    so it will raise a `NameError` before any validation runs, and the required `data/processed/descriptors.parquet`
-    file is missing, preventing the script from being exercised as specified. Both
-    issues must be fixed for the task to be satisfied.
+  reason: "`code/data/validate.py` is missing `import json`, so `_load_descriptor_names_json`\
+    \ would raise `NameError` at runtime \u2014 the script cannot actually load `descriptor_names.json`\
+    \ and the required exit-0/exit-1 behavior is unverified. Additionally, `data/processed/descriptors.parquet`\
+    \ does not exist, so the specified verification command (`python code/data/validate.py\
+    \ data/processed/descriptors.parquet`) cannot succeed, and no execution evidence\
+    \ (exit codes for the valid and corrupted-column cases) was provided."
   task: fa47b103775abf4c24e1151df88da16a712b3320afb0b6e36e95b034220c7cee
 T104:
   task: ac5050944e3a3ac7be80d2103533862692df30fd25a9b32ab462b811ba9149b2

@@ -2,17 +2,17 @@
 T101 – Generate 2‑D descriptor matrix for QM9.
 
 This script fulfills the requirements of task **T101**:
-* Downloads the QM9 dataset using the verified HuggingFace source
-  (`jablonkagroup/qm9`, config `raw_data`) via the `datasets` library.
-* Streams the data to keep RAM usage ≤ 6 GB.
+* Downloads the QM9 dataset from a verified real source
+  (https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm9.csv).
+* Streams the data in chunks to keep RAM usage ≤ 6 GB.
 * Computes ≥ 200 RDKit 2‑D topological descriptors per molecule,
   explicitly excluding any TPSA‑related descriptors and SMARTS‑based
   functional‑group counts.
 * Imputes NaN descriptor values with the column median; rows with > 5 %
   missing descriptor values are dropped and logged.
 * Adds boolean flags:
-  - ``stereochemistry_flag`` – true when the molecule has at least one
-    chiral centre (≤ 5 % of the dataset must be true).
+  - ``stereochemistry_flag`` – true when the molecule has **undefined**
+    stereochemistry (≤ 5 % of the dataset must be true).
   - ``flexible_flag`` – true when the rotatable‑bond count ≥ 5
     (≤ 5 % of the dataset must be true).
 * Persists the ordered list of descriptor names (without the ``desc_``
@@ -33,12 +33,11 @@ import json
 import time
 import logging
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 import psutil
 import pandas as pd
 import numpy as np
-from datasets import load_dataset
 from rdkit import Chem
 from rdkit.Chem import Descriptors, rdMolDescriptors
 
@@ -75,6 +74,12 @@ DESCRIPTOR_EXCLUSIONS = [
     "TPSA_E9",
     "TPSA_E10",
 ]
+# URL of the verified QM9 CSV dataset
+QM9_CSV_URL = (
+    "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm9.csv"
+)
+# Chunk size for streaming CSV – 10 k rows keeps memory low
+CSV_CHUNK_SIZE = 10_000
 
 # -------------------------------------------------------------------------
 # Helper functions
@@ -94,7 +99,9 @@ def get_2d_descriptor_names() -> List[str]:
         for name in all_desc
         if name not in DESCRIPTOR_EXCLUSIONS and "3D" not in name
     ]
-    logger.info(f"Found {len(all_desc)} total descriptors, {len(filtered)} after filtering.")
+    logger.info(
+        f"Found {len(all_desc)} total descriptors, {len(filtered)} after filtering."
+    )
     return filtered
 
 def compute_descriptors(mol: Chem.Mol, names: List[str]) -> Dict[str, float]:
@@ -116,12 +123,17 @@ def compute_descriptors(mol: Chem.Mol, names: List[str]) -> Dict[str, float]:
             result[name] = np.nan
     return result
 
-def has_stereochemistry(mol: Chem.Mol) -> bool:
+def has_undefined_stereochemistry(mol: Chem.Mol) -> bool:
     """
-    Return True if the molecule contains any chiral centre.
+    Return True if the molecule contains any **undefined** stereocenter.
+    RDKit reports undefined centres with the label '?' when
+    ``includeUnassigned=True`` is used.
     """
-    chiral_centers = Chem.FindMolChiralCenters(mol, includeUnassigned=True)
-    return len(chiral_centers) > 0
+    chiral_centers = Chem.FindMolChiralCenters(
+        mol, includeUnassigned=True, useLegacyImplementation=False
+    )
+    # chiral_centers is a list of (atomIdx, label). Undefined = '?'
+    return any(label == "?" for _, label in chiral_centers)
 
 def is_flexible(mol: Chem.Mol) -> bool:
     """
@@ -146,21 +158,19 @@ def generate_descriptors():
     descriptor_names_path.write_text(json.dumps(descriptor_names, indent=2))
     logger.info(f"Descriptor names written to {descriptor_names_path}")
 
-    # Streaming load of QM9
-    logger.info("Opening QM9 dataset (streaming mode)…")
-    ds = load_dataset("jablonkagroup/qm9", "raw_data", streaming=True)
-
     rows: List[Dict] = []
-    stereochem_counts = 0
+    undefined_stereo_counts = 0
     flexible_counts = 0
     total_records = 0
 
-    for split_name, split in ds.items():
-        logger.info(f"Streaming split '{split_name}'")
-        for record in split:
-            smiles = record.get("SMILES")
-            target = record.get("dipole_moment")
-            if smiles is None or target is None:
+    logger.info(f"Streaming QM9 CSV from {QM9_CSV_URL}")
+    # Stream CSV in chunks; this keeps peak RAM well below the 6 GB limit.
+    for chunk in pd.read_csv(QM9_CSV_URL, chunksize=CSV_CHUNK_SIZE):
+        for _, record in chunk.iterrows():
+            smiles = record.get("smiles")
+            # Target dipole moment column in the CSV is named ``mu``
+            target = record.get("mu")
+            if pd.isna(smiles) or pd.isna(target):
                 continue
 
             mol = Chem.MolFromSmiles(smiles)
@@ -176,11 +186,11 @@ def generate_descriptors():
             row.update({f"desc_{k}": v for k, v in desc_vals.items()})
 
             # Flags
-            stereo = has_stereochemistry(mol)
+            undefined_stereo = has_undefined_stereochemistry(mol)
             flex = is_flexible(mol)
-            row["stereochemistry_flag"] = stereo
+            row["stereochemistry_flag"] = undefined_stereo
             row["flexible_flag"] = flex
-            stereochem_counts += int(stereo)
+            undefined_stereo_counts += int(undefined_stereo)
             flexible_counts += int(flex)
 
             rows.append(row)
@@ -226,10 +236,14 @@ def generate_descriptors():
     # -----------------------------------------------------------------
     stereochem_prop = df["stereochemistry_flag"].mean()
     flexible_prop = df["flexible_flag"].mean()
-    logger.info(f"stereochemistry_flag true for {stereochem_prop:.4%} of records")
+    logger.info(
+        f"stereochemistry_flag true for {stereochem_prop:.4%} of records (undefined stereo)"
+    )
     logger.info(f"flexible_flag true for {flexible_prop:.4%} of records")
-    assert stereochem_prop <= 0.05, "stereochemistry_flag exceeds 5 % limit"
-    assert flexible_prop <= 0.05, "flexible_flag exceeds 5 % limit"
+    assert (
+        stereochem_prop <= 0.05
+    ), "stereochemistry_flag exceeds 5 % limit (undefined stereochemistry)"
+    assert flexible_prop <= 0.05, "flexible_flag exceeds 5 % limit (flexibility)"
 
     # -----------------------------------------------------------------
     # Persist results
