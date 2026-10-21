@@ -1,9 +1,9 @@
 # Quickstart: Gut Microbiome and Cognitive Decline Analysis
 
 ## Prerequisites
-- Python 3.11 or later
-- Git
-- ≤ 7 GB free RAM
+- Python 3.11+  
+- Git  
+- ≤ 7 GB free RAM  
 - **Data Access**: The AGP and HRS parquet files are publicly available via HuggingFace (no authentication required).  
 
 ## Setup
@@ -23,17 +23,17 @@ pip install -r code/requirements.txt
 
 ## Data Download (automated)
 
-The pipeline expects the raw files under `data/raw/`. The first script will download them for you:
+The first script fetches the raw files, verifies their SHA‑256 checksums, and records the hashes in the project state file.
 
 ```bash
 python code/01_data_ingestion.py
 ```
 
-- **AGP** → `data/raw/agp.parquet` (from `https://huggingface.co/datasets/eternalaudrey/jump-cp-0016-labelfree-AGP/...`)
-- **HRS** → `data/raw/hrs.parquet` (from `https://huggingface.co/datasets/irenepap/en-it-hrs-data/...`)
-- **BMI supplement** (optional) → `data/raw/bmi.csv`
+- **AGP** → `data/raw/agp.parquet`  
+- **HRS** → `data/raw/hrs.parquet`  
+- **BMI supplement** → `data/raw/bmi.csv`  
 
-The script verifies SHA‑256 checksums (recorded in `state/projects/...yaml`) and logs success.
+If any checksum mismatches, the script aborts with a clear error.
 
 ## Run the Full Analysis
 
@@ -51,7 +51,7 @@ python code/04_predictive_modeling.py
 python code/05_sensitivity_analysis.py
 ```
 
-Each script writes its output to `data/processed/` or `data/results/`. The final summary can be inspected with:
+Each script writes its output to `data/processed/` or `data/results/`. The final markdown summary can be inspected with:
 
 ```bash
 cat data/results/summary.md
@@ -60,19 +60,19 @@ cat data/results/summary.md
 ## Verification
 
 ```bash
-# Run contract tests – will fail if any output does not match the schemas
+# Run contract tests – will fail if any output does not match the schema
 pytest tests/contract/
 ```
 
-All tests should pass (`0 passed, 0 failed`). The CI runner will automatically enforce this step.
+All tests should pass (`0 passed, 0 failed`). The CI runner enforces this step automatically.
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Remedy |
 |---------|--------------|--------|
-| **Fatal Coverage Gap** (`No shared participant IDs`) | The two public datasets do not contain overlapping IDs. | The pipeline aborts with a clear message. To continue, obtain a linked microbiome‑cognition dataset (outside the current spec) and update `spec.md`. |
-| **MemoryError** | Dataset larger than RAM budget. | Reduce taxa with `MAX_TAXA=200` in `02_preprocessing.py` or decrease permutation count (`PERMUTATIONS=500`) in `04_predictive_modeling.py`. |
-| **Merge yields < 500 rows** | Low overlap after age filter. | Verify that the `participant_id` columns are correctly named; otherwise the pipeline will stop as required by FR‑001. |
-| **pytest failures** | Output does not conform to schema. | Re‑run the offending script; check logs for schema‑validation errors. |
+| **Fatal Coverage Gap** (`overlap < 500`) | Datasets do not share enough IDs. | The pipeline aborts with a clear message. Obtain a linked microbiome‑cognition dataset and update `spec.md`. |
+| **MemoryError** | Dataset larger than RAM budget. | Reduce taxa (`MAX_TAXA=200`) in `02_preprocessing.py` or lower permutation count (`PERMUTATIONS=500`) in `04_predictive_modeling.py`. |
+| **Merge yields < 500 rows** | Low overlap after age filter. | Verify column names; the pipeline will stop as required by FR‑001. |
+| **pytest failures** | Output does not conform to `results.schema.yaml`. | Re‑run the offending script; check logs for schema‑validation errors. |
 
 ---
