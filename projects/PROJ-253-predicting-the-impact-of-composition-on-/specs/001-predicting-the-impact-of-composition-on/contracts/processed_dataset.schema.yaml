@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Perovskite Feature Table"
+type: object
+properties:
+  formula:
+    type: string
+    pattern: "^[A-Z][a-z]?[A-Z][a-z]?[A-Z][a-z]?\\d*$"
+    description: "ABX3 stoichiometric chemical formula (e.g., CsPbI3)."
+  dft_band_gap_eV:
+    type: number
+    minimum: 0.0
+    exclusiveMaximum: 6.0
+    description: "DFT‑calculated band gap in electron‑volts; must satisfy 0 < gap < 6."
+  mean_electronegativity:
+    type: number
+  var_electronegativity:
+    type: number
+  mean_atomic_radius:
+    type: number
+  var_atomic_radius:
+    type: number
+  mean_ionization_energy:
+    type: number
+  var_ionization_energy:
+    type: number
+  oxidation_state_variance:
+    type: number
+  goldschmidt_tolerance_factor:
+    type: number
+  octahedral_factor:
+    type: number
+  lead_free:
+    type: boolean
+  source:
+    type: string
+    enum: ["dft23-full", "dftest61523", "dftest61623"]
+  checksum:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+required:
+  - formula
+  - dft_band_gap_eV
+  - mean_electronegativity
+  - var_electronegativity
+  - mean_atomic_radius
+  - var_atomic_radius
+  - mean_ionization_energy
+  - var_ionization_energy
+  - oxidation_state_variance
+  - goldschmidt_tolerance_factor
+  - octahedral_factor
+  - lead_free
+  - source
+  - checksum
+additionalProperties: false
