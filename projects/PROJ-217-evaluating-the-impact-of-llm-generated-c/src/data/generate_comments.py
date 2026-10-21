@@ -5,7 +5,13 @@ from pathlib import Path
 from typing import List, Dict
 
 import tiktoken
-from huggingface_hub import InferenceClient, InferenceError
+from huggingface_hub import InferenceClient
+# In newer versions of huggingface_hub the InferenceError class may not be exported at the top level.
+# We import it lazily for compatibility, but fall back to a generic Exception if unavailable.
+try:
+    from huggingface_hub import InferenceError  # type: ignore
+except Exception:  # pragma: no cover
+    InferenceError = Exception
 
 from llmxive_toolkit import paths, get_logger
 
@@ -21,7 +27,7 @@ BACKOFF_BASE_SECONDS = 60  # exponential backoff base
 def _load_validated_snippets() -> List[Dict]:
     """Load snippets from `data/validated_snippets.jsonl`."""
     input_path = paths.data("validated_snippets.jsonl")
-    snippets = []
+    snippets: List[Dict] = []
     with input_path.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -36,7 +42,7 @@ def _tokenizer():
     try:
         enc = tiktoken.get_encoding("cl100k_base")
     except Exception:
-        # Fallback to the default encoding
+        # Fallback to the default encoding for models that may not have cl100k_base
         enc = tiktoken.encoding_for_model("gpt-4")
     return enc
 
@@ -52,7 +58,7 @@ def _truncate_to_token_limit(code: str, enc) -> str:
 
     # Split into lines and keep adding until limit would be exceeded
     lines = code.splitlines(keepends=True)
-    kept_lines = []
+    kept_lines: List[str] = []
     for line in lines:
         prospective = "".join(kept_lines) + line
         if len(enc.encode(prospective)) > MAX_TOKENS:
@@ -102,7 +108,6 @@ def _generate_llm_comment(code: str) -> str:
 
     for attempt in range(1, RETRY_LIMIT + 1):
         try:
-            # The API returns the generated text (the comment)
             generated = client.text_generation(
                 prompt,
                 model=MODEL_ID,
@@ -112,7 +117,6 @@ def _generate_llm_comment(code: str) -> str:
                 do_sample=False,
                 seed=42,
             )
-            # The returned string may contain trailing newlines or whitespace
             comment = generated.strip()
             return comment
         except (InferenceError, Exception) as e:

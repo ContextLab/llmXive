@@ -1,4 +1,4 @@
-# Project dependencies (pinned where necessary)
+# Project pinned dependencies
 datasets==2.19.0
 pandas==2.2.2
 pyarrow==16.1.0
@@ -14,7 +14,6 @@ scikit-learn==1.5.0
 textstat==0.7.3
 tiktoken==0.7.0
 matplotlib==3.9.0
-# The following are already available in the base environment and thus omitted:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels, seaborn, pytest,
-# PyYAML, requests, jsonschema, psutil
-# llmxive_toolkit is provided by the platform and should not be added here.
+# The following packages are provided by the execution environment and do not need explicit pinning:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil
+# Additional project‑specific packages can be added here as needed.
