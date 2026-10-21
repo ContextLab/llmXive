@@ -1,12 +1,6 @@
 T001:
-  reason: "The `src/data/download.py` script correctly handles downloading, retry\
-    \ logic, column mapping, deterministic sampling, checksum logging, and output\
-    \ files, and the log shows \u2265150 valid snippets. However, the docstring validation\
-    \ function `_is_valid_docstring` does **not** enforce the required \u201C\u2265\
-    \u202F5 tokens\u201D rule, so the validation step is incomplete. Additionally,\
-    \ there is no provided evidence that the pytest `src/tests/test_download.py` was\
-    \ executed and passed. The implementation must be updated to count tokens (e.g.,\
-    \ `len(doc.split()) >= 5`) and the test suite results need to be shown."
+  reason: 'Requested task execution failed; rerun successfully: scripts/run_tests.sh
+    exit=1'
   task: dfd092dced5dd17cce7446259da8d88daf1eb7a5f92c58a86374976191f4f44b
 T002:
   task: 898c91782f7142a27c0b18ba8cb40427b5964678c2f083229ea4512c0c653217

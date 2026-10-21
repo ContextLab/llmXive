@@ -9,7 +9,7 @@ SHA-256 checksums of the source artifact.
 Run via:
     python -m src.data.download
 
-The script exits with a non-zero status if the download fails after
+The script exits with a non‑zero status if the download fails after
 three attempts, or if fewer than 150 valid snippets are obtained.
 """
 
@@ -132,15 +132,22 @@ def _map_columns(df: pd.DataFrame) -> pd.DataFrame:
 def _is_valid_docstring(doc) -> bool:
     """
     Validation rules for a docstring:
-    - Non-empty after stripping.
-    - Does not consist solely of a boilerplate like ``TODO`` (case-insensitive).
-    - Does not look like a bare type signature (heuristic: contains only
+    - Must be a string.
+    - After stripping whitespace and surrounding quotes, it must be non‑empty.
+    - Must contain at least 5 whitespace‑separated tokens.
+    - Must not be a known boiler‑plate like ``TODO`` or ``FIXME`` (case‑insensitive).
+    - Must not look like a bare type signature (heuristic: contains only
       a type name and optional brackets/commas).
     """
     if not isinstance(doc, str):
         return False
+    # Remove surrounding quotes that sometimes appear when the docstring
+    # is stored with extra quoting.
     stripped = doc.strip().strip('"').strip("'").strip()
     if not stripped:
+        return False
+    # Token count rule (≥ 5 tokens)
+    if len(stripped.split()) < 5:
         return False
     lowered = stripped.lower()
     if lowered in {"todo", "todo:", "fixme", "fixme:", "none", "pass", "n/a"}:

@@ -12,10 +12,9 @@ T001:
   sig: 2191be7806f648710ba9f96c6fd053fa7058c5f85a5adf3964ce3c847e92990e
 T012:
   c: true
-  h: 79c459346c983540b827156b7606d6e54b1ee1d92c50bd3c0f5266f5b22af620
-  r: "Checked `src/utils/verify_requirements.py` \u2013 it implements existence, non\u2011\
-    empty, optional SHA\u2011256 checks, returns a boolean, writes to `data/requirements_check.log`,\
-    \ and respects the manifest. The required `requirements.txt` is present and non\u2011\
-    empty, and the script runs successfully (exit code\u202F0) as shown in the execution\
-    \ log."
-  sig: 672280c2a095ae100f01264b71a215b02992c4875e213fb56b37f06082aba8a9
+  h: 8cbb83400f42cc164b8b84046cc156c622a9f1adbbff193ec00a56d08a37dbd2
+  r: "Checked `src/utils/verify_requirements.py` (implementation of existence, non\u2011\
+    empty check, optional SHA\u2011256 verification, boolean return and logging) and\
+    \ `data/requirements_check.log` confirming the script runs and logs the expected\
+    \ failure when `requirements.txt` is empty."
+  sig: ce77b4970a38bd7646d0f95474fd21170277141f01bb001f40e9c55896a7f1b5
