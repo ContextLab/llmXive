@@ -1,22 +1,19 @@
 T001:
-  reason: "The `code/tests/contract/` suite does not pass: `test_cli_run` fails because\
-    \ the `run` sub\u2011command still requires the `--nodes` and `--latency` flags\
-    \ even when the alias flags `--node-count` and `--injected-latency` are used,\
-    \ violating the tiny end\u2011to\u2011end run requirement. Additionally, `code/orchestrator/config.py`\u2019\
-    s `get_config()` expects a `config.yaml` at the project root, but no such file\
-    \ is present, causing the `test_random_seed_is_integer_and_matches_sweep_config`\
-    \ test to error. Adding a proper `config.yaml` (with matching `random_seed`) and\
-    \ adjusting the CLI argument definitions so the"
+  reason: "The repository contains the required quickstart, config, contract validator,\
+    \ and test files, and the CLI code appears to support `--help` and a run sub\u2011\
+    command. However, there is no evidence that the test suite actually passes (no\
+    \ pytest run logs) and the default configuration file `config.yaml` that `get_config()`\
+    \ expects is not present in the listed artifacts, causing the `test_random_seed_is_integer_and_matches_sweep_config`\
+    \ test to fail. Without a confirmed `config.yaml` and proof that `pytest code/tests/contract/`\
+    \ exits with status\u202F0, the task cannot be considered fully completed."
   task: e884b52214a5b7f5436a0114eb7824303a2913e5fba3d839d30ee0936138a5bc
 T002:
-  reason: "The required artifacts fail on multiple counts: (1) no `data/raw/physical_node_*.json`\
-    \ files exist anywhere, so `collect_and_write_metadata` was never successfully\
-    \ run; (2) the actual test file `code/tests/unit/test_node_manager.py` covers\
-    \ only discovery and the factory \u2014 no tests for tool-presence checks, CPU\
-    \ profiling, radio metrics (bandwidth/SNR), or thermal read-outs, and it never\
-    \ uses `mock_nodes.py` or exercises metadata writing; (3) the only execution record\
-    \ (`test_node_manager_extended.py`, exit 1) shows the metadata tests FAILING with\
-    \ `ValidationError: -50.0 is less than the minimum"
+  reason: "The repository lacks the required `contracts/physical-node.schema.yaml`\
+    \ (it is marked MISSING), so schema validation cannot be performed. No `data/raw/physical_node_<ip>.json`\
+    \ files are present, indicating `collect_and_write_metadata` was never exercised,\
+    \ and the supplied unit tests only cover node discovery/factory\u2014not tool\u2011\
+    presence checks, CPU profiling, radio metrics, or thermal read\u2011outs as required.\
+    \ The task therefore remains incomplete."
   task: 84a1cd9c624be555f7aba06b6ba0e64588518351f80f5e5995a05855f0fc2d2e
 T003:
   reason: "`data/raw/dropout_events.json` is MISSING \u2014 the task requires it to\

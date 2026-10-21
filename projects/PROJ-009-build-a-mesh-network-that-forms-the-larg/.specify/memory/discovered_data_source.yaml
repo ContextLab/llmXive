@@ -1,17 +1,17 @@
 status: none
-intent: download DistributedExecutionLog dataset with CPU utilization packet counts
-  timestamps python package
+intent: EdgeBench Raspberry Pi performance execution log dataset network packet CPU
+  utilization python package dataset
 required_fields:
 - node_id
-- ip_address
 - timestamp
-- wall_clock_time
+- task_id
+- task_chunk_id
+- wall_clock_time_seconds
 - packet_count
 - cpu_utilization_percent
 - memory_usage_mb
-- task_id
-- task_status
 - heartbeat_timestamp
-cache_key: 75922944f24c1d72eeea7f7e6b6003122cbbd6931569f794dccf39a6d317b179
-searched_at: '2026-10-20T21:20:08.356938+00:00'
+- status
+cache_key: 546a43ff7092318c7dab2706305c22f4a98de33cb68be734dbd08eca48e25ba5
+searched_at: '2026-10-21T07:28:43.819283+00:00'
 retry_count: 1

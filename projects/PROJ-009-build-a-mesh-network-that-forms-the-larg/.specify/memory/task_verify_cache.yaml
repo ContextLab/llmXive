@@ -1,27 +1,13 @@
-T001:
-  c: false
-  h: 63b3a934d703d39f59ae103e1f1aabd4d5b25932153a08d471e7cb5b73637815
-  r: "The `code/tests/contract/` suite does not pass: `test_cli_run` fails because\
-    \ the `run` sub\u2011command still requires the `--nodes` and `--latency` flags\
-    \ even when the alias flags `--node-count` and `--injected-latency` are used,\
-    \ violating the tiny end\u2011to\u2011end run requirement. Additionally, `code/orchestrator/config.py`\u2019\
-    s `get_config()` expects a `config.yaml` at the project root, but no such file\
-    \ is present, causing the `test_random_seed_is_integer_and_matches_sweep_config`\
-    \ test to error. Adding a proper `config.yaml` (with matching `random_seed`) and\
-    \ adjusting the CLI argument definitions so the "
-  sig: b4832e75b2bfcf7574d37a9457dd7ac6df4ffb0355452f8e5ca3047171612962
 T002:
   c: false
-  h: b63e8f4a6d81a5b3d40687b9408e572a8ed679fe94dd44dcd1d1479f51e7f4e9
-  r: "The required artifacts fail on multiple counts: (1) no `data/raw/physical_node_*.json`\
-    \ files exist anywhere, so `collect_and_write_metadata` was never successfully\
-    \ run; (2) the actual test file `code/tests/unit/test_node_manager.py` covers\
-    \ only discovery and the factory \u2014 no tests for tool-presence checks, CPU\
-    \ profiling, radio metrics (bandwidth/SNR), or thermal read-outs, and it never\
-    \ uses `mock_nodes.py` or exercises metadata writing; (3) the only execution record\
-    \ (`test_node_manager_extended.py`, exit 1) shows the metadata tests FAILING with\
-    \ `ValidationError: -50.0 is less than the minimum "
-  sig: 1bb8e4b3c79446de6a736933fb925647dac7257a423587027704a677af6f9c19
+  h: 1985475bd5d63380fce58425abf34f991426e9641f2b4f4df8015a4314e5068a
+  r: "The repository lacks the required `contracts/physical-node.schema.yaml` (it\
+    \ is marked MISSING), so schema validation cannot be performed. No `data/raw/physical_node_<ip>.json`\
+    \ files are present, indicating `collect_and_write_metadata` was never exercised,\
+    \ and the supplied unit tests only cover node discovery/factory\u2014not tool\u2011\
+    presence checks, CPU profiling, radio metrics, or thermal read\u2011outs as required.\
+    \ The task therefore remains incomplete."
+  sig: 28bd2c8fdd681308b30d16ea5ef9e35821a3184c3887747e6c0722309eca5d8d
 T003:
   c: false
   h: c7bb31daaef28781353afcdddab8cf4f5b3092495b2e9dece209580e5713142a

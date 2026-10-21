@@ -14,8 +14,8 @@ The implementation follows the specification for task T002:
 - Thermal indicator check (non‑fatal)
 - Remote ``tcpdump`` packet counting and ``mpstat`` CPU parsing with strict regexes
 - High‑resolution wall‑clock timing
-- Metadata collection per node, written to ``data/raw/physical_node_<ip>.json`` and
-  validated against the schema.
+- Metadata collection per node, written to ``data/raw/physical_node_<ip>.json``
+  and validated against the schema.
 - Imports ``instrumentor`` for future extension (instrumentation lives there).
 
 The discovery logic has been refined to:
@@ -27,10 +27,12 @@ The discovery logic has been refined to:
 """
 from __future__ import annotations
 
+import argparse
 import json
 import logging
 import re
 import socket
+import sys
 import time
 import threading
 from dataclasses import dataclass, field
@@ -699,3 +701,47 @@ def create_node_manager(config: Optional[Dict[str, Any]] = None) -> NodeManager:
     If ``config`` is omitted, the manager uses the default timeout of 5 seconds.
     """
     return NodeManager(config=config)
+
+
+# ----------------------------------------------------------------------
+# CLI entry point for verification (--verify)
+# ----------------------------------------------------------------------
+def _cli_main() -> None:
+    parser = argparse.ArgumentParser(description="Node manager verification utility")
+    parser.add_argument(
+        "--verify",
+        action="store_true",
+        help="Discover nodes from the global config and write per‑node metadata files",
+    )
+    args = parser.parse_args()
+
+    if not args.verify:
+        parser.print_help()
+        sys.exit(1)
+
+    manager = create_node_manager()
+    ip_list = manager._load_config_node_ips()
+    if not ip_list:
+        get_logger(__name__).error("No node IPs found in configuration.")
+        sys.exit(1)
+
+    try:
+        discovery = manager.discover_nodes(ip_list)
+    except NodeDiscoveryError as e:
+        get_logger(__name__).error(str(e))
+        sys.exit(1)
+
+    # Write metadata only for nodes that are online
+    for entry in discovery:
+        if entry["status"] == "online":
+            try:
+                manager.collect_and_write_metadata(entry["ip"])
+            except Exception as exc:
+                get_logger(__name__).error(f"Failed to collect metadata for {entry['ip']}: {exc}")
+                sys.exit(1)
+
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    _cli_main()

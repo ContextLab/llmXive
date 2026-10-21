@@ -5,3 +5,4 @@ benchmark:
 analysis:
   max_runtime_hours: 6
 ci_timeout_seconds: 21600
+random_seed: 42

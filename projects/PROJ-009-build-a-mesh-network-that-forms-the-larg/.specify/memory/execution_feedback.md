@@ -1,38 +1,38 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- every produced artifact is gitignored (data/raw/dropout_events.json, data/raw/run_001.csv, data/raw/validation_status.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
-- run-book command: `python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100`
-  - script usage: `orchestrator run [-h] --config CONFIG --granularity`
-  - argparse error: `orchestrator run: error: the following arguments are required: --nodes, --latency`
 - run-book command: `python -m pytest tests/integration/ -v --mock-testbed`
   - argparse error: `__main__.py: error: unrecognized arguments: --mock-testbed`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 command(s) failed: python code/orchestrator/node_manager.py --verify (rc=1); python code/orchestrator/cli.py calibrate --config config.yaml (rc=1); python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 (rc=2); 3 declared deliverable(s) absent: data/raw/cpu_calibration.json; data/raw/network_calibration.json; data/runtime/pipeline_runtime.json
+**Summary**: every produced artifact is gitignored (data/raw/dropout_events.json, data/raw/run_001.csv, data/raw/validation_status.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python code/orchestrator/node_manager.py --verify (rc=1); python code/orchestrator/cli.py calibrate --config config.yaml (rc=1); python code/analysis/theoretical_bound.py  --input data/processed/regression_model.json  --config config.yaml (rc=1); 3 declared deliverable(s) absent: data/raw/cpu_calibration.json; data/raw/network_calibration.json; data/runtime/pipeline_runtime.json
 
 ## Failing / missing run-book commands
 
 - python code/orchestrator/node_manager.py --verify -> rc=1
+2026-10-21 07:27:51 - llmXive.__main__ - ERROR - No node IPs found in configuration.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/node_manager.py", line 41, in <module>
-    from paramiko import SSHClient, AutoAddPolicy, SSHException
-ModuleNotFoundError: No module named 'paramiko'
+2026-10-21 07:27:51,112 ERROR llmXive.__main__: No node IPs found in configuration.
 
 - python code/orchestrator/cli.py calibrate --config config.yaml -> rc=1
 
-2026-10-20 21:19:12,533 INFO orchestrator.calibration: Starting calibration procedures
-2026-10-20 21:19:12,533 ERROR __main__: Calibration routine failed: [Errno 2] No such file or directory: 'iperf3'
-
-- python code/orchestrator/cli.py run  --config config.yaml  --granularity fine  --node-count 15  --injected-latency 100 -> rc=2
-
-usage: orchestrator run [-h] --config CONFIG --granularity
-                        {fine,medium,coarse} --nodes NODES --latency LATENCY
-orchestrator run: error: the following arguments are required: --nodes, --latency
+2026-10-21 07:27:51,313 INFO orchestrator.calibration: Starting calibration procedures
+2026-10-21 07:27:51,313 ERROR __main__: Calibration routine failed: [Errno 2] No such file or directory: 'iperf3'
 
 - python code/analysis/theoretical_bound.py  --input data/processed/regression_model.json  --config config.yaml -> rc=1
 
@@ -48,7 +48,9 @@ Traceback (most recent call last):
 FileNotFoundError: Input file not found: data/processed/regression_model.json
 
 - python -m pytest tests/unit/ -v -> rc=2
-ase-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
+ortlib._bootstrap>:690: in _load_unlocked
+    ???
+/home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
     exec(co, module.__dict__)
 tests/unit/test_timeout_guard.py:8: in <module>
     from orchestrator.timeout_guard import (
@@ -59,16 +61,13 @@ ERROR tests/unit/test_heartbeat_monitoring.py
 ERROR tests/unit/test_instrumentor_remote.py
 ERROR tests/unit/test_models.py
 ERROR tests/unit/test_monte_carlo.py
-ERROR tests/unit/test_node_profiler.py
-ERROR tests/unit/test_remote_tool_installer.py
-ERROR tests/unit/test_remote_wall_clock_timer.py
-ERROR tests/unit/test_scheduler.py
+ERROR tests/unit/test_remote_wall_clock_timer.py - NameError: name 'pytest' is not defined
 ERROR tests/unit/test_scheduler_execution.py
 ERROR tests/unit/test_scheduler_straggler.py
 ERROR tests/unit/test_sweep_runner.py
 ERROR tests/unit/test_timeout_guard.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 13 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 13 errors in 0.92s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 10 errors in 1.17s ==============================
 
 
 - python -m pytest tests/contract/ -v -> rc=2
@@ -91,7 +90,7 @@ E   ImportError: cannot import name 'ExecutionRun' from 'orchestrator.models' (/
 =========================== short test summary info ============================
 ERROR tests/contract/test_execution_run_schema.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.12s ===============================
+=============================== 1 error in 0.16s ===============================
 
 
 - python -m pytest tests/integration/ -v --mock-testbed -> rc=4

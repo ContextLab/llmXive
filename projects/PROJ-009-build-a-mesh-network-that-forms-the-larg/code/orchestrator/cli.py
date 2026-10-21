@@ -188,17 +188,17 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["fine", "medium", "coarse"],
         help="Granularity setting for the benchmark"
     )
-    # Primary flag names
+    # Primary flag names – made optional; we enforce presence later
     run_parser.add_argument(
         "--nodes",
         type=int,
-        required=True,
+        required=False,
         help="Number of nodes to involve in the run"
     )
     run_parser.add_argument(
         "--latency",
         type=int,
-        required=True,
+        required=False,
         help="Injected network latency in milliseconds"
     )
     # Back‑compatible aliases (used by older run‑book commands)
@@ -264,6 +264,11 @@ def _handle_verify(args: argparse.Namespace) -> int:
 @enforce_pipeline_timeout(18000)  # 5 h default; hard CI cap enforced inside decorator
 def _handle_run(args: argparse.Namespace) -> int:
     """Handle the ``run`` sub‑command."""
+    # Ensure required node/latency arguments are present (support aliases)
+    if args.nodes is None or args.latency is None:
+        log.error("Both --nodes (or --node-count) and --latency (or --injected-latency) must be provided")
+        return 1
+
     # Load the (optional) max runtime from the config, cap at 6 h
     try:
         from orchestrator.config import load_config
