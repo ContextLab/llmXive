@@ -64,42 +64,106 @@ def allocate_scaffolds(
     rng: random.Random,
 ) -> tuple[list[int], list[int], list[int]]:
     """
-    Allocate whole scaffolds to train/val/test respecting the target
-    molecule counts as closely as possible while keeping the
-    80/10/10 ratio within a 1 % tolerance.
+    Allocate whole scaffolds to train/val/test while keeping the
+    train/val/test ratios within a 1 % absolute tolerance.
 
-    The algorithm shuffles the scaffold list deterministically and then
-    assigns scaffolds sequentially: first to the training set until the
-    target is reached (or exceeded by at most one scaffold), then to the
-    validation set, and the remainder to the test set.
+    The algorithm shuffles scaffold identifiers deterministically,
+    then greedily assigns each scaffold to the split that still has
+    a deficit relative to its target count, respecting the tolerance.
     """
+    # Desired counts (rounded to nearest integer)
     target_train = int(round(ratios[0] * total_len))
     target_val = int(round(ratios[1] * total_len))
-    # The test target is whatever is left.
     target_test = total_len - target_train - target_val
 
-    # Deterministically shuffle scaffold identifiers.
-    scaffolds = list(scaffold_to_indices.keys())
-    rng.shuffle(scaffolds)
+    # Allowed deviation in number of records (1 % of total, rounded down)
+    dev = max(1, int(total_len * 0.01))
 
     train_idx: list[int] = []
     val_idx: list[int] = []
     test_idx: list[int] = []
 
+    # Deterministically shuffle scaffold identifiers.
+    scaffolds = list(scaffold_to_indices.keys())
+    rng.shuffle(scaffolds)
+
+    # Helper to decide if adding a scaffold keeps the split within tolerance
+    def fits(split_len: int, split_target: int, scaffold_size: int) -> bool:
+        new_len = split_len + scaffold_size
+        lower = split_target - dev
+        upper = split_target + dev
+        return lower <= new_len <= upper
+
+    # First pass: try to fill train then val, fall back to test.
     for scaf in scaffolds:
         indices = scaffold_to_indices[scaf]
+        sz = len(indices)
 
-        # Prefer to fill the training set first, then validation,
-        # finally test.  If adding the whole scaffold would overshoot
-        # the target by a large margin we still add it (scaffold must stay
-        # intact) – the final verification step will catch any excessive
-        # deviation (>1 %).
-        if len(train_idx) < target_train:
-            train_idx.extend(indices)
-        elif len(val_idx) < target_val:
-            val_idx.extend(indices)
-        else:
+        # Try to place in train if it still needs molecules
+        if len(train_idx) < target_train - dev:
+            if fits(len(train_idx), target_train, sz):
+                train_idx.extend(indices)
+                continue
+            # If it would overshoot the upper bound, try val
+            if len(val_idx) < target_val - dev and fits(len(val_idx), target_val, sz):
+                val_idx.extend(indices)
+                continue
+            # Otherwise assign to test (will be adjusted later if needed)
             test_idx.extend(indices)
+            continue
+
+        # Train is within tolerance; try val
+        if len(val_idx) < target_val - dev:
+            if fits(len(val_idx), target_val, sz):
+                val_idx.extend(indices)
+                continue
+            # Overshoot? try test
+            test_idx.extend(indices)
+            continue
+
+        # Both train and val satisfied; put remaining in test
+        test_idx.extend(indices)
+
+    # Second pass: if any split is still below its lower bound, move scaffolds
+    # from the largest split (test first, then val) to satisfy the deficit.
+    def move_from(source: list[int], dest: list[int], needed: int) -> None:
+        """Move whole scaffolds from source to dest until dest reaches needed."""
+        # Build reverse map: index -> scaffold key for quick lookup
+        idx_to_scaf = {}
+        for sc, inds in scaffold_to_indices.items():
+            for i in inds:
+                idx_to_scaf[i] = sc
+        # Iterate over source indices and relocate whole scaffolds
+        i = 0
+        while len(dest) < needed and i < len(source):
+            idx = source[i]
+            scaf = idx_to_scaf[idx]
+            inds = scaffold_to_indices[scaf]
+            # Remove all of these indices from source
+            for ind in inds:
+                if ind in source:
+                    source.remove(ind)
+            # Add them to destination
+            dest.extend(inds)
+            # Reset i because source list changed
+            i = 0
+
+    # Ensure lower bounds are met
+    lower_train = target_train - dev
+    lower_val = target_val - dev
+    lower_test = target_test - dev
+
+    if len(train_idx) < lower_train:
+        move_from(test_idx, train_idx, lower_train)
+    if len(val_idx) < lower_val:
+        move_from(test_idx, val_idx, lower_val)
+    # After possible moves, recompute test size; if still too small, pull from train/val
+    if len(test_idx) < lower_test:
+        # Prefer moving from the larger of train/val
+        if len(train_idx) > len(val_idx):
+            move_from(train_idx, test_idx, lower_test)
+        else:
+            move_from(val_idx, test_idx, lower_test)
 
     return train_idx, val_idx, test_idx
 

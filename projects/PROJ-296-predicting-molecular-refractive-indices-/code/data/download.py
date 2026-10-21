@@ -23,8 +23,8 @@ It performs the following steps:
    ``raw`` directory if necessary).
 3. Compute the SHA‑256 checksum of the persisted file.
 4. Store the checksum under ``state/ri_dataset.sha256`` for future runs.
-   (The ``state`` directory is managed by the platform; the script creates
-   the directory if it does not already exist.)
+   (The ``state`` directory is managed by the platform; the script
+   creates the directory only if it does not already exist.)
 5. Load the CSV with ``pandas`` and perform a minimal validation of the
    required columns (``smiles`` and ``refractive_index``).  The validation
    aborts with a clear error message if any check fails.
@@ -57,7 +57,7 @@ REQUEST_TIMEOUT = 120  # seconds
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
 
 # Path that stores the reference SHA‑256 checksum (platform‑owned ``state``).
-CHECKSUM_PATH = Path(paths.root) / "state" / "ri_dataset.sha256"
+CHECKSUM_PATH = paths.state("ri_dataset.sha256")
 
 # Path to the JSON‑Schema that defines the expected column layout.
 SCHEMA_PATH = Path(paths.root) / "contracts" / "dataset.schema.yaml"
@@ -81,6 +81,8 @@ def load_expected_checksum() -> str | None:
 
 def write_checksum(checksum: str) -> None:
     """Write *checksum* to the checksum file."""
+    # ``paths.state`` already points inside the platform‑owned ``state`` folder.
+    # Ensure the parent exists (the platform will usually have it, but be safe).
     CHECKSUM_PATH.parent.mkdir(parents=True, exist_ok=True)
     CHECKSUM_PATH.write_text(checksum + "\n", encoding="utf-8")
     log.info(f"Wrote checksum to {CHECKSUM_PATH}")
@@ -88,16 +90,20 @@ def write_checksum(checksum: str) -> None:
 
 def _sparql(query: str) -> dict:
     """Run a SPARQL query against Wikidata and return the JSON bindings."""
-    response = requests.get(
-        SPARQL_ENDPOINT,
-        params={"query": query, "format": "json"},
-        headers={
-            "Accept": "application/sparql-results+json",
-            "User-Agent": USER_AGENT,
-        },
-        timeout=REQUEST_TIMEOUT,
-    )
-    response.raise_for_status()
+    try:
+        response = requests.get(
+            SPARQL_ENDPOINT,
+            params={"query": query, "format": "json"},
+            headers={
+                "Accept": "application/sparql-results+json",
+                "User-Agent": USER_AGENT,
+            },
+            timeout=REQUEST_TIMEOUT,
+        )
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        log.error(f"Failed to query Wikidata SPARQL endpoint: {exc}")
+        raise RuntimeError("Unable to retrieve data from Wikidata.") from exc
     return response.json()
 
 
@@ -160,7 +166,7 @@ def download_dataset() -> pd.DataFrame:
 
     if not records:
         raise RuntimeError(
-            "No usable (SMILES, refractive index) pairs were returned by Wikidata."
+            "No usable (SMILES, RI) pairs were returned by Wikidata."
         )
 
     df = pd.DataFrame(records)

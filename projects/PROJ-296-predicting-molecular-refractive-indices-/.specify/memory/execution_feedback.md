@@ -29,22 +29,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/split.py --folds 5 --repeats 5 --ratios 0.8 0.1 0.1 -> rc=1
 
-2026-10-21 11:13:34,189 INFO __main__: Loaded processed dataset with 224 records.
-2026-10-21 11:13:34,189 INFO __main__: Computing Murcko scaffolds for all molecules...
-[11:13:34] WARNING: not removing hydrogen atom without neighbors
-[11:13:34] WARNING: not removing hydrogen atom without neighbors
-[11:13:34] WARNING: not removing hydrogen atom without neighbors
-[11:13:34] WARNING: not removing hydrogen atom without neighbors
-[11:13:34] WARNING: not removing hydrogen atom without neighbors
-[11:13:34] WARNING: not removing hydrogen atom without neighbors
+2026-10-21 12:11:22,507 INFO __main__: Loaded processed dataset with 224 records.
+2026-10-21 12:11:22,507 INFO __main__: Computing Murcko scaffolds for all molecules...
+[12:11:22] WARNING: not removing hydrogen atom without neighbors
+[12:11:22] WARNING: not removing hydrogen atom without neighbors
+[12:11:22] WARNING: not removing hydrogen atom without neighbors
+[12:11:22] WARNING: not removing hydrogen atom without neighbors
+[12:11:22] WARNING: not removing hydrogen atom without neighbors
+[12:11:22] WARNING: not removing hydrogen atom without neighbors
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/split.py", line 298, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/split.py", line 362, in <module>
     _run_split_generation(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/split.py", line 200, in _run_split_generation
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/split.py", line 264, in _run_split_generation
     verify_split(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/split.py", line 136, in verify_split
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-296-predicting-molecular-refractive-indices-/code/data/split.py", line 200, in verify_split
     raise AssertionError(
-AssertionError: train split ratio 0.978 deviates >1 % from target 0.800.
+AssertionError: val split ratio 0.031 deviates >1 % from target 0.100.
 
 - python training/train.py --fold $i --repeat $j --epochs 200 --batch-size 32 --seed $((2000 + i*10 + j)) -> rc=2
 

@@ -1,12 +1,12 @@
 T002:
-  c: true
-  h: 273939bd3befa28360791c3c391fc8feb7722628a264ae288bc94ddd7f9b81da
-  r: "The script `code/data/preprocess.py` implements all five requirements (RDKit\
-    \ parsing with a dedicated failed-parsing logger, MW \u2265 500 Da filter, temperature\
-    \ normalization with a flagging fallback, node/edge features, z-scored molecular\
-    \ weight), and the run record shows it executed successfully (exit 0, 224 rows\
-    \ kept, 4 excluded) producing `data/processed/filtered.csv`, whose sampled contents\
-    \ match the required columns and the `contracts/dataset.schema.yaml` structure\
-    \ (validated in-script both per-row and post-write). The only gap is that `logs/preprocess_summary.log`\
-    \ and `logs/failed_parsing.l"
-  sig: 79a121956c99a8b0a5f22d69a398f12a75a192ffa13be53bdc1e996f5c9c17ca
+  c: false
+  h: 99e83c22b4b89d25da30c43d2b04673f32e8e3b797c174a8ccaa555bf2255b4e
+  r: "The script and `data/processed/filtered.csv` exist with real RDKit-derived node/edge\
+    \ features and z-scored MW, but the required log artifacts (`logs/preprocess_summary.log`\
+    \ and `logs/failed_parsing.log`) are absent from the evidence, so there is no\
+    \ record of total/filtered/excluded row counts. Moreover, the code's `SCHEMA_PATH`\
+    \ points to `specs/001-.../contracts/dataset.schema.yaml` rather than the actual\
+    \ `contracts/dataset.schema.yaml`, and its fallback only catches `yaml.YAMLError`\
+    \ (not `FileNotFoundError`), suggesting validation ran against the minimal fallback\
+    \ schema \u2014 indeed, rows like `C"
+  sig: fa98d87e699a2b1278c610d56c95b703251f2cf76b3ba6cadcc60b69b7c91e83
