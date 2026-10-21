@@ -22,7 +22,7 @@
 - [ ] Hedges' g calculated with small-sample correction
 - [ ] Random-effects model used if I² > 50%
 - [ ] Subgroup analysis for mindfulness components and delivery formats
-- [ ] Follow-up duration analysis (3-month vs. others)
+- [ ] Follow-up duration analysis (short‑term vs. others)
 - [ ] If N < 10, switch to descriptive synthesis (no meta-regression)
 
 ### US3: Visualization and Publication Bias Assessment (P3)

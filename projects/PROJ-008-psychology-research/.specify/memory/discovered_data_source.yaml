@@ -1,19 +1,19 @@
 status: none
-intent: download OpenTrials clinical trials dataset pip package integrating ClinicalTrials.gov
-  and OSF APIs python package dataset
+intent: ClinicalTrials.gov OSF clinical trial project metadata collector python package
+  dataset
 required_fields:
-- NCT_ID
-- StudyTitle
-- OverallStatus
-- StudyType
-- Phase
-- Conditions
-- Interventions
-- PrimaryOutcome
-- SecondaryOutcomes
-- Enrollment
-- StartDate
-- CompletionDate
-cache_key: 65a9d9d6eb135e124b553cd93af9b216d4bb95e1a337ec89bf8ae9060c777980
-searched_at: '2026-10-15T04:18:51.133500+00:00'
+- nct_id
+- trial_title
+- overall_status
+- start_date
+- completion_date
+- sponsor
+- condition
+- intervention
+- outcome_measures
+- osf_id
+- osf_title
+- osf_description
+cache_key: 873fb2fdd6901ddaf2615148ff585f896d8866bf8a996c9f3017a754e1f76de7
+searched_at: '2026-10-21T06:12:56.896185+00:00'
 retry_count: 1

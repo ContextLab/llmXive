@@ -10,6 +10,7 @@ required:
   - "n_control"
   - "delivery_format"
   - "included"
+  - "social_skill_domain"
 properties:
   study_id:
     type: "string"
@@ -54,4 +55,11 @@ properties:
     type: "boolean"
   exclusion_reason:
     type: "string"
+  abstract_only:
+    type: "boolean"
+  doi:
+    type: "string"
+  retrieval_timestamp:
+    type: "string"
+    format: "date-time"
 additionalProperties: false
