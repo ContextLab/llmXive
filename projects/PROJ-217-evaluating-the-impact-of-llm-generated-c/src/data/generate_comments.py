@@ -86,7 +86,7 @@ def _log_truncation(snippet_id: str, original_len: int, truncated_len: int):
 def _generate_llm_comment(code: str) -> str:
     """
     Call the HuggingFace Inference API to generate a comment for ``code``.
-    Deterministic decoding is enforced via temperature=0.0, top_p=1.0, and do_sample=False.
+    Deterministic decoding is enforced via temperature=0.0, top_p=1.0, seed=42, and do_sample=False.
     """
     token = os.getenv(HF_TOKEN_ENV)
     if not token:
@@ -103,13 +103,14 @@ def _generate_llm_comment(code: str) -> str:
 
     for attempt in range(1, RETRY_LIMIT + 1):
         try:
-            # temperature=0.0, top_p=1.0, and do_sample=False ensure deterministic greedy decoding.
+            # temperature=0.0, top_p=1.0, do_sample=False, and seed=42 ensure deterministic greedy decoding.
             generated = client.text_generation(
                 prompt,
                 temperature=0.0,
                 top_p=1.0,
                 max_new_tokens=256,
                 do_sample=False,
+                seed=PROJECT_SEED,
             )
             comment = generated.strip() if isinstance(generated, str) else str(generated).strip()
             if not comment:

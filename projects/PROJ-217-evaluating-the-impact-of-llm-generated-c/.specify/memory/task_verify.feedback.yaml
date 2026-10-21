@@ -1,4 +1,11 @@
 T001:
+  reason: "The script, JSONL outputs, excluded records, checksum manifest, and tests\
+    \ all exist and look genuine (500 raw records, 498 valid, 2 excluded with reasons,\
+    \ SHA-256 recorded). However, the required log file `data/dataset_preparation.log`\
+    \ is MISSING \u2014 the script writes it only at the end of `main()`, so its absence\
+    \ also suggests the run may not have completed successfully (exit 0 unverified).\
+    \ The implementer must run the script to completion so the log with total/valid/excluded\
+    \ counts and SC-006 compliance is actually produced."
   task: cef9af76f4734162ede02ac2f19199633eec344148505a91c87208cccadfc3c8
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/generate_comments.py
