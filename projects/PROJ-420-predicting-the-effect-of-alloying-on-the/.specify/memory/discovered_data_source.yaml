@@ -1,28 +1,14 @@
-status: verified
-kind: pypi_package
-ref: matminer
-access_python: "import matminer.datasets as ds\nimport pandas as pd\n\ndf = ds.load_dataset('elastic_tensor_2015')\n\
-  # Ensure required columns are present (case\u2011insensitive mapping)\nrequired\
-  \ = {'material_id','formula','elemental_composition','poissons_ratio','youngs_modulus'}\n\
-  available = set(df.columns.str.lower())\n# Map known column names to the requested\
-  \ ones where possible\nmapping = {}\nif 'material_id' in available:\n    mapping['material_id']\
-  \ = 'material_id'\nif 'formula' in available:\n    mapping['formula'] = 'formula'\n\
-  if 'composition' in available:\n    mapping['elemental_composition'] = 'composition'\n\
-  if 'poisson_ratio' in available:\n    mapping['poissons_ratio'] = 'poisson_ratio'\n\
-  if 'youngs_modulus' in available:\n    mapping['youngs_modulus'] = 'youngs_modulus'\n\
-  print(f\"RECORDS={len(df)}\")\nprint('FIELDS=' + ','.join(mapping.keys()))"
-record_count: 1181
-sample_fields:
-- material_id
-- formula
-- poissons_ratio
-field_coverage: 0.6
+status: none
+intent: Materials Project and NIST aluminum alloy elastic properties python package
+  dataset
 required_fields:
 - material_id
 - formula
-- elemental_composition
+- elemental_composition_atomic_fractions
+- youngs_modulus_gpa
 - poissons_ratio
-- youngs_modulus
-intent: download aluminum alloy composition Poisson's ratio Young's modulus dataset
-  Materials Project NIST MDR python package dataset
-cache_key: e951b2e8484537bc247b53253a47f33d1bbdc1d6c01dc916aa08fc0f9bb39e0d
+- elastic_tensor
+- source_database
+cache_key: b8a4a96ff65bdb90c9c94d52147d3fc7c0b94730b0bb2977e20ed49205ee8af1
+searched_at: '2026-10-21T07:27:41.645409+00:00'
+retry_count: 1
