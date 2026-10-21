@@ -8,7 +8,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 0 – Feasibility & Data‑source Verification  
 
-- [ ] T001 [P?] [US1] Verify that **each** required open dataset (NIST, Zenodo, Materials Project) contains **all** required variables (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`, `adhesion_strength_mj_m2`, `treatment_type`, `pair_id`).   <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 -->
+- [ ] T001 [P?] [US1] Verify that **each** required open dataset (NIST, Zenodo, Materials Project) contains **all** required variables (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`, `adhesion_strength_mj_m2`, `treatment_type`, `pair_id`).   <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 -->
   - **Implementation**: `code/verify_data_source.py` loads the three datasets via their public URLs (wget/curl), inspects column sets, and writes a JSON report `data/source/availability_report.json`.  
   - **Verification**: CI fails if any dataset is missing one or more required columns; otherwise the task passes.
 

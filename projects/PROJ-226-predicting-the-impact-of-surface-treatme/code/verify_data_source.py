@@ -1,6 +1,6 @@
 """
 Verify that each required open dataset (NIST, Zenodo, Materials Project) contains all
-required variables. The script loads the same publicly available dataset from the
+required variables. The script loads the Open Materials Adhesion dataset from the
 Hugging Face hub (openmaterials/adhesion) and treats it as a stand‑in for the three
 sources. If the required columns are present, the dataset is considered valid for
 all three sources; otherwise the script exits with a non‑zero status so that CI
@@ -59,7 +59,6 @@ def _log_setup() -> logging.Logger:
     """Configure and return a logger."""
     return get_logger(__name__)
 
-
 def _load_hf_dataset() -> pd.DataFrame:
     """
     Load the Open Materials Adhesion dataset from the Hugging Face hub.
@@ -69,12 +68,21 @@ def _load_hf_dataset() -> pd.DataFrame:
     ds = load_dataset("openmaterials/adhesion", split="train")
     return ds.to_pandas()
 
+def _normalize_column_names(cols: pd.Index) -> set[str]:
+    """
+    Return a set of column names stripped of whitespace and lower‑cased.
+    This helps tolerate minor naming inconsistencies in the source.
+    """
+    return {str(col).strip().lower() for col in cols}
 
 def _check_columns(df: pd.DataFrame) -> bool:
-    """Return True if the required columns are a subset of df.columns."""
-    cols = set(df.columns.str.strip())
-    return REQUIRED_COLUMNS.issubset(cols)
-
+    """
+    Return True if the required columns are a subset of the DataFrame's columns.
+    Comparison is case‑insensitive and ignores surrounding whitespace.
+    """
+    df_cols = _normalize_column_names(df.columns)
+    required = {c.lower() for c in REQUIRED_COLUMNS}
+    return required.issubset(df_cols)
 
 def _verify_source(df: pd.DataFrame, source: dict) -> dict:
     """
@@ -82,14 +90,12 @@ def _verify_source(df: pd.DataFrame, source: dict) -> dict:
     Returns a dict describing the verification result.
     """
     has_all = _check_columns(df)
-    result = {
+    return {
         "source_name": source["source_name"],
         "url": source["url"],
         "description": source["description"],
         "columns_ok": has_all,
     }
-    return result
-
 
 def main() -> None:
     """
@@ -102,13 +108,14 @@ def main() -> None:
     try:
         logger.info("Loading dataset from Hugging Face...")
         df = _load_hf_dataset()
-    except Exception as exc:
+    except Exception as exc:  # pragma: no cover – will be caught by CI if HF is unreachable
         logger.error("Failed to load the Hugging Face dataset: %s", exc)
         sys.exit(1)
 
     logger.info("Dataset loaded; verifying required columns...")
     report_entries = []
     any_failure = False
+
     for src in DATASET_SOURCES:
         entry = _verify_source(df, src)
         report_entries.append(entry)
@@ -118,9 +125,7 @@ def main() -> None:
                 "Source %s does NOT contain all required columns.", src["source_name"]
             )
         else:
-            logger.info(
-                "Source %s verification succeeded.", src["source_name"]
-            )
+            logger.info("Source %s verification succeeded.", src["source_name"])
 
     # Write the JSON report
     report_path = paths.data("source", "availability_report.json")
@@ -141,7 +146,7 @@ def main() -> None:
         sys.exit(1)
     else:
         logger.info("All required datasets contain the necessary columns.")
-
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

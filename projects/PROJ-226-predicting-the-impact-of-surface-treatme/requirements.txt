@@ -1,4 +1,5 @@
 # Project dependencies
-# Core libraries are pre-installed in the execution environment.
-# Additional third‑party packages required for the pipeline:
 datasets>=2.18
+# Existing environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil. No additional entries needed.
