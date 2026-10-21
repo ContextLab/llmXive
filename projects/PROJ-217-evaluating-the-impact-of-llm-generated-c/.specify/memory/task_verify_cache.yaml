@@ -1,9 +1,9 @@
 T012:
   c: true
-  h: a9b6f2bcd0429e4d54f954cc8f218a9d98fa04c729d54780a3a210e09762e104
-  r: "The `src/utils/verify_requirements.py` script correctly checks for a non\u2011\
-    empty `requirements.txt`, optionally validates its SHA\u2011256 hash against `data/artifact_hashes.yaml`,\
-    \ returns a boolean flag (and exits with 0/1), and writes detailed logs to `data/requirements_check.log`,\
-    \ as confirmed by the script content, the existing `requirements.txt`, the log\
-    \ file, and the successful execution record."
-  sig: 546280700d0c28048ecbda8b2225a0fde1b12bfcf48e7731c78ed93b4a6308b9
+  h: 43532a4fcc111bf223bce9c7c07ca466c83de3fcb7f0490bc0fefa23e20c0fdf
+  r: "Checked `src/utils/verify_requirements.py` (implements existence, non\u2011\
+    empty check, optional SHA\u2011256 verification, returns a boolean and writes\
+    \ to `data/requirements_check.log`), confirmed `requirements.txt` is present and\
+    \ non\u2011empty, and verified `data/requirements_check.log` records a successful\
+    \ run."
+  sig: 5ba185ce2328ce87b14c49b42ef2586923d97b95014ae072cfe06c8822552d01

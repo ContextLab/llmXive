@@ -1,3 +1,4 @@
 # Project dependencies
-# Added huggingface_hub for CodeSearchNet dataset download
-huggingface_hub>=0.23.0
+# Added pyarrow compatible with NumPy 1.26 to enable parquet reading
+pyarrow==14.0.2
+huggingface_hub
