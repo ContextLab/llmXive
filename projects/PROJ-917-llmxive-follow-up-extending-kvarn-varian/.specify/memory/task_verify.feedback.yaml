@@ -1,0 +1,185 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 89f0b2f908029fc09a9a2a452ba3b734a5ed360bddba1ee15f688c582ab68e5b
+T004:
+  task: e3ae6a89889ea19769f3bfd79d4dd35d841a980bfd03e66847e0c277963ab771
+T005a:
+  task: 67e5771c1accee98d5f0e4ade36296e805c18ca4f2122dd50a391d1aa0cd3c04
+T005b:
+  reason: "The `code/config.py` defines `EPSILON_SWEEP_VALUES` as a dataclass field\
+    \ with a default list `[1e-8, 1e-7, 1e-6, 1e-5, 1e-4]` and not as a top\u2011\
+    level constant, and the list contains extra values (`1e-7`, `1e-5`) beyond the\
+    \ required `[1e-8, 1e-6, 1e-4]`. The task specifically required a constant `EPSILON_SWEEP_VALUES`\
+    \ equal to that exact three\u2011element list."
+  task: 50fbfc2d955a6357b24abfb8f8e654170b5c186f1f3f234ba664bcf3885510cb
+T006:
+  reason: "The `SimulationState` dataclass in `code/simulation/state.py` lacks the\
+    \ required `timing_metrics: list[float]` field and there is no evidence that this\
+    \ module is imported by T027d. These omissions mean the task\u2019s specifications\
+    \ are not fully satisfied."
+  task: a4f0781b771915d8fe3214259bc74c2aade7859f68d1a3f5828f7f69a9994431
+T007a:
+  task: 0a4663fdef4fc98351ec2d7d3392d99392f220603c34e5cb09075766aadd1c50
+T007b:
+  task: a6a9189c3e656b44982fb5ec0914b3560db2d1dce8408fd4afed4cc8ef038b28
+T008:
+  reason: "The `code/utils/seeds.py` file exists and correctly implements `set_global_seed`\
+    \ (calls `random.seed`, `np.random.seed`, and `torch.manual_seed` when torch is\
+    \ available). However, there is no provided evidence that `main.py` was executed\
+    \ twice with the same seed and that the output checksums were compared, as required\
+    \ by the task\u2019s verification step. The test log only shows a pytest run,\
+    \ not the mandated `main.py` reproducibility check."
+  task: 9c9f27c658a88ab93d06b8db6bbdbeeb9ad60ef2e60b8e9d484c158c8e4b9944
+T009:
+  reason: "The `code/config.py` file exists but its `Config` dataclass lacks the required\
+    \ fields `HIDDEN_DIM`, `OOD_THRESHOLD_SIGMA`, and `MIN_CONVERGENCE_RATE`, and\
+    \ it does not implement any validation that raises an error when `NUM_MATRICES`,\
+    \ `SIMULATION_STEPS`, or `NUM_RUNS` exceed their specified maximums. These omissions\
+    \ mean the task\u2019s core requirements are not met."
+  task: 4c89ef7f1b96cfc2115c6dd9b1883d30b6938de8c28c1d7fd2780beb4d2cafe5
+T009_calc:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/theoretical_lower_bound.py,
+    data/analysis/theoretical_lower_bound.json'
+  task: 249eea5052697be80a078996ca53ad495f34703d3adf37832185880a81b1e627
+T009b:
+  task: 5ea313b4587d3b534ec8096aea967316664dcdd095cc8aee468baead63a296bf
+T010:
+  task: b4bf08e25fda855b6b16e0f67dd78e218cb46c4657da2eed36099c23b1427019
+T011:
+  task: 7c6264d12286ac23ed5c716241ad90b8376b29e127dddd96f23ade21bee5dc4b
+T016:
+  task: a3d969882a661fbf42e2896b61da35cf7c484f65d0a8326222e30231383b10ef
+T017c:
+  task: 8c21d22fe4297b9b80167293d2a3a4e6fb4f75adc6d84dbd8747db401d8f9486
+T017d:
+  task: 892743103bdbb6a26fda6e0ca995a3c73524f54a1e30ee374a9ff58611af7b4f
+T022:
+  task: d99f7a3e5b7e945944c41293b722c2474b17747904b77a02f32a2a182642a8de
+T023:
+  task: c1ab6bdb0e651e1978f6b493bb5745cc2a98c5e531d126bbfce1bead6cccaf89
+T024:
+  task: 7d267d2f38684ed40f4013f6b8220f2a81a5038a73986717bdf44362658ba3c3
+T026:
+  task: b48a0bf9273c10a55547a203916f94328c84834fa48b670b2cc67e0874f9e877
+T027d-core:
+  reason: 'declared artifact(s) missing/empty/invalid: code/simulation/autoregressive_loop.py'
+  task: 19233823c3214f7c63961f0bc06a5c050688ba9e027b6d45f0a87d715abdf6f1
+T027d-integrate:
+  reason: 'declared artifact(s) missing/empty/invalid: code/simulation/autoregressive_loop.py'
+  task: 5b1a172594671ff72b79f72f99adb5d581d8d8fa5548ce3969ca31cf8cc9505a
+T027e:
+  task: d660a9f70769a79ddfb419d06c1b46477f7014d3e6cdb0230d0e3f3f2f81efd1
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: code/simulation/kl_divergence.py'
+  task: 637366da57b976c2bb9d4e1acdf025a09d5e1a72293b835dd77d7ed0bb114d5c
+T030b-impl:
+  reason: 'declared artifact(s) missing/empty/invalid: code/simulation/batch_runner.py'
+  task: bdf26129de70ef73f477f939664c5b199df3be23141d3daeadf5e97f359d41a2
+T030b-main:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/simulation_run_001.json'
+  task: a00e0a821aff772afd7edc2087e3cdfa5eab00df6044e3eaa7ab1e30cd8e1817
+T030b-sweep:
+  task: 98213bf9f602c0ec16f82942626de9d16b2f1a1196b8a482ff9ac2222eed6c0b
+T030b-sweep-exec:
+  task: ec680c9e3e0e978f6bf8f071bd6cae6bfd88fdfe3cad8bae64500fc628d6bb15
+T030c1:
+  task: 2f108da29aa6f1a0824e6448d14a59c2ce4d1565ac7f9968ecf38e6b100e40a4
+T030c2:
+  task: 4cbe8acf6c990f17da2557ae7c0bc18fdcc098a69dd82dbad84b8d99cde42aba
+T030c3:
+  task: bb167897f2916d61b1550c587a98273523ee923f64ae9e8a1afeb344f0e6d2c8
+T030d:
+  task: ecb18db42a0898143e64545666ab20a7c96e4fb654f4990649f19b3bdd722c13
+T031:
+  task: 04a4405c3af3fedc4df4f0bebdefaa70ee76f8fd06e0b93d290b91fdbcc94623
+T032_base:
+  reason: 'declared artifact(s) missing/empty/invalid: code/simulation/quantization.py'
+  task: 2bef8c05f4825543b840946bd2b4b201132c3bed3d45554bf3321811bd9cff6f
+T032_bound:
+  task: 8a5e7c3c59456bc1fa2c29d08882c7d24546658aecef7660f3c6f7c1e0462f46
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/final_report.md'
+  task: e2ab5c88c131a22da24b9f6918af1b9634ee21c6a44d393ebd40a5e01a037675
+T034a:
+  task: d8e355ecab425528fdf5cfcfe17b099eb48d731fb94ccf514934a2cd3452c323
+T034b:
+  task: b9ffcc3321868e63088b96e46222cd053dd76586e487423966674f0321b1fba3
+T034c:
+  task: 3662154314af978187f912ef9e3b31cf022d14b77e5637ff931e5a504f95a5d3
+T035a:
+  task: 72e6113ce364c9ced482887a795f03a61a37edd823f7adeb5069e363b35536e4
+T035a_refactor:
+  task: f256fef40c012aeedf5ec6e158d89a68932e6083b43c3bce723dc7c2ec82172d
+T035b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/simulation/autoregressive_loop.py'
+  task: e4be9800666ea1975ec914eda73aa0cc5c0b294f7fa24994c993f52f7b232f22
+T035b_refactor:
+  task: 1e2ba1bb89f6a669530760a8edcd971504675829c007fa83b46e7a945e47ccb3
+T035c:
+  task: 9743a992e89a248dd053c586f383f8ad14357f37e99c5d90e275adc3e9f34431
+T035c_refactor:
+  task: a56462cb0ef95421621d4a0edb71159c656f129d3eec587b51544592e3d173b9
+T036a:
+  task: ac0ccba5c17b0664db7bde3f9b50bee5fb8f1b4b7f633c8e24e032a7d2e0e809
+T036b:
+  task: 70e69dc031441af944158ef68c26bc61ce0d0a1303a0fe6689d328aae92955ac
+T037a:
+  task: a3fae8045105fc0df52c9113420bfc7ef883bdb46b1502388b3026d91b2ad5e2
+T037b:
+  task: 69091c58d692d493c9e201ff4bc38789bb94ccc9626dd1911edcce9c0a99c3c2
+T037c:
+  task: f76d21729e15662d5ad5fec00c7de63d0c08c6e83f36066ba0a51673d0c2e434
+T038a:
+  task: f6f4ae73f2d7e6e9c610c9a75a059cc94011073e88c077608b03fd2fd5193a7c
+T038b:
+  task: a642f6eabd40ede2bd5abc8da3cdb19a16bbc44fb682c87f1edf8bb02c70a42a
+T039a:
+  task: eceddf05083cf12e8a8b0fb7d94b953d90b5bef01562a21ec5b6cc63a0249bb7
+T039b:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 3f5b0e30b659c95e842feef062ef0d3e18c858cbbb68556cfcf2a6cd93efa588
+T040:
+  task: 39242c18029c073ae38118ce46e8fdf07b0310f2304676b782cbb6575c57e20d
+T041:
+  task: a125d2a77c5af2e7cd0fde50d368adbb5395e49a434eb60cc63a9a2e4a618568
+T043:
+  reason: 'declared artifact(s) missing/empty/invalid: data/metrics/training_log.csv'
+  task: 723ac9586f6aafab6b89e77be3098f897d9e640534230eef102a98ec6b81a4ee
+T044:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data_generation/health_check.py'
+  task: 3901916ae7cd1fd7affd29221d281cfdca002ab5a125a8d59f2143e91d8162ad
+T046:
+  task: 5e62fb7d3dad11f80b7bed00512a9aaf94b1710b6167f0a0d1407132f8de0268
+T047:
+  task: 8a75072fd57e4a204d72b4f632be0fa9435f6dd25ab872bed200a1d95f41214d
+T048:
+  task: 69c3ffa8c2f7b8091dfd508a870b3e962bfce806a05af114056b07a362f3d62a
+T052:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/test_latency_output.py'
+  task: f1ebe78e87650e2cbe78aa03d927bade6abe34a40d88dd6487cae67bbdee80a6
+T053:
+  task: 097107c63972d125221c57464113b490aea3fb23c6aa1882ba184145dfd6f409
+T054:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/test_final_report.py,
+    data/results/final_report.md'
+  task: bed9a04b735fcb589b170b24a2a6c7dd3d383aee86c2e3b6358107a1548b16df
+T055:
+  task: 8b9784bb5aac6360c20777206bbf853da3495a334434f5ca380e156dfd7fac32
+T056:
+  task: 9a3b442003975634cbf88df793e261bcde9c3610c16cebbeb450e670b81ef432
+T057:
+  task: 0a1e491ba535ee73c65b53959c2652fbd673583fa7b8b8119f0fcd936c5638d7
+T058:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/data_generation.md'
+  task: 45eabab3a2effd4d03721b096287fbdcc4ef08bb2d13f20ef451cd65feb5567c
+T059:
+  task: f1766b5ce7a50acd1d15ae7319ce58c007e84c3768d75f43d9a92a0fc24b880c
+T060:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/limitations.md, docs/data_generation.md'
+  task: efa3496926dbacc2a3a86cb9b3baf93c29fed0548d4c4ecb3c680a3333bfc56a

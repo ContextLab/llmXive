@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T17:26:15.530296Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-539-statistical-power-and-sample-size-in-ope
-last_run_id: 896c4ffe-0aa4-4369-a382-dd35f9c008f6
+last_run_id: e78befa0-e581-4ae6-a67c-109bf7d6a9c4
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-539-statistical-power-and-sample-size-in-ope/specs/001-statistical-power-and-sample-size-in-ope
 title: Statistical Power and Sample Size in Open Neuroimaging Datasets
-updated_at: '2026-10-13T18:25:01.569448Z'
+updated_at: '2026-10-21T12:31:35.554389Z'

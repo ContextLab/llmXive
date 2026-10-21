@@ -1,12 +1,10 @@
 status: none
-intent: huggingface datasets package GSM8K HumanEval python package dataset
+intent: download GSM8K and HumanEval datasets as pip installable python package dataset
 required_fields:
-- question
-- answer
 - prompt
-- function_name
-- test_cases
-- entry_point
-cache_key: 1d89fc8aec25ae58b6c55246315642ed268483c0331362ffb9a858944de7d4f6
-searched_at: '2026-10-10T15:52:15.603191+00:00'
+- reference_solution
+- dataset_name
+- question_id
+cache_key: 5484566a8a07f746477a64e65446a1e1e828a038a83c308cf9a5ea6d99b7d664
+searched_at: '2026-10-21T12:34:35.271777+00:00'
 retry_count: 1

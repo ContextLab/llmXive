@@ -1,21 +1,55 @@
+T005b:
+  c: false
+  h: 5a7176db1dad8d4c18ff222efa8fa661a4927050da9fd52a1e13bbcf52df2846
+  r: "The `code/config.py` defines `EPSILON_SWEEP_VALUES` as a dataclass field with\
+    \ a default list `[1e-8, 1e-7, 1e-6, 1e-5, 1e-4]` and not as a top\u2011level\
+    \ constant, and the list contains extra values (`1e-7`, `1e-5`) beyond the required\
+    \ `[1e-8, 1e-6, 1e-4]`. The task specifically required a constant `EPSILON_SWEEP_VALUES`\
+    \ equal to that exact three\u2011element list."
+  sig: 3cf3d5fdc37d4130b75161b326d70aa0a2098b2e3f3b4bc154cd583d98a6726e
+T006:
+  c: false
+  h: fbfffc1190a4960439cc3743fa3b6734fbe1e39bb3f14749601a140911b3d765
+  r: "The `SimulationState` dataclass in `code/simulation/state.py` lacks the required\
+    \ `timing_metrics: list[float]` field and there is no evidence that this module\
+    \ is imported by T027d. These omissions mean the task\u2019s specifications are\
+    \ not fully satisfied."
+  sig: 139afe357009ddcaef0132b2717a401fa80c57ac289de7a239cf2746658d7336
+T007a:
+  c: true
+  h: 8bb68915e0df95f308b98222a9b90eed955252a01e41ce5b6f42bd6578999be8
+  r: "Checked `code/entities.py` which defines an `AttentionMatrix` dataclass with\
+    \ a 128\xD7128 `float32` matrix field and scalar fields `mean`, `variance`, `sparsity`,\
+    \ and `outlier_magnitude`, plus validation of shape, dtype, and value ranges matching\
+    \ the required schema."
+  sig: c9adb704e4734ddcb398480b2aca9175b9747fe4b329912c3072f9639e3d99bf
+T007b:
+  c: true
+  h: 2629e53af7b5e7165982ee8709c40b3e892e972863bd305fded22e0ea8666f37
+  r: "The `code/entities.py` file (5666\u202Fbytes) defines a `ScalingFactor` dataclass\
+    \ with the required fields `value` (float) and `derivation_method` (str), along\
+    \ with validation and serialization methods. This implementation matches the specified\
+    \ schema and fulfills the task."
+  sig: 6a6d32f5cf6214356dfa28a84ed55513f2f545e18448b1cdc4dbedaaf2a91a9c
 T008:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided artifacts relate to synthetic attention data generation, model\
-    \ training, and simulation, but there is no evidence of any code, configuration\
-    \ file, or documentation that sets up a unified random seed management system\
-    \ across the project\u2019s modules. Consequently, the core requirement of configuring\
-    \ reproducible random seeds is not addressed."
+  h: a220bb755a9f18d1bf62b3b2dbd1073212e8643ae8c71f6efc07b574b31382aa
+  r: "The `code/utils/seeds.py` file exists and correctly implements `set_global_seed`\
+    \ (calls `random.seed`, `np.random.seed`, and `torch.manual_seed` when torch is\
+    \ available). However, there is no provided evidence that `main.py` was executed\
+    \ twice with the same seed and that the output checksums were compared, as required\
+    \ by the task\u2019s verification step. The test log only shows a pytest run,\
+    \ not the mandated `main.py` reproducibility check."
+  sig: 8b02690287c3784f1277564b60f200df4f1b1257633eccb913100c7c35a73cee
 T009:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No environment configuration files, scripts, or documentation were provided\
-    \ that define or manage CPU\u2011only execution flags. The artifacts shown relate\
-    \ only to data generation and model training, not to setting up or documenting\
-    \ the required configuration management for CPU\u2011only runs. A proper implementation\
-    \ would include, for example, a config file (e.g., YAML/JSON), command\u2011line\
-    \ flag handling, or documentation showing how to enable CPU\u2011only mode across\
-    \ the project."
+  h: 89759ecdab49e6892064f894f07ce995baff10c98276781706a11005d14edd1d
+  r: "The `code/config.py` file exists but its `Config` dataclass lacks the required\
+    \ fields `HIDDEN_DIM`, `OOD_THRESHOLD_SIGMA`, and `MIN_CONVERGENCE_RATE`, and\
+    \ it does not implement any validation that raises an error when `NUM_MATRICES`,\
+    \ `SIMULATION_STEPS`, or `NUM_RUNS` exceed their specified maximums. These omissions\
+    \ mean the task\u2019s core requirements are not met."
+  sig: 0e16d770192166103618f43e8e81d276562668edeaa270f6842350033e16eb32
 T017c:
   c: false
   h: a48048fc6771a4e4a681a545c81ddc5792050353fcb4c6a56e828c325fdba56a
