@@ -13,12 +13,16 @@ train/hold-out split (seed 123) to
 The loader fails loudly on any fetch failure: no synthetic or mock
 fallback exists anywhere in this module. Every fallback path between
 loaders below is a REAL source (the plan's verified dataset URLs).
+In addition, per‑dataset RAM usage and mitigation status are aggregated
+into ``outputs/metrics/resource_summary.json`` as required by the task
+specification.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import io
+import json
 import logging
 from pathlib import Path
 from typing import Callable, Dict, List, Tuple
@@ -35,7 +39,7 @@ log = logging.getLogger(__name__)
 
 SEED = 123
 SPLIT_FRACTION = 0.8
-RAM_LIMIT_BYTES = int(6.5 * 1024 ** 3)  # strict headroom below the 7 GB hard limit
+RAM_LIMIT_BYTES = int(6.5 * 1024 ** 3)  # strict headroom below the 7 GB hard limit
 MAX_ROWS_AFTER_MITIGATION = 10_000
 HIGH_CARDINALITY_THRESHOLD = 50
 
@@ -46,6 +50,11 @@ SHOPPER_VERIFIED_URL = (
     "https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/"
     "data/train-00000-of-00001-3316810f8df41d3a.parquet"
 )
+
+# ---------------------------------------------------------------------------
+# Global collection for the resource‑summary JSON
+# ---------------------------------------------------------------------------
+_resource_summary: List[Dict] = []
 
 
 # ---------------------------------------------------------------------------
@@ -60,6 +69,7 @@ def _fetch_bytes(url: str) -> bytes:
         raise RuntimeError(f"empty response body from {url}")
     return resp.content
 
+
 def load_adult() -> pd.DataFrame:
     """UCI Adult via OpenML dataset id 1590 (verified source)."""
     import openml
@@ -72,12 +82,13 @@ def load_adult() -> pd.DataFrame:
         raise RuntimeError("OpenML dataset 1590 (Adult) returned no data")
     return df
 
+
 def load_har() -> pd.DataFrame:
     """UCI Human Activity Recognition via HuggingFace udayl/UCI_HAR.
 
     Primary path is ``datasets.load_dataset("udayl/UCI_HAR",
     split="train")`` exactly as specified in tasks.md; if the Hub library
-    cannot serve the repository (e.g. script-based dataset incompatibil-
+    cannot serve the repository (e.g. script‑based dataset incompatibil-
     ity), the plan's verified HTTPS URL for the same real data is fetched
     directly. Both paths are real data; if both fail the error propagates.
     """
@@ -94,7 +105,7 @@ def load_har() -> pd.DataFrame:
             if df is None or len(df) == 0:
                 raise RuntimeError("empty dataframe from udayl/UCI_HAR")
             return df
-        except Exception as exc:  # real-source fallback below, never synthetic
+        except Exception as exc:  # real‑source fallback below, never synthetic
             errors.append(f"load_dataset({kwargs!r}) failed: {exc}")
     try:
         content = _fetch_bytes(HAR_VERIFIED_URL)
@@ -105,8 +116,9 @@ def load_har() -> pd.DataFrame:
     except Exception as exc:
         errors.append(f"direct fetch of {HAR_VERIFIED_URL} failed: {exc}")
     raise RuntimeError(
-        "all real-source fetches for UCI-HAR failed: " + " | ".join(errors)
+        "all real‑source fetches for UCI‑HAR failed: " + " | ".join(errors)
     )
+
 
 def load_shopper() -> pd.DataFrame:
     """UCI Online Shoppers Purchasing Intention via HF jlh/uci-shopper."""
@@ -119,7 +131,7 @@ def load_shopper() -> pd.DataFrame:
         if df is None or len(df) == 0:
             raise RuntimeError("empty dataframe from jlh/uci-shopper")
         return df
-    except Exception as exc:  # real-source fallback below, never synthetic
+    except Exception as exc:  # real‑source fallback below, never synthetic
         errors.append(f"load_dataset failed: {exc}")
     try:
         content = _fetch_bytes(SHOPPER_VERIFIED_URL)
@@ -130,14 +142,17 @@ def load_shopper() -> pd.DataFrame:
     except Exception as exc:
         errors.append(f"direct fetch of {SHOPPER_VERIFIED_URL} failed: {exc}")
     raise RuntimeError(
-        "all real-source fetches for UCI-Shopper failed: " + " | ".join(errors)
+        "all real‑source fetches for UCI‑Shopper failed: " + " | ".join(errors)
     )
 
 
 LOADERS: Dict[str, Tuple[Callable[[], pd.DataFrame], str]] = {
     "adult": (load_adult, "OpenML dataset 1590 (UCI Adult)"),
     "har": (load_har, 'HuggingFace datasets: udayl/UCI_HAR split="train"'),
-    "shopper": (load_shopper, 'HuggingFace datasets: jlh/uci-shopper split="train"'),
+    "shopper": (
+        load_shopper,
+        'HuggingFace datasets: jlh/uci-shopper split="train"',
+    ),
 }
 
 
@@ -152,11 +167,13 @@ def sha256_file(path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
+
 def current_rss_bytes() -> int:
     return psutil.Process().memory_info().rss
 
+
 def _sanitize_for_parquet(df: pd.DataFrame) -> pd.DataFrame:
-    """Make mixed-type object columns parquet-writable without losing NaNs."""
+    """Make mixed‑type object columns parquet‑writable without losing NaNs."""
     for col in df.columns:
         if df[col].dtype == object:
             mask = df[col].notna()
@@ -166,6 +183,7 @@ def _sanitize_for_parquet(df: pd.DataFrame) -> pd.DataFrame:
                     df.loc[mask, col] = vals.astype(str)
     return df
 
+
 def _is_categorical(series: pd.Series) -> bool:
     return (
         series.dtype == object
@@ -173,6 +191,7 @@ def _is_categorical(series: pd.Series) -> bool:
         or series.dtype == bool
         or pd.api.types.is_string_dtype(series)
     )
+
 
 def _relpath(p: Path) -> str:
     try:
@@ -185,12 +204,19 @@ def _relpath(p: Path) -> str:
 # Preprocessing
 # ---------------------------------------------------------------------------
 
-def process_dataset(name: str, df: pd.DataFrame, source: str) -> None:
-    """Snapshot raw data, preprocess, split, and write all artifacts."""
+def process_dataset(name: str, df: pd.DataFrame, source: str) -> Dict:
+    """Snapshot raw data, preprocess, split, and write all artifacts.
+
+    Returns a dictionary summarising RAM usage and mitigation actions for
+    inclusion in the global ``resource_summary.json`` file.
+    """
     df = _sanitize_for_parquet(df.copy())
-    log_lines: List[str] = [f"dataset={name}", f"source={source}",
-                            f"raw_rows={len(df)}",
-                            f"raw_columns={df.shape[1]}"]
+    log_lines: List[str] = [
+        f"dataset={name}",
+        f"source={source}",
+        f"raw_rows={len(df)}",
+        f"raw_columns={df.shape[1]}",
+    ]
 
     # --- Raw snapshot + checksums (constitution Principle III) -----------
     raw_dir = paths.data("raw", name)
@@ -209,7 +235,7 @@ def process_dataset(name: str, df: pd.DataFrame, source: str) -> None:
     log_lines.append(f"categorical_columns={cat_cols}")
     log_lines.append(f"numeric_columns={num_cols}")
 
-    # --- Missing-value handling -------------------------------------------
+    # --- Missing‑value handling -------------------------------------------
     dropped_all_nan: List[str] = []
     for col in df.columns:
         if df[col].isna().all():
@@ -224,42 +250,55 @@ def process_dataset(name: str, df: pd.DataFrame, source: str) -> None:
         df = df.drop(columns=dropped_all_nan)
         cat_cols = [c for c in cat_cols if c not in dropped_all_nan]
         num_cols = [c for c in num_cols if c not in dropped_all_nan]
-    log_lines.append(f"imputation=numeric:median categorical:mode "
-                     f"dropped_all_nan_columns={dropped_all_nan}")
+    log_lines.append(
+        f"imputation=numeric:median categorical:mode "
+        f"dropped_all_nan_columns={dropped_all_nan}"
+    )
 
     # --- Categorical encoding (integer codes + recorded mapping) ----------
     mappings: Dict[str, Dict[str, int]] = {}
     for col in cat_cols:
         codes = df[col].astype("category")
-        mappings[col] = {str(cat): int(i)
-                         for i, cat in enumerate(codes.cat.categories)}
+        mappings[col] = {
+            str(cat): int(i) for i, cat in enumerate(codes.cat.categories)
+        }
         df[col] = codes.cat.codes.astype("int64")
     log_lines.append("encoding=strategy:integer_codes")
 
-    # --- FR-009 RAM monitoring and mitigation ------------------------------
+    # --- FR‑009 RAM monitoring and mitigation ------------------------------
     mitigations: List[str] = []
     peak_rss = current_rss_bytes()
     log_lines.append(f"peak_rss_bytes_after_preprocess={peak_rss}")
     if peak_rss > RAM_LIMIT_BYTES:
-        high_card = [c for c in cat_cols
-                     if df[c].nunique() > HIGH_CARDINALITY_THRESHOLD]
+        high_card = [
+            c
+            for c in cat_cols
+            if df[c].nunique() > HIGH_CARDINALITY_THRESHOLD
+        ]
         if high_card:
             df = df.drop(columns=high_card)
             cat_cols = [c for c in cat_cols if c not in high_card]
             num_cols = [c for c in num_cols if c not in high_card]
             mitigations.append(
-                f"dropped high-cardinality categorical columns {high_card} "
-                f"(cardinality > {HIGH_CARDINALITY_THRESHOLD})")
+                f"dropped high‑cardinality categorical columns {high_card} "
+                f"(cardinality > {HIGH_CARDINALITY_THRESHOLD})"
+            )
         if current_rss_bytes() > RAM_LIMIT_BYTES and len(df) > MAX_ROWS_AFTER_MITIGATION:
             df = df.sample(n=MAX_ROWS_AFTER_MITIGATION, random_state=SEED)
             mitigations.append(
-                f"uniformly down-sampled to {MAX_ROWS_AFTER_MITIGATION} rows "
-                f"(seed {SEED})")
-    log_lines.append(f"ram_mitigations={mitigations if mitigations else 'none'}")
+                f"uniformly down‑sampled to {MAX_ROWS_AFTER_MITIGATION} rows "
+                f"(seed {SEED})"
+            )
+    log_lines.append(
+        f"ram_mitigations={mitigations if mitigations else 'none'}"
+    )
 
-    # --- 80/20 train/hold-out split (FR-015, seed 123) --------------------
+    # --- 80/20 train/hold‑out split (FR‑015, seed 123) --------------------
     train_df, holdout_df = train_test_split(
-        df, train_size=SPLIT_FRACTION, random_state=SEED, shuffle=True
+        df,
+        train_size=SPLIT_FRACTION,
+        random_state=SEED,
+        shuffle=True,
     )
 
     proc_dir = paths.data("processed", name)
@@ -268,8 +307,10 @@ def process_dataset(name: str, df: pd.DataFrame, source: str) -> None:
     train_df.to_parquet(train_path, index=False)
     holdout_df.to_parquet(holdout_path, index=False)
     log_lines.append(f"train_rows={len(train_df)} holdout_rows={len(holdout_df)}")
-    log_lines.append(f"train_nulls={int(train_df.isna().sum().sum())} "
-                     f"holdout_nulls={int(holdout_df.isna().sum().sum())}")
+    log_lines.append(
+        f"train_nulls={int(train_df.isna().sum().sum())} "
+        f"holdout_nulls={int(holdout_df.isna().sum().sum())}"
+    )
 
     # --- Provenance metadata ----------------------------------------------
     metadata = {
@@ -303,10 +344,23 @@ def process_dataset(name: str, df: pd.DataFrame, source: str) -> None:
         yaml.safe_dump(metadata, sort_keys=False)
     )
 
-    (proc_dir / "preprocess_log.txt").write_text(
-        "\n".join(log_lines) + "\n"
+    (proc_dir / "preprocess_log.txt").write_text("\n".join(log_lines) + "\n")
+    log.info(
+        "processed %s: train=%d holdout=%d", name, len(train_df), len(holdout_df)
     )
-    log.info("processed %s: train=%d holdout=%d", name, len(train_df), len(holdout_df))
+
+    # -----------------------------------------------------------------------
+    # Assemble a summary entry for the global resource‑summary JSON
+    # -----------------------------------------------------------------------
+    post_mitigation_rss = current_rss_bytes()
+    summary_entry = {
+        "dataset": name,
+        "peak_ram_gb": round(peak_rss / (1024 ** 3), 3),
+        "post_mitigation_ram_gb": round(post_mitigation_rss / (1024 ** 3), 3),
+        "mitigation_applied": bool(mitigations),
+        "completed_within_limit": post_mitigation_rss <= RAM_LIMIT_BYTES,
+    }
+    return summary_entry
 
 
 def main(argv: List[str] | None = None) -> None:
@@ -324,7 +378,9 @@ def main(argv: List[str] | None = None) -> None:
     if args.datasets == "all":
         selected = list(LOADERS)
     else:
-        selected = [s.strip() for s in args.datasets.split(",") if s.strip()]
+        selected = [
+            s.strip() for s in args.datasets.split(",") if s.strip()
+        ]
         unknown = [s for s in selected if s not in LOADERS]
         if unknown:
             parser.error(f"unknown datasets: {unknown}")
@@ -333,7 +389,23 @@ def main(argv: List[str] | None = None) -> None:
         loader, source = LOADERS[name]
         log.info("loading %s from %s", name, source)
         df = loader()  # fails loudly on any fetch failure
-        process_dataset(name, df, source)
+        summary = process_dataset(name, df, source)
+        _resource_summary.append(summary)
+
+    # After all datasets have been processed, write the aggregate summary.
+    # The required location is ``outputs/metrics/resource_summary.json``.
+    summary_path = paths.outputs("metrics", "resource_summary.json")
+    # Compute the aggregate fraction of datasets that completed within RAM limit.
+    total = len(_resource_summary)
+    within = sum(1 for s in _resource_summary if s["completed_within_limit"])
+    aggregate = {
+        "datasets": _resource_summary,
+        "fraction_completed_within_ram": round(within / total if total else 0, 3),
+    }
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_path.write_text(json.dumps(aggregate, indent=2))
+
+    log.info("resource summary written to %s", summary_path)
 
 
 if __name__ == "__main__":

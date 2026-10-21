@@ -1,39 +1,40 @@
-T000:
-  task: b53f901e90c5ce7c7efea2543a2b76d08531a6644669e541e478dfa81e505aa8
 T001:
   reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
     `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
     state/ and derives artifact hashes at verification time. Re-scope the step to
     write only project-owned outputs.'
-  task: f6cd19fa53b1b931017f7a76051d33e90e02c869a522b360b66c8cb6653460d7
+  task: c7492a9576c85fc760e7cba1f364d4de1ac8719184bc3a3deac8b6272eca1390
 T002:
-  task: 4f23a5fad785d75f76773049576d3c326b0ec5f6c13c36a626d04386f1595965
+  reason: "The loader source and test file exist, but none of the required output\
+    \ artifacts do: `data/raw/<name>/checksums.sha256`, `data/processed/<name>/{train,holdout}.parquet`,\
+    \ `metadata.yaml`, `preprocess_log.txt`, and `outputs/metrics/resource_summary.json`\
+    \ are all MISSING, so there is no evidence the loader was ever executed or that\
+    \ `pytest tests/unit/test_loader.py` passes (it would fail immediately on missing\
+    \ files). Additionally, the implementation deviates from the spec: it uses integer-code\
+    \ encoding instead of the required one-hot (\u226420 categories) / frequency encoding\
+    \ (>20 categories), and th"
+  task: d3fbb927599e1c5cc8ba785e56c439d65310098ba4b92c6c253e444384576ef0
 T003:
-  reason: "The `src/models/trainer.py` fails to import the real\u202F`sdv` package\
-    \ because the local `rdt` module still shadows the dependency, causing an ImportError\
-    \ and preventing `generate_and_save` from creating the required CSV and JSON files\
-    \ (the `outputs/synthetic/` directory is empty). Consequently the unit tests in\
-    \ `tests/unit/test_trainer.py` fail, so the task\u2019s functional and output\
-    \ requirements are not met. Fix the import\u2011shadowing issue (and ensure early\u2011\
-    stopping logic) so that the trainer runs and the synthetic files are written."
-  task: d353501366e12547bf97834e8c72f21a2b8c7ee7e79905a3d84867b120d07638
+  task: f932fa404340ee5f5b7cafe07b8c219ff3f17169c0ca7fef1b62a7a495b9df13
 T004:
-  reason: 'Requested task execution failed; rerun successfully: src/cli/run_fidelity.py
-    exit=1'
-  task: 5721ac7e6c0ad30a607c038e668c31babf4293644275a8027a42d42b77d7561e
+  task: cf57c73a851a86898146ffd49b2fb6121f0c7f08e2f738158f378947ecd0beea
 T005:
-  task: 50a35dacf3b8ecc7d77926462e99d5989816be8e9fff56b546ccffc969493b58
+  task: 66c2e9bcc425effe20fb9b8b8d84e5c56c477cd9e64eb72003442a5154e0fe2b
 T006:
-  task: ddc8a44dcb4dcf21908fe4e56984704e97f08c413a8952cfb9f26637b74065f5
+  task: 51f26cd5b35d8308242f89ebd146a3d0a9d2ea519fbe8d413f86a2199a8a1120
 T007:
-  task: f1bf72010393d87b50fb2e0033a65b6b693d84bb10a8e212189b18f96067221b
+  task: d7f0445b85fac9ec70aad9e20093141d00b7c2256858a2bb1373e48c9459d9f8
 T008:
-  task: 4f08dde6d9ecc87fb8730ed2982a9b372571051c522054c6d01f05133b057140
+  task: 1707b7d67648f7c9dcf135fa804de47229f16b72cb53365624d2aa20496ff670
 T009:
-  task: a03f260a85ef58b106f1e567c151f31153d985a052708512adfbebab05655f75
+  task: aca9c68e6f40b0ae60a0f09a1d77c213fbf3f737950725e44251204758490568
 T010:
-  task: baab746d948190ab4ba8a29ebdccfab6315c8094b21248745ae38ea373bcbf53
+  task: d3b09500d01c3bb572251c0517110bdde5355246b6eef3d55dbe442d8f47f5b9
 T011:
-  task: 59af6ec2a6272ee6a8540c853b7b9aeff7f84a76b47548b35bf5221c4c622d03
+  task: a4cbc9cc6f02d81c33bd22eb7b48820418f7a92f73cd7cde721c7719ba815c63
 T012:
-  task: 6330e4e014f13d9b92050b4f61db967b31231741da7458d8838d9e89d0dd2ad9
+  task: cf8708cacde0f6eef20477c5bdaa123ce1eaf987d42ff14c3956c3d7bef1a994
+T013:
+  task: 5c721266387fd871c59a86068aded88bc50d0a902a9e9fd80122766748ccdfcf
+T014:
+  task: fd5fa6b8bab361ef51be5b4ab14e726cf7d01f52c6d8ab2156433b454ab48450

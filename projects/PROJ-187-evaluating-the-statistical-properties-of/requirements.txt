@@ -1,33 +1,18 @@
-# Pinned dependencies for PROJ-187 (specs/001-statistical-fidelity, plan Phase 0).
-# Reproducibility: every dependency is pinned to an exact version (constitution Principle I).
-#
-# torch is the CPU wheel; on Linux install with:
-#   pip install --index-url https://download.pytorch.org/whl/cpu -r requirements.txt
-# (the plain PyPI torch==2.2.0 wheel is also CPU-capable on platforms without CUDA).
-
-# Generative model stack (exact versions mandated by the task/plan)
+# Pinned dependencies for the statistical fidelity evaluation pipeline
 sdv==1.12.0
-ctgan==0.5.2
-torch==2.2.0
-
-# Core scientific stack
-pandas==2.2.3
-numpy==1.26.4
-scipy==1.11.4
-scikit-learn==1.4.2
-statsmodels==0.14.1
-
-# Data acquisition (verified real-data sources)
-datasets==2.19.1
-openml==0.14.2
-
-# Visualization
-matplotlib==3.8.4
-seaborn==0.13.2
-
-# Columnar serialization for processed parquet files
-pyarrow==15.0.2
-
-# Testing and contract validation
-pytest==8.1.1
-jsonschema==4.21.1
+torch==2.2.0  # CPU‑only wheel
+pandas
+numpy
+scipy
+scikit-learn
+statsmodels
+datasets
+matplotlib
+seaborn
+pyarrow
+psutil
+jinja2
+pytest
+jsonschema
+pdfminer.six
+rdt==1.12.0  # required for sdv; ensures IDGenerator is available

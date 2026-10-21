@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "a216689441359bf72c5adcc774562055dbc392645c23bd2fa06b35ac568ea5c5",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused 'src/cli/run_fidelity.py': it would replace working code with a file that has none. To leave a file unchanged, leave it out of `artifacts`; to re-run it unchanged, give `path`, `execute: true` and `args` and omit `contents`."
+}

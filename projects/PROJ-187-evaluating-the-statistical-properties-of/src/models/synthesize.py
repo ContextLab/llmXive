@@ -59,10 +59,11 @@ def generate_and_save(
             seed=seed,
         )
         status = "success"
-    except RuntimeError:
+    except RuntimeError as exc:
         # Non‑convergence – produce an empty DataFrame so downstream code
         # can still write a CSV (will contain only the header) and record
         # NaN metrics later.
+        log.warning("Non‑convergent training for %s (seed=%s): %s", model_name, seed, exc)
         synth_df = pd.DataFrame(columns=train_df.columns)
         status = "failure"
 

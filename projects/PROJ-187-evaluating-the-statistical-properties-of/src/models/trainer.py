@@ -84,39 +84,37 @@ def train_model(
     RuntimeError
         If the model fails to converge or any exception occurs during
         training (FR‑010).
+    ValueError
+        If an unsupported ``model_name`` is supplied.
     """
     sdv = _import_sdv()
 
-    # Import the concrete generator classes from the real sdv package
-    try:
-        if model_name == "CTGAN":
-            ModelClass = sdv.tabular.CTGAN
-            model = ModelClass(
-                epochs=max_epochs,
-                verbose=False,
-                random_state=seed,
-            )
-        elif model_name == "DPGAN":
-            ModelClass = sdv.tabular.DPGAN
-            # DP‑GAN requires a privacy budget; the spec fixes ε=1.0
-            model = ModelClass(
-                epochs=max_epochs,
-                verbose=False,
-                random_state=seed,
-                privacy_budget=1.0,
-            )
-        elif model_name == "CopulaGAN":
-            ModelClass = sdv.tabular.CopulaGAN
-            model = ModelClass(
-                epochs=max_epochs,
-                verbose=False,
-                random_state=seed,
-            )
-        else:
-            raise ValueError(f"Unsupported model_name: {model_name}")
-    except Exception as exc:
-        log.exception("Failed to instantiate %s: %s", model_name, exc)
-        raise RuntimeError(f"Model instantiation failed for {model_name}") from exc
+    # Select the appropriate generator class; let unsupported names raise ValueError
+    if model_name == "CTGAN":
+        ModelClass = sdv.tabular.CTGAN
+        model = ModelClass(
+            epochs=max_epochs,
+            verbose=False,
+            random_state=seed,
+        )
+    elif model_name == "DPGAN":
+        ModelClass = sdv.tabular.DPGAN
+        # DP‑GAN requires a privacy budget; the spec fixes ε=1.0
+        model = ModelClass(
+            epochs=max_epochs,
+            verbose=False,
+            random_state=seed,
+            privacy_budget=1.0,
+        )
+    elif model_name == "CopulaGAN":
+        ModelClass = sdv.tabular.CopulaGAN
+        model = ModelClass(
+            epochs=max_epochs,
+            verbose=False,
+            random_state=seed,
+        )
+    else:
+        raise ValueError(f"Unsupported model_name: {model_name}")
 
     # Fit the model; any exception propagates as RuntimeError per FR‑010
     try:

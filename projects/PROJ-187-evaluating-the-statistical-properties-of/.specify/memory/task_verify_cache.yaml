@@ -1,33 +1,12 @@
-T000:
-  c: true
-  h: 89a38908e2afd7e1796e6875f1eb851d22668812445f45fa300cb71fc7d3b134
-  r: The `requirements.txt` exists at the project root (881 bytes) and contains all
-    14 required dependencies pinned to exact versions, including the mandated `sdv==1.12.0`,
-    `ctgan==0.5.2`, and `torch==2.2.0` with a documented CPU-wheel install note. The
-    file is substantive and matches the task's stated deliverable; the venv install/`pip
-    check` verification was not evidenced, but the artifact itself fully satisfies
-    the task's requirement.
-  sig: 7863e7885f5c09177f8b6ec4b08cfac4b457364d9dec9ae28a958e2f6f7250d6
 T002:
-  c: true
-  h: c3fead4f00e831c61ca89e781918dffb8df9ace5ad72c188798eb43096d932e9
-  r: "Both `src/metrics/marginal.py` and `src/metrics/correlation.py` exist with full\
-    \ implementations of all required metrics (KS/chi-square with p-values, KDE, Pearson/Spearman\
-    \ diffs, Fisher-z deviations with \xB10.999 clipping, permutation test enforcing\
-    \ \u22651000 permutations with fixed seed, and FR-011 zero-variance flagging with\
-    \ graceful KS skip), and `tests/unit/test_metrics.py` contains hand-computed-value\
-    \ assertions for KS, chi-square, and Fisher-z plus zero-variance crash-safety\
-    \ tests, including an Adult-data test that is properly skip-guarded on T001 output\
-    \ availability. The code is substantive w"
-  sig: 4168c3e7b0521f60c0ebf05e0d4b770e38892ce4740ee4f1e613f5ac61ee9443
-T003:
   c: false
-  h: 5f45e9ac6a097649c7a75ded460a93d7aed79bddadd3d3970010a33f616c1938
-  r: "The `src/models/trainer.py` fails to import the real\u202F`sdv` package because\
-    \ the local `rdt` module still shadows the dependency, causing an ImportError\
-    \ and preventing `generate_and_save` from creating the required CSV and JSON files\
-    \ (the `outputs/synthetic/` directory is empty). Consequently the unit tests in\
-    \ `tests/unit/test_trainer.py` fail, so the task\u2019s functional and output\
-    \ requirements are not met. Fix the import\u2011shadowing issue (and ensure early\u2011\
-    stopping logic) so that the trainer runs and the synthetic files are written."
-  sig: 6c64d4cb29577ceac88c21234d31dcac5d41d24274624da4113029bdf9ba37ff
+  h: c1e6df45b3e6c42ea245b9cdf4013880ad37ae9fb4f6bc988bd45362e979e691
+  r: "The loader source and test file exist, but none of the required output artifacts\
+    \ do: `data/raw/<name>/checksums.sha256`, `data/processed/<name>/{train,holdout}.parquet`,\
+    \ `metadata.yaml`, `preprocess_log.txt`, and `outputs/metrics/resource_summary.json`\
+    \ are all MISSING, so there is no evidence the loader was ever executed or that\
+    \ `pytest tests/unit/test_loader.py` passes (it would fail immediately on missing\
+    \ files). Additionally, the implementation deviates from the spec: it uses integer-code\
+    \ encoding instead of the required one-hot (\u226420 categories) / frequency encoding\
+    \ (>20 categories), and th"
+  sig: 6d33ed376385db848e282587da25da11f4e5a7db0db0700b11eeeea559c3e234
