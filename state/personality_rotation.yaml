@@ -1,12 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-10-21T20:05:30.692043+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-10-21T22:05:09.773381+00:00'
 last_outcome: committed
 history:
-- slug: eric-kandel
-  started_at: '2026-06-28T16:00:08.056476+00:00'
-  ended_at: '2026-06-28T16:31:16.836782+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: freeman-dyson
   started_at: '2026-06-28T16:31:16.836782+00:00'
   ended_at: '2026-06-28T16:56:01.952009+00:00'
@@ -1336,3 +1331,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-187-evaluating-the-statistical-properties-of/reviews/research/albert-einstein-simulated__2026-10-21__research.md
+- slug: dan-rockmore
+  started_at: '2026-10-21T20:05:30.692043+00:00'
+  ended_at: '2026-10-21T22:05:09.773381+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/reviews/research/dan-rockmore-simulated__2026-10-21__research.md
