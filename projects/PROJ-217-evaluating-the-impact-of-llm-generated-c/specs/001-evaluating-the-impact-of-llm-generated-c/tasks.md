@@ -22,7 +22,7 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
   – `data/dataset_preparation.log` exists and reports the counts.
   – Pytest `src/tests/test_download.py` asserts correct column‑mapping for both possible schemas.
 
-- [ ] T002 [US1] **Generate deterministic LLM comments via HuggingFace Inference API** <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 -->
+- [ ] T002 [US1] **Generate deterministic LLM comments via HuggingFace Inference API** <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 -->
   *Implement* `src/data/generate_comments.py` that:
   - Reads `data/validated_snippets.jsonl`.
   - Truncates each code snippet to ≤ 2048 tokens using `tiktoken` at the nearest newline; logs each truncation to `data/truncation_warnings.log`.

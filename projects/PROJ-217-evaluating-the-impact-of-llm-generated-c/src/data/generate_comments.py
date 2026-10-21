@@ -21,6 +21,7 @@ MODEL_ID = "codellama/CodeLlama-7b-Instruct-hf"
 HF_TOKEN_ENV = "HF_TOKEN"
 RETRY_LIMIT = 3
 BACKOFF_BASE_SECONDS = 60
+PROJECT_SEED = 42
 
 def _load_validated_snippets() -> List[Dict]:
     """Load snippets from `data/validated_snippets.jsonl`."""
@@ -63,8 +64,13 @@ def _truncate_to_token_limit(code: str, enc) -> str:
         kept_lines.append(line)
 
     truncated = "".join(kept_lines)
+    
+    # Safety fallback: if the first line itself exceeds MAX_TOKENS, 
+    # we must hard-truncate to ensure the limit is strictly obeyed.
     if not truncated and lines:
-        truncated = lines[0]
+        full_tokens = enc.encode(code)
+        truncated = enc.decode(full_tokens[:MAX_TOKENS])
+        
     return truncated
 
 def _log_truncation(snippet_id: str, original_len: int, truncated_len: int):
@@ -80,7 +86,7 @@ def _log_truncation(snippet_id: str, original_len: int, truncated_len: int):
 def _generate_llm_comment(code: str) -> str:
     """
     Call the HuggingFace Inference API to generate a comment for ``code``.
-    Deterministic decoding is enforced via temperature=0.0 and top_p=1.0.
+    Deterministic decoding is enforced via temperature=0.0, top_p=1.0, and do_sample=False.
     """
     token = os.getenv(HF_TOKEN_ENV)
     if not token:
@@ -97,7 +103,7 @@ def _generate_llm_comment(code: str) -> str:
 
     for attempt in range(1, RETRY_LIMIT + 1):
         try:
-            # temperature=0.0 and top_p=1.0 ensure deterministic greedy decoding.
+            # temperature=0.0, top_p=1.0, and do_sample=False ensure deterministic greedy decoding.
             generated = client.text_generation(
                 prompt,
                 temperature=0.0,
@@ -131,6 +137,7 @@ def main() -> None:
 
     with output_path.open("w", encoding="utf-8") as out_f:
         for snippet in snippets:
+            # Handle potential naming variations in the source JSONL
             snippet_id = snippet.get("snippet_id") or snippet.get("id")
             code = snippet.get("code")
             human_comment = (
