@@ -1,27 +1,44 @@
-# Aggregated result schema – extended to recognise the baseline transformation.
-#
-# Only the enum modification is required for this task.
 type: object
 properties:
   transformation:
     type: string
     enum:
-      - baseline          # <--- added to satisfy T001 requirements
+      - baseline
       - box_cox
       - yeo_johnson
       - rank_inverse_normal
+  test_type:
+    type: string
+    enum:
+      - t_test
+      - anova
   metric:
     type: string
-    enum: [type1_error, power]
-  mean:
+    enum:
+      - type1_error
+      - power
+  mean_value:
     type: number
   ci_lower:
     type: number
   ci_upper:
     type: number
+  ci_half_width:
+    type: number
+  n_datasets:
+    type: integer
+    minimum: 0
+  n_iterations:
+    type: integer
+    minimum: 1
 required:
   - transformation
+  - test_type
   - metric
-  - mean
+  - mean_value
   - ci_lower
   - ci_upper
+  - ci_half_width
+  - n_datasets
+  - n_iterations
+additionalProperties: false

@@ -1,17 +1,13 @@
 status: none
-intent: download UCI Machine Learning Repository and OpenML continuous non-normal
-  datasets python package dataset
+intent: OpenML UCI Machine Learning Repository downloadable python package dataset
 required_fields:
 - dataset_id
-- dataset_name
-- source
-- download_url
+- name
+- source_url
+- continuous_features
+- group_label_column
 - n_samples
-- n_features
-- continuous_feature_names
-- group_label_name
-- shapiro_wilk_p_value
 - metadata_json
-cache_key: 55bb0c37349680f9b7423e0cb0412fef1c4c2a3c801587f1fe81b63f909d8bfd
-searched_at: '2026-10-21T20:26:28.475556+00:00'
+cache_key: e2881f6f460cafd1542a4c2269cf16e2e9f83676600c4dfd498f76f39da69b27
+searched_at: '2026-10-21T20:55:40.631329+00:00'
 retry_count: 1
