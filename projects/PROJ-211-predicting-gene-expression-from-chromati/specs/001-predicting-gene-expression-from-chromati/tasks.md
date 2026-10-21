@@ -8,7 +8,7 @@ Tasks are ordered to respect data flow; each task lists its verification criteri
 
 ## Phase 1 – Setup and early end‑to‑end analysis  
 
-- [ ] T002 [US1] Implement a robust ENCODE download script `code/download_encode.py` that streams real resources for each of the five cell lines and writes:   <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_download_encode.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 -->
+- [ ] T002 [US1] Implement a robust ENCODE download script `code/download_encode.py` that streams real resources for each of the five cell lines and writes:   <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_download_encode.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_encode.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_download_encode.sh exit=1 -->
   – `data/raw/encode_counts_{cell_line}.csv` (RNA‑seq gene‑quantification TSV),  
   – `data/raw/encode_peaks_{cell_line}.bed` (narrowPeak BED),  
   – `data/raw/gene_coords.bed` (TSS BED derived from GENCODE hg38).  

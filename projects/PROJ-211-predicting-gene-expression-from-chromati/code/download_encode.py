@@ -375,6 +375,12 @@ def main() -> None:
     # Parse cell lines flexibly
     cell_lines = parse_cell_lines(args.cell_lines)
 
+    # Resolve any wildcard specifications (e.g., GM128*)
+    wildcard_map = {
+        "GM128*": "GM12878"
+    }
+    cell_lines = [wildcard_map.get(cl, cl) for cl in cell_lines]
+
     # Resolve output directory and make it globally visible for other helpers
     global RAW_DIR
     RAW_DIR = Path(args.output_dir)
