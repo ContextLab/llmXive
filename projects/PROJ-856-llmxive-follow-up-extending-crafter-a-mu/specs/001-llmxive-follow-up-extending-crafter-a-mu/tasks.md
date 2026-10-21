@@ -6,7 +6,7 @@
 
 ## Phase 0 – Environment Setup
 
-- [ ] T000 [P] [US0] Create reproducible environment: generate `requirements.txt` with pinned versions, set global random seed (`seed=42`) in `src/utils/seeds.py`, and produce `data/checksums.txt` containing SHA‑256 checksums for all raw data files.  
+- [X] T000 [P] [US0] Create reproducible environment: generate `requirements.txt` with pinned versions, set global random seed (`seed=42`) in `src/utils/seeds.py`, and produce `data/checksums.txt` containing SHA‑256 checksums for all raw data files.  
   - **Files**: `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`, `data/checksums.txt`.
 
 ## Phase 1 – Setup, data curation, and first end‑to‑end run

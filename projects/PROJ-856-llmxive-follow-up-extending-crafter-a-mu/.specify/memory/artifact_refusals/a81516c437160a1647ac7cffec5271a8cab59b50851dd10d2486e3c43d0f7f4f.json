@@ -1,7 +1,0 @@
-{
-  "task_id": "T000",
-  "fingerprint": "f193349e1a1b725e036ea5ce8232596d520c219790c903c8b03e2a7cda256a41",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refused empty contents without execution: 'data/checksums.txt'"
-}

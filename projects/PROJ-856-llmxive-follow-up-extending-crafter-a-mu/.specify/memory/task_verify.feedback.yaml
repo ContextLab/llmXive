@@ -3,6 +3,14 @@ T000:
 T001:
   task: a67de131a5fe4c8832269c1f23669775deba5330e24fdd2d4b2e7750cbc37424
 T002:
+  reason: "Checked `src/curators/curate_failed_figures.py` (exists and implements\
+    \ the required flags) and the generated `data/figures/`, `data/ground_truth/`,\
+    \ and `data/checksums.txt` (each contain 50 entries). However, there is no concrete\
+    \ execution evidence that, when the network is unavailable, running `python -m\
+    \ src.curators.curate_failed_figures --num 50` exits with a non\u2011zero status\
+    \ and prints the exact message \u201Cverified source unavailable\u201D. The only\
+    \ test log shows a timeout, not the required error behavior. Provide a reproducible\
+    \ run (e.g., with network disabled or mocked) that captures the exit c"
   task: 2e58516fa9258c2dc7cb1635b56537b1c26c70e6906960ac89d1d57433eb59d8
 T003:
   task: 99a536c55f5323dfb946d52edcab9671a048ced34551ae7ae305c519791c0f6c

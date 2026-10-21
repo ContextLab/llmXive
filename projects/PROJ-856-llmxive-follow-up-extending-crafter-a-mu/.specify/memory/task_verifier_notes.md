@@ -1,0 +1,5 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T002** — Checked `src/curators/curate_failed_figures.py` (exists and implements the required flags) and the generated `data/figures/`, `data/ground_truth/`, and `data/checksums.txt` (each contain 50 entries). However, there is no concrete execution evidence that, when the network is unavailable, running `python -m src.curators.curate_failed_figures --num 50` exits with a non‑zero status and prints the exact message “verified source unavailable”. The only test log shows a timeout, not the required error behavior. Provide a reproducible run (e.g., with network disabled or mocked) that captures the exit c

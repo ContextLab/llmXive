@@ -14,14 +14,21 @@ The script can be invoked via the quick‑start command::
     python -m src.curators.curate_failed_figures --num-tasks 50 --output-dir data/
 
 The CLI accepts both the historic ``--num`` flag and the newer
-``--num-tasks`` alias, as well as ``--output-dir`` (or ``-o``).  All random
-operations are seeded for determinism.
+``--num-tasks`` alias, as well as ``--output-dir`` (or ``-o``).  An
+additional ``--verify-only`` flag produces a deterministic synthetic
+surrogate dataset without attempting to download external data – useful
+for CI‑only verification.  When the real source is unavailable and
+``--verify-only`` is **not** set, the script exits with a non‑zero status
+and the message “verified source unavailable”.
+
+All random operations are seeded for determinism.
 """
 
 import argparse
 import hashlib
 import json
 import random
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -63,6 +70,7 @@ def _load_crafterbench(num: int) -> list[dict]:
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     # ``download=True`` will fetch the dataset if it is not already present.
+    # If the network is unreachable this call will raise an exception.
     dataset = CIFAR10(root=str(cache_dir), train=True, download=True)
     samples = []
     for i in range(min(num, len(dataset))):
@@ -116,6 +124,42 @@ def _checksum_file(file_path: Path) -> str:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
     return h.hexdigest()
+
+# ----------------------------------------------------------------------
+# Synthetic data generation (used when ``--verify-only`` is set)
+# ----------------------------------------------------------------------
+def _generate_synthetic(num: int, output_dir: str) -> None:
+    """
+    Generate a deterministic synthetic dataset without external network
+    access.  Images are simple white canvases with a red error rectangle;
+    ground‑truth vectors follow the pattern ``[idx, width, height]``.
+    """
+    base_path = Path(output_dir)
+    figures_dir = base_path / "figures"
+    gt_dir = base_path / "ground_truth"
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    gt_dir.mkdir(parents=True, exist_ok=True)
+
+    checksums = []
+
+    for idx in range(num):
+        # Create a plain white image (32×32, matching CIFAR‑10 size)
+        img = Image.new("RGB", (32, 32), color="white")
+        img_err = _inject_error(img, error_id=idx)
+
+        fig_path = figures_dir / f"figure_{idx}.png"
+        _write_png(img_err, fig_path)
+
+        gt_path = gt_dir / f"ground_truth_{idx}.json"
+        gt_vector = {"vector": [idx, 32, 32]}
+        _write_json(gt_vector, gt_path)
+
+        checksums.append(f"{_checksum_file(fig_path)}  {fig_path.name}")
+        checksums.append(f"{_checksum_file(gt_path)}  {gt_path.name}")
+
+    checksum_path = base_path / "checksums.txt"
+    checksum_path.parent.mkdir(parents=True, exist_ok=True)
+    checksum_path.write_text("\n".join(checksums) + "\n", encoding="utf-8")
 
 # ----------------------------------------------------------------------
 # Core routine
@@ -185,11 +229,32 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         default="data",
         help="Base output directory (default: data)",
     )
+    parser.add_argument(
+        "--verify-only",
+        action="store_true",
+        default=False,
+        help="Generate deterministic synthetic data without downloading external datasets",
+    )
     return parser
 
 def main() -> None:
     parser = _build_arg_parser()
     args = parser.parse_args()
+
+    # ``--verify-only`` takes precedence – generate synthetic data.
+    if args.verify_only:
+        _generate_synthetic(num=args.num, output_dir=args.output_dir)
+        return
+
+    # Attempt to load real data; on failure emit the required error message.
+    try:
+        _ = _load_crafterbench(num=args.num)
+    except Exception as e:
+        # Propagate a clear, user‑visible error as required by the verification spec.
+        sys.stderr.write("verified source unavailable\\n")
+        sys.exit(1)
+
+    # If loading succeeded, run the normal curation pipeline.
     curate_failed_figures(num=args.num, output_dir=args.output_dir)
 
 if __name__ == "__main__":

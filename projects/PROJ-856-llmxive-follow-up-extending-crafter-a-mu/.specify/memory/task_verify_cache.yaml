@@ -1,0 +1,20 @@
+T000:
+  c: true
+  h: 39067133f5b9da100e483d4e5c996e80c8348e97f176520aebf7bc2b019fea66
+  r: "Checked `requirements.txt` (pinned versions), `src/utils/seeds.py` (sets seed\u202F\
+    42 on import), `src/utils/checksums.py` (computes SHA\u2011256 checksums), and\
+    \ `data/checksums.txt` (contains the generated checksum list). All required artifacts\
+    \ exist and meet the specifications."
+  sig: 27289cbf83e1808d8cd7f89245bb5a6fb87089aefdcd832146349cd25ddbbd7d
+T002:
+  c: false
+  h: 2f7a7d08a1496715127eb4ceccd4ecce8c69a9cf215beb2e086c9d5dc264f3ff
+  r: "Checked `src/curators/curate_failed_figures.py` (exists and implements the required\
+    \ flags) and the generated `data/figures/`, `data/ground_truth/`, and `data/checksums.txt`\
+    \ (each contain 50 entries). However, there is no concrete execution evidence\
+    \ that, when the network is unavailable, running `python -m src.curators.curate_failed_figures\
+    \ --num 50` exits with a non\u2011zero status and prints the exact message \u201C\
+    verified source unavailable\u201D. The only test log shows a timeout, not the\
+    \ required error behavior. Provide a reproducible run (e.g., with network disabled\
+    \ or mocked) that captures the exit c"
+  sig: a729a939b0d8243ecb3c0b1407155be25f69fc56d5fa419f017d457c72c9d7e7
