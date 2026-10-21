@@ -1,12 +1,10 @@
 T002:
   c: false
-  h: 99e83c22b4b89d25da30c43d2b04673f32e8e3b797c174a8ccaa555bf2255b4e
-  r: "The script and `data/processed/filtered.csv` exist with real RDKit-derived node/edge\
-    \ features and z-scored MW, but the required log artifacts (`logs/preprocess_summary.log`\
-    \ and `logs/failed_parsing.log`) are absent from the evidence, so there is no\
-    \ record of total/filtered/excluded row counts. Moreover, the code's `SCHEMA_PATH`\
-    \ points to `specs/001-.../contracts/dataset.schema.yaml` rather than the actual\
-    \ `contracts/dataset.schema.yaml`, and its fallback only catches `yaml.YAMLError`\
-    \ (not `FileNotFoundError`), suggesting validation ran against the minimal fallback\
-    \ schema \u2014 indeed, rows like `C"
-  sig: fa98d87e699a2b1278c610d56c95b703251f2cf76b3ba6cadcc60b69b7c91e83
+  h: 14b3880bd7579118d3e654bf98b1ed7a43489b2e33c8aa82cc40932fc969f563
+  r: "Checked `code/data/preprocess.py` (implements all required steps) and `data/processed/filtered.csv`\
+    \ (contains rows that conform to `contracts/dataset.schema.yaml`). However, the\
+    \ required log file `logs/preprocess_summary.log` is not present in the provided\
+    \ artifacts, so the task\u2019s verification requirement is not satisfied. Adding\
+    \ this summary log (with total, filtered, and excluded row counts) is needed to\
+    \ complete the task."
+  sig: 396da29e43bef1c9bac1b097d628d71da170faafb49e56fff185f583738d4701

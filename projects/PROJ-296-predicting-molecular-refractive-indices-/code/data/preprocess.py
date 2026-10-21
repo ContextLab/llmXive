@@ -11,7 +11,7 @@ real Wikidata experimental values), then:
 3. Applies temperature normalisation (linear Edlen-style correction,
    dn/dT = -0.0001 K^-1) when a ``temperature`` column is present.
    When no temperature metadata exists, rows are flagged (logged) as
-   measured at an unrecorded temperature and treated as 20 C reference
+   measured at an unrecorded temperature and treated as 20 °C reference
    values, per the spec's uncertainty-handling assumption.
 4. Generates node features (atomic_num, degree, hybridization,
    is_aromatic) and edge features (bond_type, is_conjugated, stereo).
@@ -21,6 +21,7 @@ Physically implausible refractive indices (outside (1.0, 3.0]) and rows
 that fail ``contracts/dataset.schema.yaml`` validation are excluded and
 counted.  Output: ``data/processed/filtered.csv``.  A summary (total,
 filtered, excluded rows) is written to ``logs/preprocess_summary.log``.
+Unparsable SMILES are recorded in ``logs/failed_parsing.log``.
 
 Usage:
     python code/data/preprocess.py --filter-mw 500
@@ -49,14 +50,27 @@ PROCESSED_DIR = paths.data("processed")
 LOG_PATH = paths.root / "logs" / "preprocess_summary.log"
 FAILED_PARSE_LOG = paths.root / "logs" / "failed_parsing.log"
 
-# Updated schema path to reflect actual location within the repository
-SCHEMA_PATH = (
+# Resolve the schema location.  Prefer a top‑level ``contracts`` folder
+# (if the repository provides one) and fall back to the spec‑directory.
+POSSIBLE_SCHEMA_PATHS = [
+    paths.root / "contracts" / "dataset.schema.yaml",
     paths.root
     / "specs"
     / "001-predicting-molecular-refractive-indices"
     / "contracts"
-    / "dataset.schema.yaml"
-)
+    / "dataset.schema.yaml",
+]
+for p in POSSIBLE_SCHEMA_PATHS:
+    if p.is_file():
+        SCHEMA_PATH = p
+        break
+else:
+    # If none exist we will raise an explicit error – the pipeline must
+    # not silently continue with a fabricated schema.
+    raise FileNotFoundError(
+        "Dataset schema not found in any expected location: "
+        + ", ".join(str(p) for p in POSSIBLE_SCHEMA_PATHS)
+    )
 
 # Physically plausible range for refractive indices of condensed matter.
 RI_MIN = 1.0
@@ -191,6 +205,7 @@ def main() -> None:
     # --- logging setup -------------------------------------------------
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     FAILED_PARSE_LOG.parent.mkdir(parents=True, exist_ok=True)
+
     logging.basicConfig(
         filename=LOG_PATH,
         level=logging.INFO,
@@ -209,6 +224,9 @@ def main() -> None:
             logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
         )
         fail_logger.addHandler(fh)
+
+    # Ensure that even if there are no failures an empty log file exists.
+    FAILED_PARSE_LOG.touch(exist_ok=True)
 
     # --- load raw data -------------------------------------------------
     if not args.input.is_file():
@@ -234,11 +252,11 @@ def main() -> None:
     else:
         logger.info(
             "No 'temperature' column present: all rows FLAGGED as measured "
-            "at an unrecorded temperature; values are treated as 20 C "
+            "at an unrecorded temperature; values are treated as 20 °C "
             "reference values with an uncertainty of +/-0.0001 K^-1 x dT."
         )
 
-    # --- row-by-row processing ----------------------------------------
+    # --- row‑by‑row processing ----------------------------------------
     schema = load_schema()
     validator = Draft7Validator(schema)
 
@@ -308,7 +326,7 @@ def main() -> None:
 
     df_processed = pd.DataFrame(processed_rows)
 
-    # --- z-score normalised molecular weight ---------------------------
+    # --- z‑score normalised molecular weight ---------------------------
     mw_mean = df_processed["molecular_weight"].mean()
     mw_std = df_processed["molecular_weight"].std(ddof=0)
     if mw_std == 0 or pd.isnull(mw_std):
@@ -344,6 +362,14 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     df_processed.to_csv(args.output, index=False)
     logger.info(f"Wrote filtered dataset to {args.output}")
+
+    # Explicit summary write to guarantee the log file exists even if
+    # logging configuration failed to flush.
+    summary_text = (
+        f"Preprocessing completed: {filtered_records} rows kept, "
+        f"{excluded_count} rows excluded. Output: {args.output}\\n"
+    )
+    LOG_PATH.write_text(summary_text, encoding="utf-8")
 
     log.info(
         f"Preprocessing completed: {filtered_records} rows kept, "
