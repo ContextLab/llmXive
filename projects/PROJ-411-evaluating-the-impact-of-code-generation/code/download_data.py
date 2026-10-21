@@ -15,6 +15,7 @@ import argparse
 import hashlib
 import os
 from pathlib import Path
+from typing import Dict, List
 
 import pandas as pd
 import yaml
@@ -51,13 +52,13 @@ SCHEMA_PATH = (
     / "contracts"
     / "raw_prs.schema.yaml"
 )
-REQUIRED_FIELDS = []  # will be populated after loading the schema
+REQUIRED_FIELDS: List[str] = []  # will be populated after loading the schema
 
 # Outcome fields that must exist in the primary dataset (FR‑001 scope check)
 PRIMARY_MANDATORY_FIELDS = {"comment_count", "merged_at"}
 
 # ----------------------------------------------------------------------
-def load_schema_required_fields(schema_path: Path) -> list[str]:
+def load_schema_required_fields(schema_path: Path) -> List[str]:
     """Load the JSON‑schema file and return the list of required property names."""
     if not schema_path.is_file():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
@@ -112,20 +113,24 @@ def compute_sha256(file_path: Path) -> str:
     return h.hexdigest()
 
 # ----------------------------------------------------------------------
-def validate_columns(df: pd.DataFrame, required: list[str]) -> dict[str, str]:
+def validate_columns(df: pd.DataFrame, required: List[str]) -> Dict[str, str]:
     """
     For each required field return a status string:
-    - 'present' if column exists
+    - 'present' if column exists (case‑insensitive match)
     - 'missing' otherwise
     """
-    present = set(df.columns)
-    status = {}
+    # Build a case‑insensitive lookup of existing columns
+    existing_lower = {col.lower(): col for col in df.columns}
+    status: Dict[str, str] = {}
     for field in required:
-        status[field] = "present" if field in present else "missing"
+        if field.lower() in existing_lower:
+            status[field] = "present"
+        else:
+            status[field] = "missing"
     return status
 
 # ----------------------------------------------------------------------
-def write_checksums(checksum_dict: dict[Path, str], out_path: Path) -> None:
+def write_checksums(checksum_dict: Dict[Path, str], out_path: Path) -> None:
     """Write SHA‑256 checksums to a text file."""
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
@@ -133,7 +138,7 @@ def write_checksums(checksum_dict: dict[Path, str], out_path: Path) -> None:
             f.write(f"{path.name}\\t{chksum}\\n")
 
 # ----------------------------------------------------------------------
-def write_schema_map(map_info: dict[str, dict[str, str]], out_path: Path) -> None:
+def write_schema_map(map_info: Dict[str, Dict[str, str]], out_path: Path) -> None:
     """
     Write a markdown table documenting, per dataset, whether each required
     variable is present or missing.
@@ -155,8 +160,8 @@ def main() -> None:
     REQUIRED_FIELDS = load_schema_required_fields(SCHEMA_PATH)
     log.info(f"Required fields from schema: {REQUIRED_FIELDS}")
 
-    checksum_dict: dict[Path, str] = {}
-    schema_map: dict[str, dict[str, str]] = {}
+    checksum_dict: Dict[Path, str] = {}
+    schema_map: Dict[str, Dict[str, str]] = {}
 
     raw_dir = paths.data("raw")
     for ds in DATASETS:
@@ -176,7 +181,7 @@ def main() -> None:
 
         # Load and validate columns
         try:
-            df = pd.read_parquet(downloaded_path)
+            df = pd.read_parquet(downloaded_path, engine="pyarrow")
         except Exception as e:
             raise RuntimeError(
                 f"Failed to read parquet file {downloaded_path}: {e}"

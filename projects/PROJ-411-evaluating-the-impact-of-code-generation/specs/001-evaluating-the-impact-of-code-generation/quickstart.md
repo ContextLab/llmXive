@@ -60,10 +60,8 @@ python code/report.py \
 ## Expected outputs
 
 - `data/processed/processed_prs.csv` — SSoT, written solely by `compute_metrics.py`, conforms to `contracts/processed_prs.schema.yaml`.
-- `data/processed/filtered_prs.csv` (plus `filtered_prs_iqr1.0.csv`, `filtered_prs_iqr2.0.csv`, `filtered_prs_relaxed.csv`) — written solely by `outlier_filter.py`.
+- `data/processed/filtered_prs.csv` (plus `filtered_prs_iqrStandard.csv`, `filtered_prs_iqr2.0.csv`, `filtered_prs_relaxed.csv`) — written solely by `outlier_filter.py`.
 - `data/results/stats_summary.csv` — conforms to `contracts/statistical_results.schema.yaml`.
 - `data/results/sensitivity_report.csv` — IQR sweep, comment-filter sensitivity, and source-stratified results with robustness flags.
 - `data/results/validation_report.md` — Cohen's κ and misclassification response, or an explicit pending-validation statement.
 - `report.md` + `data/results/figures/` — final tables, figures, null-result statements, and limitations (power, selection bias, misclassification attenuation, missing covariates, temporal confounding, dataset origin, observational framing).
-
-All scripts log to `logs/`, monitor RAM/CPU via `psutil` (SC-005), and complete well within the 6-hour free-tier window. Random seeds are pinned in `code/` for full reproducibility.
