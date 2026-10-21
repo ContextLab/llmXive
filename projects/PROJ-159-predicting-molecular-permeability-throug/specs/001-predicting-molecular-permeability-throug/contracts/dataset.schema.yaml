@@ -95,4 +95,3 @@ required:
   - source_url
   - hand_crafted_features
 additionalProperties: false
-

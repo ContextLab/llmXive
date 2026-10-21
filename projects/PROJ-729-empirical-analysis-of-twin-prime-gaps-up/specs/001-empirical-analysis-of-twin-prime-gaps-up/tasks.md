@@ -47,9 +47,9 @@ description: "Task list for Twin Prime Gap Analysis implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
-- [ ] T002 Initialize Python 3.11 project with `primesieve`, `numpy`, `pandas`, `scipy`, `matplotlib` dependencies in `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
+- [X] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
+- [X] T002 Initialize Python 3.11 project with `primesieve`, `numpy`, `pandas`, `scipy`, `matplotlib` dependencies in `requirements.txt`
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
 
 ---
 
@@ -79,12 +79,12 @@ description: "Task list for Twin Prime Gap Analysis implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula` asserting `delta / log(p)` equals expected float derived from p=3 (calculate as `(5-3)/log(3)`). **Verification**: Use tolerance `assert abs(val - expected) < 1e-4` to handle floating point precision.
-- [X] T011 [P] [US1] Integration test for full generation pipeline in `tests/integration/test_generation.py` (verify file creation and row count)
+- [ ] T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula` asserting `delta / log(p)` equals expected float derived from p=3 (calculate as `(5-3)/log(3)`). **Verification**: Use tolerance `assert abs(val - expected) < 1e-4` to handle floating point precision.
+- [~] T011 [P] [US1] Integration test for full generation pipeline in `tests/integration/test_generation.py` (verify file creation and row count)
 
 ### Implementation for User Story 1
 
-- [X] T013b-a [US1] [FR-002] [SC-001] **Implement Hardy-Littlewood Calculation Function**.
+- [~] T013b-a [US1] [FR-002] [SC-001] **Implement Hardy-Littlewood Calculation Function**.
  - **Step 1**: Implement `calculate_hardy_littlewood_expected_count(x)` in `code/generate_primes.py` using the formula $ C_2 \frac{x}{(\ln x)^2} $ where $ C_ \approx 0.660161815846869573927812110014 $.
  - **Output**: A reusable function in `code/generate_primes.py`.
 
@@ -95,7 +95,7 @@ description: "Task list for Twin Prime Gap Analysis implementation"
  - **Output**: `data/results/expected_count.json` containing `{"expected_count": <float>}`.
  - **Dependency**: **Must run after T013b-a** (implementation of the function).
 
-- [ ] T012 [US1] [FR-001] [FR-002] [SC-001] **Generate Twin Primes and Verify Count**. <!-- FAILED-IN-EXECUTION: code/generate_primes.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_primes.py exit=1 -->
+- [~] T012 [US1] [FR-001] [FR-002] [SC-001] **Generate Twin Primes and Verify Count**.
  - **Implementation**: Use `primesieve` to find twin primes up to 1,000,000,000.
  - **Verification**:
  1. Read `expected_count` from `data/results/expected_count.json` (produced by T013b-b).
@@ -105,12 +105,12 @@ description: "Task list for Twin Prime Gap Analysis implementation"
  - **Dependency**: **Must run after T013b-b** to ensure the theoretical expectation is available for verification.
  - **Output**: `data/raw/twin_primes.csv` with columns `p`, `p_next`, `delta`, `normalized_gap`.
 
-- [ ] T014 [US1] [FR-007] [SC-004] [SC-005] **Implement CSV output and memory monitoring**.
+- [~] T014 [US1] [FR-007] [SC-004] [SC-005] **Implement CSV output and memory monitoring**.
  - Ensure RAM usage < 2 GiB and execution time < 45 mins.
  - Output columns: `p`, `p_next`, `delta`, `normalized_gap`.
  - **Dependency**: Must run after T012 (generation logic).
 
-- [ ] T014b [US1] [SC-004] [SC-005] **Measure and record execution time and peak memory usage**.
+- [~] T014b [US1] [SC-004] [SC-005] **Measure and record execution time and peak memory usage**.
  - **Output**: Save metrics to `data/results/performance_gen.json`.
  - **Dependency**: Must run sequentially immediately after T014 completes file writes.
 
@@ -118,7 +118,7 @@ description: "Task list for Twin Prime Gap Analysis implementation"
  - Validate `data/raw/twin_primes.csv` against `contracts/twin_prime_schema.schema.yaml`.
  - **Dependency**: **Must run after T014** (file generation) to ensure the file exists.
 
-- [ ] T016 [US1] **Add execution guard and hash**.
+- [~] T016 [US1] **Add execution guard and hash**.
  - Add execution guard in `code/generate_primes.py` to detect dependency failures (e.g., missing `primesieve` binary) and exit with code 1.
  - Run `code/hash_artifacts.py` to hash the generated CSV and update state.
  - **Dependency**: Must run after T015.
@@ -140,7 +140,7 @@ description: "Task list for Twin Prime Gap Analysis implementation"
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] **Implement `code/analyze_gaps.py` to load `data/raw/twin_primes.csv`**.
+- [~] T020 [US2] **Implement `code/analyze_gaps.py` to load `data/raw/twin_primes.csv`**.
  - **Dependency**: **Must run after T012** (data generation) is complete.
 
 - [ ] T021 [US2] [FR-003] **Implement Parametric Bootstrap Kolmogorov–Smirnov test**.

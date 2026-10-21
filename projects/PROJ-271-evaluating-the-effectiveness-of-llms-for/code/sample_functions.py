@@ -22,7 +22,7 @@ def sample_functions(
     split: str = "train",
     seed: int = 42,
     target_count: int = 800,
-    candidate_pool_limit: int = 5000,
+    candidate_pool_limit: int = 10000,
 ) -> list[dict]:
     """
     Stream the dataset and collect a pool of candidate functions, then randomly
@@ -43,7 +43,11 @@ def sample_functions(
     log.info("Streaming dataset %s (split=%s)...", dataset_id, split)
     
     # Use streaming=True as required by T007
-    ds = load_dataset(dataset_id, split=split, streaming=True)
+    try:
+        ds = load_dataset(dataset_id, split=split, streaming=True)
+    except Exception as e:
+        log.error("Failed to load dataset %s: %s", dataset_id, e)
+        raise
 
     candidates = []
     for item in ds:
@@ -57,7 +61,7 @@ def sample_functions(
                 "language": item.get("language", "python"),
             })
         
-        # CRITICAL: Break early to avoid streaming the entire dataset into memory
+        # Break early to avoid streaming the entire dataset into memory
         if len(candidates) >= candidate_pool_limit:
             break
 
@@ -86,7 +90,6 @@ def main() -> None:
         log.info("Sampled %d functions", sampled_count)
 
         if sampled_count < 800:
-            # This is a safety check; sample_functions should already raise RuntimeError
             raise RuntimeError(
                 f"Sampled count {sampled_count} is less than the required 800 functions"
             )
@@ -105,6 +108,6 @@ def main() -> None:
         raise
 
 if __name__ == "__main__":
-    # Setup basic logging in case toolkit logger isn't fully initialized
+    # Ensure logging is configured
     logging.basicConfig(level=logging.INFO)
     main()

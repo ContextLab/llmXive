@@ -18,11 +18,11 @@
     ```bash
     pip install -r requirements.txt
     ```
-    *Note: `primesieve` may require a C++ compiler if a wheel is not available for your platform, but pre-built wheels exist for Ubuntu 22.04.*
+    *Note: `primesieve` may require a C++ compiler if a wheel is not available for your platform, but pre-built wheels exist for supported Ubuntu versions.*
 
 ## Running the Pipeline
 
-The pipeline consists of six steps: Expected Count, Generation, Validation, Analysis, Hashing, and Reporting.
+The pipeline consists of seven steps: Expected Count, Generation, Performance Measurement, Validation, Analysis, Hashing, and Reporting.
 
 ### Step 0: Compute Expected Count
 Compute and save the Hardy-Littlewood theoretical expectation (used to verify the generated count):
@@ -37,6 +37,13 @@ Generate the twin prime dataset up to a large upper bound:
 python code/generate_primes.py
 ```
 *Output*: `data/raw/twin_primes.csv`
+
+### Step 1b: Measure Generation Performance
+Immediately after generation, measure and record execution time and peak memory usage (SC-004/SC-005):
+```bash
+python code/measure_gen_performance.py
+```
+*Output*: `data/results/performance_gen.json` (plus a durable copy at `results/performance_gen.json`)
 
 ### Step 2: Validate Schema
 Ensure the generated data matches the required schema:

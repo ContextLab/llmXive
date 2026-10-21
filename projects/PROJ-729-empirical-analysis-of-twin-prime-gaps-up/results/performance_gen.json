@@ -1,0 +1,13 @@
+{
+  "execution_time_seconds": 5.239,
+  "peak_memory_mb": 423.56,
+  "total_pairs": 3424506,
+  "gaps_calculated": 3424506,
+  "expected_count": 3074425.688620905,
+  "actual_over_expected_ratio": 1.113869,
+  "within_5_percent_of_expected": false,
+  "memory_limit_mb": 2048.0,
+  "within_memory_limit": true,
+  "time_limit_minutes": 45.0,
+  "within_time_limit": true
+}

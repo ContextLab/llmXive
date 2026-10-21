@@ -1,36 +1,39 @@
 T001:
-  c: false
-  h: 329eac123416d88e646b9d3f75b11211a7d0612b01af0ddbd6cce9be2ef85f02
-  r: "The project root exists and contains many top\u2011level entries, but there\
-    \ is no evidence that the required internal structure from the implementation\
-    \ plan (e.g., `data/raw/`, `data/results/`, `data/figures/` with the specified\
-    \ files) was actually created. The contents of `plan.md` are not shown, so we\
-    \ cannot confirm the directory layout matches it. Adding the expected sub\u2011\
-    directories and placeholder files (or the real artifacts) would be needed to satisfy\
-    \ the task."
-  sig: a6e59ceab62024d653b320abfd391918a6f36b48f3f32393b9b83a3870c32eee
+  c: true
+  h: 901afd03a1bfcfad6a3145d7d1f47db958358bad2dfc7cb096cb9ac85bfde3b8
+  r: The T001 log (exit 0) shows `setup_project.py` created all required directories
+    (code, data/raw, data/results, data/figures, tests/unit, tests/integration, contracts,
+    paper) plus package `__init__.py` files, and the collector's directory listing
+    confirms these exist in the project root. This matches the task's scope of creating
+    the project structure per the implementation plan; the data/analysis artifacts
+    (CSV, stats, figures) belong to later tasks and are not required here.
+  sig: 38c03f21dcb8f50c06d7c0d6a3fe77d8ce38c6e6dca0716089f4a0ad05551b74
 T002:
-  c: false
-  h: 82cd8e120f8776ae84407a25dcf1df72e537e723fb06a1858a08e3492dff0e9d
-  r: Checked the `requirements.txt` file (resolved at `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/requirements.txt`).
-    It only lists `primesieve` and omits the required `numpy`, `pandas`, `scipy`,
-    and `matplotlib` dependencies, so the initialization task is not fully satisfied.
-  sig: 135bb21f505188cd5dabd1efbcf109412f9777cd2bb0298923a6738a818f1080
+  c: true
+  h: 3b217c5b81e10113bd7fec5fdec5c3f65266a02c35ec603e3a57f2f698b6557f
+  r: "The `requirements.txt` exists at the project root (232 bytes) and contains all\
+    \ five required dependencies (`primesieve>=2.3`, `numpy>=1.26`, `pandas>=2.1`,\
+    \ `scipy>=1.11`, `matplotlib>=3.8`) plus reasonable extras, with a comment noting\
+    \ Python 3.11+ \u2014 matching the task's stated requirement exactly."
+  sig: fd3ecd9c8c4a70aaad4ad109032b0a0d1dbb8101952aca8e3b6522666f6c80bd
 T003:
   c: true
-  h: f412a90ac8e48c51f765656d98c4338a91bed6c0005a86466bf920437ea8d83d
-  r: "Checked the `.pre-commit-config.yaml` file (707\u202Fbytes) which defines ruff\
-    \ for linting and black for formatting, along with standard pre\u2011commit hooks.\
-    \ The file exists, is non\u2011empty, and correctly configures the required tools."
-  sig: d8b6c24f1b38c58bb41bd0004ce429d33b2ead23d102db4bdd6c8c9f4e4bfab6
+  h: b6ba0594e806be3dea4c1683c1e2fa2a047495ee915eb777dcd174ffa87652c7
+  r: The `.pre-commit-config.yaml` exists (841 bytes) and configures ruff (lint, with
+    `--fix`) and black (format) hooks alongside standard hygiene hooks, exactly as
+    the task requires. The config is valid YAML with pinned revisions and appropriate
+    file-type filters.
+  sig: e5e638d49ceb26f7ad9c6ad1485ebbb51396d01e35102c8ad86a38a34a097752
 T004:
   c: true
-  h: 5c72ad5541585c2c28e86113b665816f8e851f61b09e8de550a02499e9793e76
-  r: "The evidence shows the three required directories (`data/raw/`, `data/results/`,\
-    \ `data/figures/`) exist in the project root, each containing a `.gitkeep` placeholder\
-    \ (and `data/results/` also has `expected_count.json`). This satisfies the task\u2019\
-    s requirement to set up the data directory structure."
-  sig: dcf7af038e61720c6c5837616c37fc175a78d0c854816a9f0b3b518cc5c7629c
+  h: 886df3de5a4f5aff89052bc296730544eca7f77c7924f49c9a2e7e90243a0bc8
+  r: "The task T004 only required setting up the directory structure `data/raw/`,\
+    \ `data/results/`, and `data/figures/`, and all three directories exist (confirmed\
+    \ by the collector with non-empty listings including `.gitkeep` files). The directories\
+    \ even contain downstream artifacts (twin_primes.csv, expected_count.json, performance_gen.json),\
+    \ which is beyond the task's scope; the \xB15% Hardy-Littlewood criterion in performance_gen.json\
+    \ belongs to US1 validation, not this setup task."
+  sig: f32a67e22cd32c57b84977f58209fa428e2d79349cafc1fc737f78ce47d66ff7
 T005:
   c: true
   h: 03385d5724748009bf7ff32f698214a17d05c13f71fe3603afca3f3eec05ad9c
@@ -42,15 +45,15 @@ T005:
   sig: 90f033dfae6073c6942f3ac5d4139f132b8b68ede6ad7486072c4b2fb2bdac2f
 T006:
   c: true
-  h: db8af0e93623a95d1df9a346305721cf39b1119a8962371d211c16a9a42fc396
-  r: '`code/hash_artifacts.py` exists (3484 bytes) and fully implements SHA-256 hashing
-    (chunked `hashlib.sha256`) over the project''s data/results/figures artifacts
-    plus YAML state updating via `yaml.safe_load`/`yaml.dump`, with no stubs or TODOs.
-    Although it reads config keys (`output_csv`, `results_dir`, `figures_dir`) that
-    `config.py` doesn''t define, its fallback defaults (`data/raw/twin_primes.csv`,
-    `data/results`, `data/figures`) match the project''s configured paths, so the
-    behavior is correct.'
-  sig: a2a8bf17c380a2f22dd05bf33b1de3222fc9d746c9161eb38103c42906a6a13b
+  h: fe728514a5a45a4f929a0cf2acbaeaa730da0d034f2ae16cad14181b0a02336e
+  r: "The artifact `code/hash_artifacts.py` exists (6085 bytes) and implements real\
+    \ SHA-256 computation (chunked hashlib over file bytes), artifact collection across\
+    \ data/raw, data/results, data/figures, and results/, state YAML update via yaml.safe_load/dump\
+    \ with per-artifact hashes, and a durable manifest at results/artifact_hashes.json\
+    \ \u2014 matching the task's requirement to compute hashes and update project\
+    \ state YAML. No stubs, TODOs, or fabricated outputs are present, and the config\
+    \ dependency it imports exists at `code/config.py`."
+  sig: f10e57c5088dc539e2fd80f485d3da551fa8cfcaa5c479bdd96087a800a4bca1
 T007:
   c: true
   h: 1d6cb23204d07fee5b64f7800b12e362bafa6886854de1661ed5f5faa5afff5e
@@ -70,13 +73,17 @@ T008:
     TODOs, or placeholders are present.'
   sig: 90d4be97cf440e02f680db201a39dd33327055591cf6a5ec640c00b28144cb40
 T010:
-  c: true
-  h: ac958f73355c5a05dd0bd59cdd2b27c49eab9e73bcc76bfc540826745a24c0db
-  r: "The file `tests/unit/test_gap_calc.py` exists and contains the `test_normalized_gap_formula`\
-    \ function, which computes `delta / log(p)` for `p=3` and asserts the result matches\
-    \ the expected value within a tolerance of `1e-4`. This directly fulfills the\
-    \ task\u2019s requirement."
-  sig: 379a3d6bd855091ef3a6657ec5e403cb3582e3af4bef1e74b37c9fa58b4f35dc
+  c: false
+  h: b62ca710967ded70ba7533cbaba7325905e4910f36a942d3db46cf8bf2f23f03
+  r: 'The file `tests/unit/test_gap_calc.py` exists and `test_normalized_gap_formula`
+    does use p=3, delta=2, and the 1e-4 tolerance, but it computes `expected_normalized`
+    and `actual_normalized` with the identical expression (`delta / math.log(p)`),
+    making the assertion tautological rather than checking against an independently
+    derived expected value. More critically, the module-level `from generate_primes
+    import compute_hardy_littlewood_expected_count` will fail: the test inserts `tests/`
+    (the parent of `tests/unit`) into `sys.path`, but `generate_primes.py` lives in
+    `code/`, so the entire test mod'
+  sig: 1e6caad66d9799d61f5395992e0f395ff4cf137bc27ce33f4166b2e2d290d457
 T011:
   c: true
   h: c1a1a7884ed4e9bdb7764542a2bb16b9c340ef5975b132492156af6b410ae079

@@ -1,19 +1,18 @@
 status: none
-intent: download CoRE MOF 2019 IZA Zeolite gas permeability datasets python package
-  dataset
+intent: CoRE MOF 2019 IZA Zeolite Figshare gas permeability python package dataset
 required_fields:
 - framework_id
 - framework_name
-- framework_cif_path_or_content
-- gas_name
+- framework_cif
+- graph_node_atomic_number
+- graph_node_valence
+- graph_node_partial_charge
+- graph_node_hybridization
+- graph_node_orbital_info
+- graph_edge_distance
 - gas_smiles
-- temperature_K
-- pressure_bar
+- gas_name
 - permeability_value
-- permeability_units
-- measurement_reference
-- experimental_date
-- atom_node_index
-cache_key: 35a75f715fd4d7416a370c71f7c26fe95886bf2519b289ddad8ac3fac34e7056
-searched_at: '2026-10-17T16:25:55.324405+00:00'
+cache_key: 3634e77bf1dabda053278ec4184105c2865ced3ddfd8a5e1db1c3b6404b54fb9
+searched_at: '2026-10-21T03:25:45.482662+00:00'
 retry_count: 1

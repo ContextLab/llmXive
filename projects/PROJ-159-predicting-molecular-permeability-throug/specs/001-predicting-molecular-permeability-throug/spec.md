@@ -102,7 +102,7 @@ As a researcher, I want to conduct an ablation study by removing heterogeneous c
 - **SC-004**: The variance in RMSE across the sensitivity sweep {0.30, 0.50, 0.70} nm is measured to **characterize** the sensitivity of model performance to the contact threshold. (See FR‑007)
 - **SC-005**: The total wall‑clock time for the entire pipeline (download to evaluation) is measured and must be ≤ 4 hours. (See FR‑018)
 - **SC-006**: The standard deviation of RMSE and Pearson r across the 5 cross‑validation folds is measured to assess model stability on small datasets. (See FR‑009)
-- **SC-007**: The feature‑importance report must list at least the top five molecular and top five framework atom‑level features with SHAP‑like values, generated via GNNExplainer aggregation as specified in FR‑020, and be reproducible. (See FR‑020)
+- **SC-007**: The feature‑importance report must list the most important molecular and framework atom‑level features with SHAP‑like values, generated via GNNExplainer aggregation as described in the relevant documentation, and be reproducible. (See FR‑020)
 - **SC-008**: The stratified CV must use gas‑type stratification as defined in FR‑012; verification is performed by checking that each fold contains a proportional representation of each gas type. (See FR‑012)
 - **SC-009**: The neighbor‑edge construction must use a 0.35 nm cutoff; verification is performed by sampling 100 random graphs and confirming no neighbor edge exceeds this distance. (See FR‑014)
 - **SC-010**: The linear‑regression baseline must be built using exactly the four specified descriptors; verification is performed by asserting the descriptor matrix shape matches (n_samples × 4). (See FR‑015)

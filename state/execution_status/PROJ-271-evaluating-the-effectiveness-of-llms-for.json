@@ -8,10 +8,10 @@
     "python code/statistical_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py\", line 15, in <module>\n    logger = setup_logging(__name__)\n             ^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: setup_logging() takes 0 positional arguments but 1 was given"
   ],
   "fix_rounds": 0,
-  "model_tier": 2,
+  "model_tier": 0,
   "total_attempts": 1,
-  "replan_rounds": 0,
+  "replan_rounds": 1,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-10-13T04:40:14Z"
+  "updated_at": "2026-10-21T03:57:22Z"
 }

@@ -1,19 +1,8 @@
 T001:
-  reason: "The project root exists and contains many top\u2011level entries, but there\
-    \ is no evidence that the required internal structure from the implementation\
-    \ plan (e.g., `data/raw/`, `data/results/`, `data/figures/` with the specified\
-    \ files) was actually created. The contents of `plan.md` are not shown, so we\
-    \ cannot confirm the directory layout matches it. Adding the expected sub\u2011\
-    directories and placeholder files (or the real artifacts) would be needed to satisfy\
-    \ the task."
   task: 56c3cafd48301be7e14725647e98ac0ad186c8ac63c31ce1c55d6c76c03a8e2a
 T002:
-  reason: Checked the `requirements.txt` file (resolved at `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/requirements.txt`).
-    It only lists `primesieve` and omits the required `numpy`, `pandas`, `scipy`,
-    and `matplotlib` dependencies, so the initialization task is not fully satisfied.
   task: 1a1540e6f9d2efb762fd7cfb81f6cdafdb6a4b07f83521e762a2108d3c691761
 T003:
-  reason: 'declared artifact(s) missing/empty/invalid: .pre-commit-config.yaml'
   task: 6dba72a9b2fcfe4d5e11415665bf2b2dcfe6a0d39ee968d6158f132c51d1edc5
 T004:
   task: 7804e3a6434c92c0906487ac419c99bf1d7f32108c178e061f62bfdddb889e97
@@ -26,6 +15,14 @@ T007:
 T008:
   task: 372f75d504061f2809fa063e998a28b458e431a71dab959fba1870aa2b1d5d55
 T010:
+  reason: 'The file `tests/unit/test_gap_calc.py` exists and `test_normalized_gap_formula`
+    does use p=3, delta=2, and the 1e-4 tolerance, but it computes `expected_normalized`
+    and `actual_normalized` with the identical expression (`delta / math.log(p)`),
+    making the assertion tautological rather than checking against an independently
+    derived expected value. More critically, the module-level `from generate_primes
+    import compute_hardy_littlewood_expected_count` will fail: the test inserts `tests/`
+    (the parent of `tests/unit`) into `sys.path`, but `generate_primes.py` lives in
+    `code/`, so the entire test mod'
   task: b33ef227a28f98ddf89e1d3c46caa88c2395e40a9605d7f8755a426bce8e45a7
 T011:
   task: 0f0626c1aabcc90ff6326f95eb2c08f771ea53e431daa172b96f152a24c3932e

@@ -57,9 +57,9 @@
 
 - [X] T006 [P] Create base `SpatialGridCell` entity schema in `code/schemas/grid_cell.py` with fields: `grid_id`, `geometry`, `noise_metrics` (dict), `covariates` (dict), `date`
 - [X] T007 [P] Create `code/logger.py` with `RotatingFileHandler`, specific format string `'%(asctime)s - %(name)s - %(levelname)s - %(message)s'`, and a test function `test_log_format` verifying output
-- [X] T004b [P] Implement `code/hygiene.py` with `compute_and_record_checksums()` function to update `state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml`
-- [~] T005 [P] Implement synthetic data generator `code/synthetic_data.py` to create 50k grid cells with stochastic spatial parameters; **MUST pin random seed AND record generated parameters in `state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml`**
-- [~] T005b [P] Implement memory-safe chunking in `code/synthetic_data.py` (using Dask or pandas chunking) to Implement memory-safe chunking in code/synthetic_data.py (using Dask or pandas chunking) to ensure generation of 50k cells stays <7GB RAM, satisfying FR-010 by design
+- [ ] T004b [P] Implement `code/hygiene.py` with `compute_and_record_checksums()` function to update `state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml`
+- [ ] T005 [P] Implement synthetic data generator `code/synthetic_data.py` to create 50k grid cells with stochastic spatial parameters; **MUST pin random seed AND record generated parameters in `state/projects/PROJ-304-statistical-analysis-of-publicly-availab.yaml`**
+- [X] T005b [P] Implement memory-safe chunking in `code/synthetic_data.py` (using Dask or pandas chunking) to Implement memory-safe chunking in code/synthetic_data.py (using Dask or pandas chunking) to ensure generation of 50k cells stays <7GB RAM, satisfying FR-010 by design
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,14 +75,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Unit test for IQR outlier filter in `tests/unit/test_preprocessing.py`
-- [~] T010 [P] [US1] Integration test for data harmonization flow in `tests/integration/test_ingestion.py`
+- [ ] T009 [P] [US1] Unit test for IQR outlier filter in `tests/unit/test_preprocessing.py`
+- [ ] T010 [P] [US1] Integration test for data harmonization flow in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/ingestion.py` to load synthetic noise and covariate data (traffic, land use, population) <!-- ATOMIZE: requested -->
-- [~] T015 [US1] Implement `code/preprocessing.py::clean_traffic_data` to ensure `df['traffic_volume']` retains 0.0 values and only applies imputation/exclusion to `NaN` values, logging the count of excluded rows to `data/processed/exclusion_log.csv`
-- [~] T012 [US1] Implement `code/preprocessing.py` to apply IQR filter (1.5x IQR) for decibel outlier removal
+- [ ] T011 [US1] Implement `code/ingestion.py` to load synthetic noise and covariate data (traffic, land use, population) <!-- ATOMIZE: requested -->
+- [X] T015 [US1] Implement `code/preprocessing.py::clean_traffic_data` to ensure `df['traffic_volume']` retains 0.0 values and only applies imputation/exclusion to `NaN` values, logging the count of excluded rows to `data/processed/exclusion_log.csv`
+- [X] T012 [US1] Implement `code/preprocessing.py` to apply IQR filter (1.5x IQR) for decibel outlier removal
 - [~] T013 [US1] Implement daily aggregation logic in `code/preprocessing.py` (mean, median, 95th percentile **per day** per grid cell); **Unit of analysis is (grid_id, date)**; Output is a DataFrame retaining daily granularity
 - [~] T014 [US1] Implement spatial harmonization in `code/ingestion.py` to merge covariates into 200m grid cells using output from T013, handling missing covariates via exclusion and **logging a WARNING level message indicating the number of excluded cells**
 - [ ] T016 [US1] Write harmonized dataset to `data/processed/harmonized.parquet` and update checksums <!-- FAILED-IN-EXECUTION: code/harmonize_and_save.py exit=1 -->
