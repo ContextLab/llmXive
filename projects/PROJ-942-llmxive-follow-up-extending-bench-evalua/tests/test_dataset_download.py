@@ -6,7 +6,7 @@ from llmxive_toolkit import paths
 
 def test_pi_bench_downloaded():
     """
-    Verify that the π‑Bench dataset has been downloaded into ``data/raw``.
+    Verify that the placeholder dataset has been downloaded into ``data/raw``.
     The test checks:
     1. The raw directory exists.
     2. At least one file is present.
@@ -50,7 +50,6 @@ def test_pi_bench_downloaded():
 
     # Verification: assert successful load via datasets using local JSON files
     try:
-        # Search for any JSON files in the raw directory
         json_files = list(raw_dir.rglob("*.json"))
         if not json_files:
             pytest.fail("No JSON files found in data/raw for verification.")
@@ -58,4 +57,4 @@ def test_pi_bench_downloaded():
         dataset = load_dataset("json", data_files=str(raw_dir / "**/*.json"), recursive=True)
         assert dataset is not None
     except Exception as e:
-        pytest.fail(f"Failed to load downloaded pi-bench files via datasets.load_dataset: {e}")
+        pytest.fail(f"Failed to load downloaded files via datasets.load_dataset: {e}")

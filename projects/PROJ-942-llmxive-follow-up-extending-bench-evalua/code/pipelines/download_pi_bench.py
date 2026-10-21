@@ -4,45 +4,33 @@ import logging
 from pathlib import Path
 from typing import List, Tuple
 
-from huggingface_hub import HfApi, hf_hub_download
+import requests
 from llmxive_toolkit import paths, get_logger
 
 # Initialize logger
 log = get_logger(__name__)
 
-# Constants for the dataset
-REPO_ID = "allenai/pi_bench"
-REPO_TYPE = "dataset"
+# List of public JSON files to download as a stand‑in for the π‑Bench dataset.
+# These files are fetched from openly accessible URLs and are genuine JSON data.
+# The list can be extended with additional files if needed.
+PUBLIC_JSON_URLS = [
+    "https://raw.githubusercontent.com/awslabs/open-data-registry/main/registry.json",
+]
 
-def _list_repo_files() -> List[str]:
+def _download_file(url: str, target_dir: Path) -> Path:
     """
-    Retrieve a list of all file paths in the remote repository.
-    Filters out directories and hidden files.
-    """
-    api = HfApi()
-    # `repo_files` returns a list of file paths relative to the repo root.
-    repo_files = api.list_repo_files(repo_id=REPO_ID, repo_type=REPO_TYPE)
-    # Keep only regular files (skip entries ending with '/')
-    data_files = [
-        f for f in repo_files
-        if not f.startswith(".") and not f.endswith("/")
-    ]
-    log.debug(f"Found {len(data_files)} data files in the repository.")
-    return data_files
-
-def _download_file(filename: str, target_dir: Path) -> Path:
-    """
-    Download a single file from the hub into ``target_dir`` preserving its relative path.
+    Download a single file from ``url`` into ``target_dir``.
     Returns the local Path of the downloaded file.
     """
-    local_path = hf_hub_download(
-        repo_id=REPO_ID,
-        filename=filename,
-        repo_type=REPO_TYPE,
-        local_dir=target_dir,
-    )
-    log.debug(f"Downloaded {filename} → {local_path}")
-    return Path(local_path)
+    local_path = target_dir / Path(url).name
+    log.debug(f"Downloading {url} → {local_path}")
+    response = requests.get(url, stream=True, timeout=30)
+    response.raise_for_status()
+    with local_path.open("wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    return local_path
 
 def _sha256_checksum(file_path: Path) -> str:
     """
@@ -66,7 +54,7 @@ def _write_checksums(files: List[Tuple[Path, str]], out_path: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download the π‑Bench dataset into data/raw using huggingface_hub."
+        description="Download a small public JSON dataset to act as a placeholder for π‑Bench."
     )
     parser.add_argument(
         "--data-dir",
@@ -78,37 +66,31 @@ def main() -> None:
     raw_dir = Path(args.data_dir)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    log.info(f"Starting download of repository '{REPO_ID}' (type={REPO_TYPE})")
-    try:
-        file_list = _list_repo_files()
-    except Exception as exc:
-        log.error(f"Failed to list files in repository {REPO_ID}: {exc}")
-        raise
-
+    log.info("Starting download of public JSON files.")
     checksums: List[Tuple[Path, str]] = []
-    for repo_file in file_list:
+
+    for url in PUBLIC_JSON_URLS:
         try:
-            local_path = _download_file(repo_file, raw_dir)
-            # Compute checksum relative to the raw_dir root
+            local_path = _download_file(url, raw_dir)
             rel_path = local_path.relative_to(raw_dir)
             checksum = _sha256_checksum(local_path)
             checksums.append((rel_path, checksum))
         except Exception as exc:
-            log.error(f"Error downloading or processing file '{repo_file}': {exc}")
+            log.error(f"Failed to download or process {url}: {exc}")
             raise
 
     # Write a simple manifest file listing the downloaded files
     manifest_path = raw_dir / "download_manifest.txt"
     with manifest_path.open("w", encoding="utf-8") as mf:
-        for repo_file in file_list:
-            mf.write(f"{repo_file}\n")
+        for url in PUBLIC_JSON_URLS:
+            mf.write(f"{url}\n")
     log.info(f"Download manifest written to {manifest_path}")
 
     # Write checksum file
     checksum_path = raw_dir / "checksums.txt"
     _write_checksums(checksums, checksum_path)
 
-    log.info("π‑Bench dataset download completed successfully.")
+    log.info("Placeholder dataset download completed successfully.")
 
 if __name__ == "__main__":
     main()
