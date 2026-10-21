@@ -13,13 +13,13 @@ As a researcher, I need to generate binary black hole merger waveforms and injec
 
 **Why this priority**: This is the foundational data generation step. Without simulated waveforms with known ground-truth parameters and controlled quantization artifacts, no parameter estimation or error analysis can occur. It directly enables the core measurement of reconstruction error.
 
-**Independent Test**: Can be fully tested by generating a small batch (e.g., 50) of waveforms, applying 8-bit quantization, and verifying that the quantized signal's discrete levels match the theoretical $2^8$ bins and that the signal-to-noise ratio (SNR) falls within the expected range (8-50) for the injected distance.
+**Independent Test**: Can be fully tested by generating a small batch (e.g., a modest number) of waveforms, applying 8-bit quantization, and verifying that the quantized signal's discrete levels match the theoretical number of bins for an 8‑bit quantizer. and that the signal-to-noise ratio (SNR) falls within the anticipated range of low to moderate values for the injected distance.
 
 **Acceptance Scenarios**:
 
 1. **Given** a set of binary black hole parameters (masses 10-50 $M_\odot$, distances 100-1000 Mpc), **When** the system generates waveforms and injects them into LIGO O3 noise, **Then** [deferred] of the resulting strain data must have an SNR within the range [8, 50] with a tolerance of ±0.5.
-2. **Given** a generated strain time series, **When** the system applies 12-bit quantization, **Then** the output signal must contain no more than $2^{12}$ (4096) unique discrete amplitude values, and the step size must match the theoretical quantization interval for the signal's dynamic range.
-3. **Given** a batch of 10,000 simulated signals, **When** the generation pipeline completes, **Then** the output dataset must be saved in a format compatible with PyCBC/Bilby (e.g., HDF or GWOSC format) and fit within the 7 GB RAM limit of the CI runner.
+2. **Given** a generated strain time series, **When** the system applies 12-bit quantization, **Then** the output signal must contain no more than a modest number of unique discrete amplitude values, and the step size must match the theoretical quantization interval for the signal's dynamic range.
+3. **Given** a batch of simulated signals, **When** the generation pipeline completes, **Then** the output dataset must be saved in a format compatible with PyCBC/Bilby (e.g., HDF or GWOSC format) and fit within the memory constraints of the CI runner.
 
 ---
 
@@ -34,7 +34,7 @@ As a researcher, I need to run Bayesian parameter estimation (using PyCBC-Infere
 **Acceptance Scenarios**:
 
 1. **Given** a quantized waveform with a known injected chirp mass and SNR > 10, **When** the parameter estimation pipeline runs, **Then** the absolute bias in the recovered chirp mass mean must be less than 10% of the injected value (|mean - truth| < 0.1 × truth).
-2. **Given** a set of 50 quantized signals with SNR > 10, **When** the inference is executed, **Then** the truth value must be contained within the 90% credible interval for at least 90% of the signals (calibration check).
+2. **Given** a set of quantized signals with SNR > 10, **When** the inference is executed, **Then** the truth value must be contained within the 90% credible interval for at least 90% of the signals (calibration check).
 3. **Given** a set of 50 quantized signals, **When** the inference is executed, **Then** the total runtime must not exceed 6 hours on a 2-core CPU runner, ensuring the full study is feasible within the CI time limit.
 4. **Given** the inference results, **When** the system computes the Mean Squared Error (MSE) between injected and recovered parameters, **Then** the MSE must be calculated for chirp mass, dimensionless spin, and luminosity distance separately.
 
@@ -52,7 +52,7 @@ As a researcher, I need to analyze the error vs. SNR curves across different bit
 
 1. **Given** the computed error for each bit depth across the SNR range, **When** the system fits error vs. SNR curves, **Then** it must identify a crossover point (SNR threshold) where the quantization-induced error (defined as Total Error minus Instrumental Error from float64 baseline) exceeds 10% of the Instrumental Error for at least one bit depth.
 2. **Given** the identified thresholds, **When** the system generates diagnostic plots, **Then** the plots must show that the slope of the error curve changes by >20% at the threshold, clearly distinguishing the transition region.
-3. **Given** the full analysis results, **When** the final report is generated, **Then** it must state a concrete SNR range (e.g., 12-18) where 8-bit quantization is deemed insufficient for unbiased parameter estimation.
+3. **Given** the full analysis results, **When** the final report is generated, **Then** it must state a concrete SNR range (e.g., moderate‑to‑high values within the typical operating window) where 8‑bit quantization is deemed insufficient for unbiased parameter estimation.
 
 ### Edge Cases
 
@@ -64,8 +64,8 @@ As a researcher, I need to analyze the error vs. SNR curves across different bit
 
 ### Functional Requirements
 
-- **FR-001**: System MUST generate binary black hole merger waveforms with masses in the range [10, 50] solar masses and distances in the range [100, 1000] Mpc using PyCBC (See US-1).
-- **FR-002**: System MUST inject generated waveforms into LIGO O3 noise PSD data and apply quantization at bit depths of exactly 1, 8, 10, 12, 14, and 16 bits (See US-1).
+- **FR-001**: System MUST generate binary black hole merger waveforms with masses spanning from the lower end of the considered interval up to 50 solar masses and distances in the range from the lower end of the hundreds of Mpc up to 1000 Mpc using PyCBC (See US-1).
+- **FR-002**: System MUST inject generated waveforms into LIGO O3 noise PSD data and apply quantization at a minimal bit depth and at 8, 10, 12, 14, and 16 bits (See US-1).
 - **FR-003**: System MUST execute Bayesian parameter estimation using PyCBC-Inference or Bilby to recover chirp mass, spin, and luminosity distance from quantized signals (See US-2).
 - **FR-004**: System MUST compute the Mean Squared Error (MSE) between injected ground-truth parameters and recovered posterior means for each signal (See US-2).
 - **FR-005**: System MUST fit error-vs-SNR curves and identify the SNR threshold where quantization-induced error (Total Error minus Instrumental Error) exceeds 10% of the Instrumental Error (See US-3).

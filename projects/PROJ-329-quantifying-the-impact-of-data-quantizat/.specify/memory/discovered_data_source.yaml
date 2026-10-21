@@ -1,13 +1,16 @@
 status: none
-intent: LIGO O3 GWOSC noise data PyCBC python package dataset
+intent: download LIGO O3 strain data GWOSC python package dataset
 required_fields:
-- gps_time
-- strain
+- time_series
 - sampling_rate
-- detector
-- quality_flags
-- segment_start
-- segment_end
-cache_key: 35c563090f31fa3bd67de53752f65d8a9e2232a980c7e5ec4e6c754af3509009
-searched_at: '2026-10-21T12:11:28.758254+00:00'
+- m1_solar_masses
+- m2_solar_masses
+- distance_mpc
+- snr
+- quantization_bits
+- unique_amplitude_values
+- noise_segment
+- injection_parameters
+cache_key: 53f561b4f75eae09cae171aea22f8ded7c126fcbf8d4a6fd547c3ed34cc2edd7
+searched_at: '2026-10-21T13:13:01.276547+00:00'
 retry_count: 1

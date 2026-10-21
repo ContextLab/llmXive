@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T23:24:34.604841Z'
-current_stage: clarified
+current_stage: specified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-329-quantifying-the-impact-of-data-quantizat
-last_run_id: 9373709b-6439-4224-8b31-8b48ae01b04e
+last_run_id: 6a976bf7-e420-485f-9e32-56146aa16c81
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-329-quantifying-the-impact-of-data-quantizat/specs/001-quantifying-the-impact-of-data-quantizat
 title: Quantifying the Impact of Data Quantization on Gravitational Wave Signal Reconstruction
-updated_at: '2026-10-15T14:54:19.813922Z'
+updated_at: '2026-10-21T13:32:25.141233Z'

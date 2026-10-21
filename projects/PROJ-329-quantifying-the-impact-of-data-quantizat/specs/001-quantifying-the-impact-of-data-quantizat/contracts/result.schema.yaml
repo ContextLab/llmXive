@@ -37,7 +37,7 @@ properties:
         description: "Mean Squared Error for spin."
       distance:
         type: "number"
-        description: "Mean Squared Error for luminosity distance."
+        description: "Mean Squared Error for distance."
     required: ["chirp_mass", "spin", "distance"]
   convergence_status:
     type: "string"
@@ -57,4 +57,8 @@ properties:
       distance:
         type: "number"
     required: ["chirp_mass", "spin", "distance"]
-required: ["waveform_id", "bit_depth", "inference_method", "mean_params", "mse", "convergence_status", "snr", "delta"]
+  data_type:
+    type: "string"
+    enum: ["float64", "quantized"]
+    description: "Indicates whether this result corresponds to a float64 baseline or a quantized signal."
+required: ["waveform_id", "bit_depth", "inference_method", "mean_params", "mse", "convergence_status", "snr", "delta", "data_type"]

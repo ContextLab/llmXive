@@ -30,10 +30,12 @@ properties:
     description: "Injected Signal‑to‑Noise Ratio."
   sampling_rate:
     type: "number"
-    description: "Sampling rate in Hz."
+    description: "Sampling rate in Hz"
+    minimum: 0
   duration:
     type: "number"
-    description: "Signal duration in seconds."
+    description: "Signal duration in seconds"
+    minimum: 0
   bit_depth:
     type: "integer"
     description: "Bit depth of quantization (0 for float64 baseline, otherwise 1‑16)."
@@ -42,9 +44,9 @@ properties:
     description: "Fixed full‑scale range used for quantization."
   step_size:
     type: "number"
-    description: "Amplitude resolution of the quantization."
+    description: "Amplitude resolution of the quantizer."
   data_type:
     type: "string"
     enum: ["float64", "quantized"]
-    description: "Indicates whether the stored data are full‑precision or quantized."
-required: ["waveform_id", "params", "snr", "sampling_rate", "duration", "bit_depth", "data_type"]
+    description: "Indicates whether the waveform is baseline or quantized."
+required: ["waveform_id", "params", "snr", "sampling_rate", "duration", "bit_depth", "fsr", "step_size", "data_type"]
