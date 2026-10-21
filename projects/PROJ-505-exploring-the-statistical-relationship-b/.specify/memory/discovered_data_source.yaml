@@ -1,17 +1,18 @@
 status: none
-intent: OMNI2 hourly solar wind composition and NOAA geomagnetic indices python package
-  dataset
+intent: ACE SWICS and WIND solar wind composition O/Fe He/H C/O hourly dataset python
+  package dataset
 required_fields:
 - timestamp
 - O_Fe_ratio
 - He_H_ratio
 - C_O_ratio
-- solar_wind_speed
+- bulk_velocity
 - proton_density
-- interplanetary_magnetic_field
+- IMF_Bx
+- IMF_By
+- IMF_Bz
 - Dst_index
 - Kp_index
-- coupling_function
-cache_key: 5698aa31408f8603a88b953513646d533402ff7fd5a4c2c4c0f8e961de6157a0
-searched_at: '2026-10-20T23:12:10.592499+00:00'
+cache_key: c35c08c62061c37802388f8a806716ffcc02bd90d58e55ddc3d1a5af7928d939
+searched_at: '2026-10-21T01:35:11.296752+00:00'
 retry_count: 1

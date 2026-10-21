@@ -1,12 +1,19 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/verify_requirements.py
-    exit=1'
+  reason: "The `requirements.txt` file correctly pins packages to the `package==major.minor.*`\
+    \ pattern, but the execution log shows that `pip install -r requirements.txt`\
+    \ exited with code\u202F1, meaning the installation failed. The task also demands\
+    \ a successful install on a clean runner (and a CI regex check), which is not\
+    \ demonstrated. The implementer must ensure the requirements can be installed\
+    \ without error and provide evidence of the passing CI regex validation."
   task: 6ee7d4e1464e67f99c454380b33e94670cfd3dd02a83f4826cf2f56f339b3ad0
 T002:
   task: 2c9fb502a1669081aa5d234ccb5329147ec3ec37dc3d8ec7e3ec2c43ba973301
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/ingestion/run_download_real.py
-    exit=1'
+  reason: "The repository contains the `code/ingestion/download_real.py` script and\
+    \ its test suite, but the required output artifacts\u2014`data/raw/ace_swics/`,\
+    \ `data/raw/wind_sms/`, `data/raw/omni/` directories with the downloaded CDF files\
+    \ and the generated `data/raw/checksums.yaml`\u2014are all missing. Without these\
+    \ raw data files and checksum manifest, the ingestion task is not truly fulfilled."
   task: 26ee0bbfa26153a62c6dfe654a5bb2fc4faf10b4220919d79a5515a808342c8c
 T004:
   reason: "The repository lacks the required output artifacts `data/processed/aligned_hourly.parquet`\

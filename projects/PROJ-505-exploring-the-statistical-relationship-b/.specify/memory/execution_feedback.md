@@ -33,11 +33,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m code.main -> rc=1
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/dtypes/dtypes.py", line 24, in <module>
-    from pandas._libs import (
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages/pyarrow/__init__.py", line 65, in <module>
-    import pyarrow.lib as _lib
-AttributeError: _ARRAY_API not found
+
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
@@ -65,7 +61,7 @@ E   ImportError: cannot import name '_check_multicollinearity' from 'analysis.re
 ERROR tests/unit/test_ingestion.py
 ERROR tests/unit/test_regression.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.92s ===============================
+============================== 2 errors in 1.15s ===============================
 
 
 - python -m code.ingestion.download_real --start 2000-01-01 --end 2020-12-31 -> rc=1
@@ -84,11 +80,7 @@ ERROR tests/unit/test_regression.py
 ConnectionError: Failed to fetch OMNI hourly from CDAWeb via pyspedas: pyspedas stub: real data download not implemented in this test environment.
 
 - python -m code.main --quick  # uses only the initial segment of rows. -> rc=1
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/dtypes/dtypes.py", line 24, in <module>
-    from pandas._libs import (
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages/pyarrow/__init__.py", line 65, in <module>
-    import pyarrow.lib as _lib
-AttributeError: _ARRAY_API not found
+
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code

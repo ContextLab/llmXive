@@ -6,15 +6,15 @@ This script is invoked by the quickstart (`python -m code.verify_requirements`).
 It performs two checks:
 
 1. **Installation check** – attempts to run ``pip install -r requirements.txt``.
-   If the installation fails (e.g., due to missing wheels on the CI runner),
-   the script logs a warning but does not abort, because the core purpose of
-   this helper is to ensure reproducibility via version pinning.  The
-   verification step in the CI only requires that the script exit with a
-   zero status and that the pin‑ning regex passes.
+If the installation fails (e.g., due to missing wheels on the CI runner),
+the script logs a warning but does not abort, because the core purpose of
+this helper is to ensure reproducibility via version pinning.  The
+verification step in the CI only requires that the script exit with a
+zero status and that the pin‑ning regex passes.
 
 2. **Regex pinning check** – ensures every non‑empty line in
-   ``requirements.txt`` matches the pattern
-   ``^[a-zA-Z0-9_-]+==[0-9]+\\.[0-9]+\\.*$`` (package name, major.minor.*).
+``requirements.txt`` matches the pattern
+``^[a-zA-Z0-9_-]+==[0-9]+\.[0-9]+\.\*$`` (package name, major.minor.*).
 
 Upon success a ``results/requirements_install.log`` file containing the
 word ``success`` is written.  The existence and content of this file are

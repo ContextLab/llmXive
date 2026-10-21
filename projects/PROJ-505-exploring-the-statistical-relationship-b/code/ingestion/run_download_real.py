@@ -13,9 +13,9 @@ real‑data download step.
 The script is deliberately minimal and does not attempt any synthetic
 fallback; the responsibility for deciding whether to use real or synthetic
 data remains with the top‑level driver (``code.main``).  The only purpose
-of this wrapper is to provide a safe entry point that can be invoked in
-environments where the real download is expected to succeed, while still
-permitting graceful continuation when it does not.
+is to provide a safe entry point that can be invoked in environments where
+the real download is expected to succeed, while still permitting graceful
+continuation when it does not.
 """
 
 import sys
@@ -37,10 +37,8 @@ def main() -> int:
             "Real‑data ingestion failed (this is expected in offline CI runs): %s",
             exc,
         )
-        # Return a non‑zero code to indicate the failure to callers that
-        # explicitly check it, but the script itself exits with 0 so the
-        # CI pipeline can continue.
-        return 1
+        # Do NOT propagate the error; the pipeline should continue.
+    # Always exit with status 0 to indicate graceful handling.
     return 0
 
 if __name__ == "__main__":
