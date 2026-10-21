@@ -92,7 +92,7 @@ def _download_parquet() -> Path:
             )
             log.info("Downloaded parquet to %s", parquet_path)
             return Path(parquet_path)
-        except Exception as e:  # noqa: BLE001 - retry any transient failure
+        except Exception as e:
             last_exc = e
             log.error("Download attempt %d failed: %s", attempt, e)
             if attempt < MAX_RETRIES:

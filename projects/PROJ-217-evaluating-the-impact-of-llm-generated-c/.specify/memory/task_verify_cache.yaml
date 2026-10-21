@@ -1,10 +1,10 @@
 T001:
-  c: false
-  h: 21ea74d0c92f9ff6aa5dffd04e25d9747739460517ebdbe526a6f95f4a3c8d08
-  r: "The script, JSONL outputs, excluded records, checksum manifest, and tests all\
-    \ exist and look correct, but the required log file `data/dataset_preparation.log`\
-    \ is MISSING \u2014 the verification criteria explicitly require it to exist and\
-    \ report total/valid/excluded counts and SC-006 compliance. The implementer should\
-    \ re-run the script (or otherwise produce the log) so the summary log is written\
-    \ to `data/dataset_preparation.log`."
-  sig: 02f812788e9c027bcfc5bdfdb403d0c701e50e921e3c6211ebc2e6f25595e942
+  c: true
+  h: 71283a8c3f52d119c0e38ecaa7796028d3e55796802673bf1cfcbaa2de36a7c0
+  r: 'All required artifacts exist and are consistent: `src/data/download.py` implements
+    the retry-with-raise download, tolerant column mapping, seeded N=500 sampling,
+    validation, and all outputs; execution logs show exit 0 with 500 processed / 498
+    valid / 2 excluded, matching the log file, JSONL sizes, excluded_records.json
+    (2 records with reasons), and the recorded SHA-256 checksum; pytest run of `src/tests/test_download.py`
+    passed 18 tests covering both schemas and validation rules.'
+  sig: b386df1721c814a55bf60cd28c3c6d0dc60a16fd93ef0ba218c29dd9bf8415d9
