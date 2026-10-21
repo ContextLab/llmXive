@@ -1,41 +1,58 @@
 # Quickstart: Statistical Properties of Simulated Black Hole Mergers
 
 ## Prerequisites
-- Python 3.11+, pip, git
+- Python 3.11+  
+- Git  
+- `git`‑available CI runner (GitHub Actions free tier)
 
 ## Installation
 ```bash
-git clone <repo-url> && cd <repo>
-python -m venv venv && source venv/bin/activate
+git clone <repo-url>
+cd <repo>
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Running the Pipeline
+## Running the Full Pipeline
 ```bash
-python -m src.main
+python -m src.main               # executes all phases
 ```
 
-**Options**:
-- `--download-only` – fetch and validate GWTC files (pipeline aborts on failure).
-- `--skip-download` – assume valid GWTC files already exist in `data/raw/`.
-- `--seed <int>` – override the pinned random seed (debugging only).
+### Optional Flags
+| Flag | Description |
+|------|-------------|
+| `--download-only` | Only perform T001/T002/T004 (download & checksum). Pipeline aborts on failure. |
+| `--skip-download` | Assume raw GWTC and simulation files already exist in `data/raw/`. |
+| `--seed <int>` | Override the pinned random seed (debugging only). |
+| `--samples-per-event <int>` | Number of posterior draws per GWTC event (default = 100). |
+| `--bootstrap-iterations <int>` | Hierarchical bootstrap repetitions for KS p‑value (default = 1000). |
+| `--mc-power-iterations <int>` | Monte‑Carlo power‑analysis iterations (default = 500). |
+| `--measure-performance` | Record runtime, peak memory, and disk usage (writes `performance_metrics.json`). |
+| `--efficiency-model` | Force use of the analytic detection‑efficiency model (fallback) even if curves are available. |
 
 ## Expected Outputs
-- `data/results/data_availability.json` – status of GWTC downloads; pipeline aborts if any source is `unavailable`.
-- `data/processed/obs_catalog.csv` (requires successful GWTC download).
-- `data/processed/sim_catalog.csv` – synthetic population.
-- `data/results/ks_results.json` – KS statistics, Bonferroni‑adjusted p‑values, sensitivity flags, and embedded power‑analysis details.
-- `outputs/figures/mass_ratio_kde.png` and `outputs/figures/effective_spin_kde.png` (≥ 300 DPI).
-- `data/results/final_report.md` – summary, limitations, and interpretation.
-
-If `data/results/data_availability.json` reports any source as `unavailable`, the pipeline stops with an explicit error; no synthetic observational stand‑in is used.
+- `data/results/data_availability.json` – download status (pipeline aborts if any source is `unavailable`).  
+- `data/processed/obs_catalog.csv` – observational point‑estimate catalog (≥ 100 valid events).  
+- `data/processed/sim_catalog.csv` – **derived BBH catalog from IllustrisTNG/EAGLE releases** (or aborts if releases unavailable).  
+- `data/processed/selection_weights.csv` – event‑level weights.  
+- `data/results/ks_results.json` – KS statistics, joint Energy‑distance, Bonferroni‑adjusted p‑values, sensitivity flags, Monte‑Carlo MDES, power‑limitation note.  
+- `performance_metrics.json` – runtime, peak memory, peak disk usage (if `--measure-performance`).  
+- `outputs/figures/*.png` – ≥300 DPI KDE and joint density plots with divergence shading.  
+- `data/results/final_report.md` – summary, tables, figures, performance metrics, and “Limitations” section.
 
 ## Verification
 ```bash
-pytest tests/
+pytest tests/contract
 ```
 Contract tests validate every artifact against the schemas in `specs/.../contracts/`.
 
 ## Troubleshooting
-- **Download failures**: three exponential‑backoff retries; on persistent failure the pipeline aborts and prints the reason from `data_availability.json`.
-- **Memory**: the default `samples_per_event` is 1000; reduce via `--samples-per-event` if needed (still well under the 7 GB limit).
+- **Download failures**: three exponential‑backoff retries; persistent failure aborts with a clear message in `data_availability.json`.  
+- **Memory pressure**: the pipeline processes < 500 rows; if you encounter OOM, reduce `--bootstrap-iterations` or `--mc-power-iterations`.  
+- **Insufficient observational events**: if < 100 valid rows remain after filtering, the run aborts with error code 1.  
+
+---
+
+
+

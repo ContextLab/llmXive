@@ -1,0 +1,15 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw GWTC File Schema"
+description: "Schema for raw GWTC posterior sample files."
+type: "object"
+properties:
+  file_path:
+    type: "string"
+    description: "Path to the downloaded raw file."
+  checksum:
+    type: "string"
+    description: "SHA‑256 checksum of the file."
+required:
+  - file_path
+  - checksum
+additionalProperties: false

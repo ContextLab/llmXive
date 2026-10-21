@@ -5,19 +5,19 @@ type: "object"
 properties:
   event_id:
     type: "string"
-    description: "Unique identifier for the merger event"
+    description: "Unique identifier for the merger event."
   component_mass_1:
     type: "number"
-    description: "Primary component mass in solar masses"
+    description: "Primary component mass in solar masses."
   component_mass_2:
     type: "number"
-    description: "Secondary component mass in solar masses"
+    description: "Secondary component mass in solar masses."
   mass_ratio:
     type: "number"
-    description: "Mass ratio q = m2 / m1 (0 < q <= 1)"
+    description: "Mass ratio q = m2 / m1 (0 < q <= 1)."
   effective_spin:
     type: "number"
-    description: "Effective aligned spin parameter chi_eff"
+    description: "Effective aligned spin parameter chi_eff."
 required:
   - event_id
   - component_mass_1

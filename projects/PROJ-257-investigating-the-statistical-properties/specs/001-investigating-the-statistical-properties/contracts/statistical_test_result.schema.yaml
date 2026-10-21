@@ -1,24 +1,32 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Statistical Test Result Schema"
-description: "Schema for KS test results, including sensitivity and power analysis."
+description: "Schema for KS test results, including sensitivity, power analysis, joint test, and performance metrics."
 type: "object"
 properties:
   parameter_name:
     type: "string"
-    description: "Parameter being tested (mass_ratio or effective_spin)."
+    description: "Parameter being tested (mass_ratio, effective_spin, or joint)."
+    enum:
+      - "mass_ratio"
+      - "effective_spin"
+      - "joint"
   ks_statistic:
     type: "number"
-    description: "Kolmogorov‑Smirnov D statistic."
+    description: "Kolmogorov‑Smirnov D statistic (null for joint test)."
     minimum: 0
     maximum: 1
+  energy_distance:
+    type: "number"
+    description: "Energy‑distance statistic for joint test (null for marginal tests)."
+    minimum: 0
   p_value:
     type: "number"
-    description: "Empirical p‑value from bootstrap distribution (proportion of bootstrap KS statistics ≥ observed)."
+    description: "Empirical p‑value from bootstrap or permutation distribution."
     minimum: 0
     maximum: 1
   bonferroni_adjusted_p_value:
     type: "number"
-    description: "P‑value after Bonferroni correction."
+    description: "P‑value after Bonferroni correction (null for joint test)."
     minimum: 0
     maximum: 1
   significance_flag:
@@ -66,9 +74,9 @@ properties:
       power_limitation_flag:
         type: "boolean"
         description: "True if simulation sample size < 50 % of observational."
-      minimum_detectable_effect_size:
+      monte_carlo_mdes:
         type: "number"
-        description: "Minimum detectable Kolmogorov distance D at 80 % power (α = 0.05)."
+        description: "Monte‑Carlo estimated minimum detectable KS distance at [deferred] power."
       limitation_note:
         type: "string"
         description: "Human‑readable warning about Type II error risk."
@@ -76,14 +84,25 @@ properties:
       - observational_sample_size
       - simulation_sample_size
       - power_limitation_flag
-      - minimum_detectable_effect_size
       - limitation_note
+    additionalProperties: false
+  performance_metrics:
+    type: "object"
+    description: "Optional performance metrics for the analysis run."
+    properties:
+      runtime_seconds:
+        type: "number"
+        description: "Wall‑clock runtime in seconds."
+      peak_memory_gb:
+        type: "number"
+        description: "Peak RSS memory usage in gigabytes."
+      peak_disk_gb:
+        type: "number"
+        description: "Peak disk usage in gigabytes."
     additionalProperties: false
 required:
   - parameter_name
-  - ks_statistic
   - p_value
-  - bonferroni_adjusted_p_value
   - significance_flag
   - borderline_flag
   - alpha_sweep_results

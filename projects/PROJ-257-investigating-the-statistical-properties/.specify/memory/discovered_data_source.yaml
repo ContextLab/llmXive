@@ -1,11 +1,11 @@
 status: none
-intent: LIGO Open Science Center GWTC-1 GWTC-2 posterior samples python package dataset
+intent: gwosc python package download GWTC-1 GWTC-2 posterior samples python package
+  dataset
 required_fields:
-- event_name
-- mass_1
-- mass_2
 - mass_ratio
 - effective_spin
-cache_key: c85ca2989e604cab5f36ffa2d28699379d7ed06b83001791116320bcc62393a9
-searched_at: '2026-10-21T05:16:28.702744+00:00'
+- component_mass_1
+- component_mass_2
+cache_key: 2c22b15bdb2dd46d62a1a141ce20c56a60f1b645c5632ade40328975c44a71aa
+searched_at: '2026-10-21T05:22:36.707983+00:00'
 retry_count: 1
