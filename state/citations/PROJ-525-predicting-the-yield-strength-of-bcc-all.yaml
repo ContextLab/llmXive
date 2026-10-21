@@ -1,28 +1,3 @@
-- artifact_hash: 869de4240ed6b12da8d342d3bfdec4bb730ea364beace31c3f4db4e78a2da02f
-  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2604.10702] Backbone-Conditional Behavior of Modality Gating in
-    Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism
-    Analysis'
-  kind: url
-  value: https://arxiv.org/abs/2604.10702
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2604.10702
-  verified_at: '2026-10-04T22:16:02.652464Z'
-- artifact_hash: 869de4240ed6b12da8d342d3bfdec4bb730ea364beace31c3f4db4e78a2da02f
-  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Expanded dataset of mechanical properties and observed phases of
-    multi-principal element alloys
-  kind: doi
-  value: 10.1038/s41597-020-00768-9
-  verification_status: pending
-  verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
-  verified_at: '2026-10-04T22:16:02.652464Z'
 - artifact_hash: e45fde94d46ff39bd43ed61fc8c297c2e830eddc68e31c9a6fce519d8adf1f2b
   artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/spec.md
   cite_id: c-001
@@ -104,3 +79,38 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
   verified_at: '2026-10-21T21:36:19.009800Z'
+- artifact_hash: 3c34e3743590766ab508f96b3ed82b8884f2c07ef6120e8038b48fbe9aa97aae
+  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Expanded dataset of mechanical properties and observed phases of
+    multi-principal element alloys | Scientific Data
+  kind: url
+  value: https://doi.org/10.1038/s41597-020-00768-9
+  verification_status: pending
+  verified_against_url: https://www.nature.com/articles/s41597-020-00768-9
+  verified_at: '2026-10-21T21:52:34.819086Z'
+- artifact_hash: 3c34e3743590766ab508f96b3ed82b8884f2c07ef6120e8038b48fbe9aa97aae
+  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: NIST Chemistry WebBook
+  kind: url
+  value: https://webbook.nist.gov/chemistry/
+  verification_status: pending
+  verified_against_url: https://webbook.nist.gov/chemistry/
+  verified_at: '2026-10-21T21:52:34.819086Z'
+- artifact_hash: 3c34e3743590766ab508f96b3ed82b8884f2c07ef6120e8038b48fbe9aa97aae
+  artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Expanded dataset of mechanical properties and observed phases of
+    multi-principal element alloys
+  kind: doi
+  value: 10.1038/s41597-020-00768-9
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
+  verified_at: '2026-10-21T21:52:34.819086Z'

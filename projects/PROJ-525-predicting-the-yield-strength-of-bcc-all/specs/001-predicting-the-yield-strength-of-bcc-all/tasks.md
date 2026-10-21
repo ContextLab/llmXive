@@ -1,261 +1,61 @@
 # Tasks: Predicting Yield Strength of BCC Alloys
 
-**Input**: Design documents from `/specs/001-bcc-yield-strength/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: Active `spec.md`, `plan.md`, `data-model.md`, contracts in `specs/001-predicting-the-yield-strength-of-bcc-all/contracts/`, and the prior rejected-task feedback.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Notes on revision (R2)**: Changes in this round: (1) T001 restores a constitution-mandated `code/requirements.txt` deliverable and names ONE canonical fetch path; (2) T002 explicitly populates and validates `yield_definition`, `source_reference`, `processing_status` per `bcc_alloy.schema.yaml`; (3) T003 restores NIST-JANAF (2022 edition) Ω_ij sourcing verbatim per FR-003 and specifies a self-contained ILR implementation (no `skbio` dependency); (4) T004's determinism verification wording fixed; (5) T005 drops the plan-introduced mandatory feature-selection halt (spec assumption: selection is not mandatory) and keeps selection only as a reported sensitivity comparison; (6) T006 computes permutation importance and stability for ALL three models; (7) T007 rescheduled strictly after T003 and T008, with its verification restricted to checks whose inputs exist at that point; (8) T008 defines the multi-model container structure and emits `practical_utility.mae_vs_threshold` per the contract (documented as a reported comparison, not a gate) plus the SC-002 ~45 MPa reference comparison. **Flagged for kickback (plan/spec/contract-rooted, not editable here)**: plan Phase 5's mandatory selection + `COMPLEMENTARITY_FAILURE` halt contradicts the spec assumption and is NOT implemented by these tasks; plan Technical Context's dependency list omits nothing needed now (ILR is self-contained) but the plan's `tests/` vs tasks' `code/tests/` layout should be unified to `code/tests/`; five near-duplicate model-performance contracts (`model_output`, `model_performance`, `model_results`, `output`, plus `features`/`compositional_descriptor` duplication) are dead contracts — only `results.schema.yaml` and `bcc_alloy.schema.yaml`/`compositional_descriptor.schema.yaml` govern deliverables here; `output.schema.yaml`'s orphaned `statistical_significance` (Wilcoxon) field is not implemented because SC-001 is evaluated via bootstrap CI per FR-006.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 1: Setup and first end-to-end analysis
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T001 [US1] Create `code/requirements.txt` pinning every Python dependency used by the pipeline (`pandas`, `numpy`, `scikit-learn`, `scipy`, `periodictable`, `requests`, `pyyaml`; exact pinned versions), as required by the project constitution's Reproducibility Requirements — the Code-Execution Agent builds its isolated venv from this file. Then implement `code/download.py` that fetches the real MPEA database (DOI 10.1038/s41597-020-00768-9) via ONE canonical fetch path: the figshare record associated with that DOI (resolve https://doi.org/10.1038/s41597-020-00768-9 to its figshare landing page and download the dataset's main tabular data file via the figshare public download URL; record the exact article/file id and URL used in `quickstart.md` so every run fetches the identical canonical source — Constitution Principle I). Save the raw file to `data/raw/mpea_raw.csv` (FR-001). The loader MUST fail loudly (raise, non-zero exit) if the fetch fails, returns an empty file, or required columns (`composition`, `yield strength`, `crystal structure`) are absent; NO synthetic/mock fallback and NO alternate-mirror branch is permitted. Document the exact fetch recipe and the runnable command in the feature's `quickstart.md`.
+  - Verification: `python -m code.download` exits 0, `data/raw/mpea_raw.csv` exists with the required columns, `code/requirements.txt` pins all dependencies, and a deliberately broken URL raises an exception (no fallback file is written).
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T002 [US1] Implement filtering, normalization, scarcity gating, and duplicate aggregation in `code/data_ingestion.py` (FR-001, FR-002, FR-004, FR-007): keep only BCC-phase entries with numeric yield strength; normalize compositions to atomic fractions summing to 1.0 (preserve originals in a traceability log); write rejected entries with reason codes to `data/logs/rejected_entries.log`; average duplicate compositions (record std-dev, log method `"average"` to `data/logs/aggregation.log`); halt with exit code 1 and stderr message `DATA_SCARCITY: Insufficient BCC alloys (N < 80)` if post-filter N < 80. Also perform the Phase-0.5 confounding check: if testing-temperature/strain-rate metadata is absent, log `CONFOUNDING_METADATA_MISSING` and record the metadata-coverage fraction for the results report. Output `data/processed/bcc_filtered.csv` (rows with `processing_status: "filtered"`) and `data/processed/bcc_aggregated.csv` (rows with `processing_status: "aggregated"`), each row conforming to `contracts/bcc_alloy.schema.yaml` — which REQUIRES, with `additionalProperties: false`, the fields `yield_definition` (textual measurement definition carried through from the source record, or the literal string `"unspecified in source"` when absent), `source_reference` (the source DOI/URL for the record), and `processing_status` (enum `filtered`/`aggregated`/`engineered`); the module MUST populate all three fields and validate every output row against the schema, dropping nothing silently (SC-005).
+  - Include focused tests in `code/tests/test_data_ingestion.py`: non-BCC rows removed; non-numeric yield excluded and logged; composition rows sum to 1.0; duplicates averaged exactly once; scarcity halt triggers on a <80-row fixture; every output row passes `bcc_alloy.schema.yaml` validation including the required `yield_definition`, `source_reference`, and `processing_status` fields.
+  - Verification: running the module on the real download produces both CSVs; every unique composition appears exactly once in `bcc_aggregated.csv`; `aggregation.log` records the method for every duplicate; all rows validate against `contracts/bcc_alloy.schema.yaml`.
 
-## Path Conventions
+- [ ] T003 [US2] Implement `code/features.py` computing scalar descriptors (δ, VEC, mixing entropy, mixing enthalpy, electronegativity difference) and ILR coordinates per `data-model.md` formulas, using elemental properties from the `periodictable` library. Binary interaction parameters Ω_ij MUST be sourced from **NIST-JANAF Thermochemical Tables (2022 edition)** exactly as FR-003 mandates (distinct from the MPEA yield-strength source): fetch the relevant JANAF binary-system data via the NIST WebBook (https://webbook.nist.gov/chemistry/) JANAF thermochemical tables, transcribe the Ω_ij values for every element pair present in the filtered dataset into `data/raw/nist_janaf_params.json` with per-pair provenance comments (table id/URL and edition), and have the module verify coverage — if a required pair is unavailable in NIST-JANAF 2022, the module MUST raise a named `MissingBinaryInteractionParameter` error identifying the pair, never invent or substitute a value. Apply a SELF-CONTAINED ILR transformation implemented in-repo (no `skbio` dependency): build the standard orthonormal Helmert basis V for the (k−1)-simplex and compute z = Vᵀ ln(x) with numpy, with a unit test verifying orthonormality of V and that the inverse (clr) round-trips compositions within 1e-12. Assemble the combined `CombinedFeatureSet` (scalar + ILR features, FR-003.1). Domain errors (e.g. log of zero) MUST be caught, assigned 0.0, and logged with alloy IDs to `data/logs/descriptor_errors.log` (FR-008). Output `data/processed/features_engineered.csv` conforming to `contracts/compositional_descriptor.schema.yaml`.
+  - Include tests in `code/tests/test_features.py`: reference alloy `{'Mo': 0.25, 'Nb': 0.25, 'Ta': 0.25, 'W': 0.25}` — expected descriptor values computed independently (hand-derived from the same periodic-table constants) and compared within 1e-6 relative tolerance; an unknown element symbol raises `"Missing Element Reference"` rather than producing NaN; a missing Ω_ij pair raises `MissingBinaryInteractionParameter`; ILR output has dimension k−1, the basis is orthonormal, and the clr round-trip recovers the composition.
+  - Verification: `pytest code/tests/test_features.py` passes; `features_engineered.csv` has one row per aggregated alloy with no NaN descriptor values.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T004 [US3] Implement `code/models.py` running a thin end-to-end analysis on the real filtered dataset: stratified 80/20 train-test split using 4 quantile bins of yield strength (`pd.qcut`, `train_test_split(stratify=bins, random_state=42)`), ensuring duplicate compositions (pre-aggregation identities) land in the same partition (FR-004); train Random Forest, Gradient Boosting, and Ridge on the training split with a single 5-fold CV pass; write real per-model R², MAE, RMSE rows to `data/results/` (e.g. `data/results/initial_model_comparison.json`) with units in MPa for error metrics. Include a mean-predictor (null) baseline R² for reference.
+  - Verification: the documented command in `quickstart.md` executes and produces real result rows computed from `features_engineered.csv`; results are deterministic: rerunning with the same seed reproduces identical values.
 
-## Phase 1: Setup (Shared Infrastructure)
+**Checkpoint**: A real, seeded, end-to-end composition → yield-strength regression runs on real MPEA data with checkable numeric outputs.
 
-**Purpose**: Project initialization and basic structure
+## Phase 2: Complete the study and validate its evidence
 
-- [ ] T001 Create project structure: `mkdir -p data/raw data/processed data/logs code tests reports state`
-- [ ] T002 Initialize Python 3.11 project with pinned version constraints: `pandas>=2.0.0`, `numpy>=1.24.0`, `scikit-learn>=1.3.0`, `periodictable>=1.6.0`, `scipy>=1.11.0`, `requests>=2.31.0`, `pymatgen>=2023.1.1`, `skbio>=0.5.0`, `pyyaml>=6.0`, `crossref>=0.2.0`, `matcalc>=0.1.0`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T005 [US3] Extend `code/models.py` to the full specified validation protocol (FR-005): Repeated 5-Fold Cross-Validation with **10 repeats** (fixed seed) on the training split for all three models plus the mean-predictor baseline, trained on the FULL combined engineered feature set (per the spec assumption that feature selection is not mandatory); report mean R², MAE, RMSE across CV repeats evaluated on the holdout set. Additionally, run feature selection (Lasso-L1 or RFE) ONLY as an optional reported sensitivity comparison inside the CV folds — record the full-feature vs selected-feature performance delta to `data/logs/feature_selection_efficacy.log` — with NO hard halt and NO `COMPLEMENTARITY_FAILURE` failure mode (the plan's mandatory-selection halt contradicts the spec assumption and is flagged for kickback; these tasks follow the spec).
+  - Verification: `data/results/cv_results.json` contains per-model mean R²/MAE/RMSE with `validation_method: "Repeated5FoldCV(10)"`; rerunning with the same seed reproduces identical values within 1e-5; the sensitivity log exists but no run ever exits non-zero due to feature selection.
 
----
+- [ ] T006 [US3] Implement uncertainty quantification and significance testing (FR-006, SC-001): 95% confidence intervals for R² via the percentile method on **1000 bootstrap resamples of the holdout-set predictions** for each model; permutation importance (`sklearn.inspection.permutation_importance`, fixed seed) and importance-stability metrics (median Spearman correlation and rank standard deviation across CV repeats) computed for **ALL THREE models** (not only the best), so every per-model entry in the final report is fully coverable. Compare the best model's R² CI against the mean-predictor baseline R² to evaluate SC-001 (CI must not include the baseline value for a pass); report MAE against the ~45 MPa experimental-uncertainty reference as a reported comparison, not a pass/fail gate (SC-002).
+  - Verification: `data/results/bootstrap_ci.json` contains `[lower, upper]` CIs for every model; `data/results/permutation_importance.json` contains top-5 features and stability metrics for every model; the SC-001 comparison and MAE-vs-uncertainty comparison are recorded as measured outcomes with no invented values.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T008 Assemble `reports/results.json` from the validated outputs as a multi-model report with an explicit container structure: a top-level object holding `experiment_id`, dataset metadata (actual post-filter N, aggregation record from SC-005, descriptor-error count from SC-006, confounding-metadata coverage fraction from T002, power/effect-size limitation statement from the plan's power analysis, SC-001 significance outcome), and a `models` array with one element per model (RandomForest, GradientBoosting, Ridge). Each element of `models` MUST validate against `contracts/results.schema.yaml` (a single-model object schema: `model_type`, `r_squared`, `mae`, `rmse`, `confidence_interval`, `feature_importance`, `feature_stability`, `practical_utility`). For `practical_utility`, emit the contract-required `mae_vs_threshold` field populated exactly per the contract's definition (true iff MAE ≤ 50 MPa) AND `mae_value` — and document in the report and the results notes that `mae_vs_threshold` is a REPORTED COMPARISON against a 50 MPa reference, NOT a pass/fail gate; additionally record the SC-002 ~45 MPa experimental-uncertainty reference via a clearly-labeled `mae_vs_uncertainty_reference` boolean (true iff MAE ≤ 45 MPa) alongside (not replacing) the contract-required fields, so schema validation passes and SC-002's no-threshold semantics are preserved. All values must be read programmatically from the T002–T006 result artifacts — no manual transcription. The descriptor-error count (SC-006) MUST be surfaced in this report.
+  - Verification: the JSON's `models` array has three elements, each validating against `contracts/results.schema.yaml`; every reported number traces to a file produced by T002–T006; the descriptor-error count appears in the report.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T007 [US2] Add the reference-alloy regression test hardening and descriptor-error accounting checks (SC-006): a test in `code/tests/test_features.py` asserting the number of domain-error events in `descriptor_errors.log` equals the count of alloys assigned the 0.0 fallback in `features_engineered.csv`; plus a runtime check that feature engineering on the full filtered dataset completes within 300 seconds. NOTE: T007 edits `code/tests/test_features.py`, the same file T003 creates, so T007 MUST run strictly AFTER T003 completes (no parallelism on that file); it is scheduled after T008 so that the descriptor-error count it cross-checks is already surfaced in the results. Its verification is restricted to the log-vs-CSV consistency check and the 300-second runtime check (the results-surfacing assertion lives in T008).
+  - Verification: `pytest code/tests/test_features.py` passes; the log-vs-CSV descriptor-error consistency check passes; feature engineering on the full filtered dataset completes within 300 seconds.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T009 Generate the study's tables and figures directly from the validated outputs: a model-comparison table (R² with 95% CI, MAE, RMSE per model vs baseline) and a predicted-vs-measured yield-strength scatter plot for the best model with the holdout set, written under `figures/` and `data/results/`. Feature importance is labeled as predictive insight only, not causal evidence.
+  - Verification: figure files are regenerated deterministically from `reports/results.json` / prediction artifacts by the documented command; axis labels include units (MPa).
 
-Examples of foundational tasks (adjust based on plan.md structure):
+## Phase 3: Reproducible results and paper handoff
 
-- [ ] T004 Setup `data/raw`, `data/processed`, `data/logs` directories with `.gitkeep` and checksum scripts
-- [ ] T007 [P] Define `AlloyRecord` and `CompositionalDescriptor` data classes in `code/models.py`; explicitly define fields: `AlloyRecord(elemental_composition: dict[str, float], yield_strength: float, crystal_structure: str, system_id: str)` and `CompositionalDescriptor(delta_radius: float, vec: float, mixing_entropy: float, mixing_enthalpy: float, electronegativity_diff: float, ilr_transformed_features: list[float])`
-- [ ] T008 Configure `requirements.txt` with pinned versions for reproducibility, explicitly including `pymatgen`
-- [ ] T009 [P] Setup environment configuration management for local vs. CI paths
+- [ ] T010 Write a concise methods/results account in `paper/` (or the feature's results notes) linked to the actual output files and figure paths: data provenance (MPEA DOI, NIST-JANAF 2022 descriptor source), filtering counts, aggregation statistics, model comparison with CIs, SC-001/SC-002 outcomes (including the explicit statement that `mae_vs_threshold` is a reported comparison, not a gate), and honest limitations (power for medium effects only, heterogeneous testing conditions where metadata is missing, associational-not-causal feature importance). Report negative findings (e.g. R² below expectation) as findings, not failures.
+  - Verification: every quantitative claim in the account cites a path under `data/results/`, `data/logs/`, or `figures/`.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T011 Re-run the complete documented workflow from its declared inputs (`quickstart.md`: download → ingest → features → models → report) in a clean environment built from `code/requirements.txt`, confirm all tests in `code/tests/` pass and the artifact checks above hold, and verify determinism (same seed → same results within tolerance). Document the paper-stage handoff: the paper pipeline receives `reports/results.json`, the figures, and the methods account; layout/PDF/publication are out of scope here.
+  - Verification: a single documented command chain executes end-to-end on the free CPU runner within the time budget; no step writes to `state/` or `.github/` (platform-owned paths).
 
----
+## Dependencies and requirement coverage
 
-## Phase 3: User Story 1 - Data Curation and BCC Filtering (Priority: P1) 🎯 MVP
+- **Order**: T001 → T002 → T003 → T004 → T005 → T006 → T008 → T007 → T009 → T010 → T011. T007 runs strictly after T003 (shared `code/tests/test_features.py`) and after T008 (its inputs are complete then); it is not marked parallel.
+- **FR-001/FR-002**: T001, T002. **FR-003/FR-003.1**: T003. **FR-004**: T002, T004. **FR-005**: T005. **FR-006**: T006. **FR-007**: T002. **FR-008**: T003, T007.
+- **SC-001**: T006, T008. **SC-002**: T006, T008, T010. **SC-005**: T002, T008. **SC-006**: T007, T008.
+- **Path layout (unified)**: tests live in `code/tests/`; intermediate results in `data/results/`; the final validated report is `reports/results.json` (per plan Phase 9). The plan's top-level `tests/` directory is superseded — flagged for kickback so plan.md and tasks.md agree.
+- **Governing contracts**: `bcc_alloy.schema.yaml` (T002 outputs), `compositional_descriptor.schema.yaml` (T003 output), `results.schema.yaml` (each per-model element of T008's report). The other model-performance contracts (`model_output`, `model_performance`, `model_results`, `output`) are not used by any task — flagged for kickback as dead/duplicated contracts (including `output.schema.yaml`'s orphaned Wilcoxon `statistical_significance` field, which no FR mandates).
+- **Demonstrating commands**: `python -m code.download`, `python -m code.data_ingestion`, `python -m code.features`, `python -m code.models`, `pytest code/tests/`, all documented in `quickstart.md`, run in a venv built from `code/requirements.txt`.
 
-**Goal**: Obtain a clean, filtered dataset containing only BCC alloys with valid yield strength and complete compositions.
+## Revision behavior
 
-**Independent Test**: The system can be tested by executing the data ingestion pipeline and verifying that the output CSV contains zero entries with missing yield strength, zero entries with non-BCC crystal structures, and that all composition rows sum to 1.0 (atomic fraction).
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T010_test [P] [US1] Unit test `test_bcc_filtering` in `tests/unit/test_data_ingestion.py`: Filter a mock dataframe for BCC phase; assert count matches expected and non-BCC are removed.
-- [ ] T011_test [P] [US1] Unit test `test_composition_normalization` in `tests/unit/test_data_ingestion.py`: Normalize a mock composition row; assert sum is normalized within a specified tolerance.
-- [ ] T012_test [P] [US1] Unit test `test_non_numeric_yield` in `tests/unit/test_data_ingestion.py`: Pass a dataframe with non-numeric yield; assert row is excluded and logged.
-
-### Implementation for User Story 1
-
-- [ ] T013 [US1] Implement `code/data_ingestion.py` to download MPEA database using the `crossref` Python library to resolve DOI `10.1038/s41597-020-00768-9` to a URL, then use `requests` to fetch the dataset, and save to `data/raw/mpea_raw.xlsx`; verify SHA-256 checksum
-- [ ] T014 [US1] Implement filtering logic in `code/data_ingestion.py` to exclude non-BCC phases and null yield strength
-- [ ] T015 [US1] Implement composition normalization in `code/data_ingestion.py` to ensure rows sum to 1.0 with logging
-- [ ] T016 [US1] [MANDATORY] Implement logic to average duplicate compositions or select median, logging the method used (US-4 requirement); MUST be executed
-- [ ] T017 [US1] [MANDATORY] Implement data scarcity check: Halt with exit code 1 and "DATA_SCARCITY: Insufficient BCC alloys (N < 80)" if N < 80 (FR-004 requirement); MUST be executed BEFORE T033_impl
-- [ ] T018 [US1] Save filtered dataset to `data/processed/bcc_filtered.csv` and rejected entries to `data/logs/rejected_entries.log`
-- [ ] T045 [P] [US1] Add explicit error handling in `code/data_ingestion.py` to raise a clear exception if the MPEA DOI resolver fails or returns an empty dataset, ensuring no silent fallback to synthetic data (Constitution Principle III).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Compositional Feature Engineering (Priority: P2)
-
-**Goal**: Generate derived compositional descriptors and ILR-transformed features for regression modeling.
-
-**Independent Test**: The system can be tested by running the feature engineering module on a fixed reference alloy (Mo-25Nb-25Ta-25W) and verifying that the calculated descriptors (δ, VEC, mixing entropy, mixing enthalpy, electronegativity difference) match the manually calculated reference values within a relative tolerance of ≤ 1e-6.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T019_test [P] [US2] Unit test `test_atomic_radius_mismatch` in `tests/unit/test_feature_engineering.py`: Calculate δ for a mock alloy; assert value matches expected within 1e-6.
-- [ ] T020_test [P] [US2] Unit test `test_vec_and_entropy` in `tests/unit/test_feature_engineering.py`: Calculate VEC and mixing entropy for a mock alloy; assert values match expected within 1e-6.
-- [ ] T021_test [P] [US2] Unit test `test_ilr_transformation` in `tests/unit/test_feature_engineering.py`: Apply ILR to a mock composition; assert output dimensions and sum of squares properties.
-- [ ] T022_test [P] [US2] Unit test `test_missing_element` in `tests/unit/test_feature_engineering.py`: Pass a composition with a missing element; assert error is logged and row is skipped.
-- [ ] T050 [P] [US2] [MANDATORY] Add a unit test in `tests/unit/test_feature_engineering.py` to verify that the L1/RFE selection step correctly identifies the most predictive subset without destroying the complementary nature of ILR and scalar descriptors. (Source: plan.md Complexity Tracking)
-
-### Implementation for User Story 2
-
-- [ ] T023 [US2] Implement `code/feature_engineering.py` to load periodic table data (atomic radius, electronegativity, valence)
-- [ ] T025a [US2] Download interaction parameters (Ω_ij) using `matcalc` or fetch from a verified mirror (e.g., `https://github.com/materialsproject/pymatgen/raw/master/pymatgen/thermo/interaction_params.json`) to `data/raw/thermo_params.json`; verify SHA-256 checksum. **MUST source parameters from 'NIST-JANAF' or a documented thermodynamic database distinct from the MPEA yield strength source** (FR-003). If the file is not found, fallback to a hardcoded dictionary of common BCC pairs (Fe-Cr, Mo-Nb, etc.) with a comment linking to the source.
-- [ ] T024 [US2] Implement calculation of scalar descriptors: δ, VEC, mixing entropy, mixing enthalpy (using sourced Ω_ij from T025a), electronegativity difference
-- [ ] T023b_test [US2] [TEST] [MANDATORY] Embed and execute automated assertion for fixed reference alloy composition `{'Mo': 0.25, 'Nb': 0.25, 'Ta': 0.25, 'W': 0.25}` verifying all calculated descriptors match manual values within tolerance ≤ 1e-6; **calculate expected values dynamically from the periodic table data loaded in T023**; **fail pipeline with exit code 1 if tolerance exceeded**; **runs AFTER T023** and **runs AFTER T024**. **Expected Values**: Must be calculated dynamically, not hardcoded.
-- [ ] T026 [US2] Implement Isometric Log-Ratio (ILR) transformation on compositional features using `skbio`
-- [ ] T027a [US2] Implement concatenation of ILR-transformed features and scalar descriptors into a single combined feature matrix (runs AFTER T026, T024)
-- [ ] T027c [US2] Populate `ilr_transformed_features` in the `CompositionalDescriptor` data class with the output from T026
-- [ ] T028 [US2] Implement pre-analysis independence check to detect circular validation between thermodynamic parameters and yield strength (runs BEFORE T029a)
-- [ ] T029a [US2] [DEPENDS ON T028] Implement L1 regularization (Lasso) on the **combined feature matrix** (from T027a) to select the most predictive subset (FR-003.2). Use `SelectFromModel(Lasso(...))` to extract selected features. Output: `data/processed/features_selected.csv`. **Do NOT apply PCA or Residualization before this step; preserve the complementary nature of ILR and scalar descriptors.**
-- [ ] T032 [US2] Save engineered dataset to `data/processed/features_engineered.csv` with full traceability log
-- [ ] T046 [P] [US2] Add a validation step in `code/feature_engineering.py` to verify that the `thermo_params.json` file loaded in T025a contains valid float entries for all required binary pairs before proceeding to T024.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Regression Modeling and Validation (Priority: P3)
-
-**Goal**: Train models, evaluate performance, and generate confidence intervals using 80/20 split and 5-fold CV.
-
-**Independent Test**: The system can be tested by running the training script with a fixed random seed and verifying that the reported R², MAE, and RMSE values match expected values within a predefined tolerance threshold, and that the bootstrapped confidence intervals are generated using the specified method.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T033_test [P] [US3] Unit test for stratified split logic in `tests/unit/test_modeling.py`
-- [ ] T034_test [P] [US3] Unit test for Repeated 5-Fold Cross-Validation implementation in `tests/unit/test_modeling.py`. **Reference**: FR-005 specifies "5-fold Cross-Validation".
-- [ ] T035_test [P] [US3] Unit test for bootstrap confidence interval calculation in `tests/unit/test_modeling.py`
-
-### Implementation for User Story 3
-
-- [ ] T033_impl [US3] [DEPENDS ON T017] Implement `code/modeling.py` to perform a **stratified train-test split based on 4 quantile bins of the target variable (yield strength)**: Use `pd.qcut` with `n_bins=4` to create bins from `y`, then use `train_test_split` with `stratify=binned_y`; save `train_split` and `test_split` artifacts
-- [ ] T049 [P] [US3] [MANDATORY] Implement explicit validation in `code/modeling.py` to confirm that the stratified split bins contain a minimum of 5 samples each before proceeding to CV; if any bin is under-represented, log a warning and adjust binning strategy or halt with a specific "STRATIFICATION_FAILURE" error code. **Note: If N < 80, defer to FR-004 hard halt (exit code 1) per spec.**
-- [ ] T034_impl [US3] [DEPENDS ON T033_impl] Implement Random Forest, Gradient Boosting, and Ridge Regression training using **Repeated 5-Fold Cross-Validation** (n_folds=5, n_repeats=5) with a fixed random seed on the `train_split` from T033_impl; **generate base CV scores required for the subsequent bootstrap resampling step (T036b)**.
-- [ ] T035 [US3] Generate a distribution of RAW 5-fold R² scores (list of floats, not aggregated) from the Repeated 5-fold CV repeats (output of T034_impl)
-- [ ] T036b [US3] [DEPENDS ON T035] Perform **100 bootstrap resamples** (n_resamples=100) on the **training data** (features and targets) to generate resampled datasets; save these resampled feature/target arrays to `data/processed/bootstrap_resamples.pkl` for T038a consumption. Also calculate confidence intervals from the CV scores.
-- [ ] T038a [US3] [DEPENDS ON T036b] Implement permutation importance testing: Run on EACH of the bootstrap resampled datasets (from T036b) using `sklearn.feature_selection.permutation_importance` with `n_repeats=10` and a fixed `random_state` to generate multiple sets of feature importance ranks
-- [ ] T041_calc [US3] [CALCULATION ONLY] Calculate the standard deviation of feature importance ranks across multiple bootstrap resamples using the ranks from T038a: Use `np.argsort(-importances_mean)` to generate ranks, then calculate std dev across resamples; write the raw float value to `data/logs/sc003_stability_metric.log`; **DO NOT evaluate threshold or halt pipeline**
-- [ ] T041_gate [US3] [GATE ENFORCEMENT] **RUN AFTER T038a and T041_calc**. Read `data/logs/sc003_stability_metric.log`; log the value and update `reports/model_comparison_report.json` with the `sc003_status` (Pass/Reported) but **DO NOT HALT PIPELINE** even if value >= 2.0. This treats SC-003 as a measurable outcome.
-- [ ] T038b [US3] Generate final report comparing R², MAE, RMSE for all models and identifying the best performer; **read the existing report file (if any) and append/merge the `sc003_status` field from T041_gate**; save to `reports/model_comparison_report.json`
-- [ ] T051 [US3] [MANDATORY] Implement a "Null Model" baseline in `code/modeling.py` that predicts the mean yield strength of the training set for every test sample; calculate its R² (expected to be low) and MAE to serve as the absolute floor for SC-001 comparison. **Include a t-test using `scipy.stats.ttest_ind` with `alpha=0.05` to verify if the best model's R² is significantly better than the null model's R².**
-- [ ] T054 [US3] [MANDATORY] Calculate the Mean Absolute Error (MAE) of the best-performing model and compare against the 50 MPa threshold (SC-002). If MAE > 50 MPa, log "SC-002 WARNING: MAE exceeds 50 MPa threshold" to `reports/model_comparison_report.json` but **DO NOT HALT PIPELINE**; this is a success criterion for the paper, not a code execution blocker.
-- [ ] T055 [US3] [MANDATORY] Read the t-test result from T051 and the null model metrics; log the final 'significance' decision (Pass/Fail) to `data/logs/sc001_decision.log` and update `state/projects/PROJ-525...yaml` with the SC-001 pass/fail status.
-- [ ] T052 [US3] [MANDATORY] Implement a wrapper in `code/main.py` to capture the total pipeline execution time (from start of T013 to end of T051); log the total time in seconds to `data/logs/pipeline_runtime.log` and include it in `reports/model_comparison_report.json` to satisfy SC-004.
-- [ ] T056 [US3] [MANDATORY] [DEPENDS ON T052] Read the total pipeline runtime from `data/logs/pipeline_runtime.log`. Compare against the "standard GitHub Actions free-tier limit" policy (as defined in plan.md). If runtime exceeds the policy limit, log "SC-004 WARNING: Runtime exceeds policy limit" to `reports/model_comparison_report.json` but **DO NOT HALT PIPELINE**; this is a measured outcome.
-- [ ] T057 [US3] [MANDATORY] Implement a comparison step to evaluate model performance (R², MAE) using the FULL feature set (from T027a) versus the SELECTED feature set (from T029a). Log the performance delta to `data/logs/feature_selection_efficacy.log` to validate the efficacy of the feature selection step.
-- [ ] T039 [US3] Implement `code/traceability.py` to extract metrics from logs and update `state/projects/PROJ-525-predicting-the-yield-strength-of-bcc-all.yaml`
-- [ ] T047 [P] [US3] Add a pre-flight check in `code/modeling.py` to verify that the `train_split` and `test_split` artifacts from T033_impl contain at least 1 sample per class/bin before attempting CV.
-- [ ] T048 [P] [US3] Implement a fallback logging mechanism in `code/traceability.py` to capture the exact SHA-256 hash of the input `features_engineered.csv` used for the final model run, ensuring full provenance in `state/projects/PROJ-525...yaml`.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T040 [P] Documentation updates in `README.md` and `quickstart.md`
-- [ ] T041 [P] Code cleanup and refactoring for readability
-- [ ] T042 [P] Performance optimization to ensure full pipeline runs < 6 hours on CI
-- [ ] T043 [P] Additional unit tests for edge cases (log domain errors, missing elements)
-- [ ] T044 [P] Run quickstart.md validation to ensure end-to-end reproducibility
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 feature output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for BCC filtering logic in tests/unit/test_data_ingestion.py"
-Task: "Unit test for composition normalization (sum=1.0) in tests/unit/test_data_ingestion.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/data_ingestion.py to download MPEA database"
-Task: "Implement filtering logic in code/data_ingestion.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Note on T029**: T029 is now T029a only, implementing L1/Lasso directly on combined features to preserve the complementary nature of ILR and scalar descriptors as required by FR-003.1 and FR-003.2. PCA and Residualization steps removed.
-- **Note on T017**: This task enforces the hard gate required by FR-004. It must execute BEFORE T033_impl.
-- **Note on T041**: Split into T041_calc (pure calculation) and T041_gate (reporting). T041_gate no longer halts the pipeline, treating SC-003 as a measurable outcome.
-- **Note on T049**: Addresses the specific concern that stratified bins may be under-represented in small N regimes, ensuring robust CV splits. Note: FR-004 hard halt takes precedence if N < 80.
-- **Note on T051**: Addresses the specific concern that SC-001 (statistical significance vs null) requires a concrete Null Model baseline to compare against, including a t-test for significance.
-- **Note on T023b_test**: Removed hardcoded placeholder values. Expected values must be calculated dynamically from the periodic table data loaded in T023. Explicit reference alloy composition provided.
-- **Note on T052**: Added to explicitly capture and report total pipeline runtime for SC-004.
-- **Note on T054**: Added to report MAE against 50 MPa threshold without halting pipeline.
-- **Note on T055**: Added to log the final SC-001 significance decision and update state.
-- **Note on T056**: Added to report runtime against policy without halting pipeline.
-- **Note on T057**: Added to validate the efficacy of the feature selection step (T029a).
-- **Note on T034_test**: Fixed malformed citation; citation moved to description body.
-- **Note on T053**: Removed as it was not present in the spec or plan (scope addition).
+No previously verified artifacts exist (all prior tasks were rejected or never executed), so this list supersedes the prior task set while preserving every scientific requirement from the specification and plan at or above the spec's constraint level. Directory creation, logging setup, and lint configuration remain non-tasks (platform-supplied via `llmxive_toolkit`), but `code/requirements.txt` IS a task deliverable (T001) because the project constitution non-negotiably requires it for the isolated execution venv. Plan-rooted conflicts (Phase 5 mandatory selection halt, `tests/` layout, dead contracts) are flagged for kickback in the header rather than silently implemented.
