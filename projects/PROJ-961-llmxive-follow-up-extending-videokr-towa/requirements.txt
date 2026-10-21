@@ -1,5 +1,5 @@
-# Existing dependencies (numpy, pandas, etc.) are provided by the platform.
-# Additional third‑party packages required by the project:
-huggingface_hub>=0.20.0
-datasets>=2.0.0
-# The version bounds are liberal; any compatible release works.
+datasets
+huggingface_hub
+# Existing base dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
+# already available in the execution environment and need not be listed here.

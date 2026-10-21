@@ -1,16 +1,19 @@
 T101:
   c: true
-  h: 2205f007cf922bdbf04355e0a8c46c42e1556a1ee046e060fd9f4709b76395b9
-  r: "Checked `code/utils/config.py` \u2013 it defines `SEEDS['pilot_sampling'] =\
-    \ 42`, satisfying the import\u2011assert test. Ran `code/ingest/checksum.py` (log\
-    \ shows exit\u202F0) which created `data/raw/checksums.json` and verified the\
-    \ file, meeting the second verification step."
-  sig: 8c8f77eb4d28ab0153746d8f40d42ab9095c032fe8fb1344065b69fd2787f244
+  h: 41a9af4912831d8dbbf31c0b7fb614e9936b56773a5ae1e8be13f7d72a4d5669
+  r: Checked `code/utils/config.py` for the required `SEEDS['pilot_sampling'] == 42`
+    and verified the presence and content of `code/ingest/checksum.py`. Running the
+    script creates (or updates) `data/raw/checksums.json`, which is present with the
+    expected entry.
+  sig: 6684a1132f6dabcbf05da67fde772cc8e95e26ff21f594990468fd5864e958e6
 T102:
-  c: true
-  h: e3d8e8522e8db3495e47faa8ddec40487c9b1139ccd281160c3eff5558bc48e4
-  r: "Checked `code/utils/entity_linker.py` for correct normalization, exact\u2011\
-    match and Levenshtein\u202F\u2264\u202F2 logic, and confirmed it never uses embeddings.\
-    \ Verified that `tests/unit/test_entity_linker.py` exists and that its pytest\
-    \ run logged all five tests passing, confirming the required behavior of `link_dataframe`."
-  sig: d9547eae2570c783387b0393a5887f0070c5c93001da89bb840d8ada28e2cb3b
+  c: false
+  h: 10185bc345a4a022cbf76784ec134bbeae0742fc2958aa078d2b13aa7fec862b
+  r: "The `entity_linker.py` file exists and implements the required deterministic\
+    \ linking logic, but it (and the test suite) import `utils.config` and `utils.entity_linker`\
+    \ instead of the correct package path `code.utils.*`. This import mismatch means\
+    \ the module cannot be imported and the pytest tests will fail, so the task\u2019\
+    s requirement of a passing test suite is not met. The import statements need to\
+    \ be corrected to use the `code.utils` package (or a top\u2011level `utils` package\
+    \ must be provided)."
+  sig: 8894d9c22e4c07d0cd75ae5b04ef7887691bb9ce7ea91db0d6afbb03c702e3e4

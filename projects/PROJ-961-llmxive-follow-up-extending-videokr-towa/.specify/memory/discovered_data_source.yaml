@@ -1,16 +1,15 @@
 status: none
-intent: TVQA dataset knowledge graph video lengths download python package dataset
+intent: download TVQA dataset with knowledge graph and video lengths python package
+  dataset
 required_fields:
-- video_id
 - question
 - answer
-- hop_type
+- video_id
 - timestamp_start
 - timestamp_end
-- subtitles
-- knowledge_graph
-- video_length
-- split
-cache_key: 99ee46a096cdd10500effe18c5d704bdbf9f5f2d9a50eb7d0b8bc334393fa0a2
-searched_at: '2026-10-21T17:38:21.274650+00:00'
+- hop_level
+- knowledge_graph_triplet
+- metadata
+cache_key: 28c3d793be3c935fffd2490e9ebb1d338473508dcb61fd68f4f560707c98f4e5
+searched_at: '2026-10-21T18:14:44.422786+00:00'
 retry_count: 1
