@@ -79,6 +79,30 @@ properties:
     required:
       - threshold
       - flagged_pairs
+  collinearity_report:
+    type: object
+    properties:
+      threshold:
+        type: number
+        description: "Pearson |r| threshold for flagging collinearity (e.g., 0.9)"
+      flagged_pairs:
+        type: array
+        items:
+          type: object
+          properties:
+            taxon_1:
+              type: string
+            taxon_2:
+              type: string
+            pearson_r:
+              type: number
+          required:
+            - taxon_1
+            - taxon_2
+            - pearson_r
+    required:
+      - threshold
+      - flagged_pairs
   shap_analysis:
     type: object
     properties:
@@ -101,5 +125,6 @@ required:
   - performance
   - null_distribution
   - vif_check
+  - collinearity_report
   - shap_analysis
 additionalProperties: false

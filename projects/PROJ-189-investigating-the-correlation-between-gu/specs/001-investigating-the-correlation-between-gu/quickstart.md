@@ -26,20 +26,21 @@ pip install -r code/requirements.txt
 ### 1. Download raw data & verify provenance
 ```bash
 python code/01_download_and_provenance.py
-python code/validate_provenance.py
 ```
 - Downloads `agp.parquet`, `hrs.parquet`, `bmi.csv` into `data/raw/`.  
 - Computes SHA‑256 checksums and compares them to the values in `data/provenance/expected_checksums.json`.  
 - On success you will see `PROVENANCE CHECK PASSED` and an `observed_checksums.json` file.
 
-### 2. Merge, age filter, rarefaction, CLR, BMI imputation, VIF
+### 2. Merge, age filter, VIF pre‑CLR, rarefaction, CLR, BMI imputation, Pearson collinearity
 ```bash
 python code/02_merge_preprocess.py
 ```
 - Produces `data/processed/merged_age60.parquet` and `data/processed/dataset.json` (validated against `contracts/dataset.schema.yaml`).  
-- Writes `clr_normalized.parquet` and `imputed.parquet`.
+- Excludes any genus with VIF > 5 (pre‑CLR).  
+- Writes `clr_normalized.parquet` and `imputed.parquet`.  
+- Generates a Pearson |r| > 0.9 collinearity report (stored inside the model artifact later).
 
-### 3. Correlation analysis (Spearman + BH FDR)
+### 3. Correlation analysis (Partial Spearman + BH FDR)
 ```bash
 python code/03_correlation.py
 ```
@@ -50,7 +51,7 @@ python code/03_correlation.py
 python code/04_modeling.py
 ```
 - Generates `data/results/model.json` (validated against `contracts/model.schema.yaml`).  
-- Includes SHAP rankings and VIF flags.
+- Includes SHAP rankings, permutation importance, VIF report, and Pearson collinearity flags.
 
 ### 5. Sensitivity analysis over rarefaction depth
 ```bash
@@ -74,6 +75,7 @@ pytest tests/contract/
 | **MemoryError** | Dataset larger than RAM budget. | The pipeline will automatically down‑sample taxa to the top‑200 and/or reduce permutations; see logs for the adjustment. |
 | **pytest failures** | Output file does not conform to its JSON schema. | Re‑run the offending script; check the log for schema‑validation error details. |
 | **Model R² not significant** | Observed R² ≤ 95th percentile of permutation null. | The result is still reported; interpret as “no predictive advantage over chance”. |
+| **Power warning** | Effective N < 100 or detectable effect size unrealistic. | Review the power analysis section in `summary.md`; consider obtaining more data if possible. |
 
 ## Re‑run All Steps (clean slate)
 
@@ -83,7 +85,6 @@ rm -rf data/processed/* data/results/* data/provenance/observed_checksums.json
 
 # Then repeat the pipeline from step 1
 python code/01_download_and_provenance.py
-python code/validate_provenance.py
 python code/02_merge_preprocess.py
 python code/03_correlation.py
 python code/04_modeling.py

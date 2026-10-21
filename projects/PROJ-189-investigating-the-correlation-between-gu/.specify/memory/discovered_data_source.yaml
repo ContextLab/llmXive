@@ -1,18 +1,14 @@
 status: none
-intent: download American Gut Project 16S taxonomy and Health and Retirement Study
-  cognitive data python package dataset
+intent: American Gut Project Qiita 16S taxonomic tables download Health Retirement
+  Study cognitive metadata python package dataset
 required_fields:
 - participant_id
 - age
 - sex
 - BMI
-- education
 - cognitive_score
-- genus_Akkermansia
-- genus_Bacteroides
-- genus_Lactobacillus
-- genus_Faecalibacterium
-- genus_Bifidobacterium
-cache_key: 42dcc7b3e7a907e1dcb1dd9e90d2ac82d0e0142e5f93c8f3c719c2c98934f557
-searched_at: '2026-10-21T09:13:08.008330+00:00'
+- taxonomy
+- abundance_counts
+cache_key: f72170be0b01c1a2ccc598a117a5cadad9db60df7af74cd95e83601fb290f302
+searched_at: '2026-10-21T09:50:10.584407+00:00'
 retry_count: 1

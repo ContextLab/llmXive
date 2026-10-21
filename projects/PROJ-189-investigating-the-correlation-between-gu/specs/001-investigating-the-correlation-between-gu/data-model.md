@@ -21,7 +21,7 @@
 | `raw_count` | integer | Raw read count before rarefaction. |
 | `rarefied_count` | integer | Count after rarefaction to `min_depth`. |
 | `clr_value` | number | Centered log‑ratio transformed abundance (used for modelling). |
-| `vif` | number (optional) | Variance Inflation Factor; flagged if > 5. |
+| `vif` | number (optional) | Variance Inflation Factor; flagged if > 5 (pre‑CLR). |
 
 ### 1.3 ModelArtifact
 | Field | Type | Description |
@@ -31,13 +31,14 @@
 | `performance` | object | `r2_train`, `r2_test`, `rmse_test`. |
 | `null_distribution` | object | `n_permutations`, `r2_null_95th_percentile`, `r2_null_adjusted_threshold`, `is_significant`. |
 | `vif_check` | object | `threshold` (5) and list of flagged taxon pairs with VIF values. |
+| `collinearity_report` | object | Pearson |r| > 0.9 pairs after CLR. |
 | `shap_analysis` | object | List of top‑20 genera with `mean_abs_shap`. |
 | `timestamp` | string (ISO‑8601) | Creation time of the artifact. |
 
 ## 2. Data Flow
 1. **Raw Input**: `agp.parquet`, `hrs.parquet`, `bmi.csv`.  
 2. **Provenance**: `observed_checksums.json` compared to `expected_checksums.json`.  
-3. **Intermediate**: `merged_age60.parquet` (inner join, age filter).  
+3. **Intermediate**: `merged_age60.parquet` (inner join, age filter, VIF exclusion).  
 4. **Processed**: `clr_normalized.parquet` (rarefied + CLR), `imputed.parquet` (BMI imputed).  
 5. **Outputs** (validated against contracts):  
    - `correlations.json` (correlation block)  
@@ -46,14 +47,14 @@
    - `unified_results.json` (covers dataset, correlation, model)  
    - `summary.md` (human‑readable report)  
 
-All files are stored under `data/` and their SHA‑256 hashes are recorded in `state/projects/...yaml`.
+All files reside under `data/` and their SHA‑256 hashes are recorded in `state/projects/...yaml`.
 
 ## 3. Constraints & Validation
 - **Missing Data**: Rows missing `cognitive_score` or `age` are dropped before any analysis.  
 - **Zero Inflation**: Handled by rarefaction + CLR; no direct log of zeros.  
-- **Memory**: If `merged_age60.parquet` exceeds 6 GB, the pipeline automatically limits taxa to the top‑200 by mean abundance (Task T010).  
+- **Memory**: If `merged_age60.parquet` exceeds 6 GB, the pipeline automatically limits taxa to the top‑200 by mean abundance (Task T011).  
 - **Linkage**: Pipeline aborts with error if `len(overlap) < 500` (fatal coverage gap).  
-- **Checksum Validation**: `validate_provenance.py` must succeed before any downstream step.  
-- **Schema Conformance**: Every result file is validated against its respective schema in `contracts/` by the CI test suite.
+- **Checksum Validation**: `01_download_and_provenance.py` must succeed before any downstream step.  
+- **Schema Conformance**: Every result file is validated against its respective schema in `contracts/` by the CI test suite.  
 
 ---

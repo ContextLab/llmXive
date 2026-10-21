@@ -49,48 +49,60 @@ Deterministic provenance guarantees reproducibility (Constitution I) and data 
 - Filter to `age >= 60`.  
 - Write `data/processed/merged_age60.parquet` and a companion `data/processed/dataset.json` that conforms to `contracts/dataset.schema.yaml`.  
 
-### 3.3 Rarefaction, CLR, Imputation, VIF (Task T003)
+### 3.3 Multicollinearity Assessment (VIF) – Pre‑CLR (Task T003)
+- Compute Variance Inflation Factors (VIF) on the **raw** genus abundance matrix (after rarefaction, before CLR).  
+- Any genus with VIF > 5 is excluded from downstream modelling; flagged pairs are recorded in the `vif_check` section of the model artifact.  
+- This satisfies FR‑010 and provides a transparent collinearity report.
+
+### 3.4 Rarefaction, CLR, BMI Imputation, Pearson Collinearity (Task T004)
 1. **Rarefaction**: compute `min_depth` across retained samples; rarefy each sample to this depth.  
 2. **CLR transformation**: apply `pycoda.clr` to the rarefied genus matrix.  
 3. **BMI imputation**: run MICE (`miceforest`) on missing BMI values; add a boolean flag `is_missing_bmi`.  
-4. **VIF**: compute variance inflation factors on the CLR matrix; any pair with VIF > 5 is recorded in `vif_check` (included later in the model artifact).  
+4. **Pearson collinearity**: compute pairwise Pearson |r| among CLR‑transformed genera; any pair with |r| > 0.9 is recorded in `collinearity_report`.  
 5. Write `clr_normalized.parquet` and `imputed.parquet`.  
 
-All transformations are deterministic (fixed random seed `42`).
+All transformations are deterministic (random seed = 42).
 
-### 3.4 Correlation Analysis (Task T004)
-- Compute **Spearman** rank correlation between each genus (CLR‑scaled) and `cognitive_score`.  
+### 3.5 Partial Spearman Correlation Analysis (Task T005)
+- For each genus, compute a **partial Spearman** correlation with `cognitive_score` while controlling for `age`, `sex`, `bmi`, and `education_years` (using `pingouin.partial_corr`).  
 - Generate raw two‑tailed p‑values.  
 - Apply **Benjamini‑Hochberg FDR** (α = 0.05).  
 - Store results in `data/results/correlations.json`, validated against `contracts/correlation.schema.yaml`.  
 - Results are explicitly labeled “associational”.
 
-### 3.5 Predictive Modeling (Task T005) & Permutation Null (Task T006)
+### 3.6 Predictive Modeling (Task T006) & Permutation Null (Task T007)
 - **Model**: `RandomForestRegressor` (scikit‑learn, CPU‑only).  
-- **Split**: [deferred] train / [deferred] hold‑out, stratified by `age_group`.
+- **Features**: CLR‑scaled genera **plus** demographic covariates (`age`, `sex`, `bmi`, `education_years`).  
+- **Split**: 80/20 train‑test split, stratified by `age_group`.  
 - **Nested CV**: outer 5‑fold CV for performance, inner 3‑fold grid search over `n_estimators ∈ {100,200}` and `max_depth ∈ {10,20,None}`; `random_state=42`.  
 - **Metrics**: R² and RMSE on the hold‑out set.  
-- **Permutation test**: shuffle `cognitive_score` 1000 times, refit using the same nested CV pipeline, collect R² distribution.  
+- **Permutation test**: shuffle `cognitive_score` 1 000 times, refit using the same nested CV pipeline, collect R² distribution.  
 - **Significance**: model R² must exceed the 95th percentile of the null distribution; Holm‑Bonferroni corrects the permutation‑derived p‑value.  
-- **Interpretability**: compute SHAP values (`shap.TreeExplainer`) and record the top‑20 genera.  
+- **Interpretability**: compute SHAP values (`shap.TreeExplainer`) and record the top‑20 genera; also compute permutation importance via `sklearn.inspection.permutation_importance`.  
 - All outputs are stored in `data/results/model.json` and validated against `contracts/model.schema.yaml`.
 
-### 3.6 Sensitivity Analysis (Task T008)
+### 3.7 Sensitivity Analysis (Task T009)
 - Sweep rarefaction depth over `{5 000, min_depth}` (if `min_depth` > 5 000).  
-- For each depth repeat Tasks T003–T005, recording the hold‑out R².  
-- Store the variance of R² across depths in `data/results/sensitivity.json`.  
+- For each depth repeat Tasks T003–T006, recording the hold‑out R² and number of significant taxa.  
+- Store the results in `data/results/sensitivity.json`.
 
-### 3.7 Unified Results Assembly (Task T009)
-- Combine `dataset.json`, `correlations.json`, `model.json`, and `sensitivity.json` into a single `data/results/unified_results.json` that conforms to `contracts/results.schema.yaml`.  
+### 3.8 Power Analysis (Task T010)
+- **Correlation power**: using `statsmodels.stats.power.NormalIndPower`, estimate detectable effect size |r| ≥ 0.2 given the number of taxa and α = 0.05 (FDR‑adjusted).  
+- **Regression power**: using `statsmodels.stats.power.FTestPower`, estimate detectable ΔR² ≥ 0.05 given sample size, number of predictors, and α = 0.05 (Holm‑Bonferroni).  
+- Emit warnings in `summary.md` if (a) effective N < 100 or (b) required sample size exceeds the observed N, satisfying FR‑009 and SC‑004.
 
-### 3.8 Resource Guardrails (Task T010)
-- Each script imports `utils.stats.monitor_resources()` which uses `psutil` to check RAM usage every 30 seconds.  
+### 3.9 Resource Guardrails (Task T011)
+- Each script imports `utils.stats.monitor_resources()` which uses `psutil` to check RAM usage every 30 s.  
 - If RAM > 6 GB, the script automatically:  
   1. Truncates the genus matrix to the top‑200 most abundant genera, **and**  
-  2. Reduces permutation count to 500 (for modeling).  
+  2. Reduces permutation count to 500.  
 - The adjustment is logged; the pipeline continues, satisfying FR‑007.
 
-### 3.9 Reporting (Task T011)
+### 3.10 Unified Results Assembly (Task T012)
+- Combine `dataset.json`, `correlations.json`, `model.json`, and `sensitivity.json` into a single `data/results/unified_results.json` that conforms to `contracts/results.schema.yaml`.  
+- **Add** `checksum_agp` and `checksum_hrs` (from provenance) to `dataset.metadata`.
+
+### 3.11 Reporting (Task T013)
 - Generate `data/results/summary.md` that:  
   - Reports overlap count, age filter stats, and any checksum warnings.  
   - Lists the number of significant genus‑cognition associations (SC‑002).  
@@ -99,17 +111,17 @@ All transformations are deterministic (fixed random seed `42`).
   - Includes key figures (saved as PNGs in `data/results/figures/`).  
 
 ## 4. Statistical Rigor
-- **Multiple comparisons**: BH FDR for correlations; Holm‑Bonferroni for permutation p‑values.  
-- **Power**: If the merged dataset contains < 100 participants, a warning is emitted (SC‑004). No formal power calculation is mandated.  
+- **Multiple comparisons**: BH FDR for correlations; Holm‑Bonferroni for permutation‑derived p‑values.  
+- **Power**: Formal power calculations (Task T010) warn if N < 100 or detectable effect sizes are unrealistic (SC‑004).  
 - **Causality**: All statements are explicitly labeled “associational”.  
 - **Measurement validity**: Cognitive scores are taken directly from HRS documentation; AGP 16S protocol is standard (assumption VI).  
-- **Collinearity**: VIF computed; any VIF > 5 flagged and reported (FR‑006).  
+- **Collinearity**: VIF > 5 flagged pre‑CLR (FR‑010); Pearson |r| > 0.9 flagged post‑CLR.  
 
 ## 5. Compute Feasibility (CPU‑first)
 - **Data download & checksum**: < 15 min, < 200 MB RAM.  
-- **Pre‑processing**: < 10 min, < 4 GB RAM.  
-- **Correlation**: < 20 min, < 2 GB RAM.  
-- **Random Forest + 1000 permutations**: 3–4 h, ≤ 6 GB RAM.  
+- **Pre‑processing**: < 10 min, ≤ 4 GB RAM.  
+- **Correlation**: < 20 min, ≤ 2 GB RAM.  
+- **Random Forest + 1 000 permutations**: 3–4 h, ≤ 6 GB RAM.  
 - **Sensitivity sweeps (2 depths)**: ~1 h.  
 - **Total**: ≤ 6 h, ≤ 6 GB RAM.  
 
