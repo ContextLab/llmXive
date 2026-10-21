@@ -27,10 +27,7 @@ from typing import Iterator, List, Dict, Any
 import yaml  # pyyaml is available in the base environment
 from transformers import AutoTokenizer
 from jsonschema import validate, ValidationError
-
-# HuggingFace Hub utilities (avoids the heavy `datasets` dependency that
-# pulls in `pyarrow`, which is unavailable in the execution environment).
-from huggingface_hub import hf_hub_download, HfFileSystem
+from datasets import load_dataset
 
 from llmxive_toolkit import paths, get_logger
 from src.config import Config
@@ -46,67 +43,6 @@ def compute_checksum(ids: List[str]) -> str:
     """SHA‑256 checksum of the sorted concatenated document IDs."""
     concatenated = "".join(sorted(ids)).encode("utf-8")
     return hashlib.sha256(concatenated).hexdigest()
-
-
-def list_repo_json_files(repo_id: str) -> List[str]:
-    """
-    Return a list of JSON‑like files (``.json`` or ``.jsonl``) in the
-    repository. These files typically contain the raw PG‑19 documents.
-    """
-    try:
-        fs = HfFileSystem()
-        all_files = fs.ls(repo_id, detail=False)
-    except Exception as exc:
-        # The specific RepositoryNotFoundError class may not be available
-        # in all versions of ``huggingface_hub``; we raise a generic RuntimeError.
-        raise RuntimeError(f"Failed to list files for repository '{repo_id}': {exc}") from exc
-    json_files = [f for f in all_files if f.endswith(".json") or f.endswith(".jsonl")]
-    if not json_files:
-        raise RuntimeError(f"No JSON files found in repository '{repo_id}'.")
-    return json_files
-
-
-def stream_documents_from_hub(repo_id: str) -> Iterator[Dict[str, Any]]:
-    """
-    Stream documents from the HuggingFace Hub without loading the entire
-    dataset into memory.
-
-    Each yielded dict contains at least ``document_id`` and ``text``.
-    """
-    json_files = list_repo_json_files(repo_id)
-
-    # Process files in the order returned by the hub.
-    for file_path in json_files:
-        local_path = hf_hub_download(repo_id=repo_id, filename=file_path, repo_type="dataset")
-        logger.info(f"Downloading {file_path} -> {local_path}")
-
-        # Detect JSONLines vs. plain JSON list.
-        with open(local_path, "r", encoding="utf-8") as f:
-            first_char = f.read(1)
-            f.seek(0)
-            if first_char == "[":
-                # Load entire list (acceptable for small test files)
-                docs = json.load(f)
-                for doc in docs:
-                    yield {
-                        "document_id": doc.get("id") or doc.get("document_id") or "unknown",
-                        "text": doc.get("text", ""),
-                    }
-            else:
-                # Assume JSONLines
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        doc = json.loads(line)
-                    except json.JSONDecodeError:
-                        logger.warning(f"Skipping malformed JSON line in {file_path}")
-                        continue
-                    yield {
-                        "document_id": doc.get("id") or doc.get("document_id") or "unknown",
-                        "text": doc.get("text", ""),
-                    }
 
 
 def count_tokens(text: str, tokenizer) -> int:
@@ -217,9 +153,27 @@ def load_streaming_pg19(
         tokenizer = None
 
     # ------------------------------------------------------------------
-    # Stream raw dataset using HuggingFace Hub (avoids pyarrow)
+    # Stream raw dataset using the HuggingFace `datasets` library (streaming)
     # ------------------------------------------------------------------
-    raw_iter = stream_documents_from_hub(dataset_name)
+    try:
+        raw_dataset = load_dataset(dataset_name, split=split, streaming=True)
+    except Exception as exc:
+        raise RuntimeError(
+            f"Failed to load dataset '{dataset_name}' (split={split}) with streaming: {exc}"
+        ) from exc
+
+    # Normalise each record to contain ``document_id`` and ``text`` fields
+    def _normalise(record: Dict[str, Any], idx: int) -> Dict[str, Any]:
+        return {
+            "document_id": (
+                record.get("id")
+                or record.get("document_id")
+                or f"doc_{idx}"
+            ),
+            "text": record.get("text", ""),
+        }
+
+    raw_iter = (_normalise(rec, i) for i, rec in enumerate(raw_dataset))
 
     # Enrich with token counts
     enriched_iter = enrich_with_counts(raw_iter, tokenizer)

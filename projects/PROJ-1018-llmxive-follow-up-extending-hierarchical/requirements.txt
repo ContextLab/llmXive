@@ -1,5 +1,8 @@
-huggingface_hub>=0.23.0
-# Existing dependencies are already provided by the base environment:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-# torch and transformers are pulled in by the project scripts as needed.
+# Core dependencies (already present in the base environment)
+# Adding a compatible version of pyarrow to avoid the NumPy 2.0 requirement
+pyarrow<15.0.0
+datasets==2.20.0
+transformers==4.44.0
+jsonschema
+pyyaml
+huggingface_hub

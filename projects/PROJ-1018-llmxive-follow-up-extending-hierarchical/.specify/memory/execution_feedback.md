@@ -10,19 +10,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 shell script must be an existing project-local .sh file
 - python src/data_loader.py  --dataset deepmind/pg19  --split-ratio 0.05  --seed 42  --min-tokens 32000  --pad-short-docs False -> rc=1
-File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/src/data_loader.py", line 236, in load_streaming_pg19
-    filtered_docs = list(filtered_iter)
-                    ^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/src/data_loader.py", line 149, in filter_documents
-    for doc in docs:
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/src/data_loader.py", line 128, in enrich_with_counts
-    for doc in raw_iter:
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/src/data_loader.py", line 76, in stream_documents_from_hub
-    json_files = list_repo_json_files(repo_id)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/src/data_loader.py", line 62, in list_repo_json_files
-    raise RuntimeError(f"Failed to list files for repository '{repo_id}': {exc}") from exc
-RuntimeError: Failed to list files for repository 'lmsys/pg-19-test': lmsys/pg-19-test (repository not found)
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/src/data_loader.py", line 30, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1018-llmxive-follow-up-extending-hierarchical/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1018-llmxive-follow-up-extending-hierarchical/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1018-llmxive-follow-up-extending-hierarchical/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/src/clustering.py --input data/interim/relevance_profiles.json --k 100 --output data/processed/static_index_k100.json --seed 42 -> rc=1
 
@@ -40,8 +39,8 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/code/src/evaluation.py", line 7, in <module>
     from datasets import load_dataset, Dataset
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1018-llmxive-follow-up-extending-hierarchical/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1018-llmxive-follow-up-extending-hierarchical/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1018-llmxive-follow-up-extending-hierarchical/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
     import pyarrow as pa
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1018-llmxive-follow-up-extending-hierarchical/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
     from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
