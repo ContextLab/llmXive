@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1710.10023",
+  "judged_at": "2026-10-21T06:29:20Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting adsorption isotherm parameters from molecular features chemistry",
+  "rationale": "The paper concerns estimating Freundlich adsorption isotherm parameters and their uncertainty — the same dependent variable (isotherm parameters) in the user's domain (adsorption chemistry), satisfying criterion (b)/(a). It is canonical prior work on how isotherm parameters are estimated and their accuracy characterized, which a review on predicting isotherm parameters from molecular features would cite as background on parameter estimation methodology.",
+  "relevant": true
+}

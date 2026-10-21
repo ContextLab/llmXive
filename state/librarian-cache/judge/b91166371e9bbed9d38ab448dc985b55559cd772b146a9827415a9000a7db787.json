@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-10-21T06:29:33Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting adsorption isotherm parameters from molecular features chemistry",
+  "rationale": "The paper is a survey of online active learning for data streams, with no connection to adsorption isotherms, molecular features, or chemistry. It shares only the generic machine-learning keyword, not the user's mechanism, domain, or variables — off-domain entirely.",
+  "relevant": false
+}

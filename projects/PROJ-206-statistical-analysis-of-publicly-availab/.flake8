@@ -1,10 +1,21 @@
 [flake8]
+# Maximum line length (matches Black's default)
 max-line-length = 88
-extend-ignore = E203, W503
-exclude = .git,__pycache__,build,dist,venv,.venv,env
-# Enable all default error codes
+# Exclude common directories
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    venv,
+    env,
+    .eggs,
+    .ruff_cache,
+    data,
+    state,
+    .github
+# Enable all default warnings and errors
 select = C,E,F,W,B,B950
-# Optional: show source of each error
-show-source = True
-# Optional: statistics at end
-statistics = True
+# Ignore specific warnings that conflict with Black formatting
+ignore = E203, W503

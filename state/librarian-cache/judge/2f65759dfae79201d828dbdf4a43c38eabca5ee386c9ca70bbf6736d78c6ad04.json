@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.15563",
+  "judged_at": "2026-10-21T06:29:36Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting adsorption isotherm parameters from molecular features chemistry",
+  "rationale": "This paper is about privacy-preserving machine learning in healthcare, which is entirely off-domain from predicting adsorption isotherm parameters from molecular features. It shares no mechanism, variables, domain, or methodology with the user's chemistry question.",
+  "relevant": false
+}

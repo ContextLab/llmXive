@@ -1,21 +1,21 @@
 T001:
-  reason: "The `src/` package with `data/`, `models/`, `evaluation/`, `utils/` directories\
-    \ exists, but the evidence does not confirm the required empty `__init__.py` in\
-    \ each sub-module \u2014 only a top-level `src/__init__.py` is shown, and the\
-    \ collector explicitly reports `models/` (the `__init__.py` within it) as MISSING.\
-    \ The implementer must create empty `__init__.py` files in `src/data/`, `src/models/`,\
-    \ `src/evaluation/`, and `src/utils/` (and confirm `src/models/` contents) to\
-    \ satisfy the stated verification criterion."
+  reason: "The evidence confirms `src/` exists with the four sub-directories, but\
+    \ the collector explicitly reports `models/` as MISSING, and there is no evidence\
+    \ of an `__init__.py` inside `data/`, `models/`, `evaluation/`, or `utils/` \u2014\
+    \ only the top-level `src/__init__.py` is shown. The task's verification criterion\
+    \ (an empty `__init__.py` in each sub-module) is therefore not satisfied; the\
+    \ implementer must create the missing `models/` directory (or resolve the path\
+    \ discrepancy) and add the per-sub-module `__init__.py` markers."
   task: 98b96123fbf66ff9cca561f6d6bfa82f2970d6e1ce34916831468bffc5b85952
 T002:
   task: 735db3d15b2e002b6bf308c472a4f34dfad0adf05dbccf2e3906bba824daf0e2
 T003:
   reason: The `.ruff.toml` and `pyproject.toml` (with `[tool.black]` settings) exist
     and are substantive, but `.flake8` is entirely absent from the collected artifacts,
-    and there is no CI workflow file or CI log evidence showing lint steps (`ruff
-    .`, `black --check .`, flake8) are invoked. The implementer must add `.flake8`
-    at the project root and wire the lint tools into the CI workflow with evidence
-    of execution.
+    and there is no evidence of a CI workflow file (e.g., `.github/workflows/...`)
+    invoking the lint steps, nor any CI logs or execution evidence that `ruff .` /
+    `black --check .` were run and passed. The implementer must add the missing `.flake8`
+    config and wire the lint/format tools into the CI workflow with evidence of execution.
   task: ae7c8f823f24f88d74d67d91be3423a87f469c77f7be90ff414758ac88609dac
 T004:
   reason: 'the task writes platform-owned path(s) inside the project: `state/projects/`

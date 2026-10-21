@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.12150",
+  "judged_at": "2026-10-21T06:29:30Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting adsorption isotherm parameters from molecular features chemistry",
+  "rationale": "The paper is a survey of learning curves for ML model selection and decision making — it shares only the keyword \"curves\" (as in learning curves vs. adsorption isotherms) and has no connection to chemistry, molecular features, or adsorption isotherm parameter prediction. This is a homonym-keyword mismatch with no shared mechanism, domain, or variables.",
+  "relevant": false
+}

@@ -2,10 +2,10 @@
 
 This directory holds all derived datasets produced by the pipeline.
 
-- `poll_data_cleaned.csv` – Harmonized poll records with weekly bins and placeholder columns. [UNRESOLVED-CLAIM: c_a03f8798 — status=not_enough_info]
-- `historical_weights.csv` – Pollster‑specific RMSE‑based weights. [UNRESOLVED-CLAIM: c_42e56726 — status=not_enough_info]
+- `poll_data_cleaned.csv` – Harmonized poll records with weekly bins and placeholder columns.
+- `historical_weights.csv` – Pollster‑specific RMSE‑based weights.
 - `frequentist_forecasts.csv` – Simple and weighted average forecasts.
-- `bayesian_forecasts.csv` – Posterior mean forecasts with 95 % credible intervals. [UNRESOLVED-CLAIM: c_deb3012b — status=not_enough_info]
+- `bayesian_forecasts.csv` – Posterior mean forecasts with 95 % credible intervals.
 - Additional evaluation files (metrics, meta‑analysis results, etc.).
 
 Files in this folder are version‑controlled via SHA‑256 hashes recorded in

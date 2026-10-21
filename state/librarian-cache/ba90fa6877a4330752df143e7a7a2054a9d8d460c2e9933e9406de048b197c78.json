@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-14T05:11:07Z",
+  "fetched_at": "2026-10-21T06:29:37Z",
   "field": "chemistry",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,104 @@
       "idea_body_excerpt": "Predicting Adsorption Isotherm Parameters from Molecular Features",
       "target_n": 5
     },
-    "duration_seconds": 50.611,
-    "ended_at": "2026-07-14T05:11:07Z",
-    "expansion": null,
+    "duration_seconds": 67.961,
+    "ended_at": "2026-10-21T06:29:37Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning prediction of adsorption isotherms"
+        ],
+        [
+          2,
+          "quantitative structure-property relationships adsorption"
+        ],
+        [
+          3,
+          "molecular descriptor based adsorption modeling"
+        ],
+        [
+          4,
+          "neural network gas adsorption prediction"
+        ],
+        [
+          5,
+          "predicting Langmuir isotherm parameters"
+        ],
+        [
+          6,
+          "Freundlich isotherm parameter estimation from structure"
+        ],
+        [
+          7,
+          "adsorption equilibrium prediction from molecular structure"
+        ],
+        [
+          8,
+          "graph neural networks for adsorption properties"
+        ],
+        [
+          9,
+          "gas uptake prediction metal-organic frameworks"
+        ],
+        [
+          10,
+          "high-throughput screening adsorption capacity prediction"
+        ],
+        [
+          11,
+          "computational prediction of adsorption coefficients"
+        ],
+        [
+          12,
+          "QSAR modeling of organic pollutant adsorption"
+        ],
+        [
+          13,
+          "molecular simulation derived isotherm fitting"
+        ],
+        [
+          14,
+          "surrogate models for adsorption equilibrium data"
+        ],
+        [
+          15,
+          "deep learning porous materials gas storage prediction"
+        ],
+        [
+          16,
+          "cheminformatics approaches to adsorption phenomena"
+        ],
+        [
+          17,
+          "machine learning Henry's constant prediction"
+        ],
+        [
+          18,
+          "predicting adsorption affinity from chemical features"
+        ],
+        [
+          19,
+          "data-driven isotherm parameter regression"
+        ],
+        [
+          20,
+          "transfer learning adsorption property prediction"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Adsorption Isotherm Parameters from Molecular Features chemistry": 0,
+        "machine learning prediction of adsorption isotherms": 5
+      },
+      "total_queries_issued": 1
+    },
     "extracted_queries": [
-      "adsorption capacity Henry constant isotherm fitting",
-      "Langmuir Freundlich BET surface area",
-      "QSAR molecular descriptors adsorption energy",
-      "isotherm model parameter regression machine learning",
-      "micropore volume surface heterogeneity adsorption mechanism"
+      "adsorption isotherm prediction machine learning",
+      "BET surface area prediction MOF gas adsorption",
+      "QSPR Langmuir Freundlich parameters regression",
+      "isotherm parameter estimation neural network validation",
+      "gas uptake prediction structural descriptors metal-organic frameworks"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -31,36 +120,51 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2111.06657"
+        "1710.10023"
       ]
     },
     "per_query_hit_count": {
-      "Langmuir Freundlich BET surface area": 3,
+      "BET surface area prediction MOF gas adsorption": 3,
       "Predicting Adsorption Isotherm Parameters from Molecular Features chemistry": 3,
-      "QSAR molecular descriptors adsorption energy": 2,
-      "adsorption capacity Henry constant isotherm fitting": 2,
-      "isotherm model parameter regression machine learning": 3,
-      "micropore volume surface heterogeneity adsorption mechanism": 3
+      "QSPR Langmuir Freundlich parameters regression": 3,
+      "adsorption isotherm prediction machine learning": 3,
+      "gas uptake prediction structural descriptors metal-organic frameworks": 1,
+      "isotherm parameter estimation neural network validation": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 2,
+      "rejected_count": 5,
       "rejections": [
         {
-          "primary_pointer": "2504.20713",
-          "rationale": "The paper focuses on a software tool (GUI) for fitting isotherm models and simulating breakthrough curves using experimental data, rather than developing or evaluating methods to predict isotherm parameters directly from molecular features (e.g., using QSAR, machine learning, or quantum chemical descriptors). While it deals with the same domain (adsorption isotherms), it addresses the application of existing models rather than the specific mechanism of parameter prediction from molecular structu",
-          "title": "AIM: A User-friendly GUI Workflow program for Isotherm Fitting, Mixture Prediction, Isosteric Heat of Adsorption Estimation, and Breakthrough Simulation"
+          "primary_pointer": "2306.04338",
+          "rationale": "This paper is about machine learning for official statistics and data-source reliability — entirely off-domain from predicting adsorption isotherm parameters from molecular features. It shares only the generic keyword \"machine learning\" with no connection to chemistry, adsorption, or molecular property prediction.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
         },
         {
-          "primary_pointer": "2304.02381",
-          "rationale": "The paper focuses on a general methodology for interpreting machine learning models using energy landscape concepts, but it does not measure adsorption isotherm parameters, molecular features related to adsorption, or the specific predictive relationship requested. It fails to satisfy any inclusion criteria (a-f) as it lacks the specific domain variables (adsorption) and does not provide a baseline or canonical reference for the specific task of predicting isotherm parameters from molecular feat",
-          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+          "primary_pointer": "2006.16189",
+          "rationale": "This is a general methodological recommendations paper for ML validation in biology, with no connection to adsorption isotherms, molecular features, or chemistry. It shares only the broad keyword \"machine learning\" and is off-domain for the user's question.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a survey of learning curves for ML model selection and decision making — it shares only the keyword \"curves\" (as in learning curves vs. adsorption isotherms) and has no connection to chemistry, molecular features, or adsorption isotherm parameter prediction. This is a homonym-keyword mismatch with no shared mechanism, domain, or variables.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper is a survey of online active learning for data streams, with no connection to adsorption isotherms, molecular features, or chemistry. It shares only the generic machine-learning keyword, not the user's mechanism, domain, or variables — off-domain entirely.",
+          "title": "Active learning for data streams: a survey"
+        },
+        {
+          "primary_pointer": "2303.15563",
+          "rationale": "This paper is about privacy-preserving machine learning in healthcare, which is entirely off-domain from predicting adsorption isotherm parameters from molecular features. It shares no mechanism, variables, domain, or methodology with the user's chemistry question.",
+          "title": "Privacy-preserving machine learning for healthcare: open challenges and future perspectives"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-14T05:10:16Z",
+    "started_at": "2026-10-21T06:28:29Z",
     "term_input": {
       "normalized": "predicting adsorption isotherm parameters from molecular features chemistry",
       "raw": "Predicting Adsorption Isotherm Parameters from Molecular Features chemistry"
@@ -85,95 +189,7 @@
           "primary_pointer": "astro-ph/0609027"
         },
         "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
-        "failed_at": "2026-07-14T05:10:48Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The Brunn-Minkowski theory in convex geometry concerns, among other things, the volumes, mixed volumes, and surface area measures of convex bodies. We study generalizations of these concepts to Borel measures with density in $\\mathbb{R}^n$-- in particular, the weighted versions of mixed volumes (the so-called mixed measures) when dealing with up to three distinct convex bodies. We then formulate and analyze weighted versions of classical surface area measures, and obtain a new integral formula for the mixed measure of three bodies. As an application, we prove a Bézout-type inequality for rotational invariant log-concave measures, generalizing a result by Artstein-Avidan, Florentin and Ostrover. The results are new and interesting even for the special case of the standard Gaussian measure.",
-          "claimed_authors": [
-            "Matthieu Fradelizi",
-            "Dylan Langharst",
-            "Mokshay Madiman",
-            "Artem Zvavitch"
-          ],
-          "claimed_title": "Weighted Brunn-Minkowski Theory I: On Weighted Surface Area Measures",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2212.13522"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Weighted Brunn-Minkowski Theory I: On Weighted Surface Area Measures')",
-        "failed_at": "2026-07-14T05:10:49Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Consider a random smooth Gaussian field $G(x):F\\to\\mathbb{R}$, where $F$ is a compact in $\\mathbb{R}^d$. We derive a formula for average area of a surface generated by the equation $G(x)=0$ and give some applications. As an auxiliary result we obtain an integral expression for area of a surface induced by zeros of a \\emph{non-random} smooth field.",
-          "claimed_authors": [
-            "Ildar Ibragimov",
-            "Dmitry Zaporozhets"
-          ],
-          "claimed_title": "On random surface area",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1102.3509"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='On random surface area')",
-        "failed_at": "2026-07-14T05:10:49Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We report the study of the equilibrium and dynamic properties of Langmuir monolayers of poly (styrene-co-maleic anhydride) partial 2-buthoxy ethyl ester cumene terminated polymer and the effect of the Mg(NO3)2 addition in the water subphase on the film properties. Results show that the polymer monolayer becomes more expanded when the electrolyte concentration in the subphase increases. Dense polymer films aggregate at the interface. The aggregates are transferred onto Silicon wafers using the Langmuir-Blodgett methodology and the morphology is observed by AFM. The structure of aggregates depends on the subphase composition of the Langmuir film transferred onto the silicon wafer.",
-          "claimed_authors": [
-            "Beatriz Martín-García",
-            "M. Mercedes Velázquez",
-            "Jose Antonio Pérez-Hernández",
-            "Juan Hernández-Toro"
-          ],
-          "claimed_title": "Langmuir and Langmuir-Blodgett films of a maleic anhydride derivative: effect of subphase divalent cations",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2601.14761"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Langmuir and Langmuir-Blodgett films of a maleic anhydride derivative: effect of subphase divalent cations')",
-        "failed_at": "2026-07-14T05:10:49Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
-          "claimed_authors": [
-            "Marcelo T. de Oliveira",
-            "Edson Katekawa"
-          ],
-          "claimed_title": "On the Virtues of Automated QSAR The New Kid on the Block",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1711.02639"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='On the Virtues of Automated QSAR The New Kid on the Block')",
-        "failed_at": "2026-07-14T05:10:49Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
-          "claimed_authors": [
-            " The Dark Energy Survey Collaboration"
-          ],
-          "claimed_title": "The Dark Energy Survey",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2005,
-          "primary_pointer": "astro-ph/0510346"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='The Dark Energy Survey')",
-        "failed_at": "2026-07-14T05:10:49Z",
+        "failed_at": "2026-10-21T06:29:03Z",
         "reason": "query_irrelevant"
       },
       {
@@ -190,7 +206,7 @@
           "primary_pointer": "2306.04338"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
-        "failed_at": "2026-07-14T05:10:49Z",
+        "failed_at": "2026-10-21T06:29:04Z",
         "reason": "query_irrelevant"
       },
       {
@@ -214,40 +230,192 @@
           "primary_pointer": "2006.16189"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
-        "failed_at": "2026-07-14T05:10:49Z",
+        "failed_at": "2026-10-21T06:29:04Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We propose a self-consistent model taking into account variations in adsorption properties of the adsorbent surface in the process of adsorption--desorption of molecules of gas on it. We introduce a dimensionless coupling parameter that characterizes the interaction of an adsorbed molecule with polarized medium. It is established that the system can be bistable if the coupling parameter is greater than a critical value and the concentration of gas belongs to a certain interval. We show that the adsorption isotherms obtained within the framework of the proposed model essentially differ from the Langmuir isotherms and establish that the Zeldovich hysteresis is possible. The kinetics of the surface coverage is analyzed in detail. We show that taking account of variations in adsorption properties of the surface in the process of adsorption--desorption leads to new phenomena: a \"quasistationary\" state in the case of the overdamped approximation and self-oscillations of the system in the general case.",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
           "claimed_authors": [
-            "A. S. Usenko"
+            "Felix Mohr",
+            "Jan N. van Rijn"
           ],
-          "claimed_title": "Adsorption on a Surface with Varying Properties",
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
           "claimed_venue": "arXiv",
-          "claimed_year": 2009,
-          "primary_pointer": "0907.5569"
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Adsorption on a Surface with Varying Properties')",
-        "failed_at": "2026-07-14T05:10:50Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-10-21T06:29:04Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Numerical tests of volume formulae are presented to compute efficiently the volume enclosed between flux surfaces for integrable 3D vector fields with various degrees of symmetry. In the process, a new case is proposed and tested.",
+          "claimed_abstract": "Here we report on detailed studies of the magnetic properties of the wurtzite (Ga,Mn)As cylindrical shells. Ga$_{0.94}$Mn$_{0.06}$As shells have been grown by molecular beam epitaxy at low temperature as a part of multishell cylinders overgrown on wurtzite (Ga,In)As nanowires cores, synthesized on GaAs (111)B substrates. Our studies clearly indicate the presence of a low temperature ferromagnetic coupling, which despite a reasonably high Mn contents of 6\\% is limited only to below 30~K. A set of dedicated measurements shows that despite a high structural quality of the material the magnetic order has a granular form, which gives rise to the dynamical slow-down characteristic to blocked superparamagnets. The lack of the long range order has been assigned to a very low hole density, caused primarily by numerous compensation donors, arsenic antisites, formed in the material due to a specific geometry of the growth of the shells on the nanowire template. The associated electrostatic disorder has formed a patchwork of spontaneously magnetized (macrospin) and nonmagnetic (paramagnetic) volumes in the material. Using high field results it has been evaluated that the total volume taken by the macrospins constitute about 2/3 of the volume of the (Ga,Mn)As whereas in the remaining 1/3 only paramagnetic Mn ions reside. By establishing the number of the uncoupled ions the two contributions were separated. The Arrott plot method applied to the superparamagnetic part yielded the first experimental assessment of the magnitude of the spin-spin coupling temperature within the macrospins in (Ga,Mn)As, $T_{\\mathrm{C}}=28$~K. In a broader view our results constitute an important contribution to the still ongoing dispute on the true and the dominant form(s) of the magnetism in this model dilute ferromagnetic semiconductor.",
           "claimed_authors": [
-            "David Martinez-del-Rio",
-            "Robert S. MacKay"
+            "Katarzyna Gas",
+            "Janusz Sadowski",
+            "Maciej Sawicki"
           ],
-          "claimed_title": "Numerical tests of formulae for volume enclosed by flux surfaces of integrable magnetic fields",
+          "claimed_title": "Magnetic properties of wurtzite (Ga,Mn)As",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.07194"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Magnetic properties of wurtzite (Ga,Mn)As')",
+        "failed_at": "2026-10-21T06:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nominally 45 nm GaN:Mg/ 5 nm (Ga,Mn)N / 45 nm GaN:Mg trilayers structures prepared by molecular beam epitaxy on GaN-buffered Al2O3 substrates are investigated to verify whether the indirect co-doping by holes from the cladding layers can alter the spin-spin interaction in (Ga,Mn)N. The four investigated structures, differing with the Mg doping level, are carefully characterized at the nanoscale by HRTEM, EDX, and by SIMS. HRTEM decisively excluded a presence of foreign Mn-rich phases. The structures, up to medium Mg doping, show no Mg over-doping effects. Magnetic studies of these structures are aided by the employment of a dedicated experimental approach of the in situ compensation of the magnetic contribution from the substrate, allowing up to about fifty-fold reduction of this contribution. This technique, dedicated to these structures, simultaneously provides a tenfold reduction of temporal instabilities of the magnetometric unit and lowers the experimental jitter to merely $5 \\times 10^{-7}$~emu at 70~kOe, vastly increasing the precision and the credibility of the results of the standard integral SQUID magnetometry in high magnetic fields. The magnetic characteristics of the trilayers structures established here prove identical with the already known properties of the thick (Ga,Mn)N single layers, namely (i) the low temperature ferromagnetism among Mn$^{3+}$ ions driven by superexchange and (ii) purely paramagnetic response at higher temperatures. The possible cause of the lack of any effects brought about by the adjacent Mg-doping is a presence of residual Mn in the cladding layers, resulting in the deactivation of the p-type doping intended there. This finding points out that a more intensive technological effort has to be exerted to promote the co-doping-driven carrier-mediated ferromagnetic coupling in Mn-enriched GaN, especially at elevated temperatures.",
+          "claimed_authors": [
+            "Katarzyna Gas",
+            "Gerd Kunert",
+            "Piotr Dluzewski",
+            "Rafal Jakiela",
+            "Detlef Hommel",
+            "Maciej Sawicki"
+          ],
+          "claimed_title": "Improved-Sensitivity Integral SQUID Magnetometry of (Ga,Mn)N Thin Films in Proximity to Mg-doped GaN",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.09804"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Improved-Sensitivity Integral SQUID Magnetometry of (Ga,Mn)N Thin Films in Proximity to Mg-doped GaN')",
+        "failed_at": "2026-10-21T06:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Metal-organic frameworks (MOFs) are promising materials for methane capture due to their high surface area and tunable properties. Metal substitution represents a powerful strategy to enhance MOF performance, yet systematic exploration of the vast chemical space remains challenging. In this work, we compare density functional theory (DFT) and machine learning (ML) in predicting methane adsorption properties in metal-substituted variants of three high-performing MOFs: M-HKUST-1, M-ATC, and M-ZIF-8 (M = Cu, Zn). DFT calculations reveal significant differences in methane binding energies between Cu and Zn variants of all three MOFs. On the other hand, we fine-tuned a pretrained multimodal ML model, PMTransformer, on a curated subset of hypothetical MOF (hMOF) structures to predict macroscopic adsorption properties. While the fine-tuned heat of adsorption model and uptake model qualitatively predict adsorption properties for original unaltered MOFs, they fail to distinguish between metal variants despite their different binding energetics identified by DFT. We trace this limitation to the hMOF training data generated using Grand Canonical Monte Carlo (GCMC) simulations based on classical force fields (UFF/TraPPE). Our study highlights a key challenge in ML-based MOF screening: ML models inherit the limitations of their training data, particularly when electronic effects at open metal sites significantly impact adsorption behaviors. Our findings emphasize the need for improved force fields or hybrid GCMC/DFT datasets to incorporate both geometric and electronic factors for accurate prediction of adsorption properties in metal-substituted MOFs.",
+          "claimed_authors": [
+            "Karim Aljamal",
+            "Xiao Wang"
+          ],
+          "claimed_title": "Predicting Methane Adsorption in Metal-Substituted MOFs: A Comparative Study between Density Functional Theory and Machine Learning",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2510.01957"
+          "primary_pointer": "2504.15034"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Numerical tests of formulae for volume enclosed by flux surfaces of integrable magnetic fields')",
-        "failed_at": "2026-07-14T05:10:50Z",
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Predicting Methane Adsorption in Metal-Substituted MOFs: A Comparative Study between Density Functional Theory and Machine Learning')",
+        "failed_at": "2026-10-21T06:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report the study of the equilibrium and dynamic properties of Langmuir monolayers of poly (styrene-co-maleic anhydride) partial 2-buthoxy ethyl ester cumene terminated polymer and the effect of the Mg(NO3)2 addition in the water subphase on the film properties. Results show that the polymer monolayer becomes more expanded when the electrolyte concentration in the subphase increases. Dense polymer films aggregate at the interface. The aggregates are transferred onto Silicon wafers using the Langmuir-Blodgett methodology and the morphology is observed by AFM. The structure of aggregates depends on the subphase composition of the Langmuir film transferred onto the silicon wafer.",
+          "claimed_authors": [
+            "Beatriz Martín-García",
+            "M. Mercedes Velázquez",
+            "Jose Antonio Pérez-Hernández",
+            "Juan Hernández-Toro"
+          ],
+          "claimed_title": "Langmuir and Langmuir-Blodgett films of a maleic anhydride derivative: effect of subphase divalent cations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.14761"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Langmuir and Langmuir-Blodgett films of a maleic anhydride derivative: effect of subphase divalent cations')",
+        "failed_at": "2026-10-21T06:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Establishing quantitative correlations between various molecular properties and chemical structures is of great technological importance for environmental and medical aspects. These approaches are referred to as Quantitative Structure-Property Relationships (QSPR), which relate the physicochemical or thermodynamic properties of compounds to their structures. The main goal of QSPR studies is to find a mathematical relationship between the property of interest and several molecular descriptors derived from the structure of the molecule. Topological indices are the molecular descriptors that characterize the formation of chemical compounds and predict certain physicochemical properties. In this study, the QSPR models are designed using certain temperature-based topological indices such as the sum connectivity temperature index, product connectivity temperature index, F-temperature index, and symmetric division temperature index to predict the thermodynamic properties, such as enthalpies of formation ($ΔH^{0}_{f}$ \\hspace{1mm} liquid), enthalpies of combustion ($ΔH^{0}_{C}$ \\hspace{1mm} liquid), and enthalpies of vaporization ($ΔH^{0}_{vap}$ \\hspace{1mm} gas) of monocarboxylic acids ($C_2H_{4}O_{2}$ - $C_{20}H_{40}O_{2}$). The relationship analysis between thermodynamic properties and topological indices is done using linear, quadratic, and cubic equations of a curvilinear regression model. These regression models are then compared.",
+          "claimed_authors": [
+            "H. M. Nagesh"
+          ],
+          "claimed_title": "QSPR Analysis with Curvilinear Regression Modeling and Temperature-based Topological Indices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.08650"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='QSPR Analysis with Curvilinear Regression Modeling and Temperature-based Topological Indices')",
+        "failed_at": "2026-10-21T06:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-10-21T06:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-10-21T06:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the ConditionaL Neural Network (CLNN) and the Masked ConditionaL Neural Network (MCLNN) designed for temporal signal recognition. The CLNN takes into consideration the temporal nature of the sound signal and the MCLNN extends upon the CLNN through a binary mask to preserve the spatial locality of the features and allows an automated exploration of the features combination analogous to hand-crafting the most relevant features for the recognition task. MCLNN has achieved competitive recognition accuracies on the GTZAN and the ISMIR2004 music datasets that surpass several state-of-the-art neural network based architectures and hand-crafted methods applied on both datasets.",
+          "claimed_authors": [
+            "Fady Medhat",
+            "David Chesmore",
+            "John Robinson"
+          ],
+          "claimed_title": "Masked Conditional Neural Networks for Audio Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.02421"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Masked Conditional Neural Networks for Audio Classification')",
+        "failed_at": "2026-10-21T06:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the Fe-doped GaN phase-separated magnetic semiconductor GaFeN, the presence of embedded Ga$_y$Fe$_{4-y}$N nanocrystals determines the magnetic properties of the system. Here, through a combination of anomalous x-ray diffraction and diffraction anomalous fine structure, the local structure of Ga in self-assembled face-centered cubic (fcc) Ga$_y$Fe$_{4-y}$N nanocrystals embedded in wurtzite GaN thin layers is investigated in order to shed light onto the correlation between fabrication parameters, local structural arrangement and overall magnetic properties of the material system. It is found, that by adjusting the growth parameters and thus, the crystallographic surroundings, the Ga atoms can be induced to incorporate into 3$c$ positions at the faces of the fcc crystal lattice, reaching a maximum occupancy of 30\\%. The magnetic response of the embedded nanocrystals is ferromagnetic with Curie temperature increasing from 450\\,K to 500\\,K with the Ga occupation. These results demonstrate the outstanding potential of the employed experimental protocol for unravelling the local structure of magnetic multi-phase systems, even when embedded in a matrix containing the same element under investigation.",
+          "claimed_authors": [
+            "A. Navarro-Quezada",
+            "K. Gas",
+            "A. Spindlberger",
+            "F. Karimi",
+            "M. Sawicki",
+            "G. Ciatto",
+            "A. Bonanni"
+          ],
+          "claimed_title": "Unravelling the Local Crystallographic Structure of Ferromagnetic Ga$_y$Fe$_{4-y}$N Nanocrystals Embedded in GaN",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.01699"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Unravelling the Local Crystallographic Structure of Ferromagnetic Ga$_y$Fe$_{4-y}$N Nanocrystals Embedded in GaN')",
+        "failed_at": "2026-10-21T06:29:04Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -271,13 +439,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2111.06657",
           "http_status": 200,
-          "pdf_sample_score": 0.281,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-14T05:10:48Z"
+          "verified_at": "2026-10-21T06:29:03Z"
         }
       },
       {
@@ -304,58 +472,32 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-14T05:10:48Z"
+          "verified_at": "2026-10-21T06:29:03Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Martin A. Mosquera"
+            "Jos J. T. I. Boesten"
           ],
-          "title": "Simple isotherm equations to fit type I adsorption data",
+          "title": "Estimating the coefficients of variation of Freundlich parameters with weighted least squares analysis",
           "venue": "arXiv",
-          "year": 2009
+          "year": 2017
         },
-        "primary_pointer": "0911.2012",
-        "summary": "A simple model to fit experimental data of adsorption of gases and vapours on microporous adsorbents (type I isotherms) is proposed. The main assumption is that the adsorbate phase can be divided into identical and non-interacting effective subsystems. This gives rise to a simple multiparametric isotherm based on the grand canonical ensemble statistics, whose functional form is a ratio of two polynomial functions. The parameters are interpreted as effective equilibrium constants. A simplified isotherm that reduces the number of adjustable parameters with respect to the general isotherm is also proposed. We show how to use these isotherms to fit the adsorption data in such way that the parameters have statistical significance. Due to their high accuracy, both isotherms can be used to estimate thermodynamic properties like isosteric and differential heats of adsorption. A simple method is presented for systems that show an apparent variation in the coverage limit with temperature. This method avoids overparametrization and improves fitting deviations. Finally, several applications to fitting data, taken from literature, of adsorption of some gases on activated carbon, molecular sieving carbon, silica gel, and pillared clays are presented.",
+        "primary_pointer": "1710.10023",
+        "summary": "The Freundlich isotherm has been used widely to describe sorption of solutes to soils for many decades. The Freundlich parameters are often estimated using unweighted least squares (ULS) analysis after log-log transformation. Estimating the accuracy of these parameters (characterized by their coefficient of variation, CV) is an essential element of the use of these parameters. Accurate CVs can be derived with weighted least squares (WLS), but only if proper weights are assigned to the residuals in the fitting procedure. This work presents the derivation of an analytical approximation of these weights which were found to decrease with increasing concentration, increasing Freundlich exponent, and increasing CVs of the initial and equilibrium concentrations. Monte-Carlo simulations for a wide range of Freundlich systems based on known values of the CVs of the initial and equilibrium concentrations confirmed the accuracy of this analytical approximation. Unfortunately, in practice, the CVs of the initial and equilibrium concentrations are unknown a priori. Simulations showed that the accuracy of the estimated CVs of the Freundlich parameters was distinctly lower if the CVs of the initial and equilibrium concentrations were estimated from the isotherm data. However, this accuracy was still considerably better than when using ULS. It is recommended to use this analytical approximation whenever these CVs are relevant for the further use and interpretation of the estimated Freundlich parameters.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/0911.2012",
+          "final_url": "https://arxiv.org/abs/1710.10023",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6667,
+          "pdf_sample_score": 0.3304,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-14T05:10:48Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Yu. E. Lozovik",
-            "A. M. Popov"
-          ],
-          "title": "Theory, Simulation and Nanotechnological Applications of Adsorption on a Surface with Defects",
-          "venue": "arXiv",
-          "year": 1998
-        },
-        "primary_pointer": "physics/9804012",
-        "summary": "Theory of adsorption on a surface with nanolocal defects is proposed. Two efficacy parameters of surface modification for nanotechnological purposes are introduced, where the modification is a creation of nanolocal artificial defects. The first parameter corresponds to applications where it is necessary to increase the concentration of certain particles on the modified surface. And the second one corresponds to the pattern transfer with the help of particle self-organization on the modified surface. The analytical expressions for both parameters are derived with the help of the thermodynamic and the kinetic approaches for two cases: jump diffusion and free motion of adsorbed particles over the surface. The possibility of selective adsorption of molecules is shown with the help of simulation of the adsorption of acetylene and benzene molecules in the pits on the graphite surface. The process of particle adsorption from the surface into the pit is theoretically studied by molecular dynamic technique. Some possible nanotechnological applications of adsorption on the surface with artificial defects are considered: fabrication of sensors for trace molecule detection, separation of isomers, and pattern transfer.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/physics/9804012",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.5,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-14T05:10:50Z"
+          "verified_at": "2026-10-21T06:29:04Z"
         }
       }
     ]

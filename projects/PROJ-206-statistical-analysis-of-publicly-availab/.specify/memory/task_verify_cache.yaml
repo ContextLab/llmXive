@@ -1,20 +1,48 @@
+T001:
+  c: false
+  h: 8d0754794d796a79f9e167ba9bbd077d58774f7c87e1f948488d4142cc36f4fa
+  r: "The evidence confirms `src/` exists with the four sub-directories, but the collector\
+    \ explicitly reports `models/` as MISSING, and there is no evidence of an `__init__.py`\
+    \ inside `data/`, `models/`, `evaluation/`, or `utils/` \u2014 only the top-level\
+    \ `src/__init__.py` is shown. The task's verification criterion (an empty `__init__.py`\
+    \ in each sub-module) is therefore not satisfied; the implementer must create\
+    \ the missing `models/` directory (or resolve the path discrepancy) and add the\
+    \ per-sub-module `__init__.py` markers."
+  sig: d9e6b167205b10e2fab95c474c4a3b2cf36bf7a0e64bad41a96936ce1a1ba767
 T002:
   c: true
-  h: 895d0d55a60a67850d629caf65c03434409dbb7029d4d9c6458b1a7df9825641
-  r: "Checked the `requirements.txt` (161\u202Fbytes) which pins exact versions for\
-    \ all listed packages, and the `src/utils/config.py` (4.7\u202FKB) which defines\
-    \ a `set_seed()` function that seeds `random`, `numpy`, and PyMC (with import\u2011\
-    time call) and passes its unit\u2011test suite. The provided test log shows all\
-    \ six config tests succeed, confirming correct implementation."
-  sig: 1f2dcf7253c2ec1c652aed2626e002a41356d87ce9575ff0ad3a2b85289c5dfa
+  h: d38bd37917f87667e284d80b29d5e77fc321acc4b407cf230b88c46ae09dbd65
+  r: 'Both artifacts exist and match the requirements: `requirements.txt` pins exact
+    versions for all nine required packages (pandas, numpy, scipy, pymc 5.12.0, arviz,
+    requests, pyyaml, statsmodels, pytest, plus extras), and `src/utils/config.py`
+    implements a `set_seed()` that seeds `random`, `numpy`, and PyMC (with a graceful
+    ImportError fallback), records seed state, and even applies the seed on import.
+    The "called at the start of all scripts" verification cannot be fully checked
+    since no other scripts exist yet (they belong to later tasks), but the module-level
+    `set_seed()` call and `assert_seede'
+  sig: 89ac855ed8da6e51efb389a0faa4a7411c109ca8cc517c34ccb0b7fff6e6799c
+T003:
+  c: false
+  h: e73aca2aaa92b8763743685f480712ff52e179ba14bd5a213ea5c16999e0c01f
+  r: The `.ruff.toml` and `pyproject.toml` (with `[tool.black]` settings) exist and
+    are substantive, but `.flake8` is entirely absent from the collected artifacts,
+    and there is no evidence of a CI workflow file (e.g., `.github/workflows/...`)
+    invoking the lint steps, nor any CI logs or execution evidence that `ruff .` /
+    `black --check .` were run and passed. The implementer must add the missing `.flake8`
+    config and wire the lint/format tools into the CI workflow with evidence of execution.
+  sig: 471d0a8afcd746f3a2050d926ac55db2730af3590b6d4e63db2bf215ac223bfa
 T005:
   c: true
-  h: aa591b6ed38b7b7467d485b9e26c908be4e3d6a1596d9b22364dc020a5ba88e1
-  r: "Checked the two schema files under `specs/001-statistical-poll-aggregation/contracts/`\
-    \ \u2013 both exist, are non\u2011empty YAML containing `$schema` declarations,\
-    \ and the provided test log shows the dummy CSV validates against each schema\
-    \ with jsonschema (yamllint errors absent)."
-  sig: 8d087f77b124a62c5ba88a4cb942ff6e925035114d5bfb240d213435bd0c25d6
+  h: f433e3f7b96c8a9a30564608817f2e96f41a66922478d1e6ebc700bbe81af83d
+  r: 'Both schema files exist at the canonical contracts directory (the "MISSING"
+    entries reflect only path normalization; the resolved paths show non-empty files
+    of 4720 and 4579 bytes) and contain genuine, well-formed JSON Schema draft-07
+    documents covering the required dataset fields (date, pollster, vote_share, sample_size,
+    historical_rmse, etc.) and forecast fields (simple_avg_forecast, weighted_avg_forecast,
+    bayesian_forecast, CIs, r_hat) with validation rules. A dummy CSV matching the
+    dataset schema''s columns exists at `data/processed/dummy_poll.csv`, consistent
+    with the validation workflow; '
+  sig: 1c23a3c279ab6d774cc21a4adf1b298ce42ad5af24ff3f6efabd98119fae08de
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
