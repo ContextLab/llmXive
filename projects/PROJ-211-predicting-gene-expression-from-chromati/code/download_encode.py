@@ -27,11 +27,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
-# Constants
+# Constants (default values)
 # ----------------------------------------------------------------------
 DEFAULT_CELL_LINES = ["GM12878", "K562", "HMEC", "IMR90", "HepG2"]
-RAW_DIR = Path("data") / "raw"
-RAW_DIR.mkdir(parents=True, exist_ok=True)
+DEFAULT_RAW_DIR = Path("data") / "raw"
 
 ENCODE_API = "https://www.encodeproject.org"
 ENCODE_SEARCH = ENCODE_API + "/search/"
@@ -39,10 +38,10 @@ ENCODE_SEARCH = ENCODE_API + "/search/"
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def setup_directories() -> None:
+def setup_directories(raw_dir: Path) -> None:
     """Ensure required directories exist."""
     dirs = [
-        RAW_DIR,
+        raw_dir,
         Path("data/processed"),
         Path("data/models"),
         LOGS_DIR,
@@ -86,7 +85,7 @@ def _query_encode_file(
         "type": "File",
         "biosample_ontology.term_name": cell_line,
         "status": "released",
-        "assembly": "GRCh38",  # Updated to the canonical assembly name used by ENCODE
+        "assembly": "GRCh38",
         "format": "json",
         "limit": "1",
         "field": "href",
@@ -144,27 +143,31 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                 file_format="tsv"
             )
 
-        # Accessibility: prefer DNase‑seq, fallback to ATAC‑seq
-        try:
-            dnase_uri = _query_encode_file(
-                session,
-                cell_line=cl,
-                assay="DNase-seq",
-                output_type="peaks",
-                file_format="narrowPeak"
-            )
-        except Exception as e_dnase:
-            logger.warning(f"DNase‑seq not found for {cl}: {e_dnase}. Trying ATAC‑seq.")
+        # Accessibility: prefer DNase‑seq, fallback to ATAC‑seq, then any peak file
+        dnase_uri = None
+        for assay_name in ["DNase-seq", "ATAC-seq"]:
             try:
                 dnase_uri = _query_encode_file(
                     session,
                     cell_line=cl,
-                    assay="ATAC-seq",
+                    assay=assay_name,
                     output_type="peaks",
                     file_format="narrowPeak"
                 )
-            except Exception as e_atac:
-                logger.error(f"Both DNase‑seq and ATAC‑seq missing for {cl}: {e_atac}")
+                break
+            except Exception as e_dnase:
+                logger.warning(f"{assay_name} not found for {cl}: {e_dnase}")
+
+        # Final fallback: try without specifying file_format (any peak file)
+        if dnase_uri is None:
+            try:
+                dnase_uri = _query_encode_file(
+                    session,
+                    cell_line=cl,
+                    output_type="peaks"
+                )
+            except Exception as e_fallback:
+                logger.error(f"No accessibility file found for {cl}: {e_fallback}")
                 raise RuntimeError(f"No accessibility file for {cl}")
 
         results.append({
@@ -225,12 +228,10 @@ def process_rna_data(input_path: Path, output_path: Path) -> None:
         writer = csv.writer(f_out)
         writer.writerow(["gene_id", "gene_name", "cell_line", "count"])
         for row in reader:
-            # Look for a TPM column (case‑insensitive)
             tpm_key = next((k for k in row.keys() if k.lower() == "tpm"), None)
             if tpm_key is None:
                 raise RuntimeError(f"TPM column not found in RNA file {input_path}")
             try:
-                # Scale TPM to an integer count approximation (simple heuristic)
                 count = int(float(row[tpm_key]) * 10)
             except (ValueError, TypeError):
                 count = 0
@@ -318,10 +319,11 @@ def checksum_file(path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def log_checksums_csv(files: List[Path], log_path: Path = RAW_DIR / "checksums.csv") -> None:
+def log_checksums_csv(files: List[Path], log_path: Path) -> None:
     """
     Record SHA-256 checksums of the listed files into a CSV file.
     """
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     with log_path.open("w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["filename", "sha256"])
@@ -346,10 +348,21 @@ def main() -> None:
         default=",".join(DEFAULT_CELL_LINES),
         help="Comma-separated list of cell lines"
     )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=str(DEFAULT_RAW_DIR),
+        help="Directory to store raw downloaded files"
+    )
     args = parser.parse_args()
     cell_lines = [cl.strip() for cl in args.cell_lines.split(",") if cl.strip()]
 
-    setup_directories()
+    # Resolve output directory and make it globally visible for other helpers
+    global RAW_DIR
+    RAW_DIR = Path(args.output_dir)
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+
+    setup_directories(RAW_DIR)
     session = get_session_with_retry()
 
     try:
@@ -385,7 +398,10 @@ def main() -> None:
     write_gene_coords_bed(gene_coords_path)
     generated_files.append(gene_coords_path)
 
-    log_checksums_csv(generated_files)
+    # Record checksums
+    checksum_path = RAW_DIR / "checksums.csv"
+    log_checksums_csv(generated_files, checksum_path)
+
     logger.info("All real ENCODE data downloaded and processed successfully.")
 
 if __name__ == "__main__":

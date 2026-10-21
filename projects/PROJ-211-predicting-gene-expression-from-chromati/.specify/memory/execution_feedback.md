@@ -23,7 +23,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 - run-book command: `python code/download_encode.py  --cell-lines GM128*, K562, HMEC, IMR90, HepG2  --output-dir data/raw`
   - script usage: `download_encode.py [-h] [--cell-lines CELL_LINES]`
-  - argparse error: `download_encode.py: error: unrecognized arguments: K562, HMEC, IMR90, HepG2 --output-dir data/raw`
+  - argparse error: `download_encode.py: error: unrecognized arguments: K562, HMEC, IMR90, HepG2`
 - run-book command: `python code/preprocess.py  --counts data/raw/encode_counts.csv  --peaks  data/raw/encode_peaks.bed  --tss    data/raw/gene_coords.bed  --output-dir data/processed`
   - script usage: `preprocess.py [-h]`
   - argparse error: `preprocess.py: error: unrecognized arguments: --counts data/raw/encode_counts.csv --peaks data/raw/encode_peaks.bed --tss data/raw/gene_coords.bed --output-dir data/processed`
@@ -43,7 +43,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/download_encode.py  --cell-lines GM128*, K562, HMEC, IMR90, HepG2  --output-dir data/raw -> rc=2
 
 usage: download_encode.py [-h] [--cell-lines CELL_LINES]
-download_encode.py: error: unrecognized arguments: K562, HMEC, IMR90, HepG2 --output-dir data/raw
+                          [--output-dir OUTPUT_DIR]
+download_encode.py: error: unrecognized arguments: K562, HMEC, IMR90, HepG2
 
 - python code/generate_synthetic.py --seed 42 --output-dir data/raw -> rc=2
 
@@ -83,7 +84,7 @@ ERROR tests/unit/test_preprocess.py::test_merge_features_expression - FileNot...
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_success_on_first_attempt
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_retry_on_failure
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_failure_after_max_attempts
-============= 25 failed, 33 passed, 3 warnings, 5 errors in 2.31s ==============
+============= 25 failed, 33 passed, 3 warnings, 5 errors in 2.33s ==============
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -117,7 +118,7 @@ E   ImportError: cannot import name 'train_elastic_net_cv' from 'code.train' (/h
 ERROR tests/integration/test_data_pipeline.py
 ERROR tests/integration/test_training_loop.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.06s ===============================
+============================== 2 errors in 1.11s ===============================
 
 
 

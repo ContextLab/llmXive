@@ -1,19 +1,17 @@
 status: none
-intent: ENCODE paired RNA-seq ATAC-seq count matrices GEO validation download python
+intent: ENCODE paired RNA-seq and DNase-seq ATAC-seq count matrices download python
   package dataset
 required_fields:
 - sample_id
-- assay_type
 - biosample_type
-- tissue
-- donor_id
 - experiment_accession
-- file_accession
-- gene_id
-- peak_id
-- chromosome
-- start
-- end
-cache_key: 7a2f7fc5fa84a684a15b140be6e5a6746a349fc308e48af2e8fdd4f1943faa56
-searched_at: '2026-10-21T20:43:40.058878+00:00'
+- assay_type (RNA-seq or DNase-seq/ATAC-seq)
+- gene_id (for RNA-seq)
+- peak_id (for DNase/ATAC-seq)
+- genomic_coordinates (chromosome, start, end, strand)
+- raw_count
+- normalized_count (e.g., TPM or CPM)
+- replicate_number
+cache_key: d172d37c484afb288d62c7a6403010f3ca50c629aae3cbeedc2fbaae10df9f61
+searched_at: '2026-10-21T20:45:19.401492+00:00'
 retry_count: 1
