@@ -1,5 +1,1 @@
-# Additional third‑party dependencies required by the pipeline.
-# The environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil, h5py.
-# No extra packages are needed beyond the standard list.
+h5py

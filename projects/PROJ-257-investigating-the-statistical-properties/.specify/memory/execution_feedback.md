@@ -18,36 +18,31 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.main -> rc=1
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/src/main.py", line 24, in <module>
-    from src.data.download import download_all
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/src/data/download.py", line 25, in <module>
-    import h5py
-ModuleNotFoundError: No module named 'h5py'
+2026-10-21 05:15:44,880 INFO __main__: Starting GWTC download
+2026-10-21 05:15:44,880 INFO src.data.download: Fetching Zenodo metadata for record 3966973 (DOI 10.5281/zenodo.3966973)
+2026-10-21 05:15:45,410 ERROR __main__: GWTC download failed: No HDF5 file found in Zenodo record metadata
 
 - python -m pytest tests/ -> rc=2
-/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_download_gwtc.py:13: in <module>
-    import h5py
-E   ModuleNotFoundError: No module named 'h5py'
-________________ ERROR collecting tests/unit/test_preprocess.py ________________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/tests/unit/test_preprocess.py'.
+thon 3.11.17, pytest-8.1.1, pluggy-1.7.0
+rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties
+configfile: pyproject.toml
+plugins: platformdirs-4.13.5
+collected 73 items / 1 error
+
+==================================== ERRORS ====================================
+_________________ ERROR collecting tests/unit/test_download.py _________________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/tests/unit/test_download.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_preprocess.py:7: in <module>
-    import h5py
-E   ModuleNotFoundError: No module named 'h5py'
+tests/unit/test_download.py:9: in <module>
+    import requests_mock
+E   ModuleNotFoundError: No module named 'requests_mock'
 =========================== short test summary info ============================
 ERROR tests/unit/test_download.py
-ERROR tests/unit/test_download_gwtc.py
-ERROR tests/unit/test_preprocess.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 0.62s ===============================
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.42s ===============================
 
 
 

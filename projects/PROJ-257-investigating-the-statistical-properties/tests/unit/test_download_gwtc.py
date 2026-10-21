@@ -4,7 +4,7 @@ tests/unit/test_download_gwtc.py
 Unit tests for the GWTC download script. The tests verify that:
 1. Both expected files exist after the download.
 2. Each file is a readable HDF5 archive.
-3. The SHA‑256 checksum recorded in ``data/raw/checksums.json`` matches the
+3. The SHA-256 checksum recorded in `data/raw/checksums.json` matches the
    computed hash of the file on disk.
 """
 
