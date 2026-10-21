@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Output Record"
+description: "One row of the SIR simulation results for a given β₀, λ, and random seed."
+type: "object"
+required:
+  - simulation_id
+  - beta_0
+  - lambda
+  - seed
+  - peak_infection
+  - final_size
+  - threshold_hit
+  - runtime_seconds
+properties:
+  simulation_id:
+    type: "string"
+    description: "Unique identifier of the run, formatted as 'beta_{beta}_lambda_{lambda}_seed_{seed}'."
+  beta_0:
+    type: "number"
+    description: "Base transmission probability used for this run."
+  lambda:
+    type: "number"
+    description: "Spatial decay parameter applied to Euclidean distances."
+  seed:
+    type: "integer"
+    description: "Random seed ensuring reproducibility."
+  peak_infection:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Maximum fraction of nodes infected at any timestep."
+  final_size:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Fraction of nodes ever infected by the end of the simulation."
+  threshold_hit:
+    type: "boolean"
+    description: "True if the run contributed to crossing the epidemic threshold (≥5 % infected in >50 % of runs)."
+  runtime_seconds:
+    type: "number"
+    minimum: 0.0
+    description: "Wall‑clock time taken by the simulation (seconds)."

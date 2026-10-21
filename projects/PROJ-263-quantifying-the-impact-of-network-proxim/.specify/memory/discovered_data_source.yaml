@@ -1,0 +1,12 @@
+status: none
+intent: SNAP Gowalla social network dataset with geographic coordinates download python
+  package dataset
+required_fields:
+- node_id
+- latitude
+- longitude
+- edge_source
+- edge_target
+cache_key: 5ceadb9bd04c99e4c7e0e1deba9a312bfa1dfc3bcb0fc93adae9477d6ef575d5
+searched_at: '2026-10-21T09:25:28.726400+00:00'
+retry_count: 1
