@@ -23,7 +23,6 @@ def _has_raw_datasets() -> bool:
     raw_dir = Path("data") / "raw"
     if not raw_dir.is_dir():
         return False
-    # Consider any file with a typical data extension as a dataset
     for ext in ("parquet", "csv", "arff"):
         if any(raw_dir.glob(f"*.{ext}")):
             return True
@@ -44,12 +43,10 @@ def run_stage(stage: str, resume: bool, run_id: str, logger: logging.Logger):
 
     if stage == "download":
         logger.info("Executing stage: download")
-        # Only perform the heavy download if we don't already have raw data.
         if _has_raw_datasets():
             logger.info("Raw datasets already present – skipping download.")
         else:
             download_main()
-            # After downloading, compute checksums so that the required artifacts exist
             checksum_main()
     elif stage == "filter":
         logger.info("Executing stage: filter")
@@ -62,7 +59,6 @@ def run_stage(stage: str, resume: bool, run_id: str, logger: logging.Logger):
         # Placeholder – actual implementation resides in later tasks
     elif stage == "all":
         logger.info("Executing full pipeline: download -> checksum")
-        # Sequentially run the stages that are currently implemented.
         if _has_raw_datasets():
             logger.info("Raw datasets already present – skipping download.")
         else:
@@ -74,24 +70,38 @@ def run_stage(stage: str, resume: bool, run_id: str, logger: logging.Logger):
 
 def main():
     parser = argparse.ArgumentParser(description="llmXive Data Transformation Pipeline")
-    parser.add_argument("--stage", choices=["download", "filter", "simulate", "aggregate", "all"],
-                        required=True, help="Pipeline stage to execute")
-    parser.add_argument("--resume", action="store_true", help="Resume from the last checkpoint")
-    parser.add_argument("--dry-run", action="store_true", help="Print intended operations and exit")
-    parser.add_argument("--run-id", type=str, default="default_run", help="Unique identifier for the run")
+    parser.add_argument(
+        "--stage",
+        choices=["download", "filter", "simulate", "aggregate", "all"],
+        required=True,
+        help="Pipeline stage to execute",
+    )
+    parser.add_argument(
+        "--resume", action="store_true", help="Resume from the last checkpoint"
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print intended operations and exit",
+    )
+    parser.add_argument(
+        "--run-id",
+        type=str,
+        default="default_run",
+        help="Unique identifier for the run",
+    )
 
     args = parser.parse_args()
     logger = setup_logging()
 
     if args.dry_run:
         logger.info("DRY RUN ENABLED. No changes will be made to the filesystem.")
-
         stage_summaries = {
             "download": "Download datasets from OpenML/UCI, verify URLs, and compute SHA-256 checksums.",
             "filter": "Impute missing values and filter datasets based on normality (Shapiro-Wilk) and sample size (N >= 30).",
             "simulate": "Generate simulated datasets with known effect sizes (Cohen's d) for power analysis.",
             "aggregate": "Aggregate Type I error and power results, compute bootstrap CIs, and perform Friedman tests.",
-            "all": "Execute all stages in sequence: download -> checksum -> (future stages)."
+            "all": "Execute all stages in sequence: download -> checksum -> (future stages).",
         }
 
         print(f"\n--- Dry Run Summary ---")

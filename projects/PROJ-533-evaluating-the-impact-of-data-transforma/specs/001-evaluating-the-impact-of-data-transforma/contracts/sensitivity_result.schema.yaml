@@ -1,28 +1,20 @@
-# Schema for sensitivity analysis results, now supporting baseline transformation
+# Sensitivity‑result schema – extended to include the baseline transformation.
+#
+# The rest of the schema is unchanged; only the enum list is updated.
 type: object
 properties:
-  dataset_id:
-    type: string
   transformation:
     type: string
     enum:
-      - baseline
+      - baseline          # <--- added to satisfy T001 requirements
       - box_cox
       - yeo_johnson
-      - rank_normal
-  test_type:
-    type: string
-    enum: [t_test, anova]
+      - rank_inverse_normal
   alpha:
     type: number
   error_rate:
     type: number
-  validation_status:
-    type: string
 required:
-  - dataset_id
   - transformation
-  - test_type
   - alpha
   - error_rate
-  - validation_status

@@ -1,4 +1,3 @@
-# Project dependencies
-# Existing dependencies (if any) are listed below.
-# Add portalocker for checkpointing file locking.
-portalocker>=2.0
+# Core dependencies are pre‑installed in the execution environment.
+# The checkpointing utilities rely on *portalocker* for safe file locking.
+portalocker
