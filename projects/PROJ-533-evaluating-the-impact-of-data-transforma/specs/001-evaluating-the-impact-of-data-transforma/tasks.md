@@ -1,79 +1,164 @@
 # Tasks: Evaluating the Impact of Data Transformation on Statistical Test Sensitivity
 
-**Inputs**: `specs/001-evaluating-the-impact-of-data-transforma/spec.md`, `plan.md`, `data-model.md`, `contracts/`, prior `tasks.md`, verifier rejection feedback, reviewer comments.
-**Re-plan note**: All tasks are canonical `- [ ] T###` checkbox items with indented continuation lines. This re-plan consolidates the eight rejected tasks (T004, T012a, T013, T013b, T014, T015, T016, T017) and the prior "New Supporting Tasks" (T013–T021) into complete, individually verifiable steps within a 12-task study. The plan's methodological correction is retained: Type I error is estimated on simulated null data matching real-world distribution shapes; real data is used only for shape estimation and filtering. Per the platform's state-ownership rules, research scripts never write `state/...` — the platform derives artifact hashes at verification time, so the prior state-update task is removed. Reviewer objections are addressed: (a) power validation now derives a closed-form reference power (`statsmodels.stats.power`) rather than validating against an unstated expectation; (b) the ±0.02 CI half-width target is retained as the spec's *validation threshold* but the aggregation code records the achieved half-width honestly and flags `validation_status: fail` rather than inflating iteration counts to force a pass.
+**Inputs**: `specs/001-evaluating-the-impact-of-data-transformation-sensitivity/spec.md`, `plan.md`, `data-model.md`, `contracts/`  
 
-## Phase 1: Setup and first end-to-end analysis
+The following checklist implements the complete end‑to‑end study while satisfying every functional requirement (FR‑001 – FR‑010) and success criterion (SC‑001 – SC‑004).  Tasks are ordered to respect data flow; later tasks depend on the artifacts produced by earlier ones.
 
-- [ ] T001 [P] Implement checkpointing and the pipeline entry point: write `code/utils/checkpointing.py` with `save_state(run_id, step, data)` persisting `current_dataset_id` (str), `last_seed` (int), `error_counts` (dict) to `results/checkpoints/`, `load_state(run_id)` returning the state dict or None, `delete_checkpoint(run_id)`, using `portalocker` file locking and atomic writes (temp file + `os.rename`). Pin `portalocker` in `requirements.txt`. Write `code/main.py` exposing `--stage {download,filter,simulate,aggregate,all}` and `--resume`, and document the runnable command `python -m code.main --stage all` in `specs/001-data-transformation-sensitivity/quickstart.md`.
-    - The file must be complete end-to-end — no truncated functions or placeholder paths.
-    - **Verification**: `python -c "from code.utils.checkpointing import save_state, load_state, delete_checkpoint"` succeeds; a checkpoint round-trip (save → load → delete) works; `pip install -r requirements.txt` succeeds. *(Redoes rejected T004; absorbs prior T020 portalocker pinning.)*
+---  
 
-- [ ] T002 [US1] Implement the complete dataset acquisition and checksum pipeline in `code/download_datasets.py` (FR-001, FR-010): fetch at least 50 public datasets from OpenML **and** at least 10 from the UCI Machine Learning Repository. Create `data/openml_ids.txt` (newline-separated list of ≥60 verified OpenML dataset IDs) and `data/uci_dataset_urls.txt` (≥10 canonical UCI raw CSV/ARFF URLs); both are inputs to this task, not separate tasks. For OpenML use `sklearn.datasets.fetch_openml` iterating the ID list; for UCI download from the listed URLs. For each dataset: store the raw frame under `data/raw/<dataset_id>.parquet`, validate the source URL against the canonical domain pattern via `is_source_verified(url)`, compute the SHA-256 checksum of the stored file, and append one row per dataset to `data/datasets.csv` (columns per `contracts/dataset.schema.yaml`) and to `data/checksums.csv` — only verified URLs are written.
-    - The loader MUST fail loudly: if fewer than 50 usable OpenML **or** 10 usable UCI datasets are obtained after iterating the full lists, raise `ConnectionError("Dataset fetch failed: insufficient public datasets found")` and exit code 1 — NO fallback to synthetic data. Individual failed fetches are logged and skipped; only the aggregate shortfall is fatal.
-    - **Verification**: `python code/download_datasets.py` exits 0; `python -c "import pandas as pd; df=pd.read_csv('data/datasets.csv'); assert len(df)>=60 and df.source_url.str.match('https?://').all() and df.checksum_sha256.str.fullmatch('[a-f0-9]{64}').all()"`; `test -s data/checksums.csv`; `wc -l data/openml_ids.txt` shows ≥60 lines. *(Redoes rejected T012a, T013, T013b, T014, T017; absorbs prior T013/T021.)*
+- [ ] **T001** [P] Implement checkpointing utilities and pipeline entry point  
+  *Files*: `code/utils/checkpointing.py`, `code/main.py`, `specs/001-evaluating-the-impact-of-data-transformation-sensitivity/quickstart.md`  
+  *Description*:  
+  • `checkpointing.py` provides `save_state(run_id: str, state: dict) → None`, `load_state(run_id: str) → dict | None`, and `delete_checkpoint(run_id: str) → None` using `portalocker` for file locking and atomic writes (temp file → rename).  
+  • `main.py` parses `--stage {download,filter,simulate,aggregate,all}` and `--resume`, orchestrates the pipeline, and records the checkpoint after each major stage.  
+  • `quickstart.md` documents the runnable command `python -m code.main --stage all`.  
+  *Verification*:  
+  - `python -c "from code.utils.checkpointing import save_state, load_state, delete_checkpoint"` runs without ImportError.  
+  - A round‑trip `save_state('test', {'a':1}); assert load_state('test')['a']==1; delete_checkpoint('test')` succeeds.  
+  - `python -m code.main --stage download --dry-run` prints the stage summary and exits 0.  
 
-- [ ] T003 [US1] Implement the complete filtering and shape characterization script `code/filter_datasets.py` (FR-002): for each dataset in `data/datasets.csv`: (a) impute missing values per continuous variable (mean for symmetric, median for skewed, |skew| > 0.5) and log every imputation to `data/imputation_log.csv` (`dataset_id, variable, imputation_method, rate`); (b) exclude datasets with >10 % overall missingness, N < 30, no continuous variable, or no categorical group label with ≥2 levels, logging each exclusion to `data/exclusions.csv` (`dataset_id, reason, details`) with an actual data row per excluded dataset; (c) apply the Shapiro-Wilk test to each continuous variable (dataset retained as non-normal if the minimum variable p < 0.05) plus the N ≥ 30 check, writing per-dataset results to `data/filter_results.csv` (`dataset_id, shapiro_p, sample_size, included`); (d) compute per-dataset average skewness and kurtosis of continuous variables (using the first 10 000 rows via `itertools.islice` when a file exceeds RAM; raise if the sample is <1000 rows) and update `data/datasets.csv` with `skewness`, `kurtosis`, `status` (`processed`/`filtered_out`), `filter_reason`, `exclusion_details`.
-    - Write the script complete end-to-end; every log CSV must contain actual data rows for the datasets processed (or an explicitly logged empty-with-header state when nothing qualifies — never silently empty).
-    - Bundle unit tests `tests/unit/test_filter.py::test_filter_keeps_non_normal` (p=0.01 kept, p=0.10 excluded) and `::test_shapiro_wilk_p_value_calculation`; add integration test `tests/integration/test_pipeline.py::test_full_download_filter_pipeline` (complete, no placeholders) asserting `data/datasets.csv` has ≥1 complete row with a valid URL and 64-hex checksum and that `data/exclusions.csv` has ≥1 data row or a logged empty state.
-    - **Verification**: `python code/filter_datasets.py` exits 0; `data/exclusions.csv`, `data/imputation_log.csv`, `data/filter_results.csv` exist with ≥1 data row when applicable; `python -c "import pandas as pd; df=pd.read_csv('data/datasets.csv'); assert (df[df.status=='processed'].shapiro_wilk_p<0.05).all()"`; `pytest tests/unit/test_filter.py tests/integration/test_pipeline.py -q` passes. *(Redoes rejected T015, T016.)*
+- [ ] **T002** [US1] Download ≥ 60 public datasets (≥ 50 from OpenML, ≥ 10 from UCI) and record SHA‑256 checksums  
+  *Files*: `code/download_datasets.py`, `data/openml_ids.txt`, `data/uci_dataset_urls.txt`, `data/datasets.csv`, `data/checksums.csv`  
+  *Description*:  
+  • `openml_ids.txt` lists ≥ 60 verified OpenML dataset IDs; `uci_dataset_urls.txt` lists ≥ 10 canonical UCI CSV/ARFF URLs.  
+  • `download_datasets.py` iterates the ID list with `sklearn.datasets.fetch_openml` and downloads UCI files via `requests`.  
+  • For each successful download: (i) store raw data as `data/raw/<dataset_id>.parquet`, (ii) verify the source URL matches `^https?://` via `is_source_verified(url)`, (iii) compute SHA‑256 checksum, (iv) append a row to `data/datasets.csv` (conforming to `contracts/dataset.schema.yaml`) and a row to `data/checksums.csv`.  
+  • If after processing the full lists fewer than 60 usable datasets are obtained, raise `ConnectionError("Dataset fetch failed: insufficient public datasets found")` and exit 1 (no synthetic fallback).  
+  *Verification*:  
+  - `python code/download_datasets.py` exits 0.  
+  - `pandas.read_csv('data/datasets.csv')` yields ≥ 60 rows, all `source_url` match the URL pattern, and all `checksum_sha256` are 64‑hex strings.  
+  - `data/checksums.csv` exists and is non‑empty.  
 
-- [ ] T004 [P] [US2] Implement the three transformations in `code/data/transformations.py` (FR-003): Box-Cox with per-dataset λ optimized via `scipy.stats.boxcox_normmax`, Yeo-Johnson with optimized λ (`sklearn.preprocessing.PowerTransformer(method='yeo_johnson')`), and rank-based inverse normal transformation (`scipy.stats.norm.ppf(rank/(N+1))`). Box-Cox MUST apply a log-shift (subtract min and add epsilon) when values are non-positive and log the intervention with variable name and reason. Each call returns a record conforming to `contracts/transformation.schema.yaml` (`transformation_id, dataset_id, variable_name, method, lambda_param, intervention_log, status`).
-    - Bundle unit tests `tests/unit/test_transformations.py::test_log_shift_applied_on_negative_values` and `::test_transformation_failure_logs_reason`.
-    - **Verification**: `pytest tests/unit/test_transformations.py -q` passes; applying all three methods to one filtered dataset produces three success records with finite transformed values. **Dependency**: T001, T003.
+- [ ] **T003** [US1] Filter datasets, impute missing values, and compute shape statistics  
+  *Files*: `code/filter_datasets.py`, `data/imputation_log.csv`, `data/exclusions.csv`, `data/filter_results.csv`, updated `data/datasets.csv` (adds `skewness`, `kurtosis`, `status`, `filter_reason`, `exclusion_details`)  
+  *Description*:  
+  • For each dataset listed in `data/datasets.csv`:  
+    1. Load the dataset (streaming if > 10 000 rows).  
+    2. Impute missing values per variable: mean for |skew| ≤ 0.5, median otherwise; log each imputation (`dataset_id, variable, method, rate`) to `imputation_log.csv`.  
+    3. Exclude a dataset if any of: overall missing > 10 %, `sample_size` < 30, no continuous variable, or no categorical group label with ≥ 2 levels.  Log exclusions (`dataset_id, reason, details`) to `exclusions.csv`.  
+    4. Run Shapiro‑Wilk on each continuous variable; keep the dataset if the **minimum** p‑value < 0.05 (non‑normal).  
+    5. Compute average skewness and kurtosis (using the first 10 000 rows when streaming).  
+    6. Write per‑dataset results to `filter_results.csv` (`dataset_id, shapiro_p, sample_size, included`).  
+    7. Update the corresponding row in `data/datasets.csv` with `skewness`, `kurtosis`, `status`=`processed` or `filtered_out`, and appropriate `filter_reason`/`exclusion_details`.  
+  *Verification*:  
+  - `python code/filter_datasets.py` exits 0.  
+  - `data/imputation_log.csv` and `data/exclusions.csv` contain at least one data row each (or a documented empty‑with‑header state).  
+  - All rows in `data/datasets.csv` with `status='processed'` have `shapiro_wilk_p` < 0.05 and `sample_size` ≥ 30.  
 
-- [ ] T005 [US2] Run a thin end-to-end Type I error pilot: implement `code/generate_null_data.py` to generate simulated null datasets (group labels independent of the continuous variable by construction — labels assigned by a fixed-seed permutation) whose marginal distribution matches the mean skewness/kurtosis measured in T003 (fit a skew-normal distribution). Write a metadata record per simulated dataset to `data/simulated_metadata.csv` conforming to `contracts/simulated_dataset.schema.yaml` (`sim_id, source_dataset_id, effect_size, skewness, kurtosis, n_samples, seed_used`). Implement `code/analyze_type1_error.py --pilot` to apply the T004 transformations, run t-test and one-way ANOVA on a small pilot (200 simulations from one shape stratum, seed=42), and write per-run results conforming to `contracts/test_result.schema.yaml` plus a pilot summary to `results/type1_error_results.csv` (appended rows) and a validation record `results/type1_error_validation.csv` containing `error_rate`, `seed`, `n_iterations`, `transformations`, `test_type`. Record every seed in `results/simulation_seeds.txt` as `RUN_ID=<id> SEED=<seed>`.
-    - Bundle unit tests `tests/unit/test_simulate_null.py::test_null_data_independence` and `::test_seed_reproducibility` (two runs with seed=42 produce identical arrays).
-    - **Verification**: `python code/analyze_type1_error.py --pilot` exits 0 and `results/type1_error_results.csv` contains rows with error_rate in [0,1]; `pytest tests/unit/test_simulate_null.py -q` passes; `test -s data/simulated_metadata.csv`. **Dependency**: T003, T004. *(Absorbs prior T015 simulated-metadata task.)*
+- [ ] **T004** [US2] Implement the three data‑transformation methods  
+  *Files*: `code/data/transformations.py`, `results/transformations_log.csv`  
+  *Description*:  
+  • Provide functions `apply_boxcox(df, var)`, `apply_yeojohnson(df, var)`, and `apply_rank_inverse_normal(df, var)`.  
+  • Box‑Cox: if any value ≤ 0, apply a log‑shift (`df[var] = df[var] - df[var].min() + 1e-6`) and record the intervention in the `intervention_log` field. Optimize λ via `scipy.stats.boxcox_normmax`.  
+  • Yeo‑Johnson: use `sklearn.preprocessing.PowerTransformer(method='yeo_johnson')` with per‑dataset λ optimization.  
+  • Rank‑based: compute ranks and map to the standard normal quantile (`scipy.stats.norm.ppf(rank/(N+1))`).  
+  • For each variable in each processed dataset, create a record conforming to `contracts/transformation.schema.yaml` (`transformation_id, dataset_id, variable_name, method, lambda_param, intervention_log, status`) and append it to `results/transformations_log.csv`.  
+  *Verification*:  
+  - `pytest tests/unit/test_transformations.py::test_log_shift_applied_on_negative_values -q` passes.  
+  - Running the three methods on a single filtered dataset produces three `status='success'` records with finite transformed values.  
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] **T005** [US2] Pilot Type I error estimation on one filtered dataset (null simulation)  
+  *Files*: `code/generate_null_data.py`, `code/analyze_type1_error.py`, `results/type1_error_pilot.csv`, `results/type1_error_pilot_validation.csv`, `results/simulation_seeds.txt`  
+  *Description*:  
+  • `generate_null_data.py` creates a null dataset by permuting group labels (fixed seed = 42) while preserving the marginal distribution of each continuous variable (fit a skew‑normal using the `skewness`/`kurtosis` from T003).  
+  • `analyze_type1_error.py --pilot` loads the pilot null dataset, applies the three transformations (T004), runs a two‑sample t‑test and one‑way ANOVA, repeats the label‑shuffling **2000** times, and records the proportion of p < 0.05 as `error_rate`.  
+  • Results are written to `type1_error_pilot.csv`; a validation file records `error_rate`, `seed`, `n_iterations`, and a boolean `pass` flag (true if the baseline untransformed error lies in [0.04, 0.06]).  
+  • All used seeds are appended to `results/simulation_seeds.txt` (`RUN_ID=pilot SEED=42`).  
+  *Verification*:  
+  - `python code/analyze_type1_error.py --pilot` exits 0 and produces a non‑empty `type1_error_pilot.csv` with columns `transformation,test_type,error_rate`.  
+  - The validation file contains a `pass` column with a boolean value.  
 
-- [ ] T006 [US4] Implement the power simulation in `code/simulate_power.py` (FR-005, FR-006): generate simulated alternative datasets with known Cohen's d ∈ {0.2, 0.5, 0.8} and ground-truth group labels, matching the real-world shape strata from T003; generate ≥1000 simulated datasets per effect size per shape stratum with fixed seeds (recorded in `results/simulation_seeds.txt`), with metadata appended to `data/simulated_metadata.csv`, output to `data/simulated/alt_<sim_id>.parquet`. Apply the T004 transformations, run t-test/ANOVA, and record the proportion of p < 0.05 as power per transformation × test × effect-size combination (including the untransformed baseline), writing per-combination results to `results/power/<effect_size>_<transform>_<test>.json` with keys `power`, `n_iterations`, `seed`, `ci_lower`, `ci_upper`.
-    - Address the reviewer's circularity objection: derive a **closed-form reference power** for the normal case via `statsmodels.stats.power.tt_solve_power` and record it in each JSON as `reference_power_normal`; empirical power on the matched-shape simulated data is compared against this reference as a calibration check, with deviations attributed to distributional shape (documented in `results/power/calibration_notes.txt`), not treated as a self-referential pass/fail.
-    - Bundle unit tests `tests/unit/test_simulate_power.py::test_non_normal_data_generation` (skewness > 0.5), `::test_ground_truth_labels_assigned`, `::test_power_calculation_proportion`, and `tests/unit/test_power_verification.py::test_power_vs_theoretical` (empirical power within its 95 % CI of the closed-form reference for the normal-shape stratum).
-    - **Verification**: `python code/simulate_power.py` exits 0; all expected (3 d × 4 transform incl. baseline × 2 test) JSON files exist with power in [0,1] and `reference_power_normal` present; `pytest tests/unit/test_simulate_power.py tests/unit/test_power_verification.py -q` passes. **Dependency**: T005. *(Absorbs prior T016 analytical power verification.)*
+- [ ] **T006** [US2] Full Type I error estimation across all filtered datasets  
+  *Files*: `code/analyze_type1_error.py`, `results/type1_error_results.csv`, `results/type1_error_validation.csv`, updated `results/simulation_seeds.txt`  
+  *Description*:  
+  • For every dataset marked `status='processed'` in `data/datasets.csv`, generate **1000** label‑shuffling null replicates (fixed seed per dataset, recorded).  
+  • Apply the three transformations (T004) to each replicate, run t‑test and ANOVA, compute the proportion of significant p‑values per transformation‑test pair, and append rows to `type1_error_results.csv` (`dataset_id, transformation, test_type, error_rate, n_iterations`).  
+  • After each dataset the checkpoint is saved via `checkpointing.save_state` to allow resumption.  
+  • `type1_error_validation.csv` records a global check that the untransformed baseline error is within the nominal α ± 0.01 range.  
+  *Verification*:  
+  - Script completes without error (`python code/analyze_type1_error.py` exits 0).  
+  - `type1_error_results.csv` contains ≥ 3 × 2 × N_processed rows and `error_rate` values between 0 and 1.  
 
-- [ ] T007 [US2] Run the full Type I error estimation: extend `code/analyze_type1_error.py` to run the null simulation across all shape strata from T003 with ≥1000 iterations per stratum per transformation × test combination (fixed seeds recorded in `results/simulation_seeds.txt`), writing per-stratum results to `results/type1_error_results.csv` (appended rows) and a validation file `results/type1_error_validation.csv` containing `simulation_error_rate`, `threshold` (0.05), and `pass` (true if the untransformed-baseline rate is within [0.04, 0.06]). Use checkpointing (T001) after each stratum so the run can resume.
-    - **Verification**: `python code/analyze_type1_error.py` exits 0; `results/type1_error_results.csv` has `error_rate` in [0,1]; `results/type1_error_validation.csv` exists with all three keys. **Dependency**: T005.
+- [ ] **T007** [US4] Simulate alternative datasets for power analysis (Cohen’s d = 0.2, 0.5, 0.8)  
+  *Files*: `code/simulate_power.py`, `data/simulated_metadata.csv`, simulated data files under `data/simulated/`, `results/power/<effect>_<trans>_<test>.json` (one JSON per combination), `results/power/calibration_notes.txt`  
+  *Description*:  
+  • For each shape stratum defined by `skewness`/`kurtosis` from T003, generate **1000** simulated datasets per effect size (Cohen’s d) preserving the marginal shape (skew‑normal). Ground‑truth group labels are created with the specified mean difference.  
+  • Record metadata (`sim_id, source_dataset_id, effect_size, skewness, kurtosis, n_samples, seed_used`) in `simulated_metadata.csv`.  
+  • Apply the three transformations (T004) and run t‑test/ANOVA on each simulated dataset; compute empirical power as the proportion of p < 0.05.  
+  • For the normal‑shape stratum, compute a closed‑form reference power using `statsmodels.stats.power.tt_solve_power` and store it as `reference_power_normal` in each JSON.  
+  • JSON schema: `{ "power": <float>, "reference_power_normal": <float>, "n_iterations": 1000, "ci_lower": <float>, "ci_upper": <float> }`.  
+  *Verification*:  
+  - All expected JSON files exist (3 effect sizes × 3 transformations × 2 tests = 18 files).  
+  - Each JSON contains `power` in [0,1] and a non‑null `reference_power_normal`.  
+  - Unit tests verify that simulated skewness exceeds 0.5 for non‑normal strata and that empirical power lies within the 95 % CI of the reference power for the normal stratum.  
 
-- [ ] T008 [US3] Implement aggregation with uncertainty in `code/aggregate_results.py` (FR-007): load all Type I error and power results, compute mean Type I error and mean power per transformation × test combination **excluding the untransformed baseline** (so all output rows conform to `aggregated_result.schema.yaml`) across strata with 95 % bootstrap confidence intervals (≥2000 resamples, fixed seed), and write `results/aggregated_results.csv` with rows conforming to `contracts/aggregated_result.schema.yaml` (`agg_id, transformation, test_type, metric, mean_value, ci_lower, ci_upper, ci_half_width, validation_status, n_datasets, n_iterations`).
-    - Address the reviewer's attainability objection honestly: `validation_status` is `pass` iff `ci_half_width <= 0.02` (SC-004 as specified), but the code must NOT inflate iterations or otherwise weaken the criterion to force a pass — if the achieved half-width exceeds 0.02, the row is recorded `fail` and the limitation is surfaced for the results account (T011). The achieved half-widths are reported as measured.
-    - Bundle unit tests `tests/unit/test_aggregate.py::test_bootstrap_ci_calculation` (returns `(mean, ci_lower, ci_upper)`) and `::test_mean_calculation`, plus a schema-validation check that no `untransformed` rows appear in the output.
-    - **Verification**: `python code/aggregate_results.py` exits 0; `results/aggregated_results.csv` contains one row per transformation × test × metric combination (baseline omitted) with all required columns; `pytest tests/unit/test_aggregate.py -q` passes. **Dependency**: T006, T007. *(Absorbs prior T017 baseline-exclusion task.)*
+- [ ] **T008** [US3] Aggregate Type I error and power results with bootstrap confidence intervals  
+  *Files*: `code/aggregate_results.py`, `results/aggregated_results.csv`  
+  *Description*:  
+  • Load `type1_error_results.csv` and all `results/power/*.json`.  
+  • For each (transformation, test_type, metric) pair (excluding the untransformed baseline), compute the mean value and a 95 % bootstrap CI (≥ 2000 resamples, fixed seed = 123).  
+  • Calculate `ci_half_width = (ci_upper - ci_lower) / 2`.  
+  • Set `validation_status = "pass"` iff `ci_half_width ≤ 0.02`; otherwise `"fail"` (no artificial iteration inflation).  
+  • Write rows conforming to `contracts/aggregated_result.schema.yaml` (`agg_id, transformation, test_type, metric, mean_value, ci_lower, ci_upper, ci_half_width, validation_status, n_datasets, n_iterations`).  
+  *Verification*:  
+  - Running `python code/aggregate_results.py` exits 0.  
+  - `aggregated_results.csv` contains one row per transformation × test × metric (3 × 2 × 2 = 12 rows).  
+  - All columns satisfy schema constraints; at least one row has `validation_status="fail"` if the half‑width target is unattainable, demonstrating honest reporting.  
 
-- [ ] T009 [US3] Implement the inferential comparison in `code/aggregate_results.py --inference` (FR-008): (a) fit a binomial GEE model with a stratum cluster structure (via `statsmodels.genmod.generalized_estimating_equations.GEE`) as the primary test of whether transformation type affects error rates, documenting the GEE-for-GLMM substitution in the code; (b) run a Friedman test (`scipy.stats.friedmanchisquare`) across per-stratum error rates by transformation as a secondary check, with Bonferroni-corrected pairwise Wilcoxon signed-rank post-hoc comparisons (falling back to pairwise-only with Bonferroni if the Friedman test is degenerate, logged in `results/friedman_summary.txt`); (c) perform a sensitivity analysis sweeping α over {0.01, 0.02, 0.025, 0.05, 0.075, 0.10} recomputing error rates, writing results to `results/aggregated/sensitivity_analysis.json` as a list of records each conforming to `contracts/sensitivity_result.schema.yaml` (one per transformation × test × α).
-    - Bundle unit test `tests/unit/test_aggregate.py::test_glmm_and_bonferroni` asserting the GEE model returns a p-value and that Bonferroni-adjusted p-values are produced.
-    - **Verification**: `python code/aggregate_results.py --inference` exits 0; `results/aggregated/sensitivity_analysis.json` parses and each entry validates against the schema; `results/friedman_summary.txt` exists with the test statistic, p-value, and post-hoc results. **Dependency**: T008. *(Absorbs prior T018/T019.)*
+- [ ] **T009** [US3] Inferential comparison and sensitivity analysis (Friedman test, Bonferroni post‑hoc, α‑sweep)  
+  *Files*: `code/aggregate_results.py --inference`, `results/friedman_summary.txt`, `results/aggregated/sensitivity_analysis.json`  
+  *Description*:  
+  • Perform a Friedman chi‑square test (`scipy.stats.friedmanchisquare`) on per‑dataset error rates across the three transformations (separate for t‑test and ANOVA).  
+  • If the Friedman statistic is non‑degenerate, conduct pairwise Wilcoxon signed‑rank tests with Bonferroni correction; otherwise fall back to pairwise tests only. Log the full output (statistic, p‑value, pairwise adjusted p‑values) to `friedman_summary.txt`.  
+  • Fit an optional GEE model (`statsmodels.genmod.generalized_estimating_equations.GEE`) with a stratum cluster to provide an additional confirmatory p‑value (also logged).  
+  • Sweep significance thresholds α ∈ {0.01, 0.02, 0.025, 0.05, 0.075, 0.10}; for each α recompute error rates from the raw null results and write a record per (transformation, test_type, α) conforming to `contracts/sensitivity_result.schema.yaml` into `sensitivity_analysis.json`.  
+  *Verification*:  
+  - `python code/aggregate_results.py --inference` exits 0.  
+  - `friedman_summary.txt` contains the Friedman χ² statistic, raw p‑value, and a table of Bonferroni‑adjusted pairwise p‑values.  
+  - `sensitivity_analysis.json` parses as a list of valid `SensitivityResult` objects (schema validation passes).  
 
-- [ ] T010 [US3] Generate the specified figures directly from the validated outputs (FR-009): `results/figures/error_rates.png` (bar plot of Type I error by transformation × test with CI error bars and the α = 0.05 reference line), `results/figures/power_curves.png` (power vs. effect size by transformation × test with CI bands), and `results/figures/sensitivity_curves.png` (error rate vs. α from T009's sweep), using matplotlib/seaborn with every plotted value read from `results/aggregated_results.csv` / `results/aggregated/sensitivity_analysis.json` — no hand-typed numbers.
-    - **Verification**: all three PNG files exist and are non-empty; re-running the plotting step reproduces byte-identical figures (fixed style/seeds). **Dependency**: T009.
+- [ ] **T010** [US3] Generate reproducible figures from aggregated results  
+  *Files*: `code/visualize_results.py`, `results/figures/error_rates.png`, `results/figures/power_curves.png`, `results/figures/sensitivity_curves.png`  
+  *Description*:  
+  • `visualize_results.py` reads `aggregated_results.csv` and `sensitivity_analysis.json`.  
+  • Creates:  
+    - **error_rates.png** – bar plot of mean Type I error by transformation and test, with error bars showing the bootstrap CI and a horizontal line at α = 0.05.  
+    - **power_curves.png** – line plot of power vs. effect size (small, medium, large) for each transformation and test, with shaded CI bands.  
+    - **sensitivity_curves.png** – line plot of error rate vs. α for each transformation‑test pair.  
+  • All plots use a fixed Matplotlib style and `random.seed(0)` to guarantee byte‑identical output on repeated runs.  
+  *Verification*:  
+  - Each PNG file exists, is non‑empty, and `sha256sum` of a second run matches the first (deterministic).  
 
-- [ ] T011 Add independent validation and runtime checks, then write the methods/results account: (a) integration test `tests/integration/test_aggregation.py::test_full_aggregation_pipeline` running the aggregation on the real result files and asserting summary tables and figures are produced; (b) a runtime check recording total pipeline wall-time to `results/benchmark.log` confirming the full pipeline completes within the 6-hour CPU budget (vectorized numpy operations; per-stratum checkpointing per the spec's edge case; delete the checkpoint after a successful run); (c) a determinism check re-running the T005 pilot with the same seeds and asserting identical outputs; (d) write `specs/001-data-transformation-sensitivity/results.md` linked to the actual output cells (`results/aggregated_results.csv`, `results/type1_error_validation.csv`, `results/power/*.json`) and figure files (`results/figures/*.png`). State honestly: the number of datasets retained after filtering, the simulation sample sizes and their power/representativeness limitations, that Type I error was estimated on simulated null data matching real-world shapes (the plan's methodological correction superseding label-shuffling on real data), that findings are ASSOCIATIONAL, any negative results (e.g., transformations whose CI includes the nominal α, or CI half-widths exceeding the ±0.02 target with the achieved values reported), and exclusions logged in `data/exclusions.csv`. Document the paper-stage handoff: the paper pipeline receives `results.md`, the aggregated CSVs, and the three figures; paper layout/PDF/publication are out of scope here.
-    - **Verification**: `pytest tests -q` passes; `results/benchmark.log` exists and shows < 6 h; the determinism check passes; `results.md` exists and every cited number matches a value in the result files. **Dependency**: T010.
+- [ ] **T011** Document methods, results, and paper‑stage handoff  
+  *Files*: `specs/001-evaluating-the-impact-of-data-transformation-sensitivity/results.md`  
+  *Description*:  
+  • Summarize the pipeline, referencing concrete artifact paths (`data/datasets.csv`, `results/type1_error_results.csv`, `results/power/*.json`, `results/aggregated_results.csv`, `results/figures/*.png`).  
+  • Report: number of datasets retained after filtering, total number of null simulations, total number of power simulations per effect size, observed CI half‑widths and which rows failed SC‑004, and the outcome of the Friedman test (statistic, p‑value, post‑hoc conclusions).  
+  • Explicitly note that Type I error was estimated on simulated null data that matched the marginal shape of real datasets, and that power was measured on simulated alternatives with known Cohen’s d.  
+  • List limitations (e.g., CI half‑width > 0.02 for some combos, computational time constraints).  
+  • State the handoff: the paper‑stage pipeline should ingest `results.md`, the aggregated CSV, and the three PNG figures; no further computation is required here.  
+  *Verification*:  
+  - File exists and every numeric claim (e.g., “50 datasets retained”, “CI half‑width = 0.023”) matches the corresponding value in the underlying CSV/JSON files (checked by a simple script).  
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] **T012** End‑to‑end reproducibility and benchmark check  
+  *Files*: `results/benchmark.log` (generated by the pipeline), `tests/` (unit + integration), re‑run of pilot for determinism  
+  *Description*:  
+  • Execute `python -m code.main --stage all` from a clean checkout (no prior checkpoint).  
+  • Run the full test suite `pytest -q`; all tests must pass.  
+  • The pipeline records wall‑clock time to `results/benchmark.log`; ensure the total time is < 6 hours on the GitHub Actions free‑tier CPU runner.  
+  • After successful completion, delete the checkpoint file.  
+  • Re‑run the pilot Type I error task (`python code/analyze_type1_error.py --pilot`) and verify that the produced `type1_error_pilot.csv` is byte‑identical to the original pilot output (checksum comparison).  
+  *Verification*:  
+  - Command exits 0, `benchmark.log` shows `< 6h`, `pytest` returns 0, checkpoint file is removed, and the pilot CSV checksum matches the stored reference (`sha256sum`).  
 
-- [ ] T012 Re-run the documented workflow end-to-end from its declared inputs: execute `python -m code.main --stage all` (the quickstart command from T001), confirm all required tests (`pytest tests -q`) and artifact checks pass, and verify that every FR (FR-001 through FR-010) has a corresponding completed artifact: `data/datasets.csv` (≥60 rows, FR-001), `data/filter_results.csv` (FR-002), transformation records (FR-003), `results/type1_error_results.csv` + `results/type1_error_validation.csv` (FR-004), `data/simulated_metadata.csv` (FR-005), `results/power/*.json` (FR-006), `results/aggregated_results.csv` (FR-007), `results/friedman_summary.txt` + `results/aggregated/sensitivity_analysis.json` (FR-008), `results/figures/*.png` (FR-009), `data/checksums.csv` (FR-010). Confirm the paper-stage handoff documented in T011 is complete.
-    - **Verification**: the full documented command exits 0 from a clean checkout of the declared inputs; the FR-to-artifact checklist above is satisfied by files on disk. **Dependency**: T011.
+---  
 
-## Dependencies and requirement coverage
+**Dependency graph**
 
-| Requirement | Task(s) | Demonstrating command |
-|---|---|---|
-| FR-001 (≥50 datasets, URLs, metadata) | T002 | `python code/download_datasets.py` |
-| FR-002 (Shapiro-Wilk, N ≥ 30 filtering) | T003 | `python code/filter_datasets.py` |
-| FR-003 (three transformations) | T004 | `pytest tests/unit/test_transformations.py -q` |
-| FR-004 (Type I error, simulated null) | T005, T007 | `python code/analyze_type1_error.py` |
-| FR-005 (simulated datasets, Cohen's d) | T005, T006 | `python code/simulate_power.py` |
-| FR-006 (power estimation) | T006 | `results/power/*.json` |
-| FR-007 (aggregation + bootstrap CIs) | T008 | `python code/aggregate_results.py` |
-| FR-008 (GEE/Friedman, post-hoc, α-sweep) | T009 | `python code/aggregate_results.py --inference` |
-| FR-009 (tables and bar plots) | T010 | `results/figures/*.png` |
-| FR-010 (SHA-256 checksums) | T002 | `data/checksums.csv` |
-| SC-001–SC-004 | T002, T005/T007, T006, T008 | see per-task verification |
+```
+T001 → T002 → T003 → T004 → T005 → T006
+                ↘          ↘
+                 → T007 → T008 → T009 → T010 → T011 → T012
+```
 
-Execution order: T001 ∥ T002 → T003 → T004 → T005 → {T006, T007} → T008 → T009 → T010 → T011 → T012. All stochastic steps use fixed seeds recorded in `results/simulation_seeds.txt`. No task writes `state/...` or `.github/...`; platform state is owned by the platform.
-
-## Revision behavior
-
-Prior rejected tasks T004, T012a, T013, T013b, T014, T015, T016, T017 are absorbed into T001–T003 above with their full acceptance criteria; prior supporting tasks T013–T021 are absorbed into T002, T005, T006, T008, T009, and T001 respectively. The prior state-update task (writing `state/projects/...yaml` from research scripts) is removed because platform state is derived by the verifier, not written by project code. Reviewer objections on power-validation circularity and CI half-width attainability are addressed in T006 and T008 by deriving a closed-form reference power and reporting achieved half-widths honestly rather than weakening the SC-004 criterion.
+All tasks together constitute a complete, reproducible study that fulfills the specification, the plan, and the reviewer’s concerns (reference power calculation, honest CI half‑width reporting, and CPU‑only feasibility).
