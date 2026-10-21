@@ -1,16 +1,19 @@
 status: none
-intent: CDAWeb ACE SWICS and WIND composition hourly ratios with NOAA Dst Kp python
+intent: ACE SWICS WIND wind composition O/Fe He/H C/O NOAA Dst Kp hourly dataset python
   package dataset
 required_fields:
 - timestamp
-- O/Fe_ratio
-- He/H_ratio
-- C/O_ratio
+- O/Fe
+- He/H
+- C/O
 - bulk_velocity
 - proton_density
+- IMF_Bx
+- IMF_By
 - IMF_Bz
-- Dst_index
-- Kp_index
-cache_key: 7d407109e965c5f29034e4cf59967daf934161d985e3c06ccbf058f0c90e4562
-searched_at: '2026-10-21T05:21:03.591116+00:00'
+- Dst
+- Kp
+- coupling_function
+cache_key: 7ff705745c8566f665d7514f8d96829be4cf7f8daadd5455568865329d238498
+searched_at: '2026-10-21T05:24:27.089541+00:00'
 retry_count: 1
