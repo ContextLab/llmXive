@@ -1,8 +1,8 @@
 # Quickstart: Running the Intent‑Graph Evaluation
 
-> All commands assume you are in the repository root and have a fresh GitHub Actions runner (or equivalent local environment).
+> All commands assume you are at the repository root on a fresh GitHub Actions runner (or a comparable local environment).
 
-## 1️⃣ Install Dependencies
+## 1️⃣ Set Up the Environment
 ```bash
 python -m venv .venv
 source .venv/bin/activate
@@ -11,8 +11,8 @@ pip install -r requirements.txt   # pins exact versions
 
 ## 2️⃣ Download π‑Bench Data
 ```bash
-python -c "from datasets import load_dataset; load_dataset('pi_bench', data_dir='data/raw')"
-# The script records a SHA‑256 checksum in state/...yaml automatically.
+python src/pipelines/download_pi_bench.py
+# The script streams the dataset, writes files under data/raw/, and records a SHA‑256 checksum.
 ```
 
 ## 3️⃣ Parse & Normalize Traces
@@ -22,32 +22,37 @@ python src/pipelines/parse_traces.py \
     --out-csv data/derived/normalized_traces.csv
 ```
 
-## 4️⃣ Build Intent Graphs (records construction latency)
+## 4️⃣ Compute Model Max Token Budget (for fair baseline truncation)
 ```bash
-# First, compute the median token budget for the baseline to ensure fair comparison
-python src/utils/compute_median_graph_token_budget.py --out data/derived/token_budget.txt
+# For the OPT‑125m model we use a max context of 2048 tokens.
+echo 2048 > data/derived/model_max_tokens.txt
+```
 
-python src/pipelines/build_intent_graph.py \
+## 5️⃣ Build Intent Graphs (LLM‑based, records construction latency)
+```bash
+python src/pipelines/build_intent_graph_llm.py \
     --input-csv data/derived/normalized_traces.csv \
     --out-dir data/derived/intent_graphs \
-    --token-budget $(cat data/derived/token_budget.txt) \
+    --max-tokens $(cat data/derived/model_max_tokens.txt) \
     --seed 42 \
-    --log-latency data/derived/graph_construction_latency.csv
+    --latency-out data/derived/graph_construction_latency.csv
 ```
-*The script validates each JSON against `contracts/intent_graph.schema.yaml` and prunes low-confidence nodes if the graph exceeds the token budget.*
+*The script validates each JSON against `contracts/intent_graph.schema.yaml`, uses a deterministic LLM prompt with a fixed seed, and prunes low‑confidence nodes if the token budget is exceeded.*
 
-## 5️⃣ Run Agents (three seeds)
+## 6️⃣ Run Agents (three seeds)
 ```bash
 for SEED in 101 202 303; do
   python src/pipelines/run_lightweight_agent.py \
       --graph-dir data/derived/intent_graphs \
       --seed $SEED \
       --out data/derived/inference_logs/lightweight_seed${SEED}.csv
+
   python src/pipelines/run_raw_baseline.py \
       --raw-dir data/raw \
-      --token-budget $(cat data/derived/token_budget.txt) \
+      --max-tokens $(cat data/derived/model_max_tokens.txt) \
       --seed $SEED \
       --out data/derived/inference_logs/raw_seed${SEED}.csv
+
   python src/pipelines/run_null_baseline.py \
       --raw-dir data/raw \
       --seed $SEED \
@@ -55,7 +60,7 @@ for SEED in 101 202 303; do
 done
 ```
 
-## 6️⃣ Evaluate (includes graph‑construction latency)
+## 7️⃣ Evaluate (includes graph‑construction latency)
 ```bash
 python src/pipelines/evaluate.py \
     --logs-dir data/derived/inference_logs \
@@ -63,20 +68,23 @@ python src/pipelines/evaluate.py \
     --graph-latency data/derived/graph_construction_latency.csv \
     --out-dir data/derived/eval_results
 ```
-*Produces `summary.csv`, `report.md`, and PNG figures.*
+*Produces `summary.csv`, `report.md`, and PNG figures under `data/derived/eval_results/figures/`.*
 
-## 7️⃣ Verify Contracts
+## 8️⃣ Verify Contracts
 ```bash
 pytest -q tests/contract
 ```
-All JSON graphs must pass schema validation.
+All Intent Graph JSON files must pass schema validation.
 
-## 8️⃣ Inspect Results
+## 9️⃣ Inspect the Results
 ```bash
 cat data/derived/eval_results/report.md
 ```
 You will see:
-* F1 scores (micro‑averaged, multi‑label) for Graph, Raw, Null (only on ground‑truth tasks)
-* Wilcoxon and t‑test p‑values, bootstrap CIs
-* Total Latency (Construction + Inference) and reduction percentages
-* Graph‑construction success rate
+- Micro‑averaged F1 for Graph, Raw, and Null conditions (ground‑truth subset).  
+- Wilcoxon and paired‑t test p‑values, 95 % bootstrap confidence intervals.  
+- **Online** inference latency per turn and percentage reduction.  
+- Offline graph‑construction mean latency and overall success rate (≥ 95 %).  
+
+---
+

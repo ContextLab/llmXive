@@ -8,7 +8,7 @@ properties:
     description: "List of intent nodes"
     items:
       type: object
-      required: [id, label, confidence]
+      required: ["id", "label", "confidence"]
       properties:
         id:
           type: string
@@ -24,7 +24,7 @@ properties:
     description: "List of directed edges representing dependencies"
     items:
       type: object
-      required: [source, target, type]
+      required: ["source", "target", "type"]
       properties:
         source:
           type: string
@@ -35,5 +35,5 @@ properties:
         type:
           type: string
           description: "Dependency type (e.g., \"temporal\", \"causal\", \"conflict_resolution\")"
-required: [nodes, edges]
+required: ["nodes", "edges"]
 additionalProperties: false
