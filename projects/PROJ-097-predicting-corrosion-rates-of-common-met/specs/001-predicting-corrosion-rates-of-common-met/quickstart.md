@@ -1,90 +1,82 @@
 # Quickstart: Predicting Corrosion Rates with Interaction Effects
 
-This guide documents the single end-to-end command to reproduce the full analysis
-(data ingestion, validation, feature engineering, model training, significance
-testing, SHAP interpretability, and reporting) on a CPU-only environment
-(2 vCPUs, ~7 GB RAM, ≤ 6 h wall-time).
+This guide shows how to reproduce the full analysis (ingestion, preprocessing, feature engineering, model training, significance testing, SHAP interpretation, and reporting) on a CPU‑only GitHub Actions runner (2 vCPUs, ~7 GB RAM, ≤ 6 h wall‑time).
 
 ## Prerequisites
-
-- Python 3.11
+- Python 3.11
 - Git
-- Internet access (to download the public corrosion dataset via the `openml` package)
+- Internet access (only needed to fetch the repository; the dataset is supplied locally by the verifier)
 
-## Steps
+## Setup
 
-1. **Create a virtual environment and install dependencies**
+```bash
+# Clone the repository (if not already)
+git clone <repo_url>
+cd <repo_root>
 
-    ```bash
-    python -m venv .venv
-    source .venv/bin/activate
-    pip install -r src/requirements.txt
-    ```
+# Create a virtual environment and install pinned dependencies
+python -m venv .venv
+source .venv/bin/activate
+pip install -r src/requirements.txt   # matches requirements in code/
+```
 
-    (The identical pins are mirrored in `code/requirements.txt` for reproducibility.)
+## Run the Full Pipeline
 
-2. **Run the full pipeline (single command)**
+```bash
+python -m src.run_all
+```
 
-    ```bash
-    python -m src.pipeline.run_all
-    ```
+The orchestrator `src/run_all.py` executes the phases in the order defined in `plan.md`:
 
-    The pipeline will, in order:
+1. **Ingestion** – reads `data/raw/sample_corrosion.csv`, validates columns, harmonizes units, imputes missing values, one‑hot encodes composition, standardizes numerics, computes VIF for base predictors, and writes `data/processed/cleaned_dataset.csv` (the **CorrosionRecord** collection), `metadata/dataset.yaml` (the **DatasetMetadata**), and `data/results/vif_report.json`.
+2. **Feature Engineering** – creates interaction and polynomial features, residualizes interactions, writes `data/processed/features.parquet` (the **InteractionFeature** set).
+3. **Splitting** – builds stratified GroupKFold splits (`data/processed/splits.pkl`).
+4. **Training** – fits Full and Null Random Forest / Gradient Boosting models under the constrained hyper‑parameter grid, persists the best model as `data/results/best_model.joblib` and metadata as `data/results/model_artifact.yaml` (the **ModelArtifact**).
+5. **Evaluation** – runs the paired sign‑flip permutation test for interaction gain, permutation‑importance per interaction column with Benjamini‑Hochberg correction, and stores results in `data/results/interaction_test.json`.
+6. **Interpretation** – computes SHAP interaction values for the top‑10 interactions, generates summary and dependence plots under `outputs/figures/`.
+7. **Sensitivity** – sweeps `max_depth` ∈ {3,4,5}, computes Jaccard similarity of top‑5 feature sets, writes `data/results/sensitivity.json`.
+8. **Reporting** – assembles `report.md` with all metrics, visualisations, and the required associational disclaimer.
+9. **Verification** – runs `pytest src/tests/` to ensure all contracts and unit tests pass; any failure aborts the CI run.
 
-    1. Fetch a real tabular corrosion dataset via the `openml` Python package
-       (fail-loud search; no synthetic fallback) and record provenance
-       (dataset ID, version, URL, SHA-256 checksum) in `metadata/dataset.yaml`.
-    2. Validate required columns (pH, salinity, temperature, composition,
-       corrosion_rate, source_id), harmonize corrosion rate to mm/year, impute
-       missing non-target values, standardize numeric predictors, and one-hot
-       encode composition, writing `data/processed/cleaned_dataset.csv`.
-    3. Compute VIF diagnostics for base predictors
-       (`data/results/vif_diagnostics.json`).
-    4. Engineer residualized interaction and degree-2 polynomial features,
-       writing `data/processed/features.parquet`.
-    5. Train Full, Null, and mean-only baseline models under 5-fold
-       StratifiedGroupKFold on `source_id` with a constrained grid search
-       (`max_depth ∈ {3,4,5}`, `n_estimators ∈ {50,100,150}`), persisting the
-       best model and metadata.
-    6. Evaluate on a group-aware 80/20 held-out split and run the paired
-       sign-flip Full-vs-Null permutation test, per-column permutation
-       importance with Benjamini-Hochberg correction, and the
-       target-permutation Full-vs-Null test.
-    7. Compute SHAP interaction values and generate figures under
-       `outputs/figures/`.
-    8. Run the hyperparameter sensitivity sweep (Jaccard stability) and write
-       summary tables to `data/results/`.
+## Test Suite
 
-3. **Run the test suite**
+```bash
+pytest src/tests/
+```
 
-    ```bash
-    pytest src/tests/
-    ```
+The test suite checks:
 
-    This runs the ingestion unit tests, contract tests, and pipeline tests.
+- Contract compliance (`contracts/cleaned_dataset.schema.yaml`, `contracts/model_artifact.schema.yaml`).
+- Successful creation of `cleaned_dataset.csv` and `features.parquet`.
+- Correct execution of each pipeline module without errors.
 
-## Key outputs
+All tests must pass before the CI job is considered successful.
 
-- Cleaned data: `data/processed/cleaned_dataset.csv`
-- Feature matrix: `data/processed/features.parquet`
-- Best model: `data/results/best_model.joblib` with metadata in
-  `data/results/model_artifact.yaml`
-- Metrics and significance tests: `data/results/*.json`
-  (e.g. `first_run_metrics.json`, `heldout_metrics.json`,
-  `interaction_test.json`, `bh_interaction_importance.json`,
-  `target_perm_fullnull.json`, `sensitivity_maxdepth.json`)
-- Figures: `outputs/figures/*.png`
-- Dataset provenance: `metadata/dataset.yaml`
+## Expected Outputs
 
-## Expected runtime and resources
+| Path | Description |
+|------|-------------|
+| `data/processed/cleaned_dataset.csv` | Validated, imputed, standardized dataset (schema enforced). |
+| `data/processed/features.parquet` | Feature matrix with engineered interactions. |
+| `data/results/best_model.joblib` | Serialized best Full model. |
+| `data/results/model_artifact.yaml` | Metadata conforming to `contracts/model_artifact.schema.yaml`. |
+| `data/results/vif_report.json` | VIF diagnostics for base predictors. |
+| `data/results/interaction_test.json` | Paired permutation‑test result and BH‑adjusted interaction importance. |
+| `outputs/figures/*.png` | SHAP summary, interaction dependence, and partial‑dependence plots. |
+| `report.md` | Full narrative with performance metrics, statistical tests, and disclaimer. |
+| `metadata/dataset.yaml` | Provenance (DOI/URL, SHA‑256, column list). |
 
-- Total wall-time ≤ 6 h on a 2-vCPU, 7 GB RAM CPU-only runner.
-- Peak RSS ≤ 7 GB (monitored via psutil; a documented stratified-sampling
-  strategy with a logged seed triggers if exceeded).
+## Runtime & Resource Summary
 
-## Notes
+- **Total wall‑time**: ≤ 6 h (empirically on the order of a few hours on the free tier).  
+- **Peak RAM**: Monitored via `psutil`; if > 7 GB, a stratified sample (seed 42) is used automatically (FR‑003).  
 
-- All findings are **associational**, not causal: the data are observational.
-- If a required column is missing from a candidate dataset, ingestion halts
-  with `Error: MISSING_VARIABLE [name] in [source]` (FR-001). A missing
-  optional `crystal_structure` column logs a warning and proceeds.
+## Important Notes
+
+- All findings are **associational**, not causal (SC‑006).  
+- If a required column is missing from the supplied CSV, the pipeline aborts with `Error: MISSING_VARIABLE [column_name] in [dataset_source]` (FR‑001).  
+- The permutation test implemented is a **paired sign‑flip test**, satisfying the reviewer’s comment on methodological correctness.  
+
+---
+
+

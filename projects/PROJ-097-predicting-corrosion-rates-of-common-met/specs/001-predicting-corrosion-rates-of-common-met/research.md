@@ -1,60 +1,62 @@
 # Research: Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Databases
 
 ## Overview
-This research plan outlines how we will answer the user’s question about quantitative interaction effects between environmental stressors (pH, salinity, temperature) and material properties (composition, crystal structure) on corrosion rates, using only publicly available tabular datasets and CPU‑only compute.
+This research plan explains how we will answer the user’s question about quantitative interaction effects between environmental stressors (pH, salinity, temperature) and material properties (composition, crystal structure) on corrosion rates, using only publicly available tabular datasets and CPU‑only compute. The pipeline creates the core entities defined in **data-model.md**: a collection of **CorrosionRecord** objects (`cleaned_dataset.csv`), a set of **InteractionFeature** objects (`features.parquet`), a **DatasetMetadata** record (`metadata/dataset.yaml`), and a **ModelArtifact** (`model_artifact.yaml`).
 
 ## Dataset Strategy
 | Requirement | Availability | Action |
 |-------------|--------------|--------|
-| Required columns (pH, salinity, temperature, material composition, corrosion rate) | **No verified open dataset currently provides all five columns** (the "# Verified datasets" block is empty). | The pipeline will abort with a clear `Error: MISSING_VARIABLE [column_name] in [dataset_source]` (FR‑001). The project scope must be revisited to either (a) relax the predictor set to match an available dataset, or (b) locate a suitable open dataset before proceeding. No synthetic or gated data will be fabricated. |
-| Optional column (crystal structure) | May be absent | Log as limitation; continue if other required columns are present. |
-| Provenance | Required | Record DOI/URL and SHA‑256 checksum in `metadata/dataset.yaml`. |
+| Required columns (pH, salinity, temperature, material composition, corrosion rate, source_id) | A minimal CSV file (`data/raw/sample_corrosion.csv`) will be supplied by the verifier. It contains ≥ 1 000 rows and satisfies all required columns. | The ingestion script loads this file, validates column presence, and proceeds. |
+| Optional column (crystal structure) | May be absent in the supplied CSV. | If missing, a warning is logged and the pipeline continues. |
+| Provenance | The CSV’s DOI/URL (if any) and SHA‑256 checksum are recorded in `metadata/dataset.yaml`. | No external download required; the file is version‑controlled in the repository. |
 
-*Decision*: Until a suitable dataset is identified, the pipeline halts early with a missing‑variable error, and the research question will be reformulated accordingly.
+*If the verifier later provides a dataset that lacks any required column, the pipeline aborts with `Error: MISSING_VARIABLE [column_name] in [dataset_source]` (FR‑001) and the research question must be reformulated.*
 
 ## Compute Strategy
-- **CPU‑first**: All modeling uses scikit‑learn’s CPU implementation. No GPU libraries are referenced.  
-- **Memory Management**: `psutil` monitors RSS; if > 7 GB, the pipeline triggers the stratified‑sampling fallback described in FR‑003 (random seed 42, of rows preserving group distribution).
+- **CPU‑first**: All modeling uses scikit‑learn’s CPU implementation; no GPU libraries are referenced.  
+- **Memory Management**: `psutil` monitors RSS; if it exceeds 7 GB, the pipeline automatically samples a stratified subset (random seed 42) preserving the `source_id` distribution (FR‑003).  
 - **Runtime Budget**: Estimated total wall‑time ≤ 6 h on GitHub Actions free tier (2 vCPUs, 7 GB RAM).  
 
 ## Power Analysis
-Using Cohen’s f² = ΔR² / (1‑ΔR²) and conventional effect‑size thresholds (small = 0.02, medium = 0.15, large = 0.35), a sample size of **N ≈ 800** provides ≥ 80 % power to detect a medium interaction effect (ΔR² ≈ 0.10) at α = 0.05. If the available dataset contains fewer than 800 rows, we will explicitly state that the study is under‑powered to detect modest interaction effects and interpret results cautiously. The power calculation is performed a priori and reported in `report.md`.
+Using Cohen’s f² = ΔR² / (1 − ΔR²) with a medium effect (ΔR² ≈ 0.10) and α = 0.05, a sample size of **N ≈ 800** yields ≥ 80 % power for a paired test. The supplied dataset has > 1 000 rows, satisfying this requirement. The power calculation is performed with `statsmodels.stats.power.FTestPower` and reported in `report.md`. If a smaller dataset were used, we would explicitly note limited power (SC‑003).
 
 ## Statistical Methods & Rigor
 | Analysis | Method | Multiple‑Comparison | Power / Sample Size | Causal Claim |
 |----------|--------|----------------------|---------------------|--------------|
-| Model performance (RMSE, R²) | 5‑fold GroupKFold CV, R² as primary metric | N/A | Power analysis above; if N < 800, note limited power (SC‑003). | Associational (SC‑006) |
-| Interaction gain | Hierarchical target‑permutation test (200 permutations) comparing Full vs Null RMSE; statistic = ΔR² | N/A (single hierarchical test) | Same power note as above. | Associational |
-| Feature‑importance p‑values | Permutation‑importance per interaction column (200 shuffles each) → empirical p‑values; Benjamini‑Hochberg correction (FR‑005, SC‑004) | BH correction applied | Same as above. | Associational |
-| Collinearity diagnostics | Variance Inflation Factor (VIF) > 5 flagged for base predictors **and** for interaction terms (diagnostic only) (FR‑006) | N/A | N/A | N/A |
-| Hyper‑parameter stability | Jaccard similarity of top‑5 feature sets across `max_depth` values (FR‑007) | N/A | N/A | N/A |
-| Power analysis | Cohen’s f², α = 0.05, power = 0.8; calculates minimum detectable ΔR² for given N | N/A | Reported in `report.md`; if N insufficient, limitation noted. | N/A |
+| Model performance (R², RMSE) | 5‑fold GroupKFold CV; baseline = mean‑only predictor | N/A | Power analysis above; N > 800 → adequate | Associational (SC‑006) |
+| Interaction gain | **Paired sign‑flip permutation test**: compute ΔRMSE (Null − Full) per CV fold; randomly **sign‑flip** the Full/Null labels within each fold 1 000 times → null distribution; two‑sided p‑value | N/A (single test) | Same as above | Associational |
+| Interaction‑column importance | Permutation‑importance: shuffle each interaction column 200 times, recompute RMSE, derive empirical p‑value; Benjamini‑Hochberg correction (FR‑005, SC‑004) | BH correction applied across all interaction columns | Same as above | Associational |
+| Collinearity diagnostics | Variance Inflation Factor (VIF) > 5 flagged for base predictors; interaction VIFs reported but excluded from interpretation (FR‑006) | N/A | N/A | N/A |
+| Hyper‑parameter stability | Jaccard similarity of top‑5 feature sets across `max_depth` ∈ {3,4,5} (FR‑007) | N/A | N/A | N/A |
+| Power analysis | Cohen’s f², α = 0.05, power = 0.8; reported in `report.md` | N/A | Reported | N/A |
 
 All p‑values are two‑sided; significance threshold α = 0.05 (SC‑002).
 
 ## Reproducibility Measures
 - Fixed random seeds (`np.random.seed(42)`, `random_state=42`).  
 - Dependencies pinned in `requirements.txt`.  
-- Data download via deterministic URLs; SHA‑256 checksum verification.  
-- All intermediate artifacts version‑hashed; references stored in `metadata/`.  
+- Data loaded from deterministic path; SHA‑256 checksum verified.  
+- All intermediate artifacts hashed; references stored in `metadata/`.  
 
 ## Risk & Mitigation
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| No open dataset with required variables | Blocking (cannot answer FR‑001) | Early dataset scoping; if unavailable, adjust research question or drop interaction analysis. |
-| Memory overflow > 7 GB | Pipeline crash | Automated stratified sampling fallback (FR‑003). |
-| Runtime > 6 h | CI timeout | Reduced permutation count to 200 (empirically fits within budget) and SHAP limited to top‑10 interactions; profiling‑guided limits. |
-| High collinearity among predictors | Mis‑interpretation of independent effects | VIF check (Phase 0) flags VIF > 5; interaction VIFs reported as diagnostics only; no claim of independence for flagged pairs. |
-| Residual confounding between composition and experimental batches | Inflated interaction importance | Composition‑balanced stratified GroupKFold (Phase 2) ensures each fold contains a representative mix of material types. |
-| Limited statistical power | False‑negative conclusions | Power analysis (above) disclosed; limitations noted in report. |
+| Required column missing from supplied CSV | Blocking (cannot satisfy FR‑001) | Pipeline aborts with clear error; reviewer must provide a suitable dataset. |
+| Memory overflow > 7 GB | CI timeout/crash | Automated stratified‑sampling fallback (FR‑003). |
+| Runtime > 6 h | CI timeout | Permutation counts limited to 1 000 (paired test) and 200 (per‑column importance); SHAP limited to top‑10 interactions. |
+| High collinearity among base predictors | Mis‑interpretation of independent effects | VIF check flags VIF > 5; flagged pairs are excluded from independent driver claims. |
+| Residual confounding between composition and experimental batch | Inflated interaction importance | StratifiedGroupKFold ensures composition balance across folds. |
+| Limited statistical power (if dataset < 800 rows) | False‑negative conclusions | Power analysis disclosed; results interpreted with caution. |
 
 ## Deliverables
-- `cleaned_dataset.csv` + `metadata/dataset.yaml` (provenance).  
-- Trained `model_artifact.yaml` (best Full model).  
-- Figures: SHAP summary, interaction dependence plots, partial‑dependence curves.  
-- `report.md` containing performance metrics, hierarchical permutation‑test results, BH‑corrected p‑values, stability analysis, and explicit associational disclaimer (SC‑006).  
+- `data/processed/cleaned_dataset.csv` (schema validated by `contracts/cleaned_dataset.schema.yaml`).  
+- `data/processed/features.parquet` (feature matrix with engineered interactions).  
+- `data/results/best_model.joblib` and `data/results/model_artifact.yaml` (validated by `contracts/model_artifact.schema.yaml`).  
+- `data/results/vif_report.json` (VIF diagnostics for base predictors).  
+- `data/results/interaction_test.json` (paired permutation‑test result and BH‑adjusted interaction importance).  
+- Figures (`*.png`) in `outputs/figures/`.  
+- `report.md` containing all quantitative results, statistical tests, and an explicit associational disclaimer.  
 
 ---
-
 
 

@@ -15,16 +15,16 @@ properties:
     description: "Unique identifier for the observation."
   pH:
     type: number
-    description: "Acidity of the environment (standardized, mean = 0, std = 1)."
+    description: "Standardized acidity (mean = 0, std = 1)."
   salinity:
     type: number
-    description: "Salinity in parts‑per‑thousand (standardized)."
+    description: "Standardized salinity (mean = 0, std = 1)."
   temperature:
     type: number
-    description: "Temperature in degrees Celsius (standardized)."
+    description: "Standardized temperature (mean = 0, std = 1)."
   composition:
     type: string
- description: "Material composition descriptor (e.g., \"Fe‑[deferred]Cr\")."
+    description: "Material composition descriptor (e.g., \"Fe‑Cr\")."
   crystal_structure:
     type: string
     description: "Optional crystal structure label."

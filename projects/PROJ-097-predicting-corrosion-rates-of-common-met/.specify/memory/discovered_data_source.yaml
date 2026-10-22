@@ -1,12 +1,12 @@
 status: none
-intent: OpenML Zenodo corrosion rate dataset pH salinity temperature material composition
-  python package dataset
+intent: corrosion dataset pH salinity temperature material composition corrosion rate
+  site:zenodo.org OR site:openml.org python package dataset
 required_fields:
 - pH
 - salinity
 - temperature
 - material composition
 - corrosion rate
-cache_key: 374382747474271411d050e641562959a6edfc20d4b796f08ad6b37c8cb6710d
-searched_at: '2026-10-22T16:22:13.011574+00:00'
+cache_key: 36577378184a5d22e4671ac217c0b9d6291d84ef129f71593b585211ea420872
+searched_at: '2026-10-22T16:27:24.571669+00:00'
 retry_count: 1
