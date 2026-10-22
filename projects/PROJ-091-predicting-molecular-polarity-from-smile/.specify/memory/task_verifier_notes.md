@@ -2,4 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T101** — Requested task execution failed; rerun successfully: code/data/generate_descriptors.py exit=1
+- **T102** — The required files exist, but the contract tests do not actually validate the real artifacts: in the recorded runs, all three `test_dataset_schema.py` tests were SKIPPED (including `test_descriptor_names_json_exists_and_is_list`, even though `data/processed/descriptor_names.json` exists on disk — so the skip conditions are mis-keyed, e.g. gated on the parquet file), and `test_real_model_metrics_conform` was also skipped. The task's verification criterion is that `pytest tests/contract/ -q` passes *against the real files*; skipping means no validation occurred, and there is also no evidence of
+- **T101** — Requested task execution failed; rerun successfully: code/data/generate_descriptors.py exit=1; tests/contract/test_dataset_schema.py exit=1; tests/contract/test_model_output.py exit=1; tests/integration/test_full_pipeline.py exit=2

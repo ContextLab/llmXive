@@ -1,17 +1,22 @@
 T102:
-  c: true
-  h: 518b19c24e384b9ed4091381cb6242fcd678b19534dc75e04862ce0e6822f8e9
-  r: "Checked `tests/contract/validators.py` (full Pydantic models) and the pytest\
-    \ logs for `test_model_output.py` and `test_dataset_schema.py`, both of which\
-    \ exit with code\u202F0 (all tests pass or are appropriately skipped)."
-  sig: 607a1f58636bc582c8036ef49a621d6996a163570f9138aa00df3d57f5619207
+  c: false
+  h: b7e4881cf0c568d2c201900849f27ff5f4e928c8c3bce21ae336b8b3a970d4a8
+  r: "The required files exist, but the contract tests do not actually validate the\
+    \ real artifacts: in the recorded runs, all three `test_dataset_schema.py` tests\
+    \ were SKIPPED (including `test_descriptor_names_json_exists_and_is_list`, even\
+    \ though `data/processed/descriptor_names.json` exists on disk \u2014 so the skip\
+    \ conditions are mis-keyed, e.g. gated on the parquet file), and `test_real_model_metrics_conform`\
+    \ was also skipped. The task's verification criterion is that `pytest tests/contract/\
+    \ -q` passes *against the real files*; skipping means no validation occurred,\
+    \ and there is also no evidence of "
+  sig: b07841306bd59d0794ac26e6654666d789616fd54d4cea82e520d10bc26ff0a2
 T103:
   c: true
-  h: 4cf8116168394b3417dae99bd6ec6fd2f8033657cb376958926fe07555e81e19
-  r: "Checked `code/data/validate.py` \u2013 it loads `descriptor_names.json` dynamically\
-    \ and validates descriptor columns, exiting with status\u202F0 on success and\
-    \ non\u2011zero on mismatches. Unit\u2011test log shows all validation scenarios\
-    \ (valid matrix, corrupted column, extra descriptor, missing required column,\
-    \ TPSA column, missing JSON/parquet) pass, confirming the script meets the required\
-    \ behavior."
-  sig: 082da93eca5a339a121e84dcc11a9baa76e98efaa6be7c5a161f084abe9442c8
+  h: f7ca3fb492413f478078bad9bb770a12fed32e8d1f7acae7dd5aaf22f87e7b59
+  r: The validate.py script derives expected descriptor columns dynamically from `data/processed/descriptor_names.json`
+    (via `_find_descriptor_names_json`/`_load_descriptor_names_json`, no hard-coded
+    list), exits 0 on success and 1 on any mismatch, and the unit test log shows all
+    9 tests passing (exit 0), including the CLI exit-code test and corrupted-column
+    rejection. The parquet and JSON artifacts exist and are non-empty, and the test
+    run covers the required verification scenarios.
+  sig: b71ca60f73265528eaa0268a28d4d3f5fc0e4a19875c35eee70cf2dde7eedc9f

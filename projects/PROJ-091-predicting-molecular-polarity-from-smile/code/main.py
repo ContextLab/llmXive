@@ -16,6 +16,7 @@ from utils.checksums import compute_file_checksum
 from data.generate_descriptors import main as generate_descriptors_main
 from data.validate import validate_processed_descriptors, main as validate_main
 from utils.config import get_config_summary
+from data.feature_selection import main as feature_selection_main
 
 logger = None
 
@@ -173,6 +174,18 @@ def run_data_preprocessing():
         logger.error(f"Descriptor generation failed: {e}")
         return False
 
+def run_feature_selection():
+    """Run the VIF‑based feature selection (T105)."""
+    global logger
+    logger = get_logger("main")
+    logger.info("Running feature selection (VIF pruning & clustering)...")
+    try:
+        feature_selection_main()
+        return True
+    except Exception as e:
+        logger.error(f"Feature selection failed: {e}")
+        return False
+
 def run_pipeline():
     """Execute the full pipeline with runtime assertions."""
     global logger
@@ -193,7 +206,11 @@ def run_pipeline():
     if not validate_descriptors_file():
         return False
 
-    # 5. Validate Artifact Integrity (T049)
+    # 5. Feature selection
+    if not run_feature_selection():
+        return False
+
+    # 6. Validate Artifact Integrity (T049)
     if not validate_artifact_integrity():
         logger.critical("Artifact integrity check failed.")
         return False
@@ -215,16 +232,15 @@ def main():
     )
     args = parser.parse_args()
 
-    # Setup logging
-    setup_logging(level=logging.INFO)
+    # Setup logging (no level argument – default config handles it)
+    setup_logging()
     logger = get_logger("main")
     logger.info("Starting pipeline...")
 
     if args.step == "fetch_and_preprocess":
         success = run_data_preprocessing()
     elif args.step == "feature_selection":
-        logger.error("Feature selection step not yet implemented.")
-        success = False
+        success = run_feature_selection()
     elif args.step == "train":
         logger.error("Training step not yet implemented.")
         success = False

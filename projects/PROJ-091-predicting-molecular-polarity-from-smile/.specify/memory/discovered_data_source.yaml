@@ -1,51 +1,34 @@
 status: verified
-kind: pypi_package
-ref: qm9pack
-access_python: "from qm9pack import get_data\n\n# Load the full QM9 dataset (the typical\
-  \ dataset identifier)\ndata = get_data('qm9')\n\nif hasattr(data, \"shape\"):  #\
-  \ likely a pandas DataFrame or similar array-like\n    count = len(data)\n    fields\
-  \ = list(data.columns)\nelif isinstance(data, (list, tuple)):\n    count = len(data)\n\
-  \    fields = list(data[0].keys()) if count else []\nelif isinstance(data, dict):\n\
-  \    count = len(data)\n    first = next(iter(data.values()))\n    fields = list(first.keys())\
-  \ if isinstance(first, dict) else []\nelse:\n    raise TypeError(f\"Unsupported\
-  \ data type returned by get_data: {type(data)}\")\n\nprint(f\"RECORDS={count}\"\
-  )\nprint(\"FIELDS=\" + \",\".join(fields))"
-record_count: 130831
+kind: data_url
+ref: https://huggingface.co/datasets/n0w0f/qm9-csv/resolve/main/qm9_dataset.csv
+access_python: "import pandas as pd\nurl = 'https://huggingface.co/datasets/n0w0f/qm9-csv/resolve/main/qm9_dataset.csv'\n\
+  # Load the QM9 CSV directly from the raw URL\ndf = pd.read_csv(url)\nprint(f\"RECORDS={len(df)}\"\
+  )\n# Identify the requested fields (case\u2011insensitive match)\ndesired = {'smiles',\
+  \ 'molecule_id'}\nfound = [c for c in df.columns if c.lower() in desired]\nprint(f\"\
+  FIELDS={','.join(found)}\")"
+record_count: 1376
 sample_fields:
-- XYZ_file
-- Index
-- SMILES
-- InChi
-- N_atoms
-- Stoichiometry
-- Elements
-- XYZ_Ang
-- Mulliken_pop
-- Harmonic_Freq_cmi
-- RotA_GHz
-- RotB_GHz
-- RotC_GHz
-- Dipole_debye
-- Polarizability_bohr3
-- HOMO_au
-- LUMO_au
-- HOMO_LUMO_gap_au
-- R2_bohr2
-- ZPVE_au
-- InternalEnergy_0K_au
-- InternalEnergy_298K_au
-- Enthalphy_298K_au
-- GibbsFreeEnergy_298K_au
-- Heatcapacity_Cv_cal_mol_K
-- A_xx
-- A_xy
-- A_yy
-- A_xz
-- A_yz
-- A_zz
+- inchi
+- smiles
+- rotational_constant_a
+- rotational_constant_b
+- rotational_constant_c
+- dipole_moment
+- polarizability
+- homo
+- lumo
+- gap
+- r2
+- zero_point_energy
+- u0
+- u298
+- h298
+- g298
+- heat_capacity
 field_coverage: 0.5
 required_fields:
-- smiles
+- SMILES
 - molecule_id
-intent: QM9 molecular dataset SMILES download python package dataset
-cache_key: f3291459446cb77c7992203a0c03d808380b144ac276e2c175d8679c36165a3a
+intent: QM9 molecular dataset download and Mordred python package for 2D descriptors
+  python package dataset
+cache_key: 4d738aabea5a4376da7559ab1072f31de15ca90532bfce789838549cc6d7cb53

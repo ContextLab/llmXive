@@ -1,0 +1,7 @@
+{
+  "task_id": "T105",
+  "fingerprint": "ad831c411eaa1506428f41871b97892376d35e8331929eac89d428a3dc9427f5",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/data/feature_selection.py': unresolved names ['sys'] \u2014 likely missing imports. Add the necessary `import` or `from ... import ...` statements."
+}
