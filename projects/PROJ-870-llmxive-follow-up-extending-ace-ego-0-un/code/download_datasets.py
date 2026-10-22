@@ -1,7 +1,7 @@
 """Download verified source datasets for the ACE‑Ego‑0 follow‑up study.
 
 This script downloads the following resources into ``data/raw/``:
-  * ACE‑Ego‑0 video archive (EPIC‑KITCHENS‑100)
+  * EPIC‑KITCHENS‑100 sample video archive (public GitHub mirror)
   * Dynamic‑reliability heuristic script
   * RoboCasa benchmark archive
   * RoboTwin benchmark archive
@@ -12,9 +12,7 @@ expected value (if provided in ``plan.md``).  A log file
 """
 
 import hashlib
-import os
 import re
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -24,7 +22,6 @@ import requests
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
-
 
 # ---------------------------------------------------------------------------
 # Helper functions
@@ -42,7 +39,7 @@ def download_file(url: str, dest: Path) -> None:
     """Stream‑download *url* into *dest*."""
     dest.parent.mkdir(parents=True, exist_ok=True)
     log.info(f"Downloading {url} → {dest}")
-    with requests.get(url, stream=True, timeout=60) as r:
+    with requests.get(url, stream=True, timeout=120) as r:
         r.raise_for_status()
         with dest.open("wb") as f:
             for chunk in r.iter_content(chunk_size=8192):
@@ -53,9 +50,9 @@ def download_file(url: str, dest: Path) -> None:
 def parse_expected_checksums(plan_path: Path) -> Dict[str, str]:
     """
     Scan *plan_path* for lines of the form::
-    
+
         <filename> SHA256: <hexdigest>
-    
+
     and return a mapping ``filename -> hexdigest``.  If no such lines are
     found an empty dictionary is returned.
     """
@@ -63,7 +60,7 @@ def parse_expected_checksums(plan_path: Path) -> Dict[str, str]:
     if not plan_path.is_file():
         return checksums
 
-    sha256_re = re.compile(r"(?P<filename>\S+)\s+SHA[-]?256:\s+(?P<hash>[a-fA-F0-9]{64})")
+    sha256_re = re.compile(r"(?P<filename>\\S+)\\s+SHA[-]?256:\\s+(?P<hash>[a-fA-F0-9]{64})")
     for line in plan_path.read_text().splitlines():
         m = sha256_re.search(line)
         if m:
@@ -80,15 +77,16 @@ def main() -> None:
     plan_md = Path(__file__).resolve().parents[2] / "specs" / "001-llmxive-static-proxy" / "plan.md"
     expected = parse_expected_checksums(plan_md)
 
-    # Define the resources we need.  The URLs below point to the official,
-    # publicly‑available releases.  They are intentionally small enough to be
-    # fetched within the CI budget; the EPIC‑KITCHENS‑100 archive is a
-    # representative sample (the full 100 GB archive is not required for the
-    # minimal study and would exceed CI limits).
+    # Define the resources we need.  The URLs below point to publicly‑accessible
+    # small archives that are suitable for CI execution.  They are mirrors or
+    # minimal sample releases that contain the expected directory structure
+    # (e.g., a few short video files for EPIC‑KITCHENS, and tiny placeholder
+    # benchmark archives).  The actual scientific pipeline will later replace
+    # these with the full datasets if required.
     resources: List[Dict[str, Optional[str]]] = [
         {
             "name": "epic_kitchens_sample.zip",
-            "url": "https://huggingface.co/datasets/epic_kitchens/100/resolve/main/sample_videos.zip",
+            "url": "https://github.com/epic-kitchens/sample_videos/archive/refs/heads/main.zip",
             "expected_sha256": expected.get("epic_kitchens_sample.zip"),
         },
         {
