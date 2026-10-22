@@ -45,8 +45,8 @@
 
 - [ ] T001a [P] Create project directory structure: `src/`, `tests/`, `specs/001-predicting-reaction-mechanisms/`, `data/`, `state/projects/`
 - [ ] T001b [P] Create `__init__.py` files for all `src/` and `tests/` subdirectories to establish Python packages
-- [ ] T002 Initialize a Python project with `requirements.txt` (scikit-learn, xgboost, pandas, numpy, datasets, pyyaml, pytest, pubchempy, psi4)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T002 Initialize a Python project with `requirements.txt` (scikit-learn, xgboost, pandas, numpy, datasets, pyyaml, pytest, pubchempy, psi4)
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -57,7 +57,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Setup `src/utils/logging.py` for warning/flagging logic (edge case handling)
-- [ ] T005 [P] Implement `src/utils/io.py` for checksum generation and file I/O helpers (Principle III)
+- [X] T005 [P] Implement `src/utils/io.py` for checksum generation and file I/O helpers (Principle III)
 - [ ] T006 Create base schema definitions in `specs/contracts/` (dataset.schema.yaml, output.schema.yaml). **CRITICAL**: This schema MUST explicitly define the 'provenance' field structure. **Exact Schema Snippet to Implement**:
  ```yaml
  provenance:
@@ -69,7 +69,7 @@
  **Logic**: The 'provenance' field must be a string enum containing ONLY these two values. Any data source providing other values or missing this field must be handled by the ingestion logic (T011/T012) by excluding the row. **Produces**: `specs/contracts/dataset.schema.yaml`.
 - [X] T007 [P] Setup `src/ingestion/__init__.py` and `src/modeling/__init__.py` package structures
 - [ ] T008 Configure random seed pinning utility in `src/utils/seed.py` (Reproducibility Principle I)
-- [ ] T033a [Foundational] Create `src/research/fetch_literature_modes.py` to programmatically fetch known functional group frequencies (e.g., carbonyl, C-H stretch) from NIST WebBook and SDBS public APIs. **Produces**: `data/reference/literature_vibrational_modes.json`. This task replaces manual research with an executable script. <!-- FAILED: unspecified -->
+- [ ] T033a [Foundational] Create `src/research/fetch_literature_modes.py` to programmatically fetch known functional group frequencies (e.g., carbonyl, C-H stretch) from NIST WebBook and SDBS public APIs. **Produces**: `data/reference/literature_vibrational_modes.json`. This task replaces manual research with an executable script. <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/src/research/fetch_literature_modes.py exit=1 -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

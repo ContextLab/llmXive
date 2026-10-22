@@ -9,11 +9,11 @@
     "python code/main.py --phase reconstruct --architectures event_log,session_first -> rc=2\n    usage: main.py [-h] [--seed SEED] [--count COUNT] [--resume]\n               [--corruption-rate CORRUPTION_RATE] [--sweep]\nmain.py: error: unrecognized arguments: --phase reconstruct --architectures event_log,session_first",
     "python code/main.py --phase analyze --test cochrans_q -> rc=2\n    usage: main.py [-h] [--seed SEED] [--count COUNT] [--resume]\n               [--corruption-rate CORRUPTION_RATE] [--sweep]\nmain.py: error: unrecognized arguments: --phase analyze --test cochrans_q"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-03T15:07:38Z"
+  "updated_at": "2026-10-22T09:27:40Z"
 }

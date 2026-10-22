@@ -11,10 +11,10 @@
     "python code/evaluate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/evaluate.py\", line 16, in <module>\n    from report_generator import load_metrics_from_disk, load_statistical_results, load_sc003_results, generate_markdown_table, generate_final_report\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/report_generator.py\", line 26, in <module>\n    from evaluate import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-co"
   ],
   "fix_rounds": 0,
-  "model_tier": 1,
+  "model_tier": 2,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-14T12:36:43Z"
+  "updated_at": "2026-10-22T09:38:39Z"
 }

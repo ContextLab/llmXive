@@ -1,0 +1,133 @@
+T001:
+  reason: "I examined the collector\u2019s output, which only provides the project\
+    \ root path but does not list any of the required directories (`code/data`, `code/analysis`,\
+    \ `code/utils`, `data/raw`, `data/processed`, `data/simulations`, `data/results`,\
+    \ `tests`). Since there is no evidence that these folders were actually created,\
+    \ the task\u2019s directory\u2011structure requirement is not satisfied. The implementer\
+    \ must add the missing directories (or provide proof of their existence)."
+  task: 2e69d5e4f6d92274dd695d3ed2414989820c411b06badb25e6699b352f07b99d
+T002:
+  reason: The `pyproject.toml` with a proper `[build-system]` section is present,
+    but there is no evidence of a created virtual environment (`venv` directory or
+    activation scripts) in the project artifacts. The task requires both steps, so
+    the missing venv makes the implementation incomplete.
+  task: 66bb514ff17a7ff3b578d5d616d481805147555ff579da2c569705de1f010fdc
+T003:
+  reason: Checked the `pyproject.toml` file, which correctly contains a `[tool.black]`
+    section, but no `.flake8` file was found in the project root. The required linting
+    configuration file is missing.
+  task: dabcb742b7ea0587ada433b3ab244d91871d69ac16b62510a306142619f1ab7b
+T004:
+  task: 2f87710cb78c595378f991d4993b3276ee5549b91e595c66803b8d576c534a79
+T005:
+  reason: The repository contains no `.gitignore` file (or it is missing from the
+    evidence), so the required patterns (`venv/`, `data/raw/`, `data/processed/`,
+    `*.pyc`, `__pycache__/`) are not documented for exclusion. Adding a correctly
+    populated `.gitignore` is needed to satisfy task T005.
+  task: d7697b61c1752fd0d2b56e71b7ab1c49c108e8218f9ff785a73dcde69508d773
+T006:
+  reason: The `load_config()` implementation exists, but its validation expects a
+    `paths.figures` key that is absent from the provided `config.yaml`; calling the
+    function will raise a `ConfigError` instead of returning the configuration dictionary.
+    The required key set and/or the YAML file need to be aligned for the function
+    to succeed.
+  task: a73dee48c1e01e1bcdc3ba41ef868a49c9abb024c4ad4ce3e2192f55408d9ded
+T007:
+  task: d42ee953ab2bf29005ea791d9d1cc10a7d63b39970277ee7849ef16acbcb5d51
+T008:
+  task: a2c7baad4511a3f840c7dc8dfbe4bc52a0bd14f9771407f977600fe57753e8b0
+T009:
+  task: 8fb0bcd61407cf064d82c9e0b35b0ebe0cfe4805b9a8f5e7538c52b59022cdf7
+T010:
+  task: ba9ede8ee50f84a5a5315b8f8ef788ae56dd3486da7575e0f8fb0e5625c1ada9
+T011:
+  task: e3c35f28e1dd20753b9b9511bb0630f69b4e6012feff22a7f6199e01b69cabe2
+T012:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/.gitkeep, data/processed/.gitkeep'
+  task: 14e6fde635750321a74610bd3ea05fa588428885f7215dad79a1113c08c5fe0d
+T013:
+  task: 4155a46b38c64772ebfb2d1d4c1c606f35146e45ceb650fba82e7f28dab71ad9
+T014:
+  task: bcb080925ce49c6758984be4fddbf25302eb0075249b4e4d3b799cb09321b140
+T015:
+  task: 46c9b1ebfb37b55e8dfb85faa218951b8f7e2fcd455b6bd6f17e56c496df2088
+T016:
+  task: c4f5446f2f08ce7df9e367748eb337b97476d484966e0b4721c4ba9857e5545f
+T017:
+  task: 3f50ca63b51cc7b7f87792d6adadbd67050063d09083a8e570af68c3c72876c4
+T018:
+  task: 5fb7db6fffab323dd6b24fa8e7d8831856fa4e92665d3952ccb6094c7af74fb5
+T019:
+  task: ab01d7d8ec6300058572428abf810812edcf7d99b0b5330c8f52c256e50ed78b
+T020:
+  task: a672badeca9aee6e1790e691ecb7b3aae7f19edfed2d3d7cfd096977df2b790f
+T021:
+  task: 3ea9778b9467e554e107478a73aa60c88a49919ac59d82b5294a383fdc5a8a7a
+T022:
+  task: 9b4c7a78bdd4d7fff43f55a549e14f4f221a0892fa0c1afcda109489b1de75c3
+T023:
+  task: 9c7647bca71db59daa23b242b434465e834bca301fbae92edc7401aa6cfe6314
+T024:
+  task: d026a480feb1fa0033a2f0b68dc9fbe888979721fa6185a4918451079d181e05
+T025:
+  task: 9b0442fb33c8d7f7ac04100f1ffabfe3efd07761ee47da49d27e9955d990e087
+T026:
+  task: d91d75830cd63747d4947beb0d603cc31adcde3d56e67d281eb51dbd8504d28a
+T027:
+  task: ca053b8bc283c4a7967e94ebccb4d3720224b8467ac7e27fa781bee8d9a2d65d
+T028:
+  task: b3bfec46a1d3d26f149c9de1573f8341dc3b2069d591dd430f29da266030c098
+T029:
+  task: 62371ce3862c49eb79e86f832d73cc3a0f13e0f095ed4a9ecad8836c7af6ffc3
+T030:
+  task: 287829bdbad57e89b81690f9a08963e70eac314f96b4917fe9f9c0f402729c31
+T031:
+  task: b228624971379f5a0868924f5ced68fd3e0a0fdc53c5849024befd2c19e0c3ba
+T032:
+  task: 086fe33e31f16749768f6e0a0f07182db21a8d968a75264c8862da314165496d
+T033:
+  task: 92690b5feebc9b0d45e14cc3f75dac1b9ee7b11cce8e89ace5d01c17b49d3ba4
+T034:
+  task: 100e9a3ebc81e1418b5b603e2bcb4a253a2ab48e504390c85df89d16745221cd
+T035:
+  task: fc33ad39a447c78f5c498d13a8c0186f253b952be20a697d7afb890112d537c3
+T036:
+  task: aadbc180365899b671abebea1a2eac56c365565e8bb4afa8d6976ab39ca0aaeb
+T037:
+  task: 5ade9f5d08be6653157c766df0f80f5adac00263a94e20042e31338253df766b
+T038:
+  task: 5d5f1ab91e7f72e5c24c71ec7b342eea8ed9818abb5b6cb48cdbd4c274668d89
+T039:
+  task: b95164fd74a7da9b9eb897cc352dc89822032b13ff3d677f566440fcd76d6c54
+T040:
+  task: 585eff061f113087f6009a9c7a988eda8779d41a39dedf0535ca4808d4e4f064
+T041:
+  task: d114d8cbf5e34516272b2fdcd5e68e850625aa9997baa995d32815badebd1cbe
+T042:
+  task: 0151a2b5c1ec41edd67d5b39f875c3418176ee8f09d1d3daffe16fba7e7abf05
+T043:
+  task: a84fc133e5acee3c057db02c1d0c15221f43b223d5f3997d69213a4b0635cd32
+T045:
+  task: ac1f0d64a07b0dafbcd601b12d6142bfd71fe6d7c4527e75bc2eac77d6dbee4d
+T046:
+  task: 9ee875ce2b077d0a749391050a3a8fd9468899ffa5e356443099243aa0c4fe20
+T047:
+  task: 372d09c238b58ae18b5897665da5f9617fe4ea02a591da0dad604129af975442
+T048:
+  task: dec4601c732fe3ac2604aa01beae9fb4e9d1ef00a8637f2dafe60f3733f8224f
+T049:
+  task: bd803606412d39d17ff2f33cd2dd469f0ad8dda495afd42133befa4b03e4e482
+T050:
+  task: a01a059b41137f0fd11195d3089b16fb1d978054cb917340ac251e3e205f50ce
+T051:
+  task: d3110a940d45b320d5645ce9ea0a8737823253599be98b67f26aa3ee48872bfb
+T052:
+  task: 9c8f35f24df4e45cd10ecf036fdbf502d989a5345d983bebed2e26325cfa8fed
+T053:
+  task: 29273bcf1fbad3b83181831800d98c9fd2b336c0716ca18ed1d49253267e1c5e
+T054:
+  task: 9d8b9a7b7335b724156442aff37cb6aec6305d04bdc08fd9c16daac3e260959a
+T055:
+  task: b63d13873a0de7ccbde453d940b8d6f3c91945ef1bac3d3676fcb9581114f784
+T056:
+  task: ac978e9eb15ea42fb82b2824cc16549f425428efbe4e75349655c9c7d5d6b6be

@@ -1,16 +1,15 @@
 status: none
-intent: PettingZoo synthetic multi-agent debugging workflow dataset python package
+intent: Synthetic Multi-Agent Workflow debugging generator deterministic python package
   dataset
 required_fields:
 - workflow_id
-- seed
 - agent_roles
-- action_sequence
-- state_transitions
-- final_state_hash
-- decision_tree_structure
-- timestamp
-- metadata
-cache_key: 21782537b7ed25e65a6213349d7975d5e89f39a8f7da794adf7252cbfa8d0c94
-searched_at: '2026-10-09T02:49:43.032888+00:00'
+- workflow_structure
+- final_state
+- ground_truth_hash
+- decision_tree
+- random_seed
+- generation_timestamp
+cache_key: e87216e34d1095886a31973e1a491e8c82233e4ece393ca4085d4d4f6564fdb7
+searched_at: '2026-10-22T09:24:07.874949+00:00'
 retry_count: 1

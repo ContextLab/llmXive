@@ -91,10 +91,29 @@ T011:
 T012:
   task: 56d79be310848fe7d9430742e1e4d88d8d8cd7c0321f4660895e26f4196d9757
 T013:
+  reason: "The generator code exists, but no `data/raw/workflows/*_ground_truth.json`\
+    \ files were ever produced \u2014 the directory contains only `.gitkeep` \u2014\
+    \ so there is no evidence the serialization was actually run or works. Additionally,\
+    \ the SHA256 hash is only logged, not stored anywhere (e.g., in the JSON or a\
+    \ sidecar/state file), so the \"with SHA256 hash\" requirement is not satisfied\
+    \ even in code design."
   task: 4592b8b4495b478d5f09b5911d4120f32c9b6e9cf7855d7d96d267f4a4cf0639
 T014:
+  reason: "The required function `validate_workflow_schema` does not exist in `code/generators/workflow_generator.py`\
+    \ \u2014 only a different, simpler `validate_workflow_structure` is present. Moreover,\
+    \ the schema module `code/generators/schemas.py` (T006b) that the task requires\
+    \ the validator to use is MISSING, and there is no SC-005-specific verification\
+    \ of reconstruction-required variables (tool outputs, snapshots)."
   task: 8373e18ab358683cd4cb4dc8cbe3c9d0944fbeb98e0168a456a2d7d633109d8c
 T015:
+  reason: "`code/main.py` does contain checkpoint scaffolding (`load_checkpoint`/`save_checkpoint`/`get_workflows_to_process`,\
+    \ `--resume`, per-workflow checkpoint writes), but the resume-on-timeout logic\
+    \ is wrong: in `run_sweep` and the single-rate loop, `save_checkpoint({'status':\
+    \ 'completed', 'last_workflow_id': wf_id})` is written unconditionally after `process_single_workflow`\
+    \ returns \u2014 including when it returns `{'status': 'timeout'}` or `{'status':\
+    \ 'error'}` \u2014 so a timed-out workflow is recorded as completed and skipped\
+    \ on resume, defeating the stated requirement. Additionally, the checkpoint is\
+    \ sa"
   task: d40727ba6d7d4d972a98888068f54e4e5bf6e2b8426b5804013206e19a394bed
 T015b:
   reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`
@@ -123,6 +142,13 @@ T017c:
     to write only project-owned outputs.'
   task: 91c171693295f40f05fc3cc501dc829c243fea1a90d92473c0b05c04d3672d70
 T018:
+  reason: 'The test file exists and covers deletion/modification logic, but `test_corruption_rate_mixed`
+    contradicts the actual `CorruptionInjector.inject_corruption` implementation:
+    the method returns a tuple `(success, list_of_corrupted_entry_ids)`, yet the test
+    does `result["corrupted_entries"]` and `len(log_data["entries"]) == len(result["corrupted_entries"])`,
+    which would raise `TypeError` (a list is not subscriptable by string). Additionally,
+    `test_corruption_log_updates` asserts `total_files_processed == 2`, but the injector
+    returns early without incrementing that counter when no entries are selec'
   task: bb8354c42a28b218c1eed9242ca3738541fe2e38137cab84d3e670d876fa211a
 T019:
   task: c9efe14057ac88dac7897c418a8f937b9bddf52862599f639650eeac28053580

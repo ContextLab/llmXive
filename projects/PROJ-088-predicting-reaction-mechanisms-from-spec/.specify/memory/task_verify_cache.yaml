@@ -1,12 +1,29 @@
-T002:
+T001b:
   c: false
-  h: bdbedef3eb31ec1109ce080a964f3edb2cdca97079f259288340e72a413791d7
-  r: The `requirements.txt` exists and lists most required packages (scikit-learn,
-    xgboost, pandas, numpy, datasets, pyyaml, pytest, pubchempy), but it substitutes
-    `pyscf>=2.3.0` for the explicitly required `psi4`, which is not listed anywhere
-    in the file. The implementer should add `psi4` (or justify the substitution with
-    task-owner approval) to satisfy the stated dependency list.
-  sig: 42634c202081004be1e0fa8c5f9566dede2db94bfe0707ae13d4055474d2a162
+  h: 3bd14e9433a4fea118ca8fc75b35e7f9705584fddbf52a1a3ab316b89f500fd9
+  r: "The evidence shows only top\u2011level `src/__init__.py` and `tests/__init__.py`;\
+    \ there is no proof that every subdirectory under `src/` (analysis, cli, ingestion,\
+    \ modeling, research, utils) and under `tests/` (contract, integration, unit)\
+    \ also contains an `__init__.py`. Without those files the requirement \u201CCreate\
+    \ `__init__.py` files for all `src/` and `tests/` subdirectories\u201D is not\
+    \ satisfied. Adding an empty `__init__.py` to each subdirectory will complete\
+    \ the task."
+  sig: c807f2652b1e7d9d403e2da5eeb19739ba12f6605920e8ece42285a996cfa36b
+T002:
+  c: true
+  h: 6cfcb3d6a6fb89351091dc734c70e7fea71d2308095492233ca3af76c75c5805
+  r: "Checked the `requirements.txt` file at `projects/PROJ-088-predicting-reaction-mechanisms-from-spec/requirements.txt`;\
+    \ it exists, is non\u2011empty, and lists all required packages (scikit-learn,\
+    \ xgboost, pandas, numpy, datasets, pyyaml, pytest, pubchempy, psi4)."
+  sig: d7a4bb0ceb19a2cf981e6b5d76f999fd4373c6a2937a2b0fb8dc707c2626ee76
+T003:
+  c: true
+  h: 1e873cb08ebc6a4c921e884d7c8d096db8d9660ace2b5a731f586dcd3b7fb3bb
+  r: "Checked the task execution log `code/.tasks/T003.code_scripts_setup_linting.py.log`,\
+    \ which shows the script ran successfully (exit\u202F0) and reported that `.ruff.toml`,\
+    \ `.flake8`, and `pyproject.toml` (for Black) already exist in the project root,\
+    \ confirming the linting/formatting tools are configured."
+  sig: 1a2f6e3bf449db58d43f558c2262e0797c5f32e1f91b3f0e95cd881fd2b2d6e8
 T004:
   c: true
   h: 069271a87518848baaaf8d19e733696f1187cdd56db9e6cdfc23c83f0d5e8e88
@@ -16,6 +33,24 @@ T004:
     \ report generation to JSON \u2014 no stubs, TODOs, or placeholders. The content\
     \ matches the task's requirement for edge case handling and warning/flagging logic."
   sig: fdef2350b4f70f2e451fc65dc1d4c6104d9e56842560211435da6dcd26472e2b
+T005:
+  c: true
+  h: d0725a4b8ac8e4001422b4691a5bf5a54b954f33dd3d19a2dba8b702426be34b
+  r: "The `src/utils/io.py` file (resolved at `code/src/utils/io.py`) exists, is fully\
+    \ implemented, and provides a checksum generator (`calculate_file_checksum`) along\
+    \ with a suite of file I/O helpers (JSON/text read/write, copy, delete, list,\
+    \ etc.) as required by the task. The implementation is concrete, non\u2011stub,\
+    \ and matches the specification for Principle\u202FIII."
+  sig: f689b106738b3111bbb6ff352dfbdfbcc4d974be8fd6ee01b30657eebc5b4d04
+T006:
+  c: false
+  h: 17a1b166701f33f2e9515d081b44687651972296e8e91477bab8b3f2ce1e75b0
+  r: "The repository contains a `dataset.schema.yaml` (resolved to `specs/contracts/dataset.schema.yaml`)\
+    \ but it defines the enum value `validated_intermediates` (plural) instead of\
+    \ the required `validated_intermediate`, and there is no `output.schema.yaml`\
+    \ file at all in `specs/contracts/`. Both the missing file and the enum mismatch\
+    \ mean the task\u2019s requirements are not met."
+  sig: 92e8d8c04c4fc4492a15de5ac57dd035513232a535be4da73ccf5898fdf8018d
 T007:
   c: true
   h: 94c828c9c9f059180ff9f526c95dbd1bcb26348cfbe672ac24f882564c61ab2c
@@ -25,6 +60,17 @@ T007:
     metrics, etc.) consistent with the project's ingestion/modeling structure; the
     task only required setting up these package structures, which is satisfied.
   sig: ff3fd1b7eb856624f062ed4be5eb8e7f9249b8d7e20ec331bd072724926b260b
+T008:
+  c: false
+  h: abaf44915bc57a1c7c5230258a361bf2a344fcfdcb04c1c463e714319715c54e
+  r: "The file `src/utils/seed.py` exists and implements many seed\u2011pinning functions,\
+    \ but it calls `log_info`, `log_warning`, and `log_error` with only a message\
+    \ argument, while those helpers require a `logger` object as the first parameter.\
+    \ This will raise a runtime error, meaning the utility is not functional as\u2011\
+    is and does not fully satisfy the \u201Cconfigure random seed pinning utility\u201D\
+    \ requirement. The logging calls need to be corrected (e.g., by obtaining a logger\
+    \ via `get_logger()` and passing it) for the artifact to be complete."
+  sig: e1fecf284bce5683c1bfda701f098a3f0dc7f6d9b8f164d107de258474af020c
 T009:
   c: true
   h: e66e87765a3236c2c8a67ccf2db91e0492e8d8e7ba6f5f64aa5c175d44f324ac

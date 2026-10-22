@@ -1,3 +1,13 @@
+T001a:
+  c: false
+  h: dfbb8557bd0a2d37eb86c0023265cf4b87fe7fd43a68b0e3c44b1ba942b11ecc
+  r: 'The required directory `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`
+    is reported MISSING by the collector, and the setup script''s own logs show it
+    created the structure at a nested wrong path (`.../molecular-finger/projects/...fingerprints/`)
+    instead of the project root. The unit test `tests/unit/test_setup_dirs.py::test_directory_creation`
+    FAILED (exit 1, "Missing directory: data/raw"), confirming the directories were
+    not created where required.'
+  sig: 66fc5dca1303d9b988d1309996bba96485699d696ca6a5b7f260bbdbe8bb5021
 T001b:
   c: true
   h: ca3db7b0b06102ca44db8d76bc020d1f1a7cde7b57f3d059d348f96d31a9ec7b
@@ -71,36 +81,57 @@ T009:
   sig: 02b602855755e3eaa4d3a6621a20c042047974b1924016974d1bb43012002a12
 T010:
   c: false
-  h: 86ebb616450720d7ae7420d4c734660d618b44885e01a053a55d7a87680f8e77
-  r: "The provided `tests/integration/test_download.py` defines `test_download_and_checksum_tox21`\
-    \ and does download the Tox21 dataset and compute an MD5 checksum, but it never\
-    \ asserts that the computed checksum matches a known reference value. Without\
-    \ a comparison to an expected hash, the test does not truly validate the checksum,\
-    \ so the integration\u2011test requirement is not fully met."
-  sig: db3841aa7b99f690b68f0ad359140c5670124f5adfdfa2295973eb631eb55275
+  h: e268712dd7e0f15608ad8efa77049dcce2fda031006c865bc6b76a5deae2af64
+  r: 'The test exists but the recorded execution log shows it FAILS: `fetch_tox21_dataset`
+    returns a pandas DataFrame (via the S3 fallback), yet the test calls `df.column_names`
+    (a HuggingFace `Dataset` API), raising `AttributeError` at line 91. Additionally,
+    `calculate_checksum`/`verify_checksum` in `code/download.py` ignore the `algorithm`
+    argument and always compute SHA-256, so the test''s `algorithm="md5"` request
+    is not honored. The test must be fixed to use `df.columns` (and the checksum functions
+    should respect the algorithm parameter), and a passing run must be evidenced.'
+  sig: 707bbd1a49dc004583e0ce90b8640f5308dce1f07060d0ea59dc141b7602e3ea
+T011:
+  c: false
+  h: 3ebaebda643f2a90fbd9f1754e2241cd6ccfdd3c620412918e7932879d6aee72
+  r: "The file exists and is non-trivial, but two core requirements are unmet: (1)\
+    \ checksum verification is never actually performed \u2014 `calculate_checksum`/`verify_checksum`\
+    \ are defined but never called in the download path, and no expected checksum\
+    \ constant is provided, so verification is dead code; (2) the task specifies `load_dataset(\"\
+    deepchem/tox\")` while the code defaults to `\"deepchem/tox21\"` (arguably matching\
+    \ the spec's Tox21 dataset, but the primary HF route silently falls back to an\
+    \ S3 CSV with no evidence either route was executed). Additionally, there is no\
+    \ execution evidence (no downloa"
+  sig: 61406c281df2c50d31888c5c5bb393ae6411eca17d3a34b9c30e3f5719be4ece
 T012:
-  c: false
-  h: f435163df416b14ce8cc2e2946b54b94527927eb7ae9fb1755948a75c352e70d
-  r: "The repository contains `code/filter.py` with the filtering logic, but the required\
-    \ output file `data/processed/organophosphates_filtered.csv` is absent, so the\
-    \ task\u2019s core deliverable (a non\u2011empty filtered CSV) was not produced.\
-    \ The implementer must run the script (or add a driver) to generate and save the\
-    \ filtered dataset at the specified location."
+  c: true
+  h: 72218909b092187041687f53ded5d7ab62a3c8a8785fe1076b3b8198b82fa250
+  r: '`code/filter.py` exists and implements all five required steps (load raw CSV,
+    MolFromSmiles conversion, MolFromSmarts with the exact `[P](=O)([O,SC])[O,SC]`
+    pattern from constants.py, filter matched rows, save CSV), and `data/processed/organophosphates_filtered.csv`
+    is a non-empty output with the 12 Tox21 endpoint columns, mol_id, and SMILES that
+    visibly contain P=O motifs with O/S substituents, with non-zero label counts across
+    endpoints. The output content is consistent with a real filter run rather than
+    a placeholder.'
+  sig: 936603e4ce25fe6c8420217dbb07ddde0c00a5c56445f77bf3721940ffad514d
 T013a:
-  c: false
-  h: 4fd5268ba41d568fbb400365296ea02c2c70be264cd8a1c89b49bbef2d2b28e4
-  r: "The repository lacks the required `data/processed/filter_log.txt` file, and\
-    \ the provided `code/filter.py` snippet is truncated before any logic that would\
-    \ write the warning string to that file. Consequently, the critical behavior of\
-    \ logging a low\u2011sample\u2011size warning is not demonstrated. The missing\
-    \ file and incomplete implementation must be added for the task to be considered\
-    \ complete."
+  c: true
+  h: 205d7c8e16d5cf29c9f3c06c9fed1e1a14518f80612d3601076aaf0e042b93b1
+  r: "`code/filter.py` implements `validate_endpoints` counting rows per endpoint\
+    \ and the sample-size branch logic, and the executed output `data/processed/filter_log.txt`\
+    \ exists with per-endpoint counts (12 endpoints plus mol_id) and, since filtered_count=131\
+    \ \u2265 50, contains \"status: OK\" as required by the success path. The log's\
+    \ timestamp and consistent counts (e.g., mol_id: 131 matching filtered_count)\
+    \ indicate a real run rather than a fabricated artifact."
+  sig: 362e5a6e78a971270ceabab4da1710836fd366fcc40003f77fbc2cd9dabc7263
 T013b:
-  c: false
-  h: 5de2e57442643cd9a16ac67b70d811dcea8f5e6802bf36ab2001a971b6b099ed
-  r: The provided `code/filter.py` does not contain any code that writes `data/processed/sample_size_status.json`,
-    and the file `data/processed/sample_size_status.json` is absent from the repository.
-    Consequently the required JSON output and trigger file are missing.
+  c: true
+  h: 53446620be87025850630d56b4375d3427e6a1cbd095e48857d91dcc5d7cc1f1
+  r: '`code/filter.py` contains `write_sample_size_status` implementing the exact
+    threshold logic (`"SKIP_STATS" if count < 50 else "OK"`) and writes it to `data/processed/sample_size_status.json`,
+    which exists on disk with valid JSON `{"status": "OK"}` (16 bytes), matching the
+    verification requirement. The status is derived from the actual filtered count
+    in `main()`, consistent with the T013a dependency.'
+  sig: f5ea719366a59738652ff1747157ece245584ce9d4a3ba92eaa8e0214fc1f6a8
 T020b:
   c: false
   h: 05703c0b7bec84e5c4055c6f4e6e81223b77151ca70c2c864bdd4547ed5dc2c9

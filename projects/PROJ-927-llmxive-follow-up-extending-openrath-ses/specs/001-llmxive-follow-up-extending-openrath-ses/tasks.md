@@ -82,12 +82,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/generators/workflow_generator.py` to create deterministic multi-agent workflows with tool outputs and decision trees.
-- [~] T013 [US1] Implement ground truth serialization in `code/generators/workflow_generator.py`: Store to `data/raw/workflows/{workflow_id}_ground_truth.json` (one file per workflow) with SHA256 hash.
-- [~] T014 [US1] Implement validation logic in `code/generators/workflow_generator.py::validate_workflow_schema`: Use the schema defined in `code/generators/schemas.py` (T006b) to validate generated workflows. Explicitly verify that all necessary variables (tool outputs, snapshots) required by the reconstruction protocol (SC-005) are present.
-- [~] T015 [US1] Implement checkpointing logic in `code/main.py` to resume workflow generation from the last completed ID on timeout (implementation of T009 skeleton).
+- [X] T012 [P] [US1] Implement `code/generators/workflow_generator.py` to create deterministic multi-agent workflows with tool outputs and decision trees.
+- [ ] T013 [US1] Implement ground truth serialization in `code/generators/workflow_generator.py`: Store to `data/raw/workflows/{workflow_id}_ground_truth.json` (one file per workflow) with SHA256 hash.
+- [ ] T014 [US1] Implement validation logic in `code/generators/workflow_generator.py::validate_workflow_schema`: Use the schema defined in `code/generators/schemas.py` (T006b) to validate generated workflows. Explicitly verify that all necessary variables (tool outputs, snapshots) required by the reconstruction protocol (SC-005) are present.
+- [ ] T015 [US1] Implement checkpointing logic in `code/main.py` to resume workflow generation from the last completed ID on timeout (implementation of T009 skeleton).
 - [ ] T015b [US1] Generate and store pre-computed reference hash: **Run after T012/T013 execution completes**. Create script `scripts/gen_ref_hash.py` to compute hash of the first workflow (seed 42) and update `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml` with the hash under `artifact_hashes.reference_ground_truth`.
-- [~] T016 [US1] Add logging for workflow generation steps and hash verification in `code/generators/workflow_generator.py` to produce verifiable evidence of determinism.
+- [X] T016 [US1] Add logging for workflow generation steps and hash verification in `code/generators/workflow_generator.py` to produce verifiable evidence of determinism.
 - [ ] T017b [US1] Execute immediate checksumming: Run the `checksum_manager` utility (from T017a) to calculate SHA256 for **EVERY** file in `data/raw/workflows/` immediately after generation and register/update entries in `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -102,7 +102,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for corruption injector in `tests/unit/test_corruption.py` (verify deletion/modification logic).
+- [ ] T018 [P] [US2] Unit test for corruption injector in `tests/unit/test_corruption.py` (verify deletion/modification logic).
 - [~] T019 [P] [US2] Integration test for atomic writes in `tests/integration/test_session_first.py` (verify write-to-temp-then-rename).
 
 ### Implementation for User Story 2

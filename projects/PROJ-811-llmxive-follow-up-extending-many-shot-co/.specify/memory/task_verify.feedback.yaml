@@ -1,12 +1,6 @@
 T001:
-  reason: "Checked the actual repository tree under `projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/`\
-    \ against the directory layout described in the \u201CProject Structure\u201D\
-    \ section of `plan.md`. The observed layout contains extra top\u2011level entries\
-    \ (e.g., `.runtime-home/`, `.specify/`, `config/`, `docs/`, `figures/`, `idea/`,\
-    \ `pyproject.toml`, a root\u2011level `requirements.txt`) and places the `tests/`\
-    \ directory at the repository root instead of under `code/tests/` as required.\
-    \ Consequently the on\u2011disk structure does not faithfully match the specified\
-    \ tree."
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/ensure_project_structure.py
+    exit=1'
   task: 4d92892bd98e20d697f5d3582a1306e13b7084b93ca47da4c8edbef4d9e299aa
 T002:
   task: 2046ff8559655283d679f6c8db4e8087ce5740c1bfcd69f01ffd27b31187f02a
@@ -33,10 +27,25 @@ T006:
     \ management code is missing."
   task: 544170343cecef013834907377f21bdec1b6a0419b460cc5ae4ad09cf0e85e53
 T007:
+  reason: "The evidence collector shows no artifacts for this task \u2014 no code\
+    \ files, no data-loading utilities, and no execution evidence for loading `aaabiao/DAG_sft`\
+    \ were found anywhere in the project (`projects/PROJ-811-llmxive-follow-up-extending-many-shot-co`).\
+    \ The task requires actual HuggingFace dataset loading utilities (e.g., a loader\
+    \ module with tests or a demonstrated load of the dataset), and none exist to\
+    \ verify; the implementer must create the base data-loading code and provide evidence\
+    \ it runs against the real dataset."
   task: 372a321f1592b545d043ad4968243b255e3d21103f33c479a67f07a66e6b3740
 T008:
   task: c870ee3a1b89a1e8a7d39f971e572c30081106ce2f9feb9943634d652c9cc6ae
 T009:
+  reason: 'The test file `code/tests/test_parser.py` exists and is substantive, but
+    it is incompatible with the actual `code/src/parser.py`: the tests import `CoTParser`,
+    `extract_references`, and a tuple-returning `parse_trace_to_dag(list-of-dicts)`
+    / `get_logical_difficulty(trace)`, none of which exist in the parser (which takes
+    a text string, returns a bare `nx.DiGraph`, and has no `CoTParser` class), so
+    the suite would fail at import. Additionally, there is no execution evidence (e.g.,
+    pytest output) showing any tests pass. The implementer must either align the parser''s
+    API to the tests (CoTParser cl'
   task: f2b06b3c1fde958c3c632cc3dcca8fb38b8f681e866fc56e3e778080269f5a17
 T010:
   task: 2ea332f50972714d61b337ac4bdb081f8db5320f4f0c1b2e3e2d3226723625f7
@@ -132,8 +141,24 @@ T044:
 T045:
   task: 23fef39bb94c1f46cd4b0440e34284125d78b2642b7b25745844eaab65c46a76
 T046:
+  reason: "The file `code/src/data_loader.py` exists and uses `load_dataset(..., streaming=True)`,\
+    \ but it contains no chunked iteration with online statistics accumulation \u2014\
+    \ no running total count, no depth distribution, no batch processing/state accumulation\
+    \ as required by T046. Additionally, `save_dataset_to_parquet` and `load_dataset_from_parquet`\
+    \ are explicit `NotImplementedError` stubs, and there is no evidence of any executed\
+    \ streaming run or computed statistics. The implementer must add a streaming loop\
+    \ that processes examples in chunks and updates running statistics (e.g., total\
+    \ count, depth hist"
   task: 84fc77c588fd7427bf2a6bd678a3c945a5f8fe8e7a0018f2e5a33605893b796d
 T047:
+  reason: 'The data_loader does implement fail-loudly (re-raises as `ConnectionError`,
+    no synthetic fallback), but the required verification test is broken and does
+    not match the implementation: `test_load_dag_sft_dataset_failure` asserts `pytest.raises(RuntimeError)`
+    while the loader raises `ConnectionError`, so the test would fail; other tests
+    reference nonexistent attributes (`code.src.data_loader.pd`, `cache_dir` argument,
+    `save_dataset_to_parquet(ds, path, split)` signature, `get_dataset_info` returning
+    `num_rows`) that don''t exist in the actual `data_loader.py`, meaning the test
+    file was written ag'
   task: f0ec0821c8a283910d39d85ffda091b36eca58846cee106b5c674cb1667abf44
 T048:
   reason: 'declared artifact(s) missing/empty/invalid: code/src/validate_splits.py'

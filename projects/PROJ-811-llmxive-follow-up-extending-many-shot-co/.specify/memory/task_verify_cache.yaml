@@ -12,11 +12,11 @@ T001:
   sig: 95664acac698fb1a1527c62feb1abec25924d08497aa191c9eaa86554ea98668
 T002:
   c: true
-  h: d010c21696c07584214d866f907b04a6bcde9a19a35a1a2f779bd0ad5ea83f05
-  r: "Checked the `requirements.txt` file at `projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/requirements.txt`;\
-    \ it exists, is non\u2011empty, and lists all required packages (networkx, llama\u2011\
-    cpp\u2011python, pandas, statsmodels, sentence\u2011transformers, pyyaml, huggingface_hub)."
-  sig: aa1cfd914d5f9dc22b5dcc7e7f0528add0dff10c67d322d0c260d58ddcb5dbbc
+  h: b85e85f658cc8059abd085d940d147d6f95dc42fc6a3d86f73a1b87e383e6d08
+  r: 'The `code/requirements.txt` exists (90 bytes) and lists exactly the seven required
+    packages: networkx, llama-cpp-python, pandas, statsmodels, sentence-transformers,
+    pyyaml, and huggingface_hub, matching the task''s specification.'
+  sig: 30c2c8378e50f45e3bf8ba927163d87567894706cd6db32d49ca4005c1c2d7fd
 T003:
   c: false
   h: 674ab518da67a74bed20516c5fa9965d1edc9ee219701b400be821b817dc287b
@@ -53,6 +53,40 @@ T006:
     \ paths are present. Consequently, the required environment\u2011configuration\
     \ management code is missing."
   sig: 55bccb29f95b529c6d654e1506fe18d80f7859cabe9d2e8425fc139ca4fcb06c
+T007:
+  c: false
+  h: 6264bc1154b455d69d02ff05dfb1b7b0de8c49fd8d28e67652ce347690366e33
+  r: "The evidence collector shows no artifacts for this task \u2014 no code files,\
+    \ no data-loading utilities, and no execution evidence for loading `aaabiao/DAG_sft`\
+    \ were found anywhere in the project (`projects/PROJ-811-llmxive-follow-up-extending-many-shot-co`).\
+    \ The task requires actual HuggingFace dataset loading utilities (e.g., a loader\
+    \ module with tests or a demonstrated load of the dataset), and none exist to\
+    \ verify; the implementer must create the base data-loading code and provide evidence\
+    \ it runs against the real dataset."
+  sig: 88092a6b1f293f15d86e6729c2cfdc401847db0a27d20c9220883842acf7ab5e
+T008:
+  c: true
+  h: 99d9e1218e96ede3823a41c1c185a536149ece12b9c8ed94620f59f8e18bab5f
+  r: "The artifact `code/src/parser.py` exists (9146 bytes) and contains a full, non-stub\
+    \ implementation of the networkx DAG initialization logic: step splitting, dependency\
+    \ extraction, `parse_trace_to_dag` building `nx.DiGraph` nodes/edges, cycle detection\
+    \ (length \u2264 5), incoming-edge threshold checks (>3 edges from >10 lines prior),\
+    \ max path depth (Logical Difficulty Score), and validation/flagging functions\
+    \ \u2014 matching the task's skeleton requirements for US-001. No placeholders,\
+    \ TODOs, or fabricated content are present."
+  sig: edb28ea3a14a73c40cafd2efa802d9a3e3da2a6cd8160afd8e6f0a8cd3b04f7e
+T009:
+  c: false
+  h: 5ce468c7bce28c731ee4519c656ad147b0e9018b0d3024fe3322a131d80aa2cd
+  r: 'The test file `code/tests/test_parser.py` exists and is substantive, but it
+    is incompatible with the actual `code/src/parser.py`: the tests import `CoTParser`,
+    `extract_references`, and a tuple-returning `parse_trace_to_dag(list-of-dicts)`
+    / `get_logical_difficulty(trace)`, none of which exist in the parser (which takes
+    a text string, returns a bare `nx.DiGraph`, and has no `CoTParser` class), so
+    the suite would fail at import. Additionally, there is no execution evidence (e.g.,
+    pytest output) showing any tests pass. The implementer must either align the parser''s
+    API to the tests (CoTParser cl'
+  sig: 88659b1a32e8b18f12652e2e2b11bba678f8503fefe13c53e1b080659d2941f1
 T017:
   c: false
   h: 663f952339b707a20f2458ba0dd340e2c3b574e5daa9baa82df4fb1a3ce5de88
@@ -93,3 +127,27 @@ T035b:
     \ does not contain the documented deviation from Spec FR\u2011004 nor the power\u2011\
     analysis justification using `statsmodels.stats.power`. The task therefore remains\
     \ unfinished."
+T046:
+  c: false
+  h: 9cb5ed4bdd835f22e99b5758be0d63b84c11ce5e2f1ff2ff53c17542bd05a8ff
+  r: "The file `code/src/data_loader.py` exists and uses `load_dataset(..., streaming=True)`,\
+    \ but it contains no chunked iteration with online statistics accumulation \u2014\
+    \ no running total count, no depth distribution, no batch processing/state accumulation\
+    \ as required by T046. Additionally, `save_dataset_to_parquet` and `load_dataset_from_parquet`\
+    \ are explicit `NotImplementedError` stubs, and there is no evidence of any executed\
+    \ streaming run or computed statistics. The implementer must add a streaming loop\
+    \ that processes examples in chunks and updates running statistics (e.g., total\
+    \ count, depth hist"
+  sig: 098a316ba70817910ac9fdf8b6045c9cf18658274903c383ba132620019d23a5
+T047:
+  c: false
+  h: 910fc6c96fb406733cc235d0e6768244b8049752bf77878e6de5a489dd7adbbd
+  r: 'The data_loader does implement fail-loudly (re-raises as `ConnectionError`,
+    no synthetic fallback), but the required verification test is broken and does
+    not match the implementation: `test_load_dag_sft_dataset_failure` asserts `pytest.raises(RuntimeError)`
+    while the loader raises `ConnectionError`, so the test would fail; other tests
+    reference nonexistent attributes (`code.src.data_loader.pd`, `cache_dir` argument,
+    `save_dataset_to_parquet(ds, path, split)` signature, `get_dataset_info` returning
+    `num_rows`) that don''t exist in the actual `data_loader.py`, meaning the test
+    file was written ag'
+  sig: ff157f24bb3b3751c9b3a7d25aff08d17d56b60998c2ebffe8163f44d5f93714

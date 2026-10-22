@@ -18,19 +18,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/split.py -> rc=1
-
-Fingerprint file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/data/processed/fingerprints.pkl
+nts - INFO - Processing batch 1: 131 compounds
+2026-10-22 09:37:04 - fingerprints - INFO - Successfully generated 131 fingerprints
+2026-10-22 09:37:04 - fingerprints - INFO - Saved Morgan fingerprints to data/processed/fingerprints_morgan.pkl
+2026-10-22 09:37:04 - fingerprints - INFO - Saved MACCS fingerprints to data/processed/fingerprints_maccs.pkl
+2026-10-22 09:37:04 - fingerprints - INFO - Fingerprint generation complete:
+2026-10-22 09:37:04 - fingerprints - INFO -   Morgan: 131 successful, 0 failed
+2026-10-22 09:37:04 - fingerprints - INFO -   MACCS: 131 successful, 0 failed
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/split.py", line 369, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/split.py", line 418, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/split.py", line 294, in main
-    raise FileNotFoundError(fingerprint_file)
-FileNotFoundError: /home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/data/processed/fingerprints.pkl
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/split.py", line 341, in main
+    raise FileNotFoundError(f"Fingerprint file still missing after generation: {fingerprint_file}")
+FileNotFoundError: Fingerprint file still missing after generation: /home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/data/processed/fingerprints.pkl
 
 - python code/train.py -> rc=1
 
-2026-10-14 12:35:20 - root - INFO - Starting K-Fold Cross-Validation Training (T019)
-2026-10-14 12:35:20 - root - ERROR - Split indices file not found. Cannot proceed with training.
+2026-10-22 09:37:05 - root - INFO - Starting K-Fold Cross-Validation Training (T019)
+2026-10-22 09:37:05 - root - ERROR - Split indices file not found. Cannot proceed with training.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/train.py", line 240, in <module>
     main()
@@ -50,9 +55,9 @@ FAILED tests/unit/test_report_generator.py::test_load_metrics_from_disk - Typ...
 FAILED tests/unit/test_report_generator.py::test_load_statistical_results - T...
 FAILED tests/unit/test_report_generator.py::test_load_sc003_results - TypeErr...
 FAILED tests/unit/test_setup_dirs.py::test_directory_creation - AssertionErro...
-FAILED tests/unit/test_split.py::test_greedy_split_tanimoto_threshold - TypeE...
+FAILED tests/unit/test_split.py::test_greedy_split_tanimoto_threshold - Boost...
 FAILED tests/unit/test_stats.py::test_bootstrap_confidence_interval - TypeErr...
 ERROR tests/unit/test_report_generator.py::test_generate_final_report - FileE...
-============== 24 failed, 16 passed, 2 warnings, 1 error in 1.57s ==============
+============== 24 failed, 15 passed, 2 warnings, 1 error in 1.65s ==============
 
 

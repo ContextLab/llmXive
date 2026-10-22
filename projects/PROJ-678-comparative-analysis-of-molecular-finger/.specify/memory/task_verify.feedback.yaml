@@ -1,10 +1,10 @@
 T001a:
-  reason: "The collector reports that `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`\
-    \ does not exist, and the only evidence of directory creation is a log that mentions\
-    \ a similarly\u2011named path ending in \u201C\u2026-finger\u201D (missing the\
-    \ \u201Cprints\u201D suffix). No actual directory tree with `data/raw`, `data/processed`,\
-    \ `code`, and `tests` is present under the required project path. The task\u2019\
-    s core artifact \u2013 the project directory structure \u2013 is therefore missing."
+  reason: 'The required directory `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`
+    is reported MISSING by the collector, and the setup script''s own logs show it
+    created the structure at a nested wrong path (`.../molecular-finger/projects/...fingerprints/`)
+    instead of the project root. The unit test `tests/unit/test_setup_dirs.py::test_directory_creation`
+    FAILED (exit 1, "Missing directory: data/raw"), confirming the directories were
+    not created where required.'
   task: d9fec7349de4824f34634b80bf672b61fbb4cea9a6494fc514cb29215609da39
 T001b:
   task: 7fff59138db23b23a1c77c9bf3dbf04d38c491bc854bcd8ef327f49a36dc2f7d
@@ -25,13 +25,23 @@ T008:
 T009:
   task: dec14d06a6c9f89973c63986447f41a933761d6b511561dcf7d20d8c731349a8
 T010:
-  reason: "The provided `tests/integration/test_download.py` defines `test_download_and_checksum_tox21`\
-    \ and does download the Tox21 dataset and compute an MD5 checksum, but it never\
-    \ asserts that the computed checksum matches a known reference value. Without\
-    \ a comparison to an expected hash, the test does not truly validate the checksum,\
-    \ so the integration\u2011test requirement is not fully met."
+  reason: 'The test exists but the recorded execution log shows it FAILS: `fetch_tox21_dataset`
+    returns a pandas DataFrame (via the S3 fallback), yet the test calls `df.column_names`
+    (a HuggingFace `Dataset` API), raising `AttributeError` at line 91. Additionally,
+    `calculate_checksum`/`verify_checksum` in `code/download.py` ignore the `algorithm`
+    argument and always compute SHA-256, so the test''s `algorithm="md5"` request
+    is not honored. The test must be fixed to use `df.columns` (and the checksum functions
+    should respect the algorithm parameter), and a passing run must be evidenced.'
   task: d10d4ec8e715ccef1863bd5ea8b49b00ca4e2b7c5e8b9f1ef3a540829623d99c
 T011:
+  reason: "The file exists and is non-trivial, but two core requirements are unmet:\
+    \ (1) checksum verification is never actually performed \u2014 `calculate_checksum`/`verify_checksum`\
+    \ are defined but never called in the download path, and no expected checksum\
+    \ constant is provided, so verification is dead code; (2) the task specifies `load_dataset(\"\
+    deepchem/tox\")` while the code defaults to `\"deepchem/tox21\"` (arguably matching\
+    \ the spec's Tox21 dataset, but the primary HF route silently falls back to an\
+    \ S3 CSV with no evidence either route was executed). Additionally, there is no\
+    \ execution evidence (no downloa"
   task: 55e8a6a2c364c92cb31f26032b9c3820a66aac6c3b85670920cff1d423515481
 T012:
   task: ffc0c6a5b717e64a47d83d00d2d419071f4ac0d817f436dbedd5d98f8fff297f

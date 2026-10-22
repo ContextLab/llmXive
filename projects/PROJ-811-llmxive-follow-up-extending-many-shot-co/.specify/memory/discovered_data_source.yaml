@@ -1,16 +1,18 @@
 status: none
-intent: download GeoQA geometry question answering dataset with chain of thought annotations
-  python package dataset
+intent: GeoQA geometry CoT traces and number theory dataset download python package
+  dataset
 required_fields:
 - problem_id
-- cot_text
-- atomic_step_index
-- atomic_step_text
-- dependency_edge_source
-- dependency_edge_target
+- domain
+- problem_text
+- cot_trace
+- atomic_step_id
+- step_text
+- dependency_step_ids
 - max_path_depth
-- external_difficulty_rating
-- dataset_source
-cache_key: 094f3ae193d80049b58feb9b396286fba169d7dfd3f08590a4732ffbdcb854cd
-searched_at: '2026-10-16T06:44:22.154165+00:00'
+- human_difficulty_rating
+- expert_agreement_kappa
+- source_dataset
+cache_key: 0ce1597ffe26806c7a19db6f134e21e707f2dd5a559ff09f654ecc602d37dd1c
+searched_at: '2026-10-22T09:34:53.419532+00:00'
 retry_count: 1

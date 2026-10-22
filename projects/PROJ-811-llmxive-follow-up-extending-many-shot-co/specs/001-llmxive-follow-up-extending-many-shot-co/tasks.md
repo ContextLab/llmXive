@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure matching directory tree in `plan.md` Section "Project Structure" (`projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/`)
+- [ ] T001 Create project structure matching directory tree in `plan.md` Section "Project Structure" (`projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/`) <!-- FAILED-IN-EXECUTION: code/scripts/ensure_project_structure.py exit=1 -->
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (networkx, llama-cpp-python, pandas, statsmodels, sentence-transformers, pyyaml, huggingface_hub)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black)
 
@@ -58,10 +58,10 @@
 - [ ] T004 Setup `data/` directory structure (`raw/`, `processed/`, `results/`) and `artifacts/` for checksums
 - [X] T005 [P] Implement `code/src/update_state.py` for Constitution Principle V (artifact hashing and state YAML updates)
 - [ ] T006 [P] Setup environment configuration management (load seeds, model paths from `.env` or YAML)
-- [~] T007 Create base data loading utilities for HuggingFace datasets (`aaabiao/DAG_sft`)
-- [~] T008 Implement `code/src/parser.py` skeleton with `networkx` DAG initialization logic
-- [~] T046 [P] Implement real data streaming for the full SFT dataset in `code/src/data_loader.py`. Use `datasets.load_dataset(name, split=..., streaming=True)` to iterate in chunks, accumulating statistics online without loading the full dataset into RAM. Explicitly handle chunking and state accumulation to satisfy FR-001 data preparation scalability. The task must include code that iterates over the streaming dataset, processes each batch, and updates running statistics (e.g., total count, depth distribution) without holding the full dataset in memory.
-- [~] T047 [P] Implement "fail loudly" mechanism in `code/src/data_loader.py`. If the real data fetch fails (network error, missing file), raise a `FileNotFoundError` or `ConnectionError` immediately. DO NOT implement any `try/except` fallback to `generate_synthetic_*()` or mock data. This ensures Constitution Principle III (Data Hygiene) and prevents silent fabrication. **Verification**: Create `code/tests/test_data_loader.py` with a unit test that mocks a network failure and asserts the correct exception is raised.
+- [ ] T007 Create base data loading utilities for HuggingFace datasets (`aaabiao/DAG_sft`)
+- [X] T008 Implement `code/src/parser.py` skeleton with `networkx` DAG initialization logic
+- [ ] T046 [P] Implement real data streaming for the full SFT dataset in `code/src/data_loader.py`. Use `datasets.load_dataset(name, split=..., streaming=True)` to iterate in chunks, accumulating statistics online without loading the full dataset into RAM. Explicitly handle chunking and state accumulation to satisfy FR-001 data preparation scalability. The task must include code that iterates over the streaming dataset, processes each batch, and updates running statistics (e.g., total count, depth distribution) without holding the full dataset in memory.
+- [ ] T047 [P] Implement "fail loudly" mechanism in `code/src/data_loader.py`. If the real data fetch fails (network error, missing file), raise a `FileNotFoundError` or `ConnectionError` immediately. DO NOT implement any `try/except` fallback to `generate_synthetic_*()` or mock data. This ensures Constitution Principle III (Data Hygiene) and prevents silent fabrication. **Verification**: Create `code/tests/test_data_loader.py` with a unit test that mocks a network failure and asserts the correct exception is raised.
 - [ ] T048 [P] Implement training/test set split validation in `code/src/validate_splits.py`. Load the training set (used for DAG construction) and test set (used for accuracy), compare their IDs, and assert they are disjoint. Raise an error if any overlap is detected, satisfying FR-006 independence requirement. This task involves creating the script and implementing the validation logic.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,7 +78,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Unit test for cycle detection and invalid trace flagging in `code/tests/test_parser.py`
+- [ ] T009 [P] [US1] Unit test for cycle detection and invalid trace flagging in `code/tests/test_parser.py`
 - [~] T010 [P] [US1] Unit test for DAG depth calculation logic in `code/tests/test_parser.py`
 - [~] T011 [P] [US1] Integration test for gold-standard correlation validation (r ≥ 0.6) in `code/tests/test_integration.py`
 

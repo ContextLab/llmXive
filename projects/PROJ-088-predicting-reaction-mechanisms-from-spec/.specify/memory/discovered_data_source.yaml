@@ -1,12 +1,13 @@
 status: none
-intent: NIST WebBook PubChem IR NMR spectral fingerprints SN1 SN2 E1 labels python
-  package dataset
+intent: SpectralMechanismDataset NIST WebBook PubChem rkreddyp/nist_800_53 sn2k/distilabel-gpt-example
+  Elzorro99/DTS-SN1-15-01-2024 Marshtomp sagawa/pubchem-10m-canonicalized IR NMR SN1/SN2/E1
+  python package dataset
 required_fields:
 - compound_id
 - smiles
 - ir_fingerprint_512
 - nmr_fingerprint_512
 - mechanism_label
-cache_key: cc176fcc83c9066b755bc8063fc51388a835bdeeddc2e8fa14f6a3af57d0b6ea
-searched_at: '2026-10-15T21:48:19.186384+00:00'
+cache_key: b987b40c8a4251fe1a712d06b574473f018dc74697357cfb631bae1633283fa8
+searched_at: '2026-10-22T09:41:58.206580+00:00'
 retry_count: 1

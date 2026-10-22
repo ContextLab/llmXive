@@ -1,10 +1,3 @@
-T001a:
-  c: false
-  h: 7aa7346b840950cb42cf28d2d2ccfee8fb36205d5e4642f255c5047b300ded94
-  r: The required directories `data/processed/corrupted_logs/`, `data/processed/reconstruction_results/`,
-    and `scripts/` are missing, even though all `__init__.py` files in the `code/`
-    subfolders are present. The task is not fully satisfied until these directories
-    are created.
 T001b:
   c: false
   h: b66b2f30ca819b9902fe38da57541cdd3209c9b357cb0912fe298db3b186c0ac
@@ -103,6 +96,72 @@ T011:
     \ so the tests would fail with a TypeError rather than pass, and no execution\
     \ evidence of passing tests w"
   sig: 28bcb67a08ac226dc4e7079562211ee5c028f9e4f513a775001b2f2c7d843435
+T012:
+  c: true
+  h: eb961c99e82ad6cc38bf73a0c0fd39e5374cc153709b77591ec5cf97c90d2d1c
+  r: "The artifact `code/generators/workflow_generator.py` exists (5761 bytes) and\
+    \ implements deterministic workflow generation: per-workflow seeding (`seed +\
+    \ wid`), seeded tool outputs, a decision tree structure, structural validation,\
+    \ SHA-256 hashing with read-only protection of ground-truth files, and a batch\
+    \ generator \u2014 with no stubs, TODOs, or placeholders. Its `config.py` dependency\
+    \ is present and provides the imported constants/functions. The decision tree\
+    \ is simplistic (fixed three-node chain) rather than varied per workflow, which\
+    \ is a quality weakness but still satisfies the stated require"
+  sig: 92c175c34c00e58937b3cbf3f9ac0bbc665f2ec1edae8c88a549c17b31cdbd2f
+T013:
+  c: false
+  h: e61feef1be837615dc2efc5fbc58f844bc0a40a03102542e2bee1da09b8f9663
+  r: "The generator code exists, but no `data/raw/workflows/*_ground_truth.json` files\
+    \ were ever produced \u2014 the directory contains only `.gitkeep` \u2014 so there\
+    \ is no evidence the serialization was actually run or works. Additionally, the\
+    \ SHA256 hash is only logged, not stored anywhere (e.g., in the JSON or a sidecar/state\
+    \ file), so the \"with SHA256 hash\" requirement is not satisfied even in code\
+    \ design."
+  sig: 316483392356d2022a1acb1af139ec2edc254d3d6dd89d2788e081d50da96340
+T014:
+  c: false
+  h: 296115b75c21473d9a145571f3f39b543df9cdbf1d476385d70b560e04d097c2
+  r: "The required function `validate_workflow_schema` does not exist in `code/generators/workflow_generator.py`\
+    \ \u2014 only a different, simpler `validate_workflow_structure` is present. Moreover,\
+    \ the schema module `code/generators/schemas.py` (T006b) that the task requires\
+    \ the validator to use is MISSING, and there is no SC-005-specific verification\
+    \ of reconstruction-required variables (tool outputs, snapshots)."
+  sig: 9ecf18049fc43a7d82ab53e9f8f13c15bb5c41442fd8598337d356254197eb09
+T015:
+  c: false
+  h: 1e6bf75659e5859d9916ccf0882e25eefc4fe8e775847d2e3e7162558c3ed079
+  r: "`code/main.py` does contain checkpoint scaffolding (`load_checkpoint`/`save_checkpoint`/`get_workflows_to_process`,\
+    \ `--resume`, per-workflow checkpoint writes), but the resume-on-timeout logic\
+    \ is wrong: in `run_sweep` and the single-rate loop, `save_checkpoint({'status':\
+    \ 'completed', 'last_workflow_id': wf_id})` is written unconditionally after `process_single_workflow`\
+    \ returns \u2014 including when it returns `{'status': 'timeout'}` or `{'status':\
+    \ 'error'}` \u2014 so a timed-out workflow is recorded as completed and skipped\
+    \ on resume, defeating the stated requirement. Additionally, the checkpoint is\
+    \ sa"
+  sig: 80c90ae3d1416a0e442073b3381f6dca1bb47a6c0246f6db6b70697d6a115c7b
+T016:
+  c: true
+  h: 34c153b880f1a5971d9dd0535b53b6d3df4dd9be06a4532ca565cc41d0c05054
+  r: "The file `code/generators/workflow_generator.py` now configures a module logger\
+    \ with both console and file handlers (`state/generator.log`), and logs every\
+    \ generation step (workflow generation, validation, file writes with SHA256 hashes,\
+    \ immediate hash re-verification with a critical error on mismatch, read-only\
+    \ permission setting, and batch completion), plus a `verify_ground_truth_hashes`\
+    \ function that logs hash verification results \u2014 matching the task's requirement\
+    \ for verifiable determinism evidence. One minor caveat: the `from config import\
+    \ ...` at module level may fail when the file is im"
+  sig: 40b8b27d1c9aa2f63b4f396d20a0b1531765716709c6b165b4328eb6110abab8
+T018:
+  c: false
+  h: 4e01a383cbdb71c925245eb2b8d57ec9ecd4250c8573806e12e382b1c4f4c979
+  r: 'The test file exists and covers deletion/modification logic, but `test_corruption_rate_mixed`
+    contradicts the actual `CorruptionInjector.inject_corruption` implementation:
+    the method returns a tuple `(success, list_of_corrupted_entry_ids)`, yet the test
+    does `result["corrupted_entries"]` and `len(log_data["entries"]) == len(result["corrupted_entries"])`,
+    which would raise `TypeError` (a list is not subscriptable by string). Additionally,
+    `test_corruption_log_updates` asserts `total_files_processed == 2`, but the injector
+    returns early without incrementing that counter when no entries are selec'
+  sig: 65fe6449a81abb1b99b44b20ccc3215e68860cdfa24727d54a75f2e319eae176
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

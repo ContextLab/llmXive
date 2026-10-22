@@ -9,30 +9,62 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/main.py --phase generate --seed 42 --count 500 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 38, in <module>
-    from reconstructors.reconstruction_engine import ReconstructionEngine
-ModuleNotFoundError: No module named 'reconstructors.reconstruction_engine'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 25, in <module>
+    from generators.workflow_generator import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/generators/workflow_generator.py", line 18, in <module>
+    logging.FileHandler(os.path.join(STATE_DIR, 'generator.log'))
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
+    return open_func(self.baseFilename, self.mode,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/state/generator.log'
 
 - python code/main.py --phase simulate --corruption-rates 0.05,0.10,0.20 --architectures event_log,session_first -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 38, in <module>
-    from reconstructors.reconstruction_engine import ReconstructionEngine
-ModuleNotFoundError: No module named 'reconstructors.reconstruction_engine'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 25, in <module>
+    from generators.workflow_generator import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/generators/workflow_generator.py", line 18, in <module>
+    logging.FileHandler(os.path.join(STATE_DIR, 'generator.log'))
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
+    return open_func(self.baseFilename, self.mode,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/state/generator.log'
 
 - python code/main.py --phase reconstruct --architectures event_log,session_first -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 38, in <module>
-    from reconstructors.reconstruction_engine import ReconstructionEngine
-ModuleNotFoundError: No module named 'reconstructors.reconstruction_engine'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 25, in <module>
+    from generators.workflow_generator import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/generators/workflow_generator.py", line 18, in <module>
+    logging.FileHandler(os.path.join(STATE_DIR, 'generator.log'))
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
+    return open_func(self.baseFilename, self.mode,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/state/generator.log'
 
 - python code/main.py --phase analyze --test cochrans_q -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 38, in <module>
-    from reconstructors.reconstruction_engine import ReconstructionEngine
-ModuleNotFoundError: No module named 'reconstructors.reconstruction_engine'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 25, in <module>
+    from generators.workflow_generator import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/generators/workflow_generator.py", line 18, in <module>
+    logging.FileHandler(os.path.join(STATE_DIR, 'generator.log'))
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
+    return open_func(self.baseFilename, self.mode,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/state/generator.log'
 
 
 ## Declared deliverables still missing
@@ -49,8 +81,3 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/simulators/__init__.py` — NOT invoked by the run-book
     - `code/simulators/corruption_log_manager.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/corruption_map.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-## Platform-owned paths written inside the project
-
-A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
-
-Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

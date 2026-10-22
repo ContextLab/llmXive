@@ -1,13 +1,19 @@
 T001a:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 18ea420e70fa44f489fc14b81282229e6df9d56fdc66c0e4bcaff47f3c8337aa
 T001b:
+  reason: "The evidence shows only top\u2011level `src/__init__.py` and `tests/__init__.py`;\
+    \ there is no proof that every subdirectory under `src/` (analysis, cli, ingestion,\
+    \ modeling, research, utils) and under `tests/` (contract, integration, unit)\
+    \ also contains an `__init__.py`. Without those files the requirement \u201CCreate\
+    \ `__init__.py` files for all `src/` and `tests/` subdirectories\u201D is not\
+    \ satisfied. Adding an empty `__init__.py` to each subdirectory will complete\
+    \ the task."
   task: c7627e3613fcc5fc0ce52c6df3ef68dfa1660b3ce9312238ed803c70627194d3
 T002:
-  reason: The `requirements.txt` exists and lists most required packages (scikit-learn,
-    xgboost, pandas, numpy, datasets, pyyaml, pytest, pubchempy), but it substitutes
-    `pyscf>=2.3.0` for the explicitly required `psi4`, which is not listed anywhere
-    in the file. The implementer should add `psi4` (or justify the substitution with
-    task-owner approval) to satisfy the stated dependency list.
   task: 314b3dccbdd97e4bc64d2dec8eaacf35b6f5a4bcc438e55cf5f0dc71d725222a
 T003:
   task: c075037bdf9ef26a6ddc5b265a95f8ef98fcbbbf34e2281b01183e953a436d2d
@@ -16,10 +22,23 @@ T004:
 T005:
   task: 499f01706de939f9b2983963293cd056befd8b4ea3c5ece21e3dc632aad6b134
 T006:
+  reason: "The repository contains a `dataset.schema.yaml` (resolved to `specs/contracts/dataset.schema.yaml`)\
+    \ but it defines the enum value `validated_intermediates` (plural) instead of\
+    \ the required `validated_intermediate`, and there is no `output.schema.yaml`\
+    \ file at all in `specs/contracts/`. Both the missing file and the enum mismatch\
+    \ mean the task\u2019s requirements are not met."
   task: 77348c99f436f50ddd35ac42675f103c9099f52592b6af49543934010f5d7589
 T007:
   task: f5f69640044011114466ea46fcdbd1093279049af35917bdb4a9029caacaab53
 T008:
+  reason: "The file `src/utils/seed.py` exists and implements many seed\u2011pinning\
+    \ functions, but it calls `log_info`, `log_warning`, and `log_error` with only\
+    \ a message argument, while those helpers require a `logger` object as the first\
+    \ parameter. This will raise a runtime error, meaning the utility is not functional\
+    \ as\u2011is and does not fully satisfy the \u201Cconfigure random seed pinning\
+    \ utility\u201D requirement. The logging calls need to be corrected (e.g., by\
+    \ obtaining a logger via `get_logger()` and passing it) for the artifact to be\
+    \ complete."
   task: 1ae46ccc94c99f9fc28a22b7d2c96d95af43e082ca2cca9dc49598cd8a829973
 T009:
   task: a38de188d1ce108cc21e22e5bbb4e5ad5b37067dc9a4cd2c918f39a71405e1a9
@@ -82,6 +101,8 @@ T032:
 T033:
   task: 8c4805cad36139104f908b1ae299c36f20ab761cde8c776bfce9772ee29cc062
 T033a:
+  reason: 'Requested task execution failed; rerun successfully: code/src/research/fetch_literature_modes.py
+    exit=1'
   task: 84234fa843fdb40a089b7318e18c9cff6c61b1071893c0f5d1d41db0658aacfd
 T033b:
   task: b478c6280d09db4303ad9367a19ae8a04b04366beecd8e85af74454bb871efac

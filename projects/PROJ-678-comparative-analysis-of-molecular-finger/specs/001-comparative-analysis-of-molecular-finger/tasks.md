@@ -91,21 +91,21 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/download.py` to fetch Tox dataset from HuggingFace `datasets.load_dataset("deepchem/tox")`, including checksum verification. **Depends on T008 (Data Model) and T006 (Constants)**.
-- [~] T012 [US1] Implement `code/filter.py` to apply SMARTS pattern `[P](=O)([O,SC])[O,SC]` to filter compounds and save to `data/processed/organophosphates_filtered.csv`. **Implementation**:
+- [ ] T011 [US1] Implement `code/download.py` to fetch Tox dataset from HuggingFace `datasets.load_dataset("deepchem/tox")`, including checksum verification. **Depends on T008 (Data Model) and T006 (Constants)**.
+- [X] T012 [US1] Implement `code/filter.py` to apply SMARTS pattern `[P](=O)([O,SC])[O,SC]` to filter compounds and save to `data/processed/organophosphates_filtered.csv`. **Implementation**:
  1. Load raw Tox21 data.
  2. Convert SMILES to RDKit Mol objects.
  3. Apply `Chem.MolFromSmarts(SMARTS_PATTERN)` match.
  4. Filter dataframe to matched rows.
  5. Save to CSV.
  **Depends on T004 (Directory Creation), T008 (Data Model), and T006 (Constants)**.
-- [~] T013a [US1] Implement validation logic in `code/filter.py` to count rows per toxicity endpoint. **CRITICAL**:
+- [X] T013a [US1] Implement validation logic in `code/filter.py` to count rows per toxicity endpoint. **CRITICAL**:
  - **Execution**: Execute the filter.
  - **Verification**:
  - **Failure Path**: If total sample size < 50, verify `data/processed/filter_log.txt` contains the exact string "WARNING: Low Sample Size (n < 50)".
  - **Success Path**: If total sample size >= 50, verify `data/processed/filter_log.txt` contains "status: OK".
  - **Deliverable**: File `data/processed/filter_log.txt` must exist and contain either the warning string or "status: OK". **Depends on T012**.
-- [~] T013b [US1] Implement logic in `code/filter.py` to write `data/processed/sample_size_status.json` with `{"status": "SKIP_STATS"}` if sample size < 50, or `{"status": "OK"}` otherwise. **Implementation**:
+- [X] T013b [US1] Implement logic in `code/filter.py` to write `data/processed/sample_size_status.json` with `{"status": "SKIP_STATS"}` if sample size < 50, or `{"status": "OK"}` otherwise. **Implementation**:
  1. Read sample count from T013a logic.
  2. Construct JSON object.
  3. Write to `data/processed/sample_size_status.json`.
@@ -158,7 +158,7 @@ description: "Task list template for feature implementation"
 - [~] T018c2 [US2] **K-Fold Verification**: Implement verification logic in `code/split.py`.
  **CRITICAL HARD GATE**: If the algorithm fails to find a valid split for any fold, immediately write `data/processed/kfold_split_error.log` with the specific error reason and **HALT** the K-Fold path.
  **Dependency**: T018c1.
-- [ ] T018c3 [US2] **K-Fold Artifacts**: Generate artifacts based on T018c2 status. <!-- FAILED-IN-EXECUTION: code/split.py exit=1 -->
+- [ ] T018c3 [US2] **K-Fold Artifacts**: Generate artifacts based on T018c2 status. <!-- FAILED-IN-EXECUTION: code/split.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/split.py exit=1 -->
  **Deliverable**: If VALID, write `data/processed/kfold_split_indices.json` with schema `{"status": "VALID", "folds": [{"fold_id": int, "train_indices": [int], "test_indices": [int]}]}`. If INVALID, write `data/processed/kfold_split_invalid_report.md` and `data/processed/kfold_split_error.log`.
  **CRITICAL**: This task MUST enforce the Tanimoto < 0.85 constraint for *every* fold to satisfy Constitution VII. **Dependency**: T018c2. **Parallel to T018a**.
 - [~] T019 [US2] **K-Fold Training**: Implement `code/train.py` to train Random Forest models (100 trees, max_depth=15) using **K-Fold Cross-Validation** on the **full filtered dataset** for the statistical test (FR-005).

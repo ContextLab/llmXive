@@ -1,51 +1,68 @@
-"""T001a - Create the project directory structure.
+"""Setup script for task T001a.
 
-Creates the exact directory named in the task:
-    projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/
-with subdirectories data/raw, data/processed, code, tests (each with a
-.gitkeep so the empty tree is durable in version control), and also
-guarantees the same structure inside the active project root that the
-pipeline scripts use (data/raw, data/processed, code, tests).
+Creates the required project directory structure:
+projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/
+    data/raw/
+    data/processed/
+    code/
+    tests/
+
+The ``data/raw`` and ``data/processed`` directories receive a ``.gitkeep``
+file so that they are tracked by version control even when empty.
 """
+import os
 from pathlib import Path
+from llmxive_toolkit import get_logger
 
-from llmxive_toolkit import paths
+log = get_logger(__name__)
 
-SUBDIRS = ["data/raw", "data/processed", "code", "tests"]
+PROJECT_NAME = "PROJ-678-comparative-analysis-of-molecular-fingerprints"
 
 
 def _make_tree(root: Path) -> None:
-    root.mkdir(parents=True, exist_ok=True)
-    for sub in SUBDIRS:
-        d = root / sub
+    """Create the directory tree and placeholder ``.gitkeep`` files.
+
+    Parameters
+    ----------
+    root: Path
+        Base path where the project structure will be created.
+    """
+    subdirs = [
+        root / "data" / "raw",
+        root / "data" / "processed",
+        root / "code",
+        root / "tests",
+    ]
+
+    for d in subdirs:
         d.mkdir(parents=True, exist_ok=True)
-        keep = d / ".gitkeep"
-        if not keep.exists():
-            keep.write_text("", encoding="utf-8")
-    print(f"OK: directory tree ready under {root}")
+        log.info(f"Created directory: {d}")
+
+        # Add a .gitkeep file to data subfolders so they are not empty in Git.
+        if d.name in {"raw", "processed"}:
+            gitkeep = d / ".gitkeep"
+            gitkeep.touch(exist_ok=True)
+            log.info(f"Added .gitkeep to: {gitkeep}")
+
+    # Optionally create an empty __init__.py in the new code folder
+    init_file = root / "code" / "__init__.py"
+    init_file.touch(exist_ok=True)
+    log.info(f"Ensured __init__.py exists at: {init_file}")
 
 
 def main() -> None:
-    # 1. The exact directory required by task T001a (sibling of the
-    #    active project root, i.e. directly under the repository's
-    #    projects/ folder).
-    project_root = paths.root
-    projects_dir = project_root.parent
-    required_root = projects_dir / "PROJ-678-comparative-analysis-of-molecular-fingerprints"
-    _make_tree(required_root)
+    """Entry point for the directory‑creation script.
 
-    # 2. Ensure the active project root itself has the same structure,
-    #    since all pipeline scripts (download/filter/split/train/...)
-    #    write to data/raw and data/processed relative to it.
-    _make_tree(project_root)
+    The script resolves the repository root (two levels up from this file)
+    and then creates the required project subtree under ``projects/``.
+    """
+    # Resolve repository root (the directory containing the ``projects`` folder)
+    repo_root = Path(__file__).resolve().parent.parent
+    target_root = repo_root / "projects" / PROJECT_NAME
 
-    # Verify loudly.
-    for base in (required_root, project_root):
-        for sub in SUBDIRS:
-            d = base / sub
-            if not d.is_dir():
-                raise RuntimeError(f"FAILED to create {d}")
-    print("T001a: all required directories exist and are non-empty (gitkeep).")
+    log.info(f"Creating project structure at: {target_root}")
+    _make_tree(target_root)
+    log.info("Project directory structure created successfully.")
 
 
 if __name__ == "__main__":

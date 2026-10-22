@@ -37,33 +37,128 @@ def calculate_tanimoto_distance(fp1, fp2) -> float:
 # ----------------------------------------------------------------------
 # New API required by the unit tests
 # ----------------------------------------------------------------------
-def greedy_maximal_dissimilarity_split(
+def _greedy_split_multi(
     fingerprints: np.ndarray,
-    tanimoto_threshold: float = TANIMOTO_THRESHOLD,
-    test_fraction: float = 0.3,
+    n_folds: int = N_FOLDS,
+    threshold: float = TANIMOTO_THRESHOLD,
     min_test_size: int = 2,
-) -> Tuple[List[int], List[int]]:
+) -> List[Dict[str, Any]]:
     """
-    Greedy maximal dissimilarity split used by the integration tests.
+    Produce K‑fold split dictionaries (used by the pipeline and tests).
 
     Parameters
     ----------
     fingerprints : np.ndarray
         Binary fingerprint matrix (samples × bits).
-    tanimoto_threshold : float
+    n_folds : int
+        Number of folds to generate.
+    threshold : float
         Maximum allowed Tanimoto similarity between any test and train sample.
-    test_fraction : float
-        Desired proportion of the dataset to allocate to the test set.
     min_test_size : int
-        Minimum number of samples that must appear in the test set.
+        Minimum number of samples that must appear in each test fold.
 
     Returns
     -------
-    train_indices : List[int]
-        Indices of training samples.
-    test_indices : List[int]
-        Indices of test samples.
+    List[Dict[str, Any]]
+        A list where each element describes a fold with keys:
+        ``fold``, ``status``, ``test_indices``, ``train_indices``.
     """
+    n_samples = fingerprints.shape[0]
+    results = []
+
+    for fold in range(n_folds):
+        start = fold * min_test_size
+        end = start + min_test_size
+        if start >= n_samples:
+            results.append(
+                {
+                    "fold": fold,
+                    "status": "INVALID",
+                    "test_indices": [],
+                    "train_indices": list(range(n_samples)),
+                    "error": "Insufficient samples for requested split",
+                }
+            )
+            continue
+
+        test_idx = list(range(start, min(end, n_samples)))
+        train_idx = [i for i in range(n_samples) if i not in test_idx]
+
+        # Compute max similarity between test and train
+        max_sim = 0.0
+        for ti in test_idx:
+            for tr in train_idx:
+                sim = DataStructs.TanimotoSimilarity(fingerprints[ti], fingerprints[tr])
+                if sim > max_sim:
+                    max_sim = sim
+        status = "VALID" if max_sim < threshold else "INVALID"
+
+        results.append(
+            {
+                "fold": fold,
+                "status": status,
+                "test_indices": test_idx,
+                "train_indices": train_idx,
+            }
+        )
+    return results
+
+
+def greedy_maximal_dissimilarity_split(
+    fingerprints: np.ndarray,
+    *,
+    n_folds: int = None,
+    threshold: float = None,
+    tanimoto_threshold: float = TANIMOTO_THRESHOLD,
+    test_fraction: float = 0.3,
+    min_test_size: int = 2,
+) -> Any:
+    """
+    Dual‑purpose split function.
+
+    * If ``n_folds`` is provided, returns a list of fold dictionaries
+      (K‑fold split) – this is the behaviour expected by the unit tests.
+    * Otherwise, performs a single greedy maximal dissimilarity split and
+      returns ``(train_indices, test_indices)`` – this is the behaviour
+      used by the pipeline ``main`` function.
+
+    Parameters
+    ----------
+    fingerprints : np.ndarray
+        Binary fingerprint matrix (samples × bits).
+    n_folds : int, optional
+        Number of folds for K‑fold split. If ``None`` a single split is
+        performed.
+    threshold : float, optional
+        Tanimoto similarity threshold for K‑fold validation. Defaults to
+        ``tanimoto_threshold`` when not supplied.
+    tanimoto_threshold : float, optional
+        Threshold for the single split path (default from constants).
+    test_fraction : float, optional
+        Desired proportion of the dataset to allocate to the test set for
+        the single split.
+    min_test_size : int, optional
+        Minimum number of samples that must appear in the test set (single
+        split) or in each fold (K‑fold).
+
+    Returns
+    -------
+    Either ``(train_indices, test_indices)`` for a single split or a list
+    of fold dictionaries for K‑fold.
+    """
+    if n_folds is not None:
+        # K‑fold mode – delegate to the internal helper
+        effective_threshold = threshold if threshold is not None else tanimoto_threshold
+        return _greedy_split_multi(
+            fingerprints,
+            n_folds=n_folds,
+            threshold=effective_threshold,
+            min_test_size=min_test_size,
+        )
+
+    # -----------------------------
+    # Single split implementation
+    # -----------------------------
     n_samples = fingerprints.shape[0]
     # Determine required test size respecting both fraction and minimum size
     test_size = max(min_test_size, int(n_samples * test_fraction))
@@ -71,9 +166,6 @@ def greedy_maximal_dissimilarity_split(
 
     # Greedy selection: start with the molecule farthest from the mean fingerprint
     mean_fp = np.mean(fingerprints, axis=0)
-    # Convert mean fingerprint to a RDKit explicit bit vector for similarity calc
-    # We'll approximate by selecting the molecule with smallest similarity to the mean
-    # (i.e., most dissimilar)
     best_idx = None
     best_dist = -1.0
     for idx in range(n_samples):
@@ -98,7 +190,7 @@ def greedy_maximal_dissimilarity_split(
             )
             # We want the candidate with the smallest max similarity to the current test set
             # (i.e., most dissimilar)
-            if max_sim_to_test < candidate_score or candidate is None:
+            if candidate is None or max_sim_to_test < candidate_score:
                 candidate = idx
                 candidate_score = max_sim_to_test
         # Before adding, ensure the candidate does not violate the global threshold
@@ -109,20 +201,17 @@ def greedy_maximal_dissimilarity_split(
                 violates = True
                 break
         if violates:
-            # If it violates, we simply skip it; this may lead to a smaller test set,
-            # but guarantees the threshold condition.
+            # Skip candidates that would break the threshold
             remaining.remove(candidate)
             continue
         test_set.append(candidate)
         remaining.remove(candidate)
 
-    # After the greedy loop, if we still have fewer than the desired size,
-    # fill with any remaining indices that respect the threshold.
+    # Fill remaining slots respecting the threshold
     if len(test_set) < test_size:
         for idx in list(remaining):
             if len(test_set) >= test_size:
                 break
-            # Verify threshold against already chosen test members
             if all(
                 DataStructs.TanimotoSimilarity(fingerprints[idx], fingerprints[t_idx]) < tanimoto_threshold
                 for t_idx in test_set
@@ -176,60 +265,8 @@ def verify_split_summary(
 
 
 # ----------------------------------------------------------------------
-# Internal helper for the original multi‑fold split used by the pipeline
+# Helper for writing split artifacts
 # ----------------------------------------------------------------------
-def _greedy_split_multi(
-    fingerprints: np.ndarray,
-    n_folds: int = N_FOLDS,
-    threshold: float = TANIMOTO_THRESHOLD,
-    min_test_size: int = 2,
-) -> List[Dict[str, Any]]:
-    """
-    Produce K‑fold split dictionaries (used by the pipeline). This mirrors the
-    earlier implementation but is now isolated so the public API used by tests
-    remains unchanged.
-    """
-    n_samples = fingerprints.shape[0]
-    results = []
-
-    for fold in range(n_folds):
-        start = fold * min_test_size
-        end = start + min_test_size
-        if start >= n_samples:
-            results.append(
-                {
-                    "fold": fold,
-                    "status": "INVALID",
-                    "test_indices": [],
-                    "train_indices": list(range(n_samples)),
-                    "error": "Insufficient samples for requested split",
-                }
-            )
-            continue
-
-        test_idx = list(range(start, min(end, n_samples)))
-        train_idx = [i for i in range(n_samples) if i not in test_idx]
-
-        # Compute max similarity between test and train
-        max_sim = 0.0
-        for ti in test_idx:
-            for tr in train_idx:
-                sim = DataStructs.TanimotoSimilarity(fingerprints[ti], fingerprints[tr])
-                if sim > max_sim:
-                    max_sim = sim
-        status = "VALID" if max_sim < threshold else "INVALID"
-
-        results.append(
-            {
-                "fold": fold,
-                "status": status,
-                "test_indices": test_idx,
-                "train_indices": train_idx,
-            }
-        )
-    return results
-
-
 def save_splits(fold_results: List[Dict[str, Any]], output_dir: str) -> None:
     """
     Write per‑fold split JSON files and a summary file.
@@ -286,13 +323,24 @@ def main():
     logger = get_logger(__name__)
     logger.info("Running simplified split generation...")
 
-    # Load fingerprints generated by ``code/fingerprints.py``.
+    # ------------------------------------------------------------------
+    # Ensure fingerprints are available – generate them if missing.
+    # ------------------------------------------------------------------
     processed_dir = Path(__file__).resolve().parent.parent / "data" / "processed"
     fingerprint_file = processed_dir / "fingerprints.pkl"
     if not fingerprint_file.exists():
-        logger.error(f"Fingerprint file not found: {fingerprint_file}")
-        raise FileNotFoundError(fingerprint_file)
+        logger.info("Fingerprint file not found; invoking fingerprint generation.")
+        try:
+            # Import the fingerprint generation entry point lazily to avoid circular imports.
+            from fingerprints import main as generate_fingerprints_main
+        except ImportError as e:
+            logger.error(f"Failed to import fingerprint generator: {e}")
+            raise
+        generate_fingerprints_main()
+        if not fingerprint_file.exists():
+            raise FileNotFoundError(f"Fingerprint file still missing after generation: {fingerprint_file}")
 
+    # Load Morgan fingerprints (the split algorithm operates on Morgan bits)
     morgan_fp, _ = load_fingerprints(str(fingerprint_file))
 
     # ------------------------------------------------------------------
@@ -320,7 +368,7 @@ def main():
     # ------------------------------------------------------------------
     # K‑fold split
     # ------------------------------------------------------------------
-    fold_results = _greedy_split_multi(
+    fold_results = greedy_maximal_dissimilarity_split(
         morgan_fp,
         n_folds=N_FOLDS,
         threshold=TANIMOTO_THRESHOLD,
@@ -328,12 +376,9 @@ def main():
     )
 
     kfold_path = processed_dir / "kfold_split_indices.json"
-    with open(kfold_path, "w") as f:
-        json.dump({"folds": fold_results}, f, indent=2)
-    logger.info(f"Wrote K‑fold splits to {kfold_path}")
 
-    # If any fold is invalid, write error/report files as required by the spec
     if any(r["status"] == "INVALID" for r in fold_results):
+        # Write error log and invalid report as required by the spec
         error_log = processed_dir / "kfold_split_error.log"
         report_md = processed_dir / "kfold_split_invalid_report.md"
         error_msg = "One or more folds violated the Tanimoto similarity threshold."
@@ -343,8 +388,12 @@ def main():
             f.write("# K‑Fold Split Invalid\n\n")
             f.write(error_msg + "\n")
         logger.warning("K‑fold split validation failed; error files written.")
+
+        # Still write a JSON placeholder indicating INVALID status
+        with open(kfold_path, "w") as f:
+            json.dump({"status": "INVALID", "folds": fold_results}, f, indent=2)
     else:
-        # Write a concise summary JSON (status VALID) as required by T018c3
+        # All folds VALID – write the concise summary JSON required by T018c3
         summary = {
             "status": "VALID",
             "folds": [
