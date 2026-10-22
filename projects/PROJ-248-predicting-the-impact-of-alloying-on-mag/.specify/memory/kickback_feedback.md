@@ -1,0 +1,20 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 12 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- The plan relies on Materials Project data for Curie temperature (FR‑001), but the required API key makes the data inaccessible on CI. Consequently the project cannot train or evaluate a Curie‑temperature model, violating multiple functional requirements (FR‑001, FR‑007, FR‑008, FR‑012, SC‑001‑SC‑005). Without an open source alternative, the core research question—predicting both saturation magnetization *and* Curie temperature—cannot be answered.
+- FR‑001 (retrieve all Materials Project entries with magnetic_type ≠ NM and both magnetic_moment and curie_temperature) cannot be satisfied because the Materials Project API requires a private key; the plan flags this as a gap but does not provide an alternative data source, leaving the functional requirement unmet.
+- FR‑007 (evaluate each trained model on an 80/20 internal split **and** on an external validation set of ≥ 200 distinct alloys) is only implemented for saturation magnetization; Curie‑temperature evaluation is absent, and external validation for saturation is described as optional, so the requirement is not fully met.
+- FR‑013 (evaluate model generalization on an external hold‑out set of ≥ 200 distinct alloys) cannot be performed because the required Curie‑temperature data are unavailable; the plan only mentions a gap, providing no path to meet the requirement.
+- SC‑002 (R² ≥ 0.75 for Curie temperature on both internal and external splits) is impossible to satisfy because Curie‑temperature data cannot be obtained; the plan does not replace the requirement with an alternative.
+- SC‑003 (Wilcoxon signed‑rank test must show ensemble residuals significantly lower than linear regression baseline, p < 0.0125) can only be performed for saturation magnetization; the Curie‑temperature component is missing, leaving the criterion partially unmet.
+- SC‑005 (single‑alloy prediction must return a JSON response conforming to the schema within ≤ 2 seconds) is described for saturation magnetization, but the Curie‑temperature field cannot be produced, violating the full schema requirement.
+- The task description includes “Edge‑case handling” which is not linked to any FR or SC in the specification; this constitutes an over‑reach of the plan.
+- The task mentions “VIF reporting (principle on collinearity)” which is not required by any FR or SC; this is an unnecessary addition to the plan.
+- The prediction service described in Phase 8 returns both `saturation_magnetization` and `curie_temperature`. However, `contracts/prediction.schema.yaml` mandates that both fields be present in every response. Since Curie‑temperature data is unavailable (Materials Project access gap), the service cannot satisfy the contract, creating a plan ↔ contract inconsistency.
+- The plan references data processing steps (e.g., cleaning, feature engineering, model training) but never explicitly names the core entities defined in `data-model.md` (`AlloyRecord`, `FeatureVector`, `ModelArtifact`). For full plan‑↔‑data‑model alignment, each step should cite the corresponding entity it manipulates.
+- Internal evaluation (Phase 4) uses an 80/20 split of the OQMD dataset for saturation magnetization, but the external validation for the same target is also drawn from OQMD (held‑out subset). Because both splits come from the same source, the external validation is not truly independent, reducing the evidential strength of the reported performance.
