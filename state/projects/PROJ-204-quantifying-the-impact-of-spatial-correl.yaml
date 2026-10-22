@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T14:26:11.681009Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-204-quantifying-the-impact-of-spatial-correl
-last_run_id: 5c46b7c7-5fe1-4673-884c-a7b620c300db
+last_run_id: 18e513e2-03c6-4177-a4ad-9cf9091ebc27
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-204-quantifying-the-impact-of-spatial-correl/specs/001-quantifying-the-impact-of-spatial-correl
 title: Quantifying the Impact of Spatial Correlations on Perovskite Solar Cell Efficiency
-updated_at: '2026-10-16T20:30:58.330820Z'
+updated_at: '2026-10-22T17:35:17.396426Z'

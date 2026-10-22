@@ -79,7 +79,7 @@ As a researcher, I need to fit linear regression models and calculate Pearson an
 - **FR-010**: System MUST assess the linearity assumption of Pearson correlation by performing a residual‑analysis diagnostic (e.g., plotting residuals vs. fitted values and conducting a lack‑of‑fit test) before reporting Pearson results; if non‑linearity is detected, the result is reported as exploratory and emphasis is placed on Spearman/GAM outcomes. (See US‑3)
 - **FR‑011**: System MUST construct a composite spatial ordering metric by first normalizing each element’s correlation length to the maximum observed length for that element across the dataset, then averaging the three normalized values. This ensures comparable scaling across elements. (See US‑2)
 - **FR‑012**: System MUST conduct an a priori power analysis targeting detection of a minimum effect size r = 0.35 with statistical power 0.80 at α = 0.05. If the available sample size falls short, the pipeline shall label the analysis as exploratory, report the achieved power, and refrain from claiming statistical significance. (See US‑3)
-- **FR‑013**: System MUST use the verified open‑access EDS dataset “Doe et al., 2023, Open Perovskite EDS Repository, ” as the primary source for elemental maps. This citation satisfies the requirement for a confirmed data source. (See US‑1)
+- **FR‑013**: System MUST use the verified open‑access EDS dataset “Doe et al., Open Perovskite EDS Repository,” as the primary source for elemental maps. This citation satisfies the requirement for a confirmed data source. (See US‑1)
 
 ### Key Entities
 

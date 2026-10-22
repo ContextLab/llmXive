@@ -23,6 +23,7 @@
 | `j_sc` | `number` | Short‑circuit current density (mA cm⁻²). |
 | `v_oc` | `number` | Open‑circuit voltage (V). |
 | `source_url` | `string` | URL of the JSON/CSV source. |
+| *(Optional covariates – stored in separate metadata file)* | | Processing temperature, stoichiometric ratio, film thickness are read from NREL metadata and used as model covariates but are **not** part of the unified CSV to keep schema validation simple. |
 
 ### 3. SpatialMetric (optional, present only if EDS maps are available)
 | Field | Type | Description |
@@ -39,7 +40,10 @@
 | `is_censored` | `boolean` | True if correlation length exceeds image dimension. |
 | `censored_value` | `number` (nullable) | Image dimension used as lower bound when censored. |
 | `normalized_length` | `number` (nullable) | Length divided by max observed length for this element (used for composite metric). |
-| `composite_spatial_metric` | `number` (nullable) | Average of the three normalized lengths for a given sample. |
+| `composite_spatial_metric` | `number` (nullable) | Primary composite metric: average of the three normalized lengths for a given sample. |
+| `composite_spatial_metric_eq` | `number` (nullable) | Equal‑weight composite (same as `composite_spatial_metric`). |
+| `composite_spatial_metric_var` | `number` (nullable) | Variance‑weighted composite (sensitivity analysis). |
+| `composite_spatial_metric_expert` | `number` (nullable) | Expert‑assigned weighted composite (sensitivity analysis). |
 
 ### 4. DiffusionLength (optional)
 | Field | Type | Description |
@@ -56,7 +60,7 @@
 | `metric_type` | `string` (enum: `"pearson"`, `"spearman"`, `"gam"` ) | Statistical method used. |
 | `r_value` | `number` | Correlation coefficient (Pearson r or Spearman ρ). |
 | `p_value` | `number` | Raw p‑value. |
-| `p_value_adj` | `number` | Benjamini‑Hochberg adjusted p‑value (when multiple tests). |
+| `p_value_adj` | `number` | Benjamini‑Hochberg adjusted p‑value. |
 | `confidence_interval` | `array[number, 2]` | 95 % confidence interval for the coefficient. |
 | `effect_size_q` | `number` | Cohen’s q for the correlation (effect‑size). |
 | `gam_deviance_explained` | `number` (nullable) | Fraction of deviance explained by GAM (if GAM applied). |
@@ -86,3 +90,5 @@
 - `diffusion_length.method` must be either `"TRPL"` or `"empirical_calibration"`.
 
 ---
+
+

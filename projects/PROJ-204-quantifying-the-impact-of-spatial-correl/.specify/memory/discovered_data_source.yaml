@@ -1,5 +1,5 @@
 status: none
-intent: NREL perovskite solar cell database download EDS elemental maps performance
+intent: NREL Perovskite Database Materials Project EDS elemental maps performance
   metrics python package dataset
 required_fields:
 - sample_id
@@ -9,6 +9,6 @@ required_fields:
 - pce
 - j_sc
 - v_oc
-cache_key: ff72457d0cca9cf218d81f74cab2e567698c8fd61381bee34e807d12b14377e0
-searched_at: '2026-10-22T15:40:30.727934+00:00'
+cache_key: 403a0a6daa13b9135c24bd9a52971c1a695d9c9aabd4ee87c94c0a68ca43887e
+searched_at: '2026-10-22T17:10:52.498746+00:00'
 retry_count: 1

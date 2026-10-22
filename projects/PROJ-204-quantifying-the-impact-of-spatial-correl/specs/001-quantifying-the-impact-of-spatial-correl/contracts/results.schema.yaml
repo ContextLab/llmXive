@@ -1,87 +1,17 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
-description: "Schema for the final statistical analysis results"
+description: "Schema for the CSV output of statistical analysis results."
 type: "object"
+required: ["pair", "metric_type", "r_value", "p_value", "confidence_interval"]
 properties:
   pair:
     type: "string"
-    enum:
-      - "PCE_Jsc"
-      - "PCE_Voc"
-      - "Jsc_Voc"
-    description: "Performance variable pair analyzed"
+    description: "Performance variable pair analyzed."
+    enum: ["PCE_Jsc", "PCE_VVoc", "Jsc_Voc"]
   metric_type:
     type: "string"
-    enum:
-      - "pearson"
-      - "spearman"
-      - "gam"
-    description: "Statistical method used"
-  r_value:
-    type: "number"
-    description: "Correlation coefficient (Pearson r or Spearman rho)"
-  p_value:
-    type: "number"
-    description: "Raw p‑value"
-  p_value_adj:
-    type: "number"
-    description: "Benjamini‑Hochberg adjusted p‑value"
-  confidence_interval:
-    type: "array"
-    items:
-      type: "number"
-    minItems: 2
-    maxItems: 2
-    description: "95 % confidence interval for the coefficient"
-  effect_size_q:
-    type: "number"
-    description: "Cohen’s q effect size for the correlation"
-  gam_deviance_explained:
-    type: "number"
-    nullable: true
-    description: "Deviance explained by GAM (if GAM applied)"
-  robustness_delta_r_max:
-    type: "number"
-    nullable: true
-    description: "Maximum change in correlation coefficient during LOO‑CV"
-  n_samples:
-    type: "integer"
-    minimum: 1
-    description: "Number of samples used in the analysis"
-  sensitivity_excluded:
-    type: "boolean"
-    description: "True if sample excluded by FR‑008 sensitivity analysis"
-  co_location_status:
-    type: "string"
-    enum:
-      - "verified"
-      - "mismatch"
-      - "ambiguous"
-    description: "Co‑location validation outcome"
-  depth_validation_status:
-    type: "string"
-    enum:
-      - "valid"
-      - "flagged"
-      - "excluded"
-    description: "Depth validation outcome"
-  linearity_flag:
-    type: "string"
-    enum:
-      - "linear"
-      - "nonlinear_exploratory"
-    description: "Outcome of linearity diagnostic (FR‑010)"
-required:
-  - pair
-  - metric_type
-  - r_value
-  - p_value
-  - p_value_adj
-  - confidence_interval
-  - effect_size_q
-  - n_samples
-  - sensitivity_excluded
-  - co_location_status
-  - depth_validation_status
-  - linearity_flag
-additionalProperties: false
+    description: "Statistical method"
+    enum: "t"
+  enum:
+    ...
+...

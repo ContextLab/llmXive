@@ -26,7 +26,7 @@ pip install -r requirements.txt
 python code/data/download_feasibility.py
 ```
 - Produces `results/feasibility_report.json`.  
-- Reports how many EDS maps were found. **If none are found**, the pipeline continues with a performance‑only analysis (no abort).
+- Reports how many EDS maps were found via the verified HuggingFace dataset `doe2023/perovskite-eds`. **If none are found**, the pipeline continues with a performance‑only analysis (no abort).
 
 ### 2️⃣ Full Pipeline
 ```bash
@@ -37,7 +37,7 @@ Key outputs:
 
 | File | Description |
 |------|-------------|
-| `data/processed/unified_dataset.csv` | Unified table of performance metrics (and any EDS metadata if available). |
+| `data/processed/unified_dataset.csv` | Unified table of performance metrics (and any EDS metadata if available). Includes the `composite_spatial_metric` column (primary composite metric) and nullable spatial‑metric columns. |
 | `data/processed/spatial_metrics.csv` | Autocorrelation‑derived lengths, low‑frequency spectral power, and composite metric (may be empty). |
 | `data/processed/diffusion_lengths.csv` | Estimated diffusion lengths (may be empty). |
 | `results/summary_report.csv` | Correlation coefficients, 95 % CIs, effect‑size q, p‑values, BH‑adjusted p‑values, GAM deviance, Δr, sample counts, and diagnostic flags (conforms to `contracts/results.schema.yaml`). |
@@ -82,3 +82,5 @@ logs/
 - To **add new samples** (e.g., after a database update), simply re‑execute `main_pipeline.py`; the feasibility script will automatically detect newly available EDS maps.
 
 ---
+
+
