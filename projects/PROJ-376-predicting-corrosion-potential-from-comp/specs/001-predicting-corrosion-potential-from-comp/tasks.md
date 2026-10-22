@@ -21,11 +21,11 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
   **File path**: `code/utils/exceptions.py`.  
   **Verification**: Import succeeds (`from code.utils.exceptions import DataInsufficientError, SchemaMismatchError`) and unit tests in `tests/unit/test_exceptions.py` assert inheritance from `Exception`.  
 
-- [ ] **T003** Set up reproducible logging infrastructure used throughout the pipeline (FR‑010).  
+- [X] **T003** Set up reproducible logging infrastructure used throughout the pipeline (FR‑010).  
   **File path**: `code/utils/logging.py` exposing `get_logger(name: str) -> logging.Logger`.  
   **Verification**: Logs written via `get_logger()` contain timestamp, level, and message, are saved to `data/logs/pipeline.log`, and a unit test (`tests/unit/test_logging.py`) checks file creation and JSON‑line format.  
 
-- [ ] **T003a** Verify that `data/logs/pipeline.log` exists and contains at least one entry for each pipeline stage.  
+- [ ] **T003a** Verify that `data/logs/pipeline.log` exists and contains at least one entry for each pipeline stage.   <!-- FAILED-IN-EXECUTION: code/utils/verify_logging.py exit=1 -->
   **File path**: `code/utils/verify_logging.py` → scans the log file and asserts non‑emptiness per stage.  
   **Verification**: Script exits with status 0 only when the log is populated; otherwise raises `RuntimeError`.
 

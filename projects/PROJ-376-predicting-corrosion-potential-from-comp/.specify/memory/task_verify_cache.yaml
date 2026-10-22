@@ -7,6 +7,25 @@ T001:
     \ be satisfied. The implementer must create the directories and produce the specified\
     \ JSON file that the script exits with status\u202F0 only when all directories\
     \ are present."
+T002:
+  c: false
+  h: 2f9c7ac6f21055605baca8ce77e5eae2d35883341608a5de903fda070a638d87
+  r: "The file `code/utils/exceptions.py` defines the required exception classes,\
+    \ but it contains `from utils.logging import get_logger`, which fails because\
+    \ there is no top\u2011level `utils` package\u2014only `code/utils`. This import\
+    \ error prevents `from code.utils.exceptions import DataInsufficientError, SchemaMismatchError`\
+    \ from succeeding, so the unit tests cannot even be imported. The import statement\
+    \ must be corrected (e.g., `from .logging import get_logger` or `from code.utils.logging\
+    \ import get_logger`)."
+  sig: d7f202710c1f6a9bce0ad111dd7f65f8a229293af60daf6be0d9e85f2d4149ea
+T003:
+  c: true
+  h: 951efbe0d54489de0577c1f9ff8af3ce599e8edd6bfd02dba2ccd232007a24e6
+  r: "Checked `code/utils/logging.py` for the required `get_logger` implementation\
+    \ and JSON\u2011line formatter, and verified the passing unit test `tests/unit/test_logging.py`\
+    \ that confirms file creation and correct JSON fields. The logging infrastructure\
+    \ meets the specification."
+  sig: 9957165f8cd32586ff7970a7ff86bcb3fc64786e770612ef6f20bf7324bf3e35
 T004:
   c: false
   h: 5e2c3d333933a20155c277abca1fba4174be3a1ac5cd6b897207381f71b04921

@@ -1,0 +1,85 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/setup_dirs_verified.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: f18ea17f3a1cc038be1d79f9a1a1f13af23c2b51e988d08cf84b80a719e8104c
+T001a:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/setup_dirs_verified.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 97db48f49234cc0b550baccd26a11d830d199b30e92aa8b4db98fe1e55e15be2
+T002:
+  reason: "The file `code/utils/exceptions.py` defines the required exception classes,\
+    \ but it contains `from utils.logging import get_logger`, which fails because\
+    \ there is no top\u2011level `utils` package\u2014only `code/utils`. This import\
+    \ error prevents `from code.utils.exceptions import DataInsufficientError, SchemaMismatchError`\
+    \ from succeeding, so the unit tests cannot even be imported. The import statement\
+    \ must be corrected (e.g., `from .logging import get_logger` or `from code.utils.logging\
+    \ import get_logger`)."
+  task: af705a0828a9f78c5853ef54c7644375ba94d975295013662fa60010734d12f3
+T003:
+  task: aaab3dfa1b84856109a509dcae25438e650888f7442519acb8e401125b09c369
+T003a:
+  reason: 'Requested task execution failed; rerun successfully: code/utils/verify_logging.py
+    exit=1'
+  task: 0f61afe6ac2bacfa78ed6e0552162efcc5812e804277a241b152c628e1d23f42
+T004:
+  task: e40de772fb5343cc29e0094aa8a972b65d3dd7b65de61785fb2b65f4304513eb
+T004a:
+  task: 1358ea26f447dea2efb5b8b82f0e14af6ddebb3387d565a362ca17c6995e1d82
+T004b:
+  task: 9bc6498c8669e71f6bf823378bca4a796bc0841808831b8d911a7999cba93095
+T005:
+  task: 38da3aef22ba9695a23e807e3358ce6fc0342fda4f1ab61a3e3bab8286ba5975
+T006:
+  task: f9070b19f357bda8eb65b4a9b95885709cfc82b07652f58202bbecec45309a7e
+T007:
+  task: 501681605950496fef1b223d610231f6a8a311d06dea1cfeb98c1192562e140e
+T008:
+  task: 1580f67678d224b2d7e450cfd191926e68e21bb223285882ffe654209582090e
+T009:
+  task: ae785d5316090ae07245a6330acfa3ba0fc220ddc19fb7fce237be2d1b803ca1
+T010:
+  task: a10dca6cbd4c3a75d6a6be712b1af57a23c32e602dce8fa884b08beb5dabca1e
+T011:
+  task: 97b80dd3d1e452876ed0034e906da35f0fabc28423138e122796688de66f6541
+T012:
+  task: c6f89f65fc339abd18a1ba61426bd0b8e28fa5331dd651c29305e0d549fc5486
+T013:
+  task: 47e24e388e6f625608b83ee686287a8fc0dfbebef40dfb9f129245ce1f6c8fc6
+T014:
+  task: bb1a4b446ca4e5eedc55a900755c1d9741e04ff05c20728923af2c2ea0bbe569
+T014a:
+  task: 766fd334dc03b2fb028eb850edef4cb5bb03675fca1ae89254799bef4765bf8d
+T015:
+  task: d9065068a4e1beb7299b9cbb42f66e33fbf0f3566dc50518d709a69c9b0295c4
+T016:
+  task: 0c491064e440839b1266b67255585278c67a3b776b317bcd9503befb7a77c7c3
+T017:
+  task: f999bff74c81dbfcc67dcf9bfd9941a29d5b70a7a1efa782b0a54b02068151d4
+T018:
+  task: e9d23f7bae959b890fdabe85ce2c4770311b175469612a4b35cb161207ed7c13
+T019:
+  task: ac2d10e3e86e71a43be04a49271cd56e188f695eb784a479f34e9b917d3611e7
+T020:
+  task: 6f06a5ea2453b1a623729b42f7dce17cfac633b60408f37977ea37faac5ea1cc
+T021:
+  task: 4e09f87c9d3a24385d0d80e69479cb4857447a66bd1199a5a41ac4cd12486fec
+T022:
+  task: efde60aa79091bb19e38e2b495bfac10392c7ccd76ca02ccdc163424c004e206
+T023:
+  task: 6170c7e0b2210d2b316b70b41461a36feac852f6aeb2c383b31f03a659631883
+T024:
+  task: 0fcf5f8f06758f82f199f39f356a6cc598ec0d16da920982cd5b2ff847cee0ad
+T025:
+  task: 6f42d429ad58a4c58d3a1d614186afdbb92fc2a8ebef7786a778de44ad4ea6be
+T026:
+  task: 4c0bcf8bfddeb5278eb9b04cf183495df5045f86ab133c13ff92858377734611
+T027:
+  task: 2cb0499446ae92156f5cb5819a5b7ea969e3e5083945154669acab79eac5b511
+T028:
+  task: 3bea779712ff9e5095f67a46902ec693838c97dd099509d84c78b5a3a9f862ef
+T029:
+  task: 1c9664db3bd05e26822e850092e1e06fecfc7fd7708085c2b16cab203fd97dea

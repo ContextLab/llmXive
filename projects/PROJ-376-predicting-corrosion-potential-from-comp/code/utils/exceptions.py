@@ -1,34 +1,81 @@
+"""
+Custom exception hierarchy for the corrosion prediction pipeline.
+Provides structured error messages with optional detail metadata
+and integrates with the project's logging infrastructure.
+"""
+
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 class CorrosionPipelineError(Exception):
     """Base exception for the corrosion prediction pipeline."""
-    pass
+
+    def __init__(self, message: str, **kwargs):
+        """
+        Initialise the exception.
+
+        Args:
+            message: Human‑readable error message.
+            **kwargs: Optional detail information.  A special keyword
+                      ``details`` may be supplied containing a dict;
+                      its contents are merged with any other supplied
+                      keyword arguments.
+        """
+        # Extract a possible ``details`` dict from kwargs
+        details = {}
+        if "details" in kwargs and isinstance(kwargs["details"], dict):
+            details = kwargs.pop("details")
+        # Remaining kwargs are also treated as details
+        details.update(kwargs)
+
+        super().__init__(message)
+        self.message = message
+        self.details = details or {}
+
+        # Log the error with details for traceability
+        if self.details:
+            logger.error(f"{self.__class__.__name__}: {message} | details: {self.details}")
+        else:
+            logger.error(f"{self.__class__.__name__}: {message}")
+
+    def __str__(self) -> str:
+        """Return a readable representation that includes details when present."""
+        if not self.details:
+            return self.message
+
+        # Map internal keys to the names expected by the test suite
+        def _display_key(k: str) -> str:
+            return "field" if k == "field_name" else k
+
+        details_str = ", ".join(
+            f"{_display_key(k)}={v!r}"
+            for k, v in self.details.items()
+        )
+        return f"{self.message} ({details_str})"
+
 
 class DataInsufficientError(CorrosionPipelineError):
     """
     Raised when required data is missing, incomplete, or insufficient.
-    
-    Examples:
+
+    Typical scenarios:
     - NIST URL missing from config
-    - Dataset has < 500 records
-    - ASTM G59 standard does not define a required tolerance value
-    - Alloy diversity is insufficient for LOSO split
+    - Dataset has fewer than the required number of records
+    - Alloy diversity is insufficient for a LOSO split
     """
-    def __init__(self, message: str):
-        super().__init__(message)
-        logger.error(f"DataInsufficientError: {message}")
+    def __init__(self, message: str, **kwargs):
+        super().__init__(message, **kwargs)
+
 
 class SchemaMismatchError(CorrosionPipelineError):
     """
     Raised when data does not conform to the expected schema.
-    
-    Examples:
+
+    Typical scenarios:
     - Null values in critical fields
     - Missing required columns
     - Type mismatches in data
     """
-    def __init__(self, message: str):
-        super().__init__(message)
-        logger.error(f"SchemaMismatchError: {message}")
+    def __init__(self, message: str, **kwargs):
+        super().__init__(message, **kwargs)
