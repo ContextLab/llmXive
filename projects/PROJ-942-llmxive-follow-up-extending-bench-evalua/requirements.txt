@@ -1,4 +1,8 @@
-# Project dependencies
-datasets>=2.14.0
-pyarrow>=12.0.0
-# Existing base dependencies are provided by the platform (numpy, pandas, etc.)
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil) are pre‑installed in the CI image.
+# Additional third‑party packages required for this project:
+datasets>=2.14
+transformers>=4.40
+torch>=2.2
+networkx>=3.2
+# (Other dependencies are declared in the original requirements.txt if present.)

@@ -146,7 +146,7 @@ def main() -> None:
     parser.add_argument(
         "--max-examples",
         type=int,
-        default=None,
+        default=10,
         help="Maximum number of examples to download. Set for faster CI.",
     )
     args = parser.parse_args()

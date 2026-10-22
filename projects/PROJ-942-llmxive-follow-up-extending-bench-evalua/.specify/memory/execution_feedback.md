@@ -17,7 +17,6 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
 4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
 
-- `python code/pipelines/download_pi_bench.py`
 - `python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
@@ -27,35 +26,32 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/pipelines/download_pi_bench.py -> rc=1
-d}'.")
-huggingface_hub.errors.HfUriError: Invalid HF URI 'hf://datasets/squad@7b6d24c440a36b6815f21b70d25016731768db1f/.huggingface.yaml'. Repository id must be 'namespace/name', got 'squad'.
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 178, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 158, in main
-    checksums = _download_pi_bench(raw_dir, max_examples=args.max_examples)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 102, in _download_pi_bench
-    raise RuntimeError(
-RuntimeError: Unable to load any dataset for pi‑Bench download. Last error: Invalid HF URI 'hf://datasets/squad@7b6d24c440a36b6815f21b70d25016731768db1f/.huggingface.yaml'. Repository id must be 'namespace/name', got 'squad'.
+-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 9, in <module>
+    from datasets import load_dataset, DatasetDict
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/datasets.py", line 28, in <module>
+    import datasets as _real_datasets  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv -> rc=1
-^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 32, in _download_and_save_raw
-    ds = load_dataset("pi_bench", streaming=True)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/load.py", line 1392, in load_dataset
-    builder_instance = load_dataset_builder(
-                       ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/load.py", line 1132, in load_dataset_builder
-    dataset_module = dataset_module_factory(
-                     ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/load.py", line 917, in dataset_module_factory
-    raise RuntimeError(f"Dataset scripts are no longer supported, but found {filename}")
-RuntimeError: Dataset scripts are no longer supported, but found pi_bench.py
+
+2026-10-22 12:22:40,261 ERROR __main__: Failed to download pi_bench dataset: The `datasets` library is required to download the pi_bench dataset. Ensure it is installed (add `datasets` to requirements.txt).
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 184, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 140, in main
+    json_files = _download_and_save_raw(raw_dir)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 26, in _download_and_save_raw
+    raise ImportError(
+ImportError: The `datasets` library is required to download the pi_bench dataset. Ensure it is installed (add `datasets` to requirements.txt).
 
 - python code/pipelines/infer_missing_intents.py --input-csv data/derived/normalized_traces.csv --out-csv data/derived/inferred_intents.csv --seed 42 -> rc=2
 
