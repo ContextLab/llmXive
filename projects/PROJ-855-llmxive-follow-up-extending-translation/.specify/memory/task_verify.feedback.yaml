@@ -1,0 +1,56 @@
+T001:
+  reason: "The `code/config.yaml` file is present and contains the required keys and\
+    \ values, but the required verification artifact `tests/unit/test_config_load.py`\
+    \ is missing, so the task\u2019s stipulated test cannot be run. The implementer\
+    \ must add the test file that loads the YAML and checks the key types."
+  task: c9c44f0deddd4bd311b980589c30827d8f026b7abcaf8adeccf6f64f7519d434
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/generate_data.py
+    exit=1'
+  task: 80ae232c44cfb194d92b3264b8a4cb12f0c1a0cf3a8c9e59cd07b4d8eaa277cc
+T003:
+  task: 02e7a8c323faf1822cc91764fbe0c017be7dfe3edf2ace71b960cb7546673fe9
+T004:
+  task: 64b92f460309269cec6b4a439211d509d7c227d8ad20e85ebd94e40bc40752e9
+T005:
+  task: de4b0c957753e6869ef9c3e80fed93a92c85e712c1c2127e425617f0d836e21f
+T006:
+  task: c5b12a02cfb043cb53a98b2eb111c857afe3cfb010def9e1646857858652cbe1
+T007:
+  task: ab1a0b6b1ac401a20a3b8627b5e1aaed79280b551e311038e0b514acb0cefb69
+T008:
+  task: 71de6d508cb64e711fb22e3308de508b0977dc424dadcfedc51d5a12fd5ba56b
+T009:
+  task: 6f3ae03fe440c9dbea70af606fc02f8266f58d2f5fc732800bfcd2d3b112cd25
+T010:
+  task: bdb0cb751f66ed585f3e815a9a502da9fda48a72c3859c0f743932445c40c0ee
+T011:
+  task: d5655015c1dc81942c300e129fceb0a6fe21a8a0e7c20ca37c8800c2c1b8a2e7
+T012:
+  task: b58b6ec4c9b03e0cdbaa34bbd9656b151b6bb36da2edc2e6ba94efc26ec6e122
+T013:
+  task: 92df20ef6de17a704c2dc1d53cb84576cc47e408fab60cf8188533e61b4c80af
+T014:
+  task: 3bf498380732ecf4562d44792f45312d22df30126f58cb85bd95d768a8075327
+T015:
+  task: 1c589a47430e5e48e9bd0a1620e6252685b1b86910d44bfb88e4bdc86653cd36
+T016:
+  task: c8595352eb566025a0843936865190236eda768c23e10fab41fa16fb127f3ad8
+T017:
+  task: e86622bbf30f57b91fd9c05060bcee25566ef83b7280fe676e506dbeedc48f98
+T018:
+  task: aaedeeccdf20bb8ddc4b610824103afc17590f16e6b044e90e2f679ec3cdfa39
+T019:
+  task: ad22b6abf5466a5984c519662498cb074036e0a752bb0e77d147ff6108330425
+T020:
+  task: 3774c5740bdc4daf55677ff9a37fc5d673e12c8da2c93fdab5fa69d7e09712aa
+T021:
+  task: 5aab9b241558c35b87786d0305555bb2f2281eba93e9737c094e454f856cb8c7
+T022:
+  task: 4ccdb08f8f9f3853fc85a35e2611da57cfcc6e051f9a5bdd66f6953c140438b9
+T023:
+  task: c041a5978aa80a1f68ebc58e24e6e81e116782fe9bed4732baa025af50412d44
+T024:
+  task: bdb5a532d32076a2afffe1bfb3f946fc49fc68f60493d4510aef7b0c257d6f41
+T025:
+  task: 6b993ada12a61fb0787d90f2d321ba1ce0fea6456e9323eac1f8f33814cc09da

@@ -1,19 +1,16 @@
 status: none
-intent: Bimanual Translation Stability Dataset synthetic PyBullet episodes python
-  package dataset
+intent: bimanual manipulation episodes translation only stability labels dataset MOMA
+  DexYCB ContactDB python package dataset
 required_fields:
 - episode_id
-- wrist1_translation_x
-- wrist1_translation_y
-- wrist1_translation_z
-- wrist2_translation_x
-- wrist2_translation_y
-- wrist2_translation_z
+- translation_vectors
 - object_bbox_min_x
 - object_bbox_min_y
 - object_bbox_min_z
 - object_bbox_max_x
 - object_bbox_max_y
-cache_key: f2c0a34e8376521ba64202fdd489ebea815068db604471ad089984d41574deef
-searched_at: '2026-10-20T15:20:42.218691+00:00'
+- object_bbox_max_z
+- stability_label
+cache_key: e23d902c892086d86e90e0635eb035120ee812bf57f19967b3a17709e2abcb0f
+searched_at: '2026-10-22T11:26:41.429805+00:00'
 retry_count: 1

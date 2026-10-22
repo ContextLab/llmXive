@@ -1,0 +1,15 @@
+# Project requirements
+pybullet==3.2.5
+# Core scientific stack (already available in the base environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil

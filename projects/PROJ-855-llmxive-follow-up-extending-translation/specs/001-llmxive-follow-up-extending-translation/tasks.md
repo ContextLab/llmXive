@@ -12,7 +12,7 @@ The list below consolidates the required work into 19 substantive research tasks
   - **Artifact**: `code/config.yaml`  
   - **Verification**: `tests/unit/test_config_load.py` parses the file and asserts the required keys exist with correct types.  
 
-- [ ] T002 Implement `code/generate_data.py` to run a deterministic PyBullet simulation loop that records **only** `translation_sequence` and `initial_bounds` for each episode (no rotation, torque, or force columns).  
+- [ ] T002 Implement `code/generate_data.py` to run a deterministic PyBullet simulation loop that records **only** `translation_sequence` and `initial_bounds` for each episode (no rotation, torque, or force columns).   <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 -->
   - **Artifact**: `code/generate_data.py`  
   - **Verification**: `pytest tests/unit/test_generate_data.py` checks that the script runs without importing `torch.cuda` and writes a Parquet file at `data/raw/synthetic_episodes.parquet`.  
 

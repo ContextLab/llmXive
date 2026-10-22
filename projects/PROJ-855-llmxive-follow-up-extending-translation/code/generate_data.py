@@ -2,10 +2,10 @@
 generate_data.py
 
 Implements the core data generation pipeline for the llmXive project.
-- Simulates bi-manual manipulation episodes using PyBullet.
+- Simulates bi‑manual manipulation episodes using PyBullet.
 - Records only translation vectors and initial object bounds.
 - Labels episodes as stable/unstable based on physics metrics from config.yaml.
-- Saves raw data to Parquet and handles geometry-disjoint splits.
+- Saves raw data to Parquet at data/raw/synthetic_episodes.parquet and updates checksums.
 """
 
 import os
@@ -14,345 +14,297 @@ import math
 import time
 import random
 import json
-import hashlib
 import warnings
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 
-# Third-party imports
+# Third‑party imports
 import yaml
 import pybullet as p
 import pybullet_data
 import pandas as pd
 import numpy as np
 
-# Local imports (from API surface)
-# Note: We are implementing this file, so we define the functions here.
-# We assume utils.data_utils and utils.physics_metrics exist as per the API surface.
+# Local utilities
 from utils.data_utils import compute_checksum, update_checksums
-from utils.physics_metrics import load_config as load_physics_config, get_thresholds, calculate_tipping_angle, calculate_slippage_distance, is_stable, get_stability_label
+from utils.physics_metrics import load_config as load_physics_config, get_thresholds
 
-# Constants
-PROJECT_ROOT = Path(__file__).parent.parent
+# ----------------------------------------------------------------------
+# Paths
+# ----------------------------------------------------------------------
+PROJECT_ROOT = Path(__file__).resolve().parents[1]  # project root
 CONFIG_PATH = PROJECT_ROOT / "code" / "config.yaml"
 RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
-PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
 CHECKSUM_FILE = PROJECT_ROOT / "data" / "checksums.json"
 
-# Ensure directories exist
+# Ensure output directories exist
 RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
-PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+# ----------------------------------------------------------------------
+# Configuration handling
+# ----------------------------------------------------------------------
 def load_config() -> Dict[str, Any]:
-    """Load configuration from code/config.yaml."""
-    if not CONFIG_PATH.exists():
-        raise FileNotFoundError(f"Configuration file not found: {CONFIG_PATH}")
-    with open(CONFIG_PATH, 'r') as f:
-        return yaml.safe_load(f)
+    """Load configuration from ``code/config.yaml`` with sensible defaults."""
+    default_cfg = {
+        "simulation": {
+            "gravity": -9.81,
+            "time_step": 1.0 / 240.0,
+            "max_steps_per_episode": 240,   # 1 s of simulation at 240 Hz
+            "num_episodes": 5000
+        },
+        "data_generation": {
+            "noise_amplitude": 0.01,
+            "object_geometries": [
+                "box_small", "box_medium", "box_large",
+                "cylinder_small", "cylinder_large",
+                "sphere_small", "sphere_large"
+            ]
+        },
+        "seed": 42
+    }
 
+    if not CONFIG_PATH.is_file():
+        warnings.warn(f"Config file {CONFIG_PATH} not found – using defaults.")
+        return default_cfg
+
+    with open(CONFIG_PATH, "r") as f:
+        cfg = yaml.safe_load(f) or {}
+    # Merge defaults for missing sections
+    for top_key, sub_dict in default_cfg.items():
+        cfg.setdefault(top_key, {})
+        for k, v in sub_dict.items():
+            cfg[top_key].setdefault(k, v)
+    return cfg
+
+# ----------------------------------------------------------------------
+# PyBullet setup
+# ----------------------------------------------------------------------
 def setup_pybullet(config: Dict[str, Any]) -> int:
-    """Initialize PyBullet physics engine."""
-    # Connect to a direct GUI or headless mode depending on environment
-    # For CI/automation, we use direct (headless)
-    try:
-        physics_client = p.connect(p.DIRECT)
-    except Exception:
-        # Fallback if DIRECT fails (e.g., in some container environments)
-        physics_client = p.connect(p.GUI)
-    
+    """Initialize a head‑less PyBullet client."""
+    physics_client = p.connect(p.DIRECT)
     p.setAdditionalSearchPath(pybullet_data.getDataPath())
-    p.setGravity(0, 0, -config['simulation']['gravity'])
-    p.setTimeStep(config['simulation']['time_step'])
+    p.setGravity(0, 0, config["simulation"]["gravity"])
+    p.setTimeStep(config["simulation"]["time_step"])
     return physics_client
 
+# ----------------------------------------------------------------------
+# Scene creation
+# ----------------------------------------------------------------------
 def create_robot_and_object(physics_client: int, geometry_type: str) -> Tuple[int, int]:
     """
-    Create a simple dual-arm robot and an object.
-    Returns (robot_id, object_id).
-    Note: This is a simplified setup for the simulation.
+    Create a minimal “dual‑arm” robot (represented by an R2D2 model) and a
+    geometric object. Returns the robot body id and the object body id.
     """
-    # Load a simple plane
-    plane_id = physics_client.loadURDF("plane.urdf")
+    # Plane for the ground
+    p.loadURDF("plane.urdf", physicsClientId=physics_client)
 
-    # Load a simple robot (using a dummy or a very simple URDF if available)
-    # Since we don't have a real robot URDF in the repo, we simulate a "robot"
-    # by creating a base and two "arms" (spheres) that apply forces.
-    # For the purpose of this task, we focus on the object physics.
-    
-    # Create a base
+    # Dummy robot – we only need a body to satisfy the API; forces are applied
+    # directly to the object, so the robot does not move.
     start_pos = [0, 0, 0]
-    start_orientation = p.getQuaternionFromEuler([0, 0, 0])
-    base_id = physics_client.loadURDF("r2d2.urdf", start_pos, start_orientation) 
-    # Note: r2d2.urdf is a standard demo in pybullet_data. 
-    # If not found, we might need to create a simple box.
-    
-    # Create the object
-    if geometry_type == "box_small":
-        obj_id = physics_client.loadURDF("cube_small.urdf", [0, 0, 1])
-    elif geometry_type == "box_medium":
-        obj_id = physics_client.loadURDF("cube_medium.urdf", [0, 0, 1])
-    elif geometry_type == "box_large":
-        obj_id = physics_client.loadURDF("cube_large.urdf", [0, 0, 1])
-    elif geometry_type == "cylinder_small":
-        obj_id = physics_client.loadURDF("cylinder_small.urdf", [0, 0, 1])
-    elif geometry_type == "cylinder_large":
-        obj_id = physics_client.loadURDF("cylinder_large.urdf", [0, 0, 1])
-    elif geometry_type == "sphere_small":
-        obj_id = physics_client.loadURDF("sphere_small.urdf", [0, 0, 1])
-    elif geometry_type == "sphere_large":
-        obj_id = physics_client.loadURDF("sphere_large.urdf", [0, 0, 1])
-    else:
-        # Fallback to box_small
-        obj_id = physics_client.loadURDF("cube_small.urdf", [0, 0, 1])
+    start_ori = p.getQuaternionFromEuler([0, 0, 0])
+    robot_id = p.loadURDF(
+        "r2d2.urdf", start_pos, start_ori, physicsClientId=physics_client
+    )
 
-    # Change mass/density for variety
-    physics_client.changeDynamics(obj_id, -1, linearDamping=0.01, angularDamping=0.01)
+    # Load the target object – we rely on the standard demo URDFs that ship with
+    # pybullet_data. If a geometry type is unknown we fall back to a small cube.
+    urdf_map = {
+        "box_small": "cube_small.urdf",
+        "box_medium": "cube.urdf",
+        "box_large": "cube_large.urdf",
+        "cylinder_small": "cylinder_small.urdf",
+        "cylinder_large": "cylinder.urdf",
+        "sphere_small": "sphere_small.urdf",
+        "sphere_large": "sphere_large.urdf",
+    }
+    urdf_name = urdf_map.get(geometry_type, "cube_small.urdf")
+    obj_id = p.loadURDF(
+        urdf_name, [0, 0, 1], physicsClientId=physics_client
+    )
+    # Small damping to avoid excessive jitter
+    p.changeDynamics(obj_id, -1, linearDamping=0.01, angularDamping=0.01, physicsClientId=physics_client)
+    return robot_id, obj_id
 
-    return base_id, obj_id
-
-def apply_bi_manual_force(physics_client: int, obj_id: int, noise_vector: np.ndarray, step: int, total_steps: int):
+# ----------------------------------------------------------------------
+# Force application
+# ----------------------------------------------------------------------
+def apply_bi_manual_force(
+    physics_client: int, obj_id: int, noise_vector: np.ndarray, step: int, total_steps: int
+) -> None:
     """
-    Apply forces to the object to simulate bi-manual manipulation.
-    This is a simplified simulation of forces.
+    Apply a time‑varying external force to ``obj_id``. The deterministic sinusoid
+    plus a per‑episode random noise vector yields diverse trajectories while staying
+    fully reproducible (seeded via ``np.random``).
     """
-    # Calculate a force vector that varies over time and includes noise
     base_force = 5.0
     t = step / total_steps
-    force_x = base_force * math.sin(t * math.pi * 2) + noise_vector[0] * 10
-    force_y = base_force * math.cos(t * math.pi * 2) + noise_vector[1] * 10
-    force_z = noise_vector[2] * 5 # Vertical component
+    fx = base_force * math.sin(2 * math.pi * t) + noise_vector[0] * 10.0
+    fy = base_force * math.cos(2 * math.pi * t) + noise_vector[1] * 10.0
+    fz = noise_vector[2] * 5.0
+    p.applyExternalForce(
+        obj_id,
+        -1,
+        [fx, fy, fz],
+        [0, 0, 0],
+        p.LINK_FRAME,
+        physicsClientId=physics_client,
+    )
 
-    # Apply force at center of mass
-    physics_client.applyExternalForce(obj_id, -1, [force_x, force_y, force_z], [0, 0, 0], p.LINK_FRAME)
-
+# ----------------------------------------------------------------------
+# Noise generation
+# ----------------------------------------------------------------------
 def generate_noise_vector(config: Dict[str, Any]) -> np.ndarray:
-    """Generate a random noise vector for the episode."""
-    amp = config['data_generation']['noise_amplitude']
-    return np.random.normal(0, amp, 3)
+    """Gaussian noise with standard deviation defined in the config."""
+    amp = float(config["data_generation"]["noise_amplitude"])
+    return np.random.normal(0.0, amp, size=3)
 
-def run_simulation_episode(physics_client: int, geometry_type: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+# ----------------------------------------------------------------------
+# Single episode simulation
+# ----------------------------------------------------------------------
+def run_simulation_episode(
+    physics_client: int, geometry_type: str, config: Dict[str, Any]
+) -> Optional[Dict[str, Any]]:
     """
-    Run a single simulation episode.
-    Returns a dictionary with translation data, initial bounds, and stability label.
+    Simulate one manipulation episode.
+
+    Returns a dictionary containing only the columns required by the
+    downstream pipeline:
+        - geometry_id
+        - initial_object_bounds
+        - translation_trajectory
+        - stability_label
     """
-    # Create objects
     robot_id, obj_id = create_robot_and_object(physics_client, geometry_type)
-    
-    # Get initial object bounding box
-    # We approximate this by getting the position and assuming a fixed size based on type
-    # In a real scenario, we'd query the collision shape dimensions.
-    initial_pos = physics_client.getBasePositionAndOrientation(obj_id)[0]
-    # Simple heuristic for bounds based on type (in meters)
+
+    # ------------------------------------------------------------------
+    # Record initial geometry information
+    # ------------------------------------------------------------------
     bounds_map = {
-        "box_small": 0.05, "box_medium": 0.1, "box_large": 0.2,
-        "cylinder_small": 0.05, "cylinder_large": 0.1,
-        "sphere_small": 0.05, "sphere_large": 0.1
+        "box_small": 0.05,
+        "box_medium": 0.1,
+        "box_large": 0.2,
+        "cylinder_small": 0.05,
+        "cylinder_large": 0.1,
+        "sphere_small": 0.05,
+        "sphere_large": 0.1,
     }
     size = bounds_map.get(geometry_type, 0.1)
-    initial_bounds = [-size, -size, -size, size, size, size] # min_x, min_y, min_z, max_x, max_y, max_z
+    initial_bounds = [-size, -size, -size, size, size, size]  # min/max xyz
 
-    # Generate noise
-    noise = generate_noise_vector(config)
-    
+    # ------------------------------------------------------------------
     # Simulation loop
-    max_steps = config['simulation']['max_steps_per_episode']
-    translation_history = []
-    
-    # We need to track the object's state to compute metrics
-    # For simplicity, we will record the position at each step relative to start
-    start_pos = initial_pos
-    
+    # ------------------------------------------------------------------
+    max_steps = int(config["simulation"]["max_steps_per_episode"])
+    noise = generate_noise_vector(config)
+    start_pos, start_orn = p.getBasePositionAndOrientation(obj_id, physicsClientId=physics_client)
+    translation_history: List[List[float]] = []
     stable = True
-    
+
+    tipping_thresh_deg, slippage_thresh_m = get_thresholds(config)
+
     for step in range(max_steps):
-        # Apply force
         apply_bi_manual_force(physics_client, obj_id, noise, step, max_steps)
-        
-        # Step physics
-        physics_client.stepSimulation()
-        
-        # Get current state
-        pos, orn = physics_client.getBasePositionAndOrientation(obj_id)
-        
-        # Calculate translation vector (relative to start)
+        p.stepSimulation(physicsClientId=physics_client)
+
+        pos, orn = p.getBasePositionAndOrientation(obj_id, physicsClientId=physics_client)
+
+        # Record translation relative to start position
         trans_vec = [pos[i] - start_pos[i] for i in range(3)]
         translation_history.append(trans_vec)
-        
-        # Check for stability (tipping/slippage)
-        # We calculate metrics based on the current state
-        # Tipping angle: derived from orientation
+
+        # Compute tipping angle (max of roll/pitch) and slippage distance
         euler = p.getEulerFromQuaternion(orn)
-        # Pitch and Roll are the relevant angles for tipping
-        roll = euler[0]
-        pitch = euler[1]
-        
-        # Slippage: distance from start position in XY plane
-        slippage_dist = math.sqrt((pos[0]-start_pos[0])**2 + (pos[1]-start_pos[1])**2)
-        
-        # Use physics metrics utility to check stability
-        # We pass the current state and config
-        # Note: The utility functions expect specific inputs, we adapt here.
-        # Since we are simulating, we can compute the metrics directly or use the utility.
-        # Let's use the utility if available, otherwise fallback to direct logic.
-        
-        # We need to ensure the utility functions are called correctly.
-        # The utility `is_stable` likely takes the calculated metrics.
-        # Let's calculate metrics using the utility functions if they are designed for this.
-        # If not, we compute directly here to ensure the task is fulfilled.
-        
-        # Direct calculation for this simulation context:
-        # Tipping angle (max of roll/pitch in degrees)
+        roll, pitch = euler[0], euler[1]
         tip_angle_deg = math.degrees(max(abs(roll), abs(pitch)))
-        # Slippage distance
-        slip_dist = slippage_dist
-        
-        # Get thresholds
-        thresholds = get_thresholds(config)
-        tipping_thresh = thresholds['tipping_angle_threshold']
-        slippage_thresh = thresholds['slippage_distance_threshold']
-        
-        # Check stability
-        if tip_angle_deg > tipping_thresh or slip_dist > slippage_thresh:
+        slippage_dist = math.hypot(pos[0] - start_pos[0], pos[1] - start_pos[1])
+
+        if tip_angle_deg > tipping_thresh_deg or slippage_dist > slippage_thresh_m:
             stable = False
-            # We can break early or continue to record the failure
-            # For simplicity, we break
+            # Early exit – we have already violated a stability condition.
             break
-    
-    # If stable, we might want to ensure we have enough steps or a final state
-    # If unstable, we record the failure state.
-    
-    # Clean up
-    physics_client.removeBody(obj_id)
-    # physics_client.removeBody(robot_id) # Sometimes causes issues in loop, skip if needed
-    
-    # Prepare data record
-    # We only store the translation history (list of 3D vectors) and initial bounds
-    # We do NOT store rotation or forces.
-    
-    episode_data = {
+
+    # Clean up bodies for the next episode
+    p.removeBody(obj_id, physicsClientId=physics_client)
+    p.removeBody(robot_id, physicsClientId=physics_client)
+
+    episode = {
         "geometry_id": geometry_type,
         "initial_object_bounds": initial_bounds,
         "translation_trajectory": translation_history,
-        "stability_label": 1 if stable else 0
+        "stability_label": 1 if stable else 0,
     }
-    
-    return episode_data
+    return episode
 
+# ----------------------------------------------------------------------
+# Full dataset generation
+# ----------------------------------------------------------------------
 def generate_dataset(config: Dict[str, Any]) -> pd.DataFrame:
     """
-    Generate the full dataset of episodes.
+    Generate ``config['simulation']['num_episodes']`` valid episodes.
+    Episodes that raise an exception are discarded and replaced until the
+    target count is reached.
     """
-    print(f"Starting dataset generation with {config['simulation']['num_episodes']} episodes...")
-    
+    target = int(config["simulation"]["num_episodes"])
     physics_client = setup_pybullet(config)
-    
-    geometries = config['data_generation']['object_geometries']
-    num_episodes = config['simulation']['num_episodes']
-    
-    all_data = []
-    success_count = 0
-    fail_count = 0
-    
-    # We need to ensure we get at least num_episodes valid rows.
-    # The task T015 handles error handling and replacement.
-    # Here we just loop until we have enough.
-    
+
+    geometries = config["data_generation"]["object_geometries"]
+    rows: List[Dict[str, Any]] = []
     attempts = 0
-    max_attempts = num_episodes * 2 # Safety limit
-    
-    while success_count < num_episodes and attempts < max_attempts:
+    max_attempts = target * 3  # safety margin
+
+    # Seed for reproducibility
+    np.random.seed(int(config.get("seed", 0)))
+    random.seed(int(config.get("seed", 0)))
+
+    while len(rows) < target and attempts < max_attempts:
         attempts += 1
-        # Pick a random geometry
         geom = random.choice(geometries)
-        
         try:
             episode = run_simulation_episode(physics_client, geom, config)
-            if episode:
-                # Flatten the data for the DataFrame
-                # translation_trajectory is a list of lists. 
-                # We might need to pad or truncate to a fixed length for the model,
-                # but for the raw data, we can store it as a list or a JSON string.
-                # For Parquet, lists are supported.
-                
-                row = {
-                    "geometry_id": episode["geometry_id"],
-                    "initial_object_bounds": episode["initial_object_bounds"],
-                    "translation_trajectory": episode["translation_trajectory"],
-                    "stability_label": episode["stability_label"]
-                }
-                all_data.append(row)
-                success_count += 1
-                if success_count % 100 == 0:
-                    print(f"Generated {success_count} episodes...")
-            else:
-                fail_count += 1
-        except Exception as e:
-            # Handle numerical instabilities or other errors
-            # T015 requirement: catch and discard, generate replacement
-            fail_count += 1
+            if episode is not None:
+                rows.append(episode)
+            # else: silently skip – should not happen
+        except Exception as exc:
+            # Log the failure and continue – the loop will generate a replacement.
+            print(f"[generate_data] Episode failed (attempt {attempts}): {exc}", file=sys.stderr)
             continue
-    
-    physics_client.disconnect()
-    
-    if success_count < num_episodes:
-        print(f"Warning: Only generated {success_count} episodes after {attempts} attempts.")
-    
-    df = pd.DataFrame(all_data)
+
+    p.disconnect(physics_client)
+
+    if len(rows) < target:
+        raise RuntimeError(
+            f"Only generated {len(rows)} episodes after {attempts} attempts (target {target})."
+        )
+
+    df = pd.DataFrame(rows)
     return df
 
-def save_and_validate_data(df: pd.DataFrame, config: Dict[str, Any]):
-    """Save the dataset to Parquet and validate against schema."""
-    output_path = RAW_DATA_DIR / config['paths']['raw_file']
-    
-    # Save to Parquet
+# ----------------------------------------------------------------------
+# Persistence
+# ----------------------------------------------------------------------
+def save_and_validate_data(df: pd.DataFrame, config: Dict[str, Any]) -> None:
+    """
+    Persist the raw dataset to ``data/raw/synthetic_episodes.parquet`` and
+    update the SHA‑256 checksum registry.
+    """
+    output_path = RAW_DATA_DIR / "synthetic_episodes.parquet"
     df.to_parquet(output_path, index=False)
-    print(f"Saved raw data to {output_path}")
-    
-    # Validate: Ensure no forbidden columns (rotation, force)
-    # The schema validation is done in T017, but we can do a quick check here
-    # The task T017 is separate, but we ensure the data is clean.
-    # We assume the DataFrame only has the allowed columns.
-    
-    # Update checksums
-    checksum = compute_checksum(output_path)
-    update_checksums(output_path, checksum, CHECKSUM_FILE)
-    print(f"Updated checksums for {output_path}")
 
-def compute_checksum(file_path: Path) -> str:
-    """Compute SHA256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    # Compute and register checksum
+    checksum = compute_checksum(str(output_path))
+    update_checksums(str(output_path), str(CHECKSUM_FILE), checksum)
 
-def update_checksums(file_path: Path, checksum: str, registry_path: Path):
-    """Update the checksums.json registry."""
-    registry = {}
-    if registry_path.exists():
-        with open(registry_path, 'r') as f:
-            registry = json.load(f)
-    
-    relative_path = str(file_path.relative_to(PROJECT_ROOT))
-    registry[relative_path] = {
-        "checksum": checksum,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
-    }
-    
-    with open(registry_path, 'w') as f:
-        json.dump(registry, f, indent=2)
+    print(f"Saved raw dataset ({len(df)} rows) to {output_path}")
 
-def main():
-    """Main entry point for data generation."""
-    config = load_config()
-    
-    # Generate data
-    df = generate_dataset(config)
-    
-    # Save and validate
-    save_and_validate_data(df, config)
-    
-    print("Data generation complete.")
+# ----------------------------------------------------------------------
+# Entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """Execute the data‑generation pipeline."""
+    cfg = load_config()
+    df = generate_dataset(cfg)
+    save_and_validate_data(df, cfg)
+    print("Data generation completed successfully.")
 
 if __name__ == "__main__":
     main()
