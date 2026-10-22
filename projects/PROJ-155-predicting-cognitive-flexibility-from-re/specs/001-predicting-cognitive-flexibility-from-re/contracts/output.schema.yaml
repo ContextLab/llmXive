@@ -17,10 +17,10 @@ properties:
     description: "Pearson correlation coefficient between predicted and observed flexibility scores."
   P_Value:
     type: number
-    description: "Empirical p‑value from the permutation test."
+    description: "Empirical p-value from the permutation test."
   R_Squared:
     type: number
-    description: "R‑squared value of the regression model."
+    description: "R-squared value of the regression model."
   N_Subjects:
     type: integer
     description: "Number of subjects included in the analysis."
@@ -44,13 +44,13 @@ properties:
       - "Not Significant"
   FDR_Q_Value:
     type: number
-    description: "FDR‑adjusted p‑value (q‑value) for post‑hoc tests."
+    description: "FDR-adjusted p-value (q-value) for post‑hoc tests."
   FDR_Appplied:
     type: boolean
     description: "Whether FDR correction was applied."
   Subject_Results:
     type: array
-    description: "Row‑per‑subject results for FR‑007 compliance."
+    description: "Row-per-subject results for FR-007 compliance."
     items:
       type: object
       properties:

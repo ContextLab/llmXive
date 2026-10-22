@@ -73,7 +73,7 @@ The system MUST perform a regression analysis of cognitive flexibility scores on
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST download the HCP 1200‑subject release (resting‑state fMRI and behavioral data) from the verified URLs above and verify file integrity (checksum) before processing. (See US-1)
+- **FR-001**: The system MUST download the HCP release (resting‑state fMRI and behavioral data) comprising a large cohort of subjects from the verified URLs above and verify file integrity (checksum) before processing. (See US-1)
 - **FR-002**: The system MUST apply the Schaefer atlas to parcellate the preprocessed fMRI time‑series for every subject. (See US-1)
 - **FR-003**: The system MUST compute sliding‑window Pearson correlation matrices (window = 30 s, step = 1 s) and calculate the standard deviation and Shannon entropy for every edge. (See US-2)  *Justified by Constitution Principle VII (default 30 s) and dynamic‑connectivity literature (Zalesky et al., 2014).*
 - **FR-004**: The system MUST collapse edge‑wise variability metrics into a single subject‑level predictor variable for the regression analysis. (See US-2)

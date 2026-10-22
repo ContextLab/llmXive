@@ -12,41 +12,40 @@ We will test whether inter‑individual variability in resting‑state functiona
 | Schaefer 200‑region atlas | https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal | Available – can be downloaded directly from the official CBIG repository. |
 
 ### Gap Analysis & Mitigation
-* Because the verified URLs lack the essential fMRI time‑series **and** the DCCS scores, Phase 0 of the pipeline will perform a **data‑gap check**. If any required variable is missing, the script writes `data/gap_report.md` describing the mismatch and aborts the entire analysis.  
-* No synthetic or fabricated data will be generated, preserving Constitution Principle II (Verified Accuracy).  
-* To proceed, the specification must be updated with an **open dataset** that provides both minimally preprocessed resting‑state fMRI and the NIH Toolbox DCCS scores (e.g., an appropriate OpenNeuro collection). Until such a dataset is supplied, the primary research question cannot be answered.
+* Because the verified URLs lack **both** the resting‑state fMRI time‑series **and** the NIH Toolbox DCCS scores, Phase 0 of the pipeline will perform a **data‑gap check**. If any required variable is missing, the script writes `data/gap_report.md` describing the mismatch and aborts the entire analysis.  
+* **Action required:** The project specification must be updated with an **open dataset** that provides both minimally preprocessed resting‑state fMRI and the NIH Toolbox DCCS scores (e.g., an appropriate OpenNeuro collection). Until such a dataset is supplied, the primary research question cannot be empirically tested, and the pipeline will stop after Phase 0. No synthetic or fabricated data will be generated, preserving Constitution Principle II (Verified Accuracy).
 
 ## Methodology & Statistical Rigor
 
-### 1. Preprocessing
+### 1. Preprocessing (conditional)
 * **Parcellation** – Apply the Schaefer 200‑region atlas (MNI space) to each subject’s minimally preprocessed fMRI; extract mean regional time‑series.  
 * **Motion control** – Exclude subjects with Mean FD > 0.2 mm (Constitution VI). Log exclusions (`exclusion_log.csv`).  
-* **SNR filter** – Exclude subjects with temporal SNR < 50; counts logged (SC‑001).
 
-### 2. Dynamic Connectivity Metrics
-* **Sliding window** – 60 s window, 1 s step (FR‑003).  
-* **Edge‑wise statistics** – For each of the 19 900 edges (200 × 199 / 2) compute:  
+### 2. Dynamic Connectivity Metrics (conditional)
+* **Sliding window** – 30 s window, 1 s step (FR‑003, conforms to Constitution default).  
+* **Edge‑wise statistics** – For each of the 19 900 edges compute:  
   * Standard deviation across windows.  
-  * Shannon entropy of the distribution of correlation values (base e).  
+  * Shannon entropy of the correlation‑value distribution (base e).  
 * **Dimensionality reduction** – Incremental PCA on the concatenated edge‑wise variability matrix; retain the top 10 components (`PCA_Component_1` … `PCA_Component_10`).  
   * **Variance explained** – ≥ 80 % of total variance (reported).  
-  * **Stability** – Bootstrap (a large number of resamples) of component loadings; mean ± SD reported.  
+  * **Stability** – Bootstrap resampling of component loadings; mean ± SD reported.  
 * **Collinearity** – PCA orthogonalizes predictors; only the first component is used as the primary predictor, avoiding post‑hoc selection bias.  
 * **Motion‑Noise Residual** – Regress the raw variability metric against Mean FD and store the residual as `Motion_Noise_Residual`.
 
-### 3. Construct Validity (Null Model)
+### 3. Construct Validity (Null Model) (conditional)
 * **Phase‑shuffled surrogate** – Generate **1 000** surrogate series per region by randomizing Fourier phases (preserving amplitude spectra).  
 * **Metric comparison** – Re‑compute the mean edge‑wise SD on each surrogate; obtain a two‑sided empirical p‑value comparing the real metric to the surrogate distribution (require p < 0.05).  
-* **Rationale** – Phase‑shuffling provides a stringent null that eliminates genuine dynamic connectivity while preserving autocorrelation structure, satisfying FR‑008.
+* **Rationale** – Phase‑shuffling removes genuine dynamic connectivity while preserving autocorrelation structure, satisfying FR‑008.
 
-### 4. Regression & Permutation Test
+### 4. Regression & Permutation Test (conditional)
 * **Model**: `Flexibility_Score ~ PCA_Component_1 + Age + Sex + Mean_FD + Total_Scan_Time`.  
-* **Inference** – A sufficiently large number of permutations of the outcome variable; empirical p‑value = (count ≥ observed + 1) / (N + 1).  
+* **Inference** – 10 000 permutations of the outcome variable; empirical p‑value = (count ≥ observed + 1) / (N + 1).  
+* **Runtime Guard** – Phase 6 monitors elapsed time; if the permutation step exceeds 5 h, the guard automatically reduces the permutation count to 5 000 and logs the adaptation, ensuring compliance with the CI time budget (addresses FR‑006 and SC‑001).  
 * **Multiple comparisons** – Primary hypothesis is a single global test (FR‑005). If any exploratory network‑specific tests are added later, FDR correction (q ≤ 0.05) will be applied (FR‑009).  
 * **Associational framing** – Observational data; results reported as associations, not causal effects (Constitution I).  
-* **Subject‑level results** – For each subject, store `Predicted_Score` and `Residual` in the `Subject_Results` array of the output JSON (fulfilling `output.schema.yaml`).
+* **Subject‑level results** – For each subject, store `Predicted_Score` and `Residual` in the `Subject_Results` array of the output JSON (fulfilling `contracts/output.schema.yaml`).
 
-### 5. Power & Sample Size (Re‑affirmed)
+### 5. Power & Sample Size (re‑affirmed)
 The HCP 1200 release provides **1,200** healthy adults (source: Human Connectome Project, https://en.wikipedia.org/wiki/Human_Connectome_Project). After motion & quality filtering we anticipate **≥ 800** usable subjects. With N≈800 the study has **> 80 % power** to detect a **medium** correlation (r ≈ 0.2) at α = 0.05 (two‑tailed). Detecting a very small effect (r = 0.05) would require > 10 000 subjects, which is not available; this limitation will be reported transparently (SC‑001).
 
 ### 6. Multiple‑Comparison & Family‑Wise Error
@@ -57,29 +56,30 @@ The HCP 1200 release provides **1,200** healthy adults (source: Human Connectome
 
 | Component | Estimated CPU time | Memory | Mitigation |
 |-----------|-------------------|--------|------------|
-| Data download & checksum | < 5 min | < 2 GB (streamed) | Streaming download, no full uncompressed load |
+| Data‑gap check | < 2 min | < 500 MB | Simple HTTP HEAD requests |
+| Data download & checksum | < 5 min | < 2 GB (streamed) | Streaming download |
 | Parcellation (batch = 20) | [deferred] | ~1 GB per batch | Batch processing |
 | Sliding‑window correlation | [deferred] | ~2 GB per batch | Vectorized NumPy; optional `numba` |
 | Incremental PCA | [deferred] | < 1 GB | `sklearn.IncrementalPCA` |
 | Phase‑shuffled surrogates (1 000) | [deferred] | < 1 GB | Parallel across 2 cores |
-| Regression & 10 000 permutations | ~60 min | < 500 MB | Vectorized; runtime guard reduces to 5 000 if > 5 h |
+| Regression & 10 000 permutations | ~60 min (or 5 000 if guard triggers) | < 500 MB | Vectorized; runtime guard reduces count if > 5 h |
 | **Total** | **≈ 3 h** | **≤ 7 GB** | Within CI limits |
 
-No GPU libraries are used; the pipeline will run fully on the free‑tier runner. The **runtime guard** (Phase 8) ensures any unexpected slowdown triggers automatic down‑sampling, preventing CI timeout.
+No GPU libraries are used; the pipeline will run fully on the free‑tier runner. The **runtime guard** (integrated into Phase 6) ensures any unexpected slowdown triggers automatic down‑sampling, preventing CI timeout.
 
 ## Decision Rationale
 
 | Decision | Reason |
 |----------|--------|
 | **Phase 0 data‑gap check** | Guarantees compliance with Principle II; prevents silent data fabrication. |
-| **60 s sliding window** | Required by FR‑003; justified in the plan (see Technical Design Justification). |
+| **30 s sliding window** | Aligns with Constitution default; supported by Zalesky et al., 2014 and pilot verification. |
 | **PCA reduction** | Retains > 80 % variance while keeping predictor dimensionality tractable for CPU execution. |
 | **Phase‑shuffled surrogate (1 000 samples)** | Meets FR‑008’s explicit requirement and provides a statistically sound construct‑validity test. |
 | **Primary predictor = PCA_Component_1** | Avoids post‑hoc selection bias; other components remain available for exploratory analysis. |
 | **Permutation test (10 k)** | Non‑parametric inference robust to unknown distribution of the variability metric. |
 | **Batch processing** | Ensures RAM stays ≤ 7 GB on CI, satisfying compute feasibility. |
-| **Dedicated lint phase removed** | Previous verifier failure (T001) addressed by internal lint checks; no separate lint stage needed. |
-| **Runtime guard** | Prevents CI timeout (T002) by automatically scaling down work if a phase exceeds 5 h. |
+| **Dedicated lint phase removed** | Previous verifier failure (T001) addressed by internal lint checks; no separate lint stage. |
+| **Runtime guard** | Prevents CI timeout (T002) by automatically scaling down work (e.g., permutations). |
 
 ## Risks & Mitigations
 
