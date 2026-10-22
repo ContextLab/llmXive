@@ -13,9 +13,9 @@ jsonschema
 psutil
 
 # Additional dependencies required for this project
+# Pinning pyarrow < 17.0.0 to maintain compatibility with numpy 1.26.x
 datasets
-pyarrow
+pyarrow<17.0.0
 tqdm
-# Note: torch and transformers are needed for later pipeline stages but are not
-# required for the download step; they will be added when those scripts are
-# implemented.
+torch
+transformers

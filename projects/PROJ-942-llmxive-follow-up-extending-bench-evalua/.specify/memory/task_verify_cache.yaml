@@ -1,13 +1,14 @@
 T000:
   c: true
-  h: 1b58993666150ea3cbb0e1cc91bcb75bba582e6d7f009e7d2bf46cbcaf39f870
-  r: 'All required artifacts exist and are substantive: `code/pipelines/install_dependencies.py`
+  h: b2045eaee0ec626d0db36fd0af7142f1f908b7abb16cd75f2708641c623232c9
+  r: 'The required artifacts all exist and are substantive: `code/pipelines/install_dependencies.py`
     installs from `requirements.txt` and calls `set_seeds()`, `code/utils/seed.py`
-    seeds random/NumPy/torch and pins PYTHONHASHSEED, and `tests/test_setup.py` asserts
-    package importability plus the deterministic value 0.3745401188473625, which is
-    the correct first `np.random.rand()` after `np.random.seed(42)`. A top-level `utils`
-    proxy package ensures the test''s `from utils.seed import set_seeds` import resolves.'
-  sig: 5631f5978ccc9269f6402b8c9b0a59351f6f4cd9cf218bb87980fb56bc2c2a2e
+    seeds random/numpy/torch and pins PYTHONHASHSEED, and `tests/test_setup.py` asserts
+    package importability plus the deterministic value 0.3745401188473625 (which is
+    genuinely the first `np.random.rand()` after `np.random.seed(42)`). The top-level
+    `utils/seed.py` proxy correctly re-exports the implementation so the test import
+    resolves.'
+  sig: eae6a0c4d731d223827301e08e395f708562c6aac6f12b196e0d5ff2ade752f9
 T002:
   c: false
   h: b53a982fdbe02713cbca4f9b6662065ec83b7934508e192ca649da02683cdf78
