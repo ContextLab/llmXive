@@ -1,36 +1,49 @@
 T001:
-  task: 9d8c86bdd8c1f073e2a11e27afdd5c10f7c165d434b6521f1e4e25bc870fe641
+  reason: "The task requires three verifiable conditions: (1) all directories with\
+    \ `__init__.py` files exist, (2) `code/requirements.txt` contains exact pinned\
+    \ versions, and (3) `quickstart.md` exists with the full pipeline command AND\
+    \ `pip install -r code/requirements.txt` succeeds in a fresh virtual environment.\n\
+    \n**Evidence checked:**\n- \u2713 All required directories (`code/`, `data/raw/`,\
+    \ `data/interim/`, `data/processed/`, `results/`, `paper/`, `tests/`) exist with\
+    \ `__init__.py` files (confirmed by directory listings).\n- \u2713 `code/requirements.txt`\
+    \ exists with pinned versions (pandas==2.2.2, numpy==1.26.4,"
+  task: 6999cf9e8ca558c2d1d2e332eedd05703bf916a04c128f5b67d3181b5f74fc7b
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/ingest.py exit=2'
-  task: fefdca7efa7591f81b4f13f5550bbb35266a598b5f617e99e30ce13f68831274
+  reason: 'Requested task execution failed; rerun successfully: code/ingest.py exit=1'
+  task: a72a9915a9658b1dbe68b9fdb4e432c53692e613ba519af4b61efb4a396929de
 T003:
-  reason: The verification shows that neither `data/raw/ds003392.parquet` nor the
-    fallback `data/interim/reward_unavailable.json` exist, and the provided ingestion
-    test fails (missing parquet engine and SystemExit). Consequently the required
-    download or recorded unavailability artifact is absent, so the task is not satisfied.
-  task: a904378432a8197724b3d05c01ff2421ed7b3d4af59a3bf30e9410fc636d3473
+  task: 60affb2f5a73379c795e8572be6d0cb484309dcd0d0f966a817a91f540906758
+T003b:
+  task: 4cdb789682a054a79027ddf523e1adc01b8847b1eb6a4f65556a49ee0200e770
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/validate.py exit=1'
-  task: 67296a681450d772b45ed74572d5301e0d9df5e2853805a3f5cdfca872b5e3c1
+  task: c3920a42cdfad0e0640e93107c7f095d7c862e940b9b16a0e516a79c1ab72c63
 T005:
-  task: f17b7d91cad22a4beeec2cc62d71470bda2ecb767fa0d6de81a6f563ad200fa7
+  task: 15f1808becafa9c6222c4fc46fa77d2475aa5d083e844e1469c89bf8e2d65e8c
 T006:
-  task: 3e205a90a83f0427003a9b182bbdb518a916be35d2c1d6473c8a3c35cda0f39e
+  task: d7559179f07adfd7409c573be307bf393e362d746bfe31f0077ce5f0db28c4a8
 T007:
-  task: d0e5f22c1835719831353c5c796091dad2b6971915111f98a87a11b20aa0819e
+  task: 3e9e46ea68ae26e7d280484e55194d21d08b5d05bc49815725eca3d939c8d30b
 T008:
-  task: 7a8e32887442d6e30f1a8e0d9afb2cc11d7601eb9e3735452ef26c09627fceed
+  task: eaf327de2f2e7971608883f426450a7a7de95e88c94788d0be4887d25e3025c7
 T009:
-  task: 8e6ac376c48b493440691923b738508846e59c0c90415bd48d3d85c23928f685
+  task: 433445612b24a141bad23e70f4b772899c9ea537edf95d2e66b37124c5c13d24
+T009b:
+  task: 8685eeb61b8e4599aa631fa861515fb58f52d07142e38f4e32818a55da526d60
 T010:
-  task: 1979c625d89517668213b2d6ade67b8362c1912adca409109d93294980c95bbd
+  task: 432a6ef9de492721aac856785e6cf512c4fa83477d759dbee8b7f3ab9ef59a86
 T011:
-  task: 6a23c9082d770b61d76bf6bbf4b0076b6bc4f6c8ed1e38340e4b85ea4c3a260a
+  task: 179adfe281438d328b9ffc6bea20efa1d4d7e6e934b95a366189c31e396f9c1a
+T011a:
+  task: 5e678f3b1f80017d79398802f93feb0bef6f111f563d04271be790ec5d6674e7
 T012:
-  task: 33ef1d74c780dbacde9dc42bad9e466a4f67b07d9048b635c37d7ce1bca3ec06
+  task: 8ebeb9ae48777a0867ec45c8c17becb1a5af86aa2aaa846f84b7a5a87afe61e1
 T013:
-  task: f038e9b4b9bf4d8c5ccb0cfc0c7fc9664b657bd144e07551f6a3a9b6550e4f9b
+  task: 9e06afaf02aa0a18ab85c3d5e782b4fd9d4c58da77fd1f08e1c83b35b4844f54
 T014:
-  task: cc484abf7316843236eaa7bf7496b28823808514ff3af121cfab6a3414127003
+  task: 4e3f2c4cb9c4ab7ae901de11acca58d12a8eb882ffcde87daacd44ee8fb2e340
 T015:
-  task: 43334d5a72a5a3b6b474a9056eb0e033a87f061d1dd8a5c7cede43bdb5638b5e
+  task: 3bc003e8cdade299d0f3e0f00e914df8a130ae98983ba283031e0bbd79d378e3
+T016:
+  task: 8fe65e7ccce632eb1313f7abbd08f9ebe2da81d5e4a3f28108935f7037fb8c2e
+T017:
+  task: 44a1b4c667a9db46f28f7ead353aebe707c01cd0a41040e24550534b3aa971f5

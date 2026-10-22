@@ -1,13 +1,10 @@
 import os
 from pathlib import Path
-import sys
-import subprocess
 
 def main():
-    # Define the required directory structure
+    # Define the directory structure as required by T001
     directories = [
         "code",
-        "code/utils",
         "data/raw",
         "data/interim",
         "data/processed",
@@ -16,34 +13,14 @@ def main():
         "tests",
     ]
 
-    print("Creating project directory structure...")
     for dir_path in directories:
-        p = Path(dir_path)
-        p.mkdir(parents=True, exist_ok=True)
+        path = Path(dir_path)
+        path.mkdir(parents=True, exist_ok=True)
         
-        # Create placeholder __init__.py in every requested directory
-        init_file = p / "__init__.py"
+        # Create an empty __init__.py in each directory as requested
+        init_file = path / "__init__.py"
         init_file.touch()
-        print(f"Created: {init_file}")
-
-    # Verification: check if pandas is importable
-    print("Verifying environment...")
-    try:
-        import pandas
-        print(f"Pandas version {pandas.__version__} imported successfully.")
-    except ImportError as e:
-        print(f"Pandas import failed: {e}")
-        sys.exit(1)
-
-    # Also run the specific command requested in verification
-    try:
-        subprocess.run([sys.executable, "-c", "import pandas"], check=True)
-        print("Command 'python -c \"import pandas\"' executed successfully.")
-    except subprocess.CalledProcessError:
-        print("Command 'python -c \"import pandas\"' failed.")
-        sys.exit(1)
-
-    print("Project layout and dependency verification complete.")
+        print(f"Created directory and __init__.py at: {dir_path}")
 
 if __name__ == "__main__":
     main()

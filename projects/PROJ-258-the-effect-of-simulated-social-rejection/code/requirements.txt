@@ -1,8 +1,7 @@
-pandas>=2.0
-numpy
-scipy
-statsmodels
-pyarrow
-pyyaml
-requests
-psutil
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.13.0
+statsmodels==0.14.2
+pyyaml==6.0.1
+requests==2.32.3
+pyarrow==14.0.1

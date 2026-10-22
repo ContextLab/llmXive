@@ -5,6 +5,7 @@ This script downloads the verified OpenNeuro parquet file, verifies that the
 download does not exceed the RAM limit (7 GB), computes a SHA-256 checksum,
 writes a metadata JSON file, creates a human-readable citation, and adds a
 'task' column with the value 'cyberball' to every record.
+It also creates the reward_unavailable.json stub.
 """
 
 import argparse
@@ -37,6 +38,7 @@ CITATION_TEXT = (
 )
 DS000208_URL = "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"
 MAX_RAM_GB = 7.0
+REQUIRED_COLUMNS = ["participant_id", "condition", "reaction_time", "mood_rating"]
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 checksum of file_path in a memory-efficient way."""
@@ -104,6 +106,32 @@ def add_task_column(parquet_path: Path, task_value: str = "cyberball") -> None:
         logger.error(f"Failed to add task column: {exc}")
         sys.exit(1)
 
+def validate_dataset_contents(parquet_path: Path) -> None:
+    """
+    Validate that the dataset contains required columns and the
+    necessary conditions.
+    """
+    logger.info(f"Validating columns and conditions in {parquet_path}")
+    try:
+        df = pd.read_parquet(parquet_path)
+        
+        # Check required columns
+        missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+        if missing:
+            logger.error(f"Missing required columns: {missing}")
+            sys.exit(1)
+        
+        # Check condition values
+        conditions = set(df["condition"].unique())
+        if "rejection" not in conditions or "control" not in conditions:
+            logger.error(f"Condition column must contain both 'rejection' and 'control'. Found: {conditions}")
+            sys.exit(1)
+        
+        logger.info("Column and condition validation passed.")
+    except Exception as exc:
+        logger.error(f"Validation failed: {exc}")
+        sys.exit(1)
+
 def write_metadata(metadata_path: Path, info: Dict[str, Any]) -> None:
     """Write info as pretty-printed JSON."""
     metadata_path.parent.mkdir(parents=True, exist_ok=True)
@@ -117,6 +145,18 @@ def write_citation(citation_path: Path) -> None:
     with open(citation_path, "w", encoding="utf-8") as f:
         f.write(CITATION_TEXT + "\n")
     logger.info(f"Citation written to {citation_path}")
+
+def write_reward_stub() -> None:
+    """Create the reward_unavailable.json stub in data/interim."""
+    stub_path = Path(get_path("interim")) / "reward_unavailable.json"
+    stub_path.parent.mkdir(parents=True, exist_ok=True)
+    content = {
+        "reward_dataset_available": False,
+        "reason": "No open-access reward dataset with verified URL."
+    }
+    with open(stub_path, "w", encoding="utf-8") as f:
+        json.dump(content, f, indent=2)
+    logger.info(f"Reward unavailability stub written to {stub_path}")
 
 def parse_cli() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -159,6 +199,10 @@ def ingest_single_dataset(
     parquet_path = output_dir / f"{dataset_id}.parquet"
 
     bytes_written = download_file(url, parquet_path, MAX_RAM_GB)
+    
+    # Validate contents immediately after download
+    validate_dataset_contents(parquet_path)
+    
     checksum = compute_sha256(parquet_path)
 
     metadata = {
@@ -168,7 +212,8 @@ def ingest_single_dataset(
         "size_bytes": bytes_written,
         "sha256": checksum,
     }
-    metadata_path = output_dir / f"metadata_{dataset_id}.json"
+    # Requirement: Write to data/raw/metadata.json
+    metadata_path = output_dir / "metadata.json"
     write_metadata(metadata_path, metadata)
 
     citation_path = output_dir / "CITATION.md"
@@ -211,6 +256,8 @@ def main() -> None:
             dataset_id=dataset_id,
             task_name="cyberball" if dataset_id == "ds000208" else "other"
         )
+        # Create the reward unavailability stub as required by plan.md/tasks.md
+        write_reward_stub()
     except Exception as exc:
         logger.error(f"Ingestion failed: {exc}")
         sys.exit(1)

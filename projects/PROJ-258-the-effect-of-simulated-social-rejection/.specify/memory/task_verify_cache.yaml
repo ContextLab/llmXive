@@ -1,17 +1,12 @@
 T001:
-  c: true
-  h: c8905fcfb0c4047f64936b970a727616965ba6d317400314a15484be5dcee83a
-  r: All required directories (code/, code/utils/, data/raw|interim|processed/, results/,
-    paper/, tests/) exist with `__init__.py` markers; `requirements.txt` contains
-    all seven specified packages with pandas>=2.0; `quickstart.md` exists and documents
-    the single command `python -m code.pipeline`; and the execution log confirms `python
-    -c "import pandas"` ran successfully (pandas 2.2.2, exit 0).
-  sig: c002e3bb00fd4c66ec25363e3fd36a14f487fc63e72feaf7970323b26e9f1949
-T003:
   c: false
-  h: b457e03011d939223c283a4ea16596c1f88ad41686f7fb90c22b936cb711b0e6
-  r: The verification shows that neither `data/raw/ds003392.parquet` nor the fallback
-    `data/interim/reward_unavailable.json` exist, and the provided ingestion test
-    fails (missing parquet engine and SystemExit). Consequently the required download
-    or recorded unavailability artifact is absent, so the task is not satisfied.
-  sig: 73ee78679b2c02a18ec3b75e8b6d98b256586f11bc87477fad0e6df1de561f5a
+  h: be6867669bc4796318d1d33c36da30539f99ae0915309319ea91e22d9fccd3d4
+  r: "The task requires three verifiable conditions: (1) all directories with `__init__.py`\
+    \ files exist, (2) `code/requirements.txt` contains exact pinned versions, and\
+    \ (3) `quickstart.md` exists with the full pipeline command AND `pip install -r\
+    \ code/requirements.txt` succeeds in a fresh virtual environment.\n\n**Evidence\
+    \ checked:**\n- \u2713 All required directories (`code/`, `data/raw/`, `data/interim/`,\
+    \ `data/processed/`, `results/`, `paper/`, `tests/`) exist with `__init__.py`\
+    \ files (confirmed by directory listings).\n- \u2713 `code/requirements.txt` exists\
+    \ with pinned versions (pandas==2.2.2, numpy==1.26.4,"
+  sig: 73e63bc94d8e630414ce3f45478b013500385d72d463c2c5f8fbc9b5ffe2da61
