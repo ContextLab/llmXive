@@ -1,0 +1,41 @@
+# Contract: normalized per-video metadata record (FR-001 via verified open
+# substitute dataset mmbench/ocean). JSON-Schema dialect (validated with
+# jsonschema). Every line of data/raw/video_metadata.jsonl MUST conform.
+type: object
+required:
+  - video_id
+  - expert_labels
+properties:
+  video_id:
+    type: string
+    minLength: 1
+    description: Stable identifier of the video sample.
+  video_url:
+    type: [string, "null"]
+    description: URL or hub path of the source video, if provided by the dataset.
+  transcript:
+    type: [string, "null"]
+    description: Verbal transcript / caption text, if available.
+  setting:
+    type: [string, "null"]
+    description: Situational setting tag (e.g. job interview), if available.
+  culture:
+    type: [string, "null"]
+    description: Cultural background tag, if available.
+  behavior_tags:
+    type: array
+    items:
+      type: string
+    description: Ground-truth behavioral evidence tags (may be empty when absent).
+  expert_labels:
+    type: object
+    description: >
+      Expert ground-truth trait labels. Keys are trait names (OCEAN traits
+      when present, otherwise any label/answer field provided by the dataset).
+    additionalProperties:
+      type: [string, number, "null"]
+  extra:
+    type: object
+    description: Additional unmapped source columns preserved verbatim.
+    additionalProperties: true
+additionalProperties: false
