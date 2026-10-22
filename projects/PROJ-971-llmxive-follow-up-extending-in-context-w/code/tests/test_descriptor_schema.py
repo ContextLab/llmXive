@@ -8,8 +8,9 @@ The CSV file to validate is:
     data/processed/descriptors.csv
 
 The test loads the schema (YAML), parses the CSV with pandas, and validates
-each record using jsonschema. Any validation error will cause the test to
-fail.
+each record using jsonschema. It also performs a sanity check that the
+highest variance descriptor is more than twice the lowest variance
+descriptor, as required by the task specification.
 """
 
 import pathlib
@@ -31,7 +32,14 @@ def _load_schema() -> dict:
     dict
         The parsed JSON schema.
     """
-    schema_path = pathlib.Path(paths.root) / "specs" / "001-auto-icwm-latent-dynamics" / "contracts" / "descriptor.schema.yaml"
+    # Correct path to the schema based on the repository layout.
+    schema_path = (
+        pathlib.Path(paths.root)
+        / "specs"
+        / "001-llmxive-follow-up-extending-in-context-w"
+        / "contracts"
+        / "descriptor.schema.yaml"
+    )
     if not schema_path.is_file():
         raise FileNotFoundError(f"Descriptor schema not found at {schema_path}")
     with schema_path.open("r", encoding="utf-8") as f:
@@ -55,7 +63,8 @@ def _load_descriptors() -> pd.DataFrame:
 
 def test_descriptors_schema():
     """
-    Validate each row of the descriptor CSV against the JSON schema.
+    Validate each row of the descriptor CSV against the JSON schema and
+    perform the required sanity check on variance values.
     """
     schema = _load_schema()
     validator = Draft7Validator(schema)
@@ -92,3 +101,19 @@ def test_descriptors_schema():
         raise AssertionError(f"Descriptor schema validation failed:\\n{error_msg}")
 
     log.info("All %d descriptor records conform to the schema.", len(df))
+
+    # Sanity check: variance_high > 2 * variance_low
+    variances = df["variance"].astype(float)
+    variance_high = variances.max()
+    variance_low = variances.min()
+    assert (
+        variance_high > 2 * variance_low
+    ), (
+        f"Sanity check failed: max variance ({variance_high}) is not > 2 * "
+        f"min variance ({variance_low})"
+    )
+    log.info(
+        "Sanity check passed: max variance %.6f > 2 * min variance %.6f",
+        variance_high,
+        variance_low,
+    )

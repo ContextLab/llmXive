@@ -11,7 +11,7 @@ All scripts live under `src/pipeline/`; all outputs follow the plan’s data‑m
   - Creates `quickstart.md` that explains the single command `python -m src.pipeline.run_all --subset 50`.  
   - *Verification*: CI runs the command on a fresh checkout; it must finish without error, produce `data/processed/descriptors.csv` (50 rows), and the command listed in `quickstart.md` must match the executed command **exactly**. Additionally, the generated `descriptors.csv` is validated against `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml`.
 
-- [X] T002 [P1] [US1] **Generate a small dataset of interaction clips**  
+- [ ] T002 [P1] [US1] **Generate a small dataset of interaction clips**  
   - `src/pipeline/generate_clips.py` creates 50 reproducible clips (`data/raw/clip_<id>.npz`) containing the three arrays `states`, `actions`, `observations`.  
   - *Verification*: `ls data/raw | wc -l` equals 50 **and** each `.npz` file loads successfully and contains the required three arrays.
 
@@ -44,7 +44,7 @@ All scripts live under `src/pipeline/`; all outputs follow the plan’s data‑m
   - Re‑uses `src/pipeline/generate_clips.py` to create 200 training clips (`data/raw/clip_<id>.npz`).  
   - *Verification*: 200 files exist; each loads correctly.
 
-- [ ] T021 [P2] [US2] **Extract descriptors & compute task‑complexity for training set**  
+- [ ] T021 [P2] [US2] **Extract descriptors & compute task‑complexity for training set**   <!-- FAILED-IN-EXECUTION: scripts/run_minimal.sh exit=1 -->
   - Runs `src/pipeline/extract_descriptors.py` on the training clips to produce `data/processed/descriptors.csv`.  
   - Runs `src/pipeline/compute_complexity.py` to produce `data/processed/task_complexity.csv`.  
   - *Verification*: Both CSVs pass their respective schema validations.

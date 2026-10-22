@@ -13,7 +13,7 @@ from the variance descriptor (monotonic mapping, capped at 10).
 The script writes:
   * ``data/processed/task_complexity.csv`` – columns ``clip_id``,
     ``subgoal_count``.
-  * ``data/processed/correlation.txt`` – Pearson correlation
+  * ``reports/complexity_summary.txt`` – Pearson correlation
     coefficient (r) and two‑tailed p‑value between ``variance`` and
     ``subgoal_count``.
 
@@ -62,10 +62,10 @@ def _parse_args(argv=None):
     parser.add_argument(
         "--output-corr",
         type=Path,
-        default=paths.data("processed", "correlation.txt"),
+        default=paths.reports("complexity_summary.txt"),
         help=(
             "Path where the correlation text file will be written "
-            "(default: data/processed/correlation.txt)."
+            "(default: reports/complexity_summary.txt)."
         ),
     )
     return parser.parse_args(argv)
@@ -112,10 +112,13 @@ def compute_complexity(descriptors_path: Path, csv_out: Path, corr_out: Path) ->
                 subgoals = scene.get("subgoals", [])
                 count = max(1, int(len(subgoals)))
             except Exception as exc:
-                log.warning("Failed to parse scene %s: %s - using proxy.", scene_path, exc)
+                log.warning(
+                    "Failed to parse scene %s: %s – using proxy.", scene_path, exc
+                )
                 count = _derive_subgoal_count(variance)
         else:
             count = _derive_subgoal_count(variance)
+
         subgoal_counts.append(count)
 
     df_complex = pd.DataFrame(
@@ -129,12 +132,14 @@ def compute_complexity(descriptors_path: Path, csv_out: Path, corr_out: Path) ->
 
     # Correlation
     r, p = pearsonr(df_desc["variance"], df_complex["subgoal_count"])
-    log.info("Correlation between variance and subgoal_count: r=%.4f, p=%.4g", r, p)
+    log.info(
+        "Correlation between variance and subgoal_count: r=%.4f, p=%.4g", r, p
+    )
 
     corr_out.parent.mkdir(parents=True, exist_ok=True)
     with corr_out.open("w", encoding="utf-8") as f:
-        f.write(f"r = {r:.6f}\n")
-        f.write(f"p = {p:.6g}\n")
+        f.write(f"r = {r:.6f}\\n")
+        f.write(f"p = {p:.6g}\\n")
 
     log.info("Complexity computation completed successfully.")
 

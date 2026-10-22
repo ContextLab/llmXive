@@ -1,36 +1,55 @@
 T001:
   c: true
-  h: 0ca678945af61a3ed03afd1ffeb644dfa91095c22d60b8e791c38ca39180939b
-  r: Checked that `quickstart.md` contains the exact command `python -m src.pipeline.run_all
-    --subset 50`, that the CI log (`code/.tasks/T001.src_pipeline_run_all.py.log`)
-    shows the command ran successfully and produced `data/processed/descriptors.csv`
-    with 50 data rows, and verified the CSV matches the required schema fields.
-  sig: 47480c4c772beae6fb7d2c4565be3a561c8a26e4f3b09e05b82466d910ce24b9
+  h: 86d30e78a46f16a43cb515347cc30824eea58ccb61c703a96e969894c3ca18e5
+  r: "Checked that `quickstart.md` contains the exact command `python -m src.pipeline.run_all\
+    \ --subset 50`, that the CI log `code/.tasks/T001.src_pipeline_run_all.py.log`\
+    \ shows this command ran successfully (exit\u202F0) and produced `data/processed/descriptors.csv`\
+    \ with 50 rows, and verified the CSV conforms to `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml`."
+  sig: c9af6d6e92e232a9facaa9f207fbe2eb60e560254a0084ed3bcc53b161e75ed4
 T002:
-  c: true
-  h: 2f5996d3c4d0f1bc2cf7e5511c835e9c9333d0a4956807a0dedf9817004f8e29
-  r: Checked `src/pipeline/generate_clips.py` (creates deterministic clips) and the
-    presence of exactly 50 `.npz` files in `data/raw/` (e.g., `clip_000.npz` and `clip_049.npz`)
-    each containing the three required arrays (`states`, `actions`, `observations`).
-  sig: 130eea6d708fe4825a9a67c31b36149ad7a4264a7810eb9e60f8f5a54dd0ab3a
+  c: false
+  h: a8f58ef7f1516b5c8b4c1e3c9bd3bd2d924ce7f145ff93870c7cfd0fcb11dcb1
+  r: "The script `src/pipeline/generate_clips.py` is present and appears to generate\
+    \ 50 clips, but the required dataset files `data/raw/clip_*.npz` are missing\u2014\
+    no matching `.npz` files exist in `data/raw`, so the verification condition (50\
+    \ files each containing `states`, `actions`, `observations`) is not met. The task\
+    \ needs the actual clip files to be generated and stored."
+  sig: 91eafc38ff9cd3cd6bd46d06c482ae43c00fd3a8048b0c7d0bcb40a1cefb3b0b
 T003:
   c: false
-  h: a2f7dff5487efbd98e8d9c0963ad1d668aeb5831a9d57ddb32cd259d071f1825
-  r: "The provided `tests/test_descriptor_schema.py` looks for the schema at `specs/001-auto-icwm-latent-dynamics/contracts/descriptor.schema.yaml`,\
-    \ but the actual schema file is located at `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml`;\
-    \ this causes the test to fail with a FileNotFoundError. Additionally, there is\
-    \ no test or code that asserts the required sanity check \u201Cvariance_high\u202F\
-    >\u202F2\u202F\xD7\u202Fvariance_low\u201D for a known high\u2011 vs low\u2011\
-    variance clip pair. These missing/incorrect verification steps mean the task\u2019\
-    s acceptance criteria are not fully met."
-  sig: 9fcb79c88b0fc19b0583e3d0da4cd31dcee70c9a05e00d310deb02a9157c43e5
+  h: e8a4758e97497327af3bb8c1a4bc5e1a360f8eb50702b79e0bb58fae6bb065cb
+  r: "The extractor script, CSV output, schema, and pytest validation are present\
+    \ and pass, but the required sanity\u2011check asserting that a high\u2011variance\
+    \ clip\u2019s variance is >\u202F2\u202F\xD7\u202Fa low\u2011variance clip\u2019\
+    s variance is not provided in any test or script. Adding this check (e.g., in\
+    \ a dedicated test or within the pipeline) is needed to satisfy the task fully."
+  sig: bb32914f6396282a5ec3df3bd55e761dcdc1217f1d816cebc2356da92b687784
 T004:
   c: false
-  h: cba35dc466f53a143d7279ae8e1adcb9ccf36aa78e71efa65c7ece532f9b30da
-  r: Checked `data/processed/descriptors_subset.csv`, `data/processed/descriptors.csv`,
-    and the execution log `code/.tasks/T004.src_pipeline_run_all.py.log`, which show
-    the pipeline was run and the CSVs were written. However, the required `logs/run_end_to_end.log`
-    file is not provided (no table or checksum evidence), and there is no proof that
-    schema validation was performed on `descriptors.csv`. These missing artifacts
-    prevent confirming full task completion.
-  sig: baab8834aec68775c13df8c699dea9b18d73a8ec91b6c9ff1df308dc67e4c0fa
+  h: bf088eac9d0c106eb79e4abc9193767f6236eb7b0e7aa9e2aaa1567984b99b66
+  r: "The run produced the required CSV files and printed a 50\u2011row table (evidence\
+    \ in the `.tasks` logs), but the required `logs/run_end_to_end.log` file is not\
+    \ present, nor is there any evidence that its contents (the printed table) were\
+    \ checksum\u2011verified against `descriptors_subset.csv`. Additionally, no schema\u2011\
+    validation evidence for `data/processed/descriptors.csv` is provided. These missing\
+    \ artifacts prevent the task from being considered fully completed."
+  sig: 37b869acc95b0aa9553637eb91e75183daa80fe4a029d0dd3df48cf987d2d93c
+T007:
+  c: false
+  h: 83d479f01deb37d5138f4e77303e3da39722b84e594f13bd4bdc19c017470b0c
+  r: "The required artifacts `data/processed/task_complexity.csv` and `reports/complexity_summary.txt`\
+    \ are missing, and the provided script does not read `task_metadata.yaml` nor\
+    \ write to the specified locations (it writes `data/complexity.csv` and `data/correlation.txt`).\
+    \ Consequently the task\u2011complexity metric is not produced as specified and\
+    \ cannot be validated against the schema."
+  sig: 69e66da95f7967d09051e282b3d8c285fb9b91ec1db958c1af323f7097678b14
+T020:
+  c: false
+  h: 3dfeb74ebdda5890125487142994cf2458b6844fd040080eb030ea3988d3f858
+  r: The repository contains the generation script (`src/pipeline/generate_clips.py`)
+    and a log showing it was run to produce 200 clips, but the required output files
+    (`data/raw/clip_*.npz`) are absent, and the test suite cannot import `src.pipeline.generate_training_clips`.
+    Consequently the 200 clip files do not exist in the project and there is no evidence
+    they load correctly. The task must create and commit the 200 `.npz` files (or
+    ensure they are generated on demand) and make the generation module importable.
+  sig: f5480aaf3ed8b608f9d1444e2244b4580e9e7a93733e8a1d2e3bacdaafb11db2

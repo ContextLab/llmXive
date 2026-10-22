@@ -1,30 +1,37 @@
 T001:
   task: a1fa9ec922d0502fb6673e4009c127577659ade8d4e42d58e2c72bcdd595fb8a
 T002:
+  reason: "The script `src/pipeline/generate_clips.py` is present and appears to generate\
+    \ 50 clips, but the required dataset files `data/raw/clip_*.npz` are missing\u2014\
+    no matching `.npz` files exist in `data/raw`, so the verification condition (50\
+    \ files each containing `states`, `actions`, `observations`) is not met. The task\
+    \ needs the actual clip files to be generated and stored."
   task: c84a75669ba6506c448380019bedbdf7d5764eaf70eb6edb0d914f03eeb39050
 T003:
-  reason: "The provided `tests/test_descriptor_schema.py` looks for the schema at\
-    \ `specs/001-auto-icwm-latent-dynamics/contracts/descriptor.schema.yaml`, but\
-    \ the actual schema file is located at `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml`;\
-    \ this causes the test to fail with a FileNotFoundError. Additionally, there is\
-    \ no test or code that asserts the required sanity check \u201Cvariance_high\u202F\
-    >\u202F2\u202F\xD7\u202Fvariance_low\u201D for a known high\u2011 vs low\u2011\
-    variance clip pair. These missing/incorrect verification steps mean the task\u2019\
-    s acceptance criteria are not fully met."
+  reason: "The extractor script, CSV output, schema, and pytest validation are present\
+    \ and pass, but the required sanity\u2011check asserting that a high\u2011variance\
+    \ clip\u2019s variance is >\u202F2\u202F\xD7\u202Fa low\u2011variance clip\u2019\
+    s variance is not provided in any test or script. Adding this check (e.g., in\
+    \ a dedicated test or within the pipeline) is needed to satisfy the task fully."
   task: 122ef7f38385dd08bda424450099818fde99ea24eda817f279025496d3030a7a
 T004:
-  reason: Checked `data/processed/descriptors_subset.csv`, `data/processed/descriptors.csv`,
-    and the execution log `code/.tasks/T004.src_pipeline_run_all.py.log`, which show
-    the pipeline was run and the CSVs were written. However, the required `logs/run_end_to_end.log`
-    file is not provided (no table or checksum evidence), and there is no proof that
-    schema validation was performed on `descriptors.csv`. These missing artifacts
-    prevent confirming full task completion.
+  reason: "The run produced the required CSV files and printed a 50\u2011row table\
+    \ (evidence in the `.tasks` logs), but the required `logs/run_end_to_end.log`\
+    \ file is not present, nor is there any evidence that its contents (the printed\
+    \ table) were checksum\u2011verified against `descriptors_subset.csv`. Additionally,\
+    \ no schema\u2011validation evidence for `data/processed/descriptors.csv` is provided.\
+    \ These missing artifacts prevent the task from being considered fully completed."
   task: f6e5cf012bee162daaecc2d1c3f4c698a4cf91c2d395ec0af2751fd1f777e1fc
 T005:
   task: b84fd29d315d45663f84721074228bae6dfb77ba99325f78b4f92cef958afe44
 T006:
   task: cfce4e71a441ee5378691c44ab44ce8d498ce1d0313603b04b5e958d53a51106
 T007:
+  reason: "The required artifacts `data/processed/task_complexity.csv` and `reports/complexity_summary.txt`\
+    \ are missing, and the provided script does not read `task_metadata.yaml` nor\
+    \ write to the specified locations (it writes `data/complexity.csv` and `data/correlation.txt`).\
+    \ Consequently the task\u2011complexity metric is not produced as specified and\
+    \ cannot be validated against the schema."
   task: 19f9c0b81090147b3d47411b9612715566acfe8cd4b1ee0b66b0533d31a05c8d
 T008:
   task: 652135d6d66de8e60a88d8a456903f8ce63f14fc8dcee1899354ca708fd5eae6
@@ -51,8 +58,16 @@ T018:
     exit=1'
   task: 76087991286610024b4c34e51ce7a5e6ec9a448e3205d2db0bf7bb75de5fe0fb
 T020:
+  reason: The repository contains the generation script (`src/pipeline/generate_clips.py`)
+    and a log showing it was run to produce 200 clips, but the required output files
+    (`data/raw/clip_*.npz`) are absent, and the test suite cannot import `src.pipeline.generate_training_clips`.
+    Consequently the 200 clip files do not exist in the project and there is no evidence
+    they load correctly. The task must create and commit the 200 `.npz` files (or
+    ensure they are generated on demand) and make the generation module importable.
   task: fe2d857af8fb91dd3b52dbfa69ce201839e2da4c8a1a1b77847c46ffbb40410f
 T021:
+  reason: 'Requested task execution failed; rerun successfully: scripts/run_minimal.sh
+    exit=1'
   task: ab12cd51437853e066e26d86a272f818c380414d53f207db92a77a33e6ab8567
 T022:
   task: e410a8721b20068690d16c3385a6921f876216012d668273da7f5e446cfc653d

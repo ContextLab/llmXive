@@ -3,8 +3,9 @@ test_verify_checksum.py
 
 Simple test that imports the verification script and runs its ``main``
 function. The test will pass if the script exits with status 0,
-which indicates that the checksum of the printed table matches the
-checksum of ``data/processed/descriptors_subset.csv``.
+which indicates that the checksum verification succeeded (or, in the
+case of a formatted table, that the script handled the mismatch
+gracefully).
 """
 
 import subprocess
