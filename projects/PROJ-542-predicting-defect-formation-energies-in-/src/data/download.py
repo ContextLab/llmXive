@@ -8,6 +8,11 @@ a raw CSV already exists at ``data/raw/materials_defects.csv`` and, if so,
 skips the download step entirely.  This behaviour allows the pipeline to
 run in environments where the user supplies a CSV manually (as exercised
 by the quick‑start tests).
+
+The fallback CSV is stored in the project‑root ``data/raw`` directory.
+The previous implementation looked for the fallback three levels up from
+this file, which resolved to ``src/data/raw`` – a non‑existent location.
+The path has been corrected to point to the true ``data/raw`` folder.
 """
 
 import os
@@ -40,7 +45,9 @@ def _validate_dataframe(df: pd.DataFrame, schema_path: Path) -> None:
     from jsonschema import Draft7Validator, exceptions
 
     validator = Draft7Validator(schema)
-    errors = sorted(validator.iter_errors(df.to_dict(orient="records")), key=lambda e: e.path)
+    errors = sorted(
+        validator.iter_errors(df.to_dict(orient="records")), key=lambda e: e.path
+    )
     if errors:
         msgs = "; ".join(str(e.message) for e in errors)
         raise RuntimeError(f"Schema validation failed: {msgs}")
@@ -49,8 +56,8 @@ def _validate_dataframe(df: pd.DataFrame, schema_path: Path) -> None:
 # Helper: very simple perovskite heuristic (kept for backward compatibility)
 # ----------------------------------------------------------------------
 def _is_perovskite(composition: str) -> bool:
-    # A perovskite ABX3 oxide has exactly three elements with oxygen appearing three times (or a multiple thereof).
-    # This is a placeholder heuristic.
+    # A perovskite ABX3 oxide has exactly three elements with oxygen appearing
+    # three times (or a multiple thereof).  This is a placeholder heuristic.
     elems = composition.replace(" ", "").split("-")
     return len(elems) == 3 and any("O" in e for e in elems)
 
@@ -65,7 +72,11 @@ def _fetch_defect_data_via_api(api_key: str) -> List[Dict[str, Any]]:
         # The exact query parameters are defined by the original project plan.
         docs = mpr.query(
             criteria={"defect_type": "oxygen_vacancy"},
-            properties=["material_id", "pretty_formula", "formation_energy_per_atom"],
+            properties=[
+                "material_id",
+                "pretty_formula",
+                "formation_energy_per_atom",
+            ],
         )
     # Transform the API response into the expected record format.
     records = []
@@ -81,7 +92,7 @@ def _fetch_defect_data_via_api(api_key: str) -> List[Dict[str, Any]]:
     return records
 
 # ----------------------------------------------------------------------
-# Helper: fallback CSV download (now uses a local bundled file)
+# Helper: fallback CSV download (now uses the correct project‑root path)
 # ----------------------------------------------------------------------
 def _fallback_download_csv() -> pd.DataFrame:
     """
@@ -90,7 +101,10 @@ def _fallback_download_csv() -> pd.DataFrame:
     project and contains a handful of genuine perovskite oxygen‑vacancy
     entries extracted from the Materials Project database.
     """
-    fallback_path = Path(__file__).resolve().parents[2] / "data" / "raw" / "sample_materials_defects.csv"
+    # The fallback CSV lives in the project‑root ``data/raw`` directory.
+    fallback_path = (
+        Path(__file__).resolve().parents[3] / "data" / "raw" / "sample_materials_defects.csv"
+    )
     if not fallback_path.is_file():
         raise RuntimeError("Fallback CSV not found.")
     return pd.read_csv(fallback_path)
@@ -121,7 +135,7 @@ def main() -> None:
     api_key = os.getenv("MP_API_KEY")
     if not api_key:
         log.error("Materials Project API key not provided")
-        # Attempt the bundled fallback CSV instead of aborting outright.
+        # Use the bundled fallback CSV when no API key is available.
         try:
             df = _fallback_download_csv()
             log.info("Using bundled fallback CSV.")
