@@ -24,6 +24,9 @@ docker run -d --name sonarqube -p 9000:9000 sonarqube:latest
 sleep 15
 ```
 
+## A‑priori Power Planning (optional, runs automatically)
+The pipeline will automatically compute the required sample size for a target rate ratio of 1.10, power = 0.80, α = 0.05. If the downloaded datasets cannot meet this requirement, the run aborts with a clear message.
+
 ## Smoke Run (US‑1 validation) – processes a small subset
 ```bash
 python -m src.pipeline --smoke 50
@@ -38,12 +41,14 @@ python -m src.pipeline --smoke 50
 python -m src.pipeline
 ```
 The pipeline executes all phases in order:
-1. **Ingest** – attempts to download the **CodeVulnBench** (LLM‑generated) and **Juliet Test Suite** (human‑written) datasets. If either dataset is missing or its checksum cannot be verified, the pipeline aborts with a clear error message and stops. No proxy data are used.
-2. **Static analysis** – runs Bandit, Semgrep, and SonarQube (Docker).  
-3. **Deduplication**, **complexity**, **density**, **audit‑adjusted counts**.  
-4. **Statistical tests** – power analysis, over‑dispersion check, NB regression (or Poisson fallback), Mann‑Whitney U, Benjamini‑Hochberg correction.  
-5. **Audit sample** generation (`audit_sample.csv`). Findings in this sample are **excluded** from the regression dataset.  
-6. **Figures** – boxplot and CWE bar chart saved under `results/figures/`.  
+1. **A‑priori Power Planning** – ensures sufficient sample size before any download.  
+2. **Ingest** – downloads the **CodeVulnBench** (LLM‑generated) and **Juliet Test Suite** (human‑written) datasets, verifies checksums, and aborts if they do not match the verified values. No proxy data are used.  
+3. **Static analysis** – runs Bandit, Semgrep, and SonarQube (Docker).  
+4. **Deduplication**, **complexity**, **density**, **audit‑adjusted counts** (both FP and FN corrections).  
+5. **Statistical tests** – power analysis, over‑dispersion check, NB regression (or Poisson fallback), Mann‑Whitney U, Benjamini‑Hochberg correction.  
+6. **Audit sample** generation (`audit_sample.csv`). Findings in this sample are **excluded** from the regression dataset.  
+7. **Figures** – boxplot and CWE bar chart saved under `results/figures/`.  
+8. **Aggregate results** – merges `group_summary.csv` and `statistical_tests.csv` into `aggregate_results.yaml` (validated against the schema).  
 
 ### Manual Audit (FR‑007)
 1. Open `data/derived/audit_sample.csv` and fill the `verdict` column (`true_positive` / `false_positive`).  
@@ -51,7 +56,7 @@ The pipeline executes all phases in order:
 ```bash
 python -m src.audit --compute-metrics
 ```
-Outputs `results/tables/audit_metrics.csv` with precision, recall, and **tool‑specific** false‑positive rates, plus group‑level FPRs.
+Outputs `results/tables/audit_metrics.csv` with precision, recall, **tool‑specific** false‑positive rates, **false‑negative** rates (recall), and adjusted vulnerability counts.
 
 ## Tests
 ```bash
@@ -63,7 +68,8 @@ Tests include:
 - Synthetic data checks confirming that the NB regression returns a known p‑value within 0.001 of the expected value (US‑3) and that density calculations (including audit correction) match expected values (US‑2).
 
 ## Expected Failure Mode
-If **both** the CodeVulnBench and Juliet datasets remain unavailable (no verified URLs), the pipeline aborts early with a clear error message stating the missing sources. No synthetic data are generated; the failure indicates that a spec amendment is required to provide a verifiable open dataset before the primary hypothesis test can be performed.
+If **either** the CodeVulnBench or Juliet dataset cannot be downloaded or fails checksum verification, the pipeline aborts early with a clear error message stating the missing or mismatched source. No synthetic data are generated; the failure indicates that a spec amendment is required to provide a verifiable open dataset before the primary hypothesis test can be performed.
 
 ---
+
 

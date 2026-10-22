@@ -1,14 +1,13 @@
 status: none
-intent: download CodeVulnBench Juliet Test Suite CWE taxonomy the-stack dataset python
+intent: CodeVulnBench Juliet Test Suite CWE taxonomy Anticloud SonarQube results python
   package dataset
 required_fields:
-- file_id
 - file_path
-- source_type
-- programming_language
 - code
-- ground_truth_cwe_ids
-- ground_truth_vulnerability_count
-cache_key: 98e25bb91c3989eba72d3e9a6bdefaac1fcb88218b06991018caf53f9e633556
-searched_at: '2026-10-16T18:43:49.110307+00:00'
+- source_type
+- vulnerability_count
+- cwe_ids
+- static_tool_results
+cache_key: a3f5b0d8de4f94a13905cea74557654f20b5c1a21bf6fde15dd4c32f21aeb43e
+searched_at: '2026-10-22T13:16:50.762995+00:00'
 retry_count: 1

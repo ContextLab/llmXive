@@ -42,4 +42,4 @@ properties:
           type: ["number", "null"]
         significant:
           type: ["boolean", "null"]
-          description: "true when p_adjusted < adjusted alpha (Holm‑Bonferroni‑corrected)"
+          description: "true when p_adjusted < adjusted alpha (Benjamini‑Hochberg corrected)"
