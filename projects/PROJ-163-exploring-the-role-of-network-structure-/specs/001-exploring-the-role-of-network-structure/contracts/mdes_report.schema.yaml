@@ -16,7 +16,7 @@ properties:
   low_power_flag:
     type: "string"
     enum:
-      - "Low Power: MDES > 0.5 (Large Effect Required)"
+      - "Low Power: MDES > 0.3 (Exploratory)"
       - "Adequate Power"
 required:
   - sample_size

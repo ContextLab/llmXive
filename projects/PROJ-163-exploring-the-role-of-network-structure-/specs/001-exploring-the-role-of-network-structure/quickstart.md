@@ -45,6 +45,7 @@ The orchestrator executes the steps **in order**:
 | `data/processed/performance_window_metrics.csv` | 30‑day averaged performance metrics (`source_window="window"`). |
 | `data/processed/graph_metrics.csv` | Topological descriptors per device. |
 | `data/processed/correlation_results.csv` | Spearman/partial correlation results (schema: `contracts/correlation_results.schema.yaml`). |
+| `data/processed/window_comparison.csv` | Cross‑sectional vs. window ρ and `window_delta` (SC‑004). |
 | `data/processed/power_analysis.csv` | MDES and power‑analysis report (schema: `contracts/mdes_report.schema.yaml`). |
 | `data/processed/plots/*.png` | Scatter plots, correlation heatmap, MDES figure. |
 | `state/projects/PROJ-163-...yaml` | Artifact hashes and timestamps for reproducibility. |

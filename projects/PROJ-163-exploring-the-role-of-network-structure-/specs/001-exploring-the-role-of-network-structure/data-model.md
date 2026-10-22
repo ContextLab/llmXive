@@ -25,7 +25,7 @@
 | Field | Type | Description |
 |-------|------|-------------|
 | `device_id` | string | FK → QubitDevice. |
-| `timestamp` | datetime (ISO‑8601) | Timestamp of the snapshot (for both `"current"` and `"window"` rows; for window rows it is the window‑end date). |
+| `timestamp` | datetime (ISO‑8601) | Timestamp of the snapshot (for both `"current"` and `"window"` rows). |
 | `t1_mean` | number | Median T₁ (seconds) across qubits. |
 | `t2_mean` | number | Median T₂ (seconds) across qubits. |
 | `cx_error_mean` | number | Median two‑qubit (CX) gate error. |
@@ -40,12 +40,13 @@
 | `metric_a` | string | Name of the topology descriptor (e.g., `spectral_gap`). |
 | `metric_b` | string | Name of the performance metric (e.g., `t1_mean`). |
 | `rho` | number | Spearman correlation coefficient. |
-| `p_value` | number | Raw p‑value for the correlation test. |
+| `p_value` | number | Raw p‑value. |
 | `adj_p_value` | number | BH‑FDR adjusted p‑value. |
-| `partial_rho` | number (optional) | Partial correlation coefficient controlling for covariates. |
-| `window_delta` | number (optional) | Difference `ρ_window − ρ_cross` for the 30‑day robustness check (SC‑004). |
+| `partial_rho` | number (optional) | Partial correlation controlling for covariates. |
+| `window_delta` | number (optional) | Difference `ρ_window − ρ_cross` (SC‑004). |
 | `is_significant` | boolean | `adj_p_value < 0.05`. |
 | `exclusion_reason` | string (optional) | Reason for omission (e.g., `missing_data`). |
+| `prop_significant` | number (optional) | Proportion of devices with cluster‑adjusted p ≤ 0.05 (FR‑017). |
 
 ### 5. PowerAnalysisResult
 | Field | Type | Description |
@@ -54,22 +55,19 @@
 | `number_of_tests` | integer | Total topology‑performance hypothesis tests performed. |
 | `min_detectable_rho` | number | MDES at 80 % power, α = 0.05. |
 | `confidence_interval` | string | 95 % CI for the observed correlation (e.g., `"[0.12, 0.34]"`). |
-| `low_power_flag` | string | `"Low Power: MDES > 0.5 (Large Effect Required)"` or `"Adequate Power"` (FR‑010). |
+| `low_power_flag` | string | `"Low Power: MDES > 0.3 (Exploratory)"` or `"Adequate Power"` (FR‑010). |
 
 ## Data Flow
 1. **Raw ingestion** (`fetcher.py`) → `data/raw/{device}_{ts}.json`.  
 2. **Performance extraction** (`fetcher.py`) → `performance_metrics.csv` (conforms to `contracts/performance_metrics.schema.yaml`).  
 3. **Graph construction** (`graph_builder.py`) → `graph_metrics.csv` (conforms to `contracts/graph_metrics.schema.yaml`).  
-4. **Statistical engine** (`stats_engine.py`) joins on `device_id` → `correlation_results.csv` and `power_analysis.csv` (schemas `correlation_results.schema.yaml`, `mdes_report.schema.yaml`).  
-5. **Visualization** (`viz.py`) reads `correlation_results.csv` → PNGs in `data/processed/plots/`.
+4. **Statistical engine** (`stats_engine.py`) joins on `device_id` → `correlation_results.csv`, `window_comparison.csv`, `power_analysis.csv` (schemas `correlation_results.schema.yaml`, `mdes_report.schema.yaml`).  
+5. **Visualization** (`viz.py`) reads `correlation_results.csv` → PNGs in `data/processed/plots/`.  
 
 ## Validation Rules
 - No `NaN`/`Inf` in numeric fields (`is_finite` must be `True` for finite values).  
 - All timestamps are ISO‑8601 strings (never null).  
-- Unique `(device_id, metric_name)` pairs in `GraphMetric` and unique `device_id` rows in `PerformanceMetric`.  
+- Unique `(device_id, metric_name)` pairs in `GraphMetric`; unique `device_id` rows in `PerformanceMetric`.  
 - Referential integrity: every `device_id` in derived tables must exist in `QubitDevice`.  
 
 ---
-
-
-

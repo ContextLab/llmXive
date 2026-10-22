@@ -1,18 +1,17 @@
 status: none
-intent: IBM Quantum backend properties API historical archive 30 day snapshots python
-  package dataset
+intent: IBM Quantum backend properties and historical archive dataset python package
+  dataset
 required_fields:
 - backend_name
-- date
-- qubit_count
-- gate_error
+- device_status
+- num_qubits
+- gate_error_rates
 - readout_error
-- t1
-- t2
-- frequency
-- anharmonicity
-- status
+- T1_times
+- T2_times
 - queue_length
-cache_key: 158f2b6a23507f8c2b10cb41a054c273b62fba2e7683ed30e1585da3889b9079
-searched_at: '2026-10-22T16:17:13.514299+00:00'
+- last_update_timestamp
+- snapshot_date
+cache_key: 21963265c0e5031f118a2c64dfb853bcdd75c84b416f2931ad2f5bb1df82e512
+searched_at: '2026-10-22T16:42:53.999058+00:00'
 retry_count: 1
