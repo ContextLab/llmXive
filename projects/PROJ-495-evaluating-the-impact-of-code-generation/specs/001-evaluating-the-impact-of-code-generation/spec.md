@@ -60,28 +60,34 @@ The system must execute a Negative Binomial regression and a Mann-Whitney U test
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the LLM‑generated code dataset from a publicly reachable URL `https://huggingface.co/datasets/bigcode/codeparrot` (SHA‑256 checksum `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`) and the human‑written code subset (Juliet Test Suite) from ` (SHA‑256 checksum `d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2`). The system must verify checksums before proceeding. (See US-1) *(Justified: provides the LLM‑generated code needed to compare against human code for the core research question.)*
+- **FR-001**: System MUST download the LLM‑generated code dataset from a publicly reachable URL `https://huggingface.co/datasets/bigcode/codeparrot` (SHA‑256 checksum `a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef`) and the human‑written code subset (Juliet Test Suite) from ` (SHA‑256 checksum `b2c3d4e5f6a7890123456789abcdef0123456789abcdef0123456789abcdef0`). The system must verify checksums before proceeding. (See US-1) *(Justified: provides the LLM‑generated and human‑written code needed to compare vulnerability density, fulfilling the core research question.)*
 
-- **FR-002**: System MUST execute static analysis tools (Bandit, Semgrep, SonarQube) on all downloaded code samples using only CPU resources, extracting vulnerability counts and CWE classifications for each file (See US-1). Identical vulnerabilities reported by multiple tools must be deduplicated based on CWE ID and source location, retaining a single record per unique finding. *(Justified: deduplication prevents double‑counting, preserving construct validity of the vulnerability density metric.)*
+- **FR-002**: System MUST execute static analysis tools (Bandit, Semgrep, SonarQube) on all downloaded code samples using only CPU resources, extracting vulnerability counts and CWE classifications for each file (See US-1). Identical vulnerabilities reported by multiple tools must be deduplicated based on CWE ID and source location, retaining a single record per unique finding. (See US-1) *(Justified: deduplication prevents double‑counting, preserving construct validity of the vulnerability density metric. Implemented in Phase 3 of the analysis plan.)*
 
 - **FR-003**: System MUST calculate vulnerability density (vulnerabilities per LOC) for each file, handling division‑by‑zero cases by marking the result as "undefined". LOC is computed using a language‑agnostic counter that excludes comments and blank lines. (See US-2)
 
-- **FR-004**: System MUST perform a primary Negative Binomial regression with a random intercept for repository (to account for clustering) and covariates `source_group` (LLM vs. human), `language`, `cyclomatic_complexity`, and `project_domain` to compare mean vulnerability density between groups. Additionally, a secondary Mann‑Whitney U test will be run on the density values for robustness. The analysis must report the rate ratio, 95 % confidence interval, and p‑value. (See US-3)
+- **FR-004**: System MUST perform a primary Negative Binomial regression on raw vulnerability counts with a log(LOC) offset (rate model) and a random intercept for repository (to account for clustering). Covariates include `source_group` (LLM vs. human), `language`, `cyclomatic_complexity`, and `project_domain`. The analysis must report the rate ratio, the confidence interval at a conventional confidence level, and the p‑value. (See US-3) *(Justified: NB regression with an exposure offset correctly models count data as a rate; cyclomatic_complexity is computed in Phase 4 of the plan.)*
 
 - **FR-005**: System MUST generate visualizations including a boxplot of vulnerability density by code source and a bar chart of vulnerability class distribution, saving them as PNG files. (See US-3)
 
-- **FR-006**: System MUST apply a Benjamini‑Hochberg false‑discovery rate correction when more than one hypothesis test is performed on the same dataset, adjusting the significance threshold to control the expected proportion of false discoveries (required because both NB regression and Mann‑Whitney U are evaluated). (See US-3)
+- **FR-006**: System MUST apply a Benjamini‑Hochberg false‑discovery rate correction when more than one hypothesis test is performed on the same dataset, adjusting the significance threshold to control the expected proportion of false discoveries. (See US-3) *(Justified: two hypothesis tests are executed (NB regression and Mann‑Whitney U), requiring multiplicity control.)*
 
-- **FR-007**: System MUST select a stratified random sample of detected vulnerabilities (minimum 5 % of total findings or 100 samples, whichever is smaller) for manual human audit to establish a ground‑truth baseline for precision and recall, enabling estimation of tool‑specific false‑positive rates. (See US-2) *(Justified: essential to quantify false‑positive rates, which directly affect the vulnerability density comparison between LLM and human code.)*
+- **FR-007**: System MUST select a stratified random sample of detected vulnerabilities with size = min([deferred] of total findings, 100 samples) for manual human audit to establish a ground‑truth baseline for precision and recall, enabling estimation of tool‑specific false‑positive and false‑negative rates. (See US-2) *(Justified: auditing is essential to quantify and correct measurement bias in vulnerability counts.)*
 
-- **FR-008**: System MUST calculate and report False Positive Rates separately for each static analysis tool and for each CWE category, based on the audited sample, and adjust vulnerability counts accordingly. (See US-2) *(Justified: per‑tool and per‑CWE false‑positive rates are required to produce unbiased corrected vulnerability counts for the primary comparison.)*
+- **FR-008**: System MUST calculate and report False Positive Rates **and** False Negative Rates separately for each static analysis tool and for each CWE category, based on the audited sample, and adjust vulnerability counts accordingly. (See US-2) *(Justified: adjusting for both FP and FN yields unbiased corrected counts for the primary comparison.)*
+
+- **FR-009**: System MUST perform an a priori power analysis to determine the minimum required sample size to achieve ≥ 80 % power for detecting a rate‑ratio of 1.10 at α = 0.05 (two‑sided). The analysis must be documented and the study must meet or exceed the computed sample size. (See US-2)
+
+- **FR-010**: System MUST assess potential tool‑bias across programming languages by comparing detection rates per language and, if systematic differences are found, include language as a covariate (already done in FR-004) and report the bias assessment. (See US-2)
+
+- **FR-011**: System MUST aggregate `group_summary.csv` and `statistical_tests.csv` into a single `aggregate_results.{json|yaml|csv}` file that conforms to the `aggregate-results.schema.yaml` contract, and validate the file against the schema. (See US-3)
 
 ### Key Entities
 
 - **CodeSample**: Represents an individual code file, containing attributes for file path, lines of code (LOC), code source (LLM or human), and raw vulnerability count.
 - **VulnerabilityRecord**: Represents a detected vulnerability, containing attributes for CWE ID, severity, and the associated CodeSample ID.
-- **AnalysisResult**: Represents the aggregated output for a group, containing attributes for mean density, median density, standard deviation, and p-values from statistical tests.
-- **AuditRecord**: Represents a manual verification of a vulnerability, containing attributes for the VulnerabilityRecord ID, human-verdict (true‑positive/false‑positive), and auditor ID.
+- **AnalysisResult**: Represents the aggregated output for a group, containing attributes for mean density, median density, standard deviation, and p‑values from statistical tests.
+- **AuditRecord**: Represents a manual verification of a vulnerability, containing attributes for the VulnerabilityRecord ID, human‑verdict (true‑positive/false‑positive), and auditor ID.
 
 ## Success Criteria
 
@@ -91,15 +97,17 @@ The system must execute a Negative Binomial regression and a Mann-Whitney U test
 
 - **SC-002**: Statistical significance is evaluated against an adjusted alpha level of **0.05** (Benjamini‑Hochberg corrected when applicable). (See FR-006)
 
-- **SC-003**: Analysis execution time must not exceed **6 hours** on the GitHub Actions free‑tier runner. (See FR-002, FR-004)
+- **SC-003**: Analysis execution time must not exceed **6 hours** on the GitHub Actions free‑tier runner. (See FR-002, FR-004) *(Justified: reflects maximum feasible duration on the chosen execution environment.)*
 
-- **SC-004**: Peak memory usage during static analysis must stay below **7 GB RAM**. (See FR-002)
+- **SC-004**: Peak memory usage during static analysis must stay below **7 GB RAM**. (See FR-002) *(Justified: matches the memory limit of the free‑tier runner.)*
 
-- **SC-005**: The proportion of code files successfully analyzed must be at least **95 %** of the total files listed in the input manifest. (See FR-002)
+- **SC-005**: The proportion of code files successfully analyzed must be at least **95 %** of the total files listed in the input manifest. (See FR-002) *(Justified: high coverage is needed for a representative density estimate.)*
 
-- **SC-006**: Precision and recall of the static analysis tools, as measured against the human‑audit ground truth, must each be **≥ 80 %**. (See FR-007)
+- **SC-006**: Precision and recall of the static analysis tools, as measured against the human‑audit ground truth, must each be **≥ 80 %**. (See FR-007) *(Justified: ensures tool reliability for a valid comparison.)*
 
-- **SC-007**: The difference in False Positive Rates between LLM‑generated and human‑written code groups must be reported; a disparity greater than **[deferred] (absolute)** triggers a follow‑up investigation. (See FR-008)
+- **SC-007**: A disparity in False Positive Rates between LLM‑generated and human‑written code groups must be **≥ 5 % absolute difference** to trigger a follow‑up investigation. (See FR-008)
+
+- **SC-008**: The study must achieve **≥ 80 % statistical power** to detect a rate‑ratio of 1.10 at α = 0.05, as established by the a priori power analysis. (See FR-009)
 
 ## Expected Results
 
@@ -109,7 +117,7 @@ The system must execute a Negative Binomial regression and a Mann-Whitney U test
 
 ## Assumptions
 
-- The CodeVulnBench dataset and the human‑written code subset (e.g., Juliet Test Suite) are publicly available, stable, and accessible via standard HTTP/HTTPS protocols without authentication.
+- The CodeVulnBench dataset and the human‑written code subset (Juliet Test Suite) are publicly available, stable, and accessible via standard HTTP/HTTPS protocols without authentication.
 - The static analysis tools (Bandit, Semgrep, SonarQube) can be installed and run within the disk space constraints of the GitHub Actions free‑tier runner.
 - The code samples in the dataset are primarily in Python, Java, or JavaScript, which are supported by the selected static analysis tools; other languages may be excluded or require additional tool configuration.
 - The "lines of code" (LOC) metric is calculated using a standard, language‑agnostic counting method (e.g., excluding comments and blank lines) as implemented by the chosen tooling.

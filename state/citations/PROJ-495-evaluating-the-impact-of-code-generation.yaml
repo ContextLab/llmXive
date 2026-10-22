@@ -1,25 +1,3 @@
-- artifact_hash: d5c58c28fa43ff6aef7b0545ef2c12a435f18eec6a99224d45202a5623ec552b
-  artifact_path: projects/PROJ-495-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/bigcode/codeparrot`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/bigcode/codeparrot
-  verified_at: '2026-10-16T18:40:15.481659Z'
-- artifact_hash: d5c58c28fa43ff6aef7b0545ef2c12a435f18eec6a99224d45202a5623ec552b
-  artifact_path: projects/PROJ-495-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/spec.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/JulietCS/Juliet-Test-Suite/archive/refs/heads/master.zip`
-  verification_status: mismatch
-  verified_against_url: https://github.com/JulietCS/Juliet-Test-Suite/archive/refs/heads/master.zip
-  verified_at: '2026-10-16T18:40:15.481659Z'
 - artifact_hash: 9d50bc3f2014f46deb0f6d14bd1124336f37f767c5acfeda6f2639171b2d172f
   artifact_path: projects/PROJ-495-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
   cite_id: c-001
@@ -42,3 +20,25 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Anticloud/anticloud-sonarqube/ba5f748bd015fd5014a0a08b9542630cadf086f7/ledger.jsonl?%2Fdatasets%2FAnticloud%2Fanticloud-sonarqube%2Fresolve%2Fmain%2Fledger.jsonl=&etag=%22cdaf114f6e0a0c677be136429e4607b592134511%22
   verified_at: '2026-10-16T18:47:19.316150Z'
+- artifact_hash: bfd8ae7c251e96e7e617187a470d6e4636c45d7dcc66b3545fe5cd8997c4fdfc
+  artifact_path: projects/PROJ-495-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/bigcode/codeparrot`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/bigcode/codeparrot
+  verified_at: '2026-10-22T13:41:24.536294Z'
+- artifact_hash: bfd8ae7c251e96e7e617187a470d6e4636c45d7dcc66b3545fe5cd8997c4fdfc
+  artifact_path: projects/PROJ-495-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/OWASP/Juliet-Test-Suite/archive/refs/heads/master.zip`
+  verification_status: mismatch
+  verified_against_url: https://github.com/OWASP/Juliet-Test-Suite/archive/refs/heads/master.zip
+  verified_at: '2026-10-22T13:41:24.536294Z'
