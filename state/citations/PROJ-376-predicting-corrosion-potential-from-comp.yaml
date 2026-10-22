@@ -31,14 +31,3 @@
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/open
   verified_at: '2026-10-20T19:31:10.859179Z'
-- artifact_hash: 4d2e9e037fb26ad98325a0d593231fba2745a45826c8ed6380692f277430acc8
-  artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://materialsproject.org`
-  verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-10-20T19:35:45.185865Z'

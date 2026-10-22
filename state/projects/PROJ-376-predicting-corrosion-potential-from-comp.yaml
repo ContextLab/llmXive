@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T21:31:24.060438Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-376-predicting-corrosion-potential-from-comp
-last_run_id: 7f1b4b6e-8ceb-46c8-bc41-66599a7e37a0
+last_run_id: 08bd1689-95cc-434b-8ae6-8484b0c7ed80
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp
 title: Predicting Corrosion Potential from Composition and Environment via Public
   Databases
-updated_at: '2026-10-20T19:35:45.332278Z'
+updated_at: '2026-10-22T22:23:31.131952Z'
