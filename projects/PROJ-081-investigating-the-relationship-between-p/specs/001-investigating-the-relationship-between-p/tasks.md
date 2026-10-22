@@ -1,194 +1,178 @@
 # Tasks: Investigating the Relationship Between Plant Secondary Metabolite Profiles and Herbivore Resistance
 
-**Inputs**: Feature specification (`spec.md`), implementation plan (`plan.md`), research question validation, data model (`data-model.md`), and output contracts (`model_output.schema.yaml`, `processed_data.schema.yaml`).
+**Inputs**: Feature specification (`spec.md`), implementation plan (`plan.md`), research‑question validation, data model (`data-model.md`), and output contracts (`model_output.schema.yaml`, `processed_data.schema.yaml`).
 
-This is a research implementation plan for a cross-species metabolomics–herbivory analysis. The study acquires paired data from public repositories, preprocesses and normalizes it, explores correlations, fits baseline OLS with family covariate, phylogenetic‑adjusted models (PGLS, mixed‑effects), trains a Random Forest regressor, applies rigorous multiple‑comparison correction, performs power analysis and sensitivity checks, and generates reproducible reports and visualizations. All steps are designed to run on the GitHub Actions free‑tier CPU runner (2 cores, ~7 GB RAM, ~14 GB disk, ≤6 h).
+The study acquires paired metabolomics–herbivory data from public repositories, preprocesses and normalizes it, explores correlations, fits baseline OLS and phylogenetically‑adjusted models, trains a Random Forest regressor, applies rigorous multiple‑comparison correction, performs power and sensitivity analyses, and generates reproducible reports and hand‑off documentation. All steps are designed to run on the GitHub Actions free‑tier CPU runner (2 cores, ~7 GB RAM, ≤ 6 h).
 
 ---
 
-## Phase 1: Setup and first end‑to‑end analysis
+## Phase 1: Setup and first end‑to‑end analysis
 
-**Goal**: Establish project structure, configure dependencies with pinned random seeds, acquire and validate a real dataset from public repositories, and run a minimal executable analysis to confirm data flow and output contracts early.
+**Goal**: Establish project structure, configure dependencies, acquire a real dataset, and run a minimal executable analysis to confirm data flow and output contracts early.
 
-- [X] T001 [P1] [US-1] **Project initialization and data acquisition framework** <!-- ATOMIZE: requested -->
-  - Create `code/` directory structure with `src/`, `tests/`, and `scripts/` subdirectories.  
-  - Create `data/raw/`, `data/processed/`, `outputs/`, `contracts/` directories.  
-  - Pin Python 3.11 with `requirements.txt` including `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `dendropy`, `requests`, `tqdm`, `scipy`, `fuzzywuzzy`, `python-Levenshtein`, `pytest`.  
-  - Implement `code/src/config.py` with global random seeds (`np.random.seed(42)`, `random.seed(42)`, `random_state=42` for sklearn).  
-  - Implement `code/src/fetch_data.py` with three fetch functions: `fetch_metabolights()`, `fetch_pmn()`, `fetch_hpid()`, each returning a pandas DataFrame with required columns (`species_id`, `species_name`, `family`, `alkaloids`, `terpenes`, `phenolics`, `benzoxazinoids`, `herbivory_score`).  
-  - Each fetch function must implement 3‑attempt exponential back‑off (30‑second base) on connection failure; raise an exception (do NOT fall back to synthetic data) if all three attempts fail.  
-  - Document the exact URLs and API endpoints being queried in `code/src/fetch_data.py` as comments.  
-  - Write `code/tests/test_fetch_data.py` with unit tests verifying that (a) each fetch function returns a DataFrame with the required columns, (b) no missing values exist in required columns, (c) species count is ≥ 1 for a successful fetch.  
-  - **Verification**:  
-    - Run `pytest code/tests/test_fetch_data.py -v` and confirm all tests pass.  
-    - Assert that the required directory structure, `code/src/config.py`, `requirements.txt`, and `outputs/fetch_log.txt` exist.  
-    - Assert that `outputs/fetch_log.txt` is non‑empty and contains a sample of fetched species IDs.  
-    - **Enforcement**: Fail if total paired species after fetching is **< 50** (FR‑001).  
+- [ ] T001 [US‑1] **Project initialization and data‑acquisition framework**  
+  - Create `code/` with `src/`, `tests/`, `scripts/` sub‑directories; create `data/raw/`, `data/processed/`, `outputs/`, `contracts/`.  
+  - Add `requirements.txt` (Python 3.11, pandas, numpy, scikit‑learn, statsmodels, seaborn, matplotlib, dendropy, requests, tqdm, scipy, fuzzywuzzy, python‑Levenshtein, pytest).  
+  - Implement `code/src/config.py` fixing random seeds (`np.random.seed(42)`, `random.seed(42)`, `random_state=42`).  
+  - Implement `code/src/fetch_data.py` with three fetch functions (`fetch_metabolights()`, `fetch_pmn()`, `fetch_hpid()`) that each (a) query the documented REST endpoint, (b) return a `pd.DataFrame` with required columns, and (c) retry up‑to‑3 times with exponential back‑off (30 s base) before raising.  
+  - Write `code/tests/test_fetch_data.py` checking: (i) column presence, (ii) no missing values in required columns, (iii) ≥ 1 species per successful fetch.  
+  - Verification: run `pytest code/tests/test_fetch_data.py -v`; ensure `outputs/fetch_log.txt` records a sample of fetched species IDs and that total paired species ≥ 50 (FR‑001).  
   - **Paths**: `code/src/config.py`, `code/src/fetch_data.py`, `code/tests/test_fetch_data.py`, `requirements.txt`, `outputs/fetch_log.txt`.
 
-- [ ] T002 [P1] [US-1] **Data ingestion and preprocessing pipeline** <!-- FAILED-IN-EXECUTION: code/src/run_pipeline.py exit=1 -->
-  - Implement `code/src/preprocess.py` with function `load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame` that:  
-    - Concatenates input DataFrames and harmonizes column names (e.g., `'Alkaloid_conc' → 'alkaloids'`).  
-    - Filters rows with any missing required predictor or outcome columns (`species_id`, `family`, `alkaloids`, `terpenes`, `phenolics`, `benzoxazinoids`, `herbivory_score`).  
-    - For metabolite‑class columns documented as biologically absent in the source metadata, imputes zeros and records the absence in an `absence_indicator` JSON column (e.g., `{"alkaloids": "documented_absent"}`); for truly missing data, excludes the row.  
-    - Detects extreme herbivory outliers via IQR method (1.5 × IQR); caps values at the upper whisker or flags them in a log.  
-    - Z‑score standardizes all four metabolite columns using `sklearn.preprocessing.StandardScaler` (fit on training data only in later phases).  
-    - Validates output against `processed_data.schema.yaml` using `jsonschema`.  
-    - Writes cleaned DataFrame to `data/processed/clean.parquet` and computes SHA‑256 checksum, recording it in `outputs/preprocessing_log.json`.  
-  - Write `code/tests/test_preprocess.py` verifying that (a) output has no missing values in required columns, (b) metabolite columns are z‑scored (mean ≈ 0, std ≈ 1), (c) `absence_indicator` is correctly populated, (d) output validates against the schema, (e) `outputs/preprocessing_log.json` exists and contains a valid checksum entry.  
-  - **Verification**: Run `pytest code/tests/test_preprocess.py -v` and confirm all tests pass. Inspect `data/processed/clean.parquet` and verify row count, column names, and data types match the contract.  
+- [ ] T002 [US‑1] **Data ingestion and preprocessing pipeline**  
+  - Implement `code/src/preprocess.py` with function `load_and_preprocess(raw_dfs: List[pd.DataFrame]) -> pd.DataFrame` that:  
+    1. Concatenates the raw DataFrames and harmonises column names.  
+    2. Filters out rows missing any required predictor or outcome column.  
+    3. For metabolite‑class columns documented as biologically absent, inserts a zero **after** standardisation and records the absence in an `absence_indicator` JSON column; true missing values are excluded.  
+    4. Detects extreme herbivory outliers via the IQR method (1.5 × IQR) and caps them, logging any caps.  
+    5. Z‑scores the four metabolite columns using `sklearn.preprocessing.StandardScaler`.  
+    6. Validates the resulting DataFrame against `contracts/processed_data.schema.yaml` with `jsonschema`.  
+    7. Writes the cleaned DataFrame to `data/processed/clean.parquet` and records its SHA‑256 checksum in `outputs/preprocessing_log.json`.  
+  - Write `code/tests/test_preprocess.py` verifying: (i) no missing values in required columns, (ii) each metabolite column has mean ≈ 0 and std ≈ 1, (iii) `absence_indicator` correctly populated, (iv) schema validation passes, (v) checksum file exists and contains a valid entry.  
+  - Verification: run `pytest code/tests/test_preprocess.py -v`; inspect `data/processed/clean.parquet` for correct schema, column names, and data types.  
   - **Paths**: `code/src/preprocess.py`, `code/tests/test_preprocess.py`, `data/processed/clean.parquet`, `outputs/preprocessing_log.json`.
 
-- [ ] T003 [P2] [US-2] **Exploratory correlation analysis and early visualization** <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 -->
+- [ ] T003 [US‑2] **Exploratory correlation analysis and heat‑map visualisation**  
   - Implement `code/src/correlation_analysis.py` with function `compute_correlations(df: pd.DataFrame) -> dict` that:  
-    - Computes Pearson correlation coefficients between each of the four metabolite classes (averaged across species) and `herbivory_score`.  
-    - Computes two‑tailed p‑values for each correlation using `scipy.stats.pearsonr`.  
-    - Applies Benjamini‑Hochberg FDR correction to the four class‑level p‑values (q‑value threshold 0.05).  
-    - Identifies metabolite classes with **significant negative correlation** (q < 0.05, coefficient < 0) **and enforces that the total number of such classes is exactly 3‑5** (FR‑003).  
-    - Returns a dict conforming to `AnalysisResult` with `result_type="correlation"` and payload containing `matrix`, `p_values`, `q_values`, `significant_negative_classes`, and `method="Pearson"`.  
-  - Implement `code/src/visualization.py` with function `plot_correlation_heatmap(corr_dict: dict, output_path: str)` that generates a seaborn heatmap PNG with (a) correlation values in cells, (b) asterisks or color intensity indicating significance (q < 0.05), (c) axis labels for metabolite classes and `herbivory_score`.  
-  - Write `code/tests/test_correlation.py` verifying that (a) correlation coefficients are in [‑1, 1], (b) p‑values and q‑values are in [0, 1], (c) `significant_negative_classes` length is between 3 and 5 inclusive, (d) failure is raised if outside this range.  
-  - **Verification**: Run the correlation analysis on `data/processed/clean.parquet`, generate the heatmap PNG, and save the AnalysisResult JSON to `outputs/correlation_results.json`. Confirm that exactly 3‑5 classes are reported; otherwise fail. Visually inspect the heatmap for readability and correct significance annotation.  
+    1. Computes Pearson r between each metabolite class (averaged across compounds) and `herbivory_score`.  
+    2. Calculates two‑tailed p‑values via `scipy.stats.pearsonr`.  
+    3. Applies Benjamini‑Hochberg FDR correction to the four class‑level p‑values (q < 0.05).  
+    4. Selects metabolite classes with **significant negative** correlation (q < 0.05, r < 0) and enforces that the total number of such classes is **between 3 and 5 inclusive** (FR‑003).  
+    5. Returns an `AnalysisResult` dict (`result_type="correlation"`) containing `matrix`, `p_values`, `q_values`, `significant_negative_classes`, and `method="Pearson"`.  
+  - Implement `code/src/visualization.py` with function `plot_correlation_heatmap(corr_dict: dict, out_path: str)` that creates a seaborn heat‑map PNG: cells show correlation coefficients, asterisks or colour intensity denote significance (q < 0.05), axes labelled with metabolite classes and `herbivory_score`.  
+  - Write `code/tests/test_correlation.py` verifying: (i) coefficients lie in [‑1, 1], (ii) p‑values/q‑values in [0, 1], (iii) length of `significant_negative_classes` is 3‑5, (iv) task raises an informative error if the length falls outside this range.  
+  - Verification: run the analysis on `data/processed/clean.parquet`, save the `AnalysisResult` JSON to `outputs/correlation_results.json` and the heat‑map PNG to `outputs/heatmap.png`. Ensure exactly 3‑5 classes are reported; otherwise the task fails.  
   - **Paths**: `code/src/correlation_analysis.py`, `code/src/visualization.py`, `code/tests/test_correlation.py`, `outputs/correlation_results.json`, `outputs/heatmap.png`.
 
 ---
 
-## Phase 2: Complete the study and validate its evidence
+## Phase 2: Complete the study and validate its evidence
 
-**Goal**: Run the complete specified analyses (baseline OLS with family covariate, phylogenetic‑adjusted PGLS, mixed‑effects, Random Forest regressor, sensitivity & power analyses), apply rigorous multiple‑comparison correction, and validate all outputs against contracts.
+**Goal**: Run the full suite of analyses (OLS, phylogenetic models, Random Forest, sensitivity & power analyses), apply multiple‑comparison correction, and validate all outputs against contracts.
 
-- [ ] T004 [P2] [US-3] **Baseline OLS regression with family covariate and multicollinearity diagnostics**
-  - Implement `code/src/ols_regression.py` with function `fit_ols_cv(df: pd.DataFrame, n_splits: int = 5) -> dict` that:  
-    - Performs **5‑fold cross‑validation** (Stratified by `family`) using `sklearn.model_selection.StratifiedKFold`.  
-    - In each fold, fits an OLS model (`statsmodels.api.OLS`) with `herbivory_score` as the dependent variable, four metabolite predictors, and one‑hot encoded `family` as a fixed‑effect covariate.  
-    - Computes VIF for each metabolite predictor; **fails** if any VIF ≥ 5 (SC‑004).  
-    - Aggregates CV metrics (mean R², adjusted R², RMSE) across folds.  
-    - Applies Benjamini‑Hochberg FDR correction to metabolite coefficient p‑values.  
-    - **Enforces** that the mean CV R² > 0.3 (SC‑002); otherwise the task fails.  
-    - Returns an `AnalysisResult` dict with `result_type="ols"` containing coefficients, p‑values, q‑values, CV R²/adj_R²/RMSE, VIF, family effect, and FDR method.  
-  - Write `code/tests/test_ols.py` verifying that (a) 5‑fold CV is performed, (b) VIF values are < 5, (c) mean CV R² > 0.3, (d) output validates against `model_output.schema.yaml`.  
-  - **Verification**: Run OLS on `data/processed/clean.parquet`, save the AnalysisResult JSON to `outputs/ols_results.json`. If any VIF ≥ 5 or mean CV R² ≤ 0.3, the task fails. Log any VIF warnings to `outputs/ols_warnings.txt`.  
+- [ ] T004 [US‑3] **Baseline OLS regression with family covariate and multicollinearity diagnostics**  
+  - Implement `code/src/ols_regression.py` with `fit_ols_cv(df: pd.DataFrame, n_splits: int = 5) -> dict` that:  
+    * Performs 5‑fold CV stratified by `family`.  
+    * Fits an OLS model (`statsmodels.api.OLS`) with `herbivory_score` as outcome, four metabolites as predictors, and one‑hot encoded `family` as fixed effects.  
+    * Computes VIF for each metabolite; fails if any VIF ≥ 5 (SC‑004).  
+    * Aggregates mean CV R², adjusted R², and RMSE; enforces mean CV R² > 0.3 (SC‑002).  
+    * Applies Benjamini‑Hochberg correction to coefficient p‑values.  
+    * Returns an `AnalysisResult` (`result_type="ols"`).  
+  - Write `code/tests/test_ols.py` checking CV execution, VIF < 5, mean CV R² > 0.3, and schema compliance.  
+  - Verification: run on `data/processed/clean.parquet`; save JSON to `outputs/ols_results.json`; log any VIF warnings to `outputs/ols_warnings.txt`.  
   - **Paths**: `code/src/ols_regression.py`, `code/tests/test_ols.py`, `outputs/ols_results.json`, `outputs/ols_warnings.txt`.
 
-- [ ] T005 [P2] **Phylogenetic adjustment via PGLS and mixed‑effects models**
-  - Implement `code/src/phylogenetic_analysis.py` with functions:  
-    - `fetch_phylogeny(species_names: List[str]) -> dendropy.Tree` that retrieves plant phylogeny from Open Tree of Life (OTL) via the OTL API.  
-    - `match_species_to_otl(species_names: List[str]) -> Tuple[List[str], List[str]]` that uses fuzzy matching (`fuzzywuzzy`, threshold 0.8) to match species names to OTL taxa; returns matched and unmatched lists.  
-    - `fit_pgls_cv(df: pd.DataFrame, phylogeny: dendropy.Tree, n_splits: int = 5) -> dict` that:  
-      - Constructs a phylogenetic variance‑covariance matrix.  
-      - Performs **5‑fold CV** (stratified by `family`) fitting a GLS model with the phylogenetic covariance and family covariate.  
-      - Computes a likelihood‑ratio test (LRT) comparing each CV fold’s PGLS fit to the corresponding OLS fold; records mean LRT statistic and p‑value.  
-      - Applies FDR correction to coefficient p‑values.  
-      - Returns an `AnalysisResult` with `result_type="pgls"` including CV metrics, phylogeny source, matched/unmatched counts, and LRT summary.  
-    - `fit_mixed_effects_cv(df: pd.DataFrame, n_splits: int = 5) -> dict` that fits a linear mixed‑effects model (`statsmodels.MixedLM`) with `family` as fixed, metabolites as fixed, and a species‑level random intercept, using **5‑fold CV**. Returns an `AnalysisResult` with `result_type="mixed_effects"` and CV performance metrics.  
-  - Write `code/tests/test_phylogenetic.py` verifying that (a) phylogeny retrieval succeeds, (b) fuzzy matching yields reasonable match rate, (c) both models run with CV and produce valid JSON, (d) LRT p‑value in [0,1], (e) outputs validate against the schema.  
-  - **Verification**: Run phylogenetic analysis on `data/processed/clean.parquet`, save PGLS results to `outputs/pgls_results.json` and mixed‑effects results to `outputs/mixed_effects_results.json`. Ensure `outputs/phylogeny_matching_log.txt` is generated and contains matched/unmatched counts.  
-  - **Paths**: `code/src/phylogenetic_analysis.py`, `code/tests/test_phylogenetic.py`, `outputs/pgls_results.json`, `outputs/mixed_effects_results.json`, `outputs/phylogeny_matching_log.txt`, `outputs/model_comparison.txt`.
+- [ ] T005 **Phylogenetic adjustment via PGLS and mixed‑effects models**  
+  - Implement `code/src/phylogenetic_analysis.py` with:  
+    * `fetch_phylogeny(species: List[str]) -> dendropy.Tree` – retrieves a plant phylogeny from the Open Tree of Life API.  
+    * `match_species_to_otl(species: List[str]) -> Tuple[List[str], List[str]]` – performs deterministic fuzzy‑matching by (1) sorting candidate taxa alphabetically, (2) computing similarity scores with `fuzzywuzzy`, (3) fixing `np.random.seed(42)` before any random tie‑breaking, and (4) returning matched/unmatched lists.  
+    * `fit_pgls_cv(df: pd.DataFrame, tree: dendropy.Tree, n_splits: int = 5) -> dict` – builds a phylogenetic covariance matrix, runs 5‑fold CV GLS with that covariance and family covariate, computes a likelihood‑ratio test (LRT) vs. OLS for each fold, applies FDR correction, and returns an `AnalysisResult` (`result_type="pgls"`).  
+    * `fit_mixed_effects_cv(df: pd.DataFrame, n_splits: int = 5) -> dict` – fits a linear mixed‑effects model (`statsmodels.MixedLM`) with species‑level random intercepts, runs 5‑fold CV, and returns an `AnalysisResult` (`result_type="mixed_effects"`).  
+  - Write `code/tests/test_phylogenetic.py` verifying successful phylogeny fetch, reasonable match rate, CV execution, LRT p‑value ∈ [0,1], and schema compliance.  
+  - Verification: run on `data/processed/clean.parquet`; save PGLS JSON to `outputs/pgls_results.json`, mixed‑effects JSON to `outputs/mixed_effects_results.json`, and matching log to `outputs/phylogeny_matching_log.txt`.  
+  - **Paths**: `code/src/phylogenetic_analysis.py`, `code/tests/test_phylogenetic.py`, `outputs/pgls_results.json`, `outputs/mixed_effects_results.json`, `outputs/phylogeny_matching_log.txt`.
 
-- [ ] T006 [P2] **Random Forest regressor with permutation feature importance and FDR correction**
-  - Implement `code/src/random_forest_model.py` with function `fit_rf_cv(df: pd.DataFrame, n_splits: int = 5) -> dict` that:  
-    - Uses the same **5‑fold CV** (stratified by `family`) as OLS.  
-    - Fits a `RandomForestRegressor(max_depth=5, n_estimators=200, random_state=42, n_jobs=2)` within each CV fold.  
-    - Computes permutation feature importance on the held‑out fold using `sklearn.inspection.permutation_importance(..., n_repeats=100, random_state=42)`.  
-    - Derives p‑values from the permutation distribution and applies Benjamini‑Hochberg FDR correction (q < 0.05).  
-    - Aggregates CV R², adjusted R², RMSE across folds and also reports test‑set metrics from a final 80/20 hold‑out (consistent with earlier splits).  
-    - **Enforces** that the mean CV R² > 0.3; otherwise the task fails.  
-    - Returns an `AnalysisResult` with `result_type="rf"` containing ranked `feature_importance` (metabolite, importance, p_value, q_value), CV metrics, test metrics, and FDR method.  
-  - Write `code/tests/test_rf.py` verifying that (a) feature importance scores are non‑negative, (b) p‑values/q‑values in [0,1], (c) CV R² > 0.3, (d) output validates against the schema.  
-  - Log a warning to `outputs/rf_warnings.txt` **only if** the test‑set R² < 0.3 (instead of 0.1).  
-  - **Verification**: Run Random Forest on `data/processed/clean.parquet`, save the AnalysisResult JSON to `outputs/rf_results.json`. Ensure `outputs/rf_warnings.txt` exists when the condition triggers.  
+- [ ] T006 **Random Forest regressor with permutation feature importance and FDR correction**  
+  - Implement `code/src/random_forest_model.py` with `fit_rf_cv(df: pd.DataFrame, n_splits: int = 5) -> dict` that:  
+    * Uses the same 5‑fold CV stratified by `family`.  
+    * Fits `RandomForestRegressor(max_depth=5, n_estimators=200, random_state=42, n_jobs=2)` in each fold.  
+    * Computes permutation importance on held‑out folds (`sklearn.inspection.permutation_importance`, n_repeats=100, random_state=42).  
+    * Derives p‑values from the permutation distribution and applies Benjamini‑Hochberg correction.  
+    * Aggregates mean CV R², adjusted R², RMSE; enforces mean CV R² > 0.3.  
+    * Returns an `AnalysisResult` (`result_type="rf"`).  
+  - Write `code/tests/test_rf.py` ensuring non‑negative importance scores, p/q‑values ∈ [0,1], mean CV R² > 0.3, and schema compliance.  
+  - Log a warning to `outputs/rf_warnings.txt` if the final test‑set R² < 0.3.  
+  - Verification: run on `data/processed/clean.parquet`; save JSON to `outputs/rf_results.json`.  
   - **Paths**: `code/src/random_forest_model.py`, `code/tests/test_rf.py`, `outputs/rf_results.json`, `outputs/rf_warnings.txt`.
 
-- [ ] T007 [P2] **Sensitivity analysis: p‑value thresholds, outlier caps, and robustness checks**
-  - Implement `code/src/sensitivity_analysis.py` with function `run_sensitivity_analysis(df: pd.DataFrame) -> dict` that:  
-    - **P‑value threshold sweep**: Re‑run correlation analysis (from T003) with thresholds from 0.01 to 0.10 (step 0.01); record the number of significant metabolite classes at each threshold.  
-    - **Outlier cap variation**: Re‑run OLS CV and Random Forest CV (from T004 & T006) with herbivory outlier caps at ±10 % of the baseline IQR whisker; record mean CV R² for each cap level (`minus_10%`, `baseline`, `plus_10%`).  
-    - **Standardization robustness**: Instead of raw‑data re‑runs, perform a robustness check by adding Gaussian noise (±5 % of each metabolite’s std) to the standardized data and re‑running OLS CV and RF CV; compare top‑3 biomarker rankings to the original run and report agreement level.  
-    - Returns an `AnalysisResult` dict with `result_type="sensitivity"` containing `p_threshold_sweep`, `outlier_cap_variation`, and `standardization_robustness` comparison.  
-  - Write `code/tests/test_sensitivity.py` verifying that (a) the sweep yields entries for all thresholds, (b) outlier cap results have three entries, (c) robustness comparison documents ranking agreement.  
-  - **Verification**: Run sensitivity analysis on `data/processed/clean.parquet`, save the AnalysisResult JSON to `outputs/sensitivity_results.json`. Ensure the results demonstrate robustness or clearly flag substantial sensitivity.  
+- [ ] T007 **Sensitivity analysis: p‑value thresholds, outlier caps, and robustness checks**  
+  - Implement `code/src/sensitivity_analysis.py` with `run_sensitivity_analysis(df: pd.DataFrame) -> dict` that:  
+    1. Sweeps FDR q‑thresholds from 0.01 to 0.10 (step 0.01) re‑running the correlation analysis and recording the number of significant negative classes at each threshold.  
+    2. Varies herbivory outlier caps by ±10 % of the baseline IQR whisker, re‑runs OLS CV and RF CV, and records mean CV R² for each cap level.  
+    3. Sets `np.random.seed(42)` and adds Gaussian noise (±5 % of each metabolite’s std) to the standardized data, re‑runs OLS CV and RF CV, and compares the top‑3 biomarker rankings to the original run, reporting agreement.  
+    - Returns an `AnalysisResult` (`result_type="sensitivity"`).  
+  - Write `code/tests/test_sensitivity.py` confirming presence of entries for all thresholds, three outlier‑cap results, and a ranking‑agreement metric.  
+  - Verification: run on `data/processed/clean.parquet`; save JSON to `outputs/sensitivity_results.json`.  
   - **Paths**: `code/src/sensitivity_analysis.py`, `code/tests/test_sensitivity.py`, `outputs/sensitivity_results.json`.
 
-- [ ] T008 [P2] **Power analysis and study adequacy assessment**
-  - Implement `code/src/power_analysis.py` with function `compute_power_analysis(df: pd.DataFrame, pgls_result: dict) -> dict` that:  
-    - Computes effective sample size after phylogenetic adjustment using the phylogenetic λ parameter (if available) or a default estimate; formula: `effective_n = n_observed / (1 + (lambda - 1) * phylogenetic_signal)`.  
-    - Estimates statistical power to detect small‑to‑medium effect sizes (r ≈ 0.3, corresponding to R² ≈ 0.09) at α = 0.05 with Benjamini‑Hochberg FDR correction (adjusted α ≈ 0.0125 for four tests) using `statsmodels.stats.power.TTestIndPower`.  
-    - **Flags** the study as exploratory (`under_power_flag=True`) if the **observed** paired species count is **< 50** (SC‑001) **or** effective_n < 30; otherwise marks as adequate.  
-    - Returns an `AnalysisResult` dict with `result_type="power_analysis"` containing observed N, effective N, power estimates for OLS/PGLS/RF, under‑power flag, and interpretation.  
-  - Write `code/tests/test_power.py` verifying that (a) `effective_n ≤ observed_n`, (b) power estimates in [0,1], (c) `under_power_flag` set correctly based on N thresholds.  
-  - **Verification**: Run power analysis on `data/processed/clean.parquet` and the PGLS results, save the AnalysisResult JSON to `outputs/power_analysis_results.json`. The task must fail if the study is under‑powered and the report does not contain the required disclaimer.  
+- [ ] T008 **Power analysis and study adequacy assessment**  
+  - Implement `code/src/power_analysis.py` with `compute_power_analysis(df: pd.DataFrame, pgls_res: dict) -> dict` that:  
+    * Calculates effective sample size after phylogenetic adjustment using the estimated λ (or a default).  
+    * Estimates power to detect an effect size r ≈ 0.3 (R² ≈ 0.09) at α = 0.05, adjusting for four tests via BH (α_adj ≈ 0.0125) using `statsmodels.stats.power.TTestIndPower`.  
+    * Flags the study as exploratory (`under_power_flag=True`) if observed paired species < 50 or effective_n < 30; otherwise marks it adequate.  
+    * Returns an `AnalysisResult` (`result_type="power_analysis"`).  
+  - Write `code/tests/test_power.py` checking that `effective_n ≤ observed_n`, power estimates ∈ [0,1], and flag logic works.  
+  - Verification: run on `data/processed/clean.parquet` and the PGLS result; save JSON to `outputs/power_analysis_results.json`. Task fails if the study is under‑powered and the required disclaimer is missing from the later report.  
   - **Paths**: `code/src/power_analysis.py`, `code/tests/test_power.py`, `outputs/power_analysis_results.json`.
 
 ---
 
-## Phase 3: Reproducible results and paper handoff
+## Phase 3: Reproducible results and paper hand‑off
 
-**Goal**: Validate all artifacts against contracts, assemble a concise methods‑and‑results report, re‑run the complete workflow from declared inputs to confirm reproducibility, and prepare for paper‑stage handoff.
+**Goal**: Validate all artifacts, assemble a complete methods‑and‑results report, demonstrate end‑to‑end reproducibility, and provide a clean hand‑off package for the paper stage.
 
-- [ ] T009 [P3] **Contract validation and artifact verification**
-  - Implement `code/src/validation.py` with functions:  
-    - `validate_processed_data(df: pd.DataFrame, schema_path: str) -> bool` that validates `data/processed/clean.parquet` against `contracts/processed_data.schema.yaml` using `jsonschema.validate()`.  
-    - `validate_analysis_results(result_dict: dict, schema_path: str) -> bool` that validates each AnalysisResult JSON (correlation, OLS, PGLS, mixed‑effects, RF, sensitivity, power_analysis) against `contracts/model_output.schema.yaml`.  
-    - `compute_checksums(artifact_paths: List[str]) -> dict` that computes SHA‑256 checksums for all data and result artifacts and returns a dict mapping path → checksum.  
-    - **Additional verification**:  
-      - Ensure species count ≥ 50 (FR‑001 & SC‑001).  
-      - Ensure OLS and RF mean CV R² > 0.3 (SC‑002).  
-      - Ensure VIF < 5 for all metabolites (SC‑004).  
-      - Ensure T003 reported exactly 3‑5 significant negative classes (FR‑003).  
-    - Any violation causes task failure.  
-  - Write `code/tests/test_validation.py` verifying that (a) schema files exist and are valid JSON Schema, (b) all artifacts pass schema validation, (c) checksums are reproducible, (d) acceptance‑criteria checks work as intended.  
-  - **Verification**: Run validation on all artifacts generated in T001–T008; save checksum report to `outputs/artifact_checksums.json`. Confirm that all artifacts pass schema validation **and** all acceptance criteria are met; otherwise the task fails.  
+- [ ] T009 **Contract validation and artifact verification**  
+  - Implement `code/src/validation.py` with:  
+    * `validate_processed_data(df_path: str, schema_path: str) -> bool` – validates `clean.parquet` against `contracts/processed_data.schema.yaml`.  
+    * `validate_analysis_result(json_path: str, schema_path: str) -> bool` – validates each AnalysisResult JSON against `contracts/model_output.schema.yaml`.  
+    * `compute_checksums(paths: List[str]) -> dict` – SHA‑256 checksums for all data and result files.  
+    * Additional acceptance checks:  
+      - Species count ≥ 50 (FR‑001, SC‑001).  
+      - Mean CV R² > 0.3 for OLS and RF (SC‑002).  
+      - All VIF < 5 (SC‑004).  
+      - Exactly 3‑5 significant negative classes from T003 (FR‑003).  
+      - **Wall‑clock runtime ≤ 6 h**: reads `outputs/pipeline_log.txt` timestamps and raises if exceeded (addresses SC‑005).  
+    * Any violation raises an exception causing task failure.  
+  - Write `code/tests/test_validation.py` verifying schema files exist, all artifacts pass validation, checksums are reproducible, and acceptance criteria are enforced.  
+  - Verification: run on all artifacts produced in T001–T008; store checksums in `outputs/artifact_checksums.json`.  
   - **Paths**: `code/src/validation.py`, `code/tests/test_validation.py`, `outputs/artifact_checksums.json`.
 
-- [ ] T010 [P3] **Comprehensive methods‑and‑results report**
-  - Assemble a Markdown report in `outputs/report.md` that:  
-    - Documents the research question, data sources (explicit URLs), and sample size (N species, number of metabolites, number of herbivory measurements).  
-    - Describes preprocessing steps: z‑score standardization, handling of missing data and documented biological absence, outlier detection and capping.  
-    - Summarizes exploratory correlation analysis: metabolite classes with significant negative correlation (exact count 3‑5, q < 0.05), heatmap visualization, and interpretation.  
-    - Reports baseline OLS results: coefficients, FDR‑corrected p‑values, mean CV R² > 0.3, adjusted R², RMSE, VIF diagnostics, and family‑covariate effect.  
-    - Reports phylogenetic‑adjusted results: PGLS coefficients, LRT comparison to OLS, mixed‑effects random intercept and marginal/conditional R², and interpretation of phylogenetic signal.  
-    - Reports Random Forest results: ranked feature importance (with FDR‑corrected p‑values), CV and test metrics (CV R² > 0.3), and comparison to OLS.  
-    - Documents sensitivity analysis outcomes (threshold sweep, outlier cap robustness, standardization robustness).  
-    - Reports power analysis: effective sample size, power estimates, and study adequacy flag.  
-    - **Explicitly states** any unmet acceptance criteria (e.g., if N < 50, R² ≤ 0.3, VIF ≥ 5, or correlation class count outside 3‑5).  
-    - Includes links to all JSON result files and PNG figures (e.g., `[Correlation heatmap](heatmap.png)`, `[OLS results](ols_results.json)`).  
-    - **If a placeholder dataset was used** (due to repository unavailability), includes a prominent disclaimer: “Results are based on synthetic/placeholder data and do not address the biological research question.”  
-    - Discusses limitations (phylogenetic non‑independence, observational nature, power constraints).  
-    - Concludes with recommendations for future work.  
-  - **Verification**:  
-    - Run a script that parses `outputs/report.md` and checks that every Markdown link points to an existing file in the repository.  
-    - Fail if any link is broken or if required disclaimer sections are missing when criteria are unmet.  
+- [ ] T010 **Comprehensive methods‑and‑results report**  
+  - Assemble `outputs/report.md` containing:  
+    1. Research question, data sources (explicit URLs for MetaboLights, PMN, HPID, and the fallback GHZ placeholder if used), and sample size.  
+    2. Detailed preprocessing description (z‑score standardisation, handling of documented absences, outlier capping).  
+    3. Correlation results: list of 3‑5 metabolite classes with significant negative correlation (q < 0.05), heat‑map figure, and interpretation.  
+    4. Baseline OLS outcomes: coefficients, FDR‑corrected p‑values, mean CV R² > 0.3, adjusted R², RMSE, VIF diagnostics, family covariate effect.  
+    5. Phylogenetic analyses: PGLS coefficients, LRT vs. OLS, mixed‑effects random intercept, marginal/conditional R², phylogeny source, and matched/unmatched species counts.  
+    6. Random Forest results: permutation‑importance rankings with p/q‑values, CV and test metrics (CV R² > 0.3), and any warning if test R² < 0.3.  
+    7. Sensitivity analysis outcomes (threshold sweep, outlier‑cap robustness, standardisation‑noise robustness).  
+    8. Power analysis summary: observed N, effective N, power estimates, and under‑power flag.  
+    9. Explicit disclaimer if the fallback placeholder dataset was used.  
+    10. Limitations (observational design, phylogenetic non‑independence, power constraints).  
+    11. Links to all JSON result files and PNG figures.  
+  - Verification script parses `outputs/report.md` to ensure every Markdown link points to an existing file and that required disclaimer sections appear when criteria are unmet.  
   - **Paths**: `outputs/report.md`.
 
-- [ ] T011 [P3] **End‑to‑end reproducibility run and documentation**
-  - Create a shell script `scripts/run_pipeline.sh` that:  
-    - Activates the Python virtual environment (or specifies `python3.11`).  
-    - Runs all data acquisition, preprocessing, analysis, and validation steps in order:  
-      `python code/src/fetch_data.py && python code/src/preprocess.py && python code/src/correlation_analysis.py && python code/src/ols_regression.py && python code/src/phylogenetic_analysis.py && python code/src/random_forest_model.py && python code/src/sensitivity_analysis.py && python code/src/power_analysis.py && python code/src/validation.py`.  
-    - Records start and end timestamps and total wall‑clock elapsed time in `outputs/pipeline_log.txt`.  
-    - Exits with status 0 on success, non‑zero on any failure.  
-  - Create a `README.md` in the project root documenting:  
-    - **Quick start**: “Run `bash scripts/run_pipeline.sh` to execute the complete analysis from scratch.”  
-    - **Input data sources**: Lists the three repository URLs (MetaboLights, PMN, HPID) and the fallback placeholder dataset (if applicable).  
-    - **Output artifacts**: Lists all generated files (`clean.parquet`, JSON results, PNG figures, `report.md`) and their locations.  
-    - **Dependencies**: References `requirements.txt` and specifies Python 3.11.  
-    - **Reproducibility**: Notes that all random seeds are fixed (`random_state=42`) and all computations are deterministic.  
-    - **Runtime**: States the expected total wall‑clock time (e.g., “Approximately 2–3 hours on a 2‑core CPU runner”).  
-  - Write `code/tests/test_pipeline.py` (integration test) that:  
-    - Executes the pipeline on a minimal subset (or full if within CI limits).  
-    - Verifies that all expected output files are created.  
-    - Confirms that the pipeline completes within the 6‑hour time limit (measured in CI).  
-  - **Verification**: Execute `bash scripts/run_pipeline.sh` on a fresh checkout; confirm that all outputs are generated, all tests pass, and the total runtime is logged in `outputs/pipeline_log.txt` and does not exceed 6 hours. Verify that the README instructions are accurate and the project is reproducible.  
+- [ ] T011 **End‑to‑end reproducibility run and documentation**  
+  - Create `scripts/run_pipeline.sh` that:  
+    1. Activates the virtual environment (or runs `python3.11`).  
+    2. Executes the full pipeline in order:  
+       ```bash
+       python -m code.src.fetch_data && \
+       python -m code.src.preprocess && \
+       python -m code.src.correlation_analysis && \
+       python -m code.src.ols_regression && \
+       python -m code.src.phylogenetic_analysis && \
+       python -m code.src.random_forest_model && \
+       python -m code.src.sensitivity_analysis && \
+       python -m code.src.power_analysis && \
+       python -m code.src.validation
+       ```  
+    3. Records start/end timestamps and total wall‑clock time in `outputs/pipeline_log.txt`.  
+    4. Exits with status 0 on success, non‑zero on any failure.  
+  - Add a `README.md` at the project root documenting: quick start (`bash scripts/run_pipeline.sh`), input URLs, output artifact list, dependency note (`requirements.txt`, Python 3.11), reproducibility guarantees (fixed seeds), and expected runtime (≈ 2–3 h on the CI runner).  
+  - Write `code/tests/test_pipeline.py` (integration test) that runs the pipeline on a minimal subset (or full if within limits), checks that all expected output files exist, and asserts total runtime ≤ 6 h.  
+  - Verification: execute `bash scripts/run_pipeline.sh` on a clean checkout; confirm all outputs exist, `outputs/pipeline_log.txt` shows ≤ 6 h, and all tests in `code/tests/` pass.  
   - **Paths**: `scripts/run_pipeline.sh`, `README.md`, `code/tests/test_pipeline.py`, `outputs/pipeline_log.txt`.
 
-- [ ] T012 [P3] **Paper‑stage handoff documentation**
+- [ ] T012 **Paper‑stage hand‑off documentation**  
   - Create `outputs/handoff.md` that:  
-    - Lists all scientific findings (significant metabolite classes, biomarker rankings, model performance metrics, power limitations).  
-    - Specifies the exact data artifacts available for the paper stage: `data/processed/clean.parquet` (processed dataset), `outputs/heatmap.png` (correlation visualization), `outputs/ols_results.json`, `outputs/pgls_results.json`, `outputs/mixed_effects_results.json`, `outputs/rf_results.json` (model outputs), `outputs/report.md` (summary).  
-    - Documents the schema contracts (`processed_data.schema.yaml`, `model_output.schema.yaml`) that define the structure of all results.  
-    - Notes any data source fallbacks or placeholder usage (if applicable) and their implications for interpretation.  
-    - **Mandates** that the paper‑stage team verify that all acceptance criteria (≥ 50 species, R² > 0.3, VIF < 5, 3‑5 significant classes) are satisfied before inclusion in the manuscript.  
-    - Provides checksums (`outputs/artifact_checksums.json`) for verification of result integrity.  
-    - States that the research stage is complete; the paper stage will handle figure layout, PDF compilation, and submission workflows (not replicated here).  
-  - **Verification**: Confirm that the handoff document accurately reflects all completed work, all artifact paths are correct, and the paper‑stage team has clear guidance on required criteria.  
+    * Summarises scientific findings (significant metabolite classes, biomarker rankings, model performance, power assessment).  
+    * Lists all data and result artifacts required for manuscript preparation (`data/processed/clean.parquet`, `outputs/heatmap.png`, `outputs/ols_results.json`, `outputs/pgls_results.json`, `outputs/mixed_effects_results.json`, `outputs/rf_results.json`, `outputs/report.md`).  
+    * References the schema contracts (`processed_data.schema.yaml`, `model_output.schema.yaml`).  
+    * Highlights any fallback placeholder usage and its implications.  
+    * Mandates verification that acceptance criteria (≥ 50 species, R² > 0.3, VIF < 5, 3‑5 significant classes) are satisfied before inclusion in the manuscript.  
+    * Provides the checksum manifest (`outputs/artifact_checksums.json`) for integrity verification.  
+    * States that the paper stage will handle figure layout, PDF compilation, and submission workflows.  
+  - Verification: ensure all listed paths exist and match the checksum file; confirm the document clearly communicates the required criteria.  
   - **Paths**: `outputs/handoff.md`.
