@@ -15,7 +15,7 @@ All tasks respect the data‑flow order, stay within the CPU‑only CI budget, a
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] **T001** [US1] **Download and verify the π‑Bench dataset**   <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 -->
+- [ ] **T001** [US1] **Download and verify the π‑Bench dataset**   <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 -->
   *Script*: `code/pipelines/download_pi_bench.py`  
   *Action*: Stream the official π‑Bench release (`datasets.load_dataset("pi_bench", streaming=True)`) into `data/raw/`. Compute a SHA‑256 checksum for each file and compare against the checksum list bundled with the dataset. Retry up to three times on transient network errors; abort with a clear error if any checksum mismatches.  
   *Verification*: `tests/test_dataset_download.py` asserts that all files are present, loadable, and pass checksum verification; CI prints “✅ π‑Bench download verified”.

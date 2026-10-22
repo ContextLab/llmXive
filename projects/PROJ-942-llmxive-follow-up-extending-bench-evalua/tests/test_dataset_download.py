@@ -43,7 +43,7 @@ def test_pi_bench_downloaded():
     # Verify loadable via datasets
     try:
         # Load from the local JSON files we just wrote
-        dataset = load_dataset("json", data_files=str(raw_dir / "*.json"))
+        dataset = load_dataset("json", data_files=str(raw_dir / "*.json"), trust_remote_code=True)
         assert dataset is not None
     except Exception as e:
         pytest.fail(f"Failed to load downloaded files via datasets.load_dataset: {e}")

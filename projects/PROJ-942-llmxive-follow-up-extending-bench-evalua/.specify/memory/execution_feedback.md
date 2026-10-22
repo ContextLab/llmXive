@@ -19,21 +19,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/pipelines/download_pi_bench.py -> rc=1
-le "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/load.py", line 917, in dataset_module_factory
+llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/load.py", line 917, in dataset_module_factory
     raise RuntimeError(f"Dataset scripts are no longer supported, but found {filename}")
 RuntimeError: Dataset scripts are no longer supported, but found pi_bench.py
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 149, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 135, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 131, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 117, in main
     checksums = _download_pi_bench(raw_dir, max_examples=args.max_examples)
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 59, in _download_pi_bench
     raise RuntimeError(
-RuntimeError: Unable to load dataset 'pi_bench' after 3 attempts.
+RuntimeError: Unable to load dataset 'pi_bench' after 3 attempts. This may be due to network issues or the dataset being gated.
 
 - python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv -> rc=1
 ^^^^^^^^^^^^^^^^^^^^^

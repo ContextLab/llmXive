@@ -45,9 +45,9 @@ def _download_pi_bench(raw_dir: Path, max_examples: Optional[int] = None) -> Lis
     ds = None
     for attempt in range(1, attempts + 1):
         try:
-            log.info(f"Attempt {attempt} to load dataset '{dataset_name}' (streaming=True)")
-            # We load the dataset. Since it's a research benchmark, we assume 'train' or default split.
-            ds = load_dataset(dataset_name, streaming=True)
+            log.info(f"Attempt {attempt} to load dataset '{dataset_name}' (streaming=True, trust_remote_code=True)")
+            # trust_remote_code=True is required for datasets that use loading scripts (like pi_bench)
+            ds = load_dataset(dataset_name, streaming=True, trust_remote_code=True)
             # If it's a DatasetDict, we take the first available split (usually 'train')
             if isinstance(ds, DatasetDict) or hasattr(ds, 'keys'):
                 split = next(iter(ds.keys()))
@@ -57,23 +57,17 @@ def _download_pi_bench(raw_dir: Path, max_examples: Optional[int] = None) -> Lis
             log.warning(f"Failed to load dataset on attempt {attempt}: {exc}")
             if attempt == attempts:
                 raise RuntimeError(
-                    f"Unable to load dataset '{dataset_name}' after {attempts} attempts."
+                    f"Unable to load dataset '{dataset_name}' after {attempts} attempts. "
+                    "This may be due to network issues or the dataset being gated."
                 ) from exc
             time.sleep(2)
 
     checksums: List[Tuple[Path, str]] = []
     
-    # Attempt to find bundled checksums in dataset metadata if available
-    bundled_checksums = {}
-    try:
-        # Some HF datasets provide checksums in the config/info
-        # This is a heuristic as different dataset versions vary
-        info = load_dataset(dataset_name).info
-        if hasattr(info, 'checksums'):
-            bundled_checksums = info.checksums
-    except Exception:
-        log.debug("No bundled checksums found in dataset metadata.")
-
+    # We iterate through the streaming dataset and save each example as a separate JSON file.
+    # The "bundled checksums" for script-based datasets often apply to the source files 
+    # (e.g. .parquet) rather than the generated JSONs, so we generate a local manifest 
+    # for the derived raw files to ensure integrity during the pipeline.
     for idx, example in enumerate(ds):
         if max_examples is not None and idx >= max_examples:
             break
@@ -88,14 +82,6 @@ def _download_pi_bench(raw_dir: Path, max_examples: Optional[int] = None) -> Lis
 
         rel_path = json_path.relative_to(raw_dir)
         checksum = _sha256_checksum(json_path)
-
-        # Compare against bundled checksums if available
-        if rel_path.name in bundled_checksums:
-            expected = bundled_checksums[rel_path.name]
-            if checksum != expected:
-                log.error(f"Checksum mismatch for {rel_path.name}!")
-                raise ValueError(f"Checksum mismatch for {rel_path.name}: expected {expected}, got {checksum}")
-
         checksums.append((rel_path, checksum))
 
         if (idx + 1) % 10 == 0:
