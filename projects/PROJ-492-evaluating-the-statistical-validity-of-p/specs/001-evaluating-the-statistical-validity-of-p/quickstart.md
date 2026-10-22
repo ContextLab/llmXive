@@ -35,17 +35,17 @@ The script will:
 1. Download each URL and extract the required fields.  
 2. Reconstruct p‑values/effect‑sizes.  
 3. Flag inconsistencies (absolute 0.05 p‑value rule).  
-4. Perform the binomial prevalence test and bias adjustment.  
+4. Perform the binomial prevalence test and sensitivity sweep.  
 5. Write `output/audit_report.json` and `output/summary_report.csv`.  
 
 ## Step 4: Verify Output
 ```bash
 ls output/
 # should show:
-# audit_report.json  summary_report.csv  checksums.txt
+# audit_report.json  summary_report.csv  checksums.txt  manifest.json
 ```
-- Open `output/summary_report.csv` in a spreadsheet to see `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, and the Wilson CI bounds.  
-- Confirm that `output/checksums.txt` contains SHA‑256 hashes for both output files.  
+- Open `output/summary_report.csv` in a spreadsheet to see `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `wilson_ci_lower`, `wilson_ci_upper`.  
+- Confirm that `output/checksums.txt` contains SHA‑256 hashes for both output files.
 
 ## Step 5: Resource Check (automated)
 The CI workflow logs `cpu_time_seconds`, `memory_peak_mb`, and total `runtime_seconds` to `output/manifest.json`. Ensure:
@@ -54,4 +54,4 @@ The CI workflow logs `cpu_time_seconds`, `memory_peak_mb`, and total `runtime_se
 
 If any of these limits are exceeded, the run fails with a clear error message.
 
----
+---===END QUICKSTART===---

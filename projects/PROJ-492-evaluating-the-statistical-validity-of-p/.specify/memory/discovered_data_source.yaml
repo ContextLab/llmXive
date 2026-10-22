@@ -1,19 +1,19 @@
 status: none
-intent: download AB test summary dataset with validation set and statistical reference
+intent: public A/B test summary dataset "Audit Corpus" "Synthetic Validation Set"
   python package dataset
 required_fields:
 - url
-- experiment_id
-- domain
-- variant_a_name
-- variant_b_name
+- test_id
+- variant_a_description
+- variant_b_description
+- metric_name
 - sample_size_a
 - sample_size_b
-- conversion_rate_a
-- conversion_rate_b
 - reported_p_value
-- reported_confidence_interval
-- test_type
-cache_key: 416a0996b3eb28a33e5f5cc087b16495fcf6c5b94143f55bb3697097a7b26e23
-searched_at: '2026-10-22T01:21:58.705194+00:00'
+- confidence_interval_lower
+- confidence_interval_upper
+- outcome
+- domain
+cache_key: 558c34ba5ae280c31fd9178fbe212cf5d9d282f80149d52671efdcb0a69e9736
+searched_at: '2026-10-22T01:46:44.105380+00:00'
 retry_count: 1

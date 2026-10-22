@@ -18,7 +18,7 @@ properties:
     description: "Original URL of the public A/B test summary"
   source_domain:
     type: "string"
-    description: "Domain extracted from URL hostname for bias assessment (FR‑027)"
+    description: "Domain extracted from URL hostname for provenance"
   variant_a_n:
     type: "integer"
     minimum: 1
@@ -41,7 +41,7 @@ properties:
       - "null"
     minimum: 0.0
     maximum: 1.0
-    description: "Reported p‑value (null if given as inequality)"
+    description: "Reported p‑value (null if given as inequality bound)"
   reported_effect_size:
     type: "number"
     description: "Reported effect size (absolute difference, lift, or mean difference)"
@@ -62,8 +62,8 @@ properties:
       upper:
         type: "number"
     required:
-      - lower
-      - upper
+      - "lower"
+      - "upper"
   extraction_timestamp:
     type: "string"
     format: "date-time"
@@ -74,10 +74,10 @@ properties:
       - "null"
     minimum: 1900
     maximum: 2100
-    description: "Publication year of the source (optional, used for subgroup analysis)"
+    description: "Publication year of the source (optional)"
   extraction_notes:
     type:
       - "string"
       - "null"
-    description: "Optional notes or error messages from the extraction step"
+    description: "Optional notes or error messages from extraction"
 additionalProperties: false
