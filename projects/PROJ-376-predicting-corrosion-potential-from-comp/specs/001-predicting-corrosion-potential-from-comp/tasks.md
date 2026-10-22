@@ -9,7 +9,7 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
 
 ## Phase 1 – Project setup & core utilities  
 
-- [ ] **T001** Create the required project directory hierarchy (`code/`, `data/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`) and produce a verification manifest.  
+- [ ] **T001** Create the required project directory hierarchy (`code/`, `data/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`) and produce a verification manifest.   <!-- FAILED-IN-EXECUTION: code/cli/run_pipeline_download_test.py exit=2 -->
   **File path**: `code/utils/setup_dirs.py` → generates `state/setup_dirs_verified.json`.  
   **Verification**: Running `python -m code.utils.setup_dirs` exits with status 0, creates all directories, writes a JSON array where each entry contains `"path"` (absolute) and `"created_at"` (ISO‑8601 timestamp), and a subsequent check task confirms the file exists and is non‑empty.
 

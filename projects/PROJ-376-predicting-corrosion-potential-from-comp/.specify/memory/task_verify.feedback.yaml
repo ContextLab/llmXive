@@ -1,8 +1,6 @@
 T001:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/setup_dirs_verified.json`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
+  reason: 'Requested task execution failed; rerun successfully: code/cli/run_pipeline_download_test.py
+    exit=2'
   task: f18ea17f3a1cc038be1d79f9a1a1f13af23c2b51e988d08cf84b80a719e8104c
 T001a:
   reason: 'the task writes platform-owned path(s) inside the project: `state/setup_dirs_verified.json`

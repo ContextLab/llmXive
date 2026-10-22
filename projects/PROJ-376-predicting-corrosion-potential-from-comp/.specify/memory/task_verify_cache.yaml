@@ -9,29 +9,29 @@ T002:
   sig: 6be7507f7170a83da19aeb23d04c3585a0b1f18d7f5e954185cf10a8bdc26ca9
 T003:
   c: true
-  h: fc277c593c3d2dfd6f02f5296197fdc24e467da3b31a9091ff3eac53d16960d9
+  h: a51d7aa2fa38c959231e1cf1fd02edee2768bb4a642aad34d482a0579cecad1c
   r: "Checked `code/utils/logging.py` for the required `get_logger` implementation\
-    \ and JSON\u2011line formatter, verified that it writes to `data/logs/pipeline.log`,\
-    \ and confirmed the unit test `tests/unit/test_logging.py` runs successfully and\
-    \ validates the JSON\u2011line format."
-  sig: e3a868b2ff0230177b4c85101f832cc207232d85c9b980a7687a78fa4645b654
+    \ and JSON\u2011line formatter, verified that `data/logs/pipeline.log` contains\
+    \ correctly formatted entries, and confirmed the unit test `tests/unit/test_logging.py`\
+    \ passes, demonstrating file creation and JSON\u2011line output."
+  sig: 1e821604ff54064eb24d37a36528d29aa539acc6c1b869c552a435fe33391ae6
 T003a:
   c: true
-  h: 91036504e94fcde109fb4f736ae88d623ae7fcc5a460cf011f2b3a26d522bbcf
-  r: "The `data/logs/pipeline.log` file is present (4715\u202Fbytes) and includes\
-    \ JSON\u2011line entries for all expected stages (download, validate, preprocess,\
-    \ split, train, evaluate, interpret). The `code/utils/verify_logging.py` script\
-    \ correctly reads this log, confirms each stage is represented, and exits with\
-    \ status\u202F0 (as shown in its execution log). Unit tests also verify the script\u2019\
-    s behavior for success and failure cases."
-  sig: 7a35cde909930636889c82f87f32b841aefa421b60d55f24763d3ca62b149d12
+  h: eda19f8b0166ceef4e666f77a5fdf6a2486c24615d79cb020db07103b9f43f57
+  r: "Checked `data/logs/pipeline.log` (7084\u202Fbytes) which contains JSON\u2011\
+    line entries for all expected stages, and the `code/utils/verify_logging.py` script\
+    \ which loads the log, validates presence of each stage, and exits with status\u202F\
+    0 (as shown in its execution log). Unit tests also confirm correct behavior for\
+    \ success and failure cases."
+  sig: 835881408fe0c435d8e8c3f42690f4d355a985d328da67690c0c01f0e6f998b6
 T004:
   c: true
-  h: 89916f34424fdd1f6a421664ead3ab10f88c75336a22dce3071703919ecb1e40
-  r: "Checked that both `ingest.schema.yaml` and `dataset.schema.yaml` exist at the\
-    \ required paths, are non\u2011empty, contain valid YAML/JSON\u2011Schema definitions\
-    \ matching the expected fields, and show no linting errors."
-  sig: 2ffb8ae2ae0378f3e3e77f34713c7a1fadf04946ce667defcab341a901e5e404
+  h: 0b25c47171562a9fdba607fcc1980aad46014e732a3b7f1b026d2de4aabfb88c
+  r: "Checked the two contract files `specs/001-predict-corrosion-potential-from-comp/contracts/ingest.schema.yaml`\
+    \ and `specs/001-predict-corrosion-potential-from-comp/contracts/dataset.schema.yaml`;\
+    \ both exist, contain the required JSON\u2011Schema definitions, and are syntactically\
+    \ valid YAML."
+  sig: 0d606142a4a2d13dad46cc93a04c877bf069110bc70c26a0c3e15f535443232b
 T005:
   c: false
   h: 03a07a98daf0cb6b7ff2d8f5fcd891212453678401d24d173810bbe0849901f0

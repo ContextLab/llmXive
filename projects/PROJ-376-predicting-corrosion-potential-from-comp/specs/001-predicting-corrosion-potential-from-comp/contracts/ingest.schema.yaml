@@ -1,20 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NIST Corrosion Ingest Record"
+description: >
+  Schema for raw records obtained from the NIST‑IR‑8200 corrosion database.
+  All fields are required; missing values are not allowed at ingest time.
 type: object
 required:
-  - id
+  - alloy_designation
   - composition
   - ph
   - temperature_celsius
   - corrosion_potential_mV
+  - electrolyte_type
 properties:
-  id:
+  alloy_designation:
     type: string
+    description: Unique identifier for the specific alloy (e.g., "SS304").
   composition:
     type: object
+    description: Mapping from element symbol to weight fraction (must sum to 1.0).
     additionalProperties:
       type: number
+      minimum: 0
+      maximum: 1
   ph:
     type: number
+    minimum: 0
+    maximum: 14
   temperature_celsius:
     type: number
+    description: Test temperature in degrees Celsius.
   corrosion_potential_mV:
     type: number
+    description: Measured corrosion potential in millivolts vs SHE.
+  electrolyte_type:
+    type: string
+    description: Categorical description of the electrolyte (e.g., "NaCl", "H2SO4").
