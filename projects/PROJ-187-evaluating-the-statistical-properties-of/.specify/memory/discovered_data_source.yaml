@@ -1,14 +1,10 @@
 status: none
-intent: download tabular benchmark datasets UCI Adult Credit Card Fraud Covertype
-  Higgs python package dataset
+intent: public tabular benchmarks UCI Adult Credit Card Fraud Covertype Higgs HAR
+  Shopper python package dataset
 required_fields:
-- Adult dataset original columns (age, workclass, fnlwgt, education, marital-status,
-  occupation, relationship, race, sex, capital-gain, capital-loss, hours-per-week,
-  native-country, income)
-- "Credit Card Fraud dataset original columns (V1\u2011V28, Amount, Class)"
-- "Covertype dataset original columns (elevation, aspect, slope, ... up to 54 forest\u2011\
-  cover features, Cover_Type)"
-- "Higgs dataset original columns (features 1\u201128, label)"
-cache_key: 2c66ff08f520a4fac92b99b1e274f39647c3e2d488082adff3400e5cc9e21abb
-searched_at: '2026-10-22T04:20:26.461774+00:00'
+- numeric feature columns
+- categorical feature columns
+- target label column
+cache_key: 4202265a341337c61c1ab599469d61994e160b82d8950940a8d7fae6fd4a7e5a
+searched_at: '2026-10-22T10:13:31.877409+00:00'
 retry_count: 1

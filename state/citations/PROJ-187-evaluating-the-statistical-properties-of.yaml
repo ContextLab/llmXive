@@ -53,7 +53,7 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/639716e4eb65a32e3457879f/24fe0797a6827178aa6f9a2718f509fc302d2b6e8fceae923c0de9536dce8dd6?response-content-type=text%2Fcsv%3B+charset%3Dutf-8&user_id=public&xip=b0z0H3HcGpg&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.csv%3B+filename%3D%22test.csv%22%3B&Expires=1792395940&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM5NzE2ZTRlYjY1YTMyZTM0NTc4NzlmLzI0ZmUwNzk3YTY4MjcxNzhhYTZmOWEyNzE4ZjUwOWZjMzAyZDJiNmU4ZmNlYWU5MjNjMGRlOTUzNmRjZThkZDZcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmdXNlcl9pZD1wdWJsaWMmeGlwPWIwejBIM0hjR3BnJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0ZXN0LmNzdiUzQitmaWxlbmFtZSUzRCUyMnRlc3QuY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTIzOTU5NDB9fX1dfQ__&Signature=MEQCIFuWXd9H7Zf5lnuLm7Wr0pYfBWQoAG55SEl2GTGiVL9rAiB09Jn939AhY6xxo9X%7ElSqTSdVIo5qoB65GUv9V4bGJWQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
   verified_at: '2026-10-19T06:45:40.484808Z'
-- artifact_hash: e6ea77b1e5efb192ff621ff9af9c03e82e0d491de2b3dc72433c1e48d0c10233
+- artifact_hash: 56c8b7575c563e532b316cd8e1098d33b91bf1d170bd69dc182bc84a9b0d98ae
   artifact_path: projects/PROJ-187-evaluating-the-statistical-properties-of/specs/001-evaluating-the-statistical-properties-of/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -61,6 +61,6 @@
   fetched_title: null
   kind: url
   value: https://openml.org/data/get_csv/1590/adult.csv`
-  verification_status: unreachable
-  verified_against_url: https://openml.org/data/get_csv/1590/adult.csv
-  verified_at: '2026-10-22T04:17:14.779215Z'
+  verification_status: mismatch
+  verified_against_url: https://www.openml.org/data/get_csv/1590/adult.csv
+  verified_at: '2026-10-22T10:12:47.814203Z'
