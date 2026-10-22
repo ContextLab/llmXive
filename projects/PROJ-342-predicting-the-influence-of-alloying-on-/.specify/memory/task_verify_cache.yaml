@@ -1,8 +1,7 @@
 T001:
   c: false
-  h: c88dd7e2cc988bd362bf4a8e1712abcd4dcd1b9ee59572ed34fd8f8523686dbf
-  r: "Missing required skeleton directories: `artifacts/models/`, `artifacts/metrics/`,\
-    \ `figures/`, `paper/`, and `logs/` are not present in the repository (they are\
-    \ not listed by the collector). Consequently the \u201Call listed directories\
-    \ exist\u201D condition of T001 is not satisfied."
-  sig: 1d2bf181570db26b275e4e9759bd8a71f342d8977e1f1a615c69438f67ec5693
+  h: 7b714a72c4eeac7df3eb6e5511ad2b9744069a95b50d5f6497c5c47831a92c7c
+  r: The required directories `artifacts/models/`, `artifacts/metrics/`, and `logs/`
+    are not present in the repository (they were not listed among the existing paths).
+    Without these directories the skeleton does not fully meet the task specification.
+  sig: 0009fca93410ac82783b21d5c30d087892d44d559dd88929ad46acfb1973f931

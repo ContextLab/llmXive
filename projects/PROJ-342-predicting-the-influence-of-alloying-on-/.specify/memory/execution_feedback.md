@@ -84,7 +84,7 @@ FileNotFoundError: Model file not found at /home/runner/work/llmXive/llmXive/pro
 
 - python code/report.py -> rc=1
 elation matrix from /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
-2026-10-22 14:22:14,544 - ERROR - Input file missing: Correlation matrix file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
+2026-10-22 14:24:15,981 - ERROR - Input file missing: Correlation matrix file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/report.py", line 230, in <module>
     main()
@@ -129,7 +129,7 @@ ERROR tests/unit/test_train_lofo.py
 ERROR tests/unit/test_verify_resource_compliance.py
 ERROR tests/unit/test_zenodo_client.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 10 errors in 1.32s ==============================
+============================== 10 errors in 1.20s ==============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -147,7 +147,7 @@ ERROR tests/integration/test_data_ingestion.py
 ERROR tests/integration/test_statistical_validation.py
 ERROR tests/integration/test_train_cv.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 3 errors in 1.26s =========================
+========================= 1 warning, 3 errors in 1.15s =========================
 
 
 
@@ -155,25 +155,6 @@ ERROR tests/integration/test_train_cv.py
 
 - data/processed/correlation_matrix.csv
 - data/processed/vif_diagnostic_log.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `matminer` to the project's `requirements.txt` and `pip install matminer`.
-- **Verified**: this loads **5959** real records with fields: formula, gfa.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import pandas as pd
-from matminer.datasets import load_dataset
-
-df = load_dataset('glass_binary')
-print(f'RECORDS={len(df)}')
-print(f'FIELDS={",".join(df.columns)}')
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

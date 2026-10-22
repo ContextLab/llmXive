@@ -17,13 +17,17 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 # Directories that must exist for the pipeline
 # ----------------------------------------------------------------------
 REQUIRED_DIRS = [
+    PROJECT_ROOT / "code",
     PROJECT_ROOT / "data" / "raw",
     PROJECT_ROOT / "data" / "processed",
     PROJECT_ROOT / "artifacts" / "models",
     PROJECT_ROOT / "artifacts" / "metrics",
     PROJECT_ROOT / "artifacts" / "reports",
-    PROJECT_ROOT / "logs",
+    PROJECT_ROOT / "figures",
+    PROJECT_ROOT / "paper",
     PROJECT_ROOT / "tests",
+    PROJECT_ROOT / "logs",
+    PROJECT_ROOT / "specs" / "001-predicting-the-influence-of-alloying-on" / "contracts",
 ]
 
 # Create any missing directories
