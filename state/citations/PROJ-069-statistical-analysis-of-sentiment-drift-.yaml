@@ -54,20 +54,9 @@
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
   verified_at: '2026-10-05T16:06:56.805919Z'
-- artifact_hash: ea81de10dda8584f4319a8d9c6d03ef9f4240f9dfa2114fd70d3a7fc344758d0
+- artifact_hash: 224b101dc68c34b890949a34a03df29ba90c871ee9ceb1d27d10b77ade56e3c3
   artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/spec.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.nber.org/research/data/business-cycle-dating-data-series
-  verification_status: pending
-  verified_against_url: https://www.nber.org/research/data/business-cycle-dating-data-series
-  verified_at: '2026-10-22T03:18:43.438154Z'
-- artifact_hash: ea81de10dda8584f4319a8d9c6d03ef9f4240f9dfa2114fd70d3a7fc344758d0
-  artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/spec.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: Vif - Wikidata
@@ -75,15 +64,4 @@
   value: https://www.wikidata.org/wiki/Q113106917
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-10-22T03:18:43.438154Z'
-- artifact_hash: ea81de10dda8584f4319a8d9c6d03ef9f4240f9dfa2114fd70d3a7fc344758d0
-  artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/spec.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: The GDELT Project
-  kind: url
-  value: https://gdeltproject.org
-  verification_status: pending
-  verified_against_url: https://gdeltproject.org
-  verified_at: '2026-10-22T03:18:43.438154Z'
+  verified_at: '2026-10-22T03:43:02.017990Z'

@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Acquisition, Alignment, and Preprocessing (Priority: P1) (US-1)
 
-The researcher MUST be able to ingest historical sentiment scores from a time‑stamped social‑media corpus and macro‑economic indicators from official sources, align them to a common **quarterly** frequency, and handle missing data via documented interpolation.
+The researcher MUST be able to ingest historical sentiment scores from a **social‑media** source (e.g., Twitter Academic Research API) and macro‑economic indicators from official sources, align them to a common **quarterly** frequency, and handle missing data via documented interpolation.
 
 **Why this priority**: Without aligned, clean time‑series data, no statistical analysis can occur. This is the foundational data layer required for all subsequent modeling and is the primary bottleneck for reproducibility.
 
@@ -17,7 +17,7 @@ The researcher MUST be able to ingest historical sentiment scores from a time‑
 
 **Acceptance Scenarios**:
 
-1. **Given** valid API access to FRED and GDELT (or equivalent time‑stamped sentiment source), **When** the ingestion script runs, **Then** GDP, unemployment, consumer confidence, and sentiment data are merged on a quarterly timestamp.
+1. **Given** valid API access to FRED and Twitter (or equivalent social‑media sentiment source), **When** the ingestion script runs, **Then** GDP, unemployment, consumer confidence, and sentiment data are merged on a quarterly timestamp.
 2. **Given** raw daily sentiment data, **When** aggregation is performed, **Then** a quarterly average is computed to match the frequency of macro variables, and periods where the quarterly sample size ≤ 30 observations are flagged as low‑confidence and excluded from primary analysis.
 3. **Given** quarterly macro series with missing values, **When** linear interpolation is applied, **Then** the missing rate per series is ≤ 5 % and periods exceeding this threshold are flagged and excluded.
 
@@ -77,7 +77,7 @@ The researcher MUST be able to execute a sensitivity analysis to validate the ro
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download sentiment scores from the GDELT Event Database (https://gdeltproject.org) aggregated to quarterly time series. (See US-1)
+- **FR-001**: System MUST download sentiment scores from a **social‑media platform** (e.g., Twitter Academic Research API) aggregated to quarterly time series. (See US-1)
 - **FR-002**: System MUST download economic indicators (GDP, unemployment, consumer confidence) from the official FRED API using the appropriate series identifiers for each indicator. The data are aligned to quarterly frequency using linear interpolation for missing values (≤ 5 % missing). The download must be performed directly from the FRED endpoints (no third‑party mirrors). (See US-1)
 - **FR-003**: System MUST apply Augmented Dickey‑Fuller (ADF) tests to verify stationarity of all input series (on quarterly data), selecting lag order via Akaike Information Criterion with a **maximum of 4 quarters**, and document p‑values and test statistics. **Additionally, the system MUST assess the impact of the chosen linear interpolation on autocorrelation by comparing lag‑1 autocorrelation with that from a Kalman Smoother imputation (as defined in FR‑017); if the absolute difference exceeds **0.05**, the alternative method is adopted.** (See US-2)
 - **FR-004**: System MUST conduct Granger causality tests (F‑test) to determine predictive relationships between sentiment and each macro variable, reporting p‑values and F‑statistics. The VAR model uses the two additive log‑ratio sentiment components (see FR‑016) together with GDP, unemployment, and consumer confidence. (See US-2)
@@ -98,6 +98,7 @@ The researcher MUST be able to execute a sensitivity analysis to validate the ro
 - **FR-018**: System MUST verify that all macro‑economic series are sourced directly from the official FRED API endpoints and must log the source URL for each series. (See US-1)
 - **FR-019**: System MUST explicitly state in all reports that Granger causality results are interpreted as predictive precedence, not definitive causal claims, and discuss limitations due to possible omitted confounders. (See US-2)
 - **FR-021**: System MUST perform a feasibility check ensuring that the total number of estimated VAR parameters does not exceed **(Number of observations / 5)**; if the check fails, the system reduces lag order or combines predictors accordingly. (See US-2)
+- **FR-022**: System MUST perform Moving Block Bootstrap (MBB) validation with at least **1000 iterations** (block length = 1 quarter), evaluate consistency (CI width ≤ 20 % of the VAR coefficient for sentiment→GDP, CI contains point estimate, CV < 0.1), and report a pass/fail status. (See US-3)
 
 ### Key Entities *(include if feature involves data)*
 
@@ -121,10 +122,10 @@ The researcher MUST be able to execute a sensitivity analysis to validate the ro
 
 ## Assumptions
 
-- Users have valid API access credentials for the FRED API and can access GDELT datasets without rate‑limiting restrictions during the analysis window.
+- Users have valid API access credentials for the FRED API and can access the chosen social‑media sentiment source (e.g., Twitter Academic Research API) without rate‑limiting restrictions during the analysis window.
 - Historical data exists in sufficient quantity to cover the Global Financial Crisis, the COVID‑19 recession, and earlier downturns, providing adequate statistical power for Granger causality tests.
 - The computational environment is CPU‑only (no GPU), with ≥ 16 GB RAM and sufficient disk space to process the sampled dataset and run at least **1000** bootstrap iterations within a **2‑hour** wall‑clock limit.
-- Social media sentiment scores derived from the GDELT Event Database are sufficiently accurate for macro‑economic correlation, and the model's confidence scores are reliable indicators of prediction quality.
+- Social‑media sentiment scores derived from the selected platform are sufficiently accurate for macro‑economic correlation, and the model's confidence scores are reliable indicators of prediction quality.
 - Linear interpolation is acceptable for handling missing values in quarterly macroeconomic variables, provided the missing rate remains ≤ 5 % per series; FR‑017 will verify that alternative imputation does not materially alter autocorrelation structure.
 - The MVP scope focuses on major recession periods as default validation sets, but the system is designed to support configurable recession period selection.
 - Impulse response functions are standard visualization practice for VAR model results but are optional for MVP completion if computational resources are constrained.
