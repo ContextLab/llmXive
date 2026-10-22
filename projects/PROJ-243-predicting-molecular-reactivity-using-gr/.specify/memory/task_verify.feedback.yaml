@@ -1,52 +1,48 @@
 T001:
   task: 1dfc45cf995efd0277df27e7390417adf3da21c0375c1996cf6178c5a4ecb13f
 T002:
-  reason: "The project contains `requirements.txt`, `pyproject.toml`, and `ruff.toml`,\
-    \ and the requirements file pins all listed packages, but there is no `.flake8`\
-    \ file in the repository and the provided log only shows package installation\u2014\
-    not the required `ruff check .` or `black --check .` executions. Adding a `.flake8`\
-    \ configuration file and evidence that both linting and Black formatting pass\
-    \ is needed."
-  task: 228c491aa46380c241995ce5d6320cf6c7a708249320f5376654081d4fd5f951
+  task: 6cbeaa39d5083eb8120c7f35a1952dde8a1920a0d79534d89608b5729d0b9036
 T003:
-  reason: "The `data/raw/checksums_schema.yaml` file exists and appears valid, but\
-    \ the required `data/raw/checksums.json` is not empty\u2014it contains entries\
-    \ with keys `file`, `hash`, and `path` that do not match the schema\u2019s `file_path`\
-    \ and `sha256` fields. The task explicitly demanded an empty `checksums.json`,\
-    \ so this requirement is unmet."
-  task: 4b43f349955989a58c04892e67d9de7f6e535f3d9a5dcdf4ed23892970b9ffe7
+  task: e861c50f5c9279b4b91366825b2023373cdfcd7fbc396e2b4465242bba91c29b
 T004:
-  task: f05715c1b6c34eaaa9a72a319ee5e838fdca3c7ed2428f9c6e96725257c684fa
+  task: ccb359b9a0075b4ed3e9418de310c2d8ab4b9f4753089642ed72c7344354fb35
 T005:
-  reason: "The `data/raw/reference_substructures_raw.csv` file exists and has the\
-    \ required columns, but `data/raw/checksums.json` lacks a checksum entry for this\
-    \ CSV (it only contains an entry for `qm9_subset`). The task requires the SHA\u2011\
-    256 of the reference substructures CSV to be recorded in `checksums.json`, which\
-    \ is currently missing. Add the correct checksum entry for `reference_substructures_raw.csv`."
-  task: 6544ad0033b0cab68d101c6736188511d86eb07afd3eeff001c0b708eab7e767
+  task: 60515e9ffeebd6817475e4635da6fcfe277b0b25fe35e98049c36d0f33c37d96
 T006:
-  task: 7ea02df71fd2e3baebff7bccf630d86a7f68ad4e66466f4491df3c184077f35c
+  task: 72df02ad880658f8d9d3cdc2b644e97adf5914ed47a2a4599081dcb27ceb0e63
 T007:
   task: 06fec6e49b57b71f75c0fd08fb715ae1a599f4f68e4e77f549ab757e579ff746
 T008:
-  task: a3026b8e6ccede9edaf78a7fbdd0e7808f1b26224b768723ae221fd6db13a0a1
+  task: 359b42cc6d35291f68e3770aeb8f149af1f8edbe53b3acecc90f273f40c247e2
 T009:
-  task: 76f3dabcdb397da21219f9c5fa8523b223cbac07debe18393cb525fdf4459fee
+  task: c1549af72a4c0aba0f5490657869e7f08eeb9674f223fe0aa91770ae760222d2
 T010:
-  task: 2a897775c989776f38a027e4d9249a000830df7971d4d7660b21d63a17981396
-T011:
-  task: 0de9ff12c3a51352aea64872640bb9e0c6a30281a33bdbbb635fdc662499b0ab
+  task: 9aa47a237bdea36b17cdc0914a308b39519b5348614992e3cb62f6e8d5ffaf7d
+"T011\u2011a":
+  task: 3ea0fadd328fe4a0268fb985db1a9a67c4518508dfa697cde826156790f03ced
+"T011\u2011b":
+  task: 75bde8eb6e517523682a6d5369d74f180f0ef610ad28736fdefcbf2d57a102f8
+"T011\u2011c":
+  task: 5762eca5d444547664991cf923a0ac4896887032dbefaa2d36ea53fc0207b145
+"T011\u2011d":
+  task: 1f7d1ae0b484d9c1ba81e5d3463e230502bef9b1b083ffe06d1a12239be4fdb3
+"T011\u2011e":
+  task: 0d4fbc5c17ed6de9a466c3c89e38ea51d36d590374483ed615a19879c4b11fac
+"T011\u2011f":
+  task: d55ffdca76c6f6efd007d2eb1aa565613960500188851b88e5148591b5277d78
 T012:
-  task: 674055e16e141239ecbd316870bb5173830fb3a98a829b36f6da9129320912a9
+  task: 51654ec1f9fd32cf66ffe99090e91fb9bb67b07a4b83e837a32221f49932f8c5
 T013:
-  task: dbb2e394a892417f1d7f4206034a5ea32b352879eb27b511a185dfd35617d3a8
+  task: a017d9abdbf0aa99fa0f6445b0006e70800b91f8ac0f7cbfbddfa7caa207a0ef
 T014:
-  task: 030aba14912be47b4995f6aa884e472a6bdfb737ffe046919e93098f88722f5a
+  task: a10686639a4e12b83c91b0f11fe5b37525db7d410baff7f6bd4e1b607ccd685a
 T015:
-  task: 537472998685d143f92ac73758032e30a58a19c1b63e57051c7b789ad9925522
+  task: 8954d4a3247831cf647c1908a8c0b89ca311492b33b9e8bccae23595d5dbb95e
 T016:
-  task: a8dcf582169c88764560e1f036fe240cd70b4b977706e1c42fdfa5e8093033b2
+  task: b3550a13054a1341931962d4ff8c8daf091d61422cad2ee1c2768fb61557c1d8
 T017:
-  task: ea52cd201bd55c4f686b253397e61144d51452097449f8b8cabfea175c174f13
+  task: 69819de25d9e5725f9fba5c8d940d01bcecc031912437225f5ad83e055a8303d
 T018:
-  task: 5878bb896d141a42cb5989f42310097be10e2794cc853b90c48d2d72f391ac8e
+  task: 994664bca9812e3711b2a7ee589f3d55a035c7af577cd7a0699a497cf984a691
+T027:
+  task: c31628becabcb946976312eff6aeac6406fff69883d94d471fb84d58e1cdb25f

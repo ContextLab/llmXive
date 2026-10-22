@@ -1,18 +1,19 @@
 status: none
-intent: download QM9 dataset for RDKit graph preprocessing python package dataset
+intent: QM9 molecular dataset download python package dataset including reference
+  substructures and kinetic dataset
 required_fields:
-- SMILES
-- atomic_number
-- hybridization
-- formal_charge
-- bond_type
-- conjugation
-- HOMO
-- LUMO
-- dipole_moment
-- reference_substructure_SMILES
-- reference_substructure_DOI
-- kinetic_experimental_rate
-cache_key: 569898a803754eee73a38ff7021c0e9feab47755c58444afaf87247c84917780
-searched_at: '2026-10-19T12:11:25.812679+00:00'
+- smiles
+- node_atomic_number
+- node_hybridization
+- node_formal_charge
+- edge_bond_type
+- edge_conjugation
+- homo
+- lumo
+- reference_substructures_smiles
+- reference_substructures_doi
+- kinetic_dataset_smiles
+- kinetic_dataset_experimental_rate
+cache_key: b908da29ed37ff1b87100f1397285e60edc8b940c7ad001fb4edc0c1c07c90d9
+searched_at: '2026-10-22T15:35:25.832572+00:00'
 retry_count: 1

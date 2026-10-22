@@ -1,7 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T002** — The project contains `requirements.txt`, `pyproject.toml`, and `ruff.toml`, and the requirements file pins all listed packages, but there is no `.flake8` file in the repository and the provided log only shows package installation—not the required `ruff check .` or `black --check .` executions. Adding a `.flake8` configuration file and evidence that both linting and Black formatting pass is needed.
-- **T003** — The `data/raw/checksums_schema.yaml` file exists and appears valid, but the required `data/raw/checksums.json` is not empty—it contains entries with keys `file`, `hash`, and `path` that do not match the schema’s `file_path` and `sha256` fields. The task explicitly demanded an empty `checksums.json`, so this requirement is unmet.
-- **T005** — The `data/raw/reference_substructures_raw.csv` file exists and has the required columns, but `data/raw/checksums.json` lacks a checksum entry for this CSV (it only contains an entry for `qm9_subset`). The task requires the SHA‑256 of the reference substructures CSV to be recorded in `checksums.json`, which is currently missing. Add the correct checksum entry for `reference_substructures_raw.csv`.
