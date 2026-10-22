@@ -47,13 +47,6 @@ T011:
 T012:
   task: 5c800a8baeea88961a80b43be521543be5ce6afaf28164e8128db9b0be45d010
 T014:
-  reason: "The `contracts/features.schema.yaml` file defines extra optional properties\
-    \ (`A_atomic_radius`, `B_atomic_radius`, `X_atomic_radius`) that are not among\
-    \ the twelve required descriptor columns, violating the \u201Cno additional columns\
-    \ allowed\u201D requirement. The test only checks schema syntax, not that the\
-    \ schema restricts columns to exactly the specified set. The schema must be revised\
-    \ to include only the twelve descriptor fields and `formation_energy` with `additionalProperties:\
-    \ false`."
   task: 5664d00d55c6f77685d9b919ecefd353abe8f7390c40f258ab4e98d588a5a278
 T015:
   task: f7b11897da518c4ade55bbd53fc58cbbd79f9c4dedb2bcd63768b22a63ad3819

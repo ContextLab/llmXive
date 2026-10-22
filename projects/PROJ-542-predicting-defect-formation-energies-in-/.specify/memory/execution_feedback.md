@@ -19,20 +19,27 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.featurize data/raw/materials_defects.csv data/processed/features.csv -> rc=1
 
-2026-10-22 12:53:29,529 ERROR src.data.featurize: Feature computation failed: Element has no attribute electronegativity!
+2026-10-22 13:23:05,524 ERROR src.data.featurize: Failed to read raw CSV at data/raw/materials_defects.csv: [Errno 2] No such file or directory: 'data/raw/materials_defects.csv'
+2026-10-22 13:23:05,524 ERROR src.data.featurize: Feature computation failed: [Errno 2] No such file or directory: 'data/raw/materials_defects.csv'
 
 - python -m src.validate data/processed/features.csv -> rc=1
-
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/validate.py", line 23, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/validate.py", line 20, in main
-    _impl_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/data/validate.py", line 40, in main
-    raise ValueError("Insufficient rows (<50) for 5-fold CV")
-ValueError: Insufficient rows (<50) for 5-fold CV
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/data/processed/features.csv'
 
 - python -m src.split data/processed/features.csv data/processed/train.csv data/processed/test.csv -> rc=1
 
@@ -47,8 +54,7 @@ ValueError: Insufficient rows (<50) for 5-fold CV
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-542-predicting-defect-formation-energies-in-/bin/python: No module named src.evaluate
 
 - python -m pytest -q -> rc=1
-ine_entry
-projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_pipeline_entry.py::test_pipeline_entry
+est_pipeline_entry.py::test_pipeline_entry
   /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-542-predicting-defect-formation-energies-in-/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
@@ -59,8 +65,9 @@ projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_pipel
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED src/tests/test_descriptor_gaps.py::test_check_descriptor_gaps_with_missing
+FAILED tests/test_generate_checksums.py::test_checksum_files_created - Assert...
 FAILED tests/test_split.py::test_split_dataset_basic - assert 2 <= 1
 FAILED tests/test_split.py::test_cli_execution - AssertionError: assert False
-3 failed, 8 passed, 14 warnings in 3.93s
+4 failed, 7 passed, 14 warnings in 5.16s
 
 

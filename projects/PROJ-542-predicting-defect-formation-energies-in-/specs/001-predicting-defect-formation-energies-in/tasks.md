@@ -5,7 +5,7 @@ All paths are relative to the project root and use the canonical `code/` directo
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T014 [US1] Define and validate a dedicated schema for the feature matrix.  
+- [X] T014 [US1] Define and validate a dedicated schema for the feature matrix.  
   *File:* `contracts/features.schema.yaml`  
   *Schema:* Requires the twelve compositional descriptor columns (`A_radius`, `A_electronegativity`, … `X_valence_electrons`) and a numeric `formation_energy`; no additional columns allowed.  
   *Verification:* `code/tests/test_features_schema.py` validates that the schema is syntactically correct and loads without error.

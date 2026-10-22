@@ -44,13 +44,10 @@ T012:
     \ the \u201Cpinned requirements.txt\u201D requirement."
   sig: 63ad80978dfdeb581dbddf0815f31925355bd26dd8ff80bd76e0a7b29b709a77
 T014:
-  c: false
-  h: f569c8c26021201582cb5a966f87ce602c72347381cd2acd21eeef0fc8d9962c
-  r: "The `contracts/features.schema.yaml` file defines extra optional properties\
-    \ (`A_atomic_radius`, `B_atomic_radius`, `X_atomic_radius`) that are not among\
-    \ the twelve required descriptor columns, violating the \u201Cno additional columns\
-    \ allowed\u201D requirement. The test only checks schema syntax, not that the\
-    \ schema restricts columns to exactly the specified set. The schema must be revised\
-    \ to include only the twelve descriptor fields and `formation_energy` with `additionalProperties:\
-    \ false`."
-  sig: 307c5d5f1c65e6f3214e3171b3e4c70a8e4c1b27681d3b37d11fd242cadc5e73
+  c: true
+  h: d3405537356e17d365c49047eb1c01fcdc8b5d58a34e5362ecb2425a10a8cf3e
+  r: 'Checked `contracts/features.schema.yaml` for the required twelve descriptor
+    fields plus `formation_energy` with `additionalProperties: false`, and verified
+    `code/tests/test_features_schema.py` successfully loads and validates the schema
+    syntax.'
+  sig: 89aeb4b1b295eb2749f71c4b70d7cd6440a22ef06ae49b0b46081b4c56286892
