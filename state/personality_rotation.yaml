@@ -1,14 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-10-22T06:05:30.401988+00:00'
+last_used: freeman-dyson
+last_used_at: '2026-10-22T08:05:55.227568+00:00'
 last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-06-28T18:26:34.288037+00:00'
-  ended_at: '2026-06-28T18:58:50.702437+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-045-investigating-the-relationship-between-d/reviews/research/marie-curie-simulated__2026-06-28__research.md
 - slug: richard-feynman
   started_at: '2026-06-28T18:58:50.702437+00:00'
   ended_at: '2026-06-28T19:34:13.514317+00:00'
@@ -1342,3 +1335,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-291-predicting-the-impact-of-residual-stress/reviews/research/eric-kandel-simulated__2026-10-22__research.md
+- slug: freeman-dyson
+  started_at: '2026-10-22T06:05:30.401988+00:00'
+  ended_at: '2026-10-22T08:05:55.227568+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/reviews/research/freeman-dyson-simulated__2026-10-22__research.md
