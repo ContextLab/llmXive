@@ -49,7 +49,7 @@ OPTIONAL_VARIABLES: Tuple[str, ...] = ("crystal_structure",)
 # Updated fallback CSV URL – a real, publicly‑available corrosion dataset.
 # Using the ``raw`` path format avoids the 404 seen with the previous URL.
 FALLBACK_URL: str = (
-    "https://github.com/selva86/datasets/raw/master/Corrosion.csv"
+    "https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv"
 )
 
 class MissingVariableError(RuntimeError):
@@ -387,10 +387,14 @@ def ingest(dataset_id: Optional[int] = None, max_candidates: int = 25) -> Path:
     dummies = pd.get_dummies(cleaned[comp_col], prefix=comp_col, dtype=int)
     cleaned = pd.concat([cleaned, dummies], axis=1)
 
-    # Standardize numeric predictors (exclude target and grouping columns).
+    # Determine composition one‑hot columns to exclude from scaling.
+    composition_one_hot_cols = list(dummies.columns)
+
+    # Standardize numeric predictors (exclude target, grouping column,
+    # and the newly created one‑hot composition columns which should stay 0/1).
     cleaned = _standardize_numeric(
         cleaned,
-        exclude=[cr_col, "source_id"],
+        exclude=[cr_col, "source_id"] + composition_one_hot_cols,
     )
 
     # ------------------------------------------------------------------

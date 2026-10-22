@@ -10,7 +10,7 @@ and success criteria (SC‑001 – SC‑007).
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T013 [P] [US1] Create `src/requirements.txt` (mirrored in `code/requirements.txt`) pinning exact dependency versions required by the project.  
+- [X] T013 [P] [US1] Create `src/requirements.txt` (mirrored in `code/requirements.txt`) pinning exact dependency versions required by the project.  
   *Verification*: `pip install -r src/requirements.txt` and `pip install -r code/requirements.txt` both succeed; the two files are byte‑identical.
 
 - [X] T015 [P] [US1] Author `quickstart.md` in the feature’s spec directory documenting the single command to run the full workflow (`python -m src.pipeline.run_all`) and the pytest command (`pytest src/tests/`).  

@@ -1,12 +1,20 @@
-T013:
+T002:
   c: false
-  h: 7f6a6cab6efcdd70c36fac3b3730cdf02f0d2ddba067de3e70489005cf189de2
-  r: "The two requirement files exist, are non\u2011empty, and are byte\u2011identical,\
-    \ but there is no provided evidence (e.g., command logs, screenshots, or captured\
-    \ output) showing that `pip install -r src/requirements.txt` and `pip install\
-    \ -r code/requirements.txt` actually succeeded. Adding such installation logs\
-    \ would be needed to satisfy the verification step."
-  sig: 256dad4e3c1c2e8b194d91fea8b2ddc1f9a22fd12f22ba95516e56a71aa2f5c5
+  h: 4677f1e3af585c80576d6968ee603a34182b67fffd70dbaafb86f758035a2227
+  r: The required implementation file `src/pipeline/clean.py` (or `ingest.py`), the
+    output CSV `data/processed/cleaned_dataset.csv`, and the test suite `src/tests/test_clean.py`
+    are all missing, so the cleaning, validation, and harmonization functionality
+    cannot be verified.
+  sig: d6b170cdb9d32816d5c7fa4be26396b018cae4d0224d6929bbdb1564672d2c08
+T013:
+  c: true
+  h: 46f35dfdb1d66fb598c892b7907498e120728aeeb3352063a28835983289de25
+  r: "The src/requirements.txt and code/requirements.txt files both exist, are non\u2011\
+    empty, have identical SHA\u2011256 hashes, and contain exact version pins. The\
+    \ execution log `code/.tasks/T013.code_verify_requirements.sh.log` shows `pip\
+    \ install -r src/requirements.txt` (and by mirroring, code/requirements.txt) completed\
+    \ successfully with all packages satisfied."
+  sig: 77f5d56292f2fd900de9b0b814b4099f0d99f85d18a8e59029515eb685aaafca
 T015:
   c: true
   h: ad1c0de099baee3355e1ba5a45a76440a912369314392a56783bd69a46fb99bb

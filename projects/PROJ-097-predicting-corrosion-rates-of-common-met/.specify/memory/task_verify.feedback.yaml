@@ -3,6 +3,10 @@ T001:
     exit=1; code/run_pipeline.sh exit=1'
   task: 7ce189be289a91aa26e450358392ca1f98f2544bd58d8926d160d18d27fcea7a
 T002:
+  reason: The required implementation file `src/pipeline/clean.py` (or `ingest.py`),
+    the output CSV `data/processed/cleaned_dataset.csv`, and the test suite `src/tests/test_clean.py`
+    are all missing, so the cleaning, validation, and harmonization functionality
+    cannot be verified.
   task: 3eafbb26671a8cc9a072a4d1d4ce11222e599ec984597b710c1b1cbe56bd6aa7
 T003:
   task: 6ca1436d0bee85be6f985f52d93bebf3280098aa71aff6a0644807fe461784d8
@@ -25,11 +29,6 @@ T011:
 T012:
   task: bf01c4922065848d731e70be1a834fdcc5d3030cd9128a2c1116ebf85e2a4487
 T013:
-  reason: "The two requirement files exist, are non\u2011empty, and are byte\u2011\
-    identical, but there is no provided evidence (e.g., command logs, screenshots,\
-    \ or captured output) showing that `pip install -r src/requirements.txt` and `pip\
-    \ install -r code/requirements.txt` actually succeeded. Adding such installation\
-    \ logs would be needed to satisfy the verification step."
   task: 181c6ee1c73a155616c1ff9da6dcab73ccce207ef79abdc8c31a016edfe003f0
 T015:
   task: 7fbf22227fbf56eb12601ae92d98de63ad9a617875d5bf3cecb5482827da2e1f
