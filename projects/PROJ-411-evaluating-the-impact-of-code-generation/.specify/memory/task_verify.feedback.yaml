@@ -1,12 +1,6 @@
 T001:
-  reason: "The script substitutes a different primary dataset: instead of downloading\
-    \ `loubnabnl/prs-v2-sample` via `huggingface_hub` as required, it fetches `soroushj/ghpr-dataset`\
-    \ (a GitHub raw CSV) and renames its columns to fake schema conformance \u2014\
-    \ this is a different, easier source, not the specified canonical HF dataset,\
-    \ and the files are not tagged with `source_dataset`. Additionally, `data/raw/schema_map.md`\
-    \ only covers the 8 `required` fields, omitting the optional schema fields (`diff_text`,\
-    \ `file_headers`, `labels`, `first_comment_timestamp`) that the task says must\
-    \ be documented per dataset"
+  reason: 'Requested task execution failed; rerun successfully: code/download_data.py
+    exit=1'
   task: 7d0a737974efedffbbd66f0e19375556d973eba545d49e06743e2ffdc51df67a
 T002:
   reason: "The pytest run failed (1 of 6 tests: `test_precedence_header_wins` \u2014\

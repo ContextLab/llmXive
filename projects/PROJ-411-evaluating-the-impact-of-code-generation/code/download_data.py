@@ -1,12 +1,15 @@
 """
 download_data.py
 
-Phase 0 script: download verified PR datasets, compute SHA-256 checksums, 
-validate columns against the raw PR schema, and write a schema-map documentation file.
+Phase 0 script: download verified PR datasets from HuggingFace, compute SHA‑256
+checksums, validate columns against the raw PR schema, and write a
+schema‑mapping documentation file.
 
-The primary dataset is fetched from the verified GitHub raw CSV source to ensure 
-mandatory fields (comment_count, merged_at) are present, then persisted as Parquet.
-Auxiliary datasets are fetched from HuggingFace.
+The primary dataset is fetched from the verified HF repository
+`loubnabnl/prs-v2-sample`. Two auxiliary datasets are fetched from
+`davanstrien/authors_merged_model_prs` and
+`davanstrien/authors_merged_dataset_prs`. Each parquet file is saved under
+`data/raw/` with a `source_dataset` column indicating its origin.
 """
 import argparse
 import hashlib
@@ -24,26 +27,14 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Authoritative verified source for primary population
-VERIFIED_PRIMARY_URL = "https://raw.githubusercontent.com/soroushj/ghpr-dataset/main/ghpr-sample.csv"
-
-# Mapping from verified CSV columns to raw_prs.schema.yaml names
-PRIMARY_COLUMN_MAP = {
-    "pull_number": "pr_id",
-    "repo_id": "repo_name",
-    "pull_created_at": "created_at",
-    "pull_merged_at": "merged_at",
-    "pull_additions": "additions",
-    "pull_deletions": "deletions",
-    "pull_comments": "comment_count",
-    "issue_body_plain": "commit_message",
-}
-
+# HF repository identifiers
+PRIMARY_REPO = "loubnabnl/prs-v2-sample"
 AUXILIARY_DATASETS = [
     {"repo_id": "davanstrien/authors_merged_model_prs", "tag": "aux_model"},
     {"repo_id": "davanstrien/authors_merged_dataset_prs", "tag": "aux_dataset"},
 ]
 
+# Schema location
 SCHEMA_PATH = (
     paths.root
     / "specs"
@@ -52,11 +43,18 @@ SCHEMA_PATH = (
     / "raw_prs.schema.yaml"
 )
 
+# Mandatory fields that must be present in the primary dataset
 PRIMARY_MANDATORY_FIELDS = {"comment_count", "merged_at"}
 
 # ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _normalize_name(name: str) -> str:
+    """Normalise a column or field name for fuzzy matching."""
+    return name.lower().replace("_", "")
+
 def load_schema_required_fields(schema_path: Path) -> List[str]:
-    """Load the JSON-schema file and return the list of required property names."""
+    """Load the JSON‑schema file and return the list of *required* property names."""
     if not schema_path.is_file():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     with open(schema_path, "r", encoding="utf-8") as f:
@@ -66,83 +64,27 @@ def load_schema_required_fields(schema_path: Path) -> List[str]:
         raise RuntimeError("Invalid schema: 'required' must be a list")
     return required
 
-def _normalize_name(name: str) -> str:
-    """Normalise a column or field name for fuzzy matching."""
-    return name.lower().replace("_", "")
-
-def download_verified_primary(dest_path: Path) -> pd.DataFrame:
-    """
-    Downloads the verified CSV source, renames columns to match the schema,
-    and saves as a Parquet file.
-    """
-    log.info(f"Downloading verified primary dataset from {VERIFIED_PRIMARY_URL}")
-    try:
-        df = pd.read_csv(VERIFIED_PRIMARY_URL)
-    except Exception as e:
-        raise RuntimeError(f"Failed to download verified primary source: {e}")
-
-    # Rename according to the verified mapping
-    df = df.rename(columns=PRIMARY_COLUMN_MAP)
-    
-    # Keep only mapped columns + any others that might be useful (like labels)
-    # to ensure we don't bloat but maintain utility.
-    # The schema requires specific fields; we ensure those are there.
-    
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(dest_path, engine="pyarrow", index=False)
-    log.info(f"Verified primary dataset written to {dest_path}")
-    return df
-
-def download_and_combine_parquet(repo_id: str, dest_path: Path) -> Path:
-    """
-    Download all parquet files from HF repo_id, concatenate and write to dest_path.
-    """
-    log.info(f"Listing files for repo {repo_id}")
-    files = list_repo_files(repo_id, repo_type="dataset")
-    parquet_files = [f for f in files if f.lower().endswith(".parquet")]
-    if not parquet_files:
-        raise RuntimeError(f"No parquet file found in repository {repo_id}")
-
-    data_frames: List[pd.DataFrame] = []
-    for parquet_file in parquet_files:
-        log.info(f"Downloading {parquet_file} from {repo_id}")
-        local_path = hf_hub_download(
-            repo_id=repo_id, filename=parquet_file, repo_type="dataset"
-        )
-        df = pd.read_parquet(local_path, engine="pyarrow")
-        data_frames.append(df)
-
-    if not data_frames:
-        raise RuntimeError(f"Failed to load any parquet data from {repo_id}")
-
-    combined_df = pd.concat(data_frames, ignore_index=True)
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-    combined_df.to_parquet(dest_path, engine="pyarrow", index=False)
-    log.info(f"Combined parquet written to {dest_path}")
-    return dest_path
+def load_schema_all_fields(schema_path: Path) -> List[str]:
+    """Return a list of **all** property keys defined in the schema."""
+    if not schema_path.is_file():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, "r", encoding="utf-8") as f:
+        schema = yaml.safe_load(f)
+    properties = schema.get("properties", {})
+    if not isinstance(properties, dict):
+        raise RuntimeError("Invalid schema: 'properties' must be a dict")
+    return list(properties.keys())
 
 def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 checksum of a file."""
+    """Compute SHA‑256 checksum of a file."""
     h = hashlib.sha256()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
     return h.hexdigest()
 
-def validate_columns(df: pd.DataFrame, required: List[str]) -> Dict[str, str]:
-    """Check presence of required fields (case-insensitive, underscore-tolerant)."""
-    existing_norm = {_normalize_name(col): col for col in df.columns}
-    status: Dict[str, str] = {}
-    for field in required:
-        norm_field = _normalize_name(field)
-        if norm_field in existing_norm:
-            status[field] = "present"
-        else:
-            status[field] = "missing"
-    return status
-
 def write_checksums(checksum_dict: Dict[Path, str], out_path: Path) -> None:
-    """Write SHA-256 checksums to a text file."""
+    """Write SHA‑256 checksums to a text file."""
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
         for path, chksum in checksum_dict.items():
@@ -161,29 +103,86 @@ def write_schema_map(map_info: Dict[str, Dict[str, str]], out_path: Path) -> Non
                 f.write(f"| `{var}` | {status} |\n")
             f.write("\n")
 
+def validate_columns(df: pd.DataFrame, fields: List[str]) -> Dict[str, str]:
+    """
+    For each field in ``fields`` report whether it is present in ``df``.
+    Returns a mapping ``field -> status`` where status is either
+    ``present`` or ``missing``.
+    """
+    existing_norm = {_normalize_name(col): col for col in df.columns}
+    status: Dict[str, str] = {}
+    for field in fields:
+        norm_field = _normalize_name(field)
+        status[field] = "present" if norm_field in existing_norm else "missing"
+    return status
+
+def download_and_combine_parquet(repo_id: str, dest_path: Path, source_tag: str) -> Path:
+    """
+    Download **all** parquet files from a HF dataset repo, concatenate them,
+    add a ``source_dataset`` column with ``source_tag``, and write the combined
+    parquet to ``dest_path``.
+    """
+    log.info(f"Listing files for repo {repo_id}")
+    files = list_repo_files(repo_id, repo_type="dataset")
+    parquet_files = [f for f in files if f.lower().endswith(".parquet")]
+    if not parquet_files:
+        raise RuntimeError(f"No parquet file found in repository {repo_id}")
+
+    data_frames: List[pd.DataFrame] = []
+    for parquet_file in parquet_files:
+        log.info(f"Downloading {parquet_file} from {repo_id}")
+        local_path = hf_hub_download(
+            repo_id=repo_id, filename=parquet_file, repo_type="dataset"
+        )
+        df = pd.read_parquet(local_path, engine="pyarrow")
+        df["source_dataset"] = source_tag
+        data_frames.append(df)
+
+    if not data_frames:
+        raise RuntimeError(f"Failed to load any parquet data from {repo_id}")
+
+    combined_df = pd.concat(data_frames, ignore_index=True)
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    combined_df.to_parquet(dest_path, engine="pyarrow", index=False)
+    log.info(f"Combined parquet written to {dest_path}")
+    return dest_path
+
+# ----------------------------------------------------------------------
+# Main workflow
+# ----------------------------------------------------------------------
 def main() -> None:
+    # Load schema information
     required_fields = load_schema_required_fields(SCHEMA_PATH)
-    log.info(f"Required fields from schema: {required_fields}")
+    all_fields = load_schema_all_fields(SCHEMA_PATH)
+    log.info(f"Schema required fields: {required_fields}")
+    log.info(f"Schema total fields (including optional): {len(all_fields)}")
 
     checksum_dict: Dict[Path, str] = {}
     schema_map: Dict[str, Dict[str, str]] = {}
     raw_dir = paths.data("raw")
 
-    # 1. Process Primary Dataset (Verified Source)
+    # --------------------------------------------------------------
+    # 1. Process Primary Dataset (HF repo)
+    # --------------------------------------------------------------
     primary_dest = raw_dir / "prs-v2-sample.parquet"
-    df_primary = download_verified_primary(primary_dest)
-    
-    # Checksum and Validate Primary
-    primary_checksum = compute_sha256(primary_dest)
-    checksum_dict[primary_dest] = primary_checksum
-    
-    primary_status = validate_columns(df_primary, required_fields)
+    log.info(f"Downloading primary dataset from HF repo {PRIMARY_REPO}")
+    primary_path = download_and_combine_parquet(
+        repo_id=PRIMARY_REPO,
+        dest_path=primary_dest,
+        source_tag="primary",
+    )
+    df_primary = pd.read_parquet(primary_path, engine="pyarrow")
+
+    # Checksum & validation for primary
+    primary_checksum = compute_sha256(primary_path)
+    checksum_dict[primary_path] = primary_checksum
+
+    primary_status = validate_columns(df_primary, all_fields)
     schema_map["primary"] = primary_status
-    
-    # Scope-mismatch check for primary dataset
+
+    # Scope‑mismatch check for mandatory fields in primary
     missing_mandatory = [
-        fld for fld in PRIMARY_MANDATORY_FIELDS 
-        if primary_status.get(fld) != "present"
+        fld for fld in PRIMARY_MANDATORY_FIELDS if primary_status.get(fld) != "present"
     ]
     if missing_mandatory:
         raise RuntimeError(
@@ -191,36 +190,48 @@ def main() -> None:
         )
     log.info("Primary dataset passed mandatory field check.")
 
+    # --------------------------------------------------------------
     # 2. Process Auxiliary Datasets (HF)
+    # --------------------------------------------------------------
     for ds in AUXILIARY_DATASETS:
         repo_id = ds["repo_id"]
         tag = ds["tag"]
-        dest_filename = repo_id.split("/")[-1] + ".parquet"
+        dest_filename = f"{tag}.parquet"
         dest_path = raw_dir / dest_filename
-        
+
         try:
-            combined_path = download_and_combine_parquet(repo_id, dest_path)
+            combined_path = download_and_combine_parquet(
+                repo_id=repo_id,
+                dest_path=dest_path,
+                source_tag=tag,
+            )
             df_aux = pd.read_parquet(combined_path, engine="pyarrow")
-            
+
             # Checksum
-            checksum = compute_sha256(combined_path)
-            checksum_dict[combined_path] = checksum
-            
-            # Validate
-            col_status = validate_columns(df_aux, required_fields)
-            schema_map[tag] = col_status
+            aux_checksum = compute_sha256(combined_path)
+            checksum_dict[combined_path] = aux_checksum
+
+            # Validation
+            aux_status = validate_columns(df_aux, all_fields)
+            schema_map[tag] = aux_status
         except Exception as e:
             log.warning(f"Could not process auxiliary dataset {repo_id}: {e}")
-            schema_map[tag] = {f: "error/missing" for f in required_fields}
+            # Record all fields as missing/error for transparency
+            schema_map[tag] = {field: "error/missing" for field in all_fields}
 
-    # Write outputs
+    # --------------------------------------------------------------
+    # 3. Write outputs
+    # --------------------------------------------------------------
     checksums_path = paths.data("checksums.txt")
     write_checksums(checksum_dict, checksums_path)
-    
+
     schema_map_path = raw_dir / "schema_map.md"
     write_schema_map(schema_map, schema_map_path)
-    
-    log.info(f"Data download and validation completed. Checksums: {checksums_path}, Map: {schema_map_path}")
+
+    log.info(
+        f"Data download and validation completed. Checksums written to {checksums_path}, "
+        f"schema map written to {schema_map_path}"
+    )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download verified PR datasets and validate schema.")
