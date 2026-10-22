@@ -1,10 +1,26 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/download_data.py
-    exit=1'
+  reason: "The script substitutes a different primary dataset: instead of downloading\
+    \ `loubnabnl/prs-v2-sample` via `huggingface_hub` as required, it fetches `soroushj/ghpr-dataset`\
+    \ (a GitHub raw CSV) and renames its columns to fake schema conformance \u2014\
+    \ this is a different, easier source, not the specified canonical HF dataset,\
+    \ and the files are not tagged with `source_dataset`. Additionally, `data/raw/schema_map.md`\
+    \ only covers the 8 `required` fields, omitting the optional schema fields (`diff_text`,\
+    \ `file_headers`, `labels`, `first_comment_timestamp`) that the task says must\
+    \ be documented per dataset"
   task: 7d0a737974efedffbbd66f0e19375556d973eba545d49e06743e2ffdc51df67a
 T002:
+  reason: "The pytest run failed (1 of 6 tests: `test_precedence_header_wins` \u2014\
+    \ header-LLM + commit-Human yields \"Mixed\" instead of \"LLM-generated\", violating\
+    \ the FR-002 header-overrides-all precedence the task requires). Additionally,\
+    \ `data/processed/classified_prs.csv` contains only a header row (all 100 PRs\
+    \ were excluded by the FR-010 filter, so no `provenance_label` values exist),\
+    \ and `data/results/group_source_contingency.csv` is MISSING \u2014 the script\
+    \ wrote it to `results/` via `paths.results()` instead of the required `data/results/`\
+    \ path."
   task: 28056af4a8263867e745fbc24bd40abff713455906fa05cde824b4c7a8d2c5e9
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/compute_metrics.py
+    exit=1'
   task: af6b5d09e6e4cffb0e56dd3fad4165d6ed74aeabb162b2c49457e80269cc0ab2
 T004:
   task: 680a3a8011d2db519a8ca14472ee5119a09180396891078bbf3bc8e439179359

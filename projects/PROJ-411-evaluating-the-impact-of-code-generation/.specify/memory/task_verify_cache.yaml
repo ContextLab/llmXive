@@ -1,0 +1,23 @@
+T001:
+  c: false
+  h: 4e8618d369093bf697670d506ab1cb5c48fa096cf7dddcc6745cea17bba5e7dc
+  r: "The script substitutes a different primary dataset: instead of downloading `loubnabnl/prs-v2-sample`\
+    \ via `huggingface_hub` as required, it fetches `soroushj/ghpr-dataset` (a GitHub\
+    \ raw CSV) and renames its columns to fake schema conformance \u2014 this is a\
+    \ different, easier source, not the specified canonical HF dataset, and the files\
+    \ are not tagged with `source_dataset`. Additionally, `data/raw/schema_map.md`\
+    \ only covers the 8 `required` fields, omitting the optional schema fields (`diff_text`,\
+    \ `file_headers`, `labels`, `first_comment_timestamp`) that the task says must\
+    \ be documented per dataset "
+  sig: 7f27292733bd1c03a7e2d31f71f698b4cccb023d8deb1bc17c5d9fecfc919fb1
+T002:
+  c: false
+  h: d9b2262153527f358f2e0c6f69505706337a44f645b024ca6511ed15558cdd74
+  r: "The pytest run failed (1 of 6 tests: `test_precedence_header_wins` \u2014 header-LLM\
+    \ + commit-Human yields \"Mixed\" instead of \"LLM-generated\", violating the\
+    \ FR-002 header-overrides-all precedence the task requires). Additionally, `data/processed/classified_prs.csv`\
+    \ contains only a header row (all 100 PRs were excluded by the FR-010 filter,\
+    \ so no `provenance_label` values exist), and `data/results/group_source_contingency.csv`\
+    \ is MISSING \u2014 the script wrote it to `results/` via `paths.results()` instead\
+    \ of the required `data/results/` path."
+  sig: bb8047409ddd188da13e566265743de331454b4295ca4eee301ac764d9d88bce

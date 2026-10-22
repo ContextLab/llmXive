@@ -1,54 +1,19 @@
-status: verified
-kind: data_url
-ref: https://raw.githubusercontent.com/soroushj/ghpr-dataset/main/ghpr-sample.csv
-access_python: 'import pandas as pd
-
-  url = "https://raw.githubusercontent.com/soroushj/ghpr-dataset/main/ghpr-sample.csv"
-
-  # Load CSV directly from GitHub raw URL
-
-  df = pd.read_csv(url)
-
-  print(f"RECORDS={len(df)}")
-
-  desired = ["pr_id","repository_name","pr_number","created_at","merged_at","comment_count","additions","deletions","changed_files","review_timestamps","provenance_label"]
-
-  present = [col for col in desired if col in df.columns]
-
-  print("FIELDS=" + ",".join(present))'
-record_count: 100
-sample_fields:
-- repo_id
-- issue_number
-- issue_title
-- issue_body_md
-- issue_body_plain
-- issue_created_at
-- issue_author_id
-- issue_author_association
-- issue_label_ids
-- pull_number
-- pull_created_at
-- pull_merged_at
-- pull_comments
-- pull_review_comments
-- pull_commits
-- pull_additions
-- pull_deletions
-- pull_changed_files
-field_coverage: 0.727
+status: none
+intent: download PRs-v2-sample GitHub pull request metadata dataset with LLM provenance
+  labels python package dataset
 required_fields:
 - pr_id
-- repository_name
+- repository_full_name
 - pr_number
 - created_at
 - merged_at
-- comment_count
+- author_login
+- author_association
 - additions
 - deletions
 - changed_files
-- review_timestamps
-- provenance_label
-intent: PRs-v2-sample GitHub Pull Request dataset with provenance labels python package
-  dataset
-cache_key: 9993fd5ad4ff058537950d6720c99fdcff40df799b56b6842f704054b57b1c11
+- comment_count
+- review_comment_count
+cache_key: 7aa05e9d0fb7421240d5120d2bfcc3d2eac7682c89d28fffb5e45f0f7bc50300
+searched_at: '2026-10-22T01:26:34.839095+00:00'
+retry_count: 1
