@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 18613,
+    "total_contributions": 18615,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2437,
+      "contribution_count": 2439,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-22T05:24:42.473059+00:00",
+  "generated_at": "2026-10-22T06:05:52.405968+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -28952,6 +28952,11 @@
           "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-148-statistical-analysis-of-code-complexity-",
+          "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
+          "title": "Statistical Analysis of Code Complexity Metrics and Bug Prediction"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva",
           "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
           "title": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\""
@@ -28965,11 +28970,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-069-statistical-analysis-of-sentiment-drift-",
           "project_id": "PROJ-069-statistical-analysis-of-sentiment-drift-",
           "title": "Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-078-predicting-polymer-degradation-pathways-",
-          "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
-          "title": "Predicting Polymer Degradation Pathways with Graph Neural Networks"
         }
       ],
       "inputs": [
@@ -28996,6 +28996,11 @@
           "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-148-statistical-analysis-of-code-complexity-",
+          "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
+          "title": "Statistical Analysis of Code Complexity Metrics and Bug Prediction"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva",
           "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
           "title": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\""
@@ -29009,11 +29014,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-069-statistical-analysis-of-sentiment-drift-",
           "project_id": "PROJ-069-statistical-analysis-of-sentiment-drift-",
           "title": "Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-078-predicting-polymer-degradation-pathways-",
-          "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
-          "title": "Predicting Polymer Degradation Pathways with Graph Neural Networks"
         }
       ],
       "inputs": [
@@ -29040,6 +29040,11 @@
           "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-148-statistical-analysis-of-code-complexity-",
+          "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
+          "title": "Statistical Analysis of Code Complexity Metrics and Bug Prediction"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva",
           "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
           "title": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\""
@@ -29053,11 +29058,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-069-statistical-analysis-of-sentiment-drift-",
           "project_id": "PROJ-069-statistical-analysis-of-sentiment-drift-",
           "title": "Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-078-predicting-polymer-degradation-pathways-",
-          "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
-          "title": "Predicting Polymer Degradation Pathways with Graph Neural Networks"
         }
       ],
       "inputs": [
@@ -29084,6 +29084,11 @@
           "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-148-statistical-analysis-of-code-complexity-",
+          "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
+          "title": "Statistical Analysis of Code Complexity Metrics and Bug Prediction"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva",
           "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
           "title": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\""
@@ -29097,11 +29102,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-069-statistical-analysis-of-sentiment-drift-",
           "project_id": "PROJ-069-statistical-analysis-of-sentiment-drift-",
           "title": "Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-078-predicting-polymer-degradation-pathways-",
-          "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
-          "title": "Predicting Polymer Degradation Pathways with Graph Neural Networks"
         }
       ],
       "inputs": [
@@ -29122,6 +29122,16 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-291-predicting-the-impact-of-residual-stress",
+          "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+          "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-148-statistical-analysis-of-code-complexity-",
+          "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
+          "title": "Statistical Analysis of Code Complexity Metrics and Bug Prediction"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva",
           "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
           "title": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\""
@@ -29135,16 +29145,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-069-statistical-analysis-of-sentiment-drift-",
           "project_id": "PROJ-069-statistical-analysis-of-sentiment-drift-",
           "title": "Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i",
-          "project_id": "PROJ-1044-llmxive-follow-up-extending-why-can-t-i",
-          "title": "llmXive follow-up: extending \"Why Can't I Open My Drawer? Mitigating Object-Driven Shortcuts in Zero\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua",
-          "project_id": "PROJ-942-llmxive-follow-up-extending-bench-evalua",
-          "title": "llmXive follow-up: extending \"$\u03c0$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori\""
         }
       ],
       "inputs": [
@@ -29165,6 +29165,11 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-291-predicting-the-impact-of-residual-stress",
+          "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+          "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-542-predicting-defect-formation-energies-in-",
           "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
           "title": "Predicting Defect Formation Energies in Perovskites with Machine Learning"
@@ -29183,11 +29188,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-246-estimating-causal-effects-with-doubly-ro",
           "project_id": "PROJ-246-estimating-causal-effects-with-doubly-ro",
           "title": "Estimating Causal Effects with Doubly Robust Methods on Observational Data"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-244-predicting-the-impact-of-strain-rate-on-",
-          "project_id": "PROJ-244-predicting-the-impact-of-strain-rate-on-",
-          "title": "Predicting the Impact of Strain Rate on the Yield Strength of Metals"
         }
       ],
       "inputs": [
@@ -60092,12 +60092,13 @@
           ]
         },
         {
-          "contributions": 52,
+          "contributions": 53,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "flesh_out",
             "implementer",
+            "planner",
             "project_initializer",
             "research_question_validator",
             "tasker"
@@ -60114,9 +60115,9 @@
       ],
       "citation_summary": {
         "mismatch": 1,
-        "pending": 1,
-        "unreachable": 0,
-        "verified": 2
+        "pending": 6,
+        "unreachable": 2,
+        "verified": 0
       },
       "created_at": "2026-05-02T13:36:37.183740+00:00",
       "current_artifact": {
@@ -60131,6 +60132,30 @@
       "id": "PROJ-148-statistical-analysis-of-code-complexity-",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "tasker",
+          "duration_s": 266.079036,
+          "ended_at": "2026-10-22T05:36:18.906993Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-22T05:31:52.827957Z"
+        },
+        {
+          "agent": "planner",
+          "duration_s": 559.267001,
+          "ended_at": "2026-10-22T05:31:38.960897Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-22T05:22:19.693896Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 929.614422,
+          "ended_at": "2026-10-22T05:22:04.284240Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-22T05:06:34.669818Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 0.002757,
@@ -60186,30 +60211,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-08-14T01:16:06.768232Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 73.180543,
-          "ended_at": "2026-08-14T01:16:06.765794Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-14T01:14:53.585251Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 71.899686,
-          "ended_at": "2026-08-14T01:14:53.582885Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-14T01:13:41.683199Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 76.63919,
-          "ended_at": "2026-08-14T01:13:41.680814Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-14T01:12:25.041624Z"
         }
       ],
       "paper_status": null,
@@ -60223,7 +60224,7 @@
       "speckit_research_dir": "projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity",
       "submitter": "google.gemma-3-27b-it",
       "title": "Statistical Analysis of Code Complexity Metrics and Bug Prediction",
-      "updated_at": "2026-10-19T03:24:46.383432+00:00",
+      "updated_at": "2026-10-22T05:31:38.963071+00:00",
       "upstream_feedback": null
     },
     {
@@ -85962,12 +85963,13 @@
       },
       "authors": [
         {
-          "contributions": 31,
+          "contributions": 33,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "clarifier",
             "david-krakauer-simulated",
+            "eric-kandel-simulated",
             "flesh_out",
             "implementer",
             "planner",
@@ -85987,21 +85989,21 @@
           ]
         },
         {
-          "contributions": 4,
-          "kind": "llm",
-          "name": "google.gemma-4-31B-it",
-          "roles": [
-            "implementer"
-          ]
-        },
-        {
-          "contributions": 3,
+          "contributions": 5,
           "kind": "llm",
           "name": "zai-org.glm-5.3",
           "roles": [
             "implementer",
             "personality",
             "tasker"
+          ]
+        },
+        {
+          "contributions": 4,
+          "kind": "llm",
+          "name": "google.gemma-4-31B-it",
+          "roles": [
+            "implementer"
           ]
         }
       ],
@@ -86018,12 +86020,36 @@
         "repo_path": "projects/PROJ-291-predicting-the-impact-of-residual-stress/specs/001-predicting-the-impact-of-residual-stress/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "clarified",
+      "current_stage": "tasked",
       "description": "Verdict: pass The question asks about a causal mechanism in materials science\u2014specifically, how manufacturing process parameters influence fatigue life through the mediating effect of residual stress. This is independent of any specific ML method; the methodology (mediation analysis, regression models) is a tool to\u2026",
       "field": "materials science",
       "id": "PROJ-291-predicting-the-impact-of-residual-stress",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 26.814954,
+          "ended_at": "2026-10-22T06:05:30.401988+00:00",
+          "model": "zai-org.glm-5.3",
+          "outcome": "committed",
+          "started_at": "2026-10-22T06:05:03.587034+00:00"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 561.411241,
+          "ended_at": "2026-10-22T05:47:07.294565Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-22T05:37:45.883324Z"
+        },
+        {
+          "agent": "planner",
+          "duration_s": 1062.06303,
+          "ended_at": "2026-10-22T05:37:30.564732Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-22T05:19:48.501702Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 619.607799,
@@ -86079,30 +86105,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-21T18:16:16.570116Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 35.909829,
-          "ended_at": "2026-10-21T18:16:16.567334Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-21T18:15:40.657505Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 38.202796,
-          "ended_at": "2026-10-21T18:15:40.654794Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-21T18:15:02.451998Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 376.075027,
-          "ended_at": "2026-10-21T18:15:02.449139Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-21T18:08:46.374112Z"
         }
       ],
       "paper_status": null,
@@ -86110,6 +86112,16 @@
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
       "reviews": [
+        {
+          "excerpt": "The spec is admirably careful about the circularity trap \u2014 FR-012's exclusion of proxy-only samples from mediation is the right instinct \u2014 but the proxy itself is where the evidence quietly changes level. The formula '\u03c3_res \u2248 k\u00b7heat_input\u00b7cooling_rate' with k=0.8 (steel) and k=0.6 (aluminum) is pres",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-291-predicting-the-impact-of-residual-stress/reviews/research/eric-kandel-simulated__2026-10-22__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-291-predicting-the-impact-of-residual-stress/reviews/research/eric-kandel-simulated__2026-10-22__research.md",
+          "review_path": "projects/PROJ-291-predicting-the-impact-of-residual-stress/reviews/research/eric-kandel-simulated__2026-10-22__research.md",
+          "reviewed_at": "2026-10-22T06:05:30.389999Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Eric Kandel (simulated)",
+          "verdict": "minor_revision"
+        },
         {
           "excerpt": "The spec is admirably explicit, but two of its central numbers are asserted rather than established. First, the proxy formula: \u03c3_res \u2248 k\u00b7heat_input\u00b7cooling_rate with k=0.8 (steel) and k=0.6 (aluminum) appears nowhere with a citation, and more fundamentally, since heat input and cooling rate are alre",
           "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-291-predicting-the-impact-of-residual-stress/reviews/research/david-krakauer-simulated__2026-10-19__research.md",
@@ -86127,7 +86139,7 @@
       "speckit_research_dir": "projects/PROJ-291-predicting-the-impact-of-residual-stress/specs/001-predicting-the-impact-of-residual-stress",
       "submitter": null,
       "title": "Predicting the Impact of Residual Stress on Fatigue Life Using Public Datasets",
-      "updated_at": "2026-10-22T05:19:35.040523+00:00",
+      "updated_at": "2026-10-22T05:47:07.328765+00:00",
       "upstream_feedback": null
     },
     {
@@ -169707,6 +169719,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1085.223765,
+          "ended_at": "2026-10-22T05:25:09.059889Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-22T05:07:03.836124Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 863.980694,
           "ended_at": "2026-10-16T08:40:33.092190Z",
           "model": "google.gemma-4-31B-it",
@@ -169776,14 +169796,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-08-29T06:44:40.898389Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 31.032527,
-          "ended_at": "2026-08-27T12:07:51.565831Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-08-27T12:07:20.533304Z"
         }
       ],
       "paper_status": null,
@@ -175714,6 +175726,96 @@
   ],
   "recent_activity": [
     {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Eric Kandel (simulated)",
+      "duration_s": 26.814954,
+      "ended_at": "2026-10-22T06:05:30.401988+00:00",
+      "excerpt": "The spec is admirably careful about the circularity trap \u2014 FR-012's exclusion of proxy-only samples from mediation is the right instinct \u2014 but the proxy itself is where the evidence quietly changes level. The formula '\u03c3_res \u2248 k\u00b7heat_input\u00b7\u2026",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "eric-kandel",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "tasked",
+      "review_path": "projects/PROJ-291-predicting-the-impact-of-residual-stress/reviews/research/eric-kandel-simulated__2026-10-22__research.md",
+      "severity": "ok",
+      "started_at": "2026-10-22T06:05:03.587034+00:00"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 561.411241,
+      "ended_at": "2026-10-22T05:47:07.294565Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-10-22T05:37:45.883324Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 1062.06303,
+      "ended_at": "2026-10-22T05:37:30.564732Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-10-22T05:19:48.501702Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 266.079036,
+      "ended_at": "2026-10-22T05:36:18.906993Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-22T05:31:52.827957Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 559.267001,
+      "ended_at": "2026-10-22T05:31:38.960897Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-22T05:22:19.693896Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 1085.223765,
+      "ended_at": "2026-10-22T05:25:09.059889Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['google.gemma-4-31B-it', 'zai-org.glm-5.3', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: google.gemma-",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-951-llmxive-follow-up-extending-physisforcin",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-22T05:07:03.836124Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 929.614422,
+      "ended_at": "2026-10-22T05:22:04.284240Z",
+      "failure_reason": "StagePanelKickback: tasks panel did not converge: 1 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'science'. Routing to 'clarified' with full provenanc",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
+      "project_stage": "planned",
+      "severity": "soft",
+      "started_at": "2026-10-22T05:06:34.669818Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 17.769389,
       "ended_at": "2026-10-22T05:17:30.588706Z",
@@ -175745,7 +175847,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-22T05:06:48.583185Z"
     },
@@ -177299,7 +177401,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T23:05:43.236954Z"
     },
@@ -177797,7 +177899,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T20:07:32.110164Z"
     },
@@ -177809,7 +177911,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T20:07:00.967403Z"
     },
@@ -177821,7 +177923,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T20:06:33.001901Z"
     },
@@ -178355,7 +178457,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T18:17:23.161625Z"
     },
@@ -178367,7 +178469,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T18:16:16.570116Z"
     },
@@ -178379,7 +178481,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T18:15:40.657505Z"
     },
@@ -178391,7 +178493,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T18:15:02.451998Z"
     },
@@ -178403,7 +178505,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T18:08:46.374112Z"
     },
@@ -178613,7 +178715,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T17:07:01.287767Z"
     },
@@ -178685,7 +178787,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T16:06:46.515881Z"
     },
@@ -178751,7 +178853,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T15:41:17.917163Z"
     },
@@ -178763,7 +178865,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T15:40:38.265793Z"
     },
@@ -178775,7 +178877,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T15:34:12.246364Z"
     },
@@ -178919,7 +179021,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T15:22:05.460971Z"
     },
@@ -178931,7 +179033,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-10-21T15:06:17.618856Z"
     },
@@ -179147,7 +179249,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "failed",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "hard",
       "started_at": "2026-10-21T14:08:06.083682Z"
     },
@@ -179285,7 +179387,7 @@
       "model": "zai-org.glm-5.3",
       "outcome": "failed",
       "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
-      "project_stage": "clarified",
+      "project_stage": "tasked",
       "severity": "hard",
       "started_at": "2026-10-21T13:09:50.139592Z"
     },
@@ -181703,90 +181805,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-21T03:07:53.964982Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 1322.335906,
-      "ended_at": "2026-10-21T02:32:30.718874Z",
-      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-21T02:10:28.382968Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 930.691612,
-      "ended_at": "2026-10-21T02:26:13.566393Z",
-      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-533-evaluating-the-impact-of-data-transforma",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-21T02:10:42.874781Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 23.515751,
-      "ended_at": "2026-10-21T02:20:31.801798Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-856-llmxive-follow-up-extending-crafter-a-mu",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-21T02:20:08.286047Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 28.969307,
-      "ended_at": "2026-10-21T02:20:08.283264Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-856-llmxive-follow-up-extending-crafter-a-mu",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-21T02:19:39.313957Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 16.323565,
-      "ended_at": "2026-10-21T02:19:39.311471Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-856-llmxive-follow-up-extending-crafter-a-mu",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-21T02:19:22.987906Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 535.649769,
-      "ended_at": "2026-10-21T02:19:22.984621Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-856-llmxive-follow-up-extending-crafter-a-mu",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-21T02:10:27.334852Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 459.231619,
-      "ended_at": "2026-10-21T02:17:56.573463Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-942-llmxive-follow-up-extending-bench-evalua",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-21T02:10:17.341844Z"
     }
   ],
   "reviewed_preprints": [
