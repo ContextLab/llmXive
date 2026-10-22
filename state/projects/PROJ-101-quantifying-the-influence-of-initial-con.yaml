@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T18:34:03.552787Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-101-quantifying-the-influence-of-initial-con
-last_run_id: 3e7389a8-0f00-4696-a636-ef484a827dda
+last_run_id: 48015d0a-b333-434b-a680-4bfd7191726d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con
 title: Quantifying the Influence of Initial Conditions on Chaotic Systems
-updated_at: '2026-10-22T11:34:23.002767Z'
+updated_at: '2026-10-22T11:37:46.689509Z'
