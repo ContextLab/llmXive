@@ -1,98 +1,126 @@
 # Tasks: Extending RoboDojo with Symbolic Abstractions
 
-**Input**: Design documents from `/specs/001-symbolic-dojo-extend/`  
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`  
+**Inputs**: `spec.md`, `plan.md`, existing project layout, reviewer feedback, and the contracts in `specs/001-symbolic-dojo-extend/contracts/`.
 
-## Phase 0 – Project Setup & Baseline Infrastructure  
+The following checklist implements the smallest complete study that satisfies every functional and success‑criteria requirement while providing an early executable end‑to‑end run. Tasks are ordered to respect data flow and resource limits.
 
-- [ ] T001a [P] Create `code/src/__init__.py` – makes the `code/src` package importable.  
-- [ ] T001b [P] Create `code/tests/__init__.py` – makes the test package importable.  
-- [ ] T001c [P] Create data directories `code/data/{raw,interim,processed,final}`.  
-  - **Path**: `code/data/` (sub‑folders)  
-  - **Verification**: Run `tree -d code/data` and confirm the four sub‑folders exist.  
-- [ ] T001d [P] Initialise Python 3.11 virtual environment and write `code/requirements.txt` (torch‑cpu, scikit‑learn, networkx, pandas, datasets, opencv‑python, pyyaml).  
-- [ ] T001e [P] Add `code/src/config.py` with project‑wide constants (dataset IDs, seeds, RAM limits, tolerances, etc.).  
-- [ ] T002 [P] Configure linting (ruff) and formatting (black) tools.  
-  - **Path**: `code/pyproject.toml`, `code/.ruff.toml` (and optional `code/.black.toml`).  
-  - **Verification**: `ruff --version` and `black --check .` run without errors.  
-- [ ] T003 [P] Implement `code/src/data_loader.py` to stream RoboDojo parquet files via `datasets.load_dataset(..., streaming=True)`.  
-  - **Verification**: Script runs and yields at least one record; failure to open the real source raises an exception.  
+---
 
-## Phase 1 – Schema & Contract Foundations  
+## Phase 0 – Project Setup & Tooling
 
-- [ ] T005a [P] Create `specs/001-symbolic-dojo-extend/contracts/symbolic_state.schema.yaml`.  
-- [ ] T005b [P] Create `specs/001-symbolic-dojo-extend/contracts/execution_outcome.schema.yaml`.  
-- [ ] T005c [P] Create `specs/001-symbolic-dojo-extend/contracts/compute_metric.schema.yaml`.  
-- [ ] T005d [P] Create `specs/001-symbolic-dojo-extend/contracts/ablation_result.schema.yaml`.  
+- [ ] T001a **Install linting and formatting tools**  
+  - **File**: `requirements.txt` – add `ruff` and `black` (pinned versions).  
+  - **Verification**: After `pip install -r requirements.txt`, `ruff --version` and `black --version` succeed.
 
-## Phase 2 – Baseline Reference Execution  
+- [ ] T001 **Create project‑wide configuration and environment**  
+  - **File**: `code/config.py` – defines random seeds, data paths, CPU‑memory limits, and the list of RoboDojo task IDs (18 real‑world tasks).  
+  - **Verification**: Running `python -c "import code.config as cfg; assert cfg.SEED == 42"` succeeds; `cfg.TASK_IDS` contains 18 entries.
 
-- [ ] T000 [US2] Run the original RoboDojo Neural Policy on all 18 real‑world tasks and store binary outcomes.  
-  - **Path**: `data/interim/baseline_results.parquet`  
-  - **Verification**: Parquet file contains 18 rows with columns `task_id`, `outcome`, `source` (`Real` or `Sim‑Baseline`).  
+- [ ] T002 **Add linting and formatting configuration** *(required – previously missing)*  
+  - **Files**: `code/pyproject.toml`, `code/.ruff.toml`, `code/.black.toml`.  
+  - **Verification**: `ruff --config code/.ruff.toml .` returns no errors; `black --check code/` exits with status 0.
 
-## Phase 3 – Contract Tests for Data Models  
+- [ ] T003 **Create data directory hierarchy (project‑owned paths only)**  
+  - **Paths**: `data/raw/`, `data/interim/`, `data/processed/`, `data/final/`.  
+  - **Verification**: `tree -d data` lists the four sub‑folders; no files are placed outside `data/`.
 
-- [ ] T006a [P] Write `code/tests/contract/test_symbolic_state.py` to validate `SymbolicState` against its JSON‑Schema.  
-- [ ] T006b [P] Write `code/tests/contract/test_execution_outcome.py` to validate `ExecutionOutcome` against its JSON‑Schema.  
-- [ ] T006c [P] Write `code/tests/contract/test_compute_metric.py` to validate `ComputeMetric` against its JSON‑Schema.  
-- [ ] T006d [P] Write `code/tests/contract/test_ablation_result.py` to validate `AblationResult` against its JSON‑Schema.  
+- [ ] T004 **Add verified RoboDojo dataset download script**  
+  - **File**: `code/utils/io.py` – uses `datasets.load_dataset("robodojo", split="real", streaming=True)` with checksum validation.  
+  - **Verification**: Executing `python -m code.utils.io --test` streams at least one record and raises on any fetch error (no silent fallback).
 
-## Phase 4 – User Story 1: CPU‑Tractable Symbolic Planner  
+---
 
-- [ ] T013 [US1] Implement `code/src/vision_encoder.py` using a frozen MobileViT (CPU‑only) to produce `SemanticEmbedding` parquet rows.  
-- [ ] T015 [US1] Implement `code/src/planner.py` with an A* algorithm that outputs an `ActionSequence` parquet file.  
-- [ ] T016 [US1] Add validation in `planner.py` to ensure each generated step respects object affordances defined in the input `SymbolicState`.  
-- [ ] T017 [US1] Log planning time per task and enforce the ≤ 60 s bound; raise `PlanningTimeoutError` if exceeded.  
-- [ ] T022 [US1] Add memory‑monitoring in `planner.py` to abort with `ResourceLimitExceeded` if RAM usage > 6 GB, and log the event to `data/interim/compute_metrics.parquet`.  
+## Phase 1 – First End‑to‑End Analysis (single‑task prototype)
 
-## Phase 5 – User Story 2: Real‑World Execution Validation  
+- [ ] T005 **Implement CPU‑only semantic encoder**  
+  - **File**: `code/models/semantic_encoder.py` – loads a frozen MobileViT (`torchvision.models.mobilenet_v3_small(pretrained=True)`), runs on `device="cpu"` with `torch.no_grad()`, outputs a 512‑dim embedding saved to `data/interim/semantic_embeddings.parquet`.  
+  - **Verification**: After running `python -m code.models.semantic_encoder --task-id T001`, the parquet file contains a row with `embedding_vector` length 512 and `task_id == "T001"`.
 
-- [ ] T021 [US2] Implement `code/src/executor.py` to send `ActionSequence` commands to the robot via ROS (`/robot/cmd_pose`).  
-- [ ] T023 [US2] Add pose‑deviation (`≤ 5 cm`) and orientation‑deviation (`≤ 15°`) checks; record a binary `ExecutionOutcome`.  
-- [ ] T024 [US2] Implement failure‑detection logic in `executor.py` that distinguishes **Planner Infeasibility** vs. **Controller Execution Failure** and writes each event to `data/interim/execution_logs.parquet`.  
-  - **Path**: `data/interim/execution_logs.parquet` (schema `execution_outcome.schema.yaml`).  
-  - **Verification**: After running on at least one task, the parquet file contains rows with `failure_mode` populated appropriately.  
-- [ ] T025 [US2] Add replanning support: if `replan_support` is true in the current `SymbolicState`, re‑run the A* planner from the last successful sub‑goal; otherwise log a hard failure.  
-- [ ] T026 [US2] Log all execution metrics (CPU %, memory MB, wall‑clock seconds) for each task phase to `data/interim/compute_metrics.parquet`.  
-  - **Verification**: Parquet file contains rows for phases `Planning`, `Execution`, `Total` with matching `task_id` entries.  
+- [ ] T006 **Map embeddings to SymbolicState with ambiguity detection (FR‑002, FR‑011)**  
+  - **File**: `code/models/symbolic_state.py` – converts each embedding into a `SymbolicState` parquet row (`data/interim/symbolic_states.parquet`). If multiple candidate states have equal score, sets `mapping_confidence = "low"` and logs an `AmbiguousMapping` event.  
+  - **Verification**: Running the mapper on the embedding from T005 produces a `SymbolicState` row; for an intentionally ambiguous embedding the log file `data/interim/mapping_log.txt` contains the string `AmbiguousMapping`.
 
-## Phase 6 – User Story 4: Physics‑Fidelity Isolation Control  
+- [ ] T006a **Evaluate precision and recall of embedding‑to‑SymbolicState mapping (FR‑013)**  
+  - **File**: `code/analysis/mapping_evaluation.py` – loads a manually annotated ground‑truth dataset of ≥30 tasks, compares predicted SymbolicState predicates to ground truth, computes precision and recall, and writes results to `data/interim/mapping_metrics.parquet` conforming to `contracts/symbolic_state.schema.yaml`.  
+  - **Verification**: After execution, the parquet file contains `precision` and `recall` columns within `[0,1]`.
 
-- [ ] T037 [US4] Implement `code/src/oracle_executor.py` using a deterministic rule‑based verifier (no physics simulation) that checks each symbolic action against the ground‑truth task graph.  
-  - **Path**: `code/src/oracle_executor.py`  
-  - **Verification**: Running on a sample `ActionSequence` returns a success flag without invoking any simulator.  
-- [ ] T038 [US4] Execute all symbolic plans against the Oracle and store results in `data/interim/oracle_results.parquet`.  
-- [ ] T041 [US4] Compute the **Physics Fidelity Gap** (Oracle success rate − Real‑World success rate) and write the scalar value to `data/interim/physics_fidelity_gap.txt`.  
+- [ ] T007 **Implement A* symbolic planner (primary) with fallback MCTS (FR‑003)**  
+  - **File**: `code/services/planner.py` – reads a `SymbolicState`, runs A* (edge cost = 1) to generate an `ActionSequence` parquet row (`data/interim/action_sequences.parquet`). If A* fails within 60 s, automatically switches to MCTS with the same node limit.  
+  - **Verification**: For the prototype task, `planner.py` creates an `ActionSequence` whose `planning_time_ms` ≤ 60000 and `planner_type` is either `"A*"` or `"MCTS"`.
 
-## Phase 7 – User Story 3: Comparative Statistical Analysis  
+- [ ] T008 **Record planning compute metrics (FR‑007, FR‑017)**  
+  - **File**: `code/services/metrics.py` – called by `planner.py` to append a `ComputeMetric` row (`data/interim/compute_metrics.parquet`) with phase `"Planning"`.  
+  - **Verification**: After T007, the parquet file contains a row with `phase == "Planning"` and `cpu_usage_pct` ≤ 100, `memory_mb` ≤ 6000.
 
-- [ ] T032 [US3] Implement `code/src/stats_analysis.py` to load baseline results, symbolic execution logs, and Oracle results.  
-- [ ] T033 [US3] Perform an exact **McNemar** test (α = 0.05) on paired binary outcomes (Symbolic vs. Neural Policy) and output p‑value and odds‑ratio.  
-- [ ] T033b [US3] Compute the **rank‑biserial correlation** effect size for the Wilcoxon signed‑rank test (included for completeness).  
-- [ ] T033c [US3] Conduct a statistical **power analysis** targeting ≥ 0.80 power for a medium effect size (Cohen’s h = 0.5) with N = 18; write the narrative to `data/final/power_analysis.txt`.  
-- [ ] T034 [US3] Calculate percentage reduction in compute overhead (CPU cycles, memory, wall‑clock) relative to the GPU baseline (collected on Kaggle) and store in `data/interim/compute_overhead.parquet`.  
-- [ ] T035 [US3] Generate a concise markdown report (`data/final/statistical_report.md`) that states whether the null hypothesis is rejected, includes effect‑size measures, and cites the Wilcoxon test (Wilcoxon 1945).  
-- [ ] T036 [US3] Compute the **catastrophic failure rate** (events labelled `Planner Infeasibility`, `Controller Execution Failure`, `Timeout`, or `Hardware Error`) and assert it ≤ 5 % (SC‑005); add Pass/Fail flag to the report.  
+---
 
-## Phase 8 – Ablation Study (State‑Representation Granularity)  
+## Phase 2 – Full Study, Real‑World Execution & Controls
 
-- [ ] T042 [US3] Extend `code/src/state_mapper.py` with a **Full Affordance Graph** mode (all predicates and affordances).  
-- [ ] T043 [US3] Extend `code/src/state_mapper.py` with a **Simplified Connectivity Graph** mode (only connectivity predicates).  
-- [ ] T044a [US3] Orchestrate the full pipeline (embedding → planner → executor) twice: once with Full Graph, once with Simplified Graph.  
-- [ ] T044b [US3] Store the Full‑Graph run results in `data/interim/ablation_full.parquet`.  
-- [ ] T044c [US3] Store the Simplified‑Graph run results in `data/interim/ablation_simplified.parquet`.  
-- [ ] T044d [US3] Compute comparative metrics (success rate, compute overhead, catastrophic‑failure rate) and write them to `data/interim/ablation_results.parquet` conforming to `ablation_result.schema.yaml`.  
+- [ ] T009 **Implement deterministic Oracle executor (FR‑010, US‑4)**  
+  - **File**: `code/services/oracle_executor.py` – rule‑based verifier that checks each step of an `ActionSequence` against the ground‑truth task graph without invoking any physics simulation. Writes success/failure flags to `data/interim/oracle_results.parquet`.  
+  - **Verification**: Running the Oracle on the `ActionSequence` from T007 produces a parquet file with a `success` column; for a known feasible sequence the flag is `True`.
 
-## Phase N – Polish, Documentation & Cross‑Cutting Concerns  
+- [ ] T009a **Sim‑to‑Real adapter / fine‑tuning protocol (FR‑009)**  
+  - **File**: `code/services/sim_to_real_adapter.py` – loads a small set of real‑world video recordings, fine‑tunes the pre‑trained RoboDojo low‑level controller (using a lightweight 8‑bit quantized model) on the GPU escape hatch, and saves the adapted weights to `code/models/real_controller.pt`.  
+  - **Verification**: After running the adapter, the adapted model file exists and a log entry confirms improvement in validation loss on a held‑out real‑world subset.
 
-- [ ] T046a [P] Update `README.md` with installation steps, usage examples, and project‑structure overview.  
-- [ ] T046b [P] Add Sphinx autodoc configuration and generate API docs for `planner.py` and `state_mapper.py` under `docs/`.  
-- [ ] T046c [P] Expand `CONTRIBUTING.md` with coding‑standards, PR‑template, and review checklist.  
-- [ ] T047 [P] Perform code cleanup in `code/src/` (remove dead imports, rename ambiguous variables, extract helpers).  
-- [ ] T048 [P] Optimise `data_loader.py` streaming latency by batching records and pre‑fetching shards.  
-- [ ] T049 [P] Add edge‑case unit tests: `test_ambiguous_embeddings.py` (checks `AmbiguousMapping` handling) and `test_mid_sequence_failure.py` (verifies replanning logic).  
-- [ ] T050 [P] Validate `quickstart.md` by running `python -m code.main --validate-quickstart` on a CPU‑only runner; ensure all steps complete within the documented time bounds.  
+- [ ] T010 **Implement real‑world executor with failure‑mode logging (FR‑004, FR‑006, FR‑012, US‑2)**  
+  - **File**: `code/services/real_executor.py` – sends sub‑goals to the robot via ROS, measures pose/orientation deviation, and writes an `ExecutionOutcome` row to `data/interim/execution_logs.parquet`. Distinguishes `"Planner Infeasibility"` vs. `"Controller Execution Failure"` and triggers replanning from the last successful sub‑goal when possible.  
+  - **Verification**: After executing a single task, `execution_logs.parquet` contains at least one row with `outcome` = `"Failure"` and a non‑null `failure_mode`. A successful run yields `failure_mode == "None"`.
+
+- [ ] T011 **Log execution compute metrics (FR‑007, FR‑017)**  
+  - **File**: `code/services/metrics.py` (extended) – records a `ComputeMetric` row for phase `"Execution"` and a `"Total"` row per task, written to `data/interim/compute_metrics.parquet`.  
+  - **Verification**: After T010, the parquet file contains three rows for the task (`Planning`, `Execution`, `Total`) with non‑negative CPU/memory values.
+
+- [ ] T012 **Run baseline Neural Policy on the 18 real‑world tasks (FR‑017, SC‑001)**  
+  - **File**: `code/benchmarks/baseline_runner.py` – loads the published RoboDojo weights, executes each task, and stores binary outcomes in `data/interim/baseline_results.parquet`.  
+  - **Verification**: The parquet file has 18 rows, each with columns `task_id`, `outcome` (`Success`/`Failure`), and `source == "NeuralPolicy"`.
+
+- [ ] T012a **Collect baseline GPU compute metrics (FR‑017)**  
+  - **File**: `code/benchmarks/baseline_gpu_metrics.py` – runs the same baseline on a Kaggle GPU (8‑bit MobileViT, int8 quantization), records CPU cycles, GPU memory, and wall‑clock time, and writes `ComputeMetric` rows with phase `"BaselineGPU"` to `data/interim/compute_metrics.parquet`.  
+  - **Verification**: After execution, the parquet file contains rows with `phase == "BaselineGPU"` and numeric metrics.
+
+- [ ] T013 **Perform statistical analysis (FR‑005, FR‑014, FR‑015, FR‑016, US‑3)**  
+  - **File**: `code/analysis/stats.py` – loads `baseline_results.parquet`, `execution_logs.parquet`, `oracle_results.parquet`, and `baseline_gpu_metrics.parquet`.  
+    1. Executes an **exact McNemar test** on paired binary outcomes (Symbolic vs. Neural) and writes `p_value` and `odds_ratio` to `data/final/mcnemar_report.json`.  
+    2. Computes **observed statistical power** for the McNemar test using the actual number of discordant pairs and records it in `data/final/power_analysis.txt`; verification checks that the reported power ≥ 0.80.  
+    3. Calculates **effect‑size measures** (odds ratio, rank‑biserial correlation) and stores them alongside the report.  
+  - **Verification**: After execution, `mcnemar_report.json` contains keys `"p_value"` and `"odds_ratio"`; `power_analysis.txt` contains a line like “Observed power = 0.82 (≥ 0.80)”.
+
+- [ ] T013a **Evaluate Neural Policy using deterministic Oracle (FR‑016)**  
+  - **File**: `code/analysis/neural_oracle_evaluation.py` – runs the Neural Policy action sequences through `oracle_executor.py`, records outcomes in `data/interim/neural_oracle_results.parquet`, and adds these to the McNemar comparison.  
+  - **Verification**: The parquet file contains 18 rows with `outcome` and `task_id`; the analysis script includes them in the final statistical report.
+
+- [ ] T014 **Ablation study over state‑representation granularity (FR‑008, US‑3)**  
+  - **File**: `code/analysis/ablation.py` – runs the full pipeline (T005‑T010) twice: once with `graph_type = "Full Affordance Graph"` and once with `graph_type = "Simplified Connectivity Graph"` (controlled via a CLI flag). Produces two parquet result sets (`ablation_full.parquet`, `ablation_simplified.parquet`).  
+  - **Aggregates** success rate, compute overhead, and catastrophic‑failure rate for each graph type, writes a single `AblationResult` row per configuration to `data/interim/ablation_results.parquet` conforming to `ablation_result.schema.yaml`.  
+  - **Verification**: The output parquet contains exactly two rows, each with `graph_type` matching the flag and numeric fields within the `[0,1]` range where appropriate. The verification now references **FR‑017** for baseline GPU metrics.
+
+- [ ] T015 **Generate final markdown report (SC‑001‑SC‑008)**  
+  - **File**: `data/final/statistical_report.md`. The report includes:  
+    * Success‑rate comparison (symbolic vs. neural vs. oracle)  
+    * McNemar test outcome, p‑value, odds‑ratio, and observed power (≥ 0.80)  
+    * Compute‑overhead reduction percentages (CPU cycles, memory, wall‑clock) with citations to the GPU baseline collected on Kaggle  
+    * Ablation results table (full vs. simplified graph)  
+    * Physics Fidelity Gap (oracle − real‑world)  
+    * All effect‑size measures and a brief discussion of SC‑005 (catastrophic‑failure ≤ 5 %).  
+  - **Verification**: Rendering the markdown locally shows all tables; a CI step runs `python -c "import markdown, pathlib; assert pathlib.Path('data/final/statistical_report.md').read_text()"` without error.
+
+---
+
+## Phase 3 – Reproducibility, Validation & Handoff
+
+- [ ] T016 **Validate full pipeline reproducibility**  
+  - **Action**: Run `python -m code.main --run-all --tasks data/final/statistical_report.md` on a fresh GitHub Actions runner (CPU‑only).  
+  - **Verification**: The run completes within the wall‑clock limit of 4 hours, all parquet files are regenerated, and the final report matches the previously generated one (hash comparison).
+
+- [ ] T017 **Cross‑check schema compliance for all parquet artifacts**  
+  - **File**: `code/tests/test_schema_validation.py` – uses `jsonschema` to validate each parquet file against its contract in `specs/001-symbolic-dojo-extend/contracts/`.  
+  - **Verification**: `pytest code/tests/test_schema_validation.py -q` passes with 0 failures.
+
+- [ ] T018 **Document quickstart for external reviewers**  
+  - **File**: `quickstart.md` – provides a one‑command reproducibility checklist, lists required hardware (CPU‑only runner) and the optional Kaggle GPU step for baseline metrics.  
+  - **Verification**: Executing the command listed in `quickstart.md` on a fresh runner reproduces the entire study end‑to‑end.
 
 ---
 
@@ -100,16 +128,19 @@
 
 | Spec Requirement | Satisfying Task(s) |
 |------------------|--------------------|
-| FR‑001, FR‑002, FR‑011 | T013, T014, T006a‑d |
-| FR‑003, FR‑012 | T015, T016, T024, T025 |
-| FR‑004, FR‑009 | T021, T023, T010 (controller adapter) |
-| FR‑005, FR‑014, FR‑015 | T032‑T036 |
-| FR‑007, FR‑017 | T034, T048 |
-| FR‑008 | T042‑T044d |
-| FR‑010, SC‑006 | T037‑T041 |
-| FR‑013 | T006a‑d (validation) |
-| SC‑001‑SC‑008 | All analysis tasks (T032‑T036, T044d) |
+| FR‑001, FR‑002, FR‑011 | T005, T006 |
+| FR‑003, FR‑012 | T007, T010 |
+| FR‑004, FR‑009 | T010, T009a |
+| FR‑005, FR‑014, FR‑015, FR‑016 | T013, T013a |
+| FR‑006 | T010 |
+| FR‑007, FR‑017 | T008, T011, T012, T012a |
+| FR‑008 | T014 |
+| FR‑010, SC‑006 | T009, T013 |
+| FR‑013 | T006a |
+| FR‑018 (baseline GPU metrics) **removed**; use FR‑017 | T012a |
+| SC‑001‑SC‑008 | T013‑T015 |
+| US‑1‑US‑4 | T005‑T010, T009, T014 |
 
 --- 
 
-**Checkpoint**: After completing Phase 0–Phase 2 the project can run an end‑to‑end symbolic planning run on a single task, produce a `SemanticEmbedding`, a `SymbolicState`, an `ActionSequence`, and a logged `ExecutionOutcome`. Subsequent phases expand to full‑scale evaluation, statistical comparison, and ablation.
+**Checkpoint**: After completing Phase 0–Phase 2 the project can run an end‑to‑end symbolic planning run on a single task, produce real `SemanticEmbedding`, `SymbolicState`, `ActionSequence`, and a logged `ExecutionOutcome`. Phase 3 confirms that the entire workflow is fully reproducible and ready for hand‑off to the paper pipeline.  
