@@ -1,11 +1,12 @@
 status: none
-intent: downloadable PyBullet bi-manual manipulation translation dataset stability
-  label python package dataset
+intent: synthetic bi-manual manipulation dataset translation trajectories stability
+  label pybullet python package dataset
 required_fields:
 - episode_id
-- translation_vectors
+- left_wrist_translation_vector
+- right_wrist_translation_vector
 - object_initial_bbox
-- stability_label
-cache_key: a332b565349d1aaab4e6b1249d8700205bdd14cf65452764c209931867809603
-searched_at: '2026-10-22T11:41:24.439911+00:00'
+- stability_binary_label
+cache_key: 8e1f6b70a83ba5c5333bec27dbc5c5ab5746991c90b3d9921c70a5cefbb3f7e2
+searched_at: '2026-10-22T11:52:04.652636+00:00'
 retry_count: 1

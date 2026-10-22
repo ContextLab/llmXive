@@ -15,6 +15,7 @@ import time
 import random
 import json
 import warnings
+import argparse
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 
@@ -33,7 +34,7 @@ from utils.physics_metrics import get_thresholds
 # Paths
 # ----------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parents[1]  # project root
-CONFIG_PATH = PROJECT_ROOT / "code" / "config.yaml"
+DEFAULT_CONFIG_PATH = PROJECT_ROOT / "code" / "config.yaml"
 RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
 CHECKSUM_FILE = PROJECT_ROOT / "data" / "checksums.json"
 
@@ -43,8 +44,10 @@ RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 # ----------------------------------------------------------------------
 # Configuration handling
 # ----------------------------------------------------------------------
-def load_config() -> Dict[str, Any]:
+def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
     """Load configuration from ``code/config.yaml`` with sensible defaults."""
+    cfg_path = Path(config_path) if config_path else DEFAULT_CONFIG_PATH
+
     # Default configuration – mirrors the structure used elsewhere in the repo
     default_cfg: Dict[str, Any] = {
         "simulation": {
@@ -68,11 +71,11 @@ def load_config() -> Dict[str, Any]:
         "seed": 42,
     }
 
-    if not CONFIG_PATH.is_file():
-        warnings.warn(f"Config file {CONFIG_PATH} not found – using defaults.")
+    if not cfg_path.is_file():
+        warnings.warn(f"Config file {cfg_path} not found – using defaults.")
         cfg = default_cfg
     else:
-        with open(CONFIG_PATH, "r") as f:
+        with open(cfg_path, "r") as f:
             cfg = yaml.safe_load(f) or {}
 
         # Merge defaults for missing top‑level sections
@@ -84,7 +87,7 @@ def load_config() -> Dict[str, Any]:
             else:
                 cfg.setdefault(top_key, sub_val)
 
-    # Back‑compatibility: the original config used ``random_seed``; map it to ``seed`` if needed
+    # Back‑compatibility: map legacy ``random_seed`` to ``seed`` if needed
     if "random_seed" in cfg and "seed" not in cfg:
         cfg["seed"] = cfg["random_seed"]
 
@@ -109,32 +112,33 @@ def create_robot_and_object(physics_client: int, geometry_type: str) -> Tuple[in
     Create a minimal “dual‑arm” robot (represented by an R2D2 model) and a
     geometric object. Returns the robot body id and the object body id.
     """
-    # Plane for the ground
+    # Load a flat ground plane
     p.loadURDF("plane.urdf", physicsClientId=physics_client)
 
-    # Dummy robot – we only need a body to satisfy the API; forces are applied
-    # directly to the object, so the robot does not move.
+    # Dummy robot – forces are applied directly to the object.
     start_pos = [0, 0, 0]
     start_ori = p.getQuaternionFromEuler([0, 0, 0])
     robot_id = p.loadURDF(
         "r2d2.urdf", start_pos, start_ori, physicsClientId=physics_client
     )
 
-    # Load the target object – we rely on the standard demo URDFs that ship with
-    # pybullet_data. If a geometry type is unknown we fall back to a small cube.
+    # Map geometry identifiers to URDFs that are guaranteed to exist in
+    # ``pybullet_data``. If a mapping is missing we fall back to a generic
+    # small cube to keep the pipeline deterministic.
     urdf_map = {
         "box_small": "cube_small.urdf",
         "box_medium": "cube.urdf",
-        "box_large": "cube_large.urdf",
+        "box_large": "cube.urdf",          # No native large cube; reuse medium
         "cylinder_small": "cylinder_small.urdf",
         "cylinder_large": "cylinder.urdf",
         "sphere_small": "sphere_small.urdf",
-        "sphere_large": "sphere_large.urdf",
+        "sphere_large": "sphere2.urdf",    # ``sphere2.urdf`` exists as a larger sphere
     }
     urdf_name = urdf_map.get(geometry_type, "cube_small.urdf")
     obj_id = p.loadURDF(
         urdf_name, [0, 0, 1], physicsClientId=physics_client
     )
+
     # Small damping to avoid excessive jitter
     p.changeDynamics(
         obj_id,
@@ -213,7 +217,8 @@ def run_simulation_episode(
         "sphere_large": 0.1,
     }
     size = bounds_map.get(geometry_type, 0.1)
-    initial_bounds = [-size, -size, -size, size, size, size]  # min/max xyz
+    # Store as [xmin, ymin, zmin, xmax, ymax, zmax]
+    initial_bounds = [-size, -size, -size, size, size, size]
 
     # ------------------------------------------------------------------
     # Simulation loop
@@ -318,17 +323,17 @@ def save_and_validate_data(df: pd.DataFrame, config: Dict[str, Any]) -> None:
     update the SHA‑256 checksum registry.
     """
     output_path = RAW_DATA_DIR / "synthetic_episodes.parquet"
+    # Write Parquet; requires a parquet engine (pyarrow)
     df.to_parquet(output_path, index=False)
 
-    # Ensure a checksum registry exists
+    # Initialise a minimal checksum registry if missing
     if not CHECKSUM_FILE.is_file():
-        # Initialise a minimal registry if missing
         init_registry = {"version": "1.0.0", "files": {}}
         with open(CHECKSUM_FILE, "w") as f:
             json.dump(init_registry, f, indent=2)
 
-    # Update checksum registry (the helper computes the checksum internally)
-    update_checksums(str(output_path))
+    # Update checksum registry (registry path is the second argument)
+    update_checksums(str(output_path), str(CHECKSUM_FILE))
 
     print(f"Saved raw dataset ({len(df)} rows) to {output_path}")
 
@@ -337,7 +342,16 @@ def save_and_validate_data(df: pd.DataFrame, config: Dict[str, Any]) -> None:
 # ----------------------------------------------------------------------
 def main() -> None:
     """Execute the data‑generation pipeline."""
-    cfg = load_config()
+    parser = argparse.ArgumentParser(description="Generate synthetic manipulation episodes.")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=str(DEFAULT_CONFIG_PATH),
+        help="Path to the YAML configuration file.",
+    )
+    args = parser.parse_args()
+
+    cfg = load_config(Path(args.config))
     df = generate_dataset(cfg)
     save_and_validate_data(df, cfg)
     print("Data generation completed successfully.")
