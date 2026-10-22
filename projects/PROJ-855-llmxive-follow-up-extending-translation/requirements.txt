@@ -1,15 +1,11 @@
-# Project requirements
+pyarrow
 pybullet==3.2.5
-# Core scientific stack (already available in the base environment)
-numpy
+torch==2.3.0
 pandas
+numpy
 scipy
-matplotlib
 scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
+tqdm
+hydra-core
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil) are provided by the platform.

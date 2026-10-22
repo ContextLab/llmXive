@@ -1,8 +1,4 @@
 T001:
-  reason: "The `code/config.yaml` file is present and contains the required keys and\
-    \ values, but the required verification artifact `tests/unit/test_config_load.py`\
-    \ is missing, so the task\u2019s stipulated test cannot be run. The implementer\
-    \ must add the test file that loads the YAML and checks the key types."
   task: c9c44f0deddd4bd311b980589c30827d8f026b7abcaf8adeccf6f64f7519d434
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/generate_data.py

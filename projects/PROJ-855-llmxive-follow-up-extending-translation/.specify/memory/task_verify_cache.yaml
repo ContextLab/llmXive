@@ -1,8 +1,9 @@
 T001:
-  c: false
-  h: 189e7780821d518e582f1fcd828e6cb04c317fab690b9c9037f50d351423f784
-  r: "The `code/config.yaml` file is present and contains the required keys and values,\
-    \ but the required verification artifact `tests/unit/test_config_load.py` is missing,\
-    \ so the task\u2019s stipulated test cannot be run. The implementer must add the\
-    \ test file that loads the YAML and checks the key types."
-  sig: 1455c866b95e6cecd646a3fb100a402c3baa0f159c76612b5c3bcf1b7081b272
+  c: true
+  h: 0d0087f89b08d74796ee393985e15d82cbb5615c25ca0354ec89d492b338338a
+  r: 'The `code/config.yaml` file exists and contains the required `random_seed`,
+    `tipping_angle: 15.0`, `slippage_distance: 0.02`, and a `sensitivity_noise_levels`
+    list in degrees. The unit test `tests/unit/test_config_load.py` successfully loads
+    the file and validates the presence and types of all required keys (log shows
+    the test passed).'
+  sig: f805c8c196631210db3c0325a1830465123d2512fc53cf2afe0c148fbd7b19fe

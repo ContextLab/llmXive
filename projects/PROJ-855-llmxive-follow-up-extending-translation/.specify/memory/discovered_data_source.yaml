@@ -1,16 +1,11 @@
 status: none
-intent: bimanual manipulation episodes translation only stability labels dataset MOMA
-  DexYCB ContactDB python package dataset
+intent: downloadable PyBullet bi-manual manipulation translation dataset stability
+  label python package dataset
 required_fields:
 - episode_id
 - translation_vectors
-- object_bbox_min_x
-- object_bbox_min_y
-- object_bbox_min_z
-- object_bbox_max_x
-- object_bbox_max_y
-- object_bbox_max_z
+- object_initial_bbox
 - stability_label
-cache_key: e23d902c892086d86e90e0635eb035120ee812bf57f19967b3a17709e2abcb0f
-searched_at: '2026-10-22T11:26:41.429805+00:00'
+cache_key: a332b565349d1aaab4e6b1249d8700205bdd14cf65452764c209931867809603
+searched_at: '2026-10-22T11:41:24.439911+00:00'
 retry_count: 1

@@ -27,7 +27,7 @@ import numpy as np
 
 # Local utilities
 from utils.data_utils import compute_checksum, update_checksums
-from utils.physics_metrics import load_config as load_physics_config, get_thresholds
+from utils.physics_metrics import get_thresholds
 
 # ----------------------------------------------------------------------
 # Paths
@@ -45,35 +45,49 @@ RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 # ----------------------------------------------------------------------
 def load_config() -> Dict[str, Any]:
     """Load configuration from ``code/config.yaml`` with sensible defaults."""
-    default_cfg = {
+    # Default configuration – mirrors the structure used elsewhere in the repo
+    default_cfg: Dict[str, Any] = {
         "simulation": {
             "gravity": -9.81,
             "time_step": 1.0 / 240.0,
-            "max_steps_per_episode": 240,   # 1 s of simulation at 240 Hz
-            "num_episodes": 5000
+            "max_steps_per_episode": 240,
+            "num_episodes": 5000,
         },
         "data_generation": {
             "noise_amplitude": 0.01,
             "object_geometries": [
-                "box_small", "box_medium", "box_large",
-                "cylinder_small", "cylinder_large",
-                "sphere_small", "sphere_large"
-            ]
+                "box_small",
+                "box_medium",
+                "box_large",
+                "cylinder_small",
+                "cylinder_large",
+                "sphere_small",
+                "sphere_large",
+            ],
         },
-        "seed": 42
+        "seed": 42,
     }
 
     if not CONFIG_PATH.is_file():
         warnings.warn(f"Config file {CONFIG_PATH} not found – using defaults.")
-        return default_cfg
+        cfg = default_cfg
+    else:
+        with open(CONFIG_PATH, "r") as f:
+            cfg = yaml.safe_load(f) or {}
 
-    with open(CONFIG_PATH, "r") as f:
-        cfg = yaml.safe_load(f) or {}
-    # Merge defaults for missing sections
-    for top_key, sub_dict in default_cfg.items():
-        cfg.setdefault(top_key, {})
-        for k, v in sub_dict.items():
-            cfg[top_key].setdefault(k, v)
+        # Merge defaults for missing top‑level sections
+        for top_key, sub_val in default_cfg.items():
+            if isinstance(sub_val, dict):
+                cfg.setdefault(top_key, {})
+                for sub_k, sub_v in sub_val.items():
+                    cfg[top_key].setdefault(sub_k, sub_v)
+            else:
+                cfg.setdefault(top_key, sub_val)
+
+    # Back‑compatibility: the original config used ``random_seed``; map it to ``seed`` if needed
+    if "random_seed" in cfg and "seed" not in cfg:
+        cfg["seed"] = cfg["random_seed"]
+
     return cfg
 
 # ----------------------------------------------------------------------
@@ -122,14 +136,24 @@ def create_robot_and_object(physics_client: int, geometry_type: str) -> Tuple[in
         urdf_name, [0, 0, 1], physicsClientId=physics_client
     )
     # Small damping to avoid excessive jitter
-    p.changeDynamics(obj_id, -1, linearDamping=0.01, angularDamping=0.01, physicsClientId=physics_client)
+    p.changeDynamics(
+        obj_id,
+        -1,
+        linearDamping=0.01,
+        angularDamping=0.01,
+        physicsClientId=physics_client,
+    )
     return robot_id, obj_id
 
 # ----------------------------------------------------------------------
 # Force application
 # ----------------------------------------------------------------------
 def apply_bi_manual_force(
-    physics_client: int, obj_id: int, noise_vector: np.ndarray, step: int, total_steps: int
+    physics_client: int,
+    obj_id: int,
+    noise_vector: np.ndarray,
+    step: int,
+    total_steps: int,
 ) -> None:
     """
     Apply a time‑varying external force to ``obj_id``. The deterministic sinusoid
@@ -196,7 +220,9 @@ def run_simulation_episode(
     # ------------------------------------------------------------------
     max_steps = int(config["simulation"]["max_steps_per_episode"])
     noise = generate_noise_vector(config)
-    start_pos, start_orn = p.getBasePositionAndOrientation(obj_id, physicsClientId=physics_client)
+    start_pos, start_orn = p.getBasePositionAndOrientation(
+        obj_id, physicsClientId=physics_client
+    )
     translation_history: List[List[float]] = []
     stable = True
 
@@ -206,7 +232,9 @@ def run_simulation_episode(
         apply_bi_manual_force(physics_client, obj_id, noise, step, max_steps)
         p.stepSimulation(physicsClientId=physics_client)
 
-        pos, orn = p.getBasePositionAndOrientation(obj_id, physicsClientId=physics_client)
+        pos, orn = p.getBasePositionAndOrientation(
+            obj_id, physicsClientId=physics_client
+        )
 
         # Record translation relative to start position
         trans_vec = [pos[i] - start_pos[i] for i in range(3)]
@@ -263,10 +291,12 @@ def generate_dataset(config: Dict[str, Any]) -> pd.DataFrame:
             episode = run_simulation_episode(physics_client, geom, config)
             if episode is not None:
                 rows.append(episode)
-            # else: silently skip – should not happen
         except Exception as exc:
             # Log the failure and continue – the loop will generate a replacement.
-            print(f"[generate_data] Episode failed (attempt {attempts}): {exc}", file=sys.stderr)
+            print(
+                f"[generate_data] Episode failed (attempt {attempts}): {exc}",
+                file=sys.stderr,
+            )
             continue
 
     p.disconnect(physics_client)
@@ -290,9 +320,15 @@ def save_and_validate_data(df: pd.DataFrame, config: Dict[str, Any]) -> None:
     output_path = RAW_DATA_DIR / "synthetic_episodes.parquet"
     df.to_parquet(output_path, index=False)
 
-    # Compute and register checksum
-    checksum = compute_checksum(str(output_path))
-    update_checksums(str(output_path), str(CHECKSUM_FILE), checksum)
+    # Ensure a checksum registry exists
+    if not CHECKSUM_FILE.is_file():
+        # Initialise a minimal registry if missing
+        init_registry = {"version": "1.0.0", "files": {}}
+        with open(CHECKSUM_FILE, "w") as f:
+            json.dump(init_registry, f, indent=2)
+
+    # Update checksum registry (the helper computes the checksum internally)
+    update_checksums(str(output_path))
 
     print(f"Saved raw dataset ({len(df)} rows) to {output_path}")
 
