@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T09:58:37.107439Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-246-estimating-causal-effects-with-doubly-ro
-last_run_id: 2e9d67c1-8985-488a-89d2-ccad971078bf
+last_run_id: d2cca53b-8d80-408a-ba66-40cc8469fd4e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-246-estimating-causal-effects-with-doubly-ro/specs/001-estimating-causal-effects-with-doubly-ro
 title: Estimating Causal Effects with Doubly Robust Methods on Observational Data
-updated_at: '2026-10-22T02:25:43.992832Z'
+updated_at: '2026-10-22T02:26:09.968878Z'
