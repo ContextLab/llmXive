@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-22T20:33:46.401994+00:00",
+  "generated_at": "2026-10-22T21:10:12.881297+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -50163,6 +50163,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "tasker",
+          "duration_s": 276.449334,
+          "ended_at": "2026-10-22T20:35:15.892493Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-22T20:30:39.443159Z"
+        },
+        {
           "agent": "planner",
           "duration_s": 1360.683223,
           "ended_at": "2026-10-22T20:30:22.096970Z",
@@ -50233,14 +50241,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-17T08:06:57.827205Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 28.129211,
-          "ended_at": "2026-10-17T07:13:34.033508Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-17T07:13:05.904297Z"
         }
       ],
       "paper_status": null,
@@ -175908,6 +175908,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "tasker",
+      "duration_s": 276.449334,
+      "ended_at": "2026-10-22T20:35:15.892493Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-104-evaluating-the-use-of-llms-for-automated",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-22T20:30:39.443159Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 1360.683223,
       "ended_at": "2026-10-22T20:30:22.096970Z",
@@ -181936,18 +181948,6 @@
       "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-21T19:08:57.723120Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 88.830658,
-      "ended_at": "2026-10-21T19:10:38.276448Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-21T19:09:09.445790Z"
     }
   ],
   "reviewed_preprints": [
