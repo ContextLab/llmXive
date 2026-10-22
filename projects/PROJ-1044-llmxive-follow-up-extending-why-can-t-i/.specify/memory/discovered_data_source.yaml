@@ -1,14 +1,17 @@
 status: none
-intent: Something-Something V2 video dataset with segmentation masks and optical flow
-  python package dataset
+intent: Something-Something V2 video dataset download pip install python package dataset
 required_fields:
 - video_id
-- video_filepath
-- object_class
-- object_mask_filepath
-- optical_flow_filepath
-- frame_rate
-- resolution
-cache_key: a90e6b057d0450a13e7a247adfb045cba0a33fbd33a23d64e8477151cd802b23
-searched_at: '2026-10-22T04:16:42.648625+00:00'
+- original_video_file_path
+- original_object_annotations
+- original_object_class_label
+- counterfactual_video_file_path
+- counterfactual_object_class_label
+- counterfactual_object_annotations
+- optical_flow_original
+- optical_flow_counterfactual
+- flow_divergence_score
+- dataset_split
+cache_key: 246c8f60176cd1cfa1fa88b1fa26b11d7df55789412ab1425083a6c5bc39290f
+searched_at: '2026-10-22T05:18:23.211955+00:00'
 retry_count: 1

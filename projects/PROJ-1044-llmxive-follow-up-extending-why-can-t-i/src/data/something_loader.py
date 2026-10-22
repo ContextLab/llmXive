@@ -14,6 +14,7 @@ the raw MP4 payload and ``label`` is the textual action template.
 from __future__ import annotations
 
 import random
+import cv2
 from pathlib import Path
 from typing import Iterator, Tuple, Optional
 
@@ -23,11 +24,11 @@ from datasets import load_dataset
 __all__ = ["something_stream"]
 
 # ----------------------------------------------------------------------
-# Helper: load a local fallback video (if present) or download a reliable
-# public sample video as a last resort.
+# Helper: load a local fallback video (if present) or generate a reliable
+# small sample video as a last resort.
 # ----------------------------------------------------------------------
 _LOCAL_FALLBACK_DIR = Path("data/fallback")
-_REMOTE_FALLBACK_URL = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
+_FALLBACK_VIDEO_NAME = "fallback.mp4"
 _fallback_video_cache: Optional[bytes] = None
 
 def _load_local_fallback() -> Optional[bytes]:
@@ -39,18 +40,36 @@ def _load_local_fallback() -> Optional[bytes]:
             return file.read_bytes()
     return None
 
-def _download_fallback_video() -> bytes:
-    """Download a public fallback video (used only when no local file exists)."""
+def _generate_fallback_video() -> bytes:
+    """
+    Generate a tiny MP4 video (5 frames, 64×64) with solid colour frames.
+    The video is written to ``data/fallback/fallback.mp4`` and its bytes
+    are returned. This provides a deterministic, real video file without
+    requiring any network access.
+    """
     global _fallback_video_cache
-    if _fallback_video_cache is None:
-        resp = requests.get(_REMOTE_FALLBACK_URL, timeout=30)
-        resp.raise_for_status()
-        _fallback_video_cache = resp.content
-        # Persist the downloaded video for future runs
-        _LOCAL_FALLBACK_DIR.mkdir(parents=True, exist_ok=True)
-        fallback_path = _LOCAL_FALLBACK_DIR / "fallback.mp4"
-        if not fallback_path.is_file():
-            fallback_path.write_bytes(_fallback_video_cache)
+    if _fallback_video_cache is not None:
+        return _fallback_video_cache
+
+    # Ensure the fallback directory exists.
+    _LOCAL_FALLBACK_DIR.mkdir(parents=True, exist_ok=True)
+    fallback_path = _LOCAL_FALLBACK_DIR / _FALLBACK_VIDEO_NAME
+
+    # Create a simple video using OpenCV.
+    width, height = 64, 64
+    fps = 5
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    writer = cv2.VideoWriter(str(fallback_path), fourcc, fps, (width, height))
+
+    # Write 5 frames of distinct solid colours.
+    colours = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (0, 255, 255)]
+    for colour in colours:
+        frame = (np.full((height, width, 3), colour, dtype=np.uint8))
+        writer.write(frame)
+    writer.release()
+
+    # Read the generated file into memory.
+    _fallback_video_cache = fallback_path.read_bytes()
     return _fallback_video_cache
 
 # ----------------------------------------------------------------------
@@ -130,6 +149,8 @@ def something_stream(
         ``label`` – the action template string (or ``"fallback"`` when using
         the fallback video).
     """
+    import numpy as np  # Imported here to avoid unnecessary global dependency.
+
     rng = random.Random(seed)
     yielded = 0
     target = max_examples if max_examples is not None else float("inf")
@@ -167,11 +188,11 @@ def something_stream(
             yielded += 1
 
     # ------------------------------------------------------------------
-    # Fallback mode – fill any remaining slots with a local or remote sample.
+    # Fallback mode – fill any remaining slots with a local or generated sample.
     # ------------------------------------------------------------------
     fallback_bytes = _load_local_fallback()
     if fallback_bytes is None:
-        fallback_bytes = _download_fallback_video()
+        fallback_bytes = _generate_fallback_video()
     fallback_label = "fallback_sample"
 
     while yielded < target:

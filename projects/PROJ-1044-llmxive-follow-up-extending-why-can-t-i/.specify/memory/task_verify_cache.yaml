@@ -1,11 +1,19 @@
 T001:
   c: true
-  h: 174d86a262912bf9a531d70a5b79a55310e7e5b71f695f83c8f723276ece6510
-  r: "Checked `quickstart.md` (contains the required command description) and `configs/run.yaml`\
-    \ (default config present). Execution log `code/.tasks/T001.src_pipeline_run_all.py.log`\
-    \ shows the command ran, printed a pipeline summary, and exited with status\u202F\
+  h: 48c5ad6c79fc48520183e4eba99c75c78c1c49e8e6d9af79b90011ecdc18e46f
+  r: "Checked `quickstart.md` (contains the required command description), `configs/run.yaml`\
+    \ (provides default parameters), and the execution log `code/.tasks/T001.src_pipeline_run_all.py.log`\
+    \ which shows the command ran, printed a pipeline summary, and exited with status\u202F\
     0."
-  sig: 9f64b638f8c7ceb8369c362cc9fa14780c45d036e39d0e26401c65fc90851c5f
+  sig: 2a77f3c93eea46259a511b5f8cca63fa05814f72a8828f6e40dcf73fb9faf79a
+T002:
+  c: false
+  h: 6450aaca81bfa6303279d5ca5bbed4e058138f14598b31e58e5489ff15f437e2
+  r: The repository lacks the required `data/fallback/` videos, and the test run (`code/.tasks/T002.tests_test_something_loader.py.log`)
+    shows `tests/test_something_loader.py` failing (SSL error while trying to download
+    a fallback video). Consequently the loader cannot reliably fall back to bundled
+    videos and the unit test does not pass.
+  sig: 3263cd578507e66268978568016f74b430e0152cfd499e1f688498f0eb504002
 T003:
   c: false
   h: cdf05d127e00ecfa6be49086b05172f20d21e3d83fe11481819e789c19d89935
@@ -18,13 +26,3 @@ T003:
     \ fails during dataset loading (fallback video download SSL error) and no rows\
     \ are recorded in the output `metadata.csv`. These issues must be fixed "
   sig: e2da7b47da04d955111f13b47d332022ef8d06894ac637870ae75fea6684a944
-T004:
-  c: false
-  h: 6e24246d5ba0307218ff22335da7fac587a15a41d96bffd5b920357c46fb8459
-  r: "The provided `src/data/optical_flow_precompute.py` only creates a placeholder\
-    \ directory and never iterates over `data/videos/orig/*.mp4`, computes Farneback\
-    \ flow, or writes `.npy` files; consequently `data/flow/orig/` remains empty and\
-    \ `data/checksums/manifest.csv` is a zero\u2011byte file. The test suite also\
-    \ fails (checksum mismatch and missing expected files). The task\u2019s core functionality\
-    \ is therefore missing."
-  sig: 8e7cc00e1ae679656781f40f91955af8fc92fca27e0d98f409d26f6f35046437

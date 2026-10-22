@@ -1,11 +1,11 @@
 T001:
   task: 135d9f2d64e2fc48477a7db249a8e13984addba24f49490b1581f160d2624884
 T002:
-  reason: The `src/data/something_loader.py` falls back to a remote video when `data/fallback/`
-    is absent, but the required `data/fallback/` directory (with bundled MP4 files)
-    is missing, causing the fallback download to fail (SSL error) and the unit test
-    `tests/test_something_loader.py` to error out instead of successfully loading
-    five videos. The test therefore does not pass the required OpenCV decoding check.
+  reason: The repository lacks the required `data/fallback/` videos, and the test
+    run (`code/.tasks/T002.tests_test_something_loader.py.log`) shows `tests/test_something_loader.py`
+    failing (SSL error while trying to download a fallback video). Consequently the
+    loader cannot reliably fall back to bundled videos and the unit test does not
+    pass.
   task: 2ed1d5bc75e0b8726f0ad041317b1bb315b9874a16a883d140b54e015cb1486e
 T003:
   reason: "The `src/data/counterfactual.py` script does not meet several core requirements:\
