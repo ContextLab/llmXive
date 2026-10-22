@@ -1,21 +1,5 @@
-# Project dependencies
 datasets>=2.18
-# Core libraries (already available in the base environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-pyyaml
-requests
-jsonschema
-psutil
-tqdm
-sentence-transformers
-bitsandbytes
-transformers
-torch
-# llmxive_toolkit is provided by the platform and should not be listed here.
+# Existing core dependencies are pre‑installed in the runner environment
+# (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+#  seaborn, pytest, PyYAML, requests, jsonschema, psutil). No additional
+#  packages are needed for this task beyond the HuggingFace ``datasets`` library.
