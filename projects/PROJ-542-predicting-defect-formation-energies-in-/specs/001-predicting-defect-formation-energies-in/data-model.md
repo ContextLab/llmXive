@@ -7,10 +7,10 @@ The project manipulates six primary data artefacts (the feature matrix may be ov
 |----------|-------------|----------|--------|
 | **Raw defect dataset** | Original perovskite compositions with DFT oxygen‑vacancy formation energies (and optional metadata). | `data/raw/materials_defects.csv` | CSV |
 | **Engineered feature matrix** | Twelve compositional descriptors (atomic radius, Pauling electronegativity, oxidation state, valence electron count for A, B, X) **plus** the target energy, one row per composition. May be overwritten with structural descriptors in the fallback. | `data/processed/features.csv` | CSV |
-| **Cross‑validation metrics** | Summary statistics (mean ± std) for each model across multiple cross‑validation folds. | `data/processed/cv_metrics.json` | JSON |
+| **Cross‑validation metrics** | Summary statistics (mean ± std) for each model across CV folds. | `data/processed/cv_metrics.json` | JSON |
 | **Model performance report** | JSON containing CV metrics, held‑out test metrics, bootstrap CI, paired t‑test result, and ranked feature importances. | `data/processed/performance.json` | JSON |
 | **Final figures** | Scatter plot of predictions vs. actual energies and bar chart of feature importances. | `figures/` (PNG files) | PNG |
-| **Checksums** | SHA‑256 checksums for raw and derived files to ensure data hygiene. | `data/checksums/` | TXT |
+| **Checksums** | SHA‑256 checksums for raw and derived files to ensure data hygiene. | `data/checksums/` | TXT / JSON |
 
 ## Schema Definitions
 
@@ -143,11 +143,11 @@ additionalProperties: false
 ## Data Flow Diagram (textual)
 ```
 raw CSV (or API fetch) → checksum → raw_dataset.schema.yaml validation
-raw CSV → featurize.py (pymatgen) → features.csv → schema validation
+raw CSV → featurize.py (pymatgen) → features.csv → descriptor_gaps.log → validation (validate.py) → schema check
 features.csv → split.py → train.csv / test.csv
 train.csv → train.py (GroupKFold) → cv_metrics.json + model pickles
 train.csv + test.csv → evaluate.py → performance.json + figures
-pipeline.ipynb orchestrates all steps and writes checksums after each artefact.
+pipeline.ipynb orchestrates all steps, writes checksums after each artefact, and runs contract validation.
 ```
 
 ## Contract‑Artifact Mapping (for traceability)
@@ -159,7 +159,7 @@ pipeline.ipynb orchestrates all steps and writes checksums after each artefact.
 | `data/processed/performance.json` | `contracts/model_performance.schema.yaml` (full) |
 | `models/rf_cv.pkl`, `models/gb_cv.pkl` | implied by `model_performance.schema.yaml` (model files are ancillary) |
 | `figures/*.png` | visual artefacts referenced in the performance report (no schema needed) |
+| `data/checksums/*.sha256` | internal integrity manifest (logged by CI, not schema‑validated) |
 
 ---
-
 

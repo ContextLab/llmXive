@@ -23,29 +23,32 @@ pip install -r requirements.txt
   sha256sum data/raw/materials_defects.csv > data/checksums/raw_defects.sha256
   ```
 
-## 3️⃣ Run the Full Notebook
+## 3️⃣ Run the Full Notebook (recommended)
 ```bash
-jupyter nbconvert --to notebook --execute src/pipeline.ipynb --output pipeline_executed.ipynb
+# Measure total runtime with the built‑in time command
+time jupyter nbconvert --to notebook --execute src/pipeline.ipynb --output pipeline_executed.ipynb
 ```
 The notebook will:
-1. Verify the dataset checksum (SSoT).  
-2. Compute the twelve compositional descriptors (radius, electronegativity, oxidation state, valence electron count for A, B, X).  
+1. Verify the dataset checksum.  
+2. Compute the twelve compositional descriptors (radius, electronegativity, oxidation state, valence electron count for A, B, X). Missing descriptor values are logged to `descriptor_gaps.log`; the run aborts if any gaps are found (FR‑006).  
 3. Perform an 80/20 stratified (by composition) train‑test split.  
-4. Run 5‑fold **GroupKFold** cross‑validation **only on the training split**.  
+4. Run 5‑fold **GroupKFold** cross‑validation on the training split.  
 5. Select the best model, evaluate on the held‑out test set, and produce:
    - `data/processed/performance.json`  
    - `figures/pred_vs_actual.png`  
    - `figures/feature_importance.png`  
+
+The total wall‑clock time is printed by `time`; the pipeline will abort automatically if it exceeds **30 minutes** (SC‑004).
 
 ## 4️⃣ Run Individual Scripts (alternative)
 ```bash
 # 4.1 Feature engineering
 python -m src.featurize data/raw/materials_defects.csv data/processed/features.csv
 
-# 4.2 Compute checksum for the engineered features
+# 4.2 Verify checksum for the engineered features
 sha256sum data/processed/features.csv > data/checksums/features.sha256
 
-# 4.3 Validate dataset size, missing values, and power analysis
+# 4.3 Validate dataset size and descriptor completeness
 python -m src.validate data/processed/features.csv
 
 # 4.4 Split train/test
@@ -72,11 +75,10 @@ All tests should pass, confirming that the CSV and JSON artefacts match their sc
 ## 7️⃣ Re‑run with a Different Random Seed (optional)
 ```bash
 export RANDOM_SEED=123
-jupyter nbconvert --to notebook --execute src/pipeline.ipynb --output pipeline_executed.ipynb
+time jupyter nbconvert --to notebook --execute src/pipeline.ipynb --output pipeline_executed.ipynb
 ```
 
 > The Quickstart guide satisfies **FR‑010**, ensuring the entire workflow can be reproduced by a new researcher.
 
 ---
-
 

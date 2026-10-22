@@ -1,4 +1,4 @@
-- artifact_hash: bd29e178676b5d73c1eff34908993bfd88f8fd4c52c628b5c91585943df08cf1
+- artifact_hash: 5c16d72c8d1383ade29d552f1780d8b57c3d2373fdee3002074841c06459a168
   artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/specs/001-predicting-defect-formation-energies-in/data-model.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-10-19T01:42:43.130272Z'
+  verified_at: '2026-10-22T12:32:57.253448Z'

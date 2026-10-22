@@ -17,30 +17,31 @@ The core scientific question depends on DFT‑computed oxygen‑vacancy formatio
 | **GroupKFold cross‑validation (group = full composition)** | Guarantees that identical compositions never appear in both training and validation folds, preventing data leakage. | CPU, negligible overhead. |
 | **Bootstrap 10 000 resamples for RMSE CI** | Provides a robust confidence interval with low memory demand; can be streamed to stay within RAM limits. | CPU, < 1 GB RAM. |
 | **Paired two‑sided t‑test** | Required by SC‑007 to assess bias; **not** used as a primary acceptance criterion. | CPU, negligible cost. |
-| **Power analysis using statsmodels** | Computes **achieved power** to detect a **0.1 eV RMSE improvement** (effect size = 0.1/σ, σ ≈ a small eV‑scale magnitude, as observed in a pilot subset.) with α = 0.05 and target power = 0.8 (required N ≈ 210). The script logs the achieved power and flags if the dataset falls short. | CPU, trivial. |
+| **Runtime budget measurement** | SC‑004 mandates total wall‑clock time ≤ 30 minutes on a CPU‑only runner. The pipeline records start/end timestamps and aborts if the budget is exceeded. | CPU, negligible overhead. |
+| **Power analysis** | Removed because it did not directly support the primary hypothesis (RMSE ≤ 0.5 eV, R² ≥ 70 %). Dataset‑size checks remain. | — |
 | **Stratified 80/20 train‑test split (by composition)** | Preserves composition distribution while ensuring no overlap with CV groups. | CPU, negligible overhead. |
 
 ## Statistical Rigor Checklist
 - **Multiple comparisons**: Only two models are compared; family‑wise correction is unnecessary (family size = 2).  
-- **Power justification**: As described above, the analysis reports achieved power and required sample size.  
+- **Power justification**: Dataset‑size warning is logged; no explicit power calculation (see above).  
 - **Causal inference**: Purely predictive/associational; no causal claims are made.  
 - **Measurement validity**: Targets are DFT‑computed defect formation energies from the Materials Project, a widely accepted computational source.  
 - **Collinearity**: Descriptors may be correlated (e.g., radius ↔ electronegativity). A Pearson correlation matrix will be logged; feature importance is interpreted descriptively, not as independent effects.  
 
 ## Execution Flow (ordered)
 1. **Data acquisition** (`download.py`): attempt API fetch → fallback to local CSV → abort if neither available.  
-2. **Checksum verification** → `data/checksums/raw_defects.sha256`.  
-3. **Feature engineering** (`featurize.py`) → `data/processed/features.csv`.  
-4. **Dataset validation & power analysis** (`validate.py`) → `data/processed/validation.log`.  
-5. **Stratified train‑test split** (`split.py`) → `train.csv`, `test.csv`.  
-6. **5‑fold GroupKFold CV** (`train.py`) → `models/rf_cv.pkl`, `models/gb_cv.pkl`, `data/processed/cv_metrics.json`.  
+2. **Checksum verification** (`checksum.py`) → `data/checksums/raw_defects.sha256`.  
+3. **Feature engineering** (`featurize.py`) → `data/processed/features.csv` + `featurize.log` + `descriptor_gaps.log`.  
+4. **Dataset validation** (`validate.py`) → `validation.log` (size check, ≥ 500 rows warning).  
+5. **Stratified train‑test split** (`split.py`) → `train.csv`, `test.csv` + `split.log`.  
+6. **5‑fold GroupKFold CV** (`train.py`) → `models/rf_cv.pkl`, `models/gb_cv.pkl`, `cv_metrics.json`.  
 7. **Model selection** (lowest mean CV RMSE).  
-8. **Held‑out evaluation** (`evaluate.py`) → `data/processed/performance.json`, `figures/pred_vs_actual.png`, `figures/feature_importance.png`.  
-9. **Notebook orchestration** (`pipeline.ipynb`).  
-10. **Contract validation** (`pytest`) – each artifact is checked against its JSON‑Schema contract (see plan.md Phase 7).  
+8. **Held‑out evaluation** (`evaluate.py`) → `performance.json`, `figures/pred_vs_actual.png`, `figures/feature_importance.png`.  
+9. **Runtime check**: total elapsed time is compared to the 30‑minute ceiling; pipeline aborts if exceeded.  
+10. **Notebook orchestration** (`pipeline.ipynb`).  
+11. **Contract validation** (`pytest`) – each artifact is checked against its JSON‑Schema contract (see `contracts/`).  
 
 All steps are reproducible; random seeds are fixed (`np.random.seed(42)`, `random_state=42` in scikit‑learn).
 
 ---
-
 
