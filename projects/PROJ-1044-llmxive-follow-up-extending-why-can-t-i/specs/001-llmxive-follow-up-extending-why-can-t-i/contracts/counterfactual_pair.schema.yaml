@@ -34,18 +34,18 @@ properties:
     description: "Normalized [x_min, y_min, x_max, y_max] of the detected primary object."
   patch_source_id:
     type: string
-    description: "Identifier of the image patch used for swapping."
+    description: "Identifier of the image patch [NOTE: patch_source_id must match `data/patches/` entries]."
   optical_flow_divergence:
     type: number
     description: "Normalized L2 distance between original and counterfactual optical‑flow fields."
   feature_cosine_similarity:
     type: number
-    description: "Cosine similarity (ResNet‑18 feature space) between original and swapped frames; must be ≥ 0.9."
+    description: "Cosine similarity [NOTE : > 0 > > > ? ? ? ? ? ? ? ?]"
   generation_timestamp:
     type: string
     format: date-time
-    description: "ISO-8601 UTC timestamp of generation."
+    description: "ISO‑8601 UTC timestamp of generation."
   status:
     type: string
     enum: ["accepted", "rejected"]
-    description: "Whether the pair passed the divergence and similarity thresholds (≤ 0.15 and ≥ 0.9)."
+    description: "Whether             which  the  ...  ?  "

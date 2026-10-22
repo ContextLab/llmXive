@@ -11,7 +11,7 @@
 
 ```bash
 # 1️⃣ Clone the repository (already present in CI)
-git clone 
+git clone <repo-url>
 cd llmxive-project
 
 # 2️⃣ Create a fresh virtual environment and install pinned dependencies
@@ -19,8 +19,8 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt   # pins torch, torchvision, opencv, etc.
 
-# 3️⃣ (Optional) Set a deterministic seed list; defaults are defined in src/utils/seed.py
-export SEED_LIST="initial seed and subsequent seeds up to the tenth"
+# 3️⃣ Set a deterministic seed list (a moderate number of seeds as used in the plan)
+export SEED_LIST="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30"
 
 # 4️⃣ Run the full pipeline (single entrypoint)
 python -m src.pipeline.run_all \
@@ -53,13 +53,13 @@ ls output/figures/
 |-------|--------|------------|
 | **Synthetic video creation** | `src/data/synthetic_generator.py` | `output/data/videos/orig/*.mp4` |
 | **Pre‑compute flow for originals** | `src/data/optical_flow.py` | `output/data/flow/orig/*.npy` |
-| **Robust video loading** | `src/data/something_loader.py` (now falls back to bundled videos if HF dataset unavailable) | Guarantees `tests/test_something_loader.py` yields multiple decodable videos |
+| **Robust video loading** | `src/data/something_loader.py` (now falls back to bundled videos if HF dataset unavailable) | Guarantees `tests/test_something_loader.py` yields decodable videos |
 | **Counterfactual generation & validation** | `src/data/counterfactual.py` (uses ResNet‑18 similarity & flow divergence) | `output/data/videos/cf/*.mp4`, `metadata.csv` |
 | **Pre‑compute flow for counterfactuals** | `src/data/optical_flow.py` | `output/data/flow/cf/*.npy` |
 | **Feature extraction (FlowNet‑C)** | `src/data/feature_extractor.py` | `output/data/flow_features/*.npy` |
-| **Model training** | `src/train/trainer.py` (loops over λ & seeds) | `output/checkpoints/*.pt` |
+| **Model training** | `src/train/trainer.py` (loops over λ & 30 seeds) | `output/checkpoints/*.pt` |
 | **Evaluation** | `src/eval/evaluator.py` | `per_seed.csv`, `summary.csv` |
-| **Report & figures** | `src/eval/report.py` | `figures/*.png` (ΔAcc vs λ, bootstrap CI, example frames) |
+| **Report & figures** | `src/eval/report.py` | `figures/*.png` (ΔAcc vs λ, bootstrap CI, example frames, construct‑validity plots) |
 
 All files are automatically checksummed; hashes are written to `state/projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i.yaml`.
 
@@ -70,6 +70,11 @@ All files are automatically checksummed; hashes are written to `state/projects/P
 
 All changes preserve reproducibility because seeds and hyper‑parameters are recorded in `output/config.yaml`.
 
+## Notes on Required Resources
+- The `data/patches/` directory containing simple colored‑shape patches is shipped with the repository. If it is missing (e.g., a fresh clone), the pipeline will automatically generate a minimal set of placeholder patches (solid‑color squares) before counterfactual generation, ensuring no script failure.
+- Optical flow for counterfactual videos is **computed after generation** (still CPU‑only) and cached for downstream steps, satisfying FR‑006 while respecting the need to validate motion preservation.
+
 ---
+
 
 

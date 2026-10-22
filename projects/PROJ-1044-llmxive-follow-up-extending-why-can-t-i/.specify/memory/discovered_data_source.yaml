@@ -1,17 +1,16 @@
 status: none
-intent: Something-Something V2 video dataset download pip install python package dataset
+intent: Something-Something V2 video dataset and FlyingChairs optical flow python
+  package dataset
 required_fields:
 - video_id
-- original_video_file_path
-- original_object_annotations
-- original_object_class_label
-- counterfactual_video_file_path
-- counterfactual_object_class_label
-- counterfactual_object_annotations
-- optical_flow_original
-- optical_flow_counterfactual
-- flow_divergence_score
-- dataset_split
-cache_key: 246c8f60176cd1cfa1fa88b1fa26b11d7df55789412ab1425083a6c5bc39290f
-searched_at: '2026-10-22T05:18:23.211955+00:00'
+- video_path
+- frames
+- action_label
+- primary_object_class
+- primary_object_bbox
+- optical_flow
+- background_mask
+- occlusion_mask
+cache_key: 5ac0d187bf8a698b2a281091824344b5c0863671c3b0e775ada8749a17a06953
+searched_at: '2026-10-22T07:25:27.256123+00:00'
 retry_count: 1

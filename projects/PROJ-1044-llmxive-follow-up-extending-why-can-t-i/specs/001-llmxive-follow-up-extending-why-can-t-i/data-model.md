@@ -62,5 +62,10 @@ report.py --> figures/*.png + tables/*.csv
 
 All files are version‑hashed and recorded in the project state YAML per Constitution V.
 
+**Citation for Feature Extractor**  
+The frozen FlowNet‑C backbone is taken from the official FlowNet‑PyTorch repository (https://github.com/NVIDIA/flownet2-pytorch) and the corresponding pretrained weights are downloaded automatically by the pipeline.
+
 ---
+
+
 
