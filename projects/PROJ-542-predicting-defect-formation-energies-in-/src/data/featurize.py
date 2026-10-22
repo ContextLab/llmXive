@@ -2,227 +2,196 @@
 src/data/featurize.py
 ---------------------
 
-Implements compositional featurization for perovskite defect data.
-The public API consists of:
-  * _add_short_radius_columns – copies long radius column names to the short ones required by the schema.
-  * compute_features – reads the raw CSV, computes the twelve compositional descriptors,
-    drops rows with undefined oxidation states, writes logs, adds short radius columns,
-    checks for descriptor gaps and writes the final feature matrix.
-  * main – CLI entry point used by ``python -m src.featurize``.
+Computes the twelve compositional descriptors required by the
+``features.schema.yaml`` contract:
+
+    * atomic radius
+    * Pauling electronegativity
+    * oxidation state (first common oxidation state)
+    * valence electron count
+
+for the A, B and X sites of a perovskite ABX₃ composition.
+The implementation follows the specification in T003.
 """
 
 import argparse
 import sys
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
-import numpy as np
 import pandas as pd
-from pymatgen.core import Composition, Element
 from llmxive_toolkit import get_logger, paths
+from pymatgen.core import Composition, Element
 
 from src.utils.check_descriptor_gaps import check_descriptor_gaps
 
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper: add short radius columns (A_radius, B_radius, X_radius)
+# Helper functions
 # ----------------------------------------------------------------------
-def _add_short_radius_columns(df: pd.DataFrame) -> pd.DataFrame:
+DESCRIPTOR_NAMES = [
+    "atomic_radius",
+    "electronegativity",
+    "oxidation_state",
+    "valence_electrons",
+]
+SITES = ["A", "B", "X"]
+
+
+def _site_descriptors(elem: Element) -> Tuple[float, float, int, int]:
     """
-    The original implementation stored atomic radii under the name
-    ``*_atomic_radius``.  The feature‑matrix schema (see
-    ``contracts/features.schema.yaml``) requires the shorter column names
-    ``*_radius``.  To preserve compatibility with downstream utilities that
-    still reference the long names, we keep both columns – the short names
-    are copies of the long ones.
+    Return the four required descriptors for *elem*.
+
+    If a descriptor cannot be obtained, ``None`` is returned for that
+    entry – the calling code will treat it as a missing value.
     """
-    for site in ["A", "B", "X"]:
-        long_name = f"{site}_atomic_radius"
-        short_name = f"{site}_radius"
-        if long_name in df.columns:
-            df[short_name] = df[long_name]
-    return df
+    # Atomic radius (Å). ``Element`` may return ``None``.
+    radius = elem.atomic_radius
+    # Pauling electronegativity.
+    en = elem.X
+    # Oxidation state – use the first common oxidation state if available.
+    ox = elem.common_oxidation_states[0] if elem.common_oxidation_states else None
+    # Valence electron count – ``valence`` is an integer or ``None``.
+    val = elem.valence
+    return radius, en, ox, val
+
+
+def _parse_perovskite(composition: str) -> Tuple[Element, Element, Element]:
+    """
+    Very simple parser for ABX₃ formulas.
+
+    * If the formula contains oxygen (``O``) we treat it as the X site.
+    * The remaining two distinct elements are assigned to A and B
+      (alphabetical order to keep the operation deterministic).
+    * The function raises ``ValueError`` if the formula does not look
+      like a perovskite or if the required elements cannot be identified.
+    """
+    comp = Composition(composition)
+    # Identify X as oxygen if present, otherwise the element with the
+    # highest count (heuristic for the anion).
+    if "O" in comp:
+        x_elem = Element("O")
+    else:
+        # Heuristic – pick the element with the smallest fraction as X.
+        # This is only a fallback; the real dataset should contain O.
+        x_elem = min(comp.elements, key=lambda e: comp.get_atomic_fraction(e))
+
+    # Remove X from the set of elements to obtain A and B.
+    remaining = [e for e in comp.elements if e != x_elem]
+    if len(remaining) != 2:
+        raise ValueError(
+            f"Unable to infer A/B sites from composition '{composition}'."
+        )
+    a_elem, b_elem = sorted(remaining, key=lambda e: e.symbol)
+    return a_elem, b_elem, x_elem
+
+
+def _build_feature_row(row: pd.Series) -> dict:
+    """
+    Build a dictionary with the twelve descriptor columns for a single
+    raw data row. Returns ``None`` if any descriptor cannot be obtained.
+    """
+    try:
+        a_elem, b_elem, x_elem = _parse_perovskite(row["composition"])
+    except Exception as exc:
+        log.debug(f"Composition parsing failed for '{row['composition']}': {exc}")
+        return None
+
+    descriptors = {}
+    for site, elem in zip(SITES, [a_elem, b_elem, x_elem]):
+        radius, en, ox, val = _site_descriptors(elem)
+        descriptors[f"{site}_atomic_radius"] = radius
+        descriptors[f"{site}_electronegativity"] = en
+        descriptors[f"{site}_oxidation_state"] = ox
+        descriptors[f"{site}_valence_electrons"] = val
+
+    # Add the target and composition columns.
+    descriptors["formation_energy"] = row["formation_energy"]
+    descriptors["composition"] = row["composition"]
+    return descriptors
+
 
 # ----------------------------------------------------------------------
-# Core feature computation
+# Public API
 # ----------------------------------------------------------------------
 def compute_features(input_csv: Path, output_csv: Path) -> None:
     """
-    Read the raw defect CSV, compute the twelve compositional descriptors,
-    drop rows with any undefined descriptor (including oxidation state),
-    add short radius columns, write the final feature matrix, and finally
-    run the descriptor‑gap checker which will raise if gaps remain.
-
-    Parameters
-    ----------
-    input_csv : Path
-        Path to the raw CSV produced by ``src.data.download``.
-    output_csv : Path
-        Destination path for the engineered feature matrix.
+    Reads ``input_csv`` (the raw defect CSV), computes the twelve
+    compositional descriptors, drops rows with any missing descriptor,
+    adds short radius columns (``*_radius``), writes the resulting
+    feature matrix to ``output_csv``, and finally runs the descriptor‑gap
+    checker which will raise if gaps remain.
     """
-    # ------------------------------------------------------------------
-    # 1. Load raw data
-    # ------------------------------------------------------------------
-    try:
-        raw_df = pd.read_csv(input_csv)
-    except Exception as exc:
-        log.error(f"Failed to read raw CSV at {input_csv}: {exc}")
-        raise
+    log.info(f"Reading raw data from {input_csv}")
+    raw_df = pd.read_csv(input_csv)
 
-    required_raw_cols = {"composition", "formation_energy"}
-    missing_raw = required_raw_cols - set(raw_df.columns)
-    if missing_raw:
-        raise RuntimeError(f"Raw CSV missing required columns: {missing_raw}")
+    if "composition" not in raw_df.columns or "formation_energy" not in raw_df.columns:
+        raise ValueError(
+            "Raw CSV must contain 'composition' and 'formation_energy' columns."
+        )
 
-    # ------------------------------------------------------------------
-    # 2. Compute descriptors for each row
-    # ------------------------------------------------------------------
-    feature_rows: List[dict] = []
-    rows_dropped_missing_oxi = 0
-
+    feature_dicts: List[dict] = []
     for _, row in raw_df.iterrows():
-        comp_str: str = row["composition"]
-        formation_energy = row["formation_energy"]
+        feature_row = _build_feature_row(row)
+        if feature_row is not None:
+            feature_dicts.append(feature_row)
 
-        # Parse composition with pymatgen
-        try:
-            comp = Composition(comp_str)
-        except Exception:
-            # Unable to parse composition – drop the row
-            rows_dropped_missing_oxi += 1
-            continue
+    if not feature_dicts:
+        raise RuntimeError("No valid rows after descriptor computation.")
 
-        # Identify X (oxygen) if present, otherwise take the last element
-        elements = list(comp.elements)
-        if any(el.symbol == "O" for el in elements):
-            x_elem = "O"
-            cation_elements = [el for el in elements if el.symbol != "O"]
-        else:
-            # Fallback: treat the last element as X
-            x_elem = elements[-1].symbol
-            cation_elements = elements[:-1]
+    features_df = pd.DataFrame(feature_dicts)
 
-        if len(cation_elements) < 2:
-            # Not enough cations to assign A and B – drop the row
-            rows_dropped_missing_oxi += 1
-            continue
-
-        # Assign A and B (order is not critical for the current descriptor set)
-        a_elem = cation_elements[0].symbol
-        b_elem = cation_elements[1].symbol
-
-        # ----------------------------------------------------------------
-        # Oxidation state determination
-        # ----------------------------------------------------------------
-        try:
-            oxi_guess_list = comp.oxi_state_guesses()
-            oxi_dict = oxi_guess_list[0] if oxi_guess_list else {}
-        except Exception:
-            oxi_dict = {}
-
-        def get_oxi(sym: str):
-            return oxi_dict.get(sym, np.nan)
-
-        # ----------------------------------------------------------------
-        # Gather element objects
-        # ----------------------------------------------------------------
-        try:
-            A = Element(a_elem)
-            B = Element(b_elem)
-            X = Element(x_elem)
-        except Exception:
-            # If any element is unknown to pymatgen, drop the row
-            rows_dropped_missing_oxi += 1
-            continue
-
-        # ----------------------------------------------------------------
-        # Build descriptor dictionary
-        # ----------------------------------------------------------------
-        descriptor_dict = {
-            "composition": comp_str,
-            "formation_energy": formation_energy,
-            # Atomic radii (long names)
-            "A_atomic_radius": A.atomic_radius,
-            "B_atomic_radius": B.atomic_radius,
-            "X_atomic_radius": X.atomic_radius,
-            # Electronegativity (Pauling)
-            "A_electronegativity": A.electronegativity,
-            "B_electronegativity": B.electronegativity,
-            "X_electronegativity": X.electronegativity,
-            # Oxidation states
-            "A_oxidation_state": get_oxi(a_elem),
-            "B_oxidation_state": get_oxi(b_elem),
-            "X_oxidation_state": get_oxi(x_elem),
-            # Valence electron count
-            "A_valence_electrons": A.valence_electrons,
-            "B_valence_electrons": B.valence_electrons,
-            "X_valence_electrons": X.valence_electrons,
-        }
-
-        feature_rows.append(descriptor_dict)
-
-    # ------------------------------------------------------------------
-    # 3. Create DataFrame and drop rows with any missing descriptor
-    # ------------------------------------------------------------------
-    features_df = pd.DataFrame(feature_rows)
-
-    # Identify descriptor columns (excluding target & composition)
+    # Drop rows with any missing descriptor values.
     descriptor_cols = [
-        col
-        for col in features_df.columns
-        if col not in {"composition", "formation_energy"}
+        f"{site}_{desc}"
+        for site in SITES
+        for desc in DESCRIPTOR_NAMES
     ]
-
     before_drop = len(features_df)
     features_df = features_df.dropna(subset=descriptor_cols)
-    rows_dropped_missing_desc = before_drop - len(features_df)
-
-    total_dropped = rows_dropped_missing_oxi + rows_dropped_missing_desc
-
-    # ------------------------------------------------------------------
-    # 4. Write featurize.log
-    # ------------------------------------------------------------------
+    dropped = before_drop - len(features_df)
+    log.info(f"Dropped {dropped} rows with undefined descriptors (oxidation state, etc.).")
     featurize_log_path = paths.data("processed", "featurize.log")
     featurize_log_path.parent.mkdir(parents=True, exist_ok=True)
     with featurize_log_path.open("w", encoding="utf-8") as f:
-        f.write(f"Dropped {total_dropped} rows due to missing descriptors or oxidation states.\\n")
+        f.write(f"Dropped rows with missing descriptors: {dropped}\\n")
 
-    # ------------------------------------------------------------------
-    # 5. Add short radius columns required by the schema
-    # ------------------------------------------------------------------
-    features_df = _add_short_radius_columns(features_df)
+    # Add short radius columns (e.g. ``A_radius``) as copies of the long names.
+    for site in SITES:
+        long_name = f"{site}_atomic_radius"
+        short_name = f"{site}_radius"
+        features_df[short_name] = features_df[long_name]
 
-    # ------------------------------------------------------------------
-    # 6. Write the final feature matrix
-    # ------------------------------------------------------------------
+    # Write the feature matrix.
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     features_df.to_csv(output_csv, index=False)
+    log.info(f"Feature matrix written to {output_csv}")
 
-    # ------------------------------------------------------------------
-    # 7. Verify that no descriptor gaps remain
-    # ------------------------------------------------------------------
-    # This will write ``descriptor_gaps.log`` and raise RuntimeError if gaps exist.
+    # Run the descriptor‑gap checker – it will raise if any gaps remain.
     check_descriptor_gaps(features_path=output_csv)
 
-# ----------------------------------------------------------------------
-# CLI entry point
-# ----------------------------------------------------------------------
+
 def main() -> None:
     """
     CLI wrapper used by ``python -m src.featurize``.
-
     Expected positional arguments:
         1. Path to the raw CSV (input)
-        2. Path to the output features CSV
+        2. Path to the output features CSV (output)
     """
-    parser = argparse.ArgumentParser(description="Compute perovskite compositional features")
-    parser.add_argument("input_csv", type=Path, help="Path to raw defect CSV")
-    parser.add_argument("output_csv", type=Path, help="Path where features CSV will be written")
+    parser = argparse.ArgumentParser(
+        description="Compute compositional descriptors for perovskite defect data."
+    )
+    parser.add_argument("input_csv", type=str, help="Path to raw defect CSV.")
+    parser.add_argument("output_csv", type=str, help="Path for the engineered features CSV.")
     args = parser.parse_args()
 
+    compute_features(Path(args.input_csv), Path(args.output_csv))
+
+
+if __name__ == "__main__":
     try:
-        compute_features(args.input_csv, args.output_csv)
+        main()
     except Exception as exc:
-        log.error(f"Feature computation failed: {exc}")
+        log.error(str(exc))
         sys.exit(1)

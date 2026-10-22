@@ -1,5 +1,15 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
+
+The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
+
+1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
+2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
+3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
+
+- src/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…silently fall back to synthetic data.     """     log.info(f"…”
+
 ## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
 
 Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
@@ -9,18 +19,34 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/processed/features.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/processed/features.csv, data/raw/materials_defects.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/processed/features.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python -m src.featurize data/raw/materials_defects.csv data/processed/features.csv (rc=1); python -m src.validate data/processed/features.csv (rc=1); python -m src.split data/processed/features.csv data/processed/train.csv data/processed/test.csv (rc=1)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…silently fall back to synthetic data.     """     log.info(f"…”; every produced artifact is gitignored (data/processed/features.csv, data/raw/materials_defects.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python -m src.featurize data/raw/materials_defects.csv data/processed/features.csv (rc=1); python -m src.validate data/processed/features.csv (rc=1); python -m src.split data/processed/features.csv data/processed/train.csv data/processed/test.csv (rc=1)
 
 ## Failing / missing run-book commands
 
 - python -m src.featurize data/raw/materials_defects.csv data/processed/features.csv -> rc=1
-
-2026-10-22 13:26:01,854 ERROR src.data.featurize: Failed to read raw CSV at data/raw/materials_defects.csv: [Errno 2] No such file or directory: 'data/raw/materials_defects.csv'
-2026-10-22 13:26:01,854 ERROR src.data.featurize: Feature computation failed: [Errno 2] No such file or directory: 'data/raw/materials_defects.csv'
+rc/data/featurize.py", line 127, in compute_features
+    raw_df = pd.read_csv(input_csv)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/materials_defects.csv'
 
 - python -m src.validate data/processed/features.csv -> rc=1
 
@@ -31,9 +57,9 @@ Traceback (most recent call last):
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/validate.py", line 20, in main
     _impl_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/data/validate.py", line 40, in main
-    raise ValueError("Insufficient rows (<50) for 5-fold CV")
-ValueError: Insufficient rows (<50) for 5-fold CV
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/data/validate.py", line 39, in main
+    raise FileNotFoundError(f"Features file not found at {features_path}")
+FileNotFoundError: Features file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/data/processed/features.csv
 
 - python -m src.split data/processed/features.csv data/processed/train.csv data/processed/test.csv -> rc=1
 
@@ -48,7 +74,7 @@ ValueError: Insufficient rows (<50) for 5-fold CV
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-542-predicting-defect-formation-energies-in-/bin/python: No module named src.evaluate
 
 - python -m pytest -q -> rc=1
-site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+e-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
 projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_pipeline_entry.py::test_pipeline_entry
@@ -57,30 +83,12 @@ projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_pipel
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-FAILED code/tests/test_pipeline_entry.py::test_pipeline_entry - SystemExit: 2
 FAILED src/tests/test_descriptor_gaps.py::test_check_descriptor_gaps_with_missing
 FAILED src/tests/test_quickstart.py::test_quickstart_pipeline - AssertionErro...
 FAILED tests/test_generate_checksums.py::test_checksum_files_created - Assert...
 FAILED tests/test_split.py::test_split_dataset_basic - assert 2 <= 1
 FAILED tests/test_split.py::test_cli_execution - AssertionError: assert False
-6 failed, 5 passed, 14 warnings in 3.20s
+FAILED tests/test_validate.py::test_validation_success - AssertionError: asse...
+6 failed, 5 passed, 14 warnings in 7.98s
 
 
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Download / stream** this exact data URL directly (do NOT `pip install` it — it is a data file, not a package): `https://zenodo.org/records/10028980/files/Data.csv?download=1`
-- **Verified**: streaming a sample yielded **178** real records with fields: OQMD_ID_pristine, 0-norm, 2-norm, 3-norm, 5-norm, 7-norm, 10-norm, MagpieData minimum Number, MagpieData maximum Number, MagpieData range Number, MagpieData mean Number, MagpieData avg_dev Number, MagpieData mode Number, MagpieData minimum MendeleevNumber, MagpieData maximum MendeleevNumber, MagpieData range MendeleevNumber, MagpieData mean MendeleevNumber, MagpieData avg_dev MendeleevNumber, MagpieData mode MendeleevNumber, MagpieData minimum AtomicWeight, MagpieData maximum AtomicWeight, MagpieData range AtomicWeight, MagpieData mean AtomicWeight, MagpieData avg_dev AtomicWeight, MagpieData mode AtomicWeight, MagpieData minimum MeltingT, MagpieData maximum MeltingT, MagpieData range MeltingT, MagpieData mean MeltingT, MagpieData avg_dev MeltingT, MagpieData mode MeltingT, MagpieData minimum Column, MagpieData maximum Column, MagpieData range Column, MagpieData mean Column, MagpieData avg_dev Column, MagpieData mode Column, MagpieData minimum Row, MagpieData maximum Row, MagpieData range Row, MagpieData mean Row, MagpieData avg_dev Row, MagpieData mode Row, MagpieData minimum CovalentRadius, MagpieData maximum CovalentRadius, MagpieData range CovalentRadius, MagpieData mean CovalentRadius, MagpieData avg_dev CovalentRadius, MagpieData mode CovalentRadius, MagpieData minimum Electronegativity, MagpieData maximum Electronegativity, MagpieData range Electronegativity, MagpieData mean Electronegativity, MagpieData avg_dev Electronegativity, MagpieData mode Electronegativity, MagpieData minimum NsValence, MagpieData maximum NsValence, MagpieData range NsValence, MagpieData mean NsValence, MagpieData avg_dev NsValence, MagpieData mode NsValence, MagpieData minimum NpValence, MagpieData maximum NpValence, MagpieData range NpValence, MagpieData mean NpValence, MagpieData avg_dev NpValence, MagpieData mode NpValence, MagpieData minimum NdValence, MagpieData maximum NdValence, MagpieData range NdValence, MagpieData mean NdValence, MagpieData avg_dev NdValence, MagpieData mode NdValence, MagpieData minimum NfValence, MagpieData maximum NfValence, MagpieData range NfValence, MagpieData mean NfValence, MagpieData avg_dev NfValence, MagpieData mode NfValence, MagpieData minimum NValence, MagpieData maximum NValence, MagpieData range NValence, MagpieData mean NValence, MagpieData avg_dev NValence, MagpieData mode NValence, MagpieData minimum NsUnfilled, MagpieData maximum NsUnfilled, MagpieData range NsUnfilled, MagpieData mean NsUnfilled, MagpieData avg_dev NsUnfilled, MagpieData mode NsUnfilled, MagpieData minimum NpUnfilled, MagpieData maximum NpUnfilled, MagpieData range NpUnfilled, MagpieData mean NpUnfilled, MagpieData avg_dev NpUnfilled, MagpieData mode NpUnfilled, MagpieData minimum NdUnfilled, MagpieData maximum NdUnfilled, MagpieData range NdUnfilled, MagpieData mean NdUnfilled, MagpieData avg_dev NdUnfilled, MagpieData mode NdUnfilled, MagpieData minimum NfUnfilled, MagpieData maximum NfUnfilled, MagpieData range NfUnfilled, MagpieData mean NfUnfilled, MagpieData avg_dev NfUnfilled, MagpieData mode NfUnfilled, MagpieData minimum NUnfilled, MagpieData maximum NUnfilled, MagpieData range NUnfilled, MagpieData mean NUnfilled, MagpieData avg_dev NUnfilled, MagpieData mode NUnfilled, MagpieData minimum GSvolume_pa, MagpieData maximum GSvolume_pa, MagpieData range GSvolume_pa, MagpieData mean GSvolume_pa, MagpieData avg_dev GSvolume_pa, MagpieData mode GSvolume_pa, MagpieData minimum GSbandgap, MagpieData maximum GSbandgap, MagpieData range GSbandgap, MagpieData mean GSbandgap, MagpieData avg_dev GSbandgap, MagpieData mode GSbandgap, MagpieData minimum GSmagmom, MagpieData maximum GSmagmom, MagpieData range GSmagmom, MagpieData mean GSmagmom, MagpieData avg_dev GSmagmom, MagpieData mode GSmagmom, MagpieData minimum SpaceGroupNumber, MagpieData maximum SpaceGroupNumber, MagpieData range SpaceGroupNumber, MagpieData mean SpaceGroupNumber, MagpieData avg_dev SpaceGroupNumber, MagpieData mode SpaceGroupNumber, avg s valence electrons, avg p valence electrons, avg d valence electrons, avg f valence electrons, compound possible, max ionic char, avg ionic char, NN_binary_Evf_avg_weighted, tot_binary_Evf_min, NN_binary_Evf_avg_weighted_bl, OpCOM_site_plus_bandgap, formation_energy, redox_pot_max, bond_dissociation_energy_sum, electronegativity_avg, electronegativity_1stNN, fraction_O_electrons, n_O_atoms, tot_n_electrons, tot_n_atoms, fraction_O_atoms, bandgap, OpCOM_tot_plus_tq_bandgap, stability, OQMD_ID_defect, evf.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import pandas as pd
-url = "https://zenodo.org/records/10028980/files/Data.csv?download=1"
-df = pd.read_csv(url)
-print(f"RECORDS={len(df)}")
-print("FIELDS=" + ",".join(df.columns.tolist()))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

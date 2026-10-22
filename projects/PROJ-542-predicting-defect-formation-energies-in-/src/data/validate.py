@@ -1,58 +1,64 @@
 """
 src/data/validate.py
----------------------
+--------------------
 
-Validation script for the processed feature matrix.
-
-Requirements:
-- Raise ``ValueError`` with message ``"Insufficient rows (<50) for 5‑fold CV"`` if the
-  feature matrix has fewer than 50 rows.
-- Log the total row count. If the count is < 500, also emit a warning that the
-  power target (≥ 500 rows) is not met.
-- Compute a SHA‑256 checksum for the log file and write it to
-  ``data/checksums/validation.sha256``.
+Validates the processed feature matrix according to T004.
 """
+
+import sys
+from pathlib import Path
 
 import pandas as pd
 from llmxive_toolkit import get_logger, paths
+
 from src.utils.checksum import compute_checksum
 
 log = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
+VALIDATION_LOG = paths.data("processed", "validation.log")
+VALIDATION_CHECKSUM = paths.data("checksums", "validation.sha256")
+
+
+def _log(message: str) -> None:
+    VALIDATION_LOG.parent.mkdir(parents=True, exist_ok=True)
+    with VALIDATION_LOG.open("a", encoding="utf-8") as f:
+        f.write(message + "\\n")
+    log.info(message)
+
+
 def main() -> None:
     """
-    Validate the processed feature matrix.
-
-    This function is invoked by the top‑level ``src.validate`` wrapper and
-    is also usable as ``python -m src.data.validate``.
+    Entry point for ``python -m src.data.validate``.
+    Performs the row‑count checks, emits warnings, and writes a checksum.
     """
-    # Paths to the feature matrix, validation log, and checksum file.
     features_path = paths.data("processed", "features.csv")
-    log_path = paths.data("processed", "validation.log")
-    checksum_path = paths.data("checksums", "validation.sha256")
+    if not features_path.is_file():
+        raise FileNotFoundError(f"Features file not found at {features_path}")
 
-    # Load the feature matrix.
     df = pd.read_csv(features_path)
-
-    # Row count check.
     row_count = len(df)
+
+    _log(f"Feature matrix contains {row_count} rows.")
+
     if row_count < 50:
         raise ValueError("Insufficient rows (<50) for 5-fold CV")
 
-    # Write the validation log.
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    with log_path.open("w", encoding="utf-8") as f:
-        f.write(f"Total rows in feature matrix: {row_count}\\n")
-        if row_count < 500:
-            f.write(
-                "Warning: power target (>= 500 rows) not met. "
-                "Statistical power may be insufficient.\\n"
-            )
-    log.info("Validation log written to %s", log_path)
+    if row_count < 500:
+        _log(
+            "WARNING: Power target (≥ 500 rows) not met. "
+            "Statistical power may be insufficient (SC-005)."
+        )
 
-    # Compute and write the SHA‑256 checksum for the log file.
-    compute_checksum(log_path, checksum_path)
-    log.info("Checksum for validation log written to %s", checksum_path)
+    # Compute checksum for the validation log.
+    compute_checksum(VALIDATION_LOG, VALIDATION_CHECKSUM)
+
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        log.error(str(exc))
+        sys.exit(1)
