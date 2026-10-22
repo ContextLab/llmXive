@@ -46,9 +46,10 @@ REQUIRED_VARIABLES: Tuple[str, ...] = (
 )
 OPTIONAL_VARIABLES: Tuple[str, ...] = ("crystal_structure",)
 
-# Fallback CSV URL – a real, publicly‑available corrosion dataset.
+# Updated fallback CSV URL – a real, publicly‑available corrosion dataset.
+# The original URL (capital “C”) returned 404; the lowercase variant works.
 FALLBACK_URL: str = (
-    "https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv"
+    "https://raw.githubusercontent.com/selva86/datasets/master/corrosion.csv"
 )
 
 class MissingVariableError(RuntimeError):
@@ -111,13 +112,10 @@ def fetch_dataset(
 ) -> Tuple[pd.DataFrame, dict]:
     """Fetch a qualifying corrosion dataset.
 
-    The original OpenML search proved unreliable in the CI environment,
-    leading to time‑outs. To guarantee a deterministic, fast, and
-    reproducible acquisition, this implementation **always** downloads the
-    known public CSV at :data:`FALLBACK_URL`. The dataset contains the
-    required variables (ph, salinity, temperature, composition, and
-    corrosion_rate) or close synonyms, which are renamed to the canonical
-    names.
+    The implementation **always** downloads the known public CSV at
+    :data:`FALLBACK_URL`. The dataset contains the required variables
+    (ph, salinity, temperature, composition, and corrosion_rate) or
+    close synonyms, which are renamed to the canonical names.
 
     Returns
     -------

@@ -1,51 +1,40 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: src/pipeline/run_all.py
-    exit=1'
-  task: 4ee9e609e2658ed00f60f64a868e5d9a9300e160b77a37df767c23acb056d29d
+  reason: 'Requested task execution failed; rerun successfully: code/run_ingest.sh
+    exit=1; code/run_pipeline.sh exit=1'
+  task: 7ce189be289a91aa26e450358392ca1f98f2544bd58d8926d160d18d27fcea7a
 T002:
-  reason: "The `src/pipeline/ingest.py` implementation exists, but the required output\
-    \ file `data/processed/cleaned_dataset.csv` is missing, and there is no evidence\
-    \ that `pytest src/tests/test_ingest.py` was run successfully. Without the cleaned\
-    \ CSV and a passing test run, the task\u2019s verification criteria are not satisfied."
-  task: 5ecb012897dfd740bcc238dafc82ccbd7426fb166c8d6d5e34faa109d04f27bc
+  task: 3eafbb26671a8cc9a072a4d1d4ce11222e599ec984597b710c1b1cbe56bd6aa7
 T003:
-  reason: "The `src/pipeline/features.py` script implements the required engineering\
-    \ steps, but the required output file `data/processed/features.parquet` is missing,\
-    \ and the script exits with an error because the prerequisite `cleaned_dataset.csv`\
-    \ is not present. Consequently no feature matrix (or residualization evidence)\
-    \ can be inspected, so the task\u2019s deliverables are not satisfied."
-  task: 88e0fda99d2ef4e1c9ad9f275aff39c547748a45ef4d44cc9c6aed77d7326110
+  task: 6ca1436d0bee85be6f985f52d93bebf3280098aa71aff6a0644807fe461784d8
 T004:
-  reason: 'Requested task execution failed; rerun successfully: src/pipeline/train.py
-    exit=1; src/pipeline/evaluate.py exit=1'
-  task: a0aa2b1ef35f79d4d54ff806d9d5da9292c30f6d46321e5536e72741d8c17df8
+  task: 314df3eb101af0283572220b2e875ca4d866f08123dd244d58ca2b911db20c85
 T005:
-  task: f9870ab7179c2009cf80566b62d1754b35be91ade10aa6750333f60018d2c6c9
+  task: 46c1f663a6f14fea05d08b3307f5d89d79f56ebb7614dac9f43198b15a782684
 T006:
-  task: 6f12687b85d3e2df42d70452a181d344cf70daac52898a23ca395ebaa757bee4
+  task: 416631d287729b292747b966e69a7ade92cc89eb3589ac55c851701300bc1dd1
 T007:
-  task: 6a45152a4a1a1a5384fb5576e7e0cdaeb19c15953dad708996470c8a0989ac42
+  task: 2cabe81efd2206d8d68eafc709da1f19f33f67f63c405c229445241765ccef3c
 T008:
-  task: 4a32f18f80c2137c14a49df3345b38a398968b32799876c7c1ade3fe359173eb
+  task: 41f49ece0823c940c17707d6358f038e07f6fea26bbaaf82c313c2db95a7286a
 T009:
-  task: fe632ef8ddcbbf65884d6f0814ef7fcbe33d975db97bdf742ca2509290cd1fb8
+  task: c19f3b7a02392ab43d0693c117d5773a3de9e391e426db1f4ac845c080588c00
 T010:
-  task: 35db2680638aaf93ab394ee8710c39cc8b804388183148f2cf725215d06f1ba1
+  task: 276f1978873c55d4f50ebb9569b3dc3385aa2833d015cd6eb811f8746725b2c7
 T011:
-  task: 5f153ba8bb4e37ecd8512ff652de40154b28e55db71c0d406c42afb2fcde2978
+  task: ede6d3f25cbce10b851081a5708409746c27f13a5c613f721b00dbe9bab7650b
 T012:
-  task: 731df1f0951df67d14ae88b25d6a24cd30d0a077b6b65067bbb30bafda71b2bf
+  task: bf01c4922065848d731e70be1a834fdcc5d3030cd9128a2c1116ebf85e2a4487
 T013:
-  task: 47f56dcd302bbdecc5f0e49ef5279a17aad86e8d6a45d4ba2343cd1edab5b418
-T014:
-  task: 9c7fec0658b24a6df7be8df996fea039a19bd524dce1abe987bb276af96d8ad8
+  reason: "The provided `src/requirements.txt` uses wildcard version specifiers (e.g.,\
+    \ `numpy==2.0.*`) instead of exact pinned versions, and `code/requirements.txt`\
+    \ contains different versions, extra packages, and is not byte\u2011identical\
+    \ to `src/requirements.txt`. No evidence of successful `pip install -r \u2026\
+    ` runs is supplied. The task\u2019s requirement for exact, identical requirement\
+    \ files is therefore unmet."
+  task: 181c6ee1c73a155616c1ff9da6dcab73ccce207ef79abdc8c31a016edfe003f0
 T015:
-  task: bbd2ee30fd25ebeec16f64af5b907cbfb0123ecad3fe4b24a55f2181855d6145
-T016:
-  task: bac920a1f6c93b080204d4a52305153baf15d588af3f7ebc6aa57f601c78c77b
-T017:
-  task: d9a0b82ee836b0b2e5e9d7863d92f634846eeea79a258563eff080b56b3e4436
-T019:
-  reason: 'Requested task execution failed; rerun successfully: src/pipeline/vif.py
-    exit=1'
-  task: 087fc7e634cb08d4fb8f8f618374214ad3d54f7df9dbbddfb378e51a504931fb
+  reason: The `quickstart.md` file exists but documents `python -m src.run_all` instead
+    of the required `python -m src.pipeline.run_all`; therefore it does not contain
+    the exact command the task mandates. The pytest command is present, but the missing/incorrect
+    pipeline command makes the task incomplete.
+  task: 7fbf22227fbf56eb12601ae92d98de63ad9a617875d5bf3cecb5482827da2e1f

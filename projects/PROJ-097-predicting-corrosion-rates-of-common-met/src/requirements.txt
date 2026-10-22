@@ -1,9 +1,8 @@
-pandas==2.2.*
 numpy==2.0.*
+pandas==2.2.*
 scikit-learn==1.5.*
 shap==0.45.*
 statsmodels==0.14.*
-openml==0.14.*
-psutil==5.9.*
+requests==2.32.*
 pyyaml==6.0.*
-pytest==8.*
+psutil==5.9.*

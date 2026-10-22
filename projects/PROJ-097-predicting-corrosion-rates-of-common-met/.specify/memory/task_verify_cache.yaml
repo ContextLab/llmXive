@@ -1,28 +1,18 @@
-T003:
-  c: false
-  h: 0584e340c78675fad5efd7e4e84c11cf03f4281b5cf91ea61421b5f1ad7166a3
-  r: "The `src/pipeline/features.py` script implements the required engineering steps,\
-    \ but the required output file `data/processed/features.parquet` is missing, and\
-    \ the script exits with an error because the prerequisite `cleaned_dataset.csv`\
-    \ is not present. Consequently no feature matrix (or residualization evidence)\
-    \ can be inspected, so the task\u2019s deliverables are not satisfied."
-  sig: addd19087b232d270b3b9e46ffdff25ed0c7a234c134d4bf799659e63c0ed0c6
 T013:
-  c: true
-  h: 4931a668c046e4ab61cf0a4b01d37bd7ee9175087a780033c95d3f0e80422bd3
-  r: Both `src/requirements.txt` and `code/requirements.txt` exist, are non-empty,
-    and contain the exact nine pinned dependencies with the specified version constraints
-    (pandas==2.2.*, numpy==2.0.*, scikit-learn==1.5.*, shap==0.45.*, statsmodels==0.14.*,
-    openml==0.14.*, psutil==5.9.*, pyyaml==6.0.*, pytest==8.*); the two files' contents
-    are identical (the 1-byte size difference is only a trailing newline). No pip-install
-    execution evidence was supplied, but the pins are mutually compatible and the
-    artifact requirement itself is fully met.
-  sig: 46ff0d56b5712d7219fa026683907a81623dfa559dadcc565bfa5eeda652d5f3
+  c: false
+  h: ede8c67600ea9fb371402cee6a1a49778fd1e804d79fbcc8140b19fae5338035
+  r: "The provided `src/requirements.txt` uses wildcard version specifiers (e.g.,\
+    \ `numpy==2.0.*`) instead of exact pinned versions, and `code/requirements.txt`\
+    \ contains different versions, extra packages, and is not byte\u2011identical\
+    \ to `src/requirements.txt`. No evidence of successful `pip install -r \u2026\
+    ` runs is supplied. The task\u2019s requirement for exact, identical requirement\
+    \ files is therefore unmet."
+  sig: 6fa50b9d32aa5106f8b51695bd21163d1084979588bbcc25af040894c9a07c7c
 T015:
-  c: true
-  h: 898b4f996e4140ab4a2253f02c2c0a626835aa89081efdf2c96f386d7b382290
-  r: The file `specs/001-predicting-corrosion-rates-of-common-met/quickstart.md` exists
-    (3574 bytes) and contains the exact required command strings `python -m src.pipeline.run_all`
-    and `pytest src/tests/`, plus supporting prerequisites and output documentation;
-    execution was not required at this stage.
-  sig: 0f53a5d4078d4b0711b3120834f921b5997d395ef5c268b3e7a12172326f0e11
+  c: false
+  h: 34bd3785ee0d0ae4c87a597b210766c1509fe35c012523d564af8f0cb324c187
+  r: The `quickstart.md` file exists but documents `python -m src.run_all` instead
+    of the required `python -m src.pipeline.run_all`; therefore it does not contain
+    the exact command the task mandates. The pytest command is present, but the missing/incorrect
+    pipeline command makes the task incomplete.
+  sig: 0e83f6a98b3f2be9099f2c970137b5e07f2a336fb28f33d8e6825fa194ee7840

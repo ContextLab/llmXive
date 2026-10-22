@@ -75,8 +75,4 @@ All tests must pass before the CI job is considered successful.
 
 - All findings are **associational**, not causal (SC‑006).  
 - If a required column is missing from the supplied CSV, the pipeline aborts with `Error: MISSING_VARIABLE [column_name] in [dataset_source]` (FR‑001).  
-- The permutation test implemented is a **paired sign‑flip test**, satisfying the reviewer’s comment on methodological correctness.  
-
----
-
-
+- The permutation test implemented is a **paired sign‑flip test**, satisfying the reviewer’s comment on methodological correctness.
