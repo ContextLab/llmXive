@@ -18,36 +18,27 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/pipelines/download_pi_bench.py -> rc=1
-i_bench.py", line 133, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 114, in main
-    checksums = _download_pi_bench(raw_dir)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 61, in _download_pi_bench
-    ds_dict = load_dataset("pi_bench", streaming=True)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/load.py", line 2123, in load_dataset
-    return builder_instance.as_streaming_dataset(split=split)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/builder.py", line 1318, in as_streaming_dataset
-    raise NotImplementedError(
-NotImplementedError: Loading a streaming dataset cached in a LocalFileSystem is not supported yet.
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 12, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/datasets.py", line 56, in <module>
+    load_dataset = _real_datasets.load_dataset  # type: ignore
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: partially initialized module 'datasets' has no attribute 'load_dataset' (most likely due to a circular import)
 
 - python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv -> rc=1
- __main__: Raw directory empty – downloading pi_bench dataset via `datasets`...
-2026-10-22 03:28:33,905 ERROR __main__: Failed to download pi_bench dataset: This stub only implements JSON loading; received name='pi_bench'
+
+2026-10-22 03:31:13,337 ERROR __main__: Failed to download pi_bench dataset: The `datasets` library is required to download the pi_bench dataset. Ensure it is installed (add `datasets` to requirements.txt).
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 184, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 140, in main
     json_files = _download_and_save_raw(raw_dir)
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 32, in _download_and_save_raw
-    ds = load_dataset("pi_bench", streaming=True)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/datasets.py", line 42, in load_dataset
-    raise NotImplementedError(
-NotImplementedError: This stub only implements JSON loading; received name='pi_bench'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 26, in _download_and_save_raw
+    raise ImportError(
+ImportError: The `datasets` library is required to download the pi_bench dataset. Ensure it is installed (add `datasets` to requirements.txt).
 
 - python src/pipelines/build_intent_graph_llm.py  --input-csv data/derived/normalized_traces.csv  --out-dir data/derived/intent_graphs  --max-tokens $(cat data/derived/model_max_tokens.txt)  --seed 42  --latency-out data/derived/graph_construction_latency.csv -> rc=2
 

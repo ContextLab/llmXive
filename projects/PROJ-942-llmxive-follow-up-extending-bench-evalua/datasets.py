@@ -1,66 +1,72 @@
 """
-Minimal stub of the ``datasets`` library used only for the project's tests.
+Compatibility shim for the ``datasets`` library.
 
-The real ``datasets`` package pulls in heavy dependencies (e.g., ``pyarrow``)
-that are unavailable in the execution environment.  This stub provides a
-``load_dataset`` function compatible with the limited usage in the test
-suite:
+The repository previously contained a top‑level ``datasets.py`` stub that
+shadowed the real HuggingFace ``datasets`` package, causing import failures
+in the test suite (``import datasets`` did not expose ``__version__``).
 
-* ``load_dataset("json", data_files=..., recursive=True)`` – loads all
-  matching JSON files and returns a simple object with a ``data`` attribute.
-* Any other dataset name raises ``NotImplementedError``.
+This shim forwards all attribute access to the genuine ``datasets`` package
+installed in the environment while also exposing ``__version__`` directly.
+It is deliberately minimal – only the symbols required by the project
+(currently ``load_dataset``) are forwarded, but any other attribute will be
+lazily resolved via ``__getattr__``.
 """
 
-import json
-import glob
-from types import SimpleNamespace
-from pathlib import Path
-from typing import Any, List
+import importlib
+import os
+import sys
+from importlib import metadata
+from types import ModuleType
+from typing import Any
 
+# Determine the version of the real ``datasets`` package.
+try:
+    __version__: str = metadata.version("datasets")
+except Exception:  # pragma: no cover
+    # If the package is not installed, raise a clear error.
+    raise ImportError(
+        "The real 'datasets' package is required but could not be found. "
+        "Ensure it is installed via the project's requirements.txt."
+    )
 
-def load_dataset(name: str, **kwargs: Any) -> SimpleNamespace:
+def _load_real_datasets() -> ModuleType:
     """
-    Very small subset of the ``datasets.load_dataset`` API.
+    Import the genuine ``datasets`` package, bypassing this shim.
 
-    Parameters
-    ----------
-    name: str
-        The name of the dataset to load. Only ``"json"`` is supported.
-    **kwargs:
-        Expected keys for the JSON loader:
-        - ``data_files``: a glob pattern (string) pointing to JSON files.
-        - ``recursive``: bool indicating whether ``**`` patterns should be
-          expanded recursively.
-
-    Returns
-    -------
-    SimpleNamespace
-        An object with a single attribute ``data`` containing a list of
-        parsed JSON objects.
+    The project root (``os.getcwd()``) is normally the first entry in
+    ``sys.path`` and contains this file, which would cause a recursive import.
+    We temporarily remove the project root from ``sys.path`` so that Python
+    can locate the external package installed in the virtual environment.
     """
-    if name != "json":
-        raise NotImplementedError(
-            f"This stub only implements JSON loading; received name={name!r}"
-        )
+    cwd = os.getcwd()
+    original_path = list(sys.path)
+    try:
+        # Exclude the current working directory to avoid importing this file again.
+        sys.path = [p for p in sys.path if p != cwd]
+        real_module = importlib.import_module("datasets")
+    finally:
+        # Restore the original import path.
+        sys.path = original_path
+    return real_module
 
-    pattern = kwargs.get("data_files")
-    if not pattern:
-        raise ValueError("The stub requires a 'data_files' argument for JSON loading.")
+# Load the actual library once; subsequent attribute access is delegated.
+_real_datasets = _load_real_datasets()
 
-    recursive = bool(kwargs.get("recursive", False))
+# Explicitly expose the most‑used function.
+load_dataset = _real_datasets.load_dataset  # type: ignore
 
-    # Resolve the glob pattern
-    matched_files: List[Path] = [
-        Path(p) for p in glob.glob(str(pattern), recursive=recursive) if Path(p).is_file()
-    ]
+def __getattr__(name: str) -> Any:
+    """
+    Lazily forward any other attribute accesses to the real ``datasets``
+    module. This mirrors the behaviour of ``import *`` without polluting the
+    namespace unnecessarily.
+    """
+    return getattr(_real_datasets, name)
 
-    data = []
-    for file_path in matched_files:
-        with file_path.open("r", encoding="utf-8") as f:
-            try:
-                data.append(json.load(f))
-            except json.JSONDecodeError as e:
-                raise ValueError(f"Failed to parse JSON file {file_path}: {e}") from e
-
-    # Return a simple namespace mimicking the real Dataset object
-    return SimpleNamespace(data=data)
+def __dir__() -> list:
+    """
+    Provide a helpful ``dir()`` implementation that includes both the shim
+    attributes and those of the underlying library.
+    """
+    shim_attrs = ["__version__", "load_dataset", "__getattr__", "__dir__"]
+    return sorted(set(shim_attrs + dir(_real_datasets)))

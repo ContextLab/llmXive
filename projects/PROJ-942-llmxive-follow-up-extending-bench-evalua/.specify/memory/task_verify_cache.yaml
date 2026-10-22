@@ -1,11 +1,11 @@
 T000:
   c: false
-  h: 1419b58b3aefe155d50841b985a44fabf577d59b44af5e51a2369dae89c2e67d
-  r: The required `code/utils/seed.py` file is missing (only a `utils/seed.py` exists
-    elsewhere), violating the specified script location. Moreover, `tests/test_setup.py`
-    fails the `test_datasets_importable` check because the local `datasets.py` masks
-    the installed package, so the verification test does not pass.
-  sig: fb2cbd9163b499c40ef78827dd0fe5a6f0b16d5751e7d9cff526d12ec110be86
+  h: 9e09b61fbbfbecef5f4d827b5efff73b63ef164944457341cbcec75a4dfce3df
+  r: "The required seed module is missing at the specified path (`code/utils/seed.py`),\
+    \ and the provided `tests/test_setup.py` fails because the `datasets` import resolves\
+    \ to a local stub without a `__version__` attribute. Both issues prevent the task\u2019\
+    s verification script from passing."
+  sig: a490d96271f0d1badf50165d7c36cd0f0bacba7a2a6796007353f1ca0ccd6e42
 T001:
   c: false
   h: ed1cd6ec7fff7fc4fa307d9deaa642bd860f1536a391b6400fe3187c8d839b7e

@@ -1,15 +1,12 @@
 T000:
-  reason: The required `code/utils/seed.py` file is missing (only a `utils/seed.py`
-    exists elsewhere), violating the specified script location. Moreover, `tests/test_setup.py`
-    fails the `test_datasets_importable` check because the local `datasets.py` masks
-    the installed package, so the verification test does not pass.
+  reason: "The required seed module is missing at the specified path (`code/utils/seed.py`),\
+    \ and the provided `tests/test_setup.py` fails because the `datasets` import resolves\
+    \ to a local stub without a `__version__` attribute. Both issues prevent the task\u2019\
+    s verification script from passing."
   task: c248270d6df0c12b8ac03c1d8d356c4acc30b97f7a93613969eb3920090f22c3
 T001:
-  reason: "The `download_pi_bench.py` script does not implement the required retry\
-    \ logic nor does it verify checksums against a bundled list (the `REFERENCE_CHECKSUMS`\
-    \ dict is empty). Moreover, when run it writes **0 JSON files**, so `tests/test_dataset_download.py`\
-    \ fails (\u201CNo JSON files found in data/raw\u201D). The test suite must pass\
-    \ and the script must produce verified files for the task to be considered complete."
+  reason: 'Requested task execution failed; rerun successfully: code/pipelines/download_pi_bench.py
+    exit=1'
   task: 81e4097c7b7464769a686847bd1259616ddaf0a9592b7e6a4874d2fa114ce831
 T002:
   reason: Checked `code/pipelines/parse_traces.py` (exists and implements parsing)

@@ -1,47 +1,56 @@
 """
-Utility to set deterministic random seeds across the most common libraries.
+Utility to set deterministic seeds across common libraries.
 
-The function :func:`set_seeds` is deliberately lightweight and has no external
-dependencies beyond the standard library, NumPy and (optionally) PyTorch.
+This module provides a single public function ``set_seeds`` that seeds
+Python's ``random`` module, NumPy, and (if available) PyTorch. It also
+fixes the ``PYTHONHASHSEED`` environment variable to ensure reproducible
+hashing of built‑in types.
+
+The function is deliberately lightweight and has no side‑effects beyond
+seeding; it can be called multiple times (the most recent call wins).
 """
 
 import os
 import random
 from typing import Optional
 
-import numpy as np
-
-# Torch is an optional dependency; import lazily so that the script works on
-# systems where it is not installed (e.g., during early CI steps).
-try:
-    import torch  # type: ignore
-except Exception:  # pragma: no cover
-    torch = None  # type: ignore
-
-def set_seeds(seed: Optional[int] = 42) -> None:
+def set_seeds(seed: int = 42) -> None:
     """
-    Set deterministic seeds for ``random``, ``numpy`` and (if available) ``torch``.
+    Set global random seeds for reproducibility.
 
     Parameters
     ----------
     seed : int, optional
-        The seed value to use. The default (42) is a conventional choice that
-        yields a reproducible ``numpy.random.rand()`` value of
-        ``0.3745401188473625``.
+        The seed value to use. Defaults to 42.
+
+    This function seeds:
+    - ``random`` (Python's built‑in RNG)
+    - ``numpy.random``
+    - ``torch`` (if installed)
+    - ``PYTHONHASHSEED`` environment variable
     """
-    if seed is None:
-        raise ValueError("Seed must be an integer or None.")
-
-    # Python's hash randomisation (affects dict ordering in some contexts)
-    os.environ["PYTHONHASHSEED"] = str(seed)
-
+    # Standard library RNG
     random.seed(seed)
-    np.random.seed(seed)
 
-    if torch is not None:
+    # NumPy RNG
+    try:
+        import numpy as np
+        np.random.seed(seed)
+    except Exception:  # pragma: no cover
+        pass
+
+    # PyTorch RNG (CPU‑only; ignore if torch not installed)
+    try:
+        import torch
         torch.manual_seed(seed)
-        # Ensure deterministic behaviour on CPU
-        torch.use_deterministic_algorithms(True)
-        # Disable nondeterministic cuDNN paths (no‑op on CPU‑only runs)
+        # Ensure deterministic behavior on CUDA if ever used
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+        # Disable nondeterministic algorithms
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
+    except Exception:  # pragma: no cover
+        pass
+
+    # Hash seed for reproducible hashing of built‑in types
+    os.environ["PYTHONHASHSEED"] = str(seed)
