@@ -1,4 +1,1 @@
-torch
-transformers
-datasets
-accelerate
+pyarrow>=12.0.0
