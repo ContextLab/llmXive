@@ -1,72 +1,48 @@
 """
-Compatibility shim for the ``datasets`` library.
-
-The repository previously contained a top‑level ``datasets.py`` stub that
-shadowed the real HuggingFace ``datasets`` package, causing import failures
-in the test suite (``import datasets`` did not expose ``__version__``).
-
-This shim forwards all attribute access to the genuine ``datasets`` package
-installed in the environment while also exposing ``__version__`` directly.
-It is deliberately minimal – only the symbols required by the project
-(currently ``load_dataset``) are forwarded, but any other attribute will be
-lazily resolved via ``__getattr__``.
+Compatibility shim: the project once contained a local ``datasets.py`` that
+shadowed the real HuggingFace ``datasets`` package and caused a circular
+import.  This module now transparently re-exports the REAL installed
+``datasets`` package so that every ``import datasets`` / ``from datasets
+import load_dataset`` in the project resolves to the genuine library.
 """
 
-import importlib
-import os
 import sys
-from importlib import metadata
-from types import ModuleType
-from typing import Any
+from pathlib import Path
 
-# Determine the version of the real ``datasets`` package.
+_HERE = str(Path(__file__).resolve().parent)
+
+# Temporarily remove the directory containing this shim (and the CWD
+# entries that resolve to it) from sys.path so that ``import datasets``
+# locates the real installed package instead of this file.
+_removed = []
+for _p in list(sys.path):
+    if _p in ("", ".") or _p == _HERE:
+        sys.path.remove(_p)
+        _removed.append(_p)
+
+# Drop ourselves from the module cache so the real package takes over the
+# name ``datasets``.
+sys.modules.pop("datasets", None)
+
 try:
-    __version__: str = metadata.version("datasets")
-except Exception:  # pragma: no cover
-    # If the package is not installed, raise a clear error.
-    raise ImportError(
-        "The real 'datasets' package is required but could not be found. "
-        "Ensure it is installed via the project's requirements.txt."
-    )
+    import datasets as _real_datasets  # noqa: E402
+finally:
+    # Restore sys.path exactly as we found it.
+    for _p in reversed(_removed):
+        sys.path.insert(0, _p)
 
-def _load_real_datasets() -> ModuleType:
-    """
-    Import the genuine ``datasets`` package, bypassing this shim.
+# Re-export the real package's public API under this name.
+__version__ = getattr(_real_datasets, "__version__", "unknown")
+load_dataset = _real_datasets.load_dataset
+get_dataset_config_names = _real_datasets.get_dataset_config_names
+get_dataset_split_names = _real_datasets.get_dataset_split_names
+concatenate_datasets = _real_datasets.concatenate_datasets
+Dataset = _real_datasets.Dataset
+DatasetDict = _real_datasets.DatasetDict
+IterableDataset = _real_datasets.IterableDataset
+IterableDatasetDict = _real_datasets.IterableDatasetDict
+Features = _real_datasets.Features
 
-    The project root (``os.getcwd()``) is normally the first entry in
-    ``sys.path`` and contains this file, which would cause a recursive import.
-    We temporarily remove the project root from ``sys.path`` so that Python
-    can locate the external package installed in the virtual environment.
-    """
-    cwd = os.getcwd()
-    original_path = list(sys.path)
-    try:
-        # Exclude the current working directory to avoid importing this file again.
-        sys.path = [p for p in sys.path if p != cwd]
-        real_module = importlib.import_module("datasets")
-    finally:
-        # Restore the original import path.
-        sys.path = original_path
-    return real_module
-
-# Load the actual library once; subsequent attribute access is delegated.
-_real_datasets = _load_real_datasets()
-
-# Explicitly expose the most‑used function.
-load_dataset = _real_datasets.load_dataset  # type: ignore
-
-def __getattr__(name: str) -> Any:
-    """
-    Lazily forward any other attribute accesses to the real ``datasets``
-    module. This mirrors the behaviour of ``import *`` without polluting the
-    namespace unnecessarily.
-    """
-    return getattr(_real_datasets, name)
-
-def __dir__() -> list:
-    """
-    Provide a helpful ``dir()`` implementation that includes both the shim
-    attributes and those of the underlying library.
-    """
-    shim_attrs = ["__version__", "load_dataset", "__getattr__", "__dir__"]
-    return sorted(set(shim_attrs + dir(_real_datasets)))
+# Make ``sys.modules['datasets']`` point at the real package so that any
+# module importing ``datasets`` after this one gets the genuine library.
+sys.modules["datasets"] = _real_datasets

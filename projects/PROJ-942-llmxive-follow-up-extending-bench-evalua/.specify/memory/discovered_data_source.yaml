@@ -2,15 +2,14 @@ status: none
 intent: download pi-bench interaction traces and hidden intents from HuggingFace python
   package dataset
 required_fields:
-- task_id
 - dialogue_id
-- turn_index
+- task_id
+- turn_number
 - speaker
-- utterance_text
+- utterance
 - timestamp
-- hidden_intent_label
-- hidden_intent_confidence
-- metadata
-cache_key: 382cd70dc8d8535357757523538b311a9d6d09fb0d7427c5ed43cab1946abd59
-searched_at: '2026-10-22T03:32:18.013222+00:00'
+- ground_truth_intent
+- intent_label
+cache_key: 8b98cf4d09b27c9ad18fa57ef5d6c0fce068b818fe56fe9e3b5ea3e52b258040
+searched_at: '2026-10-22T05:12:56.762676+00:00'
 retry_count: 1

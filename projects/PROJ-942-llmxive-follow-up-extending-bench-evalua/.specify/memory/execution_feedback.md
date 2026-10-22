@@ -18,18 +18,25 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/pipelines/download_pi_bench.py -> rc=1
+ive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/__init__.py", line 22, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 12, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/datasets.py", line 56, in <module>
-    load_dataset = _real_datasets.load_dataset  # type: ignore
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: partially initialized module 'datasets' has no attribute 'load_dataset' (most likely due to a circular import)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 14, in <module>
+    raise ImportError(
+ImportError: The 'datasets' library is required and must be installable with a compatible pyarrow version. Ensure requirements.txt includes 'datasets' and 'pyarrow'.
 
 - python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv -> rc=1
 
-2026-10-22 03:31:13,337 ERROR __main__: Failed to download pi_bench dataset: The `datasets` library is required to download the pi_bench dataset. Ensure it is installed (add `datasets` to requirements.txt).
+2026-10-22 05:12:18,972 ERROR __main__: Failed to download pi_bench dataset: The `datasets` library is required to download the pi_bench dataset. Ensure it is installed (add `datasets` to requirements.txt).
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 184, in <module>
     main()
