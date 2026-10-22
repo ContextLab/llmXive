@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-21T21:07:34Z",
+  "updated_at": "2026-10-22T02:13:31Z",
   "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
-  "replan_rounds": 1
+  "replan_rounds": 2
 }

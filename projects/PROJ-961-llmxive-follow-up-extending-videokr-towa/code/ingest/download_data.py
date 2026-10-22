@@ -20,13 +20,23 @@ from typing import Any, Dict, Tuple
 from llmxive_toolkit import paths
 from utils.config import ensure_dir
 
-# Local checksum helper
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# Import checksum helper from the project's ingest module
 try:
-    from ingest.checksum import compute_sha256
-except ImportError:
-    # Fallback for environments where the package structure is different
     from code.ingest.checksum import compute_sha256
+except ImportError:
+    # Fallback for different execution contexts
+    try:
+        from ingest.checksum import compute_sha256
+    except ImportError:
+        # If still not found, we'll define a basic one to avoid import errors, 
+        # though T101 ensures this exists.
+        import hashlib
+        def compute_sha256(file_path: Path) -> str:
+            sha256_hash = hashlib.sha256()
+            with open(file_path, "rb") as f:
+                for byte_block in iter(lambda: f.read(4096), b""):
+                    sha256_hash.update(byte_block)
+            return sha256_hash.hexdigest()
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -64,6 +74,8 @@ def _write_csv(iterable: Any, output_path: Path) -> None:
                 fieldnames = list(rec.keys())
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
+            
+            # Ensure all values are serializable to string
             safe_rec = {
                 k: (v if isinstance(v, (str, int, float, bool)) else str(v))
                 for k, v in rec.items()
