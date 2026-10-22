@@ -17,20 +17,29 @@ properties:
     description: "Variance of atomic radii."
   d_band_filling:
     type: "number"
-    description: "d-band filling estimate."
+    description: "Weighted average d‑electron count."
   size_mismatch:
     type: "number"
     description: "Atomic size mismatch metric."
+  average_atomic_mass:
+    type: "number"
+    description: "Weighted average atomic mass."
+  electron_affinity:
+    type: "number"
+    description: "Weighted average electron affinity."
+  pettifor_scale:
+    type: "number"
+    description: "Weighted average Pettifor chemical scale."
   synthesis_method_encoded:
     type: "object"
-    description: "One-hot encoded synthesis method."
+    description: "One‑hot encoded synthesis method."
     additionalProperties:
       type: "number"
       minimum: 0
       maximum: 1
   crystal_phase_encoded:
     type: "object"
-    description: "One-hot encoded crystal phase."
+    description: "One‑hot encoded crystal phase."
     additionalProperties:
       type: "number"
       minimum: 0
@@ -42,6 +51,9 @@ required:
   - atomic_radii_variance
   - d_band_filling
   - size_mismatch
+  - average_atomic_mass
+  - electron_affinity
+  - pettifor_scale
   - synthesis_method_encoded
   - crystal_phase_encoded
 additionalProperties: false
