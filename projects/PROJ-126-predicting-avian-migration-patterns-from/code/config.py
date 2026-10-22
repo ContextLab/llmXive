@@ -3,8 +3,10 @@ import sys
 import hashlib
 import json
 import logging
+import random
 from pathlib import Path
 from datetime import datetime
+import numpy as np
 
 # Project Root
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -16,6 +18,10 @@ DATA_OUTPUTS = DATA_DIR / "outputs"
 
 # Random Seed
 RANDOM_SEED = 42
+
+# Seed all RNGs
+np.random.seed(RANDOM_SEED)
+random.seed(RANDOM_SEED)
 
 # Lake Powell Bounding Box (Approximate)
 # Latitude: ~36.9 to 37.1, Longitude: ~-111.5 to -111.2
@@ -110,3 +116,45 @@ def setup_data_directories_and_verify():
         verify_checksums()
     else:
         logging.info("No checksums found. Skipping verification.")
+
+# ------------------------------------------------------------
+# Additional configuration constants required by T001
+# ------------------------------------------------------------
+
+# Base data root (relative to this file)
+DATA_ROOT = Path(__file__).parents[1] / "data"
+
+# Sub‑directories
+RAW_DIR = DATA_ROOT / "raw"
+PROC_DIR = DATA_ROOT / "processed"
+OUT_DIR = DATA_ROOT / "outputs"
+
+# Regional bounding box (Pacific Northwest)
+REGIONAL_BBOX = (45, 50, -125, -115)   # (min_lat, max_lat, min_lon, max_lon)
+
+# Smaller regional subset used for fallback
+REGIONAL_SUBSET = (47, 48, -121, -120)
+
+# XGBoost hyper‑parameters for model training
+XGB_PARAMS = {
+    "max_depth": 6,
+    "n_estimators": 200,
+    "learning_rate": 0.1,
+    "objective": "reg:squarederror",
+    "n_jobs": 2,
+    "tree_method": "hist"
+}
+
+# Thresholds for cumulative‑count sweep
+THRESHOLDS = [3, 5, 10]
+
+# Maximum allowed gap (in days) for temporal interpolation of MODIS data
+MAX_GAP_DAYS = 7
+
+# Resource limits for the pipeline
+RAM_LIMIT_GB = 7
+TIME_LIMIT_HOURS = 6
+
+# Ensure directories exist at import time (idempotent)
+for _dir in (RAW_DIR, PROC_DIR, OUT_DIR):
+    _dir.mkdir(parents=True, exist_ok=True)

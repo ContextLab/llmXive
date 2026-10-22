@@ -1,0 +1,35 @@
+T001:
+  reason: The `code/config.py` defines most required constants, but `DATA_ROOT` is
+    set to an absolute path (`Path(__file__).parents[1] / "data"`) instead of the
+    required literal `Path("../data")`. This does not meet the specification. The
+    rest of the file and `run_pipeline.sh` are present and functional. Fix the `DATA_ROOT`
+    definition to exactly `DATA_ROOT = Path("../data")`.
+  task: 2b71575655249514e9d2d2ce8bbc4fc69a6e18f11f5efbe734e2c3075fb585b5
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data_loader.py
+    exit=1'
+  task: 58f6eb6fba65a0b9b2330c35ebba29b849d75af58b70c8c6f3a9cfcba414dd7c
+T003:
+  task: 4c4587ece15c6fb297e72d952041c2652ac81e6d92c9732e251745b4aef2338d
+T004:
+  task: 5debae85087456658ed9eb21755874ca6dfb3550e39482f834a05ae1baf0ecc7
+T005:
+  task: ddf52c13a27cf513472d6e9ef94b3c9f92156e65bee2c86f2434dddb51fe9ec1
+T006:
+  task: eda18004cac122aa3067115f1822dc648692c59a6e0640b66294236baa1c7929
+T007:
+  task: edef1496e855e94449d1393124595873fd71e5b93bb4b0892b949f66f4078858
+T008:
+  task: 347e592649ad9dcd6f8197a6a113e49bba167dc16ced3bbc14fa0bed36a9e5eb
+T009:
+  task: bc4bdee2bcef3c5aae626ac39c5c117209dd3a95414483e6f768c425abb90e7a
+T010:
+  task: 48b04df543cec5fbcf8a588c9dd4b9ecd0204e5a271a3b401be2d2e261921720
+T011:
+  task: fd68bee7ea8f11aa4a1cc20e4fd04eb71f3fcd3efb67bdc9d742fce714101c4c
+T012:
+  task: 33f6bbcfbe117690cf464a6450488d594a3fb9d8608e2fb8410cfbf86ab99f70
+T013:
+  task: 50eeacdc347217c1f29f93ad87e858bbc14efe5b43c9ff593b408dc892b8ed31
+T014:
+  task: 0fbba9a92b413b6ff2643bc83783553f482a4df9fa1921ec08e8bbc3fb993c0b
