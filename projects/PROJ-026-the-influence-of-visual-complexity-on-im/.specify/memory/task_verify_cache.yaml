@@ -12,16 +12,23 @@ T001:
     many extra entries not specified in the plan, so the exact project structure is
     not present.
 T002:
-  c: true
-  h: 9328b51ae17649a5a598c894a4b737a6b0b634320efb93b9e39098e3bf9ca8b2
-  r: "The `code/requirements.txt` file exists, is non\u2011empty, and contains the\
-    \ full list of required packages as specified for initializing the Python project."
+  c: false
+  h: 4ca509720d9647cde9b625f734815e14fb40a15c05d7240d5c9abfeaa3c2e3f5
+  r: The file `code/requirements.txt` exists and contains a reasonable dependency
+    list, but the task explicitly required the file to have the exact content shown
+    in the task specification (the spec-excerpt header block with project ID, FR-001
+    through FR-005, data models, analysis pipeline, and references). The actual file
+    contains only package requirements with no part of that required content. The
+    implementer must rewrite `code/requirements.txt` with the exact specified content.
+  sig: 8dde86a6170200dd78452ea6bf10fed8a1a92e90681c0da8372d35973cb21607
 T003:
   c: true
-  h: d07a6b98e60e085f76cda1376e1b3b39f05f9ed60661cd9e2f217b88e856b5ad
-  r: "The provided `pyproject.toml` exists, is non\u2011empty, and contains configuration\
-    \ sections for Black, Ruff, and Pytest as required to set up formatting, linting,\
-    \ and testing. No placeholders or missing sections are evident."
+  h: 46e8a25569bebb9bc58eb4dae119d1516154830451e960ee202a7d31e6d84efd
+  r: The `pyproject.toml` exists at the project root with non-empty content configuring
+    black (line-length 88, py3 target), ruff (line-length 88), and pytest (testpaths
+    = ["tests"]), which matches the task's requirement to configure pytest, linting,
+    and formatting tools.
+  sig: 1c0d670c4709215296e8a5abdc2c9677ba259f84cd80448465f538fd3501ec89
 T004:
   c: false
   h: 59ce53b19424c7143d3ec1191ed8aab2234f63d43b5881fdccc6758f135f96ae
@@ -36,6 +43,44 @@ T005:
     \ a docstring; there are no `data`, `stimuli`, `analysis`, or `viz` sub\u2011\
     directories (or their `__init__.py` files) to constitute the required package\
     \ structure. The task is therefore not fully implemented."
+T007:
+  c: true
+  h: 216c27466eaffe1df8b69e9c9ec3639cd3f076d1aa5e5f542bb2b2e7686b7a1d
+  r: '`code/data/models.py` exists (847 bytes) and defines all three required Pydantic
+    BaseModel classes with the exact fields and explicit type hints specified (`ImageStimulus`,
+    `ParticipantResponse`, `AggregatedScore`); the extra optional `complexity_category`
+    field is a harmless addition consistent with the spec''s median-split requirement.'
+  sig: 97b0e32450e11e1009b74f9434a99f7c6924119f7ce3c98fe106bf84bc10e695
+T008:
+  c: true
+  h: c1fa77e5c02ae5eb8b873c0e12bc9690c82a25f3546f0bff2e8922e1231a2257
+  r: The artifact `code/utils/logging.py` exists and is non-empty, with `setup_logging`
+    defaulting to `logging.INFO`, the exact required format string `'%(asctime)s -
+    %(name)s - %(levelname)s - %(message)s'`, and a FileHandler writing to `logs/app.log`
+    (via `get_log_path`/`config.get_project_root`, with the logs directory created).
+    The dependency `code/config.py` exists and provides the imported functions, so
+    the configuration matches the task's requirements.
+  sig: 0bd55dfea39c07d064b0e14ed99d3bc19b75b4ee429cb7d7d1c44f37cd8c634a
+T013:
+  c: true
+  h: 3fbb686ae1aa26624b69bb7345efe5556c852d315f10571609b5421c01de3e84
+  r: "`code/stimuli/metrics.py` exists and contains a real `calculate_edge_density`\
+    \ implementation using `cv2.Canny` with the exact required parameters (low=50,\
+    \ high=150, kernel_size=3 via `apertureSize`), grayscale conversion, and edge-pixel\
+    \ ratio computation \u2014 no stubs or placeholders. The supporting imports (`utils.logging`,\
+    \ `config`) resolve to real project files."
+  sig: 7c2b408aeb16cd4f672780753e6844e8fce0e9c3d1de6c4758c335b4eed09756
+T016:
+  c: false
+  h: ba98a11f543e4152dc688995c535ba8ca6b09ba732195e5c3d2daeb6bfdf64f5
+  r: 'The script `code/stimuli/validate.py` exists and looks functional, but the task''s
+    verification requirement was not met: `data/raw/stimuli/` is MISSING (no mix of
+    valid/corrupt images to run on) and there is no `logs/validation.log` artifact,
+    so there is no evidence the script was ever executed or that it produces correct
+    valid/invalid entries. The implementer must create the test images (valid + corrupt),
+    run `validate_batch` on them, and produce `logs/validation.log` with correct VALID/INVALID
+    entries.'
+  sig: d753f9f406df1ba29cbfc89939ad3ce74157b7c58466118fad494b1460babc70
 T027a:
   c: false
   h: d0cb055e8eb58d1c398a4295a83ee5c0e9cf605f59916550d6a3fe3b7e9a59bd

@@ -1,11 +1,12 @@
 status: none
-intent: ANOVA json example dataset pip installable python package dataset
+intent: download ANOVA json visual complexity image dataset edge density entropy fractal
+  dimension python package dataset
 required_fields:
-- subject_id
-- condition
-- response_time
-- session
-- complexity_score
-cache_key: db87b8069a4add30e33334efc8e16e60e12e91be3f7693140f52ec15db13e872
-searched_at: '2026-10-09T07:27:03.065401+00:00'
+- image_id
+- image_path
+- edge_density
+- entropy
+- fractal_dimension
+cache_key: 6835a5492f97d8a3f7a254a0d8385aa6e8db4250ca67dfb5b8e2ad28bc8bfa86
+searched_at: '2026-10-22T00:42:37.824863+00:00'
 retry_count: 1
