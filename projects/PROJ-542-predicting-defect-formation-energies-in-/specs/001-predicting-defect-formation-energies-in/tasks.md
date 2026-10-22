@@ -82,7 +82,7 @@ All paths are relative to the project root and use the canonical `code/` directo
   • Serialize the fitted models to `models/rf_cv.pkl` and `models/gb_cv.pkl`.  
   *Verification:* `cv_metrics.json` conforms to the `cv_metrics` portion of `contracts/model_performance.schema.yaml`; a pytest checks the JSON structure and that both model files exist.
 
-- [ ] T008 [US3] Evaluate the best‑performing model on the held‑out test set and produce a full performance report.  
+- [ ] T008 [US3] Evaluate the best‑performing model on the held‑out test set and produce a full performance report.   <!-- FAILED-IN-EXECUTION: code/models/evaluate.py exit=2 -->
   *File:* `code/models/evaluate.py`  
   *Steps:*  
   1. Load the model with the lowest mean CV RMSE.  

@@ -3,7 +3,7 @@ tests/test_generate_checksums.py
 --------------------------------
 
 Integration test for ``src.utils.checksum_all``. The test invokes the
-checksum generation script and then verifies that the expected checksum
+checksum generation module and then verifies that the expected checksum
 files exist and contain a 64‑character hexadecimal digest.
 
 The test is deliberately lightweight – it does not validate the digest

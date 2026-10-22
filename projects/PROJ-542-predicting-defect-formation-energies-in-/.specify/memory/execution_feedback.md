@@ -18,8 +18,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.featurize data/raw/materials_defects.csv data/processed/features.csv -> rc=1
-
-2026-10-22 16:11:25,474 ERROR src.data.featurize: [Errno 2] No such file or directory: 'data/raw/materials_defects.csv'
+d: Raw dataset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/data/raw/materials_defects.csv
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/featurize.py", line 17, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/featurize.py", line 14, in main
+    _impl_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/data/featurize.py", line 285, in main
+    compute_features(Path(args.input_csv), Path(args.output_csv))
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/data/featurize.py", line 198, in compute_features
+    raise FileNotFoundError(f"Raw dataset not found at {input_path}")
+FileNotFoundError: Raw dataset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/data/raw/materials_defects.csv
 
 - python -m src.validate data/processed/features.csv -> rc=1
 
@@ -30,9 +41,9 @@ Traceback (most recent call last):
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/validate.py", line 20, in main
     _impl_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/data/validate.py", line 49, in main
-    raise FileNotFoundError(f"Features file not found at {features_path}")
-FileNotFoundError: Features file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/data/processed/features.csv
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/data/validate.py", line 57, in main
+    raise ValueError("Insufficient rows (<50) for 5-fold CV")
+ValueError: Insufficient rows (<50) for 5-fold CV
 
 - python -m src.split data/processed/features.csv data/processed/train.csv data/processed/test.csv -> rc=1
 
@@ -47,7 +58,7 @@ FileNotFoundError: Features file not found at /home/runner/work/llmXive/llmXive/
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-542-predicting-defect-formation-energies-in-/bin/python: No module named src.evaluate
 
 - python -m pytest -q -> rc=1
-ated - use 'reset_cache'
+J-542-predicting-defect-formation-energies-in-/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
 projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_requirements.py::test_requirements_install_and_imports
@@ -56,13 +67,11 @@ projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_requi
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-FAILED code/tests/test_pipeline_entry.py::test_pipeline_entry - RuntimeError:...
 FAILED src/tests/test_descriptor_gaps.py::test_check_descriptor_gaps_with_missing
-FAILED src/tests/test_quickstart.py::test_quickstart_pipeline - subprocess.Ca...
-FAILED src/tests/test_train.py::test_training_produces_outputs - NameError: n...
+FAILED src/tests/test_train.py::test_training_produces_outputs - AssertionErr...
 FAILED tests/test_generate_checksums.py::test_checksum_files_created - Assert...
 FAILED tests/test_split.py::test_split_dataset_basic - assert 2 <= 1
 FAILED tests/test_split.py::test_cli_execution - AssertionError: assert False
-7 failed, 7 passed, 15 warnings in 7.28s
+5 failed, 9 passed, 15 warnings in 6.84s
 
 

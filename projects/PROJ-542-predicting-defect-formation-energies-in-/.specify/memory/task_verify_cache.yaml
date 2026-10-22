@@ -1,49 +1,31 @@
-T001:
-  c: false
-  h: 0379afc0f1dc7773fd6715956fa712eb8daa71f76ebd5a80311729ecaab1e8ae
-  r: "The required entry\u2011point script `code/pipeline/run.py` is missing, and\
-    \ the provided test `code/tests/test_pipeline_entry.py` imports `src.pipeline.run`\
-    \ (not `code.pipeline.run`) and expects `run()` to return `None` rather than a\
-    \ dict with `raw_path`, `features_path`, and `model_path`. Both the artifact and\
-    \ the verification behavior do not satisfy the task\u2019s specification."
-  sig: 791f62a062165c66d70d7671ea0428390126ebedfeb4e2b8802d7e61d742cade
-T003:
-  c: false
-  h: e07acef297bbc66da8a56277f7105192c1f038ff71e1fad9d187c95005c56a1c
-  r: "The required `data/processed/featurize.log` file is missing, and the existing\
-    \ `descriptor_gaps.log` reports a gap that does not exist in `features.csv`. Moreover,\
-    \ `features.csv` contains only 10 placeholder rows (all values set to 1.0) instead\
-    \ of the \u2265500 realistic rows expected, so the featurization output does not\
-    \ meet the task\u2019s specifications."
-  sig: 929af413c8583b9a12a0090f25c22a19fc75a5f37a5a9ea454a96384552765dc
 T004:
   c: true
-  h: f4be642fe70c6ee135e61b641c74e98fc5a23c6af845cd7e5e678e95d2cf042f
-  r: "Checked `src/data/validate.py` for correct error raising, logging, warning,\
-    \ and checksum logic; verified that `data/processed/validation.log` contains the\
-    \ required row count and warning, and that `data/checksums/validation.sha256`\
-    \ exists with a SHA\u2011256 digest of the log. All required artifacts are present\
-    \ and implement the specified behavior."
-  sig: 236c4e467bee56bb073aafe5690a0d65a924b507d5d58da1aff909bb42f0b78b
+  h: 33667c11fd637050f00e3de4361a359397322d5c211dfeff83fd707cd0001cbc
+  r: "Checked `src/data/validate.py` for correct error handling, logging, warning,\
+    \ and checksum generation; verified that `data/processed/validation.log` contains\
+    \ the row count and warning, and that `data/checksums/validation.sha256` holds\
+    \ the SHA\u2011256 digest of that log. All required files exist and meet the specified\
+    \ behavior."
+  sig: ab3757ba61cf9b81e952790af6085c1519dbe91db1d549e5beebf6f31d58dad7
 T005:
   c: true
-  h: a94f06530e3810d6024830615db27b5f7930b8cf050a0baa087548eddecb3ce4
-  r: "Checked `code/utils/checksum.py` \u2013 it defines the required `write_checksum(path,\
-    \ out_dir)` (and `compute_checksum`) and correctly writes a 64\u2011character\
-    \ SHA\u2011256 hex file. The accompanying pytest `code/tests/test_checksums.py`\
-    \ runs successfully (it imports the equivalent implementation from `src.utils.checksum`,\
-    \ which is also present and correct), confirming the utility\u2019s behavior.\
-    \ All required artifacts exist and meet the specification."
-  sig: f012a02662b286318bf54710064c56fc4b24382fde26e7dedbfb9f4187c6668e
+  h: 68f6154ab692841c4158f256bde015efd254049ac6e4b1174c5558a3b70a374c
+  r: "Checked `code/utils/checksum.py` (contains a non\u2011empty `write_checksum`\
+    \ implementation) and the pytest suite `code/tests/test_checksums.py` (imports\
+    \ the utility, creates a file, runs `write_checksum`, and validates the 64\u2011\
+    character SHA\u2011256 output). Both the required module and the test confirming\
+    \ correct hashing and file creation are present and correct."
+  sig: 11e2c4c68f1c4ce5d387830e3e2e531b59d129bdf968cd183ad2360a5d1b5459
 T006:
   c: false
-  h: 0b9787b53f4c32417623833d6b151c660daf98a29a81947e952af9953419b526
-  r: "The evidence shows only `data/processed/split.log` exists; the required script\
-    \ `code/models/split.py`, the split CSV files `data/processed/train.csv` and `data/processed/test.csv`,\
-    \ and the checksum files `data/checksums/train.sha256` and `data/checksums/test.sha256`\
-    \ are all missing. Consequently the deterministic, composition\u2011aware split\
-    \ and checksum generation have not been delivered."
-  sig: 8018e8ced84d739247bca85c096c9b8e7872a4e2d9c31ea42af16f70ab769a84
+  h: 05c8b074daf938746cdcbd5b01740b03b38465f2e14ad6eeee480410e01c8604
+  r: "Checked the repository for the required output artifacts. While `code/models/split.py`\
+    \ and its implementation `src/models/split.py` exist and contain the correct deterministic\
+    \ `GroupShuffleSplit` logic, the expected output files `data/processed/train.csv`,\
+    \ `data/processed/test.csv`, and the checksum files `data/checksums/train.sha256`\
+    \ and `data/checksums/test.sha256` are missing. Without these CSVs and their SHA\u2011\
+    256 files, the task\u2019s output requirements are not satisfied."
+  sig: dba23263fa1e641ce98d3483730bba8689fb20004c82aec977374c217be68522
 T012:
   c: true
   h: 2ca7d3e7d019004f13fe5f295764bdea50c0ee7ad93e6472ff7a36304c54ed53

@@ -3,31 +3,43 @@ src/data/download.py
 ---------------------
 
 Downloads perovskite oxygen‑vacancy defect formation energy data from the
-Materials Project API (via ``mp_api``).  If a valid ``MP_API_KEY`` is not
-present, a small bundled CSV containing a few real perovskite entries is
-copied to the expected output location.  This fallback satisfies the
-pipeline’s requirement for a real dataset without requiring external
-credentials, while still honouring the specification that the script
-aborts with a clear error when the API key is missing *and* no fallback is
-available.
+Materials Project API (via ``mp_api``).  The script aborts with clear
+error messages when required conditions are not met, in accordance with
+the specification for task **T002**.
 
-Outputs
--------
-* ``data/raw/materials_defects.csv`` – the raw defect dataset.
-* ``data/checksums/raw_defects.sha256`` – SHA‑256 checksum of the raw CSV.
+Behaviour
+----------
+* If the ``MP_API_KEY`` environment variable is missing **and** the
+  ``mp_api`` client cannot be instantiated without a key, a
+  ``RuntimeError`` with the message ``"Materials Project API key not provided"``
+  is raised.
+* The script queries the Materials Project ``defects`` endpoint for
+  entries with ``defect_type == "oxygen_vacancy"``.
+* A simple perovskite heuristic is applied (the formula must contain
+  oxygen and exactly three distinct elements).
+* If the filtered result set is empty, a ``RuntimeError`` with the
+  message ``"No data found for specified filters."`` is raised.
+* The resulting DataFrame (columns ``composition``, ``defect_type``,
+  ``formation_energy``) is written to ``data/raw/materials_defects.csv``.
+* A SHA‑256 checksum of the CSV is written to
+  ``data/checksums/raw_defects.sha256``.
+* All I/O paths are created via ``llmxive_toolkit.paths`` to guarantee
+  correct project‑relative locations.
+
+The implementation deliberately avoids any synthetic fallback – if the
+API cannot be reached or the required key is missing, the script fails
+loudly, satisfying the “no silent synthetic data” rule.
 """
 
 import hashlib
 import os
-import shutil
 import sys
 from pathlib import Path
 
 import pandas as pd
 from llmxive_toolkit import get_logger, paths
 
-# ``mp_api`` is listed in the pinned requirements (mp-api==0.33.0)
-# Import lazily – the package is optional for the fallback path.
+# ``mp_api`` is declared in the pinned requirements.
 try:
     from mp_api.client import MPRester
 except Exception:  # pragma: no cover
@@ -40,9 +52,10 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 RAW_CSV_PATH = paths.data("raw", "materials_defects.csv")
 CHECKSUM_PATH = paths.data("checksums", "raw_defects.sha256")
-# The bundled fallback CSV lives alongside this module.
-FALLBACK_CSV_PATH = Path(__file__).with_name("fallback_materials_defects.csv")
 
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def _write_checksum(file_path: Path, checksum_path: Path) -> None:
     """Write the SHA‑256 checksum of *file_path* to *checksum_path*."""
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
@@ -52,6 +65,21 @@ def _write_checksum(file_path: Path, checksum_path: Path) -> None:
             sha256.update(block)
     checksum_path.write_text(sha256.hexdigest())
     log.info(f"Checksum written to {checksum_path}")
+
+def _is_perovskite(formula: str) -> bool:
+    """
+    Very small heuristic to decide whether a formula is a perovskite
+    (ABX₃) containing oxygen.
+
+    Returns True if ``O`` is present and the formula contains exactly
+    three distinct element symbols.
+    """
+    if "O" not in formula:
+        return False
+    import re
+
+    elements = re.findall(r"[A-Z][a-z]?", formula)
+    return len(set(elements)) == 3
 
 def _fetch_defect_data() -> pd.DataFrame:
     """
@@ -66,31 +94,47 @@ def _fetch_defect_data() -> pd.DataFrame:
     Raises
     ------
     RuntimeError
-        If the API key is missing, no records match the query, or the
-        ``mp_api`` client is unavailable.
+        * If the API key is missing and the client cannot be instantiated.
+        * If no records match the filters.
     Exception
         Propagates any network‑related exception from ``mp_api``.
     """
+    # ------------------------------------------------------------------
+    # Initialise the client – ``MPRester`` can be instantiated without a
+    # key for read‑only access, but many installations require an API key.
+    # We explicitly check the environment variable to give the required
+    # clear error message.
+    # ------------------------------------------------------------------
     api_key = os.getenv("MP_API_KEY")
     if not api_key:
-        raise RuntimeError("Materials Project API key not provided")
-
-    if MPRester is None:  # pragma: no cover
-        raise RuntimeError("mp_api client could not be imported")
-
-    log.info("Connecting to Materials Project API")
-    with MPRester(api_key) as mpr:
+        # Attempt to create a client without a key; if that fails we raise
+        # the mandated error.
+        if MPRester is None:
+            raise RuntimeError("Materials Project API key not provided")
         try:
-            raw_data = mpr.get_data("defects")
-        except Exception as exc:
-            log.error(f"Failed to retrieve defect data: {exc}")
-            raise
+            mpr = MPRester()  # type: ignore[arg-type]
+        except Exception as exc:  # pragma: no cover
+            log.error(f"Failed to initialise MPRester without a key: {exc}")
+            raise RuntimeError("Materials Project API key not provided") from exc
+    else:
+        if MPRester is None:
+            raise RuntimeError("mp_api client could not be imported")
+        mpr = MPRester(api_key)  # type: ignore[arg-type]
+
+    log.info("Querying Materials Project defects endpoint")
+    try:
+        # Retrieve *all* defect entries; we will filter locally.
+        raw_data = mpr.get_data("defects")
+    except Exception as exc:
+        log.error(f"Failed to retrieve defect data: {exc}")
+        raise
 
     if not raw_data:
         raise RuntimeError("No data found for specified filters.")
 
     df = pd.DataFrame(raw_data)
 
+    # Ensure the expected columns are present.
     expected_cols = {"composition", "defect_type", "formation_energy"}
     missing = expected_cols - set(df.columns)
     if missing:
@@ -101,55 +145,31 @@ def _fetch_defect_data() -> pd.DataFrame:
     # Keep only oxygen vacancies.
     df = df[df["defect_type"] == "oxygen_vacancy"]
 
-    # Simple perovskite heuristic.
-    def _is_perovskite(formula: str) -> bool:
-        if "O" not in formula:
-            return False
-        import re
-
-        elements = re.findall(r"[A-Z][a-z]?", formula)
-        return len(set(elements)) == 3
-
+    # Apply the perovskite heuristic.
     df = df[df["composition"].apply(_is_perovskite)]
 
     if df.empty:
         raise RuntimeError("No data found for specified filters.")
 
+    # Keep only the three required columns and reset the index.
     df = df.loc[:, ["composition", "defect_type", "formation_energy"]].reset_index(drop=True)
     return df
 
-def _copy_fallback() -> pd.DataFrame:
-    """
-    Load the bundled fallback CSV and return it as a DataFrame.
-    The fallback file is part of the repository and contains a handful
-    of real perovskite defect entries.
-    """
-    if not FALLBACK_CSV_PATH.is_file():
-        raise RuntimeError(
-            f"Fallback dataset not found at {FALLBACK_CSV_PATH}"
-        )
-    log.info(f"Using bundled fallback dataset at {FALLBACK_CSV_PATH}")
-    return pd.read_csv(FALLBACK_CSV_PATH)
-
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
 def main() -> None:
     """
     Entry point for ``python -m src.data.download``.
-    Downloads the dataset (or uses the fallback), writes it to
-    ``data/raw/materials_defects.csv``, and creates the checksum file.
+    Downloads the dataset, writes it to ``data/raw/materials_defects.csv``,
+    and creates the checksum file.
     """
     try:
         df = _fetch_defect_data()
-    except RuntimeError as exc:
-        # If the reason is a missing API key, fall back to the bundled CSV.
-        if str(exc) == "Materials Project API key not provided":
-            log.warning(str(exc) + " – falling back to bundled dataset.")
-            df = _copy_fallback()
-        else:
-            # Propagate any other RuntimeError (e.g., no data found).
-            log.error(f"Failed to download dataset: {exc}")
-            raise
-    except Exception as exc:  # pragma: no cover
-        log.error(f"Unexpected error during download: {exc}")
+    except Exception as exc:
+        # Propagate any exception – the caller (or CI) will see a non‑zero
+        # exit status and the explicit error message.
+        log.error(str(exc))
         raise
 
     # Ensure the target directory exists.

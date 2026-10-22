@@ -2,14 +2,12 @@
 src/models/split.py
 -------------------
 
-Deterministic 80/20 train‑test split that respects composition groups.
-This implementation writes the split CSVs, a log file, and SHA‑256
-checksum files for both outputs, satisfying the unit tests
-(tests/test_split.py).
-
-The public API consists of ``split_dataset`` and ``main``.  ``split_dataset``
-returns the train and test DataFrames for programmatic use, while ``main``
-provides a CLI entry point used by the test suite.
+Implements a deterministic, composition‑aware train/test split using
+scikit‑learn's ``GroupShuffleSplit``.  The split respects the requirement
+that no composition appears in both the training and test sets and that the
+proportion is 80 % / 20 % (default).  SHA‑256 checksums for the generated CSV
+files are written to ``data/checksums`` and a short log is created in
+``data/processed``.
 """
 
 import argparse
@@ -54,98 +52,102 @@ def split_dataset(
     Tuple[pd.DataFrame, pd.DataFrame]
         The training and test DataFrames.
     """
+    if not features_path.is_file():
+        raise FileNotFoundError(f"Features file not found at {features_path}")
+
     # Load the full feature matrix.
     df = pd.read_csv(features_path)
 
     if "composition" not in df.columns:
-        raise ValueError(
-            "Input feature matrix must contain a 'composition' column for grouping."
-        )
+        raise ValueError("Input features must contain a 'composition' column.")
 
-    groups = df["composition"]
+    # Use the composition column as the grouping key.
+    groups = df["composition"].values
+
     splitter = GroupShuffleSplit(
-        n_splits=1, test_size=test_size, random_state=random_state
+        test_size=test_size, n_splits=1, random_state=random_state
     )
     train_idx, test_idx = next(splitter.split(df, groups=groups))
 
     train_df = df.iloc[train_idx].reset_index(drop=True)
     test_df = df.iloc[test_idx].reset_index(drop=True)
 
-    # Sanity check: ensure no overlapping groups.
-    overlap = set(train_df["composition"]).intersection(set(test_df["composition"]))
-    if overlap:
-        raise RuntimeError(
-            f"Group overlap detected between train and test sets: {overlap}"
-        )
+    # Write the split CSVs.
+    train_path.parent.mkdir(parents=True, exist_ok=True)
+    test_path.parent.mkdir(parents=True, exist_ok=True)
+    train_df.to_csv(train_path, index=False)
+    test_df.to_csv(test_path, index=False)
 
-    # Write CSV files.
-    for out_path, out_df in [(train_path, train_df), (test_path, test_df)]:
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_df.to_csv(out_path, index=False)
-
-    # ------------------------------------------------------------------
-    # Logging
-    # ------------------------------------------------------------------
-    split_log_path = paths.data("processed", "split.log")
-    split_log_path.parent.mkdir(parents=True, exist_ok=True)
-    with split_log_path.open("w", encoding="utf-8") as log_file:
-        log_file.write(
+    # Log summary information.
+    log_path = paths.data("processed", "split.log")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open("w", encoding="utf-8") as log_f:
+        log_f.write(
             f"Split completed: {len(train_df)} training rows, {len(test_df)} test rows.\\n"
         )
-        log_file.write(
-            f"Training groups: {len(set(train_df['composition']))}\\n"
+        log_f.write(
+            f"Training groups: {train_df['composition'].nunique()}\\n"
         )
-        log_file.write(f"Test groups: {len(set(test_df['composition']))}\\n"
-        )
-    log.info(f"Split log written to {split_log_path}")
+        log_f.write(f"Test groups: {test_df['composition'].nunique()}\\n")
+    log.info(
+        "Train/test split written: %s (train), %s (test)", train_path, test_path
+    )
 
-    # ------------------------------------------------------------------
-    # Checksums
-    # ------------------------------------------------------------------
-    checksums_dir = paths.data("checksums")
-    checksums_dir.mkdir(parents=True, exist_ok=True)
-
-    write_checksum(train_path, checksums_dir)
-    write_checksum(test_path, checksums_dir)
-
-    log.info(f"Checksums written to {checksums_dir}")
+    # Write checksums for the two output files.
+    checksum_dir = paths.data("checksums")
+    write_checksum(train_path, checksum_dir)
+    write_checksum(test_path, checksum_dir)
 
     return train_df, test_df
 
+def _parse_cli_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Deterministic composition‑aware train/test split."
+    )
+    parser.add_argument(
+        "features_path",
+        type=Path,
+        help="Path to the input feature matrix CSV.",
+    )
+    parser.add_argument(
+        "train_path",
+        type=Path,
+        help="Path where the training CSV will be written.",
+    )
+    parser.add_argument(
+        "test_path",
+        type=Path,
+        help="Path where the test CSV will be written.",
+    )
+    parser.add_argument(
+        "--test-size",
+        type=float,
+        default=0.2,
+        help="Proportion of the dataset to allocate to the test set (default 0.2).",
+    )
+    parser.add_argument(
+        "--random-state",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility (default 42).",
+    )
+    return parser.parse_args()
+
 def main() -> None:
     """
-    CLI entry point.
-
-    Expected positional arguments:
-    1. Path to the input feature matrix CSV.
-    2. Path to write the training split CSV.
-    3. Path to write the test split CSV.
+    CLI entry point. Parses positional arguments and delegates to
+    ``split_dataset``.  The function exits with status 0 on success; any
+    exception propagates to the caller (the test suite expects a non‑zero
+    exit code on failure).
     """
-    parser = argparse.ArgumentParser(
-        description=(
-            "Deterministic 80/20 train‑test split respecting composition groups."
-        )
-    )
-    parser.add_argument(
-        "features_csv", type=str, help="Path to the input feature matrix CSV."
-    )
-    parser.add_argument(
-        "train_csv", type=str, help="Path to write the training split CSV."
-    )
-    parser.add_argument(
-        "test_csv", type=str, help="Path to write the test split CSV."
-    )
-    args = parser.parse_args()
-
+    args = _parse_cli_args()
     split_dataset(
-        Path(args.features_csv),
-        Path(args.train_csv),
-        Path(args.test_csv),
+        features_path=args.features_path,
+        train_path=args.train_path,
+        test_path=args.test_path,
+        test_size=args.test_size,
+        random_state=args.random_state,
     )
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as exc:
-        log.error(str(exc))
-        sys.exit(1)
+    sys.exit(main())

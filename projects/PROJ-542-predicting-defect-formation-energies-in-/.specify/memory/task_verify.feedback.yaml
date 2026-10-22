@@ -1,37 +1,39 @@
 T001:
-  reason: "The required entry\u2011point script `code/pipeline/run.py` is missing,\
-    \ and the provided test `code/tests/test_pipeline_entry.py` imports `src.pipeline.run`\
-    \ (not `code.pipeline.run`) and expects `run()` to return `None` rather than a\
-    \ dict with `raw_path`, `features_path`, and `model_path`. Both the artifact and\
-    \ the verification behavior do not satisfy the task\u2019s specification."
+  reason: "The `code/pipeline/run.py` wrapper does not define a `run()` function (only\
+    \ `main()`), and the provided unit test `code/tests/test_pipeline_entry.py` imports\
+    \ `src.pipeline.run` and checks that `run()` returns `None` instead of a dict\
+    \ with `raw_path`, `features_path`, and `model_path`. Hence the required entry\u2011\
+    point API and verification are not implemented."
   task: 924b5a3d2e12c565e8fedd13771c71824318738b3f899d58da6ad267f247c22f
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py
     exit=1'
   task: bf0eefb74e9c1326e3ac449e929113d7b8d6d741ceae85e80e27044042d89d8a
 T003:
-  reason: "The required `data/processed/featurize.log` file is missing, and the existing\
-    \ `descriptor_gaps.log` reports a gap that does not exist in `features.csv`. Moreover,\
-    \ `features.csv` contains only 10 placeholder rows (all values set to 1.0) instead\
-    \ of the \u2265500 realistic rows expected, so the featurization output does not\
-    \ meet the task\u2019s specifications."
+  reason: The required `data/processed/featurize.log` file is missing, and `data/processed/features.csv`
+    contains an extra `composition` column that is not allowed by `contracts/features.schema.yaml`,
+    so the CSV does not validate against the schema. Both issues prevent the task
+    from being fully satisfied.
   task: b85e3ca8858fc7050c6c3e79f413c47a88e5bbbe0e7e70e117eb8cb940ee1196
 T004:
   task: 3b2bc6b16c240e7e0b515fe6f19adffda9927633a9061467fdfd42b784743281
 T005:
   task: 54221d71453662d5266e3d30c200997f06dd8aa5a8f8b05ee1b5db62be46a868
 T006:
-  reason: "The evidence shows only `data/processed/split.log` exists; the required\
-    \ script `code/models/split.py`, the split CSV files `data/processed/train.csv`\
-    \ and `data/processed/test.csv`, and the checksum files `data/checksums/train.sha256`\
-    \ and `data/checksums/test.sha256` are all missing. Consequently the deterministic,\
-    \ composition\u2011aware split and checksum generation have not been delivered."
+  reason: "Checked the repository for the required output artifacts. While `code/models/split.py`\
+    \ and its implementation `src/models/split.py` exist and contain the correct deterministic\
+    \ `GroupShuffleSplit` logic, the expected output files `data/processed/train.csv`,\
+    \ `data/processed/test.csv`, and the checksum files `data/checksums/train.sha256`\
+    \ and `data/checksums/test.sha256` are missing. Without these CSVs and their SHA\u2011\
+    256 files, the task\u2019s output requirements are not satisfied."
   task: 0fdffaa4377b06da405dbfedebbb9b075e1be72c6528e1aced6cd94960afe9bd
 T007:
   reason: 'Requested task execution failed; rerun successfully: src/models/train.py
     exit=1'
   task: cf6e511637fabd5d2057b25b1f0e39d84e858c2bf7df8617b7789177f21742cf
 T008:
+  reason: 'Requested task execution failed; rerun successfully: code/models/evaluate.py
+    exit=2'
   task: 3e558ce007377e8412c0381d21c3df08f56c5494b89e15437e6da2d6184c063e
 T009:
   task: 318626a90c77d581bb5cd08919b01420ba947377ed417688c3f3c79cafd7502e
