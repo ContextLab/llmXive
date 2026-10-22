@@ -7,7 +7,4 @@ scikit-learn
 pandas
 numpy>=2.0.0
 pytest
-PyYAML
-requests
-jsonschema
-psutil
+scipy

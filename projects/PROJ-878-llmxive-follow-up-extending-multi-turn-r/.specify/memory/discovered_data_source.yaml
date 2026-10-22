@@ -1,15 +1,15 @@
 status: none
-intent: ProofWriter logical reasoning dataset GSM8K reference DAG metadata python
-  package dataset
+intent: ProofWriter synthetic logical reasoning dataset with DAG metadata python package
+  dataset
 required_fields:
 - puzzle_id
 - puzzle_text
-- solution_steps
-- metadata_nesting_depth
-- metadata_branching_factor
-- dependency_dag_nodes
-- dependency_dag_edges
-- ground_truth_solution
-cache_key: 10f61a4950a19ae234a5ef7e1d4d7d948fda16326f6feac06957aed5c6a950c3
-searched_at: '2026-10-22T02:27:50.564683+00:00'
+- solution
+- dag_nodes
+- dag_edges
+- nesting_depth
+- branching_factor
+- metadata
+cache_key: bd45dccfbf4f1757878dd0507736d2044c2358c3b2472def43346ea2a0de2441
+searched_at: '2026-10-22T03:17:18.093498+00:00'
 retry_count: 1

@@ -1,24 +1,12 @@
 T001:
   c: true
-  h: fb3ee5a14091562912ecbfdabd488a5f610307dba91d5c77697d165bd89d7637
+  h: 53a09da62fe859229bb066514353da6065d0c176348cd6552f57d646941063e6
   r: All required directories (`data/raw/`, `data/processed/`, `data/results/`, `code/`,
-    `code/utils/`, `code/tests/`, `results/paper_figures/`) exist with content, the
-    three `__init__.py` package markers are present and non-trivial, `code/requirements.txt`
+    `code/utils/`, `code/tests/`, `results/paper_figures/`) exist with .gitkeep markers;
+    the three `__init__.py` files are present and non-empty; `code/requirements.txt`
     lists all nine required packages (torch, transformers, datasets, networkx, lifelines,
-    scikit-learn, pandas, numpy, pytest) plus extras, and ruff/black configuration
-    files (`.ruff.toml`, `.black.toml`) exist with a successful scaffolding execution
-    log (exit 0). The only unverifiable claim is a `ruff check` exit-0 run (no execution
-    record), but al
-  sig: 048feb7645696b878a3784d5c6418a05da6d7aefb1c7839eb9851f5dfaeae487
-T002:
-  c: false
-  h: 743ec320170034358b49eef6478af95f189962d55e6cccaa1f83df875754643c
-  r: "The test file exists and its content matches the task (schema validation of\
-    \ SyntheticPuzzle plus the |r| < 0.2 orthogonalization check on the generated\
-    \ dataset), but the recorded execution log shows `pytest code/tests/test_graph_generator.py`\
-    \ failed with exit code 2 \u2014 collection aborted on an ImportError (`pyarrow\
-    \ requires NumPy 2.0 or newer, found 1.24.3`) triggered by `from datasets import\
-    \ load_dataset` in `code/graph_generator.py`. The task's verification criterion\
-    \ is that the tests pass after T003, and there is no evidence of any successful\
-    \ run; the implementer must fix the dependency/impo"
-  sig: acbe9460ab7edd87eeedf2cc82b9c0e18af93c44b098b701f0975acad632fa5b
+    scikit-learn, pandas, numpy, pytest, plus scipy); and ruff/black configuration
+    files (`.ruff.toml`, `.black.toml`) exist in `code/`. The only minor caveat is
+    that packages are listed without exact version pins (only `numpy>=2.0.0` has a
+    constraint), which I judged
+  sig: 286cce0047700b6b7ab7d9874f721319f6a638e53486d7253a6c8abf1ef25daa
