@@ -17,7 +17,7 @@ A researcher needs to quantitatively compare the retrieval accuracy of a new "Se
 
 **Acceptance Scenarios**:
 
-1. **Given** a 60-day egocentric dataset and 500 labeled queries, **When** the system runs the Semantic Decay retriever and the Fixed Hierarchy retriever on a CPU-only environment, **Then** the system must output a comparative accuracy report showing the Top-1 accuracy for events >14 days old for both models.
+1. **Given** a multi-week egocentric dataset and a substantial set of labeled queries, **When** the system runs the Semantic Decay retriever and the Fixed Hierarchy retriever on a CPU-only environment, **Then** the system must output a comparative accuracy report showing the Top-1 accuracy for events >14 days old for both models.
 2. **Given** the baseline Fixed Hierarchy model, **When** it retrieves results for queries regarding events older than 14 days, **Then** the system must record the baseline accuracy to serve as the reference point for the improvement calculation.
 3. **Given** the Semantic Decay model, **When** it retrieves results for the same long-term queries, **Then** the system must calculate and report the percentage improvement (or degradation) relative to the baseline.
 
@@ -66,7 +66,7 @@ A quality assurance specialist needs to ensure that optimizing for long-term rar
 
 - **FR-001**: The system MUST implement a "Semantic Decay" retrieval function calculating a relevance score $S = \alpha \cdot \text{sim}(q, m) + \beta \cdot e^{-\lambda \cdot t}$, where $\lambda$ is a learnable parameter optimized via grid search on a validation set. The grid search must explore $\lambda \in \{0.1, 0.2, \dots, 9.9\}$ and select the value that maximizes Top‑1 accuracy on a 50‑query validation set. (See US-1)
 - **FR-002**: The system MUST implement a baseline "Fixed Hierarchy" retriever that strictly routes queries to "current," "short-term," or "long-term" buckets based on explicit timestamp thresholds without semantic weighting. (See US-1)
-- **FR-003**: The system MUST execute the evaluation protocol on 500 user queries spanning 1‑day to 30‑day lookups and output a comparative accuracy report. (See US-1)
+- **FR-003**: The system MUST execute the evaluation protocol on a substantial set of user queries spanning 1‑day to 30‑day lookups and output a comparative accuracy report. (See US-1)
 - **FR-004**: The system MUST measure and record inference latency (in ms) and estimated energy consumption (via CPU cycle counts) for every query processed. (See US-2)
 - **FR-005**: The system MUST perform a McNemar’s test to determine if the difference in Top‑1 accuracy between the Semantic Decay and Fixed Hierarchy models for the "long-term" subset is statistically significant ($p < 0.05$). (See US-1)
 - **FR-006**: The system MUST validate that the inference latency for the Semantic Decay model does not exceed 200 ms for **all** queries. (See US-2)

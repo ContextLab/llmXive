@@ -1,0 +1,138 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Semantic Decay Retrieval Evaluation Report"
+type: object
+required:
+  - optimal_alpha
+  - optimal_beta
+  - optimal_lambda
+  - validation_accuracy
+  - long_term
+  - short_term
+  - overall
+  - latency
+  - cpu_cycles
+  - mcnemar_test
+  - flags
+properties:
+  optimal_alpha:
+    type: number
+    description: "Semantic similarity weight α selected by joint grid‑search (Phase 3)."
+    minimum: 0.0
+    exclusiveMaximum: 1.0
+  optimal_beta:
+    type: number
+    description: "Temporal decay weight β selected by joint grid‑search (Phase 3)."
+    minimum: 0.0
+    exclusiveMaximum: 1.0
+  optimal_lambda:
+    type: number
+    description: "Decay rate λ selected by joint grid‑search (Phase 3, FR‑001, FR‑015)."
+    minimum: 0.0
+    exclusiveMaximum: 10.0
+  validation_accuracy:
+    type: number
+    description: "Top-k accuracy on the validation set using the optimal (α, β, λ) triple."
+    minimum: 0.0
+    maximum: 1.0
+  long_term:
+    type: object
+    required:
+      - accuracy_top1
+      - num_queries
+    properties:
+      accuracy_top1:
+        type: number
+        description: "Top‑1 accuracy for queries > 14 days (SC‑001)."
+        minimum: 0.0
+        maximum: 1.0
+      num_queries:
+        type: integer
+        description: "Number of long‑term queries evaluated."
+        minimum: 0
+  short_term:
+    type: object
+    required:
+      - accuracy_top1
+      - num_queries
+    properties:
+      accuracy_top1:
+        type: number
+        description: "Top‑1 accuracy for queries 1‑3 days (SC‑004)."
+        minimum: 0.0
+        maximum: 1.0
+      num_queries:
+        type: integer
+        description: "Number of short‑term queries evaluated."
+        minimum: 0
+  overall:
+    type: object
+    required:
+      - accuracy_top1
+    properties:
+      accuracy_top1:
+        type: number
+        description: "Overall Top‑k accuracy across all queries."
+        minimum: 0.0
+        maximum: 1.0
+  latency:
+    type: object
+    required:
+      - max_ms
+      - mean_ms
+      - p95_ms
+    properties:
+      max_ms:
+        type: number
+        description: "Maximum inference latency observed (must be ≤ 200 ms, SC‑003)."
+        minimum: 0.0
+      mean_ms:
+        type: number
+        description: "Mean inference latency."
+        minimum: 0.0
+      p95_ms:
+        type: number
+        description: "95th‑percentile latency."
+        minimum: 0.0
+  cpu_cycles:
+    type: object
+    required:
+      - baseline_avg
+      - semantic_decay_avg
+      - ratio
+    properties:
+      baseline_avg:
+        type: number
+        description: "Average CPU cycles per query for the Fixed Hierarchy baseline."
+        minimum: 0
+      semantic_decay_avg:
+        type: number
+        description: "Average CPU cycles per query for the Semantic Decay model."
+        minimum: 0
+      ratio:
+        type: number
+        description: "semantic_decay_avg / baseline_avg (must be ≤ 1.10, SC‑009)."
+        minimum: 0.0
+  mcnemar_test:
+    type: object
+    required:
+      - statistic
+      - p_value
+      - significant
+    properties:
+      statistic:
+        type: number
+        description: "McNemar's test chi‑square statistic."
+      p_value:
+        type: number
+        description: "p‑value from McNemar's test (SC‑002); success if p < 0.05."
+        minimum: 0.0
+        maximum: 1.0
+      significant:
+        type: boolean
+        description: "True if p_value < 0.05."
+  flags:
+    type: array
+    description: "List of warnings or abort messages (e.g., insufficient rare events, short‑term degradation, power limitations)."
+    items:
+      type: string
+      minLength: 1

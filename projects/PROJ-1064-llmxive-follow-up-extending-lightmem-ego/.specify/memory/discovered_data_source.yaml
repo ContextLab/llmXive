@@ -1,0 +1,16 @@
+status: none
+intent: Ego4D long-term egocentric retrieval dataset download python package dataset
+required_fields:
+- query_id
+- query_text
+- ground_truth_video_id
+- ground_truth_start_sec
+- ground_truth_end_sec
+- event_timestamp
+- event_category
+- video_duration
+- video_url
+- metadata
+cache_key: a461b46db8140beb52f60c5933fd8b3ee571adb44af29cecc1373b9ce5df18c2
+searched_at: '2026-10-22T07:16:23.954145+00:00'
+retry_count: 1
