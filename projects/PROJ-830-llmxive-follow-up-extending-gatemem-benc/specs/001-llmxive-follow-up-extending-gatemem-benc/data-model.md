@@ -11,7 +11,7 @@
 | `intent` | string | Classified intent (`query`, `deletion`, `extraction`, `other`). |
 | `query` | string | User query text. |
 | `memory_state` | string | Retrieved or full memory context. |
-| `leak_target` | boolean | Ground‑truth: *True* = allowed, *False* = leak should be blocked. |
+| `leak_target` | boolean | Ground‑truth: *True* = allowed, *False* = should be blocked. |
 | `deletion_request` | boolean | Whether a deletion request is present. |
 | `deletion_log` | array[string] | History of deletion actions. |
 | `ground_truth_success` | boolean | Human‑annotated task success label. |
@@ -57,6 +57,6 @@ All files must conform to the YAML schemas located under `specs/001-gatekeeper-g
 - `metrics.schema.yaml` – validates aggregated metric objects.  
 - `results.schema.yaml` – validates final benchmark results and statistical summaries.
 
-*During CI, `tests/contract/test_schemas.py` enforces these contracts.*
+During CI, `tests/contract/test_schemas.py` enforces these contracts.
 
-**Note**: `unified_metrics.json` includes the `domain` field for each episode, enabling downstream stratified analyses (e.g., failure‑case sampling in T029a).  
+---

@@ -44,6 +44,7 @@ ds = load_dataset(
     split="education",
     streaming=True
 )
+
 # Optionally write to local file
 with open("data/raw/gatemem_education.jsonl", "w", encoding="utf-8") as f:
     for ex in ds:
@@ -75,7 +76,7 @@ python src/stats/comparison.py --run-full
 ```
 This will:
 - Fit the **Generalized Linear Mixed‑Effects Model** (primary).  
-- Apply Benjamini‑Hochberg correction across the six hypothesis tests.  
+- Apply Holm‑Bonferroni correction across the six hypothesis tests.  
 - Produce `data/processed/statistical_results.json` and a human‑readable markdown report at `data/results/final_benchmark_report.md`.
 
 ## 5. Verify Outputs
@@ -105,3 +106,5 @@ Any failure related to data integrity, checksum mismatches, or schema violations
 | Model download fails twice | Cache corruption | Delete `~/.cache/huggingface/transformers/distilbert-base-uncased-finetuned-sst-2-english` and re‑run. The script will retry once automatically. |
 
 **License Note**: The GateMem dataset is released under a **CC‑BY‑4.0** license, permitting redistribution and commercial‑free use, satisfying Constitution Principle III.  
+
+---

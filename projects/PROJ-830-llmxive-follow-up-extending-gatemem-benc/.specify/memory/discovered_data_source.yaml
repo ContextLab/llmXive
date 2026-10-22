@@ -1,14 +1,13 @@
 status: none
-intent: official GateMem dataset download pip install python package dataset
+intent: GateMem dataset python package download from HuggingFace for access control
+  python package dataset
 required_fields:
-- document_id
-- text
+- episode_id
 - domain
-- annotation
-- authorization_boundary
-- outcome
-- predictors
-- covariates
-cache_key: f6981691e9724b179d74f278b7c936a75a905e57fb54b3f883fdf5d1fe65da49
-searched_at: '2026-10-11T09:08:39.668192+00:00'
+- text
+- annotations
+- role_definitions
+- deletion_request_flag
+cache_key: c4bdf9f83b86f1f466edc3b6a1b92ddde7a15dd02af171a55072efc26ad21d32
+searched_at: '2026-10-22T17:22:38.907466+00:00'
 retry_count: 1
