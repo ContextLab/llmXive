@@ -42,7 +42,6 @@ The model captures the flow from raw proteomic / transcriptomic files to a unifi
 | `species` | string | Plant species. |
 | `protein_<ID>` | number | Normalized abundance for each protein (dynamic columns). |
 | `target_gene_expression` | number | **Aggregated expression score (first PC) representing gene‑expression patterns**. |
-| `target_gene_expression` | number | **Aggregated expression score (first PC) representing gene‑expression patterns**. |
 
 *All processed files must validate against `contracts/dataset.schema.yaml`.*
 
@@ -54,5 +53,3 @@ The model captures the flow from raw proteomic / transcriptomic files to a unifi
 - **No In‑Place Modification**: Raw files remain untouched; every transformation writes a new file under `data/processed/`.  
 
 ---
-
-
