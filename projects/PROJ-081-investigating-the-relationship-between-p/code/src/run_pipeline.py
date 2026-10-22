@@ -16,11 +16,30 @@ are retained for compatibility but are not used directly because the
 underlying modules already enforce deterministic behaviour via
 ``code/src/config.py`` and the preprocessing function writes to the
 canonical project directories.
+
+This version ensures that a Parquet engine (pyarrow) is available at
+runtime. If the import fails, the script installs ``pyarrow`` on‑the‑fly
+before proceeding, guaranteeing that ``df.to_parquet`` succeeds on the
+CI runner.
 """
 
 import argparse
 import sys
+import subprocess
+import importlib
 import pandas as pd
+
+# Ensure a Parquet engine (pyarrow) is available.
+try:
+    import pyarrow  # noqa: F401
+except ImportError:
+    # Install pyarrow quietly; this will use the same environment the
+    # script runs in. The installation is fast because a recent wheel
+    # is available for the runner's platform.
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pyarrow>=12.0.0"])
+    # Reload the module so pandas can discover the newly installed engine.
+    importlib.invalidate_caches()
+    import pyarrow  # noqa: F401
 
 # Import the project's internal modules using the package layout
 from code.src.fetch_data import fetch_metabolights, fetch_pmn, fetch_hpid
@@ -52,8 +71,10 @@ def _parse_args(argv):
     parser.add_argument(
         "--use-placeholder",
         action="store_true",
-        help="If set, the pipeline would fall back to a placeholder dataset. "
-             "This implementation requires real data and will raise an error if used.",
+        help=(
+            "If set, the pipeline would fall back to a placeholder dataset. "
+            "This implementation requires real data and will raise an error if used."
+        ),
     )
     return parser.parse_args(argv)
 
