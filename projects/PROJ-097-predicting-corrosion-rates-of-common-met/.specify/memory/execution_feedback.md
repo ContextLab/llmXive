@@ -2,13 +2,26 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 command(s) failed: python -m src.run_all (rc=1); python -m pytest src/tests/ (rc=1); 9 declared deliverable(s) absent: data/processed/cleaned_dataset.csv; data/processed/features.parquet; data/raw/zenodo_corrosion.csv
+**Summary**: 2 command(s) failed: python -m src.pipeline.run_all (rc=1); python -m pytest src/tests/ (rc=1); 9 declared deliverable(s) absent: data/processed/cleaned_dataset.csv; data/processed/features.parquet; data/raw/zenodo_corrosion.csv
 
 ## Failing / missing run-book commands
 
-- python -m src.run_all -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-097-predicting-corrosion-rates-of-common-met/bin/python: No module named src.run_all
+- python -m src.pipeline.run_all -> rc=1
+ll.py", line 47, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/run_all.py", line 17, in main
+    rc = ingest_main([])
+         ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 432, in main
+    raw_path = ingest(dataset_id=args.dataset_id, max_candidates=args.max_candidates)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 316, in ingest
+    frame, mapping = fetch_dataset(
+                     ^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 135, in fetch_dataset
+    raise RuntimeError(
+RuntimeError: Fallback download failed for https://raw.githubusercontent.com/selva86/datasets/master/corrosion.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/selva86/datasets/master/corrosion.csv
 
 - python -m pytest src/tests/ -> rc=1
 V.
@@ -29,7 +42,7 @@ FAILED src/tests/test_train.py::test_first_run_metrics_created - FileNotFound...
 FAILED src/tests/test_vif.py::test_vif_diagnostics_created - RuntimeError: Fa...
 ERROR src/tests/test_features.py::test_features_parquet_created - AssertionEr...
 ERROR src/tests/test_features.py::test_feature_names_json - AssertionError: f...
-========================= 3 failed, 2 errors in 1.07s ==========================
+========================= 3 failed, 2 errors in 1.02s ==========================
 
 
 
@@ -58,7 +71,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/processed/cleaned_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/features.parquet` is declared but was NOT written. Scripts referencing it:
     - `src/pipeline/features.py` — NOT invoked by the run-book
-    - `src/pipeline/run_all.py` — NOT invoked by the run-book
+    - `src/pipeline/run_all.py` — IS a run-book command
+    - `src/run_all.py` — NOT invoked by the run-book
     - `src/tests/test_features.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/features.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/zenodo_corrosion.csv` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.

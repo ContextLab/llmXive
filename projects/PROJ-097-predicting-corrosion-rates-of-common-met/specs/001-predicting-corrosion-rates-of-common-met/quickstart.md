@@ -23,18 +23,18 @@ pip install -r src/requirements.txt   # matches requirements in code/
 ## Run the Full Pipeline
 
 ```bash
-python -m src.run_all
+python -m src.pipeline.run_all
 ```
 
-The orchestrator `src/run_all.py` executes the phases in the order defined in `plan.md`:
+The orchestrator `src/pipeline/run_all.py` executes the phases in the order defined in `plan.md`:
 
-1. **Ingestion** – reads `data/raw/sample_corrosion.csv`, validates columns, harmonizes units, imputes missing values, one‑hot encodes composition, standardizes numerics, computes VIF for base predictors, and writes `data/processed/cleaned_dataset.csv` (the **CorrosionRecord** collection), `metadata/dataset.yaml` (the **DatasetMetadata**), and `data/results/vif_report.json`.
+1. **Ingestion** – reads the raw CSV, validates columns, harmonizes units, imputes missing values, one‑hot encodes composition, standardizes numerics, computes VIF for base predictors, and writes `data/processed/cleaned_dataset.csv` (the **CorrosionRecord** collection), `metadata/dataset.yaml` (the **DatasetMetadata**), and `data/results/vif_report.json`.
 2. **Feature Engineering** – creates interaction and polynomial features, residualizes interactions, writes `data/processed/features.parquet` (the **InteractionFeature** set).
 3. **Splitting** – builds stratified GroupKFold splits (`data/processed/splits.pkl`).
 4. **Training** – fits Full and Null Random Forest / Gradient Boosting models under the constrained hyper‑parameter grid, persists the best model as `data/results/best_model.joblib` and metadata as `data/results/model_artifact.yaml` (the **ModelArtifact**).
 5. **Evaluation** – runs the paired sign‑flip permutation test for interaction gain, permutation‑importance per interaction column with Benjamini‑Hochberg correction, and stores results in `data/results/interaction_test.json`.
-6. **Interpretation** – computes SHAP interaction values for the top‑10 interactions, generates summary and dependence plots under `outputs/figures/`.
-7. **Sensitivity** – sweeps `max_depth` ∈ {3,4,5}, computes Jaccard similarity of top‑5 feature sets, writes `data/results/sensitivity.json`.
+6. **Interpretation** – computes SHAP interaction values for the top interactions, generates summary and dependence plots under `outputs/figures/`.
+7. **Sensitivity** – sweeps `max_depth` ∈ {3,4,5}, computes Jaccard similarity of top‑N feature sets, writes `data/results/sensitivity.json`.
 8. **Reporting** – assembles `report.md` with all metrics, visualisations, and the required associational disclaimer.
 9. **Verification** – runs `pytest src/tests/` to ensure all contracts and unit tests pass; any failure aborts the CI run.
 

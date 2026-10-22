@@ -1,18 +1,16 @@
 T013:
   c: false
-  h: ede8c67600ea9fb371402cee6a1a49778fd1e804d79fbcc8140b19fae5338035
-  r: "The provided `src/requirements.txt` uses wildcard version specifiers (e.g.,\
-    \ `numpy==2.0.*`) instead of exact pinned versions, and `code/requirements.txt`\
-    \ contains different versions, extra packages, and is not byte\u2011identical\
-    \ to `src/requirements.txt`. No evidence of successful `pip install -r \u2026\
-    ` runs is supplied. The task\u2019s requirement for exact, identical requirement\
-    \ files is therefore unmet."
-  sig: 6fa50b9d32aa5106f8b51695bd21163d1084979588bbcc25af040894c9a07c7c
+  h: e647799fa94b7980428a046c44583c84018e112af8266ce08bb212f03f6b85b8
+  r: "The `src/requirements.txt` and `code/requirements.txt` files differ in size\
+    \ and SHA\u2011256 hash (154\u202Fbytes vs\u202F153\u202Fbytes), so they are not\
+    \ byte\u2011identical as required, and there is no evidence that `pip install\
+    \ -r \u2026` succeeded for either file. The task therefore remains incomplete."
+  sig: 7e863b6746d6c5a375986a596dfd157d8a7747e7ae08aea6518008fa2f37fe05
 T015:
   c: false
-  h: 34bd3785ee0d0ae4c87a597b210766c1509fe35c012523d564af8f0cb324c187
-  r: The `quickstart.md` file exists but documents `python -m src.run_all` instead
-    of the required `python -m src.pipeline.run_all`; therefore it does not contain
-    the exact command the task mandates. The pytest command is present, but the missing/incorrect
-    pipeline command makes the task incomplete.
-  sig: 0e83f6a98b3f2be9099f2c970137b5e07f2a336fb28f33d8e6825fa194ee7840
+  h: c5e9187f384962c3c930837ed4c824db674399a436c2b8e87f6a0681d589db93
+  r: The `quickstart.md` file exists and contains the required commands, but there
+    is no evidence (e.g., execution logs, test run output) showing that `python -m
+    src.pipeline.run_all` and `pytest src/tests/` actually run successfully. Execution
+    proof is needed to satisfy the task.
+  sig: 16d7ebd178a21d55bf4b91a692030083973563fbd2cdfdc6c66ec5517b1e7463
