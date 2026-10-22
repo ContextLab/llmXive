@@ -1,6 +1,6 @@
-# Existing dependencies (implicitly available in the environment):
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil, llmxive_toolkit
+# Project dependencies
+# Existing dependencies are retained; add linting/formatting tools below.
 
-# New dependency required for dataset streaming
-datasets>=2.20.0
+# Linting and formatting tools (required for T002)
+ruff==0.6.3
+black==24.8.0

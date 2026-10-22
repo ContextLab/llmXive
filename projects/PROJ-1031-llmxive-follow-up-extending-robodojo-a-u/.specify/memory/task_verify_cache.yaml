@@ -1,31 +1,32 @@
 T001:
   c: false
-  h: 3ca013a97a71926e0a2adea550c739d926346f03cf1ad70a123705dd56cf42d2
-  r: "`code/config.py` exists and defines SEED, CPU/memory limits and a function to\
-    \ load task IDs, but it imports `from src.data_loader import stream_robodojo_tasks`\
-    \ which cannot resolve because the `src` package lives under `code/` (there is\
-    \ no top\u2011level `src` directory or `code/__init__.py`). Consequently importing\
-    \ `code.config` would raise an ImportError, so the required `TASK_IDS` list would\
-    \ not be created and the verification command cannot succeed. The task therefore\
-    \ lacks a working configuration module."
-  sig: 884039316d9aa6e5b0f494d57f5961d041c6b5c2911ba1865431e0bcd278fc77
+  h: 5b1e49af19e0b82a965568b3a911922fc3ab828b7c792ac328c5dc5aec8943e4
+  r: "The provided `code/config.py` exists and defines `SEED`, CPU/memory limits,\
+    \ and a `TASK_IDS` constant, but there is no execution evidence that importing\
+    \ it succeeds (i.e., that the dataset fetch works and `TASK_IDS` actually contains\
+    \ 18 entries). Moreover, the relative import `from .src.data_loader import \u2026\
+    ` will fail unless `code` is a Python package (no `code/__init__.py` is present).\
+    \ The implementer must supply a runnable verification (e.g., the output of `python\
+    \ -c \"import code.config as cfg; assert cfg.SEED == 42; assert len(cfg.TASK_IDS)==18\"\
+    `), and ensure the package structure allows th"
+  sig: 2349e6d177b56750b59735fa20302f0543b4e5384552168cd0222df890619e6c
 T001a:
   c: false
-  h: 46712ee52743ef0b3bc663f18177f833247d4c4d8548c283e5f3cdc75eca2caf
-  r: The provided `requirements.txt` does not contain the required `ruff` and `black`
-    entries (let alone pinned versions), so the linting/formatting tools are not installed
-    as specified. Adding those packages with exact version pins is needed to satisfy
-    the task.
-  sig: ff840ba60d287d783d36ac0fa1117fc3384f27f12f2384b93cdf201c776cc87e
+  h: 494b5789a45affa01c7ef4b69b5caa9f97fdaeedd4686984122e2e234c6093bd
+  r: Checked `code/requirements.txt`, which correctly lists pinned `ruff==0.6.3` and
+    `black==24.8.0`. However, there is no evidence that `pip install -r requirements.txt`
+    was run and that `ruff --version` and `black --version` succeeded, so the verification
+    step is missing.
+  sig: 21ef71f3c3cf0881b16ec7d38a2ac5a559ad4822903fb2adcf1a7c3d55379135
 T002:
   c: false
-  h: 37cf3121c0b1f6fa4b692c208658694fa44738f993adfafd0122fc99f0e47371
-  r: "The three required configuration files (`code/pyproject.toml`, `code/.ruff.toml`,\
-    \ `code/.black.toml`) are present, but there is no provided evidence (e.g., command\
-    \ output, logs, or status codes) showing that `ruff --config code/.ruff.toml .`\
-    \ runs without errors and that `black --check code/` exits with status\u202F0.\
-    \ Those verification artifacts are missing."
-  sig: 50b53deb1a2ee66b4c3649444719fd5fc6f1688c9aa74fe20785d80cd6a2fee9
+  h: 9bb4c05d7884984ca4423badb843ceab31768a47fa4ffa984ab5cc4f98ecc725
+  r: "The three required files (`code/pyproject.toml`, `code/.ruff.toml`, `code/.black.toml`)\
+    \ exist, but the verification commands fail: the test log shows `ruff --config\
+    \ \u2026 .` returns exit\u202F1 (command removed) and `black --check code/` returns\
+    \ exit\u202F1 with many files needing reformatting. Hence the linting/formatting\
+    \ configuration does not satisfy the task\u2019s \u201Cno errors\u201D requirement."
+  sig: 0f842a0683ff6fc98c3a26cb931c39acb46c49de80c20f138825c7ed06e3c239
 T003:
   c: true
   h: 3ce7e14511c3a6432f461b56da5748a5a82d4c896c0ad2d38ad2a23bb8c8534f

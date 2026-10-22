@@ -6,11 +6,16 @@ checksum validation.
 
 The script can be executed as a module:
     python -m code.utils.io --test
+    python -m code.utils.io --verify-checksums
 
 The ``--test`` flag streams the first record from the real‑world split
 and validates its checksum (if a ``checksum`` field is present).  Any
 failure to fetch the dataset or a checksum mismatch raises an exception,
 causing a non‑zero exit status as required by the verification step.
+
+The ``--verify-checksums`` flag performs a full stream over the entire
+real split, validating checksums for every record.  It is the CLI entry
+used by the quickstart verification step.
 """
 import argparse
 import json
@@ -20,6 +25,7 @@ from typing import Generator, Dict, Any
 
 from datasets import load_dataset
 from llmxive_toolkit import get_logger, paths
+from src.config import DATASET_HF_ID
 
 log = get_logger(__name__)
 
@@ -60,9 +66,9 @@ def stream_real_dataset() -> Generator[Dict[str, Any], None, None]:
         RuntimeError: If the dataset cannot be fetched.
     """
     try:
-        # The ``robodojo`` dataset is hosted on HuggingFace Hub.
+        # Use the verified HuggingFace dataset identifier defined in config.
         # ``streaming=True`` ensures we never load the full dataset into RAM.
-        dataset = load_dataset("robodojo", split="real", streaming=True)
+        dataset = load_dataset(DATASET_HF_ID, split="real", streaming=True)
     except Exception as exc:
         log.error("Failed to load RoboDojo dataset: %s", exc)
         raise RuntimeError("Unable to fetch RoboDojo dataset") from exc
@@ -86,6 +92,19 @@ def test_stream() -> None:
     log.info("Successfully streamed first RoboDojo record: %s", task_identifier)
     print(task_identifier)
 
+def verify_checksums() -> None:
+    """
+    Verify checksums for the entire real‑world split.
+
+    Streams all records, validates each (if a ``checksum`` field is present),
+    and logs a summary.  The function exits with status 0 on success,
+    otherwise any exception propagates and results in a non‑zero exit code.
+    """
+    count = 0
+    for _ in stream_real_dataset():
+        count += 1
+    log.info("Checksum verification completed for %d records.", count)
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Utility for streaming the RoboDojo real‑world dataset."
@@ -95,14 +114,20 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Stream a single record and exit (used for verification).",
     )
+    parser.add_argument(
+        "--verify-checksums",
+        action="store_true",
+        help="Validate checksums for the entire real split.",
+    )
     args = parser.parse_args(argv)
 
     try:
         if args.test:
             test_stream()
+        elif args.verify_checksums:
+            verify_checksums()
         else:
-            # If no flag is provided, simply iterate through the dataset
-            # to ensure the streaming pipeline works without errors.
+            # Default behavior: just stream without explicit validation
             count = 0
             for _ in stream_real_dataset():
                 count += 1

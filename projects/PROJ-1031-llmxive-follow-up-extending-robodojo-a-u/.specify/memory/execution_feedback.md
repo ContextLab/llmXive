@@ -10,13 +10,16 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/src/executor.py: self-declared fabricated metric — “…ction time                  # Mock result for demonstration if no real…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
 
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
 
-- run-book command: `python code/utils/io.py --verify-checksums`
-  - script usage: `io.py [-h] [--test]`
-  - argparse error: `io.py: error: unrecognized arguments: --verify-checksums`
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python code/utils/io.py --verify-checksums`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
@@ -87,10 +90,11 @@ Traceback (most recent call last):
     from src.config import DATA_INTERIM_PATH
 ImportError: cannot import name 'DATA_INTERIM_PATH' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
-- python code/utils/io.py --verify-checksums -> rc=2
+- python code/utils/io.py --verify-checksums -> rc=1
 
-usage: io.py [-h] [--test]
-io.py: error: unrecognized arguments: --verify-checksums
+2026-10-22 10:30:48,011 INFO httpx2: HTTP Request: HEAD https://huggingface.co/datasets/RoboDojo/RoboDojo-v1/resolve/main/README.md "HTTP/1.1 401 Unauthorized"
+2026-10-22 10:30:48,011 ERROR __main__: Failed to load RoboDojo dataset: Dataset 'RoboDojo/RoboDojo-v1' doesn't exist on the Hub or cannot be accessed.
+2026-10-22 10:30:48,011 ERROR __main__: Dataset streaming failed: Unable to fetch RoboDojo dataset
 
 - python -c "import pandas as pd; print(pd.read_parquet('data/interim/execution_logs.parquet').head())" -> rc=1
 
@@ -126,7 +130,7 @@ E   ImportError: cannot import name 'DATA_INTERIM_PATH' from 'src.config' (/home
 ERROR code/tests/unit/test_config.py
 ERROR code/tests/unit/test_oracle_executor.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 3.17s ===============================
+============================== 2 errors in 3.00s ===============================
 
 
 

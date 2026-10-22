@@ -1,4 +1,5 @@
-line-length = 88
-select = ["E", "F", "W", "C90"]
-ignore = ["E501"]
+select = ["E", "F", "W", "C90", "N", "B", "ANN", "ARG", "COM", "C4", "EM", "ICN", "ISC", "PIE", "PT", "PYI", "Q", "RET", "RSE", "SLF", "SIM", "TCH", "TID", "UP", "YTT"]
+ignore = []
+line-length = 100
 target-version = "py311"
+exclude = ["__pycache__", ".git", "build", "dist"]

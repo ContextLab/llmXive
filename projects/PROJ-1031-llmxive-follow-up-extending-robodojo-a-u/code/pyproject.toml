@@ -1,10 +1,12 @@
-[tool.black]
-line-length = 88
-target-version = ["py311"]
-include = '\.pyi?$'
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.ruff]
-line-length = 88
-select = ["E", "F", "W", "C90"]
-ignore = ["E501"]
-target-version = "py311"
+[project]
+name = "robodojo-symbolic-extension"
+version = "0.1.0"
+description = "CPU‑tractable symbolic planning extension for RoboDojo"
+authors = [{name = "llmXive"}]
+requires-python = ">=3.11"
+
+# Dependencies are listed in requirements.txt; they are installed separately.

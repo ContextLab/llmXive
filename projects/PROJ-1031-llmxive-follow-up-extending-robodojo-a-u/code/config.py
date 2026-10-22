@@ -52,7 +52,7 @@ for _dir in (RAW_DATA_DIR, INTERIM_DATA_DIR, PROCESSED_DATA_DIR, FINAL_DATA_DIR)
 # and collect the first 18 unique identifiers.  This guarantees that the
 # list reflects real data and that the module fails loudly if the dataset
 # cannot be accessed.
-from src.data_loader import stream_robodojo_tasks
+from .src.data_loader import stream_robodojo_tasks
 
 def _load_real_task_ids(limit: int = 18) -> List[str]:
     """Fetch the first ``limit`` task IDs from the real‑world RoboDojo split.
