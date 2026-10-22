@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 def get_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
     Load configuration from a YAML file or return defaults.
-    This is a local copy to avoid circular imports, but it should match config.py
+    This wrapper forwards to the central config module.
     """
     import sys
     sys.path.insert(0, str(Path(__file__).parent))
@@ -53,14 +53,14 @@ def fetch_and_verify_librispeech(config: Dict[str, Any]) -> bool:
             split="train.clean.100",
             streaming=True
         )
-        
+
         # Verify we can iterate (basic connectivity check)
         count = 0
         for item in dataset:
             count += 1
             if count >= 10:  # Sample check
                 break
-        
+
         logger.info(f"LibriSpeech dataset verified. Sampled {count} items.")
         return True
     except Exception as e:
@@ -80,14 +80,14 @@ def fetch_and_verify_coraa_mupe_asr(config: Dict[str, Any]) -> bool:
             split="train",
             streaming=True
         )
-        
+
         # Verify we can iterate (basic connectivity check)
         count = 0
         for item in dataset:
             count += 1
             if count >= 10:  # Sample check
                 break
-        
+
         logger.info(f"CORAA-MUPE-ASR dataset verified. Sampled {count} items.")
         return True
     except Exception as e:
@@ -99,20 +99,15 @@ def load_librispeech_subset(data_raw: Path, config: Dict[str, Any]) -> List[Dict
     Load a subset of LibriSpeech data.
     Returns a list of audio file metadata dictionaries.
     """
-    # In a real implementation, this would download and cache the dataset
-    # For now, we return metadata that would be used to load the data
-    # The actual audio loading happens in generate_stress_curve_for_clip
-    
     # Verify dataset first
     fetch_and_verify_librispeech(config)
-    
-    # Return a list of metadata items
-    # In a real implementation, this would be populated from the dataset
+
+    # Return a minimal placeholder list – real loading will be done downstream
     return [
         {
             "dataset": "librispeech",
             "text": "sample text",
-            "audio_path": None,  # Loaded on demand
+            "audio_path": None,
             "speaker_id": "spk",
             "accent": "accent"
         }
@@ -125,7 +120,7 @@ def load_coraa_mupe_asr_subset(data_raw: Path, config: Dict[str, Any]) -> List[D
     """
     # Verify dataset first
     fetch_and_verify_coraa_mupe_asr(config)
-    
+
     return [
         {
             "dataset": "coraa",
@@ -142,9 +137,7 @@ def verify_dataset_coverage_for_scenarios(config: Dict[str, Any]) -> bool:
     Logs a warning and proceeds with available subset if specific combinations are missing.
     """
     logger.info("Verifying dataset coverage for distortion scenarios...")
-    # This is a placeholder for more complex coverage logic
-    # In a real implementation, this would check if the dataset has enough
-    # variety to cover the required distortion scenarios
+    # Placeholder – always true for the pilot
     return True
 
 def stratified_sample(all_files: List[Dict[str, Any]], num_samples: int) -> List[Dict[str, Any]]:
@@ -154,45 +147,33 @@ def stratified_sample(all_files: List[Dict[str, Any]], num_samples: int) -> List
     """
     import random
     random.seed(42)  # Use config seed in real implementation
-    
+
     if len(all_files) <= num_samples:
         return all_files
-    
+
     # Simple stratified sampling by speaker_id
     speakers = {}
     for f in all_files:
         spk = f.get("speaker_id", "unknown")
-        if spk not in speakers:
-            speakers[spk] = []
-        speakers[spk].append(f)
-    
+        speakers.setdefault(spk, []).append(f)
+
     sampled = []
     samples_per_spk = max(1, num_samples // len(speakers))
-    
+
     for spk, files in speakers.items():
         sampled.extend(files[:samples_per_spk])
-    
-    # If we still need more, fill randomly
+
+    # Fill remaining slots randomly
     if len(sampled) < num_samples:
         remaining = [f for f in all_files if f not in sampled]
         sampled.extend(random.sample(remaining, num_samples - len(sampled)))
-    
+
     return sampled[:num_samples]
 
 def generate_stress_curve_for_clip(audio_file: Dict[str, Any], vector: Dict[str, Any], config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Generate a single stress curve data point for a clip and distortion vector.
-    This is a placeholder that should be implemented with real ASR and distortion logic.
+    Placeholder – real implementation lives in the distortion/metrics modules.
     """
-    # In a real implementation, this would:
-    # 1. Load the audio
-    # 2. Apply distortion
-    # 3. Run ASR
-    # 4. Compute SSS and WER
-    # 5. Return the result dictionary
-    
-    # For now, return None to indicate this needs full implementation
-    # The actual implementation is in the metrics/distortion modules
     return None
 
 def process_stress_curves_in_chunks(curves: List[Dict[str, Any]], chunk_size: int) -> List[Dict[str, Any]]:
@@ -200,7 +181,7 @@ def process_stress_curves_in_chunks(curves: List[Dict[str, Any]], chunk_size: in
     processed = []
     for i in range(0, len(curves), chunk_size):
         chunk = curves[i:i+chunk_size]
-        # Process chunk (placeholder)
+        # Placeholder processing
         processed.extend(chunk)
     return processed
 
@@ -219,9 +200,9 @@ def main():
     parser.add_argument("--download", action="store_true", help="Download datasets")
     parser.add_argument("--verify", action="store_true", help="Verify dataset checksums")
     args = parser.parse_args()
-    
+
     config = get_config(args.config)
-    
+
     if args.download or args.verify:
         logger.info("Running data loader verification...")
         try:

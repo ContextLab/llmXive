@@ -6,19 +6,3 @@ T015:
     curve generation logic), and no `data/derived/stress_curves.parquet` file is present.\
     \ The primary output artifact the task demands is missing, so the implementation\
     \ does not satisfy the requirement."
-T015b:
-  c: true
-  h: 3b3f25e69cfb20ad7188427367ea0000dd687a2510113d45b3641f46ab77486b
-  r: "The `code/main.py` file (5424\u202Fbytes) defines a `pre_flight_data_check`\
-    \ function that verifies the presence, non\u2011zero size, and non\u2011empty\
-    \ content of `data/derived/stress_curves.parquet`, and the surrounding workflow\
-    \ calls this check before downstream steps. This directly fulfills the task\u2019\
-    s requirement."
-T030a:
-  c: false
-  h: 6dabf4eaddb3c094b03ecfd28b6e272cc12df07a27bca54c4b14d521ea9060a2
-  r: "The required `data/validation/human_annotations.csv` file is absent, and the\
-    \ provided script itself admits it can only produce a template with placeholder\
-    \ or simulated scores\u2014not genuine human\u2011annotated intelligibility ratings.\
-    \ Both the missing output file and the reliance on simulated data mean the task\u2019\
-    s core requirement is not satisfied."

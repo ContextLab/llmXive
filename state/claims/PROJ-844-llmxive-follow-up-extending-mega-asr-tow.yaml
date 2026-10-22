@@ -1445,3 +1445,68 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T09:36:35Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/docs/quickstart.md
+  attempts: 1
+  canonical: 10 real audio clips downloaded
+  claim_id: c_fd47341e
+  context: The quickstart runs a minimal pilot that downloads real audio clips from
+    the public dataset.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Downloads 10 real audio clips (and their transcripts) from the public\
+    \ dataset Voices\u2011in\u2011the\u2011Wild\u20112M"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T00:34:44Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/docs/quickstart.md
+  attempts: 1
+  canonical: Semantic Similarity Score is 1.0 for each clip
+  claim_id: c_9c984024
+  context: "Computes a Semantic Similarity Score (SSS) for each clip using the sentence\u2011\
+    transformers model."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the SSS is deterministically 1.0 for every clip
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T00:34:45Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/docs/quickstart.md
+  attempts: 1
+  canonical: Word Error Rate is 0.0 for each clip
+  claim_id: c_bc4fc695
+  context: Computes WER (Word Error Rate) using jiwer; with identical reference and
+    hypothesis it is 0.0.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: WER ... it is 0.0
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T00:34:45Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/docs/quickstart.md
+  attempts: 1
+  canonical: three Parquet artifacts generated each with at least one row
+  claim_id: c_a3f9db1d
+  context: The pipeline creates stress_curves.parquet, collapse_points.parquet, and
+    critical_vector.parquet.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Generates three Parquet artifacts ... each containing at least one row
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T00:34:45Z'

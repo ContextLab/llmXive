@@ -38,24 +38,42 @@ def get_default_hyperparameters() -> Dict[str, Any]:
         'max_workers': 4,
     }
 
+# ----------------------------------------------------------------------
+# Project‑wide constants required by T001
+# ----------------------------------------------------------------------
+SEED = 42
+SAMPLE_SIZE = 50000
+
+# SNR levels (9 values from -10 dB … 30 dB)
+SNR_LEVELS = [-10, -5, 0, 5, 10, 15, 20, 25, 30]
+
+# RT60 levels (6 values from 0.1 s … 0.6 s)
+RT60_LEVELS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+
+CCM_THRESHOLD = 0.5                     # Composite Collapse Metric threshold
+SSS_ABSOLUTE_THRESHOLD = 0.5            # Absolute SSS threshold for universal collapse
+WER_MULTIPLIER = 2.0                    # WER multiplier relative to baseline
+FDR = 0.05                               # Benjamini‑Hochberg false discovery rate
+R2_TARGET = 0.6                         # Desired R² for regression models
+
 def get_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
     Load configuration from a YAML file or return defaults.
-    
+
     Args:
         config_path: Path to a custom config YAML file. If None, uses defaults.
-        
+
     Returns:
         A dictionary containing the configuration.
     """
     global _config_instance
-    
+
     if _config_instance is not None:
         return _config_instance
 
     paths = get_default_paths()
     hyperparams = get_default_hyperparameters()
-    
+
     # Default config structure
     config = {
         'paths': {str(k): str(v) for k, v in paths.items()},
