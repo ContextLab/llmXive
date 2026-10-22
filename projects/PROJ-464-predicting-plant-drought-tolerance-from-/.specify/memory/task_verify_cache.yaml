@@ -19,12 +19,6 @@ T032a:
   r: No README.md content was provided; there is no evidence that the file was created
     or updated to include Installation, Usage, and Results sections as required. The
     implementer must supply the updated README.md showing those sections.
-T032b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any files under `docs/` was provided; the implementer did not
-    supply an API documentation file or a quickstart guide, so the required documentation
-    update is missing.
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,10 +33,3 @@ T034b:
   r: "The required file `state/runtime_profile.yaml` is missing, so no runtime profile\
     \ or verification of the \u22646\u202Fhour limit is provided. The task\u2019s\
     \ deliverable is absent."
-T034c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation showing that image loading was refactored\
-    \ to use Python generators (`yield`) is present, nor any profiling results demonstrating\
-    \ memory issues or the impact of the change. The required artifact (generator\u2011\
-    based image loader) is missing."
