@@ -1,6 +1,5 @@
 status: none
-intent: Pantheon+ supernova dataset download python package sncosmo python package
-  dataset
+intent: Pantheon+ supernova Type Ia dataset download Zenodo python package dataset
 required_fields:
 - supernova_name
 - ra
@@ -8,6 +7,6 @@ required_fields:
 - redshift
 - distance_modulus
 - distance_modulus_uncertainty
-cache_key: 88b2a2367ab703d482ea005e5facd8a0b22fefd2718b48ca11cf32d02be6b774
-searched_at: '2026-10-21T13:16:46.164210+00:00'
+cache_key: e527bdb8a51a43d69764bf1f2077c75aa949c5440833aeb95be61ee5ce99ee84
+searched_at: '2026-10-22T00:16:47.513303+00:00'
 retry_count: 1

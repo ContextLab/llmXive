@@ -107,6 +107,7 @@ def estimate_dipole_amplitude(residuals: np.ndarray, weights: np.ndarray, unit_v
     D = Σ w_i * r_i * n_i
     amplitude = |D| / Σ w_i
     """
+    # residuals: (N,), weights: (N,), unit_vecs: (N, 3)
     D = np.sum(weights[:, None] * residuals[:, None] * unit_vecs, axis=0)
     amp = np.linalg.norm(D) / np.sum(weights)
     return amp
@@ -150,8 +151,7 @@ def main() -> None:
     logger.info("Analytic min detectable dipole: %.5f mag", analytic_min_amp)
 
     # 4. Pilot Monte-Carlo Power Study
-    # Use theoretical distance modulus to get residuals
-    # Default Planck 2018: H0=67.4, Omega_m=0.315
+    # Use theoretical distance modulus to get residuals (Planck 2018 priors)
     df["MU_TH"] = df["ZHD"].apply(lambda z: calculate_distance_modulus_theoretical(z, h0=67.4, omega_m=0.315))
     df["RESID"] = df["MU"] - df["MU_TH"]
     
@@ -177,7 +177,7 @@ def main() -> None:
     for _ in range(args.mocks):
         rot = Rotation.random(random_state=rng)
         vecs = rotate_vectors(original_vecs, rot)
-        # Inject signal
+        # Inject signal: residuals = r_iso + A * (n . d)
         injected_res = df["RESID"].values + analytic_min_amp * (vecs @ dipole_dir)
         est_amp = estimate_dipole_amplitude(injected_res, weights, vecs)
         if est_amp > a_crit:
