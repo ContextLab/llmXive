@@ -1,19 +1,18 @@
 status: none
-intent: earthaccess python package download MODIS MOD13A2 and eBird Basic Dataset
-  python package dataset
+intent: eBird Basic Dataset for Setophaga ruticilla and MODIS LST NDVI python package
+  dataset
 required_fields:
-- grid_cell_id
-- week
-- first_arrival_date
-- temperature
-- ndvi
+- species_code
+- scientific_name
 - latitude
 - longitude
-- date
+- observation_date
 - duration_min
 - distance_km
 - num_observers
-- obs_count
-cache_key: 777e3db34c68cc8063d2a4b42be4d10d8fa8d44a7e76bcfc079a820dfef21a03
-searched_at: '2026-10-22T11:11:17.555173+00:00'
+- observation_count
+- land_surface_temperature
+- ndvi
+cache_key: 18bcbc1905d76a6e3ba052471caf2f96c640f6ab0e7d8b95cb9e405714797f73
+searched_at: '2026-10-22T12:12:52.289381+00:00'
 retry_count: 1

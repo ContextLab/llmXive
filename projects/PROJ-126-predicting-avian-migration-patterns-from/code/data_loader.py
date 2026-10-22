@@ -11,7 +11,8 @@ from typing import Iterator
 import pandas as pd
 from datasets import load_dataset
 
-from config import DATA_RAW, REGIONAL_BBOX, get_logger
+# Import configuration and logger from the code package
+from code.config import DATA_RAW, REGIONAL_BBOX, get_logger
 
 logger = get_logger(__name__)
 
@@ -21,9 +22,10 @@ MIN_OBSERVERS = 1
 MAX_DISTANCE = 10.0  # km
 
 CHUNK_SIZE = 50_000  # rows per CSV write chunk
-MAX_ROWS_TO_PROCESS = 200_000  # safety limit to avoid long runtimes
+# Safety limit to keep runtime reasonable on CI; can be increased if needed
+MAX_ROWS_TO_PROCESS = 200_000
 
-# Output filenames used by tests
+# Output filenames used by tests and the pipeline
 EBIRD_OUTPUT_FILE = "ebd_subset.csv"
 CHECKSUMS_FILE = "checksums.json"
 
@@ -81,14 +83,19 @@ def _fetch_ebird_data() -> Iterator[dict]:
     Raises ConnectionError if the dataset cannot be accessed.
     """
     try:
-        # Attempt the canonical HuggingFace identifier
-        ds = load_dataset("ebird/ebd", split="train", streaming=True)
+        # The eBird dataset on HuggingFace requires trust_remote_code for custom loading scripts
+        ds = load_dataset(
+            "ebird/ebd",
+            split="train",
+            streaming=True,
+            trust_remote_code=True,
+        )
         return ds
     except Exception as exc1:
-        logger.warning(f"First attempt to load eBird dataset failed: {exc1}")
-        # Some older versions of `datasets` require the namespace first
+        logger.warning(f"Failed to load eBird dataset with trust_remote_code: {exc1}")
+        # Attempt without the flag (some older versions may work)
         try:
-            ds = load_dataset("ebird/ebd", name="default", split="train", streaming=True)
+            ds = load_dataset("ebird/ebd", split="train", streaming=True)
             return ds
         except Exception as exc2:
             logger.error(f"Second attempt to load eBird dataset failed: {exc2}")
