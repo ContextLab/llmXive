@@ -1,195 +1,186 @@
-# Tasks: llmXive follow‑up: extending “Translation as a Bridging Action”
+# Tasks: llmXive follow‑up – extending “Translation as a Bridging Action”
 
-**Inputs**: `spec.md`, `plan.md`, `research.md`, `data‑model.md`, contracts, and any existing artifacts.
+**Inputs**: `spec.md`, `plan.md`, `research.md`, `data‑model.md`, all JSON‑schema contracts, and any existing artifacts.
 
-The list preserves all previously verified (checked) work and re‑opens only the tasks that were rejected or found incomplete.  Sub‑tasks are grouped by research phase and user story.  All unchecked items must be implemented to satisfy the specification, and the overall pipeline should be runnable end‑to‑end with a single command (see the final “Quick‑start validation” task).
-
----  
-
-## Phase 1 – Project scaffolding  
-
-- [ ] T001 Create project structure under `projects/PROJ-855-llmxive-follow-up-extending-translation/` including `contracts/`, `code/`, `data/`, `tests/`, and `requirements.txt`. **Artifact**: directory tree existence. **Verification**: run `tests/integration/test_scaffolding.py` which checks for required sub‑directories and files.  
-- [ ] T001b Generate `contracts/dataset.schema.yaml` and `contracts/model_output.schema.yaml` from `data‑model.md`. **Artifact**: the two schema files. **Verification**: `jsonschema` validation test `tests/contract/test_schema_valid.py`.  
-- [ ] T002 Initialise a Python 3.10 environment and pin dependencies in `code/requirements.txt`. **Artifact**: `code/requirements.txt`. **Verification**: `pip install -r code/requirements.txt` succeeds in CI.  
-- [ ] T003 Configure linting (ruff) and formatting tools. **Artifact**: `.ruff.toml` (or `pyproject.toml` with ruff config). **Verification**: `ruff check .` returns no errors in CI.  
-
-## Phase 2 – Foundational utilities  
-
-- [ ] T005b Create `code/config.yaml` with required numeric thresholds (`tipping_angle: 15.0`, `slippage_distance: 0.02`) and placeholders for sensitivity‑analysis sweep parameters. **Artifact**: `code/config.yaml`. **Verification**: `tests/unit/test_config_load.py` ensures file parses and contains required keys.  
-- [ ] T005a Implement `code/utils/physics_metrics.py` to compute tipping angle and slippage distance, **loading thresholds from `config.yaml`**. **Artifact**: `code/utils/physics_metrics.py`. **Verification**: `tests/unit/test_physics_metrics.py` validates calculations against known values.  
-- [ ] T004 Implement `code/utils/data_utils.py` for schema validation and checksum handling. **Artifact**: `code/utils/data_utils.py`. **Verification**: `tests/unit/test_data_utils.py`.  
-- [ ] T006 Create the `data/` directory hierarchy (`raw/`, `processed/`, `sweep/`) and initialise an empty `data/checksums.json`. **Artifact**: `data/checksums.json`. **Verification**: file exists and is a valid empty JSON object.  
-- [ ] T007 Implement `tests/unit/test_labeling.py` to validate the physics‑metric calculations. **Artifact**: test file. **Verification**: pytest passes.  
-- [ ] T008 Implement `tests/contract/test_schemas.py` to validate outputs against the JSON schemas. **Artifact**: test file. **Verification**: pytest passes.  
-
-## Phase 3 – User Story 1: Synthetic data generation & labeling (P1)
-
-- [ ] T009 Contract test for dataset schema (`tests/contract/test_dataset_schema.py`). **Artifact**: test file. **Verification**: passes after data generation.  
-- [ ] T010 Unit test for stability‑labeling logic (`tests/unit/test_labeling_logic.py`). **Artifact**: test file. **Verification**: passes.  
-
-- [ ] T011 Implement `code/generate_data.py` with a deterministic PyBullet simulation loop that records **only** translation vectors and initial object bounds. **Artifact**: `code/generate_data.py`. **Verification**: script runs without CUDA imports and creates raw dataset.  
-- [ ] T011b Add logic to generate a unique `geometry_id` for each episode. **Artifact**: part of `generate_data.py`. **Verification**: `tests/unit/test_geometry_id.py` checks uniqueness.  
-- [ ] T012 Ensure that rotation, joint‑torque, and force‑sensor fields are never written. **Artifact**: part of `generate_data.py`. **Verification**: `tests/contract/test_forbidden_columns.py` validates absence of forbidden columns.  
-- [ ] T014 Add robust error handling: on any simulation exception, log the failure, discard the incomplete episode, and generate a replacement until the dataset reaches **≥ 5 000** valid rows. **Artifact**: enhanced `generate_data.py`. **Verification**: `tests/integration/test_generation_count.py` asserts row count ≥ 5 000 after run.  
-- [ ] T016 Generate the raw dataset `data/raw/synthetic_episodes.parquet` (≥ 5 000 rows). **Artifact**: `data/raw/synthetic_episodes.parquet`. **Verification**: row count check + schema validation.  
-- [ ] T016b Verify that the raw Parquet file exists, is non‑empty, and conforms to `contracts/dataset.schema.yaml`. **Artifact**: verification step (part of CI).  
-- [ ] T016c Perform a geometry‑disjoint split of the raw data into `data/processed/train.parquet` and `data/processed/test.parquet` (80/20 split, no overlapping `geometry_id`s) and validate both files against the schema. **Artifacts**: `data/processed/train.parquet`, `data/processed/test.parquet`. **Verification**: `tests/contract/test_split_integrity.py`.  
-- [ ] T018 Replace the previous sweep task with **degree‑based** sensitivity analysis (see Phase 5). The old `relabel_and_split` remains for threshold sweeps only. **Artifact**: function `relabel_and_split` in `generate_data.py`. **Verification**: unit test `tests/unit/test_relabel_and_split.py`.  
-
-## Phase 4 – User Story 2: Lightweight sequence model training (P2)
-
-- [ ] T019 Unit test confirming the Transformer architecture stays below **10 000 000** parameters. **Artifact**: test file. **Verification**: `tests/unit/test_parameter_count.py`.  
-- [ ] T020 Integration test that the training loop runs on a CPU‑only runner without CUDA imports. **Artifact**: test file. **Verification**: passes in CI.  
-
-- [ ] T021 Implement `code/models/transformer.py` – a 4‑layer PyramidTNT‑Ti‑style encoder respecting the parameter cap. **Artifact**: `code/models/transformer.py`. **Verification**: import test `tests/unit/test_transformer_import.py`.  
-- [ ] T022 Implement `code/train_model.py` to load `data/processed/train.parquet`, train the Transformer with binary cross‑entropy loss, and enforce CPU‑only execution. **Artifact**: `code/train_model.py`. **Verification**: script runs and produces model file.  
-- [ ] T023 Add runtime monitoring (using `psutil`) that logs peak RAM (`[RAM-PEAK-MB]: …`) and aborts if RAM > 7 GB or wall‑clock > 6 h. **Artifact**: logging in `train_model.py`. **Verification**: `tests/unit/test_runtime_monitor.py`.  
-- [ ] T024 Save the trained weights to `data/processed/trained_model.pt`. **Artifact**: `data/processed/trained_model.pt`. **Verification**: file existence check after training.  
-- [ ] T025 After training, write `data/processed/model_summary.txt` containing the exact parameter count and a brief architecture description. **Artifact**: `data/processed/model_summary.txt`. **Verification**: `tests/unit/test_model_summary.py` asserts count < 10 M.  
-
-- [ ] T025b Implement `code/train_baseline.py` – a lightweight MLP (or scikit‑learn Logistic Regression) using only `initial_bounds` as features; save to `data/processed/geometry_baseline.pt`. **Artifact**: `data/processed/geometry_baseline.pt`. **Verification**: script runs and file exists.  
-- [ ] T025c Implement `code/train_shuffled_control.py` – shuffle each episode’s translation sequence (seed = 42) to destroy temporal structure, train a model of identical architecture, and save to `data/processed/random_baseline.pt`. **Artifact**: `data/processed/random_baseline.pt`. **Verification**: script runs and file exists.  
-- [ ] T042 Implement and persist a **Class Prior Baseline** (`data/processed/class_prior_baseline.pt`) that always predicts the majority class. **Artifact**: `data/processed/class_prior_baseline.pt`. **Verification**: `tests/unit/test_class_prior.py`.  
-
-- [ ] T043 Generate `data/checksums.json` containing SHA‑256 hashes for all newly created data artifacts (`synthetic_episodes.parquet`, `train.parquet`, `test.parquet`, model files, baselines). **Artifact**: `data/checksums.json`. **Verification**: `tests/unit/test_checksums.py` confirms all entries present and correct.  
-
-- [ ] T044 Extract the total parameter count from `data/processed/model_summary.txt` and store it for later use. **Artifact**: helper script (`code/extract_param_count.py`). **Verification**: unit test `tests/unit/test_extract_param_count.py`.  
-
-- [ ] T045 Insert the extracted `parameter_count` into `data/processed/metrics_report.json` (field `parameter_count`). **Artifact**: updated `metrics_report.json`. **Verification**: schema test `tests/contract/test_report_schema.py`.  
-
-## Phase 5 – User Story 3: Statistical validation & baseline comparison (P3)
-
-- [ ] T026 Unit test for McNemar’s test implementation (`tests/unit/test_mcnemar.py`). **Artifact**: test file. **Verification**: passes.  
-- [ ] T027 Contract test for `metrics_report.json` (`tests/contract/test_metrics_report.py`). **Artifact**: test file. **Verification**: passes.  
-
-- [ ] T028 Implement `code/evaluate.py` to load the three models (`trained_model.pt`, `geometry_baseline.pt`, `random_baseline.pt`) and produce predictions on `data/processed/test.parquet`. **Artifact**: `code/evaluate.py`. **Verification**: script runs without errors.  
-- [ ] T029 Save predictions as `data/processed/predictions_main.json`, `predictions_geometry.json`, and `predictions_random.json` conforming to `contracts/model_output.schema.yaml`. **Artifacts**: three JSON files. **Verification**: `tests/contract/test_model_output.py`.  
-- [ ] T030 Compute McNemar’s test (model vs geometry) and log the p‑value to stdout and to `data/processed/metrics_report.json`. **Artifact**: updated `metrics_report.json`. **Verification**: `tests/unit/test_mcnemar_geometry.py`.  
-- [ ] T031 Compute McNemar’s test (model vs random) and record the p‑value similarly. **Verification**: `tests/unit/test_mcnemar_random.py`.  
-- [ ] T032 Calculate accuracy for all three models; enforce **accuracy improvement ≥ 0.02** over each baseline, aborting with a clear error if the condition fails. **Verification**: part of `evaluate.py` with exit code non‑zero on failure.  
-
-- [ ] T033a Load all `data/processed/sweep_*.parquet` files produced by T018 (threshold sweep). **Verification**: existence check.  
-- [ ] T033b For each sweep file, re‑evaluate the trained main model (no retraining) and record accuracy. **Verification**: `tests/unit/test_sweep_accuracy.py`.  
-- [ ] T033c Aggregate the sweep accuracies, compute the standard deviation, and append `sensitivity_variance` to `metrics_report.json`. **Verification**: part of `sensitivity.py`.  
-
-- [ ] T051 Implement the **degree‑based** sensitivity analysis: inject Gaussian noise (σ ∈ {0.0, 0.25, 0.5, 0.75, 1.0}°) into each translation vector, re‑evaluate the main model, and store per‑σ accuracies in `data/sweep/variance_report.json`. **Artifact**: `data/sweep/variance_report.json`. **Verification**: `tests/unit/test_sensitivity_variance.py`.  
-
-- [ ] T046 Monitor baseline accuracies; if any baseline accuracy < 55 %, set `baseline_convergence_flag: true` in `metrics_report.json`. **Artifact**: updated `metrics_report.json`. **Verification**: unit test `tests/unit/test_baseline_convergence.py`.  
-
-- [ ] T034a Generate the final `data/processed/metrics_report.json` containing:
-  - `model_accuracy`, `baseline_accuracy`, `control_accuracy`
-  - `accuracy_improvement`
-  - `mcnemar_p_value` (both comparisons)
-  - `confusion_matrix` (TP, TN, FP, FN)
-  - `sensitivity_variance`
-  - `associational_framing: true`
-  - `runtime_seconds` and `peak_ram_gb` from T023
-  - `parameter_count` from T045
-  - `baseline_convergence_flag` from T046
-  - `ambiguous_subset_flag` from T036a
-  - `reproducibility_flag` from T054
-  **Artifact**: `data/processed/metrics_report.json`. **Verification**: `tests/contract/test_report_schema.py`.  
-
-- [ ] T035a Verify that the test set contains no `geometry_id` present in the training set; raise an error if any overlap is detected. **Verification**: part of `evaluate.py` with explicit check.  
-
-- [ ] T036a Detect episodes where translation sequences are identical (within 1e‑5) but have opposite stability labels; compute a separate confusion matrix for this subset and, if its accuracy < 0.5, add an `ambiguous_subset_flag: true` field to `metrics_report.json`. **Verification**: `tests/unit/test_ambiguous_subset.py`.  
-
-- [ ] T047 Run the Class Prior Baseline on the test set and store its predictions in `data/processed/predictions_class_prior.json` (conforming to `model_output.schema.yaml`). **Artifact**: `data/processed/predictions_class_prior.json`. **Verification**: schema test `tests/contract/test_model_output.py`.  
-
-- [ ] T048 Verify that the `parameter_count` recorded in `model_summary.txt` matches the `parameter_count` field in `metrics_report.json`. **Artifact**: validation step in `code/validate_report.py`. **Verification**: unit test `tests/unit/test_parameter_report_consistency.py`.  
-
-- [ ] T049 Execute a full pipeline integrity check: ensure all expected artifacts exist, their checksums match `data/checksums.json`, and that re‑running `code/evaluate.py` yields an identical `metrics_report.json`. **Artifact**: `pipeline_integrity_check.log`. **Verification**: integration test `tests/integration/test_pipeline_integrity.py`.  
-
-- [ ] T050 Produce a concise markdown summary `docs/report_summary.md` that links to `metrics_report.json`, includes key numbers, and references the associative‑framing statement. **Artifact**: `docs/report_summary.md`. **Verification**: CI grep for required sections.  
-
-- [ ] T053 Audit independence: static analysis ensures `generate_data.py` does **not** import or read `config.yaml` during trajectory generation. **Artifact**: audit script `tests/unit/test_independence.py`. **Verification**: passes.  
-
-- [ ] T054 Re‑run `code/evaluate.py` after the pipeline completes and assert the newly generated `metrics_report.json` is byte‑identical to the previously saved one; write a `reproducibility_flag` into the report. **Verification**: `tests/integration/test_reproducibility.py`.  
-
-- [ ] T055 Wrap the entire pipeline in a timer (`code/quickstart.sh`) and fail if wall‑clock exceeds 6 h; write runtime to `pipeline_runtime.txt`. **Artifact**: `pipeline_runtime.txt`. **Verification**: CI step checks file and exit code.  
-
-## Phase 6 – Cross‑cutting verification & hand‑off  
-
-- [ ] T037 Update `README.md` and `docs/report.md` with a concise description of the pipeline, artifact locations, and a **section “Associative Framing”** that explicitly states results are presented associatively (covers FR‑011). **Artifact**: `README.md`, `docs/report.md`. **Verification**: grep for “associative framing” in CI.  
-- [ ] T038 Code cleanup and refactoring across `code/` to remove any stray `torch.cuda` imports. **Verification**: `grep -R "torch.cuda" code/` returns no matches in CI.  
-- [ ] T039 Performance optimisation to keep total wall‑clock < 6 h (e.g., batch‑size tuning, early‑stopping). **Verification**: ensured by T055 runtime check.  
-- [ ] T040 Add edge‑case unit tests for simulation tunnelling and ambiguous‑signal detection (`tests/unit/test_edge_cases.py`). **Verification**: pytest passes.  
-- [ ] T041a **Quick‑start validation** – Add script `code/quickstart.sh` that executes the full pipeline in order:
-  1. `python code/generate_data.py`
-  2. `python code/train_model.py`
-  3. `python code/train_baseline.py`
-  4. `python code/train_shuffled_control.py`
-  5. `python code/train_class_prior.py` (new script for T042)
-  6. `python code/evaluate.py`
-  7. `python code/sensitivity.py` (optional)
-  The script must exit with code 0, print `PIPELINE‑SUCCESS`, and write `pipeline_runtime.txt`. **Verification**: CI runs script and checks exit code and output.  
-
-- [ ] T052 Verify that labeling logic in `generate_data.py` reads thresholds from `config.yaml` and applies them correctly. **Artifact**: part of `generate_data.py`. **Verification**: `tests/unit/test_labeling_respects_config.py`.  
-
-- [ ] T056 Contract test that generated Parquet files contain no forbidden columns as defined in `contracts/dataset.schema.yaml`. **Artifact**: test file. **Verification**: passes after data generation.  
-
-- [ ] T057 Ensure that `metrics_report.json` includes `parameter_count` matching the value in `model_summary.txt`. **Verification**: `tests/unit/test_parameter_report_consistency.py`.  
-
-- [ ] T058 Verify that `data/checksums.json` entries match the actual SHA‑256 hashes of all data artifacts. **Verification**: `tests/unit/test_checksum_validation.py`.  
-
-- [ ] T059 Implement baseline convergence monitoring in `code/evaluate.py`, flagging if any baseline accuracy < 55 % and persisting `baseline_convergence_flag` in `metrics_report.json`. **Verification**: unit test `tests/unit/test_baseline_convergence.py` ensures flag is set correctly.  
-
-- [ ] T060 Ensure final report and README explicitly state associative framing per FR‑011. Update `docs/report.md` and `README.md` with a section "Associative Framing". **Verification**: grep for “associative framing” in CI.  
+The list below consolidates the required work into 19 substantive research tasks, grouped by research phase.  Each task follows the canonical checklist format, names the exact artifact it produces, and specifies an observable verification step.  All previously verified (checked) work is retained; unchecked tasks are those that still need implementation or correction.
 
 ---  
 
-### Dependencies & execution order (updated)
+## Phase 1 – Project scaffolding & configuration  
+
+- [ ] T001 Create `code/config.yaml` containing the deterministic random seed, labeling thresholds (`tipping_angle: 15.0`, `slippage_distance: 0.02`), and sensitivity‑analysis noise levels (σ in **degrees**).  
+  - **Artifact**: `code/config.yaml`  
+  - **Verification**: `tests/unit/test_config_load.py` parses the file and asserts the required keys exist with correct types.  
+
+- [ ] T002 Implement `code/generate_data.py` to run a deterministic PyBullet simulation loop that records **only** `translation_sequence` and `initial_bounds` for each episode (no rotation, torque, or force columns).  
+  - **Artifact**: `code/generate_data.py`  
+  - **Verification**: `pytest tests/unit/test_generate_data.py` checks that the script runs without importing `torch.cuda` and writes a Parquet file at `data/raw/synthetic_episodes.parquet`.  
+
+- [ ] T003 Add robust error handling to `generate_data.py`: on any simulation exception, log the failure, discard the incomplete episode, and generate a replacement until the total number of **valid** episodes reaches **≥ 5 000**.  
+  - **Artifact**: Updated `code/generate_data.py` (exception‑handling block).  
+  - **Verification**: `tests/integration/test_generation_count.py` asserts the final row count ≥ 5 000.  
+
+---  
+
+## Phase 2 – Post‑generation labeling & split (addresses FR‑013 & rejected tasks T014, T016‑T016c, T018)  
+
+- [ ] T004 Implement `code/relabel_and_split.py` that **loads** `data/raw/synthetic_episodes.parquet`, **reads** thresholds from `config.yaml`, computes `stability_label` using `tipping_angle` and `slippage_distance`, **drops** all forbidden columns, and writes the processed dataset to `data/processed/full_processed.parquet`.  
+  - **Artifact**: `code/relabel_and_split.py`  
+  - **Verification**: `tests/unit/test_labeling_logic.py` validates that the label matches the threshold logic and that forbidden columns are absent.  
+
+- [ ] T005 Perform a **geometry‑disjoint** split of `full_processed.parquet` into `data/processed/train.parquet` (80 %) and `data/processed/test.parquet` (20 %) ensuring no overlapping `geometry_id`s.  
+  - **Artifact**: `data/processed/train.parquet`, `data/processed/test.parquet`  
+  - **Verification**: `tests/contract/test_split_integrity.py` checks that the intersection of `geometry_id`s is empty and that both files conform to `dataset.schema.yaml`.  
+
+- [ ] T006 Update `data/checksums.json` with SHA‑256 hashes for `synthetic_episodes.parquet`, `full_processed.parquet`, `train.parquet`, and `test.parquet`.  
+  - **Artifact**: `data/checksums.json`  
+  - **Verification**: `tests/unit/test_checksums.py` recomputes hashes and asserts they match the recorded values.  
+
+---  
+
+## Phase 3 – Main model implementation & training (addresses T024, T025)  
+
+- [ ] T007 Implement `code/models/transformer.py` – a 4‑layer PyramidTNT‑Ti‑style encoder whose total parameter count is **strictly < 10 000 000**.  
+  - **Artifact**: `code/models/transformer.py`  
+  - **Verification**: `tests/unit/test_parameter_count.py` loads the model and asserts `parameter_count < 10_000_000`.  
+
+- [ ] T008 Implement `code/train_model.py` to load `train.parquet`, train the Transformer with binary cross‑entropy loss on CPU‑only, enforce a wall‑clock limit of 6 h and peak RAM ≤ 7 GB (using `psutil`), and save the weights to `data/processed/trained_model.pt`.  
+  - **Artifact**: `data/processed/trained_model.pt`  
+  - **Verification**: `tests/integration/test_training.py` runs the script and checks that the file exists and that the log contains `RAM‑PEAK‑GB` ≤ 7 and `TRAINING‑TIME‑SEC` ≤ 21600.  
+
+- [ ] T009 After training, write `data/processed/model_summary.txt` containing the exact parameter count and a brief architecture description.  
+  - **Artifact**: `data/processed/model_summary.txt`  
+  - **Verification**: `tests/unit/test_model_summary.py` parses the file and confirms the count matches the value from `transformer.py` and is < 10 M.  
+
+---  
+
+## Phase 4 – Baseline & control models (addresses rejected baseline task)  
+
+- [ ] T010 Implement `code/train_baseline.py` – a lightweight MLP that consumes only `initial_bounds` to predict `stability_label`; train on `train.parquet` and save to `data/processed/geometry_baseline.pt`.  
+  - **Artifact**: `data/processed/geometry_baseline.pt`  
+  - **Verification**: `tests/integration/test_geometry_baseline.py` runs the script and checks the file exists.  
+
+- [ ] T011 Implement `code/train_shuffled_control.py` – shuffle each episode’s `translation_sequence` (seed = 42) to destroy temporal structure, train a Transformer of identical architecture as the main model, and save to `data/processed/random_baseline.pt`.  
+  - **Artifact**: `data/processed/random_baseline.pt`  
+  - **Verification**: `tests/integration/test_random_baseline.py` runs the script and validates existence.  
+
+- [ ] T012 Implement `code/train_class_prior.py` – compute the majority class in the training set, create a dummy model that always predicts that class, and save to `data/processed/class_prior_baseline.pt`.  
+  - **Artifact**: `data/processed/class_prior_baseline.pt`  
+  - **Verification**: `tests/unit/test_class_prior.py` loads the file and checks that all predictions equal the majority label.  
+
+---  
+
+## Phase 5 – Evaluation & statistical validation (covers FR‑008, FR‑011, SC‑003, SC‑004, SC‑008, SC‑010)  
+
+- [ ] T013 Implement `code/evaluate.py` to load the three trained models (`trained_model.pt`, `geometry_baseline.pt`, `random_baseline.pt`) **and** the class‑prior baseline (`class_prior_baseline.pt`), generate predictions on `test.parquet`, compute **accuracy**, **AUC‑ROC**, and a **confusion matrix** for each, and write the three JSON prediction files (`model_output_main.json`, `model_output_geometry.json`, `model_output_random.json`) conforming to `model_output.schema.yaml`.  
+  - **Artifacts**: `data/processed/model_output_main.json`, `data/processed/model_output_geometry.json`, `data/processed/model_output_random.json`  
+  - **Verification**: `tests/contract/test_model_output.py` validates each JSON against the schema.  
+
+- [ ] T014 Within `evaluate.py`, perform **McNemar’s test** for (a) main vs. geometry baseline and (b) main vs. random baseline; record both p‑values in `data/processed/metrics_report.json`.  
+  - **Artifact**: `data/processed/metrics_report.json` (partial, updated)  
+  - **Verification**: `tests/unit/test_mcnemar_geometry.py` and `tests/unit/test_mcnemar_random.py` check that p‑values are computed and stored.  
+
+- [ ] T015 Enforce the **accuracy‑improvement rule**: main model must exceed each baseline by **≥ 0.02**. If not, `evaluate.py` aborts with a clear error message and a non‑zero exit code.  
+  - **Verification**: `tests/unit/test_accuracy_improvement.py` runs the script on a deliberately low‑performing model and expects failure.  
+
+- [ ] T016 Detect the **ambiguous‑trajectory subset** (identical `translation_sequence` within tolerance 1e‑5 but opposite `stability_label`). Compute a separate confusion matrix for this subset; if its accuracy < 0.5, add `"ambiguous_subset_flag": true` to `metrics_report.json`.  
+  - **Verification**: `tests/unit/test_ambiguous_subset.py` creates a synthetic ambiguous set and checks the flag.  
+
+- [ ] T017 If any baseline accuracy is **< 55 %**, set `"baseline_convergence_flag": true` in `metrics_report.json`.  
+  - **Verification**: `tests/unit/test_baseline_convergence.py` validates flag insertion.  
+
+---  
+
+## Phase 6 – Sensitivity analysis (addresses reviewer comment on unit mismatch)  
+
+- **Note**: FR‑009 originally specified σ in degrees; the reviewer highlighted a unit inconsistency.  The following task implements the corrected, **degree‑based** noise injection.  
+
+- [ ] T018 Implement `code/sensitivity.py` that iterates over σ ∈ {0.0°, 0.25°, 0.5°, 0.75°, 1.0°}. For each σ, convert the angle to radians, treat it as a small rotation about a random axis, apply the rotation to each translation vector (preserving magnitude), re‑evaluate the **trained main model** on the unchanged `test.parquet` (no retraining), record the per‑σ accuracy, compute the **standard deviation** across the five accuracies, and write `data/sweep/variance_report.json`.  
+  - **Artifact**: `data/sweep/variance_report.json`  
+  - **Verification**: `tests/unit/test_sensitivity_variance.py` checks that the file contains five entries and that the computed variance matches a manual calculation.  
+
+- [ ] T019 Append the computed `sensitivity_variance` value to `metrics_report.json` and ensure the schema (`metrics_report.schema.yaml`) validates it.  
+  - **Verification**: `tests/contract/test_metrics_report.py` passes after the update.  
+
+---  
+
+## Phase 7 – Independence audit (addresses FR‑013 & reviewer concern)  
+
+- [ ] T020 Add a static‑analysis test `tests/unit/test_independence.py` that parses **all** data‑generation related scripts (`generate_data.py` and any script that writes raw episodes) and asserts they **do not import** `config.yaml` or any labeling thresholds. Labeling logic (`relabel_and_split.py`) is allowed to read thresholds.  
+  - **Verification**: test fails if prohibited imports are detected in any generation script.  
+
+---  
+
+## Phase 8 – End‑to‑end pipeline & reproducibility  
+
+- [ ] T021 Create `code/quickstart.sh` that executes the full pipeline in the exact order:  
+  1. `python code/generate_data.py`  
+  2. `python code/relabel_and_split.py`  
+  3. `python code/train_model.py`  
+  4. `python code/train_baseline.py`  
+  5. `python code/train_shuffled_control.py`  
+  6. `python code/train_class_prior.py`  
+  7. `python code/evaluate.py`  
+  8. `python code/sensitivity.py`  
+  The script must exit with code 0, print `PIPELINE‑SUCCESS`, and write total wall‑clock time to `pipeline_runtime.txt`.  
+  - **Artifact**: `code/quickstart.sh`, `pipeline_runtime.txt`  
+  - **Verification**: CI runs the script and asserts exit code 0, presence of the success message, and that `pipeline_runtime.txt` contains a numeric value ≤ 21600.  
+
+- [ ] T022 Add a reproducibility check: after a full run, re‑execute `code/evaluate.py` and assert that the newly generated `metrics_report.json` is **byte‑identical** to the previously saved one; if so, insert `"reproducibility_flag": true` into the report.  
+  - **Verification**: `tests/integration/test_reproducibility.py` performs the double‑run and checks the flag.  
+
+---  
+
+## Phase 9 – Compute‑resource reporting  
+
+- [ ] T025 Collect compute‑resource metrics: parse the training and evaluation logs generated by T008 and T013 to extract total wall‑clock time (`runtime_seconds`) and peak RAM usage (`peak_ram_gb`), then write/merge these fields into `data/processed/metrics_report.json`.  
+  - **Artifact**: Updated `data/processed/metrics_report.json` containing `runtime_seconds` and `peak_ram_gb`.  
+  - **Verification**: `tests/unit/test_compute_metrics.json` validates that the two fields exist, are numeric, and fall within the SC‑002 limits.  
+
+---  
+
+## Phase 10 – Documentation & final integrity checks  
+
+- [ ] T023 Update `README.md` and `docs/report.md` with a dedicated **Associative Framing** section that explicitly states all results are presented associatively (per FR‑011). Include links to `metrics_report.json` and `report_summary.md`.  
+  - **Verification**: CI greps for the phrase “Associative Framing” in both files.  
+
+- [ ] T024 Run the full CI suite (`pytest -q`) to ensure **all** contract, unit, and integration tests pass, that `data/checksums.json` matches the actual artifact hashes, and that the `reproducibility_flag` is set.  
+  - **Verification**: CI job succeeds; any failure aborts the pipeline.  
+
+---  
+
+### Dependency & execution order (summary)
 
 | Task | Depends on |
 |------|------------|
-| T005b | – |
-| T005a | T005b |
-| T014 | T005b |
-| T016‑T016c | T014 |
-| T018 | T016c |
-| T021 | – |
-| T022 | T021, T016c |
-| T023 | T022 |
-| T024 | T023 |
-| T025 | T024 |
-| T025b | T016c |
-| T025c | T016c |
-| T042 | T016c |
-| T043 | T016c, T024, T025b, T025c, T042 |
-| T044 | T025 |
-| T045 | T044 |
-| T046 | T028 |
-| T047 | T028 |
-| T048 | T045, T057 |
-| T049 | T043, T028, T054 |
-| T050 | T037 |
-| T051 | T016c |
-| T052 | T011 |
-| T053 | T011 |
-| T054 | T034a |
-| T055 | T041a |
-| T056 | T016c |
-| T057 | T044, T025 |
-| T058 | T043 |
-| T059 | T028 |
-| T060 | T037 |
+| T001 | – |
+| T002 | T001 |
+| T003 | T002 |
+| T004 | T003, T001 |
+| T005 | T004 |
+| T006 | T005 |
+| T007 | – |
+| T008 | T007, T005 |
+| T009 | T008 |
+| T010 | T005 |
+| T011 | T005 |
+| T012 | T005 |
+| T013 | T008, T010, T011, T012 |
+| T014 | T013 |
+| T015 | T013 |
+| T016 | T013 |
+| T017 | T013 |
+| T018 | T008, T005 |
+| T019 | T018 |
+| T020 | T002 |
+| T021 | T004‑T019 (all prior steps must succeed) |
+| T022 | T021 |
+| T025 | T008, T013 |
+| T023 | – |
+| T024 | All previous tasks (full suite) |
 
-Running `code/quickstart.sh` will respect this order automatically.
+Running `code/quickstart.sh` will automatically respect this order.
 
 ---  
 
-### Verification checklist (all tasks must pass)
-
-- **Config file** (`code/config.yaml`) present, parsable, and used by labeling.  
-- **Raw dataset** (`data/raw/synthetic_episodes.parquet`) ≥ 5 000 rows, no forbidden columns, checksum recorded.  
-- **Train/Test splits** geometry‑disjoint, validated against schema.  
-- **Transformer model** saved, parameter count < 10 M, `model_summary.txt` present.  
-- **Baseline models** (`geometry_baseline.pt`, `random_baseline.pt`, `class_prior_baseline.pt`) saved.  
-- **Predictions** and **metrics_report.json** conform to contracts, include all required fields and flags.  
-- **Sensitivity sweep** files generated, variance reported.  
-- **Quick‑start script** runs end‑to‑end, prints `PIPELINE‑SUCCESS`, respects runtime limit.  
-- **All contract and unit tests** pass.  
-
----  
-
-*All unchecked tasks must be completed before the next analysis round.  Once every artifact exists and all contract tests pass, the verifier should accept the project as “research_complete”.*  
+**All tasks must be completed and all verification steps must pass before the verifier can accept the project as `research_complete`.**  
