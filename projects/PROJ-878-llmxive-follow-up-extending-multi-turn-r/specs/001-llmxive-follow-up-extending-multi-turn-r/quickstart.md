@@ -1,60 +1,47 @@
 # Quickstart: llmXive follow-up: extending "Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode"
 
 ## Prerequisites
-
-*   Python 3.11+
-*   Git
-*   Sufficient RAM (for model loading and dataset processing)
-*   ~ GB Disk Space
+- Python 3.11+
+- Git
+- ~ 2 GB free RAM (model + data) and ~ 5 GB disk space
 
 ## Installation
 
-1.  **Clone the repository** (if not already done):
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r
-    ```
+```bash
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+# Install pinned dependencies
+pip install -r code/requirements.txt
 
-4.  **Verify environment**:
-    ```bash
-    python -c "import torch; print(torch.__version__); print('CPU available:', torch.cuda.is_available() == False)"
-    ```
+# Verify CPU‑only torch
+python - <<EOF
+import torch
+print("Torch version:", torch.__version__)
+print("CUDA available:", torch.cuda.is_available())
+EOF
+```
 
-## Execution Workflow
+## Workflow
 
-### Step 1: Generate Synthetic Dataset
-
-Generate a set of logical puzzles with controlled topology and orthogonalized metrics.
-
+### 1️⃣ Generate Synthetic Dataset
 ```bash
 python code/graph_generator.py \
   --count 500 \
-  --depth-min 1 \
-  --depth-max 10 \
-  --branch-min 1 \
-  --branch-max 5 \
+  --depth-min 1 --depth-max 10 \
+  --branch-min 1 --branch-max 5 \
   --output data/raw/synthetic_puzzles.jsonl \
   --seed 42
 ```
+- **Output**: `data/raw/synthetic_puzzles.jsonl`
+- **Validate**: `pytest tests/test_graph_generator.py`
 
-*   **Output**: `data/raw/synthetic_puzzles.jsonl`
-*   **Validation**: Run `python tests/test_graph_generator.py` to verify acyclicity, orthogonality, and metric accuracy.
-
-### Step 2: Execute Reflective Masking Loop
-
-Run the RM inference on the generated dataset (CPU-only).
-
+### 2️⃣ Run Reflective Masking Loop (CPU)
 ```bash
 python code/rm_executor.py \
   --input data/raw/synthetic_puzzles.jsonl \
@@ -63,14 +50,18 @@ python code/rm_executor.py \
   --batch-size 5 \
   --device cpu
 ```
+- For the extended budget run (FR‑008):
+```bash
+python code/rm_executor.py \
+  --input data/raw/synthetic_puzzles.jsonl \
+  --output data/processed/execution_log_extended.csv \
+  --max-turns 1000 \
+  --batch-size 5 \
+  --device cpu \
+  --subset 0.2   # optional: run on 20 % subset for speed
+```
 
-*   **Note**: For the extended budget validation (FR-008), run a separate subset with `--max-turns 1000`.
-*   **Output**: `data/processed/execution_log.csv`
-
-### Step 3: Statistical Analysis
-
-Perform correlation and sensitivity analysis using Survival Analysis and Segmented Regression.
-
+### 3️⃣ Statistical Analysis
 ```bash
 python code/analyzer.py \
   --puzzles data/raw/synthetic_puzzles.jsonl \
@@ -78,24 +69,30 @@ python code/analyzer.py \
   --output results/statistical_report.json \
   --thresholds 40 50 60
 ```
-
-*   **Output**: `results/statistical_report.json` and plots in `results/paper_figures/`.
+- Figures are saved to `results/paper_figures/`.
 
 ## Verification
 
-1.  **Check Data Integrity**:
-    ```bash
-    python -c "import json; data = [json.loads(l) for l in open('data/raw/synthetic_puzzles.jsonl')]; print(f'Count: {len(data)}'); print(f'Depth Range: {min(d[\"nesting_depth\"] for d in data)}-{max(d[\"nesting_depth\"] for d in data)}')"
-    ```
+```bash
+# Check dataset size and depth range
+python - <<EOF
+import json, itertools
+data = [json.loads(l) for l in open('data/raw/synthetic_puzzles.jsonl')]
+print("Instances:", len(data))
+print("Depth range:", min(d['nesting_depth'] for d in data),
+      "-", max(d['nesting_depth'] for d in data))
+print("Branching range:", min(d['branching_factor'] for d in data),
+      "-", max(d['branching_factor'] for d in data))
+EOF
 
-2.  **Check Results**:
-    ```bash
-    cat results/statistical_report.json
-    ```
+# Inspect analysis report
+cat results/statistical_report.json
+```
 
 ## Troubleshooting
+- **OOM**: Reduce `--batch-size` in `rm_executor.py`.
+- **Slow runtime**: Ensure no other CPU‑intensive jobs are running; the process is CPU‑bound.
+- **Graph generation failures**: Extreme depth/branch combos may be infeasible; adjust ranges or increase the number of rejection‑sampling attempts.
+- **High collinearity**: If orthogonalization repeatedly fails, consider a sparser grid of target pairs (still respects FR‑007).
 
-*   **OOM Error**: Reduce `--batch-size` in `rm_executor.py`.
-*   **Slow Execution**: Ensure no other heavy processes are running; this is CPU-bound.
-*   **Invalid Graphs**: If the generator reports many discards, check the `--depth` and `--branch` ranges; extreme combinations may be hard to construct.
-*   **High Collinearity**: If the generator fails to find orthogonal samples, reduce the target grid density or relax the `|r| < 0.2` constraint (not recommended for primary analysis).
+---

@@ -38,8 +38,8 @@ properties:
     description: "Percentage of 50-turn failures that converged at 1000 turns."
   collinearity_vif:
     type: "number"
-    description: "Variance Inflation Factor (optional)."
     minimum: 0
+    description: "Variance Inflation Factor (optional)."
   orthogonality_check:
     type: "object"
     description: "Correlation check between depth and branching."
@@ -52,6 +52,6 @@ properties:
         description: "Target threshold (e.g., 0.2)."
   spearman_correlation:
     type: "number"
-    description: "Descriptive Spearman correlation (not used for inference due to censoring)."
     minimum: -1
     maximum: 1
+    description: "Descriptive Spearman correlation (not used for inference due to censoring)."

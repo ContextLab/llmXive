@@ -28,7 +28,7 @@ properties:
     type: "array"
     items:
       type: "string"
-    description: "List of node IDs representing the valid logical path."
+    description: "Ordered list of node IDs representing the valid logical path."
   nesting_depth:
     type: "integer"
     minimum: 1
@@ -55,7 +55,7 @@ properties:
             type: "string"
   target_path_id:
     type: "string"
-    description: "ID of the selected solution path."
+    description: "Identifier of the selected solution path."
   seed:
     type: "integer"
     description: "Random seed used for generation."
@@ -71,7 +71,7 @@ properties:
     type: "string"
     enum:
       - template_based
-    description: "Must be 'template_based' to ensure deterministic mapping."
+    description: "Must be \"template_based\" to ensure deterministic mapping."
   is_orthogonal:
     type: "boolean"
     description: "Flag indicating if the (depth, branch) pair met the orthogonality constraint (|r| < 0.2)."

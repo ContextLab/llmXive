@@ -12,11 +12,13 @@ required:
 properties:
   instance_id:
     type: "string"
-    description: "FK to SyntheticPuzzle.instance_id."
+    description: "Foreign key to SyntheticPuzzle.instance_id."
   turns_to_converge:
-    type: ["integer", "null"]
+    type:
+      - "integer"
+      - "null"
     minimum: 0
-    description: "Number of turns taken. Null if failure (censored)."
+    description: "Number of turns taken; null if censored (failure)."
   convergence_status:
     type: "string"
     enum:
@@ -25,10 +27,12 @@ properties:
     description: "Result of the inference loop."
   is_censored:
     type: "boolean"
-    description: "True if the run hit the max turn limit (censored data)."
+    description: "True if the run hit the max turn limit."
   final_token_sequence:
-    type: ["string", "null"]
-    description: "Final output sequence."
+    type:
+      - "string"
+      - "null"
+    description: "Final output sequence (truncated if long)."
   path_coverage:
     type: "number"
     minimum: 0.0
@@ -40,7 +44,9 @@ properties:
   runtime_seconds:
     type: "number"
     minimum: 0
-    description: "Wall-clock time."
+    description: "Wall‑clock time for the run."
   error_message:
-    type: ["string", "null"]
-    description: "Error details if failed."
+    type:
+      - "string"
+      - "null"
+    description: "Error details if execution failed."
