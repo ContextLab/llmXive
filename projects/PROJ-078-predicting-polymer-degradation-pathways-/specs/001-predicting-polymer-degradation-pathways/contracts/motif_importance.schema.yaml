@@ -8,7 +8,7 @@ properties:
     description: "Unique motif identifier"
   motif_pattern:
     type: string
-    description: "SMILES subgraph pattern"
+    description: "SMILES of the subgraph motif"
   pathway:
     type: string
     description: "Associated degradation pathway"
@@ -18,12 +18,12 @@ properties:
       - photolysis
   importance_score:
     type: number
-    description: "Integrated Gradients score"
+    description: "Integrated Gradients score (0 – 1)"
     minimum: 0.0
     maximum: 1.0
   p_value:
     type: number
-    description: "χ² test p-value"
+    description: "Empirical p‑value from the **permutation test**"
     minimum: 0.0
     maximum: 1.0
   significant:

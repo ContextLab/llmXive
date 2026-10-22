@@ -50,7 +50,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** the model's predictions on the test set, **When** a permutation test with 1 000 permutations is performed for null‑distribution generation, **Then** the report includes the calculated empirical p‑value comparing the observed motif importance against the null distribution.
+1. **Given** the model's predictions on the test set, **When** a permutation test with a sufficiently large number of permutations is performed for null‑distribution generation, **Then** the report includes the calculated empirical p‑value comparing the observed motif importance against the null distribution.
 2. **Given** the model has identified feature importances, **When** the reporting script aggregates these across the dataset, **Then** the output report lists at least 3 distinct structural motifs (e.g., "aromatic ring proximity to ester bond") with their correlation strength to specific degradation types.
 3. **Given** the model identifies a potential degradation pathway, **When** the confidence score (softmax probability) is below a defined threshold (< 0.6), **Then** the report flags this prediction as "low confidence" to prevent over‑interpretation of uncertain results.
 
