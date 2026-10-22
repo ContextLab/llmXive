@@ -81,18 +81,21 @@ def _fetch_ebird_data() -> Iterator[dict]:
     Raises ConnectionError if the dataset cannot be accessed.
     """
     try:
-        # The dataset exists under the namespace 'ebird/ebd'.
-        # Some versions of the `datasets` library require specifying a config name.
-        # We attempt both the default config and an explicit config name.
-        try:
-            ds = load_dataset("ebird/ebd", split="train", streaming=True)
-        except Exception:
-            # Fallback: specify the default config explicitly
-            ds = load_dataset("ebird/ebd", name="default", split="train", streaming=True)
+        # Attempt the canonical HuggingFace identifier
+        ds = load_dataset("ebird/ebd", split="train", streaming=True)
         return ds
-    except Exception as exc:
-        logger.error(f"Failed to load eBird dataset: {exc}")
-        raise ConnectionError(f"Unable to fetch eBird data: {exc}") from exc
+    except Exception as exc1:
+        logger.warning(f"First attempt to load eBird dataset failed: {exc1}")
+        # Some older versions of `datasets` require the namespace first
+        try:
+            ds = load_dataset("ebird/ebd", name="default", split="train", streaming=True)
+            return ds
+        except Exception as exc2:
+            logger.error(f"Second attempt to load eBird dataset failed: {exc2}")
+            raise ConnectionError(
+                "Unable to fetch eBird data from HuggingFace. "
+                "The dataset identifier may have changed or network access is unavailable."
+            ) from exc2
 
 def _fetch_modis_data():
     """
@@ -115,6 +118,9 @@ def load_ebird_data() -> pd.DataFrame:
     """
     output_path = DATA_RAW / EBIRD_OUTPUT_FILE
     checksum_path = DATA_RAW / CHECKSUMS_FILE
+
+    # Ensure the raw data directory exists
+    DATA_RAW.mkdir(parents=True, exist_ok=True)
 
     # -----------------------------------------------------------------
     # If we already have a verified CSV, reuse it.

@@ -18,28 +18,29 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_loader.py -> rc=1
- access.
+ the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/ebird/ebd to ask for access.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 219, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 225, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 212, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 218, in main
     df = load_ebird_data()
          ^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 142, in load_ebird_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 148, in load_ebird_data
     ds_iter = _fetch_ebird_data()
               ^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 95, in _fetch_ebird_data
-    raise ConnectionError(f"Unable to fetch eBird data: {exc}") from exc
-ConnectionError: Unable to fetch eBird data: Dataset 'ebird/ebd' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/ebird/ebd to ask for access.
+    raise ConnectionError(
+ConnectionError: Unable to fetch eBird data from HuggingFace. The dataset identifier may have changed or network access is unavailable.
 
 - bash code/run_pipeline.sh -> rc=-1
 
 shell script must be an existing project-local .sh file
 - python -m pytest tests/ -v -> rc=2
--env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
   /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
@@ -53,9 +54,8 @@ shell script must be an existing project-local .sh file
 ERROR tests/unit/test_first_arrival_sweep.py
 ERROR tests/unit/test_grid_aggregation.py
 ERROR tests/unit/test_regional_map.py - NameError: name 'Optional' is not def...
-ERROR tests/unit/test_visualization.py - NameError: name 'Optional' is not de...
-!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 23 warnings, 4 errors in 1.36s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 23 warnings, 3 errors in 3.02s ========================
 
 
 
