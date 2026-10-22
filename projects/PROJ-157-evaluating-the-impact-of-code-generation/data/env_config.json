@@ -1,0 +1,10 @@
+{
+  "docker_digest": "sha256:15c73bc59ae88b3fd563ef2ec4a8743a8848a9f74362b6d116c4543c4844b6e0",
+  "docker_image": "gcc:13.2",
+  "libraries": {
+    "numpy": 20231027,
+    "random": 20231027,
+    "torch": 20231027
+  },
+  "seed": 20231027
+}

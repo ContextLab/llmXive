@@ -6,13 +6,13 @@ All tasks are unchecked; each includes the artifact paths it creates or modifies
 
 ---
 
-- [ ] T000 [P1] [US1] Set up deterministic environment and pin random seeds. <!-- FAILED-IN-EXECUTION: code/setup_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/setup_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/setup_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/setup_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/setup_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_setup_env.sh exit=2 -->
+- [ ] T000 [P1] [US1] Set up deterministic environment and pin random seeds. <!-- FAILED-IN-EXECUTION: code/run_setup_env.sh exit=2 -->
   *Implementation*: `code/setup_env.py` → writes `data/env_config.json` and configures the Docker environment.
   *Verification*:
    · Confirm that all random seeds are pinned in `code/` and recorded in `data/env_config.json`.
    · Verify the Docker image digest matches the pinned version in `plan.md`.
 
-- [ ] T001 [P1] [US1] Acquire human reference C++ solutions from the Codeforces benchmark.  
+- [ ] T001 [P1] [US1] Acquire human reference C++ solutions from the Codeforces benchmark.   <!-- FAILED-IN-EXECUTION: code/download_human.py exit=1 -->
   *Implementation*: `code/download_human.py` → writes `data/raw/codeforces_cpp.jsonl`.  
   *Verification*:  
   · Run the script and confirm ≥ 50 distinct `problem_id`s are present.  

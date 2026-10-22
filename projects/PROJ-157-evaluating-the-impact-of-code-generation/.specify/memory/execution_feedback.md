@@ -2,31 +2,9 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 8 run-book script(s) missing (plan/impl path mismatch): python code/download_humaneval.py  --output data/raw/codeforces_cpp.jsonl  --min-problems 50  --seed 20231027; python code/generate_llm_variants.py  --model codellama-7b-instruct  --input data/raw/codeforces_cpp.jsonl  --output data/generated/codellama/; python code/generate_llm_variants.py  --model starcoder-15b  --input data/raw/codeforces_cpp.jsonl  --output data/generated/starcoder/; 2 command(s) failed: python code/setup_env.py (rc=1); python -m pytest -m contract (rc=5); 1 declared deliverable(s) absent: data/env_config.json
+**Summary**: 8 run-book script(s) missing (plan/impl path mismatch): python code/download_humaneval.py  --output data/raw/codeforces_cpp.jsonl  --min-problems 50  --seed 20231027; python code/generate_llm_variants.py  --model codellama-7b-instruct  --input data/raw/codeforces_cpp.jsonl  --output data/generated/codellama/; python code/generate_llm_variants.py  --model starcoder-15b  --input data/raw/codeforces_cpp.jsonl  --output data/generated/starcoder/; 1 command(s) failed: python -m pytest -m contract (rc=5)
 
 ## Failing / missing run-book commands
-
-- python code/setup_env.py -> rc=1
-py", line 220, in _retrieve_server_version
-    raise DockerException(
-docker.errors.DockerException: Error while fetching server API version: Not supported URL scheme http+docker
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 177, in <module>
-    docker_digest = _fetch_docker_digest_via_registry(DOCKER_IMAGE)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 157, in _fetch_docker_digest_via_registry
-    raise RuntimeError(
-RuntimeError: Failed to fetch manifest for gcc:13.2-bullseye from Docker Hub: 404 Not Found
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 183, in <module>
-    raise RuntimeError(
-RuntimeError: Cannot determine Docker image digest; aborting environment setup.
 
 - python code/download_humaneval.py  --output data/raw/codeforces_cpp.jsonl  --min-problems 50  --seed 20231027 -> rc=2
 
@@ -65,20 +43,8 @@ RuntimeError: Cannot determine Docker image digest; aborting environment setup.
 platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
-collected 0 items
+collected 1 item / 1 deselected / 0 selected
 
-============================ no tests ran in 0.16s =============================
+============================ 1 deselected in 0.09s =============================
 
 
-
-## Declared deliverables still missing
-
-- data/env_config.json
-
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/env_config.json` is declared but was NOT written. Scripts referencing it:
-    - `code/setup_env.py` — IS a run-book command
-  Make ONE of these WRITE `data/env_config.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

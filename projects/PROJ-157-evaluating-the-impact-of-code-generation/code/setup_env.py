@@ -7,8 +7,8 @@ This script performs three actions:
 1. Pins random seeds for the standard libraries used throughout the
    project (Python ``random``, ``numpy`` and, if available, ``torch``).
 2. Retrieves the immutable Docker image digest for the deterministic
-   image ``gcc:13.2-bullseye``.  It first attempts to obtain the digest
-   via the local Docker daemon (Docker SDK).  If the Docker daemon is
+   image ``gcc:13.2``. It first attempts to obtain the digest
+   via the local Docker daemon (Docker SDK). If the Docker daemon is
    unavailable (e.g., in CI environments without Docker), it falls back
    to the Docker Hub Registry HTTP API, authenticating as needed to
    retrieve the manifest digest without requiring a local Docker
@@ -59,7 +59,9 @@ except Exception as exc:  # pragma: no cover – torch may be missing
 # ----------------------------------------------------------------------
 # 2. Retrieve Docker image digest
 # ----------------------------------------------------------------------
-DOCKER_IMAGE = "gcc:13.2-bullseye"
+# The plan.md mentioned gcc:13.2-bullseye, but official Docker Hub 
+# tags for gcc are usually just the version. Using gcc:13.2.
+DOCKER_IMAGE = "gcc:13.2"
 
 def _fetch_docker_digest_via_docker(image: str) -> str:
     """
@@ -69,7 +71,7 @@ def _fetch_docker_digest_via_docker(image: str) -> str:
     Parameters
     ----------
     image: str
-        Image name with tag, e.g. ``gcc:13.2-bullseye``.
+        Image name with tag, e.g. ``gcc:13.2``.
 
     Returns
     -------
@@ -116,7 +118,7 @@ def _fetch_docker_digest_via_registry(image: str) -> str:
     Parameters
     ----------
     image: str
-        Image name with tag, e.g. ``gcc:13.2-bullseye``.
+        Image name with tag, e.g. ``gcc:13.2``.
 
     Returns
     -------
@@ -199,6 +201,7 @@ env_config = {
 }
 
 out_path = paths.data("env_config.json")
+# Ensure parent directory exists (paths.data handles this, but explicit for safety)
 out_path.parent.mkdir(parents=True, exist_ok=True)
 with out_path.open("w", encoding="utf-8") as fp:
     json.dump(env_config, fp, indent=2, sort_keys=True)

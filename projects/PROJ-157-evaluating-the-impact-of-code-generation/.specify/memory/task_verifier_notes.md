@@ -2,4 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T000** — Requested task execution failed; rerun successfully: code/setup_env.py exit=1
+- **T000** — Requested task execution failed; rerun successfully: code/run_setup_env.sh exit=2
+- **T001** — Requested task execution failed; rerun successfully: code/download_human.py exit=1

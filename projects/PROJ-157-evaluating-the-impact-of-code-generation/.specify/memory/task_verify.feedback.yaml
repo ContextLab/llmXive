@@ -1,8 +1,10 @@
 T000:
-  reason: 'Requested task execution failed; rerun successfully: code/setup_env.py
-    exit=1'
+  reason: 'Requested task execution failed; rerun successfully: code/run_setup_env.sh
+    exit=2'
   task: 1abd87c1900ff3d8a4c9e760efccfe4cd5e1d1a48c5e03ff7582d4328c62285d
 T001:
+  reason: 'Requested task execution failed; rerun successfully: code/download_human.py
+    exit=1'
   task: 9cd4b4a1d5b9198f6423bf9312db3c0869c963da848253ce32add536981689e4
 T002:
   task: e65ba6d53b2753c7abe9711e6dfb7360bb94b22a0c40d0853e88beac2b4d8de1

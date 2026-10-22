@@ -1,1 +1,11 @@
+datasets==2.18.0
+transformers==4.41.0
+torch==2.2.2
 docker==7.0.0
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.13.0
+statsmodels==0.14.2
+pingouin==0.5.4
+matplotlib==3.8.4
+seaborn==0.13.2
