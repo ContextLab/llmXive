@@ -1,10 +1,4 @@
-"""Contract validation test for ``metric_results.json``.
-
-The test loads the JSON output produced by ``src.cli.run_fidelity`` and
-validates it against the JSON‑Schema defined in
-``specs/001-evaluating-the-statistical-properties-of/contracts/metric_results.schema.yaml``.
-"""
-
+"""Contract validation test for ``metric_results.json``."""
 import json
 import pathlib
 
@@ -14,7 +8,6 @@ from jsonschema import Draft7Validator
 
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[2]
 
-# Check for smoke results first, then full results
 SMOKE_JSON = PROJECT_ROOT / "outputs" / "metrics" / "metric_results_smoke.json"
 FULL_JSON = PROJECT_ROOT / "outputs" / "metrics" / "metric_results.json"
 SCHEMA_YAML = (
@@ -41,7 +34,6 @@ def schema():
         return yaml.safe_load(f)
 
 def test_metric_results_schema(metric_data, schema):
-    """Validate the JSON document against the contract schema."""
     validator = Draft7Validator(schema)
     errors = sorted(validator.iter_errors(metric_data), key=lambda e: e.path)
     if errors:

@@ -45,19 +45,44 @@ def current_rss_bytes() -> int:
 # Dataset specific loaders
 # ----------------------------------------------------------------------
 def load_adult() -> pd.DataFrame:
-    """Load the UCI Adult dataset via the datasets library."""
-    log.info("Loading UCI Adult via datasets (openml)")
-    ds = load_dataset("openml", name="adult", split="train")
-    df = pd.DataFrame(ds)
-    
-    # The OpenML version might have slightly different naming or target values.
-    # We ensure the target 'class' is cleaned if it's the target column.
-    # Standard UCI Adult target is 'income'.
-    target_col = "income" if "income" in df.columns else "class"
+    """Load the UCI Adult dataset via a reliable source.
+
+    The original ``datasets.load_dataset("openml", name="adult")`` is no longer
+    available on the Hub. We first try the HuggingFace ``openml/Adult`` dataset;
+    if that fails we fall back to the official ``openml`` Python package,
+    which fetches the dataset directly from OpenML (ID 1590). Any failure
+    propagates as an exception – no synthetic fallback is used.
+    """
+    log.info("Attempting to load UCI Adult dataset via HuggingFace hub.")
+    try:
+        # New hub identifier (as of datasets 2.x)
+        ds = load_dataset("openml/Adult", split="train")
+        df = pd.DataFrame(ds)
+        log.info("Adult dataset loaded from HuggingFace hub: %d rows, %d columns", df.shape[0], df.shape[1])
+        return df
+    except Exception as hf_err:
+        log.warning("HuggingFace load failed (%s); falling back to openml package.", hf_err)
+
+    # Fallback: use the openml Python client
+    try:
+        import openml
+    except ImportError as e:
+        log.error("openml package not installed; cannot load Adult dataset.")
+        raise e
+
+    log.info("Fetching Adult dataset via openml package (ID 1590).")
+    # Dataset ID 1590 corresponds to the classic UCI Adult dataset
+    dataset = openml.datasets.get_dataset(1590)
+    X, y, _, attribute_names = dataset.get_data(target=dataset.default_target_attribute)
+    # Combine features and target into a single DataFrame
+    df = pd.DataFrame(X, columns=attribute_names)
+    df[dataset.default_target_attribute] = y
+    log.info("Adult dataset fetched via openml: %d rows, %d columns", df.shape[0], df.shape[1])
+
+    # Clean target column naming (standardize to 'income')
+    target_col = "income" if "income" in df.columns else dataset.default_target_attribute
     if target_col in df.columns:
         df[target_col] = df[target_col].astype(str).str.strip().str.rstrip(".")
-    
-    log.info("Adult dataset loaded: %d rows, %d columns", df.shape[0], df.shape[1])
     return df
 
 
@@ -146,7 +171,7 @@ def process_dataset(name: str, df: pd.DataFrame, source: str) -> Dict:
     raw_dir.mkdir(parents=True, exist_ok=True)
     raw_path = raw_dir / "raw.parquet"
     df.to_parquet(raw_path, index=False)
-    
+
     checksum = sha256_file(raw_path)
     checksums_path = raw_dir / "checksums.sha256"
     checksums_path.write_text(f"{checksum}  {raw_path.name}\n")
@@ -182,7 +207,7 @@ def process_dataset(name: str, df: pd.DataFrame, source: str) -> Dict:
     # 5. Processed Storage
     proc_dir = paths.data("processed", name)
     proc_dir.mkdir(parents=True, exist_ok=True)
-    
+
     train_path = proc_dir / "train.parquet"
     holdout_path = proc_dir / "holdout.parquet"
     train_df.to_parquet(train_path, index=False)
@@ -250,13 +275,16 @@ def main(argv: list[str] | None = None) -> None:
         summary.append(sum_dict)
 
     # Global resource summary
-    fraction_ok = sum(1 for s in summary if s["completed_within_limit"]) / len(summary) if summary else 0
-    
+    fraction_ok = (
+        sum(1 for s in summary if s["completed_within_limit"]) / len(summary)
+        if summary else 0
+    )
+
     final_summary = {
         "per_dataset": summary,
         "fraction_completed_within_ram": fraction_ok
     }
-    
+
     out_path = paths.outputs("metrics", "resource_summary.json")
     out_path.write_text(json.dumps(final_summary, indent=2))
     log.info("Resource summary written to %s", out_path)
