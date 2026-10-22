@@ -5,7 +5,7 @@ All tasks respect the data‑flow order, stay within the free‑tier CPU budget,
 
 ## Phase 1 – Setup and first end‑to‑end analysis
 
-- [ ] **T001** [P] **Create a reproducible entry‑point and quick‑start guide**  
+- [X] **T001** [P] **Create a reproducible entry‑point and quick‑start guide**  
   - Add `quickstart.md` describing a single command `python -m src.pipeline.run_all --config configs/run.yaml`.  
   - Provide `configs/run.yaml` with default paths and hyper‑parameters.  
   - Verify that the command prints a summary of generated artifacts and exits with status 0.  

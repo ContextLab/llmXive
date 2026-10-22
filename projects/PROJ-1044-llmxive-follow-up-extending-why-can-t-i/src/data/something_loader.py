@@ -46,18 +46,26 @@ def _fallback_dir() -> Path:
     return paths.data(_FALLBACK_DIR_NAME)
 
 
-def _generate_fallback_video(video_path: Path, index: int,
-                             num_frames: int = 8,
-                             width: int = 64, height: int = 64) -> None:
+def _generate_fallback_video(
+    video_path: Path,
+    index: int,
+    num_frames: int = 8,
+    width: int = 64,
+    height: int = 64,
+) -> None:
     """
     Create a deterministic procedural MP4 at *video_path*.
 
     A coloured square moves across the frame, guaranteeing non-zero
     optical flow and decodable frames.  The colour and trajectory are
-    a pure function of *index*, so regeneration is byte-stable given
+    a pure function of *index*, so regeneration is byte‑stable given
     the same OpenCV build.
     """
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    # Try a codec that is widely supported on CI runners.
+    # ``XVID`` works with the AVI container; we keep the ``.mp4`` extension
+    # for backward compatibility, but the actual container format is
+    # determined by the codec.
+    fourcc = cv2.VideoWriter_fourcc(*"XVID")
     writer = cv2.VideoWriter(str(video_path), fourcc, 5.0, (width, height))
     if not writer.isOpened():
         raise RuntimeError(f"Failed to open VideoWriter for {video_path}")
@@ -71,10 +79,14 @@ def _generate_fallback_video(video_path: Path, index: int,
     for f in range(num_frames):
         frame = np.zeros((height, width, 3), dtype=np.uint8)
         # Background shade varies deterministically per video.
-        frame[:, :] = (base_colour[0] // 4, base_colour[1] // 4, base_colour[2] // 4)
+        frame[:, :] = (
+            base_colour[0] // 4,
+            base_colour[1] // 4,
+            base_colour[2] // 4,
+        )
         x = int((f / max(1, num_frames - 1)) * (width - square_size - 1))
         y = int((height - square_size) // 2)
-        frame[y:y + square_size, x:x + square_size] = base_colour
+        frame[y : y + square_size, x : x + square_size] = base_colour
         writer.write(frame)
     writer.release()
 
@@ -230,7 +242,7 @@ def something_stream(
 # CLI entry point
 # ----------------------------------------------------------------------
 def main(argv: Optional[List[str]] = None) -> int:
-    """Materialise the bundled fallback videos and stream a sample."""
+    """Materialise the bundled fallback videos and stream a reproducible sample."""
     parser = argparse.ArgumentParser(
         description=(
             "Ensure the bundled fallback videos exist under data/fallback/ "
@@ -249,7 +261,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     video_paths = ensure_fallback_videos(max(1, args.num_videos))
     count = 0
-    for video_bytes, label in something_stream(
+    for _ in something_stream(
         seed=args.seed, max_examples=args.num_videos
     ):
         count += 1
