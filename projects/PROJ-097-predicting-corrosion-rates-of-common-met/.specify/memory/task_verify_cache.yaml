@@ -1,11 +1,3 @@
-T013:
-  c: false
-  h: e647799fa94b7980428a046c44583c84018e112af8266ce08bb212f03f6b85b8
-  r: "The `src/requirements.txt` and `code/requirements.txt` files differ in size\
-    \ and SHA\u2011256 hash (154\u202Fbytes vs\u202F153\u202Fbytes), so they are not\
-    \ byte\u2011identical as required, and there is no evidence that `pip install\
-    \ -r \u2026` succeeded for either file. The task therefore remains incomplete."
-  sig: 7e863b6746d6c5a375986a596dfd157d8a7747e7ae08aea6518008fa2f37fe05
 T015:
   c: false
   h: c5e9187f384962c3c930837ed4c824db674399a436c2b8e87f6a0681d589db93
