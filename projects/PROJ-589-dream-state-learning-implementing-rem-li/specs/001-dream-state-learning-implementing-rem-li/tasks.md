@@ -1,55 +1,112 @@
-# Tasks: Dream-State Learning: Implementing REM-like Consolidation in Language Models
+# Tasks: Dream-State Learning – Implementing REM‑like Consolidation in Language Models  
 
-**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contract schemas in `specs/001-dream-state-learning-implementing-rem-li/contracts/`
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, all contract schemas in `specs/001-dream-state-learning-implementing-rem-li/contracts/`  
 
-## Phase 1: Setup and first end-to-end analysis
+The checklist below follows the canonical `- [ ] T### [P?] [USx?] description …` format.  
+Each task lists the primary artifact(s) it creates or modifies and the concrete verification step(s) that a reviewer will run.
 
-**Goal**: Establish the environment and execute a thin, end-to-end training and evaluation run on real GLUE subsets to verify the Wake/Dream cycle.
+---
 
-- [ ] T001 Establish the project layout, pinned dependencies in `code/requirements.txt`, and `code/config.py` with CPU-only enforcement and memory limits (6.3 GB). <!-- FAILED-IN-EXECUTION: code/train.py exit=1 -->
-    - Verification: `pip install -r code/requirements.txt` completes and `code/config.py` is importable without errors.
-- [ ] T002a [US1] Implement core Wake/Dream logic: 20-step warm-up, BERT-style random token masking, DAE reconstruction loss combined with knowledge-distillation loss (Teacher-Student distribution matching), entropy-based batch retries, and perplexity-based dream phase skipping (skip if perplexity > 50 against held-out corpus). `code/models/trainer.py`, `code/data/augment.py`. <!-- FAILED-IN-EXECUTION: code/train.py exit=-1 (TIMEOUT) -->
-    - Verification: Unit tests in `tests/unit/test_trainer.py` confirm warm-up duration, that low-entropy batches trigger retries, and that high-perplexity batches trigger a phase skip.
-- [ ] T002b [US1] Implement the training CLI entry point `code/train.py` and integrate the `memory_monitor` to abort and checkpoint on OOM. `code/train.py`, `code/utils/memory_monitor.py`. <!-- FAILED-IN-EXECUTION: code/train.py exit=1 -->
-    - Verification: Execute `python code/train.py` on a small GLUE subset; verify a model checkpoint is saved to `data/checkpoints/` and structured JSON logs are written to `data/logs/`.
-- [ ] T003 [US2] Implement the few-shot evaluation pipeline and result logging for the QNLI validation set. `code/eval.py`, `code/eval/metrics.py`.
-    - Verification: Run `python code/eval.py` on a saved checkpoint; verify `data/results/evaluation_result.json` is produced and conforms to `evaluation_result.schema.yaml`.
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Checkpoint**: The documented command in `quickstart.md` executes a full train-eval cycle and produces a numerical accuracy result in `data/results/`.
+| Goal | Run a thin, reproducible wake/dream training‑evaluation cycle on real GLUE data to prove that the pipeline works on the CPU‑only GitHub‑Actions tier. |
+|------|----------------------------------------------------------------------------------------------------------------------------------------------------|
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] T001 [US1] **Create project layout, pin exact dependencies, and add a CPU‑only config with a hard RSS cap (6.3 GB).**  
+  - Files: `code/requirements.txt`, `code/config.py`  
+  - Verification: `pip install -r code/requirements.txt` succeeds; `python -c "import code.config; assert code.config.MAX_MEMORY_MB == 6300"` runs without error.
 
-- [ ] T004 [US2] Implement the continuous-training baseline mode and a multi-run orchestrator to ensure identical real token exposure between regimes. `code/models/trainer.py`, `code/main.py`.
-    - Verification: Integration test asserts that for a fixed seed, the baseline and experimental runs consume the exact same number of real training tokens.
-- [ ] T005 [US2] Execute the full 5-seed experiment and compute the paired t-test, Cohen's d, and statistical power estimate, explicitly flagging results as 'insufficient power' if the held-out evaluation set contains fewer than 5 samples per seed. `code/main.py`, `data/results/statistical_report.json`.
-    - Verification: Validate `statistical_report.json` against `statistical_report_schema.schema.yaml` and confirm the presence of `p_value`, `effect_size`, and the 'insufficient power' flag where applicable.
-- [ ] T006 [FR-006] Conduct the temperature sweep across $[0.5, 1.0, 1.5, 2.0]$ and report the variance in final accuracy to isolate the consolidation effect. `code/main.py`, `data/results/variance_report.json`.
-    - Verification: Check `variance_report.json` for numeric variance and mean accuracy across the four temperature settings.
-- [ ] T007 [US3] Implement and run the resource audit to verify peak RSS $\le 6.3$ GB and total wall-clock time $\le 5$ hours. `code/utils/memory_monitor.py`, `code/scripts/verify_feasibility.sh`.
-    - Verification: Run `verify_feasibility.sh` and assert a zero exit code; check `data/results/resource_audit.json` for peak memory and duration.
-- [ ] T008 [P] Implement full contract validation for all 10 schemas and comprehensive unit tests for entropy and masking logic. `tests/contract/`, `tests/unit/`.
-    - Verification: `pytest` passes with $\ge 90\%$ coverage for `code/models/` and `code/utils/` and all schema tests in `tests/contract/` pass.
+- [ ] T002 [US1] **Implement the core Wake/Dream training loop** (20‑step warm‑up, 4 wake : 1 dream ratio, random BERT‑style masking, DAE reconstruction loss, entropy‑retry (≤3) and perplexity‑skip (threshold 50), dummy‑wake insertion for token‑parity).  
+  - Files: `code/models/trainer.py`, `code/data/augment.py`  
+  - Verification: Unit tests in `tests/unit/test_trainer.py` assert (a) warm‑up length, (b) low‑entropy batches trigger retries, (c) high‑perplexity batches cause dream‑step skip and dummy wake, (d) total real‑token count matches the baseline for a fixed seed.
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] T003 [US1] **Add a CLI entry point (`code/train.py`) that wires the config, trainer, and memory monitor; on OOM abort it saves a checkpoint and logs peak RSS.**  
+  - Files: `code/train.py`, `code/utils/memory_monitor.py`  
+  - Verification: Running `python code/train.py --seed 0 --total_steps 20 --mode debug` finishes within 5 min, writes `checkpoints/debug_seed0.pt` and a structured log `logs/debug_seed0.json` containing a `"peak_rss_mb"` field ≤ 6300.
 
-- [ ] T009 Finalize the `docs/architecture.md` defining the logical depth of consolidation, perform a PII scan of `data/`, and conduct a fresh-runner reproducibility check. `docs/architecture.md`, `quickstart.md`.
-    - Verification: Run the workflow from `quickstart.md` on a clean environment; confirm all required result JSONs and checkpoints are generated.
-- [ ] T010 [P] Modularize logging and data loading to separate concerns and improve maintainability. `code/utils/logging.py`, `code/data/data_loader.py`.
-    - Verification: Code review confirms separation of I/O and training logic; `pytest` passes.
-- [ ] T011 [P] Optimize batching and data loading to ensure maximum CPU efficiency and minimize I/O overhead. `code/data/data_loader.py`.
-    - Verification: Compare training step time before and after optimization; verify no increase in memory usage.
-- [ ] T012 [P] Implement security hardening, including strict input validation and PII scanning of data artifacts. `code/utils/security.py`.
-    - Verification: Run PII scan script on `data/` and assert zero findings; test input validator with malformed JSON.
+- [ ] T004 [US2] **Implement few‑shot QNLI evaluation and result logging** (accuracy, loss, peak memory, duration, reconstruction‑difficulty average).  
+  - Files: `code/eval.py`, `code/eval/metrics.py`  
+  - Verification: `python code/eval.py --checkpoint checkpoints/debug_seed0.pt` produces `data/results/evaluation_result_debug_seed0.json` that validates against `contracts/evaluation_result.schema.yaml`.
 
-## Dependencies and requirement coverage
+- [ ] T005 [US2] **Document a runnable quick‑start command** that ties the above pieces together and demonstrates a full train‑eval cycle on a real GLUE subset.  
+  - Files: `quickstart.md` (updated)  
+  - Verification: A fresh environment (`python -m venv v && source v/bin/activate && pip install -r code/requirements.txt && bash -c "$(grep '^```' -A2 quickstart.md | tail -n1)"`) runs without error and produces `data/results/evaluation_result_debug_seed0.json`.
 
-| Requirement | Task | Verification Command |
-|-------------|------|---------------------|
-| FR-001 (Wake/Dream Loop) | T002a, T002b | `python code/train.py` |
-| FR-002 (DAE/Masking/KD) | T002a | `pytest tests/unit/test_trainer.py` |
-| FR-003 (Baseline) | T004 | `python code/main.py --mode baseline` |
-| FR-004 (Evaluation) | T003 | `python code/eval.py` |
-| FR-005 (Memory Limit) | T002b, T007 | `bash code/scripts/verify_feasibility.sh` |
-| FR-006 (Temp Sweep) | T006 | `python code/main.py --sweep` |
-| FR-007 (Warm-up) | T002a | `pytest tests/unit/test_trainer.py` |
-| SC-002 (T-Test/Power) | T005 | `pytest tests/unit/test_stats.py` |
+---
+
+## Phase 2 – Complete the study and validate evidence  
+
+| Goal | Run the full experimental protocol (wake/dream vs. continuous baseline) with statistical rigor, sensitivity analysis, and resource auditing. |
+|------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+
+- [ ] T006 [US2] **Implement the continuous‑training baseline** that mirrors the experimental run’s total real‑token exposure (including dummy wake steps when the experimental run skips a dream step).  
+  - Files: `code/baseline.py` (or extended `trainer.py` with `--mode baseline`)  
+  - Verification: Integration test `tests/integration/test_token_parity.py` confirms identical `real_token_count` for a given seed between baseline and experimental runs.
+
+- [ ] T007 [US1] **Orchestrate a multi‑seed experiment** (seeds 0, 1, 2, 3, 4) that runs both regimes, saves per‑seed `experiment_result.json` files, and records all runtime metrics.  
+  - Files: `code/main.py` (or `scripts/run_experiment.sh`)  
+  - Verification: After execution, `data/results/experiment_result_seed0_wake_dream.json`, `…_baseline.json`, … up to seed 4 exist, each conforming to `contracts/experiment_result_schema.schema.yaml`.
+
+- [ ] T008 [US2] **Compute statistical summary**: paired two‑tailed t‑test, Cohen’s d, power estimate, and flag “insufficient power” if any seed’s few‑shot set < 5 samples. Output `data/results/statistical_report.json`.  
+  - Files: `code/stats.py`  
+  - Verification: `pytest tests/unit/test_stats.py` checks that the JSON validates against `contracts/statistical_report_schema.yaml` and that `significant` matches the p‑value vs. α = 0.05; also ensures the test uses ≥5 seeds.
+
+- [ ] T009 [US1] **Run the temperature sweep** (0.5, 1.0, 1.5, 2.0) as a mandatory secondary ablation for each seed. Store per‑temperature accuracy and variance in `data/results/variance_report.json`.  
+  - Files: `code/sweep.py` (invoked from `code/main.py --sweep`)  
+  - Verification: The variance report contains keys `"temperature"` (list) and `"accuracy_mean"` (list) for all four temperatures and passes a schema check (`tests/unit/test_sweep.py`).
+
+- [ ] T010 [US3] **Resource audit**: enforce peak RSS ≤ 6.3 GB and total wall‑clock ≤ 5 h for every full run; generate `data/results/resource_audit.json`.  
+  - Files: `code/utils/memory_monitor.py`, `scripts/verify_feasibility.sh`  
+  - Verification: Running `bash scripts/verify_feasibility.sh` after an experiment exits with status 0 and the JSON contains `"peak_memory_gb"` ≤ 6.3 and `"wall_clock_hours"` ≤ 5.0.
+
+- [ ] T011 [US3] **Validate all result artifacts against their JSON schemas** (contract tests).  
+  - Files: `tests/contract/*` (one test per schema)  
+  - Verification: `pytest -k contract` passes with ≥ 90 % coverage of the `contracts/` directory.
+
+---
+
+## Phase 3 – Reproducible results and handoff to the paper pipeline  
+
+| Goal | Produce a single source‑of‑truth artifact, confirm reproducibility, and prepare documentation for the downstream paper stage. |
+|------|-----------------------------------------------------------------------------------------------------------------------------------|
+
+- [ ] T012 [US2] **Generate the architecture document** that formalizes the logical‑depth view of “consolidated” states (as requested by reviewers) and updates `docs/architecture.md`.  
+  - Files: `docs/architecture.md`  
+  - Verification: `pytest -k architecture` checks that `docs/architecture.md` exists and contains a markdown image link (`![](figures/architecture_diagram.svg)`) referencing a diagram generated from `data/results/experiment_summary.json`.
+
+- [ ] T013 [US3] **Run a full reproducibility check** on a clean runner (no cached checkpoints) using only the commands listed in `quickstart.md`; produce `data/results/reproducibility_report.json` summarizing success/failure of each step.  
+  - Files: `scripts/reproducibility_check.sh`  
+  - Verification: The script exits with status 0 and the JSON reports `"all_steps_passed": true`.
+
+- [ ] T014 [US3] **Perform a PII scan of the entire `data/` tree** and confirm zero findings; store the scan log `data/results/pii_scan.log`.  
+  - Files: `scripts/pii_scan.sh` (uses `grep -R` for common PII patterns)  
+  - Verification: The log contains the line `PII_SCAN: 0 violations detected`.
+
+- [ ] T015 [US2] **Finalize the paper‑stage handoff**: add a `docs/paper_handoff.md` that lists the canonical artifact (`data/results/experiment_summary.json`), the statistical report, and the architecture diagram, and points the paper pipeline to these locations.  
+  - Files: `docs/paper_handoff.md`  
+  - Verification: `pytest -k handoff` checks that `docs/paper_handoff.md` contains `sha256sum:` lines for each referenced artifact and that each referenced path exists on disk.
+
+---
+
+### Dependency mapping (spec → task)
+
+| Spec requirement | Satisfied by task(s) |
+|------------------|----------------------|
+| FR‑001 (wake/dream loop) | T002 |
+| FR‑002 (pseudo‑sample generation, masking) | T002 |
+| FR‑003 (baseline token parity) | T006 |
+| FR‑004 (few‑shot evaluation) | T004 |
+| FR‑005 (memory cap) | T003, T010 |
+| FR‑006 (temperature sweep) | T009 |
+| FR‑007 (warm‑up) | T002 |
+| SC‑001 (relative accuracy) | T007 |
+| SC‑002 (paired t‑test) | T008 |
+| SC‑003 / SC‑004 (resource limits) | T010 |
+| SC‑005 (temperature variance) | T009 |
+| Contract validation | T011 |
+| Architecture/definition of consolidation | T012 |
+| Reproducibility & handoff | T013‑T015 |
+
+---  
+
+*All unchecked tasks are pending implementation; once a task’s verification passes the checkbox will be ticked by the CI pipeline.* 
