@@ -41,9 +41,9 @@ Traceback (most recent call last):
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/validate.py", line 20, in main
     _impl_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/data/validate.py", line 57, in main
-    raise ValueError("Insufficient rows (<50) for 5-fold CV")
-ValueError: Insufficient rows (<50) for 5-fold CV
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/data/validate.py", line 49, in main
+    raise FileNotFoundError(f"Features file not found at {features_path}")
+FileNotFoundError: Features file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/data/processed/features.csv
 
 - python -m src.split data/processed/features.csv data/processed/train.csv data/processed/test.csv -> rc=1
 
@@ -58,7 +58,7 @@ ValueError: Insufficient rows (<50) for 5-fold CV
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-542-predicting-defect-formation-energies-in-/bin/python: No module named src.evaluate
 
 - python -m pytest -q -> rc=1
-J-542-predicting-defect-formation-energies-in-/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+otlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
 projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_requirements.py::test_requirements_install_and_imports
@@ -68,10 +68,11 @@ projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_requi
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED src/tests/test_descriptor_gaps.py::test_check_descriptor_gaps_with_missing
+FAILED src/tests/test_quickstart.py::test_quickstart_pipeline - AssertionErro...
 FAILED src/tests/test_train.py::test_training_produces_outputs - AssertionErr...
 FAILED tests/test_generate_checksums.py::test_checksum_files_created - Assert...
 FAILED tests/test_split.py::test_split_dataset_basic - assert 2 <= 1
 FAILED tests/test_split.py::test_cli_execution - AssertionError: assert False
-5 failed, 9 passed, 15 warnings in 6.84s
+6 failed, 8 passed, 15 warnings in 7.32s
 
 

@@ -9,12 +9,11 @@ the specification for task **T002**.
 
 Behaviour
 ----------
-* If the ``MP_API_KEY`` environment variable is missing **and** the
-  ``mp_api`` client cannot be instantiated without a key, a
+* If the ``MP_API_KEY`` environment variable is missing, a
   ``RuntimeError`` with the message ``"Materials Project API key not provided"``
   is raised.
-* The script queries the Materials Project ``defects`` endpoint for
-  entries with ``defect_type == "oxygen_vacancy"``.
+* The script queries the Materials Project ``defects`` endpoint for entries
+  with ``defect_type == "oxygen_vacancy"``.
 * A simple perovskite heuristic is applied (the formula must contain
   oxygen and exactly three distinct elements).
 * If the filtered result set is empty, a ``RuntimeError`` with the
@@ -94,45 +93,36 @@ def _fetch_defect_data() -> pd.DataFrame:
     Raises
     ------
     RuntimeError
-        * If the API key is missing and the client cannot be instantiated.
+        * If the API key is missing.
         * If no records match the filters.
     Exception
         Propagates any network‑related exception from ``mp_api``.
     """
-    # ------------------------------------------------------------------
-    # Initialise the client – ``MPRester`` can be instantiated without a
-    # key for read‑only access, but many installations require an API key.
-    # We explicitly check the environment variable to give the required
-    # clear error message.
-    # ------------------------------------------------------------------
     api_key = os.getenv("MP_API_KEY")
     if not api_key:
-        # Attempt to create a client without a key; if that fails we raise
-        # the mandated error.
-        if MPRester is None:
-            raise RuntimeError("Materials Project API key not provided")
+        raise RuntimeError("Materials Project API key not provided")
+
+    if MPRester is None:
+        raise RuntimeError("mp_api client could not be imported")
+
+    # Use a context manager to ensure proper cleanup.
+    with MPRester(api_key) as mpr:
+        log.info("Querying Materials Project defects endpoint")
         try:
-            mpr = MPRester()  # type: ignore[arg-type]
-        except Exception as exc:  # pragma: no cover
-            log.error(f"Failed to initialise MPRester without a key: {exc}")
-            raise RuntimeError("Materials Project API key not provided") from exc
-    else:
-        if MPRester is None:
-            raise RuntimeError("mp_api client could not be imported")
-        mpr = MPRester(api_key)  # type: ignore[arg-type]
+            # The ``defects`` endpoint provides a ``search`` method.
+            # We request only the fields we need to keep the payload small.
+            raw_records = mpr.defects.search(
+                defect_type="oxygen_vacancy",
+                fields=["composition", "defect_type", "formation_energy"],
+            )
+        except Exception as exc:
+            log.error(f"Failed to retrieve defect data: {exc}")
+            raise
 
-    log.info("Querying Materials Project defects endpoint")
-    try:
-        # Retrieve *all* defect entries; we will filter locally.
-        raw_data = mpr.get_data("defects")
-    except Exception as exc:
-        log.error(f"Failed to retrieve defect data: {exc}")
-        raise
-
-    if not raw_data:
+    if not raw_records:
         raise RuntimeError("No data found for specified filters.")
 
-    df = pd.DataFrame(raw_data)
+    df = pd.DataFrame(raw_records)
 
     # Ensure the expected columns are present.
     expected_cols = {"composition", "defect_type", "formation_energy"}
@@ -141,9 +131,6 @@ def _fetch_defect_data() -> pd.DataFrame:
         raise RuntimeError(
             f"API response missing expected columns: {', '.join(sorted(missing))}"
         )
-
-    # Keep only oxygen vacancies.
-    df = df[df["defect_type"] == "oxygen_vacancy"]
 
     # Apply the perovskite heuristic.
     df = df[df["composition"].apply(_is_perovskite)]

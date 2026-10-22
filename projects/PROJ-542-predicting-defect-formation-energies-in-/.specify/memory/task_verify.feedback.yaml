@@ -1,9 +1,10 @@
 T001:
-  reason: "The `code/pipeline/run.py` wrapper does not define a `run()` function (only\
-    \ `main()`), and the provided unit test `code/tests/test_pipeline_entry.py` imports\
-    \ `src.pipeline.run` and checks that `run()` returns `None` instead of a dict\
-    \ with `raw_path`, `features_path`, and `model_path`. Hence the required entry\u2011\
-    point API and verification are not implemented."
+  reason: The provided `code/tests/test_pipeline_entry.py` imports `src.pipeline.run`
+    (not `code.pipeline.run`) and checks that `run()` returns `None`, whereas the
+    task requires a test that imports `code.pipeline.run` and asserts `run()` returns
+    a dict with keys `raw_path`, `features_path`, and `model_path`. Consequently the
+    verification does not satisfy the stated requirement. The pipeline entry point
+    needs to be adjusted and a correct unit test added.
   task: 924b5a3d2e12c565e8fedd13771c71824318738b3f899d58da6ad267f247c22f
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py
