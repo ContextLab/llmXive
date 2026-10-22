@@ -1,15 +1,30 @@
-status: none
-intent: Codeforces programming problems paired with CodeLlama-7B and StarCoder-15B
-  solutions python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "import datasets, sys\n# Load the Codeforces dataset from Hugging Face\
+  \ Hub\nds = datasets.load_dataset('open-r1/codeforces', split='train')\nrecords\
+  \ = len(ds)\nif records == 0:\n    raise ValueError('No records loaded')\nprint(f'RECORDS={records}')\n\
+  # Determine which of the required fields are present\nrequired = ['problem_id','contest_id','title','tags','rating','language','source_code','time_limit','memory_limit','url']\n\
+  available = [f for f in required if f in ds.column_names]\nprint('FIELDS=' + ','.join(available))"
+record_count: 9556
+sample_fields:
+- contest_id
+- title
+- tags
+- rating
+- time_limit
+- memory_limit
+field_coverage: 0.6
 required_fields:
 - problem_id
+- contest_id
+- title
+- tags
+- rating
 - language
-- human_solution_code
-- llm_model_name
-- llm_generated_code
-- generation_status
-- compilation_success
-- pair_timestamp
-cache_key: 7c0dd1f5a6cbb1ffcaa79b5353dda2ce892c8ce4e324516aae65b2c4d0115747
-searched_at: '2026-10-22T02:14:33.198419+00:00'
-retry_count: 1
+- source_code
+- time_limit
+- memory_limit
+- url
+intent: Codeforces C++ reference solution dataset downloadable python package dataset
+cache_key: f60fad93515964f2c45f73c27ae7040d9238e5b75e4a96dfa1eba3c204f8329a

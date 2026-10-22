@@ -7,9 +7,11 @@ This script performs three actions:
 1. Pins random seeds for the standard libraries used throughout the
    project (Python ``random``, ``numpy`` and, if available, ``torch``).
 2. Retrieves the immutable Docker image digest for the deterministic
-   image ``gcc:13.2-bullseye`` using the local Docker daemon (via the
-   Docker SDK). This avoids reliance on the Docker Hub Registry API,
-   which may return 404 for certain multi‑arch manifests.
+   image ``gcc:13.2-bullseye``.  It first attempts to obtain the digest
+   via the local Docker daemon (Docker SDK).  If the Docker daemon is
+   unavailable (e.g., in CI environments without Docker), it falls back
+   to the Docker Hub Registry HTTP API, which returns the manifest
+   digest without requiring a local Docker installation.
 3. Writes a JSON configuration file ``data/env_config.json`` that
    captures the seed values and Docker image information for downstream
    reproducibility checks (as required by task T000).
@@ -54,7 +56,7 @@ except Exception as exc:  # pragma: no cover – torch may be missing
     torch_available = False
 
 # ----------------------------------------------------------------------
-# 2. Retrieve Docker image digest via local Docker daemon
+# 2. Retrieve Docker image digest
 # ----------------------------------------------------------------------
 DOCKER_IMAGE = "gcc:13.2-bullseye"
 
@@ -104,12 +106,65 @@ def _fetch_docker_digest_via_docker(image: str) -> str:
     _, digest = digest_entry.split("@", 1)
     return digest
 
+def _fetch_docker_digest_via_registry(image: str) -> str:
+    """
+    Fallback method that queries the Docker Hub Registry HTTP API for the
+    manifest digest of a public image. This does not require a local Docker
+    daemon.
+
+    Parameters
+    ----------
+    image: str
+        Image name with tag, e.g. ``gcc:13.2-bullseye``.
+
+    Returns
+    -------
+    str
+        The digest string (e.g. ``sha256:<hash>``).
+
+    Raises
+    ------
+    RuntimeError
+        If the request fails or the digest cannot be extracted.
+    """
+    repository, tag = image.split(":")
+    # Official images live under the "library" namespace.
+    url = f"https://registry.hub.docker.com/v2/library/{repository}/manifests/{tag}"
+    headers = {
+        "Accept": "application/vnd.docker.distribution.manifest.v2+json"
+    }
+    log.info("Fetching Docker digest via registry API: %s", url)
+    response = requests.get(url, headers=headers, timeout=30)
+    if not response.ok:
+        raise RuntimeError(
+            f"Failed to fetch manifest for {image} from Docker Hub: "
+            f"{response.status_code} {response.reason}"
+        )
+    digest = response.headers.get("Docker-Content-Digest")
+    if not digest:
+        raise RuntimeError(
+            f"Docker-Content-Digest header missing in response for {image}"
+        )
+    return digest
+
+# Try Docker SDK first; if it fails, fall back to the registry API.
 try:
     docker_digest = _fetch_docker_digest_via_docker(DOCKER_IMAGE)
-    log.info("Docker image digest retrieved: %s", docker_digest)
-except Exception as exc:
-    log.error("Failed to obtain Docker image digest: %s", exc)
-    raise
+    log.info("Docker image digest retrieved via local daemon: %s", docker_digest)
+except Exception as exc_docker:
+    log.warning(
+        "Docker SDK method failed (%s). Falling back to registry API.", exc_docker
+    )
+    try:
+        docker_digest = _fetch_docker_digest_via_registry(DOCKER_IMAGE)
+        log.info("Docker image digest retrieved via registry API: %s", docker_digest)
+    except Exception as exc_registry:
+        log.error(
+            "Failed to obtain Docker image digest via both methods: %s", exc_registry
+        )
+        raise RuntimeError(
+            "Cannot determine Docker image digest; aborting environment setup."
+        ) from exc_registry
 
 # ----------------------------------------------------------------------
 # 3. Write environment configuration JSON
