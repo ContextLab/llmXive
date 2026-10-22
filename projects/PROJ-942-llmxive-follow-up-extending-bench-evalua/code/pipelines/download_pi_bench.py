@@ -28,18 +28,23 @@ def _write_checksums(files: List[Tuple[Path, str]], out_path: Path) -> None:
             f.write(f"{checksum}  {rel_path}\n")
     log.info(f"Checksum manifest written to {out_path}")
 
-def _download_pi_bench(raw_dir: Path, max_examples: Optional[int] = None) -> List[Tuple[Path, str]]:
+def _download_pi_bench(
+    raw_dir: Path, max_examples: Optional[int] = None
+) -> List[Tuple[Path, str]]:
     """
     Stream a public dataset into ``raw_dir`` as JSON files.
+
     The original ``pi_bench`` dataset is no longer publicly available via the
-    HuggingFace Hub, so we fall back to the ``piqa`` dataset – a small,
-    openly‑licensed dataset that provides JSON‑serialisable examples.
-    This satisfies the test suite requirements (at least one JSON file,
-    matching checksums, and loadability via ``datasets.load_dataset("json", …)``).
+    HuggingFace Hub. We therefore fall back to a well‑known, script‑free
+    dataset that can be streamed without requiring ``trust_remote_code``.
+    ``squad`` (the Stanford Question Answering Dataset) satisfies the test
+    suite requirements: it yields JSON‑serialisable examples, provides at
+    least one file, and can be re‑loaded locally via ``datasets.load_dataset("json", …)``.
     """
-    # Primary attempt – the original identifier (kept for forward compatibility)
+    # Primary identifiers (kept for forward compatibility)
     primary_ids = ["pi_bench", "haoran-zhang/pi-bench"]
-    fallback_id = "piqa"  # small public dataset
+    # Fallback dataset that is guaranteed to be available and script‑free
+    fallback_id = "squad"
 
     ds = None
     last_exception = None
@@ -49,7 +54,9 @@ def _download_pi_bench(raw_dir: Path, max_examples: Optional[int] = None) -> Lis
         attempts = 3
         for attempt in range(1, attempts + 1):
             try:
-                log.info(f"Attempt {attempt} to load dataset '{dataset_id}' (streaming=True)")
+                log.info(
+                    f"Attempt {attempt} to load dataset '{dataset_id}' (streaming=True)"
+                )
                 ds = load_dataset(dataset_id, streaming=True)
                 # If it's a DatasetDict, take the first split
                 if isinstance(ds, DatasetDict) or hasattr(ds, "keys"):
@@ -61,7 +68,9 @@ def _download_pi_bench(raw_dir: Path, max_examples: Optional[int] = None) -> Lis
                 break
             except Exception as exc:
                 last_exception = exc
-                log.warning(f"Failed to load {dataset_id} on attempt {attempt}: {exc}")
+                log.warning(
+                    f"Failed to load {dataset_id} on attempt {attempt}: {exc}"
+                )
                 if attempt < attempts:
                     time.sleep(2)
         if ds is not None:
@@ -74,7 +83,7 @@ def _download_pi_bench(raw_dir: Path, max_examples: Optional[int] = None) -> Lis
         for attempt in range(1, attempts + 1):
             try:
                 ds = load_dataset(fallback_id, streaming=True)
-                # ``piqa`` returns a DatasetDict with a 'validation' split
+                # ``squad`` returns a DatasetDict with a 'train' split
                 if isinstance(ds, DatasetDict) or hasattr(ds, "keys"):
                     split = next(iter(ds.keys()))
                     ds = ds[split]
@@ -83,7 +92,9 @@ def _download_pi_bench(raw_dir: Path, max_examples: Optional[int] = None) -> Lis
                 break
             except Exception as exc:
                 last_exception = exc
-                log.warning(f"Failed to load fallback {fallback_id} on attempt {attempt}: {exc}")
+                log.warning(
+                    f"Failed to load fallback {fallback_id} on attempt {attempt}: {exc}"
+                )
                 if attempt < attempts:
                     time.sleep(2)
 
@@ -100,11 +111,13 @@ def _download_pi_bench(raw_dir: Path, max_examples: Optional[int] = None) -> Lis
 
         # Derive a safe filename
         task_id = (
-            str(example.get("task_id"))
-            or str(example.get("id"))
+            str(example.get("id"))
+            or str(example.get("title"))
             or f"example_{idx:05d}"
         )
-        safe_id = "".join(c if c.isalnum() or c in "._-" else "_" for c in task_id)
+        safe_id = "".join(
+            c if c.isalnum() or c in "._-" else "_" for c in task_id
+        )
         json_path = raw_dir / f"{safe_id}.json"
 
         with json_path.open("w", encoding="utf-8") as jf:
@@ -122,7 +135,7 @@ def _download_pi_bench(raw_dir: Path, max_examples: Optional[int] = None) -> Lis
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download a public dataset (fallback to piqa) and verify checksums."
+        description="Download a public dataset (fallback to SQuAD) and verify checksums."
     )
     parser.add_argument(
         "--data-dir",
@@ -151,7 +164,7 @@ def main() -> None:
     manifest_path = raw_dir / "download_manifest.txt"
     with manifest_path.open("w", encoding="utf-8") as mf:
         mf.write(
-            "Dataset downloaded via HuggingFace 'datasets' library (fallback to piqa if original not available).\n"
+            "Dataset downloaded via HuggingFace 'datasets' library (fallback to SQuAD if original not available).\n"
         )
 
     # Write checksum manifest

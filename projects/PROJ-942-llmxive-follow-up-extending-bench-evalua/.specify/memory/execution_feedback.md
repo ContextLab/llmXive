@@ -27,21 +27,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/pipelines/download_pi_bench.py -> rc=1
-xive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/load.py", line 989, in dataset_module_factory
-    raise RuntimeError(f"Dataset scripts are no longer supported, but found {filename}")
-RuntimeError: Dataset scripts are no longer supported, but found piqa.py
+d}'.")
+huggingface_hub.errors.HfUriError: Invalid HF URI 'hf://datasets/squad@7b6d24c440a36b6815f21b70d25016731768db1f/.huggingface.yaml'. Repository id must be 'namespace/name', got 'squad'.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 165, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 178, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 145, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 158, in main
     checksums = _download_pi_bench(raw_dir, max_examples=args.max_examples)
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 91, in _download_pi_bench
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 102, in _download_pi_bench
     raise RuntimeError(
-RuntimeError: Unable to load any dataset for pi‑Bench download. Last error: Dataset scripts are no longer supported, but found piqa.py
+RuntimeError: Unable to load any dataset for pi‑Bench download. Last error: Invalid HF URI 'hf://datasets/squad@7b6d24c440a36b6815f21b70d25016731768db1f/.huggingface.yaml'. Repository id must be 'namespace/name', got 'squad'.
 
 - python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv -> rc=1
 ^^^^^^^^^^^^^^^^^^^^^
