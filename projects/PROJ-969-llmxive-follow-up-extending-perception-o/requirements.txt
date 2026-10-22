@@ -1,3 +1,17 @@
+# Project dependencies
+# Core scientific stack (already provided in the environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional required packages for this project
 datasets>=2.18
-jsonschema>=4.21
-PyYAML>=6.0

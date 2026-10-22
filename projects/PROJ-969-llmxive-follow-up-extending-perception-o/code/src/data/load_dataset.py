@@ -54,17 +54,88 @@ CHUNK_SIZE = 100
 DATASETS_SERVER = "https://datasets-server.huggingface.co"
 
 PROJECT_ROOT = paths.root
-SCHEMA_PATH = PROJECT_ROOT / "specs" / "001-llmxive-follow-up-extending-perception-o" / "contracts" / "video_metadata.schema.yaml"
+SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "specs"
+    / "001-llmxive-follow-up-extending-perception-o"
+    / "contracts"
+    / "video_metadata.schema.yaml"
+)
 RAW_DIR = paths.data("raw")
 
-VIDEO_ID_KEYS = ["video_id", "videoId", "videoID", "vid", "video", "id", "index", "sample_id"]
-URL_KEYS = ["video_url", "videoUrl", "videoURL", "url", "video_path", "video", "video_path_url", "file"]
-TRANSCRIPT_KEYS = ["transcript", "text", "caption", "subtitles", "subtitle", "speech", "dialogue", "description"]
-SETTING_KEYS = ["setting", "scene", "situation", "context", "environment", "scenario", "occasion"]
-CULTURE_KEYS = ["culture", "cultural_background", "country", "region", "ethnicity", "nationality"]
-BEHAVIOR_KEYS = ["behavior_tags", "behaviors", "behavior", "tags", "actions", "behavioral_evidence", "evidence", "annotations"]
-LABEL_KEYS = ["answer", "label", "gold", "gt", "ground_truth", "target", "expert_label"]
-OCEAN_TRAITS = ["openness", "conscientiousness", "extraversion", "agreeableness", "neuroticism"]
+VIDEO_ID_KEYS = [
+    "video_id",
+    "videoId",
+    "videoID",
+    "vid",
+    "video",
+    "id",
+    "index",
+    "sample_id",
+]
+URL_KEYS = [
+    "video_url",
+    "videoUrl",
+    "videoURL",
+    "url",
+    "video_path",
+    "video",
+    "video_path_url",
+    "file",
+]
+TRANSCRIPT_KEYS = [
+    "transcript",
+    "text",
+    "caption",
+    "subtitles",
+    "subtitle",
+    "speech",
+    "dialogue",
+    "description",
+]
+SETTING_KEYS = [
+    "setting",
+    "scene",
+    "situation",
+    "context",
+    "environment",
+    "scenario",
+    "occasion",
+]
+CULTURE_KEYS = [
+    "culture",
+    "cultural_background",
+    "country",
+    "region",
+    "ethnicity",
+    "nationality",
+]
+BEHAVIOR_KEYS = [
+    "behavior_tags",
+    "behaviors",
+    "behavior",
+    "tags",
+    "actions",
+    "behavioral_evidence",
+    "evidence",
+    "annotations",
+]
+LABEL_KEYS = [
+    "answer",
+    "label",
+    "gold",
+    "gt",
+    "ground_truth",
+    "target",
+    "expert_label",
+]
+OCEAN_TRAITS = [
+    "openness",
+    "conscientiousness",
+    "extraversion",
+    "agreeableness",
+    "neuroticism",
+]
 
 LIMITATION_NOTE = (
     "Sample-size/power limitation: all reported results use the mmbench/ocean "
@@ -162,11 +233,22 @@ def normalize_record(record: Dict[str, Any], index: int) -> Dict[str, Any]:
         "expert_labels": _expert_labels(record),
     }
     used = set()
-    for keys in (VIDEO_ID_KEYS, URL_KEYS, TRANSCRIPT_KEYS, SETTING_KEYS, CULTURE_KEYS, BEHAVIOR_KEYS):
+    for keys in (
+        VIDEO_ID_KEYS,
+        URL_KEYS,
+        TRANSCRIPT_KEYS,
+        SETTING_KEYS,
+        CULTURE_KEYS,
+        BEHAVIOR_KEYS,
+    ):
         for key in keys:
             used.add(key)
             used.add(key.lower())
-    extra = {k: v for k, v in record.items() if k not in used and not str(k).lower() in {t for t in OCEAN_TRAITS}}
+    extra = {
+        k: v
+        for k, v in record.items()
+        if k not in used and not str(k).lower() in {t for t in OCEAN_TRAITS}
+    }
     # keep only JSON-serializable extras
     clean_extra: Dict[str, Any] = {}
     for k, v in extra.items():
@@ -206,7 +288,10 @@ def _stream_records_http() -> Iterator[Dict[str, Any]]:
     log.info(
         "Streaming %s split=%s via datasets-server (config=%s); "
         "datasets-library import unavailable: %s",
-        DATASET_ID, SPLIT, config, _DATASETS_IMPORT_ERROR,
+        DATASET_ID,
+        SPLIT,
+        config,
+        _DATASETS_IMPORT_ERROR,
     )
     offset = 0
     page_size = 100
@@ -354,7 +439,9 @@ def main() -> None:
     }
     with open(RAW_DIR / "dataset_stats.json", "w", encoding="utf-8") as fh:
         json.dump(stats, fh, indent=2)
-    log.info("Wrote dataset_stats.json: %d records, %d missing behavior tags", n_records, missing_tags)
+    log.info(
+        "Wrote dataset_stats.json: %d records, %d missing behavior tags", n_records, missing_tags
+    )
 
 
 if __name__ == "__main__":
