@@ -24,7 +24,8 @@ On success the command prints `Pipeline initialized`, creates the
 `outputs/` directory tree, writes `outputs/run_config.json` with the
 effective configuration, and creates the `data/results/` folder.
 Expected wall‑clock time is **under 10 minutes** depending on the
-model download speed.
+model download speed. This run generates a single baseline result for
+$\rho=0.5$, seed 42.
 
 ### Full experiment suite
 
@@ -33,9 +34,10 @@ python -m code.run_experiments --config configs/full_suite.yaml
 ```
 
 This runs the complete suite: data loading, model initialization, and
-the full grid of fixed-density baseline runs. The full suite is
-expected to take several hours but remains well within the
-6‑hour per‑job limit.
+the full grid of fixed-density baseline runs (5 ratios $\times$ 5 seeds).
+The full suite is expected to take several hours but remains well within
+the 6‑hour per‑job limit. This is the primary path for regenerating
+all baseline artifacts.
 
 ## Expected artefacts
 

@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict
 
-import yaml  # PyYAML is expected to be available in the environment
+import yaml  # PyYAML is provided by the platform
 
 from llmxive_toolkit import get_logger, paths
 from code.data import download_all

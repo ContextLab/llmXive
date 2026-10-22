@@ -500,3 +500,54 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-21T16:10:45Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: Quick-start run wall-clock time under 10 minutes
+  claim_id: c_9f6876f2
+  context: "python -m code.run_experiments --config configs/quickstart.yaml. Expected\
+    \ wall\u2011clock time is under 10 minutes depending on the model download speed."
+  evidence:
+    artifact_sha256: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+    note: no relevant passages
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: "Expected wall\u2011clock time is under 10 minutes depending on the model\
+    \ download speed."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T14:12:21Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: Full experiment suite execution time within 6-hour limit
+  claim_id: c_48570260
+  context: "This runs the complete suite: data loading, model initialization, and\
+    \ the full grid of fixed-density baseline runs (5 ratios x 5 seeds). The full\
+    \ suite is expected to take several hours but remains well within the 6\u2011\
+    hour per\u2011job limit."
+  evidence:
+    artifact_sha256: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+    note: The provided passages contain placeholder text and do not mention job limits
+      or execution time.
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: "The full suite is expected to take several hours but remains well within\
+    \ the 6\u2011hour per\u2011job limit."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T14:12:25Z'
