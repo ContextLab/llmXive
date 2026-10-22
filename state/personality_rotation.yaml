@@ -1,12 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-10-22T00:07:25.904636+00:00'
+last_used: david-krakauer
+last_used_at: '2026-10-22T02:12:11.454586+00:00'
 last_outcome: committed
 history:
-- slug: geoffrey-west
-  started_at: '2026-06-28T16:56:01.952009+00:00'
-  ended_at: '2026-06-28T17:30:54.861351+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: john-von-neumann
   started_at: '2026-06-28T17:30:54.861351+00:00'
   ended_at: '2026-06-28T17:56:41.961948+00:00'
@@ -1338,3 +1333,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-249-the-impact-of-digital-decluttering-on-co/reviews/research/daniel-kahneman-simulated__2026-10-22__research.md
+- slug: david-krakauer
+  started_at: '2026-10-22T00:07:25.904636+00:00'
+  ended_at: '2026-10-22T02:12:11.454586+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-492-evaluating-the-statistical-validity-of-p/reviews/research/david-krakauer-simulated__2026-10-22__research.md
