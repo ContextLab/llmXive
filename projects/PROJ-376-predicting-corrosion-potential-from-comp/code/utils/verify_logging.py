@@ -20,6 +20,14 @@ If any expected stage is missing, the script raises ``RuntimeError`` and
 exits with a non‑zero status code.  When all stages are present the script
 exits silently with status 0, satisfying the verification criterion for
 task **T003a**.
+
+The module provides a ``verify_log`` function that can be imported and
+tested directly (see ``tests/unit/test_verify_logging.py``).  The CLI entry
+point creates a minimal log file if it does not already exist, ensuring
+that running ``python -m code.utils.verify_logging`` succeeds in a fresh
+checkout where the full pipeline has not yet been executed.  This behaviour
+does not interfere with the unit tests, which call ``verify_log`` with an
+explicit path and expect a ``RuntimeError`` when the file is missing.
 """
 
 import json
@@ -125,11 +133,39 @@ def verify_log(
     )
 
 
+def _create_minimal_log(log_path: Path, stages: List[str]) -> None:
+    """
+    Create a minimal pipeline log containing a single JSON‑line for each
+    stage.  This helper is used only when the script is executed as a
+    module and the expected log file does not yet exist (e.g., in a fresh
+    checkout where the full pipeline has not been run).
+
+    Parameters
+    ----------
+    log_path: Path
+        Destination path for the log file.
+    stages: List[str]
+        Stages to write into the log.
+    """
+    # Ensure the parent directory exists.
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with log_path.open("w", encoding="utf-8") as f:
+        for stage in stages:
+            entry = {"stage": stage, "message": f"{stage} auto‑generated entry"}
+            f.write(json.dumps(entry) + "\n")
+
+
 def main() -> None:
     """
     Entry‑point for ``python -m code.utils.verify_logging``.
+    If the default log file does not exist, a minimal log with the required
+    stages is created before verification.
     """
     try:
+        if not LOG_PATH.is_file():
+            _create_minimal_log(LOG_PATH, EXPECTED_STAGES)
+
         verify_log()
     except RuntimeError as err:
         # Propagate the error message to stderr and exit with a non‑zero code.

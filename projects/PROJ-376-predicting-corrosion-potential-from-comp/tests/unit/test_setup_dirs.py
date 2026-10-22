@@ -18,14 +18,13 @@ def test_setup_dirs_creates_manifest_and_directories(tmp_path, monkeypatch):
     Ensure that the setup script creates the required hierarchy and writes a
     correct JSON manifest.
     """
-    # Use the real project root (paths.root) – the script itself uses
-    # ``paths`` which already points to the repository root, so we do not
-    # need to monkey‑patch anything for this test.
     # Run the main function; it should be idempotent.
     setup_dirs.main()
 
-    # Path to the manifest file
-    manifest_path = Path(setup_dirs.paths.state("setup_dirs_verified.json"))
+    # Path to the manifest file (now stored in data/processed)
+    manifest_path = Path(
+        setup_dirs.paths.data("processed", "setup_dirs_verified.json")
+    )
 
     # The file must exist and be non‑empty
     assert manifest_path.is_file(), "Manifest file was not created"

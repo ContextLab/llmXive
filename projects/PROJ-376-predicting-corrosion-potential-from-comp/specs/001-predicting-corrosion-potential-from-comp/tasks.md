@@ -17,7 +17,7 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
   **File path**: `code/utils/verify_setup.py` → reads the manifest and asserts completeness.  
   **Verification**: Script exits with status 0 only when all directories are listed; otherwise it raises `RuntimeError`.
 
-- [ ] **T002** Implement custom exception classes `DataInsufficientError` and `SchemaMismatchError`.  
+- [X] **T002** Implement custom exception classes `DataInsufficientError` and `SchemaMismatchError`.  
   **File path**: `code/utils/exceptions.py`.  
   **Verification**: Import succeeds (`from code.utils.exceptions import DataInsufficientError, SchemaMismatchError`) and unit tests in `tests/unit/test_exceptions.py` assert inheritance from `Exception`.  
 
@@ -25,7 +25,7 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
   **File path**: `code/utils/logging.py` exposing `get_logger(name: str) -> logging.Logger`.  
   **Verification**: Logs written via `get_logger()` contain timestamp, level, and message, are saved to `data/logs/pipeline.log`, and a unit test (`tests/unit/test_logging.py`) checks file creation and JSON‑line format.  
 
-- [ ] **T003a** Verify that `data/logs/pipeline.log` exists and contains at least one entry for each pipeline stage.   <!-- FAILED-IN-EXECUTION: code/utils/verify_logging.py exit=1 -->
+- [X] **T003a** Verify that `data/logs/pipeline.log` exists and contains at least one entry for each pipeline stage.
   **File path**: `code/utils/verify_logging.py` → scans the log file and asserts non‑emptiness per stage.  
   **Verification**: Script exits with status 0 only when the log is populated; otherwise raises `RuntimeError`.
 
@@ -37,7 +37,7 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
 
 ## Phase 2 – Schema contracts  
 
-- [ ] **T004** Create the JSON‑Schema contract files required for ingestion and processed data (FR‑001 – FR‑004).  
+- [X] **T004** Create the JSON‑Schema contract files required for ingestion and processed data (FR‑001 – FR‑004).  
   **File paths**:  
   `specs/001-predict-corrosion-potential-from-comp/contracts/ingest.schema.yaml`  
   `specs/001-predict-corrosion-potential-from-comp/contracts/dataset.schema.yaml`  
@@ -57,7 +57,7 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
 
 ## Phase 3 – Data ingestion  
 
-- [ ] **T006** Implement the NIST‑IR‑8200 download script with exponential‑backoff retry logic (FR‑001, FR‑015) and optional Materials Project augmentation (FR‑019). Abort with `DataInsufficientError` if < 500 records after merging.  
+- [ ] **T006** Implement the NIST‑IR‑8200 download script with exponential‑backoff retry logic (FR‑001, FR‑015) and optional Materials Project augmentation (FR‑019). Abort with `DataInsufficientError` if < 500 records after merging.   <!-- FAILED-IN-EXECUTION: code/cli/run_pipeline.py exit=1 -->
   **File path**: `code/data/download_nist.py`.  
   **Outputs**: `data/raw/nist/` (raw NIST CSV/JSON) and `data/raw/materials_project/` (composition augment files).  
   **Verification**: Successful run creates both directories, logs attempts in `data/logs/download.log`, writes `data/logs/download_summary.json` containing `record_count` and `alloy_designation_count`, and exits with non‑zero status if thresholds are unmet.

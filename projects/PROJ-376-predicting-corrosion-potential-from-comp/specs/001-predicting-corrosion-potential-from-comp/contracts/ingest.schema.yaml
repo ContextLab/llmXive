@@ -1,55 +1,42 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "IngestSchema"
-description: "Schema for raw data ingestion from NIST‑IR‑8200 or similar sources."
-type: "object"
+$schema: "http://json-schema.org/draft-2020-12/schema"
+title: IngestRecord
+description: Schema for raw records ingested from the NIST corrosion database (and optional Materials Project augmentation).
+type: object
+additionalProperties: false
+required:
+  - record_id
+  - specific_alloy_designation
+  - composition
+  - ph
+  - temperature_celsius
+  - electrolyte_type
+  - corrosion_potential_mV
 properties:
   record_id:
-    type: "string"
-    description: "Unique identifier for the corrosion record."
+    type: string
+    description: Unique identifier for the record (e.g., NIST accession number).
   specific_alloy_designation:
-    type: "string"
-    description: "Unique alloy grade (e.g., 'SS304')."
-  base_metal_family:
-    type: "string"
-    description: "Base metal family (e.g., 'Fe-based')."
+    type: string
+    description: Human‑readable alloy designation (e.g., "SS304").
   composition:
-    type: "object"
-    description: "Elemental weight fractions."
-    additionalProperties:
-      type: "number"
-      minimum: 0.0
-      maximum: 1.0
-    required:
-      - "Fe"
-      - "Cr"
-      - "Ni"
-  environment:
-    type: "object"
-    description: "Environmental conditions."
-    properties:
-      ph:
-        type: "number"
-        description: "pH value."
-      temperature_celsius:
-        type: "number"
-        description: "Temperature in Celsius."
-      electrolyte_type:
-        type: "string"
-        description: "Type of electrolyte."
-    required:
-      - "ph"
-      - "temperature_celsius"
-      - "electrolyte_type"
+    type: object
+    description: Mapping of element symbols to weight fractions. All fractions should be non‑negative and sum to 1.0.
+    additionalProperties: false
+    patternProperties:
+      "^[A-Za-z]+$":
+        type: number
+        minimum: 0
+  ph:
+    type: number
+    description: Measured pH of the test environment.
+    minimum: 0
+    maximum: 14
+  temperature_celsius:
+    type: number
+    description: Test temperature in degrees Celsius.
+  electrolyte_type:
+    type: string
+    description: Categorical description of the electrolyte (e.g., "saline", "acidic").
   corrosion_potential_mV:
-    type: "number"
-    description: "Corrosion potential in millivolts vs SHE."
-  measurement_method:
-    type: "string"
-    description: "Standard method used (e.g., 'ASTM G59')."
-required:
-  - "record_id"
-  - "specific_alloy_designation"
-  - "composition"
-  - "environment"
-  - "corrosion_potential_mV"
-additionalProperties: false
+    type: number
+    description: Measured corrosion potential versus SHE, expressed in millivolts.

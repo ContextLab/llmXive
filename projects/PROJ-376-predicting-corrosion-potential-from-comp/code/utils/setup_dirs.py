@@ -11,10 +11,9 @@ ensures that the following directories exist relative to the project root:
   - data/processed/
   - data/logs/
   - results/
-  - state/   (where the verification manifest is stored)
 
-It then writes a JSON file ``state/setup_dirs_verified.json`` containing a
-list of objects, each with the absolute path of a created directory and the
+It then writes a JSON file ``data/processed/setup_dirs_verified.json`` containing
+a list of objects, each with the absolute path of a created directory and the
 timestamp (ISO‑8601, UTC) at which the directory was confirmed/created.
 
 The script exits with status 0 on success; any unexpected exception will
@@ -40,7 +39,6 @@ REQUIRED_DIRS: List[Path] = [
     paths.data("processed"),
     paths.data("logs"),
     paths.results(),
-    paths.state(),  # directory for the verification manifest
 ]
 
 def ensure_directories(dirs: List[Path]) -> List[Dict[str, str]]:
@@ -74,7 +72,7 @@ def ensure_directories(dirs: List[Path]) -> List[Dict[str, str]]:
 
 def write_manifest(entries: List[Dict[str, str]]) -> Path:
     """
-    Write the verification manifest to ``state/setup_dirs_verified.json``.
+    Write the verification manifest to ``data/processed/setup_dirs_verified.json``.
 
     Parameters
     ----------
@@ -86,8 +84,8 @@ def write_manifest(entries: List[Dict[str, str]]) -> Path:
     Path
         Path to the written JSON manifest.
     """
-    manifest_path = paths.state("setup_dirs_verified.json")
-    # Ensure the ``state`` directory exists (already covered in REQUIRED_DIRS)
+    manifest_path = paths.data("processed", "setup_dirs_verified.json")
+    # Ensure the parent directory exists (already covered in REQUIRED_DIRS)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
 
     with manifest_path.open("w", encoding="utf-8") as f:

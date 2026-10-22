@@ -11,29 +11,31 @@ T001a:
     to write only project-owned outputs.'
   task: 97db48f49234cc0b550baccd26a11d830d199b30e92aa8b4db98fe1e55e15be2
 T002:
-  reason: "The file `code/utils/exceptions.py` defines the required exception classes,\
-    \ but it contains `from utils.logging import get_logger`, which fails because\
-    \ there is no top\u2011level `utils` package\u2014only `code/utils`. This import\
-    \ error prevents `from code.utils.exceptions import DataInsufficientError, SchemaMismatchError`\
-    \ from succeeding, so the unit tests cannot even be imported. The import statement\
-    \ must be corrected (e.g., `from .logging import get_logger` or `from code.utils.logging\
-    \ import get_logger`)."
   task: af705a0828a9f78c5853ef54c7644375ba94d975295013662fa60010734d12f3
 T003:
   task: aaab3dfa1b84856109a509dcae25438e650888f7442519acb8e401125b09c369
 T003a:
-  reason: 'Requested task execution failed; rerun successfully: code/utils/verify_logging.py
-    exit=1'
   task: 0f61afe6ac2bacfa78ed6e0552162efcc5812e804277a241b152c628e1d23f42
 T004:
   task: e40de772fb5343cc29e0094aa8a972b65d3dd7b65de61785fb2b65f4304513eb
 T004a:
+  reason: 'declared artifact(s) missing/empty/invalid: ingest.schema.yaml'
   task: 1358ea26f447dea2efb5b8b82f0e14af6ddebb3387d565a362ca17c6995e1d82
 T004b:
+  reason: 'declared artifact(s) missing/empty/invalid: dataset.schema.yaml'
   task: 9bc6498c8669e71f6bf823378bca4a796bc0841808831b8d911a7999cba93095
 T005:
+  reason: The `code/utils/validate_schemas.py` file exists and defines the required
+    `validate` function, but the unit test `tests/unit/test_validate_schemas.py` fails
+    (see the execution log) because the referenced schema files (`ingest.schema.yaml`
+    and `dataset.schema.yaml`) are missing, causing `FileNotFoundError` before any
+    validation occurs. The test therefore does not demonstrate successful validation
+    of compliant data. Fix by adding the missing schema files (or correcting their
+    paths) so the tests can run and pass.
   task: 38da3aef22ba9695a23e807e3358ce6fc0342fda4f1ab61a3e3bab8286ba5975
 T006:
+  reason: 'Requested task execution failed; rerun successfully: code/cli/run_pipeline.py
+    exit=1'
   task: f9070b19f357bda8eb65b4a9b95885709cfc82b07652f58202bbecec45309a7e
 T007:
   task: 501681605950496fef1b223d610231f6a8a311d06dea1cfeb98c1192562e140e
@@ -80,6 +82,13 @@ T026:
 T027:
   task: 2cb0499446ae92156f5cb5819a5b7ea969e3e5083945154669acab79eac5b511
 T028:
+  reason: "Checked `code/utils/config_loader.py`, `config/seeds.yaml`, and `tests/unit/test_seeds.py`.\
+    \ The loader reads the seed file and sets the seeds, but the provided unit test\
+    \ only verifies `GLOBAL_SEED` and the torch seed; it does **not** assert that\
+    \ `numpy.random.seed` or `random.seed` were actually set to 42, contrary to the\
+    \ task\u2019s verification requirement. The test should include checks that the\
+    \ first values from `np.random.rand()` and `random.random()` match the expected\
+    \ deterministic outputs after import."
   task: 3bea779712ff9e5095f67a46902ec693838c97dd099509d84c78b5a3a9f862ef
 T029:
   task: 1c9664db3bd05e26822e850092e1e06fecfc7fd7708085c2b16cab203fd97dea

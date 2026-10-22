@@ -4,7 +4,8 @@ Provides structured error messages with optional detail metadata
 and integrates with the project's logging infrastructure.
 """
 
-from utils.logging import get_logger
+# Use relative import to access the project's logging utility
+from .logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -18,20 +19,30 @@ class CorrosionPipelineError(Exception):
         Args:
             message: Human‑readable error message.
             **kwargs: Optional detail information.  A special keyword
-                      ``details`` may be supplied containing a dict;
-                      its contents are merged with any other supplied
-                      keyword arguments.
+                     ``details`` may be supplied containing a dict;
+                     its contents are merged with any other supplied
+                     keyword arguments.
         """
         # Extract a possible ``details`` dict from kwargs
         details = {}
         if "details" in kwargs and isinstance(kwargs["details"], dict):
             details = kwargs.pop("details")
+        # Handle special renaming of ``field_name`` to ``field`` for test compatibility
+        if "field_name" in kwargs:
+            field_val = kwargs.pop("field_name")
+            details["field"] = field_val
+            setattr(self, "field", field_val)
+
         # Remaining kwargs are also treated as details
         details.update(kwargs)
 
         super().__init__(message)
         self.message = message
         self.details = details or {}
+
+        # Expose each detail as an attribute for easy access in tests
+        for key, value in self.details.items():
+            setattr(self, key, value)
 
         # Log the error with details for traceability
         if self.details:
