@@ -13,7 +13,7 @@ properties:
   model_type:
     type: string
     enum: ["RandomForest", "GradientBoosting"]
-    description: "Algorithm used for the best-performing model."
+    description: "Algorithm used for the best‑performing model."
   hyperparameters:
     type: object
     description: "Dictionary of hyperparameters used (e.g., max_depth, n_estimators)."

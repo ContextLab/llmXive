@@ -1,4 +1,4 @@
-# Data Model: Predicting Corrosion Rates of Common Metals
+# Data Model: Predicting Corrosion Rates of Common Metals  
 
 ## Core Entities
 
@@ -10,9 +10,10 @@
 | **DatasetMetadata** | Provenance record for each ingested raw dataset. | `doi` (str), `url` (str), `sha256` (str), `downloaded_at` (ISO‑8601), `num_records` (int), `columns_present` (list[str]) |
 
 ## File Formats
-- **Raw download**: Original CSV/TSV as provided (unchanged).  
+- **Raw download**: Original CSV/TSV as supplied (unchanged).  
 - **Cleaned data**: `cleaned_dataset.csv` – required columns present, no nulls in those columns, numeric predictors standardized (mean = 0, std = 1).  
 - **Feature matrix**: `features.parquet` – includes standardized numeric predictors, one‑hot encoded composition columns, and engineered interaction features.  
+- **Feature list**: `feature_names.txt` – plain‑text file, one feature name per line, matching the column order in `features.parquet`.  
 - **Model artifact**: `model_artifact.yaml` – conforms to `contracts/model_artifact.schema.yaml`.  
 - **Metadata**: `metadata/dataset.yaml` – conforms to `contracts/cleaned_dataset.schema.yaml`.  
 
