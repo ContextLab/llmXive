@@ -1,0 +1,65 @@
+{
+  "eigenvalue_results": [
+    {
+      "index": 1,
+      "is_outlier": true,
+      "value": 2.7031396828683585
+    },
+    {
+      "index": 2,
+      "is_outlier": false,
+      "value": 1.414492028163197
+    },
+    {
+      "index": 3,
+      "is_outlier": false,
+      "value": 1.4043922810854728
+    },
+    {
+      "index": 4,
+      "is_outlier": false,
+      "value": 1.3949418353516654
+    },
+    {
+      "index": 5,
+      "is_outlier": false,
+      "value": 1.3615027491271805
+    },
+    {
+      "index": 6,
+      "is_outlier": false,
+      "value": 1.349994114971173
+    },
+    {
+      "index": 7,
+      "is_outlier": false,
+      "value": 1.3468544367218673
+    },
+    {
+      "index": 8,
+      "is_outlier": false,
+      "value": 1.3438425939207348
+    },
+    {
+      "index": 9,
+      "is_outlier": false,
+      "value": 1.338515292958234
+    },
+    {
+      "index": 10,
+      "is_outlier": false,
+      "value": 1.333143570628533
+    }
+  ],
+  "run_id": "single_run_N1000_s42_t2.5",
+  "simulation_run": {
+    "N": 1000,
+    "k": 1,
+    "pattern": "diagonal",
+    "peak_memory_gb": 0.09879684448242188,
+    "run_id": "single_run_N1000_s42_t2.5",
+    "seed": 42,
+    "theta": 2.5,
+    "timestamp": "2026-10-22T00:10:40.535821+00:00"
+  }
+}

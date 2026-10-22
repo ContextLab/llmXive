@@ -25,31 +25,41 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; code/utils/artifacts.py: synthetic/fake INPUT data not authorized by the spec — “…attempt any fallback or synthetic data generation.  If validati…”; every produced artifact is gitignored (data/raw/matrix_N1000_seed42.npy) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python -m code.main --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal --seed 42 (rc=1); python -m pytest tests/contract/test_schemas.py -v   # all tests PASSED, none SKIPPED (rc=4); python -m pytest tests/contract/ -v        # per-file schema validation; FAILS on missing files (rc=4); 6 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_report.json; data/processed/perturbation_verification.json
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; code/utils/artifacts.py: synthetic/fake INPUT data not authorized by the spec — “…attempt any fallback or synthetic data generation.  If validati…”; every produced artifact is gitignored (data/raw/matrix_N1000_seed42.npy) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python -m code.main --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal --seed 42 (rc=1); python -m pytest tests/contract/test_schemas.py -v   # all tests PASSED, none SKIPPED (rc=4); python -m pytest tests/contract/ -v        # per-file schema validation; FAILS on missing files (rc=4); 7 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_report.json; data/processed/perturbation_verification.json
 
 ## Failing / missing run-book commands
 
 - python -m code.main --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal --seed 42 -> rc=1
-", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 339, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 331, in main
-    run_single_mode(args)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 248, in run_single_mode
-    write_artifact(verification_path, verification_data, "perturbation_verification")
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/utils/artifacts.py", line 95, in write_artifact
-    jsonschema.validate(instance=data, schema=schema)
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/jsonschema/validators.py", line 1332, in validate
-    raise error
-jsonschema.exceptions.ValidationError: True is not of type 'boolean'
+                                    'type': 'number'},
+                    'theta_actual': {'description': 'The measured spectral '
+                                                    'norm of the '
+                                                    'perturbation matrix.',
+                                     'type': 'number'},
+                    'theta_requested': {'description': 'The ‑θ value '
+                                                       'supplied by the '
+                                                       'user.',
+                                        'type': 'number'}},
+     'required': ['pattern_type',
+                  'support_density',
+                  'theta_requested',
+                  'theta_actual',
+                  'norm_match',
+                  'norm_difference',
+                  'sparsity_match'],
+     'title': 'PerturbationVerification',
+     'type': 'object'}
 
-Failed validating 'type' in schema['properties']['norm_match']:
-    {'description': 'True if norm_difference ≤ 1e‑6, otherwise False.',
-     'type': 'boolean'}
-
-On instance['norm_match']:
-    True
+On instance:
+    {'actual_norm': 2.5,
+     'norm_difference': 0.0,
+     'norm_match': True,
+     'pattern': 'diagonal',
+     'pattern_type': '',
+     'requested_theta': 2.5,
+     'sparsity_match': False,
+     'support_density': 1e-06,
+     'theta_actual': 0,
+     'theta_requested': 0}
 
 - python -m pytest tests/contract/test_schemas.py -v   # all tests PASSED, none SKIPPED -> rc=4
 ============================= test session starts ==============================
@@ -102,6 +112,7 @@ ERROR: file or directory not found: #
 - data/processed/sensitivity_metadata.json
 - data/processed/sensitivity_variation.csv
 - data/processed/single_run_results.json
+- data/processed/sweep_runs.parquet
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -134,8 +145,13 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/verify_reproducibility.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
     - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
+    - `code/tests/integration/test_t001.py` — NOT invoked by the run-book
     - `code/utils/results_logger.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/single_run_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/sweep_runs.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/sweep.py` — NOT invoked by the run-book
+    - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/sweep_runs.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
 A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.

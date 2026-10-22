@@ -1,0 +1,8 @@
+{
+  "arpack_status": "converged",
+  "bulk_edge_check": true,
+  "matrix_checksum": "e6bd1dbf7b14dbff543bc014c3b015f56c6a98e214d7cfb2ccda5bc31ebb2769",
+  "maxiter": 1000,
+  "schema_validation": "pass",
+  "tolerance": 1e-10
+}

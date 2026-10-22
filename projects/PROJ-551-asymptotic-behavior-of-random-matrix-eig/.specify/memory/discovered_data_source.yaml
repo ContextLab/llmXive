@@ -1,15 +1,12 @@
 status: none
-intent: synthetic matrices generation arXiv 0812.2602 python package dataset
+intent: synthetic matrix perturbation patterns dataset python package dataset
 required_fields:
 - matrix_id
-- num_rows
-- num_columns
 - matrix_values
 - perturbation_pattern
-- random_seed_or_deterministic_id
-- generation_method
-- reference_semicircle_edge
+- construction_method
+- reference_value
 - outlier_detection_constant
-cache_key: 212731b0d914534bf9b614d8721006ae952b4ba1f061eae10496db3c93689f88
-searched_at: '2026-10-21T15:13:58.517204+00:00'
+cache_key: 15b157bcc6520c39dc748524b29a557d1f10c8dbe2987587ac23c2dee0e9e7f0
+searched_at: '2026-10-22T00:20:41.995947+00:00'
 retry_count: 1

@@ -1,4 +1,8 @@
 {
   "actual_norm": 2.5,
   "norm_difference": 0.0,
-  "norm_match": 
+  "norm_match": true,
+  "pattern": "diagonal",
+  "requested_theta": 2.5,
+  "support_density": 1e-06
+}

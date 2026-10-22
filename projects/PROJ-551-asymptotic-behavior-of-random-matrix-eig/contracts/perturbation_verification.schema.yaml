@@ -1,27 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: PerturbationVerification
+description: |
+  Verification of the deterministic sparse perturbation constructed for a single run.
+  Includes checks that the spectral norm matches the requested ‑θ within tolerance
+  and that the sparsity pattern matches the declared type and support density.
 type: object
+additionalProperties: false
 required:
-  - requested_theta
-  - actual_norm
-  - norm_difference
-  - pattern
+  - pattern_type
   - support_density
+  - theta_requested
+  - theta_actual
   - norm_match
+  - norm_difference
+  - sparsity_match
 properties:
-  requested_theta:
-    type: number
-    description: The θ value requested by the user.
-  actual_norm:
-    type: number
-    description: Spectral norm (2‑norm) of the generated perturbation matrix.
-  norm_difference:
-    type: number
-    description: Absolute difference between actual_norm and requested_theta.
-  pattern:
+  pattern_type:
     type: string
-    description: Perturbation pattern identifier (e.g., diagonal, block-sparse, random-sparse).
+    description: Identifier of the sparsity pattern (e.g., "diagonal", "block-sparse", "random-sparse").
   support_density:
     type: number
-    description: Fraction of non‑zero entries in the perturbation matrix (non‑zero count / N²).
+    minimum: 0
+    maximum: 1
+    description: Fraction of non‑zero entries in the perturbation matrix.
+  theta_requested:
+    type: number
+    description: The ‑θ value supplied by the user.
+  theta_actual:
+    type: number
+    description: The measured spectral norm of the perturbation matrix.
   norm_match:
-    type: boolean
-    description: True if norm_difference ≤ 1e‑6, otherwise False.
+    type:
+      - boolean
+      - string
+    description: |
+      True (or "True") if |theta_actual ‑ theta_requested| ≤ 1e‑6,
+      otherwise False (or "False").
+  norm_difference:
+    type: number
+    description: Absolute difference |theta_actual ‑ theta_requested|.
+  sparsity_match:
+    type:
+      - boolean
+      - string
+    description: |
+      True (or "True") if the observed support density matches the declared
+      support_density within 1e‑6, otherwise False (or "False").

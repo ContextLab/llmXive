@@ -22,6 +22,7 @@ from typing import Any, Mapping
 
 import yaml
 import jsonschema
+import numpy as np
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -70,6 +71,22 @@ def _update_checksums(artifact_path: Path, checksum: str) -> None:
 
     log.info(f"Checksum manifest updated: {checksum_file}")
 
+def _make_json_serializable(obj: Any) -> Any:
+    """
+    Recursively convert objects that are not JSON‑serialisable
+    (e.g., NumPy scalars, ``np.bool_``) into native Python types.
+    """
+    if isinstance(obj, dict):
+        return {k: _make_json_serializable(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_make_json_serializable(v) for v in obj]
+    # NumPy scalar types (bool_, integer, floating) expose ``item()``
+    if isinstance(obj, np.generic):
+        return obj.item()
+    # Anything else is returned unchanged – ``json.dump`` will raise
+    # if it truly cannot be serialized.
+    return obj
+
 def write_artifact(path: Path, data: Any, schema_name: str) -> None:
     """
     Validate ``data`` against the named contract and write it to ``path``.
@@ -90,6 +107,9 @@ def write_artifact(path: Path, data: Any, schema_name: str) -> None:
     OSError
         If the file cannot be written.
     """
+    # 0. Coerce NumPy scalar types to native Python types before validation
+    data = _make_json_serializable(data)
+
     # 1. Load and validate schema
     schema = _load_schema(schema_name)
     jsonschema.validate(instance=data, schema=schema)

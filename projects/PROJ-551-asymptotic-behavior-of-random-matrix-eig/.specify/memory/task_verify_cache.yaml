@@ -1,0 +1,34 @@
+T001:
+  c: false
+  h: 5c77d0eb0df890ef2a1adce19d3b5dbaba0aac7082ca2c30f84b3f7b2c184943
+  r: "The two new contracts required by T001 \u2014 `threshold_fit.schema.yaml` and\
+    \ `perturbation_verification.schema.yaml` \u2014 are MISSING (collector-confirmed),\
+    \ so `write_artifact(path, data, \"threshold_fit\")` and the new tests cannot\
+    \ work. Additionally, both `artifacts.py` and `test_schemas.py` load schemas from\
+    \ a top-level `contracts/` directory, while the task specifies the contracts live\
+    \ under `specs/\u2026/contracts/` (the `specs/` tree exists but no contracts were\
+    \ placed there), so the schema-loading paths are wrong relative to the spec. The\
+    \ writer and test suite otherwise look substantive, but the miss"
+  sig: a98cf9ad19d00731522ce016b28df0f5b03ec7fa2687bdd9b89b94e8a011d011
+T002:
+  c: false
+  h: 6828b1183f5f29b68cf8d1f9306b2d85e48257d39dc194d1ceb9d53b0099383f
+  r: "The required artifacts `data/processed/perturbation_verification.json`, `data/processed/single_run_results.json`,\
+    \ `data/processed/convergence_report.json`, and `perturbation_verification.schema.yaml`\
+    \ are all MISSING from disk. The historical run log shows the command exited 0\
+    \ but wrote to a wrong `processed/` directory (not `data/processed/`), and even\
+    \ those files are not present now; additionally, `data/checksums.yaml` contains\
+    \ three conflicting sha256 values for the same matrix file (e6bd1dbf\u2026, 1f9299fd\u2026\
+    , d4ec5bdf\u2026), indicating fabricated/inconsistent checksum records rather\
+    \ than a genuine v"
+  sig: 87f1b67d2dd832aef127472a3bb1ce067ebee3e0422f07b7d0d8410b89ddeac5
+T003:
+  c: false
+  h: 5bf61af10d5516cd4338822c7d0e82bf2caac2442557f680c3fbd8d010a822a8
+  r: "The execution log shows both tests FAILED: the `python -m code.main --mode single\
+    \ ...` subprocess exited with status 1, and `data/processed/single_run_results.json`\
+    \ was never generated. The test file itself is well-formed, but the reproducibility\
+    \ integration test does not actually pass \u2014 the CLI invocation must be fixed\
+    \ (or the correct entry point/arguments used) so the run succeeds, produces the\
+    \ JSON, and the eigenvalue/byte-identity assertions are actually exercised."
+  sig: 88cf180e23cbd299e1b3d3c76a72b63a799dec84e26af635ed493dcb38a3a41f
