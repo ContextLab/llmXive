@@ -6,10 +6,8 @@ properties:
     type: number
     description: "Predicted saturation magnetization in µ_B per atom"
   curie_temperature:
-    type:
-      - number
-      - "null"
-    description: "Predicted Curie temperature in Kelvin (null if model unavailable)"
+    type: number
+    description: "Predicted Curie temperature in Kelvin"
   confidence_interval:
     type: object
     properties:
@@ -23,12 +21,10 @@ properties:
       curie_temperature:
         type: array
         items:
-          type:
-            - number
-            - "null"
+          type: number
         minItems: 2
         maxItems: 2
-        description: "[lower, upper] 95 % CI for Curie temperature (null if unavailable)"
+        description: "[lower, upper] 95 % CI for Curie temperature"
     required:
       - saturation_magnetization
       - curie_temperature

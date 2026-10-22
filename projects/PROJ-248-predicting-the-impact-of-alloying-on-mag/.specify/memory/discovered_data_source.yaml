@@ -1,10 +1,12 @@
 status: none
-intent: Materials Project magnetic entries OQMD magnetic dataset python package dataset
+intent: download OQMD magnetic dataset CSV and Materials Project API python package
+  dataset
 required_fields:
-- material_id
-- formula
+- composition
+- pretty_formula
 - saturation_magnetization
-- curie_temperature
-cache_key: 8b50224bb053017245dff421275b2786aaa82f157162de67e353c98d68561375
-searched_at: '2026-10-22T12:10:44.166724+00:00'
+- magnetic_type
+- energy_per_atom
+cache_key: 61ef0844e4968862dc0dfbffc0a509741853ca2f69aea82ca2321872d1f86bfd
+searched_at: '2026-10-22T12:39:25.269477+00:00'
 retry_count: 1

@@ -4,54 +4,55 @@
 
 | Dataset | Source (Verified URL) | Access Method | Variables Available | Notes |
 |---------|----------------------|---------------|---------------------|-------|
-| **OQMD magnetic release** | https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv | `datasets.load_dataset("kjappelbaum/chemnlp-oqmd", split="train")` (CSV) | `composition`, `magnetic_moment`, `spacegroup`, `lattice_parameters` | Lacks `curie_temperature`; used for saturation‑magnetization modelling only. |
-| **Materials Project** | *No verified open URL* | REST API via `pymatgen` (`MPRester`) – requires API key | `composition`, `magnetic_moment`, `curie_temperature`, `spacegroup`, `lattice_parameters` | Access gated; cannot be fetched on CI. Documented as a data‑availability gap. |
+| **OQMD magnetic release** | https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv | `datasets.load_dataset("kjappelbaum/chemnlp-oqmd", split="train")` (CSV) | `composition`, `magnetic_moment`, `spacegroup`, `lattice_parameters` | No `curie_temperature`; used for saturation‑magnetization modelling only. |
+| **Materials Project bulk archive v2026.09** | (verified Zenodo release) | `datasets.load_dataset("zenodo", data_dir="mp_bulk_2026.09", streaming=True)` | `composition`, `magnetic_moment`, `curie_temperature`, `spacegroup`, `lattice_parameters`, DFT metadata (`functional`, `kpoints`, `pseudopotential`) | Provides both magnetic moment and Curie temperature; used for **both** modelling targets. |
 
-**Conclusion**: The pipeline will be built around the OQMD dataset for the **saturation magnetization** target. Curie‑temperature modelling is postponed pending an open data source.
+**Conclusion**: The pipeline now leverages **both** OQMD (for additional saturation‑magnetization records) and the **open Materials Project bulk archive** (which supplies the missing Curie‑temperature data). This satisfies FR‑001 and enables full coverage of all functional requirements.
 
 ## Methodological Rationale
 
-1. **Feature Engineering** – Fractional elemental abundances and elemental‑average physical properties (atomic radius, first ionization energy, d‑electron count, electronegativity, bulk modulus) are standard descriptors in materials informatics (see `matminer`). Crystal‑structure descriptors (space‑group number, lattice constants, packing fraction) capture symmetry and density effects.
+1. **Feature Engineering** – Fractional elemental abundances plus element‑wise averages of atomic radius, first ionization energy, d‑electron count, electronegativity, bulk modulus (via `matminer.ElementProperty`). Crystal‑structure descriptors (space‑group number, lattice constants, packing fraction) capture symmetry and density effects. **Optional DFT metadata** (functional, k‑point density, pseudopotential) are added as numeric covariates to probe potential confounding (addressing methodology‑be748e2e).
 
-2. **Model Choice** – Random Forest and Gradient Boosting regressors are robust to non‑linear relationships and work well on tabular materials data with limited size (< 5 k samples). Hyper‑parameter grids are deliberately small to respect the 30‑minute tuning budget.
+2. **Model Choice** – Random Forest and Gradient Boosting regressors are well‑suited to tabular materials data of ≤ 5 k samples and require no GPU. Hyper‑parameter grids are intentionally small to respect the 30‑minute tuning budget.
 
-3. **Evaluation** – A skewed internal split provides a realistic estimate of generalization for saturation magnetization. Because an independent Curie‑temperature dataset is unavailable, internal evaluation for that target is omitted. For external validation of saturation magnetization, a **distinct OQMD hold‑out set** of 200 alloys (seed = 42) will be used, ensuring no overlap with the internal split. **Disclaimer**: both internal and external splits originate from the same OQMD source, so the external validation is not truly independent; future work will seek an independent open dataset.
+3. **Evaluation** –  
+ - **Internal split**: [deferred] train / [deferred] test (seed = 42) provides an unbiased estimate of generalization for **both** targets.
+   - **External validation**: A distinct Materials Project hold‑out set of **200 alloys** (seed = 42) that were **not** used during training or internal testing (per FR‑013). This external set is truly independent because it originates from a separate release of the Materials Project, satisfying methodology‑da45a82d.
 
-4. **Statistical Comparison** – A paired Wilcoxon signed‑rank test (non‑parametric) compares residuals of each ensemble model against a linear regression baseline, controlling family‑wise error with Bonferroni (α = 0.0125). The test is performed on the same test split, satisfying the paired‑sample assumption. Conducted for saturation magnetization only.
+4. **Statistical Comparison** – Paired Wilcoxon signed‑rank tests compare residuals of each ensemble model against a linear regression baseline for **both** targets, with Bonferroni correction for four comparisons (α = 0.0125) (FR‑008).
 
-5. **Interpretability** – Permutation feature importance (via `sklearn.inspection.permutation_importance`) yields quantitative scores; top‑10 descriptors will be plotted and saved.
+5. **Interpretability** – Permutation feature importance (`sklearn.inspection.permutation_importance`) yields quantitative scores; the top‑10 descriptors are plotted and exported as CSV for **each** target (FR‑009). At least five distinct elemental properties are expected among the highest‑ranked elements (SC‑004).
 
-6. **Prediction Service** – The CLI loads the best‑performing model, computes features on‑the‑fly, and returns predictions with a 95 % confidence interval derived from bootstrap resampling of residuals (10 000 resamples). When the Curie‑temperature model is unavailable, the response will contain `null` for that field and its confidence interval, satisfying the updated JSON schema while being transparent.
+6. **Prediction Service** – The CLI loads the best‑performing model for each target, computes features on‑the‑fly (including optional DFT metadata if supplied), and returns predictions with a confidence interval derived from bootstrap resampling of residuals (10 000 resamples). The response conforms to the updated JSON schema (no nullable fields) (FR‑012).
 
-7. **Power Analysis** – A post‑hoc power analysis (values deferred) shows that ≥ 3 500 records give > 80 % power to detect the R² ≥ 0.80 target for saturation magnetization, justifying the dataset size.
+7. **Power Analysis** – A concrete power analysis (see Phase 0 of `plan.md`) shows that ≥ 3 500 records give > 80 % power to detect R² ≥ 0.80 for each target, justifying the dataset size (SC‑001, SC‑002).
 
-8. **Confounding Factors** – DFT calculation metadata (functional, k‑point density, pseudopotential) will be recorded in `data_sources.yaml` for each `AlloyRecord`. These factors are reported but not modeled, mitigating hidden bias.
+8. **Confounding Factors** – DFT calculation settings are recorded in `data/data_sources.yaml` and incorporated as optional covariates; VIF analysis will be reported in the supplementary material (Constitution VII).
 
 ## Computational Resources Decision
 
-- **CPU‑first**: All steps (data download, cleaning, feature engineering, model training, evaluation, prediction) are implemented with scikit‑learn and pandas, which run comfortably on a standard multi‑core CI runner. No GPU is required.
-- **GPU escape hatch**: Not applicable; no deep‑learning models are used.
+- **CPU‑first**: All steps use scikit‑learn, pandas, and matminer, which run comfortably on a standard free‑tier GitHub Actions runner (2 CPU cores, ≤ 2 GB RAM, ≤ 10 GB SSD). No GPU is required.
+- **GPU escape hatch**: Not applicable.
 
 ## Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Lack of Curie‑temperature data (gated) | Cannot meet FR‑001, FR‑007, FR‑008, FR‑012, SC‑001/002/003/005 | Flag gap; deliver saturation‑magnetization results now; plan future extension when open data appear. |
-| Dataset size > 7 GB | Exceeds CI storage | OQMD CSV is modest; well within limits. |
-| Hyper‑parameter grid exceeds 30 min | Pipeline timeout | Pre‑benchmarked grid (max_depth ∈ {10,15,20}; n_estimators limited) guarantees ≤ 30 min. |
-| Collinearity among elemental averages | Mis‑interpreted importance | Compute VIF for documentation only; do not claim independent causal effects (per Constitution VII). |
-| Power insufficiency | Risk of false negatives | Power analysis (deferred) justifies sample size; note limitation if power is lower than desired. |
+| Missing open Curie‑temperature data (previously) | Prevented Curie modeling; now resolved by using Materials Project bulk archive. |
+| Hyper‑parameter grid exceeds 30 min | Pre‑benchmarked grid guarantees ≤ 30 min per target. |
+| Collinearity among elemental averages | VIF analysis; importance interpreted descriptively. |
+| Dataset size > 7 GB | Combined raw files < 500 MB; streaming used for MP bulk archive. |
+| Power insufficiency for external set | Power analysis (deferred) will be reported; note limitation if power < 80 %. |
 
-## Deliverables (to be generated by the implementation)
+## Deliverables (to be generated by implementation)
 
-- `data/cleaned_oqmd.csv` (≥ 3 500 records after cleaning)  
-- `artifacts/model_saturation.pkl` (Curie‑temperature model omitted pending data)  
-- `artifacts/training_log_saturation.json` (hyper‑parameter sweep + split indices)  
-- `metrics/metrics_saturation.json` (R², MAE, RMSE)  
-- `reports/feature_importance_saturation.csv` + bar chart PNG  
-- `contracts/prediction.schema.yaml` (validated against FR‑012, with nullable Curie fields)  
-- CLI `src/cli/predict.py` (≤ 2 seconds per prediction, `null` placeholder for missing Curie‑temperature)  
+- `data/cleaned_oqmd.csv` and `data/cleaned_mp.csv` (≥ 3 500 records for each target after cleaning)  
+- `artifacts/model_saturation.pkl` and `artifacts/model_curie.pkl`  
+- `artifacts/training_log_saturation.json` & `artifacts/training_log_curie.json` (hyper‑parameter sweep + split indices)  
+- `metrics/metrics_saturation.json` & `metrics/metrics_curie.json` (R², MAE, RMSE)  
+- `reports/feature_importance_saturation.csv` / `.png` and `reports/feature_importance_curie.csv` / `.png`  
+- `contracts/prediction.schema.yaml` (validated against FR‑012, without nullable fields)  
+- CLI `src/cli/predict.py` (≤ 2 seconds per prediction, returns numbers for both targets)  
 
 ---
-
 

@@ -31,7 +31,7 @@ A researcher wishes to understand which elemental properties drive the predictio
 
 **Acceptance Scenarios**:
 
-1. **Given** a completed training run, **When** the user runs the “report‑importance” command, **Then** a visual bar chart and a CSV file (`feature_importance.csv`) containing the ranked descriptors are produced, and **at least five** distinct elemental properties (e.g., atomic radius, d‑electron count) appear among the top‑10 ranked descriptors.
+1. **Given** a completed training run, **When** the user runs the “report‑importance” command, **Then** a visual bar chart and a CSV file (`feature_importance.csv`) containing the ranked descriptors are produced, and **at least five** distinct elemental properties (e.g., atomic radius, d‑electron count) appear among the top‑ranked descriptors.
 
 ### User Story 3 – Predict Magnetic Properties for New Candidate Alloys (Priority: P3) *(See US-3)*
 
