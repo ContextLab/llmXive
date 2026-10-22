@@ -1,13 +1,13 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "FTLE Results"
-description: "Schema for aggregated..."
+description: "Schema for aggregated FTLE results."
 type: object
 required:
   - results
 properties:
   results:
     type: array
-    description: "Array..."
+    description: "Array of FTLE result objects."
     items:
       $ref: "./ftle_result.schema.yaml"
 additionalProperties: false

@@ -65,7 +65,7 @@ Key parameters can be edited in `code/config.py` or overridden via CLI:
 | `--N-values` | Comma‑separated list of oscillator counts (e.g., `3,5`). |
 | `--noise-levels` | Comma‑separated list of σ_noise values (e.g., `0.0001,0.001,0.01`). |
 | `--trials` | Number of independent runs per configuration (default = 30). |
-| `--window-sizes` | Sliding‑window lengths for FTLE (default = `[deferred][deferred]0`). |
+| `--window-sizes` | Sliding‑window lengths for FTLE (default = `[500,1000,5000]`). |
 | `--seed` | Global seed for reproducibility (default = 42). |
 | `--fit-tobit` | Flag to run Tobit regression (enabled by default). |
 
@@ -97,4 +97,3 @@ The validator:
 Any failure aborts with a non‑zero exit status, causing CI to fail.
 
 ---
-

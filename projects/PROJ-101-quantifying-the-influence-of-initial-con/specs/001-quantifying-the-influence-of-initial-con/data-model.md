@@ -10,8 +10,8 @@ data/
 │   └── trajectories_N{N}_sigma{sigma}_trial{t}.npz
 ├── processed/
 │   ├── ftle_results.json            # Aggregated FTLE entries (ftle_results.schema.yaml)
-│   ├── baseline_{N}.json            # Clean asymptotic exponents (baseline.schema.yaml) – now includes variance
-│   ├── baseline_per_window_{N}.json # Per‑window baseline array (baseline.schema.yaml) – includes std & convergence error
+│   ├── baseline_{N}.json            # Clean asymptotic exponents (baseline.schema.yaml)
+│   ├── baseline_per_window_{N}.json # Per‑window baseline array (baseline.schema.yaml)
 │   ├── regression_results.json      # Mixed‑effects + Tobit summary (regression_results.schema.yaml)
 │   ├── results.json                 # Bundle of all outputs (results.schema.yaml)
 │   └── plots/
@@ -27,7 +27,7 @@ data/
 | Entity | Produced by | Format | Schema |
 |--------|-------------|--------|--------|
 | **Trajectory** | `code/simulation/generator.py` | NumPy `.npz` (arrays `time`, `state`, `noise`; dict `params` with `seed`, `N`, `sigma_noise`, `trial_id`) | `contracts/trajectory.schema.yaml` |
-| **Baseline** | `code/analysis/baseline.py` | JSON (single object) with fields `system_dimension`, `lambda_max`, `convergence_error`, `baseline_variance` (optional), `sample_count` (optional), `status`, `trajectory_length`, `algorithm` | `contracts/baseline.schema.yaml` |
+| **Baseline** | `code/analysis/baseline.py` | JSON (single object) with fields `system_dimension`, `lambda_max`, `convergence_error`, `status`, `trajectory_length`, `algorithm`, optional `baseline_variance`, `sample_count` | `contracts/baseline.schema.yaml` |
 | **Baseline per window** | `code/analysis/baseline.py` | JSON (array of objects) with fields `window_size`, `lambda_mean`, `lambda_std`, `convergence_error` | `contracts/baseline.schema.yaml` |
 | **FTLE Result (single)** | `code/analysis/ftle.py` | JSON (object) | `contracts/ftle_result.schema.yaml` |
 | **FTLE Results (aggregated)** | `code/analysis/ftle.py` (aggregation) | JSON (array) | `contracts/ftle_results.schema.yaml` |
@@ -54,4 +54,3 @@ data/
 The `baseline_variance` (or per‑window `lambda_std`) captured in Phase 3 is **propagated as observation‑level weights** in the mixed‑effects regression (Phase 6). This explicitly acknowledges algorithmic differences between Rosenstein baseline and QR‑based FTLE computation and prevents under‑estimation of uncertainty in the deviation metric \(\Delta\lambda\).
 
 ---
-

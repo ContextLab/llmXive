@@ -12,38 +12,38 @@ required:
 properties:
   trial_id:
     type: string
-    description: "Unique identifier..."
+    description: "Unique identifier for the trajectory trial."
   system_dimension:
     type: integer
-    description: "Number of..."
+    description: "Number of coupled Lorenz oscillators (N)."
   noise_level:
     type: number
-    description: "Standard..."
+    description: "Standard deviation of the injected Gaussian noise."
   window_size:
     type: integer
     description: "Time window T used for FTLE calculation."
   lambda_max:
     type: number
-    description: "Calculated..."
+    description: "Calculated maximum Lyapunov exponent for the window."
   deviation:
     type:
       - number
       - "null"
-    description: "Δλ..."
+    description: "Δλ = lambda_max - baseline_mean (null if status ≠ 'valid')."
   status:
     type: string
     enum:
       - "valid"
       - "unphysical"
       - "non-chaotic"
-    description: "Trajectory status after boundedness and..."
+    description: "Trajectory status after boundedness and chaos checks."
   timestamp:
     type: string
     format: date-time
-    description: "ISO‑8601 timestamp..."
+    description: "ISO‑8601 timestamp of when the result was recorded."
   durbin_watson_p:
     type:
       - number
       - "null"
-    description: "p‑value..."
+    description: "p‑value from Durbin‑Watson test for autocorrelation."
 additionalProperties: false

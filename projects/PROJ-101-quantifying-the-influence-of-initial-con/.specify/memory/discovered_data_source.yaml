@@ -1,16 +1,19 @@
 status: none
-intent: download coupled Lorenz oscillator synthetic trajectories with noise python
-  package dataset
+intent: scikit-dynamics Lorenz96 synthetic trajectories coupled oscillators noise
+  python package dataset
 required_fields:
 - time
-- oscillator_index
-- x
-- y
-- z
-- noise_std
-- integration_method
-- tolerance
-- trajectory_id
-cache_key: 5103513d53c7bb6d1098928f8070a067e05a143860b22d08d3a67c9af7f04592
-searched_at: '2026-10-22T11:10:36.606677+00:00'
+- state_vector
+- x1
+- y1
+- z1
+- x2
+- y2
+- z2
+- '...'
+- xN
+- yN
+- zN
+cache_key: ad8a4244e662ef223fa30ef67b160c8380fc6f8aea201757286ca119bf5c1d44
+searched_at: '2026-10-22T11:40:04.820800+00:00'
 retry_count: 1

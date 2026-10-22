@@ -11,27 +11,27 @@ required:
 properties:
   model_type:
     type: string
-    description: "Type..."
+    description: "Type of regression model (e.g., 'MixedEffects', 'Tobit')."
   coefficients:
     type: object
-    description: "Fitted..."
+    description: "Fitted coefficients."
     additionalProperties:
       type: number
   r_squared:
     type: number
-    description: "Coefficient..."
+    description: "Coefficient of determination."
   p_values:
     type: object
-    description: "P-values..."
+    description: "P-values for each coefficient."
     additionalProperties:
       type: number
   scaling_exponent:
     type: number
-    description: "Exponent..."
+    description: "Exponent relating system dimension N to Δλ magnitude."
   confidence_level:
     type: number
-    description: "Confidence level..."
+    description: "Confidence level used for interval estimation."
   n_trials:
     type: string
-    description: "Total  ???  ?   "
+    description: "Total number of trials (string to allow large formatted values)."
 additionalProperties: false

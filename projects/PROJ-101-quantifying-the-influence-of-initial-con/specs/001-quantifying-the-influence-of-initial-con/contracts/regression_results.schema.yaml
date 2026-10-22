@@ -16,42 +16,42 @@ required:
 properties:
   selected_model:
     type: string
-    description: "Regression model chosen..."
+    description: "Regression model chosen (e.g., 'MixedEffects')."
   noise_levels:
     type: array
     items:
       type: number
-    description: "List..."
+    description: "List of noise levels explored."
   mean_deviation:
     type: number
-    description: "Mean..."
+    description: "Mean Δλ across all valid observations."
   regression_coefficients:
     type: object
-    description: "Fitted..."
+    description: "Fitted fixed‑effect coefficients."
     additionalProperties:
       type: number
   p_values:
     type: object
-    description: "Raw..."
+    description: "Raw p‑values for each fixed‑effect coefficient."
     additionalProperties:
       type: number
   fdr_q_values:
     type: object
-    description: "Benjamini..."
+    description: "Benjamini‑Hochberg FDR‑adjusted q‑values."
     additionalProperties:
       type: number
   effect_size:
     type: number
-    description: "Cohen's..."
+    description: "Cohen's d for the primary noise coefficient."
   newey_west_used:
     type: boolean
-    description: "True if Newey‑West..."
+    description: "True if Newey‑West HAC covariance was applied."
   trial_count:
     type: integer
-    description: "Total..."
+    description: "Total number of trajectory trials processed."
   escape_probability:
     type: object
-    description: "Mapping σ_noise..."
+    description: "Mapping σ_noise → escape probability (fraction of unphysical trials)."
     additionalProperties:
       type: number
   baseline_variance_used:
