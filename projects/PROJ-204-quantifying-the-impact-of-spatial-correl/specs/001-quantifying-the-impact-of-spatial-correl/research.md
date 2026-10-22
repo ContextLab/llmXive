@@ -80,9 +80,7 @@ If step 2 determines that **zero** EDS maps are available, steps 6‑8 are o
 | **Diffusion‑length calibration unavailable** | Missing predictor from FR‑009 | Use the empirical relation calibrated on literature values; if TRPL data appear in the dataset, prefer those measurements. |
 | **Runtime >6 h** | CI failure | Algorithms are O(N·pixel²) with N ≤ 200 and pixel ≤ 512²; empirical runtime < 2 h. |
 
----
-
-
+--- 
 
 ## Mapping of Functional Requirements & Success Criteria
 | FR | Plan Phase(s) | How Verified |
@@ -106,9 +104,9 @@ If step 2 determines that **zero** EDS maps are available, steps 6‑8 are o
 | SC‑004 | 1 (feasibility test) | `feasibility_report.json` contains `overall_success_rate`; test asserts it meets the deferred ≥ 95 % threshold. |
 | SC‑005 | 9 & 11 | `correlation.py` outputs 95 % confidence intervals for all coefficients; `generate_report.py` includes Cohen’s q (effect‑size) alongside each correlation result. |
 
----
-
-
+--- 
 
 ## References
-*All URLs and dataset loaders are taken from the verified list provided in the specification. No additional citations were invented.*
+All URLs and dataset loaders are taken from the verified list provided in the specification. No additional citations were invented.  
+
+---

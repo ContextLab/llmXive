@@ -80,3 +80,5 @@ logs/
 ## Re‑Running or Updating
 - To **re‑run** with a fresh seed: `python code/utils/seed.py set 42` before `main_pipeline.py`.  
 - To **add new samples** (e.g., after a database update), simply re‑execute `main_pipeline.py`; the feasibility script will automatically detect newly available EDS maps.
+
+---

@@ -1,17 +1,14 @@
 status: none
-intent: download perovskite EDS elemental maps and performance metrics NREL Zenodo
-  Materials Project python package dataset
+intent: NREL perovskite solar cell database download EDS elemental maps performance
+  metrics python package dataset
 required_fields:
 - sample_id
-- element_pb_map
-- element_i_map
-- element_ma_map
+- pb_eds_map
+- i_eds_map
+- ma_eds_map
 - pce
 - j_sc
 - v_oc
-- pixel_grid
-- metadata_source
-- download_url
-cache_key: 35736359afbba1160d646f06c586c9423291c53909a1294949d46b5091586465
-searched_at: '2026-10-16T20:33:25.175197+00:00'
+cache_key: ff72457d0cca9cf218d81f74cab2e567698c8fd61381bee34e807d12b14377e0
+searched_at: '2026-10-22T15:40:30.727934+00:00'
 retry_count: 1
