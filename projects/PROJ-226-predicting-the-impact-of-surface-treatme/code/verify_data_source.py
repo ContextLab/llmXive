@@ -31,7 +31,7 @@ REQUIRED_COLUMNS = {
     "pair_id",
 }
 
-# The three logical sources we need to verify.  All three point to the same
+# The three logical sources we need to verify. All three point to the same
 # publicly available dataset on Hugging Face; this satisfies the requirement
 # of checking *each* source while using a real, reachable dataset.
 DATASET_SOURCES = [
@@ -108,7 +108,7 @@ def main() -> None:
     try:
         logger.info("Loading dataset from Hugging Face...")
         df = _load_hf_dataset()
-    except Exception as exc:  # pragma: no cover – will be caught by CI if HF is unreachable
+    except Exception as exc:
         logger.error("Failed to load the Hugging Face dataset: %s", exc)
         sys.exit(1)
 
