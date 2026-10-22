@@ -1,12 +1,16 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 8 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'science'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T003` (rejected 1x): The verification test run failed (exit 1): all three tests failed — MS MARCO and Spider fetches raise `DataFetchError` because `datasets` cannot import (pyarrow requires NumPy 2.0+, environment has 1.26.4), and the DBpedia TTL download returns 404 for `https://raw.githubusercontent.com/RDFWebTools/rdf-samples/master/dbpedia-sample.ttl`, so no real row was fetched from any source. The task explicitly requires a real fetch to succeed and a unit test fetching ≥1 real row per source; the implementer must fix the environment/dependency issue (e.g. pin compatible numpy/pyarrow or handle the import)
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan measures `translation_error` by comparing engine‑generated plans to a *deterministic greedy reference plan* (FR‑008). A greedy plan is a heuristic, not a ground‑truth optimal plan, so the metric does not validly capture true translation correctness. This threatens construct validity of the translation‑error outcome.
+- Different source types are executed with fundamentally different engines (BM25 for text, SQLite for relational, RDFLib for graph). Engine‑specific implementation overheads (e.g., Python RDFLib vs. compiled SQLite) confound the `source_type` factor, making it impossible to attribute latency differences solely to structural mismatch rather than engine efficiency.
+- The research question frames a causal claim (‘structural mismatch cost causes non‑linear scaling’) but the design is purely observational: query complexity and source type are varied together without an independent manipulation of “structural mismatch”. The interaction test can reveal association but cannot establish causality, violating causal validity.
+- The sensitivity sweep evaluates multiple cut‑offs (2, 3, 4) and reports the spike point and slope change for each, yet no correction for multiple testing is described. This raises the risk of false‑positive identification of a ‘spike’, undermining the robustness of the claimed non‑linear effect.
+- The analysis is described as a “two‑way ANCOVA” while both predictors (`source_type` and `complexity_level`) are categorical. This is actually a two‑way ANOVA; the mislabel may cause confusion in implementation and reporting.
+- The plan refers to a *reference plan* (renamed from “ground‑truth”) while the data model defines the field name `ground_truth_plan`. This naming mismatch may cause schema validation failures unless an alias is added or the field is renamed consistently.
+- The contract `execution_metric.schema.yaml` is defined but the plan never produces an artifact that conforms to it (no execution_metric file is written). Either the contract should be removed or the plan should include a step that generates the corresponding metric file.
+- The metric *translation_error* is defined as a binary mismatch against a *deterministic greedy reference plan* (FR‑008). This reference plan is itself produced by a heuristic (greedy cost‑based algorithm) rather than a true ground‑truth execution plan. Consequently, the validation claim in H2 – that translation‑error rate remains stable across complexity – measures stability of agreement with a model, not actual correctness of the router’s plans. Treating this heuristic‑derived plan as “ground truth” creates a circular validation: the predictor (reference plan) and the outcome (translation_error) are definitionally linked, so the analysis can only ever confirm the heuristic’s internal consistency, not an empirical property of the system.

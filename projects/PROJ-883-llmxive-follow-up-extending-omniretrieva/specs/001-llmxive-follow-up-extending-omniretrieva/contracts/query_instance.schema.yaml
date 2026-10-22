@@ -19,7 +19,8 @@ properties:
         items:
           type: string
         description: "Ordered list of operation identifiers"
-    required: [steps]
+    required:
+      - steps
   ground_truth_plan:
     type: string
     description: "Identifier of the deterministic reference plan"

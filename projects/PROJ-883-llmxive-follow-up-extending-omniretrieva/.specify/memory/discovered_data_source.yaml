@@ -1,11 +1,12 @@
 status: none
-intent: HuggingFace datasets ms_marco dbpedia rdf download python package dataset
+intent: DBpedia knowledge graph and MS MARCO subset v2.1 downloadable python package
+  dataset
 required_fields:
 - query_id
-- query_text
 - source_type
 - plan_depth
 - latency_ms
-cache_key: f6cd00b0eb57c035a9cd6cf87ff7c585b9afada6271b2bbd9ca6969cc839ec3a
-searched_at: '2026-10-16T08:29:02.438113+00:00'
+- timestamp
+cache_key: 008c85c50dca2555af46dd09a86b3724b9f22c81af55184cc3d341e725bf062e
+searched_at: '2026-10-22T04:10:25.531529+00:00'
 retry_count: 1

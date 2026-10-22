@@ -15,7 +15,7 @@ cd projects/PROJ-883-llmxive-follow-up-extending-omniretrieva
 python -m venv .venv
 source .venv/bin/activate
 
-# Install pinned dependencies (numpy & pyarrow versions avoid import errors)
+# Install pinned dependencies (numpy>=2.0 for pyarrow compatibility)
 pip install -r requirements.txt
 ```
 
@@ -25,6 +25,9 @@ pip install -r requirements.txt
 ruff check code/
 # Verify cgroups availability
 python -c "import os; assert os.path.isdir('/sys/fs/cgroup'), 'cgroups not available'"
+
+# Verify CLI help flag works
+python -m code.main --help
 ```
 
 ## End‑to‑End Run
@@ -32,15 +35,17 @@ python -c "import os; assert os.path.isdir('/sys/fs/cgroup'), 'cgroups not avail
 # This will:
 # 1. Download and checksum the verified datasets.
 # 2. Generate queries and reference plans.
-# 3. Execute the benchmark under cgroups throttling.
-# 4. Perform statistical analysis.
-# 5. Produce the interaction plot.
+# 3. Calibrate engine overhead (baseline measurement).
+# 4. Execute the benchmark under cgroups throttling.
+# 5. Perform statistical analysis.
+# 6. Produce the interaction plot.
 python -m code.main
 ```
 
 ### Expected Outputs
 - `data/processed/generation_log.json`  
 - `data/processed/execution_logs.csv`  
+- `data/processed/execution_metric.json`  
 - `data/results/anova_results.json`  
 - `data/results/sensitivity_analysis.json`  
 - `data/results/interaction_plot.png`
@@ -55,7 +60,7 @@ The `--help` flag prints all configurable options (e.g., number of queries, cgro
 ```bash
 pytest -v
 ```
-All unit and integration tests must pass (exit code 0). Tests include:
+All unit and integration tests must pass (indicating a successful execution status). Tests include:
 - Schema validation against contracts.  
 - Successful download of at least one row from each verified dataset.  
 - Correct handling of cgroups throttling errors.
@@ -68,3 +73,4 @@ All unit and integration tests must pass (exit code 0). Tests include:
 Refer to `quickstart.md` for further customization.
 
 ---
+
