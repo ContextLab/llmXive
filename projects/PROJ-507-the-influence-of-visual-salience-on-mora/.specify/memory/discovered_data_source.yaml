@@ -1,16 +1,17 @@
 status: none
-intent: visual genome dataset clip model weights bert base uncased download python
-  package dataset
+intent: download Open Images V6 Visual Genome CLIP BERT MoralD CLMM python package
+  dataset
 required_fields:
 - image_id
-- image_url
-- width
-- height
-- object_names
-- object_bounding_boxes
-- object_attributes
-- relationship_pairs
-- region_descriptions
-cache_key: 1059de5cc87ff0f9695cef51e0df95b9616463e09e861a57a6ef1fdcbbba985a
-searched_at: '2026-10-15T19:44:54.687864+00:00'
+- image_url_or_path
+- tags
+- bounding_box_coordinates
+- roi_rms_contrast_change_percent
+- clip_cosine_similarity
+- texture_change_metric
+- edge_density_change_metric
+- moral_narrative_preservation_score
+- source_dataset_name
+cache_key: f974e3e2b7a7f6d3e16ddd5c5cba4e302684826a7a31f158282062009f45e6e4
+searched_at: '2026-10-22T13:43:32.233430+00:00'
 retry_count: 1

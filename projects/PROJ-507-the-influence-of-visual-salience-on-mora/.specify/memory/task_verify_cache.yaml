@@ -1,8 +1,0 @@
-T014:
-  c: false
-  h: e194eafea619e054d23ac34fa93bbac4b7afcbefb1774465efa3298bec48d177
-  r: "The required output file `data/processed/validated_candidates.csv` does not\
-    \ exist, and the provided `code/data_prep.py` excerpt shows no implementation\
-    \ of metadata filtering for \u201Csocial\u201D/\u201Cconflict\u201D tags or loading\
-    \ of external validation data. The task\u2019s core functionality and expected\
-    \ output are therefore missing."

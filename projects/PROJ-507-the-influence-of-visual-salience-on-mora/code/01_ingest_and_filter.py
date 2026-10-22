@@ -4,19 +4,17 @@
 
 Runnable entry point for the data ingestion pipeline.
 
-This script fetches a real image dataset from Hugging Face. It attempts to
-load the primary dataset (``visual_genome``) and, if that fails, falls back
-to a secondary public dataset (``conceptual_captions``). The dataset is
-streamed, filtered for images whose metadata contain any of the tags
-``social`` or ``conflict``, and up to ``num_samples`` candidates are
-selected (default 10) using a fixed random seed (42) for reproducibility.
+This script fetches the **Open Images V6** dataset from Hugging Face,
+streams it, filters for records whose metadata contain any of the tags
+``conflict`` or ``social``, and selects up to ``num_samples`` candidates
+(default 200) using a fixed random seed (42) for reproducibility.
 
 For each selected image the script:
 1. Downloads the image into ``data/raw/``.
 2. Computes a SHA‑256 checksum of the downloaded file.
 3. Writes a row to ``data/processed/candidates_filtered.csv`` conforming
    to ``contracts/dataset.schema.yaml``.
-4. Stores the checksums in ``data/raw/sample_metadata.json``.
+4. Stores all checksums in ``data/raw/checksums.json``.
 
 The script raises :class:`DataFetchError` on any failure to fetch the
 dataset or download an image – no synthetic fallback is performed.
@@ -44,29 +42,16 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration defaults
 # ----------------------------------------------------------------------
-PRIMARY_DATASET = "visual_genome"
-FALLBACK_DATASET = "conceptual_captions"
+DATASET_NAME = "open_images"
+DATASET_CONFIG = "v6"
 DEFAULT_SPLIT = "train"
-DEFAULT_TAGS = ["social", "conflict"]
-DEFAULT_NUM_SAMPLES = 10
+DEFAULT_TAGS = ["conflict", "social"]
+DEFAULT_NUM_SAMPLES = 200
 RANDOM_SEED = 42
 
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def _resolve_dataset_name() -> str:
-    """Return the dataset name to load.
-
-    If the environment variable ``VERIFIED_DATA_SOURCE`` is set, its value
-    is used as the dataset identifier (e.g. a fully‑qualified
-    ``namespace/name``). Otherwise the primary dataset name is returned.
-    """
-    env_source = os.getenv("VERIFIED_DATA_SOURCE")
-    if env_source:
-        log.info("Using verified data source from environment: %s", env_source)
-        return env_source
-    return PRIMARY_DATASET
-
 def _download_image(url: str, target_path: Path) -> None:
     """Download an image from ``url`` to ``target_path``."""
     try:
@@ -78,14 +63,6 @@ def _download_image(url: str, target_path: Path) -> None:
     except Exception as exc:
         raise DataFetchError(f"Failed to download image from {url}") from exc
 
-def _save_streamed_image(image_bytes: bytes, target_path: Path) -> None:
-    """Save raw image bytes to ``target_path``."""
-    try:
-        with open(target_path, "wb") as f:
-            f.write(image_bytes)
-    except Exception as exc:
-        raise DataFetchError(f"Failed to write streamed image to {target_path}") from exc
-
 def _sha256_checksum(file_path: Path) -> str:
     """Calculate the SHA‑256 checksum of ``file_path``."""
     h = hashlib.sha256()
@@ -94,25 +71,19 @@ def _sha256_checksum(file_path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
-def _filter_candidate(record: Dict[str, Any], tags: List[str]) -> bool:
-    """Return ``True`` if the record's metadata contains any of ``tags``."""
-    # Visual Genome style ``objects`` list
-    objects = record.get("objects")
-    if isinstance(objects, list):
-        names = [obj.get("name", "").lower() for obj in objects if isinstance(obj, dict)]
-        if any(tag.lower() in names for tag in tags):
-            return True
+def _record_has_tag(record: Dict[str, Any], tags: List[str]) -> bool:
+    """
+    Return ``True`` if the record's metadata contain any of ``tags``.
 
-    # Generic ``tags`` field
-    record_tags = record.get("tags") or record.get("metadata", {}).get("tags")
-    if isinstance(record_tags, list):
-        lower_tags = [t.lower() for t in record_tags if isinstance(t, str)]
-        if any(tag.lower() in lower_tags for tag in tags):
-            return True
-
-    # If no explicit tag information is present we conservatively keep the
-    # record only when a tag filter was **not** requested.
-    return not tags
+    For Open Images V6 the relevant fields are:
+    * ``labels`` – list of label strings.
+    * ``image_url`` – URL to the image.
+    """
+    label_field = record.get("labels") or record.get("label") or record.get("tags")
+    if isinstance(label_field, list):
+        lower_labels = [str(lbl).lower() for lbl in label_field]
+        return any(tag.lower() in lower_labels for tag in tags)
+    return False
 
 # ----------------------------------------------------------------------
 # Core ingestion routine
@@ -122,8 +93,6 @@ def ingest_and_filter(
     tags: List[str] = DEFAULT_TAGS,
 ) -> None:
     """Main ingestion routine."""
-    dataset_name = _resolve_dataset_name()
-
     # Prepare output locations
     raw_dir = paths.data("raw")
     processed_dir = paths.data("processed")
@@ -131,85 +100,79 @@ def ingest_and_filter(
     processed_dir.mkdir(parents=True, exist_ok=True)
 
     candidates_path = processed_dir / "candidates_filtered.csv"
-    checksum_path = raw_dir / "sample_metadata.json"
+    checksum_path = raw_dir / "checksums.json"
 
     # ------------------------------------------------------------------
-    # Load the dataset (streaming) – try primary then fallback
+    # Load the Open Images V6 dataset (streaming)
     # ------------------------------------------------------------------
-    ds = None
     try:
-        log.info("Attempting to load primary dataset: %s", dataset_name)
+        log.info(
+            "Loading Open Images dataset %s:%s (streaming)",
+            DATASET_NAME,
+            DATASET_CONFIG,
+        )
         ds = load_dataset(
-            dataset_name,
+            DATASET_NAME,
+            DATASET_CONFIG,
             split=DEFAULT_SPLIT,
             streaming=True,
             trust_remote_code=True,
         )
     except Exception as exc:
-        log.warning("Primary dataset load failed (%s). Trying fallback %s...", exc, FALLBACK_DATASET)
-        try:
-            ds = load_dataset(
-                FALLBACK_DATASET,
-                split=DEFAULT_SPLIT,
-                streaming=True,
-                trust_remote_code=True,
-            )
-        except Exception as fallback_exc:
-            raise DataFetchError(
-                f"Unable to load any real dataset source: {fallback_exc}"
-            ) from fallback_exc
+        raise DataFetchError(
+            f"Unable to load Open Images dataset {DATASET_NAME}/{DATASET_CONFIG}: {exc}"
+        ) from exc
 
     selected: List[Dict[str, Any]] = []
     checksums: Dict[str, str] = {}
 
-    # Ensure reproducibility of the *selection* order
+    # Deterministic shuffling is not needed because we stop after the first
+    # ``num_samples`` matches, but we keep the seed constant for any future
+    # random operations.
     rng = pd.random.RandomState(RANDOM_SEED)
 
     for record in ds:
-        if tags and not _filter_candidate(record, tags):
+        # ----------------------------------------------------------------
+        # Filter by tags
+        # ----------------------------------------------------------------
+        if tags and not _record_has_tag(record, tags):
             continue
 
-        # Derive a stable identifier
+        # ----------------------------------------------------------------
+        # Derive a stable identifier for the image
+        # ----------------------------------------------------------------
         image_id = str(
             record.get("image_id")
             or record.get("id")
-            or record.get("filename")
+            or record.get("original_image_id")
             or len(selected)
         )
+
+        image_url = record.get("image_url") or record.get("url")
+        if not image_url:
+            log.warning("Record %s missing image URL – skipping.", image_id)
+            continue
 
         image_path = raw_dir / f"{image_id}.jpg"
 
         # ----------------------------------------------------------------
-        # Acquire the image bytes
+        # Download the image
         # ----------------------------------------------------------------
         try:
-            if "image_url" in record:
-                _download_image(record["image_url"], image_path)
-            elif "url" in record:
-                _download_image(record["url"], image_path)
-            elif "image" in record:
-                img_field = record["image"]
-                if isinstance(img_field, bytes):
-                    _save_streamed_image(img_field, image_path)
-                elif isinstance(img_field, dict) and "bytes" in img_field:
-                    _save_streamed_image(img_field["bytes"], image_path)
-                elif hasattr(img_field, "save"):  # PIL Image‑like
-                    img_field.save(image_path, format="JPEG")
-                else:
-                    log.warning("Unsupported 'image' format for %s", image_id)
-                    continue
-            else:
-                log.warning("No recognizable image field for %s", image_id)
-                continue
-        except Exception as e:
-            log.warning("Failed to acquire image %s: %s", image_id, e)
+            _download_image(image_url, image_path)
+        except DataFetchError as e:
+            log.warning("Skipping image %s due to download error: %s", image_id, e)
             continue
 
+        # ----------------------------------------------------------------
         # Compute checksum
+        # ----------------------------------------------------------------
         checksum = _sha256_checksum(image_path)
         checksums[image_id] = checksum
 
+        # ----------------------------------------------------------------
         # Build CSV row conforming to contracts/dataset.schema.yaml
+        # ----------------------------------------------------------------
         row = {
             "scenario_id": image_id,
             "original_image_path": str(image_path),
@@ -225,28 +188,41 @@ def ingest_and_filter(
     if not selected:
         raise DataFetchError("No candidate images matched the filtering criteria.")
 
-    # Shuffle the selected rows deterministically (seeded) to avoid any
-    # ordering bias introduced by the streaming source.
+    # Shuffle deterministically (seeded) to avoid any ordering bias from the
+    # streaming source.
     selected_df = pd.DataFrame(selected)
-    selected_df = selected_df.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
+    selected_df = selected_df.sample(
+        frac=1, random_state=RANDOM_SEED
+    ).reset_index(drop=True)
 
     # Write CSV
     selected_df.to_csv(candidates_path, index=False)
 
     # Write checksums JSON
     with open(checksum_path, "w", encoding="utf-8") as f:
-        json.dump(checksums, f, indent=2)
+        json.dump(checksums, f, indent=2, sort_keys=True)
 
     log.info(
         "Ingestion complete – %d candidates written to %s",
         len(selected_df),
         candidates_path,
     )
+    log.info("Checksums written to %s", checksum_path)
 
 def _build_arg_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Ingest and filter image data.")
-    parser.add_argument("--num-samples", type=int, default=DEFAULT_NUM_SAMPLES)
-    parser.add_argument("--tags", nargs="+", default=DEFAULT_TAGS)
+    parser = argparse.ArgumentParser(description="Ingest and filter Open Images V6.")
+    parser.add_argument(
+        "--num-samples",
+        type=int,
+        default=DEFAULT_NUM_SAMPLES,
+        help="Maximum number of candidate images to keep.",
+    )
+    parser.add_argument(
+        "--tags",
+        nargs="+",
+        default=DEFAULT_TAGS,
+        help="List of tags to filter images by (e.g., conflict social).",
+    )
     return parser
 
 def main() -> None:

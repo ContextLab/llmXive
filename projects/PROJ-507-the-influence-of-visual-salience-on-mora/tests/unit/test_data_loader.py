@@ -2,7 +2,6 @@ import pytest
 from unittest import mock
 from pathlib import Path
 import importlib.util
-import sys
 
 # Import DataFetchError from data_prep
 from data_prep import DataFetchError
@@ -25,4 +24,4 @@ def test_fetch_failure_raises_datafetcherror(monkeypatch):
     with mock.patch("datasets.load_dataset", side_effect=Exception("HF Load Error")):
         with pytest.raises(DataFetchError) as excinfo:
             ingest_module.ingest_and_filter(num_samples=1, tags=["social"])
-        assert "Unable to load any real dataset source" in str(excinfo.value)
+        assert "Unable to load Open Images dataset" in str(excinfo.value)
