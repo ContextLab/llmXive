@@ -1,9 +1,1 @@
 datasets>=2.14.0
-networkx>=3.2
-scikit-learn>=1.4
-torch>=2.2
-pandas>=2.2
-numpy>=1.26
-matplotlib>=3.8
-pyyaml>=6.0
-statsmodels>=0.14

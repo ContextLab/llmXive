@@ -16,7 +16,7 @@ NotImplementedError: This stub only implements JSON loading; received name='pi_b
 
 - python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv -> rc=1
 
-2026-10-21 16:10:03,407 ERROR __main__: No JSON files found in data/raw
+2026-10-22 03:09:36,289 ERROR __main__: No JSON files found in data/raw
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 103, in <module>
     main()
