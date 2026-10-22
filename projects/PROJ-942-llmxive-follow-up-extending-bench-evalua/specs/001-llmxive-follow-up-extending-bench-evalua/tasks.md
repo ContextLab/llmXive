@@ -25,7 +25,7 @@ All tasks respect the data‑flow order, stay within the CPU‑only CI budget, a
   *Action*: Read each JSON trace from `data/raw/`, extract `task_id`, `turn_index`, `speaker`, `utterance`, and any `ground_truth_intent`. Write the flattened table to `data/derived/normalized_traces.csv`.  
   *Verification*: `tests/test_parse_traces.py` checks that the CSV contains exactly one row per turn, required columns exist with correct dtypes, and the total row count equals the sum of turns across all tasks.
 
-- [ ] **T003** [US1] **Deterministic intent inference for missing ground‑truth**  
+- [ ] **T003** [US1] **Deterministic intent inference for missing ground‑truth**   <!-- FAILED-IN-EXECUTION: code/pipelines/infer_missing_intents.py exit=1 -->
   *Script*: `code/pipelines/infer_missing_intents.py`  
   *Action*: For every turn lacking a `ground_truth_intent`, invoke a small deterministic LLM (e.g., `google/flan-t5-small`) with a fixed random seed (`torch.manual_seed(42)`, greedy decoding). Output `{task_id, turn_index, inferred_intent, confidence}` to `data/derived/inferred_intents.csv`. Confidence is a float in `[0,1]`.  
   *Verification*: `tests/test_inferred_intents.py` runs the script twice and asserts identical CSV output and that all confidence values lie within `[0,1]`.

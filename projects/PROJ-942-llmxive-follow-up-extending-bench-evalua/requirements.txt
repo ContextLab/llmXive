@@ -1,1 +1,20 @@
-datasets>=2.14.0
+# Existing dependencies (the environment already provides the following, but we
+# pin explicit versions for reproducibility where needed).
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional packages required for deterministic intent inference (T003)
+torch==2.2.0
+transformers==4.40.0
+sentencepiece==0.2.0  # required by some tokenizers used by transformers
+datasets==2.14.0  # used elsewhere in the pipeline; ensure it is available

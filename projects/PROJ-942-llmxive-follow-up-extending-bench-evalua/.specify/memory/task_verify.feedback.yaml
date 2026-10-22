@@ -1,32 +1,45 @@
+T000:
+  reason: The required `code/utils/seed.py` file is missing (only a `utils/seed.py`
+    exists elsewhere), violating the specified script location. Moreover, `tests/test_setup.py`
+    fails the `test_datasets_importable` check because the local `datasets.py` masks
+    the installed package, so the verification test does not pass.
+  task: c248270d6df0c12b8ac03c1d8d356c4acc30b97f7a93613969eb3920090f22c3
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/pipelines/download_pi_bench.py
-    exit=1'
-  task: e4c53403831b732c211ed5956774536ece43061a36558ae2f5c1ae9e0e5abfbe
+  reason: "The `download_pi_bench.py` script does not implement the required retry\
+    \ logic nor does it verify checksums against a bundled list (the `REFERENCE_CHECKSUMS`\
+    \ dict is empty). Moreover, when run it writes **0 JSON files**, so `tests/test_dataset_download.py`\
+    \ fails (\u201CNo JSON files found in data/raw\u201D). The test suite must pass\
+    \ and the script must produce verified files for the task to be considered complete."
+  task: 81e4097c7b7464769a686847bd1259616ddaf0a9592b7e6a4874d2fa114ce831
 T002:
-  task: ab9b97ea9ef93f9f31bbac07d6133328c252034c802d1e5f97518a90c1d77076
+  reason: Checked `code/pipelines/parse_traces.py` (exists and implements parsing)
+    and `tests/test_parse_traces.py` (tests the script on a temporary directory).
+    The required output artifact `data/derived/normalized_traces.csv` is missing,
+    so the script does not demonstrably produce the CSV at the specified location.
+  task: d407da3b0fa0f2888a3037f2a5c357357cfc7b986fe453153d53e57230f46137
 T003:
-  task: fa4fce7484f82a5e076f9847002e8124a2883661f2e4ae0a576f6c54b482f58b
+  reason: 'Requested task execution failed; rerun successfully: code/pipelines/infer_missing_intents.py
+    exit=1'
+  task: 620486bae071e7f1eae5491f2f6b66bf9773012a98f76d898e2a273ff44df890
 T004:
-  task: bf72edb2a2f508b085acfaa9dc2a53383bea302f4de85927528cf01d2e2d79e9
+  task: 483a67e600db2d4d77fe5fa69b4f62459e7bf1482d7ca5e28a2418df7bc7c3a6
 T005:
-  task: b9c2bf90353062cb59c44b1ec623a193712a652d6132c35caf146728e114ec29
+  task: d4a5f52097914877ae20d630d3a314806e24f68c3beac5a7b709f72571e79d73
 T006:
-  task: 03b6b49ca21da6feb786d3b1c4fd7f79d846ebc57ec39d4d23f948ca191b96a9
+  task: 433c20f4c5bf1132791363c0d10e31b5404b420758030c46fb2a50cbe1023754
 T007:
-  task: a65e6fb786d6098a3d92cf5a5f13396ca2bc79d1cb340ad9d6f5a5257cea99ae
+  task: 39de1f1db042f97b879b45d291941d27d18e50d8e0528c10ff9a62dae2f2a31b
 T008:
-  task: 923373387084e1a30e529e9d59119fa5a4c23e229b54fedd1645884834ee2c40
+  task: 218521dee2d75c5f468cc2831f76bab568434583c98b7a2d6d726636ae15ee72
 T009:
-  task: e1a08ef3bbdabf8014cc9cd257b1a897e0008764ede6e4d8e9736c65809b011f
+  task: c3daeecee7abff7b6fbcf567c37b63f91b8d7cfe7302e1416d88d7ae3710437e
 T010:
-  task: 57bccd627455e95671a1a0b7d73d6089be084dd07d03839ac275f131dc85faa0
+  task: b30c30e3645135700055c113831f5bf5ce653da1a2bd3013718d2863b13fb5a4
 T011:
-  task: fe0294b06e1b17a09c1be5edbede4a9ae40f729bda0f68a030aee92195b4b245
+  task: 9dd51c27f0bacf5c7bb60785dcf330e676b072c414f73a4991c75e30c850a466
 T012:
-  task: f2a252641ce55d74f510d6b8b59c63129f272b3f382d26527bb9dc111bcb1f68
+  task: 53405613156a071adb876fc92ae0d1a2d6c14dca2083708a670af011ff539465
 T013:
-  task: 8d067de07831edde9698c595ba5258684887295321486f723dd4251bb55c3f18
+  task: 641ced8dc39149d4ea89aefaf13565ae8d30648b5f7aca3e4dfd3ffd42ef649e
 T014:
-  task: 757aee1a6d01a287318ce45bdc0d0084a4384e00cac6f53a0bedd8d1a9bec883
-T015:
-  task: 1652b189b7db23fa85e1c5cd0c3c62232ae56bc5030113d7e19bf50ef1596194
+  task: a17aa338daa892ad01b3ab43504477a7afa3ad574d2703171e7498ac580540ad

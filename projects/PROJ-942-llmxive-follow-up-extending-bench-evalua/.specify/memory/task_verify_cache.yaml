@@ -1,0 +1,25 @@
+T000:
+  c: false
+  h: 1419b58b3aefe155d50841b985a44fabf577d59b44af5e51a2369dae89c2e67d
+  r: The required `code/utils/seed.py` file is missing (only a `utils/seed.py` exists
+    elsewhere), violating the specified script location. Moreover, `tests/test_setup.py`
+    fails the `test_datasets_importable` check because the local `datasets.py` masks
+    the installed package, so the verification test does not pass.
+  sig: fb2cbd9163b499c40ef78827dd0fe5a6f0b16d5751e7d9cff526d12ec110be86
+T001:
+  c: false
+  h: ed1cd6ec7fff7fc4fa307d9deaa642bd860f1536a391b6400fe3187c8d839b7e
+  r: "The `download_pi_bench.py` script does not implement the required retry logic\
+    \ nor does it verify checksums against a bundled list (the `REFERENCE_CHECKSUMS`\
+    \ dict is empty). Moreover, when run it writes **0 JSON files**, so `tests/test_dataset_download.py`\
+    \ fails (\u201CNo JSON files found in data/raw\u201D). The test suite must pass\
+    \ and the script must produce verified files for the task to be considered complete."
+  sig: f6f1fbe0f7d4d7369c734aad58425f061590d402ef3d3251e4f0ba57e9b42a5e
+T002:
+  c: false
+  h: b53a982fdbe02713cbca4f9b6662065ec83b7934508e192ca649da02683cdf78
+  r: Checked `code/pipelines/parse_traces.py` (exists and implements parsing) and
+    `tests/test_parse_traces.py` (tests the script on a temporary directory). The
+    required output artifact `data/derived/normalized_traces.csv` is missing, so the
+    script does not demonstrably produce the CSV at the specified location.
+  sig: db4bfa6f903082e428787b6707d0b31092de7638eb01c3f16e418559a81fbe54

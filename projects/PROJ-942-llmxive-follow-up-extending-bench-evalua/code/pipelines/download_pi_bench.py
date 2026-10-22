@@ -1,7 +1,6 @@
 import sys
 import os
-# CRITICAL: Remove the project root from sys.path to avoid shadowing the 'datasets' 
-# library with the local 'datasets.py' stub file found in the root.
+# Ensure the project root is not shadowing external packages.
 root_dir = os.getcwd()
 if root_dir in sys.path:
     sys.path.remove(root_dir)
@@ -15,16 +14,18 @@ from typing import List, Tuple
 
 try:
     from datasets import load_dataset
-except ImportError:
-    raise ImportError("The 'datasets' library is required. Please ensure it is installed via pip.")
+except ImportError as e:
+    raise ImportError(
+        "The 'datasets' library is required and must be installable with a compatible "
+        "pyarrow version. Ensure requirements.txt includes 'pyarrow==11.0.0'."
+    ) from e
 
 from llmxive_toolkit import paths, get_logger
 
 # Initialize logger
 log = get_logger(__name__)
 
-# Reference checksums would be placed here if provided by the dataset release.
-# Since we are streaming from HF, we generate the manifest for verification.
+# Placeholder for reference checksums if the dataset provides them.
 REFERENCE_CHECKSUMS = {}
 
 def _sha256_checksum(file_path: Path) -> str:
@@ -44,7 +45,7 @@ def _write_checksums(files: List[Tuple[Path, str]], out_path: Path) -> None:
     """
     with out_path.open("w", encoding="utf-8") as f:
         for rel_path, checksum in files:
-            f.write(f"{checksum}  {rel_path}\n")
+            f.write(f"{checksum}  {rel_path}\\n")
     log.info(f"Checksum manifest written to {out_path}")
 
 def _download_pi_bench(raw_dir: Path) -> List[Tuple[Path, str]]:
@@ -73,7 +74,6 @@ def _download_pi_bench(raw_dir: Path) -> List[Tuple[Path, str]]:
 
     # Iterate through the streaming dataset
     for idx, example in enumerate(ds):
-        # Ensure the example is JSON‑serialisable.
         json_path = raw_dir / f"{idx}.json"
         with json_path.open("w", encoding="utf-8") as jf:
             json.dump(example, jf, ensure_ascii=False, indent=2)
@@ -81,7 +81,7 @@ def _download_pi_bench(raw_dir: Path) -> List[Tuple[Path, str]]:
         rel_path = json_path.relative_to(raw_dir)
         checksum = _sha256_checksum(json_path)
         
-        # Comparison against reference list if available
+        # Verify against reference list if available
         if rel_path.name in REFERENCE_CHECKSUMS:
             if checksum != REFERENCE_CHECKSUMS[rel_path.name]:
                 log.error(f"Checksum mismatch for {rel_path.name}!")
@@ -119,7 +119,7 @@ def main() -> None:
     # Write a simple manifest listing the dataset source
     manifest_path = raw_dir / "download_manifest.txt"
     with manifest_path.open("w", encoding="utf-8") as mf:
-        mf.write("pi_bench dataset downloaded via huggingface datasets library\n")
+        mf.write("pi_bench dataset downloaded via huggingface datasets library\\n")
     log.info(f"Download manifest written to {manifest_path}")
 
     # Write checksum manifest
