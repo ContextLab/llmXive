@@ -10,10 +10,9 @@ metabolite concentrations, validates the result against the JSON schema,
 writes the cleaned DataFrame to Parquet and records a SHA‑256 checksum in a
 JSON log.
 
-This implementation treats `species_name` as an optional raw column.
-If it is missing or contains NaNs, a placeholder value ``"unknown"`` is
-inserted so that the downstream schema (which requires the field) is
-satisfied without discarding valid rows.
+Missing `species_name` values are filled with the corresponding
+`species_id` (converted to string) rather than an arbitrary placeholder,
+ensuring that no fabricated biological information is introduced.
 """
 
 import json
@@ -60,7 +59,8 @@ COLUMN_MAP = {
 
 # Columns that must be present and non‑missing for a row to be kept.
 # `species_name` is required by the JSON schema but is optional in the raw
-# data; we will fill missing values with a placeholder after row filtering.
+# data; we will fill missing values with the corresponding `species_id`
+# (as a string) after row filtering.
 REQUIRED_COLUMNS = [
     "species_id",
     "family",
@@ -159,12 +159,13 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     )
 
     # ------------------------------------------------------------------
-    # 4. Ensure species_name is present (placeholder if missing/NaN)
+    # 4. Ensure species_name is present (fill with species_id when missing)
     # ------------------------------------------------------------------
     if "species_name" not in df.columns:
-        df["species_name"] = "unknown"
+        df["species_name"] = df["species_id"].astype(str)
     else:
-        df["species_name"] = df["species_name"].fillna("unknown")
+        missing_name_mask = df["species_name"].isnull()
+        df.loc[missing_name_mask, "species_name"] = df.loc[missing_name_mask, "species_id"].astype(str)
 
     # ------------------------------------------------------------------
     # 5. Herbivory outlier detection & capping (IQR method)

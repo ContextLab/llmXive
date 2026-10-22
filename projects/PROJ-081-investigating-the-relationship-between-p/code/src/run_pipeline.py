@@ -20,6 +20,7 @@ canonical project directories.
 
 import argparse
 import sys
+import pandas as pd
 
 # Import the project's internal modules using the package layout
 from code.src.fetch_data import fetch_metabolights, fetch_pmn, fetch_hpid

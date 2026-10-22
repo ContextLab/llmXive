@@ -1,9 +1,0 @@
-T001:
-  c: true
-  h: 75710121d48ae27a7b240475ba489324c6089114513fe92e587a3a7bfca115a6
-  r: "Checked `code/src/fetch_data.py` for three fetch functions with exponential\
-    \ back\u2011off, required columns, and logging; `code/tests/test_fetch_data.py`\
-    \ for the prescribed unit tests; and `outputs/fetch_log.txt` for non\u2011empty\
-    \ sample IDs and total species \u2265\u202F50. All artifacts exist, contain the\
-    \ correct content, and the tests pass."
-  sig: be6b020eca5e8ed004e99f0738cfb6a4a58a64ee6dc2b4914f858df802a19d01
