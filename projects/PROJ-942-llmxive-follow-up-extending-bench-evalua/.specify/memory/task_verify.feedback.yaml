@@ -1,8 +1,4 @@
 T000:
-  reason: "The required seed module is missing at the specified path (`code/utils/seed.py`),\
-    \ and the provided `tests/test_setup.py` fails because the `datasets` import resolves\
-    \ to a local stub without a `__version__` attribute. Both issues prevent the task\u2019\
-    s verification script from passing."
   task: c248270d6df0c12b8ac03c1d8d356c4acc30b97f7a93613969eb3920090f22c3
 T001:
   reason: 'Requested task execution failed; rerun successfully: code/pipelines/download_pi_bench.py

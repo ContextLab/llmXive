@@ -1,7 +1,7 @@
 {
-  "model_tier": 1,
+  "model_tier": 2,
   "fix_rounds": 0,
-  "updated_at": "2026-10-22T07:19:17Z",
+  "updated_at": "2026-10-22T09:08:24Z",
   "project_id": "PROJ-942-llmxive-follow-up-extending-bench-evalua",
   "replan_rounds": 2
 }

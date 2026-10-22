@@ -1,7 +1,0 @@
-{
-  "task_id": "T000",
-  "fingerprint": "167952867f3870692d5ce78a3764e5c2cfea3cb4f57ffb3aad4927cd8f49d54d",
-  "count": 3,
-  "model": "zai-org.glm-5.3",
-  "reason": "[implementer] refusing to write 'tests/test_setup.py': imports nonexistent names from sibling files: `from utils.seed import DEFAULT_SEED, get_seed_state_summary` (available: Optional, os, random, set_seeds). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}

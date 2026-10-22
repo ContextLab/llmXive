@@ -1,20 +1,13 @@
 T000:
-  c: false
-  h: 9e09b61fbbfbecef5f4d827b5efff73b63ef164944457341cbcec75a4dfce3df
-  r: "The required seed module is missing at the specified path (`code/utils/seed.py`),\
-    \ and the provided `tests/test_setup.py` fails because the `datasets` import resolves\
-    \ to a local stub without a `__version__` attribute. Both issues prevent the task\u2019\
-    s verification script from passing."
-  sig: a490d96271f0d1badf50165d7c36cd0f0bacba7a2a6796007353f1ca0ccd6e42
-T001:
-  c: false
-  h: ed1cd6ec7fff7fc4fa307d9deaa642bd860f1536a391b6400fe3187c8d839b7e
-  r: "The `download_pi_bench.py` script does not implement the required retry logic\
-    \ nor does it verify checksums against a bundled list (the `REFERENCE_CHECKSUMS`\
-    \ dict is empty). Moreover, when run it writes **0 JSON files**, so `tests/test_dataset_download.py`\
-    \ fails (\u201CNo JSON files found in data/raw\u201D). The test suite must pass\
-    \ and the script must produce verified files for the task to be considered complete."
-  sig: f6f1fbe0f7d4d7369c734aad58425f061590d402ef3d3251e4f0ba57e9b42a5e
+  c: true
+  h: 1b58993666150ea3cbb0e1cc91bcb75bba582e6d7f009e7d2bf46cbcaf39f870
+  r: 'All required artifacts exist and are substantive: `code/pipelines/install_dependencies.py`
+    installs from `requirements.txt` and calls `set_seeds()`, `code/utils/seed.py`
+    seeds random/NumPy/torch and pins PYTHONHASHSEED, and `tests/test_setup.py` asserts
+    package importability plus the deterministic value 0.3745401188473625, which is
+    the correct first `np.random.rand()` after `np.random.seed(42)`. A top-level `utils`
+    proxy package ensures the test''s `from utils.seed import set_seeds` import resolves.'
+  sig: 5631f5978ccc9269f6402b8c9b0a59351f6f4cd9cf218bb87980fb56bc2c2a2e
 T002:
   c: false
   h: b53a982fdbe02713cbca4f9b6662065ec83b7934508e192ca649da02683cdf78

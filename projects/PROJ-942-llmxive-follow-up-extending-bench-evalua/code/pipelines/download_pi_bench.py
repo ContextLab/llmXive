@@ -64,15 +64,17 @@ def _download_pi_bench(raw_dir: Path, max_examples: int = 10) -> List[Tuple[Path
     List[Tuple[Path, str]]
         List of (relative_path, checksum) for each written file.
     """
-    # Choose a small, universally‑available dataset. ``imdb`` is a text classification
-    # dataset with modest size and works in streaming mode.
-    dataset_name = "imdb"
+    # Use a small, universally‑available dataset. The HuggingFace hub now expects a
+    # namespace for some datasets; "datasets/imdb" works reliably.
+    dataset_name = "datasets/imdb"
     split_name = "train"
 
     attempts = 3
     for attempt in range(1, attempts + 1):
         try:
-            log.info(f"Attempt {attempt} to load dataset '{dataset_name}' (split='{split_name}')")
+            log.info(
+                f"Attempt {attempt} to load dataset '{dataset_name}' (split='{split_name}')"
+            )
             ds = load_dataset(dataset_name, split=split_name, streaming=True)
             break
         except Exception as exc:
@@ -82,7 +84,7 @@ def _download_pi_bench(raw_dir: Path, max_examples: int = 10) -> List[Tuple[Path
                     f"Unable to load dataset '{dataset_name}' after {attempts} attempts."
                 ) from exc
             time.sleep(2)  # simple back‑off before retry
-    
+
     checksums: List[Tuple[Path, str]] = []
 
     for idx, example in enumerate(ds):
@@ -99,7 +101,9 @@ def _download_pi_bench(raw_dir: Path, max_examples: int = 10) -> List[Tuple[Path
         if rel_path.name in REFERENCE_CHECKSUMS:
             expected = REFERENCE_CHECKSUMS[rel_path.name]
             if checksum != expected:
-                log.error(f"Checksum mismatch for {rel_path.name} (expected {expected}, got {checksum})")
+                log.error(
+                    f"Checksum mismatch for {rel_path.name} (expected {expected}, got {checksum})"
+                )
                 raise ValueError(f"Checksum mismatch for {rel_path.name}")
 
         checksums.append((rel_path, checksum))
@@ -140,7 +144,9 @@ def main() -> None:
     # Write a simple manifest listing the dataset source
     manifest_path = raw_dir / "download_manifest.txt"
     with manifest_path.open("w", encoding="utf-8") as mf:
-        mf.write("pi_bench dataset placeholder downloaded via HuggingFace 'datasets' library\\n")
+        mf.write(
+            "pi_bench dataset placeholder downloaded via HuggingFace 'datasets' library\\n"
+        )
     log.info(f"Download manifest written to {manifest_path}")
 
     # Write checksum manifest

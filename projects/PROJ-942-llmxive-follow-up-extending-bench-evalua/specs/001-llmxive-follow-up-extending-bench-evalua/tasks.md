@@ -8,14 +8,14 @@ All tasks respect the data‑flow order, stay within the CPU‑only CI budget, a
 
 ## Phase 0 – Setup  
 
-- [ ] **T000** [US0] **Install dependencies and pin reproducibility seeds**  
+- [X] **T000** [US0] **Install dependencies and pin reproducibility seeds**  
   *Script*: `code/pipelines/install_dependencies.py` (or run `pip install -r requirements.txt`) and `code/utils/seed.py` to set global seeds.  
   *Action*: Create a virtual environment, install all packages from `requirements.txt`, then run `python -c "import utils.seed; utils.seed.set_seeds()"`.  
   *Verification*: `tests/test_setup.py` asserts that required packages are installed and that a deterministic random number (e.g., `np.random.rand()`) matches a stored reference value.
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] **T001** [US1] **Download and verify the π‑Bench dataset**   <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 -->
+- [ ] **T001** [US1] **Download and verify the π‑Bench dataset**   <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 -->
   *Script*: `code/pipelines/download_pi_bench.py`  
   *Action*: Stream the official π‑Bench release (`datasets.load_dataset("pi_bench", streaming=True)`) into `data/raw/`. Compute a SHA‑256 checksum for each file and compare against the checksum list bundled with the dataset. Retry up to three times on transient network errors; abort with a clear error if any checksum mismatches.  
   *Verification*: `tests/test_dataset_download.py` asserts that all files are present, loadable, and pass checksum verification; CI prints “✅ π‑Bench download verified”.

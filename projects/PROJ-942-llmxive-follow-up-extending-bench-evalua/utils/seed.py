@@ -1,56 +1,35 @@
 """
-Utility to set deterministic seeds across common libraries.
+Proxy module for the project's reproducibility seed helper.
 
-This module provides a single public function ``set_seeds`` that seeds
-Python's ``random`` module, NumPy, and (if available) PyTorch. It also
-fixes the ``PYTHONHASHSEED`` environment variable to ensure reproducible
-hashing of built‑in types.
+The original implementation lives in ``code/utils/seed.py``.  This file
+imports the real functions and constants and re‑exports them under the
+top‑level ``utils`` package, satisfying test imports such as::
 
-The function is deliberately lightweight and has no side‑effects beyond
-seeding; it can be called multiple times (the most recent call wins).
+    from utils.seed import set_seeds
+
+No additional logic is introduced – all behaviour (including the
+deterministic NumPy value) is delegated to the original implementation.
 """
 
+# Import the actual implementation from the code directory.
+from importlib import import_module
 import os
-import random
-from typing import Optional
+import sys
+from pathlib import Path
 
-def set_seeds(seed: int = 42) -> None:
-    """
-    Set global random seeds for reproducibility.
+# Ensure the repository's ``code`` directory is on ``sys.path``.
+# This mirrors the logic used in ``code/pipelines/install_dependencies.py``.
+_code_dir = Path(__file__).resolve().parents[1] / "code"
+if str(_code_dir) not in sys.path:
+    sys.path.insert(0, str(_code_dir))
 
-    Parameters
-    ----------
-    seed : int, optional
-        The seed value to use. Defaults to 42.
+# Load the original module.
+_orig = import_module("utils.seed")  # This resolves to ``code/utils/seed.py`` after the path tweak.
 
-    This function seeds:
-    - ``random`` (Python's built‑in RNG)
-    - ``numpy.random``
-    - ``torch`` (if installed)
-    - ``PYTHONHASHSEED`` environment variable
-    """
-    # Standard library RNG
-    random.seed(seed)
+# Re‑export the public API.
+DEFAULT_SEED = getattr(_orig, "DEFAULT_SEED")
+set_seeds = getattr(_orig, "set_seeds")
+get_seed_state_summary = getattr(_orig, "get_seed_state_summary")
 
-    # NumPy RNG
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except Exception:  # pragma: no cover
-        pass
-
-    # PyTorch RNG (CPU‑only; ignore if torch not installed)
-    try:
-        import torch
-        torch.manual_seed(seed)
-        # Ensure deterministic behavior on CUDA if ever used
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-        # Disable nondeterministic algorithms
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
-    except Exception:  # pragma: no cover
-        pass
-
-    # Hash seed for reproducible hashing of built‑in types
-    os.environ["PYTHONHASHSEED"] = str(seed)
+# Preserve the module's ``__all__`` for tidy imports.
+__all__ = ["DEFAULT_SEED", "set_seeds", "get_seed_state_summary"]
