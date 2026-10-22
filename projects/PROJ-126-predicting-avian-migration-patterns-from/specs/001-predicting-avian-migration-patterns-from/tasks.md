@@ -5,7 +5,7 @@
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [US1] Create `code/config.py` defining:
+- [X] T001 [US1] Create `code/config.py` defining:
   - `RANDOM_SEED = 42`
   - `DATA_ROOT = Path("../data")`
   - `RAW_DIR = DATA_ROOT / "raw"`
@@ -22,7 +22,7 @@
   - **Also** create `run_pipeline.sh` at repo root with stage sub‑commands (`data`, `model`, `viz`, `full`) that invoke the appropriate Python modules and record a `psutil` monitor for feasibility metrics.  
   Verification: `python -c "from code.config import *"` exits 0; `./run_pipeline.sh --help` prints usage.
 
-- [ ] T002 [US1] Implement the real eBird data loader in `code/data_loader.py`: <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
+- [ ] T002 [US1] Implement the real eBird data loader in `code/data_loader.py`: <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
   - Stream `datasets.load_dataset("ebird/ebd", split="train", streaming=True)`.
   - Filter rows where `species_code == "SRUT"` and checklist satisfies complete‑checklist criteria (`duration_min >= 1`, `num_observers >= 1`, `distance_km <= 10`).
   - Keep records whose latitude/longitude fall inside `REGIONAL_BBOX` and `year` in 2015‑2022.

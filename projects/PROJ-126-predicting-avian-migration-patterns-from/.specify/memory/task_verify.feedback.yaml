@@ -1,9 +1,4 @@
 T001:
-  reason: The `code/config.py` defines most required constants, but `DATA_ROOT` is
-    set to an absolute path (`Path(__file__).parents[1] / "data"`) instead of the
-    required literal `Path("../data")`. This does not meet the specification. The
-    rest of the file and `run_pipeline.sh` are present and functional. Fix the `DATA_ROOT`
-    definition to exactly `DATA_ROOT = Path("../data")`.
   task: 2b71575655249514e9d2d2ce8bbc4fc69a6e18f11f5efbe734e2c3075fb585b5
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data_loader.py

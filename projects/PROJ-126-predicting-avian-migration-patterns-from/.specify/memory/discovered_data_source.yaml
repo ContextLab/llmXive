@@ -1,19 +1,17 @@
 status: none
-intent: eBird Basic Dataset complete checklists MODIS Land Surface Temperature NDVI
-  python package dataset
+intent: download eBird Basic Dataset and MODIS Land Surface Temperature NDVI python
+  package dataset
 required_fields:
 - species_code
-- observation_date
 - latitude
 - longitude
-- duration_min
+- observation_date
+- duration_minutes
 - distance_km
-- num_observers
+- number_of_observers
 - observation_count
 - temperature
 - ndvi
-- week
-- grid_cell_id
-cache_key: a88f22d972c13fa64b641bfe940a6ec6133022229770b308ab538b1dee348a1d
-searched_at: '2026-10-22T09:38:29.986791+00:00'
+cache_key: 30fa9b59cf15b04b65b3435cec11299503f225ee13acc709c157644720ef2699
+searched_at: '2026-10-22T09:40:58.455851+00:00'
 retry_count: 1

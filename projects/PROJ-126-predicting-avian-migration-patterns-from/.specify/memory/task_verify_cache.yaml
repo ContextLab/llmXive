@@ -1,12 +1,13 @@
 T001:
-  c: false
-  h: e13af9e1fdc671865c54bfd38bb2a30837983bb20f1b8b7523ab06828ab13b08
-  r: The `code/config.py` defines most required constants, but `DATA_ROOT` is set
-    to an absolute path (`Path(__file__).parents[1] / "data"`) instead of the required
-    literal `Path("../data")`. This does not meet the specification. The rest of the
-    file and `run_pipeline.sh` are present and functional. Fix the `DATA_ROOT` definition
-    to exactly `DATA_ROOT = Path("../data")`.
-  sig: 4ccdd801fc8c7a5257b026d47d3859c6ebbd74d09811c3a8e3c3a4b6dc2ccb17
+  c: true
+  h: d9399910c0704db392ae05e3206a2bfa6e49c8b0021d25a332cd06f0c508c326
+  r: '`code/config.py` defines all required constants exactly (RANDOM_SEED=42, DATA_ROOT/RAW_DIR/PROC_DIR/OUT_DIR,
+    REGIONAL_BBOX, REGIONAL_SUBSET, XGB_PARAMS, THRESHOLDS, MAX_GAP_DAYS, RAM_LIMIT_GB,
+    TIME_LIMIT_HOURS) and seeds both `np.random` and `random`. `run_pipeline.sh` at
+    project root supports data/model/viz/full stages, records psutil-based elapsed-time
+    and memory metrics to JSON, and the execution log confirms `--help` exits 0 with
+    usage output.'
+  sig: 40a2ea0ba87125c7fe276f996af63a56d9e997a12519addbac3c645ca744fd9e
 T010:
   c: false
   h: 32227fcff35eb97d077095f3e9479443a481175fa01af3ba6ed43431ff5e5b31
