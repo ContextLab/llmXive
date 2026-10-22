@@ -1,1 +1,3 @@
-# Package marker for code.quantization
+"""
+Package marker for quantization utilities.
+"""

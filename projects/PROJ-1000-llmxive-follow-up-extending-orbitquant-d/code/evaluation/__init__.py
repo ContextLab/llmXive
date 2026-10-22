@@ -1,1 +1,3 @@
-# Package marker for code.evaluation
+"""
+Package marker for evaluation utilities.
+"""

@@ -1,1 +1,1 @@
-# Placeholder for test package
+# Package marker for tests

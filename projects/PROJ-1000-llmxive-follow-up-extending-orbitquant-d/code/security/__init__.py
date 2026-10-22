@@ -1,1 +1,3 @@
-# Package marker for code.security
+"""
+Package marker for security‑related helpers.
+"""
