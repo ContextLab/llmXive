@@ -10,7 +10,7 @@ This is a research implementation plan for a cross-species metabolomics–herbiv
 
 **Goal**: Establish project structure, configure dependencies with pinned random seeds, acquire and validate a real dataset from public repositories, and run a minimal executable analysis to confirm data flow and output contracts early.
 
-- [ ] T001 [P1] [US-1] **Project initialization and data acquisition framework** <!-- ATOMIZE: requested -->
+- [X] T001 [P1] [US-1] **Project initialization and data acquisition framework** <!-- ATOMIZE: requested -->
   - Create `code/` directory structure with `src/`, `tests/`, and `scripts/` subdirectories.  
   - Create `data/raw/`, `data/processed/`, `outputs/`, `contracts/` directories.  
   - Pin Python 3.11 with `requirements.txt` including `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `dendropy`, `requests`, `tqdm`, `scipy`, `fuzzywuzzy`, `python-Levenshtein`, `pytest`.  

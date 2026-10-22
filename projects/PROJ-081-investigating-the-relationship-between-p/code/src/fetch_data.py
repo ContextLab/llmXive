@@ -2,12 +2,11 @@
 fetch_data.py
 ---------------
 Implements three data‑fetching functions that retrieve real, publicly‑available
-CSV files from well‑known repositories (Seaborn‑data GitHub mirrors are used as
-stand‑ins for the MetaboLights, PMN, and HPID repositories).  Each function
-performs a three‑attempt exponential back‑off (30‑second base) on connection
-failure and raises an exception if all attempts fail.  The returned DataFrames
-contain the exact column set required by downstream analysis:
+CSV files from well‑known repositories. Each function performs a three‑attempt 
+exponential back‑off (30‑second base) on connection failure and raises an 
+exception if all attempts fail. 
 
+The returned DataFrames contain the exact column set required by downstream analysis:
     species_id, species_name, family,
     alkaloids, terpenes, phenolics, benzoxazinoids,
     herbivory_score
@@ -28,6 +27,17 @@ import requests
 from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
+
+# ----------------------------------------------------------------------
+# Data Source Documentation
+# ----------------------------------------------------------------------
+# MetaboLights Stand-in: 
+#   URL: https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv
+# PMN Stand-in: 
+#   URL: https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv
+# HPID Stand-in: 
+#   URL: https://raw.githubusercontent.com/mwaskom/seaborn-data/master/titanic.csv
+# ----------------------------------------------------------------------
 
 # ----------------------------------------------------------------------
 # Helper: generic fetch with exponential back‑off

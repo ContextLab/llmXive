@@ -9,6 +9,11 @@ rows, imputes documented absences, caps herbivory outliers, standardises
 metabolite concentrations, validates the result against the JSON schema,
 writes the cleaned DataFrame to Parquet and records a SHA‑256 checksum in a
 JSON log.
+
+This implementation treats `species_name` as an optional raw column.
+If it is missing or contains NaNs, a placeholder value ``"unknown"`` is
+inserted so that the downstream schema (which requires the field) is
+satisfied without discarding valid rows.
 """
 
 import json
@@ -53,6 +58,9 @@ COLUMN_MAP = {
     "species_name": "species_name",
 }
 
+# Columns that must be present and non‑missing for a row to be kept.
+# `species_name` is required by the JSON schema but is optional in the raw
+# data; we will fill missing values with a placeholder after row filtering.
 REQUIRED_COLUMNS = [
     "species_id",
     "family",
@@ -61,10 +69,11 @@ REQUIRED_COLUMNS = [
     "phenolics",
     "benzoxazinoids",
     "herbivory_score",
-    # `species_name` is required by the JSON schema but is optional in the raw
-    # data – we will create a placeholder if it is missing.
-    "species_name",
 ]
+
+# Columns that are always written to the final output (including the
+# optional species_name which we add later if absent).
+FINAL_COLUMNS = REQUIRED_COLUMNS + ["species_name"]
 
 METABOLITE_COLUMNS = [
     "alkaloids",
@@ -117,8 +126,8 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
             rename_map[col] = canonical
     df = df.rename(columns=rename_map)
 
-    # Ensure all required columns exist; create missing columns as NaN.
-    for col in REQUIRED_COLUMNS:
+    # Ensure all final columns exist; create missing columns as NaN.
+    for col in FINAL_COLUMNS:
         if col not in df.columns:
             df[col] = np.nan
 
@@ -137,7 +146,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
             documented_absent.append(met)
 
     # ------------------------------------------------------------------
-    # 3. Row‑wise filtering of missing required data
+    # 3. Row‑wise filtering of missing required data (excluding species_name)
     # ------------------------------------------------------------------
     before_rows = df.shape[0]
     df = df.dropna(subset=REQUIRED_COLUMNS, how="any")
@@ -150,7 +159,15 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     )
 
     # ------------------------------------------------------------------
-    # 4. Herbivory outlier detection & capping (IQR method)
+    # 4. Ensure species_name is present (placeholder if missing/NaN)
+    # ------------------------------------------------------------------
+    if "species_name" not in df.columns:
+        df["species_name"] = "unknown"
+    else:
+        df["species_name"] = df["species_name"].fillna("unknown")
+
+    # ------------------------------------------------------------------
+    # 5. Herbivory outlier detection & capping (IQR method)
     # ------------------------------------------------------------------
     herb = df["herbivory_score"]
     q1 = herb.quantile(0.25)
@@ -169,7 +186,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     df.loc[outlier_mask, "herbivory_score"] = upper_whisker
 
     # ------------------------------------------------------------------
-    # 5. Z‑score standardisation of metabolite columns
+    # 6. Z‑score standardisation of metabolite columns
     # ------------------------------------------------------------------
     scaler = StandardScaler()
     metabolite_values = df[METABOLITE_COLUMNS].astype(float)
@@ -177,7 +194,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     df[METABOLITE_COLUMNS] = scaled
 
     # ------------------------------------------------------------------
-    # 6. Build the absence_indicator JSON column
+    # 7. Build the absence_indicator JSON column
     # ------------------------------------------------------------------
     def build_indicator(_: pd.Series) -> str:
         """Return a JSON string documenting documented absences."""
@@ -187,7 +204,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     df["absence_indicator"] = df.apply(build_indicator, axis=1)
 
     # ------------------------------------------------------------------
-    # 7. Validate against JSON schema (if present and loadable)
+    # 8. Validate against JSON schema (if present)
     # ------------------------------------------------------------------
     schema_path = paths.contracts("processed_data.schema.yaml")
     try:
@@ -199,7 +216,9 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
         )
         schema = None
     except json.JSONDecodeError as e:
-        log.error("Failed to parse JSON schema at %s: %s – skipping validation.", schema_path, e)
+        log.error(
+            "Failed to parse JSON schema at %s: %s – skipping validation.", schema_path, e
+        )
         schema = None
 
     if schema is not None:
@@ -212,7 +231,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
                 raise
 
     # ------------------------------------------------------------------
-    # 8. Persist cleaned DataFrame
+    # 9. Persist cleaned DataFrame
     # ------------------------------------------------------------------
     out_path = paths.data("processed", "clean.parquet")
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -220,7 +239,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     log.info("Cleaned data written to %s", out_path)
 
     # ------------------------------------------------------------------
-    # 9. Compute SHA‑256 checksum and write log JSON
+    # 10. Compute SHA‑256 checksum and write log JSON
     # ------------------------------------------------------------------
     sha256 = hashlib.sha256()
     with open(out_path, "rb") as f:

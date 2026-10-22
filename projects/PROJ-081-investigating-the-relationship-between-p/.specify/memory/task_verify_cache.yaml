@@ -1,20 +1,17 @@
 T001:
-  c: false
-  h: 49ec8fd521d27d63eba48a8abb07c564bd4a89d3ae3e287bcf60b82723db9bdc
-  r: The fetch functions work and the tests pass, but `code/src/fetch_data.py` does
-    not contain the required URL/API endpoint documentation as comments; the URLs
-    are only present as string literals inside the functions. Adding comment lines
-    that explicitly list each URL will satisfy the task.
-  sig: 5d89e5c76e43753969c7e7721a073298aed0dc46ddbff472a552bd0ab3889970
+  c: true
+  h: 9cbdde3b807fdeb3dc52b8bdd5551994a832cbf66502e26cdc54691150460502
+  r: "Checked the directory structure, `requirements.txt`, `config.py`, `fetch_data.py`\
+    \ (including back\u2011off logic and real URLs), the unit tests in `test_fetch_data.py`,\
+    \ and the execution logs showing all tests passed and `fetch_log.txt` populated\
+    \ with >50 total species. All required artifacts exist and meet the specifications."
+  sig: a33f89910a3c4908241d678dc386a63aa2fbfc24a976d2e2d63428ef9f9a0891
 T002:
   c: false
-  h: 487142c289efb69a622806201de4581d1db97190c742fa18387fa95c0a854458
-  r: "The repository contains `code/src/preprocess.py` and the unit\u2011test file,\
-    \ but the required output artifacts (`data/processed/clean.parquet`, `outputs/preprocessing_log.json`)\
-    \ and the schema file (`processed_data.schema.yaml`) are missing. Moreover, the\
-    \ implementation adds `species_name` to `REQUIRED_COLUMNS` and then drops rows\
-    \ with Na\u202FN in that column, causing the test data (which lacks a `species_name`\
-    \ column) to be eliminated and the Z\u2011scoring step to fail. Consequently the\
-    \ tests cannot pass and the validation step is skipped due to the absent schema.\
-    \ Fix the handling of optional `species_na"
-  sig: a981441706d7b2ba6871c017d76521f511b600160c94f8afed05570b887f5f4c
+  h: 9cab40c2de43ae4a504ff1fbd422f33fdc1bf1bb44d434ef3fc302591868361f
+  r: "The repository contains `code/src/preprocess.py` and the unit tests, but the\
+    \ required output artifacts `data/processed/clean.parquet` and `outputs/preprocessing_log.json`\
+    \ are missing, and the schema file `processed_data.schema.yaml` is absent, causing\
+    \ the validation step to be skipped. The pipeline therefore does not fully meet\
+    \ the task\u2019s specifications."
+  sig: 4225809f0e38bfc23cfe7b2fbef2adec88e9e8ea6488f93163f735c8510768d6
