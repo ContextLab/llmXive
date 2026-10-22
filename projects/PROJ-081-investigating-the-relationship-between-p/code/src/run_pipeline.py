@@ -4,23 +4,14 @@ run_pipeline.py
 Orchestrates the end‑to‑end data acquisition and preprocessing steps
 required for the plant metabolite ↔ herbivore resistance analysis.
 
-The script is deliberately lightweight: it fetches the three raw
-datasets (MetaboLights, PMN, HPID) using the existing fetch functions,
-runs the preprocessing pipeline, and relies on the `paths` helper to
-write the cleaned Parquet file and checksum log to the exact locations
-required by the task specifications.
+The script fetches the three raw datasets (MetaboLights, PMN, HPID) using the
+existing fetch functions, runs the preprocessing pipeline, and writes the
+cleaned Parquet file and checksum log to the exact locations required by
+the task specifications.
 
-The command‑line interface mirrors the one described in ``quickstart.md``.
-Only ``--seed``, ``--max-species`` and ``--output-dir`` are parsed; they
-are retained for compatibility but are not used directly because the
-underlying modules already enforce deterministic behaviour via
-``code/src/config.py`` and the preprocessing function writes to the
-canonical project directories.
-
-This version ensures that a Parquet engine (pyarrow) is available at
-runtime. If the import fails, the script installs ``pyarrow`` on‑the‑fly
-before proceeding, guaranteeing that ``df.to_parquet`` succeeds on the
-CI runner.
+To remain compatible with the CI environment (NumPy 1.26), the script
+prefers the ``fastparquet`` engine. If ``fastparquet`` is not installed,
+it installs it on‑the‑fly. ``pyarrow`` is **not** required.
 """
 
 import argparse
@@ -29,17 +20,17 @@ import subprocess
 import importlib
 import pandas as pd
 
-# Ensure a Parquet engine (pyarrow) is available.
+# ------------------------------------------------------------------
+# Ensure a Parquet engine (fastparquet) is available.
+# ------------------------------------------------------------------
 try:
-    import pyarrow  # noqa: F401
+    import fastparquet  # noqa: F401
 except ImportError:
-    # Install pyarrow quietly; this will use the same environment the
-    # script runs in. The installation is fast because a recent wheel
-    # is available for the runner's platform.
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "pyarrow>=12.0.0"])
-    # Reload the module so pandas can discover the newly installed engine.
+    # Install fastparquet quietly; this will use the same environment the
+    # script runs in. The wheel is small and installs quickly.
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "fastparquet"])
     importlib.invalidate_caches()
-    import pyarrow  # noqa: F401
+    import fastparquet  # noqa: F401
 
 # Import the project's internal modules using the package layout
 from code.src.fetch_data import fetch_metabolights, fetch_pmn, fetch_hpid
@@ -86,7 +77,7 @@ def main(argv=None):
     # Guard against placeholder usage – the task mandates real data.
     if args.use_placeholder:
         raise RuntimeError(
-            "Placeholder data is not permitted for T002. The pipeline requires real "
+            "Placeholder data is not permitted for T001. The pipeline requires real "
             "datasets from MetaboLights, PMN, and HPID."
         )
 

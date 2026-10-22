@@ -1,0 +1,7 @@
+{
+  "clean_parquet_path": "/home/runner/work/llmXive/llmXive/projects/PROJ-081-investigating-the-relationship-between-p/data/processed/clean.parquet",
+  "checksum_sha256": "28c3a8428f3b741d42d9e5354f2fb2fecf826f29acb293d6e1f6f231835aa37e",
+  "row_count": 277,
+  "column_count": 9,
+  "outlier_capped": 0
+}

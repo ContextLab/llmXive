@@ -1,0 +1,11 @@
+T001:
+  c: true
+  h: bbcd5ab1fae89f230f2eb1e15859b02e2bdbcb0f08190e75ed566a919fc464f9
+  r: "Checked that `code/src/config.py` sets the required seeds, `code/src/fetch_data.py`\
+    \ implements the three fetch functions with 3\u2011attempt exponential back\u2011\
+    off and returns DataFrames with all required columns, and `code/tests/test_fetch_data.py`\
+    \ validates column presence, no NaNs, and non\u2011empty frames while also invoking\
+    \ the script to produce `outputs/fetch_log.txt` (which contains sample IDs and,\
+    \ per the script\u2019s own check, total species\u202F\u2265\u202F50). All required\
+    \ directories, files, and `requirements.txt` are present."
+  sig: f346928ebd25074497cf212a85f09949cd3c30f7ed11df47fbab40474e73d1e2

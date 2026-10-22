@@ -10,7 +10,7 @@ The study acquires paired metabolomics–herbivory data from public repositories
 
 **Goal**: Establish project structure, configure dependencies, acquire a real dataset, and run a minimal executable analysis to confirm data flow and output contracts early.
 
-- [ ] T001 [US‑1] **Project initialization and data‑acquisition framework**   <!-- FAILED-IN-EXECUTION: code/src/run_pipeline.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/run_pipeline.py exit=1 -->
+- [X] T001 [US‑1] **Project initialization and data‑acquisition framework**
   - Create `code/` with `src/`, `tests/`, `scripts/` sub‑directories; create `data/raw/`, `data/processed/`, `outputs/`, `contracts/`.  
   - Add `requirements.txt` (Python 3.11, pandas, numpy, scikit‑learn, statsmodels, seaborn, matplotlib, dendropy, requests, tqdm, scipy, fuzzywuzzy, python‑Levenshtein, pytest).  
   - Implement `code/src/config.py` fixing random seeds (`np.random.seed(42)`, `random.seed(42)`, `random_state=42`).  
