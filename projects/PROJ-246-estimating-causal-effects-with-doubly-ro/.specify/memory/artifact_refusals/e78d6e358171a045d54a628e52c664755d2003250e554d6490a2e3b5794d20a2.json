@@ -1,7 +1,7 @@
 {
   "task_id": "T001",
   "fingerprint": "d254993a14c03938b8ce022ea4158dc8d564fa02277235ced6b625038664ddc9",
-  "count": 2,
-  "model": "openai.gpt-oss-120b",
+  "count": 3,
+  "model": "zai-org.glm-5.3",
   "reason": "[implementer] refused pipeline control evidence or reviewed requirements: 'specs/001-estimating-causal-effects-with-doubly-ro/spec.md'"
 }
