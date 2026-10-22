@@ -1,15 +1,12 @@
 status: none
-intent: GDELT sentiment time series dataset download Python package and FRED macroeconomic
-  data python package dataset
+intent: download GDELT Event Database sentiment series and FRED macroeconomic data
+  python package dataset
 required_fields:
 - quarter
-- sentiment_average
-- sentiment_positive
-- sentiment_negative
-- sentiment_confidence
-- sentiment_sample_size
+- sentiment_score
 - gdp
 - unemployment_rate
-cache_key: 18a2d7c108347fd11ee90739c8b35f810430a09c5e5a7318e61c59c1f9d3a886
-searched_at: '2026-10-09T03:36:18.993071+00:00'
+- consumer_confidence_index
+cache_key: c98bcbe3018ee154384bc9d34fb7624aa0a62363b9296acc7b0f5396d9460430
+searched_at: '2026-10-22T03:22:50.236698+00:00'
 retry_count: 1
