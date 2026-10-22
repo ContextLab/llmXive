@@ -1,4 +1,4 @@
-- artifact_hash: 7c476b1385200e56248231749d11ba2ffb2dc1527535d3e9463e8918aff1a957
+- artifact_hash: ec3fcacb4cad656d12283a7f2b6bc5754d6795e1ed3f80668c5b52bfe0e593ab
   artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/specs/001-llmxive-follow-up-extending-learning-fro/plan.md
   cite_id: c-001
   cited_authors: []
@@ -7,9 +7,9 @@
   kind: url
   value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/train-00000-of-00001.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/2a53b35a9aa11e1e9da03cd3f0c0b78df3a6f15b4648b563755a0c644e246ae4?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&xip=Da3lRBBb91U&X-Xet-Cas-Uid=public&Expires=1791999616&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkLzJhNTNiMzVhOWFhMTFlMWU5ZGEwM2NkM2YwYzBiNzhkZjNhNmYxNWI0NjQ4YjU2Mzc1NWEwYzY0NGUyNDZhZTRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmeGlwPURhM2xSQkJiOTFVJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTE5OTk2MTZ9fX1dfQ__&Signature=MEUCIQCja4zXWA1JLeTs19yU5vfo4TJPFb-gs%7EoWlH4Phhwj4AIgB8OZ4p5XK939lkoIrijoCNCyBj-KPFea0JY1q7rkS8o_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-14T16:40:16.938253Z'
-- artifact_hash: 7c476b1385200e56248231749d11ba2ffb2dc1527535d3e9463e8918aff1a957
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/2a53b35a9aa11e1e9da03cd3f0c0b78df3a6f15b4648b563755a0c644e246ae4?X-Xet-Cas-Uid=public&xip=pO7RP4w_-z0&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&Expires=1792683026&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkLzJhNTNiMzVhOWFhMTFlMWU5ZGEwM2NkM2YwYzBiNzhkZjNhNmYxNWI0NjQ4YjU2Mzc1NWEwYzY0NGUyNDZhZTRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9cE83UlA0d18tejAmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI2ODMwMjZ9fX1dfQ__&Signature=MEUCIQDqN1PcSuyxWjcC9YzaiWkanuxhT5tFNITSJFchY-dO2wIgQZGObjoH%7EtptyojvTNUBQIRXkHvyf8ksBnrQV93OqlI_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-22T14:30:26.046059Z'
+- artifact_hash: ec3fcacb4cad656d12283a7f2b6bc5754d6795e1ed3f80668c5b52bfe0e593ab
   artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/specs/001-llmxive-follow-up-extending-learning-fro/plan.md
   cite_id: c-002
   cited_authors: []
@@ -18,9 +18,9 @@
   kind: url
   value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&xip=Da3lRBBb91U&Expires=1791999617&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnhpcD1EYTNsUkJCYjkxVSIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTk5NjE3fX19XX0_&Signature=MEUCIQDkKWM8X9dRk-bp7kSPvGb2EUUO0e1cebQx7rHffkswlgIgQ%7EUCAFFZxUAcnDrnrOip0fibM-ynIpcVvgjRwjvxi0Q_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-14T16:40:16.938253Z'
-- artifact_hash: 7c476b1385200e56248231749d11ba2ffb2dc1527535d3e9463e8918aff1a957
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?X-Xet-Cas-Uid=public&user_id=public&xip=pO7RP4w_-z0&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1792683026&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZ4aXA9cE83UlA0d18tejAmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyNjgzMDI2fX19XX0_&Signature=MEUCIQD7qB017WiwOI2SLUEdLPKVPpCOYGnV9S8jY7eYx5jKZQIgDMWC54xqT85hGmnK8nyR5DtDCa0kZ2djZKwNmsLI1xU_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-22T14:30:26.046059Z'
+- artifact_hash: ec3fcacb4cad656d12283a7f2b6bc5754d6795e1ed3f80668c5b52bfe0e593ab
   artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/specs/001-llmxive-follow-up-extending-learning-fro/plan.md
   cite_id: c-003
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://huggingface.co/datasets/bigbench/bigbench_lite
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/bigbench/bigbench_lite
-  verified_at: '2026-10-14T16:40:16.938253Z'
-- artifact_hash: 3e945ea819bf1c64be2e6813cdbe1c7318a9fb3afe1e4466a5cac8c25a0e2516
+  verified_at: '2026-10-22T14:30:26.046059Z'
+- artifact_hash: 19352e2ff0cfd1aa3e26905872d619b01fdb802207311c0d094521e953b7711c
   artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/specs/001-llmxive-follow-up-extending-learning-fro/research.md
   cite_id: c-001
   cited_authors: []
@@ -40,9 +40,9 @@
   kind: url
   value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/train-00000-of-00001.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/2a53b35a9aa11e1e9da03cd3f0c0b78df3a6f15b4648b563755a0c644e246ae4?xip=Da3lRBBb91U&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1791999624&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkLzJhNTNiMzVhOWFhMTFlMWU5ZGEwM2NkM2YwYzBiNzhkZjNhNmYxNWI0NjQ4YjU2Mzc1NWEwYzY0NGUyNDZhZTRcXD94aXA9RGEzbFJCQmI5MVUmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTE5OTk2MjR9fX1dfQ__&Signature=MEUCIGRw%7EsW3klMy8ZkywMtcj8yGyWsU7Q1-27urNffBqXEIAiEA5iXxcyKbo2flHx%7EnWtW%7EppTuoF%7ElcgHJ6WH90ArKi2E_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-14T16:40:24.927903Z'
-- artifact_hash: 3e945ea819bf1c64be2e6813cdbe1c7318a9fb3afe1e4466a5cac8c25a0e2516
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/2a53b35a9aa11e1e9da03cd3f0c0b78df3a6f15b4648b563755a0c644e246ae4?user_id=public&xip=pO7RP4w_-z0&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1792683049&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkLzJhNTNiMzVhOWFhMTFlMWU5ZGEwM2NkM2YwYzBiNzhkZjNhNmYxNWI0NjQ4YjU2Mzc1NWEwYzY0NGUyNDZhZTRcXD91c2VyX2lkPXB1YmxpYyZ4aXA9cE83UlA0d18tejAmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI2ODMwNDl9fX1dfQ__&Signature=MEQCICnIntSmL3MPAKEBdnoIhVgpZupJ2poTz7yD3P5W3M36AiBSqOZTfbPzTqqdiUxTtCpE4kfUuuF8kSqJxBPNiDkIWQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-22T14:30:49.382148Z'
+- artifact_hash: 19352e2ff0cfd1aa3e26905872d619b01fdb802207311c0d094521e953b7711c
   artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/specs/001-llmxive-follow-up-extending-learning-fro/research.md
   cite_id: c-002
   cited_authors: []
@@ -51,9 +51,9 @@
   kind: url
   value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?X-Xet-Cas-Uid=public&xip=Da3lRBBb91U&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&Expires=1791999625&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9RGEzbFJCQmI5MVUmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTk5NjI1fX19XX0_&Signature=MEQCIDilirBF54Zek-hq0a5faWsRmr7BZ1Oe9kLkCJ19AxncAiBJnKUpLv8rpUoLfb1nzG0GFWu5awQx2L5heihq7KC5%7Ew__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-14T16:40:24.927903Z'
-- artifact_hash: 3e945ea819bf1c64be2e6813cdbe1c7318a9fb3afe1e4466a5cac8c25a0e2516
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&xip=pO7RP4w_-z0&Expires=1792683050&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljJnhpcD1wTzdSUDR3Xy16MCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyNjgzMDUwfX19XX0_&Signature=MEYCIQDhMIkgqwMThwcJj0yWm6QsmRsvPfJZMbuynio4LMYougIhAKO3jF5YfXsLUN5XU%7EI%7EJVWBgZbeozi--MTV6Pq%7EY2wI&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-22T14:30:49.382148Z'
+- artifact_hash: 19352e2ff0cfd1aa3e26905872d619b01fdb802207311c0d094521e953b7711c
   artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/specs/001-llmxive-follow-up-extending-learning-fro/research.md
   cite_id: c-003
   cited_authors: []
@@ -63,15 +63,4 @@
   value: https://huggingface.co/datasets/bigbench/bigbench_lite
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/bigbench/bigbench_lite
-  verified_at: '2026-10-14T16:40:24.927903Z'
-- artifact_hash: 130ab66a1e08825957c7e152bccfbf65010d53dbf83a603760e2090347823eb6
-  artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/specs/001-llmxive-follow-up-extending-learning-fro/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/llmxive-project.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/llmxive-project
-  verified_at: '2026-10-14T16:40:34.978812Z'
+  verified_at: '2026-10-22T14:30:49.382148Z'

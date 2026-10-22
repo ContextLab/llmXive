@@ -1,9 +1,24 @@
-status: none
-intent: huggingface datasets gsm8k bigbench logical subset download python package
-  dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'from datasets import load_dataset
+
+
+  ds = load_dataset("openai/gsm8k", "main", split="train")
+
+  print(f"RECORDS={len(ds)}")
+
+  print("FIELDS=" + ",".join(sorted(ds.column_names)))'
+record_count: 7473
+sample_fields:
+- answer
+- question
+field_coverage: 0.5
 required_fields:
+- id
 - question
 - answer
-cache_key: be041048450e735695e697b2c8791f097068d079981b43f0f32c0663b924754a
-searched_at: '2026-10-20T18:22:34.270972+00:00'
-retry_count: 1
+- split
+intent: download GSM8K train test parquet and BigBench logical deduction subset via
+  HuggingFace datasets python package dataset
+cache_key: fff6d8f78509b00b157bf2eaf6b27b9f100ae570d1ca50755c939bb1faa0938b

@@ -127,7 +127,7 @@ The system must perform statistical analysis to determine if the adaptive strate
 
 - **Assumption about inference framing**: The study is observational regarding the density‑performance relationship; findings will be framed as performance *differences* rather than causal effects because density is not randomly assigned to individual reasoning tasks.
 
-- **Assumption about entropy‑uncertainty relationship**: Higher prediction entropy is empirically associated with higher model uncertainty, a community‑standard assumption in uncertainty‑aware training (see e.g., Kendall & Gal, 2017). FR‑010 provides direct validation for this specific diffusion model.
+- **Assumption about entropy‑uncertainty relationship**: Higher prediction entropy is generally associated with higher model uncertainty, a community‑standard assumption in uncertainty‑aware training (see e.g., Kendall & Gal, year). FR‑010 provides direct validation for this specific diffusion model.
 
 - **Assumption about power and multiplicity**: Running five random seeds per condition yields an estimated power ≥ 0.8 to detect medium effect sizes (Cohen’s d ≈ 0.5) given the paired design, satisfying the statistical rigor required under the compute budget.
 
