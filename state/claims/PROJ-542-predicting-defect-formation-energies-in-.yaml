@@ -116,3 +116,39 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-18T22:13:05Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/code/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline completed successfully' upon successful completion
+  claim_id: c_a9cef0e4
+  context: Running `python -m src.pipeline.run` executes the full workflow and is
+    expected to print a success message.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command will execute the end\u2011to\u2011end workflow (download,\
+    \ checksum, featurization, descriptor\u2011gap check, validation, train/test split,\
+    \ 5\u2011fold GroupKFold cross\u2011validation, evaluation, and figures) and,\
+    \ upon successful completion, print: 'Pipeline completed successfully'"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T12:47:17Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/code/quickstart.md
+  attempts: 1
+  canonical: all tests pass confirming CSV and JSON artefacts match their schemas
+  claim_id: c_088600f4
+  context: Running `pytest -q` validates contracts and should result in all tests
+    passing.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass, confirming that the CSV and JSON artefacts match
+    their schemas.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T12:47:17Z'

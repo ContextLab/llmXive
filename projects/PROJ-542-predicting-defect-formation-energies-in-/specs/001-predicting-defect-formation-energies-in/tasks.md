@@ -47,7 +47,7 @@ All paths are relative to the project root and use the canonical `code/` directo
   *File:* `code/utils/checksum.py` (exposes `write_checksum(path: str, out_dir: str)`).  
   *Verification:* pytest `code/tests/test_checksums.py` verifies that the utility correctly hashes files and writes the result to the specified output directory.
 
-- [ ] T012 [P] Create a pinned `requirements.txt` for the project.  
+- [X] T012 [P] Create a pinned `requirements.txt` for the project.  
   *File:* `code/requirements.txt`  
   *Contents:*  
   ```text

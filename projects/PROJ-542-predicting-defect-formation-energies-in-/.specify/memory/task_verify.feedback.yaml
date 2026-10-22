@@ -1,20 +1,36 @@
 T001:
-  reason: "The required source files (`code/quickstart.md`, `code/pipeline/run.py`,\
-    \ `code/data/download.py`, `code/data/featurize.py`) are all missing, and the\
-    \ existing unit test imports `src.pipeline.run` (wrong module path) and checks\
-    \ that `run()` returns `None` instead of a dict with `raw_path`, `features_path`,\
-    \ and `model_path`. The task\u2019s core artifacts and verification criteria are\
-    \ therefore not satisfied."
+  reason: "The required pipeline modules (`code/pipeline/run.py`, `code/data/download.py`,\
+    \ `code/data/featurize.py`) are missing, and the existing unit test imports `src.pipeline.run`\
+    \ and expects `run()` to return `None` rather than a dict with `raw_path`, `features_path`,\
+    \ and `model_path`. These gaps prevent the task\u2019s documentation and wiring\
+    \ verification from being satisfied."
   task: 924b5a3d2e12c565e8fedd13771c71824318738b3f899d58da6ad267f247c22f
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py
     exit=1'
   task: bf0eefb74e9c1326e3ac449e929113d7b8d6d741ceae85e80e27044042d89d8a
 T003:
+  reason: "The required script `code/data/featurize.py` is missing, as is the `featurize.log`\
+    \ file. The generated `features.csv` lacks the required short\u2011name columns\
+    \ (`A_radius`, `B_radius`, `X_radius`) required by `contracts/features.schema.yaml`,\
+    \ contains only 10 rows (far fewer than the \u2265500 rows stipulated), and the\
+    \ log of descriptor gaps indicates missing values despite the CSV showing filled\
+    \ entries. Consequently the task\u2019s core featurization, logging, row\u2011\
+    dropping, and validation requirements are not satisfied."
   task: b85e3ca8858fc7050c6c3e79f413c47a88e5bbbe0e7e70e117eb8cb940ee1196
 T004:
+  reason: "The required implementation file `code/data/validate.py` is missing, so\
+    \ the core logic (row\u2011count check, warning, checksum generation) cannot be\
+    \ verified despite the presence of the log and checksum artifacts. The task must\
+    \ provide a non\u2011empty `validate.py` implementing the specified behavior."
   task: 3b2bc6b16c240e7e0b515fe6f19adffda9927633a9061467fdfd42b784743281
 T005:
+  reason: "The `code/utils/checksum.py` file exists and defines the required `write_checksum`\
+    \ function, but the accompanying test suite `code/tests/test_checksums.py` is\
+    \ missing, so there is no evidence that the utility has been verified to correctly\
+    \ hash files and write the checksum to the specified output directory. The missing\
+    \ test file must be added (and passing) to satisfy the task\u2019s verification\
+    \ requirement."
   task: 54221d71453662d5266e3d30c200997f06dd8aa5a8f8b05ee1b5db62be46a868
 T006:
   task: 0fdffaa4377b06da405dbfedebbb9b075e1be72c6528e1aced6cd94960afe9bd
@@ -31,11 +47,13 @@ T011:
 T012:
   task: 5c800a8baeea88961a80b43be521543be5ce6afaf28164e8128db9b0be45d010
 T014:
-  reason: Checked `contracts/features.schema.yaml` and its validation test `code/tests/test_features_schema.py`.
-    The schema defines columns named `A_atomic_radius`, `B_atomic_radius`, etc., whereas
-    the task explicitly requires columns named `A_radius`, `B_radius`, etc.; the column
-    naming does not match the specification, so the required schema is not correctly
-    defined.
+  reason: "The `contracts/features.schema.yaml` file defines extra optional properties\
+    \ (`A_atomic_radius`, `B_atomic_radius`, `X_atomic_radius`) that are not among\
+    \ the twelve required descriptor columns, violating the \u201Cno additional columns\
+    \ allowed\u201D requirement. The test only checks schema syntax, not that the\
+    \ schema restricts columns to exactly the specified set. The schema must be revised\
+    \ to include only the twelve descriptor fields and `formation_energy` with `additionalProperties:\
+    \ false`."
   task: 5664d00d55c6f77685d9b919ecefd353abe8f7390c40f258ab4e98d588a5a278
 T015:
   task: f7b11897da518c4ade55bbd53fc58cbbd79f9c4dedb2bcd63768b22a63ad3819

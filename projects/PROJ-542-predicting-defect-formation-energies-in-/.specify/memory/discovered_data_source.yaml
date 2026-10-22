@@ -1,19 +1,19 @@
 status: none
-intent: mp-api perovskite oxygen vacancy defect formation energy dataset python package
-  dataset
+intent: Materials Project perovskite oxygen vacancy formation energy dataset download
+  python package dataset
 required_fields:
 - composition
-- defect_type
-- formation_energy_eV
-- mp_id
-- structure_id
-- A_element
-- B_element
-- X_element
+- defect_formation_energy
 - A_atomic_radius
 - B_atomic_radius
 - X_atomic_radius
 - A_electronegativity
-cache_key: c28ba44feb271e942488fd91baaa36301a53619b3d9222ac301d3c8879d8dc8d
-searched_at: '2026-10-22T12:43:11.126279+00:00'
+- B_electronegativity
+- X_electronegativity
+- A_oxidation_state
+- B_oxidation_state
+- X_oxidation_state
+- A_valence_electron_count
+cache_key: 8cfb7f0250f188fe923760e78158548a360501154267dd1d2693a90d836f6cf4
+searched_at: '2026-10-22T12:54:02.528883+00:00'
 retry_count: 1

@@ -1,47 +1,58 @@
 """
 src/data/validate.py
---------------------
+---------------------
 
-Validate the processed feature matrix and compute statistical power.
+Validation script for the processed feature matrix.
 
-The script checks that the feature matrix contains at least 50 rows (FR‑009)
-and computes the statistical power to detect a ΔRMSE = 0.1 eV given an
-assumed σ ≈ 0.3 eV, α = 0.05.  The result is written to
-``data/processed/validation.log``.
+Requirements:
+- Raise ``ValueError`` with message ``"Insufficient rows (<50) for 5‑fold CV"`` if the
+  feature matrix has fewer than 50 rows.
+- Log the total row count. If the count is < 500, also emit a warning that the
+  power target (≥ 500 rows) is not met.
+- Compute a SHA‑256 checksum for the log file and write it to
+  ``data/checksums/validation.sha256``.
 """
 
 import pandas as pd
-from statsmodels.stats.power import TTestPower
 from llmxive_toolkit import get_logger, paths
+from src.utils.checksum import compute_checksum
 
 log = get_logger(__name__)
 
 def main() -> None:
+    """
+    Validate the processed feature matrix.
+
+    This function is invoked by the top‑level ``src.validate`` wrapper and
+    is also usable as ``python -m src.data.validate``.
+    """
+    # Paths to the feature matrix, validation log, and checksum file.
     features_path = paths.data("processed", "features.csv")
     log_path = paths.data("processed", "validation.log")
+    checksum_path = paths.data("checksums", "validation.sha256")
 
+    # Load the feature matrix.
     df = pd.read_csv(features_path)
 
+    # Row count check.
     row_count = len(df)
     if row_count < 50:
-        raise ValueError("FR-009: Dataset must contain at least 50 rows for validation.")
+        raise ValueError("Insufficient rows (<50) for 5-fold CV")
 
-    # Power analysis parameters
-    effect_size = 0.1 / 0.3  # ΔRMSE / σ
-    alpha = 0.05
-    power_analysis = TTestPower()
-    # Solve for required sample size to achieve 80% power
-    required_n = power_analysis.solve_power(effect_size=effect_size, alpha=alpha, power=0.8, alternative='two-sided')
-    required_n = int(required_n) + 1  # round up
-
-    power = power_analysis.power(effect_size=effect_size, nobs=row_count, alpha=alpha, alternative='two-sided')
-
+    # Write the validation log.
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     with log_path.open("w", encoding="utf-8") as f:
-        f.write(f"Row count: {row_count}\\n")
-        f.write(f"Statistical power (α=0.05, ΔRMSE=0.1 eV, σ≈0.3 eV): {power:.3f}\\n")
-        if row_count < required_n:
-            f.write(f"Warning: Sample size below recommended {required_n} for 80% power.\\n")
-        else:
-            f.write("Sample size sufficient for 80% power.\\n")
+        f.write(f"Total rows in feature matrix: {row_count}\\n")
+        if row_count < 500:
+            f.write(
+                "Warning: power target (>= 500 rows) not met. "
+                "Statistical power may be insufficient.\\n"
+            )
+    log.info("Validation log written to %s", log_path)
 
-    log.info(f"Validation completed. Log written to {log_path}")
+    # Compute and write the SHA‑256 checksum for the log file.
+    compute_checksum(log_path, checksum_path)
+    log.info("Checksum for validation log written to %s", checksum_path)
+
+if __name__ == "__main__":
+    main()
