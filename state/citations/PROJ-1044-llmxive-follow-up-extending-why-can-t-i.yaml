@@ -9,3 +9,49 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-project
   verified_at: '2026-10-19T16:23:18.967321Z'
+- artifact_hash: 2dac377c0187930cfa5c6f1aae33a017cb3a0bb5188b85e7f57bfb937ced7be1
+  artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/specs/001-llmxive-follow-up-extending-why-can-t-i/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - NVIDIA/flownet2-pytorch: Pytorch implementation of FlowNet\
+    \ 2.0: Evolution of Optical Flow Estimation with Deep Networks \xB7 GitHub"
+  kind: url
+  value: https://github.com/NVIDIA/flownet2-pytorch
+  verification_status: pending
+  verified_against_url: https://github.com/NVIDIA/flownet2-pytorch
+  verified_at: '2026-10-22T07:44:07.089724Z'
+- artifact_hash: 2dac377c0187930cfa5c6f1aae33a017cb3a0bb5188b85e7f57bfb937ced7be1
+  artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/specs/001-llmxive-follow-up-extending-why-can-t-i/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - pytorch/vision: Datasets, Transforms and Models specific\
+    \ to Computer Vision \xB7 GitHub"
+  kind: url
+  value: https://github.com/pytorch/vision
+  verification_status: pending
+  verified_against_url: https://github.com/pytorch/vision
+  verified_at: '2026-10-22T07:44:07.089724Z'
+- artifact_hash: 2dac377c0187930cfa5c6f1aae33a017cb3a0bb5188b85e7f57bfb937ced7be1
+  artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/specs/001-llmxive-follow-up-extending-why-can-t-i/spec.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '1504.06852'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-22T07:44:07.089724Z'
+- artifact_hash: 2dac377c0187930cfa5c6f1aae33a017cb3a0bb5188b85e7f57bfb937ced7be1
+  artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/specs/001-llmxive-follow-up-extending-why-can-t-i/spec.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '1512.03385'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-22T07:44:07.089724Z'

@@ -19,7 +19,7 @@
 
 1. **Given** a video clip from the Something-Something V2 training set with a clear primary object, **When** the generation script processes it, **Then** a new video file is created where the object region is replaced by a patch from a different object class, and the motion trajectory of the background/actor remains identical to the original, with optical flow divergence ≤ 0.15.
 2. **Given** a video where the primary object is partially occluded, **When** the script attempts the swap, **Then** the system handles the occlusion gracefully (e.g., by skipping the frame or using the visible portion) without crashing the pipeline.
-3. **Given** a video pair where the optical flow divergence exceeds 0.15, **When** the validation step runs, **Then** the pair is flagged and excluded from the training set to prevent motion confounds.
+3. **Given** a video pair where the optical flow divergence exceeds 0.15, **When** the validation step runs, **Then** the pair is flagged and excluded from the training set to prevent motion confounds, and the exclusion is recorded in the generation log so the pair-retention rate can be reported.
 
 ---
 
@@ -41,17 +41,18 @@
 
 ### User Story 3 - Robustness Evaluation & Statistical Validation (Priority: P3)
 
-**Journey**: A researcher evaluates the trained model against a baseline (RCORE) on a held-out "Counterfactual Robustness Test Set" to measure the accuracy drop ($\Delta Acc$) and performs a statistical test to confirm significance. The evaluation includes an independent test set where motion is the *only* valid cue.
+**Journey**: A researcher evaluates the trained model against a baseline (RCORE) on a held-out "Counterfactual Robustness Test Set" to measure the accuracy drop ($\Delta Acc$) and performs a statistical test to confirm significance. Because $\Delta Acc$ is directly optimized by the consistency loss, the evaluation also includes independent evidence — a motion-only test set, a linear probe of the learned feature space, and a motion-feature ablation — to establish motion reliance without circular validation.
 
 **Why this priority**: This delivers the final research result: quantifying the efficacy of the proposed method. It validates the hypothesis that the loss function improves robustness to object-driven shortcuts.
 
-**Independent Test**: The evaluation script produces a report comparing the accuracy drop ($\Delta Acc$) of the proposed model vs. the baseline, including a p-value from a paired t-test indicating statistical significance ($p < 0.05$), AND shows improved performance on an adversarial "motion-only" test set.
+**Independent Test**: The evaluation script produces a report comparing the accuracy drop ($\Delta Acc$) of the proposed model vs. the baseline, including a p-value from a paired t-test indicating statistical significance ($p < 0.05$), AND shows improved performance on an adversarial "motion-only" test set, AND reports the feature-space probe and motion-ablation results.
 
 **Acceptance Scenarios**:
 
 1. **Given** a trained model and a test set with object-swapped videos, **When** the evaluation script runs, **Then** it calculates the accuracy on original videos ($Acc_{orig}$) and swapped videos ($Acc_{swapped}$), and reports the drop $\Delta Acc = Acc_{orig} - Acc_{swapped}$.
-2. **Given** results from 5 random seeds for both the proposed model and the baseline, **When** the statistical validation runs, **Then** a paired t-test confirms whether the reduction in $\Delta Acc$ for the proposed model is statistically significant ($p < 0.05$).
+2. **Given** results from 15 random seeds for both the proposed model and the baseline, **When** the statistical validation runs, **Then** a paired t-test confirms whether the reduction in $\Delta Acc$ for the proposed model is statistically significant ($p < 0.05$).
 3. **Given** an adversarial test set where objects are misleading but motion is correct, **When** the model is evaluated, **Then** it achieves significantly higher accuracy than the baseline ($p < 0.05$), confirming motion reliance.
+4. **Given** the trained model's feature representations, **When** a linear probe is fit to predict action labels from motion-only (object-blurred) inputs and a motion-feature ablation is run (motion features zeroed), **Then** the probe accuracy exceeds the baseline's probe accuracy, and ablating motion features causes a statistically significant accuracy drop ($p < 0.05$), confirming that the model genuinely leverages motion rather than merely ignoring object information.
 
 ---
 
@@ -59,18 +60,22 @@
 
 - What happens when the object detector fails to identify the primary object in a video? (The system must log the failure and skip the counterfactual generation for that specific video rather than crashing).
 - How does the system handle videos where the "object" is actually the actor's hand (e.g., "Putting something into something")? (The swap logic must be robust enough to avoid replacing the actor, or the dataset subset must exclude ambiguous cases).
-- What if the synthetic object patch creates visual artifacts that disrupt the motion features? (The system must include a quality check or use a seamless blending algorithm to ensure the motion features remain the dominant signal, verified by optical flow divergence ≤ 0.15).
+- What if the synthetic object patch creates visual artifacts that disrupt the motion features? (The system must include a quality check or use a seamless blending algorithm to ensure the motion features remain the dominant signal, verified by on-the-fly optical flow divergence ≤ 0.15).
+- What if the divergence-based selection threshold preferentially retains visually similar pairs, biasing the evaluation? (The system must report the pair-retention rate and re-run the primary evaluation across threshold values {0.10, 0.15, 0.20} so any selection effect on $\Delta Acc$ is quantified; see FR-009).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST generate synthetic counterfactual videos by replacing the primary object region with a patch from a distinct object class while preserving the original motion trajectory and background features, AND MUST verify that the optical flow divergence between the original and swapped video is ≤ 0.15 (normalized L2) before including the pair in the dataset (See US-1).
+- **FR-001**: System MUST generate synthetic counterfactual videos by replacing the primary object region with a patch from a distinct object class while preserving the original motion trajectory and background features, AND MUST verify — via optical flow computed on-the-fly with a lightweight CPU algorithm (OpenCV Farnebäck) on the newly generated video — that the optical flow divergence between the original and swapped video is ≤ 0.15 (normalized L2) before including the pair in the dataset. The 0.15 threshold is a pre-registered design default whose sensitivity is analyzed per FR-009. Frozen backbone features are extracted with FlowNet-C (Dosovitskiy et al., 2016; arXiv:1504.06852; reference implementation available in the FlowNet 2.0 repository: https://github.com/NVIDIA/flownet2-pytorch) and ResNet-18 (He et al., 2016; arXiv:1512.03385; https://github.com/pytorch/vision). The swap-verification cosine-similarity check (≥ 0.9) uses ResNet-18 features (See US-1).
 - **FR-002**: System MUST implement a "Counterfactual Consistency Loss" function that calculates the KL-divergence between the prediction distributions of an original video and its counterfactual pair (See US-2).
 - **FR-003**: System MUST train a linear classifier using a combined loss function $L_{total} = L_{CE} + \lambda L_{cc}$, where $\lambda$ is a tunable hyperparameter (See US-2).
-- **FR-004**: System MUST evaluate model performance on a dedicated "Counterfactual Robustness Test Set" to measure the accuracy drop ($\Delta Acc$) between original and object-swapped inputs (See US-3).
-- **FR-005**: System MUST perform a paired t-test across multiple random seeds to determine if the reduction in accuracy drop is statistically significant ($p < 0.05$) (See US-3).
-- **FR-006**: System MUST operate entirely on CPU-only resources, utilizing pre-computed optical flow features (e.g., from FlowNet or a 3D-CNN) to ensure the analysis fits within the 7.0 GB RAM (verified by `psutil` peak RSS check) and 14.0 GB disk (verified by `du` audit) constraints of the free-tier runner (See US-2).
+- **FR-004**: System MUST evaluate model performance on a dedicated "Counterfactual Robustness Test Set" to measure the accuracy drop ($\Delta Acc$) between original and object-swapped inputs. Because $L_{cc}$ directly penalizes prediction changes on counterfactual pairs, $\Delta Acc$ is treated as a secondary, optimization-adjacent metric; the primary evidence of motion reliance comes from the independent evaluations required by FR-007 (See US-3).
+- **FR-005**: System MUST perform a paired t-test across 15 random seeds to determine if the reduction in accuracy drop is statistically significant ($p < 0.05$, two-sided) (See US-3).
+- **FR-006**: System MUST operate entirely on CPU-only resources within the free-tier runner constraints — 2 CPU cores, ≤ 7.0 GB RAM (verified by `psutil` peak RSS check), ≤ 14.0 GB disk (verified by `du` audit), and ≤ 6 hours wall clock (verified via GitHub Actions job logs). Pre-computed optical flow features are used for original dataset videos; for newly generated counterfactual videos (which cannot have pre-computed flow), the system MUST compute optical flow on-the-fly on CPU using the lightweight Farnebäck algorithm, which is included in the RAM and time budgets above (See US-1, US-2).
+- **FR-007**: System MUST provide independent (non-circular) evidence of motion reliance, none of which is directly optimized by $L_{cc}$: (a) a linear probe fit on the learned feature representations evaluated on motion-only (object-blurred) inputs, (b) a motion-feature ablation in which motion features are zeroed/shuffled and the resulting accuracy drop is tested for significance ($p < 0.05$), and (c) evaluation on the motion-only adversarial test set (See US-3).
+- **FR-008**: System MUST justify the replicate count with an explicit power analysis: assuming a large paired effect size $d = 0.8$ (Cohen's convention for a large effect), two-sided $\alpha = 0.05$, and target power ≥ 0.8, a paired t-test requires $n \approx 15$ seeds; consequently the number of random-seed replicates is 15. Post hoc, achieved power MUST be computed from the observed seed-level variance and reported alongside the p-value, and any power shortfall acknowledged in the final report (See US-3).
+- **FR-009**: System MUST quantify selection bias introduced by the divergence threshold: it MUST report the counterfactual pair-retention rate at the default threshold (0.15) and re-run the primary $\Delta Acc$ comparison with thresholds swept over {0.10, 0.15, 0.20}, reporting how the retained-pair count and the proposed-vs-baseline $\Delta Acc$ difference vary across the sweep (See US-1, US-3).
 
 ### Documentation Constraints
 
@@ -79,7 +84,7 @@
 ### Key Entities
 
 - **Counterfactual Pair**: A tuple consisting of an original video and a generated variant where the object is swapped but motion is preserved, with optical flow divergence ≤ 0.15.
-- **Robustness Metric**: The scalar value $\Delta Acc = Acc_{orig} - Acc_{swapped}$ representing the model's performance degradation under object occlusion.
+- **Robustness Metric**: The scalar value $\Delta Acc = Acc_{orig} - Acc_{swapped}$ representing the model's performance degradation under object occlusion; treated as a secondary metric per FR-004.
 - **Consistency Loss**: The scalar penalty term derived from KL-divergence used to regularize the model's predictions.
 - **Motion-Only Test Set**: A test set where objects are blurred or misleading, and motion is the only valid cue for action recognition.
 
@@ -89,19 +94,21 @@
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The reduction in accuracy drop ($\Delta Acc$) for the proposed model compared to the baseline is measured against the baseline's $\Delta Acc$ to determine efficacy (See US-3).
-- **SC-002**: The statistical significance of the robustness improvement is measured against the $p < 0.05$ threshold using a paired t-test across multiple seeds (See US-3).
+- **SC-001**: The reduction in accuracy drop ($\Delta Acc$) for the proposed model compared to the baseline is measured against the baseline's $\Delta Acc$; because $\Delta Acc$ is optimization-adjacent (FR-004), it is reported as a secondary outcome alongside the independent motion-reliance evidence of SC-006 (See US-3).
+- **SC-002**: The statistical significance of the robustness improvement is measured against the $p < 0.05$ threshold using a paired t-test across 15 seeds, with achieved power computed from observed seed-level variance and reported against the ≥ 0.8 target (See US-3).
 - **SC-003**: The computational feasibility is measured against the free-tier runner constraints (2 CPU cores, ≤7.0 GB RAM, ≤6 hours) by verifying total wall-clock time via GitHub Actions job logs and peak memory via `psutil` profiling (See US-2).
-- **SC-004**: The sensitivity of the model's robustness to the hyperparameter $\lambda$ is measured against a sweep of values (e.g., $\lambda \in \{0.1, 0.5, 1.0\}$) to identify the optimal trade-off (See US-2).
-- **SC-005**: The validity of the counterfactual generation is measured against a manual inspection of 50 generated pairs, requiring 'no visible seams' (SSIM > 0.95 on background regions) and 'object class change confirmed' (classifier confidence > 0.9 on swapped region) (See US-1).
+- **SC-004**: The sensitivity of the model's robustness to the hyperparameter $\lambda$ is measured against a sweep of values ($\lambda \in \{0.1, 0.5, 1.0\}$) to identify the optimal trade-off (See US-2).
+- **SC-005**: The validity of the counterfactual generation is measured against a manual inspection of 50 generated pairs, each of which must jointly satisfy: 'no visible seams' (SSIM > 0.95 on background regions), 'object class change confirmed' (classifier confidence > 0.9 on swapped region), and 'motion preserved' (optical flow divergence ≤ 0.15 on the same pair) — so visual-quality and motion-preservation validation are reported per pair and must agree (See US-1).
+- **SC-006**: Construct validity of the motion-reliance claim is measured against three independent checks (FR-007): linear-probe accuracy on motion-only inputs vs. baseline, significance of the motion-feature ablation accuracy drop ($p < 0.05$), and motion-only adversarial test-set accuracy vs. baseline ($p < 0.05$) (See US-3).
+- **SC-007**: Selection-bias robustness is measured against the threshold sweep of FR-009: the reported $\Delta Acc$ improvement must hold in direction across divergence thresholds {0.10, 0.15, 0.20}, and the pair-retention rate at each threshold must be reported (See US-1, US-3).
 
 ## Assumptions
 
 - The Something-Something V2 dataset contains sufficient bounding box annotations or the lightweight detector can reliably identify the primary object to facilitate the swap.
-- Pre-computed optical flow features for the entire dataset are available and fit within the 14 GB disk limit of the free-tier runner.
+- Pre-computed optical flow features are available for the original dataset videos and fit within the 14 GB disk limit of the free-tier runner; optical flow for newly generated counterfactual videos is computed on-the-fly on CPU as part of the generation pipeline (per FR-001/FR-006).
 - The "object swap" transformation does not introduce artifacts severe enough to invalidate the motion features extracted by the frozen backbone, verified by optical flow divergence ≤ 0.15.
 - The dataset variable set includes the necessary labels for action recognition and object identification to support the counterfactual generation logic.
 - The free-tier CI runner provides sufficient I/O bandwidth to load and process the video features within the 6-hour job limit.
 - The study is observational in nature regarding the model's internal representations; findings will be framed as associations between the loss function and robustness, not causal claims about the "mechanism" of learning without further causal inference analysis.
-- The sample size (number of videos) is sufficient to detect a meaningful effect size in the paired t-test, or the power limitation is explicitly acknowledged in the final report.
+- The sample size (15 seeds) provides ≥ 0.8 power under the assumed large effect size $d = 0.8$; if the observed effect is smaller, the power shortfall is explicitly acknowledged in the final report (per FR-008).
 - The optical flow features used are robust enough to capture temporal motion dynamics without relying on object appearance.
