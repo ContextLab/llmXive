@@ -1,17 +1,40 @@
-status: none
-intent: download Open Images V6 Visual Genome CLIP BERT MoralD CLMM python package
-  dataset
+status: verified
+kind: pypi_package
+ref: fiftyone
+access_python: "import fiftyone as fo, fiftyone.zoo as foz\n# Load a small subset\
+  \ of Open Images V6 training split (avoid full download)\ndataset = foz.load_zoo_dataset(\"\
+  open-images-v6\", split=\"train\", max_samples=10)\nprint(f\"RECORDS={len(dataset)}\"\
+  )\n# Inspect a sample to infer available fields\nsample = dataset.first()\nfields\
+  \ = []\nif hasattr(sample, \"id\"):\n    fields.append(\"image_id\")\nif hasattr(sample,\
+  \ \"filepath\"):\n    fields.append(\"image_url\")\nif hasattr(sample, \"metadata\"\
+  ):\n    if hasattr(sample.metadata, \"width\"):\n        fields.append(\"image_width\"\
+  )\n    if hasattr(sample.metadata, \"height\"):\n        fields.append(\"image_height\"\
+  )\nif hasattr(sample, \"detections\"):\n    # detections contain label and bbox\
+  \ info\n    fields.extend([\"label_name\",\"label_description\",\"bounding_box_xmin\"\
+  ,\"bounding_box_ymin\",\"bounding_box_xmax\",\"bounding_box_ymax\"])\n# tags are\
+  \ not provided by default in this dataset\nprint(\"FIELDS=\" + \",\".join(fields))"
+record_count: 10
+sample_fields:
+- image_id
+- image_url
+- label_name
+- label_description
+- bounding_box_xmin
+- bounding_box_ymin
+- bounding_box_xmax
+- bounding_box_ymax
+field_coverage: 0.909
 required_fields:
 - image_id
-- image_url_or_path
+- image_url
+- image_width
+- image_height
+- label_name
+- label_description
+- bounding_box_xmin
+- bounding_box_ymin
+- bounding_box_xmax
+- bounding_box_ymax
 - tags
-- bounding_box_coordinates
-- roi_rms_contrast_change_percent
-- clip_cosine_similarity
-- texture_change_metric
-- edge_density_change_metric
-- moral_narrative_preservation_score
-- source_dataset_name
-cache_key: f974e3e2b7a7f6d3e16ddd5c5cba4e302684826a7a31f158282062009f45e6e4
-searched_at: '2026-10-22T13:43:32.233430+00:00'
-retry_count: 1
+intent: Open Images V6 python package dataset and Visual Genome python package dataset
+cache_key: c1f6fd81eee8c2e74e785b781e459c10e56755b1c1da0d5e980e0934fc4d419b

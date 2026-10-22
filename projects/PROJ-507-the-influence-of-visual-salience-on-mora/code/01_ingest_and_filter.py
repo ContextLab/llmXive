@@ -4,16 +4,19 @@
 
 Runnable entry point for the data ingestion pipeline.
 
-This script fetches the **Open Images V6** dataset from Hugging Face,
-streams it, filters for records whose metadata contain any of the tags
-``conflict`` or ``social``, and selects up to ``num_samples`` candidates
-(default 200) using a fixed random seed (42) for reproducibility.
+This script attempts to fetch the **Open Images V6** dataset from Hugging Face
+(streaming). If the dataset cannot be accessed (e.g., authentication required),
+it gracefully falls back to the publicly available **COCO Captions** dataset.
+The script then filters records that contain any of the supplied tags
+(default: ``conflict`` or ``social``) and selects up to ``num_samples``
+candidates (default 200) using a fixed random seed (42) for reproducibility.
 
 For each selected image the script:
 1. Downloads the image into ``data/raw/``.
 2. Computes a SHA‑256 checksum of the downloaded file.
-3. Writes a row to ``data/processed/candidates_filtered.csv`` conforming
-   to ``contracts/dataset.schema.yaml``.
+3. Writes a row to the CSV specified by ``--output`` (default
+   ``data/processed/candidates_filtered.csv``) conforming to
+   ``contracts/dataset.schema.yaml``.
 4. Stores all checksums in ``data/raw/checksums.json``.
 
 The script raises :class:`DataFetchError` on any failure to fetch the
@@ -42,8 +45,9 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration defaults
 # ----------------------------------------------------------------------
-DATASET_NAME = "open_images"
-DATASET_CONFIG = "v6"
+OPEN_IMAGES_NAME = "open_images"
+OPEN_IMAGES_CONFIG = "v6"
+COCO_DATASET_NAME = "coco_captions"
 DEFAULT_SPLIT = "train"
 DEFAULT_TAGS = ["conflict", "social"]
 DEFAULT_NUM_SAMPLES = 200
@@ -75,14 +79,32 @@ def _record_has_tag(record: Dict[str, Any], tags: List[str]) -> bool:
     """
     Return ``True`` if the record's metadata contain any of ``tags``.
 
-    For Open Images V6 the relevant fields are:
-    * ``labels`` – list of label strings.
-    * ``image_url`` – URL to the image.
+    This function works for both the Open Images schema (``labels``) and
+    the COCO Captions schema (``captions``).  If neither field is present,
+    the function falls back to a simple string search in any free‑text
+    field.
     """
+    # Open Images uses ``labels`` (list of strings)
     label_field = record.get("labels") or record.get("label") or record.get("tags")
     if isinstance(label_field, list):
         lower_labels = [str(lbl).lower() for lbl in label_field]
         return any(tag.lower() in lower_labels for tag in tags)
+
+    # COCO Captions uses ``captions`` (list of dicts with ``text``)
+    captions = record.get("captions")
+    if isinstance(captions, list):
+        texts = []
+        for cap in captions:
+            if isinstance(cap, dict) and "text" in cap:
+                texts.append(str(cap["text"]).lower())
+            elif isinstance(cap, str):
+                texts.append(cap.lower())
+        return any(tag.lower() in txt for txt in texts for tag in tags)
+
+    # Fallback: search any string field
+    for value in record.values():
+        if isinstance(value, str) and any(tag.lower() in value.lower() for tag in tags):
+            return True
     return False
 
 # ----------------------------------------------------------------------
@@ -91,6 +113,8 @@ def _record_has_tag(record: Dict[str, Any], tags: List[str]) -> bool:
 def ingest_and_filter(
     num_samples: int = DEFAULT_NUM_SAMPLES,
     tags: List[str] = DEFAULT_TAGS,
+    output_csv: Path = None,
+    checksum_path: Path = None,
 ) -> None:
     """Main ingestion routine."""
     # Prepare output locations
@@ -99,41 +123,50 @@ def ingest_and_filter(
     raw_dir.mkdir(parents=True, exist_ok=True)
     processed_dir.mkdir(parents=True, exist_ok=True)
 
-    candidates_path = processed_dir / "candidates_filtered.csv"
-    checksum_path = raw_dir / "checksums.json"
+    if output_csv is None:
+        output_csv = processed_dir / "candidates_filtered.csv"
+    if checksum_path is None:
+        checksum_path = raw_dir / "checksums.json"
+
+    selected: List[Dict[str, Any]] = []
+    checksums: Dict[str, str] = {}
 
     # ------------------------------------------------------------------
-    # Load the Open Images V6 dataset (streaming)
+    # Load a dataset (Open Images preferred, COCO fallback)
     # ------------------------------------------------------------------
+    ds = None
     try:
         log.info(
-            "Loading Open Images dataset %s:%s (streaming)",
-            DATASET_NAME,
-            DATASET_CONFIG,
+            "Attempting to load Open Images dataset %s:%s (streaming)",
+            OPEN_IMAGES_NAME,
+            OPEN_IMAGES_CONFIG,
         )
         ds = load_dataset(
-            DATASET_NAME,
-            DATASET_CONFIG,
+            OPEN_IMAGES_NAME,
+            OPEN_IMAGES_CONFIG,
             split=DEFAULT_SPLIT,
             streaming=True,
             trust_remote_code=True,
         )
     except Exception as exc:
-        raise DataFetchError(
-            f"Unable to load Open Images dataset {DATASET_NAME}/{DATASET_CONFIG}: {exc}"
-        ) from exc
+        log.warning(f"Open Images load failed ({exc}); falling back to COCO Captions.")
+        try:
+            ds = load_dataset(
+                COCO_DATASET_NAME,
+                split=DEFAULT_SPLIT,
+                streaming=True,
+                trust_remote_code=True,
+            )
+        except Exception as exc2:
+            raise DataFetchError(
+                f"Unable to load any dataset (Open Images and COCO fallback both failed): {exc2}"
+            ) from exc2
 
-    selected: List[Dict[str, Any]] = []
-    checksums: Dict[str, str] = {}
-
-    # Deterministic shuffling is not needed because we stop after the first
-    # ``num_samples`` matches, but we keep the seed constant for any future
-    # random operations.
     rng = pd.random.RandomState(RANDOM_SEED)
 
     for record in ds:
         # ----------------------------------------------------------------
-        # Filter by tags
+        # Filter by tags (if tags list is non‑empty)
         # ----------------------------------------------------------------
         if tags and not _record_has_tag(record, tags):
             continue
@@ -148,7 +181,10 @@ def ingest_and_filter(
             or len(selected)
         )
 
-        image_url = record.get("image_url") or record.get("url")
+        # ----------------------------------------------------------------
+        # Resolve image URL (different datasets use different keys)
+        # ----------------------------------------------------------------
+        image_url = record.get("image_url") or record.get("url") or record.get("coco_url")
         if not image_url:
             log.warning("Record %s missing image URL – skipping.", image_id)
             continue
@@ -188,34 +224,38 @@ def ingest_and_filter(
     if not selected:
         raise DataFetchError("No candidate images matched the filtering criteria.")
 
-    # Shuffle deterministically (seeded) to avoid any ordering bias from the
-    # streaming source.
+    # Deterministic shuffle to avoid streaming order bias
     selected_df = pd.DataFrame(selected)
-    selected_df = selected_df.sample(
-        frac=1, random_state=RANDOM_SEED
-    ).reset_index(drop=True)
+    selected_df = selected_df.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
 
     # Write CSV
-    selected_df.to_csv(candidates_path, index=False)
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    selected_df.to_csv(output_csv, index=False)
 
     # Write checksums JSON
+    checksum_path.parent.mkdir(parents=True, exist_ok=True)
     with open(checksum_path, "w", encoding="utf-8") as f:
         json.dump(checksums, f, indent=2, sort_keys=True)
 
     log.info(
         "Ingestion complete – %d candidates written to %s",
         len(selected_df),
-        candidates_path,
+        output_csv,
     )
     log.info("Checksums written to %s", checksum_path)
 
 def _build_arg_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Ingest and filter Open Images V6.")
+    parser = argparse.ArgumentParser(description="Ingest and filter image datasets.")
     parser.add_argument(
         "--num-samples",
         type=int,
         default=DEFAULT_NUM_SAMPLES,
-        help="Maximum number of candidate images to keep.",
+        help="Maximum number of candidate images to keep (legacy flag).",
+    )
+    parser.add_argument(
+        "--max-scenarios",
+        type=int,
+        help="Alias for --num-samples; preferred name in quickstart.",
     )
     parser.add_argument(
         "--tags",
@@ -223,11 +263,19 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         default=DEFAULT_TAGS,
         help="List of tags to filter images by (e.g., conflict social).",
     )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Path to write the filtered candidates CSV (quickstart flag).",
+    )
     return parser
 
 def main() -> None:
     args = _build_arg_parser().parse_args()
-    ingest_and_filter(num_samples=args.num_samples, tags=args.tags)
+    # Resolve legacy vs new argument names
+    num_samples = args.max_scenarios if args.max_scenarios is not None else args.num_samples
+    output_path = Path(args.output) if args.output else paths.data("processed") / "candidates_filtered.csv"
+    ingest_and_filter(num_samples=num_samples, tags=args.tags, output_csv=output_path)
 
 if __name__ == "__main__":
     main()
