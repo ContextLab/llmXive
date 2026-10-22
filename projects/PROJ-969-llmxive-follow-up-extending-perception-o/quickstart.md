@@ -13,8 +13,11 @@ python -m code.src.data.load_dataset
 ```
 
 This streams the **real** `mmbench/ocean` validation split
-(`datasets.load_dataset("mmbench/ocean", split="validation", streaming=True)`),
-iterates ALL records, normalizes them, validates every record against
+(`datasets.load_dataset("mmbench/ocean", split="validation", streaming=True)`;
+if the `datasets` library cannot be imported on the runner, e.g. a
+pyarrow/NumPy binary mismatch, the loader streams the SAME real dataset
+through the official Hugging Face datasets-server HTTP API), iterates ALL
+records, normalizes them, validates every record against
 `specs/001-llmxive-follow-up-extending-perception-o/contracts/video_metadata.schema.yaml`,
 and writes:
 
@@ -40,8 +43,8 @@ failure raises.
 
 ## Subsequent stages
 
-Later tasks add: the context knowledge base (`python -m...`), prompt
-conditions and order randomisation, CPU-only MLLM inference
+Later tasks add: the context knowledge base, prompt conditions and order
+randomisation, CPU-only MLLM inference
 (`python -m code.src.inference.run_inference --pilot|--full|--quant-control`),
 metrics (`python -m code.src.metrics.compute_metrics`), statistics
 (`python -m code.src.analysis.stats`), and the single orchestrator

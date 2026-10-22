@@ -1,19 +1,22 @@
 """Acquire and validate the real primary dataset (FR-001, deviation #1).
 
-Fetches the ``mmbench/ocean`` validation split from the Hugging Face Hub
-via ``datasets.load_dataset(..., streaming=True)``, iterates ALL records,
-normalizes them into per-video metadata records, validates each record
-against ``specs/001-llmxive-follow-up-extending-perception-o/contracts/video_metadata.schema.yaml``,
-and writes:
+Fetches the ``mmbench/ocean`` validation split from the Hugging Face Hub.
+Primary path: ``datasets.load_dataset(..., streaming=True)``. The
+``datasets`` import is performed lazily/defensively because some runner
+environments ship a ``pyarrow`` build incompatible with the installed
+NumPy (ImportError at import time). When — and only when — the
+``datasets`` library itself cannot be imported, the loader falls back to
+the official Hugging Face datasets-server HTTP API
+(https://datasets-server.huggingface.co), which serves the SAME real
+records of the SAME real dataset as JSON. Both paths stream the REAL
+validation split; any fetch/parse failure raises loudly. There is NO
+synthetic or mock fallback.
 
-- ``data/raw/video_metadata.jsonl``  (one validated record per line)
-- ``data/raw/checksums.json``       (SHA-256 checksums of written raw files)
+Outputs:
+- ``data/raw/video_metadata.jsonl``  (one schema-validated record/line)
+- ``data/raw/checksums.json``       (SHA-256 checksums of written files)
 - ``data/raw/dataset_stats.json``   (record count, field presence,
   missing-tag counts, sample-size/power limitation statement)
-
-The loader FAILS LOUDLY on any fetch/parse/validation failure. There is
-NO synthetic or mock fallback: every record written comes from the real
-dataset stream.
 """
 
 from __future__ import annotations
@@ -24,16 +27,31 @@ from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional
 
 import jsonschema
+import requests
 import yaml
-from datasets import load_dataset
 
 from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
+# ``datasets`` is imported defensively: on runners where pyarrow was
+# built against NumPy 2.x but NumPy 1.x is installed, importing
+# ``datasets`` raises ImportError. In that case we keep the module-level
+# name ``load_dataset = None`` and use the datasets-server HTTP API in
+# ``stream_records``. If the import succeeds, the streaming path is used
+# and any runtime fetch error propagates (fail loudly).
+try:  # pragma: no cover - environment dependent
+    from datasets import load_dataset  # type: ignore
+except Exception as _import_error:  # noqa: BLE001
+    load_dataset = None  # type: ignore
+    _DATASETS_IMPORT_ERROR = repr(_import_error)
+else:
+    _DATASETS_IMPORT_ERROR = None
+
 DATASET_ID = "mmbench/ocean"
 SPLIT = "validation"
 CHUNK_SIZE = 100
+DATASETS_SERVER = "https://datasets-server.huggingface.co"
 
 PROJECT_ROOT = paths.root
 SCHEMA_PATH = PROJECT_ROOT / "specs" / "001-llmxive-follow-up-extending-perception-o" / "contracts" / "video_metadata.schema.yaml"
@@ -161,12 +179,78 @@ def normalize_record(record: Dict[str, Any], index: int) -> Dict[str, Any]:
     return mapped
 
 
+def _http_config_for_split() -> str:
+    """Resolve the datasets-server config name for the validation split."""
+    resp = requests.get(
+        f"{DATASETS_SERVER}/splits", params={"dataset": DATASET_ID}, timeout=60
+    )
+    resp.raise_for_status()
+    splits = resp.json().get("splits", [])
+    for s in splits:
+        if s.get("split") == SPLIT:
+            return s["config"]
+    raise RuntimeError(
+        f"{DATASET_ID} has no '{SPLIT}' split according to the Hugging Face "
+        f"datasets-server (available splits: {splits!r}); refusing to fabricate data."
+    )
+
+
+def _stream_records_http() -> Iterator[Dict[str, Any]]:
+    """Stream the REAL validation split via the datasets-server rows API.
+
+    Used only when the ``datasets`` library cannot be imported (e.g. a
+    pyarrow/NumPy binary incompatibility on the runner). Raises on any
+    HTTP or parse failure — no synthetic fallback.
+    """
+    config = _http_config_for_split()
+    log.info(
+        "Streaming %s split=%s via datasets-server (config=%s); "
+        "datasets-library import unavailable: %s",
+        DATASET_ID, SPLIT, config, _DATASETS_IMPORT_ERROR,
+    )
+    offset = 0
+    page_size = 100
+    while True:
+        resp = requests.get(
+            f"{DATASETS_SERVER}/rows",
+            params={
+                "dataset": DATASET_ID,
+                "config": config,
+                "split": SPLIT,
+                "offset": offset,
+                "length": page_size,
+            },
+            timeout=120,
+        )
+        resp.raise_for_status()
+        payload = resp.json()
+        rows = payload.get("rows", [])
+        if not rows:
+            break
+        for row in rows:
+            rec = row.get("row")
+            if rec is None:
+                raise RuntimeError(
+                    f"Malformed datasets-server row at offset {offset}: {row!r}"
+                )
+            yield dict(rec)
+        if len(rows) < page_size:
+            break
+        offset += page_size
+
+
 def stream_records() -> Iterator[Dict[str, Any]]:
     """Stream the REAL validation split. Raises on any fetch failure."""
-    log.info("Streaming %s split=%s", DATASET_ID, SPLIT)
-    ds = load_dataset(DATASET_ID, split=SPLIT, streaming=True)
-    for record in ds:
-        yield dict(record)
+    loader = globals().get("load_dataset")
+    if callable(loader):
+        log.info("Streaming %s split=%s via datasets library", DATASET_ID, SPLIT)
+        ds = loader(DATASET_ID, split=SPLIT, streaming=True)
+        for record in ds:
+            yield dict(record)
+        return
+    # ``datasets`` could not be imported on this runner — use the real
+    # datasets-server HTTP API for the same dataset/split.
+    yield from _stream_records_http()
 
 
 def sha256_file(path: Path) -> str:
@@ -186,7 +270,6 @@ def main() -> None:
     field_nonnull = {f: 0 for f in ("video_url", "transcript", "setting", "culture")}
     missing_tags = 0
     missing_labels = 0
-    errors: List[str] = []
 
     tmp_path = RAW_DIR / "video_metadata.jsonl.tmp"
     with open(tmp_path, "w", encoding="utf-8") as out:
@@ -212,6 +295,7 @@ def main() -> None:
                 for rec in buffer:
                     out.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 buffer = []
+                log.info(" ... %d records streamed", n_records)
         for rec in buffer:
             out.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
@@ -260,6 +344,12 @@ def main() -> None:
             "MM-OCEAN (spec FR-001) has no verified public URL; the verified open "
             "dataset mmbench/ocean is the primary data source for all reported "
             "results (deviation #1, flagged for kickback)."
+        ),
+        "transport": (
+            "datasets-library streaming"
+            if callable(globals().get("load_dataset"))
+            else "huggingface datasets-server HTTP API (datasets library not "
+                 "importable on this runner)"
         ),
     }
     with open(RAW_DIR / "dataset_stats.json", "w", encoding="utf-8") as fh:
