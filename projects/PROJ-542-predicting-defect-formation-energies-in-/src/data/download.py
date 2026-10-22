@@ -2,45 +2,40 @@
 src/data/download.py
 ---------------------
 
-Downloads the perovskite defect formation energy dataset from the
-verified Zenodo URL (see the task description). The file is written
-to ``data/raw/materials_defects.csv`` and a SHA‑256 checksum file is
-created in ``data/checksums/raw_defects.sha256``.
+Downloads perovskite oxygen‑vacancy defect formation energy data from the
+Materials Project API (via ``mp_api``). The file is written to
+``data/raw/materials_defects.csv`` and a SHA‑256 checksum file is created in
+``data/checksums/raw_defects.sha256``.
+
+Requirements
+------------
+• Abort with clear error ``"Materials Project API key not provided"`` if the
+  ``MP_API_KEY`` environment variable is missing.
+• Abort with ``"No data found for specified filters."`` if the API query
+  returns zero records.
+• If the API cannot be reached, raise the exception (do **not** fall back
+  to synthetic data).
+• Compute SHA‑256 checksum for the output file.
 """
 
 import hashlib
+import os
 import sys
 from pathlib import Path
 
 import pandas as pd
-import requests
 from llmxive_toolkit import get_logger, paths
+
+# mp_api is listed in the pinned requirements (mp-api==0.33.0)
+from mp_api.client import MPRester
 
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Constants
+# Paths
 # ----------------------------------------------------------------------
-ZENODO_URL = (
-    "https://zenodo.org/records/10028980/files/Data.csv?download=1"
-)
 RAW_CSV_PATH = paths.data("raw", "materials_defects.csv")
 CHECKSUM_PATH = paths.data("checksums", "raw_defects.sha256")
-
-
-def _download_csv(url: str) -> pd.DataFrame:
-    """Download the CSV from *url* and return it as a DataFrame.
-
-    The function raises any network‑related exception – we never
-    silently fall back to synthetic data.
-    """
-    log.info(f"Downloading raw dataset from {url}")
-    response = requests.get(url, timeout=30)
-    response.raise_for_status()
-    # ``pandas.read_csv`` can read from a file‑like object.
-    from io import StringIO
-
-    return pd.read_csv(StringIO(response.text))
 
 
 def _write_checksum(file_path: Path, checksum_path: Path) -> None:
@@ -54,6 +49,82 @@ def _write_checksum(file_path: Path, checksum_path: Path) -> None:
     log.info(f"Checksum written to {checksum_path}")
 
 
+def _fetch_defect_data() -> pd.DataFrame:
+    """
+    Query the Materials Project API for oxygen‑vacancy defect formation
+    energies in perovskites.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``composition``, ``defect_type``, ``formation_energy``.
+
+    Raises
+    ------
+    RuntimeError
+        If the API key is missing or no records match the query.
+    Exception
+        Propagates any network‑related exception from ``mp_api``.
+    """
+    api_key = os.getenv("MP_API_KEY")
+    if not api_key:
+        raise RuntimeError("Materials Project API key not provided")
+
+    log.info("Connecting to Materials Project API")
+    with MPRester(api_key) as mpr:
+        # ``mpr.get_data`` returns a list of dicts for the requested collection.
+        # The collection name for defects is ``defects``.
+        try:
+            raw_data = mpr.get_data("defects")
+        except Exception as exc:
+            log.error(f"Failed to retrieve defect data: {exc}")
+            raise
+
+    if not raw_data:
+        raise RuntimeError("No data found for specified filters.")
+
+    # Convert to DataFrame and keep only the columns we need.
+    df = pd.DataFrame(raw_data)
+
+    # Ensure required columns exist; rename if the API uses different keys.
+    expected_cols = {"composition", "defect_type", "formation_energy"}
+    missing = expected_cols - set(df.columns)
+    if missing:
+        raise RuntimeError(
+            f"API response missing expected columns: {', '.join(sorted(missing))}"
+        )
+
+    # Filter to oxygen vacancies only (the schema restricts defect_type).
+    df = df[df["defect_type"] == "oxygen_vacancy"]
+
+    # At this stage we may have many entries that are not perovskites.
+    # A simple heuristic: keep formulas that contain exactly three distinct
+    # element symbols (ABX3) and end with ``O`` for the X site.
+    # This is not a strict validation but removes obvious non‑perovskite
+    # entries while keeping the majority of the dataset.
+    def _is_perovskite(formula: str) -> bool:
+        # Basic check: must contain exactly three element symbols.
+        # We rely on the fact that perovskite formulas are of the form
+        # A B X3 (e.g., BaTiO3). The presence of "O" is required for the
+        # oxygen vacancy.
+        if "O" not in formula:
+            return False
+        # Count distinct alphabetic groups (ignoring numbers).
+        import re
+
+        elements = re.findall(r"[A-Z][a-z]?", formula)
+        return len(set(elements)) == 3
+
+    df = df[df["composition"].apply(_is_perovskite)]
+
+    if df.empty:
+        raise RuntimeError("No data found for specified filters.")
+
+    # Keep only the three required columns and reset the index.
+    df = df.loc[:, ["composition", "defect_type", "formation_energy"]].reset_index(drop=True)
+    return df
+
+
 def main() -> None:
     """
     Entry point for ``python -m src.data.download``.
@@ -61,7 +132,7 @@ def main() -> None:
     and creates the checksum file.
     """
     try:
-        df = _download_csv(ZENODO_URL)
+        df = _fetch_defect_data()
     except Exception as exc:
         log.error(f"Failed to download dataset: {exc}")
         raise

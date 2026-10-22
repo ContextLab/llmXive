@@ -1,3 +1,12 @@
+T001:
+  c: false
+  h: 91ae525772c24cd27c6aa6b811ac0836d7496754cbc61dcb8fe06e30e6014eb9
+  r: '`code/pipeline/run.py`, `code/data/download.py`, and `code/data/featurize.py`
+    are missing, and the existing unit test (`code/tests/test_pipeline_entry.py`)
+    checks a different import path (`src.pipeline.run`) and expects `run()` to return
+    `None` rather than a dict with `raw_path`, `features_path`, and `model_path`.
+    The required pipeline entry point and its verification are therefore not present.'
+  sig: dd2ffb8d7d238204c6c3e0305fe500bbe102c8a28c9370f5b2d34636f5cbbe0a
 T003:
   c: false
   h: ab955d01dafdfa073fad15d88d46a5913821c0c58149478d533d3bd13f6da949

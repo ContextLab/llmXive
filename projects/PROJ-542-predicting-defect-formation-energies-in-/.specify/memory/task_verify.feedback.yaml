@@ -1,10 +1,9 @@
 T001:
-  reason: "The required pipeline modules `code/pipeline/run.py`, `code/data/download.py`,\
-    \ and `code/data/featurize.py` are missing, and the existing test `code/tests/test_pipeline_entry.py`\
-    \ checks a different import path (`src.pipeline.run`) and expects `run()` to return\
-    \ `None` instead of a dict with `raw_path`, `features_path`, and `model_path`.\
-    \ These gaps prevent the task\u2019s documentation and wiring verification from\
-    \ being satisfied."
+  reason: '`code/pipeline/run.py`, `code/data/download.py`, and `code/data/featurize.py`
+    are missing, and the existing unit test (`code/tests/test_pipeline_entry.py`)
+    checks a different import path (`src.pipeline.run`) and expects `run()` to return
+    `None` rather than a dict with `raw_path`, `features_path`, and `model_path`.
+    The required pipeline entry point and its verification are therefore not present.'
   task: 924b5a3d2e12c565e8fedd13771c71824318738b3f899d58da6ad267f247c22f
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py

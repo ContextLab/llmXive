@@ -14,7 +14,7 @@ All paths are relative to the project root and use the canonical `code/` directo
   *Files:* `code/quickstart.md`, `code/pipeline/run.py`, `code/data/download.py`, `code/data/featurize.py`  
   *Verification:* Unit test `code/tests/test_pipeline_entry.py` imports `code.pipeline.run` and asserts that `run()` executes without raising an exception and returns a dict containing keys `raw_path`, `features_path`, and `model_path`.
 
-- [ ] T002 [US1] Implement the real data‑acquisition step: fetch perovskite oxygen‑vacancy defect formation energies from the Materials Project API (via `mp_api`).   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+- [ ] T002 [US1] Implement the real data‑acquisition step: fetch perovskite oxygen‑vacancy defect formation energies from the Materials Project API (via `mp_api`).   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   *File:* `code/data/download.py`  
   *Requirements:*  
   • Abort with clear error `"Materials Project API key not provided"` if `MP_API_KEY` env‑var is missing.  
