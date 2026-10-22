@@ -1,7 +1,0 @@
-{
-  "task_id": "T006",
-  "fingerprint": "9a15963ba3437852ea7f27e8356dac99dda57b9d5991955d11cdd4ab038d7b2d",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'src/models/split.py': imports nonexistent names from sibling files: `from src.utils.checksum import write_checksum` (available: Path, Union, compute_checksum, get_logger, hashlib, log, main). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}

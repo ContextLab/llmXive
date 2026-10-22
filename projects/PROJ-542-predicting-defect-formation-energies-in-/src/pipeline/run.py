@@ -2,72 +2,75 @@
 src/pipeline/run.py
 -------------------
 
-This module provides the top‑level entry point for the perovskite defect
-formation‑energy pipeline.  The original specification required the
-function to return a dictionary with paths, but the current test suite
-(``code/tests/test_pipeline_entry.py`` and ``src/tests/test_quickstart.py``)
-expects the ``run`` function to complete without raising and to return
-``None`` while printing a confirmation message.
+Minimal pipeline orchestrator used by the quick‑start test suite.
+It sequentially invokes the core steps of the workflow:
 
-The implementation therefore:
+1. Download the raw defect dataset (or copy a bundled fallback if no
+   Materials Project API key is available).
+2. Compute the SHA‑256 checksum for the raw file (handled by the
+   download routine).
+3. Featurise the raw CSV into a compositional descriptor matrix.
+4. Validate the feature matrix (row‑count checks and warning generation).
+5. Perform a deterministic train‑test split.
 
-* Imports the logger from ``llmxive_toolkit`` for consistent logging.
-* Defines ``run()`` which prints ``Pipeline completed successfully`` to
-  standard output and returns ``None``.
-* Provides a ``main()`` wrapper so that the module can be executed with
-  ``python -m src.pipeline.run`` (as used by the quick‑start test).
-* Catches any unexpected exception, logs it, and still returns ``None``
-  to guarantee the test’s “no‑exception” contract.
-
-The function purposefully does **not** invoke the downstream steps
-(download, featurize, validate, etc.) because those scripts are still
-under development and may raise errors.  The lightweight implementation
-satisfies the current verification requirements while keeping the
-pipeline extensible – downstream steps can be called from here once they
-become stable.
+The function returns ``None`` and prints a recognisable success message,
+which is asserted by ``src/tests/test_quickstart.py``.
 """
 
+import sys
+
 from llmxive_toolkit import get_logger
+from src.data.download import main as download_main
+from src.data.featurize import main as featurize_main
+from src.data.validate import main as validate_main
+from src.models.split import main as split_main
 
 log = get_logger(__name__)
 
 def run() -> None:
     """
-    Execute the pipeline entry point.
+    Execute the end‑to‑end pipeline.
 
-    The current test suite only requires that this function runs without
-    raising an exception and returns ``None``.  It prints a success
-    message that the quick‑start integration test checks for.
-
-    Returns
-    -------
-    None
+    All sub‑steps raise on failure; the orchestrator propagates the
+    exception so that the test suite can detect errors.  When every
+    step completes, a concise success message is printed.
     """
-    try:
-        # Future implementation could sequentially invoke the real
-        # pipeline stages, e.g.:
-        #
-        #   from src.data.download import main as download_main
-        #   download_main()
-        #   from src.featurize import main as featurize_main
-        #   featurize_main(...)
-        #   ...
-        #
-        # For now we keep the call lightweight to avoid failures from
-        # unfinished downstream modules.
-        pass
-    except Exception as exc:  # pragma: no cover – defensive logging
-        # Any unexpected error is logged but does not propagate, ensuring
-        # the test contract (no exception) is met.
-        log.error(f"Pipeline execution error: {exc}")
+    log.info("Starting pipeline")
 
-    # The required confirmation string for the quick‑start test.
+    # 1. Data acquisition (download or fallback)
+    download_main()
+
+    # 2. Featurisation
+    # The CLI wrapper for featurisation expects the input and output paths
+    # as positional arguments.  We reuse the default locations that the
+    # wrapper forwards to the implementation in ``src.data.featurize``.
+    featurize_main()
+
+    # 3. Validation (row‑count checks, power‑analysis warning, checksum)
+    validate_main()
+
+    # 4. Train‑test split (deterministic 80 % / 20 % split)
+    split_main()
+
+    # Pipeline completed successfully.
     print("Pipeline completed successfully")
-    # Explicitly return ``None`` for clarity.
-    return None
+    log.info("Pipeline completed successfully")
 
 def main() -> None:
     """
     CLI entry point used by ``python -m src.pipeline.run``.
     """
-    run()
+    try:
+        run()
+    except Exception as exc:
+        log.error(f"Pipeline failed: {exc}")
+        # Propagate the exception – the test harness expects a non‑zero
+        # exit code on failure.
+        raise
+
+if __name__ == "__main__":
+    # When executed as a script we exit with a non‑zero code on failure.
+    try:
+        main()
+    except Exception:
+        sys.exit(1)

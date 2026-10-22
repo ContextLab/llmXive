@@ -34,7 +34,7 @@ All paths are relative to the project root and use the canonical `code/` directo
   *Outputs:* `data/processed/features.csv`, `data/processed/featurize.log`, `data/processed/descriptor_gaps.log`, `data/checksums/features.sha256`  
   *Verification:* `features.csv` validates against `contracts/features.schema.yaml` (defined in T014) and contains no missing target values.
 
-- [ ] T004 [US1] Validate the processed dataset and perform a lightweight power‑analysis warning.  
+- [X] T004 [US1] Validate the processed dataset and perform a lightweight power‑analysis warning.  
   *File:* `code/data/validate.py`  
   *Requirements:*  
   • Raise `ValueError` with message `"Insufficient rows (<50) for 5‑fold CV"` if the feature matrix has fewer than 50 rows (FR-009).  
@@ -43,7 +43,7 @@ All paths are relative to the project root and use the canonical `code/` directo
   *Output:* `data/processed/validation.log`, `data/checksums/validation.sha256`  
   *Verification:* Log file contains the row count and, when applicable, the warning message; unit test checks for correct handling of both thresholds.
 
-- [ ] T005 [US1] Implement the SHA-256 checksum utility.  
+- [X] T005 [US1] Implement the SHA-256 checksum utility.  
   *File:* `code/utils/checksum.py` (exposes `write_checksum(path: str, out_dir: str)`).  
   *Verification:* pytest `code/tests/test_checksums.py` verifies that the utility correctly hashes files and writes the result to the specified output directory.
 
@@ -73,7 +73,7 @@ All paths are relative to the project root and use the canonical `code/` directo
   *Outputs:* `data/processed/train.csv`, `data/processed/test.csv`, `data/processed/split.log`, `data/checksums/train.sha256`, `data/checksums/test.sha256`  
   *Verification:* Unit test asserts that no `composition` appears in both files and that the split respects the requested proportion.
 
-- [ ] T007 [US2] Train baseline models (Random Forest and Gradient Boosting) with 5‑fold GroupKFold cross‑validation on `train.csv`.  
+- [ ] T007 [US2] Train baseline models (Random Forest and Gradient Boosting) with 5‑fold GroupKFold cross‑validation on `train.csv`.   <!-- FAILED-IN-EXECUTION: src/models/train.py exit=1 -->
   *File:* `code/models/train.py`  
   *Requirements:*  
   • `n_jobs=1`, `random_state=42`.  

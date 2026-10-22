@@ -8,20 +8,20 @@
 # The descriptor column naming convention follows the pattern:
 #   <site>_<descriptor>
 # where <site> is one of A, B, X and <descriptor> is one of:
-#   radius, electronegativity, oxidation_state, valence_electrons
+#   atomic_radius, electronegativity, oxidation_state, valence_electrons
 #
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Perovskite Defect Feature Matrix
 type: object
 properties:
-  # Radius descriptors (short name – required)
-  A_radius:
+  # Atomic radius descriptors (covalent radius, Å)
+  A_atomic_radius:
     type: number
-  B_radius:
+  B_atomic_radius:
     type: number
-  X_radius:
+  X_atomic_radius:
     type: number
-  # Electronegativity
+  # Electronegativity (Pauling)
   A_electronegativity:
     type: number
   B_electronegativity:
@@ -46,9 +46,9 @@ properties:
   formation_energy:
     type: number
 required:
-  - A_radius
-  - B_radius
-  - X_radius
+  - A_atomic_radius
+  - B_atomic_radius
+  - X_atomic_radius
   - A_electronegativity
   - B_electronegativity
   - X_electronegativity

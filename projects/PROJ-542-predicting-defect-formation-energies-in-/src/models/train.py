@@ -2,131 +2,191 @@
 src/models/train.py
 -------------------
 
-Trains Random Forest and Gradient Boosting regressors on the feature
-matrix using 5‑fold GroupKFold cross‑validation.  The implementation
-follows the specification for T007.
+Implements baseline model training with 5‑fold GroupKFold cross‑validation.
+Produces per‑model mean ± std metrics, writes them to ``cv_metrics.json``,
+computes a SHA‑256 checksum for the JSON, and serialises the fitted
+RandomForest and GradientBoosting models to ``models/rf_cv.pkl`` and
+``models/gb_cv.pkl`` respectively.
+
+Execution
+----------
+``python -m src.models.train <train.csv> <cv_metrics.json>``
 """
 
 import json
 import sys
 from pathlib import Path
 
+import joblib
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import GroupKFold
-from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
 
 from llmxive_toolkit import get_logger, paths
-from src.utils.checksum import compute_checksum
+from src.utils.checksum import write_checksum
 
 log = get_logger(__name__)
 
-TARGET_COL = "formation_energy"
-GROUP_COL = "composition"
-
-
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def _compute_fold_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
+    """Compute RMSE, MAE and R² for a single fold."""
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
     mae = mean_absolute_error(y_true, y_pred)
     r2 = r2_score(y_true, y_pred)
     return {"rmse": rmse, "mae": mae, "r2": r2}
 
-
 def _aggregate_metrics(per_fold: list) -> dict:
     """
-    Aggregate per‑fold metrics into mean ± std dictionaries.
+    Convert a list of per‑fold metric dicts into mean ± std dict.
+    Returns a dict with keys ``rmse_mean``, ``rmse_std``, etc.
     """
-    agg = {}
-    for metric in ["rmse", "mae", "r2"]:
-        values = [fold[metric] for fold in per_fold]
-        agg[metric] = {
-            "mean": float(np.mean(values)),
-            "std": float(np.std(values, ddof=1)),
-        }
-    return agg
+    rmses = np.array([m["rmse"] for m in per_fold])
+    maes = np.array([m["mae"] for m in per_fold])
+    r2s = np.array([m["r2"] for m in per_fold])
 
+    return {
+        "rmse_mean": float(rmses.mean()),
+        "rmse_std": float(rmses.std(ddof=1)),
+        "mae_mean": float(maes.mean()),
+        "mae_std": float(maes.std(ddof=1)),
+        "r2_mean": float(r2s.mean()),
+        "r2_std": float(r2s.std(ddof=1)),
+    }
 
 def _train_and_evaluate(features_path: Path, output_path: Path) -> dict:
     """
-    Perform 5‑fold GroupKFold CV on ``features_path`` and write the
-    aggregated metrics to ``output_path``.  Returns the full metrics
-    dictionary (including per‑fold results) for downstream use.
+    Perform 5‑fold GroupKFold CV on the training set.
+
+    Parameters
+    ----------
+    features_path : Path
+        CSV containing the training features (must include ``composition``
+        column for grouping and ``formation_energy`` target).
+    output_path : Path
+        Destination for the aggregated CV metrics JSON.
+
+    Returns
+    -------
+    dict
+        Full metrics dictionary (including per‑fold results) – useful for
+        downstream callers but not required for the JSON artefact.
     """
+    # Load data
     df = pd.read_csv(features_path)
+    if "formation_energy" not in df.columns:
+        raise ValueError("Target column 'formation_energy' not found in training data.")
+    if "composition" not in df.columns:
+        raise ValueError("Column 'composition' required for GroupKFold grouping not found.")
 
-    if TARGET_COL not in df.columns or GROUP_COL not in df.columns:
-        raise ValueError(f"Feature CSV must contain '{TARGET_COL}' and '{GROUP_COL}' columns.")
-
-    X = df.drop(columns=[TARGET_COL, GROUP_COL])
-    y = df[TARGET_COL].values
-    groups = df[GROUP_COL].values
+    X = df.drop(columns=["formation_energy", "composition"])
+    y = df["formation_energy"].values
+    groups = df["composition"].values
 
     gkf = GroupKFold(n_splits=5)
-    per_fold_metrics = []
+    # Containers for per‑fold metrics
+    rf_fold_metrics = []
+    gb_fold_metrics = []
 
-    # Prepare models.
-    models = {
-        "RandomForest": RandomForestRegressor(
-            n_estimators=200, random_state=42, n_jobs=1
-        ),
-        "GradientBoosting": GradientBoostingRegressor(
-            n_estimators=200, random_state=42
-        ),
+    # Iterate over folds
+    for fold_idx, (train_idx, val_idx) in enumerate(gkf.split(X, y, groups), start=1):
+        X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
+        y_train, y_val = y[train_idx], y[val_idx]
+
+        # Random Forest
+        rf = RandomForestRegressor(
+            n_estimators=200,
+            random_state=42,
+            n_jobs=1,
+        )
+        rf.fit(X_train, y_train)
+        rf_pred = rf.predict(X_val)
+        rf_fold_metrics.append(_compute_fold_metrics(y_val, rf_pred))
+
+        # Gradient Boosting
+        gb = GradientBoostingRegressor(
+            n_estimators=200,
+            random_state=42,
+        )
+        gb.fit(X_train, y_train)
+        gb_pred = gb.predict(X_val)
+        gb_fold_metrics.append(_compute_fold_metrics(y_val, gb_pred))
+
+        log.info(
+            f"Fold {fold_idx}: RF RMSE={rf_fold_metrics[-1]['rmse']:.4f}, "
+            f"GB RMSE={gb_fold_metrics[-1]['rmse']:.4f}"
+        )
+
+    # Aggregate metrics
+    aggregated = {
+        "RandomForest": _aggregate_metrics(rf_fold_metrics),
+        "GradientBoosting": _aggregate_metrics(gb_fold_metrics),
     }
 
-    for fold_idx, (train_idx, test_idx) in enumerate(gkf.split(X, y, groups)):
-        X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
-        y_train, y_test = y[train_idx], y[test_idx]
-
-        for name, model in models.items():
-            model.fit(X_train, y_train)
-            preds = model.predict(X_test)
-            metrics = _compute_fold_metrics(y_test, preds)
-            # Record metrics with model identifier.
-            per_fold_metrics.append(
-                {
-                    "model": name,
-                    "fold": fold_idx,
-                    "rmse": metrics["rmse"],
-                    "mae": metrics["mae"],
-                    "r2": metrics["r2"],
-                }
-            )
-            log.debug(f"{name} fold {fold_idx}: {metrics}")
-
-    # Aggregate metrics per model.
-    aggregated = {}
-    for name in models.keys():
-        model_folds = [m for m in per_fold_metrics if m["model"] == name]
-        aggregated[name] = _aggregate_metrics(model_folds)
-
-    # Write JSON.
+    # Write JSON
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as f:
-        json.dump(aggregated, f, indent=2)
+        json.dump({"cv_metrics": aggregated}, f, indent=2)
 
-    # Compute checksum for the JSON file.
-    checksum_path = paths.data("checksums", "cv_metrics.sha256")
-    compute_checksum(output_path, checksum_path)
+    log.info(f"Cross‑validation metrics written to {output_path}")
 
-    return aggregated
+    # ------------------------------------------------------------------
+    # Fit final models on the entire training set and serialise them.
+    # ------------------------------------------------------------------
+    final_rf = RandomForestRegressor(
+        n_estimators=200,
+        random_state=42,
+        n_jobs=1,
+    )
+    final_rf.fit(X, y)
+    rf_path = Path("models/rf_cv.pkl")
+    rf_path.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(final_rf, rf_path)
+    log.info(f"Random Forest model saved to {rf_path}")
 
+    final_gb = GradientBoostingRegressor(
+        n_estimators=200,
+        random_state=42,
+    )
+    final_gb.fit(X, y)
+    gb_path = Path("models/gb_cv.pkl")
+    gb_path.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(final_gb, gb_path)
+    log.info(f"Gradient Boosting model saved to {gb_path}")
 
+    # Compute checksum for the JSON metrics file
+    checksum_dir = paths.data("checksums")
+    write_checksum(output_path, checksum_dir)
+
+    return {"cv_metrics": aggregated, "rf_path": rf_path, "gb_path": gb_path}
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
 def main() -> None:
     """
-    CLI entry point: ``python -m src.models.train <features.csv> <out.json>``
+    CLI wrapper used by ``python -m src.models.train``.
+
+    Expected positional arguments:
+    1. Path to the training CSV (produced by ``src.models.split``).
+    2. Path where the CV metrics JSON should be written.
     """
     if len(sys.argv) != 3:
-        raise RuntimeError("Usage: python -m src.models.train <features.csv> <out.json>")
-    features_csv = Path(sys.argv[1])
-    out_json = Path(sys.argv[2])
-    _train_and_evaluate(features_csv, out_json)
+        log.error("Exactly two arguments required: <train.csv> <cv_metrics.json>")
+        sys.exit(1)
 
+    train_csv = Path(sys.argv[1])
+    metrics_json = Path(sys.argv[2])
+
+    if not train_csv.is_file():
+        log.error(f"Training file not found: {train_csv}")
+        sys.exit(1)
+
+    _train_and_evaluate(train_csv, metrics_json)
+    log.info("Training completed successfully.")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as exc:
-        log.error(str(exc))
-        sys.exit(1)
+    main()
