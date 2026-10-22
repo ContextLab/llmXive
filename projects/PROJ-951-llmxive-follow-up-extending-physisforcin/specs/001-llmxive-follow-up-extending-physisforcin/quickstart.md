@@ -1,6 +1,6 @@
 # Quickstart: llmXive follow‑up – Post‑generation Physics Filtering
 
-This guide walks you through reproducing the entire experiment on a fresh GitHub Actions runner (or locally on Linux).
+Reproduce the entire experiment on a fresh GitHub Actions runner (or locally on Linux).
 
 ## Prerequisites
 * Python 3.11
@@ -9,7 +9,7 @@ This guide walks you through reproducing the entire experiment on a fresh GitHub
 
 ## Step‑by‑Step
 
-1. **Setup the environment**  
+1. **Create a virtual environment & install dependencies**  
    ```bash
    python -m venv .venv
    source .venv/bin/activate
@@ -23,19 +23,19 @@ This guide walks you through reproducing the entire experiment on a fresh GitHub
    python src/generation/download_pybullet_examples.py
    ```
 
-3. **Generate synthetic videos**  
+3. **Generate synthetic videos** (default batch size = 200)  
    ```bash
    python src/generation/generate_videos.py \
        --num_videos 200 \
        --output_dir data/generated/videos/
    ```
 
-4. **Run the physics filter**  
+4. **Run the physics filter** (keep top 60 th percentile)  
    ```bash
    python src/filtering/pybullet_filter.py \
        --input_dir data/generated/videos/ \
        --output_csv data/curated/curated_dataset.csv \
-       --percentile <desired_percentile>   # keep top <desired_percentile>th percentile
+       --percentile 60
    ```
 
 5. **(Optional) Augment to reach n ≥ 30**  
@@ -45,13 +45,13 @@ This guide walks you through reproducing the entire experiment on a fresh GitHub
        --target_n 30
    ```
 
-6. **Train the distilled diffusion model**  
+6. **Train the ≈ 50 M‑parameter diffusion model**  
    ```bash
    python src/training/train_diffusion.py \
        --manifest data/curated/curated_dataset.csv \
-       --epochs 8 \
-       --batch_size <small> \
-       --frame_resolution <desired_resolution> \
+       --epochs 10 \
+       --batch_size 4 \
+       --frame_resolution 64 \
        --precision float16 \
        --output_dir data/models/
    ```
@@ -74,17 +74,19 @@ This guide walks you through reproducing the entire experiment on a fresh GitHub
    python src/evaluation/tost_equivalence.py \
        --baseline data/reports/baseline_RBench.json \
        --candidate data/reports/curated_RBench.json \
-       --margin <default small margin> \
+       --margin 0.15 \
        --output data/reports/tost_results.json
    ```
 
 10. **Inspect the final report**  
-    The file `data/reports/final_summary.md` is auto‑generated and contains:
-    * Retention rate after filtering (SC‑001)
-    * **Physical consistency score (SC‑002)** – extracted from benchmark results.
-    * **Performance gap (SC‑03) within 15 % equivalence margin (SC‑003)**.
-    * **p‑value < 0.05 (SC‑004)** indicating statistical significance.
-    * Correlation **> 0.95?** (SC‑006) **?** — should be < 0.95 to satisfy SC‑006.
-    * Training **time ≤ 4 h (SC‑005)** – by `````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+    The file `data/reports/final_summary.md` is generated automatically and contains:
+    * Retention rate after filtering (SC‑001).  
+    * **Physical‑consistency scores** (SC‑002).  
+    * **Performance gap** vs. PhysisForcing baseline (SC‑003).  
+    * **p‑value** from TOST (SC‑004).  
+    * Training **duration** (SC‑005).  
+    * Pearson **correlation** between PyBullet and MuJoCo scores (SC‑006).  
 
+All steps are fully scripted; running the CI workflow executes tasks T0‑T19 sequentially, guaranteeing end‑to‑end reproducibility.
 
+---

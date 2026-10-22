@@ -1,38 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ProjectConfig"
-description: "Schema for the project configuration file (config.yaml)."
-type: "object"
+type: object
 required:
   - generation_batch_size
   - filter_discard_percent
   - training_epochs
 properties:
   generation_batch_size:
-    type: "integer"
-    description: "Number of videos to generate per run."
+    type: integer
     minimum: 1
     maximum: 1000
+    description: "Number of videos to generate per run."
   filter_discard_percent:
-    type: "number"
-    description: "Percentage of videos to discard (bottom) based on physics score. Default setting discards a moderate proportion of low‑scoring videos, retaining the majority of higher‑scoring ones."
+    type: number
     minimum: 0.0
     maximum: 100.0
-    default: a standard default value
+    description: "Percentage of videos to discard (bottom) based on physics score."
+    default: 40.0
   training_epochs:
-    type: "integer"
-    description: "Number of epochs for diffusion training."
+    type: integer
     minimum: 1
     maximum: 100
+    description: "Number of epochs for diffusion model training."
   cpu_only:
-    type: "boolean"
+    type: boolean
     description: "Force CPU execution (default true)."
     default: true
   kaggle_offload:
-    type: "boolean"
+    type: boolean
     description: "Allow GPU offload to Kaggle if CPU fails."
     default: true
   equivalence_margin:
-    type: "number"
-    description: "Equivalence margin for TOST (e.g., a modestly sized margin)."
-    default: a typical baseline value
+    type: number
+    description: "Equivalence margin for TOST (e.g., 0.15 for 15 %)."
+    default: 0.15
 additionalProperties: false

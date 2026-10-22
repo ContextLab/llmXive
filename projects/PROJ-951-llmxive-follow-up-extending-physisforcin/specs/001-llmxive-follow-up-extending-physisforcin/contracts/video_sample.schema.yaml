@@ -26,14 +26,17 @@ properties:
     description: "ISO‑8601 timestamp of when the video was generated."
   physics_score:
     type: number
-    description: "Continuity & contact conservation score normalized to a standardized range from the lowest to the highest possible value."
-    minimum: a non‑negative value
-    maximum: at the upper limit of the defined range
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized physics consistency score (0 = impossible, 1 = perfect)."
   filter_status:
     type: string
-    enum: ["pass", "fail", "error"]
+    enum:
+      - "pass"
+      - "fail"
+      - "error"
     description: "Result of the physics filter."
   augmented:
     type: boolean
-    description: "Whether the sample was created via data augmentation (FR‑009)."
+    description: "True if the sample was created via physics‑preserving augmentation."
 additionalProperties: false

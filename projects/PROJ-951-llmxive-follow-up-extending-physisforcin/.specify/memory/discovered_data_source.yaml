@@ -1,19 +1,15 @@
 status: none
-intent: download robotic manipulation video dataset RoboNet RLBench python package
-  dataset
+intent: RoboNet RLBench Meta-World robot manipulation video dataset with physics scores
+  python package dataset
 required_fields:
 - video_file_path
-- video_format
-- physics_score_raw
-- physics_score_normalized
+- physics_score
+- continuity_score
+- contact_conservation_score
 - generation_prompt
 - object_ids
-- timestamp_start
-- timestamp_end
-- trajectory_continuity_flag
-- contact_conservation_flag
-- filter_status
-- failure_reason
-cache_key: 2755f1bf69d3bb89830cdc512b87e9403d93b96df1978eb3fdc47a1a74fe361b
-searched_at: '2026-10-16T08:40:02.991257+00:00'
+- timestamp
+- simulation_success_flag
+cache_key: d1b75c9613d11ce3a71769726c824180e7992dd03d202bbda4e9a43dfb5d0c55
+searched_at: '2026-10-22T05:12:14.983005+00:00'
 retry_count: 1

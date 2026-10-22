@@ -1,6 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "VideoSample Schema"
-description: "Schema for a single video sample with physics metadata"
 type: object
 required:
   - id
@@ -11,55 +10,45 @@ required:
 properties:
   id:
     type: string
-    description: "Unique identifier for the video sample"
+    description: "Unique identifier for the video sample."
   prompt:
     type: string
-    description: "Text prompt used for generation"
+    description: "Text prompt used for generation."
   video_path:
     type: string
-    description: "Relative path to the MP4 file"
+    description: "Relative path to the MP4 file."
   physics_score:
     type: number
-    description: "Composite physics consistency score (0.0 to 1.0)"
     minimum: 0.0
     maximum: 1.0
+    description: "Composite physics consistency score (0 – 1)."
   continuity_score:
     type: number
-    description: "Trajectory continuity score"
     minimum: 0.0
     maximum: 1.0
+    description: "Trajectory continuity score."
   contact_score:
     type: number
-    description: "Contact conservation score"
     minimum: 0.0
     maximum: 1.0
+    description: "Contact conservation score."
   action_variance:
     type: number
-    description: "Action variance (causal signal)"
     minimum: 0.0
+    description: "Action variance (causal signal)."
   object_displacement:
     type: number
-    description: "Object displacement (causal signal)"
     minimum: 0.0
+    description: "Object displacement (causal signal)."
   status:
     type: string
     enum:
       - "pending"
       - "pass"
       - "fail"
-    description: "Filter status"
+    description: "Filter status."
   generated_at:
     type: string
     format: date-time
-    description: "ISO8601 timestamp of generation"
-examples:
-  - id: "vid-001"
-    prompt: "Robot arm picking a block"
-    video_path: "data/raw/vid-001.mp4"
-    physics_score: above average
-    continuity_score: high
-    contact_score: high
-    action_variance: a moderate level
-    object_displacement: a modest displacement
-    status: "pass"
-    generated_at: "2026-07-13T10:00:00Z"
+    description: "ISO‑8601 timestamp of generation."
+additionalProperties: false

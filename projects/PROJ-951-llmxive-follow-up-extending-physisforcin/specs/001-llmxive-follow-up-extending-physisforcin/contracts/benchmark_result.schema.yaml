@@ -1,7 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "BenchmarkResult"
-description: "Schema for evaluation metrics and statistical test results."
-type: "object"
+type: object
 required:
   - result_id
   - model_id
@@ -12,41 +11,42 @@ required:
   - training_duration
 properties:
   result_id:
-    type: "string"
-    description: "Unique ID for the result."
+    type: string
     pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    description: "UUID for the result record."
   model_id:
-    type: "string"
+    type: string
     description: "Reference to the TrainedModel."
   r_bench_score:
-    type: "number"
-    description: "Physical consistency score on R-Bench."
+    type: number
     minimum: 0.0
+    description: "Physical consistency score on R‑Bench."
   pai_bench_score:
-    type: "number"
-    description: "Physical consistency score on PAI-Bench."
+    type: number
     minimum: 0.0
+    description: "Physical consistency score on PAI‑Bench."
   downstream_success_rate:
-    type: "number"
-    description: "Success rate on a separate control task."
+    type: number
     minimum: 0.0
     maximum: 1.0
+    description: "Success rate on a separate control task."
+    default: 0.0
   mujoco_correlation:
-    type: "number"
-    description: "Correlation with MuJoCo validator (if applicable)."
+    type: number
     minimum: -1.0
     maximum: 1.0
+    description: "Pearson correlation with MuJoCo validator (if computed)."
     default: 0.0
   tost_p_value:
-    type: "number"
-    description: "P-value from TOST equivalence test."
+    type: number
     minimum: 0.0
     maximum: 1.0
+    description: "P‑value from the TOST equivalence test."
   equivalence_flag:
-    type: "boolean"
-    description: "True if equivalent within 15% margin."
+    type: boolean
+    description: "True if equivalent within the 15 % margin."
   training_duration:
-    type: "number"
-    description: "Elapsed time in seconds."
+    type: number
     minimum: 0.0
+    description: "Training time in seconds."
 additionalProperties: false
