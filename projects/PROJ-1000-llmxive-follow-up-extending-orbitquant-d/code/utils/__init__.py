@@ -1,3 +1,1 @@
-"""
-Package marker for the ``code.utils`` module.
-"""
+# Package marker for code.utils

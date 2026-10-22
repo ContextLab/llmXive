@@ -10,3 +10,4 @@ scipy
 tqdm
 pyarrow
 pycocotools
+torchvision

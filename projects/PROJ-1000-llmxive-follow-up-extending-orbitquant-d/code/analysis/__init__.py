@@ -1,3 +1,1 @@
-"""
-Package marker for analysis modules.
-"""
+# Package marker for code.analysis

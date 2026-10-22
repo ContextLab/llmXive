@@ -1,3 +1,1 @@
-"""
-Package marker for the ``code.evaluation`` module.
-"""
+# Package marker for code.evaluation
