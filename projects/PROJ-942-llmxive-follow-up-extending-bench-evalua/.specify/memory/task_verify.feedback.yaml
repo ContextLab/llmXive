@@ -5,6 +5,8 @@ T001:
     exit=1'
   task: 680e44bdc7e79298e83b9b979582a57904c40ccabba7b902d9e5437b14f03990
 T002:
+  reason: 'Requested task execution failed; rerun successfully: src/pipelines/parse_traces.py
+    exit=1'
   task: 2406af4c9bc9fd0e016364c6be6329dd239db4a6f48d72ccc3d6879973176c2b
 T003:
   task: f36f604ae0708af4c04c046c55be2e262431d42a1a367fdcce6bd0fd0329ff5b

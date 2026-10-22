@@ -18,7 +18,7 @@ All tasks respect the data‑flow order, stay within the CPU‑only CI budget, a
 - [ ] T001 **Download and verify the π‑Bench dataset** – `code/pipelines/download_pi_bench.py` streams `datasets.load_dataset("pi_bench", streaming=True)`, writes raw JSON files to `data/raw/`, verifies SHA‑256 checksums, and retries up to 3 times on failure.   <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipelines/download_pi_bench.py exit=1 -->
   *Verification*: `tests/test_dataset_download.py` asserts that every expected file exists, loads without error, and matches published checksums.  
 
-- [ ] T002 **Parse raw interaction traces into a normalized CSV** – `code/pipelines/parse_traces.py` reads `data/raw/*.json` and creates `data/derived/normalized_traces.csv`.  
+- [ ] T002 **Parse raw interaction traces into a normalized CSV** – `code/pipelines/parse_traces.py` reads `data/raw/*.json` and creates `data/derived/normalized_traces.csv`.   <!-- FAILED-IN-EXECUTION: src/pipelines/parse_traces.py exit=1 -->
   *Verification*: `tests/test_parse_traces.py` checks that the CSV contains one row per dialogue turn, includes required columns (`task_id, turn_index, speaker, utterance, ground_truth_intent`), and that the row count equals the sum of turns across all tasks.  
 
 - [ ] T003 **Deterministic intent inference for missing ground‑truth intents** – `code/pipelines/infer_missing_intents.py` runs a fixed‑seed `google/flan-t5-small` LLM (seed 42, greedy decoding) and outputs `data/derived/inferred_intents.csv` (`task_id, turn_index, inferred_intent, confidence`).  

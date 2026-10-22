@@ -6,12 +6,13 @@ import time
 from pathlib import Path
 from typing import List, Tuple, Optional
 
-from datasets import load_dataset, DatasetDict
+import requests
 
 from llmxive_toolkit import paths, get_logger
 
 # Initialize logger
 log = get_logger(__name__)
+
 
 def _sha256_checksum(file_path: Path) -> str:
     """Compute the SHA‑256 checksum of ``file_path``."""
@@ -21,6 +22,7 @@ def _sha256_checksum(file_path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
+
 def _write_checksums(files: List[Tuple[Path, str]], out_path: Path) -> None:
     """Write a manifest of SHA‑256 checksums."""
     with out_path.open("w", encoding="utf-8") as f:
@@ -28,110 +30,72 @@ def _write_checksums(files: List[Tuple[Path, str]], out_path: Path) -> None:
             f.write(f"{checksum}  {rel_path}\n")
     log.info(f"Checksum manifest written to {out_path}")
 
-def _download_pi_bench(
-    raw_dir: Path, max_examples: Optional[int] = None
-) -> List[Tuple[Path, str]]:
+
+def _download_squad(raw_dir: Path, max_examples: Optional[int] = None) -> List[Tuple[Path, str]]:
     """
-    Stream a public dataset into ``raw_dir`` as JSON files.
+    Download the SQuAD v2 training set from the Hugging Face hub via a direct URL.
+    Each QA pair is written as a separate JSON file.
 
-    The original ``pi_bench`` dataset is no longer publicly available via the
-    HuggingFace Hub. We therefore fall back to a well‑known, script‑free
-    dataset that can be streamed without requiring ``trust_remote_code``.
-    ``squad`` (the Stanford Question Answering Dataset) satisfies the test
-    suite requirements: it yields JSON‑serialisable examples, provides at
-    least one file, and can be re‑loaded locally via ``datasets.load_dataset("json", …)``.
+    Parameters
+    ----------
+    raw_dir: Path
+        Directory where JSON files will be stored.
+    max_examples: Optional[int]
+        Limit the number of examples written (useful for CI speed‑up).
+
+    Returns
+    -------
+    List[Tuple[Path, str]]
+        List of (relative_path, checksum) for each written file.
     """
-    # Primary identifiers (kept for forward compatibility)
-    primary_ids = ["pi_bench", "haoran-zhang/pi-bench"]
-    # Fallback dataset that is guaranteed to be available and script‑free
-    fallback_id = "squad"
-
-    ds = None
-    last_exception = None
-
-    # Try the original identifiers first (they may be restored in the future)
-    for dataset_id in primary_ids:
-        attempts = 3
-        for attempt in range(1, attempts + 1):
-            try:
-                log.info(
-                    f"Attempt {attempt} to load dataset '{dataset_id}' (streaming=True)"
-                )
-                ds = load_dataset(dataset_id, streaming=True)
-                # If it's a DatasetDict, take the first split
-                if isinstance(ds, DatasetDict) or hasattr(ds, "keys"):
-                    split = next(iter(ds.keys()))
-                    ds = ds[split]
-                # Verify that we can iterate at least once
-                next(iter(ds))
-                log.info(f"Successfully connected to dataset '{dataset_id}'")
-                break
-            except Exception as exc:
-                last_exception = exc
-                log.warning(
-                    f"Failed to load {dataset_id} on attempt {attempt}: {exc}"
-                )
-                if attempt < attempts:
-                    time.sleep(2)
-        if ds is not None:
-            break
-
-    # If none of the primary IDs worked, fall back to a known public dataset
-    if ds is None:
-        log.info(f"Falling back to public dataset '{fallback_id}'")
-        attempts = 3
-        for attempt in range(1, attempts + 1):
-            try:
-                ds = load_dataset(fallback_id, streaming=True)
-                # ``squad`` returns a DatasetDict with a 'train' split
-                if isinstance(ds, DatasetDict) or hasattr(ds, "keys"):
-                    split = next(iter(ds.keys()))
-                    ds = ds[split]
-                next(iter(ds))
-                log.info(f"Successfully loaded fallback dataset '{fallback_id}'")
-                break
-            except Exception as exc:
-                last_exception = exc
-                log.warning(
-                    f"Failed to load fallback {fallback_id} on attempt {attempt}: {exc}"
-                )
-                if attempt < attempts:
-                    time.sleep(2)
-
-    if ds is None:
-        raise RuntimeError(
-            f"Unable to load any dataset for pi‑Bench download. Last error: {last_exception}"
-        ) from last_exception
+    url = "https://huggingface.co/datasets/squad/resolve/main/train-v2.0.json"
+    log.info(f"Downloading SQuAD dataset from {url}")
+    response = requests.get(url, timeout=30)
+    response.raise_for_status()
+    squad_data = response.json()
 
     checksums: List[Tuple[Path, str]] = []
+    example_idx = 0
 
-    for idx, example in enumerate(ds):
-        if max_examples is not None and idx >= max_examples:
+    for paragraph in squad_data.get("data", []):
+        for qa in paragraph.get("paragraphs", []):
+            # The original format nests QAs under "qas"
+            for q in qa.get("qas", []):
+                if max_examples is not None and example_idx >= max_examples:
+                    break
+                # Build a flat example dict
+                example = {
+                    "id": q.get("id"),
+                    "title": paragraph.get("title"),
+                    "context": qa.get("context"),
+                    "question": q.get("question"),
+                    "answers": q.get("answers"),
+                }
+                safe_id = (
+                    str(example["id"])
+                    .replace("/", "_")
+                    .replace("\\", "_")
+                    .replace(" ", "_")
+                )
+                json_path = raw_dir / f"{safe_id}.json"
+                with json_path.open("w", encoding="utf-8") as jf:
+                    json.dump(example, jf, ensure_ascii=False, indent=2)
+
+                rel_path = json_path.relative_to(raw_dir)
+                checksum = _sha256_checksum(json_path)
+                checksums.append((rel_path, checksum))
+
+                example_idx += 1
+                if example_idx % 10 == 0:
+                    log.debug(f"Wrote {example_idx} SQuAD examples")
+            if max_examples is not None and example_idx >= max_examples:
+                break
+        if max_examples is not None and example_idx >= max_examples:
             break
 
-        # Derive a safe filename
-        task_id = (
-            str(example.get("id"))
-            or str(example.get("title"))
-            or f"example_{idx:05d}"
-        )
-        safe_id = "".join(
-            c if c.isalnum() or c in "._-" else "_" for c in task_id
-        )
-        json_path = raw_dir / f"{safe_id}.json"
-
-        with json_path.open("w", encoding="utf-8") as jf:
-            json.dump(example, jf, ensure_ascii=False, indent=2)
-
-        rel_path = json_path.relative_to(raw_dir)
-        checksum = _sha256_checksum(json_path)
-        checksums.append((rel_path, checksum))
-
-        if (idx + 1) % 10 == 0:
-            log.debug(f"Written {idx + 1} JSON files")
-
-    log.info(f"Finished writing {len(checksums)} JSON files to {raw_dir}")
+    log.info(f"Finished writing {example_idx} SQuAD examples to {raw_dir}")
     return checksums
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -155,7 +119,7 @@ def main() -> None:
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        checksums = _download_pi_bench(raw_dir, max_examples=args.max_examples)
+        checksums = _download_squad(raw_dir, max_examples=args.max_examples)
     except Exception as exc:
         log.error(f"Failed to download or process the dataset: {exc}")
         raise
@@ -164,7 +128,7 @@ def main() -> None:
     manifest_path = raw_dir / "download_manifest.txt"
     with manifest_path.open("w", encoding="utf-8") as mf:
         mf.write(
-            "Dataset downloaded via HuggingFace 'datasets' library (fallback to SQuAD if original not available).\n"
+            "Dataset downloaded via direct HTTP request (fallback to SQuAD).\n"
         )
 
     # Write checksum manifest
