@@ -79,7 +79,7 @@ ERROR tests/unit/test_preprocess.py::test_merge_features_expression - FileNot...
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_success_on_first_attempt
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_retry_on_failure
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_failure_after_max_attempts
-============= 25 failed, 33 passed, 3 warnings, 5 errors in 1.44s ==============
+============= 25 failed, 33 passed, 3 warnings, 5 errors in 2.41s ==============
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -95,7 +95,7 @@ FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::t
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_required_keys_present
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_value_types
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_delta_r2_calculation
-=================== 15 failed, 1 passed, 7 skipped in 0.16s ====================
+=================== 15 failed, 1 passed, 7 skipped in 0.28s ====================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -113,7 +113,7 @@ E   ImportError: cannot import name 'train_elastic_net_cv' from 'code.train' (/h
 ERROR tests/integration/test_data_pipeline.py
 ERROR tests/integration/test_training_loop.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.85s ===============================
+============================== 2 errors in 1.11s ===============================
 
 
 

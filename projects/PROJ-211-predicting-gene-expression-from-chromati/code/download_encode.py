@@ -9,6 +9,8 @@ import gzip
 from pathlib import Path
 from typing import List, Dict, Any
 import requests
+# Import Retry correctly from urllib3
+from urllib3.util.retry import Retry
 
 # ----------------------------------------------------------------------
 # Logging configuration
@@ -57,7 +59,7 @@ def get_session_with_retry(max_retries: int = 3, backoff_factor: float = 2.0) ->
     """Create a session with retry logic for transient network failures."""
     session = requests.Session()
     retry_adapter = requests.adapters.HTTPAdapter(
-        max_retries=requests.adapters.Retry(
+        max_retries=Retry(
             total=max_retries,
             backoff_factor=backoff_factor,
             status_forcelist=[429, 500, 502, 503, 504],
