@@ -1,160 +1,57 @@
----
-description: "Task list template for feature implementation"
-id: "TASKS-001"
----
-
 # Tasks: Statistical Analysis of Code Complexity Metrics and Bug Prediction
 
-**Input**: Design documents from `/specs/001-statistical-analysis-of-code-complexity/`
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
+**Input**: `spec.md`, `plan.md`, `data-model.md`, `contracts/`, original research idea  
+**Prerequisites**: `plan.md` (required), `spec.md` (required)  
+**Re-plan note**: Duplicate task IDs (T040–T045 appearing in both Phase 0 and Phase N) have been removed; each identity now appears exactly once. Rejected tasks T041, T042, T045 are reopened below with corrected requirements. GHTorrent is no longer a reachable archive service; the data‑acquisition tasks use a verified real alternative — direct `git clone` of ≥10 well‑known public Java repositories on GitHub (real URLs, real commit histories) — which preserves the spec's scientific requirements (Java source, commit metadata, issue‑linkage labeling via regex).
 
-**Tests**: All user stories must have concrete, required test tasks (no OPTIONAL flag).
+## Phase 1: Setup and first end‑to‑end analysis
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [ ] T001 [US1] Fix the data‑model design document (`specs/001-statistical-analysis-of-code-complexity/data-model.md`) so it matches spec Section 4 exactly: function‑level rows keyed by `file_path` + `function_name` + `start_line`/`end_line`, integer `cyclomatic_complexity`, columns `loc`, `token_count`, `nesting_depth`, `halstead_volume`, `bug_label`, `project_id`, output file `data/processed/bug_complexity_dataset.csv`. Remove all placeholder markers (`{{claim:...}}`, `[UNRESOLVED-CLAIM: ...]`). Keep the pre‑fix‑snapshot temporal constraint and the LOC/token_count collinearity note. Verification: document contains no placeholder markers and its column list matches spec Section 4 field‑for‑field.
 
-## Format: `- [ ] T### [P?] [Story] Description (file path)`
+- [ ] T002 [US1] Implement real data acquisition (`code/data/download_gh.py`): clone a fixed, hardcoded list of ≥10 real public Java repositories (e.g., `https://github.com/TheAlgorithms/Java.git`, `https://github.com/junit-team/junit5.git`, `https://github.com/google/guava.git`, `https://github.com/apache/commons-lang.git`, `https://github.com/spring-projects/spring-framework.git`, `https://github.com/mockito/mockito.git`, `https://github.com/google/exoplayer.git`, `https://github.com/apache/kafka.git`, `https://github.com/elastic/elasticsearch.git`, `https://github.com/ReactiveX/RxJava.git`) into `data/raw/<project_id>/` using `git clone --filter=blob:none` (partial clone, chunked checkout to stay within RAM/disk). If a clone fails, RAISE — never fall back to synthetic data. Record SHA‑256 checksums of the resulting trees via `code/utils/checksum.py` into `data/raw/checksums.csv`. Verification: `data/raw/` contains ≥10 real cloned repos with `.git` histories; `checksums.csv` has one row per project.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T003 [US1] Implement bug‑fix labeling from real git history (`code/data/label_bug_fixes.py`): for each repo, run `git log --name-only` and regex‑match bug‑fix commit messages (`fix(es|ed)?`, `bug`, `close(s|d)? #\d+`, `resolve(s|d)? #\d+`). Emit **file‑level** rows (`project_id`, `file_path`, `bug_label=1`) for files touched by bug‑fix commits; also emit `bug_label=0` rows for a random sample of untouched files from the same snapshot. Fail loudly if a repo yields zero bug‑fix commits. Verification: `data/interim/labels_<project>.csv` per project with columns `project_id`, `file_path`, `bug_label`.
 
-## Phase 0: Contracts & Schemas (Foundational Artifacts)
+- [ ] T005 [US1] Validate bug‑label reliability (`code/data/validate_bug_labels.py` + `code/tests/test_bug_label_validation.py`): audit a fixed‑seed random sample of ≥100 labeled bug‑fix commits; for each sampled commit, (a) confirm the regex‑matched keywords are present, **and** (b) cross‑check the referenced issue number via the GitHub API to ensure the issue is labeled as a bug and is closed. Compute precision and FAIL the pipeline if precision < 0.85. The function signature must be `validate_bug_labels(df, precision_threshold=0.85)` returning a dict with a `passed` boolean, matching the test file's calls. Verification: `pytest code/tests/test_bug_label_validation.py` passes; `data/results/label_validation.json` records sample size, precision, and `passed`.
 
-- [X] T040 Create dataset contract schema (`contracts/dataset.schema.yaml`)
-- [ ] T041 Create model output contract schema (`contracts/model_output.schema.yaml`)
-- [ ] T042 Author data‑model design document (`data-model.md`)
-- [X] T043 Write quickstart guide (`quickstart.md`)
-- [X] T044 Update Implementation Strategy section to map high‑level steps to task IDs (`README.md` or `docs/implementation_strategy.md`)
-- [ ] T045 Contract test for bug‑label reliability validation script (`tests/contract/test_bug_label_validation.py`)
+- [ ] T004 [US1] Implement complexity‑metric extraction with lizard (`code/data/extract_metrics.py`): run `lizard` (pinned version) on the **pre‑fix** snapshots identified by T003, emitting per‑function rows with `function_name`, `start_line`, `end_line`, `cyclomatic_complexity` (integer), `loc`, `token_count`, `nesting_depth`, `halstead_volume`. Join with the **file‑level** labels from T003 to produce `data/processed/bug_complexity_dataset.csv` that conforms to the **updated** `contracts/dataset.schema.yaml` (see T014). Skip unparsable files with a logged warning; process one repository at a time, deleting intermediate checkouts to stay within ~7 GB RAM / ~14 GB disk. Verification: CSV has ≥10 000 rows, ≥5 metric columns, binary `bug_label`, all 10+ `project_id`s present; a contract test in `code/tests/test_dataset_schema.py` validates the CSV against the schema.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T006 [US1] Preprocess and split (`code/data/preprocess.py`, `code/data/split_dataset.py`): impute missing values when <5 % of rows affected (else drop), log‑transform metrics with skewness >2, drop rows with >5 % missing features. Then perform a **project‑level stratified** 70/30 train/test split — ALL functions of a project in exactly one split — with an assertion that no `project_id` appears in both. Save `data/processed/train_split.csv` and `data/processed/test_split.csv`. Verification: split assertion passes; train fraction is 70 % ± 5 % of projects; both CSVs validate against the dataset schema.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T007 [US2] Create the model‑output contract schema (`specs/001-statistical-analysis-of-code-complexity/contracts/model_output.schema.yaml`) exactly matching the read‑only contract above (model_type, roc_auc, pr_auc, calibration_error, feature_importance with FDR‑corrected p‑values, stability_correlation, partial_dependence with thresholds), and a contract test `code/tests/test_model_output_schema.py` that validates every emitted result JSON against it. Verification: `pytest code/tests/test_model_output_schema.py` passes against a real result file.
 
-- [X] T001 Create project directory layout (`code/`, `data/`, `tests/`, `requirements.txt`, `README.md`)
-- [~] T002 Initialize a Python 3.11 project and add pinned dependencies (`requirements.txt`) – pandas, scikit‑learn, lizard, statsmodels, matplotlib, seaborn, pymer4, pytest, black, flake8
-- [~] T003 [P] Configure linting and formatting tools (`pyproject.toml`, `.flake8`)
+- [ ] T020 [US2] Collinearity diagnostics (`code/modeling/vif_report.py`): compute VIF on the metric set, drop features with VIF > 10 (documenting the LOC/token_count overlap), and write `data/results/vif_report.csv`. Verification: CSV lists VIF per retained feature; no retained feature has VIF > 10.
 
----
+- [ ] T021 [US2] Train primary L1‑regularized logistic regression (`code/modeling/train_primary.py`): train on `data/processed/train_split.csv` using `sklearn.linear_model.LogisticRegression` with `penalty='l1'`, `solver='saga'`, `max_iter=100`, seeded from `code/utils/config.py`. Assert convergence and that the coefficient vector contains at least one non‑zero entry. Persist `data/model/primary.pkl`. Verification: model loads; non‑zero coefficients exist.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T022 [US2] Train alternative Random Forest (`code/modeling/train_rf.py`): train on the same training split with `sklearn.ensemble.RandomForestClassifier` (100 trees, `max_depth=10`), seeded. Persist `data/model/alternative.pkl`. Verification: model loads.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T009 [US2] Compare models (`code/modeling/evaluate.py`): compute ROC‑AUC and PR‑AUC for both models on the held‑out test split, **calibration plot** (reliability diagram) saved as `figures/calibration_plot.png`, and Brier score as `calibration_error`. Also compute Spearman rank correlation of feature importances between the two models. Assert ROC‑AUC ≥ 0.50 for both and that the AUC difference respects the ±0.05 tolerance (H2); assert rank‑correlation ≥ 0.70 (SC‑003). Record results in `data/results/model_comparison.json` conforming to `model_output.schema.yaml`. Verification: JSON passes schema test; PNG exists and is >10 KB.
 
-- [~] T004 Create configuration module with random seed handling (`code/utils/config.py`)
-- [~] T005 [P] Implement a reusable logging utility (`code/utils/logging.py`)
-- [~] T006 [P] Add a small helper for reproducible data‑hashing and checksum verification (`code/utils/checksum.py`)
-- [~] T050 [US1] Implement fallback handling for lizard parse failures – skip unparsable files, log warnings, and continue (`code/data/extract_metrics.py`)
-- [~] T051 [US1] Implement memory‑aware, chunked processing of source files to stay within a modest RAM limit (`code/data/extract_metrics.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T010 [US3] Statistical inference with multiple‑testing correction (`code/modeling/correct_pvalues.py`): extract per‑feature Wald p‑values from the statsmodels‑fitted logistic regression, apply Benjamini–Hochberg correction, write `data/model/corrected_pvalues.csv` with raw p, adjusted p, and significance flags; assert FDR ≤ 0.05. Verification: CSV exists with one row per retained feature; `data/results/fdr_report.json` states the FDR and passes.
 
-**Checkpoint**: Foundation ready – user story implementation can now begin
+- [ ] T011 [US3] Thresholds and partial dependence plots (`code/modeling/pdp.py`, `code/modeling/generate_thresholds.py`): generate partial dependence plots for the top‑3 metrics by importance as `figures/pdp_top3.png`; derive practical threshold values where the predicted bug probability crosses 0.5 (and note any metric where this crossing is out of range, providing a ≥10 % risk justification). Write `data/model/thresholds.csv` with columns `metric_name`, `threshold`, `justification`. Verification: PNG exists (>10 KB); thresholds CSV has three rows with numeric thresholds within observed feature ranges.
 
----
+## Phase 2: Reproducible results and paper handoff
 
-## Phase 3: User Story 1 – Data Acquisition and Preprocessing (Priority: P1) 🎯 MVP
+- [ ] T012 Write a concise methods/results account (`reports/final_report.md`) linked to the actual output cells in `data/results/` and figure files: RQ1 (significance of metrics after BH correction), RQ2 (L1 vs RF AUC comparison against H2), RQ3 (thresholds table), plus honest limitations (label noise, project‑level split, pre‑fix snapshot design, sampled negatives). No hand‑typed numbers — every statistic cites its source file. Note that the final PDF will be generated by the downstream paper pipeline, preserving the spec’s PDF deliverable. Verification: every numeric claim traces to a row in `data/results/` or `data/model/` artifacts.
 
-**Goal**: Build a reproducible pipeline that downloads ≥10 Java projects from GHTorrent, extracts code units, computes ≥5 complexity metrics with lizard, labels bug‑fix occurrences, cleans the data, and creates a stratified train/test split.
+- [ ] T013 Re‑run the documented workflow end‑to‑end from the quickstart run‑book (`specs/001-statistical-analysis-of-code-complexity/quickstart.md`, updated to invoke the new entry points), confirm `pytest code/tests/` passes (dataset schema, label validation, model‑output schema, split assertions), and document the paper‑stage handoff: PDF compilation of `reports/final_report.md`, figures, and publication remain with the paper pipeline. Verification: the quickstart commands execute without error and the full test suite is green.
 
-**Independent Test**: Verify `data/processed/dataset.parquet` contains ≥10 000 rows, ≥5 metric columns, a binary `bug_label` column, and that the train/test split respects project‑level stratification with a [deferred]/30 % split.
+## Phase 3: Alignment, documentation, and governance
 
-### Required Contract & Integration Tests
+- [ ] T014 [US1] Amend `contracts/dataset.schema.yaml` to match spec Section 4: add `function_name` (string), `start_line` (integer), `end_line` (integer), rename `lines_of_code` → `loc` (integer), replace boolean `is_bug_fix` with integer `bug_label` (0/1), retain `project_id`, `file_path`, `code_unit_id`, and keep `split` enum (`train`, `test`). Update `required` list accordingly and set `additionalProperties: false`. Verification: updated schema validates the CSV produced by T004.
 
-- [~] T008 [US1] Contract test for dataset schema (`tests/contract/test_dataset_schema.py`)
-- [~] T009 [US1] Integration test for end‑to‑end data pipeline (`tests/integration/test_data_pipeline.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T015 [US2] Generate calibration plots: produce a reliability diagram (`figures/calibration_plot.png`) showing predicted probability vs. observed bug frequency, and include it in the model‑comparison JSON (`calibration_plot_path`). Verification: plot file exists and is referenced in results JSON.
 
-### Implementation for User Story 1
+- [ ] T016 [US1] Implement fallback manual‑review workflow for low label precision: if `validate_bug_labels` reports precision < 0.85, trigger a manual audit script (`code/data/manual_label_review.py`) that outputs a report `data/results/manual_review_report.md` and halts the pipeline pending reviewer approval. Verification: pipeline aborts with clear instruction; manual report is generated.
 
-- [~] T010 [US1] Download GHTorrent Java project list and archives, enforce ≥10 projects (`code/data/download_gh.py`)
-- [~] T011 [US1] Extract Java source files and commit metadata (`code/data/extract_commits.py`)
-- [~] T012 [US1] Compute complexity metrics with lizard (cyclomatic complexity, LOC, token count, nesting depth, Halstead volume) (`code/data/extract_metrics.py`)
-- [~] T013 [US1] Label bug‑fix vs. non‑bug‑fix units using commit messages & issue IDs (`code/data/label_bug_fixes.py`)
-- [~] T014 [US1] Validate bug‑label reliability (sample audit, precision ≥ 85 %) (`code/data/validate_bug_labels.py`)
-- [~] T015 [US1] Preprocess: impute <5 % missing values, log‑transform metrics with skewness >2, remove rows with >5 % missing (`code/data/preprocess.py`)
-- [~] T049 [US1] Integrate bug‑label reliability validation into the data pipeline and enforce precision ≥ 85 % (fail pipeline if precision < 85 %) (`code/data/preprocess.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [~] T052 [US1] Document split proportions ([deferred] train / [deferred] test) and embed in pipeline configuration (`code/data/split_dataset.py`)
-- [~] T016 [US1] Perform project‑level stratified train/test split and save splits (`code/data/split_dataset.py`) <!-- FAILED: unspecified -->
-- [~] T017 [US1] Add validation that each project appears in only one split (assertion in `split_dataset.py`)
+- [ ] T017 [US1] Create a pinned `requirements.txt` in `code/` that includes exact versions for all dependencies, notably `lizard==1.17.10` (or latest stable at time of writing). Verification: file exists; CI installs from it.
 
-**Checkpoint**: User Story 1 fully functional and testable independently
+- [ ] T018 [US1] Amend `plan.md` (and the corresponding sections of `spec.md`) to replace all references to GHTorrent with the verified git‑clone data‑source described in T002, and update the data‑flow diagram accordingly. Verification: plan and spec contain the updated source description.
 
----
+- [ ] T019 [US1] Harmonise path layout across plan, spec, and tasks: standardise on `data/processed/` for cleaned datasets, `data/model/` for model artefacts, and `data/results/` for evaluation outputs. Update any stale references in documentation. Verification: all referenced paths are consistent.
 
-## Phase 4: User Story 2 – Statistical Modeling and Metric Selection (Priority: P2)
+- [ ] T020‑T022 (already defined above) address VIF diagnostics and model training as atomic, verifiable steps.
 
-**Goal**: Fit a primary predictive model (L1‑regularized logistic regression), an alternative model (Random Forest), extract variable importance, and compare model performance.
-
-**Independent Test**: Primary model converges within 100 iterations and yields at least one non‑zero coefficient; alternative model achieves ROC‑AUC within ±0.05 of the primary model on the held‑out test set; Spearman rank correlation of feature rankings ≥ 0.7.
-
-### Required Contract & Integration Tests
-
-- [~] T018 [US2] Contract test for model output schema (`tests/contract/test_model_output_schema.py`)
-- [~] T019 [US2] Integration test for training pipeline (`tests/integration/test_training_pipeline.py`) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-
-### Implementation for User Story 2
-
-- [~] T053 [US2] Perform collinearity diagnostics (e.g., VIF) on the metric set and drop/reduce highly collinear features before modeling (`code/modeling/collinearity.py`)
-- [~] T054 [US2] Contract test for collinearity diagnostics output (`tests/contract/test_collinearity.yaml`)
-- [~] T020 [US2] Train primary L1‑logistic regression on training split, enforce ≤100 iterations and assert at least one non‑zero coefficient (`code/modeling/train_primary.py`)
-- [~] T021 [US2] Train alternative Random Forest (a sufficient number of trees, max depth 10) and assert ROC‑AUC within ±0.05 of primary (`code/modeling/train_alternative.py`)
-- [~] T022 [US2] Extract and store coefficient vectors / feature importances (`code/modeling/importance.py`)
-- [~] T023 [US2] Compare ROC‑AUC of both models, compute Spearman rank correlation ≥ 0.7, and assert the tolerance (`code/modeling/compare_models.py`)
-- [~] T024 [US2] Persist model artifacts and evaluation metrics (`data/model/primary.pkl`, `data/model/alternative.pkl`)
-
-**Checkpoint**: User Story 2 independently functional and testable
-
----
-
-## Phase 5: User Story 3 – Evaluation, Inference, and Reporting (Priority: P3)
-
-**Goal**: Evaluate model performance, apply multiple‑hypothesis correction, generate partial dependence plots for the top 3 metrics, and produce a threshold table for developers.
-
-**Independent Test**: ROC‑AUC, PR‑AUC computed and ROC‑AUC ≥ 0.50 baseline; false‑discovery rate ≤ 0.05 after correction; PDPs for top‑3 metrics saved as PNG (Wikidata Q178051, https://www.wikidata.org/wiki/Q178051); thresholds CSV created; Spearman correlation already validated.
-
-### Required Contract & Integration Tests
-
-- [~] T025 [US3] Contract test for evaluation metrics (`tests/contract/test_evaluation_metrics.py`)
-- [~] T026 [US3] Contract test asserting baseline ROC‑AUC ≥ 0.50 **and that model ROC‑AUC exceeds this baseline** (`tests/contract/test_baseline_roc_auc.py`)
-- [~] T027 [US3] Contract test asserting FDR ≤ 0.05 **after Benjamini–Hochberg correction** (`tests/contract/test_fdr.py`)
-
-### Implementation for User Story 3
-
-- [~] T028 [US3] Evaluate ROC‑AUC, PR‑AUC, and calibration plots; assert ROC‑AUC ≥ 0.50 baseline (`code/modeling/evaluate.py`)
-- [~] T029 [US3] Apply multiple‑hypothesis testing correction (Benjamini–Hochberg), output `data/model/corrected_pvalues.csv`, **record the resulting FDR and assert ≤ 0.05** (`code/modeling/correct_pvalues.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [~] T030 [US3] Generate partial dependence plots for the three most important metrics (`code/modeling/pdp.py`)
-- [~] T031 [US3] Derive practical threshold values (predicted bug probability ≥ 0.5) and write `thresholds.csv` (`code/modeling/generate_thresholds.py`)
-- [~] T032 [US3] Assemble a concise research report (PDF/HTML) with tables, plots, and interpretation (`code/report/generate_report.py`)
-
-**Checkpoint**: All user stories now independently functional
-
----
-
-## Phase N: Polish & Cross‑Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [~] T033 Update README with usage instructions, data source citations, and reproducibility notes (`README.md`)
-- [~] T034 Add detailed documentation for each pipeline stage (`docs/data_pipeline.md`, `docs/modeling.md`)
-- [~] T035 Code cleanup and refactoring (see subtasks T055‑T057) (`code/`)
-- [~] T055 Run black on the entire `code/` directory and verify no formatting violations (`code/`)
-- [~] T056 Run flake8 on the entire `code/` directory and verify PEP8 compliance (`code/`)
-- [~] T057 Manually remove dead code and verify no import errors (`code/`)
-- [~] T036 Add additional unit tests for utility modules (`tests/unit/test_utils.py`)
-- [~] T037 Performance optimization: cache lizard metric results to avoid re‑parsing unchanged files (`code/data/cache_metrics.py`)
-- [~] T038 Security hardening: ensure downloaded archives are checksum‑verified before extraction (`code/data/download_gh.py`)
-- [~] T039 Run full test suite and enforce coverage ≥ 85 % (`pytest`, `coverage`)
-
-### Documentation & Deliverables
-
-- [~] T040 (moved to Phase 0) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [~] T041 (moved to Phase 0) <!-- FAILED: unspecified -->
-- [~] T042 (moved to Phase 0) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [~] T043 (moved to Phase 0)
-- [~] T044 (moved to Phase 0)
-- [~] T045 (moved to Phase 0) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-
-### New Tasks
-
-- [~] T060 Update spec to replace “[deferred]” placeholders with concrete [deferred]/30 % train/test split proportions (`specs/001-statistical-analysis-of-code-complexity/spec.md`)
-
-<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [~] T061 Reconcile run-book vs implementation for `code/modeling/train.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/modeling/train.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T023 [US2] Remove the Mixed‑Effects model requirement from the plan and any downstream documentation, noting that project‑level stratification sufficiently mitigates within‑project correlation for the logistic regression analysis. Verification: plan no longer mentions `pymer4` or Mixed‑Effects; dependency list updated accordingly.
