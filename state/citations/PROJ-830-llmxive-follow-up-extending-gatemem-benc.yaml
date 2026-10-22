@@ -1,14 +1,3 @@
-- artifact_hash: cb28a9cd55f95ee47bc3f0379cd0070384ab420e74338e912b8d6dc7799552ae
-  artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: arxiv
-  value: '2606.18829'
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-07-12T02:59:40.576539Z'
 - artifact_hash: 9ced727d4e567b90df07e934109238386f1e798e51739deafc7fe4e61d40bb57
   artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/research.md
   cite_id: c-001
@@ -53,3 +42,14 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Ray368/GateMem/b4304866ec8d9784fb77bebb1ce4660806abcded/gatemem%2Fdata%2Fhousehold%2Fcheckpoints.jsonl?%2Fdatasets%2FRay368%2FGateMem%2Fresolve%2Fmain%2Fgatemem%2Fdata%2Fhousehold%2Fcheckpoints.jsonl=&etag=%22644b7406752db4b6c67c51a922702969dc8eb71b%22
   verified_at: '2026-08-21T20:28:17.913608Z'
+- artifact_hash: 99c08bacb7bc42d26827cf4329abbecfe2360ec0f21120c29b6b04ca4533ceb8
+  artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2606.18829'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-22T17:20:40.808087Z'
