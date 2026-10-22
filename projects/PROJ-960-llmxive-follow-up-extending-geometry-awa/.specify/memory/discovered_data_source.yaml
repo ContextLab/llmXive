@@ -1,16 +1,16 @@
 status: none
-intent: GARD encoder decoder 3D reconstruction feature maps python package dataset
+intent: download ShapeNet Core ModelNet40 ScanNet multi-view dataset python package
+  dataset
 required_fields:
-- noisy_feature_maps
-- ground_truth_reconstruction
-- test_scene_ids
-- encoder_output_tensors
-- decoder_input_tensors
-- chamfer_distance_reference
-- feature_similarity_metrics
-- geometric_proximity_coordinates
-- k_nearest_neighbor_graph_edges
-- denoised_feature_maps_reference
-cache_key: 9be63f98bcb7d1bb0d75d4741de618dbc445d5f0943f942b206ab98c95ecc308
-searched_at: '2026-10-18T11:29:39.454131+00:00'
+- image_id
+- image_path
+- camera_intrinsics
+- camera_extrinsics
+- point_cloud
+- mesh_vertices
+- mesh_faces
+- category
+- scene_id
+cache_key: a36758fe0b1b0b973ec1577f683b1ff389e5bad061e9540f50e5d038544a8d7b
+searched_at: '2026-10-22T15:22:52.913748+00:00'
 retry_count: 1
