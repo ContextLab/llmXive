@@ -1,109 +1,110 @@
 # Tasks: Predicting the Influence of Composition on the Magnetic Hysteresis of Heusler Alloys
 
-**Inputs**: `spec.md`, `plan.md`, `data-model.md`, and canonical schemas in `contracts/`.
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, and the canonical schemas in `contracts/`.
 
-This research implements a computational pipeline to aggregate experimental Heusler alloy data, engineer compositional descriptors, and quantify the relationship between composition and magnetic hysteresis (coercivity and saturation magnetization). The study is framed as exploratory due to the known influence of microstructural confounders.
+This research implements a reproducible CPU‑only pipeline that (1) aggregates experimental Heusler‑alloy hysteresis data from three distinct sources, (2) standardizes composition and hysteresis units, (3) computes composition‑based descriptors, (4) trains linear‑regression and random‑forest models with rigorous statistical validation, and (5) assembles the mandatory reporting artifacts. The study is framed as exploratory because the dataset may contain fewer than 50 entries.
 
-## Phase 1: Setup and first end-to-end analysis
+---
 
-**Goal**: Establish the environment and execute a "thin" slice of the pipeline (Ingest → Preprocess → Feature → Model → Result) on a small real dataset to verify the technical path.
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T001 Establish the project layout (`code/src/`, `data/raw/`, `data/processed/`, `docs/reports/`), configure pinned dependencies in `code/requirements.txt`, and document the execution command in `quickstart.md`. 
-  - **Subtask T001.D**: Create or source the fixed local `data/raw/elemental_properties.csv` containing periodic table data (electronegativity, atomic radii, valence electrons) for all elements in Heusler alloys (Co, Mn, Fe, Ga, Al, etc.) to ensure descriptor consistency per constitution.md:VI; document the source (e.g., "Hand-curated from NIST Chemistry WebBook") and version the file in `data/raw/elemental_properties_v1.csv`. This file is the single source of truth for all descriptor calculations and must not be updated mid-pipeline.
+**Goal**: Verify the technical stack on a tiny real dataset before scaling to the full aggregation.
 
-- [ ] T002 Implement a minimal ingestion script in `code/src/ingestion/manual_curator.py` to load `data/raw/manual_curated.csv` (using the template in the spec) and a basic preprocessing script in `code/src/preprocessing/preprocess_pipeline.py` that standardizes units (Oe, emu/g) and filters DFT targets.
+- [ ] T001 [P1] Establish the project layout, pin dependencies, and document the runnable command.  
+  *Create `code/requirements.txt` with exact versions, add `quickstart.md` that shows `python -m src.main`, and create the folder hierarchy `code/src/`, `data/raw/`, `data/processed/`, `docs/reports/`.*  
+  **Verification**: `quickstart.md` contains a reproducible command; running it on a fresh checkout prints “Setup OK”.
 
-- [ ] T003 Implement a baseline descriptor calculator in `code/src/features/descriptor_calculator.py` using the fixed local `data/raw/elemental_properties.csv` and a simple linear regressor in `code/src/models/linear_regressor.py`.
+- [ ] T002 [P1] Provide a verified elemental‑property reference file.  
+  *Place `data/raw/elemental_properties_v1.csv` (sourced from the NIST Chemistry WebBook) containing electronegativity, atomic radii, valence‑electron count, d‑electron count, atomic mass, electron affinity, and Pettifor scale for all elements appearing in Heusler alloys (Co, Mn, Fe, Ga, Al, etc.).*  
+  **Verification**: The CSV header matches the schema used by the descriptor code; a checksum entry is added to `data/checksums.txt`.
 
-- [ ] T004 Connect these components via `main.py` and run a small valid case (using `data/raw/manual_curated.csv`), producing a result row in `data/results/baseline_metrics.json` containing R² and MAE. **Verification**: This is a Phase 1 sanity check on a small manual dataset; it does NOT depend on T005's full aggregation and runs independently to verify the technical path.
+- [ ] T003 [P1] Implement a minimal ingestion‑preprocess‑model sanity‑check pipeline on a tiny manual file.  
+  *Create `code/src/ingestion/manual_curator.py` that reads `data/raw/manual_curated.csv` (provided by the spec), and `code/src/preprocessing/preprocess_pipeline.py` that normalizes units (Oe, emu/g) and drops any DFT rows. Add `code/src/models/linear_regressor.py` that fits a scikit‑learn `LinearRegression` on the processed data.*  
+  **Verification**: Executing `python -m src.main --demo` produces `data/results/demo_metrics.json` containing numeric `r2` and `mae` fields.
 
-**Checkpoint**: The `main.py` command executes without error and produces a numerical result from real (manual) input.
+- [ ] T004 [P1] Wire the demo components together in `code/src/main.py`.  
+  *The entry point loads the manual file, runs the preprocessing, computes a single descriptor (average electronegativity), fits the linear model, and writes the metrics file.*  
+  **Verification**: The command from `quickstart.md` runs without error and the output file exists with non‑null values.
 
-## Phase 2: Complete the study and validate its evidence
+---
 
-**Goal**: Implement the full scientific pipeline, including robust data aggregation, feature engineering, and statistical validation.
+## Phase 2 – Complete the study and validate its evidence  
 
-- [ ] T005 Implement the full ingestion suite to aggregate data from ≥3 distinct sources (NIST Materials Data Repository, at least one published journal supplement, and manually curated data from raw literature), saving raw files with checksums to `data/raw/` (FR-001).
-  - **Subtask T005.A (Pre-implementation verification)**: Confirm availability of (1) NIST MDR API or downloadable dataset, (2) at least one published journal supplement with Heusler alloy hysteresis data (e.g., a supplementary table from a peer-reviewed paper), and (3) a manual curation target from raw literature (e.g., a list of alloys and properties extracted from papers). Document the three sources in `data/raw/sources_manifest.txt` with URLs/citations and expected data format. **Acceptance criteria**: `sources_manifest.txt` exists and lists the three sources with URLs/citations; attempt to fetch from each source and confirm non-empty response.
-  - **Subtask T005.B (Implementation)**: Implement `code/src/ingestion/nist_fetcher.py` and `code/src/ingestion/journal_supplement_parser.py` to ingest from the verified sources (from T005.A) and merge into `data/raw/raw_merged.csv` with checksums recorded in `data/checksums.txt`.
-  - **Subtask T005.C (Post-aggregation checkpoint)**: After ingestion, count the total number of unique alloy entries with non-null composition and non-null hysteresis values. Document the count in `data/processed/data_count_verification.json` with fields: `total_entries`, `entries_from_nist`, `entries_from_journal`, `entries_from_manual`, `target_count` (≥50). If `total_entries < 50`, log a warning stating "Data aggregation yielded fewer than 50 entries; statistical power is reduced."
+**Goal**: Build the full end‑to‑end pipeline on the aggregated experimental dataset and perform all required statistical checks.
 
-- [ ] T006 Implement the complete preprocessing pipeline in `code/src/preprocessing/preprocess_pipeline.py` to standardize compositions to atomic fractions (summing to 1.0 ± 0.0001), normalize units (coercivity to Oe, saturation magnetization to emu/g), **filter DFT entries using the explicit rule: exclude rows where `source_type == "DFT"` OR `target_source` contains "Materials Project calculated" OR `is_dft == True`**, and apply mean imputation (not MICE) for missing values: if a column has >15% missing rate, perform listwise deletion for that column; otherwise, apply mean imputation with documented imputation rate. Mean imputation is chosen over MICE for exploratory studies on small datasets (N~50) to preserve sample size while maintaining simplicity and reproducibility. Output: `data/processed/alloys_raw.csv` (cleaned data), `data/processed/imputation_log.json` (imputation rates per column), `data/processed/completeness_report.json` (proportion of valid data points per source, satisfying SC-004), and log unique synthesis_method values to `data/processed/synthesis_methods_list.txt` for use in T011. **Verification**: `alloys_raw.csv` contains no DFT entries (check source_type column for absence of "DFT" values and is_dft column for absence of True values), compositions sum to 1.0 ± 0.0001, units are standardized, and `imputation_log.json` shows imputation rates <15% for all imputed columns. `completeness_report.json` contains per-source completeness metrics.
+- [ ] T005 [P2] Aggregate experimental data from three distinct sources.  
+  *Subtasks:*  
+  - **T005.A** Create `data/raw/sources_manifest.txt` listing (1) NIST Materials Data Repository URL, (2) DOI and URL of a journal supplement containing Heusler hysteresis tables, (3) reference to a manually curated CSV derived from literature. Each line includes the expected file format.  
+  - **T005.B** Implement `code/src/ingestion/nist_fetcher.py`, `code/src/ingestion/journal_supplement_parser.py`, and `code/src/ingestion/manual_curator.py` to download/parse the three sources, store raw files under `data/raw/` and record SHA‑256 hashes in `data/checksums.txt`.  
+  - **T005.C** Merge the three raw tables into `data/raw/raw_merged.csv`, de‑duplicate on `alloy_id`, and write a verification JSON `data/processed/data_count_verification.json` containing `total_entries`, per‑source counts, and `target_count`. If `total_entries < 50`, the file must include a `"data_scarcity_warning": true` flag.  
+  **Verification**: `raw_merged.csv` contains ≥ 3 source columns, the count JSON reports `target_count ≥ 50` or a warning flag, and the manifest file exists.
 
-- [ ] T007 Implement the full feature engineering module in `code/src/features/feature_engineering_pipeline.py` to compute ≥5 descriptors for all dataset entries using the fixed local `data/raw/elemental_properties.csv`: (1) average electronegativity (Pauling scale), (2) valence electron concentration (VEC), (3) atomic radii variance, (4) average number of valence d-electrons, and (5) atomic size mismatch. Output: `data/processed/alloys_features.csv` containing all original columns plus the 5 descriptor columns. **Verification**: `alloys_features.csv` has exactly 5 new descriptor columns with no NaN values for any valid entry.
+- [ ] T006 [P2] Preprocess the merged dataset.  
+  *Run `code/src/preprocessing/preprocess_pipeline.py` to (1) convert all compositions to atomic fractions with ≥ 4 decimal precision (sum = 1.0 ± 0.0001), (2) normalize hysteresis units to Oe and emu/g, (3) drop any row where `is_dft == true` or `source_type == "DFT"`, (4) apply column‑wise mean imputation for non‑target fields when missing ≤ 15 % (otherwise perform listwise deletion for that column), and (5) log imputation rates in `data/processed/imputation_log.json`.  
+  **Verification**: `data/processed/alloys_clean.csv` passes validation against `contracts/alloy_entry.schema.yaml`; `imputation_log.json` shows all rates < 0.15; a separate `data/processed/completeness_report.json` reports per‑source completeness.
 
-- [ ] T008 Implement the model training pipeline in `code/src/models/training_pipeline.py` to train both a Linear Regression and a Random Forest regressor using 5-fold cross-validation and GridSearchCV for hyperparameter tuning on the fixed [deferred] training split (FR-004). Output: `data/processed/model_metrics.json` containing cross-validation R² and MAE for each model, and trained model artifacts in `code/models/`.
-  - **Subtask T008.C (Outlier Detection & Sensitivity)**: Perform outlier detection on the training data using Isolation Forest (contamination=0.1) and document the number of outliers detected. Train models with and without outliers, recording the impact on R² and MAE in `data/results/outlier_analysis.json`. Document whether model performance is robust to outliers or sensitive.
+- [ ] T007 [P2] Engineer composition‑based descriptors.  
+  *Execute `code/src/features/feature_engineering_pipeline.py` which reads `alloys_clean.csv` and the elemental property table, computes the eight descriptors required by the plan (average electronegativity, VEC, atomic radii variance, average d‑electron count, size mismatch, average atomic mass, electron affinity, Pettifor scale) and one‑hot encodes `synthesis_method` and `crystal_structure`. Output `data/processed/alloys_features.csv`.*  
+  **Verification**: The output CSV contains the original columns plus exactly eight numeric descriptor columns and two one‑hot encoding groups; no NaNs remain for descriptor columns.
 
-- [ ] T009 Implement the statistical validation suite in `code/src/validation/`:
-    - `null_model_comparison.py`: F-test against mean prediction (null model) (SC-001), outputting `f_statistic`, `p_value`, and `is_significant` (p-value < 0.05).
-    - `bootstrap_validation.py`: 95% confidence interval for R² using 1000 resamples (SC-002), outputting `r2_lower` and `r2_upper` bounds.
-    - `pdp_generator.py`: Partial Dependence Plots for the top 3 features (SC-003), generating `figures/pdp_plots.png`.
-    - Output: `data/results/validation_stats.json` and `figures/pdp_plots.png`.
-  - **Subtask T009.D (SC-006 Verification)**: Evaluate model performance on the held-out [deferred] test set against the SC-006 threshold (R² ≥ 0.6 AND p-value < 0.05). Document the outcome in `data/results/sc006_evaluation.json` with fields: `r2_test`, `p_value_test`, `threshold_met` (boolean), `interpretation` ("Exploratory Benchmark Met" or "Exploratory Benchmark Not Met — consistent with physical reality given microstructural confounders"). This result will be integrated into `final_report.md` (Section 7) by T011.
+- [ ] T008 [P2] Train regression models with cross‑validation and perform outlier sensitivity analysis.  
+  *Run `code/src/models/training_pipeline.py` which (1) splits the feature matrix into a fixed 5‑fold CV (random_state = 42), (2) trains a baseline `LinearRegression` and a `RandomForestRegressor` (grid‑search over `n_estimators=[100,200]` and `max_depth=[5,10,None]`), (3) records mean CV R² and MAE for each model in `data/results/model_metrics.json`, (4) saves the fitted model objects under `code/models/`, and (5) conducts Isolation‑Forest outlier detection (contamination = 0.1), retrains both models without detected outliers, and writes `data/results/outlier_analysis.json` summarizing the impact.*  
+  **Verification**: `model_metrics.json` contains entries for both “Linear” and “RandomForest” with `r2_cv` and `mae_cv`; `outlier_analysis.json` reports the number of outliers and the delta in metrics.
 
-- [ ] T010 Implement the microstructure analysis in `code/src/validation/stratified_analysis.py` to group data by `synthesis_method` (if available) and quantify the variance explained by composition versus microstructure. Train models within each synthesis-method stratum and compare results to global models. Output: `data/results/stratified_metrics.json` containing per-stratum R² and MAE, and a note on whether composition effects are consistent across strata. **Integration note**: Stratified results are reported separately in `final_report.md` under Section 6 (Microstructure-Stratified Analysis), supplementing (not replacing) global model results. SC-006 evaluation (Section 7 of final_report.md) uses global model results, not stratified results, to maintain consistency with spec.md SC-006 threshold definition. If synthesis_method is missing for >80% of entries, stratified analysis is skipped and documented as "Insufficient synthesis method metadata for stratification" in `final_report.md`.
+- [ ] T009 [P3] Perform statistical validation of the trained models.  
+  *Subtasks:*  
+  - **T009.A** `code/src/validation/null_model_comparison.py` computes an F‑test comparing the Linear model to a null model (mean prediction) on the CV folds, writing `data/results/f_test.json` with `f_statistic`, `p_value`, and `is_significant`.  
+  - **T009.B** `code/src/validation/bootstrap_validation.py` resamples the full dataset 1000 times, refits the Linear model each time, and records the 95 % confidence interval for R² in `data/results/bootstrap_ci.json`.  
+  - **T009.C** `code/src/validation/pdp_generator.py` generates Partial Dependence Plots for the top‑3 permutation‑importance features (as identified in T008) for both targets, saving PNGs `figures/pdp_coercivity.png` and `figures/pdp_saturation.png`.  
+  - **T009.D** `code/src/validation/sc006_evaluation.py` evaluates the best‑performing model on the held‑out test set, checks the exploratory benchmark (R² ≥ 0.6 AND p‑value < 0.05), and writes `data/results/sc006_evaluation.json` with `r2_test`, `p_value_test`, and `threshold_met`.  
+  **Verification**: All JSON files exist with the required fields; the two PNGs are non‑empty image files.
 
-**Checkpoint**: All required scientific computations are complete, and artifacts match the actual computations on the full aggregated dataset.
+- [ ] T010 [P3] Conduct microstructure‑stratified analysis (optional if metadata sufficient).  
+  *If `synthesis_method` is present for ≥ 20 % of rows, run `code/src/validation/stratified_analysis.py` which groups the data by synthesis method, trains separate Linear and Random‑Forest models within each stratum, and writes `data/results/stratified_metrics.json` containing per‑stratum R² and MAE. If metadata is insufficient, the script writes a short JSON note `"skipped": true` with a reason.*  
+  **Verification**: The JSON file exists and either contains the stratified metrics or the skip note.
 
-## Phase 3: Reproducible results and paper handoff
+---
 
-**Goal**: Generate the final reporting artifacts, including mandatory scientific disclaimers, and verify the end-to-end reproducibility.
+## Phase 3 – Reproducible results and paper handoff  
 
-- [ ] T011 Generate the mandatory reporting documents in `docs/reports/`:
-    - **`data_scarcity_warning.md`**: Triggered if `total_entries < 50` (check `data/processed/data_count_verification.json`). Content: "**Data Scarcity Warning**: Statistical power is reduced with fewer than 50 data points. The sample size of [N from data_count_verification.json] is below the recommended minimum for robust generalization. Results should be interpreted with caution regarding generalization to unseen alloy compositions. Overfitting risk is elevated."
-    - **`statistical_limitations.md`**: ALWAYS generated (regardless of N or p-value). Content: "**Statistical Limitations**: The F-test (p-value from T009 validation_stats.json) validates the statistical fit of the model to the training data, not the physical mechanism underlying magnetic hysteresis. Magnetic hysteresis ($H_c$) is primarily determined by microstructural factors (grain size, defects, domain wall pinning sites) that are not captured by composition alone. Any correlations between composition and hysteresis observed in this study should be interpreted as first-order approximations and may reflect confounded effects of synthesis method or crystal structure, not causal composition-property relationships."
-    - **`microstructure_note.md`**: ALWAYS generated (regardless of data availability). Content: "**Microstructural Context**: This dataset includes entries with the following synthesis methods: [Extract unique synthesis_method values from data/processed/synthesis_methods_list.txt (created during T006) and substitute into this template. If synthesis_methods_list.txt is empty or missing, state 'Not specified' instead]. Magnetic hysteresis is heavily influenced by microstructural factors (grain boundaries, defects, domain wall pinning) that depend on synthesis and processing conditions. The composition-hysteresis model in this study should be viewed as a preliminary exploratory analysis that may not generalize to different processing conditions. Future work should incorporate microstructural characterization (e.g., grain size, defect density) as explicit features."
-    - **`final_report.md`**: Consolidating all metrics, PDPs, SC-006 evaluation (from T009.D), stratified analysis results (from T010), and outlier analysis (from T008.C). Structure (11 sections in order):
-      1. Executive Summary (overview of research question, dataset size, primary findings)
-      2. Data Aggregation & Completeness (sources, counts, completeness_report.json metrics)
-      3. Feature Engineering (descriptor definitions, descriptor_calculator.py output)
-      4. Model Performance — Global (Linear and Random Forest CV metrics from model_metrics.json)
-      5. Outlier Analysis (from outlier_analysis.json; robustness assessment)
-      6. Microstructure-Stratified Analysis (from stratified_metrics.json; note if skipped due to missing metadata)
-      7. SC-006 Evaluation (from sc006_evaluation.json; Exploratory Benchmark result)
-      8. Statistical Validation (F-test p-value and result from validation_stats.json, bootstrap CI bounds, interpretation)
-      9. Partial Dependence Plots (embed pdp_plots.png and interpret top 3 features)
-      10. Statistical Limitations (embed content from statistical_limitations.md)
-      11. Microstructural Context & Data Scarcity Notes (embed content from microstructure_note.md and data_scarcity_warning.md if applicable)
-      If any upstream task (e.g., T008.C, T010) produces no output due to insufficient data or technical failure, document as "Not applicable — [reason]" rather than causing T011 to fail.
+**Goal**: Assemble the mandatory reporting artifacts, verify full‑pipeline execution under resource limits, and record reproducible hashes for handoff.
 
-- [ ] T012 Execute the full pipeline from `main.py` in a clean environment, confirm that all output files in `data/processed/`, `data/results/`, and `docs/reports/` are generated and non-empty.
-  - **Subtask T012.B (Resource Consumption Verification)**: Monitor and log memory usage and runtime during execution. Output `data/results/resource_consumption.json` with fields: `peak_memory_gb`, `total_runtime_seconds`, `within_limits` (boolean; true if peak_memory < 7 GB AND runtime < 6 hours). Verify that SC-005 (CPU-only execution within GitHub Actions free-tier limits) is satisfied.
+- [ ] T011 [P3] Generate the mandatory reporting documents.  
+  *Subtasks:*  
+  - **T011.A** `docs/reports/data_scarcity_warning.md` – created if `data_count_verification.json` reports `total_entries < 50`; the file must state the exact N and warn of reduced statistical power.  
+  - **T011.B** `docs/reports/statistical_limitations.md` – always generated; it must contain the required disclaimer that the F‑test validates fit, not physical mechanism, and notes microstructural confounders (text anchored to the actual p‑value from `f_test.json`).  
+  - **T011.C** `docs/reports/microstructure_note.md` – always generated; it must list the unique synthesis methods extracted from `data/processed/synthesis_methods_list.txt` (or state “Not specified” if none) and reiterate FR‑010.  
+  - **T011.D** `docs/reports/final_report.md` – consolidates all results: dataset size, completeness metrics, descriptor definitions, model CV scores, outlier analysis, stratified analysis (if present), SC‑006 evaluation, bootstrap CI, PDP figures, and embeds the three markdown notes above. The report follows the 11‑section structure defined in the plan.  
+  **Verification**: Each markdown file exists, is non‑empty, and contains the required sections/text. The final report includes the embedded PNGs for PDPs and references the JSON metric files.
 
-- [ ] T013 Calculate SHA256 hashes for all produced artifacts (`data/processed/`, `data/results/`, `docs/reports/`) and update the project state in `state/projects/PROJ-393...yaml` with `artifact_hashes` map and `updated_at` timestamp to ensure a reproducible handoff.
+- [ ] T012 [P3] Execute the full pipeline from a clean environment and verify resource consumption.  
+  *Run `python -m src.main --full` which sequentially calls T005–T010, then T011. While running, capture peak memory and total runtime, writing `data/results/resource_consumption.json` with fields `peak_memory_gb`, `total_runtime_seconds`, and `within_limits` (true if memory < 7 GB and runtime < 6 h).*  
+  **Verification**: The JSON file reports `within_limits: true`; all expected output files from Phases 1‑3 are present and non‑empty.
 
-## Dependencies and requirement coverage
+- [ ] T013 [P3] Record artifact hashes and update project state for handoff.  
+  *Compute SHA‑256 hashes for every file under `data/processed/`, `data/results/`, `docs/reports/`, and the model pickles under `code/models/`. Write a consolidated `state/artifact_hashes.yaml` (managed by the platform) and ensure the latest commit includes this file. No manual edits to platform state files are performed; the script only writes to the project‑owned `state/` directory.*  
+  **Verification**: The hash file exists, contains an entry for each artifact, and a CI check confirms the hashes match the on‑disk files.
 
-| Requirement | Task(s) | Verification |
-| :--- | :--- | :--- |
-| **FR-001** (3 Sources) | T005.A, T005.B | Check `data/raw/sources_manifest.txt` for three sources; verify `data/raw/raw_merged.csv` contains entries from all three. |
-| **FR-002** (Normalization/Imputation) | T006 | Verify `alloys_raw.csv` sums to 1.0 ± 0.0001; check `imputation_log.json` for imputation rates <15%; confirm no DFT entries in `source_type` column; verify mean imputation is applied (not MICE). |
-| **FR-003** (5 Descriptors) | T007 | Verify `alloys_features.csv` has exactly 5 new descriptor columns with no NaN values. |
-| **FR-004** (LR/RF + CV) | T008 | Check `model_metrics.json` for both model types and cross-validation scores. |
-| **FR-005** (F-test/Bootstrap/PDP) | T009 | Verify `validation_stats.json` and `figures/pdp_plots.png` exist and contain expected results. |
-| **FR-008** (DFT Filter/Scarcity) | T006, T011 | Check for absence of DFT entries in `alloys_raw.csv` using explicit rule (source_type, target_source, is_dft columns); verify `data_scarcity_warning.md` is generated if N<50. |
-| **FR-009** (Fit vs Mechanism) | T011 | Verify `statistical_limitations.md` contains the mandatory disclaimer about F-test validity and microstructural confounders, anchored to T009 F-test output. |
-| **FR-010** (Microstructure) | T006, T010, T011 | Verify `synthesis_methods_list.txt` is created during T006; verify `stratified_metrics.json` exists; verify `microstructure_note.md` documents synthesis methods extracted from synthesis_methods_list.txt. |
-| **SC-001** (F-test) | T009 | Check `validation_stats.json` for `f_statistic` and `p_value`. |
-| **SC-002** (Bootstrap CI) | T009 | Check `validation_stats.json` for `r2_lower` and `r2_upper` (95% CI from 1000 resamples). |
-| **SC-003** (PDPs) | T009 | Verify `figures/pdp_plots.png` exists and shows top 3 features. |
-| **SC-004** (Completeness) | T005.C, T006 | Verify `data_count_verification.json` and `completeness_report.json` report proportion of valid data points per source. |
-| **SC-005** (CPU/RAM Limits) | T012.B | Verify `resource_consumption.json` shows peak_memory < 7 GB and runtime < 6 hours. |
-| **SC-006** (Exploratory Benchmark) | T009.D | Check `sc006_evaluation.json` for R² and p-value against threshold; verify result is documented in `final_report.md` Section 7. |
-| **Constitution VI** (Descriptor Consistency) | T001.D, T007 | Verify `data/raw/elemental_properties_v1.csv` exists and is used by `descriptor_calculator.py` and `feature_engineering_pipeline.py`. |
+---
 
-## Execution Order and Dependencies
+### Dependency & Requirement Coverage Summary
 
-**Phase 1 (Sanity Check — Independent on small manual dataset)**:
-T001 → T002 → T003 → T004
+| Spec Requirement | Implementing Task(s) | Evidence Artifact |
+|------------------|----------------------|-------------------|
+| FR‑001 (3 sources) | T005.A‑C | `sources_manifest.txt`, `raw_merged.csv` |
+| FR‑002 (unit/comp normalisation, imputation < 15 %) | T006 | `alloys_clean.csv`, `imputation_log.json` |
+| FR‑003 (≥ 5 descriptors) | T007 | `alloys_features.csv` (8 descriptors) |
+| FR‑004 (LR + RF, 5‑fold CV) | T008 | `model_metrics.json`, model pickles |
+| FR‑005 (F‑test, bootstrap CI, PDP) | T009 | `f_test.json`, `bootstrap_ci.json`, `figures/pdp_*.png` |
+| FR‑008 (exclude DFT, data‑scarcity warning) | T006, T011.A | `alloys_clean.csv` (no DFT), `data_scarcity_warning.md` |
+| FR‑009 (fit vs mechanism disclaimer) | T011.B | `statistical_limitations.md` |
+| FR‑010 (microstructure note) | T011.C | `microstructure_note.md` |
+| SC‑001 (F‑test) | T009.A | `f_test.json` |
+| SC‑002 (Bootstrap CI) | T009.B | `bootstrap_ci.json` |
+| SC‑003 (PDPs) | T009.C | `figures/pdp_*.png` |
+| SC‑004 (completeness) | T005.C, T006 | `data_count_verification.json`, `completeness_report.json` |
+| SC‑005 (CPU‑only limits) | T012 | `resource_consumption.json` |
+| SC‑006 (exploratory benchmark) | T009.D | `sc006_evaluation.json` (referenced in final report) |
+| Constitution VI (descriptor consistency) | T002, T007 | `elemental_properties_v1.csv` |
 
-**Phase 2 (Full Pipeline — Dependent on Phase 1, runs on aggregated data)**:
-T005.A → T005.B → T005.C → T006 → T007 → T008 → T008.C → T009 → T009.D → T010
-
-**Phase 3 (Reporting & Finalization — Dependent on Phase 2)**:
-T011 → T012 → T012.B → T013
-
-**Overall Order**: T001 → T002 → T003 → T004 → T005.A → T005.B → T005.C → T006 → T007 → T008 → T008.C → T009 → T009.D → T010 → T011 → T012 → T012.B → T013.
-
-**Note**: T004 runs independently on a small manual dataset (data/raw/manual_curated.csv) to verify the technical path before full data aggregation. T005–T013 run on the full aggregated dataset from T005. This separation allows early detection of technical issues without waiting for full data aggregation. Phase 1 completes before Phase 2 begins.
+All tasks are ordered to respect data flow: ingestion → preprocessing → feature engineering → modeling → validation → reporting → final reproducibility checks.
