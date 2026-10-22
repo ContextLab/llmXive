@@ -1,13 +1,15 @@
 status: none
-intent: download DocBank scientific document dataset with layout annotations and DocVQA
-  reference python package dataset
+intent: DocBank scientific PDF layout annotations MixSub-LLaMA-3.2 python package
+  dataset
 required_fields:
 - document_id
 - page_number
-- text
-- layout_boxes
-- layout_labels
+- text_content
+- element_type
+- bounding_box
 - image_path
-cache_key: daf135ad168326fdeb023716e782e4956c0310f803e6add2b493a42332985bf1
-searched_at: '2026-10-16T16:25:10.054528+00:00'
+- label_overlap
+- cpu_score
+cache_key: ad0b6ad9388840f272588e4e0b3c0dff9e1530517f5f9dcca34b6b2515e0da0b
+searched_at: '2026-10-22T08:09:16.813202+00:00'
 retry_count: 1

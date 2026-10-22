@@ -6,15 +6,18 @@ required:
   - dataset_sha256
   - n_valid_rows
   - seeds
+  - seed_count
   - distillation_sanity_check
   - label_semantics
   - leakage_check
   - structural_target_degeneracy
   - downstream
   - ablation_incremental_value
+  - random_latent_control
   - independence_descriptive
   - resources
   - framing
+  - scope_limitation
 properties:
   dataset_url:
     type: string
@@ -30,10 +33,19 @@ properties:
     items:
       type: integer
     minItems: 2
+  seed_count:
+    type: integer
+    description: "Number of random seeds used in the experiment (fixed to a modest number of seeds)."
   distillation_sanity_check:
     type: object
-    description: "SC-001 downgraded to a sanity/feasibility check. The target is a deterministic function of the student's input, so MSE convergence is near-tautological and is NOT hypothesis evidence."
-    required: [mse_val_mean, mse_random_init_mean, p_value, test_name, alpha, is_sanity_check_only]
+    description: "SC-001 downgraded to a sanity/feasibility check. The target is deterministic, so MSE convergence is near-tautological and is NOT hypothesis evidence."
+    required:
+      - mse_val_mean
+      - mse_random_init_mean
+      - p_value
+      - test_name
+      - alpha
+      - is_sanity_check_only
     properties:
       mse_val_mean:
         type: number
@@ -55,8 +67,11 @@ properties:
         description: "Overfitting check; threshold 2.0 (SC-007)."
   label_semantics:
     type: object
-    description: "Recorded construction of the downstream label: what it measures and from which columns."
-    required: [label_column, description, source_columns]
+    description: "Recorded construction of the downstream label."
+    required:
+      - label_column
+      - description
+      - source_columns
     properties:
       label_column:
         type: string
@@ -68,8 +83,10 @@ properties:
           type: string
   leakage_check:
     type: object
-    description: "Pre-registered gate: correlation between the label and surface text-similarity features of the input text. If is_trivial_function_of_text is true, the downstream delta is uninterpretable and no gain is claimed."
-    required: [label_text_similarity_correlation, is_trivial_function_of_text]
+    description: "Pre-registered gate: correlation between the label and surface text-similarity features of the input text."
+    required:
+      - label_text_similarity_correlation
+      - is_trivial_function_of_text
     properties:
       label_text_similarity_correlation:
         type: number
@@ -77,17 +94,21 @@ properties:
         type: boolean
       threshold:
         type: number
-        description: "Correlation threshold above which the label is deemed trivial/leaky ([deferred] value set at implementation)."
+        description: "Correlation threshold above which the label is deemed trivial/leaky (set to 0.8)."
   structural_target_degeneracy:
     type: object
-    description: "Non-degeneracy gate on the structural feature matrix (Phase 1b)."
-    required: [passed, fallback_used, min_feature_variance, n_near_constant_features]
+    description: "Non-degeneracy gate on the structural feature matrix."
+    required:
+      - passed
+      - fallback_used
+      - min_feature_variance
+      - n_near_constant_features
     properties:
       passed:
         type: boolean
       fallback_used:
         type: boolean
-        description: "True if newline-free features (whitespace/punctuation/token-length) were used because line-structure features were degenerate."
+        description: "True if newline-free features were used because line-structure features were degenerate."
       min_feature_variance:
         type: number
       n_near_constant_features:
@@ -95,7 +116,15 @@ properties:
   downstream:
     type: object
     description: "Primary hypothesis: augmented vs per-seed re-trained text-only baseline; pairing unit is the seed."
-    required: [metric_name, baseline_mean, augmented_mean, delta, p_value, test_name, alpha, interpretable]
+    required:
+      - metric_name
+      - baseline_mean
+      - augmented_mean
+      - delta
+      - p_value
+      - test_name
+      - alpha
+      - interpretable
     properties:
       metric_name:
         type: string
@@ -115,11 +144,14 @@ properties:
         description: "Bonferroni-corrected alpha (0.025); stricter than and consistent with SC-003's 0.05."
       interpretable:
         type: boolean
-        description: "False if the leakage check flagged the label as a trivial function of the input text."
+        description: "False if leakage check flagged the label as a trivial function of the input text."
   ablation_incremental_value:
     type: object
-    description: "FR-008 reframed: incremental predictive value of the latent over the baseline text embedding. The original independence claim is NOT EXECUTABLE (latent is a function of the text by construction)."
-    required: [latent_only_mean, p_value_vs_baseline, independence_claim_supportable]
+    description: "FR-008 reframed: incremental predictive value of the latent over the baseline text embedding."
+    required:
+      - latent_only_mean
+      - p_value_vs_baseline
+      - independence_claim_supportable
     properties:
       latent_only_mean:
         type: number
@@ -128,10 +160,23 @@ properties:
       independence_claim_supportable:
         type: boolean
         const: false
+  random_latent_control:
+    type: object
+    description: "Control experiment: random‑latent model vs text‑only baseline to assess collinearity effects."
+    required:
+      - random_latent_mean
+      - p_value_vs_baseline
+    properties:
+      random_latent_mean:
+        type: number
+      p_value_vs_baseline:
+        type: number
   independence_descriptive:
     type: object
-    description: "Descriptive collinearity only; confounded by construction. Never used to claim independent effects."
-    required: [mutual_information_bits, pearson_r]
+    description: "Descriptive collinearity only; confounded by construction."
+    required:
+      - mutual_information_bits
+      - pearson_r
     properties:
       mutual_information_bits:
         type: number
@@ -139,7 +184,9 @@ properties:
         type: number
   resources:
     type: object
-    required: [peak_ram_gb, runtime_seconds]
+    required:
+      - peak_ram_gb
+      - runtime_seconds
     properties:
       peak_ram_gb:
         type: number
@@ -153,4 +200,5 @@ properties:
     description: "All findings framed as associational; no causal claims (FR-006)."
   scope_limitation:
     type: string
-    description: "Statement that visual-encoder latents were infeasible (no verified image+layout dataset), structural text features were used instead, and FR-008's independence claim is not executable in this design."
+    description: "Statement that visual‑encoder latents were infeasible (no verified image+layout dataset), structural text features were used instead, and FR-008's independence claim is not executable in this design."
+
