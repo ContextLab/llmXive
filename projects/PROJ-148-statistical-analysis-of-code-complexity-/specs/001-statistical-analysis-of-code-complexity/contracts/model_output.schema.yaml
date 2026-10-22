@@ -1,20 +1,24 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Output Schema
-description: "Schema for model evaluation and inference results (FR-007, FR-008)"
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation Output Schema"
+description: "Schema for model performance and feature‑level statistics (FR‑007, FR‑008, FR‑009)."
 type: object
 properties:
   model_type:
     type: string
-    description: "Type of model (e.g. 'LogReg_L1', 'RandomForest')"
+    description: "Identifier of the model, e.g., 'LogReg_L1' or 'RandomForest'."
   roc_auc:
     type: number
-    description: "ROC-AUC score on test set (SC-001)"
+    minimum: 0.0
+    maximum: 1.0
+    description: "ROC‑AUC on the test split."
   pr_auc:
     type: number
-    description: "Precision-Recall AUC score on test set"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Precision‑Recall AUC on the test split."
   calibration_error:
     type: number
-    description: "Brier score or calibration error metric"
+    description: "Brier score (lower is better)."
   feature_importance:
     type: array
     items:
@@ -22,20 +26,24 @@ properties:
       properties:
         feature_name:
           type: string
+          description: "Name of the predictor (e.g., 'cyclomatic_complexity')."
         importance_score:
           type: number
+          description: "Coefficient magnitude (LogReg) or mean decrease impurity (RF)."
         p_value:
           type: number
-          description: "P-value after FDR correction (FR-008)"
+          description: "Benjamini‑Hochberg corrected p‑value."
         is_significant:
           type: boolean
-          description: "True if p < 0.05 after correction"
+          description: "True if corrected p < 0.05."
       required:
         - feature_name
         - importance_score
+        - p_value
+        - is_significant
   stability_correlation:
     type: number
-    description: "Spearman correlation of importance across models (SC-003)"
+    description: "Spearman correlation of feature importance rankings between the two models."
   partial_dependence:
     type: array
     items:
@@ -43,17 +51,22 @@ properties:
       properties:
         metric_name:
           type: string
+          description: "Metric for which a practical threshold is derived."
         threshold:
           type: number
-          description: "Practical threshold value (FR-009)"
+          description: "Value of the metric where predicted bug probability ≥ 0.5."
         justification:
           type: string
-          description: "Reasoning for threshold (e.g. '≥10% risk')"
-    description: "Top 3 metrics with thresholds (FR-009)"
+          description: "Interpretation of the threshold (e.g., '≥10% risk of bug')."
+      required:
+        - metric_name
+        - threshold
+        - justification
 required:
   - model_type
   - roc_auc
   - pr_auc
+  - calibration_error
   - feature_importance
   - stability_correlation
   - partial_dependence

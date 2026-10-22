@@ -1,26 +1,3 @@
-- artifact_hash: 0e2a97e2268476dfafcfb9545c204e81db5ec54dd800a1907c0cbb92cb1ef56a
-  artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: GH Archive
-  kind: url
-  value: https://www.gharchive.org
-  verification_status: verified
-  verified_against_url: https://www.gharchive.org
-  verified_at: '2026-06-29T07:12:49.998651Z'
-- artifact_hash: 0e2a97e2268476dfafcfb9545c204e81db5ec54dd800a1907c0cbb92cb1ef56a
-  artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: "GitHub - github/CodeSearchNet: Datasets, tools, and benchmarks for\
-    \ representation learning of code. \xB7 GitHub"
-  kind: url
-  value: https://github.com/github/CodeSearchNet
-  verification_status: verified
-  verified_against_url: https://github.com/github/CodeSearchNet
-  verified_at: '2026-06-29T07:12:49.998651Z'
 - artifact_hash: 13ccebe7db7c0c161216054580e62ebece965b88af47418ee3c28418f38196d3
   artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/code/quickstart.md
   cite_id: c-001
@@ -43,3 +20,82 @@
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q178051
   verified_at: '2026-08-14T01:20:42.114800Z'
+- artifact_hash: 1b386bb97f591e902e709b28a4a11174406a9f9218af50c8c15048ba24562f1e
+  artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://datasets.research.gharchive.org/ghtorrent/2020/ghtorrent-2020-01-01.tar.gz`
+  verification_status: unreachable
+  verified_against_url: https://datasets.research.gharchive.org/ghtorrent/2020/ghtorrent-2020-01-01.tar.gz
+  verified_at: '2026-10-22T05:30:30.928378Z'
+- artifact_hash: 1b386bb97f591e902e709b28a4a11174406a9f9218af50c8c15048ba24562f1e
+  artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: GH Archive
+  kind: url
+  value: https://www.gharchive.org`
+  verification_status: pending
+  verified_against_url: https://www.gharchive.org
+  verified_at: '2026-10-22T05:30:30.928378Z'
+- artifact_hash: 98027a19b2a6a5184dd48ee8ff0f3ed9217e393c69e1557c16392fee5b7a6c06
+  artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://datasets.research.gharchive.org/ghtorrent/2020/ghtorrent-2020-01-01.tar.gz
+  verification_status: unreachable
+  verified_against_url: https://datasets.research.gharchive.org/ghtorrent/2020/ghtorrent-2020-01-01.tar.gz
+  verified_at: '2026-10-22T05:30:56.557020Z'
+- artifact_hash: 98027a19b2a6a5184dd48ee8ff0f3ed9217e393c69e1557c16392fee5b7a6c06
+  artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: GH Archive
+  kind: url
+  value: https://www.gharchive.org
+  verification_status: pending
+  verified_against_url: https://www.gharchive.org
+  verified_at: '2026-10-22T05:30:56.557020Z'
+- artifact_hash: 98027a19b2a6a5184dd48ee8ff0f3ed9217e393c69e1557c16392fee5b7a6c06
+  artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'scikit-learn: machine learning in Python &mdash; scikit-learn 0.16.1
+    documentation'
+  kind: url
+  value: https://scikit-learn.org/
+  verification_status: pending
+  verified_against_url: https://scikit-learn.org/
+  verified_at: '2026-10-22T05:30:56.557020Z'
+- artifact_hash: 98027a19b2a6a5184dd48ee8ff0f3ed9217e393c69e1557c16392fee5b7a6c06
+  artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.statsmodels.org/
+  verification_status: pending
+  verified_against_url: https://www.statsmodels.org/
+  verified_at: '2026-10-22T05:30:56.557020Z'
+- artifact_hash: 98027a19b2a6a5184dd48ee8ff0f3ed9217e393c69e1557c16392fee5b7a6c06
+  artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - ejolly/pymer4: All the convenience of lme4 in python \xB7\
+    \ GitHub"
+  kind: url
+  value: https://github.com/ejolly/pymer4
+  verification_status: pending
+  verified_against_url: https://github.com/ejolly/pymer4
+  verified_at: '2026-10-22T05:30:56.557020Z'

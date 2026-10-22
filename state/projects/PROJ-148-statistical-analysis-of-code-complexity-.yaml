@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T13:36:37.183740Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-148-statistical-analysis-of-code-complexity-
-last_run_id: eeb3b46b-a43e-4255-8d88-5675a9f7d5df
+last_run_id: 1924e9de-bd28-43e6-ac1c-00a596cfa569
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity
 title: Statistical Analysis of Code Complexity Metrics and Bug Prediction
-updated_at: '2026-10-22T05:22:04.287205Z'
+updated_at: '2026-10-22T05:31:38.963071Z'

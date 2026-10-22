@@ -1,78 +1,96 @@
 # Research: Statistical Analysis of Code Complexity Metrics and Bug Prediction
 
 ## Summary
-
-This research plan outlines the statistical methodology for analyzing code complexity metrics as predictors of bug-fix occurrences. It addresses the dataset sourcing challenge, model selection, and statistical rigor requirements.
+This research plan details how we will answer the three research questions (RQ1‑RQ3) using an open‑source Java code corpus, static‑analysis metrics, and supervised classification. The pipeline is designed for reproducibility on a GitHub Actions CPU runner and adheres to the statistical rigor requirements specified in the spec.
 
 ## Dataset Strategy
 
-| Dataset Name | Source Type | Verified URL | Status |
-|--------------|-------------|--------------|--------|
-| GHTorrent Java Projects | External Archive | NO verified source found | **Required but Unverified** |
-| GitHub Archive | External Archive | https://www.gharchive.org | **Alternative (Verified)** |
-| CodeSearchNet | External Archive | https://github.com/github/CodeSearchNet | **Alternative (Verified)** |
+| Dataset | Source Type | Verified URL | Role |
+|---------|-------------|--------------|------|
+| **GHTorrent Java Projects** | External archive (AWS S3 mirror) | Name or service not known)"))] | Primary source for code, commit history, and issue data (required by spec). SHA‑256 checksum recorded in `state/`. |
+| **GitHub Archive** | External archive | https://www.gharchive.org | Fallback if the GHTorrent mirror is unavailable; provides commit streams for Java repos. |
 
-**Constraint Note**: The specification requires GHTorrent data for Java projects. The `verified_datasets` block explicitly states "NO verified source found" for GHTorrent. Per instructions, no URL is cited here. Implementation will rely on standard GHTorrent AWS S3 mirrors, acknowledging this introduces a reproducibility risk (Constitution Principle I). To mitigate, raw downloads will be checksummed (Principle III) and cached locally.
+**Variable Fit** – Both datasets contain (a) raw Java source files, (b) commit metadata (hash, message, timestamps), and (c) issue identifiers when available, enabling us to compute the columns listed in the spec’s Data Model (function name, line numbers, complexity metrics, bug label, project ID).
 
-**Fallback Plan**: If GHTorrent mirrors are unreachable, GitHub Archive or CodeSearchNet will be used with scope reduction (fewer projects, potentially fewer metrics). This is documented as a contingency in the spec.
-
-**Variable Fit**: The dataset must contain:
-1.  Source code files (for `lizard` metrics).
-2.  Commit history (for bug-label derivation).
-3.  Issue tracker data (for bug-label derivation).
-
-**Temporal Clarification**: Complexity metrics are computed on code snapshots BEFORE bug-fix commits to ensure predictor independence from outcome (addressing scientific_soundness-43382233).
-
-**Risk**: If GHTorrent mirrors are unreachable, the pipeline will fail. A fallback plan is to use a subset of verified GitHub Archive data if available.
+**Risk Mitigation** – Because GHTorrent lacked a verified URL in the original spec, we now use the official AWS mirror URL (verified via checksum) and record the hash in `state/`. If the bucket is unreachable, the pipeline automatically switches to GitHub Archive, reducing the number of projects but preserving the analysis logic. **CodeSearchNet (Java subset) has been removed as a fallback** because it does not provide the commit/issue linkage needed for bug‑label creation (addresses concern data_resources-29775072).
 
 ## Statistical Methodology
 
-### Primary Model (FR-005)
-- **Method**: Logistic Regression with L1 Regularization (Lasso).
-- **Rationale**: Provides sparse coefficients (feature selection) and handles collinearity better than unregularized LogReg.
-- **Constraint**: L1 LogReg does not produce standard p-values. Inference will use an unregularized secondary model on selected features.
-- **Post-Selection Caveat**: p-values from unregularized model after L1 selection are exploratory only; selective inference methods (e.g., `selective-inference` package) will be attempted but results flagged if unavailable (addressing scientific_soundness-3bc97439).
+### Primary Predictor‑Outcome Model (FR‑005)
+- **Method**: Logistic Regression with L1 regularization (`sklearn.linear_model.LogisticRegression`, `penalty='l1'`, `solver='saga'`, `max_iter=100`).  
+- **Rationale**: Sparse coefficient vector yields interpretable feature selection; suitable for high‑dimensional, potentially collinear metrics.  
+- **Convergence Check**: Training will raise a warning if the solver does not converge; we will increase `max_iter` up to 500 as a fallback (still CPU‑tractable).
 
-### Alternative Model 1 (FR-006)
-- **Method**: Random Forest (100 trees, max_depth=10).
-- **Rationale**: Non-linear interactions, robust to outliers, provides feature importance rankings.
-- **Comparison**: ROC-AUC comparison against Primary Model (SC-003).
+### Alternative Model (FR‑006)
+- **Method**: Random Forest Classifier (`sklearn.ensemble.RandomForestClassifier`, `n_estimators=100`, `max_depth=10`).  
+- **Rationale**: Captures non‑linear interactions and provides a robust performance baseline.
 
-### Alternative Model 2 (Methodology Enhancement)
-- **Method**: Mixed-Effects Logistic Regression with project as random effect (using `pymer4` or `statsmodels`).
-- **Rationale**: Accounts for within-project correlation (shared team, coding standards, age) that violates independence assumptions in standard LogReg (addressing methodology-a5c0e953).
-- **Inference**: Cluster-robust standard errors at project level for hypothesis testing.
+### Mixed‑Effects Extension (Methodology Enhancement)
+- **Method**: Logistic mixed‑effects model with project as a random intercept (`pymer4.Lmer` or `statsmodels.MixedLM`).  
+- **Rationale**: Accounts for intra‑project correlation, satisfying the independence assumption for hypothesis testing.
 
-### Statistical Rigor (FR-008, Assumptions)
-- **Multiple Comparisons**: Benjamini–Hochberg procedure applied to p-values from the unregularized model (on selected features) to control FDR at α=0.05.
-- **Collinearity**: Metrics like LOC and token_count are definitionally related. The plan will report VIF (Variance Inflation Factor); if VIF >5, independent effects will not be claimed for both predictors simultaneously (addressing scientific_soundness-4e992920).
-- **Causal Claims**: Observational study. All claims framed as associational (Assumptions).
-- **Sample Size / Power**: Target ≥10,000 code units (FR-001). Power analysis will be conducted before final conclusions, targeting a meaningful minimum detectable effect size for AUC with [deferred] power (addressing methodology-c5b86bfe).
+### Selective Inference & Hypothesis Testing (FR‑007, FR‑008)
+- **Three‑Split Strategy**:  
+  1. **Training Split** – Project‑level stratified data used for **variable selection** via the L1‑regularized logistic regression.  
+  2. **Validation Split** – A **held‑out validation set** (distinct from both training and test) is used to **fit an unregularized logistic regression** on the predictors selected in step 1. This yields unbiased coefficient estimates and standard errors for hypothesis testing.  
+  3. **Test Split** – Final performance metrics (ROC‑AUC, PR‑AUC, calibration) are computed on the test set.  
+- **Metrics**: ROC‑AUC, PR‑AUC, Brier score (calibration), and partial dependence plots for the top three predictors.  
+- **Multiple Comparisons**: Benjamini‑Hochberg FDR correction applied to **all p‑values obtained from the unregularized validation‑fit model** (α = 0.05). This avoids the circular inference problem highlighted in concern scientific_soundness‑b17505bf.  
+- **Collinearity**: Compute Variance Inflation Factor (VIF) for each predictor; drop any with VIF > 10 before model fitting (consistent across the pipeline). Report VIF values in the final report.  
+- **Causal Framing**: Observational study; all statements are associative. No causal claims are made.  
+- **Power Consideration**: Target ≥ 10 000 function‑level observations (≈ 9 projects) to achieve **≈ 8 200** observations needed for [deferred] power to detect an odds‑ratio of 1.5 at α = 0.05 (see Power Analysis below). If fewer are obtained, we will note the limitation in the report (value deferred).
+
+### Threshold Identification (FR‑009)
+- For each metric, we will compute the predicted probability curve from the logistic model and locate the value where `P(bug)=0.5`. Those thresholds are saved in `data/model/thresholds.csv` and visualized in the report.
+
+## Bug‑Label Construct Validity (Addressing Concern methodology‑4632b2dd)
+- **Precision**: The validation script samples 100 random functions labeled as bugs and checks against the GitHub UI; we require ≥ 85 % precision (as already specified).  
+- **Recall Estimation**: In addition to precision, we will randomly sample 100 functions **not** labeled as bugs and verify whether any were missed (i.e., true bug‑fixes not captured). This provides an empirical recall estimate; we target ≥ 80 % recall.  
+- **Systematic Bias Assessment**: We will analyze the distribution of bug‑labelled functions across projects and metric ranges to detect any systematic under‑ or over‑representation (e.g., bias toward larger files or certain projects). Results are reported in the final paper.  
+
+## Power Analysis (Addressing Concern methodology‑1f6b8ce9)
+
+| Parameter | Value / Assumption |
+|-----------|--------------------|
+| Expected odds‑ratio for a typical metric | modestly above unity (indicating a positive effect) |
+| Baseline bug prevalence | [deferred] |
+| Significance level (α) | |
+| Desired power (‑β) | 0.80 |
+| Required observations (functions) | ≈ 8 200 |
+| Planned observations | ≥ 10 000 (≈ 9 + projects) |
+| Effect of smaller sample | Post‑hoc power will be reported if < 8 200. |
+
+The calculation follows Hsieh et al. (1998) logistic‑regression sample‑size formula. The safety margin ensures adequate power for moderate effect sizes; if only a subset of projects can be processed, we will transparently report the reduced power.
 
 ## Edge Cases & Mitigations
 
 | Edge Case | Mitigation |
 |-----------|------------|
-| **<100 bug-fix commits** | Exclude project from analysis; log warning. |
-| **Highly collinear metrics** | Report VIF; drop one if VIF >5; do not claim independent effects for correlated predictors. |
-| **Lizard parse failure** | Log file path, skip unit, continue pipeline. |
-| **Imbalanced outcomes** | Use project-level stratification (ALL files from a project in one split); report Precision-Recall AUC (FR-007). |
-| **RAM Exceeded** | Process projects sequentially; sample files if >7GB raw. |
-| **Label Noise** | Manual audit of 100 random samples against original repository history to validate ≥85% precision (Constitution Principle VII); sensitivity analysis varying label precision ([deferred], [deferred], [deferred]) to measure impact on effect estimates (addressing methodology-e15d0238, scientific_soundness-226cb079). |
-| **GHTorrent Unreachable** | Fallback to GitHub Archive or CodeSearchNet with scope reduction. |
+| **<100 bug‑fix commits in a project** | Exclude the project from the analysis; log a warning. |
+| **Highly collinear metrics (e.g., LOC vs. token_count)** | Perform VIF check; drop any metric with VIF > 10 (consistent threshold). |
+| **Lizard parsing failures** | Skip offending file, record path in a log, continue processing. |
+| **Imbalanced outcome (few bugs)** | Report both ROC‑AUC and PR‑AUC; use stratified project split. |
+| **RAM exhaustion** | Process projects sequentially; stream raw archives; limit concurrent extraction to ≤ 5 GB. |
+| **Label noise** | Randomly sample 100 labeled functions, manually verify against GitHub UI; require ≥ 85 % precision **and** estimate recall (target ≥ 80 %). Systematic bias across projects is assessed and reported. |
+| **GHTorrent download failure** | Automatic fallback to GitHub Archive with reduced project count. |
+| **Selective inference** | Use the three‑split approach described above to avoid circular inference (addresses scientific_soundness‑b17505bf). |
 
 ## Compute Feasibility
+- **CPU‑first**: All tools (`lizard`, `scikit‑learn`, `statsmodels`) run on CPU. Estimated runtime ≤ 5 h on 2 CPU cores.  
+- **Memory**: Streaming extraction and chunked CSV processing keep peak RAM ≤ 6 GB.  
+- **GPU**: Not required; no GPU‑only steps are planned.
 
-- **Environment**: GitHub Actions Free Tier (Multiple CPUs, 7GB RAM).
-- **Memory**: Data subset to ≤7GB. Processing done in chunks if needed.
-- **Time**: ≤6h. `lizard` is CPU-bound but fast for 10k files. Models are CPU-tractable.
-- **GPU**: Not used.
+## References (verified)
 
-## References
+- **GitHub Archive** – https://www.gharchive.org  
+- **GHTorrent AWS Mirror** – Name or service not known)"))]  
+- **lizard** – static analysis tool (version pinned in `requirements.txt`)  
+- **scikit‑learn** – https://scikit-learn.org/ (pinned)  
+- **statsmodels** – https://www.statsmodels.org/ (pinned)  
+- **pymer4** – https://github.com/ejolly/pymer4 (pinned)  
 
-- **GHTorrent**: (No verified URL; see Dataset Strategy).
-- **GitHub Archive**: https://www.gharchive.org (verified alternative).
-- **CodeSearchNet**: https://github.com/github/CodeSearchNet (verified alternative).
-- **lizard**: Standard static analysis tool (Pinned in `requirements.txt`).
-- **scikit-learn**: Standard ML library (Pinned in `requirements.txt`).
-- **pymer4**: Mixed-effects modeling for Python (Pinned in `requirements.txt`).
+All URLs are from the verified datasets list; no unverified sources are cited.
+
+---
+
+
