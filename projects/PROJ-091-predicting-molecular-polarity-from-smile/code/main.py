@@ -204,7 +204,15 @@ def run_pipeline():
 def main():
     global logger
     parser = argparse.ArgumentParser(description="Main pipeline orchestrator")
-    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file")
+    parser.add_argument(
+        "--step",
+        type=str,
+        choices=["fetch_and_preprocess", "feature_selection", "train", "analyze", "verify"],
+        help="Pipeline step to execute"
+    )
+    parser.add_argument(
+        "--config", type=str, default="code/config.yaml", help="Path to config file"
+    )
     args = parser.parse_args()
 
     # Setup logging
@@ -212,7 +220,22 @@ def main():
     logger = get_logger("main")
     logger.info("Starting pipeline...")
 
-    success = run_pipeline()
+    if args.step == "fetch_and_preprocess":
+        success = run_data_preprocessing()
+    elif args.step == "feature_selection":
+        logger.error("Feature selection step not yet implemented.")
+        success = False
+    elif args.step == "train":
+        logger.error("Training step not yet implemented.")
+        success = False
+    elif args.step == "analyze":
+        logger.error("Analysis step not yet implemented.")
+        success = False
+    elif args.step == "verify":
+        success = validate_artifact_integrity()
+    else:
+        # No step provided: run full pipeline
+        success = run_pipeline()
 
     if success:
         logger.info("Pipeline finished successfully.")

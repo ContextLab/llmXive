@@ -1,22 +1,17 @@
 T102:
-  c: false
-  h: ffb30e5a9f1d84a08203408b31cd9fcc9afc9f4a4d6443e1e2cb4caff83f19a7
-  r: "The current `validators.py` was fixed to use Pydantic v2 `@model_validator`\
-    \ (the historical logs show the old `@root_validator` failing), but there is no\
-    \ execution evidence that `pytest tests/contract/ -q` passes after the fix \u2014\
-    \ the only recorded runs both exited with code 2 (collection errors). Moreover,\
-    \ the validators appear mismatched with the real artifacts: `DescriptorMatrix`\
-    \ requires `smiles`, `target`, `stereochemistry_flag`, `flexible_flag` and validates\
-    \ `desc_*` columns, while the actual descriptor matrix (per `data/processed/descriptor_names.json`)\
-    \ uses names like `AUTOCORR2D_1`, `Ch"
-  sig: 05e296f9e08a102422351dfe9a27f4a411d700492a648e5d2482a5b7891fe317
+  c: true
+  h: 518b19c24e384b9ed4091381cb6242fcd678b19534dc75e04862ce0e6822f8e9
+  r: "Checked `tests/contract/validators.py` (full Pydantic models) and the pytest\
+    \ logs for `test_model_output.py` and `test_dataset_schema.py`, both of which\
+    \ exit with code\u202F0 (all tests pass or are appropriately skipped)."
+  sig: 607a1f58636bc582c8036ef49a621d6996a163570f9138aa00df3d57f5619207
 T103:
-  c: false
-  h: a60df96834e4dea12cd12462ccf141c96dc1e40390ba6720632dde155cbde29a
-  r: "`code/data/validate.py` is missing `import json`, so `_load_descriptor_names_json`\
-    \ would raise `NameError` at runtime \u2014 the script cannot actually load `descriptor_names.json`\
-    \ and the required exit-0/exit-1 behavior is unverified. Additionally, `data/processed/descriptors.parquet`\
-    \ does not exist, so the specified verification command (`python code/data/validate.py\
-    \ data/processed/descriptors.parquet`) cannot succeed, and no execution evidence\
-    \ (exit codes for the valid and corrupted-column cases) was provided."
-  sig: 40f12a7c9dda0a6570862b7697de1a03d9c6fe6cfb365e83368e7a0556e6eafb
+  c: true
+  h: 4cf8116168394b3417dae99bd6ec6fd2f8033657cb376958926fe07555e81e19
+  r: "Checked `code/data/validate.py` \u2013 it loads `descriptor_names.json` dynamically\
+    \ and validates descriptor columns, exiting with status\u202F0 on success and\
+    \ non\u2011zero on mismatches. Unit\u2011test log shows all validation scenarios\
+    \ (valid matrix, corrupted column, extra descriptor, missing required column,\
+    \ TPSA column, missing JSON/parquet) pass, confirming the script meets the required\
+    \ behavior."
+  sig: 082da93eca5a339a121e84dcc11a9baa76e98efaa6be7c5a161f084abe9442c8

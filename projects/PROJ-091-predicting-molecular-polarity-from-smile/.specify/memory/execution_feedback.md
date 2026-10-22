@@ -1,70 +1,71 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --step fetch_and_preprocess`
-  - script usage: `main.py [-h] [--config CONFIG]`
-  - argparse error: `main.py: error: unrecognized arguments: --step fetch_and_preprocess`
-- run-book command: `python code/main.py --step feature_selection`
-  - script usage: `main.py [-h] [--config CONFIG]`
-  - argparse error: `main.py: error: unrecognized arguments: --step feature_selection`
-- run-book command: `python code/main.py --step train`
-  - script usage: `main.py [-h] [--config CONFIG]`
-  - argparse error: `main.py: error: unrecognized arguments: --step train`
-- run-book command: `python code/main.py --step analyze`
-  - script usage: `main.py [-h] [--config CONFIG]`
-  - argparse error: `main.py: error: unrecognized arguments: --step analyze`
-- run-book command: `python code/main.py --step verify`
-  - script usage: `main.py [-h] [--config CONFIG]`
-  - argparse error: `main.py: error: unrecognized arguments: --step verify`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 command(s) failed: python code/main.py --step fetch_and_preprocess (rc=2); python code/main.py --step feature_selection (rc=2); python code/main.py --step train (rc=2); 2 declared deliverable(s) absent: data/processed/cluster_map.csv; data/processed/descriptors.parquet
+**Summary**: 6 command(s) failed: python code/main.py --step fetch_and_preprocess (rc=1); python code/main.py --step feature_selection (rc=1); python code/main.py --step train (rc=1); 2 declared deliverable(s) absent: data/processed/cluster_map.csv; data/processed/descriptors.parquet
 
 ## Failing / missing run-book commands
 
-- python code/main.py --step fetch_and_preprocess -> rc=2
+- python code/main.py --step fetch_and_preprocess -> rc=1
 
-usage: main.py [-h] [--config CONFIG]
-main.py: error: unrecognized arguments: --step fetch_and_preprocess
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 248, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 219, in main
+    setup_logging(level=logging.INFO)
+TypeError: setup_logging() got an unexpected keyword argument 'level'
 
-- python code/main.py --step feature_selection -> rc=2
+- python code/main.py --step feature_selection -> rc=1
 
-usage: main.py [-h] [--config CONFIG]
-main.py: error: unrecognized arguments: --step feature_selection
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 248, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 219, in main
+    setup_logging(level=logging.INFO)
+TypeError: setup_logging() got an unexpected keyword argument 'level'
 
-- python code/main.py --step train -> rc=2
+- python code/main.py --step train -> rc=1
 
-usage: main.py [-h] [--config CONFIG]
-main.py: error: unrecognized arguments: --step train
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 248, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 219, in main
+    setup_logging(level=logging.INFO)
+TypeError: setup_logging() got an unexpected keyword argument 'level'
 
-- python code/main.py --step analyze -> rc=2
+- python code/main.py --step analyze -> rc=1
 
-usage: main.py [-h] [--config CONFIG]
-main.py: error: unrecognized arguments: --step analyze
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 248, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 219, in main
+    setup_logging(level=logging.INFO)
+TypeError: setup_logging() got an unexpected keyword argument 'level'
 
-- python code/main.py --step verify -> rc=2
+- python code/main.py --step verify -> rc=1
 
-usage: main.py [-h] [--config CONFIG]
-main.py: error: unrecognized arguments: --step verify
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 248, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py", line 219, in main
+    setup_logging(level=logging.INFO)
+TypeError: setup_logging() got an unexpected keyword argument 'level'
 
 - python -m pytest tests/ -v -> rc=2
-validators.py:26
-  /home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/tests/contract/validators.py:26: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
-    class DescriptorMatrix(BaseModel):
-
-tests/contract/validators.py:51
-  /home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/tests/contract/validators.py:51: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
-    class ModelOutput(BaseModel):
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+ERRORS ====================================
+_ ERROR collecting projects/PROJ-091-predicting-molecular-polarity-from-smile/tests/integration/test_full_pipeline.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/tests/integration/test_full_pipeline.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/integration/test_full_pipeline.py:34: in <module>
+    from models.train_lightgbm import train_lightgbm_model
+E   ImportError: cannot import name 'train_lightgbm_model' from 'models.train_lightgbm' (/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/models/train_lightgbm.py)
 =========================== short test summary info ============================
 ERROR tests/integration/test_full_pipeline.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-========================= 2 warnings, 1 error in 0.83s =========================
+=============================== 1 error in 1.35s ===============================
 
 
 

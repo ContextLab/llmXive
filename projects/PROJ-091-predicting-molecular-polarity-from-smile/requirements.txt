@@ -9,4 +9,5 @@ shap
 rdkit
 datasets
 psutil
-# The project already pins versions for reproducibility; add any missing ones here.
+pydantic
+qm9pack
