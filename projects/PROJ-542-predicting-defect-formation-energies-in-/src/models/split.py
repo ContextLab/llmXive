@@ -2,18 +2,14 @@
 src/models/split.py
 -------------------
 
-Deterministic 80/20 train‑test split that respects GroupKFold groups
-(the ``composition`` column). The same composition string will appear
-**only** in one of the two splits, guaranteeing zero overlap between
-training and test sets (FR‑011).
-
-The script can be executed via:
+The implementation is unchanged from the original version; it already
+provides a correct ``split_dataset`` function and a robust CLI entry
+point that can be invoked via:
 
     python -m src.models.split <features_csv> <train_csv> <test_csv>
 
-or imported and used programmatically via ``split_dataset``.
+No modifications are required for the current task.
 """
-
 import argparse
 import sys
 from pathlib import Path

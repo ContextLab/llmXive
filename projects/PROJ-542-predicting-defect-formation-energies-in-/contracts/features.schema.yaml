@@ -1,0 +1,58 @@
+# Feature matrix schema for perovskite defect formation energy prediction
+#
+# This schema enforces that the feature CSV contains exactly the twelve
+# compositional descriptor columns (four descriptors for each of the three
+# sites A, B, X) plus the numeric target column `formation_energy`.
+# No additional columns are permitted.
+#
+# The descriptor column naming convention follows the pattern:
+#   <site>_<descriptor>
+# where <site> is one of A, B, X and <descriptor> is one of:
+#   atomic_radius, electronegativity, oxidation_state, valence_electrons
+#
+# The schema is written in JSON‑Schema Draft‑07 format but expressed as YAML.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Perovskite Defect Feature Matrix
+type: object
+properties:
+  A_atomic_radius:
+    type: number
+  A_electronegativity:
+    type: number
+  A_oxidation_state:
+    type: number
+  A_valence_electrons:
+    type: number
+  B_atomic_radius:
+    type: number
+  B_electronegativity:
+    type: number
+  B_oxidation_state:
+    type: number
+  B_valence_electrons:
+    type: number
+  X_atomic_radius:
+    type: number
+  X_electronegativity:
+    type: number
+  X_oxidation_state:
+    type: number
+  X_valence_electrons:
+    type: number
+  formation_energy:
+    type: number
+required:
+  - A_atomic_radius
+  - A_electronegativity
+  - A_oxidation_state
+  - A_valence_electrons
+  - B_atomic_radius
+  - B_electronegativity
+  - B_oxidation_state
+  - B_valence_electrons
+  - X_atomic_radius
+  - X_electronegativity
+  - X_oxidation_state
+  - X_valence_electrons
+  - formation_energy
+additionalProperties: false

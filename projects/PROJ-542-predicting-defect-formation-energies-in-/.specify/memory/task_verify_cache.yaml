@@ -1,32 +1,18 @@
-T003:
+T001:
   c: false
-  h: cc29533459009d21d0843745223a270f616c37ec2cb864a205076a52bb904b5a
-  r: "The required outputs `data/processed/features.csv` and `data/processed/featurize.log`\
-    \ are MISSING, so the featurization was never successfully run. The only existing\
-    \ output, `descriptor_gaps.log`, records a detected gap (\"Row 0 (BaTiO3): missing\
-    \ A_atomic_radius\"), meaning the script aborted with \"Descriptor gaps detected\"\
-    \ rather than producing the feature matrix \u2014 the verification requirement\
-    \ (12 descriptor columns + formation_energy, no missing targets) cannot be checked\
-    \ against any actual CSV. The implementer must fix the descriptor computation\
-    \ (e.g., the atomic-radius fallback) and re-run t"
-  sig: fee0f6672ce357229ff96e6b57f49f89f47ee522f839b78159afb6b73e122973
-T004:
+  h: 9b8f59a6910a46b7965229a7e01913794b1b418ad95e62c4ec18121bd7367f7e
+  r: "The required source files (`code/quickstart.md`, `code/pipeline/run.py`, `code/data/download.py`,\
+    \ `code/data/featurize.py`) are all missing, and the existing unit test imports\
+    \ `src.pipeline.run` (wrong module path) and checks that `run()` returns `None`\
+    \ instead of a dict with `raw_path`, `features_path`, and `model_path`. The task\u2019\
+    s core artifacts and verification criteria are therefore not satisfied."
+  sig: 1911b83aae7a52a566b6c331d91ce5a7b2a443aee781a8a31adfe9eef9d696f9
+T014:
   c: false
-  h: 9bde04fea86d9fc46543afdd3339f1d4505e79be366c4f07b96b8810190a62ff
-  r: "The required output `data/processed/validation.log` is MISSING \u2014 the script\
-    \ `src/data/validate.py` exists and looks correct, but there is no evidence it\
-    \ was ever executed, so no log with row count, power estimate, or warnings exists.\
-    \ The implementer must run the validation script (with `data/processed/features.csv`\
-    \ present) to produce the log."
-  sig: 8c23a936992c9a1a1fb7bb236b1d2faf1c8ee41abad32d028b428660a25d5c84
-T012:
-  c: true
-  h: b7a408b5d0fd531c2553334c5616010a6f677596ee4575125aee5e7990617fb5
-  r: "The file `code/requirements.txt` exists with all eight pinned package dependencies\
-    \ exactly matching the task's specified contents (pymatgen, mp-api, pandas, numpy,\
-    \ scikit-learn, matplotlib, seaborn, pytest at the specified versions). The only\
-    \ deviation is the omission of the `python==3.11` line, which the file itself\
-    \ documents as intentional since pip cannot install Python \u2014 a reasonable\
-    \ and correct adjustment that does not affect the verification criterion that\
-    \ `pip install -r code/requirements.txt` succeeds."
-  sig: c7eb2ba9193bfa2412526a5de21668b863c09b4b307910d38d3b83327b1ed136
+  h: 4bf911cb2d37ce04ea12f5dce074eff891e962969a1860a28ce60f5bc23ef155
+  r: Checked `contracts/features.schema.yaml` and its validation test `code/tests/test_features_schema.py`.
+    The schema defines columns named `A_atomic_radius`, `B_atomic_radius`, etc., whereas
+    the task explicitly requires columns named `A_radius`, `B_radius`, etc.; the column
+    naming does not match the specification, so the required schema is not correctly
+    defined.
+  sig: cc1b62dde0da87e810df83650fd42ea828e4b018d1d54133bd3adda541286074

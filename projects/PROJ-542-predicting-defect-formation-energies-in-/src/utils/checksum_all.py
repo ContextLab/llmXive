@@ -2,29 +2,16 @@
 src/utils/checksum_all.py
 -------------------------
 
-Compute SHA‑256 checksums for the two primary data artefacts used throughout
-the project:
+Utility script that guarantees the presence of the two primary artefacts
+(the raw CSV and the processed feature matrix) and writes SHA‑256
+checksums for each.  It is deliberately implemented without spawning
+subprocesses – the pipeline imports the relevant functions directly,
+which eliminates the “‑m src.split” argument parsing issue that caused
+earlier failures.
 
-* ``data/raw/materials_defects.csv`` – the raw defect dataset.
-* ``data/processed/features.csv`` – the compositional feature matrix.
-
-If either input file is missing the function will invoke the appropriate
-upstream step to generate it:
-
-* Missing raw data → ``src.data.download.main`` (which will abort with a clear
-  error if the Materials Project API key is unavailable and the public fallback
-  cannot be reached).
-* Missing features → ``src.data.featurize.compute_features`` using the raw CSV
-  as input.
-
-The resulting SHA‑256 digests are written to:
-
-* ``data/checksums/raw_defects.sha256``
-* ``data/checksums/features.sha256``
-
-The script is used both by the pipeline orchestration (``src.pipeline.run``)
-and by the dedicated checksum integration test
-``tests/test_generate_checksums.py``.
+Expected checksum files (created under ``data/checksums``):
+  * ``raw_defects.sha256`` – checksum of ``data/raw/materials_defects.csv``
+  * ``features.sha256``    – checksum of ``data/processed/features.csv``
 """
 
 import sys
@@ -32,62 +19,62 @@ from pathlib import Path
 
 from llmxive_toolkit import get_logger, paths
 
-from src.utils.checksum import compute_checksum
 from src.data.download import main as download_main
 from src.data.featurize import compute_features
+from src.utils.checksum import compute_checksum
 
 log = get_logger(__name__)
 
 def _ensure_raw_data() -> Path:
-    """Make sure the raw CSV exists, downloading it if necessary."""
+    """
+    Ensure that ``data/raw/materials_defects.csv`` exists.
+    If it does not, invoke the download routine which will either fetch
+    from the Materials Project API or use the public fallback CSV.
+    Returns the absolute Path to the raw CSV.
+    """
     raw_path = paths.data("raw", "materials_defects.csv")
     if not raw_path.is_file():
-        log.info("Raw dataset not found – invoking download step.")
+        log.info("Raw data missing – triggering download.")
         download_main()
     if not raw_path.is_file():
-        raise RuntimeError("Failed to obtain raw dataset after download step.")
+        raise FileNotFoundError(f"Raw dataset still missing after download: {raw_path}")
     return raw_path
 
 def _ensure_features(raw_path: Path) -> Path:
-    """Make sure the processed feature matrix exists."""
+    """
+    Ensure that ``data/processed/features.csv`` exists.
+    If it does not, compute the feature matrix from the provided raw CSV.
+    Returns the absolute Path to the features CSV.
+    """
     features_path = paths.data("processed", "features.csv")
     if not features_path.is_file():
-        log.info("Features CSV not found – invoking featurisation step.")
+        log.info("Feature matrix missing – computing from raw data.")
         compute_features(raw_path, features_path)
     if not features_path.is_file():
-        raise RuntimeError("Failed to generate features.csv after featurisation step.")
+        raise FileNotFoundError(f"Features CSV still missing after computation: {features_path}")
     return features_path
 
 def main() -> None:
     """
-    Compute checksums for the raw and processed artefacts, writing the
-    hexadecimal digests to ``data/checksums/*.sha256``.
+    Compute SHA‑256 checksums for the raw and processed artefacts and
+    write them to ``data/checksums/*.sha256``.
     """
     try:
         raw_path = _ensure_raw_data()
         features_path = _ensure_features(raw_path)
 
-        # Define output checksum file locations.
+        # Prepare checksum output locations.
         raw_checksum_path = paths.data("checksums", "raw_defects.sha256")
         features_checksum_path = paths.data("checksums", "features.sha256")
 
-        # Ensure parent directories exist.
-        raw_checksum_path.parent.mkdir(parents=True, exist_ok=True)
-        features_checksum_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Compute and write the digests.
-        log.info(f"Computing checksum for {raw_path}")
+        # Compute and write checksums.
         compute_checksum(raw_path, raw_checksum_path)
-
-        log.info(f"Computing checksum for {features_path}")
         compute_checksum(features_path, features_checksum_path)
 
-        log.info("Checksum generation completed successfully")
+        log.info(f"Checksums written: {raw_checksum_path}, {features_checksum_path}")
     except Exception as exc:
         log.error(f"Checksum generation failed: {exc}")
-        # Propagate the error so that the pipeline aborts if checksums cannot be created.
-        raise
+        sys.exit(1)
 
 if __name__ == "__main__":
-    # Allow the script to be executed directly via ``python -m src.utils.checksum_all``.
-    sys.exit(main())
+    main()

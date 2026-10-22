@@ -1,51 +1,43 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: src/utils/checksum_all.py
-    exit=1; src/data/featurize.py exit=2; src/models/split.py exit=2'
-  task: 9bd085d0d69277f6f406b544530dd9c474dc85831e967b80c7a41b0c99d4559a
+  reason: "The required source files (`code/quickstart.md`, `code/pipeline/run.py`,\
+    \ `code/data/download.py`, `code/data/featurize.py`) are all missing, and the\
+    \ existing unit test imports `src.pipeline.run` (wrong module path) and checks\
+    \ that `run()` returns `None` instead of a dict with `raw_path`, `features_path`,\
+    \ and `model_path`. The task\u2019s core artifacts and verification criteria are\
+    \ therefore not satisfied."
+  task: 924b5a3d2e12c565e8fedd13771c71824318738b3f899d58da6ad267f247c22f
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/utils/checksum_all.py
+  reason: 'Requested task execution failed; rerun successfully: src/data/download.py
     exit=1'
-  task: 77051c7dac683b33d14578a22aabe0b6a1a6f764a57709a3bcd70f7662683279
+  task: bf0eefb74e9c1326e3ac449e929113d7b8d6d741ceae85e80e27044042d89d8a
 T003:
-  reason: "The required outputs `data/processed/features.csv` and `data/processed/featurize.log`\
-    \ are MISSING, so the featurization was never successfully run. The only existing\
-    \ output, `descriptor_gaps.log`, records a detected gap (\"Row 0 (BaTiO3): missing\
-    \ A_atomic_radius\"), meaning the script aborted with \"Descriptor gaps detected\"\
-    \ rather than producing the feature matrix \u2014 the verification requirement\
-    \ (12 descriptor columns + formation_energy, no missing targets) cannot be checked\
-    \ against any actual CSV. The implementer must fix the descriptor computation\
-    \ (e.g., the atomic-radius fallback) and re-run t"
-  task: d7f56fda5385b8ef3c482ad17bef215a9262118c20195e4f0a71e6ef902a2a1f
+  task: b85e3ca8858fc7050c6c3e79f413c47a88e5bbbe0e7e70e117eb8cb940ee1196
 T004:
-  reason: "The required output `data/processed/validation.log` is MISSING \u2014 the\
-    \ script `src/data/validate.py` exists and looks correct, but there is no evidence\
-    \ it was ever executed, so no log with row count, power estimate, or warnings\
-    \ exists. The implementer must run the validation script (with `data/processed/features.csv`\
-    \ present) to produce the log."
-  task: 0223184e8bd372045bd26efd7548567c7d991138804fe17eca59edcf567b03f3
+  task: 3b2bc6b16c240e7e0b515fe6f19adffda9927633a9061467fdfd42b784743281
 T005:
-  reason: 'Requested task execution failed; rerun successfully: src/utils/checksum_all.py
-    exit=1'
-  task: 2e50a3149d6178fa960fba0f171b99e77a9587e753263af25eb51d52adb00729
+  task: 54221d71453662d5266e3d30c200997f06dd8aa5a8f8b05ee1b5db62be46a868
 T006:
-  task: f7ae9f00df7052a1b4cf30a23d28d6503a8602e20d9f00e7b63c6cacec8073fc
+  task: 0fdffaa4377b06da405dbfedebbb9b075e1be72c6528e1aced6cd94960afe9bd
 T007:
-  task: 8c02a282e923399ca8a73aee8d30d88023500eb6fee8d26ea05a6b16c240020b
+  task: cf6e511637fabd5d2057b25b1f0e39d84e858c2bf7df8617b7789177f21742cf
 T008:
-  task: 0b96786950ddb6f9e1d28fe450828195eac43804928b96ac141a55b6d4bacaf8
+  task: 3e558ce007377e8412c0381d21c3df08f56c5494b89e15437e6da2d6184c063e
 T009:
-  task: 71b0ff608a853bffbbf12a92123c67f55f0a1c0a8bcbad7893d373a113eafab7
+  task: 318626a90c77d581bb5cd08919b01420ba947377ed417688c3f3c79cafd7502e
 T010:
-  task: 76768976d2fce127956565a8b8ff051f505a5f7fcf49ff5e248ea0225b730ec1
+  task: 1cd81d3148e7c583c34ab18054dbb33535fd9aed0050801481d02c744cfd9b5e
 T011:
-  task: e89f0abd8f8f3219055bf159450dd844b2f864ca281ca7a98ac571dd7e3d2c66
+  task: c5e849c7ba0642d2ea53920f0a5a54052c2acb51d809ece89c894e6e0121a631
 T012:
-  task: 8fdbf71a10e6cacc247de6b9a3a2db01f3e8fb3f5befa3075c1a7bf5e2310508
-T013:
-  task: b38600a88616df2dc2e3d4ef65be4a64cdb5cce99bcc236d534bd561bf4326f0
+  task: 5c800a8baeea88961a80b43be521543be5ce6afaf28164e8128db9b0be45d010
 T014:
-  task: be2f01643fccdad30b4b330a7f6c6813763fe3b1e86114cb172079937856e206
+  reason: Checked `contracts/features.schema.yaml` and its validation test `code/tests/test_features_schema.py`.
+    The schema defines columns named `A_atomic_radius`, `B_atomic_radius`, etc., whereas
+    the task explicitly requires columns named `A_radius`, `B_radius`, etc.; the column
+    naming does not match the specification, so the required schema is not correctly
+    defined.
+  task: 5664d00d55c6f77685d9b919ecefd353abe8f7390c40f258ab4e98d588a5a278
 T015:
-  task: 1e65372c3de81f8dc7d8559b08a614be7fea2ba952a391387d2127df4390ff9b
+  task: f7b11897da518c4ade55bbd53fc58cbbd79f9c4dedb2bcd63768b22a63ad3819
 T016:
-  task: ed70362ee7203ac13ebdc7eced03dd2bfbad2fafa266005c28c275d4590efb17
+  task: 980e02b146ff09e3e26371addb11070d4d70505c94388a91609af8b785e467e3

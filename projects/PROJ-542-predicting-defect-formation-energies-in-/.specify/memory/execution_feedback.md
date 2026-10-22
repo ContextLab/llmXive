@@ -7,12 +7,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.featurize data/raw/materials_defects.csv data/processed/features.csv -> rc=1
-
-2026-10-22 12:17:00,556 INFO src.data.featurize: Input file data/raw/materials_defects.csv not found – attempting to download raw dataset.
-2026-10-22 12:17:00,556 INFO src.data.download: Attempting public fallback download from https://raw.githubusercontent.com/materialsproject/mp-data/main/defects/defect_entries.csv
-2026-10-22 12:17:00,661 INFO src.data.download: Attempting public fallback download from https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv
-2026-10-22 12:17:00,703 ERROR src.data.download: Fallback download failed: All fallback download attempts failed. Last error: HTTP Error 404: Not Found
-Materials Project API key not provided
+2:41:30,693 WARNING src.data.download: Fallback download failed for https://raw.githubusercontent.com/materialsproject/mp-data/main/defects/defect_entries.csv.gz: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/materialsproject/mp-data/main/defects/defect_entries.csv.gz
+2026-10-22 12:41:30,693 INFO src.data.download: Attempting public fallback download from https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv.gz
+2026-10-22 12:41:30,720 WARNING src.data.download: Fallback download failed for https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv.gz: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv.gz
+2026-10-22 12:41:30,720 ERROR src.data.download: All fallback download attempts failed. Last error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv.gz
+2026-10-22 12:41:30,720 ERROR src.data.featurize: Automatic download failed: Materials Project API key not provided. Ensure the raw CSV exists at data/raw/materials_defects.csv.
 
 - python -m src.validate data/processed/features.csv -> rc=1
         ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -46,20 +45,20 @@ FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXi
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-542-predicting-defect-formation-energies-in-/bin/python: No module named src.evaluate
 
 - python -m pytest -q -> rc=1
-try.py::test_pipeline_entry
+nd_imports
   /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-542-predicting-defect-formation-energies-in-/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
-projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_pipeline_entry.py::test_pipeline_entry
+projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_requirements.py::test_requirements_install_and_imports
   /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-542-predicting-defect-formation-energies-in-/lib/python3.11/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
     ParserElement.enablePackrat()
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-FAILED code/tests/test_pipeline_entry.py::test_pipeline_entry - SystemExit: M...
+FAILED code/tests/test_pipeline_entry.py::test_pipeline_entry - RuntimeError:...
 FAILED src/tests/test_descriptor_gaps.py::test_check_descriptor_gaps_with_missing
 FAILED src/tests/test_quickstart.py::test_quickstart_pipeline - subprocess.Ca...
 FAILED tests/test_generate_checksums.py::test_checksum_files_created - Assert...
-4 failed, 2 passed, 14 warnings in 6.22s
+4 failed, 3 passed, 14 warnings in 11.02s
 
 
