@@ -12,10 +12,17 @@ If a source succeeds its content is appended to ``raw_input.csv``.  If no
 source succeeds an empty ``raw_input.csv`` is still created so that downstream
 steps can rely on the file's existence.
 
-The script is deliberately tolerant of network failures – the purpose of this
-phase is *verification*, not mandatory data acquisition.  Real URLs are used
-where known; otherwise a best‑effort request is made and any exception is
-recorded as a failure.
+The script now supports three operation modes:
+
+* ``real`` – attempt to download real data from the three sources.
+* ``dry-run`` – only log the attempts, do not write any files.
+* ``simulated`` – generate a physics‑consistent synthetic dataset for pipeline
+  validation when real data is unavailable.
+
+The ``--output`` argument allows the caller to specify a custom destination
+for the generated simulated file (default: ``data/raw/raw_input.csv``).  The
+simulated generator writes a CSV with the required columns and also logs the
+attempt as ``SIMULATED SUCCESS``.
 """
 
 import argparse
@@ -23,6 +30,8 @@ import logging
 from pathlib import Path
 from typing import List, Tuple
 
+import numpy as np
+import pandas as pd
 import requests
 
 # ``openml`` is not part of the base environment; it is added to
@@ -117,11 +126,76 @@ def fetch_materials_project() -> Tuple[bool, str]:
         return False, str(exc)
 
 # ----------------------------------------------------------------------
+# Simulated data generator
+# ----------------------------------------------------------------------
+def _generate_simulated_dataframe(num_records: int = 1000) -> pd.DataFrame:
+    """
+    Generate a synthetic tensile‑test dataset with realistic ranges.
+    Columns:
+        - yield_strength_mpa (float)
+        - strain_rate_s_inv (float, log‑uniform)
+        - temperature_k (float, uniform)
+        - grain_size_um (float, uniform)
+        - alloy_family (categorical)
+        - elem_0 … elem_9 (fractional elemental composition, sum≈1)
+    """
+    rng = np.random.default_rng(seed=42)
+
+    # Alloy families – proportions loosely follow the sample size estimator
+    families = [
+        "AA-6061",
+        "AISI-4340",
+        "Ti-6Al-4V",
+        "Inconel-718",
+        "AA-7075",
+        "Cu-OFHC",
+    ]
+    family_weights = [0.25, 0.20, 0.15, 0.15, 0.15, 0.10]
+    alloy_family = rng.choice(families, size=num_records, p=family_weights)
+
+    # Yield strength ~ N(450, 120) MPa, clipped to positive values
+    yield_strength = rng.normal(loc=450.0, scale=120.0, size=num_records)
+    yield_strength = np.clip(yield_strength, a_min=10.0, a_max=None)
+
+    # Strain rate log‑uniform between 1e-3 and 1e4 s⁻¹
+    log_min, log_max = np.log10(1e-3), np.log10(1e4)
+    strain_rate = 10 ** rng.uniform(log_min, log_max, size=num_records)
+
+    # Temperature uniform between 200 K and 800 K
+    temperature = rng.uniform(200.0, 800.0, size=num_records)
+
+    # Grain size uniform between 1 µm and 100 µm
+    grain_size = rng.uniform(1.0, 100.0, size=num_records)
+
+    # Elemental fractions – Dirichlet distribution to ensure sum≈1
+    composition = rng.dirichlet(alpha=np.ones(10), size=num_records)
+    composition_cols = {f"elem_{i}": composition[:, i] for i in range(10)}
+
+    df = pd.DataFrame({
+        "yield_strength_mpa": yield_strength,
+        "strain_rate_s_inv": strain_rate,
+        "temperature_k": temperature,
+        "grain_size_um": grain_size,
+        "alloy_family": alloy_family,
+    })
+    for col_name, values in composition_cols.items():
+        df[col_name] = values
+
+    # Round to a reasonable number of decimals for CSV readability
+    df = df.round({
+        "yield_strength_mpa": 2,
+        "strain_rate_s_inv": 6,
+        "temperature_k": 2,
+        "grain_size_um": 3,
+    })
+    return df
+
+# ----------------------------------------------------------------------
 # Main orchestration
 # ----------------------------------------------------------------------
 def verify_and_download() -> None:
     """
-    Verify each data source, download if possible, and record the outcome.
+    Verify each real data source, download if possible, and record the outcome.
     """
     # Ensure the ``data/raw`` directory exists.
     raw_path = paths.data("raw", "raw_input.csv")
@@ -165,6 +239,33 @@ def verify_and_download() -> None:
         raw_path.touch()
         logger.info(f"Created empty placeholder at {raw_path}")
 
+def generate_and_save_simulated(output_path: Path) -> None:
+    """
+    Generate a synthetic dataset and write it to *output_path*.
+    The same content is also appended to ``data/raw/raw_input.csv`` so
+    downstream steps see a unified raw file.
+    """
+    df = _generate_simulated_dataframe()
+    csv_bytes = df.to_csv(index=False).encode("utf-8")
+
+    # Write to the user‑specified output location
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("wb") as f:
+        f.write(csv_bytes)
+    logger.info(f"Simulated dataset written to {output_path}")
+
+    # Also ensure the canonical raw_input.csv receives the same data
+    raw_path = paths.data("raw", "raw_input.csv")
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    with raw_path.open("wb") as f:
+        f.write(csv_bytes)
+    logger.info(f"Simulated dataset also written to {raw_path}")
+
+    # Log the simulated run
+    log_path = paths.data("fetch_log.txt")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    _write_log(["SIMULATED SUCCESS"], log_path)
+
 # ----------------------------------------------------------------------
 # CLI entry point
 # ----------------------------------------------------------------------
@@ -174,9 +275,22 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--mode",
-        choices=["real", "dry-run"],
+        choices=["real", "dry-run", "simulated"],
         default="real",
-        help="Mode of operation. ``dry-run`` only logs attempts without writing files.",
+        help=(
+            "Mode of operation. ``real`` attempts to download from external "
+            "repositories, ``dry-run`` only logs attempts without writing files, "
+            "and ``simulated`` creates a synthetic dataset for pipeline testing."
+        ),
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help=(
+            "Destination for the simulated CSV when ``--mode simulated`` is used. "
+            "If omitted, the file is written to ``data/raw/raw_input.csv``."
+        ),
     )
     return parser
 
@@ -184,8 +298,18 @@ def main() -> None:
     args = build_parser().parse_args()
     if args.mode == "dry-run":
         logger.info("Dry‑run mode selected – no files will be written.")
-    else:
         verify_and_download()
+    elif args.mode == "real":
+        verify_and_download()
+    elif args.mode == "simulated":
+        # Determine where to write the simulated file
+        output_path = args.output or paths.data("raw", "raw_input.csv")
+        generate_and_save_simulated(output_path)
+    else:
+        # This branch should never be reached because argparse restricts choices
+        logger.error(f"Unsupported mode: {args.mode}")
+        raise ValueError(f"Unsupported mode: {args.mode}")
+
     logger.info("Data source verification completed.")
 
 if __name__ == "__main__":

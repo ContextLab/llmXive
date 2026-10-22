@@ -1,14 +1,13 @@
 status: none
-intent: NIST Materials Data Repository test dataset OpenML materials yield strength
-  Materials Project composition python package dataset
+intent: download tensile yield strength dataset NIST Materials Data Repository OpenML
+  Materials Project python package dataset
 required_fields:
-- material_id
-- composition
-- elemental_fraction_vector
 - yield_strength_MPa
-- strain_rate_s^-1
+- strain_rate_per_s
 - temperature_K
 - grain_size_um
-cache_key: e50ad0e450f0890c46dfd155c38961f080eb642aaa8351937875280ce863ea14
-searched_at: '2026-10-22T01:36:23.178942+00:00'
+- composition_formula
+- elemental_fraction_vector
+cache_key: e8a42b65434fb3eec173910055f5fffcb83d32422ba430a072c887121d0031e6
+searched_at: '2026-10-22T01:48:21.864837+00:00'
 retry_count: 1

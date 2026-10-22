@@ -8,7 +8,7 @@ The list below follows the canonical `- [ ] T### [P?] [USx?] description …` fo
 
 ## Phase 0 – Data Discovery & Feasibility  
 
-- [ ] T001 **[P]** Verify real data sources (NIST, OpenML, Materials Project) and download raw files to `data/raw/raw_input.csv`.   <!-- FAILED-IN-EXECUTION: code/ingestion/fetchers.py exit=-1 (TIMEOUT) -->
+- [ ] T001 **[P]** Verify real data sources (NIST, OpenML, Materials Project) and download raw files to `data/raw/raw_input.csv`.   <!-- FAILED-IN-EXECUTION: code/ingestion/fetchers.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/ingestion/fetchers_execution.py exit=2 -->
   *Implementation*: `code/ingestion/fetchers.py` attempts each download; outcomes appended to `data/fetch_log.txt`.  
   *Verification*: `data/fetch_log.txt` contains a line for each source (`SUCCESS` or `FAIL`).  
 
