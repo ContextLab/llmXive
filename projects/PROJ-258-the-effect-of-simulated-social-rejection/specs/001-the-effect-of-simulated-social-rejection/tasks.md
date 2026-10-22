@@ -10,7 +10,7 @@
   *Create the directories `code/`, `data/raw/`, `data/interim/`, `data/processed/`, `results/`, `paper/`, `tests/` (each with an empty `__init__.py`). Write `code/requirements.txt` with the exact pinned versions listed in the plan and add the runnable command to `quickstart.md`.*  
   *Verification*: `quickstart.md` exists and contains the full pipeline command; `pip install -r code/requirements.txt` succeeds in a fresh virtual environment.
 
-- [ ] T002 [US-1] **Ingest the Cyberball dataset (ds000208)**   <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
+- [ ] T002 [US-1] **Ingest the Cyberball dataset (ds000208)**   <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
   *Download the verified OpenNeuro parquet file for ds000208 from the HuggingFace mirror to `data/raw/ds000208.parquet` using streaming HTTP. Compute a SHA‑256 checksum and write `data/raw/metadata.json`. Create a human‑readable citation file `data/raw/CITATION.md`. Abort with exit 1 if (a) required columns are missing, (b) file size > 7 GB, or (c) the `condition` column does not contain both “rejection” and “control”.*  
   *Verification*: Running `python code/ingest.py --url <verified‑url> --out-dir data/raw --dataset-id ds000208` exits 0, the parquet file and both metadata files exist, and a log entry confirms column validation passed.
 

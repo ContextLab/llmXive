@@ -10,24 +10,27 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 command(s) failed: python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208 (rc=1); python code/validate.py  --raw data/raw/ds000208.parquet  --schema contracts/dataset.schema.yaml  --output data/interim/ingest_validation_report.json (rc=1); python code/preprocess.py  --input data/raw/ds000208.parquet  --output data/processed/analysis_ready_ds000208.csv (rc=1); 1 declared deliverable(s) absent: data/raw/metadata.json
+**Summary**: 7 command(s) failed: python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208 (rc=1); python code/validate.py  --raw data/raw/ds000208.parquet  --schema contracts/dataset.schema.yaml  --output data/interim/ingest_validation_report.json (rc=1); python code/preprocess.py  --input data/raw/ds000208.parquet  --output data/processed/analysis_ready_ds000208.csv (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208 -> rc=1
 
-2026-10-22 19:33:42,626 - INFO - Downloading https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet → data/raw/ds000208.parquet
-2026-10-22 19:33:42,833 - INFO - Remote file size: 0.432 GB
-2026-10-22 19:33:46,522 - INFO - Download complete (464086010 bytes).
-2026-10-22 19:33:46,522 - INFO - Validating columns and conditions in data/raw/ds000208.parquet
-2026-10-22 19:33:46,530 - ERROR - Validation failed: Could not open Parquet input source '<Buffer>': Metadata contains Thrift LogicalType that is not recognized
+2026-10-22 19:42:47,184 - INFO - Downloading https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet → data/raw/ds000208.parquet
+2026-10-22 19:42:47,391 - INFO - Remote file size: 0.432 GB
+2026-10-22 19:42:51,000 - INFO - Download complete (464086010 bytes).
+2026-10-22 19:42:51,412 - INFO - Metadata written to data/raw/metadata.json
+2026-10-22 19:42:51,412 - INFO - Citation written to data/raw/CITATION.md
+2026-10-22 19:42:51,412 - INFO - Validating columns and conditions in data/raw/ds000208.parquet
+2026-10-22 19:42:51,419 - WARNING - PyArrow read failed, trying pandas: Could not open Parquet input source 'data/raw/ds000208.parquet': Metadata contains Thrift LogicalType that is not recognized
+2026-10-22 19:42:51,420 - ERROR - Validation failed: Could not open Parquet input source '<Buffer>': Metadata contains Thrift LogicalType that is not recognized
 
 - python code/validate.py  --raw data/raw/ds000208.parquet  --schema contracts/dataset.schema.yaml  --output data/interim/ingest_validation_report.json -> rc=1
 
-2026-10-22 19:33:46,946 - INFO - Validating dataset: /home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/data/raw/ds000208.parquet
-2026-10-22 19:33:46,972 - ERROR - Validation failed for ds000208.parquet: Failed to read parquet file: Could not open Parquet input source '<Buffer>': Metadata contains Thrift LogicalType that is not recognized
-2026-10-22 19:33:46,972 - INFO - Validation report written to /home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/data/interim/ingest_validation_ds000208.json
-2026-10-22 19:33:46,972 - ERROR - One or more datasets failed validation.
+2026-10-22 19:42:51,859 - INFO - Validating dataset: data/raw/ds000208.parquet
+2026-10-22 19:42:51,865 - WARNING - PyArrow read failed, trying pandas: Could not open Parquet input source 'data/raw/ds000208.parquet': Metadata contains Thrift LogicalType that is not recognized
+2026-10-22 19:42:51,866 - ERROR - Validation failed for ds000208.parquet: Failed to read parquet file: Could not open Parquet input source '<Buffer>': Metadata contains Thrift LogicalType that is not recognized
+2026-10-22 19:42:51,866 - INFO - Validation report written to data/interim/ingest_validation_report.json
 
 - python code/preprocess.py  --input data/raw/ds000208.parquet  --output data/processed/analysis_ready_ds000208.csv -> rc=1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -106,24 +109,9 @@ E   ImportError: cannot import name 'MAX_RUNTIME_SECONDS' from 'performance_moni
 ERROR tests/test_ingest_manifest.py
 ERROR tests/test_performance.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.04s ===============================
+============================== 2 errors in 0.91s ===============================
 
 
-
-## Declared deliverables still missing
-
-- data/raw/metadata.json
-
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/raw/metadata.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis.py` — NOT invoked by the run-book
-    - `code/analyze.py` — IS a run-book command
-    - `code/ingest.py` — IS a run-book command
-    - `code/report.py` — IS a run-book command
-  Make ONE of these WRITE `data/raw/metadata.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
 A script in this project created `.github/`, `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.

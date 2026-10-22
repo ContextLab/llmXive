@@ -19,16 +19,14 @@ Required checks per dataset:
         [0, 10] (a generous bound covering typical Likert scales).
 
 If any check fails the script logs the problem, writes a report with
-``\"status\": \"fail\"``, and exits with status code 1.  Successful
+``\"status\": \"fail\"``, and exits with status code 1.  Successful
 validation yields ``\"status\": \"pass\"`` in the JSON report and the
-script exits with status code 0.
+script exits with status code 0.
 
 The script is invoked from the quick‑start pipeline (or directly) as::
 
-    python code/validate.py
+    python code/validate.py --raw data/raw/ds000208.parquet --schema contracts/dataset.schema.yaml --output data/interim/ingest_validation_report.json
 
-No command‑line arguments are required; the script discovers the raw
-directory via ``config.get_path('raw')``.
 """
 
 import json
@@ -39,6 +37,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 import pandas as pd
+import pyarrow.parquet as pq
 
 from config import get_path
 
@@ -136,7 +135,16 @@ def validate_dataset(parquet_path: Path) -> Dict[str, Any]:
     """
     logger.info(f"Validating dataset: {parquet_path}")
     try:
-        df = pd.read_parquet(parquet_path)
+        # Try reading with pyarrow first with coerce_int96_timestamp_unit
+        try:
+            table = pq.read_table(
+                parquet_path,
+                coerce_int96_timestamp_unit='ns'
+            )
+            df = table.to_pandas()
+        except Exception as pa_exc:
+            logger.warning(f"PyArrow read failed, trying pandas: {pa_exc}")
+            df = pd.read_parquet(parquet_path, engine='pyarrow')
     except Exception as exc:
         raise RuntimeError(f"Failed to read parquet file: {exc}")
 
@@ -157,45 +165,58 @@ def validate_dataset(parquet_path: Path) -> Dict[str, Any]:
 
 def main() -> None:
     """
-    Discover all parquet files in the raw data directory, validate each,
-    and write a JSON report per dataset under ``data/interim``.
+    Validate a single parquet file specified via --raw argument.
     """
-    raw_dir = Path(get_path("raw"))
-    interim_dir = Path(get_path("interim"))
-    interim_dir.mkdir(parents=True, exist_ok=True)
-
-    parquet_files = list(raw_dir.glob("*.parquet"))
-    if not parquet_files:
-        logger.error(f"No parquet files found in raw data directory: {raw_dir}")
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description="Validate raw dataset parquet files."
+    )
+    parser.add_argument(
+        "--raw",
+        required=True,
+        help="Path to the raw parquet file to validate."
+    )
+    parser.add_argument(
+        "--schema",
+        help="Path to schema file (optional, for documentation)."
+    )
+    parser.add_argument(
+        "--output",
+        required=True,
+        help="Path where validation report JSON should be written."
+    )
+    
+    args = parser.parse_args()
+    
+    parquet_path = Path(args.raw)
+    output_path = Path(args.output)
+    
+    if not parquet_path.exists():
+        logger.error(f"Parquet file not found: {parquet_path}")
         sys.exit(1)
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        report = validate_dataset(parquet_path)
+    except Exception as exc:
+        logger.error(f"Validation failed for {parquet_path.name}: {exc}")
+        report = {
+            "status": "fail",
+            "error": str(exc),
+            "dataset": parquet_path.name,
+        }
 
-    any_failure = False
-    for parquet_path in parquet_files:
-        dataset_id = parquet_path.stem  # filename without suffix
-        report_path = interim_dir / f"ingest_validation_{dataset_id}.json"
+    # Write the report
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2, sort_keys=True)
 
-        try:
-            report = validate_dataset(parquet_path)
-        except Exception as exc:
-            logger.error(f"Validation failed for {parquet_path.name}: {exc}")
-            report = {
-                "status": "fail",
-                "error": str(exc),
-                "dataset": parquet_path.name,
-            }
-            any_failure = True
-
-        # Write the report
-        with open(report_path, "w", encoding="utf-8") as f:
-            json.dump(report, f, indent=2, sort_keys=True)
-
-        logger.info(f"Validation report written to {report_path}")
-
-    if any_failure:
-        logger.error("One or more datasets failed validation.")
+    logger.info(f"Validation report written to {output_path}")
+    
+    if report.get("status") == "fail":
         sys.exit(1)
     else:
-        logger.info("All datasets passed validation.")
         sys.exit(0)
 
 if __name__ == "__main__":

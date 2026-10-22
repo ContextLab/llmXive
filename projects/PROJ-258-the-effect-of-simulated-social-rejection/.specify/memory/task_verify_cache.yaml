@@ -1,12 +1,9 @@
 T001:
   c: false
-  h: be6867669bc4796318d1d33c36da30539f99ae0915309319ea91e22d9fccd3d4
-  r: "The task requires three verifiable conditions: (1) all directories with `__init__.py`\
-    \ files exist, (2) `code/requirements.txt` contains exact pinned versions, and\
-    \ (3) `quickstart.md` exists with the full pipeline command AND `pip install -r\
-    \ code/requirements.txt` succeeds in a fresh virtual environment.\n\n**Evidence\
-    \ checked:**\n- \u2713 All required directories (`code/`, `data/raw/`, `data/interim/`,\
-    \ `data/processed/`, `results/`, `paper/`, `tests/`) exist with `__init__.py`\
-    \ files (confirmed by directory listings).\n- \u2713 `code/requirements.txt` exists\
-    \ with pinned versions (pandas==2.2.2, numpy==1.26.4,"
-  sig: 73e63bc94d8e630414ce3f45478b013500385d72d463c2c5f8fbc9b5ffe2da61
+  h: 6ec17b9ab9cbe1cd31b7b2b1875c8a1d4d29eec3a03b8cf436e0bf6ac638df01
+  r: "The project layout and `requirements.txt` are present, and `quickstart.md` contains\
+    \ the pipeline commands, but there is no evidence that `pip install -r code/requirements.txt`\
+    \ actually succeeds in a fresh virtual environment (no install log or exit\u2011\
+    code proof). Provide a fresh\u2011env install log showing a zero exit code to\
+    \ satisfy the task."
+  sig: e34ac4897ee6f00949ea448ff3593ed639b0488eabd419027089f29eb0f97daa

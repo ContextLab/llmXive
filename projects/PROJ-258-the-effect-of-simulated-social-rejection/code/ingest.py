@@ -19,7 +19,6 @@ from typing import Dict, Any
 
 import pandas as pd
 import requests
-import pyarrow as pa
 import pyarrow.parquet as pq
 
 from config import get_path
@@ -97,9 +96,18 @@ def add_task_column(parquet_path: Path, task_value: str = "cyberball") -> None:
     """
     logger.info(f"Adding task column to {parquet_path}")
     try:
-        table = pq.read_table(parquet_path)
+        # Use pyarrow's parquet reader with coerce_int96_timestamp_unit to handle
+        # various parquet encoding issues
+        table = pq.read_table(
+            parquet_path,
+            coerce_int96_timestamp_unit='ns'
+        )
+        
+        # Add task column
+        import pyarrow as pa
         task_array = pa.array([task_value] * table.num_rows)
         table = table.append_column("task", task_array)
+        
         pq.write_table(table, parquet_path)
         logger.info("Task column added successfully.")
     except Exception as exc:
@@ -113,21 +121,47 @@ def validate_dataset_contents(parquet_path: Path) -> None:
     """
     logger.info(f"Validating columns and conditions in {parquet_path}")
     try:
-        df = pd.read_parquet(parquet_path)
+        # Try reading with pyarrow first, then fallback to pandas
+        try:
+            table = pq.read_table(
+                parquet_path,
+                coerce_int96_timestamp_unit='ns'
+            )
+            df = table.to_pandas()
+        except Exception as pa_exc:
+            logger.warning(f"PyArrow read failed, trying pandas: {pa_exc}")
+            df = pd.read_parquet(parquet_path, engine='pyarrow')
         
-        # Check required columns
-        missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+        # Check required columns (case-insensitive)
+        df_cols_lower = {col.lower(): col for col in df.columns}
+        required_lower = {col.lower(): col for col in REQUIRED_COLUMNS}
+        
+        missing = []
+        actual_cols = {}
+        for req_lower, req_orig in required_lower.items():
+            if req_lower in df_cols_lower:
+                actual_cols[req_lower] = df_cols_lower[req_lower]
+            else:
+                missing.append(req_orig)
+        
         if missing:
             logger.error(f"Missing required columns: {missing}")
             sys.exit(1)
         
-        # Check condition values
-        conditions = set(df["condition"].unique())
-        if "rejection" not in conditions or "control" not in conditions:
+        # Check condition values (case-insensitive)
+        condition_col = actual_cols.get('condition', 'condition')
+        if condition_col not in df.columns:
+            logger.error(f"Condition column not found")
+            sys.exit(1)
+        
+        conditions = {str(v).lower() for v in df[condition_col].dropna().unique()}
+        if 'rejection' not in conditions or 'control' not in conditions:
             logger.error(f"Condition column must contain both 'rejection' and 'control'. Found: {conditions}")
             sys.exit(1)
         
         logger.info("Column and condition validation passed.")
+    except SystemExit:
+        raise
     except Exception as exc:
         logger.error(f"Validation failed: {exc}")
         sys.exit(1)
@@ -200,11 +234,10 @@ def ingest_single_dataset(
 
     bytes_written = download_file(url, parquet_path, MAX_RAM_GB)
     
-    # Validate contents immediately after download
-    validate_dataset_contents(parquet_path)
-    
+    # Compute checksum immediately after download (before validation)
     checksum = compute_sha256(parquet_path)
 
+    # Write metadata early so it exists even if validation fails
     metadata = {
         "dataset_id": dataset_id,
         "download_url": url,
@@ -212,13 +245,17 @@ def ingest_single_dataset(
         "size_bytes": bytes_written,
         "sha256": checksum,
     }
-    # Requirement: Write to data/raw/metadata.json
     metadata_path = output_dir / "metadata.json"
     write_metadata(metadata_path, metadata)
 
+    # Write citation
     citation_path = output_dir / "CITATION.md"
     write_citation(citation_path)
 
+    # Now validate contents
+    validate_dataset_contents(parquet_path)
+    
+    # Add task column after successful validation
     add_task_column(parquet_path, task_value=task_name)
 
     logger.info(f"Ingestion of {dataset_id} completed successfully.")
@@ -258,13 +295,11 @@ def main() -> None:
         )
         # Create the reward unavailability stub as required by plan.md/tasks.md
         write_reward_stub()
+        logger.info("Ingestion completed successfully.")
+        sys.exit(0)
     except Exception as exc:
         logger.error(f"Ingestion failed: {exc}")
         sys.exit(1)
 
-    logger.info("Ingestion completed successfully.")
-    sys.exit(0)
-
 if __name__ == "__main__":
-    import argparse
     main()
