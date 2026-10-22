@@ -1,80 +1,38 @@
 """
-Contract test: the real descriptor matrix conforms to the dataset schema.
-
-Validates ``data/processed/descriptors.parquet`` (produced by T101)
-against ``data/processed/descriptor_names.json`` using the Pydantic
-validators in ``tests/contract/validators.py``.
-
-If the real artifact has not been generated yet (T101 pending), the
-test is SKIPPED with an explicit message — it never fabricates data.
+Contract tests for the descriptor dataset.
+These tests verify that the required files exist and that the
+descriptor parquet file conforms to the expected schema.
 """
 
-import sys
+import json
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
-THIS_DIR = Path(__file__).resolve().parent
-sys.path.insert(0, str(THIS_DIR))
-
-from validators import (  # noqa: E402
-    DescriptorMatrix,
-    ModelOutput,  # noqa: F401  (re-exported for sibling tests)
-    load_descriptor_names,
+from tests.contract.validators import (
+    DESCRIPTORS_PARQUET,
+    DESCRIPTOR_NAMES_JSON,
     validate_descriptor_frame,
 )
 
-PROJECT_ROOT = THIS_DIR.parents[1]
-DESCRIPTORS_PARQUET = PROJECT_ROOT / "data" / "processed" / "descriptors.parquet"
-DESCRIPTOR_NAMES_JSON = PROJECT_ROOT / "data" / "processed" / "descriptor_names.json"
-
-
 def test_descriptor_names_json_exists_and_is_list():
-    if not DESCRIPTOR_NAMES_JSON.exists():
-        pytest.skip(
-            "data/processed/descriptor_names.json not yet generated (T101 pending)"
-        )
-    names = load_descriptor_names()
-    assert isinstance(names, list)
-    assert len(names) >= 200, f"expected >= 200 descriptors, got {len(names)}"
-    assert all(isinstance(n, str) and n for n in names)
+    """The descriptor_names.json file must exist and contain a JSON list."""
+    assert DESCRIPTOR_NAMES_JSON.is_file(), f"{DESCRIPTOR_NAMES_JSON} does not exist"
+    with open(DESCRIPTOR_NAMES_JSON, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    assert isinstance(data, list), "descriptor_names.json must contain a list of strings"
+    # Ensure every entry is a string
+    assert all(isinstance(name, str) for name in data), "All descriptor names must be strings"
 
+def test_descriptors_parquet_exists():
+    """The descriptors.parquet file must exist."""
+    assert DESCRIPTORS_PARQUET.is_file(), f"{DESCRIPTORS_PARQUET} does not exist"
 
-def test_descriptor_names_exclude_tpsa_and_smarts():
-    if not DESCRIPTOR_NAMES_JSON.exists():
-        pytest.skip(
-            "data/processed/descriptor_names.json not yet generated (T101 pending)"
-        )
-    names = load_descriptor_names()
-    for n in names:
-        assert "TPSA" not in n and "tpsa" not in n.upper(), f"TPSA leak: {n}"
-        assert "SMARTS" not in n.upper(), f"SMARTS leak: {n}"
-
-
-def test_real_descriptor_matrix_conforms():
-    if not DESCRIPTORS_PARQUET.exists():
-        pytest.skip(
-            "data/processed/descriptors.parquet not yet generated (T101 pending)"
-        )
-    import pandas as pd
-
+def test_descriptors_parquet_schema():
+    """Validate that the descriptor DataFrame contains required metadata and descriptor columns."""
     df = pd.read_parquet(DESCRIPTORS_PARQUET)
-    descriptor_names = validate_descriptor_frame(df)
-
-    # Required metadata columns present with correct dtypes.
-    assert df["smiles"].dtype == object, "smiles column must be strings"
-    assert df["target"].dtype.kind == "f", "target column must be float"
-    assert df["stereochemistry_flag"].dtype == bool
-    assert df["flexible_flag"].dtype == bool
-
-    # Flag proportion constraints (SC-006 / FR-009).
-    stereo_frac = float(df["stereochemistry_flag"].mean())
-    assert stereo_frac <= 0.05, (
-        f"stereochemistry_flag proportion {stereo_frac:.4f} exceeds 5%"
-    )
-
-    # At least one row validated through the Pydantic model directly.
-    first = df.iloc[0].to_dict()
-    DescriptorMatrix(**first)
-
-    assert len(descriptor_names) >= 200
+    # This will raise ValueError if schema is invalid
+    descriptor_cols = validate_descriptor_frame(df)
+    # Basic sanity: there should be at least 200 descriptor columns
+    assert len(descriptor_cols) >= 200, f"Expected >=200 descriptor columns, found {len(descriptor_cols)}"

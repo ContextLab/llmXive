@@ -9,7 +9,7 @@ import json
 from typing import List, Any
 
 import pandas as pd
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 # -------------------------------------------------------------------------
 # Helper utilities
@@ -66,8 +66,8 @@ class DescriptorMatrix(BaseModel):
     flexible_flag: bool
 
     # Dynamically allow any descriptor column (float or int)
-    @validator("*", pre=True, always=True)
-    def allow_numeric(cls, v):
+    @field_validator("*", mode="before")
+    def allow_numeric(cls, v: Any) -> Any:
         if isinstance(v, (int, float)):
             return float(v)
         return v
@@ -85,20 +85,20 @@ class ModelOutput(BaseModel):
     rmse: float = Field(..., ge=0.0)
     baseline_r2: float = Field(..., ge=0.0)
 
-    @validator("r2_score")
-    def r2_must_be_positive(cls, v):
+    @field_validator("r2_score")
+    def r2_must_be_non_negative(cls, v: float) -> float:
         if v < 0.0:
             raise ValueError("R² must be non‑negative")
         return v
 
-    @validator("rmse")
-    def rmse_non_negative(cls, v):
+    @field_validator("rmse")
+    def rmse_non_negative(cls, v: float) -> float:
         if v < 0.0:
             raise ValueError("RMSE must be non‑negative")
         return v
 
-    @validator("baseline_r2")
-    def baseline_non_negative(cls, v):
+    @field_validator("baseline_r2")
+    def baseline_non_negative(cls, v: float) -> float:
         if v < 0.0:
             raise ValueError("Baseline R² must be non‑negative")
         return v

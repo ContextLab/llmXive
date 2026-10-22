@@ -16,7 +16,7 @@ from utils.checksums import compute_file_checksum
 from data.generate_descriptors import main as generate_descriptors_main
 from data.validate import validate_processed_descriptors, main as validate_main
 from utils.config import get_config_summary
-from data.feature_selection import main as feature_selection_main
+# NOTE: feature selection module may not exist yet; import lazily in the function.
 
 logger = None
 
@@ -180,8 +180,13 @@ def run_feature_selection():
     logger = get_logger("main")
     logger.info("Running feature selection (VIF pruning & clustering)...")
     try:
+        # Lazy import to avoid ModuleNotFoundError when the module is not yet present
+        from data.feature_selection import main as feature_selection_main
         feature_selection_main()
         return True
+    except ModuleNotFoundError:
+        logger.error("Feature selection module not found (data/feature_selection.py).")
+        return False
     except Exception as e:
         logger.error(f"Feature selection failed: {e}")
         return False

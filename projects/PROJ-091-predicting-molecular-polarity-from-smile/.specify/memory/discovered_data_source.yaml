@@ -1,34 +1,50 @@
 status: verified
-kind: data_url
-ref: https://huggingface.co/datasets/n0w0f/qm9-csv/resolve/main/qm9_dataset.csv
-access_python: "import pandas as pd\nurl = 'https://huggingface.co/datasets/n0w0f/qm9-csv/resolve/main/qm9_dataset.csv'\n\
-  # Load the QM9 CSV directly from the raw URL\ndf = pd.read_csv(url)\nprint(f\"RECORDS={len(df)}\"\
-  )\n# Identify the requested fields (case\u2011insensitive match)\ndesired = {'smiles',\
-  \ 'molecule_id'}\nfound = [c for c in df.columns if c.lower() in desired]\nprint(f\"\
-  FIELDS={','.join(found)}\")"
-record_count: 1376
+kind: pypi_package
+ref: qm9pack
+access_python: 'import qm9pack
+
+
+  data = qm9pack.get_data(''qm9'')
+
+  print(f"RECORDS={len(data)}")
+
+  print(f"FIELDS={'',''.join(data.columns)}")'
+record_count: 130831
 sample_fields:
-- inchi
-- smiles
-- rotational_constant_a
-- rotational_constant_b
-- rotational_constant_c
-- dipole_moment
-- polarizability
-- homo
-- lumo
-- gap
-- r2
-- zero_point_energy
-- u0
-- u298
-- h298
-- g298
-- heat_capacity
+- XYZ_file
+- Index
+- SMILES
+- InChi
+- N_atoms
+- Stoichiometry
+- Elements
+- XYZ_Ang
+- Mulliken_pop
+- Harmonic_Freq_cmi
+- RotA_GHz
+- RotB_GHz
+- RotC_GHz
+- Dipole_debye
+- Polarizability_bohr3
+- HOMO_au
+- LUMO_au
+- HOMO_LUMO_gap_au
+- R2_bohr2
+- ZPVE_au
+- InternalEnergy_0K_au
+- InternalEnergy_298K_au
+- Enthalphy_298K_au
+- GibbsFreeEnergy_298K_au
+- Heatcapacity_Cv_cal_mol_K
+- A_xx
+- A_xy
+- A_yy
+- A_xz
+- A_yz
+- A_zz
 field_coverage: 0.5
 required_fields:
-- SMILES
+- smiles
 - molecule_id
-intent: QM9 molecular dataset download and Mordred python package for 2D descriptors
-  python package dataset
-cache_key: 4d738aabea5a4376da7559ab1072f31de15ca90532bfce789838549cc6d7cb53
+intent: download QM9 molecular dataset SMILES strings python package dataset
+cache_key: 4d72c0da1540f1bbac145d863246d27497df5f493066c7ca8a63de5df2f4aaa3

@@ -5,13 +5,13 @@
 
 ## Phase 1: Data acquisition & descriptor generation
 
-- [X] T103 **[US1]** **[FR-006]** Fix and validate `code/data/validate.py` so that it derives `expected_input_columns` dynamically from `data/processed/descriptor_names.json`. The script must exit with status 0 on a correct descriptor matrix and non‑zero on any mismatch.  
+- [ ] T103 **[US1]** **[FR-006]** Fix and validate `code/data/validate.py` so that it derives `expected_input_columns` dynamically from `data/processed/descriptor_names.json`. The script must exit with status 0 on a correct descriptor matrix and non‑zero on any mismatch.  
   - **Verification**: `python code/data/validate.py data/processed/descriptors.parquet` exits 0; deliberately corrupting a column name causes a non‑zero exit.
 
 - [ ] T102 **[US1]** **[FR-006]** Materialize contract validators under `tests/contract/`. Create `tests/contract/validators.py` with Pydantic models for the descriptor matrix and model output, and add `test_dataset_schema.py` & `test_model_output.py` that validate the real artifacts produced later.  
   - **Verification**: `pytest tests/contract/ -q` passes against the real files.
 
-- [ ] T101 **[US1]** **[FR-001, FR-006, FR-008, FR-009]** Download the QM9 dataset using the `qm9pack` library (which internally resolves the canonical HuggingFace URL) and generate a 2‑D descriptor matrix (`data/processed/descriptors.parquet`). <!-- FAILED-IN-EXECUTION: code/data/generate_descriptors.py exit=1; tests/contract/test_dataset_schema.py exit=1; tests/contract/test_model_output.py exit=1; tests/integration/test_full_pipeline.py exit=2 -->
+- [ ] T101 **[US1]** **[FR-001, FR-006, FR-008, FR-009]** Download the QM9 dataset using the `qm9pack` library (which internally resolves the canonical HuggingFace URL) and generate a 2‑D descriptor matrix (`data/processed/descriptors.parquet`). <!-- FAILED-IN-EXECUTION: code/data/generate_descriptors.py exit=1; tests/contract/test_dataset_schema.py exit=1; tests/contract/test_model_output.py exit=1; tests/integration/test_full_pipeline.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=-1 (TIMEOUT) -->
   - Stream the parquet in batches to keep peak RAM ≤ 6 GB.  
   - Exclude any TPSA‑related descriptors and all SMARTS‑based functional‑group counts.  
   - Log peak memory and total runtime; assert that preprocessing completes within **15 minutes**.  

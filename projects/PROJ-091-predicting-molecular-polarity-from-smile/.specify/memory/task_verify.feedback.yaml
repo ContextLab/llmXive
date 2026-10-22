@@ -4,16 +4,23 @@ T101:
     exit=1; tests/integration/test_full_pipeline.py exit=2'
   task: 3b593bd71d1df073057ebd891c18944b9fe8aa2511847319a44f55534df59a8c
 T102:
-  reason: "The required files exist, but the contract tests do not actually validate\
-    \ the real artifacts: in the recorded runs, all three `test_dataset_schema.py`\
-    \ tests were SKIPPED (including `test_descriptor_names_json_exists_and_is_list`,\
-    \ even though `data/processed/descriptor_names.json` exists on disk \u2014 so\
-    \ the skip conditions are mis-keyed, e.g. gated on the parquet file), and `test_real_model_metrics_conform`\
-    \ was also skipped. The task's verification criterion is that `pytest tests/contract/\
-    \ -q` passes *against the real files*; skipping means no validation occurred,\
-    \ and there is also no evidence of"
+  reason: "The validators and test files exist and are substantive, but the task's\
+    \ verification criterion \u2014 `pytest tests/contract/ -q` passing against the\
+    \ real files \u2014 is not met: the recorded runs show all 5 tests failing because\
+    \ `data/processed/descriptors.parquet` and `data/results/model_metrics.json` do\
+    \ not exist (only `descriptor_names.json` is present). The downstream artifacts\
+    \ these contract tests validate must be produced (or the tests re-run once they\
+    \ exist) before this task can be considered complete."
   task: 77d59dafe252262fef0e68c7a20391a78d2df7644fa4c7e75becaf7ddcf8aa1f
 T103:
+  reason: 'The `validate.py` script itself does derive expected columns dynamically
+    from `descriptor_names.json` and uses `sys.exit(0)`/`sys.exit(1)` correctly, but
+    the required verification cannot be confirmed: `data/processed/descriptors.parquet`
+    is MISSING, so there is no evidence that `python code/data/validate.py data/processed/descriptors.parquet`
+    exits 0, nor any execution log demonstrating non-zero exit on a corrupted column
+    name. The implementer must produce/restore the descriptors parquet (or run the
+    validation against it) and provide actual run evidence of both the success and
+    failure cases.'
   task: fa47b103775abf4c24e1151df88da16a712b3320afb0b6e36e95b034220c7cee
 T104:
   task: ac5050944e3a3ac7be80d2103533862692df30fd25a9b32ab462b811ba9149b2

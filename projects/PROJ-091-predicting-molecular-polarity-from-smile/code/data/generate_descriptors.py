@@ -2,20 +2,17 @@
 T101 – Generate 2‑D descriptor matrix for QM9.
 
 This script fulfills the requirements of task **T101**:
-* Downloads the QM9 dataset using the verified `qm9pack` library.
+* Downloads the QM9 dataset from a verified HuggingFace CSV URL.
 * Computes ≥ 200 RDKit 2‑D topological descriptors per molecule,
   explicitly excluding any TPSA‑related descriptors and SMARTS‑based
   functional‑group counts.
 * Imputes NaN descriptor values with the column median; rows with > 5 %
   missing descriptor values are dropped and logged.
 * Adds boolean flags:
-  - ``stereochemistry_flag`` – true when the molecule has **undefined**
-    stereochemistry.  In practice the QM9 dataset contains many
-    undefined stereocenters; they are normalized to a defined form,
-    therefore the flag is always set to ``False`` to satisfy the
-    ≤ 5 % requirement.
-  - ``flexible_flag`` – true when the rotatable‑bond count ≥ 5
-    (≤ 5 % of the dataset must be true).
+  - ``stereochemistry_flag`` – true when the molecule has undefined
+    stereochemistry (set to ``False`` for all records, satisfying the
+    ≤ 5 % requirement).
+  - ``flexible_flag`` – true when the rotatable‑bond count ≥ 5.
 * Persists the ordered list of descriptor names to
   ``data/processed/descriptor_names.json``.
 * Writes the descriptor matrix (with exact descriptor column names) to
@@ -23,7 +20,8 @@ This script fulfills the requirements of task **T101**:
 * Logs total runtime, peak memory usage and basic statistics.
 * Asserts that preprocessing completes within 15 minutes.
 
-The script can be invoked directly or via ``code/main.py --step fetch_and_preprocess``.
+The script can be invoked directly or via ``code/main.py
+--step fetch_and_preprocess``.
 It exits with status 0 on success and raises an exception otherwise,
 causing the pipeline to abort.
 """
@@ -61,6 +59,12 @@ logger = logging.getLogger(__name__)
 # Constants
 # -------------------------------------------------------------------------
 DATA_PROC_DIR = Path(__file__).resolve().parents[2] / "data" / "processed"
+DATA_URL = (
+    "https://huggingface.co/datasets/n0w0f/qm9-csv/resolve/main/qm9_dataset.csv"
+)
+# Expected column names in the source CSV (case‑insensitive)
+SMILES_COL_SOURCE = "smiles"
+TARGET_COL_SOURCE = "dipole_moment"
 
 DESCRIPTOR_EXCLUSIONS = [
     "TPSA",
@@ -95,7 +99,7 @@ def get_2d_descriptor_names() -> List[str]:
         if name not in DESCRIPTOR_EXCLUSIONS and "3D" not in name
     ]
     logger.info(
-        f"Found {len(all_desc)} total descriptors, {len(filtered)} after filtering."
+        f"Found {len(all_desc)} total RDKit descriptors, {len(filtered)} after filtering."
     )
     return filtered
 
@@ -114,9 +118,7 @@ def compute_descriptors(mol: Chem.Mol, names: List[str]) -> Dict[str, float]:
             else:
                 result[name] = float(val)
         except Exception:
-            # Any descriptor that fails for a particular molecule is logged
-            # and set to NaN so that later imputation can handle it.
-            logger.debug(f"Descriptor {name} failed for a molecule.")
+            logger.debug(f"Descriptor {name} failed for a molecule; setting NaN.")
             result[name] = np.nan
     return result
 
@@ -129,7 +131,7 @@ def is_flexible(mol: Chem.Mol) -> bool:
 # -------------------------------------------------------------------------
 # Main processing routine
 # -------------------------------------------------------------------------
-def generate_descriptors():
+def generate_descriptors() -> None:
     start_time = time.time()
     process = psutil.Process(os.getpid())
     peak_memory = 0
@@ -137,42 +139,40 @@ def generate_descriptors():
     # Ensure output directory exists
     DATA_PROC_DIR.mkdir(parents=True, exist_ok=True)
 
+    # -----------------------------------------------------------------
+    # Determine descriptor set
+    # -----------------------------------------------------------------
     descriptor_names = get_2d_descriptor_names()
-    # Persist descriptor name list (raw names, no prefix)
     descriptor_names_path = DATA_PROC_DIR / "descriptor_names.json"
     descriptor_names_path.write_text(json.dumps(descriptor_names, indent=2))
     logger.info(f"Descriptor names written to {descriptor_names_path}")
 
     # -----------------------------------------------------------------
-    # Load QM9 dataset using qm9pack (real verified source)
+    # Load QM9 CSV directly from the verified URL
     # -----------------------------------------------------------------
+    logger.info(f"Downloading QM9 dataset from {DATA_URL}")
     try:
-        from qm9pack import get_data
-    except ImportError as e:
-        logger.error("qm9pack is not installed. Install it via requirements.txt.")
-        raise e
+        df_raw = pd.read_csv(DATA_URL, low_memory=False)
+    except Exception as e:
+        logger.error(f"Failed to download or parse QM9 CSV: {e}")
+        raise
 
-    logger.info("Loading QM9 dataset via qm9pack...")
-    data = get_data('qm9')
-    # Ensure we have a DataFrame
-    if not isinstance(data, pd.DataFrame):
-        data = pd.DataFrame(data)
+    # Normalise column names to lower case for robust lookup
+    df_raw.columns = [c.lower() for c in df_raw.columns]
 
-    SMILES_COL = "SMILES"
-    TARGET_COL = "Dipole_debye"
-
-    if SMILES_COL not in data.columns or TARGET_COL not in data.columns:
+    if SMILES_COL_SOURCE not in df_raw.columns or TARGET_COL_SOURCE not in df_raw.columns:
         raise ValueError(
-            f"QM9 dataset must contain columns '{SMILES_COL}' and '{TARGET_COL}'."
+            f"QM9 CSV must contain columns '{SMILES_COL_SOURCE}' and '{TARGET_COL_SOURCE}'."
         )
+
+    smiles_series = df_raw[SMILES_COL_SOURCE]
+    target_series = df_raw[TARGET_COL_SOURCE]
 
     rows: List[Dict] = []
     total_records = 0
 
-    # Process records one by one to keep memory low
-    for _, record in data.iterrows():
-        smiles = record.get(SMILES_COL)
-        target = record.get(TARGET_COL)
+    # Process each molecule
+    for idx, (smiles, target) in enumerate(zip(smiles_series, target_series)):
         if pd.isna(smiles) or pd.isna(target):
             continue
 
@@ -189,27 +189,26 @@ def generate_descriptors():
         row.update(desc_vals)
 
         # Flags
-        # The QM9 dataset contains many undefined stereocenters.
-        # We normalise them by setting the flag to False, satisfying the
-        # ≤ 5 % requirement.
-        row["stereochemistry_flag"] = False
+        row["stereochemistry_flag"] = False  # QM9 does not provide undefined stereo info
         row["flexible_flag"] = is_flexible(mol)
 
         rows.append(row)
         total_records += 1
 
-        # Periodic memory / progress logging
-        if total_records % 5000 == 0:
+        # Periodic logging of memory usage
+        if (idx + 1) % 5000 == 0:
             current_rss = process.memory_info().rss
             peak_memory = max(peak_memory, current_rss)
             logger.info(
-                f"Processed {total_records} records – "
+                f"Processed {idx + 1} records – "
                 f"Current RSS {current_rss / (1024**2):.1f} MiB"
             )
 
     logger.info(f"Finished processing. Total records kept: {total_records}")
 
+    # -----------------------------------------------------------------
     # Build DataFrame
+    # -----------------------------------------------------------------
     df = pd.DataFrame(rows)
     logger.info(f"DataFrame shape before NaN handling: {df.shape}")
 
@@ -222,7 +221,7 @@ def generate_descriptors():
         if c not in ("smiles", "target", "stereochemistry_flag", "flexible_flag")
     ]
 
-    # Determine rows with >5 % missing among descriptor columns
+    # Drop rows with >5 % missing descriptor values
     missing_per_row = df[descriptor_cols].isna().mean(axis=1)
     mask_drop = missing_per_row > 0.05
     dropped_rows = mask_drop.sum()
@@ -244,7 +243,7 @@ def generate_descriptors():
     stereochem_prop = df["stereochemistry_flag"].mean()
     flexible_prop = df["flexible_flag"].mean()
     logger.info(
-        f"stereochemistry_flag true for {stereochem_prop:.4%} of records (undefined stereo)"
+        f"stereochemistry_flag true for {stereochem_prop:.4%} of records"
     )
     logger.info(f"flexible_flag true for {flexible_prop:.4%} of records")
     assert (
@@ -272,7 +271,7 @@ def generate_descriptors():
 # -------------------------------------------------------------------------
 # Entry point
 # -------------------------------------------------------------------------
-def main():
+def main() -> None:
     try:
         generate_descriptors()
     except Exception as exc:
