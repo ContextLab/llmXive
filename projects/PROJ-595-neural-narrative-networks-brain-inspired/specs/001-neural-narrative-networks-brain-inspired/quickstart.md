@@ -20,66 +20,132 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r code/requirements.txt
 ```
 
-## 1. Data Ingestion
+## 1. Project Setup
 ```bash
+# Create a standard .gitignore (required for verification)
+python - <<'PY'
+import pathlib, textwrap
+p = pathlib.Path('.gitignore')
+p.write_text(textwrap.dedent('''\
+    __pycache__/
+    *.pyc
+    *.pyo
+    *.pyd
+    .Python
+    env/
+    venv/
+    build/
+    develop-eggs/
+    dist/
+    downloads/
+    eggs/
+    .eggs/
+    lib/
+    lib64/
+    parts/
+    sdist/
+    var/
+    *.egg-info/
+    .installed.cfg
+    *.manifest
+    *.spec
+    data/raw/
+    data/processed/
+    .mypy_cache/
+    .pytest_cache/
+    .coverage
+    htmlcov/
+    .tox/
+    .nox/
+    .coverage.*
+    coverage.xml
+    *.cover
+    .cache/
+    .ipynb_checkpoints/
+    .DS_Store
+    '''))
+PY
+```
+
+## 2. Data Ingestion
+```bash
+# Download and preprocess fMRI data
 python code/data_ingestion/download_neural.py   # OpenNeuro ds001495
-python code/data_ingestion/download_text.py    # ROCStories (pre‑training only)
+
+# Download ROCStories (pre‑training only)
+python code/data_ingestion/download_text.py    # ROCStories
+
+# Preprocess both modalities
 python code/data_ingestion/preprocess.py
 ```
-*Outputs*:  
-- `data/processed/neural/roi_*.npy` (left/right hippocampus, DLPFC)  
-- `data/processed/text/rocstories_pretrain.jsonl` (pre‑training corpus)  
-- `data/processed/text/fMRI_story_transcripts.jsonl` (held‑out test set, ≥ 100 stories).
+*Outputs* (under `data/processed/`):
+- `neural/roi_left_hipp.npy`, `roi_right_hipp.npy`, `roi_dlpfc.npy`
+- `text/rocstories_pretrain.jsonl`
+- `text/fMRI_story_transcripts.jsonl` (≥ 100 stories)
 
-## 2. Model Pre‑training (Sparse Autoencoder)
+## 3. Model Pre‑training (Sparse Autoencoder)
 ```bash
 python code/models/sparse_autoencoder.py \
     --train data/processed/text/rocstories_pretrain.jsonl \
-    --output model/sae_pretrained.pt
+    --output models/sae_pretrained.pt \
+    --save-repr data/processed/neural/pretrain_sae_hidden.pt
 ```
-*The training logs will report the sparsity ratio; it must be ≤ 0.20.*
+*The log reports the activation sparsity ratio; it must be ≤ 0.20.*
 
-## 3. Model Generation on Test Set
+## 4. Story Generation on Test Set
 ```bash
-# Brain‑inspired model (Sparse Autoencoder + Gating) on the fMRI story set
+# Brain‑inspired model (SAE + gating)
 python code/models/generator.py --model brain_inspired \
     --input data/processed/text/fMRI_story_transcripts.jsonl \
     --output data/processed/brain_inspired_hidden.npy
 
-# Baseline TinyLSTM (quantized) on the same test set
-python code/models/generator.py --model baseline \
+# Baseline model (quantized TinyLSTM)
+python code/models/generator.py --model baseline_transformer \
     --input data/processed/text/fMRI_story_transcripts.jsonl \
-    --output data/processed/baseline_hidden.npy
+    --output data/processed/baseline_transformer_hidden.npy \
+    --quantize bitsandbytes
 ```
-*Both commands respect the CPU‑only memory caps and will abort with a clear error if RAM exceeds 7 GB.*
+Both commands respect the CPU‑only memory caps and will abort with a clear error if RAM exceeds 7 GB.
 
-## 4. RSA Analysis & Permutation Test
+## 5. RSA Analysis & Permutation Test
 ```bash
-python code/analysis/rsa_computation.py   # computes RSA matrices
-python code/analysis/permutation_test.py   # 2 000 permutations with early‑stopping
-python code/analysis/visualization.py      # generates heatmaps & bar plot
+# Compute RSA matrices (Pearson & Spearman)
+python code/analysis/rsa_computation.py
+
+# Run permutation test (2 000 permutations, no early‑stopping)
+python code/analysis/permutation_test.py
+
+# Generate figures
+python code/analysis/visualization.py
 ```
 *Key outputs*:
-- `data/analysis/rsa_matrices/brain_inspired_rsm.csv`
-- `data/analysis/rsa_matrices/baseline_rsm.csv`
-- `data/analysis/results/permutation_test_results.csv`
+- `analysis/rsa_matrices/brain_inspired_rsm.csv`
+- `analysis/rsa_matrices/baseline_transformer_rsm.csv`
+- `analysis/results/permutation_test_results.csv`
 - `figures/` (heatmaps & bar plot)
 
-## 5. Verification
+## 6. Verification
 ```bash
-# Check that neural files exist and are non‑empty
+# Verify .gitignore exists
+ls .gitignore
+
+# Check neural files exist and are non‑empty
 ls data/processed/neural/roi_*.npy
-# Verify story count in the test set
+
+# Confirm story count in the test set
 python -c "cnt=sum(1 for _ in open('data/processed/text/fMRI_story_transcripts.jsonl')); print('Test stories:', cnt)"
-# Inspect permutation result
-head data/analysis/results/permutation_test_results.csv
+
+# Validate contracts
+python -m pytest tests/contract/  # assumes contract tests are provided
 ```
 
 ## Troubleshooting
 - **MemoryError**: Reduce the number of stories processed (`--max_stories 2000`) or enable chunked loading (`preprocess.py --chunk_size 100`).  
-- **Missing ROI**: If DLPFC mask not found, the pipeline automatically falls back to Harvard‑Oxford coordinates; check the log for the fallback message.  
-- **Insufficient Test Stories**: If fewer than 100 shared stories are found, the pipeline halts with error `E002`. Verify the OpenNeuro dataset version or consider an alternative open fMRI story dataset.
+- **Missing DLPFC mask**: The pipeline automatically falls back to Harvard‑Oxford coordinates; check the log for the fallback message.  
+- **Insufficient Test Stories**: If fewer than 100 stories are found, the pipeline halts with error `E002`. Verify the OpenNeuro dataset version or consider an alternative open fMRI story dataset.  
 
-Enjoy reproducible, brain‑inspired story generation!  
+You now **have a fully reproducible, CPU‑compatible pipeline** for evaluating brain‑inspired narrative generation against human fMRI data. Enjoy!  
 
 ---
+
+

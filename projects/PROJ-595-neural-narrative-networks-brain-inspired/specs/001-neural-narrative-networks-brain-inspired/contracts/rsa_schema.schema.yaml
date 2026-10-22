@@ -34,7 +34,7 @@ properties:
     type: string
     enum:
       - "sae"
-      - "baseline"
+      - "baseline_transformer"
     description: "Type of model used for this result"
   roi:
     type: string

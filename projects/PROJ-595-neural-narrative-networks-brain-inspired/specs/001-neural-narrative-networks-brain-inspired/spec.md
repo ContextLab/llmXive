@@ -100,10 +100,10 @@ The researcher MUST be able to compute Representational Similarity Analysis (RSA
 
 ## Assumptions
 
-- The OpenNeuro ds001495 dataset contains preprocessed BOLD timecourses and precomputed masks for the hippocampus and dorsolateral prefrontal cortex, or standard Harvard-Oxford masks can be applied without significant misalignment.
+- The OpenNeuro dataset contains preprocessed BOLD timecourses and precomputed masks for the hippocampus and dorsolateral prefrontal cortex, or standard Harvard‑Oxford masks can be applied without significant misalignment.
 - The ROCStories corpus is sufficient to train and test the model for narrative coherence without requiring additional data sources or fine-tuning on external corpora.
 - The "brain-inspired" architecture (sparse autoencoder + gating) can be implemented in PyTorch on CPU without requiring GPU acceleration.
-- The fMRI data in ds001495 is of sufficient quality (signal-to-noise ratio) to detect subtle differences in representational similarity between the two model types.
+- The fMRI data from a suitable open-access dataset is of sufficient quality (signal‑to‑noise ratio) to detect subtle differences in representational similarity between the two model types.
 - The permutation test with a sufficient number of permutations is computationally feasible within the job time limit on a multi-core CPU runner.
 - The baseline TinyLSTM (quantized transformer) provides a valid comparison point for "standard transformer architectures" in the context of narrative generation, given the memory constraints of the runner.
 - The distinction between "plot" (narrative structure) and "memory" (episodic trace) in the prefrontal gating module is operationalized as a coherence constraint on the generated story sequence, rather than a semantic distinction.

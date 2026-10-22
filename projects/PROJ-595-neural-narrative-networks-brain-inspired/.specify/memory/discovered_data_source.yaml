@@ -1,19 +1,14 @@
 status: none
-intent: download OpenNeuro ds001495 fMRI hippocampus DLPFC ROI timecourses and ROCStories
-  corpus python package dataset
+intent: download OpenNeuro ds001495 fMRI dataset python package and ROCStories corpus
+  huggingface dataset python package dataset
 required_fields:
 - subject_id
-- run_id
-- timepoint
-- left_hippocampus_signal
-- right_hippocampus_signal
-- left_DLPFC_signal
-- right_DLPFC_signal
+- roi
+- timecourse
 - event_timestamp
 - story_id
-- condition
 - story_text
-- sentence_list
-cache_key: 47adf6ccb2f1c38d89de0801cdb5265b833e0b024df3a73dbdd37f9b15797fe5
-searched_at: '2026-10-16T19:27:56.586531+00:00'
+- story_condition
+cache_key: 02da4e4501d2c706e7eae0fc2751ea5b199f8619a8bb74e408a998979de6a34e
+searched_at: '2026-10-22T14:30:15.214712+00:00'
 retry_count: 1

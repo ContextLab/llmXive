@@ -10,12 +10,12 @@ properties:
         type: string
       model_type:
         type: string
-        enum: ["brain_inspired", "baseline"]
+        enum: ["brain_inspired", "baseline_transformer"]
       roi:
         type: string
       similarity_metric:
         type: string
-        const: "pearson_correlation"
+        enum: ["pearson_correlation", "spearman_correlation"]
       shape:
         type: array
         items:

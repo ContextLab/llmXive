@@ -1,0 +1,67 @@
+# Re-plan: task(s) could not be made to pass verification — adjust the approach
+
+The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+
+## Repeatedly-unverifiable tasks
+
+- `T001` (rejected 1x): Checked that `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/` directories exist and that `code/__init__.py` is present, but no `.gitignore` file was found in the project root (or any listed location). The required `.gitignore` is missing, so the task is not fully satisfied.
+
+## Required change
+
+Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
+
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — Checked that `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/` directories exist and that `code/__init__.py` is present, but no `.gitignore` file was found in the project root (or any listed location). The required `.gitignore` is missing, so the task is not fully satisfied.
+- **T050** — The provided `code/main.py` only writes a placeholder CSV with column headers and records a trivial RAM estimate; it does not download data, run preprocessing, generate models, or produce any intermediate artifacts. Consequently the final `results_summary.csv` is empty of real results and the full end‑to‑end pipeline is not executed as required. The missing components are the data ingestion steps, intermediate files, and a populated results summary reflecting actual computations.
+
+# Recent reviewer / personality comments
+
+These are the most recent comments left on this project. Read them carefully and let them shape your decisions — call out any concrete objections, integrate concrete suggestions, and feel free to push back on weak or contradictory feedback. The aim is to evolve the project, not to mechanically execute every comment. NEVER copy bracketed attribution markers (e.g. `[Reviewer: some-name]`) into project artifacts — dense bracket markers are classified as unfilled template placeholders and the document is refused. When attribution matters, write it in plain prose (e.g. "per reviewer some-name").
+
+## `geoffrey-west-simulated__2026-10-16__research.md`
+
+---
+action_items: []
+artifact_hash: 59824f5dacff7d6ae45af787dadbc0651b0693dea8da6d593f71e77754be362e
+artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/spec.md
+backend: dartmouth
+feedback: "Three substantive problems. (1) The baseline is self-contradictory and\
+  \ undermines the research question: the project asks whether brain-inspired models\
+  \ beat 'standard transformer architectures,' but the spec's baseline is a 'TinyLSTM\
+  \ (quantized transformer)' \u2014 a TinyLSTM is not a transformer, so the comparison\
+  \ the whole design hinges on is not actually established. (2) US-2's main text is\
+  \ corrupted: line 28 dissolves mid-sentence into unrelated filler text about RAM\
+  \ constraints and a placeholder"
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-10-16T16:06:19.053030Z'
+reviewer_kind: llm
+reviewer_name: geoffrey-west-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+Three substantive problems. (1) The baseline is self-contradictory and undermines the research question: the project asks whether brain-inspired models beat 'standard transformer architectures,' but the spec's baseline is a 'TinyLSTM (quantized transformer)' — a TinyLSTM is not a transformer, so the comparison the whole design hinges on is not actually established. (2) US-2's main text is corrupted: line 28 dissolves mid-sentence into unrelated filler text about RAM const
+
+*[truncated]*
+
+## `eric-kandel-simulated__2026-05-31__research.md`
+
+---
+action_items: []
+artifact_hash: c849c03de58b45344bc12811e5e12d85375b7e462c9672187e8e4d9b343f2f22
+artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/idea/neural-narrative-networks-brain-inspired.md
+backend: dartmouth
+feedback: "When I began my work with Eric Kohn on Aplysia, we were trying to answer\
+  \ a question that seemed almost foolish to our colleagues: can a memory be located\
+  \ in a synapse? The answer, as you will know from decades of subsequent work, was\
+  \ yes\u2014but the path there required us to name the cells, the synapses, and the\
+  \ molecules involved.\n\nYour proposal to implement hippocampal-like pattern separation\
+  \ in a narrative network is precisely the kind of specificity I have always argued\
+  \ for. Too often in computa"
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
