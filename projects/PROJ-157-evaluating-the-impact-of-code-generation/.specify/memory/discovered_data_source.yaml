@@ -1,30 +1,18 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: "import datasets, sys\n# Load the Codeforces dataset from Hugging Face\
-  \ Hub\nds = datasets.load_dataset('open-r1/codeforces', split='train')\nrecords\
-  \ = len(ds)\nif records == 0:\n    raise ValueError('No records loaded')\nprint(f'RECORDS={records}')\n\
-  # Determine which of the required fields are present\nrequired = ['problem_id','contest_id','title','tags','rating','language','source_code','time_limit','memory_limit','url']\n\
-  available = [f for f in required if f in ds.column_names]\nprint('FIELDS=' + ','.join(available))"
-record_count: 9556
-sample_fields:
-- contest_id
-- title
-- tags
-- rating
-- time_limit
-- memory_limit
-field_coverage: 0.6
+status: none
+intent: Codeforces C++ reference solutions dataset python package dataset
 required_fields:
 - problem_id
 - contest_id
 - title
-- tags
 - rating
 - language
-- source_code
-- time_limit
-- memory_limit
-- url
-intent: Codeforces C++ reference solution dataset downloadable python package dataset
-cache_key: f60fad93515964f2c45f73c27ae7040d9238e5b75e4a96dfa1eba3c204f8329a
+- human_source_code
+- llm_source_code
+- llm_model_name
+- generation_timestamp
+- human_compilation_status
+- llm_compilation_status
+- pair_id
+cache_key: 0f4b5df57ba9b2a9d326db33e6ea61fe551c57b07bccf70a41e44ce6f280bdac
+searched_at: '2026-10-22T05:08:34.395986+00:00'
+retry_count: 1

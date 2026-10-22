@@ -7,24 +7,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/setup_env.py -> rc=1
-, line 220, in _retrieve_server_version
+py", line 220, in _retrieve_server_version
     raise DockerException(
 docker.errors.DockerException: Error while fetching server API version: Not supported URL scheme http+docker
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 159, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 177, in <module>
     docker_digest = _fetch_docker_digest_via_registry(DOCKER_IMAGE)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 139, in _fetch_docker_digest_via_registry
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 157, in _fetch_docker_digest_via_registry
     raise RuntimeError(
-RuntimeError: Failed to fetch manifest for gcc:13.2-bullseye from Docker Hub: 401 Unauthorized
+RuntimeError: Failed to fetch manifest for gcc:13.2-bullseye from Docker Hub: 404 Not Found
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 165, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 183, in <module>
     raise RuntimeError(
 RuntimeError: Cannot determine Docker image digest; aborting environment setup.
 
@@ -67,37 +67,13 @@ rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
 collected 0 items
 
-============================ no tests ran in 0.12s =============================
+============================ no tests ran in 0.16s =============================
 
 
 
 ## Declared deliverables still missing
 
 - data/env_config.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **9556** real records with fields: contest_id, title, tags, rating, time_limit, memory_limit.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import datasets, sys
-# Load the Codeforces dataset from Hugging Face Hub
-ds = datasets.load_dataset('open-r1/codeforces', split='train')
-records = len(ds)
-if records == 0:
-    raise ValueError('No records loaded')
-print(f'RECORDS={records}')
-# Determine which of the required fields are present
-required = ['problem_id','contest_id','title','tags','rating','language','source_code','time_limit','memory_limit','url']
-available = [f for f in required if f in ds.column_names]
-print('FIELDS=' + ','.join(available))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

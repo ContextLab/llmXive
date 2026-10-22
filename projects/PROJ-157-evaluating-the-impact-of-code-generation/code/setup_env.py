@@ -10,8 +10,9 @@ This script performs three actions:
    image ``gcc:13.2-bullseye``.  It first attempts to obtain the digest
    via the local Docker daemon (Docker SDK).  If the Docker daemon is
    unavailable (e.g., in CI environments without Docker), it falls back
-   to the Docker Hub Registry HTTP API, which returns the manifest
-   digest without requiring a local Docker installation.
+   to the Docker Hub Registry HTTP API, authenticating as needed to
+   retrieve the manifest digest without requiring a local Docker
+   installation.
 3. Writes a JSON configuration file ``data/env_config.json`` that
    captures the seed values and Docker image information for downstream
    reproducibility checks (as required by task T000).
@@ -110,7 +111,7 @@ def _fetch_docker_digest_via_registry(image: str) -> str:
     """
     Fallback method that queries the Docker Hub Registry HTTP API for the
     manifest digest of a public image. This does not require a local Docker
-    daemon.
+    daemon. It performs the standard Docker Hub token authentication flow.
 
     Parameters
     ----------
@@ -129,18 +130,35 @@ def _fetch_docker_digest_via_registry(image: str) -> str:
     """
     repository, tag = image.split(":")
     # Official images live under the "library" namespace.
-    url = f"https://registry.hub.docker.com/v2/library/{repository}/manifests/{tag}"
+    # Step 1: obtain an authentication token.
+    token_url = (
+        "https://auth.docker.io/token"
+        f"?service=registry.docker.io&scope=repository:library/{repository}:pull"
+    )
+    log.info("Requesting Docker Hub auth token for %s", repository)
+    token_resp = requests.get(token_url, timeout=30)
+    if not token_resp.ok:
+        raise RuntimeError(
+            f"Failed to obtain Docker Hub token: {token_resp.status_code} {token_resp.reason}"
+        )
+    token = token_resp.json().get("token")
+    if not token:
+        raise RuntimeError("Docker Hub token response missing 'token' field")
+
+    # Step 2: fetch the manifest using the token.
+    manifest_url = f"https://registry-1.docker.io/v2/library/{repository}/manifests/{tag}"
     headers = {
-        "Accept": "application/vnd.docker.distribution.manifest.v2+json"
+        "Accept": "application/vnd.docker.distribution.manifest.v2+json",
+        "Authorization": f"Bearer {token}",
     }
-    log.info("Fetching Docker digest via registry API: %s", url)
-    response = requests.get(url, headers=headers, timeout=30)
-    if not response.ok:
+    log.info("Fetching Docker manifest via registry API: %s", manifest_url)
+    manifest_resp = requests.get(manifest_url, headers=headers, timeout=30)
+    if not manifest_resp.ok:
         raise RuntimeError(
             f"Failed to fetch manifest for {image} from Docker Hub: "
-            f"{response.status_code} {response.reason}"
+            f"{manifest_resp.status_code} {manifest_resp.reason}"
         )
-    digest = response.headers.get("Docker-Content-Digest")
+    digest = manifest_resp.headers.get("Docker-Content-Digest")
     if not digest:
         raise RuntimeError(
             f"Docker-Content-Digest header missing in response for {image}"
