@@ -1,16 +1,16 @@
 """
 Data Loader Module for Avian Migration Pipeline.
-Handles downloading and processing of eBird data using the HuggingFace `datasets` library.
+Handles downloading and processing of eBird data using the HuggingFace hub.
 """
 import json
 import logging
-import itertools
 import csv
+import gzip
 from pathlib import Path
 from typing import Iterator
 
 import pandas as pd
-from datasets import load_dataset
+from huggingface_hub import hf_hub_download
 
 # Import configuration and logger from the code package
 from code.config import DATA_RAW, REGIONAL_BBOX, get_logger
@@ -33,6 +33,7 @@ CHECKSUMS_FILE = "checksums.json"
 # Exported paths for external import (tests expect these)
 DATA_RAW = DATA_RAW
 EBIRD_OUTPUT_FILE = EBIRD_OUTPUT_FILE
+CHECKSUMS_FILE = CHECKSUMS_FILE
 
 def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA-256 checksum of a file."""
@@ -90,21 +91,55 @@ def _filter_record(record: dict) -> bool:
 # -----------------------------------------------------------------
 def _fetch_ebird_data() -> Iterator[dict]:
     """
-    Fetch the eBird Basic Dataset (EBD) using HuggingFace `datasets`.
-    Streams the dataset to avoid loading the entire file into memory.
-    Returns an iterator over raw records (as dicts).
-    Raises ConnectionError if the dataset cannot be accessed.
+    Fetch the eBird Basic Dataset (EBD) from the HuggingFace hub.
+    The dataset is stored as a large TSV (or gzipped TSV) file.
+    Streams the file line‑by‑line to avoid loading the entire file into memory.
+    Raises ConnectionError if the file cannot be accessed.
     """
     try:
-        # The canonical dataset on HuggingFace is "ebird/ebd"
-        ds = load_dataset("ebird/ebd", split="train", streaming=True)
+        # The eBird dataset on HuggingFace is hosted under the repo "ebird/ebd".
+        # The primary data file is a tab‑separated values file; its exact name
+        # can change over time, but the hub always provides a file named
+        # "ebd_relMay-2024.txt" (or a similar timestamped name). We attempt
+        # to download the most recent file by trying a few known conventions.
+        possible_filenames = [
+            "ebd_relMay-2024.txt",
+            "ebd_relMay-2024.txt.gz",
+            "ebd_relJun-2024.txt",
+            "ebd_relJun-2024.txt.gz",
+        ]
+        file_path = None
+        for fname in possible_filenames:
+            try:
+                file_path = hf_hub_download(
+                    repo_id="ebird/ebd",
+                    filename=fname,
+                    repo_type="dataset",
+                )
+                logger.info(f"Downloaded eBird dataset file: {fname}")
+                break
+            except Exception:
+                continue
+        if file_path is None:
+            raise FileNotFoundError("Could not locate eBird dataset file in the hub.")
     except Exception as exc:
-        logger.error(f"Failed to load eBird dataset via `datasets`: {exc}")
-        raise ConnectionError("Unable to fetch eBird dataset from HuggingFace.") from exc
+        logger.error(f"Failed to download eBird dataset via HuggingFace hub: {exc}")
+        raise ConnectionError(
+            "Unable to fetch eBird dataset from HuggingFace hub."
+        ) from exc
 
-    # The dataset yields dictionaries; we simply forward them.
-    for record in ds:
-        yield record
+    # Determine if the file is gzipped
+    open_func = gzip.open if file_path.endswith(".gz") else open
+
+    # Open the file and stream rows as dictionaries.
+    with open_func(file_path, mode="rt", encoding="utf-8") as f:
+        # The eBird file is tab‑separated; fallback to comma if tabs not found.
+        sample = f.read(1024)
+        f.seek(0)
+        delimiter = "\t" if "\t" in sample else ","
+        reader = csv.DictReader(f, delimiter=delimiter)
+        for record in reader:
+            yield record
 
 def _fetch_modis_data():
     """
@@ -153,7 +188,7 @@ def load_ebird_data() -> pd.DataFrame:
     # -----------------------------------------------------------------
     # Stream download & filtering
     # -----------------------------------------------------------------
-    logger.info("Starting streaming download of the eBird dataset via HuggingFace...")
+    logger.info("Starting streaming download of the eBird dataset via HuggingFace hub...")
     ds_iter = _fetch_ebird_data()
 
     header_written = False

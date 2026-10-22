@@ -1,7 +1,4 @@
-# Existing dependencies are assumed to be present.
-# Add the HuggingFace datasets library required for streaming eBird data.
-datasets>=2.0.0
-# Ensure pandas is available (usually pre‑installed in the environment)
-pandas>=2.0.0
-# Requests is retained for potential future use but not required for eBird loading.
-requests>=2.0.0
+huggingface_hub>=0.20.0
+pandas>=2.0
+tqdm>=4.0
+# Existing dependencies are already provided by the base environment.
