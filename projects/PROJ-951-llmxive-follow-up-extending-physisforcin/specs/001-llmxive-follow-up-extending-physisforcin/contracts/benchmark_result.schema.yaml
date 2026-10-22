@@ -4,49 +4,38 @@ type: object
 required:
   - result_id
   - model_id
-  - r_bench_score
-  - pai_bench_score
-  - tost_p_value
-  - equivalence_flag
-  - training_duration
+  - benchmark_name
+  - score
+  - mujoco_physics_score
+  - sample_count
 properties:
   result_id:
     type: string
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-    description: "UUID for the result record."
+    description: "Unique identifier for the result record."
   model_id:
     type: string
-    description: "Reference to the TrainedModel."
-  r_bench_score:
+    description: "Reference to the TrainedModel or named baseline (e.g., physisforcing_baseline, unfiltered_baseline)."
+  benchmark_name:
+    type: string
+    enum:
+      - "R-Bench"
+      - "PAI-Bench"
+    description: "Benchmark on which the score was computed (Constitution Principle VII)."
+  score:
     type: number
     minimum: 0.0
-    description: "Physical consistency score on R‑Bench."
-  pai_bench_score:
-    type: number
-    minimum: 0.0
-    description: "Physical consistency score on PAI‑Bench."
-  downstream_success_rate:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Success rate on a separate control task."
-    default: 0.0
-  mujoco_correlation:
-    type: number
-    minimum: -1.0
-    maximum: 1.0
-    description: "Pearson correlation with MuJoCo validator (if computed)."
-    default: 0.0
-  tost_p_value:
+    description: "Benchmark score."
+  mujoco_physics_score:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "P‑value from the TOST equivalence test."
-  equivalence_flag:
-    type: boolean
-    description: "True if equivalent within the 15 % margin."
-  training_duration:
+    description: "MuJoCo-validated physical consistency score (primary construct, SC-002)."
+  sample_count:
+    type: integer
+    minimum: 1
+    description: "Number of evaluation samples behind this result."
+  training_duration_seconds:
     type: number
     minimum: 0.0
-    description: "Training time in seconds."
+    description: "Training wall time in seconds (SC-005), if applicable to this model."
 additionalProperties: false

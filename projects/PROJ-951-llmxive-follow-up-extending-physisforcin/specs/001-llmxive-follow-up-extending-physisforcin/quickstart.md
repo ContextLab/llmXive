@@ -1,92 +1,81 @@
-# Quickstart: llmXive follow‑up – Post‑generation Physics Filtering
+# Quickstart: llmXive follow‑up — Post‑generation Physics Filtering
 
-Reproduce the entire experiment on a fresh GitHub Actions runner (or locally on Linux).
+Reproduce the full experiment on a fresh GitHub Actions free‑tier runner (or a Linux CPU box).
 
 ## Prerequisites
-* Python 3.11
-* Git clone of the repository
-* Internet access (to download open datasets)
 
-## Step‑by‑Step
+- Python 3.11, internet access, ~14 GB free disk.
 
-1. **Create a virtual environment & install dependencies**  
+## Steps
+
+1. **Install & audit environment**
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate
+   python -m venv .venv && source .venv/bin/activate
    pip install -r code/requirements.txt
-   python src/utils/verify_env.py   # asserts CPU‑only, checks data checksums
+   python code/src/utils/verify_env.py
    ```
+   `verify_env.py` asserts `torch.cuda.is_available() is False` (FR‑021) and validates `code/config.yaml` against `contracts/config.schema.yaml` (FR‑023).
 
-2. **Download raw assets**  
+2. **Download real Wan2.1 videos** (checksummed into `data/raw/`)
    ```bash
-   python src/generation/download_wan_weights.py
-   python src/generation/download_pybullet_examples.py
+   python code/src/data/download_videos.py --config code/config.yaml
    ```
+   This step streams the Rapidata parquet file and filters prompts for robotic‑manipulation keywords.
 
-3. **Generate synthetic videos** (default batch size = 200)  
+3. **Run the PyBullet physics filter and curate**
    ```bash
-   python src/generation/generate_videos.py \
-       --num_videos 200 \
-       --output_dir data/generated/videos/
+   python code/src/filtering/pybullet_filter.py --config code/config.yaml
    ```
+   Scores each video (trajectory continuity + contact conservation; raw 0–100 → normalized 0–1), discards any video with normalized score < 0.60, writes curated and unfiltered manifests under `data/derived/manifests/`, and tops up with additional manipulation videos if n < 64 per condition.
 
-4. **Run the physics filter** (keep top 60 th percentile)  
+4. **Validate contracts**
    ```bash
-   python src/filtering/pybullet_filter.py \
-       --input_dir data/generated/videos/ \
-       --output_csv data/curated/curated_dataset.csv \
-       --percentile 60
+   pytest -q code/tests/contract/test_contracts.py
    ```
 
-5. **(Optional) Augment to reach n ≥ 30**  
+5. **Train the ≈ 50 M‑parameter distilled diffusion model** (both conditions)
    ```bash
-   python src/augmentation/geometric_augmenter.py \
-       --manifest data/curated/curated_dataset.csv \
-       --target_n 30
+   python code/src/training/train_diffusion.py --config code/config.yaml --condition filtered
+   python code/src/training/train_diffusion.py --config code/config.yaml --condition unfiltered
    ```
+   CPU‑only, pinned seed, NaN‑loss guard (≤ 3 LR retries), monotonic‑loss check, ≤ 4 h; duration and peak RAM recorded (SC‑005).
 
-6. **Train the ≈ 50 M‑parameter diffusion model**  
+6. **Generate videos from each trained model**
    ```bash
-   python src/training/train_diffusion.py \
-       --manifest data/curated/curated_dataset.csv \
-       --epochs 10 \
-       --batch_size 4 \
-       --frame_resolution 64 \
-       --precision float16 \
-       --output_dir data/models/
+   python code/src/evaluation/generate_videos.py --config code/config.yaml --model filtered
+   python code/src/evaluation/generate_videos.py --config code/config.yaml --model unfiltered
    ```
+   Produces ≥ 64 new videos per model into `data/derived/generated/`.
 
-7. **Validate the filter with MuJoCo**  
+7. **MuJoCo independent validation**
    ```bash
-   python src/filtering/mujoco_validator.py \
-       --manifest data/curated/curated_dataset.csv
+   python code/src/filtering/mujoco_validator.py --config code/config.yaml
    ```
+   Produces MuJoCo physics‑consistency scores and the PyBullet–MuJoCo correlation (SC‑006).
 
-8. **Evaluate on benchmarks**  
+8. **Check go/no‑go sanity gate**
    ```bash
-   python src/evaluation/evaluate_benchmarks.py \
-       --model_path data/models/diffusion_checkpoint.pt \
-       --output_dir data/reports/
+   # Exits with a non-zero code if the pass rate is < 80%
+   python code/src/evaluation/check_gate.py --config code/config.yaml
    ```
+   If the gate fails, the pipeline stops and logs a null‑result record (T12–T14 are skipped); otherwise continue.
 
-9. **Run the TOST equivalence test**  
+9. **Evaluate benchmarks**
    ```bash
-   python src/evaluation/tost_equivalence.py \
-       --baseline data/reports/baseline_RBench.json \
-       --candidate data/reports/curated_RBench.json \
-       --margin 0.15 \
-       --output data/reports/tost_results.json
+   python code/src/evaluation/evaluate_benchmarks.py --config code/config.yaml
    ```
+   R‑Bench and PAI‑Bench scores for the filtered model, unfiltered baseline, and PhysisForcing baseline; computes the % gap (SC‑002, SC‑003).
 
-10. **Inspect the final report**  
-    The file `data/reports/final_summary.md` is generated automatically and contains:
-    * Retention rate after filtering (SC‑001).  
-    * **Physical‑consistency scores** (SC‑002).  
-    * **Performance gap** vs. PhysisForcing baseline (SC‑003).  
-    * **p‑value** from TOST (SC‑004).  
-    * Training **duration** (SC‑005).  
-    * Pearson **correlation** between PyBullet and MuJoCo scores (SC‑006).  
+10. **TOST equivalence test**
+    ```bash
+    python code/src/evaluation/tost_equivalence.py --config code/config.yaml
+    ```
+    Shapiro‑Wilk / Levene / independence diagnostics; primary TOST (filtered vs. unfiltered) with 15 % margin, α = 0.05; Mann‑Whitney fallback on assumption violation (SC‑004).
 
-All steps are fully scripted; running the CI workflow executes tasks T0‑T19 sequentially, guaranteeing end‑to‑end reproducibility.
+11. **Final report**
+    ```bash
+    python code/src/evaluation/generate_report.py --config code/config.yaml
+    ```
+    `data/reports/final_summary.md` aggregates SC‑001–SC‑006, all values read from the JSON/CSV artifacts.
 
----
+The CI workflow runs the full sequence of steps (FR‑022), guaranteeing end‑to‑end reproducibility from a clean runner.

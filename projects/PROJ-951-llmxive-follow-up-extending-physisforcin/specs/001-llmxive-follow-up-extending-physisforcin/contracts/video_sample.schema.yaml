@@ -8,35 +8,41 @@ required:
   - generation_timestamp
   - physics_score
   - filter_status
-  - augmented
+  - condition
 properties:
   video_id:
     type: string
     description: "Unique identifier for the video sample."
   prompt:
     type: string
-    description: "Text prompt used to generate the video."
+    description: "Text prompt used for generation."
   video_path:
     type: string
-    format: uri
-    description: "File system path (or URI) pointing to the MP4 video."
+    description: "Relative path to the MP4 file."
   generation_timestamp:
     type: string
     format: date-time
-    description: "ISO‑8601 timestamp of when the video was generated."
+    description: "ISO-8601 timestamp of acquisition/generation."
   physics_score:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Normalized physics consistency score (0 = impossible, 1 = perfect)."
+    description: "Normalized physics consistency score (0 – 1); raw 0‑100 scale divided by 100."
   filter_status:
     type: string
     enum:
       - "pass"
       - "fail"
       - "error"
-    description: "Result of the physics filter."
-  augmented:
+    description: "Result of the PyBullet physics filter."
+  condition:
+    type: string
+    enum:
+      - "filtered"
+      - "unfiltered"
+    description: "Experimental condition this sample belongs to."
+  simulation_failure:
     type: boolean
-    description: "True if the sample was created via physics‑preserving augmentation."
+    default: false
+    description: "True if the PyBullet simulation crashed or timed out on this video."
 additionalProperties: false

@@ -16,21 +16,25 @@ properties:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Normalized physics consistency score (0 = impossible, 1 = perfect)."
+    description: "Normalized physics consistency score (raw 0-100 scale divided by 100)."
   trajectory_continuity:
     type: number
-    description: "Score for trajectory smoothness and continuity."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Trajectory continuity sub-score (normalized 0-1)."
   contact_conservation:
     type: number
-    description: "Score for physical contact conservation (no clipping)."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Contact conservation sub-score (normalized 0-1)."
   simulation_status:
     type: string
     enum:
       - "success"
       - "crash"
       - "timeout"
-    description: "Status of the PyBullet simulation."
+    description: "Status of the PyBullet simulation for this video."
   passed_filter:
     type: boolean
-    description: "True if the normalized score ≥ 0.60 (60 th percentile)."
+    description: "True if the normalized score >= 0.60 (60th percentile, raw score = 60 per 2506.09162)."
 additionalProperties: false

@@ -3,35 +3,73 @@ title: "EvaluationResult"
 type: object
 required:
   - model_id
+  - baseline_model_id
   - r_bench_score
   - pai_bench_score
+  - mujoco_physics_score
   - sample_count
   - tost_p_value
+  - test_used
   - equivalence_margin
   - equivalent
+  - performance_gap_percent
 properties:
   model_id:
     type: string
-    description: "ID of the evaluated diffusion model."
+    description: "ID of the evaluated (filtered) model."
+  baseline_model_id:
+    type: string
+    description: "ID of the comparison baseline (PhysisForcing baseline)."
   r_bench_score:
     type: number
-    description: "Physical consistency score on R‑Bench."
+    minimum: 0.0
+    description: "R-Bench score for the evaluated model."
   pai_bench_score:
     type: number
-    description: "Physical consistency score on PAI‑Bench."
+    minimum: 0.0
+    description: "PAI-Bench score for the evaluated model."
+  mujoco_physics_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Average MuJoCo-validated physical consistency score (SC-002)."
   sample_count:
     type: integer
-    minimum: 30
-    description: "Number of evaluation samples (n ≥ 30)."
+    minimum: 64
+    description: "Number of evaluation samples (n >= 64 per condition, FR-006)."
   tost_p_value:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "P‑value from the Two‑One‑Sided Tests."
+    description: "P-value from the TOST test (or Mann‑Whitney fallback)."
+  test_used:
+    type: string
+    enum:
+      - "tost"
+      - "mann_whitney"
+    description: "Statistical test actually executed after assumption diagnostics (FR-013, FR-017)."
+  assumption_checks:
+    type: object
+    properties:
+      shapiro_wilk_p:
+        type: number
+      levene_p:
+        type: number
+      assumptions_met:
+        type: boolean
+    description: "Diagnostics from Shapiro‑Wilk and Levene tests."
   equivalence_margin:
     type: number
-    description: "Equivalence margin used (e.g., 0.15)."
+    description: "Equivalence margin used (0.15 for 15 percent, FR-015)."
   equivalent:
     type: boolean
-    description: "True if the model is equivalent to baseline within the margin."
+    description: "True if p < 0.05 within the equivalence margin (SC-004)."
+  performance_gap_percent:
+    type: number
+    description: "Relative percentage difference vs. the PhysisForcing baseline (SC-003; comparable if <= 15)."
+  pybullet_mujoco_correlation:
+    type: number
+    minimum: -1.0
+    maximum: 1.0
+    description: "Pearson (or Spearman) correlation between PyBullet and MuJoCo scores (SC-006; must be <= 0.95)."
 additionalProperties: false

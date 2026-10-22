@@ -5,33 +5,41 @@ required:
   - generation_batch_size
   - filter_discard_percent
   - training_epochs
+  - random_seed
 properties:
   generation_batch_size:
     type: integer
-    minimum: 1
+    minimum: 128
     maximum: 1000
-    description: "Number of videos to generate per run."
+    description: "Number of videos to acquire per run; must yield n >= 64 per condition after filtering (FR-006)."
+    default: 128
   filter_discard_percent:
     type: number
     minimum: 0.0
     maximum: 100.0
-    description: "Percentage of videos to discard (bottom) based on physics score."
-    default: 40.0
+    description: "Percentage of videos to discard (bottom) based on physics score. Reported only; actual curation uses the absolute normalized threshold of 0.60 (raw score = 60 per 2506.09162)."
+    default: 40
   training_epochs:
     type: integer
     minimum: 1
     maximum: 100
-    description: "Number of epochs for diffusion model training."
-  cpu_only:
-    type: boolean
-    description: "Force CPU execution (default true)."
-    default: true
-  kaggle_offload:
-    type: boolean
-    description: "Allow GPU offload to Kaggle if CPU fails."
-    default: true
+    description: "Epochs for diffusion model training."
+    default: 10
+  random_seed:
+    type: integer
+    description: "Pinned random seed for reproducibility (Constitution Principle I)."
   equivalence_margin:
     type: number
-    description: "Equivalence margin for TOST (e.g., 0.15 for 15 %)."
+    exclusiveMinimum: 0.0
+    description: "TOST equivalence margin expressed as a fraction (0.15 for the 15 percent margin, FR-015)."
     default: 0.15
+  min_samples_per_condition:
+    type: integer
+    minimum: 64
+    description: "Minimum n per condition for statistical testing (FR-006)."
+    default: 64
+  cpu_only:
+    type: boolean
+    description: "Force CPU execution (FR-007); verify_env.py asserts this."
+    default: true
 additionalProperties: false

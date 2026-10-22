@@ -3,61 +3,66 @@ title: "CuratedDataset"
 type: object
 required:
   - dataset_id
+  - condition
   - total_samples
   - threshold_percentile
   - threshold_score
+  - discard_percent
+  - retention_rate
   - samples
   - created_at
-  - augmented
-  - augmentation_method
 properties:
   dataset_id:
     type: string
-    description: "Unique identifier for the curated dataset."
+    description: "Unique identifier for the dataset manifest."
+  condition:
+    type: string
+    enum:
+      - "filtered"
+      - "unfiltered"
+    description: "Experimental condition (unfiltered retains all videos, FR-010)."
   total_samples:
     type: integer
-    description: "Number of VideoSample entries in the curated set."
+    minimum: 1
+    description: "Number of VideoSample entries in this manifest."
   threshold_percentile:
     type: number
     minimum: 0
     maximum: 100
-    description: "Percentile used to retain top videos (e.g., 60)."
+    description: "Percentile used to retain top videos (60 per 2506.09162)."
   threshold_score:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Normalized physics score corresponding to the percentile."
+    description: "Normalized physics score threshold (0.60; raw score = 60 per 2506.09162)."
+  discard_percent:
+    type: number
+    minimum: 0.0
+    maximum: 100.0
+    description: "Configured discard percentage (filter_discard_percent, default 40)."
+  retention_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Fraction of raw videos retained (SC-001)."
   samples:
     type: array
+    minItems: 1
     items:
-      $ref: "#/definitions/VideoSampleRef"
+      type: object
+      required:
+        - video_id
+        - physics_score
+      properties:
+        video_id:
+          type: string
+        physics_score:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+      additionalProperties: false
   created_at:
     type: string
     format: date-time
-    description: "ISO‑8601 timestamp of manifest creation."
-  augmented:
-    type: boolean
-    description: "True if augmentations were applied to reach the target sample size."
-  augmentation_method:
-    type: string
-    description: "Method used for augmentation (e.g., \"geometric_transforms\")."
-definitions:
-  VideoSampleRef:
-    type: object
-    required:
-      - video_id
-      - physics_score
-      - continuity_score
-      - contact_score
-    properties:
-      video_id:
-        type: string
-      physics_score:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-      continuity_score:
-        type: number
-      contact_score:
-        type: number
+    description: "ISO-8601 timestamp of manifest creation."
 additionalProperties: false
