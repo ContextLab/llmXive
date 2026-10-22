@@ -1,1 +1,3 @@
-# Placeholder for the tests package.
+"""
+Package marker for the ``tests`` module.
+"""

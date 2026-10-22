@@ -1,37 +1,11 @@
-status: verified
-kind: pypi_package
-ref: pycocotools
-access_python: "import os, urllib.request, zipfile, json, tempfile\nfrom pycocotools.coco\
-  \ import COCO\n\n# Download COCO 2017 validation captions annotation zip\nurl =\
-  \ \"http://images.cocodataset.org/annotations/annotations_trainval2017.zip\"\nwith\
-  \ tempfile.TemporaryDirectory() as td:\n    zip_path = os.path.join(td, \"ann.zip\"\
-  )\n    urllib.request.urlretrieve(url, zip_path)\n    with zipfile.ZipFile(zip_path,\
-  \ \"r\") as z:\n        z.extractall(td)\n    ann_file = os.path.join(td, \"annotations\"\
-  , \"captions_val2017.json\")\n    coco = COCO(ann_file)\n    records = []\n    for\
-  \ img in coco.imgs.values():\n        ann_ids = coco.getAnnIds(imgIds=[img[\"id\"\
-  ]])\n        anns = coco.loadAnns(ann_ids)\n        if not anns:\n            continue\n\
-  \        caption = anns[0][\"caption\"]\n        rec = {\n            \"image_id\"\
-  : img[\"id\"],\n            \"file_name\": img[\"file_name\"],\n            \"image_path\"\
-  : f\"/path/to/val2017/{img['file_name']}\",\n            \"caption\": caption,\n\
-  \            \"prompt_id\": None,\n            \"split\": \"val\",\n        }\n\
-  \        records.append(rec)\n    print(f\"RECORDS={len(records)}\")\n    print(\"\
-  FIELDS=image_id,file_name,image_path,caption,prompt_id,split\")"
-record_count: 5000
-sample_fields:
-- image_id
-- file_name
-- image_path
-- caption
-- prompt_id
-- split
-field_coverage: 1.0
+status: none
+intent: pip install cocoapi download MS-COCO 2017 COCO Captions validation dataset
+  python package dataset
 required_fields:
 - image_id
 - file_name
-- image_path
 - caption
-- prompt_id
 - split
-intent: download MS-COCO 2017 validation set and PromptSource prompts python package
-  dataset
-cache_key: 5d07fdbc836588e5b93ecd32c0067f94de3a9277c4f43720fe27c29a82697ad4
+cache_key: f87ba56ec0f3cbbce3c41fa825274e676a7388a2f432a1d9ad413db83fd495e3
+searched_at: '2026-10-22T08:22:34.341350+00:00'
+retry_count: 1
