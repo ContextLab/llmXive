@@ -20,7 +20,7 @@ Each task lists the primary artifact(s) it creates or modifies and the concrete 
   - Files: `code/models/trainer.py`, `code/data/augment.py`  
   - Verification: Unit tests in `tests/unit/test_trainer.py` assert (a) warm‑up length, (b) low‑entropy batches trigger retries, (c) high‑perplexity batches cause dream‑step skip and dummy wake, (d) total real‑token count matches the baseline for a fixed seed.
 
-- [ ] T003 [US1] **Add a CLI entry point (`code/train.py`) that wires the config, trainer, and memory monitor; on OOM abort it saves a checkpoint and logs peak RSS.**  
+- [ ] T003 [US1] **Add a CLI entry point (`code/train.py`) that wires the config, trainer, and memory monitor; on OOM abort it saves a checkpoint and logs peak RSS.**   <!-- FAILED-IN-EXECUTION: code/train.py exit=1 -->
   - Files: `code/train.py`, `code/utils/memory_monitor.py`  
   - Verification: Running `python code/train.py --seed 0 --total_steps 20 --mode debug` finishes within 5 min, writes `checkpoints/debug_seed0.pt` and a structured log `logs/debug_seed0.json` containing a `"peak_rss_mb"` field ≤ 6300.
 

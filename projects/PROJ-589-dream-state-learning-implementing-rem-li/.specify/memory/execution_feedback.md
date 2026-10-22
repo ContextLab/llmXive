@@ -14,46 +14,27 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
-- run-book command: `python code/train.py  --seed 42  --total_steps 20  --warmup_steps 5  --ratio 4:1  --mode debug`
-  - script usage: `train.py [-h] [--seed SEED] [--total_steps TOTAL_STEPS] [--mode MODE]`
-  - argparse error: `train.py: error: unrecognized arguments: --warmup_steps 5`
-- run-book command: `python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline`
-  - script usage: `train.py [-h] [--seed SEED] [--total_steps TOTAL_STEPS] [--mode MODE]`
-  - argparse error: `train.py: error: unrecognized arguments: --warmup_steps 20 --temp 1.0 --baseline`
-- run-book command: `python code/train.py  --seeds 3,4  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp_sweep 0.5 1.0 1.5 2.0  --baseline`
-  - script usage: `train.py [-h] [--seed SEED] [--total_steps TOTAL_STEPS] [--mode MODE]`
-  - argparse error: `train.py: error: unrecognized arguments: --warmup_steps 20 --temp_sweep 0.5 1.0 1.5 2.0 --baseline`
 - run-book command: `python code/eval.py --results_dir data/results/`
   - script usage: `eval.py [-h] [--checkpoint CHECKPOINT] [--output-dir OUTPUT_DIR]`
   - argparse error: `eval.py: error: unrecognized arguments: --results_dir data/results/`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/eval.py: self-declared fabricated metric — “…oss on the QNLI inputs)   * a dummy accuracy metric (token‑level match rat…”; 4 command(s) failed: python code/train.py  --seed 42  --total_steps 20  --warmup_steps 5  --ratio 4:1  --mode debug (rc=2); python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline (rc=2); python code/train.py  --seeds 3,4  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp_sweep 0.5 1.0 1.5 2.0  --baseline (rc=2)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/eval.py: self-declared fabricated metric — “…oss on the QNLI inputs)   * a dummy accuracy metric (token‑level match rat…”; 2 command(s) failed: python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline (rc=-1); python code/eval.py --results_dir data/results/ (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/train.py  --seed 42  --total_steps 20  --warmup_steps 5  --ratio 4:1  --mode debug -> rc=2
+- python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline -> rc=-1
+32, "phase": "WAKE", "loss": 0.2242031991481781, "entropy": 1.3416154384613037}
+2026-10-22 21:47:27,816 - models.trainer - INFO - [training_step] {"step": 32, "phase": "WAKE", "loss": 0.2242031991481781, "entropy": 1.3416154384613037}
 
-usage: train.py [-h] [--seed SEED] [--total_steps TOTAL_STEPS] [--mode MODE]
-                [--seeds SEEDS] [--ratio RATIO] [--warmup WARMUP]
-                [--glue_subset GLUE_SUBSET]
-train.py: error: unrecognized arguments: --warmup_steps 5
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+We strongly recommend passing in an `attention_mask` since your input_ids may be padded. See https://huggingface.co/docs/transformers/troubleshooting#incorrect-output-when-padding-tokens-arent-masked.
 
-- python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline -> rc=2
-
-usage: train.py [-h] [--seed SEED] [--total_steps TOTAL_STEPS] [--mode MODE]
-                [--seeds SEEDS] [--ratio RATIO] [--warmup WARMUP]
-                [--glue_subset GLUE_SUBSET]
-train.py: error: unrecognized arguments: --warmup_steps 20 --temp 1.0 --baseline
-
-- python code/train.py  --seeds 3,4  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp_sweep 0.5 1.0 1.5 2.0  --baseline -> rc=2
-
-usage: train.py [-h] [--seed SEED] [--total_steps TOTAL_STEPS] [--mode MODE]
-                [--seeds SEEDS] [--ratio RATIO] [--warmup WARMUP]
-                [--glue_subset GLUE_SUBSET]
-train.py: error: unrecognized arguments: --warmup_steps 20 --temp_sweep 0.5 1.0 1.5 2.0 --baseline
-
+[TIMEOUT after 120s]
 - python code/eval.py --results_dir data/results/ -> rc=2
 
 usage: eval.py [-h] [--checkpoint CHECKPOINT] [--output-dir OUTPUT_DIR]

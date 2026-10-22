@@ -107,7 +107,9 @@ def get_config():
         model_name="distilbert-base-uncased",
         log_dir="data/logs",
         results_dir="data/results",
-        checkpoint_dir="data/checkpoints"
+        checkpoint_dir="data/checkpoints",
+        # Add the missing memory limit attribute required by Trainer
+        memory_limit_bytes=int(6.3 * 1024 ** 3)
     )
     # Provide a ``get`` method like the real Config class
     def _get(attr, default=None):

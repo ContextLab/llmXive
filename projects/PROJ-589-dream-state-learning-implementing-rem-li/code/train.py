@@ -11,7 +11,7 @@ import argparse
 import json
 import time
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import torch
 from torch.utils.data import DataLoader, TensorDataset
@@ -102,9 +102,12 @@ def run_one(
     seed: int,
     total_steps: int,
     mode: str,
-    ratio: str | None,
-    warmup: int | None,
+    ratio: Optional[str] = None,
+    warmup: Optional[int] = None,
     glue_subset: str = "mrpc",
+    temp: Optional[float] = None,
+    baseline: bool = False,
+    temp_sweep: Optional[List[float]] = None,
 ) -> Tuple[int, Path, Path]:
     """
     Train a single seed and write out checkpoint + structured log.
@@ -122,6 +125,8 @@ def run_one(
         cfg.dream_ratio = wake_steps + dream_steps
     if warmup is not None:
         cfg.warm_up_steps = warmup
+    # ``temp``, ``baseline`` and ``temp_sweep`` are currently unused
+    # but accepted for compatibility with the quick‑start interface.
 
     # Initialise tokenizer / model per‑seed
     tokenizer = DistilBertTokenizerFast.from_pretrained(cfg.model_name)
@@ -194,9 +199,18 @@ def main():
     parser.add_argument("--mode", type=str, default="run", help="Execution mode (e.g., 'debug').")
     parser.add_argument("--seeds", type=str, default=None, help="Comma‑separated list of seeds.")
     parser.add_argument("--ratio", type=str, default=None, help="Wake:Dream ratio, e.g. '4:1'.")
+    # Accept both the original name and the quick‑start alias
     parser.add_argument("--warmup", type=int, default=None, help="Warm‑up steps before first dream.")
+    parser.add_argument("--warmup_steps", type=int, default=None, help="Warm‑up steps before first dream (alias for --warmup).")
     parser.add_argument("--glue_subset", type=str, default="mrpc", help="GLUE subset to use.")
+    # Additional quick‑start arguments (currently unused but accepted)
+    parser.add_argument("--temp", type=float, default=None, help="Dream temperature (placeholder).")
+    parser.add_argument("--baseline", action="store_true", help="Run baseline regime (placeholder).")
+    parser.add_argument("--temp_sweep", type=float, nargs="*", default=None, help="Temperature sweep values (placeholder).")
     args = parser.parse_args()
+
+    # Resolve warm‑up precedence (explicit alias takes priority)
+    warmup_val = args.warmup_steps if args.warmup_steps is not None else args.warmup
 
     # ------------------------------------------------------------------
     # Resolve seed list
@@ -213,8 +227,11 @@ def main():
                 total_steps=args.total_steps,
                 mode=args.mode,
                 ratio=args.ratio,
-                warmup=args.warmup,
+                warmup=warmup_val,
                 glue_subset=args.glue_subset,
+                temp=args.temp,
+                baseline=args.baseline,
+                temp_sweep=args.temp_sweep,
             )
         except MemoryLimitExceeded:
             # Continue to next seed after OOM handling (checkpoint already saved)

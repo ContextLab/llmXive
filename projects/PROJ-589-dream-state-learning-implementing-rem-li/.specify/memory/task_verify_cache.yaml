@@ -1,37 +1,18 @@
 T001:
   c: true
-  h: 33c3e27e6ba00aef326a946fc568ad17b2b79ed2fa2a72eaaaf741540e399e15
-  r: "The `code/requirements.txt` file is present, non\u2011empty, and pins exact\
-    \ versions for all listed dependencies. The `code/config.py` file exists, defines\
-    \ `MAX_MEMORY_MB = 6300`, and includes the required CPU\u2011only and memory\u2011\
-    limit logic, so `import code.config; assert code.config.MAX_MEMORY_MB == 6300`\
-    \ would succeed."
-  sig: 7b406b089868fcea5780ee56407acb866f6492167453ab25790a5a1d47b6beb9
-T002:
-  c: false
-  h: 23a43ac69edc33f14141af344d421811020a04f4728de39f291526d03ca38b72
-  r: "The unit\u2011test suite `tests/unit/test_trainer.py` fails with an `AttributeError`\
-    \ because the `SimpleNamespace` returned by `get_config()` lacks the required\
-    \ `memory_limit_bytes` attribute that `Trainer.__init__` accesses. Consequently\
-    \ the tests for warm\u2011up length, dream\u2011phase triggering, perplexity skipping,\
-    \ and entropy\u2011retry never run. Additionally, the specification\u2019s \u201C\
-    dummy\u2011wake insertion for token\u2011parity\u201D is not implemented in `trainer.py`.\
-    \ The task therefore does not meet the required behavior."
-  sig: 875fcc6ed72826d69e75fbd8b4c429b82a7673935b7b3f60753136345c4bf5d4
-T003:
-  c: false
-  h: de2db9eadbcf2a4a0ec5bf3b7fe1ce11b6d5c3ed75b4195b9c41f369f85f2359
-  r: "The run produced `logs/debug_seed0.json`, but the required checkpoint file `checkpoints/debug_seed0.pt`\
-    \ is not present in the provided artifacts, so the task\u2019s output requirement\
-    \ is not satisfied."
-  sig: 99f354993c457280d185de134fac12742f52fb1699e044351e0ada06d0d4ab6c
+  h: c25032d97fab4ab74af137f1fb673d67845ab121771ec5c2af12ed2c6a4efee1
+  r: "Checked `code/requirements.txt` (pinned dependency versions, non\u2011empty)\
+    \ and `code/config.py` (defines `MAX_MEMORY_MB = 6300` and enforces CPU\u2011\
+    only execution). Both artifacts exist and meet the task\u2019s specifications."
+  sig: ed95dc337def18cc2ddc95ac11827c991bca98f02d09545f02a924aaad094073
 T004:
   c: true
-  h: 7a89a9f7114788f3520a1c6dd195e0a13b7413ac71fc4ad6cd25b1cd7d842f3f
-  r: "Checked `code/eval.py` which runs successfully and writes `data/results/evaluation_result_debug_seed0.json`;\
-    \ the JSON contains all required fields and conforms to `contracts/evaluation_result.schema.yaml`.\
-    \ The companion file `code/eval/metrics.py` exists and is non\u2011empty."
-  sig: 02a72cce3a3b65cfefcca1aa23a027e820f2203b0c7d93009580192c3e2667c8
+  h: c3dd17b5ce997e46d523387be8511dcd8cf575414405bd08df7ce4d8f2a441a7
+  r: "Checked `code/eval.py` which runs evaluation and writes `data/results/evaluation_result_debug_seed0.json`\
+    \ containing all required fields with correct types, and the execution log shows\
+    \ the script succeeded and produced the JSON file that conforms to `contracts/evaluation_result.schema.yaml`.\
+    \ The required `code/eval/metrics.py` file is present (non\u2011empty)."
+  sig: fc3b29c1253c4b468ece3e314ca0e058a30256b09e49f1914ed7d408647a5f14
 T005:
   c: false
   h: 06153775f307a7b1173578748ab99326379c906d8c83fc6919446b4cd6448a14

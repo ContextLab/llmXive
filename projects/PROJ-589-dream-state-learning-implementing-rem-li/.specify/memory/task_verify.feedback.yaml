@@ -1,18 +1,16 @@
 T001:
   task: 53056bd4b5e9e7ad5defc4b987d876312b0716e2edd2f53e4fb3c3af882dfa7d
 T002:
-  reason: "The unit\u2011test suite `tests/unit/test_trainer.py` fails with an `AttributeError`\
-    \ because the `SimpleNamespace` returned by `get_config()` lacks the required\
-    \ `memory_limit_bytes` attribute that `Trainer.__init__` accesses. Consequently\
-    \ the tests for warm\u2011up length, dream\u2011phase triggering, perplexity skipping,\
-    \ and entropy\u2011retry never run. Additionally, the specification\u2019s \u201C\
-    dummy\u2011wake insertion for token\u2011parity\u201D is not implemented in `trainer.py`.\
-    \ The task therefore does not meet the required behavior."
+  reason: "The `tests/unit/test_trainer.py` suite fails with an `AttributeError` because\
+    \ the `config` object passed to `Trainer` lacks the required `memory_limit_bytes`\
+    \ attribute, causing the trainer initialization to abort. Consequently the warm\u2011\
+    up, dream\u2011phase triggering, perplexity\u2011skip, and entropy\u2011retry\
+    \ checks are never exercised, so the core Wake/Dream training loop does not meet\
+    \ the task\u2019s verification requirements. Fix the configuration (ensure `memory_limit_bytes`\
+    \ is present) and re\u2011run the unit tests."
   task: 4250ae96cbee8a5e44e0febe33dea94d002d9bb9b20d448f05e711f5b9adf6fb
 T003:
-  reason: "The run produced `logs/debug_seed0.json`, but the required checkpoint file\
-    \ `checkpoints/debug_seed0.pt` is not present in the provided artifacts, so the\
-    \ task\u2019s output requirement is not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/train.py exit=1'
   task: a88d68629e6b1567babfe2208c4e1b73132e53d9f2f5389cb3f0332f30878fd7
 T004:
   task: 9893cae91034be6803949523fc422d0f38c52e6b0da58c8c64a4638a825b34ca

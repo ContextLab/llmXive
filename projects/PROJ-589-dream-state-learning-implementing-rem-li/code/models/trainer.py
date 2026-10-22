@@ -214,6 +214,12 @@ class Trainer:
             try:
                 if is_dream:
                     metrics = self.train_step_dream(batch, held_out_batch)
+                    # If the dream step was skipped due to high perplexity, insert a dummy wake step
+                    if metrics['phase'] == 'DREAM_SKIPPED':
+                        # Perform a wake‑step without gradient updates (dummy) to keep token parity
+                        dummy_metrics = self.train_step_wake(batch)
+                        dummy_metrics['phase'] = 'DUMMY_WAKE'
+                        metrics = dummy_metrics
                 else:
                     metrics = self.train_step_wake(batch)
 
