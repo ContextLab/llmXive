@@ -1,1 +1,1 @@
-# Package marker for ``code.utils``
+# Package marker for code.utils

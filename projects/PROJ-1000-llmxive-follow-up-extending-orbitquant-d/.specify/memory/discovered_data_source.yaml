@@ -1,10 +1,12 @@
 status: none
-intent: MS COCO 2017 validation dataset download via HuggingFace datasets python package
-  dataset
+intent: download MS-COCO 2017 validation set from HuggingFace datasets as pip installable
+  python package
 required_fields:
+- prompt_text
 - image_id
-- image
 - caption
-cache_key: 82018afc2950356f91123f44d9b771b194dbc8e1307b543248cb6b1a756df3db
-searched_at: '2026-10-22T09:22:01.310939+00:00'
+- semantic_entropy
+- activation_variance
+cache_key: 50f49fc1de55ec8e6affd8c503fcf6f7b83991b4ae3a27515da4e5ec2319eff6
+searched_at: '2026-10-22T11:21:24.512668+00:00'
 retry_count: 1

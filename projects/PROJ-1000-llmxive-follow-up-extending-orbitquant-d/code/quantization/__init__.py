@@ -1,1 +1,1 @@
-# Package marker for ``code.quantization``
+# Package marker for code.quantization

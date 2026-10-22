@@ -1,1 +1,1 @@
-# Package marker for ``code.security``
+# Package marker for code.security

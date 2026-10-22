@@ -1,46 +1,54 @@
 """
-Minimal entry point used by the quickstart to create the project skeleton.
-Existing implementation is retained; this file is included to ensure the
-module can be imported without errors after our modifications.
+Main entry point for the project skeleton initialization.
+
+This script creates the required sub‑directories under ``code/`` and
+writes a marker ``__init__.py`` file in each of them so they are recognised
+as Python packages. It is invoked by the quick‑start guide via:
+
+    python -m code.main --phase init
+
+The script prints ``Initialization complete`` on success, which is
+asserted by the verification command.
 """
 import argparse
-from llmxive_toolkit import get_logger, paths
+from pathlib import Path
 
-log = get_logger(__name__)
+def _ensure_package_dir(parent: Path, name: str) -> None:
+    """Create a sub‑directory and an ``__init__.py`` marker."""
+    dir_path = parent / name
+    dir_path.mkdir(parents=True, exist_ok=True)
+    init_file = dir_path / "__init__.py"
+    init_file.touch(exist_ok=True)
 
-def init_skeleton():
-    # Create the required directories under the project root.
-    required_dirs = [
-        "code/analysis",
-        "code/models",
-        "code/quantization",
-        "code/evaluation",
-        "code/utils",
-        "code/runners",
-        "code/validation",
-        "code/security",
-        "data/raw",
-        "data/processed",
-        "data/processed/logs",
-        "data/processed/activation_stats",
-        "data/processed/rotation_matrices",
-        "data/processed/generated_images",
-        "figures",
-        "tests",
+def _create_code_subdirs() -> None:
+    """Create all required ``code/`` sub‑directories."""
+    base_dir = Path(__file__).parent
+    subdirs = [
+        "analysis",
+        "models",
+        "quantization",
+        "evaluation",
+        "utils",
+        "runners",
+        "validation",
+        "security",
     ]
-    for d in required_dirs:
-        (paths.root / d).mkdir(parents=True, exist_ok=True)
-    log.info("Initialization complete")
+    for sub in subdirs:
+        _ensure_package_dir(base_dir, sub)
 
-def main():
-    parser = argparse.ArgumentParser(description="Project entry point")
-    parser.add_argument("--phase", type=str, required=True, help="Phase to run")
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Project skeleton initializer")
+    parser.add_argument(
+        "--phase",
+        choices=["init"],
+        required=True,
+        help="Initialization phase to run",
+    )
     args = parser.parse_args()
 
     if args.phase == "init":
-        init_skeleton()
-    else:
-        log.error(f"Unknown phase: {args.phase}")
+        _create_code_subdirs()
+        print("Initialization complete")
 
 if __name__ == "__main__":
     main()

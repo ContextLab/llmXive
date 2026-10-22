@@ -1,1 +1,1 @@
-# Package marker for ``code.analysis``
+# Package marker for code.analysis

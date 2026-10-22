@@ -15,7 +15,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/run_router_inference.py: self-declared fabricated metric — “…entropy, matrix index, and a placeholder metric structure.…”; code/runners/router_inference_runner.py: self-declared fabricated metric — “…# For this runner, we simulate the metric collection structure.…”; code/analysis/clustering.py: synthetic/fake INPUT data not authorized by the spec — “…cluster center values to generate synthetic activations         # th…”; run-book completed but produced no data/figure artifacts; 6 declared deliverable(s) absent: data/processed/clustering_report.json; data/processed/correlation_results.json; data/processed/entropy_scores.csv
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/run_router_inference.py: self-declared fabricated metric — “…entropy, matrix index, and a placeholder metric structure.…”; code/runners/router_inference_runner.py: self-declared fabricated metric — “…# For this runner, we simulate the metric collection structure.…”; code/analysis/clustering.py: synthetic/fake INPUT data not authorized by the spec — “…cluster center values to generate synthetic activations         # th…”; run-book completed but produced no data/figure artifacts; 7 declared deliverable(s) absent: data/processed/clustering_report.json; data/processed/correlation_results.json; data/processed/diverse_prompts.csv
 
 ## Failing / missing run-book commands
 
@@ -25,6 +25,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - data/processed/clustering_report.json
 - data/processed/correlation_results.json
+- data/processed/diverse_prompts.csv
 - data/processed/entropy_scores.csv
 - data/processed/final_evaluation_report.json
 - data/processed/logs/model_load_log.json
@@ -54,6 +55,15 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/run_correlation.py` — NOT invoked by the run-book
     - `code/validation/validate_correlation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/correlation_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/diverse_prompts.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/config.py` — IS a run-book command
+    - `code/data/download_diverse_prompts.py` — NOT invoked by the run-book
+    - `code/data/preprocess.py` — NOT invoked by the run-book
+    - `code/evaluation/timing.py` — NOT invoked by the run-book
+    - `code/run_correlation.py` — NOT invoked by the run-book
+    - `code/run_evaluation.py` — NOT invoked by the run-book
+    - `code/run_router_inference.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/diverse_prompts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/entropy_scores.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/correlation.py` — NOT invoked by the run-book
     - `code/analysis/generate_correlation_results.py` — NOT invoked by the run-book
