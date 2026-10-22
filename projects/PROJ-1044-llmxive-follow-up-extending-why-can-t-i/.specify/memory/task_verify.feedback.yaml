@@ -1,11 +1,16 @@
 T001:
+  reason: "`quickstart.md` and `configs/run.yaml` exist with sensible content, but\
+    \ the task's verification requirement is unmet: there is no evidence the command\
+    \ `python -m src.pipeline.run_all --config configs/run.yaml` was ever executed\
+    \ or exits with status 0 \u2014 no run log, no summary output, and the artifacts\
+    \ it claims to produce are empty (`data/checksums/manifest.csv` is the empty-file\
+    \ sha256, `results/training_log.csv` is header-only). The implementer must actually\
+    \ run the command and provide execution evidence (e.g., captured summary output\
+    \ and exit status), and confirm `src/pipeline/run_all.py` ex"
   task: 135d9f2d64e2fc48477a7db249a8e13984addba24f49490b1581f160d2624884
 T002:
-  reason: The repository lacks the required `data/fallback/` videos, and the test
-    run (`code/.tasks/T002.tests_test_something_loader.py.log`) shows `tests/test_something_loader.py`
-    failing (SSL error while trying to download a fallback video). Consequently the
-    loader cannot reliably fall back to bundled videos and the unit test does not
-    pass.
+  reason: 'Requested task execution failed; rerun successfully: src/data/something_loader.py
+    exit=1'
   task: 2ed1d5bc75e0b8726f0ad041317b1bb315b9874a16a883d140b54e015cb1486e
 T003:
   reason: "The `src/data/counterfactual.py` script does not meet several core requirements:\

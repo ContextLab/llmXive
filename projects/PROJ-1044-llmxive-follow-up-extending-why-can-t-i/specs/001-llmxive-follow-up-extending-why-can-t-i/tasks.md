@@ -5,13 +5,13 @@ All tasks respect the data‑flow order, stay within the free‑tier CPU budget,
 
 ## Phase 1 – Setup and first end‑to‑end analysis
 
-- [X] **T001** [P] **Create a reproducible entry‑point and quick‑start guide**  
+- [ ] **T001** [P] **Create a reproducible entry‑point and quick‑start guide**  
   - Add `quickstart.md` describing a single command `python -m src.pipeline.run_all --config configs/run.yaml`.  
   - Provide `configs/run.yaml` with default paths and hyper‑parameters.  
   - Verify that the command prints a summary of generated artifacts and exits with status 0.  
   - **File(s)**: `quickstart.md`, `configs/run.yaml`.
 
-- [ ] **T002** [P] **Implement a robust streaming loader for Something‑Something V2**  
+- [ ] **T002** [P] **Implement a robust streaming loader for Something‑Something V2**   <!-- FAILED-IN-EXECUTION: src/data/something_loader.py exit=1 -->
   - Write `src/data/something_loader.py` that streams the dataset via `datasets.load_dataset("something-something-v2", split="train", streaming=True)`.  
   - If the HuggingFace dataset cannot be accessed, fall back to the bundled fallback videos located in `data/fallback/` and continue yielding video bytes and labels.  
   - Add a deterministic seed (`--seed`) to make the sampling reproducible.  

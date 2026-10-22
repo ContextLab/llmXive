@@ -1,11 +1,15 @@
 T001:
-  c: true
-  h: 48c5ad6c79fc48520183e4eba99c75c78c1c49e8e6d9af79b90011ecdc18e46f
-  r: "Checked `quickstart.md` (contains the required command description), `configs/run.yaml`\
-    \ (provides default parameters), and the execution log `code/.tasks/T001.src_pipeline_run_all.py.log`\
-    \ which shows the command ran, printed a pipeline summary, and exited with status\u202F\
-    0."
-  sig: 2a77f3c93eea46259a511b5f8cca63fa05814f72a8828f6e40dcf73fb9faf79a
+  c: false
+  h: 358c05582867cc47180b3a4b0a4730e338ce1842973ff1160213b91af1ba344c
+  r: "`quickstart.md` and `configs/run.yaml` exist with sensible content, but the\
+    \ task's verification requirement is unmet: there is no evidence the command `python\
+    \ -m src.pipeline.run_all --config configs/run.yaml` was ever executed or exits\
+    \ with status 0 \u2014 no run log, no summary output, and the artifacts it claims\
+    \ to produce are empty (`data/checksums/manifest.csv` is the empty-file sha256,\
+    \ `results/training_log.csv` is header-only). The implementer must actually run\
+    \ the command and provide execution evidence (e.g., captured summary output and\
+    \ exit status), and confirm `src/pipeline/run_all.py` ex"
+  sig: d7f54d90657f3e692714ae1b5e7684a0106f0fec456690f16fc5a9014f72717e
 T002:
   c: false
   h: 6450aaca81bfa6303279d5ca5bbed4e058138f14598b31e58e5489ff15f437e2

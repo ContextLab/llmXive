@@ -1,87 +1,131 @@
 """
-Streaming loader for the Something‑Something V2 dataset.
+Streaming loader for the Something-Something V2 dataset.
 
-This module provides a deterministic iterator over the training split of the
-Something‑Something V2 dataset via HuggingFace ``datasets``. If the dataset
-cannot be accessed (e.g., due to network restrictions), the loader falls
-back to a small locally‑bundled MP4 video so that downstream code and
-unit tests can still run on real data.
+The loader first attempts to stream the real dataset via
+``datasets.load_dataset("something-something-v2", split="train",
+streaming=True)``.  If the HuggingFace Hub cannot be reached (the
+Something-Something V2 videos require manual download and are gated),
+the loader falls back to the bundled videos in ``data/fallback/`` and
+keeps yielding ``(video_bytes, label)`` pairs so downstream stages and
+the unit test always operate on real, decodable MP4 files.
 
-The iterator yields ``(video_bytes, label)`` tuples where ``video_bytes`` is
-the raw MP4 payload and ``label`` is the textual action template.
+The fallback videos are deterministic procedural MP4 files generated
+locally with OpenCV (no network access required).  Running this module
+as a script materialises them under ``data/fallback/``:
+
+    python src/data/something_loader.py --seed 42 --num_videos 5
 """
 
 from __future__ import annotations
 
+import argparse
 import random
-import cv2
+import sys
 from pathlib import Path
-from typing import Iterator, Tuple, Optional
+from typing import Iterator, List, Optional, Tuple
 
-import requests
-from datasets import load_dataset
+import cv2
+import numpy as np
 
-__all__ = ["something_stream"]
+from llmxive_toolkit import get_logger, paths
+
+log = get_logger(__name__)
+
+__all__ = ["something_stream", "main"]
 
 # ----------------------------------------------------------------------
-# Helper: load a local fallback video (if present) or generate a reliable
-# small sample video as a last resort.
+# Local fallback videos (bundled under data/fallback/).
 # ----------------------------------------------------------------------
-_LOCAL_FALLBACK_DIR = Path("data/fallback")
-_FALLBACK_VIDEO_NAME = "fallback.mp4"
-_fallback_video_cache: Optional[bytes] = None
+_FALLBACK_DIR_NAME = "fallback"
+_NUM_FALLBACK_VIDEOS = 5
+_FALLBACK_LABEL = "fallback_sample"
 
-def _load_local_fallback() -> Optional[bytes]:
-    """Return the bytes of the first MP4 file found in ``data/fallback/``."""
-    if not _LOCAL_FALLBACK_DIR.is_dir():
-        return None
-    for file in _LOCAL_FALLBACK_DIR.iterdir():
-        if file.suffix.lower() == ".mp4" and file.is_file():
-            return file.read_bytes()
-    return None
 
-def _generate_fallback_video() -> bytes:
+def _fallback_dir() -> Path:
+    """Return the project-relative ``data/fallback`` directory."""
+    return paths.data(_FALLBACK_DIR_NAME)
+
+
+def _generate_fallback_video(video_path: Path, index: int,
+                             num_frames: int = 8,
+                             width: int = 64, height: int = 64) -> None:
     """
-    Generate a tiny MP4 video (5 frames, 64×64) with solid colour frames.
-    The video is written to ``data/fallback/fallback.mp4`` and its bytes
-    are returned. This provides a deterministic, real video file without
-    requiring any network access.
+    Create a deterministic procedural MP4 at *video_path*.
+
+    A coloured square moves across the frame, guaranteeing non-zero
+    optical flow and decodable frames.  The colour and trajectory are
+    a pure function of *index*, so regeneration is byte-stable given
+    the same OpenCV build.
     """
-    global _fallback_video_cache
-    if _fallback_video_cache is not None:
-        return _fallback_video_cache
-
-    # Ensure the fallback directory exists.
-    _LOCAL_FALLBACK_DIR.mkdir(parents=True, exist_ok=True)
-    fallback_path = _LOCAL_FALLBACK_DIR / _FALLBACK_VIDEO_NAME
-
-    # Create a simple video using OpenCV.
-    width, height = 64, 64
-    fps = 5
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    writer = cv2.VideoWriter(str(fallback_path), fourcc, fps, (width, height))
+    writer = cv2.VideoWriter(str(video_path), fourcc, 5.0, (width, height))
+    if not writer.isOpened():
+        raise RuntimeError(f"Failed to open VideoWriter for {video_path}")
 
-    # Write 5 frames of distinct solid colours.
-    colours = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (0, 255, 255)]
-    for colour in colours:
-        frame = (np.full((height, width, 3), colour, dtype=np.uint8))
+    base_colour = (
+        (index * 53) % 256,
+        (index * 97 + 40) % 256,
+        (index * 151 + 80) % 256,
+    )
+    square_size = 16
+    for f in range(num_frames):
+        frame = np.zeros((height, width, 3), dtype=np.uint8)
+        # Background shade varies deterministically per video.
+        frame[:, :] = (base_colour[0] // 4, base_colour[1] // 4, base_colour[2] // 4)
+        x = int((f / max(1, num_frames - 1)) * (width - square_size - 1))
+        y = int((height - square_size) // 2)
+        frame[y:y + square_size, x:x + square_size] = base_colour
         writer.write(frame)
     writer.release()
 
-    # Read the generated file into memory.
-    _fallback_video_cache = fallback_path.read_bytes()
-    return _fallback_video_cache
+
+def ensure_fallback_videos(num_videos: int = _NUM_FALLBACK_VIDEOS) -> List[Path]:
+    """
+    Ensure *num_videos* deterministic fallback MP4s exist under
+    ``data/fallback/``; generate any that are missing and return the
+    sorted list of fallback video paths.
+    """
+    fallback_dir = _fallback_dir()
+    fallback_dir.mkdir(parents=True, exist_ok=True)
+    video_paths: List[Path] = []
+    for i in range(num_videos):
+        path = fallback_dir / f"fallback_{i:02d}.mp4"
+        if not path.is_file() or path.stat().st_size == 0:
+            _generate_fallback_video(path, i)
+            log.info("Generated fallback video %s", path)
+        video_paths.append(path)
+    return video_paths
+
+
+def _load_local_fallback(num_videos: int = _NUM_FALLBACK_VIDEOS) -> List[Tuple[bytes, str]]:
+    """Return ``(video_bytes, label)`` pairs for the bundled fallback videos."""
+    return [(p.read_bytes(), _FALLBACK_LABEL) for p in ensure_fallback_videos(num_videos)]
+
 
 # ----------------------------------------------------------------------
 # Primary dataset loading logic
 # ----------------------------------------------------------------------
-def _load_something_dataset() -> "datasets.Dataset":
+def _load_something_dataset():
     """
-    Load the Something‑Something V2 dataset with a robust fallback.
-    Prioritises the 'something-something' dataset with the 'v2' config,
-    which is the canonical identifier on the HuggingFace Hub.
+    Load the Something-Something V2 training split as a streaming
+    dataset.  Raises ``RuntimeError`` if the Hub is unreachable or the
+    dataset requires manual download.
     """
-    # Attempt 1: multi‑config repository
+    try:
+        from datasets import load_dataset
+    except Exception as exc:  # pragma: no cover - datasets always present
+        raise RuntimeError("The 'datasets' package is unavailable.") from exc
+
+    # Attempt 1: the identifier named in the task specification.
+    try:
+        return load_dataset(
+            "something-something-v2",
+            split="train",
+            streaming=True,
+        )
+    except Exception:
+        pass
+    # Attempt 2: canonical multi-config repository.
     try:
         return load_dataset(
             "something-something",
@@ -89,35 +133,12 @@ def _load_something_dataset() -> "datasets.Dataset":
             split="train",
             streaming=True,
         )
-    except Exception:
-        # Attempt 2: direct identifier (some mirrors expose it this way)
-        try:
-            return load_dataset(
-                "something-something-v2",
-                split="train",
-                streaming=True,
-            )
-        except Exception as exc:
-            # Propagate a clear error – the caller will handle it.
-            raise RuntimeError(
-                "Unable to access the Something‑Something V2 dataset on the "
-                "HuggingFace Hub."
-            ) from exc
+    except Exception as exc:
+        raise RuntimeError(
+            "Unable to access the Something-Something V2 dataset on the "
+            "HuggingFace Hub."
+        ) from exc
 
-# ----------------------------------------------------------------------
-# Video download helper for URLs coming from the dataset
-# ----------------------------------------------------------------------
-def _download_video(url: str) -> bytes:
-    """
-    Download the MP4 video located at ``url`` and return its raw bytes.
-    """
-    resp = requests.get(url, stream=True, timeout=30)
-    resp.raise_for_status()
-    data = bytearray()
-    for chunk in resp.iter_content(chunk_size=8192):
-        if chunk:
-            data.extend(chunk)
-    return bytes(data)
 
 # ----------------------------------------------------------------------
 # Public iterator
@@ -128,29 +149,28 @@ def something_stream(
     max_examples: Optional[int] = None,
 ) -> Iterator[Tuple[bytes, str]]:
     """
-    Yield ``(video_bytes, label)`` pairs from the Something‑Something V2
-    training split. If the dataset cannot be loaded, a fallback video is
-    yielded repeatedly until ``max_examples`` items have been produced.
+    Yield ``(video_bytes, label)`` pairs from the Something-Something V2
+    training split.  If the dataset cannot be loaded, the bundled
+    fallback videos in ``data/fallback/`` are yielded (repeating them
+    deterministically as needed) until ``max_examples`` items have been
+    produced.
 
     Parameters
     ----------
-    seed: int, default 42
+    seed : int, default 42
         Seed for the internal ``random.Random`` instance to ensure
         reproducible sampling.
-    max_examples: int | None, default None
+    max_examples : int | None, default None
         If provided, the iterator stops after yielding ``max_examples``
-        items. When ``None`` the iterator yields indefinitely (or until the
-        dataset is exhausted).
+        items.
 
     Yields
     ------
     tuple[bytes, str]
         ``video_bytes`` – the raw MP4 bytes of the video.
-        ``label`` – the action template string (or ``"fallback"`` when using
-        the fallback video).
+        ``label`` – the action template string (or ``"fallback_sample"``
+        when using the bundled fallback videos).
     """
-    import numpy as np  # Imported here to avoid unnecessary global dependency.
-
     rng = random.Random(seed)
     yielded = 0
     target = max_examples if max_examples is not None else float("inf")
@@ -158,43 +178,90 @@ def something_stream(
     # ------------------------------------------------------------------
     # Try the real dataset first.
     # ------------------------------------------------------------------
+    ds = None
     try:
         ds = _load_something_dataset()
-    except Exception:
-        ds = None
+    except Exception as exc:
+        log.warning(
+            "Something-Something V2 unavailable (%s); falling back to "
+            "bundled videos in data/fallback/.", exc,
+        )
 
     if ds is not None:
         for example in ds:
             if yielded >= target:
                 break
-
-            video_url: Optional[str] = example.get("video")
-            label: Optional[str] = example.get("template") or example.get("label")
-
-            if not video_url or not label:
+            try:
+                video_bytes: Optional[bytes] = example.get("video")
+                label: Optional[str] = (
+                    example.get("template") or example.get("label")
+                )
+            except Exception:
                 continue
-
-            # Deterministic sampling: keep ~10 % of the stream.
+            if not video_bytes or not label:
+                continue
+            # Deterministic sampling: keep ~10 % of the stream.
             if rng.random() > 0.1:
                 continue
-
-            try:
-                video_bytes = _download_video(video_url)
-            except Exception:
-                # Skip problematic downloads but continue iteration.
-                continue
-
             yield video_bytes, label
             yielded += 1
 
     # ------------------------------------------------------------------
-    # Fallback mode – fill any remaining slots with a local or generated sample.
+    # Fallback mode – bundled local videos, no network access.
     # ------------------------------------------------------------------
-    fallback_bytes = _load_local_fallback()
-    if fallback_bytes is None:
-        fallback_bytes = _generate_fallback_video()
-    fallback_label = "fallback_sample"
+    if yielded < target:
+        fallback_items = _load_local_fallback()
+        if not fallback_items:
+            raise RuntimeError(
+                "No fallback videos available in data/fallback/ and the "
+                "Something-Something V2 dataset is unreachable."
+            )
+        order = list(range(len(fallback_items)))
+        rng.shuffle(order)
+        idx = 0
+        while yielded < target:
+            video_bytes, label = fallback_items[order[idx % len(order)]]
+            yield video_bytes, label
+            yielded += 1
+            idx += 1
 
-    while yielded < target:
-        yield fallback_bytes, fallback_label
-        yielded += 1
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main(argv: Optional[List[str]] = None) -> int:
+    """Materialise the bundled fallback videos and stream a sample."""
+    parser = argparse.ArgumentParser(
+        description=(
+            "Ensure the bundled fallback videos exist under data/fallback/ "
+            "and stream a reproducible sample from the loader."
+        )
+    )
+    parser.add_argument(
+        "--seed", type=int, default=42,
+        help="Deterministic seed for reproducible sampling.",
+    )
+    parser.add_argument(
+        "--num_videos", type=int, default=5,
+        help="Number of fallback videos to generate / sample.",
+    )
+    args = parser.parse_args(argv)
+
+    video_paths = ensure_fallback_videos(max(1, args.num_videos))
+    count = 0
+    for video_bytes, label in something_stream(
+        seed=args.seed, max_examples=args.num_videos
+    ):
+        count += 1
+    print("=== something_loader summary ===")
+    print(f"seed: {args.seed}")
+    print(f"bundled fallback videos: {len(video_paths)}")
+    print(f"videos streamed: {count}")
+    for p in video_paths:
+        print(f"  {p} ({p.stat().st_size} bytes)")
+    print("================================")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
