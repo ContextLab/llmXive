@@ -31,3 +31,25 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Human_Connectome_Project
   verified_at: '2026-10-13T17:33:03.686661Z'
+- artifact_hash: 10d0b077dd3b362aa1b5596a000dcc4a21bde1541129b28038e6bf48713c8eec
+  artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: BALSA
+  kind: url
+  value: https://db.humanconnectome.org/data/projects/HCP_1200?select=RestingState
+  verification_status: pending
+  verified_against_url: https://balsa.wustl.edu
+  verified_at: '2026-10-22T10:34:23.695548Z'
+- artifact_hash: 10d0b077dd3b362aa1b5596a000dcc4a21bde1541129b28038e6bf48713c8eec
+  artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: BALSA
+  kind: url
+  value: https://db.humanconnectome.org/data/projects/HCP_1200?select=Behavioral
+  verification_status: pending
+  verified_against_url: https://balsa.wustl.edu
+  verified_at: '2026-10-22T10:34:23.695548Z'
