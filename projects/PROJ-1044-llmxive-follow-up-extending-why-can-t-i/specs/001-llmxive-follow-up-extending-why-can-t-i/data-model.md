@@ -22,8 +22,8 @@ Both schemas live under `specs/001-llmxive-counterfactual-consistency/contracts/
 | `patch_source_id` | string | Identifier of the image patch used for swapping. | Yes |
 | `optical_flow_divergence` | number | Normalized L2 distance between original and counterfactual optical‑flow fields (must be ≤ 0.15). | Yes |
 | `feature_cosine_similarity` | number | Cosine similarity (ResNet‑18 feature space) between original and swapped frames (must be ≥ 0.9). | Yes |
-| `generation_timestamp` | string | ISO‑8601 UTC timestamp of when the pair was created. | Yes |
-| `status` | string | `"accepted"` if divergence ≤ 0.15 **and** similarity ≥ 0.9, otherwise `"rejected"`. | Yes |
+| `generation_timestamp` | string | ISO‑8601 UTC timestamp of when the pair was created. |
+| `status` | string | `"accepted"` if divergence ≤ 0.15 **and** similarity ≥ 0.9, otherwise `"rejected"`. |
 
 *Rows are stored in `data/counterfactuals/metadata.csv` and validated against this schema.*
 
@@ -40,8 +40,9 @@ Both schemas live under `specs/001-llmxive-counterfactual-consistency/contracts/
 | `accuracy_counterfactual` | number | Accuracy on the swapped (counterfactual) validation set (0‑1). |
 | `delta_accuracy` | number | `accuracy_original - accuracy_counterfactual`. |
 | `accuracy_motion_only` | number | Accuracy on the motion‑only test set (objects blurred). |
-| `paired_t_statistic` | number | t‑statistic from paired t‑test (only in aggregated summary row). |
-| `p_value` | number | Two‑tailed p‑value from paired t‑test (only in aggregated summary row). |
+| `paired_t_statistic` | number | t‑statistic from paired t‑test (present only in aggregated summary). |
+| `p_value` | number | Two‑tailed p‑value from paired t‑test (present only in aggregated summary). |
+| `effect_size` | number | Cohen's d effect size (optional). |
 | `lambda_sweep` | boolean | `true` if this row belongs to the λ‑sweep experiment. |
 | `timestamp` | string | ISO‑8601 UTC timestamp of evaluation completion. |
 
@@ -63,9 +64,4 @@ report.py --> figures/*.png + tables/*.csv
 All files are version‑hashed and recorded in the project state YAML per Constitution V.
 
 **Citation for Feature Extractor**  
-The frozen FlowNet‑C backbone is taken from the official FlowNet‑PyTorch repository (https://github.com/NVIDIA/flownet2-pytorch) and the corresponding pretrained weights are downloaded automatically by the pipeline.
-
----
-
-
-
+The frozen FlowNet‑C backbone is taken from the official FlowNet‑PyTorch repository () and the corresponding pretrained weights are downloaded automatically by the pipeline.

@@ -1,16 +1,14 @@
 status: none
-intent: Something-Something V2 video dataset and FlyingChairs optical flow python
-  package dataset
+intent: Download Something-Something V2 dataset with object annotations python package
+  dataset
 required_fields:
 - video_id
-- video_path
-- frames
-- action_label
-- primary_object_class
+- video_url
+- label
 - primary_object_bbox
-- optical_flow
-- background_mask
-- occlusion_mask
-cache_key: 5ac0d187bf8a698b2a281091824344b5c0863671c3b0e775ada8749a17a06953
-searched_at: '2026-10-22T07:25:27.256123+00:00'
+- primary_object_class
+- frame_count
+- fps
+cache_key: 35aed84927379c272b60d574755c9cb1f31a9ebebc9996a80058fa02478c7987
+searched_at: '2026-10-22T07:48:22.984135+00:00'
 retry_count: 1

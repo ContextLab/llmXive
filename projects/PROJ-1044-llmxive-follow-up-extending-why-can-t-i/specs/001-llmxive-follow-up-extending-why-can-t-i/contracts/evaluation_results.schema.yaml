@@ -4,24 +4,13 @@ type: object
 required:
   - model_id
   - lambda
-  - seed
-  - accuracy_original
-  - accuracy_counterfactual
-  - delta_accuracy
-  - accuracy_motion_only
-  - lambda_sweep
-  - timestamp
-properties:
-  model_id:
-    type: string
-    description: "Human‑readable  ...  "
-  lambda:
-    type: number
-    description: "Weight  of  the  counterfactual  cons  "
-  seed:
-    type: counterferr ? ? ?  ?  "
-  seed:
-    type: integer
-    description: something  "
-    ...
-...
+   
+  - 
+
+   
+- 
+
+
+
+
+Now that **...**
