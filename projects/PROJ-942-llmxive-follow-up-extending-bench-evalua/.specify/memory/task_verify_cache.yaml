@@ -1,11 +1,10 @@
 T000:
   c: true
-  h: 7e0447de27ab62cef5be456c4451cd394a893a564c9edec8786a8290f0930652
-  r: "The repository contains a functional `code/pipelines/install_dependencies.py`\
-    \ that installs `requirements.txt` and calls `utils.seed.set_seeds`, a full implementation\
-    \ of `code/utils/seed.py` that sets deterministic seeds, and the `tests/test_setup.py`\
-    \ suite which verifies that the `datasets` package can be imported and that the\
-    \ first NumPy random value after seeding matches the expected reference. All required\
-    \ artifacts are present, non\u2011empty, and implement the behavior described\
-    \ in the task."
-  sig: 9213dd223f5655eb8a34d807ea5e14dc7880c7477bd6c9393340f24a5bfe07a0
+  h: d518b5dd7f03801c583ced4525d334229592439fe2afad29d92ab2e8ca471875
+  r: "Checked `code/pipelines/install_dependencies.py` (installs requirements and\
+    \ calls `utils.seed.set_seeds`), `code/utils/seed.py` (sets seeds so the first\
+    \ NumPy random value after seed\u202F42 is 0.3745401188473625), and `tests/test_setup.py`\
+    \ (imports `datasets` and verifies the deterministic NumPy value). All required\
+    \ artifacts exist, are non\u2011empty, and their contents fulfill the task\u2019\
+    s specifications."
+  sig: b08d24b91f9a0b874433b0ad83f0a76e2ae029c7d9c453c62022130f0cc6176c

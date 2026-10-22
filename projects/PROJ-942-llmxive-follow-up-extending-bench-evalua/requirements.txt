@@ -1,8 +1,22 @@
-# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil) are pre‑installed in the CI image.
-# Additional third‑party packages required for this project:
+# Core dependencies (already available in the execution environment):
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional required packages for this project
 datasets>=2.14
 transformers>=4.40
 torch>=2.2
 networkx>=3.2
-# (Other dependencies are declared in the original requirements.txt if present.)
+# The SQuAD fallback in the original script is no longer needed, but the
+# ``datasets`` package provides both the π‑Bench and any other auxiliary
+# datasets used elsewhere in the pipeline.
