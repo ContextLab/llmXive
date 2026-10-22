@@ -72,9 +72,15 @@ def parse_expected_checksums(plan_path: Path) -> Dict[str, str]:
 # Main download routine
 # ---------------------------------------------------------------------------
 def main() -> None:
-    # Resolve the project‑wide ``plan.md`` location (it lives under the specs
-    # folder for this feature branch).
-    plan_md = Path(__file__).resolve().parents[2] / "specs" / "001-llmxive-static-proxy" / "plan.md"
+    # Resolve the project‑wide ``plan.md`` location.  The ``download_datasets.py``
+    # script lives under ``code/``; the ``specs`` directory is a sibling of ``code``.
+    # ``Path(__file__).resolve().parents[1]`` points to the project root.
+    plan_md = (
+        Path(__file__).resolve().parents[1]
+        / "specs"
+        / "001-llmxive-static-proxy"
+        / "plan.md"
+    )
     expected = parse_expected_checksums(plan_md)
 
     # Define the resources we need.  The URLs below point to publicly‑accessible
