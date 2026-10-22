@@ -29,7 +29,7 @@ As a researcher, I need to generate documentation updates for the extracted comm
 
 **Why this priority**: This implements the core experimental variable (model architecture). It produces the machine-generated outputs required for the fidelity scoring phase.
 
-**Independent Test**: Can be fully tested by running the generation pipeline on a subset of 10 commits and verifying that each model produces a text output that is distinct from the input commit message and formatted as a documentation update.
+**Independent Test**: Can be fully tested by running the generation pipeline on a representative subset of commits and verifying that each model produces a text output that is distinct from the input commit message and formatted as a documentation update.
 
 **Acceptance Scenarios**:
 
@@ -67,7 +67,7 @@ As a researcher, I need to calculate precision and recall scores for "technical 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST extract at least 500 valid (commit_message, documentation_diff) pairs from 5 specified open-source repositories within a 2-year time window, ensuring each pair has a ground-truth human reference (See US-1).
+- **FR-001**: System MUST extract at least 500 valid (commit_message, documentation_diff) pairs from 5 specified open-source repositories within a defined multi‑year time window, ensuring each pair has a ground-truth human reference (See US-1).
 - **FR-002**: System MUST generate documentation updates for the extracted commit messages using exactly 3 distinct open-source LLM architectures: `Phi-3-mini` (Microsoft), `Gemma-2-2b` (Google), and `Llama-3.2-3B` (Meta), all capable of running on CPU-only hardware (See US-2).
 - **FR-003**: System MUST parse both human documentation diffs and LLM-generated outputs to extract and categorize entities using a deterministic taxonomy:
   - **Surface Entities**: Must match regex patterns for file paths (`[a-zA-Z0-9_./-]+\.(py|md|rst)`), function signatures (`def [a-zA-Z_][a-zA-Z0-9_]*\(`), and version numbers (`\d+\.\d+\.\d+`).
@@ -100,6 +100,6 @@ As a researcher, I need to calculate precision and recall scores for "technical 
 - **Assumption about data availability**: The 5 selected repositories (`pandas`, `requests`, `scikit-learn`, `flask`, `django`) contain sufficient documentation changes in the last 2 years to yield a minimum of 500 valid pairs; if not, the project fails the data acquisition gate.
 - **Assumption about compute constraints**: The selected 3 LLMs (Phi-3-mini, Gemma-2-2b, Llama-3.2-3B) can be loaded and run in 4-bit quantization on a GitHub Actions free-tier runner (2 CPU, ~7GB RAM) without requiring GPU acceleration, as these models are optimized for edge/CPU inference.
 - **Assumption about entity extraction**: A hybrid approach (rule-based for surface, classifier for intent) combined with a human-annotated gold standard (n=50) can reliably distinguish between "technical intent" and "surface" entities; the classifier's performance is validated against this gold standard.
-- **Assumption about statistical validity**: The sample size of 500 pairs is sufficient to perform a Friedman test with adequate power to detect medium effect sizes between models; if power is low, the results will be framed as exploratory associations rather than definitive causal claims.
+- **Assumption about statistical validity**: The A sufficiently large sample of paired observations is sufficient to perform a Friedman test with adequate power. to detect medium effect sizes between models; if power is low, the results will be framed as exploratory associations rather than definitive causal claims.
 - **Assumption about model behavior**: The LLMs will not systematically hallucinate technical terms that perfectly mimic valid entities (e.g., inventing a function name that doesn't exist but looks real); such hallucinations will be detectable as False Positives during the entity matching phase via codebase verification.
 - **Assumption about dataset-variable fit**: The commit messages in the selected repositories contain sufficient semantic information to distinguish "technical intent" from "surface changes"; if commit messages are purely "fix bug" without context, the "intent" category will be sparse, and the analysis will focus on the "surface" preservation metric.

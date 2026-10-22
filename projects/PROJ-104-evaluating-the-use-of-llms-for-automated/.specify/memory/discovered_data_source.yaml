@@ -1,13 +1,12 @@
 status: none
-intent: bigcode commit-diff dataset from HuggingFace for GitHub commits python package
-  dataset
+intent: downloadable GitHub commit documentation diff dataset python package dataset
 required_fields:
 - commit_hash
+- repository_name
 - commit_message
 - documentation_diff
-- repository_name
-- commit_timestamp
-- documentation_file_path
-cache_key: 4f1f0d5bcfb3511526faf22613b22c58db34db6506cfc7461778b05d0e4f3079
-searched_at: '2026-10-17T15:24:46.309046+00:00'
+- timestamp
+- intent_entities
+cache_key: cafa2efedaebf7efdcec26fb152ee9ac1771246de0934b64c174e6fdc57774ba
+searched_at: '2026-10-22T20:08:36.283199+00:00'
 retry_count: 1

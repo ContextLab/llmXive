@@ -35,38 +35,35 @@ Re‑running any stage reproduces identical results.
 python -m src.run_pipeline --sample 5
 ```
 Runs a minimal end‑to‑end pass on five synthetic commit pairs (hard‑coded in `src/utils.py`). Verifies that:
-- Data extraction produces a CSV adhering to `commitpair.schema.yaml`,
-- Generation produces JSON adhering to `generatedoutput.schema.yaml`,
-- Entity extraction produces `entityset.schema.yaml`‑compliant output.
+- Data extraction produces a CSV adhering to the `CommitPair` definition,
+- Generation produces JSON adhering to `GeneratedOutput`,
+- Entity extraction produces `EntitySet`‑compliant output.
 
 ## Power Analysis (Phase 1)
 ```bash
 python -m src.analysis.power_analysis
 ```
-Outputs `results/power_report.md` with the estimated power for `n = 500` and an `exploratory` flag (true if power < 0.8).
+Outputs `results/power_report.md` with the estimated power for `n = 500` given α = 0.05, effect size f = 0.25, and the variance estimated from pilot data. Flags the run as exploratory if power < 0.8.
 
-## Full Pipeline (CPU‑first)
+## Full Pipeline (CPU‑only)
 ```bash
 python -m src.run_pipeline --full
 ```
 What happens:
 1. Power analysis runs and writes `results/power_report.md`.  
 2. Repositories are cloned (cached on subsequent runs).  
-3. Commits from the last two years that touch `.md`/`.rst` are extracted → `data/raw/commit_pairs.csv`.  
-4. A 50‑sample gold‑standard is created (annotators fill `data/gold/annotation_template.csv`).  
-5. Each LLM generates a documentation update per commit on CPU (4‑bit, 60 s timeout, up to 2 retries).  
-6. Entities are extracted, verified (regex + AST + `git grep`), and fidelity metrics are computed → `data/processed/fidelity_metrics.csv`.  
-7. Statistical tests (Friedman/ANOVA with Holm‑Bonferroni) and visualizations are saved under `results/figures/`.  
-8. Contract validation runs; artifacts are checksummed and uploaded as CI artifacts.
-
-## GPU Escape Hatch (if needed)
-If any model exceeds the 60 s timeout, the pipeline automatically re‑runs **all** models on a Kaggle free GPU (`torch.cuda.is_available()` triggers the fallback). No code changes are required; the same script handles both environments.
+3. Commits from the last two years that touch `.md`/`.rst` are extracted via the GitHub API → `data/raw/commit_pairs.csv` using **stratified sampling** across the five repos.  
+4. A **human‑annotated gold‑standard** of 50 samples is created (`data/gold/annotations.csv`) by two independent annotators; κ ≥ 0.6 is required.  
+5. Each LLM generates a documentation update per commit on CPU (4‑bit, 60 s timeout, up to 2 retries). If a model exceeds the timeout, the pipeline **reduces the per‑model sample size** to stay within the 6 h CI limit.  
+6. Entities are extracted, verified (regex + AST + `git grep`) and fidelity metrics are computed → `data/processed/fidelity_metrics.csv`.  
+7. Statistical tests (normality, Friedman/ANOVA, Holm‑Bonferroni) and visualizations are saved under `results/figures/`.  
+8. Contract validation runs automatically via the test suite; artifacts are checksummed and uploaded as CI artifacts.
 
 ## Inspecting Results
 - **Power analysis**: `results/power_report.md`.  
-- **Dataset**: `data/raw/commit_pairs.csv` (validated against `contracts/commitpair.schema.yaml`).  
+- **Dataset**: `data/raw/commit_pairs.csv` (validated against `CommitPair` definition).  
 - **Generated outputs**: `data/generated/<model_id>/`.  
-- **Metrics**: `data/processed/fidelity_metrics.csv` (validated against `contracts/fidelitymetric.schema.yaml`).  
+- **Metrics**: `data/processed/fidelity_metrics.csv` (validated against `FidelityMetric` definition).  
 - **Figures**: `results/figures/intent_precision_bar.png`, `results/figures/surface_confusion_matrix.png`.  
 - **Summary report**: `results/summary.md`.
 
@@ -76,13 +73,5 @@ pytest tests/contract/
 pytest tests/unit/
 ```
 
-## CI Execution
-The repository includes a GitHub Actions workflow (`.github/workflows/research.yml`) that automatically:
-- Runs the full CPU‑only pipeline on every push,
-- Caches model weights between runs,
-- Uploads `data/`, `results/`, and checksum manifests as artifacts,
-- Fails the job if any contract validation error occurs.
-
-No manual intervention is required.
-
 ---
+
