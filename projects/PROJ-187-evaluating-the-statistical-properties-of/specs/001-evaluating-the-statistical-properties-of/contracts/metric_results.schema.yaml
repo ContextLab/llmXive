@@ -1,13 +1,108 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Metric Results
-type: object
-additionalProperties: false
-patternProperties:
-  "^.*$":
-    type: object
-    additionalProperties: false
-    properties:
-      synthetic_csv:
-        type: string
-    required:
-      - synthetic_csv
+type: array
+items:
+  type: object
+  additionalProperties: false
+  required:
+    - dataset
+    - model
+    - seed
+    - column
+    - column_type
+    - real_mean
+    - synth_mean
+    - mean_diff
+    - real_var
+    - synth_var
+    - var_diff
+    - ks_stat
+    - ks_pvalue
+    - chi2_stat
+    - chi2_pvalue
+    - pearson_real
+    - pearson_synth
+    - pearson_diff
+    - spearman_real
+    - spearman_synth
+    - spearman_diff
+    - perm_corr_pvalue
+    - corrected_pvalue
+    - faithful
+    - effect_size
+    - power_estimate
+  properties:
+    dataset:
+      type: string
+    model:
+      type: string
+      enum: ["CTGAN", "DPGAN", "CopulaGAN"]
+    seed:
+      type: integer
+    column:
+      type: string
+    column_type:
+      type: string
+      enum: ["continuous", "categorical"]
+    real_mean:
+      type: number
+      nullable: true
+    synth_mean:
+      type: number
+      nullable: true
+    mean_diff:
+      type: number
+      nullable: true
+    real_var:
+      type: number
+      nullable: true
+    synth_var:
+      type: number
+      nullable: true
+    var_diff:
+      type: number
+      nullable: true
+    ks_stat:
+      type: number
+      nullable: true
+    ks_pvalue:
+      type: number
+      nullable: true
+    chi2_stat:
+      type: number
+      nullable: true
+    chi2_pvalue:
+      type: number
+      nullable: true
+    pearson_real:
+      type: number
+      nullable: true
+    pearson_synth:
+      type: number
+      nullable: true
+    pearson_diff:
+      type: number
+      nullable: true
+    spearman_real:
+      type: number
+      nullable: true
+    spearman_synth:
+      type: number
+      nullable: true
+    spearman_diff:
+      type: number
+      nullable: true
+    perm_corr_pvalue:
+      type: number
+      nullable: true
+    corrected_pvalue:
+      type: number
+      nullable: true
+    faithful:
+      type: boolean
+    effect_size:
+      type: string
+    power_estimate:
+      type: number
+      minimum: 0
+      maximum: 1

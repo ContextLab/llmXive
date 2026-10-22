@@ -1,9 +1,11 @@
 status: none
-intent: OpenML python package download UCI Adult Credit Card Fraud Covertype datasets
-  python package dataset
+intent: OpenML python package dataset UCI Adult Credit Card Fraud Covertype Higgs
+  HAR Shopper python package dataset
 required_fields:
 - feature columns (numeric and categorical)
-- target column
-cache_key: 53d1fe270ed99b925c99fd21ab5fbd66990403fe9f4c8e71a795f94bb3098a60
-searched_at: '2026-10-22T21:18:30.771973+00:00'
+- target/label column (if present)
+- column datatype metadata (numeric, categorical, ordinal)
+- missing value indicators (if any)
+cache_key: 6e5d5ecf209ffeb905852dded677cfff32d3d9f42b925d107b00c29de884cf26
+searched_at: '2026-10-22T21:24:41.974164+00:00'
 retry_count: 1

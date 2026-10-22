@@ -19,16 +19,16 @@
    pip install -r requirements.txt
    ```
 
-3. **Run a Smoke Test (single dataset, model, seed)**
+3. **Run a Smoke Test (single dataset, single model, single seed)**
    ```bash
    python -m src.cli.run_fidelity --smoke
    ```
-   Produces `outputs/metrics/metric_results_smoke.json` and a small synthetic CSV for inspection.
+   This produces a tiny synthetic CSV and a minimal `metric_results.json` for quick inspection.
 
-4. **Run the Full Study (multiple datasets × 3 models × 3 seeds)**
+4. **Run the Full Study (all three datasets, all three models, ten seeds)**
    ```bash
    python -m src.cli.run_fidelity --full \
-       --seeds 42 123 2026 \
+       --seeds 42 123 2026 3030 4040 5050 6060 7070 8080 9090 \
        --max-epochs 30 \
        --early-stopping-delta 0.001 \
        --early-stopping-patience 3
@@ -36,7 +36,8 @@
    Expected outputs:
    - Synthetic CSVs under `outputs/synthetic/`
    - Metric JSON at `outputs/metrics/metric_results.json`
-   - Control‑perturbation datasets under `outputs/control/`
+   - Control‑perturbation dataset under `outputs/control/`
+   - Random‑noise baseline under `outputs/baseline/`
    - Final report (`outputs/report/fidelity_report.pdf` and `.json`).
 
 5. **Validate Outputs**
@@ -47,7 +48,7 @@
 
 ## Expected Runtime & Resources
 - **Total wall‑clock time** ≤ 360 minutes.  
-- **Peak RAM** ≤ 7 GB (monitored; down‑sampling/drop‑column actions triggered automatically if exceeded).  
+- **Peak RAM** ≤ 7 GB (monitored; down‑sampling or column‑drop actions triggered automatically if exceeded).  
 
 ---
 

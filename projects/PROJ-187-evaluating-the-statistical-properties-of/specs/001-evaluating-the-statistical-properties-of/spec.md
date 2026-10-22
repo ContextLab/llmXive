@@ -107,7 +107,7 @@ The system MUST generate a final report that includes sensitivity analyses for d
 
 - The `sdv` Python library and its dependencies (including `ctgan`, `sdv`, `pandas`, `numpy`, `scipy`, `scikit-learn`) can be installed and run within the 14 GB disk space limit of the free‑tier runner.
 - The selected public datasets (UCI Adult, Credit Card Fraud, Covertype, **Higgs**) are available via direct HTTP links and do not require interactive login or complex scraping logic.
-- The 30‑epoch training limit (with optional early‑stopping) is sufficient to produce a synthetic dataset with discernible statistical properties for comparison, even if not fully converged.
+- A modest training‑epoch limit (with optional early‑stopping) is sufficient to produce a synthetic dataset with discernible statistical properties for comparison., even if not fully converged.
 - The "associational" framing is sufficient for the research goal; no causal claims regarding privacy guarantees or generator efficacy are being made, only statistical fidelity.
 - The `sdv` library's default implementations of CTGAN, DP‑GAN, and CopulaGAN do not require CUDA or GPU acceleration to function, even if performance is slower than on GPU.
 - The sample sizes in the public datasets are large enough that the power of the KS‑test and permutation‑based correlation tests is adequate to detect meaningful deviations without requiring a formal power analysis (power is assumed sufficient due to large N in UCI datasets).
