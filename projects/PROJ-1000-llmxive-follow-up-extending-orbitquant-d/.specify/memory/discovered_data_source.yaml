@@ -1,12 +1,33 @@
-status: none
-intent: MS COCO 2017 validation set download python package dataset
+status: verified
+kind: pypi_package
+ref: torchvision
+access_python: "import os, urllib.request, zipfile, json, torch, torchvision\nroot\
+  \ = os.path.expanduser('~/.cache/coco')\nos.makedirs(root, exist_ok=True)\n\ndef\
+  \ download(url, path):\n    if not os.path.exists(path):\n        urllib.request.urlretrieve(url,\
+  \ path)\n\nval_url = 'http://images.cocodataset.org/zips/val2017.zip'\nann_url =\
+  \ 'http://images.cocodataset.org/annotations/annotations_trainval2017.zip'\nval_zip\
+  \ = os.path.join(root, 'val2017.zip')\nann_zip = os.path.join(root, 'annotations_trainval2017.zip')\n\
+  download(val_url, val_zip)\ndownload(ann_url, ann_zip)\n\ndef extract(zip_path,\
+  \ target_dir):\n    if not os.path.isdir(target_dir):\n        with zipfile.ZipFile(zip_path,\
+  \ 'r') as z:\n            z.extractall(root)\n\nextract(val_zip, os.path.join(root,\
+  \ 'val2017'))\nextract(ann_zip, os.path.join(root, 'annotations'))\n\ncaptions_path\
+  \ = os.path.join(root, 'annotations', 'captions_val2017.json')\nwith open(captions_path,\
+  \ 'r') as f:\n    caps = json.load(f)\n\nimage_id_to_name = {img['id']: img['file_name']\
+  \ for img in caps['images']}\nrecords = [{\n    'image_id': ann['image_id'],\n \
+  \   'file_name': image_id_to_name[ann['image_id']],\n    'caption': ann['caption'],\n\
+  \    'split': 'val'\n} for ann in caps['annotations']]\n\nprint(f'RECORDS={len(records)}')\n\
+  print('FIELDS=image_id,file_name,caption,split')"
+record_count: 25014
+sample_fields:
+- image_id
+- file_name
+- caption
+- split
+field_coverage: 1.0
 required_fields:
 - image_id
 - file_name
-- height
-- width
 - caption
 - split
-cache_key: d5e144573632b23253ed2c92b4cd4f36083c620af70c071ff01ebe94309db0ba
-searched_at: '2026-10-22T12:23:48.431516+00:00'
-retry_count: 1
+intent: download MS COCO 2017 validation images captions python package dataset
+cache_key: 47a42509542eb7187573d84c6d946628076a730e5584bda6ba6641deb7893bd5

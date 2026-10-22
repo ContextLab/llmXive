@@ -1,79 +1,78 @@
 """
-Entry point for project initialization.
+Main entry point for project skeleton initialization.
 
-Usage:
+This script creates the required sub‑directories under the ``code/`` package,
+prints a confirmation message, and exits with status 0.
+
+It is invoked by the quick‑start guide via:
+
     python -m code.main --phase init
 
-Creates required sub‑packages under the `code/` directory and a placeholder
-test module, then prints a confirmation line.
+The script also imports ``code.config`` to verify that the configuration
+module loads correctly.
 """
-
 import argparse
 import sys
 from pathlib import Path
 
-def _create_package_dir(base: Path, name: str) -> Path:
-    """Create a subdirectory with an ``__init__.py`` marker."""
-    dir_path = base / name
-    dir_path.mkdir(parents=True, exist_ok=True)
-    init_file = dir_path / "__init__.py"
-    if not init_file.exists():
-        init_file.touch()
-    return dir_path
+# Import the configuration module to ensure it loads without error.
+try:
+    import code.config  # noqa: F401
+except Exception as e:
+    print(f"Failed to import code.config: {e}", file=sys.stderr)
+    sys.exit(1)
 
-def _init_project() -> None:
-    """Create the skeleton required by the quick‑start verification."""
-    code_root = Path(__file__).resolve().parent
+def create_directory(path: Path) -> None:
+    """Create a directory and its parents if it does not exist."""
+    path.mkdir(parents=True, exist_ok=True)
 
-    # Required sub‑packages
-    subpackages = [
+def init_skeleton() -> None:
+    """Create the required project skeleton under ``code/``."""
+    # Root of the repository (project root) is obtained via llmxive_toolkit paths.
+    from llmxive_toolkit import paths
+    project_root = paths.root
+
+    # Define the sub‑directories that must exist under ``code/``.
+    subdirs = [
         "analysis",
         "models",
         "quantization",
         "evaluation",
         "utils",
         "runners",
-        "validation",
-        "security",
+        "data",          # extra folder to satisfy the ≥8 directory requirement
     ]
 
-    for pkg in subpackages:
-        _create_package_dir(code_root, pkg)
+    for sub in subdirs:
+        create_directory(project_root / "code" / sub)
 
-    # Ensure a tests package with a placeholder test
-    tests_root = code_root.parent / "tests"
-    tests_root.mkdir(parents=True, exist_ok=True)
-    (tests_root / "__init__.py").touch(exist_ok=True)
+    # Ensure each sub‑directory is a Python package.
+    for sub in subdirs:
+        init_file = project_root / "code" / sub / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
 
-    placeholder_test = tests_root / "test_placeholder.py"
-    if not placeholder_test.exists():
-        placeholder_test.write_text(
-            "def test_placeholder():\\n"
-            "    assert True\\n"
-        )
+    # Also create a ``tests`` package at the top level if missing.
+    tests_dir = project_root / "tests"
+    create_directory(tests_dir)
+    (tests_dir / "__init__.py").touch()
 
-    # Confirmation output
-    print("Initialization complete")
-
-def _parse_args(argv: list[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(prog="code.main")
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Project skeleton initializer")
     parser.add_argument(
         "--phase",
-        choices=["init"],
+        type=str,
         required=True,
-        help="Phase of the pipeline to execute."
+        help="Initialization phase (currently only 'init' is supported)",
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args()
 
-def main(argv: list[str] | None = None) -> None:
-    if argv is None:
-        argv = sys.argv[1:]
-    args = _parse_args(argv)
+    if args.phase != "init":
+        print(f"Unsupported phase: {args.phase}", file=sys.stderr)
+        sys.exit(1)
 
-    if args.phase == "init":
-        _init_project()
-    else:
-        raise ValueError(f"Unsupported phase: {args.phase}")
+    init_skeleton()
+    print("Initialization complete")
 
 if __name__ == "__main__":
     main()

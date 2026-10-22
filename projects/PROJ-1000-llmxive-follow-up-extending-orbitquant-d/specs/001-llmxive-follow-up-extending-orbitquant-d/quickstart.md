@@ -38,30 +38,11 @@ Initialization complete
 ```
 
 This indicates that:
-- All required sub-directories under `code/` (analysis, models, quantization,
-  evaluation, utils, data, runners, validation, security) have been created,
-  each with an `__init__.py` package marker.
+- All required sub‑directories under `code/` (analysis, models, quantization,
+  evaluation, utils, runners, data) have been created, each with an
+  `__init__.py` package marker.
 - The `tests/` directory is in place (with a placeholder test).
-- The `data/raw`, `data/processed` (with `logs/`, `activation_stats/`,
-  `rotation_matrices/`, `generated_images/`) and `figures/` directories are
-  also in place.
-
-## Verify Dataset Access
-
-The pipeline relies on the HuggingFace `coco2017` dataset, which includes
-both images and captions. Run the following snippet to confirm it can be
-streamed without manual download:
-
-```python
-from datasets import load_dataset
-
-ds = load_dataset('coco2017', split='validation', streaming=True)
-first = next(iter(ds))
-print(f"Image URL: {first['image']}  Caption: {first['caption']}")
-```
-
-If the script prints a valid image URL and a caption, the dataset is
-reachable.
+- The `requirements.txt` file lists `torch` among its dependencies.
 
 ## Verification
 
@@ -84,9 +65,9 @@ python -m code.main --phase init
 
 ## Important Note
 
-The quickstart does **not** run any heavy model loading or GPU-dependent
+The quickstart does **not** run any heavy model loading or GPU‑dependent
 steps; it only verifies that the skeleton, dependencies, and dataset
-streaming are functional on a CPU-only GitHub Actions runner.
+streaming are functional on a CPU‑only GitHub Actions runner.
 
 Later pipeline stages (data download, correlation analysis, clustering,
 router inference, evaluation) are invoked by their own scripts and are

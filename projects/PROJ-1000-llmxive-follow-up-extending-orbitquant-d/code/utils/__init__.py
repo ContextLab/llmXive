@@ -1,3 +1,3 @@
 """
-Package marker for miscellaneous utilities.
+Package marker for the ``code.utils`` module.
 """
