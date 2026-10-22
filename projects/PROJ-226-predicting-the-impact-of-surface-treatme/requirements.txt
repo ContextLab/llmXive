@@ -1,7 +1,1 @@
-datasets>=2.18
-pandas>=2.2
-numpy>=1.26
-scikit-learn>=1.5
-shap>=0.45
-statsmodels>=0.14
-tqdm>=4.66
+datasets
