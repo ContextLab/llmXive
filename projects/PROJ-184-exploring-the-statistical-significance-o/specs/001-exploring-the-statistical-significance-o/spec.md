@@ -1,8 +1,8 @@
 # Feature Specification: Exploring the Statistical Significance of Fine‑Structure Constant Variations
 
-**Feature Branch**: `001-fine-structure-constant-variations`
-**Created**: 2023-10-27
-**Status**: Draft
+**Feature Branch**: `001-fine-structure-constant-variations`  
+**Created**: 2023-10-27  
+**Status**: Draft  
 **Input**: User description: "Exploring the Statistical Significance of Fine‑Structure Constant Variations"
 
 ## User Scenarios & Testing *(mandatory)*
@@ -13,7 +13,7 @@ As a researcher, I want to automatically download publicly available quasar abso
 
 **Why this priority**: Without reliable data ingestion and line extraction, no subsequent statistical modeling or hypothesis testing is possible. This is the foundational step that enables the entire research workflow.
 
-**Independent Test**: Can be fully tested by running the data pipeline script against a small subset of public spectra and verifying that the output CSV contains correctly identified absorption lines with wavelengths within expected error margins compared to manual inspection.
+**Independent Test**: Can be fully tested by running the data pipeline script against a small subset of public spectra and verifying that the output CSV contains correctly identified absorption lines with wavelengths matching catalog values within 0.05 Å.
 
 **Acceptance Scenarios**:
 
@@ -73,37 +73,44 @@ As a reviewer of the research output, I want every reported research result (pos
 
 ### Edge Cases
 
-- What happens when the ESO archive is temporarily unavailable or returns rate-limited responses?
+- What happens when the ESO archive is temporarily unavailable or returns rate‑limited responses?
 - How does the system handle spectra with overlapping absorption lines from multiple redshifts?
 - What occurs if the NIST database lacks laboratory reference frequencies for a detected transition?
 - How are outliers in Δα/α estimates (e.g., >5σ from mean) handled in the hierarchical model?
-- What happens if the NUTS sampler fails to converge (R-hat > 1.01) for certain chains?
-- What happens if a validation-suite artifact (synthetic-data output) is accidentally referenced in the research conclusions? The report generation step MUST fail loudly (a provenance check that rejects any conclusion citing a validation-only artifact) rather than silently publish the contamination.
+- What happens if the NUTS sampler fails to converge (R‑hat > 1.01) for certain chains?
+- What happens if a validation‑suite artifact (synthetic-data output) is accidentally referenced in the research conclusions? The report generation step MUST fail loudly (a provenance check that rejects any conclusion citing a validation‑only artifact) rather than silently publish the contamination.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST download UVES quasar spectra from the ESO Science Archive and parse FITS headers to extract observation metadata (redshift, exposure time, instrument setup) (See US-1)
-- **FR-002**: System MUST identify and extract absorption line wavelengths for at least 5 common metal species (Fe II, Mg II, Si IV, C IV, Al III) using `specutils` with automated line-list matching (See US-1)
+- **FR-002**: System MUST identify and extract absorption line wavelengths for at least 5 common metal species (Fe II, Mg II, Si IV, C IV, Al III) using `specutils` with automated line‑list matching (See US-1)
 - **FR-003**: System MUST implement a hierarchical Bayesian model in PyMC v5 with Level 1 (individual absorbers) and Level 2 (global trend/dipole) structure, including nuisance parameters for systematic errors (See US-2)
-- **FR-004**: System MUST derive wavelength-calibration drift and intra-order distortion parameters from per-spectrum calibration residuals (ThAr lamp lines or laser frequency comb data) found in FITS headers or linked logs. If such data is unavailable, the system MUST model these as a hyper-parameter with a Half-Cauchy prior (scale=0.1 Å) as a mandatory fallback, prioritizing informative priors based on the engineering study (2023) if data is available (See US-2)
+- **FR-004**: System MUST derive wavelength‑calibration drift and intra‑order distortion parameters from per‑spectrum calibration residuals (ThAr lamp lines or laser frequency comb data) found in FITS headers or linked logs. If such data is unavailable, the system MUST model these as a hyper‑parameter with a Half‑Cauchy prior (scale=0.1 Å) as a mandatory fallback, prioritizing informative priors based on the engineering study (2023) if data is available (See US-2)
 - **FR-005**: System MUST compute Bayes factors between null and alternative models using bridge sampling, with ln(BF) > 3 considered moderate evidence and ln(BF) > 5 strong evidence (See US-3)
 - **FR-006**: System MUST fit a spatial dipole model (Δα/α = A cos(θ) + B) to the celestial coordinates (RA, Dec) of the absorbers. "Sightline groups" are defined as spatial clusters of absorbers within 10 degrees angular separation or redshift bins of Δz < 0.1, used solely as input for the dipole model. The system MUST report the dipole amplitude and direction with 95% credible intervals (See US-3)
-- **FR-007**: System MUST run NUTS sampling with a minimum of 4 chains, 2000 warmup steps, and 4000 posterior draws per chain for production runs. The system MUST use the `arviz.rhat` function with a convergence threshold of R-hat < 1.01 to verify convergence, and report the maximum R-hat value in the output log (See US-2)
+- **FR-007**: System MUST run NUTS sampling with a **minimum of 4 chains**, 2000 warmup steps, and 4000 posterior draws per chain for production runs. The system MUST use the `arviz.rhat` function with a convergence threshold of R‑hat < 1.01 to verify convergence, and report the maximum R‑hat value in the output log (See US-2)  
+  *Justification*: Four independent chains are required to obtain reliable convergence diagnostics (R‑hat) for hierarchical models; two chains are insufficient for detecting multimodality and provide unstable R‑hat estimates, which would compromise scientific validity.
 - **FR-008**: System MUST generate corner plots and summary tables using `arviz` showing posterior distributions for Δα/α, trend slope, and dipole amplitude (See US-3)
-- **FR-009**: System MUST perform a Spearman rank test to correlate Δα/α estimates with galaxy density fields from the SDSS DR catalog to assess large-scale structure alignment (See US-3)
+- **FR-009**: System MUST perform a Spearman rank test to correlate Δα/α estimates with galaxy density fields from the SDSS DR catalog to assess large‑scale structure alignment (See US-3)
 - **FR-010**: System MUST derive all final research results from actual data ingestion (FR-001) and real model execution. The system MUST NOT use simulated, synthetic, placeholder, or hardcoded values for final research conclusions; simulation is used strictly for method validation (US-2, US-3 validation tests) only (See US-2, US-3)
-- **FR-011**: System MUST maintain a provenance manifest for every production run, recording: the ESO program ID (e.g., 094.C-0462), checksums of all input FITS files, the NIST reference-line version used, the absorber count, and the sampler configuration. Every headline quantity in the research report MUST be traceable to an entry in this manifest (See US-4)
-- **FR-012**: System MUST write all synthetic-data validation outputs (100-seed coverage runs, ground-truth model-comparison trials) to a dedicated, explicitly labeled validation directory, and the final report MUST place these results only under a section titled "Method Validation (synthetic data)". The report-generation step MUST include an automated provenance check that fails the build if any research conclusion cites a validation-only artifact or any value lacking a real-data provenance entry (See US-4)
-- **FR-013**: System MUST confine random number generation to two audited uses: (a) MCMC posterior sampling over the real observed data, and (b) the quarantined validation suite. The production analysis path MUST contain no code branch that generates simulated wavelengths, synthetic Δα/α measurements, or placeholder metric values feeding into research results; this MUST be verified by an automated check (e.g., static scan of the production pipeline for synthetic-data constructors plus a runtime provenance assertion) that runs as part of the pipeline (See US-4)
+- **FR-011**: System MUST maintain a provenance manifest for every production run, recording: the ESO program ID (e.g., 094.C-0462), checksums of all input FITS files, the NIST reference‑line version used, the absorber count, and the sampler configuration. Every headline quantity in the research report MUST be traceable to an entry in this manifest (See US-4)
+- **FR-012**: System MUST write all synthetic‑data validation outputs (100‑seed coverage runs, ground‑truth model‑comparison trials) to a dedicated, explicitly labeled validation directory, and the final report MUST place these results only under a section titled "Method Validation (synthetic data)". The report‑generation step MUST include an automated provenance check that fails the build if any research conclusion cites a validation‑only artifact or any value lacking a real‑data provenance entry (See US-4)
+- **FR-013**: System MUST confine random number generation to two audited uses: (a) MCMC posterior sampling over the real observed data, and (b) the quarantined validation suite. The production analysis path MUST contain no code branch that generates simulated wavelengths, synthetic Δα/α measurements, or placeholder metric values feeding into research results; this MUST be verified by an automated check (e.g., static scan of the production pipeline for synthetic‑data constructors plus a runtime provenance assertion) that runs as part of the pipeline (See US-4)
+- **FR-014**: System MUST implement a retry policy for ESO archive access: on HTTP 5xx or rate‑limit (429) responses, it retries up to **3** times with exponential back‑off (initial delay 5 s, max delay 60 s). After exhausting retries, the pipeline logs the failure and proceeds with remaining targets (See US-1)
+- **FR-015**: System MUST detect overlapping absorption lines from multiple redshifts. If line centroids are within **0.1 Å**, the system attempts de‑blending using multi‑component Gaussian fitting; if de‑blending fails, the line is flagged for manual review (See US-1)
+- **FR-016**: System MUST handle missing laboratory frequencies in the NIST database by excluding the affected transition from the analysis, logging a warning, and proceeding with the remaining lines (See US-1)
+- **FR-017**: System MUST identify Δα/α outliers exceeding **5σ** from the posterior mean; such outliers are either down‑weighted using a Student‑t prior (ν = 4) or reported in an “Outliers” section of the final report (See US-2)
+- **FR-018**: System MUST address NUTS non‑convergence (R‑hat > 1.01) by first increasing posterior draws to **8000** per chain; if convergence still fails after a second attempt, the pipeline aborts with an error and records the offending parameters (See US-2)
+- **FR-019**: System MUST assess quasar sample selection bias by computing completeness weights based on observed magnitude and redshift distributions versus the underlying survey selection function, and incorporate these weights into the hierarchical model as a scaling factor (See US-2)
 
 ### Key Entities *(include if feature involves data)*
 
 - **Absorber**: Represents a single quasar absorption system with attributes: redshift, measured wavelengths for each transition, signal-to-noise ratio, and associated systematic error estimates.
 - **Δα/α Estimate**: The fractional change in the fine-structure constant for an absorber, represented as a posterior distribution with mean, standard deviation, and 95% credible interval.
-- **Global Trend Model**: Represents the redshift-dependent variation hypothesis with parameters: slope (temporal trend), dipole amplitude, and intrinsic scatter.
-- **Provenance Manifest**: A machine-readable record (per production run) linking each reported research result to its real-data inputs: ESO program ID, input FITS checksums, NIST reference version, absorber count, and sampler configuration. Validation-suite artifacts are excluded from this manifest and tagged as synthetic.
+- **Global Trend Model**: Represents the redshift‑dependent variation hypothesis with parameters: slope (temporal trend), dipole amplitude, and intrinsic scatter.
+- **Provenance Manifest**: A machine‑readable record (per production run) linking each reported research result to its real‑data inputs: ESO program ID, input FITS checksums, NIST reference version, absorber count, and sampler configuration. Validation‑suite artifacts are excluded from this manifest and tagged as synthetic.
 
 ## Success Criteria *(mandatory)*
 
@@ -113,26 +120,29 @@ As a reviewer of the research output, I want every reported research result (pos
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Posterior recovery accuracy is measured against simulated datasets with known ground-truth Δα/α values, where 95% credible intervals should contain the true value in ≥95% of 100 independent runs (See US-2)
+- **SC-001**: Posterior recovery accuracy is measured against simulated datasets with known ground‑truth Δα/α values, where 95% credible intervals should contain the true value in ≥95% of 100 independent runs (See US-2)
 - **SC-002**: Model comparison performance is measured against synthetic data with known null/alternative ground truth, where Bayes factors should correctly identify the true model in ≥90% of trials (See US-3)
-- **SC-003**: Computational efficiency is measured against the GitHub Actions free-tier constraint (a limited number of CPU cores, 7 GB RAM, 6-hour limit). For the benchmark dataset (20 simulated absorbers), the full analysis (4 chains, 2000 warmup, 4000 draws) MUST complete within 4 hours with ≤5 GB memory usage. For production runs (≥30 absorbers), the system MUST complete successfully within 6 hours and using ≤7 GB RAM (See US-2)
-- **SC-004**: Systematic error propagation is measured by comparing the posterior mean bias and coverage probability of Δα/α in the 'with-systematics' model against the 'without-systematics' model. Success is defined as the 'with-systematics' model showing reduced bias and improved coverage probability (See US-2)
-- **SC-005**: Sensitivity analysis coverage is measured by the number of prior-width variations tested (minimum 3 values: nominal, ±20%), with stable conclusions across all variations indicating robustness (See US-3)
-- **SC-006**: Research-result authenticity is measured by a full provenance audit of the final report: [deferred] of headline quantities (posterior Δα/α estimates, trend/dipole parameters, Bayes factors, Spearman statistics, and all figures/tables in the conclusions) MUST resolve to a provenance-manifest entry from a real-data run, and [deferred] may originate from the synthetic-data validation suite. The automated provenance check (FR-012) MUST pass on the delivered report (See US-4)
+- **SC-003**: Computational efficiency is measured against the GitHub Actions free‑tier constraint (a limited number of CPU cores, 7 GB RAM, 6‑hour limit). For the benchmark dataset (20 simulated absorbers), the full analysis (4 chains, 2000 warmup, 4000 draws) MUST complete within 4 hours with ≤5 GB memory usage. For production runs (≥30 absorbers), the system MUST complete successfully within 6 hours and using ≤7 GB RAM (See US-2)
+- **SC-004**: Systematic error propagation is measured by comparing the posterior mean bias and coverage probability of Δα/α in the 'with‑systematics' model against the 'without‑systematics' model. Success is defined as the 'with‑systematics' model showing reduced bias and improved coverage probability (See US-2)
+- **SC-005**: Sensitivity analysis coverage is measured by the number of prior‑width variations tested (minimum 3 values: nominal, ±20%), with stable conclusions across all variations indicating robustness (See US-3)
+- **SC-006**: Research‑result authenticity is measured by a full provenance audit of the final report: [deferred] of headline quantities (posterior Δα/α estimates, trend/dipole parameters, Bayes factors, Spearman statistics, and all figures/tables in the conclusions) MUST resolve to a provenance‑manifest entry from a real‑data run, and [deferred] may originate from the synthetic‑data validation suite. The automated provenance check (FR-012) MUST pass on the delivered report (See US-4)
+- **SC-007**: Data ingestion completeness is ≥95% of the target quasar list (as defined in US‑1) successfully downloaded and processed, with missing files logged and accounted for in the provenance manifest (See US-1)
+- **SC-008**: Retry/back‑off handling for ESO archive access succeeds within the 3‑attempt limit for ≥90% of transient failures; remaining failures are recorded without halting the entire pipeline (See FR‑014)
+- **SC-009**: Selection‑bias correction reduces the difference between weighted and unweighted Δα/α global estimates to ≤0.02, demonstrating that bias mitigation materially affects the result (See FR‑019)
 
 ## Assumptions
 
 - The ESO Science Archive provides programmatic access to UVES Large Programme spectra without requiring manual authentication beyond API key configuration.
-- Laboratory transition frequencies from the NIST Atomic Spectra Database are accurate to within 0.001 cm⁻¹ for all relevant metal transitions (Fe II, Mg II, Si IV, etc.).
-- The GitHub Actions free-tier runner has sufficient disk space to store downloaded spectra, intermediate data files, and model outputs without requiring external storage.
-- PyMC v5 and related packages (arviz, specutils, astropy) are compatible with the Python version available on the GitHub Actions runner and can be installed via pip without compilation issues.
-- Systematic errors in high-resolution spectroscopy are typically characterized per observation using calibration lamps (ThAr) or laser combs; if such data is unavailable, the system MUST use broad hyper-priors (Half-Cauchy scale=0.1 Å) as a mandatory fallback.
+- Laboratory transition frequencies from the NIST Atomic Spectra Database are accurate to within 0.001 cm⁻¹ for all relevant metal transitions (Fe II, Mg II, Si IV, etc.).
+- The GitHub Actions free‑tier runner has sufficient disk space to store downloaded spectra, intermediate data files, and model outputs without requiring external storage.
+- PyMC (a recent major release) and related packages (arviz, specutils, astropy) are compatible with the Python version available on the GitHub Actions runner and can be installed via pip without compilation issues.
+- Systematic errors in high‑resolution spectroscopy are typically characterized per observation using calibration lamps (ThAr) or laser combs; if such data is unavailable, the system MUST use broad hyper‑priors (Half‑Cauchy scale=0.1 Å) as a mandatory fallback.
 - The SDSS DR galaxy density catalog is publicly accessible and provides sufficient spatial coverage to correlate with the quasar sightlines in the analysis (for auxiliary checks, though the primary test is the dipole fit).
-- The sample of available quasar spectra contains at least 30 absorbers with sufficient signal-to-noise ratio to enable meaningful hierarchical Bayesian inference.
-- The NUTS sampler will converge (R-hat < 1.01) for all model parameters when run with the specified chain configuration (4 chains, 2000 warmup, 4000 draws) on the GitHub Actions hardware.
-- The 100-seed validation suite (SC-001) is a methodological calibration of the estimator on synthetic data and is budgeted separately from the ≤6-hour production-run constraint; if the full 100-seed sweep threatens the runner time limit, it MAY be reduced to ≥50 seeds on a ≤10-absorber subset, with the reduction documented in the validation section — this affects only the validation suite, never the real-data research results.
+- The sample of available quasar spectra contains at least 30 absorbers with sufficient signal‑to‑noise ratio to enable meaningful hierarchical Bayesian inference.
+- The NUTS sampler will converge (R‑hat < 1.01) for all model parameters when run with the specified chain configuration (4 chains, 2000 warmup, 4000 draws) on the GitHub Actions hardware, or will follow the remedial procedure in FR‑018 if convergence fails.
+- The 100‑seed validation suite (SC‑001) is a methodological calibration of the estimator on synthetic data and is budgeted separately from the ≤6‑hour production‑run constraint; if the full 100‑seed sweep threatens the runner time limit, it MAY be reduced to ≥50 seeds on a ≤10‑absorber subset, with the reduction documented in the validation section — this affects only the validation suite, never the real‑data research results.
 - The findings of this study are associational/inferential statements about Δα/α in the observed absorber sample; a null result (95% credible interval including zero) is a valid, publishable scientific outcome and is treated as equally successful to a detection.
 
 ### Paper-stage handoff
 
-The research deliverables of this feature are: the provenance-audited research report with posterior estimates, Bayes factors, sensitivity analyses, validation-suite results, summary tables, and figures. Manuscript formatting, LaTeX PDF compilation, and publication preparation are owned by the subsequent paper pipeline and are NOT completion criteria for this research stage.
+The research deliverables of this feature are: the provenance‑audited research report with posterior estimates, Bayes factors, sensitivity analyses, validation‑suite results, summary tables, and figures. Manuscript formatting, LaTeX PDF compilation, and publication preparation are owned by the subsequent paper pipeline and are NOT completion criteria for this research stage.
