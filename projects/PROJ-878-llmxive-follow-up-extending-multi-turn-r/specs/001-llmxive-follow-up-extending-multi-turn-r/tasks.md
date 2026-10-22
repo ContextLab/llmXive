@@ -15,7 +15,7 @@
 
 - [ ] T002 [P] [US1] Contract and integration tests for the puzzle generator exist and **run after** T003. Tests validate schema conformance of `SyntheticPuzzle` and the stratified‑orthogonalization property (|r| < 0.2) on the *generated* dataset. **Verification**: after T003 completes, `pytest code/tests/test_graph_generator.py` passes.
 
-- [ ] T003 [US1] Implement `code/utils/graph_utils.py` and `code/graph_generator.py`: <!-- FAILED-IN-EXECUTION: code/graph_generator.py exit=1 -->
+- [ ] T003 [US1] Implement `code/utils/graph_utils.py` and `code/graph_generator.py`: <!-- FAILED-IN-EXECUTION: code/graph_generator.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/graph_generator.py exit=1 -->
   1. **GSM8K seed download** – fetch GSM8K metadata (no content) and log version for reproducibility (satisfies Constitution Principle VII). Cite the dataset.
   2. **Primary dataset** – generate **exactly 500** logical puzzles with `nesting_depth` **between 3 and 6** (US‑1 acceptance scenario 1) and `branching_factor` in [1, 5]. Enforce acyclicity, solvability, and deterministic template‑based text mapping. Record `instance_id`, `text`, `ground_truth`, `ground_truth_path`, `nesting_depth`, `branching_factor`, `graph_structure`, `is_acyclic=true`, `is_solvable=true`, `text_generation_method="template_based"`, `is_orthogonal`, `seed`.
   3. **Auxiliary dataset** – generate an additional **200** puzzles with `nesting_depth` **7–10** (to allow tipping‑point analysis) and store at `data/raw/aux_puzzles.jsonl`.

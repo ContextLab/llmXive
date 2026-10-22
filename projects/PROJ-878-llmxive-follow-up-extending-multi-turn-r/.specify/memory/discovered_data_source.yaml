@@ -1,14 +1,15 @@
 status: none
-intent: synthetic logical puzzle DAG dataset with depth and branching factor python
+intent: ProofWriter logical reasoning dataset GSM8K reference DAG metadata python
   package dataset
 required_fields:
 - puzzle_id
 - puzzle_text
-- solution
-- nesting_depth
-- branching_factor
-- dag_nodes
-- dag_edges
-cache_key: 72da57ceb230d1c0a59d5413b5f2127d8fe5077f49ab7de7b51c17e09bde088a
-searched_at: '2026-10-22T02:19:37.394805+00:00'
+- solution_steps
+- metadata_nesting_depth
+- metadata_branching_factor
+- dependency_dag_nodes
+- dependency_dag_edges
+- ground_truth_solution
+cache_key: 10f61a4950a19ae234a5ef7e1d4d7d948fda16326f6feac06957aed5c6a950c3
+searched_at: '2026-10-22T02:27:50.564683+00:00'
 retry_count: 1

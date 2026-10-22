@@ -26,7 +26,7 @@ MODEL_PATH not found in .env. Please set it.
 
 - python code/analyzer.py  --puzzles data/raw/synthetic_puzzles.jsonl  --results data/processed/execution_log.csv  --output results/statistical_report.json  --thresholds 40 50 60 -> rc=1
 
-2026-10-22 02:18:42,760 - __main__ - ERROR - Analysis failed: Execution results file not found: data/processed/execution_log.csv
+2026-10-22 02:26:49,940 - __main__ - ERROR - Analysis failed: Execution results file not found: data/processed/execution_log.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/analyzer.py", line 213, in <module>
     main()

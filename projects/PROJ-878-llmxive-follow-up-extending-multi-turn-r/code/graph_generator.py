@@ -22,8 +22,6 @@ def fetch_gsm8k_metadata():
     try:
         # Use streaming to avoid downloading the full dataset
         ds = load_dataset("gsm8k", "main", split="train", streaming=True)
-        # The dataset version/info is usually in the dataset object
-        # In streaming mode, we just log the source and citation.
         citation = "GSM8K: High-quality Grade School Math Word Problems (Cobbe et al., 2021)"
         logger.info(f"Seed Dataset: {citation}")
         return citation
@@ -37,11 +35,11 @@ def _build_controlled_dag(target_depth: int, target_branching: float) -> nx.DiGr
     Depth is defined as the number of nodes in the longest path.
     """
     G = nx.DiGraph()
-    # Layers 0 to target_depth-1
     layers = []
     node_id = 0
-    # Ensure at least one node per layer to hit depth
-    # Scale layer size to allow the branching factor
+    
+    # To allow branching, we need multiple nodes per layer
+    # We ensure at least one node per layer to hit the depth target
     layer_size = max(2, int(np.ceil(target_branching * 2)))
     
     for d in range(target_depth):
@@ -55,12 +53,16 @@ def _build_controlled_dag(target_depth: int, target_branching: float) -> nx.DiGr
         G.add_edge(layers[i][0], layers[i+1][0])
     
     # Add additional edges to hit branching factor
-    # Branching factor = total_edges / non_root_nodes
-    non_root_nodes = (target_depth - 1) * layer_size
-    target_edges = int(target_branching * non_root_nodes)
-    current_edges = G.number_of_edges()
+    # Branching factor = sum(in_degrees of non-roots) / count(non-roots)
+    # Non-roots are all nodes except those in layer 0
+    non_root_count = (target_depth - 1) * layer_size
+    target_edges_sum = int(target_branching * non_root_count)
     
-    while current_edges < target_edges:
+    current_edges_sum = sum(d for n, d in G.in_degree() if d > 0)
+    
+    attempts = 0
+    while current_edges_sum < target_edges_sum and attempts < 1000:
+        attempts += 1
         # Pick random source from layer i and target from layer j > i
         i = random.randint(0, target_depth - 2)
         j = random.randint(i + 1, target_depth - 1)
@@ -68,7 +70,7 @@ def _build_controlled_dag(target_depth: int, target_branching: float) -> nx.DiGr
         v = random.choice(layers[j])
         if not G.has_edge(u, v):
             G.add_edge(u, v)
-            current_edges += 1
+            current_edges_sum += 1
     
     return G
 
@@ -89,7 +91,6 @@ def generate_set(count: int, depth_range: Tuple[int, int], branch_range: Tuple[f
         
         G = _build_controlled_dag(depth, branch)
         
-        # Metrics
         actual_depth = nesting_depth(G)
         actual_branch = branching_factor(G)
         ref_path = longest_path(G)
@@ -97,7 +98,6 @@ def generate_set(count: int, depth_range: Tuple[int, int], branch_range: Tuple[f
         if gt_path is None:
             gt_path = ref_path
         
-        # Ground truth is the final node in the path
         ground_truth = str(gt_path[-1])
         
         puzzles.append({
@@ -111,7 +111,7 @@ def generate_set(count: int, depth_range: Tuple[int, int], branch_range: Tuple[f
             "is_acyclic": True,
             "is_solvable": True,
             "text_generation_method": "template_based",
-            "is_orthogonal": False, # updated later
+            "is_orthogonal": False, 
             "seed": seed
         })
     return puzzles
@@ -120,29 +120,33 @@ def main():
     # 1. GSM8K Metadata
     fetch_gsm8k_metadata()
     
-    # 2. Generate datasets
+    # 2. Generate datasets with rejection sampling for orthogonalization
+    # We generate both sets together to ensure |r| < 0.2 across combined set
     primary_count, aux_count = 500, 200
     primary_seed, aux_seed = 42, 123
     
-    primary = generate_set(primary_count, (3, 6), (1.0, 5.0), primary_seed)
-    aux = generate_set(aux_count, (7, 10), (1.0, 5.0), aux_seed)
-    
-    # 3. Orthogonalization check (combined set)
-    combined = primary + aux
-    depths = [p["nesting_depth"] for p in combined]
-    branches = [p["branching_factor"] for p in combined]
-    corr = np.corrcoef(depths, branches)[0, 1]
-    
-    logger.info(f"Combined correlation |r|: {abs(corr):.4f}")
-    if abs(corr) < 0.2:
-        for p in combined:
-            p["is_orthogonal"] = True
+    attempts = 0
+    while attempts < 10:
+        attempts += 1
+        primary = generate_set(primary_count, (3, 6), (1.0, 5.0), primary_seed + attempts)
+        aux = generate_set(aux_count, (7, 10), (1.0, 5.0), aux_seed + attempts)
+        
+        combined = primary + aux
+        depths = [p["nesting_depth"] for p in combined]
+        branches = [p["branching_factor"] for p in combined]
+        corr = np.corrcoef(depths, branches)[0, 1]
+        
+        if abs(corr) < 0.2:
+            logger.info(f"Orthogonalization achieved: |r| = {abs(corr):.4f}")
+            for p in combined:
+                p["is_orthogonal"] = True
+            break
+        else:
+            logger.info(f"Attempt {attempts}: |r| = {abs(corr):.4f} >= 0.2, resampling...")
     else:
-        # In a real scenario, we would resample. 
-        # With independent uniform sampling, |r| is almost always < 0.2.
-        logger.warning("Orthogonality threshold failed. This should not happen with stratified sampling.")
+        logger.warning("Failed to reach |r| < 0.2 after 10 attempts. Using last sample.")
 
-    # 4. Write files
+    # 3. Write files
     primary_path = Path("data/raw/synthetic_puzzles.jsonl")
     aux_path = Path("data/raw/aux_puzzles.jsonl")
     primary_path.parent.mkdir(parents=True, exist_ok=True)
@@ -152,32 +156,41 @@ def main():
     with open(aux_path, "w") as f:
         for p in aux: f.write(json.dumps(p) + "\n")
     
-    # 5. Validation Metrics
+    # 4. Validation Metrics
     metrics = {
-        "total_puzzles": len(combined),
+        "total_puzzles": len(primary) + len(aux),
         "samples_generated_primary": len(primary),
         "samples_generated_aux": len(aux),
         "samples_attempted_primary": primary_count,
         "samples_attempted_aux": aux_count,
         "correlation_coefficient": float(corr),
+        "discarded_cycle_count": 0,
         "cycle_rate": "[deferred]"
     }
     with open("data/validation_metrics.json", "w") as f:
         json.dump(metrics, f, indent=2)
     
-    # 6. Checksums
-    def write_checksum(paths, out_file):
-        lines = []
-        for p in paths:
-            hasher = hashlib.sha256()
-            with open(p, "rb") as f:
-                hasher.update(f.read())
-            lines.append(f"{hasher.hexdigest()}  {p.name}")
-        with open(out_file, "w") as f:
-            f.write("\n".join(lines) + "\n")
+    # 5. Checksums
+    def get_sha256(path):
+        hasher = hashlib.sha256()
+        with open(path, "rb") as f:
+            hasher.update(f.read())
+        return hasher.hexdigest()
+
+    # Primary checksums: primary dataset and metrics
+    primary_checksums = [
+        f"{get_sha256(primary_path)}  {primary_path.name}",
+        f"{get_sha256(Path('data/validation_metrics.json'))}  validation_metrics.json"
+    ]
+    with open("data/checksums_primary.txt", "w") as f:
+        f.write("\n".join(primary_checksums) + "\n")
     
-    write_checksum([primary_path], "data/checksums_primary.txt")
-    write_checksum([aux_path], "data/checksums_aux.txt")
+    # Aux checksums: aux dataset
+    aux_checksums = [
+        f"{get_sha256(aux_path)}  {aux_path.name}"
+    ]
+    with open("data/checksums_aux.txt", "w") as f:
+        f.write("\n".join(aux_checksums) + "\n")
     
     logger.info("T003 implementation complete. Artifacts written.")
 

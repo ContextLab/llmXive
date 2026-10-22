@@ -1,24 +1,24 @@
 T001:
   c: true
-  h: 3285b13d6eaf520963d82d6d58dd19e5900e1c7dc30003af691514dad73307ea
+  h: fb3ee5a14091562912ecbfdabd488a5f610307dba91d5c77697d165bd89d7637
   r: All required directories (`data/raw/`, `data/processed/`, `data/results/`, `code/`,
-    `code/utils/`, `code/tests/`, `results/paper_figures/`) exist with `.gitkeep`
-    markers; the three `__init__.py` files are present with real docstrings; `code/requirements.txt`
-    pins all nine required packages (torch, transformers, datasets, networkx, lifelines,
-    scikit-learn, pandas, numpy, pytest); and `.ruff.toml`/`.black.toml` configs exist
-    with a recorded successful scaffolding run (exit 0). The only unverified claims
-    are `pip install` success and `ruff check` exit 0, but these are environment-dependent
-    verifi
-  sig: 97efcb0f154bf906d07039239ca26861117c91f1063ddcc75ebbb5e844cf82b0
+    `code/utils/`, `code/tests/`, `results/paper_figures/`) exist with content, the
+    three `__init__.py` package markers are present and non-trivial, `code/requirements.txt`
+    lists all nine required packages (torch, transformers, datasets, networkx, lifelines,
+    scikit-learn, pandas, numpy, pytest) plus extras, and ruff/black configuration
+    files (`.ruff.toml`, `.black.toml`) exist with a successful scaffolding execution
+    log (exit 0). The only unverifiable claim is a `ruff check` exit-0 run (no execution
+    record), but al
+  sig: 048feb7645696b878a3784d5c6418a05da6d7aefb1c7839eb9851f5dfaeae487
 T002:
   c: false
-  h: 1e43ada6e33e661510987c199ba7186ad91d93b16116867fcf276776b6445b6d
-  r: "The test file imports `generate_batch`, `_write_jsonl`, and `_write_validation_metrics`\
-    \ from `code.graph_generator`, but the actual `code/graph_generator.py` defines\
-    \ none of these (it has `generate_set` and inline file-writing in `main()`), so\
-    \ the current test file cannot even import successfully \u2014 the recorded passing\
-    \ pytest log is stale relative to the current artifacts. Additionally, the key\
-    \ integration test `test_generated_dataset_integration` (schema + |r| < 0.2 on\
-    \ the generated dataset) was SKIPPED because `data/raw/synthetic_puzzles.jsonl`\
-    \ does not exist, so the task's core verification"
-  sig: 048539917d13ec83a390422effef4a8f7e3465b058dc91c354e3adce4095829d
+  h: 743ec320170034358b49eef6478af95f189962d55e6cccaa1f83df875754643c
+  r: "The test file exists and its content matches the task (schema validation of\
+    \ SyntheticPuzzle plus the |r| < 0.2 orthogonalization check on the generated\
+    \ dataset), but the recorded execution log shows `pytest code/tests/test_graph_generator.py`\
+    \ failed with exit code 2 \u2014 collection aborted on an ImportError (`pyarrow\
+    \ requires NumPy 2.0 or newer, found 1.24.3`) triggered by `from datasets import\
+    \ load_dataset` in `code/graph_generator.py`. The task's verification criterion\
+    \ is that the tests pass after T003, and there is no evidence of any successful\
+    \ run; the implementer must fix the dependency/impo"
+  sig: acbe9460ab7edd87eeedf2cc82b9c0e18af93c44b098b701f0975acad632fa5b

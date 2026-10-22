@@ -31,13 +31,20 @@ def longest_path(graph: nx.DiGraph) -> List[int]:
         return []
 
 def branching_factor(graph: nx.DiGraph) -> float:
-    """Calculate the mean in-degree of the graph."""
+    """
+    Calculate the mean in-degree of non-root nodes.
+    Root nodes are those with in-degree 0.
+    """
     if not graph.nodes():
         return 0.0
-    in_degrees = [d for _, d in graph.in_degree()]
-    if not in_degrees:
+    
+    # Only consider nodes that have at least one incoming edge
+    non_roots = [d for n, d in graph.in_degree() if d > 0]
+    
+    if not non_roots:
         return 0.0
-    return sum(in_degrees) / len(in_degrees)
+    
+    return sum(non_roots) / len(non_roots)
 
 def compute_graph_metrics(graph: nx.DiGraph) -> Dict[str, Any]:
     """Compute a dictionary of graph metrics."""
