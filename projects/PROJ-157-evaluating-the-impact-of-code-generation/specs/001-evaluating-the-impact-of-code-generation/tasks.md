@@ -6,7 +6,7 @@ All tasks are unchecked; each includes the artifact paths it creates or modifies
 
 ---
 
-- [ ] T000 [P1] [US1] Set up deterministic environment and pin random seeds. <!-- FAILED-IN-EXECUTION: code/run_setup_env.sh exit=2 -->
+- [ ] T000 [P1] [US1] Set up deterministic environment and pin random seeds.
   *Implementation*: `code/setup_env.py` → writes `data/env_config.json` and configures the Docker environment.
   *Verification*:
    · Confirm that all random seeds are pinned in `code/` and recorded in `data/env_config.json`.

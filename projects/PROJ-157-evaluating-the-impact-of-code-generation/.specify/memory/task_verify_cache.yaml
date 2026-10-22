@@ -1,0 +1,9 @@
+T000:
+  c: false
+  h: 0105b8cdb892c68a450b0fc19c3b836f64bae27dc0f73ce15a0603e7b1cc4c84
+  r: The environment script correctly pins random seeds and writes them to `data/env_config.json`,
+    and the Docker image tag (`gcc:13.2`) is recorded, but there is no evidence in
+    `plan.md` showing the expected Docker digest to compare against the one stored
+    in `env_config.json`. Without a documented digest in the plan, the required verification
+    cannot be confirmed.
+  sig: 350f9a25fd7064e716353aba4bb4a048205a2ad71c73311e89bfd16bdce769b5

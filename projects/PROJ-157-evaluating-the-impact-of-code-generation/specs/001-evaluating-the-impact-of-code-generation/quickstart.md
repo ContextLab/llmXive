@@ -23,7 +23,7 @@
 
 2. **Download the human reference dataset**  
    ```bash
-   python code/download_humaneval.py \
+   python code/download_human.py \
        --output data/raw/codeforces_cpp.jsonl \
        --min-problems 50 \
        --seed 20231027

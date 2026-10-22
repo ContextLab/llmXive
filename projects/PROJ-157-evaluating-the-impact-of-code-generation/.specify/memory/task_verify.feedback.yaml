@@ -1,6 +1,9 @@
 T000:
-  reason: 'Requested task execution failed; rerun successfully: code/run_setup_env.sh
-    exit=2'
+  reason: The environment script correctly pins random seeds and writes them to `data/env_config.json`,
+    and the Docker image tag (`gcc:13.2`) is recorded, but there is no evidence in
+    `plan.md` showing the expected Docker digest to compare against the one stored
+    in `env_config.json`. Without a documented digest in the plan, the required verification
+    cannot be confirmed.
   task: 1abd87c1900ff3d8a4c9e760efccfe4cd5e1d1a48c5e03ff7582d4328c62285d
 T001:
   reason: 'Requested task execution failed; rerun successfully: code/download_human.py

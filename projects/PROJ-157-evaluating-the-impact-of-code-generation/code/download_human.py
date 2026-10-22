@@ -82,10 +82,8 @@ def main():
     args = parser.parse_args()
     
     # Use llmxive_toolkit.paths to resolve the output path relative to project root
-    # The user provides a path like 'data/raw/codeforces_cpp.jsonl'
     out_path = Path(args.output)
     if not out_path.is_absolute():
-        # Ensure it's treated as relative to the project root
         out_path = paths.path(args.output)
     
     # Ensure directory exists

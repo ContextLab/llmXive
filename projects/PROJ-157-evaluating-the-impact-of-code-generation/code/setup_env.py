@@ -10,18 +10,10 @@ This script performs three actions:
    image ``gcc:13.2``. It first attempts to obtain the digest
    via the local Docker daemon (Docker SDK). If the Docker daemon is
    unavailable (e.g., in CI environments without Docker), it falls back
-   to the Docker Hub Registry HTTP API, authenticating as needed to
-   retrieve the manifest digest without requiring a local Docker
-   installation.
+   to the Docker Hub Registry HTTP API.
 3. Writes a JSON configuration file ``data/env_config.json`` that
    captures the seed values and Docker image information for downstream
-   reproducibility checks (as required by task T000).
-
-The script is intended to be run as a stand‑alone entry point:
-    python code/setup_env.py
-
-It writes its output using the ``llmxive_toolkit.paths`` helpers,
-which automatically create the target directories.
+   reproducibility checks.
 """
 
 import json
@@ -33,60 +25,36 @@ import requests
 import docker
 
 from llmxive_toolkit import paths, get_logger
+from code.seed_config import PROJECT_SEED, pin_seeds
 
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # 1. Pin random seeds
 # ----------------------------------------------------------------------
-PROJECT_SEED = 20231027
+pin_seeds()
 
-random.seed(PROJECT_SEED)
-np.random.seed(PROJECT_SEED)
-
-# ``torch`` is optional – the project may not require it at this stage.
+# torch is optional
 try:
     import torch
-
     torch.manual_seed(PROJECT_SEED)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     torch_available = True
-except Exception as exc:  # pragma: no cover – torch may be missing
+except Exception as exc:
     log.warning("Torch not available; skipping torch seed configuration: %s", exc)
     torch_available = False
 
 # ----------------------------------------------------------------------
 # 2. Retrieve Docker image digest
 # ----------------------------------------------------------------------
-# The plan.md mentioned gcc:13.2-bullseye, but official Docker Hub 
-# tags for gcc are usually just the version. Using gcc:13.2.
+# Using gcc:13.2 as it is the verified tag producing the current digests
 DOCKER_IMAGE = "gcc:13.2"
 
 def _fetch_docker_digest_via_docker(image: str) -> str:
-    """
-    Retrieve the immutable digest for a Docker image using the local Docker
-    daemon. This pulls the image if it is not already present.
-
-    Parameters
-    ----------
-    image: str
-        Image name with tag, e.g. ``gcc:13.2``.
-
-    Returns
-    -------
-    str
-        The digest string (e.g. ``sha256:<hash>``).
-
-    Raises
-    ------
-    RuntimeError
-        If the digest cannot be obtained.
-    """
     client = docker.from_env()
     repository, tag = image.split(":")
     try:
-        # Pull the image to ensure it is present locally.
         log.info("Pulling Docker image %s", image)
         client.images.pull(repository, tag=tag)
     except Exception as exc:
@@ -97,42 +65,18 @@ def _fetch_docker_digest_via_docker(image: str) -> str:
     except Exception as exc:
         raise RuntimeError(f"Failed to get Docker image {image} after pull: {exc}") from exc
 
-    # RepoDigests is a list like ["gcc@sha256:abcd..."]
     repo_digests = image_obj.attrs.get("RepoDigests")
     if not repo_digests:
         raise RuntimeError(f"No RepoDigests found for image {image}")
-    # Take the first digest entry.
+    
     digest_entry = repo_digests[0]
-    # The entry format is "<repository>@sha256:<hash>"
     if "@" not in digest_entry:
         raise RuntimeError(f"Unexpected RepoDigest format: {digest_entry}")
     _, digest = digest_entry.split("@", 1)
     return digest
 
 def _fetch_docker_digest_via_registry(image: str) -> str:
-    """
-    Fallback method that queries the Docker Hub Registry HTTP API for the
-    manifest digest of a public image. This does not require a local Docker
-    daemon. It performs the standard Docker Hub token authentication flow.
-
-    Parameters
-    ----------
-    image: str
-        Image name with tag, e.g. ``gcc:13.2``.
-
-    Returns
-    -------
-    str
-        The digest string (e.g. ``sha256:<hash>``).
-
-    Raises
-    ------
-    RuntimeError
-        If the request fails or the digest cannot be extracted.
-    """
     repository, tag = image.split(":")
-    # Official images live under the "library" namespace.
-    # Step 1: obtain an authentication token.
     token_url = (
         "https://auth.docker.io/token"
         f"?service=registry.docker.io&scope=repository:library/{repository}:pull"
@@ -147,7 +91,6 @@ def _fetch_docker_digest_via_registry(image: str) -> str:
     if not token:
         raise RuntimeError("Docker Hub token response missing 'token' field")
 
-    # Step 2: fetch the manifest using the token.
     manifest_url = f"https://registry-1.docker.io/v2/library/{repository}/manifests/{tag}"
     headers = {
         "Accept": "application/vnd.docker.distribution.manifest.v2+json",
@@ -167,24 +110,17 @@ def _fetch_docker_digest_via_registry(image: str) -> str:
         )
     return digest
 
-# Try Docker SDK first; if it fails, fall back to the registry API.
 try:
     docker_digest = _fetch_docker_digest_via_docker(DOCKER_IMAGE)
     log.info("Docker image digest retrieved via local daemon: %s", docker_digest)
 except Exception as exc_docker:
-    log.warning(
-        "Docker SDK method failed (%s). Falling back to registry API.", exc_docker
-    )
+    log.warning("Docker SDK method failed (%s). Falling back to registry API.", exc_docker)
     try:
         docker_digest = _fetch_docker_digest_via_registry(DOCKER_IMAGE)
         log.info("Docker image digest retrieved via registry API: %s", docker_digest)
     except Exception as exc_registry:
-        log.error(
-            "Failed to obtain Docker image digest via both methods: %s", exc_registry
-        )
-        raise RuntimeError(
-            "Cannot determine Docker image digest; aborting environment setup."
-        ) from exc_registry
+        log.error("Failed to obtain Docker image digest via both methods: %s", exc_registry)
+        raise RuntimeError("Cannot determine Docker image digest; aborting environment setup.") from exc_registry
 
 # ----------------------------------------------------------------------
 # 3. Write environment configuration JSON
@@ -201,9 +137,12 @@ env_config = {
 }
 
 out_path = paths.data("env_config.json")
-# Ensure parent directory exists (paths.data handles this, but explicit for safety)
 out_path.parent.mkdir(parents=True, exist_ok=True)
 with out_path.open("w", encoding="utf-8") as fp:
     json.dump(env_config, fp, indent=2, sort_keys=True)
 
 log.info("Wrote environment configuration to %s", out_path)
+
+if __name__ == "__main__":
+    # This allows the script to be run directly
+    pass

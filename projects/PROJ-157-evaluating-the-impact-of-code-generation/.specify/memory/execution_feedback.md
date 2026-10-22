@@ -2,13 +2,23 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 8 run-book script(s) missing (plan/impl path mismatch): python code/download_humaneval.py  --output data/raw/codeforces_cpp.jsonl  --min-problems 50  --seed 20231027; python code/generate_llm_variants.py  --model codellama-7b-instruct  --input data/raw/codeforces_cpp.jsonl  --output data/generated/codellama/; python code/generate_llm_variants.py  --model starcoder-15b  --input data/raw/codeforces_cpp.jsonl  --output data/generated/starcoder/; 1 command(s) failed: python -m pytest -m contract (rc=5)
+**Summary**: 7 run-book script(s) missing (plan/impl path mismatch): python code/generate_llm_variants.py  --model codellama-7b-instruct  --input data/raw/codeforces_cpp.jsonl  --output data/generated/codellama/; python code/generate_llm_variants.py  --model starcoder-15b  --input data/raw/codeforces_cpp.jsonl  --output data/generated/starcoder/; python code/create_problem_pairs.py  --human data/raw/codeforces_cpp.jsonl  --llm-dir data/generated/  --output data/raw/problem_pairs_v${HASH}.jsonl; 2 command(s) failed: python code/download_human.py  --output data/raw/codeforces_cpp.jsonl  --min-problems 50  --seed 20231027 (rc=1); python -m pytest -m contract (rc=5)
 
 ## Failing / missing run-book commands
 
-- python code/download_humaneval.py  --output data/raw/codeforces_cpp.jsonl  --min-problems 50  --seed 20231027 -> rc=2
+- python code/download_human.py  --output data/raw/codeforces_cpp.jsonl  --min-problems 50  --seed 20231027 -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-157-evaluating-the-impact-of-code-generation/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/download_humaneval.py': [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/download_human.py", line 15, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-157-evaluating-the-impact-of-code-generation/lib/python3.11/site-packages/datasets/__init__.py", line 18, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-157-evaluating-the-impact-of-code-generation/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-157-evaluating-the-impact-of-code-generation/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/generate_llm_variants.py  --model codellama-7b-instruct  --input data/raw/codeforces_cpp.jsonl  --output data/generated/codellama/ -> rc=2
 
@@ -45,6 +55,6 @@ rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
 collected 1 item / 1 deselected / 0 selected
 
-============================ 1 deselected in 0.09s =============================
+============================ 1 deselected in 0.12s =============================
 
 
