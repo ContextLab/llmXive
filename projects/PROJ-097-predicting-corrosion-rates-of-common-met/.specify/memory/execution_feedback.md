@@ -2,28 +2,49 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 command(s) failed: python -m src.pipeline.run_all (rc=-1); python -m pytest src/tests/ (rc=-1); 12 declared deliverable(s) absent: data/processed/cleaned_dataset.csv; data/processed/features.parquet; data/results/bh_interaction_importance.json
+**Summary**: 2 command(s) failed: python -m src.pipeline.run_all (rc=1); python -m pytest src/tests/ (rc=1); 12 declared deliverable(s) absent: data/processed/cleaned_dataset.csv; data/processed/features.parquet; data/results/bh_interaction_importance.json
 
 ## Failing / missing run-book commands
 
-- python -m src.pipeline.run_all -> rc=-1
+- python -m src.pipeline.run_all -> rc=1
+ll.py", line 38, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/run_all.py", line 14, in main
+    rc = ingest_main([])
+         ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 434, in main
+    raw_path = ingest(dataset_id=args.dataset_id, max_candidates=args.max_candidates)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 318, in ingest
+    frame, mapping = fetch_dataset(
+                     ^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 137, in fetch_dataset
+    raise RuntimeError(
+RuntimeError: Fallback download failed for https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv
 
-2026-10-21 17:18:06,003 INFO openml.config: Error opening file /home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/.runtime-home/.config/openml/config: not readable
-2026-10-21 17:18:06,003 WARNING openml: No permission to create OpenML directory at /home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/.runtime-home/.config/openml! This can result in OpenML-Python not working properly.
-2026-10-21 17:18:06,040 INFO root: Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+- python -m pytest src/tests/ -> rc=1
+V.
+        # ------------------------------------------------------------------
+        try:
+            response = requests.get(FALLBACK_URL, timeout=30)
+            response.raise_for_status()
+        except Exception as exc:
+>           raise RuntimeError(
+                f"Fallback download failed for {FALLBACK_URL}: {exc}"
+            ) from exc
+E           RuntimeError: Fallback download failed for https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv
 
-[TIMEOUT after 120s]
-- python -m pytest src/tests/ -> rc=-1
-============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
-rootdir: /home/runner/work/llmXive/llmXive
-configfile: pyproject.toml
-collected 5 items
+src/pipeline/ingest.py:137: RuntimeError
+=========================== short test summary info ============================
+FAILED src/tests/test_ingest.py::test_ingest_creates_raw_and_provenance - Run...
+FAILED src/tests/test_train.py::test_first_run_metrics_created - FileNotFound...
+FAILED src/tests/test_vif.py::test_vif_diagnostics_created - RuntimeError: Fa...
+ERROR src/tests/test_features.py::test_features_parquet_created - AssertionEr...
+ERROR src/tests/test_features.py::test_feature_names_json - AssertionError: f...
+========================= 3 failed, 2 errors in 1.07s ==========================
 
-src/tests/test_features.py EE                                            [ 40%]
-src/tests/test_ingest.py 
 
-[TIMEOUT after 120s]
 
 ## Declared deliverables still missing
 
@@ -53,7 +74,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/processed/cleaned_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/features.parquet` is declared but was NOT written. Scripts referencing it:
     - `src/pipeline/features.py` — NOT invoked by the run-book
-    - `src/pipeline/ingest.py` — NOT invoked by the run-book
     - `src/pipeline/run_all.py` — IS a run-book command
     - `src/tests/test_features.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/features.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

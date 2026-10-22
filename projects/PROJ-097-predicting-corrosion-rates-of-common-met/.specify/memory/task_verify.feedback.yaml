@@ -3,14 +3,10 @@ T001:
     exit=1'
   task: 4ee9e609e2658ed00f60f64a868e5d9a9300e160b77a37df767c23acb056d29d
 T002:
-  reason: "Checked `src/pipeline/ingest.py` (implements validation, harmonization,\
-    \ imputation, encoding) and `src/tests/test_ingest.py`. The pytest run failed\
-    \ because `fetch_dataset` raised a `RuntimeError` when no OpenML datasets matched\
-    \ the keywords, preventing the fallback download and thus no `data/processed/cleaned_dataset.csv`\
-    \ was created. The required cleaned CSV is missing and the test suite does not\
-    \ pass. Fix the dataset\u2011fetch logic (e.g., catch the \u201Cno candidates\u201D\
-    \ error and proceed to the fallback) so the cleaned CSV is written and the tests\
-    \ succeed."
+  reason: "The `src/pipeline/ingest.py` implementation exists, but the required output\
+    \ file `data/processed/cleaned_dataset.csv` is missing, and there is no evidence\
+    \ that `pytest src/tests/test_ingest.py` was run successfully. Without the cleaned\
+    \ CSV and a passing test run, the task\u2019s verification criteria are not satisfied."
   task: 5ecb012897dfd740bcc238dafc82ccbd7426fb166c8d6d5e34faa109d04f27bc
 T003:
   reason: "The `src/pipeline/features.py` script implements the required engineering\
@@ -50,5 +46,6 @@ T016:
 T017:
   task: d9a0b82ee836b0b2e5e9d7863d92f634846eeea79a258563eff080b56b3e4436
 T019:
-  reason: 'declared artifact(s) missing/empty/invalid: data/results/vif_diagnostics.json'
+  reason: 'Requested task execution failed; rerun successfully: src/pipeline/vif.py
+    exit=1'
   task: 087fc7e634cb08d4fb8f8f618374214ad3d54f7df9dbbddfb378e51a504931fb

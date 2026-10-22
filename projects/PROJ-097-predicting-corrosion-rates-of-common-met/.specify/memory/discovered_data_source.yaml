@@ -1,9 +1,12 @@
 status: none
-intent: "### User Story 1 \u2013 Data Ingestion, Validation, and Harmonization (Priority:\
-  \ P1) A researcher needs to ingest raw tabular corrosion datasets from public repositories,\
-  \ verify that all required columns (pH, salinity, temperature, material composition,\
-  \ corrosion rate) are present, harmonize corrosion\u2011ra"
-required_fields: []
-cache_key: a2911130b44339bcb8f3fd9d7f6120fbdd9c10edddb647264f1fe99ae71fe30f
-searched_at: '2026-10-21T17:25:31.569726+00:00'
+intent: OpenML Zenodo corrosion rate dataset pH salinity temperature material composition
+  python package dataset
+required_fields:
+- pH
+- salinity
+- temperature
+- material composition
+- corrosion rate
+cache_key: 374382747474271411d050e641562959a6edfc20d4b796f08ad6b37c8cb6710d
+searched_at: '2026-10-22T16:22:13.011574+00:00'
 retry_count: 1
