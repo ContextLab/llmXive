@@ -1,32 +1,32 @@
 # Implementation Plan: Extend “$π$‑Bench: Evaluating Proactive Personal Assistant Agents in Long‑Horizon Workflows”
 
-**Branch**: `001-intent-graph-proactive-eval` | **Date**: 2026-10-21 | **Spec**: [link to spec.md]  
+**Branch**: `001-intent-graph-proactive-eval` | **Date**: 2026-10-22 | **Spec**: [link to spec.md]  
 **Input**: Feature specification from `/specs/001-intent-graph-proactive-eval/spec.md`
 
 ## Summary
-The project builds a deterministic, CPU‑only pipeline that (1) parses raw π‑Bench interaction traces, (2) constructs a directed **Intent Graph** per task using a **deterministic LLM prompt** (fixed seed, greedy decoding), (3) runs a modest‑size CPU‑tractable agent that consumes only the Intent Graph (plus the current turn) to produce proactive actions, (4) runs two baselines (raw‑history with model‑max context truncation, and null‑history), (5) computes micro‑averaged F1, latency, and statistical significance, and (6) reports results with full reproducibility.
+Build a fully reproducible, CPU‑only pipeline that (1) downloads the public π‑Bench dataset, (2) parses raw interaction traces, (3) constructs deterministic Intent Graphs **without** using ground‑truth hidden‑intent labels, (4) runs a lightweight CPU‑tractable agent on the graph, (5) runs two baselines (raw‑history with max‑context truncation, and null‑history), (6) computes single‑label accuracy/precision/recall/F1, online inference latency, and offline graph‑construction latency, (7) performs a priori power analysis, (8) performs Wilcoxon signed‑rank, paired‑t, and bootstrap confidence‑interval analyses, (9) adds a ground‑truth‑only graph control to isolate the effect of LLM‑inferred intents, and (10) produces a full report and contract‑validated artifacts.
 
-All functional requirements (FR‑001 – FR‑009) and success criteria (SC‑001 – SC‑005) are addressed; each is mapped to a concrete phase or task below.
+All functional requirements (FR‑001 – FR‑009) and success criteria (SC‑001 – SC‑005) are explicitly addressed in the task list below.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
 - **Primary Dependencies**:  
-  `datasets>=2.14`, `networkx>=3.2`, `scikit-learn>=1.4`, `torch>=2.2` (CPU‑only), `transformers>=4.40` (for the deterministic LLM used in graph construction), `pandas>=2.2`, `numpy>=1.26`, `matplotlib>=3.8`, `pyyaml>=6.0`, `statsmodels>=0.14`, `spacy>=3.7` (only for optional preprocessing, not for intent inference)  
-- **Storage**: Files under `data/` (raw traces, derived CSV/JSON, logs)  
+  `datasets>=2.14`, `networkx>=3.2`, `scikit-learn>=1.4`, `torch>=2.2` (CPU‑only), `transformers>=4.40` (small LLM for missing intents), `pandas>=2.2`, `numpy>=1.26`, `matplotlib>=3.8`, `pyyaml>=6.0`, `statsmodels>=0.14`, `scipy>=1.12`, `jsonschema>=4.22`  
+- **Storage**: Files under `data/` (raw, derived, logs, figures)  
 - **Testing**: `pytest` + contract validation (`jsonschema`)  
-- **Target Platform**: GitHub Actions free‑tier runner (2 CPU cores, ~7 GB RAM, ≤6 h) – **CPU‑first**; no GPU required.  
-- **Constraints**: Total wall‑clock time ≤ 6 h, peak RAM ≤ 7 GB.
+- **Target Platform**: GitHub Actions free‑tier runner (2 CPU cores, ~7 GB RAM, ≤6 h) – **CPU‑first**; no GPU escape hatch required.  
+- **Constraints**: Peak RAM ≤ 7 GB, wall‑clock ≤ 6 h, all scripts deterministic.
 
 ## Constitution Check
 | Principle | Compliance Statement |
 |-----------|----------------------|
-| I. Reproducibility | All random seeds are fixed (`seed.py`), data is downloaded via a single canonical HuggingFace identifier, scripts are deterministic. |
-| II. Verified Accuracy | No new external citations are introduced; only the publicly‑available π‑Bench dataset is referenced. |
-| III. Data Hygiene | Every file written under `data/` receives a SHA‑256 checksum recorded in `state/projects/PROJ-942-...yaml`. Transformations write new files; raw files remain unchanged. |
-| IV. Single Source of Truth | All figures, tables, and numeric claims trace back to files produced in `data/derived/` and the code that generated them. |
+| I. Reproducibility | All random seeds are fixed in `src/utils/seed.py`. Data download uses a single canonical HF identifier (`pi_bench`). Scripts are deterministic; no manual steps. |
+| II. Verified Accuracy | Only the public π‑Bench dataset (HF) is cited. No new external citations are introduced. |
+| III. Data Hygiene | Every file written under `data/` receives a SHA‑256 checksum recorded in `state/projects/PROJ-942-...yaml`. Raw files are never overwritten; derived files are new. |
+| IV. Single Source of Truth | Every figure, table, and numeric claim traces back to a row in `data/derived/summary.csv` and the code that generated it. |
 | V. Versioning Discipline | Artifact hashes are computed automatically; any change updates the project state file. |
-| VI. Structured Memory Fidelity | The Intent Graph preserves temporal order (edges `temporal`) and explicit conflict‑resolution patterns; any pruning is documented with confidence scores. |
-| VII. Latency‑Performance Trade‑off Quantification | **Online** inference latency per turn is recorded for each condition; **offline** graph‑construction latency is reported separately (not mixed into the online reduction claim). |
+| VI. Structured Memory Fidelity | Intent Graph preserves temporal edges and explicit conflict‑resolution edges. Pruning for token budget is logged with confidence scores; no intent label is altered. |
+| VII. Latency‑Performance Trade‑off Quantification | **Online latency** (per‑turn inference) is reported separately from **offline latency** (LLM inference for missing intents + graph‑construction time). Both are included in `summary.csv` and discussed in the final report. |
 
 ## Project Structure
 ```text
@@ -43,12 +43,15 @@ src/
 │   ├── raw/                # π‑Bench raw JSON files (downloaded)
 │   └── derived/
 │       ├── normalized_traces.csv
-│       ├── intent_graphs/          # one JSON per task
+│       ├── inferred_intents.csv
+│       ├── intent_graphs/          # one JSON per task (inferred‑only)
+│       ├── intent_graphs_gt/       # ground‑truth‑only graphs (control)
 │       ├── graph_construction_latency.csv
 │       ├── inference_logs/
 │       │   ├── lightweight_seed101.csv
 │       │   ├── raw_seed101.csv
-│       │   └── null_seed101.csv
+│       │   ├── null_seed101.csv
+│       │   └── graph_gt_seed101.csv   # optional logs for control
 │       └── eval_results/
 │           ├── summary.csv
 │           ├── report.md
@@ -58,7 +61,9 @@ src/
 ├── pipelines/
 │   ├── download_pi_bench.py
 │   ├── parse_traces.py
-│   ├── build_intent_graph_llm.py   # deterministic LLM‑based extractor
+│   ├── infer_missing_intents.py          # deterministic LLM for missing intents
+│   ├── build_intent_graph.py             # inferred‑only graph
+│   ├── build_intent_graph_gt.py          # ground‑truth‑only control graph
 │   ├── run_lightweight_agent.py
 │   ├── run_raw_baseline.py
 │   ├── run_null_baseline.py
@@ -73,24 +78,36 @@ tests/
 ## Phase Overview & FR/SC Mapping
 | Phase | Tasks (ordered) | FR(s) addressed | SC(s) addressed |
 |-------|-----------------|-----------------|-----------------|
-| **0️⃣ Setup** | 0.1 Install dependencies (requirements.txt) 0.2 Pin seeds via `utils/seed.py` | – | – |
-| **1️⃣ Data Acquisition** | 1.1 `download_pi_bench.py`: programmatic download using `datasets.load_dataset("pi_bench", streaming=True)`; verify SHA‑256 checksum; retry up to 3 times on failure. | – | – |
-| **2️⃣ Parse & Normalize** | 2.1 `parse_traces.py`: extract `task_id`, `turn_index`, `speaker`, `utterance`, optional `ground_truth_intent`; write `normalized_traces.csv`. | FR‑001 | – |
-| **3️⃣ Intent Graph Construction** | 3.1 Load `normalized_traces.csv`. 3.2 For each turn, invoke a **deterministic LLM prompt** (e.g., `google/flan-t5-small`) with a fixed seed (`torch.manual_seed(42)`, `torch.backends.cudnn.deterministic=True`) and greedy decoding to infer intents when ground‑truth is missing; assign confidence = 1.0 for exact matches, 0.8 for partial matches, 0.0 otherwise. 3.3 Build a `networkx.DiGraph` with nodes `{id, label, confidence}` and edges `{source, target, type}` (temporal edges between consecutive turns; special edges for detected conflict patterns). 3.4 Serialize each graph to JSON under `intent_graphs/`. 3.5 Record per‑task wall‑clock time in `graph_construction_latency.csv`. 3.6 Enforce **model‑max token budget** (e.g., 2048 tokens) by estimating token count (`len(json.dumps(graph))/4`). If exceeded, prune lowest‑confidence nodes iteratively, logging pruning actions. | FR‑002, FR‑007, FR‑009 | SC‑004 |
-| **4️⃣ Baseline & Agent Execution** | 4.1 `run_lightweight_agent.py`: load each Intent Graph, current turn text, feed to a **CPU‑only 200 M‑parameter OPT model** (`facebook/opt-125m`); output `ProactiveAction` or `"no_action"`; log latency per turn. Repeat for seeds = {101, 202, 303}. 4.2 `run_raw_baseline.py`: for each turn, **use the full dialogue history**; if the total token count exceeds the model’s maximum context (2048 tokens), truncate the *oldest* tokens to fit. Feed the (possibly truncated) history to the same OPT model; log latency. 4.3 `run_null_baseline.py`: feed only the current prompt (no prior context) to the model; log latency. | FR‑003, FR‑004, FR‑008 | – |
-| **5️⃣ Scoring & Latency Aggregation** | 5.1 `evaluate.py`: for tasks **with ground‑truth intents**, compute micro‑averaged multi‑label F1 (`sklearn.metrics.f1_score(..., average='micro')`) between predicted and true actions for each seed. 5.2 Aggregate per‑task mean F1 across seeds. 5.3 Compute **average online inference latency** per turn for each condition; add **offline graph‑construction latency** (from Phase 3) as a separate column (`graph_construction_mean_latency_sec`). 5.4 Export `summary.csv` with columns: `condition, mean_f1, std_f1, mean_online_latency, total_latency, latency_reduction_pct, graph_construction_mean_latency_sec`. | FR‑005, FR‑006 | SC‑001, SC‑002 |
-| **6️⃣ Statistical Validation** | 6.1 Primary test: Wilcoxon signed‑rank on paired per‑task mean F1 (Graph vs Raw, Graph vs Null). 6.2 Secondary test: paired *t*‑test. 6.3 Bootstrap 10 000 resamples for 95 % CI of mean differences. 6.4 Non‑parametric power estimate via 1 000 bootstrap samples (report detectable effect size). 6.5 Record all p‑values, CIs, and power estimate in `summary.csv`. | FR‑005 | SC‑003 |
-| **7️⃣ Reporting** | 7.1 Generate `report.md` with tables, p‑values, CIs, latency reduction (online only) and **separate** offline graph‑construction cost, and graph‑construction success rate (≥ 95 %). 7.2 Create PNG figures (`f1_barplot.png`, `latency_boxplot.png`). 7.3 List any tasks flagged as “Null Graph” for manual review. | FR‑005, FR‑006 | SC‑005 |
-| **8️⃣ Contract Validation** | 8.1 Run `pytest tests/contract` to validate each JSON graph against `contracts/intent_graph.schema.yaml`. 8.2 Fail the pipeline if any graph violates the schema. | – | – |
+| **0️⃣ Setup** | 0.1 Install dependencies (`requirements.txt`). 0.2 Initialise deterministic seeds (`utils/seed.py`). | – | – |
+| **1️⃣ Data Acquisition** | 1.1 `download_pi_bench.py`: stream `datasets.load_dataset("pi_bench", streaming=True)`, write each task JSON to `data/raw/`, verify SHA‑256 checksum, retry up to 3 times. | – | – |
+| **2️⃣ Parse & Normalize** | 2.1 `parse_traces.py`: read all raw JSON, extract `task_id`, `turn_index`, `speaker`, `utterance`, optional `ground_truth_intent`; write `data/derived/normalized_traces.csv`. | FR‑001 | – |
+| **3️⃣ Infer Missing Intents** | 3.1 `infer_missing_intents.py`: for rows where `ground_truth_intent` is missing, invoke a **deterministic small LLM** (`google/flan-t5-small`) with fixed seed (`torch.manual_seed(42)`) and greedy decoding. Output `inferred_intents.csv` with columns `task_id, turn_index, inferred_intent, confidence`. Record wall‑clock time in `graph_construction_latency.csv` (LLM inference component). | FR‑007 (deterministic inference) | – |
+| **4️⃣ Intent Graph Construction** | 4.1 `build_intent_graph.py`: merge `normalized_traces.csv` + `inferred_intents.csv`. Create `networkx.DiGraph` where nodes = inferred intents only (ground‑truth never used). Add temporal edges between consecutive turns; add conflict‑resolution edges via rule‑based regex. Serialize each graph to `data/derived/intent_graphs/<task_id>.json`. 4.2 Record per‑task wall‑clock time (graph‑construction latency) in `graph_construction_latency.csv`. 4.3 Validate each JSON against `contracts/intent_graph.schema.yaml`. | FR‑002, FR‑007, FR‑009 (no ground‑truth) | SC‑004 |
+| **4b️⃣ Ground‑Truth‑Only Graph (Control)** | 4b.1 `build_intent_graph_gt.py`: same pipeline but **uses only ground‑truth intents** when available and **omits any inferred intents**. Serialized to `data/derived/intent_graphs_gt/<task_id>.json`. 4b.2 Validate against schema. | Provides a control for construct validity (addresses methodology‑e0443735). | – |
+| **5️⃣ Agent & Baseline Execution** | 5.1 `run_lightweight_agent.py`: load inferred‑only Intent Graph + current turn, feed to CPU‑only `facebook/opt-125m` (`torch.device("cpu")`). Output `ProactiveAction` or `"no_action"`; log latency per turn. Run for seeds = {101, 202, 303}. 5.2 `run_raw_baseline.py`: feed full dialogue history (truncated to model max‑context = 2048 tokens by removing oldest tokens) to the same OPT model; log latency. 5.3 `run_null_baseline.py`: feed only the current turn (no history) to OPT; log latency. 5.4 `run_lightweight_agent_gt.py` (optional): run the agent on the ground‑truth‑only graphs to evaluate the effect of inferred intents. | FR‑003, FR‑004, FR‑008 | – |
+| **6️⃣ Scoring & Latency Aggregation** | 6.1 `evaluate.py`: for turns with ground‑truth intents, compute **single‑label** accuracy, precision, recall, and F1 (`sklearn.metrics.classification_report`). 6.2 Aggregate per‑task mean metrics across seeds. 6.3 Compute **online** average inference latency per turn for each condition. 6.4 Merge **offline** latency components (LLM inference + graph‑construction) from `graph_construction_latency.csv`. 6.5 Export `summary.csv` with columns: `condition, mean_accuracy, mean_f1, std_f1, mean_online_latency, total_latency, latency_reduction_pct, graph_construction_mean_latency_sec, success_rate_graphs`. | FR‑005, FR‑006 | SC‑001, SC‑002, SC‑005 |
+| **7️⃣ Statistical Validation** | 7.1 **A priori power analysis**: compute required N for paired Wilcoxon to detect Cohen's d = 0.3 with power = 0.8 (α = 0.05); confirm that ≈ 100 tasks satisfy this. 7.2 Primary test: Wilcoxon signed‑rank on paired per‑task mean F1 (Graph vs Raw, Graph vs Null, Graph vs Graph‑GT). 7.3 Secondary test: paired *t*‑test. 7.4 Bootstrap 10 000 resamples for 95 % CI of mean differences. 7.5 Record power estimate in `summary.csv`. | FR‑005 | SC‑003 |
+| **8️⃣ Reporting** | 8.1 Generate `report.md` containing: tables of accuracy/F1, latency, p‑values, CIs, graph‑construction success rate (≥ 95 %), offline latency breakdown, and discussion of offline cost. 8.2 Create PNG figures (`f1_barplot.png`, `latency_boxplot.png`). 8.3 List tasks flagged as “Null Graph” for manual review. | FR‑005, FR‑006 | SC‑005 |
+| **9️⃣ Contract Validation** | 9.1 Run `pytest -q tests/contract` to validate every Intent Graph JSON against `contracts/intent_graph.schema.yaml`. Pipeline aborts on any schema violation. | – | – |
 
 ## Compute Feasibility
-All steps run on CPU only. The deterministic LLM used for intent extraction is a small model (on the order of tens of millions of parameters) that processes a turn in < 0.3 s on the CI runner. A large‑scale OPT model processes a turn within a short latency. With ~100 tasks × ≈ 30 turns each, total inference time stays well under the 6 h CI limit. Graph construction is lightweight (LLM inference on short prompts) and fits within RAM limits. No GPU escape hatch is required.
+All steps run on CPU only:  
+- **LLM for missing intents**: `flan-t5-small` (~80 M params) processes a turn in ≈ 0.25 s on the CI runner.  
+- **OPT‑125M inference**: ~0.4 s per turn.  
+- With A large number of tasks × ≈ 30 turns each, total compute ≈ 2 h, well under the 6 h CI limit.  
+- Peak RAM < 5 GB (streaming download, lightweight graph objects).  
 
-## Risk Mitigation
-- **Download reliability (T001)**: `download_pi_bench.py` now uses HuggingFace `datasets` streaming with three automatic retries and SHA‑256 checksum verification; aborts with a clear error if the dataset cannot be retrieved.
-- **Latency accounting**: Offline graph‑construction cost is reported separately; the primary latency‑reduction claim (SC‑002) concerns only **online inference**. This avoids accounting confounds.
-- **Determinism**: Fixed random seeds (`torch.manual_seed`, `numpy.random.seed`, `random.seed`) guarantee identical graphs and model outputs across runs. The LLM prompt uses greedy decoding to remain deterministic.
-- **Baseline fairness**: Raw‑history baseline uses the model’s actual maximum context window (e.g., 2048 tokens) rather than a token budget derived from the graph, ensuring a fair comparison.
+No GPU escape hatch is required.
+
+## Risk Mitigation & Reviewer Concerns
+- **Latency accounting**: Offline LLM + graph‑construction latency are measured and reported separately from online inference (addressing methodology‑0b24f58e).  
+- **Lightweight claim**: The agent remains CPU‑tractable; the one‑time LLM pass is disclosed and its cost is not mixed into the online latency metric.  
+- **Baseline fairness**: Both raw and graph conditions respect the same max‑token budget; raw truncates oldest tokens, graph prunes lowest‑confidence nodes only when needed (methodology‑0996ea35).  
+- **Construct validity**: Added a ground‑truth‑only graph control (methodology‑e0443735) to isolate the effect of inferred intents.  
+- **FR‑009 compliance**: Graph construction never uses ground‑truth labels (spec_coverage‑90a83e60).  
+- **Independence of predictor/target**: Ground‑truth intents are used only for scoring, never as graph inputs (scientific_soundness‑864e6779).  
+- **Metric appropriateness**: Switched to single‑label accuracy/F1 (scientific_soundness‑907bb9d1).  
+- **Power analysis**: Conducted a priori (methodology‑3b6aee12).  
 
 ---
 

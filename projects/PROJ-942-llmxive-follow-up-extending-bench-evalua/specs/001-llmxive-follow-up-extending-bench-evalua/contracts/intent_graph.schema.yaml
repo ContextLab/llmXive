@@ -35,5 +35,9 @@ properties:
         type:
           type: string
           description: "Dependency type (e.g., \"temporal\", \"causal\", \"conflict_resolution\")"
+  source:
+    type: string
+    description: "Construction mode identifier: \"inferred_only\" or \"ground_truth_only\""
+    enum: ["inferred_only", "ground_truth_only"]
 required: ["nodes", "edges"]
 additionalProperties: false

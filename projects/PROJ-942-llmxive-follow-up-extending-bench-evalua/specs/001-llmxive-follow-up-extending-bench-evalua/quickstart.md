@@ -12,7 +12,7 @@ pip install -r requirements.txt   # pins exact versions
 ## 2️⃣ Download π‑Bench Data
 ```bash
 python src/pipelines/download_pi_bench.py
-# The script streams the dataset, writes files under data/raw/, and records a SHA‑256 checksum.
+# Streams the dataset, writes each task JSON under data/raw/, and records a SHA‑256 checksum.
 ```
 
 ## 3️⃣ Parse & Normalize Traces
@@ -22,22 +22,35 @@ python src/pipelines/parse_traces.py \
     --out-csv data/derived/normalized_traces.csv
 ```
 
-## 4️⃣ Compute Model Max Token Budget (for fair baseline truncation)
+## 4️⃣ Infer Missing Intents (Deterministic LLM)
 ```bash
-# For the OPT‑125m model we use a max context of 2048 tokens.
-echo 2048 > data/derived/model_max_tokens.txt
-```
-
-## 5️⃣ Build Intent Graphs (LLM‑based, records construction latency)
-```bash
-python src/pipelines/build_intent_graph_llm.py \
+python src/pipelines/infer_missing_intents.py \
     --input-csv data/derived/normalized_traces.csv \
-    --out-dir data/derived/intent_graphs \
-    --max-tokens $(cat data/derived/model_max_tokens.txt) \
-    --seed 42 \
-    --latency-out data/derived/graph_construction_latency.csv
+    --out-csv data/derived/inferred_intents.csv \
+    --seed 42
 ```
-*The script validates each JSON against `contracts/intent_graph.schema.yaml`, uses a deterministic LLM prompt with a fixed seed, and prunes low‑confidence nodes if the token budget is exceeded.*
+*Uses `google/flan-t5-small` with fixed seed and greedy decoding.*
+
+## 5️⃣ Build Intent Graphs (Inferred‑Only)
+```bash
+python src/pipelines/build_intent_graph.py \
+    --traces-csv data/derived/normalized_traces.csv \
+    --inferred-csv data/derived/inferred_intents.csv \
+    --out-dir data/derived/intent_graphs \
+    --latency-out data/derived/graph_construction_latency.csv \
+    --max-tokens 2048
+```
+*Validates each JSON against `contracts/intent_graph.schema.yaml`.*
+
+## 5b️⃣ Build Ground‑Truth‑Only Graphs (Control)
+```bash
+python src/pipelines/build_intent_graph_gt.py \
+    --traces-csv data/derived/normalized_traces.csv \
+    --out-dir data/derived/intent_graphs_gt \
+    --latency-out data/derived/graph_construction_latency.csv \
+    --max-tokens 2048
+```
+*Uses only ground‑truth intents; no inferred intents are incorporated.*
 
 ## 6️⃣ Run Agents (three seeds)
 ```bash
@@ -47,9 +60,14 @@ for SEED in 101 202 303; do
       --seed $SEED \
       --out data/derived/inference_logs/lightweight_seed${SEED}.csv
 
+  python src/pipelines/run_lightweight_agent_gt.py \
+      --graph-dir data/derived/intent_graphs_gt \
+      --seed $SEED \
+      --out data/derived/inference_logs/lightweight_gt_seed${SEED}.csv
+
   python src/pipelines/run_raw_baseline.py \
       --raw-dir data/raw \
-      --max-tokens $(cat data/derived/model_max_tokens.txt) \
+      --max-tokens 2048 \
       --seed $SEED \
       --out data/derived/inference_logs/raw_seed${SEED}.csv
 
@@ -60,11 +78,12 @@ for SEED in 101 202 303; do
 done
 ```
 
-## 7️⃣ Evaluate (includes graph‑construction latency)
+## 7️⃣ Evaluate (includes offline latency)
 ```bash
 python src/pipelines/evaluate.py \
     --logs-dir data/derived/inference_logs \
     --graph-dir data/derived/intent_graphs \
+    --graph-gt-dir data/derived/intent_graphs_gt \
     --graph-latency data/derived/graph_construction_latency.csv \
     --out-dir data/derived/eval_results
 ```
@@ -81,10 +100,12 @@ All Intent Graph JSON files must pass schema validation.
 cat data/derived/eval_results/report.md
 ```
 You will see:
-- Micro‑averaged F1 for Graph, Raw, and Null conditions (ground‑truth subset).  
+- Single‑label accuracy, precision, recall, and F1 for Graph, Raw, Null, and Graph‑GT conditions (ground‑truth‑only control).  
 - Wilcoxon and paired‑t test p‑values, 95 % bootstrap confidence intervals.  
-- **Online** inference latency per turn and percentage reduction.  
-- Offline graph‑construction mean latency and overall success rate (≥ 95 %).  
+- **Online** inference latency per turn and percentage reduction (SC‑002).  
+- Offline LLM inference + graph‑construction latency (reported separately).  
+- Graph‑construction success rate (≥ 95 %).  
+- List of any “Null Graph” tasks for manual review.
 
 ---
 
