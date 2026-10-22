@@ -1,16 +1,19 @@
 status: none
-intent: download OpenML surface roughness tribology dataset NIST materials repository
-  python package dataset
+intent: OpenML surface roughness tribology dataset 42123 NIST Materials Data Repository
+  Materials Project python package dataset
 required_fields:
 - sample_id
 - material_id
-- material_composition
 - ra
-- rq
+- rms
 - rz
-- material_young_modulus
-- material_hardness
+- rt
 - material_density
-cache_key: 856a952bd8bd7f5ac67667802f07f00acebd90de1dad7ec1b31b84912f9cb820
-searched_at: '2026-10-11T13:33:02.267050+00:00'
+- youngs_modulus
+- hardness
+- measurement_load
+- measurement_speed
+- imputed_flag
+cache_key: 2c45988bf970fa225744c4c971ec2c26ddfdf4416dc3f6fa493849d95805e707
+searched_at: '2026-10-22T21:25:18.200716+00:00'
 retry_count: 1

@@ -84,6 +84,7 @@ properties:
   avg_modulus:
     type: number
     description: "Mean elastic modulus of the two materials."
+    # Note: derived fields are optional in the processed dataset but included for completeness.
   hardness_modulus_ratio_avg:
     type: number
     description: "Mean hardness‑to‑modulus ratio across the pair."

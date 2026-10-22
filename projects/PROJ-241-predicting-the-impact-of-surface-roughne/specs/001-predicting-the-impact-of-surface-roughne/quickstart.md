@@ -1,6 +1,6 @@
 # Quickstart: Predicting Tribological Properties from Surface Roughness
 
-This guide shows how to run the full analysis on a fresh GitHub Actions runner (or locally on Linux/macOS). **Prerequisite:** the OpenML dataset with ID 2352 must be publicly reachable; an optional Materials Project API key can be supplied via environment variable `MATERIALS_PROJECT_API_KEY`. If the dataset cannot be fetched, the pipeline will stop with a clear “data‑gap” error.
+This guide shows how to run the full analysis on a fresh GitHub Actions runner (or locally on Linux/macOS). **Prerequisite:** the OpenML dataset with ID 42123 must be publicly reachable; an optional Materials Project API key can be supplied via environment variable `MATERIALS_PROJECT_API_KEY`. If the dataset cannot be fetched, the pipeline will stop with a clear “data‑gap” error.
 
 ## 1. Clone the repository and install dependencies
 ```bash
@@ -25,7 +25,7 @@ python -m src.pipeline.run_all
 
 1. **download** – Phase 0 & 1 (data availability check, streaming OpenML dataset).  
 2. **extract** – Phase 2 (pySurf roughness extraction or KS‑validated fallback).  
-3. **preprocess** – Phase 3 (MAD outlier removal, median imputation with imputation‑fraction logging, scaling, row‑count assertion).  
+3. **preprocess** – Phase 3 (MAD outlier removal, median imputation with logging, scaling, row‑count assertion).  
 4. **split** – Phase 4 (group‑aware train/test split by `pairing_id`).  
 5. **modeling** – Phase 5 (nested CV, hyper‑parameter tuning, final model training).  
 6. **evaluation** – Phase 6 & 7 (metrics, power analysis, significance testing).  
@@ -49,4 +49,3 @@ On the CI runner the full pipeline should finish well within the allocated time 
 **Important:** If the OpenML dataset (the specified dataset) cannot be downloaded (no verified URL), the script will raise `DataAvailabilityError` and exit with a non‑zero status. In that case, contact the project owner to provide a verified open dataset URL or adjust the specification accordingly.
 
 ---
-

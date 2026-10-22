@@ -17,8 +17,8 @@
 | `elastic_modulus_2` | float | Elastic modulus of material 2 (GPa). | ✅ |
 | `hardness_1` | float | Hardness of material 1 (HV). | ✅ |
 | `hardness_2` | float | Hardness of material 2 (HV). | ✅ |
-| `hardness_modulus_ratio_1` | float | Hardness ÷ Elastic modulus for material 1. | ✅ |
-| `hardness_modulus_ratio_2` | float | Hardness ÷ Elastic modulus for material 2. | ✅ |
+| `hardness_modulus_ratio_1` | float | Hardness ÷ elastic modulus for material 1. | ✅ |
+| `hardness_modulus_ratio_2` | float | Hardness ÷ elastic modulus for material 2. | ✅ |
 | `coeff_friction` | float | Measured coefficient of friction (dimensionless). | ✅ |
 | `wear_rate` | float | Wear rate (mm³ N⁻¹ m⁻¹). | ✅ |
 
@@ -36,7 +36,7 @@ The processed dataset must validate against `contracts/tribology-dataset.schema.
 ```
 data/
 ├── raw/
-│   └── openml_2352/                 # streamed raw files (read‑only)
+│   └── openml_42123/                 # streamed raw files (read‑only)
 ├── intermediate/
 │   └── material_properties.json      # fetched from Materials Project / NIST
 ├── processed/
@@ -44,4 +44,3 @@ data/
 ```
 
 ---
-
