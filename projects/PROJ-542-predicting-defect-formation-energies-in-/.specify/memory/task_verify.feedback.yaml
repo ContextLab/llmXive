@@ -5,22 +5,23 @@ T002:
     exit=1'
   task: bf0eefb74e9c1326e3ac449e929113d7b8d6d741ceae85e80e27044042d89d8a
 T003:
-  reason: The required `data/processed/featurize.log` file is missing, and `data/processed/features.csv`
-    contains an extra `composition` column that is not allowed by `contracts/features.schema.yaml`,
-    so the CSV does not validate against the schema. Both issues prevent the task
-    from being fully satisfied.
+  reason: "The provided `features.csv` contains a `composition` column (which the\
+    \ schema forbids) and placeholder values (all 1.0/1/6) rather than real pymatgen\u2011\
+    derived descriptors; it also contradicts `descriptor_gaps.log`, which reports\
+    \ gaps even though the CSV has no missing values. Consequently the CSV does not\
+    \ validate against `contracts/features.schema.yaml`, and the checksum file likely\
+    \ does not correspond to the actual CSV. The task\u2019s core requirements are\
+    \ therefore not met."
   task: b85e3ca8858fc7050c6c3e79f413c47a88e5bbbe0e7e70e117eb8cb940ee1196
 T004:
   task: 3b2bc6b16c240e7e0b515fe6f19adffda9927633a9061467fdfd42b784743281
 T005:
   task: 54221d71453662d5266e3d30c200997f06dd8aa5a8f8b05ee1b5db62be46a868
 T006:
-  reason: "Checked the repository for the required output artifacts. While `code/models/split.py`\
-    \ and its implementation `src/models/split.py` exist and contain the correct deterministic\
-    \ `GroupShuffleSplit` logic, the expected output files `data/processed/train.csv`,\
-    \ `data/processed/test.csv`, and the checksum files `data/checksums/train.sha256`\
-    \ and `data/checksums/test.sha256` are missing. Without these CSVs and their SHA\u2011\
-    256 files, the task\u2019s output requirements are not satisfied."
+  reason: 'The split implementation exists, but the required output artifacts are
+    absent: `data/processed/train.csv`, `data/processed/test.csv`, `data/checksums/train.sha256`,
+    and `data/checksums/test.sha256` are all missing, so the deterministic split and
+    checksum generation have not been materialized.'
   task: 0fdffaa4377b06da405dbfedebbb9b075e1be72c6528e1aced6cd94960afe9bd
 T007:
   reason: 'Requested task execution failed; rerun successfully: src/models/train.py
@@ -31,6 +32,12 @@ T008:
     exit=2'
   task: 3e558ce007377e8412c0381d21c3df08f56c5494b89e15437e6da2d6184c063e
 T009:
+  reason: "The feature\u2011importance script (`src/models/feature_importance.py`)\
+    \ is present, but the required outputs are not verified: `data/checksums/performance.sha256`\
+    \ is missing, `data/processed/performance.json` still contains only placeholder\
+    \ data, and the test `code/tests/test_feature_importance.py` fails (NameError\
+    \ for `joblib`), so the JSON update, checksum creation, and PNG generation are\
+    \ not confirmed. The task therefore remains unfinished."
   task: 318626a90c77d581bb5cd08919b01420ba947377ed417688c3f3c79cafd7502e
 T010:
   task: 1cd81d3148e7c583c34ab18054dbb33535fd9aed0050801481d02c744cfd9b5e
@@ -41,6 +48,17 @@ T012:
 T014:
   task: 5664d00d55c6f77685d9b919ecefd353abe8f7390c40f258ab4e98d588a5a278
 T015:
+  reason: Checked `data/processed/features_augmented.csv` (only original columns,
+    no structural descriptors) and the absence of `data/checksums/features_augmented.sha256`.
+    The CSV does not contain the required coordination_number, average_bond_length,
+    and crystal_symmetry columns, and the expected checksum file is missing. Both
+    the output content and checksum artifact are incomplete.
   task: f7b11897da518c4ade55bbd53fc58cbbd79f9c4dedb2bcd63768b22a63ad3819
 T016:
+  reason: 'The provided `performance.json` still has `"fallback_needed": true` and
+    empty metric fields, and the test suite (`code/tests/test_run_fallback.py`) fails
+    because the pipeline aborts during the `src.models.split` step (ValueError due
+    to insufficient samples). Consequently the driver script does not successfully
+    replace the features, rerun the modelling steps, or produce updated performance
+    metrics and figures as required. The task therefore is not fully completed.'
   task: 980e02b146ff09e3e26371addb11070d4d70505c94388a91609af8b785e467e3

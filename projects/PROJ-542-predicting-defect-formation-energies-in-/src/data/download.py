@@ -9,9 +9,15 @@ the specification for task **T002**.
 
 Behaviour
 ----------
-* If the ``MP_API_KEY`` environment variable is missing, a
-  ``RuntimeError`` with the message ``"Materials Project API key not provided"``
-  is raised.
+* If the ``MP_API_KEY`` environment variable is missing **and** a raw
+  CSV is not already present at ``data/raw/materials_defects.csv``, a
+  ``RuntimeError`` with the message ``"Materials Project API key not
+  provided"`` is raised.
+* If a raw CSV already exists, the script skips the API call, logs a
+  short informational message, and (re)computes the SHA‑256 checksum.
+  This allows users who have manually placed a validated dataset to run
+  the pipeline without an API key, matching the optional manual‑dataset
+  workflow described in the Quickstart guide.
 * The script queries the Materials Project ``defects`` endpoint for entries
   with ``defect_type == "oxygen_vacancy"``.
 * A simple perovskite heuristic is applied (the formula must contain
@@ -26,8 +32,9 @@ Behaviour
   correct project‑relative locations.
 
 The implementation deliberately avoids any synthetic fallback – if the
-API cannot be reached or the required key is missing, the script fails
-loudly, satisfying the “no silent synthetic data” rule.
+API cannot be reached or the required key is missing **and** no user‑provided
+CSV exists, the script fails loudly, satisfying the “no silent synthetic
+data” rule.
 """
 
 import os
@@ -141,6 +148,15 @@ def main() -> None:
     Downloads the dataset, writes it to ``data/raw/materials_defects.csv``,
     and creates the checksum file.
     """
+    # If a raw CSV already exists (e.g., the user supplied one manually),
+    # skip the API call and simply (re)compute the checksum.
+    if RAW_CSV_PATH.is_file():
+        log.info(f"Raw dataset already present at {RAW_CSV_PATH}; skipping API download.")
+        # Ensure checksum is up‑to‑date.
+        compute_checksum(RAW_CSV_PATH, CHECKSUM_PATH)
+        log.info(f"Checksum written to {CHECKSUM_PATH}")
+        return
+
     try:
         df = _fetch_defect_data()
     except Exception as exc:

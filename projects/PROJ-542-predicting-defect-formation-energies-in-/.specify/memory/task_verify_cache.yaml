@@ -1,11 +1,22 @@
 T001:
   c: true
-  h: 4c021f4570d03b7ed434f178f1d9a2179cf6c6461032806ef9819fe36612ccf3
-  r: "Checked that `code/quickstart.md`, `code/pipeline/run.py`, `code/data/download.py`,\
-    \ and `code/data/featurize.py` all exist and contain non\u2011placeholder implementations,\
-    \ and that the unit test `code/tests/test_pipeline_entry.py` ran (log shows exit\u202F\
-    0) and verified that `run()` returns a dict with the required keys."
-  sig: e38b5b6b94ff45f05e16667627ec73cbbcd1e0f4d3b2e28939c20456147ea02a
+  h: 331a7ac176029a5aab4ccf8a50274c074eb19baa425a2527729a7b19ffb764f3
+  r: Checked the presence and content of `code/quickstart.md`, `code/pipeline/run.py`,
+    `code/data/download.py`, `code/data/featurize.py`, and the unit test `code/tests/test_pipeline_entry.py`
+    together with its passing execution log, confirming the pipeline entry point is
+    documented and the wiring test succeeds.
+  sig: b7dec7eda8a01fbaf887178e9a402d0861d0cb95fcb742494153e8f0962ea4ee
+T003:
+  c: false
+  h: 579885e4fb61a1ea6e395cb61ba703d44585ab6da03f93abe740b6ff2285dea7
+  r: "The provided `features.csv` contains a `composition` column (which the schema\
+    \ forbids) and placeholder values (all 1.0/1/6) rather than real pymatgen\u2011\
+    derived descriptors; it also contradicts `descriptor_gaps.log`, which reports\
+    \ gaps even though the CSV has no missing values. Consequently the CSV does not\
+    \ validate against `contracts/features.schema.yaml`, and the checksum file likely\
+    \ does not correspond to the actual CSV. The task\u2019s core requirements are\
+    \ therefore not met."
+  sig: ae3e7167e84f4eceea01aeb96bddeb452110cc9f2609e889e53fafe4297d1a05
 T004:
   c: true
   h: 33667c11fd637050f00e3de4361a359397322d5c211dfeff83fd707cd0001cbc
@@ -24,16 +35,16 @@ T005:
     character SHA\u2011256 output). Both the required module and the test confirming\
     \ correct hashing and file creation are present and correct."
   sig: 11e2c4c68f1c4ce5d387830e3e2e531b59d129bdf968cd183ad2360a5d1b5459
-T006:
+T009:
   c: false
-  h: 05c8b074daf938746cdcbd5b01740b03b38465f2e14ad6eeee480410e01c8604
-  r: "Checked the repository for the required output artifacts. While `code/models/split.py`\
-    \ and its implementation `src/models/split.py` exist and contain the correct deterministic\
-    \ `GroupShuffleSplit` logic, the expected output files `data/processed/train.csv`,\
-    \ `data/processed/test.csv`, and the checksum files `data/checksums/train.sha256`\
-    \ and `data/checksums/test.sha256` are missing. Without these CSVs and their SHA\u2011\
-    256 files, the task\u2019s output requirements are not satisfied."
-  sig: dba23263fa1e641ce98d3483730bba8689fb20004c82aec977374c217be68522
+  h: 3ad8d5438edadc22bd7e08386bff6cd874ea2dd464d64c438f4059a3862d21ad
+  r: "The feature\u2011importance script (`src/models/feature_importance.py`) is present,\
+    \ but the required outputs are not verified: `data/checksums/performance.sha256`\
+    \ is missing, `data/processed/performance.json` still contains only placeholder\
+    \ data, and the test `code/tests/test_feature_importance.py` fails (NameError\
+    \ for `joblib`), so the JSON update, checksum creation, and PNG generation are\
+    \ not confirmed. The task therefore remains unfinished."
+  sig: 826b40e939a84c8b1ed78ef67073ae6f3b75e6ca598a58bab7ed848c5f92f5dd
 T012:
   c: true
   h: 2ca7d3e7d019004f13fe5f295764bdea50c0ee7ad93e6472ff7a36304c54ed53
@@ -49,3 +60,22 @@ T014:
     \ (loads the schema and validates its JSON\u2011Schema syntax). The schema matches\
     \ the required structure and the test confirms it is syntactically valid."
   sig: 4a7ee1fe37e6fbd21e5ff5dad71bd21b15e308728a97ad33b9fc8ed10e06b420
+T015:
+  c: false
+  h: 4af738778ae8c2c838e4b9e06d7bb5ace43e359ea2c43c2e765cd37e705c9d1b
+  r: Checked `data/processed/features_augmented.csv` (only original columns, no structural
+    descriptors) and the absence of `data/checksums/features_augmented.sha256`. The
+    CSV does not contain the required coordination_number, average_bond_length, and
+    crystal_symmetry columns, and the expected checksum file is missing. Both the
+    output content and checksum artifact are incomplete.
+  sig: b9ecc33d72546385d41e47e573fcba1f6f3eaf8d6872451f56ca1c6b214b3dd3
+T016:
+  c: false
+  h: f225ac23d378d1c249405ee6ea44819dd109fe6deb4b7fbd6a99a5d8555e545d
+  r: 'The provided `performance.json` still has `"fallback_needed": true` and empty
+    metric fields, and the test suite (`code/tests/test_run_fallback.py`) fails because
+    the pipeline aborts during the `src.models.split` step (ValueError due to insufficient
+    samples). Consequently the driver script does not successfully replace the features,
+    rerun the modelling steps, or produce updated performance metrics and figures
+    as required. The task therefore is not fully completed.'
+  sig: 3ce8805107a53b73750b1bb8957b5c5786088063fcb6e4daf9cd34b0829420bd

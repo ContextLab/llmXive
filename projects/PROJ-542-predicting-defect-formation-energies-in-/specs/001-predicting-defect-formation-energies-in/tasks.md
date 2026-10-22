@@ -114,7 +114,7 @@ All paths are relative to the project root and use the canonical `code/` directo
   3. Overwrite `data/processed/performance.json` and figure files with the updated results.  
   *Verification:* Final `performance.json` reflects metrics computed on the augmented model; the fallback flag is now `fallback_needed=False`. All contract tests pass.
 
-- [ ] T010 [US1] Assemble the reproducible Jupyter notebook that orchestrates the full pipeline end‑to‑end, including optional fallback.  
+- [~] T010 [US1] Assemble the reproducible Jupyter notebook that orchestrates the full pipeline end‑to‑end, including optional fallback.  
   *File:* `code/pipeline.ipynb`  
   *Requirements:*  
   • Import utilities and set fixed random seeds.  
@@ -123,7 +123,7 @@ All paths are relative to the project root and use the canonical `code/` directo
   • Generate `data/logs/runtime.log` containing the total wall-clock time for the entire execution.  
   *Verification:* Executing the notebook from a clean environment reproduces **all** artefacts. The verification script `code/tests/test_pipeline_audit.py` must assert: (1) `runtime.log` ≤ 1800s (SC-004), and (2) random seeds in the notebook match the seeds used in the scripts (FR-010).
 
-- [ ] T011 [US1] Write the methods & results markdown that will be handed off to the paper‑stage.  
+- [~] T011 [US1] Write the methods & results markdown that will be handed off to the paper‑stage.  
   *File:* `paper/methods_results.md`  
   *Contents:*  
   • Summary of data source (Materials Project API) with API version and MP IDs.  

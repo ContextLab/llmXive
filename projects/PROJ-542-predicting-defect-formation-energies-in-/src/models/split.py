@@ -3,11 +3,19 @@ src/models/split.py
 -------------------
 
 Implements a deterministic, composition‑aware train/test split using
-scikit‑learn's ``GroupShuffleSplit``.  The split respects the requirement
-that no composition appears in both the training and test sets and that the
-proportion is 80 % / 20 % (default).  SHA‑256 checksums for the generated CSV
-files are written to ``data/checksums`` and a short log is created in
-``data/processed``.
+``GroupShuffleSplit``.  The module provides a library function
+``split_dataset`` and a CLI entry point ``main`` that is exercised by the
+test suite.
+
+The split respects the following requirements:
+* 80 % / 20 % split (configurable via ``--test-size``).
+* Groups are defined by the ``composition`` column – no composition appears
+  in both the training and test sets.
+* Random state is fixed at 42 by default for reproducibility.
+* After splitting, the CSV files are written, a log file is emitted, and
+  SHA‑256 checksum files are generated for both CSVs.
+
+The checksum utility is provided by ``src.utils.checksum.write_checksum``.
 """
 
 import argparse
@@ -18,10 +26,7 @@ from typing import Tuple
 import pandas as pd
 from sklearn.model_selection import GroupShuffleSplit
 
-from llmxive_toolkit import get_logger, paths
 from src.utils.checksum import write_checksum
-
-log = get_logger(__name__)
 
 def split_dataset(
     features_path: Path,
@@ -52,53 +57,48 @@ def split_dataset(
     Tuple[pd.DataFrame, pd.DataFrame]
         The training and test DataFrames.
     """
-    if not features_path.is_file():
-        raise FileNotFoundError(f"Features file not found at {features_path}")
-
     # Load the full feature matrix.
     df = pd.read_csv(features_path)
 
     if "composition" not in df.columns:
         raise ValueError("Input features must contain a 'composition' column.")
 
-    # Use the composition column as the grouping key.
-    groups = df["composition"].values
+    # Use the composition string as the grouping key.
+    groups = df["composition"].astype(str)
 
     splitter = GroupShuffleSplit(
-        test_size=test_size, n_splits=1, random_state=random_state
+        n_splits=1, test_size=test_size, random_state=random_state
     )
     train_idx, test_idx = next(splitter.split(df, groups=groups))
 
     train_df = df.iloc[train_idx].reset_index(drop=True)
     test_df = df.iloc[test_idx].reset_index(drop=True)
 
-    # Write the split CSVs.
+    # Write out the CSV files.
     train_path.parent.mkdir(parents=True, exist_ok=True)
     test_path.parent.mkdir(parents=True, exist_ok=True)
     train_df.to_csv(train_path, index=False)
     test_df.to_csv(test_path, index=False)
 
-    # Log summary information.
-    log_path = paths.data("processed", "split.log")
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    with log_path.open("w", encoding="utf-8") as log_f:
-        log_f.write(
-            f"Split completed: {len(train_df)} training rows, {len(test_df)} test rows.\\n"
-        )
-        log_f.write(
-            f"Training groups: {train_df['composition'].nunique()}\\n"
-        )
-        log_f.write(f"Test groups: {test_df['composition'].nunique()}\\n")
-    log.info(
-        "Train/test split written: %s (train), %s (test)", train_path, test_path
-    )
-
-    # Write checksums for the two output files.
-    checksum_dir = paths.data("checksums")
-    write_checksum(train_path, checksum_dir)
-    write_checksum(test_path, checksum_dir)
-
     return train_df, test_df
+
+def _write_log(train_df: pd.DataFrame, test_df: pd.DataFrame) -> None:
+    """
+    Write a simple log file summarising the split.
+    """
+    log_path = Path("data/processed/split.log")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Count unique composition groups in each split.
+    train_groups = train_df["composition"].nunique()
+    test_groups = test_df["composition"].nunique()
+
+    log_contents = (
+        f"Split completed: {len(train_df)} training rows, {len(test_df)} test rows.\n"
+        f"Training groups: {train_groups}\n"
+        f"Test groups: {test_groups}\n"
+    )
+    log_path.write_text(log_contents)
 
 def _parse_cli_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -112,18 +112,18 @@ def _parse_cli_args() -> argparse.Namespace:
     parser.add_argument(
         "train_path",
         type=Path,
-        help="Path where the training CSV will be written.",
+        help="Destination path for the training CSV.",
     )
     parser.add_argument(
         "test_path",
         type=Path,
-        help="Path where the test CSV will be written.",
+        help="Destination path for the test CSV.",
     )
     parser.add_argument(
         "--test-size",
         type=float,
         default=0.2,
-        help="Proportion of the dataset to allocate to the test set (default 0.2).",
+        help="Proportion of the dataset to use as test set (default 0.2).",
     )
     parser.add_argument(
         "--random-state",
@@ -135,13 +135,12 @@ def _parse_cli_args() -> argparse.Namespace:
 
 def main() -> None:
     """
-    CLI entry point. Parses positional arguments and delegates to
-    ``split_dataset``.  The function exits with status 0 on success; any
-    exception propagates to the caller (the test suite expects a non‑zero
-    exit code on failure).
+    CLI entry point – parses arguments, performs the split, writes the
+    log file and checksum artefacts.
     """
     args = _parse_cli_args()
-    split_dataset(
+
+    train_df, test_df = split_dataset(
         features_path=args.features_path,
         train_path=args.train_path,
         test_path=args.test_path,
@@ -149,5 +148,14 @@ def main() -> None:
         random_state=args.random_state,
     )
 
+    # Write the split log.
+    _write_log(train_df, test_df)
+
+    # Generate SHA‑256 checksum files for both CSVs.
+    checksums_dir = Path("data/checksums")
+    write_checksum(args.train_path, checksums_dir)
+    write_checksum(args.test_path, checksums_dir)
+
 if __name__ == "__main__":
-    sys.exit(main())
+    # When executed via ``python -m src.models.split``.
+    main()

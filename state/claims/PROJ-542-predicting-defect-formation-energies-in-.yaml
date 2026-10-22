@@ -168,3 +168,107 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-22T18:10:58Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/paper/methods_results.md
+  attempts: 1
+  canonical: defect formation energy data obtained from Materials Project API
+  claim_id: c_f87a83e3
+  context: "The defect formation energy data were obtained from the Materials Project\
+    \ API using the mp\u2011api package (version as installed in the environment)."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "The defect formation energy data were obtained from the Materials Project\
+    \ API using the mp\u2011api package."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-22T18:35:07Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/paper/methods_results.md
+  attempts: 1
+  canonical: "perovskite compositions with oxygen\u2011vacancy defects retrieved and\
+    \ stored in materials_defects.csv"
+  claim_id: c_4686bce1
+  context: "The query retrieved perovskite compositions with oxygen\u2011vacancy defects\
+    \ and stored the raw records in data/raw/materials_defects.csv."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The query retrieved perovskite compositions with oxygen\u2011vacancy\
+    \ defects and stored the raw records in data/raw/materials_defects.csv."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:35:07Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/paper/methods_results.md
+  attempts: 1
+  canonical: "SHA\u2011256 checksum of raw file recorded"
+  claim_id: c_fa2acca1
+  context: "The SHA\u2011256 checksum of the raw file is recorded in data/checksums/raw_defects.sha256."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The SHA\u2011256 checksum of the raw file is recorded in data/checksums/raw_defects.sha256."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:35:07Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/paper/methods_results.md
+  attempts: 1
+  canonical: twelve compositional descriptors computed per composition
+  claim_id: c_5c12d6f3
+  context: For each composition the pipeline computed twelve compositional descriptors
+    (four per site) using pymatgen.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: For each composition the pipeline computed twelve compositional descriptors
+    (four per site) using pymatgen.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:35:07Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/paper/methods_results.md
+  attempts: 1
+  canonical: fallback augmentation added three structural descriptors
+  claim_id: c_ce9aac2f
+  context: 'If the baseline models failed to meet the performance thresholds, a fallback
+    augmentation added three structural descriptors (computed with pymatgen): coordination_number,
+    average_bond_length, crystal_symmetry.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If the baseline models failed to meet the performance thresholds, a fallback
+    augmentation added three structural descriptors (coordination_number, average_bond_length,
+    crystal_symmetry).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:35:07Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/paper/methods_results.md
+  attempts: 1
+  canonical: fallback_needed flag true, structural descriptors added and model retrained
+  claim_id: c_8b7eb16d
+  context: 'The pipeline sets a flag fallback_needed in performance.json. The current
+    run indicates: { "fallback_needed": true } Accordingly, the augmented feature
+    set was used for the final results.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'The current run indicates fallback_needed: true, meaning structural descriptors
+    were added and the model was retrained.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:35:07Z'

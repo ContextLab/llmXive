@@ -1,13 +1,26 @@
 """
 src/models/evaluate.py
----------------------
+-----------------------
 
-Evaluation script for the perovskite defect formation energy project.
-It selects the best model (lowest mean CV RMSE), predicts on the held‑out
-test set, computes performance metrics, a bootstrap confidence interval for
-RMSE, a paired two‑sided t‑test, and writes a JSON performance report.
-It also generates a scatter plot of predictions vs. actual values and
-writes a SHA‑256 checksum for the JSON artifact.
+Evaluation script for the held‑out test set.
+
+This module implements the full evaluation pipeline required by task **T008**:
+1. Load cross‑validation metrics and select the best‑performing model.
+2. Load the corresponding fitted model (pickle file).
+3. Predict on the test set and compute RMSE, MAE, and R².
+4. Bootstrap 10 000 resamples of the residuals to obtain a 95 % confidence
+   interval for RMSE.
+5. Perform a paired two‑sided t‑test (α = 0.05) between predictions and the
+   DFT ground‑truth values.
+6. Assemble a JSON performance report that conforms to
+   ``contracts/model_performance.schema.yaml`` and write it to
+   ``data/processed/performance.json``.
+7. Compute a SHA‑256 checksum for the JSON file.
+8. Generate a scatter plot of predictions vs. actual values
+   (``figures/pred_vs_actual.png``).
+
+The script aborts with a non‑zero exit code if the paired t‑test p‑value is
+≤ 0.05 (requirement SC‑003).  All paths are resolved via ``llmxive_toolkit.paths``.
 """
 
 import argparse
@@ -19,41 +32,39 @@ import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import ttest_rel
+from scipy import stats
 
 from llmxive_toolkit import get_logger, paths
-from src.utils.checksum import compute_checksum, write_checksum
+from src.utils.checksum import write_checksum
 
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper functions
+# Helper functions (signatures match the public API described in the spec)
 # ----------------------------------------------------------------------
 def _load_cv_metrics(cv_path: Path) -> dict:
     """Load the cross‑validation metrics JSON produced by ``src.models.train``."""
     if not cv_path.is_file():
         raise FileNotFoundError(f"CV metrics file not found at {cv_path}")
-    with cv_path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+    with cv_path.open() as f:
+        data = json.load(f)
+    return data
 
 def _select_best_model(cv_metrics: dict) -> str:
-    """
-    Choose the model identifier with the lowest mean RMSE.
-
-    The ``cv_metrics`` dict follows the schema in
-    ``contracts/model_performance.schema.yaml`` – it contains a top‑level
-    ``cv_metrics`` key with entries for ``RandomForest`` and
-    ``GradientBoosting``.  Each entry includes ``rmse_mean``.
-    """
-    if "cv_metrics" not in cv_metrics:
-        raise KeyError("Missing 'cv_metrics' key in CV metrics JSON")
-    model_rmse = {
-        name: metrics["rmse_mean"]
-        for name, metrics in cv_metrics["cv_metrics"].items()
-    }
-    best_model = min(model_rmse, key=model_rmse.get)
-    log.info(f"Best model based on CV RMSE: {best_model} (RMSE={model_rmse[best_model]:.4f})")
-    return best_model
+    """Choose the model identifier with the lowest mean RMSE."""
+    best_name = None
+    best_rmse = float("inf")
+    for model_name, metrics in cv_metrics.get("cv_metrics", {}).items():
+        rmse = metrics.get("rmse_mean")
+        if rmse is None:
+            continue
+        if rmse < best_rmse:
+            best_rmse = rmse
+            best_name = model_name
+    if best_name is None:
+        raise RuntimeError("No model with RMSE information found in CV metrics.")
+    log.info(f"Selected best model: {best_name} (RMSE mean = {best_rmse})")
+    return best_name
 
 def _model_path_for_name(model_name: str) -> Path:
     """Map a model name to its pickle file."""
@@ -62,7 +73,7 @@ def _model_path_for_name(model_name: str) -> Path:
         "GradientBoosting": Path("models/gb_cv.pkl"),
     }
     if model_name not in mapping:
-        raise ValueError(f"Unrecognised model name '{model_name}'. Expected one of {list(mapping)}")
+        raise ValueError(f"Unknown model name '{model_name}'. Expected one of {list(mapping)}")
     return mapping[model_name]
 
 def _load_model(model_path: Path):
@@ -74,13 +85,14 @@ def _load_model(model_path: Path):
 def _prepare_test_data(test_path: Path, target_col: str = "formation_energy"):
     """Load the test CSV and split into features (X) and target (y)."""
     if not test_path.is_file():
-        raise FileNotFoundError(f"Test CSV not found at {test_path}")
+        raise FileNotFoundError(f"Test set not found at {test_path}")
     df = pd.read_csv(test_path)
     if target_col not in df.columns:
-        raise KeyError(f"Target column '{target_col}' not present in test data")
+        raise KeyError(f"Target column '{target_col}' missing from test set.")
+    if "composition" not in df.columns:
+        raise KeyError("Column 'composition' required for grouping, but missing.")
     y = df[target_col].to_numpy()
-    # Drop target and any non‑feature columns (e.g. composition)
-    X = df.drop(columns=[target_col])
+    X = df.drop(columns=[target_col, "composition"])
     return X, y
 
 def _rmse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
@@ -97,32 +109,24 @@ def _r2(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 def _bootstrap_rmse_ci(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    n_boot: int = 10000,
+    n_boot: int = 10_000,
     ci: float = 0.95,
 ) -> tuple[float, float]:
-    """
-    Bootstrap confidence interval for RMSE.
-
-    Resamples the *indices* of the test set with replacement,
-    recomputes RMSE for each bootstrap sample and returns the
-    lower/upper percentile bounds.
-    """
-    rng = np.random.default_rng(42)
-    rmses = np.empty(n_boot, dtype=float)
-    n = len(y_true)
-    for i in range(n_boot):
-        idx = rng.integers(0, n, n)
-        rmses[i] = _rmse(y_true[idx], y_pred[idx])
-    lower = np.percentile(rmses, (1 - ci) / 2 * 100)
-    upper = np.percentile(rmses, (1 + ci) / 2 * 100)
-    return lower, upper
+    """Bootstrap confidence interval for RMSE."""
+    residuals = y_true - y_pred
+    rng = np.random.default_rng(seed=42)
+    boot_rmse = []
+    for _ in range(n_boot):
+        idx = rng.integers(0, len(residuals), len(residuals))
+        sample_res = residuals[idx]
+        boot_rmse.append(np.sqrt(np.mean(sample_res ** 2)))
+    lower = np.percentile(boot_rmse, (1 - ci) / 2 * 100)
+    upper = np.percentile(boot_rmse, (1 + ci) / 2 * 100)
+    return float(lower), float(upper)
 
 def _paired_t_test(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """
-    Perform a paired two‑sided t‑test between true and predicted values.
-    Returns the p‑value.
-    """
-    t_stat, p_val = ttest_rel(y_true, y_pred)
+    """Perform a paired two‑sided t‑test; return the p‑value."""
+    t_stat, p_val = stats.ttest_rel(y_true, y_pred)
     return float(p_val)
 
 def _save_performance_json(
@@ -138,7 +142,7 @@ def _save_performance_json(
 ) -> None:
     """Assemble the JSON structure required by the schema and write it."""
     performance = {
-        "cv_metrics": cv_metrics["cv_metrics"],
+        "cv_metrics": cv_metrics.get("cv_metrics", {}),
         "test_metrics": {
             "model_name": model_name,
             "rmse": rmse,
@@ -151,42 +155,32 @@ def _save_performance_json(
             "confidence": 0.95,
         },
         "paired_ttest": {
-            "t_statistic": float(ttest_rel(np.array([]), np.array([]))[0])  # placeholder, will be overwritten below
-            # The actual t‑statistic is not required by the schema for validation,
-            # but we include a sensible value for completeness.
+            "t_statistic": None,  # will be filled later by the caller if needed
+            "p_value": p_value,
+            "alpha": 0.05,
         },
-        "feature_importances": [],  # placeholder – populated later by T009
+        "feature_importances": [],  # placeholder – filled later by T009
         "fallback_needed": fallback_needed,
     }
-
-    # Insert the correct t‑statistic (computed together with the p‑value)
-    t_stat, _ = ttest_rel(np.array([]), np.array([]))  # dummy to keep type‑checker happy
-    # Re‑compute with real data below
-    # (We cannot compute here because we only have p_value; the caller supplies the t‑statistic)
-    # The caller will update the dict directly before writing.
-
-    # Write JSON
+    # Write JSON with pretty formatting for readability.
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w", encoding="utf-8") as f:
-        json.dump(performance, f, indent=2)
+    out_path.write_text(json.dumps(performance, indent=2))
+    log.info(f"Performance report written to {out_path}")
 
 def _update_paired_ttest_fields(performance_path: Path, t_stat: float, p_value: float) -> None:
-    """Utility to insert the actual t‑statistic and p‑value into the JSON file."""
-    with performance_path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-    data["paired_ttest"] = {
-        "t_statistic": t_stat,
-        "p_value": p_value,
-        "alpha": 0.05,
-    }
-    with performance_path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
+    """Insert the actual t‑statistic and p‑value into the JSON file."""
+    if not performance_path.is_file():
+        raise FileNotFoundError(f"Performance JSON not found at {performance_path}")
+    data = json.loads(performance_path.read_text())
+    data["paired_ttest"]["t_statistic"] = float(t_stat)
+    data["paired_ttest"]["p_value"] = float(p_value)
+    performance_path.write_text(json.dumps(data, indent=2))
+    log.info("Updated paired‑t‑test fields in performance JSON.")
 
 def _plot_predictions(y_true: np.ndarray, y_pred: np.ndarray, out_path: Path) -> None:
     """Create a scatter plot of predictions vs. actual values with a 1:1 line."""
-    out_path.parent.mkdir(parents=True, exist_ok=True)
     plt.figure(figsize=(6, 6))
-    plt.scatter(y_true, y_pred, alpha=0.6, edgecolor="k")
+    plt.scatter(y_true, y_pred, alpha=0.7, edgecolor="k")
     max_val = max(y_true.max(), y_pred.max())
     min_val = min(y_true.min(), y_pred.min())
     plt.plot([min_val, max_val], [min_val, max_val], "r--", label="1:1 line")
@@ -195,73 +189,77 @@ def _plot_predictions(y_true: np.ndarray, y_pred: np.ndarray, out_path: Path) ->
     plt.title("Predicted vs. Actual Defect Formation Energies")
     plt.legend()
     plt.tight_layout()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(out_path, dpi=150)
     plt.close()
+    log.info(f"Prediction scatter plot saved to {out_path}")
 
-# ----------------------------------------------------------------------
-# CLI entry point
-# ----------------------------------------------------------------------
 def _parse_cli_args() -> argparse.Namespace:
+    """CLI arguments – kept minimal because paths are convention‑based."""
     parser = argparse.ArgumentParser(
-        description="Evaluate the best‑performing model on the held‑out test set."
+        description="Evaluate the best model on the held‑out test set."
     )
     parser.add_argument(
-        "train_path",
+        "--cv-metrics",
         type=Path,
-        help="Path to the training CSV (kept for API compatibility, not used).",
+        default=paths.data("processed", "cv_metrics.json"),
+        help="Path to the cross‑validation metrics JSON.",
     )
     parser.add_argument(
-        "test_path",
+        "--test-csv",
         type=Path,
-        help="Path to the test CSV.",
+        default=paths.data("processed", "test.csv"),
+        help="Path to the test set CSV.",
     )
     parser.add_argument(
-        "output_path",
+        "--output-json",
         type=Path,
+        default=paths.data("processed", "performance.json"),
         help="Path where the performance JSON will be written.",
+    )
+    parser.add_argument(
+        "--figure",
+        type=Path,
+        default=paths.figures("pred_vs_actual.png"),
+        help="Path for the prediction‑vs‑actual scatter plot.",
     )
     return parser.parse_args()
 
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
 def main() -> None:
     args = _parse_cli_args()
 
     # 1. Load CV metrics and pick the best model.
-    cv_metrics_path = paths.data("processed", "cv_metrics.json")
-    cv_metrics = _load_cv_metrics(cv_metrics_path)
+    cv_metrics = _load_cv_metrics(args.cv_metrics)
     best_model_name = _select_best_model(cv_metrics)
 
     # 2. Load the corresponding model.
     model_path = _model_path_for_name(best_model_name)
     model = _load_model(model_path)
 
-    # 3. Load test data.
-    X_test, y_test = _prepare_test_data(args.test_path)
+    # 3. Prepare test data.
+    X_test, y_test = _prepare_test_data(args.test_csv)
 
-    # 4. Predict.
+    # 4. Predict and compute basic metrics.
     y_pred = model.predict(X_test)
-
-    # 5. Compute metrics.
     rmse_val = _rmse(y_test, y_pred)
     mae_val = _mae(y_test, y_pred)
     r2_val = _r2(y_test, y_pred)
 
-    # 6. Bootstrap CI for RMSE.
+    # 5. Bootstrap confidence interval for RMSE.
     rmse_lower, rmse_upper = _bootstrap_rmse_ci(y_test, y_pred)
 
-    # 7. Paired t‑test.
+    # 6. Paired t‑test.
     p_val = _paired_t_test(y_test, y_pred)
-    if p_val <= 0.05:
-        raise RuntimeError(
-            f"Paired t‑test p‑value ({p_val:.4f}) ≤ 0.05 – statistical significance detected (SC‑003)."
-        )
-    t_stat, _ = ttest_rel(y_test, y_pred)
 
-    # 8. Decision rule for fallback.
+    # 7. Decision rule for fallback.
     fallback_needed = (rmse_val > 0.5) or (r2_val < 0.70)
 
-    # 9. Write performance JSON.
+    # 8. Write performance JSON (t‑statistic placeholder for now).
     _save_performance_json(
-        out_path=args.output_path,
+        out_path=args.output_json,
         cv_metrics=cv_metrics,
         model_name=best_model_name,
         rmse=rmse_val,
@@ -272,19 +270,26 @@ def main() -> None:
         fallback_needed=fallback_needed,
     )
 
-    # 10. Insert the correct t‑statistic and p‑value into the JSON.
-    _update_paired_ttest_fields(args.output_path, float(t_stat), float(p_val))
+    # 9. Compute and write checksum for the JSON.
+    write_checksum(args.output_json, Path("data/checksums"))
 
-    # 11. Generate scatter plot.
-    fig_path = paths.figures("pred_vs_actual.png")
-    _plot_predictions(y_test, y_pred, fig_path)
+    # 10. Update JSON with the actual t‑statistic.
+    t_stat, _ = stats.ttest_rel(y_test, y_pred)
+    _update_paired_ttest_fields(args.output_json, float(t_stat), p_val)
 
-    # 12. Write checksum for the performance JSON.
-    checksum_path = paths.data("checksums", "performance.sha256")
-    compute_checksum(args.output_path, checksum_path)
+    # 11. Generate the scatter plot.
+    _plot_predictions(y_test, y_pred, args.figure)
+
+    # 12. Enforce SC‑003: fail if p‑value ≤ 0.05.
+    if p_val <= 0.05:
+        log.error(
+            f"Paired t‑test p‑value {p_val:.4f} ≤ 0.05 – evaluation considered a failure."
+        )
+        raise RuntimeError(
+            f"Paired t‑test p-value {p_val:.4f} ≤ 0.05 (SC‑003 requirement)."
+        )
 
     log.info("Evaluation completed successfully.")
-    print("Evaluation completed successfully")
 
 if __name__ == "__main__":
     main()

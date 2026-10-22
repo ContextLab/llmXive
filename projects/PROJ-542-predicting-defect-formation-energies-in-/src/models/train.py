@@ -157,8 +157,11 @@ def _train_and_evaluate(features_path: Path, output_path: Path) -> dict:
     joblib.dump(final_gb, gb_path)
     log.info(f"Gradient Boosting model saved to {gb_path}")
 
-    # Compute checksum for the JSON metrics file
+    # ------------------------------------------------------------------
+    # Compute checksum for the JSON metrics file.
+    # ------------------------------------------------------------------
     checksum_dir = paths.data("checksums")
+    checksum_dir.mkdir(parents=True, exist_ok=True)  # Ensure the directory exists.
     write_checksum(output_path, checksum_dir)
 
     return {"cv_metrics": aggregated, "rf_path": rf_path, "gb_path": gb_path}
