@@ -31,6 +31,8 @@ try:
 except Exception:  # pragma: no cover – executed only when pyarrow is missing
     dummy = types.ModuleType("pyarrow")
     dummy.lib = types.ModuleType("pyarrow.lib")
+    # ``pandas`` expects ``pyarrow.__version__``; provide a placeholder.
+    dummy.__version__ = "0.0.0"
     sys.modules["pyarrow"] = dummy
     sys.modules["pyarrow.lib"] = dummy.lib
 
