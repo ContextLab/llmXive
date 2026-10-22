@@ -2,5 +2,8 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T005** — declared artifact(s) missing/empty/invalid: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/requirements.txt
-- **T006b** — declared artifact(s) missing/empty/invalid: pre-commit-config.yaml
+- **T002** — the task writes platform-owned path(s) inside the project: `state/` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T008** — declared artifact(s) missing/empty/invalid: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/data/preprocess.py
+- **T007** — declared artifact(s) missing/empty/invalid: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/data/download.py
+- **T009** — The `config.py` file exists, but it does not enforce CPU‑only execution (it allows “cuda” as a valid device) and it never actually sets the random seed for Python, NumPy, or a deep‑learning library. The task required configuration management that guarantees CPU‑only hardware constraints and applies the chosen seed globally, which the current implementation does not provide.
+- **T013** — The provided `test_static_inference.py` exists, but it contains critical bugs: it instantiates `StaticScorer` with a `Config` object instead of a model name string, and calls a non‑existent `score_batch` method (the class only defines `score_task` and batch helpers with different signatures). Consequently the test cannot actually run a CPU‑only inference pass or verify the absence of CUDA errors, so the integration test does not meet the task’s requirement. The test implementation must be corrected to properly create `StaticScorer` using the model name and device from the config and to invoke

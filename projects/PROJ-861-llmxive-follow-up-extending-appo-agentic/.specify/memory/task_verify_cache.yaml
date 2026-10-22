@@ -1,3 +1,61 @@
+T005:
+  c: true
+  h: 4de475979a1fddfba7cd05775369d14c1e7f1ef44e11f266605c2c9bdb2ef7ea
+  r: "Checked `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/requirements.txt`;\
+    \ it exists, is non\u2011empty, lists pinned versions for all required packages,\
+    \ and includes the exact `torch --index-url https://download.pytorch.org/whl/cpu`\
+    \ line."
+  sig: b0d87e56b69d12b3a921d80f68f42fe8c00b8018eed9e523783eea7f2a5e1508
+T006a:
+  c: true
+  h: 3729305d33d5b83821d11155e0a7ec5a98c78eac3c25a8dac7bfe01c3383ab1c
+  r: "Checked the `pyproject.toml` located at `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/pyproject.toml`.\
+    \ It contains a `[tool.black]` section with `target-version = [\"py311\"]` and\
+    \ a `line-length` setting, and a `[tool.ruff]` section whose `select` list includes\
+    \ `\"E\"`, `\"E7\"`, `\"E9\"`, `\"F\"`, and `\"I\"`. The file is present and non\u2011\
+    empty, fulfilling the task\u2019s specifications."
+  sig: a114aabef31e957ac6701da538a79d33fba191316348d5e750424cf3650d699c
+T009:
+  c: false
+  h: 877a8015147fc805ff00326ab90117f87d771d3c470dc61ae922ac180db9e2ec
+  r: "The `config.py` file exists, but it does not enforce CPU\u2011only execution\
+    \ (it allows \u201Ccuda\u201D as a valid device) and it never actually sets the\
+    \ random seed for Python, NumPy, or a deep\u2011learning library. The task required\
+    \ configuration management that guarantees CPU\u2011only hardware constraints\
+    \ and applies the chosen seed globally, which the current implementation does\
+    \ not provide."
+  sig: 6472ece8e092ea89a3f1be53355d7c8035cb897df030bd193ee2356b05221d74
+T010:
+  c: true
+  h: a12a27818f6ea728b2dfe7f443269942449461bd2e7572d5d8d48ad6d28b6902
+  r: "Checked `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/code/utils/logger.py`,\
+    \ which defines a functional logger (`get_logger`), metric and error logging helpers,\
+    \ and a tqdm\u2011based progress\u2011bar factory (`setup_progress_bar`). The\
+    \ file is non\u2011empty, contains concrete implementations, and matches the task\u2019\
+    s requirement for logging infrastructure and progress\u2011bar support."
+  sig: 4fbee88a4ae8127cab54f373a5b245d70aea07dedb0b0be7a4ad3ccc4008fdd2
+T012:
+  c: true
+  h: 7cf4c724b845406a8c7280a91537b65d41d4069522daa881b3a88533c856233a
+  r: "The `projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/tests/unit/test_static_score.py`\
+    \ file exists (6009\u202Fbytes) and defines `EPSILON = 1e-9` with a suite of pytest\
+    \ unit tests that verify probability clamping to this floor, ensure log calculations\
+    \ produce no NaN/Inf, and check KL divergence behavior. The tests directly address\
+    \ the required floor value and NaN\u2011prevention logic, fulfilling the task\
+    \ specification."
+  sig: 31bf0ec594f6b28a90ebe70ebdc57e4a7bc0689016a98093229f5c8934f7257f
+T013:
+  c: false
+  h: 8eb871c5e1d84a7a2e8ed4fc010616698f075ec2bccce7449ef8581f75fc366a
+  r: "The provided `test_static_inference.py` exists, but it contains critical bugs:\
+    \ it instantiates `StaticScorer` with a `Config` object instead of a model name\
+    \ string, and calls a non\u2011existent `score_batch` method (the class only defines\
+    \ `score_task` and batch helpers with different signatures). Consequently the\
+    \ test cannot actually run a CPU\u2011only inference pass or verify the absence\
+    \ of CUDA errors, so the integration test does not meet the task\u2019s requirement.\
+    \ The test implementation must be corrected to properly create `StaticScorer`\
+    \ using the model name and device from the config and to invoke "
+  sig: 307a850517d17b2fac1fdb16a1dc8749966cdfe2496eebe914c94f99b730bd4d
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

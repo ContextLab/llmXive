@@ -11,7 +11,7 @@
   verification_status: verified
   verified_against_url: https://github.com/vwxyzjn/cleanrl
   verified_at: '2026-07-11T04:36:12.491036Z'
-- artifact_hash: bab8dc7456c8614a6236480e3ff5b90d10bd5c2d34b9e96fda567fac85fd5da8
+- artifact_hash: 46c192bb3bdc1fd5bfad6194c3ace653cdf1089fa446d2f3a1337af34d162f08
   artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -21,4 +21,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-10-07T00:57:02.573217Z'
+  verified_at: '2026-10-22T18:34:13.224035Z'
