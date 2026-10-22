@@ -37,7 +37,7 @@
 
 ## Phase 1 – Data ingestion  
 
-- [ ] T012 **Download NPPN root images (`code/download_images.py`)** using the verified MGB3 URL via `huggingface_hub.snapshot_download`. Images are streamed into `data/raw/nppn_images/`.  
+- [ ] T012 **Download NPPN root images (`code/download_images.py`)** using the verified MGB3 URL via `huggingface_hub.snapshot_download`. Images are streamed into `data/raw/nppn_images/`.   <!-- FAILED-IN-EXECUTION: code/download_images.py exit=1 -->
   *Verification*: Presence of ≥ 10 images; script raises `RuntimeError` with message *“No real NPPN root images found. Pipeline cannot proceed.”* on any fetch failure.
 
 - [ ] T013 **Validate downloaded image archive** (`code/validate_images.py`). Checksums are computed against `data/raw/nppn_checksums.json`; mismatches cause a hard stop.  

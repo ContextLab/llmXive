@@ -3,7 +3,7 @@ Configuration module for the project.
 
 Provides:
 - Hyperparameters dataclass with default random seed.
-- ensure_directories(): creates the required project directory hierarchy.
+- ensure_directories(): creates the required project directory hierarchy (excluding platform‑owned `state/`).
 - get_config_summary(): returns a summary dictionary of hyperparameters and
   absolute paths of the created directories.
 """
@@ -32,14 +32,15 @@ def ensure_directories() -> None:
     """
     Create all required top‑level project directories if they do not already exist.
 
-    The required hierarchy (relative to the project root):
+    The required hierarchy (relative to the project root) excludes the
+    platform‑owned ``state/`` directory, which is managed by the execution
+    environment.
 
     - data/raw/
     - data/derived/
     - code/
     - tests/
     - docs/
-    - state/
     - contracts/
     - results/
     """
@@ -50,7 +51,6 @@ def ensure_directories() -> None:
         paths.code(),
         paths.tests(),
         paths.docs(),
-        paths.state(),
         paths.contracts(),
         paths.results(),
     ]
@@ -74,7 +74,6 @@ def get_config_summary() -> Dict[str, Any]:
             "code": str(paths.code()),
             "tests": str(paths.tests()),
             "docs": str(paths.docs()),
-            "state": str(paths.state()),
             "contracts": str(paths.contracts()),
             "results": str(paths.results()),
         },

@@ -1,63 +1,16 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Final Report Framing Schema
-description: |
-  Validates the final report framing structure.
-  References: FR-009
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Output Schema
+description: Schema for the final report output (markdown) – only structural checks.
 type: object
 required:
-  - $schema
-  - type
-  - properties
+  - report_path
+  - sections
 properties:
-  $schema:
+  report_path:
     type: string
-    const: http://json-schema.org/draft-07/schema#
-  type:
-    type: string
-    const: object
-  properties:
-    type: object
-    required:
-      report_title
-      summary
-      tolerance_proxy_status
-      vif_suppression_applied
-      conclusions
-    properties:
-      report_title:
-        type: object
-        properties:
-          type:
-            type: string
-            const: string
-      summary:
-        type: object
-        properties:
-          type:
-            type: string
-            const: string
-      tolerance_proxy_status:
-        type: object
-        properties:
-          type:
-            type: string
-            const: string
-      vif_suppression_applied:
-        type: object
-        properties:
-          type:
-            type: string
-            const: boolean
-      conclusions:
-        type: object
-        properties:
-          type:
-            type: string
-            const: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                const: string
+    pattern: "^results/reports/.*\\.md$"
+  sections:
+    type: array
+    items:
+      type: string
 additionalProperties: false

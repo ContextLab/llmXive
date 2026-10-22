@@ -1,58 +1,34 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Merged Data Schema
-description: Validates joined RSA and physiological data with PCA/PVR fields.
+description: Schema for the merged RSA‑physiology dataset.
 type: object
-properties:
-  type:
-    type: string
-    const: "application/json"
-  data:
-    type: array
-    items:
-      type: object
-      required:
-        - species_id
-      properties:
-        species_id:
-          type: string
-          description: Unique species identifier
-        depth:
-          type: number
-          description: Root depth in cm
-          minimum: 0
-        branching_density:
-          type: number
-          description: Branching density metric
-          minimum: 0
-        surface_area:
-          type: number
-          description: Root surface area in cm^2
-          minimum: 0
-        conductance:
-          type: number
-          description: Stomatal conductance
-        photosynthesis:
-          type: number
-          description: Photosynthetic rate
-        pca_depth:
-          type: number
-          description: PCA transformed depth
-        pca_branching_density:
-          type: number
-          description: PCA transformed branching density
-        pca_surface_area:
-          type: number
-          description: PCA transformed surface area
-        pca_1:
-          type: number
-          description: First principal component
-        pca_2:
-          type: number
-          description: Second principal component
-        pca_3:
-          type: number
-          description: Third principal component
-      additionalProperties: false
 required:
-  - type
-  - data
+  - species_id
+  - depth
+  - branching_density
+  - surface_area
+  - stomatal_conductance
+  - photosynthetic_rate
+properties:
+  species_id:
+    type: string
+  depth:
+    type: number
+    minimum: 0
+  branching_density:
+    type: number
+    minimum: 0
+  surface_area:
+    type: number
+    minimum: 0
+  stomatal_conductance:
+    type: number
+  photosynthetic_rate:
+    type: number
+  survival_rate:
+    type: [number, "null"]
+  biomass_stress:
+    type: [number, "null"]
+  drought_tolerance_index:
+    type: [number, "null"]
+additionalProperties: false

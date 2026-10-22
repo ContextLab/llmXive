@@ -1,10 +1,56 @@
+T001b:
+  c: false
+  h: e4a210bc908b47260154afa597146f4d0908c132e8277edf3cdfa9ae0b51c39c
+  r: Checked `README.md` (present) and `requirements.txt` (present but contains package
+    listings). The task required an **empty** `requirements.txt`; the file is populated,
+    so the requirement is not met.
+  sig: 28830a1e06da9fe4fc4909ee827f19d695742d120b3f14d88185230f929944ae
+T002:
+  c: false
+  h: f2c346317e491a9795e99d81e1d2b173adc31b6cf4da515a0b8a7e718546f97b
+  r: "The `requirements.txt` file correctly lists all required packages (and even\
+    \ an extra one), but there is no provided evidence that `pip install -r requirements.txt`\
+    \ actually succeeded on a clean runner, which is a mandatory part of the task\u2019\
+    s verification."
+  sig: ff158bcfc887ce57d4f3f638c8d37e0a9526000eae9cc51807b3f5493a2c0c3d
+T003:
+  c: false
+  h: 6a69904f111741281b0a68e4b753195b8ab3fd4e3d66f5a2971b4e305b024657
+  r: The provided `pyproject.toml` contains the required `[tool.black]` and `[tool.ruff]`
+    sections, but there is no evidence (e.g., command output, logs, or test results)
+    showing that `ruff .` and `black .` were actually executed and completed without
+    errors. Add execution logs or a test confirming the commands run cleanly.
+  sig: 4c6c6584530d1f3f65c9224cb4b094a492ef04593e9cad0bdd262688e480d6c7
+T004:
+  c: false
+  h: ff9ecdfb9cbe9402668ea5b9dfd425cfae4a51b7e9ca926635d3ecc46d9412e7
+  r: "The `code/config.py` file exists and defines a `Hyperparameters` dataclass with\
+    \ `random_seed = 42`, but the provided test suite fails: `tests/test_config.py::test_ensure_directories_excludes_state`\
+    \ raises an `AttributeError` because the test cannot monkey\u2011patch `paths.root`.\
+    \ This prevents the verification that the module creates the required directories\
+    \ while excluding the platform\u2011owned `state/` folder, so the implementation\
+    \ does not fully satisfy the task\u2019s verification criteria."
+  sig: d222d73186b1d871d110b027e6424696c1fce1f9cc7d277ad59ba2718415e35e
+T006:
+  c: false
+  h: d3039df72593e1fc685fdc4bbfdf76b3457ce53d74a2848e564147569662bb5c
+  r: "The `code/models.py` file exists, but its Pydantic `@validator` definitions\
+    \ are incompatible with the installed Pydantic\u202FV2, causing an import error\
+    \ and preventing the unit tests from running successfully. The required tests\
+    \ therefore fail, so the data\u2011model classes do not meet the task\u2019s verification\
+    \ criteria. The file must be updated to use Pydantic\u202FV2 validators (e.g.,\
+    \ `@field_validator`) or otherwise be made importable so that the tests can instantiate\
+    \ the classes and check field constraints."
+  sig: 72699e8325aaf0e1b55b0311041a7f9c306bd729e0812e93497f4b2d5ab80856
 T007:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No schema files or validation code were provided in a `contracts/` directory;
-    the only material shown is a feature specification and user stories, which do
-    not constitute the required data validation schema checks. The deliverable is
-    missing.
+  h: 02e9ed488f271ce84dd8cbac9325e2381bac28c05bb7777c9ea38ce068dbd4fa
+  r: "The `contracts/` directory exists, but the provided JSON\u2011Schema files are\
+    \ invalid \u2013 the pytest task `tests/contract/test_schemas.py` fails with a\
+    \ `jsonschema.exceptions.SchemaError`, showing that `jsonschema.validate` does\
+    \ not succeed against the sample instances. The task requires valid schemas that\
+    \ pass validation, which is not satisfied."
+  sig: cb98e10d6866398bff4df1b89cf0dd90a98c6062ef0b5ae2309e918d84b7d998
 T008:
   c: false
   h: 8082b5a1a875ffc05b52b3612d84855421e2edcfe2d39e455853b082b5d8c47c

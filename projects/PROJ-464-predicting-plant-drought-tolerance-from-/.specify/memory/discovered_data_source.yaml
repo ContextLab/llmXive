@@ -1,15 +1,12 @@
 status: none
-intent: download NPPN root image dataset MGB3 and TRY plant trait database python
-  package dataset
+intent: download NPPN root image dataset MGB3 and TRY plant trait database opentree
+  python package dataset
 required_fields:
-- image_id
-- image_path
-- species_name
-- root_depth
-- branching_density
-- surface_area
+- species_scientific_name
+- root_image_filename
+- root_image_format
 - stomatal_conductance
-- photosynthesis
-cache_key: 7bcfaf5b477c230754af2304e61c2f9428cb7b898000471544d7fd8d31af1df2
-searched_at: '2026-10-22T22:26:05.956922+00:00'
+- photosynthesis_rate
+cache_key: 77f38c9f8550dc19ba0918c3c082c12a3370f481134134d8b1c3b1272f5804e3
+searched_at: '2026-10-22T22:30:18.473108+00:00'
 retry_count: 1

@@ -1,51 +1,39 @@
 # Predicting Plant Drought Tolerance from RSA Data
 
-This repository contains the code, data, and analysis pipeline for the project **Predicting Plant Drought Tolerance from Root System Architecture (RSA) Data**.
+This repository implements a reproducible research pipeline that:
 
-## Overview
+* Downloads publicly available root system architecture (RSA) images from the
+ NPPN Plant Phenome Pipeline (via the verified MGB3 source).
+* Extracts quantitative RSA metrics (depth, branching density, surface area)
+ using CPU‑only OpenCV / scikit‑image processing.
+* Retrieves physiological traits (e.g., stomatal conductance, photosynthetic
+ rate) from the TRY database.
+* Merges the datasets, performs collinearity checks, principal component
+ analysis, and phylogenetic correction (PGLS).
+* Fits regression and classification models, applies multiple‑comparison
+ correction, and conducts sensitivity analysis.
+* Generates a final markdown report with all figures, tables, and methodological
+ notes.
 
-The goal of this project is to investigate whether quantitative RSA metrics extracted from publicly‑available root images can be associated with drought‑tolerance physiological traits (e.g., stomatal conductance, photosynthetic rate). The pipeline downloads raw data, extracts RSA features, merges them with TRY physiological traits, performs statistical modelling (including VIF checks, PCA, phylogenetic correction, regression, and classification), and generates a reproducible scientific report.
+The pipeline is orchestrated through `code/run_pipeline.py` and can be run
+locally after installing the dependencies listed in `requirements.txt`.
 
-## Repository Structure
+## Quickstart
 
+```bash
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-464-predicting-plant-drought-tolerance-from-
+
+# Set up a virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the full pipeline
+python code/run_pipeline.py
 ```
-data/
- raw/ # Downloaded raw images and trait files
- derived/ # Processed CSVs, PCA results, model artifacts
-code/ # All pipeline scripts and utilities
-tests/ # Unit, integration, and contract tests
-results/ # Final figures, tables, and reports
-state/ # Execution state, logs, and intermediate YAML files
-contracts/ # JSON‑Schema contracts for output validation
-docs/ # Documentation and quick‑start guides
-```
 
-## Getting Started
-
-1. **Clone the repository**
- ```bash
- git clone <repo-url>
- cd projects/PROJ-464-predicting-plant-drought-tolerance-from-
- ```
-
-2. **Create a virtual environment and install dependencies**
- ```bash
- python -m venv venv
- source venv/bin/activate
- pip install -r requirements.txt
- ```
-
-3. **Run the full pipeline**
- ```bash
- python code/run_pipeline.py
- ```
-
-For more detailed instructions see `docs/quickstart.md`.
-
-## Contributing
-
-Contributions are welcome. Please follow the contribution guidelines in `CONTRIBUTING.md` and ensure all tests pass before submitting a pull request.
-
-## License
-
-This project is licensed under the MIT License. See `LICENSE` for details.
+For detailed module‑level usage, see `specs/001-predicting-plant-drought-tolerance-from/quickstart.md`.

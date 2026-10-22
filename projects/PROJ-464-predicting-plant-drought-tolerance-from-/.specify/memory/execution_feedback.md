@@ -15,7 +15,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-464-predicting-plant-drought-tolerance-from-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-464-predicting-plant-drought-tolerance-from-/code/extract_rsa.py': [Errno 2] No such file or directory
 
 - python code/analysis.py --input data/derived/merged_data.csv --output results/analysis_results.json -> rc=1
-2026-10-22 22:25:05,887 - __main__ - ERROR - Merged data not found at data/derived/merged_data.csv
+2026-10-22 22:29:34,198 - __main__ - ERROR - Merged data not found at data/derived/merged_data.csv
 
 
 
