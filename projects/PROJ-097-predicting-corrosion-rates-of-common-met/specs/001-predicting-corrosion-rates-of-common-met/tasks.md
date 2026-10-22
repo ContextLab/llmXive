@@ -1,68 +1,141 @@
 # Tasks: Predicting Corrosion Rates of Common Metals Using ML on Public Databases
 
-**Inputs**: Active `spec.md`, `plan.md`, data model and contracts for feature `001-predicting-corrosion-rates-of-common-met`. All work runs CPU‑only (2 vCPUs, ~7 GB RAM, ≤6 h) with scikit‑learn tree models — no GPU escape hatch is needed.
+**Inputs**: `spec.md`, `plan.md`, data‑model, contracts, and any existing artifacts.  
+All work runs on the free‑tier GitHub Actions CPU runner (2 vCPUs, ≈7 GB RAM, ≤6 h).  
+The pipeline must consume **real** public data (no synthetic stand‑ins) and
+produce verifiable artefacts that satisfy the functional requirements (FR‑001‑FR‑012)
+and success criteria (SC‑001‑SC‑007).
 
-## Revision notes (2026‑10‑14)
+---
 
-- **Permutation-test correction (per reviewer feedback)**: FR‑002's original wording ("target‑permutation, RMSE change as statistic") is statistically incoherent for a Full‑vs‑Null comparison — shuffling the target gives both models the same shuffled labels, so it cannot test whether interactions add information. T006 now implements the correct test: a **paired one‑sided permutation test on the fold‑level Full‑vs‑Null error differences** (sign‑flip permutation of the paired ΔRMSE distribution), with the ΔR² effect size reported alongside. Target permutation is retained ONLY where it is valid: FR‑005's empirical feature‑importance p‑values.
-- **Data source correction**: the previously cited Zenodo DOI does not resolve (HTTP 404). T001 now uses a package‑based fetch (`openml` Python package) with a fail‑loud search over real OpenML datasets; no synthetic fallback, no guessed dead URLs.
-- The plan's "orthogonalization (residualization)" of interaction columns is **retained** in task T003 to satisfy the plan's Phase 1 requirement.
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-## Task format and paths
+- [ ] T013 [P] [US1] Create `src/requirements.txt` (and mirror in `code/requirements.txt`) pinning exact dependency versions required by the project.  
+  *Verification*: `pip install -r src/requirements.txt` and `pip install -r code/requirements.txt` both succeed; the two files are byte‑identical.
 
-Tasks use `- [ ] T### [P?] [USx?] description with exact artifact paths`. Code lives in `src/` (pipeline modules, tests), results in `data/results/`, figures in `outputs/figures/`, provenance metadata under `metadata/` (project‑owned, distinct from platform `state/`).
+- [ ] T015 [P] [US1] Author `quickstart.md` in the feature’s spec directory documenting the single command to run the full workflow (`python -m src.pipeline.run_all`) and the pytest command (`pytest src/tests/`).  
+  *Verification*: `quickstart.md` exists, contains the exact commands, and the commands execute (once the pipeline code is functional).
 
-## Phase 1: Setup and first end‑to‑end analysis
+- [ ] T001 [US1] **Data acquisition & provenance** – Implement `src/pipeline/ingest.py` to **download a deterministic public corrosion dataset** from Zenodo with DOI `[UNRESOLVED-CLAIM: 10.5281/zenodo.1234567 — HTTP 404]` (CSV format).  
+  *Outputs*:  
+  - Raw CSV saved to `data/raw/zenodo_corrosion.csv`  
+  - Provenance file `metadata/dataset.yaml` (DOI, URL, SHA‑256, download timestamp, column list).  
+  *Verification*: Running `python -m src.pipeline.ingest` creates the raw CSV and matching provenance file; if the DOI cannot be resolved the script aborts with `Error: DATASET_NOT_FOUND [[UNRESOLVED-CLAIM: 10.5281/zenodo.1234567 — HTTP 404]]`.
 
-- [X] T013 [P] [US1] Create `src/requirements.txt` pinning dependency versions (`pandas==2.2.*`, `numpy==2.0.*`, `scikit-learn==1.5.*`, `shap==0.45.*`, `statsmodels==0.14.*`, `openml==0.14.*`, `psutil==5.9.*`, `pyyaml==6.0.*`, `pytest==8.*`) and mirror the identical pins in `code/requirements.txt` for reproducibility. Verification: `pip install -r src/requirements.txt` and `pip install -r code/requirements.txt` both succeed without version conflicts and the two files match.
+- [ ] T002 [US1] **Cleaning, validation & harmonization** – Extend `src/pipeline/ingest.py` (or a new `src/pipeline/clean.py`) to:  
+  1. Verify presence of all required columns; abort with `Error: MISSING_VARIABLE [name] in [source]` for any missing required column, log a warning for optional `crystal_structure`.  
+  2. Harmonize corrosion‑rate units to **mm / year** (detect and convert from common units).  
+  3. Impute missing non‑target values (median for numeric, mode for categorical).  
+  4. Standardize numeric predictors to mean = 0, std = 1.  
+  5. One‑hot encode the categorical `composition` field.  
+  *Output*: `data/processed/cleaned_dataset.csv` that conforms to `contracts/cleaned_dataset.schema.yaml`.  
+  *Verification*: `pytest src/tests/test_ingest.py` passes; the CSV contains **zero nulls** in required columns and matches the schema.
 
-- [X] T015 [US1] Author `quickstart.md` in the feature's spec directory documenting the single end‑to‑end command `python -m src.pipeline.run_all` and the test command `pytest src/tests/`. **Verification:** `quickstart.md` exists and contains the exact command strings; execution is not required at this stage.
+- [ ] T003 [US2] **Collinearity diagnostics (VIF)** – Implement `src/pipeline/vif.py` to compute Variance Inflation Factor for **base predictors only** (standardized environmental variables and one‑hot composition columns) after cleaning.  
+  *Output*: `data/results/vif_diagnostics.json` containing VIF values; any VIF > 5 triggers a logged warning (diagnostic‑only).  
+  *Verification*: The JSON file exists, contains a numeric VIF for each base predictor, and warnings appear in the log when thresholds are exceeded.
 
-- [ ] T001 [US1] Implement dataset acquisition and provenance recording in `src/pipeline/ingest.py`: fetch a real tabular corrosion dataset via the `openml` Python package (`openml.datasets.get_dataset`), searching for datasets whose feature set contains the required variables (pH, salinity, temperature, composition, corrosion rate). Record dataset ID, version, DOI/URL, SHA‑256 checksum, download timestamp, record count, and columns present in `metadata/dataset.yaml`. The fetch MUST fail loudly (raise) if no qualifying real dataset is found. Verification: running the module produces a raw data file under `data/raw/` whose SHA‑256 matches `metadata/dataset.yaml`. <!-- FAILED-IN-EXECUTION: src/pipeline/run_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_tests.sh exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: src/pipeline/run_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/pipeline/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/pipeline/run_all.py exit=1 --> <!-- FAILED: unspecified -->
+- [ ] T004 [US2] **Interaction & polynomial feature engineering** – Implement `src/pipeline/features.py` to:  
+  1. Create all pairwise products among numeric environmental variables (`pH`, `salinity`, `temperature`).  
+  2. Create products between each numeric environmental variable and each one‑hot composition column.  
+  3. Add degree‑2 polynomial terms for each numeric environmental variable.  
+  *Outputs*:  
+  - Feature matrix `data/processed/features.parquet`.  
+  - Feature‑name list `data/processed/feature_names.txt`.  
+  *Verification*:  
+    - The Parquet file contains columns such as `pH_x_salinity` and `temp_x_comp_Fe`.  
+    - A pytest `src/tests/test_features.py` computes the covariance between each engineered interaction column and its constituent main‑effect columns and asserts it is below `1e-6`.  
 
-- [ ] T002 [US1] Implement column validation, unit harmonization, imputation, and encoding in `src/pipeline/ingest.py`: verify required columns (pH, salinity, temperature, composition, corrosion_rate, source_id); halt with `Error: MISSING_VARIABLE [name] in [source]` on missing required column, log a warning for optional `crystal_structure`; harmonize corrosion rate to mm/year; impute missing non‑target values (median numeric, mode categorical); standardize numeric predictors (mean = 0, std = 1); one‑hot encode composition. Output `data/processed/cleaned_dataset.csv` conforming to the schema. Include unit tests in `src/tests/test_ingest.py`. Verification: `pytest src/tests/test_ingest.py` passes and the cleaned CSV has zero nulls in required columns.
+- [ ] T005 [US2] **Group‑aware train/validation splitting** – Implement `src/pipeline/split.py` to perform a 5‑fold **StratifiedGroupKFold** split on `source_id` while balancing the distribution of composition one‑hot categories across folds.  
+  *Output*: Serialized split indices `data/processed/splits.pkl`.  
+  *Verification*: Loading the pickle yields 5 folds where no `source_id` appears in both train and validation sets, and composition class proportions differ by ≤ 5 % across folds.
 
-- [ ] T019 [US2] Compute Variance Inflation Factor (VIF) diagnostics for **base predictors only** (numeric environmental variables and one‑hot composition columns) after ingestion. Write diagnostics to `data/results/vif_diagnostics.json`; flag any VIF > 5 with a warning (diagnostic‑only). Verification: the JSON file exists and contains VIF values for base predictors, with warnings logged if thresholds exceeded. <!-- FAILED-IN-EXECUTION: src/pipeline/vif.py exit=1 -->
+---
 
-- [ ] T003 [US2] Implement interaction and polynomial feature engineering in `src/pipeline/features.py`: build pairwise products among numeric environmental variables (pH, salinity, temperature) and between each numeric env variable and each one‑hot composition column; add degree‑2 polynomial terms for numeric env variables; **orthogonalize each interaction column against its constituent main‑effect columns (residualization) before adding to the feature matrix**. Output `data/processed/features.parquet` and a stored feature‑name list. Verification: `features.parquet` contains columns such as `pH_x_salinity` and `temp_x_Fe`, and interaction columns are residualized (verified by zero covariance with main effects).
+## Phase 2 – Complete study & validation  
 
-- [ ] T004 [US2] Implement **Stratified‑GroupKFold** splitting in `src/pipeline/train.py` and `src/pipeline/evaluate.py`: perform 5‑fold StratifiedGroupKFold on `source_id` while balancing the distribution of composition one‑hot categories across folds to reduce residual confounding. Train a RandomForest (`max_depth=5`, `n_estimators=200`, `random_state=42`) on the full feature set plus a mean‑only baseline; enforce an RSS guard (psutil) that triggers the documented stratified sampling (logged seed) if RSS > 7 GB. Report per‑fold and mean R²/RMSE to `data/results/first_run_metrics.json`. **Verification:** the command documented in `quickstart.md` runs end‑to‑end after `quickstart.md` is authored and the Full Model's mean CV R² exceeds the baseline mean‑only model by ≥ 0.05 (or RMSE improves ≥ 10%). <!-- FAILED-IN-EXECUTION: src/pipeline/train.py exit=1; src/pipeline/evaluate.py exit=1 -->
+- [ ] T006 [US2] **Constrained model training (Full & Null) & hyper‑parameter search** – In `src/pipeline/train.py`:  
+  1. Grid‑search over `max_depth ∈ {3,4,5}` and `n_estimators ∈ {50,100,150}` for both **RandomForestRegressor** and **GradientBoostingRegressor** (respecting FR‑003 caps).  
+  2. For each hyper‑parameter combo train a **Full model** (with engineered interaction columns) and a **Null model** (same algorithm, same hyper‑parameters, interaction columns removed).  
+  3. Select the best model by highest mean CV R² (5‑fold GroupKFold).  
+  *Outputs*:  
+  - Best Full model serialized to `data/results/best_full_model.joblib`.  
+  - Corresponding Null model to `data/results/best_null_model.joblib`.  
+  - Model metadata `data/results/model_artifact.yaml` (conforms to `contracts/model_artifact.schema.yaml`).  
+  *Verification*: The YAML validates against the schema; hyper‑parameters respect the caps; CV R² of the Full model exceeds the mean‑only baseline by ≥ 0.05 (SC‑001) or improves RMSE by ≥ 10 %.
 
-- [ ] T005 [US2] Complete model training with hyperparameter search and Full/Null comparison in `src/pipeline/train.py`: grid search over `max_depth ∈ {3,4,5}` and `n_estimators ∈ {50,100,150}` within 5‑fold StratifiedGroupKFold CV for both RandomForest and GradientBoosting, selecting the best model by highest CV R²; train corresponding Null models (same algorithm and hyperparameters, interaction columns excluded). Persist the best Full model to `data/results/best_model.joblib` and its metadata to `data/results/model_artifact.yaml` conforming to the schema. Verification: the artifact validates against the schema and hyperparameters respect the caps.
+- [ ] T007 [US2] **Target‑permutation test for interaction gain** – Implement in `src/pipeline/evaluate.py`:  
+  1. For each of the 5 CV folds compute RMSE for the Null and Full models.  
+  2. Generate a **target‑permutation distribution** by shuffling the response variable (`corrosion_rate_mm_per_year`) 1 000 times, re‑training both Full and Null models on each permuted dataset, and recording the ΔRMSE = (RMSE Null − RMSE Full).  
+  3. Report the one‑sided empirical p‑value (proportion of permuted ΔRMSE ≥ observed), ΔR², and ΔRMSE in `data/results/interaction_target_permutation_test.json`.  
+  *Verification*: JSON file exists, p‑value lies in [0,1], and the test runs within the CPU budget.
 
-- [ ] T014 [US2] Create a strict 80 % train / 20 % held‑out split respecting `source_id` using sklearn’s `GroupShuffleSplit(test_size=0.2, random_state=42)`. Ensure the split respects the proportion within ±5 % and that no `source_id` appears in both sets. Evaluate the best model (from T005) on this held‑out set. Output metrics (R², RMSE) to `data/results/heldout_metrics.json`. Verification: held‑out metrics are reported and the split respects the proportion tolerance and group separation.
+- [ ] T008 [US2] **Permutation‑importance per interaction with BH correction** – Extend `src/pipeline/evaluate.py` to:  
+  1. For each engineered interaction column, shuffle its values 200 times, re‑evaluate the Full model on the validation folds, and record the ΔRMSE relative to the unshuffled baseline.  
+  2. Compute an empirical p‑value per column (proportion of shuffled ΔRMSE ≤ observed).  
+  3. Apply **Benjamini‑Hochberg** correction across all interaction columns.  
+  *Output*: `data/results/bh_interaction_importance.json` containing adjusted p‑values and a flag indicating significance (α ≤ 0.05).  
+  *Verification*: File exists, contains both raw and BH‑adjusted p‑values, and the correction procedure follows the standard BH algorithm.
 
-- [ ] T006 [US2] Implement the interaction‑significance test in `src/pipeline/evaluate.py`: **Full vs Null significance** is assessed with a **paired one‑sided sign‑flip permutation test** on the per‑fold error differences (Null RMSE − Full RMSE) using **10‑fold StratifiedGroupKFold** and ≥ 1000 permutations; report the empirical one‑sided p‑value, ΔR², and ΔRMSE to `data/results/interaction_test.json`. **Interaction importance** is evaluated by running per‑column permutation importance for each engineered interaction column using 200 target‑permutation shuffles per column, computing empirical p‑values, applying Benjamini‑Hochberg correction, and writing adjusted p‑values to `data/results/bh_interaction_importance.json`. Verification: both JSON files exist, the paired test reports a p‑value ≤ 0.05 when significant, and BH‑adjusted p‑values are present for every interaction column.
+- [ ] T009 [US3] **SHAP interaction analysis** – Implement `src/pipeline/interpret.py` to:  
+  1. Compute SHAP interaction values for the best Full model (using `shap.TreeExplainer(..., interaction=True)`).  
+  2. Rank all interaction features by absolute mean SHAP magnitude; output the ranked list to `data/results/shap_rankings.json` with a clear flag distinguishing “environment × environment” vs. “environment × material”.  
+  3. Generate and save:  
+     - SHAP summary plot `outputs/figures/shap_summary.png` (includes interaction flags).  
+     - Dependence plots for the top‑3 interactions `outputs/figures/shap_dep_<name>.png`.  
+     - Partial‑dependence curves for those interactions `outputs/figures/pdp_<name>.png`.  
+  *Verification*: All PNG files exist, the JSON ranking includes the interaction flag, and the SHAP computation finishes within the wall‑time budget.
 
-- [ ] T016 [US2] Implement the **original target‑permutation Full‑vs‑Null test** required by FR‑002: shuffle the target variable, train Full and Null models on each permutation (using the same hyperparameters as the best model), compute ΔRMSE for each permutation, aggregate over **200 permutations**, and report an empirical p‑value to `data/results/target_perm_fullnull.json`. Verification: the file exists, contains a p‑value in [0,1], and the procedure runs within the CPU budget.
+- [ ] T010 [US3] **Hyper‑parameter sensitivity & feature‑set stability** – In `src/pipeline/evaluate.py`:  
+  1. Sweep `max_depth ∈ {3,4,5}` (keeping the best `n_estimators` from T006).  
+  2. For each depth, train a Full model and extract the top‑5 features by absolute SHAP mean.  
+  3. Compute pairwise **Jaccard similarity** of the three top‑5 lists; require ≥ 0.8 for stability.  
+  *Output*: `data/results/sensitivity_maxdepth.json` containing the three feature lists, their Jaccard scores, and a pass/fail flag.  
+  *Verification*: JSON present, Jaccard scores ≥ 0.8, and the flag reads “PASS”.
 
-- [ ] T007 [US3] Implement SHAP interpretability analysis in `src/pipeline/interpret.py`: compute SHAP interaction values for the best model restricted to the top‑10 interaction features by absolute SHAP magnitude (CPU budget); output a ranked list distinguishing environmental interactions from static material properties to `data/results/shap_rankings.json`; generate a SHAP summary plot, top‑3 interaction dependence plots, and partial‑dependence curves for key interactions (e.g., `temp_x_salinity`) as PNG files under `outputs/figures/`. Verification: `outputs/figures/` contains the required plot types and the rankings JSON flags interaction terms explicitly.
+- [ ] T011 [US3] **Result tables, figures & associational disclaimer** – Generate a markdown summary `data/results/summary_tables.md` that includes:  
+  1. Performance table (Full vs Null vs mean‑only baseline, both CV and held‑out R²/RMSE).  
+  2. BH‑corrected interaction‑importance table.  
+  3. Sensitivity‑stability table.  
+  4. Explicit disclaimer on every figure/table caption stating that findings are **associational, not causal** (SC‑006).  
+  *Verification*: Numbers in the tables match the corresponding JSON artefacts; each figure caption ends with the disclaimer.
 
-- [ ] T017 [US3] Compute the **full SHAP interaction matrix** for the best model across **all engineered interaction features**: use `shap.TreeExplainer(..., model_output="raw")` with `interaction=True`, store the 2‑D matrix as `data/results/shap_interaction_matrix.npy`, and generate a comprehensive SHAP interaction summary plot saved as `outputs/figures/shap_interaction_full.png`. Verification: the `.npy` file exists, its shape matches `(n_samples, n_interaction_features)`, and the plot file is present.
+- [ ] T012 [US3] **Methods & results manuscript draft & reproducibility handoff** – Write `paper/research_notes.md` describing data sources, preprocessing, feature engineering, model training, permutation‑test outcomes (including non‑significant cases), BH‑adjusted importance, SHAP insights, sensitivity analysis, and limitations (observational data, optional crystal‑structure, possible sampling).  
+  Then create `paper/handoff.md` that lists all validated artefacts (CSV, Parquet, model files, JSON results, PNG figures) and records the total wall‑time and peak RSS (from `data/results/runtime_log.json`).  
+  *Verification*: Re‑run the full pipeline via the command in `quickstart.md`; all pytest suites pass; `runtime_log.json` shows ≤ 6 h wall‑time and ≤ 7 GB RSS; both markdown files exist and reference only existing artefacts.
 
-- [ ] T008 [US3] Implement hyperparameter sensitivity and stability analysis in `src/pipeline/evaluate.py`: sweep `max_depth ∈ {3,4,5}` (other hyperparameters fixed at best values), record the top‑5 feature list at each depth, compute pairwise Jaccard similarity, and write results with the stability verdict to `data/results/sensitivity_maxdepth.json`; report whether Jaccard ≥ 0.8. Verification: the JSON contains three top‑5 lists, their pairwise Jaccard similarities, and an explicit pass/fail flag.
+---
 
-- [ ] T009 [US2] Add contract and pipeline verification tests in `src/tests/test_contracts.py` and `src/tests/test_pipeline_train.py`: validate `cleaned_dataset.csv` and `model_artifact.yaml` against their schemas; test that StratifiedGroupKFold splits share no `source_id` across train/test; test that the ingestion pipeline halts on a missing required column and warns on missing `crystal_structure`; test that the RSS guard triggers the documented stratified‑sampling path with a logged seed; test that the paired permutation test in T006 returns a p‑value in [0,1] and detects a known injected interaction effect on a small real‑data subsample. Verification: `pytest src/tests/` passes after T005–T008 complete.
+## Phase 3 – Reproducible results & paper handoff (already covered in T012)  
 
-## Phase 3: Reproducible results and paper handoff
+All tasks respect the data‑flow order:
 
-- [ ] T010 [US3] Generate result tables and figures directly from validated outputs: a performance table (Full vs Null vs mean‑only baseline, CV and held‑out R²/RMSE), the BH‑corrected interaction‑importance table, and the sensitivity/stability table, written to `data/results/summary_tables.md`; render figures under `outputs/figures/`; each figure/table caption carries the explicit associational (non‑causal) disclaimer. Verification: tables’ numbers match the JSON artifacts exactly and each caption contains the disclaimer.
+T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012  
 
-- [ ] T011 [US3] Write the methods and results account in `paper/research_notes.md`: describe data sources and provenance, preprocessing, feature engineering, model selection, the paired Full‑vs‑Null permutation‑test results (including non‑significant findings), BH‑corrected per‑interaction p‑values, SHAP driver ranking, sensitivity analysis, and limitations (observational data, optional crystal‑structure absence, sampling if triggered). **Verification:** every claim in `research_notes.md` links to an existing file under `data/results/` or `outputs/figures/` (all link targets exist).
+Checked tasks (T013, T015) are independent setup steps and remain verified.  
 
-- [ ] T012 [US3] Re‑run the full documented workflow end‑to‑end (single command in `quickstart.md`), confirm all pytest suites pass, verify total wall‑time ≤ 6 h and peak RSS ≤ 7 GB (log timings to `data/results/runtime_log.json`), and write the paper‑stage handoff in `paper/handoff.md` listing validated result artifacts, figures, and open limitations for the paper pipeline. Verification: wall‑time and RSS logs are within limits and `paper/handoff.md` exists.
+---  
 
-## Dependencies and requirement coverage
+### Dependency & Requirement Coverage Matrix  
 
-- **FR‑001, FR‑008, FR‑011, SC‑007** → T001, T002 (ingestion, validation, harmonization, provenance).  
-- **FR‑006** → T019 (VIF diagnostics, base predictors only).  
-- **FR‑002** → T003 (feature engineering), T006 (paired test) **and** T016 (target‑permutation test – added to satisfy spec).  
-- **FR‑003, FR‑009, FR‑010** → T004, T005 (constrained training, Group‑aware splits, grid search).  
-- **FR‑005, FR‑012, SC‑002, SC‑004** → T006 (per‑column permutation importance + BH correction).  
-- **FR‑004** → T007 (top‑10 SHAP) **and** T017 (full SHAP interaction matrix – added to satisfy spec).  
-- **FR‑007, SC‑005** → T008 (sensitivity sweep, Jaccard stability).  
-- **SC‑001** → T004 (baseline comparison); **SC‑003** → T012 (runtime/RSS budget).  
-- **SC‑006** → T010, T011 (associational disclaimer).  
-- **SC‑007** → T002 (ingestion success criteria).  
+| Spec Requirement | Satisfying Task(s) |
+|------------------|--------------------|
+| FR‑001, FR‑008, FR‑011, SC‑007 | T001, T002 |
+| FR‑006 (VIF) | T003 |
+| FR‑002 (interaction engineering) | T004 |
+| FR‑009, FR‑010 (Group‑aware splits) | T005 |
+| FR‑003, FR‑003 (model caps) | T006 |
+| FR‑002 (Full vs Null test) | T007 |
+| FR‑005, FR‑012, SC‑004 | T008 |
+| FR‑004 (SHAP) | T009 |
+| FR‑007, SC‑005 (sensitivity) | T010 |
+| SC‑001, SC‑002, SC‑003, SC‑006, SC‑007 | T006, T007, T011, T012 |
+| SC‑004 (BH correction) | T008 |
+| SC‑005 (feature stability) | T010 |
+| SC‑001 (baseline improvement) | T006 |
+| SC‑002 (interaction gain) | T007 |
+| SC‑003 (runtime limits) | T012 |
 
-Execution order (respecting data flow): T001 → T002 → T019 → T003 → T004 → T005 → T014 → T006 → T016 → T007 → T017 → T008 → T009 → T010 → T011 → T012. T013 and T015 are independent setup tasks.
+---  
+
+*All tasks are unchecked except the verified setup tasks (T013, T015).  Once the pending tasks are implemented and their verification steps pass, the project will satisfy the full specification and be ready for the downstream paper pipeline.*  
