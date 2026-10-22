@@ -1,5 +1,3 @@
+# Project dependencies
+# Core libraries are pre-installed; add any missing packages here.
 datasets>=2.18
-# Existing core dependencies are pre‑installed in the runner environment
-# (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-#  seaborn, pytest, PyYAML, requests, jsonschema, psutil). No additional
-#  packages are needed for this task beyond the HuggingFace ``datasets`` library.
