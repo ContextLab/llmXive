@@ -1,15 +1,14 @@
 status: none
-intent: sdv benchmark datasets adult credit fraud covertype higgs python package dataset
+intent: download tabular benchmark datasets UCI Adult Credit Card Fraud Covertype
+  Higgs python package dataset
 required_fields:
-- 'Adult dataset: age, workclass, education, marital-status, occupation, relationship,
-  race, sex, capital-gain, capital-loss, hours-per-week, native-country, income label'
-- 'Credit Card Fraud dataset: time, amount, class label'
-- 'Covertype dataset: elevation, aspect, slope, horizontal-distance-to-hydrology,
-  vertical-distance-to-hydrology, horizontal-distance-to-roadways, hillshade-9am,
-  hillshade-noon, hillshade-3pm, wilderness-area, soil-type, cover-type label (and
-  all other original 54 feature columns)'
-- 'Higgs dataset: 28 kinematic feature columns (e.g., lepton_pt, lepton_eta, lepton_phi,
-  missinget, ...), label'
-cache_key: f9815a2cb16045677160f6b48dcfa5ba43d5909ce628591707a23a4c8e6e82ca
-searched_at: '2026-10-22T01:27:08.480041+00:00'
+- Adult dataset original columns (age, workclass, fnlwgt, education, marital-status,
+  occupation, relationship, race, sex, capital-gain, capital-loss, hours-per-week,
+  native-country, income)
+- "Credit Card Fraud dataset original columns (V1\u2011V28, Amount, Class)"
+- "Covertype dataset original columns (elevation, aspect, slope, ... up to 54 forest\u2011\
+  cover features, Cover_Type)"
+- "Higgs dataset original columns (features 1\u201128, label)"
+cache_key: 2c66ff08f520a4fac92b99b1e274f39647c3e2d488082adff3400e5cc9e21abb
+searched_at: '2026-10-22T04:20:26.461774+00:00'
 retry_count: 1

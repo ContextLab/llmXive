@@ -71,6 +71,6 @@ E           Failed: Schema file not found: /home/runner/work/llmXive/llmXive/pro
 tests/contract/test_metric_schema.py:39: Failed
 =========================== short test summary info ============================
 ERROR tests/contract/test_metric_schema.py::test_metric_results_schema - Fail...
-1 error in 0.28s
+1 error in 0.32s
 
 
