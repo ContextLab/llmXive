@@ -1,5 +1,6 @@
 # Project dependencies
-# Core scientific stack (already provided in the environment)
+datasets>=2.18
+# Core libraries (already available in the base environment)
 numpy
 pandas
 scipy
@@ -8,10 +9,13 @@ scikit-learn
 statsmodels
 seaborn
 pytest
-PyYAML
+pyyaml
 requests
 jsonschema
 psutil
-
-# Additional required packages for this project
-datasets>=2.18
+tqdm
+sentence-transformers
+bitsandbytes
+transformers
+torch
+# llmxive_toolkit is provided by the platform and should not be listed here.
