@@ -1,28 +1,43 @@
 T001:
-  c: true
-  h: fe88ef7883e3bc405d9d6ea2f83862bdce29fb5505a2c35afb8c3fabd8f09c7a
-  r: 'All four required artifacts exist and are substantive: `quickstart.md` documents
-    the runnable entry point (`python -m src.pipeline.run`), `src/pipeline/run.py`
-    exposes a `run()` function wiring the download/featurize/split/train/evaluate
-    stages, and `src/data/download.py` and `src/data/featurize.py` contain real implementations
-    (Materials Project API + fallback download; 12 pymatgen compositional descriptors).
-    The verification test `code/tests/test_pipeline_entry.py` asserts importability
-    and that `run()` returns None, and the platform execution record shows it passed
-    (exit 0, 1 passed). The s'
-  sig: 66aa8f012a3b3eb1bea7bf998fcee6a00a447216f2c37f5fb63c85e51963f1c5
+  c: false
+  h: 21919bb8ab33573b816df3fd17636e37e769aa6ff4290b647e68bffa78c0da09
+  r: "`src/pipeline/run.py` is a 137-byte placeholder containing only `from src.pipeline.run\
+    \ import run, main` \u2014 a circular self-import with no actual `run()` or `main()`\
+    \ defined, so importing it fails and `code/tests/test_pipeline_entry.py` cannot\
+    \ pass. The quickstart documents `python -m src.pipeline.run` as the entry point,\
+    \ but no such runnable pipeline exists; the implementer must write a real `run()`\
+    \ that wires together the download, featurize, and downstream steps (or at minimum\
+    \ returns successfully per the test contract)."
+  sig: c84bb5ce5ae5f7430a119d7861d65403fa4fcccf5e61198756a0ffec4bc3ef2d
 T003:
   c: false
-  h: 483dd32b6779d84185d56f462353e437096a11e96e2d4dd730d3acaf6462d087
-  r: 'The repository contains the required `src/data/featurize.py`, but the expected
-    output files are absent: `data/processed/features.csv` and `data/processed/featurize.log`
-    are missing, and the existing `descriptor_gaps.log` shows a descriptor gap (missing
-    `A_atomic_radius`), causing the script to abort. The task therefore does not deliver
-    a complete feature matrix with the required 12 descriptor columns plus `formation_energy`.'
-  sig: b856263c9995ecc23dd98bbcaf8eb2ddc045553c9ba8fed4a5dd04c3417a3c2c
+  h: cc29533459009d21d0843745223a270f616c37ec2cb864a205076a52bb904b5a
+  r: "The required outputs `data/processed/features.csv` and `data/processed/featurize.log`\
+    \ are MISSING, so the featurization was never successfully run. The only existing\
+    \ output, `descriptor_gaps.log`, records a detected gap (\"Row 0 (BaTiO3): missing\
+    \ A_atomic_radius\"), meaning the script aborted with \"Descriptor gaps detected\"\
+    \ rather than producing the feature matrix \u2014 the verification requirement\
+    \ (12 descriptor columns + formation_energy, no missing targets) cannot be checked\
+    \ against any actual CSV. The implementer must fix the descriptor computation\
+    \ (e.g., the atomic-radius fallback) and re-run t"
+  sig: fee0f6672ce357229ff96e6b57f49f89f47ee522f839b78159afb6b73e122973
 T004:
   c: false
-  h: 88447d149e44ca339d718c8b7ccdd42ca30936f056e6d96333ea05a17e938dff
-  r: "The `src/data/validate.py` script is present and implements the required checks\
-    \ and power calculation, but the required output file `data/processed/validation.log`\
-    \ is missing, so the task\u2019s output artifact is not provided."
-  sig: f558df02b53dfcdeacccbc67345318e0d95853fc5bb12fd80c84f3c3db2f3caf
+  h: 9bde04fea86d9fc46543afdd3339f1d4505e79be366c4f07b96b8810190a62ff
+  r: "The required output `data/processed/validation.log` is MISSING \u2014 the script\
+    \ `src/data/validate.py` exists and looks correct, but there is no evidence it\
+    \ was ever executed, so no log with row count, power estimate, or warnings exists.\
+    \ The implementer must run the validation script (with `data/processed/features.csv`\
+    \ present) to produce the log."
+  sig: 8c23a936992c9a1a1fb7bb236b1d2faf1c8ee41abad32d028b428660a25d5c84
+T012:
+  c: true
+  h: b7a408b5d0fd531c2553334c5616010a6f677596ee4575125aee5e7990617fb5
+  r: "The file `code/requirements.txt` exists with all eight pinned package dependencies\
+    \ exactly matching the task's specified contents (pymatgen, mp-api, pandas, numpy,\
+    \ scikit-learn, matplotlib, seaborn, pytest at the specified versions). The only\
+    \ deviation is the omission of the `python==3.11` line, which the file itself\
+    \ documents as intentional since pip cannot install Python \u2014 a reasonable\
+    \ and correct adjustment that does not affect the verification criterion that\
+    \ `pip install -r code/requirements.txt` succeeds."
+  sig: c7eb2ba9193bfa2412526a5de21668b863c09b4b307910d38d3b83327b1ed136

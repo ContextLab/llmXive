@@ -4,11 +4,11 @@
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [X] T001 [US1] Document the runnable pipeline entry point and verify module wiring.
+- [ ] T001 [US1] Document the runnable pipeline entry point and verify module wiring.
   *Files:* `quickstart.md`, `src/pipeline/run.py`, `src/data/download.py`, `src/data/featurize.py`.
   *Verification:* Unit test `code/tests/test_pipeline_entry.py` asserts that `src.pipeline.run` can be imported and that the function `run()` returns without raising; no end-to-end execution required here (deferred to T010).
 
-- [ ] T012 [P] Create a pinned `requirements.txt` for the project.
+- [X] T012 [P] Create a pinned `requirements.txt` for the project.
   *File:* `code/requirements.txt`.
   *Contents:*
   ```
@@ -42,7 +42,7 @@
   *Output:* `data/processed/validation.log`.
   *Verification:* Log contains row count, power estimate, and appropriate warnings/errors.
 
-- [ ] T005 [US1] Compute SHA‑256 checksums for raw and processed data artifacts. <!-- FAILED-IN-EXECUTION: src/utils/checksum_all.py exit=1 -->
+- [ ] T005 [US1] Compute SHA‑256 checksums for raw and processed data artifacts. <!-- FAILED-IN-EXECUTION: src/utils/checksum_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/utils/checksum_all.py exit=1 -->
   *File:* `src/utils/checksum.py`.
   *Outputs:* `data/checksums/raw_defects.sha256`, `data/checksums/features.sha256`.
   *Verification:* pytest `code/tests/test_checksums.py` recomputes and asserts equality.

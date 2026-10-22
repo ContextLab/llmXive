@@ -1,9 +1,8 @@
 status: none
-intent: Materials Project perovskite oxygen vacancy defect formation energies dataset
-  Matminer python package dataset
+intent: download perovskite oxygen vacancy defect formation energies Materials Project
+  dataset python package dataset
 required_fields:
 - composition
-- mp_id
 - defect_formation_energy
 - A_atomic_radius
 - B_atomic_radius
@@ -14,6 +13,7 @@ required_fields:
 - A_oxidation_state
 - B_oxidation_state
 - X_oxidation_state
-cache_key: 403392a30a7e57ad63efd7503bb51745158ddb5d3f6d7422434f0d1c2d7f66c9
-searched_at: '2026-10-22T04:35:12.488463+00:00'
+- A_valence_electron_count
+cache_key: a3dfce25dd189ab00f60069ec8aa4e0cb0a8d3d0ec2b04c6eb2723460783756a
+searched_at: '2026-10-22T06:12:47.242987+00:00'
 retry_count: 1

@@ -1,3 +1,5 @@
+# Pinned dependencies for the project.
+# NOTE: The Python version pin is omitted because pip cannot install Python itself.
 pymatgen==2024.6.10
 mp-api==0.33.0
 pandas==2.2.2

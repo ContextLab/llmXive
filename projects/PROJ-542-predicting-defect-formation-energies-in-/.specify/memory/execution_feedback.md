@@ -8,14 +8,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.featurize data/raw/materials_defects.csv data/processed/features.csv -> rc=1
 
-2026-10-22 04:33:48,438 INFO src.data.featurize: Input file data/raw/materials_defects.csv not found – attempting to download raw dataset.
-2026-10-22 04:33:48,438 WARNING src.data.download: MP_API_KEY not provided; attempting public fallback download.
-2026-10-22 04:33:48,477 INFO src.data.download: Attempting fallback download from https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv
+2026-10-22 06:11:59,577 INFO src.data.featurize: Input file data/raw/materials_defects.csv not found – attempting to download raw dataset.
+2026-10-22 06:11:59,578 INFO src.data.download: Attempting public fallback download from https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv
+2026-10-22 06:11:59,655 ERROR src.data.download: Fallback download failed: Fallback download failed with status code 404
 Materials Project API key not provided
 
 - python -m src.validate data/processed/features.csv -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-542-predicting-defect-formation-energies-in-/bin/python: No module named src.validate
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/validate.py", line 40, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/validate.py", line 34, in main
+    _impl_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/src/data/validate.py", line 23, in main
+    raise FileNotFoundError(f"Features file not found: {features_path}")
+FileNotFoundError: Features file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-542-predicting-defect-formation-energies-in-/data/processed/features.csv
 
 - python -m src.split data/processed/features.csv data/processed/train.csv data/processed/test.csv -> rc=1
 
@@ -40,9 +50,9 @@ projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_requi
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-FAILED code/tests/test_pipeline_entry.py::test_pipeline_entry - NameError: na...
+FAILED code/tests/test_pipeline_entry.py::test_pipeline_entry - ImportError: ...
 FAILED src/tests/test_quickstart.py::test_quickstart_pipeline - subprocess.Ca...
 FAILED tests/test_generate_checksums.py::test_checksum_files_created - Assert...
-3 failed, 3 passed, 14 warnings in 6.24s
+3 failed, 3 passed, 14 warnings in 4.29s
 
 

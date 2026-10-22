@@ -1,20 +1,32 @@
 T001:
+  reason: "`src/pipeline/run.py` is a 137-byte placeholder containing only `from src.pipeline.run\
+    \ import run, main` \u2014 a circular self-import with no actual `run()` or `main()`\
+    \ defined, so importing it fails and `code/tests/test_pipeline_entry.py` cannot\
+    \ pass. The quickstart documents `python -m src.pipeline.run` as the entry point,\
+    \ but no such runnable pipeline exists; the implementer must write a real `run()`\
+    \ that wires together the download, featurize, and downstream steps (or at minimum\
+    \ returns successfully per the test contract)."
   task: 9bd085d0d69277f6f406b544530dd9c474dc85831e967b80c7a41b0c99d4559a
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/utils/checksum_all.py
     exit=1'
   task: 77051c7dac683b33d14578a22aabe0b6a1a6f764a57709a3bcd70f7662683279
 T003:
-  reason: 'The repository contains the required `src/data/featurize.py`, but the expected
-    output files are absent: `data/processed/features.csv` and `data/processed/featurize.log`
-    are missing, and the existing `descriptor_gaps.log` shows a descriptor gap (missing
-    `A_atomic_radius`), causing the script to abort. The task therefore does not deliver
-    a complete feature matrix with the required 12 descriptor columns plus `formation_energy`.'
+  reason: "The required outputs `data/processed/features.csv` and `data/processed/featurize.log`\
+    \ are MISSING, so the featurization was never successfully run. The only existing\
+    \ output, `descriptor_gaps.log`, records a detected gap (\"Row 0 (BaTiO3): missing\
+    \ A_atomic_radius\"), meaning the script aborted with \"Descriptor gaps detected\"\
+    \ rather than producing the feature matrix \u2014 the verification requirement\
+    \ (12 descriptor columns + formation_energy, no missing targets) cannot be checked\
+    \ against any actual CSV. The implementer must fix the descriptor computation\
+    \ (e.g., the atomic-radius fallback) and re-run t"
   task: d7f56fda5385b8ef3c482ad17bef215a9262118c20195e4f0a71e6ef902a2a1f
 T004:
-  reason: "The `src/data/validate.py` script is present and implements the required\
-    \ checks and power calculation, but the required output file `data/processed/validation.log`\
-    \ is missing, so the task\u2019s output artifact is not provided."
+  reason: "The required output `data/processed/validation.log` is MISSING \u2014 the\
+    \ script `src/data/validate.py` exists and looks correct, but there is no evidence\
+    \ it was ever executed, so no log with row count, power estimate, or warnings\
+    \ exists. The implementer must run the validation script (with `data/processed/features.csv`\
+    \ present) to produce the log."
   task: 0223184e8bd372045bd26efd7548567c7d991138804fe17eca59edcf567b03f3
 T005:
   reason: 'Requested task execution failed; rerun successfully: src/utils/checksum_all.py
@@ -33,13 +45,6 @@ T010:
 T011:
   task: e89f0abd8f8f3219055bf159450dd844b2f864ca281ca7a98ac571dd7e3d2c66
 T012:
-  reason: "The file `code/requirements.txt` exists but omits the `python==3.11` pin\
-    \ the task's specified contents require, and the recorded verification test (`code/tests/test_requirements.py`)\
-    \ failed with exit 1 \u2014 `pip install -r code/requirements.txt` did not succeed\
-    \ (historically due to the un-installable `python==3.11` line, which was then\
-    \ removed rather than resolved, e.g., via a comment or separate Python-version\
-    \ pin). The implementer must reconcile the file with the specified contents and\
-    \ provide evidence of a passing install/import verification run."
   task: 8fdbf71a10e6cacc247de6b9a3a2db01f3e8fb3f5befa3075c1a7bf5e2310508
 T013:
   task: b38600a88616df2dc2e3d4ef65be4a64cdb5cce99bcc236d534bd561bf4326f0
