@@ -1,21 +1,2 @@
 [flake8]
-# Exclude directories that do not need linting
-exclude = .git,__pycache__,build,dist,docs,examples
-max-line-length = 200
-extend-ignore = E203, W503
-# Enable all default checks
-select = E,W,F
-# Per-project ignore list
-ignore =
-  # line too long (handled by Black)
-  E501,
-  # module imported but unused
-  F401,
-  # whitespace before ':' (handled by Black)
-  E203,
-  # line break before binary operator
-  W503
-# Show source code for each error
-show-source = True
-# Enable statistics output
-statistics = True
+max-line-length = 88

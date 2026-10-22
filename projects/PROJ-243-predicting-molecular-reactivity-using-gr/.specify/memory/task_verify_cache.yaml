@@ -1,8 +1,8 @@
 T001:
-  c: true
-  h: f68d3fd61029752cfb6aa80ee5307ae89e47b793b0fc025488d73a1ba9fafff1
-  r: The execution log shows `code/setup_dirs.py` ran successfully (exit 0) and verified
-    all six required directories (`data/raw`, `data/processed`, `data/assets`, `code`,
-    `artifacts`, `tests`) each contain a `.gitkeep` file, matching the task's requirement
-    exactly.
-  sig: 27b224d62f91bf93f1383c629b466400caa0ed5ffc68113bcb303bb525b8a6d9
+  c: false
+  h: 6013fc69353bf287a5191ee2bdaed9128378ea312e81f75d28490b1721665889
+  r: The only evidence is a log stating the script ran successfully; there is no concrete
+    proof that the six directories and their `.gitkeep` files actually exist in the
+    repository (e.g., a `git ls-files` output or directory listing). Without confirming
+    the presence of those files, the task requirement is not satisfied.
+  sig: 2a9b5afaca1daa8b05f0b526e915f9180d51fbf1b1bff54ba04842c25d598ad5

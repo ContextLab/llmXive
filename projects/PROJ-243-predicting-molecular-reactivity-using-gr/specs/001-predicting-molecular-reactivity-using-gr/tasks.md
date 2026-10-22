@@ -15,7 +15,7 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
   `data/raw`, `data/processed`, `data/assets`, `code`, `artifacts`, `tests` (add a `.gitkeep` in each).  
   **Verification**: `git ls-files` shows the directories and a `.gitkeep` file inside each.
 
-- [ ] T002 [P] **Add linting configuration and run checks**  
+- [ ] T002 [P] **Add linting configuration and run checks**   <!-- FAILED-IN-EXECUTION: code/run_lint_checks.py exit=1 -->
   - Create a `.flake8` file at the repository root with a basic configuration (e.g., `max-line-length = 88`).  
   - Ensure `requirements.txt` pins all required packages, `pyproject.toml` contains Black configuration, and `ruff.toml` contains ruff settings.  
   - Execute `ruff check . --output-format=json > artifacts/ruff_report.json` **and** `black --check . > artifacts/black_report.txt`. Both commands must exit with status 0.  

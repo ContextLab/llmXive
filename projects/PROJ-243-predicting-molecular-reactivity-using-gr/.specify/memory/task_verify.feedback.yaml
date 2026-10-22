@@ -1,6 +1,12 @@
 T001:
+  reason: The only evidence is a log stating the script ran successfully; there is
+    no concrete proof that the six directories and their `.gitkeep` files actually
+    exist in the repository (e.g., a `git ls-files` output or directory listing).
+    Without confirming the presence of those files, the task requirement is not satisfied.
   task: 1dfc45cf995efd0277df27e7390417adf3da21c0375c1996cf6178c5a4ecb13f
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/run_lint_checks.py
+    exit=1'
   task: 6cbeaa39d5083eb8120c7f35a1952dde8a1920a0d79534d89608b5729d0b9036
 T003:
   task: e861c50f5c9279b4b91366825b2023373cdfcd7fbc396e2b4465242bba91c29b
