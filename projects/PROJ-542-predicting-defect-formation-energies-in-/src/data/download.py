@@ -128,9 +128,14 @@ def _fallback_download_csv() -> pd.DataFrame:
     columns required by the contract (composition, defect_type,
     formation_energy, material_id, species).  The function returns a
     DataFrame ready for further processing.
+
+    This fallback is used only when no API key is available; it provides a
+    real, reproducible dataset that satisfies the contract.
     """
+    # The repository moved to the ``main`` branch; the older ``master`` URL
+    # now returns 404.  Using the canonical raw URL ensures a stable source.
     fallback_url = (
-        "https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv"
+        "https://raw.githubusercontent.com/materialsproject/mp-data/main/defects/defect_entries.csv"
     )
     log.info(f"Attempting public fallback download from {fallback_url}")
     resp = requests.get(fallback_url, timeout=30)
@@ -151,20 +156,12 @@ def _fallback_download_csv() -> pd.DataFrame:
     # Apply perovskite filter to stay consistent with the API path.
     perovskite_mask = df["composition"].apply(_is_perovskite)
     df = df[perovskite_mask].copy()
-    # Rename columns to match the internal schema expectations.
-    df.rename(
-        columns={
-            "material_id": "metadata.material_id",
-            "defect_type": "defect_type",
-            "formation_energy": "formation_energy",
-            "composition": "composition",
-            "species": "species",
-        },
-        inplace=True,
-    )
-    # Collapse the nested metadata column back to a dict for later validation.
-    df["metadata"] = df["metadata.material_id"].apply(lambda mid: {"material_id": mid})
-    df.drop(columns=["metadata.material_id"], inplace=True)
+
+    # Keep only the columns required by the schema.
+    df = df[["composition", "defect_type", "formation_energy", "material_id"]].copy()
+    # Rename ``material_id`` to the nested ``metadata`` structure expected by the schema.
+    df["metadata"] = df["material_id"].apply(lambda mid: {"material_id": mid})
+    df.drop(columns=["material_id"], inplace=True)
     return df
 
 
@@ -189,6 +186,7 @@ def _records_to_dataframe(records: List[Dict]) -> pd.DataFrame:
                 "metadata": {"material_id": rec["material_id"]},
             }
         )
+        # ``species`` is not part of the contract and is therefore omitted.
     return pd.DataFrame(rows)
 
 
@@ -200,9 +198,7 @@ def _validate_dataframe(df: pd.DataFrame, schema_path: Path) -> None:
             "composition": row["composition"],
             "defect_type": row["defect_type"],
             "formation_energy": row["formation_energy"],
-            "metadata": row["metadata"]
-            if isinstance(row["metadata"], dict)
-            else {},
+            "metadata": row["metadata"] if isinstance(row["metadata"], dict) else {},
         }
         try:
             validate(instance=record, schema=schema)
@@ -233,6 +229,7 @@ def main() -> None:
             df = _fallback_download_csv()
         except Exception as exc:
             log.error(f"Fallback download failed: {exc}")
+            # Required abort message when the API key is missing.
             sys.exit("Materials Project API key not provided")
 
     # -----------------------------------------------------------------

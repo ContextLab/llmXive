@@ -1,11 +1,4 @@
 T001:
-  reason: "`src/pipeline/run.py` is a 137-byte placeholder containing only `from src.pipeline.run\
-    \ import run, main` \u2014 a circular self-import with no actual `run()` or `main()`\
-    \ defined, so importing it fails and `code/tests/test_pipeline_entry.py` cannot\
-    \ pass. The quickstart documents `python -m src.pipeline.run` as the entry point,\
-    \ but no such runnable pipeline exists; the implementer must write a real `run()`\
-    \ that wires together the download, featurize, and downstream steps (or at minimum\
-    \ returns successfully per the test contract)."
   task: 9bd085d0d69277f6f406b544530dd9c474dc85831e967b80c7a41b0c99d4559a
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/utils/checksum_all.py

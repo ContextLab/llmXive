@@ -1,14 +1,15 @@
 T001:
-  c: false
-  h: 21919bb8ab33573b816df3fd17636e37e769aa6ff4290b647e68bffa78c0da09
-  r: "`src/pipeline/run.py` is a 137-byte placeholder containing only `from src.pipeline.run\
-    \ import run, main` \u2014 a circular self-import with no actual `run()` or `main()`\
-    \ defined, so importing it fails and `code/tests/test_pipeline_entry.py` cannot\
-    \ pass. The quickstart documents `python -m src.pipeline.run` as the entry point,\
-    \ but no such runnable pipeline exists; the implementer must write a real `run()`\
-    \ that wires together the download, featurize, and downstream steps (or at minimum\
-    \ returns successfully per the test contract)."
-  sig: c84bb5ce5ae5f7430a119d7861d65403fa4fcccf5e61198756a0ffec4bc3ef2d
+  c: true
+  h: 2ab727e7e084dc4d36e0c441cb95ae3d60945622fd63ca1df44ba11869b48165
+  r: 'All four required artifacts exist with substantive content: `quickstart.md`
+    documents the `python -m src.pipeline.run` entry point with setup/run instructions;
+    `src/pipeline/run.py` exposes a real `run()` that returns None; `src/data/download.py`
+    and `src/data/featurize.py` contain genuine implementations (MP API query with
+    fallback, schema validation, 12-descriptor featurization via pymatgen); and `code/tests/test_pipeline_entry.py`
+    asserts exactly the required contract (module imports, `run` exists, returns None
+    without raising). The task explicitly defers end-to-end execution to T010, so
+    `r'
+  sig: 69db7b3d40683c94dddbfea0c4aa9a0caa39a7f5c1f5243d4d8b2f324acba4c8
 T003:
   c: false
   h: cc29533459009d21d0843745223a270f616c37ec2cb864a205076a52bb904b5a

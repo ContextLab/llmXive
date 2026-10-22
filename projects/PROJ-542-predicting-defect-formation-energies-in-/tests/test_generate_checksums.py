@@ -19,7 +19,7 @@ import subprocess
 import sys
 
 def test_checksum_files_created():
-    """Run the checksum script and assert that the two SHA‑256 files exist."""
+    """Run the checksum generation module and assert that the two SHA‑256 files exist."""
     # Execute the checksum generation module.
     result = subprocess.run(
         [sys.executable, "-m", "src.utils.checksum_all"],

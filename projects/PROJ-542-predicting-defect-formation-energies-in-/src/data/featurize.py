@@ -69,15 +69,22 @@ def _descriptor_for_element(el: Element) -> dict:
     """
     Compute the four required descriptors for a single element.
 
-    - atomic radius: ``el.atomic_radius`` (fallback to ``covalent_radius``)
+    - atomic radius: ``el.atomic_radius`` (fallback to ``covalent_radius`` then
+      ``van_der_waals_radius``)
     - electronegativity (Pauling): ``el.X`` (may be ``None``)
     - oxidation state: first entry of ``el.common_oxidation_states`` if
       available, otherwise ``None``.
     - valence electron count: element group number (``el.group``) – a
       reasonable proxy for main‑group elements.
     """
-    # Atomic radius – pymatgen may return ``None``; use covalent radius as fallback
-    atomic_radius = el.atomic_radius if el.atomic_radius is not None else el.covalent_radius
+    # Atomic radius – try several fall‑backs to avoid missing values.
+    atomic_radius = (
+        el.atomic_radius
+        if el.atomic_radius is not None
+        else el.covalent_radius
+        if el.covalent_radius is not None
+        else el.van_der_waals_radius
+    )
     electronegativity = el.X  # Pauling scale; may be ``None``
     oxidation_state = (
         el.common_oxidation_states[0] if el.common_oxidation_states else None
