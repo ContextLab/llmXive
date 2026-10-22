@@ -7,3 +7,13 @@ T013:
     \ shows both requirement files were successfully installed (`test_requirements_installable`\
     \ passed), confirming the verification condition."
   sig: b5539a6d1edffe93ce49598202a34149cd28a7ef6ed25c8fff61f10780f7520c
+T015:
+  c: false
+  h: bd328abdc78c0e783e580271cb5c2fbeb1f55766184a869f43940d81fddd32ec
+  r: "The `quickstart.md` file exists and correctly lists `python -m src.pipeline.run_all`\
+    \ and `pytest src/tests/`, but the test `src/tests/test_quickstart.py` shows that\
+    \ running the pipeline command exits with code\u202F1 (fails to download the Corrosion.csv\
+    \ dataset), so the documented commands do not successfully execute. The pipeline\
+    \ must be fixed (e.g., provide a valid dataset URL or local fallback) for the\
+    \ quickstart to meet the task requirement."
+  sig: de5ce4192f7769967563d1500353c5d06c896bec6650a1cba7a9d6358102e61d

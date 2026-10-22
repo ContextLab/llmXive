@@ -24,9 +24,7 @@ ll.py", line 47, in <module>
 RuntimeError: Fallback download failed for https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv
 
 - python -m pytest src/tests/ -> rc=1
-V.
-        # ------------------------------------------------------------------
-        try:
+       try:
             response = requests.get(FALLBACK_URL, timeout=30)
             response.raise_for_status()
         except Exception as exc:
@@ -38,11 +36,12 @@ E           RuntimeError: Fallback download failed for https://raw.githubusercon
 src/pipeline/ingest.py:136: RuntimeError
 =========================== short test summary info ============================
 FAILED src/tests/test_ingest.py::test_ingest_creates_raw_and_provenance - Run...
+FAILED src/tests/test_quickstart.py::test_quickstart_run_all - AssertionError...
 FAILED src/tests/test_train.py::test_first_run_metrics_created - FileNotFound...
 FAILED src/tests/test_vif.py::test_vif_diagnostics_created - RuntimeError: Fa...
 ERROR src/tests/test_features.py::test_features_parquet_created - AssertionEr...
 ERROR src/tests/test_features.py::test_feature_names_json - AssertionError: f...
-==================== 3 failed, 2 passed, 2 errors in 3.94s =====================
+==================== 4 failed, 2 passed, 2 errors in 5.21s =====================
 
 
 
@@ -68,12 +67,14 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `src/pipeline/train.py` — NOT invoked by the run-book
     - `src/pipeline/vif.py` — NOT invoked by the run-book
     - `src/tests/test_ingest.py` — NOT invoked by the run-book
+    - `src/tests/test_quickstart.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/cleaned_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/features.parquet` is declared but was NOT written. Scripts referencing it:
     - `src/pipeline/features.py` — NOT invoked by the run-book
     - `src/pipeline/run_all.py` — IS a run-book command
     - `src/run_all.py` — NOT invoked by the run-book
     - `src/tests/test_features.py` — NOT invoked by the run-book
+    - `src/tests/test_quickstart.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/features.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/zenodo_corrosion.csv` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
 - `data/results/bh_corrected_interaction_importance.json` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
@@ -83,5 +84,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/results/shap_interaction_rankings.json` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
 - `data/results/vif_diagnostics.json` is declared but was NOT written. Scripts referencing it:
     - `src/pipeline/vif.py` — NOT invoked by the run-book
+    - `src/tests/test_quickstart.py` — NOT invoked by the run-book
     - `src/tests/test_vif.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/vif_diagnostics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
