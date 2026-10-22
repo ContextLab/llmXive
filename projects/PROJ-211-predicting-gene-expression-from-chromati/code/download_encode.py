@@ -9,7 +9,6 @@ import gzip
 from pathlib import Path
 from typing import List, Dict, Any
 import requests
-# Import Retry correctly from urllib3
 from urllib3.util.retry import Retry
 
 # ----------------------------------------------------------------------
@@ -29,13 +28,22 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
-# Constants (default values)
+# Constants
 # ----------------------------------------------------------------------
 DEFAULT_CELL_LINES = ["GM12878", "K562", "HMEC", "IMR90", "HepG2"]
 DEFAULT_RAW_DIR = Path("data") / "raw"
 
 ENCODE_API = "https://www.encodeproject.org"
 ENCODE_SEARCH = ENCODE_API + "/search/"
+
+# Mapping for robust search terms in ENCODE ontology
+CELL_LINE_ALIASES = {
+    "GM12878": ["GM12878"],
+    "K562": ["K562"],
+    "HMEC": ["HMEC", "Human Mammary Epithelial Cells"],
+    "IMR90": ["IMR90"],
+    "HepG2": ["HepG2"],
+}
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -73,7 +81,7 @@ def get_session_with_retry(max_retries: int = 3, backoff_factor: float = 2.0) ->
 
 def _query_encode_file(
     session: requests.Session,
-    cell_line: str,
+    cell_line_term: str,
     assay: str = None,
     output_type: str = None,
     file_format: str = None,
@@ -83,17 +91,15 @@ def _query_encode_file(
     Query ENCODE for a single file matching the criteria.
     Returns the full URL to the file or raises if not found.
     """
-    # Base query parameters that are broadly applicable
     params = {
         "type": "File",
-        "biosample_ontology.term_name": cell_line,
+        "biosample_ontology.term_name": cell_line_term,
         "status": "released",
         "assembly": "GRCh38",
         "format": "json",
         "limit": "1",
         "field": "href",
     }
-    # Optional filters
     if assay:
         params["assay_title"] = assay
     if output_type:
@@ -103,77 +109,73 @@ def _query_encode_file(
     if extra_params:
         params.update(extra_params)
 
-    logger.info(
-        f"Querying ENCODE for {cell_line} assay={assay} output_type={output_type} format={file_format}"
-    )
     resp = session.get(ENCODE_SEARCH, params=params, headers={"Accept": "application/json"})
     if resp.status_code != 200:
         raise RuntimeError(f"ENCODE query failed ({resp.status_code}): {resp.text}")
     data = resp.json()
     if not data.get("@graph"):
-        raise RuntimeError(
-            f"No ENCODE file found for {cell_line} (assay={assay}, output_type={output_type}, format={file_format})"
-        )
+        raise RuntimeError(f"No file found for term {cell_line_term}")
+    
     href = data["@graph"][0]["href"]
-    full_url = ENCODE_API + href
-    logger.info(f"Found ENCODE file: {full_url}")
-    return full_url
+    return ENCODE_API + href
 
 def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> List[Dict[str, Any]]:
     """
-    Fetch ENCODE metadata for each requested cell line.
-    Returns a list of dicts with keys:
-    - cell_line
-    - rna: {"download_uri": ...}
-    - dnase: {"download_uri": ...}
+    Fetch ENCODE metadata for each requested cell line, trying aliases if necessary.
     """
     results = []
     for cl in cell_lines:
-        # --------------------------------------------------------------
-        # RNA‑seq gene quantifications
-        # --------------------------------------------------------------
-        # Try a generic query first; ENCODE sometimes omits the assay field.
-        try:
-            rna_uri = _query_encode_file(
-                session,
-                cell_line=cl,
-                output_type="gene quantifications",
-                file_format="tsv"
-            )
-        except Exception as e:
-            logger.error(f"Failed to locate RNA‑seq file for {cl}: {e}")
-            raise RuntimeError(f"RNA‑seq file not found for {cl}")
+        # Determine which search terms to try
+        terms = CELL_LINE_ALIASES.get(cl, [cl])
+        
+        # 1. Find RNA-seq file
+        rna_uri = None
+        for term in terms:
+            try:
+                rna_uri = _query_encode_file(
+                    session,
+                    cell_line_term=term,
+                    output_type="gene quantifications",
+                    file_format="tsv"
+                )
+                logger.info(f"Found RNA-seq for {cl} using term {term}")
+                break
+            except RuntimeError:
+                continue
+        
+        if not rna_uri:
+            raise RuntimeError(f"RNA-seq file not found for {cl} after trying all aliases {terms}")
 
-        # --------------------------------------------------------------
-        # Accessibility peaks (prefer DNase‑seq, then ATAC‑seq)
-        # --------------------------------------------------------------
+        # 2. Find Accessibility peaks (DNase-seq then ATAC-seq)
         dnase_uri = None
         for assay_name in ["DNase-seq", "ATAC-seq"]:
-            try:
-                dnase_uri = _query_encode_file(
-                    session,
-                    cell_line=cl,
-                    assay=assay_name,
-                    output_type="peaks",
-                    file_format="narrowPeak"
-                )
-                logger.info(f"Selected {assay_name} peaks for {cl}")
+            for term in terms:
+                try:
+                    dnase_uri = _query_encode_file(
+                        session,
+                        cell_line_term=term,
+                        assay=assay_name,
+                        output_type="peaks",
+                        file_format="narrowPeak"
+                    )
+                    logger.info(f"Found {assay_name} peaks for {cl} using term {term}")
+                    break
+                except RuntimeError:
+                    continue
+            if dnase_uri:
                 break
-            except Exception as e:
-                logger.warning(f"{assay_name} not found for {cl}: {e}")
 
-        # Final fallback: any peak file (no assay, no format restriction)
-        if dnase_uri is None:
-            try:
-                dnase_uri = _query_encode_file(
-                    session,
-                    cell_line=cl,
-                    output_type="peaks"
-                )
-                logger.info(f"Falling back to generic peaks file for {cl}")
-            except Exception as e:
-                logger.error(f"No accessibility file found for {cl}: {e}")
-                raise RuntimeError(f"No accessibility file for {cl}")
+        if not dnase_uri:
+            # Final fallback: any peak file for any alias
+            for term in terms:
+                try:
+                    dnase_uri = _query_encode_file(session, cell_line_term=term, output_type="peaks")
+                    break
+                except RuntimeError:
+                    continue
+
+        if not dnase_uri:
+            raise RuntimeError(f"No accessibility file found for {cl} after trying all aliases {terms}")
 
         results.append({
             "cell_line": cl,
@@ -183,11 +185,7 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
     return results
 
 def download_file(uri: str, output_path: Path, session: requests.Session) -> bool:
-    """
-    Download a file from a URI to a local path using streaming.
-    Returns True on success; raises on HTTP error or empty file.
-    Handles optional gzip compression.
-    """
+    """Download a file from a URI to a local path using streaming."""
     logger.info(f"Downloading {uri} to {output_path}")
     try:
         with session.get(uri, stream=True) as r:
@@ -198,8 +196,7 @@ def download_file(uri: str, output_path: Path, session: requests.Session) -> boo
                 tmp_path = output_path.with_suffix(output_path.suffix + ".gz")
                 with tmp_path.open("wb") as f:
                     for chunk in r.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
+                        if chunk: f.write(chunk)
                 with gzip.open(tmp_path, "rb") as src, output_path.open("wb") as dst:
                     for chunk in iter(lambda: src.read(8192), b""):
                         dst.write(chunk)
@@ -207,23 +204,16 @@ def download_file(uri: str, output_path: Path, session: requests.Session) -> boo
             else:
                 with output_path.open("wb") as f:
                     for chunk in r.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
+                        if chunk: f.write(chunk)
         if output_path.stat().st_size == 0:
             raise RuntimeError(f"Downloaded file is empty: {output_path}")
-        logger.info(f"Successfully downloaded {output_path} ({output_path.stat().st_size} bytes)")
         return True
     except Exception as e:
         logger.error(f"Failed to download {uri}: {e}")
         raise
 
 def process_rna_data(input_path: Path, output_path: Path) -> None:
-    """
-    Convert ENCODE RNA‑seq quantification TSV into the final counts CSV.
-    Expected ENCODE columns include at least: gene_id, gene_name, TPM (or tpm).
-    Output CSV columns: gene_id, gene_name, cell_line, count
-    """
-    logger.info(f"Processing RNA data from {input_path}")
+    """Convert ENCODE RNA-seq TSV into counts CSV."""
     if not input_path.exists():
         raise FileNotFoundError(f"Input RNA file not found: {input_path}")
 
@@ -244,77 +234,48 @@ def process_rna_data(input_path: Path, output_path: Path) -> None:
                              row.get("gene_name", "unknown"),
                              cell_line,
                              count])
-    logger.info(f"Wrote processed RNA counts to {output_path}")
 
 def process_accessibility_data(input_path: Path, output_path: Path) -> None:
-    """
-    Convert ENCODE narrowPeak BED into the final BED used downstream.
-    The ENCODE narrowPeak format already has 6 columns; we simply copy it.
-    """
-    logger.info(f"Processing accessibility data from {input_path}")
+    """Convert ENCODE narrowPeak BED into final BED."""
     if not input_path.exists():
         raise FileNotFoundError(f"Input accessibility file not found: {input_path}")
-
     with input_path.open("rb") as src, output_path.open("wb") as dst:
         while True:
             chunk = src.read(8192)
-            if not chunk:
-                break
+            if not chunk: break
             dst.write(chunk)
-    logger.info(f"Wrote processed accessibility BED to {output_path}")
 
 def write_gene_coords_bed(output_path: Path) -> None:
-    """
-    Download GENCODE hg38 annotation GTF, extract TSS positions,
-    and write a minimal BED file (chrom, start, end, gene_id, score, strand).
-    """
-    logger.info(f"Downloading GENCODE annotation for TSS BED")
-    gencode_url = (
-        "https://ftp.ebi.ac.uk/pub/databases/gencode/GTF/human/"
-        "release_44/gencode.v44.annotation.gtf.gz"
-    )
+    """Download GENCODE hg38 and write TSS BED."""
+    logger.info("Downloading GENCODE annotation for TSS BED")
+    gencode_url = "https://ftp.ebi.ac.uk/pub/databases/gencode/GTF/human/release_44/gencode.v44.annotation.gtf.gz"
     gtf_path = output_path.parent / "gencode.v44.annotation.gtf.gz"
     session = get_session_with_retry()
     download_file(gencode_url, gtf_path, session)
 
-    logger.info(f"Parsing GTF and writing TSS BED to {output_path}")
     with gzip.open(gtf_path, "rt") as gtf_f, output_path.open("w") as bed_f:
         for line in gtf_f:
-            if line.startswith("#"):
-                continue
+            if line.startswith("#"): continue
             fields = line.strip().split("\t")
-            if len(fields) != 9:
-                continue
-            chrom, source, feature_type, start, end, score, strand, phase, attributes = fields
-            if feature_type != "gene":
-                continue
+            if len(fields) != 9 or fields[2] != "gene": continue
+            attributes = fields[8]
             attr_dict = {}
             for attr in attributes.split(";"):
                 attr = attr.strip()
-                if not attr:
-                    continue
+                if not attr: continue
                 parts = attr.split(" ", 1)
-                if len(parts) < 2:
-                    continue
+                if len(parts) < 2: continue
                 key, value = parts
                 attr_dict[key] = value.strip('"')
             gene_id = attr_dict.get("gene_id")
-            if not gene_id:
-                continue
-            start_int = int(start) - 1
-            end_int = int(end)
-            if strand == "+":
-                tss_start = start_int
-                tss_end = start_int + 1
-            else:
-                tss_start = end_int - 1
-                tss_end = end_int
-            bed_f.write(f"{chrom}\t{tss_start}\t{tss_end}\t{gene_id}\t0\t{strand}\n")
-    logger.info(f"Gene coordinates BED written to {output_path}")
-    try:
-        gtf_path.unlink()
-    except Exception:
-        pass
+            if not gene_id: continue
+            start_int = int(fields[3]) - 1
+            end_int = int(fields[4])
+            strand = fields[6]
+            tss_start = start_int if strand == "+" else end_int - 1
+            tss_end = tss_start + 1
+            bed_f.write(f"{fields[0]}\t{tss_start}\t{tss_end}\t{gene_id}\t0\t{strand}\n")
+    gtf_path.unlink(missing_ok=True)
 
 def checksum_file(path: Path) -> str:
     """Calculate SHA256 checksum of a file."""
@@ -325,9 +286,7 @@ def checksum_file(path: Path) -> str:
     return sha256_hash.hexdigest()
 
 def log_checksums_csv(files: List[Path], log_path: Path) -> None:
-    """
-    Record SHA-256 checksums of the listed files into a CSV file.
-    """
+    """Record SHA-256 checksums into a CSV file."""
     log_path.parent.mkdir(parents=True, exist_ok=True)
     with log_path.open("w", newline="") as f:
         writer = csv.writer(f)
@@ -335,63 +294,28 @@ def log_checksums_csv(files: List[Path], log_path: Path) -> None:
         for fp in files:
             if fp.exists():
                 writer.writerow([str(fp), checksum_file(fp)])
-            else:
-                logger.warning(f"File not found for checksum logging: {fp}")
     logger.info(f"Checksums written to {log_path}")
 
 def parse_cell_lines(arg_value: List[str]) -> List[str]:
-    """
-    Flexible parser for the --cell-lines argument.
-    Accepts:
-    - a single comma‑separated string: "GM12878,K562,HMEC"
-    - multiple arguments possibly ending with commas: ["GM12878,", "K562,", "HMEC"]
-    - a mixture of the above.
-    Returns a clean list of cell line identifiers.
-    """
-    # Flatten the list into a single string, then split on commas
+    """Parse --cell-lines argument."""
     combined = " ".join(arg_value)
-    # Replace commas with spaces, then split
     parts = combined.replace(",", " ").split()
-    # Strip any stray commas or whitespace
-    cleaned = [p.strip().strip(",") for p in parts if p.strip()]
-    return cleaned
+    return [p.strip().strip(",") for p in parts if p.strip()]
 
 def main() -> None:
-    """
-    Download real ENCODE data and record checksums.
-    No synthetic fallback allowed.
-    """
+    """Download real ENCODE data and record checksums."""
     import argparse
-
     parser = argparse.ArgumentParser(description="Download ENCODE data.")
-    parser.add_argument(
-        "--cell-lines",
-        nargs="+",
-        default=DEFAULT_CELL_LINES,
-        help="Cell line identifiers (space or comma separated)."
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default=str(DEFAULT_RAW_DIR),
-        help="Directory to store raw downloaded files"
-    )
+    parser.add_argument("--cell-lines", nargs="+", default=DEFAULT_CELL_LINES)
+    parser.add_argument("--output-dir", type=str, default=str(DEFAULT_RAW_DIR))
     args = parser.parse_args()
-    # Parse cell lines flexibly
+    
     cell_lines = parse_cell_lines(args.cell_lines)
-
-    # Resolve any wildcard specifications (e.g., GM128*)
-    wildcard_map = {
-        "GM128*": "GM12878"
-    }
+    wildcard_map = {"GM128*": "GM12878"}
     cell_lines = [wildcard_map.get(cl, cl) for cl in cell_lines]
 
-    # Resolve output directory and make it globally visible for other helpers
-    global RAW_DIR
-    RAW_DIR = Path(args.output_dir)
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
-
-    setup_directories(RAW_DIR)
+    raw_dir = Path(args.output_dir)
+    setup_directories(raw_dir)
     session = get_session_with_retry()
 
     try:
@@ -401,13 +325,12 @@ def main() -> None:
         raise SystemExit(1)
 
     generated_files: List[Path] = []
-
     for entry in metadata:
         cl = entry["cell_line"]
-        # RNA‑seq
+        # RNA-seq
         rna_uri = entry["rna"]["download_uri"]
-        rna_tmp = RAW_DIR / f"{cl}_rna.tmp"
-        rna_out = RAW_DIR / f"encode_counts_{cl}.csv"
+        rna_tmp = raw_dir / f"{cl}_rna.tmp"
+        rna_out = raw_dir / f"encode_counts_{cl}.csv"
         download_file(rna_uri, rna_tmp, session)
         process_rna_data(rna_tmp, rna_out)
         generated_files.append(rna_out)
@@ -415,22 +338,19 @@ def main() -> None:
 
         # Accessibility
         dnase_uri = entry["dnase"]["download_uri"]
-        dnase_tmp = RAW_DIR / f"{cl}_dnase.tmp"
-        dnase_out = RAW_DIR / f"encode_peaks_{cl}.bed"
+        dnase_tmp = raw_dir / f"{cl}_dnase.tmp"
+        dnase_out = raw_dir / f"encode_peaks_{cl}.bed"
         download_file(dnase_uri, dnase_tmp, session)
         process_accessibility_data(dnase_tmp, dnase_out)
         generated_files.append(dnase_out)
         dnase_tmp.unlink(missing_ok=True)
 
-    # Gene coordinates
-    gene_coords_path = RAW_DIR / "gene_coords.bed"
+    gene_coords_path = raw_dir / "gene_coords.bed"
     write_gene_coords_bed(gene_coords_path)
     generated_files.append(gene_coords_path)
 
-    # Record checksums
-    checksum_path = RAW_DIR / "checksums.csv"
+    checksum_path = raw_dir / "checksums.csv"
     log_checksums_csv(generated_files, checksum_path)
-
     logger.info("All real ENCODE data downloaded and processed successfully.")
 
 if __name__ == "__main__":
