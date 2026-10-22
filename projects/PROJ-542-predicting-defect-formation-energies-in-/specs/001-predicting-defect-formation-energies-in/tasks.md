@@ -4,7 +4,7 @@
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [US1] Document the runnable pipeline entry point and verify module wiring.
+- [ ] T001 [US1] Document the runnable pipeline entry point and verify module wiring. <!-- FAILED-IN-EXECUTION: src/utils/checksum_all.py exit=1; src/data/featurize.py exit=2; src/models/split.py exit=2 -->
   *Files:* `quickstart.md`, `src/pipeline/run.py`, `src/data/download.py`, `src/data/featurize.py`.
   *Verification:* Unit test `code/tests/test_pipeline_entry.py` asserts that `src.pipeline.run` can be imported and that the function `run()` returns without raising; no end-to-end execution required here (deferred to T010).
 

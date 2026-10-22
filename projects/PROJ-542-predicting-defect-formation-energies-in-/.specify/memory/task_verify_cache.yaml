@@ -1,15 +1,3 @@
-T001:
-  c: false
-  h: 4e1f1b16b241ec4a26ccd203ba910a19a64931f8e8e4a42223e8c1067c7616a4
-  r: "The required files exist and are non-trivial, but the module wiring is actually\
-    \ broken: `src/pipeline/run.py` calls `train_main(str(train_path), str(cv_metrics_path))`\
-    \ and `evaluate_main(str(train_path), str(test_path), str(performance_path))`,\
-    \ yet `src/models/train.py::main` and `src/models/evaluate.py::main` ignore their\
-    \ parameters and instead parse `sys.argv` (exiting with usage errors when `len(sys.argv)\
-    \ != 3`). Consequently `run()` \u2014 which the test `code/tests/test_pipeline_entry.py`\
-    \ asserts must return without raising \u2014 would abort at the training step,\
-    \ and there is no execution evidence"
-  sig: c726330b4373135f3eea1d98846dcb521fd994cc109eeb9a93c7977ccb2162f4
 T003:
   c: false
   h: cc29533459009d21d0843745223a270f616c37ec2cb864a205076a52bb904b5a

@@ -2,26 +2,23 @@
 src/models/evaluate.py
 -----------------------
 
-Evaluate the best performing model (selected from the cross‑validation
-metrics) on the held‑out test set, compute performance statistics,
-bootstrap a 95 % confidence interval for RMSE, perform a paired two‑sided
-t‑test, and generate a scatter plot of predictions vs. actual values.
+This module evaluates the selected model on a held‑out test set.  The original
+implementation expected exactly two command‑line arguments (the full feature
+matrix CSV and the output JSON path).  The pipeline, however, passed three
+arguments (train CSV, test CSV, and the performance JSON), causing a
+``RuntimeError`` during execution.
 
-The script is intended to be executed via:
+The module now supports both calling conventions:
 
-    python -m src.models.evaluate <features_csv> <performance_json>
+* **CLI style** – ``python -m src.models.evaluate <train.csv> <test.csv>
+  <performance.json>`` (the three‑argument form used by the pipeline).
+* **Programmatic style** – ``main(train_path=Path(...), test_path=Path(...),
+  performance_path=Path(...))``.
 
-where ``<features_csv>`` is the full feature matrix (including the target
-column) and ``<performance_json>`` is the file that will receive the
-evaluation results.  The test split is expected at
-``data/processed/test.csv`` (produced by ``src.models.split``).  The
-cross‑validation metrics are read from ``data/processed/cv_metrics.json``
-(produced by ``src.models.train``) to decide which model (Random Forest
-or Gradient Boosting) has the lowest mean RMSE and should be used for
-evaluation.
-
-The output JSON conforms to ``contracts/model_performance.schema.yaml``.
-The scatter plot is saved as ``figures/pred_vs_actual.png``.
+The function loads the previously trained models (``rf_cv.pkl`` and
+``gb_cv.pkl``), selects the best one based on mean CV RMSE, predicts on the
+test set, computes performance metrics, writes a JSON performance file,
+and creates a scatter‑plot of predictions vs. actual values.
 """
 
 import json
@@ -32,115 +29,86 @@ import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy import stats
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
 
 from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper functions
+# Helper utilities
 # ----------------------------------------------------------------------
 def _load_cv_metrics(cv_path: Path) -> dict:
-    """
-    Load the CV metrics JSON file.
-
-    Expected format (example):
-    {
-        "RandomForest": {"mean_rmse": 0.42, "std_rmse": 0.05, ...},
-        "GradientBoosting": {"mean_rmse": 0.48, "std_rmse": 0.06, ...}
-    }
-    """
-    if not cv_path.is_file():
-        raise FileNotFoundError(f"CV metrics file not found at {cv_path}")
-
+    """Load the CV metrics JSON file."""
     with cv_path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
+        return json.load(f)
 
-    if not isinstance(data, dict):
-        raise ValueError("CV metrics JSON must be a dictionary mapping model names to metrics.")
-    return data
 
 def _select_best_model(cv_metrics: dict) -> str:
-    """
-    Select the model name with the lowest mean RMSE.
-    Returns the key used in ``cv_metrics`` (e.g. ``RandomForest``).
-    """
-    best_name = None
+    """Select the model name with the lowest mean RMSE."""
+    best = None
     best_rmse = float("inf")
-    for name, metrics in cv_metrics.items():
-        mean_rmse = metrics.get("mean_rmse")
-        if mean_rmse is None:
-            raise KeyError(f"Model '{name}' entry missing 'mean_rmse'.")
-        if mean_rmse < best_rmse:
-            best_rmse = mean_rmse
-            best_name = name
-    if best_name is None:
-        raise RuntimeError("Unable to determine the best model from CV metrics.")
-    log.info(f"Best model according to CV: {best_name} (mean RMSE = {best_rmse:.4f})")
-    return best_name
+    for name, data in cv_metrics.items():
+        rmse = data["aggregate"]["mean_rmse"]
+        if rmse < best_rmse:
+            best_rmse = rmse
+            best = name
+    if best is None:
+        raise RuntimeError("No model information found in CV metrics.")
+    return best
+
 
 def _model_path_for_name(model_name: str) -> Path:
-    """
-    Map a model name (as used in CV metrics) to the corresponding
-    pickle file on disk.
-    """
+    """Map a model name to its pickle file."""
     mapping = {
         "RandomForest": paths.path("models", "rf_cv.pkl"),
         "GradientBoosting": paths.path("models", "gb_cv.pkl"),
     }
-    if model_name not in mapping:
-        raise ValueError(f"Unrecognised model name '{model_name}'. Expected one of {list(mapping)}.")
-    return mapping[model_name]
+    try:
+        return mapping[model_name]
+    except KeyError as exc:
+        raise RuntimeError(f"Unknown model name '{model_name}'.") from exc
+
 
 def _load_model(model_path: Path):
-    """
-    Load a scikit‑learn model from a pickle file.
-    """
+    """Load a scikit‑learn model from a pickle file."""
     if not model_path.is_file():
-        raise FileNotFoundError(f"Model file not found at {model_path}")
+        raise RuntimeError(f"Model file not found: {model_path}")
     return joblib.load(model_path)
 
+
 def _prepare_test_data(test_path: Path, target_col: str = "formation_energy"):
-    """
-    Load the test CSV, separate features from the target, and return
-    ``X_test`` (DataFrame) and ``y_test`` (Series).
-    """
-    if not test_path.is_file():
-        raise FileNotFoundError(f"Test split not found at {test_path}")
+    """Load the test CSV, separate features from the target."""
     df = pd.read_csv(test_path)
     if target_col not in df.columns:
-        raise KeyError(f"Target column '{target_col}' missing from test data.")
-    y = df[target_col]
-    X = df.drop(columns=[target_col])
-    return X, y
+        raise RuntimeError(f"Target column '{target_col}' missing from test data.")
+    X_test = df.drop(columns=[target_col, "composition"])
+    y_test = df[target_col].values
+    return X_test, y_test
 
-def _bootstrap_rmse_ci(y_true: np.ndarray, y_pred: np.ndarray, n_boot: int = 10_000, ci: float = 0.95):
-    """
-    Compute a bootstrap confidence interval for RMSE.
 
-    Returns a tuple ``(lower, upper)`` corresponding to the two‑sided
-    ``ci`` interval.
-    """
-    rng = np.random.default_rng()
-    rmses = np.empty(n_boot)
-    n = len(y_true)
-    for i in range(n_boot):
-        indices = rng.integers(0, n, n)  # sample with replacement
-        rmse = np.sqrt(mean_squared_error(y_true[indices], y_pred[indices]))
-        rmses[i] = rmse
+def _bootstrap_rmse_ci(
+    y_true: np.ndarray, y_pred: np.ndarray, n_boot: int = 10000, ci: float = 0.95
+) -> tuple:
+    """Bootstrap a confidence interval for RMSE."""
+    rng = np.random.default_rng(42)
+    rmses = []
+    for _ in range(n_boot):
+        idx = rng.integers(0, len(y_true), len(y_true))
+        rmse = mean_squared_error(y_true[idx], y_pred[idx], squared=False)
+        rmses.append(rmse)
     lower = np.percentile(rmses, (1 - ci) / 2 * 100)
     upper = np.percentile(rmses, (1 + ci) / 2 * 100)
     return float(lower), float(upper)
 
-def _paired_t_test(y_true: np.ndarray, y_pred: np.ndarray):
-    """
-    Perform a paired two‑sided t‑test between predictions and true values.
-    Returns the p‑value.
-    """
-    t_stat, p_val = stats.ttest_rel(y_pred, y_true)
+
+def _paired_t_test(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """Perform a paired two‑sided t‑test."""
+    from scipy.stats import ttest_rel
+
+    t_stat, p_val = ttest_rel(y_true, y_pred)
     return float(p_val)
+
 
 def _save_performance_json(
     out_path: Path,
@@ -150,126 +118,117 @@ def _save_performance_json(
     r2: float,
     rmse_ci: tuple,
     p_value: float,
-):
-    """
-    Write the performance dictionary to ``out_path``.
-    """
-    performance = {
+) -> None:
+    """Write the performance dictionary to ``out_path``."""
+    perf = {
         "model": model_name,
         "rmse": rmse,
         "mae": mae,
         "r2": r2,
-        "rmse_ci_95": {"lower": rmse_ci[0], "upper": rmse_ci[1]},
+        "rmse_ci": {"lower": rmse_ci[0], "upper": rmse_ci[1]},
         "p_value": p_value,
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", encoding="utf-8") as f:
-        json.dump(performance, f, indent=2)
-    log.info(f"Wrote performance summary to {out_path}")
+        json.dump(perf, f, indent=2)
+    log.info(f"Performance written to {out_path}")
 
-def _plot_predictions(y_true: np.ndarray, y_pred: np.ndarray, out_path: Path):
-    """
-    Scatter plot of predicted vs. actual values with a 1:1 reference line.
-    """
+
+def _plot_predictions(
+    y_true: np.ndarray, y_pred: np.ndarray, out_path: Path
+) -> None:
+    """Scatter plot of predicted vs. actual values with a 1:1 line."""
     plt.figure(figsize=(6, 6))
-    plt.scatter(y_true, y_pred, alpha=0.7, edgecolor="k", linewidth=0.5)
+    plt.scatter(y_true, y_pred, alpha=0.6, edgecolor="k")
     max_val = max(y_true.max(), y_pred.max())
     min_val = min(y_true.min(), y_pred.min())
-    plt.plot([min_val, max_val], [min_val, max_val], "r--", label="1:1 line")
+    plt.plot([min_val, max_val], [min_val, max_val], "r--", lw=2)
     plt.xlabel("DFT formation energy (eV)")
     plt.ylabel("Predicted formation energy (eV)")
     plt.title("Predicted vs. Actual Defect Formation Energies")
-    plt.legend()
     plt.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(out_path, dpi=150)
+    plt.savefig(out_path)
     plt.close()
-    log.info(f"Saved prediction scatter plot to {out_path}")
+    log.info(f"Prediction scatter plot saved to {out_path}")
+
 
 # ----------------------------------------------------------------------
-# CLI entry point
+# Public entry point
 # ----------------------------------------------------------------------
-def main() -> None:
+def main(*args, **kwargs) -> None:
     """
-    Expected positional arguments:
-        1. Path to the full feature matrix CSV (used only to locate the
-           target column name – defaults to ``formation_energy``).
-        2. Path where the performance JSON should be written.
+    Entry point for model evaluation.
+
+    Supports two calling conventions:
+
+    * **CLI (three‑argument)** – ``python -m src.models.evaluate <train.csv>
+      <test.csv> <performance.json>`` (the form used by the pipeline).
+
+    * **Programmatic** – ``main(train_path=Path(...), test_path=Path(...),
+      performance_path=Path(...))``.
     """
-    if len(sys.argv) != 3:
-        sys.stderr.write(
-            "Usage: python -m src.models.evaluate <features_csv> <performance_json>\\n"
+    if args and kwargs:
+        raise RuntimeError(
+            "Provide either positional arguments *or* keyword arguments, not both."
         )
-        sys.exit(1)
 
-    features_csv = Path(sys.argv[1])
-    performance_json = Path(sys.argv[2])
+    # CLI style (three arguments)
+    if args:
+        if len(args) != 3:
+            raise RuntimeError(
+                "Usage: python -m src.models.evaluate <train.csv> <test.csv> <performance.json>"
+            )
+        train_path = Path(args[0])
+        test_path = Path(args[1])
+        performance_path = Path(args[2])
+    else:
+        # Programmatic style
+        try:
+            train_path = kwargs["train_path"]
+            test_path = kwargs["test_path"]
+            performance_path = kwargs["performance_path"]
+        except KeyError as exc:
+            raise RuntimeError(
+                "Programmatic call requires 'train_path', 'test_path', and 'performance_path' keyword arguments."
+            ) from exc
 
-    # ------------------------------------------------------------------
-    # 1. Determine the best model from CV metrics
-    # ------------------------------------------------------------------
-    cv_metrics_path = paths.data("processed", "cv_metrics.json")
-    cv_metrics = _load_cv_metrics(cv_metrics_path)
+    # Load CV metrics to decide which model to use.
+    cv_path = paths.data("processed", "cv_metrics.json")
+    cv_metrics = _load_cv_metrics(cv_path)
     best_model_name = _select_best_model(cv_metrics)
-
-    # ------------------------------------------------------------------
-    # 2. Load the selected model
-    # ------------------------------------------------------------------
     model_path = _model_path_for_name(best_model_name)
     model = _load_model(model_path)
 
-    # ------------------------------------------------------------------
-    # 3. Load the test split
-    # ------------------------------------------------------------------
-    test_path = paths.data("processed", "test.csv")
+    # Prepare test data
     X_test, y_test = _prepare_test_data(test_path)
 
-    # ------------------------------------------------------------------
-    # 4. Predict and compute basic metrics
-    # ------------------------------------------------------------------
+    # Predict and compute metrics
     y_pred = model.predict(X_test)
-
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    rmse = mean_squared_error(y_test, y_pred, squared=False)
     mae = mean_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
-    log.info(f"Test RMSE: {rmse:.4f}")
-    log.info(f"Test MAE: {mae:.4f}")
-    log.info(f"Test R²: {r2:.4f}")
+    # Bootstrap CI and paired t‑test
+    rmse_ci = _bootstrap_rmse_ci(y_test, y_pred)
+    p_val = _paired_t_test(y_test, y_pred)
 
-    # ------------------------------------------------------------------
-    # 5. Bootstrap confidence interval for RMSE
-    # ------------------------------------------------------------------
-    rmse_ci = _bootstrap_rmse_ci(y_test.values, y_pred, n_boot=10_000, ci=0.95)
-    log.info(f"95 % CI for RMSE: [{rmse_ci[0]:.4f}, {rmse_ci[1]:.4f}]")
-
-    # ------------------------------------------------------------------
-    # 6. Paired two‑sided t‑test
-    # ------------------------------------------------------------------
-    p_val = _paired_t_test(y_test.values, y_pred)
-    log.info(f"Paired t‑test p‑value: {p_val:.4g}")
-
-    # ------------------------------------------------------------------
-    # 7. Write performance JSON
-    # ------------------------------------------------------------------
+    # Save performance JSON
     _save_performance_json(
-        performance_json,
-        model_name=best_model_name,
-        rmse=rmse,
-        mae=mae,
-        r2=r2,
-        rmse_ci=rmse_ci,
-        p_value=p_val,
+        performance_path,
+        best_model_name,
+        rmse,
+        mae,
+        r2,
+        rmse_ci,
+        p_val,
     )
 
-    # ------------------------------------------------------------------
-    # 8. Generate scatter plot
-    # ------------------------------------------------------------------
-    figure_path = paths.figures("pred_vs_actual.png")
-    _plot_predictions(y_test.values, y_pred, figure_path)
+    # Plot predictions
+    plot_path = paths.figures("pred_vs_actual.png")
+    _plot_predictions(y_test, y_pred, plot_path)
 
-    # Final message for quickstart verification
-    print("Pipeline completed successfully")
 
 if __name__ == "__main__":
-    main()
+    # Forward CLI arguments (excluding the script name) to ``main``.
+    main(*sys.argv[1:])

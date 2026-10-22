@@ -1,12 +1,6 @@
 T001:
-  reason: "The required files exist and are non-trivial, but the module wiring is\
-    \ actually broken: `src/pipeline/run.py` calls `train_main(str(train_path), str(cv_metrics_path))`\
-    \ and `evaluate_main(str(train_path), str(test_path), str(performance_path))`,\
-    \ yet `src/models/train.py::main` and `src/models/evaluate.py::main` ignore their\
-    \ parameters and instead parse `sys.argv` (exiting with usage errors when `len(sys.argv)\
-    \ != 3`). Consequently `run()` \u2014 which the test `code/tests/test_pipeline_entry.py`\
-    \ asserts must return without raising \u2014 would abort at the training step,\
-    \ and there is no execution evidence"
+  reason: 'Requested task execution failed; rerun successfully: src/utils/checksum_all.py
+    exit=1; src/data/featurize.py exit=2; src/models/split.py exit=2'
   task: 9bd085d0d69277f6f406b544530dd9c474dc85831e967b80c7a41b0c99d4559a
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/utils/checksum_all.py

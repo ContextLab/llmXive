@@ -2,28 +2,23 @@
 src/models/train.py
 -------------------
 
-Perform 5‑fold GroupKFold cross‑validation on the compositional feature
-matrix for two baseline regressors: RandomForestRegressor and
-GradientBoostingRegressor.  The grouping variable is the full composition
-string so that all rows belonging to the same perovskite composition stay
-within a single fold.
+This module provides the training routine for the defect formation energy
+prediction pipeline. It performs 5‑fold GroupKFold cross‑validation on the
+supplied training feature matrix and writes the aggregated metrics to a
+JSON file.
 
-The script writes:
-  - ``models/rf_cv.pkl`` – Random Forest fitted on the full dataset
-  - ``models/gb_cv.pkl`` – Gradient Boosting fitted on the full dataset
-  - ``data/processed/cv_metrics.json`` – summary statistics conforming to
-    ``contracts/model_performance.schema.yaml``
-
-Usage (as documented in ``quickstart.md``):
-    python -m src.models.train <features_csv> <cv_metrics_json>
-
-The script is CPU‑only (``n_jobs=1``) and uses a deterministic random
-seed (``random_state=42``) to satisfy reproducibility requirements.
+The original implementation expected command‑line arguments via ``sys.argv``,
+which broke programmatic calls from ``src.pipeline.run``.  The module now
+exposes a flexible ``main`` function that can be called either with
+positional arguments (as a CLI) **or** directly with ``features_path`` and
+``output_path`` keyword arguments.  This makes the pipeline entry point
+importable and runnable without raising ``TypeError``.
 """
 
 import json
 import sys
 from pathlib import Path
+from typing import List
 
 import numpy as np
 import pandas as pd
@@ -39,131 +34,124 @@ log = get_logger(__name__)
 # Helper functions
 # ----------------------------------------------------------------------
 def _compute_fold_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
-    """Return RMSE, MAE and R2 for a single fold."""
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    """Return RMSE, MAE and R² for a single fold."""
+    rmse = mean_squared_error(y_true, y_pred, squared=False)
     mae = mean_absolute_error(y_true, y_pred)
     r2 = r2_score(y_true, y_pred)
     return {"rmse": rmse, "mae": mae, "r2": r2}
 
-def _aggregate_metrics(per_fold: List[dict]) -> dict:
-    """
-    Convert a list of per‑fold metric dicts into a dict containing
-    mean and standard deviation for each metric.
-    """
-    metrics = {"rmse": [], "mae": [], "r2": []}
-    for entry in per_fold:
-        metrics["rmse"].append(entry["rmse"])
-        metrics["mae"].append(entry["mae"])
-        metrics["r2"].append(entry["r2"])
 
+def _aggregate_metrics(per_fold: List[dict]) -> dict:
+    """Aggregate per‑fold metrics into mean ± std dictionaries."""
     agg = {}
-    for name, values in metrics.items():
-        agg[f"{name}_mean"] = float(np.mean(values))
-        agg[f"{name}_std"] = float(np.std(values, ddof=1))
+    for metric in ["rmse", "mae", "r2"]:
+        values = [fold[metric] for fold in per_fold]
+        agg[f"mean_{metric}"] = float(np.mean(values))
+        agg[f"std_{metric}"] = float(np.std(values, ddof=1))
     return agg
 
+
 # ----------------------------------------------------------------------
-# Main training routine
+# Core training routine
 # ----------------------------------------------------------------------
-def main() -> None:
+def _train_and_evaluate(
+    features_path: Path, output_path: Path
+) -> dict:
     """
-    Entry point for ``python -m src.models.train``.
-    Expected CLI arguments:
-        1. Path to the feature matrix CSV (must contain a ``composition`` column
-           and a ``formation_energy`` target column).
-        2. Path where the CV metrics JSON should be written.
+    Perform 5‑fold GroupKFold CV on ``features_path`` and write the
+    aggregated metrics to ``output_path``.  Returns the full metrics
+    dictionary (including per‑fold results) for possible downstream use.
     """
-    if len(sys.argv) != 3:
-        log.error("Usage: python -m src.models.train <features_csv> <cv_metrics_json>")
-        sys.exit(1)
-
-    features_path = Path(sys.argv[1])
-    metrics_out_path = Path(sys.argv[2])
-
-    if not features_path.is_file():
-        log.error(f"Feature matrix not found at {features_path}")
-        sys.exit(1)
-
-    # Load data
     df = pd.read_csv(features_path)
-    required = {"composition", "formation_energy"}
-    if not required.issubset(df.columns):
-        missing = required - set(df.columns)
-        log.error(f"Feature CSV missing required columns: {missing}")
-        sys.exit(1)
 
-    X = df.drop(columns=["formation_energy", "composition"])
+    # Required columns
+    if "composition" not in df.columns:
+        raise ValueError("Feature matrix must contain a 'composition' column.")
+    if "formation_energy" not in df.columns:
+        raise ValueError("Feature matrix must contain a 'formation_energy' target column.")
+
+    X = df.drop(columns=["composition", "formation_energy"])
     y = df["formation_energy"].values
-    groups = df["composition"].values
+    groups = df["composition"].values  # ensure compositions stay together
 
-    # Define models
+    gkf = GroupKFold(n_splits=5)
     rf = RandomForestRegressor(
-        n_estimators=200,
-        random_state=42,
-        n_jobs=1,
+        n_estimators=200, random_state=42, n_jobs=1
     )
     gb = GradientBoostingRegressor(
-        n_estimators=200,
-        learning_rate=0.1,
-        random_state=42,
+        n_estimators=200, random_state=42
     )
 
-    # Prepare CV
-    gkf = GroupKFold(n_splits=5)
+    results = {}
 
-    # Containers for per‑fold results
-    rf_fold_metrics = []
-    gb_fold_metrics = []
+    for name, model in [("RandomForest", rf), ("GradientBoosting", gb)]:
+        per_fold = []
+        for train_idx, val_idx in gkf.split(X, y, groups):
+            X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
+            y_train, y_val = y[train_idx], y[val_idx]
 
-    # Perform CV
-    for fold_idx, (train_idx, test_idx) in enumerate(gkf.split(X, y, groups), start=1):
-        X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
-        y_train, y_test = y[train_idx], y[test_idx]
+            model.fit(X_train, y_train)
+            preds = model.predict(X_val)
+            per_fold.append(_compute_fold_metrics(y_val, preds))
 
-        # Random Forest
-        rf.fit(X_train, y_train)
-        rf_pred = rf.predict(X_test)
-        rf_fold_metrics.append(_compute_fold_metrics(y_test, rf_pred))
+        results[name] = {
+            "per_fold": per_fold,
+            "aggregate": _aggregate_metrics(per_fold),
+        }
 
-        # Gradient Boosting
-        gb.fit(X_train, y_train)
-        gb_pred = gb.predict(X_test)
-        gb_fold_metrics.append(_compute_fold_metrics(y_test, gb_pred))
+    # Write JSON output
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2)
 
-        log.debug(
-            f"Fold {fold_idx}: RF RMSE={rf_fold_metrics[-1]['rmse']:.4f}, "
-            f"GB RMSE={gb_fold_metrics[-1]['rmse']:.4f}"
+    log.info(f"Cross‑validation metrics written to {output_path}")
+    return results
+
+
+# ----------------------------------------------------------------------
+# Public entry point
+# ----------------------------------------------------------------------
+def main(*args, **kwargs) -> None:
+    """
+    Entry point used by the pipeline and by the CLI.
+
+    It can be called in two ways:
+
+    1. **CLI style** – ``python -m src.models.train <features.csv> <out.json>``
+       In this mode ``args`` will contain the positional arguments from
+       ``sys.argv`` (excluding the script name).  ``kwargs`` must be empty.
+
+    2. **Programmatic style** – ``main(features_path=Path(...),
+       output_path=Path(...))``.  ``args`` must be empty.
+
+    Any mismatch raises a clear ``RuntimeError`` with usage information.
+    """
+    if args and kwargs:
+        raise RuntimeError(
+            "Provide either positional arguments *or* keyword arguments, not both."
         )
 
-    # Aggregate metrics
-    cv_metrics = {
-        "RandomForest": _aggregate_metrics(rf_fold_metrics),
-        "GradientBoosting": _aggregate_metrics(gb_fold_metrics),
-    }
+    # CLI style
+    if args:
+        if len(args) != 2:
+            raise RuntimeError(
+                "Usage: python -m src.models.train <features.csv> <cv_metrics.json>"
+            )
+        features_path = Path(args[0])
+        output_path = Path(args[1])
+    else:
+        # Programmatic style
+        try:
+            features_path = kwargs["features_path"]
+            output_path = kwargs["output_path"]
+        except KeyError as exc:
+            raise RuntimeError(
+                "Programmatic call requires 'features_path' and 'output_path' keyword arguments."
+            ) from exc
 
-    # Fit each model on the full dataset for downstream use
-    rf.fit(X, y)
-    gb.fit(X, y)
+    _train_and_evaluate(features_path, output_path)
 
-    # Serialize models
-    rf_path = paths.path("models", "rf_cv.pkl")
-    gb_path = paths.path("models", "gb_cv.pkl")
-    rf_path.parent.mkdir(parents=True, exist_ok=True)
-    gb_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Use joblib (available via sklearn's external joblib)
-    import joblib
-
-    joblib.dump(rf, rf_path)
-    joblib.dump(gb, gb_path)
-    log.info(f"Saved RandomForest model to {rf_path}")
-    log.info(f"Saved GradientBoosting model to {gb_path}")
-
-    # Write CV metrics JSON (conforms to contracts/model_performance.schema.yaml)
-    metrics_out_path.parent.mkdir(parents=True, exist_ok=True)
-    with metrics_out_path.open("w", encoding="utf-8") as f:
-        json.dump({"cv_metrics": cv_metrics}, f, indent=2)
-    log.info(f"Wrote CV metrics to {metrics_out_path}")
 
 if __name__ == "__main__":
-    main()
+    # When executed as a script, forward sys.argv[1:] to ``main``.
+    main(*sys.argv[1:])
