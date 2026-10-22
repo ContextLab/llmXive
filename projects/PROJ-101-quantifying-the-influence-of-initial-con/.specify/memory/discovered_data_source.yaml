@@ -3,11 +3,14 @@ intent: download coupled Lorenz oscillator synthetic trajectories with noise pyt
   package dataset
 required_fields:
 - time
-- oscillator_id
+- oscillator_index
 - x
 - y
 - z
 - noise_std
-cache_key: 58c6695015663a65762da95d1ff5de6d30b6f872e46fe3f7b34753f84f88038d
-searched_at: '2026-10-16T18:26:11.861144+00:00'
+- integration_method
+- tolerance
+- trajectory_id
+cache_key: 5103513d53c7bb6d1098928f8070a067e05a143860b22d08d3a67c9af7f04592
+searched_at: '2026-10-22T11:10:36.606677+00:00'
 retry_count: 1

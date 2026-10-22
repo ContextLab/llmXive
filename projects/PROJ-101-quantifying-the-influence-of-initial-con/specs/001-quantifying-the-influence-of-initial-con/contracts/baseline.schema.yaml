@@ -31,4 +31,10 @@ properties:
   algorithm:
     type: string
     description: "Algorithm used for baseline calculation (e.g., 'Rosenstein')."
+  baseline_variance:
+    type: number
+    description: "Estimated variance (or standard deviation squared) of the baseline across multiple runs."
+  sample_count:
+    type: integer
+    description: "Number of clean runs used to compute the baseline statistics."
 additionalProperties: false

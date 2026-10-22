@@ -16,42 +16,45 @@ required:
 properties:
   selected_model:
     type: string
-    description: "Regression model chosen (e.g., 'mixed_effects', 'tobit')."
+    description: "Regression model chosen..."
   noise_levels:
     type: array
     items:
       type: number
-    description: "List of σ_noise values included in the regression."
+    description: "List..."
   mean_deviation:
     type: number
-    description: "Mean Δλ across all bounded trials."
+    description: "Mean..."
   regression_coefficients:
     type: object
-    description: "Fitted parameters (intercept, σ coefficient, N coefficient, interaction, 1/T)."
+    description: "Fitted..."
     additionalProperties:
       type: number
   p_values:
     type: object
-    description: "Raw p‑values for each coefficient."
+    description: "Raw..."
     additionalProperties:
       type: number
   fdr_q_values:
     type: object
-    description: "Benjamini‑Hochberg q‑values for each coefficient (q ≤ 0.05 considered significant)."
+    description: "Benjamini..."
     additionalProperties:
       type: number
   effect_size:
     type: number
-    description: "Cohen's d for the primary noise coefficient."
+    description: "Cohen's..."
   newey_west_used:
     type: boolean
-    description: "True if Newey‑West HAC standard errors were applied after Durbin‑Watson detection."
+    description: "True if Newey‑West..."
   trial_count:
     type: integer
-    description: "Total number of bounded trials used in the regression."
+    description: "Total..."
   escape_probability:
     type: object
-    description: "Mapping σ_noise → estimated P(escape)."
+    description: "Mapping σ_noise..."
     additionalProperties:
       type: number
+  baseline_variance_used:
+    type: boolean
+    description: "Indicates whether baseline variance was incorporated into the regression."
 additionalProperties: false

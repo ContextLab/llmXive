@@ -12,33 +12,38 @@ required:
 properties:
   trial_id:
     type: string
-    description: "Unique identifier for the trial (e.g., 'N3_sigma0.01_t001')."
+    description: "Unique identifier..."
   system_dimension:
     type: integer
-    description: "Number of coupled Lorenz oscillators (N)."
+    description: "Number of..."
   noise_level:
     type: number
-    description: "Standard deviation of injected Gaussian noise (σ_noise)."
+    description: "Standard..."
   window_size:
     type: integer
     description: "Time window T used for FTLE calculation."
   lambda_max:
     type: number
-    description: "Calculated maximum Lyapunov exponent for this trial."
+    description: "Calculated..."
   deviation:
     type:
       - number
       - "null"
-    description: "Δλ = λ_max - baseline; null if status is 'unphysical' or 'non-chaotic'."
+    description: "Δλ..."
   status:
     type: string
     enum:
       - "valid"
       - "unphysical"
       - "non-chaotic"
-    description: "Trajectory status after boundedness and chaos checks."
+    description: "Trajectory status after boundedness and..."
   timestamp:
     type: string
     format: date-time
-    description: "ISO‑8601 timestamp of the FTLE calculation."
+    description: "ISO‑8601 timestamp..."
+  durbin_watson_p:
+    type:
+      - number
+      - "null"
+    description: "p‑value..."
 additionalProperties: false

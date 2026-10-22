@@ -11,26 +11,26 @@ required:
 properties:
   model_type:
     type: string
-    description: "Type of regression model (e.g., 'power_law', 'linear')"
+    description: "Type..."
   coefficients:
     type: object
-    description: "Fitted model parameters"
+    description: "Fitted..."
     additionalProperties:
       type: number
   r_squared:
     type: number
-    description: "Coefficient of determination"
+    description: "Coefficient..."
   p_values:
     type: object
-    description: "P-values for each coefficient"
+    description: "P-values..."
     additionalProperties:
       type: number
   scaling_exponent:
     type: number
-    description: "Exponent relating system dimension to bias magnitude"
+    description: "Exponent..."
   confidence_level:
     type: number
-    description: "Confidence level used for tests (e.g., 0.95"
+    description: "Confidence level..."
   n_trials:
     type: string
     description: "Total  ???  ?   "
