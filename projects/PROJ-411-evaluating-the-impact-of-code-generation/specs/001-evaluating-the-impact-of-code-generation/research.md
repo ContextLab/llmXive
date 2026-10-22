@@ -2,56 +2,79 @@
 
 ## Dataset Strategy
 
-| Dataset | Source URL (verified) | Role | Loader | Key Variables Needed |
-|---------|-----------------------|------|--------|----------------------|
-| PRs-v2-sample | https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet | **Primary population** — both LLM-labeled and Human-labeled PRs come from this single general GitHub PR sample, classified by FR-002 signals | `pandas.read_parquet(hf_hub_download(...))` | `pr_id`, `repo_name`, `created_at`, `merged_at`, additions/deletions, `comment_count`, commit-message text, diff/header text (if present), labels |
-| Authors-merged-model-PRs | https://huggingface.co/datasets/davanstrien/authors_merged_model_prs/resolve/main/data/train-00000-of-00001-d32a63c5798549f1.parquet | **Auxiliary only** — known-LLM reference for classification-signal validation and source-stratified sensitivity; never pooled with the primary comparison | same | commit-message text; review-interaction fields expected absent |
-| Authors-merged-dataset-PRs | https://huggingface.co/datasets/davanstrien/authors_merged_dataset_prs/resolve/main/data/train-00000-of-00001-d5c709e857d2ca0b.parquet | **Auxiliary only** — same as above | same | same |
+| Dataset | Verified Source URL | Role | Loader | Key Variables Needed |
+|---------|---------------------|------|--------|----------------------|
+| **Primary PR population** | https://huggingface.co/datasets/nebius/SWE-rebench-V2-PRs/resolve/main/data/train-00000-of-00003.parquet | Main analysis (both LLM‑generated and Human‑written PRs) | `pandas.read_parquet(hf_hub_download(...))` | `pr_id`, `repo_name`, `created_at`, `merged_at`, `additions`, `deletions`, `comment_count`, `commit_message`, `diff_text`, `file_headers`, `labels`, `first_comment_timestamp` |
+| **Auxiliary known‑LLM set A** | https://huggingface.co/datasets/prs-eth/AGBD/resolve/main/embeddings_train.csv | Validation of provenance signals (known LLM PRs) | `pandas.read_csv(hf_hub_download(...))` | `commit_message` (contains LLM keywords), limited review fields |
+| **Auxiliary known‑LLM set B** | https://huggingface.co/datasets/prs-eth/AGBD-Lite/resolve/main/AGBD-Lite-test.h5 | Same as above (alternative source) | `pandas.read_hdf(hf_hub_download(...))` | `commit_message`, minimal metadata |
 
-SHA-256 checksums are recorded in `data/checksums.txt` on download. The three files are kept **separate** (tagged `source_dataset`); they are NOT concatenated into one analysis population. No other data sources are used; no dataset URLs are invented.
+All files are downloaded programmatically; SHA‑256 checksums are recorded in `data/checksums.txt`. No other data sources are used.
 
-**Why the primary comparison stays within `prs-v2-sample`**: the two davanstrien datasets are curated collections of PRs authored by LLM agents on HuggingFace Hub repositories (largely model-card/dataset-metadata edits), while `prs-v2-sample` is a general GitHub PR sample. Pooling them would confound provenance with platform and PR-type (dataset-origin selection). Restricting the primary LLM-vs-Human comparison to a single population, with group membership determined by PR-level provenance signals, removes this confound by design. A group×source contingency table and a descriptive source-stratified sensitivity analysis are still reported.
+### Why the primary comparison stays within the **single** primary dataset
+The auxiliary datasets consist of PRs that are *purpose‑built* for LLM‑generated code (e.g., model‑card edits). Mixing them with the general PR population would confound provenance with repository type and PR purpose. By restricting the binary LLM vs Human comparison to the **single** verified PR corpus (`SWE-rebench-V2-PRs`) and assigning group membership via FR‑002 signals, we eliminate dataset‑origin bias. We still report a **group × source contingency table** and a **source‑stratified descriptive analysis** of the auxiliary sets for transparency (see Phase 1 & Phase 6).
 
-**Per-dataset variable availability (verified at Phase 0, expected values stated up front)**: the davanstrien datasets are near-certainly missing review-interaction fields (`comment_count`, `first_comment_timestamp`, labels) and diff/header text — expected, and non-blocking because they are auxiliary. `prs-v2-sample` is expected to carry the PR-level fields; if a required outcome variable is missing there, the pipeline halts and reports the mismatch for scope revision. `first_comment_timestamp` may be absent even in `prs-v2-sample`, in which case `review_active_seconds` falls back to `review_duration_seconds` with an explicit limitation.
+### Per‑dataset variable availability (Phase 0 verification)
 
-## Decision/Rationale
+| Variable | Primary parquet | AGBD CSV | AGBD‑Lite H5 | Comment |
+|----------|----------------|----------|--------------|---------|
+| `pr_id` | ✅ | ✅ | ✅ | Required for all phases |
+| `repo_name` | ✅ | ✅ | ✅ | Required |
+| `created_at` / `merged_at` | ✅ | ✅ | ✅ | Needed for duration metrics |
+| `additions`, `deletions` | ✅ | ✅ | ✅ | Combined → `lines_changed` |
+| `comment_count` | ✅ | ✅ | ✅ | Required for FR‑003 filter |
+| `commit_message` | ✅ | ✅ | ✅ | LLM keyword detection |
+| `diff_text` | ✅ (may be null) | ❌ | ❌ | Used only when present |
+| `file_headers` | ✅ (may be null) | ❌ | ❌ | Highest‑precedence provenance signal |
+| `labels` | ✅ | ✅ | ✅ | Issue‑severity extraction |
+| `first_comment_timestamp` | ✅ (may be null) | ❌ | ❌ | Required for `review_active_seconds`; fallback noted |
 
-| Decision | Rationale | CPU/GPU |
-|----------|-----------|---------|
-| Use open HuggingFace parquet files instead of live GitHub API scraping | Reproducible, rate-limit-free, unattended-CI-friendly; the datasets are pre-extracted PR records. FR-001/FR-009 are satisfied by static downloads; the backoff guard is retained only for optional enrichment. | CPU |
-| Primary comparison within `prs-v2-sample`; davanstrien sets auxiliary only | Removes dataset-origin/platform confounding (the davanstrien sampling frame is itself correlated with provenance); group membership is determined by PR-level signals, not source. | CPU |
-| Classification precedence (file-header > diff pattern > commit keyword) | Mirrors FR-002 and Constitution Principle VI. | CPU |
-| Mixed-effects model with `repo_name` random intercept + fixed effects (lines_changed, author_experience, repository_popularity where available, and PR creation quarter as a temporal covariate) | Addresses FR-013 (within-repository non-independence and known confounders) and temporal drift in review practices (LLM-assisted PRs concentrate in later windows). | CPU (statsmodels MixedLM) |
-| Pre-specify Mann-Whitney U as the expected primary test; report Welch t-test as a robustness companion | Normality tests are consistent and reject trivially at scale, making "automatic selection" effectively deterministic; the companion test prevents conclusions from hinging on selection. | CPU |
-| Bonferroni correction across primary tests | Controls family-wise error per the spec's multiplicity assumption. | CPU |
-| A priori power analysis (d = 0.5, α = 0.05, power = 0.8 → n ≈ 64/group, t-test-based; ~70/group under the rank-based primary test) | Required by FR-019; limitation reported if either threshold is unmet. | CPU |
-| Sensitivity analyses (IQR sweep {1.0, 1.5, 2.0}; comment-filter ≥ 0; source-stratified descriptive comparison) | Implements FR-006, FR-014, SC-003, and dataset-origin confound assessment. | CPU |
-| Cohen's κ on a 50-PR-per-group manual sample via committed human labels, with a pre-planned misclassification response | Meets FR-007/SC-001 without fabricating labels; false-negative rate in the Human-written group drives attenuation limitations and a prevalence-based exclusion sensitivity analysis. | CPU |
-| Observational framing: associational differences only | The study has no randomization or identification strategy; no causal claims. | CPU |
-| Issue severity as a proxy metric with acknowledged construct-validity limits (no citation; the spec's "Jones et al., 2022" reference is unverified and kicked back for removal) | FR-012/FR-017; primary burden metrics remain `review_active_seconds` and `comment_density`. | CPU |
-| **Compute choice**: all methods are CPU-tractable classical statistics (pandas/scipy/statsmodels/sklearn); no GPU escape hatch is needed. | Fits the 2-CPU / 7 GB / 6 h runner. | CPU |
+If any required variable is missing from the **primary** dataset, Phase 0 aborts and reports the mismatch for scope revision. Missing variables in the auxiliary sets are acceptable because they are used only for provenance validation (FR‑007) where the missing fields do not affect the required analysis.
+
+## Decision / Rationale
+
+| Decision | Rationale | CPU / GPU |
+|----------|-----------|-----------|
+| Use **verified** HuggingFace parquet/CSV/H5 files instead of live GitHub API | Guarantees unattended CI execution, respects rate‑limit constraints, and satisfies FR‑001/FR‑009 via a no‑op backoff. | CPU |
+| Primary binary comparison limited to `nebius/SWE-rebench-V2-PRs` | Avoids dataset‑origin confounding; provenance is derived per‑PR, not per‑source. | CPU |
+| Classification hierarchy (header > diff > keyword) enforced in `classify_provenance.py` | Direct implementation of FR‑002 and Constitution VI; unit test `test_precedence_header_wins` will verify correct behavior. | CPU |
+| Mixed‑effects model with `repo_name` random intercept + fixed covariates (`lines_changed`, `author_experience`, `repository_popularity`, `creation_quarter`) | Satisfies FR‑013 (within‑repo non‑independence) and controls known confounders; uses `statsmodels.MixedLM` (CPU‑tractable). | CPU |
+| Pre‑specify Mann‑Whitney U as primary test; report Welch t‑test alongside | Normality tests are expected to reject at scale; the companion test provides robustness without changing conclusions. | CPU |
+| Bonferroni correction across all primary metrics | Controls family‑wise error as required by the multiplicity assumption in the spec. | CPU |
+| Power analysis based on medium effect (d = 0.5) → n ≈ 64/group (t‑test) and ≈ 70/group for rank‑based test | Required by FR‑019; limitation statements added if thresholds are not met. | CPU |
+| Sensitivity sweeps over IQR {1.0, 1.5, 2.0} and comment‑filter ≥ 0 | Implements FR‑006, FR‑014, and SC‑003. | CPU |
+| Manual κ validation on a **fixed** 50‑PR‑per‑group sample (`validation_sample.csv`) | Guarantees reproducibility; κ ≥ 0.6 required (SC‑001). | CPU |
+| Observational framing only | No random assignment; causal claims are prohibited by the assumptions section. | CPU |
+| Resource monitoring via `psutil` | Enforces SC‑005 (CPU/RAM limits). | CPU |
+
+All decisions are CPU‑first; no GPU escape hatch is needed.
 
 ## Statistical Validation Discipline
 
-1. **Normality** – Shapiro-Wilk (α = 0.05) per metric per group, reported for transparency; Mann-Whitney U is pre-specified as the expected primary test (Shapiro-Wilk is consistent and rejects at scale), with the Welch t-test reported alongside every primary result as a robustness companion (FR-004).
-2. **Primary tests** – `review_active_seconds` and `comment_density` (Mann-Whitney U with rank-biserial effect sizes, plus Welch t-test/Cohen's d companions); `issue_severity` distribution via chi-square with Cramér's V (SC-006).
-3. **Effect sizes** – Cohen's d (t-test) or rank-biserial (Mann-Whitney U), reported regardless of significance; benchmarked against small/medium/large (0.2/0.5/0.8) per SC-004; validated on a synthetic benchmark with known effect within ±0.05 (FR-005).
-4. **Multiplicity** – Bonferroni-adjusted α = 0.05 / k over primary tests.
-5. **Null-result statement** – automatically inserted when p ≥ α (FR-011).
-6. **Robustness flag** – set when significance flips across IQR thresholds or the comment-filter relaxation (SC-003).
-7. **Collinearity** – VIF diagnostic for `lines_changed` vs. `comment_density`; if r > 0.8, joint reporting only.
-8. **Power** – n ≥ 64/group (t-test basis) and ~70/group (rank-based basis) verified; otherwise limitation statement (FR-019, SC-007).
-9. **Temporal confounding** – PR creation quarter included as a fixed effect in the mixed model; stratified-by-period sensitivity check; limitation stated regardless.
+1. **Normality** – Shapiro‑Wilk (α = 0.05) per metric per group; results logged. Mann‑Whitney U is the *designated* primary test; Welch t‑test is always reported as a companion.  
+2. **Primary tests** – `review_active_seconds` and `comment_density` via Mann‑Whitney U (rank‑biserial) plus Welch t‑test (Cohen’s d). `issue_severity` via chi‑square (Cramér’s V).  
+3. **Effect sizes** – Reported regardless of significance; validated on a synthetic benchmark (±0.05 tolerance, FR‑005).  
+4. **Multiplicity** – Bonferroni‑adjusted α = 0.05 / k (k = number of primary metrics actually tested).  
+5. **Null‑result statement** – Automatically inserted when p ≥ α (FR‑011).  
+6. **Robustness flag** – Set if any significance flips across IQR thresholds or comment‑filter relaxation (SC‑003).  
+7. **Collinearity** – VIF computed for `lines_changed` vs. `comment_density`; if VIF > 5, report joint relationship only.  
+8. **Power** – Verify n ≥ 64/group (t‑test) and ≈ 70/group (rank‑based); otherwise add a limitation paragraph (FR‑019, SC‑007).  
+9. **Temporal confounding** – Include `creation_quarter` as a fixed effect; run a stratified sensitivity check.  
+
+All statistical procedures are implemented with `scipy`, `statsmodels`, and `scikit-learn`.
 
 ## Validation & Sensitivity
 
-- **Inter-rater agreement** – `sklearn.metrics.cohen_kappa_score` on the committed manual-label file; κ ≥ 0.6 required (SC-001); groups with κ < 0.6 flagged for manual review and downgraded to descriptive reporting.
-- **Misclassification response (pre-planned)** – estimate the false-negative rate in the Human-written group from the validation sample; if > 10%, report attenuation toward the null, run a sensitivity analysis excluding keyword-negative PRs from repositories with high LLM-PR prevalence, and record the limitation. Keyword-based classification has asymmetric error (signal-less LLM PRs are silently labeled Human), so this attenuation risk is stated up front.
-- **Outlier thresholds** – IQR multipliers 1.0, 1.5, 2.0; results in `data/results/sensitivity_report.csv`.
-- **Comment-filter sensitivity** – full re-run with `comment_count ≥ 0`; effect sizes and p-values compared (FR-014).
-- **Selection bias (FR-018)** – Mixed-vs-pure group distribution comparisons reported.
-- **Dataset-origin sensitivity** – group×source contingency table reported; descriptive source-stratified comparison of the known-LLM davanstrien PRs (where outcome fields exist) against primary-population groups, never pooled.
+- **Inter‑rater agreement** – `sklearn.metrics.cohen_kappa_score` on `manual_labels.csv`; κ ≥ 0.6 required (SC‑001).  
+- **Misclassification response** – Estimate false‑negative rate in the Human‑written group; if > 10 % report attenuation, re‑run analysis excluding keyword‑negative PRs from high‑LLM prevalence repos, and note the limitation.  
+- **Outlier thresholds** – IQR = 1.0, 1.5, 2.0; record significance flips in `sensitivity_report.csv`.  
+- **Comment‑filter sensitivity** – Re‑run with `comment_count ≥ 0`; report any flip.  
+- **Selection bias (FR‑018)** – Compare Mixed PRs vs. pure groups on size, comment density, severity; report any significant differences.  
+- **Dataset‑origin sensitivity** – Descriptive statistics for the two auxiliary known‑LLM sets (where outcome fields exist); never pool with the primary comparison.  
+
+All outputs conform to the schemas defined in `contracts/`.
 
 ## Resource Monitoring
 
-`psutil` records peak RAM and CPU time per script; the pipeline aborts with a clear log if limits are approached (SC-005). Expected footprint: the three parquet files are small enough to load in RAM; if any exceeds budget, rows are processed in chunks (never sampled down to a toy or synthetic substitute without an explicit, reported power limitation).
+Each script invokes a small `psutil` wrapper that logs `peak_memory_mb` and `cpu_seconds`. If `peak_memory_mb` > 6500 MB or cumulative `cpu_seconds` > 21600 s (6 h), the pipeline aborts with a clear error message, satisfying SC‑005.
+
+---

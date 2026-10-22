@@ -1,19 +1,18 @@
 status: none
-intent: GitHub Pull Request provenance dataset PRs-v2-sample GHTorrent python package
-  dataset
+intent: GitHub pull request metadata dataset PRs-v2-sample GHTorrent python package
 required_fields:
-- repository_name
 - pull_request_id
+- repository_full_name
 - creation_timestamp
 - merge_timestamp
 - comment_count
-- additions
-- deletions
+- lines_added
+- lines_deleted
 - total_lines_changed
-- review_timestamp_list
+- review_timestamp
 - provenance_label
 - commit_message_keywords
 - diff_pattern_matches
-cache_key: 5ff6eaba460f3d0586ae647645fb6140c62f87022464a5ebe89ab39a455cf003
-searched_at: '2026-10-22T23:17:29.965366+00:00'
+cache_key: 61e29642e24de8d992d42fcc0925e652529fdb6de9f4bd803d9edb55017f6a76
+searched_at: '2026-10-22T23:20:12.435253+00:00'
 retry_count: 1

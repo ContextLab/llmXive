@@ -3,65 +3,71 @@
 Reproduce the full analysis on a fresh GitHub Actions runner (or locally).
 
 ## Prerequisites
-
-- Python 3.11, internet access (HuggingFace downloads), `git`.
+- Python 3.11
+- Internet access (to download HuggingFace datasets)
+- Git
 
 ## Steps
 
 ```bash
+# Clone the repository
 git clone <repo-url> && cd <repo>
+
+# Create a virtualenv
 python -m venv .venv && source .venv/bin/activate
+
+# Install dependencies
 pip install -r code/requirements.txt
 
-# 0. Download + checksum + per-dataset schema mapping (validates against
-#    contracts/raw_prs.schema.yaml)
+# 0. Download raw data, verify checksums, and generate schema map
 python code/download_data.py
 
-# 1. Provenance classification within the primary population
-#    (FR-002, FR-008, FR-010, FR-018) -> classified_prs.csv (intermediate)
+# 1. Classify provenance (FR‑002, FR‑008, FR‑010)
 python code/classify_provenance.py \
-    --input data/raw/prs-v2-sample.parquet \
+    --input data/raw/swe_rebench_prs.parquet \
     --output data/processed/classified_prs.csv
 
-# 2. Metrics (writes the SSoT processed_prs.csv; FR-020)
+# 2. Compute metrics and create the SSoT (FR‑020)
 python code/compute_metrics.py \
     --input data/processed/classified_prs.csv \
     --output data/processed/processed_prs.csv
 
-# 3. Outlier removal + filter variants (sole writer of all filtered files:
-#    filtered_prs.csv at IQR 1.5, plus IQR 1.0/2.0 and comment-relaxed variants)
-python code/outlier_filter.py --iqr 1.5
+# 3. Outlier removal & filter variants (FR‑003, FR‑006, FR‑014)
+python code/outlier_filter.py \
+    --iqr 1.5  # produces filtered_prs_iqr1.5.csv, plus 1.0/2.0 and relaxed variants
 
-# 4. Statistical analysis (power check, pre-specified Mann-Whitney U primary
-#    + Welch companion, effect sizes, Bonferroni, mixed-effects model with
-#    temporal covariate, chi-square) -> stats_summary.csv
+# 4. Statistical analysis (power, normality, tests, mixed‑effects, Bonferroni)
 python code/statistical_analysis.py \
-    --input data/processed/filtered_prs.csv \
+    --input data/processed/filtered_prs_iqr1.5.csv \
     --results data/results/stats_summary.csv
 
-# 5. Validation: emits a labeling worksheet; computes Cohen's kappa and the
-#    pre-planned misclassification response if
-#    data/processed/manual_labels.csv (human labels) is committed
+# 5. Validation (Cohen's κ) – generate labeling worksheet and compute κ
 python code/validation.py \
-    --input data/processed/filtered_prs.csv \
+    --input data/processed/filtered_prs_iqr1.5.csv \
     --report data/results/validation_report.md
 
-# 6. Sensitivity sweep (IQR 1.0/1.5/2.0, comment filter >= 0,
-#    source-stratified descriptive comparison)
+# 6. Sensitivity analyses (IQR sweep, comment‑filter, source‑stratified)
 python code/sensitivity.py --mode full
 
-# 7. Final report (tables, figures, null-result and limitation statements)
+# 7. Assemble final report
 python code/report.py \
     --stats data/results/stats_summary.csv \
     --validation data/results/validation_report.md \
     --output report.md
 ```
 
-## Expected outputs
+## Expected Outputs
 
-- `data/processed/processed_prs.csv` — SSoT, written solely by `compute_metrics.py`, conforms to `contracts/processed_prs.schema.yaml`.
-- `data/processed/filtered_prs.csv` (plus `filtered_prs_iqrStandard.csv`, `filtered_prs_iqr2.0.csv`, `filtered_prs_relaxed.csv`) — written solely by `outlier_filter.py`.
-- `data/results/stats_summary.csv` — conforms to `contracts/statistical_results.schema.yaml`.
-- `data/results/sensitivity_report.csv` — IQR sweep, comment-filter sensitivity, and source-stratified results with robustness flags.
-- `data/results/validation_report.md` — Cohen's κ and misclassification response, or an explicit pending-validation statement.
-- `report.md` + `data/results/figures/` — final tables, figures, null-result statements, and limitations (power, selection bias, misclassification attenuation, missing covariates, temporal confounding, dataset origin, observational framing).
+| Path | Description |
+|------|-------------|
+| `data/processed/processed_prs.csv` | Single Source of Truth (SSoT); conforms to `contracts/processed_prs.schema.yaml`. |
+| `data/processed/filtered_prs_iqr1.5.csv` (and variants) | Filtered datasets for primary analysis and sensitivity checks. |
+| `data/results/stats_summary.csv` | Statistical test results; conforms to `contracts/statistical_results.schema.yaml`. |
+| `data/results/sensitivity_report.csv` | IQR & comment‑filter sweep results, robustness flags. |
+| `data/results/validation_report.md` | Cohen’s κ, misclassification response, or pending‑validation note. |
+| `data/results/group_source_contingency.csv` | Provenance × source contingency table (required for FR‑018). |
+| `report.md` + `data/results/figures/` | Final manuscript‑ready report with tables, box‑plots, and limitation statements. |
+
+All files are written under the `data/` hierarchy as required by the plan and contracts.
+
+---
