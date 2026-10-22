@@ -1,12 +1,7 @@
 last_used: david-krakauer
-last_used_at: '2026-10-22T02:12:11.454586+00:00'
-last_outcome: committed
+last_used_at: '2026-10-22T04:05:15.500592+00:00'
+last_outcome: librarian_held
 history:
-- slug: john-von-neumann
-  started_at: '2026-06-28T17:30:54.861351+00:00'
-  ended_at: '2026-06-28T17:56:41.961948+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: linus-pauling
   started_at: '2026-06-28T17:56:41.961948+00:00'
   ended_at: '2026-06-28T18:26:34.288037+00:00'
@@ -1340,3 +1335,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-492-evaluating-the-statistical-validity-of-p/reviews/research/david-krakauer-simulated__2026-10-22__research.md
+- slug: eric-kandel
+  started_at: '2026-10-22T02:12:11.454586+00:00'
+  ended_at: '2026-10-22T04:05:15.500592+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-069-statistical-analysis-of-sentiment-drift-/reviews/research/_held/eric-kandel-simulated__2026-10-22__research.md
