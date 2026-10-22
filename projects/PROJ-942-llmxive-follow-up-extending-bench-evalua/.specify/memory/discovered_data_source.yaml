@@ -1,14 +1,12 @@
 status: none
-intent: "download \u03C0\u2011Bench interaction traces dataset from HuggingFace python\
-  \ package dataset"
+intent: "\u03C0-Bench interaction traces HuggingFace dataset python package dataset"
 required_fields:
 - task_id
-- dialogue_turns
 - turn_index
 - speaker
-- utterance
-- timestamp
-- ground_truth_intent
-cache_key: dc5e1819f277af84ced6c5c10192eaac9843b28f0cfe98b743397bda59ee77d6
-searched_at: '2026-10-22T06:13:38.407508+00:00'
+- utterance_text
+- ground_truth_intent_label
+- intent_annotation_available
+cache_key: eb014bc786a05048de86bc617ecc58242f74f9805c5c552e505db4043e82b4b8
+searched_at: '2026-10-22T07:19:17.659774+00:00'
 retry_count: 1
