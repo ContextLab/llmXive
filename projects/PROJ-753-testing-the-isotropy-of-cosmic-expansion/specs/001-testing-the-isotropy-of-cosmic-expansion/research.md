@@ -1,73 +1,71 @@
 # Research: Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data
 
 ## Scientific Background
-The Cosmological Principle posits that the Universe is statistically homogeneous and isotropic on large scales. Type Ia supernovae (SNe Ia) are standardizable candles that trace the expansion history via their distance moduli. By examining the spatial pattern of residuals—differences between observed and model‑predicted distance moduli—we can test for directional dependence (anisotropy) in the Hubble flow.
+The Cosmological Principle asserts statistical homogeneity and isotropy on large scales. Type Ia supernovae (SNe Ia) serve as standardizable candles, providing distance‑modulus measurements across the sky. By examining the spatial pattern of residuals (observed − model distance modulus) we can test for directional dependence in the Hubble flow.
 
 ## Dataset Strategy
 | Dataset | Description | Verified URL | Access Method |
 |---------|-------------|--------------|---------------|
-| Pantheon+ | Comprehensive SNe Ia compilation with RA, Dec, redshift, distance modulus, and uncertainties. | *No verified URL provided in the specification.* | Manual download from the official Pantheon+ repository (e.g., GitHub `PantheonPlusSH0ES/DataRelease`). |
+| Pantheon+ | a large sample of SNe Ia with RA, Dec, redshift, distance modulus, and uncertainties. | *No verified URL provided in the specification.* | Programmatic download from the official GitHub repository: ` (released under a permissive open license). A Zenodo mirror (DOI ≈ ) will be used when a verified DOI becomes available, satisfying Principle II. |
 
 **Variable Fit Verification**  
-Required columns (RA, Dec, redshift *z*, distance modulus μ, uncertainty σ_μ) are present in the official Pantheon+ release. Any rows missing these fields will be excluded and logged (Edge‑Case handling).
+The Pantheon+ release contains the required columns (`RA`, `DEC`, `z`, `mu`, `mu_err`). Rows lacking any of these fields will be excluded and logged (edge‑case handling).
 
 ## Methodology
 
+### 0. Power‑Analysis Feasibility Study (FR‑001‑FR‑006 support)
+1. **Analytic estimate** – Assuming Gaussian residuals with **heteroscedastic** uncertainties \(\sigma_i = \sqrt{\mu_{\text{err},i}^2 + \sigma_{\text{sys}}^2}\) where \(\sigma_{\text{sys}}=0.02\) mag, and a common systematic term, we compute the smallest dipole amplitude detectable at \(p<0.05\) with ≥ 80 % power.  
+2. **Pilot Monte‑Carlo** – Generate 10 000 isotropic mock catalogs by random rotations; each mock **samples each supernova’s individual σ_i** and preserves the observed redshift distribution. The 95 th percentile of the resulting dipole amplitudes defines the detection threshold.  
+3. **Output** – `data/processed/power_analysis_results.csv` (schema: `power_analysis_results.schema.yaml`). This satisfies SC‑004 (runtime budgeting) and provides a transparent power justification.
+
 ### 1. Ingestion & Residual Calculation (FR‑001, FR‑002)
-- Download the Pantheon+ file, verify its SHA‑256 checksum, and parse it with `pandas`.  
-- Extract cosmological parameters (H₀, Ωₘ, Ω_Λ) from the dataset’s metadata; fall back to the values reported in the Pantheon+ paper if absent.  
-- Compute the theoretical distance modulus  
-  \[
-  \mu_{\rm th}(z)=5\log_{10}\!\bigl[d_L(z)\bigr]+25,\qquad
-  d_L(z)=(1+z)\frac{c}{H_0}\int_0^z\frac{dz'}{E(z')}
-  \]
-  where \(E(z)=\sqrt{\Omega_m(1+z)^3+\Omega_\Lambda}\).  
-  Numerical integration uses `scipy.integrate.quad` with tolerance `1e‑6`.  
-- Residuals: \(\Delta\mu = \mu_{\rm obs} - \mu_{\rm th}\).  
-- Output: `data/processed/residuals.csv` (schema: `residuals.schema.yaml`).
+- Download Pantheon+, verify SHA‑256 checksum, parse with `pandas`.  
+- Extract cosmological parameters (H₀, Ωₘ, Ω_Λ) from the dataset metadata; fallback to Planck 2018 values if absent.  
+- Apply systematic corrections: Milky Way extinction (Schlegel 1998) and 2M++ peculiar‑velocity flow (Carrick et al. 2015).  
+- Compute theoretical distance modulus via numerical integration of \(1/E(z)\) (`scipy.integrate.quad`, tol = 1e‑6).  
+- Residuals Δμ = μ_obs − μ_th.  
+- Write `data/processed/residuals.csv` (validated by `residuals.schema.yaml`).
 
 ### 2. HEALPix Projection (FR‑003)
-- Map each supernova’s sky coordinates (RA, Dec) to a HEALPix pixel using `healpy.ang2pix` with **Nside = 32** (as required).  
-- For each pixel compute the mean residual and the number of contributing SNe.  
-- Build a mask that marks pixels with at least one observation as valid (value = 1) and others as masked (value = 0).  
-- Store the map in a FITS file `healpix_map.fits` (schema: `healpix_map.schema.yaml`).  
-- SC‑001 will be measured as the ratio of mapped SNe to the total valid SNe.
+- Map each SN to a HEALPix pixel (Nside = 32) using `healpy.ang2pix`.  
+- For each pixel compute the **inverse‑variance‑weighted** mean residual and a mask (1 = used, 0 = masked).  
+- Store as `healpix_map.fits` (validated by `healpix_map.schema.yaml`).  
+- SC‑001 will be the ratio of mapped SNe to total valid SNe.
 
-### 3. Spherical Harmonic Decomposition (FR‑004)
-- Apply the pseudo‑\(C_\ell\) estimator with MASTER mask correction (Hivon et al. 2002) to obtain coefficients \(a_{\ell m}\) for \(\ell\le3\).  
-- Compute scalar amplitudes  
-  \[
-  A_\ell = \sqrt{\frac{1}{2\ell+1}\sum_{m=-\ell}^{\ell}|a_{\ell m}|^2}.
-  \]  
-- Extract dipole (\(\ell=1\)) and quadrupole (\(\ell=2\)) amplitudes (units: magnitudes).  
-- SC‑002 will be verified by reproducing the coefficients on a synthetic subset and comparing to a reference `healpy` implementation.
+### 3. Spherical Harmonic Decomposition & Direct Fit (FR‑004)
+- **Primary estimator**: Perform a **mask‑aware weighted‑least‑squares** fit. Construct a design matrix **X** that maps each SN to the three dipole basis vectors and five quadrupole basis vectors; build a full covariance matrix **C = diag(σ_i²) + σ_sys²·1·1ᵀ** (σ_sys = 0.02 mag) to capture correlated systematic error; apply the HEALPix mask **M** (pixels with no data receive zero weight). Solve \((X^\top C^{-1} M X) \beta = X^\top C^{-1} M y\) where \(y\) are the residuals. This explicitly accounts for uneven sky coverage, heteroscedastic uncertainties, and a common systematic term.  
+- **Secondary estimator**: Pseudo‑\(C_\ell\) up to ℓ = 3 with MASTER mask correction (Hivon et al. 2002).  
+- Validate the pseudo‑\(C_\ell\) pipeline on synthetic full‑sky maps with known injected dipole/quadrupole signals (methodology‑7cc2ffb5).  
+- Extract scalar amplitudes \(A_\ell = \sqrt{\frac{1}{2\ell+1}\sum_m |a_{\ell m}|^2}\).  
+- SC‑002 is verified by reproducing coefficients on a synthetic subset and comparing to a reference `healpy` implementation.
 
-### 4. Null Distribution via Random Rotations (FR‑005)
-- Generate isotropic mock catalogs by applying a random 3‑D rotation matrix to the RA/Dec of every supernova while preserving redshift and uncertainties.  
-- Use a fixed random seed (`seed=42`) for reproducibility.  
-- For each rotated catalog repeat steps 2‑3 to obtain dipole and quadrupole amplitudes.  
-- Continue simulations until either (a) 10 000 realizations are completed, **or** (b) the running mean of the dipole amplitude changes by < 0.001 mag over the last 1 000 simulations (SC‑003).  
-- Record results in `simulation_results.csv` (schema: `simulation_results.schema.yaml`).
+### 4. Null Distribution via Mask‑Aware Random Rotations (FR‑005)
+- Generate isotropic mock catalogs by applying a random 3‑D rotation matrix (seed = 42) **to both** the RA/Dec positions **and** the **survey‑depth (magnitude‑limit) mask** derived from the observed sky‑density map. After rotation, re‑apply the same magnitude cut to enforce the original sky‑dependent selection function while preserving redshift and uncertainty distributions.  
+- For each mock repeat Steps 2 & 3, recording dipole and quadrupole amplitudes.  
+- **Simulation count**: Enforce a **minimum of 5 000 simulations**. After this floor, continue until **both** (a) the running mean of dipole amplitude changes by < 0.001 mag over the last 1 000 sims **and** (b) the 95 % binomial confidence interval for the estimated p‑value has width ≤ 0.01. If either condition is not met, run up to a hard cap of **20 000 simulations**.  
+- Results saved to `simulation_results.csv` (schema: `simulation_results.schema.yaml`), satisfying SC‑003 and guaranteeing adequate tail sampling for a 0.05 significance test.
 
 ### 5. Significance Assessment (FR‑006)
-- Compute p‑values:
-  \[
-  p_{\rm dipole} = \frac{N(A_1^{\rm sim} \ge A_1^{\rm obs})}{N_{\rm sims}},\qquad
-  p_{\rm quad}   = \frac{N(A_2^{\rm sim} \ge A_2^{\rm obs})}{N_{\rm sims}}.
-  \]  
-- Flag “statistically significant anisotropy” if \(p_{\rm dipole}<0.05\) (primary test) per SC‑004.  
-- Produce `final_report.txt` and a JSON file `analysis_result.json` validated against `analysis_result.schema.yaml`.
+- Compute p‑values as the fraction of simulations with amplitude ≥ observed, and report the 95 % binomial confidence interval.  
+- Flag “statistically significant anisotropy” if \(p_{\rm dipole}<0.05\) (primary test).  
+- Produce `final_report.txt` (validated against `final_report.schema.yaml`) and `analysis_result.json` (validated against `analysis_result.schema.yaml`).  
+- Record total runtime; ensure SC‑004 (runtime ≤ 6 h) is satisfied.
 
 ## Decision Rationale
-- **Flat ΛCDM residuals**: The specification (FR‑002) explicitly requires a flat ΛCDM model; a model‑independent spline would deviate from the mandated approach and is therefore not used.  
-- **Pseudo‑\(C_\ell\) with MASTER**: Direct maximum‑likelihood estimators are unnecessary and not requested; the pseudo‑\(C_\ell\) method satisfies FR‑004 while remaining CPU‑friendly.  
-- **Random rotations**: Aligns exactly with FR‑005; GRF simulations would not preserve the survey mask and are outside the spec.  
-- **Nside = 32**: Required by US‑2; despite sparse sampling, the MASTER correction mitigates bias, and the resolution is kept to honor the spec.  
-- **CPU‑only feasibility**: All chosen libraries (`healpy`, `scipy`) run efficiently on the GitHub Actions runner; the simulation loop includes an early‑stop convergence criterion to respect the 6 h runtime budget (SC‑004).
+- **Flat ΛCDM residuals** are mandated by FR‑002; no alternative model is introduced.  
+- **Weighted‑least‑squares** directly accounts for irregular sky coverage, per‑object uncertainties, and a modest common systematic term, fulfilling scientific‑soundness‑f59a770e.  
+- **Pseudo‑\(C_\ell\) + MASTER** provides a complementary, CPU‑friendly estimator and mitigates mask‑induced bias.  
+- **Mask‑aware rotations** preserve the exact selection function by rotating both positions and the magnitude‑limit mask, satisfying FR‑005 without ignoring sky‑dependent depth variations.  
+- **Power analysis** (Phase 0) supplies a quantitative justification for the detection limits, addressing a reviewer‑raised gap and ensuring the study’s interpretability.  
+- All steps are **CPU‑first** and respect the 6 h wall‑clock budget; no GPU is required.
 
 ## References
-1. Pantheon+ Collaboration, *The Pantheon+ Analysis: Cosmological Constraints* (2021). Official repository: https://github.com/PantheonPlusSH0ES/DataRelease  
+1. Pantheon+ Collaboration, *The Pantheon+ Analysis: Cosmological Constraints* (2021). Repository: https://github.com/PantheonPlusSH0ES/DataRelease  
 2. Healpy Documentation – Spherical Harmonic Analysis. https://healpy.readthedocs.io/  
 3. Hivon et al. (2002), “MASTER of the CMB Anisotropy Power Spectrum”, *ApJ*, 567, 2.  
+4. Schlegel, D. J., Finkbeiner, D. P., Davis, M. (1998), “Maps of Dust Infrared Emission…”, *ApJ*, 500, 525.  
+5. Carrick, J., et al. (2015), “2M++ Flow Model”.  
+6. Planck Collaboration (2018), *Planck 2018 results. VI. Cosmological parameters*.  
 
----
+---  
+*End of Research Document*===

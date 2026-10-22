@@ -13,7 +13,7 @@ The system MUST ingest the Pantheon+ Type Ia Supernova dataset, apply the standa
 
 **Why this priority**: This is the foundational data layer. Without accurate residuals and sky positions, no subsequent anisotropy analysis can occur. It delivers the primary dataset required for the hypothesis test.
 
-**Independent Test**: This can be tested by running the ingestion script on the Pantheon+ release and verifying that the output CSV contains the exact number of rows defined in the official Pantheon+ release v1.0 metadata (specifically the row count of the 'full' sample), valid RA/Dec coordinates, and calculated residuals that match a manual calculation for a known subset of supernovae.
+**Independent Test**: This can be tested by running the ingestion script on the Pantheon+ release and verifying that the output CSV contains the same number of rows as defined in the official Pantheon+ release metadata (specifically the row count of the “full” sample)., valid RA/Dec coordinates, and calculated residuals that match a manual calculation for a known subset of supernovae.
 
 **Acceptance Scenarios**:
 

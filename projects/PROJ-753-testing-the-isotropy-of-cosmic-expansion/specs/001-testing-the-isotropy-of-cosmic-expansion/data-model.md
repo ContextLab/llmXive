@@ -1,7 +1,13 @@
 # Data Model: Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data
 
 ## Overview
-All artifacts reside under `data/`. Raw, immutable inputs are stored in `data/raw/`; derived products are stored in `data/processed/`; human‑readable reports live in `data/reports/`.
+All artifacts live under the `data/` hierarchy:
+
+- `data/raw/` – immutable source files (Pantheon+ release).  
+- `data/processed/` – derived tables, maps, and simulation outputs.  
+- `data/reports/` – human‑readable final report and JSON summary.
+
+Each file is validated against a JSON/YAML schema located in `contracts/`.
 
 ## Entity Schemas
 
@@ -17,45 +23,68 @@ All artifacts reside under `data/`. Raw, immutable inputs are stored in `data/ra
 | `mu_th` | float | Theoretical distance modulus from flat ΛCDM. |
 | `residual` | float | μ_obs − μ_th. |
 | `valid` | boolean | True if the row passed all filters. |
-
-Conforms to `contracts/residuals.schema.yaml`.
+*Conforms to `contracts/residuals.schema.yaml`.*
 
 ### 2. `healpix_map.fits`
-A FITS binary table with one row per pixel.
+A FITS binary table, one row per pixel (Nside = 32).
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `pixel_index` | integer | HEALPix pixel index (Nside = 32). |
-| `nside` | integer | HEALPix resolution (constant 32). |
-| `mean_residual` | float | Mean residual of all SNe in the pixel (mag). |
-| `count` | integer | Number of supernovae contributing to the pixel. |
-| `mask_value` | integer | 1 = pixel used in analysis, 0 = masked. |
-
-Conforms to `contracts/healpix_map.schema.yaml`.
+| `pixel_index` | integer | HEALPix pixel index. |
+| `nside` | integer | Fixed to 32. |
+| `mean_residual` | float | Inverse‑variance‑weighted mean residual (mag). |
+| `count` | integer | Number of SNe contributing to the pixel. |
+| `mask_value` | integer | 1 = used in analysis, 0 = masked. |
+*Conforms to `contracts/healpix_map.schema.yaml`.*
 
 ### 3. `simulation_results.csv`
 | Column | Type | Description |
 |--------|------|-------------|
-| `run_id` | integer | Simulation iteration number (starting at 1). |
-| `dipole_amp` | float | Dipole amplitude (mag) for this mock catalog. |
-| `quadrupole_amp` | float | Quadrupole amplitude (mag) for this mock catalog. |
+| `run_id` | integer | Simulation iteration (starting at 1). |
+| `dipole_amp` | float | Dipole amplitude (mag) for this mock. |
+| `quadrupole_amp` | float | Quadrupole amplitude (mag) for this mock. |
+*Conforms to `contracts/simulation_results.schema.yaml`.*
 
-Conforms to `contracts/simulation_results.schema.yaml`.
+### 4. `power_analysis_results.csv` **(new)**
+| Column | Type | Description |
+|--------|------|-------------|
+| `scenario` | string | Description of the power‑analysis scenario (e.g., `analytic`, `pilot_mc`). |
+| `detectable_dipole_amp` | float | Minimum dipole amplitude (mag) detectable at p < 0.05 with ≥ 80 % power. |
+| `n_sne` | integer | Number of supernovae used in the scenario. |
+| `sigma_residual` | float | Assumed residual dispersion (mag) used in the analytic estimate. |
+| `method` | string | `analytic` or `monte_carlo`. |
+*Conforms to `contracts/power_analysis_results.schema.yaml`.*
 
-### 4. `analysis_result.json`
-A JSON object summarising the final scientific outcome (see `contracts/analysis_result.schema.yaml`).
+### 5. `analysis_result.json`
+A JSON object summarising the final scientific outcome.  
+*Conforms to `contracts/analysis_result.schema.yaml`.*
 
-### 5. `final_report.txt`
-Plain‑text human‑readable report containing the same numeric results plus a concise interpretation.
+### 6. `final_report.txt`
+Plain‑text report containing observed amplitudes, p‑values, and the significance flag.  
+*Conforms to `contracts/final_report.schema.yaml`.*
 
 ## Data Flow Diagram
-1. **Download** → `data/raw/pantheon_plus.dat`  
-2. **Ingestion & Residuals** → `data/processed/residuals.csv`  
-3. **HEALPix Projection** → `data/processed/healpix_map.fits`  
-4. **Harmonic Analysis** → in‑memory coefficients (used for amplitudes)  
-5. **Simulations** → `data/processed/simulation_results.csv`  
-6. **Significance & Reporting** → `data/reports/final_report.txt`, `analysis_result.json`  
+```
+download → data/raw/pantheon_plus.dat
+      ↓
+ingestion & residuals → data/processed/residuals.csv
+      ↓
+HEALPix projection → data/processed/healpix_map.fits
+      ↓
+anisotropy estimators → (in‑memory amplitudes)
+      ↓
+null simulations → data/processed/simulation_results.csv
+      ↓
+significance & reporting → data/reports/final_report.txt
+                               data/reports/analysis_result.json
+```
+The optional **Power‑Analysis** step runs **before** the main pipeline and produces
+`power_analysis_results.csv`, informing interpretation of a null result.  The
+analytic component uses the **heteroscedastic** per‑SN uncertainties (σ_i) and a
+common systematic term (σ_sys = 0.02 mag); the Monte‑Carlo component samples each
+σ_i explicitly, ensuring the power estimate reflects the true error budget.
 
-All steps are deterministic given the fixed random seed and checksum‑verified inputs.
+All transformations are deterministic given the fixed random seed and dataset checksum.
 
----
+---  
+*End of Data Model*===
