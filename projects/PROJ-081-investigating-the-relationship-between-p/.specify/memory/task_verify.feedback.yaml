@@ -1,16 +1,16 @@
 T001:
-  reason: The `outputs/fetch_log.txt` file is missing, and the `fetch_hpid()` function
-    raises a `KeyError` because the Titanic CSV does not contain a `PassengerId` column,
-    causing all `test_fetch_data.py` tests to error. Consequently the required pytest
-    verification does not pass.
+  reason: "The required `outputs/fetch_log.txt` file is missing, and there is no evidence\
+    \ that the verification steps (running `pytest` and confirming the log file is\
+    \ non\u2011empty) were performed. Without this log file the task\u2019s verification\
+    \ criteria are not satisfied."
   task: fb98baa17164a3eb850dad8e6c81bbcff493bee33c7d48194cbef68ef8430e51
 T002:
-  reason: "The implementation `code/src/preprocess.py` raises errors during execution\
-    \ (ambiguous Series truth value and JSONDecodeError when loading the schema),\
-    \ causing all three pytest cases to fail. Consequently the required output files\
-    \ `data/processed/clean.parquet` and `outputs/preprocessing_log.json` are never\
-    \ created, and the schema file `processed_data.schema.yaml` is missing/empty.\
-    \ The tests therefore do not pass and the task\u2019s deliverables are not satisfied."
+  reason: "The pipeline code (`code/src/preprocess.py`) and its unit tests exist,\
+    \ but the required output artifacts are absent: `processed_data.schema.yaml` is\
+    \ missing (so schema validation cannot occur), and the function never produced\
+    \ `data/processed/clean.parquet` nor `outputs/preprocessing_log.json` (both files\
+    \ are reported as missing). Consequently the tests that check for these files\
+    \ would fail, and the task\u2019s validation requirement is not satisfied."
   task: 05bcfff232e606d5d3ab471e8bf75397568409bfe08840bd75639203eddd47c9
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/src/correlation_analysis.py

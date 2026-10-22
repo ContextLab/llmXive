@@ -1,15 +1,18 @@
 status: none
-intent: download plant metabolomics herbivory dataset from MetaboLights Plant Metabolic
-  Network HPID python package dataset
+intent: MetaboLights PMN HPID plant metabolomics herbivory paired python package dataset
 required_fields:
-- species_scientific_name
-- metabolite_name
-- metabolite_concentration
-- herbivory_score
+- plant_species
+- taxonomy_id
 - sample_id
-- experimental_condition
-- replicate
+- metabolite_id
+- metabolite_name
+- concentration
+- concentration_units
+- herbivory_score
+- herbivory_metric
+- herbivore_species
 - collection_date
-cache_key: 50a379acc80651b29c75e4e1edcca849120244efea142d43b8a775d26880f9cb
-searched_at: '2026-10-22T17:20:55.158946+00:00'
+- experimental_condition
+cache_key: 03e1d3032cccfcc1cb9957ae8f6a016402b71c154d04033aedc065430a804146
+searched_at: '2026-10-22T18:10:09.829168+00:00'
 retry_count: 1

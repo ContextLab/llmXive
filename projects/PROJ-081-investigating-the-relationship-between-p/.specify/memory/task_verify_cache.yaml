@@ -1,10 +1,8 @@
-T002:
+T001:
   c: false
-  h: fbad8969ca0b7f2706af0214ee9bc5bc8216553faa70d29e5e0253b019fcf32d
-  r: "The implementation `code/src/preprocess.py` raises errors during execution (ambiguous\
-    \ Series truth value and JSONDecodeError when loading the schema), causing all\
-    \ three pytest cases to fail. Consequently the required output files `data/processed/clean.parquet`\
-    \ and `outputs/preprocessing_log.json` are never created, and the schema file\
-    \ `processed_data.schema.yaml` is missing/empty. The tests therefore do not pass\
-    \ and the task\u2019s deliverables are not satisfied."
-  sig: ef086c7e273eba058a25be426baeaf48449bd4a7a95aa5636d9c29a8a134ebae
+  h: bb3f1b508981be6fdbd62ac03903790466113a224a3717c4234e01f345f451cc
+  r: "The required `outputs/fetch_log.txt` file is missing, and there is no evidence\
+    \ that the verification steps (running `pytest` and confirming the log file is\
+    \ non\u2011empty) were performed. Without this log file the task\u2019s verification\
+    \ criteria are not satisfied."
+  sig: 5c0cbfa8420468891decde7d6e8892547aec76e8b4c5e24a56b7434932efb2ef

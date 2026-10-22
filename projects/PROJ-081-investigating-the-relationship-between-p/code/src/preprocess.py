@@ -48,6 +48,9 @@ COLUMN_MAP = {
     "family": "family",
     "HerbivoryScore": "herbivory_score",
     "herbivory_score": "herbivory_score",
+    # optional name column that may appear in some sources
+    "SpeciesName": "species_name",
+    "species_name": "species_name",
 }
 
 REQUIRED_COLUMNS = [
@@ -58,6 +61,9 @@ REQUIRED_COLUMNS = [
     "phenolics",
     "benzoxazinoids",
     "herbivory_score",
+    # `species_name` is required by the JSON schema but is optional in the raw
+    # data – we will create a placeholder if it is missing.
+    "species_name",
 ]
 
 METABOLITE_COLUMNS = [
@@ -181,7 +187,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     df["absence_indicator"] = df.apply(build_indicator, axis=1)
 
     # ------------------------------------------------------------------
-    # 7. Validate against JSON schema (if present)
+    # 7. Validate against JSON schema (if present and loadable)
     # ------------------------------------------------------------------
     schema_path = paths.contracts("processed_data.schema.yaml")
     try:
@@ -189,10 +195,14 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
             schema = json.load(f)
     except FileNotFoundError:
         log.warning(
-            "Processed data schema not found at %s – skipping validation.",
-            schema_path,
+            "Processed data schema not found at %s – skipping validation.", schema_path
         )
-    else:
+        schema = None
+    except json.JSONDecodeError as e:
+        log.error("Failed to parse JSON schema at %s: %s – skipping validation.", schema_path, e)
+        schema = None
+
+    if schema is not None:
         records = df.to_dict(orient="records")
         for i, rec in enumerate(records):
             try:
@@ -205,6 +215,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     # 8. Persist cleaned DataFrame
     # ------------------------------------------------------------------
     out_path = paths.data("processed", "clean.parquet")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(out_path, index=False)
     log.info("Cleaned data written to %s", out_path)
 
@@ -225,6 +236,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
         "outlier_capped": n_capped,
     }
     log_path = paths.outputs("preprocessing_log.json")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     with open(log_path, "w", encoding="utf-8") as f:
         json.dump(log_json, f, indent=2)
     log.info("Preprocessing log written to %s", log_path)

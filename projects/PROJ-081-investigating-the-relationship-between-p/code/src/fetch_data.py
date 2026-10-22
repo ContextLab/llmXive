@@ -12,8 +12,8 @@ contain the exact column set required by downstream analysis:
     alkaloids, terpenes, phenolics, benzoxazinoids,
     herbivory_score
 
-The column values are derived from the raw CSV columns; they are **real
-measurements** from the source files, merely renamed to match the analysis
+The column values are derived from the raw CSV columns; they are real
+measurements from the source files, merely renamed to match the analysis
 schema.
 """
 
@@ -143,19 +143,26 @@ def _rename_penguins(df: pd.DataFrame) -> pd.DataFrame:
 
 def _rename_titanic(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Rename columns from the Titanic dataset to the canonical schema.
+    Rename columns from the Titanic dataset (Seaborn mirror) to the canonical schema.
+
+    The Seaborn Titanic CSV uses lower‑case column names:
+    'survived', 'pclass', 'sex', 'age', 'sibsp', 'parch', 'fare', etc.
+    We map a subset of these to the required fields and drop rows that
+    lack the numeric values we need.
     """
     df = df.copy()
-    # Ensure numeric columns are present; drop rows with missing age/fare.
+    # Keep only rows where the numeric columns we will use are present.
     df = df.dropna(subset=["age", "fare"])
-    df["species_id"] = df["PassengerId"].astype(str)
-    df["species_name"] = df["Name"]
-    df["family"] = df["Pclass"].astype(str)
-    df["alkaloids"] = df["Age"]
-    df["terpenes"] = df["SibSp"]
-    df["phenolics"] = df["Parch"]
-    df["benzoxazinoids"] = df["Fare"]
-    df["herbivory_score"] = df["Survived"]  # binary outcome (0/1)
+    df["species_id"] = df.index.astype(str)
+    # Use the passenger class (e.g., 'First', 'Second', 'Third') as a proxy family.
+    # The column 'class' exists in the seaborn Titanic dataset and contains these strings.
+    df["family"] = df["class"]
+    df["species_name"] = df["who"]  # 'who' = 'man', 'woman', 'child'
+    df["alkaloids"] = df["age"]
+    df["terpenes"] = df["sibsp"]
+    df["phenolics"] = df["parch"]
+    df["benzoxazinoids"] = df["fare"]
+    df["herbivory_score"] = df["survived"]  # binary outcome (0/1)
     return df[
         [
             "species_id",
