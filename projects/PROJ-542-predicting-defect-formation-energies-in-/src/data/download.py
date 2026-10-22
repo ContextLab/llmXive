@@ -178,11 +178,8 @@ def main() -> None:
     """
     api_key = os.getenv("MP_API_KEY")
     if not api_key:
-        log.error(
-            "MP_API_KEY environment variable not set. "
-            "The script cannot proceed without a Materials Project API key."
-        )
-        sys.exit(1)
+        # Abort with the exact message required by the specification.
+        sys.exit("Materials Project API key not provided")
 
     # Normal path – fetch from the Materials Project API.
     records = _fetch_defect_data(api_key)

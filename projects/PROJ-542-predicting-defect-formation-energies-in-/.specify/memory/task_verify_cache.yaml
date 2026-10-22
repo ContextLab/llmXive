@@ -1,61 +1,42 @@
+T001:
+  c: false
+  h: d9b567321dcd357d330839f34f79929add4f0b83538227f9b6ef250ae1567315
+  r: The repository contains `quickstart.md`, `src/pipeline/run.py`, `src/data/download.py`,
+    and `src/data/featurize.py`, but the required unit test `code/tests/test_pipeline_entry.py`
+    is missing, and `src/pipeline/run.py` does not define a `run()` function (only
+    `main()`), so the test cannot import and call `run()` as specified. Add the missing
+    test file and expose a `run()` function that executes without error.
+  sig: 8bc4061d20a5620e56f0ab84c7d8aa82aa748c2e83b7eb315338f16c98f81886
+T002:
+  c: false
+  h: 98f89d0a18c21388f168126da82be646841686c67547428e12132c6ecb2fa07a
+  r: "The required output file `data/raw/materials_defects.csv` is missing, and there\
+    \ is no execution evidence showing the script ran successfully, validated the\
+    \ CSV against the schema, and produced \u2265\u202F500 rows. The script alone\
+    \ does not satisfy the task\u2019s output requirement."
+  sig: 97da27d4aa8a602d3d041d970c6c0c04d4d724f053fac828225b54c35cf7815b
+T003:
+  c: false
+  h: 483dd32b6779d84185d56f462353e437096a11e96e2d4dd730d3acaf6462d087
+  r: 'The repository contains the required `src/data/featurize.py`, but the expected
+    output files are absent: `data/processed/features.csv` and `data/processed/featurize.log`
+    are missing, and the existing `descriptor_gaps.log` shows a descriptor gap (missing
+    `A_atomic_radius`), causing the script to abort. The task therefore does not deliver
+    a complete feature matrix with the required 12 descriptor columns plus `formation_energy`.'
+  sig: b856263c9995ecc23dd98bbcaf8eb2ddc045553c9ba8fed4a5dd04c3417a3c2c
 T004:
   c: false
-  h: 3fb7ab1b9474e8c0f27fd718871b8268e6dfceed82ec0f4200834053ebd66dc1
-  r: The script `src/data/validate.py` exists and correctly implements the FR-009/SC-005
-    logic (ValueError below 50 rows, warning plus TTestPower power calculation below
-    500 rows), but the required output artifact `data/processed/validation.log` is
-    MISSING, so there is no evidence the validation step was ever executed or that
-    the power analysis actually ran. The implementer should run the script (with a
-    valid `data/processed/features.csv`) to produce the log.
-  sig: 3938751da1ed3122ca0bf5e89e7862d4e59309fa03d87bad7894ed7fb22ca571
-T005:
+  h: 88447d149e44ca339d718c8b7ccdd42ca30936f056e6d96333ea05a17e938dff
+  r: "The `src/data/validate.py` script is present and implements the required checks\
+    \ and power calculation, but the required output file `data/processed/validation.log`\
+    \ is missing, so the task\u2019s output artifact is not provided."
+  sig: f558df02b53dfcdeacccbc67345318e0d95853fc5bb12fd80c84f3c3db2f3caf
+T012:
   c: false
-  h: 2cc181ae06aacab43804e5fa583d28251d818ed9cd92115193428ea8664e8ed8
-  r: "The required outputs `models/rf_cv.pkl`, `models/gb_cv.pkl`, and `data/processed/cv_metrics.json`\
-    \ are all MISSING \u2014 the script was never executed, so there is no evidence\
-    \ the CV ran or produced metrics. Additionally, the script has a runtime bug (`List`\
-    \ used in `_aggregate_metrics` without being imported, causing a `NameError`),\
-    \ and the JSON it would write (`{\"cv_metrics\": ...}` only) violates `contracts/model_performance.schema.yaml`,\
-    \ which requires `test_metrics`, `bootstrap_ci`, `paired_ttest`, and `feature_importances`\
-    \ at the top level with `additionalProperties: false`."
-  sig: 5910275e5e9c487f457ba3cce570e6aca129d435e44fdd1194b674f1896cf3cd
-T006:
-  c: false
-  h: 51ed8f7d84c07eb00174935c91dee41f9453cc88a2c0c52754ceea07133dcc5a
-  r: "The `src/models/split.py` script is present and implements a deterministic GroupShuffleSplit,\
-    \ but the required output artifacts `data/processed/train.csv` and `data/processed/test.csv`\
-    \ are missing, and there is no evidence of the logging output confirming the split\
-    \ size or zero group overlap. The task\u2019s core deliverable\u2014producing\
-    \ the train and test CSV files\u2014is not satisfied."
-  sig: d39a7c455601e504c9918b17cb1b9a29c743e6544e6de67a57c9562566d6b3f9
-T013:
-  c: true
-  h: 041c0bb175181ccd951be91ffbfd3ee9bd88aaa2b2f87b058630ca2fcedf83db
-  r: 'The script `src/utils/check_descriptor_gaps.py` exists (4.4 KB) and is a genuine,
-    non-stub implementation: it scans all 12 expected descriptor columns for NaN/missing
-    values, logs each gap with row identifiers (composition or row index) to `data/processed/descriptor_gaps.log`,
-    and raises a RuntimeError to abort the pipeline when gaps are found, satisfying
-    FR-006. The log file `descriptor_gaps.log` is confirmed present in `data/processed/`,
-    matching the required output location.'
-  sig: ceddc482636152a69dafbce9a79e6d66ae5355b51eb5199c8df91a38d49e33f9
-T015:
-  c: false
-  h: f10da940791c5db84cdac0fbb40e20105c86bb7fb83093e33a594a704a4464f8
-  r: "The checksum utility `src/utils/checksum.py` exists and is a real implementation,\
-    \ and `data/checksums/raw_defects.sha256` contains a 64-char hex digest. However,\
-    \ the input file `data/raw/materials_defects.csv` is MISSING, so the checksum\
-    \ cannot be verified against the file content \u2014 the task requires computing\
-    \ the checksum \"immediately after download\" of that CSV, and the CI verification\
-    \ requires the checksum to match the file content, which is impossible to confirm\
-    \ (and the checksum may be fabricated since no source file exists). The next implementer\
-    \ must produce the raw CSV and recompute/ver"
-  sig: 17b222559e8067ec0796f37fa42181b01fe34de7c45197c16927f88044280ab6
-T016:
-  c: false
-  h: 9ce1d2b82789dbcbf6ad836f951a4641c15ffab6b62743da944435aa30639a3e
-  r: "The required output `data/checksums/features.sha256` is MISSING \u2014 the utility\
-    \ script `src/utils/checksum.py` exists and looks functional, but it was never\
-    \ invoked (second invocation) to actually write the checksum file. The implementer\
-    \ must run the checksum utility on `data/processed/features.csv` and write the\
-    \ digest to `data/checksums/features.sha256` so the CI test can verify it matches."
-  sig: e2a3103be2998f3ce8c50a7ce150b7d3cbb137c9828825380e7fb6296ae7e782
+  h: 8ece9114c940570c01e2dc33f9059525f9360cb93ac6dd1ca50720e6d3519b9c
+  r: The `code/requirements.txt` file exists and contains the pinned versions, but
+    there is no provided evidence (e.g., install logs, test script output) showing
+    that `pip install -r code/requirements.txt` actually succeeds in a fresh virtual
+    environment and that all imports used in the code resolve. This verification step
+    is missing.
+  sig: 69a07439444ebb9227c773244c5ff0f2f084024878ab937190d21111513e6f92

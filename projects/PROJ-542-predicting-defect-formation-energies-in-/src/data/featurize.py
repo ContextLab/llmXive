@@ -11,6 +11,11 @@ count) plus the target ``formation_energy``.
 Rows where any oxidation state cannot be determined are dropped; the
 number of excluded rows is logged (FR‑008).
 
+After descriptor computation the script checks for any remaining missing
+descriptor values. If any are found a ``RuntimeError`` is raised and a
+``descriptor_gaps.log`` file is written (FR‑006). The script also writes a
+``featurize.log`` summarising the processing steps.
+
 The module provides a ``main`` function that can be executed via
 ``python -m src.featurize <input_csv> <output_csv>`` (see the thin wrapper
 in ``src/featurize.py``).
@@ -29,6 +34,9 @@ from llmxive_toolkit import get_logger, paths
 
 # Import the download routine so we can auto‑fetch the raw data if needed.
 from src.data.download import main as _download_main
+
+# Import helper for descriptor‑gap checking.
+from src.utils.check_descriptor_gaps import _descriptor_columns
 
 log = get_logger(__name__)
 
@@ -100,6 +108,7 @@ def _row_to_features(row: pd.Series) -> dict:
         feature_dict[f"{prefix}valence_electrons"] = desc["valence_electrons"]
     # Preserve the target column
     feature_dict["formation_energy"] = row["formation_energy"]
+    feature_dict["composition"] = row["composition"]
     return feature_dict
 
 # ----------------------------------------------------------------------
@@ -158,7 +167,30 @@ def compute_features(input_csv: Path, output_csv: Path) -> None:
             "Missing values detected in the target 'formation_energy' column (FR‑002)."
         )
 
+    # ------------------------------------------------------------------
+    # Descriptor‑gap check (FR‑006)
+    # ------------------------------------------------------------------
+    descriptor_cols = _descriptor_columns()
+    # ``descriptor_cols`` does not include the target or composition.
+    gap_mask = features_df[descriptor_cols].isna()
+    if gap_mask.any().any():
+        # Write the descriptor‑gap log before aborting.
+        gap_log_path = paths.data("processed", "descriptor_gaps.log")
+        gap_log_path.parent.mkdir(parents=True, exist_ok=True)
+        with gap_log_path.open("w", encoding="utf-8") as f:
+            f.write("Descriptor gaps detected:\n")
+            for row_idx, col in zip(*np.where(gap_mask)):
+                composition = features_df.at[row_idx, "composition"]
+                f.write(
+                    f"- Row {row_idx} ({composition}): missing {descriptor_cols[col]}\n"
+                )
+        raise RuntimeError(
+            "Descriptor gaps detected – see descriptor_gaps.log"
+        )
+
+    # ------------------------------------------------------------------
     # Write CSV – the ``paths`` helper creates the parent directory if needed
+    # ------------------------------------------------------------------
     output_path = (
         paths.path(output_csv)
         if isinstance(output_csv, (str, Path))
@@ -166,6 +198,19 @@ def compute_features(input_csv: Path, output_csv: Path) -> None:
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     features_df.to_csv(output_path, index=False)
+
+    # ------------------------------------------------------------------
+    # Write featurization summary log (featurize.log)
+    # ------------------------------------------------------------------
+    featurize_log_path = paths.data("processed", "featurize.log")
+    featurize_log_path.parent.mkdir(parents=True, exist_ok=True)
+    with featurize_log_path.open("w", encoding="utf-8") as f:
+        f.write(f"Input rows processed: {len(df)}\n")
+        f.write(f"Rows excluded (oxidation‑state failures): {excluded}\n")
+        f.write(f"Rows written to features CSV: {len(features_df)}\n")
+        f.write(f"Feature columns: {', '.join(descriptor_cols)}\n")
+        f.write(f"Target column: formation_energy\n")
+
     log.info(
         f"Wrote feature matrix with {len(features_df)} rows to {output_path}"
     )

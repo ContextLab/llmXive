@@ -42,7 +42,7 @@
   *Output:* `data/processed/validation.log`.
   *Verification:* Log contains row count, power estimate, and appropriate warnings/errors.
 
-- [ ] T005 [US1] Compute SHA‑256 checksums for raw and processed data artifacts.
+- [ ] T005 [US1] Compute SHA‑256 checksums for raw and processed data artifacts. <!-- FAILED-IN-EXECUTION: src/utils/checksum_all.py exit=1 -->
   *File:* `src/utils/checksum.py`.
   *Outputs:* `data/checksums/raw_defects.sha256`, `data/checksums/features.sha256`.
   *Verification:* pytest `code/tests/test_checksums.py` recomputes and asserts equality.
