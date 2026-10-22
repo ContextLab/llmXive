@@ -1,4 +1,8 @@
 T001:
+  reason: "The `code/` skeleton is present and most verification steps succeed, but\
+    \ the required sub\u2011directory `code/models/` is missing, violating the task\u2019\
+    s specification that the project skeleton include a `models` folder. Adding this\
+    \ directory (with an `__init__.py` marker) is needed to complete the task."
   task: 1dd62979a4c4314ff3e4304196ab1ac1b982d71dae3edadcf5f4ff6f92fbb199
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/download_coco.py

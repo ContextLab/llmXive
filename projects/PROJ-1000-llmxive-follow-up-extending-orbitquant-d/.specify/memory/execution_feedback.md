@@ -30,47 +30,6 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - data/processed/logs/model_load_log.json
 - data/processed/prompts.csv
 
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `pycocotools` to the project's `requirements.txt` and `pip install pycocotools`.
-- **Verified**: this loads **5000** real records with fields: image_id, file_name, height, width, captions.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import os, urllib.request, zipfile, tempfile
-from pycocotools.coco import COCO
-
-# Download COCO 2017 validation annotations
-url = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
-tmp_dir = tempfile.mkdtemp()
-zip_path = os.path.join(tmp_dir, "ann.zip")
-urllib.request.urlretrieve(url, zip_path)
-with zipfile.ZipFile(zip_path, "r") as z:
-    json_path = z.extract("annotations/captions_val2017.json", path=tmp_dir)
-
-coco = COCO(json_path)
-img_ids = coco.getImgIds()
-records = []
-for img_id in img_ids:
-    img_info = coco.loadImgs(img_id)[0]
-    ann_ids = coco.getAnnIds(imgIds=img_id)
-    anns = coco.loadAnns(ann_ids)
-    captions = " ".join(a["caption"] for a in anns)
-    records.append({
-        "image_id": img_info["id"],
-        "file_name": img_info["file_name"],
-        "height": img_info["height"],
-        "width": img_info["width"],
-        "captions": captions,
-    })
-print(f"RECORDS={len(records)}")
-print("FIELDS=image_id,file_name,height,width,captions")
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
-
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
