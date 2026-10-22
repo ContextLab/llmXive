@@ -8,7 +8,7 @@ The tasks are ordered to respect data‑flow dependencies and to satisfy all fun
 
 ## Phase 1 – Setup & first end‑to‑end run  
 
-- [ ] T001 [US1] **Create reproducible CLI entry‑point, configs, and quick‑start guide**   <!-- FAILED-IN-EXECUTION: code/run_experiments.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_experiments.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_experiments.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_experiments.py exit=1 -->
+- [ ] T001 [US1] **Create reproducible CLI entry‑point, configs, and quick‑start guide**   <!-- FAILED-IN-EXECUTION: code/run_experiments.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_experiments.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_experiments.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_experiments.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_experiments.py exit=1 -->
   - Implement `code/run_experiments.py` that parses a YAML config and orchestrates the pipeline.  
   - Add two config files: `configs/quickstart.yaml` (thin run: one seed, ρ = 0.5, 2 epochs) and `configs/full_suite.yaml` (full experiment suite).  
   - Document usage in `docs/quickstart.md`.  
