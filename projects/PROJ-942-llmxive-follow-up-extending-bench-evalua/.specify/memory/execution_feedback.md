@@ -15,22 +15,40 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/pipelines/download_pi_bench.py -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/pipelines/download_pi_bench.py", line 33, in <module>
-    _run_underlying()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/pipelines/download_pi_bench.py", line 26, in _run_underlying
-    raise FileNotFoundError(f"Implementation script not found at {impl_path}")
-FileNotFoundError: Implementation script not found at /home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/code/pipelines/download_pi_bench.py
+load_pi_bench.py", line 30, in _run_underlying
+    runpy.run_path(str(impl_path), run_name="__main__")
+  File "<frozen runpy>", line 291, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 171, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 138, in main
+    checksums = _download_pi_bench(
+                ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 69, in _download_pi_bench
+    dataset = load_dataset("pi_bench", streaming=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/datasets.py", line 40, in load_dataset
+    raise ImportError(
+ImportError: The stubbed `datasets` library only supports the 'json' format. Requested dataset: pi_bench
 
 - python src/pipelines/parse_traces.py  --raw-dir data/raw  --out-csv data/derived/normalized_traces.csv -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/pipelines/parse_traces.py", line 34, in <module>
-    _run_underlying()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/pipelines/parse_traces.py", line 27, in _run_underlying
-    raise FileNotFoundError(f"Implementation script not found at {impl_path}")
-FileNotFoundError: Implementation script not found at /home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/code/pipelines/parse_traces.py
+e_traces.py", line 30, in _run_underlying
+    runpy.run_path(str(impl_path), run_name="__main__")
+  File "<frozen runpy>", line 291, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 184, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 140, in main
+    json_files = _download_and_save_raw(raw_dir)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 32, in _download_and_save_raw
+    ds = load_dataset("pi_bench", streaming=True)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/datasets.py", line 40, in load_dataset
+    raise ImportError(
+ImportError: The stubbed `datasets` library only supports the 'json' format. Requested dataset: pi_bench
 
 - python code/pipelines/infer_missing_intents.py --input-csv data/derived/normalized_traces.csv --out-csv data/derived/inferred_intents.csv --seed 42 -> rc=2
 

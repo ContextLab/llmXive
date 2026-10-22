@@ -3,8 +3,8 @@ src/pipelines/parse_traces.py
 
 Thin wrapper that forwards execution to the implementation located at
 ``code/pipelines/parse_traces.py``. This keeps the public CLI path used in
-the project's quickstart (`src/pipelines/...`) while re‑using the fully
-tested parsing logic under ``code/pipelines``.
+the project's quick‑start while re‑using the fully tested parsing logic
+under ``code/pipelines``.
 """
 
 import pathlib
@@ -17,11 +17,12 @@ def _run_underlying():
     with the current ``sys.argv`` unchanged, so that argument parsing
     behaves exactly as if the user ran the original file directly.
     """
-    # The repository layout is:
-    #   <repo_root>/code/pipelines/parse_traces.py
+    # Repository layout:
+    #   <repo_root>/code/pipelines/parse_traces.py   (implementation)
     #   <repo_root>/src/pipelines/parse_traces.py   (this wrapper)
-    # Compute the sibling ``code/pipelines`` directory relative to this file.
-    repo_root = pathlib.Path(__file__).resolve().parents[1]
+    # ``__file__`` points to the wrapper inside ``src/pipelines``.
+    # We need to go two directories up to reach the repository root.
+    repo_root = pathlib.Path(__file__).resolve().parents[2]
     impl_path = repo_root / "code" / "pipelines" / "parse_traces.py"
     if not impl_path.is_file():
         raise FileNotFoundError(f"Implementation script not found at {impl_path}")

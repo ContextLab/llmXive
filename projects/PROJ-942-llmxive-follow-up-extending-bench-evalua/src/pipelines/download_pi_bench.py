@@ -18,9 +18,11 @@ def _run_underlying():
     behaves exactly as if the user ran the original file directly.
     """
     # Repository layout:
-    #   <repo_root>/code/pipelines/download_pi_bench.py
+    #   <repo_root>/code/pipelines/download_pi_bench.py   (implementation)
     #   <repo_root>/src/pipelines/download_pi_bench.py   (this wrapper)
-    repo_root = pathlib.Path(__file__).resolve().parents[1]
+    # ``__file__`` points to the wrapper inside ``src/pipelines``.
+    # We need to go two directories up to reach the repository root.
+    repo_root = pathlib.Path(__file__).resolve().parents[2]
     impl_path = repo_root / "code" / "pipelines" / "download_pi_bench.py"
     if not impl_path.is_file():
         raise FileNotFoundError(f"Implementation script not found at {impl_path}")
