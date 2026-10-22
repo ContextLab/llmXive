@@ -49,15 +49,15 @@ A researcher has a novel alloy composition and crystal‑structure prototype and
 
 ### Edge Cases
 
-- **Missing magnetic fields** – When an entry lacks `magnetic_moment`, the system **MUST discard the entry and log a warning**. If an entry lacks `curie_temperature`, it **MUST be retained for saturation‑magnetization modelling** but **discarded for Curie‑temperature modelling**; a warning is logged. The overall dataset size after applicable discards must still meet the minimum threshold of **3 500** records for each modelling target, otherwise the pipeline aborts with an informative error.  
-- **Duplicate alloy entries** – When multiple DFT calculations exist for the same composition/structure, the system **MUST keep the most recent calculation (based on `last_updated` timestamp)** and remove older duplicates, logging the number of duplicates removed.  
+- **Missing magnetic fields** – When an entry lacks `magnetic_moment`, the system **MUST discard the entry and log a warning**. If an entry lacks `curie_temperature`, it **MUST be retained for saturation‑magnetization modelling** but **discarded for Curie‑temperature modelling**, logging a warning. (See FR-015) The overall dataset size after applicable discards must still meet the minimum threshold of **3 500** records for each modelling target, otherwise the pipeline aborts with an informative error.  
+- **Duplicate alloy entries** – When multiple DFT calculations exist for the same composition/structure, the system **MUST keep the most recent calculation (based on `last_updated` timestamp)** and remove older duplicates, logging the number of duplicates removed. (See FR-016)  
 - **Extreme compositions** – For alloy formulas with **> 5 constituent elements**, the system **MUST compute elemental averages as usual**; if any constituent element is unknown to the `ElementProperty` featurizer, the entry is excluded and a warning is issued.  
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001** (See US-1): System MUST retrieve all Materials Project entries where `magnetic_type` ≠ `NM` **and** the fields `magnetic_moment` **and** `curie_temperature` are present via the public REST API.  
+- **FR-001** (See US-1): System MUST retrieve all Materials Project entries where `magnetic_type` ≠ `NM` **and** the fields `magnetic_moment` **and** `curie_temperature` are present by downloading the publicly available Materials Project bulk data archive (e.g., the Zenodo release) without requiring an API key.  
 - **FR-002** (See US-1): System MUST ingest the Open Quantum Materials Database (OQMD) magnetic CSV release and merge it with the Materials Project data. OQMD entries lack `curie_temperature`; these records are retained for **saturation‑magnetization** modelling only and are excluded from any Curie‑temperature modelling or evaluation.  
 - **FR-003** (See US-1): System MUST clean the combined dataset by (a) discarding records missing composition strings or crystal‑structure metadata, (b) standardizing formulas with `pymatgen`, and (c) resolving duplicate entries by retaining the most recent calculation.  
 - **FR-004** (See US-1): System MUST generate the following feature groups for each alloy:  
@@ -112,6 +112,9 @@ A researcher has a novel alloy composition and crystal‑structure prototype and
 ```
 
 - **FR-013** (See US-1): System MUST evaluate model generalization on an external hold‑out set of **≥ 200** distinct alloys that were not used during training or internal testing. The acquisition procedure is: (1) download the full Materials Project release **v2026.09** (), (2) apply the same cleaning steps as for the training data, (3) filter to entries containing both `magnetic_moment` and `curie_temperature`, (4) exclude any alloy present in the internal splits (based on composition + space‑group), (5) randomly sample **200** remaining entries using a fixed random seed = 42; the seed must be logged. The same performance metrics (R², MAE, RMSE) as for the internal test set are reported.  
+- **FR-014** (See US-1): System MUST produce a cleaned dataset containing at least **3 500** alloy records for each modelling target (saturation magnetization and Curie temperature) after applying all cleaning and filtering steps.  
+- **FR-015** (See US-1): When an entry lacks `magnetic_moment`, the system MUST discard the entry and log a warning; when an entry lacks `curie_temperature`, the system MUST retain the entry for saturation‑magnetization modelling but discard it for Curie‑temperature modelling, logging a warning.  
+- **FR-016** (See US-1): When duplicate calculations exist for the same composition and crystal structure, the system MUST keep the most recent calculation (based on `last_updated`) and remove older duplicates, logging the number of duplicates removed.  
 
 ### Key Entities
 
@@ -129,6 +132,7 @@ A researcher has a novel alloy composition and crystal‑structure prototype and
 - **SC-004** (See US-2): Feature‑importance analysis identifies at least **five** elemental descriptors whose permutation‑importance scores exceed the mean importance of all descriptors by **≥ 10 %**.  
 - **SC-005** (See US-3): A single‑alloy prediction request returns a JSON response conforming to the schema defined in FR‑012 within **≤ 2 seconds** wall‑clock time.  
 - **SC-006** (See US-1): The end‑to‑end pipeline execution time on the CI runner is **≤ 6 hours**.  
+- **SC-007** (See US-1): The cleaned dataset produced by the pipeline contains **≥ 3 500** records for each modelling target after all cleaning and filtering steps.  
 
 ## Assumptions
 
@@ -136,7 +140,6 @@ A researcher has a novel alloy composition and crystal‑structure prototype and
 - **Measurement validity** – Magnetic moments and Curie temperatures derived from DFT calculations in the source databases are assumed to have been validated against experimental benchmarks as reported in the original database publications.  
 - **Observational inference** – Because the data are observational (no experimental randomization), all conclusions are framed as **associational** relationships between composition/structure and magnetic properties.  
 - **Computational resources** – The free‑tier GitHub Actions runner provides ≤ 2 GB RAM and ≤ 10 GB SSD; hyper‑parameter grids are sized to respect a 30‑minute tuning budget, and the overall pipeline is expected to finish within **6 hours** on typical CI hardware.  
-- **Descriptor collinearity** – Elemental averages may be collinear; the pipeline will compute variance‑inflation factors (VIF) and report any VIF > 5, but will not claim independent causal effects for highly collinear descriptors.  
 - **External validation availability** – An external set of **≥ 200** distinct alloys with both magnetic moment and Curie temperature measurements can be sourced from the Materials Project release v2026.09 () as described in FR‑013.  
 
 ---  
