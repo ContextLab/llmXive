@@ -3,12 +3,12 @@
   "stage": "clarified",
   "class": "transient",
   "fingerprint": "model_chain_failed",
-  "consecutive_count": 1,
+  "consecutive_count": 0,
   "first_seen": "2026-10-17T21:29:12.919538+00:00",
-  "last_seen": "2026-10-17T21:29:12.919538+00:00",
-  "retry_after": "2026-10-17T21:39:12.919538+00:00",
+  "last_seen": "2026-10-22T23:33:24.575436+00:00",
+  "retry_after": null,
   "last_error": "every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | openai.gpt-oss-120b(model-down attempt 1): Request timed out. | google.gemma-4-31B-it(model-down attempt 1): Request timed out. | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: daily credit spend 1845.91 has reached the cap 1800.00 (= 90% of max_budget 2000.00; resets at 2026-10-18T03:45:00Z)",
   "evidence": "every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | openai.gpt-oss-120b(model-down attempt 1): Request timed out. | google.gemma-4-31B-it(model-down attempt ",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "retry_scheduled"
+  "status": "cleared"
 }

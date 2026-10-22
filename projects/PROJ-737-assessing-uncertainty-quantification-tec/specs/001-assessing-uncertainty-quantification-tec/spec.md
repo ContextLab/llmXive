@@ -11,7 +11,7 @@ environment (CPU-only, limited RAM).
 
 ### US1: Reproducible UQ Pipeline Execution
 As a researcher, I want to run a single orchestrated script that downloads data, trains baseline models,
-applies 4 UQ methods, and outputs metrics, so that I can verify the reproducibility of the pipeline.
+applies multiple UQ methods, and outputs metrics, so that I can verify the reproducibility of the pipeline.
 
 ### US2: Calibration and Sharpness Metric Calculation
 As a researcher, I want to calculate Calibration Error and Prediction Interval Sharpness for all test predictions,

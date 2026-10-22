@@ -20,7 +20,7 @@ properties:
   n_train:
     type: integer
     minimum: 1
-    description: "Number of training samples."
+    description: "Number of training samples (capped at 2000)."
   n_val:
     type: integer
     minimum: 0
@@ -39,7 +39,7 @@ properties:
     description: "Name of the target column."
   checksum:
     type: string
-    description: "SHA256 checksum of the processed file."
+    description: "SHA256 of the processed file."
 required:
   - dataset_id
   - source_url

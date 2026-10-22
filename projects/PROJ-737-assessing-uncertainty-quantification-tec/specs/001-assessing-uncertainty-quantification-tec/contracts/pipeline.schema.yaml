@@ -15,41 +15,8 @@ properties:
     enum:
       - "success"
       - "partial_success"
-      - "failed"
+      - "failure"
     description: "Overall pipeline status"
   steps:
-    type: array
-    items:
-      type: object
-      properties:
-        step_name:
-          type: string
-        status:
-          type: string
-          enum:
-            - "passed"
-            - "skipped"
-            - "failed"
-        duration_seconds:
-          type: number
-        error_message:
-          type: string
-          description: "Error details if failed"
-      required:
-        - step_name
-        - status
-        - duration_seconds
-  memory_peak_mb:
-    type: number
-    description: "Peak memory usage in MB"
-  total_duration_seconds:
-    type: number
-    description: "Total runtime in seconds"
-required:
-  - run_id
-  - timestamp
-  - status
-  - steps
-  - memory_peak_mb
-  - total_duration_seconds
-additionalProperties: false
+    type: object
+    additional_...
