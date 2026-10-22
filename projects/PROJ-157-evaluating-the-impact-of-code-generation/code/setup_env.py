@@ -7,8 +7,9 @@ This script performs three actions:
 1. Pins random seeds for the standard libraries used throughout the
    project (Python ``random``, ``numpy`` and, if available, ``torch``).
 2. Retrieves the immutable Docker image digest for the deterministic
-   image ``gcc:13.2-bullseye`` via the Docker Hub Registry HTTP API,
-   handling the token authentication flow required by Docker Hub.
+   image ``gcc:13.2-bullseye`` using the local Docker daemon (via the
+   Docker SDK). This avoids reliance on the Docker Hub Registry API,
+   which may return 404 for certain multi‑arch manifests.
 3. Writes a JSON configuration file ``data/env_config.json`` that
    captures the seed values and Docker image information for downstream
    reproducibility checks (as required by task T000).
@@ -26,6 +27,7 @@ from pathlib import Path
 
 import numpy as np
 import requests
+import docker
 
 from llmxive_toolkit import paths, get_logger
 
@@ -52,51 +54,14 @@ except Exception as exc:  # pragma: no cover – torch may be missing
     torch_available = False
 
 # ----------------------------------------------------------------------
-# 2. Retrieve Docker image digest via Docker Hub Registry API
+# 2. Retrieve Docker image digest via local Docker daemon
 # ----------------------------------------------------------------------
 DOCKER_IMAGE = "gcc:13.2-bullseye"
 
-def _fetch_auth_token(repository: str) -> str:
+def _fetch_docker_digest_via_docker(image: str) -> str:
     """
-    Obtain a Bearer token for accessing a public Docker Hub repository.
-
-    Parameters
-    ----------
-    repository: str
-        Repository name in the form ``library/gcc`` (no tag).
-
-    Returns
-    -------
-    str
-        The access token to be used in the Authorization header.
-
-    Raises
-    ------
-    RuntimeError
-        If the token cannot be retrieved.
-    """
-    token_url = (
-        "https://auth.docker.io/token"
-        "?service=registry.docker.io"
-        f"&scope=repository:{repository}:pull"
-    )
-    log.debug("Requesting Docker Hub auth token for %s", repository)
-    resp = requests.get(token_url, timeout=30)
-    try:
-        resp.raise_for_status()
-    except Exception as exc:
-        raise RuntimeError(f"Failed to obtain Docker Hub token: {exc}") from exc
-
-    data = resp.json()
-    token = data.get("token") or data.get("access_token")
-    if not token:
-        raise RuntimeError("Docker Hub token response missing token field")
-    return token
-
-def _fetch_docker_digest(image: str) -> str:
-    """
-    Retrieve the immutable digest for a public Docker image using the
-    Docker Hub Registry HTTP API, handling token authentication.
+    Retrieve the immutable digest for a Docker image using the local Docker
+    daemon. This pulls the image if it is not already present.
 
     Parameters
     ----------
@@ -113,33 +78,34 @@ def _fetch_docker_digest(image: str) -> str:
     RuntimeError
         If the digest cannot be obtained.
     """
-    repo, tag = image.split(":")
-    # Official images are under the ``library`` namespace.
-    if "/" not in repo:
-        repo = f"library/{repo}"
-    manifest_url = f"https://registry-1.docker.io/v2/{repo}/manifests/{tag}"
-    headers = {
-        "Accept": "application/vnd.docker.distribution.manifest.v2+json"
-    }
-    # First obtain an auth token for the repository.
-    token = _fetch_auth_token(repo)
-    headers["Authorization"] = f"Bearer {token}"
-    log.info("Requesting Docker manifest for %s", image)
-    response = requests.get(manifest_url, headers=headers, timeout=30)
+    client = docker.from_env()
+    repository, tag = image.split(":")
     try:
-        response.raise_for_status()
+        # Pull the image to ensure it is present locally.
+        log.info("Pulling Docker image %s", image)
+        client.images.pull(repository, tag=tag)
     except Exception as exc:
-        raise RuntimeError(f"Failed to fetch manifest for {image}: {exc}") from exc
+        raise RuntimeError(f"Failed to pull Docker image {image}: {exc}") from exc
 
-    digest = response.headers.get("Docker-Content-Digest")
-    if not digest:
-        raise RuntimeError(
-            f"Docker-Content-Digest header missing in response for {image}"
-        )
+    try:
+        image_obj = client.images.get(f"{repository}:{tag}")
+    except Exception as exc:
+        raise RuntimeError(f"Failed to get Docker image {image} after pull: {exc}") from exc
+
+    # RepoDigests is a list like ["gcc@sha256:abcd..."]
+    repo_digests = image_obj.attrs.get("RepoDigests")
+    if not repo_digests:
+        raise RuntimeError(f"No RepoDigests found for image {image}")
+    # Take the first digest entry.
+    digest_entry = repo_digests[0]
+    # The entry format is "<repository>@sha256:<hash>"
+    if "@" not in digest_entry:
+        raise RuntimeError(f"Unexpected RepoDigest format: {digest_entry}")
+    _, digest = digest_entry.split("@", 1)
     return digest
 
 try:
-    docker_digest = _fetch_docker_digest(DOCKER_IMAGE)
+    docker_digest = _fetch_docker_digest_via_docker(DOCKER_IMAGE)
     log.info("Docker image digest retrieved: %s", docker_digest)
 except Exception as exc:
     log.error("Failed to obtain Docker image digest: %s", exc)
