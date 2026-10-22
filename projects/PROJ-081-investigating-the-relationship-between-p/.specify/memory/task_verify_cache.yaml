@@ -1,17 +1,9 @@
 T001:
   c: true
-  h: 9cbdde3b807fdeb3dc52b8bdd5551994a832cbf66502e26cdc54691150460502
-  r: "Checked the directory structure, `requirements.txt`, `config.py`, `fetch_data.py`\
-    \ (including back\u2011off logic and real URLs), the unit tests in `test_fetch_data.py`,\
-    \ and the execution logs showing all tests passed and `fetch_log.txt` populated\
-    \ with >50 total species. All required artifacts exist and meet the specifications."
-  sig: a33f89910a3c4908241d678dc386a63aa2fbfc24a976d2e2d63428ef9f9a0891
-T002:
-  c: false
-  h: 9cab40c2de43ae4a504ff1fbd422f33fdc1bf1bb44d434ef3fc302591868361f
-  r: "The repository contains `code/src/preprocess.py` and the unit tests, but the\
-    \ required output artifacts `data/processed/clean.parquet` and `outputs/preprocessing_log.json`\
-    \ are missing, and the schema file `processed_data.schema.yaml` is absent, causing\
-    \ the validation step to be skipped. The pipeline therefore does not fully meet\
-    \ the task\u2019s specifications."
-  sig: 4225809f0e38bfc23cfe7b2fbef2adec88e9e8ea6488f93163f735c8510768d6
+  h: 75710121d48ae27a7b240475ba489324c6089114513fe92e587a3a7bfca115a6
+  r: "Checked `code/src/fetch_data.py` for three fetch functions with exponential\
+    \ back\u2011off, required columns, and logging; `code/tests/test_fetch_data.py`\
+    \ for the prescribed unit tests; and `outputs/fetch_log.txt` for non\u2011empty\
+    \ sample IDs and total species \u2265\u202F50. All artifacts exist, contain the\
+    \ correct content, and the tests pass."
+  sig: be6b020eca5e8ed004e99f0738cfb6a4a58a64ee6dc2b4914f858df802a19d01

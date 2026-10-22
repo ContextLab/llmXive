@@ -1,11 +1,8 @@
 T001:
   task: fb98baa17164a3eb850dad8e6c81bbcff493bee33c7d48194cbef68ef8430e51
 T002:
-  reason: "The repository contains `code/src/preprocess.py` and the unit tests, but\
-    \ the required output artifacts `data/processed/clean.parquet` and `outputs/preprocessing_log.json`\
-    \ are missing, and the schema file `processed_data.schema.yaml` is absent, causing\
-    \ the validation step to be skipped. The pipeline therefore does not fully meet\
-    \ the task\u2019s specifications."
+  reason: 'Requested task execution failed; rerun successfully: code/src/run_pipeline.py
+    exit=1'
   task: 05bcfff232e606d5d3ab471e8bf75397568409bfe08840bd75639203eddd47c9
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/src/correlation_analysis.py

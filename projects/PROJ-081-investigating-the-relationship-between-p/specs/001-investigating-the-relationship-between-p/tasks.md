@@ -26,7 +26,7 @@ This is a research implementation plan for a cross-species metabolomics–herbiv
     - **Enforcement**: Fail if total paired species after fetching is **< 50** (FR‑001).  
   - **Paths**: `code/src/config.py`, `code/src/fetch_data.py`, `code/tests/test_fetch_data.py`, `requirements.txt`, `outputs/fetch_log.txt`.
 
-- [ ] T002 [P1] [US-1] **Data ingestion and preprocessing pipeline**
+- [ ] T002 [P1] [US-1] **Data ingestion and preprocessing pipeline** <!-- FAILED-IN-EXECUTION: code/src/run_pipeline.py exit=1 -->
   - Implement `code/src/preprocess.py` with function `load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame` that:  
     - Concatenates input DataFrames and harmonizes column names (e.g., `'Alkaloid_conc' → 'alkaloids'`).  
     - Filters rows with any missing required predictor or outcome columns (`species_id`, `family`, `alkaloids`, `terpenes`, `phenolics`, `benzoxazinoids`, `herbivory_score`).  
