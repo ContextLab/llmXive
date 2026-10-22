@@ -9,3 +9,15 @@ T001:
     \ per the script\u2019s own check, total species\u202F\u2265\u202F50). All required\
     \ directories, files, and `requirements.txt` are present."
   sig: f346928ebd25074497cf212a85f09949cd3c30f7ed11df47fbab40474e73d1e2
+T002:
+  c: false
+  h: ced94d292923a2fae96190eab9d0aaa4c5f661ba8f55d34a89565ddaf17aa6e8
+  r: "The `load_and_preprocess` implementation concatenates, renames, filters, caps\
+    \ outliers, validates, writes the parquet file and log, and creates an `absence_indicator`\
+    \ column, so the required files exist and most steps work. However, step\u202F\
+    3 of the specification is not fulfilled: metabolite classes documented as biologically\
+    \ absent are filled with zeros **before** StandardScaler is applied, so after\
+    \ Z\u2011scoring they are no longer zero. The task required inserting a zero **after**\
+    \ standardisation, which the current code does not do. Consequently the pipeline\
+    \ does not meet the full requirement."
+  sig: 45b85fda0ef2a81917a3dd07f67999c5600fe83216cd0f849bd08a7df8e01156

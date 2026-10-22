@@ -4,15 +4,11 @@ preprocess.py
 Implements the data ingestion and preprocessing pipeline.
 
 The core function `load_and_preprocess` accepts a list of raw pandas
-DataFrames, concatenates them, harmonises column names, filters incomplete
-rows, imputes documented absences, caps herbivory outliers, standardises
-metabolite concentrations, validates the result against the JSON schema,
-writes the cleaned DataFrame to Parquet and records a SHA‑256 checksum in a
-JSON log.
-
-Missing `species_name` values are filled with the corresponding
-`species_id` (converted to string) rather than an arbitrary placeholder,
-ensuring that no fabricated biological information is introduced.
+DataFrames, concatenates them, harmonises column names, handles
+documented metabolite absences, filters incomplete rows, caps herbivory
+outliers, standardises metabolite concentrations, validates the result
+against the JSON schema, writes the cleaned DataFrame to Parquet and
+records a SHA‑256 checksum in a JSON log.
 """
 
 import json
@@ -58,9 +54,6 @@ COLUMN_MAP = {
 }
 
 # Columns that must be present and non‑missing for a row to be kept.
-# `species_name` is required by the JSON schema but is optional in the raw
-# data; we will fill missing values with the corresponding `species_id`
-# (as a string) after row filtering.
 REQUIRED_COLUMNS = [
     "species_id",
     "family",
@@ -113,18 +106,45 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
         raise ValueError("No raw dataframes provided to the preprocessing pipeline.")
 
     # ------------------------------------------------------------------
-    # 1. Concatenate and harmonise column names
+    # 1. Process each raw dataframe individually to detect per‑source
+    #    documented absences (i.e. columns that are completely missing from
+    #    that source).  We add temporary boolean columns
+    #    ``_absent_<metabolite>`` to remember which rows had a documented
+    #    absence.
     # ------------------------------------------------------------------
-    log.info("Concatenating %d raw dataframes.", len(raw_dataframes))
-    df = pd.concat(raw_dataframes, ignore_index=True, sort=False)
+    processed_frames = []
+    for idx, raw_df in enumerate(raw_dataframes):
+        # Apply column renaming (case‑insensitive)
+        rename_map = {}
+        for col in raw_df.columns:
+            canonical = COLUMN_MAP.get(col, None)
+            if canonical:
+                rename_map[col] = canonical
+        df = raw_df.rename(columns=rename_map)
 
-    # Apply column renaming (case‑insensitive)
-    rename_map = {}
-    for col in df.columns:
-        canonical = COLUMN_MAP.get(col, None)
-        if canonical:
-            rename_map[col] = canonical
-    df = df.rename(columns=rename_map)
+        # Track which metabolite columns are missing from this source
+        missing_mets = [m for m in METABOLITE_COLUMNS if m not in df.columns]
+        for met in missing_mets:
+            # Insert a column of zeros for the absent metabolite
+            df[met] = 0.0
+            # Record the documented absence for every row of this dataframe
+            df[f"_absent_{met}"] = True
+
+        # For metabolite columns that are present, create the absence flag
+        # column defaulting to False (will be overwritten later if needed)
+        for met in METABOLITE_COLUMNS:
+            if f"_absent_{met}" not in df.columns:
+                df[f"_absent_{met}"] = False
+
+        # Keep a source identifier (useful for debugging)
+        df["_source_idx"] = idx
+        processed_frames.append(df)
+
+    # ------------------------------------------------------------------
+    # 2. Concatenate all processed frames
+    # ------------------------------------------------------------------
+    log.info("Concatenating %d processed dataframes.", len(processed_frames))
+    df = pd.concat(processed_frames, ignore_index=True, sort=False)
 
     # Ensure all final columns exist; create missing columns as NaN.
     for col in FINAL_COLUMNS:
@@ -132,21 +152,9 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
             df[col] = np.nan
 
     # ------------------------------------------------------------------
-    # 2. Detect documented biological absence (entire column NaN)
-    # ------------------------------------------------------------------
-    documented_absent: List[str] = []
-    for met in METABOLITE_COLUMNS:
-        if df[met].isnull().all():
-            log.info(
-                "Metabolite column '%s' is entirely missing – treating as "
-                "documented biological absence and imputing zeros.",
-                met,
-            )
-            df[met] = 0.0
-            documented_absent.append(met)
-
-    # ------------------------------------------------------------------
-    # 3. Row‑wise filtering of missing required data (excluding species_name)
+    # 3. Row‑wise filtering of missing required data (excluding the
+    #    temporary absence‑flag columns).  True missing values in metabolite
+    #    columns cause the row to be dropped.
     # ------------------------------------------------------------------
     before_rows = df.shape[0]
     df = df.dropna(subset=REQUIRED_COLUMNS, how="any")
@@ -195,14 +203,22 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     df[METABOLITE_COLUMNS] = scaled
 
     # ------------------------------------------------------------------
-    # 7. Build the absence_indicator JSON column
+    # 7. Build the absence_indicator JSON column.
+    #    For each row we include only the metabolites whose
+    #    ``_absent_<met>`` flag is True.
     # ------------------------------------------------------------------
-    def build_indicator(_: pd.Series) -> str:
-        """Return a JSON string documenting documented absences."""
-        indicator = {met: "documented_absent" for met in documented_absent}
+    def build_indicator(row: pd.Series) -> str:
+        indicator = {}
+        for met in METABOLITE_COLUMNS:
+            if row.get(f"_absent_{met}", False):
+                indicator[met] = "documented_absent"
         return json.dumps(indicator)
 
     df["absence_indicator"] = df.apply(build_indicator, axis=1)
+
+    # Drop the temporary helper columns
+    temp_absence_cols = [f"_absent_{met}" for met in METABOLITE_COLUMNS] + ["_source_idx"]
+    df.drop(columns=temp_absence_cols, inplace=True, errors="ignore")
 
     # ------------------------------------------------------------------
     # 8. Validate against JSON schema (if present)

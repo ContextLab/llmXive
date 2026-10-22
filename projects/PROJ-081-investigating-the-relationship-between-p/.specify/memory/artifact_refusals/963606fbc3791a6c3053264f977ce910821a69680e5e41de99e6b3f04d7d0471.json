@@ -1,7 +1,0 @@
-{
-  "task_id": "T003",
-  "fingerprint": "43f01014eb40beb11b42a0efbf3ff356aaf4fc63cdfb01d5be12b3e3f91430de",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'code/src/correlation_analysis.py': unresolved names ['plot_correlation_heatmap'] \u2014 likely missing imports. Add the necessary `import` or `from ... import ...` statements."
-}
