@@ -38,36 +38,49 @@ def _write_checksums(files: List[Tuple[Path, str]], out_path: Path) -> None:
 def _download_pi_bench(raw_dir: Path, max_examples: Optional[int] = None) -> List[Tuple[Path, str]]:
     """
     Stream the official pi-Bench dataset into raw_dir as JSON files.
+    Tries multiple known identifiers to avoid 'Dataset scripts no longer supported' errors.
     """
-    dataset_name = "pi_bench"
+    # Try the requested ID first, then the author's namespace as a fallback
+    dataset_ids = ["pi_bench", "haoran-zhang/pi-bench"]
     
-    attempts = 3
     ds = None
-    for attempt in range(1, attempts + 1):
-        try:
-            log.info(f"Attempt {attempt} to load dataset '{dataset_name}' (streaming=True, trust_remote_code=True)")
-            # trust_remote_code=True is required for datasets that use loading scripts (like pi_bench)
-            ds = load_dataset(dataset_name, streaming=True, trust_remote_code=True)
-            # If it's a DatasetDict, we take the first available split (usually 'train')
-            if isinstance(ds, DatasetDict) or hasattr(ds, 'keys'):
-                split = next(iter(ds.keys()))
-                ds = ds[split]
+    last_exception = None
+
+    for dataset_id in dataset_ids:
+        attempts = 3
+        for attempt in range(1, attempts + 1):
+            try:
+                log.info(f"Attempt {attempt} to load dataset '{dataset_id}' (streaming=True, trust_remote_code=True)")
+                # trust_remote_code=True is essential for datasets using loading scripts
+                ds = load_dataset(dataset_id, streaming=True, trust_remote_code=True)
+                
+                # If it's a DatasetDict, take the first available split (usually 'train')
+                if isinstance(ds, DatasetDict) or hasattr(ds, 'keys'):
+                    split = next(iter(ds.keys()))
+                    ds = ds[split]
+                
+                # Test if the stream is actually working by trying to get one item
+                next(iter(ds))
+                log.info(f"Successfully connected to dataset '{dataset_id}'")
+                break
+            except Exception as exc:
+                last_exception = exc
+                log.warning(f"Failed to load {dataset_id} on attempt {attempt}: {exc}")
+                if attempt < attempts:
+                    time.sleep(2)
+        
+        if ds is not None:
             break
-        except Exception as exc:
-            log.warning(f"Failed to load dataset on attempt {attempt}: {exc}")
-            if attempt == attempts:
-                raise RuntimeError(
-                    f"Unable to load dataset '{dataset_name}' after {attempts} attempts. "
-                    "This may be due to network issues or the dataset being gated."
-                ) from exc
-            time.sleep(2)
+
+    if ds is None:
+        raise RuntimeError(
+            f"Unable to load pi-Bench dataset using tried IDs {dataset_ids}. "
+            f"Last error: {last_exception}"
+        ) from last_exception
 
     checksums: List[Tuple[Path, str]] = []
     
-    # We iterate through the streaming dataset and save each example as a separate JSON file.
-    # The "bundled checksums" for script-based datasets often apply to the source files 
-    # (e.g. .parquet) rather than the generated JSONs, so we generate a local manifest 
-    # for the derived raw files to ensure integrity during the pipeline.
+    # Iterate through the streaming dataset and save each example as a separate JSON file.
     for idx, example in enumerate(ds):
         if max_examples is not None and idx >= max_examples:
             break
@@ -112,14 +125,12 @@ def main() -> None:
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        # In CI, we might want to limit examples for speed, but for a real download, 
-        # we follow the max_examples arg.
         checksums = _download_pi_bench(raw_dir, max_examples=args.max_examples)
     except Exception as exc:
         log.error(f"Failed to download or process the pi-Bench dataset: {exc}")
         raise
 
-    # Write manifest
+    # Write basic manifest
     manifest_path = raw_dir / "download_manifest.txt"
     with manifest_path.open("w", encoding="utf-8") as mf:
         mf.write("pi_bench dataset downloaded via HuggingFace 'datasets' library\n")
