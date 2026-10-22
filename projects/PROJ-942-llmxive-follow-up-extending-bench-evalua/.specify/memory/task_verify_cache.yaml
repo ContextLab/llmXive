@@ -1,10 +1,9 @@
 T000:
   c: true
-  h: d518b5dd7f03801c583ced4525d334229592439fe2afad29d92ab2e8ca471875
-  r: "Checked `code/pipelines/install_dependencies.py` (installs requirements and\
-    \ calls `utils.seed.set_seeds`), `code/utils/seed.py` (sets seeds so the first\
-    \ NumPy random value after seed\u202F42 is 0.3745401188473625), and `tests/test_setup.py`\
-    \ (imports `datasets` and verifies the deterministic NumPy value). All required\
-    \ artifacts exist, are non\u2011empty, and their contents fulfill the task\u2019\
-    s specifications."
-  sig: b08d24b91f9a0b874433b0ad83f0a76e2ae029c7d9c453c62022130f0cc6176c
+  h: 5c78918e0c6d42a847f3839135dfee557ae626fdef1716182e183cbb196afea4
+  r: The `code/pipelines/install_dependencies.py` script is present and implements
+    pip installation plus seed initialization, the `code/utils/seed.py` module provides
+    a deterministic `set_seeds` function matching the reference value, and `tests/test_setup.py`
+    validates both the `datasets` importability and seed determinism. The supporting
+    wrapper `utils/seed.py` ensures the test can import `utils.seed` correctly.
+  sig: 0876da8d4511a0b0e393b533d1febabb8b465c4b1dd0f58a3593cf5ddc7f2611

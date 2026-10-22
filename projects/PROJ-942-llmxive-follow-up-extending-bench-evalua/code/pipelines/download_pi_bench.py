@@ -1,24 +1,24 @@
 """
 download_pi_bench.py
 
-Downloads the public π‑Bench dataset via the 🤗 datasets library, streams each
-example to a separate JSON file under the project's ``data/raw`` directory,
-computes a SHA‑256 checksum for each file, writes a manifest ``checksums.txt``,
-and retries the whole download up to three times on failure.
+Downloads the public π‑Bench dataset via the HuggingFace Hub, copies each
+JSON example to the project's ``data/raw`` directory, computes a SHA‑256
+checksum for each file, writes a manifest ``checksums.txt``, and retries
+the whole download up to three times on failure.
 
-The script is deliberately lightweight and CPU‑only – it does not require
-GPU resources.  It is invoked from the quick‑start wrapper at
+The script is invoked from the quick‑start wrapper at
 ``src/pipelines/download_pi_bench.py``.
 """
 
 import argparse
 import json
 import logging
+import shutil
 import time
 from pathlib import Path
 from typing import List, Tuple, Optional
 
-from datasets import load_dataset
+from huggingface_hub import snapshot_download
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -49,8 +49,8 @@ def _download_pi_bench(
     raw_dir: Path, max_examples: Optional[int] = None
 ) -> List[Tuple[Path, str]]:
     """
-    Stream the ``pi_bench`` dataset from the 🤗 Hub and write each example
-    as a JSON file.
+    Download the ``pi_bench`` dataset from the HuggingFace Hub and copy each
+    JSON example to ``raw_dir``.
 
     Parameters
     ----------
@@ -64,39 +64,38 @@ def _download_pi_bench(
     List[Tuple[Path, str]]
         List of ``(relative_path, checksum)`` for every written file.
     """
-    log.info("Starting download of the π‑Bench dataset via 🤗 datasets")
+    log.info("Starting download of the π‑Bench dataset via HuggingFace Hub")
+
+    # ``snapshot_download`` fetches the entire dataset repository locally.
+    # We restrict to JSON files only.
     try:
-        dataset = load_dataset("pi_bench", streaming=True)
+        repo_path = snapshot_download(
+            repo_id="pi_bench",
+            repo_type="dataset",
+            allow_patterns="*.json",
+            # Ensure we get a fresh copy each run (useful for CI)
+            revision="main",
+            cache_dir=str(paths.root / ".cache" / "huggingface"),
+        )
     except Exception as exc:
-        log.error(f"Failed to load π‑Bench via datasets: {exc}")
+        log.error(f"Failed to download pi_bench via huggingface_hub: {exc}")
         raise
 
-    # The streaming object yields dictionaries; we treat it as an iterable.
+    json_paths = sorted(Path(repo_path).rglob("*.json"))
+    if max_examples is not None:
+        json_paths = json_paths[:max_examples]
+
     checksums: List[Tuple[Path, str]] = []
-    for idx, example in enumerate(dataset):
-        if max_examples is not None and idx >= max_examples:
-            break
+    for src_path in json_paths:
+        dest_path = raw_dir / src_path.name
+        shutil.copyfile(src_path, dest_path)
 
-        # Derive a safe filename from a unique identifier in the example.
-        # The dataset typically provides a ``task_id`` field; fall back to an
-        # index‑based name if it is missing.
-        raw_id = example.get("task_id") or example.get("id") or f"example_{idx}"
-        safe_name = (
-            str(raw_id)
-            .replace("/", "_")
-            .replace("\\", "_")
-            .replace(" ", "_")
-        )
-        json_path = raw_dir / f"{safe_name}.json"
-        with json_path.open("w", encoding="utf-8") as jf:
-            json.dump(example, jf, ensure_ascii=False, indent=2)
-
-        rel_path = json_path.relative_to(raw_dir)
-        checksum = _sha256_checksum(json_path)
+        rel_path = dest_path.relative_to(raw_dir)
+        checksum = _sha256_checksum(dest_path)
         checksums.append((rel_path, checksum))
 
-        if (idx + 1) % 10 == 0:
-            log.debug(f"Wrote {idx + 1} π‑Bench examples")
+        if (len(checksums)) % 10 == 0:
+            log.debug(f"Wrote {len(checksums)} π‑Bench examples")
 
     log.info(f"Finished writing {len(checksums)} π‑Bench examples to {raw_dir}")
     return checksums
@@ -107,7 +106,7 @@ def _download_pi_bench(
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
-            "Download the public π‑Bench dataset, write each example as a JSON "
+            "Download the public π‑Bench dataset, copy each example as a JSON "
             "file, and produce a SHA‑256 checksum manifest."
         )
     )
@@ -155,7 +154,7 @@ def main() -> None:
     manifest_path = raw_dir / "download_manifest.txt"
     with manifest_path.open("w", encoding="utf-8") as mf:
         mf.write(
-            "π‑Bench dataset downloaded via 🤗 datasets (streaming mode).\n"
+            "π‑Bench dataset downloaded via huggingface_hub (snapshot_download).\n"
         )
 
     # Write checksum manifest.
