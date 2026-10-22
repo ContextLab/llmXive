@@ -8,18 +8,27 @@ properties:
     properties:
       file_path:
         type: string
+        description: "Path to the RSA CSV file."
       model_type:
         type: string
-        enum: ["brain_inspired", "baseline_transformer"]
+        enum:
+          - "brain_inspired"
+          - "baseline_transformer"
+        description: "Model whose representations were compared to neural data."
       roi:
         type: string
+        description: "Region of interest."
       similarity_metric:
         type: string
-        enum: ["pearson_correlation", "spearman_correlation"]
+        enum:
+          - "pearson_correlation"
+          - "spearman_correlation"
+        description: "Similarity metric used."
       shape:
         type: array
         items:
           type: integer
+        description: "Matrix dimensions [n_conditions, n_conditions]."
     required:
       - file_path
       - model_type
@@ -31,17 +40,22 @@ properties:
     properties:
       observed_difference:
         type: number
+        description: "Observed RSA difference (brain‑inspired minus baseline)."
       p_value:
         type: number
         minimum: 0
         maximum: 1
+        description: "Permutation test p‑value."
       permutations:
         type: integer
-        const: 2000
+        const: 10000
+        description: "Number of permutations performed."
       convergence_variance:
         type: number
+        description: "Variance of p‑value over last 1 000 permutations."
       is_significant:
         type: boolean
+        description: "True if p < 0.05 after Holm‑Bonferroni correction."
     required:
       - observed_difference
       - p_value

@@ -52,7 +52,7 @@ The researcher MUST be able to compute Representational Similarity Analysis (RSA
 **Acceptance Scenarios**:
 
 1. **Given** the model hidden states and fMRI timecourses are loaded, **When** the RSA script executes, **Then** it computes a Representational Similarity Matrix for the hippocampus and dorsolateral prefrontal cortex ROIs for both the brain‑inspired model and the baseline TinyBERT. RSA similarity is quantified using Spearman rank correlation (primary) with Pearson as a secondary check.
-2. **Given** the RSA distance matrices, **When** the permutation test runs with 10,000 permutations, **Then** it outputs a p‑value indicating whether the brain‑inspired model's similarity to human data is significantly greater than the baseline (p < 0.05). No early‑stopping is used; the full permutation set ensures an unbiased null distribution.
+2. **Given** the RSA distance matrices, **When** the permutation test runs with a sufficiently large number of permutations, **Then** it outputs a p‑value indicating whether the brain‑inspired model's similarity to human data is significantly greater than the baseline (p < 0.05). No early‑stopping is used; the full permutation set ensures an unbiased null distribution.
 3. **Given** the analysis is complete, **When** the plotting module runs, **Then** it generates a bar plot with confidence intervals comparing the RSA distances of both models, and a heatmap of the RSA matrix for the brain‑inspired model.
 
 ---
@@ -61,7 +61,7 @@ The researcher MUST be able to compute Representational Similarity Analysis (RSA
 
 - **Dataset Variable Fit**: What happens if the OpenNeuro ds001495 dataset lacks the specific precomputed masks for the dorsolateral prefrontal cortex? The system must fall back to a standard Harvard‑Oxford atlas coordinate definition. If the ROI cannot be defined via coordinates, the system halts with a clear error message: "ROI definition failed: neither precomputed mask nor Harvard‑Oxford coordinates available."
 - **Memory Overflow**: How does the system handle a subject's fMRI data that exceeds the GB RAM limit during loading? The system must implement chunked loading or subsampling of timepoints, explicitly logging the reduction factor.
-- **Permutation Test Convergence**: What happens if the permutation test fails to converge? Convergence is defined as p‑value variance < 0.001 over the last 1,000 permutations. If this condition is not met after the full 10,000 permutations, the system flags the result as "borderline" and logs the observed variance.
+- **Permutation Test Convergence**: What happens if the permutation test fails to converge? Convergence is defined as p‑value variance < 0.001 over the last 1,000 permutations. If this condition is not met after the full A substantial number of permutations., the system flags the result as "borderline" and logs the observed variance.
 - **Model Divergence**: How does the system handle a scenario where the sparse autoencoder fails to converge during the pattern separation training phase? The system must retry with a different random seed up to 3 times, then fail gracefully with a specific error code.
 
 ## Requirements
@@ -71,7 +71,7 @@ The researcher MUST be able to compute Representational Similarity Analysis (RSA
 - **FR-001**: System MUST download and preprocess the OpenNeuro ds001495 fMRI dataset, extracting BOLD timecourses for the left/right hippocampus and dorsolateral prefrontal cortex ROIs, ensuring all necessary variables (timecourses, subject IDs, story conditions) are present. This includes averaging BOLD signal per story event for RSA computation. (See US-1)
 - **FR-002**: System MUST implement a hippocampal‑like pattern separation layer using a sparse autoencoder that enforces a sparsity constraint (activation density ≤ 0.20) on narrative representations. (See US-2)
 - **FR-003**: System MUST implement a prefrontal gating module that modulates narrative element selection based on a coherence metric, achieving a StoryCoherence score ≥ 0.70. (See US-2)
-- **FR-004**: System MUST generate a substantial set of unique stories from the brain‑inspired model and a baseline quantized TinyBERT transformer (≈ 4.4 M parameters) model using the ROCStories corpus, ensuring both models operate within the ≤ 2 GB RAM limit on CPU. (See US-2)
+- **FR-004**: System MUST generate a substantial set of unique stories from the brain‑inspired model and a baseline quantized TinyBERT transformer (≈ a few M parameters) model using the ROCStories corpus, ensuring both models operate within the ≤ 2 GB RAM limit on CPU. (See US-2)
 - **FR-005**: System MUST compute Representational Similarity Analysis (RSA) matrices between model hidden states and human fMRI patterns for both the brain‑inspired and baseline models, using Spearman rank correlation as the primary similarity metric. (See US-3)
 - **FR-006**: System MUST perform a permutation test with **10,000** permutations to determine the statistical significance (p < 0.05) of the difference in RSA distances between the brain‑inspired model and the baseline. (See US-3)
 - **FR-007**: System MUST generate visualizations (RSA heatmaps, bar plots with confidence intervals) comparing the neural alignment of both models. (See US-3)

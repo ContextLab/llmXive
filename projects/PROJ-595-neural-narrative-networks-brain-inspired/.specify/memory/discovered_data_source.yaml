@@ -1,14 +1,13 @@
 status: none
-intent: download OpenNeuro ds001495 fMRI dataset python package and ROCStories corpus
-  huggingface dataset python package dataset
+intent: OpenNeuro ds001495 ROCStories Harvard-Oxford atlas dataset python package
+  dataset
 required_fields:
 - subject_id
-- roi
-- timecourse
-- event_timestamp
 - story_id
-- story_text
-- story_condition
-cache_key: 02da4e4501d2c706e7eae0fc2751ea5b199f8619a8bb74e408a998979de6a34e
-searched_at: '2026-10-22T14:30:15.214712+00:00'
+- event_onset
+- event_duration
+- roi_name
+- bold_timecourse_array
+cache_key: 3056c04996a52a1e9e57008845c6d3f67110c12a47f520442e698eaa0ae4b77e
+searched_at: '2026-10-22T15:03:50.069843+00:00'
 retry_count: 1
