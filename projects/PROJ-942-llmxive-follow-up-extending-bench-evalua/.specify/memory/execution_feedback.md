@@ -1,5 +1,13 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/pipelines/infer_missing_intents.py --input-csv data/derived/normalized_traces.csv --out-csv data/derived/inferred_intents.csv --seed 42`
+  - script usage: `infer_missing_intents.py [-h] --input-csv INPUT_CSV --out-csv OUT_CSV`
+  - argparse error: `infer_missing_intents.py: error: unrecognized arguments: --seed 42`
+
 ## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
 
 These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
@@ -14,25 +22,26 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 run-book script(s) missing (plan/impl path mismatch): python src/pipelines/build_intent_graph_llm.py  --input-csv data/derived/normalized_traces.csv  --out-dir data/derived/intent_graphs  --max-tokens $(cat data/derived/model_max_tokens.txt)  --seed 42  --latency-out data/derived/graph_construction_latency.csv; python src/pipelines/run_lightweight_agent.py  --graph-dir data/derived/intent_graphs  --seed $SEED  --out data/derived/inference_logs/lightweight_seed${SEED}.csv; python src/pipelines/run_raw_baseline.py  --raw-dir data/raw  --max-tokens $(cat data/derived/model_max_tokens.txt)  --seed $SEED  --out data/derived/inference_logs/raw_seed${SEED}.csv; 2 command(s) failed: python code/pipelines/download_pi_bench.py (rc=1); python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv (rc=1)
+**Summary**: 7 run-book script(s) missing (plan/impl path mismatch): python src/pipelines/build_intent_graph.py  --traces-csv data/derived/normalized_traces.csv  --inferred-csv data/derived/inferred_intents.csv  --out-dir data/derived/intent_graphs  --latency-out data/derived/graph_construction_latency.csv  --max-tokens 2048; python src/pipelines/build_intent_graph_gt.py  --traces-csv data/derived/normalized_traces.csv  --out-dir data/derived/intent_graphs_gt  --latency-out data/derived/graph_construction_latency.csv  --max-tokens 2048; python src/pipelines/run_lightweight_agent.py  --graph-dir data/derived/intent_graphs  --seed $SEED  --out data/derived/inference_logs/lightweight_seed${SEED}.csv; 3 command(s) failed: python code/pipelines/download_pi_bench.py (rc=1); python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv (rc=1); python code/pipelines/infer_missing_intents.py --input-csv data/derived/normalized_traces.csv --out-csv data/derived/inferred_intents.csv --seed 42 (rc=2)
 
 ## Failing / missing run-book commands
 
 - python code/pipelines/download_pi_bench.py -> rc=1
- raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'haoran-zhang/pi-bench' doesn't exist on the Hub or cannot be accessed.
+xive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/load.py", line 989, in dataset_module_factory
+    raise RuntimeError(f"Dataset scripts are no longer supported, but found {filename}")
+RuntimeError: Dataset scripts are no longer supported, but found piqa.py
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 146, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 165, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 128, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 145, in main
     checksums = _download_pi_bench(raw_dir, max_examples=args.max_examples)
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 76, in _download_pi_bench
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 91, in _download_pi_bench
     raise RuntimeError(
-RuntimeError: Unable to load pi-Bench dataset using tried IDs ['pi_bench', 'haoran-zhang/pi-bench']. Last error: Dataset 'haoran-zhang/pi-bench' doesn't exist on the Hub or cannot be accessed.
+RuntimeError: Unable to load any dataset for pi‑Bench download. Last error: Dataset scripts are no longer supported, but found piqa.py
 
 - python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv -> rc=1
 ^^^^^^^^^^^^^^^^^^^^^
@@ -49,15 +58,28 @@ RuntimeError: Unable to load pi-Bench dataset using tried IDs ['pi_bench', 'haor
     raise RuntimeError(f"Dataset scripts are no longer supported, but found {filename}")
 RuntimeError: Dataset scripts are no longer supported, but found pi_bench.py
 
-- python src/pipelines/build_intent_graph_llm.py  --input-csv data/derived/normalized_traces.csv  --out-dir data/derived/intent_graphs  --max-tokens $(cat data/derived/model_max_tokens.txt)  --seed 42  --latency-out data/derived/graph_construction_latency.csv -> rc=2
+- python code/pipelines/infer_missing_intents.py --input-csv data/derived/normalized_traces.csv --out-csv data/derived/inferred_intents.csv --seed 42 -> rc=2
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/pipelines/build_intent_graph_llm.py': [Errno 2] No such file or directory
+usage: infer_missing_intents.py [-h] --input-csv INPUT_CSV --out-csv OUT_CSV
+infer_missing_intents.py: error: unrecognized arguments: --seed 42
+
+- python src/pipelines/build_intent_graph.py  --traces-csv data/derived/normalized_traces.csv  --inferred-csv data/derived/inferred_intents.csv  --out-dir data/derived/intent_graphs  --latency-out data/derived/graph_construction_latency.csv  --max-tokens 2048 -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/pipelines/build_intent_graph.py': [Errno 2] No such file or directory
+
+- python src/pipelines/build_intent_graph_gt.py  --traces-csv data/derived/normalized_traces.csv  --out-dir data/derived/intent_graphs_gt  --latency-out data/derived/graph_construction_latency.csv  --max-tokens 2048 -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/pipelines/build_intent_graph_gt.py': [Errno 2] No such file or directory
 
 - python src/pipelines/run_lightweight_agent.py  --graph-dir data/derived/intent_graphs  --seed $SEED  --out data/derived/inference_logs/lightweight_seed${SEED}.csv -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/pipelines/run_lightweight_agent.py': [Errno 2] No such file or directory
 
-- python src/pipelines/run_raw_baseline.py  --raw-dir data/raw  --max-tokens $(cat data/derived/model_max_tokens.txt)  --seed $SEED  --out data/derived/inference_logs/raw_seed${SEED}.csv -> rc=2
+- python src/pipelines/run_lightweight_agent_gt.py  --graph-dir data/derived/intent_graphs_gt  --seed $SEED  --out data/derived/inference_logs/lightweight_gt_seed${SEED}.csv -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/pipelines/run_lightweight_agent_gt.py': [Errno 2] No such file or directory
+
+- python src/pipelines/run_raw_baseline.py  --raw-dir data/raw  --max-tokens 2048  --seed $SEED  --out data/derived/inference_logs/raw_seed${SEED}.csv -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/pipelines/run_raw_baseline.py': [Errno 2] No such file or directory
 
@@ -65,7 +87,7 @@ RuntimeError: Dataset scripts are no longer supported, but found pi_bench.py
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/pipelines/run_null_baseline.py': [Errno 2] No such file or directory
 
-- python src/pipelines/evaluate.py  --logs-dir data/derived/inference_logs  --graph-dir data/derived/intent_graphs  --graph-latency data/derived/graph_construction_latency.csv  --out-dir data/derived/eval_results -> rc=2
+- python src/pipelines/evaluate.py  --logs-dir data/derived/inference_logs  --graph-dir data/derived/intent_graphs  --graph-gt-dir data/derived/intent_graphs_gt  --graph-latency data/derived/graph_construction_latency.csv  --out-dir data/derived/eval_results -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/src/pipelines/evaluate.py': [Errno 2] No such file or directory
 

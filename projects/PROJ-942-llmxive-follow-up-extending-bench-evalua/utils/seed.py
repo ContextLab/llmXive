@@ -1,35 +1,32 @@
 """
-Proxy module for the project's reproducibility seed helper.
+Wrapper module that forwards calls to the implementation residing in
+``code/utils/seed.py``.
 
-The original implementation lives in ``code/utils/seed.py``.  This file
-imports the real functions and constants and re‑exports them under the
-top‑level ``utils`` package, satisfying test imports such as::
-
-    from utils.seed import set_seeds
-
-No additional logic is introduced – all behaviour (including the
-deterministic NumPy value) is delegated to the original implementation.
+The project’s source code stores the real implementation under the
+``code/utils`` package.  Tests and external scripts expect to import
+``utils.seed`` directly from the repository root.  This thin wrapper simply
+re‑exports the functions from the original module, preserving the public API
+without duplicating logic.
 """
 
-# Import the actual implementation from the code directory.
+# The implementation lives in ``code/utils/seed.py``.  Import it and expose
+# the same public names.
 from importlib import import_module
-import os
 import sys
 from pathlib import Path
 
-# Ensure the repository's ``code`` directory is on ``sys.path``.
-# This mirrors the logic used in ``code/pipelines/install_dependencies.py``.
+# Ensure the ``code`` directory is on ``sys.path`` so the import works even
+# when this wrapper is imported before any other project code has adjusted the
+# path (e.g., during the test suite execution).
 _code_dir = Path(__file__).resolve().parents[1] / "code"
 if str(_code_dir) not in sys.path:
     sys.path.insert(0, str(_code_dir))
 
-# Load the original module.
-_orig = import_module("utils.seed")  # This resolves to ``code/utils/seed.py`` after the path tweak.
+_impl = import_module("utils.seed")  # actually loads ``code/utils/seed.py``
 
-# Re‑export the public API.
-DEFAULT_SEED = getattr(_orig, "DEFAULT_SEED")
-set_seeds = getattr(_orig, "set_seeds")
-get_seed_state_summary = getattr(_orig, "get_seed_state_summary")
+# Re‑export the public symbols expected by the test suite.
+set_seeds = _impl.set_seeds
+get_seed_state_summary = _impl.get_seed_state_summary
+DEFAULT_SEED = _impl.DEFAULT_SEED
 
-# Preserve the module's ``__all__`` for tidy imports.
-__all__ = ["DEFAULT_SEED", "set_seeds", "get_seed_state_summary"]
+__all__ = ["set_seeds", "get_seed_state_summary", "DEFAULT_SEED"]

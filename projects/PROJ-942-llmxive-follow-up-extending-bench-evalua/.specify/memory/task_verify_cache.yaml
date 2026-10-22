@@ -1,19 +1,8 @@
 T000:
   c: true
-  h: b2045eaee0ec626d0db36fd0af7142f1f908b7abb16cd75f2708641c623232c9
-  r: 'The required artifacts all exist and are substantive: `code/pipelines/install_dependencies.py`
-    installs from `requirements.txt` and calls `set_seeds()`, `code/utils/seed.py`
-    seeds random/numpy/torch and pins PYTHONHASHSEED, and `tests/test_setup.py` asserts
-    package importability plus the deterministic value 0.3745401188473625 (which is
-    genuinely the first `np.random.rand()` after `np.random.seed(42)`). The top-level
-    `utils/seed.py` proxy correctly re-exports the implementation so the test import
-    resolves.'
-  sig: eae6a0c4d731d223827301e08e395f708562c6aac6f12b196e0d5ff2ade752f9
-T002:
-  c: false
-  h: b53a982fdbe02713cbca4f9b6662065ec83b7934508e192ca649da02683cdf78
-  r: Checked `code/pipelines/parse_traces.py` (exists and implements parsing) and
-    `tests/test_parse_traces.py` (tests the script on a temporary directory). The
-    required output artifact `data/derived/normalized_traces.csv` is missing, so the
-    script does not demonstrably produce the CSV at the specified location.
-  sig: db4bfa6f903082e428787b6707d0b31092de7638eb01c3f16e418559a81fbe54
+  h: b3abfe0bd02f968b3f71d535ea12ea288dbabae5e4f469f9082b417c4f653c15
+  r: Checked `code/pipelines/install_dependencies.py`, `code/utils/seed.py`, and `tests/test_setup.py`;
+    the install script exists and calls the seed helper, the seed module implements
+    deterministic seeding, and the test file correctly verifies the `datasets` import
+    and the expected NumPy random value.
+  sig: 4c62ae51b0ed6f8a2c59db100d2d2ab9219d2da906b0a384a2693971b35fa53b

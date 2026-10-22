@@ -1,21 +1,4 @@
-# Core dependencies (already provided in the environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependencies required for this project
-# Pinning pyarrow < 17.0.0 to maintain compatibility with numpy 1.26.x
-datasets
-pyarrow<17.0.0
-tqdm
-torch
-transformers
+# Project dependencies
+datasets>=2.14.0
+pyarrow>=12.0.0
+# Existing base dependencies are provided by the platform (numpy, pandas, etc.)

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T11:30:28.145763Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-942-llmxive-follow-up-extending-bench-evalua
-last_run_id: 6d4190c0-9476-4e3b-96b4-e884aead39bd
+last_run_id: 58e9e2f3-abb5-4e3b-8ba4-536ab1d2fce4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/specs/001-llmxive-follow-up-extending-bench-evalua
 title: "llmXive follow-up: extending \"$\u03C0$-Bench: Evaluating Proactive Personal\
   \ Assistant Agents in Long-Hori\""
-updated_at: '2026-10-22T11:34:37.104488Z'
+updated_at: '2026-10-22T11:36:42.240133Z'
