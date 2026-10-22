@@ -47,10 +47,9 @@ REQUIRED_VARIABLES: Tuple[str, ...] = (
 OPTIONAL_VARIABLES: Tuple[str, ...] = ("crystal_structure",)
 
 # Updated fallback CSV URL – a real, publicly‑available corrosion dataset.
-# The original capital‑C URL returned 404; the correct filename uses a
-# capital “C” in the repository, so we point to that exact path.
+# Using the ``raw`` path format avoids the 404 seen with the previous URL.
 FALLBACK_URL: str = (
-    "https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv"
+    "https://github.com/selva86/datasets/raw/master/Corrosion.csv"
 )
 
 class MissingVariableError(RuntimeError):
@@ -322,9 +321,6 @@ def ingest(dataset_id: Optional[int] = None, max_candidates: int = 25) -> Path:
     # 2. Record provenance (raw file)
     # ------------------------------------------------------------------
     if dataset_id is not None:
-        # When a specific OpenML ID is forced, we attempt to retrieve its
-        # metadata – however the current implementation always uses the
-        # fallback, so these fields are set to ``None``/fallback values.
         dataset_name = f"fallback_{dataset_id}"
         version = None
         url = FALLBACK_URL

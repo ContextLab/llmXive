@@ -10,10 +10,10 @@ and success criteria (SC‑001 – SC‑007).
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [X] T013 [P] [US1] Create `src/requirements.txt` (mirrored in `code/requirements.txt`) pinning exact dependency versions required by the project.  
+- [ ] T013 [P] [US1] Create `src/requirements.txt` (mirrored in `code/requirements.txt`) pinning exact dependency versions required by the project.  
   *Verification*: `pip install -r src/requirements.txt` and `pip install -r code/requirements.txt` both succeed; the two files are byte‑identical.
 
-- [ ] T015 [P] [US1] Author `quickstart.md` in the feature’s spec directory documenting the single command to run the full workflow (`python -m src.pipeline.run_all`) and the pytest command (`pytest src/tests/`).  
+- [X] T015 [P] [US1] Author `quickstart.md` in the feature’s spec directory documenting the single command to run the full workflow (`python -m src.pipeline.run_all`) and the pytest command (`pytest src/tests/`).  
   *Verification*: `quickstart.md` exists, contains the exact commands, and the commands execute once the pipeline code is functional.
 
 - [ ] T001 [US1] **Data acquisition & provenance** – Implement `src/pipeline/ingest.py` to download a deterministic public corrosion dataset from Zenodo (e.g., DOI [UNRESOLVED-CLAIM: 10.5281/zenodo.1234567 — HTTP 404]) and save the raw CSV to `data/raw/zenodo_corrosion.csv`. Create a provenance file `metadata/dataset.yaml` containing DOI, URL, SHA‑256 checksum, download timestamp, and column list.   <!-- FAILED-IN-EXECUTION: code/run_ingest.sh exit=1; code/run_pipeline.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_ingest.sh exit=1; code/run_pipeline.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_ingest.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_ingest.sh exit=1; code/run_pipeline.sh exit=1 -->

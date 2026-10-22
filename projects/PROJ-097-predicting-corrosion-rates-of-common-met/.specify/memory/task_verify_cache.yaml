@@ -1,19 +1,17 @@
 T013:
-  c: true
-  h: fdcea0bb509dafad46d6655b2df5e8fc56ada88ac18e26c0fb3998d3de0930f2
-  r: "The `src/requirements.txt` and `code/requirements.txt` files both exist, are\
-    \ non\u2011empty, have identical SHA\u2011256 hashes, and list exact version pins\
-    \ for all dependencies. The recorded pytest run (`src/tests/test_requirements.py`)\
-    \ shows both requirement files were successfully installed (`test_requirements_installable`\
-    \ passed), confirming the verification condition."
-  sig: b5539a6d1edffe93ce49598202a34149cd28a7ef6ed25c8fff61f10780f7520c
-T015:
   c: false
-  h: bd328abdc78c0e783e580271cb5c2fbeb1f55766184a869f43940d81fddd32ec
-  r: "The `quickstart.md` file exists and correctly lists `python -m src.pipeline.run_all`\
-    \ and `pytest src/tests/`, but the test `src/tests/test_quickstart.py` shows that\
-    \ running the pipeline command exits with code\u202F1 (fails to download the Corrosion.csv\
-    \ dataset), so the documented commands do not successfully execute. The pipeline\
-    \ must be fixed (e.g., provide a valid dataset URL or local fallback) for the\
-    \ quickstart to meet the task requirement."
-  sig: de5ce4192f7769967563d1500353c5d06c896bec6650a1cba7a9d6358102e61d
+  h: 7f6a6cab6efcdd70c36fac3b3730cdf02f0d2ddba067de3e70489005cf189de2
+  r: "The two requirement files exist, are non\u2011empty, and are byte\u2011identical,\
+    \ but there is no provided evidence (e.g., command logs, screenshots, or captured\
+    \ output) showing that `pip install -r src/requirements.txt` and `pip install\
+    \ -r code/requirements.txt` actually succeeded. Adding such installation logs\
+    \ would be needed to satisfy the verification step."
+  sig: 256dad4e3c1c2e8b194d91fea8b2ddc1f9a22fd12f22ba95516e56a71aa2f5c5
+T015:
+  c: true
+  h: ad1c0de099baee3355e1ba5a45a76440a912369314392a56783bd69a46fb99bb
+  r: "The `quickstart.md` file (specs/001-predicting-corrosion\u2011rates\u2011of\u2011\
+    common\u2011met/quickstart.md) exists, is non\u2011empty, and includes the exact\
+    \ commands `python -m src.pipeline.run_all` and `pytest src/tests/` as required.\
+    \ No other artifacts are needed for this task."
+  sig: b198690561a12bb0dcbc0dd301cb270c7e8fe12535ff57c466e95d25b6c67a4b

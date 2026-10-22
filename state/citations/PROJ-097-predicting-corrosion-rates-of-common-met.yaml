@@ -1,4 +1,4 @@
-- artifact_hash: 921f69e251f9fea2df0a7928f0cb08626f1e89ac2537b8f275d84f200cf62a06
+- artifact_hash: f168f6ced7b0a21c95f10898ddd086e628e099ece2c2dd5059806b03df62d139
   artifact_path: projects/PROJ-097-predicting-corrosion-rates-of-common-met/specs/001-predicting-corrosion-rates-of-common-met/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: 10.5281/zenodo.1234567
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
-  verified_at: '2026-10-22T20:29:30.519470Z'
+  verified_at: '2026-10-22T21:19:02.775797Z'
