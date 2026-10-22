@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-10-21T22:05:09.773381+00:00'
+last_used: daniel-kahneman
+last_used_at: '2026-10-22T00:07:25.904636+00:00'
 last_outcome: committed
 history:
-- slug: freeman-dyson
-  started_at: '2026-06-28T16:31:16.836782+00:00'
-  ended_at: '2026-06-28T16:56:01.952009+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-257-investigating-the-statistical-properties/reviews/research/freeman-dyson-simulated__2026-06-28__research.md
 - slug: geoffrey-west
   started_at: '2026-06-28T16:56:01.952009+00:00'
   ended_at: '2026-06-28T17:30:54.861351+00:00'
@@ -1338,3 +1331,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/reviews/research/dan-rockmore-simulated__2026-10-21__research.md
+- slug: daniel-kahneman
+  started_at: '2026-10-21T22:05:09.773381+00:00'
+  ended_at: '2026-10-22T00:07:25.904636+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-249-the-impact-of-digital-decluttering-on-co/reviews/research/daniel-kahneman-simulated__2026-10-22__research.md
