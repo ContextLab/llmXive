@@ -1,4 +1,15 @@
-- artifact_hash: a311d6e976106d01b3c5a2b31571ed866a85cc3c494f1c68f9c043e97b120961
+- artifact_hash: 2a8af3402ec72f0693521b8aa9d4727526162529921713aa0cba33a92c4cf77b
+  artifact_path: projects/PROJ-081-investigating-the-relationship-between-p/specs/001-investigating-the-relationship-between-p/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/khaoula-ghz/guanaco-llama2-5k/resolve/main/data/train-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a0723fe70997bc2b09a63dd/eab67fc7d6559e2764ebe59049d7a9a412714aa324dde82a33ba9e798dfa490b?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&xip=ZotkrtynzrA&Expires=1792708525&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmEwNzIzZmU3MDk5N2JjMmIwOWE2M2RkL2VhYjY3ZmM3ZDY1NTllMjc2NGViZTU5MDQ5ZDdhOWE0MTI3MTRhYTMyNGRkZTgyYTMzYmE5ZTc5OGRmYTQ5MGJcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmeGlwPVpvdGtydHluenJBIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI3MDg1MjV9fX1dfQ__&Signature=MEUCID2ykhBtYlpr4MA4Yu1iGQWFzc5mJg%7ENKYCDGXhqXOu1AiEA09Ksa57ocQ3A4NpOjv0moiygB7xfY5BE7RX99H0nDbQ_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-22T21:35:25.393013Z'
+- artifact_hash: 95ec5382afc382d4b0159cb6e4280cbeb8c458aeab4927ff3a7a460a5720e8f2
   artifact_path: projects/PROJ-081-investigating-the-relationship-between-p/specs/001-investigating-the-relationship-between-p/research.md
   cite_id: c-001
   cited_authors: []
@@ -7,9 +18,9 @@
   kind: url
   value: https://huggingface.co/datasets/khaoula-ghz/guanaco-llama2-5k/resolve/main/data/train-00000-of-00001.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a0723fe70997bc2b09a63dd/eab67fc7d6559e2764ebe59049d7a9a412714aa324dde82a33ba9e798dfa490b?user_id=public&xip=ME8btYNylFI&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1792452312&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmEwNzIzZmU3MDk5N2JjMmIwOWE2M2RkL2VhYjY3ZmM3ZDY1NTllMjc2NGViZTU5MDQ5ZDdhOWE0MTI3MTRhYTMyNGRkZTgyYTMzYmE5ZTc5OGRmYTQ5MGJcXD91c2VyX2lkPXB1YmxpYyZ4aXA9TUU4YnRZTnlsRkkmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI0NTIzMTJ9fX1dfQ__&Signature=MEUCICFOsh6dmPEGvTc8RzSZ%7Es8hnhFMAjPapM%7EXVoC3OJw8AiEA-Ti96QHbBlxeTChX6QtBKB6R0bJLdtFd4MAmC6Ovm8k_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-19T22:25:12.078122Z'
-- artifact_hash: 7e321383443318e35103d83149d1e991a6b704715ff52377a0939787358351d9
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a0723fe70997bc2b09a63dd/eab67fc7d6559e2764ebe59049d7a9a412714aa324dde82a33ba9e798dfa490b?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&xip=ZotkrtynzrA&Expires=1792708543&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmEwNzIzZmU3MDk5N2JjMmIwOWE2M2RkL2VhYjY3ZmM3ZDY1NTllMjc2NGViZTU5MDQ5ZDdhOWE0MTI3MTRhYTMyNGRkZTgyYTMzYmE5ZTc5OGRmYTQ5MGJcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmeGlwPVpvdGtydHluenJBIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI3MDg1NDN9fX1dfQ__&Signature=MEUCIQCTJrBpz-yqX2WwAc44HK2DlUMTw-4GLKk7FjhB6JFEowIgW5A5mx%7E0pY80imuAf8ZA1AnKxj98Mb%7EPhO4KDwVNcHM_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-22T21:35:43.080650Z'
+- artifact_hash: 9cf24fcc4957ae904eafb74d0c9be982dd8a95c6a51f5f09d72c53113d3f7398
   artifact_path: projects/PROJ-081-investigating-the-relationship-between-p/specs/001-investigating-the-relationship-between-p/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +30,4 @@
   value: https://github.com/your-org/your-repo.git
   verification_status: pending
   verified_against_url: https://github.com/your-org/your-repo
-  verified_at: '2026-10-19T22:25:25.341567Z'
+  verified_at: '2026-10-22T21:36:37.502007Z'
